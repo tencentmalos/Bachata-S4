@@ -46,14 +46,23 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install NDK / CMake / build-tools
+      - name: Install NDK / CMake / build-tools / platform
         run: |
           yes | sdkmanager --licenses >/dev/null 2>&1 || true
-          sdkmanager --install \
-            "platforms;android-37" \
-            "build-tools;36.0.0" \
-            "ndk;30.0.14904198" \
-            "cmake;3.22.1"
+          sdkmanager --install "build-tools;36.0.0" "ndk;30.0.14904198" "cmake;3.22.1"
+          # compileSdk 37 may only be in a preview channel on this runner image.
+          if ! sdkmanager --install "platforms;android-37"; then
+            for ch in 1 2 3; do
+              echo "::group::Trying channel $ch for platforms;android-37"
+              yes | sdkmanager --channel=$ch --licenses >/dev/null 2>&1 || true
+              if sdkmanager --channel=$ch --install "platforms;android-37"; then
+                echo "installed from channel $ch"; break
+              fi
+              echo "::endgroup::"
+            done
+          fi
+          echo "=== installed platforms ==="
+          sdkmanager --list_installed 2>/dev/null | grep -i 'platforms;android' || true
 
       - name: Build fdroid release (unsigned)
         working-directory: android/BachataS4
