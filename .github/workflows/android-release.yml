@@ -37,6 +37,15 @@ jobs:
       - name: Init libadrenotools submodule (only one the APK needs)
         run: git submodule update --init --recursive externals/winlator-app
 
+      - name: Vendor Vortek server sources (runtime/sources/winlator-app @ pinned rev)
+        run: |
+          chmod +x runtime/scripts/checkout-component.sh
+          runtime/scripts/checkout-component.sh \
+            winlator-app \
+            https://github.com/brunodev85/winlator-app.git \
+            e113da42beefc39c69c8944b27c19c3703bfa856
+          test -f runtime/sources/winlator-app/app/src/main/cpp/vortekrenderer/src/request_handler.c
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
