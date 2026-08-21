@@ -25,6 +25,9 @@ SPDX-License-Identifier: GPL-2.0-or-later
   <a href="https://github.com/JICA98/Bachata-S4/releases">
     <img alt="GitHub release downloads" src="https://img.shields.io/github/downloads/JICA98/Bachata-S4/total?style=for-the-badge&label=Downloads">
   </a>
+  <a href="https://t.me/bachatas4emulator">
+    <img alt="Join Bachata S4 on Telegram" src="https://img.shields.io/badge/Telegram-Join_chat-26A5E4?style=for-the-badge&logo=telegram&logoColor=white">
+  </a>
 </p>
 <p align="center">
   <a href="https://bachatas4.games/">
