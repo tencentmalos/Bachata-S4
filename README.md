@@ -8,27 +8,31 @@ SPDX-License-Identifier: GPL-2.0-or-later
 </p>
 
 <h1 align="center">Bachata S4</h1>
-
 <p align="center">
   <strong>Experimental PlayStation 4 emulation for ARM64 Android devices.</strong>
   <br>
   Powered by <a href="https://github.com/shadps4-emu/shadPS4">shadPS4</a>,
   FEX, a managed Linux runtime, and Vulkan.
 </p>
+
 <p align="center">
   <a href="https://play.google.com/store/apps/details?id=com.bachatas4.android">
-    <img alt="Get Bachata S4 on Google Play" src="https://img.shields.io/badge/Google_Play-Get_the_app-414141?style=for-the-badge&logo=googleplay&logoColor=white">
-  </a>
+  <img
+    alt="Bachata S4 Google Play version"
+    src="https://img.shields.io/endpoint?url=https%3A%2F%2Fplay.rajkumaar.co.in%2Fversion%3Fid%3Dcom.bachatas4.android&style=for-the-badge&label=Google%20Play"
+  >
+</a>
   <a href="https://github.com/JICA98/Bachata-S4/releases">
-    <img alt="Latest GitHub release" src="https://img.shields.io/github/v/release/JICA98/Bachata-S4?include_prereleases&sort=semver&style=for-the-badge">
-  </a>
-  <a href="https://github.com/JICA98/Bachata-S4/releases">
-    <img alt="GitHub release downloads" src="https://img.shields.io/github/downloads/JICA98/Bachata-S4/total?style=for-the-badge&label=Downloads">
-  </a>
+  <img
+    alt="Latest GitHub release"
+    src="https://img.shields.io/github/v/release/JICA98/Bachata-S4?include_prereleases&sort=semver&style=for-the-badge&logo=github&logoColor=white&label=GitHub"
+  >
+</a>
   <a href="https://t.me/bachatas4emulator">
     <img alt="Join Bachata S4 on Telegram" src="https://img.shields.io/badge/Telegram-Join_chat-26A5E4?style=for-the-badge&logo=telegram&logoColor=white">
   </a>
 </p>
+
 <p align="center">
   <a href="https://bachatas4.games/">
     <img alt="Live compatibility database" src="https://img.shields.io/badge/Compatibility-Live_database-6f42c1?style=flat-square">
@@ -39,6 +43,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
     <img alt="GPL-2.0-or-later" src="https://img.shields.io/github/license/JICA98/Bachata-S4?style=flat-square">
   </a>
 </p>
+
 <p align="center">
   <a href="https://bachatas4.games/">Compatibility</a>
   ·
@@ -50,17 +55,25 @@ SPDX-License-Identifier: GPL-2.0-or-later
   ·
   <a href="https://github.com/JICA98/Bachata-S4-Compatibility">Compatibility data</a>
 </p>
+
 > [!IMPORTANT]
-> Bachata S4 is in early experimental development. Compatibility and performance vary by
-> game, emulator release, phone, Android version, thermal state, and selected graphics
-> driver. Bachata S4 does not include games, firmware, keys, licenses, or copyrighted
-> console files. Use only software and content you legally own.
+> **Bachata S4 is experimental software.**
+>
+> Compatibility and performance can vary significantly by game, emulator release, device,
+> Android version, thermal state, and selected graphics driver. A game reaching gameplay
+> on one configuration does **not** guarantee that it will work on another.
+>
+> Bachata S4 does **not** distribute games, firmware, decryption keys, licenses, or other
+> copyrighted console files. You must provide and use only software and content that you
+> legally own or are otherwise legally entitled to use.
 
 ---
+
 ## What is Bachata S4?
 
 Bachata S4 adapts the [shadPS4](https://github.com/shadps4-emu/shadPS4) emulator
 for modern ARM64 Android devices. It combines:
+
 - the **shadPS4 emulator core**;
 - **FEX-based x86-64 guest execution** on ARM64 hardware;
 - a reproducibly built, managed **Debian/glibc runtime**;
@@ -69,11 +82,13 @@ for modern ARM64 Android devices. It combines:
   explicitly selected custom driver;
 - a mobile game library, per-game settings, touch controls, and physical-controller
   support.
+
 The Android frontend is located in [`android/BachataS4`](android/BachataS4).
 Runtime inputs and pinned upstream revisions are maintained under
 [`runtime/locks`](runtime/locks).
 
 ---
+
 ## 🎮 Game compatibility
 
 Compatibility is evidence-based and specific to the exact emulator release, device, GPU,
@@ -88,7 +103,7 @@ Structured report data, screenshots, and compressed logs are maintained separate
 
 <!-- compatibility-games-start -->
 | Screenshot | Game | Serial | Status | Latest recorded result | Compatibility / discussion |
-|---|---|---:|---|---|---|
+|---|---|---|---|---|---|
 | <a href="https://bachatas4.games/compatibility.html?game=CUSA00900"><img src="https://raw.githubusercontent.com/JICA98/Bachata-S4-Compatibility/main/assets/CUSA00900/20260801T163245Z-v0-1-6-oneplus-13-snapdragon-8-elite-mesa-turnip-26-3-0-devel/screenshots/01.webp" alt="Bloodborne screenshot" width="160"></a> | **Bloodborne** | `CUSA00900` | 🟢 **In-game** | Reaches controllable gameplay in Hunter's Dream. Recorded Turnip test averaged 21.03 FPS, with 17–30 FPS observed during gameplay. | [Live report](https://bachatas4.games/compatibility.html?game=CUSA00900) · [Issue #2](https://github.com/JICA98/Bachata-S4/issues/2) |
 | <a href="https://bachatas4.games/compatibility.html?game=CUSA08692"><img src="https://raw.githubusercontent.com/JICA98/Bachata-S4-Compatibility/main/assets/CUSA08692/20260802T043608Z-v0-1-6-oneplus-13-snapdragon-8-elite-mesa-turnip-26-3-0-devel/screenshots/01.webp" alt="Dark Souls Remastered screenshot" width="160"></a> | **Dark Souls: Remastered** | `CUSA08692` | 🟢 **In-game** | Reaches controllable gameplay in Undead Asylum at roughly 24–30 FPS on the recorded Turnip configuration. | [Live report](https://bachatas4.games/compatibility.html?game=CUSA08692) · [Issue #3](https://github.com/JICA98/Bachata-S4/issues/3) |
 | <a href="https://bachatas4.games/compatibility.html?game=CUSA07023"><img src="https://raw.githubusercontent.com/JICA98/Bachata-S4-Compatibility/main/assets/CUSA07023/20260802T094302Z-v0-1-6-oneplus-13-snapdragon-8-elite-vortek-system-driver-0800-74/screenshots/01.webp" alt="Sonic Mania screenshot" width="160"></a> | **Sonic Mania** | `CUSA07023` | 🟢 **In-game** | Reaches Green Hill Zone Act 1 at ~60 FPS in the recorded Vortek test. | [Live report](https://bachatas4.games/compatibility.html?game=CUSA07023) · [Issue #4](https://github.com/JICA98/Bachata-S4/issues/4) |
@@ -119,16 +134,19 @@ Structured report data, screenshots, and compressed logs are maintained separate
 <!-- compatibility-status-table-end -->
 
 ### Status meanings
+
 | Status | Meaning |
 |---|---|
 | **Playable** | Suitable for normal play in the tested configuration, with no major blocker found. |
 | **In-game** | Reaches controllable gameplay, but completion and full stability are not verified. |
 | **Menus** | Reaches menus or title screens but not controllable gameplay. |
-| **Boots** | Starts and produces meaningful visual or audio output before an early blocker. |
+| **Boots** | Starts and produces meaningful output before an early blocker. |
 | **Nothing** | Crashes, hangs, or fails to produce useful output in the tested configuration. |
 
 ---
+
 ## How the Android runtime works
+
 ```mermaid
 flowchart LR
     A["User-owned PS4 homebrew or legal dump"] --> B["Bachata S4 Android frontend"]
@@ -142,11 +160,14 @@ flowchart LR
     B --> I["Touch controls / physical controller"]
     B --> J["Android display, audio and lifecycle integration"]
 ```
+
 Every compatibility report records the active backend and driver. Performance from one
 phone or driver must not be generalized to every Android device.
 
 ---
+
 ## Features
+
 - PS4 emulation frontend designed for **ARM64 Android**
 - shadPS4 core integrated with an Android-focused runtime
 - FEX guest execution for x86-64 workloads
@@ -161,7 +182,9 @@ phone or driver must not be generalized to every Android device.
 - Screenshot- and log-backed public testing workflow
 - Google Play and source-built distribution paths
 - Open-source code under GPL-2.0-or-later
+
 ---
+
 ## Requirements
 
 | Item | Requirement |
@@ -172,10 +195,12 @@ phone or driver must not be generalized to every Android device.
 | Recommended hardware | Recent high-end Snapdragon/Adreno device |
 | Storage | Sufficient space for the app, runtime, shaders, and user-provided content |
 | Content | User-owned homebrew or legally dumped software only |
+
 Compatibility can differ substantially between devices that appear similar. Check reports
 from the same SoC, GPU generation, Android version, and driver family whenever possible.
 
 ---
+
 ## Download
 
 ### Google Play — recommended
@@ -184,7 +209,8 @@ The supported Google Play build is the easiest installation path and directly su
 continued development, device testing, and compatibility work.
 
 **[Install Bachata S4 from Google Play](https://play.google.com/store/apps/details?id=com.bachatas4.android)**
-### GitHub Releases
+
+### GitHub
 
 Source-linked project builds, release notes, checksums, and downloadable artifacts are
 available under **[GitHub Releases](https://github.com/JICA98/Bachata-S4/releases)**.
@@ -194,20 +220,23 @@ available under **[GitHub Releases](https://github.com/JICA98/Bachata-S4/release
 > Play installations.
 
 ---
+
 ## Quick start
+
 1. Install Bachata S4 from Google Play or a trusted project release.
 2. Open the app and complete the initial runtime setup.
 3. Select the graphics driver appropriate for the device.
 4. Import user-owned homebrew or a legally dumped title.
 5. Launch the title and allow initial shader or pipeline compilation to complete.
-6. Compare the result with the
-   [live compatibility database](https://bachatas4.games/).
+6. Compare the result with the [live compatibility database](https://bachatas4.games/).
 7. When reporting a problem, include the Bachata S4 release, phone, Android version,
    selected driver, reproduction steps, and sanitized session log.
+
 Bachata S4 does not provide PS4 games, firmware, licenses, decryption keys, or copyrighted
 system files.
 
 ---
+
 ## Graphics-driver policy
 
 Turnip drivers are **not bundled inside the APK**. They are installed after application
@@ -216,10 +245,12 @@ setup from the project’s trusted driver feed or imported from a local compatib
 The exact driver name, version, build, and source must be recorded in compatibility
 reports. A filename, Vulkan API version, Android version, or GPU model is not a substitute
 for the actual Turnip version.
+
 See [`documents/android-building.md`](documents/android-building.md) for the maintained
 runtime and packaging rules.
 
 ---
+
 ## Compatibility data architecture
 
 The website frontend remains in this repository, while compatibility evidence is stored
@@ -231,6 +262,7 @@ JICA98/Bachata-S4
 ├── scripts/compatibility/               # Capture helper
 ├── .agents/skills/bachata-compatibility/
 └── .github/workflows/compatibility-pages.yml
+
 JICA98/Bachata-S4-Compatibility
 ├── games/
 │   └── CUSAxxxxx/
@@ -245,11 +277,13 @@ JICA98/Bachata-S4-Compatibility
     ├── validate.py
     └── build_site_data.py
 ```
+
 The homepage loads a compact generated index grouped by CUSA ID. Full history is loaded
 only when a user opens a title, preventing duplicate cards and keeping the site responsive
 as reports grow.
 
 ---
+
 ## Submit a compatibility report
 
 Use
@@ -257,6 +291,7 @@ Use
 for the complete agent workflow.
 
 The workflow:
+
 1. Searches for or creates one canonical game issue in `JICA98/Bachata-S4`.
 2. Creates a dedicated branch and Git worktree for `Bachata-S4-Compatibility`.
 3. Selects the exact ADB device, Bachata release, and graphics driver.
@@ -266,6 +301,7 @@ The workflow:
 7. Publishes the compatibility pull request only after explicit tester confirmation.
 8. Updates the canonical main-repository issue and embeds representative screenshots in
    the issue conversation.
+
 A useful report includes:
 
 - official Bachata S4 release tag and exact commit;
@@ -280,6 +316,7 @@ A useful report includes:
 - FPS measurements only when the sampling method is recorded.
 
 ---
+
 ## Build from source
 
 The maintained instructions are in
@@ -297,9 +334,9 @@ Current high-level requirements include:
 - Debian/Ubuntu runtime build dependencies
 
 High-level build flow:
+
 ```bash
 git submodule update --init --recursive --jobs 8
-
 runtime/scripts/build-runtime-debian.sh
 node runtime/tests/verify-runtime.mjs runtime/locks/components.lock.json
 node runtime/tests/verify-no-bundled-turnip.mjs runtime/build/rootfs
@@ -312,6 +349,7 @@ Do not copy commands from old releases or third-party guides without checking th
 maintained Android build document.
 
 ---
+
 ## Project status
 
 Bachata S4 is not a finished or universal PS4 emulator. A title may:
@@ -323,11 +361,14 @@ Bachata S4 is not a finished or universal PS4 emulator. A title may:
 - behave differently across Android versions or drivers;
 - regress or improve between emulator releases;
 - require game-specific emulator work.
+
 Public compatibility testing helps determine whether a blocker belongs to guest execution,
 kernel/HLE behavior, graphics, audio, input, runtime packaging, or Android integration.
 
 ---
+
 ## Issues and contributions
+
 - **Game compatibility discussions and bugs:**
   [github.com/JICA98/Bachata-S4/issues](https://github.com/JICA98/Bachata-S4/issues)
 - **Compatibility data and report pull requests:**
@@ -338,11 +379,13 @@ kernel/HLE behavior, graphics, audio, input, runtime packaging, or Android integ
   [`CONTRIBUTING.md`](CONTRIBUTING.md)
 - **Upstream emulator:**
   [shadps4-emu/shadPS4](https://github.com/shadps4-emu/shadPS4)
+
 Before opening a new game discussion, search for its exact CUSA ID. One canonical issue is
 used per game so that reports from different releases, phones, and drivers remain in one
 conversation.
 
 ---
+
 ## FAQ
 
 ### Does Bachata S4 include PS4 games?
@@ -354,6 +397,7 @@ software they legally own or open-source homebrew.
 
 No. It means controllable gameplay was reached in a specific recorded environment. Check
 the report’s notes, screenshots, device, driver, and emulator release.
+
 ### Why can the same title behave differently on two phones?
 
 CPU generation, GPU, Android version, available memory, graphics driver, thermal limits,
@@ -363,12 +407,14 @@ and emulator release can all affect behavior.
 
 Recent flagship Snapdragon devices with Adreno GPUs are currently the most practical
 testing targets, but no device guarantees compatibility.
+
 ### Where should Bachata S4 be downloaded?
 
 Google Play is the recommended supported installation. GitHub Releases provide
 source-linked project builds and checksums.
 
 ---
+
 ## Legal
 
 Bachata S4 is an independent open-source project and is not affiliated with, endorsed by,
@@ -380,6 +426,7 @@ not distribute games, firmware, keys, licenses, or copyrighted system components
 Use only software and content you have the legal right to run.
 
 ---
+
 ## Credits
 
 - [shadPS4](https://github.com/shadps4-emu/shadPS4) developers and contributors —
@@ -391,6 +438,7 @@ Use only software and content you have the legal right to run.
 - Everyone submitting reproducible reports, screenshots, logs, fixes, and testing feedback
 
 ---
+
 ## License
 
 Bachata S4 is licensed under
