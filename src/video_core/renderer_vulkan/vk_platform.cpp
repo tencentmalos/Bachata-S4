@@ -13,6 +13,7 @@
 #define VK_USE_PLATFORM_XLIB_KHR
 #endif
 
+#include <cstring>
 #include <vector>
 #include <fmt/ranges.h>
 
@@ -286,7 +287,7 @@ vk::UniqueInstance CreateInstance(Frontend::WindowSystemType window_type, bool e
                VK_VERSION_MAJOR(available_version), VK_VERSION_MINOR(available_version));
 
     const auto layers = GetInstanceLayers(enable_validation, enable_crash_diagnostic);
-    const auto extensions = GetLayerExtensions(GetInstanceExtensions(window_type, true), layers);
+    auto extensions = GetLayerExtensions(GetInstanceExtensions(window_type, true), layers);
 
     const vk::ApplicationInfo application_info = {
         .pApplicationName = "shadPS4",
@@ -399,8 +400,28 @@ vk::UniqueInstance CreateInstance(Frontend::WindowSystemType window_type, bool e
         },
     };
 
+    // A portability driver -- MoltenVK, and anything else layered over a
+    // non-Vulkan API -- is hidden from enumeration unless the instance opts in.
+    // The bundled KosmicKrisp driver is native and unaffected, so this only
+    // matters when building against a system Vulkan.
+    vk::InstanceCreateFlags instance_flags{};
+    {
+        const auto [ep_result, ep] = vk::enumerateInstanceExtensionProperties();
+        if (ep_result == vk::Result::eSuccess) {
+            for (const auto& e : ep) {
+                if (std::strcmp(e.extensionName,
+                                VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME) == 0) {
+                    extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+                    instance_flags |= vk::InstanceCreateFlagBits::eEnumeratePortabilityKHR;
+                    break;
+                }
+            }
+        }
+    }
+
     vk::StructureChain<vk::InstanceCreateInfo, vk::LayerSettingsCreateInfoEXT> instance_ci_chain = {
         vk::InstanceCreateInfo{
+            .flags = instance_flags,
             .pApplicationInfo = &application_info,
             .enabledLayerCount = static_cast<u32>(layers.size()),
             .ppEnabledLayerNames = layers.data(),
