@@ -166,3 +166,11 @@
 	path = externals/imgui
 	url = https://github.com/shadexternals/imgui.git
 	branch = docking
+[submodule "references/Bachata-S4"]
+	path = references/Bachata-S4
+	url = https://github.com/The412Banner/Bachata-S4.git
+	branch = main
+[submodule "references/ps4-pkg-tools"]
+	path = references/ps4-pkg-tools
+	url = https://github.com/xXJSONDeruloXx/ps4-pkg-tools.git
+	branch = main
