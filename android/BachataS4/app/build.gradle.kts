@@ -120,7 +120,11 @@ android {
         }
         create("fdroid") {
             dimension = "distribution"
-            buildConfigField("Boolean", "DOWNLOAD_RUNTIME", "false")
+            // F-Droid ships no runtime asset -- the emulation runtime is fetched
+            // at first launch. With this false, setup reads a nonexistent
+            // assets/runtime/manifest.json and dies with "Extraction failed"
+            // instead of falling through to downloadRuntime().
+            buildConfigField("Boolean", "DOWNLOAD_RUNTIME", "true")
             buildConfigField("Boolean", "SHOW_DRIVER_SELECTION", "true")
         }
     }

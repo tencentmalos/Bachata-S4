@@ -119,7 +119,12 @@ class RuntimeProfileResolver(
     private fun RuntimeProfile?.orEmptyUnknownBox64(): Map<String, String> = this?.unknownBox64.orEmpty()
 
     companion object {
+        // Box64, not FEX, is the default: FEX needs a separately built native
+        // ARM64 "shadps4-arm64-fex", which the published runtime bundle does
+        // not carry. Defaulting to FEX makes every launch die with
+        // NoSuchFileException before the emulator starts. Box64 runs the
+        // x86-64 bin/shadps4 that the bundle does ship.
         fun resolveGuestBackend(global: RuntimeProfile, game: RuntimeProfile?): RuntimeGuestBackend =
-            game?.guestBackend ?: global.guestBackend ?: RuntimeGuestBackend.FEX
+            game?.guestBackend ?: global.guestBackend ?: RuntimeGuestBackend.BOX64
     }
 }

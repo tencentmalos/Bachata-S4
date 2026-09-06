@@ -115,8 +115,13 @@ data class VulkanDriverConfiguration(
         ): VulkanDriverConfiguration {
             val runtimeRoot = context.runtimeRoot
             return when (driver) {
+                // APK_NATIVE would exec Box64 directly, but the packaged Box64
+                // is a glibc binary whose ELF interpreter is
+                // /lib/ld-linux-aarch64.so.1 -- a path that does not exist on
+                // Android, so exec fails with ENOENT. HOST_GLIBC starts it
+                // through the bundled loader instead.
                 RuntimeVulkanDriver.SYSTEM -> VulkanDriverConfiguration(
-                    box64Mode = Box64Mode.APK_NATIVE,
+                    box64Mode = Box64Mode.HOST_GLIBC,
                     environment = mapOf(
                         "SDL_VULKAN_LIBRARY" to "libvulkan.so.1",
                     ),

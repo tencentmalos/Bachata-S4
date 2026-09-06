@@ -73,10 +73,12 @@ class RuntimeProfileResolverTest {
     }
 
     @Test
-    fun guestBackendDefaultsToFex() {
+    fun guestBackendDefaultsToBox64() {
+        // The shipped runtime bundle carries the x86-64 bin/shadps4 that Box64
+        // runs, but not the native shadps4-arm64-fex that FEX needs.
         val resolved = RuntimeProfileResolver(listOf(nullGpu)).resolve(RuntimeProfile(), null)
 
-        assertEquals(RuntimeGuestBackend.FEX, resolved.guestBackend)
+        assertEquals(RuntimeGuestBackend.BOX64, resolved.guestBackend)
     }
 
     @Test
