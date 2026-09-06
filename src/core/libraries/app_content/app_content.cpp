@@ -65,6 +65,14 @@ static std::vector<std::filesystem::path> CollectContentRoots() {
 
     const auto& game_folder = Common::ElfInfo::Instance().GetGameFolder();
     if (!game_folder.empty()) {
+        // An all-in-one archive carries its DLC inside, as "dlc/".
+        if (Core::FileSys::IsAllInOneArchive(game_folder)) {
+            auto found = Core::FileSys::ListContentRoots(game_folder /
+                                                         Core::FileSys::AllInOneDlc);
+            roots.insert(roots.end(), std::make_move_iterator(found.begin()),
+                         std::make_move_iterator(found.end()));
+        }
+
         const auto sibling = Core::FileSys::OverlayPath(game_folder, Core::FileSys::DlcSuffix);
         if (const auto resolved = Core::FileSys::ResolveGameRoot(sibling)) {
             // Either a directory holding one entry per package, or an archive

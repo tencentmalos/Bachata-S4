@@ -306,4 +306,69 @@ TEST_F(ContentRootTest, DlcSiblingArchiveExpandsLikeAnAddcontBundle) {
     EXPECT_EQ(AsString(*data), "first");
 }
 
+// ── all-in-one archives ──────────────────────────────────────────────
+// One .zar holding a whole title: app/ + update/ + dlc/. Recognised by the
+// absence of sce_sys at the root, so it never collides with a plain game
+// archive.
+
+TEST_F(ContentRootTest, DetectsAllInOneArchiveByAppDirectory) {
+    const auto staging = root / "_staging";
+    WriteFile(staging / "app" / "eboot.bin", "elf");
+    WriteFile(staging / "app" / "sce_sys" / "param.sfo", "base");
+    WriteFile(staging / "update" / "sce_sys" / "param.sfo", "upd");
+    WriteFile(staging / "dlc" / "P1S1" / "sce_sys" / "param.sfo", "dlc1");
+    const auto title = root / "CUSA12878.zar";
+    ASSERT_TRUE(PackZar(staging, title));
+    fs::remove_all(staging);
+
+    EXPECT_TRUE(Core::FileSys::IsAllInOneArchive(title));
+
+    // The game, its update and its DLC all read through the one archive.
+    const auto base = Core::FileSys::ReadGameFile(title / "app", "sce_sys/param.sfo");
+    ASSERT_TRUE(base.has_value());
+    EXPECT_EQ(AsString(*base), "base");
+
+    const auto upd = Core::FileSys::ReadGameFile(title / "update", "sce_sys/param.sfo");
+    ASSERT_TRUE(upd.has_value());
+    EXPECT_EQ(AsString(*upd), "upd");
+
+    const auto dlc_roots = Core::FileSys::ListContentRoots(title / "dlc");
+    ASSERT_EQ(dlc_roots.size(), 1u);
+    const auto dlc = Core::FileSys::ReadGameFile(dlc_roots.front(), "sce_sys/param.sfo");
+    ASSERT_TRUE(dlc.has_value());
+    EXPECT_EQ(AsString(*dlc), "dlc1");
+}
+
+TEST_F(ContentRootTest, PlainGameArchiveIsNotAllInOne) {
+    const auto staging = root / "_staging";
+    WriteFile(staging / "eboot.bin", "elf");
+    WriteFile(staging / "sce_sys" / "param.sfo", "base");
+    const auto title = root / "CUSA12878.zar";
+    ASSERT_TRUE(PackZar(staging, title));
+
+    EXPECT_FALSE(Core::FileSys::IsAllInOneArchive(title));
+}
+
+TEST_F(ContentRootTest, DlcBundleIsNotMistakenForAllInOne) {
+    // A bundle has no sce_sys at the root either, but also no "app".
+    const auto staging = root / "_staging";
+    WriteFile(staging / "P1S1" / "sce_sys" / "param.sfo", "x");
+    const auto bundle = root / "CUSA12878-DLC.zar";
+    ASSERT_TRUE(PackZar(staging, bundle));
+
+    EXPECT_FALSE(Core::FileSys::IsAllInOneArchive(bundle));
+}
+
+TEST_F(ContentRootTest, SubPathMountRejectsMissingDirectory) {
+    // A sub-path that does not exist must fail to open rather than silently
+    // producing a backend where every lookup misses.
+    const auto staging = root / "_staging";
+    WriteFile(staging / "app" / "sce_sys" / "param.sfo", "base");
+    const auto title = root / "CUSA12878.zar";
+    ASSERT_TRUE(PackZar(staging, title));
+
+    EXPECT_FALSE(Core::FileSys::ReadGameFile(title / "update", "sce_sys/param.sfo").has_value());
+    EXPECT_TRUE(Core::FileSys::ListContentRoots(title / "dlc").empty());
+}
+
 } // namespace

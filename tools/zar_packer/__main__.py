@@ -376,6 +376,84 @@ def cmd_inspect(args: argparse.Namespace) -> int:
     return 0
 
 
+def build_all_in_one(
+    args: argparse.Namespace,
+    plan: "Plan",
+    title_id: str,
+    out_dir: Path,
+    stage_root: Path,
+    zarchive: Path,
+) -> int:
+    """Pack a whole title -- base, update and DLC -- into one archive.
+
+    Layout inside, matching Core::FileSys::AllInOne* in fs.h:
+
+        app/      the game itself, mounted at /app0
+        update/   overlaid onto /app0
+        dlc/      one directory per package, mounted at /addcontN
+
+    The emulator recognises this shape by the absence of sce_sys at the root.
+    """
+    root = stage_root / f"{title_id}-allinone"
+    if root.exists():
+        shutil.rmtree(root)
+    root.mkdir(parents=True)
+
+    log(f"\n== base: {plan.base.path.name} ==")
+    app_dir = root / "app"
+    n = extract_pkg(plan.base.path, app_dir, quiet=args.quiet)
+    log(f"  extracted {n} files ({human(dir_size(app_dir))})")
+    verify_game_dir(app_dir, "base game")
+
+    if plan.updates:
+        upd = plan.updates[-1]
+        log(f"\n== update v{upd.version}: {upd.path.name} ==")
+        upd_dir = root / "update"
+        n = extract_pkg(upd.path, upd_dir, quiet=args.quiet)
+        log(f"  extracted {n} files ({human(dir_size(upd_dir))})")
+        verify_game_dir(upd_dir, "update")
+
+    if plan.dlcs:
+        log(f"\n== dlc: {len(plan.dlcs)} package(s) ==")
+        dlc_dir = root / "dlc"
+        dlc_dir.mkdir()
+        used: set[str] = set()
+        ok = 0
+        for index, dlc in enumerate(plan.dlcs, start=1):
+            name = unique_dlc_name(dlc, used)
+            if not args.quiet:
+                progress_line(f"[{index}/{len(plan.dlcs)}] {name}")
+            work = dlc_dir / name
+            try:
+                extract_pkg(dlc.path, work, quiet=True)
+            except PkgError as exc:
+                progress_done()
+                log(f"  [{index}/{len(plan.dlcs)}] {name}: FAILED -- {exc}")
+                shutil.rmtree(work, ignore_errors=True)
+                continue
+            if not (work / "sce_sys" / "param.sfo").is_file():
+                progress_done()
+                log(f"  [{index}/{len(plan.dlcs)}] {name}: no param.sfo, skipping")
+                shutil.rmtree(work, ignore_errors=True)
+                continue
+            ok += 1
+        progress_done()
+        log(f"  staged {ok}/{len(plan.dlcs)} DLC")
+
+    target = out_dir / f"{title_id}.zar"
+    log(f"\n== packing -> {target.name} ==")
+    log(f"  {human(dir_size(root))} staged")
+    run_zarchive(zarchive, root, target)
+    log(f"  {human(target.stat().st_size)}")
+
+    if not args.keep_extracted:
+        shutil.rmtree(root, ignore_errors=True)
+
+    log(f"\n== done ==\n  {target}")
+    log(f"\nRun with:\n  shadps4 --game {target}")
+    return 0
+
+
 def cmd_build(args: argparse.Namespace) -> int:
     out_dir = Path(args.output).resolve()
     zarchive = None if args.no_zar else find_zarchive(args.zarchive)
@@ -418,6 +496,13 @@ def cmd_build(args: argparse.Namespace) -> int:
             )
 
         out_dir.mkdir(parents=True, exist_ok=True)
+
+        # All-in-one: stage app/ + update/ + dlc/ under one root and pack once,
+        # so a whole title -- base, update and every DLC -- is a single file.
+        if args.all_in_one:
+            if zarchive is None:
+                raise ToolError("--all-in-one needs the zarchive CLI; drop --no-zar")
+            return build_all_in_one(args, plan, title_id, out_dir, stage_root, zarchive)
         produced: list[str] = []
 
         # ── base ──
@@ -613,6 +698,12 @@ def main(argv: list[str] | None = None) -> int:
         help="bundle: all DLC in one addcont.zar (default). zar: one archive "
         "per DLC. dir: leave unpacked, for emulator builds whose addcont scan "
         "predates archive support.",
+    )
+    p_build.add_argument(
+        "--all-in-one",
+        action="store_true",
+        help="pack base, update and DLC into a single <TITLE_ID>.zar with "
+        "app/ + update/ + dlc/ inside, instead of separate sibling archives.",
     )
     p_build.add_argument("--title-id", help="only process this title ID")
     p_build.add_argument("--zarchive", help="path to the zarchive CLI")

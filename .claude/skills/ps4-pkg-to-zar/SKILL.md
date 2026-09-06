@@ -56,6 +56,11 @@ CUSA12878-DLC.zar   every DLC, bundled
 
 `--addcont <dir>` puts DLC in the emulator's addcont folder instead.
 
+`--all-in-one` packs everything into a single `<TITLE_ID>.zar` holding
+`app/` + `update/` + `dlc/`. Launch it the same way. Beat Saber's base, update
+and 246 DLC come to one 4.7 GiB file; the tradeoff is that changing the update
+means repacking the whole thing.
+
 Pass every source at once — base, update and DLC. A missing update is not an
 error, so it is easy to forget one and get a silently incomplete build.
 
@@ -114,8 +119,9 @@ scanned. Default is a single bundle with one top-level directory per package; a
 `sce_sys/param.sfo` with `CATEGORY="ac"`. Names are cosmetic — the emulator
 matches on `CONTENT_ID`.
 
-A `.zar` with `sce_sys` at its root is one piece of content; without it, the
-archive is a bundle and each top-level directory becomes its own content root.
+What is at the archive root decides how it is read: `sce_sys` means one piece
+of content, `app` means an all-in-one title, neither means a bundle of
+content roots.
 
 ## Archive root layout
 

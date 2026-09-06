@@ -35,6 +35,24 @@ inline constexpr std::string_view ModsSuffix{"-mods"};
 // content, as an alternative to the addcont install folder.
 inline constexpr std::string_view DlcSuffix{"-DLC"};
 
+// Top-level directories inside an all-in-one archive. Such an archive holds a
+// whole title -- base game, update and DLC -- instead of the game directory
+// alone, so one file is the complete install.
+//
+//   CUSA12878.zar
+//     app/        <- the game itself, what /app0 sees
+//     update/     <- overlaid onto /app0
+//     dlc/        <- one directory per package, mounted at /addcontN
+//
+// An archive with `sce_sys` at its root is the plain single-game form instead.
+inline constexpr std::string_view AllInOneApp{"app"};
+inline constexpr std::string_view AllInOneUpdate{"update"};
+inline constexpr std::string_view AllInOneDlc{"dlc"};
+
+/// True if `path` is a `.zar` laid out as an all-in-one title, i.e. it has an
+/// "app" directory rather than `sce_sys` at its root.
+[[nodiscard]] bool IsAllInOneArchive(const std::filesystem::path& path);
+
 /// Builds the path of an overlay that sits next to a game
 [[nodiscard]] std::filesystem::path OverlayPath(const std::filesystem::path& base,
                                                 std::string_view suffix);

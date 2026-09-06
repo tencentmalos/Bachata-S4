@@ -88,6 +88,18 @@ std::optional<std::filesystem::path> ResolveGameRoot(const std::filesystem::path
     return std::nullopt;
 }
 
+bool IsAllInOneArchive(const std::filesystem::path& path) {
+    if (!IsZArchiveFile(path)) {
+        return false;
+    }
+    ZArchiveBackend probe{path};
+    if (!probe.IsOpen()) {
+        return false;
+    }
+    // sce_sys at the root means the archive *is* the game directory.
+    return !probe.Exists("sce_sys") && probe.IsDirectory(AllInOneApp);
+}
+
 std::vector<std::filesystem::path> ExpandBundleRoots(const std::filesystem::path& archive) {
     std::vector<std::filesystem::path> roots;
     ZArchiveBackend probe{archive};
@@ -114,6 +126,25 @@ std::vector<std::filesystem::path> ExpandBundleRoots(const std::filesystem::path
 
 std::vector<std::filesystem::path> ListContentRoots(const std::filesystem::path& parent) {
     std::vector<std::filesystem::path> roots;
+
+    // A path inside an archive, e.g. "CUSA12878.zar/dlc": list the directories
+    // it contains rather than walking the host filesystem.
+    if (const auto split = SplitArchivePath(parent); split && !split->inner.empty()) {
+        ZArchiveBackend probe{split->archive, split->inner};
+        if (probe.IsOpen()) {
+            if (auto dir = probe.OpenDir("")) {
+                DirEntry child;
+                while (dir->Next(child)) {
+                    if (child.is_directory) {
+                        roots.push_back(parent / child.name);
+                    }
+                }
+            }
+        }
+        std::sort(roots.begin(), roots.end());
+        return roots;
+    }
+
     std::error_code ec;
     if (!std::filesystem::is_directory(parent, ec)) {
         return roots;
@@ -179,12 +210,20 @@ void MntPoints::Mount(const std::filesystem::path& host_folder, const std::strin
                         std::string_view suffix) -> std::shared_ptr<IBackend> {
         return make_backend(OverlayPath(base, suffix), /*ro=*/true);
     };
+
+    const bool all_in_one = eligible_for_overlays && IsAllInOneArchive(host_folder);
     // check for mods , updates,patch
     if (eligible_for_overlays) {
         if (auto mods = probe_overlay(host_folder, ModsSuffix)) {
             stack.push_back(std::move(mods));
         }
         if (!ignore_game_patches) {
+            // An all-in-one archive carries its update inside, as "update/".
+            if (all_in_one) {
+                if (auto patch = make_backend(host_folder / AllInOneUpdate, /*ro=*/true)) {
+                    stack.push_back(std::move(patch));
+                }
+            }
             for (const auto suffix : UpdateSuffixes) {
                 if (auto patch = probe_overlay(host_folder, suffix)) {
                     stack.push_back(std::move(patch));
@@ -194,7 +233,10 @@ void MntPoints::Mount(const std::filesystem::path& host_folder, const std::strin
         }
     }
 
-    std::shared_ptr<IBackend> base = make_backend(host_folder, read_only);
+    // An all-in-one archive holds the game under "app/" rather than at its root.
+    std::shared_ptr<IBackend> base =
+        all_in_one ? make_backend(host_folder / AllInOneApp, read_only)
+                   : make_backend(host_folder, read_only);
     ASSERT_MSG(base, "Mount: base path does not resolve to a backend: {}", host_folder.string());
     stack.push_back(std::move(base));
 

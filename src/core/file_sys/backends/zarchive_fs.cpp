@@ -295,6 +295,17 @@ ZArchiveBackend::ZArchiveBackend(const std::filesystem::path& archive_path,
         return;
     }
     m_reader = std::make_shared<SharedReader>(raw);
+
+    if (!m_sub_path.empty()) {
+        std::scoped_lock lk{m_reader->mutex};
+        m_sub_path_valid = m_reader->reader->LookUp(m_sub_path, /*allow_file=*/false,
+                                                    /*allow_directory=*/true) !=
+                           ZARCHIVE_INVALID_NODE;
+        if (!m_sub_path_valid) {
+            LOG_ERROR(Kernel_Fs, "ZArchive {} has no directory '{}'", archive_path.string(),
+                      m_sub_path);
+        }
+    }
 }
 
 ZArchiveBackend::~ZArchiveBackend() = default;

@@ -101,6 +101,40 @@ The tool names each entry after the entitlement label purely for legibility. As
 with the base game, don't leave a directory and a `.zar` of the same name side
 by side — the directory shadows the archive.
 
+## All-in-one archives
+
+A single `.zar` can hold a whole title instead of just the game directory:
+
+```
+CUSA12878.zar
+├── app/         <- the game, mounted at /app0
+├── update/      <- overlaid onto /app0
+└── dlc/
+    ├── P1S1XXXXXXXXXXXX/
+    └── P1S2XXXXXXXXXXXX/    <- each mounted at /addcontN
+```
+
+Build it with `--all-in-one`; launch it exactly like a plain archive
+(`--game CUSA12878.zar`). Beat Saber's base, v2.04 update and 246 DLC come to
+one 4.7 GiB file.
+
+The three shapes are told apart by what is at the archive root, so they never
+collide:
+
+| Root contains | Meaning |
+|---|---|
+| `sce_sys` | a single piece of content — a game, an update, or one DLC |
+| `app` | an all-in-one title |
+| neither | a bundle: one directory per piece of content |
+
+`/app0` resolves to `app/` and the update overlay to `update/`, so the guest
+paths are unchanged — `eboot.bin` is still `/app0/eboot.bin`. DLC is collected
+from `dlc/` alongside the addcont folder and any `-DLC` sibling, so the layouts
+mix freely.
+
+The tradeoff is granularity: swapping just the update means repacking the whole
+archive. Use the separate-sibling layout when the update or DLC set still moves.
+
 ## The `.zar` root must be the game directory
 
 shadPS4 maps a guest path straight onto an archive node: `/app0/sce_sys/param.sfo`
@@ -129,8 +163,8 @@ python3 -m zar_packer build   <pkg|archive|folder>... [-o <out>] [--addcont <dir
 `inspect` classifies without extracting. `build` runs the whole pipeline:
 unpack containers, sort by `param.sfo` CATEGORY, extract, and pack. Output goes
 to `~/game/ps4/zar/` unless `-o` says otherwise, as `<TITLE_ID>.zar` plus
-`-UPD.zar` / `-DLC.zar` siblings. `--addcont <dir>` puts DLC in the emulator's
-addcont folder instead.
+`-UPD.zar` / `-DLC.zar` siblings — or one `<TITLE_ID>.zar` with `--all-in-one`.
+`--addcont <dir>` puts DLC in the emulator's addcont folder instead.
 
 Classification uses `CATEGORY` (`gd` game, `gp` patch, `ac*` addon), not the
 filename — scene releases name files freely. A `gd` package carrying patch

@@ -110,7 +110,9 @@ public:
     ~ZArchiveBackend() override;
 
     bool IsOpen() const {
-        return m_reader && m_reader->reader != nullptr;
+        // A sub-path mount is only usable if that directory really exists;
+        // otherwise every lookup would silently miss.
+        return m_reader && m_reader->reader != nullptr && m_sub_path_valid;
     }
 
     bool Exists(std::string_view rel_path) override;
@@ -142,6 +144,7 @@ private:
 
     std::filesystem::path m_archive_path;
     std::string m_sub_path; // "" for a whole-archive mount, else "dir" or "a/b"
+    bool m_sub_path_valid{true};
     std::shared_ptr<SharedReader> m_reader;
 };
 
