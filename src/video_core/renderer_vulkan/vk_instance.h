@@ -115,6 +115,18 @@ public:
     }
 
     /// Returns true if VK_KHR_maintenance8 is supported
+    /// True when out-of-bounds buffer reads are guaranteed to return zero
+    /// rather than being undefined. False on portability drivers such as
+    /// MoltenVK.
+    bool IsRobustBufferAccess2Supported() const {
+        return robust_buffer_access2;
+    }
+
+    /// True when a null descriptor may be bound and reads from it return zero.
+    bool IsNullDescriptorSupported() const {
+        return null_descriptor;
+    }
+
     bool IsMaintenance8Supported() const {
         return maintenance_8;
     }
@@ -511,6 +523,9 @@ private:
     bool shader_atomic_float2{};
     bool workgroup_memory_explicit_layout{};
     bool maintenance_8{};
+    bool robust_buffer_access2{};
+    bool robust_image_access2{};
+    bool null_descriptor{};
     bool attachment_feedback_loop{};
     bool image_2d_view_of_3d{};
     bool image_view_min_lod{};
