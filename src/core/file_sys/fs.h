@@ -35,6 +35,14 @@ namespace Core::FileSys {
 [[nodiscard]] std::optional<std::filesystem::path> ResolveGameRoot(
     const std::filesystem::path& root);
 
+/// Enumerates the content roots directly under `parent`: subdirectories, plus
+/// any `.zar` archive. Used to scan install folders (addcont) uniformly whether
+/// the content was left unpacked or packed into an archive. The result is
+/// sorted, so callers that assign indices by position stay stable across runs.
+/// Read files out of the returned roots with ReadGameFile().
+[[nodiscard]] std::vector<std::filesystem::path> ListContentRoots(
+    const std::filesystem::path& parent);
+
 #ifdef _WIN64
 inline constexpr bool NeedsCaseInsensitiveSearch = false;
 #else

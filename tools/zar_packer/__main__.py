@@ -9,18 +9,21 @@ param.sfo says, and emit the layout the emulator expects.
 
 Layout produced (see `docs/pkg-to-zar.md` for the why):
 
-    <out>/CUSA12878.zar           base game        -> /app0
-    <out>/CUSA12878-UPDATE.zar    update overlay   -> stacked over /app0
-    <addcont>/CUSA12878/<label>/  one dir per DLC  -> /addcontN
+    <out>/CUSA12878.zar             base game      -> /app0
+    <out>/CUSA12878-UPDATE.zar      update overlay -> stacked over /app0
+    <addcont>/CUSA12878/addcont.zar all DLC        -> /addcontN
 
-DLC stays as directories on purpose: `sceAppContentInitialize` enumerates with
-`std::filesystem::directory_iterator` and skips anything that is not a
-directory, so a `.zar` there would be silently ignored.
+All of a title's DLC goes into one bundle archive, each package a top-level
+directory inside it. That needs the archive-aware addcont scanning added
+alongside this tool; older builds enumerate with `directory_iterator` and
+silently skip archives. Use `--dlc-format dir` when targeting such a build,
+or `--dlc-format zar` for one archive per DLC.
 """
 
 from __future__ import annotations
 
 import argparse
+import os
 import shutil
 import subprocess
 import sys
@@ -34,6 +37,9 @@ from .sfo import entitlement_label, is_addon, read_sfo
 
 # Archive kinds we can unpack before looking for PKGs inside.
 ARCHIVE_SUFFIXES = (".rar", ".zip", ".7z", ".tar", ".gz", ".tgz")
+
+# Where built archives are kept by default.
+DEFAULT_OUTPUT_DIR = Path("~/game/ps4/zar").expanduser()
 
 
 class ToolError(RuntimeError):
@@ -316,11 +322,11 @@ def build_plan(items: list[Classified], title_id: str | None) -> tuple[str, Plan
     return title_id, plan
 
 
-def unique_dlc_dirname(dlc: Classified, used: set[str]) -> str:
-    """Pick a stable, filesystem-safe directory name for a DLC.
+def unique_dlc_name(dlc: Classified, used: set[str]) -> str:
+    """Pick a stable, filesystem-safe name for a DLC root.
 
-    The emulator matches DLC by CONTENT_ID inside param.sfo, not by folder
-    name, so this only has to be unique and readable.
+    The emulator matches DLC by CONTENT_ID inside param.sfo, not by the name on
+    disk, so this only has to be unique and readable.
     """
     base = dlc.entitlement or dlc.content_id.replace("-", "_") or "dlc"
     safe = "".join(ch if ch.isalnum() or ch in "-_" else "_" for ch in base)
@@ -449,35 +455,79 @@ def cmd_build(args: argparse.Namespace) -> int:
             else:
                 produced.append(str(upd_stage))
 
-        # ── DLC (always plain directories) ──
+        # ── DLC ──
         if plan.dlcs:
-            log(f"\n== dlc: {len(plan.dlcs)} package(s) ==")
+            mode = args.dlc_format if zarchive is not None else "dir"
+            label = {
+                "bundle": "one bundle archive",
+                "zar": "one .zar each",
+                "dir": "directories",
+            }[mode]
+            log(f"\n== dlc: {len(plan.dlcs)} package(s) as {label} ==")
+
             dlc_root = addcont_dir / title_id
             dlc_root.mkdir(parents=True, exist_ok=True)
+            # Bundling extracts everything under one staging root and packs it
+            # in a single pass, so each DLC ends up as a top-level directory
+            # inside the archive.
+            staging_needed = mode in ("bundle", "zar")
+            dlc_stage_root = stage_root / f"{title_id}-addcont"
+
             used: set[str] = set()
             ok = 0
             for index, dlc in enumerate(plan.dlcs, start=1):
-                name = unique_dlc_dirname(dlc, used)
-                dest = dlc_root / name
-                if dest.exists():
-                    shutil.rmtree(dest)
+                name = unique_dlc_name(dlc, used)
                 if not args.quiet:
                     progress_line(f"[{index}/{len(plan.dlcs)}] {name}")
+
+                # Extract to staging first when packing, so a failure can't
+                # leave a half-written archive in the addcont folder.
+                work = (dlc_stage_root / name) if staging_needed else (dlc_root / name)
+                if work.exists():
+                    shutil.rmtree(work)
                 try:
-                    extract_pkg(dlc.path, dest, quiet=True)
+                    extract_pkg(dlc.path, work, quiet=True)
                 except PkgError as exc:
                     progress_done()
                     log(f"  [{index}/{len(plan.dlcs)}] {name}: FAILED -- {exc}")
                     continue
-                if not (dest / "sce_sys" / "param.sfo").is_file():
+                if not (work / "sce_sys" / "param.sfo").is_file():
                     progress_done()
                     log(f"  [{index}/{len(plan.dlcs)}] {name}: no param.sfo, skipping")
-                    shutil.rmtree(dest, ignore_errors=True)
+                    shutil.rmtree(work, ignore_errors=True)
                     continue
+
+                if mode == "zar":
+                    target = dlc_root / f"{name}.zar"
+                    # A same-named directory would shadow the archive at mount time.
+                    stale_dir = dlc_root / name
+                    if stale_dir.is_dir():
+                        shutil.rmtree(stale_dir)
+                    try:
+                        run_zarchive(zarchive, work, target)
+                    except ToolError as exc:
+                        progress_done()
+                        log(f"  [{index}/{len(plan.dlcs)}] {name}: pack failed -- {exc}")
+                        continue
+                    if not keep_dir:
+                        shutil.rmtree(work, ignore_errors=True)
                 ok += 1
             progress_done()
+
+            if mode == "bundle":
+                if ok == 0:
+                    raise ToolError("every DLC failed to extract; nothing to bundle")
+                bundle = dlc_root / "addcont.zar"
+                log(f"  packing {ok} DLC -> {bundle.name}")
+                run_zarchive(zarchive, dlc_stage_root, bundle)
+                log(f"  {human(bundle.stat().st_size)}")
+                if not keep_dir:
+                    shutil.rmtree(dlc_stage_root, ignore_errors=True)
+                produced.append(str(bundle))
+            else:
+                produced.append(str(dlc_root))
+
             log(f"  installed {ok}/{len(plan.dlcs)} DLC into {dlc_root}")
-            produced.append(str(dlc_root))
 
         # ── summary ──
         log("\n== done ==")
@@ -528,11 +578,24 @@ def main(argv: list[str] | None = None) -> int:
 
     p_build = sub.add_parser("build", help="extract PKGs and produce .zar output")
     p_build.add_argument("inputs", nargs="+", help="PKG files, archives, or folders")
-    p_build.add_argument("-o", "--output", required=True, help="output directory")
+    p_build.add_argument(
+        "-o",
+        "--output",
+        default=str(DEFAULT_OUTPUT_DIR),
+        help=f"output directory (default: {DEFAULT_OUTPUT_DIR})",
+    )
     p_build.add_argument(
         "--addcont",
         help="DLC install root (default: <output>/addcont). Point this at the "
         "emulator's addcont folder to install directly.",
+    )
+    p_build.add_argument(
+        "--dlc-format",
+        choices=("bundle", "zar", "dir"),
+        default="bundle",
+        help="bundle: all DLC in one addcont.zar (default). zar: one archive "
+        "per DLC. dir: leave unpacked, for emulator builds whose addcont scan "
+        "predates archive support.",
     )
     p_build.add_argument("--title-id", help="only process this title ID")
     p_build.add_argument("--zarchive", help="path to the zarchive CLI")

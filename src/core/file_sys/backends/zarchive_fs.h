@@ -102,7 +102,11 @@ private:
 // Backend that maps a mounted namespace onto the contents of a .zar
 class ZArchiveBackend final : public IBackend {
 public:
-    explicit ZArchiveBackend(const std::filesystem::path& archive_path);
+    /// `sub_path` roots the mount at a directory inside the archive instead of
+    /// at its top level. Used to hold several pieces of content (for instance
+    /// every DLC of a title) in one archive and mount each separately.
+    explicit ZArchiveBackend(const std::filesystem::path& archive_path,
+                             std::string_view sub_path = {});
     ~ZArchiveBackend() override;
 
     bool IsOpen() const {
@@ -133,7 +137,11 @@ public:
 private:
     uint32_t LookUp(std::string_view rel_path, bool allow_file, bool allow_directory);
 
+    /// Prepends m_sub_path, so callers keep working in mount-relative terms.
+    std::string Resolve(std::string_view rel_path) const;
+
     std::filesystem::path m_archive_path;
+    std::string m_sub_path; // "" for a whole-archive mount, else "dir" or "a/b"
     std::shared_ptr<SharedReader> m_reader;
 };
 

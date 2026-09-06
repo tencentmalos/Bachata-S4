@@ -36,16 +36,31 @@ unpacking — don't mistake it for a PKG reader.
 
 | Content | Directory | `.zar` | Mount |
 |---|---|---|---|
-| Base game | yes | **yes** | `/app0`, `/hostapp` |
-| Update / patch | yes | **yes** | overlaid onto `/app0` |
-| Mods | yes | **yes** | overlaid onto `/app0` |
-| DLC (addcont) | yes | **no** | `/addcont0..N` |
+| Base game | yes | yes | `/app0`, `/hostapp` |
+| Update / patch | yes | yes | overlaid onto `/app0` |
+| Mods | yes | yes | overlaid onto `/app0` |
+| DLC (addcont) | yes | yes | `/addcont0..N` |
 
-DLC cannot be a `.zar`. `sceAppContentInitialize` enumerates the addon folder
-with `std::filesystem::directory_iterator` and skips any entry failing
-`entry.is_directory()`, then reads `sce_sys/param.sfo` through a raw host path
-([app_content.cpp:306](../src/core/libraries/app_content/app_content.cpp)).
-An archive never reaches the mount call. Ship DLC as plain directories.
+DLC in a `.zar` needs the archive-aware addcont scan this fork adds. Upstream
+enumerates with `directory_iterator` and reads `param.sfo` through a raw host
+path, so an archive is skipped without a word. Three pieces fix that:
+
+- `Core::FileSys::ListContentRoots` returns subdirectories, standalone `.zar`
+  files, and — for a bundle archive — one root per directory inside it.
+- `SplitArchivePath` cuts a path at its `.zar` component, so
+  `addcont.zar/P1S1XXXX` names a directory inside the archive.
+- `ZArchiveBackend` takes an optional sub-path, letting many mounts share one
+  archive; `OpenGameBackend` and `MntPoints::Mount` both route through it.
+
+Both `sceAppContentInitialize` and `sceAppContentAddcontMount` walk the same
+sorted list, so mount indices stay consistent.
+
+The list is sorted deliberately: `directory_iterator` order is unspecified, and
+`/addcontN` indices are assigned by position. Without sorting the same install
+could hand a game different mount points on different machines.
+
+If you are targeting a build without those helpers, pass `--dlc-format dir`.
+`--dlc-format zar` sits in between: one archive per DLC, no bundling.
 
 ## Layout on disk
 
@@ -69,13 +84,21 @@ DLC lives somewhere else entirely, keyed by the **base game's** title ID:
 ```
 <addcont>/                     default: <UserDir>/addcont
   CUSA12878/
-    P1S1XXXXXXXXXXXX/          folder name is arbitrary
-      sce_sys/param.sfo        must have CATEGORY="ac"
-      <dlc payload>
+    addcont.zar                one bundle holding every DLC:
+      P1S1XXXXXXXXXXXX/          each package a top-level directory
+        sce_sys/param.sfo
+      P1S2XXXXXXXXXXXX/
 ```
 
-Matching is by `CONTENT_ID` inside each `param.sfo`, never by folder name. The
-tool names folders after the entitlement label purely for legibility.
+A bundle is any `.zar` *without* `sce_sys` at its root; each top-level directory
+becomes its own content root, mounted at `<archive>/<dir>`. An archive that does
+have `sce_sys` at the root is a single piece of content and is listed as-is, so
+one-archive-per-DLC still works.
+
+Matching is by `CONTENT_ID` inside each `param.sfo`, never by the name on disk.
+The tool names each entry after the entitlement label purely for legibility. As
+with the base game, don't leave a directory and a `.zar` of the same name side
+by side — the directory shadows the archive.
 
 ## The `.zar` root must be the game directory
 
@@ -99,12 +122,13 @@ directory.
 
 ```bash
 python3 -m zar_packer inspect <pkg|archive|folder>...
-python3 -m zar_packer build   <pkg|archive|folder>... -o <out> [--addcont <dir>]
+python3 -m zar_packer build   <pkg|archive|folder>... [-o <out>] [--addcont <dir>]
 ```
 
 `inspect` classifies without extracting. `build` runs the whole pipeline:
-unpack containers, sort by `param.sfo` CATEGORY, extract, and emit `.zar` for
-base/update plus directories for DLC.
+unpack containers, sort by `param.sfo` CATEGORY, extract, and pack. Output goes
+to `~/game/ps4/zar/` unless `-o` says otherwise, with DLC under
+`<out>/addcont/<TITLE_ID>/`.
 
 Classification uses `CATEGORY` (`gd` game, `gp` patch, `ac*` addon), not the
 filename — scene releases name files freely. A `gd` package carrying patch
@@ -149,6 +173,10 @@ Three different numbers, not interchangeable. Beat Saber base game:
 | PKG download | 243 MiB |
 | Extracted tree | 292 MiB |
 | `.zar` | 193 MiB |
+
+Its 246 DLC packages come to 79 MiB across ~3000 loose files, or 68 MiB as a
+single `addcont.zar`. The whole title — base game plus all DLC — is then two
+files totalling 273 MiB.
 
 ## Verification
 

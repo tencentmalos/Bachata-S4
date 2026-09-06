@@ -1,6 +1,6 @@
 ---
 name: ps4-pkg-to-zar
-description: Convert PS4 PKG files (base game, update/patch, DLC) into the layout shadPS4 mounts — .zar archives for base/update and plain directories for DLC. Use when asked to unpack a .pkg, build a .zar, install DLC or an update for shadPS4, or when handling .rar/.zip game releases that contain PKGs.
+description: Convert PS4 PKG files (base game, update/patch, DLC) into the layout shadPS4 mounts — .zar archives for base, update, and the whole DLC set. Use when asked to unpack a .pkg, build a .zar, install DLC or an update for shadPS4, or when handling .rar/.zip game releases that contain PKGs.
 ---
 
 # PS4 PKG → shadPS4 `.zar`
@@ -19,11 +19,14 @@ game.pkg  --[unpack]-->  loose tree  --[optional pack]-->  game.zar
 ```
 
 `.zar` (ZArchive, from Cemu) replaces the *loose tree*, not the PKG. It carries
-no decryption.
+no decryption. Compression is zstd level 6 over 64 KiB blocks, both hardcoded
+in the writer; the fixed block size is what makes random reads possible.
 
-**DLC cannot be a `.zar`.** `sceAppContentInitialize` enumerates with
-`directory_iterator` and skips non-directories, so an archive is silently
-ignored. Base and update can be either.
+Base, update, mods and DLC can all be `.zar` in this fork, and a title's whole
+DLC set goes into **one** bundle archive rather than one file per package. That
+needs the archive-aware addcont scan added here — upstream skips
+non-directories silently. Use `--dlc-format dir` if targeting a build without
+it, or `--dlc-format zar` for one archive per DLC.
 
 ## Procedure
 
@@ -40,27 +43,28 @@ an update alone is not bootable.
 ### 2. Build
 
 ```bash
-python3 -m zar_packer build /path/to/release/ \
-    -o ~/games \
-    --addcont ~/Library/Application\ Support/shadPS4/addcont \
-    --zarchive /tmp/zarbuild/zarchive
+python3 -m zar_packer build /path/to/release/
 ```
 
-Produces `~/games/CUSA12878.zar`, `~/games/CUSA12878-UPDATE.zar` if an update
-was present, and one directory per DLC under `<addcont>/CUSA12878/`.
+Output defaults to `~/game/ps4/zar/`: `CUSA12878.zar`, `CUSA12878-UPDATE.zar`
+if an update was present, and `addcont/CUSA12878/addcont.zar` holding every DLC.
+Beat Saber's base game plus 246 DLC lands as two files, 273 MiB.
 
 Run from `tools/`, or add it to `PYTHONPATH`.
 
 Useful flags:
-- `--no-zar` — stop at loose directories (for debugging, or if you prefer trees)
+- `-o <dir>` — output elsewhere
+- `--addcont <dir>` — install DLC straight into the emulator's addcont folder
+- `--dlc-format zar|dir` — one archive per DLC, or leave unpacked
+- `--no-zar` — stop at loose directories
 - `--keep-extracted <dir>` — retain the intermediate tree
 - `--title-id CUSAxxxxx` — when a folder mixes several games
-- `--allow-no-base` — build an update archive with no base present
+- `--allow-no-base` — build with no base present
 
 ### 3. Launch
 
 ```bash
-shadps4 --game ~/games/CUSA12878.zar
+shadps4 --game ~/game/ps4/zar/CUSA12878.zar
 ```
 
 Explicit path is required. Title-ID lookup and the Big Picture scanner both
@@ -94,9 +98,13 @@ CUSA12878-mods.zar     mods     (highest priority)
 
 Precedence: `-mods` → `-UPDATE`/`-patch` → base.
 
-DLC goes under `<addcont>/<BASE_TITLE_ID>/<anything>/`, each with
-`sce_sys/param.sfo` where `CATEGORY="ac"`. Folder names are cosmetic; the
-emulator matches on `CONTENT_ID`.
+DLC goes under `<addcont>/<BASE_TITLE_ID>/`. Default is a single `addcont.zar`
+with one top-level directory per package; a `.zar` or directory per package
+also works. Each entry holds `sce_sys/param.sfo` with `CATEGORY="ac"`. Names
+are cosmetic — the emulator matches on `CONTENT_ID`.
+
+A `.zar` with `sce_sys` at its root is one piece of content; without it, the
+archive is a bundle and each top-level directory becomes its own content root.
 
 ## Archive root layout
 
@@ -113,7 +121,7 @@ Don't leave a same-named directory beside the `.zar`; the directory wins.
 | "PFSC magic not found after decryption" | Retail-signed PKG. Only fake-signed (fpkg) decrypt; the keys here don't cover retail. |
 | "no base game PKG found" | Only update/DLC supplied. Get the base, or `--allow-no-base`. |
 | "truncated -- header declares N bytes" | Incomplete download, or a multi-part archive missing a volume. |
-| DLC not showing in game | Wrong `<addcont>` root, wrong title ID subfolder, or DLC was packed as `.zar`. |
+| DLC not showing in game | Wrong `<addcont>` root or title ID subfolder. On a build without archive-aware addcont scanning, rebuild with `--dlc-format dir`. |
 | Game not found by title ID | Archives must be launched by explicit path. |
 | Extracted PKGs are all 0 bytes | 7-Zip on RAR5. Use `unar`. |
 

@@ -27,7 +27,43 @@ std::filesystem::path StripZArchiveExtension(const std::filesystem::path& path) 
     return path;
 }
 
+std::optional<ArchiveSubPath> SplitArchivePath(const std::filesystem::path& path) {
+    // Walk components until one is a real .zar file; whatever follows names a
+    // directory inside it. This is how a single archive can host several pieces
+    // of content, e.g. every DLC of a title.
+    std::filesystem::path accum;
+    std::string inner;
+    bool found = false;
+    for (const auto& comp : path) {
+        if (found) {
+            if (!inner.empty()) {
+                inner += '/';
+            }
+            inner += comp.generic_string();
+            continue;
+        }
+        accum /= comp;
+        if (comp.extension() == ".zar") {
+            found = true;
+        }
+    }
+    if (!found || !IsZArchiveFile(accum)) {
+        return std::nullopt;
+    }
+    return ArchiveSubPath{accum, inner};
+}
+
 std::unique_ptr<IBackend> OpenGameBackend(const std::filesystem::path& root) {
+    // A path that points inside an archive resolves before the plain cases,
+    // since the .zar component is a file and root itself does not exist.
+    if (const auto split = SplitArchivePath(root); split && !split->inner.empty()) {
+        auto backend = std::make_unique<ZArchiveBackend>(split->archive, split->inner);
+        if (!backend->IsOpen()) {
+            return nullptr;
+        }
+        return backend;
+    }
+
     const auto resolved = ResolveGameRoot(root);
     if (!resolved.has_value()) {
         return nullptr;

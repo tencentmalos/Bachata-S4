@@ -13,6 +13,7 @@ set(TEST_TARGETS
     shadps4_settings_test
     shadps4_ngs2_test
     shadps4_gcn_test
+    shadps4_content_roots_test
 )
 
 set(SETTINGS_TEST_SOURCES
@@ -162,9 +163,41 @@ set(GCN_TEST_SOURCES
     gcn/test_gcn_instructions.cpp
 )
 
+set(CONTENT_ROOTS_TEST_SOURCES
+    # Under test
+    ${CMAKE_SOURCE_DIR}/src/core/file_sys/fs.cpp
+    ${CMAKE_SOURCE_DIR}/src/core/file_sys/ifile.cpp
+    ${CMAKE_SOURCE_DIR}/src/core/file_sys/backends/host_fs.cpp
+    ${CMAKE_SOURCE_DIR}/src/core/file_sys/backends/zarchive_fs.cpp
+    ${CMAKE_SOURCE_DIR}/src/core/file_sys/devices/base_device.cpp
+    ${CMAKE_SOURCE_DIR}/src/core/file_sys/devices/logger.cpp
+
+    # Minimal common support
+    ${CMAKE_SOURCE_DIR}/src/core/emulator_settings.cpp
+    ${CMAKE_SOURCE_DIR}/src/core/emulator_state.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/io_file.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/path_util.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/assert.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/error.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/string_util.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/logging/log.cpp
+
+    # Stubs that replace dependencies
+    stubs/common_stub.cpp
+    stubs/core_stub.cpp
+    stubs/signals_stub.cpp
+    stubs/scm_rev_stub.cpp
+    stubs/sdl_stub.cpp
+    stubs/thread_stub.cpp
+
+    # Tests
+    test_content_roots.cpp
+)
+
 add_executable(shadps4_settings_test ${SETTINGS_TEST_SOURCES})
 add_executable(shadps4_ngs2_test ${NGS2_TEST_SOURCES})
 add_executable(shadps4_gcn_test ${GCN_TEST_SOURCES})
+add_executable(shadps4_content_roots_test ${CONTENT_ROOTS_TEST_SOURCES})
 
 foreach(t ${TEST_TARGETS})
     target_include_directories(${t} PRIVATE
@@ -203,6 +236,18 @@ target_link_libraries(shadps4_gcn_test PRIVATE
     SDL3::SDL3
     spdlog::spdlog
     half::half
+)
+
+target_link_libraries(shadps4_content_roots_test PRIVATE
+    GTest::gtest_main
+    fmt::fmt
+    magic_enum::magic_enum
+    nlohmann_json::nlohmann_json
+    toml11::toml11
+    tsl::robin_map
+    SDL3::SDL3
+    spdlog::spdlog
+    ZArchive::zarchive
 )
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR

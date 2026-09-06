@@ -283,8 +283,12 @@ void ZArchiveDirectory::Rewind() {
     m_index = 0;
 }
 
-ZArchiveBackend::ZArchiveBackend(const std::filesystem::path& archive_path)
-    : m_archive_path(archive_path) {
+ZArchiveBackend::ZArchiveBackend(const std::filesystem::path& archive_path,
+                                 std::string_view sub_path)
+    : m_archive_path(archive_path), m_sub_path(NormalizeRel(sub_path)) {
+    while (!m_sub_path.empty() && m_sub_path.back() == '/') {
+        m_sub_path.pop_back();
+    }
     ZArchiveReader* raw = ZArchiveReader::OpenFromFile(archive_path);
     if (!raw) {
         LOG_ERROR(Kernel_Fs, "Failed to open ZArchive: {}", archive_path.string());
@@ -295,13 +299,24 @@ ZArchiveBackend::ZArchiveBackend(const std::filesystem::path& archive_path)
 
 ZArchiveBackend::~ZArchiveBackend() = default;
 
+std::string ZArchiveBackend::Resolve(std::string_view rel_path) const {
+    const auto normalized = NormalizeRel(rel_path);
+    if (m_sub_path.empty()) {
+        return std::string{normalized};
+    }
+    if (normalized.empty()) {
+        return m_sub_path;
+    }
+    return m_sub_path + "/" + std::string{normalized};
+}
+
 uint32_t ZArchiveBackend::LookUp(std::string_view rel_path, bool allow_file, bool allow_directory) {
     if (!IsOpen()) {
         return ZARCHIVE_INVALID_NODE;
     }
-    const auto normalized = NormalizeRel(rel_path);
+    const auto resolved = Resolve(rel_path);
     std::scoped_lock lk{m_reader->mutex};
-    return m_reader->reader->LookUp(normalized, allow_file, allow_directory);
+    return m_reader->reader->LookUp(resolved, allow_file, allow_directory);
 }
 
 bool ZArchiveBackend::Exists(std::string_view rel_path) {
@@ -360,7 +375,7 @@ std::optional<std::vector<u8>> ZArchiveBackend::ReadFile(std::string_view rel_pa
     ZArchiveReader* reader = m_reader->reader;
 
     const auto node =
-        reader->LookUp(NormalizeRel(rel_path), /*allow_file=*/true, /*allow_directory=*/false);
+        reader->LookUp(Resolve(rel_path), /*allow_file=*/true, /*allow_directory=*/false);
     if (node == ZARCHIVE_INVALID_NODE || !reader->IsFile(node)) {
         return std::nullopt;
     }

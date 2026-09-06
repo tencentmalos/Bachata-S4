@@ -86,6 +86,46 @@ std::optional<std::filesystem::path> ResolveGameRoot(const std::filesystem::path
     return std::nullopt;
 }
 
+std::vector<std::filesystem::path> ListContentRoots(const std::filesystem::path& parent) {
+    std::vector<std::filesystem::path> roots;
+    std::error_code ec;
+    if (!std::filesystem::is_directory(parent, ec)) {
+        return roots;
+    }
+    for (const auto& entry : std::filesystem::directory_iterator(parent, ec)) {
+        if (entry.is_directory(ec)) {
+            roots.push_back(entry.path());
+            continue;
+        }
+        if (!IsZArchiveFile(entry.path())) {
+            continue;
+        }
+        // An archive holding one piece of content has its sce_sys at the root.
+        // Otherwise treat it as a bundle and expose each top-level directory,
+        // so many DLC can ship as a single file.
+        ZArchiveBackend probe{entry.path()};
+        if (!probe.IsOpen()) {
+            continue;
+        }
+        if (probe.Exists("sce_sys")) {
+            roots.push_back(entry.path());
+            continue;
+        }
+        if (auto dir = probe.OpenDir("")) {
+            DirEntry child;
+            while (dir->Next(child)) {
+                if (child.is_directory) {
+                    roots.push_back(entry.path() / child.name);
+                }
+            }
+        }
+    }
+    // directory_iterator order is unspecified; sort so mount point indices stay
+    // stable across runs and across host filesystems.
+    std::sort(roots.begin(), roots.end());
+    return roots;
+}
+
 void MntPoints::Mount(const std::filesystem::path& host_folder, const std::string& guest_folder,
                       bool read_only) {
     std::scoped_lock lock{m_mutex};
@@ -110,6 +150,14 @@ void MntPoints::Mount(const std::filesystem::path& host_folder, const std::strin
         };
         if (auto b = try_zar(p)) {
             return b;
+        }
+        // A path pointing at a directory inside an archive, e.g. a DLC bundle
+        // mounted as "addcont.zar/P1S1XXXX".
+        if (const auto split = SplitArchivePath(p); split && !split->inner.empty()) {
+            auto backend = std::make_shared<ZArchiveBackend>(split->archive, split->inner);
+            if (backend->IsOpen()) {
+                return backend;
+            }
         }
         std::filesystem::path with_ext = p;
         with_ext += ".zar";

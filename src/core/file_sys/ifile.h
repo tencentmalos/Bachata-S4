@@ -208,6 +208,17 @@ public:
 // True if path is a regular file with a ".zar" extension
 [[nodiscard]] bool IsZArchiveFile(const std::filesystem::path& path);
 
+// A path that points at a directory inside an archive, e.g.
+// "dlc.zar/P1S1XXXX" -> {archive="dlc.zar", inner="P1S1XXXX"}.
+struct ArchiveSubPath {
+    std::filesystem::path archive;
+    std::string inner; // '/'-separated, empty for the archive root
+};
+
+// Splits a path at its ".zar" component. Returns nullopt when no component is
+// an existing .zar file.
+[[nodiscard]] std::optional<ArchiveSubPath> SplitArchivePath(const std::filesystem::path& path);
+
 // Strips a trailing ".zar" extension so overlay suffixes ("-UPDATE", "-patch")
 // can be appended to the game's stem regardless of the container type.
 [[nodiscard]] std::filesystem::path StripZArchiveExtension(const std::filesystem::path& path);
