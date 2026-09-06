@@ -259,4 +259,51 @@ TEST_F(ContentRootTest, SplitArchivePathSeparatesArchiveFromInnerPath) {
     EXPECT_FALSE(Core::FileSys::SplitArchivePath(root / "plain" / "sce_sys").has_value());
 }
 
+// ── sibling suffixes ─────────────────────────────────────────────────
+// A title can ship as CUSA12878.zar + CUSA12878-UPD.zar + CUSA12878-DLC.zar
+// in one directory, so the suffixes have to round-trip.
+
+TEST_F(ContentRootTest, ShortUpdateSuffixResolvesToBaseGame) {
+    for (const auto* name : {"CUSA12878-UPD", "CUSA12878-UPDATE", "CUSA12878-patch"}) {
+        const auto base = Core::FileSys::BaseGameFromOverlay(root / name);
+        ASSERT_TRUE(base.has_value()) << name;
+        EXPECT_EQ(base->filename(), "CUSA12878") << name;
+    }
+    // Also with the archive extension attached.
+    const auto from_zar = Core::FileSys::BaseGameFromOverlay(root / "CUSA12878-UPD.zar");
+    ASSERT_TRUE(from_zar.has_value());
+    EXPECT_EQ(from_zar->filename(), "CUSA12878");
+}
+
+TEST_F(ContentRootTest, OverlayPathAppendsAfterStrippingExtension) {
+    const auto game = root / "CUSA12878.zar";
+    EXPECT_EQ(Core::FileSys::OverlayPath(game, "-UPD").filename(), "CUSA12878-UPD");
+    EXPECT_EQ(Core::FileSys::OverlayPath(game, Core::FileSys::DlcSuffix).filename(),
+              "CUSA12878-DLC");
+    // A directory-backed game has no extension to strip.
+    EXPECT_EQ(Core::FileSys::OverlayPath(root / "CUSA12878", "-UPD").filename(), "CUSA12878-UPD");
+}
+
+TEST_F(ContentRootTest, DlcSiblingArchiveExpandsLikeAnAddcontBundle) {
+    // CUSA12878-DLC.zar next to the game, holding one directory per package.
+    const auto staging = root / "_staging";
+    WriteFile(staging / "P1S1" / "sce_sys" / "param.sfo", "first");
+    WriteFile(staging / "P1S2" / "sce_sys" / "param.sfo", "second");
+    const auto sibling = root / "CUSA12878-DLC.zar";
+    ASSERT_TRUE(PackZar(staging, sibling));
+    fs::remove_all(staging);
+
+    // Resolve the way app_content does: game path -> -DLC sibling -> roots.
+    const auto resolved =
+        Core::FileSys::ResolveGameRoot(Core::FileSys::OverlayPath(root / "CUSA12878.zar", "-DLC"));
+    ASSERT_TRUE(resolved.has_value());
+    EXPECT_EQ(*resolved, sibling);
+
+    const auto roots = Core::FileSys::ExpandBundleRoots(*resolved);
+    ASSERT_EQ(roots.size(), 2u);
+    const auto data = Core::FileSys::ReadGameFile(roots.front(), "sce_sys/param.sfo");
+    ASSERT_TRUE(data.has_value());
+    EXPECT_EQ(AsString(*data), "first");
+}
+
 } // namespace

@@ -62,11 +62,13 @@ std::optional<std::filesystem::path> BaseGameFromOverlay(const std::filesystem::
         stem_path.replace_extension();
     }
     const std::string name = stem_path.filename().string();
-    static constexpr std::array<std::string_view, 3> suffixes{"-UPDATE", "-patch", "-mods"};
-    for (const auto suffix : suffixes) {
+    for (const auto suffix : UpdateSuffixes) {
         if (name.size() > suffix.size() && name.ends_with(suffix)) {
             return stem_path.parent_path() / name.substr(0, name.size() - suffix.size());
         }
+    }
+    if (name.size() > ModsSuffix.size() && name.ends_with(ModsSuffix)) {
+        return stem_path.parent_path() / name.substr(0, name.size() - ModsSuffix.size());
     }
     return std::nullopt;
 }
@@ -86,6 +88,30 @@ std::optional<std::filesystem::path> ResolveGameRoot(const std::filesystem::path
     return std::nullopt;
 }
 
+std::vector<std::filesystem::path> ExpandBundleRoots(const std::filesystem::path& archive) {
+    std::vector<std::filesystem::path> roots;
+    ZArchiveBackend probe{archive};
+    if (!probe.IsOpen()) {
+        return roots;
+    }
+    // An archive holding one piece of content has its sce_sys at the root.
+    // Otherwise treat it as a bundle and expose each top-level directory, so
+    // many pieces of content can ship as a single file.
+    if (probe.Exists("sce_sys")) {
+        roots.push_back(archive);
+        return roots;
+    }
+    if (auto dir = probe.OpenDir("")) {
+        DirEntry child;
+        while (dir->Next(child)) {
+            if (child.is_directory) {
+                roots.push_back(archive / child.name);
+            }
+        }
+    }
+    return roots;
+}
+
 std::vector<std::filesystem::path> ListContentRoots(const std::filesystem::path& parent) {
     std::vector<std::filesystem::path> roots;
     std::error_code ec;
@@ -100,24 +126,8 @@ std::vector<std::filesystem::path> ListContentRoots(const std::filesystem::path&
         if (!IsZArchiveFile(entry.path())) {
             continue;
         }
-        // An archive holding one piece of content has its sce_sys at the root.
-        // Otherwise treat it as a bundle and expose each top-level directory,
-        // so many DLC can ship as a single file.
-        ZArchiveBackend probe{entry.path()};
-        if (!probe.IsOpen()) {
-            continue;
-        }
-        if (probe.Exists("sce_sys")) {
-            roots.push_back(entry.path());
-            continue;
-        }
-        if (auto dir = probe.OpenDir("")) {
-            DirEntry child;
-            while (dir->Next(child)) {
-                if (child.is_directory) {
-                    roots.push_back(entry.path() / child.name);
-                }
-            }
+        for (auto& root : ExpandBundleRoots(entry.path())) {
+            roots.push_back(std::move(root));
         }
     }
     // directory_iterator order is unspecified; sort so mount point indices stay
@@ -171,16 +181,15 @@ void MntPoints::Mount(const std::filesystem::path& host_folder, const std::strin
     };
     // check for mods , updates,patch
     if (eligible_for_overlays) {
-        if (auto mods = probe_overlay(host_folder, "-mods")) {
+        if (auto mods = probe_overlay(host_folder, ModsSuffix)) {
             stack.push_back(std::move(mods));
         }
         if (!ignore_game_patches) {
-            auto patch = probe_overlay(host_folder, "-UPDATE");
-            if (!patch) {
-                patch = probe_overlay(host_folder, "-patch");
-            }
-            if (patch) {
-                stack.push_back(std::move(patch));
+            for (const auto suffix : UpdateSuffixes) {
+                if (auto patch = probe_overlay(host_folder, suffix)) {
+                    stack.push_back(std::move(patch));
+                    break;
+                }
             }
         }
     }
@@ -234,14 +243,18 @@ std::filesystem::path MntPoints::GetHostPath(std::string_view path, bool* is_rea
     const auto corrected_path_sanitized = RemoveTrailingSlashes(corrected_path);
     std::filesystem::path host_path = mount->host_path;
 
-    // Update folder is either mount + "-UPDATE" or mount + "-patch"
-    std::filesystem::path patch_path = OverlayPath(mount->host_path, "-UPDATE");
-    if (!std::filesystem::exists(patch_path)) {
-        patch_path = OverlayPath(mount->host_path, "-patch");
+    // Update folder is the mount plus the first update suffix that exists.
+    std::filesystem::path patch_path = OverlayPath(mount->host_path, UpdateSuffixes.front());
+    for (const auto suffix : UpdateSuffixes) {
+        auto candidate = OverlayPath(mount->host_path, suffix);
+        if (std::filesystem::exists(candidate)) {
+            patch_path = std::move(candidate);
+            break;
+        }
     }
 
     // Mods folder can only be at mount + "-mods"
-    std::filesystem::path mods_path = OverlayPath(mount->host_path, "-mods");
+    std::filesystem::path mods_path = OverlayPath(mount->host_path, ModsSuffix);
 
     // If we're just retrieving the mount, return the correct mount path.
     if (corrected_path_sanitized == mount->mount) {

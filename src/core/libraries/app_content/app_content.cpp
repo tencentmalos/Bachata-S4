@@ -56,12 +56,38 @@ int PS4_SYSV_ABI sceAppContentAddcontEnqueueDownloadSp() {
     return ORBIS_OK;
 }
 
+/// Content roots for this title, from the addcont install folder plus any
+/// "<game>-DLC" sibling of the game itself, so a title can ship as
+/// CUSA12878.zar + CUSA12878-UPD.zar + CUSA12878-DLC.zar in one directory.
+static std::vector<std::filesystem::path> CollectContentRoots() {
+    auto roots =
+        Core::FileSys::ListContentRoots(EmulatorSettings.GetAddonInstallDir() / title_id);
+
+    const auto& game_folder = Common::ElfInfo::Instance().GetGameFolder();
+    if (!game_folder.empty()) {
+        const auto sibling = Core::FileSys::OverlayPath(game_folder, Core::FileSys::DlcSuffix);
+        if (const auto resolved = Core::FileSys::ResolveGameRoot(sibling)) {
+            // Either a directory holding one entry per package, or an archive
+            // bundling them; both expand to the same shape.
+            auto found = Core::FileSys::IsZArchiveFile(*resolved)
+                             ? Core::FileSys::ExpandBundleRoots(*resolved)
+                             : Core::FileSys::ListContentRoots(*resolved);
+            roots.insert(roots.end(), std::make_move_iterator(found.begin()),
+                         std::make_move_iterator(found.end()));
+        }
+    }
+
+    // Indices are assigned by position, so the order must not vary.
+    std::sort(roots.begin(), roots.end());
+    roots.erase(std::unique(roots.begin(), roots.end()), roots.end());
+    return roots;
+}
+
 int PS4_SYSV_ABI sceAppContentAddcontMount(u32 service_label,
                                            const OrbisNpUnifiedEntitlementLabel* entitlement_label,
                                            OrbisAppContentMountPoint* mount_point) {
     LOG_INFO(Lib_AppContent, "called");
 
-    const auto& addon_path = EmulatorSettings.GetAddonInstallDir() / title_id;
     auto* mnt = Common::Singleton<Core::FileSys::MntPoints>::Instance();
 
     // Determine which loaded additional content this entitlement label is for.
@@ -82,7 +108,7 @@ int PS4_SYSV_ABI sceAppContentAddcontMount(u32 service_label,
 
     // Find which content root corresponds to this entitlement. Enumeration order
     // matches sceAppContentInitialize, so mount point indices line up.
-    for (const auto& content_root : Core::FileSys::ListContentRoots(addon_path)) {
+    for (const auto& content_root : CollectContentRoots()) {
         const auto sfo_data =
             Core::FileSys::ReadGameFile(content_root, "sce_sys/param.sfo");
         if (!sfo_data.has_value()) {
@@ -291,18 +317,13 @@ int PS4_SYSV_ABI sceAppContentInitialize(const OrbisAppContentInitParam* initPar
     is_initialized = true;
     auto* param_sfo = Common::Singleton<PSF>::Instance();
 
-    const auto addons_dir = EmulatorSettings.GetAddonInstallDir();
     if (const auto value = param_sfo->GetString("TITLE_ID"); value.has_value()) {
         title_id = *value;
     } else {
         UNREACHABLE_MSG("Failed to get TITLE_ID");
     }
-    const auto addon_path = addons_dir / title_id;
-    if (!std::filesystem::exists(addon_path)) {
-        return ORBIS_OK;
-    }
 
-    for (const auto& content_root : Core::FileSys::ListContentRoots(addon_path)) {
+    for (const auto& content_root : CollectContentRoots()) {
         const auto display_name = content_root.filename().string();
 
         // Look for a param.sfo in the additional content. The root may be a

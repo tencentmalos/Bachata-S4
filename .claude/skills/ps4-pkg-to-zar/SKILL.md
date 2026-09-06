@@ -46,9 +46,18 @@ an update alone is not bootable.
 python3 -m zar_packer build /path/to/release/
 ```
 
-Output defaults to `~/game/ps4/zar/`: `CUSA12878.zar`, `CUSA12878-UPDATE.zar`
-if an update was present, and `addcont/CUSA12878/addcont.zar` holding every DLC.
-Beat Saber's base game plus 246 DLC lands as two files, 273 MiB.
+Output defaults to `~/game/ps4/zar/`, the whole title in one directory:
+
+```
+CUSA12878.zar       base
+CUSA12878-UPD.zar   update, if one was supplied
+CUSA12878-DLC.zar   every DLC, bundled
+```
+
+`--addcont <dir>` puts DLC in the emulator's addcont folder instead.
+
+Pass every source at once — base, update and DLC. A missing update is not an
+error, so it is easy to forget one and get a silently incomplete build.
 
 Run from `tools/`, or add it to `PYTHONPATH`.
 
@@ -92,16 +101,18 @@ Overlays are matched by filename suffix and must be siblings:
 
 ```
 CUSA12878.zar          base
-CUSA12878-UPDATE.zar   update   (or -patch; -UPDATE wins if both exist)
+CUSA12878-UPD.zar      update   (also -UPDATE, -patch; first match wins)
+CUSA12878-DLC.zar      all DLC
 CUSA12878-mods.zar     mods     (highest priority)
 ```
 
-Precedence: `-mods` → `-UPDATE`/`-patch` → base.
+Precedence: `-mods` → update → base.
 
-DLC goes under `<addcont>/<BASE_TITLE_ID>/`. Default is a single `addcont.zar`
-with one top-level directory per package; a `.zar` or directory per package
-also works. Each entry holds `sce_sys/param.sfo` with `CATEGORY="ac"`. Names
-are cosmetic — the emulator matches on `CONTENT_ID`.
+DLC is either the `-DLC` sibling above or `<addcont>/<BASE_TITLE_ID>/`; both are
+scanned. Default is a single bundle with one top-level directory per package; a
+`.zar` or directory per package also works. Each entry holds
+`sce_sys/param.sfo` with `CATEGORY="ac"`. Names are cosmetic — the emulator
+matches on `CONTENT_ID`.
 
 A `.zar` with `sce_sys` at its root is one piece of content; without it, the
 archive is a bundle and each top-level directory becomes its own content root.

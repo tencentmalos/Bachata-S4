@@ -439,7 +439,9 @@ class PkgFile:
                 occupied_blocks = -(-(ndinode * INODE_SIZE) // PFS_BLOCK_SIZE)
 
             if 1 <= i <= occupied_blocks:
-                for p in range(0, PFS_BLOCK_SIZE, INODE_SIZE):
+                # 0x10000 is not a whole number of 0xA8-byte inodes, so the last
+                # slice of each block is a partial record and must be skipped.
+                for p in range(0, PFS_BLOCK_SIZE - INODE_SIZE + 1, INODE_SIZE):
                     node = _parse_inode(block[p : p + INODE_SIZE])
                     if node.mode == 0:
                         break

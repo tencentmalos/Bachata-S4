@@ -64,36 +64,37 @@ If you are targeting a build without those helpers, pass `--dlc-format dir`.
 
 ## Layout on disk
 
-Base, update and mods are matched by **filename suffix**, and must be siblings
-in one directory:
+The whole title lives in one directory, matched by **filename suffix**:
 
 ```
 <games>/
   CUSA12878.zar            base            -> /app0
-  CUSA12878-UPDATE.zar     update overlay  (or -patch; -UPDATE wins)
+  CUSA12878-UPD.zar        update overlay  -> stacked over /app0
+  CUSA12878-DLC.zar        all DLC         -> /addcont0..N
   CUSA12878-mods.zar       mods overlay    (highest priority)
 ```
 
-Precedence is `-mods` → `-UPDATE` (else `-patch`) → base; first backend holding
-a path wins, and directory listings are merged across the stack
-(`MntPoints::Mount`, [fs.cpp:89](../src/core/file_sys/fs.cpp)). Each layer can
-independently be a directory or a `.zar` — they mix freely.
+Update suffixes are tried in order — `-UPDATE`, `-UPD`, `-patch` — and the
+first that resolves wins; `-UPD` is the short form the packer writes. Overlay
+precedence is `-mods` → update → base; the first backend holding a path wins,
+and directory listings are merged across the stack (`MntPoints::Mount`,
+[fs.cpp](../src/core/file_sys/fs.cpp)). Each layer can independently be a
+directory or a `.zar` — they mix freely.
 
-DLC lives somewhere else entirely, keyed by the **base game's** title ID:
+DLC can also live in the emulator's addcont folder, keyed by the base game's
+title ID, which is what `--addcont` targets:
 
 ```
 <addcont>/                     default: <UserDir>/addcont
   CUSA12878/
-    addcont.zar                one bundle holding every DLC:
-      P1S1XXXXXXXXXXXX/          each package a top-level directory
-        sce_sys/param.sfo
-      P1S2XXXXXXXXXXXX/
+    addcont.zar                or one .zar / directory per package
 ```
 
-A bundle is any `.zar` *without* `sce_sys` at its root; each top-level directory
-becomes its own content root, mounted at `<archive>/<dir>`. An archive that does
-have `sce_sys` at the root is a single piece of content and is listed as-is, so
-one-archive-per-DLC still works.
+Both are scanned, so the two can coexist. Either way the shape inside is the
+same: a bundle is any `.zar` *without* `sce_sys` at its root, and each
+top-level directory in it becomes its own content root mounted at
+`<archive>/<dir>`. An archive that does have `sce_sys` at the root is a single
+piece of content and is used as-is.
 
 Matching is by `CONTENT_ID` inside each `param.sfo`, never by the name on disk.
 The tool names each entry after the entitlement label purely for legibility. As
@@ -127,8 +128,9 @@ python3 -m zar_packer build   <pkg|archive|folder>... [-o <out>] [--addcont <dir
 
 `inspect` classifies without extracting. `build` runs the whole pipeline:
 unpack containers, sort by `param.sfo` CATEGORY, extract, and pack. Output goes
-to `~/game/ps4/zar/` unless `-o` says otherwise, with DLC under
-`<out>/addcont/<TITLE_ID>/`.
+to `~/game/ps4/zar/` unless `-o` says otherwise, as `<TITLE_ID>.zar` plus
+`-UPD.zar` / `-DLC.zar` siblings. `--addcont <dir>` puts DLC in the emulator's
+addcont folder instead.
 
 Classification uses `CATEGORY` (`gd` game, `gp` patch, `ac*` addon), not the
 filename — scene releases name files freely. A `gd` package carrying patch
@@ -174,9 +176,15 @@ Three different numbers, not interchangeable. Beat Saber base game:
 | Extracted tree | 292 MiB |
 | `.zar` | 193 MiB |
 
-Its 246 DLC packages come to 79 MiB across ~3000 loose files, or 68 MiB as a
-single `addcont.zar`. The whole title — base game plus all DLC — is then two
-files totalling 273 MiB.
+Its v2.04 update is 4.6 GiB extracted and 4.4 GiB packed; the 246 DLC come to
+79 MiB across ~3000 loose files, or 68 MiB bundled. The complete title is then
+three files:
+
+```
+CUSA12878.zar       193 MiB
+CUSA12878-UPD.zar   4.4 GiB
+CUSA12878-DLC.zar    68 MiB
+```
 
 ## Verification
 
@@ -197,13 +205,16 @@ diff <(cd /tmp/refextract/CUSA12878 && find . -type f -exec shasum -a 256 {} + |
      <(cd /tmp/mine-stage/CUSA12878 && find . -type f -exec shasum -a 256 {} + | sort -k2)
 ```
 
-Two details the port has to match exactly, both found by that diff:
+Three details the port has to match exactly, all found by that diff:
 
 - `Inode.Blocks`/`loc` sit at `0x60`/`0x64`, while the on-disk inode stride is
   `0xA8`. Reading them from the end of the record yields zero-length files.
 - License entries (`0x400`–`0x403`) are zero-padded to an AES block boundary,
   decrypted whole, then truncated to the entry size. Leaving the trailing
   partial block as ciphertext corrupts the tail of `npbind.dat`.
+- A 0x10000 block holds 630.1 inodes of 0xA8 bytes, so its last slice is a
+  partial record and must be skipped. Only shows up once a package needs more
+  than one inode block — the 2027-file update does, the 138-file base does not.
 
 ## The restored C++ path
 

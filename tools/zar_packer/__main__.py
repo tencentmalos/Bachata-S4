@@ -41,6 +41,10 @@ ARCHIVE_SUFFIXES = (".rar", ".zip", ".7z", ".tar", ".gz", ".tgz")
 # Where built archives are kept by default.
 DEFAULT_OUTPUT_DIR = Path("~/game/ps4/zar").expanduser()
 
+# Sibling suffixes the emulator recognises next to a game root.
+UPDATE_SUFFIX = "-UPD"
+DLC_SUFFIX = "-DLC"
+
 
 class ToolError(RuntimeError):
     """User-facing failure: bad input, missing dependency, unusable PKG."""
@@ -439,7 +443,7 @@ def cmd_build(args: argparse.Namespace) -> int:
         if plan.updates:
             upd = plan.updates[-1]
             log(f"\n== update v{upd.version}: {upd.path.name} ==")
-            upd_stage = stage_root / f"{title_id}-UPDATE"
+            upd_stage = stage_root / f"{title_id}{UPDATE_SUFFIX}"
             if upd_stage.exists():
                 shutil.rmtree(upd_stage)
             n = extract_pkg(upd.path, upd_stage, quiet=args.quiet)
@@ -447,7 +451,7 @@ def cmd_build(args: argparse.Namespace) -> int:
             verify_game_dir(upd_stage, "update")
 
             if zarchive:
-                target = out_dir / f"{title_id}-UPDATE.zar"
+                target = out_dir / f"{title_id}{UPDATE_SUFFIX}.zar"
                 log(f"  packing -> {target.name}")
                 run_zarchive(zarchive, upd_stage, target)
                 log(f"  {human(target.stat().st_size)}")
@@ -465,8 +469,15 @@ def cmd_build(args: argparse.Namespace) -> int:
             }[mode]
             log(f"\n== dlc: {len(plan.dlcs)} package(s) as {label} ==")
 
-            dlc_root = addcont_dir / title_id
-            dlc_root.mkdir(parents=True, exist_ok=True)
+            # Default: a "<game>-DLC" sibling, so the whole title lives in one
+            # directory. --addcont puts it in the emulator's addcont folder
+            # instead, keyed by title ID.
+            if args.addcont:
+                dlc_root = addcont_dir / title_id
+            else:
+                dlc_root = out_dir / f"{title_id}{DLC_SUFFIX}"
+            if mode != "bundle":
+                dlc_root.mkdir(parents=True, exist_ok=True)
             # Bundling extracts everything under one staging root and packs it
             # in a single pass, so each DLC ends up as a top-level directory
             # inside the archive.
@@ -517,17 +528,23 @@ def cmd_build(args: argparse.Namespace) -> int:
             if mode == "bundle":
                 if ok == 0:
                     raise ToolError("every DLC failed to extract; nothing to bundle")
-                bundle = dlc_root / "addcont.zar"
+                # As a sibling the bundle *is* "<game>-DLC.zar"; under an
+                # explicit addcont root it sits inside the title's folder.
+                bundle = (
+                    (dlc_root / "addcont.zar")
+                    if args.addcont
+                    else dlc_root.with_name(dlc_root.name + ".zar")
+                )
                 log(f"  packing {ok} DLC -> {bundle.name}")
                 run_zarchive(zarchive, dlc_stage_root, bundle)
                 log(f"  {human(bundle.stat().st_size)}")
                 if not keep_dir:
                     shutil.rmtree(dlc_stage_root, ignore_errors=True)
                 produced.append(str(bundle))
+                log(f"  installed {ok}/{len(plan.dlcs)} DLC into {bundle}")
             else:
                 produced.append(str(dlc_root))
-
-            log(f"  installed {ok}/{len(plan.dlcs)} DLC into {dlc_root}")
+                log(f"  installed {ok}/{len(plan.dlcs)} DLC into {dlc_root}")
 
         # ── summary ──
         log("\n== done ==")
@@ -539,7 +556,7 @@ def cmd_build(args: argparse.Namespace) -> int:
                 f"\nRun with:\n"
                 f"  shadps4 --game {out_dir / (title_id + '.zar')}"
             )
-        if plan.dlcs:
+        if plan.dlcs and args.addcont:
             log(f"  (add --set-addon-folder {addcont_dir} if it is not your default)")
 
     return 0

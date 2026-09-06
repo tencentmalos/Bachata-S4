@@ -3,11 +3,13 @@
 
 #pragma once
 
+#include <array>
 #include <atomic>
 #include <memory>
 #include <mutex>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <vector>
 #include <tsl/robin_map.h>
 #include "common/io_file.h"
@@ -24,6 +26,15 @@ struct Resolver;
 
 namespace Core::FileSys {
 
+// Suffixes that mark a sibling of the game root as an overlay. Update suffixes
+// are tried in order and the first match wins; "-UPD" is the short form.
+inline constexpr std::array<std::string_view, 3> UpdateSuffixes{"-UPDATE", "-UPD", "-patch"};
+inline constexpr std::string_view ModsSuffix{"-mods"};
+
+// Suffix for a sibling archive or directory holding a title's additional
+// content, as an alternative to the addcont install folder.
+inline constexpr std::string_view DlcSuffix{"-DLC"};
+
 /// Builds the path of an overlay that sits next to a game
 [[nodiscard]] std::filesystem::path OverlayPath(const std::filesystem::path& base,
                                                 std::string_view suffix);
@@ -34,6 +45,12 @@ namespace Core::FileSys {
 
 [[nodiscard]] std::optional<std::filesystem::path> ResolveGameRoot(
     const std::filesystem::path& root);
+
+/// Expands one `.zar` into the content roots it holds. An archive with
+/// `sce_sys` at its root is a single piece of content and yields itself;
+/// otherwise it is a bundle and yields `<archive>/<dir>` per top-level entry.
+[[nodiscard]] std::vector<std::filesystem::path> ExpandBundleRoots(
+    const std::filesystem::path& archive);
 
 /// Enumerates the content roots directly under `parent`: subdirectories, plus
 /// any `.zar` archive. Used to scan install folders (addcont) uniformly whether
