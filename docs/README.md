@@ -4,6 +4,8 @@
 
 **固定基础版本：[2026-09-07 / `a7128893`](baselines/2026-09-07-android-fex-foundation.md)**。该记录包含主仓与七个 references 的精确提交、验证结果、未完成项、未纳入基线的本地改动及恢复方法；后续里程碑以它为起点。
 
+**下一个实施目标：[V0 首个验证版 spec](specs/android-fex-v0.md)**。配套 [CPU API 契约](specs/android-fex-v0-api.md)、[验收矩阵](specs/android-fex-v0-acceptance.md)、[执行 AI 任务书](specs/android-fex-v0-handoff.md)。这些是待实现要求，不是新的已通过状态。
+
 ## 推荐阅读顺序
 
 | 文档 | 解决的问题 |

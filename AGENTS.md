@@ -6,6 +6,7 @@
 - The current repository still contains the desktop shadPS4 core. The Android application is a pinned reference under `references/Bachata-S4-android/android/BachataS4`; an integrated NDK backend has **not** been implemented or validated here.
 - Start with [the Android/ARM64 integration audit](docs/android-arm64-integration-audit.md), then [the implementation plan](docs/fex-android16-native-guest-host-plan.md). All research entry points are in [docs/README.md](docs/README.md).
 - The fixed initial baseline is commit `a712889343ccd2588b712988dae0a76a104e0dce`; its [status record](docs/baselines/2026-09-07-android-fex-foundation.md) distinguishes committed source, validation and excluded local work. Keep that historical record intact and add new milestone records for later progress.
+- The next implementation milestone is [V0](docs/specs/android-fex-v0.md), with normative API and acceptance documents linked there. Use its bounded scope for the first validation build; it is a specification, not evidence of completed implementation. The [execution handoff](docs/specs/android-fex-v0-handoff.md) is the entry point for the implementing agent.
 - Prioritize whether source interfaces can be integrated over small app version differences. The published app label is not proof of source or APK correspondence.
 
 ## Repository layout and reference ownership
