@@ -448,8 +448,68 @@ void TestTransactions() {
     });
 }
 
-// --- unsupported modes ------------------------------------------------------
+// --- handle lifetime --------------------------------------------------------
 
+void TestHandleLifetime() {
+    RunCase("L01a", "a token outliving its address space releases safely", [] {
+        // Regression: the first version stored a raw owner pointer, so an
+        // orphaned token called ReleaseQuiescence on freed memory and aborted
+        // with "mutex lock failed". Releasing late must be a no-op instead.
+        QuiescenceToken orphan;
+        {
+            auto space = MakeSpace();
+            auto token = space->Quiesce(1'000'000);
+            Check(token.HasValue(), "quiesce failed");
+            if (!token) return;
+            orphan = std::move(token).Value();
+            Check(orphan.OwnerAlive(), "owner should be alive while the space exists");
+        }
+        Check(!orphan.OwnerAlive(), "owner must read as gone once the space is destroyed");
+        Check(orphan.Epoch() != 0, "the epoch value itself is still readable");
+        // The destructor runs at scope exit; reaching the next case is the
+        // real assertion.
+    });
+
+    RunCase("L01b", "a pinned span outliving its address space releases safely", [] {
+        PinnedSpan orphan;
+        {
+            auto space = MakeSpace();
+            const std::uint64_t page = HostPageSize();
+            auto range = GuestRange::Checked(space->ReservationBase(), page).Value();
+            Check(space->Map(range, GuestPermission::Read | GuestPermission::Write).HasValue(),
+                  "map failed");
+            auto pin = space->AcquirePinnedSpan(range, true);
+            Check(pin.HasValue(), "pin failed");
+            if (!pin) return;
+            orphan = std::move(pin).Value();
+            Check(orphan.OwnerAlive(), "owner should be alive while the space exists");
+        }
+        Check(!orphan.OwnerAlive(), "owner must read as gone once the space is destroyed");
+        // Deliberately not touching Bytes() here: the mapping is unmapped, so
+        // reading it would be a genuine use-after-free rather than a test.
+    });
+
+    RunCase("L01c", "moved-from handles do not double release", [] {
+        auto space = MakeSpace();
+        auto first = space->Quiesce(1'000'000);
+        Check(first.HasValue(), "quiesce failed");
+        if (!first) return;
+
+        QuiescenceToken moved = std::move(first).Value();
+        Check(moved.IsValid(), "moved-to token should be valid");
+        {
+            QuiescenceToken second = std::move(moved);
+            Check(second.IsValid(), "second move target should be valid");
+            Check(!moved.IsValid(), "moved-from token must be invalidated");
+        }
+        // The single live token was released exactly once, so a new
+        // transaction can start.
+        Check(space->Quiesce(1'000'000).HasValue(),
+              "a new quiesce must succeed after the previous token was released");
+    });
+}
+
+// --- unsupported modes ------------------------------------------------------
 void TestUnsupportedModes() {
     RunCase("M08b", "TransparentSMC and SoftwareCallbacks are refused at init", [] {
         AddressSpaceConfig transparent{};
@@ -547,6 +607,7 @@ int main() {
     TestHostPageDiscovery();
     TestMappingLifecycle();
     TestTransactions();
+    TestHandleLifetime();
     TestUnsupportedModes();
     TestStopSemantics();
 

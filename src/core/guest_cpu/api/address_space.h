@@ -171,6 +171,9 @@ private:
     std::uint64_t next_quiescence_epoch{1};
     std::uint64_t active_quiescence{};
     std::uint64_t next_lease_id{1};
+    // Handed to tokens and pins as a weak reference so they can tell whether
+    // this object still exists when they are released.
+    std::shared_ptr<AddressSpaceLiveness> liveness;
 };
 
 } // namespace Core::GuestCpu

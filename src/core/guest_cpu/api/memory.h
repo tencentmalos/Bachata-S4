@@ -18,6 +18,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <memory>
 #include <span>
 #include <string_view>
 
@@ -127,6 +128,17 @@ enum class InvalidationReason : std::uint8_t {
     FullFlush,
 };
 
+// Shared liveness marker for handles that outlive their address space.
+//
+// A QuiescenceToken or PinnedSpan is supposed to be released before the space
+// it came from is destroyed, but "supposed to" is not a memory-safety
+// guarantee: an orphaned handle would otherwise call back into freed memory
+// during its own destructor. Both hold a weak reference to this block, so a
+// late release becomes a no-op instead of undefined behaviour.
+struct AddressSpaceLiveness final {
+    class GuestAddressSpace* space{};
+};
+
 // Proof that every relevant guest owner is stopped and no HLE writer is still
 // running. Required for any transaction that changes code or mappings
 // (API contract §7.2). Move-only: a token must not be duplicated and used to
@@ -149,12 +161,19 @@ public:
     [[nodiscard]] std::size_t StoppedThreadCount() const noexcept {
         return stopped_threads;
     }
+    // False once the originating address space has been destroyed. A token in
+    // that state can no longer authorise anything.
+    [[nodiscard]] bool OwnerAlive() const noexcept {
+        return !owner.expired();
+    }
 
 private:
     friend class GuestAddressSpace;
-    QuiescenceToken(class GuestAddressSpace* owner, std::uint64_t epoch, std::size_t threads);
+    QuiescenceToken(std::weak_ptr<AddressSpaceLiveness> owner, std::uint64_t epoch,
+                    std::size_t threads);
+    void ReleaseIfOwned() noexcept;
 
-    class GuestAddressSpace* owner{};
+    std::weak_ptr<AddressSpaceLiveness> owner{};
     std::uint64_t epoch{};
     std::size_t stopped_threads{};
 };
@@ -183,14 +202,19 @@ public:
     [[nodiscard]] bool Writable() const noexcept {
         return writable;
     }
+    // False once the originating address space has been destroyed. The bytes
+    // are not safe to touch in that state.
+    [[nodiscard]] bool OwnerAlive() const noexcept {
+        return !owner.expired();
+    }
     void Release();
 
 private:
     friend class GuestAddressSpace;
-    PinnedSpan(class GuestAddressSpace* owner, GuestAddress base, std::byte* data,
+    PinnedSpan(std::weak_ptr<AddressSpaceLiveness> owner, GuestAddress base, std::byte* data,
                std::size_t size, bool writable, std::uint64_t lease_id);
 
-    class GuestAddressSpace* owner{};
+    std::weak_ptr<AddressSpaceLiveness> owner{};
     GuestAddress guest_base{};
     std::byte* host_data{};
     std::size_t host_size{};

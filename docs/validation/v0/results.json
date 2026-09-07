@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
   "spec": "android-fex-v0",
-  "run_id": "20260907T112551Z",
-  "timestamp_utc": "2026-09-07T11:25:51.206735+00:00",
+  "run_id": "20260907T115305Z",
+  "timestamp_utc": "2026-09-07T11:53:05.360731+00:00",
   "baseline_commit": "a712889343ccd2588b712988dae0a76a104e0dce",
-  "implementation_commit": "80127b0edf42f8001fe9f46643e856c83b05e274",
+  "implementation_commit": "7df20a5979efa21782ccfd70211fbdd81a80f0b1",
   "implementation_branch": "codex/android-fex-v0",
   "working_tree_dirty": true,
   "fex_base_commit": "f2b679f6028ce1c38875233aecfcf5d3f8ebecec",
@@ -40,13 +40,13 @@
   "suites": {
     "api_contract_tests": {
       "binary": "/tmp/v0build/api_contract_tests",
-      "sha256": "4a636ed3394a024b7ce7e24a1402f507431910f68e636ac1401904cba390f755",
-      "sub_cases": 18,
+      "sha256": "e3a12d96a7061dfb25e0cec9496225afa51cf28dae5006c42f696b20cc77dc15",
+      "sub_cases": 21,
       "failures": 0
     },
     "hle_abi_tests": {
       "binary": "/tmp/v0build/hle_abi_tests",
-      "sha256": "0396f2976c007e1786782e9261191ec7d9e4c32678f7be0e6d9e12dd047ca336",
+      "sha256": "53991daa7fe8f8afa12c6cdc0a4ade8c7601a0b0c47c2e0fb0689d704b05fb33",
       "sub_cases": 14,
       "failures": 0
     }

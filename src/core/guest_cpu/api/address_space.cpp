@@ -103,26 +103,25 @@ Result<GuestRange> GuestRange::Checked(GuestAddress base, std::uint64_t size) {
 
 // --- QuiescenceToken --------------------------------------------------------
 
-QuiescenceToken::QuiescenceToken(GuestAddressSpace* owner_, std::uint64_t epoch_,
-                                 std::size_t threads)
-    : owner{owner_}, epoch{epoch_}, stopped_threads{threads} {}
+QuiescenceToken::QuiescenceToken(std::weak_ptr<AddressSpaceLiveness> owner_,
+                                 std::uint64_t epoch_, std::size_t threads)
+    : owner{std::move(owner_)}, epoch{epoch_}, stopped_threads{threads} {}
 
 QuiescenceToken::QuiescenceToken(QuiescenceToken&& other) noexcept
-    : owner{other.owner}, epoch{other.epoch}, stopped_threads{other.stopped_threads} {
-    other.owner = nullptr;
+    : owner{std::move(other.owner)}, epoch{other.epoch},
+      stopped_threads{other.stopped_threads} {
+    other.owner.reset();
     other.epoch = 0;
     other.stopped_threads = 0;
 }
 
 QuiescenceToken& QuiescenceToken::operator=(QuiescenceToken&& other) noexcept {
     if (this != &other) {
-        if (owner != nullptr && epoch != 0) {
-            owner->ReleaseQuiescence(epoch);
-        }
-        owner = other.owner;
+        ReleaseIfOwned();
+        owner = std::move(other.owner);
         epoch = other.epoch;
         stopped_threads = other.stopped_threads;
-        other.owner = nullptr;
+        other.owner.reset();
         other.epoch = 0;
         other.stopped_threads = 0;
     }
@@ -130,22 +129,34 @@ QuiescenceToken& QuiescenceToken::operator=(QuiescenceToken&& other) noexcept {
 }
 
 QuiescenceToken::~QuiescenceToken() {
-    if (owner != nullptr && epoch != 0) {
-        owner->ReleaseQuiescence(epoch);
+    ReleaseIfOwned();
+}
+
+void QuiescenceToken::ReleaseIfOwned() noexcept {
+    if (epoch == 0) {
+        return;
     }
+    // lock() fails when the address space is already gone. Releasing into a
+    // destroyed space is then correctly a no-op rather than a call through a
+    // dangling pointer.
+    if (auto alive = owner.lock(); alive && alive->space != nullptr) {
+        alive->space->ReleaseQuiescence(epoch);
+    }
+    owner.reset();
+    epoch = 0;
 }
 
 // --- PinnedSpan -------------------------------------------------------------
 
-PinnedSpan::PinnedSpan(GuestAddressSpace* owner_, GuestAddress base, std::byte* data,
-                       std::size_t size, bool writable_, std::uint64_t lease)
-    : owner{owner_}, guest_base{base}, host_data{data}, host_size{size}, writable{writable_},
-      lease_id{lease} {}
+PinnedSpan::PinnedSpan(std::weak_ptr<AddressSpaceLiveness> owner_, GuestAddress base,
+                       std::byte* data, std::size_t size, bool writable_, std::uint64_t lease)
+    : owner{std::move(owner_)}, guest_base{base}, host_data{data}, host_size{size},
+      writable{writable_}, lease_id{lease} {}
 
 PinnedSpan::PinnedSpan(PinnedSpan&& other) noexcept
-    : owner{other.owner}, guest_base{other.guest_base}, host_data{other.host_data},
+    : owner{std::move(other.owner)}, guest_base{other.guest_base}, host_data{other.host_data},
       host_size{other.host_size}, writable{other.writable}, lease_id{other.lease_id} {
-    other.owner = nullptr;
+    other.owner.reset();
     other.host_data = nullptr;
     other.host_size = 0;
     other.lease_id = 0;
@@ -154,13 +165,13 @@ PinnedSpan::PinnedSpan(PinnedSpan&& other) noexcept
 PinnedSpan& PinnedSpan::operator=(PinnedSpan&& other) noexcept {
     if (this != &other) {
         Release();
-        owner = other.owner;
+        owner = std::move(other.owner);
         guest_base = other.guest_base;
         host_data = other.host_data;
         host_size = other.host_size;
         writable = other.writable;
         lease_id = other.lease_id;
-        other.owner = nullptr;
+        other.owner.reset();
         other.host_data = nullptr;
         other.host_size = 0;
         other.lease_id = 0;
@@ -173,10 +184,14 @@ PinnedSpan::~PinnedSpan() {
 }
 
 void PinnedSpan::Release() {
-    if (owner != nullptr && lease_id != 0) {
-        owner->ReleasePin(lease_id);
+    if (lease_id != 0) {
+        // Same rule as QuiescenceToken: a lease that outlived its space is
+        // dropped silently instead of writing through freed memory.
+        if (auto alive = owner.lock(); alive && alive->space != nullptr) {
+            alive->space->ReleasePin(lease_id);
+        }
     }
-    owner = nullptr;
+    owner.reset();
     host_data = nullptr;
     host_size = 0;
     lease_id = 0;
@@ -188,7 +203,10 @@ GuestAddressSpace::GuestAddressSpace(void* reservation, std::uint64_t size,
                                      const AddressSpaceConfig& config)
     : reservation_host{reservation},
       reservation_base{GuestAddress{reinterpret_cast<std::uint64_t>(reservation)}},
-      reservation_size{size}, memory_mode{config.memory_mode}, smc_mode{config.smc_mode} {}
+      reservation_size{size}, memory_mode{config.memory_mode}, smc_mode{config.smc_mode},
+      liveness{std::make_shared<AddressSpaceLiveness>()} {
+    liveness->space = this;
+}
 
 Result<std::unique_ptr<GuestAddressSpace>> GuestAddressSpace::Create(
     const AddressSpaceConfig& config) {
@@ -227,6 +245,11 @@ Result<std::unique_ptr<GuestAddressSpace>> GuestAddressSpace::Create(
 }
 
 GuestAddressSpace::~GuestAddressSpace() {
+    // Publish "gone" before releasing memory, so any surviving token or span
+    // sees an expired owner rather than a stale pointer.
+    if (liveness) {
+        liveness->space = nullptr;
+    }
     if (reservation_host != nullptr) {
         ::munmap(reservation_host, static_cast<std::size_t>(reservation_size));
     }
@@ -480,7 +503,7 @@ Result<PinnedSpan> GuestAddressSpace::AcquirePinnedSpan(GuestRange range, bool w
     std::lock_guard guard{lock};
     const std::uint64_t lease = next_lease_id++;
     pins.push_back(Pin{lease, range, writable});
-    return PinnedSpan{this, range.base, HostPointer(range.base),
+    return PinnedSpan{liveness, range.base, HostPointer(range.base),
                       static_cast<std::size_t>(range.size), writable, lease};
 }
 
@@ -509,7 +532,7 @@ Result<QuiescenceToken> GuestAddressSpace::Quiesce(std::uint64_t timeout_ns) {
     active_quiescence = epoch;
     // Thread stopping is the CpuContext's responsibility; it supplies the
     // count. With no attached context this is a memory-only transaction.
-    return QuiescenceToken{this, epoch, 0};
+    return QuiescenceToken{liveness, epoch, 0};
 }
 
 void GuestAddressSpace::ReleaseQuiescence(std::uint64_t epoch) {

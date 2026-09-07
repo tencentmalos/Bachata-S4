@@ -18,12 +18,15 @@ guest ABI page: 4096, code index granularity: 4096
 [M13b ] quiesce reports Timeout when an HLE writer is still in flight PASS
 [M12  ] observers get conservatively widened write notifications PASS
 [M10  ] aliases require a mapped primary range               PASS
+[L01a ] a token outliving its address space releases safely  PASS
+[L01b ] a pinned span outliving its address space releases safely PASS
+[L01c ] moved-from handles do not double release             PASS
 [M08b ] TransparentSMC and SoftwareCallbacks are refused at init PASS
 [T03a ] a fault is never masked by a simultaneous pause      PASS
 [D03a ] snapshot validity distinguishes unknown from zero    PASS
 [D03b ] public GPR numbering matches the x86-64 encoding     PASS
 
-18/18 passed
+21/21 passed
 
 SCOPE: host-only. Proves page arithmetic and POSIX mapping semantics
        at the real host page size. Proves nothing about bionic, ART or FEX.
