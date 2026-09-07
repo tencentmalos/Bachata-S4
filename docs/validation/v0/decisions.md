@@ -191,3 +191,35 @@ foundation/basic/underlying/core/public/spatial/core/utils/StringTool.hpp:14:10:
 
 下一步：为 foundation 提供 `fmt`（vendored 或系统包），重跑上述构建，
 再实现 round-trip 与非法/截断输入测试。
+
+---
+
+## DEC-09　ASan 在本构建环境不可用；已用 UBSan 与目标用例替代
+
+- 类型：验证手段限制 + 对先前提交信息的更正
+- 发现方式：先前提交 `73be4099` 的信息里写了“clean under -fsanitize=address,undefined”。
+  复核时发现该结论来自一次被 `tail` 掩盖了退出码的运行，**不成立**。
+
+实测：
+
+```
+$ printf '#include <cstdio>\nint main(){std::printf("hello asan\n");return 0;}\n' > triv.cpp
+$ clang++ -fsanitize=address triv.cpp -o triv && timeout 60 ./triv
+rc=124            # 超时，无输出
+```
+
+**一个什么都不做的 ASan 二进制在本机同样挂死**，因此这是环境问题
+（Apple clang 17 + Darwin 25.5 沙箱），不是被测代码的问题。
+
+有效的替代验证，全部实测通过：
+
+| 手段 | 结果 |
+|---|---|
+| UBSan（`-fsanitize=undefined -fno-sanitize-recover=all`） | 21/21 通过，rc=0 |
+| 普通构建 | 21/21 + 14/14 通过 |
+| 针对性生命周期用例（L01a/L01b/L01c） | 通过；修复前该场景以 `mutex lock failed: Invalid argument` 中止 |
+
+结论：DEC-08 之前那条“ASan clean”的表述应读作 **“UBSan clean，ASan 未能运行”**。
+生命周期修复本身有独立证据——修复前可复现崩溃、修复后不再崩溃，且有三个回归用例守住。
+
+下一步：在 ASan 可用的机器或 Linux CI 上补跑一次，再把结论升级为“ASan clean”。
