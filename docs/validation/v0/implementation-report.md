@@ -203,11 +203,31 @@ Android 16 设备可以运行以 API 35 sysroot 构建的 native 代码——nat
 | 验证 APK、Activity、SurfaceView | 未实现 | 依赖上一项 |
 | Vulkan Surface 生命周期 | 未实现 | 同上 |
 | x86 fixture 与生成规则 | 未实现 | 需要后端执行才能验证 |
-| foundation reflection/packing | 未启用 | 依赖闭包未完成；F02 记 NOT_RUN 而非 PASS |
+| foundation reflection/packing | 未启用 | 依赖闭包缺 `fmt`，实测见 §5.1；F02 记 NOT_RUN 而非 PASS |
 | segment mapping helper（M06） | 未实现 | 本轮范围外 |
 
 这些**没有**写成占位实现。spec 明确要求“不要仅返回一份计划或接口空壳”，
 一个返回固定值的假 backend 会让验收矩阵看起来在推进，实际什么都没验证。
+
+### 5.1 F02 的具体阻断点（实测，非推断）
+
+F02 不依赖 FEX，因此本轮实际尝试为 Android 构建 reflection/packing。
+CMake **配置成功**，编译失败于：
+
+```
+foundation/basic/underlying/core/public/spatial/core/utils/StringTool.hpp:14:10:
+  fatal error: 'fmt/format.h' file not found
+```
+
+`foundation/third_party/` 下没有 `fmt`，也没有任何 `find_package(fmt)`。
+`basic/underlying/core` 是 reflection 的传递依赖，reflection 又是 packing 的依赖。
+
+排除掉两个误判（记在 [DEC-08](decisions.md)，避免后续重复排查）：
+`zstd` 缺失只影响不相关的 `modules/zar`；
+“`basic/` 拉进 zar”是我第一次探测脚本破坏相对路径解析造成的假象，不是 foundation 的结构问题。
+
+另需注意：packing 传递依赖 mimalloc。即使补上 `fmt`，把 mimalloc 带进 ART 进程
+仍需单独的 allocator/TLS 审计——不要因为“能编过”就启用。
 
 ## 6. 建议的下一步
 

@@ -150,3 +150,44 @@ DirectMapped 模式下，若请求在同一个 host page 内给不同 4 KiB 子�
 
 但它不是 bionic、没有 ART、没有 app 沙箱、不是 FEX 的 ARM64 Linux JIT 目标。
 HOST 结果单独列出，不折算成任何 A16-16K 项。
+
+---
+
+## DEC-08　foundation reflection/packing 的 Android 依赖闭包缺 `fmt`，F02 记 NOT_RUN
+
+- 类型：实测阻断（非规则阻断，可解除）
+- 相关验收：F02
+
+F02 不依赖 FEX，因此本轮实际尝试了为 Android 构建 `foundation_meta_reflection`
+与 `foundation_meta_packing`。CMake **配置成功**，编译失败于：
+
+```
+foundation/basic/underlying/core/public/spatial/core/utils/StringTool.hpp:14:10:
+  fatal error: 'fmt/format.h' file not found
+```
+
+连带 `MemoryStatistics.h:80,84` 因 `fmt::format_string` 未声明而报错。
+
+核实：`foundation/third_party/` 下**没有** `fmt` 目录，`third_party/CMakeLists.txt`
+中也没有任何 `fmt` 条目或 `find_package(fmt)`。也就是说 `fmt` 既未 vendored 也无发现路径，
+而 `basic/underlying/core` 是 reflection 的传递依赖，reflection 又是 packing 的依赖。
+
+顺带确认了两件事，避免后续重复排查：
+
+- `zstd` 缺失只影响 `modules/zar`，与 reflection/packing 无关；
+  第一次探测报 `zstd` 是因为整树 `add_subdirectory` 把 zar 也带了进来。
+- 早先“`basic/` 拉进 `modules/zar`”的现象是我的探测脚本重定义
+  `foundation_add_subdirectory` 破坏了相对路径解析所致，**不是** foundation 的结构问题。
+  `basic/modules` 与 `foundation/modules` 是不同目录。
+
+另一个需要留意的点：`foundation_meta_packing` 传递依赖
+`spatial::foundation_allocator` → `spatial::third_party_mimalloc`。
+即使解决了 `fmt`，把 mimalloc 带进 ART 进程也需要单独的 allocator/TLS 审计，
+[Foundation 接入记录](../foundation-integration.md)已就此提出警告。不要因为“能编过”就直接启用。
+
+决定：F02 记 **NOT_RUN**，原因写明为依赖闭包缺 `fmt`，而不是笼统的“未启用”。
+这不是 spec 意义上的阻断（可以通过 vendoring 或 `find_package` 解决），
+但本轮未解决，因此不能记 PASS。
+
+下一步：为 foundation 提供 `fmt`（vendored 或系统包），重跑上述构建，
+再实现 round-trip 与非法/截断输入测试。

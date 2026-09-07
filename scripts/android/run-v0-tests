@@ -45,7 +45,10 @@ CASES: dict[str, tuple[str, str | None]] = {
     "B06": ("desktop targets still build with the new options off", None),  # verified below
     # Foundation
     "F01": ("DebugBus status/capabilities/stop during guest execution", FEX_BLOCKED),
-    "F02": ("foundation reflection/packing round trip", "foundation reflection dependency closure not yet enabled"),
+    "F02": ("foundation reflection/packing round trip",
+            "dependency closure incomplete: fmt/format.h is not vendored in "
+            "foundation/third_party and has no find_package path, so "
+            "foundation_meta_reflection fails to compile for Android (DEC-08)"),
     "F03": ("shutdown with a diagnostic request in flight, 100x", FEX_BLOCKED),
     "F04": ("TCP control lifecycle", "network control not enabled in V0; capability=false"),
     # CPU / ABI

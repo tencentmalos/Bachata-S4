@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
   "spec": "android-fex-v0",
-  "run_id": "20260907T115305Z",
-  "timestamp_utc": "2026-09-07T11:53:05.360731+00:00",
+  "run_id": "20260907T115857Z",
+  "timestamp_utc": "2026-09-07T11:58:57.293692+00:00",
   "baseline_commit": "a712889343ccd2588b712988dae0a76a104e0dce",
-  "implementation_commit": "7df20a5979efa21782ccfd70211fbdd81a80f0b1",
+  "implementation_commit": "73be409993a8af66e8325069987ed3a5259b201a",
   "implementation_branch": "codex/android-fex-v0",
   "working_tree_dirty": true,
   "fex_base_commit": "f2b679f6028ce1c38875233aecfcf5d3f8ebecec",
@@ -18,16 +18,17 @@
     "system": "Darwin"
   },
   "device": {
-    "attached": false,
-    "api": null,
-    "abi": null,
-    "kernel_page_size": null,
+    "attached": true,
+    "api": 36,
+    "abi": "arm64-v8a",
+    "kernel_page_size": 4096,
     "process_page_size": null,
     "physical_device": null,
-    "soc": null,
-    "kernel": null,
+    "soc": "xxxx",
+    "kernel": "6.12.58-android16-6-maybe-dirty-4k",
     "page_size_compat_enabled": null,
-    "note": "no device attached; in-app page size unverified"
+    "note": "kernel page size read from the device; the in-app sysconf value requires the validation APK and is still unverified",
+    "serial": "PB3210PGL6170004G"
   },
   "expected_page_size": null,
   "capabilities": {
@@ -151,7 +152,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "foundation reflection dependency closure not yet enabled",
+      "reason": "dependency closure incomplete: fmt/format.h is not vendored in foundation/third_party and has no find_package path, so foundation_meta_reflection fails to compile for Android (DEC-08)",
       "evidence": []
     },
     {
