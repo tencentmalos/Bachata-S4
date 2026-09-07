@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "spec": "android-fex-v0",
+  "milestone": "M0",
+  "recorded_utc": "2026-09-07",
+  "recorded_by": "measured on the build host; see environment-and-toolchain.md for the commands",
+
+  "baseline_commit": "a712889343ccd2588b712988dae0a76a104e0dce",
+  "implementation_base_commit": "dccc0d7938827ebc58143b8ea784e14491cf6d03",
+  "implementation_branch": "codex/android-fex-v0",
+
+  "build_host": {
+    "os": "macOS (Darwin 25.5.0)",
+    "arch": "arm64",
+    "page_size": 16384,
+    "note": "The build host itself runs 16 KiB pages. That makes host-side page-semantics tests meaningful, but it is NOT an Android device and cannot satisfy A16-16K."
+  },
+
+  "android_sdk": {
+    "root": "$HOME/Library/Android/sdk",
+    "platforms_installed": ["android-34", "android-35", "android-36", "android-37.0"],
+    "build_tools_installed": ["30.0.3", "34.0.0", "35.0.0", "35.0.1", "36.0.0"],
+    "build_tools_selected": "36.0.0",
+    "zipalign": "present in build-tools/36.0.0",
+    "cmake_installed": ["3.10.2.4988404", "3.22.1"]
+  },
+
+  "ndk_selected": {
+    "package_revision": "28.2.13676358",
+    "release_name": "r28c",
+    "install_dir_label": "28.2.13672827 and 28.2.13676358 both report Pkg.Revision 28.2.13676358",
+    "clang_version": "19.0.1",
+    "clang_build": "Android (13624864, +pgo, -bolt, +lto, -mlgo, based on r530567e), llvm-project 97a699bf4812a18fb657c2779f5296a4ab2694d2",
+    "meta_platforms_min_api": 21,
+    "meta_platforms_max_api": 35,
+    "toolchain_file": "build/cmake/android.toolchain.cmake (present)",
+    "target_abi": "arm64-v8a"
+  },
+
+  "ndk_alternatives_evaluated": [
+    {
+      "package_revision": "29.0.14206865",
+      "release_name": "r29",
+      "clang_version": "21.0.0",
+      "meta_platforms_max_api": 35,
+      "verdict": "rejected as the API-36 answer: real max API is still 35"
+    },
+    {
+      "package_revision": "27.3.13750724",
+      "release_name": "r27d",
+      "clang_version": "18.0.4",
+      "meta_platforms_max_api": 35,
+      "verdict": "older than the spec floor, not selected"
+    }
+  ],
+
+  "native_api_level": {
+    "spec_requested": 36,
+    "selected": 35,
+    "status": "DEVIATION_RECORDED",
+    "reason": "No released NDK provides a native API 36 sysroot. See environment-and-toolchain.md finding TC-01 for the measurement and the upstream evidence.",
+    "java_side_unaffected": "compileSdk/targetSdk 36 remain achievable via SDK platform android-36, which is installed."
+  },
+
+  "jdk": {
+    "version": "17.0.12",
+    "vendor": "Oracle Corporation",
+    "arch": "arm64",
+    "home": "/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home"
+  },
+
+  "host_tools": {
+    "cmake": "4.4.0",
+    "ninja": "1.13.2",
+    "apple_clang": "17.0.0 (clang-1700.0.13.3)",
+    "python3": "3.14.6",
+    "adb": "1.0.41"
+  },
+
+  "dependency_pins": {
+    "fex_implementation_pin": "f2b679f6028ce1c38875233aecfcf5d3f8ebecec",
+    "fex_implementation_pin_subject": "Merge pull request #5728 from lioncash/halves",
+    "fex_audit_checkout": "50e6eee95ae95d3257672727a9302a30b4a60a9a",
+    "fex_audit_checkout_subject": "Merge pull request #5931 from Plagman/plagman/key_flags_mr",
+    "fex_remote_origin": "https://github.com/tencentmalos/FEX.git",
+    "fex_pin_reachable_in_local_checkout": true,
+    "foundation": "1f7008848736b7c6c0779220480344fd5b5fc5e3",
+    "foundation_branch": "codex/shadps4-android-fex-v0",
+    "reference_bachata_s4_android": "67dbf4e5b54b0467bf8a93de3de0a557a71f9f43",
+    "reference_shadps4_arm64": "be6bc2e9c60799e071dd2fafa6216e8d80ec619c"
+  },
+
+  "devices": {
+    "A16_16K": {"available": false, "detail": "adb devices lists no attached device"},
+    "A16_4K": {"available": false, "detail": "adb devices lists no attached device"},
+    "consequence": "All device-gated acceptance cases are NOT_RUN. Maximum reportable release status is V0_IMPLEMENTED_DEVICE_PENDING."
+  }
+}
