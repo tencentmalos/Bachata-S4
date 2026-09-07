@@ -1,0 +1,195 @@
+#!/usr/bin/env bash
+# SPDX-FileCopyrightText: Copyright 2026 shadPS4 Emulator Project
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# Check that this machine can build the V0 Android artifacts, and report every
+# value it actually measured rather than the value it hoped for.
+#
+# Exit codes: 0 ready, 1 blocked, 2 ready with recorded deviations.
+
+set -uo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+
+# Pinned by docs/validation/v0/environment.lock.json. Do not silently follow a
+# newer local install; a version drift must be an explicit lock change.
+readonly WANT_NDK_REVISION="28.2.13676358"
+readonly WANT_NDK_RELEASE="r28c"
+readonly WANT_NATIVE_API=35     # See DEC-01: no released NDK offers 36.
+readonly WANT_JAVA_SDK=36
+readonly WANT_BUILD_TOOLS="36.0.0"
+
+blocked=0
+deviations=0
+
+say()  { printf '%s\n' "$*"; }
+ok()   { printf '  ok        %s\n' "$*"; }
+warn() { printf '  DEVIATION %s\n' "$*"; deviations=$((deviations + 1)); }
+bad()  { printf '  BLOCKED   %s\n' "$*"; blocked=$((blocked + 1)); }
+
+say "V0 environment check"
+say "repo: ${REPO_ROOT}"
+say ""
+
+# --- SDK / NDK --------------------------------------------------------------
+say "Android SDK"
+SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-$HOME/Library/Android/sdk}}"
+if [[ ! -d "${SDK_ROOT}" ]]; then
+    bad "no Android SDK at ${SDK_ROOT} (set ANDROID_SDK_ROOT)"
+else
+    ok "sdk root ${SDK_ROOT}"
+    if [[ -d "${SDK_ROOT}/platforms/android-${WANT_JAVA_SDK}" ]]; then
+        ok "platform android-${WANT_JAVA_SDK} for compileSdk/targetSdk"
+    else
+        bad "platform android-${WANT_JAVA_SDK} missing"
+    fi
+    if [[ -x "${SDK_ROOT}/build-tools/${WANT_BUILD_TOOLS}/zipalign" ]]; then
+        ok "zipalign from build-tools ${WANT_BUILD_TOOLS}"
+    else
+        bad "build-tools ${WANT_BUILD_TOOLS} zipalign missing (needed for B03)"
+    fi
+fi
+say ""
+
+say "Android NDK"
+NDK_ROOT="${ANDROID_NDK_ROOT:-${ANDROID_NDK_HOME:-}}"
+if [[ -z "${NDK_ROOT}" ]]; then
+    for candidate in "${SDK_ROOT}/ndk/${WANT_NDK_REVISION}" \
+                     "${SDK_ROOT}/ndk/28.2.13672827"; do
+        [[ -d "${candidate}" ]] && { NDK_ROOT="${candidate}"; break; }
+    done
+fi
+
+if [[ -z "${NDK_ROOT}" || ! -d "${NDK_ROOT}" ]]; then
+    bad "no NDK found; expected revision ${WANT_NDK_REVISION} (${WANT_NDK_RELEASE})"
+else
+    # Trust source.properties over the directory name. The two disagree on this
+    # machine, which is exactly the mislabelling the spec warns about.
+    ndk_revision="$(sed -n 's/^Pkg.Revision *= *//p' "${NDK_ROOT}/source.properties" 2>/dev/null | tr -d ' \r')"
+    ndk_release="$(sed -n 's/^Pkg.ReleaseName *= *//p' "${NDK_ROOT}/source.properties" 2>/dev/null | tr -d ' \r')"
+    ok "ndk ${NDK_ROOT}"
+    if [[ "${ndk_revision}" == "${WANT_NDK_REVISION}" ]]; then
+        ok "revision ${ndk_revision} (${ndk_release}) matches the lock"
+    else
+        warn "revision ${ndk_revision} (${ndk_release}) != locked ${WANT_NDK_REVISION}"
+    fi
+    if [[ "$(basename "${NDK_ROOT}")" != "${ndk_revision}" ]]; then
+        say "            note: directory name $(basename "${NDK_ROOT}") disagrees with"
+        say "            Pkg.Revision ${ndk_revision}; the properties file wins"
+    fi
+
+    # The real ceiling, from metadata rather than a package label.
+    ndk_max_api="$(python3 -c "import json,sys;print(json.load(open(sys.argv[1]))['max'])" \
+                   "${NDK_ROOT}/meta/platforms.json" 2>/dev/null || echo "?")"
+    if [[ "${ndk_max_api}" == "?" ]]; then
+        bad "cannot read meta/platforms.json"
+    elif (( ndk_max_api >= 36 )); then
+        ok "sysroot max api ${ndk_max_api} supports native API 36"
+    else
+        warn "sysroot max api is ${ndk_max_api}; native API 36 unavailable (DEC-01)"
+    fi
+
+    # Metadata can lie; confirm the compiler wrapper exists.
+    host_tag="darwin-x86_64"
+    [[ "$(uname -s)" == "Linux" ]] && host_tag="linux-x86_64"
+    ndk_bin="${NDK_ROOT}/toolchains/llvm/prebuilt/${host_tag}/bin"
+    if [[ -x "${ndk_bin}/aarch64-linux-android${WANT_NATIVE_API}-clang" ]]; then
+        ok "compiler aarch64-linux-android${WANT_NATIVE_API}-clang present"
+        clang_ver="$("${ndk_bin}/clang" --version 2>/dev/null | head -1 | sed 's/.*clang version //;s/ .*//')"
+        ok "clang ${clang_ver:-unknown}"
+    else
+        bad "no aarch64-linux-android${WANT_NATIVE_API}-clang in ${ndk_bin}"
+    fi
+    if [[ -f "${NDK_ROOT}/build/cmake/android.toolchain.cmake" ]]; then
+        ok "android.toolchain.cmake present"
+    else
+        bad "android.toolchain.cmake missing"
+    fi
+fi
+say ""
+
+# --- host tools -------------------------------------------------------------
+say "Host tools"
+for tool in cmake ninja python3; do
+    if command -v "${tool}" >/dev/null 2>&1; then
+        ok "${tool} $("${tool}" --version 2>&1 | head -1 | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' | head -1)"
+    else
+        bad "${tool} not on PATH"
+    fi
+done
+if command -v java >/dev/null 2>&1; then
+    ok "java $(java -version 2>&1 | head -1 | grep -oE '"[^"]+"' | tr -d '"')"
+else
+    warn "java not on PATH (needed only for the Gradle app build)"
+fi
+say ""
+
+# --- host page size ---------------------------------------------------------
+say "Build host"
+host_page="$(getconf PAGE_SIZE 2>/dev/null || echo "?")"
+ok "arch $(uname -m), page size ${host_page}"
+if [[ "${host_page}" == "16384" ]]; then
+    say "            host runs 16 KiB pages, so host page-semantics tests are"
+    say "            meaningful. This is still not an Android device (DEC-07)."
+fi
+say ""
+
+# --- devices ----------------------------------------------------------------
+say "Devices"
+if command -v adb >/dev/null 2>&1; then
+    device_count="$(adb devices 2>/dev/null | tail -n +2 | grep -c 'device$' || true)"
+    if (( device_count == 0 )); then
+        warn "no device attached; all A16-16K and A16-4K cases will be NOT_RUN"
+    else
+        ok "${device_count} device(s) attached"
+        adb devices -l 2>/dev/null | tail -n +2 | grep 'device' | while read -r line; do
+            serial="$(awk '{print $1}' <<<"${line}")"
+            api="$(adb -s "${serial}" shell getprop ro.build.version.sdk 2>/dev/null | tr -d '\r')"
+            abi="$(adb -s "${serial}" shell getprop ro.product.cpu.abi 2>/dev/null | tr -d '\r')"
+            page="$(adb -s "${serial}" shell getconf PAGE_SIZE 2>/dev/null | tr -d '\r')"
+            say "            ${serial}: api=${api} abi=${abi} kernel_page=${page}"
+            # Kernel page size is necessary but not sufficient; the in-app
+            # value is what acceptance actually requires.
+            [[ "${page}" == "16384" ]] && \
+                say "            (in-app sysconf must also report 16384 -- checked by run-v0-tests)"
+        done
+    fi
+else
+    warn "adb not on PATH"
+fi
+say ""
+
+# --- references -------------------------------------------------------------
+say "References"
+if [[ -d "${REPO_ROOT}/references/FEX/.git" ]] || [[ -f "${REPO_ROOT}/references/FEX/.git" ]]; then
+    fex_pin="f2b679f6028ce1c38875233aecfcf5d3f8ebecec"
+    if git -C "${REPO_ROOT}/references/FEX" cat-file -t "${fex_pin}" >/dev/null 2>&1; then
+        ok "FEX implementation pin ${fex_pin:0:12} reachable"
+    else
+        bad "FEX pin ${fex_pin:0:12} not reachable in references/FEX"
+    fi
+else
+    bad "references/FEX not initialised (git submodule update --init references/FEX)"
+fi
+if [[ -f "${REPO_ROOT}/foundation/CMakeLists.txt" ]]; then
+    ok "foundation checked out"
+else
+    warn "foundation not initialised"
+fi
+say ""
+
+# --- verdict ----------------------------------------------------------------
+say "Result"
+if (( blocked > 0 )); then
+    say "  BLOCKED: ${blocked} item(s) must be fixed before building."
+    exit 1
+fi
+if (( deviations > 0 )); then
+    say "  READY with ${deviations} recorded deviation(s)."
+    say "  Deviations are recorded in docs/validation/v0/decisions.md; they are"
+    say "  not passes and must appear in the acceptance report."
+    exit 2
+fi
+say "  READY, no deviations."
+exit 0
