@@ -118,9 +118,9 @@ PS-01 已在源码中直接确认：探测地址是 `(1ULL << Bits) - FEXCore::U
 
 ### 2.4 测试结果
 
-**32 个 host 子用例全部通过**，映射到 16 个验收项。
+**35 个 host 子用例全部通过**，映射到 16 个验收项。
 
-`api_contract_tests` 18/18，在**真实 16384 字节页**上运行（构建主机是 macOS ARM64，
+`api_contract_tests` 21/21，在**真实 16384 字节页**上运行（构建主机是 macOS ARM64，
 `getconf PAGE_SIZE` = 16384）。这不是在 4096 上假装 16 KiB。
 
 `hle_abi_tests` 14/14，覆盖 H01 点名的全部摆放：8 整数（6 GPR + 2 栈溢出）、
@@ -131,6 +131,17 @@ PS-01 已在源码中直接确认：探测地址是 `(1ULL << Bits) - FEXCore::U
 改为 RW→RX 发布后通过——而 RW→RX 本来就是 spec §5.1 要求的方式，
 所以宿主限制和规范要求在这里恰好一致。顺带修正了错误分类：`EACCES` 曾被报成 `OutOfMemory`，
 会把读者引向找内存泄漏而不是权限策略。
+
+另一个发现（更严重，已修复）：`QuiescenceToken` / `PinnedSpan` 最初存的是裸 owner 指针，
+一旦它们活得比 `GuestAddressSpace` 久，析构函数就会对已释放内存调用 `ReleaseQuiescence`，
+以 `mutex lock failed: Invalid argument` 中止。改为持有指向 liveness block 的 `weak_ptr`，
+地址空间在析构最开头清空该 block，迟到的释放变成 no-op。新增 L01a/L01b/L01c 三个回归用例。
+这是写测试试图触发它才发现的，不是审查代码看出来的。
+
+验证手段说明：**ASan 在本机不可用**——一个只调用 `printf` 的空程序用
+`-fsanitize=address` 构建后同样超时无输出，属于环境问题。有效替代是
+UBSan（`-fno-sanitize-recover=all`）21/21 通过，加上上述修复前后的可复现对比。
+详见 [DEC-09](decisions.md)，该条同时更正了一次不成立的“ASan clean”表述。
 
 ### 2.5 Android NDK/bionic 交叉编译
 
