@@ -41,6 +41,22 @@ CPU/API/ABI/VM/控制案例在 A16-16K 和 A16-4K 运行**同一个 APK**；显�
 
 ## 4. CPU、ABI 与 callback
 
+### Foundation 补充验收
+
+以下 F01–F03 在 A16-16K 与 A16-4K 验证；HOST 单独报告，不能代替 Android 运行。
+
+| ID | 操作/输入 | 必须观察到的结果 |
+|---|---|---|
+| F01 | app 的 DebugBus status/capabilities/stop；与 guest 执行并发调用 | 使用 foundation registry；读取稳定状态，Stop 只投递 owner 请求；不在调用线程改 JIT 状态 |
+| F02 | 独立诊断 payload 经 foundation reflection/packing 编码、解码；错误/截断输入 | 字段、schema 与 round-trip 预期一致；非法输入明确失败；依赖是真实 NDK 库，没有同名 stub target |
+| F03 | 诊断请求进行中关闭 session/service，重复 100 次 | 停止接收、解绑、等待 in-flight 请求退出再销毁；无悬空 registry/迟到 callback |
+| F04 | TCP 连接、无监听、端口占用、超长请求、超时/断线及重启 | **条件 MUST**：启用网络时使用 foundation 网络模块，监听状态真实，退出后 FD/线程清理；未启用则明确记录 capability=false 和 SKIP 原因 |
+
+完整 foundation 的 allocator/TLS/libevent 依赖纳入 B01/B02 与页大小审计。本次准备工作的
+API 35 编译和 macOS smoke 均不能将 F01–F03 预填为 PASS。
+
+### CPU / ABI
+
 | ID | 操作/输入 | 必须观察到的结果 |
 |---|---|---|
 | C01 | x86 整数算术、比较、移位、带进位与分支 fixture | 独立预期 GPR/有效 RFLAGS/RIP/内存正确，不能仅检查退出码 |

@@ -8,6 +8,9 @@
 
 ## 推荐阅读顺序
 
+实施前先读 [子仓归属与开发分支](subrepository-ownership.md) 和 [Foundation 接入记录](foundation-integration.md)。
+Foundation 最小构建入口已接入；反射/网络闭包与 Android 16 运行仍待 V0 验证。
+
 | 文档 | 解决的问题 |
 |---|---|
 | [Android 与 ARM64 C++ 整合审计](android-arm64-integration-audit.md) | 哪些接口已有实现、哪些需要适配、哪些阻碍目标运行；优先读 |

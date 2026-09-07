@@ -11,7 +11,10 @@
 
 ## Repository layout and reference ownership
 
-- `src/`: this fork's emulator implementation; `externals/`: build dependencies; `references/`: independently versioned source for comparison and migration. Do not overwrite the main core with a complete reference fork.
+- `src/`: this fork's emulator implementation; `externals/` and `foundation/`: build dependencies; `references/`: independently versioned source for comparison and migration. Do not overwrite the main core with a complete reference fork.
+- Before changing a dependency, read [subrepository ownership](docs/subrepository-ownership.md). Android/ARM64 development branches live in `tencentmalos/Bachata-S4`; FEX now has a `tencentmalos/FEX` fork with separate old-runtime and new-audit branches. Reference gitlinks remain unchanged; branch existence is not proof of integration or permission to bypass contribution rules.
+- Reuse [Spatial Foundation](docs/foundation-integration.md) for common reflection/packing, host diagnostics and networking. The current `shadps4::foundation` target enables only DebugBus (plus dumpsys on Android). Reflection/network still require their actual NDK dependency and lifecycle audit; do not invent replacement frameworks or claim that they are already enabled. Guest CPU/Orbis semantics remain host-owned adapters.
+- Foundation's development branch is `codex/shadps4-android-fex-v0`, based on the same library used by azahar. Push child changes before advancing the parent gitlink. Do not blindly import mimalloc TLS slot settings, fixed libevent configuration, or azahar-specific dependency paths.
 - [references/README.md](references/README.md) records each reference's purpose, source and pinned revision. The authoritative checkout revisions are the Git gitlinks, not a remote branch's latest HEAD.
 - Android UI/session/input reference: `references/Bachata-S4-android` at `67dbf4e5…`. It includes its own historical C++/runtime combination for controlled comparisons.
 - ARM64 guest/HLE migration source: `references/shadps4-arm64` at `be6bc2e9…`. It contains no Android Gradle frontend.
@@ -43,6 +46,7 @@
 ## Validation and documentation
 
 - Build instructions for the desktop core are under `documents/building-*.md`; existing tests are under `tests/`. Select checks for the actual implementation change.
+- Foundation's standalone build probe is `tests/foundation`; see its [integration record](docs/foundation-integration.md) for commands. macOS smoke passed and an API 35 NDK shared library was built with 16 KiB ELF alignment; neither is Android 16 runtime validation. Locally labelled r28c/r29 installs both advertised max API 35 in their actual metadata: validate the sysroot and compiler, not just the directory/package label.
 - Reproduce the reference transport checks with `python3 scripts/analysis/run_android_arm64_contract_tests.py`; required reference/dependency setup is in `references/README.md`. This compiles actual C++ runtime/controller/audio code and upstream tests.
 - The recorded transport result is **18/18 on macOS ARM64**. Android Kotlin/Java, FEX execution, Vulkan, APK installation and 16 KiB device execution were not exercised by that test. Do not describe it as Android end-to-end validation.
 - `scripts/analysis/compare_cpu_core_size.py` measures source text at Git revisions. Nonblank lines are not binary size, complete dependency size, effort or performance; preserve the stated counting scope.

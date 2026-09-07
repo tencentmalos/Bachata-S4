@@ -18,6 +18,10 @@
 
 两份模拟器参考使用的 FEX runtime pin 仍是 `f2b679f6028ce1c38875233aecfcf5d3f8ebecec`，与独立 FEX 子仓不同。这是有意保留的比较维度，不能直接交叉替换。
 
+Android、ARM64 和 FEX 的 `.gitmodules` URL 已切换为 `tencentmalos` 自有仓，并建立独立开发分支；
+上表保留原始出处和 SHA，不代表仍向上游推送。详见 [归属与分支](../docs/subrepository-ownership.md)。
+新增 `foundation/` 是主仓根目录的正式构建依赖，详见 [Foundation 接入](../docs/foundation-integration.md)，不计入这七个 references。
+
 ## 初始化与复现
 
 在新 clone 中只检出参考源码，不递归下载全部外部依赖：
@@ -46,7 +50,7 @@ python3 scripts/analysis/compare_cpu_core_size.py --output /tmp/fex-dynarmic-sou
 
 ## 边界与维护
 
-- Android 子仓本地开发分支 `codex/android-foundation` 只是当前工作区的便利设置；fresh clone 默认 detached HEAD。需要改子仓时，在该子仓创建自己的分支，先提交/推送子仓，再更新主仓 gitlink。
+- Android 子仓旧本地分支 `codex/android-foundation` 保留；可推送开发线现为 `origin/codex/android-fex-v0-frontend`。fresh clone 默认 detached HEAD；按归属表显式 fetch/switch，先提交/推送子仓，再更新主仓 gitlink。
 - 主仓无法保存子仓未提交的文件。既有 SG8275 子仓中的独立本地改动未纳入这次参考基线提交，也未被覆盖。
 - `externals/dear_imgui` 是遗留的本地独立 checkout，不在当前主仓构建与 gitlink 清单内；本次未收编、删除或修改它。当前 ImGui 依赖是 `.gitmodules` 中的 `externals/imgui`。
 - 完整 citron/azahar 工程不是本仓子模块；本仓固定了用于规模对比的两个 Dynarmic 版本，Android/XR 架构对照使用相应外部源码引用。

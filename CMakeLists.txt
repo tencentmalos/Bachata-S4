@@ -40,6 +40,7 @@ option(ENABLE_DISCORD_RPC "Enable the Discord RPC integration" ON)
 option(ENABLE_UPDATER "Enables the options to updater" ON)
 option(ENABLE_TESTS "Build unit tests (requires GTest)" OFF)
 option(ENABLE_SYSTEM_LIBRARIES "Enable building against system libraries" OFF)
+option(ENABLE_SPATIAL_FOUNDATION "Build shared host infrastructure from Spatial Foundation" ON)
 
 # First, determine whether to use CMAKE_OSX_ARCHITECTURES or CMAKE_SYSTEM_PROCESSOR.
 if (APPLE AND CMAKE_OSX_ARCHITECTURES)
@@ -269,6 +270,10 @@ if (ENABLE_SYSTEM_LIBRARIES)
 endif()
 
 add_subdirectory(externals)
+if(ENABLE_SPATIAL_FOUNDATION)
+    include(cmake/SpatialFoundation.cmake)
+    shadps4_add_foundation()
+endif()
 include_directories(src)
 
 set(AJM_LIB src/core/libraries/ajm/ajm.cpp
@@ -1275,6 +1280,9 @@ add_executable(shadps4
 create_target_directory_groups(shadps4)
 
 target_link_libraries(shadps4 PRIVATE spdlog::spdlog)
+if(ENABLE_SPATIAL_FOUNDATION)
+    target_link_libraries(shadps4 PRIVATE shadps4::foundation)
+endif()
 target_link_libraries(shadps4 PRIVATE magic_enum::magic_enum fmt::fmt toml11::toml11 tsl::robin_map xbyak::xbyak Tracy::TracyClient RenderDoc::API FFmpeg::ffmpeg Dear_ImGui ImGuiFileDialog gcn half::half ZLIB::ZLIB PNG::PNG minimp3)
 target_link_libraries(shadps4 PRIVATE Boost::headers GPUOpen::VulkanMemoryAllocator LibAtrac9 sirit Vulkan::Headers xxHash::xxhash Zydis::Zydis glslang::glslang SDL3::SDL3 pugixml::pugixml)
 target_link_libraries(shadps4 PRIVATE stb::headers lfreist-hwinfo::hwinfo nlohmann_json::nlohmann_json miniz::miniz fdk-aac CLI11::CLI11 OpenAL::OpenAL Cpp_Httplib miniupnpc::miniupnpc)

@@ -9,6 +9,7 @@
 1. 读取根目录 `AGENTS.md`，了解固定源码、子仓贡献规则和本地独立改动。
 2. 读取 [V0 总 spec](android-fex-v0.md)、[CPU API 契约](android-fex-v0-api.md)、[验收矩阵](android-fex-v0-acceptance.md)。三份文档共同定义范围和完成条件；验收矩阵是逐项结果清单。
 3. 读取 [a7128893 基础状态](../baselines/2026-09-07-android-fex-foundation.md)。以包含本 spec 的提交为实现起点创建 `codex/android-fex-v0`，将 `a7128893` 保留为比较基线。
+4. 读取 [子仓归属](../subrepository-ownership.md) 与 [Foundation 接入](../foundation-integration.md)。先核对自有 remote/分支；直接复用现有基础设施构建入口，完成反射/packing 的依赖接入。TCP 可后置，启用时复用 foundation 网络设施。
 
 目标是 Android 16 / ARM64 / 真实 16 KiB 页的普通 app，NDK/bionic 构建、FEXCore 执行自有 x86-64 fixture。公开 CPU API 不暴露 FEX 私有类型，覆盖 Run/有限 Step/暂停停止/寄存器/失效/HLE callback；原生 Vulkan Surface 完成最小显示和生命周期验证。
 
@@ -28,6 +29,7 @@
 - 有限 Step 真正执行一个受支持 guest 指令；未支持类别在执行前拒绝，不用“一个 block”代替。
 - LLDB 读取稳定的安全点快照；异步 host stop 的旧 CPUState 不得伪装成精确 guest 寄存器。
 - 不提交商业游戏、下载的 runtime 或无关本地工作，不修改已有基础状态记录。
+- 不重复实现通用网络/反射/序列化框架；不要把 foundation 尚未验证的 allocator/TLS/module 配置直接带入 ART/FEX 进程。API 36 工具链必须检查真实 sysroot，不能只信本地 NDK 目录标签。
 
 ## 最终交付
 

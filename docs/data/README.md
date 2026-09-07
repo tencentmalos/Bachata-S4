@@ -4,6 +4,7 @@
 
 | 文件 | 内容与限制 |
 |---|---|
+| [foundation-bootstrap-20260907.json](foundation-bootstrap-20260907.json) | Foundation 最小 profile 的 host smoke、API 35 NDK 构建和 ELF 对齐；API 36 配置失败与未运行边界 |
 | [android-foundation.lock.json](android-foundation.lock.json) | Android 基线提交、出处、工具配置与未验证项 |
 | [android-baseline-sources-2026-09-07.json](android-baseline-sources-2026-09-07.json) | 发布信息、公开源码映射和仓库目录快照 |
 | [android-arm64-interface-comparison.json](android-arm64-interface-comparison.json) | 指定目录的 tracked 文件逐字节比较；未声称整个 fork 相同 |

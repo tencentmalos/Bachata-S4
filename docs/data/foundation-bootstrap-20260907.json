@@ -1,0 +1,146 @@
+{
+  "recorded_at": "2026-09-07T10:11:47.987909+00:00",
+  "scope": "Foundation minimal DebugBus dependency bootstrap; not V0 acceptance",
+  "parent_source_commit": "9b6fed6991c12a95306169745f37b92898c1367e",
+  "foundation_base_commit": "b753063273a73ff6664c567f62cfa5070f5d60a5",
+  "foundation_commit": "1f7008848736b7c6c0779220480344fd5b5fc5e3",
+  "host": {
+    "architecture": "arm64",
+    "compiler": "Apple clang version 17.0.0 (clang-1700.0.13.3)\nTarget: arm64-apple-darwin25.5.0\nThread model: posix\nInstalledDir: /Applications/Xcode-16.3.0.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin",
+    "cmake": "cmake version 4.4.0",
+    "build_type": "Release",
+    "ctest_status": "PASS",
+    "ctest_cases": 1,
+    "ctest_log": "Start testing: Sep 07 18:05 CST\n----------------------------------------------------------\n1/1 Testing: foundation_host_integration\n1/1 Test: foundation_host_integration\nCommand: \"/tmp/shadps4-foundation-host/foundation_smoke\"\nDirectory: /tmp/shadps4-foundation-host\n\"foundation_host_integration\" start time: Sep 07 18:05 CST\nOutput:\n----------------------------------------------------------\n<end of output>\nTest time =   0.70 sec\n----------------------------------------------------------\nTest Passed.\n\"foundation_host_integration\" end time: Sep 07 18:05 CST\n\"foundation_host_integration\" time elapsed: 00:00:00\n----------------------------------------------------------\n\nEnd testing: Sep 07 18:05 CST\n"
+  },
+  "android_cross_build": {
+    "status": "PASS",
+    "execution": "NOT_RUN",
+    "api": 35,
+    "abi": "arm64-v8a",
+    "stl": "c++_shared",
+    "flexible_page_sizes": true,
+    "ndk_source_properties": "Pkg.Desc = Android NDK\nPkg.Revision = 28.2.13676358\nPkg.BaseRevision = 28.2.13676358\nPkg.ReleaseName = r28c\n",
+    "ndk_platforms": {
+      "min": 21,
+      "max": 35,
+      "aliases": {
+        "20": 19,
+        "25": 24,
+        "J": 16,
+        "J-MR1": 17,
+        "J-MR2": 18,
+        "K": 19,
+        "L": 21,
+        "L-MR1": 22,
+        "M": 23,
+        "N": 24,
+        "N-MR1": 24,
+        "O": 26,
+        "O-MR1": 27,
+        "P": 28,
+        "Q": 29,
+        "R": 30,
+        "S": 31,
+        "Sv2": 32,
+        "Tiramisu": 33,
+        "UpsideDownCake": 34,
+        "VanillaIceCream": 35
+      }
+    },
+    "compiler": "Android (13624864, +pgo, -bolt, +lto, -mlgo, based on r530567e) clang version 19.0.1 (https://android.googlesource.com/toolchain/llvm-project 97a699bf4812a18fb657c2779f5296a4ab2694d2)\nTarget: x86_64-apple-darwin25.5.0\nThread model: posix\nInstalledDir: /Users/bytedance/Library/Android/sdk/ndk/28.2.13676358/toolchains/llvm/prebuilt/darwin-x86_64/bin",
+    "artifacts": [
+      {
+        "file": "/tmp/shadps4-foundation-android-api35/libshadps4_foundation_smoke.so",
+        "sha256": "6dc43211335463da3b4c0ce578281317342575643e30a50549a4933ba6f46174",
+        "build_id": "b398743d2936c27d7c70325359c1517ad4e44d69",
+        "needed": [
+          "libm.so",
+          "libc++_shared.so",
+          "libdl.so",
+          "libc.so"
+        ],
+        "load_segments": [
+          {
+            "offset": 0,
+            "virtual_address": 0,
+            "alignment": 16384
+          },
+          {
+            "offset": 20916,
+            "virtual_address": 37300,
+            "alignment": 16384
+          },
+          {
+            "offset": 48736,
+            "virtual_address": 81504,
+            "alignment": 16384
+          },
+          {
+            "offset": 50232,
+            "virtual_address": 99384,
+            "alignment": 16384
+          }
+        ],
+        "elf_16k_alignment": "PASS"
+      },
+      {
+        "file": "/Users/bytedance/Library/Android/sdk/ndk/28.2.13676358/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so",
+        "sha256": "ab4e6c71b96b851de45a8a9bd86369e7dbc2130a44b3b4520564be94847910f2",
+        "build_id": "7befe631535aa853c4f4ac1293e49dcea34c9b6e",
+        "needed": [
+          "libc.so",
+          "libm.so",
+          "libdl.so"
+        ],
+        "load_segments": [
+          {
+            "offset": 0,
+            "virtual_address": 0,
+            "alignment": 16384
+          },
+          {
+            "offset": 624800,
+            "virtual_address": 641184,
+            "alignment": 16384
+          },
+          {
+            "offset": 1210520,
+            "virtual_address": 1243288,
+            "alignment": 16384
+          },
+          {
+            "offset": 1250352,
+            "virtual_address": 1299504,
+            "alignment": 16384
+          }
+        ],
+        "elf_16k_alignment": "PASS"
+      }
+    ]
+  },
+  "api36_configuration": {
+    "status": "FAIL",
+    "install_labels": [
+      "28.2.13676358",
+      "29.0.14206865"
+    ],
+    "observed_error": "android-36 is above the maximum supported version 35",
+    "interpretation": "Observed local installation content only; package labels are insufficient to establish toolchain identity or official release capability."
+  },
+  "not_validated": [
+    "Full shadPS4 build",
+    "Foundation reflection/packing/network closure",
+    "APK build/ZIP alignment/install",
+    "Android 16 runtime",
+    "Physical 16 KiB device",
+    "FEX execution"
+  ],
+  "parent_working_tree_dirty_at_build": true,
+  "probe_source_sha256": {
+    "cmake/SpatialFoundation.cmake": "10f18003ef9b580c835f081d7a8bfedf7050041e2777706b4151ef7923ae0701",
+    "tests/foundation/CMakeLists.txt": "70afcca62f3dc398f4dcc344076d54f9d463b9a932db4f087ee9d4e41b901071",
+    "tests/foundation/main.cpp": "c2a654b2873b319c65b7f85ac04ebbb095e55428cb8d7b6147643daf9940a887",
+    "tests/foundation/smoke.cpp": "6d4e7aac6429320baa3f8003555c83d92e8152b13f0945e387cd10210ea94115"
+  }
+}

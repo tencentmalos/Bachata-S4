@@ -8,6 +8,7 @@
 - [CPU API 契约](android-fex-v0-api.md)：接口语义与并发/内存规则。
 - [验收矩阵](android-fex-v0-acceptance.md)：用例、门槛与证据格式。
 - [执行任务书](android-fex-v0-handoff.md)：可直接交给执行 AI 的入口。
+- [子仓归属](../subrepository-ownership.md)、[Foundation 接入](../foundation-integration.md)：依赖开发分支、已落地的构建基础与待完成的复用要求。
 
 本文的 MUST/必须是 V0 完成条件；SHOULD/建议允许有书面理由的实现选择。示例目录和命令是**待实现接口**，不是对仓库现状的声明。
 
@@ -72,11 +73,26 @@ V0 的 CPU/内存/ABI fixture 必须共用将来迁入 shadPS4 的 production li
 
 建议构建目标：`guest_cpu_api`、`guest_cpu_fex`、`guest_cpu_contract_tests`、`shadps4_validation_jni`。默认桌面构建仍能配置；新增 Android/FEX 目标由明确开关启用。
 
+### 3.1 Foundation 复用（新增要求）
+
+`foundation/` 已固定自有分支，`cmake/SpatialFoundation.cmake` 提供最小 `shadps4::foundation`
+目标。V0 MUST 复用它的 DebugBus 注册诊断命令，写操作投递 owner thread；新建诊断
+payload 的通用反射与编码 MUST 优先使用 foundation reflection/packing，完成真实 NDK
+依赖闭包和 round-trip 验证，不另造框架。若因依赖问题暂不能启用，记录阻断，不能把该项标 PASS。
+网络并非 V0 必需功能；若启用 TCP 控制，MUST 复用 NetSystemModule/DebugBus TCP，
+补生命周期、线程归属、断线/超时和清理测试。CPU API 不暴露 foundation 元对象或单例。
+本次只验证了最小 DebugBus；不要把反射/网络看成已经接入。具体闭包问题及 TLS 约束见接入记录。
+
 ## 4. NDK / bionic 构建要求
 
 ### 4.1 锁定工具链
 
 M0 固定一个可取得的 NDK r28c 或更新的稳定版本，写入 `environment.lock.json` 的**完整 package revision、Clang 版本、sysroot API**。建议从 r28c 开始验证，遇到真实编译器缺陷再升级；不用不同机器各自的“latest”。
+
+必须验证实际 `meta/platforms.json`、sysroot 与编译器支持所选 native API，而不只读
+`source.properties` 或目录名。本次本地自报 r28c/r29 的安装实际都只到 API 35，API 36
+配置失败，详见 Foundation 接入记录。API 35 库探针不能代替 V0 API 36 构建；应取得与
+所选配置匹配的完整工具链，不修改 NDK 元数据伪造支持。
 
 最小 app 的 minSdk/targetSdk/compileSdk 初始均为 36；V0 不承诺旧 Android 支持。选择一个官方兼容的 AGP/Gradle/JDK/CMake 组合，锁定版本及 Gradle wrapper 校验值；不要把历史前端的整套预览工具链当作必须条件。
 

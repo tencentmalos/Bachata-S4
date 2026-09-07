@@ -176,17 +176,23 @@
 	branch = main
 [submodule "references/shadps4-arm64"]
 	path = references/shadps4-arm64
-	url = https://github.com/zenithblue-oss/shadps4-arm64.git
-	branch = main
+	url = https://github.com/tencentmalos/Bachata-S4.git
+	branch = codex/android-fex-v0-arm64
 [submodule "references/FEX"]
 	path = references/FEX
-	url = https://github.com/FEX-Emu/FEX.git
+	url = https://github.com/tencentmalos/FEX.git
+	branch = codex/upstream-audit-20260907
 [submodule "references/Bachata-S4-android"]
 	path = references/Bachata-S4-android
-	url = https://github.com/zFitness/Bachata-S4.git
+	url = https://github.com/tencentmalos/Bachata-S4.git
+	branch = codex/android-fex-v0-frontend
 [submodule "references/dynarmic-citron"]
 	path = references/dynarmic-citron
 	url = https://github.com/tencentmalos/dynarmic.git
 [submodule "references/dynarmic-azahar"]
 	path = references/dynarmic-azahar
 	url = https://github.com/tencentmalos/dynarmic.git
+[submodule "foundation"]
+	path = foundation
+	url = https://github.com/tencentmalos/foundation.git
+	branch = codex/shadps4-android-fex-v0
