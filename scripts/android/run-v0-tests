@@ -31,8 +31,9 @@ REPO = Path(__file__).resolve().parents[2]
 # Every case in docs/specs/android-fex-v0-acceptance.md, with why it cannot run
 # here when that applies. "None" means a host suite can decide it.
 DEVICE_ONLY = "requires an Android device (A16-16K / A16-4K); none attached"
-FEX_BLOCKED = ("requires the FEX backend, blocked by DEC-03: FEXCore aborts on a "
-               "16 KiB host and the fixes are barred by FEX contribution rules")
+FEX_BLOCKED = ("requires the FEX backend, blocked by DEC-03: the JIT code-buffer guard "
+               "page (PS-02) and InterruptFaultPage (PS-03) are 4 KiB-hardcoded on paths "
+               "an embedder must take, and the fixes are barred by FEX contribution rules")
 APP_PENDING = "requires the validation APK, not built in this milestone"
 
 CASES: dict[str, tuple[str, str | None]] = {
@@ -138,6 +139,15 @@ def run_suite(binary: Path) -> tuple[dict[str, tuple[str, str]], str]:
     return parsed, output
 
 
+def pick_binary(build_dir: Path, names: list[str]) -> Path:
+    """First existing candidate, else the first name so the error says what was expected."""
+    for name in names:
+        candidate = build_dir / name
+        if candidate.is_file():
+            return candidate
+    return build_dir / names[0]
+
+
 def sha256_of(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:
@@ -213,9 +223,13 @@ def main() -> int:
     print(f"run id: {run_id}")
     print(f"build dir: {build_dir}\n")
 
+    # Accept either the CMake target names or the ad-hoc names, so pointing at
+    # a real build directory does not silently under-report as NOT_RUN.
     suites = {
-        "api_contract_tests": build_dir / "api_contract_tests",
-        "hle_abi_tests": build_dir / "hle_abi_tests",
+        "api_contract_tests": pick_binary(build_dir, ["guest_cpu_contract_tests",
+                                                      "api_contract_tests"]),
+        "hle_abi_tests": pick_binary(build_dir, ["guest_cpu_hle_abi_tests",
+                                                 "hle_abi_tests"]),
     }
     observed: dict[str, tuple[str, str]] = {}
     suite_meta = {}
@@ -231,7 +245,10 @@ def main() -> int:
         print(f"{name}: {len(parsed)} sub-case(s), "
               f"{suite_meta[name]['failures']} failure(s)")
         if not parsed:
-            print(f"  WARNING: no results parsed. {output.splitlines()[-1] if output else ''}")
+            # Loud, because a silent zero here would quietly turn real passes
+            # into NOT_RUN and make the report look worse than reality.
+            print(f"  WARNING: no results parsed from {binary}")
+            print(f"           {output.splitlines()[-1] if output else 'no output'}")
 
     host_page = os.sysconf("SC_PAGESIZE")
     cases = []
@@ -341,8 +358,11 @@ def main() -> int:
         "cases": cases,
         "release_status": release_status,
         "release_status_reason": (
-            "FEX-dependent cases cannot run: FEXCore aborts at startup on a 16 KiB host "
-            "and the required fixes are barred by FEX's contribution rules (DEC-03). "
+            "FEX-dependent cases cannot run. Two 4 KiB assumptions sit on paths an embedder "
+            "must take -- the JIT code-buffer guard page and InterruptFaultPage -- and the "
+            "fixes are inside FEX, whose contribution rules forbid AI-generated code "
+            "(DEC-03). Note the earlier 'aborts at startup' claim was withdrawn: the VA "
+            "probe is only reachable from FEXInterpreter, which an embedder does not link. "
             "Host-verifiable cases pass. No device was attached."),
     }
 

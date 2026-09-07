@@ -35,20 +35,60 @@
 
 该处注释自称是为“在 16k/64k 页的构建系统上绕过问题”，但实际把三种语义合并成了一个值。
 
-## 2. 四个阻断项（16 KiB host 上启动即失败或静默失去保护）
+## 2. 阻断项复核结论（重要）
 
-### PS-01　`GetHostVABits()` 启动即 abort —— 最高优先级
+初版审计列出四个"阻断项"。复核调用图后，实际情况分为两类：
+
+| 编号 | 复核后判定 | 理由 |
+|---|---|---|
+| PS-01 `GetHostVABits` | **可规避** | 只经 `Setup48BitAllocatorIfExists` 到达，而它只由 FEXInterpreter 调用；FEXCore 的 context 路径不碰 |
+| PS-04 `64BitAllocator` | **当前不触发** | 同源；其 `OSAllocator_64Bit` 只在上述路径构造。`static_assert` 以当前 4096 常量编译通过 |
+| PS-02 guard page | **确实必经** | `SharedCodeBufferManager` 在 JIT code buffer 分配时无条件执行 |
+| PS-03 `InterruptFaultPage` | **确实必经** | `Core.cpp:447` 位于 `ContextImpl::DestroyThread`，是嵌入方必走的销毁路径 |
+
+因此**必须修改的 FEX 源码从四项缩小到两项（PS-02、PS-03）**，
+且"启动即中止"的说法不成立——嵌入方只要不照抄 FEXInterpreter 的启动序列，就能通过初始化。
+
+这个更正对下一阶段有实际影响：工作量比初版估计小，且可以先做一次
+"FEXCore 在 16 KiB host 上 `InitCore()` 是否返回成功"的低成本实验来验证本结论。
+
+以下保留每项的完整分析。
+
+## 2.1 各项细节
+
+### PS-01　`GetHostVABits()` —— **可由嵌入方规避**（已复核下调）
+
+> **更正说明**：本条最初被判定为“启动即中止”的最高优先级阻断。复核调用图后确认**判断过重**。
+> 保留原分析并在下方给出更正，因为“为什么它不会被触发”本身是后续实现必须知道的信息。
 
 `FEXCore/Source/Utils/Allocator.cpp:105-135`。探测 host VA 位宽的方式是：对
 Bits ∈ {57,52,48,47,42,39,36} 依次尝试 `mmap((1<<Bits) - 4096, 4096, MAP_FIXED_NOREPLACE)`。
+每个候选地址都是 4 KiB 对齐但**不是 16 KiB 对齐**，在 16 KiB 页内核上七次尝试全部 `EINVAL`，
+循环耗尽后命中 `FEX_UNREACHABLE`。这个分析本身成立。
 
-每个候选地址都是 4 KiB 对齐但**不是 16 KiB 对齐**。在 16 KiB 页内核上七次尝试全部 `EINVAL`，
-循环耗尽后直接命中 `FEX_UNREACHABLE`。
+但**它在 FEXCore-only 嵌入路径上不会被调用**。完整调用图（`references/FEX` @ `50e6eee9`）：
 
-它由 `OSAllocator_64Bit::DetermineVASize()` 和 `Setup48BitAllocatorIfExists()` 在最早期调用，
-因此这是**硬启动中止**，不是降级。修法明确：探测偏移改为一个 host page。
+```
+GetHostVABits()
+├── Allocator.cpp:277        Setup48BitAllocatorIfExists()
+│                            └── 唯一调用者：Source/Tools/FEXInterpreter/FEXInterpreter.cpp:155
+├── 64BitAllocator.cpp:187   OSAllocator_64Bit::DetermineVASize()
+│                            └── 唯一调用者：OSAllocator_64Bit 构造函数（:545）
+│                                └── 唯一构造点：Create64BitAllocatorWithRegions()
+│                                    └── 唯一调用者：Allocator.cpp:286，在 Setup48BitAllocatorIfExists 内
+├── ELFCodeLoader.h:457,560  （FEXInterpreter，不链接）
+└── VDSO_Emulation.cpp:808   （LinuxEmulation，不链接）
+```
 
-注意这也正是验收矩阵 M04 说的“EINVAL 不当作 VA 位宽上限”——这里的 EINVAL 恰恰来自对齐而非位宽。
+两条路径都汇聚到 `Setup48BitAllocatorIfExists`，而它**只**由 FEXInterpreter 调用。
+另有直接证据：`grep -rn "Setup48Bit\|SetupHooks\|GetHostVABits" FEXCore/Source/Interface/`
+**无任何结果**——FEXCore 自己的 `Context::CreateNewContext` / `InitCore` 路径根本不碰它。
+
+结论：只要嵌入方**不主动调用** `Setup48BitAllocatorIfExists()` 或 `SetupHooks()`，
+这段代码就是死代码。参考实现的 smoke probe 也确实没有调用它们。
+
+**对嵌入方的要求**：不要为了“对齐参考实现”而照抄 FEXInterpreter 的启动序列。
+`FEXInterpreter.cpp:155,172` 的这两行正是必须**不**移植的部分。
 
 ### PS-02　JIT code buffer guard page 静默消失
 
@@ -81,17 +121,26 @@ Bits ∈ {57,52,48,47,42,39,36} 依次尝试 `mmap((1<<Bits) - 4096, 4096, MAP_F
 这一项对 V0 特别关键：验收 T02 要求“无 HLE、无 yield 的死循环可被暂停”，而 FEX 的
 dispatcher 中断检查正建立在这个 fault page 上。修法：改为独立映射且按 host page 对齐/定尺，不能留在堆对象里。
 
-### PS-04　`64BitAllocator.cpp` 整体（32 处）
+### PS-04　`64BitAllocator.cpp`（32 处）—— **当前不触发，改动时才成为约束**
+
+> **更正说明**：与 PS-01 同源。该文件确实被编译进 FEXCore-only 构建
+> （`FEXCore/Source/CMakeLists.txt:12-15`，仅 `NOT MINGW` 条件），
+> 但其中的 `OSAllocator_64Bit` **只**经 `Create64BitAllocatorWithRegions()` 构造，
+> 而后者只由 `Setup48BitAllocatorIfExists()` 调用（见 PS-01 的调用图）。
+> 不调用它，这些代码不执行。
 
 它用 4 KiB 页位图重新实现了 `mmap`/`munmap`：
 
-- `:141` `static_assert(sizeof(LiveVMARegion) == 4096)` —— 直接改常量会编译失败
+- `:141` `static_assert(sizeof(LiveVMARegion) == FEX_PAGE_SIZE)` ——
+  **注意**：以当前 4096 常量它编译通过。只有在有人把常量改成 16384 时才会失败。
+  也就是说它不是“现在的编译错误”，而是“阻止简单改常量”的守卫。
 - `:599-604` `make_alloc_unique` 在 `AlignUp(sizeof(T), PAGE) != PAGE` 时 `ERROR_AND_DIE_FMT`
 - `:242-260` `Mmap()` 接受 4 KiB 对齐的 addr/offset，而底层 `::mmap` 会拒绝
 - `:99` `alignas(4096) FlexBitSet UsedPages`，注释明说是为 madvise 零页池对齐
 - `:193` `UPPER_BOUND -= 4096`（x86 末页），`:532` 跳过 `<= 4096*2` 的区域
 
-该文件在 `NOT MINGW` 条件下编译，因此 **Android FEXCore-only 构建会包含它**。
+结论：V0 只要不启用 FEX 的 64-bit host allocator，就不受此项影响。
+但若将来需要它（例如为了受控的 guest VA 布局），整个文件都要按 host page 重做。
 
 ### PS-05（次级）　CodeCache 的 `mremap` 与磁盘 4 KiB 填充契约
 

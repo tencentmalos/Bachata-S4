@@ -61,14 +61,14 @@ readelf: /Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/
 
 
 guest_cpu_contract_tests
-  sha256   b698dcdedb697e6ecdb37845edda9183801a4f46acc8d70a0dea8f01ec0c3c29
-  build-id 23fac3907c3c4d8e5d17301c10dd0f89cf0613b1
+  sha256   0f22384666594f3e682719ee626dcb06183f6fa3a3e0a88bf887ae1d9f846782
+  build-id fa1d1cb81f303c355417c6cd7b9a743f718b6bbf
   [PASS   ] B02.arch       ELF64 AArch64
   [PASS   ] B02.bionic     needed: libm.so, libdl.so, libc.so
   [PASS   ] B02.linker     /system/bin/linker64
   [PASS   ] B02.align      min LOAD align 0x4000
   [PASS   ] B02.symver     none
-  [PASS   ] B02.buildid    23fac3907c3c4d8e5d17301c10dd0f89cf0613b1
+  [PASS   ] B02.buildid    fa1d1cb81f303c355417c6cd7b9a743f718b6bbf
 
 1 object(s) inspected, 0 failure(s), 0 not run
 

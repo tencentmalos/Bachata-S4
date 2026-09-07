@@ -30,18 +30,18 @@
 
 ### 1.1 技术事实
 
-[页大小审计](page-size-audit.md)在 FEXCore-only 链接范围内定位到四个阻断项，全部有确切行号：
+[页大小审计](page-size-audit.md)初版列出四个"阻断项"。**复核调用图后下调为两项**——
+这是本轮一个重要的自我更正，直接影响下一阶段的工作量估计：
 
-| 编号 | 位置 | 后果 |
+| 编号 | 位置 | 复核判定 |
 |---|---|---|
-| PS-01 | `Allocator.cpp:105-135` `GetHostVABits()` | 7 个探测地址都只 4 KiB 对齐 → 16 KiB 内核全部 `EINVAL` → `FEX_UNREACHABLE`。**启动即中止** |
-| PS-02 | `SharedCodeBufferManager.cpp:25-27` 等 4 处 | guard page `mprotect` 失败只记一条日志继续 → JIT 溢出静默破坏堆 |
-| PS-03 | `InternalThreadState.h:125` | `InterruptFaultPage` 是 jemalloc 堆对象内的 4096 字节数组；16 KiB `mprotect` 会破坏相邻 12 KiB，含同段生成代码要读的 `BaseFrameState` |
-| PS-04 | `64BitAllocator.cpp` 32 处 | `static_assert(sizeof(LiveVMARegion) == 4096)` 等，改常量直接编译失败 |
+| PS-01 | `Allocator.cpp:105-135` `GetHostVABits()` | **可规避**，不是阻断。只经 `Setup48BitAllocatorIfExists` 到达，而它唯一的调用者是 `FEXInterpreter.cpp:155`（不链接）。`grep -rn "Setup48Bit\|SetupHooks\|GetHostVABits" FEXCore/Source/Interface/` 无任何结果 |
+| PS-04 | `64BitAllocator.cpp` 32 处 | **当前不触发**。其 `OSAllocator_64Bit` 只经 `Create64BitAllocatorWithRegions()` 构造，而后者只在 PS-01 那条路径上。`static_assert` 以现有 4096 常量编译通过，它是"阻止简单改常量"的守卫而非现存错误 |
+| PS-02 | `SharedCodeBufferManager.cpp:25-27` 等 4 处 | **必须改**。JIT code buffer 分配无条件执行；guard `mprotect` 失败只记一条 `EFmt` 日志继续 → JIT 溢出从可捕获的 SIGSEGV 变成静默破坏堆 |
+| PS-03 | `InternalThreadState.h:125` | **必须改**。`Core.cpp:447` 的 `mprotect` 位于 `ContextImpl::DestroyThread`，嵌入方必经；`InterruptFaultPage` 又是 dispatcher 中断机制本体，验收 T02"无 HLE 死循环可暂停"建立其上 |
 
-PS-01 已在源码中直接确认：探测地址是 `(1ULL << Bits) - FEXCore::Utils::FEX_PAGE_SIZE`，
-而 `FEX_PAGE_SIZE` 是编译期 4096。PS-03 的 `InterruptFaultPage` 是 dispatcher 中断机制本体，
-验收 T02“无 HLE 死循环可暂停”正建立其上。
+因此**"FEXCore 在 16 KiB host 上启动即中止"的说法不成立**，初版报告的这一表述是错的。
+只要嵌入方不照抄 FEXInterpreter 的启动序列（`FEXInterpreter.cpp:155,172` 那两行），初始化就能通过。
 
 另一项相关实测：FEXCore 链接范围内**没有任何** `sysconf(_SC_PAGESIZE)` 调用。
 唯一获取 host 页大小并注入 allocator 的代码在 `Source/Tools/FEXInterpreter/`，
@@ -65,16 +65,20 @@ PS-01 已在源码中直接确认：探测地址是 `(1ULL << Bits) - FEXCore::U
 
 四项修改都很局部，已定位到行号，需要**人类工程师**完成：
 
-1. `GetHostVABits()` 的探测偏移改为一个 host page（当前硬编码 `FEX_PAGE_SIZE`）。
-2. code buffer / temp buffer 的 guard 改为一个 host page，`UsableSize()` 同步扣减；
-   并把 `mprotect` 失败从日志升级为错误——静默失去 guard 比失败更危险。
-3. `InterruptFaultPage` 改为独立映射，按 host page 对齐与定尺，
-   同时满足 `InternalThreadState.h:130` 的 `<= 65520` 偏移约束。
-4. 页常量按三种语义拆分后分别赋值，**不可全局替换**（理由见审计 §3：
-   dispatcher 发射的 `lsr #12`/`and #0xFFF` 钉死了内部索引，
-   vsyscall 与 `AT_PAGESIZE` 钉死了 guest ABI 的 4096）。
+**两项**，需要人类工程师完成：
 
-之后还需要一条向 FEXCore 注入 host 页大小的路径，因为它自己不查询。
+1. code buffer / temp buffer 的 guard 改为一个 host page，`UsableSize()` 同步扣减；
+   并把 `mprotect` 失败从日志升级为错误——静默失去 guard 比直接失败更危险。
+2. `InterruptFaultPage` 改为独立映射，按 host page 对齐与定尺，
+   同时满足 `InternalThreadState.h:130` 的 `<= 65520` 偏移约束。
+
+若将来需要启用 FEX 的 64-bit host allocator，才需要处理 PS-01/PS-04，
+届时页常量必须按三种语义拆分后分别赋值，**不可全局替换**（理由见审计 §3）。
+
+还需要一条向 FEXCore 注入 host 页大小的路径，因为它自己不查询。
+
+**建议的低成本验证**：既然 PS-01 不在路径上，可以先只修 PS-02/PS-03，
+跑一次"FEXCore 在 16 KiB host 上 `InitCore()` 能否成功返回"，再决定后续投入。
 
 ## 2. 已完成并验证的部分
 

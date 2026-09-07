@@ -60,15 +60,18 @@ spec §4.1 要求 native API 36。实测本机 r27d / r28c / r29 的真实 `meta
 
 审计确认 FEXCore 在 16 KiB host 上**启动即中止**，且无法从外部绕过：
 
-| 编号 | 位置 | 后果 |
-|---|---|---|
-| PS-01 | `Allocator.cpp:105-135` `GetHostVABits()` | 7 次探测地址均 4 KiB 对齐 → 16 KiB 内核全部 `EINVAL` → `FEX_UNREACHABLE`。**硬启动中止** |
-| PS-02 | `SharedCodeBufferManager.cpp:25-27` 等 | guard page `mprotect` 失败仅记日志继续 → JIT 溢出静默破坏堆 |
-| PS-03 | `InternalThreadState.h:125` `InterruptFaultPage` | 4096 字节数组位于 jemalloc 堆对象内；16 KiB `mprotect` 会连带破坏相邻 12 KiB（含同段生成代码要读的 `BaseFrameState`） |
-| PS-04 | `64BitAllocator.cpp`（32 处） | `static_assert(sizeof(LiveVMARegion) == 4096)` 等，改常量直接编译失败 |
+> **复核更正（重要）**：初版列出四项并称"启动即中止"。追踪调用图后，
+> PS-01 与 PS-04 **可由嵌入方规避**，"启动即中止"不成立。必须改的只剩两项。
+> 详见[页大小审计 §2](page-size-audit.md)。此处保留更正后的结论。
 
-PS-01 在 `Setup48BitAllocatorIfExists()` 最早期调用，PS-03 是 dispatcher 中断机制本体
-（验收 T02“死循环可暂停”正建立其上）。这四项都在 FEXCore 内部，**无法通过嵌入方代码规避**。
+| 编号 | 位置 | 复核判定 |
+|---|---|---|
+| PS-01 | `Allocator.cpp:105-135` `GetHostVABits()` | **可规避**。只经 `Setup48BitAllocatorIfExists` 到达，而它只由 FEXInterpreter 调用；`grep FEXCore/Source/Interface/` 无任何引用 |
+| PS-04 | `64BitAllocator.cpp`（32 处） | **当前不触发**。其 `OSAllocator_64Bit` 只在上述路径构造；`static_assert` 以现有 4096 常量编译通过 |
+| PS-02 | `SharedCodeBufferManager.cpp:25-27` 等 | **必须改**。JIT code buffer 分配时无条件执行；`mprotect` 失败仅记日志继续 → JIT 溢出静默破坏堆 |
+| PS-03 | `InternalThreadState.h:125` `InterruptFaultPage` | **必须改**。`Core.cpp:447` 位于 `ContextImpl::DestroyThread`，嵌入方必经；且它是 dispatcher 中断机制本体（验收 T02 建立其上） |
+
+PS-02 与 PS-03 都在 FEXCore 内部，**无法通过嵌入方代码规避**。
 
 `references/FEX/AGENTS.md` 与 `CLAUDE.md` 内容均为：
 > AI must not be used to generate code for contributions to this project.
@@ -82,9 +85,13 @@ PS-01 在 `Setup48BitAllocatorIfExists()` 最早期调用，PS-03 是 dispatcher
 **因此 M1（FEX Android 可加载）与依赖它的 M2/M3 FEX 执行项无法由本轮完成。**
 交付状态不能是 V0_ACCEPTED。
 
-需要人类工程师完成的最小工作已在页大小审计中定位到具体行号，四项修改都很局部：
-探测偏移改为一个 host page；guard 改为一个 host page 且 `UsableSize` 同步；
-`InterruptFaultPage` 改为独立映射；页常量按三种语义拆分后再赋值。
+需要人类工程师完成的最小工作已定位到行号，**两项**且都很局部：
+guard 改为一个 host page 且 `UsableSize` 同步扣减（并把 `mprotect` 失败从日志升级为错误）；
+`InterruptFaultPage` 改为独立映射、按 host page 对齐定尺，同时满足 `:130` 的 `<= 65520` 偏移约束。
+
+复核还带来一个可先做的低成本实验：既然 PS-01 不在路径上，
+可以先只解决 PS-02/PS-03，试一次"FEXCore 在 16 KiB host 上 `InitCore()` 能否成功返回"，
+再决定后续投入。这比初版"四项全改"的估计乐观。
 
 ---
 

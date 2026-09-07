@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
   "spec": "android-fex-v0",
-  "run_id": "20260907T115857Z",
-  "timestamp_utc": "2026-09-07T11:58:57.293692+00:00",
+  "run_id": "20260907T121749Z",
+  "timestamp_utc": "2026-09-07T12:17:49.823455+00:00",
   "baseline_commit": "a712889343ccd2588b712988dae0a76a104e0dce",
-  "implementation_commit": "73be409993a8af66e8325069987ed3a5259b201a",
+  "implementation_commit": "54847f14048b28b1a687b59ce7d2906923aa8f60",
   "implementation_branch": "codex/android-fex-v0",
   "working_tree_dirty": true,
   "fex_base_commit": "f2b679f6028ce1c38875233aecfcf5d3f8ebecec",
@@ -40,14 +40,14 @@
   },
   "suites": {
     "api_contract_tests": {
-      "binary": "/tmp/v0build/api_contract_tests",
-      "sha256": "e3a12d96a7061dfb25e0cec9496225afa51cf28dae5006c42f696b20cc77dc15",
+      "binary": "/tmp/v0final/guest_cpu_contract_tests",
+      "sha256": "8f316e762703a3ea720dddc393bf0951ca43f348ec1a53d18567336a55cbc693",
       "sub_cases": 21,
       "failures": 0
     },
     "hle_abi_tests": {
-      "binary": "/tmp/v0build/hle_abi_tests",
-      "sha256": "53991daa7fe8f8afa12c6cdc0a4ade8c7601a0b0c47c2e0fb0689d704b05fb33",
+      "binary": "/tmp/v0final/guest_cpu_hle_abi_tests",
+      "sha256": "046bfe5ed139f442d005b036c991a74aaa8295fe1b1bf6e690c793d27f1f6457",
       "sub_cases": 14,
       "failures": 0
     }
@@ -141,7 +141,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "requires the FEX backend, blocked by DEC-03: FEXCore aborts on a 16 KiB host and the fixes are barred by FEX contribution rules",
+      "reason": "requires the FEX backend, blocked by DEC-03: the JIT code-buffer guard page (PS-02) and InterruptFaultPage (PS-03) are 4 KiB-hardcoded on paths an embedder must take, and the fixes are barred by FEX contribution rules",
       "evidence": []
     },
     {
@@ -163,7 +163,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "requires the FEX backend, blocked by DEC-03: FEXCore aborts on a 16 KiB host and the fixes are barred by FEX contribution rules",
+      "reason": "requires the FEX backend, blocked by DEC-03: the JIT code-buffer guard page (PS-02) and InterruptFaultPage (PS-03) are 4 KiB-hardcoded on paths an embedder must take, and the fixes are barred by FEX contribution rules",
       "evidence": []
     },
     {
@@ -185,7 +185,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "requires the FEX backend, blocked by DEC-03: FEXCore aborts on a 16 KiB host and the fixes are barred by FEX contribution rules",
+      "reason": "requires the FEX backend, blocked by DEC-03: the JIT code-buffer guard page (PS-02) and InterruptFaultPage (PS-03) are 4 KiB-hardcoded on paths an embedder must take, and the fixes are barred by FEX contribution rules",
       "evidence": []
     },
     {
@@ -196,7 +196,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "requires the FEX backend, blocked by DEC-03: FEXCore aborts on a 16 KiB host and the fixes are barred by FEX contribution rules",
+      "reason": "requires the FEX backend, blocked by DEC-03: the JIT code-buffer guard page (PS-02) and InterruptFaultPage (PS-03) are 4 KiB-hardcoded on paths an embedder must take, and the fixes are barred by FEX contribution rules",
       "evidence": []
     },
     {
@@ -207,7 +207,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "requires the FEX backend, blocked by DEC-03: FEXCore aborts on a 16 KiB host and the fixes are barred by FEX contribution rules",
+      "reason": "requires the FEX backend, blocked by DEC-03: the JIT code-buffer guard page (PS-02) and InterruptFaultPage (PS-03) are 4 KiB-hardcoded on paths an embedder must take, and the fixes are barred by FEX contribution rules",
       "evidence": []
     },
     {
@@ -249,7 +249,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "requires the FEX backend, blocked by DEC-03: FEXCore aborts on a 16 KiB host and the fixes are barred by FEX contribution rules",
+      "reason": "requires the FEX backend, blocked by DEC-03: the JIT code-buffer guard page (PS-02) and InterruptFaultPage (PS-03) are 4 KiB-hardcoded on paths an embedder must take, and the fixes are barred by FEX contribution rules",
       "evidence": []
     },
     {
@@ -260,7 +260,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "requires the FEX backend, blocked by DEC-03: FEXCore aborts on a 16 KiB host and the fixes are barred by FEX contribution rules",
+      "reason": "requires the FEX backend, blocked by DEC-03: the JIT code-buffer guard page (PS-02) and InterruptFaultPage (PS-03) are 4 KiB-hardcoded on paths an embedder must take, and the fixes are barred by FEX contribution rules",
       "evidence": []
     },
     {
@@ -295,7 +295,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "requires the FEX backend, blocked by DEC-03: FEXCore aborts on a 16 KiB host and the fixes are barred by FEX contribution rules",
+      "reason": "requires the FEX backend, blocked by DEC-03: the JIT code-buffer guard page (PS-02) and InterruptFaultPage (PS-03) are 4 KiB-hardcoded on paths an embedder must take, and the fixes are barred by FEX contribution rules",
       "evidence": []
     },
     {
@@ -306,7 +306,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "requires the FEX backend, blocked by DEC-03: FEXCore aborts on a 16 KiB host and the fixes are barred by FEX contribution rules",
+      "reason": "requires the FEX backend, blocked by DEC-03: the JIT code-buffer guard page (PS-02) and InterruptFaultPage (PS-03) are 4 KiB-hardcoded on paths an embedder must take, and the fixes are barred by FEX contribution rules",
       "evidence": []
     },
     {
@@ -427,7 +427,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "requires the FEX backend, blocked by DEC-03: FEXCore aborts on a 16 KiB host and the fixes are barred by FEX contribution rules",
+      "reason": "requires the FEX backend, blocked by DEC-03: the JIT code-buffer guard page (PS-02) and InterruptFaultPage (PS-03) are 4 KiB-hardcoded on paths an embedder must take, and the fixes are barred by FEX contribution rules",
       "evidence": []
     },
     {
@@ -438,7 +438,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "requires the FEX backend, blocked by DEC-03: FEXCore aborts on a 16 KiB host and the fixes are barred by FEX contribution rules",
+      "reason": "requires the FEX backend, blocked by DEC-03: the JIT code-buffer guard page (PS-02) and InterruptFaultPage (PS-03) are 4 KiB-hardcoded on paths an embedder must take, and the fixes are barred by FEX contribution rules",
       "evidence": []
     },
     {
@@ -465,7 +465,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "requires the FEX backend, blocked by DEC-03: FEXCore aborts on a 16 KiB host and the fixes are barred by FEX contribution rules",
+      "reason": "requires the FEX backend, blocked by DEC-03: the JIT code-buffer guard page (PS-02) and InterruptFaultPage (PS-03) are 4 KiB-hardcoded on paths an embedder must take, and the fixes are barred by FEX contribution rules",
       "evidence": []
     },
     {
@@ -509,7 +509,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "requires the FEX backend, blocked by DEC-03: FEXCore aborts on a 16 KiB host and the fixes are barred by FEX contribution rules",
+      "reason": "requires the FEX backend, blocked by DEC-03: the JIT code-buffer guard page (PS-02) and InterruptFaultPage (PS-03) are 4 KiB-hardcoded on paths an embedder must take, and the fixes are barred by FEX contribution rules",
       "evidence": []
     },
     {
@@ -520,7 +520,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "requires the FEX backend, blocked by DEC-03: FEXCore aborts on a 16 KiB host and the fixes are barred by FEX contribution rules",
+      "reason": "requires the FEX backend, blocked by DEC-03: the JIT code-buffer guard page (PS-02) and InterruptFaultPage (PS-03) are 4 KiB-hardcoded on paths an embedder must take, and the fixes are barred by FEX contribution rules",
       "evidence": []
     },
     {
@@ -531,7 +531,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "requires the FEX backend, blocked by DEC-03: FEXCore aborts on a 16 KiB host and the fixes are barred by FEX contribution rules",
+      "reason": "requires the FEX backend, blocked by DEC-03: the JIT code-buffer guard page (PS-02) and InterruptFaultPage (PS-03) are 4 KiB-hardcoded on paths an embedder must take, and the fixes are barred by FEX contribution rules",
       "evidence": []
     },
     {
@@ -542,7 +542,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "requires the FEX backend, blocked by DEC-03: FEXCore aborts on a 16 KiB host and the fixes are barred by FEX contribution rules",
+      "reason": "requires the FEX backend, blocked by DEC-03: the JIT code-buffer guard page (PS-02) and InterruptFaultPage (PS-03) are 4 KiB-hardcoded on paths an embedder must take, and the fixes are barred by FEX contribution rules",
       "evidence": []
     },
     {
@@ -553,7 +553,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "requires the FEX backend, blocked by DEC-03: FEXCore aborts on a 16 KiB host and the fixes are barred by FEX contribution rules",
+      "reason": "requires the FEX backend, blocked by DEC-03: the JIT code-buffer guard page (PS-02) and InterruptFaultPage (PS-03) are 4 KiB-hardcoded on paths an embedder must take, and the fixes are barred by FEX contribution rules",
       "evidence": []
     },
     {
@@ -580,7 +580,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "requires the FEX backend, blocked by DEC-03: FEXCore aborts on a 16 KiB host and the fixes are barred by FEX contribution rules",
+      "reason": "requires the FEX backend, blocked by DEC-03: the JIT code-buffer guard page (PS-02) and InterruptFaultPage (PS-03) are 4 KiB-hardcoded on paths an embedder must take, and the fixes are barred by FEX contribution rules",
       "evidence": []
     },
     {
@@ -591,7 +591,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "requires the FEX backend, blocked by DEC-03: FEXCore aborts on a 16 KiB host and the fixes are barred by FEX contribution rules",
+      "reason": "requires the FEX backend, blocked by DEC-03: the JIT code-buffer guard page (PS-02) and InterruptFaultPage (PS-03) are 4 KiB-hardcoded on paths an embedder must take, and the fixes are barred by FEX contribution rules",
       "evidence": []
     },
     {
@@ -602,7 +602,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "requires the FEX backend, blocked by DEC-03: FEXCore aborts on a 16 KiB host and the fixes are barred by FEX contribution rules",
+      "reason": "requires the FEX backend, blocked by DEC-03: the JIT code-buffer guard page (PS-02) and InterruptFaultPage (PS-03) are 4 KiB-hardcoded on paths an embedder must take, and the fixes are barred by FEX contribution rules",
       "evidence": []
     },
     {
@@ -613,7 +613,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "requires the FEX backend, blocked by DEC-03: FEXCore aborts on a 16 KiB host and the fixes are barred by FEX contribution rules",
+      "reason": "requires the FEX backend, blocked by DEC-03: the JIT code-buffer guard page (PS-02) and InterruptFaultPage (PS-03) are 4 KiB-hardcoded on paths an embedder must take, and the fixes are barred by FEX contribution rules",
       "evidence": []
     },
     {
@@ -624,7 +624,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "requires the FEX backend, blocked by DEC-03: FEXCore aborts on a 16 KiB host and the fixes are barred by FEX contribution rules",
+      "reason": "requires the FEX backend, blocked by DEC-03: the JIT code-buffer guard page (PS-02) and InterruptFaultPage (PS-03) are 4 KiB-hardcoded on paths an embedder must take, and the fixes are barred by FEX contribution rules",
       "evidence": []
     },
     {
@@ -635,7 +635,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "requires the FEX backend, blocked by DEC-03: FEXCore aborts on a 16 KiB host and the fixes are barred by FEX contribution rules",
+      "reason": "requires the FEX backend, blocked by DEC-03: the JIT code-buffer guard page (PS-02) and InterruptFaultPage (PS-03) are 4 KiB-hardcoded on paths an embedder must take, and the fixes are barred by FEX contribution rules",
       "evidence": []
     },
     {
@@ -663,7 +663,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "requires the FEX backend, blocked by DEC-03: FEXCore aborts on a 16 KiB host and the fixes are barred by FEX contribution rules",
+      "reason": "requires the FEX backend, blocked by DEC-03: the JIT code-buffer guard page (PS-02) and InterruptFaultPage (PS-03) are 4 KiB-hardcoded on paths an embedder must take, and the fixes are barred by FEX contribution rules",
       "evidence": []
     },
     {
@@ -674,7 +674,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "requires the FEX backend, blocked by DEC-03: FEXCore aborts on a 16 KiB host and the fixes are barred by FEX contribution rules",
+      "reason": "requires the FEX backend, blocked by DEC-03: the JIT code-buffer guard page (PS-02) and InterruptFaultPage (PS-03) are 4 KiB-hardcoded on paths an embedder must take, and the fixes are barred by FEX contribution rules",
       "evidence": []
     },
     {
@@ -729,7 +729,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "requires the FEX backend, blocked by DEC-03: FEXCore aborts on a 16 KiB host and the fixes are barred by FEX contribution rules",
+      "reason": "requires the FEX backend, blocked by DEC-03: the JIT code-buffer guard page (PS-02) and InterruptFaultPage (PS-03) are 4 KiB-hardcoded on paths an embedder must take, and the fixes are barred by FEX contribution rules",
       "evidence": []
     },
     {
@@ -740,7 +740,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "requires the FEX backend, blocked by DEC-03: FEXCore aborts on a 16 KiB host and the fixes are barred by FEX contribution rules",
+      "reason": "requires the FEX backend, blocked by DEC-03: the JIT code-buffer guard page (PS-02) and InterruptFaultPage (PS-03) are 4 KiB-hardcoded on paths an embedder must take, and the fixes are barred by FEX contribution rules",
       "evidence": []
     },
     {
@@ -751,10 +751,10 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "requires the FEX backend, blocked by DEC-03: FEXCore aborts on a 16 KiB host and the fixes are barred by FEX contribution rules",
+      "reason": "requires the FEX backend, blocked by DEC-03: the JIT code-buffer guard page (PS-02) and InterruptFaultPage (PS-03) are 4 KiB-hardcoded on paths an embedder must take, and the fixes are barred by FEX contribution rules",
       "evidence": []
     }
   ],
   "release_status": "V0_BLOCKED",
-  "release_status_reason": "FEX-dependent cases cannot run: FEXCore aborts at startup on a 16 KiB host and the required fixes are barred by FEX's contribution rules (DEC-03). Host-verifiable cases pass. No device was attached."
+  "release_status_reason": "FEX-dependent cases cannot run. Two 4 KiB assumptions sit on paths an embedder must take -- the JIT code-buffer guard page and InterruptFaultPage -- and the fixes are inside FEX, whose contribution rules forbid AI-generated code (DEC-03). Note the earlier 'aborts at startup' claim was withdrawn: the VA probe is only reachable from FEXInterpreter, which an embedder does not link. Host-verifiable cases pass. No device was attached."
 }
