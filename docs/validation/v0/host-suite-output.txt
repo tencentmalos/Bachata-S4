@@ -1,0 +1,74 @@
+=== api_contract_tests ===
+shadPS4 guest CPU API contract tests
+host page size: 16384 bytes
+guest ABI page: 4096, code index granularity: 4096
+
+[M01a ] host page size is discovered, power of two           PASS
+[M01b ] three page quantities stay distinct                  PASS
+[M04a ] align-up reports overflow instead of wrapping        PASS
+[M01c ] map, write, read back, unmap three host pages        PASS
+[M02  ] four 4 KiB logical slices inside one host page       PASS
+[M03  ] conflicting sub-page permission is refused, state unchanged PASS
+[M04b ] malformed and conflicting requests are rejected      PASS
+[M05  ] permission is enforced on the explicit access path   PASS
+[M13  ] a pinned HLE span blocks unmap until released        PASS
+[M07  ] publication needs a live token and bumps the generation PASS
+       note: host refused RWX (PermissionDenied); RW->RX publication is mandatory
+[M14a ] long-term RWX is not obtainable through this API on a W^X host PASS
+[M13b ] quiesce reports Timeout when an HLE writer is still in flight PASS
+[M12  ] observers get conservatively widened write notifications PASS
+[M10  ] aliases require a mapped primary range               PASS
+[M08b ] TransparentSMC and SoftwareCallbacks are refused at init PASS
+[T03a ] a fault is never masked by a simultaneous pause      PASS
+[D03a ] snapshot validity distinguishes unknown from zero    PASS
+[D03b ] public GPR numbering matches the x86-64 encoding     PASS
+
+18/18 passed
+
+SCOPE: host-only. Proves page arithmetic and POSIX mapping semantics
+       at the real host page size. Proves nothing about bionic, ART or FEX.
+
+=== hle_abi_tests ===
+shadPS4 HLE ABI adapter tests
+host page size: 16384
+
+[H01a ] 8 integer args: 6 in GPRs, 2 spilled to the guest stack  PASS
+[H01b ] 4th integer arg survives a syscall-style gate (r10 -> rcx) PASS
+[H01c ] 9 double args: 8 in xmm0-7, 1 spilled                    PASS
+[H01d ] mixed integer and float use independent register sequences PASS
+[H01e ] float return uses the low 32 bits of xmm0                PASS
+[H04a ] a valid guest pointer is read through                    PASS
+[H04b ] a null guest pointer is passed as null, not rejected     PASS
+[H04c ] an unmapped guest pointer is refused, native code not called PASS
+[H04d ] a read-only guest pointer is refused for a writable parameter PASS
+[H04e ] a writable guest pointer is written through              PASS
+[H04f ] an unsupported signature is refused at registration      PASS
+[H04g ] an unregistered operation is an error, not a host syscall PASS
+[H04h ] a spilled argument outside guest memory is refused       PASS
+[H04i ] operation ids are distinct and looked up by identity     PASS
+
+14/14 passed
+
+SCOPE: adapter-level. Verifies SysV placement, spill, pointer validation
+       and refusals against a hand-built frame. No FEX involved, so this
+       does not prove a real guest arrives with these registers.
+
+=== B02 artifact verification (Android arm64 cross-build) ===
+readelf: /Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-readelf
+
+
+guest_cpu_contract_tests
+  sha256   b698dcdedb697e6ecdb37845edda9183801a4f46acc8d70a0dea8f01ec0c3c29
+  build-id 23fac3907c3c4d8e5d17301c10dd0f89cf0613b1
+  [PASS   ] B02.arch       ELF64 AArch64
+  [PASS   ] B02.bionic     needed: libm.so, libdl.so, libc.so
+  [PASS   ] B02.linker     /system/bin/linker64
+  [PASS   ] B02.align      min LOAD align 0x4000
+  [PASS   ] B02.symver     none
+  [PASS   ] B02.buildid    23fac3907c3c4d8e5d17301c10dd0f89cf0613b1
+
+1 object(s) inspected, 0 failure(s), 0 not run
+
+=== B06 desktop configure ===
+cmake -S . -B /tmp/v0desktop -G Ninja -DCMAKE_BUILD_TYPE=Release
+-- Configuring done / Generating done (succeeded)
