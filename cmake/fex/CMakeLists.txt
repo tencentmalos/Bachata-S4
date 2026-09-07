@@ -38,17 +38,28 @@ if(V0_BUILD_TESTS)
     add_executable(guest_cpu_hle_abi_tests
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/guest_cpu/hle_abi_tests.cpp")
     target_link_libraries(guest_cpu_hle_abi_tests PRIVATE guest_cpu_api)
+
+    # Verifies the FEX host-page fixes (docs/fex-host-page-size-adaptation.md).
+    # Deliberately standalone: it reproduces the layout and syscalls rather than
+    # linking FEXCore, so it runs on the build host and on a device without
+    # requiring the backend that does not exist yet.
+    add_executable(host_page_size_probe
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/host_page_size/host_page_size_probe.cpp")
 endif()
 
 if(V0_ENABLE_FEX)
-    # Deliberately fails rather than quietly building something that is not a
-    # FEX backend. See docs/validation/v0/decisions.md DEC-03: FEXCore cannot
-    # start on a 16 KiB host until four in-tree blockers are fixed, and FEX's
-    # contribution rules forbid AI-generated changes, so this path is not
-    # available in this milestone.
+    # The two 16 KiB blockers on the mandatory path (PS-02 code buffer guard,
+    # PS-03 InterruptFaultPage) are fixed in the owned fork; see
+    # docs/fex-host-page-size-adaptation.md. What is still missing is the
+    # backend adapter itself, so this path would build FEXCore without
+    # anything driving it.
+    #
+    # Fail rather than quietly produce a library with no working backend: a
+    # stub that links would make the acceptance matrix look like it advanced
+    # while nothing is actually executing guest code.
     message(FATAL_ERROR
-        "V0_ENABLE_FEX is not available. FEXCore aborts at startup on a 16 KiB "
-        "host (GetHostVABits, see docs/validation/v0/page-size-audit.md PS-01) "
-        "and the required fixes are blocked by FEX's contribution rules "
-        "(DEC-03). Build with -DV0_ENABLE_FEX=OFF.")
+        "V0_ENABLE_FEX is not available yet. The 16 KiB host page blockers are "
+        "fixed (see docs/fex-host-page-size-adaptation.md), but the FEX backend "
+        "adapter is not implemented, so there is nothing to drive FEXCore. "
+        "Build with -DV0_ENABLE_FEX=OFF.")
 endif()

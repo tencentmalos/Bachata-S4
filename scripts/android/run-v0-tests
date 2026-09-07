@@ -30,11 +30,17 @@ REPO = Path(__file__).resolve().parents[2]
 
 # Every case in docs/specs/android-fex-v0-acceptance.md, with why it cannot run
 # here when that applies. "None" means a host suite can decide it.
-DEVICE_ONLY = "requires an Android device (A16-16K / A16-4K); none attached"
-FEX_BLOCKED = ("requires the FEX backend, blocked by DEC-03: the JIT code-buffer guard "
-               "page (PS-02) and InterruptFaultPage (PS-03) are 4 KiB-hardcoded on paths "
-               "an embedder must take, and the fixes are barred by FEX contribution rules")
-APP_PENDING = "requires the validation APK, not built in this milestone"
+#
+# Each blocker string starts with a stable machine-readable tag. Status selection
+# below keys off the tag, not the prose: matching on wording would silently
+# reclassify every case the moment a reason is reworded, which is exactly how an
+# unresolved blocker could be mistaken for "only missing hardware".
+DEVICE_ONLY = "[DEVICE] requires an Android device (A16-16K / A16-4K); none attached"
+FEX_BLOCKED = ("[NO-BACKEND] requires the FEX backend adapter, which is not implemented. The two "
+               "16 KiB blockers on the embedder's mandatory path (PS-02 code buffer guard, PS-03 "
+               "InterruptFaultPage) are fixed in the owned fork -- see "
+               "docs/fex-host-page-size-adaptation.md -- but nothing drives FEXCore yet")
+APP_PENDING = "[NO-APK] requires the validation APK, not built in this milestone"
 
 CASES: dict[str, tuple[str, str | None]] = {
     # Build and dependencies
@@ -101,6 +107,12 @@ CASES: dict[str, tuple[str, str | None]] = {
     "L01": ("100 create/run/stop/destroy cycles return to the resource baseline", FEX_BLOCKED),
     "L02": ("10 minute soak", FEX_BLOCKED),
     "L03": ("mid-run failure and timeout cleanup", FEX_BLOCKED),
+    # FEX host page adaptation, see docs/fex-host-page-size-adaptation.md.
+    # Host-decidable: these are page-size properties of the fixed layout and
+    # allocation, and the build host has a real 16 KiB page.
+    "P01": ("JIT code buffer guard is host-page aligned and sized", None),
+    "P02": ("InterruptFaultPage is host-page aligned within the JIT offset budget", None),
+    "P03": ("SetHostPageSize rejects invalid and unsupported host pages", None),
 }
 
 # Which host suite case ids feed which acceptance case. A suite case is a
@@ -119,6 +131,14 @@ SUITE_MAP: dict[str, list[str]] = {
     "D03": ["D03a", "D03b"],
     "H01": ["H01a", "H01b", "H01c", "H01d", "H01e"],
     "H04": ["H04a", "H04b", "H04c", "H04d", "H04e", "H04f", "H04g", "H04h", "H04i"],
+    # The FEX host-page fixes. P01e/P01f and P02h/P02i are contrast checks that
+    # assert the pre-fix computation really did fail, so a regression back to it
+    # cannot pass silently. They only run when the host page exceeds 4096, which
+    # is why they are not listed here -- requiring them would make this case
+    # NOT_RUN on a 4 KiB host where the rest is still meaningful.
+    "P01": ["P01a", "P01b", "P01c", "P01d", "P01g"],
+    "P02": ["P02a", "P02b", "P02c", "P02d", "P02e", "P02f", "P02g"],
+    "P03": ["P03a", "P03b", "P03c", "P03d", "P03e", "P03f"],
 }
 
 LINE = re.compile(r"^\[(\S+)\s*\]\s+(.*?)\s+(PASS|FAIL)(?:\s+--\s+(.*))?$")
@@ -230,6 +250,7 @@ def main() -> int:
                                                       "api_contract_tests"]),
         "hle_abi_tests": pick_binary(build_dir, ["guest_cpu_hle_abi_tests",
                                                  "hle_abi_tests"]),
+        "host_page_size_probe": pick_binary(build_dir, ["host_page_size_probe"]),
     }
     observed: dict[str, tuple[str, str]] = {}
     suite_meta = {}
@@ -316,8 +337,10 @@ def main() -> int:
     # Status selection is mechanical, so it cannot be talked upwards.
     if failed:
         release_status = "V0_IN_PROGRESS"
-    elif any(c["reason"] and "DEC-03" in c["reason"] for c in cases):
-        # A rule blocker that no amount of hardware would clear.
+    elif any(c["reason"] and "[NO-BACKEND]" in c["reason"] for c in cases):
+        # Missing implementation, not missing hardware: attaching a 16 KiB device
+        # would not make these run. DEVICE_PENDING here would hide the real gap,
+        # which the spec forbids.
         release_status = "V0_BLOCKED"
     elif not_run:
         release_status = "V0_IMPLEMENTED_DEVICE_PENDING"
@@ -350,7 +373,7 @@ def main() -> int:
             "smc_mode": "ExplicitPublication",
             "guest_features": [],
             "step_scope": [],
-            "backend": "none (FEX not linked; see DEC-03)",
+            "backend": "none (FEX not linked; backend adapter not implemented)",
         },
         "suites": suite_meta,
         "summary": {"passed": passed, "failed": failed, "not_run": not_run,
@@ -358,12 +381,14 @@ def main() -> int:
         "cases": cases,
         "release_status": release_status,
         "release_status_reason": (
-            "FEX-dependent cases cannot run. Two 4 KiB assumptions sit on paths an embedder "
-            "must take -- the JIT code-buffer guard page and InterruptFaultPage -- and the "
-            "fixes are inside FEX, whose contribution rules forbid AI-generated code "
-            "(DEC-03). Note the earlier 'aborts at startup' claim was withdrawn: the VA "
-            "probe is only reachable from FEXInterpreter, which an embedder does not link. "
-            "Host-verifiable cases pass. No device was attached."),
+            "FEX-dependent cases cannot run: the backend adapter is not implemented, so "
+            "nothing drives FEXCore. The two 4 KiB assumptions that previously blocked this "
+            "-- the JIT code-buffer guard page and InterruptFaultPage -- are fixed in the "
+            "owned fork and verified on a real 16 KiB host, see "
+            "docs/fex-host-page-size-adaptation.md. Note the earlier 'aborts at startup' "
+            "claim was withdrawn: the VA probe is only reachable from FEXInterpreter, which "
+            "an embedder does not link. Host-verifiable cases pass. No 16 KiB device was "
+            "attached; the attached device reports a 4 KiB kernel page."),
     }
 
     out_path = Path(args.out)

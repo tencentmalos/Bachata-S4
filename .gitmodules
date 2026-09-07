@@ -181,7 +181,7 @@
 [submodule "references/FEX"]
 	path = references/FEX
 	url = https://github.com/tencentmalos/FEX.git
-	branch = codex/upstream-audit-20260907
+	branch = feature/malos/host-page-size
 [submodule "references/Bachata-S4-android"]
 	path = references/Bachata-S4-android
 	url = https://github.com/tencentmalos/Bachata-S4.git

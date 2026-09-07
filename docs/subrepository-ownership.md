@@ -36,6 +36,30 @@ Foundation 的最终版本由本次主仓 gitlink 固定，变更范围见 [接�
 - FEX fork/分支的存在不改变其贡献规则。遵守仓内 `AGENTS.md` / `CLAUDE.md`；本次未修改 FEX 代码。
 - SG8275 子仓的已有未提交改动、遗留 `externals/dear_imgui` 没有纳入提交。
 
+### FEX 修改记录（2026-09-07 追加）
+
+上一条"本次未修改 FEX 代码"描述的是归属检查当时的状态。此后经用户明确授权，
+在自有 fork 上修改了 FEXCore 的 host 页大小处理：
+
+| 项 | 值 |
+|---|---|
+| 分支 | `feature/malos/host-page-size` |
+| 提交 | `6e862ccd7` |
+| fork 起点 | `dcfbe49cf`（`tencentmalos/FEX`） |
+| upstream base | `50e6eee95`（`FEX-Emu/FEX`） |
+| 范围 | 7 个文件，+84/-12。见 [适配记录](fex-host-page-size-adaptation.md) |
+
+两点必须记住：
+
+1. **上游规则依然存在。** fork 的 `dcfbe49cf` 提交删掉了 upstream `AGENTS.md` / `CLAUDE.md`
+   中"AI must not be used to generate code for contributions"那一行，但删除声明不等于规则不存在。
+   授权范围是"自有 fork 且不回流上游"。若将来要向 `FEX-Emu/FEX` 提 PR，
+   必须由人类工程师重写，不能直接拿这次的改动提交。
+2. **主仓 gitlink 已推进**到 `6e862ccd7`，子仓分支已 push 到 `tencentmalos/FEX`，
+   `.gitmodules` 的 `branch` 也随之改为 `feature/malos/host-page-size`。
+   注意这次推进**同时纳入了 fork 的 `dcfbe49cf`**（gitlink 原本停在审计版 `50e6eee95`），
+   也就是上面第 1 点提到的那个删除声明的提交。审计版 `codex/upstream-audit-20260907` 仍在远端保留。
+
 ## 后续工作约定
 
 1. 先 `git status` 检查子仓，不切换带未提交改动的工作区。fresh clone 的子模块通常是 detached HEAD。

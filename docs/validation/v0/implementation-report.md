@@ -8,6 +8,14 @@
 - 机器可读结果：[results.json](results.json)
 - 原始输出：[host-suite-output.txt](host-suite-output.txt)
 
+> **第二轮更新（2026-09-07）**：§1 的两项 FEX 阻断（PS-02、PS-03）**已在自有 fork 修复并验证**，
+> 见 [FEX host page 适配记录](../../fex-host-page-size-adaptation.md)。
+> 授权变更：用户明确授权在自有 fork 修改且不回流上游，故 §1.2 的规则阻断在此范围内不再适用。
+> 当前状态仍为 `V0_BLOCKED`，但**原因已变**——不再是"不能改 FEX"，而是
+> **FEX backend adapter 尚未实现**，没有任何东西驱动 FEXCore。
+> 验收由 16 项/55 增至 **19 项 PASS / 58**（新增 P01–P03）。
+> 下面 §1 保留第一轮的分析记录；结论的现状差异以本框和 §8 为准。
+
 ## 最终状态：`V0_BLOCKED`
 
 **16 PASS / 0 FAIL / 39 NOT_RUN，共 55 项。**
@@ -272,3 +280,54 @@ foundation/basic/underlying/core/public/spatial/core/utils/StringTool.hpp:14:10:
 
 未交付：APK、native Build IDs（无 APK）、设备测试证据。原因见 §1 与 §5。
 未包含商业游戏、下载的 runtime 或无关本地改动。既有基础状态记录未修改。
+
+## 8. 第二轮：FEX 阻断已解除
+
+### 8.1 实际改动
+
+在 `references/FEX` 自有 fork 分支 `feature/malos/host-page-size`，提交 `6e862ccd7`，
+改动 7 个文件（+84/-12）。完整记录：[FEX host page 适配](../../fex-host-page-size-adaptation.md)。
+
+核心做法是**新增独立的 host 页大小设施**而非改动 `FEX_PAGE_SIZE`：
+后者是 guest ABI 粒度，把它和 host 页混同正是这两个缺陷的成因。
+
+### 8.2 一个新发现的硬上限
+
+`InterruptFaultPage` 的偏移被 JIT 编码成 store 立即数（`JIT.cpp:769` 的 `if constexpr`），
+要求 ≤ 65520。实测各对齐下的最坏距离后确认：
+
+- 16 KiB 对齐 → 距离 16384，**可行**
+- 64 KiB 对齐 → 距离 65536，**恰好越界**
+
+所以这次改动支持到 16 KiB 为止，64 KiB host 需要改 JIT 代码生成。
+`SetHostPageSize` 在运行时明确拒绝 64 KiB，而不是编译期悄悄错掉。
+这条上限是精确计算的结果，不是保守裕度。
+
+### 8.3 验证证据
+
+新增探针 [host_page_size_probe.cpp](../../../tests/host_page_size/host_page_size_probe.cpp)，
+19 项检查，含**对照检查**（验证修复前算法确实 `EINVAL` 失败，防止日后退回旧写法而测试仍通过）。
+
+| 环境 | 页大小 | 结果 |
+|---|---|---|
+| 构建主机 macOS ARM64 | **16384**（真实） | 19/19 PASS，含两组对照 |
+| 实机 API 36 arm64-v8a | 4096 | 19/19 PASS（对照项按设计跳过） |
+
+三个测试二进制经 NDK 交叉编译后在设备上全部通过（退出码 0）。
+
+**证据边界**：手头设备是 4 KiB 内核页，所以设备结果证明的是"没有破坏 4 KiB 行为"，
+16 KiB 正确性由构建主机验证。未运行 `InitCore()`，未执行 guest 代码，未构建完整 FEXCore。
+
+### 8.4 顺带修正的一处工具缺陷
+
+状态推导原本靠 `"DEC-03" in reason` 判断阻断类型。改写阻断说明后这个字符串消失，
+套件把所有 FEX 阻断项误判为"只缺设备"，状态错误地升为 `V0_IMPLEMENTED_DEVICE_PENDING`——
+而实际上接上 16 KiB 实机 FEX 用例照样跑不了。已改为显式标记 `[NO-BACKEND]` / `[DEVICE]` / `[NO-APK]`，
+分类不再依赖措辞。这类"改文案导致状态误判"的脆弱性值得单独记一笔。
+
+### 8.5 当前真实阻断
+
+**FEX backend adapter 未实现**，`CpuContext` / `ThreadHandle` / `Run` / `Step` 仍是空缺。
+这是实现工作量，不再是规则或上游依赖问题。下一步按 §6 的顺序推进，
+但第 1 条（人类工程师修 FEX）已完成，可直接从第 2 条开始。
+

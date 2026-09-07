@@ -95,6 +95,26 @@ M08 若选 ExplicitPublication，必须额外测试“caller 要求 TransparentS
 
 M16 至少包含 x86 store→store/load→load 的消息发布检查和 LOCK 操作同步检查，fixture 用汇编或明确屏障防止 host 编译器改写预期顺序。不要错误地要求 x86 TSO 下的普通 store-buffering 双零结果永不出现；那会把合法行为当成错误。记录具体 litmus、允许/禁止结果和重复次数。
 
+### FEX host page 适配（P01–P03）
+
+针对 FEXCore 内部两处位于嵌入方必经路径上的 4 KiB 假设，见
+[改动记录](../fex-host-page-size-adaptation.md)。这三项不依赖 FEX backend，
+可在构建主机与设备上独立判定。
+
+| ID | 操作/输入 | 必须观察到的结果 |
+|---|---|---|
+| P01 | 按 16 MiB code buffer 计算尾部 guard；在真实 host 页上 `mprotect` | guard 起点 host page 对齐、完整落在分配内、恰好覆盖尾部；`mprotect` 成功；`UsableSize()` 不越入 guard |
+| P02 | 分配含 `InterruptFaultPage` 的线程状态；对其 `mprotect` 后恢复 | fault page host page 对齐且尺寸 ≥ 一个 host page；与 `BaseFrameState` 不同页；到 `BaseFrameState` 距离 ≤ 65520；`sizeof % alignof == 0` |
+| P03 | 向 `SetHostPageSize` 传入 0 / 1024 / 6144 / 65536 / 4096 / 16384 | 前四个拒绝且**不改变已有值**；4096 与 16384 接受。64 KiB 必须拒绝而非静默接受 |
+
+P01/P02 在 host page > 4096 时**额外**要求对照检查通过：显式验证修复前的算法在同一位置
+确实以 `EINVAL` 失败。缺少这组对照，日后退回旧写法测试仍会通过，等于没有回归保护。
+这两项对照不计入 P01/P02 的必需子项，否则在 4 KiB 主机上会把仍然有效的其余检查一并记为
+NOT_RUN。
+
+P03 的 64 KiB 拒绝不是保守裕度：JIT 把 fault page 偏移编码为 store 立即数，要求
+≤ 65520，而 64 KiB 对齐会把它推到恰好 65536。支持 64 KiB host 需改 JIT 代码生成。
+
 ## 6. 执行控制、状态和调试
 
 | ID | 操作/输入 | 必须观察到的结果 |

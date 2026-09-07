@@ -2,10 +2,16 @@
 
 所属：[V0 总 spec](../../specs/android-fex-v0.md) §5。这是 spec 要求的 `page-size-audit.md`。
 
-- 审计对象：`references/FEX`，只读，未修改
+- 审计对象：`references/FEX`
 - 审计范围：**FEXCore-only 构建实际链接**的代码（`FEXCore/`、`CodeEmitter/`、`FEXHeaderUtils/`）
 - 明确排除并单独标注：`Source/Tools/LinuxEmulation/`、`Thunks/`、`FEXInterpreter` 等不链接的部分
 - 审计日期：2026-09-07
+
+> **后续状态（2026-09-07 同日）**：本审计完成时 FEX 检出为只读未修改。之后 PS-02 与 PS-03
+> 已在自有 fork 分支 `feature/malos/host-page-size`（提交 `6e862ccd7`）修复并验证，
+> 见 [FEX host page 适配记录](../../fex-host-page-size-adaptation.md)。
+> 本文件保留审计当时的观察，不改写为已修复状态；两处的现状请以那份记录为准。
+> PS-01 / PS-04 / PS-05 仍未改动，判定不变。
 
 ## 0. 结论摘要
 
@@ -24,6 +30,11 @@
 
 这直接推翻了一个可能的乐观假设——“把 `FEX_PAGE_SIZE` 改成运行时变量就行”。
 `TypeDefines.h:9` 的单个常量同时承担上面三种互相冲突的职责，不能整体改值（见 §3）。
+
+实际采用的做法与这个结论一致：`FEX_PAGE_SIZE` 保持 4096 不动，**另外新增**一个运行时
+`HostPageSize()`（外加编译期上限 `FEX_MAX_HOST_PAGE_SIZE`，供 `alignas` 这类必须常量的场合），
+只在交给 host 内核的参数处使用。注入责任归嵌入方，因为 FEXCore 自己不查询。
+细节见 [适配记录](../../fex-host-page-size-adaptation.md) §2。
 
 ## 1. 根常量
 

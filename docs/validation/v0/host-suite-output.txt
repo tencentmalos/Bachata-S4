@@ -1,4 +1,37 @@
-=== api_contract_tests ===
+===== host_page_size_probe =====
+host page size reported by sysconf: 16384
+
+-- code buffer guard --
+[P01a  ] guard page start is host-page aligned PASS
+[P01b  ] guard page stays inside the allocation PASS
+[P01c  ] guard page covers the buffer tail exactly PASS
+[P01d  ] mprotect on the guard page succeeds PASS
+[P01e  ] the previous FEX_PAGE_SIZE guard address was indeed unaligned PASS
+[P01f  ] the previous computation would have failed here PASS -- Invalid argument
+[P01g  ] UsableSize() ends at or before the guard PASS
+
+-- interrupt fault page --
+[P02a  ] fault page stays within the JIT immediate offset budget PASS -- distance=15872
+[P02b  ] object size is a multiple of its alignment PASS
+[P02c  ] fault page is host-page aligned PASS -- addr%16384=0
+[P02d  ] fault page covers at least one host page PASS
+[P02e  ] mprotect(PROT_NONE) on the fault page succeeds PASS
+[P02f  ] permissions can be restored before free PASS
+[P02g  ] BaseFrameState is in a different host page than the fault page PASS
+[P02h  ] the previous layout was indeed misaligned PASS
+[P02i  ] the previous layout's mprotect would have failed PASS -- Invalid argument
+
+-- SetHostPageSize validation --
+[P03a  ] rejects zero PASS
+[P03b  ] rejects a page smaller than the guest ABI page PASS
+[P03c  ] rejects a non-power-of-two page PASS
+[P03d  ] rejects 64k, which exceeds the JIT offset budget PASS
+[P03e  ] accepts 4096 PASS
+[P03f  ] accepts 16384 PASS
+
+ALL PASS (0 failures)
+
+===== guest_cpu_contract_tests =====
 shadPS4 guest CPU API contract tests
 host page size: 16384 bytes
 guest ABI page: 4096, code index granularity: 4096
@@ -31,7 +64,7 @@ guest ABI page: 4096, code index granularity: 4096
 SCOPE: host-only. Proves page arithmetic and POSIX mapping semantics
        at the real host page size. Proves nothing about bionic, ART or FEX.
 
-=== hle_abi_tests ===
+===== guest_cpu_hle_abi_tests =====
 shadPS4 HLE ABI adapter tests
 host page size: 16384
 
@@ -56,22 +89,3 @@ SCOPE: adapter-level. Verifies SysV placement, spill, pointer validation
        and refusals against a hand-built frame. No FEX involved, so this
        does not prove a real guest arrives with these registers.
 
-=== B02 artifact verification (Android arm64 cross-build) ===
-readelf: /Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-readelf
-
-
-guest_cpu_contract_tests
-  sha256   0f22384666594f3e682719ee626dcb06183f6fa3a3e0a88bf887ae1d9f846782
-  build-id fa1d1cb81f303c355417c6cd7b9a743f718b6bbf
-  [PASS   ] B02.arch       ELF64 AArch64
-  [PASS   ] B02.bionic     needed: libm.so, libdl.so, libc.so
-  [PASS   ] B02.linker     /system/bin/linker64
-  [PASS   ] B02.align      min LOAD align 0x4000
-  [PASS   ] B02.symver     none
-  [PASS   ] B02.buildid    fa1d1cb81f303c355417c6cd7b9a743f718b6bbf
-
-1 object(s) inspected, 0 failure(s), 0 not run
-
-=== B06 desktop configure ===
-cmake -S . -B /tmp/v0desktop -G Ninja -DCMAKE_BUILD_TYPE=Release
--- Configuring done / Generating done (succeeded)
