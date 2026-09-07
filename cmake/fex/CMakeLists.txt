@@ -34,6 +34,10 @@ if(V0_BUILD_TESTS)
     add_executable(guest_cpu_contract_tests
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/guest_cpu/api_contract_tests.cpp")
     target_link_libraries(guest_cpu_contract_tests PRIVATE guest_cpu_api)
+
+    add_executable(guest_cpu_hle_abi_tests
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/guest_cpu/hle_abi_tests.cpp")
+    target_link_libraries(guest_cpu_hle_abi_tests PRIVATE guest_cpu_api)
 endif()
 
 if(V0_ENABLE_FEX)
