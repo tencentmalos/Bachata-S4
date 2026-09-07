@@ -1,4 +1,4 @@
-===== host_page_size_probe =====
+===== host_page_size_probe (build host, page 16384) =====
 host page size reported by sysconf: 16384
 
 -- code buffer guard --
@@ -31,7 +31,7 @@ host page size reported by sysconf: 16384
 
 ALL PASS (0 failures)
 
-===== guest_cpu_contract_tests =====
+===== guest_cpu_contract_tests (build host, page 16384) =====
 shadPS4 guest CPU API contract tests
 host page size: 16384 bytes
 guest ABI page: 4096, code index granularity: 4096
@@ -64,7 +64,7 @@ guest ABI page: 4096, code index granularity: 4096
 SCOPE: host-only. Proves page arithmetic and POSIX mapping semantics
        at the real host page size. Proves nothing about bionic, ART or FEX.
 
-===== guest_cpu_hle_abi_tests =====
+===== guest_cpu_hle_abi_tests (build host, page 16384) =====
 shadPS4 HLE ABI adapter tests
 host page size: 16384
 
@@ -89,3 +89,23 @@ SCOPE: adapter-level. Verifies SysV placement, spill, pointer validation
        and refusals against a hand-built frame. No FEX involved, so this
        does not prove a real guest arrives with these registers.
 
+===== fexcore_bionic_smoke (on device) =====
+bionic FEXCore smoke
+sysconf(_SC_PAGESIZE) = 4096
+FEX_PAGE_SIZE         = 4096 (guest ABI, must stay 4096)
+[F01a  ] FEX_PAGE_SIZE is still the guest ABI page PASS
+[F01b  ] host page size injected into FEXCore PASS -- reported=4096 accepted=1 HostPageSize()=4096
+[F02a  ] FEXCore config layer initialises PASS
+[F02b  ] allocator hooks accept the host page size PASS
+[F03a  ] Context::CreateNewContext returns a context PASS
+[F03b  ] signal delegator and syscall handler installed PASS
+[F03c  ] InitCore succeeds PASS
+[F04a  ] CreateThread returns a thread state PASS
+[F04b  ] live InterruptFaultPage is host-page aligned PASS -- fault page addr%4096=0 size=16384
+[F04c  ] DestroyThread restores fault page permissions and frees PASS
+[F05a  ] context destruction completes PASS
+[F05b  ] allocator hooks and config shut down PASS
+
+ALL PASS (0 failures)
+SCOPE: link + init + thread lifecycle on bionic. No guest code was executed,
+       so this does not prove translation, JIT or guest ABI correctness.

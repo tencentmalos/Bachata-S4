@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
   "spec": "android-fex-v0",
-  "run_id": "20260907T135600Z",
-  "timestamp_utc": "2026-09-07T13:56:00.454973+00:00",
+  "run_id": "20260907T142635Z",
+  "timestamp_utc": "2026-09-07T14:26:36.236719+00:00",
   "baseline_commit": "a712889343ccd2588b712988dae0a76a104e0dce",
-  "implementation_commit": "ae2c02e18876a764a655ae58b9ae7e802fe2125e",
+  "implementation_commit": "3092cd10e185de26c081d0eaf2cd7774074e31c4",
   "implementation_branch": "codex/android-fex-v0",
   "working_tree_dirty": true,
   "fex_base_commit": "f2b679f6028ce1c38875233aecfcf5d3f8ebecec",
@@ -56,13 +56,20 @@
       "sha256": "ae0b2bea42bc6ca2957015655acb237e17262664bb6ebbe9a9243600ed4c6050",
       "sub_cases": 22,
       "failures": 0
+    },
+    "fexcore_bionic_smoke": {
+      "binary": "build/fexcore-android/fexcore_bionic_smoke",
+      "sha256": "cbeaec5f048786f39d9e84a21da9613dcf6b9bf22f524a02d6f697ed59da073f",
+      "sub_cases": 12,
+      "failures": 0,
+      "ran_on_device": true
     }
   },
   "summary": {
-    "passed": 19,
+    "passed": 21,
     "failed": 0,
     "not_run": 39,
-    "total": 58
+    "total": 60
   },
   "cases": [
     {
@@ -816,6 +823,48 @@
         "P03d": "PASS",
         "P03e": "PASS",
         "P03f": "PASS"
+      },
+      "reason": null,
+      "evidence": [
+        "docs/validation/v0/host-suite-output.txt"
+      ],
+      "scope_note": "host-only, real page size 16384; not an on-device result"
+    },
+    {
+      "id": "P04",
+      "description": "FEXCore links and initialises inside a bionic process",
+      "status": "PASS",
+      "environment": "HOST",
+      "iterations": 1,
+      "expected": null,
+      "actual": {
+        "F01a": "PASS",
+        "F01b": "PASS",
+        "F02a": "PASS",
+        "F02b": "PASS",
+        "F03a": "PASS",
+        "F03b": "PASS",
+        "F03c": "PASS"
+      },
+      "reason": null,
+      "evidence": [
+        "docs/validation/v0/host-suite-output.txt"
+      ],
+      "scope_note": "host-only, real page size 16384; not an on-device result"
+    },
+    {
+      "id": "P05",
+      "description": "guest thread create/destroy lifecycle on bionic",
+      "status": "PASS",
+      "environment": "HOST",
+      "iterations": 1,
+      "expected": null,
+      "actual": {
+        "F04a": "PASS",
+        "F04b": "PASS",
+        "F04c": "PASS",
+        "F05a": "PASS",
+        "F05b": "PASS"
       },
       "reason": null,
       "evidence": [

@@ -115,6 +115,22 @@ NOT_RUN。
 P03 的 64 KiB 拒绝不是保守裕度：JIT 把 fault page 偏移编码为 store 立即数，要求
 ≤ 65520，而 64 KiB 对齐会把它推到恰好 65536。支持 64 KiB host 需改 JIT 代码生成。
 
+### FEXCore 的 bionic 构建与初始化（P04–P05）
+
+见 [Android NDK/bionic 构建](../fex-android-bionic-build.md)。这两项需要交叉编译产物与实机，
+通过 `run-v0-tests --fex-build-dir` 启用；未提供时记 NOT_RUN，不虚报。
+
+| ID | 操作/输入 | 必须观察到的结果 |
+|---|---|---|
+| P04 | 注入 host 页大小；装配 SignalDelegator 与 SyscallHandler；创建 Context 并 `InitCore()` | 各步成功；`FEX_PAGE_SIZE` 仍为 4096；注入值与 `sysconf` 一致；`InitCore()` 返回 true |
+| P05 | `CreateThread` → 检查活动 `InterruptFaultPage` 对齐 → `DestroyThread` → 销毁 Context | 线程创建成功；fault page 按 host page 对齐且尺寸 ≥ 一个 host page；销毁与关闭全部完成 |
+
+P04 必须包含 host 页大小注入，因为 FEXCore 链接范围内没有 `sysconf` 调用，
+不注入则它按 4096 工作而不报错。P05 的对齐检查针对**活动对象**，
+与 P02 的布局检查互补：后者验证类型定义，前者验证实际分配。
+
+两项都**不执行 guest 代码**，因此都不构成翻译或 JIT 正确性的证据。
+
 ## 6. 执行控制、状态和调试
 
 | ID | 操作/输入 | 必须观察到的结果 |

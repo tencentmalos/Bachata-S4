@@ -190,7 +190,7 @@ foundation/basic/underlying/core/public/spatial/core/utils/StringTool.hpp:14:10:
 另一个需要留意的点：`foundation_meta_packing` 传递依赖
 `spatial::foundation_allocator` → `spatial::third_party_mimalloc`。
 即使解决了 `fmt`，把 mimalloc 带进 ART 进程也需要单独的 allocator/TLS 审计，
-[Foundation 接入记录](../foundation-integration.md)已就此提出警告。不要因为“能编过”就直接启用。
+[Foundation 接入记录](../../foundation-integration.md)已就此提出警告。不要因为“能编过”就直接启用。
 
 决定：F02 记 **NOT_RUN**，原因写明为依赖闭包缺 `fmt`，而不是笼统的“未启用”。
 这不是 spec 意义上的阻断（可以通过 vendoring 或 `find_package` 解决），
@@ -230,3 +230,34 @@ rc=124            # 超时，无输出
 生命周期修复本身有独立证据——修复前可复现崩溃、修复后不再崩溃，且有三个回归用例守住。
 
 下一步：在 ASan 可用的机器或 Linux CI 上补跑一次，再把结论升级为“ASan clean”。
+
+## DEC-10　FEXCore 需要 NDK r29，因为更早版本的 libc++ 没有 `std::atomic_ref`
+
+第三轮实测结论，直接影响 DEC-01 记录的工具链。
+
+FEXCore 的 `FEXCore/include/FEXCore/Utils/SpinWaitLock.h:313` 与
+`WritePriorityMutex.h:60,136,176` 使用 `std::atomic_ref`（C++20）。
+NDK 附带的 libc++ 在 r28c 及所有更早版本中**完全没有 `atomic_ref` 头文件**，
+不是"未启用"：`sysroot/usr/include/c++/v1/__atomic/` 下无该文件，
+加 `-fexperimental-library` 同样报 `no member named 'atomic_ref' in namespace 'std'`。
+
+本机八个 NDK 全部实测：
+
+| NDK | `__atomic/atomic_ref.h` |
+|---|---|
+| r25.1.8937393 / r26.1 / r26.3 / r27.1 / r27.3 | 无 |
+| r28.2.13672827 / r28.2.13676358（记录中的 r28c） | 无 |
+| **r29.0.14206865** | **有**（libc++ 21，`__cpp_lib_atomic_ref = 201806`） |
+
+r29 的产物已在实机运行确认，不只是编译通过。
+
+**决定**：为 FEXCore 构建使用 r29；`src/core/guest_cpu/api/` 等不依赖 FEXCore 的目标
+仍可用 r28c。[构建脚本](../../../scripts/android/build-fexcore-android)
+**检测 `atomic_ref.h` 是否真实存在**来选择 NDK，而不是比较版本号或目录名——
+本仓已有目录名 `28.2.13672827` 自报 `Pkg.Revision 28.2.13676358` 的先例，标签不可信。
+
+**对 DEC-01 的影响**：无。r29 的 `meta/platforms.json` 仍只到 API 35，
+native 目标保持 35，Java 侧保持 36。r29 不是预发布（r30 RC 才是），可用于本阶段。
+
+**不采用的替代方案**：给 FEX 写一个 `atomic_ref` 兼容层。它涉及原子性与内存序语义，
+自制实现出错的代价（数据竞争）远高于换 NDK 的成本，而换 NDK 无功能损失。

@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+# SPDX-FileCopyrightText: Copyright 2026 shadPS4 Emulator Project
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# Push and run the FEXCore bionic smoke probe on an attached Android device, then clean up after
+# itself so nothing is left in /data/local/tmp.
+#
+# Reports the device's page size alongside the result, because that determines what the run proves:
+# on a 4 KiB device a pass shows the 16 KiB fixes did not regress 4 KiB behaviour; only a 16 KiB
+# device exercises the host-page paths the fixes were written for.
+#
+# Usage: scripts/android/run-fexcore-smoke [build-dir] [-s serial]
+
+set -euo pipefail
+
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+BUILD="${1:-${REPO}/build/fexcore-android}"
+shift || true
+
+ADB=(adb)
+if [[ "${1:-}" == "-s" && -n "${2:-}" ]]; then
+  ADB=(adb -s "$2")
+fi
+
+PROBE="${BUILD}/fexcore_bionic_smoke"
+if [[ ! -f "${PROBE}" ]]; then
+  echo "error: ${PROBE} not found; run scripts/android/build-fexcore-android first" >&2
+  exit 1
+fi
+
+REMOTE=/data/local/tmp/fexcore_bionic_smoke
+cleanup() {
+  "${ADB[@]}" shell rm -f "${REMOTE}" >/dev/null 2>&1 || true
+}
+trap cleanup EXIT
+
+DEVICE_PAGE="$("${ADB[@]}" shell getconf PAGE_SIZE 2>/dev/null | tr -d '\r')"
+echo "device kernel page size: ${DEVICE_PAGE}"
+if [[ "${DEVICE_PAGE}" != "16384" ]]; then
+  echo "NOTE: not a 16 KiB device. A pass here shows 4 KiB behaviour is intact,"
+  echo "      it does not verify the 16 KiB host-page paths."
+fi
+echo
+
+"${ADB[@]}" push "${PROBE}" "${REMOTE}" >/dev/null
+"${ADB[@]}" shell chmod 755 "${REMOTE}"
+
+set +e
+"${ADB[@]}" shell "${REMOTE}"
+STATUS=$?
+set -e
+
+echo
+echo "exit status: ${STATUS}"
+exit "${STATUS}"

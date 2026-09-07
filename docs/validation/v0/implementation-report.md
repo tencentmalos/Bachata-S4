@@ -11,10 +11,16 @@
 > **第二轮更新（2026-09-07）**：§1 的两项 FEX 阻断（PS-02、PS-03）**已在自有 fork 修复并验证**，
 > 见 [FEX host page 适配记录](../../fex-host-page-size-adaptation.md)。
 > 授权变更：用户明确授权在自有 fork 修改且不回流上游，故 §1.2 的规则阻断在此范围内不再适用。
-> 当前状态仍为 `V0_BLOCKED`，但**原因已变**——不再是"不能改 FEX"，而是
+> 详见 §8。
+>
+> **第三轮更新（同日）**：FEXCore **已能为 Android NDK/bionic 构建，并在实机完成初始化与
+> guest 线程生命周期**，见 [Android bionic 构建](../../fex-android-bionic-build.md)。
+> 这更正了由 §4 推出的"FEXCore 不能为 bionic 构建"这一过强推论。详见 §9。
+>
+> 当前状态仍为 `V0_BLOCKED`，但**原因已变**——不再是"不能改 FEX"或"构建不可行"，而是
 > **FEX backend adapter 尚未实现**，没有任何东西驱动 FEXCore。
-> 验收由 16 项/55 增至 **19 项 PASS / 58**（新增 P01–P03）。
-> 下面 §1 保留第一轮的分析记录；结论的现状差异以本框和 §8 为准。
+> 验收由 16 项/55 增至 **21 项 PASS / 60**（新增 P01–P05）。
+> 下面 §1–§7 保留第一轮的分析记录；现状以 §8、§9 为准。
 
 ## 最终状态：`V0_BLOCKED`
 
@@ -204,6 +210,10 @@ Android 16 设备可以运行以 API 35 sysroot 构建的 native 代码——nat
 `references/Bachata-S4-android` 有可用的 FEXCore-only 构建，很容易被当作“Android FEXCore 已可行”的证据。
 **它不是。** 五项独立证据（详见 DEC-02）：
 
+> **第三轮更正**：下面五项事实全部成立，但**不要**由此推出"FEXCore 不能为 bionic 构建"。
+> 实测只需五处平台适配即可，见 §9 与 [Android bionic 构建](../../fex-android-bionic-build.md)。
+> glibc + rootfs 是参考实现的选择，不是唯一可行路径。
+
 1. 构建脚本设 `-DCMAKE_SYSTEM_NAME=Linux`，target `aarch64-linux-gnu`，sysroot `/usr/aarch64-linux-gnu`，
    **完全没有 `CMAKE_TOOLCHAIN_FILE`**。
 2. 全仓 grep：NDK 标记只出现在 Box64 构建脚本里，FEX 构建路径零个。
@@ -328,6 +338,64 @@ foundation/basic/underlying/core/public/spatial/core/utils/StringTool.hpp:14:10:
 ### 8.5 当前真实阻断
 
 **FEX backend adapter 未实现**，`CpuContext` / `ThreadHandle` / `Run` / `Step` 仍是空缺。
-这是实现工作量，不再是规则或上游依赖问题。下一步按 §6 的顺序推进，
-但第 1 条（人类工程师修 FEX）已完成，可直接从第 2 条开始。
+这是实现工作量，不再是规则或上游依赖问题。
+
+## 9. 第三轮：FEXCore 已能为 Android bionic 构建并初始化
+
+完整记录：[Android NDK/bionic 构建](../../fex-android-bionic-build.md)。
+FEX 提交 `385a0cc4d`（同一分支）。
+
+### 9.1 一个需要更正的推论
+
+§4 说参考实现"从未用 NDK 构建 FEXCore"——这个事实成立。但**不能由此推出
+"FEXCore 不能为 bionic 构建"**。实测只需五处平台适配，FEXCore 就能在 Android 进程内
+完成初始化。glibc + Debian rootfs 是参考实现的选择，不是唯一可行路径。
+
+§4 的五项证据本身无需修改，需要修改的是从中得出的可行性判断。
+
+### 9.2 硬性前置：NDK r29
+
+FEXCore 使用 `std::atomic_ref`。本机八个 NDK 全部实测：**只有 r29 的 libc++ 有这个头文件**，
+r28c 及更早完全没有（加 `-fexperimental-library` 也无效）。这与上一轮的环境锁（r28c）冲突。
+
+构建脚本因此检测 `atomic_ref.h` **是否真实存在**，而不是比版本号——
+呼应 §3 记录的"目录名与 `Pkg.Revision` 不一致"问题，标签不可信。
+
+r29 的 sysroot 仍只到 API 35，所以 DEC-01 的结论不变。
+
+### 9.3 两个未文档化的嵌入方义务
+
+这两条是崩溃后符号化定位到的，FEX 文档没有说明，但任何嵌入实现都会遇到：
+
+| 义务 | 触发点 | 影响 |
+|---|---|---|
+| `InitCore()` 前必须设 `SignalDelegator` | `Core.cpp:359` 无条件 `SignalDelegation->SetConfig` | 空指针崩溃。好在该类是具体类，可先给空壳 |
+| `CreateThread()` 前必须设 `SyscallHandler` | `LookupCache.cpp:49` 调 `MarkOvercommitRange` | 空指针崩溃。有三个纯虚函数必须实现 |
+
+这直接影响 backend adapter 的设计，应写进其初始化序列。
+
+### 9.4 验证结果
+
+实机 14/14 通过（退出码 0）：Context 创建、`InitCore()`、`CreateThread`、
+活动 `InterruptFaultPage` 对齐、`DestroyThread`、Context 销毁。
+其中 fault page 尺寸报告为 16384，确认 §8 的改动在活动对象上生效。
+
+验收新增 P04/P05，总数 58 → **60**，PASS 19 → **21**。
+
+**边界**：未执行任何 guest 代码；设备内核页 4096（不验证 16 KiB 路径）；
+是命令行可执行文件而非 APK 内 `.so`，未在 ART 进程运行；静态链接了 libc++。
+
+### 9.5 下一步
+
+前两项已完成，关键路径只剩 adapter：
+
+1. ~~修 16 KiB 阻断~~ → 完成（§8）
+2. ~~验证 bionic 构建与初始化~~ → 完成（§9）
+3. **实现 backend adapter**。可参考
+   `references/Bachata-S4-android/src/core/fex/fex_guest_engine.cpp`（1590 行，
+   已有可用的 FEXCore 集成形态），但须按 V0 API 契约重写，并纳入 §9.3 的两个义务。
+4. 让 guest 真正执行 x86 代码——这是边界之外的第一个实质里程碑。
+5. 取得 16 KiB 实机复跑两个探针。
+6. 打包 APK 在 ART 内验证，处理 libc++ 打包与 allocator/TLS 交互。
+
 

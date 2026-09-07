@@ -20,6 +20,7 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import time
@@ -113,6 +114,11 @@ CASES: dict[str, tuple[str, str | None]] = {
     "P01": ("JIT code buffer guard is host-page aligned and sized", None),
     "P02": ("InterruptFaultPage is host-page aligned within the JIT offset budget", None),
     "P03": ("SetHostPageSize rejects invalid and unsupported host pages", None),
+    # FEXCore on bionic. Decidable, but only when --fex-build-dir points at a completed
+    # Android FEXCore build and a device is attached; otherwise the suite contributes no
+    # sub-cases and these stay NOT_RUN on that basis rather than a stated blocker.
+    "P04": ("FEXCore links and initialises inside a bionic process", None),
+    "P05": ("guest thread create/destroy lifecycle on bionic", None),
 }
 
 # Which host suite case ids feed which acceptance case. A suite case is a
@@ -139,6 +145,9 @@ SUITE_MAP: dict[str, list[str]] = {
     "P01": ["P01a", "P01b", "P01c", "P01d", "P01g"],
     "P02": ["P02a", "P02b", "P02c", "P02d", "P02e", "P02f", "P02g"],
     "P03": ["P03a", "P03b", "P03c", "P03d", "P03e", "P03f"],
+    # F01/F02/F03 are the link-and-init path; F04/F05 the thread and teardown path.
+    "P04": ["F01a", "F01b", "F02a", "F02b", "F03a", "F03b", "F03c"],
+    "P05": ["F04a", "F04b", "F04c", "F05a", "F05b"],
 }
 
 LINE = re.compile(r"^\[(\S+)\s*\]\s+(.*?)\s+(PASS|FAIL)(?:\s+--\s+(.*))?$")
@@ -156,6 +165,43 @@ def run_suite(binary: Path) -> tuple[dict[str, tuple[str, str]], str]:
         if match := LINE.match(line.strip()):
             parsed[match.group(1).strip()] = (match.group(3), (match.group(4) or "").strip())
     output = result.stdout + result.stderr + f"\n(exit {result.returncode}, {elapsed:.2f}s)"
+    return parsed, output
+
+
+def run_device_suite(binary: Path, serial: str | None) -> tuple[dict[str, tuple[str, str]], str]:
+    """Push one cross-compiled suite to a device, run it, and clean up.
+
+    Separate from run_suite because these binaries are arm64/bionic and cannot execute on the build
+    host. Returns empty when adb or the device is unavailable, so the cases stay NOT_RUN rather than
+    being recorded as passes that never ran.
+    """
+    if not binary.is_file():
+        return {}, f"missing: {binary}"
+    if not shutil.which("adb"):
+        return {}, "adb not found; device suite skipped"
+
+    adb = ["adb"] + (["-s", serial] if serial else [])
+    remote = f"/data/local/tmp/{binary.name}"
+    try:
+        push = subprocess.run(adb + ["push", str(binary), remote], capture_output=True, text=True, timeout=300)
+        if push.returncode != 0:
+            return {}, f"adb push failed: {push.stderr.strip()}"
+        subprocess.run(adb + ["shell", "chmod", "755", remote], capture_output=True, text=True, timeout=60)
+        started = time.monotonic()
+        result = subprocess.run(adb + ["shell", remote], capture_output=True, text=True, timeout=600)
+        elapsed = time.monotonic() - started
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        return {}, f"device suite error: {exc}"
+    finally:
+        # Do not leave the binary on the device even when the run failed.
+        if shutil.which("adb"):
+            subprocess.run(adb + ["shell", "rm", "-f", remote], capture_output=True, text=True, timeout=60)
+
+    parsed: dict[str, tuple[str, str]] = {}
+    for line in result.stdout.splitlines():
+        if match := LINE.match(line.strip()):
+            parsed[match.group(1).strip()] = (match.group(3), (match.group(4) or "").strip())
+    output = result.stdout + result.stderr + f"\n(exit {result.returncode}, {elapsed:.2f}s, on device)"
     return parsed, output
 
 
@@ -231,6 +277,9 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--build-dir", default="/tmp/v0build")
+    parser.add_argument("--fex-build-dir", default=None,
+                        help="Android FEXCore build directory from scripts/android/build-fexcore-android. "
+                             "When given, the bionic smoke probe is run on a device (P04/P05).")
     parser.add_argument("--serial", default=None)
     parser.add_argument("--expected-page-size", type=int, default=None)
     parser.add_argument("--out", default=str(REPO / "docs/validation/v0/results.json"))
@@ -269,6 +318,25 @@ def main() -> int:
             # Loud, because a silent zero here would quietly turn real passes
             # into NOT_RUN and make the report look worse than reality.
             print(f"  WARNING: no results parsed from {binary}")
+            print(f"           {output.splitlines()[-1] if output else 'no output'}")
+
+    # The bionic FEXCore probe is arm64 and must run on a device, so it is opt-in via
+    # --fex-build-dir. Without it P04/P05 stay NOT_RUN with their stated reason.
+    if args.fex_build_dir:
+        fex_binary = pick_binary(Path(args.fex_build_dir), ["fexcore_bionic_smoke"])
+        parsed, output = run_device_suite(fex_binary, args.serial)
+        observed.update(parsed)
+        suite_meta["fexcore_bionic_smoke"] = {
+            "binary": str(fex_binary),
+            "sha256": sha256_of(fex_binary) if fex_binary.is_file() else None,
+            "sub_cases": len(parsed),
+            "failures": sum(1 for status, _ in parsed.values() if status == "FAIL"),
+            "ran_on_device": bool(parsed),
+        }
+        print(f"fexcore_bionic_smoke: {len(parsed)} sub-case(s), "
+              f"{suite_meta['fexcore_bionic_smoke']['failures']} failure(s)")
+        if not parsed:
+            print(f"  WARNING: no results parsed from {fex_binary}")
             print(f"           {output.splitlines()[-1] if output else 'no output'}")
 
     host_page = os.sysconf("SC_PAGESIZE")

@@ -1,0 +1,117 @@
+#!/usr/bin/env bash
+# SPDX-FileCopyrightText: Copyright 2026 shadPS4 Emulator Project
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# Build FEXCore for Android (NDK/bionic) and link the on-device smoke probe.
+#
+# This is the first configuration in which FEXCore has been built against the NDK sysroot rather
+# than a glibc cross toolchain. See docs/fex-android-bionic-build.md for what each requirement is
+# for; the short version:
+#
+#   - NDK r29 or newer is mandatory: FEXCore uses std::atomic_ref, which the libc++ shipped with
+#     r28c and earlier does not provide at all (not even under -fexperimental-library).
+#   - BUILD_FEXCORE_ONLY skips Source/Tools, which is the Linux frontend an embedder replaces.
+#
+# Usage: scripts/android/build-fexcore-android [build-dir]
+
+set -euo pipefail
+
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+FEX="${REPO}/references/FEX"
+BUILD="${1:-${REPO}/build/fexcore-android}"
+
+SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-${HOME}/Library/Android/sdk}}"
+API="${ANDROID_API:-35}"
+
+die() {
+  echo "error: $*" >&2
+  exit 1
+}
+
+# --- toolchain selection -----------------------------------------------------
+# Pick the newest installed NDK that actually has atomic_ref, rather than trusting a directory name.
+# A package label is not proof of contents: this repository has two r28c installs whose reported
+# Pkg.Revision disagrees with their directory.
+NDK="${ANDROID_NDK:-}"
+if [[ -z "${NDK}" ]]; then
+  for candidate in $(ls -d "${SDK_ROOT}"/ndk/*/ 2>/dev/null | sort -Vr); do
+    # Glob the prebuilt host dir explicitly; [[ -f ]] does not expand wildcards.
+    if compgen -G "${candidate}toolchains/llvm/prebuilt/*/sysroot/usr/include/c++/v1/__atomic/atomic_ref.h" >/dev/null; then
+      NDK="${candidate%/}"
+      break
+    fi
+  done
+fi
+[[ -n "${NDK}" ]] || die "no NDK with std::atomic_ref found under ${SDK_ROOT}/ndk. FEXCore needs r29+."
+
+PREBUILT="$(ls -d "${NDK}/toolchains/llvm/prebuilt"/*/ 2>/dev/null | head -1)"
+[[ -n "${PREBUILT}" ]] || die "no prebuilt toolchain in ${NDK}"
+PREBUILT="${PREBUILT%/}"
+
+# Verify the capability instead of inferring it from the version string.
+if [[ ! -f "${PREBUILT}/sysroot/usr/include/c++/v1/__atomic/atomic_ref.h" ]]; then
+  die "${NDK} has no atomic_ref.h; FEXCore will not compile. Use NDK r29 or newer."
+fi
+
+CXX="${PREBUILT}/bin/aarch64-linux-android${API}-clang++"
+[[ -x "${CXX}" ]] || die "missing compiler ${CXX}"
+
+echo "NDK:   ${NDK}"
+echo "API:   ${API}"
+echo "build: ${BUILD}"
+echo
+
+# --- configure and build FEXCore --------------------------------------------
+cmake -S "${FEX}" -B "${BUILD}" -G Ninja \
+  -DCMAKE_TOOLCHAIN_FILE="${NDK}/build/cmake/android.toolchain.cmake" \
+  -DANDROID_ABI=arm64-v8a \
+  -DANDROID_PLATFORM="android-${API}" \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DBUILD_FEXCORE_ONLY=ON \
+  -DBUILD_TESTING=OFF \
+  -DBUILD_THUNKS=OFF \
+  -DBUILD_FEXCONFIG=OFF \
+  -DENABLE_LTO=OFF \
+  -DENABLE_CCACHE=OFF \
+  -DENABLE_OFFLINE_TELEMETRY=OFF
+
+cmake --build "${BUILD}"
+
+# --- link the smoke probe ----------------------------------------------------
+# Order matters less inside --start-group/--end-group, which is needed because FEXCore, FEXCore_Base
+# and the allocator libraries reference each other cyclically.
+PROBE="${BUILD}/fexcore_bionic_smoke"
+"${CXX}" -std=c++20 -O1 -g -static-libstdc++ -o "${PROBE}" \
+  "${REPO}/tests/fex_bionic/fexcore_bionic_smoke.cpp" \
+  -I"${BUILD}/FEXCore/Source" \
+  -I"${FEX}/FEXCore/Source" \
+  -I"${FEX}/Source" \
+  -I"${BUILD}/Source" \
+  -I"${BUILD}/generated" \
+  -I"${BUILD}/include" \
+  -I"${FEX}/FEXCore/Source/IncludePrivate" \
+  -I"${FEX}/FEXCore/include" \
+  -I"${FEX}/External/fmt/include" \
+  -I"${FEX}/External/xxhash" \
+  -I"${FEX}/FEXHeaderUtils" \
+  -I"${FEX}/CodeEmitter" \
+  -I"${FEX}/External/unordered_dense/include" \
+  -DARCHITECTURE_arm64=1 \
+  -DFEX_DISABLE_TELEMETRY=1 \
+  -Wl,--start-group \
+  "${BUILD}/FEXCore/Source/libFEXCore.a" \
+  "${BUILD}/Source/Common/libCommon.a" \
+  "${BUILD}/FEXCore/Source/libFEXCore_Base.a" \
+  "${BUILD}/FEXCore/Source/libJemallocLibs.a" \
+  "${BUILD}/External/rpmalloc/librpmalloc.a" \
+  "${BUILD}/External/SoftFloat-3e/libsoftfloat_3e.a" \
+  "${BUILD}/External/cephes/libcephes_128bit.a" \
+  "${BUILD}/External/fmt/libfmt.a" \
+  "${BUILD}/External/xxhash/cmake_unofficial/libxxhash.a" \
+  "${BUILD}/External/tiny-json/libtiny-json.a" \
+  -Wl,--end-group \
+  -llog
+
+echo
+echo "built ${PROBE}"
+echo "run on a device with: scripts/android/run-fexcore-smoke ${BUILD}"
