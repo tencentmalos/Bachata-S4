@@ -1,0 +1,953 @@
+{
+  "methodology": {
+    "source": "git archive of exact revisions; working-tree modifications and nested gitlinks excluded",
+    "suffixes": [
+      ".asm",
+      ".c",
+      ".cc",
+      ".cpp",
+      ".cxx",
+      ".h",
+      ".hh",
+      ".hpp",
+      ".hxx",
+      ".inc",
+      ".inl",
+      ".s"
+    ],
+    "lines": "physical lines, including comments; nonblank excludes whitespace-only lines",
+    "exclusions": "build outputs, nested gitlinks, scripts, CMake, JSON/DSL inputs and documentation",
+    "generated": "tracked generated C/C++/assembly text is included; generated build outputs are not",
+    "groups": "groups can overlap; do not sum all groups"
+  },
+  "repositories": {
+    "fex": {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/references/FEX",
+      "revision": "50e6eee95ae95d3257672727a9302a30b4a60a9a",
+      "subject": "2026-09-06 Merge pull request #5931 from Plagman/plagman/key_flags_mr",
+      "groups": {
+        "code_emitter": {
+          "files": 11,
+          "lines": 20097,
+          "nonblank": 18251,
+          "bytes": 856674
+        },
+        "common_tools": {
+          "files": 8,
+          "lines": 2332,
+          "nonblank": 2011,
+          "bytes": 77852
+        },
+        "core": {
+          "files": 184,
+          "lines": 73038,
+          "nonblank": 61652,
+          "bytes": 2935073
+        },
+        "core_with_emitter_and_header_utils": {
+          "files": 201,
+          "lines": 93821,
+          "nonblank": 80484,
+          "bytes": 3811001
+        },
+        "dispatcher": {
+          "files": 2,
+          "lines": 2844,
+          "nonblank": 2355,
+          "bytes": 100419
+        },
+        "header_utils": {
+          "files": 6,
+          "lines": 686,
+          "nonblank": 581,
+          "bytes": 19254
+        },
+        "host_common": {
+          "files": 27,
+          "lines": 4500,
+          "nonblank": 3800,
+          "bytes": 137007
+        },
+        "ir": {
+          "files": 16,
+          "lines": 5738,
+          "nonblank": 4787,
+          "bytes": 184647
+        },
+        "jit": {
+          "files": 14,
+          "lines": 13272,
+          "nonblank": 11282,
+          "bytes": 491216
+        },
+        "linux_emulation": {
+          "files": 152,
+          "lines": 32471,
+          "nonblank": 28131,
+          "bytes": 1119562
+        },
+        "project_source_including_tests": {
+          "files": 3143,
+          "lines": 344261,
+          "nonblank": 294411,
+          "bytes": 14207453
+        },
+        "public_headers": {
+          "files": 63,
+          "lines": 6591,
+          "nonblank": 5586,
+          "bytes": 217592
+        },
+        "tests": {
+          "files": 2598,
+          "lines": 160729,
+          "nonblank": 133976,
+          "bytes": 6993500
+        },
+        "thunks": {
+          "files": 56,
+          "lines": 32041,
+          "nonblank": 30490,
+          "bytes": 1437643
+        },
+        "utils": {
+          "files": 26,
+          "lines": 6500,
+          "nonblank": 5471,
+          "bytes": 223754
+        },
+        "vendored_external_source_in_parent_git": {
+          "files": 117,
+          "lines": 14100,
+          "nonblank": 12061,
+          "bytes": 553392
+        },
+        "windows": {
+          "files": 70,
+          "lines": 9110,
+          "nonblank": 7792,
+          "bytes": 315823
+        },
+        "x86_frontend_and_semantics": {
+          "files": 30,
+          "lines": 26082,
+          "nonblank": 21833,
+          "bytes": 1241005
+        }
+      },
+      "extensions": {
+        ".asm": 2511,
+        ".c": 122,
+        ".cpp": 307,
+        ".h": 268,
+        ".inc": 1,
+        ".inl": 49,
+        ".s": 2
+      },
+      "excluded_gitlinks": [
+        "External/Catch2",
+        "External/Vulkan-Headers",
+        "External/drm-headers",
+        "External/fex-gcc-target-tests-bins",
+        "External/fex-gvisor-tests-bins",
+        "External/fex-posixtest-bins",
+        "External/fmt",
+        "External/jemalloc_glibc",
+        "External/range-v3",
+        "External/rpmalloc",
+        "External/tracy",
+        "External/unordered_dense",
+        "External/vixl",
+        "External/xxhash",
+        "External/zydis",
+        "Source/Common/cpp-optparse"
+      ],
+      "largest_core_files": [
+        {
+          "path": "FEXCore/Source/Interface/Core/OpcodeDispatcher/Vector.cpp",
+          "files": 1,
+          "lines": 5760,
+          "nonblank": 4894,
+          "bytes": 232305
+        },
+        {
+          "path": "CodeEmitter/CodeEmitter/SVEOps.inl",
+          "files": 1,
+          "lines": 5236,
+          "nonblank": 4660,
+          "bytes": 230183
+        },
+        {
+          "path": "CodeEmitter/CodeEmitter/LoadstoreOps.inl",
+          "files": 1,
+          "lines": 4833,
+          "nonblank": 4646,
+          "bytes": 233011
+        },
+        {
+          "path": "FEXCore/Source/Interface/Core/OpcodeDispatcher.cpp",
+          "files": 1,
+          "lines": 5119,
+          "nonblank": 4241,
+          "bytes": 185796
+        },
+        {
+          "path": "FEXCore/Source/Interface/Core/JIT/VectorOps.cpp",
+          "files": 1,
+          "lines": 4895,
+          "nonblank": 4239,
+          "bytes": 195560
+        },
+        {
+          "path": "CodeEmitter/CodeEmitter/ASIMDOps.inl",
+          "files": 1,
+          "lines": 4411,
+          "nonblank": 3944,
+          "bytes": 181701
+        },
+        {
+          "path": "FEXCore/Source/Interface/Core/OpcodeDispatcher.h",
+          "files": 1,
+          "lines": 2749,
+          "nonblank": 2248,
+          "bytes": 99803
+        },
+        {
+          "path": "FEXCore/Source/Interface/Core/JIT/MemoryOps.cpp",
+          "files": 1,
+          "lines": 2572,
+          "nonblank": 2245,
+          "bytes": 98131
+        },
+        {
+          "path": "FEXCore/Source/Interface/Core/Dispatcher/Dispatcher.cpp",
+          "files": 1,
+          "lines": 2697,
+          "nonblank": 2236,
+          "bytes": 95957
+        },
+        {
+          "path": "FEXCore/Source/Utils/ArchHelpers/Arm64.cpp",
+          "files": 1,
+          "lines": 2212,
+          "nonblank": 1902,
+          "bytes": 82196
+        },
+        {
+          "path": "FEXCore/Source/Interface/Core/OpcodeDispatcher/AVX_128.cpp",
+          "files": 1,
+          "lines": 2309,
+          "nonblank": 1881,
+          "bytes": 92697
+        },
+        {
+          "path": "CodeEmitter/CodeEmitter/ScalarOps.inl",
+          "files": 1,
+          "lines": 1534,
+          "nonblank": 1406,
+          "bytes": 67466
+        },
+        {
+          "path": "FEXCore/Source/Interface/Core/Frontend.cpp",
+          "files": 1,
+          "lines": 1638,
+          "nonblank": 1406,
+          "bytes": 65745
+        },
+        {
+          "path": "FEXCore/Source/Interface/Core/JIT/ALUOps.cpp",
+          "files": 1,
+          "lines": 1491,
+          "nonblank": 1220,
+          "bytes": 47915
+        },
+        {
+          "path": "FEXCore/Source/Interface/Core/CPUID.cpp",
+          "files": 1,
+          "lines": 1365,
+          "nonblank": 1190,
+          "bytes": 58492
+        }
+      ]
+    },
+    "fex_previous_reference": {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/references/FEX",
+      "revision": "f2b679f6028ce1c38875233aecfcf5d3f8ebecec",
+      "subject": "2026-07-12 Merge pull request #5728 from lioncash/halves",
+      "groups": {
+        "code_emitter": {
+          "files": 11,
+          "lines": 20090,
+          "nonblank": 18244,
+          "bytes": 856365
+        },
+        "common_tools": {
+          "files": 8,
+          "lines": 2331,
+          "nonblank": 2011,
+          "bytes": 77887
+        },
+        "core": {
+          "files": 175,
+          "lines": 70058,
+          "nonblank": 59119,
+          "bytes": 2825053
+        },
+        "core_with_emitter_and_header_utils": {
+          "files": 192,
+          "lines": 90834,
+          "nonblank": 77944,
+          "bytes": 3700672
+        },
+        "dispatcher": {
+          "files": 2,
+          "lines": 2844,
+          "nonblank": 2355,
+          "bytes": 100392
+        },
+        "header_utils": {
+          "files": 6,
+          "lines": 686,
+          "nonblank": 581,
+          "bytes": 19254
+        },
+        "host_common": {
+          "files": 25,
+          "lines": 4410,
+          "nonblank": 3720,
+          "bytes": 134696
+        },
+        "ir": {
+          "files": 16,
+          "lines": 5704,
+          "nonblank": 4758,
+          "bytes": 183166
+        },
+        "jit": {
+          "files": 14,
+          "lines": 13202,
+          "nonblank": 11221,
+          "bytes": 488871
+        },
+        "linux_emulation": {
+          "files": 152,
+          "lines": 32411,
+          "nonblank": 28073,
+          "bytes": 1116769
+        },
+        "project_source_including_tests": {
+          "files": 3105,
+          "lines": 339185,
+          "nonblank": 290202,
+          "bytes": 14044919
+        },
+        "public_headers": {
+          "files": 60,
+          "lines": 6111,
+          "nonblank": 5169,
+          "bytes": 202581
+        },
+        "tests": {
+          "files": 2573,
+          "lines": 159105,
+          "nonblank": 132706,
+          "bytes": 6958812
+        },
+        "thunks": {
+          "files": 56,
+          "lines": 32038,
+          "nonblank": 30487,
+          "bytes": 1437540
+        },
+        "utils": {
+          "files": 23,
+          "lines": 5384,
+          "nonblank": 4558,
+          "bytes": 182683
+        },
+        "vendored_external_source_in_parent_git": {
+          "files": 117,
+          "lines": 14100,
+          "nonblank": 12061,
+          "bytes": 553392
+        },
+        "windows": {
+          "files": 68,
+          "lines": 8894,
+          "nonblank": 7605,
+          "bytes": 307474
+        },
+        "x86_frontend_and_semantics": {
+          "files": 30,
+          "lines": 26029,
+          "nonblank": 21787,
+          "bytes": 1239766
+        }
+      },
+      "extensions": {
+        ".asm": 2491,
+        ".c": 122,
+        ".cpp": 297,
+        ".h": 260,
+        ".inc": 1,
+        ".inl": 49,
+        ".s": 2
+      },
+      "excluded_gitlinks": [
+        "External/Catch2",
+        "External/Vulkan-Headers",
+        "External/drm-headers",
+        "External/fex-gcc-target-tests-bins",
+        "External/fex-gvisor-tests-bins",
+        "External/fex-posixtest-bins",
+        "External/fmt",
+        "External/jemalloc_glibc",
+        "External/range-v3",
+        "External/rpmalloc",
+        "External/tracy",
+        "External/unordered_dense",
+        "External/vixl",
+        "External/xxhash",
+        "External/zydis",
+        "Source/Common/cpp-optparse"
+      ],
+      "largest_core_files": [
+        {
+          "path": "FEXCore/Source/Interface/Core/OpcodeDispatcher/Vector.cpp",
+          "files": 1,
+          "lines": 5762,
+          "nonblank": 4897,
+          "bytes": 232426
+        },
+        {
+          "path": "CodeEmitter/CodeEmitter/SVEOps.inl",
+          "files": 1,
+          "lines": 5229,
+          "nonblank": 4653,
+          "bytes": 229874
+        },
+        {
+          "path": "CodeEmitter/CodeEmitter/LoadstoreOps.inl",
+          "files": 1,
+          "lines": 4833,
+          "nonblank": 4646,
+          "bytes": 233011
+        },
+        {
+          "path": "FEXCore/Source/Interface/Core/OpcodeDispatcher.cpp",
+          "files": 1,
+          "lines": 5165,
+          "nonblank": 4282,
+          "bytes": 187864
+        },
+        {
+          "path": "FEXCore/Source/Interface/Core/JIT/VectorOps.cpp",
+          "files": 1,
+          "lines": 4827,
+          "nonblank": 4178,
+          "bytes": 193198
+        },
+        {
+          "path": "CodeEmitter/CodeEmitter/ASIMDOps.inl",
+          "files": 1,
+          "lines": 4411,
+          "nonblank": 3944,
+          "bytes": 181701
+        },
+        {
+          "path": "FEXCore/Source/Interface/Core/JIT/MemoryOps.cpp",
+          "files": 1,
+          "lines": 2572,
+          "nonblank": 2245,
+          "bytes": 98143
+        },
+        {
+          "path": "FEXCore/Source/Interface/Core/OpcodeDispatcher.h",
+          "files": 1,
+          "lines": 2744,
+          "nonblank": 2243,
+          "bytes": 99597
+        },
+        {
+          "path": "FEXCore/Source/Interface/Core/Dispatcher/Dispatcher.cpp",
+          "files": 1,
+          "lines": 2697,
+          "nonblank": 2236,
+          "bytes": 95930
+        },
+        {
+          "path": "FEXCore/Source/Utils/ArchHelpers/Arm64.cpp",
+          "files": 1,
+          "lines": 2212,
+          "nonblank": 1902,
+          "bytes": 82196
+        },
+        {
+          "path": "FEXCore/Source/Interface/Core/OpcodeDispatcher/AVX_128.cpp",
+          "files": 1,
+          "lines": 2308,
+          "nonblank": 1880,
+          "bytes": 92417
+        },
+        {
+          "path": "CodeEmitter/CodeEmitter/ScalarOps.inl",
+          "files": 1,
+          "lines": 1534,
+          "nonblank": 1406,
+          "bytes": 67466
+        },
+        {
+          "path": "FEXCore/Source/Interface/Core/Frontend.cpp",
+          "files": 1,
+          "lines": 1576,
+          "nonblank": 1352,
+          "bytes": 64459
+        },
+        {
+          "path": "FEXCore/Source/Interface/Core/JIT/ALUOps.cpp",
+          "files": 1,
+          "lines": 1491,
+          "nonblank": 1220,
+          "bytes": 47915
+        },
+        {
+          "path": "FEXCore/Source/Interface/Core/CPUID.cpp",
+          "files": 1,
+          "lines": 1365,
+          "nonblank": 1190,
+          "bytes": 58473
+        }
+      ]
+    },
+    "dynarmic_citron": {
+      "path": "/Users/bytedance/workspace/emulations/switch/citron/externals/dynarmic",
+      "revision": "a593d9262388e3216985b982e400f19ef9ce9749",
+      "subject": "2026-08-30 backend/arm64: do not marshal absent CallHostFunction arguments",
+      "groups": {
+        "a32_frontend": {
+          "files": 75,
+          "lines": 20397,
+          "nonblank": 16826,
+          "bytes": 758147
+        },
+        "a64_frontend": {
+          "files": 69,
+          "lines": 13419,
+          "nonblank": 10865,
+          "bytes": 521641
+        },
+        "arm64_backend": {
+          "files": 43,
+          "lines": 12979,
+          "nonblank": 10636,
+          "bytes": 476410
+        },
+        "common": {
+          "files": 64,
+          "lines": 3862,
+          "nonblank": 3083,
+          "bytes": 118304
+        },
+        "core": {
+          "files": 385,
+          "lines": 90034,
+          "nonblank": 73809,
+          "bytes": 3278462
+        },
+        "core_without_other_host_backends": {
+          "files": 305,
+          "lines": 61333,
+          "nonblank": 50585,
+          "bytes": 2307428
+        },
+        "frontend_all": {
+          "files": 148,
+          "lines": 34317,
+          "nonblank": 28116,
+          "bytes": 1296180
+        },
+        "ir": {
+          "files": 31,
+          "lines": 8120,
+          "nonblank": 7065,
+          "bytes": 344279
+        },
+        "mcl": {
+          "files": 69,
+          "lines": 4093,
+          "nonblank": 3221,
+          "bytes": 116325
+        },
+        "oaknut": {
+          "files": 41,
+          "lines": 19000,
+          "nonblank": 18296,
+          "bytes": 643606
+        },
+        "project_source_including_tests": {
+          "files": 421,
+          "lines": 126701,
+          "nonblank": 108841,
+          "bytes": 5206570
+        },
+        "public_headers": {
+          "files": 11,
+          "lines": 1217,
+          "nonblank": 1008,
+          "bytes": 47513
+        },
+        "riscv64_backend": {
+          "files": 27,
+          "lines": 5665,
+          "nonblank": 4525,
+          "bytes": 154899
+        },
+        "tests": {
+          "files": 36,
+          "lines": 36667,
+          "nonblank": 35032,
+          "bytes": 1928108
+        },
+        "vendored_external_source_in_parent_git": {
+          "files": 796,
+          "lines": 308888,
+          "nonblank": 269836,
+          "bytes": 20760106
+        },
+        "x64_backend": {
+          "files": 53,
+          "lines": 23036,
+          "nonblank": 18699,
+          "bytes": 816135
+        }
+      },
+      "extensions": {
+        ".c": 52,
+        ".cc": 44,
+        ".cpp": 571,
+        ".h": 230,
+        ".hpp": 294,
+        ".inc": 25,
+        ".s": 1
+      },
+      "excluded_gitlinks": [],
+      "largest_core_files": [
+        {
+          "path": "src/dynarmic/backend/x64/emit_x64_vector.cpp",
+          "files": 1,
+          "lines": 6038,
+          "nonblank": 4843,
+          "bytes": 211607
+        },
+        {
+          "path": "src/dynarmic/ir/ir_emitter.cpp",
+          "files": 1,
+          "lines": 2890,
+          "nonblank": 2508,
+          "bytes": 93544
+        },
+        {
+          "path": "src/dynarmic/backend/x64/emit_x64_vector_floating_point.cpp",
+          "files": 1,
+          "lines": 2185,
+          "nonblank": 1782,
+          "bytes": 88145
+        },
+        {
+          "path": "src/dynarmic/backend/x64/emit_x64_floating_point.cpp",
+          "files": 1,
+          "lines": 2134,
+          "nonblank": 1732,
+          "bytes": 81556
+        },
+        {
+          "path": "src/dynarmic/backend/arm64/emit_arm64_vector.cpp",
+          "files": 1,
+          "lines": 1889,
+          "nonblank": 1563,
+          "bytes": 86828
+        },
+        {
+          "path": "src/dynarmic/frontend/A32/disassembler/disassembler_arm.cpp",
+          "files": 1,
+          "lines": 1584,
+          "nonblank": 1448,
+          "bytes": 76351
+        },
+        {
+          "path": "src/dynarmic/backend/x64/emit_x64_data_processing.cpp",
+          "files": 1,
+          "lines": 1701,
+          "nonblank": 1356,
+          "bytes": 59945
+        },
+        {
+          "path": "src/dynarmic/backend/arm64/emit_arm64_data_processing.cpp",
+          "files": 1,
+          "lines": 1523,
+          "nonblank": 1266,
+          "bytes": 56454
+        },
+        {
+          "path": "src/dynarmic/frontend/A32/translate/impl/vfp.cpp",
+          "files": 1,
+          "lines": 1489,
+          "nonblank": 1224,
+          "bytes": 49056
+        },
+        {
+          "path": "src/dynarmic/backend/riscv64/emit_riscv64_vector.cpp",
+          "files": 1,
+          "lines": 1395,
+          "nonblank": 1116,
+          "bytes": 36906
+        },
+        {
+          "path": "src/dynarmic/backend/x64/a32_emit_x64.cpp",
+          "files": 1,
+          "lines": 1299,
+          "nonblank": 1069,
+          "bytes": 49168
+        },
+        {
+          "path": "src/dynarmic/frontend/A64/translate/impl/impl.h",
+          "files": 1,
+          "lines": 1084,
+          "nonblank": 986,
+          "bytes": 55064
+        },
+        {
+          "path": "src/dynarmic/frontend/A64/decoder/a64.inc",
+          "files": 1,
+          "lines": 1029,
+          "nonblank": 952,
+          "bytes": 101402
+        },
+        {
+          "path": "src/dynarmic/frontend/A64/translate/impl/simd_three_same.cpp",
+          "files": 1,
+          "lines": 1240,
+          "nonblank": 948,
+          "bytes": 39175
+        },
+        {
+          "path": "src/dynarmic/frontend/A32/translate/impl/a32_translate_impl.h",
+          "files": 1,
+          "lines": 982,
+          "nonblank": 902,
+          "bytes": 57598
+        }
+      ]
+    },
+    "dynarmic_azahar": {
+      "path": "/Users/bytedance/workspace/emulations/3ds/azahar/externals/dynarmic",
+      "revision": "96a803e921ba19bde0fbb315264971fd268fb2ed",
+      "subject": "2026-08-22 A32: expose exclusive state restoration",
+      "groups": {
+        "a32_frontend": {
+          "files": 75,
+          "lines": 20397,
+          "nonblank": 16826,
+          "bytes": 758147
+        },
+        "a64_frontend": {
+          "files": 69,
+          "lines": 13395,
+          "nonblank": 10845,
+          "bytes": 520527
+        },
+        "arm64_backend": {
+          "files": 43,
+          "lines": 12971,
+          "nonblank": 10627,
+          "bytes": 475692
+        },
+        "common": {
+          "files": 64,
+          "lines": 3862,
+          "nonblank": 3083,
+          "bytes": 118304
+        },
+        "core": {
+          "files": 385,
+          "lines": 89987,
+          "nonblank": 73763,
+          "bytes": 3275308
+        },
+        "core_without_other_host_backends": {
+          "files": 305,
+          "lines": 61282,
+          "nonblank": 50539,
+          "bytes": 2304404
+        },
+        "frontend_all": {
+          "files": 148,
+          "lines": 34293,
+          "nonblank": 28096,
+          "bytes": 1295066
+        },
+        "ir": {
+          "files": 31,
+          "lines": 8120,
+          "nonblank": 7065,
+          "bytes": 344279
+        },
+        "project_source_including_tests": {
+          "files": 421,
+          "lines": 126654,
+          "nonblank": 108795,
+          "bytes": 5203416
+        },
+        "public_headers": {
+          "files": 11,
+          "lines": 1198,
+          "nonblank": 991,
+          "bytes": 46321
+        },
+        "riscv64_backend": {
+          "files": 27,
+          "lines": 5674,
+          "nonblank": 4532,
+          "bytes": 155210
+        },
+        "tests": {
+          "files": 36,
+          "lines": 36667,
+          "nonblank": 35032,
+          "bytes": 1928108
+        },
+        "x64_backend": {
+          "files": 53,
+          "lines": 23031,
+          "nonblank": 18692,
+          "bytes": 815694
+        }
+      },
+      "extensions": {
+        ".c": 1,
+        ".cpp": 265,
+        ".h": 144,
+        ".inc": 10,
+        ".s": 1
+      },
+      "excluded_gitlinks": [
+        "externals/biscuit",
+        "externals/catch",
+        "externals/fmt",
+        "externals/mcl",
+        "externals/oaknut",
+        "externals/robin-map",
+        "externals/xbyak",
+        "externals/zycore",
+        "externals/zydis"
+      ],
+      "largest_core_files": [
+        {
+          "path": "src/dynarmic/backend/x64/emit_x64_vector.cpp",
+          "files": 1,
+          "lines": 6038,
+          "nonblank": 4843,
+          "bytes": 211607
+        },
+        {
+          "path": "src/dynarmic/ir/ir_emitter.cpp",
+          "files": 1,
+          "lines": 2890,
+          "nonblank": 2508,
+          "bytes": 93544
+        },
+        {
+          "path": "src/dynarmic/backend/x64/emit_x64_vector_floating_point.cpp",
+          "files": 1,
+          "lines": 2182,
+          "nonblank": 1779,
+          "bytes": 88078
+        },
+        {
+          "path": "src/dynarmic/backend/x64/emit_x64_floating_point.cpp",
+          "files": 1,
+          "lines": 2134,
+          "nonblank": 1732,
+          "bytes": 81556
+        },
+        {
+          "path": "src/dynarmic/backend/arm64/emit_arm64_vector.cpp",
+          "files": 1,
+          "lines": 1889,
+          "nonblank": 1563,
+          "bytes": 86828
+        },
+        {
+          "path": "src/dynarmic/frontend/A32/disassembler/disassembler_arm.cpp",
+          "files": 1,
+          "lines": 1584,
+          "nonblank": 1448,
+          "bytes": 76351
+        },
+        {
+          "path": "src/dynarmic/backend/x64/emit_x64_data_processing.cpp",
+          "files": 1,
+          "lines": 1701,
+          "nonblank": 1356,
+          "bytes": 59945
+        },
+        {
+          "path": "src/dynarmic/backend/arm64/emit_arm64_data_processing.cpp",
+          "files": 1,
+          "lines": 1523,
+          "nonblank": 1266,
+          "bytes": 56454
+        },
+        {
+          "path": "src/dynarmic/frontend/A32/translate/impl/vfp.cpp",
+          "files": 1,
+          "lines": 1489,
+          "nonblank": 1224,
+          "bytes": 49056
+        },
+        {
+          "path": "src/dynarmic/backend/riscv64/emit_riscv64_vector.cpp",
+          "files": 1,
+          "lines": 1395,
+          "nonblank": 1116,
+          "bytes": 36906
+        },
+        {
+          "path": "src/dynarmic/backend/x64/a32_emit_x64.cpp",
+          "files": 1,
+          "lines": 1299,
+          "nonblank": 1069,
+          "bytes": 49168
+        },
+        {
+          "path": "src/dynarmic/frontend/A64/translate/impl/impl.h",
+          "files": 1,
+          "lines": 1084,
+          "nonblank": 986,
+          "bytes": 55064
+        },
+        {
+          "path": "src/dynarmic/frontend/A64/decoder/a64.inc",
+          "files": 1,
+          "lines": 1029,
+          "nonblank": 952,
+          "bytes": 101402
+        },
+        {
+          "path": "src/dynarmic/frontend/A64/translate/impl/simd_three_same.cpp",
+          "files": 1,
+          "lines": 1240,
+          "nonblank": 948,
+          "bytes": 39175
+        },
+        {
+          "path": "src/dynarmic/frontend/A32/translate/impl/a32_translate_impl.h",
+          "files": 1,
+          "lines": 982,
+          "nonblank": 902,
+          "bytes": 57598
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,33 @@
+Scope: macOS local file-backed cross-disassembly only. No inferior process
+was launched. No Android attach, FEX execution, or register reconstruction
+was tested by this probe.
+
+Client:
+  lldb-1700.0.9.46
+  Apple Swift version 6.1 (swiftlang-6.1.0.110.21 clang-1700.0.13.3)
+
+Probe C source, compiled as native ARM64 with xcrun clang -g -O0:
+  __attribute__((used)) const unsigned char guest_probe_code[] = {
+      0x48, 0x89, 0xd8, 0x48, 0x83, 0xc0, 0x01, 0xcc, 0xc3
+  };
+  int main(void) { return 0; }
+
+Observed successful invocation:
+  (lldb) target create /tmp/fex-lldb-probe.PH05XX/probe
+  Current executable set to '/tmp/fex-lldb-probe.PH05XX/probe' (arm64).
+  (lldb) disassemble --arch x86_64 --start-address &guest_probe_code --count 4 --bytes
+  probe`guest_probe_code:
+  probe[0x10000038c] <+0>: 48 89 d8     movq   %rbx, %rax
+  probe[0x10000038f] <+3>: 48 83 c0 01  addq   $0x1, %rax
+  probe[0x100000393] <+7>: cc           int3
+  probe[0x100000394] <+8>: c3           retq
+
+Observed command caveats in this client:
+  Adding --flavor intel while target remains ARM64:
+    error: Disassembler flavors are currently only supported for x86 and x86_64 targets.
+  Passing guest_probe_code instead of &guest_probe_code:
+    error: address expression "guest_probe_code" resulted in a value whose type
+    can't be converted to an address: const unsigned char[9]
+
+Temporary paths and link-time addresses are incidental; rebuild the above
+source and substitute the resulting executable path when reproducing.

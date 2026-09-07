@@ -1,0 +1,60 @@
+{
+  "host": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+  "core_commit": "be6bc2e9c60799e071dd2fafa6216e8d80ec619c",
+  "scope": "C++ socket/controller/audio tests only; no Android/Java/FEX/Vulkan"
+}
+clang++ -std=c++23 -pthread -D_LIBCPP_ENABLE_EXPERIMENTAL -I /Users/bytedance/workspace/emulations/ps4/shadps4/references/shadps4-arm64/src -I /Users/bytedance/workspace/emulations/ps4/shadps4/externals/cpp-httplib/test/gtest/include -I /Users/bytedance/workspace/emulations/ps4/shadps4/externals/cpp-httplib/test/gtest /Users/bytedance/workspace/emulations/ps4/shadps4/references/shadps4-arm64/src/platform/bachata/runtime_client.cpp /Users/bytedance/workspace/emulations/ps4/shadps4/references/shadps4-arm64/src/platform/bachata/controller_snapshot.cpp /Users/bytedance/workspace/emulations/ps4/shadps4/references/shadps4-arm64/src/platform/bachata/audio_transport.cpp /Users/bytedance/workspace/emulations/ps4/shadps4/references/shadps4-arm64/tests/platform/test_bachata_runtime_client.cpp /Users/bytedance/workspace/emulations/ps4/shadps4/references/shadps4-arm64/tests/platform/test_bachata_controller_snapshot.cpp /Users/bytedance/workspace/emulations/ps4/shadps4/externals/cpp-httplib/test/gtest/src/gtest-all.cc /Users/bytedance/workspace/emulations/ps4/shadps4/externals/cpp-httplib/test/gtest/src/gtest_main.cc -o /var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/bachata-contract-qst180ku/runtime-contract-tests
+
+Running main() from /Users/bytedance/workspace/emulations/ps4/shadps4/externals/cpp-httplib/test/gtest/src/gtest_main.cc
+[==========] Running 18 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 8 tests from BachataControllerSnapshot
+[ RUN      ] BachataControllerSnapshot.ParsesCompleteFrame
+[       OK ] BachataControllerSnapshot.ParsesCompleteFrame (0 ms)
+[ RUN      ] BachataControllerSnapshot.RejectsMalformedAndOutOfRangeFrames
+[       OK ] BachataControllerSnapshot.RejectsMalformedAndOutOfRangeFrames (0 ms)
+[ RUN      ] BachataControllerSnapshot.RejectsDuplicateUnknownAndMissingFields
+[       OK ] BachataControllerSnapshot.RejectsDuplicateUnknownAndMissingFields (0 ms)
+[ RUN      ] BachataControllerSnapshot.ParsesOptionalMotionTokens
+[       OK ] BachataControllerSnapshot.ParsesOptionalMotionTokens (0 ms)
+[ RUN      ] BachataControllerSnapshot.OmitsMotionWhenTokensAbsent
+[       OK ] BachataControllerSnapshot.OmitsMotionWhenTokensAbsent (0 ms)
+[ RUN      ] BachataControllerSnapshot.RejectsBrokenMotionPayloads
+[       OK ] BachataControllerSnapshot.RejectsBrokenMotionPayloads (0 ms)
+[ RUN      ] BachataControllerSnapshot.ParsesFourSlotsAndLegacySlotZero
+[       OK ] BachataControllerSnapshot.ParsesFourSlotsAndLegacySlotZero (0 ms)
+[ RUN      ] BachataControllerSnapshot.RejectsInvalidSlots
+[       OK ] BachataControllerSnapshot.RejectsInvalidSlots (0 ms)
+[----------] 8 tests from BachataControllerSnapshot (0 ms total)
+
+[----------] 8 tests from BachataRuntimeClient
+[ RUN      ] BachataRuntimeClient.ParsesVersionHandshake
+[       OK ] BachataRuntimeClient.ParsesVersionHandshake (0 ms)
+[ RUN      ] BachataRuntimeClient.ParsesLifecycleEvents
+[       OK ] BachataRuntimeClient.ParsesLifecycleEvents (0 ms)
+[ RUN      ] BachataRuntimeClient.RejectsMalformedFrames
+[       OK ] BachataRuntimeClient.RejectsMalformedFrames (0 ms)
+[ RUN      ] BachataRuntimeClient.ValidatesSocketPathUnderRuntimeRoot
+[       OK ] BachataRuntimeClient.ValidatesSocketPathUnderRuntimeRoot (0 ms)
+[ RUN      ] BachataRuntimeClient.DisabledClientIsNoOp
+[       OK ] BachataRuntimeClient.DisabledClientIsNoOp (0 ms)
+[ RUN      ] BachataRuntimeClient.SendsLifecycleFramesOverSocketPair
+[       OK ] BachataRuntimeClient.SendsLifecycleFramesOverSocketPair (0 ms)
+[ RUN      ] BachataRuntimeClient.ReportsDisconnectedPeer
+[       OK ] BachataRuntimeClient.ReportsDisconnectedPeer (0 ms)
+[ RUN      ] BachataRuntimeClient.ReadsOrderedInputAndReleasesOnDisconnect
+[       OK ] BachataRuntimeClient.ReadsOrderedInputAndReleasesOnDisconnect (0 ms)
+[----------] 8 tests from BachataRuntimeClient (0 ms total)
+
+[----------] 2 tests from BachataAudioTransport
+[ RUN      ] BachataAudioTransport.WritesEmbeddedServerAudioFrames
+[       OK ] BachataAudioTransport.WritesEmbeddedServerAudioFrames (0 ms)
+[ RUN      ] BachataAudioTransport.ConvertsGuestPcmToStereoS16
+[       OK ] BachataAudioTransport.ConvertsGuestPcmToStereoS16 (0 ms)
+[----------] 2 tests from BachataAudioTransport (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 18 tests from 3 test suites ran. (0 ms total)
+[  PASSED  ] 18 tests.
+
+EXIT=0

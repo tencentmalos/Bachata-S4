@@ -1,0 +1,366 @@
+{
+  "queried_at": "2026-09-07T09:05:19.835567+00:00",
+  "sources": {
+    "v0.2.1_release": {
+      "url": "https://api.github.com/repos/JICA98/Bachata-S4/releases/tags/v0.2.1",
+      "data": {
+        "id": 383510593,
+        "tag_name": "v0.2.1",
+        "target_commitish": "c9263f39394a16bbb9705db5d06faf8cd61ad6e4",
+        "published_at": "2026-09-06T08:10:59Z",
+        "prerelease": true,
+        "html_url": "https://github.com/JICA98/Bachata-S4/releases/tag/v0.2.1",
+        "body": "Pre-release of Bachata S4 v0.2.1",
+        "assets": []
+      },
+      "retrieval": "authenticated gh api"
+    },
+    "v0.1.9_release": {
+      "url": "https://api.github.com/repos/JICA98/Bachata-S4/releases/tags/v0.1.9",
+      "data": {
+        "id": 378913361,
+        "tag_name": "v0.1.9",
+        "target_commitish": "main",
+        "published_at": "2026-08-29T07:42:43Z",
+        "prerelease": false,
+        "html_url": "https://github.com/JICA98/Bachata-S4/releases/tag/v0.1.9",
+        "body": "# BachataS4 v0.1.9\r\n\r\n### Patch distribution (largest change)\r\n- Offline bundled patch repository with Ed25519 verification, `manifest-v1.json` (+16k lines), `bundle_to_apk.py`, validators and sync tooling\r\n- `PATCHES/*.xml` for Persona/Dancing, Ratchet, Sakura Wars, SotC, TLOU, The Order etc. + preset handling \r\n- Android domain layer, native bridge, managed launch + per-game user state\r\n\r\n### Box64 → FEX migration (M1–M6)\r\n- Removed Box64 sources/patches/locks and x86_64 guest from packaging; launch now locked to FEX\r\n- Purged Box64 UI/catalog, tests and docs\r\n\r\n### Android / UI\r\n- **fix(session): keep stop report actions visible** — failure detail no longer pushes Retry/Close off-screen; scrollable bounded body, summary first / logs last, action row pinned\r\n- Pad overlay hide handling, `DirectLaunchActivity` exposed in release builds\r\n- `fios2` HLE selection, library/details landscape fixes, settings two-panel chrome\r\n\r\n### Runtime & render\r\n- **feat(runtime): GPU stall watchdog + safe display teardown** — new `GpuStallPolicy.kt` + `BACKEND_GPU_STALL`; frame watchdog in `EmulationService` abandons Android surface posts after 5s no-frame and leaves backend alive for user stop (watchdog polls 1s, Release-built runtime)\r\n- **fix(videoout): never block GPU thread on present fence** — `vk_presenter.cpp`/`liverpool`/`stall_log.h` poll with zero timeout on GPU thread and re-enqueue flips instead of stalling PM4\r\n- `glibc faccessat2` / `set_robust_list`/`clone3` fixes for Debian runtime\r\n- Play bundled Turnip zips refreshed; `fios2`/kernel/avplayer/video_core fixes for Bloodborne, Adreno buffer handling, etc.\r\n- Reverted perf workarounds in this build: `TU_DEBUG=noubwc,sysmem` and software `lockCanvas` compositing removed (hardware canvas + default Turnip config restored)\r\n\r\n### Source and historical downloads\r\n\r\nARM64 emulator core source: https://github.com/zenithblue-oss/shadps4-arm64\r\n\r\n- bachatas4-0.1.9-release.apk — Historical downloads: 3319\r\n",
+        "assets": [
+          {
+            "name": "bachatas4-0.1.9-release.apk",
+            "size": 173641755,
+            "digest": "sha256:ee6514f4148e3c6aa88ca0ef0ae1d41eaad464ca2d6cd1057d1c425504aa2ef2",
+            "browser_download_url": "https://github.com/JICA98/Bachata-S4/releases/download/v0.1.9/bachatas4-0.1.9-release.apk"
+          }
+        ]
+      },
+      "retrieval": "authenticated gh api"
+    },
+    "official_source_links": {
+      "url": "https://raw.githubusercontent.com/JICA98/Bachata-S4/c9263f39394a16bbb9705db5d06faf8cd61ad6e4/release-metadata/source-links.json",
+      "data": {
+        "schemaVersion": 1,
+        "sourceRepositories": [
+          {
+            "name": "Bachata-S4 v0.1.9 historical source",
+            "repository": "https://github.com/JICA98/Bachata-S4-Fork-Archive",
+            "revision": "67dbf4e5b54b0467bf8a93de3de0a557a71f9f43",
+            "tag": "v0.1.9",
+            "url": "https://github.com/JICA98/Bachata-S4-Fork-Archive/tree/67dbf4e5b54b0467bf8a93de3de0a557a71f9f43"
+          },
+          {
+            "name": "Bachata-S4 v0.1.8 historical source",
+            "repository": "https://github.com/JICA98/Bachata-S4-Fork-Archive",
+            "revision": "ce8e322eb4ec62c457af8a444466c8978a79e8fd",
+            "tag": "v0.1.8",
+            "url": "https://github.com/JICA98/Bachata-S4-Fork-Archive/tree/ce8e322eb4ec62c457af8a444466c8978a79e8fd"
+          }
+        ],
+        "releaseArtifacts": [
+          {
+            "name": "bachatas4-0.1.9-release.apk",
+            "repository": "https://github.com/JICA98/Bachata-S4",
+            "tag": "v0.1.9",
+            "revision": "67dbf4e5b54b0467bf8a93de3de0a557a71f9f43",
+            "url": "https://github.com/JICA98/Bachata-S4/releases/download/v0.1.9/bachatas4-0.1.9-release.apk",
+            "sha256": "ee6514f4148e3c6aa88ca0ef0ae1d41eaad464ca2d6cd1057d1c425504aa2ef2",
+            "size": 173641755
+          },
+          {
+            "name": "bachatas4-0.1.8-release.apk",
+            "repository": "https://github.com/JICA98/Bachata-S4",
+            "tag": "v0.1.8",
+            "revision": "ce8e322eb4ec62c457af8a444466c8978a79e8fd",
+            "url": "https://github.com/JICA98/Bachata-S4/releases/download/v0.1.8/bachatas4-0.1.8-release.apk",
+            "sha256": "7cd83fb8b1526d19bee3508ac984a454ce5e7cf71bbfc08ee29a5eb02d827587",
+            "size": 230437472
+          }
+        ]
+      }
+    },
+    "mirror_commit": {
+      "url": "https://api.github.com/repos/zFitness/Bachata-S4/commits/67dbf4e5b54b0467bf8a93de3de0a557a71f9f43",
+      "data": {
+        "sha": "67dbf4e5b54b0467bf8a93de3de0a557a71f9f43",
+        "commit": {
+          "author": {
+            "name": "Jica98",
+            "email": "44204157+JICA98@users.noreply.github.com",
+            "date": "2026-08-22T14:09:05Z"
+          },
+          "committer": {
+            "name": "GitHub",
+            "email": "noreply@github.com",
+            "date": "2026-08-22T14:09:05Z"
+          },
+          "message": "Revise README for clarity on experimental status\n\nUpdated README to clarify the experimental nature of Bachata S4 and improved compatibility notes.",
+          "tree": {
+            "sha": "41fc8b99664716129554c24f5c166f65498edd82",
+            "url": "https://api.github.com/repos/zFitness/Bachata-S4/git/trees/41fc8b99664716129554c24f5c166f65498edd82"
+          },
+          "url": "https://api.github.com/repos/zFitness/Bachata-S4/git/commits/67dbf4e5b54b0467bf8a93de3de0a557a71f9f43",
+          "comment_count": 0,
+          "verification": {
+            "verified": true,
+            "reason": "valid",
+            "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJqia2BCRC1aQ7uu5UhlAAAZsoQAIILvQDb/cWZBJ4g/iBF5cLF\nHWn8HelkNoihxkug6MLqU52X7LeVeEKr56l3aTX7cXJr4MbjGAZAP6Ulswtr5OWF\ncVM4iTOYENSCc8soPaCjvzdTJQUxKhnOOFw7uzhRGj9DNPdUSK2YFAAYzQjPGCEB\nSj+6osZG9jjbX/0C6R+7fDD7dd6UOsspQ0A56uzRRUg7M3O0k5tX0eYKIbC1QBVC\n5n74Os5fzGlCxdVJOYsDEInt2tNIAcjIf5rXIfjOK6RCXghFw5wxFFYWC6sTncbJ\nWuU9EqMxB6oDvIAUCr+A5jMnv/kfTVXzqyUaWwIVc7BezomcONXsMf2W37XebCU/\nSgajlpPKnDn2DxWUG/COHJZyJfJHv+11jECU+g3eZ3aEuO4yhsXDnPPtXVVNDfB/\n9TyoJzf8MLMh86APSLyypFRboj/i/p3MX3kz1+cB3IyKg3QW8U1pG1FOFwQPtB+u\n91qH2of/8a+cD9BS/1qTeRbdU1IbK1lcTdijLRkA6PnhuTebdSOaRdTvqz/uiWGT\n5YYqCQcowLDr24oEf9R84HL84mDWv/3Y0KEE90E8uP6Bdlfo4Gqax1tOs6fW2zYV\nPEdy1OL3Y3YiREUDGA/XmgZ+m+uAfApNW/jaK0AsgVLfOQDN3sPvVprWV7zYakQR\nUZUdPofM+3cl+Hmkopqj\n=ugKb\n-----END PGP SIGNATURE-----\n",
+            "payload": "tree 41fc8b99664716129554c24f5c166f65498edd82\nparent 77a68651db72800657243ce124fff3948f7bb550\nauthor Jica98 <44204157+JICA98@users.noreply.github.com> 1787407745 +0530\ncommitter GitHub <noreply@github.com> 1787407745 +0530\n\nRevise README for clarity on experimental status\n\nUpdated README to clarify the experimental nature of Bachata S4 and improved compatibility notes.",
+            "verified_at": "2026-08-22T14:09:06Z"
+          }
+        },
+        "html_url": "https://github.com/zFitness/Bachata-S4/commit/67dbf4e5b54b0467bf8a93de3de0a557a71f9f43",
+        "parents": [
+          {
+            "sha": "77a68651db72800657243ce124fff3948f7bb550",
+            "url": "https://api.github.com/repos/zFitness/Bachata-S4/commits/77a68651db72800657243ce124fff3948f7bb550",
+            "html_url": "https://github.com/zFitness/Bachata-S4/commit/77a68651db72800657243ce124fff3948f7bb550"
+          }
+        ]
+      },
+      "retrieval": "authenticated gh api"
+    },
+    "catalog_tree": {
+      "url": "https://api.github.com/repos/JICA98/Bachata-S4/git/trees/c9263f39394a16bbb9705db5d06faf8cd61ad6e4",
+      "data": {
+        "sha": "c9263f39394a16bbb9705db5d06faf8cd61ad6e4",
+        "url": "https://api.github.com/repos/JICA98/Bachata-S4/git/trees/c9263f39394a16bbb9705db5d06faf8cd61ad6e4",
+        "tree": [
+          {
+            "path": ".github",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "efb6291ad3d939416a9c274574e889d83a1a1cc3",
+            "url": "https://api.github.com/repos/JICA98/Bachata-S4/git/trees/efb6291ad3d939416a9c274574e889d83a1a1cc3"
+          },
+          {
+            "path": "CONTRIBUTING.md",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "2fe1946a6e5955104671ab6a439763968ce54e82",
+            "size": 1812,
+            "url": "https://api.github.com/repos/JICA98/Bachata-S4/git/blobs/2fe1946a6e5955104671ab6a439763968ce54e82"
+          },
+          {
+            "path": "LICENSE",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "d159169d1050894d3ea3b98e1c965c4058208fe1",
+            "size": 18092,
+            "url": "https://api.github.com/repos/JICA98/Bachata-S4/git/blobs/d159169d1050894d3ea3b98e1c965c4058208fe1"
+          },
+          {
+            "path": "README.md",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "e66eff6ba6d7e96fe610caa79a419fe17f3d26d5",
+            "size": 22634,
+            "url": "https://api.github.com/repos/JICA98/Bachata-S4/git/blobs/e66eff6ba6d7e96fe610caa79a419fe17f3d26d5"
+          },
+          {
+            "path": "SECURITY.md",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "973cb876f7f57027490ba825c00c078959206215",
+            "size": 765,
+            "url": "https://api.github.com/repos/JICA98/Bachata-S4/git/blobs/973cb876f7f57027490ba825c00c078959206215"
+          },
+          {
+            "path": "compatibility-data",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "1896db5741a8b8cb2d4db3bbb941e6b7c6a593f8",
+            "url": "https://api.github.com/repos/JICA98/Bachata-S4/git/trees/1896db5741a8b8cb2d4db3bbb941e6b7c6a593f8"
+          },
+          {
+            "path": "release-metadata",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "b60eacc37b7da5bcca701ca2286845d0c2b57aa1",
+            "url": "https://api.github.com/repos/JICA98/Bachata-S4/git/trees/b60eacc37b7da5bcca701ca2286845d0c2b57aa1"
+          }
+        ],
+        "truncated": false
+      },
+      "retrieval": "authenticated gh api"
+    },
+    "arm64_core_tree": {
+      "url": "https://api.github.com/repos/zenithblue-oss/shadps4-arm64/git/trees/be6bc2e9c60799e071dd2fafa6216e8d80ec619c",
+      "data": {
+        "sha": "be6bc2e9c60799e071dd2fafa6216e8d80ec619c",
+        "url": "https://api.github.com/repos/zenithblue-oss/shadps4-arm64/git/trees/be6bc2e9c60799e071dd2fafa6216e8d80ec619c",
+        "tree": [
+          {
+            "path": ".github",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "5fa49ddf3e5c244c1cb66ab22054087a132d2161",
+            "url": "https://api.github.com/repos/zenithblue-oss/shadps4-arm64/git/trees/5fa49ddf3e5c244c1cb66ab22054087a132d2161"
+          },
+          {
+            "path": ".gitignore",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "2ac32ef9fcbb1134da2994334ccead08d8f4006d",
+            "size": 8106,
+            "url": "https://api.github.com/repos/zenithblue-oss/shadps4-arm64/git/blobs/2ac32ef9fcbb1134da2994334ccead08d8f4006d"
+          },
+          {
+            "path": ".gitmodules",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "f2d677df9322d9e211c07e0fdbf99f978796ed4c",
+            "size": 5466,
+            "url": "https://api.github.com/repos/zenithblue-oss/shadps4-arm64/git/blobs/f2d677df9322d9e211c07e0fdbf99f978796ed4c"
+          },
+          {
+            "path": "CMakeDarwinPresets.json",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "10824a66ccce09e0e4e455f7859815ef73af0c07",
+            "size": 501,
+            "url": "https://api.github.com/repos/zenithblue-oss/shadps4-arm64/git/blobs/10824a66ccce09e0e4e455f7859815ef73af0c07"
+          },
+          {
+            "path": "CMakeLinuxPresets.json",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "5c820774c7e1b08bd3d901dff5bb005c2217ca2a",
+            "size": 456,
+            "url": "https://api.github.com/repos/zenithblue-oss/shadps4-arm64/git/blobs/5c820774c7e1b08bd3d901dff5bb005c2217ca2a"
+          },
+          {
+            "path": "CMakeLists.txt",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "e56c54a142c5c1dbee1818574dfaf20ae4724408",
+            "size": 68152,
+            "url": "https://api.github.com/repos/zenithblue-oss/shadps4-arm64/git/blobs/e56c54a142c5c1dbee1818574dfaf20ae4724408"
+          },
+          {
+            "path": "CMakePresets.json",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "c34007a34d4fdb42500d1e388c2e3a11bb4c6d1d",
+            "size": 795,
+            "url": "https://api.github.com/repos/zenithblue-oss/shadps4-arm64/git/blobs/c34007a34d4fdb42500d1e388c2e3a11bb4c6d1d"
+          },
+          {
+            "path": "CMakeSettings.json",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "bb522fcfc8371819f05559da23a0622c798e6192",
+            "size": 1274,
+            "url": "https://api.github.com/repos/zenithblue-oss/shadps4-arm64/git/blobs/bb522fcfc8371819f05559da23a0622c798e6192"
+          },
+          {
+            "path": "CMakeWindowsPresets.json",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "605fbfa94e2483fdacfc0f603010c52bba8c406e",
+            "size": 605,
+            "url": "https://api.github.com/repos/zenithblue-oss/shadps4-arm64/git/blobs/605fbfa94e2483fdacfc0f603010c52bba8c406e"
+          },
+          {
+            "path": "CONTRIBUTING.md",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "cdda7c8c0c94dced050382a4b9e88983f69ccc9e",
+            "size": 3786,
+            "url": "https://api.github.com/repos/zenithblue-oss/shadps4-arm64/git/blobs/cdda7c8c0c94dced050382a4b9e88983f69ccc9e"
+          },
+          {
+            "path": "LICENSES",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "76359501fa914b5691518f407d583f08a4fadf78",
+            "url": "https://api.github.com/repos/zenithblue-oss/shadps4-arm64/git/trees/76359501fa914b5691518f407d583f08a4fadf78"
+          },
+          {
+            "path": "NOTICE.android-runtime.md",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "7e7ec874f65fb2b83a0ea08f1d6dc498247db66f",
+            "size": 3435,
+            "url": "https://api.github.com/repos/zenithblue-oss/shadps4-arm64/git/blobs/7e7ec874f65fb2b83a0ea08f1d6dc498247db66f"
+          },
+          {
+            "path": "README-INSTALL.md",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "26b12d262d1534cdb208850aead7b5de90602137",
+            "size": 2782,
+            "url": "https://api.github.com/repos/zenithblue-oss/shadps4-arm64/git/blobs/26b12d262d1534cdb208850aead7b5de90602137"
+          },
+          {
+            "path": "REUSE.toml",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "350d17e0ffb23fc3549b7fefbcdb9f9413bed9d9",
+            "size": 3731,
+            "url": "https://api.github.com/repos/zenithblue-oss/shadps4-arm64/git/blobs/350d17e0ffb23fc3549b7fefbcdb9f9413bed9d9"
+          },
+          {
+            "path": "cmake",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "39beb10614b9bc6fff53d63d058e3ea468a330f3",
+            "url": "https://api.github.com/repos/zenithblue-oss/shadps4-arm64/git/trees/39beb10614b9bc6fff53d63d058e3ea468a330f3"
+          },
+          {
+            "path": "externals",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "340ae28bbc36781e8cc7cf308d898f1f2fcc2200",
+            "url": "https://api.github.com/repos/zenithblue-oss/shadps4-arm64/git/trees/340ae28bbc36781e8cc7cf308d898f1f2fcc2200"
+          },
+          {
+            "path": "flake.lock",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "f52cab975b1248702e942bedddf86b810d830418",
+            "size": 567,
+            "url": "https://api.github.com/repos/zenithblue-oss/shadps4-arm64/git/blobs/f52cab975b1248702e942bedddf86b810d830418"
+          },
+          {
+            "path": "flake.nix",
+            "mode": "100644",
+            "type": "blob",
+            "sha": "b6d1733c78094976476a7857f05e231b638bc4d4",
+            "size": 6597,
+            "url": "https://api.github.com/repos/zenithblue-oss/shadps4-arm64/git/blobs/b6d1733c78094976476a7857f05e231b638bc4d4"
+          },
+          {
+            "path": "runtime",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "5eb5bd4c2961b415b131ddd9f5caac648220ff71",
+            "url": "https://api.github.com/repos/zenithblue-oss/shadps4-arm64/git/trees/5eb5bd4c2961b415b131ddd9f5caac648220ff71"
+          },
+          {
+            "path": "scripts",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "a67f26908f2542d5c4244287eaf25514cf61dc3d",
+            "url": "https://api.github.com/repos/zenithblue-oss/shadps4-arm64/git/trees/a67f26908f2542d5c4244287eaf25514cf61dc3d"
+          },
+          {
+            "path": "src",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "5af78deafcf59606f61d07c433bf47011498b367",
+            "url": "https://api.github.com/repos/zenithblue-oss/shadps4-arm64/git/trees/5af78deafcf59606f61d07c433bf47011498b367"
+          },
+          {
+            "path": "tests",
+            "mode": "040000",
+            "type": "tree",
+            "sha": "9e8547fcaf41f50508c54fd0476e8dd7188ce646",
+            "url": "https://api.github.com/repos/zenithblue-oss/shadps4-arm64/git/trees/9e8547fcaf41f50508c54fd0476e8dd7188ce646"
+          }
+        ],
+        "truncated": false
+      },
+      "retrieval": "authenticated gh api"
+    }
+  }
+}

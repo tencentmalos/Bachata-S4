@@ -1,0 +1,56 @@
+{
+  "queried_at": "2026-09-07",
+  "method": "byte-for-byte comparison of tracked files in stated directories, including absent files as changed",
+  "android_commit": "67dbf4e5b54b0467bf8a93de3de0a557a71f9f43",
+  "arm64_commit": "be6bc2e9c60799e071dd2fafa6216e8d80ec619c",
+  "comparison": {
+    "src/core/fex/": {
+      "identical_count": 2,
+      "changed": [],
+      "identical": [
+        "src/core/fex/fex_guest_engine.cpp",
+        "src/core/fex/fex_guest_engine.h"
+      ]
+    },
+    "src/core/guest_cpu/": {
+      "identical_count": 9,
+      "changed": [
+        "src/core/guest_cpu/fex_hle_bridge.cpp",
+        "src/core/guest_cpu/hle_trace.h"
+      ],
+      "identical": [
+        "src/core/guest_cpu/fex_guest_cpu.cpp",
+        "src/core/guest_cpu/fex_guest_cpu.h",
+        "src/core/guest_cpu/fex_hle_bridge.h",
+        "src/core/guest_cpu/guest_callback.h",
+        "src/core/guest_cpu/guest_cpu.cpp",
+        "src/core/guest_cpu/guest_cpu.h",
+        "src/core/guest_cpu/guest_memory_validation_cache.h",
+        "src/core/guest_cpu/hle_call_adapter.cpp",
+        "src/core/guest_cpu/hle_call_adapter.h"
+      ]
+    },
+    "src/platform/bachata/": {
+      "identical_count": 4,
+      "changed": [
+        "src/platform/bachata/controller_snapshot.cpp",
+        "src/platform/bachata/controller_snapshot.h",
+        "src/platform/bachata/ffmpeg_cpu_policy.cpp",
+        "src/platform/bachata/ffmpeg_cpu_policy.h"
+      ],
+      "identical": [
+        "src/platform/bachata/audio_transport.cpp",
+        "src/platform/bachata/audio_transport.h",
+        "src/platform/bachata/runtime_client.cpp",
+        "src/platform/bachata/runtime_client.h"
+      ]
+    },
+    "runtime/vortek-protocol/": {
+      "identical_count": 1,
+      "changed": [],
+      "identical": [
+        "runtime/vortek-protocol/bachata_vortek_protocol.h"
+      ]
+    }
+  }
+}

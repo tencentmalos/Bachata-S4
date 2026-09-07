@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "role": "Android frontend source foundation; not a verified Android 16 KiB runtime",
+  "source": {
+    "path": "references/Bachata-S4-android",
+    "url": "https://github.com/zFitness/Bachata-S4.git",
+    "commit": "67dbf4e5b54b0467bf8a93de3de0a557a71f9f43",
+    "tree": "41fc8b99664716129554c24f5c166f65498edd82",
+    "local_branch": "codex/android-foundation",
+    "declared_android_version": "0.1.8",
+    "version_code": 26081400
+  },
+  "provenance": {
+    "official_metadata_url": "https://github.com/JICA98/Bachata-S4/blob/c9263f39394a16bbb9705db5d06faf8cd61ad6e4/release-metadata/source-links.json",
+    "official_release_label": "v0.1.9",
+    "historical_v018_commit": "ce8e322eb4ec62c457af8a444466c8978a79e8fd",
+    "difference_since_v018": [
+      "README.md"
+    ],
+    "release_source_mismatch": "Version remains 0.1.8; source still contains Box64 despite v0.1.9 release notes describing its removal."
+  },
+  "related_revisions": {
+    "shadps4_main": "79b7ddff0bd455f78cb85259e48dca314d3baf04",
+    "existing_bachata": "e170f8005970ae416e0f39997d82b4fcc57214fe",
+    "arm64_reference": "be6bc2e9c60799e071dd2fafa6216e8d80ec619c",
+    "source_fex_pin": "f2b679f6028ce1c38875233aecfcf5d3f8ebecec",
+    "separate_latest_fex_reference": "50e6eee95ae95d3257672727a9302a30b4a60a9a"
+  },
+  "verification": {
+    "git_commit_matches_official_metadata": true,
+    "runtime_locks_only": "passed: components=8 inputs=30",
+    "android_build": "not run",
+    "apk_install": "not run",
+    "android16_16k_runtime": "not verified; source rejects host page size != 4096",
+    "recursive_dependencies": "not initialized in new reference"
+  },
+  "counts": {
+    "tracked_android_files": 516,
+    "tracked_android_kotlin_files": 211
+  },
+  "integration_audit": "docs/android-arm64-integration-audit.md",
+  "host_cpp_contract_tests": {
+    "passed": 18,
+    "total": 18,
+    "platform": "macOS ARM64",
+    "not_android_end_to_end": true,
+    "evidence": "docs/data/android-arm64-runtime-contract-tests-2026-09-07.txt"
+  }
+}

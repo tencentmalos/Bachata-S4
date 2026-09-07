@@ -168,9 +168,25 @@
 	branch = docking
 [submodule "references/Bachata-S4"]
 	path = references/Bachata-S4
-	url = https://github.com/The412Banner/Bachata-S4.git
-	branch = main
+	url = https://github.com/tencentmalos/Bachata-S4.git
+	branch = feature/fangfang/sg8275-bringup
 [submodule "references/ps4-pkg-tools"]
 	path = references/ps4-pkg-tools
 	url = https://github.com/xXJSONDeruloXx/ps4-pkg-tools.git
 	branch = main
+[submodule "references/shadps4-arm64"]
+	path = references/shadps4-arm64
+	url = https://github.com/zenithblue-oss/shadps4-arm64.git
+	branch = main
+[submodule "references/FEX"]
+	path = references/FEX
+	url = https://github.com/FEX-Emu/FEX.git
+[submodule "references/Bachata-S4-android"]
+	path = references/Bachata-S4-android
+	url = https://github.com/zFitness/Bachata-S4.git
+[submodule "references/dynarmic-citron"]
+	path = references/dynarmic-citron
+	url = https://github.com/tencentmalos/dynarmic.git
+[submodule "references/dynarmic-azahar"]
+	path = references/dynarmic-azahar
+	url = https://github.com/tencentmalos/dynarmic.git
