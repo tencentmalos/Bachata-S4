@@ -5,6 +5,7 @@
 - This fork is developing toward Android 16 / ARM64 / **16 KiB host pages**: native ARM64 shadPS4 host services, with **FEXCore executing only PS4 x86-64 guest code**. Beat Saber means the PS4/PSVR release; one non-VR game is also a target.
 - The current repository still contains the desktop shadPS4 core. The Android application is a pinned reference under `references/Bachata-S4-android/android/BachataS4`; an integrated NDK backend has **not** been implemented or validated here.
 - Start with [the Android/ARM64 integration audit](docs/android-arm64-integration-audit.md), then [the implementation plan](docs/fex-android16-native-guest-host-plan.md). All research entry points are in [docs/README.md](docs/README.md).
+- The fixed initial baseline is commit `a712889343ccd2588b712988dae0a76a104e0dce`; its [status record](docs/baselines/2026-09-07-android-fex-foundation.md) distinguishes committed source, validation and excluded local work. Keep that historical record intact and add new milestone records for later progress.
 - Prioritize whether source interfaces can be integrated over small app version differences. The published app label is not proof of source or APK correspondence.
 
 ## Repository layout and reference ownership

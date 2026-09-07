@@ -2,6 +2,8 @@
 
 目标：Android 16 / ARM64 / 16 KiB，原生 shadPS4 host + FEXCore 执行 PS4 x86 guest。当前已完成源码评估与参考版本固定，尚未完成 NDK backend 或目标设备验收。
 
+**固定基础版本：[2026-09-07 / `a7128893`](baselines/2026-09-07-android-fex-foundation.md)**。该记录包含主仓与七个 references 的精确提交、验证结果、未完成项、未纳入基线的本地改动及恢复方法；后续里程碑以它为起点。
+
 ## 推荐阅读顺序
 
 | 文档 | 解决的问题 |
