@@ -6,6 +6,11 @@
 
 **下一个实施目标：[V0 首个验证版 spec](specs/android-fex-v0.md)**。配套 [CPU API 契约](specs/android-fex-v0-api.md)、[验收矩阵](specs/android-fex-v0-acceptance.md)、[执行 AI 任务书](specs/android-fex-v0-handoff.md)。这些是待实现要求，不是新的已通过状态。
 
+**V0 首轮实施结果：[实施报告](validation/v0/implementation-report.md)，状态 `V0_BLOCKED`**（16 PASS / 0 FAIL / 39 NOT_RUN）。
+公共 CPU API、16 KiB 内存模型、HLE typed ABI adapter 与构建/验证脚本已完成并通过 host 测试；
+FEXCore 在 16 KiB host 上启动即中止，所需修改位于 FEX 内部而其贡献规则禁止 AI 生成代码，
+详见[页大小审计](validation/v0/page-size-audit.md)与[技术决定](validation/v0/decisions.md)。
+
 ## 推荐阅读顺序
 
 实施前先读 [子仓归属与开发分支](subrepository-ownership.md) 和 [Foundation 接入记录](foundation-integration.md)。
@@ -19,6 +24,7 @@ Foundation 最小构建入口已接入；反射/网络闭包与 Android 16 运�
 | [FEXCore 与 Dynarmic 源码比较](fexcore-dynarmic-source-comparison.md) | 源码规模及统计口径、API 与依赖差异 |
 | [Guest debugger 可行性](fex-guest-debugger-feasibility.md) | FEX 现有调试能力、协议缺口与执行状态接口 |
 | [LLDB host → guest 工作流](fex-lldb-host-guest-workflow.md) | 安全点/异步 stop、寄存器来源、地址和反汇编关联 |
+| [Winlator / WinNative / GameNative 开源项目审计](winlator-winnative-gamenative-audit.md) | ARM64EC、Wine/FEX 分层、UnixLib 的实际范围、Android 平台复用及游戏兼容性证据 |
 
 这些文档以 2026-09-07 检出的源码为依据；版本、行号和能力判断需要随代码更新复核。仓内链接可随 checkout 使用；跨子模块文件在 GitHub 上若无法直接展开，可从 [references 索引](../references/README.md) 的精确提交进入。
 
