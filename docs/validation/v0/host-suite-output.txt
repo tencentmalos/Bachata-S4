@@ -49,6 +49,7 @@ guest ABI page: 4096, code index granularity: 4096
        note: host refused RWX (PermissionDenied); RW->RX publication is mandatory
 [M14a ] long-term RWX is not obtainable through this API on a W^X host PASS
 [M13b ] quiesce reports Timeout when an HLE writer is still in flight PASS
+[M13c ] an active transaction excludes every writer path, not just pinned ones PASS
 [M12  ] observers get conservatively widened write notifications PASS
 [M10  ] aliases require a mapped primary range               PASS
 [L01a ] a token outliving its address space releases safely  PASS
@@ -59,7 +60,7 @@ guest ABI page: 4096, code index granularity: 4096
 [D03a ] snapshot validity distinguishes unknown from zero    PASS
 [D03b ] public GPR numbering matches the x86-64 encoding     PASS
 
-21/21 passed
+22/22 passed
 
 SCOPE: host-only. Proves page arithmetic and POSIX mapping semantics
        at the real host page size. Proves nothing about bionic, ART or FEX.

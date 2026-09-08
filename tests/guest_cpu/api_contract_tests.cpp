@@ -390,6 +390,43 @@ void TestTransactions() {
         Check(space->Quiesce(1'000).HasValue(), "quiesce must succeed once writers are gone");
     });
 
+    RunCase("M13c", "an active transaction excludes every writer path, not just pinned ones", [] {
+        auto space = MakeSpace();
+        const std::uint64_t page = HostPageSize();
+        auto range = GuestRange::Checked(space->ReservationBase(), page).Value();
+        Check(space->Map(range, GuestPermission::Read | GuestPermission::Write).HasValue(),
+              "map failed");
+
+        const std::array<std::byte, 8> data{};
+        Check(space->Write(range.base, data).HasValue(),
+              "an explicit write must be allowed with no transaction in progress");
+
+        auto token = space->Quiesce(1'000'000);
+        Check(token.HasValue(), "quiesce failed");
+
+        // Write() previously skipped this check while AcquirePinnedSpan enforced it, so a
+        // transaction could be undercut through the explicit path. That made the token mean "no
+        // pinned writers", which is only the same as "no writers" if every writer uses a pin.
+        auto during = space->Write(range.base, data);
+        Check(!during.HasValue(), "an explicit write during a transaction must be refused");
+        if (!during.HasValue()) {
+            Check(during.GetError().category == ErrorCategory::Busy, "must report Busy");
+        }
+
+        auto writable = space->AcquirePinnedSpan(range, true);
+        Check(!writable.HasValue(), "a new writable pin during a transaction must be refused");
+
+        // Readers stay admitted: the transaction owner needs them, and they cannot invalidate
+        // what the token asserts.
+        auto readable = space->AcquirePinnedSpan(range, false);
+        Check(readable.HasValue(), "a read-only pin must still be granted during a transaction");
+
+        // The owner is not locked out of its own transaction.
+        std::vector<std::byte> code(static_cast<std::size_t>(page), std::byte{0x90});
+        Check(space->PublishCode(token.Value(), range, code).HasValue(),
+              "the token holder must still be able to publish");
+    });
+
     RunCase("M12", "observers get conservatively widened write notifications", [] {
         auto space = MakeSpace();
         const std::uint64_t page = HostPageSize();

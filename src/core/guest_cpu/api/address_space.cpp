@@ -545,6 +545,19 @@ Status GuestAddressSpace::Write(GuestAddress to, std::span<const std::byte> from
     }
     {
         std::lock_guard guard{lock};
+
+        // Same admission rule as AcquirePinnedSpan. Without it a transaction holding quiescence
+        // could still be undercut through the explicit write path, which would make the token mean
+        // "no pinned writers" rather than "no writers" -- and those are only the same if every
+        // writer happens to go through a pin.
+        //
+        // The transaction owner is not blocked by this: it publishes through PublishCode, which
+        // has its own epoch check and does not route here.
+        if (active_quiescence != 0) {
+            return MakeError(ErrorCategory::Busy, "GuestAddressSpace::Write",
+                             "a quiescence transaction is in progress; publish through the token");
+        }
+
         if (auto status = ValidateRangeLocked(range.Value(), GuestPermission::Write); !status) {
             return status;
         }
@@ -670,15 +683,16 @@ Status GuestAddressSpace::PublishCode(const QuiescenceToken& token, GuestRange r
             return MakeError(ErrorCategory::StaleEpoch, "GuestAddressSpace::PublishCode",
                              "token epoch does not match the active transaction");
         }
-    }
 
-    if (auto status = ValidateRange(range, GuestPermission::Write); !status) {
-        return status;
+        // Validate and copy under the same lock hold. Releasing it between the two would let a
+        // Protect or Unmap land in the middle of a publication, which is precisely the state the
+        // token is supposed to exclude.
+        if (auto status = ValidateRangeLocked(range, GuestPermission::Write); !status) {
+            return status;
+        }
+        std::memcpy(HostPointer(range.base), code.data(), code.size());
+        ++code_generation;
     }
-    std::memcpy(HostPointer(range.base), code.data(), code.size());
-
-    std::lock_guard guard{lock};
-    ++code_generation;
     return Ok();
 }
 
