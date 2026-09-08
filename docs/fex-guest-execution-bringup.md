@@ -97,14 +97,18 @@ rsp 平衡说明 push/pop 的**寄存器**副作用生效，只有内存读写�
 
 ### 4.3 下一步
 
-1. **用 LLDB 在设备上观察实际生成的 host 代码**。`-DENABLE_VIXL_DISASSEMBLER=ON`
-   可以让 FEX 打印它生成的 ARM64 指令，直接看 store 被翻译成了什么。
-   见 [host LLDB → guest 工作流](fex-lldb-host-guest-workflow.md)。
+1. **让 JIT 反汇编真正输出**。后端已支持 `GUEST_CPU_DISASSEMBLE=blocks`
+   （必须程序化 `Config::Set`，`FEX_DISASSEMBLE` 环境变量对嵌入方无效，
+   因为我们不加载 FEX 的环境配置层）。但还需要：
+   - FEXCore 以 `-DENABLE_VIXL_DISASSEMBLER=ON` 构建。实测该配置下
+     `External/vixl/src/aarch64/disasm-aarch64.cc` 缺 `#include <map>`，
+     libc++ 下编译失败；这是 VIXL 上游问题，需在自有 fork 修或提交 patch。
+   - 输出走 `LogMan::Msg::IFmt`（INFO 级），确认日志 handler 不会过滤掉。
 2. **检查 `VirtualMemSize` 与 reservation 的关系**。修好 `Is64BitMode` 后它是 `1<<36`，
-   guest reservation 在 `0x7f8000000` 附近（约 34 GB），在范围内但接近上半区；
-   确认 FEX 是否对数据地址另有假设。
-3. **确认 TSO/原子模式配置**。`CONFIG_TSOENABLED` 等未设置，
-   若 FEX 因此走了某条需要额外支持的路径，内存操作可能被静默丢弃。
+   guest reservation 在 `0x7f8000000` 附近（约 34 GB），在范围内但接近上半区。
+3. **确认 TSO/原子模式配置**。`CONFIG_TSOENABLED` 等未设置；
+   若 FEX 因此走了需要额外支持的路径，内存操作可能被静默丢弃。
+   考虑到 `Is64BitMode` 正是同类问题（未设置 → 静默降级），这条值得优先查。
 
 ### 4.3 已排除的路径
 

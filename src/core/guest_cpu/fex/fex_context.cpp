@@ -358,6 +358,14 @@ public:
             }
         }
 
+        // Optional JIT disassembly. Must be set here, before the Context is constructed, because
+        // FEX_CONFIG_OPT caches the value at construction; setting the FEX_DISASSEMBLE environment
+        // variable has no effect on an embedder that does not load FEX's environment config layer.
+        // Requires a FEXCore built with -DENABLE_VIXL_DISASSEMBLER=ON.
+        if (const char* disasm = ::getenv("GUEST_CPU_DISASSEMBLE"); disasm != nullptr) {
+            FEXCore::Config::Set(FEXCore::Config::CONFIG_DISASSEMBLE, disasm);
+        }
+
         // Surface FEXCore's own diagnostics. Without a handler these are dropped, and a JIT-side
         // refusal looks identical to a guest that simply did nothing.
         if (::getenv("GUEST_CPU_DEBUG") != nullptr) {
