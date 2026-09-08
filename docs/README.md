@@ -2,7 +2,7 @@
 
 当前目标：Swan / Android 16 / ARM64 / **4 KiB**，原生 shadPS4 host + FEXCore 执行 PS4 x86 guest。用户于 2026-09-08 将 16 KiB 工作后置。尚未完成完整 NDK backend/app 验收。
 
-**当前执行审核：[2026-09-08 发布事务增量审核 / V0_IN_PROGRESS](validation/v0/review-publication-2026-09-08.md)**。在 e23bf61d 独立复现原有 Swan guest 37/37、host API/VM 22/22、typed ABI 14/14；新增负例确认只读 pin 可写、内存 API 接受外来 token、公共 publication 未同步 FEX 缓存，以及 runner 忽略进程失败。先完成发布事务与可信结果，再推进 HLE/app。此前[共享缓存修复](validation/v0/followup-2026-09-08.md)与[原始审核](validation/v0/review-2026-09-08.md)保留历史含义。
+**当前状态：[2026-09-08 发布事务接通与可信映射 / V0_IN_PROGRESS](validation/v0/followup-publication-2026-09-08.md)**。P1-C 已关闭：公共 `GuestAddressSpace` 发布路径经新的 `CodeInvalidationSink` 真正到达 FEX 译码缓存，同一探针在 Swan 上从执行旧代码（rax=17）变为新代码（rax=34）；补上 M13 缺失的两线程 pin/unmap 竞争、M07 的纯公共 API 发布证据，以及可复现的 host CMake 入口。验收 21 PASS / 0 FAIL / 37 NOT_RUN（58 在范围内，2 项 scope 延期）。运行线程停止恢复与真实 HLE/app 未开始。上一轮[发布事务审核](validation/v0/review-publication-2026-09-08.md)、[共享缓存修复](validation/v0/followup-2026-09-08.md)与[原始审核](validation/v0/review-2026-09-08.md)保留历史含义。
 
 **固定基础版本：[2026-09-07 / `a7128893`](baselines/2026-09-07-android-fex-foundation.md)**。该记录包含主仓与七个 references 的精确提交、验证结果、未完成项、未纳入基线的本地改动及恢复方法；后续里程碑以它为起点。
 

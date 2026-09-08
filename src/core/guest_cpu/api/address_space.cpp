@@ -663,20 +663,89 @@ Status GuestAddressSpace::CheckTokenLocked(const QuiescenceToken& token,
     return Ok();
 }
 
+Status GuestAddressSpace::SetCodeInvalidationSink(CodeInvalidationSink* sink) {
+    if (sink == nullptr) {
+        return MakeError(ErrorCategory::InvalidArgument,
+                         "GuestAddressSpace::SetCodeInvalidationSink",
+                         "sink must not be null; use ClearCodeInvalidationSink");
+    }
+    std::lock_guard guard{lock};
+    if (code_sink != nullptr && code_sink != sink) {
+        // Replacing it would strand the previous backend's translations: nothing
+        // would ever invalidate them again.
+        return MakeError(ErrorCategory::AlreadyActive,
+                         "GuestAddressSpace::SetCodeInvalidationSink",
+                         "another backend is already registered with this address space");
+    }
+    code_sink = sink;
+    return Ok();
+}
+
+void GuestAddressSpace::ClearCodeInvalidationSink(CodeInvalidationSink* sink) {
+    std::lock_guard guard{lock};
+    if (code_sink == sink) {
+        code_sink = nullptr;
+    }
+}
+
+bool GuestAddressSpace::HasPoisonedCode() const {
+    std::lock_guard guard{lock};
+    return code_poisoned;
+}
+
+// Requires lock. Used when a publication cannot complete its backend half.
+//
+// Whole mappings only, matching Protect's refusal to split. A partial overlap therefore revokes
+// execute from the entire containing mapping: over-revoking is safe here, leaving the range
+// executable is not.
+void GuestAddressSpace::RevokeExecuteLocked(GuestRange range) {
+    for (auto& mapping : mappings) {
+        if (!RangesOverlap(mapping.range, range)) {
+            continue;
+        }
+        if (!HasPermission(mapping.permission, GuestPermission::Execute)) {
+            continue;
+        }
+        const auto without_execute = static_cast<GuestPermission>(
+            static_cast<std::uint32_t>(mapping.permission) &
+            ~static_cast<std::uint32_t>(GuestPermission::Execute));
+        if (::mprotect(HostPointer(mapping.range.base),
+                       static_cast<std::size_t>(mapping.range.size),
+                       ToHostProtection(without_execute)) == 0) {
+            mapping.permission = without_execute;
+            ++mapping_generation;
+        }
+        // If even mprotect fails there is nothing further this layer can do; code_poisoned still
+        // records that the range must not be trusted, and PublishCode returns the sink's error.
+    }
+}
+
 Status GuestAddressSpace::InvalidateCode(const QuiescenceToken& token, GuestRange range,
                                          InvalidationReason reason) {
+    CodeInvalidationSink* sink = nullptr;
+    {
+        std::lock_guard guard{lock};
+        if (auto status = CheckTokenLocked(token, "GuestAddressSpace::InvalidateCode"); !status) {
+            return status;
+        }
+        sink = code_sink;
+    }
+
+    // Outside the lock: the lock order is context -> space, because the backend reads
+    // CodeGeneration() while holding its own lock to build a snapshot. Calling into the backend
+    // from under `lock` would invert that and deadlock. The token is what makes this safe to do
+    // unlocked -- it excludes every other writer for the duration of the transaction.
+    if (sink != nullptr) {
+        if (auto status = sink->DiscardTranslations(range, reason); !status) {
+            return status;
+        }
+    }
+
     std::lock_guard guard{lock};
+    // Re-check: the token could have been released while the sink ran.
     if (auto status = CheckTokenLocked(token, "GuestAddressSpace::InvalidateCode"); !status) {
         return status;
     }
-    // Range and reason are accepted but not yet used to narrow the
-    // invalidation: V0 invalidates space-wide, which is conservative and
-    // correct. They stay in the signature because a per-range backend
-    // invalidation is the next step, and callers should already be passing
-    // accurate values.
-    (void)range;
-    (void)reason;
-
     // Bumping the generation is what makes "success" mean stale decode can no
     // longer be entered. Every executable alias of this backing is covered
     // because the generation is space-wide, not per-VA (acceptance M10).
@@ -691,6 +760,7 @@ Status GuestAddressSpace::PublishCode(const QuiescenceToken& token, GuestRange r
                          "code length does not match the target range");
     }
 
+    CodeInvalidationSink* sink = nullptr;
     {
         std::lock_guard guard{lock};
         if (auto status = CheckTokenLocked(token, "GuestAddressSpace::PublishCode"); !status) {
@@ -704,8 +774,30 @@ Status GuestAddressSpace::PublishCode(const QuiescenceToken& token, GuestRange r
             return status;
         }
         std::memcpy(HostPointer(range.base), code.data(), code.size());
-        ++code_generation;
+        sink = code_sink;
     }
+
+    // The bytes are already new. From here a failure cannot leave the range executable: the old
+    // translation would still be reachable and would run against code that no longer exists.
+    if (sink != nullptr) {
+        if (auto status = sink->DiscardTranslations(range, InvalidationReason::HostWrite);
+            !status) {
+            std::lock_guard guard{lock};
+            RevokeExecuteLocked(range);
+            code_poisoned = true;
+            // Still advance: the bytes did change, so any generation captured before this call
+            // must not continue to compare equal.
+            ++code_generation;
+            return status;
+        }
+    }
+
+    std::lock_guard guard{lock};
+    if (auto status = CheckTokenLocked(token, "GuestAddressSpace::PublishCode"); !status) {
+        return status;
+    }
+    ++code_generation;
+    code_poisoned = false;
     return Ok();
 }
 

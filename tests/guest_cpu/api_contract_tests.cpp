@@ -14,9 +14,11 @@
 
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <cstdio>
 #include <cstring>
 #include <string>
+#include <thread>
 #include <vector>
 
 #include <unistd.h>
@@ -498,6 +500,199 @@ void TestTransactions() {
         // blanket refusal.
         Check(b->PublishCode(token_b.Value(), range, code).HasValue(),
               "the space's own token must still authorise publication");
+    });
+
+    RunCase("M13f", "a publication whose backend invalidation fails leaves nothing executable", [] {
+        // The review's requirement for a failed publication: "if invalidation fails after the write,
+        // at least keep it non-executable/non-resumable and report the error clearly". Reporting
+        // success here would be the worst outcome -- the bytes are already new, so the old
+        // translation would run against code that no longer exists.
+        //
+        // A failing sink is the only way to exercise this deterministically; a real backend refuses
+        // only under conditions this suite cannot force (a thread mid-execution).
+        class FailingSink final : public CodeInvalidationSink {
+        public:
+            std::string_view Name() const override {
+                return "always-fails";
+            }
+            Status DiscardTranslations(GuestRange, InvalidationReason) override {
+                ++calls;
+                return MakeError(ErrorCategory::BackendFailure, "DiscardTranslations",
+                                 "simulated backend invalidation failure");
+            }
+            int calls{};
+        };
+
+        auto space = MakeSpace();
+        const std::uint64_t page = HostPageSize();
+        auto range = GuestRange::Checked(space->ReservationBase(), page).Value();
+        Check(space->Map(range, GuestPermission::Read | GuestPermission::Write).HasValue(),
+              "map failed");
+        // Executable *and* writable: PublishCode validates for Write, so a plain RX mapping would
+        // be refused before the sink is ever consulted, and this case would prove nothing about
+        // what happens when the backend fails. RWX is what makes the execute-revocation visible.
+        auto rwx = space->Protect(range, GuestPermission::Read | GuestPermission::Write |
+                                             GuestPermission::Execute);
+        if (!rwx) {
+            // A W^X host refuses RWX outright (M14a covers that). There is then no way to hold a
+            // mapping that is executable *and* acceptable to PublishCode, so the execute-revocation
+            // half of this case cannot be observed here. Say so rather than reporting a bare PASS:
+            // a case that quietly checks nothing is exactly what the review objected to. Swan does
+            // permit RWX, so the device run is what actually exercises this.
+            std::printf("       (skipped: host refuses RWX, so execute revocation is not "
+                        "observable; run on device)\n");
+            return;
+        }
+
+        FailingSink sink;
+        Check(space->SetCodeInvalidationSink(&sink).HasValue(), "registering the sink failed");
+
+        // A second backend must not silently displace the first: its translations would then be
+        // unreachable by any future invalidation.
+        FailingSink other;
+        Check(!space->SetCodeInvalidationSink(&other).HasValue(),
+              "a second sink must be refused, not swapped in");
+
+        Check(!space->HasPoisonedCode(), "nothing should be poisoned before the failure");
+
+        auto token = space->Quiesce(1'000'000);
+        Check(token.HasValue(), "quiesce failed");
+        if (!token) return;
+
+        std::vector<std::byte> code(static_cast<std::size_t>(page), std::byte{0x90});
+        auto published = space->PublishCode(token.Value(), range, code);
+        Check(!published.HasValue(),
+              "PublishCode must fail when the backend cannot discard translations");
+        Check(sink.calls == 1, "the sink should have been consulted exactly once");
+        Check(space->HasPoisonedCode(), "a failed publication must mark the range poisoned");
+
+        // The mapping was executable; after the failure it must not be.
+        auto info = space->Query(range.base);
+        Check(info.HasValue(), "query failed");
+        if (info) {
+            Check(!HasPermission(info.Value().permission, GuestPermission::Execute),
+                  "a failed publication left the range executable");
+        }
+
+        // The generation must still move: the bytes did change, so anything holding the previous
+        // generation must not keep comparing equal to it.
+        Check(space->CodeGeneration() > 1, "a failed publication must still advance the generation");
+
+        space->ClearCodeInvalidationSink(&sink);
+    });
+
+    RunCase("M13g", "a pin held on one host thread races unmap/protect on another", [] {
+        // M13's criterion is a *race* between a pinned HLE span and another thread's
+        // unmap/protect: "wait/Busy or a defined transaction cancellation; the span does not become
+        // invalid while in use, and succeeds once released". Every other M13 sub-case is
+        // single-threaded, so none of them can show that -- the 2026-09-08 review listed this as
+        // still missing. Two threads contending on the same range is the only way to test it.
+        constexpr int kRounds = 200;
+        const std::uint64_t page = HostPageSize();
+
+        std::atomic<int> refused_while_pinned{0};
+        std::atomic<int> succeeded_after_release{0};
+        std::atomic<int> span_corrupted{0};
+        std::atomic<int> unexpected_error{0};
+
+        for (int round = 0; round < kRounds; ++round) {
+            auto space = MakeSpace();
+            auto range = GuestRange::Checked(space->ReservationBase(), page).Value();
+            if (!space->Map(range, GuestPermission::Read | GuestPermission::Write)) {
+                Check(false, "map failed");
+                return;
+            }
+
+            std::atomic<bool> go{false};
+            std::atomic<bool> pin_acquired{false};
+            std::atomic<bool> racer_done{false};
+
+            // Holder: takes the pin, writes through it, then releases.
+            std::thread holder([&] {
+                while (!go.load(std::memory_order_acquire)) {
+                }
+                auto pin = space->AcquirePinnedSpan(range, /*writable=*/true);
+                if (!pin) {
+                    // Losing the acquire to a concurrent protect is legitimate; it is not a
+                    // corrupted span.
+                    pin_acquired.store(true, std::memory_order_release);
+                    return;
+                }
+                auto bytes = pin.Value().WritableBytes();
+                bytes[0] = std::byte{0xA5};
+                pin_acquired.store(true, std::memory_order_release);
+
+                // Keep the pin until the racer has actually attempted its operations. Spinning a
+                // fixed number of iterations instead made the overlap a scheduling accident: on
+                // Swan only 3 of 200 rounds contended, so the case passed largely without racing.
+                // The span must stay valid the entire time it is held.
+                while (!racer_done.load(std::memory_order_acquire)) {
+                    bytes[0] = static_cast<std::byte>(0xA5);
+                    if (bytes.size() != page) {
+                        span_corrupted.fetch_add(1, std::memory_order_relaxed);
+                        break;
+                    }
+                }
+                if (bytes.size() != page) {
+                    span_corrupted.fetch_add(1, std::memory_order_relaxed);
+                }
+            });
+
+            // Racer: tries to unmap and protect the same range while the pin is held.
+            std::thread racer([&] {
+                while (!go.load(std::memory_order_acquire)) {
+                }
+                // Wait for the pin to exist, so this really is a contended attempt.
+                while (!pin_acquired.load(std::memory_order_acquire)) {
+                }
+                auto unmap = space->Unmap(range);
+                if (!unmap) {
+                    const auto category = unmap.GetError().category;
+                    if (category == ErrorCategory::Busy) {
+                        refused_while_pinned.fetch_add(1, std::memory_order_relaxed);
+                    } else {
+                        unexpected_error.fetch_add(1, std::memory_order_relaxed);
+                    }
+                }
+                auto protect = space->Protect(range, GuestPermission::Read);
+                if (!protect && protect.GetError().category != ErrorCategory::Busy &&
+                    protect.GetError().category != ErrorCategory::InvalidArgument) {
+                    unexpected_error.fetch_add(1, std::memory_order_relaxed);
+                }
+                racer_done.store(true, std::memory_order_release);
+            });
+
+            go.store(true, std::memory_order_release);
+            holder.join();
+            racer.join();
+
+            // Once nothing is pinned, the operation the race may have refused must now succeed.
+            if (space->Counts().live_pins == 0) {
+                if (space->Query(range.base).HasValue()) {
+                    if (space->Unmap(range)) {
+                        succeeded_after_release.fetch_add(1, std::memory_order_relaxed);
+                    }
+                } else {
+                    // The racer's unmap won; that is a legal outcome of the race.
+                    succeeded_after_release.fetch_add(1, std::memory_order_relaxed);
+                }
+            }
+        }
+
+        Check(span_corrupted.load() == 0,
+              "a pinned span was invalidated while its holder was still using it");
+        Check(unexpected_error.load() == 0,
+              "a contended operation failed with something other than the defined refusal");
+        const std::string reoperable =
+            "the range must be operable again once every pin is released; got " +
+            std::to_string(succeeded_after_release.load()) + "/" + std::to_string(kRounds);
+        Check(succeeded_after_release.load() == kRounds, reoperable.c_str());
+        // The racer waits for the pin, so every round must contend. A low count here would mean
+        // the case is not testing what it claims.
+        const std::string contended =
+            "every round must actually contend; only " +
+            std::to_string(refused_while_pinned.load()) + "/" + std::to_string(kRounds) + " did";
+        Check(refused_while_pinned.load() == kRounds, contended.c_str());
     });
 
     RunCase("M12", "observers get conservatively widened write notifications", [] {

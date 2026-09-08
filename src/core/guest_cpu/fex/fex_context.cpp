@@ -295,12 +295,15 @@ private:
 };
 
 // --- context -----------------------------------------------------------------
-class FexCpuContext final : public CpuContext {
+class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
 public:
     explicit FexCpuContext(const CpuConfig& config, GuestAddressSpace& space)
         : config_(config), space_(space) {}
 
     ~FexCpuContext() override {
+        // Unregister before anything else: once the backend is going away, the address space must
+        // stop routing publications to it rather than calling into a destroyed object.
+        space_.ClearCodeInvalidationSink(this);
         // Destroy threads before the context: FEXCore requires it, and a live
         // thread holding a code buffer would otherwise outlive its owner.
         {
@@ -410,6 +413,12 @@ public:
 
         syscall_handler_->RegisterExecutableRange(return_gate_.Address(), return_gate_.Size(),
                                                   false);
+
+        // Route the address space's publication transactions here. Done last, so a context that
+        // failed to initialise is never registered as the thing that owns translated code.
+        if (auto registered = space_.SetCodeInvalidationSink(this); !registered) {
+            return registered;
+        }
         return Result<void>{};
     }
 
@@ -623,11 +632,33 @@ public:
                                 "the token belongs to a different address space, or its space has "
                                 "been destroyed");
         }
+        return DiscardTranslationsImpl(range, reason, "InvalidateCode");
+    }
 
+    // --- CodeInvalidationSink ---------------------------------------------------
+    //
+    // GuestAddressSpace::PublishCode / InvalidateCode reach the same code below. Before this
+    // existed the public memory API only bumped a generation, so a caller could publish new bytes,
+    // see both calls succeed, and still execute the previous translation -- reproduced as P1-C in
+    // the 2026-09-08 publication review. The address space has already checked the token by the
+    // time it calls this, so there is no token argument to re-check here.
+
+    [[nodiscard]] std::string_view Name() const override {
+        return "FEXCore";
+    }
+
+    [[nodiscard]] Status DiscardTranslations(GuestRange range, InvalidationReason reason) override {
+        return DiscardTranslationsImpl(range, reason, "DiscardTranslations");
+    }
+
+private:
+    [[nodiscard]] Status DiscardTranslationsImpl(GuestRange range, InvalidationReason reason,
+                                                 const char* operation) {
+        (void)reason;
         std::lock_guard guard{lock_};
         for (auto& [id, entry] : threads_) {
             if (entry.running) {
-                return BackendError(ErrorCategory::AlreadyRunning, "InvalidateCode",
+                return BackendError(ErrorCategory::AlreadyRunning, operation,
                                     "a guest thread is still executing");
             }
         }
@@ -636,7 +667,6 @@ public:
         if (!checked) {
             return checked.GetError();
         }
-
 
         // CodeBuffer/L3 mappings survive the last guest thread. Clearing only
         // threads therefore did nothing between destroy/recreate cycles: the
@@ -654,6 +684,8 @@ public:
         }
         return Result<void>{};
     }
+
+public:
 
     [[nodiscard]] std::uint64_t ReturnGateAddress() const noexcept {
         return return_gate_.Address();

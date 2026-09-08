@@ -142,7 +142,12 @@ SUITE_MAP: dict[str, list[str]] = {
     "M05": ["M05"],
     "M10": ["M10"],
     "M12": ["M12"],
-    "M13": ["M13", "M13b", "M13c"],
+    # M13's criterion is a pinned HLE span *racing* another thread's unmap/protect. M13/M13b/M13c
+    # are single-threaded and cannot show that on their own -- the 2026-09-08 review listed the
+    # two-thread race as still missing while M13 was already reported PASS. M13g is that race, and
+    # it asserts that every round actually contended, so a version that stopped racing would fail
+    # rather than pass quietly. M13d/M13e/M13f are the lease and publication-refusal negatives.
+    "M13": ["M13", "M13b", "M13c", "M13d", "M13e", "M13f", "M13g"],
     "T03": ["T03a"],
     "D03": ["D03a", "D03b"],
     "H01": ["H01a", "H01b", "H01c", "H01d", "H01e"],
@@ -169,9 +174,17 @@ SUITE_MAP: dict[str, list[str]] = {
     # exactly that against a real guest; the host-only M07 sub-case checks the same contract through
     # the address-space API without executing anything, so both are required.
     #
+    # G09a/G09b are required too, and they are the ones that make this case honest. G08 publishes
+    # with CpuContext::InvalidateCode -- the backend's own entry point -- while the host M07 checks
+    # GuestAddressSpace. Both passed while the *public* publication path did not actually discard
+    # translations: the 2026-09-08 review reproduced a caller using GuestAddressSpace::PublishCode
+    # and InvalidateCode, seeing both succeed, and still executing the previous fixture (P1-C).
+    # Requiring a sub-case that touches no CpuContext method is what stops that evidence gap from
+    # reopening. G09c covers the failed-invalidation path leaving nothing executable.
+    #
     # Deliberately NOT mapped to M09: that needs two threads running the same old block and a
     # controller quiescing between them, which this backend cannot do yet.
-    "M07": ["M07", "G08a", "G08b", "G08c"],
+    "M07": ["M07", "G08a", "G08b", "G08c", "G09a", "G09b", "G09c", "G09d"],
 }
 
 LINE = re.compile(r"^\[(\S+)\s*\]\s+(.*?)\s+(PASS|FAIL)(?:\s+--\s+(.*))?$")

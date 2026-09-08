@@ -513,6 +513,192 @@ void TestCodeInvalidation(Harness& harness) {
           destroy_first && destroy_second && harness.context->LiveThreadCount() == 0);
 }
 
+// --- G09: publication through the public memory API alone --------------------------------------
+//
+// G08 above publishes with CpuContext::InvalidateCode, which is the backend's own entry point. That
+// proves the backend can discard translations; it does not prove an embedder holding only a
+// GuestAddressSpace gets the same guarantee. The 2026-09-08 publication review (P1-C) found that it
+// did not: PublishCode and InvalidateCode both reported success, code_generation advanced 1 -> 3,
+// and the guest still executed the previous fixture. These checks never touch the context, so a
+// regression cannot hide behind the backend path the way it did then.
+
+// Publishes a fixture using only GuestAddressSpace. No CpuContext call anywhere.
+bool PublishViaPublicApi(Harness& harness, const Fixtures::Fixture& fixture, std::string& error) {
+    const GuestRange range{GuestAddress{harness.code_base}, kMappingSize};
+
+    auto writable = harness.space->Protect(range, GuestPermission::Read | GuestPermission::Write);
+    if (!writable) {
+        error = "Protect(RW): " + Describe(writable.GetError());
+        return false;
+    }
+
+    std::vector<std::byte> image(kMappingSize, std::byte{0});
+    if (fixture.bytes.size() > image.size()) {
+        error = "fixture is larger than the code mapping";
+        return false;
+    }
+    std::memcpy(image.data(), fixture.bytes.data(), fixture.bytes.size());
+    if (fixture.gate_offset >= 0) {
+        std::memcpy(image.data() + fixture.gate_offset, &harness.return_gate,
+                    sizeof(harness.return_gate));
+    }
+
+    {
+        auto quiesced = harness.space->Quiesce(/*timeout_ns=*/1'000'000'000);
+        if (!quiesced) {
+            error = "Quiesce: " + Describe(quiesced.GetError());
+            return false;
+        }
+        // PublishCode alone, with no InvalidateCode after it: publishing new bytes has to discard
+        // the translation of the bytes it replaced, or "published" means nothing.
+        auto published = harness.space->PublishCode(quiesced.Value(), range, image);
+        if (!published) {
+            error = "PublishCode: " + Describe(published.GetError());
+            return false;
+        }
+        // Token released here. Protect is a writer path, and the transaction excludes those.
+    }
+
+    auto executable =
+        harness.space->Protect(range, GuestPermission::Read | GuestPermission::Execute);
+    if (!executable) {
+        error = "Protect(RX): " + Describe(executable.GetError());
+        return false;
+    }
+    return true;
+}
+
+// Runs whatever is at the code base once, in its own thread.
+bool RunPublishedCode(Harness& harness, std::uint64_t& rax, std::string& error) {
+    ThreadInit init{};
+    init.entry_rip = GuestCodeAddress{harness.code_base};
+    init.initial_rsp = GuestAddress{harness.stack_top};
+    init.guest_tid = 1;
+
+    auto thread = harness.context->CreateThread(init);
+    if (!thread) {
+        error = "CreateThread: " + Describe(thread.GetError());
+        return false;
+    }
+    auto run = harness.context->Run(thread.Value(), RunOptions{});
+    if (!run) {
+        error = "Run: " + Describe(run.GetError());
+        (void)harness.context->DestroyThread(thread.Value());
+        return false;
+    }
+    rax = run.Value().snapshot.registers.Get(Gpr::Rax);
+    const bool returned = run.Value().primary_reason == StopReason::Returned;
+
+    auto destroyed = harness.context->DestroyThread(thread.Value());
+    if (!destroyed) {
+        error = "DestroyThread: " + Describe(destroyed.GetError());
+        return false;
+    }
+    if (!returned) {
+        error = "did not return through the gate";
+        return false;
+    }
+    return true;
+}
+
+void TestPublicApiPublication(Harness& harness) {
+    const auto* a = FindFixture("constant_a");
+    const auto* b = FindFixture("constant_b");
+    if (!a || !b) {
+        Check("G09a", "public publication fixtures are present", false);
+        return;
+    }
+
+    bool alternated = true;
+    std::string error;
+    for (unsigned epoch = 0; epoch < 100 && alternated; ++epoch) {
+        const bool use_a = (epoch % 2) == 0;
+        const std::uint64_t expected = use_a ? 17u : 34u;
+
+        if (!PublishViaPublicApi(harness, use_a ? *a : *b, error)) {
+            alternated = false;
+            error = "epoch " + std::to_string(epoch) + ": " + error;
+            break;
+        }
+        std::uint64_t rax = 0;
+        if (!RunPublishedCode(harness, rax, error)) {
+            alternated = false;
+            error = "epoch " + std::to_string(epoch) + ": " + error;
+            break;
+        }
+        if (rax != expected) {
+            // This is the exact P1-C symptom: the publication succeeded and the old block ran.
+            alternated = false;
+            error = "epoch " + std::to_string(epoch) + ": executed stale code, rax=" +
+                    std::to_string(rax) + " (expected " + std::to_string(expected) + ")";
+            break;
+        }
+    }
+    Check("G09a", "100 publications through GuestAddressSpace alone run the new code", alternated,
+          error);
+
+    // The other public entry point: bytes changed through a pinned span, then invalidated. A
+    // caller that writes its own bytes must be able to make that stick without PublishCode.
+    const GuestRange range{GuestAddress{harness.code_base}, kMappingSize};
+    bool invalidated_ok = true;
+    error.clear();
+    if (!harness.space->Protect(range, GuestPermission::Read | GuestPermission::Write)) {
+        invalidated_ok = false;
+        error = "Protect(RW) failed";
+    } else {
+        {
+            auto pin = harness.space->AcquirePinnedSpan(range, /*writable=*/true);
+            if (!pin) {
+                invalidated_ok = false;
+                error = "AcquirePinnedSpan: " + Describe(pin.GetError());
+            } else {
+                auto bytes = pin.Value().WritableBytes();
+                std::memset(bytes.data(), 0, bytes.size());
+                std::memcpy(bytes.data(), a->bytes.data(), a->bytes.size());
+                if (a->gate_offset >= 0) {
+                    std::memcpy(bytes.data() + a->gate_offset, &harness.return_gate,
+                                sizeof(harness.return_gate));
+                }
+            }
+        }
+        if (invalidated_ok) {
+            auto quiesced = harness.space->Quiesce(/*timeout_ns=*/1'000'000'000);
+            if (!quiesced) {
+                invalidated_ok = false;
+                error = "Quiesce: " + Describe(quiesced.GetError());
+            } else {
+                auto discarded = harness.space->InvalidateCode(quiesced.Value(), range,
+                                                               InvalidationReason::HostWrite);
+                if (!discarded) {
+                    invalidated_ok = false;
+                    error = "InvalidateCode: " + Describe(discarded.GetError());
+                }
+            }
+        }
+    }
+    if (invalidated_ok &&
+        !harness.space->Protect(range, GuestPermission::Read | GuestPermission::Execute)) {
+        invalidated_ok = false;
+        error = "Protect(RX) failed";
+    }
+    if (invalidated_ok) {
+        std::uint64_t rax = 0;
+        if (!RunPublishedCode(harness, rax, error)) {
+            invalidated_ok = false;
+        } else if (rax != 17u) {
+            invalidated_ok = false;
+            error = "executed stale code, rax=" + std::to_string(rax) + " (expected 17)";
+        }
+    }
+    Check("G09b", "GuestAddressSpace::InvalidateCode discards the backend's translation",
+          invalidated_ok, error);
+
+    Check("G09c", "successful publications leave no poisoned range",
+          !harness.space->HasPoisonedCode());
+    Check("G09d", "public publication leaves no guest threads",
+          harness.context->LiveThreadCount() == 0);
+}
+
 // --- contract checks that need no execution -------------------------------------------------------
 void TestContracts(Harness& harness) {
     const auto caps = harness.context->Capabilities();
@@ -665,6 +851,7 @@ int main() {
     TestSse2(harness);
     TestUnregisteredHlt(harness);
     TestCodeInvalidation(harness);
+    TestPublicApiPublication(harness);
     printf("\n");
     // Contract checks last: they publish their own stub at the same address.
     TestContracts(harness);

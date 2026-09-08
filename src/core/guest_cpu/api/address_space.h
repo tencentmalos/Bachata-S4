@@ -36,6 +36,38 @@ public:
     virtual void OnGuestWrite(GuestRange range) = 0;
 };
 
+// The backend's half of a publication transaction.
+//
+// Only the backend owns translated code, so bumping this object's
+// code_generation cannot by itself make stale decode unreachable. The
+// 2026-09-08 publication review (P1-C) reproduced the consequence: a caller
+// used PublishCode + InvalidateCode through the public API, both succeeded, the
+// generation advanced 1 -> 3, and the guest still executed the *previous*
+// fixture. The two same-named entry points meant different things.
+//
+// This is deliberately not a MemoryObserver. An observer returns void and is
+// best-effort by contract; discarding translations is neither. A sink that
+// fails must fail the publication, because the alternative is reporting success
+// while the old block is still reachable.
+//
+// Declared here rather than in the backend so guest_cpu_api keeps building with
+// no FEX include path (acceptance B05). The backend registers itself.
+class CodeInvalidationSink {
+public:
+    virtual ~CodeInvalidationSink() = default;
+    virtual std::string_view Name() const = 0;
+
+    // Discard any translation covering `range`. Success must mean execution
+    // after this point cannot enter stale decode -- not that work was queued.
+    //
+    // Called with the address space lock NOT held. The lock order in this API
+    // is context -> space (the backend reads CodeGeneration() while holding its
+    // own lock to build a snapshot), so calling a sink from under the space
+    // lock would invert it.
+    [[nodiscard]] virtual Status DiscardTranslations(GuestRange range,
+                                                     InvalidationReason reason) = 0;
+};
+
 struct AddressSpaceConfig final {
     // Total guest reservation. Rounded up to a host page.
     std::uint64_t reservation_size{std::uint64_t{1} << 32};
@@ -113,10 +145,26 @@ public:
 
     // Success means execution after this point cannot enter stale decode --
     // not merely that an invalidation was queued (API contract §7.2).
+    //
+    // Both reach the registered CodeInvalidationSink. Without one, a space with
+    // no backend attached is a memory-only transaction and the generation bump
+    // is the whole of it; once a backend is attached, its failure fails these.
     [[nodiscard]] Status InvalidateCode(const QuiescenceToken& token, GuestRange range,
                                         InvalidationReason reason);
     [[nodiscard]] Status PublishCode(const QuiescenceToken& token, GuestRange range,
                                      std::span<const std::byte> code);
+
+    // Registers the backend that owns translated code. One at a time: a second
+    // registration is refused rather than silently replacing the first, since
+    // that would leave the displaced backend's caches unreachable by any
+    // invalidation. Passing nullptr to Set is rejected; use Clear.
+    [[nodiscard]] Status SetCodeInvalidationSink(CodeInvalidationSink* sink);
+    void ClearCodeInvalidationSink(CodeInvalidationSink* sink);
+
+    // True when a publication failed to reach the backend and the range was
+    // therefore left non-executable. Cleared by a later successful publication
+    // over that range.
+    [[nodiscard]] bool HasPoisonedCode() const;
 
     // Second VA for the same backing. Invalidating through one alias must
     // invalidate every executable alias (acceptance M10).
@@ -160,6 +208,10 @@ private:
     [[nodiscard]] Status CheckTokenLocked(const QuiescenceToken& token,
                                           std::string_view operation) const;
 
+    // Requires `lock`. Drops execute from every mapping overlapping `range`, so a publication that
+    // could not reach the backend leaves the old translation unreachable instead of running.
+    void RevokeExecuteLocked(GuestRange range);
+
     struct Mapping final {
         GuestRange range{};
         GuestPermission permission{GuestPermission::None};
@@ -193,6 +245,11 @@ private:
     std::uint64_t next_quiescence_epoch{1};
     std::uint64_t active_quiescence{};
     std::uint64_t next_lease_id{1};
+    CodeInvalidationSink* code_sink{};
+    // Set when a publication modified bytes but could not discard the matching
+    // translations. The range is held non-executable until a later publication
+    // succeeds; reporting success there would mean stale code stays reachable.
+    bool code_poisoned{};
     // Handed to tokens and pins as a weak reference so they can tell whether
     // this object still exists when they are released.
     std::shared_ptr<AddressSpaceLiveness> liveness;
