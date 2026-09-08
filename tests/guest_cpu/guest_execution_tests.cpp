@@ -431,6 +431,10 @@ int main() {
 
     AddressSpaceConfig space_config{};
     space_config.reservation_size = std::uint64_t{1} << 28;
+    // Keep the reservation inside the range the backend can address. Without this the kernel places
+    // it wherever it likes -- on this device around 450 GB -- and FEXCore's block lookup masks the
+    // guest RIP down to 36 bits, so lookups alias and the wrong block runs with no error.
+    space_config.max_address = QueryBackendCapabilities().max_guest_address;
     auto space = GuestAddressSpace::Create(space_config);
     if (!space) {
         printf("FAILED: could not create the guest address space: %s\n",

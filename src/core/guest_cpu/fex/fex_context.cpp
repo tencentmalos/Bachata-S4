@@ -144,6 +144,15 @@ private:
     std::atomic<std::uint64_t> compile_count{0};
 };
 
+// Highest guest address FEXCore's block lookup can distinguish.
+//
+// ContextImpl sets Config.VirtualMemSize to 1<<36 for 64-bit guests and does not expose it as a
+// tunable. LookupCache masks the guest RIP with (VirtualMemSize - 1) both when inserting and when
+// looking up, so a guest above this aliases onto an unrelated slot: the dispatcher finds no block,
+// compiles one, stores it under the masked address, and the next lookup for a different address
+// with the same low bits collides with it. Nothing reports an error.
+constexpr std::uint64_t kMaxGuestAddress = std::uint64_t{1} << 36;
+
 // --- return gate -------------------------------------------------------------
 // A host page holding a single x86 HLT, mapped executable and registered as a
 // guest executable range. Guest code returns to this address; with
@@ -164,11 +173,24 @@ public:
         const long host_page = ::sysconf(_SC_PAGESIZE);
         size = host_page > 0 ? static_cast<std::size_t>(host_page) : 4096;
 
-        page = ::mmap(nullptr, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+        // The gate is guest-executable code, so it is subject to the same addressing limit as any
+        // other guest mapping: above kMaxGuestAddress the block lookup would alias it.
+        //
+        // Hinted near the top of the addressable range, because the guest reservation is placed in
+        // the lower half and a hint that lands inside it would be rejected and fall back to a high
+        // address. A hint is advisory either way, so the result is verified below.
+        void* hint = reinterpret_cast<void*>(kMaxGuestAddress - (std::uint64_t{1} << 30));
+        page = ::mmap(hint, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
         if (page == MAP_FAILED) {
             error_no = errno;
             error_detail = "failed to map the return gate page";
             page = nullptr;
+            return false;
+        }
+        if (reinterpret_cast<std::uint64_t>(page) + size > kMaxGuestAddress) {
+            ::munmap(page, size);
+            page = nullptr;
+            error_detail = "the kernel placed the return gate above the addressable guest range";
             return false;
         }
 
@@ -802,6 +824,7 @@ BackendCapabilities QueryFexCapabilities() {
     // no scope is claimed.
     caps.step_scope = StepScope::None;
     caps.host_page_size = FEXCore::Utils::HostPageSize();
+    caps.max_guest_address = kMaxGuestAddress;
     return caps;
 }
 

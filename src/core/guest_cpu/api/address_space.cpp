@@ -230,7 +230,21 @@ Result<std::unique_ptr<GuestAddressSpace>> GuestAddressSpace::Create(
     // PROT_NONE reservation. The kernel picks the address: we never scan
     // /proc/self/maps for a hole and then MAP_FIXED into it, because ART or a
     // driver can claim that hole in between (spec §5.1).
-    void* reservation = ::mmap(nullptr, static_cast<std::size_t>(size), PROT_NONE,
+    //
+    // When the caller caps the address, pass a hint and then check what we got.
+    // A hint is advisory -- the kernel may ignore it -- so the check below is
+    // what actually enforces the limit; the hint just makes success likely.
+    void* hint = nullptr;
+    if (config.max_address != 0) {
+        if (size > config.max_address) {
+            return MakeError(ErrorCategory::InvalidArgument, "GuestAddressSpace::Create",
+                             "reservation is larger than the requested maximum address");
+        }
+        // Aim well below the cap so the mapping has room to fall back downward.
+        hint = reinterpret_cast<void*>((config.max_address - size) / 2);
+    }
+
+    void* reservation = ::mmap(hint, static_cast<std::size_t>(size), PROT_NONE,
                                MAP_PRIVATE | MAP_ANONYMOUS | MAP_NORESERVE, -1, 0);
     if (reservation == MAP_FAILED) {
         const int saved = errno;
@@ -238,6 +252,19 @@ Result<std::unique_ptr<GuestAddressSpace>> GuestAddressSpace::Create(
                                "reservation mmap failed");
         error.system_error = saved;
         return error;
+    }
+
+    if (config.max_address != 0) {
+        const auto base = reinterpret_cast<std::uint64_t>(reservation);
+        if (base + size > config.max_address) {
+            // Fail rather than proceed: a backend that cannot address this range
+            // would mis-handle it silently -- FEXCore's block lookup, for one,
+            // masks the guest RIP and would alias unrelated addresses together.
+            ::munmap(reservation, static_cast<std::size_t>(size));
+            return MakeError(ErrorCategory::OutOfMemory, "GuestAddressSpace::Create",
+                             "the kernel placed the reservation above the requested maximum "
+                             "address and no lower region was available");
+        }
     }
 
     return std::unique_ptr<GuestAddressSpace>(

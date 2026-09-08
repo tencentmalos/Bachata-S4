@@ -50,83 +50,99 @@ stale epoch 拒绝、失效句柄拒绝。
 其他线程得到 `WrongThread` 而不是数据竞争。句柄是 id + generation，
 销毁后的句柄可与复用槽位区分。
 
-## 3. 又发现三个未文档化的嵌入方义务
+## 3. 又发现四个未文档化的嵌入方义务
 
-继 [bionic 构建](fex-android-bionic-build.md) §4 的两个之后，本轮又踩到三个。
+继 [bionic 构建](fex-android-bionic-build.md) §4 的两个之后，本轮又踩到四个。
 FEX 文档同样没有说明，任何嵌入实现都会遇到。
 
 | 义务 | 触发点 | 症状 |
 |---|---|---|
 | **GDT 必须在首次执行前建立** | `Frontend.cpp:1603` 读 `CS.L` 判断 64 位模式 | `segment_arrays` 为空 → 段错误，fault addr `0x4`（位域偏移） |
 | **CallRet stack 由嵌入方分配** | `Core.cpp:510` 对 `CallRetStackBase` 调 `VirtualDontNeed` | FEXCore 只读不分配；为空则 JIT 首次 call/ret 出错 |
+| **guest 地址必须低于 2^36** | `LookupCache.h:196,323` 用 `VirtualMemSize-1` 掩码 RIP | 超限则 block 查找别名到错误槽位，**不报错** |
 | **代码失效必须经过后端** | JIT 缓存已翻译的 block | 只改 guest 内存不够，重复地址会执行旧代码 |
 
 前两项都通过原始指针从 `CPUState` 引用，**生命周期必须长于 FEX 线程**，
 所以实现里按线程持有（`ThreadEntry::gdt` / `ThreadEntry::callret`）。
 
-第三项促成了 API 增加 `CpuContext::InvalidateCode`：
+第三项是本轮最隐蔽的一个，详见 §4.2。它促成 API 增加
+`BackendCapabilities::max_guest_address` 与 `AddressSpaceConfig::max_address`。
+
+第四项促成了 API 增加 `CpuContext::InvalidateCode`：
 `GuestAddressSpace::InvalidateCode` 只记录 generation，
 真正持有翻译结果的是后端，失效必须传达到那里。它要求 `QuiescenceToken`——
 在有线程正在执行时丢弃 block 就是 use-after-free。
 
-## 4. 未解决的阻断：dispatcher 进入后不翻译
+## 4. 未解决的阻断：guest 指令的效果不落到 CPUState
 
 ### 4.1 现象
 
-首次 `Run` 编译 **0 个 block**，第二次编译 2 个。guest 栈完全没有被写过。
+每次 `Run` **确实编译 2 个 block**，dispatcher 正常进出，RIP 被正确更新到 return gate，
+但所有 guest 指令的架构效果都不存在：寄存器保持初值，guest 栈全零。
 
-### 4.2 实测数据
+### 4.2 已定位的两个真实缺陷（其一已修）
 
-用 `GUEST_CPU_DEBUG=1` 采集（该环境变量会装上 FEX 自己的日志 handler）：
+**缺陷 A：guest 地址超出 FEXCore 的可寻址范围（已修）**
+
+`ContextImpl` 把 `Config.VirtualMemSize` 固定为 `1<<36`（64 GB），64 位 guest 下不可配置。
+`LookupCache` 在**插入和查找时都**用 `(VirtualMemSize - 1)` 掩码 guest RIP
+（`LookupCache.h:196,323`）。
+
+设备实测：内核给的 reservation 落在 `0x70bc410000`（约 451 GB），
+return gate 落在 `0x735e41d000`——**两者都超出 64 GB**。掩码后：
 
 ```
-pre-run  rip=0x70bc410000 rsp=0x70bc423ff0 r8=0x1000 r9=0x234
-         L1=0x12d2c4000 L2=0x124ac4000 callret_sp=0xffcff000
-         gdt=0xb40000720c404d50 cs_idx=0x30
-compiles so far: 0                      ← 首次 Run 之前
-post-run rip=0x735e41d000 (gate=0x735e41d000) r8=0x1000 rax=0x0
+guest rip 0x70bc410000 → 掩码后 0xbc410000
+gate      0x735e41d000 → 掩码后 0x35e41d000
 ```
 
-逐项排除的结论：
+不同地址会折叠到同一槽位，block 查找与插入互相错位，且**不报任何错误**。
+
+修法：`AddressSpaceConfig::max_address` 与 `BackendCapabilities::max_guest_address`。
+reservation 与 return gate 都用 mmap hint 落到限内，**并在之后校验实际地址**——
+hint 只是建议，校验才是约束。放不下时明确失败，不返回后端无法寻址的内存。
+
+实测内核会尊重低位 hint（`0x100000000`–`0x800000000` 全部命中）。
+两个 hint 必须错开：reservation 在低半区，gate 因此 hint 到接近上限处。
+
+修复后地址正确（code `0x7f8010000`，gate `0xfc0000000`），但**指令效果仍然缺失**。
+
+### 4.3 逐项排除记录
 
 | 检查 | 结果 | 排除了什么 |
 |---|---|---|
-| 入口处 guest 内存字节 | `49 01 c8 4d 89 c2 …` 正确 | 代码没写进去 |
-| 初始寄存器 | `r8=0x1000 r9=0x234` 正确 | 种子没生效 |
-| GDT / cs_idx | 非空，`0x30` | 段状态缺失（已修） |
+| 入口 RIP 与其处字节 | `0x7f8010000`，`49 01 c8 …` 正确 | 入口错误 / 代码没写进去 |
+| 初始寄存器 | `r8=0x1000 r9=0x234` 正确 | 种子未生效 |
+| GDT / cs_idx | 非空，`0x30` | 段状态缺失（本轮已修） |
+| CallRet stack | 已分配，含 guard page | 该结构缺失（本轮已修） |
 | L1/L2 lookup 指针 | 非零 | LookupCache 未初始化 |
-| 可执行范围查询 | 无 miss 日志 | 范围未注册 |
-| FEX 自身日志 | **无任何输出** | FEXCore 认为没有错误 |
-| guest 栈内容 | 全零 | **确证：没有任何指令执行** |
-| `PreCompile` 计数 | 首次 0，之后 2 | **确证：首次未进入翻译** |
+| 可执行范围查询 | 无 miss | 范围未注册 |
+| FEX 自身日志 | 无输出 | FEXCore 内部报错 |
+| **每次 Run 编译块数** | **2** | **翻译未发生**（早期误判，已更正） |
+| `CurrentFrame == &BaseFrameState` | true | frame 身份错乱 |
+| 退出后 `BaseFrameState.rip` | 已更新为 gate | JIT 完全不回写状态 |
+| guest 栈内容 | 全零 | — 确证指令无效果 |
 
-`callret_sp=0xffcff000` 看似异常，但它是 JIT 自己 spill 的寄存器值——
-说明 dispatcher 确实运行了，只是没有翻译任何 block。
-
-### 4.3 已排除的假设
-
-- **不是**代码未写入或权限不对（字节和权限都已验证）
-- **不是**寄存器种子丢失（pre-run 已确认）
-- **不是**缺 GDT（已修，指针非空）
-- **不是**缺 CallRet stack（已加，含 guard page）
-- **不是**陈旧代码缓存（调整测试顺序后首个 fixture 仍失败）
-- **不是**可执行范围未注册（无 miss 日志）
-- **不是** FEXCore 内部报错（日志 handler 已装，无输出）
+**关键更正**：早期记录"首次 Run 编译 0 个 block"是测量错误——
+计数打印在 `Run` **之前**，读到的是上一次的累计值。修正后每次都是 2，
+所以翻译确实发生了，方向应从"没翻译"改为"翻译了但效果不落地"。
 
 ### 4.4 下一步排查方向
 
-按可能性排序：
+RIP 能正确更新说明 JIT 确实回写了部分状态，但 GPR 没有——
+这把范围收窄到**静态寄存器分配（SRA）的 spill**：
 
-1. **dispatcher 入口状态**。`ExecuteDispatch` 从 `AbsoluteLoopTopAddress` 开始，
-   可能还需要 `CpuStateFrame` 中某个未初始化字段。对比
-   `Dispatcher::InitThreadPointers`（`Dispatcher.cpp:2611`）设置的全部指针，
-   逐个确认在我们的路径上都有效。
-2. **`ExitOnHLT` 的退出路径**。`Dispatcher.cpp:424` 显示该模式下退出走的是
-   **`GuestSignal_SIGSEGV` handler**，即一个 fault 路径。
-   需要确认首次 Run 是否在第一条指令之前就走了这条路。
-3. 用 LLDB 在 `CompileBlock` 下断点，直接观察首次 `Run` 是否到达，
-   以及 `AbsoluteLoopTopAddress` 处的实际控制流。
-   参考 [host LLDB → guest 工作流](fex-lldb-host-guest-workflow.md)。
+1. **确认退出路径是否真的 spill 了 GPR**。`ExitOnHLT` 的返回在
+   `GuestSignal_SIGSEGV`（`Dispatcher.cpp:416-427`），它前面有 `SpillStaticRegs`。
+   但真实 HLT 走的是 `GuestSignal_SIGILL`（`:396`），那条路径 spill 之后执行
+   **host `hlt(0)`**，会崩溃而不是返回。既然我们干净返回了，
+   说明退出并非来自 HLT 指令本身——需要查清实际退出点。
+2. **确认 block 是否真的在执行 fixture**。编译了 2 个 block，
+   但可能是 gate 与某个 stub，而非 fixture 本体。
+   用 `-DENABLE_VIXL_DISASSEMBLER` 或 IR dump 观察实际生成的代码。
+3. LLDB 在 `CompileBlock` 与 `SpillStaticRegs` 处下断点直接观察，
+   见 [host LLDB → guest 工作流](fex-lldb-host-guest-workflow.md)。
+
 
 ## 5. 已实现的 API 表面
 

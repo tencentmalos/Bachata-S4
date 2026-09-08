@@ -70,6 +70,15 @@ struct BackendCapabilities final {
     // HLT anywhere else (acceptance D05). The backend chooses the address, so
     // a caller must read it rather than assume a fixed location.
     std::uint64_t return_gate_address{};
+
+    // Highest guest address the backend can execute from, or 0 for no limit.
+    //
+    // Not a host limit: FEXCore's block lookup masks the guest RIP with its own
+    // virtual memory size, so code above this aliases onto unrelated cache
+    // entries and the wrong block runs with no error reported. Pass this to
+    // AddressSpaceConfig::max_address so the reservation lands somewhere the
+    // backend can actually address.
+    std::uint64_t max_guest_address{};
 };
 
 struct CpuConfig final {

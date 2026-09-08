@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
   "spec": "android-fex-v0",
-  "run_id": "20260907T142635Z",
-  "timestamp_utc": "2026-09-07T14:26:36.236719+00:00",
+  "run_id": "20260908T024956Z",
+  "timestamp_utc": "2026-09-08T02:49:56.845212+00:00",
   "baseline_commit": "a712889343ccd2588b712988dae0a76a104e0dce",
-  "implementation_commit": "3092cd10e185de26c081d0eaf2cd7774074e31c4",
+  "implementation_commit": "ebd49ed70c362ce9579ab444d5b980dd23558bef",
   "implementation_branch": "codex/android-fex-v0",
   "working_tree_dirty": true,
   "fex_base_commit": "f2b679f6028ce1c38875233aecfcf5d3f8ebecec",
@@ -40,26 +40,26 @@
   },
   "suites": {
     "api_contract_tests": {
-      "binary": "/tmp/v0build/guest_cpu_contract_tests",
-      "sha256": "a3fc5df6906e1315800ff1eae88d3b923204da821b8ae657ce31473fea7b29c9",
+      "binary": "/tmp/v0b/guest_cpu_contract_tests",
+      "sha256": "cc91a7b65eda64cf01fefaa480ceb4dbabbc584c9b65cfbbdeccb842397f550f",
       "sub_cases": 21,
       "failures": 0
     },
     "hle_abi_tests": {
-      "binary": "/tmp/v0build/guest_cpu_hle_abi_tests",
-      "sha256": "3c7d1953f73a808f832500598999329b5f57a4814ef1e6469033684984becde7",
+      "binary": "/tmp/v0b/guest_cpu_hle_abi_tests",
+      "sha256": "f27195cf37cce65763b5d711385a6cf9408a187c006e15cd9a121c302d9fa776",
       "sub_cases": 14,
       "failures": 0
     },
     "host_page_size_probe": {
-      "binary": "/tmp/v0build/host_page_size_probe",
+      "binary": "/tmp/v0b/host_page_size_probe",
       "sha256": "ae0b2bea42bc6ca2957015655acb237e17262664bb6ebbe9a9243600ed4c6050",
       "sub_cases": 22,
       "failures": 0
     },
     "fexcore_bionic_smoke": {
       "binary": "build/fexcore-android/fexcore_bionic_smoke",
-      "sha256": "cbeaec5f048786f39d9e84a21da9613dcf6b9bf22f524a02d6f697ed59da073f",
+      "sha256": "99edef93c948996e47bdc0e813e3485c23b0dc22d5737575263e7a0cb767a54d",
       "sub_cases": 12,
       "failures": 0,
       "ran_on_device": true

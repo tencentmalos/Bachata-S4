@@ -40,6 +40,17 @@ struct AddressSpaceConfig final {
     std::uint64_t reservation_size{std::uint64_t{1} << 32};
     MemoryMode memory_mode{MemoryMode::DirectMapped};
     SmcMode smc_mode{SmcMode::ExplicitPublication};
+
+    // Upper bound on guest addresses, or 0 for no constraint.
+    //
+    // A backend may only be able to address part of the host's virtual space:
+    // FEXCore's block lookup masks the guest RIP with its own virtual memory
+    // size, so a guest mapped above that limit aliases onto unrelated cache
+    // entries and executes the wrong block with no diagnostic. Create fails
+    // rather than returning a reservation the backend cannot address.
+    //
+    // Callers should take this from BackendCapabilities::max_guest_address.
+    std::uint64_t max_address{};
 };
 
 class GuestAddressSpace final {
