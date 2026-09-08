@@ -129,19 +129,36 @@ hint 只是建议，校验才是约束。放不下时明确失败，不返回后
 
 ### 4.4 下一步排查方向
 
-RIP 能正确更新说明 JIT 确实回写了部分状态，但 GPR 没有——
-这把范围收窄到**静态寄存器分配（SRA）的 spill**：
+RIP 被正确更新到 gate，但 GPR 没有——这两条事实一起把范围收得很窄。
 
-1. **确认退出路径是否真的 spill 了 GPR**。`ExitOnHLT` 的返回在
-   `GuestSignal_SIGSEGV`（`Dispatcher.cpp:416-427`），它前面有 `SpillStaticRegs`。
-   但真实 HLT 走的是 `GuestSignal_SIGILL`（`:396`），那条路径 spill 之后执行
-   **host `hlt(0)`**，会崩溃而不是返回。既然我们干净返回了，
-   说明退出并非来自 HLT 指令本身——需要查清实际退出点。
-2. **确认 block 是否真的在执行 fixture**。编译了 2 个 block，
-   但可能是 gate 与某个 stub，而非 fixture 本体。
-   用 `-DENABLE_VIXL_DISASSEMBLER` 或 IR dump 观察实际生成的代码。
-3. LLDB 在 `CompileBlock` 与 `SpillStaticRegs` 处下断点直接观察，
-   见 [host LLDB → guest 工作流](fex-lldb-host-guest-workflow.md)。
+关键观察：`SpillStaticRegs`（`Arm64Emitter.cpp:719-728`）**直接写入 `State.gregs`**，
+也就是我们读取的同一位置。所以"spill 跑了但我们读错地方"这条假设不成立：
+如果 spill 执行过，值就会在那里。
+
+结合"每次编译 2 个 block"与"RIP 更新到 gate"，最可能的解释是
+**执行在第一条 guest 指令之前就退出了**，走的是一条仍会更新 RIP 的路径。
+
+按优先级：
+
+1. **查清实际的退出点**。真实 HLT 走 `GuestSignal_SIGILL`（`Dispatcher.cpp:396`），
+   它 spill 之后执行 **host `hlt(0)`** —— 那会崩溃而不是干净返回。
+   我们干净返回了，所以退出并非来自 gate 的 HLT 指令本身。
+   `ExitOnHLT` 的返回只存在于 `GuestSignal_SIGSEGV`（`:416-427`）。
+   需要确认是谁跳到了那里。
+2. **确认编译的是哪两个 block**。可能是 gate 与某个 stub，而非 fixture 本体。
+   注意 **`CONFIG_DUMPIR` 在本构建中无效**：`OpDispatcher::SetDumpIR` 全仓无调用者
+   （已实测），所以 IR dump 这条路走不通，不要在它上面浪费时间。
+   改用 `-DENABLE_VIXL_DISASSEMBLER=ON` 观察生成的 host 代码。
+3. LLDB 在 `CompileBlock`、`SpillStaticRegs` 与 `AbsoluteLoopTopAddress` 处下断点，
+   直接观察控制流，见 [host LLDB → guest 工作流](fex-lldb-host-guest-workflow.md)。
+
+### 4.5 已排除、不要重复的路径
+
+- `CONFIG_DUMPIR` / IR dump：配置项存在但未接线，无输出
+- "spill 写到别处"：`SpillStaticRegs` 就是写 `State.gregs`
+- "首次 Run 没编译"：测量错误，实际每次编译 2 个 block
+- 地址超限：已修复并验证（§4.2），但不是唯一原因
+
 
 
 ## 5. 已实现的 API 表面
