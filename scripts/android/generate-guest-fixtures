@@ -1,0 +1,217 @@
+#!/usr/bin/env python3
+"""Assemble the guest fixtures and emit a C++ header with their verified bytes.
+
+Why this exists: the 2026-09-08 review found a hand-encoded fixture where the bytes did not match
+the instruction the test claimed to be running (`49 01 C8` is `add r8, rcx`, not `add r8, r9`), so
+the case could not have passed even against a perfect backend. Hand-encoding is not worth the risk
+for anything longer than a single byte.
+
+The generator does three things, and the third is the point:
+
+  1. assembles tests/guest_cpu/fixtures/guest_fixtures.S for x86-64,
+  2. extracts each fixture's bytes using its start/end symbols,
+  3. disassembles the extracted bytes again and records the mnemonics in the header.
+
+Step 3 means a wrong instruction is visible in review and a failed assembly is a build error, rather
+than a silently wrong test. The recorded disassembly is also what a reader checks the expectations
+against, without needing an x86 toolchain themselves.
+
+Uses the NDK's bundled clang and llvm tools, which are already required for the Android build, so
+this adds no new dependency.
+"""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[2]
+
+# The immediate the .S file loads into r15 before jumping to the return gate. The harness rewrites
+# it with the real gate address at load time, so it must be a value that cannot occur naturally and
+# that appears exactly once per fixture that returns.
+GATE_PLACEHOLDER = 0x1122334455667788
+
+
+def find_ndk() -> Path:
+    """Newest installed NDK that has the tools we need.
+
+    Selected by probing for the tools rather than by version string: this repository already has an
+    NDK whose directory name disagrees with its own reported revision.
+    """
+    roots = [
+        Path.home() / "Library/Android/sdk/ndk",
+        Path("/opt/android-sdk/ndk"),
+    ]
+    for root in roots:
+        if not root.is_dir():
+            continue
+        for candidate in sorted(root.iterdir(), reverse=True):
+            for prebuilt in (candidate / "toolchains/llvm/prebuilt").glob("*"):
+                if (prebuilt / "bin/clang").exists() and (prebuilt / "bin/llvm-objcopy").exists():
+                    return prebuilt
+    raise SystemExit("error: no NDK with clang and llvm-objcopy found")
+
+
+def symbol_table(nm: Path, obj: Path) -> dict[str, int]:
+    out = subprocess.run([str(nm), "--defined-only", str(obj)], capture_output=True, text=True,
+                         check=True).stdout
+    table: dict[str, int] = {}
+    for line in out.splitlines():
+        parts = line.split()
+        if len(parts) >= 3:
+            table[parts[2]] = int(parts[0], 16)
+    return table
+
+
+def disassemble_object(objdump: Path, obj: Path) -> list[tuple[int, str]]:
+    """Disassemble the whole .text once and return (offset, mnemonic) pairs.
+
+    Disassembling the object rather than raw extracted bytes keeps the listing faithful to what the
+    assembler produced; llvm-objdump also has no raw-binary input mode.
+    """
+    out = subprocess.run([str(objdump), "-d", "--section=.text", str(obj)],
+                         capture_output=True, text=True, check=True).stdout
+    decoded: list[tuple[int, str]] = []
+    for line in out.splitlines():
+        # "       0: 4d 01 c8   addq %r9, %r8"
+        match = re.match(r"^\s*([0-9a-f]+):\s+((?:[0-9a-f]{2}\s)+)\s*(\S.*)$", line)
+        if match:
+            decoded.append((int(match.group(1), 16), match.group(3).strip()))
+    return decoded
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--output", required=True, help="header to write")
+    parser.add_argument("--source",
+                        default=str(REPO / "tests/guest_cpu/fixtures/guest_fixtures.S"))
+    args = parser.parse_args()
+
+    source = Path(args.source)
+    if not source.is_file():
+        raise SystemExit(f"error: fixture source not found: {source}")
+
+    prebuilt = find_ndk()
+    clang = prebuilt / "bin/clang"
+    objcopy = prebuilt / "bin/llvm-objcopy"
+    nm = prebuilt / "bin/llvm-nm"
+    objdump = prebuilt / "bin/llvm-objdump"
+
+    with tempfile.TemporaryDirectory() as tmp:
+        obj = Path(tmp) / "fixtures.o"
+        subprocess.run([str(clang), "-target", "x86_64-linux-gnu", "-c", str(source),
+                        "-o", str(obj)], check=True)
+
+        flat = Path(tmp) / "fixtures.bin"
+        subprocess.run([str(objcopy), "-O", "binary", "--only-section=.text", str(obj),
+                        str(flat)], check=True)
+        blob = flat.read_bytes()
+
+        symbols = symbol_table(nm, obj)
+        decoded = disassemble_object(objdump, obj)
+
+    names = sorted({name[len("fixture_"):] for name in symbols
+                    if name.startswith("fixture_") and not name.endswith("_end")})
+    if not names:
+        raise SystemExit("error: no fixture_* symbols found")
+
+    entries = []
+    for name in names:
+        start = symbols.get(f"fixture_{name}")
+        end = symbols.get(f"fixture_{name}_end")
+        if start is None or end is None:
+            raise SystemExit(f"error: fixture_{name} is missing its start or end symbol")
+        if end <= start:
+            raise SystemExit(f"error: fixture_{name} has a non-positive length")
+        data = blob[start:end]
+        # Locate the gate placeholder so the harness can patch it without re-parsing the encoding.
+        needle = GATE_PLACEHOLDER.to_bytes(8, "little")
+        gate_offsets = [i for i in range(len(data) - 7) if data[i:i + 8] == needle]
+        if len(gate_offsets) > 1:
+            raise SystemExit(f"error: fixture_{name} contains the gate placeholder more than once")
+        entries.append({
+            "name": name,
+            "bytes": data,
+            "gate_offset": gate_offsets[0] if gate_offsets else -1,
+            "disassembly": [f"{off - start:#06x}  {text}"
+                            for off, text in decoded if start <= off < end],
+        })
+
+    lines = [
+        "// SPDX-FileCopyrightText: Copyright 2026 shadPS4 Emulator Project",
+        "// SPDX-License-Identifier: GPL-2.0-or-later",
+        "//",
+        "// GENERATED by scripts/android/generate-guest-fixtures from",
+        "// tests/guest_cpu/fixtures/guest_fixtures.S. Do not edit by hand.",
+        "//",
+        "// Each fixture's bytes came out of the assembler and were disassembled again to produce",
+        "// the listing in its comment, so the comment cannot drift from the bytes.",
+        "",
+        "#pragma once",
+        "",
+        "#include <cstddef>",
+        "#include <cstdint>",
+        "#include <span>",
+        "#include <string_view>",
+        "",
+        "namespace Core::GuestCpu::Fixtures {",
+        "",
+        "struct Fixture final {",
+        "    std::string_view name;",
+        "    std::span<const std::uint8_t> bytes;",
+        "    // Byte offset of the 8-byte return-gate address the harness must patch, or -1 when the",
+        "    // fixture never returns (a bare HLT, for instance).",
+        "    std::ptrdiff_t gate_offset;",
+        "    std::string_view disassembly;",
+        "};",
+        "",
+    ]
+
+    for entry in entries:
+        array = ", ".join(f"0x{b:02X}" for b in entry["bytes"])
+        lines.append(f"// fixture_{entry['name']}:")
+        for text in entry["disassembly"]:
+            lines.append(f"//   {text}")
+        lines.append(f"inline constexpr std::uint8_t k{entry['name'].title().replace('_', '')}"
+                     f"Bytes[] = {{{array}}};")
+        lines.append("")
+
+    lines.append("inline constexpr Fixture kAll[] = {")
+    for entry in entries:
+        ident = entry["name"].title().replace("_", "")
+        disasm = "\\n".join(entry["disassembly"])
+        lines.append(f'    {{"{entry["name"]}", k{ident}Bytes, {entry["gate_offset"]}, '
+                     f'"{disasm}"}},')
+    lines.append("};")
+    lines.append("")
+    lines.append("// Placeholder the assembler emitted for the return-gate address.")
+    lines.append(f"inline constexpr std::uint64_t kGatePlaceholder = 0x{GATE_PLACEHOLDER:016X}ULL;")
+    lines.append("")
+    lines.append("} // namespace Core::GuestCpu::Fixtures")
+    lines.append("")
+
+    text = "\n".join(lines)
+    output = Path(args.output)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    # Only rewrite when the content changed, so an unchanged regeneration does not force a rebuild.
+    if not output.exists() or output.read_text() != text:
+        output.write_text(text)
+
+    digest = hashlib.sha256(b"".join(bytes(e["bytes"]) for e in entries)).hexdigest()
+    print(f"wrote {output}")
+    print(f"{len(entries)} fixture(s), combined sha256 {digest[:16]}")
+    for entry in entries:
+        print(f"  {entry['name']}: {len(entry['bytes'])} bytes, "
+              f"{len(entry['disassembly'])} instruction(s)")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,19 +1,22 @@
 // SPDX-FileCopyrightText: Copyright 2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 //
-// First real guest execution: hand-assembled x86-64 running under FEXCore through the public API.
+// Guest execution through the public CPU API, using assembler-generated fixtures.
 //
-// Everything before this round proved the backend could be built and initialised. This proves the
-// translation path itself: x86 bytes go in, and the architectural effects come out in the registers
-// the public snapshot reports.
+// The 2026-09-08 review found that the previous version hand-encoded its fixtures and got one
+// wrong: `49 01 C8` is `add r8, rcx`, not `add r8, r9`, so C01 could not have passed against a
+// perfect backend and the failure was misread as a backend defect. Fixtures now come from
+// tests/guest_cpu/fixtures/guest_fixtures.S via scripts/android/generate-guest-fixtures, which
+// disassembles the extracted bytes back and records the listing next to them.
 //
-// The fixtures are hand-assembled rather than produced by an assembler at build time, because the
-// build host is arm64 and shipping an x86 toolchain dependency for a handful of instructions would
-// cost more than it saves. Every byte sequence is commented with its disassembly.
+// Each fixture runs in its own thread with only the registers it needs seeded, and the harness
+// reports the guest bytes and the recorded disassembly on failure so a wrong result can be told
+// apart from a wrong fixture without re-deriving the encoding.
 
 #include <cinttypes>
 #include <cstdio>
 #include <cstring>
+#include <string>
 #include <vector>
 
 #include <unistd.h>
@@ -21,16 +24,20 @@
 #include "core/guest_cpu/api/address_space.h"
 #include "core/guest_cpu/api/context.h"
 
+#include "guest_fixtures.h"
+
 namespace {
 
 using namespace Core::GuestCpu;
 
 int g_failures = 0;
+int g_checks = 0;
 
-void Check(const char* id, const char* name, bool condition, const char* detail = "") {
+void Check(const char* id, const char* name, bool condition, const std::string& detail = {}) {
+    ++g_checks;
     printf("[%-6s] %-58s %s", id, name, condition ? "PASS" : "FAIL");
-    if (detail != nullptr && detail[0] != '\0') {
-        printf(" -- %s", detail);
+    if (!detail.empty()) {
+        printf(" -- %s", detail.c_str());
     }
     printf("\n");
     fflush(stdout);
@@ -39,10 +46,15 @@ void Check(const char* id, const char* name, bool condition, const char* detail 
     }
 }
 
+std::string Hex(std::uint64_t value) {
+    char buffer[32];
+    std::snprintf(buffer, sizeof(buffer), "0x%" PRIx64, value);
+    return buffer;
+}
+
 void CheckU64(const char* id, const char* name, std::uint64_t actual, std::uint64_t expected) {
-    char detail[128];
-    std::snprintf(detail, sizeof(detail), "expected 0x%" PRIx64 ", got 0x%" PRIx64, expected, actual);
-    Check(id, name, actual == expected, actual == expected ? "" : detail);
+    const bool ok = actual == expected;
+    Check(id, name, ok, ok ? std::string{} : "expected " + Hex(expected) + ", got " + Hex(actual));
 }
 
 // Layout inside the guest reservation. Code and stack are separate mappings so an overrun of one
@@ -51,389 +63,423 @@ constexpr std::uint64_t kCodeOffset = 0x10000;
 constexpr std::uint64_t kStackOffset = 0x20000;
 constexpr std::uint64_t kMappingSize = 0x4000;
 
-struct Fixture final {
+struct Harness final {
     std::unique_ptr<GuestAddressSpace> space;
     std::unique_ptr<CpuContext> context;
     std::uint64_t code_base{};
+    std::uint64_t stack_base{};
     std::uint64_t stack_top{};
     std::uint64_t return_gate{};
 };
 
-// Writes `code` into the guest code mapping and publishes it as executable.
-//
-// RW to write, then RX to execute: never RWX. This is the publication model the spec requires, and
-// it is also what a W^X host would enforce anyway.
-bool LoadCode(Fixture& fixture, const std::vector<std::uint8_t>& code) {
-    const GuestRange range{GuestAddress{fixture.code_base}, kMappingSize};
+const Fixtures::Fixture* FindFixture(std::string_view name) {
+    for (const auto& fixture : Fixtures::kAll) {
+        if (fixture.name == name) {
+            return &fixture;
+        }
+    }
+    return nullptr;
+}
 
-    // Make it writable again: a previous fixture will have left it RX.
-    auto writable = fixture.space->Protect(range, GuestPermission::Read | GuestPermission::Write);
+// Writes a fixture into guest memory, patches the return-gate address, publishes RX, and discards
+// any translation of whatever was there before.
+bool LoadFixture(Harness& harness, const Fixtures::Fixture& fixture, std::string& error) {
+    const GuestRange range{GuestAddress{harness.code_base}, kMappingSize};
+
+    auto writable = harness.space->Protect(range, GuestPermission::Read | GuestPermission::Write);
     if (!writable) {
-        printf("  could not make the code mapping writable: %s\n",
-               Describe(writable.GetError()).c_str());
+        error = "Protect(RW): " + Describe(writable.GetError());
         return false;
     }
 
     {
-        auto pin = fixture.space->AcquirePinnedSpan(range, /*writable=*/true);
+        auto pin = harness.space->AcquirePinnedSpan(range, /*writable=*/true);
         if (!pin) {
-            printf("  could not pin the code mapping: %s\n", Describe(pin.GetError()).c_str());
+            error = "AcquirePinnedSpan: " + Describe(pin.GetError());
             return false;
         }
         auto bytes = pin.Value().Bytes();
-        if (code.size() > bytes.size()) {
-            printf("  fixture is larger than the code mapping\n");
+        if (fixture.bytes.size() > bytes.size()) {
+            error = "fixture is larger than the code mapping";
             return false;
         }
         // Zero the rest so a shorter fixture cannot run into the previous one's tail.
         std::memset(bytes.data(), 0, bytes.size());
-        std::memcpy(bytes.data(), code.data(), code.size());
-        // The pin is released here, before the permission change: Protect refuses while a writer
-        // still holds the span, which is the interlock that keeps a code transaction honest.
+        std::memcpy(bytes.data(), fixture.bytes.data(), fixture.bytes.size());
+
+        if (fixture.gate_offset >= 0) {
+            // Patch the placeholder the assembler emitted with the gate the backend actually chose.
+            std::memcpy(bytes.data() + fixture.gate_offset, &harness.return_gate,
+                        sizeof(harness.return_gate));
+        }
+        // Release the pin before changing permissions: Protect must not run while a writer holds a
+        // span, and holding it here would mask that ordering requirement.
     }
 
-    auto executable = fixture.space->Protect(range, GuestPermission::Read | GuestPermission::Execute);
+    auto executable =
+        harness.space->Protect(range, GuestPermission::Read | GuestPermission::Execute);
     if (!executable) {
-        printf("  could not publish the code mapping as executable: %s\n",
-               Describe(executable.GetError()).c_str());
+        error = "Protect(RX): " + Describe(executable.GetError());
         return false;
     }
 
-    // Discard any translation of the previous fixture at this address. Without this the backend
-    // reuses the cached block and silently runs the old code -- which is precisely the stale-decode
-    // failure the publication contract exists to prevent, and it is easy to mistake for a wrong
-    // result from the new fixture.
-    auto quiesced = fixture.space->Quiesce(/*timeout_ns=*/1'000'000'000);
+    auto quiesced = harness.space->Quiesce(/*timeout_ns=*/1'000'000'000);
     if (!quiesced) {
-        printf("  could not quiesce before invalidation: %s\n",
-               Describe(quiesced.GetError()).c_str());
+        error = "Quiesce: " + Describe(quiesced.GetError());
         return false;
     }
-    auto invalidated = fixture.context->InvalidateCode(quiesced.Value(), range,
+    auto invalidated = harness.context->InvalidateCode(quiesced.Value(), range,
                                                        InvalidationReason::HostWrite);
     if (!invalidated) {
-        printf("  could not invalidate translated code: %s\n",
-               Describe(invalidated.GetError()).c_str());
+        error = "InvalidateCode: " + Describe(invalidated.GetError());
         return false;
     }
     return true;
 }
 
-// Runs one fixture from a clean thread and returns the stop result.
-//
-// `setup` receives the initial register patch so each case can seed only what it needs; unset
-// registers stay at their architectural default rather than at whatever the last case left.
-template <typename SetupFn>
-bool RunFixture(Fixture& fixture, const char* id, const std::vector<std::uint8_t>& code,
-                SetupFn&& setup, RunResult& out) {
-    if (!LoadCode(fixture, code)) {
-        Check(id, "load fixture into guest memory", false);
+// Zeroes the guest stack so a stale value cannot look like a fresh store.
+bool ResetStack(Harness& harness, std::string& error) {
+    auto pin = harness.space->AcquirePinnedSpan(
+        GuestRange{GuestAddress{harness.stack_base}, kMappingSize}, /*writable=*/true);
+    if (!pin) {
+        error = "pin stack: " + Describe(pin.GetError());
         return false;
+    }
+    std::memset(pin.Value().Bytes().data(), 0, pin.Value().Bytes().size());
+    return true;
+}
+
+// Reads one 8-byte guest slot. Returns false when the read itself failed, so "could not read" is
+// distinguishable from "read zero".
+bool ReadGuestU64(Harness& harness, std::uint64_t address, std::uint64_t& out) {
+    auto pin = harness.space->AcquirePinnedSpan(GuestRange{GuestAddress{address}, 8},
+                                                /*writable=*/false);
+    if (!pin) {
+        return false;
+    }
+    std::memcpy(&out, pin.Value().Bytes().data(), sizeof(out));
+    return true;
+}
+
+struct RunOutcome final {
+    bool ok{false};
+    RunResult result{};
+    std::string error;
+};
+
+template <typename SetupFn>
+RunOutcome RunFixture(Harness& harness, const Fixtures::Fixture& fixture, SetupFn&& setup) {
+    RunOutcome outcome{};
+
+    if (!LoadFixture(harness, fixture, outcome.error)) {
+        return outcome;
+    }
+    if (!ResetStack(harness, outcome.error)) {
+        return outcome;
     }
 
     ThreadInit init{};
-    init.entry_rip = GuestCodeAddress{fixture.code_base};
-    init.initial_rsp = GuestAddress{fixture.stack_top};
+    init.entry_rip = GuestCodeAddress{harness.code_base};
+    init.initial_rsp = GuestAddress{harness.stack_top};
     init.guest_tid = 1;
     setup(init.initial_state);
 
-    auto thread = fixture.context->CreateThread(init);
+    auto thread = harness.context->CreateThread(init);
     if (!thread) {
-        char detail[256];
-        std::snprintf(detail, sizeof(detail), "%s", Describe(thread.GetError()).c_str());
-        Check(id, "create guest thread", false, detail);
-        return false;
+        outcome.error = "CreateThread: " + Describe(thread.GetError());
+        return outcome;
     }
 
-    auto result = fixture.context->Run(thread.Value(), RunOptions{});
-    if (!result) {        char detail[256];
-        std::snprintf(detail, sizeof(detail), "%s", Describe(result.GetError()).c_str());
-        Check(id, "run guest code", false, detail);
-        (void)fixture.context->DestroyThread(thread.Value());
-        return false;
+    auto result = harness.context->Run(thread.Value(), RunOptions{});
+    if (!result) {
+        outcome.error = "Run: " + Describe(result.GetError());
+        (void)harness.context->DestroyThread(thread.Value());
+        return outcome;
     }
+    outcome.result = result.Value();
 
-    out = result.Value();
-    auto destroyed = fixture.context->DestroyThread(thread.Value());
+    auto destroyed = harness.context->DestroyThread(thread.Value());
     if (!destroyed) {
-        Check(id, "destroy guest thread", false, Describe(destroyed.GetError()).c_str());
+        outcome.error = "DestroyThread: " + Describe(destroyed.GetError());
+        return outcome;
+    }
+
+    outcome.ok = true;
+    return outcome;
+}
+
+// Prints what the fixture actually is, so a failure can be attributed to the backend or to the
+// fixture without anyone re-deriving the encoding by hand.
+void ReportFixture(const Fixtures::Fixture& fixture) {
+    printf("  fixture %.*s (%zu bytes):\n", static_cast<int>(fixture.name.size()),
+           fixture.name.data(), fixture.bytes.size());
+    printf("    %.*s\n", static_cast<int>(fixture.disassembly.size()), fixture.disassembly.data());
+    fflush(stdout);
+}
+
+bool Require(const char* id, const RunOutcome& outcome, const Fixtures::Fixture& fixture) {
+    if (!outcome.ok) {
+        Check(id, "run fixture", false, outcome.error);
+        ReportFixture(fixture);
         return false;
     }
     return true;
 }
 
-// Appends "mov r15, imm64; jmp r15" so the fixture ends by jumping to the return gate.
-//
-// r15 rather than rax: rax is a natural result register and several fixtures check it, so using it
-// as the jump scratch would overwrite the very value under test. An absolute jump keeps the
-// fixtures independent of where the gate happens to be mapped.
-void AppendReturnToGate(std::vector<std::uint8_t>& code, std::uint64_t gate) {
-    code.push_back(0x49);  // REX.WB
-    code.push_back(0xBF);  // mov r15, imm64
-    for (int i = 0; i < 8; ++i) {
-        code.push_back(static_cast<std::uint8_t>((gate >> (i * 8)) & 0xFF));
+// --- C01: integer arithmetic -------------------------------------------------------------------
+void TestIntegerArithmetic(Harness& harness) {
+    const auto* fixture = FindFixture("integer");
+    if (fixture == nullptr) {
+        Check("G01", "integer fixture is present", false);
+        return;
     }
-    code.push_back(0x41);  // REX.B
-    code.push_back(0xFF);  // jmp
-    code.push_back(0xE7);  // r15
-}
 
-// --- C01: integer arithmetic, flags and branches -----------------------------------------------
-void TestIntegerArithmetic(Fixture& fixture) {
-    // add r8, r9        49 01 C8
-    // mov r10, r8       4D 89 C2
-    // xor r11, r11      4D 31 DB
-    // sub r10, 5        49 83 EA 05
-    std::vector<std::uint8_t> code{
-        0x49, 0x01, 0xC8,
-        0x4D, 0x89, 0xC2,
-        0x4D, 0x31, 0xDB,
-        0x49, 0x83, 0xEA, 0x05,
-    };
-    AppendReturnToGate(code, fixture.return_gate);
-
-    RunResult result{};
-    const bool ran = RunFixture(fixture, "G01", code, [](RegisterPatch& patch) {
+    auto outcome = RunFixture(harness, *fixture, [](RegisterPatch& patch) {
         patch.fields = RegisterValidity::Gpr;
         patch.gpr_mask = (1u << Index(Gpr::R8)) | (1u << Index(Gpr::R9));
         patch.values.Set(Gpr::R8, 0x1000);
         patch.values.Set(Gpr::R9, 0x234);
-    }, result);
-    if (!ran) {
+    });
+    if (!Require("G01", outcome, *fixture)) {
         return;
     }
 
-    Check("G01a", "integer fixture returned through the gate",
-          result.primary_reason == StopReason::Returned,
-          result.primary_reason == StopReason::Returned ? ""
-                                                        : std::string(ToString(result.primary_reason)).c_str());
-    CheckU64("G01b", "add r8, r9 produced the sum", result.snapshot.registers.Get(Gpr::R8), 0x1234);
-    CheckU64("G01c", "mov r10, r8 copied the value", result.snapshot.registers.Get(Gpr::R10),
-             0x1234 - 5);
-    CheckU64("G01d", "xor r11, r11 cleared the register",
-             result.snapshot.registers.Get(Gpr::R11), 0);
-    Check("G01e", "snapshot reports GPRs as valid",
-          HasAll(result.snapshot.registers.validity, RegisterValidity::Gpr));
+    const auto& regs = outcome.result.snapshot.registers;
+    const bool returned = outcome.result.primary_reason == StopReason::Returned;
+    Check("G01a", "integer fixture returned through the gate", returned,
+          returned ? std::string{} : std::string{ToString(outcome.result.primary_reason)});
+    CheckU64("G01b", "add r8, r9 produced the sum", regs.Get(Gpr::R8), 0x1234);
+    CheckU64("G01c", "mov r10, r8 then sub 5", regs.Get(Gpr::R10), 0x1234 - 5);
+    CheckU64("G01d", "xor r11, r11 cleared the register", regs.Get(Gpr::R11), 0);
+    Check("G01e", "snapshot reports GPRs as valid", HasAll(regs.validity, RegisterValidity::Gpr));
     Check("G01f", "snapshot kind is a safe point",
-          result.snapshot.kind == SnapshotKind::SafePoint);
+          outcome.result.snapshot.kind == SnapshotKind::SafePoint);
+
+    if (g_failures != 0) {
+        ReportFixture(*fixture);
+    }
 }
 
-// --- C01: taken and not-taken branches ---------------------------------------------------------
-void TestBranches(Fixture& fixture) {
-    // xor rax, rax          48 31 C0
-    // cmp rdi, rsi          48 39 F7
-    // jne +7                75 07
-    // mov rax, 1            48 C7 C0 01 00 00 00     (executed only when equal)
-    // (fallthrough)
-    std::vector<std::uint8_t> code{
-        0x48, 0x31, 0xC0,
-        0x48, 0x39, 0xF7,
-        0x75, 0x07,
-        0x48, 0xC7, 0xC0, 0x01, 0x00, 0x00, 0x00,
-    };
-    AppendReturnToGate(code, fixture.return_gate);
+// --- C01: branches, both directions ------------------------------------------------------------
+void TestBranches(Harness& harness) {
+    const auto* fixture = FindFixture("branch");
+    if (fixture == nullptr) {
+        Check("G02", "branch fixture is present", false);
+        return;
+    }
 
-    // Equal: the branch is not taken, so rax becomes 1.
-    RunResult equal{};
-    if (RunFixture(fixture, "G02", code, [](RegisterPatch& patch) {
-            patch.fields = RegisterValidity::Gpr;
-            patch.gpr_mask = (1u << Index(Gpr::Rdi)) | (1u << Index(Gpr::Rsi));
-            patch.values.Set(Gpr::Rdi, 42);
-            patch.values.Set(Gpr::Rsi, 42);
-        }, equal)) {
+    auto equal = RunFixture(harness, *fixture, [](RegisterPatch& patch) {
+        patch.fields = RegisterValidity::Gpr;
+        patch.gpr_mask = (1u << Index(Gpr::Rdi)) | (1u << Index(Gpr::Rsi));
+        patch.values.Set(Gpr::Rdi, 42);
+        patch.values.Set(Gpr::Rsi, 42);
+    });
+    if (Require("G02", equal, *fixture)) {
         CheckU64("G02a", "not-taken branch fell through to the mov",
-                 equal.snapshot.registers.Get(Gpr::Rax), 1);
+                 equal.result.snapshot.registers.Get(Gpr::Rax), 1);
     }
 
-    // Unequal: the branch is taken, so the mov is skipped and rax stays 0.
-    RunResult unequal{};
-    if (RunFixture(fixture, "G02", code, [](RegisterPatch& patch) {
-            patch.fields = RegisterValidity::Gpr;
-            patch.gpr_mask = (1u << Index(Gpr::Rdi)) | (1u << Index(Gpr::Rsi));
-            patch.values.Set(Gpr::Rdi, 42);
-            patch.values.Set(Gpr::Rsi, 43);
-        }, unequal)) {
+    auto unequal = RunFixture(harness, *fixture, [](RegisterPatch& patch) {
+        patch.fields = RegisterValidity::Gpr;
+        patch.gpr_mask = (1u << Index(Gpr::Rdi)) | (1u << Index(Gpr::Rsi));
+        patch.values.Set(Gpr::Rdi, 42);
+        patch.values.Set(Gpr::Rsi, 43);
+    });
+    if (Require("G02", unequal, *fixture)) {
         CheckU64("G02b", "taken branch skipped the mov",
-                 unequal.snapshot.registers.Get(Gpr::Rax), 0);
+                 unequal.result.snapshot.registers.Get(Gpr::Rax), 0);
     }
 }
 
-// --- C01: load/store through the guest stack ---------------------------------------------------
-void TestLoadStore(Fixture& fixture) {
-    // push rdi          57
-    // push rsi          56
-    // pop  rax          58        -> rax = rsi
-    // pop  rcx          59        -> rcx = rdi
-    std::vector<std::uint8_t> code{0x57, 0x56, 0x58, 0x59};
-    AppendReturnToGate(code, fixture.return_gate);
-
-    RunResult result{};
-    if (!RunFixture(fixture, "G03", code, [](RegisterPatch& patch) {
-            patch.fields = RegisterValidity::Gpr;
-            patch.gpr_mask = (1u << Index(Gpr::Rdi)) | (1u << Index(Gpr::Rsi));
-            patch.values.Set(Gpr::Rdi, 0xAAAA'BBBB'CCCC'DDDDull);
-            patch.values.Set(Gpr::Rsi, 0x1111'2222'3333'4444ull);
-        }, result)) {
+// --- C01: load/store through the guest stack -----------------------------------------------------
+void TestLoadStore(Harness& harness) {
+    const auto* fixture = FindFixture("loadstore");
+    if (fixture == nullptr) {
+        Check("G03", "loadstore fixture is present", false);
         return;
     }
 
-    CheckU64("G03a", "pop rax read back the second push",
-             result.snapshot.registers.Get(Gpr::Rax), 0x1111'2222'3333'4444ull);
-    CheckU64("G03b", "pop rcx read back the first push",
-             result.snapshot.registers.Get(Gpr::Rcx), 0xAAAA'BBBB'CCCC'DDDDull);
-    // Two pushes and two pops must leave the stack pointer where it started. A mismatch here would
-    // mean the guest stack and the host's idea of it have diverged.
-    CheckU64("G03c", "stack pointer is balanced after push/pop",
-             result.snapshot.registers.Rsp(), fixture.stack_top);
+    constexpr std::uint64_t kFirst = 0xAAAA'BBBB'CCCC'DDDDull;
+    constexpr std::uint64_t kSecond = 0x1111'2222'3333'4444ull;
 
-    // Read the guest stack directly. This separates "the guest never ran" from "the guest ran but
-    // its registers were not published": the pushes leave their operands in memory either way, and
-    // memory is not subject to register spilling.
-    auto stack = fixture.space->AcquirePinnedSpan(
-        GuestRange{GuestAddress{fixture.stack_top - 16}, 16}, /*writable=*/false);
-    if (stack) {
-        std::uint64_t slot0 = 0;
-        std::uint64_t slot1 = 0;
-        std::memcpy(&slot0, stack.Value().Bytes().data(), sizeof(slot0));
-        std::memcpy(&slot1, stack.Value().Bytes().data() + 8, sizeof(slot1));
-        char detail[160];
-        std::snprintf(detail, sizeof(detail), "stack[-16]=0x%" PRIx64 " stack[-8]=0x%" PRIx64,
-                      slot0, slot1);
-        Check("G03d", "the pushes actually wrote the guest stack",
-              slot1 == 0xAAAA'BBBB'CCCC'DDDDull || slot0 == 0x1111'2222'3333'4444ull, detail);
+    auto outcome = RunFixture(harness, *fixture, [](RegisterPatch& patch) {
+        patch.fields = RegisterValidity::Gpr;
+        patch.gpr_mask = (1u << Index(Gpr::Rdi)) | (1u << Index(Gpr::Rsi));
+        patch.values.Set(Gpr::Rdi, kFirst);
+        patch.values.Set(Gpr::Rsi, kSecond);
+    });
+    if (!Require("G03", outcome, *fixture)) {
+        return;
+    }
+
+    const auto& regs = outcome.result.snapshot.registers;
+    CheckU64("G03a", "pop rax read back the second push", regs.Get(Gpr::Rax), kSecond);
+    CheckU64("G03b", "pop rcx read back the first push", regs.Get(Gpr::Rcx), kFirst);
+    CheckU64("G03c", "stack pointer is balanced after push/pop", regs.Rsp(), harness.stack_top);
+}
+
+// --- C01: a store that must remain visible in guest memory ---------------------------------------
+void TestStoreMemory(Harness& harness) {
+    const auto* fixture = FindFixture("store_memory");
+    if (fixture == nullptr) {
+        Check("G07", "store_memory fixture is present", false);
+        return;
+    }
+
+    constexpr std::uint64_t kLow = 0x0BAD'C0DE'0BAD'C0DEull;
+    constexpr std::uint64_t kHigh = 0xFEED'FACE'FEED'FACEull;
+
+    auto outcome = RunFixture(harness, *fixture, [](RegisterPatch& patch) {
+        patch.fields = RegisterValidity::Gpr;
+        patch.gpr_mask = (1u << Index(Gpr::Rdi)) | (1u << Index(Gpr::Rsi));
+        patch.values.Set(Gpr::Rdi, kLow);
+        patch.values.Set(Gpr::Rsi, kHigh);
+    });
+    if (!Require("G07", outcome, *fixture)) {
+        return;
+    }
+
+    // Checked per slot rather than as an OR across both, so a partial write cannot pass. The review
+    // called this out on the previous version.
+    std::uint64_t slot_minus_16 = 0;
+    std::uint64_t slot_minus_8 = 0;
+    const bool read_low = ReadGuestU64(harness, harness.stack_top - 16, slot_minus_16);
+    const bool read_high = ReadGuestU64(harness, harness.stack_top - 8, slot_minus_8);
+
+    Check("G07a", "guest memory below rsp is readable", read_low && read_high);
+    if (read_low) {
+        CheckU64("G07b", "store to [rsp-16] landed in guest memory", slot_minus_16, kLow);
+    }
+    if (read_high) {
+        CheckU64("G07c", "store to [rsp-8] landed in guest memory", slot_minus_8, kHigh);
     }
 }
 
-// --- C02: SSE2 -----------------------------------------------------------------------------
-void TestSse2(Fixture& fixture) {
-    // movq xmm0, rdi     66 48 0F 6E C7
-    // movq xmm1, rsi     66 48 0F 6E CE
-    // paddq xmm0, xmm1   66 0F D4 C1
-    // movq rax, xmm0     66 48 0F 7E C0
-    std::vector<std::uint8_t> code{
-        0x66, 0x48, 0x0F, 0x6E, 0xC7,
-        0x66, 0x48, 0x0F, 0x6E, 0xCE,
-        0x66, 0x0F, 0xD4, 0xC1,
-        0x66, 0x48, 0x0F, 0x7E, 0xC0,
-    };
-    AppendReturnToGate(code, fixture.return_gate);
-
-    RunResult result{};
-    if (!RunFixture(fixture, "G04", code, [](RegisterPatch& patch) {
-            patch.fields = RegisterValidity::Gpr;
-            patch.gpr_mask = (1u << Index(Gpr::Rdi)) | (1u << Index(Gpr::Rsi));
-            patch.values.Set(Gpr::Rdi, 0x0000'0001'0000'0002ull);
-            patch.values.Set(Gpr::Rsi, 0x0000'0010'0000'0020ull);
-        }, result)) {
+// --- C02: SSE2 -----------------------------------------------------------------------------------
+void TestSse2(Harness& harness) {
+    const auto* fixture = FindFixture("sse2");
+    if (fixture == nullptr) {
+        Check("G04", "sse2 fixture is present", false);
         return;
     }
 
-    CheckU64("G04a", "paddq result moved back to a GPR",
-             result.snapshot.registers.Get(Gpr::Rax), 0x0000'0011'0000'0022ull);
-    CheckU64("G04b", "xmm0 low half holds the packed sum",
-             result.snapshot.registers.xmm[0].low, 0x0000'0011'0000'0022ull);
-    Check("G04c", "snapshot reports XMM as valid",
-          HasAll(result.snapshot.registers.validity, RegisterValidity::Xmm));
+    constexpr std::uint64_t kLeft = 0x0000'0001'0000'0002ull;
+    constexpr std::uint64_t kRight = 0x0000'0010'0000'0020ull;
+    // paddq adds the full 64-bit lane, and neither lane carries into the other here.
+    constexpr std::uint64_t kExpected = kLeft + kRight;
+
+    auto outcome = RunFixture(harness, *fixture, [](RegisterPatch& patch) {
+        patch.fields = RegisterValidity::Gpr;
+        patch.gpr_mask = (1u << Index(Gpr::Rdi)) | (1u << Index(Gpr::Rsi));
+        patch.values.Set(Gpr::Rdi, kLeft);
+        patch.values.Set(Gpr::Rsi, kRight);
+    });
+    if (!Require("G04", outcome, *fixture)) {
+        return;
+    }
+
+    const auto& regs = outcome.result.snapshot.registers;
+    CheckU64("G04a", "paddq result moved back to a GPR", regs.Get(Gpr::Rax), kExpected);
+    CheckU64("G04b", "xmm0 low half holds the packed sum", regs.xmm[0].low, kExpected);
+    Check("G04c", "snapshot reports XMM as valid", HasAll(regs.validity, RegisterValidity::Xmm));
 }
 
-// --- D05: a real HLT is not a normal return ----------------------------------------------------
-void TestUnregisteredHlt(Fixture& fixture) {
-    // hlt    F4    -- at the fixture's own address, not the registered gate.
-    std::vector<std::uint8_t> code{0xF4};
-
-    RunResult result{};
-    if (!RunFixture(fixture, "G05", code, [](RegisterPatch&) {}, result)) {
+// --- D05: a HLT outside the gate is not a normal return -------------------------------------------
+void TestUnregisteredHlt(Harness& harness) {
+    const auto* fixture = FindFixture("bare_hlt");
+    if (fixture == nullptr) {
+        Check("G05", "bare_hlt fixture is present", false);
         return;
     }
 
-    // The whole point of the registered gate: a HLT anywhere else must not look like a clean
-    // return, or a crashing guest would be indistinguishable from a finished one.
+    auto outcome = RunFixture(harness, *fixture, [](RegisterPatch&) {});
+    if (!Require("G05", outcome, *fixture)) {
+        return;
+    }
+
+    const auto reason = outcome.result.primary_reason;
     Check("G05a", "a HLT outside the gate is not reported as Returned",
-          result.primary_reason != StopReason::Returned,
-          std::string(ToString(result.primary_reason)).c_str());
-    Check("G05b", "the stop is reported as a guest fault",
-          result.primary_reason == StopReason::GuestFault);
-    Check("G05c", "fault carries a guest RIP", result.fault.has_value() &&
-                                                   result.fault->guest_rip.has_value());
+          reason != StopReason::Returned, std::string{ToString(reason)});
+    Check("G05b", "the stop is reported as a guest fault", reason == StopReason::GuestFault);
+    Check("G05c", "fault carries a guest RIP",
+          outcome.result.fault.has_value() && outcome.result.fault->guest_rip.has_value());
     Check("G05d", "snapshot kind is Faulted, not SafePoint",
-          result.snapshot.kind == SnapshotKind::Faulted);
+          outcome.result.snapshot.kind == SnapshotKind::Faulted);
 }
 
-// --- contract checks that do not need execution ------------------------------------------------
-void TestContracts(Fixture& fixture) {
-    const auto caps = fixture.context->Capabilities();
+// --- contract checks that need no execution -------------------------------------------------------
+void TestContracts(Harness& harness) {
+    const auto caps = harness.context->Capabilities();
     Check("G06a", "capabilities declare base integer support",
           Contains(caps.features, GuestFeature::BaseInteger));
     Check("G06b", "capabilities declare SSE2 support", Contains(caps.features, GuestFeature::Sse2));
-    // C04 is a conditional MUST: AVX must not be declared without an execution and state-restore
-    // test, and there is none.
     Check("G06c", "capabilities do not claim AVX", !Contains(caps.features, GuestFeature::Avx));
     Check("G06d", "capabilities report the injected host page size",
           caps.host_page_size == static_cast<std::uint64_t>(::sysconf(_SC_PAGESIZE)));
 
-    // A second live context must be refused rather than quietly sharing the first one's backend.
-    auto second = CreateContext(CpuConfig{}, *fixture.space);
+    auto second = CreateContext(CpuConfig{}, *harness.space);
     Check("G06e", "a second concurrent context is refused with AlreadyActive",
           !second && second.Category() == ErrorCategory::AlreadyActive);
 
-    // An unmapped entry point is a caller error, not something to discover by crashing in the JIT.
     ThreadInit bad{};
-    bad.entry_rip = GuestCodeAddress{fixture.space->ReservationBase().value + 0x7F00'0000};
-    bad.initial_rsp = GuestAddress{fixture.stack_top};
-    auto rejected = fixture.context->CreateThread(bad);
+    bad.entry_rip = GuestCodeAddress{harness.space->ReservationBase().value + 0x7F00'0000};
+    bad.initial_rsp = GuestAddress{harness.stack_top};
+    auto rejected = harness.context->CreateThread(bad);
     Check("G06f", "an unmapped entry_rip is refused",
           !rejected && rejected.Category() == ErrorCategory::InvalidArgument);
 
-    // Step is refused before execution rather than silently running a whole block (T07).
-    // Publish a minimal fixture first so this exercises a genuinely runnable thread; without it the
-    // code page is still RW and CreateThread would refuse for an unrelated reason.
-    std::vector<std::uint8_t> stub;
-    AppendReturnToGate(stub, fixture.return_gate);
-    if (!LoadCode(fixture, stub)) {
-        Check("G06g", "publish a stub fixture for the handle checks", false);
+    const auto* stub = FindFixture("return_only");
+    if (stub == nullptr) {
+        Check("G06", "return_only fixture is present", false);
+        return;
+    }
+    std::string error;
+    if (!LoadFixture(harness, *stub, error)) {
+        Check("G06g", "publish a stub fixture for the handle checks", false, error);
         return;
     }
 
     ThreadInit ok{};
-    ok.entry_rip = GuestCodeAddress{fixture.code_base};
-    ok.initial_rsp = GuestAddress{fixture.stack_top};
-    auto thread = fixture.context->CreateThread(ok);
-    if (thread) {
-        auto stepped = fixture.context->Step(thread.Value(), StepOptions{});
-        Check("G06g", "Step is refused with Unsupported, not silently run as a block",
-              !stepped && stepped.Category() == ErrorCategory::Unsupported);
-
-        // A stale epoch must not be able to write registers computed against an older stop.
-        RegisterPatch patch{};
-        patch.fields = RegisterValidity::Gpr;
-        patch.gpr_mask = 1u << Index(Gpr::Rax);
-        patch.values.Set(Gpr::Rax, 1);
-        auto stale = fixture.context->WriteRegisters(thread.Value(), patch, /*stop_epoch=*/9999);
-        Check("G06h", "WriteRegisters refuses a stale stop epoch",
-              !stale && stale.Category() == ErrorCategory::StaleEpoch);
-
-        (void)fixture.context->DestroyThread(thread.Value());
-
-        // Operations on a destroyed handle must be refused, not applied to a reused slot.
-        auto after = fixture.context->ReadRegisters(thread.Value());
-        Check("G06i", "a destroyed handle is refused with InvalidHandle",
-              !after && after.Category() == ErrorCategory::InvalidHandle);
+    ok.entry_rip = GuestCodeAddress{harness.code_base};
+    ok.initial_rsp = GuestAddress{harness.stack_top};
+    auto thread = harness.context->CreateThread(ok);
+    if (!thread) {
+        Check("G06g", "create a thread for the handle checks", false,
+              Describe(thread.GetError()));
+        return;
     }
+
+    auto stepped = harness.context->Step(thread.Value(), StepOptions{});
+    Check("G06g", "Step is refused with Unsupported, not silently run as a block",
+          !stepped && stepped.Category() == ErrorCategory::Unsupported);
+
+    RegisterPatch patch{};
+    patch.fields = RegisterValidity::Gpr;
+    patch.gpr_mask = 1u << Index(Gpr::Rax);
+    patch.values.Set(Gpr::Rax, 1);
+    auto stale = harness.context->WriteRegisters(thread.Value(), patch, /*stop_epoch=*/9999);
+    Check("G06h", "WriteRegisters refuses a stale stop epoch",
+          !stale && stale.Category() == ErrorCategory::StaleEpoch);
+
+    (void)harness.context->DestroyThread(thread.Value());
+
+    auto after = harness.context->ReadRegisters(thread.Value());
+    Check("G06i", "a destroyed handle is refused with InvalidHandle",
+          !after && after.Category() == ErrorCategory::InvalidHandle);
 }
 
 } // namespace
 
 int main() {
     printf("guest execution through the public CPU API\n");
-    printf("host page size: %ld\n\n", ::sysconf(_SC_PAGESIZE));
+    printf("host page size: %ld\n", ::sysconf(_SC_PAGESIZE));
+    printf("fixtures: %zu, generated from tests/guest_cpu/fixtures/guest_fixtures.S\n\n",
+           std::size(Fixtures::kAll));
 
-    Fixture fixture{};
+    Harness harness{};
 
     AddressSpaceConfig space_config{};
     space_config.reservation_size = std::uint64_t{1} << 28;
-    // Keep the reservation inside the range the backend can address. Without this the kernel places
-    // it wherever it likes -- on this device around 450 GB -- and FEXCore's block lookup masks the
-    // guest RIP down to 36 bits, so lookups alias and the wrong block runs with no error.
     space_config.max_address = QueryBackendCapabilities().max_guest_address;
     auto space = GuestAddressSpace::Create(space_config);
     if (!space) {
@@ -441,61 +487,58 @@ int main() {
                Describe(space.GetError()).c_str());
         return 1;
     }
-    fixture.space = std::move(space).Value();
+    harness.space = std::move(space).Value();
 
-    const std::uint64_t base = fixture.space->ReservationBase().value;
-    fixture.code_base = base + kCodeOffset;
-    fixture.stack_top = base + kStackOffset + kMappingSize - 16;
+    const std::uint64_t base = harness.space->ReservationBase().value;
+    harness.code_base = base + kCodeOffset;
+    harness.stack_base = base + kStackOffset;
+    harness.stack_top = harness.stack_base + kMappingSize - 16;
 
-    // Code is mapped RX, not RWX: the fixture bytes are written through a pinned span before the
-    // permission is applied, mirroring the publication model the spec requires.
-    auto code_map = fixture.space->Map(GuestRange{GuestAddress{fixture.code_base}, kMappingSize},
+    auto code_map = harness.space->Map(GuestRange{GuestAddress{harness.code_base}, kMappingSize},
                                        GuestPermission::Read | GuestPermission::Write);
     if (!code_map) {
         printf("FAILED: could not map guest code: %s\n", Describe(code_map.GetError()).c_str());
         return 1;
     }
-    auto stack_map = fixture.space->Map(GuestRange{GuestAddress{base + kStackOffset}, kMappingSize},
+    auto stack_map = harness.space->Map(GuestRange{GuestAddress{harness.stack_base}, kMappingSize},
                                         GuestPermission::Read | GuestPermission::Write);
     if (!stack_map) {
         printf("FAILED: could not map guest stack: %s\n", Describe(stack_map.GetError()).c_str());
         return 1;
     }
 
-    auto context = CreateContext(CpuConfig{}, *fixture.space);
+    auto context = CreateContext(CpuConfig{}, *harness.space);
     if (!context) {
         printf("FAILED: could not create the CPU context: %s\n",
                Describe(context.GetError()).c_str());
         return 1;
     }
-    fixture.context = std::move(context).Value();
+    harness.context = std::move(context).Value();
 
-    // The gate address comes from the backend, so the fixtures jump to wherever it actually mapped
-    // rather than to a hardcoded address that could silently drift.
-    fixture.return_gate = fixture.context->Capabilities().return_gate_address;
-    if (fixture.return_gate == 0) {
+    harness.return_gate = harness.context->Capabilities().return_gate_address;
+    if (harness.return_gate == 0) {
         printf("FAILED: the backend did not report a return gate address\n");
         return 1;
     }
 
     printf("guest reservation base: 0x%" PRIx64 "\n", base);
-    printf("code at 0x%" PRIx64 ", stack top 0x%" PRIx64 "\n", fixture.code_base,
-           fixture.stack_top);
-    printf("return gate at 0x%" PRIx64 "\n\n", fixture.return_gate);
+    printf("code at 0x%" PRIx64 ", stack top 0x%" PRIx64 "\n", harness.code_base,
+           harness.stack_top);
+    printf("return gate at 0x%" PRIx64 "\n\n", harness.return_gate);
 
-    TestIntegerArithmetic(fixture);
-    TestBranches(fixture);
-    TestLoadStore(fixture);
-    TestSse2(fixture);
-    TestUnregisteredHlt(fixture);
+    TestIntegerArithmetic(harness);
+    TestBranches(harness);
+    TestLoadStore(harness);
+    TestStoreMemory(harness);
+    TestSse2(harness);
+    TestUnregisteredHlt(harness);
     printf("\n");
-    // Contract checks last: they publish their own stub at the same address, and running them
-    // first would leave a translation cached there for the fixtures to trip over.
-    TestContracts(fixture);
+    // Contract checks last: they publish their own stub at the same address.
+    TestContracts(harness);
 
-    printf("\n%s (%d failure%s)\n", g_failures == 0 ? "ALL PASS" : "FAILED", g_failures,
-           g_failures == 1 ? "" : "s");
-    printf("SCOPE: real x86-64 executed by FEXCore through the public API. Covers integer,\n");
-    printf("       branch, load/store and SSE2 fixtures plus the return-gate contract.\n");
+    printf("\n%d check(s), %s (%d failure%s)\n", g_checks,
+           g_failures == 0 ? "ALL PASS" : "FAILED", g_failures, g_failures == 1 ? "" : "s");
+    printf("SCOPE: real x86-64 executed by FEXCore through the public API, from\n");
+    printf("       assembler-generated fixtures. Single-threaded; no HLE, interrupt or Step.\n");
     return g_failures == 0 ? 0 : 1;
 }

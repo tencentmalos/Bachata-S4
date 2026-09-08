@@ -155,14 +155,20 @@ private:
     std::atomic<std::uint64_t> compile_count{0};
 };
 
-// Highest guest address FEXCore's block lookup can distinguish.
+// Upper bound this backend places on guest addresses.
 //
-// ContextImpl sets Config.VirtualMemSize to 1<<36 for 64-bit guests and does not expose it as a
-// tunable. LookupCache masks the guest RIP with (VirtualMemSize - 1) both when inserting and when
-// looking up, so a guest above this aliases onto an unrelated slot: the dispatcher finds no block,
-// compiles one, stores it under the masked address, and the next lookup for a different address
-// with the same low bits collides with it. Nothing reports an error.
-constexpr std::uint64_t kMaxGuestAddress = std::uint64_t{1} << 36;
+// This is a V0 policy, NOT a demonstrated FEXCore capability limit. An earlier revision claimed
+// FEXCore could not address above 1<<36 because LookupCache masks the guest RIP when computing its
+// page index. That reasoning does not hold: after indexing, both LookupCache (`LookupCache.h:207`)
+// and the dispatcher (`Dispatcher.cpp:211-218`) compare the *full* address and fall through to L3
+// or recompile on a mismatch, so an index collision costs a lookup miss rather than executing the
+// wrong block. The 2026-09-08 review, finding R8, is correct on this point.
+//
+// The bound is kept because it makes guest placement deterministic while execution is still being
+// brought up, and because Config.VirtualMemSize is 1<<36 so staying inside it avoids exercising the
+// aliasing path at the same time as everything else. Removing it needs a same-fixture low-VA vs
+// high-VA comparison, not just deleting the constant.
+constexpr std::uint64_t kGuestAddressPolicyLimit = std::uint64_t{1} << 36;
 
 // --- return gate -------------------------------------------------------------
 // A host page holding a single x86 HLT, mapped executable and registered as a
@@ -185,12 +191,12 @@ public:
         size = host_page > 0 ? static_cast<std::size_t>(host_page) : 4096;
 
         // The gate is guest-executable code, so it is subject to the same addressing limit as any
-        // other guest mapping: above kMaxGuestAddress the block lookup would alias it.
+        // other guest mapping: above kGuestAddressPolicyLimit the block lookup would alias it.
         //
         // Hinted near the top of the addressable range, because the guest reservation is placed in
         // the lower half and a hint that lands inside it would be rejected and fall back to a high
         // address. A hint is advisory either way, so the result is verified below.
-        void* hint = reinterpret_cast<void*>(kMaxGuestAddress - (std::uint64_t{1} << 30));
+        void* hint = reinterpret_cast<void*>(kGuestAddressPolicyLimit - (std::uint64_t{1} << 30));
         page = ::mmap(hint, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
         if (page == MAP_FAILED) {
             error_no = errno;
@@ -198,7 +204,7 @@ public:
             page = nullptr;
             return false;
         }
-        if (reinterpret_cast<std::uint64_t>(page) + size > kMaxGuestAddress) {
+        if (reinterpret_cast<std::uint64_t>(page) + size > kGuestAddressPolicyLimit) {
             ::munmap(page, size);
             page = nullptr;
             error_detail = "the kernel placed the return gate above the addressable guest range";
@@ -470,31 +476,48 @@ public:
     }
 
     [[nodiscard]] Result<RunResult> Run(ThreadHandle thread, const RunOptions& options) override {
-        ThreadEntry* entry = nullptr;
-        if (auto check = ResolveOwned(thread, "Run", entry); !check) {
-            return check.GetError();
+        // Claim the thread under the lock and only then leave it: resolving the handle and marking
+        // it running have to be one step, or two callers can both pass the "not running" check.
+        // The earlier version returned a raw entry pointer from a helper that released the lock on
+        // return, then dereferenced it -- the 2026-09-08 review flagged that window as R5.
+        FEXCore::Core::InternalThreadState* native = nullptr;
+        std::uint64_t invocation = 0;
+        {
+            std::lock_guard guard{lock_};
+            auto* entry = FindOwnedLocked(thread);
+            if (entry == nullptr) {
+                return OwnershipError(thread, "Run");
+            }
+            if (entry->running) {
+                return BackendError(ErrorCategory::AlreadyRunning, "Run",
+                                    "this thread is already executing");
+            }
+            entry->running = true;
+            invocation = ++entry->invocation_counter;
+            native = entry->native;
         }
-        if (entry->running) {
-            return BackendError(ErrorCategory::AlreadyRunning, "Run",
-                                "this thread is already executing");
+
+        // Executed with the lock released: a guest block runs for an unbounded time, and holding
+        // the context lock across it would block every other thread's handle operations. The
+        // running flag set above is what keeps this thread from being run or destroyed meanwhile.
+        context_->ExecuteThread(native);
+
+        std::lock_guard guard{lock_};
+        auto* entry = FindOwnedLocked(thread);
+        if (entry == nullptr) {
+            // Should be impossible: running threads are refused by DestroyThread. Report it rather
+            // than dereferencing whatever is left.
+            return BackendError(ErrorCategory::BackendFailure, "Run",
+                                "the thread disappeared while it was executing");
         }
-
-        entry->running = true;
-        const std::uint64_t invocation = ++entry->invocation_counter;
-
-
-        // ExecuteThread returns when guest code reaches the return gate's HLT.
-        context_->ExecuteThread(entry->native);
         entry->running = false;
-
-
-        return BuildRunResult(thread, *entry, invocation, /*step=*/std::nullopt);
+        return BuildRunResultLocked(thread, *entry, invocation, /*step=*/std::nullopt);
     }
 
     [[nodiscard]] Result<RunResult> Step(ThreadHandle thread, const StepOptions&) override {
-        ThreadEntry* entry = nullptr;
-        if (auto check = ResolveOwned(thread, "Step", entry); !check) {
-            return check.GetError();
+        std::lock_guard guard{lock_};
+        if (FindOwnedLocked(thread) == nullptr) {
+            return OwnershipError(thread, "Step");
         }
         // Single-instruction stepping needs a JIT block-length limit that this
         // backend does not yet drive. Refusing before execution leaves guest
@@ -522,9 +545,10 @@ public:
 
     [[nodiscard]] Result<void> WriteRegisters(ThreadHandle thread, const RegisterPatch& patch,
                                               std::uint64_t stop_epoch) override {
-        ThreadEntry* entry = nullptr;
-        if (auto check = ResolveOwned(thread, "WriteRegisters", entry); !check) {
-            return check.GetError();
+        std::lock_guard guard{lock_};
+        auto* entry = FindOwnedLocked(thread);
+        if (entry == nullptr) {
+            return OwnershipError(thread, "WriteRegisters");
         }
         if (entry->running) {
             return BackendError(ErrorCategory::AlreadyRunning, "WriteRegisters",
@@ -541,16 +565,16 @@ public:
     }
 
     [[nodiscard]] Result<void> DestroyThread(ThreadHandle thread) override {
-        ThreadEntry* entry = nullptr;
-        if (auto check = ResolveOwned(thread, "DestroyThread", entry); !check) {
-            return check.GetError();
+        std::lock_guard guard{lock_};
+        auto* entry = FindOwnedLocked(thread);
+        if (entry == nullptr) {
+            return OwnershipError(thread, "DestroyThread");
         }
         if (entry->running) {
             return BackendError(ErrorCategory::AlreadyRunning, "DestroyThread",
                                 "cannot destroy a thread that is executing");
         }
 
-        std::lock_guard guard{lock_};
         context_->DestroyThread(entry->native);
         threads_.erase(thread.id);
         return Result<void>{};
@@ -647,22 +671,34 @@ private:
         return &it->second;
     }
 
-    // Resolves a handle and enforces that the caller owns it. Owner-thread
-    // checking is what keeps two host threads from driving one guest thread.
-    [[nodiscard]] Result<void> ResolveOwned(ThreadHandle handle, std::string_view operation,
-                                            ThreadEntry*& out) {
-        std::lock_guard guard{lock_};
+    // Resolves a handle and enforces that the caller owns it. Owner-thread checking is what keeps
+    // two host threads from driving one guest thread.
+    //
+    // Requires lock_ to already be held, and the returned pointer is only valid while the caller
+    // keeps holding it. An earlier version took the lock inside a helper and returned this pointer
+    // to a caller that then used it unlocked, which is the window the 2026-09-08 review recorded as
+    // part of R5.
+    [[nodiscard]] ThreadEntry* FindOwnedLocked(ThreadHandle handle) {
+        auto it = threads_.find(handle.id);
+        if (it == threads_.end() || it->second.generation != handle.generation) {
+            return nullptr;
+        }
+        if (it->second.owner != std::this_thread::get_id()) {
+            return nullptr;
+        }
+        return &it->second;
+    }
+
+    // Distinguishes "no such thread" from "not your thread" for the caller, which FindOwnedLocked
+    // deliberately collapses so it can return a single pointer.
+    [[nodiscard]] Error OwnershipError(ThreadHandle handle, std::string_view operation) {
         auto it = threads_.find(handle.id);
         if (it == threads_.end() || it->second.generation != handle.generation) {
             return BackendError(ErrorCategory::InvalidHandle, operation,
                                 "no live thread with this id and generation");
         }
-        if (it->second.owner != std::this_thread::get_id()) {
-            return BackendError(ErrorCategory::WrongThread, operation,
-                                "only the creating thread may drive this guest thread");
-        }
-        out = &it->second;
-        return Result<void>{};
+        return BackendError(ErrorCategory::WrongThread, operation,
+                            "only the creating thread may drive this guest thread");
     }
 
     void ApplyPatchToState(const RegisterPatch& patch, FEXCore::Core::CPUState& state) const {
@@ -759,7 +795,8 @@ private:
         return snapshot;
     }
 
-    [[nodiscard]] Result<RunResult> BuildRunResult(ThreadHandle handle, ThreadEntry& entry,
+    // Requires lock_ to be held: it reads and advances the entry's stop epoch.
+    [[nodiscard]] Result<RunResult> BuildRunResultLocked(ThreadHandle handle, ThreadEntry& entry,
                                                    std::uint64_t invocation,
                                                    std::optional<StepInfo> step) {
         entry.stop_epoch++;
@@ -842,7 +879,7 @@ BackendCapabilities QueryFexCapabilities() {
     // no scope is claimed.
     caps.step_scope = StepScope::None;
     caps.host_page_size = FEXCore::Utils::HostPageSize();
-    caps.max_guest_address = kMaxGuestAddress;
+    caps.max_guest_address = kGuestAddressPolicyLimit;
     return caps;
 }
 

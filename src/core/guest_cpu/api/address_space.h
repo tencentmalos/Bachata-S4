@@ -149,6 +149,12 @@ private:
     [[nodiscard]] std::byte* HostPointer(GuestAddress address) const;
     void NotifyObservers(GuestRange range);
 
+    // Both require `lock` to be held. Kept separate from their locking wrappers so a caller that
+    // must validate and then act without a gap -- AcquirePinnedSpan, Read, Write, Protect -- can do
+    // so under one lock hold rather than revalidating stale state.
+    [[nodiscard]] Status ValidateRangeLocked(GuestRange range, GuestPermission required) const;
+    [[nodiscard]] bool AnyPinOverlapsLocked(GuestRange range) const;
+
     struct Mapping final {
         GuestRange range{};
         GuestPermission permission{GuestPermission::None};

@@ -77,6 +77,14 @@ cmake -S "${FEX}" -B "${BUILD}" -G Ninja \
 
 cmake --build "${BUILD}"
 
+# --- generate the guest fixtures ---------------------------------------------
+# Assembled from source and disassembled back, so a wrong instruction is a build failure rather
+# than a misleading test result. See the 2026-09-08 review, finding R2.
+GENERATED="${BUILD}/generated-fixtures"
+mkdir -p "${GENERATED}"
+"${REPO}/scripts/android/generate-guest-fixtures" --output "${GENERATED}/guest_fixtures.h"
+echo
+
 # --- link the probes ---------------------------------------------------------
 # Order matters less inside --start-group/--end-group, which is needed because FEXCore,
 # FEXCore_Base and the allocator libraries reference each other cyclically.
@@ -85,6 +93,7 @@ link_probe() {
   shift
   "${CXX}" -std=c++20 -O1 -g -static-libstdc++ -o "${output}" "$@" \
     -I"${REPO}/src" \
+    -I"${GENERATED}" \
     -I"${BUILD}/FEXCore/Source" \
     -I"${FEX}/FEXCore/Source" \
     -I"${FEX}/Source" \

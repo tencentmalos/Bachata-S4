@@ -419,6 +419,27 @@ Status GuestAddressSpace::Protect(GuestRange range, GuestPermission permission) 
                          "range is not inside a single mapping");
     }
 
+    // Reject a partial range instead of recording the new permission for the whole mapping.
+    //
+    // The 2026-09-08 review (R3) reproduced the bug this replaces: mprotect was applied to the
+    // sub-range while `found->permission` was overwritten for the entire mapping, so ValidateRange
+    // then approved writes to pages the kernel still had read-only, and a handed-out writable span
+    // faulted on first use. Splitting mappings would be the general answer; refusing is the
+    // honest one until that exists, and it never leaves the table disagreeing with the kernel.
+    if (range.base.value != found->range.base.value || range.size != found->range.size) {
+        return MakeError(ErrorCategory::Unsupported, "GuestAddressSpace::Protect",
+                         "this implementation cannot split a mapping; Protect must cover the whole "
+                         "mapping, and nothing was modified");
+    }
+
+    // A live pin means someone holds a host pointer obtained under the current permission.
+    // Changing it underneath them would invalidate a span they are still allowed to use, which
+    // M13 forbids; the review recorded the missing check as R4.
+    if (AnyPinOverlapsLocked(range)) {
+        return MakeError(ErrorCategory::Busy, "GuestAddressSpace::Protect",
+                         "a pinned span overlaps this range; release it before reprotecting");
+    }
+
     if (::mprotect(HostPointer(range.base), static_cast<std::size_t>(range.size),
                    ToHostProtection(permission)) != 0) {
         const int saved = errno;
@@ -468,6 +489,14 @@ std::vector<MappingInfo> GuestAddressSpace::Mappings() const {
 }
 
 Status GuestAddressSpace::ValidateRange(GuestRange range, GuestPermission required) const {
+    std::lock_guard guard{lock};
+    return ValidateRangeLocked(range, required);
+}
+
+// Requires lock. Separated from ValidateRange so a caller that must validate and then act
+// atomically -- AcquirePinnedSpan, Read, Write -- can hold one lock across both instead of
+// revalidating against state that may already have changed.
+Status GuestAddressSpace::ValidateRangeLocked(GuestRange range, GuestPermission required) const {
     if (range.size == 0) {
         return MakeError(ErrorCategory::InvalidArgument, "GuestAddressSpace::ValidateRange",
                          "zero-length range");
@@ -477,7 +506,6 @@ Status GuestAddressSpace::ValidateRange(GuestRange range, GuestPermission requir
                          "base + size overflows");
     }
 
-    std::lock_guard guard{lock};
     for (const auto& mapping : mappings) {
         if (range.base.value >= mapping.range.base.value &&
             range.base.value + range.size <= mapping.range.base.value + mapping.range.size) {
@@ -500,7 +528,10 @@ Status GuestAddressSpace::Read(GuestAddress from, std::span<std::byte> into) con
     if (!range) {
         return range.GetError();
     }
-    if (auto status = ValidateRange(range.Value(), GuestPermission::Read); !status) {
+    // Copy under the same lock that validated the range: releasing it first would let an Unmap or
+    // Protect land between the check and the memcpy (2026-09-08 review, R4).
+    std::lock_guard guard{lock};
+    if (auto status = ValidateRangeLocked(range.Value(), GuestPermission::Read); !status) {
         return status;
     }
     std::memcpy(into.data(), HostPointer(from), into.size());
@@ -512,10 +543,15 @@ Status GuestAddressSpace::Write(GuestAddress to, std::span<const std::byte> from
     if (!range) {
         return range.GetError();
     }
-    if (auto status = ValidateRange(range.Value(), GuestPermission::Write); !status) {
-        return status;
+    {
+        std::lock_guard guard{lock};
+        if (auto status = ValidateRangeLocked(range.Value(), GuestPermission::Write); !status) {
+            return status;
+        }
+        std::memcpy(HostPointer(to), from.data(), from.size());
     }
-    std::memcpy(HostPointer(to), from.data(), from.size());
+    // Observers are notified with the lock released: a callback may re-enter the address space,
+    // and holding the lock across it would deadlock.
     NotifyObservers(range.Value());
     return Ok();
 }
@@ -523,15 +559,36 @@ Status GuestAddressSpace::Write(GuestAddress to, std::span<const std::byte> from
 Result<PinnedSpan> GuestAddressSpace::AcquirePinnedSpan(GuestRange range, bool writable) {
     const auto required = writable ? (GuestPermission::Read | GuestPermission::Write)
                                    : GuestPermission::Read;
-    if (auto status = ValidateRange(range, required); !status) {
+
+    // Validation and lease registration happen under one lock hold. Splitting them -- validate,
+    // unlock, relock, register -- let an Unmap or Protect land in between and hand back a span for
+    // a range that had already changed. The review recorded that window as part of R4.
+    std::lock_guard guard{lock};
+
+    // A transaction holds quiescence precisely so it can change code or mappings without a writer
+    // underneath it. Admitting a new writable pin during one would reopen the window the token is
+    // supposed to have closed (2026-09-08 review, R5). Readers are still allowed: the transaction
+    // owner needs them, and they cannot invalidate its assumptions.
+    if (writable && active_quiescence != 0) {
+        return MakeError(ErrorCategory::Busy, "GuestAddressSpace::AcquirePinnedSpan",
+                         "a quiescence transaction is in progress; no new writable span is granted")
+            ;
+    }
+
+    if (auto status = ValidateRangeLocked(range, required); !status) {
         return status.GetError();
     }
 
-    std::lock_guard guard{lock};
     const std::uint64_t lease = next_lease_id++;
     pins.push_back(Pin{lease, range, writable});
     return PinnedSpan{liveness, range.base, HostPointer(range.base),
                       static_cast<std::size_t>(range.size), writable, lease};
+}
+
+// Requires lock. True when any live lease overlaps `range`.
+bool GuestAddressSpace::AnyPinOverlapsLocked(GuestRange range) const {
+    return std::any_of(pins.begin(), pins.end(),
+                       [&](const Pin& pin) { return RangesOverlap(pin.range, range); });
 }
 
 void GuestAddressSpace::ReleasePin(std::uint64_t lease_id) {
