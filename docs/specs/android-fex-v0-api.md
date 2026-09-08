@@ -2,6 +2,8 @@
 
 所属：[V0 总 spec](android-fex-v0.md)。本文件是**待实现契约**。接口名称可小幅调整，所有权、状态、错误、并发和可验证行为不得靠空实现替代。
 
+> 当前实现增量见[二周目 spec](android-fex-round2.md)，目标 Swan / Android 16 / ARM64 / 4 KiB，FEX `385a0cc4d…`。本文保留完整 API 语义；二周目暂不实现有限 Step，必须继续显式拒绝，而非据此宣称 V0 API 全部完成。16 KiB 适配/设备要求按用户范围更新后置。
+
 ## 1. “Dynarmic-like”的准确含义
 
 参考 Dynarmic 的 `UserConfig/UserCallbacks`、`Jit::Run/Step/HaltExecution`、寄存器访问和代码失效组织。借鉴的是调用方体验与职责边界：

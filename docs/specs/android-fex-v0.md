@@ -2,7 +2,7 @@
 
 状态：**执行中，尚未验收**。编写日期：2026-09-07。需求来源：本次用户明确要求第一个验证版，包含 Dynarmic-like API、NDK/bionic，并交由另一个 AI 执行。
 
-> **最新实现进展**：[2026-09-08 复核与缓存修复](../validation/v0/followup-2026-09-08.md)。Swan 4 KiB 执行 harness 36/36；完整发布事务、HLE、runner 与 app 门槛仍未完成，不等于 V0 验收通过。
+> **当前执行入口**：[二周目 spec](android-fex-round2.md) / [任务书](android-fex-round2-handoff.md)。[一周目结项](../baselines/2026-09-08-round1-closeout.md)代码 `85b57cb2` 已推送，FEX 当前 pin 为 `385a0cc4d…`，Swan contract 34/34、guest 45/45；尚无完整 app 验收。下文旧 FEX `f2b679f6…` 与 16 KiB 默认值是初稿历史设计，不能覆盖当前 pin / 4 KiB 范围。二周目限定交付子集；本文完整 V0 要求继续有效。
 
 > **2026-09-08 用户范围调整（优先于下文原始页大小要求）**：当前目标为 Swan / Android 16 / ARM64 / **4 KiB host pages**。16 KiB 适配、16 KiB 实机及同 APK 的双页大小对照后置，不作为本阶段完成阻断；不要求继续修改现有 16 KiB 代码。页大小相关执行用例先按真实 4096-byte host page 验证，专属于 16 KiB 的子页权限用例保留为后续项，不记 PASS。NDK/bionic、真实 guest/HLE/callback、暂停停止、线程/内存安全、有限 Step、普通 app 与原生 Vulkan 等要求保持有效。当前审计与证据见 [2026-09-08 执行审核](../validation/v0/review-2026-09-08.md)。下文保留原始设计供后续恢复 16 KiB 目标时参考。
 

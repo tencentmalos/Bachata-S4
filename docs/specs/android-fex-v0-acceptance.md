@@ -2,7 +2,7 @@
 
 > **2026-09-08 当前范围**：按用户要求，先验收 Swan Android 16 / ARM64 / 4 KiB。16 KiB 实机、B04 双页大小对照、M02/M03 的 16 KiB 特有子页场景及相关适配后置，列为 `DEFERRED_BY_SCOPE`，不得计入 PASS 或当前必需项分母。其余跨页/映射/原子测试按 4 KiB host page 执行；APK、真实 FEX 执行、HLE、线程/调试/生命周期门槛不变。旧矩阵和旧 results.json 保留历史含义；新 runner 须显式记录本次 scope，不能把延期当作已通过。见 [本次审核](../validation/v0/review-2026-09-08.md)。
 
-> **最新实现进展**：[2026-09-08 复核与缓存修复](../validation/v0/followup-2026-09-08.md)。Swan 4 KiB 执行 harness 36/36；完整发布事务、HLE、runner 与 app 门槛仍未完成，不等于 V0 验收通过。
+> **当前执行与证据**：[二周目 spec](android-fex-round2.md)规定下一轮 24 项子集；[一周目结项](../baselines/2026-09-08-round1-closeout.md)盘点本矩阵全部 60 项。历史 runner 的 11 PASS 包含独立 ELF/host/CLI 证据，不能解释为普通 app 验收；B02 尤其仍缺 APK 全库检查。当前 4 KiB 范围条款优先于下文保留的初稿环境要求，缺 16 KiB 设备不再限制当前交付状态。
 
 所属：[总 spec](android-fex-v0.md)、[API 契约](android-fex-v0-api.md)。以下均为**待实现、待运行**的验收要求，不是已通过结果。
 

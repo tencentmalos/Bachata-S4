@@ -2,11 +2,11 @@
 
 当前目标：Swan / Android 16 / ARM64 / **4 KiB**，原生 shadPS4 host + FEXCore 执行 PS4 x86 guest。用户于 2026-09-08 将 16 KiB 工作后置。尚未完成完整 NDK backend/app 验收。
 
-**当前状态：[发布事务增量修复与验证 / V0_IN_PROGRESS](validation/v0/transaction-hardening-2026-09-08.md)**。修复 CreateThread lease 生命周期、多失败范围、pin 改写后的失败失效、sink 异常与排空期间注册/映射准入。Swan contract 34/34、guest 45/45，runner 测试 6/6。完整验收按实际覆盖为 11 PASS / 0 FAIL / 46 NOT_RUN（57 在范围内、3 延期）；部分单测证据不升格为完整 PASS。运行中中断、真实 HLE 与 app 仍待完成。
+**当前状态：[一周目已提交并推送 / `85b57cb2` / V0_IN_PROGRESS](baselines/2026-09-08-round1-closeout.md)**。修复及证据见[事务加固报告](validation/v0/transaction-hardening-2026-09-08.md)：Swan contract 34/34、guest 45/45，runner 测试 6/6。历史 runner 输出 11 PASS / 0 FAIL / 46 NOT_RUN（57 在范围内、3 延期），仍需按环境和覆盖校正，尤其 B02 的独立 ELF 不是 APK 全库验收。尚无 app/ART 验收。
 
 **固定基础版本：[2026-09-07 / `a7128893`](baselines/2026-09-07-android-fex-foundation.md)**。该记录包含主仓与七个 references 的精确提交、验证结果、未完成项、未纳入基线的本地改动及恢复方法；后续里程碑以它为起点。
 
-**下一个实施目标：[V0 首个验证版 spec](specs/android-fex-v0.md)**。配套 [CPU API 契约](specs/android-fex-v0-api.md)、[验收矩阵](specs/android-fex-v0-acceptance.md)、[执行 AI 任务书](specs/android-fex-v0-handoff.md)。这些是待实现要求，不是新的已通过状态。
+**下一个实施目标：[二周目 spec](specs/android-fex-round2.md)**，直接转交[执行 AI 任务书](specs/android-fex-round2-handoff.md)。G0–G4：证据/构建、运行控制、跨线程事务、真实 HLE/callback、最小普通 APK，共 24 项验收。有限 Step、Vulkan 显示与完整游戏集成后续推进。二周目是待实施要求，不是新的通过状态；[V0 总 spec](specs/android-fex-v0.md)、[CPU API 契约](specs/android-fex-v0-api.md)和[验收矩阵](specs/android-fex-v0-acceptance.md)保留完整目标。
 
 ## 既有阶段记录
 
