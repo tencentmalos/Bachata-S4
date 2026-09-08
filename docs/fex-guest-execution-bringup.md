@@ -1,6 +1,6 @@
 # FEX guest 执行接入（backend adapter）
 
-当前为 **V0_IN_PROGRESS**。Swan / Android 16 / ARM64 / 4 KiB 上的独立 NDK/bionic ELF 已能经公共 CPU API 执行 x86-64 整数、分支、栈读写、显式 store/load、SSE2 fixture，并区分 return gate 与裸 HLT。2026-09-08 复核修复后，执行 harness **36/36 断言通过**；这不是完整 V0 验收。
+当前为 **V0_IN_PROGRESS**。Swan / Android 16 / ARM64 / 4 KiB 上的独立 NDK/bionic ELF 已能经公共 CPU API 执行 x86-64 整数、分支、栈读写、显式 store/load、SSE2 fixture，并区分 return gate 与裸 HLT。2026-09-08 复核修复后执行 harness 36/36 通过；补上发布事务的两处准入缺口后为 **37/37**。这不是完整 V0 验收。
 
 - 最新结果、根因与原始证据：[2026-09-08 复核与修复](validation/v0/followup-2026-09-08.md)。
 - 历史审核：[8e0e85dc 审核](validation/v0/review-2026-09-08.md)。
@@ -41,7 +41,8 @@ FEX context 的共享 CodeBuffer/L3 缓存仍然存活。重建线程后可以�
 | 同 VA 替换，销毁后重建线程 | 100 次发布通过 | 暴露共享缓存跨线程生命周期存活问题 |
 | 同 VA 替换，保留两个停止线程 | 100 次发布、每次分别运行两个线程通过 | 同一个 host owner 顺序运行；不是多 owner 并发测试 |
 | 扩充后的 harness | 36/36 | 新增三项断言 G08a–c，包含线程清理 |
-| macOS host API/VM、typed ABI | 21/21、14/14 | 无 FEX；typed ABI 仍是手工 frame |
+| 再补事务准入后 | 37/37 | 新增 G06j：他空间 token 被拒 |
+| macOS host API/VM、typed ABI | 22/22、14/14 | 无 FEX；typed ABI 仍是手工 frame。API/VM 含新增 M13c |
 
 构建使用本地 NDK 29.0.14206865、API 35，设备 Android 16 / SDK 36，运行时页大小 4096。执行的是 adb shell ELF，尚未验证 APK/JNI/ART。构建为增量 FEX 构建及重新链接，非 clean-room；产物 SHA-256、日志及源码补丁见最新证据。
 
@@ -62,6 +63,23 @@ fixture 从汇编源码生成，并保留反汇编列表，修正了旧 `49 01 C
 
 `Run` 的状态检查和 running 认领已在同一 context 锁下完成；`InvalidateCode` 在该锁下拒绝 running 线程，再完成上述缓存失效。因此本轮修复覆盖停止后的缓存更新。
 
-但 `GuestAddressSpace::Quiesce` 尚未与 CPU context 协作，没有整个发布事务的新 Run 准入控制；token 的 context/address-space 归属也没有完整校验。阻止新增 writable pin 不等于禁止全部 writer：例如 `Write()` 仍能在 quiesce 期间进入。不能把当前 token 当作多线程修改代码的完整安全凭据。
+### 发布事务：已补的两处与仍缺的一处（2026-09-08 后续）
 
-另外，有限 `Step` 仍明确返回 Unsupported；中断/暂停、真实 HLE gate/callback、HLE buffer 长度与调用期 pin、信号与调试协议、JNI/app/原生 Surface 生命周期均未验收。SSE2 paddq 通过不等于 MXCSR 舍入测试通过，裸 HLT 分类通过不等于完整 D05 通过。旧 runner 仍有验收项范围与版本元数据问题，应以有界原始证据描述本轮结果。
+复核报告列出的两个具体缺口已补，均有回归用例：
+
+| 缺口 | 修法 | 用例 |
+|---|---|---|
+| `Write()` 不检查 active quiescence，可绕过事务 | 与 `AcquirePinnedSpan` 同一准入规则；只读 pin 仍放行，owner 经 `PublishCode` 发布 | M13c（host） |
+| `InvalidateCode` 只查 `IsValid()`，接受他空间 token | 新增 `QuiescenceToken::IsFrom`，比对已持有的 liveness block | G06j（设备） |
+
+`PublishCode` 原先也是"持锁查 epoch → 放锁 → 校验并 memcpy"，同一类窗口，已改为单次持锁完成。
+
+**仍然缺的是 `Quiesce` 与 CPU context 的协作**。它只检查瞬时 pin，`stopped_threads` 恒为 0，
+无法停止一个即将开始执行的线程。context 锁能保证 `Run` 与 `InvalidateCode` 不交错
+（两者持同一把锁，本轮确认后撤销了一个多余的 gate 标志），
+但那是互斥，不是"事务期间 context 参与停机"。
+在此之前，token 不能当作多线程改代码的完整安全凭据。
+
+### 其余未完成项
+
+有限 `Step` 仍明确返回 Unsupported；中断/暂停、真实 HLE gate/callback、HLE buffer 长度与调用期 pin、信号与调试协议、JNI/app/原生 Surface 生命周期均未验收。SSE2 paddq 通过不等于 MXCSR 舍入测试通过，裸 HLT 分类通过不等于完整 D05 通过。旧 runner 仍有验收项范围与版本元数据问题，应以有界原始证据描述本轮结果。
