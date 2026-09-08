@@ -883,19 +883,41 @@ void TestAsyncInterrupt(Harness& harness) {
     init.entry_rip = GuestCodeAddress{harness.code_base};
     init.initial_rsp = GuestAddress{harness.stack_top};
     init.guest_tid = 1;
-    auto thread = harness.context->CreateThread(init);
-    if (!thread) {
-        Check("G11", "create the spinning thread", false, Describe(thread.GetError()));
-        return;
-    }
-    const ThreadHandle handle = thread.Value();
 
-    // The owner runs on its own thread: Run does not return until something stops it, so the
-    // controller has to be somewhere else. That is the real shape of the problem.
+    // The owner thread that drives Run is also the thread that must CreateThread: the API binds a
+    // thread to its owner, and only that thread may Run it. Creating on this (controller) thread
+    // and running on another makes Run refuse with WrongThread and return immediately, which looks
+    // exactly like the loop "exiting on its own". So the owner creates, publishes the handle to the
+    // controller, and runs; the controller waits for that handle before issuing any request.
     std::atomic<bool> run_returned{false};
     std::atomic<bool> run_ok{false};
     std::string run_error;
+    ThreadHandle handle{};
+    std::mutex owner_mutex;
+    std::condition_variable owner_ready;
+    bool ready = false;
+    bool create_failed = false;
+    std::string create_error;
+
     std::thread owner([&] {
+        auto thread = harness.context->CreateThread(init);
+        if (!thread) {
+            {
+                std::lock_guard<std::mutex> ready_guard{owner_mutex};
+                create_failed = true;
+                create_error = Describe(thread.GetError());
+                ready = true;
+            }
+            owner_ready.notify_all();
+            return;
+        }
+        {
+            std::lock_guard<std::mutex> ready_guard{owner_mutex};
+            handle = thread.Value();
+            ready = true;
+        }
+        owner_ready.notify_all();
+
         auto result = harness.context->Run(handle, RunOptions{});
         run_ok.store(bool(result), std::memory_order_release);
         if (!result) {
@@ -903,6 +925,16 @@ void TestAsyncInterrupt(Harness& harness) {
         }
         run_returned.store(true, std::memory_order_release);
     });
+
+    {
+        std::unique_lock<std::mutex> ready_guard{owner_mutex};
+        owner_ready.wait(ready_guard, [&] { return ready; });
+    }
+    if (create_failed) {
+        Check("G11", "create the spinning thread on its owner", false, create_error);
+        owner.join();
+        return;
+    }
 
     // Let it actually get into the JIT and warm the block. Stopping a thread that never started
     // would pass without exercising anything.

@@ -37,6 +37,22 @@
 
 #include "Common/HostFeatures.h"
 
+// Host-context backup/restore for the pause/resume round trip.
+//
+// BUILD_FEXCORE_ONLY excludes FEX's Linux frontend, which normally installs the host fault handlers
+// and performs this dance. FEXCore itself only emits the stubs; the embedder is responsible for
+// servicing the SIGILL the pause stub's hlt(0) raises. This header is header-only and depends on
+// nothing but FEXCore (which we link), so we can reuse it rather than forking the assembly layout.
+//
+// Source path this mirrors, in the pinned FEX:
+//   Source/Tools/LinuxEmulation/LinuxSyscalls/SignalDelegator.cpp
+//     HandleSignalPause -> StoreThreadState  (kick: save host ctx, set sp, jump to spill SRA)
+//     HandleSIGILL at Config.PauseReturnInstruction -> RestoreThreadState(TYPE_PAUSE)  (resume)
+#if defined(__aarch64__)
+#include "Tools/LinuxEmulation/ArchHelpers/MContext.h"
+namespace ArchCtx = FEX::ArchHelpers::Context;
+#endif
+
 namespace Core::GuestCpu::Fex {
 namespace {
 
@@ -122,6 +138,7 @@ thread_local ThreadInterruptBinding* t_binding = nullptr;
 // The previous disposition, so an unrelated signal is forwarded rather than swallowed. ART installs
 // its own handlers; discarding them would break the runtime hosting us.
 struct sigaction g_previous_interrupt_action{};
+struct sigaction g_previous_ill_action{};
 std::atomic<bool> g_interrupt_installed{false};
 std::mutex g_interrupt_install_lock;
 
@@ -137,6 +154,14 @@ struct ThreadInterruptBinding final {
     // through objects that could be mid-destruction.
     std::uint64_t pause_spill_sra{};
     std::uint64_t pause_no_spill{};
+    // The hlt(0) the pause stub runs after SleepThread returns. Resuming raises SIGILL here; the
+    // host SIGILL handler recognises it and restores the context the kick handler saved.
+    std::uint64_t pause_return{};
+    // The stop stub: spills, pops callee-saved and returns out of ExecuteThread. A Cancel must jump
+    // here (with SP reset to ReturningStackLocation), not to the pause stub, because the owner has
+    // to unwind back to Run rather than continue in the guest.
+    std::uint64_t stop_spill_sra{};
+    std::uint64_t stop_no_spill{};
     // The frame CPUState pointer the handler must install in the state register.
     void* frame{};
 };
@@ -167,8 +192,7 @@ std::uint64_t GetContextPc(void*) {
 void SetContextState(void*, std::uint64_t) {}
 #endif
 
-void ForwardToPrevious(int signal, siginfo_t* info, void* ucontext) {
-    const struct sigaction& previous = g_previous_interrupt_action;
+void ForwardAction(int signal, siginfo_t* info, void* ucontext, const struct sigaction& previous) {
     if ((previous.sa_flags & SA_SIGINFO) != 0 && previous.sa_sigaction != nullptr) {
         previous.sa_sigaction(signal, info, ucontext);
         return;
@@ -180,20 +204,39 @@ void ForwardToPrevious(int signal, siginfo_t* info, void* ucontext) {
         previous.sa_handler(signal);
         return;
     }
-    // Default disposition for a real-time signal is termination. Restore and re-raise so the
-    // process dies the way it would have without us, rather than looping in our handler.
+    // Default disposition. Restore it and re-raise so the process dies the way it would have
+    // without us, rather than looping in our handler.
     ::signal(signal, SIG_DFL);
     ::raise(signal);
 }
 
+void ForwardToPrevious(int signal, siginfo_t* info, void* ucontext) {
+    ForwardAction(signal, info, ucontext, g_previous_interrupt_action);
+}
+void ForwardPreviousIll(int signal, siginfo_t* info, void* ucontext) {
+    ForwardAction(signal, info, ucontext, g_previous_ill_action);
+}
+
+// Declared here, defined after InterruptState is complete.
 // Declared here, defined after InterruptState is complete.
 bool ClaimInterrupt(void* state);
+std::uint32_t PendingInterruptReasons(void* state);
 
 // The kick handler.
 //
-// Async-signal-safe by construction: atomic loads and stores, two ucontext writes, and nothing
-// else. No allocation, no mutex, no logging, no Foundation. The wait it sets up happens later in
-// SleepThread, which runs in ordinary thread context.
+// Async-signal-safe by construction: atomic loads and stores, a stack memcpy of the ucontext, and
+// a handful of ucontext writes. No allocation, no mutex, no logging, no Foundation. The wait
+// happens later in SleepThread, which runs in ordinary thread context.
+//
+// This is what FEX's Linux frontend does in HandleSignalPause/Stop (Source/Tools/LinuxEmulation/
+// LinuxSyscalls/SignalDelegator.cpp); BUILD_FEXCORE_ONLY excludes that frontend, so the embedder
+// must perform the host-context dance itself. Two cases:
+//
+//   Pause  -> back up host state on the host stack, jump to the pause stub (spill SRA,
+//             SleepThread parks, hlt(0) raises SIGILL). After Resume, the SIGILL handler restores
+//             the backup so the JIT continues exactly where the kick interrupted it.
+//   Cancel -> reset SP to the dispatcher's entry stack, jump to the stop stub, which pops
+//             callee-saved and rets out of ExecuteThread so Run returns and unwinds normally.
 void InterruptSignalHandler(int signal, siginfo_t* info, void* ucontext) {
     ThreadInterruptBinding* binding = t_binding;
     if (binding == nullptr || binding->state == nullptr) {
@@ -208,6 +251,12 @@ void InterruptSignalHandler(int signal, siginfo_t* info, void* ucontext) {
         return;
     }
 
+    const std::uint32_t reasons = PendingInterruptReasons(binding->state);
+    const std::uint32_t cancel_mask =
+        (1u << static_cast<std::uint32_t>(InterruptReason::Cancel)) |
+        (1u << static_cast<std::uint32_t>(InterruptReason::Shutdown));
+    const bool cancel = (reasons & cancel_mask) != 0;
+
     // Choose the spill entry by where the thread actually is. Getting this wrong is not a
     // performance issue: the no-spill entry assumes the static register allocation is already in
     // memory, so taking it from inside the JIT leaves guest registers in host registers and every
@@ -217,14 +266,99 @@ void InterruptSignalHandler(int signal, siginfo_t* info, void* ucontext) {
         binding->fex != nullptr && binding->native != nullptr &&
         binding->fex->IsAddressInCodeBuffer(binding->native, static_cast<uintptr_t>(pc));
 
-    const std::uint64_t target = in_code_buffer ? binding->pause_spill_sra : binding->pause_no_spill;
-    if (target == 0) {
-        // No usable entry point; leaving the PC alone is the only safe action.
+    if (cancel) {
+        // Reset to the stack the dispatcher established on entry, so the stop stub's pop+ret lands
+        // exactly where ExecuteThread was called regardless of where in the JIT we were.
+        const std::uint64_t ret_sp = binding->native != nullptr
+                                         ? binding->native->CurrentFrame->ReturningStackLocation
+                                         : 0;
+        if (binding->native != nullptr) {
+            binding->native->CurrentFrame->SignalHandlerRefCounter = 0;
+        }
+#if defined(__aarch64__)
+        if (ret_sp != 0) {
+            static_cast<ucontext_t*>(ucontext)->uc_mcontext.sp = ret_sp;
+        }
+        const std::uint64_t target = in_code_buffer ? binding->stop_spill_sra
+                                                    : binding->stop_no_spill;
+        if (target != 0) {
+            static_cast<ucontext_t*>(ucontext)->uc_mcontext.regs[28] =
+                reinterpret_cast<std::uint64_t>(binding->frame);
+            static_cast<ucontext_t*>(ucontext)->uc_mcontext.pc = target;
+        }
+#endif
         return;
     }
-    SetContextState(ucontext, reinterpret_cast<std::uint64_t>(binding->frame));
-    SetContextPc(ucontext, target);
+
+    // Pause: save host state so the SIGILL handler after Resume can restore it.
+#if defined(__aarch64__)
+    {
+        const std::uint64_t target = in_code_buffer ? binding->pause_spill_sra
+                                                    : binding->pause_no_spill;
+        if (target == 0) {
+            return;  // No usable entry point; leaving the PC alone is the only safe action.
+        }
+
+        // StoreThreadState (mirror of the frontend): lower SP by one ContextBackup (16-byte aligned;
+        // arm64 has no red zone), snapshot the full host context there, and keep it live until
+        // Resume. The pause stub writes only the STATE frame, not the host stack, and the blr to
+        // SleepThread restores SP on return -- so at the post-resume hlt(0), SP still points at this
+        // backup, which is how the SIGILL handler finds it.
+        //
+        // The guest-state copy is the pre-spill frame, the same deliberately harmless value the
+        // frontend records here: after Resume the interrupted JIT point resumes with live guest
+        // values restored through the host GPRs, and the block re-spills over the frame.
+        constexpr std::uint64_t kStackAlign = 16;
+        const std::uint64_t old_sp = static_cast<ucontext_t*>(ucontext)->uc_mcontext.sp;
+        std::uint64_t new_sp = old_sp - sizeof(ArchCtx::ArmContextBackup);
+        new_sp &= ~(kStackAlign - 1);
+        auto* backup = reinterpret_cast<ArchCtx::ArmContextBackup*>(new_sp);
+
+        ArchCtx::BackupContext(ucontext, backup);
+        backup->Signal = signal;
+        if (binding->native != nullptr) {
+            std::memcpy(&backup->GuestState, &binding->native->CurrentFrame->State,
+                        sizeof(FEXCore::Core::CPUState));
+            ++binding->native->CurrentFrame->SignalHandlerRefCounter;
+        }
+
+        static_cast<ucontext_t*>(ucontext)->uc_mcontext.sp = new_sp;
+        static_cast<ucontext_t*>(ucontext)->uc_mcontext.regs[28] =
+            reinterpret_cast<std::uint64_t>(binding->frame);
+        static_cast<ucontext_t*>(ucontext)->uc_mcontext.pc = target;
+    }
+#else
+    (void)binding;
+#endif
 }
+
+// Host SIGILL handler. The pause stub's hlt(0) is unconditional; after Resume it faults here. At
+// the recognised pause-return address we restore the host context the kick handler saved, which
+// returns the thread to the exact interrupted point in the JIT. Any other SIGILL is forwarded --
+// FEXCore's ExitOnHLT consumes the return-gate HLT before it reaches a host handler.
+void PauseReturnSignalHandler(int signal, siginfo_t* info, void* ucontext) {
+#if defined(__aarch64__)
+    ThreadInterruptBinding* binding = t_binding;
+    const std::uint64_t pc = static_cast<ucontext_t*>(ucontext)->uc_mcontext.pc;
+    if (binding != nullptr && binding->pause_return != 0 && pc == binding->pause_return) {
+        const std::uint64_t sp = static_cast<ucontext_t*>(ucontext)->uc_mcontext.sp;
+        auto* backup = reinterpret_cast<ArchCtx::ArmContextBackup*>(sp);
+        if (binding->native != nullptr &&
+            binding->native->CurrentFrame->SignalHandlerRefCounter > 0) {
+            --binding->native->CurrentFrame->SignalHandlerRefCounter;
+        }
+        // RestoreThreadState(TYPE_PAUSE): restore host registers/PC/SP, then the guest frame copy.
+        ArchCtx::RestoreContext(ucontext, backup);
+        if (binding->native != nullptr) {
+            std::memcpy(&binding->native->CurrentFrame->State, &backup->GuestState,
+                        sizeof(FEXCore::Core::CPUState));
+        }
+        return;
+    }
+#endif
+    ForwardPreviousIll(signal, info, ucontext);
+}
+
 
 // Asynchronous control state for one guest thread.
 //
@@ -271,6 +405,11 @@ bool ClaimInterrupt(void* state) {
     return interrupt != nullptr && interrupt->pending.load(std::memory_order_acquire) != 0;
 }
 
+std::uint32_t PendingInterruptReasons(void* state) {
+    auto* interrupt = static_cast<InterruptState*>(state);
+    return interrupt != nullptr ? interrupt->pending.load(std::memory_order_acquire) : 0u;
+}
+
 // Install the kick handler once per process.
 //
 // Chains rather than replaces: ART has its own handlers, and an unrelated delivery on this signal
@@ -300,6 +439,24 @@ Status InstallInterruptHandler() {
         error.system_error = saved;
         return error;
     }
+
+    // The pause stub's post-SleepThread hlt(0) raises host SIGILL. FEXCore does not install host
+    // fault handlers (the excluded Linux frontend does), so without this Resume kills the process
+    // with the default SIGILL disposition. We only claim the pause-return address and chain the
+    // prior disposition for anything else, so ART's own SIGILL handler is not displaced.
+    struct sigaction ill_action {};
+    ill_action.sa_sigaction = PauseReturnSignalHandler;
+    ill_action.sa_flags = SA_SIGINFO | SA_RESTART;
+    ::sigemptyset(&ill_action.sa_mask);
+    if (::sigaction(SIGILL, &ill_action, &g_previous_ill_action) != 0) {
+        const int saved = errno;
+        ::sigaction(signal_number, &g_previous_interrupt_action, nullptr);
+        auto error = MakeError(ErrorCategory::BackendFailure, "InstallInterruptHandler",
+                               "sigaction failed for SIGILL");
+        error.system_error = saved;
+        return error;
+    }
+
     g_interrupt_installed.store(true, std::memory_order_release);
     return Ok();
 }
@@ -311,6 +468,7 @@ void RestoreInterruptHandler() {
     }
     // Put back exactly what was there, so a second context -- or ART after we unload -- sees the
     // disposition it installed.
+    ::sigaction(SIGILL, &g_previous_ill_action, nullptr);
     ::sigaction(InterruptSignal(), &g_previous_interrupt_action, nullptr);
     g_interrupt_installed.store(false, std::memory_order_release);
 }
@@ -883,6 +1041,9 @@ public:
             const auto& config = delegator->GetConfig();
             binding.pause_spill_sra = config.ThreadPauseHandlerAddressSpillSRA;
             binding.pause_no_spill = config.ThreadPauseHandlerAddress;
+            binding.pause_return = config.PauseReturnInstruction;
+            binding.stop_spill_sra = config.ThreadStopHandlerAddressSpillSRA;
+            binding.stop_no_spill = config.ThreadStopHandlerAddress;
         }
         t_binding = &binding;
         interrupt->native_tid.store(static_cast<std::uint64_t>(::gettid()),
@@ -1414,6 +1575,15 @@ private:
         const std::uint64_t rip = entry.native->CurrentFrame->State.rip;
         const std::uint64_t gate = return_gate_.Address();
 
+        // A cancel takes the stop stub out of ExecuteThread rather than reaching a guest gate. The
+        // pending bit survives that path (unlike a pause, which SleepThread clears on resume), so it
+        // is what distinguishes "we unwound because we were asked to stop" from a guest fault at
+        // an unregistered RIP. Fault still outranks the lot.
+        const std::uint32_t pending = entry.interrupt->pending.load(std::memory_order_acquire);
+        const bool cancelled =
+            (pending & ((1u << static_cast<std::uint32_t>(InterruptReason::Cancel)) |
+                        (1u << static_cast<std::uint32_t>(InterruptReason::Shutdown)))) != 0;
+
         if (syscall_handler_->TakeUnexpectedSyscall()) {
             // A syscall with no HLE path is a fault, not a normal return.
             result.primary_reason = StopReason::GuestFault;
@@ -1423,6 +1593,10 @@ private:
             fault.access = GuestAccessKind::Execute;
             fault.recoverable = false;
             result.fault = fault;
+        } else if (cancelled) {
+            // The stop stub returned us out of the JIT; the snapshot is a clean safe point.
+            result.primary_reason = StopReason::Cancelled;
+            result.pending_reasons |= BitOf(StopReason::Cancelled);
         } else if (rip >= gate && rip < gate + return_gate_.Size()) {
             // Stopped at the registered gate: this is the only RIP that counts
             // as a normal return (D05).
