@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
   "spec": "android-fex-v0",
-  "run_id": "20260908T025747Z",
-  "timestamp_utc": "2026-09-08T02:57:47.422481+00:00",
+  "run_id": "20260908T040658Z",
+  "timestamp_utc": "2026-09-08T04:08:17.469790+00:00",
   "baseline_commit": "a712889343ccd2588b712988dae0a76a104e0dce",
-  "implementation_commit": "191e0f02eadfc8d8df32b18f6ef3c81986f7cd30",
+  "implementation_commit": "a0a93bca5f765111a664b04f08c1fc63123e3aef",
   "implementation_branch": "codex/android-fex-v0",
   "working_tree_dirty": true,
   "fex_base_commit": "f2b679f6028ce1c38875233aecfcf5d3f8ebecec",
@@ -40,19 +40,19 @@
   },
   "suites": {
     "api_contract_tests": {
-      "binary": "/tmp/v0b/guest_cpu_contract_tests",
-      "sha256": "cc91a7b65eda64cf01fefaa480ceb4dbabbc584c9b65cfbbdeccb842397f550f",
+      "binary": "/tmp/vb/guest_cpu_contract_tests",
+      "sha256": "05daeeba5908de71539a9df696be23a22c1c1442319a5c97244f71ef0933db9c",
       "sub_cases": 21,
       "failures": 0
     },
     "hle_abi_tests": {
-      "binary": "/tmp/v0b/guest_cpu_hle_abi_tests",
-      "sha256": "f27195cf37cce65763b5d711385a6cf9408a187c006e15cd9a121c302d9fa776",
+      "binary": "/tmp/vb/guest_cpu_hle_abi_tests",
+      "sha256": "a3ce5bfbc19ad6e8d314461da785fba4912a0fb7a672e977de75c45baf78ac72",
       "sub_cases": 14,
       "failures": 0
     },
     "host_page_size_probe": {
-      "binary": "/tmp/v0b/host_page_size_probe",
+      "binary": "/tmp/vb/host_page_size_probe",
       "sha256": "ae0b2bea42bc6ca2957015655acb237e17262664bb6ebbe9a9243600ed4c6050",
       "sub_cases": 22,
       "failures": 0
@@ -63,12 +63,19 @@
       "sub_cases": 12,
       "failures": 0,
       "ran_on_device": true
+    },
+    "guest_execution_tests": {
+      "binary": "build/fexcore-android/guest_execution_tests",
+      "sha256": "27b262f8b65c4e424df473c459b0eea15ac9184b02570a77297d29555792a463",
+      "sub_cases": 30,
+      "failures": 13,
+      "ran_on_device": true
     }
   },
   "summary": {
     "passed": 21,
-    "failed": 0,
-    "not_run": 39,
+    "failed": 3,
+    "not_run": 36,
     "total": 60
   },
   "cases": [
@@ -90,12 +97,16 @@
       "environment": "HOST",
       "iterations": 1,
       "expected": null,
-      "actual": "arm64 bionic, min PT_LOAD align 0x4000, no glibc DT_NEEDED, no GNU symbol versions",
+      "actual": {
+        "guest_cpu_contract_tests": "not AArch64; skipped",
+        "guest_cpu_hle_abi_tests": "not AArch64; skipped",
+        "host_page_size_probe": "not AArch64; skipped",
+        "fexcore_bionic_smoke": "align=0x4000 needed=['liblog.so', 'libm.so', 'libdl.so', 'libc.so'] glibc_needed=[] glibc_versions=0",
+        "guest_execution_tests": "align=0x4000 needed=['liblog.so', 'libm.so', 'libdl.so', 'libc.so'] glibc_needed=[] glibc_versions=0"
+      },
       "reason": null,
-      "evidence": [
-        "scripts/android/verify-v0-artifacts"
-      ],
-      "scope_note": "verified on the cross-compiled test binaries, which contain no FEX"
+      "evidence": [],
+      "scope_note": "inspected the binaries built by this invocation; PT_LOAD alignment is reported but the 16 KiB requirement is deferred by the 4 KiB scope"
     },
     {
       "id": "B03",
@@ -126,11 +137,9 @@
       "environment": "HOST",
       "iterations": 1,
       "expected": null,
-      "actual": "public-API-only consumer compiles with -I src alone",
+      "actual": "compiles with -I src alone and opens no FEX header",
       "reason": null,
-      "evidence": [
-        "docs/validation/v0/host-suite-output.txt"
-      ]
+      "evidence": []
     },
     {
       "id": "B06",
@@ -139,12 +148,10 @@
       "environment": "HOST",
       "iterations": 1,
       "expected": null,
-      "actual": "cmake -S . -B <dir> -G Ninja -DCMAKE_BUILD_TYPE=Release configures; the new Android/FEX targets are not referenced by the root CMakeLists and no desktop source was modified",
+      "actual": "desktop CMake configure succeeded",
       "reason": null,
-      "evidence": [
-        "docs/validation/v0/host-suite-output.txt"
-      ],
-      "scope_note": "configure step only; a full desktop link was not run"
+      "evidence": [],
+      "scope_note": "configure only; a full desktop link was not run"
     },
     {
       "id": "F01",
@@ -154,7 +161,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "[NO-BACKEND] requires the FEX backend adapter, which is not implemented. The two 16 KiB blockers on the embedder's mandatory path (PS-02 code buffer guard, PS-03 InterruptFaultPage) are fixed in the owned fork -- see docs/fex-host-page-size-adaptation.md -- but nothing drives FEXCore yet",
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
       "evidence": []
     },
     {
@@ -176,7 +183,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "[NO-BACKEND] requires the FEX backend adapter, which is not implemented. The two 16 KiB blockers on the embedder's mandatory path (PS-02 code buffer guard, PS-03 InterruptFaultPage) are fixed in the owned fork -- see docs/fex-host-page-size-adaptation.md -- but nothing drives FEXCore yet",
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
       "evidence": []
     },
     {
@@ -193,24 +200,49 @@
     {
       "id": "C01",
       "description": "x86 integer arithmetic, flags, branches",
-      "status": "NOT_RUN",
+      "status": "FAIL",
       "environment": "HOST",
-      "iterations": 0,
+      "iterations": 1,
       "expected": null,
-      "actual": null,
-      "reason": "[NO-BACKEND] requires the FEX backend adapter, which is not implemented. The two 16 KiB blockers on the embedder's mandatory path (PS-02 code buffer guard, PS-03 InterruptFaultPage) are fixed in the owned fork -- see docs/fex-host-page-size-adaptation.md -- but nothing drives FEXCore yet",
-      "evidence": []
+      "actual": {
+        "G01a": "PASS",
+        "G01b": "FAIL",
+        "G01c": "FAIL",
+        "G01d": "PASS",
+        "G01e": "PASS",
+        "G01f": "PASS",
+        "G02a": "FAIL",
+        "G02b": "PASS",
+        "G03a": "FAIL",
+        "G03b": "FAIL",
+        "G03c": "PASS",
+        "G07a": "PASS",
+        "G07b": "FAIL",
+        "G07c": "FAIL"
+      },
+      "reason": "failed sub-cases: G01b, G01c, G02a, G03a, G03b, G07b, G07c",
+      "evidence": [
+        "docs/validation/v0/host-suite-output.txt"
+      ],
+      "scope_note": "host-only, real page size 16384; not an on-device result"
     },
     {
       "id": "C02",
       "description": "SSE2 arithmetic, XMM save, MXCSR rounding",
-      "status": "NOT_RUN",
+      "status": "FAIL",
       "environment": "HOST",
-      "iterations": 0,
+      "iterations": 1,
       "expected": null,
-      "actual": null,
-      "reason": "[NO-BACKEND] requires the FEX backend adapter, which is not implemented. The two 16 KiB blockers on the embedder's mandatory path (PS-02 code buffer guard, PS-03 InterruptFaultPage) are fixed in the owned fork -- see docs/fex-host-page-size-adaptation.md -- but nothing drives FEXCore yet",
-      "evidence": []
+      "actual": {
+        "G04a": "FAIL",
+        "G04b": "FAIL",
+        "G04c": "PASS"
+      },
+      "reason": "failed sub-cases: G04a, G04b",
+      "evidence": [
+        "docs/validation/v0/host-suite-output.txt"
+      ],
+      "scope_note": "host-only, real page size 16384; not an on-device result"
     },
     {
       "id": "C03",
@@ -220,7 +252,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "[NO-BACKEND] requires the FEX backend adapter, which is not implemented. The two 16 KiB blockers on the embedder's mandatory path (PS-02 code buffer guard, PS-03 InterruptFaultPage) are fixed in the owned fork -- see docs/fex-host-page-size-adaptation.md -- but nothing drives FEXCore yet",
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
       "evidence": []
     },
     {
@@ -262,7 +294,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "[NO-BACKEND] requires the FEX backend adapter, which is not implemented. The two 16 KiB blockers on the embedder's mandatory path (PS-02 code buffer guard, PS-03 InterruptFaultPage) are fixed in the owned fork -- see docs/fex-host-page-size-adaptation.md -- but nothing drives FEXCore yet",
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
       "evidence": []
     },
     {
@@ -273,7 +305,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "[NO-BACKEND] requires the FEX backend adapter, which is not implemented. The two 16 KiB blockers on the embedder's mandatory path (PS-02 code buffer guard, PS-03 InterruptFaultPage) are fixed in the owned fork -- see docs/fex-host-page-size-adaptation.md -- but nothing drives FEXCore yet",
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
       "evidence": []
     },
     {
@@ -308,7 +340,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "[NO-BACKEND] requires the FEX backend adapter, which is not implemented. The two 16 KiB blockers on the embedder's mandatory path (PS-02 code buffer guard, PS-03 InterruptFaultPage) are fixed in the owned fork -- see docs/fex-host-page-size-adaptation.md -- but nothing drives FEXCore yet",
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
       "evidence": []
     },
     {
@@ -319,7 +351,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "[NO-BACKEND] requires the FEX backend adapter, which is not implemented. The two 16 KiB blockers on the embedder's mandatory path (PS-02 code buffer guard, PS-03 InterruptFaultPage) are fixed in the owned fork -- see docs/fex-host-page-size-adaptation.md -- but nothing drives FEXCore yet",
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
       "evidence": []
     },
     {
@@ -440,7 +472,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "[NO-BACKEND] requires the FEX backend adapter, which is not implemented. The two 16 KiB blockers on the embedder's mandatory path (PS-02 code buffer guard, PS-03 InterruptFaultPage) are fixed in the owned fork -- see docs/fex-host-page-size-adaptation.md -- but nothing drives FEXCore yet",
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
       "evidence": []
     },
     {
@@ -451,7 +483,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "[NO-BACKEND] requires the FEX backend adapter, which is not implemented. The two 16 KiB blockers on the embedder's mandatory path (PS-02 code buffer guard, PS-03 InterruptFaultPage) are fixed in the owned fork -- see docs/fex-host-page-size-adaptation.md -- but nothing drives FEXCore yet",
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
       "evidence": []
     },
     {
@@ -478,7 +510,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "[NO-BACKEND] requires the FEX backend adapter, which is not implemented. The two 16 KiB blockers on the embedder's mandatory path (PS-02 code buffer guard, PS-03 InterruptFaultPage) are fixed in the owned fork -- see docs/fex-host-page-size-adaptation.md -- but nothing drives FEXCore yet",
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
       "evidence": []
     },
     {
@@ -522,7 +554,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "[NO-BACKEND] requires the FEX backend adapter, which is not implemented. The two 16 KiB blockers on the embedder's mandatory path (PS-02 code buffer guard, PS-03 InterruptFaultPage) are fixed in the owned fork -- see docs/fex-host-page-size-adaptation.md -- but nothing drives FEXCore yet",
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
       "evidence": []
     },
     {
@@ -533,7 +565,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "[NO-BACKEND] requires the FEX backend adapter, which is not implemented. The two 16 KiB blockers on the embedder's mandatory path (PS-02 code buffer guard, PS-03 InterruptFaultPage) are fixed in the owned fork -- see docs/fex-host-page-size-adaptation.md -- but nothing drives FEXCore yet",
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
       "evidence": []
     },
     {
@@ -544,7 +576,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "[NO-BACKEND] requires the FEX backend adapter, which is not implemented. The two 16 KiB blockers on the embedder's mandatory path (PS-02 code buffer guard, PS-03 InterruptFaultPage) are fixed in the owned fork -- see docs/fex-host-page-size-adaptation.md -- but nothing drives FEXCore yet",
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
       "evidence": []
     },
     {
@@ -555,7 +587,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "[NO-BACKEND] requires the FEX backend adapter, which is not implemented. The two 16 KiB blockers on the embedder's mandatory path (PS-02 code buffer guard, PS-03 InterruptFaultPage) are fixed in the owned fork -- see docs/fex-host-page-size-adaptation.md -- but nothing drives FEXCore yet",
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
       "evidence": []
     },
     {
@@ -566,7 +598,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "[NO-BACKEND] requires the FEX backend adapter, which is not implemented. The two 16 KiB blockers on the embedder's mandatory path (PS-02 code buffer guard, PS-03 InterruptFaultPage) are fixed in the owned fork -- see docs/fex-host-page-size-adaptation.md -- but nothing drives FEXCore yet",
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
       "evidence": []
     },
     {
@@ -593,7 +625,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "[NO-BACKEND] requires the FEX backend adapter, which is not implemented. The two 16 KiB blockers on the embedder's mandatory path (PS-02 code buffer guard, PS-03 InterruptFaultPage) are fixed in the owned fork -- see docs/fex-host-page-size-adaptation.md -- but nothing drives FEXCore yet",
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
       "evidence": []
     },
     {
@@ -604,7 +636,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "[NO-BACKEND] requires the FEX backend adapter, which is not implemented. The two 16 KiB blockers on the embedder's mandatory path (PS-02 code buffer guard, PS-03 InterruptFaultPage) are fixed in the owned fork -- see docs/fex-host-page-size-adaptation.md -- but nothing drives FEXCore yet",
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
       "evidence": []
     },
     {
@@ -615,7 +647,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "[NO-BACKEND] requires the FEX backend adapter, which is not implemented. The two 16 KiB blockers on the embedder's mandatory path (PS-02 code buffer guard, PS-03 InterruptFaultPage) are fixed in the owned fork -- see docs/fex-host-page-size-adaptation.md -- but nothing drives FEXCore yet",
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
       "evidence": []
     },
     {
@@ -626,7 +658,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "[NO-BACKEND] requires the FEX backend adapter, which is not implemented. The two 16 KiB blockers on the embedder's mandatory path (PS-02 code buffer guard, PS-03 InterruptFaultPage) are fixed in the owned fork -- see docs/fex-host-page-size-adaptation.md -- but nothing drives FEXCore yet",
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
       "evidence": []
     },
     {
@@ -637,7 +669,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "[NO-BACKEND] requires the FEX backend adapter, which is not implemented. The two 16 KiB blockers on the embedder's mandatory path (PS-02 code buffer guard, PS-03 InterruptFaultPage) are fixed in the owned fork -- see docs/fex-host-page-size-adaptation.md -- but nothing drives FEXCore yet",
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
       "evidence": []
     },
     {
@@ -648,7 +680,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "[NO-BACKEND] requires the FEX backend adapter, which is not implemented. The two 16 KiB blockers on the embedder's mandatory path (PS-02 code buffer guard, PS-03 InterruptFaultPage) are fixed in the owned fork -- see docs/fex-host-page-size-adaptation.md -- but nothing drives FEXCore yet",
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
       "evidence": []
     },
     {
@@ -676,19 +708,27 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "[NO-BACKEND] requires the FEX backend adapter, which is not implemented. The two 16 KiB blockers on the embedder's mandatory path (PS-02 code buffer guard, PS-03 InterruptFaultPage) are fixed in the owned fork -- see docs/fex-host-page-size-adaptation.md -- but nothing drives FEXCore yet",
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
       "evidence": []
     },
     {
       "id": "D05",
       "description": "real HLT, illegal instruction, unregistered return trap",
-      "status": "NOT_RUN",
+      "status": "FAIL",
       "environment": "HOST",
-      "iterations": 0,
+      "iterations": 1,
       "expected": null,
-      "actual": null,
-      "reason": "[NO-BACKEND] requires the FEX backend adapter, which is not implemented. The two 16 KiB blockers on the embedder's mandatory path (PS-02 code buffer guard, PS-03 InterruptFaultPage) are fixed in the owned fork -- see docs/fex-host-page-size-adaptation.md -- but nothing drives FEXCore yet",
-      "evidence": []
+      "actual": {
+        "G05a": "FAIL",
+        "G05b": "FAIL",
+        "G05c": "FAIL",
+        "G05d": "FAIL"
+      },
+      "reason": "failed sub-cases: G05a, G05b, G05c, G05d",
+      "evidence": [
+        "docs/validation/v0/host-suite-output.txt"
+      ],
+      "scope_note": "host-only, real page size 16384; not an on-device result"
     },
     {
       "id": "A01",
@@ -742,7 +782,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "[NO-BACKEND] requires the FEX backend adapter, which is not implemented. The two 16 KiB blockers on the embedder's mandatory path (PS-02 code buffer guard, PS-03 InterruptFaultPage) are fixed in the owned fork -- see docs/fex-host-page-size-adaptation.md -- but nothing drives FEXCore yet",
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
       "evidence": []
     },
     {
@@ -753,7 +793,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "[NO-BACKEND] requires the FEX backend adapter, which is not implemented. The two 16 KiB blockers on the embedder's mandatory path (PS-02 code buffer guard, PS-03 InterruptFaultPage) are fixed in the owned fork -- see docs/fex-host-page-size-adaptation.md -- but nothing drives FEXCore yet",
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
       "evidence": []
     },
     {
@@ -764,7 +804,7 @@
       "iterations": 0,
       "expected": null,
       "actual": null,
-      "reason": "[NO-BACKEND] requires the FEX backend adapter, which is not implemented. The two 16 KiB blockers on the embedder's mandatory path (PS-02 code buffer guard, PS-03 InterruptFaultPage) are fixed in the owned fork -- see docs/fex-host-page-size-adaptation.md -- but nothing drives FEXCore yet",
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
       "evidence": []
     },
     {
@@ -873,6 +913,6 @@
       "scope_note": "host-only, real page size 16384; not an on-device result"
     }
   ],
-  "release_status": "V0_BLOCKED",
+  "release_status": "V0_IN_PROGRESS",
   "release_status_reason": "FEX-dependent cases cannot run: the backend adapter is not implemented, so nothing drives FEXCore. The two 4 KiB assumptions that previously blocked this -- the JIT code-buffer guard page and InterruptFaultPage -- are fixed in the owned fork and verified on a real 16 KiB host, see docs/fex-host-page-size-adaptation.md. Note the earlier 'aborts at startup' claim was withdrawn: the VA probe is only reachable from FEXInterpreter, which an embedder does not link. Host-verifiable cases pass. No 16 KiB device was attached; the attached device reports a 4 KiB kernel page."
 }

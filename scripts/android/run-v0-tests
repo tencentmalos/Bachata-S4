@@ -23,6 +23,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -37,10 +38,10 @@ REPO = Path(__file__).resolve().parents[2]
 # reclassify every case the moment a reason is reworded, which is exactly how an
 # unresolved blocker could be mistaken for "only missing hardware".
 DEVICE_ONLY = "[DEVICE] requires an Android device (A16-16K / A16-4K); none attached"
-FEX_BLOCKED = ("[NO-BACKEND] requires the FEX backend adapter, which is not implemented. The two "
-               "16 KiB blockers on the embedder's mandatory path (PS-02 code buffer guard, PS-03 "
-               "InterruptFaultPage) are fixed in the owned fork -- see "
-               "docs/fex-host-page-size-adaptation.md -- but nothing drives FEXCore yet")
+FEX_BLOCKED = ("[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, "
+               "bounded Step, real HLE gates, multi-thread execution or code-invalidation "
+               "transactions. The adapter itself exists and runs; see "
+               "docs/fex-guest-execution-bringup.md for what it does and does not do")
 APP_PENDING = "[NO-APK] requires the validation APK, not built in this milestone"
 
 CASES: dict[str, tuple[str, str | None]] = {
@@ -60,8 +61,8 @@ CASES: dict[str, tuple[str, str | None]] = {
     "F03": ("shutdown with a diagnostic request in flight, 100x", FEX_BLOCKED),
     "F04": ("TCP control lifecycle", "network control not enabled in V0; capability=false"),
     # CPU / ABI
-    "C01": ("x86 integer arithmetic, flags, branches", FEX_BLOCKED),
-    "C02": ("SSE2 arithmetic, XMM save, MXCSR rounding", FEX_BLOCKED),
+    "C01": ("x86 integer arithmetic, flags, branches", None),
+    "C02": ("SSE2 arithmetic, XMM save, MXCSR rounding", None),
     "C03": ("CPUID profile matches capabilities; unsupported feature refused", FEX_BLOCKED),
     "C04": ("AVX/AVX2 with YMM high", "capability declared false; C03 covers the refusal path"),
     "H01": ("HLE 8 integer / 9 double / mixed args, RCX and callee-saved intact", None),
@@ -99,7 +100,7 @@ CASES: dict[str, tuple[str, str | None]] = {
     "D02": ("read and disassemble bytes at guest RIP", FEX_BLOCKED),
     "D03": ("guest fault or controlled in-JIT host stop attribution", None),
     "D04": ("runs alongside ART activity; unrelated signals not swallowed", FEX_BLOCKED),
-    "D05": ("real HLT, illegal instruction, unregistered return trap", FEX_BLOCKED),
+    "D05": ("real HLT, illegal instruction, unregistered return trap", None),
     # Android lifecycle
     "A01": ("plain Activity starts JNI/FEX with no downloaded runtime", APP_PENDING),
     "A02": ("fixture -> HLE -> Vulkan clear colour, input reaches the guest", APP_PENDING),
@@ -148,6 +149,13 @@ SUITE_MAP: dict[str, list[str]] = {
     # F01/F02/F03 are the link-and-init path; F04/F05 the thread and teardown path.
     "P04": ["F01a", "F01b", "F02a", "F02b", "F03a", "F03b", "F03c"],
     "P05": ["F04a", "F04b", "F04c", "F05a", "F05b"],
+    # Decided by tests/guest_cpu/guest_execution_tests on a device. These currently FAIL; that is
+    # the point of mapping them (2026-09-08 review, R6) -- a case that ran and failed must not sit
+    # in NOT_RUN. C01 additionally covers the memory-visible store via G07.
+    "C01": ["G01a", "G01b", "G01c", "G01d", "G01e", "G01f", "G02a", "G02b",
+            "G03a", "G03b", "G03c", "G07a", "G07b", "G07c"],
+    "C02": ["G04a", "G04b", "G04c"],
+    "D05": ["G05a", "G05b", "G05c", "G05d"],
 }
 
 LINE = re.compile(r"^\[(\S+)\s*\]\s+(.*?)\s+(PASS|FAIL)(?:\s+--\s+(.*))?$")
@@ -166,6 +174,143 @@ def run_suite(binary: Path) -> tuple[dict[str, tuple[str, str]], str]:
             parsed[match.group(1).strip()] = (match.group(3), (match.group(4) or "").strip())
     output = result.stdout + result.stderr + f"\n(exit {result.returncode}, {elapsed:.2f}s)"
     return parsed, output
+
+
+def NotRun(reason: str) -> dict:
+    return {"status": "NOT_RUN", "iterations": 0, "actual": None, "reason": reason,
+            "evidence": []}
+
+
+def CheckNativeElf(build_dir: Path, fex_build_dir: str | None) -> dict:
+    """B02: inspect the ELFs this invocation actually produced.
+
+    Reads the binaries in the build directory rather than reporting a remembered answer, so an
+    empty or stale directory yields NOT_RUN instead of a PASS.
+    """
+    candidates = [p for p in [build_dir / "guest_cpu_contract_tests",
+                              build_dir / "guest_cpu_hle_abi_tests",
+                              build_dir / "host_page_size_probe"] if p.is_file()]
+    if fex_build_dir:
+        for name in ("fexcore_bionic_smoke", "guest_execution_tests"):
+            candidate = Path(fex_build_dir) / name
+            if candidate.is_file():
+                candidates.append(candidate)
+    if not candidates:
+        return NotRun("no built binaries to inspect in this invocation")
+
+    readelf = shutil.which("llvm-readelf") or shutil.which("readelf")
+    if readelf is None:
+        return NotRun("no readelf available to inspect the ELFs")
+
+    inspected: dict[str, str] = {}
+    problems: list[str] = []
+    for path in candidates:
+        out = subprocess.run([readelf, "-hld", str(path)], capture_output=True, text=True).stdout
+        if "AArch64" not in out:
+            # A host-arch binary is not evidence about the Android artifacts; skip rather than
+            # failing, and say so, so this is not read as an arm64 result.
+            inspected[path.name] = "not AArch64; skipped"
+            continue
+        aligns = [int(a, 16) for a in re.findall(r"LOAD.*?0x([0-9a-f]+)\s*$", out, re.M)]
+        min_align = min(aligns) if aligns else 0
+        needed = re.findall(r"NEEDED.*?\[([^\]]+)\]", out)
+        glibc = [lib for lib in needed if lib in ("libc.so.6", "libstdc++.so.6", "libm.so.6")]
+
+        # The acceptance criterion is "no glibc", and symbol versioning is one way that shows up.
+        # But bionic versions its own libc/libm/libdl exports under the LIBC version, so the mere
+        # presence of .gnu.version is normal on Android. Flag only versions required *from a glibc
+        # library*; treating any versym as a failure would reject a correct bionic binary, which is
+        # what the first version of this check did.
+        glibc_versions = [line for line in out.splitlines()
+                          if "File:" in line and re.search(r"lib(c|m|dl|stdc\+\+)\.so\.\d", line)]
+
+        inspected[path.name] = (f"align={min_align:#x} needed={needed} "
+                                f"glibc_needed={glibc} glibc_versions={len(glibc_versions)}")
+        if glibc:
+            problems.append(f"{path.name} links glibc: {glibc}")
+        if glibc_versions:
+            problems.append(f"{path.name} requires versioned glibc symbols")
+
+    if all("skipped" in v for v in inspected.values()):
+        return NotRun("no AArch64 binaries were available to inspect")
+    if problems:
+        return {"status": "FAIL", "iterations": 1, "actual": inspected,
+                "reason": "; ".join(problems), "evidence": []}
+    return {"status": "PASS", "iterations": 1, "actual": inspected, "reason": None,
+            "scope_note": "inspected the binaries built by this invocation; PT_LOAD alignment is "
+                          "reported but the 16 KiB requirement is deferred by the 4 KiB scope",
+            "evidence": []}
+
+
+def CheckPublicApiOnlyConsumer() -> dict:
+    """B05: compile a consumer that includes only the public API, with -I src and nothing else.
+
+    Compiling is necessary but not sufficient: src/core/guest_cpu/fex/fex_context.h is itself under
+    -I src, so a public header that pulled it in would still compile here. The preprocessor output
+    is therefore checked for FEXCore headers, which only exist under the FEX include path and so
+    cannot be reached from a genuinely backend-free consumer.
+    """
+    compiler = shutil.which("c++") or shutil.which("clang++")
+    if compiler is None:
+        return NotRun("no host C++ compiler available")
+
+    program = (
+        "#include \"core/guest_cpu/api/context.h\"\n"
+        "#include \"core/guest_cpu/api/address_space.h\"\n"
+        "int main() {\n"
+        "    auto caps = Core::GuestCpu::QueryBackendCapabilities();\n"
+        "    return caps.backend_name.empty() ? 1 : 0;\n"
+        "}\n")
+    with tempfile.TemporaryDirectory() as tmp:
+        source = Path(tmp) / "consumer.cpp"
+        source.write_text(program)
+        compiled = subprocess.run(
+            [compiler, "-std=c++20", "-fsyntax-only", "-I", str(REPO / "src"), str(source)],
+            capture_output=True, text=True)
+        if compiled.returncode != 0:
+            return {"status": "FAIL", "iterations": 1,
+                    "actual": compiled.stderr.strip().splitlines()[:5],
+                    "reason": "public-API-only consumer failed to compile", "evidence": []}
+
+        # -H lists every header the preprocessor opened, including transitive ones.
+        listed = subprocess.run(
+            [compiler, "-std=c++20", "-fsyntax-only", "-H", "-I", str(REPO / "src"), str(source)],
+            capture_output=True, text=True)
+
+    leaked = sorted({line.split()[-1] for line in listed.stderr.splitlines()
+                     if "FEXCore/" in line or "/fex/" in line})
+    if leaked:
+        return {"status": "FAIL", "iterations": 1, "actual": leaked[:5],
+                "reason": "the public API pulls in backend headers", "evidence": []}
+
+    return {"status": "PASS", "iterations": 1,
+            "actual": "compiles with -I src alone and opens no FEX header",
+            "reason": None, "evidence": []}
+
+
+def CheckDesktopConfigure(enabled: bool) -> dict:
+    """B06: configure the desktop build to show the new targets did not break it.
+
+    Opt-in via --check-desktop because a full desktop configure takes minutes and would make every
+    routine run slow. Skipping it reports NOT_RUN, never a remembered PASS.
+    """
+    if not enabled:
+        return NotRun("desktop configure not requested; pass --check-desktop to run it")
+    cmake = shutil.which("cmake")
+    if cmake is None:
+        return NotRun("cmake not available")
+    with tempfile.TemporaryDirectory() as tmp:
+        result = subprocess.run(
+            [cmake, "-S", str(REPO), "-B", tmp, "-DCMAKE_BUILD_TYPE=Release"],
+            capture_output=True, text=True, timeout=900)
+    if result.returncode != 0:
+        tail = [line for line in result.stderr.strip().splitlines() if line][-5:]
+        return {"status": "FAIL", "iterations": 1, "actual": tail,
+                "reason": "desktop configure failed", "evidence": []}
+    return {"status": "PASS", "iterations": 1, "actual": "desktop CMake configure succeeded",
+            "reason": None,
+            "scope_note": "configure only; a full desktop link was not run",
+            "evidence": []}
 
 
 def run_device_suite(binary: Path, serial: str | None) -> tuple[dict[str, tuple[str, str]], str]:
@@ -280,6 +425,8 @@ def main() -> int:
     parser.add_argument("--fex-build-dir", default=None,
                         help="Android FEXCore build directory from scripts/android/build-fexcore-android. "
                              "When given, the bionic smoke probe is run on a device (P04/P05).")
+    parser.add_argument("--check-desktop", action="store_true",
+                        help="run the desktop CMake configure for B06; slow, so off by default")
     parser.add_argument("--serial", default=None)
     parser.add_argument("--expected-page-size", type=int, default=None)
     parser.add_argument("--out", default=str(REPO / "docs/validation/v0/results.json"))
@@ -320,24 +467,29 @@ def main() -> int:
             print(f"  WARNING: no results parsed from {binary}")
             print(f"           {output.splitlines()[-1] if output else 'no output'}")
 
-    # The bionic FEXCore probe is arm64 and must run on a device, so it is opt-in via
-    # --fex-build-dir. Without it P04/P05 stay NOT_RUN with their stated reason.
+    # The bionic FEXCore probes are arm64 and must run on a device, so they are opt-in via
+    # --fex-build-dir. Without it the cases they feed stay NOT_RUN with their stated reason.
+    #
+    # guest_execution_tests is included even though it currently fails: the 2026-09-08 review (R6)
+    # found that leaving it out let already-known execution failures sit in NOT_RUN while the report
+    # described the backend as absent. A case that ran and failed must read FAIL.
     if args.fex_build_dir:
-        fex_binary = pick_binary(Path(args.fex_build_dir), ["fexcore_bionic_smoke"])
-        parsed, output = run_device_suite(fex_binary, args.serial)
-        observed.update(parsed)
-        suite_meta["fexcore_bionic_smoke"] = {
-            "binary": str(fex_binary),
-            "sha256": sha256_of(fex_binary) if fex_binary.is_file() else None,
-            "sub_cases": len(parsed),
-            "failures": sum(1 for status, _ in parsed.values() if status == "FAIL"),
-            "ran_on_device": bool(parsed),
-        }
-        print(f"fexcore_bionic_smoke: {len(parsed)} sub-case(s), "
-              f"{suite_meta['fexcore_bionic_smoke']['failures']} failure(s)")
-        if not parsed:
-            print(f"  WARNING: no results parsed from {fex_binary}")
-            print(f"           {output.splitlines()[-1] if output else 'no output'}")
+        for suite_name in ("fexcore_bionic_smoke", "guest_execution_tests"):
+            fex_binary = pick_binary(Path(args.fex_build_dir), [suite_name])
+            parsed, output = run_device_suite(fex_binary, args.serial)
+            observed.update(parsed)
+            failures = sum(1 for status, _ in parsed.values() if status == "FAIL")
+            suite_meta[suite_name] = {
+                "binary": str(fex_binary),
+                "sha256": sha256_of(fex_binary) if fex_binary.is_file() else None,
+                "sub_cases": len(parsed),
+                "failures": failures,
+                "ran_on_device": bool(parsed),
+            }
+            print(f"{suite_name}: {len(parsed)} sub-case(s), {failures} failure(s)")
+            if not parsed:
+                print(f"  WARNING: no results parsed from {fex_binary}")
+                print(f"           {output.splitlines()[-1] if output else 'no output'}")
 
     host_page = os.sysconf("SC_PAGESIZE")
     cases = []
@@ -374,29 +526,18 @@ def main() -> int:
                 entry["reason"] = f"sub-cases did not report: {', '.join(missing)}"
         cases.append(entry)
 
-    # B02 and B05 are verified by separate tooling; record them honestly.
+    # B02/B05/B06 are decided by running a check now, not by a hardcoded verdict.
+    #
+    # The 2026-09-08 review (R6) pointed an empty build directory at this runner and still got three
+    # PASSes, because these were unconditionally overwritten with a stored answer. A PASS has to
+    # mean "this ran, against these artifacts, in this invocation".
     for case in cases:
         if case["id"] == "B02":
-            case.update({"status": "PASS", "iterations": 1,
-                         "actual": "arm64 bionic, min PT_LOAD align 0x4000, "
-                                   "no glibc DT_NEEDED, no GNU symbol versions",
-                         "reason": None,
-                         "scope_note": "verified on the cross-compiled test binaries, "
-                                       "which contain no FEX",
-                         "evidence": ["scripts/android/verify-v0-artifacts"]})
-        elif case["id"] == "B06":
-            case.update({"status": "PASS", "iterations": 1,
-                         "actual": "cmake -S . -B <dir> -G Ninja -DCMAKE_BUILD_TYPE=Release "
-                                   "configures; the new Android/FEX targets are not referenced "
-                                   "by the root CMakeLists and no desktop source was modified",
-                         "reason": None,
-                         "scope_note": "configure step only; a full desktop link was not run",
-                         "evidence": ["docs/validation/v0/host-suite-output.txt"]})
+            case.update(CheckNativeElf(build_dir, args.fex_build_dir))
         elif case["id"] == "B05":
-            case.update({"status": "PASS", "iterations": 1,
-                         "actual": "public-API-only consumer compiles with -I src alone",
-                         "reason": None,
-                         "evidence": ["docs/validation/v0/host-suite-output.txt"]})
+            case.update(CheckPublicApiOnlyConsumer())
+        elif case["id"] == "B06":
+            case.update(CheckDesktopConfigure(args.check_desktop))
 
     passed = sum(1 for c in cases if c["status"] == "PASS")
     failed = sum(1 for c in cases if c["status"] == "FAIL")
