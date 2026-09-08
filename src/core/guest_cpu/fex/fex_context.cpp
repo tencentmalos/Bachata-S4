@@ -436,11 +436,9 @@ public:
         // is not executing yet, but it allocates backend state against a code image that is
         // mid-change, and admitting it here would let a Run follow immediately. Taking the lease
         // and dropping it at the end of this function is the admission check.
-        {
-            auto admission = space_.AcquireExecutionLease();
-            if (!admission) {
-                return admission.GetError();
-            }
+        auto admission = space_.AcquireExecutionLease();
+        if (!admission) {
+            return admission.GetError();
         }
 
         // The entry and stack must already be mapped in this context's address

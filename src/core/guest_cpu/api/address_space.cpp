@@ -352,6 +352,9 @@ Result<MappingInfo> GuestAddressSpace::Map(GuestRange range, GuestPermission per
     }
 
     std::lock_guard guard{lock};
+    if (auto status = CheckMappingMutationLocked("GuestAddressSpace::Map"); !status) {
+        return status.GetError();
+    }
     for (const auto& existing : mappings) {
         if (RangesOverlap(existing.range, range)) {
             return MakeError(ErrorCategory::InvalidArgument, "GuestAddressSpace::Map",
@@ -387,6 +390,9 @@ Result<MappingInfo> GuestAddressSpace::Map(GuestRange range, GuestPermission per
 
 Status GuestAddressSpace::Unmap(GuestRange range) {
     std::lock_guard guard{lock};
+    if (auto status = CheckMappingMutationLocked("GuestAddressSpace::Unmap"); !status) {
+        return status;
+    }
 
     // A live HLE lease wins: the span must stay valid for its whole lifetime
     // (acceptance M13). Report Busy rather than pulling it out underneath.
@@ -477,13 +483,17 @@ Status GuestAddressSpace::Protect(GuestRange range, GuestPermission permission) 
     // and revoking execute here is what keeps that translation unreachable. The review made a
     // failed publication executable again with exactly this call, and the guest re-ran the stale
     // constant (R1).
-    if (code_poisoned && HasPermission(permission, GuestPermission::Execute) &&
-        RangesOverlap(range, poisoned_range)) {
+    if (HasPermission(permission, GuestPermission::Execute) &&
+        std::any_of(poisoned_ranges.begin(), poisoned_ranges.end(),
+                    [&](GuestRange poisoned) { return RangesOverlap(range, poisoned); })) {
         return MakeError(ErrorCategory::WrongState, "GuestAddressSpace::Protect",
                          "code publication failed over this range and has not been repaired; "
                          "execute cannot be granted");
     }
 
+    if (auto status = CheckMappingMutationLocked("GuestAddressSpace::Protect"); !status) {
+        return status;
+    }
     if (::mprotect(HostPointer(range.base), static_cast<std::size_t>(range.size),
                    ToHostProtection(permission)) != 0) {
         const int saved = errno;
@@ -655,7 +665,7 @@ void GuestAddressSpace::ReleasePin(std::uint64_t lease_id) {
 
 Result<QuiescenceToken> GuestAddressSpace::Quiesce(std::uint64_t timeout_ns) {
     std::lock_guard guard{lock};
-    if (active_quiescence != 0) {
+    if (active_quiescence != 0 || sink_draining || sink_calls_in_flight != 0) {
         return MakeError(ErrorCategory::Busy, "GuestAddressSpace::Quiesce",
                          "another transaction already holds quiescence");
     }
@@ -724,6 +734,10 @@ Status GuestAddressSpace::SetCodeInvalidationSink(CodeInvalidationSink* sink) {
                          "sink must not be null; use ClearCodeInvalidationSink");
     }
     std::lock_guard guard{lock};
+    if (sink_draining) {
+        return MakeError(ErrorCategory::Busy, "GuestAddressSpace::SetCodeInvalidationSink",
+                         "the previous registration is still draining");
+    }
     if (code_sink != nullptr && code_sink != sink) {
         // Replacing it would strand the previous backend's translations: nothing
         // would ever invalidate them again.
@@ -740,35 +754,32 @@ Status GuestAddressSpace::SetCodeInvalidationSink(CodeInvalidationSink* sink) {
 
 void GuestAddressSpace::ClearCodeInvalidationSink(CodeInvalidationSink* sink) {
     std::unique_lock guard{lock};
+    sink_idle.wait(guard, [&] { return !sink_draining; });
     if (code_sink != sink) {
-        // Not the registered sink. Still wait: a publication that copied this pointer before an
-        // earlier Clear may be running right now, and the caller is about to destroy the object.
-        sink_idle.wait(guard, [&] { return sink_calls_in_flight == 0; });
         return;
     }
     code_sink = nullptr;
     ++sink_generation;
-    // Wait for callbacks that already took the pointer. Clearing the slot alone is not enough:
-    // publications call the sink with this lock released, so a call can be in progress with a
-    // pointer the caller is about to free. The review reproduced Clear returning while a callback
-    // was still active, a replacement registering, and the stale callback then reporting success.
+    sink_draining = true;
     sink_idle.wait(guard, [&] { return sink_calls_in_flight == 0; });
+    sink_draining = false;
+    sink_idle.notify_all();
 }
 
 bool GuestAddressSpace::HasPoisonedCode() const {
     std::lock_guard guard{lock};
-    return code_poisoned;
+    return !poisoned_ranges.empty();
 }
 
 Result<ExecutionLease> GuestAddressSpace::AcquireExecutionLease() {
     std::lock_guard guard{lock};
-    if (code_poisoned) {
+    if (!poisoned_ranges.empty()) {
         // A failed publication left bytes that no longer match the backend's translation of them.
         // Executing anything in this space would risk running that translation.
         return MakeError(ErrorCategory::WrongState, "GuestAddressSpace::AcquireExecutionLease",
                          "code publication failed and has not been repaired; execution is blocked");
     }
-    if (active_quiescence != 0) {
+    if (active_quiescence != 0 || sink_draining || sink_calls_in_flight != 0) {
         return MakeError(ErrorCategory::Busy, "GuestAddressSpace::AcquireExecutionLease",
                          "a publication transaction holds this address space");
     }
@@ -837,7 +848,14 @@ Status GuestAddressSpace::CallSinkUnlocked(std::unique_lock<std::mutex>& guard, 
 
     // Unlocked: the lock order is context -> space, because the backend reads CodeGeneration()
     // under its own lock to build a snapshot. Calling a sink from under `lock` would invert it.
-    Status status = sink->DiscardTranslations(range, reason);
+    Status status;
+    try {
+        status = sink->DiscardTranslations(range, reason);
+    } catch (...) {
+        // No callback may leak the in-flight count or escape after bytes changed.
+        status = MakeError(ErrorCategory::BackendFailure, "GuestAddressSpace::CallSinkUnlocked",
+                           "backend invalidation threw an exception");
+    }
 
     guard.lock();
     --sink_calls_in_flight;
@@ -856,9 +874,17 @@ Status GuestAddressSpace::CallSinkUnlocked(std::unique_lock<std::mutex>& guard, 
 
 Status GuestAddressSpace::InvalidateCode(const QuiescenceToken& token, GuestRange range,
                                          InvalidationReason reason) {
+    auto checked = GuestRange::Checked(range.base, range.size);
+    if (!checked) {
+        return checked.GetError();
+    }
     std::unique_lock guard{lock};
     if (auto status = CheckTokenLocked(token, "GuestAddressSpace::InvalidateCode"); !status) {
         return status;
+    }
+    if (sink_draining || sink_calls_in_flight != 0) {
+        return MakeError(ErrorCategory::Busy, "GuestAddressSpace::InvalidateCode",
+                         "another publication callback is in flight or draining");
     }
 
     bool committed = false;
@@ -867,11 +893,15 @@ Status GuestAddressSpace::InvalidateCode(const QuiescenceToken& token, GuestRang
     // Re-check: the token could have been released while the sink ran unlocked.
     if (auto token_status = CheckTokenLocked(token, "GuestAddressSpace::InvalidateCode");
         !token_status) {
+        PoisonCodeLocked(range);
+        ++code_generation;
         return token_status;
     }
     if (!committed) {
-        // Unlike PublishCode, no bytes changed here, so there is nothing to poison: the existing
-        // translation still matches the existing bytes. Report the failure and change nothing.
+        // A caller may have changed bytes through a writable pin before invalidating.
+        // Conservatively retain the execution block until a successful repair.
+        PoisonCodeLocked(range);
+        ++code_generation;
         return status ? MakeError(ErrorCategory::BackendFailure,
                                   "GuestAddressSpace::InvalidateCode",
                                   "invalidation did not commit")
@@ -899,6 +929,10 @@ Status GuestAddressSpace::PublishCode(const QuiescenceToken& token, GuestRange r
     if (auto status = CheckTokenLocked(token, "GuestAddressSpace::PublishCode"); !status) {
         return status;
     }
+    if (sink_draining || sink_calls_in_flight != 0) {
+        return MakeError(ErrorCategory::Busy, "GuestAddressSpace::PublishCode",
+                         "another publication callback is in flight or draining");
+    }
 
     // Validate and copy under one lock hold. Releasing it between the two would let a Protect or
     // Unmap land in the middle of a publication, which is precisely the state the token excludes.
@@ -916,9 +950,7 @@ Status GuestAddressSpace::PublishCode(const QuiescenceToken& token, GuestRange r
         // would execute code that no longer exists. Revoking execute on the guest pages is not
         // sufficient on its own -- the translation lives in the backend's own executable memory --
         // so poison additionally blocks execution leases and re-granting execute.
-        RevokeExecuteLocked(range);
-        code_poisoned = true;
-        poisoned_range = range;
+        PoisonCodeLocked(range);
         // Still advance: the bytes did change, so a generation captured before this call must not
         // continue to compare equal.
         ++code_generation;
@@ -929,6 +961,8 @@ Status GuestAddressSpace::PublishCode(const QuiescenceToken& token, GuestRange r
 
     if (auto token_status = CheckTokenLocked(token, "GuestAddressSpace::PublishCode");
         !token_status) {
+        PoisonCodeLocked(range);
+        ++code_generation;
         return token_status;
     }
     ++code_generation;
@@ -940,21 +974,37 @@ Status GuestAddressSpace::PublishCode(const QuiescenceToken& token, GuestRange r
 // invalidated successfully. Clearing on any successful publication anywhere would let an unrelated
 // range re-enable execution of the still-stale one.
 void GuestAddressSpace::ClearPoisonIfRepairedLocked(GuestRange repaired) {
-    if (!code_poisoned) {
-        return;
+    const auto repaired_end = repaired.base.value + repaired.size;
+    std::erase_if(poisoned_ranges, [&](GuestRange poisoned) {
+        return repaired.base.value <= poisoned.base.value &&
+               poisoned.base.value + poisoned.size <= repaired_end;
+    });
+}
+
+void GuestAddressSpace::PoisonCodeLocked(GuestRange range) {
+    RevokeExecuteLocked(range);
+    // Keep each failed interval until a repair covers it; a second failure must
+    // never replace the first one's recovery obligation.
+    if (std::none_of(poisoned_ranges.begin(), poisoned_ranges.end(), [&](GuestRange known) {
+            return known.base == range.base && known.size == range.size;
+        })) {
+        poisoned_ranges.push_back(range);
     }
-    const std::uint64_t poisoned_end = poisoned_range.base.value + poisoned_range.size;
-    const std::uint64_t repaired_end = repaired.base.value + repaired.size;
-    const bool covers = repaired.base.value <= poisoned_range.base.value &&
-                        poisoned_end <= repaired_end;
-    if (covers) {
-        code_poisoned = false;
-        poisoned_range = GuestRange{};
+}
+
+Status GuestAddressSpace::CheckMappingMutationLocked(std::string_view operation) const {
+    if (active_quiescence != 0 || execution_leases != 0 || sink_calls_in_flight != 0 || sink_draining) {
+        return MakeError(ErrorCategory::Busy, operation,
+                         "mapping mutation requires an idle address space outside publication");
     }
+    return Ok();
 }
 
 Status GuestAddressSpace::RegisterAlias(GuestRange primary, GuestAddress alias_base) {
     std::lock_guard guard{lock};
+    if (auto status = CheckMappingMutationLocked("GuestAddressSpace::RegisterAlias"); !status) {
+        return status;
+    }
     const bool known = std::any_of(mappings.begin(), mappings.end(), [&](const Mapping& m) {
         return m.range.base.value <= primary.base.value &&
                primary.base.value + primary.size <= m.range.base.value + m.range.size;

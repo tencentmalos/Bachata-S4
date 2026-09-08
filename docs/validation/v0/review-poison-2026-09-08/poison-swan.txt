@@ -1,0 +1,20 @@
+P1-C probe: public publication vs real FEX invalidation
+host page size: 4096
+
+warm run of constant_a: rax=17 (expect 17)
+
+REVIEW_failed_publication=1 poison=1
+public PublishCode accepted   = 0
+REVIEW_no_followup_invalidation=1
+code_generation 1 -> 2
+REVIEW_Protect_RX_accepted_while_poisoned=1
+
+post-publication run: rax=17 (34 = new B, 17 = STALE A)
+
+--- observations ---
+P1C_publish_accepted=0
+P1C_generation_advanced=1
+P1C_executed_rax=17
+P1C_stale_code_executed=1
+
+exit=0

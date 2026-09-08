@@ -147,7 +147,7 @@ SUITE_MAP: dict[str, list[str]] = {
     # two-thread race as still missing while M13 was already reported PASS. M13g is that race, and
     # it asserts that every round actually contended, so a version that stopped racing would fail
     # rather than pass quietly. M13d/M13e/M13f are the lease and publication-refusal negatives.
-    "M13": ["M13", "M13b", "M13c", "M13d", "M13e", "M13f", "M13g"],
+    "M13": ["M13", "M13b", "M13c", "M13d", "M13e", "M13f", "M13g", "M13h", "M13i", "M13j", "M13k", "M13l", "M13m", "M13n", "M13o"],
     "T03": ["T03a"],
     "D03": ["D03a", "D03b"],
     "H01": ["H01a", "H01b", "H01c", "H01d", "H01e"],
@@ -184,7 +184,21 @@ SUITE_MAP: dict[str, list[str]] = {
     #
     # Deliberately NOT mapped to M09: that needs two threads running the same old block and a
     # controller quiescing between them, which this backend cannot do yet.
-    "M07": ["M07", "G08a", "G08b", "G08c", "G09a", "G09b", "G09c", "G09d"],
+    "M07": ["M07", "G08a", "G08b", "G08c", "G09a", "G09b", "G09c", "G09d", "G10a", "G10b", "G10c", "G10d"],
+}
+
+# Passing these subchecks is useful evidence, but does not meet the full spec criterion.
+INCOMPLETE_COVERAGE = {
+    "C01": "flags are not asserted by the current guest fixtures",
+    "C02": "SSE2 load/store, MXCSR rounding and host FP restoration are not exercised",
+    "D05": "illegal instructions and the complete unregistered trap set are not exercised",
+    "H01": "hand-built host frames do not verify a real guest HLE call and callee-saved state",
+    "H04": "real syscall rejection and buffer length/lifetime through a guest HLE gate remain untested",
+    "M05": "API permission refusals do not exercise actual guest memory faults",
+    "M10": "alias registration does not verify two mapped aliases and both translations",
+    "M12": "observer arithmetic alone does not verify combined code invalidation and GPU dirty tracking",
+    "T03": "stop-reason precedence alone does not exercise overlapping pause/cancel requests",
+    "D03": "constructed snapshot metadata does not verify actual in-JIT fault attribution",
 }
 
 LINE = re.compile(r"^\[(\S+)\s*\]\s+(.*?)\s+(PASS|FAIL|SKIP)(?:\s+--\s+(.*))?$")
@@ -208,7 +222,7 @@ SUITE_OWNERSHIP: dict[str, tuple[str, ...]] = {
     "hle_abi_tests": ("H01", "H04"),
     "host_page_size_probe": ("P01", "P02", "P03"),
     "fexcore_bionic_smoke": ("F01", "F02", "F03", "F04", "F05"),
-    "guest_execution_tests": ("G01", "G02", "G03", "G04", "G05", "G06", "G07", "G08", "G09"),
+    "guest_execution_tests": ("G01", "G02", "G03", "G04", "G05", "G06", "G07", "G08", "G09", "G10"),
 }
 
 
@@ -413,7 +427,8 @@ def CheckDesktopConfigure(enabled: bool) -> dict:
         tail = [line for line in result.stderr.strip().splitlines() if line][-5:]
         return {"status": "FAIL", "iterations": 1, "actual": tail,
                 "reason": "desktop configure failed", "evidence": []}
-    return {"status": "PASS", "iterations": 1, "actual": "desktop CMake configure succeeded",
+    return {"status": "NOT_RUN", "auxiliary_status": "PASS", "iterations": 1,
+            "actual": "desktop CMake configure succeeded",
             "reason": None,
             "scope_note": "configure only; a full desktop link was not run",
             "evidence": []}
@@ -589,9 +604,18 @@ def main() -> int:
     # actually came from rather than always claiming HOST.
     device_subs: set[str] = set()
 
+    log_dir = Path(args.out).resolve().parent / (Path(args.out).stem + "-suites")
+    log_dir.mkdir(parents=True, exist_ok=True)
+
     def record_suite(name: str, binary: Path, run: SuiteRun, on_device: bool) -> None:
+        log_path = log_dir / (name + ".txt")
+        log_path.write_text(run.output + "\n" + json.dumps({
+            "exit_code": run.exit_code, "timed_out": run.timed_out,
+            "never_started": run.never_started, "error": run.error}) + "\n")
         failures = sum(1 for status, _ in run.cases.values() if status == "FAIL")
         meta = {
+            "output_log": os.path.relpath(log_path, REPO),
+            "output_sha256": sha256_of(log_path),
             "binary": str(binary),
             "sha256": sha256_of(binary) if binary.is_file() else None,
             "sub_cases": len(run.cases),
@@ -739,21 +763,25 @@ def main() -> int:
                 entry["environment"] = "DEVICE" if len(on_dev) == len(
                     [s for s in sub_ids if s in observed]) else "HOST+DEVICE"
 
-            # A deferred case keeps its observed sub-results as evidence but is not a PASS.
-            if case_id in DEFERRED_BY_SCOPE and entry["status"] == "PASS":
-                entry["status"] = "DEFERRED_BY_SCOPE"
-                entry["reason"] = DEFERRED_BY_SCOPE[case_id]
-
             if entry["status"] not in ("NOT_RUN",):
                 # Say where the evidence came from. Device sub-cases are prefixed F/G by
                 # convention, and calling those "host-only" is what made the last report claim
                 # device results were host results.
                 on_device = any(s.startswith(("F", "G")) for s in sub_ids)
                 entry["scope_note"] = (
-                    "on-device (Swan, 4 KiB); see the device section of the suite output"
-                    if on_device
-                    else f"host-only, real page size {host_page}; not an on-device result")
-                entry["evidence"] = ["docs/validation/v0/host-suite-output.txt"]
+                    f"evidence environment: {entry['environment']}; "
+                    "consult the per-suite artifact and output records")
+                entry["evidence"] = [meta["output_log"] for name, meta in suite_meta.items()
+                                     if any(sub in sub_cases_owned_by(name) for sub in sub_ids)]
+        if entry["status"] == "PASS" and case_id in INCOMPLETE_COVERAGE:
+            entry["auxiliary_status"] = "PASS"
+            entry["status"] = "NOT_RUN"
+            entry["reason"] = "full acceptance pending: " + INCOMPLETE_COVERAGE[case_id]
+        # Scope is independent of whether a suite happened to execute or pass.
+        if case_id in DEFERRED_BY_SCOPE:
+            entry["observed_status"] = entry["status"]
+            entry["status"] = "DEFERRED_BY_SCOPE"
+            entry["reason"] = DEFERRED_BY_SCOPE[case_id]
         cases.append(entry)
 
     # B02/B05/B06 are decided by running a check now, not by a hardcoded verdict.
@@ -790,7 +818,7 @@ def main() -> int:
         # obstacle in the opposite direction from calling it "pending".
         release_status = "V0_IN_PROGRESS"
     elif not_run:
-        release_status = "V0_IMPLEMENTED_DEVICE_PENDING"
+        release_status = "V0_IN_PROGRESS"
     else:
         release_status = "V0_ACCEPTED"
 
@@ -836,14 +864,10 @@ def main() -> int:
         "cases": cases,
         "release_status": release_status,
         "release_status_reason": (
-            "The FEX backend adapter is implemented and guest x86-64 executes correctly on a "
-            "4 KiB Swan device: the on-device suite passes every assertion it makes, including "
-            "the same-VA republication regression that exposed the shared code-cache "
-            "invalidation bug. What remains is unimplemented capability rather than a blocker "
-            "-- interrupts, bounded Step, real HLE gates and callbacks, multi-thread execution, "
-            "a context-level publication transaction, and the JNI/app path. Scope is Swan / "
-            "Android 16 / ARM64 / 4 KiB by the 2026-09-08 decision; 16 KiB cases are deferred "
-            "and are not counted as passes. See docs/validation/v0/followup-2026-09-08.md."),
+            f"This invocation observed {passed} complete acceptance passes, {failed} failures, "
+            f"{not_run} incomplete/unrun cases and {deferred} scope deferrals. "
+            "Auxiliary unit evidence is not complete acceptance. "
+            "Running-thread interruption, real HLE/callback and app integration remain incomplete."),
     }
 
     out_path = Path(args.out)

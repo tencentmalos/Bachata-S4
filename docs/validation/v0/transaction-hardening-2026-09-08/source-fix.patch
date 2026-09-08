@@ -1,0 +1,773 @@
+diff --git a/scripts/android/build-fexcore-android b/scripts/android/build-fexcore-android
+index 491e5ebc..4464b7cb 100755
+--- a/scripts/android/build-fexcore-android
++++ b/scripts/android/build-fexcore-android
+@@ -85,59 +85,19 @@ mkdir -p "${GENERATED}"
+ "${REPO}/scripts/android/generate-guest-fixtures" --output "${GENERATED}/guest_fixtures.h"
+ echo
+ 
+-# --- link the probes ---------------------------------------------------------
+-# Order matters less inside --start-group/--end-group, which is needed because FEXCore,
+-# FEXCore_Base and the allocator libraries reference each other cyclically.
+-link_probe() {
+-  local output="$1"
+-  shift
+-  "${CXX}" -std=c++20 -O1 -g -static-libstdc++ -o "${output}" "$@" \
+-    -I"${REPO}/src" \
+-    -I"${GENERATED}" \
+-    -I"${BUILD}/FEXCore/Source" \
+-    -I"${FEX}/FEXCore/Source" \
+-    -I"${FEX}/Source" \
+-    -I"${BUILD}/Source" \
+-    -I"${BUILD}/generated" \
+-    -I"${BUILD}/include" \
+-    -I"${FEX}/FEXCore/Source/IncludePrivate" \
+-    -I"${FEX}/FEXCore/include" \
+-    -I"${FEX}/External/fmt/include" \
+-    -I"${FEX}/External/xxhash" \
+-    -I"${FEX}/FEXHeaderUtils" \
+-    -I"${FEX}/CodeEmitter" \
+-    -I"${FEX}/External/unordered_dense/include" \
+-    -DARCHITECTURE_arm64=1 \
+-    -DFEX_DISABLE_TELEMETRY=1 \
+-    -Wl,--start-group \
+-    "${BUILD}/FEXCore/Source/libFEXCore.a" \
+-    "${BUILD}/Source/Common/libCommon.a" \
+-    "${BUILD}/FEXCore/Source/libFEXCore_Base.a" \
+-    "${BUILD}/FEXCore/Source/libJemallocLibs.a" \
+-    "${BUILD}/External/rpmalloc/librpmalloc.a" \
+-    "${BUILD}/External/SoftFloat-3e/libsoftfloat_3e.a" \
+-    "${BUILD}/External/cephes/libcephes_128bit.a" \
+-    "${BUILD}/External/fmt/libfmt.a" \
+-    "${BUILD}/External/xxhash/cmake_unofficial/libxxhash.a" \
+-    "${BUILD}/External/tiny-json/libtiny-json.a" \
+-    -Wl,--end-group \
+-    -llog
+-}
+-
+-# Link + init only; executes no guest code.
+-link_probe "${BUILD}/fexcore_bionic_smoke" \
+-  "${REPO}/tests/fex_bionic/fexcore_bionic_smoke.cpp"
+-
+-# Real x86-64 executed through the public API, so it needs the backend and the
+-# API sources compiled in alongside it.
+-link_probe "${BUILD}/guest_execution_tests" \
+-  "${REPO}/tests/guest_cpu/guest_execution_tests.cpp" \
+-  "${REPO}/src/core/guest_cpu/fex/fex_context.cpp" \
+-  "${REPO}/src/core/guest_cpu/api/address_space.cpp" \
+-  "${REPO}/src/core/guest_cpu/api/execution.cpp" \
+-  "${REPO}/src/core/guest_cpu/api/status.cpp"
+-
+-echo
+-echo "built ${BUILD}/fexcore_bionic_smoke"
+-echo "built ${BUILD}/guest_execution_tests"
+-echo "run on a device with: scripts/android/run-fexcore-smoke ${BUILD}"
++# --- build the embedder through the canonical CMake targets --------------------
++V0_BUILD="${BUILD}/v0"
++cmake -S "${REPO}/cmake/fex" -B "${V0_BUILD}" -G Ninja \
++  -DCMAKE_TOOLCHAIN_FILE="${NDK}/build/cmake/android.toolchain.cmake" \
++  -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM="android-${API}" \
++  -DANDROID_STL=c++_static -DCMAKE_BUILD_TYPE=RelWithDebInfo \
++  -DV0_ENABLE_FEX=ON -DV0_BUILD_TESTS=ON \
++  -DFEX_BUILD_DIR="${BUILD}" -DV0_FIXTURE_DIR="${GENERATED}"
++cmake --build "${V0_BUILD}"
++
++# Retain the existing runner entry paths; these are copies of the CMake outputs,
++# never a second compilation/link recipe.
++for probe in guest_execution_tests guest_cpu_contract_tests guest_cpu_hle_abi_tests fexcore_bionic_smoke; do
++  cmake -E copy_if_different "${V0_BUILD}/${probe}" "${BUILD}/${probe}"
++done
++echo "built V0 targets in ${V0_BUILD}"
+diff --git a/scripts/android/run-v0-tests b/scripts/android/run-v0-tests
+index c52fb5b4..ab316e60 100755
+--- a/scripts/android/run-v0-tests
++++ b/scripts/android/run-v0-tests
+@@ -147,7 +147,7 @@ SUITE_MAP: dict[str, list[str]] = {
+     # two-thread race as still missing while M13 was already reported PASS. M13g is that race, and
+     # it asserts that every round actually contended, so a version that stopped racing would fail
+     # rather than pass quietly. M13d/M13e/M13f are the lease and publication-refusal negatives.
+-    "M13": ["M13", "M13b", "M13c", "M13d", "M13e", "M13f", "M13g"],
++    "M13": ["M13", "M13b", "M13c", "M13d", "M13e", "M13f", "M13g", "M13h", "M13i", "M13j", "M13k", "M13l", "M13m", "M13n", "M13o"],
+     "T03": ["T03a"],
+     "D03": ["D03a", "D03b"],
+     "H01": ["H01a", "H01b", "H01c", "H01d", "H01e"],
+@@ -184,7 +184,21 @@ SUITE_MAP: dict[str, list[str]] = {
+     #
+     # Deliberately NOT mapped to M09: that needs two threads running the same old block and a
+     # controller quiescing between them, which this backend cannot do yet.
+-    "M07": ["M07", "G08a", "G08b", "G08c", "G09a", "G09b", "G09c", "G09d"],
++    "M07": ["M07", "G08a", "G08b", "G08c", "G09a", "G09b", "G09c", "G09d", "G10a", "G10b", "G10c", "G10d"],
++}
++
++# Passing these subchecks is useful evidence, but does not meet the full spec criterion.
++INCOMPLETE_COVERAGE = {
++    "C01": "flags are not asserted by the current guest fixtures",
++    "C02": "SSE2 load/store, MXCSR rounding and host FP restoration are not exercised",
++    "D05": "illegal instructions and the complete unregistered trap set are not exercised",
++    "H01": "hand-built host frames do not verify a real guest HLE call and callee-saved state",
++    "H04": "real syscall rejection and buffer length/lifetime through a guest HLE gate remain untested",
++    "M05": "API permission refusals do not exercise actual guest memory faults",
++    "M10": "alias registration does not verify two mapped aliases and both translations",
++    "M12": "observer arithmetic alone does not verify combined code invalidation and GPU dirty tracking",
++    "T03": "stop-reason precedence alone does not exercise overlapping pause/cancel requests",
++    "D03": "constructed snapshot metadata does not verify actual in-JIT fault attribution",
+ }
+ 
+ LINE = re.compile(r"^\[(\S+)\s*\]\s+(.*?)\s+(PASS|FAIL|SKIP)(?:\s+--\s+(.*))?$")
+@@ -208,7 +222,7 @@ SUITE_OWNERSHIP: dict[str, tuple[str, ...]] = {
+     "hle_abi_tests": ("H01", "H04"),
+     "host_page_size_probe": ("P01", "P02", "P03"),
+     "fexcore_bionic_smoke": ("F01", "F02", "F03", "F04", "F05"),
+-    "guest_execution_tests": ("G01", "G02", "G03", "G04", "G05", "G06", "G07", "G08", "G09"),
++    "guest_execution_tests": ("G01", "G02", "G03", "G04", "G05", "G06", "G07", "G08", "G09", "G10"),
+ }
+ 
+ 
+@@ -413,7 +427,8 @@ def CheckDesktopConfigure(enabled: bool) -> dict:
+         tail = [line for line in result.stderr.strip().splitlines() if line][-5:]
+         return {"status": "FAIL", "iterations": 1, "actual": tail,
+                 "reason": "desktop configure failed", "evidence": []}
+-    return {"status": "PASS", "iterations": 1, "actual": "desktop CMake configure succeeded",
++    return {"status": "NOT_RUN", "auxiliary_status": "PASS", "iterations": 1,
++            "actual": "desktop CMake configure succeeded",
+             "reason": None,
+             "scope_note": "configure only; a full desktop link was not run",
+             "evidence": []}
+@@ -589,9 +604,18 @@ def main() -> int:
+     # actually came from rather than always claiming HOST.
+     device_subs: set[str] = set()
+ 
++    log_dir = Path(args.out).resolve().parent / (Path(args.out).stem + "-suites")
++    log_dir.mkdir(parents=True, exist_ok=True)
++
+     def record_suite(name: str, binary: Path, run: SuiteRun, on_device: bool) -> None:
++        log_path = log_dir / (name + ".txt")
++        log_path.write_text(run.output + "\n" + json.dumps({
++            "exit_code": run.exit_code, "timed_out": run.timed_out,
++            "never_started": run.never_started, "error": run.error}) + "\n")
+         failures = sum(1 for status, _ in run.cases.values() if status == "FAIL")
+         meta = {
++            "output_log": os.path.relpath(log_path, REPO),
++            "output_sha256": sha256_of(log_path),
+             "binary": str(binary),
+             "sha256": sha256_of(binary) if binary.is_file() else None,
+             "sub_cases": len(run.cases),
+@@ -739,21 +763,25 @@ def main() -> int:
+                 entry["environment"] = "DEVICE" if len(on_dev) == len(
+                     [s for s in sub_ids if s in observed]) else "HOST+DEVICE"
+ 
+-            # A deferred case keeps its observed sub-results as evidence but is not a PASS.
+-            if case_id in DEFERRED_BY_SCOPE and entry["status"] == "PASS":
+-                entry["status"] = "DEFERRED_BY_SCOPE"
+-                entry["reason"] = DEFERRED_BY_SCOPE[case_id]
+-
+             if entry["status"] not in ("NOT_RUN",):
+                 # Say where the evidence came from. Device sub-cases are prefixed F/G by
+                 # convention, and calling those "host-only" is what made the last report claim
+                 # device results were host results.
+                 on_device = any(s.startswith(("F", "G")) for s in sub_ids)
+                 entry["scope_note"] = (
+-                    "on-device (Swan, 4 KiB); see the device section of the suite output"
+-                    if on_device
+-                    else f"host-only, real page size {host_page}; not an on-device result")
+-                entry["evidence"] = ["docs/validation/v0/host-suite-output.txt"]
++                    f"evidence environment: {entry['environment']}; "
++                    "consult the per-suite artifact and output records")
++                entry["evidence"] = [meta["output_log"] for name, meta in suite_meta.items()
++                                     if any(sub in sub_cases_owned_by(name) for sub in sub_ids)]
++        if entry["status"] == "PASS" and case_id in INCOMPLETE_COVERAGE:
++            entry["auxiliary_status"] = "PASS"
++            entry["status"] = "NOT_RUN"
++            entry["reason"] = "full acceptance pending: " + INCOMPLETE_COVERAGE[case_id]
++        # Scope is independent of whether a suite happened to execute or pass.
++        if case_id in DEFERRED_BY_SCOPE:
++            entry["observed_status"] = entry["status"]
++            entry["status"] = "DEFERRED_BY_SCOPE"
++            entry["reason"] = DEFERRED_BY_SCOPE[case_id]
+         cases.append(entry)
+ 
+     # B02/B05/B06 are decided by running a check now, not by a hardcoded verdict.
+@@ -790,7 +818,7 @@ def main() -> int:
+         # obstacle in the opposite direction from calling it "pending".
+         release_status = "V0_IN_PROGRESS"
+     elif not_run:
+-        release_status = "V0_IMPLEMENTED_DEVICE_PENDING"
++        release_status = "V0_IN_PROGRESS"
+     else:
+         release_status = "V0_ACCEPTED"
+ 
+@@ -836,14 +864,10 @@ def main() -> int:
+         "cases": cases,
+         "release_status": release_status,
+         "release_status_reason": (
+-            "The FEX backend adapter is implemented and guest x86-64 executes correctly on a "
+-            "4 KiB Swan device: the on-device suite passes every assertion it makes, including "
+-            "the same-VA republication regression that exposed the shared code-cache "
+-            "invalidation bug. What remains is unimplemented capability rather than a blocker "
+-            "-- interrupts, bounded Step, real HLE gates and callbacks, multi-thread execution, "
+-            "a context-level publication transaction, and the JNI/app path. Scope is Swan / "
+-            "Android 16 / ARM64 / 4 KiB by the 2026-09-08 decision; 16 KiB cases are deferred "
+-            "and are not counted as passes. See docs/validation/v0/followup-2026-09-08.md."),
++            f"This invocation observed {passed} complete acceptance passes, {failed} failures, "
++            f"{not_run} incomplete/unrun cases and {deferred} scope deferrals. "
++            "Auxiliary unit evidence is not complete acceptance. "
++            "Running-thread interruption, real HLE/callback and app integration remain incomplete."),
+     }
+ 
+     out_path = Path(args.out)
+diff --git a/src/core/guest_cpu/api/address_space.cpp b/src/core/guest_cpu/api/address_space.cpp
+index 4c9d19f0..556457ac 100644
+--- a/src/core/guest_cpu/api/address_space.cpp
++++ b/src/core/guest_cpu/api/address_space.cpp
+@@ -352,6 +352,9 @@ Result<MappingInfo> GuestAddressSpace::Map(GuestRange range, GuestPermission per
+     }
+ 
+     std::lock_guard guard{lock};
++    if (auto status = CheckMappingMutationLocked("GuestAddressSpace::Map"); !status) {
++        return status.GetError();
++    }
+     for (const auto& existing : mappings) {
+         if (RangesOverlap(existing.range, range)) {
+             return MakeError(ErrorCategory::InvalidArgument, "GuestAddressSpace::Map",
+@@ -387,6 +390,9 @@ Result<MappingInfo> GuestAddressSpace::Map(GuestRange range, GuestPermission per
+ 
+ Status GuestAddressSpace::Unmap(GuestRange range) {
+     std::lock_guard guard{lock};
++    if (auto status = CheckMappingMutationLocked("GuestAddressSpace::Unmap"); !status) {
++        return status;
++    }
+ 
+     // A live HLE lease wins: the span must stay valid for its whole lifetime
+     // (acceptance M13). Report Busy rather than pulling it out underneath.
+@@ -477,13 +483,17 @@ Status GuestAddressSpace::Protect(GuestRange range, GuestPermission permission)
+     // and revoking execute here is what keeps that translation unreachable. The review made a
+     // failed publication executable again with exactly this call, and the guest re-ran the stale
+     // constant (R1).
+-    if (code_poisoned && HasPermission(permission, GuestPermission::Execute) &&
+-        RangesOverlap(range, poisoned_range)) {
++    if (HasPermission(permission, GuestPermission::Execute) &&
++        std::any_of(poisoned_ranges.begin(), poisoned_ranges.end(),
++                    [&](GuestRange poisoned) { return RangesOverlap(range, poisoned); })) {
+         return MakeError(ErrorCategory::WrongState, "GuestAddressSpace::Protect",
+                          "code publication failed over this range and has not been repaired; "
+                          "execute cannot be granted");
+     }
+ 
++    if (auto status = CheckMappingMutationLocked("GuestAddressSpace::Protect"); !status) {
++        return status;
++    }
+     if (::mprotect(HostPointer(range.base), static_cast<std::size_t>(range.size),
+                    ToHostProtection(permission)) != 0) {
+         const int saved = errno;
+@@ -655,7 +665,7 @@ void GuestAddressSpace::ReleasePin(std::uint64_t lease_id) {
+ 
+ Result<QuiescenceToken> GuestAddressSpace::Quiesce(std::uint64_t timeout_ns) {
+     std::lock_guard guard{lock};
+-    if (active_quiescence != 0) {
++    if (active_quiescence != 0 || sink_draining || sink_calls_in_flight != 0) {
+         return MakeError(ErrorCategory::Busy, "GuestAddressSpace::Quiesce",
+                          "another transaction already holds quiescence");
+     }
+@@ -724,6 +734,10 @@ Status GuestAddressSpace::SetCodeInvalidationSink(CodeInvalidationSink* sink) {
+                          "sink must not be null; use ClearCodeInvalidationSink");
+     }
+     std::lock_guard guard{lock};
++    if (sink_draining) {
++        return MakeError(ErrorCategory::Busy, "GuestAddressSpace::SetCodeInvalidationSink",
++                         "the previous registration is still draining");
++    }
+     if (code_sink != nullptr && code_sink != sink) {
+         // Replacing it would strand the previous backend's translations: nothing
+         // would ever invalidate them again.
+@@ -740,35 +754,32 @@ Status GuestAddressSpace::SetCodeInvalidationSink(CodeInvalidationSink* sink) {
+ 
+ void GuestAddressSpace::ClearCodeInvalidationSink(CodeInvalidationSink* sink) {
+     std::unique_lock guard{lock};
++    sink_idle.wait(guard, [&] { return !sink_draining; });
+     if (code_sink != sink) {
+-        // Not the registered sink. Still wait: a publication that copied this pointer before an
+-        // earlier Clear may be running right now, and the caller is about to destroy the object.
+-        sink_idle.wait(guard, [&] { return sink_calls_in_flight == 0; });
+         return;
+     }
+     code_sink = nullptr;
+     ++sink_generation;
+-    // Wait for callbacks that already took the pointer. Clearing the slot alone is not enough:
+-    // publications call the sink with this lock released, so a call can be in progress with a
+-    // pointer the caller is about to free. The review reproduced Clear returning while a callback
+-    // was still active, a replacement registering, and the stale callback then reporting success.
++    sink_draining = true;
+     sink_idle.wait(guard, [&] { return sink_calls_in_flight == 0; });
++    sink_draining = false;
++    sink_idle.notify_all();
+ }
+ 
+ bool GuestAddressSpace::HasPoisonedCode() const {
+     std::lock_guard guard{lock};
+-    return code_poisoned;
++    return !poisoned_ranges.empty();
+ }
+ 
+ Result<ExecutionLease> GuestAddressSpace::AcquireExecutionLease() {
+     std::lock_guard guard{lock};
+-    if (code_poisoned) {
++    if (!poisoned_ranges.empty()) {
+         // A failed publication left bytes that no longer match the backend's translation of them.
+         // Executing anything in this space would risk running that translation.
+         return MakeError(ErrorCategory::WrongState, "GuestAddressSpace::AcquireExecutionLease",
+                          "code publication failed and has not been repaired; execution is blocked");
+     }
+-    if (active_quiescence != 0) {
++    if (active_quiescence != 0 || sink_draining || sink_calls_in_flight != 0) {
+         return MakeError(ErrorCategory::Busy, "GuestAddressSpace::AcquireExecutionLease",
+                          "a publication transaction holds this address space");
+     }
+@@ -837,7 +848,14 @@ Status GuestAddressSpace::CallSinkUnlocked(std::unique_lock<std::mutex>& guard,
+ 
+     // Unlocked: the lock order is context -> space, because the backend reads CodeGeneration()
+     // under its own lock to build a snapshot. Calling a sink from under `lock` would invert it.
+-    Status status = sink->DiscardTranslations(range, reason);
++    Status status;
++    try {
++        status = sink->DiscardTranslations(range, reason);
++    } catch (...) {
++        // No callback may leak the in-flight count or escape after bytes changed.
++        status = MakeError(ErrorCategory::BackendFailure, "GuestAddressSpace::CallSinkUnlocked",
++                           "backend invalidation threw an exception");
++    }
+ 
+     guard.lock();
+     --sink_calls_in_flight;
+@@ -856,10 +874,18 @@ Status GuestAddressSpace::CallSinkUnlocked(std::unique_lock<std::mutex>& guard,
+ 
+ Status GuestAddressSpace::InvalidateCode(const QuiescenceToken& token, GuestRange range,
+                                          InvalidationReason reason) {
++    auto checked = GuestRange::Checked(range.base, range.size);
++    if (!checked) {
++        return checked.GetError();
++    }
+     std::unique_lock guard{lock};
+     if (auto status = CheckTokenLocked(token, "GuestAddressSpace::InvalidateCode"); !status) {
+         return status;
+     }
++    if (sink_draining || sink_calls_in_flight != 0) {
++        return MakeError(ErrorCategory::Busy, "GuestAddressSpace::InvalidateCode",
++                         "another publication callback is in flight or draining");
++    }
+ 
+     bool committed = false;
+     auto status = CallSinkUnlocked(guard, range, reason, committed);
+@@ -867,11 +893,15 @@ Status GuestAddressSpace::InvalidateCode(const QuiescenceToken& token, GuestRang
+     // Re-check: the token could have been released while the sink ran unlocked.
+     if (auto token_status = CheckTokenLocked(token, "GuestAddressSpace::InvalidateCode");
+         !token_status) {
++        PoisonCodeLocked(range);
++        ++code_generation;
+         return token_status;
+     }
+     if (!committed) {
+-        // Unlike PublishCode, no bytes changed here, so there is nothing to poison: the existing
+-        // translation still matches the existing bytes. Report the failure and change nothing.
++        // A caller may have changed bytes through a writable pin before invalidating.
++        // Conservatively retain the execution block until a successful repair.
++        PoisonCodeLocked(range);
++        ++code_generation;
+         return status ? MakeError(ErrorCategory::BackendFailure,
+                                   "GuestAddressSpace::InvalidateCode",
+                                   "invalidation did not commit")
+@@ -899,6 +929,10 @@ Status GuestAddressSpace::PublishCode(const QuiescenceToken& token, GuestRange r
+     if (auto status = CheckTokenLocked(token, "GuestAddressSpace::PublishCode"); !status) {
+         return status;
+     }
++    if (sink_draining || sink_calls_in_flight != 0) {
++        return MakeError(ErrorCategory::Busy, "GuestAddressSpace::PublishCode",
++                         "another publication callback is in flight or draining");
++    }
+ 
+     // Validate and copy under one lock hold. Releasing it between the two would let a Protect or
+     // Unmap land in the middle of a publication, which is precisely the state the token excludes.
+@@ -916,9 +950,7 @@ Status GuestAddressSpace::PublishCode(const QuiescenceToken& token, GuestRange r
+         // would execute code that no longer exists. Revoking execute on the guest pages is not
+         // sufficient on its own -- the translation lives in the backend's own executable memory --
+         // so poison additionally blocks execution leases and re-granting execute.
+-        RevokeExecuteLocked(range);
+-        code_poisoned = true;
+-        poisoned_range = range;
++        PoisonCodeLocked(range);
+         // Still advance: the bytes did change, so a generation captured before this call must not
+         // continue to compare equal.
+         ++code_generation;
+@@ -929,6 +961,8 @@ Status GuestAddressSpace::PublishCode(const QuiescenceToken& token, GuestRange r
+ 
+     if (auto token_status = CheckTokenLocked(token, "GuestAddressSpace::PublishCode");
+         !token_status) {
++        PoisonCodeLocked(range);
++        ++code_generation;
+         return token_status;
+     }
+     ++code_generation;
+@@ -940,21 +974,37 @@ Status GuestAddressSpace::PublishCode(const QuiescenceToken& token, GuestRange r
+ // invalidated successfully. Clearing on any successful publication anywhere would let an unrelated
+ // range re-enable execution of the still-stale one.
+ void GuestAddressSpace::ClearPoisonIfRepairedLocked(GuestRange repaired) {
+-    if (!code_poisoned) {
+-        return;
++    const auto repaired_end = repaired.base.value + repaired.size;
++    std::erase_if(poisoned_ranges, [&](GuestRange poisoned) {
++        return repaired.base.value <= poisoned.base.value &&
++               poisoned.base.value + poisoned.size <= repaired_end;
++    });
++}
++
++void GuestAddressSpace::PoisonCodeLocked(GuestRange range) {
++    RevokeExecuteLocked(range);
++    // Keep each failed interval until a repair covers it; a second failure must
++    // never replace the first one's recovery obligation.
++    if (std::none_of(poisoned_ranges.begin(), poisoned_ranges.end(), [&](GuestRange known) {
++            return known.base == range.base && known.size == range.size;
++        })) {
++        poisoned_ranges.push_back(range);
+     }
+-    const std::uint64_t poisoned_end = poisoned_range.base.value + poisoned_range.size;
+-    const std::uint64_t repaired_end = repaired.base.value + repaired.size;
+-    const bool covers = repaired.base.value <= poisoned_range.base.value &&
+-                        poisoned_end <= repaired_end;
+-    if (covers) {
+-        code_poisoned = false;
+-        poisoned_range = GuestRange{};
++}
++
++Status GuestAddressSpace::CheckMappingMutationLocked(std::string_view operation) const {
++    if (active_quiescence != 0 || execution_leases != 0 || sink_calls_in_flight != 0 || sink_draining) {
++        return MakeError(ErrorCategory::Busy, operation,
++                         "mapping mutation requires an idle address space outside publication");
+     }
++    return Ok();
+ }
+ 
+ Status GuestAddressSpace::RegisterAlias(GuestRange primary, GuestAddress alias_base) {
+     std::lock_guard guard{lock};
++    if (auto status = CheckMappingMutationLocked("GuestAddressSpace::RegisterAlias"); !status) {
++        return status;
++    }
+     const bool known = std::any_of(mappings.begin(), mappings.end(), [&](const Mapping& m) {
+         return m.range.base.value <= primary.base.value &&
+                primary.base.value + primary.size <= m.range.base.value + m.range.size;
+diff --git a/src/core/guest_cpu/api/address_space.h b/src/core/guest_cpu/api/address_space.h
+index fef715f7..42177a28 100644
+--- a/src/core/guest_cpu/api/address_space.h
++++ b/src/core/guest_cpu/api/address_space.h
+@@ -176,8 +176,9 @@ public:
+ 
+     // --- transactions ------------------------------------------------------
+ 
+-    // Stops relevant guest owners and waits for in-flight HLE writers. Returns
+-    // Timeout without touching anything if it cannot get a complete stop.
++    // Reserves an already-idle address space for publication. This V0 subset
++    // does not interrupt guest owners or wait for HLE pins; a refusal leaves
++    // state unchanged. Running-thread stop/acknowledgement is still pending.
+     //
+     // Refuses with Busy while any ExecutionLease is outstanding, and blocks new
+     // leases for as long as the returned token lives. That admission gate is
+@@ -278,8 +279,10 @@ private:
+     [[nodiscard]] Status CallSinkUnlocked(std::unique_lock<std::mutex>& guard, GuestRange range,
+                                           InvalidationReason reason, bool& committed);
+ 
+-    // Requires `lock`. Clears poison only when `repaired` covers the range that failed.
++    // Requires `lock`. Clears only the failed intervals fully covered by this repair.
+     void ClearPoisonIfRepairedLocked(GuestRange repaired);
++    void PoisonCodeLocked(GuestRange range);
++    [[nodiscard]] Status CheckMappingMutationLocked(std::string_view operation) const;
+ 
+     struct Mapping final {
+         GuestRange range{};
+@@ -315,7 +318,7 @@ private:
+     std::uint64_t active_quiescence{};
+     std::uint64_t next_lease_id{1};
+     CodeInvalidationSink* code_sink{};
+-    // Number of DiscardTranslations calls currently running on `code_sink`.
++    // Number of DiscardTranslations calls on the current or draining registration.
+     // Clear waits for this to reach zero before returning, so a backend can
+     // destroy itself immediately afterwards.
+     std::size_t sink_calls_in_flight{};
+@@ -331,8 +334,8 @@ private:
+     // publication or invalidation over the poisoned range succeeds; reporting
+     // success without that would let stale translated code run against bytes
+     // that no longer exist.
+-    bool code_poisoned{};
+-    GuestRange poisoned_range{};
++    std::vector<GuestRange> poisoned_ranges;
++    bool sink_draining{};
+     std::condition_variable sink_idle;
+     std::condition_variable leases_idle;
+     // Handed to tokens and pins as a weak reference so they can tell whether
+diff --git a/src/core/guest_cpu/fex/fex_context.cpp b/src/core/guest_cpu/fex/fex_context.cpp
+index 64fb8b63..0b172190 100644
+--- a/src/core/guest_cpu/fex/fex_context.cpp
++++ b/src/core/guest_cpu/fex/fex_context.cpp
+@@ -436,11 +436,9 @@ public:
+         // is not executing yet, but it allocates backend state against a code image that is
+         // mid-change, and admitting it here would let a Run follow immediately. Taking the lease
+         // and dropping it at the end of this function is the admission check.
+-        {
+-            auto admission = space_.AcquireExecutionLease();
+-            if (!admission) {
+-                return admission.GetError();
+-            }
++        auto admission = space_.AcquireExecutionLease();
++        if (!admission) {
++            return admission.GetError();
+         }
+ 
+         // The entry and stack must already be mapped in this context's address
+diff --git a/tests/guest_cpu/api_contract_tests.cpp b/tests/guest_cpu/api_contract_tests.cpp
+index 4934e4ad..077d00fb 100644
+--- a/tests/guest_cpu/api_contract_tests.cpp
++++ b/tests/guest_cpu/api_contract_tests.cpp
+@@ -907,6 +907,156 @@ void TestTransactions() {
+               "a callback whose sink was unregistered mid-flight must not report success");
+     });
+ 
++    RunCase("M13k", "separate failed publications require separate repairs", [] {
++        struct Sink final : CodeInvalidationSink {
++            bool fail{true};
++            std::string_view Name() const override { return "repair-test"; }
++            Status DiscardTranslations(GuestRange, InvalidationReason) override {
++                return fail ? MakeError(ErrorCategory::BackendFailure, "test", "injected") : Ok();
++            }
++        } sink;
++        auto space = MakeSpace();
++        const auto page = HostPageSize();
++        GuestRange a{space->ReservationBase(), page};
++        GuestRange b{GuestAddress{a.base.value + page}, page};
++        Check(bool(space->Map(a, GuestPermission::Read | GuestPermission::Write)), "map A");
++        Check(bool(space->Map(b, GuestPermission::Read | GuestPermission::Write)), "map B");
++        Check(bool(space->SetCodeInvalidationSink(&sink)), "register sink");
++        std::vector<std::byte> code(page, std::byte{0x90});
++        {
++            auto q = space->Quiesce(1000);
++            if (!q) { Check(false, "quiesce"); return; }
++            Check(!space->PublishCode(q.Value(), a, code), "A must fail");
++            Check(!space->PublishCode(q.Value(), b, code), "B must fail");
++            sink.fail = false;
++            Check(bool(space->InvalidateCode(q.Value(), b, InvalidationReason::HostWrite)), "repair B");
++            Check(space->HasPoisonedCode(), "repair B must not forget failed A");
++        }
++        Check(!space->AcquireExecutionLease(), "A still blocks execution");
++        {
++            auto q = space->Quiesce(1000);
++            if (!q) { Check(false, "repair quiesce"); return; }
++            Check(bool(space->InvalidateCode(q.Value(), a, InvalidationReason::HostWrite)), "repair A");
++        }
++        Check(bool(space->AcquireExecutionLease()), "all repairs restore admission");
++        space->ClearCodeInvalidationSink(&sink);
++    });
++
++    RunCase("M13l", "failed invalidation after a pinned write blocks execution", [] {
++        struct Sink final : CodeInvalidationSink {
++            std::string_view Name() const override { return "invalidate-failure"; }
++            Status DiscardTranslations(GuestRange, InvalidationReason) override {
++                return MakeError(ErrorCategory::BackendFailure, "test", "injected");
++            }
++        } sink;
++        auto space = MakeSpace();
++        GuestRange range{space->ReservationBase(), HostPageSize()};
++        Check(bool(space->Map(range, GuestPermission::Read | GuestPermission::Write)), "map");
++        Check(bool(space->SetCodeInvalidationSink(&sink)), "register sink");
++        {
++            auto pin = space->AcquirePinnedSpan(range, true);
++            if (!pin) { Check(false, "pin"); return; }
++            pin.Value().WritableBytes()[0] = std::byte{0x42};
++        }
++        {
++            auto q = space->Quiesce(1000);
++            if (!q) { Check(false, "quiesce"); return; }
++            Check(!space->InvalidateCode(q.Value(), range, InvalidationReason::HostWrite), "must fail");
++        }
++        Check(space->HasPoisonedCode(), "caller may have already changed the bytes");
++        Check(!space->AcquireExecutionLease(), "failed invalidate must block stale code");
++        space->ClearCodeInvalidationSink(&sink);
++    });
++
++    RunCase("M13m", "sink exceptions fail closed and release the callback lease", [] {
++        struct Sink final : CodeInvalidationSink {
++            std::string_view Name() const override { return "throwing-test"; }
++            Status DiscardTranslations(GuestRange, InvalidationReason) override { throw 42; }
++        } sink;
++        auto space = MakeSpace();
++        GuestRange range{space->ReservationBase(), HostPageSize()};
++        Check(bool(space->Map(range, GuestPermission::Read | GuestPermission::Write)), "map");
++        Check(bool(space->SetCodeInvalidationSink(&sink)), "register sink");
++        bool escaped = false;
++        {
++            auto q = space->Quiesce(1000);
++            if (!q) { Check(false, "quiesce"); return; }
++            std::vector<std::byte> code(range.size, std::byte{0x90});
++            try {
++                auto r = space->PublishCode(q.Value(), range, code);
++                Check(!r && r.GetError().category == ErrorCategory::BackendFailure, "exception must become failure");
++            } catch (...) { escaped = true; }
++        }
++        Check(!escaped, "exception must not escape the sink boundary");
++        Check(space->HasPoisonedCode(), "throw after write must poison code");
++        // The old implementation leaked its in-flight count on exception. Do not hang its negative run.
++        if (!escaped) space->ClearCodeInvalidationSink(&sink);
++    });
++
++    RunCase("M13n", "mapping mutation cannot enter an active publication or execution", [] {
++        auto space = MakeSpace();
++        GuestRange range{space->ReservationBase(), HostPageSize()};
++        Check(bool(space->Map(range, GuestPermission::Read | GuestPermission::Write)), "map");
++        const auto generation = space->MappingGeneration();
++        {
++            auto q = space->Quiesce(1000);
++            if (!q) { Check(false, "quiesce"); return; }
++            auto r = space->Protect(range, GuestPermission::Read);
++            Check(!r && r.GetError().category == ErrorCategory::Busy, "Protect during publication must be Busy");
++        }
++        Check(space->MappingGeneration() == generation, "refusal must preserve mapping");
++        {
++            auto lease = space->AcquireExecutionLease();
++            if (!lease) { Check(false, "lease"); return; }
++            auto r = space->Unmap(range);
++            Check(!r && r.GetError().category == ErrorCategory::Busy, "Unmap during execution must be Busy");
++        }
++        Check(bool(space->Query(range.base)), "mapping must remain live");
++    });
++
++    RunCase("M13o", "a draining sink excludes replacement registrations", [] {
++        struct Sink final : CodeInvalidationSink {
++            std::atomic<bool> entered{false}, release{false};
++            std::string_view Name() const override { return "drain-test"; }
++            Status DiscardTranslations(GuestRange, InvalidationReason) override {
++                entered.store(true);
++                while (!release.load()) std::this_thread::yield();
++                return Ok();
++            }
++        } sink, replacement;
++        auto space = MakeSpace();
++        GuestRange range{space->ReservationBase(), HostPageSize()};
++        Check(bool(space->Map(range, GuestPermission::Read | GuestPermission::Write)), "map");
++        Check(bool(space->SetCodeInvalidationSink(&sink)), "register sink");
++        auto q = space->Quiesce(1000);
++        if (!q) { Check(false, "quiesce"); return; }
++        bool committed = true;
++        std::thread publisher([&] {
++            std::vector<std::byte> code(range.size);
++            committed = bool(space->PublishCode(q.Value(), range, code));
++        });
++        while (!sink.entered.load()) std::this_thread::yield();
++        std::thread clearer([&] { space->ClearCodeInvalidationSink(&sink); });
++        const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
++        bool drain_observed = false;
++        while (std::chrono::steady_clock::now() < deadline) {
++            auto attempt = space->SetCodeInvalidationSink(&replacement);
++            if (attempt) break; // Old implementation allowed replacement during drain.
++            if (attempt.GetError().category == ErrorCategory::Busy) {
++                drain_observed = true;
++                break;
++            }
++            std::this_thread::yield(); // Clear has not acquired the mutex yet.
++        }
++        sink.release.store(true);
++        publisher.join();
++        clearer.join();
++        Check(drain_observed, "replacement must be Busy until the old callback drains");
++        Check(!committed, "the unregistered callback must not commit");
++        Check(bool(space->SetCodeInvalidationSink(&replacement)), "registration resumes after drain");
++        space->ClearCodeInvalidationSink(&replacement);
++    });
++
+     RunCase("M12", "observers get conservatively widened write notifications", [] {
+         auto space = MakeSpace();
+         const std::uint64_t page = HostPageSize();
+diff --git a/tests/guest_cpu/guest_execution_tests.cpp b/tests/guest_cpu/guest_execution_tests.cpp
+index 98f50a06..83360859 100644
+--- a/tests/guest_cpu/guest_execution_tests.cpp
++++ b/tests/guest_cpu/guest_execution_tests.cpp
+@@ -699,6 +699,77 @@ void TestPublicApiPublication(Harness& harness) {
+           harness.context->LiveThreadCount() == 0);
+ }
+ 
++// Fault injection must test actual cached guest execution, not only metadata.
++void TestPinnedInvalidationRecovery(Harness& harness) {
++    const auto* a = FindFixture("constant_a");
++    const auto* b = FindFixture("constant_b");
++    if (!a || !b) { Check("G10a", "failure fixtures exist", false); return; }
++    auto warm = RunFixture(harness, *a, [](RegisterPatch&) {});
++    if (!warm.ok || warm.result.snapshot.registers.Get(Gpr::Rax) != 17) {
++        Check("G10a", "warm old translation", false, warm.error); return;
++    }
++    auto* real_sink = dynamic_cast<CodeInvalidationSink*>(harness.context.get());
++    if (!real_sink) { Check("G10a", "backend sink exists", false); return; }
++    struct FailingSink final : CodeInvalidationSink {
++        std::string_view Name() const override { return "guest-recovery-test"; }
++        Status DiscardTranslations(GuestRange, InvalidationReason) override {
++            return MakeError(ErrorCategory::BackendFailure, "test", "injected failure");
++        }
++    } failed_sink;
++    struct Restore final {
++        GuestAddressSpace& space;
++        CodeInvalidationSink* real;
++        CodeInvalidationSink* injected;
++        bool done{};
++        void Apply() {
++            if (done) return;
++            space.ClearCodeInvalidationSink(injected);
++            Check("G10c", "restore real backend registration", bool(space.SetCodeInvalidationSink(real)));
++            done = true;
++        }
++        ~Restore() { Apply(); }
++    } restore{*harness.space, real_sink, &failed_sink};
++    harness.space->ClearCodeInvalidationSink(real_sink);
++    if (!harness.space->SetCodeInvalidationSink(&failed_sink)) {
++        Check("G10a", "register failure injection", false); return;
++    }
++    GuestRange range{GuestAddress{harness.code_base}, kMappingSize};
++    if (!harness.space->Protect(range, GuestPermission::Read | GuestPermission::Write)) {
++        Check("G10a", "make code writable", false); return;
++    }
++    {
++        auto pin = harness.space->AcquirePinnedSpan(range, true);
++        if (!pin) { Check("G10a", "pin code", false); return; }
++        auto bytes = pin.Value().WritableBytes();
++        std::memcpy(bytes.data(), b->bytes.data(), b->bytes.size());
++        std::memcpy(bytes.data() + b->gate_offset, &harness.return_gate, sizeof(harness.return_gate));
++    }
++    {
++        auto q = harness.space->Quiesce(1'000'000);
++        if (!q) { Check("G10a", "quiesce failed code", false); return; }
++        auto invalidated = harness.space->InvalidateCode(q.Value(), range, InvalidationReason::HostWrite);
++        Check("G10a", "pinned rewrite with failed invalidation poisons code",
++              !invalidated && harness.space->HasPoisonedCode());
++    }
++    std::uint64_t value{};
++    std::string error;
++    auto rx = harness.space->Protect(range, GuestPermission::Read | GuestPermission::Execute);
++    Check("G10b", "poison refuses execute permission and real guest admission",
++          !rx && !RunPublishedCode(harness, value, error));
++    restore.Apply();
++    {
++        auto q = harness.space->Quiesce(1'000'000);
++        if (!q || !harness.space->InvalidateCode(q.Value(), range, InvalidationReason::HostWrite)) {
++            Check("G10d", "repair real translation", false); return;
++        }
++    }
++    error.clear();
++    const auto executable = harness.space->Protect(range, GuestPermission::Read | GuestPermission::Execute);
++    Check("G10d", "successful repair resumes the new B translation",
++          executable && RunPublishedCode(harness, value, error) && value == 34 &&
++          !harness.space->HasPoisonedCode(), error);
++}
++
+ // --- contract checks that need no execution -------------------------------------------------------
+ void TestContracts(Harness& harness) {
+     const auto caps = harness.context->Capabilities();
+@@ -852,6 +923,7 @@ int main() {
+     TestUnregisteredHlt(harness);
+     TestCodeInvalidation(harness);
+     TestPublicApiPublication(harness);
++    TestPinnedInvalidationRecovery(harness);
+     printf("\n");
+     // Contract checks last: they publish their own stub at the same address.
+     TestContracts(harness);

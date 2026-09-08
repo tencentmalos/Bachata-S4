@@ -1,0 +1,15 @@
+run id: audit-empty-crash
+build dir: /tmp/shadps4-v0-review3-20260908/synthetic-empty-crash
+
+api_contract_tests: 0 sub-case(s), 0 failure(s)  [UNUSABLE: suite exited 7 despite its printed results]
+  (exit 7, 0.14s)
+hle_abi_tests: 0 sub-case(s), 0 failure(s)  [UNUSABLE: missing: /tmp/shadps4-v0-review3-20260908/synthetic-empty-crash/guest_cpu_hle_abi_tests]
+  no output
+host_page_size_probe: 0 sub-case(s), 0 failure(s)  [UNUSABLE: missing: /tmp/shadps4-v0-review3-20260908/synthetic-empty-crash/host_page_size_probe]
+  no output
+
+1 PASS, 0 FAIL, 59 NOT_RUN of 60 in-scope cases
+release status: V0_IN_PROGRESS
+wrote /tmp/shadps4-v0-review3-20260908/empty-crash-results.json
+
+runner_exit=0

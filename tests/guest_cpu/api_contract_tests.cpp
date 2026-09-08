@@ -907,6 +907,156 @@ void TestTransactions() {
               "a callback whose sink was unregistered mid-flight must not report success");
     });
 
+    RunCase("M13k", "separate failed publications require separate repairs", [] {
+        struct Sink final : CodeInvalidationSink {
+            bool fail{true};
+            std::string_view Name() const override { return "repair-test"; }
+            Status DiscardTranslations(GuestRange, InvalidationReason) override {
+                return fail ? MakeError(ErrorCategory::BackendFailure, "test", "injected") : Ok();
+            }
+        } sink;
+        auto space = MakeSpace();
+        const auto page = HostPageSize();
+        GuestRange a{space->ReservationBase(), page};
+        GuestRange b{GuestAddress{a.base.value + page}, page};
+        Check(bool(space->Map(a, GuestPermission::Read | GuestPermission::Write)), "map A");
+        Check(bool(space->Map(b, GuestPermission::Read | GuestPermission::Write)), "map B");
+        Check(bool(space->SetCodeInvalidationSink(&sink)), "register sink");
+        std::vector<std::byte> code(page, std::byte{0x90});
+        {
+            auto q = space->Quiesce(1000);
+            if (!q) { Check(false, "quiesce"); return; }
+            Check(!space->PublishCode(q.Value(), a, code), "A must fail");
+            Check(!space->PublishCode(q.Value(), b, code), "B must fail");
+            sink.fail = false;
+            Check(bool(space->InvalidateCode(q.Value(), b, InvalidationReason::HostWrite)), "repair B");
+            Check(space->HasPoisonedCode(), "repair B must not forget failed A");
+        }
+        Check(!space->AcquireExecutionLease(), "A still blocks execution");
+        {
+            auto q = space->Quiesce(1000);
+            if (!q) { Check(false, "repair quiesce"); return; }
+            Check(bool(space->InvalidateCode(q.Value(), a, InvalidationReason::HostWrite)), "repair A");
+        }
+        Check(bool(space->AcquireExecutionLease()), "all repairs restore admission");
+        space->ClearCodeInvalidationSink(&sink);
+    });
+
+    RunCase("M13l", "failed invalidation after a pinned write blocks execution", [] {
+        struct Sink final : CodeInvalidationSink {
+            std::string_view Name() const override { return "invalidate-failure"; }
+            Status DiscardTranslations(GuestRange, InvalidationReason) override {
+                return MakeError(ErrorCategory::BackendFailure, "test", "injected");
+            }
+        } sink;
+        auto space = MakeSpace();
+        GuestRange range{space->ReservationBase(), HostPageSize()};
+        Check(bool(space->Map(range, GuestPermission::Read | GuestPermission::Write)), "map");
+        Check(bool(space->SetCodeInvalidationSink(&sink)), "register sink");
+        {
+            auto pin = space->AcquirePinnedSpan(range, true);
+            if (!pin) { Check(false, "pin"); return; }
+            pin.Value().WritableBytes()[0] = std::byte{0x42};
+        }
+        {
+            auto q = space->Quiesce(1000);
+            if (!q) { Check(false, "quiesce"); return; }
+            Check(!space->InvalidateCode(q.Value(), range, InvalidationReason::HostWrite), "must fail");
+        }
+        Check(space->HasPoisonedCode(), "caller may have already changed the bytes");
+        Check(!space->AcquireExecutionLease(), "failed invalidate must block stale code");
+        space->ClearCodeInvalidationSink(&sink);
+    });
+
+    RunCase("M13m", "sink exceptions fail closed and release the callback lease", [] {
+        struct Sink final : CodeInvalidationSink {
+            std::string_view Name() const override { return "throwing-test"; }
+            Status DiscardTranslations(GuestRange, InvalidationReason) override { throw 42; }
+        } sink;
+        auto space = MakeSpace();
+        GuestRange range{space->ReservationBase(), HostPageSize()};
+        Check(bool(space->Map(range, GuestPermission::Read | GuestPermission::Write)), "map");
+        Check(bool(space->SetCodeInvalidationSink(&sink)), "register sink");
+        bool escaped = false;
+        {
+            auto q = space->Quiesce(1000);
+            if (!q) { Check(false, "quiesce"); return; }
+            std::vector<std::byte> code(range.size, std::byte{0x90});
+            try {
+                auto r = space->PublishCode(q.Value(), range, code);
+                Check(!r && r.GetError().category == ErrorCategory::BackendFailure, "exception must become failure");
+            } catch (...) { escaped = true; }
+        }
+        Check(!escaped, "exception must not escape the sink boundary");
+        Check(space->HasPoisonedCode(), "throw after write must poison code");
+        // The old implementation leaked its in-flight count on exception. Do not hang its negative run.
+        if (!escaped) space->ClearCodeInvalidationSink(&sink);
+    });
+
+    RunCase("M13n", "mapping mutation cannot enter an active publication or execution", [] {
+        auto space = MakeSpace();
+        GuestRange range{space->ReservationBase(), HostPageSize()};
+        Check(bool(space->Map(range, GuestPermission::Read | GuestPermission::Write)), "map");
+        const auto generation = space->MappingGeneration();
+        {
+            auto q = space->Quiesce(1000);
+            if (!q) { Check(false, "quiesce"); return; }
+            auto r = space->Protect(range, GuestPermission::Read);
+            Check(!r && r.GetError().category == ErrorCategory::Busy, "Protect during publication must be Busy");
+        }
+        Check(space->MappingGeneration() == generation, "refusal must preserve mapping");
+        {
+            auto lease = space->AcquireExecutionLease();
+            if (!lease) { Check(false, "lease"); return; }
+            auto r = space->Unmap(range);
+            Check(!r && r.GetError().category == ErrorCategory::Busy, "Unmap during execution must be Busy");
+        }
+        Check(bool(space->Query(range.base)), "mapping must remain live");
+    });
+
+    RunCase("M13o", "a draining sink excludes replacement registrations", [] {
+        struct Sink final : CodeInvalidationSink {
+            std::atomic<bool> entered{false}, release{false};
+            std::string_view Name() const override { return "drain-test"; }
+            Status DiscardTranslations(GuestRange, InvalidationReason) override {
+                entered.store(true);
+                while (!release.load()) std::this_thread::yield();
+                return Ok();
+            }
+        } sink, replacement;
+        auto space = MakeSpace();
+        GuestRange range{space->ReservationBase(), HostPageSize()};
+        Check(bool(space->Map(range, GuestPermission::Read | GuestPermission::Write)), "map");
+        Check(bool(space->SetCodeInvalidationSink(&sink)), "register sink");
+        auto q = space->Quiesce(1000);
+        if (!q) { Check(false, "quiesce"); return; }
+        bool committed = true;
+        std::thread publisher([&] {
+            std::vector<std::byte> code(range.size);
+            committed = bool(space->PublishCode(q.Value(), range, code));
+        });
+        while (!sink.entered.load()) std::this_thread::yield();
+        std::thread clearer([&] { space->ClearCodeInvalidationSink(&sink); });
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+        bool drain_observed = false;
+        while (std::chrono::steady_clock::now() < deadline) {
+            auto attempt = space->SetCodeInvalidationSink(&replacement);
+            if (attempt) break; // Old implementation allowed replacement during drain.
+            if (attempt.GetError().category == ErrorCategory::Busy) {
+                drain_observed = true;
+                break;
+            }
+            std::this_thread::yield(); // Clear has not acquired the mutex yet.
+        }
+        sink.release.store(true);
+        publisher.join();
+        clearer.join();
+        Check(drain_observed, "replacement must be Busy until the old callback drains");
+        Check(!committed, "the unregistered callback must not commit");
+        Check(bool(space->SetCodeInvalidationSink(&replacement)), "registration resumes after drain");
+        space->ClearCodeInvalidationSink(&replacement);
+    });
+
     RunCase("M12", "observers get conservatively widened write notifications", [] {
         auto space = MakeSpace();
         const std::uint64_t page = HostPageSize();

@@ -1,0 +1,38 @@
+{
+  "recorded_at": "2026-09-08T17:55:28.765486+08:00",
+  "main": "95bc13fa6dc65961b46929d270daad876262d464",
+  "fex": "385a0cc4d81cd456c8d5c26b4f09cb5a7d8d5842",
+  "device": {
+    "serial": "PB3210PGL6170004G",
+    "android": 16,
+    "host_pages": 4096
+  },
+  "toolchain": {
+    "ndk": "29.0.14206865",
+    "android_api_target": 35
+  },
+  "validation_scope": "Fresh host builds through both tests/guest_cpu and existing cmake/fex; incremental FEX build plus relink; Android shell ELF, no APK/ART. Production source unchanged.",
+  "results": {
+    "guest": "41/41 exit 0",
+    "device_contract": "26/26 exit 0",
+    "host_contract": "prints 26/26 but M13f returns early after skipped note and is counted PASS",
+    "host_hle": "14/14",
+    "host_page_probe": "22/22",
+    "poison_fault_injection": "publication fails, poison=1, Protect(RX) accepted, old guest returns 17; probe exit 0 means observations completed",
+    "sink_lifetime": "Clear returns during old callback, replacement sink accepted, old callback completes publication successfully; sink kept alive to avoid causing use-after-free",
+    "runner_empty_failure": "suite exit 7 recorded UNUSABLE but M01 remains NOT_RUN and summary.failed=0"
+  },
+  "artifact_sha256": {
+    "guest_execution_tests": "7aab7acebac871dc6b7c026e098bc8a0ca92a24ba2021cc589072b2ebaf4824c",
+    "device_contract_tests": "8cb7cf095ad62aad6f309cbf3a419992cef9b1564b7f4805d47624bf6139d9ea",
+    "poison_guest_probe": "ae7bd4f765eed10e4a84ebe8e2531c7feeb1e1230b2a1840b95d056880d800be",
+    "sink_lifetime_probe": "ee9c821a31fa92ccf83d69308ea0703827bb580ebde072c501ef9fdcd37c505e"
+  },
+  "source_sha256": {
+    "src/core/guest_cpu/api/address_space.cpp": "049586b8f99de23c9986dd38dac655495415f422ed26e2e0ce11a512d8a52ad9",
+    "src/core/guest_cpu/api/memory.h": "93db6a9e8cb599d1bd6c9b53f72580eb5bb968f85a61f9b63d917b2bec571252",
+    "src/core/guest_cpu/fex/fex_context.cpp": "c7650534598c0d58abe4e9c9a1ced24c3b3866e254c9f7c96c83e13a5c79cccd",
+    "scripts/android/run-v0-tests": "5d4d23ab4edeb5742d2e055c2bff94a5e0d08337519c9263b43a9993cad6a80a",
+    "tests/guest_cpu/api_contract_tests.cpp": "afaef9430220b426d75e3e851b41f5e7afebfea204627a1b722cb9245f3631a5"
+  }
+}

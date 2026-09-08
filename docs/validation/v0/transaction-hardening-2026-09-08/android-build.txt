@@ -1,0 +1,103 @@
+NDK:   /Users/bytedance/Library/Android/sdk/ndk/29.0.14206865
+API:   35
+build: /Users/bytedance/workspace/emulations/ps4/shadps4/build/fexcore-android
+
+-- Clang version 21.0.0
+-- Has clang::preserve_all
+--  jemalloc glibc allocator disabled!
+ This is not a recommended configuration!
+ This will very explicitly break thunk execution!
+ Use at your own risk!
+-- xxHash build type: RELEASE
+-- Architecture: arm64
+-- {fmt} version: 12.2.0
+-- Build type: RELEASE
+CMake Warning (deprecated) at External/range-v3/CMakeLists.txt:8 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+This warning is for project developers.  Use -Wno-author or -Wno-deprecated
+to suppress it.
+
+CMake Warning at External/range-v3/cmake/ranges_env.cmake:65 (message):
+  [range-v3 warning]: unknown system Android !
+Call Stack (most recent call first):
+  External/range-v3/CMakeLists.txt:24 (include)
+
+
+CMake Warning at External/range-v3/cmake/ranges_env.cmake:92 (message):
+  [range-v3 warning]: unknown build type, defaults to release!
+Call Stack (most recent call first):
+  External/range-v3/CMakeLists.txt:24 (include)
+
+
+-- [range-v3]: C++ std=2a
+-- FEX version: FEX-2608-240-g385a0cc
+-- FEX commit: 385a0cc4d81cd456c8d5c26b4f09cb5a7d8d5842
+-- Has gettid helper
+-- Has tgkill helper
+-- Has statx helper
+-- Has renameat2 helper
+-- Configuring done (0.6s)
+-- Generating done (0.1s)
+-- Build files have been written to: /Users/bytedance/workspace/emulations/ps4/shadps4/build/fexcore-android
+[1/10] Generating CXX dyndep file External/fmt/CMakeFiles/fmt-module.dir/CXX.dd
+[2/8] Generating CXX dyndep file External/fmt/CMakeFiles/fmt.dir/CXX.dd
+[3/5] Generating CXX dyndep file External/fmt/CMakeFiles/fmt-c.dir/CXX.dd
+wrote /Users/bytedance/workspace/emulations/ps4/shadps4/build/fexcore-android/generated-fixtures/guest_fixtures.h
+9 fixture(s), combined sha256 3490fbf5ff4fd39c
+  bare_hlt: 1 bytes, 1 instruction(s)
+  branch: 28 bytes, 6 instruction(s)
+  constant_a: 18 bytes, 3 instruction(s)
+  constant_b: 18 bytes, 3 instruction(s)
+  integer: 26 bytes, 6 instruction(s)
+  loadstore: 17 bytes, 6 instruction(s)
+  return_only: 13 bytes, 2 instruction(s)
+  sse2: 32 bytes, 6 instruction(s)
+  store_memory: 33 bytes, 6 instruction(s)
+
+-- The CXX compiler identification is Clang 21.0.0
+-- The C compiler identification is Clang 21.0.0
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- V0: Android arm64-v8a platform android-35
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Failed
+-- Looking for pthread_create in pthreads
+-- Looking for pthread_create in pthreads - not found
+-- Looking for pthread_create in pthread
+-- Looking for pthread_create in pthread - not found
+-- Check if compiler accepts -pthread
+-- Check if compiler accepts -pthread - yes
+-- Found Threads: TRUE
+-- Configuring done (1.6s)
+-- Generating done (0.0s)
+-- Build files have been written to: /Users/bytedance/workspace/emulations/ps4/shadps4/build/fexcore-android/v0
+[1/16] Building CXX object CMakeFiles/host_page_size_probe.dir/Users/bytedance/workspace/emulations/ps4/shadps4/tests/host_page_size/host_page_size_probe.cpp.o
+[2/16] Linking CXX executable host_page_size_probe
+[3/16] Building CXX object guest_cpu/CMakeFiles/guest_cpu_api.dir/api/execution.cpp.o
+[4/16] Building CXX object guest_cpu/CMakeFiles/guest_cpu_api.dir/api/status.cpp.o
+[5/16] Building CXX object guest_cpu/CMakeFiles/guest_cpu_api.dir/api/address_space.cpp.o
+[6/16] Building CXX object CMakeFiles/guest_execution_tests.dir/Users/bytedance/workspace/emulations/ps4/shadps4/tests/guest_cpu/guest_execution_tests.cpp.o
+[7/16] Building CXX object CMakeFiles/guest_cpu_hle_abi_tests.dir/Users/bytedance/workspace/emulations/ps4/shadps4/tests/guest_cpu/hle_abi_tests.cpp.o
+[8/16] Linking CXX static library guest_cpu/libguest_cpu_api.a
+[9/16] Linking CXX executable guest_cpu_hle_abi_tests
+[10/16] Building CXX object CMakeFiles/fexcore_bionic_smoke.dir/Users/bytedance/workspace/emulations/ps4/shadps4/tests/fex_bionic/fexcore_bionic_smoke.cpp.o
+[11/16] Building CXX object CMakeFiles/guest_cpu_contract_tests.dir/Users/bytedance/workspace/emulations/ps4/shadps4/tests/guest_cpu/api_contract_tests.cpp.o
+[12/16] Building CXX object CMakeFiles/guest_cpu_fex.dir/Users/bytedance/workspace/emulations/ps4/shadps4/src/core/guest_cpu/fex/fex_context.cpp.o
+[13/16] Linking CXX executable guest_cpu_contract_tests
+[14/16] Linking CXX static library libguest_cpu_fex.a
+[15/16] Linking CXX executable fexcore_bionic_smoke
+[16/16] Linking CXX executable guest_execution_tests
+built V0 targets in /Users/bytedance/workspace/emulations/ps4/shadps4/build/fexcore-android/v0

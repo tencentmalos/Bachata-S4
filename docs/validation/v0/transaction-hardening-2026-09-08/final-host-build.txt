@@ -1,0 +1,4 @@
+[1/4] Building CXX object guest_cpu/CMakeFiles/guest_cpu_api.dir/api/address_space.cpp.o
+[2/4] Linking CXX static library guest_cpu/libguest_cpu_api.a
+[3/4] Linking CXX executable guest_cpu_contract_tests
+[4/4] Linking CXX executable guest_cpu_hle_abi_tests

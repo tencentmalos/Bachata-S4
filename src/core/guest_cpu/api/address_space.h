@@ -176,8 +176,9 @@ public:
 
     // --- transactions ------------------------------------------------------
 
-    // Stops relevant guest owners and waits for in-flight HLE writers. Returns
-    // Timeout without touching anything if it cannot get a complete stop.
+    // Reserves an already-idle address space for publication. This V0 subset
+    // does not interrupt guest owners or wait for HLE pins; a refusal leaves
+    // state unchanged. Running-thread stop/acknowledgement is still pending.
     //
     // Refuses with Busy while any ExecutionLease is outstanding, and blocks new
     // leases for as long as the returned token lives. That admission gate is
@@ -278,8 +279,10 @@ private:
     [[nodiscard]] Status CallSinkUnlocked(std::unique_lock<std::mutex>& guard, GuestRange range,
                                           InvalidationReason reason, bool& committed);
 
-    // Requires `lock`. Clears poison only when `repaired` covers the range that failed.
+    // Requires `lock`. Clears only the failed intervals fully covered by this repair.
     void ClearPoisonIfRepairedLocked(GuestRange repaired);
+    void PoisonCodeLocked(GuestRange range);
+    [[nodiscard]] Status CheckMappingMutationLocked(std::string_view operation) const;
 
     struct Mapping final {
         GuestRange range{};
@@ -315,7 +318,7 @@ private:
     std::uint64_t active_quiescence{};
     std::uint64_t next_lease_id{1};
     CodeInvalidationSink* code_sink{};
-    // Number of DiscardTranslations calls currently running on `code_sink`.
+    // Number of DiscardTranslations calls on the current or draining registration.
     // Clear waits for this to reach zero before returning, so a backend can
     // destroy itself immediately afterwards.
     std::size_t sink_calls_in_flight{};
@@ -331,8 +334,8 @@ private:
     // publication or invalidation over the poisoned range succeeds; reporting
     // success without that would let stale translated code run against bytes
     // that no longer exist.
-    bool code_poisoned{};
-    GuestRange poisoned_range{};
+    std::vector<GuestRange> poisoned_ranges;
+    bool sink_draining{};
     std::condition_variable sink_idle;
     std::condition_variable leases_idle;
     // Handed to tokens and pins as a weak reference so they can tell whether

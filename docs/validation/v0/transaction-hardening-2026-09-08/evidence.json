@@ -1,0 +1,65 @@
+{
+  "recorded_at": "2026-09-08T20:27:11.155177+08:00",
+  "main_base": "e3746e36a05f18bffa0afbcaf29a59296d9167a2",
+  "changes": "working tree changes; source-fix.patch plus tests/guest_cpu/test_v0_runner.py; not committed",
+  "fex": "385a0cc4d81cd456c8d5c26b4f09cb5a7d8d5842",
+  "fex_dirty": false,
+  "device": {
+    "attached": true,
+    "api": 36,
+    "abi": "arm64-v8a",
+    "kernel_page_size": 4096,
+    "process_page_size": null,
+    "physical_device": null,
+    "soc": "xxxx",
+    "kernel": "6.12.58-android16-6-maybe-dirty-4k",
+    "page_size_compat_enabled": null,
+    "note": "kernel page size read from the device; the in-app sysconf value requires the validation APK and is still unverified",
+    "serial": "PB3210PGL6170004G"
+  },
+  "ndk_metadata": "Pkg.Desc = Android NDK\nPkg.Revision = 29.0.14206865\nPkg.BaseRevision = 29.0.14206865\nPkg.ReleaseName = r29\n",
+  "target_api": 35,
+  "build_scope": "Fresh host CMake build; incremental FEX build, canonical CMake backend/probes. adb shell ELF, not APK/ART. TSan not run.",
+  "results": {
+    "host_contract": "33 passed, 1 skipped, 34 total",
+    "device_contract": "34/34",
+    "device_guest": "45/45",
+    "host_hle": "14/14",
+    "host_page_probe": "22/22",
+    "bionic_smoke": "12/12",
+    "python_runner": "6/6",
+    "acceptance": {
+      "passed": 11,
+      "failed": 0,
+      "not_run": 46,
+      "deferred_by_scope": 3,
+      "in_scope_total": 57,
+      "total": 60
+    }
+  },
+  "artifacts": {
+    "guest_execution_tests": {
+      "sha256": "3b51dfabb9aa89178d759b7a80499f667a7b39dec50143db1bc28ae8a5cc5a35",
+      "build_id": "2ce7649e0aea3d824d049493fa7f0731240f1a17"
+    },
+    "guest_cpu_contract_tests": {
+      "sha256": "fd5590de0b914f566722ba3df9406f9a675c146ab8499ec5e42051339011dc00",
+      "build_id": "29f855c30607a6034e4bfc1b4e2259b58dd5a56f"
+    },
+    "fexcore_bionic_smoke": {
+      "sha256": "334c1c277953e70195aea6a5177e46671ab3522f6029888721ab36d764bc34bf",
+      "build_id": "561fd7f90357ec549473ac392143b1cc510a408d"
+    }
+  },
+  "source_sha256": {
+    "src/core/guest_cpu/api/address_space.cpp": "3bdaad985b2b05b2b2b33d9819527eb541d58ec5e9bbf60256b7978649f2beb1",
+    "src/core/guest_cpu/api/address_space.h": "a566344ea30fcb1187ee47674543130365e6e232896355f15b40053f4b3f9576",
+    "src/core/guest_cpu/fex/fex_context.cpp": "2112eba1edba79afaf141875025c69ef74a78afdd8d3b5b46b2d4692b88571e6",
+    "scripts/android/run-v0-tests": "a5881424612af6be0687b9400856ce4af3167cc1ff68f3d16da5fc0ec9e4977c",
+    "scripts/android/build-fexcore-android": "d050bb5fe6e795403d68a5136141830fccf7d570239781213a5bfb37c7df6c5e",
+    "tests/guest_cpu/api_contract_tests.cpp": "5345f486176a4c47ed73791fdbf00aecdba57141263b93a785749d75ffb0b848",
+    "tests/guest_cpu/guest_execution_tests.cpp": "d35082efd7eb4bb60fc9396504672cafeb11e65a3681f77ca4feb0b738c05d03",
+    "tests/guest_cpu/test_v0_runner.py": "41ce1c17438012724df44e155c366edb04452d8a9fbbaa14f662c907cdf66b53"
+  },
+  "note": "Only a Quiesce documentation comment changed after the final build; binaries and runtime logs are unchanged."
+}

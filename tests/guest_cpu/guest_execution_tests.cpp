@@ -699,6 +699,77 @@ void TestPublicApiPublication(Harness& harness) {
           harness.context->LiveThreadCount() == 0);
 }
 
+// Fault injection must test actual cached guest execution, not only metadata.
+void TestPinnedInvalidationRecovery(Harness& harness) {
+    const auto* a = FindFixture("constant_a");
+    const auto* b = FindFixture("constant_b");
+    if (!a || !b) { Check("G10a", "failure fixtures exist", false); return; }
+    auto warm = RunFixture(harness, *a, [](RegisterPatch&) {});
+    if (!warm.ok || warm.result.snapshot.registers.Get(Gpr::Rax) != 17) {
+        Check("G10a", "warm old translation", false, warm.error); return;
+    }
+    auto* real_sink = dynamic_cast<CodeInvalidationSink*>(harness.context.get());
+    if (!real_sink) { Check("G10a", "backend sink exists", false); return; }
+    struct FailingSink final : CodeInvalidationSink {
+        std::string_view Name() const override { return "guest-recovery-test"; }
+        Status DiscardTranslations(GuestRange, InvalidationReason) override {
+            return MakeError(ErrorCategory::BackendFailure, "test", "injected failure");
+        }
+    } failed_sink;
+    struct Restore final {
+        GuestAddressSpace& space;
+        CodeInvalidationSink* real;
+        CodeInvalidationSink* injected;
+        bool done{};
+        void Apply() {
+            if (done) return;
+            space.ClearCodeInvalidationSink(injected);
+            Check("G10c", "restore real backend registration", bool(space.SetCodeInvalidationSink(real)));
+            done = true;
+        }
+        ~Restore() { Apply(); }
+    } restore{*harness.space, real_sink, &failed_sink};
+    harness.space->ClearCodeInvalidationSink(real_sink);
+    if (!harness.space->SetCodeInvalidationSink(&failed_sink)) {
+        Check("G10a", "register failure injection", false); return;
+    }
+    GuestRange range{GuestAddress{harness.code_base}, kMappingSize};
+    if (!harness.space->Protect(range, GuestPermission::Read | GuestPermission::Write)) {
+        Check("G10a", "make code writable", false); return;
+    }
+    {
+        auto pin = harness.space->AcquirePinnedSpan(range, true);
+        if (!pin) { Check("G10a", "pin code", false); return; }
+        auto bytes = pin.Value().WritableBytes();
+        std::memcpy(bytes.data(), b->bytes.data(), b->bytes.size());
+        std::memcpy(bytes.data() + b->gate_offset, &harness.return_gate, sizeof(harness.return_gate));
+    }
+    {
+        auto q = harness.space->Quiesce(1'000'000);
+        if (!q) { Check("G10a", "quiesce failed code", false); return; }
+        auto invalidated = harness.space->InvalidateCode(q.Value(), range, InvalidationReason::HostWrite);
+        Check("G10a", "pinned rewrite with failed invalidation poisons code",
+              !invalidated && harness.space->HasPoisonedCode());
+    }
+    std::uint64_t value{};
+    std::string error;
+    auto rx = harness.space->Protect(range, GuestPermission::Read | GuestPermission::Execute);
+    Check("G10b", "poison refuses execute permission and real guest admission",
+          !rx && !RunPublishedCode(harness, value, error));
+    restore.Apply();
+    {
+        auto q = harness.space->Quiesce(1'000'000);
+        if (!q || !harness.space->InvalidateCode(q.Value(), range, InvalidationReason::HostWrite)) {
+            Check("G10d", "repair real translation", false); return;
+        }
+    }
+    error.clear();
+    const auto executable = harness.space->Protect(range, GuestPermission::Read | GuestPermission::Execute);
+    Check("G10d", "successful repair resumes the new B translation",
+          executable && RunPublishedCode(harness, value, error) && value == 34 &&
+          !harness.space->HasPoisonedCode(), error);
+}
+
 // --- contract checks that need no execution -------------------------------------------------------
 void TestContracts(Harness& harness) {
     const auto caps = harness.context->Capabilities();
@@ -852,6 +923,7 @@ int main() {
     TestUnregisteredHlt(harness);
     TestCodeInvalidation(harness);
     TestPublicApiPublication(harness);
+    TestPinnedInvalidationRecovery(harness);
     printf("\n");
     // Contract checks last: they publish their own stub at the same address.
     TestContracts(harness);

@@ -85,59 +85,19 @@ mkdir -p "${GENERATED}"
 "${REPO}/scripts/android/generate-guest-fixtures" --output "${GENERATED}/guest_fixtures.h"
 echo
 
-# --- link the probes ---------------------------------------------------------
-# Order matters less inside --start-group/--end-group, which is needed because FEXCore,
-# FEXCore_Base and the allocator libraries reference each other cyclically.
-link_probe() {
-  local output="$1"
-  shift
-  "${CXX}" -std=c++20 -O1 -g -static-libstdc++ -o "${output}" "$@" \
-    -I"${REPO}/src" \
-    -I"${GENERATED}" \
-    -I"${BUILD}/FEXCore/Source" \
-    -I"${FEX}/FEXCore/Source" \
-    -I"${FEX}/Source" \
-    -I"${BUILD}/Source" \
-    -I"${BUILD}/generated" \
-    -I"${BUILD}/include" \
-    -I"${FEX}/FEXCore/Source/IncludePrivate" \
-    -I"${FEX}/FEXCore/include" \
-    -I"${FEX}/External/fmt/include" \
-    -I"${FEX}/External/xxhash" \
-    -I"${FEX}/FEXHeaderUtils" \
-    -I"${FEX}/CodeEmitter" \
-    -I"${FEX}/External/unordered_dense/include" \
-    -DARCHITECTURE_arm64=1 \
-    -DFEX_DISABLE_TELEMETRY=1 \
-    -Wl,--start-group \
-    "${BUILD}/FEXCore/Source/libFEXCore.a" \
-    "${BUILD}/Source/Common/libCommon.a" \
-    "${BUILD}/FEXCore/Source/libFEXCore_Base.a" \
-    "${BUILD}/FEXCore/Source/libJemallocLibs.a" \
-    "${BUILD}/External/rpmalloc/librpmalloc.a" \
-    "${BUILD}/External/SoftFloat-3e/libsoftfloat_3e.a" \
-    "${BUILD}/External/cephes/libcephes_128bit.a" \
-    "${BUILD}/External/fmt/libfmt.a" \
-    "${BUILD}/External/xxhash/cmake_unofficial/libxxhash.a" \
-    "${BUILD}/External/tiny-json/libtiny-json.a" \
-    -Wl,--end-group \
-    -llog
-}
+# --- build the embedder through the canonical CMake targets --------------------
+V0_BUILD="${BUILD}/v0"
+cmake -S "${REPO}/cmake/fex" -B "${V0_BUILD}" -G Ninja \
+  -DCMAKE_TOOLCHAIN_FILE="${NDK}/build/cmake/android.toolchain.cmake" \
+  -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM="android-${API}" \
+  -DANDROID_STL=c++_static -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+  -DV0_ENABLE_FEX=ON -DV0_BUILD_TESTS=ON \
+  -DFEX_BUILD_DIR="${BUILD}" -DV0_FIXTURE_DIR="${GENERATED}"
+cmake --build "${V0_BUILD}"
 
-# Link + init only; executes no guest code.
-link_probe "${BUILD}/fexcore_bionic_smoke" \
-  "${REPO}/tests/fex_bionic/fexcore_bionic_smoke.cpp"
-
-# Real x86-64 executed through the public API, so it needs the backend and the
-# API sources compiled in alongside it.
-link_probe "${BUILD}/guest_execution_tests" \
-  "${REPO}/tests/guest_cpu/guest_execution_tests.cpp" \
-  "${REPO}/src/core/guest_cpu/fex/fex_context.cpp" \
-  "${REPO}/src/core/guest_cpu/api/address_space.cpp" \
-  "${REPO}/src/core/guest_cpu/api/execution.cpp" \
-  "${REPO}/src/core/guest_cpu/api/status.cpp"
-
-echo
-echo "built ${BUILD}/fexcore_bionic_smoke"
-echo "built ${BUILD}/guest_execution_tests"
-echo "run on a device with: scripts/android/run-fexcore-smoke ${BUILD}"
+# Retain the existing runner entry paths; these are copies of the CMake outputs,
+# never a second compilation/link recipe.
+for probe in guest_execution_tests guest_cpu_contract_tests guest_cpu_hle_abi_tests fexcore_bionic_smoke; do
+  cmake -E copy_if_different "${V0_BUILD}/${probe}" "${BUILD}/${probe}"
+done
+echo "built V0 targets in ${V0_BUILD}"

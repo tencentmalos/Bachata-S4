@@ -1,0 +1,2 @@
+clear_returned_with_callback_active=1 replacement_registered=1
+old_sink_publication_succeeded_after_replacement=1

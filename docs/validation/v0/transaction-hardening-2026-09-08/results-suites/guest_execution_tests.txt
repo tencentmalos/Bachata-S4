@@ -1,0 +1,62 @@
+guest execution through the public CPU API
+host page size: 4096
+fixtures: 9, generated from tests/guest_cpu/fixtures/guest_fixtures.S
+
+guest reservation base: 0x7f8000000
+code at 0x7f8010000, stack top 0x7f8023ff0
+return gate at 0xfc0000000
+
+[G01a  ] integer fixture returned through the gate                  PASS
+[G01b  ] add r8, r9 produced the sum                                PASS
+[G01c  ] mov r10, r8 then sub 5                                     PASS
+[G01d  ] xor r11, r11 cleared the register                          PASS
+[G01e  ] snapshot reports GPRs as valid                             PASS
+[G01f  ] snapshot kind is a safe point                              PASS
+[G02a  ] not-taken branch fell through to the mov                   PASS
+[G02b  ] taken branch skipped the mov                               PASS
+[G03a  ] pop rax read back the second push                          PASS
+[G03b  ] pop rcx read back the first push                           PASS
+[G03c  ] stack pointer is balanced after push/pop                   PASS
+[G07a  ] guest memory below rsp is readable                         PASS
+[G07b  ] store to [rsp-16] landed in guest memory                   PASS
+[G07c  ] store to [rsp-8] landed in guest memory                    PASS
+[G07d  ] direct host read agrees with the pinned-span read          PASS -- direct[rsp-16]=0xbadc0de0badc0de direct[rsp-8]=0xfeedfacefeedface (pinned read gave 0xbadc0de0badc0de / 0xfeedfacefeedface)
+[G07e  ] guest read back its own store to [rsp-16]                  PASS
+[G07f  ] guest read back its own store to [rsp-8]                   PASS
+[G04a  ] paddq result moved back to a GPR                           PASS
+[G04b  ] xmm0 low half holds the packed sum                         PASS
+[G04c  ] snapshot reports XMM as valid                              PASS
+[G05a  ] a HLT outside the gate is not reported as Returned         PASS -- GuestFault
+[G05b  ] the stop is reported as a guest fault                      PASS
+[G05c  ] fault carries a guest RIP                                  PASS
+[G05d  ] snapshot kind is Faulted, not SafePoint                    PASS
+[G08a  ] 100 same-VA publications with zero live threads between runs PASS
+[G08b  ] 100 publications invalidate both stopped threads without changing state PASS
+[G08c  ] cache regression leaves no guest threads                   PASS
+[G09a  ] 100 publications through GuestAddressSpace alone run the new code PASS
+[G09b  ] GuestAddressSpace::InvalidateCode discards the backend's translation PASS
+[G09c  ] successful publications leave no poisoned range            PASS
+[G09d  ] public publication leaves no guest threads                 PASS
+[G10a  ] pinned rewrite with failed invalidation poisons code       PASS
+[G10b  ] poison refuses execute permission and real guest admission PASS
+[G10c  ] restore real backend registration                          PASS
+[G10d  ] successful repair resumes the new B translation            PASS
+
+[G06a  ] capabilities declare base integer support                  PASS
+[G06b  ] capabilities declare SSE2 support                          PASS
+[G06c  ] capabilities do not claim AVX                              PASS
+[G06d  ] capabilities report the injected host page size            PASS
+[G06e  ] a second concurrent context is refused with AlreadyActive  PASS
+[G06f  ] an unmapped entry_rip is refused                           PASS
+[G06g  ] Step is refused with Unsupported, not silently run as a block PASS
+[G06h  ] WriteRegisters refuses a stale stop epoch                  PASS
+[G06i  ] a destroyed handle is refused with InvalidHandle           PASS
+[G06j  ] InvalidateCode refuses a token from another address space  PASS -- InvalidArgument in InvalidateCode: the token belongs to a different address space, or its space has been destroyed
+
+45 check(s), ALL PASS (0 failures)
+SCOPE: real x86-64 executed by FEXCore through the public API, from
+       assembler-generated fixtures. Single-threaded; no HLE, interrupt or Step.
+__EXIT__=0
+
+(device exit 0, adb exit 0, 0.43s)
+{"exit_code": 0, "timed_out": false, "never_started": false, "error": null}

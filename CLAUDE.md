@@ -6,6 +6,8 @@
 
 ## 快速入口
 
+- [最新事务加固与验证](docs/validation/v0/transaction-hardening-2026-09-08.md)：Swan contract 34/34、guest 45/45；完整验收口径与后续中断/HLE/app 任务以此为准。
+
 - [子仓归属与开发分支](docs/subrepository-ownership.md)：动依赖前核对自有 remote、分支和固定版本。
 - [Foundation 接入](docs/foundation-integration.md)：DebugBus 已有构建入口；反射、packing、网络优先复用，完整闭包仍待验证。
 - [基础版本状态：2026-09-07 / a7128893](docs/baselines/2026-09-07-android-fex-foundation.md)：固定起点、已验证结果、未完成项和恢复方法。
