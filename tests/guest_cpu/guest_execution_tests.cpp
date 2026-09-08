@@ -995,11 +995,157 @@ void TestAsyncInterrupt(Harness& harness) {
 }
 
 // --- R2-C03 subset: request identity and refusals ----------------------------------------------
-// --- R2-C02: 100 pause/resume cycles on the warmed, HLE-free spin loop -------------------------
+// --- R2-C01: two owners genuinely concurrent in the JIT ---------------------------------------
 //
-// One owner thread stays in the spin loop for the whole test. The controller pauses it, waits for
-// the safe point, resumes it, repeats 100 times, then cancels once so the owner Run can return.
-// The spec's budget is that every request reaches a safe point within one second, warm, without an
+// Each guest thread is created and run on its own host owner thread (the API binds a thread to its
+// owner). Both run the unbreakable spin loop simultaneously. A barrier establishes that both were
+// inside the JIT at the same time; then one is paused while the other must keep advancing, which
+// cannot happen if Runs were serialized.
+void TestTwoOwnerConcurrency(Harness& harness) {
+    const auto* fixture = FindFixture("spin_loop");
+    if (fixture == nullptr) {
+        Check("G14", "spin loop fixture for two owners", false);
+        return;
+    }
+    std::string error;
+    if (!LoadFixture(harness, *fixture, error)) {
+        Check("G14", "publish spin loop for two owners", false, error);
+        return;
+    }
+
+    struct Owner {
+        ThreadHandle handle{};
+        std::thread host;
+        std::atomic<bool> in_jit{false};
+        std::atomic<bool> run_returned{false};
+        std::atomic<std::uint64_t> native_tid{0};
+        std::mutex ready_mutex;
+        std::condition_variable ready_cv;
+        bool ready{false};
+        bool create_failed{false};
+        std::string create_error;
+        // Sampled rax when the controller paused us.
+        std::atomic<std::uint64_t> sampled_rax{0};
+    };
+    auto run_owner = [&](Owner& owner, std::uint64_t guest_tid) {
+        ThreadInit init{};
+        init.entry_rip = GuestCodeAddress{harness.code_base};
+        init.initial_rsp = GuestAddress{harness.stack_top};
+        init.guest_tid = guest_tid;
+        auto thread = harness.context->CreateThread(init);
+        if (!thread) {
+            std::lock_guard<std::mutex> g{owner.ready_mutex};
+            owner.create_failed = true;
+            owner.create_error = Describe(thread.GetError());
+            owner.ready = true;
+            owner.ready_cv.notify_all();
+            return;
+        }
+        {
+            std::lock_guard<std::mutex> g{owner.ready_mutex};
+            owner.handle = thread.Value();
+            owner.ready = true;
+        }
+        owner.ready_cv.notify_all();
+
+        // Mark in-JIT once the Run has started; Run blocks for the whole spin. We cannot set this
+        // before CreateThread returns (it is on this thread), but Run never returns for a spin, so
+        // by the time the barrier waits below, being inside Run == being in the JIT.
+        owner.native_tid.store(static_cast<std::uint64_t>(
+            static_cast<std::intptr_t>(owner.host.native_handle())),
+            std::memory_order_release);
+        owner.in_jit.store(true, std::memory_order_release);
+        auto result = harness.context->Run(owner.handle, RunOptions{});
+        owner.in_jit.store(false, std::memory_order_release);
+        owner.run_returned.store(bool(result), std::memory_order_release);
+        (void)result;
+    };
+
+    Owner a, b;
+    a.host = std::thread([&] { run_owner(a, 11); });
+    b.host = std::thread([&] { run_owner(b, 12); });
+
+    auto wait_ready = [](Owner& o) {
+        std::unique_lock<std::mutex> g{o.ready_mutex};
+        o.ready_cv.wait(g, [&] { return o.ready; });
+    };
+    wait_ready(a);
+    wait_ready(b);
+    if (a.create_failed || b.create_failed) {
+        Check("G14", "create two owners each on its own thread", false,
+              a.create_error + " " + b.create_error);
+        if (a.host.joinable()) a.host.join();
+        if (b.host.joinable()) b.host.join();
+        return;
+    }
+
+    // Let both warm into the JIT, then prove overlap: both in_jit at the same instant.
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    const bool both_in_jit = a.in_jit.load() && b.in_jit.load();
+    Check("G14a", "two owners are both executing concurrently", both_in_jit);
+    Check("G14b", "the two owners are distinct native threads",
+          a.native_tid.load() != 0 && b.native_tid.load() != 0 &&
+              a.native_tid.load() != b.native_tid.load(),
+          "tid a=" + std::to_string(a.native_tid.load()) + " b=" +
+              std::to_string(b.native_tid.load()));
+
+    // Pause owner A. Owner B must still be running afterwards.
+    auto ticket_a = harness.context->RequestInterrupt(a.handle, InterruptReason::Pause);
+    Check("G14c", "interrupt owner A while both run", bool(ticket_a),
+          ticket_a ? std::string{} : Describe(ticket_a.GetError()));
+    if (ticket_a) {
+        auto receipt = harness.context->WaitStopped(ticket_a.Value(), 1'000'000'000);
+        Check("G14d", "owner A reached a safe point", bool(receipt),
+              receipt ? std::string{} : Describe(receipt.GetError()));
+        if (receipt) {
+            a.sampled_rax.store(receipt.Value().snapshot.registers.Get(Gpr::Rax),
+                                std::memory_order_release);
+        }
+    }
+
+    // A is stopped (G14d proved the safe point); B must be untouched and still running. A's counter
+    // must be frozen while B continues: that is the only way to show stopping one owner does not
+    // hold the other.
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    const std::uint64_t a_rax_at_stop = a.sampled_rax.load(std::memory_order_acquire);
+    const bool b_still_running = b.in_jit.load();
+    // Re-read A's registers: it is parked, so the snapshot must be stable and equal to the receipt.
+    std::uint64_t a_rax_later = a_rax_at_stop;
+    {
+        auto snap = harness.context->ReadRegisters(a.handle);
+        if (snap) {
+            a_rax_later = snap.Value().registers.Get(Gpr::Rax);
+        }
+    }
+    Check("G14e", "stopping owner A freezes A while owner B keeps executing",
+          b_still_running && a_rax_later == a_rax_at_stop && !b.run_returned.load(),
+          "a_rax=" + std::to_string(a_rax_at_stop) + "->" + std::to_string(a_rax_later) +
+              " b_running=" + std::to_string(int(b_still_running)));
+
+    // Resume A; both run again.
+    if (ticket_a) {
+        auto resumed = harness.context->Resume(a.handle, ticket_a.Value().epoch);
+        Check("G14f", "owner A resumes after the pause", bool(resumed),
+              resumed ? std::string{} : Describe(resumed.GetError()));
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    Check("G14g", "both owners run again after resume", a.in_jit.load() && b.in_jit.load());
+
+    // Cancel both to unwind.
+    for (Owner* owner : {&a, &b}) {
+        auto cancel = harness.context->RequestInterrupt(owner->handle, InterruptReason::Cancel);
+        if (cancel) {
+            (void)harness.context->WaitStopped(cancel.Value(), 1'000'000'000);
+        }
+    }
+    a.host.join();
+    b.host.join();
+    Check("G14h", "both owners returned after cancel",
+          a.run_returned.load() && b.run_returned.load());
+    (void)harness.context->DestroyThread(a.handle);
+    (void)harness.context->DestroyThread(b.handle);
+}
+
 // LLDB-attached pause being timed.
 void TestInterruptStress(Harness& harness) {
     const auto* fixture = FindFixture("spin_loop");
@@ -1265,6 +1411,7 @@ int main() {
     TestCodeInvalidation(harness);
     TestPublicApiPublication(harness);
     TestAsyncInterrupt(harness);
+    TestTwoOwnerConcurrency(harness);
     TestInterruptStress(harness);
     TestInterruptRefusals(harness);
     TestPinnedInvalidationRecovery(harness);
