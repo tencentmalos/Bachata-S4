@@ -1,0 +1,15 @@
+R3 probe: transaction admission with all threads already stopped
+host page size: 4096
+
+baseline run: ok=1 rax=17
+
+live threads before transaction = 1
+Run during transaction      = 0  [Busy in GuestAddressSpace::AcquireExecutionLease: a publication transaction holds this address space]
+CreateThread during transaction = 0  [Busy in GuestAddressSpace::AcquireExecutionLease: a publication transaction holds this address space]
+Run after transaction       = 1  rax=17
+
+--- observations ---
+R3_run_admitted_during_transaction=0
+R3_create_admitted_during_transaction=0
+R3_execution_restored_after_release=1
+EXIT=0

@@ -11,6 +11,7 @@
 
 #pragma once
 
+#include <condition_variable>
 #include <cstddef>
 #include <memory>
 #include <mutex>
@@ -64,8 +65,44 @@ public:
     // is context -> space (the backend reads CodeGeneration() while holding its
     // own lock to build a snapshot), so calling a sink from under the space
     // lock would invert it.
+    //
+    // Must not call ClearCodeInvalidationSink on the space that is calling it:
+    // that waits for this callback to finish and would deadlock on itself.
     [[nodiscard]] virtual Status DiscardTranslations(GuestRange range,
                                                      InvalidationReason reason) = 0;
+};
+
+// Permission to execute guest code, taken by the backend for the duration of
+// one Run or Step.
+//
+// The 2026-09-08 poison review (R3) found that a quiescence token did not stop
+// new execution from starting: PublishCode copied bytes first and the backend
+// only checked for running threads afterwards, so a Run could enter the JIT on
+// either side of that check. A token has to exclude execution for the whole
+// transaction, not just for the instant the backend looks.
+//
+// The backend asks the space (context -> space, the established order). The
+// space never calls into the backend to ask whether threads are running, which
+// would invert it.
+class ExecutionLease final {
+public:
+    ExecutionLease() = default;
+    ExecutionLease(const ExecutionLease&) = delete;
+    ExecutionLease& operator=(const ExecutionLease&) = delete;
+    ExecutionLease(ExecutionLease&& other) noexcept;
+    ExecutionLease& operator=(ExecutionLease&& other) noexcept;
+    ~ExecutionLease();
+
+    [[nodiscard]] bool IsValid() const noexcept {
+        return space != nullptr;
+    }
+
+private:
+    friend class GuestAddressSpace;
+    explicit ExecutionLease(GuestAddressSpace* owner) : space(owner) {}
+    void ReleaseIfOwned() noexcept;
+
+    GuestAddressSpace* space{};
 };
 
 struct AddressSpaceConfig final {
@@ -141,7 +178,17 @@ public:
 
     // Stops relevant guest owners and waits for in-flight HLE writers. Returns
     // Timeout without touching anything if it cannot get a complete stop.
+    //
+    // Refuses with Busy while any ExecutionLease is outstanding, and blocks new
+    // leases for as long as the returned token lives. That admission gate is
+    // required even when every thread is already stopped: without it a Run can
+    // start between PublishCode's memcpy and the backend's running-thread check
+    // (2026-09-08 poison review, R3).
     [[nodiscard]] Result<QuiescenceToken> Quiesce(std::uint64_t timeout_ns);
+
+    // Taken by the backend around Run/Step. Refused while a transaction holds
+    // quiescence, or while code is poisoned.
+    [[nodiscard]] Result<ExecutionLease> AcquireExecutionLease();
 
     // Success means execution after this point cannot enter stale decode --
     // not merely that an invalidation was queued (API contract §7.2).
@@ -159,11 +206,23 @@ public:
     // that would leave the displaced backend's caches unreachable by any
     // invalidation. Passing nullptr to Set is rejected; use Clear.
     [[nodiscard]] Status SetCodeInvalidationSink(CodeInvalidationSink* sink);
+
+    // Unregisters and waits for any in-flight DiscardTranslations call on that
+    // sink to return before doing so.
+    //
+    // The wait is the point. Publications copy the sink pointer under the lock
+    // and call it unlocked, so clearing the slot alone left callers holding a
+    // pointer the backend was about to destroy; the review reproduced a Clear
+    // returning while a callback was still running, a replacement registering
+    // immediately, and the old callback then reporting success (R2). Safe to
+    // call when not registered, and safe to call twice.
     void ClearCodeInvalidationSink(CodeInvalidationSink* sink);
 
-    // True when a publication failed to reach the backend and the range was
-    // therefore left non-executable. Cleared by a later successful publication
-    // over that range.
+    // True when a publication failed to reach the backend. While set, execution
+    // leases and execute permission are refused: the bytes already changed, so
+    // the backend's translation of the previous bytes must never run again.
+    // Cleared only by a successful publication or invalidation over the
+    // poisoned range.
     [[nodiscard]] bool HasPoisonedCode() const;
 
     // Second VA for the same backing. Invalidating through one alias must
@@ -188,11 +247,13 @@ public:
 private:
     friend class QuiescenceToken;
     friend class PinnedSpan;
+    friend class ExecutionLease;
 
     GuestAddressSpace(void* reservation, std::uint64_t size, const AddressSpaceConfig& config);
 
     void ReleaseQuiescence(std::uint64_t epoch);
     void ReleasePin(std::uint64_t lease_id);
+    void ReleaseExecutionLease();
     [[nodiscard]] std::byte* HostPointer(GuestAddress address) const;
     void NotifyObservers(GuestRange range);
 
@@ -211,6 +272,14 @@ private:
     // Requires `lock`. Drops execute from every mapping overlapping `range`, so a publication that
     // could not reach the backend leaves the old translation unreachable instead of running.
     void RevokeExecuteLocked(GuestRange range);
+
+    // Requires `lock` via `guard`, which is unlocked around the callback and re-locked before
+    // return. Counts the call so ClearCodeInvalidationSink can drain it.
+    [[nodiscard]] Status CallSinkUnlocked(std::unique_lock<std::mutex>& guard, GuestRange range,
+                                          InvalidationReason reason, bool& committed);
+
+    // Requires `lock`. Clears poison only when `repaired` covers the range that failed.
+    void ClearPoisonIfRepairedLocked(GuestRange repaired);
 
     struct Mapping final {
         GuestRange range{};
@@ -246,10 +315,26 @@ private:
     std::uint64_t active_quiescence{};
     std::uint64_t next_lease_id{1};
     CodeInvalidationSink* code_sink{};
+    // Number of DiscardTranslations calls currently running on `code_sink`.
+    // Clear waits for this to reach zero before returning, so a backend can
+    // destroy itself immediately afterwards.
+    std::size_t sink_calls_in_flight{};
+    // Bumped on every registration change. A callback that started under an
+    // earlier registration cannot commit its result: the sink it ran against is
+    // no longer the one that owns translated code.
+    std::uint64_t sink_generation{1};
+    // Outstanding execution leases. A transaction cannot start while any is
+    // held, and no new one may be taken while a transaction is active.
+    std::size_t execution_leases{};
     // Set when a publication modified bytes but could not discard the matching
-    // translations. The range is held non-executable until a later publication
-    // succeeds; reporting success there would mean stale code stays reachable.
+    // translations. Blocks execution leases and execute permission until a
+    // publication or invalidation over the poisoned range succeeds; reporting
+    // success without that would let stale translated code run against bytes
+    // that no longer exist.
     bool code_poisoned{};
+    GuestRange poisoned_range{};
+    std::condition_variable sink_idle;
+    std::condition_variable leases_idle;
     // Handed to tokens and pins as a weak reference so they can tell whether
     // this object still exists when they are released.
     std::shared_ptr<AddressSpaceLiveness> liveness;

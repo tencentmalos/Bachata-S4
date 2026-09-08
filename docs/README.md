@@ -2,7 +2,7 @@
 
 当前目标：Swan / Android 16 / ARM64 / **4 KiB**，原生 shadPS4 host + FEXCore 执行 PS4 x86 guest。用户于 2026-09-08 将 16 KiB 工作后置。尚未完成完整 NDK backend/app 验收。
 
-**当前状态：[2026-09-08 发布事务接通与可信映射 / V0_IN_PROGRESS](validation/v0/followup-publication-2026-09-08.md)**。P1-C 已关闭：公共 `GuestAddressSpace` 发布路径经新的 `CodeInvalidationSink` 真正到达 FEX 译码缓存，同一探针在 Swan 上从执行旧代码（rax=17）变为新代码（rax=34）；补上 M13 缺失的两线程 pin/unmap 竞争、M07 的纯公共 API 发布证据，以及可复现的 host CMake 入口。验收 21 PASS / 0 FAIL / 37 NOT_RUN（58 在范围内，2 项 scope 延期）。运行线程停止恢复与真实 HLE/app 未开始。上一轮[发布事务审核](validation/v0/review-publication-2026-09-08.md)、[共享缓存修复](validation/v0/followup-2026-09-08.md)与[原始审核](validation/v0/review-2026-09-08.md)保留历史含义。
+**当前状态：[95bc13fa 后续 / 发布失败保护、sink 生命周期与执行准入](validation/v0/followup-poison-2026-09-08.md)**。R1–R5 已关闭：事务期间新执行被拒（Swan 实测 Run/CreateThread 均 Busy），失效失败后旧 JIT 代码不可达且可修复（rax 17→拒绝→修复后 34），注销 sink 等待回调排空；runner 的无输出失败改判 FAIL、skip 不再计 PASS，并区分"从未启动"与"启动后崩溃"。构建收敛回既有 `cmake/fex` 入口并补上真正的 `guest_cpu_fex` target。设备 contract 29/29、guest 41/41；验收 21 PASS / 0 FAIL / 37 NOT_RUN（58 在范围内，2 项 scope 延期）。运行中线程的中断、真实 HLE 与 app 未开始。[本轮复核](validation/v0/review-poison-2026-09-08.md)与[更早记录](validation/v0/followup-publication-2026-09-08.md)保留历史含义。
 
 **固定基础版本：[2026-09-07 / `a7128893`](baselines/2026-09-07-android-fex-foundation.md)**。该记录包含主仓与七个 references 的精确提交、验证结果、未完成项、未纳入基线的本地改动及恢复方法；后续里程碑以它为起点。
 

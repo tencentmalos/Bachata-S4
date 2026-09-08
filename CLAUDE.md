@@ -10,7 +10,7 @@
 - [Foundation 接入](docs/foundation-integration.md)：DebugBus 已有构建入口；反射、packing、网络优先复用，完整闭包仍待验证。
 - [基础版本状态：2026-09-07 / a7128893](docs/baselines/2026-09-07-android-fex-foundation.md)：固定起点、已验证结果、未完成项和恢复方法。
 - [V0 执行任务书](docs/specs/android-fex-v0-handoff.md)：首个验证版的 spec、CPU API、验收矩阵与交付要求，执行中。
-- [2026-09-08 发布事务接通](docs/validation/v0/followup-publication-2026-09-08.md)：P1-C 关闭，公共发布路径经 `CodeInvalidationSink` 到达 FEX 译码缓存（Swan 上 rax 17→34）；补齐 M13 两线程竞争与 M07 纯公共 API 证据；新增可复现 host CMake 入口。验收 21 PASS / 0 FAIL / 37 NOT_RUN（58 在范围内，2 项 scope 延期）。结合[发布事务审核](docs/validation/v0/review-publication-2026-09-08.md)与[更早的复核](docs/validation/v0/followup-2026-09-08.md)阅读，不把测试断言数当作完整验收项数。
+- [2026-09-08 发布失败保护与执行准入](docs/validation/v0/followup-poison-2026-09-08.md)：R1–R5 关闭。`ExecutionLease` 让事务期间 Run/CreateThread 被拒；失效失败后旧 JIT 代码不可达且可修复；注销 sink 等待回调排空；runner 的无输出失败改判 FAIL、skip 不计 PASS。构建统一回 `cmake/fex`（`-DV0_ENABLE_FEX=ON -DFEX_BUILD_DIR=…`）。设备 contract 29/29、guest 41/41；验收 21 PASS / 0 FAIL / 37 NOT_RUN（58 在范围内，2 项 scope 延期）。结合[本轮复核](docs/validation/v0/review-poison-2026-09-08.md)阅读，不把测试断言数当作完整验收项数。
 
 - [研究索引](docs/README.md)：整体方案、Android 基础、FEX/Dynarmic、guest debugger 与 LLDB。
 - [references 源码索引](references/README.md)：用途、固定提交、初始化方法。

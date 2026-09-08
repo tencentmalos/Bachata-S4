@@ -1,0 +1,7 @@
+clear_waited_ms=160
+callback_completed_before_clear_returned=1
+replacement_registered_after_drain=1
+stale_publication_reported_success=0
+
+R2_drain_enforced=1
+R2_stale_callback_committed=0

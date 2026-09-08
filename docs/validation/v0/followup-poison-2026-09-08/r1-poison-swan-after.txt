@@ -1,0 +1,23 @@
+R1 probe: poison blocks execution, and repair restores it
+host page size: 4096
+
+warm run of A: rax=17 (expect 17)
+
+publication failed as injected = 1
+HasPoisonedCode                = 1
+Protect(RX) while poisoned     = 0  [WrongState in GuestAddressSpace::Protect: code publication failed over this range and has not been repaired; execute cannot be granted]
+execution while poisoned       = 0  [WrongState in GuestAddressSpace::AcquireExecutionLease: code publication failed and has not been repaired; execution is blocked]
+
+repair invalidation succeeded  = 1
+HasPoisonedCode after repair   = 0
+execution after repair         = 1  rax=34
+
+--- observations ---
+R1_publication_failed=1
+R1_poison_set=1
+R1_protect_rx_refused_while_poisoned=1
+R1_execution_refused_while_poisoned=1
+R1_stale_code_executed=0
+R1_repair_restored_execution=1
+R1_executed_new_constant_after_repair=1
+EXIT=0

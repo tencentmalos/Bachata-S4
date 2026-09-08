@@ -432,6 +432,17 @@ public:
     }
 
     [[nodiscard]] Result<ThreadHandle> CreateThread(const ThreadInit& init) override {
+        // Refuse while a publication transaction is active or code is poisoned. Creating a thread
+        // is not executing yet, but it allocates backend state against a code image that is
+        // mid-change, and admitting it here would let a Run follow immediately. Taking the lease
+        // and dropping it at the end of this function is the admission check.
+        {
+            auto admission = space_.AcquireExecutionLease();
+            if (!admission) {
+                return admission.GetError();
+            }
+        }
+
         // The entry and stack must already be mapped in this context's address
         // space. Checking here turns a guest crash into a caller-side error.
         auto entry_mapping = space_.Query(GuestAddress{init.entry_rip.value});
@@ -509,6 +520,19 @@ public:
     }
 
     [[nodiscard]] Result<RunResult> Run(ThreadHandle thread, const RunOptions& options) override {
+        // Admission first, before claiming the thread. The lease is what makes a publication
+        // transaction exclude execution for its whole duration: previously a token only stopped
+        // *other writers*, and the backend checked for running threads inside DiscardTranslations,
+        // so a Run could enter the JIT on either side of that check (2026-09-08 poison review, R3).
+        // It also refuses while code is poisoned, since the backend's translation no longer matches
+        // the bytes on the guest page.
+        //
+        // Asked of the space, never the reverse: the lock order is context -> space.
+        auto lease = space_.AcquireExecutionLease();
+        if (!lease) {
+            return lease.GetError();
+        }
+
         // Claim the thread under the lock and only then leave it: resolving the handle and marking
         // it running have to be one step, or two callers can both pass the "not running" check.
         // The earlier version returned a raw entry pointer from a helper that released the lock on

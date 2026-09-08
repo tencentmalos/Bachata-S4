@@ -18,6 +18,7 @@
 #include <cstdio>
 #include <cstring>
 #include <string>
+#include <chrono>
 #include <thread>
 #include <vector>
 
@@ -36,6 +37,7 @@ struct CaseResult final {
     std::string id;
     std::string name;
     bool passed{};
+    bool skipped{};
     std::string detail;
 };
 
@@ -43,6 +45,7 @@ std::vector<CaseResult> g_results;
 std::string g_current_id;
 std::string g_current_name;
 bool g_current_ok = true;
+bool g_current_skipped = false;
 std::string g_current_detail;
 
 void Check(bool condition, const char* what) {
@@ -52,16 +55,34 @@ void Check(bool condition, const char* what) {
     }
 }
 
+// Declares that this case could not be exercised here, with the reason.
+//
+// Printing an explanatory line and returning normally still produced a PASS: the runner's parser
+// only recognised PASS and FAIL, so a case that checked nothing counted as full coverage, and
+// M13f was in M13's required mapping while silently skipping on this host (2026-09-08 poison
+// review, R5). A distinct verdict keeps the machine result honest, and the runner treats it as a
+// sub-case that did not run rather than one that passed.
+void Skip(const char* why) {
+    if (g_current_ok) {
+        g_current_skipped = true;
+        g_current_detail = why;
+    }
+}
+
 template <typename Fn>
 void RunCase(const char* id, const char* name, Fn&& body) {
     g_current_id = id;
     g_current_name = name;
     g_current_ok = true;
+    g_current_skipped = false;
     g_current_detail.clear();
     body();
-    g_results.push_back(CaseResult{g_current_id, g_current_name, g_current_ok, g_current_detail});
-    std::printf("[%-5s] %-52s %s%s%s\n", id, name, g_current_ok ? "PASS" : "FAIL",
-                g_current_ok ? "" : " -- ", g_current_detail.c_str());
+    g_results.push_back(
+        CaseResult{g_current_id, g_current_name, g_current_ok, g_current_skipped, g_current_detail});
+    const char* verdict = !g_current_ok ? "FAIL" : (g_current_skipped ? "SKIP" : "PASS");
+    const bool has_detail = !g_current_detail.empty();
+    std::printf("[%-5s] %-52s %s%s%s\n", id, name, verdict, has_detail ? " -- " : "",
+                g_current_detail.c_str());
 }
 
 std::unique_ptr<GuestAddressSpace> MakeSpace(std::uint64_t size = 64ull * 1024 * 1024) {
@@ -536,11 +557,9 @@ void TestTransactions() {
         if (!rwx) {
             // A W^X host refuses RWX outright (M14a covers that). There is then no way to hold a
             // mapping that is executable *and* acceptable to PublishCode, so the execute-revocation
-            // half of this case cannot be observed here. Say so rather than reporting a bare PASS:
-            // a case that quietly checks nothing is exactly what the review objected to. Swan does
-            // permit RWX, so the device run is what actually exercises this.
-            std::printf("       (skipped: host refuses RWX, so execute revocation is not "
-                        "observable; run on device)\n");
+            // half of this case cannot be observed here. Swan does permit RWX, so the device run is
+            // what exercises this.
+            Skip("host refuses RWX; execute revocation is not observable, run on device");
             return;
         }
 
@@ -693,6 +712,199 @@ void TestTransactions() {
             "every round must actually contend; only " +
             std::to_string(refused_while_pinned.load()) + "/" + std::to_string(kRounds) + " did";
         Check(refused_while_pinned.load() == kRounds, contended.c_str());
+    });
+
+    RunCase("M13h", "a failed publication blocks execution and execute permission until repaired",
+            [] {
+        // M13f only checked the guest page permission, the flag and the counter. It never tried to
+        // get back to execution, so it could not show what its own name claimed: the 2026-09-08
+        // poison review re-granted RX over a poisoned range and the guest re-ran the stale
+        // constant (R1). Revoking execute on the guest page is not sufficient by itself -- the
+        // backend's translation lives in its own executable memory -- so poison has to block the
+        // routes back in.
+        class FailingSink final : public CodeInvalidationSink {
+        public:
+            std::string_view Name() const override {
+                return "always-fails";
+            }
+            Status DiscardTranslations(GuestRange, InvalidationReason) override {
+                return MakeError(ErrorCategory::BackendFailure, "DiscardTranslations",
+                                 "simulated backend invalidation failure");
+            }
+        };
+
+        auto space = MakeSpace();
+        const std::uint64_t page = HostPageSize();
+        auto range = GuestRange::Checked(space->ReservationBase(), page).Value();
+        Check(space->Map(range, GuestPermission::Read | GuestPermission::Write).HasValue(),
+              "map failed");
+
+        FailingSink sink;
+        Check(space->SetCodeInvalidationSink(&sink).HasValue(), "registering the sink failed");
+
+        // Before the failure, execution is admitted.
+        {
+            auto lease = space->AcquireExecutionLease();
+            Check(lease.HasValue(), "execution should be admitted before any failure");
+        }
+
+        std::vector<std::byte> code(static_cast<std::size_t>(page), std::byte{0x90});
+        {
+            auto token = space->Quiesce(1'000'000);
+            Check(token.HasValue(), "quiesce failed");
+            if (!token) return;
+            Check(!space->PublishCode(token.Value(), range, code).HasValue(),
+                  "PublishCode must fail when the backend cannot discard translations");
+        }
+        Check(space->HasPoisonedCode(), "a failed publication must mark the range poisoned");
+
+        // Route 1: taking an execution lease.
+        auto blocked = space->AcquireExecutionLease();
+        Check(!blocked.HasValue(), "execution must be refused while code is poisoned");
+        if (!blocked) {
+            Check(blocked.GetError().category == ErrorCategory::WrongState,
+                  "refusal should be WrongState");
+        }
+
+        // Route 2: re-granting execute. This is the one the review used to get back in.
+        auto rx = space->Protect(range, GuestPermission::Read | GuestPermission::Execute);
+        Check(!rx.HasValue(), "execute must not be granted over a poisoned range");
+
+        // An unrelated range succeeding must not lift the block: the stale translation of *this*
+        // range would become reachable again.
+        auto other = GuestRange::Checked(GuestAddress{range.base.value + page}, page).Value();
+        Check(space->Map(other, GuestPermission::Read | GuestPermission::Write).HasValue(),
+              "second mapping failed");
+        space->ClearCodeInvalidationSink(&sink);
+        {
+            auto token = space->Quiesce(1'000'000);
+            Check(token.HasValue(), "quiesce for the unrelated range failed");
+            if (token) {
+                std::vector<std::byte> other_code(static_cast<std::size_t>(page), std::byte{0x90});
+                Check(space->PublishCode(token.Value(), other, other_code).HasValue(),
+                      "publishing an unrelated range should succeed");
+            }
+        }
+        Check(space->HasPoisonedCode(),
+              "an unrelated successful publication must not clear the poison");
+
+        // Repair: publishing the poisoned range itself, now that the sink works.
+        {
+            auto token = space->Quiesce(1'000'000);
+            Check(token.HasValue(), "quiesce for repair failed");
+            if (token) {
+                Check(space->PublishCode(token.Value(), range, code).HasValue(),
+                      "republishing the poisoned range should succeed");
+            }
+        }
+        Check(!space->HasPoisonedCode(), "a successful republication must clear the poison");
+        {
+            auto lease = space->AcquireExecutionLease();
+            Check(lease.HasValue(), "execution must be admitted again after repair");
+        }
+    });
+
+    RunCase("M13i", "a transaction refuses new execution, and execution refuses a transaction", [] {
+        // The token has to exclude execution for the whole transaction, not just for the instant
+        // the backend checks. Before this, PublishCode copied bytes and the backend only looked for
+        // running threads afterwards, so a Run could enter on either side of that check (R3).
+        auto space = MakeSpace();
+        const std::uint64_t page = HostPageSize();
+        auto range = GuestRange::Checked(space->ReservationBase(), page).Value();
+        Check(space->Map(range, GuestPermission::Read | GuestPermission::Write).HasValue(),
+              "map failed");
+
+        {
+            auto token = space->Quiesce(1'000'000);
+            Check(token.HasValue(), "quiesce failed");
+            if (!token) return;
+
+            auto refused = space->AcquireExecutionLease();
+            Check(!refused.HasValue(), "execution must be refused during a transaction");
+            if (!refused) {
+                Check(refused.GetError().category == ErrorCategory::Busy,
+                      "refusal should be Busy");
+            }
+        }
+
+        // Symmetric: an outstanding lease must refuse a transaction rather than publish underneath
+        // executing code.
+        auto lease = space->AcquireExecutionLease();
+        Check(lease.HasValue(), "execution should be admitted once the transaction ended");
+        auto refused_quiesce = space->Quiesce(1'000'000);
+        Check(!refused_quiesce.HasValue(), "Quiesce must be refused while execution is in flight");
+        if (!refused_quiesce) {
+            Check(refused_quiesce.GetError().category == ErrorCategory::Busy,
+                  "refusal should be Busy");
+        }
+
+        // Releasing the lease reopens the transaction path.
+        lease = Result<ExecutionLease>{ExecutionLease{}};
+        auto allowed = space->Quiesce(1'000'000);
+        Check(allowed.HasValue(), "Quiesce must succeed once no execution is in flight");
+    });
+
+    RunCase("M13j", "unregistering a sink waits for an in-flight callback", [] {
+        // Publications copy the sink pointer under the lock and call it unlocked, so clearing the
+        // slot alone left a caller holding a pointer the backend was about to destroy. The review
+        // reproduced Clear returning while the callback was still running, a replacement
+        // registering immediately, and the stale callback then reporting success (R2).
+        struct BlockingSink final : CodeInvalidationSink {
+            std::atomic<bool> entered{false};
+            std::atomic<bool> release{false};
+            std::atomic<bool> completed{false};
+            std::string_view Name() const override {
+                return "blocking";
+            }
+            Status DiscardTranslations(GuestRange, InvalidationReason) override {
+                entered.store(true);
+                while (!release.load()) {
+                    std::this_thread::yield();
+                }
+                completed.store(true);
+                return Ok();
+            }
+        };
+
+        auto space = MakeSpace();
+        const std::uint64_t page = HostPageSize();
+        auto range = GuestRange::Checked(space->ReservationBase(), page).Value();
+        Check(space->Map(range, GuestPermission::Read | GuestPermission::Write).HasValue(),
+              "map failed");
+
+        BlockingSink sink;
+        Check(space->SetCodeInvalidationSink(&sink).HasValue(), "registering failed");
+
+        auto token = space->Quiesce(1'000'000);
+        Check(token.HasValue(), "quiesce failed");
+        if (!token) return;
+
+        std::vector<std::byte> code(static_cast<std::size_t>(page), std::byte{0x90});
+        std::atomic<bool> publication_succeeded{false};
+        std::thread writer([&] {
+            publication_succeeded.store(
+                space->PublishCode(token.Value(), range, code).HasValue());
+        });
+        while (!sink.entered.load()) {
+            std::this_thread::yield();
+        }
+
+        // Release from a third thread so Clear has something to wait for. Releasing only after
+        // Clear returns would deadlock against a correct implementation, which is why the
+        // review's own probe cannot express this contract.
+        std::thread releaser([&] {
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            sink.release.store(true);
+        });
+
+        space->ClearCodeInvalidationSink(&sink);
+        Check(sink.completed.load(),
+              "Clear returned while the callback was still running");
+
+        releaser.join();
+        writer.join();
+        Check(!publication_succeeded.load(),
+              "a callback whose sink was unregistered mid-flight must not report success");
     });
 
     RunCase("M12", "observers get conservatively widened write notifications", [] {
@@ -919,7 +1131,26 @@ int main() {
     const auto failed = static_cast<std::size_t>(
         std::count_if(g_results.begin(), g_results.end(),
                       [](const CaseResult& r) { return !r.passed; }));
-    std::printf("\n%zu/%zu passed\n", g_results.size() - failed, g_results.size());
+    const auto skipped = static_cast<std::size_t>(
+        std::count_if(g_results.begin(), g_results.end(),
+                      [](const CaseResult& r) { return r.passed && r.skipped; }));
+    // Skips are not passes. Counting them together is what let a case that checked nothing on this
+    // host read as full coverage.
+    std::printf("\n%zu/%zu passed", g_results.size() - failed - skipped, g_results.size());
+    if (skipped != 0) {
+        std::printf(", %zu skipped", skipped);
+    }
+    std::printf("\n");
+
+    if (skipped != 0) {
+        std::printf("\nSKIPPED (not run here; needs the stated environment):\n");
+        for (const auto& result : g_results) {
+            if (result.passed && result.skipped) {
+                std::printf("  %s %s: %s\n", result.id.c_str(), result.name.c_str(),
+                            result.detail.c_str());
+            }
+        }
+    }
 
     if (failed != 0) {
         std::printf("\nFAILURES:\n");
