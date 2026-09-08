@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
   "spec": "android-fex-v0",
-  "run_id": "20260908T040658Z",
-  "timestamp_utc": "2026-09-08T04:08:17.469790+00:00",
+  "run_id": "20260908T042120Z",
+  "timestamp_utc": "2026-09-08T04:21:21.982885+00:00",
   "baseline_commit": "a712889343ccd2588b712988dae0a76a104e0dce",
-  "implementation_commit": "a0a93bca5f765111a664b04f08c1fc63123e3aef",
+  "implementation_commit": "63dd217469fba6af2e3c021182943790f5a54196",
   "implementation_branch": "codex/android-fex-v0",
   "working_tree_dirty": true,
   "fex_base_commit": "f2b679f6028ce1c38875233aecfcf5d3f8ebecec",
@@ -66,16 +66,16 @@
     },
     "guest_execution_tests": {
       "binary": "build/fexcore-android/guest_execution_tests",
-      "sha256": "27b262f8b65c4e424df473c459b0eea15ac9184b02570a77297d29555792a463",
-      "sub_cases": 30,
+      "sha256": "4d44884c51cbcbc60d40273ca3c3ef4c54484668469453b9d1c6b85d066df4bf",
+      "sub_cases": 33,
       "failures": 13,
       "ran_on_device": true
     }
   },
   "summary": {
-    "passed": 21,
+    "passed": 20,
     "failed": 3,
-    "not_run": 36,
+    "not_run": 37,
     "total": 60
   },
   "cases": [
@@ -144,14 +144,13 @@
     {
       "id": "B06",
       "description": "desktop targets still build with the new options off",
-      "status": "PASS",
+      "status": "NOT_RUN",
       "environment": "HOST",
-      "iterations": 1,
+      "iterations": 0,
       "expected": null,
-      "actual": "desktop CMake configure succeeded",
-      "reason": null,
-      "evidence": [],
-      "scope_note": "configure only; a full desktop link was not run"
+      "actual": null,
+      "reason": "desktop configure not requested; pass --check-desktop to run it",
+      "evidence": []
     },
     {
       "id": "F01",
@@ -206,8 +205,8 @@
       "expected": null,
       "actual": {
         "G01a": "PASS",
-        "G01b": "FAIL",
-        "G01c": "FAIL",
+        "G01b": "PASS",
+        "G01c": "PASS",
         "G01d": "PASS",
         "G01e": "PASS",
         "G01f": "PASS",
@@ -220,7 +219,7 @@
         "G07b": "FAIL",
         "G07c": "FAIL"
       },
-      "reason": "failed sub-cases: G01b, G01c, G02a, G03a, G03b, G07b, G07c",
+      "reason": "failed sub-cases: G02a, G03a, G03b, G07b, G07c",
       "evidence": [
         "docs/validation/v0/host-suite-output.txt"
       ],

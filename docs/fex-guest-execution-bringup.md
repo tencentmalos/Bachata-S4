@@ -72,20 +72,39 @@ decoder 随后用 32 位模式解码 64 位 guest 字节。结果是每个 fixtu
 - `push rdi; push rsi; pop rax; pop rcx` → rax/rcx 均为 0，rsp 却正确平衡
 - `mov [rsp-16], rdi` → 该槽读回 0
 - `movq xmm0, rdi; paddq; movq rax, xmm0` → rax 为 0，xmm0 保持 `0xdeadbeef`（FEX 的调试初值）
-- 需要写 rax 的分支分支路径失败，直接跳过的路径通过
+- 需要写 rax 的分支路径失败，直接跳过的路径通过
 
 rsp 平衡说明 push/pop 的**寄存器**副作用生效，只有内存读写没有。
 
-### 4.2 下一步
+### 4.2 已确证：store 根本没有执行
 
-优先级从高到低：
+`store_memory` fixture 现在在返回前把两个槽**读回 rax/rcx**，
+三种读法互相印证：
 
-1. **确认 guest 内存写是否到达 host 内存**。用一个只做 store 的 fixture，
-   执行后直接读 host 指针（绕过 `PinnedSpan`），区分"没写"和"写了但读不到"。
+| 读法 | 结果 |
+|---|---|
+| guest 自己读回（rax/rcx） | 0 |
+| host 经 `PinnedSpan` 读 | 0 |
+| host 直接解引用指针 | 0 |
+
+三者一致为 0，排除了两种可能：
+不是"写了但 API 读不到"（直接读也为 0），
+也不是"store 被优化掉"（guest 自己的 load 同样读不到，
+若只是死代码消除，load 会读到原值而不是恰好为 0——何况该槽在运行前已被显式清零，
+所以 0 表示这块内存从未被写过）。
+
+结论：**内存访问指令没有产生任何效果**，而同一条指令流里的寄存器指令正常。
+
+### 4.3 下一步
+
+1. **用 LLDB 在设备上观察实际生成的 host 代码**。`-DENABLE_VIXL_DISASSEMBLER=ON`
+   可以让 FEX 打印它生成的 ARM64 指令，直接看 store 被翻译成了什么。
+   见 [host LLDB → guest 工作流](fex-lldb-host-guest-workflow.md)。
 2. **检查 `VirtualMemSize` 与 reservation 的关系**。修好 `Is64BitMode` 后它是 `1<<36`，
-   而 guest reservation 现放在 `0x7f8000000` 附近；确认 FEX 是否假设 guest 内存从 0 起。
-3. **对照 `MarkOvercommitRange` 与 `QueryGuestExecutableRange` 的返回值**，
-   确认数据页（非代码页）是否需要单独登记。
+   guest reservation 在 `0x7f8000000` 附近（约 34 GB），在范围内但接近上半区；
+   确认 FEX 是否对数据地址另有假设。
+3. **确认 TSO/原子模式配置**。`CONFIG_TSOENABLED` 等未设置，
+   若 FEX 因此走了某条需要额外支持的路径，内存操作可能被静默丢弃。
 
 ### 4.3 已排除的路径
 

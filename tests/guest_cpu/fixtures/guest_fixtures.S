@@ -72,12 +72,19 @@ fixture_loadstore_end:
 // ---------------------------------------------------------------------------
 // C01: a store that stays in memory, so a register-only failure can be told
 // apart from a memory failure. Writes rdi to [rsp - 16] and leaves it there.
+//
+// Also reads both slots back into rax/rcx before returning. Without the readback
+// a store whose result nothing consumes could in principle be eliminated, and
+// the case could not tell "the store was optimised away" from "the store did not
+// reach memory". With it, rax/rcx carry what the guest itself observed.
 // ---------------------------------------------------------------------------
 .globl fixture_store_memory
 .globl fixture_store_memory_end
 fixture_store_memory:
     mov     qword ptr [rsp - 16], rdi
     mov     qword ptr [rsp - 8], rsi
+    mov     rax, qword ptr [rsp - 16]
+    mov     rcx, qword ptr [rsp - 8]
     movabs  r15, 0x1122334455667788
     jmp     r15
 fixture_store_memory_end:

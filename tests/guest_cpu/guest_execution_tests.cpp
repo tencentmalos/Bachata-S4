@@ -353,6 +353,27 @@ void TestStoreMemory(Harness& harness) {
     if (read_high) {
         CheckU64("G07c", "store to [rsp-8] landed in guest memory", slot_minus_8, kHigh);
     }
+
+    // Read the same slots straight through the host pointer, bypassing the address space entirely.
+    // This separates "the guest never wrote" from "the guest wrote somewhere the API does not read
+    // back", which the pinned-span read alone cannot distinguish.
+    const auto* raw = reinterpret_cast<const volatile std::uint64_t*>(harness.stack_top);
+    const std::uint64_t direct_low = raw[-2];
+    const std::uint64_t direct_high = raw[-1];
+    char detail[192];
+    std::snprintf(detail, sizeof(detail),
+                  "direct[rsp-16]=%s direct[rsp-8]=%s (pinned read gave %s / %s)",
+                  Hex(direct_low).c_str(), Hex(direct_high).c_str(),
+                  Hex(slot_minus_16).c_str(), Hex(slot_minus_8).c_str());
+    Check("G07d", "direct host read agrees with the pinned-span read",
+          direct_low == slot_minus_16 && direct_high == slot_minus_8, detail);
+
+    // What the guest itself read back from those slots. If these are correct while the host reads
+    // are zero, the store and load are consistent with each other but invisible outside the guest;
+    // if these are also zero, the store never happened at all.
+    const auto& regs = outcome.result.snapshot.registers;
+    CheckU64("G07e", "guest read back its own store to [rsp-16]", regs.Get(Gpr::Rax), kLow);
+    CheckU64("G07f", "guest read back its own store to [rsp-8]", regs.Get(Gpr::Rcx), kHigh);
 }
 
 // --- C02: SSE2 -----------------------------------------------------------------------------------
