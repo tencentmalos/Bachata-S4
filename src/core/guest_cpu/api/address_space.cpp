@@ -639,17 +639,35 @@ void GuestAddressSpace::ReleaseQuiescence(std::uint64_t epoch) {
     }
 }
 
+// Requires lock. Checks that a token authorises a transaction on *this* space right now.
+//
+// Epoch alone is not enough: every space counts epochs independently, so A's first token and B's
+// first token are both epoch 1, and B would accept A's token while B's own transaction was live.
+// The 2026-09-08 publication review reproduced exactly that (P1-B). Provenance is checked through
+// the liveness block the token already carries, which also rejects a token whose space is gone.
+Status GuestAddressSpace::CheckTokenLocked(const QuiescenceToken& token,
+                                           std::string_view operation) const {
+    if (!token.IsValid()) {
+        return MakeError(ErrorCategory::InvalidArgument, operation,
+                         "an invalid quiescence token cannot authorise this operation");
+    }
+    if (!token.IsFrom(this)) {
+        return MakeError(ErrorCategory::InvalidArgument, operation,
+                         "the token belongs to a different address space, or its space has been "
+                         "destroyed");
+    }
+    if (token.Epoch() != active_quiescence) {
+        return MakeError(ErrorCategory::StaleEpoch, operation,
+                         "token epoch does not match the active transaction");
+    }
+    return Ok();
+}
+
 Status GuestAddressSpace::InvalidateCode(const QuiescenceToken& token, GuestRange range,
                                          InvalidationReason reason) {
-    if (!token.IsValid()) {
-        return MakeError(ErrorCategory::InvalidArgument, "GuestAddressSpace::InvalidateCode",
-                         "an invalid quiescence token cannot authorise invalidation");
-    }
-
     std::lock_guard guard{lock};
-    if (token.Epoch() != active_quiescence) {
-        return MakeError(ErrorCategory::StaleEpoch, "GuestAddressSpace::InvalidateCode",
-                         "token epoch does not match the active transaction");
+    if (auto status = CheckTokenLocked(token, "GuestAddressSpace::InvalidateCode"); !status) {
+        return status;
     }
     // Range and reason are accepted but not yet used to narrow the
     // invalidation: V0 invalidates space-wide, which is conservative and
@@ -668,10 +686,6 @@ Status GuestAddressSpace::InvalidateCode(const QuiescenceToken& token, GuestRang
 
 Status GuestAddressSpace::PublishCode(const QuiescenceToken& token, GuestRange range,
                                       std::span<const std::byte> code) {
-    if (!token.IsValid()) {
-        return MakeError(ErrorCategory::InvalidArgument, "GuestAddressSpace::PublishCode",
-                         "an invalid quiescence token cannot authorise publication");
-    }
     if (code.size() != range.size) {
         return MakeError(ErrorCategory::InvalidArgument, "GuestAddressSpace::PublishCode",
                          "code length does not match the target range");
@@ -679,9 +693,8 @@ Status GuestAddressSpace::PublishCode(const QuiescenceToken& token, GuestRange r
 
     {
         std::lock_guard guard{lock};
-        if (token.Epoch() != active_quiescence) {
-            return MakeError(ErrorCategory::StaleEpoch, "GuestAddressSpace::PublishCode",
-                             "token epoch does not match the active transaction");
+        if (auto status = CheckTokenLocked(token, "GuestAddressSpace::PublishCode"); !status) {
+            return status;
         }
 
         // Validate and copy under the same lock hold. Releasing it between the two would let a

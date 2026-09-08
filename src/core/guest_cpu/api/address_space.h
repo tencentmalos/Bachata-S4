@@ -16,6 +16,7 @@
 #include <mutex>
 #include <optional>
 #include <span>
+#include <string_view>
 #include <vector>
 
 #include "core/guest_cpu/api/memory.h"
@@ -152,6 +153,12 @@ private:
     // so under one lock hold rather than revalidating stale state.
     [[nodiscard]] Status ValidateRangeLocked(GuestRange range, GuestPermission required) const;
     [[nodiscard]] bool AnyPinOverlapsLocked(GuestRange range) const;
+
+    // Requires `lock`. Shared by every token-consuming entry point so provenance, liveness and
+    // epoch are checked the same way in each; having them check independently is how one of them
+    // ended up accepting a token from another space.
+    [[nodiscard]] Status CheckTokenLocked(const QuiescenceToken& token,
+                                          std::string_view operation) const;
 
     struct Mapping final {
         GuestRange range{};

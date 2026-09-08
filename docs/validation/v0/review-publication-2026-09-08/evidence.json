@@ -1,0 +1,39 @@
+{
+  "recorded_at": "2026-09-08T14:34:16.440807+08:00",
+  "reviewed_main": "e23bf61dc6b83ea92f31c5ab8fef7da84ff0366e",
+  "fex": "385a0cc4d81cd456c8d5c26b4f09cb5a7d8d5842",
+  "remote_branches_verified": {
+    "main": "codex/android-fex-v0",
+    "fex": "feature/malos/host-page-size"
+  },
+  "device": {
+    "serial": "PB3210PGL6170004G",
+    "android": 16,
+    "page_size": 4096
+  },
+  "toolchain": {
+    "ndk": "29.0.14206865",
+    "target_api": 35
+  },
+  "build_scope": "Fresh host build; incremental FEX rebuild and freshly linked device harness. Additional guest review is a temporary patched harness, not a production edit. Device ELF via adb shell, no APK/ART.",
+  "results": {
+    "existing_guest": "37/37, exit 0",
+    "host_contract": "22/22",
+    "host_hle": "14/14",
+    "publication_probe": "foreign memory token accepted and read-only span mutated on both host and Swan",
+    "extended_guest_review": "40 assertions, 2 failures, exit 1; original 37 still pass",
+    "synthetic_runner": "suite exits 7 after M01 subchecks PASS; runner reports M01 PASS and summary failed=0"
+  },
+  "binary_sha256": {
+    "guest_execution_tests": "9defe85cefddcfc02625858d8143270b04bcd2ffbebaca68fd2ea1f16b1fbc4b",
+    "publication_review_android": "6b39972a87c11a37b1bc0c95a3d7841d0705f427cc5c2532a4628e9bd585c464",
+    "guest_publication_review": "c287e487fa524e4dec8c1fbda1257bddb1c7a12d7317234189eb31372ce6a433"
+  },
+  "source_sha256": {
+    "src/core/guest_cpu/api/memory.h": "87f29142f7b925311a1628fd16fbb5b06478b2fd2c1c714965d3581472c39ed4",
+    "src/core/guest_cpu/api/address_space.cpp": "e7f2bca49587dc70b7a1f1091e4395fab160f9c529da3d4793abee1dc8be54aa",
+    "src/core/guest_cpu/fex/fex_context.cpp": "9a0548fad88b641e2c9f6b40275c50467175bb3a39421ef4d3abdf9f79cd7d77",
+    "scripts/android/run-v0-tests": "34f733db49d7d8d7550256f460c3786116615bf6aec0c98333aebd624595da0f",
+    "tests/guest_cpu/guest_execution_tests.cpp": "3c5be79524eeba64b6b07e34d279334ed210d57ea223e2f947be147367f9c7c2"
+  }
+}

@@ -202,9 +202,27 @@ public:
     [[nodiscard]] bool IsValid() const noexcept {
         return host_data != nullptr;
     }
-    [[nodiscard]] std::span<std::byte> Bytes() const noexcept {
+
+    // Read view. Always available for a live lease.
+    //
+    // Named Bytes() and returning const so the ordinary call is the safe one: the previous
+    // signature handed back a mutable span regardless of the lease kind, so a read-only pin could
+    // be written with no cast and no diagnostic, which is how it bypassed the writer admission
+    // rule (2026-09-08 publication review, P1-A).
+    [[nodiscard]] std::span<const std::byte> Bytes() const noexcept {
         return {host_data, host_size};
     }
+
+    // Write view. Empty unless this lease was acquired writable, so a caller that ignores the
+    // result writes nothing instead of writing through a read-only lease. Check IsValid() on the
+    // lease and emptiness here rather than assuming success.
+    [[nodiscard]] std::span<std::byte> WritableBytes() const noexcept {
+        if (!writable) {
+            return {};
+        }
+        return {host_data, host_size};
+    }
+
     [[nodiscard]] GuestAddress Base() const noexcept {
         return guest_base;
     }

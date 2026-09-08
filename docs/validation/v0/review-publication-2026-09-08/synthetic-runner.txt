@@ -1,0 +1,16 @@
+run id: audit-synthetic-exit7
+build dir: /tmp/shadps4-v0-review2-20260908/synthetic
+
+api_contract_tests: 3 sub-case(s), 0 failure(s)
+hle_abi_tests: 0 sub-case(s), 0 failure(s)
+  WARNING: no results parsed from /tmp/shadps4-v0-review2-20260908/synthetic/guest_cpu_hle_abi_tests
+           missing: /tmp/shadps4-v0-review2-20260908/synthetic/guest_cpu_hle_abi_tests
+host_page_size_probe: 0 sub-case(s), 0 failure(s)
+  WARNING: no results parsed from /tmp/shadps4-v0-review2-20260908/synthetic/host_page_size_probe
+           missing: /tmp/shadps4-v0-review2-20260908/synthetic/host_page_size_probe
+
+2 PASS, 0 FAIL, 58 NOT_RUN of 60 cases
+release status: V0_IN_PROGRESS
+wrote /tmp/shadps4-v0-review2-20260908/synthetic-results.json
+
+runner_exit=0

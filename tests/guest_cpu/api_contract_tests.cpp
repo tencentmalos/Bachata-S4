@@ -13,6 +13,7 @@
 // API itself builds.
 
 #include <algorithm>
+#include <array>
 #include <cstdio>
 #include <cstring>
 #include <string>
@@ -291,7 +292,7 @@ void TestTransactions() {
             }
 
             // The span must still be usable after the refused unmap.
-            auto bytes = pin.Value().Bytes();
+            auto bytes = pin.Value().WritableBytes();
             Check(bytes.size() == page, "pinned span size mismatch");
             bytes[0] = std::byte{0x7E};
             Check(bytes[0] == std::byte{0x7E}, "pinned span must remain writable");
@@ -425,6 +426,78 @@ void TestTransactions() {
         std::vector<std::byte> code(static_cast<std::size_t>(page), std::byte{0x90});
         Check(space->PublishCode(token.Value(), range, code).HasValue(),
               "the token holder must still be able to publish");
+    });
+
+    RunCase("M13d", "a read-only lease cannot be used to write", [] {
+        auto space = MakeSpace();
+        const std::uint64_t page = HostPageSize();
+        auto range = GuestRange::Checked(space->ReservationBase(), page).Value();
+        Check(space->Map(range, GuestPermission::Read | GuestPermission::Write).HasValue(),
+              "map failed");
+
+        const std::array<std::byte, 1> marker{std::byte{0x11}};
+        Check(space->Write(range.base, marker).HasValue(), "seeding write failed");
+
+        auto reader = space->AcquirePinnedSpan(GuestRange{range.base, 1}, /*writable=*/false);
+        Check(reader.HasValue(), "read-only pin failed");
+        if (!reader) return;
+
+        Check(!reader.Value().Writable(), "a read-only lease must not report itself writable");
+        // Bytes() is a const span, so `Bytes()[0] = ...` does not compile at all -- that is the
+        // actual fix for P1-A, and it cannot be expressed as a runtime assertion. What is checkable
+        // is that the writable view stays empty, so a caller reaching for it writes nothing rather
+        // than writing through a lease it was not granted.
+        Check(reader.Value().WritableBytes().empty(),
+              "a read-only lease must not hand out a writable view");
+        Check(reader.Value().Bytes().size() == 1, "the read view must still be usable");
+
+        // The byte is unchanged: nothing above could have modified it.
+        std::array<std::byte, 1> observed{};
+        Check(space->Read(range.base, observed).HasValue(), "read-back failed");
+        Check(observed[0] == std::byte{0x11}, "guest memory changed through a read-only lease");
+    });
+
+    RunCase("M13e", "publication entry points reject a token from another address space", [] {
+        // Each space counts epochs independently, so two freshly quiesced spaces both hold epoch 1.
+        // Checking only IsValid() and the numeric epoch therefore accepted a foreign token, which
+        // the 2026-09-08 publication review reproduced against a live second transaction.
+        auto a = MakeSpace();
+        auto b = MakeSpace();
+        const std::uint64_t page = HostPageSize();
+        auto range = GuestRange::Checked(b->ReservationBase(), page).Value();
+        Check(b->Map(range, GuestPermission::Read | GuestPermission::Write).HasValue(),
+              "map failed");
+
+        const std::array<std::byte, 1> marker{std::byte{0x11}};
+        Check(b->Write(range.base, marker).HasValue(), "seeding write failed");
+
+        auto token_a = a->Quiesce(1'000'000);
+        auto token_b = b->Quiesce(1'000'000);
+        Check(token_a.HasValue() && token_b.HasValue(), "quiesce failed");
+        if (!token_a || !token_b) return;
+        Check(token_a.Value().Epoch() == token_b.Value().Epoch(),
+              "the two tokens should collide on epoch, or this case proves nothing");
+
+        const std::uint64_t generation_before = b->CodeGeneration();
+        std::vector<std::byte> code(static_cast<std::size_t>(page), std::byte{0x42});
+
+        auto published = b->PublishCode(token_a.Value(), range, code);
+        Check(!published.HasValue(), "PublishCode must refuse a foreign token");
+
+        auto invalidated = b->InvalidateCode(token_a.Value(), range, InvalidationReason::HostWrite);
+        Check(!invalidated.HasValue(), "InvalidateCode must refuse a foreign token");
+
+        // A refusal must change nothing: not the bytes, not the generation.
+        std::array<std::byte, 1> observed{};
+        Check(b->Read(range.base, observed).HasValue(), "read-back failed");
+        Check(observed[0] == std::byte{0x11}, "a refused publication still wrote guest memory");
+        Check(b->CodeGeneration() == generation_before,
+              "a refused publication still advanced the code generation");
+
+        // The space's own token still works, so this is a provenance check rather than a
+        // blanket refusal.
+        Check(b->PublishCode(token_b.Value(), range, code).HasValue(),
+              "the space's own token must still authorise publication");
     });
 
     RunCase("M12", "observers get conservatively widened write notifications", [] {

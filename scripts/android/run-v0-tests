@@ -44,6 +44,16 @@ FEX_BLOCKED = ("[NO-BACKEND] needs backend capability that is not implemented ye
                "docs/fex-guest-execution-bringup.md for what it does and does not do")
 APP_PENDING = "[NO-APK] requires the validation APK, not built in this milestone"
 
+# Cases the 2026-09-08 scope decision defers. They must not count as PASS or sit in the current
+# denominator: their point is 16 KiB-specific sub-page behaviour, and the host build happens to have
+# a 16 KiB page, so the sub-checks would otherwise pass and read as scope coverage that is not being
+# claimed. Recorded as DEFERRED_BY_SCOPE with the evidence still attached.
+DEFERRED_BY_SCOPE = {
+    "M02": "16 KiB-specific sub-page slicing; deferred with the 16 KiB scope (2026-09-08)",
+    "M03": "16 KiB-specific conflicting sub-page permissions; deferred with the 16 KiB scope",
+    "B04": "same-APK comparison across 16 KiB and 4 KiB; deferred with the 16 KiB scope",
+}
+
 CASES: dict[str, tuple[str, str | None]] = {
     # Build and dependencies
     "B01": ("clean-room build from the dependency lock", "not yet exercised from a clean clone"),
@@ -167,19 +177,54 @@ SUITE_MAP: dict[str, list[str]] = {
 LINE = re.compile(r"^\[(\S+)\s*\]\s+(.*?)\s+(PASS|FAIL)(?:\s+--\s+(.*))?$")
 
 
-def run_suite(binary: Path) -> tuple[dict[str, tuple[str, str]], str]:
-    """Run one suite binary and return {sub_case: (status, detail)} plus raw output."""
+class SuiteRun:
+    """One suite execution: its parsed sub-cases plus how the process itself ended.
+
+    The process outcome is carried alongside the parsed lines because a suite can print PASS for
+    every check and still fail -- crash during teardown, abort after the last case, exit non-zero
+    for a reason it never printed. The 2026-09-08 publication review demonstrated this with a suite
+    that printed three PASSes and exited 7, which the runner recorded as M01 PASS (P1-D). A suite
+    that did not exit cleanly cannot promote anything.
+    """
+
+    def __init__(self, cases=None, output="", exit_code=None, timed_out=False, error=None):
+        self.cases = cases or {}
+        self.output = output
+        self.exit_code = exit_code
+        self.timed_out = timed_out
+        self.error = error
+
+    @property
+    def usable(self) -> bool:
+        """True only when the process ran to completion and reported success."""
+        return not self.timed_out and self.error is None and self.exit_code == 0
+
+    def failure_reason(self) -> str | None:
+        if self.timed_out:
+            return "suite timed out"
+        if self.error is not None:
+            return self.error
+        if self.exit_code not in (None, 0):
+            return f"suite exited {self.exit_code} despite its printed results"
+        return None
+
+
+def run_suite(binary: Path) -> SuiteRun:
+    """Run one suite binary and report both its sub-cases and its process outcome."""
     if not binary.is_file():
-        return {}, f"missing: {binary}"
+        return SuiteRun(error=f"missing: {binary}")
     started = time.monotonic()
-    result = subprocess.run([str(binary)], capture_output=True, text=True, timeout=600)
+    try:
+        result = subprocess.run([str(binary)], capture_output=True, text=True, timeout=600)
+    except subprocess.TimeoutExpired:
+        return SuiteRun(output=f"timed out after 600s: {binary}", timed_out=True)
     elapsed = time.monotonic() - started
     parsed: dict[str, tuple[str, str]] = {}
     for line in result.stdout.splitlines():
         if match := LINE.match(line.strip()):
             parsed[match.group(1).strip()] = (match.group(3), (match.group(4) or "").strip())
     output = result.stdout + result.stderr + f"\n(exit {result.returncode}, {elapsed:.2f}s)"
-    return parsed, output
+    return SuiteRun(cases=parsed, output=output, exit_code=result.returncode)
 
 
 def NotRun(reason: str) -> dict:
@@ -319,41 +364,64 @@ def CheckDesktopConfigure(enabled: bool) -> dict:
             "evidence": []}
 
 
-def run_device_suite(binary: Path, serial: str | None) -> tuple[dict[str, tuple[str, str]], str]:
+def run_device_suite(binary: Path, serial: str | None) -> SuiteRun:
     """Push one cross-compiled suite to a device, run it, and clean up.
 
     Separate from run_suite because these binaries are arm64/bionic and cannot execute on the build
-    host. Returns empty when adb or the device is unavailable, so the cases stay NOT_RUN rather than
-    being recorded as passes that never ran.
+    host. An unavailable adb or device yields an error rather than an empty pass set, so cases stay
+    NOT_RUN with a stated reason instead of being silently unpromoted.
     """
     if not binary.is_file():
-        return {}, f"missing: {binary}"
+        return SuiteRun(error=f"missing: {binary}")
     if not shutil.which("adb"):
-        return {}, "adb not found; device suite skipped"
+        return SuiteRun(error="adb not found; device suite skipped")
 
     adb = ["adb"] + (["-s", serial] if serial else [])
     remote = f"/data/local/tmp/{binary.name}"
     try:
-        push = subprocess.run(adb + ["push", str(binary), remote], capture_output=True, text=True, timeout=300)
+        push = subprocess.run(adb + ["push", str(binary), remote], capture_output=True, text=True,
+                              timeout=300)
         if push.returncode != 0:
-            return {}, f"adb push failed: {push.stderr.strip()}"
-        subprocess.run(adb + ["shell", "chmod", "755", remote], capture_output=True, text=True, timeout=60)
+            return SuiteRun(error=f"adb push failed: {push.stderr.strip()}")
+        subprocess.run(adb + ["shell", "chmod", "755", remote], capture_output=True, text=True,
+                       timeout=60)
         started = time.monotonic()
-        result = subprocess.run(adb + ["shell", remote], capture_output=True, text=True, timeout=600)
+        # Echo the guest exit status explicitly. `adb shell` does not reliably propagate it on every
+        # Android version, and taking adb's own status instead would report success for a suite that
+        # aborted on the device.
+        result = subprocess.run(adb + ["shell", f"{remote}; echo __EXIT__=$?"],
+                                capture_output=True, text=True, timeout=600)
         elapsed = time.monotonic() - started
-    except (subprocess.TimeoutExpired, OSError) as exc:
-        return {}, f"device suite error: {exc}"
+    except subprocess.TimeoutExpired:
+        return SuiteRun(output=f"device suite timed out: {binary.name}", timed_out=True)
+    except OSError as exc:
+        return SuiteRun(error=f"device suite error: {exc}")
     finally:
         # Do not leave the binary on the device even when the run failed.
         if shutil.which("adb"):
-            subprocess.run(adb + ["shell", "rm", "-f", remote], capture_output=True, text=True, timeout=60)
+            subprocess.run(adb + ["shell", "rm", "-f", remote], capture_output=True, text=True,
+                           timeout=60)
 
     parsed: dict[str, tuple[str, str]] = {}
+    device_exit: int | None = None
     for line in result.stdout.splitlines():
-        if match := LINE.match(line.strip()):
+        stripped = line.strip()
+        if stripped.startswith("__EXIT__="):
+            try:
+                device_exit = int(stripped.split("=", 1)[1])
+            except ValueError:
+                device_exit = None
+            continue
+        if match := LINE.match(stripped):
             parsed[match.group(1).strip()] = (match.group(3), (match.group(4) or "").strip())
-    output = result.stdout + result.stderr + f"\n(exit {result.returncode}, {elapsed:.2f}s, on device)"
-    return parsed, output
+
+    if device_exit is None:
+        return SuiteRun(cases=parsed, output=result.stdout + result.stderr,
+                        error="the device did not report an exit status")
+
+    output = (result.stdout + result.stderr +
+              f"\n(device exit {device_exit}, adb exit {result.returncode}, {elapsed:.2f}s)")
+    return SuiteRun(cases=parsed, output=output, exit_code=device_exit)
 
 
 def pick_binary(build_dir: Path, names: list[str]) -> Path:
@@ -373,9 +441,10 @@ def sha256_of(path: Path) -> str:
     return digest.hexdigest()
 
 
-def git(*args: str) -> str:
+def git(*args: str, cwd: Path | None = None) -> str:
+    """Run git in the repo, or in `cwd` for a submodule."""
     try:
-        return subprocess.run(["git", "-C", str(REPO), *args], capture_output=True,
+        return subprocess.run(["git", "-C", str(cwd or REPO), *args], capture_output=True,
                               text=True, timeout=30).stdout.strip()
     except (subprocess.SubprocessError, OSError):
         return ""
@@ -456,22 +525,44 @@ def main() -> int:
     }
     observed: dict[str, tuple[str, str]] = {}
     suite_meta = {}
-    for name, binary in suites.items():
-        parsed, output = run_suite(binary)
-        observed.update(parsed)
-        suite_meta[name] = {
+    # Sub-cases from a suite whose process did not exit cleanly. Recorded so the affected
+    # acceptance cases can be marked FAIL rather than silently left NOT_RUN, which would read as
+    # "not attempted" when the truth is "attempted and the process failed".
+    tainted: dict[str, str] = {}
+
+    def record_suite(name: str, binary: Path, run: SuiteRun, on_device: bool) -> None:
+        failures = sum(1 for status, _ in run.cases.values() if status == "FAIL")
+        meta = {
             "binary": str(binary),
             "sha256": sha256_of(binary) if binary.is_file() else None,
-            "sub_cases": len(parsed),
-            "failures": sum(1 for status, _ in parsed.values() if status == "FAIL"),
+            "sub_cases": len(run.cases),
+            "failures": failures,
+            "exit_code": run.exit_code,
+            "timed_out": run.timed_out,
+            "error": run.error,
+            "usable": run.usable,
         }
-        print(f"{name}: {len(parsed)} sub-case(s), "
-              f"{suite_meta[name]['failures']} failure(s)")
-        if not parsed:
-            # Loud, because a silent zero here would quietly turn real passes
-            # into NOT_RUN and make the report look worse than reality.
-            print(f"  WARNING: no results parsed from {binary}")
-            print(f"           {output.splitlines()[-1] if output else 'no output'}")
+        if on_device:
+            meta["ran_on_device"] = bool(run.cases) and run.usable
+        suite_meta[name] = meta
+
+        print(f"{name}: {len(run.cases)} sub-case(s), {failures} failure(s)"
+              + ("" if run.usable else f"  [UNUSABLE: {run.failure_reason()}]"))
+
+        if run.usable:
+            observed.update(run.cases)
+            if not run.cases:
+                print(f"  WARNING: no results parsed from {binary}")
+        else:
+            # Its printed results cannot be trusted: a suite can print PASS for everything and
+            # still crash or exit non-zero afterwards.
+            reason = run.failure_reason() or "suite did not complete"
+            for sub in run.cases:
+                tainted[sub] = reason
+            print(f"  {run.output.splitlines()[-1] if run.output else 'no output'}")
+
+    for name, binary in suites.items():
+        record_suite(name, binary, run_suite(binary), on_device=False)
 
     # The bionic FEXCore probes are arm64 and must run on a device, so they are opt-in via
     # --fex-build-dir. Without it the cases they feed stay NOT_RUN with their stated reason.
@@ -482,20 +573,8 @@ def main() -> int:
     if args.fex_build_dir:
         for suite_name in ("fexcore_bionic_smoke", "guest_execution_tests"):
             fex_binary = pick_binary(Path(args.fex_build_dir), [suite_name])
-            parsed, output = run_device_suite(fex_binary, args.serial)
-            observed.update(parsed)
-            failures = sum(1 for status, _ in parsed.values() if status == "FAIL")
-            suite_meta[suite_name] = {
-                "binary": str(fex_binary),
-                "sha256": sha256_of(fex_binary) if fex_binary.is_file() else None,
-                "sub_cases": len(parsed),
-                "failures": failures,
-                "ran_on_device": bool(parsed),
-            }
-            print(f"{suite_name}: {len(parsed)} sub-case(s), {failures} failure(s)")
-            if not parsed:
-                print(f"  WARNING: no results parsed from {fex_binary}")
-                print(f"           {output.splitlines()[-1] if output else 'no output'}")
+            record_suite(suite_name, fex_binary,
+                         run_device_suite(fex_binary, args.serial), on_device=True)
 
     host_page = os.sysconf("SC_PAGESIZE")
     cases = []
@@ -514,22 +593,50 @@ def main() -> int:
         sub_ids = SUITE_MAP.get(case_id)
         if sub_ids and blocked_reason is None:
             found = {s: observed[s] for s in sub_ids if s in observed}
-            if len(found) == len(sub_ids):
-                failed = [s for s, (status, _) in found.items() if status == "FAIL"]
-                entry["status"] = "FAIL" if failed else "PASS"
+            failed = [s for s, (status, _) in found.items() if status == "FAIL"]
+            # Sub-cases whose suite did not exit cleanly. Their printed verdict is unusable, but
+            # the attempt happened, so this is a failure and not an absence.
+            spoiled = [s for s in sub_ids if s in tainted]
+            missing = [s for s in sub_ids if s not in observed and s not in tainted]
+
+            # Failure outranks absence. A case with one FAIL and one missing sub-case previously
+            # took the "missing" branch and reported NOT_RUN, hiding the failure entirely.
+            if failed or spoiled:
+                entry["status"] = "FAIL"
+                entry["iterations"] = 1
+                entry["actual"] = {s: found[s][0] for s in sub_ids if s in found}
+                reasons = []
+                if failed:
+                    reasons.append("failed sub-cases: " + ", ".join(failed))
+                if spoiled:
+                    reasons.append("unusable suite for: " + ", ".join(
+                        f"{s} ({tainted[s]})" for s in spoiled))
+                if missing:
+                    reasons.append("did not report: " + ", ".join(missing))
+                entry["reason"] = "; ".join(reasons)
+            elif missing:
+                entry["reason"] = f"sub-cases did not report: {', '.join(missing)}"
+            else:
+                entry["status"] = "PASS"
                 entry["iterations"] = 1
                 entry["actual"] = {s: found[s][0] for s in sub_ids}
-                entry["reason"] = (
-                    None if not failed
-                    else "failed sub-cases: " + ", ".join(failed))
-                # A host pass is a host pass. Say so, so it is never read as a
-                # device result.
+                entry["reason"] = None
+
+            # A deferred case keeps its observed sub-results as evidence but is not a PASS.
+            if case_id in DEFERRED_BY_SCOPE and entry["status"] == "PASS":
+                entry["status"] = "DEFERRED_BY_SCOPE"
+                entry["reason"] = DEFERRED_BY_SCOPE[case_id]
+
+            if entry["status"] not in ("NOT_RUN",):
+                # Say where the evidence came from. Device sub-cases are prefixed F/G by
+                # convention, and calling those "host-only" is what made the last report claim
+                # device results were host results.
+                on_device = any(s.startswith(("F", "G")) for s in sub_ids)
                 entry["scope_note"] = (
-                    f"host-only, real page size {host_page}; not an on-device result")
+                    "on-device (Swan, 4 KiB); see the device section of the suite output"
+                    if on_device
+                    else f"host-only, real page size {host_page}; not an on-device result")
                 entry["evidence"] = ["docs/validation/v0/host-suite-output.txt"]
-            else:
-                missing = [s for s in sub_ids if s not in observed]
-                entry["reason"] = f"sub-cases did not report: {', '.join(missing)}"
         cases.append(entry)
 
     # B02/B05/B06 are decided by running a check now, not by a hardcoded verdict.
@@ -548,6 +655,10 @@ def main() -> int:
     passed = sum(1 for c in cases if c["status"] == "PASS")
     failed = sum(1 for c in cases if c["status"] == "FAIL")
     not_run = sum(1 for c in cases if c["status"] == "NOT_RUN")
+    deferred = sum(1 for c in cases if c["status"] == "DEFERRED_BY_SCOPE")
+    # Deferred cases are out of the current denominator: counting them would make the remaining
+    # work look larger, and counting them as passes would claim scope that is not being validated.
+    in_scope = len(cases) - deferred
 
     # Status selection is mechanical, so it cannot be talked upwards.
     if failed:
@@ -575,8 +686,12 @@ def main() -> int:
         "implementation_commit": git("rev-parse", "HEAD"),
         "implementation_branch": git("rev-parse", "--abbrev-ref", "HEAD"),
         "working_tree_dirty": bool(git("status", "--porcelain")),
-        "fex_base_commit": "f2b679f6028ce1c38875233aecfcf5d3f8ebecec",
-        "fex_downstream_revision_or_patch_hash": None,
+        # Read from the checkout rather than hardcoded: the previous constants named an FEX commit
+        # that has not been the one in use for several rounds, so the report described a build that
+        # was never run.
+        "fex_base_commit": git("rev-parse", "HEAD", cwd=REPO / "references/FEX"),
+        "fex_downstream_revision_or_patch_hash": git("rev-parse", "--abbrev-ref", "HEAD",
+                                                     cwd=REPO / "references/FEX"),
         "toolchain_lock_sha256": sha256_of(REPO / "docs/validation/v0/environment.lock.json"),
         "apk_sha256": None,
         "native_build_ids": {},
@@ -592,10 +707,14 @@ def main() -> int:
             "smc_mode": "ExplicitPublication",
             "guest_features": [],
             "step_scope": [],
-            "backend": "none (FEX not linked; backend adapter not implemented)",
+            # Reflects what this invocation actually exercised, not a fixed string.
+            "backend": ("FEXCore via src/core/guest_cpu/fex (device suites ran)"
+                        if args.fex_build_dir else
+                        "not exercised in this invocation; no --fex-build-dir given"),
         },
         "suites": suite_meta,
         "summary": {"passed": passed, "failed": failed, "not_run": not_run,
+                    "deferred_by_scope": deferred, "in_scope_total": in_scope,
                     "total": len(cases)},
         "cases": cases,
         "release_status": release_status,
@@ -614,7 +733,8 @@ def main() -> int:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(report, indent=2) + "\n")
 
-    print(f"\n{passed} PASS, {failed} FAIL, {not_run} NOT_RUN of {len(cases)} cases")
+    print(f"\n{passed} PASS, {failed} FAIL, {not_run} NOT_RUN of {in_scope} in-scope cases"
+          + (f" ({deferred} deferred by scope)" if deferred else ""))
     print(f"release status: {release_status}")
     print(f"wrote {out_path}")
     return 1 if failed else 0

@@ -1,0 +1,55 @@
+--- a/tests/guest_cpu/guest_execution_tests.cpp
++++ b/tests/guest_cpu/guest_execution_tests.cpp
+@@ -512,6 +512,44 @@
+           destroy_first && destroy_second && harness.context->LiveThreadCount() == 0);
+ }
+ 
++
++void ReviewPublicPublication(Harness& h) {
++    const auto* a = FindFixture("constant_a");
++    const auto* b = FindFixture("constant_b");
++    if (!a || !b) { Check("RVP0", "review fixture setup", false); return; }
++    auto warm = RunFixture(h, *a, [](RegisterPatch&) {});
++    if (!warm.ok || warm.result.snapshot.registers.Get(Gpr::Rax) != 17) {
++        Check("RVP0", "warm old translation", false); return;
++    }
++    GuestRange range{GuestAddress{h.code_base}, kMappingSize};
++    if (!h.space->Protect(range, GuestPermission::Read | GuestPermission::Write)) {
++        Check("RVP0", "make code writable", false); return;
++    }
++    auto q = h.space->Quiesce(1'000'000);
++    if (!q) { Check("RVP0", "quiesce", false); return; }
++    std::vector<std::byte> bytes(kMappingSize);
++    std::memcpy(bytes.data(), b->bytes.data(), b->bytes.size());
++    std::memcpy(bytes.data() + b->gate_offset, &h.return_gate, sizeof(h.return_gate));
++    const auto gen = h.space->CodeGeneration();
++    auto pub = h.space->PublishCode(q.Value(), range, bytes);
++    auto inv = h.space->InvalidateCode(q.Value(), range, InvalidationReason::HostWrite);
++    auto rx = h.space->Protect(range, GuestPermission::Read | GuestPermission::Execute);
++    if (!pub || !inv || !rx) { Check("RVP0", "publish B through GuestAddressSpace", false); return; }
++    printf("review generation before=%llu after=%llu\n", (unsigned long long)gen,
++           (unsigned long long)h.space->CodeGeneration());
++    ThreadInit init{};
++    init.entry_rip = GuestCodeAddress{h.code_base};
++    init.initial_rsp = GuestAddress{h.stack_top};
++    auto thread = h.context->CreateThread(init);
++    if (!thread) { Check("RVP0", "create thread", false); return; }
++    // Keep q alive: this separately tests admission during the transaction.
++    auto run = h.context->Run(thread.Value(), RunOptions{});
++    Check("RVP1", "Run must refuse entry while publication token is held", !run);
++    if (run) CheckU64("RVP2", "public publication must execute new constant B",
++                      run.Value().snapshot.registers.Get(Gpr::Rax), 34);
++    Check("RVP3", "review thread cleaned up", bool(h.context->DestroyThread(thread.Value())));
++}
++
+ // --- contract checks that need no execution -------------------------------------------------------
+ void TestContracts(Harness& harness) {
+     const auto caps = harness.context->Capabilities();
+@@ -667,6 +705,7 @@
+     printf("\n");
+     // Contract checks last: they publish their own stub at the same address.
+     TestContracts(harness);
++    ReviewPublicPublication(harness);
+ 
+     printf("\n%d check(s), %s (%d failure%s)\n", g_checks,
+            g_failures == 0 ? "ALL PASS" : "FAILED", g_failures, g_failures == 1 ? "" : "s");

@@ -98,7 +98,7 @@ bool LoadFixture(Harness& harness, const Fixtures::Fixture& fixture, std::string
             error = "AcquirePinnedSpan: " + Describe(pin.GetError());
             return false;
         }
-        auto bytes = pin.Value().Bytes();
+        auto bytes = pin.Value().WritableBytes();
         if (fixture.bytes.size() > bytes.size()) {
             error = "fixture is larger than the code mapping";
             return false;
@@ -145,7 +145,8 @@ bool ResetStack(Harness& harness, std::string& error) {
         error = "pin stack: " + Describe(pin.GetError());
         return false;
     }
-    std::memset(pin.Value().Bytes().data(), 0, pin.Value().Bytes().size());
+    auto writable = pin.Value().WritableBytes();
+    std::memset(writable.data(), 0, writable.size());
     return true;
 }
 

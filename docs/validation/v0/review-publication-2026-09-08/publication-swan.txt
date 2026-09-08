@@ -1,0 +1,4 @@
+foreign_token_is_from_target=0 same_epoch=1 publish_accepted=1 invalidate_accepted=1 byte=66
+reader_writable_flag=0 read_pin_write_during_quiesce=153 explicit_write_accepted=0
+
+exit=0

@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
   "spec": "android-fex-v0",
-  "run_id": "20260908T070313Z",
-  "timestamp_utc": "2026-09-08T07:03:15.863733+00:00",
+  "run_id": "audit-synthetic-exit7",
+  "timestamp_utc": "2026-09-08T06:31:58.401668+00:00",
   "baseline_commit": "a712889343ccd2588b712988dae0a76a104e0dce",
   "implementation_commit": "e23bf61dc6b83ea92f31c5ab8fef7da84ff0366e",
   "implementation_branch": "codex/android-fex-v0",
   "working_tree_dirty": true,
-  "fex_base_commit": "385a0cc4d81cd456c8d5c26b4f09cb5a7d8d5842",
-  "fex_downstream_revision_or_patch_hash": "feature/malos/host-page-size",
+  "fex_base_commit": "f2b679f6028ce1c38875233aecfcf5d3f8ebecec",
+  "fex_downstream_revision_or_patch_hash": null,
   "toolchain_lock_sha256": "fe7b73a940a584740f1a17738ce9df06443a17243a743245cf6d63468ac44f60",
   "apk_sha256": null,
   "native_build_ids": {},
@@ -36,68 +36,32 @@
     "smc_mode": "ExplicitPublication",
     "guest_features": [],
     "step_scope": [],
-    "backend": "FEXCore via src/core/guest_cpu/fex (device suites ran)"
+    "backend": "none (FEX not linked; backend adapter not implemented)"
   },
   "suites": {
     "api_contract_tests": {
-      "binary": "/tmp/fin/guest_cpu_contract_tests",
-      "sha256": "48d3c33b109d64c92d08c45fff7c6552b0bd7d50321148068c70a8e7b72e60fa",
-      "sub_cases": 24,
-      "failures": 0,
-      "exit_code": 0,
-      "timed_out": false,
-      "error": null,
-      "usable": true
+      "binary": "/tmp/shadps4-v0-review2-20260908/synthetic/guest_cpu_contract_tests",
+      "sha256": "eeba6917fcfc83180813c4183ecba36c0381d943880eb9475b093679ad4bcafb",
+      "sub_cases": 3,
+      "failures": 0
     },
     "hle_abi_tests": {
-      "binary": "/tmp/fin/guest_cpu_hle_abi_tests",
-      "sha256": "95454a5685850087c38c064663bba694b05da4ecf63318ceedd6fcbd031026c0",
-      "sub_cases": 14,
-      "failures": 0,
-      "exit_code": 0,
-      "timed_out": false,
-      "error": null,
-      "usable": true
+      "binary": "/tmp/shadps4-v0-review2-20260908/synthetic/guest_cpu_hle_abi_tests",
+      "sha256": null,
+      "sub_cases": 0,
+      "failures": 0
     },
     "host_page_size_probe": {
-      "binary": "/tmp/fin/host_page_size_probe",
-      "sha256": "ae0b2bea42bc6ca2957015655acb237e17262664bb6ebbe9a9243600ed4c6050",
-      "sub_cases": 22,
-      "failures": 0,
-      "exit_code": 0,
-      "timed_out": false,
-      "error": null,
-      "usable": true
-    },
-    "fexcore_bionic_smoke": {
-      "binary": "build/fexcore-android/fexcore_bionic_smoke",
-      "sha256": "99edef93c948996e47bdc0e813e3485c23b0dc22d5737575263e7a0cb767a54d",
-      "sub_cases": 12,
-      "failures": 0,
-      "exit_code": 0,
-      "timed_out": false,
-      "error": null,
-      "usable": true,
-      "ran_on_device": true
-    },
-    "guest_execution_tests": {
-      "binary": "build/fexcore-android/guest_execution_tests",
-      "sha256": "6c9d09d5deee4ff1b608a2ee75bd093fefeefe1d24601da09924d56f9db12e5a",
-      "sub_cases": 37,
-      "failures": 0,
-      "exit_code": 0,
-      "timed_out": false,
-      "error": null,
-      "usable": true,
-      "ran_on_device": true
+      "binary": "/tmp/shadps4-v0-review2-20260908/synthetic/host_page_size_probe",
+      "sha256": null,
+      "sub_cases": 0,
+      "failures": 0
     }
   },
   "summary": {
-    "passed": 21,
+    "passed": 2,
     "failed": 0,
-    "not_run": 37,
-    "deferred_by_scope": 2,
-    "in_scope_total": 58,
+    "not_run": 58,
     "total": 60
   },
   "cases": [
@@ -115,20 +79,13 @@
     {
       "id": "B02",
       "description": "native ELF is arm64 bionic, 16 KiB aligned, no glibc",
-      "status": "PASS",
+      "status": "NOT_RUN",
       "environment": "HOST",
-      "iterations": 1,
+      "iterations": 0,
       "expected": null,
-      "actual": {
-        "guest_cpu_contract_tests": "not AArch64; skipped",
-        "guest_cpu_hle_abi_tests": "not AArch64; skipped",
-        "host_page_size_probe": "not AArch64; skipped",
-        "fexcore_bionic_smoke": "align=0x4000 needed=['liblog.so', 'libm.so', 'libdl.so', 'libc.so'] glibc_needed=[] glibc_versions=0",
-        "guest_execution_tests": "align=0x4000 needed=['liblog.so', 'libm.so', 'libdl.so', 'libc.so'] glibc_needed=[] glibc_versions=0"
-      },
-      "reason": null,
-      "evidence": [],
-      "scope_note": "inspected the binaries built by this invocation; PT_LOAD alignment is reported but the 16 KiB requirement is deferred by the 4 KiB scope"
+      "actual": null,
+      "reason": "no AArch64 binaries were available to inspect",
+      "evidence": []
     },
     {
       "id": "B03",
@@ -221,49 +178,24 @@
     {
       "id": "C01",
       "description": "x86 integer arithmetic, flags, branches",
-      "status": "PASS",
+      "status": "NOT_RUN",
       "environment": "HOST",
-      "iterations": 1,
+      "iterations": 0,
       "expected": null,
-      "actual": {
-        "G01a": "PASS",
-        "G01b": "PASS",
-        "G01c": "PASS",
-        "G01d": "PASS",
-        "G01e": "PASS",
-        "G01f": "PASS",
-        "G02a": "PASS",
-        "G02b": "PASS",
-        "G03a": "PASS",
-        "G03b": "PASS",
-        "G03c": "PASS",
-        "G07a": "PASS",
-        "G07b": "PASS",
-        "G07c": "PASS"
-      },
-      "reason": null,
-      "evidence": [
-        "docs/validation/v0/host-suite-output.txt"
-      ],
-      "scope_note": "on-device (Swan, 4 KiB); see the device section of the suite output"
+      "actual": null,
+      "reason": "sub-cases did not report: G01a, G01b, G01c, G01d, G01e, G01f, G02a, G02b, G03a, G03b, G03c, G07a, G07b, G07c",
+      "evidence": []
     },
     {
       "id": "C02",
       "description": "SSE2 arithmetic, XMM save, MXCSR rounding",
-      "status": "PASS",
+      "status": "NOT_RUN",
       "environment": "HOST",
-      "iterations": 1,
+      "iterations": 0,
       "expected": null,
-      "actual": {
-        "G04a": "PASS",
-        "G04b": "PASS",
-        "G04c": "PASS"
-      },
-      "reason": null,
-      "evidence": [
-        "docs/validation/v0/host-suite-output.txt"
-      ],
-      "scope_note": "on-device (Swan, 4 KiB); see the device section of the suite output"
+      "actual": null,
+      "reason": "sub-cases did not report: G04a, G04b, G04c",
+      "evidence": []
     },
     {
       "id": "C03",
@@ -290,22 +222,13 @@
     {
       "id": "H01",
       "description": "HLE 8 integer / 9 double / mixed args, RCX and callee-saved intact",
-      "status": "PASS",
+      "status": "NOT_RUN",
       "environment": "HOST",
-      "iterations": 1,
+      "iterations": 0,
       "expected": null,
-      "actual": {
-        "H01a": "PASS",
-        "H01b": "PASS",
-        "H01c": "PASS",
-        "H01d": "PASS",
-        "H01e": "PASS"
-      },
-      "reason": null,
-      "evidence": [
-        "docs/validation/v0/host-suite-output.txt"
-      ],
-      "scope_note": "host-only, real page size 16384; not an on-device result"
+      "actual": null,
+      "reason": "sub-cases did not report: H01a, H01b, H01c, H01d, H01e",
+      "evidence": []
     },
     {
       "id": "H02",
@@ -332,26 +255,13 @@
     {
       "id": "H04",
       "description": "unregistered syscall, out-of-range and stale buffers refused",
-      "status": "PASS",
+      "status": "NOT_RUN",
       "environment": "HOST",
-      "iterations": 1,
+      "iterations": 0,
       "expected": null,
-      "actual": {
-        "H04a": "PASS",
-        "H04b": "PASS",
-        "H04c": "PASS",
-        "H04d": "PASS",
-        "H04e": "PASS",
-        "H04f": "PASS",
-        "H04g": "PASS",
-        "H04h": "PASS",
-        "H04i": "PASS"
-      },
-      "reason": null,
-      "evidence": [
-        "docs/validation/v0/host-suite-output.txt"
-      ],
-      "scope_note": "host-only, real page size 16384; not an on-device result"
+      "actual": null,
+      "reason": "sub-cases did not report: H04a, H04b, H04c, H04d, H04e, H04f, H04g, H04h, H04i",
+      "evidence": []
     },
     {
       "id": "H05",
@@ -396,67 +306,46 @@
     {
       "id": "M02",
       "description": "four 4 KiB logical slices inside one host page",
-      "status": "DEFERRED_BY_SCOPE",
+      "status": "NOT_RUN",
       "environment": "HOST",
-      "iterations": 1,
+      "iterations": 0,
       "expected": null,
-      "actual": {
-        "M02": "PASS"
-      },
-      "reason": "16 KiB-specific sub-page slicing; deferred with the 16 KiB scope (2026-09-08)",
-      "evidence": [
-        "docs/validation/v0/host-suite-output.txt"
-      ],
-      "scope_note": "host-only, real page size 16384; not an on-device result"
+      "actual": null,
+      "reason": "sub-cases did not report: M02",
+      "evidence": []
     },
     {
       "id": "M03",
       "description": "conflicting sub-page permission refused, state unchanged",
-      "status": "DEFERRED_BY_SCOPE",
+      "status": "NOT_RUN",
       "environment": "HOST",
-      "iterations": 1,
+      "iterations": 0,
       "expected": null,
-      "actual": {
-        "M03": "PASS"
-      },
-      "reason": "16 KiB-specific conflicting sub-page permissions; deferred with the 16 KiB scope",
-      "evidence": [
-        "docs/validation/v0/host-suite-output.txt"
-      ],
-      "scope_note": "host-only, real page size 16384; not an on-device result"
+      "actual": null,
+      "reason": "sub-cases did not report: M03",
+      "evidence": []
     },
     {
       "id": "M04",
       "description": "overflow, misalignment and region conflict rejected",
-      "status": "PASS",
+      "status": "NOT_RUN",
       "environment": "HOST",
-      "iterations": 1,
+      "iterations": 0,
       "expected": null,
-      "actual": {
-        "M04a": "PASS",
-        "M04b": "PASS"
-      },
-      "reason": null,
-      "evidence": [
-        "docs/validation/v0/host-suite-output.txt"
-      ],
-      "scope_note": "host-only, real page size 16384; not an on-device result"
+      "actual": null,
+      "reason": "sub-cases did not report: M04a, M04b",
+      "evidence": []
     },
     {
       "id": "M05",
       "description": "guard page, unmapped and read-only access faults correctly",
-      "status": "PASS",
+      "status": "NOT_RUN",
       "environment": "HOST",
-      "iterations": 1,
+      "iterations": 0,
       "expected": null,
-      "actual": {
-        "M05": "PASS"
-      },
-      "reason": null,
-      "evidence": [
-        "docs/validation/v0/host-suite-output.txt"
-      ],
-      "scope_note": "host-only, real page size 16384; not an on-device result"
+      "actual": null,
+      "reason": "sub-cases did not report: M05",
+      "evidence": []
     },
     {
       "id": "M06",
@@ -472,21 +361,13 @@
     {
       "id": "M07",
       "description": "host/HLE code rewrite and publication, 100x",
-      "status": "PASS",
+      "status": "NOT_RUN",
       "environment": "HOST",
-      "iterations": 1,
+      "iterations": 0,
       "expected": null,
-      "actual": {
-        "M07": "PASS",
-        "G08a": "PASS",
-        "G08b": "PASS",
-        "G08c": "PASS"
-      },
-      "reason": null,
-      "evidence": [
-        "docs/validation/v0/host-suite-output.txt"
-      ],
-      "scope_note": "on-device (Swan, 4 KiB); see the device section of the suite output"
+      "actual": null,
+      "reason": "sub-cases did not report: M07, G08a, G08b, G08c",
+      "evidence": []
     },
     {
       "id": "M08",
@@ -513,18 +394,13 @@
     {
       "id": "M10",
       "description": "two VA aliases of one backing, invalidation covers both",
-      "status": "PASS",
+      "status": "NOT_RUN",
       "environment": "HOST",
-      "iterations": 1,
+      "iterations": 0,
       "expected": null,
-      "actual": {
-        "M10": "PASS"
-      },
-      "reason": null,
-      "evidence": [
-        "docs/validation/v0/host-suite-output.txt"
-      ],
-      "scope_note": "host-only, real page size 16384; not an on-device result"
+      "actual": null,
+      "reason": "sub-cases did not report: M10",
+      "evidence": []
     },
     {
       "id": "M11",
@@ -540,36 +416,24 @@
     {
       "id": "M12",
       "description": "code observer and GPU dirty observer on one host page",
-      "status": "PASS",
+      "status": "NOT_RUN",
       "environment": "HOST",
-      "iterations": 1,
+      "iterations": 0,
       "expected": null,
-      "actual": {
-        "M12": "PASS"
-      },
-      "reason": null,
-      "evidence": [
-        "docs/validation/v0/host-suite-output.txt"
-      ],
-      "scope_note": "host-only, real page size 16384; not an on-device result"
+      "actual": null,
+      "reason": "sub-cases did not report: M12",
+      "evidence": []
     },
     {
       "id": "M13",
       "description": "pinned HLE span races unmap/protect",
-      "status": "PASS",
+      "status": "NOT_RUN",
       "environment": "HOST",
-      "iterations": 1,
+      "iterations": 0,
       "expected": null,
-      "actual": {
-        "M13": "PASS",
-        "M13b": "PASS",
-        "M13c": "PASS"
-      },
-      "reason": null,
-      "evidence": [
-        "docs/validation/v0/host-suite-output.txt"
-      ],
-      "scope_note": "host-only, real page size 16384; not an on-device result"
+      "actual": null,
+      "reason": "sub-cases did not report: M13, M13b, M13c",
+      "evidence": []
     },
     {
       "id": "M14",
@@ -629,18 +493,13 @@
     {
       "id": "T03",
       "description": "overlapping pause/cancel, epochs preserved",
-      "status": "PASS",
+      "status": "NOT_RUN",
       "environment": "HOST",
-      "iterations": 1,
+      "iterations": 0,
       "expected": null,
-      "actual": {
-        "T03a": "PASS"
-      },
-      "reason": null,
-      "evidence": [
-        "docs/validation/v0/host-suite-output.txt"
-      ],
-      "scope_note": "host-only, real page size 16384; not an on-device result"
+      "actual": null,
+      "reason": "sub-cases did not report: T03a",
+      "evidence": []
     },
     {
       "id": "T04",
@@ -711,19 +570,13 @@
     {
       "id": "D03",
       "description": "guest fault or controlled in-JIT host stop attribution",
-      "status": "PASS",
+      "status": "NOT_RUN",
       "environment": "HOST",
-      "iterations": 1,
+      "iterations": 0,
       "expected": null,
-      "actual": {
-        "D03a": "PASS",
-        "D03b": "PASS"
-      },
-      "reason": null,
-      "evidence": [
-        "docs/validation/v0/host-suite-output.txt"
-      ],
-      "scope_note": "host-only, real page size 16384; not an on-device result"
+      "actual": null,
+      "reason": "sub-cases did not report: D03a, D03b",
+      "evidence": []
     },
     {
       "id": "D04",
@@ -739,21 +592,13 @@
     {
       "id": "D05",
       "description": "real HLT, illegal instruction, unregistered return trap",
-      "status": "PASS",
+      "status": "NOT_RUN",
       "environment": "HOST",
-      "iterations": 1,
+      "iterations": 0,
       "expected": null,
-      "actual": {
-        "G05a": "PASS",
-        "G05b": "PASS",
-        "G05c": "PASS",
-        "G05d": "PASS"
-      },
-      "reason": null,
-      "evidence": [
-        "docs/validation/v0/host-suite-output.txt"
-      ],
-      "scope_note": "on-device (Swan, 4 KiB); see the device section of the suite output"
+      "actual": null,
+      "reason": "sub-cases did not report: G05a, G05b, G05c, G05d",
+      "evidence": []
     },
     {
       "id": "A01",
@@ -835,107 +680,57 @@
     {
       "id": "P01",
       "description": "JIT code buffer guard is host-page aligned and sized",
-      "status": "PASS",
+      "status": "NOT_RUN",
       "environment": "HOST",
-      "iterations": 1,
+      "iterations": 0,
       "expected": null,
-      "actual": {
-        "P01a": "PASS",
-        "P01b": "PASS",
-        "P01c": "PASS",
-        "P01d": "PASS",
-        "P01g": "PASS"
-      },
-      "reason": null,
-      "evidence": [
-        "docs/validation/v0/host-suite-output.txt"
-      ],
-      "scope_note": "host-only, real page size 16384; not an on-device result"
+      "actual": null,
+      "reason": "sub-cases did not report: P01a, P01b, P01c, P01d, P01g",
+      "evidence": []
     },
     {
       "id": "P02",
       "description": "InterruptFaultPage is host-page aligned within the JIT offset budget",
-      "status": "PASS",
+      "status": "NOT_RUN",
       "environment": "HOST",
-      "iterations": 1,
+      "iterations": 0,
       "expected": null,
-      "actual": {
-        "P02a": "PASS",
-        "P02b": "PASS",
-        "P02c": "PASS",
-        "P02d": "PASS",
-        "P02e": "PASS",
-        "P02f": "PASS",
-        "P02g": "PASS"
-      },
-      "reason": null,
-      "evidence": [
-        "docs/validation/v0/host-suite-output.txt"
-      ],
-      "scope_note": "host-only, real page size 16384; not an on-device result"
+      "actual": null,
+      "reason": "sub-cases did not report: P02a, P02b, P02c, P02d, P02e, P02f, P02g",
+      "evidence": []
     },
     {
       "id": "P03",
       "description": "SetHostPageSize rejects invalid and unsupported host pages",
-      "status": "PASS",
+      "status": "NOT_RUN",
       "environment": "HOST",
-      "iterations": 1,
+      "iterations": 0,
       "expected": null,
-      "actual": {
-        "P03a": "PASS",
-        "P03b": "PASS",
-        "P03c": "PASS",
-        "P03d": "PASS",
-        "P03e": "PASS",
-        "P03f": "PASS"
-      },
-      "reason": null,
-      "evidence": [
-        "docs/validation/v0/host-suite-output.txt"
-      ],
-      "scope_note": "host-only, real page size 16384; not an on-device result"
+      "actual": null,
+      "reason": "sub-cases did not report: P03a, P03b, P03c, P03d, P03e, P03f",
+      "evidence": []
     },
     {
       "id": "P04",
       "description": "FEXCore links and initialises inside a bionic process",
-      "status": "PASS",
+      "status": "NOT_RUN",
       "environment": "HOST",
-      "iterations": 1,
+      "iterations": 0,
       "expected": null,
-      "actual": {
-        "F01a": "PASS",
-        "F01b": "PASS",
-        "F02a": "PASS",
-        "F02b": "PASS",
-        "F03a": "PASS",
-        "F03b": "PASS",
-        "F03c": "PASS"
-      },
-      "reason": null,
-      "evidence": [
-        "docs/validation/v0/host-suite-output.txt"
-      ],
-      "scope_note": "on-device (Swan, 4 KiB); see the device section of the suite output"
+      "actual": null,
+      "reason": "sub-cases did not report: F01a, F01b, F02a, F02b, F03a, F03b, F03c",
+      "evidence": []
     },
     {
       "id": "P05",
       "description": "guest thread create/destroy lifecycle on bionic",
-      "status": "PASS",
+      "status": "NOT_RUN",
       "environment": "HOST",
-      "iterations": 1,
+      "iterations": 0,
       "expected": null,
-      "actual": {
-        "F04a": "PASS",
-        "F04b": "PASS",
-        "F04c": "PASS",
-        "F05a": "PASS",
-        "F05b": "PASS"
-      },
-      "reason": null,
-      "evidence": [
-        "docs/validation/v0/host-suite-output.txt"
-      ],
-      "scope_note": "on-device (Swan, 4 KiB); see the device section of the suite output"
+      "actual": null,
+      "reason": "sub-cases did not report: F04a, F04b, F04c, F05a, F05b",
+      "evidence": []
     }
   ],
   "release_status": "V0_IN_PROGRESS",
