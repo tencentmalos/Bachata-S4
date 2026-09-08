@@ -10,13 +10,15 @@
 
 ## 1. 当前状态（务必先读）
 
-**契约层全部通过，guest 指令尚未真正执行。**
+**契约层全部通过；guest 代码确实被翻译并执行，但寄存器效果未落到 `CPUState`。**
 
 实机 9/9 契约检查通过：能力声明、重复 context 拒绝、未映射入口拒绝、Step 拒绝、
 stale epoch 拒绝、失效句柄拒绝。
 
-但**没有任何 guest 指令产生效果**。这一点有决定性证据（见 §4），
-不要把当前的 `StopReason::Returned` 当作"执行成功"——它只说明 dispatcher 退出到了 return gate。
+执行链路已确证走通：fixture 被翻译成 host 代码、执行、并到达 return gate（证据见 §4.4）。
+**但没有任何架构效果留存**——寄存器保持初值，guest 栈全零。
+所以不要把当前的 `StopReason::Returned` 当作"执行成功"：
+它只说明控制流到达了 gate，不说明指令产生了正确结果。
 
 因此验收 C01/C02 等仍记 NOT_RUN，不记 PASS。
 
@@ -121,45 +123,74 @@ hint 只是建议，校验才是约束。放不下时明确失败，不返回后
 | **每次 Run 编译块数** | **2** | **翻译未发生**（早期误判，已更正） |
 | `CurrentFrame == &BaseFrameState` | true | frame 身份错乱 |
 | 退出后 `BaseFrameState.rip` | 已更新为 gate | JIT 完全不回写状态 |
-| guest 栈内容 | 全零 | — 确证指令无效果 |
+| guest 栈内容 | 全零 | — 确证指令效果未留存 |
+| 编译覆盖的 guest page | fixture 与 gate 各一 | fixture 未被翻译（见 §4.4） |
 
 **关键更正**：早期记录"首次 Run 编译 0 个 block"是测量错误——
 计数打印在 `Run` **之前**，读到的是上一次的累计值。修正后每次都是 2，
 所以翻译确实发生了，方向应从"没翻译"改为"翻译了但效果不落地"。
 
-### 4.4 下一步排查方向
+### 4.4 已确证：fixture 确实被翻译并执行
 
-RIP 被正确更新到 gate，但 GPR 没有——这两条事实一起把范围收得很窄。
+两条独立证据推翻了"guest 没跑"的假设：
 
-关键观察：`SpillStaticRegs`（`Arm64Emitter.cpp:719-728`）**直接写入 `State.gregs`**，
-也就是我们读取的同一位置。所以"spill 跑了但我们读错地方"这条假设不成立：
-如果 spill 执行过，值就会在那里。
+**证据一：两个 block 都被编译。** 通过覆写 `SyscallHandler::MarkGuestExecutableRange`
+（FEXCore 每编译一个 guest page 的代码就调用一次）观察到：
 
-结合"每次编译 2 个 block"与"RIP 更新到 gate"，最可能的解释是
-**执行在第一条 guest 指令之前就退出了**，走的是一条仍会更新 RIP 的路径。
+```
+compiled code covering 0x7f8010000 +0x1000   ← fixture 本体
+compiled code covering 0xfc0000000 +0x1000   ← return gate
+```
 
-按优先级：
+**证据二：关闭 `EnableExitOnHLT` 后行为改变。** 用 `GUEST_CPU_NO_EXIT_ON_HLT=1`
+关掉它，程序不再干净返回，而是 SIGSEGV 崩在 `[anon:FEXMem_Misc]`（dispatcher 自身代码）。
+这正是 `Dispatcher.cpp:430-431` 在非 ExitOnHLT 模式下**故意**执行的空指针加载。
 
-1. **查清实际的退出点**。真实 HLT 走 `GuestSignal_SIGILL`（`Dispatcher.cpp:396`），
-   它 spill 之后执行 **host `hlt(0)`** —— 那会崩溃而不是干净返回。
-   我们干净返回了，所以退出并非来自 gate 的 HLT 指令本身。
-   `ExitOnHLT` 的返回只存在于 `GuestSignal_SIGSEGV`（`:416-427`）。
-   需要确认是谁跳到了那里。
-2. **确认编译的是哪两个 block**。可能是 gate 与某个 stub，而非 fixture 本体。
-   注意 **`CONFIG_DUMPIR` 在本构建中无效**：`OpDispatcher::SetDumpIR` 全仓无调用者
-   （已实测），所以 IR dump 这条路走不通，不要在它上面浪费时间。
-   改用 `-DENABLE_VIXL_DISASSEMBLER=ON` 观察生成的 host 代码。
-3. LLDB 在 `CompileBlock`、`SpillStaticRegs` 与 `AbsoluteLoopTopAddress` 处下断点，
-   直接观察控制流，见 [host LLDB → guest 工作流](fex-lldb-host-guest-workflow.md)。
+也就是说：**guest 确实执行到了 gate 的 HLT**，返回门机制按设计工作。
+问题只在于寄存器效果没有留存。
 
-### 4.5 已排除、不要重复的路径
+`SpillStaticRegOptions` 的默认掩码是 `~0U`（全部寄存器），
+所以"退出路径没 spill GPR"这条也不成立。
 
-- `CONFIG_DUMPIR` / IR dump：配置项存在但未接线，无输出
-- "spill 写到别处"：`SpillStaticRegs` 就是写 `State.gregs`
+### 4.5 剩余的唯一疑点
+
+fixture 被翻译、被执行、到达 gate，`SpillStaticRegs` 写的就是 `State.gregs`，
+掩码也覆盖全部 GPR——但 `State.gregs` 里没有结果。
+
+这已超出静态阅读能回答的范围，需要在设备上用 LLDB 实际观察：
+在 `SpillStaticRegs` 生成的 store 指令处下断点，看它究竟写到了哪个 `STATE` 基址。
+怀疑点是 `STATE`（x28）指向的 frame 与我们读的 `CurrentFrame` 不是同一个对象，
+尽管 `CurrentFrame == &BaseFrameState` 已验证为 true。
+
+见 [host LLDB → guest 工作流](fex-lldb-host-guest-workflow.md)；
+注意该文档强调 `STATE=x28` 是特定 JIT 布局的结论，必须对照实际部署版本确认。
+
+### 4.6 已排除、不要重复的路径
+
+- `CONFIG_DUMPIR` / IR dump：`OpDispatcher::SetDumpIR` 全仓无调用者，无输出（已实测）
+- "spill 写到别处"：`SpillStaticRegs` 就是写 `State.gregs`（`Arm64Emitter.cpp:719-728`）
+- "spill 掩码排除了 GPR"：默认 `GPRSpillMask = ~0U`
 - "首次 Run 没编译"：测量错误，实际每次编译 2 个 block
-- 地址超限：已修复并验证（§4.2），但不是唯一原因
+- "fixture 没被翻译"：已确证两个 block 都编译（§4.4）
+- "guest 没到达 gate"：已确证（§4.4 证据二）
+- 地址超限：已修复并验证（§4.2），是真实缺陷但不是本症状的唯一原因
 
+### 4.7 复现方法
 
+```bash
+scripts/android/build-fexcore-android
+adb push build/fexcore-android/guest_execution_tests /data/local/tmp/gx
+adb shell chmod 755 /data/local/tmp/gx
+
+# 正常运行：契约 9/9 通过，执行类 12 项失败
+adb shell /data/local/tmp/gx
+
+# 观察 FEX 内部日志与编译覆盖范围
+adb shell "GUEST_CPU_DEBUG=1 /data/local/tmp/gx"
+
+# 关闭 ExitOnHLT：应当崩在 dispatcher 的故意 fault，证明执行到达 gate
+adb shell "GUEST_CPU_NO_EXIT_ON_HLT=1 /data/local/tmp/gx"
+```
 
 ## 5. 已实现的 API 表面
 

@@ -118,6 +118,17 @@ public:
         compile_count.fetch_add(1, std::memory_order_relaxed);
     }
 
+    // FEXCore calls this once per guest page it has compiled code from, which is the only
+    // outside-visible confirmation of *what* was translated.
+    void MarkGuestExecutableRange(FEXCore::Core::InternalThreadState* Thread, uint64_t Start,
+                                  uint64_t Length) override {
+        if (::getenv("GUEST_CPU_DEBUG") != nullptr) {
+            std::fprintf(stderr, "[guest_cpu] compiled code covering 0x%llx +0x%llx\n",
+                         static_cast<unsigned long long>(Start),
+                         static_cast<unsigned long long>(Length));
+        }
+    }
+
     [[nodiscard]] std::uint64_t CompileCount() const {
         return compile_count.load(std::memory_order_relaxed);
     }
@@ -353,7 +364,14 @@ public:
         context_->SetSyscallHandler(syscall_handler_.get());
 
         // Makes the return gate's HLT exit ExecuteThread rather than trap.
-        context_->EnableExitOnHLT();
+        // Makes the return gate's HLT exit ExecuteThread rather than trap.
+        //
+        // GUEST_CPU_NO_EXIT_ON_HLT disables it for diagnosis: without it the gate's HLT takes the
+        // SIGILL path, which deliberately faults, so a crash there is positive evidence that guest
+        // execution actually reached the gate.
+        if (::getenv("GUEST_CPU_NO_EXIT_ON_HLT") == nullptr) {
+            context_->EnableExitOnHLT();
+        }
 
         if (!context_->InitCore()) {
             return BackendError(ErrorCategory::BackendFailure, "CreateContext",
