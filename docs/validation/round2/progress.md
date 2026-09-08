@@ -1,12 +1,34 @@
-# 二周目实施进度（2026-09-08）
+# 二周目实施进度（2026-09-09）
 
 分支 `codex/android-fex-round2`，起点 `5687da3548f044486c05e997e704fadf44b20e66`（含二周目 spec 的提交）。
 
-**状态：G0 完成并已验证；G1 已实现但未在设备上验证；G2–G4 未开始。距离 ROUND2_ACCEPTED 还有大部分工作。**
+**状态：G0 完成并已验证；G1 的异步停止核心（R2-C01 两 owner 并发、R2-C02 100 次暂停/恢复）已在真实 ARM64 设备上验证；G1 剩余 C03/C04、G2–G4 未开始。**
+
+本轮验证设备：AYANEO Pocket DS（ARM64，Android API 33，host page **4096**），不是 Swan（Android 16 / SDK 36）。R2 目标仍是 Swan；下列是 arm64 真机执行证据，但 API 35/36 与 ART 共存相关项仍需 Swan 复核。
 
 依赖未改动：FEX `385a0cc4d81cd456c8d5c26b4f09cb5a7d8d5842`，Foundation `1f7008848736b7c6c0779220480344fd5b5fc5e3`。本轮**没有**修改任何子仓。
 
 ## 已完成
+
+### G1 运行控制 — 核心已在 ARM64 真机验证
+
+G1 的代码此前在没有设备时写出、只能编译链接。接回真机后先修了两个测试与后端缺陷，再补压测：
+
+| 提交 | 内容 |
+|---|---|
+| `08a79bfc` | 完成 pause/resume 信号往返：kick 备份 host 上下文 + host SIGILL 恢复；cancel 走 stop stub；测试改为 owner 线程 CreateThread+Run |
+| `c41d10fe` | SleepThread 改为无竞态 service loop；parked 时 kick 不改写 PC；pause-return SIGILL 把 cancel 改路由到 stop stub；G13 100 次暂停/恢复 |
+| `4ef6ea75` | G14 两 owner 真并发：不同 native TID，暂停 A 时 A 的 rax 冻结、B 继续 |
+
+根因记录：`BUILD_FEXCORE_ONLY` 排除的 FEX Linux frontend 才负责安装 host fault handler。pause 桩末尾的 `hlt(0)`（Dispatcher.cpp:455）无条件触发 host SIGILL；FEXCore 自身不装 handler，所以 resume 后该 hlt 按默认 SIGILL 处置杀进程（exit 132）。修复复用 FEX 仅依赖 FEXCore 的 header-only arm64 `ArchHelpers/MContext.h`：kick 时在 host 栈上备份 `ContextBackup`（镜像 frontend 的 `StoreThreadState`），resume 时 host SIGILL 在 `Config.PauseReturnInstruction` 恢复它（镜像 `RestoreThreadState(TYPE_PAUSE)`）；cancel 则重置 SP 到 `ReturningStackLocation` 并跳到 stop stub 从 ExecuteThread 正常返回。所有其它 SIGILL 链接旧 disposition，不顶替 ART。
+
+真机结果（Pocket DS，4 KiB）：
+- **G11**：不可打断的 spin loop 在 **0ms** 内到达安全点，快照 rax 已推进（~1.2–2 亿次迭代）；G11i resume 后继续执行，G11j cancel 后 Run 返回。
+- **G13（R2-C02）**：单个 owner 100 次 Pause→WaitStopped→Resume，每次 **p50=0ms p95=0ms max=0ms**（≤1s 预算），最终 cancel。每次 resume 后留 20ms settle，使测的是稳态停止延迟而不是 resume 返回窗口。
+- **G14（R2-C01）**：两个 owner 在各自 host 线程上 CreateThread+Run，同一时刻都在 JIT；native TID 不同；暂停 A 后 A 的 rax 快照冻结在回执值、B 继续执行；resume 后两者回 JIT，cancel 后都干净返回。
+- guest suite 总计 **70/70 ALL PASS**（含 G06/G08/G09/G10/G11/G12/G13/G14 等）。
+
+G1 仍欠：**R2-C03**（Pause/Cancel/Resume 交错 100 次、迟到 ack、旧 ticket/handle/context 拒绝——拒绝类 G12 已覆盖部分，交错压测未做）、**R2-C04**（停止态写 GPR/RIP/XMM/MXCSR/FS/GS 后真实执行使用新值；stale/running setter 拒绝；非零 deadline——deadline 执行前拒绝 G12d 已覆盖）。
 
 ### G0 证据与构建基线 — 已验证
 
