@@ -338,9 +338,25 @@ public:
         }
 
         FEXCore::Config::Initialize();
-        FEXCore::Config::Set(FEXCore::Config::CONFIG_IS64BIT_MODE, "1");
+        // Order matters: ReloadMetaLayer rebuilds the meta layer from the registered config layers
+        // and drops anything Set beforehand. Setting after it is what makes the value stick.
+        //
+        // Getting this backwards left Is64BitMode unset, which ContextImpl reads as 32-bit: it then
+        // clamps VirtualMemSize to 1<<32 and the decoder builds 32-bit blocks from 64-bit guest
+        // bytes. That was the cause of guest fixtures having no architectural effect.
         FEXCore::Config::ReloadMetaLayer();
+        FEXCore::Config::Set(FEXCore::Config::CONFIG_IS64BIT_MODE, "1");
         config_initialized_ = true;
+
+        {
+            // Read it back rather than assuming the write landed; a silently 32-bit context
+            // mistranslates every guest instruction while still appearing to run.
+            auto mode = FEXCore::Config::Get(FEXCore::Config::CONFIG_IS64BIT_MODE);
+            if (!mode || **mode != "1") {
+                return BackendError(ErrorCategory::BackendFailure, "CreateContext",
+                                    "FEXCore did not accept 64-bit guest mode");
+            }
+        }
 
         // Surface FEXCore's own diagnostics. Without a handler these are dropped, and a JIT-side
         // refusal looks identical to a guest that simply did nothing.
