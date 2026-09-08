@@ -2,6 +2,8 @@
 
 当前目标：Swan / Android 16 / ARM64 / **4 KiB**，原生 shadPS4 host + FEXCore 执行 PS4 x86 guest。用户于 2026-09-08 将 16 KiB 工作后置。尚未完成完整 NDK backend/app 验收。
 
+**二周目进行中：[进度记录](validation/round2/progress.md)**。分支 `codex/android-fex-round2`。G0 完成并验证：B02 由 artifact verifier 按整包判定，验收从 11 PASS 修正为 10 PASS；runner 8 类负例 12/12。G1 实现了 RequestInterrupt/WaitStopped/Resume（等待落在 FEXCore 默认为空的 `SleepThread` 覆写点），但**设备中途断开，未在硬件上验证**。G2–G4 未开始。
+
 **当前状态：[一周目已提交并推送 / `85b57cb2` / V0_IN_PROGRESS](baselines/2026-09-08-round1-closeout.md)**。修复及证据见[事务加固报告](validation/v0/transaction-hardening-2026-09-08.md)：Swan contract 34/34、guest 45/45，runner 测试 6/6。历史 runner 输出 11 PASS / 0 FAIL / 46 NOT_RUN（57 在范围内、3 延期），仍需按环境和覆盖校正，尤其 B02 的独立 ELF 不是 APK 全库验收。尚无 app/ART 验收。
 
 **固定基础版本：[2026-09-07 / `a7128893`](baselines/2026-09-07-android-fex-foundation.md)**。该记录包含主仓与七个 references 的精确提交、验证结果、未完成项、未纳入基线的本地改动及恢复方法；后续里程碑以它为起点。
