@@ -168,6 +168,46 @@ public:
                                                       GuestRange range,
                                                       InvalidationReason reason) = 0;
 
+    // --- asynchronous control (Round 2 G1) ---------------------------------
+    //
+    // A guest thread inside ExecuteThread does not poll anything, so a loop with
+    // no HLE call, no syscall and no natural exit cannot be stopped
+    // cooperatively. These are the out-of-band path.
+    //
+    // The mechanism is documented in docs/fex-async-stop-source-proof.md: a
+    // signal whose handler rewrites the interrupted context's PC to a JIT stub
+    // that spills the static register allocation and then waits. The wait itself
+    // lives in this backend, because FEXCore forwards it to the syscall
+    // handler's SleepThread, whose default body does nothing.
+
+    // Callable from any thread, including while the target is executing.
+    //
+    // Returns a ticket identifying this request. Requesting again before the
+    // first is acknowledged is allowed and does not lose the earlier reason:
+    // precedence is Fault/BackendFailure > Cancel > Pause.
+    [[nodiscard]] virtual Result<InterruptTicket> RequestInterrupt(ThreadHandle thread,
+                                                                   InterruptReason reason) = 0;
+
+    // Waits until the ticket's thread has left the JIT, spilled, and published a
+    // snapshot. Only then is its state readable.
+    //
+    // A timeout returns Timeout and leaves the request pending; it must never
+    // report a stop that did not happen, and must not destroy a thread that is
+    // still running. Callable from any thread except the target's owner, which
+    // would be waiting for itself.
+    [[nodiscard]] virtual Result<StopReceipt> WaitStopped(const InterruptTicket& ticket,
+                                                          std::uint64_t timeout_ns) = 0;
+
+    // Clears a pause so the owner's next Run may proceed. Consumes exactly the
+    // named epoch: a newer request stays pending, so a Resume racing a second
+    // Pause cannot swallow it.
+    [[nodiscard]] virtual Result<void> Resume(ThreadHandle thread,
+                                              std::uint64_t acknowledged_epoch) = 0;
+
+    // Identity of this context instance. Non-zero, and different for a context
+    // created after this one is destroyed, so a stale ticket cannot match.
+    [[nodiscard]] virtual std::uint64_t ContextId() const noexcept = 0;
+
 protected:
     CpuContext() = default;
 };

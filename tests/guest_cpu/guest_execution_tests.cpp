@@ -13,10 +13,13 @@
 // reports the guest bytes and the recorded disassembly on failure so a wrong result can be told
 // apart from a wrong fixture without re-deriving the encoding.
 
+#include <atomic>
+#include <chrono>
 #include <cinttypes>
 #include <cstdio>
 #include <cstring>
 #include <string>
+#include <thread>
 #include <vector>
 
 #include <unistd.h>
@@ -857,6 +860,166 @@ void TestContracts(Harness& harness) {
     }
 }
 
+// --- R2-C02: asynchronous stop of a loop that cannot stop itself -------------------------------
+//
+// The fixture spins on a backward jump with no HLE call, no syscall and no exit. Once FEX has
+// compiled it, the owner is inside one translated block indefinitely: a cooperative check never
+// runs and there is no block boundary to wait for. Only the out-of-band kick documented in
+// docs/fex-async-stop-source-proof.md can end it, which is why this is the fixture the spec names.
+void TestAsyncInterrupt(Harness& harness) {
+    const auto* fixture = FindFixture("spin_loop");
+    if (fixture == nullptr) {
+        Check("G11", "spin loop fixture is present", false);
+        return;
+    }
+
+    std::string error;
+    if (!LoadFixture(harness, *fixture, error)) {
+        Check("G11", "publish the spin loop", false, error);
+        return;
+    }
+
+    ThreadInit init{};
+    init.entry_rip = GuestCodeAddress{harness.code_base};
+    init.initial_rsp = GuestAddress{harness.stack_top};
+    init.guest_tid = 1;
+    auto thread = harness.context->CreateThread(init);
+    if (!thread) {
+        Check("G11", "create the spinning thread", false, Describe(thread.GetError()));
+        return;
+    }
+    const ThreadHandle handle = thread.Value();
+
+    // The owner runs on its own thread: Run does not return until something stops it, so the
+    // controller has to be somewhere else. That is the real shape of the problem.
+    std::atomic<bool> run_returned{false};
+    std::atomic<bool> run_ok{false};
+    std::string run_error;
+    std::thread owner([&] {
+        auto result = harness.context->Run(handle, RunOptions{});
+        run_ok.store(bool(result), std::memory_order_release);
+        if (!result) {
+            run_error = Describe(result.GetError());
+        }
+        run_returned.store(true, std::memory_order_release);
+    });
+
+    // Let it actually get into the JIT and warm the block. Stopping a thread that never started
+    // would pass without exercising anything.
+    std::this_thread::sleep_for(std::chrono::milliseconds(150));
+    Check("G11a", "the spin loop is still running before any request",
+          !run_returned.load(std::memory_order_acquire),
+          run_returned.load() ? "it exited on its own: not an unbreakable loop" : "");
+
+    const auto requested = std::chrono::steady_clock::now();
+    auto ticket = harness.context->RequestInterrupt(handle, InterruptReason::Pause);
+    Check("G11b", "an interrupt can be requested while the owner is in the JIT", bool(ticket),
+          ticket ? std::string{} : Describe(ticket.GetError()));
+    if (!ticket) {
+        // Nothing will stop the loop now; do not leave a spinning thread behind.
+        (void)harness.context->RequestInterrupt(handle, InterruptReason::Cancel);
+        owner.join();
+        return;
+    }
+
+    auto receipt = harness.context->WaitStopped(ticket.Value(), 1'000'000'000);
+    const auto stopped_after = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::steady_clock::now() - requested);
+    Check("G11c", "the owner reaches a safe point", bool(receipt),
+          receipt ? std::string{} : Describe(receipt.GetError()));
+
+    if (receipt) {
+        // The spec's budget: a stop request must reach a safe point within a second.
+        Check("G11d", "the stop lands within 1s",
+              stopped_after <= std::chrono::milliseconds(1000),
+              std::to_string(stopped_after.count()) + "ms");
+        Check("G11e", "the receipt answers the ticket that was issued",
+              receipt.Value().request_epoch == ticket.Value().epoch);
+        Check("G11f", "the receipt carries this context's identity",
+              receipt.Value().context_id == harness.context->ContextId());
+        // The snapshot is only meaningful because the owner spilled before acknowledging.
+        const std::uint64_t counter = receipt.Value().snapshot.registers.Get(Gpr::Rax);
+        Check("G11g", "the stopped snapshot shows the loop counter advanced", counter > 0,
+              "rax=" + std::to_string(counter));
+
+        // Resume, and confirm it continued rather than restarting.
+        auto resumed = harness.context->Resume(handle, ticket.Value().epoch);
+        Check("G11h", "the paused owner can be resumed", bool(resumed),
+              resumed ? std::string{} : Describe(resumed.GetError()));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        Check("G11i", "the owner is executing again after Resume",
+              !run_returned.load(std::memory_order_acquire));
+    }
+
+    // Cancel ends the run so the thread can be joined. A Pause would leave it parked forever.
+    auto cancel = harness.context->RequestInterrupt(handle, InterruptReason::Cancel);
+    if (cancel) {
+        (void)harness.context->WaitStopped(cancel.Value(), 1'000'000'000);
+    }
+    owner.join();
+    Check("G11j", "Run returned after the cancel", run_returned.load(std::memory_order_acquire),
+          run_error);
+    (void)harness.context->DestroyThread(handle);
+}
+
+// --- R2-C03 subset: request identity and refusals ----------------------------------------------
+void TestInterruptRefusals(Harness& harness) {
+    const auto* fixture = FindFixture("return_only");
+    if (fixture == nullptr) {
+        Check("G12", "return_only fixture is present", false);
+        return;
+    }
+    std::string error;
+    if (!LoadFixture(harness, *fixture, error)) {
+        Check("G12", "publish return_only", false, error);
+        return;
+    }
+
+    ThreadInit init{};
+    init.entry_rip = GuestCodeAddress{harness.code_base};
+    init.initial_rsp = GuestAddress{harness.stack_top};
+    init.guest_tid = 1;
+    auto thread = harness.context->CreateThread(init);
+    if (!thread) {
+        Check("G12", "create a thread", false, Describe(thread.GetError()));
+        return;
+    }
+    const ThreadHandle handle = thread.Value();
+
+    // A ticket that did not come from this context must not authorise anything, even though its
+    // thread id and epoch would match.
+    InterruptTicket forged{};
+    forged.context_id = harness.context->ContextId() + 1000;
+    forged.thread_id = handle.id;
+    forged.thread_generation = handle.generation;
+    forged.epoch = 1;
+    auto refused = harness.context->WaitStopped(forged, 1'000'000);
+    Check("G12a", "a ticket from another context is refused", !refused,
+          refused ? "it was accepted" : Describe(refused.GetError()));
+
+    // A destroyed handle cannot be interrupted.
+    auto stale_handle = handle;
+    stale_handle.generation += 1;
+    auto stale = harness.context->RequestInterrupt(stale_handle, InterruptReason::Pause);
+    Check("G12b", "a stale thread generation is refused", !stale,
+          stale ? "it was accepted" : Describe(stale.GetError()));
+
+    // Resume without a stop to acknowledge is a caller error, not a no-op.
+    auto early = harness.context->Resume(handle, 999);
+    Check("G12c", "resuming an unacknowledged epoch is refused", !early,
+          early ? "it was accepted" : Describe(early.GetError()));
+
+    // A non-zero deadline must be refused before execution rather than silently ignored.
+    RunOptions with_deadline{};
+    with_deadline.deadline_ns = 1'000'000;
+    auto deadline = harness.context->Run(handle, with_deadline);
+    Check("G12d", "a non-zero deadline_ns is refused before running",
+          !deadline && deadline.Category() == ErrorCategory::Unsupported,
+          deadline ? "it ran" : Describe(deadline.GetError()));
+
+    (void)harness.context->DestroyThread(handle);
+}
+
 } // namespace
 
 int main() {
@@ -923,6 +1086,8 @@ int main() {
     TestUnregisteredHlt(harness);
     TestCodeInvalidation(harness);
     TestPublicApiPublication(harness);
+    TestAsyncInterrupt(harness);
+    TestInterruptRefusals(harness);
     TestPinnedInvalidationRecovery(harness);
     printf("\n");
     // Contract checks last: they publish their own stub at the same address.

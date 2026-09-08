@@ -143,3 +143,24 @@ fixture_return_only:
     movabs  r15, 0x1122334455667788
     jmp     r15
 fixture_return_only_end:
+
+// ---------------------------------------------------------------------------
+// R2-C02: a loop with no HLE call, no syscall, no yield and no natural exit.
+//
+// This is the fixture an asynchronous stop has to work against. A cooperative
+// check cannot end it, and neither can waiting for a block boundary: once FEX
+// has compiled the backward jump, the JIT stays inside a single translated
+// block indefinitely. Only an out-of-band kick gets the owner out.
+//
+// The counter gives the test something to observe. A resumed loop must show it
+// advancing, which distinguishes "resumed" from "restarted" and from "never
+// actually stopped".
+// ---------------------------------------------------------------------------
+.globl fixture_spin_loop
+.globl fixture_spin_loop_end
+fixture_spin_loop:
+    xor     rax, rax
+spin_again:
+    inc     rax
+    jmp     spin_again
+fixture_spin_loop_end:

@@ -124,19 +124,42 @@ enum class InterruptReason : std::uint8_t {
 // Epoch-carrying interrupt request. §5 requires that a later request is not
 // erased by an earlier Resume, so the epoch is part of the ticket rather than
 // a global "halt" flag that Run could clear unconditionally.
+//
+// `context_id` binds the ticket to the context that issued it. Without it a
+// ticket from a destroyed context could be presented to its replacement and
+// match on thread id and epoch alone, since both restart their numbering
+// (Round 2 spec 3.1: ticket/receipt bind context identity, thread generation
+// and request epoch).
 struct InterruptTicket final {
+    std::uint64_t context_id{};
     std::uint64_t thread_id{};
     std::uint64_t thread_generation{};
     std::uint64_t epoch{};
     InterruptReason reason{InterruptReason::Pause};
+
+    [[nodiscard]] bool IsValid() const noexcept {
+        return context_id != 0 && epoch != 0;
+    }
 };
 
 // Proof that the owner left the JIT, published its state, and will not write
 // guest state again until resumed.
+//
+// `request_epoch` is the ticket this receipt answers; `stop_epoch` is the stop
+// it produced. They are different numbers on purpose: "the request was seen" and
+// "the thread is stopped at a published safe point" are different facts, and
+// conflating them is how a controller ends up reading a snapshot that the owner
+// had not finished writing.
 struct StopReceipt final {
+    std::uint64_t context_id{};
     std::uint64_t thread_id{};
+    std::uint64_t request_epoch{};
     std::uint64_t stop_epoch{};
     StopReason reason{StopReason::PauseRequested};
+    // Which requests are still outstanding. A Pause that arrives while a Cancel
+    // is pending does not erase the Cancel; §3.1 fixes the precedence as
+    // Fault/BackendFailure > Cancel > Pause.
+    std::uint32_t pending_reasons{};
     CpuSnapshot snapshot{};
 };
 
