@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "standalone": {
+    "status": "PASS",
+    "coverage": "auxiliary",
+    "reason": null,
+    "inspected": [
+      {
+        "path": "/tmp/v0fex/guest_execution_tests",
+        "name": "guest_execution_tests",
+        "sha256": "8ee890a1839324c178854c0bddd24c8a2a35c14ee7349807f09f7c99b82e5488",
+        "machine": "AArch64",
+        "is_aarch64": true,
+        "min_load_align": 16384,
+        "load_aligns": [
+          16384
+        ],
+        "needed": [
+          "libc.so",
+          "libdl.so",
+          "liblog.so",
+          "libm.so"
+        ],
+        "soname": null,
+        "version_needed_from": [
+          "libc.so",
+          "libdl.so",
+          "libm.so"
+        ],
+        "glibc_needed": [],
+        "glibc_version_files": []
+      },
+      {
+        "path": "/tmp/v0fex/guest_cpu_contract_tests",
+        "name": "guest_cpu_contract_tests",
+        "sha256": "ac384343210a100591143b1c6250b50e763b87272042f1579e053bacc6df8178",
+        "machine": "AArch64",
+        "is_aarch64": true,
+        "min_load_align": 16384,
+        "load_aligns": [
+          16384
+        ],
+        "needed": [
+          "libc.so",
+          "libdl.so",
+          "libm.so"
+        ],
+        "soname": null,
+        "version_needed_from": [
+          "libc.so",
+          "libdl.so"
+        ],
+        "glibc_needed": [],
+        "glibc_version_files": []
+      },
+      {
+        "path": "/tmp/v0fex/fexcore_bionic_smoke",
+        "name": "fexcore_bionic_smoke",
+        "sha256": "e446439a0430a8b0296d1e09c37150aa616547ddcc68a39c291b66e38dda773f",
+        "machine": "AArch64",
+        "is_aarch64": true,
+        "min_load_align": 16384,
+        "load_aligns": [
+          16384
+        ],
+        "needed": [
+          "libc.so",
+          "libdl.so",
+          "liblog.so",
+          "libm.so"
+        ],
+        "soname": null,
+        "version_needed_from": [
+          "libc.so",
+          "libdl.so",
+          "libm.so"
+        ],
+        "glibc_needed": [],
+        "glibc_version_files": []
+      }
+    ],
+    "checked_count": 3
+  },
+  "status": "PASS",
+  "coverage": "auxiliary",
+  "reason": null
+}

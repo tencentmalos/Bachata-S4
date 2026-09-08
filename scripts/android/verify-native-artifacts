@@ -1,0 +1,258 @@
+#!/usr/bin/env python3
+# SPDX-FileCopyrightText: Copyright 2026 shadPS4 Emulator Project
+# SPDX-License-Identifier: GPL-2.0-or-later
+"""Verify the native artifacts an invocation actually produced.
+
+Round 2 G0. The 2026-09-08 round 1 closeout found that B02 was reported as a full PASS on evidence
+that could not support it: the runner walked a couple of probe ELFs, computed PT_LOAD alignment
+without ever rejecting on it, and never saw an APK at all. "No glibc in two test binaries" is not
+"every native library in the shipped package is bionic arm64 with a closed dependency set".
+
+So this reports two different things and never conflates them:
+
+  * `coverage: "auxiliary"` -- some standalone ELFs were checked. Useful, not acceptance.
+  * `coverage: "package"`   -- every native library inside an APK was checked, plus its
+                              dependency closure and ZIP layout.
+
+A caller asking for package coverage without giving an APK gets `NOT_RUN`, not a downgraded pass.
+
+Usage:
+  verify-native-artifacts --elf PATH [--elf PATH ...] [--json OUT]
+  verify-native-artifacts --apk PATH [--json OUT]
+"""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+import zipfile
+from pathlib import Path
+
+# Libraries bionic actually provides. Anything else a NEEDED entry names has to be shipped inside
+# the package, or the load will fail on a device that does not happen to have it.
+BIONIC_PROVIDED = {
+    "libc.so", "libm.so", "libdl.so", "liblog.so", "libandroid.so", "libz.so",
+    "libstdc++.so",  # bionic's minimal one, not GNU libstdc++
+    "libvulkan.so", "libEGL.so", "libGLESv2.so", "libGLESv3.so", "libnativewindow.so",
+    "libjnigraphics.so", "libaaudio.so", "libOpenSLES.so", "libmediandk.so", "libneuralnetworks.so",
+    "libc++_shared.so",  # shipped by the NDK; flagged separately if absent from the package
+}
+
+# glibc sonames. Their presence means the binary was linked against the wrong libc entirely.
+GLIBC_SONAMES = {"libc.so.6", "libm.so.6", "libdl.so.2", "libstdc++.so.6", "libpthread.so.0",
+                 "librt.so.1", "libgcc_s.so.1"}
+
+
+def sha256_of(path: Path) -> str | None:
+    if not path.is_file():
+        return None
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1 << 20), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def find_readelf() -> str | None:
+    return shutil.which("llvm-readelf") or shutil.which("readelf")
+
+
+def inspect_elf(path: Path, readelf: str) -> dict:
+    """Read one ELF's machine, PT_LOAD alignment, NEEDED set and symbol-version requirements."""
+    result = subprocess.run([readelf, "-hldV", str(path)], capture_output=True, text=True)
+    out = result.stdout
+    if result.returncode != 0 and not out:
+        return {"path": str(path), "error": (result.stderr or "readelf failed").strip()[:200]}
+
+    machine_match = re.search(r"^\s*Machine:\s+(.*)$", out, re.M)
+    machine = machine_match.group(1).strip() if machine_match else "unknown"
+
+    # The alignment column is the last field on a LOAD line.
+    aligns = [int(a, 16) for a in re.findall(r"^\s*LOAD\b.*?0x([0-9a-fA-F]+)\s*$", out, re.M)]
+    needed = re.findall(r"\(NEEDED\).*?\[([^\]]+)\]", out)
+    soname_match = re.search(r"\(SONAME\).*?\[([^\]]+)\]", out)
+
+    # Version requirements, grouped by the file they come from. Bionic versions its own exports, so
+    # the presence of .gnu.version is normal; what matters is requiring versions from a glibc file.
+    version_files = re.findall(r"^\s*\d+:\s+Version needs section.*$|File:\s+(\S+)", out, re.M)
+    version_files = [v for v in version_files if v]
+
+    info = {
+        "path": str(path),
+        "name": path.name,
+        "sha256": sha256_of(path),
+        "machine": machine,
+        "is_aarch64": "AArch64" in machine,
+        "min_load_align": min(aligns) if aligns else None,
+        "load_aligns": sorted(set(aligns)),
+        "needed": sorted(needed),
+        "soname": soname_match.group(1) if soname_match else None,
+        "version_needed_from": sorted(set(version_files)),
+    }
+    info["glibc_needed"] = sorted(set(needed) & GLIBC_SONAMES)
+    info["glibc_version_files"] = sorted(
+        {v for v in version_files if re.match(r"lib(c|m|dl|pthread|stdc\+\+|gcc_s)\.so\.\d", v)})
+    return info
+
+
+def judge_elf(info: dict, min_align: int, require_aarch64: bool) -> list[str]:
+    """Return the reasons this ELF fails, or an empty list."""
+    problems: list[str] = []
+    if "error" in info:
+        return [f"{info['path']}: {info['error']}"]
+    if require_aarch64 and not info["is_aarch64"]:
+        problems.append(f"{info['name']}: machine is {info['machine']}, not AArch64")
+    if info["glibc_needed"]:
+        problems.append(f"{info['name']}: links glibc: {info['glibc_needed']}")
+    if info["glibc_version_files"]:
+        problems.append(
+            f"{info['name']}: requires versioned symbols from {info['glibc_version_files']}")
+    # Enforce alignment rather than merely reporting it. Reporting without judging is what let the
+    # previous check call itself a PASS while the number went unexamined.
+    if min_align and info["min_load_align"] is not None and info["min_load_align"] < min_align:
+        problems.append(
+            f"{info['name']}: min PT_LOAD alignment {info['min_load_align']:#x} < required "
+            f"{min_align:#x}")
+    return problems
+
+
+def verify_elfs(paths: list[Path], min_align: int, require_aarch64: bool) -> dict:
+    readelf = find_readelf()
+    if readelf is None:
+        return {"status": "NOT_RUN", "reason": "no readelf available", "coverage": "none"}
+
+    existing = [p for p in paths if p.is_file()]
+    if not existing:
+        return {"status": "NOT_RUN", "reason": "no ELF inputs exist", "coverage": "none"}
+
+    inspected = [inspect_elf(p, readelf) for p in existing]
+    arm = [i for i in inspected if i.get("is_aarch64")]
+    if not arm:
+        return {"status": "NOT_RUN", "coverage": "none",
+                "reason": "no AArch64 binaries among the inputs",
+                "inspected": inspected}
+
+    problems: list[str] = []
+    for info in arm:
+        problems.extend(judge_elf(info, min_align, require_aarch64))
+
+    return {
+        "status": "FAIL" if problems else "PASS",
+        "coverage": "auxiliary",
+        "reason": "; ".join(problems) if problems else None,
+        "inspected": inspected,
+        "checked_count": len(arm),
+    }
+
+
+def verify_apk(apk: Path, min_align: int) -> dict:
+    """Check every native library in an APK, its dependency closure and ZIP layout."""
+    if not apk.is_file():
+        return {"status": "NOT_RUN", "coverage": "none", "reason": f"no APK at {apk}"}
+    readelf = find_readelf()
+    if readelf is None:
+        return {"status": "NOT_RUN", "coverage": "none", "reason": "no readelf available"}
+
+    problems: list[str] = []
+    libs: list[dict] = []
+    with zipfile.ZipFile(apk) as archive:
+        entries = archive.namelist()
+        lib_entries = [e for e in entries if e.startswith("lib/") and e.endswith(".so")]
+        if not lib_entries:
+            return {"status": "FAIL", "coverage": "package",
+                    "reason": "APK contains no native libraries under lib/",
+                    "apk_sha256": sha256_of(apk)}
+
+        # Uncompressed and page-aligned .so entries are what allow loading directly from the APK.
+        for info in archive.infolist():
+            if info.filename in lib_entries and info.compress_type != zipfile.ZIP_STORED:
+                problems.append(f"{info.filename} is compressed; it cannot be mapped from the APK")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            extracted: dict[str, Path] = {}
+            for entry in lib_entries:
+                target = Path(tmp) / Path(entry).name
+                with archive.open(entry) as src, target.open("wb") as dst:
+                    shutil.copyfileobj(src, dst)
+                extracted[entry] = target
+
+            provided_sonames = set()
+            for entry, path in extracted.items():
+                elf = inspect_elf(path, readelf)
+                elf["apk_entry"] = entry
+                elf["abi"] = entry.split("/")[1] if "/" in entry else "?"
+                libs.append(elf)
+                if elf.get("soname"):
+                    provided_sonames.add(elf["soname"])
+                provided_sonames.add(Path(entry).name)
+
+            for elf in libs:
+                problems.extend(judge_elf(elf, min_align, require_aarch64=True))
+
+            # Dependency closure: every NEEDED entry must be provided by bionic or shipped here.
+            for elf in libs:
+                for dep in elf.get("needed", []):
+                    if dep in BIONIC_PROVIDED or dep in provided_sonames:
+                        continue
+                    if dep in GLIBC_SONAMES:
+                        continue  # already reported as a glibc link
+                    problems.append(
+                        f"{elf['name']} needs {dep}, which is neither provided by bionic nor "
+                        f"shipped in the APK")
+
+    return {
+        "status": "FAIL" if problems else "PASS",
+        "coverage": "package",
+        "reason": "; ".join(sorted(set(problems))) if problems else None,
+        "apk": str(apk),
+        "apk_sha256": sha256_of(apk),
+        "libraries": libs,
+        "checked_count": len(libs),
+    }
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__,
+                                     formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--elf", action="append", default=[],
+                        help="a standalone ELF to inspect (auxiliary coverage)")
+    parser.add_argument("--apk", default=None,
+                        help="an APK whose native libraries to inspect (package coverage)")
+    parser.add_argument("--min-load-align", type=lambda v: int(v, 0), default=0,
+                        help="reject PT_LOAD alignment below this, e.g. 0x4000. Default 0 = report "
+                             "the value without judging it.")
+    parser.add_argument("--json", default=None, help="write the report here")
+    args = parser.parse_args()
+
+    if not args.elf and not args.apk:
+        parser.error("give --elf and/or --apk")
+
+    report: dict = {"schema_version": 1}
+    if args.apk:
+        report["package"] = verify_apk(Path(args.apk), args.min_load_align)
+    if args.elf:
+        report["standalone"] = verify_elfs([Path(p) for p in args.elf], args.min_load_align,
+                                           require_aarch64=True)
+
+    # The overall verdict is the package one when an APK was given, because that is the only input
+    # that can decide the real criterion. Standalone ELFs never promote to package coverage.
+    decisive = report.get("package") or report.get("standalone")
+    report["status"] = decisive["status"]
+    report["coverage"] = decisive["coverage"]
+    report["reason"] = decisive.get("reason")
+
+    text = json.dumps(report, indent=2)
+    if args.json:
+        Path(args.json).write_text(text + "\n")
+    print(text)
+    return 0 if report["status"] != "FAIL" else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

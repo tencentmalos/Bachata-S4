@@ -251,7 +251,7 @@ class SuiteRun:
     """
 
     def __init__(self, cases=None, output="", exit_code=None, timed_out=False, error=None,
-                 never_started=False):
+                 never_started=False, iteration_counts=None, conflicts=None):
         self.cases = cases or {}
         self.output = output
         self.exit_code = exit_code
@@ -262,6 +262,11 @@ class SuiteRun:
         # failure. Conflating them would either hide crashes or invent failures for suites that
         # were simply not built.
         self.never_started = never_started
+        # How many times each sub-case ID was printed, so a repeated ID carries iteration identity
+        # instead of silently collapsing to whichever line came last.
+        self.iteration_counts = iteration_counts or {}
+        # Sub-cases that reported different verdicts across their repeats.
+        self.conflicts = conflicts or []
 
     @property
     def usable(self) -> bool:
@@ -278,6 +283,40 @@ class SuiteRun:
         return None
 
 
+def parse_sub_cases(text: str) -> tuple[dict[str, tuple[str, str]], dict[str, int], list[str]]:
+    """Parse `[ID] name VERDICT` lines, resolving repeats rather than letting the last one win.
+
+    A sub-case ID can legitimately appear more than once -- a suite may run a case for several
+    iterations -- but assigning into a dict made the final line the verdict, so a case that failed
+    on iteration 3 and passed on iteration 4 reported PASS. Round 2 R2-B02 requires that a FAIL or
+    TIMEOUT is never overwritten by a later PASS and that repeats carry an iteration count.
+
+    Returns (verdicts, iteration counts, conflict descriptions).
+    """
+    verdicts: dict[str, tuple[str, str]] = {}
+    counts: dict[str, int] = {}
+    conflicts: list[str] = []
+    # Worst verdict wins: a case that ever failed, failed.
+    severity = {"PASS": 0, "SKIP": 1, "FAIL": 2}
+    for line in text.splitlines():
+        match = LINE.match(line.strip())
+        if not match:
+            continue
+        case_id = match.group(1).strip()
+        verdict = match.group(3)
+        detail = (match.group(4) or "").strip()
+        counts[case_id] = counts.get(case_id, 0) + 1
+        previous = verdicts.get(case_id)
+        if previous is None:
+            verdicts[case_id] = (verdict, detail)
+            continue
+        if previous[0] != verdict:
+            conflicts.append(f"{case_id}: reported {previous[0]} then {verdict}")
+        if severity.get(verdict, 0) > severity.get(previous[0], 0):
+            verdicts[case_id] = (verdict, detail)
+    return verdicts, counts, conflicts
+
+
 def run_suite(binary: Path) -> SuiteRun:
     """Run one suite binary and report both its sub-cases and its process outcome."""
     if not binary.is_file():
@@ -288,12 +327,10 @@ def run_suite(binary: Path) -> SuiteRun:
     except subprocess.TimeoutExpired:
         return SuiteRun(output=f"timed out after 600s: {binary}", timed_out=True)
     elapsed = time.monotonic() - started
-    parsed: dict[str, tuple[str, str]] = {}
-    for line in result.stdout.splitlines():
-        if match := LINE.match(line.strip()):
-            parsed[match.group(1).strip()] = (match.group(3), (match.group(4) or "").strip())
+    parsed, counts, conflicts = parse_sub_cases(result.stdout)
     output = result.stdout + result.stderr + f"\n(exit {result.returncode}, {elapsed:.2f}s)"
-    return SuiteRun(cases=parsed, output=output, exit_code=result.returncode)
+    return SuiteRun(cases=parsed, output=output, exit_code=result.returncode,
+                    iteration_counts=counts, conflicts=conflicts)
 
 
 def NotRun(reason: str) -> dict:
@@ -301,64 +338,79 @@ def NotRun(reason: str) -> dict:
             "evidence": []}
 
 
-def CheckNativeElf(build_dir: Path, fex_build_dir: str | None) -> dict:
-    """B02: inspect the ELFs this invocation actually produced.
+def CheckNativeElf(build_dir: Path, fex_build_dir: str | None, apk: str | None) -> dict:
+    """B02: the native artifacts this invocation produced are arm64 bionic with a closed dependency set.
 
-    Reads the binaries in the build directory rather than reporting a remembered answer, so an
-    empty or stale directory yields NOT_RUN instead of a PASS.
+    Delegates to scripts/android/verify-native-artifacts so the runner and the app build use one
+    implementation rather than two that drift.
+
+    B02's criterion is about the shipped package. Without an APK this can only inspect standalone
+    probe ELFs, which the round 1 closeout identified as auxiliary evidence that was being reported
+    as a full PASS: the old inline check walked two probes, computed PT_LOAD alignment without ever
+    rejecting on it, and never looked at an APK. Auxiliary coverage is now recorded as such and the
+    case stays NOT_RUN until a package is available.
     """
-    candidates = [p for p in [build_dir / "guest_cpu_contract_tests",
-                              build_dir / "guest_cpu_hle_abi_tests",
-                              build_dir / "host_page_size_probe"] if p.is_file()]
+    verifier = REPO / "scripts/android/verify-native-artifacts"
+    if not verifier.is_file():
+        return NotRun("scripts/android/verify-native-artifacts is missing")
+
+    command = [sys.executable, str(verifier)]
+    # 16 KiB ELF alignment is a link-time flag this project already sets, and keeping it is a Round
+    # 2 requirement even though 16 KiB *host page* support is deferred. Judge it rather than print
+    # it: the previous check reported the number and passed regardless.
+    command += ["--min-load-align", "0x4000"]
+    if apk:
+        command += ["--apk", apk]
+    for name in ("guest_cpu_contract_tests", "guest_cpu_hle_abi_tests", "host_page_size_probe"):
+        candidate = build_dir / name
+        if candidate.is_file():
+            command += ["--elf", str(candidate)]
     if fex_build_dir:
-        for name in ("fexcore_bionic_smoke", "guest_execution_tests"):
+        for name in ("fexcore_bionic_smoke", "guest_execution_tests", "guest_cpu_contract_tests"):
             candidate = Path(fex_build_dir) / name
             if candidate.is_file():
-                candidates.append(candidate)
-    if not candidates:
-        return NotRun("no built binaries to inspect in this invocation")
+                command += ["--elf", str(candidate)]
 
-    readelf = shutil.which("llvm-readelf") or shutil.which("readelf")
-    if readelf is None:
-        return NotRun("no readelf available to inspect the ELFs")
+    if "--elf" not in command and "--apk" not in command:
+        return NotRun("no built artifacts to inspect in this invocation")
 
-    inspected: dict[str, str] = {}
-    problems: list[str] = []
-    for path in candidates:
-        out = subprocess.run([readelf, "-hld", str(path)], capture_output=True, text=True).stdout
-        if "AArch64" not in out:
-            # A host-arch binary is not evidence about the Android artifacts; skip rather than
-            # failing, and say so, so this is not read as an arm64 result.
-            inspected[path.name] = "not AArch64; skipped"
-            continue
-        aligns = [int(a, 16) for a in re.findall(r"LOAD.*?0x([0-9a-f]+)\s*$", out, re.M)]
-        min_align = min(aligns) if aligns else 0
-        needed = re.findall(r"NEEDED.*?\[([^\]]+)\]", out)
-        glibc = [lib for lib in needed if lib in ("libc.so.6", "libstdc++.so.6", "libm.so.6")]
+    result = subprocess.run(command, capture_output=True, text=True)
+    try:
+        report = json.loads(result.stdout)
+    except json.JSONDecodeError:
+        return {"status": "FAIL", "iterations": 1,
+                "actual": (result.stderr or result.stdout).strip().splitlines()[-5:],
+                "reason": "artifact verifier produced no usable report", "evidence": []}
 
-        # The acceptance criterion is "no glibc", and symbol versioning is one way that shows up.
-        # But bionic versions its own libc/libm/libdl exports under the LIBC version, so the mere
-        # presence of .gnu.version is normal on Android. Flag only versions required *from a glibc
-        # library*; treating any versym as a failure would reject a correct bionic binary, which is
-        # what the first version of this check did.
-        glibc_versions = [line for line in out.splitlines()
-                          if "File:" in line and re.search(r"lib(c|m|dl|stdc\+\+)\.so\.\d", line)]
+    summary = {
+        "coverage": report.get("coverage"),
+        "checked": (report.get("package") or report.get("standalone") or {}).get("checked_count"),
+    }
+    if report.get("standalone"):
+        summary["standalone"] = [
+            f"{i.get('name')} align={i.get('min_load_align')} needed={i.get('needed')}"
+            for i in report["standalone"].get("inspected", []) if i.get("is_aarch64")]
+    if report.get("package"):
+        summary["apk_sha256"] = report["package"].get("apk_sha256")
 
-        inspected[path.name] = (f"align={min_align:#x} needed={needed} "
-                                f"glibc_needed={glibc} glibc_versions={len(glibc_versions)}")
-        if glibc:
-            problems.append(f"{path.name} links glibc: {glibc}")
-        if glibc_versions:
-            problems.append(f"{path.name} requires versioned glibc symbols")
+    if report["status"] == "FAIL":
+        return {"status": "FAIL", "iterations": 1, "actual": summary,
+                "reason": report.get("reason"), "evidence": []}
+    if report["status"] == "NOT_RUN":
+        return NotRun(report.get("reason") or "artifact verification did not run")
 
-    if all("skipped" in v for v in inspected.values()):
-        return NotRun("no AArch64 binaries were available to inspect")
-    if problems:
-        return {"status": "FAIL", "iterations": 1, "actual": inspected,
-                "reason": "; ".join(problems), "evidence": []}
-    return {"status": "PASS", "iterations": 1, "actual": inspected, "reason": None,
-            "scope_note": "inspected the binaries built by this invocation; PT_LOAD alignment is "
-                          "reported but the 16 KiB requirement is deferred by the 4 KiB scope",
+    if report.get("coverage") != "package":
+        # Real evidence, wrong scope. B02 asks about every native library in the package.
+        return {"status": "NOT_RUN", "auxiliary_status": "PASS", "iterations": 1,
+                "actual": summary,
+                "reason": "full acceptance pending: standalone probe ELFs only; B02 requires every "
+                          "native library in the APK, its dependency closure and ZIP layout",
+                "scope_note": "auxiliary: arm64/bionic/no-glibc/16 KiB-alignment verified for the "
+                              "standalone binaries this invocation built",
+                "evidence": []}
+
+    return {"status": "PASS", "iterations": 1, "actual": summary, "reason": None,
+            "scope_note": "package coverage: every native library in the APK",
             "evidence": []}
 
 
@@ -473,7 +525,6 @@ def run_device_suite(binary: Path, serial: str | None) -> SuiteRun:
             subprocess.run(adb + ["shell", "rm", "-f", remote], capture_output=True, text=True,
                            timeout=60)
 
-    parsed: dict[str, tuple[str, str]] = {}
     device_exit: int | None = None
     for line in result.stdout.splitlines():
         stripped = line.strip()
@@ -482,17 +533,20 @@ def run_device_suite(binary: Path, serial: str | None) -> SuiteRun:
                 device_exit = int(stripped.split("=", 1)[1])
             except ValueError:
                 device_exit = None
-            continue
-        if match := LINE.match(stripped):
-            parsed[match.group(1).strip()] = (match.group(3), (match.group(4) or "").strip())
+            break
+    # Same parser as the host path, so duplicate IDs and iteration identity behave identically
+    # wherever a suite runs.
+    parsed, counts, conflicts = parse_sub_cases(result.stdout)
 
     if device_exit is None:
         return SuiteRun(cases=parsed, output=result.stdout + result.stderr,
-                        error="the device did not report an exit status")
+                        error="the device did not report an exit status",
+                        iteration_counts=counts, conflicts=conflicts)
 
     output = (result.stdout + result.stderr +
               f"\n(device exit {device_exit}, adb exit {result.returncode}, {elapsed:.2f}s)")
-    return SuiteRun(cases=parsed, output=output, exit_code=device_exit)
+    return SuiteRun(cases=parsed, output=output, exit_code=device_exit,
+                    iteration_counts=counts, conflicts=conflicts)
 
 
 def pick_binary(build_dir: Path, names: list[str]) -> Path:
@@ -571,6 +625,9 @@ def main() -> int:
     parser.add_argument("--fex-build-dir", default=None,
                         help="Android FEXCore build directory from scripts/android/build-fexcore-android. "
                              "When given, the bionic smoke probe is run on a device (P04/P05).")
+    parser.add_argument("--apk", default=None,
+                        help="APK whose native libraries decide B02. Without it, B02 records "
+                             "auxiliary coverage from standalone ELFs and stays NOT_RUN.")
     parser.add_argument("--check-desktop", action="store_true",
                         help="run the desktop CMake configure for B06; slow, so off by default")
     parser.add_argument("--serial", default=None)
@@ -624,6 +681,11 @@ def main() -> int:
             "timed_out": run.timed_out,
             "error": run.error,
             "usable": run.usable,
+            # A sub-case that reported different verdicts across repeats. Recorded because the
+            # parser resolves it to the worst verdict, and that resolution should be visible
+            # rather than silent.
+            "verdict_conflicts": run.conflicts,
+            "repeated_sub_cases": {k: v for k, v in run.iteration_counts.items() if v > 1},
         }
         if on_device:
             meta["ran_on_device"] = bool(run.cases) and run.usable
@@ -791,7 +853,7 @@ def main() -> int:
     # mean "this ran, against these artifacts, in this invocation".
     for case in cases:
         if case["id"] == "B02":
-            case.update(CheckNativeElf(build_dir, args.fex_build_dir))
+            case.update(CheckNativeElf(build_dir, args.fex_build_dir, args.apk))
         elif case["id"] == "B05":
             case.update(CheckPublicApiOnlyConsumer())
         elif case["id"] == "B06":

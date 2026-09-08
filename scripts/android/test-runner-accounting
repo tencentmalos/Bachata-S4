@@ -1,0 +1,215 @@
+#!/usr/bin/env python3
+# SPDX-FileCopyrightText: Copyright 2026 shadPS4 Emulator Project
+# SPDX-License-Identifier: GPL-2.0-or-later
+"""R2-B02: automated negatives for the acceptance runner itself.
+
+The runner decides what every other result means, so its failure modes are the ones that can
+silently invalidate a whole report. Each negative below corresponds to a way a previous version
+reported success it had not earned; they are checked automatically so a regression is a test
+failure rather than something a reviewer has to notice again.
+
+  1. no APK, only standalone ELFs      -> B02 must not claim package coverage
+  2. host/CLI result mixed into an app case -> environment must say where evidence came from
+  3. a missing sub-case                -> the parent case must not pass
+  4. a SKIP                            -> must not count as PASS
+  5. no output and a non-zero exit     -> owned cases must FAIL, not sit in NOT_RUN
+  6. a timeout                         -> same
+  7. a duplicate case ID               -> a later PASS must not overwrite an earlier FAIL
+  8. a missing required suite          -> distinguished from "ran and failed"
+
+Usage: scripts/android/test-runner-accounting [--runner PATH]
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[2]
+
+FAILURES: list[str] = []
+CHECKS = 0
+
+
+def check(name: str, condition: bool, detail: str = "") -> None:
+    global CHECKS
+    CHECKS += 1
+    print(f"[{'PASS' if condition else 'FAIL'}] {name}" + (f" -- {detail}" if detail else ""))
+    if not condition:
+        FAILURES.append(name)
+
+
+def write_suite(directory: Path, name: str, body: str) -> Path:
+    path = directory / name
+    path.write_text("#!/usr/bin/env python3\n" + body)
+    path.chmod(0o755)
+    return path
+
+
+def run_runner(runner: Path, build_dir: Path, extra: list[str] | None = None) -> dict | None:
+    """Run the acceptance runner against a synthetic build directory and return its JSON."""
+    with tempfile.TemporaryDirectory() as tmp:
+        out = Path(tmp) / "results.json"
+        command = [sys.executable, str(runner), "--build-dir", str(build_dir), "--out", str(out)]
+        command += extra or []
+        env = dict(os.environ)
+        # Keep these hermetic: a real device attached to the workstation must not change the
+        # outcome of a runner accounting test.
+        env["PATH"] = os.pathsep.join(
+            p for p in env.get("PATH", "").split(os.pathsep) if p and "platform-tools" not in p)
+        subprocess.run(command, capture_output=True, text=True, timeout=900, env=env)
+        if not out.is_file():
+            return None
+        return json.loads(out.read_text())
+
+
+def case_of(report: dict, case_id: str) -> dict:
+    for case in report.get("cases", []):
+        if case["id"] == case_id:
+            return case
+    return {}
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__,
+                                     formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--runner", default=str(REPO / "scripts/android/run-v0-tests"))
+    args = parser.parse_args()
+    runner = Path(args.runner)
+    if not runner.is_file():
+        print(f"no runner at {runner}")
+        return 2
+
+    print("R2-B02: runner accounting negatives\n")
+
+    # --- 1: standalone ELFs must not be reported as package coverage --------------------------
+    with tempfile.TemporaryDirectory() as tmp:
+        report = run_runner(runner, Path(tmp))
+        if report is None:
+            check("1. runner produced a report with an empty build dir", False)
+        else:
+            b02 = case_of(report, "B02")
+            check("1. B02 without an APK does not claim a full PASS",
+                  b02.get("status") != "PASS", f"status={b02.get('status')}")
+
+    # --- 3,4,7: sub-case accounting -----------------------------------------------------------
+    with tempfile.TemporaryDirectory() as tmp:
+        directory = Path(tmp)
+        # M01 needs M01a/M01b/M01c. Emit only two, so the case is incomplete.
+        write_suite(directory, "guest_cpu_contract_tests", """
+print("[M01a  ] page size discovered                                PASS")
+print("[M01b  ] three page quantities stay distinct                 PASS")
+print("2/2 passed")
+""")
+        report = run_runner(runner, directory)
+        m01 = case_of(report or {}, "M01")
+        check("3. a case with a missing sub-case does not pass",
+              m01.get("status") != "PASS", f"status={m01.get('status')}")
+
+    with tempfile.TemporaryDirectory() as tmp:
+        directory = Path(tmp)
+        write_suite(directory, "guest_cpu_contract_tests", """
+print("[M01a  ] page size discovered                                PASS")
+print("[M01b  ] three page quantities stay distinct                 SKIP -- needs a device")
+print("[M01c  ] map, write, read back, unmap                        PASS")
+print("2/3 passed, 1 skipped")
+""")
+        report = run_runner(runner, directory)
+        m01 = case_of(report or {}, "M01")
+        check("4. a SKIP sub-case does not complete a case",
+              m01.get("status") != "PASS", f"status={m01.get('status')}")
+
+    with tempfile.TemporaryDirectory() as tmp:
+        directory = Path(tmp)
+        # The same ID twice: FAIL then PASS. The later PASS must not win.
+        write_suite(directory, "guest_cpu_contract_tests", """
+print("[M01a  ] page size discovered                                FAIL -- iteration 1")
+print("[M01a  ] page size discovered                                PASS")
+print("[M01b  ] three page quantities stay distinct                 PASS")
+print("[M01c  ] map, write, read back, unmap                        PASS")
+print("3/4 passed")
+""")
+        report = run_runner(runner, directory)
+        m01 = case_of(report or {}, "M01")
+        check("7. a later PASS does not overwrite an earlier FAIL for the same ID",
+              m01.get("status") == "FAIL", f"status={m01.get('status')}")
+        suites = (report or {}).get("suites", {})
+        contract = suites.get("api_contract_tests", {})
+        check("7b. the repeated sub-case is recorded with an iteration count",
+              bool(contract.get("repeated_sub_cases")),
+              f"repeated={contract.get('repeated_sub_cases')}")
+        check("7c. the conflicting verdict is recorded",
+              bool(contract.get("verdict_conflicts")),
+              f"conflicts={contract.get('verdict_conflicts')}")
+
+    # --- 5: no output, non-zero exit ----------------------------------------------------------
+    with tempfile.TemporaryDirectory() as tmp:
+        directory = Path(tmp)
+        write_suite(directory, "guest_cpu_contract_tests", "raise SystemExit(7)\n")
+        report = run_runner(runner, directory)
+        m01 = case_of(report or {}, "M01")
+        summary = (report or {}).get("summary", {})
+        check("5. a suite that exits non-zero with no output fails its owned cases",
+              m01.get("status") == "FAIL", f"status={m01.get('status')}")
+        check("5b. that failure reaches the summary",
+              summary.get("failed", 0) > 0, f"failed={summary.get('failed')}")
+
+    # --- 6: timeout ---------------------------------------------------------------------------
+    # A full 600s timeout would make this suite unusable, so this checks the classification
+    # helper directly rather than waiting for a real one.
+    sys.path.insert(0, str(runner.parent))
+    spec_ok = True
+    try:
+        import importlib.util
+        spec = importlib.util.spec_from_loader("v0runner", loader=None)
+        module = importlib.util.module_from_spec(spec)
+        exec(compile(runner.read_text().replace("__file__", repr(str(runner))),
+                     str(runner), "exec"), module.__dict__)
+        timed_out = module.SuiteRun(output="timed out", timed_out=True)
+        check("6. a timed-out suite is unusable and not 'never started'",
+              (not timed_out.usable) and (not timed_out.never_started),
+              f"usable={timed_out.usable} never_started={timed_out.never_started}")
+        missing = module.SuiteRun(error="missing: x", never_started=True)
+        check("8. a missing suite binary is 'never started', not a failure",
+              (not missing.usable) and missing.never_started,
+              f"usable={missing.usable} never_started={missing.never_started}")
+        check("8b. the two are distinguishable",
+              timed_out.never_started != missing.never_started)
+    except SystemExit:
+        spec_ok = False
+    except Exception as exc:  # noqa: BLE001 -- report rather than abort the whole suite
+        spec_ok = False
+        check("6/8. runner module could be loaded for classification checks", False, str(exc))
+    if not spec_ok:
+        pass
+
+    # --- 2: environment attribution -----------------------------------------------------------
+    with tempfile.TemporaryDirectory() as tmp:
+        directory = Path(tmp)
+        write_suite(directory, "guest_cpu_contract_tests", """
+print("[M01a  ] page size discovered                                PASS")
+print("[M01b  ] three page quantities stay distinct                 PASS")
+print("[M01c  ] map, write, read back, unmap                        PASS")
+print("3/3 passed")
+""")
+        report = run_runner(runner, directory)
+        m01 = case_of(report or {}, "M01")
+        check("2. a host-only result is labelled HOST, not DEVICE",
+              m01.get("environment") == "HOST", f"environment={m01.get('environment')}")
+
+    print(f"\n{CHECKS - len(FAILURES)}/{CHECKS} passed")
+    if FAILURES:
+        print("\nFAILURES:")
+        for name in FAILURES:
+            print(f"  {name}")
+    print("\nSCOPE: the runner's own accounting. Proves nothing about the guest CPU.")
+    return 1 if FAILURES else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
