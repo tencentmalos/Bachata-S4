@@ -1,0 +1,37 @@
+{
+  "date": "2026-09-08",
+  "scope": "Swan Android 16 ARM64 4 KiB; 16 KiB work deferred by user in this review.",
+  "main_commit": "8e0e85dc9abbf2bca5f1a38ee7f8c4670b52d67a",
+  "fex_commit": "385a0cc4d81cd456c8d5c26b4f09cb5a7d8d5842",
+  "branch": "codex/android-fex-v0",
+  "build": "Fresh host suite directory; existing FEX Android CMake build incrementally rebuilt, smoke and guest harness relinked by scripts/android/build-fexcore-android. Not a clean-room build.",
+  "device": "Swan PB3210PGL6170004G, adb shell executables; not ART/app execution.",
+  "ndk": "29.0.14206865",
+  "native_api": 35,
+  "results": {
+    "host_contract": "21/21",
+    "host_hle_adapter": "14/14",
+    "swan_fex_init": "12/12",
+    "swan_guest_execution": "12 failing subchecks; process exit 1",
+    "memory_reproducer": "Three defects reproduced on host and Swan 4 KiB",
+    "empty_build_runner": "Reports B02/B05/B06 PASS without binaries"
+  },
+  "artifacts": [
+    {
+      "path": "build/fexcore-android/fexcore_bionic_smoke",
+      "sha256": "99edef93c948996e47bdc0e813e3485c23b0dc22d5737575263e7a0cb767a54d",
+      "notes_file": "fexcore_bionic_smoke-notes.txt"
+    },
+    {
+      "path": "build/fexcore-android/guest_execution_tests",
+      "sha256": "57b097d19b0e7704f9c936506848efa40d65a28c73eed8647b8c33ad9b3b56f9",
+      "notes_file": "guest_execution_tests-notes.txt"
+    }
+  ],
+  "limits": [
+    "No LLDB session or guest execution root-cause proof",
+    "No APK/JNI/Vulkan verification",
+    "No changes to production code or FEX subtree",
+    "No 16 KiB device acceptance attempted"
+  ]
+}

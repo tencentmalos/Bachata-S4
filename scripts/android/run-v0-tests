@@ -130,7 +130,6 @@ SUITE_MAP: dict[str, list[str]] = {
     "M03": ["M03"],
     "M04": ["M04a", "M04b"],
     "M05": ["M05"],
-    "M07": ["M07"],
     "M10": ["M10"],
     "M12": ["M12"],
     "M13": ["M13", "M13b"],
@@ -156,6 +155,13 @@ SUITE_MAP: dict[str, list[str]] = {
             "G03a", "G03b", "G03c", "G07a", "G07b", "G07c"],
     "C02": ["G04a", "G04b", "G04c"],
     "D05": ["G05a", "G05b", "G05c", "G05d"],
+    # M07 asks for 100 host/HLE code rewrites with publication, verified by execution. G08a/G08b do
+    # exactly that against a real guest; the host-only M07 sub-case checks the same contract through
+    # the address-space API without executing anything, so both are required.
+    #
+    # Deliberately NOT mapped to M09: that needs two threads running the same old block and a
+    # controller quiescing between them, which this backend cannot do yet.
+    "M07": ["M07", "G08a", "G08b", "G08c"],
 }
 
 LINE = re.compile(r"^\[(\S+)\s*\]\s+(.*?)\s+(PASS|FAIL)(?:\s+--\s+(.*))?$")
@@ -547,10 +553,14 @@ def main() -> int:
     if failed:
         release_status = "V0_IN_PROGRESS"
     elif any(c["reason"] and "[NO-BACKEND]" in c["reason"] for c in cases):
-        # Missing implementation, not missing hardware: attaching a 16 KiB device
-        # would not make these run. DEVICE_PENDING here would hide the real gap,
-        # which the spec forbids.
-        release_status = "V0_BLOCKED"
+        # Unimplemented capability is work remaining, not a blocker.
+        #
+        # This previously reported V0_BLOCKED, which the spec reserves for an external dependency,
+        # capability or rule that cannot be resolved by continuing to implement -- the original FEX
+        # contribution-rule blocker was one. What is missing now (interrupts, bounded Step, real HLE
+        # gates, the app) is ordinary implementation work, and calling that "blocked" overstates the
+        # obstacle in the opposite direction from calling it "pending".
+        release_status = "V0_IN_PROGRESS"
     elif not_run:
         release_status = "V0_IMPLEMENTED_DEVICE_PENDING"
     else:
@@ -590,14 +600,14 @@ def main() -> int:
         "cases": cases,
         "release_status": release_status,
         "release_status_reason": (
-            "FEX-dependent cases cannot run: the backend adapter is not implemented, so "
-            "nothing drives FEXCore. The two 4 KiB assumptions that previously blocked this "
-            "-- the JIT code-buffer guard page and InterruptFaultPage -- are fixed in the "
-            "owned fork and verified on a real 16 KiB host, see "
-            "docs/fex-host-page-size-adaptation.md. Note the earlier 'aborts at startup' "
-            "claim was withdrawn: the VA probe is only reachable from FEXInterpreter, which "
-            "an embedder does not link. Host-verifiable cases pass. No 16 KiB device was "
-            "attached; the attached device reports a 4 KiB kernel page."),
+            "The FEX backend adapter is implemented and guest x86-64 executes correctly on a "
+            "4 KiB Swan device: the on-device suite passes every assertion it makes, including "
+            "the same-VA republication regression that exposed the shared code-cache "
+            "invalidation bug. What remains is unimplemented capability rather than a blocker "
+            "-- interrupts, bounded Step, real HLE gates and callbacks, multi-thread execution, "
+            "a context-level publication transaction, and the JNI/app path. Scope is Swan / "
+            "Android 16 / ARM64 / 4 KiB by the 2026-09-08 decision; 16 KiB cases are deferred "
+            "and are not counted as passes. See docs/validation/v0/followup-2026-09-08.md."),
     }
 
     out_path = Path(args.out)

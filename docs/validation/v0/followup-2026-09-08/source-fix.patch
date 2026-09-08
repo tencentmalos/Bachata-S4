@@ -1,0 +1,197 @@
+diff --git a/src/core/guest_cpu/api/address_space.h b/src/core/guest_cpu/api/address_space.h
+index 49059615..9773566f 100644
+--- a/src/core/guest_cpu/api/address_space.h
++++ b/src/core/guest_cpu/api/address_space.h
+@@ -43,11 +43,9 @@ struct AddressSpaceConfig final {
+ 
+     // Upper bound on guest addresses, or 0 for no constraint.
+     //
+-    // A backend may only be able to address part of the host's virtual space:
+-    // FEXCore's block lookup masks the guest RIP with its own virtual memory
+-    // size, so a guest mapped above that limit aliases onto unrelated cache
+-    // entries and executes the wrong block with no diagnostic. Create fails
+-    // rather than returning a reservation the backend cannot address.
++    // This can express an embedder's placement policy as well as a backend
++    // limit. FEX's masked lookup index still compares the full guest address;
++    // an index collision alone does not cause execution of an unrelated block.
+     //
+     // Callers should take this from BackendCapabilities::max_guest_address.
+     std::uint64_t max_address{};
+diff --git a/src/core/guest_cpu/fex/fex_context.cpp b/src/core/guest_cpu/fex/fex_context.cpp
+index 478a8ce7..e4071c9d 100644
+--- a/src/core/guest_cpu/fex/fex_context.cpp
++++ b/src/core/guest_cpu/fex/fex_context.cpp
+@@ -612,8 +612,9 @@ public:
+     [[nodiscard]] Result<void> InvalidateCode(const QuiescenceToken& token, GuestRange range,
+                                               InvalidationReason reason) override {
+         if (!token.IsValid()) {
+-            // Without the token there is no proof that no thread is executing
+-            // inside the code about to be discarded.
++            // Require the publication API's token, but it does not yet prove
++            // context-wide quiescence. Check running under lock_ below; a full
++            // publication transaction still needs context/writer admission.
+             return BackendError(ErrorCategory::WrongState, "InvalidateCode",
+                                 "a valid quiescence token is required to discard translated code");
+         }
+@@ -626,15 +627,23 @@ public:
+             }
+         }
+ 
+-        // FEXCore's per-range invalidation is driven through the syscall
+-        // handler's callback into the JIT; the entry point available to an
+-        // embedder is ClearCodeCache, which drops the thread's translated code
+-        // wholesale. That is coarser than the requested range but never stale:
+-        // over-invalidating costs recompilation, under-invalidating would let a
+-        // thread execute code that no longer exists.
++        auto checked = GuestRange::Checked(range.base, range.size);
++        if (!checked) {
++            return checked.GetError();
++        }
++
++        // CodeBuffer/L3 mappings survive the last guest thread. Clearing only
++        // threads therefore did nothing between destroy/recreate cycles: the
++        // next thread reused the previous fixture's translation at the same VA.
++        // Match FEX's frontend protocol: invalidate shared translations even
++        // with zero threads, then invalidate each live thread's local caches.
++        // Both operations require FEX's exclusive code-invalidation lock.
++        std::scoped_lock code_guard{context_->GetCodeInvalidationMutex()};
++        context_->InvalidateCodeBuffersCodeRange(range.base.value, range.size);
+         for (auto& [id, entry] : threads_) {
+             if (entry.native != nullptr) {
+-                context_->ClearCodeCache(entry.native);
++                context_->InvalidateThreadCachedCodeRange(entry.native, range.base.value,
++                                                          range.size);
+             }
+         }
+         return Result<void>{};
+diff --git a/tests/guest_cpu/fixtures/guest_fixtures.S b/tests/guest_cpu/fixtures/guest_fixtures.S
+index 002a5a05..8607d69f 100644
+--- a/tests/guest_cpu/fixtures/guest_fixtures.S
++++ b/tests/guest_cpu/fixtures/guest_fixtures.S
+@@ -1,6 +1,23 @@
+ .text
+ .intel_syntax noprefix
+ 
++// Distinct results at the same guest VA expose stale shared/local translations.
++.globl fixture_constant_a
++.globl fixture_constant_a_end
++fixture_constant_a:
++    mov     eax, 17
++    movabs  r15, 0x1122334455667788
++    jmp     r15
++fixture_constant_a_end:
++
++.globl fixture_constant_b
++.globl fixture_constant_b_end
++fixture_constant_b:
++    mov     eax, 34
++    movabs  r15, 0x1122334455667788
++    jmp     r15
++fixture_constant_b_end:
++
+ // Guest fixtures for the V0 CPU acceptance cases, assembled from source rather than hand-encoded.
+ //
+ // Hand-encoding is what produced the R2 defect in the 2026-09-08 review: `49 01 C8` was written
+diff --git a/tests/guest_cpu/guest_execution_tests.cpp b/tests/guest_cpu/guest_execution_tests.cpp
+index ab058bb6..a5649255 100644
+--- a/tests/guest_cpu/guest_execution_tests.cpp
++++ b/tests/guest_cpu/guest_execution_tests.cpp
+@@ -428,6 +428,90 @@ void TestUnregisteredHlt(Harness& harness) {
+           outcome.result.snapshot.kind == SnapshotKind::Faulted);
+ }
+ 
++// Exercise the two cache lifetimes separately: FEX's shared code buffers outlive
++// all threads, while each live thread also has its own lookup/call-return cache.
++void TestCodeInvalidation(Harness& harness) {
++    const auto* a = FindFixture("constant_a");
++    const auto* b = FindFixture("constant_b");
++    if (!a || !b) {
++        Check("G08a", "invalidation fixtures are present", false);
++        return;
++    }
++
++    bool recreated_ok = true;
++    std::string error;
++    for (unsigned epoch = 0; epoch < 100; ++epoch) {
++        const bool use_a = (epoch % 2) == 0;
++        auto outcome = RunFixture(harness, use_a ? *a : *b, [](RegisterPatch&) {});
++        const auto expected = use_a ? 17u : 34u;
++        if (!outcome.ok || outcome.result.primary_reason != StopReason::Returned ||
++            outcome.result.snapshot.registers.Get(Gpr::Rax) != expected ||
++            harness.context->LiveThreadCount() != 0) {
++            recreated_ok = false;
++            error = "epoch " + std::to_string(epoch) + ": " + outcome.error;
++            break;
++        }
++    }
++    Check("G08a", "100 same-VA publications with zero live threads between runs",
++          recreated_ok, error);
++
++    if (!LoadFixture(harness, *a, error)) {
++        Check("G08b", "publish code for two stopped cache owners", false, error);
++        return;
++    }
++    ThreadInit init{};
++    init.entry_rip = GuestCodeAddress{harness.code_base};
++    init.initial_rsp = GuestAddress{harness.stack_top};
++    auto first = harness.context->CreateThread(init);
++    auto second = harness.context->CreateThread(init);
++    if (!first || !second) {
++        Check("G08b", "create two cache owners", false);
++        if (first) (void)harness.context->DestroyThread(first.Value());
++        if (second) (void)harness.context->DestroyThread(second.Value());
++        return;
++    }
++    bool live_ok = true;
++    const ThreadHandle handles[]{first.Value(), second.Value()};
++    for (unsigned epoch = 0; epoch < 100 && live_ok; ++epoch) {
++        const bool use_a = (epoch % 2) == 0;
++        if (!LoadFixture(harness, use_a ? *a : *b, error)) {
++            live_ok = false;
++            break;
++        }
++        for (auto handle : handles) {
++            auto stopped = harness.context->ReadRegisters(handle);
++            if (!stopped || (epoch != 0 &&
++                stopped.Value().registers.Get(Gpr::Rax) != (use_a ? 34u : 17u))) {
++                live_ok = false;
++                error = "invalidation changed stopped registers";
++                break;
++            }
++            RegisterPatch patch{};
++            patch.fields = RegisterValidity::Rip;
++            patch.values.rip = harness.code_base;
++            auto reset = harness.context->WriteRegisters(handle, patch, stopped.Value().stop_epoch);
++            if (!reset) {
++                live_ok = false;
++                error = Describe(reset.GetError());
++                break;
++            }
++            auto run = harness.context->Run(handle, RunOptions{});
++            if (!run || run.Value().primary_reason != StopReason::Returned ||
++                run.Value().snapshot.registers.Get(Gpr::Rax) != (use_a ? 17u : 34u)) {
++                live_ok = false;
++                error = "stale translation at epoch " + std::to_string(epoch);
++                break;
++            }
++        }
++    }
++    Check("G08b", "100 publications invalidate both stopped threads without changing state",
++          live_ok, error);
++    auto destroy_first = harness.context->DestroyThread(first.Value());
++    auto destroy_second = harness.context->DestroyThread(second.Value());
++    Check("G08c", "cache regression leaves no guest threads",
++          destroy_first && destroy_second && harness.context->LiveThreadCount() == 0);
++}
++
+ // --- contract checks that need no execution -------------------------------------------------------
+ void TestContracts(Harness& harness) {
+     const auto caps = harness.context->Capabilities();
+@@ -553,6 +637,7 @@ int main() {
+     TestStoreMemory(harness);
+     TestSse2(harness);
+     TestUnregisteredHlt(harness);
++    TestCodeInvalidation(harness);
+     printf("\n");
+     // Contract checks last: they publish their own stub at the same address.
+     TestContracts(harness);

@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
   "spec": "android-fex-v0",
-  "run_id": "20260908T042120Z",
-  "timestamp_utc": "2026-09-08T04:21:21.982885+00:00",
+  "run_id": "20260908T051126Z",
+  "timestamp_utc": "2026-09-08T05:11:28.500367+00:00",
   "baseline_commit": "a712889343ccd2588b712988dae0a76a104e0dce",
-  "implementation_commit": "63dd217469fba6af2e3c021182943790f5a54196",
+  "implementation_commit": "9890727ad4a0e76d2c2120042d1b8a7f3316b2a5",
   "implementation_branch": "codex/android-fex-v0",
   "working_tree_dirty": true,
   "fex_base_commit": "f2b679f6028ce1c38875233aecfcf5d3f8ebecec",
@@ -40,19 +40,19 @@
   },
   "suites": {
     "api_contract_tests": {
-      "binary": "/tmp/vb/guest_cpu_contract_tests",
+      "binary": "/tmp/vv/guest_cpu_contract_tests",
       "sha256": "05daeeba5908de71539a9df696be23a22c1c1442319a5c97244f71ef0933db9c",
       "sub_cases": 21,
       "failures": 0
     },
     "hle_abi_tests": {
-      "binary": "/tmp/vb/guest_cpu_hle_abi_tests",
+      "binary": "/tmp/vv/guest_cpu_hle_abi_tests",
       "sha256": "a3ce5bfbc19ad6e8d314461da785fba4912a0fb7a672e977de75c45baf78ac72",
       "sub_cases": 14,
       "failures": 0
     },
     "host_page_size_probe": {
-      "binary": "/tmp/vb/host_page_size_probe",
+      "binary": "/tmp/vv/host_page_size_probe",
       "sha256": "ae0b2bea42bc6ca2957015655acb237e17262664bb6ebbe9a9243600ed4c6050",
       "sub_cases": 22,
       "failures": 0
@@ -66,15 +66,15 @@
     },
     "guest_execution_tests": {
       "binary": "build/fexcore-android/guest_execution_tests",
-      "sha256": "4d44884c51cbcbc60d40273ca3c3ef4c54484668469453b9d1c6b85d066df4bf",
-      "sub_cases": 33,
-      "failures": 13,
+      "sha256": "507496fb41d8cbbc3ad697d9805ed210af9d330159400f97a5fda130eefba1bc",
+      "sub_cases": 36,
+      "failures": 0,
       "ran_on_device": true
     }
   },
   "summary": {
-    "passed": 20,
-    "failed": 3,
+    "passed": 23,
+    "failed": 0,
     "not_run": 37,
     "total": 60
   },
@@ -199,7 +199,7 @@
     {
       "id": "C01",
       "description": "x86 integer arithmetic, flags, branches",
-      "status": "FAIL",
+      "status": "PASS",
       "environment": "HOST",
       "iterations": 1,
       "expected": null,
@@ -210,16 +210,16 @@
         "G01d": "PASS",
         "G01e": "PASS",
         "G01f": "PASS",
-        "G02a": "FAIL",
+        "G02a": "PASS",
         "G02b": "PASS",
-        "G03a": "FAIL",
-        "G03b": "FAIL",
+        "G03a": "PASS",
+        "G03b": "PASS",
         "G03c": "PASS",
         "G07a": "PASS",
-        "G07b": "FAIL",
-        "G07c": "FAIL"
+        "G07b": "PASS",
+        "G07c": "PASS"
       },
-      "reason": "failed sub-cases: G02a, G03a, G03b, G07b, G07c",
+      "reason": null,
       "evidence": [
         "docs/validation/v0/host-suite-output.txt"
       ],
@@ -228,16 +228,16 @@
     {
       "id": "C02",
       "description": "SSE2 arithmetic, XMM save, MXCSR rounding",
-      "status": "FAIL",
+      "status": "PASS",
       "environment": "HOST",
       "iterations": 1,
       "expected": null,
       "actual": {
-        "G04a": "FAIL",
-        "G04b": "FAIL",
+        "G04a": "PASS",
+        "G04b": "PASS",
         "G04c": "PASS"
       },
-      "reason": "failed sub-cases: G04a, G04b",
+      "reason": null,
       "evidence": [
         "docs/validation/v0/host-suite-output.txt"
       ],
@@ -455,7 +455,10 @@
       "iterations": 1,
       "expected": null,
       "actual": {
-        "M07": "PASS"
+        "M07": "PASS",
+        "G08a": "PASS",
+        "G08b": "PASS",
+        "G08c": "PASS"
       },
       "reason": null,
       "evidence": [
@@ -713,17 +716,17 @@
     {
       "id": "D05",
       "description": "real HLT, illegal instruction, unregistered return trap",
-      "status": "FAIL",
+      "status": "PASS",
       "environment": "HOST",
       "iterations": 1,
       "expected": null,
       "actual": {
-        "G05a": "FAIL",
-        "G05b": "FAIL",
-        "G05c": "FAIL",
-        "G05d": "FAIL"
+        "G05a": "PASS",
+        "G05b": "PASS",
+        "G05c": "PASS",
+        "G05d": "PASS"
       },
-      "reason": "failed sub-cases: G05a, G05b, G05c, G05d",
+      "reason": null,
       "evidence": [
         "docs/validation/v0/host-suite-output.txt"
       ],
@@ -913,5 +916,5 @@
     }
   ],
   "release_status": "V0_IN_PROGRESS",
-  "release_status_reason": "FEX-dependent cases cannot run: the backend adapter is not implemented, so nothing drives FEXCore. The two 4 KiB assumptions that previously blocked this -- the JIT code-buffer guard page and InterruptFaultPage -- are fixed in the owned fork and verified on a real 16 KiB host, see docs/fex-host-page-size-adaptation.md. Note the earlier 'aborts at startup' claim was withdrawn: the VA probe is only reachable from FEXInterpreter, which an embedder does not link. Host-verifiable cases pass. No 16 KiB device was attached; the attached device reports a 4 KiB kernel page."
+  "release_status_reason": "The FEX backend adapter is implemented and guest x86-64 executes correctly on a 4 KiB Swan device: the on-device suite passes every assertion it makes, including the same-VA republication regression that exposed the shared code-cache invalidation bug. What remains is unimplemented capability rather than a blocker -- interrupts, bounded Step, real HLE gates and callbacks, multi-thread execution, a context-level publication transaction, and the JNI/app path. Scope is Swan / Android 16 / ARM64 / 4 KiB by the 2026-09-08 decision; 16 KiB cases are deferred and are not counted as passes. See docs/validation/v0/followup-2026-09-08.md."
 }

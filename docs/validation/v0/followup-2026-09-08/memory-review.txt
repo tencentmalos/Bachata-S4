@@ -1,0 +1,5 @@
+partial_protect=0 untouched_second_page_reported_writable=0
+writer_pin=1 protect_while_pinned=0
+quiesce=1 new_writer_while_quiesced=0
+
+exit=0

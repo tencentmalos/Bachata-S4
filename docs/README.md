@@ -1,23 +1,19 @@
 # Android / FEX 开发资料索引
 
-目标：Android 16 / ARM64 / 16 KiB，原生 shadPS4 host + FEXCore 执行 PS4 x86 guest。当前已完成源码评估与参考版本固定，尚未完成 NDK backend 或目标设备验收。
+当前目标：Swan / Android 16 / ARM64 / **4 KiB**，原生 shadPS4 host + FEXCore 执行 PS4 x86 guest。用户于 2026-09-08 将 16 KiB 工作后置。尚未完成完整 NDK backend/app 验收。
+
+**当前执行状态：[2026-09-08 复核修复 / V0_IN_PROGRESS](validation/v0/followup-2026-09-08.md)**。修复主仓 adapter 的共享译码缓存漏失效后，Swan 4 KiB guest harness 36/36 通过；quiesce、HLE buffer 生命周期、runner 完整验收映射和 app 接入仍未完成。[原始审核](validation/v0/review-2026-09-08.md)保留历史状态，旧 aggregate PASS 数不代表当前验收结果。
 
 **固定基础版本：[2026-09-07 / `a7128893`](baselines/2026-09-07-android-fex-foundation.md)**。该记录包含主仓与七个 references 的精确提交、验证结果、未完成项、未纳入基线的本地改动及恢复方法；后续里程碑以它为起点。
 
 **下一个实施目标：[V0 首个验证版 spec](specs/android-fex-v0.md)**。配套 [CPU API 契约](specs/android-fex-v0-api.md)、[验收矩阵](specs/android-fex-v0-acceptance.md)、[执行 AI 任务书](specs/android-fex-v0-handoff.md)。这些是待实现要求，不是新的已通过状态。
 
-**V0 实施结果：[实施报告](validation/v0/implementation-report.md)，状态 `V0_BLOCKED`**（21 PASS / 0 FAIL / 39 NOT_RUN，共 60 项）。
-公共 CPU API、16 KiB 内存模型、HLE typed ABI adapter 与构建/验证脚本已完成并通过 host 测试。
+## 既有阶段记录
 
-第二轮解除了 FEX 侧的两处 16 KiB 阻断（JIT code buffer guard、`InterruptFaultPage`），
-见 [FEX host page 适配](fex-host-page-size-adaptation.md)：在自有 fork 修改，
-真实 16 KiB 主机与 Android 实机各 19/19 通过。
-
-第三轮完成 **FEXCore 的 Android NDK/bionic 构建**，见 [Android bionic 构建](fex-android-bionic-build.md)：
-FEXCore 已能在 Android 实机进程内完成 Context 创建、`InitCore()` 与 guest 线程生命周期（14/14）。
-**注意仍未执行任何 guest 代码。** 硬性前置是 NDK **r29**（r28c 及更早的 libc++ 无 `std::atomic_ref`）。
-当前阻断是 **FEX backend adapter 未实现**——不再是规则、上游依赖或构建可行性问题。
-背景见[页大小审计](validation/v0/page-size-audit.md)与[技术决定](validation/v0/decisions.md)。
+- [最初实施报告](validation/v0/implementation-report.md) 的 `V0_BLOCKED`、21 PASS / 0 FAIL / 39 NOT_RUN 是旧轮次输出；部分 host 单测被映射到完整验收项，不能作为当前完成比例。
+- [FEX host page 适配](fex-host-page-size-adaptation.md) 记录早期 guard/InterruptFaultPage 调整。用户已将 16 KiB 工作后置；host 探针和页大小数学检查不代表 Android 16 KiB app 验收。
+- [Android bionic 构建](fex-android-bionic-build.md) 记录初始化与线程生命周期；其“未执行 guest / adapter 未实现”是当时状态。
+- [Guest 执行接入](fex-guest-execution-bringup.md) 记录后续真实执行、配置顺序及共享缓存失效修复，以最新复核证据为准。
 
 ## 推荐阅读顺序
 

@@ -1,0 +1,79 @@
+{
+  "recorded_at": "2026-09-08T13:01:33.686439+08:00",
+  "main_base": "9890727ad4a0e76d2c2120042d1b8a7f3316b2a5",
+  "main_source": "base plus source-fix.patch; existing unrelated working tree edits excluded from this fix",
+  "fex_sha": "385a0cc4d81cd456c8d5c26b4f09cb5a7d8d5842",
+  "fex_dirty": false,
+  "device": {
+    "serial": "PB3210PGL6170004G",
+    "model": "B3110",
+    "android_release": "16",
+    "sdk": 36,
+    "host_page_size": 4096
+  },
+  "toolchain": {
+    "ndk_directory": "/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865",
+    "actual_metadata": "Pkg.Desc = Android NDK\nPkg.Revision = 29.0.14206865\nPkg.BaseRevision = 29.0.14206865\nPkg.ReleaseName = r29\n",
+    "target_api": 35
+  },
+  "build_scope": "incremental FEX rebuild and relink via scripts/android/build-fexcore-android; not clean-room; adb shell ELF, not APK/JNI/ART",
+  "tests": {
+    "before": {
+      "checks": 33,
+      "failures": 13,
+      "exit": 1
+    },
+    "after_adapter_fix": {
+      "checks": 33,
+      "failures": 0,
+      "exit": 0
+    },
+    "after_regression_tests": {
+      "checks": 36,
+      "failures": 0,
+      "exit": 0
+    },
+    "host_contract": {
+      "passed": 21,
+      "total": 21
+    },
+    "host_hle": {
+      "passed": 14,
+      "total": 14
+    },
+    "memory_review": {
+      "exit": 0,
+      "partial_protect": false,
+      "untouched_second_page_reported_writable": false,
+      "writer_pin": true,
+      "protect_while_pinned": false,
+      "quiesce": true,
+      "new_writer_while_quiesced": false
+    }
+  },
+  "artifacts_final_only": {
+    "guest_execution_tests": {
+      "sha256": "83dbcd7de5b215a056f0162b1deea30cf70db0d300d1984c23f01433248d082f",
+      "build_id": null
+    },
+    "memory_review_android": {
+      "sha256": "366111008f0c565b3acf90b02afef3660af2b572fc4d64cf4fb1f47b2b51ea6d",
+      "build_id": null
+    }
+  },
+  "earlier_artifact_identity": "Before/first-fix binaries were overwritten by successive relinks; no per-stage binary hash was captured. Logs are retained; do not attribute the final hash to those earlier runs.",
+  "source_sha256": {
+    "src/core/guest_cpu/fex/fex_context.cpp": "3d506beb1358d1cf0a782d347cc1b5297296b62a9800388da56e71b4b6162d3b",
+    "tests/guest_cpu/guest_execution_tests.cpp": "0fa817b84742bbb167be14c72510b80532977deeedf075d91a05041a0e274814",
+    "tests/guest_cpu/fixtures/guest_fixtures.S": "91fedb561a0168c26f6f70aaba757734ab5a532aa99a169ed6332f9672deb48d",
+    "build/fexcore-android/generated-fixtures/guest_fixtures.h": "2eed289fc9ab25eaac99ce8acb49133a56121453d458749e7e37f8abe1fcf3f1",
+    "docs/validation/v0/review-2026-09-08/memory_review.cpp": "dfa66e2302e8ed5af4a18f6222f1343db3946dab63670ad6ce354cb526630f0d",
+    "src/core/guest_cpu/api/address_space.h": "9f4c1f94cc7bb813e7b022c443ad2d2af61b6a7d9cf86ca957b9c5f6d6f74931"
+  },
+  "limitations": [
+    "Two live guest threads ran sequentially on a single host owner thread; no concurrent owner-thread acceptance.",
+    "36 harness assertions do not mean 36 V0 acceptance cases.",
+    "No 16 KiB, game, renderer, app, HLE gate, interrupt or Step validation."
+  ],
+  "artifact_note": "Final ELF files have no GNU Build ID. SHA-256 identifies the tested files. Comments changed after the last build; source-fix.patch includes these documentation-only source changes."
+}

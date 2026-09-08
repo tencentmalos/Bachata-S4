@@ -428,6 +428,90 @@ void TestUnregisteredHlt(Harness& harness) {
           outcome.result.snapshot.kind == SnapshotKind::Faulted);
 }
 
+// Exercise the two cache lifetimes separately: FEX's shared code buffers outlive
+// all threads, while each live thread also has its own lookup/call-return cache.
+void TestCodeInvalidation(Harness& harness) {
+    const auto* a = FindFixture("constant_a");
+    const auto* b = FindFixture("constant_b");
+    if (!a || !b) {
+        Check("G08a", "invalidation fixtures are present", false);
+        return;
+    }
+
+    bool recreated_ok = true;
+    std::string error;
+    for (unsigned epoch = 0; epoch < 100; ++epoch) {
+        const bool use_a = (epoch % 2) == 0;
+        auto outcome = RunFixture(harness, use_a ? *a : *b, [](RegisterPatch&) {});
+        const auto expected = use_a ? 17u : 34u;
+        if (!outcome.ok || outcome.result.primary_reason != StopReason::Returned ||
+            outcome.result.snapshot.registers.Get(Gpr::Rax) != expected ||
+            harness.context->LiveThreadCount() != 0) {
+            recreated_ok = false;
+            error = "epoch " + std::to_string(epoch) + ": " + outcome.error;
+            break;
+        }
+    }
+    Check("G08a", "100 same-VA publications with zero live threads between runs",
+          recreated_ok, error);
+
+    if (!LoadFixture(harness, *a, error)) {
+        Check("G08b", "publish code for two stopped cache owners", false, error);
+        return;
+    }
+    ThreadInit init{};
+    init.entry_rip = GuestCodeAddress{harness.code_base};
+    init.initial_rsp = GuestAddress{harness.stack_top};
+    auto first = harness.context->CreateThread(init);
+    auto second = harness.context->CreateThread(init);
+    if (!first || !second) {
+        Check("G08b", "create two cache owners", false);
+        if (first) (void)harness.context->DestroyThread(first.Value());
+        if (second) (void)harness.context->DestroyThread(second.Value());
+        return;
+    }
+    bool live_ok = true;
+    const ThreadHandle handles[]{first.Value(), second.Value()};
+    for (unsigned epoch = 0; epoch < 100 && live_ok; ++epoch) {
+        const bool use_a = (epoch % 2) == 0;
+        if (!LoadFixture(harness, use_a ? *a : *b, error)) {
+            live_ok = false;
+            break;
+        }
+        for (auto handle : handles) {
+            auto stopped = harness.context->ReadRegisters(handle);
+            if (!stopped || (epoch != 0 &&
+                stopped.Value().registers.Get(Gpr::Rax) != (use_a ? 34u : 17u))) {
+                live_ok = false;
+                error = "invalidation changed stopped registers";
+                break;
+            }
+            RegisterPatch patch{};
+            patch.fields = RegisterValidity::Rip;
+            patch.values.rip = harness.code_base;
+            auto reset = harness.context->WriteRegisters(handle, patch, stopped.Value().stop_epoch);
+            if (!reset) {
+                live_ok = false;
+                error = Describe(reset.GetError());
+                break;
+            }
+            auto run = harness.context->Run(handle, RunOptions{});
+            if (!run || run.Value().primary_reason != StopReason::Returned ||
+                run.Value().snapshot.registers.Get(Gpr::Rax) != (use_a ? 17u : 34u)) {
+                live_ok = false;
+                error = "stale translation at epoch " + std::to_string(epoch);
+                break;
+            }
+        }
+    }
+    Check("G08b", "100 publications invalidate both stopped threads without changing state",
+          live_ok, error);
+    auto destroy_first = harness.context->DestroyThread(first.Value());
+    auto destroy_second = harness.context->DestroyThread(second.Value());
+    Check("G08c", "cache regression leaves no guest threads",
+          destroy_first && destroy_second && harness.context->LiveThreadCount() == 0);
+}
+
 // --- contract checks that need no execution -------------------------------------------------------
 void TestContracts(Harness& harness) {
     const auto caps = harness.context->Capabilities();
@@ -553,6 +637,7 @@ int main() {
     TestStoreMemory(harness);
     TestSse2(harness);
     TestUnregisteredHlt(harness);
+    TestCodeInvalidation(harness);
     printf("\n");
     // Contract checks last: they publish their own stub at the same address.
     TestContracts(harness);

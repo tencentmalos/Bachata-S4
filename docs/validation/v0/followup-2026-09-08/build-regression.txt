@@ -1,0 +1,65 @@
+NDK:   /Users/bytedance/Library/Android/sdk/ndk/29.0.14206865
+API:   35
+build: /Users/bytedance/workspace/emulations/ps4/shadps4/build/fexcore-android
+
+-- Clang version 21.0.0
+-- Has clang::preserve_all
+--  jemalloc glibc allocator disabled!
+ This is not a recommended configuration!
+ This will very explicitly break thunk execution!
+ Use at your own risk!
+-- xxHash build type: RELEASE
+-- Architecture: arm64
+-- {fmt} version: 12.2.0
+-- Build type: RELEASE
+CMake Warning (deprecated) at External/range-v3/CMakeLists.txt:8 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+This warning is for project developers.  Use -Wno-author or -Wno-deprecated
+to suppress it.
+
+CMake Warning at External/range-v3/cmake/ranges_env.cmake:65 (message):
+  [range-v3 warning]: unknown system Android !
+Call Stack (most recent call first):
+  External/range-v3/CMakeLists.txt:24 (include)
+
+
+CMake Warning at External/range-v3/cmake/ranges_env.cmake:92 (message):
+  [range-v3 warning]: unknown build type, defaults to release!
+Call Stack (most recent call first):
+  External/range-v3/CMakeLists.txt:24 (include)
+
+
+-- [range-v3]: C++ std=2a
+-- FEX version: FEX-2608-240-g385a0cc
+-- FEX commit: 385a0cc4d81cd456c8d5c26b4f09cb5a7d8d5842
+-- Has gettid helper
+-- Has tgkill helper
+-- Has statx helper
+-- Has renameat2 helper
+-- Configuring done (0.3s)
+-- Generating done (0.1s)
+-- Build files have been written to: /Users/bytedance/workspace/emulations/ps4/shadps4/build/fexcore-android
+[1/10] Generating CXX dyndep file External/fmt/CMakeFiles/fmt.dir/CXX.dd
+[2/7] Generating CXX dyndep file External/fmt/CMakeFiles/fmt-module.dir/CXX.dd
+[3/5] Generating CXX dyndep file External/fmt/CMakeFiles/fmt-c.dir/CXX.dd
+wrote /Users/bytedance/workspace/emulations/ps4/shadps4/build/fexcore-android/generated-fixtures/guest_fixtures.h
+9 fixture(s), combined sha256 3490fbf5ff4fd39c
+  bare_hlt: 1 bytes, 1 instruction(s)
+  branch: 28 bytes, 6 instruction(s)
+  constant_a: 18 bytes, 3 instruction(s)
+  constant_b: 18 bytes, 3 instruction(s)
+  integer: 26 bytes, 6 instruction(s)
+  loadstore: 17 bytes, 6 instruction(s)
+  return_only: 13 bytes, 2 instruction(s)
+  sse2: 32 bytes, 6 instruction(s)
+  store_memory: 33 bytes, 6 instruction(s)
+
+
+built /Users/bytedance/workspace/emulations/ps4/shadps4/build/fexcore-android/fexcore_bionic_smoke
+built /Users/bytedance/workspace/emulations/ps4/shadps4/build/fexcore-android/guest_execution_tests
+run on a device with: scripts/android/run-fexcore-smoke /Users/bytedance/workspace/emulations/ps4/shadps4/build/fexcore-android

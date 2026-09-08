@@ -1,6 +1,23 @@
 .text
 .intel_syntax noprefix
 
+// Distinct results at the same guest VA expose stale shared/local translations.
+.globl fixture_constant_a
+.globl fixture_constant_a_end
+fixture_constant_a:
+    mov     eax, 17
+    movabs  r15, 0x1122334455667788
+    jmp     r15
+fixture_constant_a_end:
+
+.globl fixture_constant_b
+.globl fixture_constant_b_end
+fixture_constant_b:
+    mov     eax, 34
+    movabs  r15, 0x1122334455667788
+    jmp     r15
+fixture_constant_b_end:
+
 // Guest fixtures for the V0 CPU acceptance cases, assembled from source rather than hand-encoded.
 //
 // Hand-encoding is what produced the R2 defect in the 2026-09-08 review: `49 01 C8` was written

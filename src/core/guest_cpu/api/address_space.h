@@ -43,11 +43,9 @@ struct AddressSpaceConfig final {
 
     // Upper bound on guest addresses, or 0 for no constraint.
     //
-    // A backend may only be able to address part of the host's virtual space:
-    // FEXCore's block lookup masks the guest RIP with its own virtual memory
-    // size, so a guest mapped above that limit aliases onto unrelated cache
-    // entries and executes the wrong block with no diagnostic. Create fails
-    // rather than returning a reservation the backend cannot address.
+    // This can express an embedder's placement policy as well as a backend
+    // limit. FEX's masked lookup index still compares the full guest address;
+    // an index collision alone does not cause execution of an unrelated block.
     //
     // Callers should take this from BackendCapabilities::max_guest_address.
     std::uint64_t max_address{};

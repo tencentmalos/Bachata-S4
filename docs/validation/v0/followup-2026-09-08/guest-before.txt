@@ -1,0 +1,48 @@
+guest execution through the public CPU API
+host page size: 4096
+fixtures: 7, generated from tests/guest_cpu/fixtures/guest_fixtures.S
+
+guest reservation base: 0x7f8000000
+code at 0x7f8010000, stack top 0x7f8023ff0
+return gate at 0xfc0000000
+
+[G01a  ] integer fixture returned through the gate                  PASS
+[G01b  ] add r8, r9 produced the sum                                PASS
+[G01c  ] mov r10, r8 then sub 5                                     PASS
+[G01d  ] xor r11, r11 cleared the register                          PASS
+[G01e  ] snapshot reports GPRs as valid                             PASS
+[G01f  ] snapshot kind is a safe point                              PASS
+[G02a  ] not-taken branch fell through to the mov                   FAIL -- expected 0x1, got 0x0
+[G02b  ] taken branch skipped the mov                               PASS
+[G03a  ] pop rax read back the second push                          FAIL -- expected 0x1111222233334444, got 0x0
+[G03b  ] pop rcx read back the first push                           FAIL -- expected 0xaaaabbbbccccdddd, got 0x0
+[G03c  ] stack pointer is balanced after push/pop                   PASS
+[G07a  ] guest memory below rsp is readable                         PASS
+[G07b  ] store to [rsp-16] landed in guest memory                   FAIL -- expected 0xbadc0de0badc0de, got 0x0
+[G07c  ] store to [rsp-8] landed in guest memory                    FAIL -- expected 0xfeedfacefeedface, got 0x0
+[G07d  ] direct host read agrees with the pinned-span read          PASS -- direct[rsp-16]=0x0 direct[rsp-8]=0x0 (pinned read gave 0x0 / 0x0)
+[G07e  ] guest read back its own store to [rsp-16]                  FAIL -- expected 0xbadc0de0badc0de, got 0x0
+[G07f  ] guest read back its own store to [rsp-8]                   FAIL -- expected 0xfeedfacefeedface, got 0x0
+[G04a  ] paddq result moved back to a GPR                           FAIL -- expected 0x1100000022, got 0x0
+[G04b  ] xmm0 low half holds the packed sum                         FAIL -- expected 0x1100000022, got 0xdeadbeef
+[G04c  ] snapshot reports XMM as valid                              PASS
+[G05a  ] a HLT outside the gate is not reported as Returned         FAIL -- Returned
+[G05b  ] the stop is reported as a guest fault                      FAIL
+[G05c  ] fault carries a guest RIP                                  FAIL
+[G05d  ] snapshot kind is Faulted, not SafePoint                    FAIL
+
+[G06a  ] capabilities declare base integer support                  PASS
+[G06b  ] capabilities declare SSE2 support                          PASS
+[G06c  ] capabilities do not claim AVX                              PASS
+[G06d  ] capabilities report the injected host page size            PASS
+[G06e  ] a second concurrent context is refused with AlreadyActive  PASS
+[G06f  ] an unmapped entry_rip is refused                           PASS
+[G06g  ] Step is refused with Unsupported, not silently run as a block PASS
+[G06h  ] WriteRegisters refuses a stale stop epoch                  PASS
+[G06i  ] a destroyed handle is refused with InvalidHandle           PASS
+
+33 check(s), FAILED (13 failures)
+SCOPE: real x86-64 executed by FEXCore through the public API, from
+       assembler-generated fixtures. Single-threaded; no HLE, interrupt or Step.
+
+exit=1

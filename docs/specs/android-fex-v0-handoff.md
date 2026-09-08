@@ -1,5 +1,9 @@
 # 给执行 AI 的任务书：实现 Android / FEX V0
 
+> **2026-09-08 执行优先级更新**：用户确认 Swan 使用 4 KiB，16 KiB 工作暂缓。先读 [执行质量审核](../validation/v0/review-2026-09-08.md)，以总 spec 顶部的新范围条款为准；不要再以缺少 16 KiB 实机或未完成 16 KiB 适配作为当前阻断。其余真实执行、NDK/bionic、API、HLE、app/Vulkan 要求仍有效。
+
+> **最新实现进展**：[2026-09-08 复核与缓存修复](../validation/v0/followup-2026-09-08.md)。Swan 4 KiB 执行 harness 36/36；完整发布事务、HLE、runner 与 app 门槛仍未完成，不等于 V0 验收通过。
+
 将下面任务交给执行 AI，并提供此仓库访问权限即可。本文不代表已启动任何其他 AI。
 
 ## 执行任务

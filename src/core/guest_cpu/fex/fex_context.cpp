@@ -612,8 +612,9 @@ public:
     [[nodiscard]] Result<void> InvalidateCode(const QuiescenceToken& token, GuestRange range,
                                               InvalidationReason reason) override {
         if (!token.IsValid()) {
-            // Without the token there is no proof that no thread is executing
-            // inside the code about to be discarded.
+            // Require the publication API's token, but it does not yet prove
+            // context-wide quiescence. Check running under lock_ below; a full
+            // publication transaction still needs context/writer admission.
             return BackendError(ErrorCategory::WrongState, "InvalidateCode",
                                 "a valid quiescence token is required to discard translated code");
         }
@@ -626,15 +627,23 @@ public:
             }
         }
 
-        // FEXCore's per-range invalidation is driven through the syscall
-        // handler's callback into the JIT; the entry point available to an
-        // embedder is ClearCodeCache, which drops the thread's translated code
-        // wholesale. That is coarser than the requested range but never stale:
-        // over-invalidating costs recompilation, under-invalidating would let a
-        // thread execute code that no longer exists.
+        auto checked = GuestRange::Checked(range.base, range.size);
+        if (!checked) {
+            return checked.GetError();
+        }
+
+        // CodeBuffer/L3 mappings survive the last guest thread. Clearing only
+        // threads therefore did nothing between destroy/recreate cycles: the
+        // next thread reused the previous fixture's translation at the same VA.
+        // Match FEX's frontend protocol: invalidate shared translations even
+        // with zero threads, then invalidate each live thread's local caches.
+        // Both operations require FEX's exclusive code-invalidation lock.
+        std::scoped_lock code_guard{context_->GetCodeInvalidationMutex()};
+        context_->InvalidateCodeBuffersCodeRange(range.base.value, range.size);
         for (auto& [id, entry] : threads_) {
             if (entry.native != nullptr) {
-                context_->ClearCodeCache(entry.native);
+                context_->InvalidateThreadCachedCodeRange(entry.native, range.base.value,
+                                                          range.size);
             }
         }
         return Result<void>{};

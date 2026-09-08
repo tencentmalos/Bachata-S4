@@ -1,6 +1,10 @@
 # V0 首个验证版：Android NDK/bionic + FEXCore + 16 KiB
 
-状态：**待执行的实现 spec，尚未实现或验收**。编写日期：2026-09-07。需求来源：本次用户明确要求第一个验证版，包含 16 KiB、Dynarmic-like API、NDK/bionic，并交由另一个 AI 执行。
+状态：**执行中，尚未验收**。编写日期：2026-09-07。需求来源：本次用户明确要求第一个验证版，包含 Dynarmic-like API、NDK/bionic，并交由另一个 AI 执行。
+
+> **最新实现进展**：[2026-09-08 复核与缓存修复](../validation/v0/followup-2026-09-08.md)。Swan 4 KiB 执行 harness 36/36；完整发布事务、HLE、runner 与 app 门槛仍未完成，不等于 V0 验收通过。
+
+> **2026-09-08 用户范围调整（优先于下文原始页大小要求）**：当前目标为 Swan / Android 16 / ARM64 / **4 KiB host pages**。16 KiB 适配、16 KiB 实机及同 APK 的双页大小对照后置，不作为本阶段完成阻断；不要求继续修改现有 16 KiB 代码。页大小相关执行用例先按真实 4096-byte host page 验证，专属于 16 KiB 的子页权限用例保留为后续项，不记 PASS。NDK/bionic、真实 guest/HLE/callback、暂停停止、线程/内存安全、有限 Step、普通 app 与原生 Vulkan 等要求保持有效。当前审计与证据见 [2026-09-08 执行审核](../validation/v0/review-2026-09-08.md)。下文保留原始设计供后续恢复 16 KiB 目标时参考。
 
 文档集：
 
