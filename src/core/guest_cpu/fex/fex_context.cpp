@@ -221,6 +221,7 @@ void ForwardPreviousIll(int signal, siginfo_t* info, void* ucontext) {
 // Declared here, defined after InterruptState is complete.
 bool ClaimInterrupt(void* state);
 std::uint32_t PendingInterruptReasons(void* state);
+bool InterruptThreadParked(void* state);
 
 // The kick handler.
 //
@@ -248,6 +249,14 @@ void InterruptSignalHandler(int signal, siginfo_t* info, void* ucontext) {
     if (!ClaimInterrupt(binding->state)) {
         // Ours, but nothing is pending: a stale or duplicate delivery. Consume it silently;
         // forwarding would hand ART a signal it did not send.
+        return;
+    }
+
+    // If the owner is already parked inside SleepThread it is not in the JIT and the pending bit is
+    // already owned by that park: SleepThread will re-check it on wake and either keep waiting or
+    // re-park. Rewriting its PC here would redirect ordinary host code into the dispatcher stub
+    // (the tight pause/resume stress hit this and re-entered the pause-return hlt repeatedly).
+    if (InterruptThreadParked(binding->state)) {
         return;
     }
 
@@ -343,9 +352,42 @@ void PauseReturnSignalHandler(int signal, siginfo_t* info, void* ucontext) {
     if (binding != nullptr && binding->pause_return != 0 && pc == binding->pause_return) {
         const std::uint64_t sp = static_cast<ucontext_t*>(ucontext)->uc_mcontext.sp;
         auto* backup = reinterpret_cast<ArchCtx::ArmContextBackup*>(sp);
+
+        const std::uint32_t reasons = PendingInterruptReasons(binding->state);
+        const std::uint32_t stop_mask =
+            (1u << static_cast<std::uint32_t>(InterruptReason::Cancel)) |
+            (1u << static_cast<std::uint32_t>(InterruptReason::Shutdown));
+        const bool cancel = (reasons & stop_mask) != 0;
+
+        if (cancel && binding->native != nullptr) {
+            // A cancel arrived while parked. Instead of resuming into the guest, take the stop path:
+            // reset SP to the dispatcher entry stack and jump to the stop stub, which pops callee-
+            // saved and rets out of ExecuteThread. Ref counter for this pause is spent.
+            if (binding->native->CurrentFrame->SignalHandlerRefCounter > 0) {
+                --binding->native->CurrentFrame->SignalHandlerRefCounter;
+            }
+            binding->native->CurrentFrame->SignalHandlerRefCounter = 0;
+            const std::uint64_t ret_sp = binding->native->CurrentFrame->ReturningStackLocation;
+            if (ret_sp != 0) {
+                static_cast<ucontext_t*>(ucontext)->uc_mcontext.sp = ret_sp;
+            }
+            // We are at the pause-return, not inside a code buffer (dispatcher stub), so use the
+            // no-spill stop entry.
+            static_cast<ucontext_t*>(ucontext)->uc_mcontext.regs[28] =
+                reinterpret_cast<std::uint64_t>(binding->frame);
+            static_cast<ucontext_t*>(ucontext)->uc_mcontext.pc = binding->stop_no_spill;
+            return;
+        }
+
         if (binding->native != nullptr &&
             binding->native->CurrentFrame->SignalHandlerRefCounter > 0) {
             --binding->native->CurrentFrame->SignalHandlerRefCounter;
+        }
+        if (::getenv("GUEST_CPU_TRACE_SIGILL") != nullptr) {
+            std::fprintf(stderr, "[sigill] pause-return sp=%llx ref=%u\n",
+                         (unsigned long long)sp,
+                         binding->native ? binding->native->CurrentFrame->SignalHandlerRefCounter
+                                         : 0u);
         }
         // RestoreThreadState(TYPE_PAUSE): restore host registers/PC/SP, then the guest frame copy.
         ArchCtx::RestoreContext(ucontext, backup);
@@ -353,7 +395,23 @@ void PauseReturnSignalHandler(int signal, siginfo_t* info, void* ucontext) {
             std::memcpy(&binding->native->CurrentFrame->State, &backup->GuestState,
                         sizeof(FEXCore::Core::CPUState));
         }
+        if (::getenv("GUEST_CPU_TRACE_SIGILL") != nullptr) {
+            std::fprintf(stderr, "[sigill] restored prevpc=%llx prevsp=%llx\n",
+                         (unsigned long long)backup->PrevPC, (unsigned long long)backup->PrevSP);
+        }
         return;
+    }
+    if (::getenv("GUEST_CPU_TRACE_SIGILL") != nullptr) {
+        bool in_buf = false;
+        if (binding != nullptr && binding->fex != nullptr && binding->native != nullptr) {
+            in_buf = binding->fex->IsAddressInCodeBuffer(
+                binding->native, static_cast<uintptr_t>(pc));
+        }
+        std::fprintf(stderr,
+                     "[sigill] unclaimed pc=%llx in_code_buffer=%d pause_return=%llx state=%p\n",
+                     (unsigned long long)pc, int(in_buf),
+                     binding ? (unsigned long long)binding->pause_return : 0ULL,
+                     binding ? binding->state : nullptr);
     }
 #endif
     ForwardPreviousIll(signal, info, ucontext);
@@ -408,6 +466,11 @@ bool ClaimInterrupt(void* state) {
 std::uint32_t PendingInterruptReasons(void* state) {
     auto* interrupt = static_cast<InterruptState*>(state);
     return interrupt != nullptr ? interrupt->pending.load(std::memory_order_acquire) : 0u;
+}
+
+bool InterruptThreadParked(void* state) {
+    auto* interrupt = static_cast<InterruptState*>(state);
+    return interrupt != nullptr && interrupt->parked.load(std::memory_order_acquire);
 }
 
 // Install the kick handler once per process.
@@ -531,37 +594,68 @@ public:
             return;
         }
 
-        // Publish the acknowledgement only now. This is the distinction the spec draws between
-        // "the request was received" and "the thread is stopped": the controller may read state
-        // only after this point.
-        const std::uint64_t epoch = interrupt->request_epoch.load(std::memory_order_acquire);
-        const std::uint32_t reasons = interrupt->pending.load(std::memory_order_acquire);
-        interrupt->stop_reason.store(reasons, std::memory_order_release);
+        const std::uint32_t stop_now =
+            (1u << static_cast<std::uint32_t>(InterruptReason::Cancel)) |
+            (1u << static_cast<std::uint32_t>(InterruptReason::Shutdown));
+        const std::uint32_t pause_bit =
+            1u << static_cast<std::uint32_t>(InterruptReason::Pause);
 
-        {
-            std::unique_lock guard{interrupt->park_lock};
-            interrupt->parked.store(true, std::memory_order_release);
-            interrupt->acked_epoch.store(epoch, std::memory_order_release);
-            interrupt->park_changed.notify_all();
+        // Service loop. The pause stub reaches here after spilling; if a further request arrives
+        // while we are parked -- another pause racing a resume, or a cancel -- the kick cannot
+        // redirect us (we are in ordinary host code, not the JIT), so it leaves its bit and we pick
+        // it up here:
+        //   * a cancel that arrives while parked unwinds (the pause-return hlt is rerouted to the
+        //     stop stub by the SIGILL handler, which reads the same pending bit),
+        //   * a pause that arrives while parked is re-serviced rather than lost to a resume.
+        for (;;) {
+            // Publish the acknowledgement only now. This is the distinction the spec draws between
+            // "the request was received" and "the thread is stopped".
+            const std::uint64_t epoch = interrupt->request_epoch.load(std::memory_order_acquire);
+            const std::uint32_t reasons = interrupt->pending.load(std::memory_order_acquire);
+            interrupt->stop_reason.store(reasons, std::memory_order_release);
 
-            // A Cancel or Shutdown does not park: the owner has to unwind, not wait to be resumed.
-            const std::uint32_t stop_now =
-                (1u << static_cast<std::uint32_t>(InterruptReason::Cancel)) |
-                (1u << static_cast<std::uint32_t>(InterruptReason::Shutdown));
-            if ((reasons & stop_now) == 0) {
-                interrupt->park_changed.wait(guard, [&] {
-                    return interrupt->resume_requested.load(std::memory_order_acquire);
-                });
+            if ((reasons & stop_now) != 0) {
+                // Cancel/Shutdown: do not park. Leave the bits for the SIGILL stop routing and Run's
+                // classification.
+                return;
             }
-            interrupt->parked.store(false, std::memory_order_release);
-            interrupt->resume_requested.store(false, std::memory_order_release);
-        }
 
-        // Clear only the reasons that were satisfied by this stop. A request that arrived while we
-        // were parked keeps its bit and will be serviced on the next kick, rather than being lost
-        // because a Resume happened to run in between.
-        interrupt->pending.fetch_and(~reasons, std::memory_order_acq_rel);
-        interrupt->park_changed.notify_all();
+            {
+                std::unique_lock guard{interrupt->park_lock};
+                interrupt->parked.store(true, std::memory_order_release);
+                interrupt->acked_epoch.store(epoch, std::memory_order_release);
+                interrupt->park_changed.notify_all();
+
+                // Wake on resume OR cancel, so a cancel during park is not a deadlock.
+                interrupt->park_changed.wait(guard, [&] {
+                    const std::uint32_t p = interrupt->pending.load(std::memory_order_acquire);
+                    const bool resumed = interrupt->resume_requested.load(
+                        std::memory_order_acquire);
+                    return resumed || (p & stop_now) != 0;
+                });
+
+                interrupt->parked.store(false, std::memory_order_release);
+                interrupt->resume_requested.store(false, std::memory_order_release);
+            }
+
+            // Re-read: a cancel during park means we must unwind rather than return into the guest.
+            const std::uint32_t after = interrupt->pending.load(std::memory_order_acquire);
+            if ((after & stop_now) != 0) {
+                return;
+            }
+            // This park serviced a pause. Clear that bit and return to the guest unless a newer
+            // pause is still pending: a request whose epoch is ahead of the one we just acked must
+            // be serviced by parking again, with the correct newer epoch, before we resume.
+            interrupt->pending.fetch_and(~pause_bit, std::memory_order_acq_rel);
+            const std::uint64_t acked = interrupt->acked_epoch.load(std::memory_order_acquire);
+            const bool newer_pause =
+                interrupt->request_epoch.load(std::memory_order_acquire) > acked;
+            interrupt->park_changed.notify_all();
+            if (!newer_pause) {
+                return;
+            }
+            // Loop: re-publish the newer epoch and park again.
+        }
     }
 
     // FEXCore calls this once per guest page it has compiled code from, which is the only

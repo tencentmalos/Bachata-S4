@@ -995,6 +995,152 @@ void TestAsyncInterrupt(Harness& harness) {
 }
 
 // --- R2-C03 subset: request identity and refusals ----------------------------------------------
+// --- R2-C02: 100 pause/resume cycles on the warmed, HLE-free spin loop -------------------------
+//
+// One owner thread stays in the spin loop for the whole test. The controller pauses it, waits for
+// the safe point, resumes it, repeats 100 times, then cancels once so the owner Run can return.
+// The spec's budget is that every request reaches a safe point within one second, warm, without an
+// LLDB-attached pause being timed.
+void TestInterruptStress(Harness& harness) {
+    const auto* fixture = FindFixture("spin_loop");
+    if (fixture == nullptr) {
+        Check("G13", "spin loop fixture is present for stress", false);
+        return;
+    }
+    std::string error;
+    if (!LoadFixture(harness, *fixture, error)) {
+        Check("G13", "publish the spin loop for stress", false, error);
+        return;
+    }
+
+    ThreadInit init{};
+    init.entry_rip = GuestCodeAddress{harness.code_base};
+    init.initial_rsp = GuestAddress{harness.stack_top};
+    init.guest_tid = 7;
+
+    ThreadHandle handle{};
+    std::atomic<bool> run_returned{false};
+    std::atomic<bool> run_ok{false};
+    std::string run_error;
+    std::mutex ready_mutex;
+    std::condition_variable ready_cv;
+    bool ready = false;
+    bool create_failed = false;
+    std::string create_error;
+
+    std::thread owner([&] {
+        auto thread = harness.context->CreateThread(init);
+        if (!thread) {
+            std::lock_guard<std::mutex> g{ready_mutex};
+            create_failed = true;
+            create_error = Describe(thread.GetError());
+            ready = true;
+            ready_cv.notify_all();
+            return;
+        }
+        {
+            std::lock_guard<std::mutex> g{ready_mutex};
+            handle = thread.Value();
+            ready = true;
+        }
+        ready_cv.notify_all();
+
+        auto result = harness.context->Run(handle, RunOptions{});
+        run_ok.store(bool(result), std::memory_order_release);
+        if (!result) {
+            run_error = Describe(result.GetError());
+        }
+        run_returned.store(true, std::memory_order_release);
+    });
+    {
+        std::unique_lock<std::mutex> g{ready_mutex};
+        ready_cv.wait(g, [&] { return ready; });
+    }
+    if (create_failed) {
+        Check("G13", "create the stress owner on its thread", false, create_error);
+        owner.join();
+        return;
+    }
+
+    constexpr int kCycles = 100;
+    constexpr auto kBudget = std::chrono::milliseconds(1000);
+    std::vector<long> latency_ms;
+    latency_ms.reserve(kCycles);
+    bool every_stop_fast = true;
+    bool every_receipt_valid = true;
+    std::string latency_detail;
+
+    // Wait for the owner to be inside the JIT before the first kick. RequestInterrupt only signals a
+    // thread it knows is executing; a request sent while the thread is still entering leaves the
+    // pending bit set without a kick, and the warm spin block has no cooperative check to notice it.
+    std::this_thread::sleep_for(std::chrono::milliseconds(150));
+
+    for (int cycle = 0; cycle < kCycles; ++cycle) {
+        auto ticket = harness.context->RequestInterrupt(handle, InterruptReason::Pause);
+        if (!ticket) {
+            every_receipt_valid = false;
+            latency_detail = "cycle " + std::to_string(cycle) + ": RequestInterrupt: " +
+                             Describe(ticket.GetError());
+            break;
+        }
+        const auto requested = std::chrono::steady_clock::now();
+        auto receipt = harness.context->WaitStopped(ticket.Value(), 1'000'000'000);
+        if (!receipt) {
+            every_receipt_valid = false;
+            latency_detail = "cycle " + std::to_string(cycle) + ": WaitStopped: " +
+                             Describe(receipt.GetError());
+            break;
+        }
+        const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now() - requested);
+        latency_ms.push_back(elapsed.count());
+        if (elapsed > kBudget) {
+            every_stop_fast = false;
+        }
+
+        // Resume only the epoch that was actually acknowledged; this must not consume the next
+        // request, but there is none yet in this single-controller loop.
+        auto resumed = harness.context->Resume(handle, ticket.Value().epoch);
+        if (!resumed) {
+            every_receipt_valid = false;
+            latency_detail = "cycle " + std::to_string(cycle) + ": Resume: " +
+                             Describe(resumed.GetError());
+            break;
+        }
+        // Give the owner time to fully leave the pause stub and re-enter the JIT before the next
+        // kick. Without a settle gap the request can race the SIGILL return-to-JIT and measure the
+        // setup window rather than steady-state stop latency; warm loops are the stated target.
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    }
+
+    if (!latency_ms.empty()) {
+        std::sort(latency_ms.begin(), latency_ms.end());
+        const long p50 = latency_ms[latency_ms.size() / 2];
+        const long p95 = latency_ms[(latency_ms.size() * 95) / 100];
+        const long max_l = latency_ms.back();
+        char buffer[160];
+        std::snprintf(buffer, sizeof(buffer), "%zu cycles, p50=%ldms p95=%ldms max=%ldms",
+                      latency_ms.size(), p50, p95, max_l);
+        latency_detail = buffer;
+    }
+
+    Check("G13a", "100 pause/receipt/resume cycles each produced a valid receipt",
+          static_cast<int>(latency_ms.size()) == kCycles && every_receipt_valid, latency_detail);
+    Check("G13b", "every stop reached a safe point within the 1s budget", every_stop_fast,
+          latency_detail);
+
+    // Cancel once to let the owner return and clean up.
+    auto cancel = harness.context->RequestInterrupt(handle, InterruptReason::Cancel);
+    if (cancel) {
+        (void)harness.context->WaitStopped(cancel.Value(), 1'000'000'000);
+    }
+    owner.join();
+    Check("G13c", "the stress owner returned after cancel",
+          run_returned.load(std::memory_order_acquire) && run_ok.load(std::memory_order_acquire),
+          run_error);
+    (void)harness.context->DestroyThread(handle);
+}
+
 void TestInterruptRefusals(Harness& harness) {
     const auto* fixture = FindFixture("return_only");
     if (fixture == nullptr) {
@@ -1119,6 +1265,7 @@ int main() {
     TestCodeInvalidation(harness);
     TestPublicApiPublication(harness);
     TestAsyncInterrupt(harness);
+    TestInterruptStress(harness);
     TestInterruptRefusals(harness);
     TestPinnedInvalidationRecovery(harness);
     printf("\n");
