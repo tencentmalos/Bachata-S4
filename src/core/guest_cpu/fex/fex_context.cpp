@@ -99,14 +99,16 @@ private:
 
 // Real-time signal used to kick an owner out of the JIT.
 //
-// Linux FEX uses 63 (SIGRTMAX). On bionic, SIGRTMIN is raised because the runtime reserves the
-// lowest real-time signals, and ART itself uses some: picking a number that ART also uses would
-// mean stealing its signals or having ours swallowed. SIGRTMAX-1 keeps distance from both bionic's
-// reserved base and ART's usual choices. Recorded in the toolchain lock, and verified at
-// registration rather than assumed.
+// Linux FEX hardcodes 63. That is not portable here: on bionic SIGRTMIN and SIGRTMAX are function
+// calls (__libc_current_sigrtmin/max), because the runtime reserves the lowest real-time signals
+// for itself, and the usable range is decided at runtime rather than by the headers. Taking the
+// top of the range keeps distance from both bionic's reserved base and the low signals ART uses.
+//
+// Resolved once. Every call site is ordinary thread context -- registration, restore and tgkill --
+// so calling into libc here is fine; the signal handler must never do it.
 int InterruptSignal() {
-    // __SIGRTMAX on bionic accounts for the reserved range; SIGRTMAX is the macro form.
-    return SIGRTMAX - 1;
+    static const int cached = SIGRTMAX - 1;
+    return cached;
 }
 
 // Per-thread pointer to the state the handler is allowed to touch.
@@ -279,9 +281,11 @@ Status InstallInterruptHandler() {
         return Ok();
     }
     const int signal_number = InterruptSignal();
-    if (signal_number <= 0 || signal_number > SIGRTMAX) {
+    // The usable real-time range is a runtime property on bionic, so check the resolved number
+    // against it rather than trusting a header constant.
+    if (signal_number < SIGRTMIN || signal_number > SIGRTMAX) {
         return MakeError(ErrorCategory::Unsupported, "InstallInterruptHandler",
-                         "no usable real-time signal on this platform");
+                         "the chosen interrupt signal is outside this platform's real-time range");
     }
 
     struct sigaction action {};
