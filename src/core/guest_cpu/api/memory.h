@@ -166,6 +166,15 @@ public:
     [[nodiscard]] bool OwnerAlive() const noexcept {
         return !owner.expired();
     }
+    // True when this token came from `space` and that space is still alive.
+    //
+    // A backend must check this, not just IsValid(): a token from a different
+    // address space is structurally valid and would otherwise be accepted as
+    // authorisation to discard translations for a space it says nothing about.
+    [[nodiscard]] bool IsFrom(const GuestAddressSpace* space) const noexcept {
+        const auto live = owner.lock();
+        return live != nullptr && space != nullptr && live->space == space;
+    }
 
 private:
     friend class GuestAddressSpace;

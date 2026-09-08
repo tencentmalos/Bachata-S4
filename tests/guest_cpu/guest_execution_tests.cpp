@@ -571,6 +571,32 @@ void TestContracts(Harness& harness) {
     auto after = harness.context->ReadRegisters(thread.Value());
     Check("G06i", "a destroyed handle is refused with InvalidHandle",
           !after && after.Category() == ErrorCategory::InvalidHandle);
+
+    // A token from a different address space is structurally valid, so IsValid() alone would
+    // accept it as authorisation to discard translations for a space it says nothing about.
+    {
+        AddressSpaceConfig other_config{};
+        other_config.reservation_size = std::uint64_t{1} << 24;
+        other_config.max_address = QueryBackendCapabilities().max_guest_address;
+        auto other = GuestAddressSpace::Create(other_config);
+        if (!other) {
+            Check("G06j", "create a second address space for the token identity check", false,
+                  Describe(other.GetError()));
+            return;
+        }
+        auto foreign = other.Value()->Quiesce(/*timeout_ns=*/1'000'000);
+        if (!foreign) {
+            Check("G06j", "quiesce the second address space", false,
+                  Describe(foreign.GetError()));
+            return;
+        }
+        auto refused = harness.context->InvalidateCode(
+            foreign.Value(), GuestRange{GuestAddress{harness.code_base}, kMappingSize},
+            InvalidationReason::HostWrite);
+        Check("G06j", "InvalidateCode refuses a token from another address space",
+              !refused && refused.Category() == ErrorCategory::InvalidArgument,
+              refused ? std::string{"it was accepted"} : Describe(refused.GetError()));
+    }
 }
 
 } // namespace

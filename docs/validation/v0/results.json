@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
   "spec": "android-fex-v0",
-  "run_id": "20260908T051836Z",
-  "timestamp_utc": "2026-09-08T05:18:37.940724+00:00",
+  "run_id": "20260908T052344Z",
+  "timestamp_utc": "2026-09-08T05:23:46.018928+00:00",
   "baseline_commit": "a712889343ccd2588b712988dae0a76a104e0dce",
-  "implementation_commit": "4537f9fec24fd003a639a6d9d8779724c31cfa82",
+  "implementation_commit": "9bcbf83cbc609615690a2ccb559212867f3e3d8b",
   "implementation_branch": "codex/android-fex-v0",
   "working_tree_dirty": true,
   "fex_base_commit": "f2b679f6028ce1c38875233aecfcf5d3f8ebecec",
@@ -66,8 +66,8 @@
     },
     "guest_execution_tests": {
       "binary": "build/fexcore-android/guest_execution_tests",
-      "sha256": "b909d7b0ce7c353d43108243826860f2da0c8d08a7bf80b259e57fb1eb1b682d",
-      "sub_cases": 36,
+      "sha256": "9defe85cefddcfc02625858d8143270b04bcd2ffbebaca68fd2ea1f16b1fbc4b",
+      "sub_cases": 37,
       "failures": 0,
       "ran_on_device": true
     }

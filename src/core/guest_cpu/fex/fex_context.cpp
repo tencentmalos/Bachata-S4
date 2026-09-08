@@ -508,6 +508,7 @@ public:
         std::uint64_t invocation = 0;
         {
             std::lock_guard guard{lock_};
+
             auto* entry = FindOwnedLocked(thread);
             if (entry == nullptr) {
                 return OwnershipError(thread, "Run");
@@ -612,11 +613,15 @@ public:
     [[nodiscard]] Result<void> InvalidateCode(const QuiescenceToken& token, GuestRange range,
                                               InvalidationReason reason) override {
         if (!token.IsValid()) {
-            // Require the publication API's token, but it does not yet prove
-            // context-wide quiescence. Check running under lock_ below; a full
-            // publication transaction still needs context/writer admission.
             return BackendError(ErrorCategory::WrongState, "InvalidateCode",
                                 "a valid quiescence token is required to discard translated code");
+        }
+        // Identity, not just validity. A token from another address space is structurally valid
+        // and would otherwise authorise discarding translations for a space it says nothing about.
+        if (!token.IsFrom(&space_)) {
+            return BackendError(ErrorCategory::InvalidArgument, "InvalidateCode",
+                                "the token belongs to a different address space, or its space has "
+                                "been destroyed");
         }
 
         std::lock_guard guard{lock_};
@@ -631,6 +636,7 @@ public:
         if (!checked) {
             return checked.GetError();
         }
+
 
         // CodeBuffer/L3 mappings survive the last guest thread. Clearing only
         // threads therefore did nothing between destroy/recreate cycles: the

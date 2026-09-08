@@ -157,8 +157,9 @@ return gate at 0xfc0000000
 [G06g  ] Step is refused with Unsupported, not silently run as a block PASS
 [G06h  ] WriteRegisters refuses a stale stop epoch                  PASS
 [G06i  ] a destroyed handle is refused with InvalidHandle           PASS
+[G06j  ] InvalidateCode refuses a token from another address space  PASS -- InvalidArgument in InvalidateCode: the token belongs to a different address space, or its space has been destroyed
 
-36 check(s), ALL PASS (0 failures)
+37 check(s), ALL PASS (0 failures)
 SCOPE: real x86-64 executed by FEXCore through the public API, from
        assembler-generated fixtures. Single-threaded; no HLE, interrupt or Step.
 
