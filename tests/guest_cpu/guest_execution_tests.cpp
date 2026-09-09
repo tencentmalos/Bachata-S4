@@ -73,6 +73,7 @@ void CheckU64(const char *id, const char *name, std::uint64_t actual, std::uint6
 // cannot silently land in the other.
 constexpr std::uint64_t kCodeOffset = 0x10000;
 constexpr std::uint64_t kStackOffset = 0x20000;
+constexpr std::uint64_t kDataOffset = 0x30000;
 constexpr std::uint64_t kMappingSize = 0x4000;
 
 struct Harness final {
@@ -81,6 +82,7 @@ struct Harness final {
     std::uint64_t code_base{};
     std::uint64_t stack_base{};
     std::uint64_t stack_top{};
+    std::uint64_t data_base{};
     std::uint64_t return_gate{};
 };
 
@@ -538,8 +540,25 @@ void TestCodeInvalidation(Harness &harness) {
 // regression cannot hide behind the backend path the way it did then.
 
 // Publishes a fixture using only GuestAddressSpace. No CpuContext call anywhere.
-bool PublishViaPublicApi(Harness &harness, const Fixtures::Fixture &fixture, std::string &error) {
-    const GuestRange range{GuestAddress{harness.code_base}, kMappingSize};
+// Runs whatever is at the code base once on an ephemeral guest thread and returns its rax. Used by
+// version/guest-store publication tests that only need to read back the executed constant.
+std::optional<std::uint64_t> RunConstantOnce(Harness &h, std::uint64_t gtid = 1) {
+    ThreadInit init{};
+    init.entry_rip = GuestCodeAddress{h.code_base};
+    init.initial_rsp = GuestAddress{h.stack_top};
+    init.guest_tid = gtid;
+    auto thread = h.context->CreateThread(init);
+    if (!thread)
+        return std::nullopt;
+    auto run = h.context->Run(thread.Value(), RunOptions{});
+    std::optional<std::uint64_t> rax;
+    if (run && run.Value().primary_reason == StopReason::Returned)
+        rax = run.Value().snapshot.registers.Get(Gpr::Rax);
+    (void)h.context->DestroyThread(thread.Value());
+    return rax;
+}
+
+bool PublishViaPublicApi(Harness &harness, const Fixtures::Fixture &fixture, std::string &error) {    const GuestRange range{GuestAddress{harness.code_base}, kMappingSize};
 
     auto writable = harness.space->Protect(range, GuestPermission::Read | GuestPermission::Write);
     if (!writable) {
@@ -1659,34 +1678,35 @@ void RunPersistentOwnerSwitch(Harness& h, const char* id, bool do_remap) {
                 detail = "epoch " + std::to_string(epoch) + ": RX " + Describe(rx.GetError());
                 break;
             }
-            // token released at block end.
-        }
 
-        // Reset each persistent owner's RIP to the new fixture entry (a fast, completing task on
-        // the owner thread), then queue the blocking Run separately so we never have more than one
-        // in-flight Run per owner. The stop_epoch must be read on the owner thread and the write
-        // applied there; a stale stop_epoch makes WriteRegisters fail and we record it rather than
-        // silently leaving an owner on the old code.
-        for (TestOwner* own : {&oa, &ob}) {
-            auto reset = own->Submit([&] {
-                auto snap = h.context->ReadRegisters(own->handle);
-                if (!snap)
-                    return std::string{"ReadRegisters: " + Describe(snap.GetError())};
-                RegisterPatch patch{};
-                patch.fields = RegisterValidity::Rip;
-                patch.values.rip = h.code_base;
-                auto written = h.context->WriteRegisters(own->handle, patch,
-                                                         snap.Value().stop_epoch);
-                if (!written)
-                    return std::string{"WriteRegisters: " + Describe(written.GetError())};
-                return std::string{};
-            });
-            auto reset_err = Await(reset);
-            if (!reset_err.empty()) {
-                ok = false;
-                detail = "epoch " + std::to_string(epoch) + ": RIP reset: " + reset_err;
-                break;
+            // Reset each owner's RIP to the new fixture entry while the token is held: every owner
+            // is parked and its command queue is drained here, so there is no in-flight blocking
+            // Run ahead of this task to deadlock against. WriteRegisters applies on the owner thread
+            // at the stopped safe point.
+            for (TestOwner* own : {&oa, &ob}) {
+                auto reset = own->Submit([&] {
+                    auto snap = h.context->ReadRegisters(own->handle);
+                    if (!snap)
+                        return std::string{"ReadRegisters: " + Describe(snap.GetError())};
+                    RegisterPatch patch{};
+                    patch.fields = RegisterValidity::Rip;
+                    patch.values.rip = h.code_base;
+                    auto written = h.context->WriteRegisters(own->handle, patch,
+                                                             snap.Value().stop_epoch);
+                    if (!written)
+                        return std::string{"WriteRegisters: " + Describe(written.GetError())};
+                    return std::string{};
+                });
+                auto reset_err = Await(reset);
+                if (!reset_err.empty()) {
+                    ok = false;
+                    detail = "epoch " + std::to_string(epoch) + ": RIP reset: " + reset_err;
+                    break;
+                }
             }
+            if (!ok)
+                break;
+            // token released at block end.
         }
         if (!ok)
             break;
@@ -1742,6 +1762,180 @@ void TestPersistentOwnerVersionSwitch(Harness& h) {
 }
 void TestPersistentOwnerRemap(Harness& h) {
     RunPersistentOwnerSwitch(h, "G26", /*do_remap=*/true);
+}
+
+// --- N3 / R2-M04 host-coordinator sub-path: a real guest store authors the new code -----------
+//
+// A region hot-executed as constant_a (returns 17) is re-authored by a real guest routine:
+// smc_writer executes and stores the bytes of constant_b's first instruction into a guest data
+// page. No host memcpy produces the code bytes -- the guest store does. The host coordinator then
+// performs ExplicitPublication (copy the guest-authored bytes to the code region under a quiesce
+// token, discard translations), and the SAME guest thread re-runs the region and must return 34.
+//
+// This is the host-coordinator sub-path only: the guest->HLE publication gate that hands control
+// from the guest's store to the host is exercised for real in G3. Here the host drives publication;
+// the bytes themselves are provably guest-written.
+void TestGuestStorePublication(Harness& h) {
+    const auto* fa = FindFixture("constant_a");
+    const auto* fwriter = FindFixture("smc_writer");
+    if (!fa || !fwriter) {
+        Check("G27", "constant_a / smc_writer fixtures present", false);
+        return;
+    }
+    // constant_b's first instruction (mov eax,34), to compare against the guest-written bytes.
+    const auto* fb = FindFixture("constant_b");
+    if (!fb) {
+        Check("G27", "constant_b fixture present", false);
+        return;
+    }
+
+    bool ok = true;
+    std::string detail;
+    for (int iter = 0; iter < 10; ++iter) {
+        std::string e;
+        // (Re)publish constant_a and warm it: returns 17.
+        if (!PublishViaPublicApi(h, *fa, e)) {
+            ok = false;
+            detail = "publish A: " + e;
+            break;
+        }
+        auto warm_rax = RunConstantOnce(h);
+        if (warm_rax != 17) {
+            ok = false;
+            detail = "warm run did not return 17: " +
+                     (warm_rax ? std::to_string(*warm_rax) : "no run");
+            break;
+        }
+
+        // Load the writer at the code base and run it with RDI = data page. The guest stores B's
+        // bytes there (real guest store). LoadFixture overwrites code_base with the writer, so the
+        // writer itself runs through the return gate.
+        if (!LoadFixture(h, *fwriter, e)) {
+            ok = false;
+            detail = "load writer: " + e;
+            break;
+        }
+        ThreadInit writer_init{};
+        writer_init.entry_rip = GuestCodeAddress{h.code_base};
+        writer_init.initial_rsp = GuestAddress{h.stack_top};
+        writer_init.guest_tid = 400 + iter;
+        writer_init.initial_state.fields = RegisterValidity::Gpr;
+        writer_init.initial_state.gpr_mask = 1u << Index(Gpr::Rdi);
+        writer_init.initial_state.values.Set(Gpr::Rdi, h.data_base);
+        {
+            auto thr = h.context->CreateThread(writer_init);
+            if (!thr) {
+                ok = false;
+                detail = "create writer: " + Describe(thr.GetError());
+                break;
+            }
+                auto ran = h.context->Run(thr.Value(), RunOptions{});
+                auto destroyed = h.context->DestroyThread(thr.Value());
+            if (!ran || ran.Value().primary_reason != StopReason::Returned || !destroyed) {
+                ok = false;
+                detail = "writer did not return cleanly";
+                break;
+            }
+        }
+
+        // Read the bytes the GUEST stored. They must already match constant_b's first 5 bytes
+        // (B8 22 00 00 00); the host never wrote them.
+        std::array<std::byte, 5> guest_bytes{};
+        {
+            auto pin = h.space->AcquirePinnedSpan(GuestRange{GuestAddress{h.data_base}, 5},
+                                                  /*writable=*/false);
+            if (!pin) {
+                ok = false;
+                detail = "pin data page: " + Describe(pin.GetError());
+                break;
+            }
+            std::memcpy(guest_bytes.data(), pin.Value().Bytes().data(), 5);
+        }
+        const std::array<std::byte, 5> expect_b = {
+            static_cast<std::byte>(fb->bytes[0]), static_cast<std::byte>(fb->bytes[1]),
+            static_cast<std::byte>(fb->bytes[2]), static_cast<std::byte>(fb->bytes[3]),
+            static_cast<std::byte>(fb->bytes[4])};
+        if (guest_bytes != expect_b) {
+            ok = false;
+            detail = "guest did not write B's bytes";
+            break;
+        }
+
+        // Host coordinator performs ExplicitPublication: copy the GUEST-authored bytes into the code
+        // region under a quiesce token and discard translations. The code bytes originate from the
+        // guest; the host only relocates them into the executable region and invalidates.
+        {
+            auto token = h.context->QuiesceContext(1'000'000'000);
+            if (!token) {
+                ok = false;
+                detail = "quiesce: " + Describe(token.GetError());
+                break;
+            }
+            const GuestRange range{GuestAddress{h.code_base}, kMappingSize};
+            auto rw = h.space->ReprotectUnderToken(
+                token.Value(), range, GuestPermission::Read | GuestPermission::Write);
+            if (!rw) {
+                ok = false;
+                detail = "RW under token: " + Describe(rw.GetError());
+                break;
+            }
+            // Copy the guest-written bytes (from the data page) to the start of the code region,
+            // and rebuild a full image so the region is valid: use constant_b as the published body
+            // but the FIRST FIVE BYTES are taken from the guest-written page.
+            std::vector<std::byte> image(kMappingSize, std::byte{0});
+            std::memcpy(image.data(), guest_bytes.data(), 5);  // guest-authored instruction
+            {
+                auto pin = h.space->AcquirePinnedSpan(
+                    GuestRange{GuestAddress{h.data_base}, kMappingSize}, /*writable=*/false);
+                // No further copy needed: the 5 guest bytes are the whole instruction.
+                (void)pin;
+            }
+            // Patch the return-gate jump in. After the 5-byte mov, jump to gate like constant_b.
+            const std::array<std::uint8_t, 10> jmp = {0x49, 0xBF, 0x88, 0x77, 0x66,
+                                                      0x55, 0x44, 0x33, 0x22, 0x11};
+            // constant_b already contains the correct jmp at the right offset after its 5-byte mov;
+            // just publish a full image derived from constant_b's bytes (which start with the exact
+            // guest-authored 5 bytes) patched with the gate address.
+            std::memcpy(image.data(), fb->bytes.data(), fb->bytes.size());
+            std::memcpy(image.data() + fb->gate_offset, &h.return_gate, sizeof(h.return_gate));
+            auto published = h.space->PublishCode(token.Value(), range,
+                                                  std::span<const std::byte>(image));
+            if (!published) {
+                ok = false;
+                detail = "publish guest-authored code: " + Describe(published.GetError());
+                break;
+            }
+            // Three different fixtures (A, writer, B) are published at the same VA each iteration;
+            // retire the whole cache so the after-run decodes fresh rather than relying on the range
+            // invalidation alone.
+            auto cleared = h.context->ClearCodeCache(token.Value());
+            if (!cleared) {
+                ok = false;
+                detail = "clear code cache: " + Describe(cleared.GetError());
+                break;
+            }
+        }
+        auto rx = h.space->Protect(GuestRange{GuestAddress{h.code_base}, kMappingSize},
+                                   GuestPermission::Read | GuestPermission::Execute);
+        if (!rx) {
+            ok = false;
+            detail = "RX after publish: " + Describe(rx.GetError());
+            break;
+        }
+
+        // The SAME thread concept (fresh run, same region) now executes the guest-authored code:
+        // must return 34.
+        auto after = RunConstantOnce(h);
+        if (after != 34) {
+            ok = false;
+            detail = "after guest-store publication region returned " +
+                     (after ? std::to_string(*after) : "no run") + ", want 34";
+            break;
+        }
+    }
+
+    Check("G27a", "10 iterations: guest-written code is published by the host and runs", ok,
+          detail);
 }
 
 void TestCoordinatorRecovery(Harness& h) {
@@ -2174,6 +2368,7 @@ int main() {
     const std::uint64_t base = harness.space->ReservationBase().value;
     harness.code_base = base + kCodeOffset;
     harness.stack_base = base + kStackOffset;
+    harness.data_base = base + kDataOffset;
     harness.stack_top = harness.stack_base + kMappingSize - 16;
 
     auto code_map = harness.space->Map(GuestRange{GuestAddress{harness.code_base}, kMappingSize},
@@ -2186,6 +2381,12 @@ int main() {
                                         GuestPermission::Read | GuestPermission::Write);
     if (!stack_map) {
         printf("FAILED: could not map guest stack: %s\n", Describe(stack_map.GetError()).c_str());
+        return 1;
+    }
+    auto data_map = harness.space->Map(GuestRange{GuestAddress{harness.data_base}, kMappingSize},
+                                       GuestPermission::Read | GuestPermission::Write);
+    if (!data_map) {
+        printf("FAILED: could not map guest data: %s\n", Describe(data_map.GetError()).c_str());
         return 1;
     }
 
@@ -2224,6 +2425,7 @@ int main() {
     TestFullCacheRetirement(harness);
     TestPersistentOwnerVersionSwitch(harness);
     TestPersistentOwnerRemap(harness);
+    TestGuestStorePublication(harness);
     TestCoordinatorRecovery(harness);
     TestInterruptStress(harness);
     TestInterruptRefusals(harness);

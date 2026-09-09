@@ -206,6 +206,23 @@ version_b_again:
     jmp     version_b_again
 fixture_version_b_loop_end:
 
+// R2-M04 / N3 guest-store-then-publish. RDI = code region start. This routine is
+// a real guest: it writes the first instruction of constant_b (`mov eax,34`)
+// into [RDI], i.e. it modifies a region that was hot-executed as constant_a. The
+// host coordinator then performs ExplicitPublication; the same thread re-runs the
+// region and must see B (34). No host memcpy is used to touch the code bytes.
+.globl fixture_smc_writer
+.globl fixture_smc_writer_end
+fixture_smc_writer:
+    mov     byte ptr [rdi + 0], 0xB8   // mov eax, imm32 opcode
+    mov     byte ptr [rdi + 1], 0x22   // 34
+    mov     byte ptr [rdi + 2], 0x00
+    mov     byte ptr [rdi + 3], 0x00
+    mov     byte ptr [rdi + 4], 0x00
+    movabs  r15, 0x1122334455667788
+    jmp     r15
+fixture_smc_writer_end:
+
 // R2-C04: observe owner-written GPR, XMM, MXCSR rounding, FS/GS and RIP.
 // RDI=output; XMM1=1.75. MXCSR toward-zero must make CVTSD2SI produce 1.
 .globl fixture_state_echo
