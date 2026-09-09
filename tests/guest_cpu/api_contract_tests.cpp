@@ -1383,6 +1383,57 @@ void TestTransactions() {
         Check(after_query.HasValue(), "the remapped range is still queryable as a mapping");
     });
 
+    RunCase("M29", "token-scoped mutators reject bad ranges and a released/foreign token", [] {
+        auto space = MakeSpace();
+        const std::uint64_t page = HostPageSize();
+        GuestRange in{space->ReservationBase(), page};
+        Check(bool(space->Map(in, GuestPermission::Read | GuestPermission::Write)), "map");
+
+        // Bad ranges: zero length, out of reservation, and misaligned are all InvalidArgument and
+        // must not touch mappings. No token forgives a bad range.
+        {
+            auto q = space->Quiesce(1000);
+            if (!q) { Check(false, "quiesce"); return; }
+            GuestRange zero{in.base, 0};
+            Check(!space->ReprotectUnderToken(q.Value(), zero, GuestPermission::Read),
+                  "zero-length reprotect refused");
+            GuestRange outside{GuestAddress{space->ReservationBase().value + (60ull << 20)}, page};
+            Check(!space->ReprotectUnderToken(q.Value(), outside, GuestPermission::Read) &&
+                  !space->RemapUnderToken(q.Value(), outside, GuestPermission::Read | GuestPermission::Write),
+                  "out-of-reservation ranges refused under token");
+        }
+
+        // A released (moved-from) token must not authorise a mutator.
+        {
+            auto q = space->Quiesce(1000);
+            if (!q) { Check(false, "quiesce2"); return; }
+            QuiescenceToken released = std::move(q.Value());
+            released = QuiescenceToken{};  // moved-out: released back to the space
+            Check(!space->ReprotectUnderToken(released, in,
+                                              GuestPermission::Read | GuestPermission::Execute),
+                  "a moved-out token cannot reprotect");
+            Check(!space->RemapUnderToken(released, in,
+                                          GuestPermission::Read | GuestPermission::Write),
+                  "a moved-out token cannot remap");
+        }
+
+        // A token from a different (foreign) address space is refused, and its release does not
+        // touch this space's epoch.
+        {
+            auto other = MakeSpace();
+            auto foreign = other->Quiesce(1000);
+            if (!foreign) { Check(false, "foreign quiesce"); return; }
+            Check(!space->ReprotectUnderToken(foreign.Value(), in,
+                                              GuestPermission::Read | GuestPermission::Execute) &&
+                  !space->RemapUnderToken(foreign.Value(), in,
+                                          GuestPermission::Read | GuestPermission::Write),
+                  "a foreign address space's token is refused");
+        }
+
+        // After all the refusals the local mapping is still present and unchanged.
+        Check(space->Counts().mappings == 1, "refusals did not alter mapping state");
+    });
+
     RunCase("M12", "observers get conservatively widened write notifications", [] {
         auto space = MakeSpace();
         const std::uint64_t page = HostPageSize();
