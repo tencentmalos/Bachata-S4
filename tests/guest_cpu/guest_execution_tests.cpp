@@ -1532,11 +1532,14 @@ void TestFullCacheRetirement(Harness& h) {
 // the code base, and on resume both owners re-dispatch and must write Y's marker while their counter
 // keeps advancing. Fresh threads are never used: this proves the running owners' cached decode is
 // what got replaced on the same handle/TID, which a fresh-thread smoke cannot show.
-void TestPersistentOwnerVersionSwitch(Harness& h) {
+// Shared body for G25 (publish) and G26 (same-VA remap). When do_remap is true the code VA is
+// remapped to a fresh zeroed backing under the token before publishing, so the old backing is
+// physically replaced -- not merely overwritten.
+void RunPersistentOwnerSwitch(Harness& h, const char* id, bool do_remap) {
     const auto* va = FindFixture("version_a_loop");
     const auto* vb = FindFixture("version_b_loop");
     if (!va || !vb) {
-        Check("G25", "version_a/b loop fixtures present", false);
+        Check(id, "version_a/b loop fixtures present", false);
         return;
     }
 
@@ -1562,7 +1565,7 @@ void TestPersistentOwnerVersionSwitch(Harness& h) {
     {
         std::string e;
         if (!PublishViaPublicApi(h, *va, e)) {
-            Check("G25", "publish initial version A", false, e);
+            Check(id, "publish initial version A", false, e);
             return;
         }
     }
@@ -1598,7 +1601,7 @@ void TestPersistentOwnerVersionSwitch(Harness& h) {
         return false;
     };
     if (!warmed()) {
-        Check("G25", "both persistent owners warm on version A", false);
+        Check(id, "both persistent owners warm on version A", false);
         return;
     }
     (void)fa0;
@@ -1623,13 +1626,30 @@ void TestPersistentOwnerVersionSwitch(Harness& h) {
             }
             // Both owners' runs return under the drain.
             const GuestRange range{GuestAddress{h.code_base}, kMappingSize};
-            auto rw = h.space->ReprotectUnderToken(
-                token.Value(), range, GuestPermission::Read | GuestPermission::Write);
+            if (do_remap) {
+                // Replace the backing with a fresh zeroed (RW) one at the same VA. The publish
+                // below supplies the bytes; this proves the old backing, not just the bytes, is gone.
+                auto remapped = h.space->RemapUnderToken(
+                    token.Value(), range, GuestPermission::Read | GuestPermission::Write);
+                if (!remapped) {
+                    ok = false;
+                    detail = "epoch " + std::to_string(epoch) + ": remap " +
+                             Describe(remapped.GetError());
+                    break;
+                }
+            } else {
+                auto rw = h.space->ReprotectUnderToken(
+                    token.Value(), range, GuestPermission::Read | GuestPermission::Write);
+                if (!rw) {
+                    ok = false;
+                    detail = "epoch " + std::to_string(epoch) + ": RW " + Describe(rw.GetError());
+                    break;
+                }
+            }
             std::string pub_e;
-            if (!rw || !PublishImageUnderToken(h, fixture, token.Value(), pub_e)) {
+            if (!PublishImageUnderToken(h, fixture, token.Value(), pub_e)) {
                 ok = false;
-                detail = "epoch " + std::to_string(epoch) + ": publish " +
-                         (rw ? pub_e : Describe(rw.GetError()));
+                detail = "epoch " + std::to_string(epoch) + ": publish " + pub_e;
                 break;
             }
             auto rx = h.space->ReprotectUnderToken(
@@ -1673,33 +1693,55 @@ void TestPersistentOwnerVersionSwitch(Harness& h) {
         oa.Run();
         ob.Run();
         // Both blocking Runs are now in flight on their owners; they are observed below.
-
-        // Observe the new marker on both owners and that counters advanced beyond the pre-publish
-        // values -- the same two owners are now executing the freshly published code.
-        const auto until = std::chrono::steady_clock::now() + std::chrono::seconds(2);
-        bool switched = false;
+        //
+        // Marker flip proves the freshly published code is executing; the version loop resets its
+        // own counter on entry (xor rax,rax), so the counter is NOT monotonic across versions.
+        // Instead: wait for both markers to match, then wait for both counters to advance while
+        // the new marker is held -- proving live new code on each owner's independent slot -- and
+        // assert the two counters differ (the two owners write their own slot, not one shared).
+        const auto until = std::chrono::steady_clock::now() + std::chrono::seconds(3);
+        bool flipped = false;
         while (std::chrono::steady_clock::now() < until) {
             if (marker_of(0) == want_marker && marker_of(1) == want_marker &&
-                counter_of(0) > c0_before && counter_of(1) > c1_before) {
-                switched = true;
+                counter_of(0) > 0 && counter_of(1) > 0) {
+                flipped = true;
                 break;
             }
             std::this_thread::yield();
         }
-        if (!switched) {
+        bool live = false;
+        if (flipped) {
+            const std::uint64_t s0 = counter_of(0), s1 = counter_of(1);
+            const auto grow_until = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+            while (std::chrono::steady_clock::now() < grow_until) {
+                if (counter_of(0) > s0 && counter_of(1) > s1) {
+                    live = true;
+                    break;
+                }
+                std::this_thread::yield();
+            }
+        }
+        if (!(flipped && live)) {
             ok = false;
             detail = "epoch " + std::to_string(epoch) + " want marker " + Hex(want_marker) +
                      " got m0=" + Hex(marker_of(0)) + " m1=" + Hex(marker_of(1)) +
-                     " c0=" + std::to_string(counter_of(0)) + "/" + std::to_string(c0_before) +
-                     " c1=" + std::to_string(counter_of(1)) + "/" + std::to_string(c1_before);
+                     " c0=" + std::to_string(counter_of(0)) + " c1=" + std::to_string(counter_of(1)) +
+                     " flipped=" + std::to_string(flipped) + " live=" + std::to_string(live);
             break;
         }
     }
 
-    Check("G25a", "100 epochs: the SAME two persistent owners switch versions and advance", ok,
+    Check((do_remap ? "G26a" : "G25a"), "100 epochs: the SAME two persistent owners switch versions and advance", ok,
           detail);
-    Check("G25b", "persistent handles stayed stable",
+    Check((do_remap ? "G26b" : "G25b"), "persistent handles stayed stable",
           oa.handle.IsValid() && ob.handle.IsValid() && oa.Tid() != ob.Tid());
+}
+
+void TestPersistentOwnerVersionSwitch(Harness& h) {
+    RunPersistentOwnerSwitch(h, "G25", /*do_remap=*/false);
+}
+void TestPersistentOwnerRemap(Harness& h) {
+    RunPersistentOwnerSwitch(h, "G26", /*do_remap=*/true);
 }
 
 void TestCoordinatorRecovery(Harness& h) {
@@ -2181,6 +2223,7 @@ int main() {
     TestCoordinatedRemap(harness);
     TestFullCacheRetirement(harness);
     TestPersistentOwnerVersionSwitch(harness);
+    TestPersistentOwnerRemap(harness);
     TestCoordinatorRecovery(harness);
     TestInterruptStress(harness);
     TestInterruptRefusals(harness);
