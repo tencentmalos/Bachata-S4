@@ -1057,6 +1057,74 @@ void TestTransactions() {
         space->ClearCodeInvalidationSink(&replacement);
     });
 
+    RunCase("M21", "token-scoped remap and reprotect need a valid quiescence token", [] {
+        auto space = MakeSpace();
+        const std::uint64_t page = HostPageSize();
+        GuestRange range{space->ReservationBase(), page};
+        Check(bool(space->Map(range, GuestPermission::Read | GuestPermission::Write)), "map");
+        // An invalid (default-constructed) token is refused, and nothing is remapped.
+        QuiescenceToken stale{};
+        auto remapped = space->RemapUnderToken(stale, range,
+                                               GuestPermission::Read | GuestPermission::Write);
+        Check(!remapped && remapped.GetError().category == ErrorCategory::InvalidArgument,
+              "remap without a token must be refused");
+        auto reprotect = space->ReprotectUnderToken(stale, range,
+                                                    GuestPermission::Read | GuestPermission::Execute);
+        Check(!reprotect && reprotect.GetError().category == ErrorCategory::InvalidArgument,
+              "reprotect without a token must be refused");
+    });
+
+    RunCase("M22", "remap under a token zeroes the backing and advances the mapping generation", [] {
+        auto space = MakeSpace();
+        const std::uint64_t page = HostPageSize();
+        GuestRange range{space->ReservationBase(), page};
+        Check(bool(space->Map(range, GuestPermission::Read | GuestPermission::Write)), "map");
+        {
+            auto pin = space->AcquirePinnedSpan(range, true);
+            Check(pin.HasValue(), "pin");
+            pin.Value().WritableBytes()[0] = std::byte{0x5A};
+        }
+        const auto before = space->MappingGeneration();
+        {
+            auto q = space->Quiesce(1000);
+            if (!q) { Check(false, "quiesce"); return; }
+            auto remapped = space->RemapUnderToken(q.Value(), range,
+                                                   GuestPermission::Read | GuestPermission::Write);
+            Check(remapped.HasValue(), "remap under token must succeed");
+        }
+        Check(space->MappingGeneration() > before, "mapping generation must advance");
+        // The fresh backing must be zeroed; the old byte cannot survive.
+        auto pin = space->AcquirePinnedSpan(GuestRange{range.base, 1}, false);
+        Check(pin.HasValue() && pin.Value().Bytes()[0] == std::byte{0},
+              "remap must replace the backing with zeroed memory");
+    });
+
+    RunCase("M23", "reprotect under a token cannot grant execute over poisoned code", [] {
+        struct Sink final : CodeInvalidationSink {
+            std::string_view Name() const override { return "m23"; }
+            Status DiscardTranslations(GuestRange, InvalidationReason) override {
+                return MakeError(ErrorCategory::BackendFailure, "m23", "injected");
+            }
+        } sink;
+        auto space = MakeSpace();
+        const std::uint64_t page = HostPageSize();
+        GuestRange range{space->ReservationBase(), page};
+        Check(bool(space->Map(range, GuestPermission::Read | GuestPermission::Write)), "map");
+        Check(bool(space->SetCodeInvalidationSink(&sink)), "register sink");
+        {
+            auto q = space->Quiesce(1000);
+            if (!q) { Check(false, "quiesce"); return; }
+            std::vector<std::byte> code(page, std::byte{0x90});
+            Check(!space->PublishCode(q.Value(), range, code), "publication must fail and poison");
+            // Even the token-scoped path must not re-grant execute over poisoned code.
+            auto rx = space->ReprotectUnderToken(q.Value(), range,
+                                                 GuestPermission::Read | GuestPermission::Execute);
+            Check(!rx && rx.GetError().category == ErrorCategory::WrongState,
+                  "execute over poisoned code must be refused even under a token");
+        }
+        space->ClearCodeInvalidationSink(&sink);
+    });
+
     RunCase("M12", "observers get conservatively widened write notifications", [] {
         auto space = MakeSpace();
         const std::uint64_t page = HostPageSize();
