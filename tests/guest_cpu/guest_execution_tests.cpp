@@ -1228,6 +1228,121 @@ void TestCoordinatedPublication(Harness &h) {
     Check("G20b", "both owners resume and progress after quiesce", progressed_after);
 }
 
+// Publish a fixture's bytes at the code base under an already-held token, leaving the mapping RW so
+// the caller controls when to re-grant execute. Returns the image size in bytes written.
+bool PublishImageUnderToken(Harness &h, const Fixtures::Fixture &fixture,
+                            const QuiescenceToken &token, std::string &error) {
+    const GuestRange range{GuestAddress{h.code_base}, kMappingSize};
+    std::vector<std::byte> image(kMappingSize, std::byte{0});
+    if (fixture.bytes.size() > image.size()) {
+        error = "fixture too large";
+        return false;
+    }
+    std::memcpy(image.data(), fixture.bytes.data(), fixture.bytes.size());
+    if (fixture.gate_offset >= 0) {
+        std::memcpy(image.data() + fixture.gate_offset, &h.return_gate, sizeof(h.return_gate));
+    }
+    auto published = h.space->PublishCode(token, range, image);
+    if (!published) {
+        error = "PublishCode: " + Describe(published.GetError());
+        return false;
+    }
+    return true;
+}
+
+// --- R2-M01: 100 coordinated publish epochs, two owners run the new version --------------------
+//
+// Each epoch the coordinator takes a context quiesce and publishes a constant fixture (A or B) at
+// the code base; after the token drops, two fresh guest runs -- two distinct owners -- return
+// through the gate carrying the new constant. Running-owner stop itself is G20; this test proves
+// the stop/publish/discard/commit path reproduces across 100 epochs and that both owners always
+// observe the just-published version rather than a stale translation.
+void TestCoordinatedVersionSwitch(Harness &h) {
+    const auto *a_fixture = FindFixture("constant_a");
+    const auto *b_fixture = FindFixture("constant_b");
+    if (!a_fixture || !b_fixture) {
+        Check("G21", "constant_a/b fixtures present", false);
+        return;
+    }
+    {
+        std::string e;
+        if (!PublishViaPublicApi(h, *a_fixture, e)) {
+            Check("G21", "publish initial constant_a", false, e);
+            return;
+        }
+    }
+
+    auto run_constant = [&](std::uint64_t gtid, std::uint64_t stack_delta)
+                            -> std::optional<std::uint64_t> {
+        ThreadInit init{};
+        init.entry_rip = GuestCodeAddress{h.code_base};
+        init.initial_rsp = GuestAddress{h.stack_top - stack_delta};
+        init.guest_tid = gtid;
+        auto created = h.context->CreateThread(init);
+        if (!created)
+            return std::nullopt;
+        auto result = h.context->Run(created.Value(), RunOptions{});
+        std::optional<std::uint64_t> rax;
+        if (result && result.Value().primary_reason == StopReason::Returned) {
+            rax = result.Value().snapshot.registers.Get(Gpr::Rax);
+        }
+        (void)h.context->DestroyThread(created.Value());
+        return rax;
+    };
+
+    bool all_new = true;
+    std::string detail;
+    for (int epoch = 0; epoch < 100; ++epoch) {
+        const bool use_b = (epoch % 2) == 0;
+        const std::uint64_t expected = use_b ? 34u : 17u;
+        const Fixtures::Fixture &fixture = use_b ? *b_fixture : *a_fixture;
+
+        // A context quiesce with no running owners still yields a token (coordinator readiness).
+        // Publish the new bytes under it.
+        {
+            auto token = h.context->QuiesceContext(1'000'000'000);
+            if (!token) {
+                all_new = false;
+                detail = "epoch " + std::to_string(epoch) + ": quiesce: " +
+                         Describe(token.GetError());
+                break;
+            }
+            auto w = h.space->ReprotectUnderToken(
+                token.Value(), GuestRange{GuestAddress{h.code_base}, kMappingSize},
+                GuestPermission::Read | GuestPermission::Write);
+            std::string pub_error;
+            if (!w || !PublishImageUnderToken(h, fixture, token.Value(), pub_error)) {
+                all_new = false;
+                detail = "epoch " + std::to_string(epoch) + ": " +
+                         (w ? pub_error : Describe(w.GetError()));
+                break;
+            }
+        }
+        auto rx = h.space->Protect(GuestRange{GuestAddress{h.code_base}, kMappingSize},
+                                   GuestPermission::Read | GuestPermission::Execute);
+        if (!rx) {
+            all_new = false;
+            detail = "epoch " + std::to_string(epoch) + ": Protect(RX): " + Describe(rx.GetError());
+            break;
+        }
+
+        // Two distinct owners both execute the new code. A stale translation of the previous
+        // fixture would give the wrong constant on one or both runs.
+        auto ra_a = run_constant(200 + epoch * 2, 0);
+        auto ra_b = run_constant(201 + epoch * 2, 8192);
+        if (!ra_a || !ra_b || *ra_a != expected || *ra_b != expected) {
+            all_new = false;
+            detail = "epoch " + std::to_string(epoch) + ": expected " + std::to_string(expected) +
+                     " got a=" + (ra_a ? std::to_string(*ra_a) : "none") +
+                     " b=" + (ra_b ? std::to_string(*ra_b) : "none");
+            break;
+        }
+    }
+
+    Check("G21a", "100 coordinated publish epochs: both owners run the new constant", all_new,
+          detail);
+}
+
 std::atomic<bool> hold_entered{false}, hold_release{false};
 void HoldOwnerSignal(int) {
     hold_entered.store(true, std::memory_order_release);
@@ -1648,6 +1763,7 @@ int main() {
     TestAsyncInterrupt(harness);
     TestTwoOwnerConcurrency(harness);
     TestCoordinatedPublication(harness);
+    TestCoordinatedVersionSwitch(harness);
     TestInterruptStress(harness);
     TestInterruptRefusals(harness);
     TestInterruptInterleavings(harness);

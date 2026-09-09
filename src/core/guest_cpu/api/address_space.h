@@ -203,6 +203,14 @@ public:
     [[nodiscard]] Status PublishCode(const QuiescenceToken& token, GuestRange range,
                                      std::span<const std::byte> code);
 
+    // Reprotect a range inside a held transaction. Ordinary Protect refuses to run during
+    // quiescence (the mapping-mutation Busy guard must stay), so a coordinated remap uses this:
+    // the token proves every owner is stopped, which is exactly the precondition for flipping a
+    // code range between RW and RX. The poison rule still applies: execute cannot be granted over
+    // a failed publication.
+    [[nodiscard]] Status ReprotectUnderToken(const QuiescenceToken& token, GuestRange range,
+                                             GuestPermission permission);
+
     // Registers the backend that owns translated code. One at a time: a second
     // registration is refused rather than silently replacing the first, since
     // that would leave the displaced backend's caches unreachable by any

@@ -995,6 +995,52 @@ Status GuestAddressSpace::PublishCode(const QuiescenceToken& token, GuestRange r
     return Ok();
 }
 
+Status GuestAddressSpace::ReprotectUnderToken(const QuiescenceToken& token, GuestRange range,
+                                              GuestPermission permission) {
+    if (!IsHostPageAligned(range.base.value) || !IsHostPageAligned(range.size)) {
+        return MakeError(ErrorCategory::Unsupported, "GuestAddressSpace::ReprotectUnderToken",
+                         "range must be host-page aligned; nothing was modified");
+    }
+    std::lock_guard guard{lock};
+    if (auto status = CheckTokenLocked(token, "GuestAddressSpace::ReprotectUnderToken");
+        !status) {
+        return status;
+    }
+    const auto found = std::find_if(mappings.begin(), mappings.end(), [&](const Mapping& m) {
+        return m.range.base.value == range.base.value && m.range.size == range.size;
+    });
+    if (found == mappings.end()) {
+        return MakeError(ErrorCategory::InvalidArgument,
+                         "GuestAddressSpace::ReprotectUnderToken",
+                         "range is not an exact whole mapping; nothing was modified");
+    }
+    if (AnyPinOverlapsLocked(range)) {
+        return MakeError(ErrorCategory::Busy, "GuestAddressSpace::ReprotectUnderToken",
+                         "a pinned span overlaps this range");
+    }
+    // Poison still blocks execute: a failed publication must not become reachable by reprotecting it
+    // inside a later, unrelated transaction.
+    if (HasPermission(permission, GuestPermission::Execute) &&
+        std::any_of(poisoned_ranges.begin(), poisoned_ranges.end(),
+                    [&](GuestRange poisoned) { return RangesOverlap(range, poisoned); })) {
+        return MakeError(ErrorCategory::WrongState,
+                         "GuestAddressSpace::ReprotectUnderToken",
+                         "code publication failed over this range and has not been repaired");
+    }
+    if (::mprotect(HostPointer(range.base), static_cast<std::size_t>(range.size),
+                   ToHostProtection(permission)) != 0) {
+        const int saved = errno;
+        auto error = MakeError(CategoriseMapFailure(saved),
+                               "GuestAddressSpace::ReprotectUnderToken",
+                               "mprotect failed; mapping permissions unchanged");
+        error.system_error = saved;
+        return error;
+    }
+    found->permission = permission;
+    ++mapping_generation;
+    return Ok();
+}
+
 // Requires lock. Poison clears only when the range that failed has itself been republished or
 // invalidated successfully. Clearing on any successful publication anywhere would let an unrelated
 // range re-enable execution of the still-stale one.
