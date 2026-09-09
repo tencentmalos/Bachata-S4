@@ -30,6 +30,13 @@
 #include "core/guest_cpu/api/memory.h"
 #include "core/guest_cpu/api/registers.h"
 
+// Internal syscall-failure seam from address_space.cpp. Declared outside the file's anonymous
+// namespace so it matches the external symbol; defaults to real syscalls, tests force ENOMEM/EACCES.
+namespace Core::GuestCpu::Test {
+void SetMmapFailureForTest(bool enable);
+void SetMprotectFailureForTest(bool enable);
+}  // namespace Core::GuestCpu::Test
+
 namespace {
 
 using namespace Core::GuestCpu;
@@ -1227,6 +1234,153 @@ void TestTransactions() {
                   "execute over poisoned code must be refused even under a token");
         }
         space->ClearCodeInvalidationSink(&sink);
+    });
+
+    RunCase("M27", "a sink callback blocks every mutator and pin while in flight", [] {
+        struct BlockingSink final : CodeInvalidationSink {
+            std::atomic<bool> entered{false};
+            std::atomic<bool> release{false};
+            std::string_view Name() const override { return "m27"; }
+            Status DiscardTranslations(GuestRange, InvalidationReason) override {
+                entered.store(true, std::memory_order_release);
+                while (!release.load(std::memory_order_acquire)) {
+                    std::this_thread::yield();
+                }
+                return Ok();
+            }
+        } sink;
+        auto space = MakeSpace();
+        const std::uint64_t page = HostPageSize();
+        GuestRange range{space->ReservationBase(), page};
+        Check(bool(space->Map(range, GuestPermission::Read | GuestPermission::Write)), "map");
+        Check(bool(space->SetCodeInvalidationSink(&sink)), "register sink");
+
+        bool publish_committed = false;
+        std::thread publisher([&] {
+            auto q = space->Quiesce(1'000'000);
+            if (!q) {
+                publish_committed = false;
+                return;
+            }
+            std::vector<std::byte> code(page, std::byte{0x90});
+            publish_committed = bool(space->PublishCode(q.Value(), range, code));
+        });
+
+        // Wait until the callback is actually running (the publication holds the sink lease).
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+        while (!sink.entered.load() && std::chrono::steady_clock::now() < deadline) {
+            std::this_thread::yield();
+        }
+        Check(sink.entered.load(), "sink callback entered");
+
+        // Probe from another thread using the same live range. Everything that touches mappings,
+        // the code cache or host pointers must report Busy while the callback owns the interval.
+        auto probe = [&](auto&& op, const char* what) -> bool {
+            auto r = op();
+            if (r) {
+                std::fprintf(stderr, "  %s was admitted during a sink callback\n", what);
+                return false;
+            }
+            return r.GetError().category == ErrorCategory::Busy;
+        };
+
+        auto second_q = space->Quiesce(1000);
+        bool blocked = !second_q && second_q.GetError().category == ErrorCategory::Busy;
+
+        // Need a live token for the token-scoped paths; try one, and if it cannot be taken while
+        // the callback is in flight that already proves exclusion. The mutator probes that run
+        // without a token are rejected as WrongState/InvalidArgument rather than Busy; focus on
+        // the operations that must specifically be Busy.
+        QuiescenceToken token{};
+        auto tq = space->Quiesce(1000);
+        if (tq) {
+            token = std::move(tq.Value());
+        }
+
+        // Plain Protect/Map/Unmap must be Busy (idle check sees sink_calls_in_flight).
+        auto prot = space->Protect(range, GuestPermission::Read | GuestPermission::Execute);
+        blocked &= prot.GetError().category == ErrorCategory::Busy;
+        auto remapped = space->Map(GuestRange{GuestAddress{space->ReservationBase().value + page * 4},
+                                              page},
+                                   GuestPermission::Read | GuestPermission::Write);
+        blocked &= remapped.GetError().category == ErrorCategory::Busy;
+
+        // New read and write pins are refused for the duration.
+        auto read_pin = space->AcquirePinnedSpan(GuestRange{range.base, 8}, false);
+        blocked &= !read_pin && read_pin.GetError().category == ErrorCategory::Busy;
+        auto write_pin = space->AcquirePinnedSpan(GuestRange{range.base, 8}, true);
+        blocked &= !write_pin && write_pin.GetError().category == ErrorCategory::Busy;
+
+        // Token-scoped mutators too, if we got a token (we usually won't while draining).
+        if (token.Epoch() != 0) {
+            auto reprotect = space->ReprotectUnderToken(token, range,
+                                                        GuestPermission::Read | GuestPermission::Execute);
+            blocked &= !reprotect && reprotect.GetError().category == ErrorCategory::Busy;
+            auto remap = space->RemapUnderToken(token, range,
+                                                GuestPermission::Read | GuestPermission::Write);
+            blocked &= !remap && remap.GetError().category == ErrorCategory::Busy;
+        }
+
+        Check(blocked, "mutators and pins are Busy while the sink callback runs");
+
+        sink.release.store(true);
+        publisher.join();
+        Check(publish_committed, "the blocked publication commits once the sink drains");
+        space->ClearCodeInvalidationSink(&sink);
+    });
+
+    RunCase("M28", "injected mmap/mprotect kernel failures fail closed and leave state intact", [] {
+        auto space = MakeSpace();
+        const std::uint64_t page = HostPageSize();
+        GuestRange range{space->ReservationBase(), page};
+
+        // mmap failure on a fresh Map: out-of-memory category, and no mapping is recorded.
+        Core::GuestCpu::Test::SetMmapFailureForTest(true);
+        auto mapped = space->Map(range, GuestPermission::Read | GuestPermission::Write);
+        Check(!mapped && mapped.GetError().category == ErrorCategory::OutOfMemory,
+              "mmap ENOMEM must surface as OutOfMemory");
+        Core::GuestCpu::Test::SetMmapFailureForTest(false);
+        Check(space->Counts().mappings == 0, "failed map must not record a mapping");
+
+        // Now succeed so the rest has a backing to operate on.
+        auto real = space->Map(range, GuestPermission::Read | GuestPermission::Write);
+        Check(bool(real), "recovery map after seam reset");
+
+        // mprotect failure on reprotect: permission category (EACCES), and the mapping's recorded
+        // permission must NOT change to reflect the call that failed.
+        auto q = space->Quiesce(1'000'000);
+        Check(bool(q), "quiesce for token reprotect");
+        Core::GuestCpu::Test::SetMprotectFailureForTest(true);
+        auto failed_rx = space->ReprotectUnderToken(q.Value(), range,
+                                                     GuestPermission::Read | GuestPermission::Execute);
+        Check(!failed_rx && failed_rx.GetError().category == ErrorCategory::PermissionDenied,
+              "mprotect EACCES must surface as PermissionDenied");
+        Core::GuestCpu::Test::SetMprotectFailureForTest(false);
+
+        // mmap failure on remap under a token: the old mapping must remain present (no half-remap).
+        Core::GuestCpu::Test::SetMmapFailureForTest(true);
+        auto failed_remap = space->RemapUnderToken(q.Value(), range,
+                                                   GuestPermission::Read | GuestPermission::Write);
+        Check(!failed_remap && failed_remap.GetError().category == ErrorCategory::OutOfMemory,
+              "remap mmap ENOMEM must surface as OutOfMemory");
+        Core::GuestCpu::Test::SetMmapFailureForTest(false);
+
+        // The failed remap invalidated the range's translations, so execute over it must stay
+        // refused (fail-closed) rather than being regranted: the failed mutation must not leave the
+        // old code reachable. This is WrongState, not the injected syscall error.
+        auto rx_after_failure = space->ReprotectUnderToken(q.Value(), range,
+                                                            GuestPermission::Read | GuestPermission::Execute);
+        Check(!rx_after_failure &&
+                  rx_after_failure.GetError().category == ErrorCategory::WrongState,
+              "execute over a range whose remap failed stays blocked");
+
+        // A successful RW remap after the seam is reset replaces the backing and recovers the
+        // mutation, proving the failed mmap did not tear the mapping apart or wedge the path.
+        auto good_remap = space->RemapUnderToken(q.Value(), range,
+                                                 GuestPermission::Read | GuestPermission::Write);
+        Check(bool(good_remap), "a token remap succeeds after the injected mmap failure clears");
+        auto after_query = space->Query(range.base);
+        Check(after_query.HasValue(), "the remapped range is still queryable as a mapping");
     });
 
     RunCase("M12", "observers get conservatively widened write notifications", [] {

@@ -4,6 +4,7 @@
 #include "core/guest_cpu/api/address_space.h"
 
 #include <algorithm>
+#include <atomic>
 #include <cerrno>
 #include <chrono>
 #include <cstring>
@@ -13,6 +14,51 @@
 #include <unistd.h>
 
 namespace Core::GuestCpu {
+namespace {
+
+// Test seam for mmap/mprotect results. Production always calls the real syscall; the wrappers below
+// default to invoking it. Contract tests (which link this TU) can install a hook to force a kernel
+// failure, so the error identity and fail-closed behaviour can be exercised deterministically
+// without relying on resource exhaustion. The hooks are not reachable from the public API headers.
+using MmapFn = void* (*)(void*, size_t, int, int, int, off_t);
+using ProtectFn = int (*)(void*, size_t, int);
+std::atomic<MmapFn> g_mmap_hook{nullptr};
+std::atomic<ProtectFn> g_protect_hook{nullptr};
+
+void* SeamMmap(void* addr, size_t length, int prot, int flags, int fd, off_t off) {
+    auto hook = g_mmap_hook.load(std::memory_order_acquire);
+    return hook ? hook(addr, length, prot, flags, fd, off)
+                : ::mmap(addr, length, prot, flags, fd, off);
+}
+int SeamMprotect(void* addr, size_t length, int prot) {
+    auto hook = g_protect_hook.load(std::memory_order_acquire);
+    return hook ? hook(addr, length, prot) : ::mprotect(addr, length, prot);
+}
+
+} // namespace
+
+// Internal test controls. Not declared in any public header; declared here for the contract test
+// that links this translation unit. We are inside namespace Core::GuestCpu, so a relative Test
+// namespace resolves to Core::GuestCpu::Test with external linkage.
+namespace Test {
+void SetMmapFailureForTest(bool enable) {
+    g_mmap_hook.store(enable ? [](void*, size_t, int, int, int, off_t) -> void* {
+                          errno = ENOMEM;
+                          return MAP_FAILED;
+                      }
+                      : nullptr,
+                  std::memory_order_release);
+}
+void SetMprotectFailureForTest(bool enable) {
+    g_protect_hook.store(enable ? [](void*, size_t, int) -> int {
+                            errno = EACCES;
+                            return -1;
+                        }
+                        : nullptr,
+                        std::memory_order_release);
+}
+} // namespace Test
+
 namespace {
 
 std::uint64_t DiscoverHostPageSize() {
@@ -365,9 +411,9 @@ Result<MappingInfo> GuestAddressSpace::Map(GuestRange range, GuestPermission per
 
     // MAP_FIXED is safe here and only here: the target is inside a reservation
     // this object already owns, so nothing else can be holding it.
-    void* result = ::mmap(HostPointer(range.base), static_cast<std::size_t>(range.size),
-                          ToHostProtection(permission),
-                          MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
+    void* result = SeamMmap(HostPointer(range.base), static_cast<std::size_t>(range.size),
+                            ToHostProtection(permission),
+                            MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
     if (result == MAP_FAILED) {
         const int saved = errno;
         auto error = MakeError(CategoriseMapFailure(saved), "GuestAddressSpace::Map",
@@ -495,8 +541,8 @@ Status GuestAddressSpace::Protect(GuestRange range, GuestPermission permission) 
     if (auto status = CheckMappingMutationLocked("GuestAddressSpace::Protect"); !status) {
         return status;
     }
-    if (::mprotect(HostPointer(range.base), static_cast<std::size_t>(range.size),
-                   ToHostProtection(permission)) != 0) {
+    if (SeamMprotect(HostPointer(range.base), static_cast<std::size_t>(range.size),
+                      ToHostProtection(permission)) != 0) {
         const int saved = errno;
         auto error = MakeError(CategoriseMapFailure(saved), "GuestAddressSpace::Protect",
                                "mprotect failed");
@@ -1065,8 +1111,8 @@ Status GuestAddressSpace::ReprotectUnderToken(const QuiescenceToken& token, Gues
                          "GuestAddressSpace::ReprotectUnderToken",
                          "code publication failed over this range and has not been repaired");
     }
-    if (::mprotect(HostPointer(range.base), static_cast<std::size_t>(range.size),
-                   ToHostProtection(permission)) != 0) {
+    if (SeamMprotect(HostPointer(range.base), static_cast<std::size_t>(range.size),
+                      ToHostProtection(permission)) != 0) {
         const int saved = errno;
         auto error = MakeError(CategoriseMapFailure(saved),
                                "GuestAddressSpace::ReprotectUnderToken",
@@ -1131,9 +1177,9 @@ Result<MappingInfo> GuestAddressSpace::RemapUnderToken(const QuiescenceToken& to
         return !token_status ? token_status.GetError() : invalidated.GetError();
     }
     // No unlocked interval between the successful invalidation and MAP_FIXED.
-    void* result = ::mmap(HostPointer(range.base), static_cast<std::size_t>(range.size),
-                          ToHostProtection(permission),
-                          MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
+    void* result = SeamMmap(HostPointer(range.base), static_cast<std::size_t>(range.size),
+                            ToHostProtection(permission),
+                            MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
     if (result == MAP_FAILED) {
         const int saved = errno;
         // Do not infer that MAP_FIXED failure preserved every old page. Keep execution closed
