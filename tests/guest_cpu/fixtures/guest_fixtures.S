@@ -164,3 +164,32 @@ spin_again:
     inc     rax
     jmp     spin_again
 fixture_spin_loop_end:
+
+// R2-C01/C02: aligned progress stores observable by the controller. RDI points
+// to a distinct uint64_t for each owner. Neither HLE nor a guest yield is used.
+.globl fixture_progress_loop
+.globl fixture_progress_loop_end
+fixture_progress_loop:
+progress_again:
+    inc     rax
+    mov     qword ptr [rdi], rax
+    jmp     progress_again
+fixture_progress_loop_end:
+
+// R2-C04: observe owner-written GPR, XMM, MXCSR rounding, FS/GS and RIP.
+// RDI=output; XMM1=1.75. MXCSR toward-zero must make CVTSD2SI produce 1.
+.globl fixture_state_echo
+.globl fixture_state_echo_end
+fixture_state_echo:
+    mov     qword ptr [rdi], rax
+    movdqu  xmmword ptr [rdi + 8], xmm0
+    stmxcsr dword ptr [rdi + 24]
+    mov     rbx, qword ptr fs:[0]
+    mov     qword ptr [rdi + 32], rbx
+    mov     rbx, qword ptr gs:[0]
+    mov     qword ptr [rdi + 40], rbx
+    cvtsd2si rax, xmm1
+    mov     qword ptr [rdi + 48], rax
+    movabs  r15, 0x1122334455667788
+    jmp     r15
+fixture_state_echo_end:

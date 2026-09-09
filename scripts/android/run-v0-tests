@@ -99,11 +99,11 @@ CASES: dict[str, tuple[str, str | None]] = {
     "M15": ("LOCK XADD/CMPXCHG aligned, unaligned, cross-page", FEX_BLOCKED),
     "M16": ("x86 memory-ordering litmus", FEX_BLOCKED),
     # Control, state, debug
-    "T01": ("two guest owner threads genuinely concurrent", FEX_BLOCKED),
-    "T02": ("pause/resume an HLE-free infinite loop, 100x, <=1s", FEX_BLOCKED),
+    "T01": ("two guest owner threads genuinely concurrent", None),
+    "T02": ("pause/resume an HLE-free infinite loop, 100x, <=1s", None),
     "T03": ("overlapping pause/cancel, epochs preserved", None),
     "T04": ("stop from a cancellable HLE wait", FEX_BLOCKED),
-    "T05": ("write GPR/RIP/XMM/MXCSR/FS/GS at a stop and continue", FEX_BLOCKED),
+    "T05": ("write GPR/RIP/XMM/MXCSR/FS/GS at a stop and continue", None),
     "T06": ("single-step integer, branch, load/store, SSE2", FEX_BLOCKED),
     "T07": ("step refuses REP, unsupported control flow and HLE gates", FEX_BLOCKED),
     "D01": ("LLDB stops on the snapshot hook", FEX_BLOCKED),
@@ -148,7 +148,10 @@ SUITE_MAP: dict[str, list[str]] = {
     # it asserts that every round actually contended, so a version that stopped racing would fail
     # rather than pass quietly. M13d/M13e/M13f are the lease and publication-refusal negatives.
     "M13": ["M13", "M13b", "M13c", "M13d", "M13e", "M13f", "M13g", "M13h", "M13i", "M13j", "M13k", "M13l", "M13m", "M13n", "M13o"],
-    "T03": ["T03a"],
+    "T01": [f"G14{c}" for c in "abcdefgh"],
+    "T02": [f"G11{c}" for c in "abcdefghij"] + ["G13a", "G13b", "G13c"],
+    "T03": ["T03a"] + [f"G15{c}" for c in "abcde"] + ["G17b", "G17c"],
+    "T05": ["G16a", "G16b", "G16c", "G12d"],
     "D03": ["D03a", "D03b"],
     "H01": ["H01a", "H01b", "H01c", "H01d", "H01e"],
     "H04": ["H04a", "H04b", "H04c", "H04d", "H04e", "H04f", "H04g", "H04h", "H04i"],
@@ -197,7 +200,10 @@ INCOMPLETE_COVERAGE = {
     "M05": "API permission refusals do not exercise actual guest memory faults",
     "M10": "alias registration does not verify two mapped aliases and both translations",
     "M12": "observer arithmetic alone does not verify combined code invalidation and GPU dirty tracking",
-    "T03": "stop-reason precedence alone does not exercise overlapping pause/cancel requests",
+    "T01": "G1 core evidence is CLI only; target ordinary APK execution is pending",
+    "T02": "G1 core evidence is CLI only; target ordinary APK execution is pending",
+    "T03": "G1 core evidence is CLI only; target ordinary APK execution is pending",
+    "T05": "G1 core evidence is CLI only; target ordinary APK execution is pending",
     "D03": "constructed snapshot metadata does not verify actual in-JIT fault attribution",
 }
 
@@ -222,7 +228,8 @@ SUITE_OWNERSHIP: dict[str, tuple[str, ...]] = {
     "hle_abi_tests": ("H01", "H04"),
     "host_page_size_probe": ("P01", "P02", "P03"),
     "fexcore_bionic_smoke": ("F01", "F02", "F03", "F04", "F05"),
-    "guest_execution_tests": ("G01", "G02", "G03", "G04", "G05", "G06", "G07", "G08", "G09", "G10"),
+    "guest_execution_tests": ("G01", "G02", "G03", "G04", "G05", "G06", "G07", "G08", "G09", "G10",
+                              "G11", "G12", "G13", "G14", "G15", "G16", "G17"),
 }
 
 

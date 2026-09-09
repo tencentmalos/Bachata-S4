@@ -170,15 +170,11 @@ public:
 
     // --- asynchronous control (Round 2 G1) ---------------------------------
     //
-    // A guest thread inside ExecuteThread does not poll anything, so a loop with
-    // no HLE call, no syscall and no natural exit cannot be stopped
-    // cooperatively. These are the out-of-band path.
-    //
-    // The mechanism is documented in docs/fex-async-stop-source-proof.md: a
-    // signal whose handler rewrites the interrupted context's PC to a JIT stub
-    // that spills the static register allocation and then waits. The wait itself
-    // lives in this backend, because FEXCore forwards it to the syscall
-    // handler's SleepThread, whose default body does nothing.
+    // The FEX backend enables fault-page checks at JIT entry boundaries. A
+    // requested stop spills state and returns Run to its owner; no native host
+    // stack remains parked in the JIT. See
+    // docs/validation/round2/g1-control-decision.md for the pinned source proof.
+    // Resume changes admission only: the owner explicitly calls Run again.
 
     // Callable from any thread, including while the target is executing.
     //
@@ -189,12 +185,12 @@ public:
                                                                    InterruptReason reason) = 0;
 
     // Waits until the ticket's thread has left the JIT, spilled, and published a
-    // snapshot. Only then is its state readable.
+    // snapshot. An already stopped thread reuses its frozen snapshot. Repeated
+    // reads never advance stop_epoch; retired tickets are refused.
     //
     // A timeout returns Timeout and leaves the request pending; it must never
     // report a stop that did not happen, and must not destroy a thread that is
-    // still running. Callable from any thread except the target's owner, which
-    // would be waiting for itself.
+    // still running. A running owner cannot wait for itself.
     [[nodiscard]] virtual Result<StopReceipt> WaitStopped(const InterruptTicket& ticket,
                                                           std::uint64_t timeout_ns) = 0;
 

@@ -145,15 +145,20 @@ if(V0_ENABLE_FEX)
         if(NOT DEFINED V0_FIXTURE_DIR)
             set(V0_FIXTURE_DIR "${FEX_BUILD_DIR}/generated-fixtures")
         endif()
-        if(EXISTS "${V0_FIXTURE_DIR}/guest_fixtures.h")
-            add_executable(guest_execution_tests
-                "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/guest_cpu/guest_execution_tests.cpp")
-            target_include_directories(guest_execution_tests PRIVATE "${V0_FIXTURE_DIR}")
-            target_link_libraries(guest_execution_tests PRIVATE guest_cpu_fex)
-        else()
-            message(WARNING
-                "no guest_fixtures.h under ${V0_FIXTURE_DIR}; skipping guest_execution_tests. "
-                "Run scripts/android/generate-guest-fixtures.")
-        endif()
+        find_package(Python3 REQUIRED COMPONENTS Interpreter)
+        set(FIXTURE_GENERATOR "${CMAKE_CURRENT_SOURCE_DIR}/../../scripts/android/generate-guest-fixtures")
+        set(FIXTURE_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/guest_cpu/fixtures/guest_fixtures.S")
+        add_custom_command(OUTPUT "${V0_FIXTURE_DIR}/guest_fixtures.h"
+            COMMAND "${Python3_EXECUTABLE}" "${FIXTURE_GENERATOR}"
+                    --source "${FIXTURE_SOURCE}" --output "${V0_FIXTURE_DIR}/guest_fixtures.h"
+            DEPENDS "${FIXTURE_GENERATOR}" "${FIXTURE_SOURCE}"
+            COMMENT "Assemble and verify self-contained x86-64 guest fixtures"
+            VERBATIM)
+        add_executable(guest_execution_tests
+            "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/guest_cpu/guest_execution_tests.cpp"
+            "${V0_FIXTURE_DIR}/guest_fixtures.h")
+        target_include_directories(guest_execution_tests PRIVATE "${V0_FIXTURE_DIR}")
+        target_link_libraries(guest_execution_tests PRIVATE guest_cpu_fex)
+
     endif()
 endif()

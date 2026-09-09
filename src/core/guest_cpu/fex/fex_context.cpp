@@ -6,12 +6,14 @@
 #include <array>
 #include <atomic>
 #include <cerrno>
+#include <cfenv>
 #include <chrono>
 #include <condition_variable>
 #include <csignal>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <map>
 #include <memory>
 #include <mutex>
 #include <thread>
@@ -36,22 +38,7 @@
 #include <FEXCore/Utils/TypeDefines.h>
 
 #include "Common/HostFeatures.h"
-
-// Host-context backup/restore for the pause/resume round trip.
-//
-// BUILD_FEXCORE_ONLY excludes FEX's Linux frontend, which normally installs the host fault handlers
-// and performs this dance. FEXCore itself only emits the stubs; the embedder is responsible for
-// servicing the SIGILL the pause stub's hlt(0) raises. This header is header-only and depends on
-// nothing but FEXCore (which we link), so we can reuse it rather than forking the assembly layout.
-//
-// Source path this mirrors, in the pinned FEX:
-//   Source/Tools/LinuxEmulation/LinuxSyscalls/SignalDelegator.cpp
-//     HandleSignalPause -> StoreThreadState  (kick: save host ctx, set sp, jump to spill SRA)
-//     HandleSIGILL at Config.PauseReturnInstruction -> RestoreThreadState(TYPE_PAUSE)  (resume)
-#if defined(__aarch64__)
-#include "Tools/LinuxEmulation/ArchHelpers/MContext.h"
-namespace ArchCtx = FEX::ArchHelpers::Context;
-#endif
+#include "Interface/Core/CPUBackend.h"
 
 namespace Core::GuestCpu::Fex {
 namespace {
@@ -94,454 +81,189 @@ std::uint64_t NextContextId() {
 // and only stores what the dispatcher hands it; shadPS4 installs its own signal
 // handling, so this supplies the delegator object without taking over delivery.
 class FexSignalDelegator final : public FEXCore::SignalDelegator {
-public:
+  public:
     explicit FexSignalDelegator(std::uintptr_t callback_return)
         : callback_return_(callback_return) {}
 
-    uintptr_t GetThunkCallbackRET() const override {
-        return callback_return_;
-    }
+    uintptr_t GetThunkCallbackRET() const override { return callback_return_; }
 
-private:
+  private:
     std::uintptr_t callback_return_{};
 };
 
-// --- asynchronous interrupt delivery -----------------------------------------------------------
-//
-// See docs/fex-async-stop-source-proof.md for the traced FEX path this implements. In short: the
-// handler must not longjmp out of the JIT. It rewrites the interrupted PC to a FEX stub that
-// spills the static register allocation and calls SleepThread, where the actual wait happens in
-// ordinary thread context.
-
-// Real-time signal used to kick an owner out of the JIT.
-//
-// Linux FEX hardcodes 63. That is not portable here: on bionic SIGRTMIN and SIGRTMAX are function
-// calls (__libc_current_sigrtmin/max), because the runtime reserves the lowest real-time signals
-// for itself, and the usable range is decided at runtime rather than by the headers. Taking the
-// top of the range keeps distance from both bionic's reserved base and the low signals ART uses.
-//
-// Resolved once. Every call site is ordinary thread context -- registration, restore and tgkill --
-// so calling into libc here is fine; the signal handler must never do it.
-int InterruptSignal() {
-    static const int cached = SIGRTMAX - 1;
-    return cached;
-}
-
-// Per-thread pointer to the state the handler is allowed to touch.
-//
-// Thread-local rather than a lookup: the handler cannot take the context lock, and walking a hash
-// map another thread might be rehashing is exactly the kind of undefined behaviour that is
-// impossible to debug from a signal context.
-struct ThreadInterruptBinding;
-thread_local ThreadInterruptBinding* t_binding = nullptr;
-
-// The previous disposition, so an unrelated signal is forwarded rather than swallowed. ART installs
-// its own handlers; discarding them would break the runtime hosting us.
-struct sigaction g_previous_interrupt_action{};
-struct sigaction g_previous_ill_action{};
-std::atomic<bool> g_interrupt_installed{false};
-std::mutex g_interrupt_install_lock;
-
-// What one owner thread's handler needs, reachable without a lock or an allocation.
-struct ThreadInterruptBinding final {
-    // The control block. shared_ptr is copied here at Run entry so the handler's view stays valid
-    // even if the thread map is mutated meanwhile; the handler only reads the raw pointer.
-    void* state{};
-    // FEXCore context, for IsAddressInCodeBuffer.
-    FEXCore::Context::Context* fex{};
-    FEXCore::Core::InternalThreadState* native{};
-    // Spill entry points, copied out of the delegator config so the handler does no indirection
-    // through objects that could be mid-destruction.
-    std::uint64_t pause_spill_sra{};
-    std::uint64_t pause_no_spill{};
-    // The hlt(0) the pause stub runs after SleepThread returns. Resuming raises SIGILL here; the
-    // host SIGILL handler recognises it and restores the context the kick handler saved.
-    std::uint64_t pause_return{};
-    // The stop stub: spills, pops callee-saved and returns out of ExecuteThread. A Cancel must jump
-    // here (with SP reset to ReturningStackLocation), not to the pause stub, because the owner has
-    // to unwind back to Run rather than continue in the guest.
-    std::uint64_t stop_spill_sra{};
-    std::uint64_t stop_no_spill{};
-    // The frame CPUState pointer the handler must install in the state register.
-    void* frame{};
+// --- entry-boundary interrupts ------------------------------------------------
+// See docs/validation/round2/g1-control-decision.md. The controller protects an
+// owner-exclusive fault page; the JIT checks it before a basic block. We never
+// redirect an arbitrary host PC out of a C++ call/lock or restore a suspended JIT
+// stack after code publication. Pause returns Run to its owner like Cancel.
+struct InterruptState final {
+    // All fields are protected by FexCpuContext::lock_. No handler accesses this.
+    std::map<std::uint64_t, InterruptReason> requests;
+    std::uint32_t pending{};
+    std::uint64_t request_epoch{};
+    std::uint64_t acked_epoch{};
+    std::optional<StopReceipt> receipt;
+    std::optional<CpuSnapshot> stopped_snapshot;
+    StopReason last_reason{StopReason::Returned};
 };
 
-// Set the interrupted context's PC and the state register.
-//
-// Implemented here rather than reusing FEX's ArchHelpers because those live under
-// Source/Tools/LinuxEmulation, which is the Linux frontend an embedder replaces.
-#if defined(__aarch64__)
-void SetContextPc(void* ucontext, std::uint64_t pc) {
-    auto* uc = static_cast<ucontext_t*>(ucontext);
-    uc->uc_mcontext.pc = pc;
-}
-std::uint64_t GetContextPc(void* ucontext) {
-    return static_cast<ucontext_t*>(ucontext)->uc_mcontext.pc;
-}
-void SetContextState(void* ucontext, std::uint64_t value) {
-    // x28 is the STATE register in FEX's ARM64 JIT ABI for the audited configuration. This is a
-    // property of the pinned FEX layout, not a universal ARM64 convention; it is asserted against
-    // the running configuration at registration time rather than assumed here.
-    static_cast<ucontext_t*>(ucontext)->uc_mcontext.regs[28] = value;
-}
-#else
-void SetContextPc(void*, std::uint64_t) {}
-std::uint64_t GetContextPc(void*) {
-    return 0;
-}
-void SetContextState(void*, std::uint64_t) {}
-#endif
+struct ThreadInterruptBinding final {
+    FEXCore::Context::Context *fex{};
+    FEXCore::Core::InternalThreadState *native{};
+    std::uintptr_t fault_page{};
+    std::uintptr_t stop_spill{};
+    std::array<std::uint64_t, 31> gprs{};
+    std::uint64_t pstate{};
+    std::uint64_t guest_rip{};
+    std::atomic<bool> interrupted{false};
+};
+static_assert(std::atomic<bool>::is_always_lock_free);
+thread_local ThreadInterruptBinding *t_binding = nullptr;
+struct sigaction g_previous_fault_action {};
+std::mutex g_interrupt_install_lock;
+bool g_interrupt_installed{};
 
-void ForwardAction(int signal, siginfo_t* info, void* ucontext, const struct sigaction& previous) {
-    if ((previous.sa_flags & SA_SIGINFO) != 0 && previous.sa_sigaction != nullptr) {
+void ForwardAction(int signal, siginfo_t *info, void *ucontext, const struct sigaction &previous) {
+    if (previous.sa_handler == SIG_IGN)
+        return;
+    if (previous.sa_handler == SIG_DFL || previous.sa_handler == nullptr) {
+        ::signal(signal, SIG_DFL);
+        ::raise(signal);
+    } else if ((previous.sa_flags & SA_SIGINFO) != 0) {
         previous.sa_sigaction(signal, info, ucontext);
-        return;
-    }
-    if (previous.sa_handler == SIG_IGN) {
-        return;
-    }
-    if (previous.sa_handler != SIG_DFL && previous.sa_handler != nullptr) {
+    } else {
         previous.sa_handler(signal);
-        return;
     }
-    // Default disposition. Restore it and re-raise so the process dies the way it would have
-    // without us, rather than looping in our handler.
-    ::signal(signal, SIG_DFL);
-    ::raise(signal);
 }
 
-void ForwardToPrevious(int signal, siginfo_t* info, void* ucontext) {
-    ForwardAction(signal, info, ucontext, g_previous_interrupt_action);
-}
-void ForwardPreviousIll(int signal, siginfo_t* info, void* ucontext) {
-    ForwardAction(signal, info, ucontext, g_previous_ill_action);
-}
-
-// Declared here, defined after InterruptState is complete.
-// Declared here, defined after InterruptState is complete.
-bool ClaimInterrupt(void* state);
-std::uint32_t PendingInterruptReasons(void* state);
-bool InterruptThreadParked(void* state);
-
-// The kick handler.
-//
-// Async-signal-safe by construction: atomic loads and stores, a stack memcpy of the ucontext, and
-// a handful of ucontext writes. No allocation, no mutex, no logging, no Foundation. The wait
-// happens later in SleepThread, which runs in ordinary thread context.
-//
-// This is what FEX's Linux frontend does in HandleSignalPause/Stop (Source/Tools/LinuxEmulation/
-// LinuxSyscalls/SignalDelegator.cpp); BUILD_FEXCORE_ONLY excludes that frontend, so the embedder
-// must perform the host-context dance itself. Two cases:
-//
-//   Pause  -> back up host state on the host stack, jump to the pause stub (spill SRA,
-//             SleepThread parks, hlt(0) raises SIGILL). After Resume, the SIGILL handler restores
-//             the backup so the JIT continues exactly where the kick interrupted it.
-//   Cancel -> reset SP to the dispatcher's entry stack, jump to the stop stub, which pops
-//             callee-saved and rets out of ExecuteThread so Run returns and unwinds normally.
-void InterruptSignalHandler(int signal, siginfo_t* info, void* ucontext) {
-    ThreadInterruptBinding* binding = t_binding;
-    if (binding == nullptr || binding->state == nullptr) {
-        // Not one of our owner threads -- an app or ART thread that happens to share the signal
-        // number. Hand it back rather than swallowing it.
-        ForwardToPrevious(signal, info, ucontext);
-        return;
-    }
-    if (!ClaimInterrupt(binding->state)) {
-        // Ours, but nothing is pending: a stale or duplicate delivery. Consume it silently;
-        // forwarding would hand ART a signal it did not send.
-        return;
-    }
-
-    // If the owner is already parked inside SleepThread it is not in the JIT and the pending bit is
-    // already owned by that park: SleepThread will re-check it on wake and either keep waiting or
-    // re-park. Rewriting its PC here would redirect ordinary host code into the dispatcher stub
-    // (the tight pause/resume stress hit this and re-entered the pause-return hlt repeatedly).
-    if (InterruptThreadParked(binding->state)) {
-        return;
-    }
-
-    const std::uint32_t reasons = PendingInterruptReasons(binding->state);
-    const std::uint32_t cancel_mask =
-        (1u << static_cast<std::uint32_t>(InterruptReason::Cancel)) |
-        (1u << static_cast<std::uint32_t>(InterruptReason::Shutdown));
-    const bool cancel = (reasons & cancel_mask) != 0;
-
-    // Choose the spill entry by where the thread actually is. Getting this wrong is not a
-    // performance issue: the no-spill entry assumes the static register allocation is already in
-    // memory, so taking it from inside the JIT leaves guest registers in host registers and every
-    // subsequent read of CPUState is stale.
-    const std::uint64_t pc = GetContextPc(ucontext);
-    const bool in_code_buffer =
-        binding->fex != nullptr && binding->native != nullptr &&
-        binding->fex->IsAddressInCodeBuffer(binding->native, static_cast<uintptr_t>(pc));
-
-    if (cancel) {
-        // Reset to the stack the dispatcher established on entry, so the stop stub's pop+ret lands
-        // exactly where ExecuteThread was called regardless of where in the JIT we were.
-        const std::uint64_t ret_sp = binding->native != nullptr
-                                         ? binding->native->CurrentFrame->ReturningStackLocation
-                                         : 0;
-        if (binding->native != nullptr) {
-            binding->native->CurrentFrame->SignalHandlerRefCounter = 0;
-        }
+void InterruptFaultHandler(int signal, siginfo_t *info, void *raw_context) {
 #if defined(__aarch64__)
-        if (ret_sp != 0) {
-            static_cast<ucontext_t*>(ucontext)->uc_mcontext.sp = ret_sp;
-        }
-        const std::uint64_t target = in_code_buffer ? binding->stop_spill_sra
-                                                    : binding->stop_no_spill;
-        if (target != 0) {
-            static_cast<ucontext_t*>(ucontext)->uc_mcontext.regs[28] =
-                reinterpret_cast<std::uint64_t>(binding->frame);
-            static_cast<ucontext_t*>(ucontext)->uc_mcontext.pc = target;
-        }
-#endif
-        return;
-    }
-
-    // Pause: save host state so the SIGILL handler after Resume can restore it.
-#if defined(__aarch64__)
-    {
-        const std::uint64_t target = in_code_buffer ? binding->pause_spill_sra
-                                                    : binding->pause_no_spill;
-        if (target == 0) {
-            return;  // No usable entry point; leaving the PC alone is the only safe action.
-        }
-
-        // StoreThreadState (mirror of the frontend): lower SP by one ContextBackup (16-byte aligned;
-        // arm64 has no red zone), snapshot the full host context there, and keep it live until
-        // Resume. The pause stub writes only the STATE frame, not the host stack, and the blr to
-        // SleepThread restores SP on return -- so at the post-resume hlt(0), SP still points at this
-        // backup, which is how the SIGILL handler finds it.
-        //
-        // The guest-state copy is the pre-spill frame, the same deliberately harmless value the
-        // frontend records here: after Resume the interrupted JIT point resumes with live guest
-        // values restored through the host GPRs, and the block re-spills over the frame.
-        constexpr std::uint64_t kStackAlign = 16;
-        const std::uint64_t old_sp = static_cast<ucontext_t*>(ucontext)->uc_mcontext.sp;
-        std::uint64_t new_sp = old_sp - sizeof(ArchCtx::ArmContextBackup);
-        new_sp &= ~(kStackAlign - 1);
-        auto* backup = reinterpret_cast<ArchCtx::ArmContextBackup*>(new_sp);
-
-        ArchCtx::BackupContext(ucontext, backup);
-        backup->Signal = signal;
-        if (binding->native != nullptr) {
-            std::memcpy(&backup->GuestState, &binding->native->CurrentFrame->State,
-                        sizeof(FEXCore::Core::CPUState));
-            ++binding->native->CurrentFrame->SignalHandlerRefCounter;
-        }
-
-        static_cast<ucontext_t*>(ucontext)->uc_mcontext.sp = new_sp;
-        static_cast<ucontext_t*>(ucontext)->uc_mcontext.regs[28] =
-            reinterpret_cast<std::uint64_t>(binding->frame);
-        static_cast<ucontext_t*>(ucontext)->uc_mcontext.pc = target;
-    }
-#else
-    (void)binding;
-#endif
-}
-
-// Host SIGILL handler. The pause stub's hlt(0) is unconditional; after Resume it faults here. At
-// the recognised pause-return address we restore the host context the kick handler saved, which
-// returns the thread to the exact interrupted point in the JIT. Any other SIGILL is forwarded --
-// FEXCore's ExitOnHLT consumes the return-gate HLT before it reaches a host handler.
-void PauseReturnSignalHandler(int signal, siginfo_t* info, void* ucontext) {
-#if defined(__aarch64__)
-    ThreadInterruptBinding* binding = t_binding;
-    const std::uint64_t pc = static_cast<ucontext_t*>(ucontext)->uc_mcontext.pc;
-    if (binding != nullptr && binding->pause_return != 0 && pc == binding->pause_return) {
-        const std::uint64_t sp = static_cast<ucontext_t*>(ucontext)->uc_mcontext.sp;
-        auto* backup = reinterpret_cast<ArchCtx::ArmContextBackup*>(sp);
-
-        const std::uint32_t reasons = PendingInterruptReasons(binding->state);
-        const std::uint32_t stop_mask =
-            (1u << static_cast<std::uint32_t>(InterruptReason::Cancel)) |
-            (1u << static_cast<std::uint32_t>(InterruptReason::Shutdown));
-        const bool cancel = (reasons & stop_mask) != 0;
-
-        if (cancel && binding->native != nullptr) {
-            // A cancel arrived while parked. Instead of resuming into the guest, take the stop path:
-            // reset SP to the dispatcher entry stack and jump to the stop stub, which pops callee-
-            // saved and rets out of ExecuteThread. Ref counter for this pause is spent.
-            if (binding->native->CurrentFrame->SignalHandlerRefCounter > 0) {
-                --binding->native->CurrentFrame->SignalHandlerRefCounter;
-            }
-            binding->native->CurrentFrame->SignalHandlerRefCounter = 0;
-            const std::uint64_t ret_sp = binding->native->CurrentFrame->ReturningStackLocation;
-            if (ret_sp != 0) {
-                static_cast<ucontext_t*>(ucontext)->uc_mcontext.sp = ret_sp;
-            }
-            // We are at the pause-return, not inside a code buffer (dispatcher stub), so use the
-            // no-spill stop entry.
-            static_cast<ucontext_t*>(ucontext)->uc_mcontext.regs[28] =
-                reinterpret_cast<std::uint64_t>(binding->frame);
-            static_cast<ucontext_t*>(ucontext)->uc_mcontext.pc = binding->stop_no_spill;
+    auto *binding = t_binding;
+    if (binding && info && info->si_code == SEGV_ACCERR &&
+        reinterpret_cast<std::uintptr_t>(info->si_addr) == binding->fault_page) {
+        auto *uc = static_cast<ucontext_t *>(raw_context);
+        const auto pc = uc->uc_mcontext.pc;
+        const bool in_jit = binding->fex->IsAddressInCodeBuffer(binding->native, pc);
+        if (!in_jit) {
+            // FEX's deferred-signal guards also store zero to this exclusively
+            // owned page after host work. Skip that probe, NOT its host frame;
+            // keep the page protected until the next JIT entry. AArch64 stores
+            // are one instruction. This address is never exposed to guest/HLE.
+            uc->uc_mcontext.pc += 4;
             return;
         }
-
-        if (binding->native != nullptr &&
-            binding->native->CurrentFrame->SignalHandlerRefCounter > 0) {
-            --binding->native->CurrentFrame->SignalHandlerRefCounter;
+        // An IR-internal backward edge (e.g. REP) may also contain this probe,
+        // even with MULTIBLOCK disabled. Only the FIRST probe after this block's
+        // header is an entry safe point. Skip internal probes without unwinding
+        // partially executed guest instructions. This encoding/layout is pinned
+        // to the same FEX revision as the adapter, not a generic PC heuristic.
+        constexpr auto offset = offsetof(FEXCore::Core::InternalThreadState, InterruptFaultPage) -
+                                offsetof(FEXCore::Core::InternalThreadState, BaseFrameState);
+        static_assert(offset <= 32760 && offset % 8 == 0);
+        constexpr std::uint32_t probe = 0xf9000000u | (offset / 8 << 10) | (28 << 5) | 31;
+        const auto header = binding->native->CurrentFrame->State.InlineJITBlockHeader;
+        bool entry_probe = false;
+        // The entry preamble is short. Refuse rather than guess if a future FEX
+        // layout moves it beyond this bounded range.
+        for (auto at = header + sizeof(FEXCore::CPU::CPUBackend::JITCodeHeader);
+             at <= pc && at < header + 256; at += 4) {
+            if (*reinterpret_cast<const std::uint32_t *>(at) == probe) {
+                entry_probe = at == pc;
+                break;
+            }
         }
-        if (::getenv("GUEST_CPU_TRACE_SIGILL") != nullptr) {
-            std::fprintf(stderr, "[sigill] pause-return sp=%llx ref=%u\n",
-                         (unsigned long long)sp,
-                         binding->native ? binding->native->CurrentFrame->SignalHandlerRefCounter
-                                         : 0u);
+        if (!entry_probe) {
+            uc->uc_mcontext.pc += 4;
+            return;
         }
-        // RestoreThreadState(TYPE_PAUSE): restore host registers/PC/SP, then the guest frame copy.
-        ArchCtx::RestoreContext(ucontext, backup);
-        if (binding->native != nullptr) {
-            std::memcpy(&binding->native->CurrentFrame->State, &backup->GuestState,
-                        sizeof(FEXCore::Core::CPUState));
-        }
-        if (::getenv("GUEST_CPU_TRACE_SIGILL") != nullptr) {
-            std::fprintf(stderr, "[sigill] restored prevpc=%llx prevsp=%llx\n",
-                         (unsigned long long)backup->PrevPC, (unsigned long long)backup->PrevSP);
-        }
+        // MULTIBLOCK is disabled and the fault check is before guest operations.
+        // InlineJITBlockHeader was installed by EmitEntryPoint immediately before
+        // this store. Preserve NZCV/GPRs for FEX's flag reconstruction on return.
+        binding->guest_rip = binding->fex->GetGuestBlockEntry(binding->native);
+        binding->pstate = uc->uc_mcontext.pstate;
+        for (std::size_t i = 0; i < binding->gprs.size(); ++i)
+            binding->gprs[i] = uc->uc_mcontext.regs[i];
+        binding->interrupted.store(true, std::memory_order_release);
+        uc->uc_mcontext.sp = binding->native->CurrentFrame->ReturningStackLocation;
+        uc->uc_mcontext.regs[28] = reinterpret_cast<std::uintptr_t>(binding->native->CurrentFrame);
+        uc->uc_mcontext.pc = binding->stop_spill;
         return;
     }
-    if (::getenv("GUEST_CPU_TRACE_SIGILL") != nullptr) {
-        bool in_buf = false;
-        if (binding != nullptr && binding->fex != nullptr && binding->native != nullptr) {
-            in_buf = binding->fex->IsAddressInCodeBuffer(
-                binding->native, static_cast<uintptr_t>(pc));
-        }
-        std::fprintf(stderr,
-                     "[sigill] unclaimed pc=%llx in_code_buffer=%d pause_return=%llx state=%p\n",
-                     (unsigned long long)pc, int(in_buf),
-                     binding ? (unsigned long long)binding->pause_return : 0ULL,
-                     binding ? binding->state : nullptr);
-    }
 #endif
-    ForwardPreviousIll(signal, info, ucontext);
+    ForwardAction(signal, info, raw_context, g_previous_fault_action);
 }
 
-
-// Asynchronous control state for one guest thread.
-//
-// Reachable from three places with different rules, which is why the fields are atomics rather
-// than plain members under the context lock:
-//   * a controller thread issuing RequestInterrupt / WaitStopped,
-//   * the target's own signal handler, which may take no lock and must allocate nothing,
-//   * the target inside SleepThread, which is ordinary thread context and may block.
-//
-// Kept in a stable heap allocation, separately from ThreadEntry: the signal handler resolves it
-// through a thread-local pointer and must not chase a map that another thread could rehash.
-struct InterruptState final {
-    // Set by RequestInterrupt, read by the signal handler. Bit set of BitOf(InterruptReason).
-    std::atomic<std::uint32_t> pending{0};
-    // Highest request epoch issued for this thread.
-    std::atomic<std::uint64_t> request_epoch{0};
-    // Epoch the owner has acknowledged by actually stopping.
-    std::atomic<std::uint64_t> acked_epoch{0};
-    // Set while the owner is parked inside SleepThread.
-    std::atomic<bool> parked{false};
-    // Cleared by Resume to let the parked owner continue.
-    std::atomic<bool> resume_requested{false};
-    // The reason the owner actually stopped for, decided at park time.
-    std::atomic<std::uint32_t> stop_reason{0};
-    // Native thread id, for tgkill. Written by the owner as it starts running.
-    std::atomic<std::uint64_t> native_tid{0};
-    // True while the owner is inside ExecuteThread. A request that arrives outside that window
-    // needs no signal: the owner will observe it before entering.
-    std::atomic<bool> in_jit{false};
-
-    // Park/unpark handshake. The mutex is only ever taken in ordinary thread context -- the
-    // signal handler must not touch it.
-    std::mutex park_lock;
-    std::condition_variable park_changed;
-};
-
-// True when there is a request this delivery should act on.
-//
-// Called from the signal handler, so this is a plain atomic read. It deliberately does not clear
-// `pending`: the reason is needed later, in SleepThread, to decide what kind of stop this is and
-// whether a Cancel outranks a Pause.
-bool ClaimInterrupt(void* state) {
-    auto* interrupt = static_cast<InterruptState*>(state);
-    return interrupt != nullptr && interrupt->pending.load(std::memory_order_acquire) != 0;
-}
-
-std::uint32_t PendingInterruptReasons(void* state) {
-    auto* interrupt = static_cast<InterruptState*>(state);
-    return interrupt != nullptr ? interrupt->pending.load(std::memory_order_acquire) : 0u;
-}
-
-bool InterruptThreadParked(void* state) {
-    auto* interrupt = static_cast<InterruptState*>(state);
-    return interrupt != nullptr && interrupt->parked.load(std::memory_order_acquire);
-}
-
-// Install the kick handler once per process.
-//
-// Chains rather than replaces: ART has its own handlers, and an unrelated delivery on this signal
-// must reach whatever was there before.
 Status InstallInterruptHandler() {
     std::lock_guard guard{g_interrupt_install_lock};
-    if (g_interrupt_installed.load(std::memory_order_acquire)) {
+    if (g_interrupt_installed)
         return Ok();
-    }
-    const int signal_number = InterruptSignal();
-    // The usable real-time range is a runtime property on bionic, so check the resolved number
-    // against it rather than trusting a header constant.
-    if (signal_number < SIGRTMIN || signal_number > SIGRTMAX) {
-        return MakeError(ErrorCategory::Unsupported, "InstallInterruptHandler",
-                         "the chosen interrupt signal is outside this platform's real-time range");
-    }
-
     struct sigaction action {};
-    action.sa_sigaction = InterruptSignalHandler;
-    action.sa_flags = SA_SIGINFO | SA_RESTART;
+    action.sa_sigaction = InterruptFaultHandler;
+    action.sa_flags = SA_SIGINFO | SA_ONSTACK;
     ::sigemptyset(&action.sa_mask);
-
-    if (::sigaction(signal_number, &action, &g_previous_interrupt_action) != 0) {
-        const int saved = errno;
-        auto error = MakeError(ErrorCategory::BackendFailure, "InstallInterruptHandler",
-                               "sigaction failed for the interrupt signal");
-        error.system_error = saved;
-        return error;
-    }
-
-    // The pause stub's post-SleepThread hlt(0) raises host SIGILL. FEXCore does not install host
-    // fault handlers (the excluded Linux frontend does), so without this Resume kills the process
-    // with the default SIGILL disposition. We only claim the pause-return address and chain the
-    // prior disposition for anything else, so ART's own SIGILL handler is not displaced.
-    struct sigaction ill_action {};
-    ill_action.sa_sigaction = PauseReturnSignalHandler;
-    ill_action.sa_flags = SA_SIGINFO | SA_RESTART;
-    ::sigemptyset(&ill_action.sa_mask);
-    if (::sigaction(SIGILL, &ill_action, &g_previous_ill_action) != 0) {
-        const int saved = errno;
-        ::sigaction(signal_number, &g_previous_interrupt_action, nullptr);
-        auto error = MakeError(ErrorCategory::BackendFailure, "InstallInterruptHandler",
-                               "sigaction failed for SIGILL");
-        error.system_error = saved;
-        return error;
-    }
-
-    g_interrupt_installed.store(true, std::memory_order_release);
+    if (::sigaction(SIGSEGV, &action, &g_previous_fault_action) != 0)
+        return BackendError(ErrorCategory::BackendFailure, "InstallInterruptHandler",
+                            "sigaction(SIGSEGV) failed", errno);
+    g_interrupt_installed = true;
     return Ok();
 }
 
 void RestoreInterruptHandler() {
     std::lock_guard guard{g_interrupt_install_lock};
-    if (!g_interrupt_installed.load(std::memory_order_acquire)) {
+    if (!g_interrupt_installed)
         return;
-    }
-    // Put back exactly what was there, so a second context -- or ART after we unload -- sees the
-    // disposition it installed.
-    ::sigaction(SIGILL, &g_previous_ill_action, nullptr);
-    ::sigaction(InterruptSignal(), &g_previous_interrupt_action, nullptr);
-    g_interrupt_installed.store(false, std::memory_order_release);
+    ::sigaction(SIGSEGV, &g_previous_fault_action, nullptr);
+    g_interrupt_installed = false;
 }
+
+// An owner restores its pre-existing altstack on every Run exit. Allocated before
+// execution, never in the handler. An existing sufficiently sized stack is reused.
+class OwnerSignalStack final {
+  public:
+    Status Install(std::size_t page_size) {
+        if (::sigaltstack(nullptr, &previous_) != 0)
+            return BackendError(ErrorCategory::BackendFailure, "Run", "query altstack", errno);
+        if ((previous_.ss_flags & SS_ONSTACK) != 0)
+            return BackendError(ErrorCategory::WrongState, "Run", "cannot Run from a signal stack");
+        if (!(previous_.ss_flags & SS_DISABLE) && previous_.ss_size >= 64 * 1024)
+            return Ok();
+        size_ = 128 * 1024 + 2 * page_size;
+        memory_ = ::mmap(nullptr, size_, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+        if (memory_ == MAP_FAILED) {
+            memory_ = nullptr;
+            return BackendError(ErrorCategory::OutOfMemory, "Run", "allocate altstack", errno);
+        }
+        auto *stack = static_cast<std::byte *>(memory_) + page_size;
+        if (::mprotect(stack, 128 * 1024, PROT_READ | PROT_WRITE) != 0)
+            return BackendError(ErrorCategory::BackendFailure, "Run", "protect altstack", errno);
+        stack_t replacement{};
+        replacement.ss_sp = stack;
+        replacement.ss_size = 128 * 1024;
+        if (::sigaltstack(&replacement, nullptr) != 0)
+            return BackendError(ErrorCategory::BackendFailure, "Run", "install altstack", errno);
+        installed_ = true;
+        return Ok();
+    }
+    ~OwnerSignalStack() {
+        if (installed_)
+            ::sigaltstack(&previous_, nullptr);
+        if (memory_)
+            ::munmap(memory_, size_);
+    }
+
+  private:
+    stack_t previous_{};
+    void *memory_{};
+    std::size_t size_{};
+    bool installed_{};
+};
 
 // LookupCache's constructor calls SyscallHandler::MarkOvercommitRange, so
 // CreateThread crashes without a handler. Three methods are pure virtual and
 // must be supplied even though guest syscalls are not part of V0.
 class FexSyscallHandler final : public FEXCore::HLE::SyscallHandler {
-public:
-    void HandleSyscall(FEXCore::Core::CpuStateFrame* Frame) override {
+  public:
+    void HandleSyscall(FEXCore::Core::CpuStateFrame *Frame) override {
         // Reaching here means guest code executed a syscall instruction, which
         // V0 has no HLE path for. Record it on the frame's thread so Run can
         // report a defined stop instead of the guest silently continuing with a
@@ -551,10 +273,11 @@ public:
         }
     }
 
-    FEXCore::HLE::ExecutableRangeInfo QueryGuestExecutableRange(
-        FEXCore::Core::InternalThreadState* Thread, uint64_t Address) override {
+    FEXCore::HLE::ExecutableRangeInfo
+    QueryGuestExecutableRange(FEXCore::Core::InternalThreadState *Thread,
+                              uint64_t Address) override {
         std::lock_guard guard{lock};
-        for (const auto& range : executable_ranges) {
+        for (const auto &range : executable_ranges) {
             if (Address >= range.base && Address < range.base + range.size) {
                 return {.Base = range.base, .Size = range.size, .Writable = range.writable};
             }
@@ -564,8 +287,9 @@ public:
         return {.Base = Address, .Size = 0, .Writable = false};
     }
 
-    std::optional<FEXCore::ExecutableFileSectionInfo> LookupExecutableFileSection(
-        FEXCore::Core::InternalThreadState* Thread, uint64_t GuestAddr) override {
+    std::optional<FEXCore::ExecutableFileSectionInfo>
+    LookupExecutableFileSection(FEXCore::Core::InternalThreadState *Thread,
+                                uint64_t GuestAddr) override {
         // No file-backed guest mappings in V0; the disk code cache stays off.
         return std::nullopt;
     }
@@ -585,82 +309,9 @@ public:
     //
     // The default implementation in FEXCore is an empty body, so before this override a pause
     // signal would spill and immediately resume: the thread would never actually stop.
-    void SleepThread(FEXCore::Context::Context* CTX,
-                     FEXCore::Core::CpuStateFrame* Frame) override {
-        InterruptState* interrupt = t_binding != nullptr
-                                        ? static_cast<InterruptState*>(t_binding->state)
-                                        : nullptr;
-        if (interrupt == nullptr) {
-            return;
-        }
-
-        const std::uint32_t stop_now =
-            (1u << static_cast<std::uint32_t>(InterruptReason::Cancel)) |
-            (1u << static_cast<std::uint32_t>(InterruptReason::Shutdown));
-        const std::uint32_t pause_bit =
-            1u << static_cast<std::uint32_t>(InterruptReason::Pause);
-
-        // Service loop. The pause stub reaches here after spilling; if a further request arrives
-        // while we are parked -- another pause racing a resume, or a cancel -- the kick cannot
-        // redirect us (we are in ordinary host code, not the JIT), so it leaves its bit and we pick
-        // it up here:
-        //   * a cancel that arrives while parked unwinds (the pause-return hlt is rerouted to the
-        //     stop stub by the SIGILL handler, which reads the same pending bit),
-        //   * a pause that arrives while parked is re-serviced rather than lost to a resume.
-        for (;;) {
-            // Publish the acknowledgement only now. This is the distinction the spec draws between
-            // "the request was received" and "the thread is stopped".
-            const std::uint64_t epoch = interrupt->request_epoch.load(std::memory_order_acquire);
-            const std::uint32_t reasons = interrupt->pending.load(std::memory_order_acquire);
-            interrupt->stop_reason.store(reasons, std::memory_order_release);
-
-            if ((reasons & stop_now) != 0) {
-                // Cancel/Shutdown: do not park. Leave the bits for the SIGILL stop routing and Run's
-                // classification.
-                return;
-            }
-
-            {
-                std::unique_lock guard{interrupt->park_lock};
-                interrupt->parked.store(true, std::memory_order_release);
-                interrupt->acked_epoch.store(epoch, std::memory_order_release);
-                interrupt->park_changed.notify_all();
-
-                // Wake on resume OR cancel, so a cancel during park is not a deadlock.
-                interrupt->park_changed.wait(guard, [&] {
-                    const std::uint32_t p = interrupt->pending.load(std::memory_order_acquire);
-                    const bool resumed = interrupt->resume_requested.load(
-                        std::memory_order_acquire);
-                    return resumed || (p & stop_now) != 0;
-                });
-
-                interrupt->parked.store(false, std::memory_order_release);
-                interrupt->resume_requested.store(false, std::memory_order_release);
-            }
-
-            // Re-read: a cancel during park means we must unwind rather than return into the guest.
-            const std::uint32_t after = interrupt->pending.load(std::memory_order_acquire);
-            if ((after & stop_now) != 0) {
-                return;
-            }
-            // This park serviced a pause. Clear that bit and return to the guest unless a newer
-            // pause is still pending: a request whose epoch is ahead of the one we just acked must
-            // be serviced by parking again, with the correct newer epoch, before we resume.
-            interrupt->pending.fetch_and(~pause_bit, std::memory_order_acq_rel);
-            const std::uint64_t acked = interrupt->acked_epoch.load(std::memory_order_acquire);
-            const bool newer_pause =
-                interrupt->request_epoch.load(std::memory_order_acquire) > acked;
-            interrupt->park_changed.notify_all();
-            if (!newer_pause) {
-                return;
-            }
-            // Loop: re-publish the newer epoch and park again.
-        }
-    }
-
     // FEXCore calls this once per guest page it has compiled code from, which is the only
     // outside-visible confirmation of *what* was translated.
-    void MarkGuestExecutableRange(FEXCore::Core::InternalThreadState* Thread, uint64_t Start,
+    void MarkGuestExecutableRange(FEXCore::Core::InternalThreadState *Thread, uint64_t Start,
                                   uint64_t Length) override {
         if (::getenv("GUEST_CPU_DEBUG") != nullptr) {
             std::fprintf(stderr, "[guest_cpu] compiled code covering 0x%llx +0x%llx\n",
@@ -682,7 +333,7 @@ public:
         return unexpected_syscall.exchange(false, std::memory_order_acq_rel);
     }
 
-private:
+  private:
     struct Range final {
         std::uint64_t base{};
         std::uint64_t size{};
@@ -719,14 +370,14 @@ constexpr std::uint64_t kGuestAddressPolicyLimit = std::uint64_t{1} << 36;
 // (acceptance D05): only this exact address counts as a normal return, and a
 // HLT anywhere else is a fault.
 class ReturnGate final {
-public:
+  public:
     ~ReturnGate() {
         if (page != nullptr && page != MAP_FAILED) {
             ::munmap(page, size);
         }
     }
 
-    [[nodiscard]] bool Create(std::string& error_detail, int& error_no) {
+    [[nodiscard]] bool Create(std::string &error_detail, int &error_no) {
         const long host_page = ::sysconf(_SC_PAGESIZE);
         size = host_page > 0 ? static_cast<std::size_t>(host_page) : 4096;
 
@@ -736,7 +387,7 @@ public:
         // Hinted near the top of the addressable range, because the guest reservation is placed in
         // the lower half and a hint that lands inside it would be rejected and fall back to a high
         // address. A hint is advisory either way, so the result is verified below.
-        void* hint = reinterpret_cast<void*>(kGuestAddressPolicyLimit - (std::uint64_t{1} << 30));
+        void *hint = reinterpret_cast<void *>(kGuestAddressPolicyLimit - (std::uint64_t{1} << 30));
         page = ::mmap(hint, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
         if (page == MAP_FAILED) {
             error_no = errno;
@@ -752,7 +403,7 @@ public:
         }
 
         // 0xF4 == HLT.
-        *static_cast<std::uint8_t*>(page) = 0xF4;
+        *static_cast<std::uint8_t *>(page) = 0xF4;
 
         // W^X: publish read+execute only after the byte is written. Writing
         // through an RWX mapping would also work on Linux but is refused under
@@ -768,12 +419,10 @@ public:
     [[nodiscard]] std::uint64_t Address() const noexcept {
         return reinterpret_cast<std::uint64_t>(page);
     }
-    [[nodiscard]] std::size_t Size() const noexcept {
-        return size;
-    }
+    [[nodiscard]] std::size_t Size() const noexcept { return size; }
 
-private:
-    void* page{};
+  private:
+    void *page{};
     std::size_t size{};
 };
 
@@ -786,14 +435,14 @@ private:
 // Reserved PROT_NONE with a guard page on each side, then only the middle made writable, so an
 // overrun or underrun of the call-return stack faults instead of corrupting a neighbour.
 class CallRetStack final {
-public:
+  public:
     ~CallRetStack() {
         if (reservation != nullptr && reservation != MAP_FAILED) {
             ::munmap(reservation, TotalSize());
         }
     }
 
-    [[nodiscard]] bool Create(std::string& error_detail, int& error_no) {
+    [[nodiscard]] bool Create(std::string &error_detail, int &error_no) {
         const long host_page = ::sysconf(_SC_PAGESIZE);
         guard_size = host_page > 0 ? static_cast<std::size_t>(host_page) : 4096;
 
@@ -813,7 +462,7 @@ public:
         return true;
     }
 
-    void InstallInto(FEXCore::Core::InternalThreadState* thread) const {
+    void InstallInto(FEXCore::Core::InternalThreadState *thread) const {
         thread->CallRetStackBase = Base();
         // Start a quarter in, matching the reference bring-up: the stack grows in both directions
         // depending on call depth, so starting at either end would waste half of it.
@@ -822,22 +471,22 @@ public:
             FEXCore::Core::InternalThreadState::CALLRET_STACK_SIZE / 4;
     }
 
-private:
+  private:
     [[nodiscard]] std::size_t TotalSize() const {
         return FEXCore::Core::InternalThreadState::CALLRET_STACK_SIZE + 2 * guard_size;
     }
-    [[nodiscard]] void* Base() const {
-        return static_cast<std::uint8_t*>(reservation) + guard_size;
+    [[nodiscard]] void *Base() const {
+        return static_cast<std::uint8_t *>(reservation) + guard_size;
     }
 
-    void* reservation{};
+    void *reservation{};
     std::size_t guard_size{};
 };
 
 // --- context -----------------------------------------------------------------
 class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
-public:
-    explicit FexCpuContext(const CpuConfig& config, GuestAddressSpace& space)
+  public:
+    explicit FexCpuContext(const CpuConfig &config, GuestAddressSpace &space)
         : config_(config), space_(space) {}
 
     ~FexCpuContext() override {
@@ -848,7 +497,7 @@ public:
         // thread holding a code buffer would otherwise outlive its owner.
         {
             std::lock_guard guard{lock_};
-            for (auto& [id, entry] : threads_) {
+            for (auto &[id, entry] : threads_) {
                 if (entry.native != nullptr && context_ != nullptr) {
                     context_->DestroyThread(entry.native);
                     entry.native = nullptr;
@@ -890,7 +539,10 @@ public:
         // bytes. That was the cause of guest fixtures having no architectural effect.
         FEXCore::Config::ReloadMetaLayer();
         FEXCore::Config::Set(FEXCore::Config::CONFIG_IS64BIT_MODE, "1");
-        config_initialized_ = true;
+        // Core-only GDBSERVER enables the entry interrupt-page store, not a server.
+        // Single basic blocks make its fault a restartable architectural boundary.
+        FEXCore::Config::Set(FEXCore::Config::CONFIG_GDBSERVER, "1");
+        FEXCore::Config::Set(FEXCore::Config::CONFIG_MULTIBLOCK, "0");
 
         {
             // Read it back rather than assuming the write landed; a silently 32-bit context
@@ -906,23 +558,26 @@ public:
         // FEX_CONFIG_OPT caches the value at construction; setting the FEX_DISASSEMBLE environment
         // variable has no effect on an embedder that does not load FEX's environment config layer.
         // Requires a FEXCore built with -DENABLE_VIXL_DISASSEMBLER=ON.
-        if (const char* disasm = ::getenv("GUEST_CPU_DISASSEMBLE"); disasm != nullptr) {
+        if (const char *disasm = ::getenv("GUEST_CPU_DISASSEMBLE"); disasm != nullptr) {
             FEXCore::Config::Set(FEXCore::Config::CONFIG_DISASSEMBLE, disasm);
         }
 
         // Surface FEXCore's own diagnostics. Without a handler these are dropped, and a JIT-side
         // refusal looks identical to a guest that simply did nothing.
         if (::getenv("GUEST_CPU_DEBUG") != nullptr) {
-            LogMan::Msg::InstallHandler([](LogMan::DebugLevels level, const char* message) {
+            LogMan::Msg::InstallHandler([](LogMan::DebugLevels level, const char *message) {
                 std::fprintf(stderr, "[fex %s] %s\n", LogMan::DebugLevelStr(level), message);
             });
-            LogMan::Throw::InstallHandler([](const char* message) {
-                std::fprintf(stderr, "[fex assert] %s\n", message);
-            });
+            LogMan::Throw::InstallHandler(
+                [](const char *message) { std::fprintf(stderr, "[fex assert] %s\n", message); });
         }
 
-        FEXCore::Allocator::SetupHooks(host_page_size_);
-        allocator_hooked_ = true;
+        // FEX's allocator owns process-wide VA reservations and static objects.
+        // ClearHooks intentionally leaks that arena (ReleaseAllocatorWorkaround),
+        // so reinstalling it per context cannot reclaim the old reservation and
+        // asserts on context rebuild. Keep one allocator for the process lifetime.
+        static std::once_flag allocator_once;
+        std::call_once(allocator_once, [this] { FEXCore::Allocator::SetupHooks(host_page_size_); });
 
         // Reads the real ID registers rather than assuming a feature set.
         host_features_ = FEX::FetchHostFeatures();
@@ -937,7 +592,6 @@ public:
         context_->SetSignalDelegator(signal_delegator_.get());
         context_->SetSyscallHandler(syscall_handler_.get());
 
-        // Makes the return gate's HLT exit ExecuteThread rather than trap.
         // Makes the return gate's HLT exit ExecuteThread rather than trap.
         //
         // GUEST_CPU_NO_EXIT_ON_HLT disables it for diagnosis: without it the gate's HLT takes the
@@ -960,7 +614,7 @@ public:
         if (auto installed = InstallInterruptHandler(); !installed) {
             return installed.GetError();
         }
-        if (signal_delegator_->GetConfig().ThreadPauseHandlerAddressSpillSRA == 0) {
+        if (signal_delegator_->GetConfig().ThreadStopHandlerAddressSpillSRA == 0) {
             // Without this the handler has nowhere safe to redirect an in-JIT thread, and a stop
             // request would either do nothing or corrupt register state. Fail loudly at init
             // instead of at the first interrupt.
@@ -985,7 +639,7 @@ public:
         return caps;
     }
 
-    [[nodiscard]] Result<ThreadHandle> CreateThread(const ThreadInit& init) override {
+    [[nodiscard]] Result<ThreadHandle> CreateThread(const ThreadInit &init) override {
         // Refuse while a publication transaction is active or code is poisoned. Creating a thread
         // is not executing yet, but it allocates backend state against a code image that is
         // mid-change, and admitting it here would let a Run follow immediately. Taking the lease
@@ -1024,7 +678,7 @@ public:
         auto gdt = std::make_unique<std::array<FEXCore::Core::CPUState::gdt_segment, 32>>();
         InitializeSegments(state, *gdt);
 
-        auto* native = context_->CreateThread(&state);
+        auto *native = context_->CreateThread(&state);
         if (native == nullptr) {
             return BackendError(ErrorCategory::OutOfMemory, "CreateThread",
                                 "FEXCore could not create a thread state");
@@ -1055,7 +709,7 @@ public:
         const std::uint64_t id = next_thread_id_++;
         ThreadEntry entry{};
         entry.native = native;
-        entry.generation = ++generation_counter_;
+        entry.generation = NextContextId();
         entry.owner = std::this_thread::get_id();
         entry.guest_tid = init.guest_tid;
         entry.entry_rip = init.entry_rip.value;
@@ -1067,104 +721,96 @@ public:
         syscall_handler_->RegisterExecutableRange(entry_mapping.Value().range.base.value,
                                                   entry_mapping.Value().range.size, false);
 
-        threads_.emplace(id, std::move(entry));
-        return ThreadHandle{.id = id, .generation = entry.generation};
+        const auto generation = entry.generation;
+        auto [it, inserted] = threads_.emplace(id, std::move(entry));
+        const ThreadHandle handle{id, generation};
+        it->second.interrupt->stopped_snapshot =
+            CaptureSnapshot(handle, it->second, SnapshotKind::SafePoint);
+        return handle;
     }
 
-    [[nodiscard]] Result<RunResult> Run(ThreadHandle thread, const RunOptions& options) override {
-        // Admission first, before claiming the thread. The lease is what makes a publication
-        // transaction exclude execution for its whole duration: previously a token only stopped
-        // *other writers*, and the backend checked for running threads inside DiscardTranslations,
-        // so a Run could enter the JIT on either side of that check (2026-09-08 poison review, R3).
-        // It also refuses while code is poisoned, since the backend's translation no longer matches
-        // the bytes on the guest page.
-        //
-        // Asked of the space, never the reverse: the lock order is context -> space.
+    [[nodiscard]] Result<RunResult> Run(ThreadHandle thread, const RunOptions &options) override {
+        if (options.deadline_ns != 0)
+            return BackendError(ErrorCategory::Unsupported, "Run", "deadline_ns is unsupported");
         auto lease = space_.AcquireExecutionLease();
-        if (!lease) {
+        if (!lease)
             return lease.GetError();
-        }
+        OwnerSignalStack signal_stack;
+        if (auto status = signal_stack.Install(host_page_size_); !status)
+            return status.GetError();
 
-        // Claim the thread under the lock and only then leave it: resolving the handle and marking
-        // it running have to be one step, or two callers can both pass the "not running" check.
-        // The earlier version returned a raw entry pointer from a helper that released the lock on
-        // return, then dereferenced it -- the 2026-09-08 review flagged that window as R5.
-        FEXCore::Core::InternalThreadState* native = nullptr;
-        std::uint64_t invocation = 0;
-        std::shared_ptr<InterruptState> interrupt;
+        ThreadInterruptBinding binding{};
+        std::uint64_t invocation{};
         {
             std::lock_guard guard{lock_};
-
-            auto* entry = FindOwnedLocked(thread);
-            if (entry == nullptr) {
+            auto *entry = FindOwnedLocked(thread);
+            if (!entry)
                 return OwnershipError(thread, "Run");
+            if (entry->running)
+                return BackendError(ErrorCategory::AlreadyRunning, "Run", "thread already running");
+            if (entry->interrupt->last_reason == StopReason::GuestFault ||
+                entry->interrupt->last_reason == StopReason::BackendFailure)
+                return BackendError(ErrorCategory::WrongState, "Run",
+                                    "destroy and recreate a faulted thread");
+            if (options.resume_after_epoch != 0) {
+                if (auto status = ConsumeResumeLocked(*entry, options.resume_after_epoch); !status)
+                    return status.GetError();
             }
-            if (entry->running) {
-                return BackendError(ErrorCategory::AlreadyRunning, "Run",
-                                    "this thread is already executing");
-            }
-
-            // Consume exactly the acknowledged epoch. A request newer than the one the caller says
-            // it handled stays pending, so a Resume racing a second Pause cannot swallow it.
-            if (auto status = ConsumeResumeLocked(*entry, options.resume_after_epoch); !status) {
-                return status.GetError();
-            }
-            if (options.deadline_ns != 0) {
-                // Refuse before execution rather than silently ignoring it, which is what the
-                // previous version did. Round 2 allows either implementing it or an explicit
-                // refusal; a deadline that is quietly dropped is the one outcome not allowed.
-                return BackendError(ErrorCategory::Unsupported, "Run",
-                                    "RunOptions::deadline_ns is not implemented by this backend; "
-                                    "use RequestInterrupt for bounded execution");
-            }
-
-            entry->running = true;
             invocation = ++entry->invocation_counter;
-            native = entry->native;
-            interrupt = entry->interrupt;
+            if (entry->interrupt->pending != 0) {
+                // A request before entry is handled by the owner without executing
+                // an instruction; it cannot disappear in the entering-JIT window.
+                return FinishRunLocked(thread, *entry, invocation, true);
+            }
+            entry->running = true;
+            entry->interrupt->receipt.reset();
+            entry->interrupt->stopped_snapshot.reset();
+            binding.fex = context_.get();
+            binding.native = entry->native;
+            binding.fault_page =
+                reinterpret_cast<std::uintptr_t>(entry->native->InterruptFaultPage);
+            binding.stop_spill = signal_delegator_->GetConfig().ThreadStopHandlerAddressSpillSRA;
         }
-
-        // Bind this thread for the duration of the run, so the signal handler can find its state
-        // without a lock. Cleared on every exit path below.
-        ThreadInterruptBinding binding{};
-        binding.state = interrupt.get();
-        binding.fex = context_.get();
-        binding.native = native;
-        binding.frame = native != nullptr ? static_cast<void*>(native->CurrentFrame) : nullptr;
-        if (auto* delegator = signal_delegator_.get(); delegator != nullptr) {
-            const auto& config = delegator->GetConfig();
-            binding.pause_spill_sra = config.ThreadPauseHandlerAddressSpillSRA;
-            binding.pause_no_spill = config.ThreadPauseHandlerAddress;
-            binding.pause_return = config.PauseReturnInstruction;
-            binding.stop_spill_sra = config.ThreadStopHandlerAddressSpillSRA;
-            binding.stop_no_spill = config.ThreadStopHandlerAddress;
-        }
+        // The controller may protect the page at any point from claiming the
+        // entry above onwards. No tgkill/TID reuse or late unbound signal exists.
         t_binding = &binding;
-        interrupt->native_tid.store(static_cast<std::uint64_t>(::gettid()),
-                                    std::memory_order_release);
-        interrupt->in_jit.store(true, std::memory_order_release);
-
-        // Executed with the lock released: a guest block runs for an unbounded time, and holding
-        // the context lock across it would block every other thread's handle operations. The
-        // running flag set above is what keeps this thread from being run or destroyed meanwhile.
-        context_->ExecuteThread(native);
-
-        interrupt->in_jit.store(false, std::memory_order_release);
+        fenv_t host_fp{};
+        ::fegetenv(&host_fp);
+        // Writing CPUState.mxcsr alone does not update the executing owner's
+        // FPCR. Mirror FEX's SetRoundingMode mapping: x86 down/up are reversed
+        // relative to ARM64. Start from guest defaults, not host trap/DN/FZ bits.
+        // FEX FillSpecialRegs configures AFP/FIZ from mxcsr when supported.
+        const auto mxcsr = binding.native->CurrentFrame->State.mxcsr;
+        const std::uint64_t rounding = (mxcsr >> 13) & 3;
+        const std::uint64_t guest_fpcr = (((rounding & 1) << 1) | ((rounding & 2) >> 1)) << 22 |
+                                         (static_cast<std::uint64_t>((mxcsr >> 15) & 1) << 24);
+        asm volatile("msr fpcr, %0\n\tmsr fpsr, xzr" : : "r"(guest_fpcr) : "memory");
+        context_->ExecuteThread(binding.native);
+        ::fesetenv(&host_fp);
         t_binding = nullptr;
 
         std::lock_guard guard{lock_};
-        auto* entry = FindOwnedLocked(thread);
-        if (entry == nullptr) {
-            // Should be impossible: running threads are refused by DestroyThread. Report it rather
-            // than dereferencing whatever is left.
-            return BackendError(ErrorCategory::BackendFailure, "Run",
-                                "the thread disappeared while it was executing");
-        }
+        auto *entry = FindOwnedLocked(thread);
+        if (!entry)
+            return BackendError(ErrorCategory::BackendFailure, "Run", "thread disappeared");
         entry->running = false;
-        return BuildRunResultLocked(thread, *entry, invocation, /*step=*/std::nullopt);
+        if (::mprotect(entry->native->InterruptFaultPage, host_page_size_,
+                       PROT_READ | PROT_WRITE) != 0) {
+            entry->interrupt->last_reason = StopReason::BackendFailure;
+            return BackendError(ErrorCategory::BackendFailure, "Run", "restore interrupt page",
+                                errno);
+        }
+        const bool interrupted = binding.interrupted.load(std::memory_order_acquire);
+        if (interrupted) {
+            const auto flags = context_->ReconstructCompactedEFLAGS(
+                entry->native, true, binding.gprs.data(), binding.pstate);
+            context_->SetFlagsFromCompactedEFLAGS(entry->native, flags);
+            entry->native->CurrentFrame->State.rip = binding.guest_rip;
+        }
+        return FinishRunLocked(thread, *entry, invocation, interrupted);
     }
 
-    [[nodiscard]] Result<RunResult> Step(ThreadHandle thread, const StepOptions&) override {
+    [[nodiscard]] Result<RunResult> Step(ThreadHandle thread, const StepOptions &) override {
         std::lock_guard guard{lock_};
         if (FindOwnedLocked(thread) == nullptr) {
             return OwnershipError(thread, "Step");
@@ -1179,7 +825,7 @@ public:
 
     [[nodiscard]] Result<CpuSnapshot> ReadRegisters(ThreadHandle thread) const override {
         std::lock_guard guard{lock_};
-        const ThreadEntry* entry = Find(thread);
+        const ThreadEntry *entry = Find(thread);
         if (entry == nullptr) {
             return BackendError(ErrorCategory::InvalidHandle, "ReadRegisters",
                                 "no live thread with this id and generation");
@@ -1190,13 +836,16 @@ public:
             return BackendError(ErrorCategory::AlreadyRunning, "ReadRegisters",
                                 "thread is executing; registers are not at a safe point");
         }
-        return CaptureSnapshot(thread, *entry, SnapshotKind::SafePoint);
+        if (!entry->interrupt->stopped_snapshot)
+            return BackendError(ErrorCategory::WrongState, "ReadRegisters",
+                                "no published snapshot");
+        return *entry->interrupt->stopped_snapshot;
     }
 
-    [[nodiscard]] Result<void> WriteRegisters(ThreadHandle thread, const RegisterPatch& patch,
+    [[nodiscard]] Result<void> WriteRegisters(ThreadHandle thread, const RegisterPatch &patch,
                                               std::uint64_t stop_epoch) override {
         std::lock_guard guard{lock_};
-        auto* entry = FindOwnedLocked(thread);
+        auto *entry = FindOwnedLocked(thread);
         if (entry == nullptr) {
             return OwnershipError(thread, "WriteRegisters");
         }
@@ -1204,6 +853,10 @@ public:
             return BackendError(ErrorCategory::AlreadyRunning, "WriteRegisters",
                                 "cannot write registers of an executing thread");
         }
+        if (entry->interrupt->last_reason == StopReason::GuestFault ||
+            entry->interrupt->last_reason == StopReason::BackendFailure)
+            return BackendError(ErrorCategory::WrongState, "WriteRegisters",
+                                "unrecoverable fault state");
         if (stop_epoch != entry->stop_epoch) {
             return BackendError(ErrorCategory::StaleEpoch, "WriteRegisters",
                                 "the supplied stop epoch is not the thread's current one");
@@ -1211,12 +864,16 @@ public:
 
         ApplyPatchToState(patch, entry->native->CurrentFrame->State);
         ApplyXmmPatch(patch, entry->native);
+        ++entry->stop_epoch;
+        entry->interrupt->stopped_snapshot =
+            CaptureSnapshot(thread, *entry, SnapshotKind::SafePoint);
+        PublishReceiptLocked(thread, *entry);
         return Result<void>{};
     }
 
     [[nodiscard]] Result<void> DestroyThread(ThreadHandle thread) override {
         std::lock_guard guard{lock_};
-        auto* entry = FindOwnedLocked(thread);
+        auto *entry = FindOwnedLocked(thread);
         if (entry == nullptr) {
             return OwnershipError(thread, "DestroyThread");
         }
@@ -1227,6 +884,7 @@ public:
 
         context_->DestroyThread(entry->native);
         threads_.erase(thread.id);
+        stopped_changed_.notify_all();
         return Result<void>{};
     }
 
@@ -1237,146 +895,84 @@ public:
 
     // --- asynchronous control ---------------------------------------------------------------
 
-    [[nodiscard]] std::uint64_t ContextId() const noexcept override {
-        return context_id_;
-    }
+    [[nodiscard]] std::uint64_t ContextId() const noexcept override { return context_id_; }
 
     [[nodiscard]] Result<InterruptTicket> RequestInterrupt(ThreadHandle thread,
                                                            InterruptReason reason) override {
-        std::shared_ptr<InterruptState> interrupt;
-        std::uint64_t generation = 0;
-        {
-            std::lock_guard guard{lock_};
-            // Deliberately not FindOwnedLocked: any thread may request an interrupt, including one
-            // that does not own the target. That is the whole point of an out-of-band kick.
-            auto found = threads_.find(thread.id);
-            if (found == threads_.end() || found->second.generation != thread.generation) {
-                return BackendError(ErrorCategory::InvalidHandle, "RequestInterrupt",
-                                    "no live thread with this id and generation");
-            }
-            interrupt = found->second.interrupt;
-            generation = found->second.generation;
-        }
-
-        const std::uint64_t epoch = next_request_epoch_.fetch_add(1, std::memory_order_acq_rel) + 1;
-        interrupt->pending.fetch_or(1u << static_cast<std::uint32_t>(reason),
-                                    std::memory_order_acq_rel);
-        // Monotonic: a concurrent request with a higher epoch must not be walked backwards.
-        std::uint64_t previous = interrupt->request_epoch.load(std::memory_order_acquire);
-        while (previous < epoch &&
-               !interrupt->request_epoch.compare_exchange_weak(previous, epoch,
-                                                               std::memory_order_acq_rel)) {
-        }
-
-        // Only signal a thread that is actually inside the JIT. One that is not will observe the
-        // pending bit at its next entry, and signalling it anyway would deliver to a thread that
-        // might be inside malloc or the runtime.
-        if (interrupt->in_jit.load(std::memory_order_acquire)) {
-            const auto tid = static_cast<pid_t>(interrupt->native_tid.load(std::memory_order_acquire));
-            if (tid != 0) {
-                // tgkill rather than pthread_kill: the target is identified by the tid recorded at
-                // Run entry, and a pthread_t could belong to a thread that has since exited.
-                ::syscall(SYS_tgkill, ::getpid(), tid, InterruptSignal());
-            }
-        }
-
-        InterruptTicket ticket{};
-        ticket.context_id = context_id_;
-        ticket.thread_id = thread.id;
-        ticket.thread_generation = generation;
-        ticket.epoch = epoch;
-        ticket.reason = reason;
-        return ticket;
+        if (reason != InterruptReason::Pause && reason != InterruptReason::Cancel &&
+            reason != InterruptReason::Shutdown)
+            return BackendError(ErrorCategory::InvalidArgument, "RequestInterrupt",
+                                "unknown reason");
+        std::lock_guard guard{lock_};
+        auto *entry = Find(thread);
+        if (!entry)
+            return BackendError(ErrorCategory::InvalidHandle, "RequestInterrupt", "stale handle");
+        if (entry->running &&
+            ::mprotect(entry->native->InterruptFaultPage, host_page_size_, PROT_NONE) != 0)
+            return BackendError(ErrorCategory::BackendFailure, "RequestInterrupt",
+                                "arm interrupt page", errno);
+        auto &state = *entry->interrupt;
+        const auto epoch = ++next_request_epoch_;
+        state.requests.emplace(epoch, reason);
+        state.request_epoch = epoch;
+        state.pending |= 1u << static_cast<std::uint32_t>(reason);
+        // Already stopped: a new request is covered by the existing owner-published
+        // snapshot. Reuse its stop epoch; never re-read state or fabricate a stop.
+        if (!entry->running && state.stopped_snapshot)
+            PublishReceiptLocked(thread, *entry);
+        return InterruptTicket{context_id_, thread.id, thread.generation, epoch, reason};
     }
 
-    [[nodiscard]] Result<StopReceipt> WaitStopped(const InterruptTicket& ticket,
+    [[nodiscard]] Result<StopReceipt> WaitStopped(const InterruptTicket &ticket,
                                                   std::uint64_t timeout_ns) override {
-        if (!ticket.IsValid() || ticket.context_id != context_id_) {
+        if (!ticket.IsValid() || ticket.context_id != context_id_)
             return BackendError(ErrorCategory::InvalidArgument, "WaitStopped",
-                                "the ticket was not issued by this context");
-        }
-        std::shared_ptr<InterruptState> interrupt;
-        {
-            std::lock_guard guard{lock_};
-            auto found = threads_.find(ticket.thread_id);
-            if (found == threads_.end() || found->second.generation != ticket.thread_generation) {
-                return BackendError(ErrorCategory::InvalidHandle, "WaitStopped",
-                                    "no live thread with this id and generation");
-            }
-            if (found->second.owner == std::this_thread::get_id() && found->second.running) {
-                // The owner is the thread that has to reach the safe point, so waiting here would
-                // deadlock on itself.
-                return BackendError(ErrorCategory::WrongThread, "WaitStopped",
-                                    "a thread cannot wait for its own stop");
-            }
-            interrupt = found->second.interrupt;
-        }
-
-        const auto deadline = std::chrono::steady_clock::now() +
-                              std::chrono::nanoseconds(timeout_ns == 0 ? 1'000'000'000 : timeout_ns);
-        {
-            std::unique_lock guard{interrupt->park_lock};
-            const bool acked = interrupt->park_changed.wait_until(guard, deadline, [&] {
-                return interrupt->acked_epoch.load(std::memory_order_acquire) >= ticket.epoch;
-            });
-            if (!acked) {
-                // Leave the request pending. Reporting a stop that did not happen, or tearing down
-                // a thread that is still running, are the two outcomes the spec forbids here.
-                return BackendError(ErrorCategory::Timeout, "WaitStopped",
-                                    "the owner did not reach a safe point before the deadline");
-            }
-        }
-
-        // The owner is stopped and its state is published, so a snapshot is now authoritative.
-        std::lock_guard guard{lock_};
-        auto found = threads_.find(ticket.thread_id);
-        if (found == threads_.end() || found->second.generation != ticket.thread_generation) {
+                                "wrong context ticket");
+        std::unique_lock guard{lock_};
+        const ThreadHandle handle{ticket.thread_id, ticket.thread_generation};
+        auto valid = [&]() -> bool {
+            auto *entry = Find(handle);
+            if (!entry)
+                return false;
+            const auto &requests = entry->interrupt->requests;
+            auto request = requests.find(ticket.epoch);
+            return request != requests.end() && request->second == ticket.reason;
+        };
+        if (!valid())
             return BackendError(ErrorCategory::InvalidHandle, "WaitStopped",
-                                "the thread was destroyed while stopping");
-        }
-        StopReceipt receipt{};
-        receipt.context_id = context_id_;
-        receipt.thread_id = ticket.thread_id;
-        receipt.request_epoch = ticket.epoch;
-        receipt.stop_epoch = ++found->second.stop_epoch;
-        const std::uint32_t reasons = interrupt->stop_reason.load(std::memory_order_acquire);
-        // Precedence is fixed by the spec: Cancel outranks Pause, and a fault would outrank both.
-        receipt.reason =
-            (reasons & (1u << static_cast<std::uint32_t>(InterruptReason::Cancel))) != 0
-                ? StopReason::Cancelled
-                : StopReason::PauseRequested;
-        receipt.pending_reasons = interrupt->pending.load(std::memory_order_acquire);
-        receipt.snapshot = CaptureSnapshot(
-            ThreadHandle{ticket.thread_id, ticket.thread_generation}, found->second,
-            SnapshotKind::SafePoint);
-        return receipt;
+                                "stale or unknown ticket");
+        if (auto *entry = Find(handle);
+            entry->running && entry->owner == std::this_thread::get_id())
+            return BackendError(ErrorCategory::WrongThread, "WaitStopped",
+                                "owner cannot wait for itself");
+        const auto bounded_timeout =
+            std::min<std::uint64_t>(timeout_ns ? timeout_ns : 1'000'000'000, 60'000'000'000);
+        if (!stopped_changed_.wait_for(guard, std::chrono::nanoseconds(bounded_timeout), [&] {
+                if (!valid())
+                    return true;
+                auto *entry = Find(handle);
+                return !entry->running && entry->interrupt->receipt &&
+                       entry->interrupt->acked_epoch >= ticket.epoch;
+            }))
+            return BackendError(ErrorCategory::Timeout, "WaitStopped", "owner has not stopped");
+        if (!valid())
+            return BackendError(ErrorCategory::StaleEpoch, "WaitStopped",
+                                "ticket retired while waiting");
+        auto result = *Find(handle)->interrupt->receipt;
+        result.request_epoch = ticket.epoch;
+        return result;
     }
 
     [[nodiscard]] Result<void> Resume(ThreadHandle thread,
                                       std::uint64_t acknowledged_epoch) override {
-        std::shared_ptr<InterruptState> interrupt;
-        {
-            std::lock_guard guard{lock_};
-            auto found = threads_.find(thread.id);
-            if (found == threads_.end() || found->second.generation != thread.generation) {
-                return BackendError(ErrorCategory::InvalidHandle, "Resume",
-                                    "no live thread with this id and generation");
-            }
-            interrupt = found->second.interrupt;
-        }
-        if (interrupt->acked_epoch.load(std::memory_order_acquire) < acknowledged_epoch) {
-            return BackendError(ErrorCategory::WrongState, "Resume",
-                                "that epoch has not been acknowledged by a stop yet");
-        }
-        {
-            std::lock_guard guard{interrupt->park_lock};
-            interrupt->resume_requested.store(true, std::memory_order_release);
-        }
-        interrupt->park_changed.notify_all();
-        return Result<void>{};
+        std::lock_guard guard{lock_};
+        auto *entry = Find(thread);
+        if (!entry)
+            return BackendError(ErrorCategory::InvalidHandle, "Resume", "stale handle");
+        return ConsumeResumeLocked(*entry, acknowledged_epoch);
     }
 
-    [[nodiscard]] Result<void> InvalidateCode(const QuiescenceToken& token, GuestRange range,
+    [[nodiscard]] Result<void> InvalidateCode(const QuiescenceToken &token, GuestRange range,
                                               InvalidationReason reason) override {
         if (!token.IsValid()) {
             return BackendError(ErrorCategory::WrongState, "InvalidateCode",
@@ -1400,20 +996,18 @@ public:
     // the 2026-09-08 publication review. The address space has already checked the token by the
     // time it calls this, so there is no token argument to re-check here.
 
-    [[nodiscard]] std::string_view Name() const override {
-        return "FEXCore";
-    }
+    [[nodiscard]] std::string_view Name() const override { return "FEXCore"; }
 
     [[nodiscard]] Status DiscardTranslations(GuestRange range, InvalidationReason reason) override {
         return DiscardTranslationsImpl(range, reason, "DiscardTranslations");
     }
 
-private:
+  private:
     [[nodiscard]] Status DiscardTranslationsImpl(GuestRange range, InvalidationReason reason,
-                                                 const char* operation) {
+                                                 const char *operation) {
         (void)reason;
         std::lock_guard guard{lock_};
-        for (auto& [id, entry] : threads_) {
+        for (auto &[id, entry] : threads_) {
             if (entry.running) {
                 return BackendError(ErrorCategory::AlreadyRunning, operation,
                                     "a guest thread is still executing");
@@ -1433,7 +1027,7 @@ private:
         // Both operations require FEX's exclusive code-invalidation lock.
         std::scoped_lock code_guard{context_->GetCodeInvalidationMutex()};
         context_->InvalidateCodeBuffersCodeRange(range.base.value, range.size);
-        for (auto& [id, entry] : threads_) {
+        for (auto &[id, entry] : threads_) {
             if (entry.native != nullptr) {
                 context_->InvalidateThreadCachedCodeRange(entry.native, range.base.value,
                                                           range.size);
@@ -1442,15 +1036,14 @@ private:
         return Result<void>{};
     }
 
-public:
-
+  public:
     [[nodiscard]] std::uint64_t ReturnGateAddress() const noexcept {
         return return_gate_.Address();
     }
 
-private:
+  private:
     struct ThreadEntry final {
-        FEXCore::Core::InternalThreadState* native{};
+        FEXCore::Core::InternalThreadState *native{};
         std::uint64_t generation{};
         std::thread::id owner{};
         std::uint64_t guest_tid{};
@@ -1473,44 +1066,78 @@ private:
         std::unique_ptr<CallRetStack> callret;
     };
 
-    // Requires lock_. Applies RunOptions::resume_after_epoch before a run starts.
-    //
-    // Consumes exactly the named epoch. A request that arrived after it keeps its pending bit, so
-    // resuming from an older stop cannot swallow a newer Pause -- which is the race the spec calls
-    // out for resume_after_epoch.
-    [[nodiscard]] Status ConsumeResumeLocked(ThreadEntry& entry, std::uint64_t acknowledged_epoch) {
-        auto& interrupt = *entry.interrupt;
-        if (acknowledged_epoch == 0) {
-            // No resume requested. Refuse to enter the JIT while a stop is still outstanding rather
-            // than running through it.
-            if (interrupt.pending.load(std::memory_order_acquire) != 0) {
-                return BackendError(ErrorCategory::WrongState, "Run",
-                                    "an interrupt is pending; resume the acknowledged epoch first");
-            }
-            return Ok();
-        }
-        if (interrupt.acked_epoch.load(std::memory_order_acquire) < acknowledged_epoch) {
-            return BackendError(ErrorCategory::StaleEpoch, "Run",
-                                "resume_after_epoch has not been acknowledged by a stop");
-        }
-        if (interrupt.request_epoch.load(std::memory_order_acquire) > acknowledged_epoch) {
-            return BackendError(ErrorCategory::WrongState, "Run",
-                                "a newer interrupt is pending; it must be serviced before running");
-        }
-        interrupt.pending.store(0, std::memory_order_release);
+    [[nodiscard]] Status ConsumeResumeLocked(ThreadEntry &entry, std::uint64_t epoch) {
+        auto &state = *entry.interrupt;
+        if (entry.running || !state.receipt || epoch == 0 || epoch != state.acked_epoch ||
+            epoch != state.request_epoch)
+            return BackendError(ErrorCategory::StaleEpoch, "Resume",
+                                "resume must name the current stopped request epoch");
+        if (state.last_reason == StopReason::GuestFault ||
+            state.last_reason == StopReason::BackendFailure)
+            return BackendError(ErrorCategory::WrongState, "Resume",
+                                "faulted execution cannot be resumed");
+        state.pending = 0;
+        state.requests.clear();
+        state.receipt.reset();
+        stopped_changed_.notify_all();
         return Ok();
+    }
+
+    void PublishReceiptLocked(ThreadHandle handle, ThreadEntry &entry) {
+        auto &state = *entry.interrupt;
+        if (!state.stopped_snapshot || state.pending == 0)
+            return;
+        const auto cancel = (1u << static_cast<unsigned>(InterruptReason::Cancel)) |
+                            (1u << static_cast<unsigned>(InterruptReason::Shutdown));
+        auto reason = (state.pending & cancel) ? StopReason::Cancelled : StopReason::PauseRequested;
+        if (state.last_reason == StopReason::GuestFault ||
+            state.last_reason == StopReason::BackendFailure)
+            reason = state.last_reason;
+        state.acked_epoch = state.request_epoch;
+        state.receipt =
+            StopReceipt{context_id_, handle.id,     state.request_epoch,    entry.stop_epoch,
+                        reason,      state.pending, *state.stopped_snapshot};
+        stopped_changed_.notify_all();
+    }
+
+    Result<RunResult> FinishRunLocked(ThreadHandle handle, ThreadEntry &entry,
+                                      std::uint64_t invocation, bool interrupted) {
+        auto result = BuildRunResultLocked(handle, entry, invocation, std::nullopt);
+        if (interrupted) {
+            const auto cancel = (1u << static_cast<unsigned>(InterruptReason::Cancel)) |
+                                (1u << static_cast<unsigned>(InterruptReason::Shutdown));
+            auto &value = result.Value();
+            value.primary_reason = (entry.interrupt->pending & cancel) ? StopReason::Cancelled
+                                                                       : StopReason::PauseRequested;
+            value.pending_reasons = BitOf(value.primary_reason);
+            if (entry.interrupt->pending & (1u << static_cast<unsigned>(InterruptReason::Pause)))
+                value.pending_reasons |= BitOf(StopReason::PauseRequested);
+            value.guest_pc = value.snapshot.registers.rip;
+            value.snapshot.kind = SnapshotKind::SafePoint;
+            value.fault.reset();
+        }
+        if (entry.interrupt->pending & (1u << static_cast<unsigned>(InterruptReason::Pause)))
+            result.Value().pending_reasons |= BitOf(StopReason::PauseRequested);
+        if (entry.interrupt->pending & ((1u << static_cast<unsigned>(InterruptReason::Cancel)) |
+                                        (1u << static_cast<unsigned>(InterruptReason::Shutdown))))
+            result.Value().pending_reasons |= BitOf(StopReason::Cancelled);
+        result.Value().primary_reason = SelectPrimaryReason(result.Value().pending_reasons);
+        entry.interrupt->last_reason = result.Value().primary_reason;
+        entry.interrupt->stopped_snapshot = result.Value().snapshot;
+        PublishReceiptLocked(handle, entry);
+        return result;
     }
 
     // Points CPUState at this thread's GDT and installs a flat 64-bit code
     // segment. Without it FEXCore::Frontend::Decoder dereferences a null
     // segment_arrays entry as soon as it compiles the first block.
-    static void InitializeSegments(FEXCore::Core::CPUState& state,
-                                   std::array<FEXCore::Core::CPUState::gdt_segment, 32>& gdt) {
+    static void InitializeSegments(FEXCore::Core::CPUState &state,
+                                   std::array<FEXCore::Core::CPUState::gdt_segment, 32> &gdt) {
         state.segment_arrays[FEXCore::Core::CPUState::SEGMENT_ARRAY_INDEX_GDT] = gdt.data();
         state.segment_arrays[FEXCore::Core::CPUState::SEGMENT_ARRAY_INDEX_LDT] = gdt.data();
         state.cs_idx = FEXCore::Core::CPUState::DEFAULT_USER_CS << 3;
 
-        auto* code_segment = FEXCore::Core::CPUState::GetSegmentFromIndex(state, state.cs_idx);
+        auto *code_segment = FEXCore::Core::CPUState::GetSegmentFromIndex(state, state.cs_idx);
         FEXCore::Core::CPUState::SetGDTBase(code_segment, 0);
         FEXCore::Core::CPUState::SetGDTLimit(code_segment, 0xF'FFFFU);
         state.cs_cached = FEXCore::Core::CPUState::CalculateGDTBase(*code_segment);
@@ -1521,7 +1148,14 @@ private:
         code_segment->D = 0;
     }
 
-    [[nodiscard]] const ThreadEntry* Find(ThreadHandle handle) const {
+    [[nodiscard]] ThreadEntry *Find(ThreadHandle handle) {
+        auto found = threads_.find(handle.id);
+        return found != threads_.end() && found->second.generation == handle.generation
+                   ? &found->second
+                   : nullptr;
+    }
+
+    [[nodiscard]] const ThreadEntry *Find(ThreadHandle handle) const {
         auto it = threads_.find(handle.id);
         if (it == threads_.end() || it->second.generation != handle.generation) {
             return nullptr;
@@ -1536,7 +1170,7 @@ private:
     // keeps holding it. An earlier version took the lock inside a helper and returned this pointer
     // to a caller that then used it unlocked, which is the window the 2026-09-08 review recorded as
     // part of R5.
-    [[nodiscard]] ThreadEntry* FindOwnedLocked(ThreadHandle handle) {
+    [[nodiscard]] ThreadEntry *FindOwnedLocked(ThreadHandle handle) {
         auto it = threads_.find(handle.id);
         if (it == threads_.end() || it->second.generation != handle.generation) {
             return nullptr;
@@ -1559,7 +1193,7 @@ private:
                             "only the creating thread may drive this guest thread");
     }
 
-    void ApplyPatchToState(const RegisterPatch& patch, FEXCore::Core::CPUState& state) const {
+    void ApplyPatchToState(const RegisterPatch &patch, FEXCore::Core::CPUState &state) const {
         if (HasAll(patch.fields, RegisterValidity::Gpr)) {
             for (std::size_t i = 0; i < kGprCount; ++i) {
                 if ((patch.gpr_mask & (1u << i)) != 0) {
@@ -1582,7 +1216,7 @@ private:
     // RFLAGS and XMM go through context calls rather than raw CPUState fields:
     // FEX stores flags decomposed across a byte array and may hold XMM in an
     // AVX layout, so writing the struct directly would corrupt them.
-    void ApplyXmmPatch(const RegisterPatch& patch, FEXCore::Core::InternalThreadState* native) {
+    void ApplyXmmPatch(const RegisterPatch &patch, FEXCore::Core::InternalThreadState *native) {
         if (HasAll(patch.fields, RegisterValidity::Rflags)) {
             context_->SetFlagsFromCompactedEFLAGS(native,
                                                   static_cast<std::uint32_t>(patch.values.rflags));
@@ -1610,7 +1244,7 @@ private:
                                            host_features_.SupportsAVX ? high.data() : nullptr);
     }
 
-    [[nodiscard]] CpuSnapshot CaptureSnapshot(ThreadHandle handle, const ThreadEntry& entry,
+    [[nodiscard]] CpuSnapshot CaptureSnapshot(ThreadHandle handle, const ThreadEntry &entry,
                                               SnapshotKind kind) const {
         CpuSnapshot snapshot{};
         snapshot.thread_id = handle.id;
@@ -1621,7 +1255,7 @@ private:
         snapshot.mapping_generation = space_.MappingGeneration();
         snapshot.code_generation = space_.CodeGeneration();
 
-        const auto& state = entry.native->CurrentFrame->State;
+        const auto &state = entry.native->CurrentFrame->State;
         for (std::size_t i = 0; i < kGprCount; ++i) {
             snapshot.registers.gpr[i] = state.gregs[i];
         }
@@ -1654,9 +1288,9 @@ private:
     }
 
     // Requires lock_ to be held: it reads and advances the entry's stop epoch.
-    [[nodiscard]] Result<RunResult> BuildRunResultLocked(ThreadHandle handle, ThreadEntry& entry,
-                                                   std::uint64_t invocation,
-                                                   std::optional<StepInfo> step) {
+    [[nodiscard]] Result<RunResult> BuildRunResultLocked(ThreadHandle handle, ThreadEntry &entry,
+                                                         std::uint64_t invocation,
+                                                         std::optional<StepInfo> step) {
         entry.stop_epoch++;
 
         RunResult result{};
@@ -1669,15 +1303,6 @@ private:
         const std::uint64_t rip = entry.native->CurrentFrame->State.rip;
         const std::uint64_t gate = return_gate_.Address();
 
-        // A cancel takes the stop stub out of ExecuteThread rather than reaching a guest gate. The
-        // pending bit survives that path (unlike a pause, which SleepThread clears on resume), so it
-        // is what distinguishes "we unwound because we were asked to stop" from a guest fault at
-        // an unregistered RIP. Fault still outranks the lot.
-        const std::uint32_t pending = entry.interrupt->pending.load(std::memory_order_acquire);
-        const bool cancelled =
-            (pending & ((1u << static_cast<std::uint32_t>(InterruptReason::Cancel)) |
-                        (1u << static_cast<std::uint32_t>(InterruptReason::Shutdown)))) != 0;
-
         if (syscall_handler_->TakeUnexpectedSyscall()) {
             // A syscall with no HLE path is a fault, not a normal return.
             result.primary_reason = StopReason::GuestFault;
@@ -1687,10 +1312,6 @@ private:
             fault.access = GuestAccessKind::Execute;
             fault.recoverable = false;
             result.fault = fault;
-        } else if (cancelled) {
-            // The stop stub returned us out of the JIT; the snapshot is a clean safe point.
-            result.primary_reason = StopReason::Cancelled;
-            result.pending_reasons |= BitOf(StopReason::Cancelled);
         } else if (rip >= gate && rip < gate + return_gate_.Size()) {
             // Stopped at the registered gate: this is the only RIP that counts
             // as a normal return (D05).
@@ -1710,25 +1331,25 @@ private:
             result.fault = fault;
         }
 
-        result.snapshot = CaptureSnapshot(handle, entry,
-                                          result.primary_reason == StopReason::Returned
-                                              ? SnapshotKind::SafePoint
-                                              : SnapshotKind::Faulted);
+        result.snapshot =
+            CaptureSnapshot(handle, entry,
+                            result.primary_reason == StopReason::Returned ? SnapshotKind::SafePoint
+                                                                          : SnapshotKind::Faulted);
         return result;
     }
 
     CpuConfig config_{};
-    GuestAddressSpace& space_;
+    GuestAddressSpace &space_;
 
     // Identity for tickets and receipts. Monotonic across the process, so a ticket from a
     // destroyed context cannot match its replacement even though thread ids restart.
     const std::uint64_t context_id_{NextContextId()};
-    std::atomic<std::uint64_t> next_request_epoch_{0};
+    std::uint64_t next_request_epoch_{0};
 
     mutable std::mutex lock_;
+    std::condition_variable stopped_changed_;
     std::unordered_map<std::uint64_t, ThreadEntry> threads_;
     std::uint64_t next_thread_id_{1};
-    std::uint64_t generation_counter_{0};
 
     fextl::unique_ptr<FEXCore::Context::Context> context_;
     std::unique_ptr<FexSignalDelegator> signal_delegator_;
@@ -1736,8 +1357,6 @@ private:
     FEXCore::HostFeatures host_features_{};
     ReturnGate return_gate_;
     std::uint64_t host_page_size_{};
-    bool config_initialized_{false};
-    bool allocator_hooked_{false};
 };
 
 } // namespace
@@ -1759,8 +1378,8 @@ BackendCapabilities QueryFexCapabilities() {
     return caps;
 }
 
-Result<std::unique_ptr<CpuContext>> CreateFexContext(const CpuConfig& config,
-                                                     GuestAddressSpace& space) {
+Result<std::unique_ptr<CpuContext>> CreateFexContext(const CpuConfig &config,
+                                                     GuestAddressSpace &space) {
     if (config.api_version != CpuConfig::kApiVersion) {
         return BackendError(ErrorCategory::InvalidArgument, "CreateContext",
                             "api_version does not match this build");
@@ -1799,13 +1418,11 @@ Result<std::unique_ptr<CpuContext>> CreateFexContext(const CpuConfig& config,
 
 namespace Core::GuestCpu {
 
-Result<std::unique_ptr<CpuContext>> CreateContext(const CpuConfig& config,
-                                                  GuestAddressSpace& space) {
+Result<std::unique_ptr<CpuContext>> CreateContext(const CpuConfig &config,
+                                                  GuestAddressSpace &space) {
     return Fex::CreateFexContext(config, space);
 }
 
-BackendCapabilities QueryBackendCapabilities() {
-    return Fex::QueryFexCapabilities();
-}
+BackendCapabilities QueryBackendCapabilities() { return Fex::QueryFexCapabilities(); }
 
 } // namespace Core::GuestCpu

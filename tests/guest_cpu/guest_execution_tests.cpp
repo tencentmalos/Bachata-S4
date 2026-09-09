@@ -14,11 +14,20 @@
 // apart from a wrong fixture without re-deriving the encoding.
 
 #include <atomic>
+#include <barrier>
+#include <cfenv>
 #include <chrono>
 #include <cinttypes>
+#include <condition_variable>
+#include <csignal>
 #include <cstdio>
 #include <cstring>
+#include <functional>
+#include <future>
+#include <mutex>
+#include <queue>
 #include <string>
+#include <sys/syscall.h>
 #include <thread>
 #include <vector>
 
@@ -36,7 +45,7 @@ using namespace Core::GuestCpu;
 int g_failures = 0;
 int g_checks = 0;
 
-void Check(const char* id, const char* name, bool condition, const std::string& detail = {}) {
+void Check(const char *id, const char *name, bool condition, const std::string &detail = {}) {
     ++g_checks;
     printf("[%-6s] %-58s %s", id, name, condition ? "PASS" : "FAIL");
     if (!detail.empty()) {
@@ -55,7 +64,7 @@ std::string Hex(std::uint64_t value) {
     return buffer;
 }
 
-void CheckU64(const char* id, const char* name, std::uint64_t actual, std::uint64_t expected) {
+void CheckU64(const char *id, const char *name, std::uint64_t actual, std::uint64_t expected) {
     const bool ok = actual == expected;
     Check(id, name, ok, ok ? std::string{} : "expected " + Hex(expected) + ", got " + Hex(actual));
 }
@@ -75,8 +84,8 @@ struct Harness final {
     std::uint64_t return_gate{};
 };
 
-const Fixtures::Fixture* FindFixture(std::string_view name) {
-    for (const auto& fixture : Fixtures::kAll) {
+const Fixtures::Fixture *FindFixture(std::string_view name) {
+    for (const auto &fixture : Fixtures::kAll) {
         if (fixture.name == name) {
             return &fixture;
         }
@@ -86,7 +95,7 @@ const Fixtures::Fixture* FindFixture(std::string_view name) {
 
 // Writes a fixture into guest memory, patches the return-gate address, publishes RX, and discards
 // any translation of whatever was there before.
-bool LoadFixture(Harness& harness, const Fixtures::Fixture& fixture, std::string& error) {
+bool LoadFixture(Harness &harness, const Fixtures::Fixture &fixture, std::string &error) {
     const GuestRange range{GuestAddress{harness.code_base}, kMappingSize};
 
     auto writable = harness.space->Protect(range, GuestPermission::Read | GuestPermission::Write);
@@ -131,8 +140,8 @@ bool LoadFixture(Harness& harness, const Fixtures::Fixture& fixture, std::string
         error = "Quiesce: " + Describe(quiesced.GetError());
         return false;
     }
-    auto invalidated = harness.context->InvalidateCode(quiesced.Value(), range,
-                                                       InvalidationReason::HostWrite);
+    auto invalidated =
+        harness.context->InvalidateCode(quiesced.Value(), range, InvalidationReason::HostWrite);
     if (!invalidated) {
         error = "InvalidateCode: " + Describe(invalidated.GetError());
         return false;
@@ -141,7 +150,7 @@ bool LoadFixture(Harness& harness, const Fixtures::Fixture& fixture, std::string
 }
 
 // Zeroes the guest stack so a stale value cannot look like a fresh store.
-bool ResetStack(Harness& harness, std::string& error) {
+bool ResetStack(Harness &harness, std::string &error) {
     auto pin = harness.space->AcquirePinnedSpan(
         GuestRange{GuestAddress{harness.stack_base}, kMappingSize}, /*writable=*/true);
     if (!pin) {
@@ -155,7 +164,7 @@ bool ResetStack(Harness& harness, std::string& error) {
 
 // Reads one 8-byte guest slot. Returns false when the read itself failed, so "could not read" is
 // distinguishable from "read zero".
-bool ReadGuestU64(Harness& harness, std::uint64_t address, std::uint64_t& out) {
+bool ReadGuestU64(Harness &harness, std::uint64_t address, std::uint64_t &out) {
     auto pin = harness.space->AcquirePinnedSpan(GuestRange{GuestAddress{address}, 8},
                                                 /*writable=*/false);
     if (!pin) {
@@ -172,7 +181,7 @@ struct RunOutcome final {
 };
 
 template <typename SetupFn>
-RunOutcome RunFixture(Harness& harness, const Fixtures::Fixture& fixture, SetupFn&& setup) {
+RunOutcome RunFixture(Harness &harness, const Fixtures::Fixture &fixture, SetupFn &&setup) {
     RunOutcome outcome{};
 
     if (!LoadFixture(harness, fixture, outcome.error)) {
@@ -214,14 +223,14 @@ RunOutcome RunFixture(Harness& harness, const Fixtures::Fixture& fixture, SetupF
 
 // Prints what the fixture actually is, so a failure can be attributed to the backend or to the
 // fixture without anyone re-deriving the encoding by hand.
-void ReportFixture(const Fixtures::Fixture& fixture) {
+void ReportFixture(const Fixtures::Fixture &fixture) {
     printf("  fixture %.*s (%zu bytes):\n", static_cast<int>(fixture.name.size()),
            fixture.name.data(), fixture.bytes.size());
     printf("    %.*s\n", static_cast<int>(fixture.disassembly.size()), fixture.disassembly.data());
     fflush(stdout);
 }
 
-bool Require(const char* id, const RunOutcome& outcome, const Fixtures::Fixture& fixture) {
+bool Require(const char *id, const RunOutcome &outcome, const Fixtures::Fixture &fixture) {
     if (!outcome.ok) {
         Check(id, "run fixture", false, outcome.error);
         ReportFixture(fixture);
@@ -231,14 +240,14 @@ bool Require(const char* id, const RunOutcome& outcome, const Fixtures::Fixture&
 }
 
 // --- C01: integer arithmetic -------------------------------------------------------------------
-void TestIntegerArithmetic(Harness& harness) {
-    const auto* fixture = FindFixture("integer");
+void TestIntegerArithmetic(Harness &harness) {
+    const auto *fixture = FindFixture("integer");
     if (fixture == nullptr) {
         Check("G01", "integer fixture is present", false);
         return;
     }
 
-    auto outcome = RunFixture(harness, *fixture, [](RegisterPatch& patch) {
+    auto outcome = RunFixture(harness, *fixture, [](RegisterPatch &patch) {
         patch.fields = RegisterValidity::Gpr;
         patch.gpr_mask = (1u << Index(Gpr::R8)) | (1u << Index(Gpr::R9));
         patch.values.Set(Gpr::R8, 0x1000);
@@ -248,7 +257,7 @@ void TestIntegerArithmetic(Harness& harness) {
         return;
     }
 
-    const auto& regs = outcome.result.snapshot.registers;
+    const auto &regs = outcome.result.snapshot.registers;
     const bool returned = outcome.result.primary_reason == StopReason::Returned;
     Check("G01a", "integer fixture returned through the gate", returned,
           returned ? std::string{} : std::string{ToString(outcome.result.primary_reason)});
@@ -265,14 +274,14 @@ void TestIntegerArithmetic(Harness& harness) {
 }
 
 // --- C01: branches, both directions ------------------------------------------------------------
-void TestBranches(Harness& harness) {
-    const auto* fixture = FindFixture("branch");
+void TestBranches(Harness &harness) {
+    const auto *fixture = FindFixture("branch");
     if (fixture == nullptr) {
         Check("G02", "branch fixture is present", false);
         return;
     }
 
-    auto equal = RunFixture(harness, *fixture, [](RegisterPatch& patch) {
+    auto equal = RunFixture(harness, *fixture, [](RegisterPatch &patch) {
         patch.fields = RegisterValidity::Gpr;
         patch.gpr_mask = (1u << Index(Gpr::Rdi)) | (1u << Index(Gpr::Rsi));
         patch.values.Set(Gpr::Rdi, 42);
@@ -283,7 +292,7 @@ void TestBranches(Harness& harness) {
                  equal.result.snapshot.registers.Get(Gpr::Rax), 1);
     }
 
-    auto unequal = RunFixture(harness, *fixture, [](RegisterPatch& patch) {
+    auto unequal = RunFixture(harness, *fixture, [](RegisterPatch &patch) {
         patch.fields = RegisterValidity::Gpr;
         patch.gpr_mask = (1u << Index(Gpr::Rdi)) | (1u << Index(Gpr::Rsi));
         patch.values.Set(Gpr::Rdi, 42);
@@ -296,8 +305,8 @@ void TestBranches(Harness& harness) {
 }
 
 // --- C01: load/store through the guest stack -----------------------------------------------------
-void TestLoadStore(Harness& harness) {
-    const auto* fixture = FindFixture("loadstore");
+void TestLoadStore(Harness &harness) {
+    const auto *fixture = FindFixture("loadstore");
     if (fixture == nullptr) {
         Check("G03", "loadstore fixture is present", false);
         return;
@@ -306,7 +315,7 @@ void TestLoadStore(Harness& harness) {
     constexpr std::uint64_t kFirst = 0xAAAA'BBBB'CCCC'DDDDull;
     constexpr std::uint64_t kSecond = 0x1111'2222'3333'4444ull;
 
-    auto outcome = RunFixture(harness, *fixture, [](RegisterPatch& patch) {
+    auto outcome = RunFixture(harness, *fixture, [](RegisterPatch &patch) {
         patch.fields = RegisterValidity::Gpr;
         patch.gpr_mask = (1u << Index(Gpr::Rdi)) | (1u << Index(Gpr::Rsi));
         patch.values.Set(Gpr::Rdi, kFirst);
@@ -316,15 +325,15 @@ void TestLoadStore(Harness& harness) {
         return;
     }
 
-    const auto& regs = outcome.result.snapshot.registers;
+    const auto &regs = outcome.result.snapshot.registers;
     CheckU64("G03a", "pop rax read back the second push", regs.Get(Gpr::Rax), kSecond);
     CheckU64("G03b", "pop rcx read back the first push", regs.Get(Gpr::Rcx), kFirst);
     CheckU64("G03c", "stack pointer is balanced after push/pop", regs.Rsp(), harness.stack_top);
 }
 
 // --- C01: a store that must remain visible in guest memory ---------------------------------------
-void TestStoreMemory(Harness& harness) {
-    const auto* fixture = FindFixture("store_memory");
+void TestStoreMemory(Harness &harness) {
+    const auto *fixture = FindFixture("store_memory");
     if (fixture == nullptr) {
         Check("G07", "store_memory fixture is present", false);
         return;
@@ -333,7 +342,7 @@ void TestStoreMemory(Harness& harness) {
     constexpr std::uint64_t kLow = 0x0BAD'C0DE'0BAD'C0DEull;
     constexpr std::uint64_t kHigh = 0xFEED'FACE'FEED'FACEull;
 
-    auto outcome = RunFixture(harness, *fixture, [](RegisterPatch& patch) {
+    auto outcome = RunFixture(harness, *fixture, [](RegisterPatch &patch) {
         patch.fields = RegisterValidity::Gpr;
         patch.gpr_mask = (1u << Index(Gpr::Rdi)) | (1u << Index(Gpr::Rsi));
         patch.values.Set(Gpr::Rdi, kLow);
@@ -361,28 +370,28 @@ void TestStoreMemory(Harness& harness) {
     // Read the same slots straight through the host pointer, bypassing the address space entirely.
     // This separates "the guest never wrote" from "the guest wrote somewhere the API does not read
     // back", which the pinned-span read alone cannot distinguish.
-    const auto* raw = reinterpret_cast<const volatile std::uint64_t*>(harness.stack_top);
+    const auto *raw = reinterpret_cast<const volatile std::uint64_t *>(harness.stack_top);
     const std::uint64_t direct_low = raw[-2];
     const std::uint64_t direct_high = raw[-1];
     char detail[192];
     std::snprintf(detail, sizeof(detail),
                   "direct[rsp-16]=%s direct[rsp-8]=%s (pinned read gave %s / %s)",
-                  Hex(direct_low).c_str(), Hex(direct_high).c_str(),
-                  Hex(slot_minus_16).c_str(), Hex(slot_minus_8).c_str());
+                  Hex(direct_low).c_str(), Hex(direct_high).c_str(), Hex(slot_minus_16).c_str(),
+                  Hex(slot_minus_8).c_str());
     Check("G07d", "direct host read agrees with the pinned-span read",
           direct_low == slot_minus_16 && direct_high == slot_minus_8, detail);
 
     // What the guest itself read back from those slots. If these are correct while the host reads
     // are zero, the store and load are consistent with each other but invisible outside the guest;
     // if these are also zero, the store never happened at all.
-    const auto& regs = outcome.result.snapshot.registers;
+    const auto &regs = outcome.result.snapshot.registers;
     CheckU64("G07e", "guest read back its own store to [rsp-16]", regs.Get(Gpr::Rax), kLow);
     CheckU64("G07f", "guest read back its own store to [rsp-8]", regs.Get(Gpr::Rcx), kHigh);
 }
 
 // --- C02: SSE2 -----------------------------------------------------------------------------------
-void TestSse2(Harness& harness) {
-    const auto* fixture = FindFixture("sse2");
+void TestSse2(Harness &harness) {
+    const auto *fixture = FindFixture("sse2");
     if (fixture == nullptr) {
         Check("G04", "sse2 fixture is present", false);
         return;
@@ -393,7 +402,7 @@ void TestSse2(Harness& harness) {
     // paddq adds the full 64-bit lane, and neither lane carries into the other here.
     constexpr std::uint64_t kExpected = kLeft + kRight;
 
-    auto outcome = RunFixture(harness, *fixture, [](RegisterPatch& patch) {
+    auto outcome = RunFixture(harness, *fixture, [](RegisterPatch &patch) {
         patch.fields = RegisterValidity::Gpr;
         patch.gpr_mask = (1u << Index(Gpr::Rdi)) | (1u << Index(Gpr::Rsi));
         patch.values.Set(Gpr::Rdi, kLeft);
@@ -403,21 +412,22 @@ void TestSse2(Harness& harness) {
         return;
     }
 
-    const auto& regs = outcome.result.snapshot.registers;
+    const auto &regs = outcome.result.snapshot.registers;
     CheckU64("G04a", "paddq result moved back to a GPR", regs.Get(Gpr::Rax), kExpected);
     CheckU64("G04b", "xmm0 low half holds the packed sum", regs.xmm[0].low, kExpected);
     Check("G04c", "snapshot reports XMM as valid", HasAll(regs.validity, RegisterValidity::Xmm));
 }
 
-// --- D05: a HLT outside the gate is not a normal return -------------------------------------------
-void TestUnregisteredHlt(Harness& harness) {
-    const auto* fixture = FindFixture("bare_hlt");
+// --- D05: a HLT outside the gate is not a normal return
+// -------------------------------------------
+void TestUnregisteredHlt(Harness &harness) {
+    const auto *fixture = FindFixture("bare_hlt");
     if (fixture == nullptr) {
         Check("G05", "bare_hlt fixture is present", false);
         return;
     }
 
-    auto outcome = RunFixture(harness, *fixture, [](RegisterPatch&) {});
+    auto outcome = RunFixture(harness, *fixture, [](RegisterPatch &) {});
     if (!Require("G05", outcome, *fixture)) {
         return;
     }
@@ -434,9 +444,9 @@ void TestUnregisteredHlt(Harness& harness) {
 
 // Exercise the two cache lifetimes separately: FEX's shared code buffers outlive
 // all threads, while each live thread also has its own lookup/call-return cache.
-void TestCodeInvalidation(Harness& harness) {
-    const auto* a = FindFixture("constant_a");
-    const auto* b = FindFixture("constant_b");
+void TestCodeInvalidation(Harness &harness) {
+    const auto *a = FindFixture("constant_a");
+    const auto *b = FindFixture("constant_b");
     if (!a || !b) {
         Check("G08a", "invalidation fixtures are present", false);
         return;
@@ -446,7 +456,7 @@ void TestCodeInvalidation(Harness& harness) {
     std::string error;
     for (unsigned epoch = 0; epoch < 100; ++epoch) {
         const bool use_a = (epoch % 2) == 0;
-        auto outcome = RunFixture(harness, use_a ? *a : *b, [](RegisterPatch&) {});
+        auto outcome = RunFixture(harness, use_a ? *a : *b, [](RegisterPatch &) {});
         const auto expected = use_a ? 17u : 34u;
         if (!outcome.ok || outcome.result.primary_reason != StopReason::Returned ||
             outcome.result.snapshot.registers.Get(Gpr::Rax) != expected ||
@@ -456,8 +466,8 @@ void TestCodeInvalidation(Harness& harness) {
             break;
         }
     }
-    Check("G08a", "100 same-VA publications with zero live threads between runs",
-          recreated_ok, error);
+    Check("G08a", "100 same-VA publications with zero live threads between runs", recreated_ok,
+          error);
 
     if (!LoadFixture(harness, *a, error)) {
         Check("G08b", "publish code for two stopped cache owners", false, error);
@@ -470,8 +480,10 @@ void TestCodeInvalidation(Harness& harness) {
     auto second = harness.context->CreateThread(init);
     if (!first || !second) {
         Check("G08b", "create two cache owners", false);
-        if (first) (void)harness.context->DestroyThread(first.Value());
-        if (second) (void)harness.context->DestroyThread(second.Value());
+        if (first)
+            (void)harness.context->DestroyThread(first.Value());
+        if (second)
+            (void)harness.context->DestroyThread(second.Value());
         return;
     }
     bool live_ok = true;
@@ -484,8 +496,8 @@ void TestCodeInvalidation(Harness& harness) {
         }
         for (auto handle : handles) {
             auto stopped = harness.context->ReadRegisters(handle);
-            if (!stopped || (epoch != 0 &&
-                stopped.Value().registers.Get(Gpr::Rax) != (use_a ? 34u : 17u))) {
+            if (!stopped ||
+                (epoch != 0 && stopped.Value().registers.Get(Gpr::Rax) != (use_a ? 34u : 17u))) {
                 live_ok = false;
                 error = "invalidation changed stopped registers";
                 break;
@@ -526,7 +538,7 @@ void TestCodeInvalidation(Harness& harness) {
 // regression cannot hide behind the backend path the way it did then.
 
 // Publishes a fixture using only GuestAddressSpace. No CpuContext call anywhere.
-bool PublishViaPublicApi(Harness& harness, const Fixtures::Fixture& fixture, std::string& error) {
+bool PublishViaPublicApi(Harness &harness, const Fixtures::Fixture &fixture, std::string &error) {
     const GuestRange range{GuestAddress{harness.code_base}, kMappingSize};
 
     auto writable = harness.space->Protect(range, GuestPermission::Read | GuestPermission::Write);
@@ -572,7 +584,7 @@ bool PublishViaPublicApi(Harness& harness, const Fixtures::Fixture& fixture, std
 }
 
 // Runs whatever is at the code base once, in its own thread.
-bool RunPublishedCode(Harness& harness, std::uint64_t& rax, std::string& error) {
+bool RunPublishedCode(Harness &harness, std::uint64_t &rax, std::string &error) {
     ThreadInit init{};
     init.entry_rip = GuestCodeAddress{harness.code_base};
     init.initial_rsp = GuestAddress{harness.stack_top};
@@ -604,9 +616,9 @@ bool RunPublishedCode(Harness& harness, std::uint64_t& rax, std::string& error) 
     return true;
 }
 
-void TestPublicApiPublication(Harness& harness) {
-    const auto* a = FindFixture("constant_a");
-    const auto* b = FindFixture("constant_b");
+void TestPublicApiPublication(Harness &harness) {
+    const auto *a = FindFixture("constant_a");
+    const auto *b = FindFixture("constant_b");
     if (!a || !b) {
         Check("G09a", "public publication fixtures are present", false);
         return;
@@ -632,8 +644,9 @@ void TestPublicApiPublication(Harness& harness) {
         if (rax != expected) {
             // This is the exact P1-C symptom: the publication succeeded and the old block ran.
             alternated = false;
-            error = "epoch " + std::to_string(epoch) + ": executed stale code, rax=" +
-                    std::to_string(rax) + " (expected " + std::to_string(expected) + ")";
+            error = "epoch " + std::to_string(epoch) +
+                    ": executed stale code, rax=" + std::to_string(rax) + " (expected " +
+                    std::to_string(expected) + ")";
             break;
         }
     }
@@ -703,16 +716,23 @@ void TestPublicApiPublication(Harness& harness) {
 }
 
 // Fault injection must test actual cached guest execution, not only metadata.
-void TestPinnedInvalidationRecovery(Harness& harness) {
-    const auto* a = FindFixture("constant_a");
-    const auto* b = FindFixture("constant_b");
-    if (!a || !b) { Check("G10a", "failure fixtures exist", false); return; }
-    auto warm = RunFixture(harness, *a, [](RegisterPatch&) {});
-    if (!warm.ok || warm.result.snapshot.registers.Get(Gpr::Rax) != 17) {
-        Check("G10a", "warm old translation", false, warm.error); return;
+void TestPinnedInvalidationRecovery(Harness &harness) {
+    const auto *a = FindFixture("constant_a");
+    const auto *b = FindFixture("constant_b");
+    if (!a || !b) {
+        Check("G10a", "failure fixtures exist", false);
+        return;
     }
-    auto* real_sink = dynamic_cast<CodeInvalidationSink*>(harness.context.get());
-    if (!real_sink) { Check("G10a", "backend sink exists", false); return; }
+    auto warm = RunFixture(harness, *a, [](RegisterPatch &) {});
+    if (!warm.ok || warm.result.snapshot.registers.Get(Gpr::Rax) != 17) {
+        Check("G10a", "warm old translation", false, warm.error);
+        return;
+    }
+    auto *real_sink = dynamic_cast<CodeInvalidationSink *>(harness.context.get());
+    if (!real_sink) {
+        Check("G10a", "backend sink exists", false);
+        return;
+    }
     struct FailingSink final : CodeInvalidationSink {
         std::string_view Name() const override { return "guest-recovery-test"; }
         Status DiscardTranslations(GuestRange, InvalidationReason) override {
@@ -720,37 +740,49 @@ void TestPinnedInvalidationRecovery(Harness& harness) {
         }
     } failed_sink;
     struct Restore final {
-        GuestAddressSpace& space;
-        CodeInvalidationSink* real;
-        CodeInvalidationSink* injected;
+        GuestAddressSpace &space;
+        CodeInvalidationSink *real;
+        CodeInvalidationSink *injected;
         bool done{};
         void Apply() {
-            if (done) return;
+            if (done)
+                return;
             space.ClearCodeInvalidationSink(injected);
-            Check("G10c", "restore real backend registration", bool(space.SetCodeInvalidationSink(real)));
+            Check("G10c", "restore real backend registration",
+                  bool(space.SetCodeInvalidationSink(real)));
             done = true;
         }
         ~Restore() { Apply(); }
     } restore{*harness.space, real_sink, &failed_sink};
     harness.space->ClearCodeInvalidationSink(real_sink);
     if (!harness.space->SetCodeInvalidationSink(&failed_sink)) {
-        Check("G10a", "register failure injection", false); return;
+        Check("G10a", "register failure injection", false);
+        return;
     }
     GuestRange range{GuestAddress{harness.code_base}, kMappingSize};
     if (!harness.space->Protect(range, GuestPermission::Read | GuestPermission::Write)) {
-        Check("G10a", "make code writable", false); return;
+        Check("G10a", "make code writable", false);
+        return;
     }
     {
         auto pin = harness.space->AcquirePinnedSpan(range, true);
-        if (!pin) { Check("G10a", "pin code", false); return; }
+        if (!pin) {
+            Check("G10a", "pin code", false);
+            return;
+        }
         auto bytes = pin.Value().WritableBytes();
         std::memcpy(bytes.data(), b->bytes.data(), b->bytes.size());
-        std::memcpy(bytes.data() + b->gate_offset, &harness.return_gate, sizeof(harness.return_gate));
+        std::memcpy(bytes.data() + b->gate_offset, &harness.return_gate,
+                    sizeof(harness.return_gate));
     }
     {
         auto q = harness.space->Quiesce(1'000'000);
-        if (!q) { Check("G10a", "quiesce failed code", false); return; }
-        auto invalidated = harness.space->InvalidateCode(q.Value(), range, InvalidationReason::HostWrite);
+        if (!q) {
+            Check("G10a", "quiesce failed code", false);
+            return;
+        }
+        auto invalidated =
+            harness.space->InvalidateCode(q.Value(), range, InvalidationReason::HostWrite);
         Check("G10a", "pinned rewrite with failed invalidation poisons code",
               !invalidated && harness.space->HasPoisonedCode());
     }
@@ -763,18 +795,22 @@ void TestPinnedInvalidationRecovery(Harness& harness) {
     {
         auto q = harness.space->Quiesce(1'000'000);
         if (!q || !harness.space->InvalidateCode(q.Value(), range, InvalidationReason::HostWrite)) {
-            Check("G10d", "repair real translation", false); return;
+            Check("G10d", "repair real translation", false);
+            return;
         }
     }
     error.clear();
-    const auto executable = harness.space->Protect(range, GuestPermission::Read | GuestPermission::Execute);
+    const auto executable =
+        harness.space->Protect(range, GuestPermission::Read | GuestPermission::Execute);
     Check("G10d", "successful repair resumes the new B translation",
           executable && RunPublishedCode(harness, value, error) && value == 34 &&
-          !harness.space->HasPoisonedCode(), error);
+              !harness.space->HasPoisonedCode(),
+          error);
 }
 
-// --- contract checks that need no execution -------------------------------------------------------
-void TestContracts(Harness& harness) {
+// --- contract checks that need no execution
+// -------------------------------------------------------
+void TestContracts(Harness &harness) {
     const auto caps = harness.context->Capabilities();
     Check("G06a", "capabilities declare base integer support",
           Contains(caps.features, GuestFeature::BaseInteger));
@@ -794,7 +830,7 @@ void TestContracts(Harness& harness) {
     Check("G06f", "an unmapped entry_rip is refused",
           !rejected && rejected.Category() == ErrorCategory::InvalidArgument);
 
-    const auto* stub = FindFixture("return_only");
+    const auto *stub = FindFixture("return_only");
     if (stub == nullptr) {
         Check("G06", "return_only fixture is present", false);
         return;
@@ -810,8 +846,7 @@ void TestContracts(Harness& harness) {
     ok.initial_rsp = GuestAddress{harness.stack_top};
     auto thread = harness.context->CreateThread(ok);
     if (!thread) {
-        Check("G06g", "create a thread for the handle checks", false,
-              Describe(thread.GetError()));
+        Check("G06g", "create a thread for the handle checks", false, Describe(thread.GetError()));
         return;
     }
 
@@ -847,8 +882,7 @@ void TestContracts(Harness& harness) {
         }
         auto foreign = other.Value()->Quiesce(/*timeout_ns=*/1'000'000);
         if (!foreign) {
-            Check("G06j", "quiesce the second address space", false,
-                  Describe(foreign.GetError()));
+            Check("G06j", "quiesce the second address space", false, Describe(foreign.GetError()));
             return;
         }
         auto refused = harness.context->InvalidateCode(
@@ -860,435 +894,549 @@ void TestContracts(Harness& harness) {
     }
 }
 
-// --- R2-C02: asynchronous stop of a loop that cannot stop itself -------------------------------
-//
-// The fixture spins on a backward jump with no HLE call, no syscall and no exit. Once FEX has
-// compiled it, the owner is inside one translated block indefinitely: a cooperative check never
-// runs and there is no block boundary to wait for. Only the out-of-band kick documented in
-// docs/fex-async-stop-source-proof.md can end it, which is why this is the fixture the spec names.
-void TestAsyncInterrupt(Harness& harness) {
-    const auto* fixture = FindFixture("spin_loop");
-    if (fixture == nullptr) {
-        Check("G11", "spin loop fixture is present", false);
-        return;
+// --- Round 2 control regression ------------------------------------------------
+// Test owners have a real command queue. Pause returns Run to this queue; Resume
+// changes admission only. No flag set before Run is used as evidence of JIT work.
+template <typename T> T Await(std::future<T> &result) {
+    if (result.wait_for(std::chrono::seconds(2)) != std::future_status::ready) {
+        std::fprintf(stderr, "FAIL: owner command exceeded 2s; supervisor cleanup required\n");
+        std::fflush(stderr);
+        std::_Exit(4);
     }
+    return result.get();
+}
 
-    std::string error;
-    if (!LoadFixture(harness, *fixture, error)) {
-        Check("G11", "publish the spin loop", false, error);
-        return;
-    }
-
-    ThreadInit init{};
-    init.entry_rip = GuestCodeAddress{harness.code_base};
-    init.initial_rsp = GuestAddress{harness.stack_top};
-    init.guest_tid = 1;
-
-    // The owner thread that drives Run is also the thread that must CreateThread: the API binds a
-    // thread to its owner, and only that thread may Run it. Creating on this (controller) thread
-    // and running on another makes Run refuse with WrongThread and return immediately, which looks
-    // exactly like the loop "exiting on its own". So the owner creates, publishes the handle to the
-    // controller, and runs; the controller waits for that handle before issuing any request.
-    std::atomic<bool> run_returned{false};
-    std::atomic<bool> run_ok{false};
-    std::string run_error;
-    ThreadHandle handle{};
-    std::mutex owner_mutex;
-    std::condition_variable owner_ready;
-    bool ready = false;
-    bool create_failed = false;
-    std::string create_error;
-
-    std::thread owner([&] {
-        auto thread = harness.context->CreateThread(init);
-        if (!thread) {
-            {
-                std::lock_guard<std::mutex> ready_guard{owner_mutex};
-                create_failed = true;
-                create_error = Describe(thread.GetError());
-                ready = true;
+class TestOwner final {
+  public:
+    TestOwner(Harness &h, std::uint64_t progress, std::uint64_t stack_delta = 0) : h_{h} {
+        std::promise<ThreadHandle> ready;
+        auto future = ready.get_future();
+        host_ = std::thread([&, progress, stack_delta] {
+            tid_ = static_cast<std::uint64_t>(::gettid());
+            ThreadInit init{};
+            init.entry_rip = GuestCodeAddress{h_.code_base};
+            init.initial_rsp = GuestAddress{h_.stack_top - stack_delta};
+            init.initial_state.fields = RegisterValidity::Gpr;
+            init.initial_state.gpr_mask = (1u << Index(Gpr::Rdi));
+            init.initial_state.values.Set(Gpr::Rdi, progress);
+            auto created = h_.context->CreateThread(init);
+            if (!created) {
+                ready.set_value({});
+                return;
             }
-            owner_ready.notify_all();
-            return;
+            ready.set_value(created.Value());
+            for (;;) {
+                std::function<void()> task;
+                {
+                    std::unique_lock guard{mutex_};
+                    changed_.wait(guard, [&] { return quit_ || !tasks_.empty(); });
+                    if (quit_ && tasks_.empty())
+                        return;
+                    task = std::move(tasks_.front());
+                    tasks_.pop();
+                }
+                task();
+            }
+        });
+        handle = Await(future);
+        if (!handle.IsValid()) {
+            host_.join();
+            std::fprintf(stderr, "FAIL: CreateThread\n");
+            std::_Exit(4);
+        }
+    }
+    template <typename F> auto Submit(F fn) {
+        using R = decltype(fn());
+        auto task = std::make_shared<std::packaged_task<R()>>(std::move(fn));
+        auto result = task->get_future();
+        {
+            std::lock_guard guard{mutex_};
+            tasks_.emplace([task] { (*task)(); });
+        }
+        changed_.notify_one();
+        return result;
+    }
+    auto Run(RunOptions options = {}) {
+        return Submit([this, options] { return h_.context->Run(handle, options); });
+    }
+    std::uint64_t Tid() const { return tid_; }
+    ~TestOwner() {
+        auto requested = h_.context->RequestInterrupt(handle, InterruptReason::Shutdown);
+        if (requested)
+            (void)h_.context->WaitStopped(requested.Value(), 1'000'000'000);
+        auto destroyed = Submit([this] { return h_.context->DestroyThread(handle); });
+        auto status = Await(destroyed);
+        if (!status) {
+            std::fprintf(stderr, "FAIL: owner DestroyThread: %s\n",
+                         Describe(status.GetError()).c_str());
+            std::_Exit(4);
         }
         {
-            std::lock_guard<std::mutex> ready_guard{owner_mutex};
-            handle = thread.Value();
-            ready = true;
+            std::lock_guard guard{mutex_};
+            quit_ = true;
         }
-        owner_ready.notify_all();
-
-        auto result = harness.context->Run(handle, RunOptions{});
-        run_ok.store(bool(result), std::memory_order_release);
-        if (!result) {
-            run_error = Describe(result.GetError());
-        }
-        run_returned.store(true, std::memory_order_release);
-    });
-
-    {
-        std::unique_lock<std::mutex> ready_guard{owner_mutex};
-        owner_ready.wait(ready_guard, [&] { return ready; });
+        changed_.notify_one();
+        host_.join();
     }
-    if (create_failed) {
-        Check("G11", "create the spinning thread on its owner", false, create_error);
-        owner.join();
-        return;
-    }
-
-    // Let it actually get into the JIT and warm the block. Stopping a thread that never started
-    // would pass without exercising anything.
-    std::this_thread::sleep_for(std::chrono::milliseconds(150));
-    Check("G11a", "the spin loop is still running before any request",
-          !run_returned.load(std::memory_order_acquire),
-          run_returned.load() ? "it exited on its own: not an unbreakable loop" : "");
-
-    const auto requested = std::chrono::steady_clock::now();
-    auto ticket = harness.context->RequestInterrupt(handle, InterruptReason::Pause);
-    Check("G11b", "an interrupt can be requested while the owner is in the JIT", bool(ticket),
-          ticket ? std::string{} : Describe(ticket.GetError()));
-    if (!ticket) {
-        // Nothing will stop the loop now; do not leave a spinning thread behind.
-        (void)harness.context->RequestInterrupt(handle, InterruptReason::Cancel);
-        owner.join();
-        return;
-    }
-
-    auto receipt = harness.context->WaitStopped(ticket.Value(), 1'000'000'000);
-    const auto stopped_after = std::chrono::duration_cast<std::chrono::milliseconds>(
-        std::chrono::steady_clock::now() - requested);
-    Check("G11c", "the owner reaches a safe point", bool(receipt),
-          receipt ? std::string{} : Describe(receipt.GetError()));
-
-    if (receipt) {
-        // The spec's budget: a stop request must reach a safe point within a second.
-        Check("G11d", "the stop lands within 1s",
-              stopped_after <= std::chrono::milliseconds(1000),
-              std::to_string(stopped_after.count()) + "ms");
-        Check("G11e", "the receipt answers the ticket that was issued",
-              receipt.Value().request_epoch == ticket.Value().epoch);
-        Check("G11f", "the receipt carries this context's identity",
-              receipt.Value().context_id == harness.context->ContextId());
-        // The snapshot is only meaningful because the owner spilled before acknowledging.
-        const std::uint64_t counter = receipt.Value().snapshot.registers.Get(Gpr::Rax);
-        Check("G11g", "the stopped snapshot shows the loop counter advanced", counter > 0,
-              "rax=" + std::to_string(counter));
-
-        // Resume, and confirm it continued rather than restarting.
-        auto resumed = harness.context->Resume(handle, ticket.Value().epoch);
-        Check("G11h", "the paused owner can be resumed", bool(resumed),
-              resumed ? std::string{} : Describe(resumed.GetError()));
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        Check("G11i", "the owner is executing again after Resume",
-              !run_returned.load(std::memory_order_acquire));
-    }
-
-    // Cancel ends the run so the thread can be joined. A Pause would leave it parked forever.
-    auto cancel = harness.context->RequestInterrupt(handle, InterruptReason::Cancel);
-    if (cancel) {
-        (void)harness.context->WaitStopped(cancel.Value(), 1'000'000'000);
-    }
-    owner.join();
-    Check("G11j", "Run returned after the cancel", run_returned.load(std::memory_order_acquire),
-          run_error);
-    (void)harness.context->DestroyThread(handle);
-}
-
-// --- R2-C03 subset: request identity and refusals ----------------------------------------------
-// --- R2-C01: two owners genuinely concurrent in the JIT ---------------------------------------
-//
-// Each guest thread is created and run on its own host owner thread (the API binds a thread to its
-// owner). Both run the unbreakable spin loop simultaneously. A barrier establishes that both were
-// inside the JIT at the same time; then one is paused while the other must keep advancing, which
-// cannot happen if Runs were serialized.
-void TestTwoOwnerConcurrency(Harness& harness) {
-    const auto* fixture = FindFixture("spin_loop");
-    if (fixture == nullptr) {
-        Check("G14", "spin loop fixture for two owners", false);
-        return;
-    }
-    std::string error;
-    if (!LoadFixture(harness, *fixture, error)) {
-        Check("G14", "publish spin loop for two owners", false, error);
-        return;
-    }
-
-    struct Owner {
-        ThreadHandle handle{};
-        std::thread host;
-        std::atomic<bool> in_jit{false};
-        std::atomic<bool> run_returned{false};
-        std::atomic<std::uint64_t> native_tid{0};
-        std::mutex ready_mutex;
-        std::condition_variable ready_cv;
-        bool ready{false};
-        bool create_failed{false};
-        std::string create_error;
-        // Sampled rax when the controller paused us.
-        std::atomic<std::uint64_t> sampled_rax{0};
-    };
-    auto run_owner = [&](Owner& owner, std::uint64_t guest_tid) {
-        ThreadInit init{};
-        init.entry_rip = GuestCodeAddress{harness.code_base};
-        init.initial_rsp = GuestAddress{harness.stack_top};
-        init.guest_tid = guest_tid;
-        auto thread = harness.context->CreateThread(init);
-        if (!thread) {
-            std::lock_guard<std::mutex> g{owner.ready_mutex};
-            owner.create_failed = true;
-            owner.create_error = Describe(thread.GetError());
-            owner.ready = true;
-            owner.ready_cv.notify_all();
-            return;
-        }
-        {
-            std::lock_guard<std::mutex> g{owner.ready_mutex};
-            owner.handle = thread.Value();
-            owner.ready = true;
-        }
-        owner.ready_cv.notify_all();
-
-        // Mark in-JIT once the Run has started; Run blocks for the whole spin. We cannot set this
-        // before CreateThread returns (it is on this thread), but Run never returns for a spin, so
-        // by the time the barrier waits below, being inside Run == being in the JIT.
-        owner.native_tid.store(static_cast<std::uint64_t>(
-            static_cast<std::intptr_t>(owner.host.native_handle())),
-            std::memory_order_release);
-        owner.in_jit.store(true, std::memory_order_release);
-        auto result = harness.context->Run(owner.handle, RunOptions{});
-        owner.in_jit.store(false, std::memory_order_release);
-        owner.run_returned.store(bool(result), std::memory_order_release);
-        (void)result;
-    };
-
-    Owner a, b;
-    a.host = std::thread([&] { run_owner(a, 11); });
-    b.host = std::thread([&] { run_owner(b, 12); });
-
-    auto wait_ready = [](Owner& o) {
-        std::unique_lock<std::mutex> g{o.ready_mutex};
-        o.ready_cv.wait(g, [&] { return o.ready; });
-    };
-    wait_ready(a);
-    wait_ready(b);
-    if (a.create_failed || b.create_failed) {
-        Check("G14", "create two owners each on its own thread", false,
-              a.create_error + " " + b.create_error);
-        if (a.host.joinable()) a.host.join();
-        if (b.host.joinable()) b.host.join();
-        return;
-    }
-
-    // Let both warm into the JIT, then prove overlap: both in_jit at the same instant.
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    const bool both_in_jit = a.in_jit.load() && b.in_jit.load();
-    Check("G14a", "two owners are both executing concurrently", both_in_jit);
-    Check("G14b", "the two owners are distinct native threads",
-          a.native_tid.load() != 0 && b.native_tid.load() != 0 &&
-              a.native_tid.load() != b.native_tid.load(),
-          "tid a=" + std::to_string(a.native_tid.load()) + " b=" +
-              std::to_string(b.native_tid.load()));
-
-    // Pause owner A. Owner B must still be running afterwards.
-    auto ticket_a = harness.context->RequestInterrupt(a.handle, InterruptReason::Pause);
-    Check("G14c", "interrupt owner A while both run", bool(ticket_a),
-          ticket_a ? std::string{} : Describe(ticket_a.GetError()));
-    if (ticket_a) {
-        auto receipt = harness.context->WaitStopped(ticket_a.Value(), 1'000'000'000);
-        Check("G14d", "owner A reached a safe point", bool(receipt),
-              receipt ? std::string{} : Describe(receipt.GetError()));
-        if (receipt) {
-            a.sampled_rax.store(receipt.Value().snapshot.registers.Get(Gpr::Rax),
-                                std::memory_order_release);
-        }
-    }
-
-    // A is stopped (G14d proved the safe point); B must be untouched and still running. A's counter
-    // must be frozen while B continues: that is the only way to show stopping one owner does not
-    // hold the other.
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
-    const std::uint64_t a_rax_at_stop = a.sampled_rax.load(std::memory_order_acquire);
-    const bool b_still_running = b.in_jit.load();
-    // Re-read A's registers: it is parked, so the snapshot must be stable and equal to the receipt.
-    std::uint64_t a_rax_later = a_rax_at_stop;
-    {
-        auto snap = harness.context->ReadRegisters(a.handle);
-        if (snap) {
-            a_rax_later = snap.Value().registers.Get(Gpr::Rax);
-        }
-    }
-    Check("G14e", "stopping owner A freezes A while owner B keeps executing",
-          b_still_running && a_rax_later == a_rax_at_stop && !b.run_returned.load(),
-          "a_rax=" + std::to_string(a_rax_at_stop) + "->" + std::to_string(a_rax_later) +
-              " b_running=" + std::to_string(int(b_still_running)));
-
-    // Resume A; both run again.
-    if (ticket_a) {
-        auto resumed = harness.context->Resume(a.handle, ticket_a.Value().epoch);
-        Check("G14f", "owner A resumes after the pause", bool(resumed),
-              resumed ? std::string{} : Describe(resumed.GetError()));
-    }
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    Check("G14g", "both owners run again after resume", a.in_jit.load() && b.in_jit.load());
-
-    // Cancel both to unwind.
-    for (Owner* owner : {&a, &b}) {
-        auto cancel = harness.context->RequestInterrupt(owner->handle, InterruptReason::Cancel);
-        if (cancel) {
-            (void)harness.context->WaitStopped(cancel.Value(), 1'000'000'000);
-        }
-    }
-    a.host.join();
-    b.host.join();
-    Check("G14h", "both owners returned after cancel",
-          a.run_returned.load() && b.run_returned.load());
-    (void)harness.context->DestroyThread(a.handle);
-    (void)harness.context->DestroyThread(b.handle);
-}
-
-// LLDB-attached pause being timed.
-void TestInterruptStress(Harness& harness) {
-    const auto* fixture = FindFixture("spin_loop");
-    if (fixture == nullptr) {
-        Check("G13", "spin loop fixture is present for stress", false);
-        return;
-    }
-    std::string error;
-    if (!LoadFixture(harness, *fixture, error)) {
-        Check("G13", "publish the spin loop for stress", false, error);
-        return;
-    }
-
-    ThreadInit init{};
-    init.entry_rip = GuestCodeAddress{harness.code_base};
-    init.initial_rsp = GuestAddress{harness.stack_top};
-    init.guest_tid = 7;
-
     ThreadHandle handle{};
-    std::atomic<bool> run_returned{false};
-    std::atomic<bool> run_ok{false};
-    std::string run_error;
-    std::mutex ready_mutex;
-    std::condition_variable ready_cv;
-    bool ready = false;
-    bool create_failed = false;
-    std::string create_error;
 
-    std::thread owner([&] {
-        auto thread = harness.context->CreateThread(init);
-        if (!thread) {
-            std::lock_guard<std::mutex> g{ready_mutex};
-            create_failed = true;
-            create_error = Describe(thread.GetError());
-            ready = true;
-            ready_cv.notify_all();
-            return;
-        }
-        {
-            std::lock_guard<std::mutex> g{ready_mutex};
-            handle = thread.Value();
-            ready = true;
-        }
-        ready_cv.notify_all();
+  private:
+    Harness &h_;
+    std::thread host_;
+    std::uint64_t tid_{};
+    std::mutex mutex_;
+    std::condition_variable changed_;
+    std::queue<std::function<void()>> tasks_;
+    bool quit_{};
+};
 
-        auto result = harness.context->Run(handle, RunOptions{});
-        run_ok.store(bool(result), std::memory_order_release);
-        if (!result) {
-            run_error = Describe(result.GetError());
-        }
-        run_returned.store(true, std::memory_order_release);
-    });
-    {
-        std::unique_lock<std::mutex> g{ready_mutex};
-        ready_cv.wait(g, [&] { return ready; });
+std::uint64_t Progress(std::uint64_t address) {
+    // The fixture uses aligned x86-64 qword stores, which this backend emits as
+    // aligned ARM64 stores. A host atomic load observes actual guest memory work.
+    return std::atomic_ref<std::uint64_t>(*reinterpret_cast<std::uint64_t *>(address)).load();
+}
+bool WaitProgress(std::uint64_t address, std::uint64_t before) {
+    const auto until = std::chrono::steady_clock::now() + std::chrono::seconds(1);
+    while (std::chrono::steady_clock::now() < until) {
+        if (Progress(address) > before)
+            return true;
+        std::this_thread::yield();
     }
-    if (create_failed) {
-        Check("G13", "create the stress owner on its thread", false, create_error);
-        owner.join();
-        return;
-    }
-
-    constexpr int kCycles = 100;
-    constexpr auto kBudget = std::chrono::milliseconds(1000);
-    std::vector<long> latency_ms;
-    latency_ms.reserve(kCycles);
-    bool every_stop_fast = true;
-    bool every_receipt_valid = true;
-    std::string latency_detail;
-
-    // Wait for the owner to be inside the JIT before the first kick. RequestInterrupt only signals a
-    // thread it knows is executing; a request sent while the thread is still entering leaves the
-    // pending bit set without a kick, and the warm spin block has no cooperative check to notice it.
-    std::this_thread::sleep_for(std::chrono::milliseconds(150));
-
-    for (int cycle = 0; cycle < kCycles; ++cycle) {
-        auto ticket = harness.context->RequestInterrupt(handle, InterruptReason::Pause);
-        if (!ticket) {
-            every_receipt_valid = false;
-            latency_detail = "cycle " + std::to_string(cycle) + ": RequestInterrupt: " +
-                             Describe(ticket.GetError());
-            break;
-        }
-        const auto requested = std::chrono::steady_clock::now();
-        auto receipt = harness.context->WaitStopped(ticket.Value(), 1'000'000'000);
-        if (!receipt) {
-            every_receipt_valid = false;
-            latency_detail = "cycle " + std::to_string(cycle) + ": WaitStopped: " +
-                             Describe(receipt.GetError());
-            break;
-        }
-        const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::steady_clock::now() - requested);
-        latency_ms.push_back(elapsed.count());
-        if (elapsed > kBudget) {
-            every_stop_fast = false;
-        }
-
-        // Resume only the epoch that was actually acknowledged; this must not consume the next
-        // request, but there is none yet in this single-controller loop.
-        auto resumed = harness.context->Resume(handle, ticket.Value().epoch);
-        if (!resumed) {
-            every_receipt_valid = false;
-            latency_detail = "cycle " + std::to_string(cycle) + ": Resume: " +
-                             Describe(resumed.GetError());
-            break;
-        }
-        // Give the owner time to fully leave the pause stub and re-enter the JIT before the next
-        // kick. Without a settle gap the request can race the SIGILL return-to-JIT and measure the
-        // setup window rather than steady-state stop latency; warm loops are the stated target.
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
-    }
-
-    if (!latency_ms.empty()) {
-        std::sort(latency_ms.begin(), latency_ms.end());
-        const long p50 = latency_ms[latency_ms.size() / 2];
-        const long p95 = latency_ms[(latency_ms.size() * 95) / 100];
-        const long max_l = latency_ms.back();
-        char buffer[160];
-        std::snprintf(buffer, sizeof(buffer), "%zu cycles, p50=%ldms p95=%ldms max=%ldms",
-                      latency_ms.size(), p50, p95, max_l);
-        latency_detail = buffer;
-    }
-
-    Check("G13a", "100 pause/receipt/resume cycles each produced a valid receipt",
-          static_cast<int>(latency_ms.size()) == kCycles && every_receipt_valid, latency_detail);
-    Check("G13b", "every stop reached a safe point within the 1s budget", every_stop_fast,
-          latency_detail);
-
-    // Cancel once to let the owner return and clean up.
-    auto cancel = harness.context->RequestInterrupt(handle, InterruptReason::Cancel);
-    if (cancel) {
-        (void)harness.context->WaitStopped(cancel.Value(), 1'000'000'000);
-    }
-    owner.join();
-    Check("G13c", "the stress owner returned after cancel",
-          run_returned.load(std::memory_order_acquire) && run_ok.load(std::memory_order_acquire),
-          run_error);
-    (void)harness.context->DestroyThread(handle);
+    return false;
+}
+std::uint64_t PrepareProgress(Harness &h, std::size_t slot = 0) {
+    const auto address = h.stack_base + 0x100 + slot * 64;
+    new (reinterpret_cast<void *>(address)) std::uint64_t{0};
+    return address;
+}
+bool LoadProgress(Harness &h) {
+    std::string error;
+    const auto *fixture = FindFixture("progress_loop");
+    const bool ok = fixture && LoadFixture(h, *fixture, error);
+    if (!ok)
+        Check("G11setup", "load progress fixture", false, error);
+    return ok;
 }
 
-void TestInterruptRefusals(Harness& harness) {
-    const auto* fixture = FindFixture("return_only");
+void TestAsyncInterrupt(Harness &h) {
+    if (!LoadProgress(h))
+        return;
+    const auto progress = PrepareProgress(h);
+    TestOwner owner(h, progress);
+    auto run = owner.Run();
+    Check("G11a", "guest store proves execution before pause", WaitProgress(progress, 0));
+    auto ticket = h.context->RequestInterrupt(owner.handle, InterruptReason::Pause);
+    Check("G11b", "request Pause", bool(ticket));
+    auto receipt = h.context->WaitStopped(ticket.Value(), 1'000'000'000);
+    auto paused = Await(run);
+    Check("G11c", "owner Run returns PauseRequested and acknowledges",
+          receipt && paused && paused.Value().primary_reason == StopReason::PauseRequested);
+    auto read = h.context->ReadRegisters(owner.handle);
+    Check("G11d", "paused registers readable and equal frozen guest store",
+          receipt && read && read.Value().registers.Get(Gpr::Rax) == Progress(progress));
+    auto again = h.context->WaitStopped(ticket.Value(), 1'000'000);
+    Check("G11e", "repeated WaitStopped preserves the same stop epoch",
+          receipt && again && receipt.Value().stop_epoch == again.Value().stop_epoch);
+    Check("G11f", "receipt carries context and thread generation",
+          receipt && receipt.Value().context_id == h.context->ContextId() &&
+              receipt.Value().snapshot.thread_generation == owner.handle.generation);
+    auto resumed = h.context->Resume(owner.handle, ticket.Value().epoch);
+    Check("G11g", "Resume consumes exactly the acknowledged ticket", bool(resumed));
+    auto stale = h.context->WaitStopped(ticket.Value(), 1'000'000);
+    Check("G11h", "retired ticket cannot create a fresh SafePoint", !stale);
+    const auto before = Progress(progress);
+    auto rerun = owner.Run();
+    Check("G11i", "resumed guest really advances its counter", WaitProgress(progress, before));
+    auto cancel = h.context->RequestInterrupt(owner.handle, InterruptReason::Cancel);
+    auto stopped = h.context->WaitStopped(cancel.Value(), 1'000'000'000);
+    auto result = Await(rerun);
+    Check("G11j", "Cancel returns and its ticket receives a Cancelled receipt",
+          stopped && result && stopped.Value().reason == StopReason::Cancelled &&
+              result.Value().primary_reason == StopReason::Cancelled);
+}
+
+void TestInterruptStress(Harness &h) {
+    if (!LoadProgress(h))
+        return;
+    const auto progress = PrepareProgress(h);
+    TestOwner owner(h, progress);
+    std::vector<std::uint64_t> delays;
+    bool valid = true, fast = true;
+    for (int cycle = 0; cycle < 100; ++cycle) {
+        auto before = Progress(progress);
+        auto run = owner.Run();
+        valid &= WaitProgress(progress, before);
+        const auto start = std::chrono::steady_clock::now();
+        auto ticket = h.context->RequestInterrupt(owner.handle, InterruptReason::Pause);
+        auto receipt = h.context->WaitStopped(ticket.Value(), 1'000'000'000);
+        const auto us = std::chrono::duration_cast<std::chrono::microseconds>(
+                            std::chrono::steady_clock::now() - start)
+                            .count();
+        auto result = Await(run);
+        valid &= bool(receipt) && bool(result) &&
+                 result.Value().primary_reason == StopReason::PauseRequested;
+        fast &= us <= 1'000'000;
+        if (receipt) {
+            valid &= receipt.Value().snapshot.registers.Get(Gpr::Rax) == Progress(progress);
+            std::printf(
+                "TRACE G13 iteration=%d request=%llu stop=%llu progress=%llu latency_us=%lld\n",
+                cycle, (unsigned long long)ticket.Value().epoch,
+                (unsigned long long)receipt.Value().stop_epoch,
+                (unsigned long long)Progress(progress), (long long)us);
+        }
+        delays.push_back(us);
+        valid &= bool(h.context->Resume(owner.handle, ticket.Value().epoch));
+        // No settle sleep. The next iteration observes actual guest progress.
+    }
+    std::sort(delays.begin(), delays.end());
+    Check("G13a", "100 cycles each execute, pause and publish fresh state", valid);
+    Check("G13b", "request-to-ack budget includes RequestInterrupt itself", fast,
+          "p50_us=" + std::to_string(delays[50]) + " p95_us=" + std::to_string(delays[95]) +
+              " max_us=" + std::to_string(delays.back()));
+    auto run = owner.Run();
+    auto cancel = h.context->RequestInterrupt(owner.handle, InterruptReason::Cancel);
+    auto receipt = h.context->WaitStopped(cancel.Value(), 1'000'000'000);
+    auto result = Await(run);
+    Check("G13c", "immediate-entry Cancel is acknowledged without a warmup gap",
+          receipt && result && result.Value().primary_reason == StopReason::Cancelled);
+}
+
+void TestTwoOwnerConcurrency(Harness &h) {
+    if (!LoadProgress(h))
+        return;
+    auto pa = PrepareProgress(h, 0), pb = PrepareProgress(h, 1);
+    TestOwner a(h, pa), b(h, pb, 4096);
+    auto ra = a.Run(), rb = b.Run();
+    Check("G14a", "both guests perform memory stores before either is stopped",
+          WaitProgress(pa, 0) && WaitProgress(pb, 0));
+    Check("G14b", "owners have distinct actual gettid values",
+          a.Tid() != b.Tid() && a.Tid() != 0 && b.Tid() != 0,
+          "tid_a=" + std::to_string(a.Tid()) + " tid_b=" + std::to_string(b.Tid()));
+    auto ta = h.context->RequestInterrupt(a.handle, InterruptReason::Pause);
+    Check("G14c", "request owner A pause", bool(ta));
+    auto sa = h.context->WaitStopped(ta.Value(), 1'000'000'000);
+    auto stopped_a = Await(ra);
+    Check("G14d", "A has a stopped receipt and returned to its command queue",
+          sa && stopped_a && stopped_a.Value().primary_reason == StopReason::PauseRequested);
+    const auto a0 = Progress(pa), b0 = Progress(pb);
+    const bool b_advanced = WaitProgress(pb, b0 + 100);
+    auto snapshot = h.context->ReadRegisters(a.handle);
+    Check("G14e", "while A is frozen B performs new guest stores",
+          b_advanced && Progress(pa) == a0 && snapshot &&
+              snapshot.Value().registers.Get(Gpr::Rax) == a0,
+          "A=" + std::to_string(a0) + " B=" + std::to_string(b0) + "->" +
+              std::to_string(Progress(pb)));
+    Check("G14f", "resume A", bool(h.context->Resume(a.handle, ta.Value().epoch)));
+    ra = a.Run();
+    const auto b1 = Progress(pb);
+    Check("G14g", "both guests show new progress after A resumes",
+          WaitProgress(pa, a0) && WaitProgress(pb, b1));
+    auto ca = h.context->RequestInterrupt(a.handle, InterruptReason::Cancel);
+    auto cb = h.context->RequestInterrupt(b.handle, InterruptReason::Cancel);
+    auto aa = h.context->WaitStopped(ca.Value(), 1'000'000'000);
+    auto ab = h.context->WaitStopped(cb.Value(), 1'000'000'000);
+    auto xa = Await(ra), xb = Await(rb);
+    Check("G14h", "both Cancels acknowledge and return normally",
+          aa && ab && xa && xb && xa.Value().primary_reason == StopReason::Cancelled &&
+              xb.Value().primary_reason == StopReason::Cancelled);
+}
+
+std::atomic<bool> hold_entered{false}, hold_release{false};
+void HoldOwnerSignal(int) {
+    hold_entered.store(true, std::memory_order_release);
+    while (!hold_release.load(std::memory_order_acquire)) {
+    }
+}
+void TestInterruptInterleavings(Harness &h) {
+    if (!LoadProgress(h))
+        return;
+    auto progress = PrepareProgress(h);
+    TestOwner owner(h, progress);
+    bool priority = true, stale = true, pending = true;
+    for (int i = 0; i < 100; ++i) {
+        auto before = Progress(progress);
+        auto run = owner.Run();
+        pending &= WaitProgress(progress, before);
+        std::barrier barrier(3);
+        std::optional<InterruptTicket> pause, cancel;
+        std::thread p([&] {
+            barrier.arrive_and_wait();
+            auto t = h.context->RequestInterrupt(owner.handle, InterruptReason::Pause);
+            if (t)
+                pause = t.Value();
+        });
+        std::thread c([&] {
+            barrier.arrive_and_wait();
+            auto t = h.context->RequestInterrupt(owner.handle, InterruptReason::Cancel);
+            if (t)
+                cancel = t.Value();
+        });
+        barrier.arrive_and_wait();
+        p.join();
+        c.join();
+        if (!pause || !cancel) {
+            priority = false;
+            std::_Exit(4);
+        }
+        auto pa = h.context->WaitStopped(*pause, 1'000'000'000);
+        auto ca = h.context->WaitStopped(*cancel, 1'000'000'000);
+        auto result = Await(run);
+        priority &= pa && ca && result && ca.Value().reason == StopReason::Cancelled &&
+                    pa.Value().reason == StopReason::Cancelled;
+        const auto low = std::min(pause->epoch, cancel->epoch),
+                   high = std::max(pause->epoch, cancel->epoch);
+        stale &= !h.context->Resume(owner.handle, low);
+        auto still = h.context->WaitStopped(*cancel, 1'000'000);
+        pending &= still && still.Value().reason == StopReason::Cancelled;
+        pending &= bool(h.context->Resume(owner.handle, high));
+    }
+    Check("G15a", "100 concurrent Pause/Cancel pairs preserve Cancel priority", priority);
+    Check("G15b", "older Resume never consumes a newer stopped request", stale && pending);
+
+    // Force a genuine late ack without backend test hooks: a bounded unrelated
+    // host signal temporarily holds the owner outside JIT entry checks.
+    bool timeout_kept = true;
+    struct sigaction action {
+    }, previous{};
+    action.sa_handler = HoldOwnerSignal;
+    action.sa_flags = SA_ONSTACK;
+    sigemptyset(&action.sa_mask);
+    if (sigaction(SIGUSR1, &action, &previous) != 0) {
+        Check("G15c", "install bounded host hold", false);
+        return;
+    }
+    for (int i = 0; i < 100; ++i) {
+        hold_entered.store(false);
+        hold_release.store(false);
+        auto before = Progress(progress);
+        auto run = owner.Run();
+        timeout_kept &= WaitProgress(progress, before);
+        ::syscall(SYS_tgkill, ::getpid(), static_cast<pid_t>(owner.Tid()), SIGUSR1);
+        auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(1);
+        while (!hold_entered.load() && std::chrono::steady_clock::now() < deadline)
+            std::this_thread::yield();
+        if (!hold_entered.load()) {
+            hold_release.store(true);
+            std::_Exit(4);
+        }
+        auto t = h.context->RequestInterrupt(owner.handle, InterruptReason::Pause);
+        auto early = h.context->WaitStopped(t.Value(), 1'000'000);
+        timeout_kept &= !early && early.GetError().category == ErrorCategory::Timeout;
+        hold_release.store(true, std::memory_order_release);
+        auto late = h.context->WaitStopped(t.Value(), 1'000'000'000);
+        auto result = Await(run);
+        timeout_kept &= late && result && late.Value().request_epoch == t.Value().epoch;
+        timeout_kept &= bool(h.context->Resume(owner.handle, t.Value().epoch));
+    }
+    sigaction(SIGUSR1, &previous, nullptr);
+    Check("G15c", "100 timed-out waits retain requests and receive late owner acks", timeout_kept);
+
+    // Ready-state request vs Run entry and immediate Resume/new Pause interleavings.
+    bool entry_ok = true;
+    for (int i = 0; i < 100; ++i) {
+        auto p = h.context->RequestInterrupt(owner.handle, InterruptReason::Pause);
+        auto a = h.context->WaitStopped(p.Value(), 1'000'000'000);
+        auto run = owner.Run();
+        auto result = Await(run);
+        entry_ok &= a && result && result.Value().primary_reason == StopReason::PauseRequested;
+        auto old_epoch = p.Value().epoch;
+        std::barrier race(3);
+        auto resume_race = std::async(std::launch::async, [&] {
+            race.arrive_and_wait();
+            return h.context->Resume(owner.handle, old_epoch);
+        });
+        auto pause_race = std::async(std::launch::async, [&] {
+            race.arrive_and_wait();
+            return h.context->RequestInterrupt(owner.handle, InterruptReason::Pause);
+        });
+        race.arrive_and_wait();
+        auto resumed = Await(resume_race);
+        auto next = Await(pause_race);
+        entry_ok &= resumed || resumed.GetError().category == ErrorCategory::StaleEpoch;
+        if (!next)
+            std::_Exit(4);
+        entry_ok &= !h.context->Resume(owner.handle, old_epoch);
+        auto newer = h.context->WaitStopped(next.Value(), 1'000'000'000);
+        entry_ok &= bool(newer) && bool(h.context->Resume(owner.handle, next.Value().epoch));
+    }
+    Check("G15d", "100 pre-entry stops and concurrent Resume/Pause races retain new requests",
+          entry_ok);
+    // Cancel after the owner has already returned from Pause must acknowledge too.
+    auto p = h.context->RequestInterrupt(owner.handle, InterruptReason::Pause);
+    auto pa = h.context->WaitStopped(p.Value(), 1'000'000'000);
+    auto c = h.context->RequestInterrupt(owner.handle, InterruptReason::Cancel);
+    auto ca = h.context->WaitStopped(c.Value(), 1'000'000'000);
+    Check("G15e", "Cancel while paused has an immediate frozen-state receipt",
+          pa && ca && ca.Value().reason == StopReason::Cancelled);
+}
+
+void TestStoppedStateExecution(Harness &h) {
+    if (!LoadProgress(h))
+        return;
+    // Add the echo entry before any owner starts, preserving the spin entry.
+    const auto *echo = FindFixture("state_echo");
+    const auto entry = h.code_base + 0x1000;
+    GuestRange all{GuestAddress{h.code_base}, kMappingSize};
+    auto writable = h.space->Protect(all, GuestPermission::Read | GuestPermission::Write);
+    if (!writable || !echo) {
+        Check("G16setup", "prepare echo entry", false);
+        return;
+    }
+    {
+        auto pin = h.space->AcquirePinnedSpan({GuestAddress{entry}, echo->bytes.size()}, true);
+        if (!pin)
+            std::_Exit(4);
+        auto bytes = pin.Value().WritableBytes();
+        std::memcpy(bytes.data(), echo->bytes.data(), echo->bytes.size());
+        if (echo->gate_offset >= 0)
+            std::memcpy(bytes.data() + echo->gate_offset, &h.return_gate, 8);
+    }
+    (void)h.space->Protect(all, GuestPermission::Read | GuestPermission::Execute);
+    {
+        auto q = h.space->Quiesce(1'000'000'000);
+        if (!q || !h.context->InvalidateCode(q.Value(), all, InvalidationReason::HostWrite))
+            std::_Exit(4);
+    }
+    bool state_ok = true, refused = true, fp_ok = true;
+    for (int i = 0; i < 10; ++i) {
+        auto progress = PrepareProgress(h);
+        const auto output = h.stack_base + 0x800, fs = h.stack_base + 0x600,
+                   gs = h.stack_base + 0x608;
+        *reinterpret_cast<std::uint64_t *>(fs) = 0x12345678 + i;
+        *reinterpret_cast<std::uint64_t *>(gs) = 0x87654321 + i;
+        TestOwner owner(h, progress);
+        const int guest_round = i % 4;
+        const int host_round = guest_round < 2 ? FE_UPWARD : FE_DOWNWARD;
+        auto rounding = owner.Submit([host_round] {
+            ::feraiseexcept(FE_INVALID);
+            return ::fesetround(host_round);
+        });
+        (void)Await(rounding);
+        auto run = owner.Run();
+        state_ok &= WaitProgress(progress, 0);
+        auto running_read = h.context->ReadRegisters(owner.handle);
+        refused &=
+            !running_read && running_read.GetError().category == ErrorCategory::AlreadyRunning;
+        auto running_write = h.context->WriteRegisters(owner.handle, RegisterPatch{}, 1);
+        refused &=
+            !running_write && running_write.GetError().category == ErrorCategory::WrongThread;
+        auto ticket = h.context->RequestInterrupt(owner.handle, InterruptReason::Pause);
+        auto ack = h.context->WaitStopped(ticket.Value(), 1'000'000'000);
+        auto paused = Await(run);
+        if (!ack || !paused)
+            std::_Exit(4);
+        RegisterPatch patch{};
+        patch.fields = RegisterValidity::Gpr | RegisterValidity::Rip | RegisterValidity::Xmm |
+                       RegisterValidity::Mxcsr | RegisterValidity::SegmentBases;
+        patch.gpr_mask = (1u << Index(Gpr::Rax)) | (1u << Index(Gpr::Rdi));
+        patch.values.Set(Gpr::Rax, 0x1122334455667788ULL + i);
+        patch.values.Set(Gpr::Rdi, output);
+        patch.values.rip = entry;
+        patch.xmm_mask = 3;
+        patch.values.xmm[0] = {0x1020304050607080ULL, 0x8877665544332211ULL};
+        double x = -1.75; // toward-zero (-1) differs from host FE_DOWNWARD (-2)
+        std::memcpy(&patch.values.xmm[1].low, &x, 8);
+        patch.values.mxcsr = 0x1f80 | (guest_round << 13);
+        patch.values.fs_base = fs;
+        patch.values.gs_base = gs;
+        auto wrong = h.context->WriteRegisters(owner.handle, patch, ack.Value().stop_epoch);
+        refused &= !wrong && wrong.GetError().category == ErrorCategory::WrongThread;
+        auto stale = owner.Submit([&] {
+            return h.context->WriteRegisters(owner.handle, patch, ack.Value().stop_epoch - 1);
+        });
+        auto st = Await(stale);
+        refused &= !st && st.GetError().category == ErrorCategory::StaleEpoch;
+        auto write = owner.Submit(
+            [&] { return h.context->WriteRegisters(owner.handle, patch, ack.Value().stop_epoch); });
+        state_ok &= bool(Await(write));
+        auto resume = h.context->Resume(owner.handle, ticket.Value().epoch);
+        state_ok &= bool(resume);
+        run = owner.Run();
+        auto result = Await(run);
+        auto env = owner.Submit([host_round] {
+            return ::fegetround() == host_round && (::fetestexcept(FE_INVALID) & FE_INVALID);
+        });
+        fp_ok &= Await(env);
+        auto *bytes = reinterpret_cast<const std::byte *>(output);
+        std::uint64_t rax, xlo, xhi, fsv, gsv, rounded;
+        std::uint32_t mxcsr;
+        std::memcpy(&rax, bytes, 8);
+        std::memcpy(&xlo, bytes + 8, 8);
+        std::memcpy(&xhi, bytes + 16, 8);
+        std::memcpy(&mxcsr, bytes + 24, 4);
+        std::memcpy(&fsv, bytes + 32, 8);
+        std::memcpy(&gsv, bytes + 40, 8);
+        std::memcpy(&rounded, bytes + 48, 8);
+        const bool ok = result && result.Value().primary_reason == StopReason::Returned &&
+                        rax == patch.values.Get(Gpr::Rax) && xlo == patch.values.xmm[0].low &&
+                        xhi == patch.values.xmm[0].high &&
+                        (mxcsr & 0x6000) == (patch.values.mxcsr & 0x6000) &&
+                        fsv == 0x12345678ULL + i && gsv == 0x87654321ULL + i &&
+                        rounded == static_cast<std::uint64_t>(guest_round < 2 ? -2LL : -1LL);
+        if (!ok)
+            std::printf(
+                "TRACE G16 i=%d rax=%llx xmm=%llx:%llx csr=%x fs=%llx gs=%llx round=%llu "
+                "reason=%s\n",
+                i, (unsigned long long)rax, (unsigned long long)xhi, (unsigned long long)xlo, mxcsr,
+                (unsigned long long)fsv, (unsigned long long)gsv, (unsigned long long)rounded,
+                result ? std::string(ToString(result.Value().primary_reason)).c_str() : "error");
+        state_ok &= ok;
+    }
+    Check("G16a", "10 paused owner patches affect actual GPR/RIP/XMM/MXCSR/FS/GS execution",
+          state_ok);
+    Check("G16b", "running reads and wrong-owner/stale writes are rejected", refused);
+    Check("G16c", "all four guest rounding modes preserve host rounding and exception flags",
+          fp_ok);
+}
+
+void TestRetiredContextsAndFaultPriority(Harness &h) {
+    bool retired = true, fault_priority = true;
+    for (int i = 0; i < 100; ++i) {
+        std::string error;
+        if (!LoadFixture(h, *FindFixture("bare_hlt"), error))
+            std::_Exit(4);
+        ThreadInit init{};
+        init.entry_rip = GuestCodeAddress{h.code_base};
+        init.initial_rsp = GuestAddress{h.stack_top};
+        auto old = h.context->CreateThread(init);
+        if (!old)
+            std::_Exit(4);
+        auto fault = h.context->Run(old.Value(), {});
+        auto cancel = h.context->RequestInterrupt(old.Value(), InterruptReason::Cancel);
+        auto receipt = h.context->WaitStopped(cancel.Value(), 1'000'000'000);
+        fault_priority &= fault && receipt && receipt.Value().reason == StopReason::GuestFault &&
+                          receipt.Value().snapshot.kind == SnapshotKind::Faulted &&
+                          !h.context->Resume(old.Value(), cancel.Value().epoch) &&
+                          !h.context->Run(old.Value(), {});
+        const auto old_context = h.context->ContextId();
+        if (!h.context->DestroyThread(old.Value()))
+            std::_Exit(4);
+        retired &= !h.context->WaitStopped(cancel.Value(), 1);
+        h.context.reset();
+        auto fresh = CreateContext(CpuConfig{}, *h.space);
+        if (!fresh)
+            std::_Exit(4);
+        h.context = std::move(fresh).Value();
+        h.return_gate = h.context->Capabilities().return_gate_address;
+        auto replacement = h.context->CreateThread(init);
+        if (!replacement)
+            std::_Exit(4);
+        retired &= h.context->ContextId() != old_context && replacement.Value() != old.Value() &&
+                   !h.context->WaitStopped(cancel.Value(), 1) &&
+                   !h.context->RequestInterrupt(old.Value(), InterruptReason::Pause) &&
+                   !h.context->ReadRegisters(old.Value()) &&
+                   !h.context->Resume(old.Value(), cancel.Value().epoch) &&
+                   !h.context->Run(old.Value(), {});
+        if (!h.context->DestroyThread(replacement.Value()))
+            std::_Exit(4);
+    }
+    Check("G17b", "100 destroyed/recreated contexts reject real old tickets and handles", retired);
+    Check("G17c", "100 real HLT faults outrank subsequent Cancel and refuse Resume",
+          fault_priority);
+}
+
+void TestInterruptRefusals(Harness &harness) {
+    const auto *fixture = FindFixture("return_only");
     if (fixture == nullptr) {
         Check("G12", "return_only fixture is present", false);
         return;
@@ -1414,14 +1562,20 @@ int main() {
     TestTwoOwnerConcurrency(harness);
     TestInterruptStress(harness);
     TestInterruptRefusals(harness);
+    TestInterruptInterleavings(harness);
+    TestStoppedStateExecution(harness);
+    Check("G17a", "all test owners destroyed their own threads",
+          harness.context->LiveThreadCount() == 0);
     TestPinnedInvalidationRecovery(harness);
     printf("\n");
     // Contract checks last: they publish their own stub at the same address.
     TestContracts(harness);
+    TestRetiredContextsAndFaultPriority(harness);
 
-    printf("\n%d check(s), %s (%d failure%s)\n", g_checks,
-           g_failures == 0 ? "ALL PASS" : "FAILED", g_failures, g_failures == 1 ? "" : "s");
+    printf("\n%d check(s), %s (%d failure%s)\n", g_checks, g_failures == 0 ? "ALL PASS" : "FAILED",
+           g_failures, g_failures == 1 ? "" : "s");
     printf("SCOPE: real x86-64 executed by FEXCore through the public API, from\n");
-    printf("       assembler-generated fixtures. Single-threaded; no HLE, interrupt or Step.\n");
+    printf("       assembler-generated fixtures, two owners and boundary interrupts. No "
+           "HLE/Step/APK.\n");
     return g_failures == 0 ? 0 : 1;
 }
