@@ -1,0 +1,194 @@
+guest execution through the public CPU API
+host page size: 4096
+fixtures: 12, generated from tests/guest_cpu/fixtures/guest_fixtures.S
+
+guest reservation base: 0x7f8000000
+code at 0x7f8010000, stack top 0x7f8023ff0
+return gate at 0xfc0000000
+
+[G01a  ] integer fixture returned through the gate                  PASS
+[G01b  ] add r8, r9 produced the sum                                PASS
+[G01c  ] mov r10, r8 then sub 5                                     PASS
+[G01d  ] xor r11, r11 cleared the register                          PASS
+[G01e  ] snapshot reports GPRs as valid                             PASS
+[G01f  ] snapshot kind is a safe point                              PASS
+[G02a  ] not-taken branch fell through to the mov                   PASS
+[G02b  ] taken branch skipped the mov                               PASS
+[G03a  ] pop rax read back the second push                          PASS
+[G03b  ] pop rcx read back the first push                           PASS
+[G03c  ] stack pointer is balanced after push/pop                   PASS
+[G07a  ] guest memory below rsp is readable                         PASS
+[G07b  ] store to [rsp-16] landed in guest memory                   PASS
+[G07c  ] store to [rsp-8] landed in guest memory                    PASS
+[G07d  ] direct host read agrees with the pinned-span read          PASS -- direct[rsp-16]=0xbadc0de0badc0de direct[rsp-8]=0xfeedfacefeedface (pinned read gave 0xbadc0de0badc0de / 0xfeedfacefeedface)
+[G07e  ] guest read back its own store to [rsp-16]                  PASS
+[G07f  ] guest read back its own store to [rsp-8]                   PASS
+[G04a  ] paddq result moved back to a GPR                           PASS
+[G04b  ] xmm0 low half holds the packed sum                         PASS
+[G04c  ] snapshot reports XMM as valid                              PASS
+[G05a  ] a HLT outside the gate is not reported as Returned         PASS -- GuestFault
+[G05b  ] the stop is reported as a guest fault                      PASS
+[G05c  ] fault carries a guest RIP                                  PASS
+[G05d  ] snapshot kind is Faulted, not SafePoint                    PASS
+[G08a  ] 100 same-VA publications with zero live threads between runs PASS
+[G08b  ] 100 publications invalidate both stopped threads without changing state PASS
+[G08c  ] cache regression leaves no guest threads                   PASS
+[G09a  ] 100 publications through GuestAddressSpace alone run the new code PASS
+[G09b  ] GuestAddressSpace::InvalidateCode discards the backend's translation PASS
+[G09c  ] successful publications leave no poisoned range            PASS
+[G09d  ] public publication leaves no guest threads                 PASS
+[G11a  ] guest store proves execution before pause                  PASS
+[G11b  ] request Pause                                              PASS
+[G11c  ] owner Run returns PauseRequested and acknowledges          PASS
+[G11d  ] paused registers readable and equal frozen guest store     PASS
+[G11e  ] repeated WaitStopped preserves the same stop epoch         PASS
+[G11f  ] receipt carries context and thread generation              PASS
+[G11g  ] Resume consumes exactly the acknowledged ticket            PASS
+[G11h  ] retired ticket cannot create a fresh SafePoint             PASS
+[G11i  ] resumed guest really advances its counter                  PASS
+[G11j  ] Cancel returns and its ticket receives a Cancelled receipt PASS
+[G14a  ] both guests perform memory stores before either is stopped PASS
+[G14b  ] owners have distinct actual gettid values                  PASS -- tid_a=4317 tid_b=4318
+[G14c  ] request owner A pause                                      PASS
+[G14d  ] A has a stopped receipt and returned to its command queue  PASS
+[G14e  ] while A is frozen B performs new guest stores              PASS -- A=33649 B=56762->57247
+[G14f  ] resume A                                                   PASS
+[G14g  ] both guests show new progress after A resumes              PASS
+[G14h  ] both Cancels acknowledge and return normally               PASS
+TRACE G13 iteration=0 request=9 stop=2 progress=437 latency_us=74
+TRACE G13 iteration=1 request=10 stop=3 progress=1056 latency_us=61
+TRACE G13 iteration=2 request=11 stop=4 progress=1609 latency_us=88
+TRACE G13 iteration=3 request=12 stop=5 progress=2117 latency_us=96
+TRACE G13 iteration=4 request=13 stop=6 progress=2628 latency_us=54
+TRACE G13 iteration=5 request=14 stop=7 progress=3101 latency_us=63
+TRACE G13 iteration=6 request=15 stop=8 progress=3987 latency_us=59
+TRACE G13 iteration=7 request=16 stop=9 progress=4530 latency_us=56
+TRACE G13 iteration=8 request=17 stop=10 progress=5130 latency_us=59
+TRACE G13 iteration=9 request=18 stop=11 progress=5817 latency_us=61
+TRACE G13 iteration=10 request=19 stop=12 progress=6356 latency_us=59
+TRACE G13 iteration=11 request=20 stop=13 progress=6969 latency_us=93
+TRACE G13 iteration=12 request=21 stop=14 progress=7479 latency_us=57
+TRACE G13 iteration=13 request=22 stop=15 progress=8104 latency_us=95
+TRACE G13 iteration=14 request=23 stop=16 progress=9087 latency_us=91
+TRACE G13 iteration=15 request=24 stop=17 progress=9752 latency_us=93
+TRACE G13 iteration=16 request=25 stop=18 progress=10503 latency_us=93
+TRACE G13 iteration=17 request=26 stop=19 progress=11066 latency_us=59
+TRACE G13 iteration=18 request=27 stop=20 progress=11661 latency_us=56
+TRACE G13 iteration=19 request=28 stop=21 progress=12283 latency_us=55
+TRACE G13 iteration=20 request=29 stop=22 progress=12810 latency_us=54
+TRACE G13 iteration=21 request=30 stop=23 progress=13322 latency_us=54
+TRACE G13 iteration=22 request=31 stop=24 progress=13972 latency_us=52
+TRACE G13 iteration=23 request=32 stop=25 progress=14685 latency_us=85
+TRACE G13 iteration=24 request=33 stop=26 progress=15280 latency_us=83
+TRACE G13 iteration=25 request=34 stop=27 progress=15829 latency_us=53
+TRACE G13 iteration=26 request=35 stop=28 progress=16389 latency_us=50
+TRACE G13 iteration=27 request=36 stop=29 progress=17077 latency_us=52
+TRACE G13 iteration=28 request=37 stop=30 progress=17578 latency_us=51
+TRACE G13 iteration=29 request=38 stop=31 progress=18225 latency_us=54
+TRACE G13 iteration=30 request=39 stop=32 progress=18710 latency_us=84
+TRACE G13 iteration=31 request=40 stop=33 progress=19144 latency_us=86
+TRACE G13 iteration=32 request=41 stop=34 progress=19628 latency_us=58
+TRACE G13 iteration=33 request=42 stop=35 progress=20097 latency_us=53
+TRACE G13 iteration=34 request=43 stop=36 progress=20528 latency_us=50
+TRACE G13 iteration=35 request=44 stop=37 progress=20889 latency_us=54
+TRACE G13 iteration=36 request=45 stop=38 progress=23355 latency_us=81
+TRACE G13 iteration=37 request=46 stop=39 progress=26270 latency_us=105
+TRACE G13 iteration=38 request=47 stop=40 progress=27150 latency_us=59
+TRACE G13 iteration=39 request=48 stop=41 progress=27795 latency_us=117
+TRACE G13 iteration=40 request=49 stop=42 progress=28458 latency_us=56
+TRACE G13 iteration=41 request=50 stop=43 progress=29065 latency_us=89
+TRACE G13 iteration=42 request=51 stop=44 progress=29682 latency_us=59
+TRACE G13 iteration=43 request=52 stop=45 progress=30528 latency_us=56
+TRACE G13 iteration=44 request=53 stop=46 progress=31853 latency_us=242
+TRACE G13 iteration=45 request=54 stop=47 progress=33192 latency_us=66
+TRACE G13 iteration=46 request=55 stop=48 progress=34064 latency_us=105
+TRACE G13 iteration=47 request=56 stop=49 progress=37347 latency_us=86
+TRACE G13 iteration=48 request=57 stop=50 progress=38050 latency_us=64
+TRACE G13 iteration=49 request=58 stop=51 progress=38800 latency_us=44
+TRACE G13 iteration=50 request=59 stop=52 progress=39837 latency_us=63
+TRACE G13 iteration=51 request=60 stop=53 progress=40734 latency_us=63
+TRACE G13 iteration=52 request=61 stop=54 progress=41480 latency_us=40
+TRACE G13 iteration=53 request=62 stop=55 progress=42125 latency_us=40
+TRACE G13 iteration=54 request=63 stop=56 progress=42669 latency_us=41
+TRACE G13 iteration=55 request=64 stop=57 progress=43271 latency_us=41
+TRACE G13 iteration=56 request=65 stop=58 progress=44026 latency_us=42
+TRACE G13 iteration=57 request=66 stop=59 progress=44606 latency_us=64
+TRACE G13 iteration=58 request=67 stop=60 progress=45213 latency_us=62
+TRACE G13 iteration=59 request=68 stop=61 progress=46595 latency_us=76
+TRACE G13 iteration=60 request=69 stop=62 progress=47377 latency_us=62
+TRACE G13 iteration=61 request=70 stop=63 progress=47998 latency_us=62
+TRACE G13 iteration=62 request=71 stop=64 progress=48999 latency_us=48
+TRACE G13 iteration=63 request=72 stop=65 progress=49581 latency_us=44
+TRACE G13 iteration=64 request=73 stop=66 progress=50398 latency_us=42
+TRACE G13 iteration=65 request=74 stop=67 progress=51240 latency_us=106
+TRACE G13 iteration=66 request=75 stop=68 progress=52173 latency_us=55
+TRACE G13 iteration=67 request=76 stop=69 progress=52877 latency_us=46
+TRACE G13 iteration=68 request=77 stop=70 progress=53870 latency_us=71
+TRACE G13 iteration=69 request=78 stop=71 progress=54605 latency_us=45
+TRACE G13 iteration=70 request=79 stop=72 progress=55355 latency_us=69
+TRACE G13 iteration=71 request=80 stop=73 progress=55912 latency_us=49
+TRACE G13 iteration=72 request=81 stop=74 progress=56794 latency_us=45
+TRACE G13 iteration=73 request=82 stop=75 progress=57426 latency_us=43
+TRACE G13 iteration=74 request=83 stop=76 progress=58170 latency_us=44
+TRACE G13 iteration=75 request=84 stop=77 progress=58861 latency_us=203
+TRACE G13 iteration=76 request=85 stop=78 progress=61216 latency_us=117
+TRACE G13 iteration=77 request=86 stop=79 progress=62002 latency_us=107
+TRACE G13 iteration=78 request=87 stop=80 progress=62622 latency_us=75
+TRACE G13 iteration=79 request=88 stop=81 progress=65080 latency_us=104
+TRACE G13 iteration=80 request=89 stop=82 progress=66371 latency_us=100
+TRACE G13 iteration=81 request=90 stop=83 progress=67230 latency_us=63
+TRACE G13 iteration=82 request=91 stop=84 progress=68119 latency_us=63
+TRACE G13 iteration=83 request=92 stop=85 progress=68828 latency_us=133
+TRACE G13 iteration=84 request=93 stop=86 progress=69524 latency_us=95
+TRACE G13 iteration=85 request=94 stop=87 progress=70287 latency_us=62
+TRACE G13 iteration=86 request=95 stop=88 progress=71099 latency_us=63
+TRACE G13 iteration=87 request=96 stop=89 progress=71776 latency_us=94
+TRACE G13 iteration=88 request=97 stop=90 progress=72580 latency_us=65
+TRACE G13 iteration=89 request=98 stop=91 progress=73217 latency_us=60
+TRACE G13 iteration=90 request=99 stop=92 progress=74040 latency_us=62
+TRACE G13 iteration=91 request=100 stop=93 progress=74665 latency_us=61
+TRACE G13 iteration=92 request=101 stop=94 progress=75682 latency_us=64
+TRACE G13 iteration=93 request=102 stop=95 progress=76805 latency_us=333
+TRACE G13 iteration=94 request=103 stop=96 progress=77639 latency_us=59
+TRACE G13 iteration=95 request=104 stop=97 progress=78583 latency_us=124
+TRACE G13 iteration=96 request=105 stop=98 progress=79759 latency_us=68
+TRACE G13 iteration=97 request=106 stop=99 progress=80623 latency_us=104
+TRACE G13 iteration=98 request=107 stop=100 progress=81442 latency_us=63
+TRACE G13 iteration=99 request=108 stop=101 progress=82194 latency_us=97
+[G13a  ] 100 cycles each execute, pause and publish fresh state     PASS
+[G13b  ] request-to-ack budget includes RequestInterrupt itself     PASS -- p50_us=62 p95_us=124 max_us=333
+[G13c  ] immediate-entry Cancel is acknowledged without a warmup gap PASS
+[G12a  ] a ticket from another context is refused                   PASS -- InvalidArgument in WaitStopped: wrong context ticket
+[G12b  ] a stale thread generation is refused                       PASS -- InvalidHandle in RequestInterrupt: stale handle
+[G12c  ] resuming an unacknowledged epoch is refused                PASS -- StaleEpoch in Resume: resume must name the current stopped request epoch
+[G12d  ] a non-zero deadline_ns is refused before running           PASS -- Unsupported in Run: deadline_ns is unsupported
+[G15a  ] 100 concurrent Pause/Cancel pairs preserve Cancel priority PASS
+[G15b  ] older Resume never consumes a newer stopped request        PASS
+[G15c  ] 100 timed-out waits retain requests and receive late owner acks PASS
+[G15d  ] 100 pre-entry stops and concurrent Resume/Pause races retain new requests PASS
+[G15e  ] Cancel while paused has an immediate frozen-state receipt  PASS
+[G16a  ] 10 paused owner patches affect actual GPR/RIP/XMM/MXCSR/FS/GS execution PASS
+[G16b  ] running reads and wrong-owner/stale writes are rejected    PASS
+[G16c  ] guest execution preserves each owner's host FP rounding    PASS
+[G17a  ] all test owners destroyed their own threads                PASS
+[G10a  ] pinned rewrite with failed invalidation poisons code       PASS
+[G10b  ] poison refuses execute permission and real guest admission PASS
+[G10c  ] restore real backend registration                          PASS
+[G10d  ] successful repair resumes the new B translation            PASS
+
+[G06a  ] capabilities declare base integer support                  PASS
+[G06b  ] capabilities declare SSE2 support                          PASS
+[G06c  ] capabilities do not claim AVX                              PASS
+[G06d  ] capabilities report the injected host page size            PASS
+[G06e  ] a second concurrent context is refused with AlreadyActive  PASS
+[G06f  ] an unmapped entry_rip is refused                           PASS
+[G06g  ] Step is refused with Unsupported, not silently run as a block PASS
+[G06h  ] WriteRegisters refuses a stale stop epoch                  PASS
+[G06i  ] a destroyed handle is refused with InvalidHandle           PASS
+[G06j  ] InvalidateCode refuses a token from another address space  PASS -- InvalidArgument in InvalidateCode: the token belongs to a different address space, or its space has been destroyed
+[G17b  ] 100 destroyed/recreated contexts reject real old tickets and handles PASS
+[G17c  ] 100 real HLT faults outrank subsequent Cancel and refuse Resume PASS
+
+81 check(s), ALL PASS (0 failures)
+SCOPE: real x86-64 executed by FEXCore through the public API, from
+       assembler-generated fixtures, two owners and boundary interrupts. No HLE/Step/APK.

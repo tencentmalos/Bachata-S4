@@ -1,0 +1,18 @@
+R2-B02: runner accounting negatives
+
+[PASS] 1. B02 without an APK does not claim a full PASS -- status=NOT_RUN
+[PASS] 3. a case with a missing sub-case does not pass -- status=NOT_RUN
+[PASS] 4. a SKIP sub-case does not complete a case -- status=NOT_RUN
+[PASS] 7. a later PASS does not overwrite an earlier FAIL for the same ID -- status=FAIL
+[PASS] 7b. the repeated sub-case is recorded with an iteration count -- repeated={'M01a': 2}
+[PASS] 7c. the conflicting verdict is recorded -- conflicts=['M01a: reported FAIL then PASS']
+[PASS] 5. a suite that exits non-zero with no output fails its owned cases -- status=FAIL
+[PASS] 5b. that failure reaches the summary -- failed=9
+[PASS] 6. a timed-out suite is unusable and not 'never started' -- usable=False never_started=False
+[PASS] 8. a missing suite binary is 'never started', not a failure -- usable=False never_started=True
+[PASS] 8b. the two are distinguishable
+[PASS] 2. a host-only result is labelled HOST, not DEVICE -- environment=HOST
+
+12/12 passed
+
+SCOPE: the runner's own accounting. Proves nothing about the guest CPU.

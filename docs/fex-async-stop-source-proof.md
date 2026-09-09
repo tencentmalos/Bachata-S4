@@ -1,8 +1,10 @@
 # FEX 异步停止路径的源码证明（G1 前置）
 
+> 历史方案。2026-09-09 起由 [G1 入口停止设计](validation/round2/g1-control-decision.md) 取代。下文“只能外部信号、不能协作检查”的结论过强：固定 FEXCore 可配置 JIT 入口 interrupt-page 检查，当前实现使用该路径。旧 SleepThread/SIGILL 方案不再作为实施指导。
+
 日期：2026-09-08。FEX pin `385a0cc4d81cd456c8d5c26b4f09cb5a7d8d5842`。
 
-[二周目 spec](../specs/android-fex-round2.md) §3.1 要求：接 `RequestInterrupt`/`WaitStopped` 之前，先在固定版本源码上写明所选 kick 的调用链、host 寄存器 spill、出口 ABI、嵌套 signal 与清理规则。本文件是该证明。**这里记录的是 FEX 已有的机制，不是本仓已实现的功能。**
+[二周目 spec](specs/android-fex-round2.md) §3.1 要求：接 `RequestInterrupt`/`WaitStopped` 之前，先在固定版本源码上写明所选 kick 的调用链、host 寄存器 spill、出口 ABI、嵌套 signal 与清理规则。本文件是该证明。**这里记录的是 FEX 已有的机制，不是本仓已实现的功能。**
 
 ## 1. 为什么必须走异步 kick
 

@@ -1,0 +1,20 @@
+guest execution through the public CPU API
+host page size: 4096
+fixtures: 10, generated from tests/guest_cpu/fixtures/guest_fixtures.S
+
+guest reservation base: 0x7f8000000
+code at 0x7f8010000, stack top 0x7f8023ff0
+return gate at 0xfc0000000
+
+pause_ack=1
+read_while_parked=0 error=AlreadyRunning in ReadRegisters: thread is executing; registers are not at a safe point
+repeat_wait stop_epoch=3 first=2
+wait_old_after_resume=1 live_read=0 error=AlreadyRunning in ReadRegisters: thread is executing; registers are not at a safe point
+pause2_ack=1
+stale_resume_epoch1_after_ack2=1
+owner_return result=1 reason=Cancelled
+cancel_ack=0 done=1 error=Timeout in WaitStopped: the owner did not reach a safe point before the deadline
+owner_destroy=1
+remaining_threads=0
+
+exit_code=0

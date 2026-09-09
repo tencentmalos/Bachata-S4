@@ -1,0 +1,13 @@
+guest execution through the public CPU API
+host page size: 4096
+fixtures: 10, generated from tests/guest_cpu/fixtures/guest_fixtures.S
+
+guest reservation base: 0x7f8000000
+code at 0x7f8010000, stack top 0x7f8023ff0
+return gate at 0xfc0000000
+
+[G13a  ] 100 pause/receipt/resume cycles each produced a valid receipt PASS -- 100 cycles, p50=0ms p95=0ms max=0ms
+[G13b  ] every stop reached a safe point within the 1s budget       PASS -- 100 cycles, p50=0ms p95=0ms max=0ms
+[G13c  ] the stress owner returned after cancel                     PASS
+
+exit_code=0

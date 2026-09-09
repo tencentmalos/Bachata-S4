@@ -6,7 +6,7 @@
 
 ## 快速入口
 
-- **当前执行：[二周目任务书](docs/specs/android-fex-round2-handoff.md) / [spec](docs/specs/android-fex-round2.md)**。G0–G4 和 24 项验收：证据、运行控制、事务、真实 HLE、普通 APK；尚未实施。有限 Step/Vulkan 是后续 V0 欠项。
+- **当前执行：[进度](docs/validation/round2/progress.md) → [G1 修复报告](docs/validation/round2/g1-repair-2026-09-09.md) → [G2 任务书](docs/specs/android-fex-round2-g2-handoff.md)**。G1 C01–C04 已有 Pocket DS 4 KiB CLI 辅助证据，guest 81/81；Swan 普通 APK 仍待验证，G2–G4 未实施。Resume 只准入下一次 owner Run，不再用 SleepThread 停驻。package verifier 仍有覆盖欠项，详见任务书。有限 Step/Vulkan 仍为后续 V0 欠项。
 - [一周目提交与全量欠项](docs/baselines/2026-09-08-round1-closeout.md)：`85b57cb2` 已推送；Swan contract 34/34、guest 45/45。历史 runner 的 11 PASS 不等于 app 验收，尤其 B02 仅有独立 ELF 证据。
 - [事务加固与验证](docs/validation/v0/transaction-hardening-2026-09-08.md)：源码/hash/原始日志；测试时 dirty patch 已纳入上述提交，不倒改历史测试身份。
 

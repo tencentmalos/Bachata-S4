@@ -1,0 +1,26 @@
+[
+  {
+    "name": "baseline",
+    "sha256": "7b1c3c045b3c32d99f070cded42a70beca62dbb69abda4dac42a30de1dd5f8bf",
+    "exit_code": 0,
+    "remote_sha256": "7b1c3c045b3c32d99f070cded42a70beca62dbb69abda4dac42a30de1dd5f8bf  /data/local/tmp/shadps4-r2-review-20260909/baseline"
+  },
+  {
+    "name": "api_epoch",
+    "sha256": "ae78e3ed0deb10369ff442ee846f910b5f406b36d2cc60684f9f22e54a36b206",
+    "exit_code": 0,
+    "remote_sha256": "ae78e3ed0deb10369ff442ee846f910b5f406b36d2cc60684f9f22e54a36b206  /data/local/tmp/shadps4-r2-review-20260909/api_epoch"
+  },
+  {
+    "name": "api_cancel_parked",
+    "sha256": "ae78e3ed0deb10369ff442ee846f910b5f406b36d2cc60684f9f22e54a36b206",
+    "exit_code": 0,
+    "remote_sha256": "ae78e3ed0deb10369ff442ee846f910b5f406b36d2cc60684f9f22e54a36b206  /data/local/tmp/shadps4-r2-review-20260909/api_cancel_parked"
+  },
+  {
+    "name": "zero_gap",
+    "sha256": "b74e36ce4c6a749241ab10fbe68aef51ee1bcade150345d3ebb12c77420aff9a",
+    "exit_code": 0,
+    "remote_sha256": "b74e36ce4c6a749241ab10fbe68aef51ee1bcade150345d3ebb12c77420aff9a  /data/local/tmp/shadps4-r2-review-20260909/zero_gap"
+  }
+]

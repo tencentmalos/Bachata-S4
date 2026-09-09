@@ -1,0 +1,13 @@
+run id: 20260909T022407Z
+build dir: /tmp/shadps4-r2-review-20260909/host-build
+
+api_contract_tests: 34 sub-case(s), 0 failure(s)
+hle_abi_tests: 14 sub-case(s), 0 failure(s)
+host_page_size_probe: 22 sub-case(s), 0 failure(s)
+fexcore_bionic_smoke: 12 sub-case(s), 0 failure(s)
+guest_execution_tests: 81 sub-case(s), 0 failure(s)
+guest_cpu_contract_tests: 34 sub-case(s), 0 failure(s)
+
+10 PASS, 0 FAIL, 47 NOT_RUN of 57 in-scope cases (3 deferred by scope)
+release status: V0_IN_PROGRESS
+wrote /tmp/shadps4-r2-review-20260909/v0-results-complete.json

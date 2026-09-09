@@ -1,0 +1,11 @@
+[R2-B02] missing suite binary leaves cases NOT_RUN            PASS
+[R2-B02] B02 stays NOT_RUN (auxiliary) without an APK         PASS
+[R2-B02] non-zero exit overrides printed PASSes               PASS
+[R2-B02] empty non-zero exit is FAIL, not NOT_RUN             PASS
+[R2-B02] timed-out suite is unusable and not never-started    PASS
+[R2-B02] duplicate ID keeps worst (FAIL) and records iteration PASS
+[R2-B02] a lone SKIP is parsed as SKIP, not PASS              PASS
+[R2-B02] alignment below requirement is rejected, at/above passes PASS
+[R2-B02] an unshipped, non-bionic NEEDED lib is a closure failure PASS
+
+all R2-B02 runner regressions pass

@@ -1,0 +1,34 @@
+host page size reported by sysconf: 16384
+
+-- code buffer guard --
+[P01a  ] guard page start is host-page aligned PASS
+[P01b  ] guard page stays inside the allocation PASS
+[P01c  ] guard page covers the buffer tail exactly PASS
+[P01d  ] mprotect on the guard page succeeds PASS
+[P01e  ] the previous FEX_PAGE_SIZE guard address was indeed unaligned PASS
+[P01f  ] the previous computation would have failed here PASS -- Invalid argument
+[P01g  ] UsableSize() ends at or before the guard PASS
+
+-- interrupt fault page --
+[P02a  ] fault page stays within the JIT immediate offset budget PASS -- distance=15872
+[P02b  ] object size is a multiple of its alignment PASS
+[P02c  ] fault page is host-page aligned PASS -- addr%16384=0
+[P02d  ] fault page covers at least one host page PASS
+[P02e  ] mprotect(PROT_NONE) on the fault page succeeds PASS
+[P02f  ] permissions can be restored before free PASS
+[P02g  ] BaseFrameState is in a different host page than the fault page PASS
+[P02h  ] the previous layout was indeed misaligned PASS
+[P02i  ] the previous layout's mprotect would have failed PASS -- Invalid argument
+
+-- SetHostPageSize validation --
+[P03a  ] rejects zero PASS
+[P03b  ] rejects a page smaller than the guest ABI page PASS
+[P03c  ] rejects a non-power-of-two page PASS
+[P03d  ] rejects 64k, which exceeds the JIT offset budget PASS
+[P03e  ] accepts 4096 PASS
+[P03f  ] accepts 16384 PASS
+
+ALL PASS (0 failures)
+
+(exit 0, 0.12s)
+{"exit_code": 0, "timed_out": false, "never_started": false, "error": null}

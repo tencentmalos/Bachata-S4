@@ -1,0 +1,190 @@
+{
+  "status": "ROUND2_IN_PROGRESS",
+  "scope": "G1 review and repair; not a new G0-G4 acceptance run",
+  "cases": [
+    {
+      "id": "R2-B01",
+      "status": "NOT_RUN",
+      "environment": "SWAN_ANDROID16_APK",
+      "reason": "not re-accepted by this G1-only run; see G0 history and remaining G2-G4 requirements"
+    },
+    {
+      "id": "R2-B02",
+      "status": "NOT_RUN",
+      "environment": "SWAN_ANDROID16_APK",
+      "reason": "not re-accepted by this G1-only run; see G0 history and remaining G2-G4 requirements"
+    },
+    {
+      "id": "R2-C01",
+      "status": "NOT_RUN",
+      "environment": "SWAN_ANDROID16_APK",
+      "reason": "required app environment not executed",
+      "auxiliary_status": "PASS",
+      "auxiliary_environment": "POCKET_DS_API33_ARM64_4096_CLI",
+      "evidence": [
+        "g1-complete.txt",
+        "g1-clean-complete.txt"
+      ],
+      "coverage": [
+        "G14a-h"
+      ]
+    },
+    {
+      "id": "R2-C02",
+      "status": "NOT_RUN",
+      "environment": "SWAN_ANDROID16_APK",
+      "reason": "required app environment not executed",
+      "auxiliary_status": "PASS",
+      "auxiliary_environment": "POCKET_DS_API33_ARM64_4096_CLI",
+      "evidence": [
+        "g1-complete.txt",
+        "g1-clean-complete.txt"
+      ],
+      "coverage": [
+        "G11a-j",
+        "G13a-c"
+      ]
+    },
+    {
+      "id": "R2-C03",
+      "status": "NOT_RUN",
+      "environment": "SWAN_ANDROID16_APK",
+      "reason": "required app environment not executed",
+      "auxiliary_status": "PASS",
+      "auxiliary_environment": "POCKET_DS_API33_ARM64_4096_CLI",
+      "evidence": [
+        "g1-complete.txt",
+        "g1-clean-complete.txt"
+      ],
+      "coverage": [
+        "G12a-c",
+        "G15a-e",
+        "G17b-c"
+      ]
+    },
+    {
+      "id": "R2-C04",
+      "status": "NOT_RUN",
+      "environment": "SWAN_ANDROID16_APK",
+      "reason": "required app environment not executed",
+      "auxiliary_status": "PASS",
+      "auxiliary_environment": "POCKET_DS_API33_ARM64_4096_CLI",
+      "evidence": [
+        "g1-complete.txt",
+        "g1-clean-complete.txt"
+      ],
+      "coverage": [
+        "G16a-c",
+        "G12d"
+      ]
+    },
+    {
+      "id": "R2-M01",
+      "status": "NOT_RUN",
+      "environment": "SWAN_ANDROID16_APK",
+      "reason": "not re-accepted by this G1-only run; see G0 history and remaining G2-G4 requirements"
+    },
+    {
+      "id": "R2-M02",
+      "status": "NOT_RUN",
+      "environment": "SWAN_ANDROID16_APK",
+      "reason": "not re-accepted by this G1-only run; see G0 history and remaining G2-G4 requirements"
+    },
+    {
+      "id": "R2-M03",
+      "status": "NOT_RUN",
+      "environment": "SWAN_ANDROID16_APK",
+      "reason": "not re-accepted by this G1-only run; see G0 history and remaining G2-G4 requirements"
+    },
+    {
+      "id": "R2-M04",
+      "status": "NOT_RUN",
+      "environment": "SWAN_ANDROID16_APK",
+      "reason": "not re-accepted by this G1-only run; see G0 history and remaining G2-G4 requirements"
+    },
+    {
+      "id": "R2-M05",
+      "status": "NOT_RUN",
+      "environment": "SWAN_ANDROID16_APK",
+      "reason": "not re-accepted by this G1-only run; see G0 history and remaining G2-G4 requirements"
+    },
+    {
+      "id": "R2-H01",
+      "status": "NOT_RUN",
+      "environment": "SWAN_ANDROID16_APK",
+      "reason": "not re-accepted by this G1-only run; see G0 history and remaining G2-G4 requirements"
+    },
+    {
+      "id": "R2-H02",
+      "status": "NOT_RUN",
+      "environment": "SWAN_ANDROID16_APK",
+      "reason": "not re-accepted by this G1-only run; see G0 history and remaining G2-G4 requirements"
+    },
+    {
+      "id": "R2-H03",
+      "status": "NOT_RUN",
+      "environment": "SWAN_ANDROID16_APK",
+      "reason": "not re-accepted by this G1-only run; see G0 history and remaining G2-G4 requirements"
+    },
+    {
+      "id": "R2-H04",
+      "status": "NOT_RUN",
+      "environment": "SWAN_ANDROID16_APK",
+      "reason": "not re-accepted by this G1-only run; see G0 history and remaining G2-G4 requirements"
+    },
+    {
+      "id": "R2-H05",
+      "status": "NOT_RUN",
+      "environment": "SWAN_ANDROID16_APK",
+      "reason": "not re-accepted by this G1-only run; see G0 history and remaining G2-G4 requirements"
+    },
+    {
+      "id": "R2-H06",
+      "status": "NOT_RUN",
+      "environment": "SWAN_ANDROID16_APK",
+      "reason": "not re-accepted by this G1-only run; see G0 history and remaining G2-G4 requirements"
+    },
+    {
+      "id": "R2-A01",
+      "status": "NOT_RUN",
+      "environment": "SWAN_ANDROID16_APK",
+      "reason": "not re-accepted by this G1-only run; see G0 history and remaining G2-G4 requirements"
+    },
+    {
+      "id": "R2-A02",
+      "status": "NOT_RUN",
+      "environment": "SWAN_ANDROID16_APK",
+      "reason": "not re-accepted by this G1-only run; see G0 history and remaining G2-G4 requirements"
+    },
+    {
+      "id": "R2-A03",
+      "status": "NOT_RUN",
+      "environment": "SWAN_ANDROID16_APK",
+      "reason": "not re-accepted by this G1-only run; see G0 history and remaining G2-G4 requirements"
+    },
+    {
+      "id": "R2-F01",
+      "status": "NOT_RUN",
+      "environment": "SWAN_ANDROID16_APK",
+      "reason": "not re-accepted by this G1-only run; see G0 history and remaining G2-G4 requirements"
+    },
+    {
+      "id": "R2-F02",
+      "status": "NOT_RUN",
+      "environment": "SWAN_ANDROID16_APK",
+      "reason": "not re-accepted by this G1-only run; see G0 history and remaining G2-G4 requirements"
+    },
+    {
+      "id": "R2-D01",
+      "status": "NOT_RUN",
+      "environment": "SWAN_ANDROID16_APK",
+      "reason": "not re-accepted by this G1-only run; see G0 history and remaining G2-G4 requirements"
+    },
+    {
+      "id": "R2-L01",
+      "status": "NOT_RUN",
+      "environment": "SWAN_ANDROID16_APK",
+      "reason": "not re-accepted by this G1-only run; see G0 history and remaining G2-G4 requirements"
+    }
+  ]
+}
