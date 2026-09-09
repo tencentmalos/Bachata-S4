@@ -1992,6 +1992,103 @@ void TestPermissionRetirement(Harness& h) {
     Check("G28b", "RW rewrite then RX on the same thread automatically retires A before B", rewritten);
 }
 
+// --- R2-H05: an unregistered-entry fault is attributed to its owner, not shared -----------------
+//
+// One owner executes an entry with no HLE/gate path (a bare HLT faults the guest). That owner must
+// return GuestFault; a concurrently running owner on a normal fixture must NOT see the fault and
+// must keep running and then cancel cleanly. Repeated 100 times with mixed ordering, the fault is
+// never consumed by the wrong owner.
+void TestFaultAttribution(Harness& h) {
+    // Good code (progress) lives at code_base; the faulting fixture (bare HLT) lives on a SEPARATE
+    // page (data_base) so one thread can spin on progress while another faults, concurrently.
+    if (!LoadProgress(h)) {
+        Check("G30", "load progress fixture", false);
+        return;
+    }
+    const auto* bare = FindFixture("bare_hlt");
+    if (!bare) {
+        Check("G30", "bare_hlt fixture present", false);
+        return;
+    }
+    const GuestRange fault_range{GuestAddress{h.data_base}, kMappingSize};
+    {
+        std::string e;
+        // Publish the faulting bytes to the data page directly (no gate patch needed; HLT faults
+        // before any return).
+        auto rw = h.space->Protect(fault_range, GuestPermission::Read | GuestPermission::Write);
+        auto pin = h.space->AcquirePinnedSpan(fault_range, /*writable=*/true);
+        if (!rw || !pin) {
+            Check("G30", "map data page RW for fault code", false,
+                  rw ? Describe(pin.GetError()) : Describe(rw.GetError()));
+            return;
+        }
+        auto bytes = pin.Value().WritableBytes();
+        std::memset(bytes.data(), 0, bytes.size());
+        std::memcpy(bytes.data(), bare->bytes.data(), bare->bytes.size());
+    }
+    if (!h.space->Protect(fault_range, GuestPermission::Read | GuestPermission::Execute)) {
+        Check("G30", "publish fault page RX", false);
+        return;
+    }
+
+    bool good_never_faulted = true;
+    bool fault_owner_always_faulted = true;
+    bool good_progressed = false;
+
+    for (int iter = 0; iter < 100; ++iter) {
+        const auto good_slot = PrepareProgress(h, 0);
+
+        // Start the good owner on the progress loop first so it is executing before the fault.
+        TestOwner good(h, good_slot);
+        auto good_run = good.Run();
+        if (!WaitProgress(good_slot, 0)) {
+            good_never_faulted = false;
+            break;
+        }
+
+        // Fault owner: fresh thread running bare HLT on the data page -> GuestFault.
+        ThreadInit bad{};
+        bad.entry_rip = GuestCodeAddress{h.data_base};
+        bad.initial_rsp = GuestAddress{h.stack_top};
+        bad.guest_tid = 500 + iter;
+        auto bad_thread = h.context->CreateThread(bad);
+        if (!bad_thread) {
+            fault_owner_always_faulted = false;
+            break;
+        }
+        auto bad_result = h.context->Run(bad_thread.Value(), RunOptions{});
+        const bool bad_faulted =
+            bad_result && bad_result.Value().primary_reason == StopReason::GuestFault;
+        (void)h.context->DestroyThread(bad_thread.Value());
+        if (!bad_faulted) {
+            fault_owner_always_faulted = false;
+            break;
+        }
+
+        // The good owner must still be running its own progress code, not stopped by the fault.
+        const auto before = Progress(good_slot);
+        if (!WaitProgress(good_slot, before)) {
+            good_never_faulted = false;
+            break;
+        }
+        // Cancel the good owner; it must return Cancelled, never GuestFault.
+        auto cancel = h.context->RequestInterrupt(good.handle, InterruptReason::Cancel);
+        auto receipt = h.context->WaitStopped(cancel.Value(), 1'000'000'000);
+        auto good_result = Await(good_run);
+        const bool good_clean =
+            receipt && good_result && good_result.Value().primary_reason == StopReason::Cancelled;
+        if (!good_clean) {
+            good_never_faulted = false;
+            break;
+        }
+        good_progressed = true;
+    }
+
+    Check("G30a", "the faulting owner returns GuestFault every round", fault_owner_always_faulted);
+    Check("G30b", "the concurrent owner never inherits the fault and runs its own code",
+          good_never_faulted && good_progressed);
+}
+
 void TestCoordinatorRecovery(Harness& h) {
     // External Pause/Cancel/Shutdown both before and after the coordinator's own request. Hold one owner in a signal
     // handler, using an observed handshake (no settle sleep), so timeout is deterministic.
@@ -2485,6 +2582,7 @@ int main() {
     TestPersistentOwnerRemap(harness);
     TestGuestStorePublication(harness);
     TestPermissionRetirement(harness);
+    TestFaultAttribution(harness);
     TestCoordinatorRecovery(harness);
     TestInterruptStress(harness);
     TestInterruptRefusals(harness);

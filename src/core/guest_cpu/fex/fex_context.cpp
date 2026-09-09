@@ -264,14 +264,48 @@ class OwnerSignalStack final {
 class FexSyscallHandler final : public FEXCore::HLE::SyscallHandler {
   public:
     explicit FexSyscallHandler(GuestAddressSpace& space) : space_(space) {}
+
     void HandleSyscall(FEXCore::Core::CpuStateFrame *Frame) override {
-        // Reaching here means guest code executed a syscall instruction, which
-        // V0 has no HLE path for. Record it on the frame's thread so Run can
-        // report a defined stop instead of the guest silently continuing with a
-        // garbage return value.
-        if (Frame != nullptr) {
-            unexpected_syscall.store(true, std::memory_order_release);
+        // Reaching here means guest code executed a syscall instruction V0 has no HLE path for.
+        // Attribute it to the exact thread that executed it: the context-wide boolean let one
+        // owner's fault be consumed by another owner's Run (R2-H05). We key on the frame pointer
+        // FEXCore passes, which is unique per InternalThreadState.
+        if (Frame == nullptr) {
+            // No frame means no per-thread attribution; fall back to a process-wide sticky flag so
+            // the fault is never silently dropped.
+            unknown_thread_syscall_.store(true, std::memory_order_release);
+            return;
         }
+        std::shared_ptr<std::atomic<bool>> flag;
+        {
+            std::lock_guard guard{threads_lock_};
+            auto it = syscall_fault_by_frame_.find(Frame);
+            if (it != syscall_fault_by_frame_.end()) {
+                flag = it->second.lock();
+            }
+        }
+        if (flag) {
+            flag->store(true, std::memory_order_release);
+        } else {
+            unknown_thread_syscall_.store(true, std::memory_order_release);
+        }
+    }
+
+    // Registers the per-thread syscall-fault flag for the duration of an ExecuteThread call. The
+    // weak_ptr entry is dropped when the owner unregisters, so a stale frame never faults the
+    // wrong thread and a destroyed thread's flag does not outlive it.
+    void RegisterThreadFrame(FEXCore::Core::CpuStateFrame* frame,
+                             std::weak_ptr<std::atomic<bool>> flag) {
+        std::lock_guard guard{threads_lock_};
+        syscall_fault_by_frame_[frame] = std::move(flag);
+    }
+    void UnregisterThreadFrame(FEXCore::Core::CpuStateFrame* frame) {
+        std::lock_guard guard{threads_lock_};
+        syscall_fault_by_frame_.erase(frame);
+    }
+
+    [[nodiscard]] bool TakeUnknownThreadSyscall() {
+        return unknown_thread_syscall_.exchange(false, std::memory_order_acq_rel);
     }
 
     FEXCore::HLE::ExecutableRangeInfo
@@ -334,8 +368,8 @@ class FexSyscallHandler final : public FEXCore::HLE::SyscallHandler {
         executable_ranges.push_back({base, size, writable});
     }
 
-    [[nodiscard]] bool TakeUnexpectedSyscall() {
-        return unexpected_syscall.exchange(false, std::memory_order_acq_rel);
+    [[nodiscard]] bool TakeUnknownThreadSyscallGlobal() {
+        return TakeUnknownThreadSyscall();
     }
 
   private:
@@ -348,7 +382,13 @@ class FexSyscallHandler final : public FEXCore::HLE::SyscallHandler {
     mutable std::mutex lock;
     std::vector<Range> executable_ranges; // Immutable backend return gate only.
     GuestAddressSpace& space_;
-    std::atomic<bool> unexpected_syscall{false};
+
+    // Per-thread syscall-fault attribution (R2-H05). Keyed by the frame FEXCore passes to
+    // HandleSyscall; weak so a thread that has exited never keeps the map entry alive.
+    mutable std::mutex threads_lock_;
+    std::unordered_map<FEXCore::Core::CpuStateFrame*, std::weak_ptr<std::atomic<bool>>>
+        syscall_fault_by_frame_;
+    std::atomic<bool> unknown_thread_syscall_{false};
     std::atomic<std::uint64_t> compile_count{0};
 };
 
@@ -742,6 +782,7 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
 
         ThreadInterruptBinding binding{};
         std::uint64_t invocation{};
+        std::shared_ptr<std::atomic<bool>> syscall_fault;
         {
             std::lock_guard guard{lock_};
             // A lease may have been acquired just before BeginDrain. Do not enter after
@@ -775,6 +816,7 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
             binding.fault_page =
                 reinterpret_cast<std::uintptr_t>(entry->native->InterruptFaultPage);
             binding.stop_spill = signal_delegator_->GetConfig().ThreadStopHandlerAddressSpillSRA;
+            syscall_fault = entry->syscall_fault;
         }
         // The controller may protect the page at any point from claiming the
         // entry above onwards. No tgkill/TID reuse or late unbound signal exists.
@@ -790,7 +832,9 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         const std::uint64_t guest_fpcr = (((rounding & 1) << 1) | ((rounding & 2) >> 1)) << 22 |
                                          (static_cast<std::uint64_t>((mxcsr >> 15) & 1) << 24);
         asm volatile("msr fpcr, %0\n\tmsr fpsr, xzr" : : "r"(guest_fpcr) : "memory");
+        syscall_handler_->RegisterThreadFrame(binding.native->CurrentFrame, syscall_fault);
         context_->ExecuteThread(binding.native);
+        syscall_handler_->UnregisterThreadFrame(binding.native->CurrentFrame);
         ::fesetenv(&host_fp);
         t_binding = nullptr;
 
@@ -1132,6 +1176,11 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         // Stable address, so the signal handler can hold a pointer to it while the map changes.
         std::shared_ptr<InterruptState> interrupt{std::make_shared<InterruptState>()};
 
+        // Set when this specific guest thread executes a syscall with no HLE path. Attributed per
+        // thread (via the frame) so one owner's unregistered-entry fault is never consumed by a
+        // different owner's Run (R2-H05).
+        std::shared_ptr<std::atomic<bool>> syscall_fault{std::make_shared<std::atomic<bool>>(false)};
+
         // The guest descriptor table. CPUState only holds a pointer to it, and
         // the decoder dereferences that pointer on the very first block to read
         // CS.L and decide 64-bit mode -- so this must exist before any code
@@ -1381,8 +1430,10 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         const std::uint64_t rip = entry.native->CurrentFrame->State.rip;
         const std::uint64_t gate = return_gate_.Address();
 
-        if (syscall_handler_->TakeUnexpectedSyscall()) {
-            // A syscall with no HLE path is a fault, not a normal return.
+        if (entry.syscall_fault->exchange(false, std::memory_order_acq_rel) ||
+            syscall_handler_->TakeUnknownThreadSyscallGlobal()) {
+            // This guest thread executed a syscall with no HLE path: a fault attributed to it, not
+            // a context-wide boolean another owner could consume.
             result.primary_reason = StopReason::GuestFault;
             result.pending_reasons |= BitOf(StopReason::GuestFault);
             GuestFaultInfo fault{};
