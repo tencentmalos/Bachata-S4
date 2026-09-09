@@ -897,6 +897,75 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
 
     [[nodiscard]] std::uint64_t ContextId() const noexcept override { return context_id_; }
 
+    [[nodiscard]] Result<QuiescenceToken> QuiesceContext(std::uint64_t timeout_ns) override {
+        // Snapshot the live owners under the lock, then pause each running one outside the lock
+        // (RequestInterrupt/WaitStopped take it briefly). A pause makes that owner's Run return,
+        // which releases its execution lease; once every owner has drained the space grants a
+        // token. New Run/CreateThread are refused for the whole transaction by the space's lease
+        // gate (active_quiescence), which clears when the token is released.
+        std::vector<std::pair<std::uint64_t, std::uint64_t>> live;  // (id, generation)
+        {
+            std::lock_guard guard{lock_};
+            for (const auto& [id, entry] : threads_) {
+                live.emplace_back(id, entry.generation);
+            }
+        }
+
+        for (const auto& [id, generation] : live) {
+            bool running = false;
+            {
+                std::lock_guard guard{lock_};
+                auto it = threads_.find(id);
+                running = it != threads_.end() && it->second.generation == generation &&
+                          it->second.running;
+            }
+            if (!running) {
+                continue;  // Stopped or destroyed: no lease to drain.
+            }
+            auto ticket = RequestInterrupt(ThreadHandle{id, generation}, InterruptReason::Pause);
+            if (!ticket) {
+                return ticket.GetError();
+            }
+            auto receipt = WaitStopped(ticket.Value(), timeout_ns);
+            if (!receipt) {
+                // Do not claim a quiescence. The owner whose ack never arrived is left for the
+                // caller; admission stays closed (no token was taken).
+                return receipt.GetError();
+            }
+            // This pause belongs to the transaction, not the user. Consume it now so the owner's
+            // next Run (after the token is released) executes fresh rather than immediately
+            // returning paused again -- the coordinator resumes owners itself on commit.
+            std::lock_guard state_guard{lock_};
+            auto it = threads_.find(id);
+            if (it != threads_.end() && it->second.generation == generation) {
+                it->second.interrupt->pending = 0;
+            }
+        }
+
+        // Every owner is stopped. Take the memory-side token with drain: it closes admission and
+        // waits for leases still in Run's tail to release, then refuses every new Run/CreateThread
+        // while the token lives.
+        return space_.Quiesce(timeout_ns, /*wait_for_leases=*/true);
+    }
+
+    [[nodiscard]] Result<void> ClearCodeCache(const QuiescenceToken& token) override {
+        // Discard the whole JIT. This is the conservative first implementation: clear shared and
+        // per-thread caches across all threads without changing guest state.
+        if (!token.IsValid()) {
+            return BackendError(ErrorCategory::InvalidArgument, "ClearCodeCache",
+                               "a valid QuiescenceToken is required");
+        }
+        std::lock_guard guard{lock_};
+        if (context_) {
+            // Invalidate a range covering the entire guest address policy space: no translation is
+            // left reachable. The token proves no owner is executing, so this cannot remove a block
+            // in use.
+            constexpr std::uint64_t kGuestAll = kGuestAddressPolicyLimit;
+            context_->InvalidateCodeBuffersCodeRange(0, kGuestAll);
+        }
+        return Result<void>{};
+    }
+
     [[nodiscard]] Result<InterruptTicket> RequestInterrupt(ThreadHandle thread,
                                                            InterruptReason reason) override {
         if (reason != InterruptReason::Pause && reason != InterruptReason::Cancel &&
@@ -966,6 +1035,12 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
     [[nodiscard]] Result<void> Resume(ThreadHandle thread,
                                       std::uint64_t acknowledged_epoch) override {
         std::lock_guard guard{lock_};
+        // A coordinated transaction pauses owners on its own behalf. The space's quiescence closes
+        // new execution; keep Resume from reopening an owner while memory is being changed.
+        if (space_.IsQuiescent()) {
+            return BackendError(ErrorCategory::Busy, "Resume",
+                                "a coordinated quiescence holds this context");
+        }
         auto *entry = Find(thread);
         if (!entry)
             return BackendError(ErrorCategory::InvalidHandle, "Resume", "stale handle");

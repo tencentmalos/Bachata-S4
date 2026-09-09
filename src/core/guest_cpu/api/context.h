@@ -168,6 +168,24 @@ public:
                                                       GuestRange range,
                                                       InvalidationReason reason) = 0;
 
+    // --- coordinated quiescence (Round 2 G2) -------------------------------
+    //
+    // QuiesceContext stops the whole context for a code/mapping transaction. It is the controller
+    // side that backs GuestAddressSpace::Quiesce: the space token alone can only refuse new work,
+    // it cannot stop owners that are already inside Run. This does.
+    //
+    // It atomically closes admission for new Run/CreateThread/Resume, pauses every running owner,
+    // and waits for each Run to return (which is when the execution lease is released), then takes
+    // the address-space QuiescenceToken. Only then is the transaction allowed to change backing,
+    // publish bytes or discard translations. Commit/End reopens admission; on failure the context
+    // stays closed and any owner whose stop faulted is left faulted -- an owner is never reported
+    // stopped when its ack was not received.
+    [[nodiscard]] virtual Result<QuiescenceToken> QuiesceContext(std::uint64_t timeout_ns) = 0;
+
+    // Discards every translation the backend holds, for a whole-context remap or a clean-code-cache
+    // request. Requires the token from QuiesceContext; refusing without one is a use-after-free.
+    [[nodiscard]] virtual Result<void> ClearCodeCache(const QuiescenceToken& token) = 0;
+
     // --- asynchronous control (Round 2 G1) ---------------------------------
     //
     // The FEX backend enables fault-page checks at JIT entry boundaries. A

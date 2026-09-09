@@ -185,7 +185,8 @@ public:
     // required even when every thread is already stopped: without it a Run can
     // start between PublishCode's memcpy and the backend's running-thread check
     // (2026-09-08 poison review, R3).
-    [[nodiscard]] Result<QuiescenceToken> Quiesce(std::uint64_t timeout_ns);
+    [[nodiscard]] Result<QuiescenceToken> Quiesce(std::uint64_t timeout_ns,
+                                                  bool wait_for_leases = false);
 
     // Taken by the backend around Run/Step. Refused while a transaction holds
     // quiescence, or while code is poisoned.
@@ -225,6 +226,10 @@ public:
     // Cleared only by a successful publication or invalidation over the
     // poisoned range.
     [[nodiscard]] bool HasPoisonedCode() const;
+
+    // True while a transaction token is held. The backend uses this to keep Resume closed for the
+    // transaction; the token itself already closes Run/CreateThread through execution leases.
+    [[nodiscard]] bool IsQuiescent() const;
 
     // Second VA for the same backing. Invalidating through one alias must
     // invalidate every executable alias (acceptance M10).

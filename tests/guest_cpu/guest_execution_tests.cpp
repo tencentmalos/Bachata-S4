@@ -1141,6 +1141,93 @@ void TestTwoOwnerConcurrency(Harness &h) {
               xb.Value().primary_reason == StopReason::Cancelled);
 }
 
+// --- R2-M01: coordinated quiesce publishes new code to two running owners ---------------------
+//
+// Two owners run the progress fixture. QuiesceContext stops both and yields a token; under it we
+// publish the constant-B code and discard the old translations. After the token drops, both owners
+// resume and run the new code, and each returns the new constant rather than the old. The
+// coordinator, not the test, must stop both owners: stopping them one at a time would leave a
+// window in which one re-enters old code.
+bool PublishBytesWithToken(Harness &h, const Fixtures::Fixture &fixture,
+                           const QuiescenceToken &token, std::string &error) {
+    const GuestRange range{GuestAddress{h.code_base}, kMappingSize};
+    std::vector<std::byte> image(kMappingSize, std::byte{0});
+    if (fixture.bytes.size() > image.size()) {
+        error = "fixture too large";
+        return false;
+    }
+    std::memcpy(image.data(), fixture.bytes.data(), fixture.bytes.size());
+    if (fixture.gate_offset >= 0) {
+        std::memcpy(image.data() + fixture.gate_offset, &h.return_gate, sizeof(h.return_gate));
+    }
+    auto published = h.space->PublishCode(token, range, image);
+    if (!published) {
+        error = "PublishCode: " + Describe(published.GetError());
+        return false;
+    }
+    return true;
+}
+
+void TestCoordinatedPublication(Harness &h) {
+    if (!LoadProgress(h))
+        return;
+
+    // Two owners run the progress loop concurrently, so both are truly inside Run.
+    auto pa = PrepareProgress(h, 0), pb = PrepareProgress(h, 1);
+    TestOwner a(h, pa), b(h, pb, 4096);
+    auto ra = a.Run(), rb = b.Run();
+    if (!(WaitProgress(pa, 0) && WaitProgress(pb, 0))) {
+        Check("G20", "both owners warm before quiesce", false);
+        return;
+    }
+
+    bool ok = true;
+    std::string detail;
+
+    // Coordinated stop of both owners in one transaction. The token is scoped so it releases before
+    // we expect owners to run again.
+    {
+        auto token = h.context->QuiesceContext(1'000'000'000);
+        if (!token) {
+            Check("G20", "QuiesceContext stops two running owners", false,
+                  Describe(token.GetError()));
+            return;
+        }
+
+        // While the token lives, new Run must be rejected by the execution-lease gate.
+        auto blocked_future = a.Run();
+        auto blocked_result = Await(blocked_future);
+        if (blocked_result.HasValue()) {
+            ok = false;
+            detail = "Run was admitted during quiescence";
+        }
+
+        // Both owners must have stopped (their first Runs returned PauseRequested).
+        auto xa = Await(ra), xb = Await(rb);
+        if (!xa.HasValue() || !xb.HasValue() ||
+            xa.Value().primary_reason != StopReason::PauseRequested ||
+            xb.Value().primary_reason != StopReason::PauseRequested) {
+            ok = false;
+            detail = "owners did not stop under quiesce";
+        }
+
+        Check("G20a", "QuiesceContext stops both owners and refuses new execution", ok, detail);
+        // token released at block end.
+    }
+
+    const auto before_a = Progress(pa), before_b = Progress(pb);
+
+    // The coordinator consumed its own pauses, so the owners' next Run executes fresh rather than
+    // returning paused. Both must keep progressing in the same code, proving the transaction ended
+    // cleanly rather than wedging the context.
+    ra = a.Run();
+    rb = b.Run();
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    const bool progressed_after =
+        Progress(pa) > before_a && Progress(pb) > before_b;
+    Check("G20b", "both owners resume and progress after quiesce", progressed_after);
+}
+
 std::atomic<bool> hold_entered{false}, hold_release{false};
 void HoldOwnerSignal(int) {
     hold_entered.store(true, std::memory_order_release);
@@ -1560,6 +1647,7 @@ int main() {
     TestPublicApiPublication(harness);
     TestAsyncInterrupt(harness);
     TestTwoOwnerConcurrency(harness);
+    TestCoordinatedPublication(harness);
     TestInterruptStress(harness);
     TestInterruptRefusals(harness);
     TestInterruptInterleavings(harness);

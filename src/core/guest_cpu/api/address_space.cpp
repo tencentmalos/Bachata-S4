@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <cerrno>
+#include <chrono>
 #include <cstring>
 #include <limits>
 
@@ -663,34 +664,53 @@ void GuestAddressSpace::ReleasePin(std::uint64_t lease_id) {
     std::erase_if(pins, [&](const Pin& pin) { return pin.lease_id == lease_id; });
 }
 
-Result<QuiescenceToken> GuestAddressSpace::Quiesce(std::uint64_t timeout_ns) {
-    std::lock_guard guard{lock};
+Result<QuiescenceToken> GuestAddressSpace::Quiesce(std::uint64_t timeout_ns,
+                                                   bool wait_for_leases) {
+    std::unique_lock guard{lock};
     if (active_quiescence != 0 || sink_draining || sink_calls_in_flight != 0) {
         return MakeError(ErrorCategory::Busy, "GuestAddressSpace::Quiesce",
                          "another transaction already holds quiescence");
     }
-    // An outstanding execution lease means a guest thread is inside the JIT right now. V0 does not
-    // interrupt a running thread, so this reports Busy and changes nothing rather than publishing
-    // underneath it. This gate is required even when the backend believes every thread is stopped:
-    // without it a Run could start between PublishCode's memcpy and the backend's own check
-    // (2026-09-08 poison review, R3).
-    if (execution_leases != 0) {
+    // Claim the epoch up front when asked to drain: this closes admission (AcquireExecutionLease
+    // refuses while active_quiescence is set), then wait for leases already in flight to release.
+    // The caller (the context coordinator) has already stopped every owner, so those leases are in
+    // Run's tail and WILL drain; waiting bounded by the timeout cannot deadlock on dead code.
+    //
+    // Without wait_for_leases (a memory-only transaction with no one stopping running code) an
+    // outstanding lease means genuinely running guest code, so report Busy and change nothing.
+    const std::uint64_t epoch = next_quiescence_epoch++;
+    active_quiescence = epoch;
+
+    if (execution_leases != 0 && !wait_for_leases) {
+        active_quiescence = 0;
         return MakeError(ErrorCategory::Busy, "GuestAddressSpace::Quiesce",
                          "guest code is executing: " + std::to_string(execution_leases) +
                              " execution lease(s) outstanding");
+    }
+    if (wait_for_leases) {
+        const auto deadline =
+            std::chrono::steady_clock::now() + std::chrono::nanoseconds(timeout_ns);
+        leases_idle.wait_for(guard, std::chrono::nanoseconds(timeout_ns),
+                             [&] { return execution_leases == 0; });
+        if (execution_leases != 0) {
+            active_quiescence = 0;
+            (void)deadline;
+            return MakeError(ErrorCategory::Timeout, "GuestAddressSpace::Quiesce",
+                             "guest code did not drain: " + std::to_string(execution_leases) +
+                                 " execution lease(s) still outstanding");
+        }
     }
     // In-flight HLE writers hold pins. Reporting Timeout without changing
     // anything is required: a partial stop must not be used to authorise a
     // transaction (API contract §7.2).
     if (!pins.empty()) {
+        active_quiescence = 0;
         auto error = MakeError(ErrorCategory::Timeout, "GuestAddressSpace::Quiesce",
                                "HLE spans still pinned: " + std::to_string(pins.size()));
         error.system_error = static_cast<std::int64_t>(timeout_ns);
         return error;
     }
 
-    const std::uint64_t epoch = next_quiescence_epoch++;
-    active_quiescence = epoch;
     // Thread stopping is the CpuContext's responsibility; it supplies the
     // count. With no attached context this is a memory-only transaction.
     return QuiescenceToken{liveness, epoch, 0};
@@ -769,6 +789,11 @@ void GuestAddressSpace::ClearCodeInvalidationSink(CodeInvalidationSink* sink) {
 bool GuestAddressSpace::HasPoisonedCode() const {
     std::lock_guard guard{lock};
     return !poisoned_ranges.empty();
+}
+
+bool GuestAddressSpace::IsQuiescent() const {
+    std::lock_guard guard{lock};
+    return active_quiescence != 0;
 }
 
 Result<ExecutionLease> GuestAddressSpace::AcquireExecutionLease() {
