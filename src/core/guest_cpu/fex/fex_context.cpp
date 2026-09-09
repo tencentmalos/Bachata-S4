@@ -39,6 +39,7 @@
 
 #include "Common/HostFeatures.h"
 #include "Interface/Core/CPUBackend.h"
+#include "core/guest_cpu/hle/call_adapter.h"
 
 namespace Core::GuestCpu::Fex {
 namespace {
@@ -65,6 +66,34 @@ Error BackendError(ErrorCategory category, std::string_view operation, std::stri
         error.system_error = errno_value;
     }
     return error;
+}
+
+// Map FEX's CPUState to the public register file and back at an HLE boundary. GPR order matches
+// by construction (the static_asserts above); xmm low/high words are FEX's packed 128-bit view.
+void RegistersFromCpuState(const FEXCore::Core::CPUState& state, RegisterFile& out) {
+    for (std::size_t i = 0; i < kGprCount; ++i) {
+        out.gpr[i] = state.gregs[i];
+    }
+    for (std::size_t i = 0; i < kXmmCount && i < FEXCore::Core::CPUState::NUM_XMMS; ++i) {
+        out.xmm[i] = Xmm{state.xmm.sse.data[i][0], state.xmm.sse.data[i][1]};
+    }
+    out.rip = state.rip;
+    out.mxcsr = state.mxcsr;
+    out.fs_base = state.fs_cached;
+    out.gs_base = state.gs_cached;
+}
+void ApplyRegistersToCpuState(const RegisterFile& in, FEXCore::Core::CPUState& state) {
+    for (std::size_t i = 0; i < kGprCount; ++i) {
+        state.gregs[i] = in.gpr[i];
+    }
+    for (std::size_t i = 0; i < kXmmCount && i < FEXCore::Core::CPUState::NUM_XMMS; ++i) {
+        state.xmm.sse.data[i][0] = in.xmm[i].low;
+        state.xmm.sse.data[i][1] = in.xmm[i].high;
+    }
+    state.rip = in.rip;
+    state.mxcsr = in.mxcsr;
+    state.fs_cached = in.fs_base;
+    state.gs_cached = in.gs_base;
 }
 
 // Monotonic context identity. Tickets carry it so one issued by a destroyed context cannot be
@@ -265,31 +294,62 @@ class FexSyscallHandler final : public FEXCore::HLE::SyscallHandler {
   public:
     explicit FexSyscallHandler(GuestAddressSpace& space) : space_(space) {}
 
+    // Real guest->host HLE gate (R2-H01). The guest places the operation number in rax before the
+    // syscall instruction; its other GPRs/xmm hold the SysV arguments. We switch FP environment,
+    // build a frame from the spilled state and dispatch to a registered native function; the return
+    // value is encoded back into the frame and the guest continues after the syscall. An
+    // unregistered operation is a per-thread fault, never an implicit host syscall.
     void HandleSyscall(FEXCore::Core::CpuStateFrame *Frame) override {
-        // Reaching here means guest code executed a syscall instruction V0 has no HLE path for.
-        // Attribute it to the exact thread that executed it: the context-wide boolean let one
-        // owner's fault be consumed by another owner's Run (R2-H05). We key on the frame pointer
-        // FEXCore passes, which is unique per InternalThreadState.
         if (Frame == nullptr) {
-            // No frame means no per-thread attribution; fall back to a process-wide sticky flag so
-            // the fault is never silently dropped.
             unknown_thread_syscall_.store(true, std::memory_order_release);
             return;
         }
-        std::shared_ptr<std::atomic<bool>> flag;
+
+        // Per-thread attribution first: a fault flag unique to this thread.
+        std::shared_ptr<std::atomic<bool>> fault_flag;
         {
             std::lock_guard guard{threads_lock_};
             auto it = syscall_fault_by_frame_.find(Frame);
             if (it != syscall_fault_by_frame_.end()) {
-                flag = it->second.lock();
+                fault_flag = it->second.lock();
             }
         }
-        if (flag) {
-            flag->store(true, std::memory_order_release);
+
+        const std::uint64_t operation = Frame->State.gregs[FEXCore::X86State::REG_RAX];
+        if (auto adapter = registry_.Find(operation)) {
+            Hle::HleCallFrame hle_frame{};
+            hle_frame.operation = operation;
+            hle_frame.space = &space_;
+            RegistersFromCpuState(Frame->State, hle_frame.registers);
+            // syscall callgate: the 4th integer argument arrived in r10; the adapter decodes rcx
+            // positionally, so normalise r10 -> rcx before dispatch.
+            hle_frame.registers.Set(Gpr::Rcx, Frame->State.gregs[FEXCore::X86State::REG_R10]);
+            hle_frame.rcx_normalised_from_r10 = true;
+
+            // Save host FP across the crossing; the native function may use SSE. Restore guest FP
+            // before the guest resumes. This is per-crossing, not just the outermost Run save.
+            fenv_t host_fp{};
+            ::fegetenv(&host_fp);
+            Status call_status = adapter->Invoke(hle_frame);
+            ::fesetenv(&host_fp);
+
+            if (call_status) {
+                // Encode the return values back into the guest state the dispatcher continues with.
+                ApplyRegistersToCpuState(hle_frame.registers, Frame->State);
+                return;
+            }
+            // A registered-but-rejected call (bad pointer/signature) is this thread's fault.
+            last_hle_error_.store(call_status.GetError().category, std::memory_order_release);
+        }
+
+        if (fault_flag) {
+            fault_flag->store(true, std::memory_order_release);
         } else {
             unknown_thread_syscall_.store(true, std::memory_order_release);
         }
     }
+
+    Hle::HleCallRegistry& Registry() { return registry_; }
 
     // Registers the per-thread syscall-fault flag for the duration of an ExecuteThread call. The
     // weak_ptr entry is dropped when the owner unregisters, so a stale frame never faults the
@@ -389,6 +449,11 @@ class FexSyscallHandler final : public FEXCore::HLE::SyscallHandler {
     std::unordered_map<FEXCore::Core::CpuStateFrame*, std::weak_ptr<std::atomic<bool>>>
         syscall_fault_by_frame_;
     std::atomic<bool> unknown_thread_syscall_{false};
+    std::atomic<ErrorCategory> last_hle_error_{ErrorCategory::None};
+
+    // Registered native HLE functions. An embedder installs typed adapters here; a guest syscall
+    // whose rax names a registered operation is dispatched instead of faulting.
+    Hle::HleCallRegistry registry_;
     std::atomic<std::uint64_t> compile_count{0};
 };
 
@@ -947,6 +1012,15 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
     // --- asynchronous control ---------------------------------------------------------------
 
     [[nodiscard]] std::uint64_t ContextId() const noexcept override { return context_id_; }
+
+    // Backend-internal: install a typed native HLE function and get the guest operation number to
+    // place in rax before the syscall. Exposed via the fex backend header, not the backend-free API.
+    template <typename Function>
+    [[nodiscard]] Result<std::uint64_t> RegisterHle(Function function, std::string name) {
+        return syscall_handler_->Registry().Register(function, std::move(name));
+    }
+
+    [[nodiscard]] Hle::HleCallRegistry* HleRegistryPointer() { return &syscall_handler_->Registry(); }
 
     [[nodiscard]] Result<QuiescenceToken> QuiesceContext(std::uint64_t timeout_ns) override {
         std::unique_lock coordinator{coordinator_lock_, std::try_to_lock};
@@ -1544,6 +1618,11 @@ Result<std::unique_ptr<CpuContext>> CreateFexContext(const CpuConfig &config,
         return init.GetError();
     }
     return std::unique_ptr<CpuContext>{std::move(context)};
+}
+
+void* FexHleRegistryPointer(CpuContext& context) {
+    // Only FexCpuContext is constructed in this TU.
+    return static_cast<FexCpuContext*>(&context)->HleRegistryPointer();
 }
 
 } // namespace Core::GuestCpu::Fex

@@ -223,6 +223,29 @@ fixture_jump_target:
     jmp     rdi
 fixture_jump_target_end:
 
+// R2-H01 real typed HLE gate. The harness seeds rax with the registered operation and the SysV
+// arguments in rdi/rsi/rdx/r10/r8/r9 (callgate: 4th integer in r10) and xmm0+. The guest just
+// executes the syscall gate; the host HLE returns an integer in rax. We jump to the return gate
+// after, and the harness reads rax.
+.globl fixture_hle_call_returns_rax
+.globl fixture_hle_call_returns_rax_end
+fixture_hle_call_returns_rax:
+    syscall
+    movabs  r15, 0x1122334455667788
+    jmp     r15
+fixture_hle_call_returns_rax_end:
+
+// Same as above but the host HLE returns a double in xmm0; the fixture leaves xmm0 in place and
+// returns through the gate.
+.globl fixture_hle_call_returns_xmm
+.globl fixture_hle_call_returns_xmm_end
+fixture_hle_call_returns_xmm:
+    syscall
+    movaps  [rdi + 0x00], xmm0
+    movabs  r15, 0x1122334455667788
+    jmp     r15
+fixture_hle_call_returns_xmm_end:
+
 // R2-C04: observe owner-written GPR, XMM, MXCSR rounding, FS/GS and RIP.
 // RDI=output; XMM1=1.75. MXCSR toward-zero must make CVTSD2SI produce 1.
 .globl fixture_state_echo

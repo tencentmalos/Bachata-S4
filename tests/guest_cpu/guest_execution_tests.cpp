@@ -35,12 +35,38 @@
 
 #include "core/guest_cpu/api/address_space.h"
 #include "core/guest_cpu/api/context.h"
+#include "core/guest_cpu/fex/fex_context.h"
+#include "core/guest_cpu/hle/call_adapter.h"
 
 #include "guest_fixtures.h"
 
 namespace {
 
 using namespace Core::GuestCpu;
+using namespace Core::GuestCpu::Hle;
+
+// Native HLE functions for the real guest->host gate test. Pure and stateless so their return
+// value is entirely determined by the SysV arguments the guest placed, proving the crossing
+// actually marshalled registers.
+extern "C" std::uint64_t HleAdd6(std::uint64_t a, std::uint64_t b, std::uint64_t c,
+                                 std::uint64_t d, std::uint64_t e, std::uint64_t f) {
+    return a + b + c + d + e + f;
+}
+extern "C" std::uint64_t HleSpill(std::uint64_t a, std::uint64_t b, std::uint64_t c,
+                                  std::uint64_t d, std::uint64_t e, std::uint64_t f,
+                                  std::uint64_t g, std::uint64_t h) {
+    // 8 integer args: a-f in rdi/rsi/rdx/r10/r8/r9 (callgate), g-h spilled on the stack.
+    return a + b + c + d + e + f + g + h;
+}
+extern "C" double HleSum4Double(double a, double b, double c, double d) {
+    return a + b + c + d;
+}
+
+Xmm EncodeDouble(double value) {
+    std::uint64_t bits{};
+    std::memcpy(&bits, &value, sizeof(bits));
+    return Xmm{bits, 0};
+}
 
 int g_failures = 0;
 int g_checks = 0;
@@ -2089,6 +2115,144 @@ void TestFaultAttribution(Harness& h) {
           good_never_faulted && good_progressed);
 }
 
+void TestRealHleGate(Harness& h) {
+    auto* registry =
+        static_cast<HleCallRegistry*>(Fex::FexHleRegistryPointer(*h.context));
+    if (registry == nullptr) {
+        Check("G31", "HLE registry reachable on the FEX backend", false);
+        return;
+    }
+
+    const auto op_add6 = registry->Register(&HleAdd6, "add6");
+    const auto op_spill = registry->Register(&HleSpill, "spill");
+    const auto op_dbl = registry->Register(&HleSum4Double, "sum4double");
+    if (!op_add6 || !op_spill || !op_dbl) {
+        Check("G31", "register typed HLE functions", false);
+        return;
+    }
+
+    std::string e;
+    auto run_with = [&](const Fixtures::Fixture& fixture, const RegisterPatch& initial,
+                        std::optional<CpuSnapshot>& out) -> bool {
+        ThreadInit init{};
+        init.entry_rip = GuestCodeAddress{h.code_base};
+        init.initial_rsp = GuestAddress{h.stack_top};
+        init.guest_tid = 600;
+        init.initial_state = initial;
+        auto thr = h.context->CreateThread(init);
+        if (!thr) return false;
+        auto run = h.context->Run(thr.Value(), RunOptions{});
+        if (run) out = run.Value().snapshot;
+        (void)h.context->DestroyThread(thr.Value());
+        return bool(run) && run.Value().primary_reason == StopReason::Returned;
+    };
+
+    bool int6_ok = true, spill_ok = true, dbl_ok = true;
+    for (int i = 0; i < 10; ++i) {
+        // 6 integer args, callgate: 4th integer is in r10.
+        if (!LoadFixture(h, *FindFixture("hle_call_returns_rax"), e)) {
+            Check("G31", "load HLE integer fixture", false, e);
+            return;
+        }
+        RegisterPatch p{};
+        p.fields = RegisterValidity::Gpr;
+        p.gpr_mask = (1u << Index(Gpr::Rax)) | (1u << Index(Gpr::Rdi)) |
+                     (1u << Index(Gpr::Rsi)) | (1u << Index(Gpr::Rdx)) |
+                     (1u << Index(Gpr::R10)) | (1u << Index(Gpr::R8)) |
+                     (1u << Index(Gpr::R9));
+        p.values.Set(Gpr::Rax, op_add6.Value());
+        p.values.Set(Gpr::Rdi, 1);
+        p.values.Set(Gpr::Rsi, 2);
+        p.values.Set(Gpr::Rdx, 3);
+        p.values.Set(Gpr::R10, 4);  // 4th integer via callgate r10
+        p.values.Set(Gpr::R8, 5);
+        p.values.Set(Gpr::R9, 6);
+        std::optional<CpuSnapshot> snap;
+        if (!run_with(*FindFixture("hle_call_returns_rax"), p, snap) || !snap ||
+            snap->registers.Get(Gpr::Rax) != 21) {
+            int6_ok = false;
+            break;
+        }
+
+        // 8 integer args: g,h (7th,8th) spill to the guest stack.
+        RegisterPatch ps{};
+        ps.fields = RegisterValidity::Gpr;
+        ps.gpr_mask = p.gpr_mask;
+        ps.values = p.values;
+        ps.values.Set(Gpr::Rax, op_spill.Value());
+        ps.values.Set(Gpr::Rdi, 1);
+        ps.values.Set(Gpr::Rsi, 2);
+        ps.values.Set(Gpr::Rdx, 3);
+        ps.values.Set(Gpr::R10, 4);
+        ps.values.Set(Gpr::R8, 5);
+        ps.values.Set(Gpr::R9, 6);
+        // Stack slots for the 7th/8th integer args. The callgate cursor reads spills above the
+        // return-address slot: seed a dummy return slot at [rsp], arg7 at [rsp+8], arg8 at [rsp+16].
+        // Use a dedicated aligned top for the spill frame.
+        const std::uint64_t spill_base = h.stack_base + 0x600;
+        const GuestAddress spill_top{spill_base};
+        std::vector<std::uint64_t> spill_frame{0x0 /*ret addr*/, 7, 8};
+        (void)h.space->Write(spill_top,
+                            {reinterpret_cast<std::byte*>(spill_frame.data()),
+                             spill_frame.size() * sizeof(std::uint64_t)});
+        ThreadInit spill_init{};
+        spill_init.entry_rip = GuestCodeAddress{h.code_base};
+        spill_init.initial_rsp = GuestAddress{spill_base};
+        spill_init.guest_tid = 601;
+        spill_init.initial_state = ps;
+        auto spill_thr = h.context->CreateThread(spill_init);
+        std::optional<CpuSnapshot> snaps;
+        bool spill_run = false;
+        if (spill_thr) {
+            auto r = h.context->Run(spill_thr.Value(), RunOptions{});
+            if (r && r.Value().primary_reason == StopReason::Returned) {
+                snaps = r.Value().snapshot;
+                spill_run = snaps->registers.Get(Gpr::Rax) == 36;
+            }
+            (void)h.context->DestroyThread(spill_thr.Value());
+        }
+        if (!spill_run) {
+            spill_ok = false;
+            break;
+        }
+
+        // 4 doubles -> double return.
+        if (!LoadFixture(h, *FindFixture("hle_call_returns_xmm"), e)) {
+            Check("G31", "load HLE xmm fixture", false, e);
+            return;
+        }
+        RegisterPatch pd{};
+        pd.fields = RegisterValidity::Gpr | RegisterValidity::Xmm;
+        pd.gpr_mask = 1u << Index(Gpr::Rax) | 1u << Index(Gpr::Rdi);
+        pd.xmm_mask = 0b1111;  // xmm0..3 hold the four double args; rdi is the output slot
+        pd.values.Set(Gpr::Rax, op_dbl.Value());
+        pd.values.Set(Gpr::Rdi, h.stack_base + 0x800);
+        pd.values.xmm[0] = EncodeDouble(0.25);
+        pd.values.xmm[1] = EncodeDouble(0.25);
+        pd.values.xmm[2] = EncodeDouble(0.5);
+        pd.values.xmm[3] = EncodeDouble(1.0);
+        std::optional<CpuSnapshot> snapd;
+        if (!run_with(*FindFixture("hle_call_returns_xmm"), pd, snapd)) {
+            dbl_ok = false;
+            break;
+        }
+        double stored{};
+        {
+            std::array<std::byte, 8> b{};
+            auto rd = h.space->Read(GuestAddress{h.stack_base + 0x800}, b);
+            std::memcpy(&stored, b.data(), 8);
+            if (!rd || stored < 1.99 || stored > 2.01) {
+                dbl_ok = false;
+                break;
+            }
+        }
+    }
+
+    Check("G31a", "real guest syscall gate returns the 6-integer sum", int6_ok);
+    Check("G31b", "stack-spilled 7th/8th integer args cross the gate", spill_ok);
+    Check("G31c", "4-double arguments produce a double host return", dbl_ok);
+}
+
 void TestCoordinatorRecovery(Harness& h) {
     // External Pause/Cancel/Shutdown both before and after the coordinator's own request. Hold one owner in a signal
     // handler, using an observed handshake (no settle sleep), so timeout is deterministic.
@@ -2583,6 +2747,7 @@ int main() {
     TestGuestStorePublication(harness);
     TestPermissionRetirement(harness);
     TestFaultAttribution(harness);
+    TestRealHleGate(harness);
     TestCoordinatorRecovery(harness);
     TestInterruptStress(harness);
     TestInterruptRefusals(harness);

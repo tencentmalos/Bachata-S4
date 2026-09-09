@@ -28,4 +28,9 @@ namespace Core::GuestCpu::Fex {
 
 [[nodiscard]] BackendCapabilities QueryFexCapabilities();
 
+// Install a typed native HLE function on a FEX context and return the guest operation number. The
+// guest places that number in rax before the syscall gate; arguments follow the SysV callgate (r10
+// holding the 4th integer). Typed by the adapter layer so this header stays free of FEX types.
+void* FexHleRegistryPointer(CpuContext& context);
+
 } // namespace Core::GuestCpu::Fex
