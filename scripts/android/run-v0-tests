@@ -89,10 +89,10 @@ CASES: dict[str, tuple[str, str | None]] = {
     "M05": ("guard page, unmapped and read-only access faults correctly", None),
     "M06": ("segment helper with adjacent segments sharing a host page", "segment helper not implemented in this milestone"),
     "M07": ("host/HLE code rewrite and publication, 100x", None),
-    "M08": ("guest store to code then publication", FEX_BLOCKED),
+    "M08": ("guest store to code then publication", None),
     "M09": ("two threads on an old block, quiesce, patch, resume, 100 epochs", None),
     "M10": ("two VA aliases of one backing, invalidation covers both", None),
-    "M11": ("unmap/remap the same VA with different code, 100x", FEX_BLOCKED),
+    "M11": ("unmap/remap the same VA with different code, 100x", None),
     "M12": ("code observer and GPU dirty observer on one host page", None),
     "M13": ("pinned HLE span races unmap/protect", None),
     "M14": ("ARM64 JIT publication and I-cache sync, no long-term RWX", FEX_BLOCKED),
@@ -147,7 +147,7 @@ SUITE_MAP: dict[str, list[str]] = {
     # two-thread race as still missing while M13 was already reported PASS. M13g is that race, and
     # it asserts that every round actually contended, so a version that stopped racing would fail
     # rather than pass quietly. M13d/M13e/M13f are the lease and publication-refusal negatives.
-    "M13": ["M13", "M13b", "M13c", "M13d", "M13e", "M13f", "M13g", "M13h", "M13i", "M13j", "M13k", "M13l", "M13m", "M13n", "M13o", "M21", "M22", "M23", "M24", "M25"],
+    "M13": ["M13", "M13b", "M13c", "M13d", "M13e", "M13f", "M13g", "M13h", "M13i", "M13j", "M13k", "M13l", "M13m", "M13n", "M13o", "M21", "M22", "M23", "M24", "M25", "M27", "M28", "M29"],
     "T01": [f"G14{c}" for c in "abcdefgh"],
     "T02": [f"G11{c}" for c in "abcdefghij"] + ["G13a", "G13b", "G13c"],
     "T03": ["T03a"] + [f"G15{c}" for c in "abcde"] + ["G17b", "G17c", "G24a", "G24b", "M26"],
@@ -185,10 +185,12 @@ SUITE_MAP: dict[str, list[str]] = {
     # Requiring a sub-case that touches no CpuContext method is what stops that evidence gap from
     # reopening. G09c covers the failed-invalidation path leaving nothing executable.
     #
-    # Deliberately NOT mapped to M09: that needs two threads running the same old block and a
-    # controller quiescing between them, which this backend cannot do yet.
-    "M07": ["M07", "G08a", "G08b", "G08c", "G09a", "G09b", "G09c", "G09d", "G10a", "G10b", "G10c", "G10d", "G23a", "G23b", "G23c"],
-    "M09": ["G20a", "G20b", "G21a", "G22a"],
+    # G25/G26 supply persistent dual-owner evidence; full acceptance still needs the
+    # environment and semantic requirements listed in INCOMPLETE_COVERAGE.
+    "M07": ["M07", "G08a", "G08b", "G08c", "G09a", "G09b", "G09c", "G09d", "G10a", "G10b", "G10c", "G10d", "G23a", "G23b", "G23c", "G28a", "G28b"],
+    "M09": ["G20a", "G20b", "G21a", "G22a", "G25a", "G25b"],
+    "M08": ["M08b", "G27a"],
+    "M11": ["G26a", "G26b", "G28a", "G28b"],
 }
 
 # Passing these subchecks is useful evidence, but does not meet the full spec criterion.
@@ -198,7 +200,9 @@ INCOMPLETE_COVERAGE = {
     "D05": "illegal instructions and the complete unregistered trap set are not exercised",
     "H01": "hand-built host frames do not verify a real guest HLE call and callee-saved state",
     "H04": "real syscall rejection and buffer length/lifetime through a guest HLE gate remain untested",
-    "M09": "G21/G22 are serial fresh-thread smoke tests; persistent dual-owner epochs and APK remain pending",
+    "M09": "persistent dual-owner CLI evidence; ordinary APK is pending",
+    "M08": "real guest-store coordinator CLI evidence; HLE crossing and ordinary APK remain pending",
+    "M11": "persistent remap CLI evidence; full state/decoder-range matrix and ordinary APK remain pending",
     "M05": "API permission refusals do not exercise actual guest memory faults",
     "M10": "alias registration does not verify two mapped aliases and both translations",
     "M12": "observer arithmetic alone does not verify combined code invalidation and GPU dirty tracking",
@@ -208,6 +212,44 @@ INCOMPLETE_COVERAGE = {
     "T05": "G1 core evidence is CLI only; target ordinary APK execution is pending",
     "D03": "constructed snapshot metadata does not verify actual in-JIT fault attribution",
 }
+
+# Final R2 CPU/HLE acceptance requires APK evidence. This runner currently produces CLI
+# auxiliaries only; publishing 24 entries is accounting, not an automatic gate promotion.
+ROUND2_MAP = {
+    "R2-B01": [], "R2-B02": [],
+    "R2-C01": [f"G14{c}" for c in "abcdefgh"],
+    "R2-C02": ["G13a", "G13b", "G13c"],
+    "R2-C03": ["G12a", "G12b", "G12c", "G15a", "G15b", "G15c", "G15d", "G15e", "G17b", "G17c"],
+    "R2-C04": ["G16a", "G16b", "G16c", "G12d"],
+    "R2-M01": ["G25a", "G25b"],
+    "R2-M02": ["G24a", "G24b", "M26", "M27"],
+    "R2-M03": ["G26a", "G26b", "G23a", "G23b", "G23c", "G28a", "G28b", "M28", "M29"],
+    "R2-M04": ["G27a", "M08b"],
+    "R2-M05": ["M13h", "M13i", "M13j", "M13k", "M13l", "M13m", "M13n", "M13o",
+                 "G10a", "G10b", "G10c", "G10d", "M27", "M28"],
+    **{f"R2-H{i:02}": [] for i in range(1, 7)},
+    **{f"R2-A{i:02}": [] for i in range(1, 4)},
+    "R2-F01": [], "R2-F02": [], "R2-D01": [], "R2-L01": [],
+}
+ROUND2_PENDING = {
+    "R2-M02": "InvokeGuest/WaitingHle and lifecycle combinations remain pending",
+    "R2-M03": "complete decoder-range matrix and post-Clear resumed-state sentinels remain pending",
+    "R2-M04": "real HLE publication crossing remains pending",
+    "R2-M05": "InvokeGuest failure protection remains pending",
+}
+
+
+def round2_report(observed, tainted):
+    result = []
+    for case_id, required in ROUND2_MAP.items():
+        failed = [sub for sub in required if sub in tainted or observed.get(sub, (None,))[0] == "FAIL"]
+        missing = [sub for sub in required if observed.get(sub, (None,))[0] != "PASS"]
+        result.append({"id": case_id, "status": "FAIL" if failed else "NOT_RUN",
+                       "auxiliary_status": "FAIL" if failed else ("PASS" if required and not missing else "NOT_RUN"),
+                       "auxiliary_scope": "listed CLI subchecks only",
+                       "required_subchecks": required, "missing": missing, "failed": failed,
+                       "remaining": ROUND2_PENDING.get(case_id, "target environment / full normative acceptance pending")})
+    return {"spec": "docs/specs/android-fex-round2.md", "total": len(result), "cases": result}
 
 LINE = re.compile(r"^\[(\S+)\s*\]\s+(.*?)\s+(PASS|FAIL|SKIP)(?:\s+--\s+(.*))?$")
 
@@ -222,16 +264,16 @@ LINE = re.compile(r"^\[(\S+)\s*\]\s+(.*?)\s+(PASS|FAIL|SKIP)(?:\s+--\s+(.*))?$")
 # Prefix-matched against the sub-case ids in SUITE_MAP.
 SUITE_OWNERSHIP: dict[str, tuple[str, ...]] = {
     "api_contract_tests": ("M01", "M02", "M03", "M04", "M05", "M07", "M10", "M12", "M13",
-                           "M14", "T03", "D03", "L01", "M08", "M21", "M22", "M23", "M24", "M25", "M26"),
+                           "M14", "T03", "D03", "L01", "M08", "M21", "M22", "M23", "M24", "M25", "M26", "M27", "M28", "M29"),
     # Same suite, cross-compiled and run on the device. Owns the same sub-cases: if it crashes
     # there, those cases are tainted exactly as they would be on the host.
     "guest_cpu_contract_tests": ("M01", "M02", "M03", "M04", "M05", "M07", "M10", "M12", "M13",
-                                 "M14", "T03", "D03", "L01", "M08", "M21", "M22", "M23", "M24", "M25", "M26"),
+                                 "M14", "T03", "D03", "L01", "M08", "M21", "M22", "M23", "M24", "M25", "M26", "M27", "M28", "M29"),
     "hle_abi_tests": ("H01", "H04"),
     "host_page_size_probe": ("P01", "P02", "P03"),
     "fexcore_bionic_smoke": ("F01", "F02", "F03", "F04", "F05"),
     "guest_execution_tests": ("G01", "G02", "G03", "G04", "G05", "G06", "G07", "G08", "G09", "G10",
-                              "G11", "G12", "G13", "G14", "G15", "G16", "G17", "G20", "G21", "G22", "G23", "G24"),
+                              "G11", "G12", "G13", "G14", "G15", "G16", "G17", "G20", "G21", "G22", "G23", "G24", "G25", "G26", "G27", "G28"),
 }
 
 
@@ -323,6 +365,29 @@ def parse_sub_cases(text: str) -> tuple[dict[str, tuple[str, str]], dict[str, in
             conflicts.append(f"{case_id}: reported {previous[0]} then {verdict}")
         if severity.get(verdict, 0) > severity.get(previous[0], 0):
             verdicts[case_id] = (verdict, detail)
+    # A PASS summary cannot replace the required per-iteration evidence.
+    for case_id, prefix, label, total in (("G25a", "EPOCH ", "G25", 100),
+                                          ("G26a", "EPOCH ", "G26", 100),
+                                          ("G27a", "STORE ", None, 10)):
+        if verdicts.get(case_id, (None,))[0] != "PASS":
+            continue
+        records = []
+        malformed = False
+        for line in text.splitlines():
+            if not line.startswith(prefix):
+                continue
+            try:
+                record = json.loads(line[len(prefix):])
+                if not isinstance(record, dict) or type(record.get("epoch")) is not int:
+                    malformed = True
+                    continue
+                if label is None or record.get("case") == label:
+                    records.append(record)
+            except (ValueError, TypeError):
+                malformed = True
+        if (malformed or sorted(record.get("epoch", -1) for record in records) != list(range(total))
+                or any(record.get("ok") is not True for record in records)):
+            verdicts[case_id] = ("FAIL", f"missing, duplicate, failed or malformed {total}-epoch evidence")
     return verdicts, counts, conflicts
 
 
@@ -508,15 +573,25 @@ def run_device_suite(binary: Path, serial: str | None) -> SuiteRun:
         return SuiteRun(error="adb not found; device suite skipped", never_started=True)
 
     adb = ["adb"] + (["-s", serial] if serial else [])
-    remote = f"/data/local/tmp/{binary.name}"
+    remote = f"/data/local/tmp/shadps4-v0-{os.getpid()}-{time.monotonic_ns()}-{binary.name}"
+    local_sha = sha256_of(binary)
+    deployment = ""
     try:
         push = subprocess.run(adb + ["push", str(binary), remote], capture_output=True, text=True,
                               timeout=300)
         if push.returncode != 0:
             # Never reached the device, so nothing was attempted there.
             return SuiteRun(error=f"adb push failed: {push.stderr.strip()}", never_started=True)
-        subprocess.run(adb + ["shell", "chmod", "755", remote], capture_output=True, text=True,
-                       timeout=60)
+        chmod = subprocess.run(adb + ["shell", "chmod", "755", remote], capture_output=True, text=True,
+                               timeout=60)
+        hashed = subprocess.run(adb + ["shell", "sha256sum", remote], capture_output=True, text=True,
+                                timeout=60)
+        device_sha = hashed.stdout.split()[0] if hashed.stdout.split() else None
+        deployment = "DEPLOY " + json.dumps({"remote": remote, "local_sha256": local_sha,
+                                              "device_sha256": device_sha}) + "\n"
+        if chmod.returncode or hashed.returncode or local_sha != device_sha:
+            return SuiteRun(output=deployment + chmod.stderr + hashed.stderr,
+                            error="deployed binary permission or SHA-256 verification failed")
         started = time.monotonic()
         # Echo the guest exit status explicitly. `adb shell` does not reliably propagate it on every
         # Android version, and taking adb's own status instead would report success for a suite that
@@ -524,8 +599,10 @@ def run_device_suite(binary: Path, serial: str | None) -> SuiteRun:
         result = subprocess.run(adb + ["shell", f"{remote}; echo __EXIT__=$?"],
                                 capture_output=True, text=True, timeout=600)
         elapsed = time.monotonic() - started
-    except subprocess.TimeoutExpired:
-        return SuiteRun(output=f"device suite timed out: {binary.name}", timed_out=True)
+    except subprocess.TimeoutExpired as exc:
+        def decoded(value):
+            return value.decode(errors="replace") if isinstance(value, bytes) else (value or "")
+        return SuiteRun(output=deployment + decoded(exc.stdout) + decoded(exc.stderr), timed_out=True)
     except OSError as exc:
         return SuiteRun(error=f"device suite error: {exc}")
     finally:
@@ -548,11 +625,11 @@ def run_device_suite(binary: Path, serial: str | None) -> SuiteRun:
     parsed, counts, conflicts = parse_sub_cases(result.stdout)
 
     if device_exit is None:
-        return SuiteRun(cases=parsed, output=result.stdout + result.stderr,
+        return SuiteRun(cases=parsed, output=deployment + result.stdout + result.stderr,
                         error="the device did not report an exit status",
                         iteration_counts=counts, conflicts=conflicts)
 
-    output = (result.stdout + result.stderr +
+    output = (deployment + result.stdout + result.stderr +
               f"\n(device exit {device_exit}, adb exit {result.returncode}, {elapsed:.2f}s)")
     return SuiteRun(cases=parsed, output=output, exit_code=device_exit,
                     iteration_counts=counts, conflicts=conflicts)
@@ -933,6 +1010,7 @@ def main() -> int:
                     "deferred_by_scope": deferred, "in_scope_total": in_scope,
                     "total": len(cases)},
         "cases": cases,
+        "round2": round2_report(observed, tainted),
         "release_status": release_status,
         "release_status_reason": (
             f"This invocation observed {passed} complete acceptance passes, {failed} failures, "

@@ -1236,100 +1236,55 @@ void TestTransactions() {
         space->ClearCodeInvalidationSink(&sink);
     });
 
-    RunCase("M27", "a sink callback blocks every mutator and pin while in flight", [] {
-        struct BlockingSink final : CodeInvalidationSink {
-            std::atomic<bool> entered{false};
-            std::atomic<bool> release{false};
-            std::string_view Name() const override { return "m27"; }
-            Status DiscardTranslations(GuestRange, InvalidationReason) override {
-                entered.store(true, std::memory_order_release);
-                while (!release.load(std::memory_order_acquire)) {
-                    std::this_thread::yield();
+    RunCase("M27", "same-token exclusion during Publish/Remap/Protect sink callbacks", [] {
+        for (int operation = 0; operation < 3; ++operation) {
+            struct Sink final : CodeInvalidationSink {
+                std::promise<void> entered, release;
+                std::shared_future<void> released{release.get_future().share()};
+                std::string_view Name() const override { return "m27"; }
+                Status DiscardTranslations(GuestRange, InvalidationReason) override {
+                    entered.set_value(); released.wait(); return Ok();
                 }
-                return Ok();
+            } sink;
+            auto space = MakeSpace();
+            GuestRange range{space->ReservationBase(), HostPageSize()};
+            Check(bool(space->Map(range, GuestPermission::Read | GuestPermission::Write)), "map");
+            Check(bool(space->SetCodeInvalidationSink(&sink)), "sink");
+            auto token = space->Quiesce(1000);
+            if (!token) { Check(false, "token"); return; }
+            std::vector<std::byte> bytes(range.size, std::byte{0x5A});
+            auto publisher = std::async(std::launch::async, [&]() -> Status {
+                if (operation == 0) return space->PublishCode(token.Value(), range, bytes);
+                if (operation == 2) return space->ReprotectUnderToken(token.Value(), range, GuestPermission::Read);
+                auto mapped = space->RemapUnderToken(token.Value(), range,
+                                                   GuestPermission::Read | GuestPermission::Write);
+                return mapped ? Ok() : Status{mapped.GetError()};
+            });
+            const bool entered = sink.entered.get_future().wait_for(std::chrono::seconds(2)) == std::future_status::ready;
+            auto busy = [&](const auto& value) { return !value && value.Category() == ErrorCategory::Busy; };
+            if (entered) {
+                Check(busy(space->ReprotectUnderToken(token.Value(), range, GuestPermission::Read)), "same token reprotect Busy");
+                Check(busy(space->RemapUnderToken(token.Value(), range, GuestPermission::Read)), "same token remap Busy");
+                Check(busy(space->PublishCode(token.Value(), range, bytes)), "same token publish Busy");
+                Check(busy(space->InvalidateCode(token.Value(), range, InvalidationReason::HostWrite)), "same token invalidate Busy");
+                Check(busy(space->Protect(range, GuestPermission::Read)), "plain Protect Busy");
+                Check(busy(space->Unmap(range)), "plain Unmap Busy");
+                Check(busy(space->Write(range.base, bytes)), "plain writer Busy");
+                Check(busy(space->AcquirePinnedSpan(range, false)), "read pin Busy");
+                Check(busy(space->AcquirePinnedSpan(range, true)), "write pin Busy");
+                Check(busy(space->AcquireExecutionLease()), "execution Busy");
             }
-        } sink;
-        auto space = MakeSpace();
-        const std::uint64_t page = HostPageSize();
-        GuestRange range{space->ReservationBase(), page};
-        Check(bool(space->Map(range, GuestPermission::Read | GuestPermission::Write)), "map");
-        Check(bool(space->SetCodeInvalidationSink(&sink)), "register sink");
-
-        bool publish_committed = false;
-        std::thread publisher([&] {
-            auto q = space->Quiesce(1'000'000);
-            if (!q) {
-                publish_committed = false;
-                return;
-            }
-            std::vector<std::byte> code(page, std::byte{0x90});
-            publish_committed = bool(space->PublishCode(q.Value(), range, code));
-        });
-
-        // Wait until the callback is actually running (the publication holds the sink lease).
-        const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
-        while (!sink.entered.load() && std::chrono::steady_clock::now() < deadline) {
-            std::this_thread::yield();
+            sink.release.set_value();
+            if (publisher.wait_for(std::chrono::seconds(2)) != std::future_status::ready) std::_Exit(4);
+            Check(entered && bool(publisher.get()), "original operation commits");
+            space->ClearCodeInvalidationSink(&sink);
         }
-        Check(sink.entered.load(), "sink callback entered");
-
-        // Probe from another thread using the same live range. Everything that touches mappings,
-        // the code cache or host pointers must report Busy while the callback owns the interval.
-        auto probe = [&](auto&& op, const char* what) -> bool {
-            auto r = op();
-            if (r) {
-                std::fprintf(stderr, "  %s was admitted during a sink callback\n", what);
-                return false;
-            }
-            return r.GetError().category == ErrorCategory::Busy;
-        };
-
-        auto second_q = space->Quiesce(1000);
-        bool blocked = !second_q && second_q.GetError().category == ErrorCategory::Busy;
-
-        // Need a live token for the token-scoped paths; try one, and if it cannot be taken while
-        // the callback is in flight that already proves exclusion. The mutator probes that run
-        // without a token are rejected as WrongState/InvalidArgument rather than Busy; focus on
-        // the operations that must specifically be Busy.
-        QuiescenceToken token{};
-        auto tq = space->Quiesce(1000);
-        if (tq) {
-            token = std::move(tq.Value());
-        }
-
-        // Plain Protect/Map/Unmap must be Busy (idle check sees sink_calls_in_flight).
-        auto prot = space->Protect(range, GuestPermission::Read | GuestPermission::Execute);
-        blocked &= prot.GetError().category == ErrorCategory::Busy;
-        auto remapped = space->Map(GuestRange{GuestAddress{space->ReservationBase().value + page * 4},
-                                              page},
-                                   GuestPermission::Read | GuestPermission::Write);
-        blocked &= remapped.GetError().category == ErrorCategory::Busy;
-
-        // New read and write pins are refused for the duration.
-        auto read_pin = space->AcquirePinnedSpan(GuestRange{range.base, 8}, false);
-        blocked &= !read_pin && read_pin.GetError().category == ErrorCategory::Busy;
-        auto write_pin = space->AcquirePinnedSpan(GuestRange{range.base, 8}, true);
-        blocked &= !write_pin && write_pin.GetError().category == ErrorCategory::Busy;
-
-        // Token-scoped mutators too, if we got a token (we usually won't while draining).
-        if (token.Epoch() != 0) {
-            auto reprotect = space->ReprotectUnderToken(token, range,
-                                                        GuestPermission::Read | GuestPermission::Execute);
-            blocked &= !reprotect && reprotect.GetError().category == ErrorCategory::Busy;
-            auto remap = space->RemapUnderToken(token, range,
-                                                GuestPermission::Read | GuestPermission::Write);
-            blocked &= !remap && remap.GetError().category == ErrorCategory::Busy;
-        }
-
-        Check(blocked, "mutators and pins are Busy while the sink callback runs");
-
-        sink.release.store(true);
-        publisher.join();
-        Check(publish_committed, "the blocked publication commits once the sink drains");
-        space->ClearCodeInvalidationSink(&sink);
     });
 
-    RunCase("M28", "injected mmap/mprotect kernel failures fail closed and leave state intact", [] {
+    RunCase("M28", "pre-syscall mmap/mprotect failures preserve backing and fail closed", [] {
+        struct Reset {
+            ~Reset() { Test::SetMmapFailureForTest(false); Test::SetMprotectFailureForTest(false); }
+        } reset;
         auto space = MakeSpace();
         const std::uint64_t page = HostPageSize();
         GuestRange range{space->ReservationBase(), page};
@@ -1346,6 +1301,9 @@ void TestTransactions() {
         auto real = space->Map(range, GuestPermission::Read | GuestPermission::Write);
         Check(bool(real), "recovery map after seam reset");
 
+        const std::byte marker{0x5A};
+        Check(bool(space->Write(range.base, {&marker, 1})), "old backing marker");
+        const auto before_generation = space->MappingGeneration();
         // mprotect failure on reprotect: permission category (EACCES), and the mapping's recorded
         // permission must NOT change to reflect the call that failed.
         auto q = space->Quiesce(1'000'000);
@@ -1357,6 +1315,9 @@ void TestTransactions() {
               "mprotect EACCES must surface as PermissionDenied");
         Core::GuestCpu::Test::SetMprotectFailureForTest(false);
 
+        auto failed_info = space->Query(range.base);
+        Check(failed_info && failed_info.Value().permission == (GuestPermission::Read | GuestPermission::Write) &&
+              space->MappingGeneration() == before_generation, "failed mprotect does not publish new metadata");
         // mmap failure on remap under a token: the old mapping must remain present (no half-remap).
         Core::GuestCpu::Test::SetMmapFailureForTest(true);
         auto failed_remap = space->RemapUnderToken(q.Value(), range,
@@ -1374,6 +1335,13 @@ void TestTransactions() {
                   rx_after_failure.GetError().category == ErrorCategory::WrongState,
               "execute over a range whose remap failed stays blocked");
 
+        std::byte old{};
+        Check(bool(space->Read(range.base, {&old, 1})) && old == marker, "pre-syscall failure preserves backing bytes");
+        Check(space->MappingGeneration() == before_generation, "failed remap leaves mapping generation unchanged");
+        q.Value() = QuiescenceToken{};
+        Check(!space->AcquireExecutionLease(), "released token cannot bypass failure poison");
+        q = space->Quiesce(1000);
+        if (!q) { Check(false, "new recovery transaction"); return; }
         // A successful RW remap after the seam is reset replaces the backing and recovers the
         // mutation, proving the failed mmap did not tear the mapping apart or wedge the path.
         auto good_remap = space->RemapUnderToken(q.Value(), range,
@@ -1381,6 +1349,9 @@ void TestTransactions() {
         Check(bool(good_remap), "a token remap succeeds after the injected mmap failure clears");
         auto after_query = space->Query(range.base);
         Check(after_query.HasValue(), "the remapped range is still queryable as a mapping");
+        Check(bool(space->Read(range.base, {&old, 1})) && old == std::byte{0}, "successful remap actually replaces backing");
+        q.Value() = QuiescenceToken{};
+        Check(bool(space->AcquireExecutionLease()), "repair reopens execution");
     });
 
     RunCase("M29", "token-scoped mutators reject bad ranges and a released/foreign token", [] {
@@ -1394,10 +1365,19 @@ void TestTransactions() {
         {
             auto q = space->Quiesce(1000);
             if (!q) { Check(false, "quiesce"); return; }
+            const auto before_generation = space->MappingGeneration();
+            for (auto invalid : {GuestRange{in.base, 0},
+                    GuestRange{GuestAddress{UINT64_MAX - page + 1}, page * 2},
+                    GuestRange{GuestAddress{in.base.value + 1}, page},
+                    GuestRange{in.base, page + 1}}) {
+                Check(!space->ReprotectUnderToken(q.Value(), invalid, GuestPermission::Read), "bad reprotect range");
+                Check(!space->RemapUnderToken(q.Value(), invalid, GuestPermission::Read), "bad remap range");
+            }
+            Check(space->MappingGeneration() == before_generation, "range refusals preserve generation");
             GuestRange zero{in.base, 0};
             Check(!space->ReprotectUnderToken(q.Value(), zero, GuestPermission::Read),
                   "zero-length reprotect refused");
-            GuestRange outside{GuestAddress{space->ReservationBase().value + (60ull << 20)}, page};
+            GuestRange outside{GuestAddress{space->ReservationBase().value + space->ReservationSize()}, page};
             Check(!space->ReprotectUnderToken(q.Value(), outside, GuestPermission::Read) &&
                   !space->RemapUnderToken(q.Value(), outside, GuestPermission::Read | GuestPermission::Write),
                   "out-of-reservation ranges refused under token");
@@ -1408,6 +1388,9 @@ void TestTransactions() {
             auto q = space->Quiesce(1000);
             if (!q) { Check(false, "quiesce2"); return; }
             QuiescenceToken released = std::move(q.Value());
+            Check(!space->ReprotectUnderToken(q.Value(), in, GuestPermission::Read) &&
+                  !space->RemapUnderToken(q.Value(), in, GuestPermission::Read), "actual moved-from object refused");
+            Check(!space->AcquireExecutionLease(), "moved-to token still closes admission");
             released = QuiescenceToken{};  // moved-out: released back to the space
             Check(!space->ReprotectUnderToken(released, in,
                                               GuestPermission::Read | GuestPermission::Execute),

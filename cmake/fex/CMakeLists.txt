@@ -31,6 +31,7 @@ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../src/core/guest_cpu"
                  "${CMAKE_CURRENT_BINARY_DIR}/guest_cpu")
 
 if(V0_BUILD_TESTS)
+    target_compile_definitions(guest_cpu_api PRIVATE GUEST_CPU_TEST_HOOKS=1)
     # M13g and M13j race two host threads, so this needs a threading library on hosts where it is
     # not implicit.
     find_package(Threads REQUIRED)

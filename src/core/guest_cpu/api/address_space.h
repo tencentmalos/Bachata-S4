@@ -226,7 +226,10 @@ public:
     // quiescence (the mapping-mutation Busy guard must stay), so a coordinated remap uses this:
     // the token proves every owner is stopped, which is exactly the precondition for flipping a
     // code range between RW and RX. The poison rule still applies: execute cannot be granted over
-    // a failed publication.
+    // a failed publication. Like Protect and Unmap, it synchronously retires translations
+    // before changing the mapping (including RW -> RX); guest page X does not protect host JIT
+    // code. Sink or syscall failure poisons execution until explicit repair. Releasing the
+    // token cannot clear that poison. Successful protection alone does not repair old poison.
     [[nodiscard]] Status ReprotectUnderToken(const QuiescenceToken& token, GuestRange range,
                                              GuestPermission permission);
 
@@ -325,6 +328,8 @@ private:
     // Requires `lock`. Clears only the failed intervals fully covered by this repair.
     void ClearPoisonIfRepairedLocked(GuestRange repaired);
     void PoisonCodeLocked(GuestRange range);
+    [[nodiscard]] Status RetireBeforeMutationLocked(std::unique_lock<std::mutex>& guard,
+                                                    GuestRange range);
     [[nodiscard]] Status CheckMappingMutationLocked(std::string_view operation) const;
 
     struct Mapping final {

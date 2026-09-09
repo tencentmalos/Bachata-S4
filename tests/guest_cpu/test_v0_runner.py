@@ -2,6 +2,7 @@
 import contextlib
 import io
 import json
+import subprocess
 from pathlib import Path
 import runpy
 import sys
@@ -79,6 +80,50 @@ class RunnerTests(unittest.TestCase):
             self.assertEqual(cases[case]["status"], "FAIL")
         _, cases = self.run_report(device=lambda *a: SuiteRun(timed_out=True))
         self.assertEqual(cases["M09"]["status"], "FAIL")
+
+    def test_closeout_cases_have_ownership_and_failures_propagate(self):
+        for sub, case in (("G25a", "M09"), ("G25b", "M09"), ("G26a", "M11"), ("G26b", "M11"),
+                          ("G27a", "M08"), ("M27", "M13"), ("M28", "M13"), ("M29", "M13"),
+                          ("G28a", "M11"), ("G28b", "M11")):
+            suite = "guest_execution_tests" if sub.startswith("G") else "guest_cpu_contract_tests"
+            self.assertIn(sub, NS["sub_cases_owned_by"](suite))
+            data, cases = self.run_report(device=lambda *a: SuiteRun(cases={sub: ("FAIL", "injected")}, exit_code=0))
+            self.assertEqual(cases[case]["status"], "FAIL")
+            self.assertEqual(data["round2"]["total"], 24)
+        for sub, label, count, prefix in (("G25a", "G25", 100, "EPOCH "),
+                                           ("G26a", "G26", 100, "EPOCH "),
+                                           ("G27a", None, 10, "STORE ")):
+            records = [prefix + json.dumps({"case": label, "epoch": i, "ok": True}) for i in range(count)]
+            summary = f"[{sub}] case PASS"
+            for lines in ([], records[:-1], records + [records[-1]],
+                          records + [prefix + "null"], records + [prefix + "[]"],
+                          records[:-1] + [prefix + '{"epoch":"bad"}'],
+                          records[:-1] + [prefix + json.dumps({"case": label, "epoch": count-1})]):
+                parsed, _, _ = NS["parse_sub_cases"]("\n".join(lines + [summary]))
+                self.assertEqual(parsed[sub][0], "FAIL")
+            parsed, _, _ = NS["parse_sub_cases"]("\n".join(records + [summary]))
+            self.assertEqual(parsed[sub][0], "PASS")
+
+    def test_device_deployment_hash_is_verified_before_launch(self):
+        with tempfile.TemporaryDirectory() as td:
+            binary = Path(td) / "probe"
+            binary.write_bytes(b"binary identity")
+            for matches in (False, True):
+                calls = []
+                def run(command, **kwargs):
+                    calls.append(command)
+                    output = ""
+                    if "sha256sum" in command:
+                        output = (NS["sha256_of"](binary) if matches else "wrong") + "  remote\n"
+                    if any("__EXIT__" in arg for arg in command):
+                        output = "[G01a] result PASS\n__EXIT__=0\n"
+                    return subprocess.CompletedProcess(command, 0, output, "")
+                with patch.object(G["subprocess"], "run", side_effect=run), patch.object(G["shutil"], "which", return_value="adb"):
+                    result = NS["run_device_suite"](binary, "fake-device")
+                self.assertEqual(result.usable, matches)
+                self.assertEqual(any("__EXIT__" in arg for cmd in calls for arg in cmd), matches)
+                self.assertIn('"device_sha256"', result.output)
+                self.assertIn("rm", calls[-1])
 
     def test_partial_semantic_coverage_is_auxiliary(self):
         checks = {s: ("PASS", "") for s in NS["SUITE_MAP"]["C02"]}

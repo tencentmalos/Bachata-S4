@@ -17,9 +17,10 @@ namespace Core::GuestCpu {
 namespace {
 
 // Test seam for mmap/mprotect results. Production always calls the real syscall; the wrappers below
-// default to invoking it. Contract tests (which link this TU) can install a hook to force a kernel
-// failure, so the error identity and fail-closed behaviour can be exercised deterministically
+// default to invoking it. Test builds can fail before invoking the syscall, so the error
+// identity and fail-closed behaviour can be exercised deterministically
 // without relying on resource exhaustion. The hooks are not reachable from the public API headers.
+#if defined(GUEST_CPU_TEST_HOOKS)
 using MmapFn = void* (*)(void*, size_t, int, int, int, off_t);
 using ProtectFn = int (*)(void*, size_t, int);
 std::atomic<MmapFn> g_mmap_hook{nullptr};
@@ -58,6 +59,16 @@ void SetMprotectFailureForTest(bool enable) {
                         std::memory_order_release);
 }
 } // namespace Test
+
+#else
+void* SeamMmap(void* addr, size_t length, int prot, int flags, int fd, off_t off) {
+    return ::mmap(addr, length, prot, flags, fd, off);
+}
+int SeamMprotect(void* addr, size_t length, int prot) {
+    return ::mprotect(addr, length, prot);
+}
+} // namespace
+#endif
 
 namespace {
 
@@ -435,8 +446,20 @@ Result<MappingInfo> GuestAddressSpace::Map(GuestRange range, GuestPermission per
     return info;
 }
 
+Status GuestAddressSpace::RetireBeforeMutationLocked(std::unique_lock<std::mutex>& guard,
+                                                    GuestRange range) {
+    bool committed = false;
+    auto status = CallSinkUnlocked(guard, range, InvalidationReason::Unmap, committed);
+    ++code_generation;
+    if (!committed) {
+        PoisonCodeLocked(range);
+        return status;
+    }
+    return Ok();
+}
+
 Status GuestAddressSpace::Unmap(GuestRange range) {
-    std::lock_guard guard{lock};
+    std::unique_lock guard{lock};
     if (auto status = CheckMappingMutationLocked("GuestAddressSpace::Unmap"); !status) {
         return status;
     }
@@ -458,14 +481,19 @@ Status GuestAddressSpace::Unmap(GuestRange range) {
                          "no mapping exactly matches this range");
     }
 
+    // Guest page permissions do not revoke FEX's separate host JIT mappings. Retire
+    // shared/local/decoder entries before changing permissions/backing, even for RW -> RX.
+    if (auto retired = RetireBeforeMutationLocked(guard, range); !retired) return retired;
     // Return the range to PROT_NONE while keeping the reservation: dropping it
     // with munmap would let an unrelated allocation land inside our space.
-    void* result = ::mmap(HostPointer(range.base), static_cast<std::size_t>(range.size),
+    void* result = SeamMmap(HostPointer(range.base), static_cast<std::size_t>(range.size),
                           PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
     if (result == MAP_FAILED) {
+        const int saved = errno;
+        PoisonCodeLocked(range);
         auto error = MakeError(ErrorCategory::BackendFailure, "GuestAddressSpace::Unmap",
                                "failed to restore reservation protection");
-        error.system_error = errno;
+        error.system_error = saved;
         return error;
     }
 
@@ -494,7 +522,7 @@ Status GuestAddressSpace::Protect(GuestRange range, GuestPermission permission) 
                 std::to_string(HostPageSize()) + ", nothing was modified");
     }
 
-    std::lock_guard guard{lock};
+    std::unique_lock guard{lock};
     const auto found = std::find_if(mappings.begin(), mappings.end(), [&](const Mapping& m) {
         return m.range.base.value <= range.base.value &&
                range.base.value + range.size <= m.range.base.value + m.range.size;
@@ -541,9 +569,13 @@ Status GuestAddressSpace::Protect(GuestRange range, GuestPermission permission) 
     if (auto status = CheckMappingMutationLocked("GuestAddressSpace::Protect"); !status) {
         return status;
     }
+    // Guest page permissions do not revoke FEX's separate host JIT mappings. Retire
+    // shared/local/decoder entries before changing permissions/backing, even for RW -> RX.
+    if (auto retired = RetireBeforeMutationLocked(guard, range); !retired) return retired;
     if (SeamMprotect(HostPointer(range.base), static_cast<std::size_t>(range.size),
                       ToHostProtection(permission)) != 0) {
         const int saved = errno;
+        PoisonCodeLocked(range);
         auto error = MakeError(CategoriseMapFailure(saved), "GuestAddressSpace::Protect",
                                "mprotect failed");
         error.system_error = saved;
@@ -551,7 +583,7 @@ Status GuestAddressSpace::Protect(GuestRange range, GuestPermission permission) 
     }
 
     found->permission = permission;
-    ++mapping_generation;
+    found->generation = ++mapping_generation;
     return Ok();
 }
 
@@ -654,9 +686,9 @@ Status GuestAddressSpace::Write(GuestAddress to, std::span<const std::byte> from
         //
         // The transaction owner is not blocked by this: it publishes through PublishCode, which
         // has its own epoch check and does not route here.
-        if (active_quiescence != 0) {
+        if (active_quiescence != 0 || sink_calls_in_flight != 0 || sink_draining) {
             return MakeError(ErrorCategory::Busy, "GuestAddressSpace::Write",
-                             "a quiescence transaction is in progress; publish through the token");
+                             "a transaction or sink callback is active; ordinary writes are excluded");
         }
 
         if (auto status = ValidateRangeLocked(range.Value(), GuestPermission::Write); !status) {
@@ -924,7 +956,7 @@ void GuestAddressSpace::RevokeExecuteLocked(GuestRange range) {
                        static_cast<std::size_t>(mapping.range.size),
                        ToHostProtection(without_execute)) == 0) {
             mapping.permission = without_execute;
-            ++mapping_generation;
+            mapping.generation = ++mapping_generation;
         }
         // If even mprotect fails there is nothing further this layer can do; code_poisoned still
         // records that the range must not be trusted, and PublishCode returns the sink's error.
@@ -1111,12 +1143,17 @@ Status GuestAddressSpace::ReprotectUnderToken(const QuiescenceToken& token, Gues
                          "GuestAddressSpace::ReprotectUnderToken",
                          "code publication failed over this range and has not been repaired");
     }
+    // Guest page permissions do not revoke FEX's separate host JIT mappings. Retire
+    // shared/local/decoder entries before changing permissions/backing, even for RW -> RX.
+    if (auto retired = RetireBeforeMutationLocked(guard, range); !retired) return retired;
+    if (auto status = CheckTokenLocked(token, "ReprotectUnderToken"); !status) return status;
     if (SeamMprotect(HostPointer(range.base), static_cast<std::size_t>(range.size),
                       ToHostProtection(permission)) != 0) {
         const int saved = errno;
+        PoisonCodeLocked(range);
         auto error = MakeError(CategoriseMapFailure(saved),
                                "GuestAddressSpace::ReprotectUnderToken",
-                               "mprotect failed; mapping permissions unchanged");
+                               "mprotect failed; requested protection was not committed; execution is poisoned");
         error.system_error = saved;
         return error;
     }
