@@ -1,0 +1,3 @@
+SCOPE: real x86-64 executed by FEXCore through the public API, from
+       assembler-generated fixtures, two owners and boundary interrupts. No HLE/Step/APK.
+95 check(s), ALL PASS (0 failures)

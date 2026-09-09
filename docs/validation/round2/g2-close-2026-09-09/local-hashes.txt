@@ -1,0 +1,2 @@
+c80d3e4656f03314f0f84823c61a66e2615e5ed7c66d1d9684052d180ce5d326  build/v0-fex/guest_execution_tests
+f811256b65ed667a5eb6864ba5018500b4ac4342f504bb8f618e40a07e5f18de  build/v0-fex/guest_cpu_contract_tests
