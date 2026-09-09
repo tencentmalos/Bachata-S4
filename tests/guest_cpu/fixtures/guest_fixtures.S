@@ -176,6 +176,36 @@ progress_again:
     jmp     progress_again
 fixture_progress_loop_end:
 
+// R2-M01/N1 persistent-owner version switch. Two versions of an aligned progress
+// loop. Each stores a distinct version marker in the first qword at [rdi], and a
+// advancing counter in the second qword at [rdi+8]. A controller that republished
+// version B while the same two owners were paused must, on resume and re-dispatch,
+// observe the marker flip and the counter keep advancing -- proving new code runs
+// on the SAME native owner/handle, not a fresh thread.
+.globl fixture_version_a_loop
+.globl fixture_version_a_loop_end
+fixture_version_a_loop:
+    xor     rax, rax
+version_a_again:
+    inc     rax
+    mov     rcx, 0x0A0A0A0A0A0A0A0A
+    mov     qword ptr [rdi], rcx
+    mov     qword ptr [rdi + 8], rax
+    jmp     version_a_again
+fixture_version_a_loop_end:
+
+.globl fixture_version_b_loop
+.globl fixture_version_b_loop_end
+fixture_version_b_loop:
+    xor     rax, rax
+version_b_again:
+    inc     rax
+    mov     rcx, 0x0B0B0B0B0B0B0B0B
+    mov     qword ptr [rdi], rcx
+    mov     qword ptr [rdi + 8], rax
+    jmp     version_b_again
+fixture_version_b_loop_end:
+
 // R2-C04: observe owner-written GPR, XMM, MXCSR rounding, FS/GS and RIP.
 // RDI=output; XMM1=1.75. MXCSR toward-zero must make CVTSD2SI produce 1.
 .globl fixture_state_echo

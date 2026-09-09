@@ -1525,6 +1525,183 @@ void TestFullCacheRetirement(Harness& h) {
     (void)h.context->DestroyThread(thread.Value());
 }
 
+// --- N1 / R2-M01: the SAME two persistent owners switch versions across 100 epochs ------------
+//
+// Two native owners are created once and kept for the whole test (handle and generation invariant).
+// Each epoch the coordinator stops both while they are running version X, republishes version Y at
+// the code base, and on resume both owners re-dispatch and must write Y's marker while their counter
+// keeps advancing. Fresh threads are never used: this proves the running owners' cached decode is
+// what got replaced on the same handle/TID, which a fresh-thread smoke cannot show.
+void TestPersistentOwnerVersionSwitch(Harness& h) {
+    const auto* va = FindFixture("version_a_loop");
+    const auto* vb = FindFixture("version_b_loop");
+    if (!va || !vb) {
+        Check("G25", "version_a/b loop fixtures present", false);
+        return;
+    }
+
+    // Two progress slots: qword[0]=version marker, qword[8]=advancing counter.
+    std::array<std::uint64_t, 2> slots[2]{};
+    auto slot_addr = [&](int owner) -> std::uint64_t {
+        return h.stack_base + 0x400 + owner * 128;
+    };
+    auto marker_of = [&](int owner) -> std::uint64_t {
+        std::uint64_t v = 0;
+        ReadGuestU64(h, slot_addr(owner), v);
+        return v;
+    };
+    auto counter_of = [&](int owner) -> std::uint64_t {
+        std::uint64_t v = 0;
+        ReadGuestU64(h, slot_addr(owner) + 8, v);
+        return v;
+    };
+    constexpr std::uint64_t kMarkerA = 0x0A0A0A0A0A0A0A0AULL;
+    constexpr std::uint64_t kMarkerB = 0x0B0B0B0B0B0B0B0BULL;
+
+    // Publish A first (memory-only path is fine: no owners are running yet).
+    {
+        std::string e;
+        if (!PublishViaPublicApi(h, *va, e)) {
+            Check("G25", "publish initial version A", false, e);
+            return;
+        }
+    }
+
+    // Two persistent owners. They are created once and destroyed once at the end; every epoch
+    // reuses these exact handles.
+    struct VOwner {
+        TestOwner* owner{};
+        ThreadHandle handle{};
+    };
+    std::optional<TestOwner> owner_a_storage, owner_b_storage;
+    owner_a_storage.emplace(h, slot_addr(0));
+    owner_b_storage.emplace(h, slot_addr(1), 4096);
+    TestOwner& oa = *owner_a_storage;
+    TestOwner& ob = *owner_b_storage;
+
+    auto run_both = [&] {
+        auto fa = oa.Run();
+        auto fb = ob.Run();
+        return std::pair{std::move(fa), std::move(fb)};
+    };
+
+    auto [fa0, fb0] = run_both();
+    // Wait until both markers and counters appear.
+    const auto warm_deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+    auto warmed = [&] {
+        while (std::chrono::steady_clock::now() < warm_deadline) {
+            if (marker_of(0) == kMarkerA && marker_of(1) == kMarkerA &&
+                counter_of(0) > 0 && counter_of(1) > 0)
+                return true;
+            std::this_thread::yield();
+        }
+        return false;
+    };
+    if (!warmed()) {
+        Check("G25", "both persistent owners warm on version A", false);
+        return;
+    }
+    (void)fa0;
+    (void)fb0;
+
+    bool ok = true;
+    std::string detail;
+    for (int epoch = 0; epoch < 100; ++epoch) {
+        const bool to_b = (epoch % 2) == 0;
+        const std::uint64_t want_marker = to_b ? kMarkerB : kMarkerA;
+        const Fixtures::Fixture& fixture = to_b ? *vb : *va;
+
+        const std::uint64_t c0_before = counter_of(0), c1_before = counter_of(1);
+
+        {
+            auto token = h.context->QuiesceContext(1'000'000'000);
+            if (!token) {
+                ok = false;
+                detail = "epoch " + std::to_string(epoch) + ": quiesce " +
+                         Describe(token.GetError());
+                break;
+            }
+            // Both owners' runs return under the drain.
+            const GuestRange range{GuestAddress{h.code_base}, kMappingSize};
+            auto rw = h.space->ReprotectUnderToken(
+                token.Value(), range, GuestPermission::Read | GuestPermission::Write);
+            std::string pub_e;
+            if (!rw || !PublishImageUnderToken(h, fixture, token.Value(), pub_e)) {
+                ok = false;
+                detail = "epoch " + std::to_string(epoch) + ": publish " +
+                         (rw ? pub_e : Describe(rw.GetError()));
+                break;
+            }
+            auto rx = h.space->ReprotectUnderToken(
+                token.Value(), range, GuestPermission::Read | GuestPermission::Execute);
+            if (!rx) {
+                ok = false;
+                detail = "epoch " + std::to_string(epoch) + ": RX " + Describe(rx.GetError());
+                break;
+            }
+            // token released at block end.
+        }
+
+        // Reset each persistent owner's RIP to the new fixture entry (a fast, completing task on
+        // the owner thread), then queue the blocking Run separately so we never have more than one
+        // in-flight Run per owner. The stop_epoch must be read on the owner thread and the write
+        // applied there; a stale stop_epoch makes WriteRegisters fail and we record it rather than
+        // silently leaving an owner on the old code.
+        for (TestOwner* own : {&oa, &ob}) {
+            auto reset = own->Submit([&] {
+                auto snap = h.context->ReadRegisters(own->handle);
+                if (!snap)
+                    return std::string{"ReadRegisters: " + Describe(snap.GetError())};
+                RegisterPatch patch{};
+                patch.fields = RegisterValidity::Rip;
+                patch.values.rip = h.code_base;
+                auto written = h.context->WriteRegisters(own->handle, patch,
+                                                         snap.Value().stop_epoch);
+                if (!written)
+                    return std::string{"WriteRegisters: " + Describe(written.GetError())};
+                return std::string{};
+            });
+            auto reset_err = Await(reset);
+            if (!reset_err.empty()) {
+                ok = false;
+                detail = "epoch " + std::to_string(epoch) + ": RIP reset: " + reset_err;
+                break;
+            }
+        }
+        if (!ok)
+            break;
+        oa.Run();
+        ob.Run();
+        // Both blocking Runs are now in flight on their owners; they are observed below.
+
+        // Observe the new marker on both owners and that counters advanced beyond the pre-publish
+        // values -- the same two owners are now executing the freshly published code.
+        const auto until = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+        bool switched = false;
+        while (std::chrono::steady_clock::now() < until) {
+            if (marker_of(0) == want_marker && marker_of(1) == want_marker &&
+                counter_of(0) > c0_before && counter_of(1) > c1_before) {
+                switched = true;
+                break;
+            }
+            std::this_thread::yield();
+        }
+        if (!switched) {
+            ok = false;
+            detail = "epoch " + std::to_string(epoch) + " want marker " + Hex(want_marker) +
+                     " got m0=" + Hex(marker_of(0)) + " m1=" + Hex(marker_of(1)) +
+                     " c0=" + std::to_string(counter_of(0)) + "/" + std::to_string(c0_before) +
+                     " c1=" + std::to_string(counter_of(1)) + "/" + std::to_string(c1_before);
+            break;
+        }
+    }
+
+    Check("G25a", "100 epochs: the SAME two persistent owners switch versions and advance", ok,
+          detail);
+    Check("G25b", "persistent handles stayed stable",
+          oa.handle.IsValid() && ob.handle.IsValid() && oa.Tid() != ob.Tid());
+}
+
 void TestCoordinatorRecovery(Harness& h) {
     // Cancel both before and after the coordinator's own request. Hold one owner in a signal
     // handler, using an observed handshake (no settle sleep), so timeout is deterministic.
@@ -2003,6 +2180,7 @@ int main() {
     TestCoordinatedVersionSwitch(harness);
     TestCoordinatedRemap(harness);
     TestFullCacheRetirement(harness);
+    TestPersistentOwnerVersionSwitch(harness);
     TestCoordinatorRecovery(harness);
     TestInterruptStress(harness);
     TestInterruptRefusals(harness);
