@@ -179,11 +179,16 @@ public:
     // the address-space QuiescenceToken. Only then is the transaction allowed to change backing,
     // publish bytes or discard translations. Commit/End reopens admission; on failure the context
     // stays closed and any owner whose stop faulted is left faulted -- an owner is never reported
-    // stopped when its ack was not received.
+    // stopped when its ack was not received. Retry QuiesceContext after a timeout to finish the
+    // same drain; there is no implicit abort/resume. Only this transaction's Pause tickets are
+    // retired. External Pause/Cancel/Shutdown remain pending until an explicit Resume.
+    // timeout_ns=0 selects one second; all owners share one bounded deadline (maximum 60s).
     [[nodiscard]] virtual Result<QuiescenceToken> QuiesceContext(std::uint64_t timeout_ns) = 0;
 
     // Discards every translation the backend holds, for a whole-context remap or a clean-code-cache
-    // request. Requires the token from QuiesceContext; refusing without one is a use-after-free.
+    // request. Requires a current token from this address space (a memory-only Quiesce token
+    // is also sufficient when no execution leases exist). Covers the owned guest reservation,
+    // including removed/RW mappings, and the backend return gate. Preserves guest register state.
     [[nodiscard]] virtual Result<void> ClearCodeCache(const QuiescenceToken& token) = 0;
 
     // --- asynchronous control (Round 2 G1) ---------------------------------

@@ -90,7 +90,7 @@ CASES: dict[str, tuple[str, str | None]] = {
     "M06": ("segment helper with adjacent segments sharing a host page", "segment helper not implemented in this milestone"),
     "M07": ("host/HLE code rewrite and publication, 100x", None),
     "M08": ("guest store to code then publication", FEX_BLOCKED),
-    "M09": ("two threads on an old block, quiesce, patch, resume, 100 epochs", FEX_BLOCKED),
+    "M09": ("two threads on an old block, quiesce, patch, resume, 100 epochs", None),
     "M10": ("two VA aliases of one backing, invalidation covers both", None),
     "M11": ("unmap/remap the same VA with different code, 100x", FEX_BLOCKED),
     "M12": ("code observer and GPU dirty observer on one host page", None),
@@ -147,10 +147,10 @@ SUITE_MAP: dict[str, list[str]] = {
     # two-thread race as still missing while M13 was already reported PASS. M13g is that race, and
     # it asserts that every round actually contended, so a version that stopped racing would fail
     # rather than pass quietly. M13d/M13e/M13f are the lease and publication-refusal negatives.
-    "M13": ["M13", "M13b", "M13c", "M13d", "M13e", "M13f", "M13g", "M13h", "M13i", "M13j", "M13k", "M13l", "M13m", "M13n", "M13o"],
+    "M13": ["M13", "M13b", "M13c", "M13d", "M13e", "M13f", "M13g", "M13h", "M13i", "M13j", "M13k", "M13l", "M13m", "M13n", "M13o", "M21", "M22", "M23", "M24", "M25"],
     "T01": [f"G14{c}" for c in "abcdefgh"],
     "T02": [f"G11{c}" for c in "abcdefghij"] + ["G13a", "G13b", "G13c"],
-    "T03": ["T03a"] + [f"G15{c}" for c in "abcde"] + ["G17b", "G17c"],
+    "T03": ["T03a"] + [f"G15{c}" for c in "abcde"] + ["G17b", "G17c", "G24a", "G24b", "M26"],
     "T05": ["G16a", "G16b", "G16c", "G12d"],
     "D03": ["D03a", "D03b"],
     "H01": ["H01a", "H01b", "H01c", "H01d", "H01e"],
@@ -187,7 +187,8 @@ SUITE_MAP: dict[str, list[str]] = {
     #
     # Deliberately NOT mapped to M09: that needs two threads running the same old block and a
     # controller quiescing between them, which this backend cannot do yet.
-    "M07": ["M07", "G08a", "G08b", "G08c", "G09a", "G09b", "G09c", "G09d", "G10a", "G10b", "G10c", "G10d"],
+    "M07": ["M07", "G08a", "G08b", "G08c", "G09a", "G09b", "G09c", "G09d", "G10a", "G10b", "G10c", "G10d", "G23a", "G23b", "G23c"],
+    "M09": ["G20a", "G20b", "G21a", "G22a"],
 }
 
 # Passing these subchecks is useful evidence, but does not meet the full spec criterion.
@@ -197,6 +198,7 @@ INCOMPLETE_COVERAGE = {
     "D05": "illegal instructions and the complete unregistered trap set are not exercised",
     "H01": "hand-built host frames do not verify a real guest HLE call and callee-saved state",
     "H04": "real syscall rejection and buffer length/lifetime through a guest HLE gate remain untested",
+    "M09": "G21/G22 are serial fresh-thread smoke tests; persistent dual-owner epochs and APK remain pending",
     "M05": "API permission refusals do not exercise actual guest memory faults",
     "M10": "alias registration does not verify two mapped aliases and both translations",
     "M12": "observer arithmetic alone does not verify combined code invalidation and GPU dirty tracking",
@@ -220,16 +222,16 @@ LINE = re.compile(r"^\[(\S+)\s*\]\s+(.*?)\s+(PASS|FAIL|SKIP)(?:\s+--\s+(.*))?$")
 # Prefix-matched against the sub-case ids in SUITE_MAP.
 SUITE_OWNERSHIP: dict[str, tuple[str, ...]] = {
     "api_contract_tests": ("M01", "M02", "M03", "M04", "M05", "M07", "M10", "M12", "M13",
-                           "M14", "T03", "D03", "L01", "M08"),
+                           "M14", "T03", "D03", "L01", "M08", "M21", "M22", "M23", "M24", "M25", "M26"),
     # Same suite, cross-compiled and run on the device. Owns the same sub-cases: if it crashes
     # there, those cases are tainted exactly as they would be on the host.
     "guest_cpu_contract_tests": ("M01", "M02", "M03", "M04", "M05", "M07", "M10", "M12", "M13",
-                                 "M14", "T03", "D03", "L01", "M08"),
+                                 "M14", "T03", "D03", "L01", "M08", "M21", "M22", "M23", "M24", "M25", "M26"),
     "hle_abi_tests": ("H01", "H04"),
     "host_page_size_probe": ("P01", "P02", "P03"),
     "fexcore_bionic_smoke": ("F01", "F02", "F03", "F04", "F05"),
     "guest_execution_tests": ("G01", "G02", "G03", "G04", "G05", "G06", "G07", "G08", "G09", "G10",
-                              "G11", "G12", "G13", "G14", "G15", "G16", "G17"),
+                              "G11", "G12", "G13", "G14", "G15", "G16", "G17", "G20", "G21", "G22", "G23", "G24"),
 }
 
 

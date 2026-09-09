@@ -1222,9 +1222,7 @@ void TestCoordinatedPublication(Harness &h) {
     // cleanly rather than wedging the context.
     ra = a.Run();
     rb = b.Run();
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    const bool progressed_after =
-        Progress(pa) > before_a && Progress(pb) > before_b;
+    const bool progressed_after = WaitProgress(pa, before_a) && WaitProgress(pb, before_b);
     Check("G20b", "both owners resume and progress after quiesce", progressed_after);
 }
 
@@ -1250,13 +1248,8 @@ bool PublishImageUnderToken(Harness &h, const Fixtures::Fixture &fixture,
     return true;
 }
 
-// --- R2-M01: 100 coordinated publish epochs, two owners run the new version --------------------
-//
-// Each epoch the coordinator takes a context quiesce and publishes a constant fixture (A or B) at
-// the code base; after the token drops, two fresh guest runs -- two distinct owners -- return
-// through the gate carrying the new constant. Running-owner stop itself is G20; this test proves
-// the stop/publish/discard/commit path reproduces across 100 epochs and that both owners always
-// observe the just-published version rather than a stale translation.
+// Serial fresh-thread publication smoke. This is auxiliary to R2-M01 only: it does not
+// retain two native owners or warmed guest handles across the 100 iterations.
 void TestCoordinatedVersionSwitch(Harness &h) {
     const auto *a_fixture = FindFixture("constant_a");
     const auto *b_fixture = FindFixture("constant_b");
@@ -1317,17 +1310,17 @@ void TestCoordinatedVersionSwitch(Harness &h) {
                          (w ? pub_error : Describe(w.GetError()));
                 break;
             }
-        }
-        auto rx = h.space->Protect(GuestRange{GuestAddress{h.code_base}, kMappingSize},
-                                   GuestPermission::Read | GuestPermission::Execute);
-        if (!rx) {
-            all_new = false;
-            detail = "epoch " + std::to_string(epoch) + ": Protect(RX): " + Describe(rx.GetError());
-            break;
+            auto rx = h.space->ReprotectUnderToken(token.Value(),
+                GuestRange{GuestAddress{h.code_base}, kMappingSize},
+                GuestPermission::Read | GuestPermission::Execute);
+            if (!rx) {
+                all_new = false;
+                detail = "Reprotect(RX): " + Describe(rx.GetError());
+                break;
+            }
         }
 
-        // Two distinct owners both execute the new code. A stale translation of the previous
-        // fixture would give the wrong constant on one or both runs.
+        // Two fresh guest handles execute serially on this same host thread.
         auto ra_a = run_constant(200 + epoch * 2, 0);
         auto ra_b = run_constant(201 + epoch * 2, 8192);
         if (!ra_a || !ra_b || *ra_a != expected || *ra_b != expected) {
@@ -1339,15 +1332,12 @@ void TestCoordinatedVersionSwitch(Harness &h) {
         }
     }
 
-    Check("G21a", "100 coordinated publish epochs: both owners run the new constant", all_new,
+    Check("G21a", "100 serialized fresh-thread publication smoke iterations", all_new,
           detail);
 }
 
-// --- R2-M02: token-scoped unmap/remap of the same VA with new backing --------------------------
-//
-// Each iteration the coordinator remaps the code VA (fresh zeroed backing), confirms the old bytes
-// are physically gone, then publishes a new constant and clears the JIT. Two reused owners run the
-// new code. Mapping and code generations must both advance.
+// Serial fresh-thread remap smoke, auxiliary to R2-M03. Publish/Remap also invalidate,
+// so this cannot prove Clear independently; G23 supplies that distinct regression.
 void TestCoordinatedRemap(Harness &h) {
     const auto *a_fixture = FindFixture("constant_a");
     const auto *b_fixture = FindFixture("constant_b");
@@ -1430,12 +1420,13 @@ void TestCoordinatedRemap(Harness &h) {
                 detail = "ClearCodeCache: " + Describe(cleared.GetError());
                 break;
             }
-        }
-        auto rx = h.space->Protect(code, GuestPermission::Read | GuestPermission::Execute);
-        if (!rx) {
-            ok = false;
-            detail = "Protect(RX): " + Describe(rx.GetError());
-            break;
+            auto rx = h.space->ReprotectUnderToken(token.Value(), code,
+                GuestPermission::Read | GuestPermission::Execute);
+            if (!rx) {
+                ok = false;
+                detail = "Reprotect(RX): " + Describe(rx.GetError());
+                break;
+            }
         }
 
         const std::uint64_t mapping_after = h.space->MappingGeneration();
@@ -1459,7 +1450,7 @@ void TestCoordinatedRemap(Harness &h) {
         }
     }
 
-    Check("G22a", "100 token remap epochs: fresh backing, old bytes gone, new code runs", ok,
+    Check("G22a", "100 serialized fresh-thread remap smoke iterations", ok,
           detail);
 }
 
@@ -1469,6 +1460,132 @@ void HoldOwnerSignal(int) {
     while (!hold_release.load(std::memory_order_acquire)) {
     }
 }
+// Regression for the reviewed ClearCodeCache path: keep the SAME warmed native thread,
+// write B while its mapping is RW, and do not use PublishCode/Remap to invalidate on its behalf.
+void TestFullCacheRetirement(Harness& h) {
+    std::string error;
+    if (!LoadFixture(h, *FindFixture("constant_a"), error)) {
+        Check("G23setup", "load constant A", false, error); return;
+    }
+    ThreadInit init{};
+    init.entry_rip = {h.code_base}; init.initial_rsp = {h.stack_top};
+    auto thread = h.context->CreateThread(init);
+    if (!thread) { Check("G23setup", "create persistent thread", false); return; }
+    auto first = h.context->Run(thread.Value(), {});
+    bool warm = first && first.Value().snapshot.registers.Get(Gpr::Rax) == 17;
+    {
+        AddressSpaceConfig config{};
+        config.reservation_size = 1ULL << 20;
+        auto other = GuestAddressSpace::Create(config);
+        if (!other) std::_Exit(4);
+        auto foreign = other.Value()->Quiesce(1000);
+        auto refused = h.context->ClearCodeCache(foreign.Value());
+        Check("G23a", "ClearCodeCache refuses another address space's token",
+              !refused && refused.Category() == ErrorCategory::InvalidArgument);
+    }
+    const GuestRange range{{h.code_base}, kMappingSize};
+    bool cleared = false, preserved = false;
+    {
+        auto token = h.context->QuiesceContext(1'000'000'000);
+        if (!token) std::_Exit(4);
+        auto before = h.context->ReadRegisters(thread.Value());
+        auto rx_clear = h.context->ClearCodeCache(token.Value());
+        auto again = h.context->InvalidateCode(token.Value(), range, InvalidationReason::HostWrite);
+        Check("G23b", "RX Clear followed by ordinary invalidation does not deadlock", rx_clear && again);
+        // Warm A again below before the RW test; RX clear alone must preserve guest state.
+        auto after = h.context->ReadRegisters(thread.Value());
+        preserved = before && after && before.Value().stop_epoch == after.Value().stop_epoch &&
+                    before.Value().registers.rip == after.Value().registers.rip &&
+                    before.Value().registers.Get(Gpr::Rax) == after.Value().registers.Get(Gpr::Rax) &&
+                    before.Value().registers.mxcsr == after.Value().registers.mxcsr;
+    }
+    auto restart = [&] {
+        auto snapshot = h.context->ReadRegisters(thread.Value());
+        RegisterPatch patch{}; patch.fields = RegisterValidity::Rip; patch.values.rip = h.code_base;
+        if (!h.context->WriteRegisters(thread.Value(), patch, snapshot.Value().stop_epoch)) std::_Exit(4);
+        return h.context->Run(thread.Value(), {});
+    };
+    auto rewarmed = restart();
+    warm &= rewarmed && rewarmed.Value().snapshot.registers.Get(Gpr::Rax) == 17;
+    {
+        auto token = h.context->QuiesceContext(1'000'000'000);
+        if (!token) std::_Exit(4);
+        if (!h.space->ReprotectUnderToken(token.Value(), range,
+                                           GuestPermission::Read | GuestPermission::Write)) std::_Exit(4);
+        const auto* fixture = FindFixture("constant_b");
+        std::memcpy(reinterpret_cast<void*>(h.code_base), fixture->bytes.data(), fixture->bytes.size());
+        std::memcpy(reinterpret_cast<void*>(h.code_base + fixture->gate_offset), &h.return_gate, 8);
+        cleared = bool(h.context->ClearCodeCache(token.Value()));
+        if (!h.space->ReprotectUnderToken(token.Value(), range,
+                                           GuestPermission::Read | GuestPermission::Execute)) std::_Exit(4);
+    }
+    auto fresh = restart();
+    Check("G23c", "same warmed thread executes B after RW Clear without publication",
+          warm && cleared && preserved && fresh && fresh.Value().snapshot.registers.Get(Gpr::Rax) == 34);
+    (void)h.context->DestroyThread(thread.Value());
+}
+
+void TestCoordinatorRecovery(Harness& h) {
+    // Cancel both before and after the coordinator's own request. Hold one owner in a signal
+    // handler, using an observed handshake (no settle sleep), so timeout is deterministic.
+    for (int ordering = 0; ordering < 2; ++ordering) {
+        if (!LoadProgress(h)) return;
+        const auto progress = PrepareProgress(h), second_progress = PrepareProgress(h, 1);
+        TestOwner owner(h, progress), second(h, second_progress, 4096);
+        auto run = owner.Run(), second_run = second.Run();
+        if (!WaitProgress(progress, 0) || !WaitProgress(second_progress, 0)) std::_Exit(4);
+        struct sigaction action{}, previous{};
+        action.sa_handler = HoldOwnerSignal; action.sa_flags = SA_ONSTACK;
+        sigemptyset(&action.sa_mask);
+        if (sigaction(SIGUSR1, &action, &previous)) std::_Exit(4);
+        hold_entered.store(false); hold_release.store(false);
+        ::syscall(SYS_tgkill, ::getpid(), owner.Tid(), SIGUSR1);
+        const auto until = std::chrono::steady_clock::now() + std::chrono::seconds(1);
+        while (!hold_entered.load() && std::chrono::steady_clock::now() < until) std::this_thread::yield();
+        if (!hold_entered.load()) std::_Exit(4);
+        std::optional<InterruptTicket> cancel;
+        if (ordering == 0) cancel = h.context->RequestInterrupt(owner.handle, InterruptReason::Cancel).Value();
+        auto draining = std::async(std::launch::async, [&] { return h.context->QuiesceContext(200'000'000); });
+        while (!h.space->IsQuiescent() && std::chrono::steady_clock::now() < until) std::this_thread::yield();
+        ThreadInit init{}; init.entry_rip = {h.code_base}; init.initial_rsp = {h.stack_top};
+        auto extra = h.context->CreateThread(init);
+        bool closed = !extra && extra.Category() == ErrorCategory::Busy;
+        if (extra) (void)h.context->DestroyThread(extra.Value());
+        if (ordering == 1) cancel = h.context->RequestInterrupt(owner.handle, InterruptReason::Cancel).Value();
+        auto concurrent = h.context->QuiesceContext(1'000'000);
+        closed &= !concurrent && concurrent.Category() == ErrorCategory::Busy;
+        auto early = Await(draining);
+        closed &= !early && early.Category() == ErrorCategory::Timeout && h.space->IsQuiescent() &&
+                  !h.space->AcquireExecutionLease();
+        // Even with one held owner, the other must have received its request.
+        closed &= second_run.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready;
+        hold_release.store(true);
+        auto stopped = Await(run), other_stopped = Await(second_run);
+        sigaction(SIGUSR1, &previous, nullptr);
+        auto retry = h.context->QuiesceContext(1'000'000'000);
+        bool recovered = retry && retry.Value().StoppedThreadCount() == 2;
+        if (!retry) std::_Exit(4);
+        recovered &= !h.context->Resume(owner.handle, cancel->epoch);
+        retry.Value() = QuiescenceToken{};
+        const auto before = Progress(progress);
+        auto forbidden_run = owner.Run();
+        auto cancelled = Await(forbidden_run);
+        auto receipt = h.context->WaitStopped(*cancel, 1'000'000);
+        recovered &= stopped && other_stopped && cancelled && receipt &&
+                     cancelled.Value().primary_reason == StopReason::Cancelled && Progress(progress) == before;
+        recovered &= bool(h.context->Resume(owner.handle, cancel->epoch));
+        auto resumed = owner.Run();
+        recovered &= WaitProgress(progress, before);
+        auto finish = h.context->RequestInterrupt(owner.handle, InterruptReason::Cancel);
+        auto finished = h.context->WaitStopped(finish.Value(), 1'000'000'000);
+        (void)Await(resumed);
+        Check(ordering == 0 ? "G24a" : "G24b",
+              ordering == 0 ? "timeout recovery preserves an earlier Cancel and closes admission" :
+                              "timeout recovery preserves a later Cancel and closes admission",
+              closed && recovered && finished);
+    }
+}
+
 void TestInterruptInterleavings(Harness &h) {
     if (!LoadProgress(h))
         return;
@@ -1885,6 +2002,8 @@ int main() {
     TestCoordinatedPublication(harness);
     TestCoordinatedVersionSwitch(harness);
     TestCoordinatedRemap(harness);
+    TestFullCacheRetirement(harness);
+    TestCoordinatorRecovery(harness);
     TestInterruptStress(harness);
     TestInterruptRefusals(harness);
     TestInterruptInterleavings(harness);

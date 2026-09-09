@@ -263,6 +263,7 @@ class OwnerSignalStack final {
 // must be supplied even though guest syscalls are not part of V0.
 class FexSyscallHandler final : public FEXCore::HLE::SyscallHandler {
   public:
+    explicit FexSyscallHandler(GuestAddressSpace& space) : space_(space) {}
     void HandleSyscall(FEXCore::Core::CpuStateFrame *Frame) override {
         // Reaching here means guest code executed a syscall instruction, which
         // V0 has no HLE path for. Record it on the frame's thread so Run can
@@ -282,6 +283,10 @@ class FexSyscallHandler final : public FEXCore::HLE::SyscallHandler {
                 return {.Base = range.base, .Size = range.size, .Writable = range.writable};
             }
         }
+        auto mapping = space_.Query(GuestAddress{Address});
+        if (mapping && HasPermission(mapping.Value().permission, GuestPermission::Execute))
+            return {.Base = mapping.Value().range.base.value, .Size = mapping.Value().range.size,
+                    .Writable = HasPermission(mapping.Value().permission, GuestPermission::Write)};
         // Not a known executable range. Report an empty one rather than
         // claiming the address is valid code.
         return {.Base = Address, .Size = 0, .Writable = false};
@@ -341,7 +346,8 @@ class FexSyscallHandler final : public FEXCore::HLE::SyscallHandler {
     };
 
     mutable std::mutex lock;
-    std::vector<Range> executable_ranges;
+    std::vector<Range> executable_ranges; // Immutable backend return gate only.
+    GuestAddressSpace& space_;
     std::atomic<bool> unexpected_syscall{false};
     std::atomic<std::uint64_t> compile_count{0};
 };
@@ -588,7 +594,7 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         }
 
         signal_delegator_ = std::make_unique<FexSignalDelegator>(return_gate_.Address());
-        syscall_handler_ = std::make_unique<FexSyscallHandler>();
+        syscall_handler_ = std::make_unique<FexSyscallHandler>(space_);
         context_->SetSignalDelegator(signal_delegator_.get());
         context_->SetSyscallHandler(syscall_handler_.get());
 
@@ -644,6 +650,7 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         // is not executing yet, but it allocates backend state against a code image that is
         // mid-change, and admitting it here would let a Run follow immediately. Taking the lease
         // and dropping it at the end of this function is the admission check.
+        std::lock_guard guard{lock_};
         auto admission = space_.AcquireExecutionLease();
         if (!admission) {
             return admission.GetError();
@@ -671,7 +678,6 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         state.gregs[FEXCore::X86State::REG_RSP] = init.initial_rsp.value;
         ApplyPatchToState(init.initial_state, state);
 
-        std::lock_guard guard{lock_};
 
         // Allocate the GDT before the thread so the pointer stored in CPUState
         // stays valid for the thread's whole life.
@@ -716,11 +722,6 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         entry.gdt = std::move(gdt);
         entry.callret = std::move(callret);
 
-        // Register the entry's mapping so the JIT can look it up as executable
-        // code rather than refusing to compile from it.
-        syscall_handler_->RegisterExecutableRange(entry_mapping.Value().range.base.value,
-                                                  entry_mapping.Value().range.size, false);
-
         const auto generation = entry.generation;
         auto [it, inserted] = threads_.emplace(id, std::move(entry));
         const ThreadHandle handle{id, generation};
@@ -743,6 +744,10 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         std::uint64_t invocation{};
         {
             std::lock_guard guard{lock_};
+            // A lease may have been acquired just before BeginDrain. Do not enter after
+            // the coordinator's owner snapshot; the lease will drain on this refusal.
+            if (space_.IsQuiescent())
+                return BackendError(ErrorCategory::Busy, "Run", "coordinated drain is active");
             auto *entry = FindOwnedLocked(thread);
             if (!entry)
                 return OwnershipError(thread, "Run");
@@ -873,6 +878,8 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
 
     [[nodiscard]] Result<void> DestroyThread(ThreadHandle thread) override {
         std::lock_guard guard{lock_};
+        if (space_.IsQuiescent())
+            return BackendError(ErrorCategory::Busy, "DestroyThread", "coordinated drain is active");
         auto *entry = FindOwnedLocked(thread);
         if (entry == nullptr) {
             return OwnershipError(thread, "DestroyThread");
@@ -898,89 +905,88 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
     [[nodiscard]] std::uint64_t ContextId() const noexcept override { return context_id_; }
 
     [[nodiscard]] Result<QuiescenceToken> QuiesceContext(std::uint64_t timeout_ns) override {
-        // Snapshot the live owners under the lock, then pause each running one outside the lock
-        // (RequestInterrupt/WaitStopped take it briefly). A pause makes that owner's Run return,
-        // which releases its execution lease; once every owner has drained the space grants a
-        // token. New Run/CreateThread are refused for the whole transaction by the space's lease
-        // gate (active_quiescence), which clears when the token is released.
-        std::vector<std::pair<std::uint64_t, std::uint64_t>> live;  // (id, generation)
+        std::unique_lock coordinator{coordinator_lock_, std::try_to_lock};
+        if (!coordinator.owns_lock())
+            return BackendError(ErrorCategory::Busy, "QuiesceContext", "another coordinator is active");
+        const auto budget = std::min<std::uint64_t>(timeout_ns ? timeout_ns : 1'000'000'000,
+                                                   60'000'000'000);
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::nanoseconds(budget);
+        auto remaining = [&]() -> std::uint64_t {
+            const auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
+                deadline - std::chrono::steady_clock::now()).count();
+            return ns > 0 ? ns : 0;
+        };
+        std::size_t stopped_count{};
         {
             std::lock_guard guard{lock_};
-            for (const auto& [id, entry] : threads_) {
-                live.emplace_back(id, entry.generation);
+            if (!drain_) {
+                auto admission = space_.BeginDrain();
+                if (!admission) return admission.GetError();
+                drain_.emplace(std::move(admission).Value());
+            }
+            stopped_count = threads_.size();
+            // Issue ALL stop requests before waiting. A retry keeps its original tickets.
+            for (auto& [id, entry] : threads_) {
+                if (!entry.running) continue;
+                const bool requested = std::any_of(drain_tickets_.begin(), drain_tickets_.end(),
+                    [&](const auto& t) { return t.thread_id == id; });
+                if (requested) continue;
+                auto ticket = RequestInterruptLocked({id, entry.generation}, InterruptReason::Pause);
+                if (!ticket) return ticket.GetError();
+                drain_tickets_.push_back(ticket.Value());
             }
         }
-
-        for (const auto& [id, generation] : live) {
-            bool running = false;
-            {
-                std::lock_guard guard{lock_};
-                auto it = threads_.find(id);
-                running = it != threads_.end() && it->second.generation == generation &&
-                          it->second.running;
-            }
-            if (!running) {
-                continue;  // Stopped or destroyed: no lease to drain.
-            }
-            auto ticket = RequestInterrupt(ThreadHandle{id, generation}, InterruptReason::Pause);
-            if (!ticket) {
-                return ticket.GetError();
-            }
-            auto receipt = WaitStopped(ticket.Value(), timeout_ns);
-            if (!receipt) {
-                // Do not claim a quiescence. The owner whose ack never arrived is left for the
-                // caller; admission stays closed (no token was taken).
-                return receipt.GetError();
-            }
-            // This pause belongs to the transaction, not the user. Consume it now so the owner's
-            // next Run (after the token is released) executes fresh rather than immediately
-            // returning paused again -- the coordinator resumes owners itself on commit.
-            std::lock_guard state_guard{lock_};
-            auto it = threads_.find(id);
-            if (it != threads_.end() && it->second.generation == generation) {
-                it->second.interrupt->pending = 0;
-            }
+        for (const auto& ticket : drain_tickets_) {
+            const auto left = remaining();
+            if (!left)
+                return BackendError(ErrorCategory::Timeout, "QuiesceContext", "drain deadline expired; retry to recover");
+            if (auto receipt = WaitStopped(ticket, left); !receipt) return receipt.GetError();
         }
-
-        // Every owner is stopped. Take the memory-side token with drain: it closes admission and
-        // waits for leases still in Run's tail to release, then refuses every new Run/CreateThread
-        // while the token lives.
-        return space_.Quiesce(timeout_ns, /*wait_for_leases=*/true);
+        auto token = space_.FinishDrain(*drain_, remaining(), stopped_count);
+        if (!token) return token.GetError(); // Retain admission on every failure.
+        {
+            std::lock_guard guard{lock_};
+            for (const auto& ticket : drain_tickets_) {
+                auto* entry = Find({ticket.thread_id, ticket.thread_generation});
+                if (!entry) continue;
+                auto& state = *entry->interrupt;
+                state.requests.erase(ticket.epoch); // Consume only our own Pause.
+                state.pending = 0;
+                for (const auto& [epoch, reason] : state.requests)
+                    state.pending |= 1u << static_cast<std::uint32_t>(reason);
+                // An internal ticket may be newer than a user's Cancel. Retiring it must
+                // leave that user's latest ticket resumable, using the same frozen snapshot.
+                state.request_epoch = state.requests.empty() ? 0 : state.requests.rbegin()->first;
+                state.acked_epoch = state.request_epoch;
+                if (state.requests.empty()) state.receipt.reset();
+                else PublishReceiptLocked({ticket.thread_id, ticket.thread_generation}, *entry);
+            }
+            drain_tickets_.clear();
+            drain_.reset(); // Reservation was moved into the successful token.
+        }
+        return token;
     }
 
     [[nodiscard]] Result<void> ClearCodeCache(const QuiescenceToken& token) override {
-        // Discard every translation the backend holds for this context, without changing guest
-        // state. The token proves no owner is executing, so removing a block cannot be a
-        // use-after-free.
-        if (!token.IsValid()) {
-            return BackendError(ErrorCategory::InvalidArgument, "ClearCodeCache",
-                               "a valid QuiescenceToken is required");
-        }
-        std::lock_guard guard{lock_};
-        if (!context_) {
-            return Result<void>{};
-        }
-        // Invalidate each mapped guest range rather than the whole 0..policy-limit span: clearing a
-        // range that extends far above the actual reservation can walk into regions FEX uses for its
-        // own state and wedge recompilation. Only executable mappings can hold translations, so
-        // clearing those covers every reachable block while leaving data/stack ranges untouched.
-        for (const auto& mapping : space_.Mappings()) {
-            if (!HasPermission(mapping.permission, GuestPermission::Execute)) {
-                continue;
-            }
-            context_->InvalidateCodeBuffersCodeRange(mapping.range.base.value,
-                                                     mapping.range.size);
-        }
-        return Result<void>{};
+        // Route through the memory transaction guard (identity, epoch, callback exclusion and
+        // poison recovery). FullFlush covers historical RW/unmapped ranges and the host gate.
+        return space_.InvalidateCode(token, {space_.ReservationBase(), space_.ReservationSize()},
+                                     InvalidationReason::FullFlush);
     }
 
     [[nodiscard]] Result<InterruptTicket> RequestInterrupt(ThreadHandle thread,
                                                            InterruptReason reason) override {
+        std::lock_guard guard{lock_};
+        return RequestInterruptLocked(thread, reason);
+    }
+
+  private:
+    [[nodiscard]] Result<InterruptTicket> RequestInterruptLocked(ThreadHandle thread,
+                                                                InterruptReason reason) {
         if (reason != InterruptReason::Pause && reason != InterruptReason::Cancel &&
             reason != InterruptReason::Shutdown)
             return BackendError(ErrorCategory::InvalidArgument, "RequestInterrupt",
                                 "unknown reason");
-        std::lock_guard guard{lock_};
         auto *entry = Find(thread);
         if (!entry)
             return BackendError(ErrorCategory::InvalidHandle, "RequestInterrupt", "stale handle");
@@ -1000,6 +1006,7 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         return InterruptTicket{context_id_, thread.id, thread.generation, epoch, reason};
     }
 
+  public:
     [[nodiscard]] Result<StopReceipt> WaitStopped(const InterruptTicket &ticket,
                                                   std::uint64_t timeout_ns) override {
         if (!ticket.IsValid() || ticket.context_id != context_id_)
@@ -1057,18 +1064,7 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
 
     [[nodiscard]] Result<void> InvalidateCode(const QuiescenceToken &token, GuestRange range,
                                               InvalidationReason reason) override {
-        if (!token.IsValid()) {
-            return BackendError(ErrorCategory::WrongState, "InvalidateCode",
-                                "a valid quiescence token is required to discard translated code");
-        }
-        // Identity, not just validity. A token from another address space is structurally valid
-        // and would otherwise authorise discarding translations for a space it says nothing about.
-        if (!token.IsFrom(&space_)) {
-            return BackendError(ErrorCategory::InvalidArgument, "InvalidateCode",
-                                "the token belongs to a different address space, or its space has "
-                                "been destroyed");
-        }
-        return DiscardTranslationsImpl(range, reason, "InvalidateCode");
+        return space_.InvalidateCode(token, range, reason);
     }
 
     // --- CodeInvalidationSink ---------------------------------------------------
@@ -1088,7 +1084,6 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
   private:
     [[nodiscard]] Status DiscardTranslationsImpl(GuestRange range, InvalidationReason reason,
                                                  const char *operation) {
-        (void)reason;
         std::lock_guard guard{lock_};
         for (auto &[id, entry] : threads_) {
             if (entry.running) {
@@ -1102,20 +1097,20 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
             return checked.GetError();
         }
 
-        // CodeBuffer/L3 mappings survive the last guest thread. Clearing only
-        // threads therefore did nothing between destroy/recreate cycles: the
-        // next thread reused the previous fixture's translation at the same VA.
-        // Match FEX's frontend protocol: invalidate shared translations even
-        // with zero threads, then invalidate each live thread's local caches.
-        // Both operations require FEX's exclusive code-invalidation lock.
+        // FEX requires this exclusive lock for BOTH shared and per-owner cache retirement.
+        // InvalidateRange walks guest CodePages keys, not host memory; the entire owned guest
+        // reservation also covers mappings removed or temporarily made non-executable.
         std::scoped_lock code_guard{context_->GetCodeInvalidationMutex()};
-        context_->InvalidateCodeBuffersCodeRange(range.base.value, range.size);
-        for (auto &[id, entry] : threads_) {
-            if (entry.native != nullptr) {
-                context_->InvalidateThreadCachedCodeRange(entry.native, range.base.value,
-                                                          range.size);
-            }
-        }
+        auto discard = [&](GuestRange affected) {
+            context_->InvalidateCodeBuffersCodeRange(affected.base.value, affected.size);
+            for (auto& [id, entry] : threads_)
+                if (entry.native)
+                    context_->InvalidateThreadCachedCodeRange(entry.native, affected.base.value,
+                                                              affected.size);
+        };
+        discard(range);
+        if (reason == InvalidationReason::FullFlush)
+            discard({GuestAddress{return_gate_.Address()}, return_gate_.Size()});
         return Result<void>{};
     }
 
@@ -1432,6 +1427,9 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
     mutable std::mutex lock_;
     std::condition_variable stopped_changed_;
     std::unordered_map<std::uint64_t, ThreadEntry> threads_;
+    std::mutex coordinator_lock_;
+    std::optional<QuiescenceDrain> drain_;
+    std::vector<InterruptTicket> drain_tickets_;
     std::uint64_t next_thread_id_{1};
 
     fextl::unique_ptr<FEXCore::Context::Context> context_;

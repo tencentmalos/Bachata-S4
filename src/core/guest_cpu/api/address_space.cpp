@@ -633,6 +633,12 @@ Result<PinnedSpan> GuestAddressSpace::AcquirePinnedSpan(GuestRange range, bool w
     // a range that had already changed. The review recorded that window as part of R4.
     std::lock_guard guard{lock};
 
+    // Remap releases this lock while retiring old translations. Even a read pin must not enter
+    // that interval: it would retain a pointer to the backing that MAP_FIXED is about to replace.
+    if (sink_calls_in_flight != 0 || sink_draining)
+        return MakeError(ErrorCategory::Busy, "GuestAddressSpace::AcquirePinnedSpan",
+                         "publication or remap is in flight or draining");
+
     // A transaction holds quiescence precisely so it can change code or mappings without a writer
     // underneath it. Admitting a new writable pin during one would reopen the window the token is
     // supposed to have closed (2026-09-08 review, R5). Readers are still allowed: the transaction
@@ -662,6 +668,33 @@ bool GuestAddressSpace::AnyPinOverlapsLocked(GuestRange range) const {
 void GuestAddressSpace::ReleasePin(std::uint64_t lease_id) {
     std::lock_guard guard{lock};
     std::erase_if(pins, [&](const Pin& pin) { return pin.lease_id == lease_id; });
+    leases_idle.notify_all();
+}
+
+Result<QuiescenceDrain> GuestAddressSpace::BeginDrain() {
+    std::lock_guard guard{lock};
+    if (active_quiescence || sink_draining || sink_calls_in_flight)
+        return MakeError(ErrorCategory::Busy, "BeginDrain", "another transaction is active");
+    active_quiescence = next_quiescence_epoch++;
+    QuiescenceDrain drain;
+    drain.reservation = QuiescenceToken{liveness, active_quiescence, 0};
+    return drain;
+}
+
+Result<QuiescenceToken> GuestAddressSpace::FinishDrain(QuiescenceDrain& drain,
+                                                       std::uint64_t timeout_ns,
+                                                       std::size_t stopped_threads) {
+    std::unique_lock guard{lock};
+    if (auto status = CheckTokenLocked(drain.reservation, "FinishDrain"); !status)
+        return status.GetError();
+    if (!leases_idle.wait_for(guard, std::chrono::nanoseconds(timeout_ns), [&] {
+            return execution_leases == 0 && pins.empty();
+        }))
+        return MakeError(ErrorCategory::Timeout, "FinishDrain", "owners or HLE pins have not drained");
+    if (sink_draining || sink_calls_in_flight)
+        return MakeError(ErrorCategory::Busy, "FinishDrain", "sink is draining");
+    drain.reservation.stopped_threads = stopped_threads;
+    return std::move(drain.reservation);
 }
 
 Result<QuiescenceToken> GuestAddressSpace::Quiesce(std::uint64_t timeout_ns,
@@ -997,15 +1030,20 @@ Status GuestAddressSpace::PublishCode(const QuiescenceToken& token, GuestRange r
 
 Status GuestAddressSpace::ReprotectUnderToken(const QuiescenceToken& token, GuestRange range,
                                               GuestPermission permission) {
+    if (auto checked = GuestRange::Checked(range.base, range.size); !checked)
+        return checked.GetError();
     if (!IsHostPageAligned(range.base.value) || !IsHostPageAligned(range.size)) {
         return MakeError(ErrorCategory::Unsupported, "GuestAddressSpace::ReprotectUnderToken",
                          "range must be host-page aligned; nothing was modified");
     }
-    std::lock_guard guard{lock};
+    std::unique_lock guard{lock};
     if (auto status = CheckTokenLocked(token, "GuestAddressSpace::ReprotectUnderToken");
         !status) {
         return status;
     }
+    if (sink_draining || sink_calls_in_flight != 0)
+        return MakeError(ErrorCategory::Busy, "ReprotectUnderToken",
+                         "a publication callback is in flight or draining");
     const auto found = std::find_if(mappings.begin(), mappings.end(), [&](const Mapping& m) {
         return m.range.base.value == range.base.value && m.range.size == range.size;
     });
@@ -1037,13 +1075,15 @@ Status GuestAddressSpace::ReprotectUnderToken(const QuiescenceToken& token, Gues
         return error;
     }
     found->permission = permission;
-    ++mapping_generation;
+    found->generation = ++mapping_generation;
     return Ok();
 }
 
 Result<MappingInfo> GuestAddressSpace::RemapUnderToken(const QuiescenceToken& token,
                                                        GuestRange range,
                                                        GuestPermission permission) {
+    if (auto checked = GuestRange::Checked(range.base, range.size); !checked)
+        return checked.GetError();
     if (!IsHostPageAligned(range.base.value) || !IsHostPageAligned(range.size)) {
         return MakeError(ErrorCategory::InvalidArgument,
                          "GuestAddressSpace::RemapUnderToken",
@@ -1054,10 +1094,13 @@ Result<MappingInfo> GuestAddressSpace::RemapUnderToken(const QuiescenceToken& to
         return MakeError(ErrorCategory::InvalidArgument, "GuestAddressSpace::RemapUnderToken",
                          "range is outside this address space's reservation");
     }
-    std::lock_guard guard{lock};
+    std::unique_lock guard{lock};
     if (auto status = CheckTokenLocked(token, "GuestAddressSpace::RemapUnderToken"); !status) {
         return status.GetError();
     }
+    if (sink_draining || sink_calls_in_flight != 0)
+        return MakeError(ErrorCategory::Busy, "RemapUnderToken",
+                         "a publication callback is in flight or draining");
     if (AnyPinOverlapsLocked(range)) {
         return MakeError(ErrorCategory::Busy, "GuestAddressSpace::RemapUnderToken",
                          "a pinned span overlaps this range; release it before remapping");
@@ -1071,20 +1114,40 @@ Result<MappingInfo> GuestAddressSpace::RemapUnderToken(const QuiescenceToken& to
                          "no exact whole mapping at that VA to remap");
     }
 
-    // MAP_FIXED atomically replaces the backing: the kernel unmaps the previous anonymous mapping
-    // and places a fresh zeroed one at the same address, so there is no window in which the address
-    // is unmapped. The backend translations covering it are discarded separately by ClearCodeCache
-    // / the publish sink; we do not update guest GPRs or invocation identity here.
+    if (HasPermission(permission, GuestPermission::Execute) &&
+        std::any_of(poisoned_ranges.begin(), poisoned_ranges.end(),
+                    [&](GuestRange poisoned) { return RangesOverlap(range, poisoned); }))
+        return MakeError(ErrorCategory::WrongState, "RemapUnderToken",
+                         "cannot grant execute over poisoned code");
+
+    // Retire the old backing's shared and per-owner translations before replacing it.
+    // CallSinkUnlocked excludes all other mutations while the context lock is acquired.
+    bool committed = false;
+    auto invalidated = CallSinkUnlocked(guard, range, InvalidationReason::Unmap, committed);
+    auto token_status = CheckTokenLocked(token, "RemapUnderToken");
+    if (!committed || !token_status) {
+        PoisonCodeLocked(range);
+        ++code_generation;
+        return !token_status ? token_status.GetError() : invalidated.GetError();
+    }
+    // No unlocked interval between the successful invalidation and MAP_FIXED.
     void* result = ::mmap(HostPointer(range.base), static_cast<std::size_t>(range.size),
                           ToHostProtection(permission),
                           MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
     if (result == MAP_FAILED) {
         const int saved = errno;
+        // Do not infer that MAP_FIXED failure preserved every old page. Keep execution closed
+        // until a successful remap/invalidation repairs this range; fault injection is required
+        // before claiming stronger rollback semantics.
+        PoisonCodeLocked(range);
+        ++code_generation;
         auto error = MakeError(CategoriseMapFailure(saved),
-                               "GuestAddressSpace::RemapUnderToken", "remap mmap failed");
+                               "GuestAddressSpace::RemapUnderToken", "remap mmap failed; backing requires recovery");
         error.system_error = saved;
         return error;
     }
+    ++code_generation;
+    ClearPoisonIfRepairedLocked(range);
     ++mapping_generation;
     found->permission = permission;
     found->generation = mapping_generation;

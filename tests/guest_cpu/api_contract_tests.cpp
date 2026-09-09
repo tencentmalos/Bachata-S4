@@ -17,6 +17,7 @@
 #include <atomic>
 #include <cstdio>
 #include <cstring>
+#include <future>
 #include <string>
 #include <chrono>
 #include <thread>
@@ -1055,6 +1056,109 @@ void TestTransactions() {
         Check(!committed, "the unregistered callback must not commit");
         Check(bool(space->SetCodeInvalidationSink(&replacement)), "registration resumes after drain");
         space->ClearCodeInvalidationSink(&replacement);
+    });
+
+    RunCase("M24", "same-token mutators cannot replace bytes during a sink callback", [] {
+        struct Sink final : CodeInvalidationSink {
+            std::promise<void> entered, release;
+            std::shared_future<void> released{release.get_future().share()};
+            std::string_view Name() const override { return "m24"; }
+            Status DiscardTranslations(GuestRange, InvalidationReason) override {
+                entered.set_value();
+                released.wait();
+                return Ok();
+            }
+        } sink;
+        auto space = MakeSpace();
+        GuestRange range{space->ReservationBase(), HostPageSize()};
+        Check(bool(space->Map(range, GuestPermission::Read | GuestPermission::Write)), "map");
+        Check(bool(space->SetCodeInvalidationSink(&sink)), "sink");
+        auto q = space->Quiesce(1000);
+        if (!q) { Check(false, "quiesce"); return; }
+        std::vector<std::byte> code(range.size, std::byte{0x5A});
+        auto publishing = std::async(std::launch::async, [&] {
+            return space->PublishCode(q.Value(), range, code);
+        });
+        const bool entered = sink.entered.get_future().wait_for(std::chrono::seconds(2)) ==
+                             std::future_status::ready;
+        if (entered) {
+            auto remap = space->RemapUnderToken(q.Value(), range,
+                                                GuestPermission::Read | GuestPermission::Write);
+            auto protect = space->ReprotectUnderToken(q.Value(), range,
+                                                      GuestPermission::Read | GuestPermission::Execute);
+            Check(!remap && remap.Category() == ErrorCategory::Busy, "remap must be Busy");
+            Check(!protect && protect.Category() == ErrorCategory::Busy, "reprotect must be Busy");
+            auto reader = space->AcquirePinnedSpan(range, false);
+            Check(!reader && reader.Category() == ErrorCategory::Busy,
+                  "a read pin must not enter a callback that may retire its backing");
+        }
+        sink.release.set_value();
+        Check(entered && bool(publishing.get()), "publication must complete");
+        std::byte byte{};
+        Check(bool(space->Read(range.base, {&byte, 1})) && byte == std::byte{0x5A},
+              "successful publication must preserve its bytes");
+        space->ClearCodeInvalidationSink(&sink);
+    });
+
+    RunCase("M25", "remap sink failure preserves backing and blocks execution until repair", [] {
+        struct Sink final : CodeInvalidationSink {
+            bool fail{true};
+            std::string_view Name() const override { return "m25"; }
+            Status DiscardTranslations(GuestRange, InvalidationReason) override {
+                return fail ? MakeError(ErrorCategory::BackendFailure, "m25", "injected") : Ok();
+            }
+        } sink;
+        auto space = MakeSpace();
+        GuestRange range{space->ReservationBase(), HostPageSize()};
+        Check(bool(space->Map(range, GuestPermission::Read | GuestPermission::Write)), "map");
+        const std::byte marker{0x5A};
+        Check(bool(space->Write(range.base, {&marker, 1})), "marker");
+        Check(bool(space->SetCodeInvalidationSink(&sink)), "sink");
+        {
+            auto q = space->Quiesce(1000);
+            if (!q) { Check(false, "quiesce"); return; }
+            auto remap = space->RemapUnderToken(q.Value(), range,
+                                                GuestPermission::Read | GuestPermission::Write);
+            std::byte byte{};
+            Check(!remap && space->HasPoisonedCode(), "failed invalidation must poison");
+            Check(bool(space->Read(range.base, {&byte, 1})) && byte == marker,
+                  "failure before mmap must preserve old backing");
+            Check(!space->RemapUnderToken(q.Value(), range,
+                                           GuestPermission::Read | GuestPermission::Execute),
+                  "remap RX cannot bypass poison");
+        }
+        Check(!space->AcquireExecutionLease(), "failed transaction cannot reopen execution");
+        sink.fail = false;
+        {
+            auto q = space->Quiesce(1000);
+            if (!q) { Check(false, "repair quiesce"); return; }
+            Check(bool(space->RemapUnderToken(q.Value(), range,
+                                               GuestPermission::Read | GuestPermission::Write)), "repair");
+        }
+        Check(bool(space->AcquireExecutionLease()), "successful retirement repairs poison");
+        space->ClearCodeInvalidationSink(&sink);
+    });
+
+    RunCase("M26", "failed drain retains admission and can finish after leases and pins release", [] {
+        auto space = MakeSpace();
+        GuestRange range{space->ReservationBase(), HostPageSize()};
+        Check(bool(space->Map(range, GuestPermission::Read | GuestPermission::Write)), "map");
+        auto pin = space->AcquirePinnedSpan(range, true);
+        auto lease = space->AcquireExecutionLease();
+        auto drain = space->BeginDrain();
+        if (!drain || !pin || !lease) { Check(false, "setup"); return; }
+        Check(!space->BeginDrain(), "second coordinator refused");
+        auto early = space->FinishDrain(drain.Value(), 1'000'000, 2);
+        Check(!early && early.Category() == ErrorCategory::Timeout, "bounded drain timeout");
+        Check(space->IsQuiescent() && !space->AcquireExecutionLease(), "timeout stays closed");
+        Check(!space->AcquirePinnedSpan(range, true), "no new writer during drain");
+        lease.Value() = ExecutionLease{};
+        pin.Value().Release();
+        auto token = space->FinishDrain(drain.Value(), 1'000'000, 2);
+        Check(token && token.Value().StoppedThreadCount() == 2, "retry completes with owner count");
+        Check(!space->FinishDrain(drain.Value(), 0, 0), "consumed drain cannot mint second token");
+        if (token) token.Value() = QuiescenceToken{};
+        Check(bool(space->AcquireExecutionLease()), "token release reopens admission");
     });
 
     RunCase("M21", "token-scoped remap and reprotect need a valid quiescence token", [] {

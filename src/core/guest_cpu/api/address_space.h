@@ -105,6 +105,18 @@ private:
     GuestAddressSpace* space{};
 };
 
+// Admission reservation, deliberately not a publication token. A failed drain stays closed
+// while this handle is retained; retry FinishDrain, or destroy the stopped context to abandon it.
+class QuiescenceDrain final {
+public:
+    QuiescenceDrain() = default;
+    QuiescenceDrain(QuiescenceDrain&&) noexcept = default;
+    QuiescenceDrain& operator=(QuiescenceDrain&&) noexcept = default;
+private:
+    friend class GuestAddressSpace;
+    QuiescenceToken reservation;
+};
+
 struct AddressSpaceConfig final {
     // Total guest reservation. Rounded up to a host page.
     std::uint64_t reservation_size{std::uint64_t{1} << 32};
@@ -177,8 +189,8 @@ public:
     // --- transactions ------------------------------------------------------
 
     // Reserves an already-idle address space for publication. This V0 subset
-    // does not interrupt guest owners or wait for HLE pins; a refusal leaves
-    // state unchanged. Running-thread stop/acknowledgement is still pending.
+    // does not interrupt guest owners or wait for HLE pins; a refusal leaves state unchanged.
+    // CpuContext uses the separate BeginDrain/FinishDrain protocol to stop running owners.
     //
     // Refuses with Busy while any ExecutionLease is outstanding, and blocks new
     // leases for as long as the returned token lives. That admission gate is
@@ -187,6 +199,13 @@ public:
     // (2026-09-08 poison review, R3).
     [[nodiscard]] Result<QuiescenceToken> Quiesce(std::uint64_t timeout_ns,
                                                   bool wait_for_leases = false);
+
+    // Begin closes execution/writer admission before the context snapshots owners. Finish alone
+    // can mint a publication token, after leases and pins have drained. Timeout retains the drain.
+    [[nodiscard]] Result<QuiescenceDrain> BeginDrain();
+    [[nodiscard]] Result<QuiescenceToken> FinishDrain(QuiescenceDrain& drain,
+                                                    std::uint64_t timeout_ns,
+                                                    std::size_t stopped_threads);
 
     // Taken by the backend around Run/Step. Refused while a transaction holds
     // quiescence, or while code is poisoned.
@@ -214,9 +233,10 @@ public:
     // Replace the backing at `range` with a fresh anonymous mapping while a transaction holds the
     // space. This is the token-scoped unmap/remap: ordinary Map/Unmap refuse to run during
     // quiescence, but a coordinated remap of the same VA with all owners stopped is exactly what
-    // R2-M02 exercises. The old mapping must exist and be an exact whole-mapping match; it is
-    // unmapped and a new zeroed backing is mapped at the same address in one step, and any stale
-    // translation covering it is left to the backend's cache clear.
+    // R2-M03 exercises. The old mapping must be an exact whole-mapping match. Its translations
+    // are retired through the sink before MAP_FIXED replaces it with zeroed memory. Sink failure
+    // leaves the old backing poisoned; mmap failure also blocks execution pending recovery. Execute requests
+    // over existing poison are refused; a non-executable remap can repair it after retirement.
     [[nodiscard]] Result<MappingInfo> RemapUnderToken(const QuiescenceToken& token,
                                                       GuestRange range,
                                                       GuestPermission permission);

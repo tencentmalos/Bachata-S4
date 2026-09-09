@@ -66,6 +66,20 @@ class RunnerTests(unittest.TestCase):
         _, cases = self.run_report(host=lambda _: SuiteRun(cases={"M01a": ("FAIL", "bad")}, exit_code=0))
         self.assertEqual(cases["M01"]["status"], "FAIL")
 
+    def test_g2_owned_failures_and_incomplete_smoke(self):
+        for suite, expected in (("guest_execution_tests", ("G23a", "G23b", "G23c", "G24a", "G24b", "G21a", "G22a")),
+                                ("guest_cpu_contract_tests", ("M21", "M22", "M23", "M24", "M25", "M26"))):
+            self.assertTrue(set(expected) <= NS["sub_cases_owned_by"](suite))
+        checks = {s: ("PASS", "") for s in NS["SUITE_MAP"]["M09"]}
+        _, cases = self.run_report(device=lambda *a: SuiteRun(cases=checks, exit_code=0))
+        self.assertEqual(cases["M09"]["status"], "NOT_RUN")
+        self.assertEqual(cases["M09"]["auxiliary_status"], "PASS")
+        for case, sub in (("M07", "G23c"), ("T03", "G24a"), ("M13", "M24")):
+            _, cases = self.run_report(device=lambda *a: SuiteRun(cases={sub: ("FAIL", "injected")}, exit_code=0))
+            self.assertEqual(cases[case]["status"], "FAIL")
+        _, cases = self.run_report(device=lambda *a: SuiteRun(timed_out=True))
+        self.assertEqual(cases["M09"]["status"], "FAIL")
+
     def test_partial_semantic_coverage_is_auxiliary(self):
         checks = {s: ("PASS", "") for s in NS["SUITE_MAP"]["C02"]}
         _, cases = self.run_report(device=lambda *a: SuiteRun(cases=checks, exit_code=0))
