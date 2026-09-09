@@ -949,19 +949,27 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
     }
 
     [[nodiscard]] Result<void> ClearCodeCache(const QuiescenceToken& token) override {
-        // Discard the whole JIT. This is the conservative first implementation: clear shared and
-        // per-thread caches across all threads without changing guest state.
+        // Discard every translation the backend holds for this context, without changing guest
+        // state. The token proves no owner is executing, so removing a block cannot be a
+        // use-after-free.
         if (!token.IsValid()) {
             return BackendError(ErrorCategory::InvalidArgument, "ClearCodeCache",
                                "a valid QuiescenceToken is required");
         }
         std::lock_guard guard{lock_};
-        if (context_) {
-            // Invalidate a range covering the entire guest address policy space: no translation is
-            // left reachable. The token proves no owner is executing, so this cannot remove a block
-            // in use.
-            constexpr std::uint64_t kGuestAll = kGuestAddressPolicyLimit;
-            context_->InvalidateCodeBuffersCodeRange(0, kGuestAll);
+        if (!context_) {
+            return Result<void>{};
+        }
+        // Invalidate each mapped guest range rather than the whole 0..policy-limit span: clearing a
+        // range that extends far above the actual reservation can walk into regions FEX uses for its
+        // own state and wedge recompilation. Only executable mappings can hold translations, so
+        // clearing those covers every reachable block while leaving data/stack ranges untouched.
+        for (const auto& mapping : space_.Mappings()) {
+            if (!HasPermission(mapping.permission, GuestPermission::Execute)) {
+                continue;
+            }
+            context_->InvalidateCodeBuffersCodeRange(mapping.range.base.value,
+                                                     mapping.range.size);
         }
         return Result<void>{};
     }

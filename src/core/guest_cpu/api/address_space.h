@@ -211,6 +211,16 @@ public:
     [[nodiscard]] Status ReprotectUnderToken(const QuiescenceToken& token, GuestRange range,
                                              GuestPermission permission);
 
+    // Replace the backing at `range` with a fresh anonymous mapping while a transaction holds the
+    // space. This is the token-scoped unmap/remap: ordinary Map/Unmap refuse to run during
+    // quiescence, but a coordinated remap of the same VA with all owners stopped is exactly what
+    // R2-M02 exercises. The old mapping must exist and be an exact whole-mapping match; it is
+    // unmapped and a new zeroed backing is mapped at the same address in one step, and any stale
+    // translation covering it is left to the backend's cache clear.
+    [[nodiscard]] Result<MappingInfo> RemapUnderToken(const QuiescenceToken& token,
+                                                      GuestRange range,
+                                                      GuestPermission permission);
+
     // Registers the backend that owns translated code. One at a time: a second
     // registration is refused rather than silently replacing the first, since
     // that would leave the displaced backend's caches unreachable by any

@@ -1292,7 +1292,7 @@ void TestCoordinatedVersionSwitch(Harness &h) {
 
     bool all_new = true;
     std::string detail;
-    for (int epoch = 0; epoch < 100; ++epoch) {
+    for (int epoch = 0; epoch < 100; ++epoch) {  // G22
         const bool use_b = (epoch % 2) == 0;
         const std::uint64_t expected = use_b ? 34u : 17u;
         const Fixtures::Fixture &fixture = use_b ? *b_fixture : *a_fixture;
@@ -1340,6 +1340,126 @@ void TestCoordinatedVersionSwitch(Harness &h) {
     }
 
     Check("G21a", "100 coordinated publish epochs: both owners run the new constant", all_new,
+          detail);
+}
+
+// --- R2-M02: token-scoped unmap/remap of the same VA with new backing --------------------------
+//
+// Each iteration the coordinator remaps the code VA (fresh zeroed backing), confirms the old bytes
+// are physically gone, then publishes a new constant and clears the JIT. Two reused owners run the
+// new code. Mapping and code generations must both advance.
+void TestCoordinatedRemap(Harness &h) {
+    const auto *a_fixture = FindFixture("constant_a");
+    const auto *b_fixture = FindFixture("constant_b");
+    if (!a_fixture || !b_fixture) {
+        Check("G22", "constant_a/b fixtures present", false);
+        return;
+    }
+    const GuestRange code{GuestAddress{h.code_base}, kMappingSize};
+
+    std::string e;
+    if (!PublishViaPublicApi(h, *a_fixture, e)) {
+        Check("G22", "publish initial constant_a", false, e);
+        return;
+    }
+
+    auto run_constant = [&](std::uint64_t gtid, std::uint64_t stack_delta)
+                            -> std::optional<std::uint64_t> {
+        ThreadInit init{};
+        init.entry_rip = GuestCodeAddress{h.code_base};
+        init.initial_rsp = GuestAddress{h.stack_top - stack_delta};
+        init.guest_tid = gtid;
+        auto created = h.context->CreateThread(init);
+        if (!created)
+            return std::nullopt;
+        auto result = h.context->Run(created.Value(), RunOptions{});
+        std::optional<std::uint64_t> rax;
+        if (result && result.Value().primary_reason == StopReason::Returned)
+            rax = result.Value().snapshot.registers.Get(Gpr::Rax);
+        (void)h.context->DestroyThread(created.Value());
+        return rax;
+    };
+
+    bool ok = true;
+    std::string detail;
+    for (int epoch = 0; epoch < 100; ++epoch) {  // G22
+        const bool use_b = (epoch % 2) == 0;
+        const std::uint64_t expected = use_b ? 34u : 17u;
+        const Fixtures::Fixture &fixture = use_b ? *b_fixture : *a_fixture;
+        const std::uint64_t mapping_before = h.space->MappingGeneration();
+        const std::uint64_t code_before = h.space->CodeGeneration();
+
+        {
+            auto token = h.context->QuiesceContext(1'000'000'000);
+            if (!token) {
+                ok = false;
+                detail = "quiesce: " + Describe(token.GetError());
+                break;
+            }
+            // Fresh backing at the same VA.
+            auto remapped = h.space->RemapUnderToken(
+                token.Value(), code, GuestPermission::Read | GuestPermission::Write);
+            if (!remapped) {
+                ok = false;
+                detail = "remap: " + Describe(remapped.GetError());
+                break;
+            }
+            // The remap zeroes the backing: the previous fixture's first bytes must be gone.
+            {
+                std::byte first = static_cast<std::byte>(0xAB);
+                auto pin = h.space->AcquirePinnedSpan(
+                    GuestRange{GuestAddress{h.code_base}, 1}, /*writable=*/false);
+                if (pin)
+                    first = pin.Value().Bytes()[0];
+                if (first != std::byte{0}) {
+                    ok = false;
+                    detail = "remap did not zero the backing (old bytes survived)";
+                    break;
+                }
+            }
+            // Publish the new bytes over the fresh backing, then clear the whole JIT.
+            std::string pub_error;
+            if (!PublishImageUnderToken(h, fixture, token.Value(), pub_error)) {
+                ok = false;
+                detail = pub_error;
+                break;
+            }
+            auto cleared = h.context->ClearCodeCache(token.Value());
+            if (!cleared) {
+                ok = false;
+                detail = "ClearCodeCache: " + Describe(cleared.GetError());
+                break;
+            }
+        }
+        auto rx = h.space->Protect(code, GuestPermission::Read | GuestPermission::Execute);
+        if (!rx) {
+            ok = false;
+            detail = "Protect(RX): " + Describe(rx.GetError());
+            break;
+        }
+
+        const std::uint64_t mapping_after = h.space->MappingGeneration();
+        const std::uint64_t code_after = h.space->CodeGeneration();
+        if (mapping_after <= mapping_before || code_after <= code_before) {
+            ok = false;
+            detail = "generations did not advance: mapping " + std::to_string(mapping_before) +
+                     "->" + std::to_string(mapping_after) + " code " +
+                     std::to_string(code_before) + "->" + std::to_string(code_after);
+            break;
+        }
+
+        auto ra = run_constant(300 + epoch * 2, 0);
+        auto rb = run_constant(301 + epoch * 2, 8192);
+        if (!ra || !rb || *ra != expected || *rb != expected) {
+            ok = false;
+            detail = "epoch " + std::to_string(epoch) + " expected " + std::to_string(expected) +
+                     " got " + (ra ? std::to_string(*ra) : "none") + "/" +
+                     (rb ? std::to_string(*rb) : "none");
+            break;
+        }
+    }
+
+    Check("G22a", "100 token remap epochs: fresh backing, old bytes gone, new code runs", ok,
           detail);
 }
 
@@ -1764,6 +1884,7 @@ int main() {
     TestTwoOwnerConcurrency(harness);
     TestCoordinatedPublication(harness);
     TestCoordinatedVersionSwitch(harness);
+    TestCoordinatedRemap(harness);
     TestInterruptStress(harness);
     TestInterruptRefusals(harness);
     TestInterruptInterleavings(harness);

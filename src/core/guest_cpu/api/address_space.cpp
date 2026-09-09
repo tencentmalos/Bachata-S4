@@ -1041,6 +1041,62 @@ Status GuestAddressSpace::ReprotectUnderToken(const QuiescenceToken& token, Gues
     return Ok();
 }
 
+Result<MappingInfo> GuestAddressSpace::RemapUnderToken(const QuiescenceToken& token,
+                                                       GuestRange range,
+                                                       GuestPermission permission) {
+    if (!IsHostPageAligned(range.base.value) || !IsHostPageAligned(range.size)) {
+        return MakeError(ErrorCategory::InvalidArgument,
+                         "GuestAddressSpace::RemapUnderToken",
+                         "range must be host-page aligned");
+    }
+    if (range.base.value < reservation_base.value ||
+        range.base.value + range.size > reservation_base.value + reservation_size) {
+        return MakeError(ErrorCategory::InvalidArgument, "GuestAddressSpace::RemapUnderToken",
+                         "range is outside this address space's reservation");
+    }
+    std::lock_guard guard{lock};
+    if (auto status = CheckTokenLocked(token, "GuestAddressSpace::RemapUnderToken"); !status) {
+        return status.GetError();
+    }
+    if (AnyPinOverlapsLocked(range)) {
+        return MakeError(ErrorCategory::Busy, "GuestAddressSpace::RemapUnderToken",
+                         "a pinned span overlaps this range; release it before remapping");
+    }
+    auto found = std::find_if(mappings.begin(), mappings.end(), [&](const Mapping& m) {
+        return m.range.base.value == range.base.value && m.range.size == range.size;
+    });
+    if (found == mappings.end()) {
+        return MakeError(ErrorCategory::InvalidArgument,
+                         "GuestAddressSpace::RemapUnderToken",
+                         "no exact whole mapping at that VA to remap");
+    }
+
+    // MAP_FIXED atomically replaces the backing: the kernel unmaps the previous anonymous mapping
+    // and places a fresh zeroed one at the same address, so there is no window in which the address
+    // is unmapped. The backend translations covering it are discarded separately by ClearCodeCache
+    // / the publish sink; we do not update guest GPRs or invocation identity here.
+    void* result = ::mmap(HostPointer(range.base), static_cast<std::size_t>(range.size),
+                          ToHostProtection(permission),
+                          MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
+    if (result == MAP_FAILED) {
+        const int saved = errno;
+        auto error = MakeError(CategoriseMapFailure(saved),
+                               "GuestAddressSpace::RemapUnderToken", "remap mmap failed");
+        error.system_error = saved;
+        return error;
+    }
+    ++mapping_generation;
+    found->permission = permission;
+    found->generation = mapping_generation;
+
+    MappingInfo info{};
+    info.range = range;
+    info.permission = permission;
+    info.mapping_generation = mapping_generation;
+    info.host_owned = true;
+    return info;
+}
+
 // Requires lock. Poison clears only when the range that failed has itself been republished or
 // invalidated successfully. Clearing on any successful publication anywhere would let an unrelated
 // range re-enable execution of the still-stale one.
