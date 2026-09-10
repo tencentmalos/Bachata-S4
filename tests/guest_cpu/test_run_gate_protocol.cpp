@@ -4,6 +4,7 @@
 // the N1/N2 review reproduced (re-arm before exit; one exit confirming two releases; owner timeout).
 #include "core/guest_cpu/fex/test_run_gate.h"
 
+#include <atomic>
 #include <cassert>
 #include <chrono>
 #include <cstdio>
@@ -121,6 +122,93 @@ int main() {
         EXPECT(!result, "owner times out -> false");
         EXPECT(gate.CurrentPhase() == RunGate::Phase::Idle, "gate back to idle after timeout");
         EXPECT(gate.Arm(TID, CTX) != 0, "next arm proceeds after timed-out generation");
+    }
+
+    // 8. Generation-pollution race (the N12 review negative). A slow Release1 that only observes the
+    //    gate after a new generation has armed must NOT write its false result into generation 2.
+    //    We construct: gen1 owner arrives; controller starts Release1 but holds the owner so the wait
+    //    is still in flight; the owner then exits (gen1 closes, Idle); gen2 arms and a new owner
+    //    arrives; Release2 must succeed even though Release1's wait predicate can only have matched
+    //    gen1. A token-bound wait predicate guarantees this deterministically (no schedule luck).
+    {
+        RunGate gate;
+        // gen1: arrive owner, but release it only after we have arranged gen2's owner.
+        auto t1 = gate.Arm(TID, CTX);
+        std::atomic<bool> o1_done{false};
+        std::thread owner1([&] {
+            (void)gate.WaitAtEntry(CTX, TID, INVOC, 5000);
+            o1_done.store(true);
+        });
+        auto wait_arrived = [&](std::uint64_t tok) {
+            const auto d = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+            while (!gate.Arrived(tok) && std::chrono::steady_clock::now() < d) std::this_thread::yield();
+            return gate.Arrived(tok);
+        };
+        EXPECT(wait_arrived(t1), "owner1 arrived");
+
+        // Begin Release1 in the background; it is blocked because the owner is still held until we
+        // drive the interleaving below.
+        std::atomic<int> r1{-1};
+        std::thread releaser1([&] { r1.store(gate.Release(t1, 2000) ? 1 : 0); });
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));  // let releaser1 enter its wait
+
+        // The owner leaves only when release_requested is set (it now is); wait for gen1 to close.
+        const auto close_d = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+        while (!o1_done.load() && std::chrono::steady_clock::now() < close_d) std::this_thread::yield();
+        EXPECT(o1_done.load(), "owner1 exited (gen1 closed)");
+        // gen1 is now Idle and archived. Arm gen2 for a possibly different owner invocation.
+        auto t2 = gate.Arm(TID, CTX);
+        EXPECT(t2 != 0 && t2 != t1, "gen2 armed after gen1 closed");
+        std::atomic<bool> o2_done{false};
+        std::thread owner2([&] {
+            (void)gate.WaitAtEntry(CTX, TID, INVOC + 1, 5000);
+            o2_done.store(true);
+        });
+        EXPECT(wait_arrived(t2), "owner2 arrived");
+
+        // Release2 must succeed regardless of releaser1 still resolving.
+        bool r2 = gate.Release(t2, 2000);
+        EXPECT(r2, "release2 succeeds (not poisoned by stale release1)");
+        const auto o2d = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+        while (!o2_done.load() && std::chrono::steady_clock::now() < o2d) std::this_thread::yield();
+        EXPECT(o2_done.load(), "owner2 released");
+
+        releaser1.join();
+        owner1.join();
+        owner2.join();
+        EXPECT(r1.load() == 1, "release1 recorded its own clean result");
+        // gen1 archived outcome readable by token, independent of the live gen2 state.
+        EXPECT(gate.Exited(t1), "gen1 exited");
+        EXPECT(gate.Exited(t2), "gen2 exited");
+    }
+
+    // 9. After gen1 has cleanly closed and gen2 armed, a repeat Release of the real gen1 token is
+    //    idempotent (returns gen1's recorded clean result) and must not touch/block gen2; a bogus
+    //    token that never named a generation is rejected.
+    {
+        RunGate gate;
+        auto t1 = gate.Arm(TID, CTX);
+        bool o1 = false;
+        std::thread owner1([&] { o1 = gate.WaitAtEntry(CTX, TID, INVOC, 2000); });
+        for (int i = 0; i < 2000 && !gate.Arrived(t1); ++i) std::this_thread::yield();
+        EXPECT(gate.Release(t1, 2000), "release gen1");
+        owner1.join();
+        EXPECT(o1, "owner1 clean");
+        auto t2 = gate.Arm(TID, CTX);
+        EXPECT(t2 != 0, "gen2 armed");
+        // Repeat of the real, closed gen1 token: idempotent true, reads the archived gen1 outcome.
+        EXPECT(gate.Release(t1, 50), "repeat release of closed gen1 token is idempotent true");
+        // A never-existing token is rejected and must not disturb gen2.
+        EXPECT(!gate.Release(t1 + 9999, 50), "bogus token release rejected");
+        EXPECT(!gate.Release(0, 50), "zero token release rejected");
+        EXPECT(gate.CurrentPhase() == RunGate::Phase::Armed, "gen2 untouched by stale releases");
+        // gen2 owner still arrives normally.
+        bool o2 = false;
+        std::thread owner2([&] { o2 = gate.WaitAtEntry(CTX, TID, INVOC, 2000); });
+        for (int i = 0; i < 2000 && !gate.Arrived(t2); ++i) std::this_thread::yield();
+        EXPECT(gate.Release(t2, 2000), "gen2 releases cleanly");
+        owner2.join();
+        EXPECT(o2, "owner2 clean despite stale releases on gen1");
     }
 
     if (g_failures == 0) {

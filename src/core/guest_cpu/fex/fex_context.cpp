@@ -1022,11 +1022,20 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         // a test can hold one owner deterministically while a second, genuinely-JIT owner drains and
         // stops independently. On release execution proceeds and the already-pending Pause/Cancel is
         // serviced at the block-entry fault page exactly as for a normally running owner.
+        // If the owner did not see a release before the wait budget, do NOT abort with a bare
+        // BackendFailure: the controller may already have requested Pause/Cancel (and protected the
+        // interrupt fault page) while we were held. Returning early here would leave that page
+        // protected and the request without a receipt, so WaitStopped would time out forever. Instead
+        // fall through and enter the JIT: the very first block-entry fault page then services the
+        // already-pending request through the normal stop path, which restores the page, publishes
+        // the stopped snapshot/receipt and releases the lease -- a single, consistent termination.
+        // The gate's own timeout result is recorded (TimedOut) for the test, but the Run still
+        // completes through the proven stop machinery rather than an ad-hoc failure branch.
         if (test_run_gate_ &&
             !test_run_gate_->WaitAtEntry(context_id_, thread.id, invocation, 5000)) {
-            std::lock_guard fail_guard{lock_};
-            if (auto* fail_entry = FindOwnedLocked(thread)) fail_entry->running = false;
-            return BackendError(ErrorCategory::BackendFailure, "Run", "test entry gate timed out");
+            std::fprintf(stderr, "[guest_cpu] test entry gate: release budget expired for thread "
+                         "%llu; entering JIT to service pending interrupts\n",
+                         static_cast<unsigned long long>(thread.id));
         }
 #endif
         // The controller may protect the page at any point from claiming the
@@ -1058,8 +1067,16 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
             t_test_syscall_shim.armed = true;
             t_test_syscall_shim.trace = test_syscall_shim_trace_;
             t_test_syscall_shim.fault = false;
+            // Use the NON-spill stop entry (ThreadStopHandlerAddress), NOT SpillSRA. The JIT syscall
+            // sequence already SpillStaticRegs'd the guest GPR/FPR into the frame BEFORE calling the
+            // C++ handler; the host registers after the C++ call are ABI-clobbered host values, not
+            // guest state. Branching to SpillSRA would re-SpillStaticRegs and overwrite the correctly
+            // spilled guest snapshot with host garbage (measured: 10 GPRs wrong yet validity=valid).
+            // The non-spill entry only restores the dispatcher's host callee-saved save area and
+            // returns, leaving the already-correct guest frame intact. Both entries expect sp set to
+            // the dispatcher return stack, which the wrapper supplies.
             g_test_syscall_stop_no_spill =
-                signal_delegator_->GetConfig().ThreadStopHandlerAddressSpillSRA;
+                signal_delegator_->GetConfig().ThreadStopHandlerAddress;
             g_test_syscall_trace = FexTestSyscallShimTrace{};
             // C++ syscall wrapper; forwards to dispatch and exits to the stop entry on fault.
             shim_pointers->SyscallHandlerFunc =
