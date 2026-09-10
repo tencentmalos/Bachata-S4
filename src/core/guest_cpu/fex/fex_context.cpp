@@ -150,6 +150,23 @@ struct ThreadInterruptBinding final {
     // Set by HandleSyscall on this owner thread when the syscall has no valid HLE path; the syscall
     // wrapper reads it to take the immediate-exit branch instead of running the in-block successor.
     std::atomic<bool> syscall_fault_pending{false};
+    // Structured syscall-fault attribution for this crossing (N4). Filled by HandleSyscall on the
+    // owner thread when fault_pending is set; consumed by BuildRunResultLocked after Run returns.
+    // Identity (context/thread gen/invocation) is seeded by Run before ExecuteThread; the fault
+    // fields are written by the handler. Lives on the owner binding so it cannot be read by another
+    // owner and is dropped with the binding at Run teardown.
+    struct SyscallFaultEvent {
+        bool present{false};
+        std::uint64_t operation{};
+        std::uint64_t fault_guest_rip{};
+        std::uint64_t context_id{};
+        std::uint64_t thread_id{};
+        std::uint64_t thread_generation{};
+        std::uint64_t invocation_id{};
+        ErrorCategory category{ErrorCategory::None};
+        int system_error{0};
+        bool has_error{false};
+    } syscall_fault_event{};
     std::array<std::uint64_t, 31> gprs{};
     std::uint64_t pstate{};
     std::uint64_t guest_rip{};
@@ -406,6 +423,8 @@ class FexSyscallHandler final : public FEXCore::HLE::SyscallHandler {
         }
 
         const std::uint64_t operation = Frame->State.gregs[FEXCore::X86State::REG_RAX];
+        bool rejected = false;
+        Error reject_err{};
         if (auto adapter = registry_.Find(operation)) {
             Hle::HleCallFrame hle_frame{};
             hle_frame.operation = operation;
@@ -429,7 +448,9 @@ class FexSyscallHandler final : public FEXCore::HLE::SyscallHandler {
                 return;
             }
             // A registered-but-rejected call (bad pointer/signature) is this thread's fault.
-            last_hle_error_.store(call_status.GetError().category, std::memory_order_release);
+            rejected = true;
+            reject_err = call_status.GetError();
+            last_hle_error_.store(reject_err.category, std::memory_order_release);
         }
 
         if (fault_flag) {
@@ -438,9 +459,18 @@ class FexSyscallHandler final : public FEXCore::HLE::SyscallHandler {
             unknown_thread_syscall_.store(true, std::memory_order_release);
         }
         // Signal the production syscall wrapper (same owner thread, owner binding) that this syscall
-        // faulted, so it takes the immediate-exit branch instead of running the in-block successor.
-        if (t_binding)
+        // faulted, so it takes the immediate-exit branch instead of running the in-block successor,
+        // and record the structured attribution event for BuildRunResultLocked.
+        if (t_binding) {
             t_binding->syscall_fault_pending.store(true, std::memory_order_release);
+            auto& ev = t_binding->syscall_fault_event;
+            ev.present = true;
+            ev.operation = operation;
+            ev.fault_guest_rip = Frame->State.rip;
+            ev.category = rejected ? reject_err.category : ErrorCategory::InvalidArgument;
+            ev.system_error = static_cast<int>(reject_err.system_error);
+            ev.has_error = rejected;
+        }
     }
 
     Hle::HleCallRegistry& Registry() { return registry_; }
@@ -1056,6 +1086,14 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         const std::uint64_t saved_syscall_obj = sys_ptrs->SyscallHandlerObj;
         binding.stop_no_spill = signal_delegator_->GetConfig().ThreadStopHandlerAddress;
         binding.syscall_fault_pending.store(false, std::memory_order_release);
+        // Seed the per-thread syscall-fault event identity for this Run (N4). The handler fills the
+        // fault/operation/PC/category fields if a syscall faults; identity is fixed here so a stale
+        // event from a prior Run/invocation can never be reported against the wrong crossing.
+        binding.syscall_fault_event = ThreadInterruptBinding::SyscallFaultEvent{};
+        binding.syscall_fault_event.context_id = context_id_;
+        binding.syscall_fault_event.thread_id = thread.id;
+        binding.syscall_fault_event.thread_generation = thread.generation;
+        binding.syscall_fault_event.invocation_id = invocation;
         t_syscall_original.obj = reinterpret_cast<void*>(saved_syscall_obj);
         t_syscall_original.func =
             reinterpret_cast<void (*)(void*, FEXCore::Core::CpuStateFrame*)>(saved_syscall_func);
@@ -1084,6 +1122,8 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
                                 errno);
         }
         const bool interrupted = binding.interrupted.load(std::memory_order_acquire);
+        // Publish the structured syscall-fault event (if any) to the entry for BuildRunResultLocked.
+        entry->last_syscall_fault_event = binding.syscall_fault_event;
         if (interrupted) {
             const auto flags = context_->ReconstructCompactedEFLAGS(
                 entry->native, true, binding.gprs.data(), binding.pstate);
@@ -1431,6 +1471,12 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         // different owner's Run (R2-H05).
         std::shared_ptr<std::atomic<bool>> syscall_fault{std::make_shared<std::atomic<bool>>(false)};
 
+        // Structured syscall-fault event from the most recent Run (N4). Published by Run after
+        // ExecuteThread (copied from the owner binding) and consumed by BuildRunResultLocked to fill
+        // GuestFaultInfo attribution; reset at the start of each Run so a new Run/invocation never
+        // reports the previous crossing's fault.
+        ThreadInterruptBinding::SyscallFaultEvent last_syscall_fault_event{};
+
         // The guest descriptor table. CPUState only holds a pointer to it, and
         // the decoder dereferences that pointer on the very first block to read
         // CS.L and decide 64-bit mode -- so this must exist before any code
@@ -1683,13 +1729,24 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         if (entry.syscall_fault->exchange(false, std::memory_order_acq_rel) ||
             syscall_handler_->TakeUnknownThreadSyscallGlobal()) {
             // This guest thread executed a syscall with no HLE path: a fault attributed to it, not
-            // a context-wide boolean another owner could consume.
+            // a context-wide boolean another owner could consume. Fill the structured event (N4)
+            // so the caller sees the exact operation/crossing that faulted.
             result.primary_reason = StopReason::GuestFault;
             result.pending_reasons |= BitOf(StopReason::GuestFault);
             GuestFaultInfo fault{};
-            fault.guest_rip = rip;
+            const auto& ev = entry.last_syscall_fault_event;
+            fault.guest_rip = ev.present ? ev.fault_guest_rip : rip;
             fault.access = GuestAccessKind::Execute;
             fault.recoverable = false;
+            if (ev.present) {
+                fault.syscall_operation = ev.operation;
+                fault.context_id = ev.context_id;
+                fault.thread_generation = ev.thread_generation;
+                fault.invocation_id = ev.invocation_id;
+                fault.syscall_category = ev.category;
+                if (ev.has_error)
+                    fault.syscall_errno = ev.system_error;
+            }
             result.fault = fault;
         } else if (rip >= gate && rip < gate + return_gate_.Size()) {
             // Stopped at the registered gate: this is the only RIP that counts

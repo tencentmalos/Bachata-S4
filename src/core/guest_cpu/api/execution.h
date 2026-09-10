@@ -15,6 +15,7 @@
 #include <string_view>
 
 #include "core/guest_cpu/api/registers.h"
+#include "core/guest_cpu/api/status.h"
 
 namespace Core::GuestCpu {
 
@@ -87,6 +88,17 @@ struct GuestFaultInfo final {
     std::optional<int> host_si_code{};
     std::optional<std::uint64_t> host_pc{};
     bool recoverable{false};
+
+    // Set when this fault is an attributed guest syscall HLE error (R2-H05). The values identify the
+    // exact failing crossing: the guest operation number, the owning context/thread/generation/
+    // invocation, and the backend error category/errno. Presence of `operation` marks this as a
+    // syscall-fault (vs an instruction/HLT fault); these stay unset for the latter.
+    std::optional<std::uint64_t> syscall_operation{};
+    std::uint64_t context_id{};
+    std::uint64_t thread_generation{};
+    std::uint64_t invocation_id{};
+    ErrorCategory syscall_category{ErrorCategory::None};
+    std::optional<int> syscall_errno{};
 };
 
 struct StepInfo final {

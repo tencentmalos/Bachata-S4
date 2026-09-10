@@ -2450,6 +2450,98 @@ void TestImmediateSyscallExit(Harness& h) {
               fault && bounded,
               "fault=" + std::to_string(fault) + " elapsed_ms=" + std::to_string(elapsed_ms));
     }
+
+    // G35: structured fault attribution and no error cross-ownership. An unknown-syscall fault on
+    // thread A carries A's operation/context/thread/invocation; a later valid Run on a fresh thread B
+    // is a clean Returned (B does not inherit A's fault), and re-running A after destroy/recreate
+    // with a valid op is also clean (a new Run/invocation does not inherit the old event).
+    {
+        auto load = [&](std::uint64_t& stack_top) {
+            std::string e2;
+            if (!LoadFixture(h, *FindFixture("syscall_writes_sentinel"), e2)) {
+                Check("G35", "load sentinel fixture", false, e2);
+                return false;
+            }
+            return true;
+        };
+
+        // Thread A: unknown op -> attributed GuestFault carrying its identity.
+        std::uint64_t a_stack = 0; (void)a_stack;
+        if (!load(a_stack)) return;
+        const std::uint64_t sentinel_a = h.stack_base + 0x600;
+        *reinterpret_cast<std::uint64_t*>(sentinel_a) = 0;
+        ThreadInit ia{};
+        ia.entry_rip = GuestCodeAddress{h.code_base};
+        ia.initial_rsp = GuestAddress{h.stack_top};
+        ia.guest_tid = 535;
+        ia.initial_state.fields = RegisterValidity::Gpr;
+        ia.initial_state.gpr_mask = (1u << Index(Gpr::Rax)) | (1u << Index(Gpr::R12));
+        ia.initial_state.values.Set(Gpr::Rax, 0x555555);
+        ia.initial_state.values.Set(Gpr::R12, sentinel_a);
+        auto ta = h.context->CreateThread(ia);
+        if (!ta) { Check("G35", "create thread A", false, ""); return; }
+        auto ra = h.context->Run(ta.Value(), RunOptions{});
+        bool a_ok = bool(ra) && ra.Value().primary_reason == StopReason::GuestFault &&
+                    ra.Value().fault &&
+                    ra.Value().fault->syscall_operation == 0x555555 &&
+                    ra.Value().fault->syscall_category != ErrorCategory::None &&
+                    ra.Value().fault->thread_generation == ta.Value().generation &&
+                    ra.Value().fault->context_id == h.context->ContextId() &&
+                    ra.Value().fault->invocation_id == ra.Value().invocation_id;
+        (void)h.context->DestroyThread(ta.Value());
+        std::string a_detail = bool(ra)
+            ? ("reason=" + std::string(ToString(ra.Value().primary_reason)) +
+               " has_fault=" + std::to_string(ra.Value().fault.has_value()))
+            : ("run errored: " + Describe(ra.GetError()));
+        Check("G35a", "unknown fault carries structured operation/context/thread/invocation",
+              a_ok, a_detail);
+
+        // Thread B (fresh): valid op -> clean Returned, no inherited fault.
+        { std::string reload; if (!LoadFixture(h, *FindFixture("syscall_writes_sentinel"), reload)) {
+              Check("G35b", "reload fixture", false, reload); return; } }
+        const std::uint64_t sentinel_b = h.stack_base + 0x700;
+        *reinterpret_cast<std::uint64_t*>(sentinel_b) = 0;
+        ThreadInit ib{};
+        ib.entry_rip = GuestCodeAddress{h.code_base};
+        ib.initial_rsp = GuestAddress{h.stack_top};
+        ib.guest_tid = 536;
+        ib.initial_state.fields = RegisterValidity::Gpr;
+        ib.initial_state.gpr_mask = (1u << Index(Gpr::Rax)) | (1u << Index(Gpr::R12)) | (1u << Index(Gpr::Rdi));
+        ib.initial_state.values.Set(Gpr::Rax, valid_op);
+        ib.initial_state.values.Set(Gpr::R12, sentinel_b);
+        ib.initial_state.values.Set(Gpr::Rdi, 21);
+        auto tb = h.context->CreateThread(ib);
+        if (!tb) { Check("G35b", "create thread B", false, ""); return; }
+        auto rb = h.context->Run(tb.Value(), RunOptions{});
+        bool b_clean = bool(rb) && rb.Value().primary_reason == StopReason::Returned &&
+                       *reinterpret_cast<std::uint64_t*>(sentinel_b) == 42;
+        (void)h.context->DestroyThread(tb.Value());
+        Check("G35b", "a valid Run on a fresh owner is clean (no inherited fault)", b_clean,
+              bool(rb) ? std::string(ToString(rb.Value().primary_reason))
+                       : Describe(rb.GetError()));
+
+        // Thread A recreated, valid op: a new Run/invocation must not inherit the old fault event.
+        { std::string reload; if (!LoadFixture(h, *FindFixture("syscall_writes_sentinel"), reload)) {
+              Check("G35c", "reload fixture", false, reload); return; } }
+        const std::uint64_t sentinel_a2 = h.stack_base + 0x800;
+        *reinterpret_cast<std::uint64_t*>(sentinel_a2) = 0;
+        ThreadInit ia2 = ia;
+        ia2.guest_tid = 537;
+        ia2.initial_state.gpr_mask |= (1u << Index(Gpr::Rdi));
+        ia2.initial_state.values.Set(Gpr::Rax, valid_op);
+        ia2.initial_state.values.Set(Gpr::R12, sentinel_a2);
+        ia2.initial_state.values.Set(Gpr::Rdi, 7);
+        auto ta2 = h.context->CreateThread(ia2);
+        if (!ta2) { Check("G35c", "recreate thread A", false, ""); return; }
+        auto ra2 = h.context->Run(ta2.Value(), RunOptions{});
+        bool a2_clean = bool(ra2) && ra2.Value().primary_reason == StopReason::Returned &&
+                        *reinterpret_cast<std::uint64_t*>(sentinel_a2) == 42;
+        (void)h.context->DestroyThread(ta2.Value());
+        Check("G35c", "recreated owner with a valid op does not inherit the prior fault event",
+              a2_clean,
+              bool(ra2) ? std::string(ToString(ra2.Value().primary_reason))
+                        : Describe(ra2.GetError()));
+    }
 }
 
 void TestCoordinatorRecovery(Harness& h) {
