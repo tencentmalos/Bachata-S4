@@ -1,3 +1,37 @@
+# 二周目进度（2026-09-10 R2-H05 核心完成：立即退出+结构化归属+并发隔离）
+
+> **R2-H05 的核心场景已全部由正式 guest suite 验收（提交至 `4d8d8003`），212 checks ALL PASS（4 次稳定）**：
+> - **G33a** unknown syscall：GuestFault、sentinel=0、fault RIP=syscall PC；**G33b** valid：sentinel=42（出口仅错误路径）；
+> - **G34** unknown 自跳 loop：无外部 Cancel、首次 fault 即返回（0ms，预算 1s）；
+> - **G32c** registered buffer 拒绝：GuestFault、sentinel=0、native count 不增；
+> - **G35a/b/c** 结构化归属：fault 携带 op/context/thread gen/invocation；fresh owner 合法 Run 干净；
+>   销毁重建后新 Run 不继承旧事件；
+> - **G36a/b/c** **并发双 owner**：一 owner unknown syscall fault 时另一 healthy owner 持续运行，fault 仅归
+>   faulting owner；healthy owner cancel 后干净 Cancelled（非 GuestFault）、receipt 归属正确。
+> - 生产常驻 wrapper（无 arm 开关，per-thread binding/thread_local），tests=OFF release 含 wrapper 符号、
+>   无 gate/trace 符号；canonical guest 114 sub 0 失败、R2-H02/H05 aux PASS；python 22/22、accounting 21/21。
+>
+> **仍待 R2（FP/异常/errno）与 H05 边角**：fault 与 Pause/Shutdown 显式交错的专项、部分 pin 失败的 pin
+> 残留基线、100× 重复计数（当前各关键路径均单次断言 + G36 4 次）。之后 R2 → R3（完整 ABI/buffer/typed
+> registry）→ S0–S3（HleScope/InvokeGuest/WaitingHle）。正式 R2-H05 验收仍需 S0 callback 与上述边角。
+> origin 仍 `0e10defc`，这些提交仅本地未 push。
+
+# 二周目进度（2026-09-10 syscall立即退出生产化 + N4结构化归属）
+
+> **N4 结构化错误归属与拒绝路径已落地（提交 `18628f61`、`5b0dd002`），正式 suite 209 checks**：
+> - GuestFaultInfo 新增 syscall 归属字段（operation/context/thread generation/invocation/category/errno）；
+>   owner binding 携带 SyscallFaultEvent，Run 播种 identity（每次 Run 清空）、HandleSyscall 填 fault 字段、
+>   BuildRunResultLocked 发布，错误绑定到具体 crossing，不被另一 owner 或后续 Run/重建线程消费。
+> - **G35a** fault 携带 op/category/context/thread gen/invocation；**G35b** fresh owner 合法 Run 干净
+>   Returned（不继承他 owner 错误）；**G35c** 故障 owner 销毁重建后合法 Run 干净（新 invocation 不继承旧事件）。
+> - **G32c** registered buffer 拒绝：GuestFault、后继 sentinel=0、native count 不增（R2-H02"拒绝不执行后继"）。
+> - 真机完整 suite **209 checks ALL PASS**；canonical guest 110 sub 0 失败；python 22/22、accounting 21/21；
+>   R2-H02/H05 正式 NOT_RUN + aux PASS；tests=OFF 构建通过。
+>
+> **H05 仍待**：①并发双 owner（unknown 与合法 HLE **同时** Run，错误不串、TLS/计数干净）；②fault 与
+> Pause/Cancel/Shutdown 交错；③部分 pin 后失败的 pin 基线/无残留。之后 R2（FP/异常/errno）→ R3（完整 ABI/
+> buffer/typed registry）→ S0–S3。正式 R2-H05 仍未验收（当前为 CLI auxiliary）。origin 仍 `0e10defc`，仅本地。
+
 # 二周目进度（2026-09-10 syscall立即退出已生产化：G33/G34正式验收）
 
 > **N3/N4 核心已从实验 shim 落地为生产路径（提交 `1a6664c6`、`33e58083`），并由正式 guest suite
