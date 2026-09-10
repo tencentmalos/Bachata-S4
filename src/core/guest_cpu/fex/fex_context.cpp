@@ -2,6 +2,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "core/guest_cpu/fex/fex_context.h"
+#if defined(GUEST_CPU_TEST_HOOKS)
+#include "core/guest_cpu/fex/test_run_gate.h"
+#endif
 
 #include <array>
 #include <atomic>
@@ -604,64 +607,26 @@ class CallRetStack final {
 // stop), observes the second owner stop independently in real JIT, then Release(). A strict
 // arrival/arm/exit generation handshake means the controller can never arm a hold before the prior
 // one has fully left, and the owner never parks inside a signal handler or with a FEX lock held.
+// Thin adapter over the shared, standard-library-only protocol implementation. Keeping the protocol
+// in tests/guest_cpu/test_run_gate.h lets a host determinism unit test exercise exactly this state
+// machine without linking FEX; the on-device suite and host test run one and the same code.
 class FexTestRunGateImpl final : public FexTestRunGate {
   public:
-    bool WaitAtEntry(std::uint64_t context_id, std::uint64_t thread_id, std::uint64_t invocation,
-                     std::uint64_t timeout_ms) override {
-        std::unique_lock lock{mutex_};
-        if (!armed_ || arm_thread_ != thread_id) {
-            // Not the held owner (or nothing armed): pass straight through, do not touch gate state.
-            return true;
-        }
-        present_context_ = context_id;
-        present_thread_ = thread_id;
-        present_invocation_ = invocation;
-        arrived_ = true;
-        cv_.notify_all();
-        const bool released = cv_.wait_for(lock, std::chrono::milliseconds(timeout_ms ? timeout_ms : 1000),
-                                          [&] { return !armed_; });
-        arrived_ = false;
-        ++exited_generation_;
-        cv_.notify_all();
-        return released;
+    std::uint64_t Arm(std::uint64_t thread_id, std::uint64_t context_id) override {
+        return gate_.Arm(thread_id, context_id);
     }
-
-    bool Arm(std::uint64_t thread_id) override {
-        std::unique_lock lock{mutex_};
-        // Refuse to arm while the previous generation has not fully passed through/left the gate.
-        if (armed_)
-            return false;
-        armed_ = true;
-        arrived_ = false;
-        arm_thread_ = thread_id;
-        cv_.notify_all();
-        return true;
+    bool Arrived(std::uint64_t token) override { return gate_.Arrived(token); }
+    bool Release(std::uint64_t token, std::uint64_t timeout_ms) override {
+        return gate_.Release(token, timeout_ms);
     }
-
-    bool Arrived() override {
-        std::unique_lock lock{mutex_};
-        return armed_ && arrived_ && arm_thread_ == present_thread_;
+    bool Exited(std::uint64_t token) override { return gate_.Exited(token); }
+    std::uint64_t BoundInvocation(std::uint64_t token) override { return gate_.BoundInvocation(token); }
+    bool WaitAtEntry(std::uint64_t context_id, std::uint64_t thread_id,
+                     std::uint64_t invocation, std::uint64_t timeout_ms) override {
+        return gate_.WaitAtEntry(context_id, thread_id, invocation, timeout_ms);
     }
-
-    bool Release(std::uint64_t timeout_ms) override {
-        std::unique_lock lock{mutex_};
-        const std::uint64_t before = exited_generation_;
-        armed_ = false;
-        cv_.notify_all();
-        return cv_.wait_for(lock, std::chrono::milliseconds(timeout_ms ? timeout_ms : 1000),
-                            [&] { return exited_generation_ > before; });
-    }
-
   private:
-    std::mutex mutex_;
-    std::condition_variable cv_;
-    bool armed_{false};
-    bool arrived_{false};
-    std::uint64_t arm_thread_{0};
-    std::uint64_t present_context_{0};
-    std::uint64_t present_thread_{0};
-    std::uint64_t present_invocation_{0};
-    std::uint64_t exited_generation_{0};
+    Core::GuestCpu::TestGate::RunGate gate_;
 };
 #endif
 
@@ -1108,8 +1073,6 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
 
 #if defined(GUEST_CPU_TEST_HOOKS)
     [[nodiscard]] FexTestRunGate* TestRunGatePointer() {
-        if (!test_run_gate_)
-            test_run_gate_ = std::make_unique<FexTestRunGateImpl>();
         return test_run_gate_.get();
     }
 #endif
@@ -1653,7 +1616,9 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
     std::unique_ptr<FexSignalDelegator> signal_delegator_;
     std::unique_ptr<FexSyscallHandler> syscall_handler_;
 #if defined(GUEST_CPU_TEST_HOOKS)
-    std::unique_ptr<FexTestRunGate> test_run_gate_;
+    // Constructed eagerly with the context (single-threaded, before any Run), so owner threads that
+    // read this in Run never race the lazy creation that a lazily-assigned unique_ptr would allow.
+    std::unique_ptr<FexTestRunGate> test_run_gate_{std::make_unique<FexTestRunGateImpl>()};
 #endif
     FEXCore::HostFeatures host_features_{};
     ReturnGate return_gate_;

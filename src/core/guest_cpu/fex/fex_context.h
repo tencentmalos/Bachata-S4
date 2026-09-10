@@ -46,24 +46,41 @@ void* FexHleRegistryPointer(CpuContext& context);
 // held. On release the owner enters the JIT and immediately services the already-pending Pause/Cancel
 // at the block-entry fault page, exactly as a normally-running owner would.
 //
-// One arm = one Run of one thread. The controller must see the previous generation leave the gate
-// before arming the next. No arm means WaitAtEntry returns immediately, so ordinary tests are
-// unaffected. The gate is keyed by thread id, so arming one owner never parks a different thread.
+// One arm = one hold of one thread's Run. Each Arm returns a generation token; every later
+// controller call names that token, so a stale/wrong/double release cannot touch a different
+// generation and one owner's exit cannot confirm two releases. States: Idle -> Armed -> Arrived ->
+// Releasing -> Exited (clean) or TimedOut (owner did not leave in budget; the gate stays closed).
+// The controller must observe Exited for the previous token before Arm accepts the next. No arm
+// means WaitAtEntry returns immediately, so ordinary tests are unaffected. Keyed by thread id and
+// checked against context/thread/invocation at arrival, so an arm for one owner never parks another.
 class FexTestRunGate {
 public:
     virtual ~FexTestRunGate() = default;
-    // Owner side. Blocks only while armed for `thread_id`; returns false on timeout (the caller then
-    // fails the run rather than executing the guest). Reports arrival and exit generations.
+
+    // Controller side: arm the next hold of `thread_id`. Returns a nonzero generation token, or 0
+    // if a previous generation is still live (controller must wait for its Exit first).
+    virtual std::uint64_t Arm(std::uint64_t thread_id, std::uint64_t context_id) = 0;
+
+    // True once the armed owner has reached the gate for THIS token (matching thread/context; the
+    // invocation it bound is reported via BoundInvocation for identity checks).
+    virtual bool Arrived(std::uint64_t token) = 0;
+
+    // Release THIS token's owner and block (bounded) until that exact owner has left the gate.
+    // Idempotent for the same already-released token (returns the recorded result); a stale or
+    // unknown token is rejected (false) without touching the current generation.
+    virtual bool Release(std::uint64_t token, std::uint64_t timeout_ms) = 0;
+
+    // True once THIS token has fully Exited (owner returned from WaitAtEntry, clean or timed-out).
+    virtual bool Exited(std::uint64_t token) = 0;
+
+    // The Run invocation the arrived owner bound to this token (0 if not arrived / no such token).
+    virtual std::uint64_t BoundInvocation(std::uint64_t token) = 0;
+
+    // Owner side. Called from Run at the lock-free entry point. If an armed token matches this
+    // thread/context, block until released or timeout; returns true on release, false on timeout (the
+    // caller fails the run). Reports arrival and exit for exactly its own token.
     virtual bool WaitAtEntry(std::uint64_t context_id, std::uint64_t thread_id,
                              std::uint64_t invocation, std::uint64_t timeout_ms) = 0;
-    // Controller side: arm the next Run of one thread. Fails if the previous generation has not yet
-    // exited the gate (controller must observe that first).
-    virtual bool Arm(std::uint64_t thread_id) = 0;
-    // Release the armed generation and block (bounded) until the owner has actually left the gate, so
-    // a re-arm can never be coalesced with the previous hold.
-    virtual bool Release(std::uint64_t timeout_ms) = 0;
-    // True once the owner has reached the gate for the armed generation.
-    virtual bool Arrived() = 0;
 };
 
 void* FexTestRunGatePointer(CpuContext& context);

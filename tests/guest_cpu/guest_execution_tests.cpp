@@ -2388,13 +2388,17 @@ void TestCoordinatorRecovery(Harness& h) {
         const auto progress = PrepareProgress(h), second_progress = PrepareProgress(h, 1);
         TestOwner owner(h, progress), second(h, second_progress, 4096);
 
-        // Hold the first owner at its lock-free Run-entry safe point before it enters the JIT.
-        if (!gate || !gate->Arm(owner.handle.id)) std::_Exit(4);
+        // Hold the first owner at its lock-free Run-entry safe point before it enters the JIT. Arm
+        // returns a generation token binding this thread/context; every later gate call names it.
+        const std::uint64_t ctx_id = h.context->ContextId();
+        const std::uint64_t hold = gate ? gate->Arm(owner.handle.id, ctx_id) : 0;
+        if (!gate || hold == 0) std::_Exit(4);
         auto run = owner.Run();
         {
             const auto ad = std::chrono::steady_clock::now() + std::chrono::seconds(2);
-            while (!gate->Arrived() && std::chrono::steady_clock::now() < ad) std::this_thread::yield();
-            if (!gate->Arrived()) std::_Exit(4);
+            while (!gate->Arrived(hold) && std::chrono::steady_clock::now() < ad) std::this_thread::yield();
+            if (!gate->Arrived(hold)) std::_Exit(4);
+            if (gate->BoundInvocation(hold) == 0) std::_Exit(4);
         }
         // The second owner is not gated; it runs the real guest JIT and must drain independently.
         auto second_run = second.Run();
@@ -2434,7 +2438,7 @@ void TestCoordinatorRecovery(Harness& h) {
                          second_stopped ? "" : "second owner did not stop independently of the held owner");
 
         // Release the held owner; it enters the JIT and services its already-pending Pause/Cancel.
-        if (!gate->Release(5'000)) std::_Exit(4);
+        if (!gate->Release(hold, 5'000) || !gate->Exited(hold)) std::_Exit(4);
         auto stopped = Await(run), other_stopped = Await(second_run);
         auto retry = h.context->QuiesceContext(1'000'000'000);
         bool recovered = record("retry QuiesceContext recovered both owners (count==2)", iteration,

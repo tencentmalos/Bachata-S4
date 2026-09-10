@@ -50,6 +50,14 @@ if(V0_BUILD_TESTS)
     # requiring the backend that does not exist yet.
     add_executable(host_page_size_probe
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/host_page_size/host_page_size_probe.cpp")
+
+    # Host-deterministic test of the test-only Run-entry gate state machine. Standard-library only,
+    # so it runs on the build host (no FEX link) and exercises the same protocol header the FEX
+    # backend includes under GUEST_CPU_TEST_HOOKS.
+    add_executable(test_run_gate_protocol
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/guest_cpu/test_run_gate_protocol.cpp")
+    target_include_directories(test_run_gate_protocol PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../src")
 endif()
 
 if(V0_ENABLE_FEX)
