@@ -1,15 +1,10 @@
-// N3 C0 probe: verify a user-installed syscall shim is called by the real FEX JIT and transparently
-// forwards to the original handler with NO behaviour change. Built against the real FEX static libs
-// and the real guest harness; see cmake/fex experiment target.
-//
-// Acceptance (C0): with the shim armed
-//   - normal registered HLE: return value AND successor sentinel correct (shim did not stop all
-//     syscalls / break the normal continuation),
-//   - unknown operation: reproduces the pre-existing fault-with-sentinel=42 behaviour, proving the
-//     wrapper is on the real syscall path and not suppressing guest execution,
-//   - the shim actually intercepted the call (intercept counter incremented).
+// N3 C0/C1 probe: a user-installed syscall wrapper is called by the real FEX JIT. C0 verifies
+// transparent forwarding (normal HLE continuation unchanged); C1 verifies the fault immediate-exit
+// (GuestFault, successor sentinel NOT written, fault rip = syscall PC). Built against the real FEX
+// static libs and the real guest harness. The harness is pulled in via the test TU (the build adds
+// tests/guest_cpu to the include path); fixtures are generated from the sibling review.S.
 #define main original_suite_main
-#include "/Users/bytedance/workspace/emulations/ps4/shadps4/tests/guest_cpu/guest_execution_tests.cpp"
+#include "guest_execution_tests.cpp"
 #undef main
 #define Fixtures ReviewFixtures
 #include "review_fixtures.h"
