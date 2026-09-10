@@ -202,6 +202,57 @@ print("3/3 passed")
         check("2. a host-only result is labelled HOST, not DEVICE",
               m01.get("environment") == "HOST", f"environment={m01.get('environment')}")
 
+    # --- 9: an unmapped FAIL that exits 0 must not be silently lost (the R4 G30-G32 gap) --------
+    # A suite prints a FAIL for an id no acceptance case references, then exits cleanly. The old
+    # runner recorded nothing: V0 failed=0, R2 failed=0. The orphan-FAIL net must trip instead.
+    with tempfile.TemporaryDirectory() as tmp:
+        directory = Path(tmp)
+        write_suite(directory, "guest_cpu_contract_tests", """
+print("[Z99a  ] a brand-new check no matrix entry references        FAIL -- synthetic")
+print("done")
+""")
+        report = run_runner(runner, directory)
+        summary = (report or {}).get("summary", {})
+        orphan = summary.get("unmapped_sub_case_failures", [])
+        check("9. an unmapped FAIL+exit0 is recorded as an unmapped sub-case failure",
+              any(o.get("sub_case") == "Z99a" for o in orphan),
+              f"unmapped={[o.get('sub_case') for o in orphan]}")
+
+    # --- 9b: an unmapped PASS is a harmless extra diagnostic, not an accounting error -----------
+    with tempfile.TemporaryDirectory() as tmp:
+        directory = Path(tmp)
+        write_suite(directory, "guest_cpu_contract_tests", """
+print("[M01a  ] page size discovered                                PASS")
+print("[M01b  ] three page quantities stay distinct                 PASS")
+print("[M01c  ] map, write, read back, unmap                        PASS")
+print("[Z98a  ] an extra diagnostic nobody maps                      PASS")
+print("3/3 passed")
+""")
+        report = run_runner(runner, directory)
+        summary = (report or {}).get("summary", {})
+        m01 = case_of(report or {}, "M01")
+        orphan = summary.get("unmapped_sub_case_failures", [])
+        check("9b. an unmapped PASS does not trip the orphan net",
+              not orphan and m01.get("status") == "PASS",
+              f"unmapped={[o.get('sub_case') for o in orphan]} m01={m01.get('status')}")
+
+    # --- 10: a newly-mapped Round 2 id (G31a) failing is a Round 2 failure, not an orphan --------
+    with tempfile.TemporaryDirectory() as tmp:
+        directory = Path(tmp)
+        write_suite(directory, "guest_cpu_contract_tests", """
+print("[G31a  ] real guest syscall gate returns the 6-integer sum    FAIL -- synthetic")
+print("done")
+""")
+        report = run_runner(runner, directory)
+        summary = (report or {}).get("summary", {})
+        orphan = summary.get("unmapped_sub_case_failures", [])
+        r2 = {c["id"]: c for c in (report or {}).get("round2", {}).get("cases", [])}
+        h01 = r2.get("R2-H01", {})
+        check("10. a mapped G31a FAIL lands on R2-H01, not in the orphan net",
+              not any(o.get("sub_case", "").startswith("G31") for o in orphan)
+              and h01.get("status") == "FAIL",
+              f"h01={h01.get('status')} orphan={[o.get('sub_case') for o in orphan]}")
+
     print(f"\n{CHECKS - len(FAILURES)}/{CHECKS} passed")
     if FAILURES:
         print("\nFAILURES:")

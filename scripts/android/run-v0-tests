@@ -219,7 +219,13 @@ ROUND2_MAP = {
     "R2-B01": [], "R2-B02": [],
     "R2-C01": [f"G14{c}" for c in "abcdefgh"],
     "R2-C02": ["G13a", "G13b", "G13c"],
-    "R2-C03": ["G12a", "G12b", "G12c", "G15a", "G15b", "G15c", "G15d", "G15e", "G17b", "G17c"],
+    "R2-C03": ["G12a", "G12b", "G12c", "G15a", "G15b", "G15c", "G15d", "G15e", "G17b", "G17c",
+               # G30a/G30b are real dual-owner *fault attribution* evidence (the fault stays with
+               # the faulting owner; a concurrent owner never inherits it), which is the "fault
+               # priority" half of C03. They are a bare-HLT fault, NOT the unknown-syscall
+               # immediate-stop R2-H05 case: they do not prove the successor store is suppressed,
+               # so they must not be read as H05 acceptance. Auxiliary only.
+               "G30a", "G30b"],
     "R2-C04": ["G16a", "G16b", "G16c", "G12d"],
     "R2-M01": ["G25a", "G25b"],
     "R2-M02": ["G24a", "G24b", "M26", "M27"],
@@ -227,11 +233,25 @@ ROUND2_MAP = {
     "R2-M04": ["G27a", "M08b"],
     "R2-M05": ["M13h", "M13i", "M13j", "M13k", "M13l", "M13m", "M13n", "M13o",
                  "G10a", "G10b", "G10c", "G10d", "M27", "M28"],
-    **{f"R2-H{i:02}": [] for i in range(1, 7)},
+    # R2-H01/H02 have real but *partial* CLI subchecks (H1: 6/8 integer + 4-double gate; H2: a
+    # single bounded-buffer marshal plus three one-shot bad-pointer refusals). These are recorded
+    # as auxiliary subchecks only -- the formal H items stay NOT_RUN until R3 completes the full
+    # ABI (8 int / 9 double / mixed / callee-saved / red zone / invocation logs) and the full
+    # buffer policy (In/Out/InOut, nullable, zero-length, race, per-class x10), on the target APK.
+    # H03..H06 have no subchecks yet (no InvokeGuest/WaitingHle/callback/nested TLS exists).
+    "R2-H01": ["G31a", "G31b", "G31c"],
+    "R2-H02": ["G32a", "G32b"],
+    "R2-H03": [], "R2-H04": [], "R2-H05": [], "R2-H06": [],
     **{f"R2-A{i:02}": [] for i in range(1, 4)},
     "R2-F01": [], "R2-F02": [], "R2-D01": [], "R2-L01": [],
 }
 ROUND2_PENDING = {
+    "R2-H01": "partial: 6/8 integer + 4-double gate verified; R3 needs 9 double, mixed/spill by "
+              "guest code, RCX/R11 semantics, callee-saved/red-zone, per-invocation logs, on APK",
+    "R2-H02": "partial: one good marshal + three one-shot bad pointers; R3 needs In/Out/InOut, "
+              "nullable/zero-length, real overflow, remap/protect race, per-class x10, on APK",
+    "R2-C03": "G30 is bare-HLT fault attribution only; R2-H05 unknown-syscall immediate-stop and "
+              "successor-store suppression is a separate case (no current subcheck maps to it)",
     "R2-M02": "InvokeGuest/WaitingHle and lifecycle combinations remain pending",
     "R2-M03": "complete decoder-range matrix and post-Clear resumed-state sentinels remain pending",
     "R2-M04": "real HLE publication crossing remains pending",
@@ -273,21 +293,43 @@ SUITE_OWNERSHIP: dict[str, tuple[str, ...]] = {
     "host_page_size_probe": ("P01", "P02", "P03"),
     "fexcore_bionic_smoke": ("F01", "F02", "F03", "F04", "F05"),
     "guest_execution_tests": ("G01", "G02", "G03", "G04", "G05", "G06", "G07", "G08", "G09", "G10",
-                              "G11", "G12", "G13", "G14", "G15", "G16", "G17", "G20", "G21", "G22", "G23", "G24", "G25", "G26", "G27", "G28"),
+                              "G11", "G12", "G13", "G14", "G15", "G16", "G17", "G20", "G21", "G22",
+                              "G23", "G24", "G25", "G26", "G27", "G28",
+                              # G30 (bare-HLT fault attribution), G31 (real typed syscall gate),
+                              # G32 (bounded buffer pin) run inside guest_execution_tests. A crash
+                              # or zero-output failure in that suite must taint these too, and a
+                              # newly added G-prefix must be owned here or the unmapped-FAIL net
+                              # below flags it -- never silently unowned.
+                              "G30", "G31", "G32"),
 }
 
 
 def sub_cases_owned_by(suite_name: str) -> set[str]:
-    """Every SUITE_MAP sub-case id that `suite_name` is responsible for producing."""
+    """Every mapped sub-case id that `suite_name` is responsible for producing.
+
+    Covers both the V0 SUITE_MAP and the Round 2 ROUND2_MAP: a suite that crashes before its first
+    result line taints the ids it owns in either matrix, so a device-only Round 2 sub-check such
+    as G31a is failed on a crash rather than left NOT_RUN.
+    """
     prefixes = SUITE_OWNERSHIP.get(suite_name, ())
     if not prefixes:
         return set()
     owned = set()
-    for sub_ids in SUITE_MAP.values():
+    for sub_ids in tuple(SUITE_MAP.values()) + tuple(ROUND2_MAP.values()):
         for sub in sub_ids:
             if sub.startswith(prefixes):
                 owned.add(sub)
     return owned
+
+
+def referenced_sub_ids() -> set[str]:
+    """Every sub-case id some acceptance case (V0 or Round 2) actually consumes."""
+    refs: set[str] = set()
+    for subs in SUITE_MAP.values():
+        refs.update(subs)
+    for subs in ROUND2_MAP.values():
+        refs.update(subs)
+    return refs
 
 
 
@@ -844,6 +886,31 @@ def main() -> int:
             record_suite(suite_name, fex_binary,
                          run_device_suite(fex_binary, args.serial), on_device=True)
 
+    # Orphan-FAIL safety net. A sub-case that printed FAIL (or whose suite crashed and tainted it)
+    # but is not consumed by ANY V0 or Round 2 acceptance case is exactly the R4 bookkeeping gap:
+    # G30-G32 had real FAIL+exit0 results that no matrix entry referenced, so they vanished from
+    # the report. Rather than require a maintainer to remember to register each new prefix, detect
+    # the situation: an unmapped failure is a runner error, not a quiet non-result. PASS/SKIP on an
+    # unmapped id is ignored (a suite may print extra non-acceptance diagnostics); only a failure
+    # that nobody accounts for trips this.
+    referenced = referenced_sub_ids()
+    unmapped_failures: list[dict[str, str]] = []
+    for sub, (verdict, detail) in sorted(observed.items()):
+        if verdict == "FAIL" and sub not in referenced:
+            unmapped_failures.append({"sub_case": sub, "verdict": "FAIL", "detail": detail,
+                                       "reason": "printed FAIL but no V0/Round2 case references it"})
+    for sub, reason in sorted(tainted.items()):
+        if sub not in referenced:
+            unmapped_failures.append({"sub_case": sub, "verdict": "TAINTED", "detail": "",
+                                       "reason": f"suite did not complete ({reason}); no case references it"})
+    if unmapped_failures:
+        print("\nERROR: sub-cases failed but are not mapped to any acceptance case:")
+        for item in unmapped_failures:
+            print(f"  {item['sub_case']}: {item['reason']}"
+                  + (f" -- {item['detail']}" if item["detail"] else ""))
+        print("  Add the id to SUITE_MAP/ROUND2_MAP and SUITE_OWNERSHIP, or rename it to a "
+              "diagnostic that is not an acceptance sub-case.")
+
     host_page = os.sysconf("SC_PAGESIZE")
     cases = []
     for case_id, (description, blocked_reason) in CASES.items():
@@ -953,8 +1020,14 @@ def main() -> int:
     # work look larger, and counting them as passes would claim scope that is not being validated.
     in_scope = len(cases) - deferred
 
+    # An unmapped FAIL is an accounting error and counts as a failure: the work failed, and the
+    # runner would otherwise have hidden it. It must never be possible to release V0_ACCEPTED while
+    # a sub-case failure sits outside every matrix entry.
+    accounting_errors = len(unmapped_failures)
+    total_failed = failed + accounting_errors
+
     # Status selection is mechanical, so it cannot be talked upwards.
-    if failed:
+    if total_failed:
         release_status = "V0_IN_PROGRESS"
     elif any(c["reason"] and "[NO-BACKEND]" in c["reason"] for c in cases):
         # Unimplemented capability is work remaining, not a blocker.
@@ -1008,12 +1081,14 @@ def main() -> int:
         "suites": suite_meta,
         "summary": {"passed": passed, "failed": failed, "not_run": not_run,
                     "deferred_by_scope": deferred, "in_scope_total": in_scope,
-                    "total": len(cases)},
+                    "total": len(cases),
+                    "unmapped_sub_case_failures": unmapped_failures},
         "cases": cases,
         "round2": round2_report(observed, tainted),
         "release_status": release_status,
         "release_status_reason": (
-            f"This invocation observed {passed} complete acceptance passes, {failed} failures, "
+            f"This invocation observed {passed} complete acceptance passes, {total_failed} failures "
+            f"({failed} acceptance cases + {accounting_errors} unmapped sub-case failures), "
             f"{not_run} incomplete/unrun cases and {deferred} scope deferrals. "
             "Auxiliary unit evidence is not complete acceptance. "
             "Running-thread interruption, real HLE/callback and app integration remain incomplete."),
@@ -1025,9 +1100,13 @@ def main() -> int:
 
     print(f"\n{passed} PASS, {failed} FAIL, {not_run} NOT_RUN of {in_scope} in-scope cases"
           + (f" ({deferred} deferred by scope)" if deferred else ""))
+    if accounting_errors:
+        print(f"{accounting_errors} UNMAPPED sub-case failure(s) (not referenced by any case):")
+        for item in unmapped_failures:
+            print(f"  {item['sub_case']}: {item['reason']}")
     print(f"release status: {release_status}")
     print(f"wrote {out_path}")
-    return 1 if failed else 0
+    return 1 if total_failed else 0
 
 
 if __name__ == "__main__":
