@@ -1,59 +1,58 @@
-# 二周目进度（2026-09-10 G3 修复进行中：R0 已完成）
+# 二周目进度（2026-09-10 R0收尾完成：N1/N2 已过，N3 syscall退出原语进行中）
 
-分支 `codex/android-fex-round2`，HEAD `8eded461`。前序 G2 源码修复 `470109f6`，H0/H1/H2 分别是
-`1f8c7a21` / `0e10defc` / `56cbc7b1`。G3 修复新增：`25189931`（R0 runner 归属 + 未映射 FAIL 安全网）、
-`8eded461`（R0 G24 冻结取点修复）。origin 仍在 `0e10defc`，H2 与 G3 修复**仅本地提交，未 push**；推送后须
-核对实际 remote ref。FEX/Foundation pin 未改。
+分支 `codex/android-fex-round2`，本地 HEAD `97f149af`。前序 G2 源码修复 `470109f6`，H0/H1/H2 分别是
+`1f8c7a21` / `0e10defc` / `56cbc7b1`。G3 修复本地提交：`25189931`（R0 runner 归属+未映射 FAIL 安全网）、
+`8eded461`（R0 G24 早期冻结取点，后被 N2 取代）、`0484a0b9`（进度）、`fd1c8a86`（**N1** runner 整体失败退出码）、
+`911be847`（**N2** 确定性 Run-entry gate）、`97f149af`（runner ENOEXEC 健壮性）。origin 仍在 `0e10defc`，
+**所有 H2/R0/N1/N2 提交仅本地、未 push**；推送后须核对实际 remote ref。FEX/Foundation pin 未改。
 
-**当前进度：R0（runner 记账 + G24 定位修复）已完成；R1（错误立即退出）尚未开始。** 先读
-[H2 复核报告](g3-h2-review-2026-09-10.md)、[G24 定位与修复](g3-g24-localization-2026-09-10.md)，按
-[修复→H3 spec](../../specs/android-fex-round2-g3-repair-h3.md)继续 R1。
+**当前进度：N1（runner 失败出口）、N2（G24 确定性握手）已完成并真机验证；N3（syscall 错误立即退出原语）正在进行；
+H3 入口仍不接受。** 先读 [本轮复核](g3-r0-review-2026-09-10.md)、[R0收尾/R1 spec](../../specs/android-fex-round2-g3-r0-exit-next.md)；
+完整后续 R2/R3/S0–S3 遵循 [修复→H3 spec](../../specs/android-fex-round2-g3-repair-h3.md)。
 
-R0 已交付：
+N1 已交付（`fd1c8a86`/`97f149af`）：
 
-- runner 归属：G30a/b（bare-HLT 故障归属，仅映射 R2-C03 fault-priority，**不是** H05）、G31a-c
-  （R2-H01 partial aux）、G32a/b（R2-H02 partial aux）已接入 SUITE_MAP/ROUND2_MAP/SUITE_OWNERSHIP；
-  正式 R2-H01..H06 仍 NOT_RUN。`sub_cases_owned_by` 现在覆盖 ROUND2_MAP，零输出崩溃也会 taint 这些 ID。
-- 新增**未映射 FAIL 安全网**：任何 FAIL/tainted 但不被任何 V0/R2 case 引用的子项强制进报告并使 runner
-  非零退出，杜绝"新前缀 FAIL+exit0 被漏记"。runner 自测新增 3 条负例（未映射 FAIL 必抓、未映射 PASS 不误伤、
-  映射 G31a FAIL 落 R2-H01），15/15 通过。
-- G24 偶发失败已定位并修复（测试侧，生产/固定 FEX 未改）。根因：SIGUSR1 可在 FEX block-link 路径
-  （`JIT.cpp ExitFunctionLink`）持有 context 级写优先 `CodeInvalidationMutex` 读锁的极短窗口冻结 owner，
-  写优先读写锁把另一 owner 的下一次读锁挡在 futex 上，使其无法到达 block-entry 停止点；真机现场为 held owner
-  用户态忙等、second 在内核 futex、second 的 guest progress 已冻结。生产 Pause 只在 block-entry 无锁安全点停线程，
-  从不在指令中间冻结，故这是测试冻结手段缺陷。修复：SIGUSR1 冻结后用观测条件确认另一未 drain owner 的 guest
-  持续推进（即冻结点无锁），否则释放并在不同指令重冻（有界），不是 settle sleep。AYN Thor/API33/4KiB 上修复前
-  约 1/15–1/25 复现，修复后 **60 次完整 suite（每次 202 checks、100 次 G24 迭代）全部 exit 0、ALL PASS、
-  零 G24 失败**。
-- G24 谓词已拆为逐阶段 `record(...)`，失败 detail 报阶段名/迭代号/second progress/两线程 wchan；仍每次迭代发
-  Check，保留 100 次迭代身份与 runner 重复/worst-verdict 记账。
+- runner 在决定退出码前先算 R2 报告，新增统一 `overall`（唯一失败 sub 去重、V0/R2 失败父项、未映射 sub、
+  失败 suite）；任何 V0/R2/unmapped/crashed-suite 失败都使 runner **非零退出**。G30–G32 各项 FAIL+exit0
+  此前 R2 JSON 记 FAIL 却返回 0，现已返回 1。V0 `summary.failed` 保留 V0 范围。
+- 失败/超时 suite 单独入 `failed_suites`；missing/not-started/all-SKIP/clean partial 继续 exit 0、NOT_RUN。
+- 自测 `run_runner` 不再丢 returncode；accounting 19/19、python 18/18，含真实子进程返回码与逐项 G30–G32
+  FAIL/重复冲突/missing-SKIP/crash/timeout/Z99/clean 矩阵。
+- host `run_suite` 对跨架构二进制（arm64 误放 host 目录）的 OSError(ENOEXEC) 改为 never-started，不再让 runner
+  写 JSON 前崩溃。
 
-R1–R3 待办（生产代码，仍按 spec）：
+N2 已交付（`911be847`）：
 
-1. ~~R0：runner 归属、G24 诊断定位与修复~~（已完成 `25189931` / `8eded461`）。
-2. R1：unknown/rejected 调用在后继 store 前**立即退出 guest**（不设全局 `_WIN32`、不依赖逐指令模式、不
-   长跳出 C++ 帧），按 thread/generation/invocation/operation/guest PC/category 记录错误。现有
-   `syscall;sentinel` 探针 sentinel 仍写 42，必须变 0；错误后自跳 loop 也须有界返回 owner。
-3. R2：真正 host/guest FP 切换（进入 guest 前存 owner host fenv，native 调用前装入、返回后恢复 guest
-   FPCR/MXCSR/FPSR）；RAII 覆盖解码/pin/分配/native/编码；native 异常在 C++ HLE 边界捕获转错误并走 R1 出口
-   （当前未捕获，进程 exit 134）；定义 host errno 与 guest errno 的映射/保存。
-4. R3：真实 guest 汇编布置 8 整数/9 double/混合及 stack spill（RCX/R10 参数视图 vs syscall 后 RCX/R11 架构状态、
-   callee-saved/RSP 对齐/red zone/XMM/GPR 返回）、有类型/生命周期的注册入口（拒绝 void* unchecked cast）、
-   显式 In/Out/InOut/nullable/element size/最大长度/零长语义、先全解码 pin 再进 native、真实乘法溢出
-   （`count > UINT64_MAX/sizeof(T)`）、native 持 pin 时另一 owner protect/remap、每拒绝点 native count 不增且
-   sentinel 不变、两 owner 独立 FS/GS/errno。
-5. S0–S3：R1–R3 通过后才进入。S0 先做单层 callback 原语独立证明（优先评估 owner 普通栈调度；FEX HandleCallback
-   需专用 callback return gate、SignalHandlerRefCounter、callret stack、栈/binding 清理核验）；S1 HleScope/
-   Invocation 栈与受控 InvokeGuest；S2 两层嵌套与独立 TLS；S3 可取消 WaitingHle 与 G2 交叉。
+- 用**确定性 test-only Run-entry gate**（`FexTestRunGate`，`GUEST_CPU_TEST_HOOKS` 宏 gate，release 不编译）替换
+  G24 的任意-PC SIGUSR1 冻结。gate 点在 `Run()` 内 running 已置、execution lease 已持、**全部 coordinator/context/
+  address-space 锁已释放、进入 FEX ExecuteThread 之前**；不持协调器需要的锁、不在信号处理器内；按 thread id 键控，
+  严格到达/释放/退出代次握手。旧"持锁冻结把第二 owner 挡在 futex"的偶发从协议上消除（非重试/sleep 降率）。
+- 旧 CodeInvalidationMutex 锁身份结论标注为**未决假设**（保留历史观测）。G24 全部既有断言、200ms drain、两种
+  request 次序、Pause/Cancel/Shutdown、retry/stale-Resume/外部 epoch 保持。
+- AYN Thor/API33/4KiB：11 次完整 guest suite（202 checks×11、100 G24 迭代）全 ALL PASS/exit0；canonical runner
+  设备 guest 104 sub 0 失败、contract 43/43、bionic smoke 12、runner exit 0，R2-C03/H01/H02 正式 NOT_RUN +
+  aux PASS。SIGUSR1 helper 仍供 G15 late-ack 使用（不依赖第二线程在 hold 中停止）。
+
+N3 待办（生产，进行中）：
+
+3. **N3 syscall 错误立即退出原语**：固定 FEX 非 Windows `DEFAULT_SYSCALL_FLAGS` 不含 BLOCK_END，
+   `syscall;sentinel store` 同 block，HandleSyscall 正常返回后 sentinel 必执行。需交付简短设计+最小真实探针：
+   C++ dispatch 正常完成 RAII 清理后转至已证明的 backend 出口（不 longjmp 出持锁/native/allocator 帧、不设全局
+   `_WIN32`、不用 MAXINST=1/逐指令、不改 fixture 成 `syscall;jmp`）；核对 InSyscallInfo/ReturningStackLocation/
+   callret/x28-frame/callee-saved/栈对齐/lease。三条最小验收：unknown `syscall;sentinel=42`→GuestFault 且 sentinel=0
+   且发生 PC=syscall；registered-buffer 拒绝→native count 不增、pin 回基线、sentinel=0；正常注册调用→后继 store
+   执行、返回值正确。另加错误后自跳 loop，单次无外部中断 ≤1 秒返回。
+4. **N4 错误归属**：按 context/thread/generation/invocation/operation/fault guest PC/category/system_error 记录；
+   去掉任意下一 owner 消费全局 unknown bool；正式 G33+ 测试同提交接入 ownership/ROUND2/N1 退出码负例；G30 保持
+   bare-HLT。
+5. R2（host/guest FP、native 异常封装、errno）、R3（完整 ABI/buffer/typed registry/TLS）在 N3/N4 之后；S0–S3
+   H3/callback 更后，R1–R3 不过不开始。
 
 已实现的 H0/H1/H2 基础（均为 partial，不等于 R2-H01/H02/H05 完成）：frame→thread fault flag；真实 6/8 整数和
 4 double gate；count 有界 buffer pin、sum60 和三个坏参数不进 native。主仓没有 HleScope/InvokeGuest/WaitingHle
 骨架；FEX HandleCallback 的 callback return trampoline、host/guest 栈、SignalHandlerRefCounter、cancel 清理尚未
 接入，普通 HLT return gate 不能直接替代。
 
-历史 [G2 修复记录](g2-exit-repair-2026-09-09.md)的 Pocket DS 97IDs/195checks 及 43/43 是当时结果，不能覆盖当前
-设备；旧 V0 10/0/47、24 个 R2 最终 NOT_RUN 也不能手工累加 H1/H2 通过数。G2 Q1–Q3 尾项（Query/decoder 邻接/边界/
-remap、跨 mapping/销毁 token、普通 mutator sink、按组合计数、每轮 generation/耗时）仍 NOT_RUN，不因转入 G3 划掉。
-
-Swan Android16/4KiB 普通 APK、JNI/ART/Foundation 生命周期、package ABI/closure/ZIP 和只读 guest snapshot 仍在
-G4。V0_IN_PROGRESS；16KiB/finite Step/Vulkan/游戏/VR 后置。
+历史 [G2 修复记录](g2-exit-repair-2026-09-09.md) 的 Pocket DS 97IDs/195checks 及 43/43 是当时结果，不能覆盖当前
+设备；G2 Q1–Q3 尾项仍 NOT_RUN，不因转入 G3 划掉。Swan Android16/4KiB 普通 APK/JNI/ART/Foundation 生命周期/
+package ABI/closure/ZIP/只读 guest snapshot 仍在 G4。V0_IN_PROGRESS；16KiB/finite Step/Vulkan/游戏/VR 后置。
