@@ -204,9 +204,9 @@ class RunnerTests(unittest.TestCase):
                 self.assertEqual(r2[self.G30_32_PARENT[sub]]["status"], "FAIL")
 
     def test_g33_immediate_syscall_exit_owned_and_fail_exits_nonzero(self):
-        # N4 formal G33 (syscall-fault immediate exit) lives in the device guest suite, maps to
-        # R2-H05, and a FAIL+exit0 on either sub-check must drive a non-zero runner exit.
-        for sub in ("G33a", "G33b"):
+        # N4 formal G33/G34 (syscall-fault immediate exit + bounded self-loop) live in the device
+        # guest suite, map to R2-H05, and a FAIL+exit0 on any sub-check drives a non-zero exit.
+        for sub in ("G33a", "G33b", "G34"):
             with self.subTest(sub=sub):
                 self.assertIn(sub, NS["sub_cases_owned_by"]("guest_execution_tests"))
                 data, _cases, code = self.run_report(
@@ -214,9 +214,9 @@ class RunnerTests(unittest.TestCase):
                 self.assertEqual(code, 1)
                 r2 = {c["id"]: c for c in data["round2"]["cases"]}
                 self.assertEqual(r2["R2-H05"]["status"], "FAIL")
-        # With both present and passing, H05 stays formal NOT_RUN with an auxiliary PASS (partial).
+        # With all present and passing, H05 stays formal NOT_RUN with an auxiliary PASS (partial).
         data, _cases, code = self.run_report(device=lambda *a: SuiteRun(
-            cases={"G33a": ("PASS", ""), "G33b": ("PASS", "")}, exit_code=0))
+            cases={s: ("PASS", "") for s in ("G33a", "G33b", "G34")}, exit_code=0))
         r2 = {c["id"]: c for c in data["round2"]["cases"]}
         self.assertEqual(r2["R2-H05"]["status"], "NOT_RUN")
         self.assertEqual(r2["R2-H05"]["auxiliary_status"], "PASS")

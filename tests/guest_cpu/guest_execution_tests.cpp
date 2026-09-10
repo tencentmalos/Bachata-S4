@@ -2412,6 +2412,44 @@ void TestImmediateSyscallExit(Harness& h) {
               ok && sentinel_value == 42,
               ok ? ("sentinel=" + std::to_string(sentinel_value)) : detail);
     }
+
+    // G34: a faulting syscall in a backward loop returns to the owner promptly with NO external
+    // cancel. The immediate exit must leave at the first faulting syscall; without it the guest would
+    // spin re-entering the syscall until the watchdog kills it.
+    {
+        auto* loop_fixture = FindFixture("syscall_self_loop");
+        if (!loop_fixture) {
+            Check("G34", "syscall self-loop fixture present", false, "missing fixture");
+            return;
+        }
+        std::string le;
+        if (!LoadFixture(h, *loop_fixture, le)) {
+            Check("G34", "load self-loop fixture", false, le);
+            return;
+        }
+        ThreadInit init{};
+        init.entry_rip = GuestCodeAddress{h.code_base};
+        init.initial_rsp = GuestAddress{h.stack_top};
+        init.guest_tid = 534;
+        init.initial_state.fields = RegisterValidity::Gpr;
+        init.initial_state.gpr_mask = (1u << Index(Gpr::Rax));
+        init.initial_state.values.Set(Gpr::Rax, 0x777777);
+        auto thread = h.context->CreateThread(init);
+        bool fault = false;
+        long long elapsed_ms = -1;
+        if (thread) {
+            const auto t0 = std::chrono::steady_clock::now();
+            auto result = h.context->Run(thread.Value(), RunOptions{});
+            elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::steady_clock::now() - t0).count();
+            fault = bool(result) && result.Value().primary_reason == StopReason::GuestFault;
+            (void)h.context->DestroyThread(thread.Value());
+        }
+        const bool bounded = elapsed_ms >= 0 && elapsed_ms < 1000;
+        Check("G34", "faulting syscall self-loop returns to owner <=1s without external cancel",
+              fault && bounded,
+              "fault=" + std::to_string(fault) + " elapsed_ms=" + std::to_string(elapsed_ms));
+    }
 }
 
 void TestCoordinatorRecovery(Harness& h) {

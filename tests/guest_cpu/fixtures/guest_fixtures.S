@@ -260,6 +260,18 @@ fixture_syscall_writes_sentinel:
     jmp     r15
 fixture_syscall_writes_sentinel_end:
 
+// R2-H05 bounded error return. rax = operation (unknown). The guest loops back onto the syscall:
+// the backend must leave at the FIRST faulting syscall with no external cancel, so the backward
+// branch never executes and Run returns promptly (<=1s). If the immediate exit were missing this
+// would spin re-entering the syscall forever (bounded by the watchdog only).
+.globl fixture_syscall_self_loop
+.globl fixture_syscall_self_loop_end
+fixture_syscall_self_loop:
+1:
+    syscall
+    jmp     1b                          // branch back onto the syscall above
+fixture_syscall_self_loop_end:
+
 // R2-C04: observe owner-written GPR, XMM, MXCSR rounding, FS/GS and RIP.
 // RDI=output; XMM1=1.75. MXCSR toward-zero must make CVTSD2SI produce 1.
 .globl fixture_state_echo
