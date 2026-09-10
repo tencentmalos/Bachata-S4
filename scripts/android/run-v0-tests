@@ -785,6 +785,10 @@ def main() -> int:
     # acceptance cases can be marked FAIL rather than silently left NOT_RUN, which would read as
     # "not attempted" when the truth is "attempted and the process failed".
     tainted: dict[str, str] = {}
+    # Suites that ran but did not exit cleanly (crash / non-zero / timeout), distinct from ones
+    # that were never launched. Each is an overall failure regardless of whether it printed sub
+    # cases, so a zero-output crash cannot be silently swallowed by a matrix that keys off sub ids.
+    failed_suites: list[dict[str, str]] = []
     # Which sub-cases were produced by a run on a device, so a case can say where its evidence
     # actually came from rather than always claiming HOST.
     device_subs: set[str] = set()
@@ -858,6 +862,8 @@ def main() -> int:
             reason = run.failure_reason() or "suite did not complete"
             for sub in set(run.cases) | sub_cases_owned_by(name):
                 tainted[sub] = reason
+            failed_suites.append({"suite": name, "reason": reason,
+                                  "on_device": str(on_device)})
             print(f"  {run.output.splitlines()[-1] if run.output else 'no output'}")
 
     for name, binary in suites.items():
@@ -1020,14 +1026,39 @@ def main() -> int:
     # work look larger, and counting them as passes would claim scope that is not being validated.
     in_scope = len(cases) - deferred
 
-    # An unmapped FAIL is an accounting error and counts as a failure: the work failed, and the
-    # runner would otherwise have hidden it. It must never be possible to release V0_ACCEPTED while
-    # a sub-case failure sits outside every matrix entry.
+    # Compute the Round 2 report up front so the overall exit decision sees R2-only failures, not
+    # just the V0 matrix. Previously this was built while serialising the JSON, after the exit code
+    # had already been decided, so a G30-G32 FAIL+exit0 recorded under an R2 case still returned 0.
+    round2_result = round2_report(observed, tainted)
+
+    # Every sub-check that actually failed at the source: it printed FAIL, or its suite crashed and
+    # tainted it. Deduplicated, so a sub referenced by several parent cases counts once as one
+    # failed sub-check even though it can fail multiple *parent* cases.
+    failed_subchecks: set[str] = {s for s, (verdict, _) in observed.items() if verdict == "FAIL"}
+    failed_subchecks.update(tainted.keys())
+    referenced = referenced_sub_ids()
+    r2_failed_cases = [c["id"] for c in round2_result["cases"] if c["status"] == "FAIL"]
+    unmapped_failed_subs = sorted(s for s in failed_subchecks if s not in referenced)
     accounting_errors = len(unmapped_failures)
-    total_failed = failed + accounting_errors
+
+    # Unified overall view. Parent-case counts and suite failures are reported separately from the
+    # unique failed-sub count; any one of them makes the invocation a failure and forces exit 1.
+    overall = {
+        "has_failures": bool(failed_subchecks) or bool(failed_suites),
+        "failed_subchecks_unique": sorted(failed_subchecks),
+        "failed_subcheck_count": len(failed_subchecks),
+        "v0_failed_cases": failed,
+        "round2_failed_cases": r2_failed_cases,
+        "round2_failed_case_count": len(r2_failed_cases),
+        "unmapped_failed_subchecks": unmapped_failed_subs,
+        "unmapped_failed_count": accounting_errors,
+        "failed_suites": failed_suites,
+        "failed_suite_count": len(failed_suites),
+    }
+    total_failed = failed + len(r2_failed_cases) + len(failed_suites)
 
     # Status selection is mechanical, so it cannot be talked upwards.
-    if total_failed:
+    if overall["has_failures"]:
         release_status = "V0_IN_PROGRESS"
     elif any(c["reason"] and "[NO-BACKEND]" in c["reason"] for c in cases):
         # Unimplemented capability is work remaining, not a blocker.
@@ -1079,17 +1110,21 @@ def main() -> int:
                         "not exercised in this invocation; no --fex-build-dir given"),
         },
         "suites": suite_meta,
+        # V0-scoped counts for backwards compatibility.
         "summary": {"passed": passed, "failed": failed, "not_run": not_run,
                     "deferred_by_scope": deferred, "in_scope_total": in_scope,
                     "total": len(cases),
                     "unmapped_sub_case_failures": unmapped_failures},
+        # Unified across V0 + Round 2 + unmapped subs + failed suites; this is what drives exit code.
+        "overall": overall,
         "cases": cases,
-        "round2": round2_report(observed, tainted),
+        "round2": round2_result,
         "release_status": release_status,
         "release_status_reason": (
-            f"This invocation observed {passed} complete acceptance passes, {total_failed} failures "
-            f"({failed} acceptance cases + {accounting_errors} unmapped sub-case failures), "
-            f"{not_run} incomplete/unrun cases and {deferred} scope deferrals. "
+            f"This invocation observed {passed} complete V0 passes, {failed} V0 failures, "
+            f"{len(r2_failed_cases)} Round 2 failed cases, {len(failed_suites)} failed suite(s) and "
+            f"{accounting_errors} unmapped sub-case failure(s); {not_run} incomplete/unrun V0 cases, "
+            f"{deferred} scope deferrals, {len(failed_subchecks)} unique failed sub-check(s). "
             "Auxiliary unit evidence is not complete acceptance. "
             "Running-thread interruption, real HLE/callback and app integration remain incomplete."),
     }
@@ -1100,13 +1135,18 @@ def main() -> int:
 
     print(f"\n{passed} PASS, {failed} FAIL, {not_run} NOT_RUN of {in_scope} in-scope cases"
           + (f" ({deferred} deferred by scope)" if deferred else ""))
+    if r2_failed_cases:
+        print(f"{len(r2_failed_cases)} ROUND 2 failed case(s): {', '.join(r2_failed_cases)}")
+    if failed_suites:
+        print(f"{len(failed_suites)} failed suite(s): "
+              + ", ".join(f"{s['suite']} ({s['reason']})" for s in failed_suites))
     if accounting_errors:
         print(f"{accounting_errors} UNMAPPED sub-case failure(s) (not referenced by any case):")
         for item in unmapped_failures:
             print(f"  {item['sub_case']}: {item['reason']}")
     print(f"release status: {release_status}")
     print(f"wrote {out_path}")
-    return 1 if total_failed else 0
+    return 1 if overall["has_failures"] else 0
 
 
 if __name__ == "__main__":

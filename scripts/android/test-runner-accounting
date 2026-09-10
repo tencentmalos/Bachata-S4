@@ -51,8 +51,11 @@ def write_suite(directory: Path, name: str, body: str) -> Path:
     return path
 
 
-def run_runner(runner: Path, build_dir: Path, extra: list[str] | None = None) -> dict | None:
-    """Run the acceptance runner against a synthetic build directory and return its JSON."""
+def run_runner(runner: Path, build_dir: Path, extra: list[str] | None = None) -> tuple[dict | None, int]:
+    """Run the acceptance runner against a synthetic build directory and return (JSON, exit code).
+
+    The OS exit code is part of the contract: CI keys off it, so a R2-only FAIL+exit0 must surface
+    as a non-zero code, not just a FAIL in the JSON. Always capture it."""
     with tempfile.TemporaryDirectory() as tmp:
         out = Path(tmp) / "results.json"
         command = [sys.executable, str(runner), "--build-dir", str(build_dir), "--out", str(out)]
@@ -62,10 +65,10 @@ def run_runner(runner: Path, build_dir: Path, extra: list[str] | None = None) ->
         # outcome of a runner accounting test.
         env["PATH"] = os.pathsep.join(
             p for p in env.get("PATH", "").split(os.pathsep) if p and "platform-tools" not in p)
-        subprocess.run(command, capture_output=True, text=True, timeout=900, env=env)
+        proc = subprocess.run(command, capture_output=True, text=True, timeout=900, env=env)
         if not out.is_file():
-            return None
-        return json.loads(out.read_text())
+            return None, proc.returncode
+        return json.loads(out.read_text()), proc.returncode
 
 
 def case_of(report: dict, case_id: str) -> dict:
@@ -89,7 +92,7 @@ def main() -> int:
 
     # --- 1: standalone ELFs must not be reported as package coverage --------------------------
     with tempfile.TemporaryDirectory() as tmp:
-        report = run_runner(runner, Path(tmp))
+        report, _code = run_runner(runner, Path(tmp))
         if report is None:
             check("1. runner produced a report with an empty build dir", False)
         else:
@@ -106,7 +109,7 @@ print("[M01a  ] page size discovered                                PASS")
 print("[M01b  ] three page quantities stay distinct                 PASS")
 print("2/2 passed")
 """)
-        report = run_runner(runner, directory)
+        report, _code = run_runner(runner, directory)
         m01 = case_of(report or {}, "M01")
         check("3. a case with a missing sub-case does not pass",
               m01.get("status") != "PASS", f"status={m01.get('status')}")
@@ -119,7 +122,7 @@ print("[M01b  ] three page quantities stay distinct                 SKIP -- need
 print("[M01c  ] map, write, read back, unmap                        PASS")
 print("2/3 passed, 1 skipped")
 """)
-        report = run_runner(runner, directory)
+        report, _code = run_runner(runner, directory)
         m01 = case_of(report or {}, "M01")
         check("4. a SKIP sub-case does not complete a case",
               m01.get("status") != "PASS", f"status={m01.get('status')}")
@@ -134,7 +137,7 @@ print("[M01b  ] three page quantities stay distinct                 PASS")
 print("[M01c  ] map, write, read back, unmap                        PASS")
 print("3/4 passed")
 """)
-        report = run_runner(runner, directory)
+        report, _code = run_runner(runner, directory)
         m01 = case_of(report or {}, "M01")
         check("7. a later PASS does not overwrite an earlier FAIL for the same ID",
               m01.get("status") == "FAIL", f"status={m01.get('status')}")
@@ -151,13 +154,15 @@ print("3/4 passed")
     with tempfile.TemporaryDirectory() as tmp:
         directory = Path(tmp)
         write_suite(directory, "guest_cpu_contract_tests", "raise SystemExit(7)\n")
-        report = run_runner(runner, directory)
+        report, _code = run_runner(runner, directory)
         m01 = case_of(report or {}, "M01")
         summary = (report or {}).get("summary", {})
         check("5. a suite that exits non-zero with no output fails its owned cases",
               m01.get("status") == "FAIL", f"status={m01.get('status')}")
         check("5b. that failure reaches the summary",
               summary.get("failed", 0) > 0, f"failed={summary.get('failed')}")
+        check("5c. the runner process itself exits non-zero",
+              _code != 0, f"exit={_code}")
 
     # --- 6: timeout ---------------------------------------------------------------------------
     # A full 600s timeout would make this suite unusable, so this checks the classification
@@ -197,7 +202,7 @@ print("[M01b  ] three page quantities stay distinct                 PASS")
 print("[M01c  ] map, write, read back, unmap                        PASS")
 print("3/3 passed")
 """)
-        report = run_runner(runner, directory)
+        report, _code = run_runner(runner, directory)
         m01 = case_of(report or {}, "M01")
         check("2. a host-only result is labelled HOST, not DEVICE",
               m01.get("environment") == "HOST", f"environment={m01.get('environment')}")
@@ -211,12 +216,14 @@ print("3/3 passed")
 print("[Z99a  ] a brand-new check no matrix entry references        FAIL -- synthetic")
 print("done")
 """)
-        report = run_runner(runner, directory)
+        report, _code = run_runner(runner, directory)
         summary = (report or {}).get("summary", {})
         orphan = summary.get("unmapped_sub_case_failures", [])
         check("9. an unmapped FAIL+exit0 is recorded as an unmapped sub-case failure",
               any(o.get("sub_case") == "Z99a" for o in orphan),
               f"unmapped={[o.get('sub_case') for o in orphan]}")
+        check("9c. an unmapped FAIL makes the runner process exit non-zero",
+              _code != 0, f"exit={_code}")
 
     # --- 9b: an unmapped PASS is a harmless extra diagnostic, not an accounting error -----------
     with tempfile.TemporaryDirectory() as tmp:
@@ -228,13 +235,15 @@ print("[M01c  ] map, write, read back, unmap                        PASS")
 print("[Z98a  ] an extra diagnostic nobody maps                      PASS")
 print("3/3 passed")
 """)
-        report = run_runner(runner, directory)
+        report, _code = run_runner(runner, directory)
         summary = (report or {}).get("summary", {})
         m01 = case_of(report or {}, "M01")
         orphan = summary.get("unmapped_sub_case_failures", [])
         check("9b. an unmapped PASS does not trip the orphan net",
               not orphan and m01.get("status") == "PASS",
               f"unmapped={[o.get('sub_case') for o in orphan]} m01={m01.get('status')}")
+        check("9d. a clean run with an unmapped PASS exits zero",
+              _code == 0, f"exit={_code}")
 
     # --- 10: a newly-mapped Round 2 id (G31a) failing is a Round 2 failure, not an orphan --------
     with tempfile.TemporaryDirectory() as tmp:
@@ -243,7 +252,7 @@ print("3/3 passed")
 print("[G31a  ] real guest syscall gate returns the 6-integer sum    FAIL -- synthetic")
 print("done")
 """)
-        report = run_runner(runner, directory)
+        report, _code = run_runner(runner, directory)
         summary = (report or {}).get("summary", {})
         orphan = summary.get("unmapped_sub_case_failures", [])
         r2 = {c["id"]: c for c in (report or {}).get("round2", {}).get("cases", [])}
@@ -252,6 +261,10 @@ print("done")
               not any(o.get("sub_case", "").startswith("G31") for o in orphan)
               and h01.get("status") == "FAIL",
               f"h01={h01.get('status')} orphan={[o.get('sub_case') for o in orphan]}")
+        # The P1 regression itself: a R2-only FAIL+exit0 previously left the runner exiting 0 even
+        # though the JSON marked R2-H01 FAIL. The process exit code must be non-zero.
+        check("10b. a R2-only G31a FAIL+exit0 makes the runner process exit non-zero",
+              _code != 0, f"exit={_code}")
 
     print(f"\n{CHECKS - len(FAILURES)}/{CHECKS} passed")
     if FAILURES:

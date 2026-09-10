@@ -18,6 +18,8 @@ SuiteRun = NS["SuiteRun"]
 
 class RunnerTests(unittest.TestCase):
     def run_report(self, host=None, device=None):
+        """Run the real main() (real parser/ownership/aggregation/exit path; only external
+        execution and device discovery are mocked) and return (data, cases_by_id, return_code)."""
         absent = lambda *a: SuiteRun(error="not built", never_started=True)
         with tempfile.TemporaryDirectory() as td:
             out = Path(td) / "result.json"
@@ -31,13 +33,13 @@ class RunnerTests(unittest.TestCase):
                 "CheckDesktopConfigure": lambda *a: NS["NotRun"]("not configured"),
             }), patch.object(sys, "argv", ["runner", "--build-dir", td,
                   "--fex-build-dir", td, "--out", str(out)]), contextlib.redirect_stdout(io.StringIO()):
-                NS["main"]()
+                code = NS["main"]()
             data = json.loads(out.read_text())
             self.assertTrue((Path(td) / "result-suites/api_contract_tests.txt").exists())
-            return data, {case["id"]: case for case in data["cases"]}
+            return data, {case["id"]: case for case in data["cases"]}, code
 
     def test_never_started_and_scope(self):
-        data, cases = self.run_report()
+        data, cases, _code = self.run_report()
         self.assertEqual(cases["M01"]["status"], "NOT_RUN")
         self.assertEqual(data["summary"]["failed"], 0)
         self.assertEqual(data["summary"]["deferred_by_scope"], 3)
@@ -46,25 +48,25 @@ class RunnerTests(unittest.TestCase):
     def test_no_output_failure_and_timeout(self):
         for run in (SuiteRun(exit_code=7), SuiteRun(timed_out=True)):
             with self.subTest(run=run):
-                _, cases = self.run_report(host=lambda binary: run if binary.name == "guest_cpu_contract_tests"
+                _, cases, _code = self.run_report(host=lambda binary: run if binary.name == "guest_cpu_contract_tests"
                                            else SuiteRun(error="not built", never_started=True))
                 self.assertEqual(cases["M01"]["status"], "FAIL")
 
     def test_skip_cannot_complete_acceptance(self):
         checks = {s: ("PASS", "") for s in NS["SUITE_MAP"]["M13"]}
         checks["M13f"] = ("SKIP", "RWX refused")
-        _, cases = self.run_report(host=lambda _: SuiteRun(cases=checks, exit_code=0))
+        _, cases, _code = self.run_report(host=lambda _: SuiteRun(cases=checks, exit_code=0))
         self.assertEqual(cases["M13"]["status"], "NOT_RUN")
 
     def test_device_pass_completes_host_skip(self):
         checks = {s: ("PASS", "") for s in NS["SUITE_MAP"]["M13"]}
         skipped = dict(checks, M13f=("SKIP", "RWX refused"))
-        _, cases = self.run_report(host=lambda _: SuiteRun(cases=skipped, exit_code=0),
+        _, cases, _code = self.run_report(host=lambda _: SuiteRun(cases=skipped, exit_code=0),
                                    device=lambda *a: SuiteRun(cases=checks, exit_code=0))
         self.assertEqual(cases["M13"]["status"], "PASS")
 
     def test_partial_failure_outranks_missing(self):
-        _, cases = self.run_report(host=lambda _: SuiteRun(cases={"M01a": ("FAIL", "bad")}, exit_code=0))
+        _, cases, _code = self.run_report(host=lambda _: SuiteRun(cases={"M01a": ("FAIL", "bad")}, exit_code=0))
         self.assertEqual(cases["M01"]["status"], "FAIL")
 
     def test_g2_owned_failures_and_incomplete_smoke(self):
@@ -72,13 +74,13 @@ class RunnerTests(unittest.TestCase):
                                 ("guest_cpu_contract_tests", ("M21", "M22", "M23", "M24", "M25", "M26"))):
             self.assertTrue(set(expected) <= NS["sub_cases_owned_by"](suite))
         checks = {s: ("PASS", "") for s in NS["SUITE_MAP"]["M09"]}
-        _, cases = self.run_report(device=lambda *a: SuiteRun(cases=checks, exit_code=0))
+        _, cases, _code = self.run_report(device=lambda *a: SuiteRun(cases=checks, exit_code=0))
         self.assertEqual(cases["M09"]["status"], "NOT_RUN")
         self.assertEqual(cases["M09"]["auxiliary_status"], "PASS")
         for case, sub in (("M07", "G23c"), ("T03", "G24a"), ("M13", "M24")):
-            _, cases = self.run_report(device=lambda *a: SuiteRun(cases={sub: ("FAIL", "injected")}, exit_code=0))
+            _, cases, _code = self.run_report(device=lambda *a: SuiteRun(cases={sub: ("FAIL", "injected")}, exit_code=0))
             self.assertEqual(cases[case]["status"], "FAIL")
-        _, cases = self.run_report(device=lambda *a: SuiteRun(timed_out=True))
+        _, cases, _code = self.run_report(device=lambda *a: SuiteRun(timed_out=True))
         self.assertEqual(cases["M09"]["status"], "FAIL")
 
     def test_closeout_cases_have_ownership_and_failures_propagate(self):
@@ -87,7 +89,7 @@ class RunnerTests(unittest.TestCase):
                           ("G28a", "M11"), ("G28b", "M11")):
             suite = "guest_execution_tests" if sub.startswith("G") else "guest_cpu_contract_tests"
             self.assertIn(sub, NS["sub_cases_owned_by"](suite))
-            data, cases = self.run_report(device=lambda *a: SuiteRun(cases={sub: ("FAIL", "injected")}, exit_code=0))
+            data, cases, _code = self.run_report(device=lambda *a: SuiteRun(cases={sub: ("FAIL", "injected")}, exit_code=0))
             self.assertEqual(cases[case]["status"], "FAIL")
             self.assertEqual(data["round2"]["total"], 24)
         for sub, label, count, prefix in (("G25a", "G25", 100, "EPOCH "),
@@ -127,10 +129,142 @@ class RunnerTests(unittest.TestCase):
 
     def test_partial_semantic_coverage_is_auxiliary(self):
         checks = {s: ("PASS", "") for s in NS["SUITE_MAP"]["C02"]}
-        _, cases = self.run_report(device=lambda *a: SuiteRun(cases=checks, exit_code=0))
+        _, cases, _code = self.run_report(device=lambda *a: SuiteRun(cases=checks, exit_code=0))
         self.assertEqual(cases["C02"]["status"], "NOT_RUN")
         self.assertEqual(cases["C02"]["auxiliary_status"], "PASS")
         self.assertIn("MXCSR", cases["C02"]["reason"])
+
+    # --- N1: every real failure (V0 / Round 2 / unmapped / crashed suite) drives the exit code ---
+
+    G30_32 = ["G30a", "G30b", "G31a", "G31b", "G31c", "G32a", "G32b"]
+    G30_32_PARENT = {"G30a": "R2-C03", "G30b": "R2-C03",
+                     "G31a": "R2-H01", "G31b": "R2-H01", "G31c": "R2-H01",
+                     "G32a": "R2-H02", "G32b": "R2-H02"}
+
+    def test_each_g30_g32_fail_exit0_forces_nonzero_and_round2_fail(self):
+        # The P1 regression: a FAIL+exit0 recorded under an R2-only parent still returned 0.
+        for sub in self.G30_32:
+            with self.subTest(sub=sub):
+                data, _cases, code = self.run_report(
+                    device=lambda *a, _s=sub: SuiteRun(cases={_s: ("FAIL", "syn")}, exit_code=0))
+                self.assertEqual(code, 1)
+                self.assertTrue(data["overall"]["has_failures"])
+                self.assertEqual(data["overall"]["failed_subchecks_unique"], [sub])
+                self.assertEqual(data["overall"]["failed_subcheck_count"], 1)
+                r2 = {c["id"]: c for c in data["round2"]["cases"]}
+                self.assertEqual(r2[self.G30_32_PARENT[sub]]["status"], "FAIL")
+
+    def test_all_g30_g32_fail_exit0_counts_unique_subs_not_parents(self):
+        checks = {s: ("FAIL", "syn") for s in self.G30_32}
+        data, _cases, code = self.run_report(device=lambda *a: SuiteRun(cases=checks, exit_code=0))
+        self.assertEqual(code, 1)
+        # Three distinct parent cases fail, but there are seven distinct failed sub-checks; a sub
+        # referenced by two matrices must not be counted twice as two failed sub-checks.
+        self.assertEqual(sorted(data["overall"]["round2_failed_cases"]),
+                         ["R2-C03", "R2-H01", "R2-H02"])
+        self.assertEqual(data["overall"]["round2_failed_case_count"], 3)
+        self.assertEqual(data["overall"]["failed_subcheck_count"], 7)
+
+    def test_sub_in_both_v0_and_round2_counts_once_but_fails_both_parents(self):
+        # G24a feeds V0 T03 (SUITE_MAP) and R2-M02 (ROUND2_MAP): two parent failures, one sub.
+        data, cases, code = self.run_report(
+            device=lambda *a: SuiteRun(cases={"G24a": ("FAIL", "syn")}, exit_code=0))
+        self.assertEqual(code, 1)
+        self.assertEqual(cases["T03"]["status"], "FAIL")
+        r2 = {c["id"]: c for c in data["round2"]["cases"]}
+        self.assertEqual(r2["R2-M02"]["status"], "FAIL")
+        self.assertEqual(data["overall"]["failed_subcheck_count"], 1)
+
+    def test_fail_then_pass_repeat_keeps_worst_and_is_nonzero(self):
+        run = SuiteRun(cases={"G31a": ("PASS", "")}, exit_code=0)
+        run.cases = {"G31a": ("PASS", "")}  # last printed verdict is PASS...
+        # ...but the parser keeps worst verdict across repeats; emulate FAIL-then-PASS text.
+        parsed, counts, conflicts = NS["parse_sub_cases"](
+            "[G31a  ] earlier FAIL -- iteration 1\n[G31a  ] later PASS\n")
+        self.assertEqual(parsed["G31a"][0], "FAIL")
+        self.assertEqual(counts["G31a"], 2)
+        self.assertTrue(conflicts)
+        data, _cases, code = self.run_report(device=lambda *a: SuiteRun(
+            cases=dict(parsed), exit_code=0, iteration_counts=counts, conflicts=conflicts))
+        self.assertEqual(code, 1)
+        r2 = {c["id"]: c for c in data["round2"]["cases"]}
+        self.assertEqual(r2["R2-H01"]["status"], "FAIL")
+
+    def test_missing_or_skip_g_sub_is_partial_not_pass_and_exit0(self):
+        # One G sub present-and-PASS, the other sibling missing: the R2 parent is partial/NOT_RUN,
+        # not a complete PASS, and with no other fault the runner exits 0.
+        for present, missing in (("G31a", "G31b"), ("G32a", "G32b")):
+            with self.subTest(present=present):
+                data, _cases, code = self.run_report(
+                    device=lambda *a, _p=present: SuiteRun(cases={_p: ("PASS", "")}, exit_code=0))
+                self.assertEqual(code, 0)
+                parent = "R2-H01" if present.startswith("G31") else "R2-H02"
+                r2 = {c["id"]: c for c in data["round2"]["cases"]}
+                self.assertEqual(r2[parent]["status"], "NOT_RUN")
+                self.assertEqual(r2[parent]["auxiliary_status"], "NOT_RUN")
+        # A SKIP is the same: not complete, not a failure.
+        data, _cases, code = self.run_report(
+            device=lambda *a: SuiteRun(cases={"G31a": ("SKIP", "x")}, exit_code=0))
+        self.assertEqual(code, 0)
+
+    def test_guest_suite_crash_and_timeout_taint_g30_g32_and_are_nonzero(self):
+        for run in (SuiteRun(exit_code=7), SuiteRun(timed_out=True)):
+            with self.subTest(run=run):
+                data, _cases, code = self.run_report(device=lambda *a, _r=run: _r)
+                self.assertEqual(code, 1)
+                self.assertTrue(data["overall"]["failed_suite_count"] >= 1)
+                # Zero-output crash taints the ids the suite owns, including the new H1/H2 prefixes.
+                owners = NS["sub_cases_owned_by"]("guest_execution_tests")
+                self.assertTrue({s for s in self.G30_32} <= owners)
+                r2 = {c["id"]: c for c in data["round2"]["cases"]}
+                for parent in ("R2-C03", "R2-H01", "R2-H02"):
+                    self.assertEqual(r2[parent]["status"], "FAIL")
+
+    def test_unknown_new_id_fail_is_accounting_failure_and_nonzero(self):
+        for text in ("[Z99a  ] brand new FAIL\n",
+                     "[Z99a  ] earlier FAIL -- i1\n[Z99a  ] later PASS\n"):
+            with self.subTest(text=text):
+                parsed, counts, conflicts = NS["parse_sub_cases"](text)
+                data, _cases, code = self.run_report(
+                    host=lambda *a, _p=parsed, _c=counts, _x=conflicts:
+                    SuiteRun(cases=dict(_p), exit_code=0, iteration_counts=_c, conflicts=_x))
+                self.assertEqual(code, 1)
+                self.assertEqual(data["overall"]["unmapped_failed_subchecks"], ["Z99a"])
+
+    def test_clean_partial_and_never_started_exit_zero_without_fabrication(self):
+        # No device suite launched at all: nothing attempted, no fabricated failure, exit 0.
+        data, _cases, code = self.run_report()
+        self.assertEqual(code, 0)
+        self.assertFalse(data["overall"]["has_failures"])
+        # An unmapped PASS (extra diagnostic nobody maps) is harmless.
+        parsed, _, _ = NS["parse_sub_cases"]("[Z98a  ] extra diag PASS\n")
+        _d, _c, code = self.run_report(
+            host=lambda *a, _p=parsed: SuiteRun(cases=dict(_p), exit_code=0))
+        self.assertEqual(code, 0)
+
+    def test_real_runner_subprocess_returncode_matches_failures(self):
+        # At least one check through a real runner *process*: its OS exit code must agree with the
+        # observed failure. Parser/aggregation/exit are all the shipped code; only the suite binary
+        # is a synthesised host executable (no device needed).
+        runner = ROOT / "scripts/android/run-v0-tests"
+        with tempfile.TemporaryDirectory() as td:
+            td = Path(td)
+            build = td / "build"; build.mkdir()
+            suite = build / "guest_cpu_contract_tests"
+            for verdict, expect_code in (("FAIL", 1), ("PASS", 0)):
+                suite.write_text("#!/bin/sh\n"
+                                 f'printf "[M01a  ] a PASS\\n[M01b  ] b PASS\\n[M01c  ] c {verdict}\\n"\n')
+                suite.chmod(0o755)
+                out = td / f"result-{verdict}.json"
+                # Hide platform-tools so no real device interferes.
+                env = dict(__import__("os").environ)
+                env["PATH"] = __import__("os").pathsep.join(
+                    p for p in env.get("PATH", "").split(__import__("os").pathsep)
+                    if p and "platform-tools" not in p)
+                proc = subprocess.run([sys.executable, str(runner), "--build-dir", str(build),
+                                       "--out", str(out)], capture_output=True, text=True, env=env)
+                self.assertEqual(proc.returncode, expect_code,
+                                 f"M01c {verdict}: {proc.stdout}\n{proc.stderr}")
 
 
 if __name__ == "__main__":
