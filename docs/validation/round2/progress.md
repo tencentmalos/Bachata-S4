@@ -1,3 +1,25 @@
+# 二周目进度（2026-09-10 syscall立即退出已生产化：G33/G34正式验收）
+
+> **N3/N4 核心已从实验 shim 落地为生产路径（提交 `1a6664c6`、`33e58083`），并由正式 guest suite
+> 验收**：
+> - **生产常驻 syscall wrapper**：`FexSyscallWrapper` 对每次 Run 安装到 `Pointers.SyscallHandlerFunc`（无
+>   arm 开关、无全局决策槽），转发原 handler；fault 时在 C++ dispatch 干净返回后经 naked `FexSyscallExitToStop`
+>   （x28=frame、sp=`frame->ReturningStackLocation`、br **非-spill** stop 入口）让 ExecuteThread 在 syscall 点返回，
+>   后继同 block 指令不执行。per-thread stop 地址/fault 标志在 owner 的 ThreadInterruptBinding/thread_local。
+> - **G33a**（unknown）：GuestFault、sentinel=0、fault RIP=syscall PC；**G33b**（valid）：sentinel=42（证明出口
+>   仅错误路径）；**G34**（unknown 自跳 loop）：无外部 Cancel、首次 fault syscall 即返回，实测 0ms（预算1s）。
+> - tests=OFF release 含 `FexSyscallWrapper/ExitToStop`、零 gate/trace 符号；真机完整 suite **205 checks ALL
+>   PASS**，canonical guest 107 sub 0 失败、R2-H05 正式 NOT_RUN + aux PASS；runner python 22/22、accounting 21/21。
+>
+> **仍待 N4 完整矩阵**：registered-buffer 拒绝的立即退出 + pin/部分 pin、双 owner 错误隔离（错误不串合法 owner）、
+> 与 Pause/Cancel/Shutdown 交错、销毁重建不继承旧错误、按 context/thread/generation/invocation/operation/
+> guest PC/category/system_error 的结构化错误事件（当前仍是 per-frame bool + category atomic）。之后 R2（FP/
+> 异常/errno）→ R3（完整 ABI/buffer/typed registry）→ S0–S3。G33/G34 是 CLI 辅助，不等于完整 R2-H05 验收。
+>
+> 前序（`4da75699`/`1a65bb1f`）已关闭 C1 复核三反例：非-spill 出口修 10-GPR 快照破坏（state probe mismatches
+> 10→0）、gate token 换代竞态（gate-race NO_REPRO/100）、gate 超时 fall-through 收尾（WaitStopped 不再超时）。
+> origin 仍 `0e10defc`，这些提交仅本地未 push。
+
 # 二周目进度（2026-09-10 C1复核三反例已修复并真机验证）
 
 > **C1 复核（报告 [g3-c1-review](g3-c1-review-2026-09-10.md)）的三个实测反例已关闭并真机/host 验证**
