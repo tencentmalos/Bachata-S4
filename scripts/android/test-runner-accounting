@@ -266,6 +266,30 @@ print("done")
         check("10b. a R2-only G31a FAIL+exit0 makes the runner process exit non-zero",
               _code != 0, f"exit={_code}")
 
+    # --- 11: a specified suite binary that exists but cannot launch is a failure ----------------
+    # Corrupt/unrecognised executable content must NOT be silently treated as a cross-architecture
+    # skip (ENOEXEC cannot distinguish "wrong arch" from "corrupt artifact"). A missing binary is
+    # still never-started and exits 0.
+    with tempfile.TemporaryDirectory() as tmp:
+        directory = Path(tmp)
+        corrupt = directory / "guest_cpu_contract_tests"
+        corrupt.write_text("corrupted non-executable artifact\n")
+        corrupt.chmod(0o755)
+        report, code = run_runner(runner, directory)
+        overall = (report or {}).get("overall", {})
+        check("11. a corrupt executable suite is a failed suite, not a cross-arch skip",
+              code != 0 and overall.get("failed_suite_count", 0) >= 1
+              and not any("wrong architecture" in str(s.get("reason")) for s in overall.get("failed_suites", [])),
+              f"exit={code} suites={overall.get('failed_suites')}")
+
+    with tempfile.TemporaryDirectory() as tmp:
+        directory = Path(tmp)  # no suite binaries at all
+        report, code = run_runner(runner, directory)
+        overall = (report or {}).get("overall", {})
+        check("11b. a missing suite is never-started and exits zero",
+              code == 0 and overall.get("failed_suite_count", 0) == 0,
+              f"exit={code} suites={overall.get('failed_suite_count')}")
+
     print(f"\n{CHECKS - len(FAILURES)}/{CHECKS} passed")
     if FAILURES:
         print("\nFAILURES:")

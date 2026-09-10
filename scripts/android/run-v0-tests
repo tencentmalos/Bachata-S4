@@ -16,7 +16,6 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import errno
 import hashlib
 import json
 import os
@@ -444,15 +443,13 @@ def run_suite(binary: Path) -> SuiteRun:
     except subprocess.TimeoutExpired:
         return SuiteRun(output=f"timed out after 600s: {binary}", timed_out=True)
     except OSError as exc:
-        # ENOEXEC ("Exec format error") means the binary is for a different architecture, the common
-        # case of pointing --build-dir at the cross-compiled arm64 device binaries from the mac host;
-        # nothing can be attempted on this host, so it is never-started (the device path runs them),
-        # not a crash that prevents the JSON report from being written at all. Any other launch error
-        # (permission denied on a runnable host binary, etc.) is a real suite failure.
-        if getattr(exc, "errno", None) == errno.ENOEXEC:
-            return SuiteRun(error=f"cannot execute on this host (wrong architecture): {binary}",
-                            never_started=True)
-        return SuiteRun(error=f"could not launch {binary}: {exc}")
+        # A suite binary that EXISTS but cannot be launched is a build/artifact/config failure:
+        # corruption, a wrong-format file, or wrong permissions. Report it as a failed (attempted)
+        # suite -- distinct from the file being absent, which means it was simply never built for
+        # this invocation. errno alone (ENOEXEC) cannot prove a binary is merely a cross-architecture
+        # artifact vs a corrupted one, so we never silently skip an existing artifact on that basis;
+        # the caller is expected to pass the host build dir and the device build dir separately.
+        return SuiteRun(error=f"cannot launch suite {binary}: [{exc.errno}] {exc.strerror}")
     elapsed = time.monotonic() - started
     parsed, counts, conflicts = parse_sub_cases(result.stdout)
     output = result.stdout + result.stderr + f"\n(exit {result.returncode}, {elapsed:.2f}s)"
@@ -1052,13 +1049,17 @@ def main() -> int:
     unmapped_failed_subs = sorted(s for s in failed_subchecks if s not in referenced)
     accounting_errors = len(unmapped_failures)
 
-    # Unified overall view. Parent-case counts and suite failures are reported separately from the
-    # unique failed-sub count; any one of them makes the invocation a failure and forces exit 1.
+    # Unified overall view. Every source of a real failure is OR-ed here, so the invariant is:
+    # any final acceptance FAIL -- a V0 case (including the B02/B05/B06 direct checkers, whose
+    # status is written straight into the case and never goes through a sub-check), a Round 2 case,
+    # an unmapped sub-check, or a suite/checker that failed to launch -- makes has_failures true and
+    # forces a non-zero exit. A single count of final FAIL cases plus unique failed subs/suites is
+    # reported separately so one sub referenced by two parents is not counted as two failures.
     overall = {
-        "has_failures": bool(failed_subchecks) or bool(failed_suites),
         "failed_subchecks_unique": sorted(failed_subchecks),
         "failed_subcheck_count": len(failed_subchecks),
         "v0_failed_cases": failed,
+        "v0_failed_case_ids": [c["id"] for c in cases if c["status"] == "FAIL"],
         "round2_failed_cases": r2_failed_cases,
         "round2_failed_case_count": len(r2_failed_cases),
         "unmapped_failed_subchecks": unmapped_failed_subs,
@@ -1066,7 +1067,8 @@ def main() -> int:
         "failed_suites": failed_suites,
         "failed_suite_count": len(failed_suites),
     }
-    total_failed = failed + len(r2_failed_cases) + len(failed_suites)
+    overall["has_failures"] = bool(
+        overall["v0_failed_cases"] or r2_failed_cases or failed_subchecks or failed_suites)
 
     # Status selection is mechanical, so it cannot be talked upwards.
     if overall["has_failures"]:

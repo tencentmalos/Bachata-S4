@@ -17,26 +17,75 @@ SuiteRun = NS["SuiteRun"]
 
 
 class RunnerTests(unittest.TestCase):
-    def run_report(self, host=None, device=None):
+    def run_report(self, host=None, device=None, checks=None):
         """Run the real main() (real parser/ownership/aggregation/exit path; only external
-        execution and device discovery are mocked) and return (data, cases_by_id, return_code)."""
+        execution and device discovery are mocked) and return (data, cases_by_id, return_code).
+
+        `checks` overrides the B02/B05/B06 direct checkers so a checker FAIL is observable."""
         absent = lambda *a: SuiteRun(error="not built", never_started=True)
+        notrun = NS["NotRun"]("not inspected")
         with tempfile.TemporaryDirectory() as td:
             out = Path(td) / "result.json"
-            with patch.dict(G, {
+            overrides = {
                 "run_suite": host or absent,
                 "run_device_suite": device or absent,
                 "probe_device": lambda *_: {"attached": False},
                 "git": lambda *a, **kw: "review-test",
-                "CheckNativeElf": lambda *a: NS["NotRun"]("not inspected"),
+                "CheckNativeElf": lambda *a: notrun,
                 "CheckPublicApiOnlyConsumer": lambda: NS["NotRun"]("not compiled"),
                 "CheckDesktopConfigure": lambda *a: NS["NotRun"]("not configured"),
-            }), patch.object(sys, "argv", ["runner", "--build-dir", td,
+            }
+            if checks:
+                overrides.update(checks)
+            with patch.dict(G, overrides), patch.object(sys, "argv", ["runner", "--build-dir", td,
                   "--fex-build-dir", td, "--out", str(out)]), contextlib.redirect_stdout(io.StringIO()):
                 code = NS["main"]()
             data = json.loads(out.read_text())
             self.assertTrue((Path(td) / "result-suites/api_contract_tests.txt").exists())
             return data, {case["id"]: case for case in data["cases"]}, code
+
+    def test_direct_checker_failure_forces_nonzero_exit(self):
+        # The P1 N1 regression: B02/B05/B06 are written straight into the case by their direct
+        # checkers and never appear in any sub-check/suite set, so a FAIL there must still force
+        # the overall decision and a non-zero exit (no other suite output present).
+        for cid, key, mk in (
+                ("B02", "CheckNativeElf", lambda: {"id": "B02", "status": "FAIL",
+                                                   "reason": "verifier says artifacts are wrong"}),
+                ("B05", "CheckPublicApiOnlyConsumer",
+                 lambda: {"id": "B05", "status": "FAIL", "reason": "public API consumer compiled"}),
+                ("B06", "CheckDesktopConfigure",
+                 lambda: {"id": "B06", "status": "FAIL", "reason": "desktop build broke"})):
+            with self.subTest(checker=cid):
+                # Inject the failing checker through the run_report override, so it is not replaced
+                # by the default never-run stub.
+                if cid == "B02":
+                    checks = {"CheckNativeElf": lambda *a, _m=mk: _m()}
+                elif cid == "B05":
+                    checks = {"CheckPublicApiOnlyConsumer": lambda *a, _m=mk: _m()}
+                else:
+                    checks = {"CheckDesktopConfigure": lambda *a, _m=mk: _m()}
+                data, cases, code = self.run_report(checks=checks)
+                self.assertEqual(cases[cid]["status"], "FAIL")
+                self.assertTrue(data["overall"]["has_failures"])
+                self.assertEqual(code, 1, f"{cid} FAIL must return non-zero")
+                self.assertIn(cid, data["overall"]["v0_failed_case_ids"])
+
+    def test_existing_but_unlaunchable_suite_is_a_failure_not_skip(self):
+        # A suite binary that exists but the host cannot launch (corrupt/wrong format) is a failed
+        # attempt, distinct from the file being absent (never built). No automatic ENOEXEC skip.
+        launch_error = SuiteRun(error="cannot launch suite: [8] Exec format error")
+        data, _cases, code = self.run_report(
+            host=lambda binary: launch_error if binary.name == "guest_cpu_contract_tests"
+            else SuiteRun(error="not built", never_started=True))
+        self.assertEqual(code, 1)
+        self.assertTrue(data["overall"]["has_failures"])
+        self.assertEqual(data["overall"]["failed_suite_count"], 1)
+
+    def test_missing_suite_is_not_a_failure(self):
+        data, _cases, code = self.run_report()  # everything never-started
+        self.assertEqual(code, 0)
+        self.assertFalse(data["overall"]["has_failures"])
+        self.assertEqual(data["overall"]["failed_suite_count"], 0)
 
     def test_never_started_and_scope(self):
         data, cases, _code = self.run_report()
