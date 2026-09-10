@@ -1,0 +1,12 @@
+COMMAND ['cmake', '--build', '/tmp/shadps4-g3-c1-review-20260910/device', '--target', 'state_probe', 'timeout_probe', '-j', '8']
+[0/1] Re-running CMake...
+-- V0: Android arm64-v8a platform android-35
+-- Configuring done (0.3s)
+-- Generating done (0.0s)
+-- Build files have been written to: /tmp/shadps4-g3-c1-review-20260910/device
+[1/5] Building CXX object CMakeFiles/timeout_probe.dir/timeout-probe.cpp.o
+[2/5] Building CXX object CMakeFiles/state_probe.dir/state-probe.cpp.o
+[3/5] Linking CXX executable timeout_probe
+[4/5] Linking CXX executable state_probe
+
+EXIT 0

@@ -1,0 +1,40 @@
+COMMAND ['cmake', '--build', '/tmp/shadps4-g3-c1-review-20260910/nonspill', '--target', 'state_probe', 'original_probe', '-j', '8']
+[1/14] Building CXX object backend/guest_cpu/CMakeFiles/guest_cpu_api.dir/api/execution.cpp.o
+[2/14] Building CXX object backend/guest_cpu/CMakeFiles/guest_cpu_api.dir/api/status.cpp.o
+[3/14] Building CXX object backend/guest_cpu/CMakeFiles/guest_cpu_api.dir/api/address_space.cpp.o
+[4/14] Linking CXX static library backend/guest_cpu/libguest_cpu_api.a
+[5/14] Building CXX object backend/CMakeFiles/guest_cpu_fex.dir/__/fex_context.nonspill.cpp.o
+[6/14] Linking CXX static library backend/libguest_cpu_fex.a
+[7/14] Assemble and verify self-contained x86-64 guest fixtures
+wrote /tmp/shadps4-g3-c1-review-20260910/fixtures/guest_fixtures.h
+18 fixture(s), combined sha256 f5f1fe73a6330e43
+  bare_hlt: 1 bytes, 1 instruction(s)
+  branch: 28 bytes, 6 instruction(s)
+  constant_a: 18 bytes, 3 instruction(s)
+  constant_b: 18 bytes, 3 instruction(s)
+  hle_call_returns_rax: 15 bytes, 3 instruction(s)
+  hle_call_returns_xmm: 18 bytes, 4 instruction(s)
+  integer: 26 bytes, 6 instruction(s)
+  jump_target: 2 bytes, 1 instruction(s)
+  loadstore: 17 bytes, 6 instruction(s)
+  progress_loop: 8 bytes, 3 instruction(s)
+  return_only: 13 bytes, 2 instruction(s)
+  smc_writer: 19 bytes, 4 instruction(s)
+  spin_loop: 8 bytes, 3 instruction(s)
+  sse2: 32 bytes, 6 instruction(s)
+  state_echo: 60 bytes, 11 instruction(s)
+  store_memory: 33 bytes, 6 instruction(s)
+  version_a_loop: 25 bytes, 6 instruction(s)
+  version_b_loop: 25 bytes, 6 instruction(s)
+[8/14] Building CXX object backend/CMakeFiles/guest_execution_tests.dir/Users/bytedance/workspace/emulations/ps4/shadps4/tests/guest_cpu/guest_execution_tests.cpp.o
+[9/14] Linking CXX executable backend/guest_execution_tests
+[10/14] Generating review-fixtures/review_fixtures.h
+wrote /tmp/shadps4-g3-c1-review-20260910/nonspill/review-fixtures/review_fixtures.h
+1 fixture(s), combined sha256 5b24746d0f3cdf2a
+  after_syscall: 23 bytes, 4 instruction(s)
+[11/14] Building CXX object CMakeFiles/state_probe.dir/state-probe.cpp.o
+[12/14] Linking CXX executable state_probe
+[13/14] Building CXX object CMakeFiles/original_probe.dir/Users/bytedance/workspace/emulations/ps4/shadps4/docs/validation/round2/g3-n3-probe-2026-09-10/c0_probe.cpp.o
+[14/14] Linking CXX executable original_probe
+
+EXIT 0

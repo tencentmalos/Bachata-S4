@@ -1,0 +1,1456 @@
+{
+  "schema_version": 1,
+  "spec": "android-fex-v0",
+  "run_id": "g3-c1-review-f3b93d98",
+  "timestamp_utc": "2026-09-10T09:59:59.319976+00:00",
+  "baseline_commit": "a712889343ccd2588b712988dae0a76a104e0dce",
+  "implementation_commit": "f3b93d982fb2a94cf0814bc9ca2f5bb9052406f8",
+  "implementation_branch": "codex/android-fex-round2",
+  "working_tree_dirty": true,
+  "fex_base_commit": "385a0cc4d81cd456c8d5c26b4f09cb5a7d8d5842",
+  "fex_downstream_revision_or_patch_hash": "feature/malos/host-page-size",
+  "toolchain_lock_sha256": "fe7b73a940a584740f1a17738ce9df06443a17243a743245cf6d63468ac44f60",
+  "apk_sha256": null,
+  "native_build_ids": {},
+  "build_host": {
+    "page_size": 16384,
+    "arch": "arm64",
+    "system": "Darwin"
+  },
+  "device": {
+    "attached": true,
+    "api": 33,
+    "abi": "arm64-v8a",
+    "kernel_page_size": 4096,
+    "process_page_size": null,
+    "physical_device": null,
+    "soc": "QCS8550",
+    "kernel": "5.15.123-android13-8-gafd857749d1f",
+    "page_size_compat_enabled": null,
+    "note": "kernel page size read from the device; the in-app sysconf value requires the validation APK and is still unverified",
+    "serial": "9c2841a4"
+  },
+  "expected_page_size": 4096,
+  "capabilities": {
+    "memory_mode": "DirectMapped",
+    "smc_mode": "ExplicitPublication",
+    "guest_features": [],
+    "step_scope": [],
+    "backend": "FEXCore via src/core/guest_cpu/fex (device suites ran)"
+  },
+  "suites": {
+    "api_contract_tests": {
+      "output_log": "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/api_contract_tests.txt",
+      "output_sha256": "3658ecead0c28e09c47ad126be19352b99baf6a228f8c6ef666ca52469035d72",
+      "binary": "/tmp/shadps4-g3-c1-review-20260910/host/guest_cpu_contract_tests",
+      "sha256": "5ced1a7ef106fc52c3b9f325f99675b55ca97ec9e2e20fa2556afac9b6aabf7a",
+      "sub_cases": 43,
+      "failures": 0,
+      "exit_code": 0,
+      "timed_out": false,
+      "error": null,
+      "usable": true,
+      "verdict_conflicts": [],
+      "repeated_sub_cases": {}
+    },
+    "hle_abi_tests": {
+      "output_log": "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/hle_abi_tests.txt",
+      "output_sha256": "686da6f3889aaeeac653b9759b50360e51a370822e7a0ef31d07aca51662ec00",
+      "binary": "/tmp/shadps4-g3-c1-review-20260910/host/guest_cpu_hle_abi_tests",
+      "sha256": "4db9045b5fee841a1ab77ec6094ac2a063fcc95fc54f3e354397dfe55b81cd6f",
+      "sub_cases": 14,
+      "failures": 0,
+      "exit_code": 0,
+      "timed_out": false,
+      "error": null,
+      "usable": true,
+      "verdict_conflicts": [],
+      "repeated_sub_cases": {}
+    },
+    "host_page_size_probe": {
+      "output_log": "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/host_page_size_probe.txt",
+      "output_sha256": "39ca1f08be2f3054aa5b90f33cd9e3f5dba30964b4fdaa8c6a982e693a236836",
+      "binary": "/tmp/shadps4-g3-c1-review-20260910/host/host_page_size_probe",
+      "sha256": "ae0b2bea42bc6ca2957015655acb237e17262664bb6ebbe9a9243600ed4c6050",
+      "sub_cases": 22,
+      "failures": 0,
+      "exit_code": 0,
+      "timed_out": false,
+      "error": null,
+      "usable": true,
+      "verdict_conflicts": [],
+      "repeated_sub_cases": {}
+    },
+    "fexcore_bionic_smoke": {
+      "output_log": "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/fexcore_bionic_smoke.txt",
+      "output_sha256": "4c79cf262c46669bba9134ae20ddfde758186951d39c3b796c60cd3801758eba",
+      "binary": "/tmp/shadps4-g3-c1-review-20260910/device/backend/fexcore_bionic_smoke",
+      "sha256": "e4135b25715279d56517c4c236c56011a9bfe5fb3532ef900a94ebffe3720952",
+      "sub_cases": 12,
+      "failures": 0,
+      "exit_code": 0,
+      "timed_out": false,
+      "error": null,
+      "usable": true,
+      "verdict_conflicts": [],
+      "repeated_sub_cases": {},
+      "ran_on_device": true
+    },
+    "guest_execution_tests": {
+      "output_log": "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/guest_execution_tests.txt",
+      "output_sha256": "1a740f8469432d691b258be7a00265870c456cfd5ee680680fd3838bf4062534",
+      "binary": "/tmp/shadps4-g3-c1-review-20260910/device/backend/guest_execution_tests",
+      "sha256": "f2b162b62d5f3d443f5c66a94393514f1e13dbbf94e8f9e4e4328e1751eab7ad",
+      "sub_cases": 104,
+      "failures": 0,
+      "exit_code": 0,
+      "timed_out": false,
+      "error": null,
+      "usable": true,
+      "verdict_conflicts": [],
+      "repeated_sub_cases": {
+        "G24a": 50,
+        "G24b": 50
+      },
+      "ran_on_device": true
+    },
+    "guest_cpu_contract_tests": {
+      "output_log": "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/guest_cpu_contract_tests.txt",
+      "output_sha256": "cc2b20a9a26d9e662d352c5ebe8860de1bb2c53ae1a5fd7de4f83bd25b0a0e1f",
+      "binary": "/tmp/shadps4-g3-c1-review-20260910/device/backend/guest_cpu_contract_tests",
+      "sha256": "2ff98986c38c41882cda4e6e076f0e459cfcc209fbe8059e95a050418262feb6",
+      "sub_cases": 43,
+      "failures": 0,
+      "exit_code": 0,
+      "timed_out": false,
+      "error": null,
+      "usable": true,
+      "verdict_conflicts": [],
+      "repeated_sub_cases": {},
+      "ran_on_device": true
+    }
+  },
+  "summary": {
+    "passed": 10,
+    "failed": 0,
+    "not_run": 47,
+    "deferred_by_scope": 3,
+    "in_scope_total": 57,
+    "total": 60,
+    "unmapped_sub_case_failures": []
+  },
+  "overall": {
+    "failed_subchecks_unique": [],
+    "failed_subcheck_count": 0,
+    "v0_failed_cases": 0,
+    "v0_failed_case_ids": [],
+    "round2_failed_cases": [],
+    "round2_failed_case_count": 0,
+    "unmapped_failed_subchecks": [],
+    "unmapped_failed_count": 0,
+    "failed_suites": [],
+    "failed_suite_count": 0,
+    "has_failures": false
+  },
+  "cases": [
+    {
+      "id": "B01",
+      "description": "clean-room build from the dependency lock",
+      "status": "NOT_RUN",
+      "environment": "HOST",
+      "iterations": 0,
+      "expected": null,
+      "actual": null,
+      "reason": "not yet exercised from a clean clone",
+      "evidence": []
+    },
+    {
+      "id": "B02",
+      "description": "native ELF is arm64 bionic, 16 KiB aligned, no glibc",
+      "status": "NOT_RUN",
+      "environment": "HOST",
+      "iterations": 1,
+      "expected": null,
+      "actual": {
+        "coverage": "auxiliary",
+        "checked": 3,
+        "standalone": [
+          "fexcore_bionic_smoke align=16384 needed=['libc.so', 'libdl.so', 'liblog.so', 'libm.so']",
+          "guest_execution_tests align=16384 needed=['libc.so', 'libdl.so', 'liblog.so', 'libm.so']",
+          "guest_cpu_contract_tests align=16384 needed=['libc.so', 'libdl.so', 'libm.so']"
+        ]
+      },
+      "reason": "full acceptance pending: standalone probe ELFs only; B02 requires every native library in the APK, its dependency closure and ZIP layout",
+      "evidence": [],
+      "auxiliary_status": "PASS",
+      "scope_note": "auxiliary: arm64/bionic/no-glibc/16 KiB-alignment verified for the standalone binaries this invocation built"
+    },
+    {
+      "id": "B03",
+      "description": "APK zip alignment and in-app dlopen",
+      "status": "NOT_RUN",
+      "environment": "HOST",
+      "iterations": 0,
+      "expected": null,
+      "actual": null,
+      "reason": "[NO-APK] requires the validation APK, not built in this milestone",
+      "evidence": []
+    },
+    {
+      "id": "B04",
+      "description": "same APK on 16 KiB and 4 KiB",
+      "status": "DEFERRED_BY_SCOPE",
+      "environment": "HOST",
+      "iterations": 0,
+      "expected": null,
+      "actual": null,
+      "reason": "same-APK comparison across 16 KiB and 4 KiB; deferred with the 16 KiB scope",
+      "evidence": [],
+      "observed_status": "NOT_RUN"
+    },
+    {
+      "id": "B05",
+      "description": "public-API-only consumer compiles",
+      "status": "PASS",
+      "environment": "HOST",
+      "iterations": 1,
+      "expected": null,
+      "actual": "compiles with -I src alone and opens no FEX header",
+      "reason": null,
+      "evidence": []
+    },
+    {
+      "id": "B06",
+      "description": "desktop targets still build with the new options off",
+      "status": "NOT_RUN",
+      "environment": "HOST",
+      "iterations": 0,
+      "expected": null,
+      "actual": null,
+      "reason": "desktop configure not requested; pass --check-desktop to run it",
+      "evidence": []
+    },
+    {
+      "id": "F01",
+      "description": "DebugBus status/capabilities/stop during guest execution",
+      "status": "NOT_RUN",
+      "environment": "HOST",
+      "iterations": 0,
+      "expected": null,
+      "actual": null,
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
+      "evidence": []
+    },
+    {
+      "id": "F02",
+      "description": "foundation reflection/packing round trip",
+      "status": "NOT_RUN",
+      "environment": "HOST",
+      "iterations": 0,
+      "expected": null,
+      "actual": null,
+      "reason": "dependency closure incomplete: fmt/format.h is not vendored in foundation/third_party and has no find_package path, so foundation_meta_reflection fails to compile for Android (DEC-08)",
+      "evidence": []
+    },
+    {
+      "id": "F03",
+      "description": "shutdown with a diagnostic request in flight, 100x",
+      "status": "NOT_RUN",
+      "environment": "HOST",
+      "iterations": 0,
+      "expected": null,
+      "actual": null,
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
+      "evidence": []
+    },
+    {
+      "id": "F04",
+      "description": "TCP control lifecycle",
+      "status": "NOT_RUN",
+      "environment": "HOST",
+      "iterations": 0,
+      "expected": null,
+      "actual": null,
+      "reason": "network control not enabled in V0; capability=false",
+      "evidence": []
+    },
+    {
+      "id": "C01",
+      "description": "x86 integer arithmetic, flags, branches",
+      "status": "NOT_RUN",
+      "environment": "DEVICE",
+      "iterations": 1,
+      "expected": null,
+      "actual": {
+        "G01a": "PASS",
+        "G01b": "PASS",
+        "G01c": "PASS",
+        "G01d": "PASS",
+        "G01e": "PASS",
+        "G01f": "PASS",
+        "G02a": "PASS",
+        "G02b": "PASS",
+        "G03a": "PASS",
+        "G03b": "PASS",
+        "G03c": "PASS",
+        "G07a": "PASS",
+        "G07b": "PASS",
+        "G07c": "PASS"
+      },
+      "reason": "full acceptance pending: flags are not asserted by the current guest fixtures",
+      "evidence": [
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/guest_execution_tests.txt"
+      ],
+      "scope_note": "evidence environment: DEVICE; consult the per-suite artifact and output records",
+      "auxiliary_status": "PASS"
+    },
+    {
+      "id": "C02",
+      "description": "SSE2 arithmetic, XMM save, MXCSR rounding",
+      "status": "NOT_RUN",
+      "environment": "DEVICE",
+      "iterations": 1,
+      "expected": null,
+      "actual": {
+        "G04a": "PASS",
+        "G04b": "PASS",
+        "G04c": "PASS"
+      },
+      "reason": "full acceptance pending: SSE2 load/store, MXCSR rounding and host FP restoration are not exercised",
+      "evidence": [
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/guest_execution_tests.txt"
+      ],
+      "scope_note": "evidence environment: DEVICE; consult the per-suite artifact and output records",
+      "auxiliary_status": "PASS"
+    },
+    {
+      "id": "C03",
+      "description": "CPUID profile matches capabilities; unsupported feature refused",
+      "status": "NOT_RUN",
+      "environment": "HOST",
+      "iterations": 0,
+      "expected": null,
+      "actual": null,
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
+      "evidence": []
+    },
+    {
+      "id": "C04",
+      "description": "AVX/AVX2 with YMM high",
+      "status": "NOT_RUN",
+      "environment": "HOST",
+      "iterations": 0,
+      "expected": null,
+      "actual": null,
+      "reason": "capability declared false; C03 covers the refusal path",
+      "evidence": []
+    },
+    {
+      "id": "H01",
+      "description": "HLE 8 integer / 9 double / mixed args, RCX and callee-saved intact",
+      "status": "NOT_RUN",
+      "environment": "HOST",
+      "iterations": 1,
+      "expected": null,
+      "actual": {
+        "H01a": "PASS",
+        "H01b": "PASS",
+        "H01c": "PASS",
+        "H01d": "PASS",
+        "H01e": "PASS"
+      },
+      "reason": "full acceptance pending: hand-built host frames do not verify a real guest HLE call and callee-saved state",
+      "evidence": [
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/hle_abi_tests.txt"
+      ],
+      "scope_note": "evidence environment: HOST; consult the per-suite artifact and output records",
+      "auxiliary_status": "PASS"
+    },
+    {
+      "id": "H02",
+      "description": "two owner threads keep separate FS/GS TLS across 1000 round trips",
+      "status": "NOT_RUN",
+      "environment": "HOST",
+      "iterations": 0,
+      "expected": null,
+      "actual": null,
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
+      "evidence": []
+    },
+    {
+      "id": "H03",
+      "description": "two-level guest->HLE->guest callback, 100 round trips",
+      "status": "NOT_RUN",
+      "environment": "HOST",
+      "iterations": 0,
+      "expected": null,
+      "actual": null,
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
+      "evidence": []
+    },
+    {
+      "id": "H04",
+      "description": "unregistered syscall, out-of-range and stale buffers refused",
+      "status": "NOT_RUN",
+      "environment": "HOST",
+      "iterations": 1,
+      "expected": null,
+      "actual": {
+        "H04a": "PASS",
+        "H04b": "PASS",
+        "H04c": "PASS",
+        "H04d": "PASS",
+        "H04e": "PASS",
+        "H04f": "PASS",
+        "H04g": "PASS",
+        "H04h": "PASS",
+        "H04i": "PASS"
+      },
+      "reason": "full acceptance pending: real syscall rejection and buffer length/lifetime through a guest HLE gate remain untested",
+      "evidence": [
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/hle_abi_tests.txt"
+      ],
+      "scope_note": "evidence environment: HOST; consult the per-suite artifact and output records",
+      "auxiliary_status": "PASS"
+    },
+    {
+      "id": "H05",
+      "description": "native HLE exception and cancel inside a callback",
+      "status": "NOT_RUN",
+      "environment": "HOST",
+      "iterations": 0,
+      "expected": null,
+      "actual": null,
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
+      "evidence": []
+    },
+    {
+      "id": "H06",
+      "description": "non-owner InvokeGuest and recursive Run refused or scheduled",
+      "status": "NOT_RUN",
+      "environment": "HOST",
+      "iterations": 0,
+      "expected": null,
+      "actual": null,
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
+      "evidence": []
+    },
+    {
+      "id": "M01",
+      "description": "page size detected; map and release three host pages",
+      "status": "PASS",
+      "environment": "DEVICE",
+      "iterations": 1,
+      "expected": null,
+      "actual": {
+        "M01a": "PASS",
+        "M01b": "PASS",
+        "M01c": "PASS"
+      },
+      "reason": null,
+      "evidence": [
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/api_contract_tests.txt",
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/guest_cpu_contract_tests.txt"
+      ],
+      "scope_note": "evidence environment: DEVICE; consult the per-suite artifact and output records"
+    },
+    {
+      "id": "M02",
+      "description": "four 4 KiB logical slices inside one host page",
+      "status": "DEFERRED_BY_SCOPE",
+      "environment": "DEVICE",
+      "iterations": 1,
+      "expected": null,
+      "actual": {
+        "M02": "PASS"
+      },
+      "reason": "16 KiB-specific sub-page slicing; deferred with the 16 KiB scope (2026-09-08)",
+      "evidence": [
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/api_contract_tests.txt",
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/guest_cpu_contract_tests.txt"
+      ],
+      "scope_note": "evidence environment: DEVICE; consult the per-suite artifact and output records",
+      "observed_status": "PASS"
+    },
+    {
+      "id": "M03",
+      "description": "conflicting sub-page permission refused, state unchanged",
+      "status": "DEFERRED_BY_SCOPE",
+      "environment": "DEVICE",
+      "iterations": 1,
+      "expected": null,
+      "actual": {
+        "M03": "PASS"
+      },
+      "reason": "16 KiB-specific conflicting sub-page permissions; deferred with the 16 KiB scope",
+      "evidence": [
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/api_contract_tests.txt",
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/guest_cpu_contract_tests.txt"
+      ],
+      "scope_note": "evidence environment: DEVICE; consult the per-suite artifact and output records",
+      "observed_status": "PASS"
+    },
+    {
+      "id": "M04",
+      "description": "overflow, misalignment and region conflict rejected",
+      "status": "PASS",
+      "environment": "DEVICE",
+      "iterations": 1,
+      "expected": null,
+      "actual": {
+        "M04a": "PASS",
+        "M04b": "PASS"
+      },
+      "reason": null,
+      "evidence": [
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/api_contract_tests.txt",
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/guest_cpu_contract_tests.txt"
+      ],
+      "scope_note": "evidence environment: DEVICE; consult the per-suite artifact and output records"
+    },
+    {
+      "id": "M05",
+      "description": "guard page, unmapped and read-only access faults correctly",
+      "status": "NOT_RUN",
+      "environment": "DEVICE",
+      "iterations": 1,
+      "expected": null,
+      "actual": {
+        "M05": "PASS"
+      },
+      "reason": "full acceptance pending: API permission refusals do not exercise actual guest memory faults",
+      "evidence": [
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/api_contract_tests.txt",
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/guest_cpu_contract_tests.txt"
+      ],
+      "scope_note": "evidence environment: DEVICE; consult the per-suite artifact and output records",
+      "auxiliary_status": "PASS"
+    },
+    {
+      "id": "M06",
+      "description": "segment helper with adjacent segments sharing a host page",
+      "status": "NOT_RUN",
+      "environment": "HOST",
+      "iterations": 0,
+      "expected": null,
+      "actual": null,
+      "reason": "segment helper not implemented in this milestone",
+      "evidence": []
+    },
+    {
+      "id": "M07",
+      "description": "host/HLE code rewrite and publication, 100x",
+      "status": "PASS",
+      "environment": "DEVICE",
+      "iterations": 1,
+      "expected": null,
+      "actual": {
+        "M07": "PASS",
+        "G08a": "PASS",
+        "G08b": "PASS",
+        "G08c": "PASS",
+        "G09a": "PASS",
+        "G09b": "PASS",
+        "G09c": "PASS",
+        "G09d": "PASS",
+        "G10a": "PASS",
+        "G10b": "PASS",
+        "G10c": "PASS",
+        "G10d": "PASS",
+        "G23a": "PASS",
+        "G23b": "PASS",
+        "G23c": "PASS",
+        "G28a": "PASS",
+        "G28b": "PASS"
+      },
+      "reason": null,
+      "evidence": [
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/api_contract_tests.txt",
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/guest_execution_tests.txt",
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/guest_cpu_contract_tests.txt"
+      ],
+      "scope_note": "evidence environment: DEVICE; consult the per-suite artifact and output records"
+    },
+    {
+      "id": "M08",
+      "description": "guest store to code then publication",
+      "status": "NOT_RUN",
+      "environment": "DEVICE",
+      "iterations": 1,
+      "expected": null,
+      "actual": {
+        "M08b": "PASS",
+        "G27a": "PASS"
+      },
+      "reason": "full acceptance pending: real guest-store coordinator CLI evidence; HLE crossing and ordinary APK remain pending",
+      "evidence": [
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/api_contract_tests.txt",
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/guest_execution_tests.txt",
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/guest_cpu_contract_tests.txt"
+      ],
+      "scope_note": "evidence environment: DEVICE; consult the per-suite artifact and output records",
+      "auxiliary_status": "PASS"
+    },
+    {
+      "id": "M09",
+      "description": "two threads on an old block, quiesce, patch, resume, 100 epochs",
+      "status": "NOT_RUN",
+      "environment": "DEVICE",
+      "iterations": 1,
+      "expected": null,
+      "actual": {
+        "G20a": "PASS",
+        "G20b": "PASS",
+        "G21a": "PASS",
+        "G22a": "PASS",
+        "G25a": "PASS",
+        "G25b": "PASS"
+      },
+      "reason": "full acceptance pending: persistent dual-owner CLI evidence; ordinary APK is pending",
+      "evidence": [
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/guest_execution_tests.txt"
+      ],
+      "scope_note": "evidence environment: DEVICE; consult the per-suite artifact and output records",
+      "auxiliary_status": "PASS"
+    },
+    {
+      "id": "M10",
+      "description": "two VA aliases of one backing, invalidation covers both",
+      "status": "NOT_RUN",
+      "environment": "DEVICE",
+      "iterations": 1,
+      "expected": null,
+      "actual": {
+        "M10": "PASS"
+      },
+      "reason": "full acceptance pending: alias registration does not verify two mapped aliases and both translations",
+      "evidence": [
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/api_contract_tests.txt",
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/guest_cpu_contract_tests.txt"
+      ],
+      "scope_note": "evidence environment: DEVICE; consult the per-suite artifact and output records",
+      "auxiliary_status": "PASS"
+    },
+    {
+      "id": "M11",
+      "description": "unmap/remap the same VA with different code, 100x",
+      "status": "NOT_RUN",
+      "environment": "DEVICE",
+      "iterations": 1,
+      "expected": null,
+      "actual": {
+        "G26a": "PASS",
+        "G26b": "PASS",
+        "G28a": "PASS",
+        "G28b": "PASS"
+      },
+      "reason": "full acceptance pending: persistent remap CLI evidence; full state/decoder-range matrix and ordinary APK remain pending",
+      "evidence": [
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/guest_execution_tests.txt"
+      ],
+      "scope_note": "evidence environment: DEVICE; consult the per-suite artifact and output records",
+      "auxiliary_status": "PASS"
+    },
+    {
+      "id": "M12",
+      "description": "code observer and GPU dirty observer on one host page",
+      "status": "NOT_RUN",
+      "environment": "DEVICE",
+      "iterations": 1,
+      "expected": null,
+      "actual": {
+        "M12": "PASS"
+      },
+      "reason": "full acceptance pending: observer arithmetic alone does not verify combined code invalidation and GPU dirty tracking",
+      "evidence": [
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/api_contract_tests.txt",
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/guest_cpu_contract_tests.txt"
+      ],
+      "scope_note": "evidence environment: DEVICE; consult the per-suite artifact and output records",
+      "auxiliary_status": "PASS"
+    },
+    {
+      "id": "M13",
+      "description": "pinned HLE span races unmap/protect",
+      "status": "PASS",
+      "environment": "DEVICE",
+      "iterations": 1,
+      "expected": null,
+      "actual": {
+        "M13": "PASS",
+        "M13b": "PASS",
+        "M13c": "PASS",
+        "M13d": "PASS",
+        "M13e": "PASS",
+        "M13f": "PASS",
+        "M13g": "PASS",
+        "M13h": "PASS",
+        "M13i": "PASS",
+        "M13j": "PASS",
+        "M13k": "PASS",
+        "M13l": "PASS",
+        "M13m": "PASS",
+        "M13n": "PASS",
+        "M13o": "PASS",
+        "M21": "PASS",
+        "M22": "PASS",
+        "M23": "PASS",
+        "M24": "PASS",
+        "M25": "PASS",
+        "M27": "PASS",
+        "M28": "PASS",
+        "M29": "PASS"
+      },
+      "reason": null,
+      "evidence": [
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/api_contract_tests.txt",
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/guest_cpu_contract_tests.txt"
+      ],
+      "scope_note": "evidence environment: DEVICE; consult the per-suite artifact and output records"
+    },
+    {
+      "id": "M14",
+      "description": "ARM64 JIT publication and I-cache sync, no long-term RWX",
+      "status": "NOT_RUN",
+      "environment": "HOST",
+      "iterations": 0,
+      "expected": null,
+      "actual": null,
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
+      "evidence": []
+    },
+    {
+      "id": "M15",
+      "description": "LOCK XADD/CMPXCHG aligned, unaligned, cross-page",
+      "status": "NOT_RUN",
+      "environment": "HOST",
+      "iterations": 0,
+      "expected": null,
+      "actual": null,
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
+      "evidence": []
+    },
+    {
+      "id": "M16",
+      "description": "x86 memory-ordering litmus",
+      "status": "NOT_RUN",
+      "environment": "HOST",
+      "iterations": 0,
+      "expected": null,
+      "actual": null,
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
+      "evidence": []
+    },
+    {
+      "id": "T01",
+      "description": "two guest owner threads genuinely concurrent",
+      "status": "NOT_RUN",
+      "environment": "DEVICE",
+      "iterations": 1,
+      "expected": null,
+      "actual": {
+        "G14a": "PASS",
+        "G14b": "PASS",
+        "G14c": "PASS",
+        "G14d": "PASS",
+        "G14e": "PASS",
+        "G14f": "PASS",
+        "G14g": "PASS",
+        "G14h": "PASS"
+      },
+      "reason": "full acceptance pending: G1 core evidence is CLI only; target ordinary APK execution is pending",
+      "evidence": [
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/guest_execution_tests.txt"
+      ],
+      "scope_note": "evidence environment: DEVICE; consult the per-suite artifact and output records",
+      "auxiliary_status": "PASS"
+    },
+    {
+      "id": "T02",
+      "description": "pause/resume an HLE-free infinite loop, 100x, <=1s",
+      "status": "NOT_RUN",
+      "environment": "DEVICE",
+      "iterations": 1,
+      "expected": null,
+      "actual": {
+        "G11a": "PASS",
+        "G11b": "PASS",
+        "G11c": "PASS",
+        "G11d": "PASS",
+        "G11e": "PASS",
+        "G11f": "PASS",
+        "G11g": "PASS",
+        "G11h": "PASS",
+        "G11i": "PASS",
+        "G11j": "PASS",
+        "G13a": "PASS",
+        "G13b": "PASS",
+        "G13c": "PASS"
+      },
+      "reason": "full acceptance pending: G1 core evidence is CLI only; target ordinary APK execution is pending",
+      "evidence": [
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/guest_execution_tests.txt"
+      ],
+      "scope_note": "evidence environment: DEVICE; consult the per-suite artifact and output records",
+      "auxiliary_status": "PASS"
+    },
+    {
+      "id": "T03",
+      "description": "overlapping pause/cancel, epochs preserved",
+      "status": "NOT_RUN",
+      "environment": "DEVICE",
+      "iterations": 1,
+      "expected": null,
+      "actual": {
+        "T03a": "PASS",
+        "G15a": "PASS",
+        "G15b": "PASS",
+        "G15c": "PASS",
+        "G15d": "PASS",
+        "G15e": "PASS",
+        "G17b": "PASS",
+        "G17c": "PASS",
+        "G24a": "PASS",
+        "G24b": "PASS",
+        "M26": "PASS"
+      },
+      "reason": "full acceptance pending: G1 core evidence is CLI only; target ordinary APK execution is pending",
+      "evidence": [
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/api_contract_tests.txt",
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/guest_execution_tests.txt",
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/guest_cpu_contract_tests.txt"
+      ],
+      "scope_note": "evidence environment: DEVICE; consult the per-suite artifact and output records",
+      "auxiliary_status": "PASS"
+    },
+    {
+      "id": "T04",
+      "description": "stop from a cancellable HLE wait",
+      "status": "NOT_RUN",
+      "environment": "HOST",
+      "iterations": 0,
+      "expected": null,
+      "actual": null,
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
+      "evidence": []
+    },
+    {
+      "id": "T05",
+      "description": "write GPR/RIP/XMM/MXCSR/FS/GS at a stop and continue",
+      "status": "NOT_RUN",
+      "environment": "DEVICE",
+      "iterations": 1,
+      "expected": null,
+      "actual": {
+        "G16a": "PASS",
+        "G16b": "PASS",
+        "G16c": "PASS",
+        "G12d": "PASS"
+      },
+      "reason": "full acceptance pending: G1 core evidence is CLI only; target ordinary APK execution is pending",
+      "evidence": [
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/guest_execution_tests.txt"
+      ],
+      "scope_note": "evidence environment: DEVICE; consult the per-suite artifact and output records",
+      "auxiliary_status": "PASS"
+    },
+    {
+      "id": "T06",
+      "description": "single-step integer, branch, load/store, SSE2",
+      "status": "NOT_RUN",
+      "environment": "HOST",
+      "iterations": 0,
+      "expected": null,
+      "actual": null,
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
+      "evidence": []
+    },
+    {
+      "id": "T07",
+      "description": "step refuses REP, unsupported control flow and HLE gates",
+      "status": "NOT_RUN",
+      "environment": "HOST",
+      "iterations": 0,
+      "expected": null,
+      "actual": null,
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
+      "evidence": []
+    },
+    {
+      "id": "D01",
+      "description": "LLDB stops on the snapshot hook",
+      "status": "NOT_RUN",
+      "environment": "HOST",
+      "iterations": 0,
+      "expected": null,
+      "actual": null,
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
+      "evidence": []
+    },
+    {
+      "id": "D02",
+      "description": "read and disassemble bytes at guest RIP",
+      "status": "NOT_RUN",
+      "environment": "HOST",
+      "iterations": 0,
+      "expected": null,
+      "actual": null,
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
+      "evidence": []
+    },
+    {
+      "id": "D03",
+      "description": "guest fault or controlled in-JIT host stop attribution",
+      "status": "NOT_RUN",
+      "environment": "DEVICE",
+      "iterations": 1,
+      "expected": null,
+      "actual": {
+        "D03a": "PASS",
+        "D03b": "PASS"
+      },
+      "reason": "full acceptance pending: constructed snapshot metadata does not verify actual in-JIT fault attribution",
+      "evidence": [
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/api_contract_tests.txt",
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/guest_cpu_contract_tests.txt"
+      ],
+      "scope_note": "evidence environment: DEVICE; consult the per-suite artifact and output records",
+      "auxiliary_status": "PASS"
+    },
+    {
+      "id": "D04",
+      "description": "runs alongside ART activity; unrelated signals not swallowed",
+      "status": "NOT_RUN",
+      "environment": "HOST",
+      "iterations": 0,
+      "expected": null,
+      "actual": null,
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
+      "evidence": []
+    },
+    {
+      "id": "D05",
+      "description": "real HLT, illegal instruction, unregistered return trap",
+      "status": "NOT_RUN",
+      "environment": "DEVICE",
+      "iterations": 1,
+      "expected": null,
+      "actual": {
+        "G05a": "PASS",
+        "G05b": "PASS",
+        "G05c": "PASS",
+        "G05d": "PASS"
+      },
+      "reason": "full acceptance pending: illegal instructions and the complete unregistered trap set are not exercised",
+      "evidence": [
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/guest_execution_tests.txt"
+      ],
+      "scope_note": "evidence environment: DEVICE; consult the per-suite artifact and output records",
+      "auxiliary_status": "PASS"
+    },
+    {
+      "id": "A01",
+      "description": "plain Activity starts JNI/FEX with no downloaded runtime",
+      "status": "NOT_RUN",
+      "environment": "HOST",
+      "iterations": 0,
+      "expected": null,
+      "actual": null,
+      "reason": "[NO-APK] requires the validation APK, not built in this milestone",
+      "evidence": []
+    },
+    {
+      "id": "A02",
+      "description": "fixture -> HLE -> Vulkan clear colour, input reaches the guest",
+      "status": "NOT_RUN",
+      "environment": "HOST",
+      "iterations": 0,
+      "expected": null,
+      "actual": null,
+      "reason": "[NO-APK] requires the validation APK, not built in this milestone",
+      "evidence": []
+    },
+    {
+      "id": "A03",
+      "description": "20 Surface detach/recreate or resize cycles",
+      "status": "NOT_RUN",
+      "environment": "HOST",
+      "iterations": 0,
+      "expected": null,
+      "actual": null,
+      "reason": "[NO-APK] requires the validation APK, not built in this milestone",
+      "evidence": []
+    },
+    {
+      "id": "A04",
+      "description": "20 foreground/background cycles, stop without a Surface",
+      "status": "NOT_RUN",
+      "environment": "HOST",
+      "iterations": 0,
+      "expected": null,
+      "actual": null,
+      "reason": "[NO-APK] requires the validation APK, not built in this milestone",
+      "evidence": []
+    },
+    {
+      "id": "L01",
+      "description": "100 create/run/stop/destroy cycles return to the resource baseline",
+      "status": "NOT_RUN",
+      "environment": "HOST",
+      "iterations": 0,
+      "expected": null,
+      "actual": null,
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
+      "evidence": []
+    },
+    {
+      "id": "L02",
+      "description": "10 minute soak",
+      "status": "NOT_RUN",
+      "environment": "HOST",
+      "iterations": 0,
+      "expected": null,
+      "actual": null,
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
+      "evidence": []
+    },
+    {
+      "id": "L03",
+      "description": "mid-run failure and timeout cleanup",
+      "status": "NOT_RUN",
+      "environment": "HOST",
+      "iterations": 0,
+      "expected": null,
+      "actual": null,
+      "reason": "[NO-BACKEND] needs backend capability that is not implemented yet: interrupts, bounded Step, real HLE gates, multi-thread execution or code-invalidation transactions. The adapter itself exists and runs; see docs/fex-guest-execution-bringup.md for what it does and does not do",
+      "evidence": []
+    },
+    {
+      "id": "P01",
+      "description": "JIT code buffer guard is host-page aligned and sized",
+      "status": "PASS",
+      "environment": "HOST",
+      "iterations": 1,
+      "expected": null,
+      "actual": {
+        "P01a": "PASS",
+        "P01b": "PASS",
+        "P01c": "PASS",
+        "P01d": "PASS",
+        "P01g": "PASS"
+      },
+      "reason": null,
+      "evidence": [
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/host_page_size_probe.txt"
+      ],
+      "scope_note": "evidence environment: HOST; consult the per-suite artifact and output records"
+    },
+    {
+      "id": "P02",
+      "description": "InterruptFaultPage is host-page aligned within the JIT offset budget",
+      "status": "PASS",
+      "environment": "HOST",
+      "iterations": 1,
+      "expected": null,
+      "actual": {
+        "P02a": "PASS",
+        "P02b": "PASS",
+        "P02c": "PASS",
+        "P02d": "PASS",
+        "P02e": "PASS",
+        "P02f": "PASS",
+        "P02g": "PASS"
+      },
+      "reason": null,
+      "evidence": [
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/host_page_size_probe.txt"
+      ],
+      "scope_note": "evidence environment: HOST; consult the per-suite artifact and output records"
+    },
+    {
+      "id": "P03",
+      "description": "SetHostPageSize rejects invalid and unsupported host pages",
+      "status": "PASS",
+      "environment": "HOST",
+      "iterations": 1,
+      "expected": null,
+      "actual": {
+        "P03a": "PASS",
+        "P03b": "PASS",
+        "P03c": "PASS",
+        "P03d": "PASS",
+        "P03e": "PASS",
+        "P03f": "PASS"
+      },
+      "reason": null,
+      "evidence": [
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/host_page_size_probe.txt"
+      ],
+      "scope_note": "evidence environment: HOST; consult the per-suite artifact and output records"
+    },
+    {
+      "id": "P04",
+      "description": "FEXCore links and initialises inside a bionic process",
+      "status": "PASS",
+      "environment": "DEVICE",
+      "iterations": 1,
+      "expected": null,
+      "actual": {
+        "F01a": "PASS",
+        "F01b": "PASS",
+        "F02a": "PASS",
+        "F02b": "PASS",
+        "F03a": "PASS",
+        "F03b": "PASS",
+        "F03c": "PASS"
+      },
+      "reason": null,
+      "evidence": [
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/fexcore_bionic_smoke.txt"
+      ],
+      "scope_note": "evidence environment: DEVICE; consult the per-suite artifact and output records"
+    },
+    {
+      "id": "P05",
+      "description": "guest thread create/destroy lifecycle on bionic",
+      "status": "PASS",
+      "environment": "DEVICE",
+      "iterations": 1,
+      "expected": null,
+      "actual": {
+        "F04a": "PASS",
+        "F04b": "PASS",
+        "F04c": "PASS",
+        "F05a": "PASS",
+        "F05b": "PASS"
+      },
+      "reason": null,
+      "evidence": [
+        "docs/validation/round2/g3-c1-review-2026-09-10/device-results-suites/fexcore_bionic_smoke.txt"
+      ],
+      "scope_note": "evidence environment: DEVICE; consult the per-suite artifact and output records"
+    }
+  ],
+  "round2": {
+    "spec": "docs/specs/android-fex-round2.md",
+    "total": 24,
+    "cases": [
+      {
+        "id": "R2-B01",
+        "status": "NOT_RUN",
+        "auxiliary_status": "NOT_RUN",
+        "auxiliary_scope": "listed CLI subchecks only",
+        "required_subchecks": [],
+        "missing": [],
+        "failed": [],
+        "remaining": "target environment / full normative acceptance pending"
+      },
+      {
+        "id": "R2-B02",
+        "status": "NOT_RUN",
+        "auxiliary_status": "NOT_RUN",
+        "auxiliary_scope": "listed CLI subchecks only",
+        "required_subchecks": [],
+        "missing": [],
+        "failed": [],
+        "remaining": "target environment / full normative acceptance pending"
+      },
+      {
+        "id": "R2-C01",
+        "status": "NOT_RUN",
+        "auxiliary_status": "PASS",
+        "auxiliary_scope": "listed CLI subchecks only",
+        "required_subchecks": [
+          "G14a",
+          "G14b",
+          "G14c",
+          "G14d",
+          "G14e",
+          "G14f",
+          "G14g",
+          "G14h"
+        ],
+        "missing": [],
+        "failed": [],
+        "remaining": "target environment / full normative acceptance pending"
+      },
+      {
+        "id": "R2-C02",
+        "status": "NOT_RUN",
+        "auxiliary_status": "PASS",
+        "auxiliary_scope": "listed CLI subchecks only",
+        "required_subchecks": [
+          "G13a",
+          "G13b",
+          "G13c"
+        ],
+        "missing": [],
+        "failed": [],
+        "remaining": "target environment / full normative acceptance pending"
+      },
+      {
+        "id": "R2-C03",
+        "status": "NOT_RUN",
+        "auxiliary_status": "PASS",
+        "auxiliary_scope": "listed CLI subchecks only",
+        "required_subchecks": [
+          "G12a",
+          "G12b",
+          "G12c",
+          "G15a",
+          "G15b",
+          "G15c",
+          "G15d",
+          "G15e",
+          "G17b",
+          "G17c",
+          "G30a",
+          "G30b"
+        ],
+        "missing": [],
+        "failed": [],
+        "remaining": "G30 is bare-HLT fault attribution only; R2-H05 unknown-syscall immediate-stop and successor-store suppression is a separate case (no current subcheck maps to it)"
+      },
+      {
+        "id": "R2-C04",
+        "status": "NOT_RUN",
+        "auxiliary_status": "PASS",
+        "auxiliary_scope": "listed CLI subchecks only",
+        "required_subchecks": [
+          "G16a",
+          "G16b",
+          "G16c",
+          "G12d"
+        ],
+        "missing": [],
+        "failed": [],
+        "remaining": "target environment / full normative acceptance pending"
+      },
+      {
+        "id": "R2-M01",
+        "status": "NOT_RUN",
+        "auxiliary_status": "PASS",
+        "auxiliary_scope": "listed CLI subchecks only",
+        "required_subchecks": [
+          "G25a",
+          "G25b"
+        ],
+        "missing": [],
+        "failed": [],
+        "remaining": "target environment / full normative acceptance pending"
+      },
+      {
+        "id": "R2-M02",
+        "status": "NOT_RUN",
+        "auxiliary_status": "PASS",
+        "auxiliary_scope": "listed CLI subchecks only",
+        "required_subchecks": [
+          "G24a",
+          "G24b",
+          "M26",
+          "M27"
+        ],
+        "missing": [],
+        "failed": [],
+        "remaining": "InvokeGuest/WaitingHle and lifecycle combinations remain pending"
+      },
+      {
+        "id": "R2-M03",
+        "status": "NOT_RUN",
+        "auxiliary_status": "PASS",
+        "auxiliary_scope": "listed CLI subchecks only",
+        "required_subchecks": [
+          "G26a",
+          "G26b",
+          "G23a",
+          "G23b",
+          "G23c",
+          "G28a",
+          "G28b",
+          "M28",
+          "M29"
+        ],
+        "missing": [],
+        "failed": [],
+        "remaining": "complete decoder-range matrix and post-Clear resumed-state sentinels remain pending"
+      },
+      {
+        "id": "R2-M04",
+        "status": "NOT_RUN",
+        "auxiliary_status": "PASS",
+        "auxiliary_scope": "listed CLI subchecks only",
+        "required_subchecks": [
+          "G27a",
+          "M08b"
+        ],
+        "missing": [],
+        "failed": [],
+        "remaining": "real HLE publication crossing remains pending"
+      },
+      {
+        "id": "R2-M05",
+        "status": "NOT_RUN",
+        "auxiliary_status": "PASS",
+        "auxiliary_scope": "listed CLI subchecks only",
+        "required_subchecks": [
+          "M13h",
+          "M13i",
+          "M13j",
+          "M13k",
+          "M13l",
+          "M13m",
+          "M13n",
+          "M13o",
+          "G10a",
+          "G10b",
+          "G10c",
+          "G10d",
+          "M27",
+          "M28"
+        ],
+        "missing": [],
+        "failed": [],
+        "remaining": "InvokeGuest failure protection remains pending"
+      },
+      {
+        "id": "R2-H01",
+        "status": "NOT_RUN",
+        "auxiliary_status": "PASS",
+        "auxiliary_scope": "listed CLI subchecks only",
+        "required_subchecks": [
+          "G31a",
+          "G31b",
+          "G31c"
+        ],
+        "missing": [],
+        "failed": [],
+        "remaining": "partial: 6/8 integer + 4-double gate verified; R3 needs 9 double, mixed/spill by guest code, RCX/R11 semantics, callee-saved/red-zone, per-invocation logs, on APK"
+      },
+      {
+        "id": "R2-H02",
+        "status": "NOT_RUN",
+        "auxiliary_status": "PASS",
+        "auxiliary_scope": "listed CLI subchecks only",
+        "required_subchecks": [
+          "G32a",
+          "G32b"
+        ],
+        "missing": [],
+        "failed": [],
+        "remaining": "partial: one good marshal + three one-shot bad pointers; R3 needs In/Out/InOut, nullable/zero-length, real overflow, remap/protect race, per-class x10, on APK"
+      },
+      {
+        "id": "R2-H03",
+        "status": "NOT_RUN",
+        "auxiliary_status": "NOT_RUN",
+        "auxiliary_scope": "listed CLI subchecks only",
+        "required_subchecks": [],
+        "missing": [],
+        "failed": [],
+        "remaining": "target environment / full normative acceptance pending"
+      },
+      {
+        "id": "R2-H04",
+        "status": "NOT_RUN",
+        "auxiliary_status": "NOT_RUN",
+        "auxiliary_scope": "listed CLI subchecks only",
+        "required_subchecks": [],
+        "missing": [],
+        "failed": [],
+        "remaining": "target environment / full normative acceptance pending"
+      },
+      {
+        "id": "R2-H05",
+        "status": "NOT_RUN",
+        "auxiliary_status": "NOT_RUN",
+        "auxiliary_scope": "listed CLI subchecks only",
+        "required_subchecks": [],
+        "missing": [],
+        "failed": [],
+        "remaining": "target environment / full normative acceptance pending"
+      },
+      {
+        "id": "R2-H06",
+        "status": "NOT_RUN",
+        "auxiliary_status": "NOT_RUN",
+        "auxiliary_scope": "listed CLI subchecks only",
+        "required_subchecks": [],
+        "missing": [],
+        "failed": [],
+        "remaining": "target environment / full normative acceptance pending"
+      },
+      {
+        "id": "R2-A01",
+        "status": "NOT_RUN",
+        "auxiliary_status": "NOT_RUN",
+        "auxiliary_scope": "listed CLI subchecks only",
+        "required_subchecks": [],
+        "missing": [],
+        "failed": [],
+        "remaining": "target environment / full normative acceptance pending"
+      },
+      {
+        "id": "R2-A02",
+        "status": "NOT_RUN",
+        "auxiliary_status": "NOT_RUN",
+        "auxiliary_scope": "listed CLI subchecks only",
+        "required_subchecks": [],
+        "missing": [],
+        "failed": [],
+        "remaining": "target environment / full normative acceptance pending"
+      },
+      {
+        "id": "R2-A03",
+        "status": "NOT_RUN",
+        "auxiliary_status": "NOT_RUN",
+        "auxiliary_scope": "listed CLI subchecks only",
+        "required_subchecks": [],
+        "missing": [],
+        "failed": [],
+        "remaining": "target environment / full normative acceptance pending"
+      },
+      {
+        "id": "R2-F01",
+        "status": "NOT_RUN",
+        "auxiliary_status": "NOT_RUN",
+        "auxiliary_scope": "listed CLI subchecks only",
+        "required_subchecks": [],
+        "missing": [],
+        "failed": [],
+        "remaining": "target environment / full normative acceptance pending"
+      },
+      {
+        "id": "R2-F02",
+        "status": "NOT_RUN",
+        "auxiliary_status": "NOT_RUN",
+        "auxiliary_scope": "listed CLI subchecks only",
+        "required_subchecks": [],
+        "missing": [],
+        "failed": [],
+        "remaining": "target environment / full normative acceptance pending"
+      },
+      {
+        "id": "R2-D01",
+        "status": "NOT_RUN",
+        "auxiliary_status": "NOT_RUN",
+        "auxiliary_scope": "listed CLI subchecks only",
+        "required_subchecks": [],
+        "missing": [],
+        "failed": [],
+        "remaining": "target environment / full normative acceptance pending"
+      },
+      {
+        "id": "R2-L01",
+        "status": "NOT_RUN",
+        "auxiliary_status": "NOT_RUN",
+        "auxiliary_scope": "listed CLI subchecks only",
+        "required_subchecks": [],
+        "missing": [],
+        "failed": [],
+        "remaining": "target environment / full normative acceptance pending"
+      }
+    ]
+  },
+  "release_status": "V0_IN_PROGRESS",
+  "release_status_reason": "This invocation observed 10 complete V0 passes, 0 V0 failures, 0 Round 2 failed cases, 0 failed suite(s) and 0 unmapped sub-case failure(s); 47 incomplete/unrun V0 cases, 3 scope deferrals, 0 unique failed sub-check(s). Auxiliary unit evidence is not complete acceptance. Running-thread interruption, real HLE/callback and app integration remain incomplete."
+}

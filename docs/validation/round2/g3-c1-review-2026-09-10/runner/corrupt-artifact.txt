@@ -1,0 +1,15 @@
+run id: 20260910T095244Z
+build dir: /var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmpckeb9ehh
+
+api_contract_tests: 0 sub-case(s), 0 failure(s)  [UNUSABLE: cannot launch suite /var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmpckeb9ehh/guest_cpu_contract_tests: [8] Exec format error]
+  no output
+hle_abi_tests: 0 sub-case(s), 0 failure(s)  [UNUSABLE: missing: /var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmpckeb9ehh/guest_cpu_hle_abi_tests]
+  (not attempted: missing: /var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmpckeb9ehh/guest_cpu_hle_abi_tests)
+host_page_size_probe: 0 sub-case(s), 0 failure(s)  [UNUSABLE: missing: /var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmpckeb9ehh/host_page_size_probe]
+  (not attempted: missing: /var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmpckeb9ehh/host_page_size_probe)
+
+1 PASS, 10 FAIL, 46 NOT_RUN of 57 in-scope cases (3 deferred by scope)
+4 ROUND 2 failed case(s): R2-M02, R2-M03, R2-M04, R2-M05
+1 failed suite(s): api_contract_tests (cannot launch suite /var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmpckeb9ehh/guest_cpu_contract_tests: [8] Exec format error)
+release status: V0_IN_PROGRESS
+wrote /private/tmp/shadps4-g3-c1-review-20260910/runner/corrupt-artifact.json

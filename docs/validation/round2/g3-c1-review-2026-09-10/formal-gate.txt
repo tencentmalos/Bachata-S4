@@ -1,0 +1,4 @@
+COMMAND ['clang++', '-std=c++20', '-O2', '-pthread', '-Isrc', 'tests/guest_cpu/test_run_gate_protocol.cpp', '-o', '/tmp/shadps4-g3-c1-review-20260910/formal-gate']
+test_run_gate_protocol: ALL GATE NEGATIVES PASS
+
+EXIT 0

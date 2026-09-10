@@ -1,0 +1,11 @@
+--- src/core/guest_cpu/fex/fex_context.cpp
++++ diagnostic-copy/fex_context.nonspill.cpp
+@@ -1059,7 +1059,7 @@
+             t_test_syscall_shim.trace = test_syscall_shim_trace_;
+             t_test_syscall_shim.fault = false;
+             g_test_syscall_stop_no_spill =
+-                signal_delegator_->GetConfig().ThreadStopHandlerAddressSpillSRA;
++                signal_delegator_->GetConfig().ThreadStopHandlerAddress;
+             g_test_syscall_trace = FexTestSyscallShimTrace{};
+             // C++ syscall wrapper; forwards to dispatch and exits to the stop entry on fault.
+             shim_pointers->SyscallHandlerFunc =

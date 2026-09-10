@@ -1,0 +1,61 @@
+/tmp/shadps4-g3-c1-review-20260910/device/state_probe:	file format elf64-littleaarch64
+
+Disassembly of section .text:
+
+0000000000064960 <FexTestSyscallWrapper>:
+   64960: a9be7bfd     	stp	x29, x30, [sp, #-0x20]!
+   64964: a9014ff4     	stp	x20, x19, [sp, #0x10]
+   64968: 910003fd     	mov	x29, sp
+   6496c: aa0103f3     	mov	x19, x1
+   64970: aa0003e8     	mov	x8, x0
+   64974: d2a00000     	movz	x0, #0x0, lsl #16
+   64978: f2800900     	movk	x0, #0x48
+   6497c: d503201f     	nop
+   64980: d503201f     	nop
+   64984: d53bd049     	mrs	x9, TPIDR_EL0
+   64988: 8b000134     	add	x20, x9, x0
+   6498c: f9400689     	ldr	x9, [x20, #0x8]
+   64990: b4000089     	cbz	x9, 0x649a0 <FexTestSyscallWrapper+0x40>
+   64994: aa0803e0     	mov	x0, x8
+   64998: aa1303e1     	mov	x1, x19
+   6499c: d63f0120     	blr	x9
+   649a0: 39404688     	ldrb	w8, [x20, #0x11]
+   649a4: 7100051f     	cmp	w8, #0x1
+   649a8: 54000281     	b.ne	0x649f8 <FexTestSyscallWrapper+0x98>
+   649ac: 910003e8     	mov	x8, sp
+   649b0: aa1c03e9     	mov	x9, x28
+   649b4: aa1e03ea     	mov	x10, x30
+   649b8: 3dc17260     	ldr	q0, [x19, #0x5c0]
+   649bc: b000168b     	adrp	x11, 0x335000 <P+0x18>
+   649c0: 9118e16b     	add	x11, x11, #0x638
+   649c4: a9002568     	stp	x8, x9, [x11]
+   649c8: f9405a69     	ldr	x9, [x19, #0xb0]
+   649cc: 3c818160     	stur	q0, [x11, #0x18]
+   649d0: f9400e68     	ldr	x8, [x19, #0x18]
+   649d4: f900096a     	str	x10, [x11, #0x10]
+   649d8: b940516a     	ldr	w10, [x11, #0x50]
+   649dc: f9001568     	str	x8, [x11, #0x28]
+   649e0: f9401668     	ldr	x8, [x19, #0x28]
+   649e4: a9044d69     	stp	x9, x19, [x11, #0x40]
+   649e8: f9403e69     	ldr	x9, [x19, #0x78]
+   649ec: a9032568     	stp	x8, x9, [x11, #0x30]
+   649f0: 11000548     	add	w8, w10, #0x1
+   649f4: b9005168     	str	w8, [x11, #0x50]
+   649f8: 39404a88     	ldrb	w8, [x20, #0x12]
+   649fc: 7100051f     	cmp	w8, #0x1
+   64a00: 54000080     	b.eq	0x64a10 <FexTestSyscallWrapper+0xb0>
+   64a04: a9414ff4     	ldp	x20, x19, [sp, #0x10]
+   64a08: a8c27bfd     	ldp	x29, x30, [sp], #0x20
+   64a0c: d65f03c0     	ret
+   64a10: b0001688     	adrp	x8, 0x335000 <P+0x18>
+   64a14: f942e262     	ldr	x2, [x19, #0x5c0]
+   64a18: aa1303e0     	mov	x0, x19
+   64a1c: f9431901     	ldr	x1, [x8, #0x630]
+   64a20: f902e67f     	str	xzr, [x19, #0x5c8]
+   64a24: 94000001     	bl	0x64a28 <_ZN4Core8GuestCpu3Fex12_GLOBAL__N_117FexTestExitToStopEPvS3_S3_>
+
+0000000000064a28 <_ZN4Core8GuestCpu3Fex12_GLOBAL__N_117FexTestExitToStopEPvS3_S3_>:
+   64a28: aa0003fc     	mov	x28, x0
+   64a2c: 9100005f     	mov	sp, x2
+   64a30: d61f0020     	br	x1
+/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-objdump: warning: '/tmp/shadps4-g3-c1-review-20260910/device/state_probe': failed to disassemble missing symbol FexTestSyscallDispatch

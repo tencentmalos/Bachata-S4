@@ -1,0 +1,81 @@
+[
+  {
+    "name": "original_probe",
+    "args": [
+      "good"
+    ],
+    "sha256": "bf41539b602fb5d2722a6501cdff683f3ed552de99af9e5838a3c64784881691",
+    "device_sha256": "bf41539b602fb5d2722a6501cdff683f3ed552de99af9e5838a3c64784881691",
+    "returncode": 0,
+    "elapsed_s": 0.08568712501437403,
+    "timed_out": false
+  },
+  {
+    "name": "original_probe",
+    "args": [
+      "unknown"
+    ],
+    "sha256": "bf41539b602fb5d2722a6501cdff683f3ed552de99af9e5838a3c64784881691",
+    "device_sha256": "bf41539b602fb5d2722a6501cdff683f3ed552de99af9e5838a3c64784881691",
+    "returncode": 0,
+    "elapsed_s": 0.0955247079837136,
+    "timed_out": false
+  },
+  {
+    "name": "state_probe",
+    "args": [],
+    "sha256": "6bc757528f3cc6156d3df4ddb8a1d66d8cb419ec1e545a981a471e470ab54d3c",
+    "device_sha256": "6bc757528f3cc6156d3df4ddb8a1d66d8cb419ec1e545a981a471e470ab54d3c",
+    "returncode": 2,
+    "elapsed_s": 0.07241345799411647,
+    "timed_out": false,
+    "label": "state_probe-initial",
+    "diagnostic_revision": "before fault.guest_rip assertion correction"
+  },
+  {
+    "label": "device-state_probe",
+    "name": "state_probe",
+    "build": "device",
+    "args": [],
+    "sha256": "38191c183d9635981d9e2b6dfd7fa33c45c00fe6d4259b6270b018098f7ef257",
+    "device_sha256": "38191c183d9635981d9e2b6dfd7fa33c45c00fe6d4259b6270b018098f7ef257",
+    "returncode": 2,
+    "elapsed_s": 0.06478141597472131,
+    "timed_out": false
+  },
+  {
+    "label": "device-timeout_probe",
+    "name": "timeout_probe",
+    "build": "device",
+    "args": [],
+    "sha256": "2967e7303efb311a0b051b3bd391139ef1a05b17706b6a265aa0dfa9bba80301",
+    "device_sha256": "2967e7303efb311a0b051b3bd391139ef1a05b17706b6a265aa0dfa9bba80301",
+    "returncode": 2,
+    "elapsed_s": 6.266591042018263,
+    "timed_out": false
+  },
+  {
+    "label": "nonspill-state_probe",
+    "name": "state_probe",
+    "build": "nonspill",
+    "args": [],
+    "sha256": "67639fbf6da031c6b6db09485a19c94a9babde3faacbca6148cf385d132cee3e",
+    "device_sha256": "67639fbf6da031c6b6db09485a19c94a9babde3faacbca6148cf385d132cee3e",
+    "returncode": 0,
+    "elapsed_s": 0.09051612499752082,
+    "timed_out": false
+  },
+  {
+    "label": "nonspill-original_probe-good",
+    "name": "original_probe",
+    "build": "nonspill",
+    "args": [
+      "good"
+    ],
+    "sha256": "e16fa32427ac372fed51eab61fcaaec11a0b39a06bfc0b2f812d2c603ae11527",
+    "device_sha256": "e16fa32427ac372fed51eab61fcaaec11a0b39a06bfc0b2f812d2c603ae11527",
+    "returncode": 0,
+    "elapsed_s": 0.09156824997626245,
+    "timed_out": false
+  }
+]

@@ -1,0 +1,151 @@
+[
+  {
+    "case": "B02",
+    "main_return_code": 1,
+    "v0_failed": 1,
+    "overall": {
+      "failed_subchecks_unique": [],
+      "failed_subcheck_count": 0,
+      "v0_failed_cases": 1,
+      "v0_failed_case_ids": [
+        "B02"
+      ],
+      "round2_failed_cases": [],
+      "round2_failed_case_count": 0,
+      "unmapped_failed_subchecks": [],
+      "unmapped_failed_count": 0,
+      "failed_suites": [],
+      "failed_suite_count": 0,
+      "has_failures": true
+    }
+  },
+  {
+    "case": "B05",
+    "main_return_code": 1,
+    "v0_failed": 1,
+    "overall": {
+      "failed_subchecks_unique": [],
+      "failed_subcheck_count": 0,
+      "v0_failed_cases": 1,
+      "v0_failed_case_ids": [
+        "B05"
+      ],
+      "round2_failed_cases": [],
+      "round2_failed_case_count": 0,
+      "unmapped_failed_subchecks": [],
+      "unmapped_failed_count": 0,
+      "failed_suites": [],
+      "failed_suite_count": 0,
+      "has_failures": true
+    }
+  },
+  {
+    "case": "B06",
+    "main_return_code": 1,
+    "v0_failed": 1,
+    "overall": {
+      "failed_subchecks_unique": [],
+      "failed_subcheck_count": 0,
+      "v0_failed_cases": 1,
+      "v0_failed_case_ids": [
+        "B06"
+      ],
+      "round2_failed_cases": [],
+      "round2_failed_case_count": 0,
+      "unmapped_failed_subchecks": [],
+      "unmapped_failed_count": 0,
+      "failed_suites": [],
+      "failed_suite_count": 0,
+      "has_failures": true
+    }
+  },
+  {
+    "case": "corrupt-artifact",
+    "command": [
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "/Users/bytedance/workspace/emulations/ps4/shadps4/scripts/android/run-v0-tests",
+      "--build-dir",
+      "/var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmpckeb9ehh",
+      "--out",
+      "/private/tmp/shadps4-g3-c1-review-20260910/runner/corrupt-artifact.json"
+    ],
+    "runner_process_returncode": 1,
+    "suite_never_started": false,
+    "suite_error": "cannot launch suite /var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmpckeb9ehh/guest_cpu_contract_tests: [8] Exec format error",
+    "overall": {
+      "failed_subchecks_unique": [
+        "D03a",
+        "D03b",
+        "M01a",
+        "M01b",
+        "M01c",
+        "M02",
+        "M03",
+        "M04a",
+        "M04b",
+        "M05",
+        "M07",
+        "M08b",
+        "M10",
+        "M12",
+        "M13",
+        "M13b",
+        "M13c",
+        "M13d",
+        "M13e",
+        "M13f",
+        "M13g",
+        "M13h",
+        "M13i",
+        "M13j",
+        "M13k",
+        "M13l",
+        "M13m",
+        "M13n",
+        "M13o",
+        "M21",
+        "M22",
+        "M23",
+        "M24",
+        "M25",
+        "M26",
+        "M27",
+        "M28",
+        "M29",
+        "T03a"
+      ],
+      "failed_subcheck_count": 39,
+      "v0_failed_cases": 10,
+      "v0_failed_case_ids": [
+        "M01",
+        "M04",
+        "M05",
+        "M07",
+        "M08",
+        "M10",
+        "M12",
+        "M13",
+        "T03",
+        "D03"
+      ],
+      "round2_failed_cases": [
+        "R2-M02",
+        "R2-M03",
+        "R2-M04",
+        "R2-M05"
+      ],
+      "round2_failed_case_count": 4,
+      "unmapped_failed_subchecks": [],
+      "unmapped_failed_count": 0,
+      "failed_suites": [
+        {
+          "suite": "api_contract_tests",
+          "reason": "cannot launch suite /var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmpckeb9ehh/guest_cpu_contract_tests: [8] Exec format error",
+          "on_device": "False"
+        }
+      ],
+      "failed_suite_count": 1,
+      "has_failures": true
+    }
+  }
+]

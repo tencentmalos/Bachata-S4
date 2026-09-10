@@ -1,0 +1,4 @@
+COMMAND ['clang++', '-std=c++20', '-O2', '-pthread', '-Isrc', 'docs/validation/round2/g3-c1-review-2026-09-10/gate-race-probe.cpp', '-o', '/tmp/shadps4-g3-c1-review-20260910/gate-race']
+REPRO iteration=1 t1=1 t2=2 owner1_clean=1 release1=0 release2=0 owner2_clean=0
+
+EXIT 2

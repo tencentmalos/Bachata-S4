@@ -1,0 +1,18 @@
+COMMAND ['adb', '-s', '9c2841a4', 'shell', 'timeout', '30', '/data/local/tmp/shadps4-g3-c1-review-20260910/original_probe', 'unknown']
+LOCAL_SHA256 bf41539b602fb5d2722a6501cdff683f3ed552de99af9e5838a3c64784881691
+DEVICE_SHA256 bf41539b602fb5d2722a6501cdff683f3ed552de99af9e5838a3c64784881691  /data/local/tmp/shadps4-g3-c1-review-20260910/original_probe
+guest reservation base: 0x7f8000000
+code at 0x7f8010000, stack top 0x7f8023ff0
+return gate at 0xfc0000000
+
+TRACE invocations=1
+TRACE shim_sp=0x7fce688c00 shim_x28=0x110004140 shim_lr=0x56c8185dd0
+TRACE returning_stack=0x7fce688d10 in_syscall=0xffff frame=0x110004140
+TRACE shim_sp-returning_stack=-272 (positive => shim frame above dispatcher save area)
+TRACE guest_rip=0x7f8010000 rcx=0x7f8010002 r11=0x202 callret_sp=0xffcff000
+C0 mode=unknown reason=GuestFault rax=7829367 sentinel=0
+C1 unknown (immediate exit): sentinel=0 reason=GuestFault
+C1 unknown: fault=1 sentinel_zero=1 fault_pc_syscall=1 (guest_pc=0xdead snap_rip=0x7f8010000 syscall_pc=0x7f8010000)
+
+EXIT 0
+ELAPSED 0.0955247079837136

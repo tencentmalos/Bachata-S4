@@ -1,0 +1,45 @@
+COMMAND ['adb', '-s', '9c2841a4', 'shell', 'timeout', '30', '/data/local/tmp/shadps4-g3-c1-review-20260910/nonspill-state_probe']
+LOCAL_SHA256 67639fbf6da031c6b6db09485a19c94a9babde3faacbca6148cf385d132cee3e
+DEVICE_SHA256 67639fbf6da031c6b6db09485a19c94a9babde3faacbca6148cf385d132cee3e  /data/local/tmp/shadps4-g3-c1-review-20260910/nonspill-state_probe
+guest reservation base: 0x7f8000000
+code at 0x7f8010000, stack top 0x7f8023ff0
+return gate at 0xfc0000000
+
+GPR rax expected=0x777777 actual=0x777777 match=1
+GPR rcx expected=0x7f8010002 actual=0x7f8010002 match=1
+GPR rdx expected=0x12340002 actual=0x12340002 match=1
+GPR rbx expected=0x12340003 actual=0x12340003 match=1
+GPR rsp expected=0x7f8023ff0 actual=0x7f8023ff0 match=1
+GPR rbp expected=0x12340005 actual=0x12340005 match=1
+GPR rsi expected=0x12340006 actual=0x12340006 match=1
+GPR rdi expected=0x12340007 actual=0x12340007 match=1
+GPR r8 expected=0x12340008 actual=0x12340008 match=1
+GPR r9 expected=0x12340009 actual=0x12340009 match=1
+GPR r10 expected=0x1234000a actual=0x1234000a match=1
+GPR r11 expected=0x202 actual=0x202 match=1
+GPR r12 expected=0x7f8020300 actual=0x7f8020300 match=1
+GPR r13 expected=0x1234000d actual=0x1234000d match=1
+GPR r14 expected=0x1234000e actual=0x1234000e match=1
+GPR r15 expected=0x1234000f actual=0x1234000f match=1
+XMM 0 expected=0xdcba0000:abcd0000 actual=0xdcba0000:abcd0000 match=1
+XMM 1 expected=0xdcba0001:abcd0001 actual=0xdcba0001:abcd0001 match=1
+XMM 2 expected=0xdcba0002:abcd0002 actual=0xdcba0002:abcd0002 match=1
+XMM 3 expected=0xdcba0003:abcd0003 actual=0xdcba0003:abcd0003 match=1
+XMM 4 expected=0xdcba0004:abcd0004 actual=0xdcba0004:abcd0004 match=1
+XMM 5 expected=0xdcba0005:abcd0005 actual=0xdcba0005:abcd0005 match=1
+XMM 6 expected=0xdcba0006:abcd0006 actual=0xdcba0006:abcd0006 match=1
+XMM 7 expected=0xdcba0007:abcd0007 actual=0xdcba0007:abcd0007 match=1
+XMM 8 expected=0xdcba0008:abcd0008 actual=0xdcba0008:abcd0008 match=1
+XMM 9 expected=0xdcba0009:abcd0009 actual=0xdcba0009:abcd0009 match=1
+XMM 10 expected=0xdcba000a:abcd000a actual=0xdcba000a:abcd000a match=1
+XMM 11 expected=0xdcba000b:abcd000b actual=0xdcba000b:abcd000b match=1
+XMM 12 expected=0xdcba000c:abcd000c actual=0xdcba000c:abcd000c match=1
+XMM 13 expected=0xdcba000d:abcd000d actual=0xdcba000d:abcd000d match=1
+XMM 14 expected=0xdcba000e:abcd000e actual=0xdcba000e:abcd000e match=1
+XMM 15 expected=0xdcba000f:abcd000f actual=0xdcba000f:abcd000f match=1
+FAULT reason=GuestFault sentinel=0 guest_pc=0x0 rip=0x7f8010000 expected_pc=0x7f8010000 validity=0x3f kind=Faulted fault_ok=1 metadata_ok=1 invocations=1
+FAULT_INFO guest_rip=0x7f8010000
+STATE_REVIEW mismatches=0 destroy=1
+
+EXIT 0
+ELAPSED 0.09051612499752082

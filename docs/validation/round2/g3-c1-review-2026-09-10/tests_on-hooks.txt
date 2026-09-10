@@ -1,0 +1,26 @@
+0000000000000000 T FexTestSyscallDispatch
+0000000000000000 T FexTestSyscallWrapper
+0000000000000000 t Core::GuestCpu::Fex::(anonymous namespace)::FexTestExitToStop(void*, void*, void*)
+0000000000000000 t Core::GuestCpu::Fex::(anonymous namespace)::FexTestRunGateImpl::WaitAtEntry(unsigned long, unsigned long, unsigned long, unsigned long)
+0000000000000000 t Core::GuestCpu::Fex::(anonymous namespace)::FexTestRunGateImpl::BoundInvocation(unsigned long)
+0000000000000000 t Core::GuestCpu::Fex::(anonymous namespace)::FexTestRunGateImpl::Arm(unsigned long, unsigned long)
+0000000000000000 t Core::GuestCpu::Fex::(anonymous namespace)::FexTestRunGateImpl::Exited(unsigned long)
+0000000000000000 t Core::GuestCpu::Fex::(anonymous namespace)::FexTestRunGateImpl::Arrived(unsigned long)
+0000000000000000 t Core::GuestCpu::Fex::(anonymous namespace)::FexTestRunGateImpl::Release(unsigned long, unsigned long)
+0000000000000000 t Core::GuestCpu::Fex::(anonymous namespace)::FexTestRunGateImpl::~FexTestRunGateImpl()
+0000000000000000 t Core::GuestCpu::Fex::(anonymous namespace)::FexTestRunGateImpl::~FexTestRunGateImpl()
+0000000000000000 b Core::GuestCpu::Fex::(anonymous namespace)::t_test_syscall_shim
+0000000000000000 b Core::GuestCpu::Fex::(anonymous namespace)::g_test_syscall_trace
+0000000000000000 b Core::GuestCpu::Fex::(anonymous namespace)::g_test_syscall_stop_no_spill
+0000000000000000 T Core::GuestCpu::Fex::FexTestSyscallTrace()
+0000000000000000 T Core::GuestCpu::Fex::FexTestRunGatePointer(Core::GuestCpu::CpuContext&)
+0000000000000000 T Core::GuestCpu::Fex::FexTestSetSyscallShimArmed(Core::GuestCpu::CpuContext&, bool)
+0000000000000000 T Core::GuestCpu::Fex::FexTestSetSyscallShimTrace(Core::GuestCpu::CpuContext&, bool)
+0000000000000000 W Core::GuestCpu::TestGate::RunGate::WaitAtEntry(unsigned long, unsigned long, unsigned long, unsigned long)
+0000000000000000 W Core::GuestCpu::TestGate::RunGate::Release(unsigned long, unsigned long)
+0000000000000000 W bool std::__ndk1::condition_variable::wait_for[abi:ne210000]<long long, std::__ndk1::ratio<1l, 1000l>, Core::GuestCpu::TestGate::RunGate::Release(unsigned long, unsigned long)::'lambda'()>(std::__ndk1::unique_lock<std::__ndk1::mutex>&, std::__ndk1::chrono::duration<long long, std::__ndk1::ratio<1l, 1000l>> const&, Core::GuestCpu::TestGate::RunGate::Release(unsigned long, unsigned long)::'lambda'())
+0000000000000000 d typeinfo for Core::GuestCpu::Fex::(anonymous namespace)::FexTestRunGateImpl
+0000000000000000 V typeinfo for Core::GuestCpu::Fex::FexTestRunGate
+0000000000000000 r typeinfo name for Core::GuestCpu::Fex::(anonymous namespace)::FexTestRunGateImpl
+0000000000000000 V typeinfo name for Core::GuestCpu::Fex::FexTestRunGate
+0000000000000000 d vtable for Core::GuestCpu::Fex::(anonymous namespace)::FexTestRunGateImpl

@@ -1,0 +1,17 @@
+COMMAND ['adb', '-s', '9c2841a4', 'shell', 'timeout', '30', '/data/local/tmp/shadps4-g3-c1-review-20260910/nonspill-original_probe-good', 'good']
+LOCAL_SHA256 e16fa32427ac372fed51eab61fcaaec11a0b39a06bfc0b2f812d2c603ae11527
+DEVICE_SHA256 e16fa32427ac372fed51eab61fcaaec11a0b39a06bfc0b2f812d2c603ae11527  /data/local/tmp/shadps4-g3-c1-review-20260910/nonspill-original_probe-good
+guest reservation base: 0x7f8000000
+code at 0x7f8010000, stack top 0x7f8023ff0
+return gate at 0xfc0000000
+
+TRACE invocations=1
+TRACE shim_sp=0x7fe2736040 shim_x28=0x110004140 shim_lr=0x5f33019dd0
+TRACE returning_stack=0x7fe2736150 in_syscall=0xffff frame=0x110004140
+TRACE shim_sp-returning_stack=-272 (positive => shim frame above dispatcher save area)
+TRACE guest_rip=0x7f8010000 rcx=0x0 r11=0x202 callret_sp=0xffcff000
+C0 mode=good reason=Returned rax=1 sentinel=42
+C0 good: sentinel_written(continuation ok)=1 rax_addone=1
+
+EXIT 0
+ELAPSED 0.09156824997626245

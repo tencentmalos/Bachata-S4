@@ -1,0 +1,4 @@
+COMMAND ['/tmp/shadps4-g3-c1-review-20260910/host/test_run_gate_protocol']
+test_run_gate_protocol: ALL GATE NEGATIVES PASS
+
+EXIT 0

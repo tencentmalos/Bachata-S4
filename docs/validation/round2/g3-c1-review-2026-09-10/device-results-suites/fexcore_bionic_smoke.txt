@@ -1,0 +1,24 @@
+DEPLOY {"remote": "/data/local/tmp/shadps4-v0-58026-132281939087583-fexcore_bionic_smoke", "local_sha256": "e4135b25715279d56517c4c236c56011a9bfe5fb3532ef900a94ebffe3720952", "device_sha256": "e4135b25715279d56517c4c236c56011a9bfe5fb3532ef900a94ebffe3720952"}
+bionic FEXCore smoke
+sysconf(_SC_PAGESIZE) = 4096
+FEX_PAGE_SIZE         = 4096 (guest ABI, must stay 4096)
+[F01a  ] FEX_PAGE_SIZE is still the guest ABI page PASS
+[F01b  ] host page size injected into FEXCore PASS -- reported=4096 accepted=1 HostPageSize()=4096
+[F02a  ] FEXCore config layer initialises PASS
+[F02b  ] allocator hooks accept the host page size PASS
+[F03a  ] Context::CreateNewContext returns a context PASS
+[F03b  ] signal delegator and syscall handler installed PASS
+[F03c  ] InitCore succeeds PASS
+[F04a  ] CreateThread returns a thread state PASS
+[F04b  ] live InterruptFaultPage is host-page aligned PASS -- fault page addr%4096=0 size=16384
+[F04c  ] DestroyThread restores fault page permissions and frees PASS
+[F05a  ] context destruction completes PASS
+[F05b  ] allocator hooks and config shut down PASS
+
+ALL PASS (0 failures)
+SCOPE: link + init + thread lifecycle on bionic. No guest code was executed,
+       so this does not prove translation, JIT or guest ABI correctness.
+__EXIT__=0
+
+(device exit 0, adb exit 0, 0.06s)
+{"exit_code": 0, "timed_out": false, "never_started": false, "error": null}

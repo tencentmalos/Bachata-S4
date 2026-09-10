@@ -1,0 +1,30 @@
+COMMAND ['python3', 'scripts/android/test-runner-accounting']
+R2-B02: runner accounting negatives
+
+[PASS] 1. B02 without an APK does not claim a full PASS -- status=NOT_RUN
+[PASS] 3. a case with a missing sub-case does not pass -- status=NOT_RUN
+[PASS] 4. a SKIP sub-case does not complete a case -- status=NOT_RUN
+[PASS] 7. a later PASS does not overwrite an earlier FAIL for the same ID -- status=FAIL
+[PASS] 7b. the repeated sub-case is recorded with an iteration count -- repeated={'M01a': 2}
+[PASS] 7c. the conflicting verdict is recorded -- conflicts=['M01a: reported FAIL then PASS']
+[PASS] 5. a suite that exits non-zero with no output fails its owned cases -- status=FAIL
+[PASS] 5b. that failure reaches the summary -- failed=10
+[PASS] 5c. the runner process itself exits non-zero -- exit=1
+[PASS] 6. a timed-out suite is unusable and not 'never started' -- usable=False never_started=False
+[PASS] 8. a missing suite binary is 'never started', not a failure -- usable=False never_started=True
+[PASS] 8b. the two are distinguishable
+[PASS] 2. a host-only result is labelled HOST, not DEVICE -- environment=HOST
+[PASS] 9. an unmapped FAIL+exit0 is recorded as an unmapped sub-case failure -- unmapped=['Z99a']
+[PASS] 9c. an unmapped FAIL makes the runner process exit non-zero -- exit=1
+[PASS] 9b. an unmapped PASS does not trip the orphan net -- unmapped=[] m01=PASS
+[PASS] 9d. a clean run with an unmapped PASS exits zero -- exit=0
+[PASS] 10. a mapped G31a FAIL lands on R2-H01, not in the orphan net -- h01=FAIL orphan=[]
+[PASS] 10b. a R2-only G31a FAIL+exit0 makes the runner process exit non-zero -- exit=1
+[PASS] 11. a corrupt executable suite is a failed suite, not a cross-arch skip -- exit=1 suites=[{'suite': 'api_contract_tests', 'reason': 'cannot launch suite /var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmp125bhbmu/guest_cpu_contract_tests: [8] Exec format error', 'on_device': 'False'}]
+[PASS] 11b. a missing suite is never-started and exits zero -- exit=0 suites=0
+
+21/21 passed
+
+SCOPE: the runner's own accounting. Proves nothing about the guest CPU.
+
+EXIT 0

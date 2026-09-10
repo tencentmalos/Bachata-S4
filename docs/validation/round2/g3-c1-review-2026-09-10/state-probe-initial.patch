@@ -1,0 +1,21 @@
+--- state-probe.cpp
++++ state-probe-initial.cpp
+@@ -66,8 +66,7 @@
+     }
+     const auto sentinel_value = *reinterpret_cast<std::uint64_t*>(sentinel);
+     const bool fault_ok = run.Value().primary_reason == StopReason::GuestFault &&
+-        run.Value().fault && run.Value().fault->guest_rip == h.code_base &&
+-        actual.rip == h.code_base && sentinel_value == 0;
++        run.Value().guest_pc == h.code_base && actual.rip == h.code_base && sentinel_value == 0;
+     const bool metadata_ok = actual.mxcsr == expected.mxcsr &&
+         actual.fs_base == expected.fs_base && actual.gs_base == expected.gs_base;
+     printf("FAULT reason=%s sentinel=%llu guest_pc=0x%llx rip=0x%llx expected_pc=0x%llx "
+@@ -78,8 +77,6 @@
+         (unsigned)actual.validity, std::string(ToString(run.Value().snapshot.kind)).c_str(),
+         fault_ok, metadata_ok, trace->invocations);
+     auto destroy = h.context->DestroyThread(thread.Value());
+-    printf("FAULT_INFO guest_rip=0x%llx\n", (unsigned long long)
+-        (run.Value().fault ? run.Value().fault->guest_rip.value_or(0) : 0));
+     printf("STATE_REVIEW mismatches=%d destroy=%d\n", mismatches, bool(destroy));
+     return (!mismatches && fault_ok && metadata_ok && destroy) ? 0 : 2;
+ }

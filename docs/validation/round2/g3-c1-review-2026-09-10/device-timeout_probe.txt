@@ -1,0 +1,12 @@
+COMMAND ['adb', '-s', '9c2841a4', 'shell', 'timeout', '30', '/data/local/tmp/shadps4-g3-c1-review-20260910/device-timeout_probe']
+LOCAL_SHA256 2967e7303efb311a0b051b3bd391139ef1a05b17706b6a265aa0dfa9bba80301
+DEVICE_SHA256 2967e7303efb311a0b051b3bd391139ef1a05b17706b6a265aa0dfa9bba80301  /data/local/tmp/shadps4-g3-c1-review-20260910/device-timeout_probe
+guest reservation base: 0x7f8000000
+code at 0x7f8010000, stack top 0x7f8023ff0
+return gate at 0xfc0000000
+
+GATE_TIMEOUT run=BackendFailure in Run: test entry gate timed out exited=1 wait1=Timeout in WaitStopped: owner has not stopped wait2=Timeout in WaitStopped: owner has not stopped execution_lease=1
+TIMEOUT_REVIEW reproduced=1 owner_destroyed=1
+
+EXIT 2
+ELAPSED 6.266591042018263
