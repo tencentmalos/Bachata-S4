@@ -2594,6 +2594,92 @@ void TestImmediateSyscallExit(Harness& h) {
     }
 }
 
+// R2-H05 concurrent isolation: one owner (A) takes an unknown syscall fault while a different owner
+// (B) is genuinely executing guest code at the same time. A's fault must be attributed to A only and
+// return promptly; B must keep running (its progress advances) and, when cancelled, stop as
+// Cancelled -- never as GuestFault. This proves the per-thread syscall-fault state does not leak
+// across owners that Run concurrently.
+void TestConcurrentSyscallFaultIsolation(Harness& h) {
+    std::string e;
+    // Healthy code (a no-syscall progress loop) lives at code_base; the faulting syscall fixture
+    // lives on a SEPARATE page (data_base), mirroring G30, so one owner spins on progress while the
+    // other faults at a syscall, concurrently.
+    if (!LoadProgress(h)) {
+        Check("G36a", "load progress fixture", false);
+        return;
+    }
+    const auto* sentinel_fixture = FindFixture("syscall_writes_sentinel");
+    if (!sentinel_fixture) {
+        Check("G36a", "syscall_writes_sentinel fixture present", false);
+        return;
+    }
+    {
+        // Write the faulting syscall bytes to the data page (RX so it executes; data_base is mapped
+        // RW -- republish RX like G30 does).
+        const GuestRange fault_range{GuestAddress{h.data_base}, kMappingSize};
+        auto rw = h.space->Protect(fault_range, GuestPermission::Read | GuestPermission::Write);
+        if (!rw) { Check("G36a", "fault page RW", false, Describe(rw.GetError())); return; }
+        std::memcpy(reinterpret_cast<void*>(h.data_base), sentinel_fixture->bytes.data(),
+                    sentinel_fixture->bytes.size());
+        auto rx = h.space->Protect(fault_range, GuestPermission::Read | GuestPermission::Execute);
+        if (!rx) { Check("G36a", "fault page RX", false, Describe(rx.GetError())); return; }
+    }
+
+    const auto good_progress = PrepareProgress(h, 0);
+    const std::uint64_t sentinel = h.stack_base + 0xa00;
+    *reinterpret_cast<std::uint64_t*>(sentinel) = 0;
+
+    // Healthy owner spins on progress (code_base) via the owner command queue.
+    TestOwner healthy(h, good_progress, 4096);
+    auto healthy_run = healthy.Run();
+    if (!WaitProgress(good_progress, 0)) std::_Exit(4);
+
+    // Faulting owner enters the syscall fixture on data_base with an unknown op. r12 = sentinel.
+    ThreadInit init{};
+    init.entry_rip = GuestCodeAddress{h.data_base};
+    init.initial_rsp = GuestAddress{h.stack_top};
+    init.guest_tid = 538;
+    init.initial_state.fields = RegisterValidity::Gpr;
+    init.initial_state.gpr_mask = (1u << Index(Gpr::Rax)) | (1u << Index(Gpr::R12));
+    init.initial_state.values.Set(Gpr::Rax, 0x666666);
+    init.initial_state.values.Set(Gpr::R12, sentinel);
+    auto fault_thread = h.context->CreateThread(init);
+    if (!fault_thread) std::_Exit(4);
+    auto fault_run = h.context->Run(fault_thread.Value(), RunOptions{});
+    const bool fault_attributed =
+        bool(fault_run) && fault_run.Value().primary_reason == StopReason::GuestFault &&
+        fault_run.Value().fault && fault_run.Value().fault->syscall_operation == 0x666666 &&
+        fault_run.Value().fault->thread_generation == fault_thread.Value().generation;
+    const bool fault_sentinel_zero = (*reinterpret_cast<std::uint64_t*>(sentinel) == 0);
+    (void)h.context->DestroyThread(fault_thread.Value());
+
+    // The healthy owner must still be alive and advancing after A's fault.
+    const bool healthy_still_running =
+        healthy_run.wait_for(std::chrono::milliseconds(0)) == std::future_status::timeout;
+    const std::uint64_t p_before = Progress(good_progress);
+    const bool healthy_advanced_after_fault = WaitProgress(good_progress, p_before);
+
+    // Cancel the healthy owner: it must stop as Cancelled, NOT GuestFault.
+    auto cancel = h.context->RequestInterrupt(healthy.handle, InterruptReason::Cancel).Value();
+    auto stopped = h.context->WaitStopped(cancel, 1'000'000).Value();
+    auto other_stopped = Await(healthy_run);
+    const bool healthy_reason = (other_stopped.Value().primary_reason == StopReason::Cancelled);
+    const bool receipt_is_healthy = (stopped.thread_id == healthy.handle.id);
+
+    Check("G36a", "concurrent unknown-syscall fault attributed to faulting owner only",
+          fault_attributed && fault_sentinel_zero,
+          "fault=" + std::to_string(fault_attributed) +
+          " sentinel_zero=" + std::to_string(fault_sentinel_zero));
+    Check("G36b", "healthy concurrent owner keeps running after another owner's syscall fault",
+          healthy_still_running && healthy_advanced_after_fault,
+          "running=" + std::to_string(healthy_still_running) +
+          " advanced=" + std::to_string(healthy_advanced_after_fault));
+    Check("G36c", "healthy owner cancelled cleanly (Cancelled, not GuestFault)",
+          healthy_reason && receipt_is_healthy,
+          "reason_ok=" + std::to_string(healthy_reason) +
+          " receipt_owner_ok=" + std::to_string(receipt_is_healthy));
+}
+
 void TestCoordinatorRecovery(Harness& h) {
     // External Pause/Cancel/Shutdown both before and after the coordinator's own request, with one
     // owner provably held at a lock-free point while the other owner stops independently.
@@ -3159,6 +3245,7 @@ int main() {
     TestRealHleGate(harness);
     TestHleBufferPinning(harness);
     TestImmediateSyscallExit(harness);
+    TestConcurrentSyscallFaultIsolation(harness);
     TestCoordinatorRecovery(harness);
     TestInterruptStress(harness);
     TestInterruptRefusals(harness);
