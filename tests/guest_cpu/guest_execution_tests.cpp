@@ -2349,6 +2349,56 @@ void TestHleBufferPinning(Harness& h) {
 
     Check("G32a", "pinned in/out buffers marshal and the host writes the result", good);
     Check("G32b", "bad/overflow pointers never reach native code", bad, bad_detail);
+
+    // G32c: a registered op REJECTED for a bad buffer must also take the immediate syscall-fault
+    // exit, so the in-block successor store does not run (not merely "native not called"). Uses the
+    // syscall;sentinel fixture and the registered buffer operation with an unreachable input pointer.
+    if (auto* sf = FindFixture("syscall_writes_sentinel")) {
+        std::string se;
+        if (LoadFixture(h, *sf, se)) {
+            const std::uint64_t sentinel_rc = h.stack_base + 0x900;
+            *reinterpret_cast<std::uint64_t*>(sentinel_rc) = 0;
+            ThreadInit rinit{};
+            rinit.entry_rip = GuestCodeAddress{h.code_base};
+            rinit.initial_rsp = GuestAddress{h.stack_top};
+            rinit.guest_tid = 732;
+            rinit.initial_state.fields = RegisterValidity::Gpr;
+            rinit.initial_state.gpr_mask =
+                (1u << Index(Gpr::Rax)) | (1u << Index(Gpr::R12)) |
+                (1u << Index(Gpr::Rdi)) | (1u << Index(Gpr::Rsi)) |
+                (1u << Index(Gpr::Rdx)) | (1u << Index(Gpr::R10));
+            rinit.initial_state.values.Set(Gpr::Rax, op.Value());
+            rinit.initial_state.values.Set(Gpr::R12, sentinel_rc);
+            rinit.initial_state.values.Set(Gpr::Rdi, 0xFFFF00000000ULL);  // unreachable in buffer
+            rinit.initial_state.values.Set(Gpr::Rsi, 1);
+            rinit.initial_state.values.Set(Gpr::Rdx, h.stack_base + 0x910);
+            rinit.initial_state.values.Set(Gpr::R10, 1);
+            const auto calls_before_rc = g_hle_buffer_calls.load();
+            auto rthread = h.context->CreateThread(rinit);
+            bool ok_rc = false;
+            std::string rc_detail = "thread create failed";
+            if (rthread) {
+                auto rr = h.context->Run(rthread.Value(), RunOptions{});
+                const auto sentinel_after = *reinterpret_cast<std::uint64_t*>(sentinel_rc);
+                const auto native_not_called =
+                    g_hle_buffer_calls.load() == calls_before_rc;
+                ok_rc = bool(rr) &&
+                        rr.Value().primary_reason == StopReason::GuestFault &&
+                        sentinel_after == 0 && native_not_called &&
+                        rr.Value().fault && rr.Value().fault->syscall_operation.has_value();
+                rc_detail = "reason=" + std::string(rr ? ToString(rr.Value().primary_reason) : "err") +
+                            " sentinel=" + std::to_string(sentinel_after) +
+                            " native_called=" + std::to_string(!native_not_called);
+                (void)h.context->DestroyThread(rthread.Value());
+            }
+            Check("G32c", "rejected buffer syscall exits immediately; successor sentinel NOT written",
+                  ok_rc, rc_detail);
+        } else {
+            Check("G32c", "load sentinel fixture", false, se);
+        }
+    } else {
+        Check("G32c", "sentinel fixture present", false, "missing fixture");
+    }
 }
 
 // R2-H05 (N3/N4): an unknown or rejected syscall must stop the guest AT the syscall instruction --

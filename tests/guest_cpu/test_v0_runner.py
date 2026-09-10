@@ -185,10 +185,10 @@ class RunnerTests(unittest.TestCase):
 
     # --- N1: every real failure (V0 / Round 2 / unmapped / crashed suite) drives the exit code ---
 
-    G30_32 = ["G30a", "G30b", "G31a", "G31b", "G31c", "G32a", "G32b"]
+    G30_32 = ["G30a", "G30b", "G31a", "G31b", "G31c", "G32a", "G32b", "G32c"]
     G30_32_PARENT = {"G30a": "R2-C03", "G30b": "R2-C03",
                      "G31a": "R2-H01", "G31b": "R2-H01", "G31c": "R2-H01",
-                     "G32a": "R2-H02", "G32b": "R2-H02"}
+                     "G32a": "R2-H02", "G32b": "R2-H02", "G32c": "R2-H02"}
 
     def test_each_g30_g32_fail_exit0_forces_nonzero_and_round2_fail(self):
         # The P1 regression: a FAIL+exit0 recorded under an R2-only parent still returned 0.

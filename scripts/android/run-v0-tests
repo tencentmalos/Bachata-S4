@@ -240,7 +240,7 @@ ROUND2_MAP = {
     # buffer policy (In/Out/InOut, nullable, zero-length, race, per-class x10), on the target APK.
     # H03..H06 have no subchecks yet (no InvokeGuest/WaitingHle/callback/nested TLS exists).
     "R2-H01": ["G31a", "G31b", "G31c"],
-    "R2-H02": ["G32a", "G32b"],
+    "R2-H02": ["G32a", "G32b", "G32c"],
     "R2-H03": [], "R2-H04": [],
     # G33a (unknown -> GuestFault at syscall PC, successor sentinel NOT written) and G33b (valid ->
     # successor store executes) are the production syscall-fault immediate-stop proof, in the formal
