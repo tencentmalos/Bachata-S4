@@ -144,6 +144,12 @@ struct ThreadInterruptBinding final {
     FEXCore::Core::InternalThreadState *native{};
     std::uintptr_t fault_page{};
     std::uintptr_t stop_spill{};
+    // NON-spill dispatcher stop entry used by the syscall-fault immediate exit (restores the
+    // dispatcher's host callee-saved save area without re-spilling). Read on the owner thread.
+    std::uintptr_t stop_no_spill{};
+    // Set by HandleSyscall on this owner thread when the syscall has no valid HLE path; the syscall
+    // wrapper reads it to take the immediate-exit branch instead of running the in-block successor.
+    std::atomic<bool> syscall_fault_pending{false};
     std::array<std::uint64_t, 31> gprs{};
     std::uint64_t pstate{};
     std::uint64_t guest_rip{};
@@ -293,63 +299,54 @@ class OwnerSignalStack final {
 // LookupCache's constructor calls SyscallHandler::MarkOvercommitRange, so
 // CreateThread crashes without a handler. Three methods are pure virtual and
 // must be supplied even though guest syscalls are not part of V0.
-#if defined(GUEST_CPU_TEST_HOOKS)
-// N3 experimental syscall shim (test-only). The JIT calls SyscallHandlerFunc with the standard
-// AArch64 C ABI: x0 = SyscallHandlerObj, x1 = CpuStateFrame*, via an indirect blr (BranchOps.cpp
-// ~301). Installing our own function pointer in CurrentFrame->Pointers.SyscallHandlerFunc lets us
-// wrap that call without editing FEX: a plain C++ shim receives (obj, frame), records facts, and
-// (C0) forwards to the original virtual HandleSyscall so behaviour is unchanged. C1 adds the fault
-// exit branch after the C++ call returns cleanly. This state is thread-local so an experiment that
-// drives one thread never observes another thread's pointers.
-struct FexTestSyscallShimState {
-    void* original_obj{};
-    void (*original_func)(void*, FEXCore::Core::CpuStateFrame*){};
-    bool armed{};
-    bool trace{};
-    bool fault{};  // set by FexSyscallHandler when this thread's syscall is unknown/rejected (test)
+// --- syscall-fault immediate exit (production) --------------------------------
+// The fixed non-Windows FEX syscall flags have no BLOCK_END, so `syscall; successor; return-gate`
+// compiles into one JIT block: a normal return from HandleSyscall falls through to the successor.
+// The JIT calls SyscallHandlerFunc with the standard AArch64 C ABI: x0 = SyscallHandlerObj,
+// x1 = CpuStateFrame*, via an indirect blr (BranchOps.cpp ~301). Run installs THIS function in
+// CurrentFrame->Pointers.SyscallHandlerFunc for every guest thread; it forwards to the original
+// handler, and when the syscall has no valid HLE path it leaves ExecuteThread at the syscall
+// instruction (successor never runs) by switching, on the owner thread after the C++ dispatch fully
+// returned, to the dispatcher's NON-spill stop entry. Per-thread state is the owner's t_binding
+// (the wrapper runs on the owner thread); no process-wide slot drives the fault decision.
+struct FexSyscallOriginal {
+    void* obj{};
+    void (*func)(void*, FEXCore::Core::CpuStateFrame*){};
 };
-thread_local FexTestSyscallShimState t_test_syscall_shim{};
-// Process-wide last-syscall-point trace for the single-threaded N3 probe. The probe drives one
-// owner through a syscall, so a global snapshot is sufficient and lets the controller read the
-// facts after Run returned without reaching the owner thread's thread_local storage.
-FexTestSyscallShimTrace g_test_syscall_trace;
+thread_local FexSyscallOriginal t_syscall_original{};
+#if defined(GUEST_CPU_TEST_HOOKS)
+// Optional syscall-point trace for the N3 probe. The record type is declared in fex_context.h.
+thread_local bool t_syscall_trace_enabled{};
+FexSyscallTraceRecord g_syscall_trace_probe{};
+#endif
 
-// C1 stop address for the syscall fault exit (set per Run from the signal delegator config); this is
-// the NON-spill dispatcher stop entry (PopCalleeSavedRegisters then ret), which does not re-spill.
-std::uintptr_t g_test_syscall_stop_no_spill{};
+extern "C" void FexSyscallWrapper(void* obj, FEXCore::Core::CpuStateFrame* frame);
 
-// The JIT-installed syscall function: calls FexTestSyscallDispatch and either returns into the JIT
-// epilogue (continue) or branches through FexTestExitToStop (fault). Defined below.
-extern "C" void FexTestSyscallWrapper(void* obj, FEXCore::Core::CpuStateFrame* frame);
-
-// Naked AArch64 exit boundary. Called only AFTER the C++ dispatch has returned and all its automatic
-// objects are destroyed (so no C++ cleanup is skipped). It switches to the dispatcher's recorded
-// return stack (the callee-saved save area), points x28 back at the CpuStateFrame (as the normal G1
-// stop path does) and branches to the non-spill stop entry, which pops the save area and returns from
-// ExecuteThread into Run's C++ epilogue. It never returns itself.
-[[noreturn]] __attribute__((naked)) void FexTestExitToStop(void* frame, void* stop, void* sp) {
+// Naked AArch64 exit boundary, entered only after the C++ dispatch has returned and its automatic
+// objects are destroyed (no C++ cleanup skipped). x28 <- frame, sp <- ReturningStackLocation, branch
+// to the non-spill stop entry which pops the dispatcher callee-saved save area and returns from
+// ExecuteThread into Run's C++ epilogue. Does not return.
+[[noreturn]] __attribute__((naked)) void FexSyscallExitToStop(void* frame, void* stop, void* sp) {
 #if defined(__aarch64__)
-    asm volatile("mov x28, x0\n\t"   // CpuStateFrame
-                 "mov sp, x2\n\t"    // ReturningStackLocation (callee-saved save area base)
-                 "br x1\n\t"         // -> non-spill stop (PopCalleeSaved; ret)
-                 ::
-                 : "x0", "x1", "x2", "x28", "memory", "cc");
+    asm volatile("mov x28, x0\n\t"
+                 "mov sp, x2\n\t"
+                 "br x1\n\t"
+                 ::: "x0", "x1", "x2", "x28", "memory", "cc");
 #endif
 }
 
-// C++ decision point invoked from the assembly syscall wrapper. Returns 0 = continue normally (the
-// wrapper returns into the JIT syscall epilogue); 1 = fault exit (the wrapper branches via the naked
-// exit). Forwarding to the original handler is the same transparent call C0 verified.
-extern "C" int FexTestSyscallDispatch(void* obj, FEXCore::Core::CpuStateFrame* frame) {
-    auto* func = t_test_syscall_shim.original_func;
-    if (func)
+// C++ decision point: forward to the JIT-installed handler, then check the owner binding's fault
+// flag. Returns 0 = continue into the JIT epilogue (successor runs); 1 = fault exit.
+static int FexSyscallDispatch(void* obj, FEXCore::Core::CpuStateFrame* frame) {
+    if (auto* func = t_syscall_original.func)
         func(obj, frame);
-    if (t_test_syscall_shim.trace) {
+#if defined(GUEST_CPU_TEST_HOOKS)
+    if (t_syscall_trace_enabled) {
         std::uint64_t host_sp = 0, host_x28 = 0, host_lr = 0;
         asm volatile("mov %0, sp" : "=r"(host_sp));
         asm volatile("mov %0, x28" : "=r"(host_x28));
         asm volatile("mov %0, x30" : "=r"(host_lr));
-        auto& tr = g_test_syscall_trace;
+        auto& tr = g_syscall_trace_probe;
         tr.shim_sp = host_sp; tr.shim_x28 = host_x28; tr.shim_lr = host_lr;
         tr.returning_stack = frame->ReturningStackLocation;
         tr.in_syscall = frame->InSyscallInfo;
@@ -360,30 +357,28 @@ extern "C" int FexTestSyscallDispatch(void* obj, FEXCore::Core::CpuStateFrame* f
         tr.frame_addr = reinterpret_cast<std::uint64_t>(frame);
         ++tr.invocations;
     }
-    // Fault decision: the handler set this frame's test fault flag (unknown/rejected). On fault we
-    // clear InSyscallInfo ourselves (the JIT syscall epilogue that normally clears it is being
-    // bypassed), record the stop target, and return to the assembly wrapper with exit.
-    if (t_test_syscall_shim.fault) {
+#endif
+    auto* binding = t_binding;
+    if (binding && binding->syscall_fault_pending.load(std::memory_order_acquire)) {
+        // The JIT syscall epilogue that clears InSyscallInfo is bypassed; clear it here. Guest RIP
+        // already holds the syscall PC (SyscallOp stored NewRIP before _Syscall; the in-block
+        // successor does not reload it).
         frame->InSyscallInfo = 0;
         return 1;
     }
     return 0;
 }
 
-// The function the JIT actually calls (installed in frame->Pointers.SyscallHandlerFunc). A normal
-// C++ function is enough: the JIT invokes it via a standard ABI `blr(x0=obj,x1=frame)`, so the
-// compiler owns this wrapper's frame and all C++ cleanup completes before we branch. On continue it
-// returns normally into the JIT syscall epilogue; on a fault it calls the naked exit boundary (which
-// never returns) after dispatch has fully unwound -- the only place the host stack is switched.
-extern "C" void FexTestSyscallWrapper(void* obj, FEXCore::Core::CpuStateFrame* frame) {
-    if (FexTestSyscallDispatch(obj, frame) == 1) {
-        // Read the dispatcher's return stack from the frame HERE: it is set inside ExecuteDispatch,
-        // so it is valid at the syscall point but not back in Run before ExecuteThread entered.
-        FexTestExitToStop(frame, reinterpret_cast<void*>(g_test_syscall_stop_no_spill),
-                          reinterpret_cast<void*>(frame->ReturningStackLocation));
+// Installed as SyscallHandlerFunc for every guest Run. A normal C++ function is enough: the JIT blr
+// is a standard C ABI call, so the compiler owns this frame and all C++ cleanup completes before the
+// fault branch switches stacks.
+extern "C" void FexSyscallWrapper(void* obj, FEXCore::Core::CpuStateFrame* frame) {
+    if (FexSyscallDispatch(obj, frame) == 1) {
+        const std::uintptr_t stop = t_binding ? t_binding->stop_no_spill : 0;
+        FexSyscallExitToStop(frame, reinterpret_cast<void*>(stop),
+                             reinterpret_cast<void*>(frame->ReturningStackLocation));
     }
 }
-#endif
 
 class FexSyscallHandler final : public FEXCore::HLE::SyscallHandler {
   public:
@@ -442,11 +437,10 @@ class FexSyscallHandler final : public FEXCore::HLE::SyscallHandler {
         } else {
             unknown_thread_syscall_.store(true, std::memory_order_release);
         }
-#if defined(GUEST_CPU_TEST_HOOKS)
-        // Signal the test syscall wrapper (same owner thread, thread_local) that this syscall faulted
-        // so the wrapper takes the immediate-exit branch instead of running the successor block.
-        t_test_syscall_shim.fault = true;
-#endif
+        // Signal the production syscall wrapper (same owner thread, owner binding) that this syscall
+        // faulted, so it takes the immediate-exit branch instead of running the in-block successor.
+        if (t_binding)
+            t_binding->syscall_fault_pending.store(true, std::memory_order_release);
     }
 
     Hle::HleCallRegistry& Registry() { return registry_; }
@@ -1053,44 +1047,27 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
                                          (static_cast<std::uint64_t>((mxcsr >> 15) & 1) << 24);
         asm volatile("msr fpcr, %0\n\tmsr fpsr, xzr" : : "r"(guest_fpcr) : "memory");
         syscall_handler_->RegisterThreadFrame(binding.native->CurrentFrame, syscall_fault);
+        // Install the production syscall-fault immediate-exit wrapper for this Run. Save the
+        // JIT-installed obj/func so the wrapper can forward to the real handler, and restore them
+        // after ExecuteThread. The wrapper runs on this owner thread and reads t_binding for its
+        // per-thread stop address/fault flag.
+        auto* sys_ptrs = &binding.native->CurrentFrame->Pointers;
+        const std::uint64_t saved_syscall_func = sys_ptrs->SyscallHandlerFunc;
+        const std::uint64_t saved_syscall_obj = sys_ptrs->SyscallHandlerObj;
+        binding.stop_no_spill = signal_delegator_->GetConfig().ThreadStopHandlerAddress;
+        binding.syscall_fault_pending.store(false, std::memory_order_release);
+        t_syscall_original.obj = reinterpret_cast<void*>(saved_syscall_obj);
+        t_syscall_original.func =
+            reinterpret_cast<void (*)(void*, FEXCore::Core::CpuStateFrame*)>(saved_syscall_func);
 #if defined(GUEST_CPU_TEST_HOOKS)
-        // N3 C0: install the experimental syscall shim for this thread (pure forwarding; behaviour
-        // identical). Save the JIT-installed obj/func so the shim can call the original handler, and
-        // restore the frame pointer afterwards so a later Run/thread sees the pristine function.
-        auto* shim_pointers = &binding.native->CurrentFrame->Pointers;
-        const std::uint64_t saved_syscall_func = shim_pointers->SyscallHandlerFunc;
-        const std::uint64_t saved_syscall_obj = shim_pointers->SyscallHandlerObj;
-        if (test_syscall_shim_armed_) {
-            t_test_syscall_shim.original_obj = reinterpret_cast<void*>(saved_syscall_obj);
-            t_test_syscall_shim.original_func =
-                reinterpret_cast<void (*)(void*, FEXCore::Core::CpuStateFrame*)>(saved_syscall_func);
-            t_test_syscall_shim.armed = true;
-            t_test_syscall_shim.trace = test_syscall_shim_trace_;
-            t_test_syscall_shim.fault = false;
-            // Use the NON-spill stop entry (ThreadStopHandlerAddress), NOT SpillSRA. The JIT syscall
-            // sequence already SpillStaticRegs'd the guest GPR/FPR into the frame BEFORE calling the
-            // C++ handler; the host registers after the C++ call are ABI-clobbered host values, not
-            // guest state. Branching to SpillSRA would re-SpillStaticRegs and overwrite the correctly
-            // spilled guest snapshot with host garbage (measured: 10 GPRs wrong yet validity=valid).
-            // The non-spill entry only restores the dispatcher's host callee-saved save area and
-            // returns, leaving the already-correct guest frame intact. Both entries expect sp set to
-            // the dispatcher return stack, which the wrapper supplies.
-            g_test_syscall_stop_no_spill =
-                signal_delegator_->GetConfig().ThreadStopHandlerAddress;
-            g_test_syscall_trace = FexTestSyscallShimTrace{};
-            // C++ syscall wrapper; forwards to dispatch and exits to the stop entry on fault.
-            shim_pointers->SyscallHandlerFunc =
-                reinterpret_cast<std::uint64_t>(reinterpret_cast<void*>(&FexTestSyscallWrapper));
-        }
+        t_syscall_trace_enabled = test_syscall_trace_enabled_;
+        if (t_syscall_trace_enabled) g_syscall_trace_probe = FexSyscallTraceRecord{};
 #endif
+        sys_ptrs->SyscallHandlerFunc =
+            reinterpret_cast<std::uint64_t>(reinterpret_cast<void*>(&FexSyscallWrapper));
         context_->ExecuteThread(binding.native);
-#if defined(GUEST_CPU_TEST_HOOKS)
-        if (test_syscall_shim_armed_) {
-            shim_pointers->SyscallHandlerFunc = saved_syscall_func;
-            shim_pointers->SyscallHandlerObj = saved_syscall_obj;
-            t_test_syscall_shim.armed = false;
-        }
-#endif
+        sys_ptrs->SyscallHandlerFunc = saved_syscall_func;
+        sys_ptrs->SyscallHandlerObj = saved_syscall_obj;
         syscall_handler_->UnregisterThreadFrame(binding.native->CurrentFrame);
         ::fesetenv(&host_fp);
         t_binding = nullptr;
@@ -1218,8 +1195,7 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
     [[nodiscard]] FexTestRunGate* TestRunGatePointer() {
         return test_run_gate_.get();
     }
-    void SetSyscallShimArmed(bool armed) { test_syscall_shim_armed_ = armed; }
-    void SetSyscallShimTrace(bool trace) { test_syscall_shim_trace_ = trace; }
+    void SetSyscallTraceEnabled(bool trace) { test_syscall_trace_enabled_ = trace; }
 #endif
 
     [[nodiscard]] Result<QuiescenceToken> QuiesceContext(std::uint64_t timeout_ns) override {
@@ -1764,10 +1740,9 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
     // Constructed eagerly with the context (single-threaded, before any Run), so owner threads that
     // read this in Run never race the lazy creation that a lazily-assigned unique_ptr would allow.
     std::unique_ptr<FexTestRunGate> test_run_gate_{std::make_unique<FexTestRunGateImpl>()};
-    // N3 C0 experiment switch: when true, Run installs the forwarding syscall shim before entering
-    // the JIT (see FexTestSyscallShim). Off by default; release builds compile the whole path out.
-    bool test_syscall_shim_armed_{false};
-    bool test_syscall_shim_trace_{false};
+    // N3 probe syscall-point trace (test builds only); the immediate-exit wrapper itself is
+    // production and always installed, not gated by this flag.
+    bool test_syscall_trace_enabled_{false};
 #endif
     FEXCore::HostFeatures host_features_{};
     ReturnGate return_gate_;
@@ -1839,18 +1814,12 @@ void* FexTestRunGatePointer(CpuContext& context) {
     return static_cast<FexCpuContext*>(&context)->TestRunGatePointer();
 }
 
-// N3 C0 experiment control: arm/disarm the forwarding syscall shim on a context. Returns true when
-// the context is the FEX backend.
-bool FexTestSetSyscallShimArmed(CpuContext& context, bool armed) {
-    static_cast<FexCpuContext*>(&context)->SetSyscallShimArmed(armed);
-    return true;
+// N3 probe diagnostic: enable syscall-point trace for the next Run and read the last record. The
+// immediate-exit wrapper itself is production (no arm switch); this only turns on trace capture.
+void FexTestSetSyscallTrace(CpuContext& context, bool trace) {
+    static_cast<FexCpuContext*>(&context)->SetSyscallTraceEnabled(trace);
 }
-
-// N3 C1 diagnostic: enable syscall-point trace and read the last recorded facts.
-void FexTestSetSyscallShimTrace(CpuContext& context, bool trace) {
-    static_cast<FexCpuContext*>(&context)->SetSyscallShimTrace(trace);
-}
-const FexTestSyscallShimTrace* FexTestSyscallTrace() { return &g_test_syscall_trace; }
+const FexSyscallTraceRecord* FexTestSyscallTrace() { return &g_syscall_trace_probe; }
 #endif
 
 } // namespace Core::GuestCpu::Fex

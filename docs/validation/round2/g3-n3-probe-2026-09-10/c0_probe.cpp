@@ -17,9 +17,9 @@ int main(int argc, char** argv) {
     auto& h = harness;
     auto* registry = static_cast<HleCallRegistry*>(Fex::FexHleRegistryPointer(*h.context));
 
-    // Arm the C0 forwarding shim with trace enabled (C1 syscall-point facts).
-    Fex::FexTestSetSyscallShimArmed(*h.context, true);
-    Fex::FexTestSetSyscallShimTrace(*h.context, true);
+    // The syscall immediate-exit wrapper is production and installed for every Run (no arm switch).
+    // Turn on the optional syscall-point trace for the probe.
+    Fex::FexTestSetSyscallTrace(*h.context, true);
 
     std::string mode = argc > 1 ? argv[1] : "good";
     std::uint64_t good_op = registry->Register(&C0AddOne, "c0-addone").Value();
@@ -47,8 +47,7 @@ int main(int argc, char** argv) {
     const auto rax = r ? r.Value().snapshot.registers.Get(Gpr::Rax) : 0;
     const auto reason = r ? std::string(ToString(r.Value().primary_reason)) : "error";
 
-    Fex::FexTestSetSyscallShimArmed(*h.context, false);
-    Fex::FexTestSetSyscallShimTrace(*h.context, false);
+    Fex::FexTestSetSyscallTrace(*h.context, false);
     if (const auto* tr = Fex::FexTestSyscallTrace()) {
         printf("TRACE invocations=%d\n", tr->invocations);
         printf("TRACE shim_sp=0x%llx shim_x28=0x%llx shim_lr=0x%llx\n",

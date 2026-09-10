@@ -2351,6 +2351,69 @@ void TestHleBufferPinning(Harness& h) {
     Check("G32b", "bad/overflow pointers never reach native code", bad, bad_detail);
 }
 
+// R2-H05 (N3/N4): an unknown or rejected syscall must stop the guest AT the syscall instruction --
+// the in-block successor must not run. With the non-block-end syscall flags the syscall and its
+// successor store compile into one JIT block; the backend's production syscall wrapper leaves the
+// JIT at the fault point on an error. A valid call still runs the successor, proving the exit is
+// error-only. G30's bare HLT is NOT this path; G33 exercises the syscall-fault exit directly.
+void TestImmediateSyscallExit(Harness& h) {
+    auto* fixture = FindFixture("syscall_writes_sentinel");
+    if (!fixture) {
+        Check("G33a", "syscall immediate-exit fixture present", false, "missing fixture");
+        return;
+    }
+    auto* registry =
+        static_cast<HleCallRegistry*>(Fex::FexHleRegistryPointer(*h.context));
+    auto valid_op = registry->Register(&HleAdd6, "immediate-valid-add6").Value();
+
+    const std::uint64_t sentinel = h.stack_base + 0x500;
+
+    auto run = [&](std::uint64_t operation, std::uint64_t rdi = 0) ->
+        std::tuple<bool, std::string, std::uint64_t, std::uint64_t> {
+        std::string e;
+        if (!LoadFixture(h, *FindFixture("syscall_writes_sentinel"), e)) {
+            return {false, "fixture load failed: " + e, 0, 0};
+        }
+        *reinterpret_cast<std::uint64_t*>(sentinel) = 0;
+        ThreadInit init{};
+        init.entry_rip = GuestCodeAddress{h.code_base};
+        init.initial_rsp = GuestAddress{h.stack_top};
+        init.guest_tid = 530;
+        init.initial_state.fields = RegisterValidity::Gpr;
+        init.initial_state.gpr_mask =
+            (1u << Index(Gpr::Rax)) | (1u << Index(Gpr::R12)) | (1u << Index(Gpr::Rdi));
+        init.initial_state.values.Set(Gpr::Rax, operation);
+        init.initial_state.values.Set(Gpr::R12, sentinel);
+        init.initial_state.values.Set(Gpr::Rdi, rdi);
+        auto thread = h.context->CreateThread(init);
+        if (!thread) return {false, "create thread", 0, 0};
+        auto result = h.context->Run(thread.Value(), RunOptions{});
+        const auto sentinel_value = *reinterpret_cast<std::uint64_t*>(sentinel);
+        const auto rip = result ? result.Value().snapshot.registers.rip : 0;
+        (void)h.context->DestroyThread(thread.Value());
+        if (!result) return {false, "Run errored: " + Describe(result.GetError()), sentinel_value, rip};
+        return {true, "", sentinel_value, rip};
+    };
+
+    // G33a: unknown operation -> GuestFault at the syscall PC, successor store NOT executed.
+    {
+        auto [ok, detail, sentinel_value, rip] = run(0x777777);
+        const bool fault_pc = (rip == h.code_base);
+        Check("G33a", "unknown syscall stops at syscall PC; successor sentinel NOT written",
+              ok && sentinel_value == 0 && fault_pc,
+              ok ? ("sentinel=" + std::to_string(sentinel_value) + " rip=" + Hex(rip) +
+                    " want " + Hex(h.code_base)) : detail);
+    }
+    // G33b: a valid operation runs the successor (sentinel == 42) and returns -- the exit is error-only.
+    {
+        auto [ok, detail, sentinel_value, rip] = run(valid_op, 40);
+        (void)rip;
+        Check("G33b", "valid syscall successor store executes (sentinel written)",
+              ok && sentinel_value == 42,
+              ok ? ("sentinel=" + std::to_string(sentinel_value)) : detail);
+    }
+}
+
 void TestCoordinatorRecovery(Harness& h) {
     // External Pause/Cancel/Shutdown both before and after the coordinator's own request, with one
     // owner provably held at a lock-free point while the other owner stops independently.
@@ -2915,6 +2978,7 @@ int main() {
     TestFaultAttribution(harness);
     TestRealHleGate(harness);
     TestHleBufferPinning(harness);
+    TestImmediateSyscallExit(harness);
     TestCoordinatorRecovery(harness);
     TestInterruptStress(harness);
     TestInterruptRefusals(harness);

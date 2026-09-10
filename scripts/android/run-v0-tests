@@ -241,7 +241,13 @@ ROUND2_MAP = {
     # H03..H06 have no subchecks yet (no InvokeGuest/WaitingHle/callback/nested TLS exists).
     "R2-H01": ["G31a", "G31b", "G31c"],
     "R2-H02": ["G32a", "G32b"],
-    "R2-H03": [], "R2-H04": [], "R2-H05": [], "R2-H06": [],
+    "R2-H03": [], "R2-H04": [],
+    # G33a (unknown -> GuestFault at syscall PC, successor sentinel NOT written) and G33b (valid ->
+    # successor store executes) are the production syscall-fault immediate-stop proof, in the formal
+    # suite, not the experimental probe. Still auxiliary pending the full H05 matrix (rejected-buffer
+    # immediate exit, self-jump loop, two-owner isolation, interrupt interleaving -> N4).
+    "R2-H05": ["G33a", "G33b"],
+    "R2-H06": [],
     **{f"R2-A{i:02}": [] for i in range(1, 4)},
     "R2-F01": [], "R2-F02": [], "R2-D01": [], "R2-L01": [],
 }
@@ -250,8 +256,9 @@ ROUND2_PENDING = {
               "guest code, RCX/R11 semantics, callee-saved/red-zone, per-invocation logs, on APK",
     "R2-H02": "partial: one good marshal + three one-shot bad pointers; R3 needs In/Out/InOut, "
               "nullable/zero-length, real overflow, remap/protect race, per-class x10, on APK",
-    "R2-C03": "G30 is bare-HLT fault attribution only; R2-H05 unknown-syscall immediate-stop and "
-              "successor-store suppression is a separate case (no current subcheck maps to it)",
+    "R2-C03": "G30 is bare-HLT fault attribution only; the unknown-syscall immediate-stop core is now "
+              "G33 (production wrapper), but the full H05 matrix (rejected-buffer immediate exit, "
+              "error self-jump loop <=1s, two-owner isolation, Pause/Cancel interleaving) still pending",
     "R2-M02": "InvokeGuest/WaitingHle and lifecycle combinations remain pending",
     "R2-M03": "complete decoder-range matrix and post-Clear resumed-state sentinels remain pending",
     "R2-M04": "real HLE publication crossing remains pending",
@@ -300,7 +307,7 @@ SUITE_OWNERSHIP: dict[str, tuple[str, ...]] = {
                               # or zero-output failure in that suite must taint these too, and a
                               # newly added G-prefix must be owned here or the unmapped-FAIL net
                               # below flags it -- never silently unowned.
-                              "G30", "G31", "G32"),
+                              "G30", "G31", "G32", "G33"),
 }
 
 

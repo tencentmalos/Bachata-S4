@@ -246,6 +246,20 @@ fixture_hle_call_returns_xmm:
     jmp     r15
 fixture_hle_call_returns_xmm_end:
 
+// R2-H05 immediate syscall-fault exit. rax = operation, r12 = sentinel address. The guest executes
+// `syscall; mov [r12],42; return`. For an unknown/rejected operation the backend must leave the JIT
+// at the syscall instruction, so the sentinel store must NOT execute (sentinel stays 0) and the fault
+// RIP must be the syscall PC. For a valid operation the successor store DOES execute (sentinel == 42),
+// proving the exit is taken only on the error path.
+.globl fixture_syscall_writes_sentinel
+.globl fixture_syscall_writes_sentinel_end
+fixture_syscall_writes_sentinel:
+    syscall
+    mov     qword ptr [r12], 42
+    movabs  r15, 0x1122334455667788
+    jmp     r15
+fixture_syscall_writes_sentinel_end:
+
 // R2-C04: observe owner-written GPR, XMM, MXCSR rounding, FS/GS and RIP.
 // RDI=output; XMM1=1.75. MXCSR toward-zero must make CVTSD2SI produce 1.
 .globl fixture_state_echo
