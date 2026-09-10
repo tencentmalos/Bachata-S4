@@ -16,6 +16,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import errno
 import hashlib
 import json
 import os
@@ -442,6 +443,16 @@ def run_suite(binary: Path) -> SuiteRun:
         result = subprocess.run([str(binary)], capture_output=True, text=True, timeout=600)
     except subprocess.TimeoutExpired:
         return SuiteRun(output=f"timed out after 600s: {binary}", timed_out=True)
+    except OSError as exc:
+        # ENOEXEC ("Exec format error") means the binary is for a different architecture, the common
+        # case of pointing --build-dir at the cross-compiled arm64 device binaries from the mac host;
+        # nothing can be attempted on this host, so it is never-started (the device path runs them),
+        # not a crash that prevents the JSON report from being written at all. Any other launch error
+        # (permission denied on a runnable host binary, etc.) is a real suite failure.
+        if getattr(exc, "errno", None) == errno.ENOEXEC:
+            return SuiteRun(error=f"cannot execute on this host (wrong architecture): {binary}",
+                            never_started=True)
+        return SuiteRun(error=f"could not launch {binary}: {exc}")
     elapsed = time.monotonic() - started
     parsed, counts, conflicts = parse_sub_cases(result.stdout)
     output = result.stdout + result.stderr + f"\n(exit {result.returncode}, {elapsed:.2f}s)"
