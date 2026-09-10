@@ -62,6 +62,26 @@ extern "C" double HleSum4Double(double a, double b, double c, double d) {
     return a + b + c + d;
 }
 
+// H2 buffer marshalling: counts how many times native code was entered so negative cases can prove
+// the host function was never reached. Bounded buffers pin count elements across the whole call;
+// the native side sees the host pointer and an element count.
+using Hle::GuestBoundedBuffer;
+std::atomic<int> g_hle_buffer_calls{0};
+extern "C" int HleBufferCopySum(GuestBoundedBuffer<const uint64_t> in,
+                                GuestBoundedBuffer<uint64_t> out) {
+    g_hle_buffer_calls.fetch_add(1, std::memory_order_relaxed);
+    if (in.data == nullptr || out.data == nullptr) {
+        return -1;
+    }
+    const uint64_t n = std::min(in.count, out.count);
+    uint64_t sum = 0;
+    for (uint64_t i = 0; i < n; ++i) {
+        sum += in.data[i];
+    }
+    out.data[0] = sum;
+    return 0;
+}
+
 Xmm EncodeDouble(double value) {
     std::uint64_t bits{};
     std::memcpy(&bits, &value, sizeof(bits));
@@ -2253,6 +2273,84 @@ void TestRealHleGate(Harness& h) {
     Check("G31c", "4-double arguments produce a double host return", dbl_ok);
 }
 
+void TestHleBufferPinning(Harness& h) {
+    auto* registry =
+        static_cast<HleCallRegistry*>(Fex::FexHleRegistryPointer(*h.context));
+    if (registry == nullptr) {
+        Check("G32", "HLE registry reachable", false);
+        return;
+    }
+    const auto op = registry->Register(&HleBufferCopySum, "buffer-copy-sum");
+    if (!op) {
+        Check("G32", "register buffer HLE function", false);
+        return;
+    }
+
+    std::string e;
+    if (!LoadFixture(h, *FindFixture("hle_call_returns_rax"), e)) {
+        Check("G32", "load HLE fixture", false, e);
+        return;
+    }
+
+    // Guest buffers live on the guest stack/data region.
+    const std::uint64_t in_buf = h.stack_base + 0x500;
+    const std::uint64_t out_buf = h.stack_base + 0x600;
+
+    auto run_buffer = [&](std::uint64_t in_ptr, std::uint64_t out_ptr, std::uint64_t count,
+                          bool expect_ok) -> bool {
+        ThreadInit init{};
+        init.entry_rip = GuestCodeAddress{h.code_base};
+        init.initial_rsp = GuestAddress{h.stack_top};
+        init.guest_tid = 700;
+        init.initial_state.fields = RegisterValidity::Gpr;
+        init.initial_state.gpr_mask = (1u << Index(Gpr::Rax)) | (1u << Index(Gpr::Rdi)) |
+                                      (1u << Index(Gpr::Rsi)) | (1u << Index(Gpr::Rdx)) |
+                                      (1u << Index(Gpr::R10));
+        init.initial_state.values.Set(Gpr::Rax, op.Value());
+        // BoundedBuffer in:  pointer(rdi), count(rsi). BoundedBuffer out: pointer(rdx), count(r10).
+        init.initial_state.values.Set(Gpr::Rdi, in_ptr);
+        init.initial_state.values.Set(Gpr::Rsi, count);
+        init.initial_state.values.Set(Gpr::Rdx, out_ptr);
+        init.initial_state.values.Set(Gpr::R10, count);
+        auto thr = h.context->CreateThread(init);
+        if (!thr) return !expect_ok;
+        auto run = h.context->Run(thr.Value(), RunOptions{});
+        auto destroyed = h.context->DestroyThread(thr.Value());
+        (void)destroyed;
+        if (expect_ok) {
+            return run && run.Value().primary_reason == StopReason::Returned;
+        }
+        // A refused HLE call runs but reports a per-thread GuestFault (not a returned result): the
+        // guest reached the gate but the marshalled call was rejected before native entry.
+        return bool(run) && run.Value().primary_reason == StopReason::GuestFault;
+    };
+
+    // Positive: seed in[] = {10,20,30}, out[] receives 60.
+    std::vector<std::uint64_t> input{10, 20, 30};
+    (void)h.space->Write(GuestAddress{in_buf},
+                         {reinterpret_cast<std::byte*>(input.data()), input.size() * 8});
+    const int calls_before = g_hle_buffer_calls.load();
+    bool good = run_buffer(in_buf, out_buf, 3, true);
+    std::uint64_t result{};
+    auto rd = h.space->Read(GuestAddress{out_buf},
+                            {reinterpret_cast<std::byte*>(&result), 8});
+    good &= rd && result == 60 &&
+            g_hle_buffer_calls.load() == calls_before + 1;
+
+    // Negatives: bad input pointer (unmapped high address), and a count that overflows past the
+    // reservation. In every case the native function must not run (call count unchanged) and the
+    // guest Run must be refused.
+    bool bad = true; std::string bad_detail;
+#define BADSTEP(cond, what) do { if(!(cond)){ bad=false; bad_detail=what; fprintf(stderr,"[g32] FAIL %s\n", what);} } while(0)
+    BADSTEP(run_buffer(0xFFFF00000000ULL, out_buf, 1, false), "bad input");
+    BADSTEP(run_buffer(in_buf, 0xFFFF00000000ULL, 1, false), "bad output");
+    BADSTEP(run_buffer(in_buf, out_buf, 0xFFFFFFFFFFFFFFULL, false), "overflow");
+    BADSTEP(g_hle_buffer_calls.load() == calls_before + 1, "no native entry");
+
+    Check("G32a", "pinned in/out buffers marshal and the host writes the result", good);
+    Check("G32b", "bad/overflow pointers never reach native code", bad, bad_detail);
+}
+
 void TestCoordinatorRecovery(Harness& h) {
     // External Pause/Cancel/Shutdown both before and after the coordinator's own request. Hold one owner in a signal
     // handler, using an observed handshake (no settle sleep), so timeout is deterministic.
@@ -2748,6 +2846,7 @@ int main() {
     TestPermissionRetirement(harness);
     TestFaultAttribution(harness);
     TestRealHleGate(harness);
+    TestHleBufferPinning(harness);
     TestCoordinatorRecovery(harness);
     TestInterruptStress(harness);
     TestInterruptRefusals(harness);

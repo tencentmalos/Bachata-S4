@@ -30,6 +30,7 @@
 #include <vector>
 
 #include "core/guest_cpu/api/address_space.h"
+#include "core/guest_cpu/api/memory.h"
 #include "core/guest_cpu/api/registers.h"
 #include "core/guest_cpu/api/result.h"
 
@@ -55,6 +56,11 @@ struct HleCallFrame final {
     // Set when the frame came through a syscall-style gate, meaning the 4th
     // integer argument arrived in r10 and has been copied into rcx.
     bool rcx_normalised_from_r10{false};
+
+    // Guest pointer arguments are pinned for the duration of the native call so a concurrent
+    // unmap/remap/protect on another owner cannot retire or change the backing while native code
+    // is reading or writing it. Released when the frame is destroyed, on every path.
+    std::vector<PinnedSpan> pins{};
 };
 
 // Walks arguments in SysV order, spilling to the guest stack once the
@@ -118,6 +124,17 @@ private:
     std::uint64_t stack_offset{sizeof(std::uint64_t)};
 };
 
+// A bounded guest buffer: a guest pointer followed (in the integer argument stream) by an element
+// count. The native function receives a host pointer (the DirectMapped reservation address) that is
+// pinned for count*sizeof(T) bytes across the whole call, so an oversized or unbounded buffer is
+// refused before entry rather than letting native code walk off the mapping. The host side sees
+// {data, count}.
+template <typename T>
+struct GuestBoundedBuffer {
+    T* data{};
+    std::uint64_t count{};
+};
+
 namespace detail {
 
 template <typename T>
@@ -137,12 +154,17 @@ inline constexpr bool IsIntegerArgument = [] {
 template <typename T>
 inline constexpr bool IsVectorArgument = std::is_same_v<T, float> || std::is_same_v<T, double>;
 
-// V0 accepts scalars and validated guest pointers only. Aggregates, varargs
-// and anything larger than a register are refused at registration (§8), rather
-// than being reinterpret_cast into a host call.
+// Detects a GuestBoundedBuffer<U>.
+template <typename T>
+inline constexpr bool IsBoundedBuffer = false;
+template <typename U>
+inline constexpr bool IsBoundedBuffer<GuestBoundedBuffer<U>> = true;
+
+// V0 accepts scalars, validated guest pointers and bounded buffers. Aggregates
+// and varargs are refused at registration (§8).
 template <typename T>
 inline constexpr bool IsSupportedArgument =
-    IsIntegerArgument<T> || IsVectorArgument<T> || IsGuestPointer<T>;
+    IsIntegerArgument<T> || IsVectorArgument<T> || IsGuestPointer<T> || IsBoundedBuffer<T>;
 
 template <typename T>
 inline constexpr bool IsSupportedReturn =
@@ -178,15 +200,17 @@ Result<T> DecodePointer(CallCursor& cursor, HleCallFrame& frame) {
     if (!range) {
         return range.GetError();
     }
-    const auto required = writable ? (GuestPermission::Read | GuestPermission::Write)
-                                   : GuestPermission::Read;
-    if (auto status = frame.space->ValidateRange(range.Value(), required); !status) {
-        // Refuse. The reference let an unvalidated pointer above 4096 through
-        // to native code; that is an unchecked host address and V0 forbids it.
-        auto error = status.GetError();
+
+    // Pin the span for the whole native call, not just a one-shot permission check: a concurrent
+    // remap/unmap on another owner must not retire the backing while native code holds the pointer.
+    // The pin is owned by the frame and released on return (success or failure).
+    auto pin = frame.space->AcquirePinnedSpan(range.Value(), writable);
+    if (!pin) {
+        auto error = pin.GetError();
         error.operation = "Hle::DecodePointer";
         return error;
     }
+    frame.pins.push_back(std::move(pin.Value()));
     return reinterpret_cast<T>(static_cast<std::uintptr_t>(raw.Value()));
 }
 
@@ -201,6 +225,42 @@ Result<T> DecodeArgument(CallCursor& cursor, HleCallFrame& frame) {
         // float occupies the low 32 bits of the xmm register.
         std::memcpy(&value, &bits.Value(), sizeof(value));
         return value;
+    } else if constexpr (IsBoundedBuffer<T>) {
+        // Two integer args: the guest pointer, then the element count. Pin count*sizeof(element) so
+        // native code can walk exactly that many; an oversized buffer is refused before entry.
+        using ElemType = std::remove_pointer_t<decltype(T{}.data)>;
+        auto raw_ptr = cursor.NextInteger();
+        auto raw_count = cursor.NextInteger();
+        if (!raw_ptr) return raw_ptr.GetError();
+        if (!raw_count) return raw_count.GetError();
+        T buffer{};
+        buffer.count = raw_count.Value();
+        if (raw_ptr.Value() == 0) {
+            if (buffer.count != 0) {
+                return MakeError(ErrorCategory::InvalidArgument, "Hle::DecodeBuffer",
+                                 "null buffer with non-zero length");
+            }
+            return buffer;
+        }
+        if (frame.space == nullptr) {
+            return MakeError(ErrorCategory::InvalidArgument, "Hle::DecodeBuffer",
+                             "cannot validate a guest buffer without an address space");
+        }
+        constexpr std::uint64_t elem_size = sizeof(ElemType);
+        if (raw_count.Value() != 0 &&
+            raw_count.Value() > (UINT64_MAX - raw_ptr.Value()) / elem_size) {
+            return MakeError(ErrorCategory::InvalidArgument, "Hle::DecodeBuffer",
+                             "buffer byte length overflows");
+        }
+        const std::uint64_t bytes = raw_count.Value() * elem_size;
+        auto range = GuestRange::Checked(GuestAddress{raw_ptr.Value()}, bytes ? bytes : 1);
+        if (!range) return range.GetError();
+        auto pin = frame.space->AcquirePinnedSpan(
+            range.Value(), /*writable=*/!std::is_const_v<ElemType>);
+        if (!pin) return pin.GetError();
+        buffer.data = reinterpret_cast<ElemType*>(static_cast<std::uintptr_t>(raw_ptr.Value()));
+        frame.pins.push_back(std::move(pin.Value()));
+        return buffer;
     } else if constexpr (IsGuestPointer<T>) {
         return DecodePointer<T>(cursor, frame);
     } else {
