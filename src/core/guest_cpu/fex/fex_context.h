@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <cstdint>
+
 #include "core/guest_cpu/api/context.h"
 
 namespace Core::GuestCpu::Fex {
@@ -84,6 +86,26 @@ public:
 };
 
 void* FexTestRunGatePointer(CpuContext& context);
+
+// N3 experiment: arm/disarm the forwarding syscall shim. Test-only; see fex_context.cpp.
+bool FexTestSetSyscallShimArmed(CpuContext& context, bool armed);
+
+// N3 C1 syscall-point diagnostic facts (populated when trace is enabled).
+struct FexTestSyscallShimTrace {
+    std::uint64_t shim_sp{};
+    std::uint64_t shim_x28{};
+    std::uint64_t shim_lr{};
+    std::uint64_t returning_stack{};
+    std::uint64_t in_syscall{};
+    std::uint64_t guest_rip{};
+    std::uint64_t guest_rcx{};
+    std::uint64_t guest_r11{};
+    std::uint64_t callret_sp{};
+    std::uint64_t frame_addr{};
+    int invocations{};
+};
+void FexTestSetSyscallShimTrace(CpuContext& context, bool trace);
+const FexTestSyscallShimTrace* FexTestSyscallTrace();
 #endif
 
 } // namespace Core::GuestCpu::Fex

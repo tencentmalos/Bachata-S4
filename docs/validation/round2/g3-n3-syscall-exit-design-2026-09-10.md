@@ -1,5 +1,7 @@
 # N3 设计：syscall 错误后的安全立即退出原语（2026-09-10）
 
+> 后续审计：本文仍是未验证候选。固定Dispatcher有非spill stop入口，两个stop入口都不自行恢复SP；G1是在signal handler中先改SP。wrapper连接点及C++正常返回边界尚未落实，不能据本文宣称出口能力已验证。当前按 [N1/N2复核§3](g3-n12-review-2026-09-10.md) 与 [N3分步实验](../../specs/android-fex-round2-g3-n12-fix-n3-probe.md) 执行。
+
 状态：**设计 + 待最小探针验证**。依据：[R0 收尾/R1 spec](../../specs/android-fex-round2-g3-r0-exit-next.md) N3/N4、
 [修复→H3 spec](../../specs/android-fex-round2-g3-repair-h3.md) R1。事实来自固定 FEX `385a0cc4d` 源码，不依赖行号猜布局。
 
