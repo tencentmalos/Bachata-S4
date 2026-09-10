@@ -441,3 +441,7 @@ result
 /runtime/sources/
 
 .cxx
+
+# Windows NTFS alternate-data-stream artifacts (never commit; the ":" makes the
+# path impossible to check out on Windows and aborts `git submodule update`)
+*:Zone.Identifier
