@@ -98,6 +98,11 @@ if(V0_ENABLE_FEX)
         "${FEX_SOURCE_DIR}/External/xxhash"
         "${FEX_SOURCE_DIR}/External/unordered_dense/include")
     target_compile_definitions(guest_cpu_fex PRIVATE ARCHITECTURE_arm64=1 FEX_DISABLE_TELEMETRY=1)
+    # Test-only Run entry gate (see fex_context.cpp FexTestEntryGate). Enabled only in test builds;
+    # release products do not compile the wait mechanism at all.
+    if(V0_BUILD_TESTS)
+        target_compile_definitions(guest_cpu_fex PRIVATE GUEST_CPU_TEST_HOOKS=1)
+    endif()
 
     # FEXCore, FEXCore_Base and the allocator libraries reference each other cyclically, so they
     # need a link group rather than a topological order.
@@ -160,6 +165,9 @@ if(V0_ENABLE_FEX)
             "${V0_FIXTURE_DIR}/guest_fixtures.h")
         target_include_directories(guest_execution_tests PRIVATE "${V0_FIXTURE_DIR}")
         target_link_libraries(guest_execution_tests PRIVATE guest_cpu_fex)
+        # See the matching definition on guest_cpu_fex: exposes the test-only FexTestRunGate
+        # declaration the test drives. Release consumers do not define this.
+        target_compile_definitions(guest_execution_tests PRIVATE GUEST_CPU_TEST_HOOKS=1)
 
     endif()
 endif()

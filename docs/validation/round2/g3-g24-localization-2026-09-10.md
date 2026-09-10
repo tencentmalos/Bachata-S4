@@ -1,5 +1,13 @@
 # G24 偶发失败定位与修复（2026-09-10，R0.4）
 
+> 后续复核勘误：本记录保留原始分析。下文将wchan/futex归因到具体CodeInvalidationMutex、将second进度变化等同无锁点的结论，均未得到充分证明；60份PASS日志内容已核实，但缺少历史binary身份。以 [R0复核§2](g3-r0-review-2026-09-10.md) 和 [N2执行要求](../../specs/android-fex-round2-g3-r0-exit-next.md) 为准，不据本记录宣称R0已关闭。
+
+> **2026-09-10 N2 更新（取代上述假设的测试手段）**：复核正确指出旧"freeze+progress 过滤"既不能证明冻结点无锁，也未证实具体锁。N2 按 [exit-next spec N2](../../specs/android-fex-round2-g3-r0-exit-next.md) 改用**确定性 Run-entry gate**，不再依赖任意-PC SIGUSR1。
+>
+> 生产侧（test-only，`GUEST_CPU_TEST_HOOKS` 宏 gate，release 不编译）在 `fex_context.cpp::Run` 内、**running 已置、execution lease 已持、全部 coordinator/context/address-space 锁已释放、进入 FEX `ExecuteThread` 之前**插入 `FexTestRunGate::WaitAtEntry`。该点不持任何协调器需要的锁、不在信号处理器内、未触 JIT 状态，由 context/thread id 键控，带到达/释放/退出的严格代次握手（控制器必须先看到上一代退出才允许 arm 下一代；超时单独失败，`Arm` 在旧代未退出时拒绝）。测试 arm 第一 owner、等 `Arrived()`，第二 owner 不经过 gate、跑真实 JIT；协调器走真实 `QuiesceContext`，第二 owner 在第一 owner 仍 held 时独立停止；`Release` 后第一 owner 进入 JIT 并在 block-entry fault page 服务此前已 pending 的 Pause/Cancel。
+>
+> 这把旧的"在任意 host 指令冻结线程"（可能冻结在 FEX 持锁窗口）替换为"在一个可证明无锁的入口点暂停 owner"，从协议上消除了偶发串行，而不是靠重试或 progress 采样降低发生率。历史 wchan=futex、second progress 冻结的观测保留为"second 在 host 侧等待"的记录，但具体锁身份（CodeInvalidationMutex 读锁+排队 writer）**仍标记为未决假设**——确定性协议消除了测试手段的不确定性，不需要为此无限复跑去追溯旧偶发故障。G24 各阶段断言、200ms drain timeout、两种外部请求次序、Pause/Cancel/Shutdown、retry 恢复、stale Resume 拒绝、外部 epoch 保存、最终真实 guest 推进全部保留。
+
 被审/修复基点：`25189931`（R0 runner 记账）之上，工作区改动仅在 `tests/guest_cpu/guest_execution_tests.cpp::TestCoordinatorRecovery`。生产代码 `fex_context.cpp` / `address_space.cpp` / 固定 FEX 均未改——定位结论是**测试冻结手段的缺陷**，不是生产暂停行为。
 
 ## 1. 现象
@@ -79,4 +87,3 @@ live Resume 后继续推进、最终 Cancel）全部保留，次数仍是 100 �
 G24 正例/已有负例、contract 43/43 不受影响。修复只触及测试的冻结取点，不改生产暂停/协调代码，因此 G2 Q1–Q3
 的生产侧要求不受影响。阶段诊断（second progress、owner/second wchan、`record` 各阶段）保留为失败现场输出：
 未来再出现 G24 失败时会直接打印阶段名、迭代号与两个 host 线程的等待点，而非回到一个不透明布尔。
-

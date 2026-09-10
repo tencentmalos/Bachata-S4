@@ -2352,27 +2352,32 @@ void TestHleBufferPinning(Harness& h) {
 }
 
 void TestCoordinatorRecovery(Harness& h) {
-    // External Pause/Cancel/Shutdown both before and after the coordinator's own request. Hold one owner in a signal
-    // handler, using an observed handshake (no settle sleep), so timeout is deterministic.
+    // External Pause/Cancel/Shutdown both before and after the coordinator's own request, with one
+    // owner provably held at a lock-free point while the other owner stops independently.
     //
-    // Each stage predicate is recorded independently (stage -> first failing iteration + value), so a rare
-    // ~1% full-suite failure names the exact phase -- admission refusal, concurrent-quiesce Busy, early-drain
-    // Timeout, second-owner receipt, retry recovery, stale-Resume refusal, forbidden-run Cancel, progress
-    // preservation -- instead of collapsing into one opaque boolean. The PASS/FAIL verdict is unchanged.
-    // Per-iteration detail naming the first failing stage. A Check is emitted every iteration so
-    // the 100-iteration identity and the runner's repeat/worst-verdict accounting are preserved; on
-    // a rare failure the FAIL line carries the phase instead of an opaque boolean.
+    // Determinism: instead of an arbitrary-PC SIGUSR1 freeze (which could land while FEX held its
+    // context-wide block-link rwlock and serially block the other owner -- the G24 flake), this uses
+    // a test-only Run-entry gate (FexTestRunGate): the held owner's Run parks AFTER the backend set
+    // running/lease and released every coordinator/context/address-space lock, BEFORE entering the
+    // JIT -- never in a signal handler, never holding a FEX lock. The second owner runs the real JIT
+    // and drains/stops on its own. Releasing the gate lets the held owner enter the JIT where it
+    // services the already-pending Pause/Cancel at the block-entry fault page.
+    Fex::FexTestRunGate* gate =
+        static_cast<Fex::FexTestRunGate*>(Fex::FexTestRunGatePointer(*h.context));
+
+    // Per-stage first-failure detail. A Check is emitted every iteration so the 100-iteration
+    // identity and the runner's repeat/worst-verdict accounting are preserved.
     std::string iter_failure;
     auto record = [&](const char* stage, int iter, bool ok, std::string detail = {}) {
         if (!ok) {
             const std::string msg = std::string(stage) + (detail.empty() ? "" : (": " + detail));
             std::fprintf(stderr, "[g24] FAIL iter=%d order=%d stage=%s %s\n",
                          iter, iter % 2, stage, detail.c_str());
-            if (iter_failure.empty())
-                iter_failure = msg;
+            if (iter_failure.empty()) iter_failure = msg;
         }
         return ok;
     };
+
     for (int iteration = 0; iteration < 100; ++iteration) {
         iter_failure.clear();
         const int ordering = iteration % 2;
@@ -2382,49 +2387,19 @@ void TestCoordinatorRecovery(Harness& h) {
         if (!LoadProgress(h)) return;
         const auto progress = PrepareProgress(h), second_progress = PrepareProgress(h, 1);
         TestOwner owner(h, progress), second(h, second_progress, 4096);
-        auto run = owner.Run(), second_run = second.Run();
-        if (!WaitProgress(progress, 0) || !WaitProgress(second_progress, 0)) std::_Exit(4);
-        struct sigaction action{}, previous{};
-        action.sa_handler = HoldOwnerSignal; action.sa_flags = SA_ONSTACK;
-        sigemptyset(&action.sa_mask);
-        if (sigaction(SIGUSR1, &action, &previous)) std::_Exit(4);
 
-        // Freeze owner in its signal handler, but ONLY at a lock-free point. An arbitrary SIGUSR1
-        // can land in the tiny window where the JIT block-link path holds FEX's context-wide
-        // write-priority CodeInvalidationMutex read lock (JIT.cpp ExitFunctionLink); if the owner is
-        // frozen there, the other owner blocks on that rwlock (a queued writer parks new readers on
-        // a futex) and never reaches its own stop -- the ~1% full-suite G24 failure, with the held
-        // owner userspace-spinning and the other in futex_wait while its guest progress stays
-        // frozen. Production Pause never freezes mid-instruction: it stops at a block-entry safe
-        // point that holds no FEX lock. So gate the freeze on the exact property the test needs:
-        // while the owner is held, the *other* (not-yet-drained) owner's guest must keep advancing.
-        // If it stalls, the freeze landed on a locked instruction -- release and re-freeze elsewhere.
-        bool safely_held = false;
-        for (int freeze_try = 0; freeze_try < 100 && !safely_held; ++freeze_try) {
-            hold_entered.store(false); hold_release.store(false);
-            ::syscall(SYS_tgkill, ::getpid(), owner.Tid(), SIGUSR1);
-            const auto fdeadline = std::chrono::steady_clock::now() + std::chrono::seconds(1);
-            while (!hold_entered.load() && std::chrono::steady_clock::now() < fdeadline)
-                std::this_thread::yield();
-            if (!hold_entered.load()) std::_Exit(4);
-            const auto p0 = Progress(second_progress);
-            const auto sdeadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(30);
-            bool advanced = false;
-            while (std::chrono::steady_clock::now() < sdeadline) {
-                if (Progress(second_progress) != p0) { advanced = true; break; }
-                std::this_thread::yield();
-            }
-            if (advanced) { safely_held = true; break; }
-            // Unsafe freeze: release, let the handler return and the owner resume JIT. Confirm it is
-            // actually executing guest again (its progress counter advances) before re-sending the
-            // signal, so a new freeze lands on a different instruction instead of being coalesced.
-            const auto owner_p0 = Progress(progress);
-            hold_release.store(true);
-            const auto rdeadline = std::chrono::steady_clock::now() + std::chrono::seconds(1);
-            while (Progress(progress) == owner_p0 && std::chrono::steady_clock::now() < rdeadline)
-                std::this_thread::yield();
+        // Hold the first owner at its lock-free Run-entry safe point before it enters the JIT.
+        if (!gate || !gate->Arm(owner.handle.id)) std::_Exit(4);
+        auto run = owner.Run();
+        {
+            const auto ad = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+            while (!gate->Arrived() && std::chrono::steady_clock::now() < ad) std::this_thread::yield();
+            if (!gate->Arrived()) std::_Exit(4);
         }
-        if (!safely_held) std::_Exit(4);
+        // The second owner is not gated; it runs the real guest JIT and must drain independently.
+        auto second_run = second.Run();
+        if (!WaitProgress(second_progress, 0)) std::_Exit(4);
+
         const auto until = std::chrono::steady_clock::now() + std::chrono::seconds(1);
         std::optional<InterruptTicket> cancel;
         if (ordering == 0) cancel = h.context->RequestInterrupt(owner.handle, external_reason).Value();
@@ -2449,60 +2424,18 @@ void TestCoordinatorRecovery(Harness& h) {
                          !h.space->AcquireExecutionLease(),
                          early ? "drain returned a token (expected Timeout)"
                                : Describe(early.GetError()));
-        // Even with one owner still held in its signal handler (hold_release is not set yet), the
-        // other owner must independently reach its stop point. This is an observed-condition wait,
-        // not a settle sleep: block until the second owner actually stops (bounded), which proves
-        // the drain issued and serviced its request regardless of the held owner. A non-blocking
-        // wait_for(0) here was a load-dependent poll that could read "not ready" microseconds before
-        // the owner stopped -- the ~1% full-suite G24 failure. The later Await(second_run) would then
-        // observe the correct stop, but this predicate had already failed.
-        const auto second_deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
-        bool second_stopped_while_held = false;
-        std::uint64_t second_prog_seen = Progress(second_progress);
-        bool second_progress_advanced_while_held = false;
-        while (std::chrono::steady_clock::now() < second_deadline) {
-            if (second_run.wait_for(std::chrono::milliseconds(2)) == std::future_status::ready) {
-                second_stopped_while_held = true;
-                break;
-            }
-            if (hold_release.load()) break;  // must observe the stop *while* the first is still held
-            const auto p = Progress(second_progress);
-            if (p != second_prog_seen) { second_progress_advanced_while_held = true; second_prog_seen = p; }
-        }
-        if (!second_stopped_while_held) {
-            // Dump where the two host threads are blocked: wchan names a kernel wait (futex, etc.);
-            // empty means userspace spinning. This decides lock-block vs JIT non-probe skip.
-            auto wchan = [](std::uint64_t tid) -> std::string {
-                char path[80];
-                std::snprintf(path, sizeof(path), "/proc/self/task/%llu/wchan",
-                              static_cast<unsigned long long>(tid));
-                char buf[64] = {};
-                if (FILE *f = std::fopen(path, "r")) {
-                    if (std::fgets(buf, sizeof(buf), f) == nullptr) buf[0] = '\0';
-                    std::fclose(f);
-                }
-                std::string w = buf;
-                while (!w.empty() && (w.back() == '\n' || w.back() == '\r' || w.back() == ' '))
-                    w.pop_back();
-                if (w.empty() || w == "0") w = "(userspace/running)";
-                return w;
-            };
-            std::fprintf(stderr,
-                         "[g24] detail iter=%d second_guest_progress_advanced_while_owner_held=%d\n"
-                         "[g24] detail iter=%d owner_tid=%llu wchan=%s | second_tid=%llu wchan=%s\n",
-                         iteration, second_progress_advanced_while_held ? 1 : 0,
-                         iteration,
-                         (unsigned long long)owner.Tid(), wchan(owner.Tid()).c_str(),
-                         (unsigned long long)second.Tid(), wchan(second.Tid()).c_str());
-        }
+        // While the first owner is still held at its lock-free entry point, the second (real JIT)
+        // owner must independently reach its stop. Deterministic by construction; still waits on the
+        // actual stop event rather than a timed poll.
+        const bool second_stopped =
+            second_run.wait_for(std::chrono::seconds(2)) == std::future_status::ready;
         closed &= record("second owner reached its stop while the first owner is still held", iteration,
-                         second_stopped_while_held,
-                         second_progress_advanced_while_held
-                             ? "second kept running guest code the whole hold (interrupt not serviced)"
-                             : "second guest progress froze but Run did not return during the hold");
-        hold_release.store(true);
+                         second_stopped,
+                         second_stopped ? "" : "second owner did not stop independently of the held owner");
+
+        // Release the held owner; it enters the JIT and services its already-pending Pause/Cancel.
+        if (!gate->Release(5'000)) std::_Exit(4);
         auto stopped = Await(run), other_stopped = Await(second_run);
-        sigaction(SIGUSR1, &previous, nullptr);
         auto retry = h.context->QuiesceContext(1'000'000'000);
         bool recovered = record("retry QuiesceContext recovered both owners (count==2)", iteration,
                                 retry && retry.Value().StoppedThreadCount() == 2,
@@ -2517,12 +2450,11 @@ void TestCoordinatorRecovery(Harness& h) {
         auto forbidden_run = owner.Run();
         auto cancelled = Await(forbidden_run);
         auto receipt = h.context->WaitStopped(*cancel, 1'000'000);
-        const bool reason_ok = cancelled && receipt &&
-                               cancelled.Value().primary_reason == expected_reason;
         recovered &= record("forbidden run surfaces the external request at the expected reason", iteration,
-                            reason_ok,
-                            cancelled ? ("reason=" + std::to_string(static_cast<int>(cancelled.Value().primary_reason)) +
-                                         " expected=" + std::to_string(static_cast<int>(expected_reason)))
+                            cancelled && receipt &&
+                            cancelled.Value().primary_reason == expected_reason,
+                            cancelled ? ("reason=" + std::to_string(static_cast<int>(cancelled.Value().primary_reason))
+                                        + " expected=" + std::to_string(static_cast<int>(expected_reason)))
                                       : std::string{"owner did not stop"});
         recovered &= record("progress is preserved across the forbidden run", iteration,
                             stopped && other_stopped && Progress(progress) == before,

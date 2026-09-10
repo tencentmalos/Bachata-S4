@@ -595,6 +595,76 @@ class CallRetStack final {
 };
 
 // --- context -----------------------------------------------------------------
+#if defined(GUEST_CPU_TEST_HOOKS)
+// Deterministic Run-entry delay for coordinator tests. Test-only; compiled out of release builds.
+//
+// The owner calls WaitAtEntry while it holds no coordinator/context/address-space lock and before
+// entering the JIT. It blocks while an arm for its thread id is live; the controller arms it, waits
+// for arrival, exercises the coordinator (which sends the Pause to a running thread that cannot yet
+// stop), observes the second owner stop independently in real JIT, then Release(). A strict
+// arrival/arm/exit generation handshake means the controller can never arm a hold before the prior
+// one has fully left, and the owner never parks inside a signal handler or with a FEX lock held.
+class FexTestRunGateImpl final : public FexTestRunGate {
+  public:
+    bool WaitAtEntry(std::uint64_t context_id, std::uint64_t thread_id, std::uint64_t invocation,
+                     std::uint64_t timeout_ms) override {
+        std::unique_lock lock{mutex_};
+        if (!armed_ || arm_thread_ != thread_id) {
+            // Not the held owner (or nothing armed): pass straight through, do not touch gate state.
+            return true;
+        }
+        present_context_ = context_id;
+        present_thread_ = thread_id;
+        present_invocation_ = invocation;
+        arrived_ = true;
+        cv_.notify_all();
+        const bool released = cv_.wait_for(lock, std::chrono::milliseconds(timeout_ms ? timeout_ms : 1000),
+                                          [&] { return !armed_; });
+        arrived_ = false;
+        ++exited_generation_;
+        cv_.notify_all();
+        return released;
+    }
+
+    bool Arm(std::uint64_t thread_id) override {
+        std::unique_lock lock{mutex_};
+        // Refuse to arm while the previous generation has not fully passed through/left the gate.
+        if (armed_)
+            return false;
+        armed_ = true;
+        arrived_ = false;
+        arm_thread_ = thread_id;
+        cv_.notify_all();
+        return true;
+    }
+
+    bool Arrived() override {
+        std::unique_lock lock{mutex_};
+        return armed_ && arrived_ && arm_thread_ == present_thread_;
+    }
+
+    bool Release(std::uint64_t timeout_ms) override {
+        std::unique_lock lock{mutex_};
+        const std::uint64_t before = exited_generation_;
+        armed_ = false;
+        cv_.notify_all();
+        return cv_.wait_for(lock, std::chrono::milliseconds(timeout_ms ? timeout_ms : 1000),
+                            [&] { return exited_generation_ > before; });
+    }
+
+  private:
+    std::mutex mutex_;
+    std::condition_variable cv_;
+    bool armed_{false};
+    bool arrived_{false};
+    std::uint64_t arm_thread_{0};
+    std::uint64_t present_context_{0};
+    std::uint64_t present_thread_{0};
+    std::uint64_t present_invocation_{0};
+    std::uint64_t exited_generation_{0};
+};
+#endif
+
 class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
   public:
     explicit FexCpuContext(const CpuConfig &config, GuestAddressSpace &space)
@@ -883,6 +953,20 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
             binding.stop_spill = signal_delegator_->GetConfig().ThreadStopHandlerAddressSpillSRA;
             syscall_fault = entry->syscall_fault;
         }
+#if defined(GUEST_CPU_TEST_HOOKS)
+        // Test-only deterministic owner delay. Running is set, the execution lease is held and every
+        // coordinator/context/address-space lock has been released; we are not inside a signal handler
+        // and have touched no JIT state yet. Parking here cannot hold a lock QuiesceContext needs, so
+        // a test can hold one owner deterministically while a second, genuinely-JIT owner drains and
+        // stops independently. On release execution proceeds and the already-pending Pause/Cancel is
+        // serviced at the block-entry fault page exactly as for a normally running owner.
+        if (test_run_gate_ &&
+            !test_run_gate_->WaitAtEntry(context_id_, thread.id, invocation, 5000)) {
+            std::lock_guard fail_guard{lock_};
+            if (auto* fail_entry = FindOwnedLocked(thread)) fail_entry->running = false;
+            return BackendError(ErrorCategory::BackendFailure, "Run", "test entry gate timed out");
+        }
+#endif
         // The controller may protect the page at any point from claiming the
         // entry above onwards. No tgkill/TID reuse or late unbound signal exists.
         t_binding = &binding;
@@ -1021,6 +1105,14 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
     }
 
     [[nodiscard]] Hle::HleCallRegistry* HleRegistryPointer() { return &syscall_handler_->Registry(); }
+
+#if defined(GUEST_CPU_TEST_HOOKS)
+    [[nodiscard]] FexTestRunGate* TestRunGatePointer() {
+        if (!test_run_gate_)
+            test_run_gate_ = std::make_unique<FexTestRunGateImpl>();
+        return test_run_gate_.get();
+    }
+#endif
 
     [[nodiscard]] Result<QuiescenceToken> QuiesceContext(std::uint64_t timeout_ns) override {
         std::unique_lock coordinator{coordinator_lock_, std::try_to_lock};
@@ -1560,6 +1652,9 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
     fextl::unique_ptr<FEXCore::Context::Context> context_;
     std::unique_ptr<FexSignalDelegator> signal_delegator_;
     std::unique_ptr<FexSyscallHandler> syscall_handler_;
+#if defined(GUEST_CPU_TEST_HOOKS)
+    std::unique_ptr<FexTestRunGate> test_run_gate_;
+#endif
     FEXCore::HostFeatures host_features_{};
     ReturnGate return_gate_;
     std::uint64_t host_page_size_{};
@@ -1624,6 +1719,12 @@ void* FexHleRegistryPointer(CpuContext& context) {
     // Only FexCpuContext is constructed in this TU.
     return static_cast<FexCpuContext*>(&context)->HleRegistryPointer();
 }
+
+#if defined(GUEST_CPU_TEST_HOOKS)
+void* FexTestRunGatePointer(CpuContext& context) {
+    return static_cast<FexCpuContext*>(&context)->TestRunGatePointer();
+}
+#endif
 
 } // namespace Core::GuestCpu::Fex
 
