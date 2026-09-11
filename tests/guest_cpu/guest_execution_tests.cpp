@@ -52,6 +52,9 @@ extern "C" std::uint64_t HleAdd6(std::uint64_t a, std::uint64_t b, std::uint64_t
                                  std::uint64_t d, std::uint64_t e, std::uint64_t f) {
     return a + b + c + d + e + f;
 }
+// Single-argument HLE for the immediate-exit/state tests: result depends only on rdi, so unrelated
+// seeded registers (including the R10 callgate slot) cannot change the returned rax.
+extern "C" std::uint64_t HleAddOne(std::uint64_t a) { return a + 1; }
 extern "C" std::uint64_t HleSpill(std::uint64_t a, std::uint64_t b, std::uint64_t c,
                                   std::uint64_t d, std::uint64_t e, std::uint64_t f,
                                   std::uint64_t g, std::uint64_t h) {
@@ -2414,7 +2417,7 @@ void TestImmediateSyscallExit(Harness& h) {
     }
     auto* registry =
         static_cast<HleCallRegistry*>(Fex::FexHleRegistryPointer(*h.context));
-    auto valid_op = registry->Register(&HleAdd6, "immediate-valid-add6").Value();
+    auto valid_op = registry->Register(&HleAddOne, "immediate-valid-addone").Value();
 
     const std::uint64_t sentinel = h.stack_base + 0x500;
 
@@ -2461,6 +2464,58 @@ void TestImmediateSyscallExit(Harness& h) {
         Check("G33b", "valid syscall successor store executes (sentinel written)",
               ok && sentinel_value == 42,
               ok ? ("sentinel=" + std::to_string(sentinel_value)) : detail);
+    }
+
+    // G33c: a valid call returns its value and preserves the architectural RCX. The 4th syscall
+    // integer rides in R10 and is only a decode view; it must not be written back over the guest RCX
+    // (which holds the post-syscall successor address). Seeds distinct markers for RCX/R10.
+    {
+        std::string e;
+        bool g33c_ok = false;
+        std::string g33c_detail = "not run";
+        if (LoadFixture(h, *FindFixture("syscall_writes_sentinel"), e)) {
+            *reinterpret_cast<std::uint64_t*>(sentinel) = 0;
+            constexpr std::uint64_t kR10Marker = 0x1234000aULL;
+            ThreadInit init{};
+            init.entry_rip = GuestCodeAddress{h.code_base};
+            init.initial_rsp = GuestAddress{h.stack_top};
+            init.guest_tid = 531;
+            init.initial_state.fields = RegisterValidity::Gpr;
+            // Seed every GPR distinctly (mirrors the state probe) then set call inputs, so an unset
+            // register cannot accidentally read as the return value.
+            init.initial_state.gpr_mask = 0xffffu & ~(1u << Index(Gpr::Rsp));
+            for (std::size_t i = 0; i < kGprCount; ++i)
+                init.initial_state.values.gpr[i] = 0x12340000 + i;
+            init.initial_state.values.Set(Gpr::Rax, valid_op);
+            init.initial_state.values.Set(Gpr::R12, sentinel);
+            init.initial_state.values.Set(Gpr::Rsp, h.stack_top);
+            init.initial_state.values.Set(Gpr::Rdi, 40);   // add6(40) = 41
+            auto t = h.context->CreateThread(init);
+            if (t) {
+                auto r = h.context->Run(t.Value(), RunOptions{});
+                const auto& regs = r.Value().snapshot.registers;
+                const bool returned = bool(r) &&
+                    r.Value().primary_reason == StopReason::Returned;
+                const bool rax41 = regs.Get(Gpr::Rax) == 41;
+                // The RCX the guest sees after the syscall must NOT be the R10 decode-view marker
+                // (that was the P1 clobber). It is the syscall prologue's successor value here.
+                const bool rcx_not_r10 = regs.Get(Gpr::Rcx) != kR10Marker;
+                const bool rcx_is_successor = regs.Get(Gpr::Rcx) == h.code_base + 2;
+                const bool sentinel42 = *reinterpret_cast<std::uint64_t*>(sentinel) == 42;
+                g33c_ok = returned && rax41 && rcx_not_r10 && rcx_is_successor && sentinel42;
+                g33c_detail = "reason=" + std::string(returned ? "Returned" : "other") +
+                             " rax=" + Hex(regs.Get(Gpr::Rax)) + " rcx=" + Hex(regs.Get(Gpr::Rcx)) +
+                             " r10=" + Hex(regs.Get(Gpr::R10)) + " sentinel=" +
+                             std::to_string(*reinterpret_cast<std::uint64_t*>(sentinel));
+                (void)h.context->DestroyThread(t.Value());
+            } else {
+                g33c_detail = "create thread failed";
+            }
+        } else {
+            g33c_detail = e;
+        }
+        Check("G33c", "valid HLE returns value and does not leak R10 view over architectural RCX",
+              g33c_ok, g33c_detail);
     }
 
     // G34: a faulting syscall in a backward loop returns to the owner promptly with NO external

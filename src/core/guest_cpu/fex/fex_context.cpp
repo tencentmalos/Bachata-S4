@@ -423,6 +423,12 @@ class FexSyscallHandler final : public FEXCore::HLE::SyscallHandler {
         }
 
         const std::uint64_t operation = Frame->State.gregs[FEXCore::X86State::REG_RAX];
+        // Preserve the architectural RCX across the crossing. The 4th syscall integer arrives in R10
+        // and RCX is only a *decode view* for the typed adapter; RCX is not a syscall return field,
+        // so it must keep the guest's post-syscall successor value. Without this, encoding the R10
+        // view into the full register file and writing it back clobbered RCX (measured: RCX became
+        // the R10 marker after a valid call).
+        const std::uint64_t guest_rcx = Frame->State.gregs[FEXCore::X86State::REG_RCX];
         bool rejected = false;
         Error reject_err{};
         if (auto adapter = registry_.Find(operation)) {
@@ -431,7 +437,7 @@ class FexSyscallHandler final : public FEXCore::HLE::SyscallHandler {
             hle_frame.space = &space_;
             RegistersFromCpuState(Frame->State, hle_frame.registers);
             // syscall callgate: the 4th integer argument arrived in r10; the adapter decodes rcx
-            // positionally, so normalise r10 -> rcx before dispatch.
+            // positionally, so normalise r10 -> rcx in the decode view only (not written back below).
             hle_frame.registers.Set(Gpr::Rcx, Frame->State.gregs[FEXCore::X86State::REG_R10]);
             hle_frame.rcx_normalised_from_r10 = true;
 
@@ -443,7 +449,10 @@ class FexSyscallHandler final : public FEXCore::HLE::SyscallHandler {
             ::fesetenv(&host_fp);
 
             if (call_status) {
-                // Encode the return values back into the guest state the dispatcher continues with.
+                // The decode-only RCX view must not leak into the architectural state: restore the
+                // guest RCX before encoding return values, then write back only the registers the
+                // adapter actually produced.
+                hle_frame.registers.Set(Gpr::Rcx, guest_rcx);
                 ApplyRegistersToCpuState(hle_frame.registers, Frame->State);
                 return;
             }

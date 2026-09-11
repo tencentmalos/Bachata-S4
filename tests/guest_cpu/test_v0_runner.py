@@ -86,7 +86,7 @@ class RunnerTests(unittest.TestCase):
         # ROUND2/SUITE id without an ownership entry cannot silently disappear on a zero-output crash.
         self.assertEqual(NS["mapping_ownership_errors"](), [])
         # Explicitly assert the newer ids (G33-G36) are both mapped and owned.
-        for sub in ("G33a", "G33b", "G34", "G35a", "G35b", "G35c",
+        for sub in ("G33a", "G33b", "G33c", "G34", "G35a", "G35b", "G35c",
                     "G36a", "G36b", "G36c", "G32c"):
             self.assertIn(sub, NS["referenced_sub_ids"](), f"{sub} not mapped")
             owned = set()
@@ -219,7 +219,7 @@ class RunnerTests(unittest.TestCase):
     def test_g33_immediate_syscall_exit_owned_and_fail_exits_nonzero(self):
         # N4 formal G33/G34 (syscall-fault immediate exit + bounded self-loop) live in the device
         # guest suite, map to R2-H05, and a FAIL+exit0 on any sub-check drives a non-zero exit.
-        for sub in ("G33a", "G33b", "G34", "G35a", "G35b", "G35c",
+        for sub in ("G33a", "G33b", "G33c", "G34", "G35a", "G35b", "G35c",
                     "G36a", "G36b", "G36c"):
             with self.subTest(sub=sub):
                 self.assertIn(sub, NS["sub_cases_owned_by"]("guest_execution_tests"))
@@ -229,7 +229,7 @@ class RunnerTests(unittest.TestCase):
                 r2 = {c["id"]: c for c in data["round2"]["cases"]}
                 self.assertEqual(r2["R2-H05"]["status"], "FAIL")
         # With all present and passing, H05 stays formal NOT_RUN with an auxiliary PASS (partial).
-        h05_subs = ("G33a", "G33b", "G34", "G35a", "G35b", "G35c",
+        h05_subs = ("G33a", "G33b", "G33c", "G34", "G35a", "G35b", "G35c",
                     "G36a", "G36b", "G36c")
         data, _cases, code = self.run_report(device=lambda *a: SuiteRun(
             cases={s: ("PASS", "") for s in h05_subs}, exit_code=0))
