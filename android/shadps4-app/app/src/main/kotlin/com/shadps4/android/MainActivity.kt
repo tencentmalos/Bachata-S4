@@ -38,8 +38,10 @@ class MainActivity : ComponentActivity() {
         val uiOrientation = UiOrientationPreference.read(this)
         requestedOrientation = UiOrientationPreference.toActivityOrientation(uiOrientation)
         lifecycleScope.launch { legacyRuntimeSettingsMigration.migrate() }
-        val runtimeRoot = java.io.File(filesDir, "runtime")
-        val isRuntimeInstalled = runtimeRoot.listFiles()?.any { it.isDirectory && it.name.startsWith("box64-") } == true
+        // The FEX CPU backend (libshadps4_fex_session.so) is compiled into the APK, so unlike the
+        // reference (which downloaded/extracted a glibc runtime into filesDir/runtime/box64-*),
+        // there is no external runtime to install — the backend is always present.
+        val isRuntimeInstalled = true
         setContent {
             AppTheme {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {

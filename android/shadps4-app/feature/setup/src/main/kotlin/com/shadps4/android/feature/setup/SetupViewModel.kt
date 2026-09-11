@@ -48,8 +48,11 @@ class SetupViewModel @Inject constructor(
     private val mutableState = MutableStateFlow(
         SetupUiState(
             deviceProfile = DeviceProfile(soc = "unknown", gpu = "unverified", supported = true),
-            runtimeInstalled = false,
-            integrityVerified = false,
+            // The FEX CPU backend is compiled into the APK (libshadps4_fex_session.so); there is no
+            // external glibc runtime to install/extract as in the reference, so the app is always
+            // "runtime ready". (Reference behaviour: extract assets/runtime/runtime.zip -> box64-*.)
+            runtimeInstalled = true,
+            integrityVerified = true,
             legalNotice = "Import only games and firmware content you legally own.",
         ),
     )
@@ -65,25 +68,13 @@ class SetupViewModel @Inject constructor(
             supported = true,
         )
         updateDeviceProfile(profile)
-        
-        val runtimeRoot = java.io.File(context.filesDir, "runtime")
-        val isInstalled = runtimeRoot.listFiles()?.any { it.isDirectory && it.name.startsWith("box64-") } == true
-        if (isInstalled) {
-            mutableState.value = mutableState.value.copy(
-                runtimeInstalled = true,
-                integrityVerified = true
-            )
-        } else if (!downloadRuntime) {
-            extractRuntimeFromAssets()
-        }
     }
 
     fun checkRuntimeStatus() {
-        val runtimeRoot = java.io.File(context.filesDir, "runtime")
-        val isInstalled = runtimeRoot.listFiles()?.any { it.isDirectory && it.name.startsWith("box64-") } == true
+        // Built-in FEX backend is always present.
         mutableState.value = mutableState.value.copy(
-            runtimeInstalled = isInstalled,
-            integrityVerified = isInstalled
+            runtimeInstalled = true,
+            integrityVerified = true,
         )
     }
 
