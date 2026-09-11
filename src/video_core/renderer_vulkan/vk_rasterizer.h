@@ -5,6 +5,7 @@
 
 #include "common/recursive_lock.h"
 #include "common/shared_first_mutex.h"
+#include "core/rasterizer_hooks.h"
 #include "video_core/buffer_cache/buffer_cache.h"
 #include "video_core/page_manager.h"
 #include "video_core/renderer_vulkan/vk_pipeline_cache.h"
@@ -24,7 +25,7 @@ class Scheduler;
 class RenderState;
 class GraphicsPipeline;
 
-class Rasterizer {
+class Rasterizer final : public Core::RasterizerHooks {
 public:
     explicit Rasterizer(const Instance& instance, Scheduler& scheduler,
                         AmdGpu::Liverpool* liverpool);
@@ -58,12 +59,12 @@ public:
     void FillBuffer(VAddr address, u32 num_bytes, u32 value, bool is_gds);
     void CopyBuffer(VAddr dst, VAddr src, u32 num_bytes, bool dst_gds, bool src_gds);
     u32 ReadDataFromGds(u32 gsd_offset);
-    bool InvalidateMemory(VAddr addr, u64 size);
+    bool InvalidateMemory(VAddr addr, u64 size) override;
     bool ReadMemory(VAddr addr, u64 size);
     void ProcessDownloadImages();
     bool IsMapped(VAddr addr, u64 size);
-    void MapMemory(VAddr addr, u64 size);
-    void UnmapMemory(VAddr addr, u64 size);
+    void MapMemory(VAddr addr, u64 size) override;
+    void UnmapMemory(VAddr addr, u64 size) override;
 
     void CpSync();
     u64 Flush();

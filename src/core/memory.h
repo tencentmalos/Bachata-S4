@@ -13,10 +13,7 @@
 #include "common/types.h"
 #include "core/address_space.h"
 #include "core/libraries/kernel/memory.h"
-
-namespace Vulkan {
-class Rasterizer;
-}
+#include "core/rasterizer_hooks.h"
 
 namespace Libraries::Kernel {
 struct OrbisQueryInfo;
@@ -167,7 +164,7 @@ public:
     explicit MemoryManager();
     ~MemoryManager();
 
-    void SetRasterizer(Vulkan::Rasterizer* rasterizer_) {
+    void SetRasterizer(RasterizerHooks* rasterizer_) {
         rasterizer = rasterizer_;
     }
 
@@ -341,7 +338,7 @@ private:
     u64 flexible_usage{};
     u64 pool_budget{};
     s32 sdk_version{};
-    Vulkan::Rasterizer* rasterizer{};
+    RasterizerHooks* rasterizer{};
 
     struct PrtArea {
         VAddr start;
