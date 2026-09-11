@@ -81,6 +81,19 @@ class RunnerTests(unittest.TestCase):
         self.assertTrue(data["overall"]["has_failures"])
         self.assertEqual(data["overall"]["failed_suite_count"], 1)
 
+    def test_mapping_ownership_integrity(self):
+        # Every sub-check referenced by either matrix must be owned by some suite, so a new
+        # ROUND2/SUITE id without an ownership entry cannot silently disappear on a zero-output crash.
+        self.assertEqual(NS["mapping_ownership_errors"](), [])
+        # Explicitly assert the newer ids (G33-G36) are both mapped and owned.
+        for sub in ("G33a", "G33b", "G34", "G35a", "G35b", "G35c",
+                    "G36a", "G36b", "G36c", "G32c"):
+            self.assertIn(sub, NS["referenced_sub_ids"](), f"{sub} not mapped")
+            owned = set()
+            for suite in ("guest_execution_tests",):
+                owned.update(NS["sub_cases_owned_by"](suite))
+            self.assertIn(sub, owned, f"{sub} not owned")
+
     def test_missing_suite_is_not_a_failure(self):
         data, _cases, code = self.run_report()  # everything never-started
         self.assertEqual(code, 0)
@@ -228,12 +241,12 @@ class RunnerTests(unittest.TestCase):
         checks = {s: ("FAIL", "syn") for s in self.G30_32}
         data, _cases, code = self.run_report(device=lambda *a: SuiteRun(cases=checks, exit_code=0))
         self.assertEqual(code, 1)
-        # Three distinct parent cases fail, but there are seven distinct failed sub-checks; a sub
-        # referenced by two matrices must not be counted twice as two failed sub-checks.
+        # Three distinct parent cases fail, but the failed sub-check count is the size of the set
+        # (G30a/b, G31a/b/c, G32a/b/c = 8); a sub referenced by two matrices is never double-counted.
         self.assertEqual(sorted(data["overall"]["round2_failed_cases"]),
                          ["R2-C03", "R2-H01", "R2-H02"])
         self.assertEqual(data["overall"]["round2_failed_case_count"], 3)
-        self.assertEqual(data["overall"]["failed_subcheck_count"], 7)
+        self.assertEqual(data["overall"]["failed_subcheck_count"], len(self.G30_32))
 
     def test_sub_in_both_v0_and_round2_counts_once_but_fails_both_parents(self):
         # G24a feeds V0 T03 (SUITE_MAP) and R2-M02 (ROUND2_MAP): two parent failures, one sub.

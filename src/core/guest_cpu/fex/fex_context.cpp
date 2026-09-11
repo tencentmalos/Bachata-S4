@@ -1057,9 +1057,33 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         // completes through the proven stop machinery rather than an ad-hoc failure branch.
         if (test_run_gate_ &&
             !test_run_gate_->WaitAtEntry(context_id_, thread.id, invocation, 5000)) {
-            std::fprintf(stderr, "[guest_cpu] test entry gate: release budget expired for thread "
-                         "%llu; entering JIT to service pending interrupts\n",
-                         static_cast<unsigned long long>(thread.id));
+            // Gate closed non-cleanly (Aborted before arrival, or the wait budget elapsed with no
+            // disposition). The owner must NOT be granted entry to the guest: a timeout cannot be
+            // treated as permission to execute. Re-check pending under lock -- the controller may
+            // have requested Pause/Cancel/Shutdown while we were held; if so, complete this Run
+            // through the normal interrupted finish (page restore, stopped snapshot/receipt, lease
+            // release) without running a single guest instruction. With no external request this is
+            // a bounded BackendFailure that still restores the interrupt page and clears running, so
+            // a later WaitStopped/Destroy cannot hang on a protected page.
+            std::lock_guard gate_fail{lock_};
+            if (auto* gate_entry = FindOwnedLocked(thread)) {
+                if (::mprotect(gate_entry->native->InterruptFaultPage, host_page_size_,
+                               PROT_READ | PROT_WRITE) != 0) {
+                    gate_entry->interrupt->last_reason = StopReason::BackendFailure;
+                    return BackendError(ErrorCategory::BackendFailure, "Run",
+                                        "restore interrupt page after gate abort");
+                }
+                gate_entry->running = false;
+                if (gate_entry->interrupt->pending != 0) {
+                    // External request already present: service it as the stop reason (zero guest
+                    // progress); this consumes only the external request, not an invented internal one.
+                    return FinishRunLocked(thread, *gate_entry, invocation, true);
+                }
+                gate_entry->interrupt->last_reason = StopReason::BackendFailure;
+                return BackendError(ErrorCategory::BackendFailure, "Run",
+                                    "test entry gate aborted/timed out with no release");
+            }
+            return BackendError(ErrorCategory::BackendFailure, "Run", "thread disappeared at gate");
         }
 #endif
         // The controller may protect the page at any point from claiming the

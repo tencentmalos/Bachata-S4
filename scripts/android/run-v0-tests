@@ -307,7 +307,7 @@ SUITE_OWNERSHIP: dict[str, tuple[str, ...]] = {
                               # or zero-output failure in that suite must taint these too, and a
                               # newly added G-prefix must be owned here or the unmapped-FAIL net
                               # below flags it -- never silently unowned.
-                              "G30", "G31", "G32", "G33", "G35", "G36"),
+                              "G30", "G31", "G32", "G33", "G34", "G35", "G36"),
 }
 
 
@@ -337,6 +337,24 @@ def referenced_sub_ids() -> set[str]:
     for subs in ROUND2_MAP.values():
         refs.update(subs)
     return refs
+
+
+def mapping_ownership_errors() -> list[str]:
+    """Internal consistency: every sub-check referenced by a matrix must be owned by some suite (so
+    a zero-output crash taints it), and ownership prefixes must not silently claim ids that no
+    matrix references (which would mask an orphan). Returns human-readable problems; empty = clean."""
+    problems: list[str] = []
+    referenced = referenced_sub_ids()
+    owned = set()
+    for name in ("api_contract_tests", "hle_abi_tests", "host_page_size_probe",
+                 "fexcore_bionic_smoke", "guest_execution_tests", "guest_cpu_contract_tests"):
+        owned.update(sub_cases_owned_by(name))
+    for sub in sorted(referenced):
+        if sub not in owned:
+            problems.append(f"referenced sub-check {sub} has no suite ownership")
+    # An owned prefix is fine to be broader than current refs (future-proofing), but flag an owned
+    # exact id referenced nowhere only as an orphan check via the unmapped-FAIL net, not here.
+    return problems
 
 
 

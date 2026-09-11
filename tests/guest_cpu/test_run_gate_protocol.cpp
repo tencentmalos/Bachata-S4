@@ -11,6 +11,7 @@
 #include <thread>
 
 using Core::GuestCpu::TestGate::RunGate;
+using Core::GuestCpu::TestGate::Disposition;
 
 static int g_failures = 0;
 #define EXPECT(cond, msg) do { \
@@ -122,6 +123,46 @@ int main() {
         EXPECT(!result, "owner times out -> false");
         EXPECT(gate.CurrentPhase() == RunGate::Phase::Idle, "gate back to idle after timeout");
         EXPECT(gate.Arm(TID, CTX) != 0, "next arm proceeds after timed-out generation");
+    }
+
+    // 8. Early Release (before the owner arrives) is an Abort: Release returns false, the owner (when
+    //    it reaches the gate) leaves with WaitAtEntry=false, and the disposition stays Aborted -- a
+    //    repeat Release of the same token must NOT flip to true even after a new generation arms.
+    {
+        RunGate gate;
+        auto t1 = gate.Arm(TID, CTX);
+        // Controller releases before any owner arrives.
+        EXPECT(!gate.Release(t1, 80), "release-before-arrival returns false (abort)");
+        bool owner_clean = true;
+        std::thread owner([&] { owner_clean = gate.WaitAtEntry(CTX, TID, INVOC, 2000); });
+        owner.join();  // the abort disposition makes it leave promptly
+        EXPECT(!owner_clean, "aborted owner leaves non-clean");
+        EXPECT(gate.Outcome(t1) == Disposition::Aborted, "disposition is Aborted");
+        // Repeat release of the same token stays false and never becomes a clean result.
+        EXPECT(!gate.Release(t1, 50), "repeat release of aborted token stays false");
+        EXPECT(gate.Outcome(t1) == Disposition::Aborted, "outcome immutable");
+        // A next generation can then arm; the old aborted token reading stays false.
+        auto t2 = gate.Arm(TID, CTX);
+        EXPECT(t2 != t1, "new generation arms after abort closed");
+        EXPECT(!gate.Release(t1, 50), "old aborted token false after new arm");
+    }
+
+    // 9. A clean Release followed by a repeat Release after a NEW arm still reports the old token as
+    //    clean (archived) while the new token is independent -- no false cross-confirmation.
+    {
+        RunGate gate;
+        auto t1 = gate.Arm(TID, CTX);
+        bool o1 = false;
+        std::thread owner([&] { o1 = gate.WaitAtEntry(CTX, TID, INVOC, 2000); });
+        for (int i = 0; i < 2000 && !gate.Arrived(t1); ++i) std::this_thread::yield();
+        EXPECT(gate.Release(t1, 2000), "clean release t1");
+        owner.join();
+        EXPECT(o1, "owner t1 clean");
+        auto t2 = gate.Arm(TID, CTX);
+        // Old token's archived outcome remains Released/true without affecting the live generation.
+        EXPECT(gate.Outcome(t1) == Disposition::Released, "t1 archived Released");
+        EXPECT(gate.Outcome(t2) == Disposition::None, "t2 has no outcome yet");
+        EXPECT(!gate.Release(t2, 30), "t2 release-before-arrival aborts, not confirmed by t1");
     }
 
     // 8. Generation-pollution race (the N12 review negative). A slow Release1 that only observes the

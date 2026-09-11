@@ -3,10 +3,14 @@
 // Standard-library only, shared verbatim by the FEX backend (GUEST_CPU_TEST_HOOKS) and the host
 // protocol unit test. One arm = one hold of one thread's Run, identified by a generation token.
 //
-// State per generation is held in a Generation object keyed by token, NOT in shared mutable fields:
-// a slow Release waiter from an old generation that only observes Idle after a new generation has
-// armed writes its (false) result to its OWN generation and can never clobber the new one. Every
-// controller call is bound to its token.
+// Three distinct terminal dispositions keep error/timeout from being reported as a clean release:
+//   Released -- controller Released only after the owner Arrived; owner resumes cleanly.
+//   Aborted  -- controller Released (or cancelled the generation) BEFORE the owner arrived; the
+//               owner still leaves but its WaitAtEntry returns false (not a clean release).
+//   TimedOut -- the owner's wait budget elapsed with no disposition yet; WaitAtEntry returns false
+//               and Run must NOT be allowed to enter the guest.
+// Every disposition is owned by its token and archived when the owner closes the generation, so a
+// stale/late call or a new generation can never read or write another generation's outcome.
 #pragma once
 
 #include <chrono>
@@ -17,14 +21,14 @@
 
 namespace Core::GuestCpu::TestGate {
 
+enum class Disposition : int { None = 0, Released = 1, Aborted = 2, TimedOut = 3 };
+
 class RunGate {
 public:
     enum class Phase { Idle, Armed, Arrived, Releasing };
 
     // Controller: arm the next hold. Returns a nonzero token, or 0 while a prior generation is still
-    // live. A prior Release that is merely blocked in its wait is harmless (it owns the prior
-    // generation's result slot), but a generation is "live" until its owner has Exited, so Arm only
-    // proceeds once the slot has closed and the gate is Idle.
+    // live (controller must wait for its Exited first).
     std::uint64_t Arm(std::uint64_t thread_id, std::uint64_t context_id) {
         std::lock_guard lock{mutex_};
         if (phase_ != Phase::Idle)
@@ -33,22 +37,16 @@ public:
         phase_ = Phase::Armed;
         arm_thread_ = thread_id;
         arm_context_ = context_id;
-        // Fresh, generation-owned result state. A stale waiter from a previous token cannot reach
-        // this slot because it keys on its own token.
+        gen_ = Generation{};
         gen_.token = generation_;
-        gen_.bound_invocation = 0;
-        gen_.release_requested = false;
-        gen_.clean_exit = false;
-        gen_.release_result = false;
-        gen_.release_decided = false;
-        gen_.owner_left = false;
+        history_.erase(0);
         cv_.notify_all();
         return generation_;
     }
 
     bool Arrived(std::uint64_t token) {
         std::lock_guard lock{mutex_};
-        return token == generation_ && gen_.token == token &&
+        return gen_.token == token &&
                (phase_ == Phase::Arrived || phase_ == Phase::Releasing);
     }
 
@@ -57,92 +55,98 @@ public:
         return (gen_.token == token && phase_ != Phase::Idle) ? gen_.bound_invocation : 0;
     }
 
-    // Release THIS token's owner and wait until it left. Idempotent for the same token. A token that
-    // is not the currently live generation (old/unknown/stale) returns false and never mutates the
-    // current generation, even if it wakes late after a new Arm.
+    // True iff THIS token had a clean Released disposition. Idempotent for the same token regardless
+    // of when it is called (before/after a new Arm): the outcome is keyed by token, archived on
+    // close, and never changes. Returns false for Aborted/TimedOut/unknown/stale tokens.
     bool Release(std::uint64_t token, std::uint64_t timeout_ms) {
         std::unique_lock lock{mutex_};
         if (token == 0)
             return false;
-
-        // Fast path: an already-decided result for THIS token. Locate the generation the token names
-        // so a late Release of a previous generation reads that generation's recorded outcome rather
-        // than the live one's fields.
-        if (token == gen_.token) {
-            if (gen_.release_decided)
-                return gen_.release_result;
-            if (phase_ != Phase::Arrived) {
-                // Releasing before arrival is a misuse: record failure on this generation only.
-                gen_.release_decided = true;
-                gen_.release_result = false;
-                // Owner may still be Armed; to avoid stranding it, release it but mark non-clean so
-                // its WaitAtEntry returns false. Do not touch any later generation.
-                gen_.release_requested = true;
-                cv_.notify_all();
+        if (token != gen_.token) {
+            auto it = history_.find(token);
+            return it != history_.end() && it->second == Disposition::Released;
+        }
+        // Live token. A disposition already set (Released or an early Abort) is immutable.
+        if (gen_.disposition != Disposition::None) {
+            if (gen_.disposition == Disposition::Released && gen_.owner_left)
+                return true;
+            // Released but owner still closing: wait it out. Aborted: report false immediately.
+            if (gen_.disposition != Disposition::Released)
                 return false;
-            }
-            gen_.release_requested = true;
+        } else if (phase_ == Phase::Arrived) {
+            // The legal release: owner is at the gate.
+            gen_.disposition = Disposition::Released;
             phase_ = Phase::Releasing;
             cv_.notify_all();
-            const auto wait_ms = std::chrono::milliseconds(timeout_ms ? timeout_ms : 1000);
-            // The wait predicate is TOKEN-bound; but when it returns false we must RE-CHECK the token
-            // before writing any result: the wait can wake after a newer generation has taken over the
-            // live slot (the previous owner re-armed from its own thread while this waiter was still
-            // blocked). In that case do not touch the new generation's fields -- return the archived
-            // outcome of our own token instead.
-            cv_.wait_for(lock, wait_ms, [&] { return gen_.token == token && gen_.owner_left; });
-            if (gen_.token != token) {
-                // Generation rolled over under us; our owner archived its outcome before arming.
-                auto it = history_.find(token);
-                return it != history_.end() ? it->second : false;
-            }
-            gen_.release_decided = true;
-            gen_.release_result = gen_.owner_left && gen_.clean_exit;
-            return gen_.release_result;
+        } else {
+            // phase_ == Armed: release requested before the owner arrived = abort, never a clean
+            // release. Mark Aborted so the owner, whenever it reaches the gate, leaves immediately
+            // with WaitAtEntry=false. Do not set release_requested-as-clean.
+            gen_.disposition = Disposition::Aborted;
+            cv_.notify_all();
+            return false;
         }
+        // Released path: wait for THIS token's owner to leave.
+        const auto wait_ms = std::chrono::milliseconds(timeout_ms ? timeout_ms : 1000);
+        cv_.wait_for(lock, wait_ms,
+                     [&] { return gen_.token == token && gen_.owner_left; });
+        return gen_.token == token && gen_.owner_left &&
+               gen_.disposition == Disposition::Released;
+    }
 
-        // Stale token for an older (or future) generation. Do not mutate current state. If that
-        // generation already closed, return its recorded outcome; otherwise it is a bad token.
-        auto it = history_.find(token);
-        if (it != history_.end())
-            return it->second;
-        return false;
+    // Abort the current generation regardless of arrival (test helper for cancel/timeout flows).
+    // Returns true if a live generation was signalled; the owner leaves with WaitAtEntry=false.
+    bool Abort(std::uint64_t token) {
+        std::lock_guard lock{mutex_};
+        if (token == 0 || token != gen_.token)
+            return false;
+        if (gen_.disposition == Disposition::None) {
+            gen_.disposition = Disposition::Aborted;
+            cv_.notify_all();
+        }
+        return true;
     }
 
     bool Exited(std::uint64_t token) {
         std::lock_guard lock{mutex_};
         if (gen_.token == token)
             return gen_.owner_left;
-        auto it = history_.find(token);
-        return it != history_.end() ? true : false;
+        return history_.find(token) != history_.end();
     }
 
-    // Owner side. Pass-through unless an arm matches this thread/context. Binds the invocation to the
-    // live token; on exit records the result into THAT token's slot and archives it before going Idle,
-    // so the controller can read the outcome after a new generation has armed.
+    // The terminal disposition for a token (after it closed), for assertion diagnostics.
+    Disposition Outcome(std::uint64_t token) {
+        std::lock_guard lock{mutex_};
+        if (gen_.token == token && gen_.owner_left)
+            return gen_.disposition;
+        auto it = history_.find(token);
+        return it == history_.end() ? Disposition::None : it->second;
+    }
+
+    // Owner side. Returns true ONLY on a clean Released; false on Abort or timeout (Run must then
+    // refuse to enter the guest). Pass-through when not the held owner / nothing armed.
     bool WaitAtEntry(std::uint64_t context_id, std::uint64_t thread_id,
                      std::uint64_t invocation, std::uint64_t timeout_ms) {
         std::unique_lock lock{mutex_};
         if (phase_ != Phase::Armed || arm_thread_ != thread_id || arm_context_ != context_id)
-            return true;  // not the held owner, or nothing armed.
+            return true;  // not the held owner, or nothing armed: pass straight through.
         const std::uint64_t token = generation_;
         gen_.bound_invocation = invocation;
         phase_ = Phase::Arrived;
         cv_.notify_all();
 
         const auto wait_ms = std::chrono::milliseconds(timeout_ms ? timeout_ms : 5000);
-        // Only a release for THIS token unblocks; a new generation cannot exist while this one is not
-        // Idle, so the flag read here is necessarily ours.
-        const bool released = cv_.wait_for(lock, wait_ms,
-                                          [&] { return gen_.token == token && gen_.release_requested; });
-        gen_.clean_exit = released;
+        // Wake on any disposition set by the controller (Released/Aborted) or on timeout.
+        const bool decided = cv_.wait_for(lock, wait_ms,
+                                          [&] { return gen_.disposition != Disposition::None; });
+        if (!decided && gen_.disposition == Disposition::None)
+            gen_.disposition = Disposition::TimedOut;
+        const bool clean = (gen_.disposition == Disposition::Released);
         gen_.owner_left = true;
-        // Archive this generation's outcome BEFORE going Idle, so a later Arm cannot overwrite a
-        // result a slow controller Release might still read.
-        history_[token] = gen_.clean_exit;
+        history_[token] = gen_.disposition;
         phase_ = Phase::Idle;
         cv_.notify_all();
-        return released;
+        return clean;
     }
 
     Phase CurrentPhase() {
@@ -154,10 +158,7 @@ private:
     struct Generation {
         std::uint64_t token{};
         std::uint64_t bound_invocation{};
-        bool release_requested{false};
-        bool clean_exit{false};
-        bool release_result{false};
-        bool release_decided{false};
+        Disposition disposition{Disposition::None};
         bool owner_left{false};
     };
 
@@ -168,9 +169,7 @@ private:
     std::uint64_t arm_thread_{0};
     std::uint64_t arm_context_{0};
     Generation gen_{};
-    // Outcomes of closed generations, keyed by token, so a late/stale Release never reads or writes
-    // the live generation's mutable fields. Bounded history is fine for a test gate.
-    std::unordered_map<std::uint64_t, bool> history_;
+    std::unordered_map<std::uint64_t, Disposition> history_;
 };
 
 }  // namespace Core::GuestCpu::TestGate
