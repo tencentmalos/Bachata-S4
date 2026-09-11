@@ -1,0 +1,18 @@
+FEX in-process session — on-device proof (AYN Thor / API33 / 4KiB)
+Captured 2026-09-11 via a temporarily-exported FexSessionService (reverted to exported=false after).
+The seeded "FEX Smoke" library entry launches the in-process guest_cpu_fex backend; the session UI
+path (Library -> details sheet -> Launch) is present but adb touch injection does not land on the
+Compose bottom-sheet (controller-first UI; a real finger/gamepad works), so the service was driven
+directly for this capture.
+
+=== Natural completion (guest reaches return gate) ===
+FexSessionService: native: page_size=4096 pid=23524 uid=10157 build_id=d7fb57a910e0f6d4e36ea2ee6bdd22d0857c29f4
+FexSession: session running: 4294967296 iterations, gate=0xfc0000000
+FexSession: session stopped: reason=0        # StopReason::Returned
+
+=== User Stop (async RequestInterrupt(Cancel) + WaitStopped, mid-run) ===
+FexSession: session running: 4294967296 iterations, gate=0xfc0000000
+FexSession: session stopped: reason=2        # StopReason::Cancelled
+
+Both: real FEXCore x86-64 execution inside the ordinary app process (same backend the A0
+fex-validation app runs 45/45 on this device). Not a game — a bounded CPU smoke loop.
