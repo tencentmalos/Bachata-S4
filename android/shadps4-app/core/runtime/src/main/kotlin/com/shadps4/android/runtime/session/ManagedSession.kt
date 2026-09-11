@@ -50,7 +50,7 @@ object ManagedSession {
     const val EXTRA_GAME_ID = "game_id"
     const val EXTRA_GAME_PATH = "game_path"
     const val EXTRA_VULKAN_DRIVER = "vulkan_driver"
-    const val SERVICE_CLASS = "com.shadps4.android.service.EmulationService"
+    const val SERVICE_CLASS = "com.shadps4.android.service.FexSessionService"
 
     private val mutableSurface = MutableStateFlow<RuntimeSurface?>(null)
     private val mutableState = MutableStateFlow<ManagedSessionState>(ManagedSessionState.Idle)

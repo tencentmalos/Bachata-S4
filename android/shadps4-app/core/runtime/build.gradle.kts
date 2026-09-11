@@ -1,8 +1,23 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.serialization)
 }
+
+// The prebuilt FEX static libraries are produced by scripts/android/build-fexcore-android via the
+// pinned cmake/fex tree (main repo root). Their directory is supplied as fexBuildDir in
+// local.properties or the FEX_BUILD_DIR env var; the native CMakeLists add_subdirectory()s cmake/fex
+// and links guest_cpu_fex — the same backend the CLI and fex-validation app use.
+// NB: import Properties at the top — the bare `java` identifier is the Java plugin accessor in the
+// Gradle Kotlin DSL, not the java package (A0 hit this).
+val localProps = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
+val fexBuildDir: String =
+    (localProps.getProperty("fexBuildDir") ?: System.getenv("FEX_BUILD_DIR") ?: "").trim()
 
 android {
     namespace = "com.shadps4.android.runtime"
@@ -13,11 +28,26 @@ android {
         minSdk = 33
         ndk { abiFilters += "arm64-v8a" }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        externalNativeBuild {
+            cmake {
+                arguments += listOf(
+                    "-DANDROID_STL=c++_shared",
+                    "-DV0_ENABLE_FEX=ON",
+                    "-DV0_BUILD_TESTS=OFF",
+                    "-DFEX_BUILD_DIR=$fexBuildDir",
+                    "-DCMAKE_BUILD_TYPE=RelWithDebInfo",
+                )
+                cppFlags += listOf("-std=c++20")
+            }
+        }
     }
-    // Native FEX session library (fex_session_jni + cmake/fex + pkg) is wired in at stage (d).
-    // For the Kotlin-only stages the reference winlator/vortek/adrenotools CMake is intentionally
-    // NOT built (those subsystems are discarded); externalNativeBuild is added back with the FEX
-    // CMakeLists once the session layer is ported.
+    // Builds libshadps4_fex_session.so from src/main/cpp (FEX in-process session; no winlator/vortek).
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17

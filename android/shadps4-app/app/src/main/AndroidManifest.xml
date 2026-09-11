@@ -22,7 +22,7 @@
             </intent-filter>
         </activity>
         <service
-            android:name=".service.EmulationService"
+            android:name=".service.FexSessionService"
             android:exported="false" />
         <service
             android:name=".service.ImportService"

@@ -145,71 +145,10 @@ tasks.whenTaskAdded {
     }
 }
 
-// Post-assemble gate: fail the build if the freshly built JNI libraries lack the
-// Bachata S4 runtime fixes (unlockHardwareBuffer export, abstract-socket handling,
-// robust vortek server). These markers are lost when CI vendors pristine upstream
-// sources, so verify the actual APK output, not just the sources.
-//
-// Task 5: Each assemble<Flavor><Type> task is wired to a variant-specific
-// verifyNativeRuntimeFixes<VariantName> task that receives the EXACT expected APK
-// path derived from the variant's output metadata — no timestamp-based scanning.
-androidComponents.onVariants { variant ->
-    val verifyTaskName = "verifyNativeRuntimeFixes${variant.name.replaceFirstChar { it.uppercaseChar() }}"
-    // Derive the exact conventional APK directory for this variant.
-    // AGP writes output-metadata.json alongside the APK, which names the exact
-    // file.  We use that file (read at execution time, not config time) so the
-    // path is always exact — no timestamp-based scanning.
-    val flavor = variant.flavorName ?: ""
-    val buildType = variant.buildType ?: ""
-    val conventionalApkDir = layout.buildDirectory.dir(
-        "outputs/apk/${flavor}/${buildType}"
-    )
-    val verifyTask = tasks.register(verifyTaskName) {
-        group = "verification"
-        description = "Checks the exact ${variant.name} APK for Bachata S4 native runtime fixes."
-        // Declare the APK directory as an input so Gradle knows this task
-        // depends on the assemble output without us scanning by timestamp.
-        inputs.dir(conventionalApkDir).optional()
-        doLast {
-            // Read AGP's output-metadata.json to find the exact APK filename
-            // for this variant.  This file is always written by assemble tasks.
-            val dir = conventionalApkDir.get().asFile
-            val metadataFile = File(dir, "output-metadata.json")
-            val apk: File = if (metadataFile.exists()) {
-                // AGP output-metadata format: {"elements":[{"outputFile":"app-fdroid-release.apk",...}]}
-                val metaText = metadataFile.readText()
-                val match = Regex(""""outputFile"\s*:\s*"([^"]+\.apk)"""").find(metaText)
-                val fileName = match?.groupValues?.get(1)
-                    ?: error("Could not parse APK filename from ${metadataFile.absolutePath}")
-                File(dir, fileName).also { f ->
-                    if (!f.exists()) error("APK listed in metadata not found: ${f.absolutePath}")
-                }
-            } else {
-                // Fallback if metadata is absent: accept exactly one .apk in dir.
-                val candidates = dir.listFiles { f -> f.isFile && f.extension == "apk" }
-                    ?.sortedBy { it.name } ?: emptyList()
-                candidates.singleOrNull()
-                    ?: error(
-                        "No output-metadata.json and ${candidates.size} APKs in ${dir.absolutePath} " +
-                        "for variant '${variant.name}': ${candidates.map { it.name }}"
-                    )
-            }
-            val script = File(rootProject.projectDir, "../../runtime/tests/verify-native-fixes.mjs")
-            val process = ProcessBuilder("node", script.absolutePath, apk.absolutePath)
-                .inheritIO()
-                .start()
-            val exit = process.waitFor()
-            if (exit != 0) throw GradleException(
-                "verifyNativeRuntimeFixes failed (exit $exit) for APK: ${apk.absolutePath}"
-            )
-        }
-    }
-    // Wire: assemble<VariantName> finalizes with this variant's verifier.
-    val assembleTaskName = "assemble${variant.name.replaceFirstChar { it.uppercaseChar() }}"
-    tasks.matching { it.name == assembleTaskName }.configureEach {
-        finalizedBy(verifyTask)
-    }
-}
+// The reference project's post-assemble verifyNativeRuntimeFixes gate (which checked the APK for
+// Vortek/Winlator native markers via runtime/tests/verify-native-fixes.mjs) is intentionally
+// removed: this replica discards the winlator/vortek native model and ships the in-process FEX
+// session library instead, so those markers do not — and must not — exist.
 
 androidComponents {
     beforeVariants { variantBuilder ->
