@@ -20,7 +20,14 @@ get_filename_component(REPO_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../../../../../..
 
 add_subdirectory("${REPO_ROOT}/cmake/fex" fex)
 
-add_library(shadps4_fex_session SHARED fex_session_jni.cpp)
+# The embeddable host session: backend-free lifecycle core (SessionCore) plus the
+# FEX-backed adapter. Production build never defines SESSION_TEST_HOOKS, so the
+# handshake gate and UAF tripwire are compiled out.
+add_library(shadps4_fex_session SHARED
+    fex_session_jni.cpp
+    "${REPO_ROOT}/src/core/host_runtime/session_core.cpp"
+    "${REPO_ROOT}/src/core/host_runtime/session_backend.cpp"
+    "${REPO_ROOT}/src/core/host_runtime/session_backend_fex.cpp")
 target_link_libraries(shadps4_fex_session PRIVATE guest_cpu_fex)
 target_include_directories(shadps4_fex_session PRIVATE "${REPO_ROOT}/src")
 target_compile_options(shadps4_fex_session PRIVATE -fexceptions)

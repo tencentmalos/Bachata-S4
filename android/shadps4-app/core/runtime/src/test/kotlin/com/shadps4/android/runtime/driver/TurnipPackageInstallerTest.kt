@@ -1,6 +1,8 @@
 package com.shadps4.android.runtime.driver
 
 import java.nio.file.Files
+import kotlin.io.path.readText
+import kotlin.io.path.writeText
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThrows
@@ -40,7 +42,7 @@ class TurnipPackageInstallerTest {
 
         assertEquals(DriverAbi.LINUX_GLIBC, installed.metadata.abi)
         assertTrue(Files.isRegularFile(installed.icdManifest))
-        assertTrue(Files.readString(installed.icdManifest).contains(installed.library.toString()))
+        assertTrue(installed.icdManifest!!.readText().contains(installed.library.toString()))
     }
 
     @Test

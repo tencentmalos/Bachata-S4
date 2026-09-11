@@ -3,6 +3,8 @@ package com.shadps4.android.runtime.diagnostics
 import java.io.File
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
+import kotlin.io.path.readText
+import kotlin.io.path.writeText
 import java.security.MessageDigest
 import java.util.zip.ZipFile
 import org.junit.Assert.assertEquals
@@ -17,8 +19,8 @@ class DiagnosticBundleBuilderTest {
         val reports = Files.createTempDirectory("diag-reports")
         val appRoot = Files.createTempDirectory("diag-app").toFile()
         val gameRoot = File(appRoot, "games/CUSA00000").also { it.mkdirs() }
-        Files.writeString(session.resolve("application.log"), "app ${appRoot.canonicalPath}/cache\n")
-        Files.writeString(session.resolve("shadps4.log"), "backend ok path=${gameRoot.canonicalPath}/eboot.bin\n")
+        (session.resolve("application.log")).writeText("app ${appRoot.canonicalPath}/cache\n")
+        (session.resolve("shadps4.log")).writeText("backend ok path=${gameRoot.canonicalPath}/eboot.bin\n")
         // intentionally no shadps4-internal.log
 
         val context = sampleContext(session.toString(), exitCode = 133)
@@ -71,8 +73,8 @@ class DiagnosticBundleBuilderTest {
         val reports = Files.createTempDirectory("diag-reports-big")
         val appRoot = Files.createTempDirectory("diag-app-big").toFile()
         val huge = "HEAD_MARKER\n" + ("x".repeat(1000) + "\n").repeat(6000) + "TAIL_MARKER\n"
-        Files.writeString(session.resolve("application.log"), huge)
-        Files.writeString(session.resolve("shadps4.log"), "small\n")
+        (session.resolve("application.log")).writeText(huge)
+        (session.resolve("shadps4.log")).writeText("small\n")
         val builder = DiagnosticBundleBuilder(reports, maxLogBytes = 8_000)
         val result = builder.build(
             DiagnosticBundleBuilder.BuildRequest(
@@ -102,10 +104,10 @@ class DiagnosticBundleBuilderTest {
         val reports = Files.createTempDirectory("diag-retention")
         for (i in 1..5) {
             val f = reports.resolve("bachata-diagnostic-BS4-2026080$i-AAAAAAAA.zip")
-            Files.writeString(f, "x".repeat(100))
+            (f).writeText("x".repeat(100))
             Thread.sleep(5)
         }
-        Files.writeString(reports.resolve("orphan.zip.tmp"), "tmp")
+        (reports.resolve("orphan.zip.tmp")).writeText("tmp")
         DiagnosticRetention.cleanup(reports, maxCount = 3, maxTotalBytes = 50L * 1024 * 1024)
         val zips = Files.list(reports).use { stream ->
             stream.filter { it.fileName.toString().endsWith(".zip") }.count()

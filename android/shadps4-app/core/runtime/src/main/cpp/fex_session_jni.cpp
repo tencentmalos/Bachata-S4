@@ -1,302 +1,199 @@
+// SPDX-FileCopyrightText: Copyright 2026 shadPS4 Emulator Project
+// SPDX-License-Identifier: GPL-2.0-or-later
+
 // JNI surface for the shadps4-app in-process FEX session.
 //
-// A stateful variant of the fex-validation app's validation_jni.cpp: instead of building and tearing
-// down a whole guest session per call, it holds one process-global session (address space + context
-// + owner thread) and exposes a small start/stop/identity surface that FexSessionService drives from
-// the Kotlin side. It uses the *public* guest_cpu API and the same guest_cpu_fex backend the CLI and
-// validation app use — no external process, no BACHATA/1 socket, no Vortek/X.
+// This is now a THIN adapter over Core::HostRuntime::SessionCore. All lifecycle,
+// threading, generation and teardown logic lives in the backend-free SessionCore
+// (src/core/host_runtime), which is unit-tested on the host with a FakeBackend.
+// This file only:
+//   * owns one process-global SessionCore bound to the real FexSessionBackend,
+//   * marshals stable POD / copied strings across JNI (never a native/guest
+//     pointer),
+//   * catches every C++ exception at the boundary and turns it into a defined
+//     error value, so an exception never crosses JNI.
 //
-// This is the "FEX smoke session" of the A0 plan: it proves the CPU backend is alive inside a normal
-// app process. It runs a bounded x86-64 decrement loop so a Run stays in the JIT long enough for an
-// async Cancel (Stop) to demonstrably interrupt it; it does NOT run a real PS4 game (the Android
-// host is not yet native — see docs).
+// The session still runs a bounded x86-64 decrement loop (CPU-alive proof); it is
+// NOT a real PS4 game (the Android host is not yet native -- see HN1/HN2 in
+// docs/specs/android-native-host-v1.md).
 //
-// Guest routine (hand-assembled, position-independent), rdi = iteration count:
-//     loop:  sub rdi, 1            ; 48 83 ef 01
-//            jne loop              ; 75 fa
-//            movabs r15, <gate>    ; 49 bf <imm64>
-//            jmp r15               ; 41 ff e7   (-> StopReason::Returned)
+// The old defects this replaces: a non-owner Stop dereferenced a raw CpuContext
+// the owner could free concurrently (UAF); a Stop during preparation was dropped;
+// two callers raced one std::thread::join; a guest fault was reported as exit 0.
+// SessionCore fixes all four; this file cannot reintroduce them because it holds
+// no raw runtime pointer and performs no join itself.
+
 #include <jni.h>
 
-#include <array>
-#include <atomic>
-#include <cstdint>
 #include <cstdio>
-#include <cstring>
-#include <memory>
-#include <mutex>
 #include <string>
-#include <thread>
-#include <vector>
 
-#include <elf.h>
-#include <link.h>
-#include <sys/mman.h>
 #include <unistd.h>
 
 #include <android/log.h>
 
-#include "core/guest_cpu/api/address_space.h"
-#include "core/guest_cpu/api/context.h"
-#include "core/guest_cpu/api/execution.h"
-#include "core/guest_cpu/api/memory.h"
-#include "core/guest_cpu/api/registers.h"
-#include "core/guest_cpu/api/result.h"
-#include "core/guest_cpu/api/status.h"
-
-using namespace Core::GuestCpu;
+#include "core/host_runtime/session_backend_fex.h"
+#include "core/host_runtime/session_core.h"
 
 namespace {
 
-constexpr std::uint64_t kReservationSize = std::uint64_t{1} << 28;
-constexpr std::uint64_t kMappingSize = 0x4000;
-constexpr std::uint64_t kCodeOffset = 0x10000;
-constexpr std::uint64_t kStackOffset = 0x20000;
+using Core::HostRuntime::FexSessionBackend;
+using Core::HostRuntime::Phase;
+using Core::HostRuntime::SessionCore;
+using Core::HostRuntime::SessionParams;
+using Core::HostRuntime::StopResult;
+using Core::HostRuntime::Terminal;
+using Core::HostRuntime::WaitPhaseResult;
 
 constexpr const char* kTag = "FexSession";
 
-void LogI(const char* fmt, ...) {
-    va_list ap;
-    va_start(ap, fmt);
-    __android_log_vprint(ANDROID_LOG_INFO, kTag, fmt, ap);
-    va_end(ap);
+FexSessionBackend& Backend() {
+    static FexSessionBackend backend;
+    return backend;
 }
 
-// Assemble the bounded decrement loop; the caller patches the return-gate address.
-std::vector<std::uint8_t> BuildLoopRoutine(std::uint64_t gate_address) {
-    std::vector<std::uint8_t> code;
-    auto emit = [&](std::initializer_list<std::uint8_t> bytes) {
-        for (auto b : bytes) code.push_back(b);
-    };
-    emit({0x48, 0x83, 0xef, 0x01});          // sub rdi, 1
-    emit({0x75, 0xfa});                       // jne -6 (back to sub)
-    emit({0x49, 0xbf});                       // movabs r15, imm64
-    for (int i = 0; i < 8; ++i)
-        code.push_back(static_cast<std::uint8_t>((gate_address >> (8 * i)) & 0xff));
-    emit({0x41, 0xff, 0xe7});                 // jmp r15
-    return code;
+SessionCore& Session() {
+    static SessionCore core{Backend()};
+    return core;
 }
 
-std::string ReadBuildId() {
-    std::string result;
-    dl_iterate_phdr(
-        [](dl_phdr_info* info, std::size_t, void* data) -> int {
-            auto* out = static_cast<std::string*>(data);
-            const char* name = info->dlpi_name ? info->dlpi_name : "";
-            if (std::strstr(name, "shadps4_fex_session") == nullptr)
-                return 0;
-            for (unsigned i = 0; i < info->dlpi_phnum; ++i) {
-                const ElfW(Phdr)& ph = info->dlpi_phdr[i];
-                if (ph.p_type != PT_NOTE)
-                    continue;
-                const auto* base =
-                    reinterpret_cast<const unsigned char*>(info->dlpi_addr + ph.p_vaddr);
-                std::size_t left = ph.p_memsz;
-                std::size_t off = 0;
-                while (off + 12 <= left) {
-                    const auto namesz = *reinterpret_cast<const std::uint32_t*>(base + off);
-                    const auto descsz = *reinterpret_cast<const std::uint32_t*>(base + off + 4);
-                    const auto type = *reinterpret_cast<const std::uint32_t*>(base + off + 8);
-                    if (type == NT_GNU_BUILD_ID) {
-                        const unsigned char* d = base + off + 12 + ((namesz + 3) & ~3u);
-                        char buf[3];
-                        for (std::uint32_t b = 0; b < descsz; ++b) {
-                            std::snprintf(buf, sizeof(buf), "%02x", d[b]);
-                            *out += buf;
-                        }
-                        return 1;
-                    }
-                    off += 12 + ((namesz + 3) & ~3u) + ((descsz + 3) & ~3u);
-                    if (off >= left) break;
-                }
-            }
-            return 0;
-        },
-        &result);
-    return result;
+std::uint64_t MsToNs(jlong ms) {
+    return ms > 0 ? static_cast<std::uint64_t>(ms) * 1'000'000ull : 0ull;
 }
 
-// One process-global session. The owner thread runs Create/Run/Destroy; Stop comes from any thread
-// via RequestInterrupt(Cancel) + WaitStopped, which the API explicitly allows off-owner.
-struct Session {
-    std::mutex mutex;
-    std::thread owner;
-    std::atomic<bool> running{false};
-
-    std::unique_ptr<GuestAddressSpace> space;
-    std::unique_ptr<CpuContext> context;
-    ThreadHandle thread{};
-
-    std::string last_error;
-    std::atomic<int> last_stop_reason{-1};  // StopReason as int, -1 = none yet
-};
-
-Session g_session;
-
-void OwnerRun(std::uint64_t iterations) {
-    auto fail = [&](const std::string& e) {
-        std::lock_guard<std::mutex> lk(g_session.mutex);
-        g_session.last_error = e;
-        LogI("session error: %s", e.c_str());
-    };
-
-    AddressSpaceConfig cfg{};
-    cfg.reservation_size = kReservationSize;
-    cfg.max_address = QueryBackendCapabilities().max_guest_address;
-    auto space_r = GuestAddressSpace::Create(cfg);
-    if (!space_r) { fail("address space: " + Describe(space_r.GetError())); g_session.running = false; return; }
-    auto space = std::move(space_r).Value();
-
-    const std::uint64_t base = space->ReservationBase().value;
-    const std::uint64_t code_base = base + kCodeOffset;
-    const std::uint64_t stack_top = base + kStackOffset + kMappingSize - 16;
-
-    if (auto m = space->Map(GuestRange{GuestAddress{code_base}, kMappingSize},
-                            GuestPermission::Read | GuestPermission::Write); !m) {
-        fail("map code: " + Describe(m.GetError())); g_session.running = false; return;
-    }
-    if (auto m = space->Map(GuestRange{GuestAddress{stack_top - kMappingSize + 16}, kMappingSize},
-                            GuestPermission::Read | GuestPermission::Write); !m) {
-        fail("map stack: " + Describe(m.GetError())); g_session.running = false; return;
-    }
-
-    auto ctx_r = CreateContext(CpuConfig{}, *space);
-    if (!ctx_r) { fail("create context: " + Describe(ctx_r.GetError())); g_session.running = false; return; }
-    auto context = std::move(ctx_r).Value();
-    const std::uint64_t gate = context->Capabilities().return_gate_address;
-    if (gate == 0) { fail("no return gate"); g_session.running = false; return; }
-
-    auto code = BuildLoopRoutine(gate);
-    if (auto w = space->Write(GuestAddress{code_base},
-                             {reinterpret_cast<const std::byte*>(code.data()), code.size()}); !w) {
-        fail("write code: " + Describe(w.GetError())); g_session.running = false; return;
-    }
-    if (auto p = space->Protect(GuestRange{GuestAddress{code_base}, kMappingSize},
-                               GuestPermission::Read | GuestPermission::Execute); !p) {
-        fail("protect code: " + Describe(p.GetError())); g_session.running = false; return;
-    }
-
-    ThreadInit init{};
-    init.entry_rip = GuestCodeAddress{code_base};
-    init.initial_rsp = GuestAddress{stack_top};
-    init.guest_tid = 1;
-    init.initial_state.fields = RegisterValidity::Gpr;
-    init.initial_state.gpr_mask = (1u << Index(Gpr::Rdi));
-    init.initial_state.values.Set(Gpr::Rdi, iterations);
-
-    auto th_r = context->CreateThread(init);
-    if (!th_r) { fail("create thread: " + Describe(th_r.GetError())); g_session.running = false; return; }
-
-    {
-        std::lock_guard<std::mutex> lk(g_session.mutex);
-        g_session.space = std::move(space);
-        g_session.context = std::move(context);
-        g_session.thread = th_r.Value();
-    }
-
-    LogI("session running: %llu iterations, gate=0x%llx",
-         static_cast<unsigned long long>(iterations), static_cast<unsigned long long>(gate));
-
-    auto run = g_session.context->Run(g_session.thread, RunOptions{});
-    if (run) {
-        g_session.last_stop_reason = static_cast<int>(run.Value().primary_reason);
-        LogI("session stopped: reason=%d", static_cast<int>(run.Value().primary_reason));
-    } else {
-        fail("run: " + Describe(run.GetError()));
-    }
-
-    (void)g_session.context->DestroyThread(g_session.thread);
-    {
-        std::lock_guard<std::mutex> lk(g_session.mutex);
-        g_session.context.reset();
-        g_session.space.reset();
-        g_session.thread = ThreadHandle{};
-    }
-    g_session.running = false;
+// Phase ordinals the Kotlin side mirrors. Kept in one place; must match
+// NativeFexSession.PHASE_* on the Kotlin side.
+jint PhaseOrdinal(Phase phase) {
+    return static_cast<jint>(phase);
 }
 
 }  // namespace
 
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_shadps4_android_runtime_session_NativeFexSession_nativeIdentity(JNIEnv* env, jclass) {
-    char msg[256];
-    std::snprintf(msg, sizeof(msg), "page_size=%ld pid=%d uid=%d build_id=%s",
-                  sysconf(_SC_PAGESIZE), static_cast<int>(getpid()), static_cast<int>(getuid()),
-                  ReadBuildId().c_str());
-    return env->NewStringUTF(msg);
+    try {
+        char msg[128];
+        std::snprintf(msg, sizeof(msg), "page_size=%ld pid=%d uid=%d",
+                      sysconf(_SC_PAGESIZE), static_cast<int>(getpid()),
+                      static_cast<int>(getuid()));
+        return env->NewStringUTF(msg);
+    } catch (...) {
+        return env->NewStringUTF("identity-error");
+    }
 }
 
-// Starts the smoke session on a dedicated owner thread. Returns true if a new session was started,
-// false if one is already running. `iterations` bounds the loop (large => stays live long enough to
-// be interrupted by stop; still finite so a natural Returned end is reachable).
-extern "C" JNIEXPORT jboolean JNICALL
-Java_com_shadps4_android_runtime_session_NativeFexSession_nativeStart(
-        JNIEnv* env, jclass, jlong iterations) {
-    // Route FEXCore diagnostics to logcat (tag FexCore) — Android discards stderr.
-    ::setenv("GUEST_CPU_DEBUG", "1", 0);
-    bool expected = false;
-    if (!g_session.running.compare_exchange_strong(expected, true))
-        return JNI_FALSE;  // already running
-    {
-        std::lock_guard<std::mutex> lk(g_session.mutex);
-        g_session.last_error.clear();
-        g_session.last_stop_reason = -1;
-        if (g_session.owner.joinable()) g_session.owner.join();
+// Starts a session. Returns the new generation (>0), or 0 if a session is already
+// running or the owner thread could not be spawned.
+extern "C" JNIEXPORT jlong JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeStart(JNIEnv* env, jclass,
+                                                                      jstring content_id,
+                                                                      jlong iterations) {
+    try {
+        SessionParams params;
+        if (content_id != nullptr) {
+            const char* c = env->GetStringUTFChars(content_id, nullptr);
+            if (c != nullptr) {
+                params.content_id = c;
+                env->ReleaseStringUTFChars(content_id, c);
+            }
+        }
+        params.iterations = iterations > 0 ? static_cast<std::uint64_t>(iterations) : 0;
+        return static_cast<jlong>(Session().Start(params));
+    } catch (const std::exception& e) {
+        __android_log_print(ANDROID_LOG_ERROR, kTag, "nativeStart threw: %s", e.what());
+        return 0;
+    } catch (...) {
+        __android_log_print(ANDROID_LOG_ERROR, kTag, "nativeStart threw");
+        return 0;
     }
-    const std::uint64_t iters = iterations > 0 ? static_cast<std::uint64_t>(iterations)
-                                               : (std::uint64_t{1} << 32);
-    g_session.owner = std::thread(OwnerRun, iters);
-    return JNI_TRUE;
 }
 
-// Async stop: RequestInterrupt(Cancel) + WaitStopped from this (non-owner) thread, then let the
-// owner thread's Run return Cancelled and tear the session down.
-extern "C" JNIEXPORT jboolean JNICALL
-Java_com_shadps4_android_runtime_session_NativeFexSession_nativeRequestStop(
-        JNIEnv* env, jclass, jlong timeout_ms) {
-    CpuContext* ctx = nullptr;
-    ThreadHandle th{};
-    {
-        std::lock_guard<std::mutex> lk(g_session.mutex);
-        ctx = g_session.context.get();
-        th = g_session.thread;
+// Requests a stop of `generation`. Returns a StopResult ordinal.
+extern "C" JNIEXPORT jint JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeRequestStop(JNIEnv*, jclass,
+                                                                           jlong generation,
+                                                                           jlong timeout_ms) {
+    try {
+        const auto r = Session().RequestStop(static_cast<std::uint64_t>(generation), MsToNs(timeout_ms));
+        return static_cast<jint>(r);
+    } catch (...) {
+        return static_cast<jint>(StopResult::Error);
     }
-    if (ctx == nullptr || !th.IsValid())
-        return JNI_FALSE;
-
-    auto ticket = ctx->RequestInterrupt(th, InterruptReason::Cancel);
-    if (!ticket) {
-        std::lock_guard<std::mutex> lk(g_session.mutex);
-        g_session.last_error = "request stop: " + Describe(ticket.GetError());
-        return JNI_FALSE;
-    }
-    const std::uint64_t timeout_ns =
-        (timeout_ms > 0 ? static_cast<std::uint64_t>(timeout_ms) : 1000ull) * 1'000'000ull;
-    auto receipt = ctx->WaitStopped(ticket.Value(), timeout_ns);
-    if (!receipt) {
-        std::lock_guard<std::mutex> lk(g_session.mutex);
-        g_session.last_error = "wait stopped: " + Describe(receipt.GetError());
-        return JNI_FALSE;
-    }
-    // Owner thread observes Cancelled and tears down; join it so the session is fully idle.
-    if (g_session.owner.joinable()) g_session.owner.join();
-    return JNI_TRUE;
 }
 
-extern "C" JNIEXPORT jboolean JNICALL
-Java_com_shadps4_android_runtime_session_NativeFexSession_nativeIsRunning(JNIEnv*, jclass) {
-    return g_session.running.load() ? JNI_TRUE : JNI_FALSE;
+// Waits for `generation` to reach `target_phase` (or later). Returns a
+// WaitPhaseResult ordinal.
+extern "C" JNIEXPORT jint JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeWaitPhase(JNIEnv*, jclass,
+                                                                         jlong generation,
+                                                                         jint target_phase,
+                                                                         jlong deadline_ms) {
+    try {
+        const auto r = Session().WaitPhase(static_cast<std::uint64_t>(generation),
+                                        static_cast<Phase>(target_phase), MsToNs(deadline_ms));
+        return static_cast<jint>(r);
+    } catch (...) {
+        return static_cast<jint>(WaitPhaseResult::Timeout);
+    }
+}
+
+// Waits for a terminal. Returns the RunOutcome ordinal, or -1 on timeout (session
+// still owned; NOT idle).
+extern "C" JNIEXPORT jint JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeWaitTerminal(JNIEnv*, jclass,
+                                                                            jlong generation,
+                                                                            jlong deadline_ms) {
+    try {
+        Terminal t;
+        if (!Session().WaitTerminal(static_cast<std::uint64_t>(generation), MsToNs(deadline_ms), t))
+            return -1;
+        return static_cast<jint>(t.outcome);
+    } catch (...) {
+        return -1;
+    }
 }
 
 extern "C" JNIEXPORT jint JNICALL
-Java_com_shadps4_android_runtime_session_NativeFexSession_nativeLastStopReason(JNIEnv*, jclass) {
-    return static_cast<jint>(g_session.last_stop_reason.load());
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeTerminalErrorCategory(JNIEnv*,
+                                                                                     jclass,
+                                                                                     jlong gen) {
+    try {
+        Terminal t;
+        if (!Session().TryGetTerminal(static_cast<std::uint64_t>(gen), t))
+            return 0;
+        return static_cast<jint>(t.error_category);
+    } catch (...) {
+        return 0;
+    }
 }
 
 extern "C" JNIEXPORT jstring JNICALL
-Java_com_shadps4_android_runtime_session_NativeFexSession_nativeLastError(JNIEnv* env, jclass) {
-    std::lock_guard<std::mutex> lk(g_session.mutex);
-    if (g_session.last_error.empty())
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeTerminalDetail(JNIEnv* env, jclass,
+                                                                              jlong gen) {
+    try {
+        Terminal t;
+        if (!Session().TryGetTerminal(static_cast<std::uint64_t>(gen), t) || t.detail.empty())
+            return nullptr;
+        return env->NewStringUTF(t.detail.c_str());
+    } catch (...) {
         return nullptr;
-    return env->NewStringUTF(g_session.last_error.c_str());
+    }
+}
+
+extern "C" JNIEXPORT jlong JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeCurrentGeneration(JNIEnv*, jclass) {
+    try {
+        return static_cast<jlong>(Session().CurrentGeneration());
+    } catch (...) {
+        return 0;
+    }
+}
+
+extern "C" JNIEXPORT jint JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativePhase(JNIEnv*, jclass, jlong gen) {
+    try {
+        return PhaseOrdinal(Session().QueryPhase(static_cast<std::uint64_t>(gen)));
+    } catch (...) {
+        return PhaseOrdinal(Phase::Idle);
+    }
 }

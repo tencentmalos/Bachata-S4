@@ -3,6 +3,8 @@ package com.shadps4.android.runtime.driver
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.nio.file.Files
+import kotlin.io.path.readText
+import kotlin.io.path.writeText
 import java.security.MessageDigest
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -37,7 +39,7 @@ class BundledTurnipInstallerTest {
         assertTrue(Files.isRegularFile(requireNotNull(first.icdManifest)))
         assertEquals(
             "test-v1",
-            Files.readString(root.resolve(BundledTurnipInstaller.markerFileName("test-v1"))).trim(),
+            (root.resolve(BundledTurnipInstaller.markerFileName("test-v1"))).readText().trim(),
         )
     }
 
@@ -82,7 +84,7 @@ class BundledTurnipInstallerTest {
         assertNotEquals(first.metadata.id, second.metadata.id)
         assertEquals(
             "v2",
-            Files.readString(root.resolve(BundledTurnipInstaller.markerFileName("v2"))).trim(),
+            (root.resolve(BundledTurnipInstaller.markerFileName("v2"))).readText().trim(),
         )
         assertEquals(hash2, second.metadata.sha256)
     }

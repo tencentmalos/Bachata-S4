@@ -51,7 +51,14 @@ class SessionViewModel @Inject constructor(
     }
 
     fun launch(gameId: String) {
-        if (state.value is ManagedSessionState.Running || state.value is ManagedSessionState.Preparing) return
+        // A session in any active phase must not be re-launched.
+        when (state.value) {
+            is ManagedSessionState.Preparing,
+            is ManagedSessionState.Ready,
+            is ManagedSessionState.Running,
+            is ManagedSessionState.Stopping -> return
+            else -> {}
+        }
         viewModelScope.launch {
             val game = repository.getGame(gameId)
             if (game == null) {

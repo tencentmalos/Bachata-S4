@@ -1,6 +1,8 @@
 package com.shadps4.android.runtime.diagnostics
 
 import java.nio.file.Files
+import kotlin.io.path.readText
+import kotlin.io.path.writeText
 import java.time.Instant
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -17,7 +19,7 @@ class SessionLogTest {
         session.error("Runtime", "backend exited")
 
         assertEquals("20260704-123456-GAME_unsafe_id-abc123", session.directory.fileName.toString())
-        val text = Files.readString(session.applicationLog)
+        val text = (session.applicationLog).readText()
         assertTrue(text.contains("[App.Session] <Info> driver=TURNIP_25_3_0_R11"))
         assertTrue(text.contains("[App.Runtime] <Error> backend exited"))
     }

@@ -5,6 +5,8 @@ import com.shadps4.android.runtime.settings.RuntimeProfileResolver
 import com.shadps4.android.runtime.settings.RuntimeSettingSpec
 import com.shadps4.android.runtime.settings.SettingKind
 import java.nio.file.Files
+import kotlin.io.path.readText
+import kotlin.io.path.writeText
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.boolean
@@ -26,14 +28,11 @@ class ShadPs4ConfigManagerTest {
         val runtimeRoot = temporaryFolder.newFolder("runtime").toPath()
         val config = runtimeRoot.resolve(".local/share/shadPS4/config.json")
         Files.createDirectories(config.parent)
-        Files.writeString(
-            config,
-            """{"General":{"console_language":1},"Vulkan":{"gpu_id":3,"pipeline_cache_enabled":false}}""",
-        )
+        (config).writeText("""{"General":{"console_language":1},"Vulkan":{"gpu_id":3,"pipeline_cache_enabled":false}}""",)
 
         ShadPs4ConfigManager.applyAndroidCompatibilityProfile(runtimeRoot)
 
-        val root = Json.parseToJsonElement(Files.readString(config)).jsonObject
+        val root = Json.parseToJsonElement((config).readText()).jsonObject
         assertTrue(root.getValue("General").jsonObject.getValue("console_language").jsonPrimitive.content == "1")
         val vulkan = root.getValue("Vulkan").jsonObject
         assertTrue(vulkan.getValue("gpu_id").jsonPrimitive.content == "3")
@@ -51,7 +50,7 @@ class ShadPs4ConfigManagerTest {
         ShadPs4ConfigManager.applyAndroidCompatibilityProfile(runtimeRoot)
 
         val config = runtimeRoot.resolve(".local/share/shadPS4/config.json")
-        val vulkan = Json.parseToJsonElement(Files.readString(config)).jsonObject
+        val vulkan = Json.parseToJsonElement((config).readText()).jsonObject
             .getValue("Vulkan").jsonObject
         assertTrue(vulkan.getValue("pipeline_cache_enabled").jsonPrimitive.boolean)
     }
@@ -61,7 +60,7 @@ class ShadPs4ConfigManagerTest {
         val runtimeRoot = temporaryFolder.newFolder("runtime-resolved").toPath()
         val config = runtimeRoot.resolve(".local/share/shadPS4/config.json")
         Files.createDirectories(config.parent)
-        Files.writeString(config, """{"Future":{"keep":true},"GPU":{"null_gpu":false}}""")
+        (config).writeText("""{"Future":{"keep":true},"GPU":{"null_gpu":false}}""")
         val spec = RuntimeSettingSpec(
             id = "gpu.null_gpu",
             nativeKey = "GPU.null_gpu",
@@ -79,7 +78,7 @@ class ShadPs4ConfigManagerTest {
 
         ShadPs4ConfigManager.write(runtimeRoot, resolved)
 
-        val root = Json.parseToJsonElement(Files.readString(config)).jsonObject
+        val root = Json.parseToJsonElement((config).readText()).jsonObject
         assertTrue(root.getValue("Future").jsonObject.getValue("keep").jsonPrimitive.boolean)
         assertTrue(root.getValue("GPU").jsonObject.getValue("null_gpu").jsonPrimitive.boolean)
     }
@@ -104,7 +103,7 @@ class ShadPs4ConfigManagerTest {
         ShadPs4ConfigManager.write(runtimeRoot, resolved)
 
         val config = runtimeRoot.resolve(".local/share/shadPS4/config.json")
-        val audioBackend = Json.parseToJsonElement(Files.readString(config)).jsonObject
+        val audioBackend = Json.parseToJsonElement((config).readText()).jsonObject
             .getValue("Audio").jsonObject.getValue("audio_backend").jsonPrimitive.int
         assertTrue(audioBackend == 1)
     }

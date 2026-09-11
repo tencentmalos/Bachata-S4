@@ -58,6 +58,16 @@ if(V0_BUILD_TESTS)
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/guest_cpu/test_run_gate_protocol.cpp")
     target_include_directories(test_run_gate_protocol PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/../../src")
+
+    # HN0.1 host session lifecycle. SessionCore + a deterministic FakeBackend (no FEX, no JIT).
+    # SESSION_TEST_HOOKS arms the handshake gate and the UAF tripwire; production .so never defines
+    # it. Links guest_cpu_api only, so it builds and runs on the CI host.
+    add_executable(session_lifecycle_tests
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../src/core/host_runtime/session_core.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../src/core/host_runtime/session_backend.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/host_runtime/session_lifecycle_tests.cpp")
+    target_link_libraries(session_lifecycle_tests PRIVATE guest_cpu_api Threads::Threads)
+    target_compile_definitions(session_lifecycle_tests PRIVATE SESSION_TEST_HOOKS=1)
 endif()
 
 if(V0_ENABLE_FEX)

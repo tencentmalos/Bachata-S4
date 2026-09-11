@@ -17,81 +17,132 @@ import kotlin.concurrent.thread
  * external glibc shadPS4 process under Box64/FEX + Winlator X + Vortek). Here the session runs the
  * main repo's guest_cpu_fex backend *inside this app process* via [NativeFexSession] — a bounded
  * x86-64 smoke loop that proves the CPU backend is live. It is NOT a real game (the Android host is
- * not yet native; see the plan / docs). The UI seam ([ManagedSession]) is unchanged.
+ * not yet native; see docs/specs/android-native-host-v1.md). The UI seam ([ManagedSession]) is
+ * unchanged.
+ *
+ * Every published state is generation-tagged. The native SessionCore mints the generation and owns
+ * lifecycle; this Service only observes phase/terminal transitions and maps them to UI state. A
+ * late observer from an old session cannot clobber a new one ([ManagedSession.updateIfCurrent]), and
+ * a guest fault is surfaced as Failed, never as a clean exit.
  */
 class FexSessionService : Service() {
+
+    @Volatile private var observer: Thread? = null
 
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
-            ManagedSession.ACTION_START -> handleStart(intent)
+            ManagedSession.ACTION_START -> handleStart(intent, startId)
             ManagedSession.ACTION_STOP -> handleStop()
             else -> Log.w(TAG, "Unknown action: ${intent?.action}")
         }
         return START_NOT_STICKY
     }
 
-    private fun handleStart(intent: Intent) {
+    private fun handleStart(intent: Intent, startId: Int) {
         val gameId = intent.getStringExtra(ManagedSession.EXTRA_GAME_ID) ?: "smoke"
-        if (NativeFexSession.nativeIsRunning()) {
-            Log.w(TAG, "Session already running; ignoring START")
+
+        val generation = NativeFexSession.nativeStart(gameId, DEFAULT_ITERATIONS)
+        if (generation == 0L) {
+            Log.w(TAG, "Session already running or failed to spawn; ignoring START")
             return
         }
-        ManagedSession.update(ManagedSessionState.Preparing("fex"))
-        Log.i(TAG, "native: " + NativeFexSession.nativeIdentity())
+        ManagedSession.beginGeneration(generation)
+        ManagedSession.updateIfCurrent(generation, ManagedSessionState.Preparing("fex", generation))
+        Log.i(TAG, "native: ${NativeFexSession.nativeIdentity()} gen=$generation")
 
-        // Watcher thread: nativeStart spins its own native owner thread and returns immediately once
-        // the guest is running. We publish Running, then poll until the native session ends (natural
-        // Returned, user Cancel, or fault) and publish the terminal state. The UI thread never blocks.
-        thread(name = "fex-session-watch") {
-            val started = NativeFexSession.nativeStart(DEFAULT_ITERATIONS)
-            if (!started) {
-                publishFailed(gameId, "session did not start")
-                return@thread
-            }
-            ManagedSession.update(ManagedSessionState.Running(gameId))
-            // Poll for completion. Stop is driven by handleStop() on another thread.
-            while (NativeFexSession.nativeIsRunning()) {
-                Thread.sleep(50)
-            }
-            val reason = NativeFexSession.nativeLastStopReason()
-            val err = NativeFexSession.nativeLastError()
-            if (err != null) {
-                publishFailed(gameId, err)
-            } else {
-                // StopReason ordinal: see api/execution.h. Returned/Cancelled are clean stops.
-                val userStop = reason == STOP_CANCELLED
-                ManagedSession.update(
-                    ManagedSessionState.Stopped(
-                        exitCode = 0,
-                        termination = ProcessTerminationInfo(
-                            terminationKind = if (userStop) TerminationKind.CANCELLED_BY_USER
-                            else TerminationKind.EXITED,
-                            exitCode = 0,
-                            userRequestedStop = userStop,
-                        ),
-                    ),
+        // One generation-tagged observer. It never fabricates Running: WaitPhase returns
+        // TerminatedBeforeTarget when a session ends before reaching a phase, and we skip it.
+        observer = thread(name = "fex-session-watch-$generation") {
+            // Ready.
+            val toReady = NativeFexSession.nativeWaitPhase(
+                generation, NativeFexSession.PhaseOrdinal.READY, PHASE_DEADLINE_MS,
+            )
+            if (toReady == NativeFexSession.WaitPhase.REACHED_TARGET) {
+                ManagedSession.updateIfCurrent(generation, ManagedSessionState.Ready(gameId, generation))
+                // Running (only if it actually got there).
+                val toRunning = NativeFexSession.nativeWaitPhase(
+                    generation, NativeFexSession.PhaseOrdinal.RUNNING, PHASE_DEADLINE_MS,
                 )
+                if (toRunning == NativeFexSession.WaitPhase.REACHED_TARGET) {
+                    ManagedSession.updateIfCurrent(generation, ManagedSessionState.Running(gameId, generation))
+                }
             }
-            stopSelf()
+
+            // Terminal. -1 = timeout (session still owned): report a failure, do not go Idle.
+            val outcome = NativeFexSession.nativeWaitTerminal(generation, TERMINAL_DEADLINE_MS)
+            publishTerminal(gameId, generation, outcome)
+            stopSelf(startId)
         }
     }
 
     private fun handleStop() {
-        // Async interrupt from this (non-owner) thread; the native watcher observes the stop and
-        // publishes Stopped. Bounded to ~1s, matching the CPU contract's Stop budget.
-        thread(name = "fex-session-stop") {
-            NativeFexSession.nativeRequestStop(STOP_TIMEOUT_MS)
+        val generation = NativeFexSession.nativeCurrentGeneration()
+        if (generation == 0L) return
+        ManagedSession.updateIfCurrent(generation, ManagedSessionState.Stopping("", generation))
+        // Async interrupt from a worker thread; the observer publishes the terminal.
+        thread(name = "fex-session-stop-$generation") {
+            NativeFexSession.nativeRequestStop(generation, STOP_TIMEOUT_MS)
         }
     }
 
-    private fun publishFailed(gameId: String, detail: String) {
-        Log.e(TAG, "session failed for $gameId: $detail")
-        ManagedSession.update(
-            ManagedSessionState.Failed(RuntimeErrorCode.BACKEND_CRASHED, detail),
-        )
-        stopSelf()
+    private fun publishTerminal(gameId: String, generation: Long, outcome: Int) {
+        val detail = NativeFexSession.nativeTerminalDetail(generation)
+        val state = when (outcome) {
+            NativeFexSession.Outcome.RETURNED ->
+                ManagedSessionState.Stopped(
+                    exitCode = 0,
+                    generation = generation,
+                    termination = ProcessTerminationInfo(
+                        terminationKind = TerminationKind.EXITED,
+                        exitCode = 0,
+                        userRequestedStop = false,
+                    ),
+                )
+            NativeFexSession.Outcome.CANCELLED ->
+                ManagedSessionState.Stopped(
+                    exitCode = 0,
+                    generation = generation,
+                    termination = ProcessTerminationInfo(
+                        terminationKind = TerminationKind.CANCELLED_BY_USER,
+                        exitCode = 0,
+                        userRequestedStop = true,
+                    ),
+                )
+            // GuestFault / BackendFailure / Unsupported / Unexpected / StartFailed / Timeout(-1):
+            // all real failures. Never exit-0.
+            else ->
+                ManagedSessionState.Failed(
+                    code = RuntimeErrorCode.BACKEND_CRASHED,
+                    detail = terminalDetailFor(outcome, detail),
+                    generation = generation,
+                )
+        }
+        ManagedSession.updateIfCurrent(generation, state)
+    }
+
+    private fun terminalDetailFor(outcome: Int, detail: String?): String {
+        val base = when (outcome) {
+            NativeFexSession.Outcome.FAULTED -> "guest fault"
+            NativeFexSession.Outcome.BACKEND_FAILED -> "backend failure"
+            NativeFexSession.Outcome.UNSUPPORTED -> "unsupported"
+            NativeFexSession.Outcome.UNEXPECTED -> "unexpected stop"
+            NativeFexSession.Outcome.START_FAILED -> "session failed to start"
+            NativeFexSession.Outcome.TIMEOUT -> "stop timed out; session not exited"
+            else -> "session failed (outcome=$outcome)"
+        }
+        return if (detail.isNullOrEmpty()) base else "$base: $detail"
+    }
+
+    override fun onDestroy() {
+        // Do not leave an ownerless native thread. Stop the current generation and wait bounded.
+        val generation = NativeFexSession.nativeCurrentGeneration()
+        if (generation != 0L) {
+            NativeFexSession.nativeRequestStop(generation, STOP_TIMEOUT_MS)
+            NativeFexSession.nativeWaitTerminal(generation, TERMINAL_DEADLINE_MS)
+        }
+        super.onDestroy()
     }
 
     private companion object {
@@ -100,7 +151,7 @@ class FexSessionService : Service() {
         // Returned end is reachable. ~4 billion single-instruction iterations.
         const val DEFAULT_ITERATIONS = 1L shl 32
         const val STOP_TIMEOUT_MS = 1000L
-        // StopReason ordinals from src/core/guest_cpu/api/execution.h (Returned=0 ... Cancelled=2).
-        const val STOP_CANCELLED = 2
+        const val PHASE_DEADLINE_MS = 5000L
+        const val TERMINAL_DEADLINE_MS = 10000L
     }
 }

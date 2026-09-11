@@ -19,15 +19,19 @@ data class FrameTelemetry(val fps: Float = 0f, val frameTimeMs: Float = 0f)
 
 sealed interface ManagedSessionState {
     data object Idle : ManagedSessionState
-    data class Preparing(val stage: String) : ManagedSessionState
-    data class Running(val gameId: String) : ManagedSessionState
+    data class Preparing(val stage: String, val generation: Long = 0L) : ManagedSessionState
+    data class Ready(val gameId: String, val generation: Long) : ManagedSessionState
+    data class Running(val gameId: String, val generation: Long = 0L) : ManagedSessionState
+    data class Stopping(val gameId: String, val generation: Long) : ManagedSessionState
     data class Failed(
         val code: RuntimeErrorCode,
         val detail: String,
+        val generation: Long = 0L,
         val reportContext: DiagnosticReportContext? = null,
     ) : ManagedSessionState
     data class Stopped(
         val exitCode: Int?,
+        val generation: Long = 0L,
         val termination: ProcessTerminationInfo? = null,
         val reportContext: DiagnosticReportContext? = null,
     ) : ManagedSessionState {
@@ -68,6 +72,22 @@ object ManagedSession {
         if (mutableSurface.value?.surface === surface) mutableSurface.value = null
     }
     fun update(value: ManagedSessionState) { mutableState.value = value }
+
+    // Generation guard: a late observer from an old session must not clobber a newer one. The
+    // native SessionCore is the source of truth for generation identity; this mirror lets the
+    // Service publish states without a stale watcher overwriting the current session's UI state.
+    @Volatile private var currentGeneration = 0L
+
+    @Synchronized
+    fun beginGeneration(generation: Long) {
+        if (generation > currentGeneration) currentGeneration = generation
+    }
+
+    /** Publish [state] only if [generation] is the current one; drops stale-generation updates. */
+    @Synchronized
+    fun updateIfCurrent(generation: Long, state: ManagedSessionState) {
+        if (generation == currentGeneration) mutableState.value = state
+    }
     fun attachControllerSink(sink: (ControllerSnapshot) -> Unit) { controllerSink.set(sink) }
     fun detachControllerSink(sink: (ControllerSnapshot) -> Unit) { controllerSink.compareAndSet(sink, null) }
     fun submitController(snapshot: ControllerSnapshot) { submitController(0, snapshot) }

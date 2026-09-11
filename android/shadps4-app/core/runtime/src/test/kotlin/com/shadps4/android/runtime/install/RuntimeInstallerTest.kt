@@ -4,6 +4,8 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InterruptedIOException
 import java.nio.file.Files
+import kotlin.io.path.readText
+import kotlin.io.path.writeText
 import java.nio.file.Path
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -111,7 +113,7 @@ class RuntimeInstallerTest {
         val root = runtimeRoot()
         val currentFile = root.resolve("1.0.0/lib/runtime.so")
         Files.createDirectories(currentFile.parent)
-        Files.writeString(currentFile, "current")
+        (currentFile).writeText("current")
         val replacement = "replacement".encodeToByteArray()
         val installer = RuntimeInstaller(root) { _, _ ->
             throw InterruptedIOException("simulated interruption")
@@ -123,7 +125,7 @@ class RuntimeInstallerTest {
         )
 
         assertTrue(result.isFailure)
-        assertTrue(Files.readString(currentFile) == "current")
+        assertTrue((currentFile).readText() == "current")
         assertFalse(Files.exists(root.resolve("2.0.0")))
         assertFalse(Files.exists(root.resolve(".staging-2.0.0")))
     }

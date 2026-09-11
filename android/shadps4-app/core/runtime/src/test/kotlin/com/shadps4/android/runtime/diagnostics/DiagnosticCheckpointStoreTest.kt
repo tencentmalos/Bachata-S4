@@ -1,6 +1,8 @@
 package com.shadps4.android.runtime.diagnostics
 
 import java.nio.file.Files
+import kotlin.io.path.readText
+import kotlin.io.path.writeText
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -20,7 +22,7 @@ class DiagnosticCheckpointStoreTest {
         assertNotNull(loaded)
         assertEquals("BACKEND_LAUNCHED", loaded!!.lastCheckpoint)
         assertTrue(loaded.checkpoints.size >= 2)
-        val appLog = Files.readString(log.applicationLog)
+        val appLog = (log.applicationLog).readText()
         assertTrue("checkpoint=BACKEND_LAUNCHED" in appLog)
         // Partial temp must not be treated as valid final metadata.
         assertTrue(Files.notExists(dir.resolve("session.json.tmp")))

@@ -132,7 +132,11 @@ fun SessionScreen(
         }
     }
 
-    BackHandler(enabled = state is ManagedSessionState.Running) {
+    BackHandler(
+        enabled = state is ManagedSessionState.Running ||
+            state is ManagedSessionState.Ready ||
+            state is ManagedSessionState.Stopping,
+    ) {
         showStopOverlay = !showStopOverlay
     }
 
@@ -428,7 +432,9 @@ interface TouchLayoutDependencies {
 private fun ManagedSessionState.label(): String = when (this) {
     ManagedSessionState.Idle -> "Idle"
     is ManagedSessionState.Preparing -> "Preparing: $stage"
+    is ManagedSessionState.Ready -> "Ready: $gameId"
     is ManagedSessionState.Running -> "Running: $gameId"
+    is ManagedSessionState.Stopping -> "Stopping: $gameId"
     is ManagedSessionState.Failed -> "Error: $detail"
     is ManagedSessionState.Stopped -> when {
         userRequestedStop -> "Manually exited"
