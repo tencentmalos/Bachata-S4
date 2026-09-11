@@ -39,7 +39,7 @@ import com.shadps4.android.designsystem.BachataScreenHeader
 import com.shadps4.android.designsystem.ForwardFab
 import com.shadps4.android.designsystem.theme.BachataPalette
 import com.shadps4.android.runtime.driver.TurnipReleaseClient
-import com.shadps4.android.runtime.process.RuntimeVulkanDriverIds
+import com.shadps4.android.runtime.driver.RuntimeVulkanDriverIds
 import com.shadps4.android.runtime.settings.ProfileScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

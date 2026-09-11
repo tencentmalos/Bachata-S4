@@ -9,8 +9,8 @@ import com.shadps4.android.data.GameRepository
 import com.shadps4.android.model.RuntimeErrorCode
 import com.shadps4.android.runtime.session.ManagedSession
 import com.shadps4.android.runtime.session.ManagedSessionState
-import com.shadps4.android.runtime.process.RuntimeVulkanDriver
-import com.shadps4.android.runtime.process.RuntimeVulkanDriverPreference
+import com.shadps4.android.runtime.driver.RuntimeVulkanDriver
+import com.shadps4.android.runtime.driver.RuntimeVulkanDriverPreference
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject

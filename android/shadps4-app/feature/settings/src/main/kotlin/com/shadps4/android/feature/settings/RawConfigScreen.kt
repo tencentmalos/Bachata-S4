@@ -53,7 +53,7 @@ fun RawConfigScreen(
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Edit raw JSON and environment variables. Drafts must pass validation before saving.",
+                    text = "Edit raw shadPS4 JSON. Drafts must pass validation before saving.",
                     style = MaterialTheme.typography.bodySmall,
                     color = BachataPalette.Secondary
                 )
@@ -64,19 +64,6 @@ fun RawConfigScreen(
             value = state.shadPs4Json,
             onValueChange = viewModel::editShadPs4,
             label = { Text("shadPS4 JSON") },
-            textStyle = MaterialTheme.typography.bodyMedium.copy(
-                fontFamily = FontFamily.Monospace,
-                color = BachataPalette.Primary
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-        )
-
-        OutlinedTextField(
-            value = state.box64Environment,
-            onValueChange = viewModel::editBox64,
-            label = { Text("Box64 Environment Variables") },
             textStyle = MaterialTheme.typography.bodyMedium.copy(
                 fontFamily = FontFamily.Monospace,
                 color = BachataPalette.Primary

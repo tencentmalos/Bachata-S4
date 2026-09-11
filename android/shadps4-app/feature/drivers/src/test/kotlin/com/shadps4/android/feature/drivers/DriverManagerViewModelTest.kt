@@ -5,7 +5,7 @@ import com.shadps4.android.runtime.driver.DriverAbi
 import com.shadps4.android.runtime.driver.InstalledDriver
 import com.shadps4.android.runtime.driver.InstalledDriverMetadata
 import com.shadps4.android.runtime.driver.TurnipReleaseAsset
-import com.shadps4.android.runtime.process.VulkanDriverConfiguration
+import com.shadps4.android.runtime.driver.VulkanDriverConfiguration
 import com.shadps4.android.runtime.settings.ProfileScope
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -110,7 +110,7 @@ class DriverManagerViewModelTest {
         override fun remove(id: String) = remote
         override fun configurationFor(
             driverId: String,
-            context: com.shadps4.android.runtime.process.VulkanDriverResolveContext,
+            context: com.shadps4.android.runtime.driver.VulkanDriverResolveContext,
         ): VulkanDriverConfiguration {
             error("not used in tests")
         }

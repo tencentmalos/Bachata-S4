@@ -61,18 +61,6 @@ class RuntimeProfileResolverTest {
     }
 
     @Test
-    fun box64PresetSupportsGlobalAndGameOverride() {
-        val resolver = RuntimeProfileResolver(listOf(nullGpu))
-        val global = RuntimeProfile(box64Preset = Box64Preset.FAST)
-
-        assertEquals(Box64Preset.FAST, resolver.resolve(global, RuntimeProfile()).box64Preset)
-        assertEquals(
-            Box64Preset.CUSTOM,
-            resolver.resolve(global, RuntimeProfile(box64Preset = Box64Preset.CUSTOM)).box64Preset,
-        )
-    }
-
-    @Test
     fun guestBackendDefaultsToFex() {
         val resolved = RuntimeProfileResolver(listOf(nullGpu)).resolve(RuntimeProfile(), null)
 

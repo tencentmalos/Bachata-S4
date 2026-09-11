@@ -2,8 +2,8 @@ package com.shadps4.android.feature.drivers
 
 import com.shadps4.android.runtime.driver.InstalledDriver
 import com.shadps4.android.runtime.driver.TurnipReleaseAsset
-import com.shadps4.android.runtime.process.VulkanDriverConfiguration
-import com.shadps4.android.runtime.process.VulkanDriverResolveContext
+import com.shadps4.android.runtime.driver.VulkanDriverConfiguration
+import com.shadps4.android.runtime.driver.VulkanDriverResolveContext
 import java.nio.file.Path
 
 data class DriverManagerCapabilities(
@@ -31,7 +31,7 @@ interface DriverManagerBackend {
     /**
      * Resolve Vulkan configuration for launch. Play backends may remap stale Turnip ids
      * to the bundled package; non-Play backends load any installed id.
-     * [SYSTEM_VORTEK]([com.shadps4.android.runtime.process.RuntimeVulkanDriverIds.SYSTEM_VORTEK])
+     * [SYSTEM_VORTEK]([com.shadps4.android.runtime.driver.RuntimeVulkanDriverIds.SYSTEM_VORTEK])
      * is never remapped to Turnip and requires a session socket in [context].
      */
     fun configurationFor(driverId: String, context: VulkanDriverResolveContext): VulkanDriverConfiguration

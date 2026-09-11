@@ -75,7 +75,6 @@ class RuntimeProfileStoreTest {
         val store = RuntimeProfileStore(temporaryFolder.root)
         val profile = RuntimeProfile(
             unknownShadPs4 = mapOf("Future" to JsonPrimitive("value")),
-            unknownBox64 = mapOf("BOX64_FUTURE" to "1"),
         )
         store.update(ProfileScope.Global) { profile }
 

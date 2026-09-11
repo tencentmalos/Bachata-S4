@@ -3,7 +3,6 @@ package com.shadps4.android.feature.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shadps4.android.data.RuntimeProfileStore
-import com.shadps4.android.runtime.settings.Box64Preset
 import com.shadps4.android.runtime.settings.ProfileScope
 import com.shadps4.android.runtime.settings.RuntimeProfile
 import com.shadps4.android.runtime.settings.RuntimeGuestBackend
@@ -92,8 +91,6 @@ class SettingsViewModel @Inject constructor(
             .onSuccess { setValue(spec, it) }
             .onFailure { mutableState.value = mutableState.value.copy(error = it.message) }
     }
-
-    fun setPreset(preset: Box64Preset) = mutate { it.copy(box64Preset = preset) }
 
     fun setGuestBackend(backend: RuntimeGuestBackend?) = mutate { it.copy(guestBackend = backend) }
 

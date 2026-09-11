@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.shadps4.android.data.RuntimeProfileStore
 import com.shadps4.android.runtime.driver.InstalledDriver
 import com.shadps4.android.runtime.driver.TurnipReleaseAsset
-import com.shadps4.android.runtime.process.RuntimeVulkanDriverIds
+import com.shadps4.android.runtime.driver.RuntimeVulkanDriverIds
 import com.shadps4.android.runtime.settings.ProfileScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject

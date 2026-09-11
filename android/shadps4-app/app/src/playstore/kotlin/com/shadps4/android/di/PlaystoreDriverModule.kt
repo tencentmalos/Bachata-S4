@@ -8,10 +8,10 @@ import com.shadps4.android.runtime.driver.BundledTurnipPackage
 import com.shadps4.android.runtime.driver.BundledTurnipSpec
 import com.shadps4.android.runtime.driver.InstalledDriver
 import com.shadps4.android.runtime.driver.TurnipReleaseAsset
-import com.shadps4.android.runtime.process.RuntimeVulkanDriver
-import com.shadps4.android.runtime.process.RuntimeVulkanDriverIds
-import com.shadps4.android.runtime.process.VulkanDriverConfiguration
-import com.shadps4.android.runtime.process.VulkanDriverResolveContext
+import com.shadps4.android.runtime.driver.RuntimeVulkanDriver
+import com.shadps4.android.runtime.driver.RuntimeVulkanDriverIds
+import com.shadps4.android.runtime.driver.VulkanDriverConfiguration
+import com.shadps4.android.runtime.driver.VulkanDriverResolveContext
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

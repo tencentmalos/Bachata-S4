@@ -7,16 +7,6 @@ import kotlinx.serialization.json.JsonElement
 const val CURRENT_SCHEMA_VERSION = 1
 
 @Serializable
-enum class Box64Preset(val environmentValue: String?) {
-    SAFEST("safest"),
-    SAFE("safe"),
-    DEFAULT("default"),
-    FAST("fast"),
-    FASTEST("fastest"),
-    CUSTOM(null),
-}
-
-@Serializable
 enum class RuntimeGuestBackend {
     FEX,
     BOX64,
@@ -27,9 +17,7 @@ data class RuntimeProfile(
     val schemaVersion: Int = CURRENT_SCHEMA_VERSION,
     val values: Map<String, JsonElement> = emptyMap(),
     val unknownShadPs4: Map<String, JsonElement> = emptyMap(),
-    val unknownBox64: Map<String, String> = emptyMap(),
     val guestBackend: RuntimeGuestBackend? = null,
-    val box64Preset: Box64Preset? = null,
     val driverId: String? = null,
     /**
      * Mali GPU freeflight mitigations (multi-slot detile scratch ring + tick lag).

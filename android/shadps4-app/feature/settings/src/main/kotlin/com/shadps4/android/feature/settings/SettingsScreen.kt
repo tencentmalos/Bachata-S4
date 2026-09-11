@@ -61,7 +61,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.shadps4.android.runtime.settings.Box64Preset
 import com.shadps4.android.runtime.settings.ProfileScope
 import com.shadps4.android.runtime.settings.RuntimeSettingSpec
 import com.shadps4.android.runtime.settings.RuntimeGuestBackend
@@ -130,7 +129,6 @@ fun SettingsScreen(
         onSearch = viewModel::search,
         onCategory = viewModel::selectCategory,
         onScope = viewModel::selectScope,
-        onPreset = viewModel::setPreset,
         onGuestBackend = viewModel::setGuestBackend,
         onValue = viewModel::setText,
         onBoolean = viewModel::setValue,
@@ -154,7 +152,6 @@ private fun SettingsContent(
     onSearch: (String) -> Unit,
     onCategory: (String?) -> Unit,
     onScope: (ProfileScope) -> Unit,
-    onPreset: (Box64Preset) -> Unit,
     onGuestBackend: (RuntimeGuestBackend?) -> Unit,
     onValue: (RuntimeSettingSpec, String) -> Unit,
     onBoolean: (RuntimeSettingSpec, JsonPrimitive) -> Unit,
@@ -167,10 +164,9 @@ private fun SettingsContent(
         ProfileScope.Global -> "Settings"
         is ProfileScope.Game -> "Settings (Game: ${scope.gameId})"
     }
-    val preset = state.profile.box64Preset ?: Box64Preset.DEFAULT
     val gameScope = state.scope is ProfileScope.Game
     val selectedGuestBackend = state.profile.guestBackend
-    // Box64 flags only when guest backend is explicitly Box64 (global null → FEX default).
+    // CPU flags only when guest backend is explicitly Box64 (global null → FEX default).
     val box64Selected = if (gameScope) {
         selectedGuestBackend == RuntimeGuestBackend.BOX64
     } else {
@@ -179,7 +175,6 @@ private fun SettingsContent(
     val shown = when {
         state.runtime != SettingsRuntime.BOX64 -> state.settings
         !box64Selected -> emptyList()
-        preset != Box64Preset.CUSTOM -> emptyList()
         else -> state.settings
     }
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
@@ -361,12 +356,10 @@ private fun SettingsContent(
                             categoryScrollState = categoryScrollState,
                             box64Selected = box64Selected,
                             gameScope = gameScope,
-                            preset = preset,
                             selectedGuestBackend = selectedGuestBackend,
                             appliesNextLaunch = appliesNextLaunch,
                             onTabSelected = onTabSelected,
                             onCategory = onCategory,
-                            onPreset = onPreset,
                             onGuestBackend = onGuestBackend,
                             onValue = onValue,
                             onBoolean = onBoolean,
@@ -474,12 +467,10 @@ private fun SettingsContent(
                             categoryScrollState = categoryScrollState,
                             box64Selected = box64Selected,
                             gameScope = gameScope,
-                            preset = preset,
                             selectedGuestBackend = selectedGuestBackend,
                             appliesNextLaunch = appliesNextLaunch,
                             onTabSelected = onTabSelected,
                             onCategory = onCategory,
-                            onPreset = onPreset,
                             onGuestBackend = onGuestBackend,
                             onValue = onValue,
                             onBoolean = onBoolean,
@@ -510,12 +501,10 @@ private fun SettingsTabBody(
     categoryScrollState: androidx.compose.foundation.ScrollState,
     box64Selected: Boolean,
     gameScope: Boolean,
-    preset: Box64Preset,
     selectedGuestBackend: RuntimeGuestBackend?,
     appliesNextLaunch: Boolean,
     onTabSelected: (String) -> Unit,
     onCategory: (String?) -> Unit,
-    onPreset: (Box64Preset) -> Unit,
     onGuestBackend: (RuntimeGuestBackend?) -> Unit,
     onValue: (RuntimeSettingSpec, String) -> Unit,
     onBoolean: (RuntimeSettingSpec, JsonPrimitive) -> Unit,
@@ -613,18 +602,11 @@ private fun SettingsTabBody(
                     item {
                         BachataPanel(modifier = Modifier.padding(horizontal = 16.dp).fillMaxWidth(), color = BachataPalette.RaisedSurface) {
                             Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Text("Official Box64 preset", fontWeight = FontWeight.SemiBold, color = BachataPalette.Primary)
-                                LazyRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                                    items(Box64Preset.entries) { option ->
-                                        CategoryTab(option.name.lowercase(), preset == option, focused = false) { onPreset(option) }
-                                    }
-                                }
-                                if (preset != Box64Preset.CUSTOM) {
-                                    Text(
-                                        "${preset.name.lowercase()} uses upstream Box64 defaults. Select custom to fine-tune all flags.",
-                                        color = BachataPalette.Secondary,
-                                    )
-                                }
+                                Text("Box64 CPU flags", fontWeight = FontWeight.SemiBold, color = BachataPalette.Primary)
+                                Text(
+                                    "Box64 is a compatibility fallback in the native FEX build; individual flags are edited below.",
+                                    color = BachataPalette.Secondary,
+                                )
                             }
                         }
                     }

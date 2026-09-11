@@ -31,20 +31,10 @@ class RawConfigViewModelTest {
         assertTrue(store.load(ProfileScope.Global).values.isEmpty())
 
         viewModel.editShadPs4("""{"Future":{"keep":true},"GPU":{"null_gpu":true}}""")
-        viewModel.editBox64("BOX64_LOG=1\nBOX64_FUTURE=keep")
         assertTrue(viewModel.validate())
         viewModel.save()
         val saved = store.load(ProfileScope.Global)
         assertTrue(saved.values.isNotEmpty())
         assertTrue("Future" in saved.unknownShadPs4)
-        assertTrue(saved.unknownBox64["BOX64_FUTURE"] == "keep")
-    }
-
-    @Test
-    fun launchOwnedBox64ValueIsRejected() {
-        val viewModel = RawConfigViewModel(RuntimeProfileStore(temporaryFolder.root))
-        viewModel.editBox64("BOX64_PATH=/tmp")
-        assertFalse(viewModel.validate())
-        assertTrue(viewModel.state.value.validation.orEmpty().contains("launch-owned"))
     }
 }
