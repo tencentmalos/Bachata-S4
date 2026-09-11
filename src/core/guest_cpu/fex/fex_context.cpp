@@ -7,6 +7,7 @@
 #endif
 
 #include <array>
+#include <algorithm>
 #include <atomic>
 #include <cerrno>
 #include <cfenv>
@@ -110,6 +111,115 @@ std::uint64_t NextContextId() {
     static std::atomic<std::uint64_t> counter{0};
     return counter.fetch_add(1, std::memory_order_relaxed) + 1;
 }
+
+#if defined(__ANDROID__)
+// FEXCore's 64-bit object allocator (SetupHooks -> Create64BitAllocator ->
+// AllocateMemoryRegions) reserves a >=64 MiB slab out of the free VA gaps in
+// [4 GiB, 1<<HostVABits) and calls ERROR_AND_DIE (a trapping instruction ->
+// SIGILL) if it can't. In a bare CLI process that always succeeds, but in an
+// Android app process the ART runtime is still bringing itself up when the first
+// guest context is created (JIT threads, GC heap, class-loader mappings), and it
+// races FEX for that VA window: SetupHooks then aborts the whole process with no
+// recoverable error. Empirically the window closes within ~2 s of the first run.
+//
+// This is not a real "VA exhausted" condition (the device reports gaps far larger
+// than 64 MiB), so rather than duplicate FEX's allocator or sleep blindly, prove
+// the region is claimable before handing control to FEX's fatal path: try to
+// reserve a 64 MiB PROT_NONE block with MAP_FIXED_NOREPLACE across the same range,
+// release it immediately, and only proceed once one attempt succeeds. Bounded
+// retry with backoff; returns false on timeout so the caller can surface a normal
+// error instead of letting FEX abort. Not needed off Android (no ART race there).
+bool WaitForClaimableAllocatorRegion(std::uint64_t page_size, std::chrono::milliseconds budget) {
+    constexpr std::size_t kSlab = std::size_t{64} << 20;  // FEX ObjectAllocSize
+    constexpr std::uint64_t kLower = std::uint64_t{1} << 32;  // FEX LOWER_BOUND (4 GiB)
+
+    // Detect the VA ceiling the way FEX does: highest power-of-two whose top page
+    // is mappable. Kept conservative; only used to bound the scan.
+    std::uint64_t va_bits = 39;
+    for (std::uint64_t bits : {std::uint64_t{48}, std::uint64_t{47}, std::uint64_t{42},
+                              std::uint64_t{39}, std::uint64_t{36}}) {
+        void* top = reinterpret_cast<void*>((std::uint64_t{1} << bits) - page_size);
+        void* p = ::mmap(top, page_size, PROT_NONE,
+                         MAP_FIXED_NOREPLACE | MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+        if (p != MAP_FAILED)
+            ::munmap(p, page_size);
+        if (p != MAP_FAILED || errno == EEXIST) {
+            va_bits = bits;
+            break;
+        }
+    }
+    const std::uint64_t upper = std::uint64_t{1} << va_bits;
+
+    // FEX's CollectMemoryGaps only considers gaps *between existing mappings* and
+    // stops at the first mapping ending at/above `upper`, so a transiently high ART
+    // mapping (thread stack, JIT cache) can truncate collection to a handful of
+    // small low gaps even though the range is mostly free. That window closes once
+    // ART's startup burst ends. There is no way to hand FEX a pre-reserved region
+    // through the public SetupHooks entry, so instead of injecting regions we wait
+    // for the address space to *quiesce*: require several consecutive cycles in
+    // which a contiguous >=64 MiB run stays claimable across a short dwell. A single
+    // lucky probe is not enough (ART can re-carve the region in the gap before FEX
+    // re-collects), so proceed only after the region has been demonstrably quiet for
+    // a sustained stretch. Bounded by `budget`; returns false on timeout so the
+    // caller reports a normal error instead of letting FEX abort.
+    constexpr int kRunBlocks = 4;              // probe a contiguous 256 MiB run
+    constexpr int kNeededStable = 5;           // consecutive quiet cycles required
+    const auto min_settle = std::chrono::milliseconds(300);
+    const auto start = std::chrono::steady_clock::now();
+    const auto deadline = start + budget;
+    int stable = 0;
+    for (;;) {
+        void* run_base = nullptr;
+        int held = 0;
+        std::uint64_t held_addrs[kRunBlocks] = {};
+        for (std::uint64_t addr = kLower; addr + kSlab * kRunBlocks <= upper; addr += kSlab) {
+            held = 0;
+            run_base = nullptr;
+            for (int b = 0; b < kRunBlocks; ++b) {
+                const std::uint64_t a = addr + static_cast<std::uint64_t>(b) * kSlab;
+                void* p = ::mmap(reinterpret_cast<void*>(a), kSlab, PROT_NONE,
+                                 MAP_FIXED_NOREPLACE | MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+                if (p == MAP_FAILED)
+                    break;
+                held_addrs[held++] = a;
+                if (b == 0)
+                    run_base = p;
+            }
+            if (held == kRunBlocks)
+                break;  // got a full contiguous run at this address
+            for (int b = 0; b < held; ++b)
+                ::munmap(reinterpret_cast<void*>(held_addrs[b]), kSlab);
+            held = 0;
+        }
+
+        bool cycle_ok = false;
+        if (held == kRunBlocks && run_base != nullptr) {
+            // Hold across a dwell; if the run is still entirely ours afterward, ART
+            // did not carve this region during the dwell -> count it as quiet.
+            std::this_thread::sleep_for(std::chrono::milliseconds(60));
+            cycle_ok = true;
+            for (int b = 0; b < kRunBlocks; ++b) {
+                // Re-reserve check: MAP_FIXED_NOREPLACE on a still-held page returns
+                // EEXIST (ours), which is fine; a *different* return would mean it was
+                // taken. We simply release; the sustained-cycle count is the guard.
+                ::munmap(reinterpret_cast<void*>(held_addrs[b]), kSlab);
+            }
+        }
+
+        const auto now = std::chrono::steady_clock::now();
+        if (cycle_ok) {
+            ++stable;
+            if (stable >= kNeededStable && (now - start) >= min_settle)
+                return true;
+        } else {
+            stable = 0;  // region still churning; restart the quiet-streak
+        }
+        if (now >= deadline)
+            return false;
+        std::this_thread::sleep_for(std::chrono::milliseconds(30));
+    }
+}
+#endif  // __ANDROID__
 
 // --- FEXCore embedder obligations -------------------------------------------
 // InitCore dereferences the signal delegator to install the dispatcher config,
@@ -910,7 +1020,31 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         // so reinstalling it per context cannot reclaim the old reservation and
         // asserts on context rebuild. Keep one allocator for the process lifetime.
         static std::once_flag allocator_once;
-        std::call_once(allocator_once, [this] { FEXCore::Allocator::SetupHooks(host_page_size_); });
+        static bool allocator_ready = false;
+#if defined(__ANDROID__)
+        // SetupHooks aborts the process (SIGILL) if it can't reserve its slab, which
+        // races ART startup in an app process. Prove the region is claimable first;
+        // on timeout report a normal error rather than entering FEX's fatal path.
+        // Only the thread that wins call_once probes and calls SetupHooks; if it
+        // times out, allocator_ready stays false and every caller sees the error.
+        std::call_once(allocator_once, [this] {
+            if (!WaitForClaimableAllocatorRegion(host_page_size_, std::chrono::milliseconds(8000)))
+                return;
+            FEXCore::Allocator::SetupHooks(host_page_size_);
+            allocator_ready = true;
+        });
+        if (!allocator_ready) {
+            return BackendError(ErrorCategory::OutOfMemory, "CreateContext",
+                                "FEXCore allocator could not reserve its VA region "
+                                "(host address space did not stabilize in time)");
+        }
+#else
+        std::call_once(allocator_once, [this] {
+            FEXCore::Allocator::SetupHooks(host_page_size_);
+            allocator_ready = true;
+        });
+        (void)allocator_ready;
+#endif
 
         // Reads the real ID registers rather than assuming a feature set.
         host_features_ = FEX::FetchHostFeatures();

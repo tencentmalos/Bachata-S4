@@ -1,0 +1,24 @@
+--------- beginning of main
+09-11 14:35:32.945 17460 17460 I FexValidation: shadPS4 FEX validation app
+09-11 14:35:32.947 17460 17460 I FexValidation: device API=33 model=AYN Thor targetSdk=35
+09-11 14:35:32.949 17460 17460 I FexValidation: native: page_size=4096 pid=17460 uid=10156
+09-11 14:35:32.949 17460 17460 I FexValidation: lib_build_id=176f96d3d3410fb08e36acab28fa0ca6ae65baa3
+09-11 14:35:32.949 17460 17460 I FexValidation: native page_size(syscall)=4096
+09-11 14:35:32.954 17460 17460 I FexValidation: va-gaps:
+09-11 14:35:32.954 17460 17460 I FexValidation: va_bits=39
+09-11 14:35:32.954 17460 17460 I FexValidation: range[4GiB,1<<48): gaps>=64MiB=4 largest=267911794.8MiB @0x7fd8d3d000
+09-11 14:35:32.954 17460 17460 I FexValidation: range[4GiB,1<<47): gaps>=64MiB=4 largest=133694066.8MiB @0x7fd8d3d000
+09-11 14:35:32.954 17460 17460 I FexValidation: range[4GiB,1<<42): gaps>=64MiB=4 largest=3670642.8MiB @0x7fd8d3d000
+09-11 14:35:32.954 17460 17460 I FexValidation: range[4GiB,1<<39): gaps>=64MiB=4 largest=347393.1MiB @0x100000000
+09-11 14:35:32.962 17460 17486 I FexValidation: [auto] holding 3s for debugger attach (pid=17460)
+09-11 14:35:35.969 17460 17486 I FexValidation: [auto 1/10] PASS input=41 output=42 (expected 42) 5ms
+09-11 14:35:35.970 17460 17486 I FexValidation: [auto 2/10] PASS input=42 output=43 (expected 43) 1ms
+09-11 14:35:35.972 17460 17486 I FexValidation: [auto 3/10] PASS input=43 output=44 (expected 44) 1ms
+09-11 14:35:35.973 17460 17486 I FexValidation: [auto 4/10] PASS input=44 output=45 (expected 45) 1ms
+09-11 14:35:35.975 17460 17486 I FexValidation: [auto 5/10] PASS input=45 output=46 (expected 46) 1ms
+09-11 14:35:35.976 17460 17486 I FexValidation: [auto 6/10] PASS input=46 output=47 (expected 47) 1ms
+09-11 14:35:35.977 17460 17486 I FexValidation: [auto 7/10] PASS input=47 output=48 (expected 48) 1ms
+09-11 14:35:35.979 17460 17486 I FexValidation: [auto 8/10] PASS input=48 output=49 (expected 49) 1ms
+09-11 14:35:35.980 17460 17486 I FexValidation: [auto 9/10] PASS input=49 output=50 (expected 50) 1ms
+09-11 14:35:35.981 17460 17486 I FexValidation: [auto 10/10] PASS input=50 output=51 (expected 51) 1ms
+09-11 14:35:35.982 17460 17486 I FexValidation: [auto] summary: 10/10 passed

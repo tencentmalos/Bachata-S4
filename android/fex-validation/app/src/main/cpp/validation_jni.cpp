@@ -23,6 +23,7 @@
 #include <elf.h>
 #include <link.h>
 #include <sys/auxv.h>
+#include <sys/mman.h>
 #include <unistd.h>
 
 #include "core/guest_cpu/api/address_space.h"
@@ -137,6 +138,103 @@ Java_com_shadps4_fexvalidation_NativeBridge_nativeIdentity(JNIEnv* env, jclass) 
 extern "C" JNIEXPORT jint JNICALL
 Java_com_shadps4_fexvalidation_NativeBridge_nativePageSize(JNIEnv*, jclass) {
     return static_cast<jint>(sysconf(_SC_PAGESIZE));
+}
+
+// Read-only VA diagnostic. Reproduces the shape of FEX's object-allocator reservation check
+// (Create64BitAllocator scans gaps in [4GiB, 1<<VABits] for one >= 64 MiB) so we can tell, from a
+// normal ART app process, whether the failure is "no big gap exists at all" vs "FEX's VABits probe
+// lands somewhere unexpected". No mmap side effects: it only parses /proc/self/maps and probes VA
+// bits the same way FEX does (allocate PROT_NONE at the top of a range, immediately unmap).
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_shadps4_fexvalidation_NativeBridge_nativeVaGaps(JNIEnv* env, jclass) {
+    std::string out;
+    auto appendf = [&](const char* fmt, auto... args) {
+        char b[256];
+        std::snprintf(b, sizeof(b), fmt, args...);
+        out += b;
+    };
+
+    // FEX's GetHostVABits(): try mapping the top page of each candidate size; first that succeeds
+    // (or reports EEXIST) is the VA size.
+    static constexpr std::uint64_t kBits[] = {57, 52, 48, 47, 42, 39, 36};
+    const long pg = sysconf(_SC_PAGESIZE);
+    std::uint64_t va_bits = 0;
+    for (std::uint64_t bits : kBits) {
+        void* addr = reinterpret_cast<void*>((std::uint64_t{1} << bits) - static_cast<std::uint64_t>(pg));
+        void* p = ::mmap(addr, static_cast<std::size_t>(pg), PROT_NONE,
+                         MAP_FIXED_NOREPLACE | MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+        if (p != MAP_FAILED)
+            ::munmap(p, static_cast<std::size_t>(pg));
+        if (p != MAP_FAILED || errno == EEXIST) {
+            va_bits = bits;
+            break;
+        }
+    }
+    appendf("va_bits=%llu\n", static_cast<unsigned long long>(va_bits));
+
+    // Largest free gap within [lo, hi), by walking /proc/self/maps.
+    auto largest_gap = [&](std::uint64_t lo, std::uint64_t hi,
+                           std::uint64_t& gap_start, std::uint64_t& gap_size, std::uint64_t& count64) {
+        gap_start = 0;
+        gap_size = 0;
+        count64 = 0;
+        std::FILE* f = std::fopen("/proc/self/maps", "re");
+        if (!f)
+            return;
+        std::uint64_t prev_end = lo;
+        char line[512];
+        while (std::fgets(line, sizeof(line), f)) {
+            std::uint64_t s = 0, e = 0;
+            if (std::sscanf(line, "%llx-%llx",
+                            reinterpret_cast<unsigned long long*>(&s),
+                            reinterpret_cast<unsigned long long*>(&e)) != 2)
+                continue;
+            if (e <= lo || s >= hi)
+                continue;
+            const std::uint64_t cs = s < lo ? lo : s;
+            if (cs > prev_end) {
+                const std::uint64_t g = cs - prev_end;
+                if (g >= (std::uint64_t{64} << 20))
+                    ++count64;
+                if (g > gap_size) {
+                    gap_size = g;
+                    gap_start = prev_end;
+                }
+            }
+            if (e > prev_end)
+                prev_end = e;
+            if (prev_end >= hi)
+                break;
+        }
+        std::fclose(f);
+        if (prev_end < hi) {
+            const std::uint64_t g = hi - prev_end;
+            if (g >= (std::uint64_t{64} << 20))
+                ++count64;
+            if (g > gap_size) {
+                gap_size = g;
+                gap_start = prev_end;
+            }
+        }
+    };
+
+    const std::uint64_t lo = std::uint64_t{0x1} << 32;  // FEX LOWER_BOUND = 4 GiB
+    struct Range { const char* name; std::uint64_t hi; };
+    const Range ranges[] = {
+        {"1<<48", std::uint64_t{1} << 48},
+        {"1<<47", std::uint64_t{1} << 47},
+        {"1<<42", std::uint64_t{1} << 42},
+        {"1<<39", std::uint64_t{1} << 39},
+    };
+    for (const auto& r : ranges) {
+        std::uint64_t gs = 0, gz = 0, c64 = 0;
+        largest_gap(lo, r.hi, gs, gz, c64);
+        appendf("range[4GiB,%s): gaps>=64MiB=%llu largest=%.1fMiB @0x%llx\n",
+                r.name, static_cast<unsigned long long>(c64),
+                static_cast<double>(gz) / (1024.0 * 1024.0),
+                static_cast<unsigned long long>(gs));
+    }
+    return env->NewStringUTF(out.c_str());
 }
 
 // Runs the increment routine once. Returns input+1 on success; on any backend error returns -1 and

@@ -50,6 +50,7 @@ class MainActivity : Activity() {
         try {
             emit("native: " + NativeBridge.nativeIdentity())
             emit("native page_size(syscall)=${NativeBridge.nativePageSize()}")
+            emit("va-gaps:\n" + NativeBridge.nativeVaGaps())
         } catch (t: Throwable) {
             emit("native load failed: ${t.message}")
             return
@@ -61,6 +62,19 @@ class MainActivity : Activity() {
 
     private fun runGuest(iterations: Int, label: String) {
         thread(name = "fex-validation-runner-$label") {
+            // Optional startup delay so a native debugger can attach before the guest run. Controlled
+            // by the system property `debug.fexval.startdelay` (seconds); defaults to 0 = no delay,
+            // so normal runs are unaffected. Set with: adb shell setprop debug.fexval.startdelay 15
+            if (label == "auto") {
+                val delaySec = runCatching {
+                    val p = Runtime.getRuntime().exec(arrayOf("getprop", "debug.fexval.startdelay"))
+                    p.inputStream.bufferedReader().readText().trim().toIntOrNull() ?: 0
+                }.getOrDefault(0)
+                if (delaySec > 0) {
+                    emit("[auto] holding ${delaySec}s for debugger attach (pid=${android.os.Process.myPid()})")
+                    Thread.sleep(delaySec * 1000L)
+                }
+            }
             var passed = 0
             for (i in 1..iterations) {
                 val input = 40L + i

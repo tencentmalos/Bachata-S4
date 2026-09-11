@@ -12,6 +12,9 @@ object NativeBridge {
     /** Host page size. */
     external fun nativePageSize(): Int
 
+    /** Read-only VA-gap diagnostic: detected VA bits and the largest free gap in FEX's search ranges. */
+    external fun nativeVaGaps(): String
+
     /**
      * Run the self-contained x86-64 increment routine in a fresh guest session.
      * Returns input+1 on success, -1 on failure (with [onError] populated).
