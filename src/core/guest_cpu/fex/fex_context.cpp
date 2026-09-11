@@ -171,6 +171,11 @@ struct ThreadInterruptBinding final {
     std::uint64_t pstate{};
     std::uint64_t guest_rip{};
     std::atomic<bool> interrupted{false};
+    // The owner's real host FP environment, saved by Run before switching to the guest FPCR/FPSR.
+    // HandleSyscall installs it around the native call so the native function sees host rounding;
+    // the guest environment is restored before the guest resumes (per-crossing host/guest FP).
+    fenv_t owner_host_fenv{};
+    bool owner_host_fenv_valid{false};
 };
 static_assert(std::atomic<bool>::is_always_lock_free);
 thread_local ThreadInterruptBinding *t_binding = nullptr;
@@ -441,14 +446,49 @@ class FexSyscallHandler final : public FEXCore::HLE::SyscallHandler {
             hle_frame.registers.Set(Gpr::Rcx, Frame->State.gregs[FEXCore::X86State::REG_R10]);
             hle_frame.rcx_normalised_from_r10 = true;
 
-            // Save host FP across the crossing; the native function may use SSE. Restore guest FP
-            // before the guest resumes. This is per-crossing, not just the outermost Run save.
-            fenv_t host_fp{};
-            ::fegetenv(&host_fp);
-            Status call_status = adapter->Invoke(hle_frame);
-            ::fesetenv(&host_fp);
+            // Per-crossing host/guest FP boundary. Install the OWNER's real host environment (saved
+            // by Run before it loaded the guest FPCR), not whatever fegetenv would read here (which
+            // is the guest environment); then invoke the native function. Restore the guest FP state
+            // (derived from its MXCSR, the same mapping Run uses) before the guest resumes.
+            const auto install_guest_fenv = [&frame = Frame->State] {
+                const std::uint64_t mx = frame.mxcsr;
+                const std::uint64_t r = (mx >> 13) & 3;
+                const std::uint64_t fpcr =
+                    (((r & 1) << 1) | ((r & 2) >> 1)) << 22 |
+                    (static_cast<std::uint64_t>((mx >> 15) & 1) << 24);
+                asm volatile("msr fpcr, %0\n\tmsr fpsr, xzr" : : "r"(fpcr) : "memory");
+            };
 
-            if (call_status) {
+            fenv_t owner_fp{};
+            const bool have_owner_fp =
+                t_binding && t_binding->owner_host_fenv_valid;
+            if (have_owner_fp)
+                owner_fp = t_binding->owner_host_fenv;
+            else
+                ::fegetenv(&owner_fp);
+            ::fesetenv(&owner_fp);
+
+            // Exception boundary: a native HLE exception must NOT unwind across the JIT (that aborts
+            // the process, observed as libc++abi terminate / exit 134). Catch it after the native
+            // stack unwound to this C++ frame, finish this frame's cleanup, and route it through the
+            // same syscall-fault immediate exit as a rejected call, attributed to this owner.
+            Status call_status;
+            bool native_threw = false;
+            try {
+                call_status = adapter->Invoke(hle_frame);
+            } catch (const std::exception& ex) {
+                native_threw = true;
+                call_status = BackendError(ErrorCategory::BackendFailure, "HLE",
+                                           std::string{"native HLE threw: "} + ex.what());
+            } catch (...) {
+                native_threw = true;
+                call_status = BackendError(ErrorCategory::BackendFailure, "HLE",
+                                           "native HLE threw an unknown exception");
+            }
+            // Back to the guest rounding for any guest instruction that runs after the call.
+            install_guest_fenv();
+
+            if (call_status && !native_threw) {
                 // The decode-only RCX view must not leak into the architectural state: restore the
                 // guest RCX before encoding return values, then write back only the registers the
                 // adapter actually produced.
@@ -456,10 +496,13 @@ class FexSyscallHandler final : public FEXCore::HLE::SyscallHandler {
                 ApplyRegistersToCpuState(hle_frame.registers, Frame->State);
                 return;
             }
-            // A registered-but-rejected call (bad pointer/signature) is this thread's fault.
-            rejected = true;
-            reject_err = call_status.GetError();
-            last_hle_error_.store(reject_err.category, std::memory_order_release);
+            if (native_threw || !call_status) {
+                // A native exception or a registered-but-rejected call (bad pointer/signature) is
+                // this thread's fault and takes the immediate-exit path.
+                rejected = true;
+                reject_err = call_status.GetError();
+                last_hle_error_.store(reject_err.category, std::memory_order_release);
+            }
         }
 
         if (fault_flag) {
@@ -1100,6 +1143,10 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         t_binding = &binding;
         fenv_t host_fp{};
         ::fegetenv(&host_fp);
+        // Publish the real owner host FP env to the binding so HandleSyscall can install it around
+        // the native call (it runs later, after the guest FPCR has been loaded).
+        binding.owner_host_fenv = host_fp;
+        binding.owner_host_fenv_valid = true;
         // Writing CPUState.mxcsr alone does not update the executing owner's
         // FPCR. Mirror FEX's SetRoundingMode mapping: x86 down/up are reversed
         // relative to ARM64. Start from guest defaults, not host trap/DN/FZ bits.

@@ -26,6 +26,7 @@
 #include <future>
 #include <mutex>
 #include <queue>
+#include <stdexcept>
 #include <string>
 #include <sys/syscall.h>
 #include <thread>
@@ -55,6 +56,11 @@ extern "C" std::uint64_t HleAdd6(std::uint64_t a, std::uint64_t b, std::uint64_t
 // Single-argument HLE for the immediate-exit/state tests: result depends only on rdi, so unrelated
 // seeded registers (including the R10 callgate slot) cannot change the returned rax.
 extern "C" std::uint64_t HleAddOne(std::uint64_t a) { return a + 1; }
+// Native HLE that throws across the crossing. The backend must catch it inside the C++ boundary and
+// return a clean GuestFault (no process abort / exit 134), not unwind across the JIT.
+extern "C" std::uint64_t HleAlwaysThrows(std::uint64_t) {
+    throw std::runtime_error("synthetic native HLE exception");
+}
 extern "C" std::uint64_t HleSpill(std::uint64_t a, std::uint64_t b, std::uint64_t c,
                                   std::uint64_t d, std::uint64_t e, std::uint64_t f,
                                   std::uint64_t g, std::uint64_t h) {
@@ -2554,6 +2560,70 @@ void TestImmediateSyscallExit(Harness& h) {
         Check("G34", "faulting syscall self-loop returns to owner <=1s without external cancel",
               fault && bounded,
               "fault=" + std::to_string(fault) + " elapsed_ms=" + std::to_string(elapsed_ms));
+    }
+
+    // G37: a native HLE that throws must be caught inside the C++ boundary: the process survives (the
+    // test reaching this assertion means no libc++abi terminate / exit 134), Run returns GuestFault
+    // at the syscall point and the successor store never runs. A second valid op on a recreated
+    // thread still works, proving the catch left the backend usable.
+    {
+        const auto throw_op = registry->Register(&HleAlwaysThrows, "always-throws").Value();
+        std::string e;
+        if (LoadFixture(h, *FindFixture("syscall_writes_sentinel"), e)) {
+            const std::uint64_t sentinel_t = h.stack_base + 0xb00;
+            *reinterpret_cast<std::uint64_t*>(sentinel_t) = 0;
+            ThreadInit it{};
+            it.entry_rip = GuestCodeAddress{h.code_base};
+            it.initial_rsp = GuestAddress{h.stack_top};
+            it.guest_tid = 539;
+            it.initial_state.fields = RegisterValidity::Gpr;
+            it.initial_state.gpr_mask = (1u << Index(Gpr::Rax)) | (1u << Index(Gpr::R12));
+            it.initial_state.values.Set(Gpr::Rax, throw_op);
+            it.initial_state.values.Set(Gpr::R12, sentinel_t);
+            auto tt = h.context->CreateThread(it);
+            bool caught = false;
+            if (tt) {
+                auto rt = h.context->Run(tt.Value(), RunOptions{});
+                caught = bool(rt) &&
+                         rt.Value().primary_reason == StopReason::GuestFault &&
+                         *reinterpret_cast<std::uint64_t*>(sentinel_t) == 0 &&
+                         rt.Value().fault && rt.Value().fault->syscall_operation == throw_op &&
+                         rt.Value().fault->syscall_category == ErrorCategory::BackendFailure;
+                (void)h.context->DestroyThread(tt.Value());
+            }
+            Check("G37a", "native HLE throw caught in boundary -> GuestFault, no abort, no successor",
+                  caught,
+                  tt ? "throw not converted to attributed GuestFault" : "thread create failed");
+
+            // Backend stays usable: a fresh thread running a valid op returns cleanly.
+            if (LoadFixture(h, *FindFixture("syscall_writes_sentinel"), e)) {
+                const std::uint64_t sentinel_t2 = h.stack_base + 0xc00;
+                *reinterpret_cast<std::uint64_t*>(sentinel_t2) = 0;
+                ThreadInit it2{};
+                it2.entry_rip = GuestCodeAddress{h.code_base};
+                it2.initial_rsp = GuestAddress{h.stack_top};
+                it2.guest_tid = 540;
+                it2.initial_state.fields = RegisterValidity::Gpr;
+                it2.initial_state.gpr_mask =
+                    (1u << Index(Gpr::Rax)) | (1u << Index(Gpr::R12)) | (1u << Index(Gpr::Rdi));
+                it2.initial_state.values.Set(Gpr::Rax, valid_op);
+                it2.initial_state.values.Set(Gpr::R12, sentinel_t2);
+                it2.initial_state.values.Set(Gpr::Rdi, 5);
+                auto t2 = h.context->CreateThread(it2);
+                bool usable = false;
+                if (t2) {
+                    auto r2 = h.context->Run(t2.Value(), RunOptions{});
+                    usable = bool(r2) &&
+                             r2.Value().primary_reason == StopReason::Returned &&
+                             *reinterpret_cast<std::uint64_t*>(sentinel_t2) == 42 &&
+                             r2.Value().snapshot.registers.Get(Gpr::Rax) == 6;
+                    (void)h.context->DestroyThread(t2.Value());
+                }
+                Check("G37b", "backend still runs a valid HLE after a native throw", usable);
+            }
+        } else {
+            Check("G37a", "load sentinel fixture", false, e);
+        }
     }
 
     // G35: structured fault attribution and no error cross-ownership. An unknown-syscall fault on
