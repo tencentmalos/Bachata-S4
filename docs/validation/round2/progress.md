@@ -1,4 +1,46 @@
-# 二周目进度（2026-09-10 R2-H05 核心完成：立即退出+结构化归属+并发隔离）
+# 二周目进度（2026-09-11 E0/E1-a/E2-a 基础反例已修）
+
+> **N4 复核（[g3-n4-review](g3-n4-review-2026-09-11.md)）的五个确定基础缺陷已全部修复并真机验证**
+> （提交 `22891924` E0、`c7b3f46f` E1-a、`e40a70be` E2-a），完整 guest suite **215 checks ALL PASS**、
+> canonical guest **117 sub 0 失败**、python 23/23、accounting 21/21、tests=OFF 构建含生产 wrapper：
+> - **runner**：G34 补 ownership；G32c 后失败 sub 计数按集合大小（8）；加 mapping↔ownership 完整性校验
+>   （referenced 必有 owner）。复核的 22 项 2 失败清零（现 23/23）。
+> - **gate 三态协议**：Release/Abort/TimedOut 用 token 键的不可变 disposition 并归档；early Release 不再
+>   被 owner 当 clean、重复 Release 跨新 Arm 不翻转（host 11 场景）。WaitAtEntry 失败**不再进 guest**：
+>   恢复中断页/清 running，有 pending 走 interrupted finish（PauseRequested/receipt），无 pending 有界
+>   BackendFailure 且 guest 零推进（复核 no-pending 反例 progress 7e8→0、Run 自行返回）。
+> - **RCX**：R10→RCX 仅解码视图，回写前恢复 guest RCX；G33c（单参 addone + 全 GPR seed）守护
+>   rax=41/rcx=successor/r10 保留；复核 valid probe GPR mismatch 0。
+> - **FP crossing**：Run 把 owner 真实 host fenv 发布到 binding，HandleSyscall native 前装 host、返回后
+>   恢复 guest FPCR/FPSR；fp probe native 现读到 host rounding(1)。
+> - **native 异常**：Invoke 包 try/catch，std::exception/...→归属 BackendFailure，走同一立即出口
+>   （GuestFault/sentinel=0），不跨 JIT unwind（exit134 消除）；G37a 无 abort、G37b throw 后 backend 仍可用。
+>
+> **仍待**：host errno 映射；FP/异常/flag 的完整 10× 矩阵与部分 pin 失败；E2-b 完整 ABI/buffer/typed
+> registry；两 owner 真实 HLE 重叠 100 轮、fault×Pause/Cancel/Shutdown 交错；S0→S3 callback；A0 首个普通 APK。
+> origin 仍 `0e10defc`，这些提交仅本地未 push。
+
+---
+
+# 二周目当前进度（2026-09-11 独立复核）
+
+事实基点`e0693faa`，origin实查`0e10defc`，本地领先24提交。状态仍为**ROUND2_IN_PROGRESS / V0_IN_PROGRESS**。
+最新入口：[N4复核](g3-n4-review-2026-09-11.md) / [独立证据](g3-n4-review-2026-09-11/README.md) / [修复至APK执行spec](../../specs/android-fex-round2-n4-to-apk.md)。
+
+- **已确认**：生产常驻non-spill syscall出口；unknown状态probe的16 GPR/16 XMM无误，原10-GPR缺陷关闭。
+  正式guest114唯一ID/212checks、device contract43/43、host42/43+1SKIP通过；tests=OFF保留生产wrapper且gate/trace符号0。
+- **仍需修复**：合法HLE把R10参数写入架构RCX；native运行在guest舍入模式，native throw仍使隔离测试进程exit134。
+  gate在无pending请求时超时放行guest，早Release终态归档后false变true；这是test-helper缺陷，不能外推为生产Pause失败。
+- **验收纠正**：当前runner自测22项中2失败（G32c计数期望陈旧、G34漏ownership），accounting21/21。
+  G36健康owner跑无syscall循环，未验证两个HLE同时活动；100次/中断交错/部分pin/旧身份矩阵及不可归属frame策略仍缺，N4/H05不能收口。
+- **下一步**：E0 runner/gate→E1返回状态与N4矩阵→E2 FP/异常/ABI→E3单层callback、scope栈、两层与WaitingHle；G2 Q1–Q3继续保留。
+  A0 APK编译接线尽早做，单次crossing修好即可先验输入/guest/HLE/Stop；A1 JNI/ART/Foundation与E3汇合后做Swan完整G4。
+- **环境边界**：本次AYN Thor/API33/4KiB是CLI辅助，native API35；尚无主仓JNI/APK，也无HleScope/InvokeGuest/WaitingHle。
+  canonical V0为10 PASS/0 FAIL/47 NOT_RUN+3deferred，24个正式R2项全NOT_RUN；16KiB/Step/Vulkan/游戏/VR继续后置。
+
+本次只新增审核证据、规划和更新入口，未修生产代码、commit或push。下列段落保留历史执行者记录；其中“22/22全过”“H05核心完整验收”“timeout完整关闭”等结论以本次复核纠正为准。
+
+## 历史执行记录：2026-09-10 R2-H05核心完成的原声明
 
 > **R2-H05 的核心场景已全部由正式 guest suite 验收（提交至 `4d8d8003`），212 checks ALL PASS（4 次稳定）**：
 > - **G33a** unknown syscall：GuestFault、sentinel=0、fault RIP=syscall PC；**G33b** valid：sentinel=42（出口仅错误路径）；
