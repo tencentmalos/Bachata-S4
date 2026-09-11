@@ -1019,31 +1019,44 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         // ClearHooks intentionally leaks that arena (ReleaseAllocatorWorkaround),
         // so reinstalling it per context cannot reclaim the old reservation and
         // asserts on context rebuild. Keep one allocator for the process lifetime.
-        static std::once_flag allocator_once;
+        //
+        // SetupHooks cannot fail in-band: on any failure StealMemoryRegion /
+        // AllocateMemoryRegions call ERROR_AND_DIE (SIGILL) and the process is
+        // gone (see docs/validation/android-native-host/allocator-provider.md).
+        // So "SetupHooks was called" is the same fact as "it succeeded", and the
+        // guard below is a plain success latch: at most one successful install,
+        // and a *retriable* failure before that install.
+        static std::mutex allocator_mtx;
         static bool allocator_ready = false;
 #if defined(__ANDROID__)
-        // SetupHooks aborts the process (SIGILL) if it can't reserve its slab, which
-        // races ART startup in an app process. Prove the region is claimable first;
-        // on timeout report a normal error rather than entering FEX's fatal path.
-        // Only the thread that wins call_once probes and calls SetupHooks; if it
-        // times out, allocator_ready stays false and every caller sees the error.
-        std::call_once(allocator_once, [this] {
-            if (!WaitForClaimableAllocatorRegion(host_page_size_, std::chrono::milliseconds(8000)))
-                return;
-            FEXCore::Allocator::SetupHooks(host_page_size_);
-            allocator_ready = true;
-        });
-        if (!allocator_ready) {
-            return BackendError(ErrorCategory::OutOfMemory, "CreateContext",
-                                "FEXCore allocator could not reserve its VA region "
-                                "(host address space did not stabilize in time)");
+        // In an app process ART is still carving the VA range when the first
+        // context is created, so SetupHooks can hit the fatal path. Prove the
+        // region is claimable first; on timeout report a normal error. Crucially
+        // this is NOT std::call_once: a transient timeout must not permanently
+        // brick every later CreateContext, so the guard is left unset and the
+        // next call retries once ART has quiesced.
+        {
+            std::lock_guard<std::mutex> lk(allocator_mtx);
+            if (!allocator_ready) {
+                if (!WaitForClaimableAllocatorRegion(host_page_size_,
+                                                     std::chrono::milliseconds(8000))) {
+                    return BackendError(ErrorCategory::OutOfMemory, "CreateContext",
+                                        "FEXCore allocator could not reserve its VA region "
+                                        "(host address space did not stabilize in time; "
+                                        "retry once ART startup settles)");
+                }
+                FEXCore::Allocator::SetupHooks(host_page_size_);
+                allocator_ready = true;
+            }
         }
 #else
-        std::call_once(allocator_once, [this] {
-            FEXCore::Allocator::SetupHooks(host_page_size_);
-            allocator_ready = true;
-        });
-        (void)allocator_ready;
+        {
+            std::lock_guard<std::mutex> lk(allocator_mtx);
+            if (!allocator_ready) {
+                FEXCore::Allocator::SetupHooks(host_page_size_);
+                allocator_ready = true;
+            }
+        }
 #endif
 
         // Reads the real ID registers rather than assuming a feature set.
