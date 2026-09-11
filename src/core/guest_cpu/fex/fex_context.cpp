@@ -28,6 +28,10 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
+#if defined(__ANDROID__)
+#include <android/log.h>
+#endif
+
 #include <FEXCore/Config/Config.h>
 #include <FEXCore/Core/Context.h>
 #include <FEXCore/Core/CoreState.h>
@@ -882,13 +886,23 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         }
 
         // Surface FEXCore's own diagnostics. Without a handler these are dropped, and a JIT-side
-        // refusal looks identical to a guest that simply did nothing.
+        // refusal looks identical to a guest that simply did nothing. On Android stderr goes
+        // nowhere, so the handlers additionally emit to logcat (tag "FexCore") where a device run
+        // can capture assert text that would otherwise be invisible before a SIGILL/abort.
         if (::getenv("GUEST_CPU_DEBUG") != nullptr) {
             LogMan::Msg::InstallHandler([](LogMan::DebugLevels level, const char *message) {
                 std::fprintf(stderr, "[fex %s] %s\n", LogMan::DebugLevelStr(level), message);
+#if defined(__ANDROID__)
+                __android_log_print(ANDROID_LOG_ERROR, "FexCore", "[%s] %s",
+                                    LogMan::DebugLevelStr(level), message);
+#endif
             });
-            LogMan::Throw::InstallHandler(
-                [](const char *message) { std::fprintf(stderr, "[fex assert] %s\n", message); });
+            LogMan::Throw::InstallHandler([](const char *message) {
+                std::fprintf(stderr, "[fex assert] %s\n", message);
+#if defined(__ANDROID__)
+                __android_log_print(ANDROID_LOG_FATAL, "FexCore", "[assert] %s", message);
+#endif
+            });
         }
 
         // FEX's allocator owns process-wide VA reservations and static objects.

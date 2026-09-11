@@ -1,0 +1,79 @@
+09-11 14:18:09.825  2112  2759 E ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.shadps4.fexvalidation/.MainActivity} from uid 2000
+09-11 14:18:09.841  2112 15689 D CoreBackPreview: Window{a35d3ea u0 Splash Screen com.shadps4.fexvalidation}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@ff4d451, mPriority=0}
+09-11 14:18:09.847  2112  2152 I ActivityManager: Start proc 12435:com.shadps4.fexvalidation/u0a156 for next-top-activity {com.shadps4.fexvalidation/com.shadps4.fexvalidation.MainActivity}
+09-11 14:18:09.853 12435 12435 I 4.fexvalidation: Late-enabling -Xcheck:jni
+09-11 14:18:09.884 12435 12435 W ziparchive: Unable to open '/data/app/~~jH0vKZCUSvqS4S7BfgxiUA==/com.shadps4.fexvalidation-1ugdGpRAiuSqZCULj_-_TA==/base.dm': No such file or directory
+09-11 14:18:09.884 12435 12435 W ziparchive: Unable to open '/data/app/~~jH0vKZCUSvqS4S7BfgxiUA==/com.shadps4.fexvalidation-1ugdGpRAiuSqZCULj_-_TA==/base.dm': No such file or directory
+09-11 14:18:09.894 12435 12435 V GraphicsEnvironment: ANGLE Developer option for 'com.shadps4.fexvalidation' set to: 'default'
+09-11 14:18:09.895 12435 12435 V GraphicsEnvironment: ANGLE GameManagerService for com.shadps4.fexvalidation: false
+09-11 14:18:09.898 12435 12435 I ActivityThread: performLaunchActivity com.shadps4.fexvalidation displayId 0
+09-11 14:18:09.907 12435 12435 I FexValidation: shadPS4 FEX validation app
+09-11 14:18:09.909 12435 12435 I FexValidation: device API=33 model=AYN Thor targetSdk=35
+09-11 14:18:09.911 12435 12435 I FexValidation: native: page_size=4096 pid=12435 uid=10156
+09-11 14:18:09.911 12435 12435 I FexValidation: lib_build_id=4455cf485d951d9f3507db96d5fe7f09717d1f84
+09-11 14:18:09.911 12435 12435 I FexValidation: native page_size(syscall)=4096
+09-11 14:18:09.913 12435 12435 I ActivityThread: performResumeActivity com.shadps4.fexvalidation displayId 0
+09-11 14:18:09.913 12435 12460 E FexCore : [A] Couldn't allocate object allocator!
+09-11 14:18:09.913 12435 12460 F libc    : Fatal signal 4 (SIGILL), code 1 (ILL_ILLOPC), fault addr 0x75114110cc in tid 12460 (fex-validation-), pid 12435 (4.fexvalidation)
+09-11 14:18:09.925  2112  2131 D CoreBackPreview: Window{887479f u0 com.shadps4.fexvalidation/com.shadps4.fexvalidation.MainActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@50c1cb5, mPriority=0}
+09-11 14:18:09.989  2112  2141 W ziparchive: Unable to open '/data/app/~~jH0vKZCUSvqS4S7BfgxiUA==/com.shadps4.fexvalidation-1ugdGpRAiuSqZCULj_-_TA==/base.dm': No such file or directory
+09-11 14:18:09.990  2112  2141 E ActivityTaskManager: Displayed com.shadps4.fexvalidation/.MainActivity: +163ms
+09-11 14:18:10.074 12466 12466 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+09-11 14:18:10.074 12466 12466 F DEBUG   : Build fingerprint: 'qti/kalama/kalama:13/TKQ1.231222.001/eng.Thor.20260206.163241:user/release-keys'
+09-11 14:18:10.074 12466 12466 F DEBUG   : Revision: '0'
+09-11 14:18:10.074 12466 12466 F DEBUG   : ABI: 'arm64'
+09-11 14:18:10.074 12466 12466 F DEBUG   : Timestamp: 2026-09-11 14:18:09.950151735+0800
+09-11 14:18:10.074 12466 12466 F DEBUG   : Process uptime: 2s
+09-11 14:18:10.074 12466 12466 F DEBUG   : Cmdline: com.shadps4.fexvalidation
+09-11 14:18:10.074 12466 12466 F DEBUG   : pid: 12435, tid: 12460, name: fex-validation-  >>> com.shadps4.fexvalidation <<<
+09-11 14:18:10.074 12466 12466 F DEBUG   : uid: 10156
+09-11 14:18:10.074 12466 12466 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+09-11 14:18:10.074 12466 12466 F DEBUG   : pac_enabled_keys: 000000000000000f (PR_PAC_APIAKEY, PR_PAC_APIBKEY, PR_PAC_APDAKEY, PR_PAC_APDBKEY)
+09-11 14:18:10.074 12466 12466 F DEBUG   : signal 4 (SIGILL), code 1 (ILL_ILLOPC), fault addr 0x00000075114110cc
+09-11 14:18:10.074 12466 12466 F DEBUG   :     x0  00000074f0000000  x1  00000074f0010000  x2  00000074f00100e0  x3  0000000000000003
+09-11 14:18:10.074 12466 12466 F DEBUG   :     x4  0000007510851980  x5  000000000f587908  x6  6b6b601f73626469  x7  7f7f7f7f7f7f7f7f
+09-11 14:18:10.074 12466 12466 F DEBUG   :     x8  ebc781797030ff06  x9  ebc781797030ff06  x10 0000000000000053  x11 fffffffffffffffd
+09-11 14:18:10.074 12466 12466 F DEBUG   :     x12 0000007510851aa0  x13 0000000000000028  x14 0000007510852de8  x15 000019924789a362
+09-11 14:18:10.074 12466 12466 F DEBUG   :     x16 0000007511588060  x17 00000075114110cc  x18 0000007510010000  x19 00000074f0030080
+09-11 14:18:10.074 12466 12466 F DEBUG   :     x20 00000074d0001320  x21 0000007510855000  x22 0000007510855000  x23 00000075108536e8
+09-11 14:18:10.074 12466 12466 F DEBUG   :     x24 00000075108539f8  x25 0000007510855000  x26 000000751085463c  x27 00000075108545c8
+09-11 14:18:10.074 12466 12466 F DEBUG   :     x28 00000075108544c0  x29 00000075108535e0
+09-11 14:18:10.074 12466 12466 F DEBUG   :     lr  000000751141217c  sp  0000007510853510  pc  00000075114110cc  pst 0000000060001400
+09-11 14:18:10.074 12466 12466 F DEBUG   : backtrace:
+09-11 14:18:10.074 12466 12466 F DEBUG   :       #00 pc 00000000001820cc  /data/app/~~jH0vKZCUSvqS4S7BfgxiUA==/com.shadps4.fexvalidation-1ugdGpRAiuSqZCULj_-_TA==/base.apk!libshadps4_fex_validation.so (offset 0x688000) (FEXCore::Assert::ForcedAssert()+0) (BuildId: 4455cf485d951d9f3507db96d5fe7f09717d1f84)
+09-11 14:18:10.074 12466 12466 F DEBUG   :       #01 pc 0000000000183178  /data/app/~~jH0vKZCUSvqS4S7BfgxiUA==/com.shadps4.fexvalidation-1ugdGpRAiuSqZCULj_-_TA==/base.apk!libshadps4_fex_validation.so (offset 0x688000) (BuildId: 4455cf485d951d9f3507db96d5fe7f09717d1f84)
+09-11 14:18:10.074 12466 12466 F DEBUG   :       #02 pc 0000000000183358  /data/app/~~jH0vKZCUSvqS4S7BfgxiUA==/com.shadps4.fexvalidation-1ugdGpRAiuSqZCULj_-_TA==/base.apk!libshadps4_fex_validation.so (offset 0x688000) (BuildId: 4455cf485d951d9f3507db96d5fe7f09717d1f84)
+09-11 14:18:10.074 12466 12466 F DEBUG   :       #03 pc 0000000000180ab8  /data/app/~~jH0vKZCUSvqS4S7BfgxiUA==/com.shadps4.fexvalidation-1ugdGpRAiuSqZCULj_-_TA==/base.apk!libshadps4_fex_validation.so (offset 0x688000) (FEXCore::Allocator::SetupHooks(unsigned long)+36) (BuildId: 4455cf485d951d9f3507db96d5fe7f09717d1f84)
+09-11 14:18:10.074 12466 12466 F DEBUG   :       #04 pc 00000000000d2a18  /data/app/~~jH0vKZCUSvqS4S7BfgxiUA==/com.shadps4.fexvalidation-1ugdGpRAiuSqZCULj_-_TA==/base.apk!libc++_shared.so (offset 0x23c000) (std::__ndk1::__call_once(unsigned long volatile&, void*, void (*)(void*))+180) (BuildId: ba615e4ff75bc2d8ba1eee93f983e02bc427c433)
+09-11 14:18:10.074 12466 12466 F DEBUG   :       #05 pc 0000000000065980  /data/app/~~jH0vKZCUSvqS4S7BfgxiUA==/com.shadps4.fexvalidation-1ugdGpRAiuSqZCULj_-_TA==/base.apk!libshadps4_fex_validation.so (offset 0x688000) (BuildId: 4455cf485d951d9f3507db96d5fe7f09717d1f84)
+09-11 14:18:10.074 12466 12466 F DEBUG   :       #06 pc 00000000000651b8  /data/app/~~jH0vKZCUSvqS4S7BfgxiUA==/com.shadps4.fexvalidation-1ugdGpRAiuSqZCULj_-_TA==/base.apk!libshadps4_fex_validation.so (offset 0x688000) (Core::GuestCpu::Fex::CreateFexContext(Core::GuestCpu::CpuConfig const&, Core::GuestCpu::GuestAddressSpace&)+580) (BuildId: 4455cf485d951d9f3507db96d5fe7f09717d1f84)
+09-11 14:18:10.074 12466 12466 F DEBUG   :       #07 pc 00000000000632f0  /data/app/~~jH0vKZCUSvqS4S7BfgxiUA==/com.shadps4.fexvalidation-1ugdGpRAiuSqZCULj_-_TA==/base.apk!libshadps4_fex_validation.so (offset 0x688000) (Java_com_shadps4_fexvalidation_NativeBridge_runGuestIncrement+1240) (BuildId: 4455cf485d951d9f3507db96d5fe7f09717d1f84)
+09-11 14:18:10.074 12466 12466 F DEBUG   :       #08 pc 000000000021a354  /apex/com.android.art/lib64/libart.so (art_quick_generic_jni_trampoline+148) (BuildId: 3fdfb8b8ec5407af450c28a00ba584a8)
+09-11 14:18:10.074 12466 12466 F DEBUG   :       #09 pc 000000000020a910  /apex/com.android.art/lib64/libart.so (nterp_helper+5648) (BuildId: 3fdfb8b8ec5407af450c28a00ba584a8)
+09-11 14:18:10.074 12466 12466 F DEBUG   :       #10 pc 00000000000015fc  /data/app/~~jH0vKZCUSvqS4S7BfgxiUA==/com.shadps4.fexvalidation-1ugdGpRAiuSqZCULj_-_TA==/base.apk (com.shadps4.fexvalidation.MainActivity.runGuest$lambda$5+56)
+09-11 14:18:10.074 12466 12466 F DEBUG   :       #11 pc 0000000000209334  /apex/com.android.art/lib64/libart.so (nterp_helper+52) (BuildId: 3fdfb8b8ec5407af450c28a00ba584a8)
+09-11 14:18:10.074 12466 12466 F DEBUG   :       #12 pc 00000000000015a8  /data/app/~~jH0vKZCUSvqS4S7BfgxiUA==/com.shadps4.fexvalidation-1ugdGpRAiuSqZCULj_-_TA==/base.apk (com.shadps4.fexvalidation.MainActivity.$r8$lambda$KfLP2MjrnkToEOEVmB21FYzpxyc+0)
+09-11 14:18:10.074 12466 12466 F DEBUG   :       #13 pc 0000000000209334  /apex/com.android.art/lib64/libart.so (nterp_helper+52) (BuildId: 3fdfb8b8ec5407af450c28a00ba584a8)
+09-11 14:18:10.074 12466 12466 F DEBUG   :       #14 pc 00000000000014c0  /data/app/~~jH0vKZCUSvqS4S7BfgxiUA==/com.shadps4.fexvalidation-1ugdGpRAiuSqZCULj_-_TA==/base.apk (com.shadps4.fexvalidation.MainActivity$$ExternalSyntheticLambda0.invoke+12)
+09-11 14:18:10.074 12466 12466 F DEBUG   :       #15 pc 000000000020b074  /apex/com.android.art/lib64/libart.so (nterp_helper+7540) (BuildId: 3fdfb8b8ec5407af450c28a00ba584a8)
+09-11 14:18:10.074 12466 12466 F DEBUG   :       #16 pc 00000000000a0b34  /data/app/~~jH0vKZCUSvqS4S7BfgxiUA==/com.shadps4.fexvalidation-1ugdGpRAiuSqZCULj_-_TA==/base.apk (kotlin.concurrent.ThreadsKt$thread$thread$1.run+4)
+09-11 14:18:10.074 12466 12466 F DEBUG   :       #17 pc 000000000021096c  /apex/com.android.art/lib64/libart.so (art_quick_invoke_stub+556) (BuildId: 3fdfb8b8ec5407af450c28a00ba584a8)
+09-11 14:18:10.074 12466 12466 F DEBUG   :       #18 pc 000000000027b478  /apex/com.android.art/lib64/libart.so (art::ArtMethod::Invoke(art::Thread*, unsigned int*, unsigned int, art::JValue*, char const*)+188) (BuildId: 3fdfb8b8ec5407af450c28a00ba584a8)
+09-11 14:18:10.074 12466 12466 F DEBUG   :       #19 pc 00000000006118e8  /apex/com.android.art/lib64/libart.so (art::JValue art::InvokeVirtualOrInterfaceWithJValues<art::ArtMethod*>(art::ScopedObjectAccessAlreadyRunnable const&, _jobject*, art::ArtMethod*, jvalue const*)+464) (BuildId: 3fdfb8b8ec5407af450c28a00ba584a8)
+09-11 14:18:10.075 12466 12466 F DEBUG   :       #20 pc 0000000000659b9c  /apex/com.android.art/lib64/libart.so (art::Thread::CreateCallback(void*)+1292) (BuildId: 3fdfb8b8ec5407af450c28a00ba584a8)
+09-11 14:18:10.075 12466 12466 F DEBUG   :       #21 pc 00000000000ba650  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*)+208) (BuildId: bf5f1ce73f89cca7d6a062eb7877e86a)
+09-11 14:18:10.075 12466 12466 F DEBUG   :       #22 pc 0000000000053ffc  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+68) (BuildId: bf5f1ce73f89cca7d6a062eb7877e86a)
+09-11 14:18:10.084  2112 12474 W ActivityTaskManager:   Force finishing activity com.shadps4.fexvalidation/.MainActivity
+09-11 14:18:10.095  1752  1752 I Zygote  : Process 12435 exited due to signal 4 (Illegal instruction)
+09-11 14:18:10.097  2112  2142 I ActivityManager: Showing crash dialog for package com.shadps4.fexvalidation u0
+09-11 14:18:10.097  2112  2836 I WindowManager: WIN DEATH: Window{887479f u0 com.shadps4.fexvalidation/com.shadps4.fexvalidation.MainActivity}
+09-11 14:18:10.098  2112  2836 W InputManager-JNI: Input channel object '887479f com.shadps4.fexvalidation/com.shadps4.fexvalidation.MainActivity (client)' was disposed without first being removed with the input manager!
+09-11 14:18:10.103  2112  2373 I ActivityManager: Process com.shadps4.fexvalidation (pid 12435) has died: fg  TOP 
+09-11 14:18:10.117  2112  2373 W WindowManager: Failed to deliver inset state change to w=Window{887479f u0 com.shadps4.fexvalidation/com.shadps4.fexvalidation.MainActivity EXITING}
+09-11 14:18:10.126  2112  2142 D CoreBackPreview: Window{b3a6eb0 u0 Application Error: com.shadps4.fexvalidation}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.WindowOnBackInvokedDispatcher$OnBackInvokedCallbackWrapper@3249c6b, mPriority=0}
+09-11 14:18:10.126  2112  2142 D CoreBackPreview: Window{b3a6eb0 u0 Application Error: com.shadps4.fexvalidation}: Setting back callback null
+09-11 14:18:10.128  2112  2142 W InputManager-JNI: Input channel object 'b3a6eb0 Application Error: com.shadps4.fexvalidation (client)' was disposed without first being removed with the input manager!
+09-11 14:18:10.130  2112 12474 W ActivityManager: Ignoring remove of inactive process: ProcessRecord{37ec578 0:com.shadps4.fexvalidation/u0a156}
+09-11 14:18:10.140  2112  2145 W WindowManager: Exception thrown during dispatchAppVisibility Window{887479f u0 com.shadps4.fexvalidation/com.shadps4.fexvalidation.MainActivity EXITING}
+09-11 14:18:10.142  2112  2145 W InputManager-JNI: Input channel object 'a35d3ea Splash Screen com.shadps4.fexvalidation (client)' was disposed without first being removed with the input manager!
+09-11 14:18:10.585  2112  2144 W ActivityTaskManager: Activity top resumed state loss timeout for ActivityRecord{7b60a60 u0 com.shadps4.fexvalidation/.MainActivity} t-1 f}}
