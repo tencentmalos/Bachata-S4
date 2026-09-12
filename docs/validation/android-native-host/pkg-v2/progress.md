@@ -102,3 +102,28 @@ the full game APK must link its真实所需 HLE/video/audio, so `shadps4_host_co
 - `shadps4_host_core` CMake target on the real source list + full `--no-undefined` Android host link (needs video_core/audio_core in the closure for the coupled RegisterLibs).
 - Allocator provider full re-audit (HN-A01).
 - WP-B loader→guest→Orbis→renderer; WP-C device.
+
+## WP-A §4.3 (part 2): DECISIVE — the full host closure compiles under NDK bionic
+
+The review's Vulkan-Hpp `eMesaKosmickrisp` blocker was purely the DESKTOP system
+Vulkan-Hpp path. Under NDK `aarch64-linux-android33` with the project's PINNED
+`externals/vulkan-headers`, the deep renderer compiles. Swept clean:
+- video_core: `vk_instance.cpp`, `vk_swapchain.cpp`, `vk_rasterizer.cpp`,
+  `vk_scheduler.cpp`, `amdgpu/liverpool.cpp`, `texture_cache.cpp`.
+- shader_recompiler: `recompiler.cpp`.
+- HLE renderer/audio-coupled: `videoout/video_out.cpp`, `gnmdriver/gnmdriver.cpp`,
+  `audio/audioout.cpp`.
+
+Two TUs failed the ad-hoc probe ONLY on missing project defines, not bionic
+incompatibility: `vk_presenter.cpp` needs `-DIMGUI_USER_CONFIG="imgui/imgui_config.h"`
+(the project's ImVec2 single-arg ctor); `buffer_cache.cpp`'s `region_manager.h`
+needs the project's real Tracy/SpinLock define set (my probe's `TRACY_ENABLE=0`
+diverged from the build). Both are exactly the "include/define discovery"
+non-defects the review names. Conclusion: **the whole host closure
+(CORE+HLE+video_core+shader_recompiler+audio) is bionic-compilable; the
+`--no-undefined` link is achievable**, and the right vehicle is a real CMake
+target that inherits the project's exact defines/includes (not a hand-tuned probe).
+
+Next concrete step: author `shadps4_host_core` (+ platform/renderer/audio) in the
+root CMake source lists, configured for the NDK, and drive the
+`--no-undefined` link to closure.
