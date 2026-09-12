@@ -1,0 +1,199 @@
+{
+  "status": "FAIL",
+  "serial": "9c2841a4",
+  "commands": [
+    {
+      "argv": [
+        "adb",
+        "-s",
+        "9c2841a4",
+        "shell",
+        "getprop",
+        "ro.build.version.sdk"
+      ],
+      "log": "api.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "adb",
+        "-s",
+        "9c2841a4",
+        "shell",
+        "getprop",
+        "ro.product.cpu.abi"
+      ],
+      "log": "abi.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "adb",
+        "-s",
+        "9c2841a4",
+        "shell",
+        "getconf",
+        "PAGESIZE"
+      ],
+      "log": "page_size.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "adb",
+        "-s",
+        "9c2841a4",
+        "shell",
+        "id"
+      ],
+      "log": "identity.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "adb",
+        "-s",
+        "9c2841a4",
+        "shell",
+        "getprop",
+        "ro.product.model"
+      ],
+      "log": "model.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "adb",
+        "-s",
+        "9c2841a4",
+        "shell",
+        "mkdir",
+        "/data/local/tmp/shadps4-host-library-1789212117897803000"
+      ],
+      "log": "mkdir.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "adb",
+        "-s",
+        "9c2841a4",
+        "push",
+        "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native/libshadps4_host.so",
+        "/data/local/tmp/shadps4-host-library-1789212117897803000/libshadps4_host.so"
+      ],
+      "log": "push-libshadps4_host.so.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "adb",
+        "-s",
+        "9c2841a4",
+        "shell",
+        "sha256sum",
+        "/data/local/tmp/shadps4-host-library-1789212117897803000/libshadps4_host.so"
+      ],
+      "log": "sha-libshadps4_host.so.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "adb",
+        "-s",
+        "9c2841a4",
+        "push",
+        "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native/host_library_smoke",
+        "/data/local/tmp/shadps4-host-library-1789212117897803000/host_library_smoke"
+      ],
+      "log": "push-host_library_smoke.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "adb",
+        "-s",
+        "9c2841a4",
+        "shell",
+        "sha256sum",
+        "/data/local/tmp/shadps4-host-library-1789212117897803000/host_library_smoke"
+      ],
+      "log": "sha-host_library_smoke.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "adb",
+        "-s",
+        "9c2841a4",
+        "push",
+        "/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so",
+        "/data/local/tmp/shadps4-host-library-1789212117897803000/libc++_shared.so"
+      ],
+      "log": "push-libc++_shared.so.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "adb",
+        "-s",
+        "9c2841a4",
+        "shell",
+        "sha256sum",
+        "/data/local/tmp/shadps4-host-library-1789212117897803000/libc++_shared.so"
+      ],
+      "log": "sha-libc++_shared.so.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "adb",
+        "-s",
+        "9c2841a4",
+        "shell",
+        "chmod",
+        "755",
+        "/data/local/tmp/shadps4-host-library-1789212117897803000/host_library_smoke"
+      ],
+      "log": "chmod.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "adb",
+        "-s",
+        "9c2841a4",
+        "shell",
+        "cd /data/local/tmp/shadps4-host-library-1789212117897803000 && env LD_LIBRARY_PATH=/data/local/tmp/shadps4-host-library-1789212117897803000 timeout 30 ./host_library_smoke"
+      ],
+      "log": "smoke.log",
+      "exit_code": 134
+    }
+  ],
+  "scope": "AUXILIARY_CLI; APK/ART/Surface/FEX/Turnip/game NOT_RUN",
+  "build_result_sha256": "31f62162f58b02354121eca46ab02b356bb191dbfce37489a6b51dfa54281249",
+  "source_manifest_sha256": "027337226a9d07273e4dbdf2559ddad826c15d80d63aa6715bc874bb8bf2c463",
+  "artifacts": [
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native/libshadps4_host.so",
+      "sha256": "c68b3935623012362786af60e8698c4482cc0f44041a60362762c6f7ac01a10e"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native/host_library_smoke",
+      "sha256": "5880b2f3510b09251e9373233cf69acc6d090aeaf707dd3b0bb0a3142df584a1"
+    },
+    {
+      "path": "/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so",
+      "sha256": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352"
+    }
+  ],
+  "device": {
+    "api": "33",
+    "abi": "arm64-v8a",
+    "page_size": "4096",
+    "identity": "uid=2000(shell) gid=2000(shell) groups=2000(shell),1004(input),1007(log),1011(adb),1015(sdcard_rw),1028(sdcard_r),1078(ext_data_rw),1079(ext_obb_rw),3001(net_bt_admin),3002(net_bt),3003(inet),3006(net_bw_stats),3009(readproc),3011(uhid),3012(readtracefs) context=u:r:shell:s0",
+    "model": "AYN Thor"
+  },
+  "remote_directory": "/data/local/tmp/shadps4-host-library-1789212117897803000",
+  "error": "smoke: exit 134; see build/host-library-validation/device-1/smoke.log"
+}

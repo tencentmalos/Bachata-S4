@@ -1,0 +1,40 @@
+--------- beginning of crash
+09-12 19:22:03.900 11552 11552 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+09-12 19:22:03.900 11552 11552 F DEBUG   : Build fingerprint: 'qti/kalama/kalama:13/TKQ1.231222.001/eng.Thor.20260206.163241:user/release-keys'
+09-12 19:22:03.900 11552 11552 F DEBUG   : Revision: '0'
+09-12 19:22:03.900 11552 11552 F DEBUG   : ABI: 'arm64'
+09-12 19:22:03.900 11552 11552 F DEBUG   : Timestamp: 2026-09-12 19:22:03.834491267+0800
+09-12 19:22:03.900 11552 11552 F DEBUG   : Process uptime: 2s
+09-12 19:22:03.900 11552 11552 F DEBUG   : Cmdline: ./host_library_smoke
+09-12 19:22:03.900 11552 11552 F DEBUG   : pid: 11548, tid: 11548, name: host_library_sm  >>> ./host_library_smoke <<<
+09-12 19:22:03.900 11552 11552 F DEBUG   : uid: 2000
+09-12 19:22:03.900 11552 11552 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+09-12 19:22:03.900 11552 11552 F DEBUG   : pac_enabled_keys: 000000000000000f (PR_PAC_APIAKEY, PR_PAC_APIBKEY, PR_PAC_APDAKEY, PR_PAC_APDBKEY)
+09-12 19:22:03.900 11552 11552 F DEBUG   : signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+09-12 19:22:03.900 11552 11552 F DEBUG   : Abort message: 'terminating due to uncaught exception of type std::__ndk1::__fs::filesystem::filesystem_error: filesystem error: in create_directory: No such file or directory ["/.local/share/shadPS4"]'
+09-12 19:22:03.900 11552 11552 F DEBUG   :     x0  0000000000000000  x1  0000000000002d1c  x2  0000000000000006  x3  0000007feea60570
+09-12 19:22:03.900 11552 11552 F DEBUG   :     x4  646277641f736766  x5  646277641f736766  x6  646277641f736766  x7  7f7f7f7f7f7f7f7f
+09-12 19:22:03.900 11552 11552 F DEBUG   :     x8  00000000000000f0  x9  0000007364b5bb28  x10 0000000000000001  x11 0000007364b9b84c
+09-12 19:22:03.900 11552 11552 F DEBUG   :     x12 0000007378a14020  x13 000000007fffffff  x14 0000000011e2e2a2  x15 00001b6610e6a80b
+09-12 19:22:03.900 11552 11552 F DEBUG   :     x16 0000007364c03d68  x17 0000007364bdf4e0  x18 0000007377a26000  x19 0000000000002d1c
+09-12 19:22:03.900 11552 11552 F DEBUG   :     x20 0000000000002d1c  x21 00000000ffffffff  x22 0000007feea606a0  x23 0000007feea606e0
+09-12 19:22:03.900 11552 11552 F DEBUG   :     x24 0000007feea60790  x25 0000007378b49000  x26 0000007378a2288c  x27 0000000000000091
+09-12 19:22:03.900 11552 11552 F DEBUG   :     x28 00000073543b30fc  x29 0000007feea605f0
+09-12 19:22:03.900 11552 11552 F DEBUG   :     lr  0000007364b8c788  sp  0000007feea60550  pc  0000007364b8c7b4  pst 0000000000001000
+09-12 19:22:03.900 11552 11552 F DEBUG   : backtrace:
+09-12 19:22:03.900 11552 11552 F DEBUG   :       #00 pc 00000000000527b4  /apex/com.android.runtime/lib64/bionic/libc.so (abort+168) (BuildId: bf5f1ce73f89cca7d6a062eb7877e86a)
+09-12 19:22:03.900 11552 11552 F DEBUG   :       #01 pc 00000000000a24d8  /data/local/tmp/shadps4-host-library-1789212117897803000/libc++_shared.so (__abort_message+256) (BuildId: ba615e4ff75bc2d8ba1eee93f983e02bc427c433)
+09-12 19:22:03.900 11552 11552 F DEBUG   :       #02 pc 00000000000a1074  /data/local/tmp/shadps4-host-library-1789212117897803000/libc++_shared.so (demangling_terminate_handler()+248) (BuildId: ba615e4ff75bc2d8ba1eee93f983e02bc427c433)
+09-12 19:22:03.900 11552 11552 F DEBUG   :       #03 pc 00000000000a1528  /data/local/tmp/shadps4-host-library-1789212117897803000/libc++_shared.so (std::__terminate(void (*)())+16) (BuildId: ba615e4ff75bc2d8ba1eee93f983e02bc427c433)
+09-12 19:22:03.900 11552 11552 F DEBUG   :       #04 pc 00000000000bdce0  /data/local/tmp/shadps4-host-library-1789212117897803000/libc++_shared.so (__cxxabiv1::failed_throw(__cxxabiv1::__cxa_exception*) (.llvm.8230535570490950508)+32) (BuildId: ba615e4ff75bc2d8ba1eee93f983e02bc427c433)
+09-12 19:22:03.900 11552 11552 F DEBUG   :       #05 pc 00000000000bdcbc  /data/local/tmp/shadps4-host-library-1789212117897803000/libc++_shared.so (__cxa_throw+96) (BuildId: ba615e4ff75bc2d8ba1eee93f983e02bc427c433)
+09-12 19:22:03.900 11552 11552 F DEBUG   :       #06 pc 0000000000138f34  /data/local/tmp/shadps4-host-library-1789212117897803000/libc++_shared.so (void std::__ndk1::__fs::filesystem::__throw_filesystem_error[abi:ne210000]<std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char> >&, std::__ndk1::__fs::filesystem::path const&, std::__ndk1::error_code const&>(std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char> >&, std::__ndk1::__fs::filesystem::path const&, std::__ndk1::error_code const&)+156) (BuildId: ba615e4ff75bc2d8ba1eee93f983e02bc427c433)
+09-12 19:22:03.900 11552 11552 F DEBUG   :       #07 pc 000000000013d974  /data/local/tmp/shadps4-host-library-1789212117897803000/libc++_shared.so (std::__ndk1::__fs::filesystem::detail::ErrorHandler<bool>::report(std::__ndk1::error_code const&) const+184) (BuildId: ba615e4ff75bc2d8ba1eee93f983e02bc427c433)
+09-12 19:22:03.900 11552 11552 F DEBUG   :       #08 pc 000000000013eb6c  /data/local/tmp/shadps4-host-library-1789212117897803000/libc++_shared.so (std::__ndk1::__fs::filesystem::__create_directory(std::__ndk1::__fs::filesystem::path const&, std::__ndk1::error_code*)+332) (BuildId: ba615e4ff75bc2d8ba1eee93f983e02bc427c433)
+09-12 19:22:03.900 11552 11552 F DEBUG   :       #09 pc 00000000028a3aac  /data/local/tmp/shadps4-host-library-1789212117897803000/libshadps4_host.so (Common::FS::$_1::operator()() const+984) (BuildId: 69a38e5077bb646d164b96d66e2671b220bfb430)
+09-12 19:22:03.900 11552 11552 F DEBUG   :       #10 pc 00000000028a7104  /data/local/tmp/shadps4-host-library-1789212117897803000/libshadps4_host.so (_GLOBAL__sub_I_path_util.cpp+8) (BuildId: 69a38e5077bb646d164b96d66e2671b220bfb430)
+09-12 19:22:03.900 11552 11552 F DEBUG   :       #11 pc 0000000000052b28  /apex/com.android.runtime/bin/linker64 (__dl__ZN6soinfo17call_constructorsEv+752) (BuildId: f7ec82388bb83f33491b27fc2e6af3da)
+09-12 19:22:03.900 11552 11552 F DEBUG   :       #12 pc 00000000000528d0  /apex/com.android.runtime/bin/linker64 (__dl__ZN6soinfo17call_constructorsEv+152) (BuildId: f7ec82388bb83f33491b27fc2e6af3da)
+09-12 19:22:03.900 11552 11552 F DEBUG   :       #13 pc 00000000000b8948  /apex/com.android.runtime/bin/linker64 (__dl__ZL29__linker_init_post_relocationR19KernelArgumentBlockR6soinfo+4204) (BuildId: f7ec82388bb83f33491b27fc2e6af3da)
+09-12 19:22:03.900 11552 11552 F DEBUG   :       #14 pc 00000000000b7884  /apex/com.android.runtime/bin/linker64 (__dl___linker_init+832) (BuildId: f7ec82388bb83f33491b27fc2e6af3da)
+09-12 19:22:03.900 11552 11552 F DEBUG   :       #15 pc 00000000000554c8  /apex/com.android.runtime/bin/linker64 (__dl__start+8) (BuildId: f7ec82388bb83f33491b27fc2e6af3da)

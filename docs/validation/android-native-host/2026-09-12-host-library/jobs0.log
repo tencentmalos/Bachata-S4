@@ -1,0 +1,3 @@
+usage: build-host-android [-h] [--ndk NDK] [--api API] [--out OUT]
+                          [--jobs JOBS]
+build-host-android: error: --ndk (or ANDROID_NDK_HOME) and positive --jobs required

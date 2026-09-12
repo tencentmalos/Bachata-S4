@@ -1,0 +1,1381 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index a4b3d234..f8cd5b2c 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -49,6 +49,14 @@ option(ENABLE_SPATIAL_FOUNDATION "Build shared host infrastructure from Spatial
+ # composed into an OBJECT library the Android JNI .so links, with no desktop main.cpp /
+ # SDL window loop / quick_exit. The Android app configures the root project with this ON.
+ option(BUILD_HOST_CORE "Build the reusable in-process host library (Android), not the desktop exe" OFF)
++if(BUILD_HOST_CORE)
++    if(NOT ANDROID OR NOT ANDROID_ABI STREQUAL "arm64-v8a")
++        message(FATAL_ERROR "BUILD_HOST_CORE currently supports Android arm64-v8a")
++    endif()
++    if(NOT ANDROID_STL STREQUAL "c++_shared")
++        message(FATAL_ERROR "Android host requires -DANDROID_STL=c++_shared; use scripts/android/build-host-android")
++    endif()
++endif()
+ 
+ # First, determine whether to use CMAKE_OSX_ARCHITECTURES or CMAKE_SYSTEM_PROCESSOR.
+ if (APPLE AND CMAKE_OSX_ARCHITECTURES)
+@@ -1253,9 +1261,31 @@ file(MAKE_DIRECTORY "${SHADNET_PROTO_OUT}")
+ # is fine; when cross-compiling (Android host lib) the target protoc cannot run,
+ # so accept a host-built protoc via SHADNET_PROTOC_EXECUTABLE.
+ if(SHADNET_PROTOC_EXECUTABLE)
++    if(NOT EXISTS "${SHADNET_PROTOC_EXECUTABLE}")
++        message(FATAL_ERROR "Missing host protoc: ${SHADNET_PROTOC_EXECUTABLE}")
++    endif()
++    execute_process(COMMAND "${SHADNET_PROTOC_EXECUTABLE}" --version
++        RESULT_VARIABLE protoc_result OUTPUT_VARIABLE protoc_version OUTPUT_STRIP_TRAILING_WHITESPACE)
++    # protoc --version uses the runtime header (36.0-dev at this pin), not
++    # protobuf's CMake/SOVERSION (36.0.0). Preserve the development suffix.
++    set(protobuf_version_header "${CMAKE_CURRENT_SOURCE_DIR}/externals/protobuf/src/google/protobuf/runtime_version.h")
++    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${protobuf_version_header}")
++    file(STRINGS "${protobuf_version_header}" protobuf_version_line REGEX "^#define PROTOBUF_OSS_VERSION [0-9]+$")
++    string(REGEX REPLACE ".* ([0-9]+)$" "\\1" protobuf_version_number "${protobuf_version_line}")
++    file(STRINGS "${protobuf_version_header}" protobuf_suffix_line REGEX "^#define PROTOBUF_OSS_VERSION_SUFFIX ")
++    string(REGEX REPLACE "^[^\"]*\"([^\"]*)\".*$" "\\1" protobuf_version_suffix "${protobuf_suffix_line}")
++    math(EXPR protoc_minor "(${protobuf_version_number} / 1000) % 1000")
++    math(EXPR protoc_patch "${protobuf_version_number} % 1000")
++    set(target_protoc_version "${protoc_minor}.${protoc_patch}${protobuf_version_suffix}")
++    if(NOT protoc_result EQUAL 0 OR NOT protoc_version STREQUAL "libprotoc ${target_protoc_version}")
++        message(FATAL_ERROR "Host protoc ${protoc_version} must match target protobuf ${target_protoc_version}")
++    endif()
+     set(SHADNET_PROTOC "${SHADNET_PROTOC_EXECUTABLE}")
+-    set(SHADNET_PROTOC_DEP "")
++    set(SHADNET_PROTOC_DEP "${SHADNET_PROTOC_EXECUTABLE}")
+ else()
++    if(CMAKE_CROSSCOMPILING)
++        message(FATAL_ERROR "Cross builds require SHADNET_PROTOC_EXECUTABLE; use scripts/android/build-host-android")
++    endif()
+     set(SHADNET_PROTOC protobuf::protoc)
+     set(SHADNET_PROTOC_DEP protobuf::protoc)
+ endif()
+@@ -1294,6 +1324,11 @@ if(NOT ENABLE_TESTS)
+ # (emulator.cpp/sdl_window.cpp) — the Android Run driver replaces those — while
+ # still building the same COMMON/CORE/VIDEO_CORE/SHADER_RECOMPILER/HLE closure.
+ if(BUILD_HOST_CORE)
++    # The separate desktop launcher is not part of an embedded host. In-game
++    # settings and the Vulkan ImGui renderer remain in the real host closure.
++    list(REMOVE_ITEM IMGUI src/imgui/big_picture/big_picture.cpp
++        src/imgui/big_picture/imgui_impl_sdl3_big_picture.cpp
++        src/imgui/big_picture/imgui_impl_sdlrenderer3.cpp)
+     add_library(shadps4 OBJECT
+         ${AUDIO_CORE}
+         ${IMGUI}
+@@ -1306,6 +1341,9 @@ if(BUILD_HOST_CORE)
+     )
+     # OBJECT library needs PIC so the final SHARED .so can embed it.
+     set_target_properties(shadps4 PROPERTIES POSITION_INDEPENDENT_CODE ON)
++    add_library(shadps4_host_objects ALIAS shadps4)
++    target_sources(shadps4 PRIVATE src/frontend/android_window.cpp
++        src/core/host_runtime/application_control.cpp)
+ else()
+ add_executable(shadps4
+     ${AUDIO_CORE}
+@@ -1325,6 +1363,7 @@ add_executable(shadps4
+ )
+ endif()
+ 
++target_sources(shadps4 PRIVATE src/frontend/window.cpp)
+ create_target_directory_groups(shadps4)
+ 
+ target_link_libraries(shadps4 PRIVATE spdlog::spdlog)
+@@ -1357,7 +1396,7 @@ if (ANDROID)
+     if (TARGET adrenotools)
+         target_link_libraries(shadps4 PRIVATE adrenotools)
+     endif()
+-    target_link_libraries(shadps4 PRIVATE log android)
++    target_link_libraries(shadps4 PRIVATE log android aaudio)
+ endif()
+ 
+ target_compile_definitions(shadps4 PRIVATE IMGUI_USER_CONFIG="imgui/imgui_config.h")
+@@ -1519,36 +1558,23 @@ if(NOT BUILD_HOST_CORE)
+     install(TARGETS shadps4 BUNDLE DESTINATION .)
+ endif()
+ 
+-# Final reusable host shared library. Embeds the shadps4 OBJECT lib and links the
+-# guest CPU backend + every external the closure needs, with --no-undefined so a
+-# missing dependency is a hard link error (not deferred to app load). The Android
+-# JNI links this as libshadps4_fex_session.so. Guarded so a native desktop build
+-# is unaffected.
++# Native host library, without FEX or the APK session entry. The future JNI target
++# consumes the same object/dependency targets so there is only one host instance.
+ if(BUILD_HOST_CORE)
++    get_target_property(host_dependencies shadps4 LINK_LIBRARIES)
++    add_library(shadps4_host_dependencies INTERFACE)
++    target_link_libraries(shadps4_host_dependencies INTERFACE ${host_dependencies})
+     add_library(shadps4_host SHARED $<TARGET_OBJECTS:shadps4>)
+-    # The OBJECT lib's PRIVATE deps do not propagate to a consumer, so re-link the
+-    # same set here (INTERFACE include dirs already reached the objects at compile).
+-    target_link_libraries(shadps4_host PRIVATE
+-        spdlog::spdlog magic_enum::magic_enum fmt::fmt toml11::toml11 tsl::robin_map
+-        Tracy::TracyClient RenderDoc::API FFmpeg::ffmpeg Dear_ImGui ImGuiFileDialog gcn
+-        half::half ZLIB::ZLIB PNG::PNG minimp3
+-        Boost::headers GPUOpen::VulkanMemoryAllocator LibAtrac9 sirit Vulkan::Headers
+-        xxHash::xxhash Zydis::Zydis glslang::glslang SDL3::SDL3 pugixml::pugixml
+-        stb::headers lfreist-hwinfo::hwinfo nlohmann_json::nlohmann_json miniz::miniz
+-        fdk-aac CLI11::CLI11 OpenAL::OpenAL Cpp_Httplib miniupnpc::miniupnpc
+-        Freetype::Freetype libprotobuf ZArchive::zarchive ${SSL_DEPENDENCIES}
+-        libusb::usb date::date-tz res::embedded)
+-    if(TARGET adrenotools)
+-        target_link_libraries(shadps4_host PRIVATE adrenotools)
+-    endif()
+-    target_link_libraries(shadps4_host PRIVATE log android aaudio)
+-    if(ENABLE_SPATIAL_FOUNDATION)
+-        target_link_libraries(shadps4_host PRIVATE shadps4::foundation)
+-    endif()
++    target_link_libraries(shadps4_host PRIVATE shadps4_host_dependencies)
+     add_dependencies(shadps4_host host_shaders ImGui_Resources)
+-    target_link_options(shadps4_host PRIVATE -Wl,--build-id=sha1)
+-    # --no-undefined is the real link gate; enabled once guest_cpu_fex is attached
+-    # by the app build (it provides the guest CPU symbols the closure references).
++    target_link_options(shadps4_host PRIVATE -Wl,--build-id=sha1 -Wl,--no-undefined
++        "-Wl,-Map,${CMAKE_CURRENT_BINARY_DIR}/shadps4_host.map")
++    option(HOST_BUILD_PROBES "Build auxiliary native host linkage/contract probes" OFF)
++    if(HOST_BUILD_PROBES)
++        add_executable(host_library_smoke tests/host_runtime/host_library_smoke.cpp)
++        target_link_libraries(host_library_smoke PRIVATE shadps4_host)
++        target_include_directories(host_library_smoke PRIVATE src)
++    endif()
+ endif()
+ 
+ else()
+diff --git a/src/common/path_util.cpp b/src/common/path_util.cpp
+index b6ea5406..c0da6dcc 100644
+--- a/src/common/path_util.cpp
++++ b/src/common/path_util.cpp
+@@ -2,6 +2,8 @@
+ // SPDX-License-Identifier: GPL-2.0-or-later
+ 
+ #include <fstream>
++#include <mutex>
++#include <stdexcept>
+ #include <unordered_map>
+ #include "common/logging/log.h"
+ #include "common/path_util.h"
+@@ -85,33 +87,13 @@ static std::optional<std::filesystem::path> GetBundleParentDirectory() {
+ }
+ #endif
+ 
+-static auto UserPaths = [] {
+-    // Try the portable user directory first.
+-    auto user_dir = std::filesystem::current_path() / PORTABLE_DIR;
+-    if (!std::filesystem::exists(user_dir)) {
+-        // If it doesn't exist, use the standard path for the platform instead.
+-        // NOTE: On Windows we currently just create the portable directory instead.
+-#ifdef __APPLE__
+-        user_dir =
+-            std::filesystem::path(getenv("HOME")) / "Library" / "Application Support" / "shadPS4";
+-#elif defined(__linux__)
+-        const char* xdg_data_home = getenv("XDG_DATA_HOME");
+-        if (xdg_data_home != nullptr && strlen(xdg_data_home) > 0) {
+-            user_dir = std::filesystem::path(xdg_data_home) / "shadPS4";
+-        } else {
+-            user_dir = std::filesystem::path(getenv("HOME")) / ".local" / "share" / "shadPS4";
+-        }
+-#elif _WIN32
+-        TCHAR appdata[MAX_PATH] = {0};
+-        SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, appdata);
+-        user_dir = std::filesystem::path(appdata) / "shadPS4";
+-#endif
+-    }
++using UserPathMap = std::unordered_map<PathType, fs::path>;
+ 
++static UserPathMap CreateUserPaths(const fs::path& user_dir) {
+     std::unordered_map<PathType, fs::path> paths;
+ 
+     const auto create_path = [&](PathType shad_path, const fs::path& new_path) {
+-        std::filesystem::create_directory(new_path);
++        std::filesystem::create_directories(new_path);
+         paths.insert_or_assign(shad_path, new_path);
+     };
+ 
+@@ -151,7 +133,65 @@ static auto UserPaths = [] {
+     }
+ 
+     return paths;
++}
++
++#ifdef __ANDROID__
++// Loading a native library must not touch desktop HOME/XDG paths. The app
++// publishes one filesDir-based layout explicitly before starting host workers.
++struct AndroidUserPaths {
++    std::mutex mutex;
++    UserPathMap paths;
++};
++
++static AndroidUserPaths& GetAndroidUserPaths() {
++    static AndroidUserPaths state;
++    return state;
++}
++
++void InitializeAndroidUserPaths(const fs::path& root) {
++    if (root.empty() || !root.is_absolute()) {
++        throw std::invalid_argument("Android user directory must be an explicit absolute path");
++    }
++    const auto normalized = root.lexically_normal();
++    auto& state = GetAndroidUserPaths();
++    std::scoped_lock lock{state.mutex};
++    if (!state.paths.empty()) {
++        if (state.paths.at(PathType::UserDir) != normalized) {
++            throw std::logic_error("Android user directory is immutable after initialization");
++        }
++        return;
++    }
++    // Build locally so an I/O error leaves publication empty and initialization
++    // retryable. All exposed references remain stable for the process lifetime.
++    state.paths = CreateUserPaths(normalized);
++}
++#else
++static auto UserPaths = [] {
++    // Try the portable user directory first.
++    auto user_dir = std::filesystem::current_path() / PORTABLE_DIR;
++    if (!std::filesystem::exists(user_dir)) {
++        // If it doesn't exist, use the standard path for the platform instead.
++        // NOTE: On Windows we currently just create the portable directory instead.
++#ifdef __APPLE__
++        user_dir =
++            std::filesystem::path(getenv("HOME")) / "Library" / "Application Support" / "shadPS4";
++#elif defined(__linux__)
++        const char* xdg_data_home = getenv("XDG_DATA_HOME");
++        if (xdg_data_home != nullptr && strlen(xdg_data_home) > 0) {
++            user_dir = std::filesystem::path(xdg_data_home) / "shadPS4";
++        } else {
++            user_dir = std::filesystem::path(getenv("HOME")) / ".local" / "share" / "shadPS4";
++        }
++#elif _WIN32
++        TCHAR appdata[MAX_PATH] = {0};
++        SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, appdata);
++        user_dir = std::filesystem::path(appdata) / "shadPS4";
++#endif
++    }
++
++    return CreateUserPaths(user_dir);
+ }();
++#endif
+ 
+ bool ValidatePath(const fs::path& path) {
+     if (path.empty()) {
+@@ -180,7 +220,16 @@ std::string PathToUTF8String(const std::filesystem::path& path) {
+ }
+ 
+ const fs::path& GetUserPath(PathType shad_path) {
++#ifdef __ANDROID__
++    auto& state = GetAndroidUserPaths();
++    std::scoped_lock lock{state.mutex};
++    if (state.paths.empty()) {
++        throw std::logic_error("InitializeAndroidUserPaths must precede host service startup");
++    }
++    return state.paths.at(shad_path);
++#else
+     return UserPaths.at(shad_path);
++#endif
+ }
+ 
+ std::string GetUserPathString(PathType shad_path) {
+@@ -188,6 +237,9 @@ std::string GetUserPathString(PathType shad_path) {
+ }
+ 
+ void SetUserPath(PathType shad_path, const fs::path& new_path) {
++#ifdef __ANDROID__
++    throw std::logic_error("Use the immutable InitializeAndroidUserPaths layout on Android");
++#else
+     if (!std::filesystem::is_directory(new_path)) {
+         LOG_ERROR(Common_Filesystem, "Filesystem object at new_path={} is not a directory",
+                   PathToUTF8String(new_path));
+@@ -195,6 +247,7 @@ void SetUserPath(PathType shad_path, const fs::path& new_path) {
+     }
+ 
+     UserPaths.insert_or_assign(shad_path, new_path);
++#endif
+ }
+ 
+ std::optional<fs::path> FindGameByID(const fs::path& dir, const std::string& game_id,
+diff --git a/src/common/path_util.h b/src/common/path_util.h
+index 922e75fe..d17b3cb5 100644
+--- a/src/common/path_util.h
++++ b/src/common/path_util.h
+@@ -56,6 +56,13 @@ constexpr auto CUSTOM_MODULES_DIR = "custom_modules";
+ // Filenames
+ constexpr auto LOG_FILE = "shad_log.txt";
+ 
++#ifdef __ANDROID__
++// Call with an app-owned filesDir child before any host service/worker starts.
++// No filesystem work runs on DSO load. Failure throws and permits retry; after
++// success the process-wide layout is immutable (same-root calls are idempotent).
++void InitializeAndroidUserPaths(const std::filesystem::path& root);
++#endif
++
+ /**
+  * Validates a given path.
+  *
+diff --git a/src/core/devtools/widget/shader_list.cpp b/src/core/devtools/widget/shader_list.cpp
+index 95aca80b..4b3405a6 100644
+--- a/src/core/devtools/widget/shader_list.cpp
++++ b/src/core/devtools/widget/shader_list.cpp
+@@ -13,8 +13,8 @@
+ #include "core/debug_state.h"
+ #include "core/devtools/options.h"
+ #include "core/emulator_settings.h"
++#include "frontend/window.h"
+ #include "imgui/imgui_std.h"
+-#include "sdl_window.h"
+ #include "video_core/renderer_vulkan/vk_presenter.h"
+ #include "video_core/renderer_vulkan/vk_rasterizer.h"
+ 
+@@ -31,19 +31,21 @@ ShaderList::Selection::Selection(int index)
+     isa_editor->SetReadOnly(true);
+     glsl_editor->SetPalette(TextEditor::GetDarkPalette());
+     glsl_editor->SetLanguageDefinition(TextEditor::LanguageDefinition::GLSL());
+-    presenter->GetWindow().RequestKeyboard();
++    auto window = presenter->ShareWindow();
++    if (window->RequestKeyboard())
++        keyboard_window = std::move(window);
+ }
+ 
+ ShaderList::Selection::~Selection() {
+-    if (index >= 0) {
+-        presenter->GetWindow().ReleaseKeyboard();
+-    }
++    if (keyboard_window)
++        keyboard_window->ReleaseKeyboard();
+ }
+ 
+ ShaderList::Selection::Selection(Selection&& other) noexcept
+-    : index{other.index}, isa_editor{std::move(other.isa_editor)},
+-      glsl_editor{std::move(other.glsl_editor)}, open{other.open}, showing_bin{other.showing_bin},
+-      patch_path{std::move(other.patch_path)}, patch_bin_path{std::move(other.patch_bin_path)} {
++    : keyboard_window{std::move(other.keyboard_window)}, index{other.index},
++      isa_editor{std::move(other.isa_editor)}, glsl_editor{std::move(other.glsl_editor)},
++      open{other.open}, showing_bin{other.showing_bin}, patch_path{std::move(other.patch_path)},
++      patch_bin_path{std::move(other.patch_bin_path)} {
+     other.index = -1;
+ }
+ 
+diff --git a/src/core/devtools/widget/shader_list.h b/src/core/devtools/widget/shader_list.h
+index c882b096..d63788b4 100644
+--- a/src/core/devtools/widget/shader_list.h
++++ b/src/core/devtools/widget/shader_list.h
+@@ -4,6 +4,7 @@
+ #pragma once
+ 
+ #include "core/debug_state.h"
++#include "frontend/window.h"
+ #include "text_editor.h"
+ 
+ #include <filesystem>
+@@ -22,6 +23,7 @@ class ShaderList {
+ 
+         bool DrawShader(DebugStateType::ShaderDump& value);
+ 
++        std::shared_ptr<Frontend::Window> keyboard_window;
+         int index{-1};
+         std::unique_ptr<TextEditor> isa_editor{};
+         std::unique_ptr<TextEditor> glsl_editor{};
+diff --git a/src/core/libraries/gnmdriver/gnmdriver.cpp b/src/core/libraries/gnmdriver/gnmdriver.cpp
+index 8108426f..0fbe09cb 100644
+--- a/src/core/libraries/gnmdriver/gnmdriver.cpp
++++ b/src/core/libraries/gnmdriver/gnmdriver.cpp
+@@ -4,6 +4,7 @@
+ #include "gnm_error.h"
+ #include "gnmdriver.h"
+ 
++#include <stdexcept>
+ #include "common/assert.h"
+ #include "common/debug.h"
+ #include "common/elf_info.h"
+@@ -20,11 +21,11 @@
+ #include "core/libraries/videoout/video_out.h"
+ #include "core/memory.h"
+ #include "core/platform.h"
++#include "frontend/window.h"
+ #include "video_core/amdgpu/liverpool.h"
+ #include "video_core/amdgpu/pm4_cmds.h"
+ #include "video_core/renderer_vulkan/vk_presenter.h"
+ 
+-extern Frontend::WindowSDL* g_window;
+ std::unique_ptr<Vulkan::Presenter> presenter;
+ std::unique_ptr<AmdGpu::Liverpool> liverpool;
+ 
+@@ -2876,8 +2877,11 @@ int PS4_SYSV_ABI Func_F916890425496553() {
+ 
+ void RegisterLib(Core::Loader::SymbolsResolver* sym) {
+     LOG_INFO(Lib_GnmDriver, "Initializing presenter");
++    auto window = Frontend::AcquireWindow();
++    if (!window)
++        throw std::runtime_error("GNM initialization requires a bound platform window");
+     liverpool = std::make_unique<AmdGpu::Liverpool>();
+-    presenter = std::make_unique<Vulkan::Presenter>(*g_window, liverpool.get());
++    presenter = std::make_unique<Vulkan::Presenter>(std::move(window), liverpool.get());
+ 
+     const s32 result = sceKernelGetCompiledSdkVersion(&sdk_version);
+     if (result != ORBIS_OK) {
+diff --git a/src/core/libraries/kernel/threads/exception.cpp b/src/core/libraries/kernel/threads/exception.cpp
+index 8d934a60..b17e9815 100644
+--- a/src/core/libraries/kernel/threads/exception.cpp
++++ b/src/core/libraries/kernel/threads/exception.cpp
+@@ -29,6 +29,7 @@ Ucontext::Ucontext(siginfo_t const* inf, ucontext_t* raw_context) {
+     }
+     host_context = raw_context;
+ #ifdef ARCH_X86_64
++    guest_context_valid = true;
+ #ifdef __APPLE__
+     const auto& regs = raw_context->uc_mcontext->__ss;
+     uc_mcontext.mc_r8 = regs.__r8;
+@@ -97,14 +98,9 @@ Ucontext::Ucontext(siginfo_t const* inf, ucontext_t* raw_context) {
+     uc_mcontext.mc_addr = reinterpret_cast<uint64_t>(inf->si_addr);
+ #endif
+ #elif defined(ARCH_ARM64)
+-    // On ARM64 the guest is x86-64 code executed by FEX, so the guest register
+-    // state does NOT live in the host ARM64 ucontext_t — it lives in the FEX
+-    // guest CPU state. Mapping host ARM64 gregs to Orbis x86-64 mc_* fields here
+-    // would be wrong. The Orbis mcontext stays zero-initialised (its default);
+-    // populating it from the FEX guest thread at a guest exception boundary is
+-    // WP-B (guest execution) integration, not host-link work. si_addr is still
+-    // the faulting guest address and is the one field meaningful pre-FEX-wiring.
+-    uc_mcontext.mc_addr = reinterpret_cast<uint64_t>(inf->si_addr);
++    // No valid guest snapshot is available from an ARM64 host signal frame.
++    // Keep deterministic storage and explicit invalidity until the FEX adapter
++    // supplies a guest safe-point context. si_addr alone does not identify a guest.
+ #else
+ #error "ucontext_t conversion not implemented for current architecture."
+ #endif
+@@ -115,6 +111,7 @@ Ucontext::Ucontext(PCONTEXT context) {
+         return;
+     }
+     host_context = context;
++    guest_context_valid = true;
+     uc_mcontext.mc_r8 = context->R8;
+     uc_mcontext.mc_r9 = context->R9;
+     uc_mcontext.mc_r10 = context->R10;
+@@ -137,9 +134,9 @@ Ucontext::Ucontext(PCONTEXT context) {
+ }
+ #endif
+ 
+-void Ucontext::SyncHostFromGuest() {
+-    if (!host_context) {
+-        return;
++bool Ucontext::SyncHostFromGuest() {
++    if (!host_context || !guest_context_valid) {
++        return false;
+     }
+ 
+ #ifdef ARCH_X86_64
+@@ -229,12 +226,11 @@ void Ucontext::SyncHostFromGuest() {
+     regs[REG_RIP] = uc_mcontext.mc_rip;
+ #endif
+ #elif defined(ARCH_ARM64)
+-    // Writing the guest x86-64 register state back is a FEX guest-state operation
+-    // on ARM64, not a host ARM64 ucontext write (see the constructor above). This
+-    // is WP-B; no host ucontext gregs to populate here.
++    return false; // Requires guest-state write-back through the FEX adapter.
+ #else
+ #error "ucontext_t conversion not implemented for current architecture."
+ #endif
++    return true;
+ }
+ 
+ std::array<Sigaction, 128> PosixActions{};
+diff --git a/src/core/libraries/kernel/threads/exception.h b/src/core/libraries/kernel/threads/exception.h
+index e8d95fdf..28d68996 100644
+--- a/src/core/libraries/kernel/threads/exception.h
++++ b/src/core/libraries/kernel/threads/exception.h
+@@ -123,23 +123,29 @@ struct Siginfo {
+ };
+ 
+ struct Ucontext {
+-    struct Sigset uc_sigmask;
+-    int field1_0x10[12];
+-    Mcontext uc_mcontext;
+-    Ucontext* uc_link;
+-    ExStack uc_stack;
+-    int uc_flags;
+-    int __spare[4];
+-    int field7_0x4f4[3];
++    struct Sigset uc_sigmask {};
++    int field1_0x10[12]{};
++    Mcontext uc_mcontext{};
++    Ucontext* uc_link{};
++    ExStack uc_stack{};
++    int uc_flags{};
++    int __spare[4]{};
++    int field7_0x4f4[3]{};
+ 
+ #ifndef _WIN32
+     explicit Ucontext(siginfo_t const* inf, ucontext_t* raw_context);
+-    ucontext_t* host_context;
++    ucontext_t* host_context{};
+ #else
+     explicit Ucontext(PCONTEXT context);
+-    PCONTEXT host_context;
++    PCONTEXT host_context{};
+ #endif
+-    void SyncHostFromGuest();
++    bool HasGuestContext() const {
++        return guest_context_valid;
++    }
++    bool SyncHostFromGuest();
++    // Host-only metadata, outside the Orbis ABI prefix. ARM64 conversion must
++    // eventually come from a verified FEX safe point, not this host constructor.
++    bool guest_context_valid{};
+ };
+ 
+ using SigHandler = void PS4_SYSV_ABI (*)(int);
+diff --git a/src/core/libraries/kernel/threads/pthread.cpp b/src/core/libraries/kernel/threads/pthread.cpp
+index 3141cc1a..af5c5027 100644
+--- a/src/core/libraries/kernel/threads/pthread.cpp
++++ b/src/core/libraries/kernel/threads/pthread.cpp
+@@ -1028,6 +1028,14 @@ bool Pthread::DispatchSignal(s32 sig, Siginfo* info, Ucontext* context) {
+         return SigDflHandler(sig);
+     }
+ 
++    // Native handlers contain guest addresses. ARM64 needs InvokeGuest and a
++    // valid guest snapshot; never call an x86 handler as an ARM64 function.
++#ifdef ARCH_ARM64
++    return false;
++#endif
++    if (context && !context->HasGuestContext())
++        return false;
++
+     Sigset old_mask{};
+     GetGuestSigmask(old_mask);
+ 
+diff --git a/src/core/libraries/mouse/mouse.cpp b/src/core/libraries/mouse/mouse.cpp
+index e44d56d1..42a0d520 100644
+--- a/src/core/libraries/mouse/mouse.cpp
++++ b/src/core/libraries/mouse/mouse.cpp
+@@ -8,11 +8,9 @@
+ #include "core/libraries/error_codes.h"
+ #include "core/libraries/libs.h"
+ #include "core/user_settings.h"
++#include "frontend/window.h"
+ #include "mouse.h"
+ #include "mouse_error.h"
+-#include "sdl_window.h"
+-
+-extern Frontend::WindowSDL* g_window;
+ 
+ namespace Libraries::Mouse {
+ 
+@@ -62,10 +60,13 @@ int PS4_SYSV_ABI sceMouseGetDeviceInfo() {
+ }
+ 
+ int PS4_SYSV_ABI sceMouseInit() {
++    const auto window = Frontend::AcquireWindow();
++    if (!window || !window->GetSDLWindow())
++        return ORBIS_MOUSE_ERROR_NOT_INITIALIZED;
+     g_are_mice_enabled = EmulatorSettings.IsMiceUsedAsMice();
+     if (g_are_mice_enabled) {
+-        SDL_WarpMouseInWindow(g_window->GetSDLWindow(), 1, 1);
+-        SDL_SetWindowRelativeMouseMode(g_window->GetSDLWindow(), true);
++        SDL_WarpMouseInWindow(window->GetSDLWindow(), 1, 1);
++        SDL_SetWindowRelativeMouseMode(window->GetSDLWindow(), true);
+     }
+     int micecount = 0;
+     auto micelist = SDL_GetMice(&micecount);
+diff --git a/src/core/libraries/network/net.cpp b/src/core/libraries/network/net.cpp
+index f633ebdf..95354339 100644
+--- a/src/core/libraries/network/net.cpp
++++ b/src/core/libraries/network/net.cpp
+@@ -16,6 +16,7 @@
+ #include "common/assert.h"
+ #include "common/error.h"
+ #include "common/logging/log.h"
++#include "common/poll_timeout.h"
+ #include "common/singleton.h"
+ #include "core/file_sys/fs.h"
+ #include "core/libraries/error_codes.h"
+@@ -1019,7 +1020,7 @@ int PS4_SYSV_ABI sceNetEpollWait(OrbisNetId epollid, OrbisNetEpollEvent* events,
+         // bionic (Android) does not expose epoll_pwait2 at API 33; use epoll_wait
+         // with a millisecond timeout, matching the non-Linux path.
+         result = epoll_wait(epoll->epoll_fd, native_events.data(), maxevents,
+-                            timeout < 0 ? timeout : timeout / 1000);
++                            Common::PollTimeoutMilliseconds(timeout));
+ #endif
+     }
+ 
+diff --git a/src/core/libraries/system/systemservice.cpp b/src/core/libraries/system/systemservice.cpp
+index 4c082a0c..73250248 100644
+--- a/src/core/libraries/system/systemservice.cpp
++++ b/src/core/libraries/system/systemservice.cpp
+@@ -10,7 +10,12 @@
+ #include "core/libraries/libs.h"
+ #include "core/libraries/system/systemservice.h"
+ #include "core/libraries/system/systemservice_error.h"
++#ifdef __ANDROID__
++#include "core/host_runtime/application_control.h"
++#include "core/libraries/kernel/orbis_error.h"
++#else
+ #include "emulator.h"
++#endif
+ 
+ namespace Libraries::SystemService {
+ 
+@@ -1874,6 +1879,30 @@ int PS4_SYSV_ABI sceSystemServiceLaunchWebBrowser() {
+ 
+ int PS4_SYSV_ABI sceSystemServiceLoadExec(const char* path, const char* argv[]) {
+     LOG_DEBUG(Lib_SystemService, "called");
++#ifdef __ANDROID__
++    // The typed guest gate must marshal these pointers before calling native HLE.
++    if (!path || !*path)
++        return ORBIS_SYSTEM_SERVICE_ERROR_PARAMETER;
++    Core::HostRuntime::LoadExecRequest request{.guest_path = path};
++    if (argv) {
++        for (const char* const* arg = argv; *arg; ++arg)
++            request.args.emplace_back(*arg);
++    }
++    using Core::HostRuntime::LoadExecResult;
++    switch (Core::HostRuntime::RequestLoadExec(request)) {
++    case LoadExecResult::Accepted:
++        return ORBIS_OK;
++    case LoadExecResult::Unavailable:
++        return ORBIS_KERNEL_ERROR_ENOSYS;
++    case LoadExecResult::Busy:
++        return ORBIS_KERNEL_ERROR_EBUSY;
++    case LoadExecResult::InvalidRequest:
++        return ORBIS_SYSTEM_SERVICE_ERROR_PARAMETER;
++    case LoadExecResult::Failed:
++        return ORBIS_KERNEL_ERROR_EIO;
++    }
++    return ORBIS_KERNEL_ERROR_EIO;
++#else
+     auto emu = Common::Singleton<Core::Emulator>::Instance();
+     auto mnt = Common::Singleton<Core::FileSys::MntPoints>::Instance();
+     // Validate through the mount stack so archive-backed targets resolve.
+@@ -1899,6 +1928,7 @@ int PS4_SYSV_ABI sceSystemServiceLoadExec(const char* path, const char* argv[])
+     }
+     emu->Restart(exec_path, args);
+     return ORBIS_OK;
++#endif
+ }
+ 
+ int PS4_SYSV_ABI sceSystemServiceNavigateToAnotherApp() {
+diff --git a/src/core/signals.cpp b/src/core/signals.cpp
+index 52c9bf33..df0af6a4 100644
+--- a/src/core/signals.cpp
++++ b/src/core/signals.cpp
+@@ -261,7 +261,9 @@ void SignalHandler(int sig, siginfo_t* info, void* raw_context) {
+         guest_info._si_signo = sig == SIGUSR1 ? 0 : NativeToOrbisSignal(info->si_signo);
+         guest_info._si_errno = NativeToPosixErrno(info->si_errno);
+         guest_info._si_code = NativeSiCodeToGuest(sig, info->si_code);
+-        guest_info._si_addr = (void*)context.uc_mcontext.mc_rip;
++        guest_info._si_addr = context.HasGuestContext()
++                                  ? reinterpret_cast<void*>(context.uc_mcontext.mc_rip)
++                                  : nullptr;
+     }
+     Siginfo* info_p = info ? &guest_info : nullptr;
+     Ucontext* context_p = raw_context ? &context : nullptr;
+diff --git a/src/emulator.cpp b/src/emulator.cpp
+index 16de67be..076d1484 100644
+--- a/src/emulator.cpp
++++ b/src/emulator.cpp
+@@ -57,7 +57,6 @@
+ #endif
+ #include <core/file_format/npbind.h>
+ 
+-Frontend::WindowSDL* g_window = nullptr;
+ 
+ namespace Libraries::Kernel {
+ extern char const* g_environment[64];
+@@ -81,7 +80,9 @@ Emulator::Emulator() {
+     std::at_quick_exit([]() { Common::Singleton<Core::Emulator>::Instance()->Shutdown(); });
+ }
+ 
+-Emulator::~Emulator() {}
++Emulator::~Emulator() {
++    Frontend::UnbindWindow(window);
++}
+ 
+ void Emulator::Shutdown() {
+     static bool exit_done = false;
+@@ -584,11 +585,11 @@ void Emulator::Run(std::filesystem::path file, std::vector<std::string> args,
+                                        Common::g_scm_branch, Common::g_scm_desc, game_title);
+         }
+     }
+-    window = std::make_unique<Frontend::WindowSDL>(EmulatorSettings.GetWindowWidth(),
++    window = std::make_shared<Frontend::WindowSDL>(EmulatorSettings.GetWindowWidth(),
+                                                    EmulatorSettings.GetWindowHeight(), controllers,
+                                                    window_title);
+ 
+-    g_window = window.get();
++    ASSERT_MSG(Frontend::BindWindow(window), "A platform window is already bound");
+ 
+     if (auto icon = mnt->ReadFile("/app0/sce_sys/icon0.png")) {
+         window->SetIcon(*icon);
+diff --git a/src/emulator.h b/src/emulator.h
+index c53d7c0f..f606d6a3 100644
+--- a/src/emulator.h
++++ b/src/emulator.h
+@@ -54,7 +54,7 @@ private:
+     Core::MemoryManager* memory;
+     Input::GameControllers* controllers;
+     Core::Linker* linker;
+-    std::unique_ptr<Frontend::WindowSDL> window;
++    std::shared_ptr<Frontend::WindowSDL> window;
+     std::chrono::steady_clock::time_point start_time;
+     std::jthread play_time_thread;
+ };
+diff --git a/src/imgui/big_picture/big_picture.cpp b/src/imgui/big_picture/big_picture.cpp
+index 5857ada9..f174d545 100644
+--- a/src/imgui/big_picture/big_picture.cpp
++++ b/src/imgui/big_picture/big_picture.cpp
+@@ -272,7 +272,8 @@ void Launch(char* executableName, bool sameProcess) {
+     ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
+     ImGui_ImplSDLRenderer3_Init(renderer);
+ 
+-    ImGuiEmuSettings::SettingsWindow settingsWindow(false);
++    ImGuiEmuSettings::SettingsWindow settingsWindow(
++        false, {.load_texture = LoadSdlTextureData, .load_profiles = GetGameIconInfo});
+ 
+     float sliderScale = 1.0f;
+     auto applySettings = [&] {
+diff --git a/src/imgui/big_picture/settings_dialog_imgui.cpp b/src/imgui/big_picture/settings_dialog_imgui.cpp
+index d3377201..c942a204 100644
+--- a/src/imgui/big_picture/settings_dialog_imgui.cpp
++++ b/src/imgui/big_picture/settings_dialog_imgui.cpp
+@@ -3,6 +3,7 @@
+ 
+ #include <map>
+ #include <ranges>
++#include <stdexcept>
+ #include <ImGuiFileDialog.h>
+ #include <cmrc/cmrc.hpp>
+ #include <stb_image.h>
+@@ -184,21 +185,28 @@ void SettingsWindow::SaveInstallDirs() {
+ }
+ 
+ void SettingsWindow::GetProfileInfo() {
+-    GetGameIconInfo(profileIcons);
++    if (!launcher.load_profiles) {
++        throw std::logic_error("Launcher profile service is unavailable in in-game settings");
++    }
++    launcher.load_profiles(profileIcons);
+ 
+     BigPictureMode::IconInfo global;
+     global.title = "Global";
+     profileIcons.emplace(profileIcons.begin(), global);
+ }
+ 
+-SettingsWindow::SettingsWindow(bool gameRunning) : isGameRunning(gameRunning) {
++SettingsWindow::SettingsWindow(bool gameRunning, LauncherServices launcher_)
++    : isGameRunning(gameRunning), launcher(std::move(launcher_)) {
++    if (!gameRunning && (!launcher.load_texture || !launcher.load_profiles)) {
++        throw std::invalid_argument("Desktop settings require launcher services");
++    }
+     auto resource = cmrc::res::get_filesystem();
+     auto loadTexture = [&](const std::string& resourcePath,
+                            std::variant<SDL_Texture*, ImGui::RefCountedTexture>& texture) {
+         auto file = resource.open(resourcePath);
+         std::vector<u8> texData = std::vector<u8>(file.begin(), file.end());
+         gameRunning ? texture = ImGui::RefCountedTexture::DecodePngTexture(texData)
+-                    : texture = BigPictureMode::LoadSdlTextureData(texData);
++                    : texture = launcher.load_texture(std::move(texData));
+     };
+ 
+     loadTexture("src/resources/big_picture/settings.png", generalTexture);
+diff --git a/src/imgui/big_picture/settings_dialog_imgui.h b/src/imgui/big_picture/settings_dialog_imgui.h
+index 0af9da29..a1a162c5 100644
+--- a/src/imgui/big_picture/settings_dialog_imgui.h
++++ b/src/imgui/big_picture/settings_dialog_imgui.h
+@@ -15,10 +15,17 @@
+ 
+ namespace ImGuiEmuSettings {
+ 
++// Only the desktop launcher owns an SDL renderer and scans launcher profiles.
++// In-game settings decode textures through the emulator's Vulkan backend.
++struct LauncherServices {
++    std::function<SDL_Texture*(std::vector<u8>)> load_texture;
++    std::function<void(std::vector<BigPictureMode::IconInfo>&)> load_profiles;
++};
++
+ class SettingsWindow {
+ 
+ public:
+-    SettingsWindow(bool gameRunning);
++    SettingsWindow(bool gameRunning, LauncherServices launcher = {});
+     void Prepare();
+     void DrawSettings(bool* open, const std::function<void()>& applySettings);
+ 
+@@ -65,6 +72,7 @@ private:
+ 
+     std::string runningGameSerial = "";
+     bool isGameRunning = false;
++    LauncherServices launcher;
+     bool closeOnSave = false;
+     int deleteProfileIndex = -1;
+ 
+diff --git a/src/imgui/renderer/CMakeLists.txt b/src/imgui/renderer/CMakeLists.txt
+index 2d6cdf88..093ab2ab 100644
+--- a/src/imgui/renderer/CMakeLists.txt
++++ b/src/imgui/renderer/CMakeLists.txt
+@@ -8,9 +8,15 @@ project(ImGui_Resources)
+ # host-built one via IMGUI_FONT_EMBED_EXECUTABLE (matching the reference Android
+ # build). Only build the tool from source in a native build.
+ if(IMGUI_FONT_EMBED_EXECUTABLE)
++    if(NOT EXISTS "${IMGUI_FONT_EMBED_EXECUTABLE}")
++        message(FATAL_ERROR "Missing host font embed tool: ${IMGUI_FONT_EMBED_EXECUTABLE}")
++    endif()
+     set(FONT_EMBED_COMMAND "${IMGUI_FONT_EMBED_EXECUTABLE}")
+-    set(FONT_EMBED_DEP "")
++    set(FONT_EMBED_DEP "${IMGUI_FONT_EMBED_EXECUTABLE}")
+ else()
++    if(CMAKE_CROSSCOMPILING)
++        message(FATAL_ERROR "Cross builds require IMGUI_FONT_EMBED_EXECUTABLE; use scripts/android/build-host-android")
++    endif()
+     add_executable(Dear_ImGui_FontEmbed ${CMAKE_SOURCE_DIR}/externals/imgui/misc/fonts/binary_to_compressed_c.cpp)
+     set(FONT_EMBED_COMMAND "$<TARGET_FILE:Dear_ImGui_FontEmbed>")
+     set(FONT_EMBED_DEP Dear_ImGui_FontEmbed)
+diff --git a/src/imgui/renderer/imgui_core.cpp b/src/imgui/renderer/imgui_core.cpp
+index 195a0f35..d0075c5d 100644
+--- a/src/imgui/renderer/imgui_core.cpp
++++ b/src/imgui/renderer/imgui_core.cpp
+@@ -4,6 +4,7 @@
+ #include <algorithm>
+ #include <atomic>
+ #include <bit>
++#include <chrono>
+ #include <cstdint>
+ #include <SDL3/SDL_events.h>
+ #include <imgui.h>
+@@ -14,12 +15,12 @@
+ #include "core/emulator_settings.h"
+ #include "font_data.h"
+ #include "font_stack.h"
++#include "frontend/window.h"
+ #include "imgui/imgui_layer.h"
+ #include "imgui_core.h"
+ #include "imgui_impl_sdl3.h"
+ #include "imgui_impl_vulkan.h"
+ #include "imgui_internal.h"
+-#include "sdl_window.h"
+ #include "texture_manager.h"
+ #include "video_core/renderer_vulkan/vk_presenter.h"
+ 
+@@ -37,6 +38,9 @@ static std::mutex change_layers_mutex{};
+ 
+ static ImGuiID dock_id;
+ static std::atomic<std::uint32_t> force_gamepad_input_capture_count{0};
++static const Frontend::Window* platform_window{}; // Owned by the presenter through Shutdown.
++static bool using_sdl{};
++static std::chrono::steady_clock::time_point previous_frame;
+ 
+ namespace ImGui {
+ 
+@@ -61,7 +65,7 @@ bool IsGamepadInputCaptured() {
+     return force_gamepad_input_capture_count.load(std::memory_order_relaxed) > 0;
+ }
+ 
+-void Initialize(const ::Vulkan::Instance& instance, const Frontend::WindowSDL& window,
++void Initialize(const ::Vulkan::Instance& instance, const Frontend::Window& window,
+                 const u32 image_count, vk::Format surface_format,
+                 const vk::AllocationCallbacks* allocator) {
+ 
+@@ -118,7 +122,11 @@ void Initialize(const ::Vulkan::Instance& instance, const Frontend::WindowSDL& w
+     StyleColorsDark();
+ 
+     ::Core::Devtools::Layer::SetupSettings();
+-    Sdl::Init(window.GetSDLWindow());
++    platform_window = &window;
++    using_sdl = window.GetSDLWindow() != nullptr;
++    previous_frame = std::chrono::steady_clock::now();
++    if (using_sdl)
++        Sdl::Init(window.GetSDLWindow());
+ 
+     const Vulkan::InitInfo vk_info{
+         .instance = instance.GetInstance(),
+@@ -143,15 +151,26 @@ void Initialize(const ::Vulkan::Instance& instance, const Frontend::WindowSDL& w
+     ImFormatString(label, IM_ARRAYSIZE(label), "WindowOverViewport_%08X", GetMainViewport()->ID);
+     dock_id = ImHashStr(label);
+ 
+-    if (const auto dpi = SDL_GetWindowDisplayScale(window.GetSDLWindow()); dpi > 0.0f) {
++    const auto dpi = using_sdl ? SDL_GetWindowDisplayScale(window.GetSDLWindow())
++                               : window.GetWindowInfo().render_surface_scale;
++    if (dpi > 0.0f) {
+         GetIO().FontGlobalScale *= dpi;
+     }
+ 
+-    std::at_quick_exit([] { SaveIniSettingsToDisk(GetIO().IniFilename); });
++#ifndef __ANDROID__
++    std::at_quick_exit([] {
++        if (GetCurrentContext())
++            SaveIniSettingsToDisk(GetIO().IniFilename);
++    });
++#endif
+ }
+ 
+ void OnResize() {
+-    Sdl::OnResize();
++    if (using_sdl)
++        Sdl::OnResize();
++    else if (platform_window)
++        GetIO().DisplaySize = ImVec2(static_cast<float>(platform_window->GetWidth()),
++                                     static_cast<float>(platform_window->GetHeight()));
+ }
+ 
+ void OnSurfaceFormatChange(vk::Format surface_format) {
+@@ -172,7 +191,10 @@ void Shutdown(const vk::Device& device) {
+     const auto log_filename = (void*)io.LogFilename;
+ 
+     Vulkan::Shutdown();
+-    Sdl::Shutdown();
++    if (using_sdl)
++        Sdl::Shutdown();
++    platform_window = nullptr;
++    using_sdl = false;
+     DestroyContext();
+ 
+     delete[] (char*)ini_filename;
+@@ -180,6 +202,8 @@ void Shutdown(const vk::Device& device) {
+ }
+ 
+ bool ProcessEvent(SDL_Event* event) {
++    if (!using_sdl)
++        return false; // Android input is delivered by its own adapter.
+     Sdl::ProcessEvent(event);
+     switch (event->type) {
+     // Don't block release/up events
+@@ -237,7 +261,15 @@ ImGuiID NewFrame(bool is_reusing_frame) {
+         }
+     }
+ 
+-    Sdl::NewFrame(is_reusing_frame);
++    if (using_sdl)
++        Sdl::NewFrame(is_reusing_frame);
++    else {
++        OnResize();
++        const auto now = std::chrono::steady_clock::now();
++        GetIO().DeltaTime =
++            std::max(std::chrono::duration<float>(now - previous_frame).count(), 1e-6f);
++        previous_frame = now;
++    }
+     ImGui::NewFrame();
+ 
+     ImGuiWindowFlags flags =
+diff --git a/src/imgui/renderer/imgui_core.h b/src/imgui/renderer/imgui_core.h
+index c80ca0e8..17c8f18b 100644
+--- a/src/imgui/renderer/imgui_core.h
++++ b/src/imgui/renderer/imgui_core.h
+@@ -16,9 +16,8 @@ struct Frame;
+ 
+ namespace ImGui::Core {
+ 
+-void Initialize(const Vulkan::Instance& instance, const Frontend::WindowSDL& window,
+-                u32 image_count, vk::Format surface_format,
+-                const vk::AllocationCallbacks* allocator = nullptr);
++void Initialize(const Vulkan::Instance& instance, const Frontend::Window& window, u32 image_count,
++                vk::Format surface_format, const vk::AllocationCallbacks* allocator = nullptr);
+ 
+ void OnResize();
+ 
+diff --git a/src/input/input_mouse.cpp b/src/input/input_mouse.cpp
+index f90c2048..fb0ddd5d 100644
+--- a/src/input/input_mouse.cpp
++++ b/src/input/input_mouse.cpp
+@@ -2,6 +2,7 @@
+ // SPDX-License-Identifier: GPL-2.0-or-later
+ 
+ #include <cmath>
++#include <list>
+ 
+ #include "common/assert.h"
+ #include "common/types.h"
+@@ -10,10 +11,8 @@
+ #include "input_mouse.h"
+ 
+ #include <common/singleton.h>
+-#include <emulator.h>
+ #include "SDL3/SDL.h"
+-
+-extern Frontend::WindowSDL* g_window;
++#include "frontend/window.h"
+ 
+ namespace Input {
+ 
+@@ -99,11 +98,14 @@ void EmulateGyro(GameController* controller, u32 interval) {
+ }
+ 
+ void EmulateTouchpad(GameController* controller, u32 interval) {
++    const auto window = Frontend::AcquireWindow();
++    if (!window || window->GetWidth() <= 0 || window->GetHeight() <= 0)
++        return;
+     float x, y;
+     SDL_MouseButtonFlags mouse_buttons = SDL_GetMouseState(&x, &y);
+     controller->SetTouchpadState(0, (mouse_buttons & SDL_BUTTON_LMASK) != 0,
+-                                 std::clamp(x / g_window->GetWidth(), 0.0f, 1.0f),
+-                                 std::clamp(y / g_window->GetHeight(), 0.0f, 1.0f));
++                                 std::clamp(x / window->GetWidth(), 0.0f, 1.0f),
++                                 std::clamp(y / window->GetHeight(), 0.0f, 1.0f));
+     controller->Button(Libraries::Pad::OrbisPadButtonDataOffset::TouchPad,
+                        (mouse_buttons & SDL_BUTTON_RMASK) != 0);
+ }
+diff --git a/src/sdl_window.cpp b/src/sdl_window.cpp
+index b2e07dcd..e3dc8bd7 100644
+--- a/src/sdl_window.cpp
++++ b/src/sdl_window.cpp
+@@ -345,13 +345,16 @@ void WindowSDL::InitTimers() {
+     SDL_AddTimer(33, Input::MousePolling, (void*)controllers[0]);
+ }
+ 
+-void WindowSDL::RequestKeyboard() {
++bool WindowSDL::RequestKeyboard() {
+     if (keyboard_grab == 0) {
+-        SDL_RunOnMainThread(
+-            [](void* userdata) { SDL_StartTextInput(static_cast<SDL_Window*>(userdata)); }, window,
+-            true);
++        if (!SDL_RunOnMainThread(
++                [](void* userdata) { SDL_StartTextInput(static_cast<SDL_Window*>(userdata)); },
++                window, true)) {
++            return false;
++        }
+     }
+     keyboard_grab++;
++    return true;
+ }
+ 
+ void WindowSDL::ReleaseKeyboard() {
+diff --git a/src/sdl_window.h b/src/sdl_window.h
+index f5380eb4..38a630d5 100644
+--- a/src/sdl_window.h
++++ b/src/sdl_window.h
+@@ -8,6 +8,7 @@
+ 
+ #include "common/types.h"
+ #include "core/libraries/pad/pad.h"
++#include "frontend/window.h"
+ #include "input/controller.h"
+ 
+ struct SDL_Window;
+@@ -20,45 +21,19 @@ class GameController;
+ 
+ namespace Frontend {
+ 
+-enum class WindowSystemType : u8 {
+-    Headless,
+-    Windows,
+-    X11,
+-    Wayland,
+-    Metal,
+-    // Android: render_surface holds an ANativeWindow*, no display_connection.
+-    Android,
+-};
+-
+-struct WindowSystemInfo {
+-    // Connection to a display server. This is used on X11 and Wayland platforms.
+-    void* display_connection = nullptr;
+-
+-    // Render surface. This is a pointer to the native window handle, which depends
+-    // on the platform. e.g. HWND for Windows, Window for X11. If the surface is
+-    // set to nullptr, the video backend will run in headless mode.
+-    void* render_surface = nullptr;
+-
+-    // Scale of the render surface. For hidpi systems, this will be >1.
+-    float render_surface_scale = 1.0f;
+-
+-    // Window system type. Determines which GL context or Vulkan WSI is used.
+-    WindowSystemType type = WindowSystemType::Headless;
+-};
+-
+-class WindowSDL {
++class WindowSDL : public Window {
+     int keyboard_grab = 0;
+ 
+ public:
+     explicit WindowSDL(s32 width, s32 height, Input::GameControllers* controllers,
+                        std::string_view window_title);
+-    ~WindowSDL();
++    ~WindowSDL() override;
+ 
+-    s32 GetWidth() const {
++    s32 GetWidth() const override {
+         return width;
+     }
+ 
+-    s32 GetHeight() const {
++    s32 GetHeight() const override {
+         return height;
+     }
+ 
+@@ -66,11 +41,11 @@ public:
+         return is_open;
+     }
+ 
+-    [[nodiscard]] SDL_Window* GetSDLWindow() const {
++    [[nodiscard]] SDL_Window* GetSDLWindow() const override {
+         return window;
+     }
+ 
+-    WindowSystemInfo GetWindowInfo() const {
++    WindowSystemInfo GetWindowInfo() const override {
+         return window_info;
+     }
+ 
+@@ -79,8 +54,8 @@ public:
+     void WaitEvent();
+     void InitTimers();
+ 
+-    void RequestKeyboard();
+-    void ReleaseKeyboard();
++    bool RequestKeyboard() override;
++    void ReleaseKeyboard() override;
+ 
+ private:
+     void OnResize();
+diff --git a/src/video_core/renderer_vulkan/vk_instance.cpp b/src/video_core/renderer_vulkan/vk_instance.cpp
+index 609ff6c6..a28f6610 100644
+--- a/src/video_core/renderer_vulkan/vk_instance.cpp
++++ b/src/video_core/renderer_vulkan/vk_instance.cpp
+@@ -8,8 +8,8 @@
+ #include "common/assert.h"
+ #include "common/debug.h"
+ #include "common/types.h"
++#include "frontend/window.h"
+ #include "imgui/renderer/imgui_core.h"
+-#include "sdl_window.h"
+ #include "video_core/renderer_vulkan/liverpool_to_vk.h"
+ #include "video_core/renderer_vulkan/vk_instance.h"
+ #include "video_core/renderer_vulkan/vk_platform.h"
+@@ -93,7 +93,7 @@ Instance::Instance(bool enable_validation, bool enable_crash_diagnostic)
+                               enable_crash_diagnostic)},
+       physical_devices{EnumeratePhysicalDevices(instance)} {}
+ 
+-Instance::Instance(Frontend::WindowSDL& window, s32 physical_device_index,
++Instance::Instance(Frontend::Window& window, s32 physical_device_index,
+                    bool enable_validation /*= false*/, bool enable_crash_diagnostic /*= false*/)
+     : instance{CreateInstance(window.GetWindowInfo().type, enable_validation,
+                               enable_crash_diagnostic)},
+diff --git a/src/video_core/renderer_vulkan/vk_instance.h b/src/video_core/renderer_vulkan/vk_instance.h
+index 93ced018..b4a69799 100644
+--- a/src/video_core/renderer_vulkan/vk_instance.h
++++ b/src/video_core/renderer_vulkan/vk_instance.h
+@@ -12,7 +12,7 @@
+ #include <tracy/TracyVulkan.hpp>
+ 
+ namespace Frontend {
+-class WindowSDL;
++class Window;
+ }
+ 
+ VK_DEFINE_HANDLE(VmaAllocator)
+@@ -22,7 +22,7 @@ namespace Vulkan {
+ class Instance {
+ public:
+     explicit Instance(bool validation = false, bool crash_diagnostic = false);
+-    explicit Instance(Frontend::WindowSDL& window, s32 physical_device_index,
++    explicit Instance(Frontend::Window& window, s32 physical_device_index,
+                       bool enable_validation = false, bool enable_crash_diagnostic = false);
+     ~Instance();
+ 
+diff --git a/src/video_core/renderer_vulkan/vk_platform.cpp b/src/video_core/renderer_vulkan/vk_platform.cpp
+index 5d9b5c65..ef8c82e5 100644
+--- a/src/video_core/renderer_vulkan/vk_platform.cpp
++++ b/src/video_core/renderer_vulkan/vk_platform.cpp
+@@ -27,7 +27,7 @@
+ #include "common/logging/log.h"
+ #include "common/path_util.h"
+ #include "core/emulator_settings.h"
+-#include "sdl_window.h"
++#include "frontend/window.h"
+ #include "video_core/renderer_vulkan/vk_platform.h"
+ 
+ #ifdef __APPLE__
+@@ -66,7 +66,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL DebugUtilsCallback(
+     return VK_FALSE;
+ }
+ 
+-vk::SurfaceKHR CreateSurface(vk::Instance instance, const Frontend::WindowSDL& emu_window) {
++vk::SurfaceKHR CreateSurface(vk::Instance instance, const Frontend::Window& emu_window) {
+     const auto& window_info = emu_window.GetWindowInfo();
+     vk::SurfaceKHR surface{};
+ 
+diff --git a/src/video_core/renderer_vulkan/vk_platform.h b/src/video_core/renderer_vulkan/vk_platform.h
+index b8f5f9f1..13738640 100644
+--- a/src/video_core/renderer_vulkan/vk_platform.h
++++ b/src/video_core/renderer_vulkan/vk_platform.h
+@@ -13,14 +13,14 @@
+ 
+ namespace Frontend {
+ enum class WindowSystemType : u8;
+-class WindowSDL;
++class Window;
+ } // namespace Frontend
+ 
+ namespace Vulkan {
+ 
+ constexpr u32 TargetVulkanApiVersion = VK_API_VERSION_1_3;
+ 
+-vk::SurfaceKHR CreateSurface(vk::Instance instance, const Frontend::WindowSDL& emu_window);
++vk::SurfaceKHR CreateSurface(vk::Instance instance, const Frontend::Window& emu_window);
+ 
+ vk::UniqueInstance CreateInstance(Frontend::WindowSystemType window_type, bool enable_validation,
+                                   bool enable_crash_diagnostic);
+diff --git a/src/video_core/renderer_vulkan/vk_presenter.cpp b/src/video_core/renderer_vulkan/vk_presenter.cpp
+index 4b292145..6df88955 100644
+--- a/src/video_core/renderer_vulkan/vk_presenter.cpp
++++ b/src/video_core/renderer_vulkan/vk_presenter.cpp
+@@ -1,6 +1,7 @@
+ // SPDX-FileCopyrightText: Copyright 2024-2026 shadPS4 Emulator Project
+ // SPDX-License-Identifier: GPL-2.0-or-later
+ 
++#include <stdexcept>
+ #include "common/debug.h"
+ #include "common/elf_info.h"
+ #include "common/io_file.h"
+@@ -10,13 +11,13 @@
+ #include "core/devtools/layer.h"
+ #include "core/emulator_settings.h"
+ #include "core/libraries/system/systemservice.h"
++#include "frontend/window.h"
+ #include "imgui/friends_layer.h"
+ #include "imgui/invitation_prompt_layer.h"
+ #include "imgui/notifications_layer.h"
+ #include "imgui/renderer/imgui_core.h"
+ #include "imgui/renderer/imgui_impl_vulkan.h"
+ #include "imgui/shadnet_notifications_layer.h"
+-#include "sdl_window.h"
+ #include "video_core/buffer_cache/buffer.h"
+ #include "video_core/renderdoc.h"
+ #include "video_core/renderer_vulkan/vk_platform.h"
+@@ -468,12 +469,14 @@ static void SavePendingScreenshots(const std::vector<ScreenshotReadback>& readba
+     }
+ }
+ 
+-Presenter::Presenter(Frontend::WindowSDL& window_, AmdGpu::Liverpool* liverpool_)
+-    : window{window_}, liverpool{liverpool_},
+-      instance{window, EmulatorSettings.GetGpuId(), EmulatorSettings.IsVkValidationEnabled(),
++Presenter::Presenter(std::shared_ptr<Frontend::Window> window_, AmdGpu::Liverpool* liverpool_)
++    : window{window_ ? std::move(window_)
++                     : throw std::invalid_argument("Presenter requires a window")},
++      liverpool{liverpool_},
++      instance{*window, EmulatorSettings.GetGpuId(), EmulatorSettings.IsVkValidationEnabled(),
+                EmulatorSettings.IsVkCrashDiagnosticEnabled()},
+       draw_scheduler{instance}, present_scheduler{instance}, flip_scheduler{instance},
+-      swapchain{instance, window},
++      swapchain{instance, *window},
+       rasterizer{std::make_unique<Rasterizer>(instance, draw_scheduler, liverpool)},
+       texture_cache{rasterizer->GetTextureCache()} {
+     const u32 num_images = swapchain.GetImageCount();
+@@ -858,13 +861,14 @@ void Presenter::Present(Frame* frame, bool is_reusing_frame) {
+     }
+ 
+     // Recreate the swapchain if the window was resized.
+-    if (window.GetWidth() != swapchain.GetWidth() || window.GetHeight() != swapchain.GetHeight()) {
+-        swapchain.Recreate(window.GetWidth(), window.GetHeight());
++    if (window->GetWidth() != swapchain.GetWidth() ||
++        window->GetHeight() != swapchain.GetHeight()) {
++        swapchain.Recreate(window->GetWidth(), window->GetHeight());
+     }
+ 
+     auto acquired = swapchain.AcquireNextImage();
+     if (acquired == AcquireStatus::Recreate && !swapchain.StopRequested()) {
+-        swapchain.Recreate(window.GetWidth(), window.GetHeight());
++        swapchain.Recreate(window->GetWidth(), window->GetHeight());
+         acquired = swapchain.AcquireNextImage();
+     }
+     if (acquired != AcquireStatus::Acquired) {
+@@ -1090,7 +1094,7 @@ void Presenter::Present(Frame* frame, bool is_reusing_frame) {
+     {
+         std::scoped_lock submit_lock{Scheduler::submit_mutex};
+         if (!swapchain.Present() && !swapchain.StopRequested()) {
+-            swapchain.Recreate(window.GetWidth(), window.GetHeight());
++            swapchain.Recreate(window->GetWidth(), window->GetHeight());
+         }
+     }
+ 
+diff --git a/src/video_core/renderer_vulkan/vk_presenter.h b/src/video_core/renderer_vulkan/vk_presenter.h
+index 64e51ea6..26f2bec9 100644
+--- a/src/video_core/renderer_vulkan/vk_presenter.h
++++ b/src/video_core/renderer_vulkan/vk_presenter.h
+@@ -15,7 +15,7 @@
+ #include "video_core/texture_cache/texture_cache.h"
+ 
+ namespace Frontend {
+-class WindowSDL;
++class Window;
+ }
+ 
+ namespace AmdGpu {
+@@ -49,7 +49,7 @@ class Rasterizer;
+ 
+ class Presenter {
+ public:
+-    Presenter(Frontend::WindowSDL& window, AmdGpu::Liverpool* liverpool);
++    Presenter(std::shared_ptr<Frontend::Window> window, AmdGpu::Liverpool* liverpool);
+     ~Presenter();
+ 
+     // The session owner must call this before joining rendering workers.
+@@ -65,7 +65,11 @@ public:
+         return fsr_settings;
+     }
+ 
+-    Frontend::WindowSDL& GetWindow() const {
++    Frontend::Window& GetWindow() const {
++        return *window;
++    }
++
++    std::shared_ptr<Frontend::Window> ShareWindow() const {
+         return window;
+     }
+ 
+@@ -117,7 +121,7 @@ private:
+     u32 expected_frame_width{1920};
+     u32 expected_frame_height{1080};
+ 
+-    Frontend::WindowSDL& window;
++    std::shared_ptr<Frontend::Window> window;
+     Instance instance;
+     HostPasses::FsrPass fsr_pass;
+     HostPasses::FsrPass::Settings fsr_settings{};
+diff --git a/src/video_core/renderer_vulkan/vk_swapchain.cpp b/src/video_core/renderer_vulkan/vk_swapchain.cpp
+index d3ef5004..6da36767 100644
+--- a/src/video_core/renderer_vulkan/vk_swapchain.cpp
++++ b/src/video_core/renderer_vulkan/vk_swapchain.cpp
+@@ -6,8 +6,8 @@
+ #include "common/assert.h"
+ #include "common/logging/log.h"
+ #include "core/emulator_settings.h"
++#include "frontend/window.h"
+ #include "imgui/renderer/imgui_core.h"
+-#include "sdl_window.h"
+ #include "video_core/renderer_vulkan/vk_instance.h"
+ #include "video_core/renderer_vulkan/vk_swapchain.h"
+ 
+@@ -18,7 +18,7 @@ static constexpr vk::SurfaceFormatKHR SURFACE_FORMAT_HDR = {
+     .colorSpace = vk::ColorSpaceKHR::eHdr10St2084EXT,
+ };
+ 
+-Swapchain::Swapchain(const Instance& instance_, const Frontend::WindowSDL& window_)
++Swapchain::Swapchain(const Instance& instance_, const Frontend::Window& window_)
+     : instance{instance_}, window{window_}, surface{CreateSurface(instance.GetInstance(), window)} {
+     FindPresentFormat();
+     FindPresentMode();
+diff --git a/src/video_core/renderer_vulkan/vk_swapchain.h b/src/video_core/renderer_vulkan/vk_swapchain.h
+index 9d18a59b..b93e2248 100644
+--- a/src/video_core/renderer_vulkan/vk_swapchain.h
++++ b/src/video_core/renderer_vulkan/vk_swapchain.h
+@@ -11,7 +11,7 @@
+ #include "video_core/renderer_vulkan/vk_common.h"
+ 
+ namespace Frontend {
+-class WindowSDL;
++class Window;
+ }
+ 
+ namespace Vulkan {
+@@ -21,7 +21,7 @@ class Scheduler;
+ 
+ class Swapchain {
+ public:
+-    explicit Swapchain(const Instance& instance, const Frontend::WindowSDL& window);
++    explicit Swapchain(const Instance& instance, const Frontend::Window& window);
+     ~Swapchain();
+ 
+     /// Creates (or recreates) the swapchain with a given size.
+@@ -133,7 +133,7 @@ private:
+ 
+ private:
+     const Instance& instance;
+-    const Frontend::WindowSDL& window;
++    const Frontend::Window& window;
+     vk::SwapchainKHR swapchain{};
+     vk::SurfaceKHR surface{};
+     vk::SurfaceFormatKHR surface_format;

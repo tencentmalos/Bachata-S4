@@ -1,0 +1,12 @@
+[0/2] Re-checking globbed directories...
+[1/109] Generating CXX dyndep file externals/pugixml/CMakeFiles/pugixml-static.dir/CXX.dd
+[2/107] Generating CXX dyndep file externals/openal-soft/CMakeFiles/OpenAL.dir/CXX.dd
+[3/12] Performing build step for 'ffmpeg_android_build'
+[4/12] No install step for 'ffmpeg_android_build'
+[5/12] Completed 'ffmpeg_android_build'
+[6/12] Building CXX object CMakeFiles/shadps4.dir/src/common/scm_rev.cpp.o
+[7/12] Building CXX object CMakeFiles/shadps4.dir/src/imgui/big_picture/settings_dialog_layer.cpp.o
+[8/12] Building CXX object CMakeFiles/shadps4.dir/src/imgui/big_picture/settings_dialog_imgui.cpp.o
+[9/12] Building CXX object CMakeFiles/shadps4.dir/src/input/input_handler.cpp.o
+[10/12] Linking CXX shared library libshadps4_host.so
+[11/12] Linking CXX executable host_library_smoke

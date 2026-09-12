@@ -1,0 +1,21 @@
+{
+  "host_translation_units": 388,
+  "host_library_bytes": 414493032,
+  "build_id": "ec1808ab363fce5df51c481e90221369a5e82082",
+  "needed": [
+    "libz.so",
+    "libOpenSLES.so",
+    "libGLESv1_CM.so",
+    "libGLESv2.so",
+    "libm.so",
+    "liblog.so",
+    "libdl.so",
+    "libandroid.so",
+    "libaaudio.so",
+    "libc++_shared.so",
+    "libc.so"
+  ],
+  "explicit_sdl_jni_onload": true,
+  "fex_symbols_found": false,
+  "scope": "ELF/link inventory, not production entry execution"
+}

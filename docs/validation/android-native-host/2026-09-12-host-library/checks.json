@@ -1,0 +1,28 @@
+{
+  "portable_contract": {
+    "argv": [
+      "build/host-library-contract-tests"
+    ],
+    "checks": 42,
+    "failures": 0,
+    "exit_code": 0
+  },
+  "missing_path": {
+    "argv": [
+      "adb",
+      "-s",
+      "9c2841a4",
+      "shell",
+      "env",
+      "LD_LIBRARY_PATH=/data/local/tmp/shadps4-host-library-1789212502669642000",
+      "timeout",
+      "10",
+      "/data/local/tmp/shadps4-host-library-1789212502669642000/host_library_smoke"
+    ],
+    "expected_exit_code": 2,
+    "exit_code": 2,
+    "meaning": "DSO loads without filesystem setup; CLI reports its missing required path without aborting"
+  },
+  "device_pass": "device-final/result.json",
+  "host_build": "build-final/result.json"
+}

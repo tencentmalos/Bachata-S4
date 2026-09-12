@@ -1,0 +1,48 @@
+{
+  "repository": "https://github.com/tencentmalos/citron_shadow",
+  "reference_commit": "2106bcd83844e05dfbb5251a902143233a7ec43b",
+  "local_head": "b79cae0a47d1ec00fdd42067b325498a1ba86b51",
+  "referenced_paths_status": "",
+  "github_commit_api": {
+    "argv": [
+      "gh",
+      "api",
+      "repos/tencentmalos/citron_shadow/commits/2106bcd83844e05dfbb5251a902143233a7ec43b",
+      "--jq",
+      ".sha"
+    ],
+    "exit_code": 0,
+    "stdout": "2106bcd83844e05dfbb5251a902143233a7ec43b"
+  },
+  "files": {
+    "src/input_common/drivers/android.h": {
+      "reference_blob": "caa64ea01caf92e052d56a2a199e7f9671d08d3a",
+      "local_head_blob": "caa64ea01caf92e052d56a2a199e7f9671d08d3a"
+    },
+    "src/input_common/drivers/android.cpp": {
+      "reference_blob": "70d464f93d4c097149135ff386213aa17cbe8767",
+      "local_head_blob": "70d464f93d4c097149135ff386213aa17cbe8767"
+    },
+    "src/android/app/src/main/jni/native_input.cpp": {
+      "reference_blob": "f7e0d414c59966e1d0c895d4988a84895f2f75eb",
+      "local_head_blob": "f7e0d414c59966e1d0c895d4988a84895f2f75eb"
+    },
+    "src/android/app/src/main/java/org/citron/citron_emu/utils/InputHandler.kt": {
+      "reference_blob": "3713593a0013abaf417702386d84b0d8878da0f3",
+      "local_head_blob": "3713593a0013abaf417702386d84b0d8878da0f3"
+    },
+    "src/android/app/src/main/java/org/citron/citron_emu/features/input/NativeInput.kt": {
+      "reference_blob": "a64590484b1b21b15e5a9ac584e950cc83977316",
+      "local_head_blob": "a64590484b1b21b15e5a9ac584e950cc83977316"
+    },
+    "src/android/app/src/main/java/org/citron/citron_emu/features/input/citronInputDevice.kt": {
+      "reference_blob": "14ff2dcc3aa9d27ece6f65b2b313c876eef0696a",
+      "local_head_blob": "14ff2dcc3aa9d27ece6f65b2b313c876eef0696a"
+    },
+    "src/android/app/src/main/java/org/citron/citron_emu/features/input/citronVibrator.kt": {
+      "reference_blob": "c4f86595bd7c3c6d231de42748d6950e0f58f7e6",
+      "local_head_blob": "c4f86595bd7c3c6d231de42748d6950e0f58f7e6"
+    }
+  },
+  "scope": "read-only input migration source audit; no controller code migrated"
+}

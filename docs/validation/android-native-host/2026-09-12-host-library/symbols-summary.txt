@@ -1,0 +1,56 @@
+0000000003fad358 T JNI_OnLoad
+0000000002cb04ec W Core::HostRuntime::LoadExecRequest::~LoadExecRequest()
+00000000032c15d8 T Core::HostRuntime::RequestLoadExec(Core::HostRuntime::LoadExecRequest const&)
+00000000032c1420 T Core::HostRuntime::BindApplicationControl(std::__ndk1::shared_ptr<Core::HostRuntime::ApplicationControl> const&)
+00000000032c14e4 T Core::HostRuntime::UnbindApplicationControl(std::__ndk1::shared_ptr<Core::HostRuntime::ApplicationControl> const&)
+00000000030a9f18 T Core::Linker::LoadModule(std::__ndk1::__fs::filesystem::path const&, bool)
+00000000030ac5b8 T Core::Linker::TlsGetAddr(unsigned long, unsigned long)
+00000000030ab310 T Core::Linker::FindByAddress(unsigned long)
+00000000030aad68 T Core::Linker::LoadAndStartModule(std::__ndk1::__fs::filesystem::path const&, unsigned long, void const*, int*)
+00000000030aaa0c W Core::Linker::RelocateAllImports()
+00000000030ab018 W Core::Linker::RelocateAnyImports(Core::Module*)
+00000000030ac87c T Core::Linker::AllocateTlsForThread(bool)
+00000000030aca74 T Core::Linker::FreeTlsForNonPrimaryThread(void*)
+00000000030a9040 T Core::Linker::Execute(std::__ndk1::vector<std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>, std::__ndk1::allocator<std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>>> const&)
+00000000030ab458 T Core::Linker::Resolve(std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>> const&, Core::Loader::SymbolType, Core::Module*, Core::Loader::SymbolRecord*)
+00000000030ab350 T Core::Linker::Relocate(Core::Module*)
+00000000030a97c0 T Core::Linker::DebugDump()
+00000000030a8d18 T Core::Linker::Linker()
+00000000030a8d18 T Core::Linker::Linker()
+00000000030a8e04 T Core::Linker::~Linker()
+00000000030a8e04 T Core::Linker::~Linker()
+00000000030c1464 T Core::Module::FindByName(std::__ndk1::basic_string_view<char, std::__ndk1::char_traits<char>>)
+00000000030c1214 T Core::Module::FindModule(std::__ndk1::basic_string_view<char, std::__ndk1::char_traits<char>>)
+00000000030c133c T Core::Module::FindLibrary(std::__ndk1::basic_string_view<char, std::__ndk1::char_traits<char>>)
+0000000002abd9e8 W Core::Module::IsSystemLib()
+00000000030bfd7c T Core::Module::LoadSymbols()
+00000000030bedbc T Core::Module::LoadDynamicInfo()
+00000000030bd0d0 T Core::Module::LoadModuleToMemory(unsigned int&)
+00000000030c01d4 T Core::Module::Start(unsigned long, void const*, void*)
+00000000030bcd1c T Core::Module::Module(Core::MemoryManager*, std::__ndk1::__fs::filesystem::path const&, std::__ndk1::unique_ptr<Core::FileSys::IFile, std::__ndk1::default_delete<Core::FileSys::IFile>>, unsigned int&, int)
+00000000030bcd1c T Core::Module::Module(Core::MemoryManager*, std::__ndk1::__fs::filesystem::path const&, std::__ndk1::unique_ptr<Core::FileSys::IFile, std::__ndk1::default_delete<Core::FileSys::IFile>>, unsigned int&, int)
+00000000030c0014 T Core::Module::~Module()
+00000000030c0014 T Core::Module::~Module()
+00000000028a3874 T Common::FS::InitializeAndroidUserPaths(std::__ndk1::__fs::filesystem::path const&)
+000000000321e68c T Vulkan::Presenter::Presenter(std::__ndk1::shared_ptr<Frontend::Window>, AmdGpu::Liverpool*)
+000000000321e68c T Vulkan::Presenter::Presenter(std::__ndk1::shared_ptr<Frontend::Window>, AmdGpu::Liverpool*)
+00000000032c1338 T Frontend::AndroidWindow::ReleaseKeyboard()
+00000000032c1298 T Frontend::AndroidWindow::RequestKeyboard()
+00000000032c106c T Frontend::AndroidWindow::AndroidWindow(ANativeWindow*, unsigned long, std::__ndk1::function<bool (bool)>)
+00000000032c106c T Frontend::AndroidWindow::AndroidWindow(ANativeWindow*, unsigned long, std::__ndk1::function<bool (bool)>)
+00000000032c1244 T Frontend::AndroidWindow::~AndroidWindow()
+00000000032c1198 T Frontend::AndroidWindow::~AndroidWindow()
+00000000032c1198 T Frontend::AndroidWindow::~AndroidWindow()
+0000000002a4c784 T Libraries::AudioOut::AAudioOut::Open(Libraries::AudioOut::PortOut&)
+0000000002a4c7dc W Libraries::AudioOut::AAudioOut::~AAudioOut()
+0000000002a5d7bc T Libraries::GnmDriver::RegisterLib(Core::Loader::SymbolsResolver*)
+00000000030c1120 T Core::Module::GetModuleInfoEx() const
+00000000032c127c T Frontend::AndroidWindow::GetWindowInfo() const
+00000000032c126c T Frontend::AndroidWindow::GetWidth() const
+00000000032c1274 T Frontend::AndroidWindow::GetHeight() const
+00000000045938a0 D typeinfo for Frontend::AndroidWindow
+00000000045680b0 D typeinfo for Libraries::AudioOut::AAudioOut
+00000000021781ef R typeinfo name for Frontend::AndroidWindow
+00000000021475ec R typeinfo name for Libraries::AudioOut::AAudioOut
+0000000004593850 D vtable for Frontend::AndroidWindow
+0000000004568088 D vtable for Libraries::AudioOut::AAudioOut

@@ -1,6 +1,6 @@
 # Android / FEX 开发资料索引
 
-- **当前执行：[生产 Android Runtime 整块 spec](specs/android-native-host-production-runtime.md)。** [1a7da92c host复核](validation/android-native-host/pkg-v2-host-closure-review-2026-09-12.md)：388个AArch64对象、增量构建成功；完整链接仍失败、9个前端符号。ARM64 Ucontext未初始化用实际对象在AYN复现；生产profile、epoll及完整guest/平台接线待补。连续推进到真实PKG APK，不以补齐9个符号为终点。[本次原始证据](validation/android-native-host/2026-09-12-host-closure-review/README.md)不代表APK/Swan验收。
+- **最新交付：[host `.so` 里程碑 / `1149e948`](validation/android-native-host/host-library-milestone-2026-09-12.md)。** 真实共享STL/Foundation ON的NDK host链接成功；AYN61/0、macOS42/0。复用正式构建脚本和window/control接口，保持已修异常/timeout/Android显式目录初始化。下一位AI执行[生产Runtime整块spec](specs/android-native-host-production-runtime.md)：最终JNI/FEX/VM/HLE/callback、Turnip、Android平台去SDL、**从citron迁移手柄**、输入音频及真实PKG APK。手柄本轮未实施；现APK仍CPU smoke，host库尚含SDL且不含FEX/session接线。[原始证据](validation/android-native-host/2026-09-12-host-library/README.md)区分首次装载失败和修复后通过，不作为APK/Swan验收。
 
 - 已有架构与依赖：[bionic 迁移两工作包方案](specs/android-native-host-full-link-plan-2026-09-12.md)，[依赖前置与 citron FFmpeg 核查](validation/android-native-host/bionic-prerequisites-2026-09-12.md)、[三方库归属与复用清单](validation/android-native-host/bionic-third-party-audit-2026-09-12.md)。
 

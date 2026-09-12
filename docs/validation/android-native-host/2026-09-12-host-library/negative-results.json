@@ -1,0 +1,42 @@
+[
+  {
+    "case": "api36",
+    "argv": [
+      "scripts/android/build-host-android",
+      "--ndk",
+      "/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865",
+      "--api",
+      "36"
+    ],
+    "exit_code": 2
+  },
+  {
+    "case": "jobs0",
+    "argv": [
+      "scripts/android/build-host-android",
+      "--ndk",
+      "/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865",
+      "--jobs",
+      "0"
+    ],
+    "exit_code": 2
+  },
+  {
+    "case": "static_stl",
+    "argv": [
+      "cmake",
+      "-S",
+      ".",
+      "-B",
+      "build/host-library-validation/static-stl",
+      "-G",
+      "Ninja",
+      "-DCMAKE_TOOLCHAIN_FILE=/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/build/cmake/android.toolchain.cmake",
+      "-DANDROID_ABI=arm64-v8a",
+      "-DANDROID_PLATFORM=android-33",
+      "-DANDROID_STL=c++_static",
+      "-DBUILD_HOST_CORE=ON"
+    ],
+    "exit_code": 1
+  }
+]
