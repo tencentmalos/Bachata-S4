@@ -33,3 +33,35 @@ clean, no hangs. Fixed `session_core.cpp` also **NDK compiles clean**
 - §4.2 long-lived Service: remove FexSessionService.kt 10s `nativeWaitTerminal`→Failed/stopSelf; async onDestroy cleanup; bounded-wait ≠ failure.
 - §4.3 allocator re-audit against the ACTUALLY-LINKED rpmalloc branch; `shadps4_host_core` target on the real source list; full `--no-undefined` Android host link.
 - WP-B loader→guest→Orbis→renderer; WP-C device.
+
+## WP-A §4.2 — long-lived game Service (review §2.4) — DONE (compile + JVM tests)
+
+Fixed `android/shadps4-app/app/.../service/FexSessionService.kt`:
+
+- **Removed the 10s terminal cap that killed running games.** The observer used a
+  single `nativeWaitTerminal(gen, 10000)` and treated the `-1` timeout as a
+  terminal → published Failed + `stopSelf`. Now the observer **loops** on a
+  bounded `nativeWaitTerminal(gen, WAIT_SLICE_MS=1s)`; a slice timeout means
+  "still owned / still running" and is NOT a failure. A game may run for hours.
+- **Stop has its own bounded budget, distinct from run lifetime.** `handleStop`/
+  `onDestroy` set `stopRequestedGeneration` + a `STOP_COMPLETION_BUDGET_MS=15s`
+  deadline. Only once a stop was requested AND that budget elapses without a
+  terminal does the observer treat teardown as wedged (a real failure). A running
+  game never asked to stop waits indefinitely.
+- **onDestroy no longer blocks the main thread.** It previously did a synchronous
+  `nativeRequestStop` + `nativeWaitTerminal(...,10000)` on the Android main thread
+  (~11s ANR risk). Now it marks the stop budget and hands the interrupt to a
+  detached `fex-session-destroy-<gen>` thread; the observer publishes the terminal
+  and reclaims. onDestroy returns immediately.
+
+Preserved: generation-tagged observer, `updateIfCurrent` stale-watcher guard,
+GuestFault→Failed (never exit-0), async stop from a worker thread.
+
+**Results:** `:app:compileFdroidDebugKotlin` clean; full JVM unit suite
+`--rerun-tasks` **116 tests / 0 failures** (review baseline 109; app module adds 7
+not counted before). The smoke loop's own duration is unchanged — a true 10-minute
+run needs the real game (WP-B), but the Service no longer *imposes* a lifetime cap.
+
+## Still open in WP-A
+- §4.3 allocator re-audit against the ACTUALLY-LINKED rpmalloc branch; `shadps4_host_core` target on the real source list; full `--no-undefined` Android host link.
+- WP-B loader→guest→Orbis→renderer; WP-C device.

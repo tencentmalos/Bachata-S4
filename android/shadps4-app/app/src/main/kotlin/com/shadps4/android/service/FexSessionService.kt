@@ -28,6 +28,11 @@ import kotlin.concurrent.thread
 class FexSessionService : Service() {
 
     @Volatile private var observer: Thread? = null
+    // Set when a stop was requested for the live generation. Distinguishes "the
+    // game is still running normally" (a WaitTerminal timeout is NOT a failure)
+    // from "teardown was asked for and is now overdue" (a bounded failure).
+    @Volatile private var stopRequestedGeneration: Long = 0L
+    @Volatile private var stopDeadlineUptimeMs: Long = 0L
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -48,6 +53,8 @@ class FexSessionService : Service() {
             Log.w(TAG, "Session already running or failed to spawn; ignoring START")
             return
         }
+        stopRequestedGeneration = 0L
+        stopDeadlineUptimeMs = 0L
         ManagedSession.beginGeneration(generation)
         ManagedSession.updateIfCurrent(generation, ManagedSessionState.Preparing("fex", generation))
         Log.i(TAG, "native: ${NativeFexSession.nativeIdentity()} gen=$generation")
@@ -70,8 +77,34 @@ class FexSessionService : Service() {
                 }
             }
 
-            // Terminal. -1 = timeout (session still owned): report a failure, do not go Idle.
-            val outcome = NativeFexSession.nativeWaitTerminal(generation, TERMINAL_DEADLINE_MS)
+            // Wait for a REAL terminal. A running game has no fixed lifetime, so a
+            // WaitTerminal timeout (-1) means "still owned / still running" and is
+            // NOT a failure (review 2.4). Loop with a bounded slice so the thread
+            // stays responsive; only publish + stop on a real terminal outcome.
+            // The one exception is an overdue STOP: once a stop was requested, we
+            // bound how long teardown may take, and exceeding that budget is a
+            // genuine failure (teardown wedged), distinct from a happily running
+            // game that was never asked to stop.
+            var outcome = NativeFexSession.Outcome.TIMEOUT
+            while (true) {
+                outcome = NativeFexSession.nativeWaitTerminal(generation, WAIT_SLICE_MS)
+                if (outcome != NativeFexSession.Outcome.TIMEOUT) {
+                    break  // a real terminal (Returned/Cancelled/Faulted/...)
+                }
+                // Still running. If a stop was asked for this generation and the
+                // stop budget has now elapsed without a terminal, treat teardown
+                // as wedged and stop observing with a failure.
+                val stopGen = stopRequestedGeneration
+                if (stopGen == generation) {
+                    val deadline = stopDeadlineUptimeMs
+                    if (deadline != 0L && android.os.SystemClock.uptimeMillis() >= deadline) {
+                        Log.w(TAG, "stop for gen=$generation overdue; teardown wedged")
+                        break  // outcome stays TIMEOUT -> published as a failure
+                    }
+                }
+                // else: no stop requested -> keep waiting indefinitely (the game
+                // is allowed to run for hours).
+            }
             publishTerminal(gameId, generation, outcome)
             stopSelf(startId)
         }
@@ -81,6 +114,11 @@ class FexSessionService : Service() {
         val generation = NativeFexSession.nativeCurrentGeneration()
         if (generation == 0L) return
         ManagedSession.updateIfCurrent(generation, ManagedSessionState.Stopping("", generation))
+        // Mark the stop and give teardown a bounded budget; the observer treats a
+        // WaitTerminal timeout past this budget as a wedged teardown, not as a
+        // still-running game.
+        stopRequestedGeneration = generation
+        stopDeadlineUptimeMs = android.os.SystemClock.uptimeMillis() + STOP_COMPLETION_BUDGET_MS
         // Async interrupt from a worker thread; the observer publishes the terminal.
         thread(name = "fex-session-stop-$generation") {
             NativeFexSession.nativeRequestStop(generation, STOP_TIMEOUT_MS)
@@ -136,11 +174,18 @@ class FexSessionService : Service() {
     }
 
     override fun onDestroy() {
-        // Do not leave an ownerless native thread. Stop the current generation and wait bounded.
+        // Do not block the main thread on a multi-second JNI wait (review 2.4).
+        // Hand teardown to a detached owner thread: request the stop, mark the
+        // stop budget so the observer treats an overdue teardown as wedged, and
+        // let the observer publish the terminal and reclaim. onDestroy returns
+        // immediately.
         val generation = NativeFexSession.nativeCurrentGeneration()
         if (generation != 0L) {
-            NativeFexSession.nativeRequestStop(generation, STOP_TIMEOUT_MS)
-            NativeFexSession.nativeWaitTerminal(generation, TERMINAL_DEADLINE_MS)
+            stopRequestedGeneration = generation
+            stopDeadlineUptimeMs = android.os.SystemClock.uptimeMillis() + STOP_COMPLETION_BUDGET_MS
+            thread(name = "fex-session-destroy-$generation") {
+                NativeFexSession.nativeRequestStop(generation, STOP_TIMEOUT_MS)
+            }
         }
         super.onDestroy()
     }
@@ -152,6 +197,11 @@ class FexSessionService : Service() {
         const val DEFAULT_ITERATIONS = 1L shl 32
         const val STOP_TIMEOUT_MS = 1000L
         const val PHASE_DEADLINE_MS = 5000L
-        const val TERMINAL_DEADLINE_MS = 10000L
+        // Bounded slice the observer waits on each terminal poll. A timeout on a
+        // slice means "still running", not a failure: a real game runs for hours.
+        const val WAIT_SLICE_MS = 1000L
+        // Once a stop is requested, teardown must complete within this budget or it
+        // is treated as wedged (a real failure), distinct from a running game.
+        const val STOP_COMPLETION_BUDGET_MS = 15000L
     }
 }
