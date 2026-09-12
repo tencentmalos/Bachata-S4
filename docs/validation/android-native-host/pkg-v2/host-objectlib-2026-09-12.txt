@@ -1,0 +1,33 @@
+Host OBJECT library build — full CORE/HLE/VIDEO_CORE/SHADER_RECOMPILER closure
+compiles for Android bionic (aarch64-linux-android33, NDK 29.0.14206865).
+
+Configure: cmake -S . -B <build> -G Ninja
+  -DCMAKE_TOOLCHAIN_FILE=<ndk>/build/cmake/android.toolchain.cmake
+  -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-33
+  -DBUILD_HOST_CORE=ON -DENABLE_TESTS=OFF -DENABLE_DISCORD_RPC=OFF
+  -DENABLE_UPDATER=OFF -DENABLE_SPATIAL_FOUNDATION=OFF -DCMAKE_BUILD_TYPE=Release
+  -DIMGUI_FONT_EMBED_EXECUTABLE=<host binary_to_compressed_c>
+  -DSHADNET_PROTOC_EXECUTABLE=<host protoc 36.0.0>
+
+Result: shadps4 OBJECT library = 387/387 AArch64 ELF relocatable objects
+(ET_REL, EM_AARCH64 verified). Zero compile errors across the full closure:
+COMMON + CORE (loader/linker/module/tls/memory/address_space/aerolib + all HLE
+libs: kernel/gnmdriver/videoout/audio/audio3d/np/pad/system/playgo/videodec/
+avplayer/ajm/... ) + VIDEO_CORE (37) + SHADER_RECOMPILER (67) + IMGUI + INPUT +
+SHADNET. All externals cross-compiled for bionic (ffmpeg 7.1.5 from-source,
+glslang, sirit, zydis, vma, libressl, openal OpenSL, fdk-aac, freetype, zstd/
+zarchive, protobuf, date, png, miniz).
+
+Host tools required for cross-compile (target-built codegen can't run on host):
+- binary_to_compressed_c (ImGui font embed) built with host clang++
+- protoc 36.0.0 built from vendored externals/protobuf with host compiler
+
+Bionic source gaps fixed to reach this (commit 04d8aafc):
+- pthread.cpp reinterpret_cast<pthread_t> -> C-cast (bionic pthread_t is integer)
+- exception.cpp ARCH_ARM64 branch (guest x86 mcontext is FEX state, WP-B)
+- net.cpp epoll_pwait2 gated to non-Android (bionic API33 lacks it)
+
+NOT YET: the --no-undefined SHARED link (the harder half — resolves the real
+undefined-symbol set), then wiring into libshadps4_fex_session.so, then Turnip
+loader, then WP-B guest execution. A compiled object closure is not a linked or
+runnable host.
