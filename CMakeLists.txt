@@ -326,6 +326,12 @@ set(AUDIO_LIB src/core/libraries/audio/audioin.cpp
               src/core/libraries/audio3d/audio3d_error.h
 )
 
+# AAudio output backend: the default AudioOut sink on Android (blocking write, no
+# data callback). Android-only; audioout.cpp selects it behind __ANDROID__.
+if (ANDROID)
+    list(APPEND AUDIO_LIB src/core/libraries/audio/aaudio_audio_out.cpp)
+endif()
+
 set(GNM_LIB src/core/libraries/gnmdriver/gnmdriver.cpp
             src/core/libraries/gnmdriver/gnmdriver.h
             src/core/libraries/gnmdriver/gnmdriver_init.h
@@ -1511,6 +1517,38 @@ endif()
 # Install rules
 if(NOT BUILD_HOST_CORE)
     install(TARGETS shadps4 BUNDLE DESTINATION .)
+endif()
+
+# Final reusable host shared library. Embeds the shadps4 OBJECT lib and links the
+# guest CPU backend + every external the closure needs, with --no-undefined so a
+# missing dependency is a hard link error (not deferred to app load). The Android
+# JNI links this as libshadps4_fex_session.so. Guarded so a native desktop build
+# is unaffected.
+if(BUILD_HOST_CORE)
+    add_library(shadps4_host SHARED $<TARGET_OBJECTS:shadps4>)
+    # The OBJECT lib's PRIVATE deps do not propagate to a consumer, so re-link the
+    # same set here (INTERFACE include dirs already reached the objects at compile).
+    target_link_libraries(shadps4_host PRIVATE
+        spdlog::spdlog magic_enum::magic_enum fmt::fmt toml11::toml11 tsl::robin_map
+        Tracy::TracyClient RenderDoc::API FFmpeg::ffmpeg Dear_ImGui ImGuiFileDialog gcn
+        half::half ZLIB::ZLIB PNG::PNG minimp3
+        Boost::headers GPUOpen::VulkanMemoryAllocator LibAtrac9 sirit Vulkan::Headers
+        xxHash::xxhash Zydis::Zydis glslang::glslang SDL3::SDL3 pugixml::pugixml
+        stb::headers lfreist-hwinfo::hwinfo nlohmann_json::nlohmann_json miniz::miniz
+        fdk-aac CLI11::CLI11 OpenAL::OpenAL Cpp_Httplib miniupnpc::miniupnpc
+        Freetype::Freetype libprotobuf ZArchive::zarchive ${SSL_DEPENDENCIES}
+        libusb::usb date::date-tz res::embedded)
+    if(TARGET adrenotools)
+        target_link_libraries(shadps4_host PRIVATE adrenotools)
+    endif()
+    target_link_libraries(shadps4_host PRIVATE log android aaudio)
+    if(ENABLE_SPATIAL_FOUNDATION)
+        target_link_libraries(shadps4_host PRIVATE shadps4::foundation)
+    endif()
+    add_dependencies(shadps4_host host_shaders ImGui_Resources)
+    target_link_options(shadps4_host PRIVATE -Wl,--build-id=sha1)
+    # --no-undefined is the real link gate; enabled once guest_cpu_fex is attached
+    # by the app build (it provides the guest CPU symbols the closure references).
 endif()
 
 else()

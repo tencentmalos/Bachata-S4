@@ -1,0 +1,29 @@
+shadps4_host SHARED link — first --no-undefined attempt (Android bionic).
+
+After the 387-object closure compiled, linking a SHARED lib that embeds the
+OBJECT lib + all externals leaves exactly 9 undefined symbols, ALL the SDL
+frontend seam the Android Run driver must provide (design-predicted boundary):
+
+  Core::Emulator::Emulator() / ~Emulator() / Run(...) / Restart(...) / Relaunch(...)
+  Frontend::WindowSDL::RequestKeyboard() / ReleaseKeyboard()
+  Frontend::SetDefaultWindowIcon(SDL_Window*)
+  g_window
+
+Referenced by: core/signals.cpp, gnmdriver, mouse, systemservice (g_window/
+Emulator singleton), and imgui/big_picture + devtools/shader_list (WindowSDL
+keyboard). These are exactly emulator.cpp + sdl_window.cpp, deliberately excluded
+from the host object lib. The Android Run driver (WP-1 next step) provides an
+Emulator entry + a WindowSDL-compatible surface shim (ANativeWindow-backed) that
+supplies these symbols, at which point --no-undefined closes.
+
+Everything else — the ENTIRE CORE/HLE/VIDEO_CORE/SHADER_RECOMPILER closure plus
+every external (ffmpeg 7.1.5, glslang, sirit, zydis, vma, libressl, openal
+OpenSL, fdk-aac, freetype, zstd/zarchive, protobuf, date, png, miniz, AAudio) —
+LINKS with no undefined symbols. guest_cpu_fex (the FEX guest CPU) is attached by
+the app build and provides the guest-execution symbols.
+
+AAudioOut was missing from AUDIO_LIB (new file not in the source list); added
+under ANDROID + linked -laaudio; vtable now resolves.
+
+Reproduce: configure as host-objectlib-2026-09-12.txt, then
+  cmake --build <build> --target shadps4_host
