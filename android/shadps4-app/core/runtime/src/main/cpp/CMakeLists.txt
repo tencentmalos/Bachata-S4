@@ -25,9 +25,11 @@ add_subdirectory("${REPO_ROOT}/cmake/fex" fex)
 # handshake gate and UAF tripwire are compiled out.
 add_library(shadps4_fex_session SHARED
     fex_session_jni.cpp
+    orbis_pad_jni.cpp
     "${REPO_ROOT}/src/core/host_runtime/session_core.cpp"
     "${REPO_ROOT}/src/core/host_runtime/session_backend.cpp"
-    "${REPO_ROOT}/src/core/host_runtime/session_backend_fex.cpp")
+    "${REPO_ROOT}/src/core/host_runtime/session_backend_fex.cpp"
+    "${REPO_ROOT}/src/core/host_runtime/orbis_pad_adapter.cpp")
 target_link_libraries(shadps4_fex_session PRIVATE guest_cpu_fex)
 target_include_directories(shadps4_fex_session PRIVATE "${REPO_ROOT}/src")
 target_compile_options(shadps4_fex_session PRIVATE -fexceptions)

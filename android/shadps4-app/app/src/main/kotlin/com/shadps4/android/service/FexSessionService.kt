@@ -7,6 +7,8 @@ import android.util.Log
 import com.shadps4.android.model.RuntimeErrorCode
 import com.shadps4.android.runtime.diagnostics.ProcessTerminationInfo
 import com.shadps4.android.runtime.diagnostics.TerminationKind
+import com.shadps4.android.runtime.input.GamepadInputManager
+import com.shadps4.android.runtime.input.NativePadBridge
 import com.shadps4.android.runtime.session.ManagedSession
 import com.shadps4.android.runtime.session.ManagedSessionState
 import com.shadps4.android.runtime.session.NativeFexSession
@@ -57,6 +59,10 @@ class FexSessionService : Service() {
         stopDeadlineUptimeMs = 0L
         ManagedSession.beginGeneration(generation)
         ManagedSession.updateIfCurrent(generation, ManagedSessionState.Preparing("fex", generation))
+        // Bind the native pad session so real controller input (physical gamepad +
+        // touch overlay) reaches the native OrbisPadAdapter for this generation.
+        GamepadInputManager.onSessionStart()
+        NativePadBridge.begin()
         Log.i(TAG, "native: ${NativeFexSession.nativeIdentity()} gen=$generation")
 
         // One generation-tagged observer. It never fabricates Running: WaitPhase returns
@@ -106,6 +112,11 @@ class FexSessionService : Service() {
                 // is allowed to run for hours).
             }
             publishTerminal(gameId, generation, outcome)
+            // Tear down the native pad session for this generation: detaches the
+            // controller sink and clears port state so a late producer cannot write
+            // into the next session's pad.
+            NativePadBridge.end()
+            GamepadInputManager.onSessionEnd()
             stopSelf(startId)
         }
     }

@@ -68,6 +68,17 @@ if(V0_BUILD_TESTS)
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/host_runtime/session_lifecycle_tests.cpp")
     target_link_libraries(session_lifecycle_tests PRIVATE guest_cpu_api Threads::Threads)
     target_compile_definitions(session_lifecycle_tests PRIVATE SESSION_TEST_HOOKS=1)
+
+    # Native pad adapter contract. OrbisPadAdapter is the native consumer of Android
+    # controller input; it reuses the real Libraries::Pad::OrbisPadData layout and
+    # depends only on that header + the C++ stdlib (no FEX, no SDL, no guest_cpu), so
+    # it builds and runs on the CI host and cross-compiles under the NDK.
+    add_executable(orbis_pad_adapter_tests
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../src/core/host_runtime/orbis_pad_adapter.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/host_runtime/orbis_pad_adapter_tests.cpp")
+    target_include_directories(orbis_pad_adapter_tests PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../src")
+    target_link_libraries(orbis_pad_adapter_tests PRIVATE Threads::Threads)
 endif()
 
 if(V0_ENABLE_FEX)
