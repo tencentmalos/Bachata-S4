@@ -129,3 +129,30 @@ target that inherits the project's exact defines/includes (not a hand-tuned prob
 Next concrete step: author `shadps4_host_core` (+ platform/renderer/audio) in the
 root CMake source lists, configured for the NDK, and drive the
 `--no-undefined` link to closure.
+
+## WP-A §4.3 (part 3): COMMON bionic host-link gaps closed (06bd43bd)
+
+Continuing toward the `--no-undefined` host `.so`. Fixed the two genuine bionic
+CODE gaps in the COMMON closure (other sweep failures were include-path scoping,
+not defects):
+- `common/signal_context.cpp`: added the `__linux__` + `ARCH_ARM64` (bionic)
+  branch — `GetRip` = `uc_mcontext.pc`; `IsWriteError` walks the ucontext
+  `__reserved` `_aarch64_ctx` chain to `ESR_MAGIC` and reads the WnR bit,
+  bounds-checked (matches shadps4-arm64 reference). Was `#error "Unsupported
+  architecture"`. Callers `core/signals.cpp` + `video_core/page_manager.cpp` are
+  in the closure, so this was a real link blocker (the vulkan-review named it).
+- `common/error.cpp`: the GNU `char*` `strerror_r` was guarded on
+  `defined(ANDROID)` (a CMake macro); a standalone NDK build defines `__ANDROID__`
+  and fell into the XSI `int` branch (bionic's strerror_r returns char*). Added
+  `__ANDROID__` to the guard.
+
+Verified 4/4 via `check-host-ndk-sources.py` (signal_context, error, signals,
+page_manager). `crypto.cpp`/`ipc.cpp` only need libressl / repo-root include
+paths (the real CMake target provides them), not code changes.
+
+Session commits (on top of reviewer 091334d3/1d411955): 982cf0db §4.1,
+fe6f8fca §4.2, 9b9ac50e + fd3587fd §4.3 closure-compile, 06bd43bd COMMON bionic.
+**Next: `shadps4_host_core` CMake target + full `--no-undefined` link** (COMMON +
+full HLE + video_core[104 objs] + audio + media + input + guest_cpu_fex; resolve
+undefined symbols by link map, no empty RegisterLib / ignore-all), then Turnip
+native loader wiring, then WP-B execution.
