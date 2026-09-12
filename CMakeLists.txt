@@ -1243,16 +1243,27 @@ set(EMULATOR src/emulator.cpp
 # shadNet protobuf generation
 set(SHADNET_PROTO_OUT "${CMAKE_CURRENT_BINARY_DIR}/shadnet_proto_gen")
 file(MAKE_DIRECTORY "${SHADNET_PROTO_OUT}")
+# protoc must run on the BUILD host. In a native build the protobuf::protoc target
+# is fine; when cross-compiling (Android host lib) the target protoc cannot run,
+# so accept a host-built protoc via SHADNET_PROTOC_EXECUTABLE.
+if(SHADNET_PROTOC_EXECUTABLE)
+    set(SHADNET_PROTOC "${SHADNET_PROTOC_EXECUTABLE}")
+    set(SHADNET_PROTOC_DEP "")
+else()
+    set(SHADNET_PROTOC protobuf::protoc)
+    set(SHADNET_PROTOC_DEP protobuf::protoc)
+endif()
 add_custom_command(
     OUTPUT
         "${SHADNET_PROTO_OUT}/shadnet.pb.cc"
         "${SHADNET_PROTO_OUT}/shadnet.pb.h"
-    COMMAND protobuf::protoc
+    COMMAND ${SHADNET_PROTOC}
         "--proto_path=${CMAKE_CURRENT_SOURCE_DIR}/src/shadnet"
         "--cpp_out=${SHADNET_PROTO_OUT}"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/shadnet/shadnet.proto"
     DEPENDS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/shadnet/shadnet.proto"
+        ${SHADNET_PROTOC_DEP}
     COMMENT "Generating shadnet protobuf sources"
     VERBATIM
 )
@@ -1330,6 +1341,17 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
     target_link_libraries(shadps4 PRIVATE "/usr/local/lib/libuuid.so")
 else()
     target_link_libraries(shadps4 PRIVATE libusb::usb)
+endif()
+
+if (ANDROID)
+    # bionic tz DB replacement (kernel/time.cpp includes <date/tz.h>); the Android
+    # Turnip loader hooks; and the platform log/android libraries the HLE/renderer
+    # and AAudio backend need.
+    target_link_libraries(shadps4 PRIVATE date::date-tz)
+    if (TARGET adrenotools)
+        target_link_libraries(shadps4 PRIVATE adrenotools)
+    endif()
+    target_link_libraries(shadps4 PRIVATE log android)
 endif()
 
 target_compile_definitions(shadps4 PRIVATE IMGUI_USER_CONFIG="imgui/imgui_config.h")

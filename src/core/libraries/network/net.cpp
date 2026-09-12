@@ -1010,12 +1010,14 @@ int PS4_SYSV_ABI sceNetEpollWait(OrbisNetId epollid, OrbisNetEpollEvent* events,
     std::vector<epoll_event> native_events{static_cast<size_t>(maxevents)};
     int result = ORBIS_OK;
     if (sockets_waited_on) {
-#ifdef __linux__
+#if defined(__linux__) && !defined(__ANDROID__)
         const timespec epoll_timeout{.tv_sec = timeout / 1000000,
                                      .tv_nsec = (timeout % 1000000) * 1000};
         result = epoll_pwait2(epoll->epoll_fd, native_events.data(), maxevents,
                               timeout < 0 ? nullptr : &epoll_timeout, nullptr);
 #else
+        // bionic (Android) does not expose epoll_pwait2 at API 33; use epoll_wait
+        // with a millisecond timeout, matching the non-Linux path.
         result = epoll_wait(epoll->epoll_fd, native_events.data(), maxevents,
                             timeout < 0 ? timeout : timeout / 1000);
 #endif

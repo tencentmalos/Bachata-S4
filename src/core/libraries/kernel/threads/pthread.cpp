@@ -697,7 +697,10 @@ void InterruptPthreadForCancellation(Pthread* thread) noexcept {
         LOG_ERROR(Lib_Kernel, "Failed to deliver pthread cancellation APC: {:#x}", result);
     }
 #else
-    const auto native_thread = reinterpret_cast<pthread_t>(thread->native_thr->GetHandle());
+    // pthread_t is pointer-sized: a pointer on glibc, an integer (long) on bionic.
+    // A C-style cast converts uintptr_t to either form; reinterpret_cast is rejected
+    // for the integer case on bionic.
+    const auto native_thread = (pthread_t)(thread->native_thr->GetHandle());
     const int result = pthread_kill(native_thread, HostPthreadCancelSignal());
     if (result != 0) {
         LOG_ERROR(Lib_Kernel, "Failed to deliver pthread cancellation signal: {}", result);
@@ -965,7 +968,8 @@ void Pthread::WakeForSignal() {
                                  ExceptionHandler, nullptr, nullptr, nullptr);
     ASSERT(res == 0);
 #else
-    pthread_kill(reinterpret_cast<pthread_t>(native_thr->GetHandle()), SIGUSR1);
+    // pthread_t: pointer on glibc, integer on bionic. C-style cast handles both.
+    pthread_kill((pthread_t)(native_thr->GetHandle()), SIGUSR1);
 #endif
 }
 

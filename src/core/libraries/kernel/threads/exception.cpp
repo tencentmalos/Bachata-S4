@@ -96,6 +96,15 @@ Ucontext::Ucontext(siginfo_t const* inf, ucontext_t* raw_context) {
     uc_mcontext.mc_rip = regs[REG_RIP];
     uc_mcontext.mc_addr = reinterpret_cast<uint64_t>(inf->si_addr);
 #endif
+#elif defined(ARCH_ARM64)
+    // On ARM64 the guest is x86-64 code executed by FEX, so the guest register
+    // state does NOT live in the host ARM64 ucontext_t — it lives in the FEX
+    // guest CPU state. Mapping host ARM64 gregs to Orbis x86-64 mc_* fields here
+    // would be wrong. The Orbis mcontext stays zero-initialised (its default);
+    // populating it from the FEX guest thread at a guest exception boundary is
+    // WP-B (guest execution) integration, not host-link work. si_addr is still
+    // the faulting guest address and is the one field meaningful pre-FEX-wiring.
+    uc_mcontext.mc_addr = reinterpret_cast<uint64_t>(inf->si_addr);
 #else
 #error "ucontext_t conversion not implemented for current architecture."
 #endif
@@ -219,6 +228,10 @@ void Ucontext::SyncHostFromGuest() {
     // regs[REG_CSGSFS] |= (greg_t{uc_mcontext.mc_gs} << 16);
     regs[REG_RIP] = uc_mcontext.mc_rip;
 #endif
+#elif defined(ARCH_ARM64)
+    // Writing the guest x86-64 register state back is a FEX guest-state operation
+    // on ARM64, not a host ARM64 ucontext write (see the constructor above). This
+    // is WP-B; no host ucontext gregs to populate here.
 #else
 #error "ucontext_t conversion not implemented for current architecture."
 #endif
