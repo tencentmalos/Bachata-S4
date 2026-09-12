@@ -221,3 +221,7 @@ H0 的最小验收应覆盖：在 JIT 中、HLE 中、signal handler 中停住�
 本次已完成：源码路径核对、LLDB 命令帮助核对、ARM64 target 上 x86 cross-disassembly 的本地静态验证。尚未完成：设备 attach、FEX 现场寄存器重建、LLDB 插件、native debug hook，以及可恢复 guest 单步。
 
 **对当前项目，先做 LLDB guest-view 的性价比高；但应从一开始共享 guest 调试状态契约，避免后续迁移到标准 debugger 时推倒重来。**
+
+2026-09-07 补充：[FEX Windows 前端参考](fex-windows-frontend-reference.md) 核对了
+`ReconstructThreadState`、`ResetToConsistentState` 和协作挂起代码。这些实现可辅助设计
+Android adapter，但会修改状态，并依赖 Windows 异常/线程契约，不能直接在 LLDB 中当只读 helper 调用。

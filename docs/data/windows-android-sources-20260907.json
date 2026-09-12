@@ -1,0 +1,232 @@
+{
+  "recorded_at": "2026-09-07T11:07:42.024599+00:00",
+  "scope": "Read-only source and first-party documentation research; no APK or game execution",
+  "repositories": [
+    {
+      "repo": "utkarshdalal/GameNative",
+      "branch": "master",
+      "commit": "d9e9764a84e60d792070fb0e6f380ca3f69769db"
+    },
+    {
+      "repo": "WinNative-Emu/WinNative",
+      "branch": "main",
+      "commit": "8ed4ff8013bdb5be923b2253f4c2cacdd5f62fb4"
+    },
+    {
+      "repo": "brunodev85/winlator",
+      "branch": "main",
+      "commit": "5949297d9dc83ad24ce3f5119fe382da7c899a78"
+    },
+    {
+      "repo": "AndreRH/hangover",
+      "branch": "master",
+      "commit": "56e385b7ff490edd281b288f420677093563560b"
+    },
+    {
+      "repo": "brunodev85/winlator-app",
+      "commit": "c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6",
+      "selection": "app gitlink of Winlator 5949297d"
+    },
+    {
+      "repo": "Pipetto-crypto/winlator",
+      "branch": "dev",
+      "commit": "da12b7a0a9168261656a71a6d68f9f08f77d6304",
+      "commit_date": "2025-07-20T14:16:39Z"
+    }
+  ],
+  "remote_files_read": [
+    {
+      "repo": "utkarshdalal/GameNative",
+      "commit": "d9e9764a84e60d792070fb0e6f380ca3f69769db",
+      "path": "README.md",
+      "git_blob_sha": "d44a3b84e448d28b959efbd68fe543d1d7f81150",
+      "sha256": "97fd9f4779557504b541755ecc37394f5a893f977ce831c50f164d821b146c19",
+      "url": "https://github.com/utkarshdalal/GameNative/blob/d9e9764a84e60d792070fb0e6f380ca3f69769db/README.md"
+    },
+    {
+      "repo": "utkarshdalal/GameNative",
+      "commit": "d9e9764a84e60d792070fb0e6f380ca3f69769db",
+      "path": "app/src/main/java/com/winlator/xenvironment/components/GuestProgramLauncherComponent.java",
+      "git_blob_sha": "ad018f02a621ea9ad4221b6c94f6218c5edbb860",
+      "sha256": "583471946a38421f8848ea1341a9d93977c6af1c3f6c261dc9a331a5262a43eb",
+      "url": "https://github.com/utkarshdalal/GameNative/blob/d9e9764a84e60d792070fb0e6f380ca3f69769db/app/src/main/java/com/winlator/xenvironment/components/GuestProgramLauncherComponent.java"
+    },
+    {
+      "repo": "utkarshdalal/GameNative",
+      "commit": "d9e9764a84e60d792070fb0e6f380ca3f69769db",
+      "path": "app/src/main/java/com/winlator/fexcore/FEXCoreManager.java",
+      "git_blob_sha": "acfbb5004118c7a84d01ae0ec50c86f84f7c84e4",
+      "sha256": "4a947712c9dfaf94049e9a885857c87692311f06afe5c7a1215ffda18fb88145",
+      "url": "https://github.com/utkarshdalal/GameNative/blob/d9e9764a84e60d792070fb0e6f380ca3f69769db/app/src/main/java/com/winlator/fexcore/FEXCoreManager.java"
+    },
+    {
+      "repo": "utkarshdalal/GameNative",
+      "commit": "d9e9764a84e60d792070fb0e6f380ca3f69769db",
+      "path": "app/src/main/cpp/CMakeLists.txt",
+      "git_blob_sha": "21f23f140e7692af611c08542d54eed153cc6eb1",
+      "sha256": "8e15b9e7b6b5859c33c878808f5b5d15c171e8ad3cdf9d53066b4add5d30a2d4",
+      "url": "https://github.com/utkarshdalal/GameNative/blob/d9e9764a84e60d792070fb0e6f380ca3f69769db/app/src/main/cpp/CMakeLists.txt"
+    },
+    {
+      "repo": "utkarshdalal/GameNative",
+      "commit": "d9e9764a84e60d792070fb0e6f380ca3f69769db",
+      "path": "app/src/main/java/com/winlator/core/WineInfo.java",
+      "git_blob_sha": "8a81112b20284834be313812d72c97a073cdbcb7",
+      "sha256": "c9d61e703b10790ee71368677d15415b245f983d36cdc1f6c13a84c4a5889583",
+      "url": "https://github.com/utkarshdalal/GameNative/blob/d9e9764a84e60d792070fb0e6f380ca3f69769db/app/src/main/java/com/winlator/core/WineInfo.java"
+    },
+    {
+      "repo": "WinNative-Emu/WinNative",
+      "commit": "8ed4ff8013bdb5be923b2253f4c2cacdd5f62fb4",
+      "path": "app/src/main/runtime/display/environment/components/GuestProgramLauncherComponent.java",
+      "git_blob_sha": "65b243515ef7d82f868f2a53552cd219df342ece",
+      "sha256": "37ceee8645c0b99646c088c7f90fb01ef095549311a69913f63cd3e34c18e75a",
+      "url": "https://github.com/WinNative-Emu/WinNative/blob/8ed4ff8013bdb5be923b2253f4c2cacdd5f62fb4/app/src/main/runtime/display/environment/components/GuestProgramLauncherComponent.java"
+    },
+    {
+      "repo": "WinNative-Emu/WinNative",
+      "commit": "8ed4ff8013bdb5be923b2253f4c2cacdd5f62fb4",
+      "path": "app/src/main/runtime/compat/fexcore/FEXCoreManager.java",
+      "git_blob_sha": "561996b7e22030a76a1e5945a5c9a751e79ab253",
+      "sha256": "9240519086212c984f93da26410c700992f0a57d5e43ca7473bd26cc4a5a7620",
+      "url": "https://github.com/WinNative-Emu/WinNative/blob/8ed4ff8013bdb5be923b2253f4c2cacdd5f62fb4/app/src/main/runtime/compat/fexcore/FEXCoreManager.java"
+    },
+    {
+      "repo": "WinNative-Emu/WinNative",
+      "commit": "8ed4ff8013bdb5be923b2253f4c2cacdd5f62fb4",
+      "path": "app/src/main/cpp/CMakeLists.txt",
+      "git_blob_sha": "d7e22b9e5cffda6d20a0cb934e967ace64120e4a",
+      "sha256": "ca55d79050d7ffb39c8a61fdbf053fb08c39c688059be779d2ba38ea30d795b4",
+      "url": "https://github.com/WinNative-Emu/WinNative/blob/8ed4ff8013bdb5be923b2253f4c2cacdd5f62fb4/app/src/main/cpp/CMakeLists.txt"
+    },
+    {
+      "repo": "WinNative-Emu/WinNative",
+      "commit": "8ed4ff8013bdb5be923b2253f4c2cacdd5f62fb4",
+      "path": "docs/direct-audio-integration.md",
+      "git_blob_sha": "2000a737ba451670ff8bb424371ac04a8feab73d",
+      "sha256": "aa5dc4f24f5f091cae2119a2c09895396ae659eae3ecc6b1bd846a05be166afa",
+      "url": "https://github.com/WinNative-Emu/WinNative/blob/8ed4ff8013bdb5be923b2253f4c2cacdd5f62fb4/docs/direct-audio-integration.md"
+    },
+    {
+      "repo": "utkarshdalal/GameNative",
+      "commit": "d9e9764a84e60d792070fb0e6f380ca3f69769db",
+      "path": "app/src/main/java/com/winlator/xenvironment/components/BionicProgramLauncherComponent.java",
+      "git_blob_sha": "ab0532710ed880cc3bd76bf44736cd582ce7dc46",
+      "sha256": "6feb5a85098444c5f4b90ac79195163793de0f21184515457ea7b1f710829faf",
+      "url": "https://github.com/utkarshdalal/GameNative/blob/d9e9764a84e60d792070fb0e6f380ca3f69769db/app/src/main/java/com/winlator/xenvironment/components/BionicProgramLauncherComponent.java"
+    },
+    {
+      "repo": "utkarshdalal/GameNative",
+      "commit": "d9e9764a84e60d792070fb0e6f380ca3f69769db",
+      "path": "app/src/main/java/com/winlator/xenvironment/components/GlibcProgramLauncherComponent.java",
+      "git_blob_sha": "250472d3b20ab04427735e1f80122abb29bfef9f",
+      "sha256": "342dbfb51fcac3e74d2c9d681ccb527f8c08eb357e8723b2941c4c26b4d7ca9f",
+      "url": "https://github.com/utkarshdalal/GameNative/blob/d9e9764a84e60d792070fb0e6f380ca3f69769db/app/src/main/java/com/winlator/xenvironment/components/GlibcProgramLauncherComponent.java"
+    },
+    {
+      "repo": "utkarshdalal/GameNative",
+      "commit": "d9e9764a84e60d792070fb0e6f380ca3f69769db",
+      "path": "app/src/main/cpp/winlator/VulkanRendererScanout.cpp",
+      "git_blob_sha": "6355c532c1419f96fdaae5343fd0da153a1deab4",
+      "sha256": "24626e2f4e008d0b11acc0bb5831075aa510809c1697a20d3820916f1db94dd6",
+      "url": "https://github.com/utkarshdalal/GameNative/blob/d9e9764a84e60d792070fb0e6f380ca3f69769db/app/src/main/cpp/winlator/VulkanRendererScanout.cpp"
+    },
+    {
+      "repo": "brunodev85/winlator-app",
+      "commit": "c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6",
+      "path": "app/src/main/java/com/winlator/xenvironment/components/GuestProgramLauncherComponent.java",
+      "git_blob_sha": "84c47029f6906ba31554394493998f663c381cd3",
+      "sha256": "da71452f478c43b37f029fa827bb4f770baa07c3eb3cc84e3cb2ce678080b8f4",
+      "url": "https://github.com/brunodev85/winlator-app/blob/c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6/app/src/main/java/com/winlator/xenvironment/components/GuestProgramLauncherComponent.java"
+    },
+    {
+      "repo": "brunodev85/winlator-app",
+      "commit": "c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6",
+      "path": "app/src/main/cpp/CMakeLists.txt",
+      "git_blob_sha": "f9f3d663b37d6cc476ae561fb6b5f732d9f293ec",
+      "sha256": "bac1ca7eccd00e8931afa0c584ac7dd19b22cfb7d8b8bfc051a281d450b04ceb",
+      "url": "https://github.com/brunodev85/winlator-app/blob/c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6/app/src/main/cpp/CMakeLists.txt"
+    },
+    {
+      "repo": "brunodev85/winlator-app",
+      "commit": "c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6",
+      "path": "app/src/main/cpp/winlator/CMakeLists.txt",
+      "git_blob_sha": "b1ba3343806fecde290724d2cc7fe59f7395a682",
+      "sha256": "6df8e979c4faf8b64c3bf3503dcbff74a9c156102e8afba9f3489b595b063bb2",
+      "url": "https://github.com/brunodev85/winlator-app/blob/c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6/app/src/main/cpp/winlator/CMakeLists.txt"
+    },
+    {
+      "repo": "brunodev85/winlator-app",
+      "commit": "c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6",
+      "path": "app/build.gradle",
+      "git_blob_sha": "e790c64b99312e18cc8b1f6e8fa7a45c51765378",
+      "sha256": "379f6b3ee899e6e0a7703a03c48aa49819bc9f6c9e54ea231bb0385e35fae561",
+      "url": "https://github.com/brunodev85/winlator-app/blob/c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6/app/build.gradle"
+    },
+    {
+      "repo": "Pipetto-crypto/winlator",
+      "commit": "da12b7a0a9168261656a71a6d68f9f08f77d6304",
+      "path": "app/src/main/java/com/winlator/cmod/xenvironment/components/BionicProgramLauncherComponent.java",
+      "git_blob_sha": "8b5518caf0866c93d38a2f2215a6fc81754bc3da",
+      "sha256": "414d3b5e152212d9554eb3f6b247802b5f9b03f1ff625a89eb7167612838e7b1",
+      "url": "https://github.com/Pipetto-crypto/winlator/blob/da12b7a0a9168261656a71a6d68f9f08f77d6304/app/src/main/java/com/winlator/cmod/xenvironment/components/BionicProgramLauncherComponent.java"
+    },
+    {
+      "repo": "Pipetto-crypto/winlator",
+      "commit": "da12b7a0a9168261656a71a6d68f9f08f77d6304",
+      "path": "app/src/main/cpp/CMakeLists.txt",
+      "git_blob_sha": "0b653b823974d4ae03a9cabd68b1aefe0c610c39",
+      "sha256": "3deb71ccd56c06cf99c24018911726d5e0e64ca46110d4d194aa8ec4d2bf906c",
+      "url": "https://github.com/Pipetto-crypto/winlator/blob/da12b7a0a9168261656a71a6d68f9f08f77d6304/app/src/main/cpp/CMakeLists.txt"
+    },
+    {
+      "repo": "Pipetto-crypto/winlator",
+      "commit": "da12b7a0a9168261656a71a6d68f9f08f77d6304",
+      "path": "README.md",
+      "git_blob_sha": "32df996de45086cdbff4c7df4bc1e15cd77dc2b8",
+      "sha256": "e2ec217f6cb0afdee8c914ca0ea72a12c7e93a33d6dd3fe6dd1c9423ef9c664d",
+      "url": "https://github.com/Pipetto-crypto/winlator/blob/da12b7a0a9168261656a71a6d68f9f08f77d6304/README.md"
+    }
+  ],
+  "local_fex": {
+    "research_commit": "50e6eee95ae95d3257672727a9302a30b4a60a9a",
+    "v0_runtime_base": "f2b679f6028ce1c38875233aecfcf5d3f8ebecec",
+    "windows_diff_shortstat": "23 files changed, 457 insertions(+), 239 deletions(-)",
+    "focus_files": [
+      "Source/Windows/ARM64EC/BTInterface.h",
+      "Source/Windows/ARM64EC/Module.cpp",
+      "Source/Windows/ARM64EC/CMakeLists.txt",
+      "Source/Windows/Common/FEXUnixLib.cpp",
+      "Source/Windows/UnixLib/FEXUnixLib.h",
+      "Source/Windows/UnixLib/FEXUnixLib.cpp",
+      "Source/Windows/UnixLib/CMakeLists.txt",
+      "Source/Windows/Common/ImageTracker.cpp"
+    ]
+  },
+  "not_verified": [
+    "correspondence of APK releases to source commits",
+    "downloaded Wine/FEX/Proton/driver binary closure",
+    "Android 16 and 16 KiB runtime compatibility",
+    "commercial game compatibility or FPS",
+    "native Windows FEX execution",
+    "GameHub runtime internals"
+  ],
+  "new_reference_submodules": [],
+  "winlator_outer_gitlinks": {
+    "app": {
+      "repo": "brunodev85/winlator-app",
+      "commit": "c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6",
+      "inspection": "selected source files read"
+    },
+    "vortek": {
+      "repo": "brunodev85/vortek",
+      "commit": "b1730c5def9b575672e671aee11d79ae7adc63d1",
+      "inspection": "gitlink only"
+    },
+    "gladio": {
+      "repo": "brunodev85/gladio",
+      "commit": "116c0d14dedbea3bd057f98f1db138bb1efe225e",
+      "inspection": "gitlink only"
+    }
+  }
+}

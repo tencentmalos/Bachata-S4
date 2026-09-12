@@ -1,0 +1,306 @@
+{
+  "recorded_date": "2026-09-07",
+  "selection": "Client and app commits pinned by brunodev85/winlator 5949297d9dc83ad24ce3f5119fe382da7c899a78 gitlinks; selected source files, not complete repository snapshots.",
+  "validation": "Static source inspection only. No build, APK/game execution, performance benchmark or Android 16 KiB runtime validation.",
+  "file_count": 33,
+  "total_selected_bytes": 1113489,
+  "files": [
+    {
+      "repo": "brunodev85/vortek",
+      "commit": "b1730c5def9b575672e671aee11d79ae7adc63d1",
+      "path": "README.md",
+      "git_blob_sha": "2f268f52bbd1ca37eaf01e3f7c98401f80c45bf6",
+      "sha256": "43f86a084bb827fdced8f99bc65ce40d064417e7a438b2a26a03c1fecf4591a6",
+      "bytes": 364,
+      "url": "https://github.com/brunodev85/vortek/blob/b1730c5def9b575672e671aee11d79ae7adc63d1/README.md"
+    },
+    {
+      "repo": "brunodev85/vortek",
+      "commit": "b1730c5def9b575672e671aee11d79ae7adc63d1",
+      "path": "CMakeLists.txt",
+      "git_blob_sha": "b1dc60db79ae9ef5193bc0ab16a0831c241fb5e1",
+      "sha256": "6402f254011e433137c995c7581d18c7f9ec478f8ca6f4517cacae33f2be6c5b",
+      "bytes": 529,
+      "url": "https://github.com/brunodev85/vortek/blob/b1730c5def9b575672e671aee11d79ae7adc63d1/CMakeLists.txt"
+    },
+    {
+      "repo": "brunodev85/vortek",
+      "commit": "b1730c5def9b575672e671aee11d79ae7adc63d1",
+      "path": "include/vortek.h",
+      "git_blob_sha": "8ec80c22aa1212b3c35fd6f0fe23f8968d63fa6b",
+      "sha256": "80d740d6a672d2487331a4fff5da0d30fdd8d074db03bc9876146ccd37f06cd2",
+      "bytes": 7849,
+      "url": "https://github.com/brunodev85/vortek/blob/b1730c5def9b575672e671aee11d79ae7adc63d1/include/vortek.h"
+    },
+    {
+      "repo": "brunodev85/vortek",
+      "commit": "b1730c5def9b575672e671aee11d79ae7adc63d1",
+      "path": "include/socket_utils.h",
+      "git_blob_sha": "8ee14abcf004b5e7cd51b8ed3b0959c7bbbc03ef",
+      "sha256": "7f1627f10a9f922b713e19d96fb175871f1584b5c830cc0005708569e76a0168",
+      "bytes": 2855,
+      "url": "https://github.com/brunodev85/vortek/blob/b1730c5def9b575672e671aee11d79ae7adc63d1/include/socket_utils.h"
+    },
+    {
+      "repo": "brunodev85/vortek",
+      "commit": "b1730c5def9b575672e671aee11d79ae7adc63d1",
+      "path": "include/ring_buffer.h",
+      "git_blob_sha": "2be62be79bd8f731b4f78c9d18133d325391758f",
+      "sha256": "375efa94f7f7af671ff3ed6531725826dd11535eafebacaca89bbfdec0256938",
+      "bytes": 3599,
+      "url": "https://github.com/brunodev85/vortek/blob/b1730c5def9b575672e671aee11d79ae7adc63d1/include/ring_buffer.h"
+    },
+    {
+      "repo": "brunodev85/vortek",
+      "commit": "b1730c5def9b575672e671aee11d79ae7adc63d1",
+      "path": "src/main.c",
+      "git_blob_sha": "cea0e5c77b8f94513770c0b570036ce6c2e4eefd",
+      "sha256": "763b152ea3dfcd1e5c5076957e9f4a07d665a7f01a7e6ef00a3828e53053d574",
+      "bytes": 2377,
+      "url": "https://github.com/brunodev85/vortek/blob/b1730c5def9b575672e671aee11d79ae7adc63d1/src/main.c"
+    },
+    {
+      "repo": "brunodev85/vortek",
+      "commit": "b1730c5def9b575672e671aee11d79ae7adc63d1",
+      "path": "src/vulkan_calls.c",
+      "git_blob_sha": "0e7cab7029377a8343f06f80d0e302226032f3a3",
+      "sha256": "61d7c336e495b3d54530fdb183449155d191342dd742a4ab18cfdbde24899f2e",
+      "bytes": 179897,
+      "url": "https://github.com/brunodev85/vortek/blob/b1730c5def9b575672e671aee11d79ae7adc63d1/src/vulkan_calls.c"
+    },
+    {
+      "repo": "brunodev85/vortek",
+      "commit": "b1730c5def9b575672e671aee11d79ae7adc63d1",
+      "path": "src/ring_buffer.c",
+      "git_blob_sha": "25f7b5bf2edd0d2f33fe840fe7b155bbb0d9f802",
+      "sha256": "4668ae8502c9235cb599262ee58c7c34cc02cced9fb405586af652a75b3c6002",
+      "bytes": 5190,
+      "url": "https://github.com/brunodev85/vortek/blob/b1730c5def9b575672e671aee11d79ae7adc63d1/src/ring_buffer.c"
+    },
+    {
+      "repo": "brunodev85/vortek",
+      "commit": "b1730c5def9b575672e671aee11d79ae7adc63d1",
+      "path": "vortek_icd.aarch64.json",
+      "git_blob_sha": "cbd8a5a235ba28f8a5f9216cf96459689c662a4f",
+      "sha256": "f96553f9812ff28c9a9db8b3c1eb19e320f3155bb757e07e87d5a03a7f0ab3cf",
+      "bytes": 179,
+      "url": "https://github.com/brunodev85/vortek/blob/b1730c5def9b575672e671aee11d79ae7adc63d1/vortek_icd.aarch64.json"
+    },
+    {
+      "repo": "brunodev85/gladio",
+      "commit": "116c0d14dedbea3bd057f98f1db138bb1efe225e",
+      "path": "README.md",
+      "git_blob_sha": "b218f076785df50dd56293dfb0306dd1154873e0",
+      "sha256": "842da84736545dcef8c3a84e492743959d231287627dfbd3106b6b916bab9b2e",
+      "bytes": 993,
+      "url": "https://github.com/brunodev85/gladio/blob/116c0d14dedbea3bd057f98f1db138bb1efe225e/README.md"
+    },
+    {
+      "repo": "brunodev85/gladio",
+      "commit": "116c0d14dedbea3bd057f98f1db138bb1efe225e",
+      "path": "CMakeLists.txt",
+      "git_blob_sha": "db10b5f36b8f7ba9626bd1ad6798665d66503aab",
+      "sha256": "e0a841ef4ba59074d3067a6a7f7cedc28227678bd0d6af77fbcfedf669deb20e",
+      "bytes": 571,
+      "url": "https://github.com/brunodev85/gladio/blob/116c0d14dedbea3bd057f98f1db138bb1efe225e/CMakeLists.txt"
+    },
+    {
+      "repo": "brunodev85/gladio",
+      "commit": "116c0d14dedbea3bd057f98f1db138bb1efe225e",
+      "path": "include/gladio.h",
+      "git_blob_sha": "22dc0761adcc4e02d668d554936cf3b1e4816d54",
+      "sha256": "e94afa176a48c4c53df2c83570a1d1a4041d6918ead918479028fcd33be9aba6",
+      "bytes": 9251,
+      "url": "https://github.com/brunodev85/gladio/blob/116c0d14dedbea3bd057f98f1db138bb1efe225e/include/gladio.h"
+    },
+    {
+      "repo": "brunodev85/gladio",
+      "commit": "116c0d14dedbea3bd057f98f1db138bb1efe225e",
+      "path": "src/main.c",
+      "git_blob_sha": "c8f390ed54daa5d1ca059e9f38ff76e6506b880d",
+      "sha256": "a2cb3c0eb0abf43dd20b28fcd8cb88455f4017b5fbd5a7d3e44b719b726215f0",
+      "bytes": 7736,
+      "url": "https://github.com/brunodev85/gladio/blob/116c0d14dedbea3bd057f98f1db138bb1efe225e/src/main.c"
+    },
+    {
+      "repo": "brunodev85/gladio",
+      "commit": "116c0d14dedbea3bd057f98f1db138bb1efe225e",
+      "path": "src/glx_calls.c",
+      "git_blob_sha": "b70fed638efab0a47c37d97fc68de5356c8d1484",
+      "sha256": "041a9e86da1f346de806d5ed3720596701abac7c62cd677c43b066233b3ee669",
+      "bytes": 16280,
+      "url": "https://github.com/brunodev85/gladio/blob/116c0d14dedbea3bd057f98f1db138bb1efe225e/src/glx_calls.c"
+    },
+    {
+      "repo": "brunodev85/gladio",
+      "commit": "116c0d14dedbea3bd057f98f1db138bb1efe225e",
+      "path": "src/gl_calls.c",
+      "git_blob_sha": "56be9c368f48663a8aaf4c8f622cce66a54dbef1",
+      "sha256": "832829a21a442564a460c4851e8b39828626bdf95cc04924023cc6b285d057de",
+      "bytes": 275567,
+      "url": "https://github.com/brunodev85/gladio/blob/116c0d14dedbea3bd057f98f1db138bb1efe225e/src/gl_calls.c"
+    },
+    {
+      "repo": "brunodev85/winlator-app",
+      "commit": "c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6",
+      "path": "app/src/main/cpp/vortekrenderer/CMakeLists.txt",
+      "git_blob_sha": "0e7920dc56bb1d19ff5cc6d9786d4a81e2b46774",
+      "sha256": "69435fb9f798089b8a9d8d701574eb9226617387a0076bd1a19042060e2799ba",
+      "bytes": 866,
+      "url": "https://github.com/brunodev85/winlator-app/blob/c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6/app/src/main/cpp/vortekrenderer/CMakeLists.txt"
+    },
+    {
+      "repo": "brunodev85/winlator-app",
+      "commit": "c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6",
+      "path": "app/src/main/cpp/vortekrenderer/src/main.c",
+      "git_blob_sha": "9218785302451cffa25c83207a12812b499eda64",
+      "sha256": "ff63280c600f94fbba6bf150a493954cb032729dbea6628590b562ad47fad63c",
+      "bytes": 3559,
+      "url": "https://github.com/brunodev85/winlator-app/blob/c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6/app/src/main/cpp/vortekrenderer/src/main.c"
+    },
+    {
+      "repo": "brunodev85/winlator-app",
+      "commit": "c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6",
+      "path": "app/src/main/cpp/vortekrenderer/src/vk_context.c",
+      "git_blob_sha": "3fed461399c261b24493b8aec134f45f606eb8e8",
+      "sha256": "dbca7c783b587500e6c6f5a85a8f375ef2bb59ac9daec85a3c60aec2e4fff76a",
+      "bytes": 7025,
+      "url": "https://github.com/brunodev85/winlator-app/blob/c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6/app/src/main/cpp/vortekrenderer/src/vk_context.c"
+    },
+    {
+      "repo": "brunodev85/winlator-app",
+      "commit": "c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6",
+      "path": "app/src/main/cpp/vortekrenderer/src/vulkan_helper.c",
+      "git_blob_sha": "14692325cebc6aa4dc979b9898fdb2408277c98a",
+      "sha256": "cdcc2c57da62f29a209d43be63895865a69d4723f8744ef621f5a37020b6b0e8",
+      "bytes": 25370,
+      "url": "https://github.com/brunodev85/winlator-app/blob/c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6/app/src/main/cpp/vortekrenderer/src/vulkan_helper.c"
+    },
+    {
+      "repo": "brunodev85/winlator-app",
+      "commit": "c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6",
+      "path": "app/src/main/cpp/vortekrenderer/src/resource_memory.c",
+      "git_blob_sha": "86012d1e5607c20e218d40fdacff06f10a0821f6",
+      "sha256": "91e056fc7595c8c790db128e0e53fb4ecb59a52f1a8c81de4ddd60695934876b",
+      "bytes": 8727,
+      "url": "https://github.com/brunodev85/winlator-app/blob/c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6/app/src/main/cpp/vortekrenderer/src/resource_memory.c"
+    },
+    {
+      "repo": "brunodev85/winlator-app",
+      "commit": "c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6",
+      "path": "app/src/main/cpp/vortekrenderer/src/xwindow_swapchain.c",
+      "git_blob_sha": "d94196ab27b5f008b71ed25ef22547c24da74f2a",
+      "sha256": "2f4e11c6a3596c5dafa4eb43fb83af414ab729997f7be98713f9762db4dc2799",
+      "bytes": 7744,
+      "url": "https://github.com/brunodev85/winlator-app/blob/c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6/app/src/main/cpp/vortekrenderer/src/xwindow_swapchain.c"
+    },
+    {
+      "repo": "brunodev85/winlator-app",
+      "commit": "c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6",
+      "path": "app/src/main/cpp/vortekrenderer/src/request_handler.c",
+      "git_blob_sha": "0e4b6e5f1c9dabb8f90155d7b6049548bbddf3f3",
+      "sha256": "29057bac8b85b73a41878120b8e1701881e9fbb3b86fe2b1c380a8b64fd85cd6",
+      "bytes": 167666,
+      "url": "https://github.com/brunodev85/winlator-app/blob/c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6/app/src/main/cpp/vortekrenderer/src/request_handler.c"
+    },
+    {
+      "repo": "brunodev85/winlator-app",
+      "commit": "c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6",
+      "path": "app/src/main/cpp/vortekrenderer/src/shader_inspector.c",
+      "git_blob_sha": "ca69a425c24083a2d57920b3447297c1f11f6c85",
+      "sha256": "bda8ec9b9d44de78048ad99c809f3295b84e26faca5dc172aa09e7d6e5010b8f",
+      "bytes": 29978,
+      "url": "https://github.com/brunodev85/winlator-app/blob/c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6/app/src/main/cpp/vortekrenderer/src/shader_inspector.c"
+    },
+    {
+      "repo": "brunodev85/winlator-app",
+      "commit": "c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6",
+      "path": "app/src/main/cpp/vortekrenderer/src/texture_decoder.c",
+      "git_blob_sha": "2cc614c0e7ba6af35c3e7d602553fdd36406db52",
+      "sha256": "f1c648a20418a322c26f668c327b627942d46e16decbb583945567e7af04ff59",
+      "bytes": 21720,
+      "url": "https://github.com/brunodev85/winlator-app/blob/c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6/app/src/main/cpp/vortekrenderer/src/texture_decoder.c"
+    },
+    {
+      "repo": "brunodev85/winlator-app",
+      "commit": "c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6",
+      "path": "app/src/main/cpp/gladiorenderer/CMakeLists.txt",
+      "git_blob_sha": "90a6debaa065c0361536d3cc92b7a9ed045e7760",
+      "sha256": "2459b82b63022bcd380fc6d13efa6b08340c7c11bd26f98801d26e741afba06a",
+      "bytes": 1012,
+      "url": "https://github.com/brunodev85/winlator-app/blob/c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6/app/src/main/cpp/gladiorenderer/CMakeLists.txt"
+    },
+    {
+      "repo": "brunodev85/winlator-app",
+      "commit": "c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6",
+      "path": "app/src/main/cpp/gladiorenderer/src/gl_context.c",
+      "git_blob_sha": "3df5852ddce68a8e88ad42442e718167430eea60",
+      "sha256": "a1c6529e1f565c04bd78f8bfc6d707b3b1fb9b7c04a7ac52d33137700f3e1057",
+      "bytes": 25044,
+      "url": "https://github.com/brunodev85/winlator-app/blob/c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6/app/src/main/cpp/gladiorenderer/src/gl_context.c"
+    },
+    {
+      "repo": "brunodev85/winlator-app",
+      "commit": "c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6",
+      "path": "app/src/main/cpp/gladiorenderer/src/gl_renderer.c",
+      "git_blob_sha": "f99739842c59e66aeab1021837131c5b6f8574d5",
+      "sha256": "b556c66f274365a4c512ab1e8918d6770a41638f89746524be119672077f5ca6",
+      "bytes": 58323,
+      "url": "https://github.com/brunodev85/winlator-app/blob/c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6/app/src/main/cpp/gladiorenderer/src/gl_renderer.c"
+    },
+    {
+      "repo": "brunodev85/winlator-app",
+      "commit": "c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6",
+      "path": "app/src/main/cpp/gladiorenderer/src/shader_converter.c",
+      "git_blob_sha": "e9a70696e4edbf52b56b7b8fde776fc4699d61bc",
+      "sha256": "bc5afb580b7e3107754c81a3a04d1fc5e772b70a096985688a7ba1c4196df1d1",
+      "bytes": 78004,
+      "url": "https://github.com/brunodev85/winlator-app/blob/c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6/app/src/main/cpp/gladiorenderer/src/shader_converter.c"
+    },
+    {
+      "repo": "brunodev85/winlator-app",
+      "commit": "c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6",
+      "path": "app/src/main/cpp/gladiorenderer/src/request_handler.c",
+      "git_blob_sha": "ea08d7ae8f55843c114cec52f202201771bf6153",
+      "sha256": "10bd382f5af96bfc6977254d2939b9238f75d86c6fd330ee4f88a6132d151fb6",
+      "bytes": 142125,
+      "url": "https://github.com/brunodev85/winlator-app/blob/c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6/app/src/main/cpp/gladiorenderer/src/request_handler.c"
+    },
+    {
+      "repo": "brunodev85/winlator-app",
+      "commit": "c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6",
+      "path": "app/src/main/java/com/winlator/xenvironment/components/VortekRendererComponent.java",
+      "git_blob_sha": "9120e91879175ae8676f46776077bffe67121db7",
+      "sha256": "fd7f003703833ba9dcf76412ed173168f7ddf8c1107b24e1e299b060ecce0c48",
+      "bytes": 7036,
+      "url": "https://github.com/brunodev85/winlator-app/blob/c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6/app/src/main/java/com/winlator/xenvironment/components/VortekRendererComponent.java"
+    },
+    {
+      "repo": "brunodev85/winlator-app",
+      "commit": "c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6",
+      "path": "app/src/main/java/com/winlator/renderer/GPUImage.java",
+      "git_blob_sha": "d517e265e196b8b8be453288ac2da54688e0cb45",
+      "sha256": "33a47c1e31d87250fb0f4a4a5863e2c0bdd54a24f3b18c65c6c486a640c9f256",
+      "bytes": 2613,
+      "url": "https://github.com/brunodev85/winlator-app/blob/c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6/app/src/main/java/com/winlator/renderer/GPUImage.java"
+    },
+    {
+      "repo": "brunodev85/winlator-app",
+      "commit": "c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6",
+      "path": "app/src/main/cpp/winlator/src/gpu_image.c",
+      "git_blob_sha": "b197ceaf54552ac4e65d3f2ed222a04b47f13776",
+      "sha256": "6f3a1f16fc3d37bbbf140061a5eb634df1c6e2439d7f9222e5660c30f5411c4f",
+      "bytes": 4777,
+      "url": "https://github.com/brunodev85/winlator-app/blob/c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6/app/src/main/cpp/winlator/src/gpu_image.c"
+    },
+    {
+      "repo": "brunodev85/winlator-app",
+      "commit": "c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6",
+      "path": "app/src/main/cpp/vortekrenderer/include/bc_decoder.h",
+      "git_blob_sha": "ba7b8bad0dd51987c35461c83224ee9978a071cd",
+      "sha256": "8ba12e2a821ac0423816f44c751fb09e67ad366cfe313c487a2b5051da958350",
+      "bytes": 8663,
+      "url": "https://github.com/brunodev85/winlator-app/blob/c03f6ab558c6f94cbac6ec0c791b12f3428fbdf6/app/src/main/cpp/vortekrenderer/include/bc_decoder.h"
+    }
+  ]
+}

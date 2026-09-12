@@ -4,6 +4,8 @@
 
 | 文件 | 内容与限制 |
 |---|---|
+| [vortek-gladio-sources-20260907.json](vortek-gladio-sources-20260907.json) | 配套 client/server 的选定源码及 hash；静态分析，不代表驱动、游戏或 16 KiB 验证 |
+| [windows-android-sources-20260907.json](windows-android-sources-20260907.json) | WinNative/GameNative/Winlator/Hangover 固定源码与读取文件 hash；未验证 APK、游戏或 16 KiB 运行 |
 | [foundation-bootstrap-20260907.json](foundation-bootstrap-20260907.json) | Foundation 最小 profile 的 host smoke、API 35 NDK 构建和 ELF 对齐；API 36 配置失败与未运行边界 |
 | [android-foundation.lock.json](android-foundation.lock.json) | Android 基线提交、出处、工具配置与未验证项 |
 | [android-baseline-sources-2026-09-07.json](android-baseline-sources-2026-09-07.json) | 发布信息、公开源码映射和仓库目录快照 |

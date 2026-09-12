@@ -68,7 +68,7 @@ FEX 源码保持未修改，以父仓 gitlink 固定；尚未接入 shadPS4 的 
 | ThunkLibs | 56 | 30,490 | Linux 库桥与相关设施；不等于 PS4 HLE 桥 |
 | Source/Common | 27 | 3,800 | 部分配置/host feature 等可能复用，按依赖选择 |
 | CommonTools | 8 | 2,011 | 不应因参考 build script 链了整库就全部照搬 |
-| Windows | 70 | 7,792 | 非本目标 |
+| Windows | 70 | 7,792 | 非运行依赖；宿主契约可参考 [Windows 前端补充](fex-windows-frontend-reference.md) |
 | `unittests/ + FEXCore/unittests/` | 2,598 | 133,976 | 包含大量逐指令汇编案例 |
 | 第一方源码合计，含测试、排除 External | 3,143 | **294,411** | 不是需要移植的总代码量 |
 | Dynarmic 第一方源码合计，含测试 | 421 | **108,841** | 其中测试 35,032 行，组织方式不同 |
