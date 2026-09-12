@@ -1,0 +1,18 @@
+run id: g31-pass
+build dir: /var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmpyzang7j2
+
+api_contract_tests: 0 sub-case(s), 0 failure(s)  [UNUSABLE: not built]
+  (not attempted: not built)
+hle_abi_tests: 0 sub-case(s), 0 failure(s)  [UNUSABLE: not built]
+  (not attempted: not built)
+host_page_size_probe: 0 sub-case(s), 0 failure(s)  [UNUSABLE: not built]
+  (not attempted: not built)
+fexcore_bionic_smoke: 0 sub-case(s), 0 failure(s)  [UNUSABLE: not built]
+  (not attempted: not built)
+guest_execution_tests: 1 sub-case(s), 0 failure(s)
+
+0 PASS, 0 FAIL, 57 NOT_RUN of 57 in-scope cases (3 deferred by scope)
+release status: V0_IN_PROGRESS
+wrote /Users/bytedance/workspace/emulations/ps4/shadps4/docs/validation/round2/g3-r0-review-2026-09-10/runner/g31-pass.json
+
+main_return_code=0

@@ -1,0 +1,174 @@
+> Task :core:model:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:model:preBuild UP-TO-DATE
+> Task :core:model:preDebugBuild UP-TO-DATE
+> Task :core:model:generateDebugResValues UP-TO-DATE
+> Task :core:model:generateDebugResources UP-TO-DATE
+> Task :core:model:packageDebugResources UP-TO-DATE
+> Task :core:model:processDebugNavigationResources UP-TO-DATE
+> Task :core:model:parseDebugLocalResources UP-TO-DATE
+> Task :core:model:generateDebugRFile UP-TO-DATE
+> Task :core:model:compileDebugKotlin UP-TO-DATE
+> Task :core:model:javaPreCompileDebug UP-TO-DATE
+> Task :core:model:compileDebugJavaWithJavac NO-SOURCE
+> Task :core:model:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :core:model:processDebugJavaRes UP-TO-DATE
+> Task :core:model:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :core:runtime:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:runtime:preBuild UP-TO-DATE
+> Task :core:runtime:preDebugBuild UP-TO-DATE
+> Task :core:runtime:generateDebugResValues UP-TO-DATE
+> Task :core:runtime:generateDebugResources UP-TO-DATE
+> Task :core:runtime:packageDebugResources UP-TO-DATE
+> Task :core:runtime:processDebugNavigationResources UP-TO-DATE
+> Task :core:runtime:parseDebugLocalResources UP-TO-DATE
+> Task :core:runtime:generateDebugRFile UP-TO-DATE
+> Task :core:runtime:compileDebugKotlin UP-TO-DATE
+> Task :core:runtime:javaPreCompileDebug UP-TO-DATE
+> Task :core:runtime:compileDebugJavaWithJavac NO-SOURCE
+> Task :core:runtime:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :core:runtime:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :core:runtime:preDebugUnitTestBuild UP-TO-DATE
+> Task :core:runtime:generateDebugUnitTestStubRFile UP-TO-DATE
+> Task :core:runtime:processDebugJavaRes UP-TO-DATE
+> Task :core:runtime:javaPreCompileDebugUnitTest
+> Task :core:data:preBuild UP-TO-DATE
+> Task :core:data:preDebugBuild UP-TO-DATE
+> Task :core:data:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:data:generateDebugResValues UP-TO-DATE
+> Task :core:data:generateDebugResources UP-TO-DATE
+> Task :core:data:packageDebugResources UP-TO-DATE
+> Task :core:data:processDebugNavigationResources UP-TO-DATE
+> Task :core:data:parseDebugLocalResources UP-TO-DATE
+> Task :core:data:generateDebugRFile UP-TO-DATE
+> Task :core:database:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:database:preBuild UP-TO-DATE
+> Task :core:database:preDebugBuild UP-TO-DATE
+> Task :core:database:generateDebugResValues UP-TO-DATE
+> Task :core:database:generateDebugResources UP-TO-DATE
+> Task :core:database:packageDebugResources UP-TO-DATE
+> Task :core:database:processDebugNavigationResources UP-TO-DATE
+> Task :core:database:parseDebugLocalResources UP-TO-DATE
+> Task :core:database:generateDebugRFile UP-TO-DATE
+> Task :core:database:kspDebugKotlin UP-TO-DATE
+> Task :core:database:compileDebugKotlin UP-TO-DATE
+> Task :core:database:javaPreCompileDebug UP-TO-DATE
+> Task :core:database:compileDebugJavaWithJavac UP-TO-DATE
+> Task :core:database:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :core:data:kspDebugKotlin UP-TO-DATE
+> Task :core:data:compileDebugKotlin UP-TO-DATE
+> Task :core:data:javaPreCompileDebug UP-TO-DATE
+> Task :core:data:compileDebugJavaWithJavac UP-TO-DATE
+> Task :core:database:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :core:data:transformDebugClassesWithAsm UP-TO-DATE
+> Task :core:data:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :core:data:processDebugJavaRes UP-TO-DATE
+> Task :core:database:processDebugJavaRes UP-TO-DATE
+> Task :core:designsystem:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:designsystem:preBuild UP-TO-DATE
+> Task :core:designsystem:preDebugBuild UP-TO-DATE
+> Task :core:designsystem:generateDebugResValues UP-TO-DATE
+> Task :core:designsystem:generateDebugResources UP-TO-DATE
+> Task :core:designsystem:packageDebugResources UP-TO-DATE
+> Task :core:designsystem:processDebugNavigationResources UP-TO-DATE
+> Task :core:designsystem:parseDebugLocalResources UP-TO-DATE
+> Task :core:designsystem:generateDebugRFile UP-TO-DATE
+> Task :core:designsystem:compileDebugKotlin UP-TO-DATE
+> Task :core:designsystem:javaPreCompileDebug UP-TO-DATE
+> Task :core:designsystem:compileDebugJavaWithJavac NO-SOURCE
+> Task :core:designsystem:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :core:designsystem:processDebugJavaRes UP-TO-DATE
+> Task :feature:session:preBuild UP-TO-DATE
+> Task :feature:session:preDebugBuild UP-TO-DATE
+> Task :core:data:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :core:designsystem:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :feature:session:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :feature:session:generateDebugResValues UP-TO-DATE
+> Task :feature:session:generateDebugResources UP-TO-DATE
+> Task :feature:session:packageDebugResources UP-TO-DATE
+> Task :feature:session:processDebugNavigationResources UP-TO-DATE
+> Task :feature:session:parseDebugLocalResources UP-TO-DATE
+> Task :feature:session:generateDebugRFile UP-TO-DATE
+> Task :feature:session:kspDebugKotlin UP-TO-DATE
+> Task :feature:session:compileDebugKotlin UP-TO-DATE
+> Task :feature:session:javaPreCompileDebug UP-TO-DATE
+> Task :feature:session:compileDebugJavaWithJavac UP-TO-DATE
+> Task :feature:session:transformDebugClassesWithAsm UP-TO-DATE
+> Task :feature:session:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :feature:session:preDebugUnitTestBuild UP-TO-DATE
+> Task :feature:session:processDebugJavaRes UP-TO-DATE
+> Task :feature:session:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :feature:library:preBuild UP-TO-DATE
+> Task :feature:library:preDebugBuild UP-TO-DATE
+> Task :feature:library:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :feature:library:generateDebugResValues UP-TO-DATE
+> Task :feature:library:generateDebugResources UP-TO-DATE
+> Task :feature:session:javaPreCompileDebugUnitTest
+> Task :feature:library:packageDebugResources UP-TO-DATE
+> Task :feature:library:processDebugNavigationResources UP-TO-DATE
+> Task :feature:library:parseDebugLocalResources UP-TO-DATE
+> Task :feature:library:generateDebugRFile UP-TO-DATE
+> Task :feature:library:kspDebugKotlin UP-TO-DATE
+> Task :feature:library:compileDebugKotlin UP-TO-DATE
+> Task :feature:library:javaPreCompileDebug UP-TO-DATE
+> Task :feature:library:compileDebugJavaWithJavac UP-TO-DATE
+> Task :feature:library:transformDebugClassesWithAsm UP-TO-DATE
+> Task :feature:library:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :feature:library:preDebugUnitTestBuild UP-TO-DATE
+> Task :feature:library:processDebugJavaRes UP-TO-DATE
+> Task :feature:library:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :feature:library:javaPreCompileDebugUnitTest
+> Task :feature:session:generateDebugUnitTestStubRFile
+> Task :feature:library:generateDebugUnitTestStubRFile
+
+> Task :core:runtime:compileDebugUnitTestKotlin FAILED
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/src/test/kotlin/com/shadps4/android/runtime/config/ShadPs4ConfigManagerTest.kt:29:15 Unresolved reference 'writeString'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/src/test/kotlin/com/shadps4/android/runtime/config/ShadPs4ConfigManagerTest.kt:36:50 Unresolved reference 'readString'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/src/test/kotlin/com/shadps4/android/runtime/config/ShadPs4ConfigManagerTest.kt:54:52 Unresolved reference 'readString'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/src/test/kotlin/com/shadps4/android/runtime/config/ShadPs4ConfigManagerTest.kt:64:15 Unresolved reference 'writeString'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/src/test/kotlin/com/shadps4/android/runtime/config/ShadPs4ConfigManagerTest.kt:82:50 Unresolved reference 'readString'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/src/test/kotlin/com/shadps4/android/runtime/config/ShadPs4ConfigManagerTest.kt:107:58 Unresolved reference 'readString'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/src/test/kotlin/com/shadps4/android/runtime/diagnostics/DiagnosticBundleBuilderTest.kt:20:15 Unresolved reference 'writeString'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/src/test/kotlin/com/shadps4/android/runtime/diagnostics/DiagnosticBundleBuilderTest.kt:21:15 Unresolved reference 'writeString'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/src/test/kotlin/com/shadps4/android/runtime/diagnostics/DiagnosticBundleBuilderTest.kt:74:15 Unresolved reference 'writeString'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/src/test/kotlin/com/shadps4/android/runtime/diagnostics/DiagnosticBundleBuilderTest.kt:75:15 Unresolved reference 'writeString'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/src/test/kotlin/com/shadps4/android/runtime/diagnostics/DiagnosticBundleBuilderTest.kt:105:19 Unresolved reference 'writeString'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/src/test/kotlin/com/shadps4/android/runtime/diagnostics/DiagnosticBundleBuilderTest.kt:108:15 Unresolved reference 'writeString'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/src/test/kotlin/com/shadps4/android/runtime/diagnostics/DiagnosticCheckpointStoreTest.kt:23:28 Unresolved reference 'readString'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/src/test/kotlin/com/shadps4/android/runtime/diagnostics/SessionLogTest.kt:20:26 Unresolved reference 'readString'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/src/test/kotlin/com/shadps4/android/runtime/display/EmbeddedXServerTest.kt:13:25 Unresolved reference 'EmbeddedXServerSurfaceLifecycle'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/src/test/kotlin/com/shadps4/android/runtime/display/EmbeddedXServerTest.kt:24:22 Unresolved reference 'SingleInstanceEmbeddedXServer'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/src/test/kotlin/com/shadps4/android/runtime/display/EmbeddedXServerTest.kt:29:23 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/src/test/kotlin/com/shadps4/android/runtime/display/EmbeddedXServerTest.kt:29:35 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/src/test/kotlin/com/shadps4/android/runtime/display/EmbeddedXServerTest.kt:37:22 Unresolved reference 'SingleInstanceEmbeddedXServer'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/src/test/kotlin/com/shadps4/android/runtime/display/EmbeddedXServerTest.kt:45:41 Unresolved reference 'EmbeddedXServer'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/src/test/kotlin/com/shadps4/android/runtime/display/EmbeddedXServerTest.kt:46:9 'display' overrides nothing.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/src/test/kotlin/com/shadps4/android/runtime/display/EmbeddedXServerTest.kt:49:9 'start' overrides nothing.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/src/test/kotlin/com/shadps4/android/runtime/display/EmbeddedXServerTest.kt:51:9 'resize' overrides nothing.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/src/test/kotlin/com/shadps4/android/runtime/display/EmbeddedXServerTest.kt:53:9 'stop' overrides nothing.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/src/test/kotlin/com/shadps4/android/runtime/display/EmbeddedXServerTest.kt:61:41 Unresolved reference 'sun'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/src/test/kotlin/com/shadps4/android/runtime/display/EmbeddedXServerTest.kt:62:23 Unresolved reference 'allocateInstance'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/src/test/kotlin/com/shadps4/android/runtime/display/WindowScalingTest.kt:10:13 Unresolved reference 'FloatBounds'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/src/test/kotlin/com/shadps4/android/runtime/display/WindowScalingTest.kt:11:13 Unresolved reference 'aspectFitBounds'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/src/test/kotlin/com/shadps4/android/runtime/driver/BundledTurnipInstallerTest.kt:40:19 Unresolved reference 'readString'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/src/test/kotlin/com/shadps4/android/runtime/driver/BundledTurnipInstallerTest.kt:85:19 Unresolved reference 'readString'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/src/test/kotlin/com/shadps4/android/runtime/driver/TurnipPackageInstallerTest.kt:43:26 Unresolved reference 'readString'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/src/test/kotlin/com/shadps4/android/runtime/install/RuntimeInstallerTest.kt:114:15 Unresolved reference 'writeString'.
+e: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/src/test/kotlin/com/shadps4/android/runtime/install/RuntimeInstallerTest.kt:126:26 Unresolved reference 'readString'.
+
+> Task :feature:session:kspDebugUnitTestKotlin
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':core:runtime:compileDebugUnitTestKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 2s
+96 actionable tasks: 7 executed, 89 up-to-date

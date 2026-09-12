@@ -1,0 +1,15 @@
+guest reservation base: 0x7f8000000
+code at 0x7f8010000, stack top 0x7f8023ff0
+return gate at 0xfc0000000
+
+STORE {"epoch":0,"old":17,"old_immediate":17,"guest_immediate":17,"target_a":1,"target_b":2,"generation_a":2,"generation_b":3,"tid_a":27246,"tid_b":27247,"result_a":17,"result_b":17,"ok":false}
+STORE {"epoch":1,"old":34,"old_immediate":17,"guest_immediate":17,"target_a":1,"target_b":2,"generation_a":2,"generation_b":3,"tid_a":27246,"tid_b":27247,"result_a":17,"result_b":17,"ok":false}
+STORE {"epoch":2,"old":35,"old_immediate":17,"guest_immediate":17,"target_a":1,"target_b":2,"generation_a":2,"generation_b":3,"tid_a":27246,"tid_b":27247,"result_a":17,"result_b":17,"ok":false}
+STORE {"epoch":3,"old":36,"old_immediate":17,"guest_immediate":17,"target_a":1,"target_b":2,"generation_a":2,"generation_b":3,"tid_a":27246,"tid_b":27247,"result_a":17,"result_b":17,"ok":false}
+STORE {"epoch":4,"old":37,"old_immediate":17,"guest_immediate":17,"target_a":1,"target_b":2,"generation_a":2,"generation_b":3,"tid_a":27246,"tid_b":27247,"result_a":17,"result_b":17,"ok":false}
+STORE {"epoch":5,"old":38,"old_immediate":17,"guest_immediate":17,"target_a":1,"target_b":2,"generation_a":2,"generation_b":3,"tid_a":27246,"tid_b":27247,"result_a":17,"result_b":17,"ok":false}
+STORE {"epoch":6,"old":39,"old_immediate":17,"guest_immediate":17,"target_a":1,"target_b":2,"generation_a":2,"generation_b":3,"tid_a":27246,"tid_b":27247,"result_a":17,"result_b":17,"ok":false}
+STORE {"epoch":7,"old":40,"old_immediate":17,"guest_immediate":17,"target_a":1,"target_b":2,"generation_a":2,"generation_b":3,"tid_a":27246,"tid_b":27247,"result_a":17,"result_b":17,"ok":false}
+STORE {"epoch":8,"old":41,"old_immediate":17,"guest_immediate":17,"target_a":1,"target_b":2,"generation_a":2,"generation_b":3,"tid_a":27246,"tid_b":27247,"result_a":17,"result_b":17,"ok":false}
+STORE {"epoch":9,"old":42,"old_immediate":17,"guest_immediate":17,"target_a":1,"target_b":2,"generation_a":2,"generation_b":3,"tid_a":27246,"tid_b":27247,"result_a":17,"result_b":17,"ok":false}
+[G27a  ] 10 varying guest stores directly modify hot code reused by both original owners FAIL

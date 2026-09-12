@@ -1,0 +1,13 @@
+COMMAND ['adb', '-s', '9c2841a4', 'shell', 'timeout', '20', '/data/local/tmp/shadps4-g3-n4-review-20260911/gate_timeout_probe', 'no-pending']
+LOCAL_SHA256 aaab07d96fc56bb7b65cebbb1fc9010688bfc830258a2c9bb6c07f36c8c3757e
+DEVICE_SHA256 aaab07d96fc56bb7b65cebbb1fc9010688bfc830258a2c9bb6c07f36c8c3757e  /data/local/tmp/shadps4-g3-n4-review-20260911/gate_timeout_probe
+guest reservation base: 0x7f8000000
+code at 0x7f8010000, stack top 0x7f8023ff0
+return gate at 0xfc0000000
+
+TIMEOUT pending=0 gate_exited=1 run_returned=0 progress=731358055
+CLEANUP external_cancel=1 receipt=1 result=Cancelled
+[guest_cpu] test entry gate: release budget expired for thread 1; entering JIT to service pending interrupts
+
+EXIT 2
+ELAPSED 6.566371832974255

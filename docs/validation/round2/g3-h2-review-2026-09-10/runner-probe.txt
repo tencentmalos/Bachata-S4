@@ -1,0 +1,44 @@
+[
+  {
+    "sub": "G30a",
+    "owned": false,
+    "v0_failed": 0,
+    "r2_failed": 0
+  },
+  {
+    "sub": "G30b",
+    "owned": false,
+    "v0_failed": 0,
+    "r2_failed": 0
+  },
+  {
+    "sub": "G31a",
+    "owned": false,
+    "v0_failed": 0,
+    "r2_failed": 0
+  },
+  {
+    "sub": "G31b",
+    "owned": false,
+    "v0_failed": 0,
+    "r2_failed": 0
+  },
+  {
+    "sub": "G31c",
+    "owned": false,
+    "v0_failed": 0,
+    "r2_failed": 0
+  },
+  {
+    "sub": "G32a",
+    "owned": false,
+    "v0_failed": 0,
+    "r2_failed": 0
+  },
+  {
+    "sub": "G32b",
+    "owned": false,
+    "v0_failed": 0,
+    "r2_failed": 0
+  }
+]

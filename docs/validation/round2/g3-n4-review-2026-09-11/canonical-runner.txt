@@ -1,0 +1,16 @@
+COMMAND ['python3', 'scripts/android/run-v0-tests', '--build-dir', '/tmp/shadps4-g3-n4-review-20260911/host', '--fex-build-dir', '/tmp/shadps4-g3-n4-review-20260911/device/backend', '--serial', '9c2841a4', '--expected-page-size', '4096', '--run-id', 'g3-n4-review-e0693faa', '--out', 'docs/validation/round2/g3-n4-review-2026-09-11/device-results.json']
+run id: g3-n4-review-e0693faa
+build dir: /tmp/shadps4-g3-n4-review-20260911/host
+
+api_contract_tests: 43 sub-case(s), 0 failure(s)
+hle_abi_tests: 14 sub-case(s), 0 failure(s)
+host_page_size_probe: 22 sub-case(s), 0 failure(s)
+fexcore_bionic_smoke: 12 sub-case(s), 0 failure(s)
+guest_execution_tests: 114 sub-case(s), 0 failure(s)
+guest_cpu_contract_tests: 43 sub-case(s), 0 failure(s)
+
+10 PASS, 0 FAIL, 47 NOT_RUN of 57 in-scope cases (3 deferred by scope)
+release status: V0_IN_PROGRESS
+wrote docs/validation/round2/g3-n4-review-2026-09-11/device-results.json
+
+EXIT 0

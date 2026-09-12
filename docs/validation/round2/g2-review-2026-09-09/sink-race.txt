@@ -1,0 +1,2 @@
+remap_during_sink_accepted=1 reprotect_during_sink_accepted=1
+publication_reported_success=1 expected_byte=90 actual_byte=0 read=1

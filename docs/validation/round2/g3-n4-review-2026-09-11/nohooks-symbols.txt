@@ -1,0 +1,2 @@
+0000000000000000 T FexSyscallWrapper
+0000000000000000 t Core::GuestCpu::Fex::(anonymous namespace)::FexSyscallExitToStop(void*, void*, void*)

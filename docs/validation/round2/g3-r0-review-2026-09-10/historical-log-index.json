@@ -1,0 +1,1484 @@
+{
+  "logs": [
+    {
+      "name": "diag1.txt",
+      "sha256": "acc44eb0e65a8912377d87883ea3485a38cef11818f4c6b8ddd417a00d23108d",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "104 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "diag2.txt",
+      "sha256": "353f2a8c3765281be7711550b20e37c215f8a17c1b261d8acc072c1c1453a460",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "104 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "diag3.txt",
+      "sha256": "9494932826806a0cd5deef6b131ac2b3964b1bf654165155c466cc426ec86e96",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "diag4.txt",
+      "sha256": "e6c22eff304dc78fb3ee6beaa962676cd6c1f5fde9b333acc7749ddcb8c55ffa",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "diag5.txt",
+      "sha256": "157422dad0b82a5b7894fa639bf56468f8a3e087c3c0fccf94eaae74f2402ef9",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "diag6.txt",
+      "sha256": "18a5c3ff42ff1f8fdce9fd61353fb06b0a83080e1b1e5a65607511ef7845a6d9",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "fix10.txt",
+      "sha256": "a26e2bc7fd611c3c0a433f3a27305484cdd2b2014186a3a15486a99908800005",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "fix11.txt",
+      "sha256": "f949a7559bbf37ce03e00bd8a1d630a5967648166aa66cbb3a04c67992dfc5a0",
+      "exit_markers": [
+        "1"
+      ],
+      "check_summaries": [
+        "202 check(s), FAILED (1 failure)"
+      ],
+      "failed_subcheck_lines": [
+        "[G24a  ] timeout recovery preserves an earlier external request and closes admission FAIL -- iter=32 second owner reached its stop while the first owner is still held"
+      ],
+      "g24_diagnostics": [
+        "[g24] FAIL iter=32 order=0 stage=second owner reached its stop while the first owner is still held "
+      ],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "fix12.txt",
+      "sha256": "1cb596da98037676df7ecc64f6b2675089b45554f903a4ebe623afb938e07c53",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "fix7.txt",
+      "sha256": "8d5441e6b7450c50dad963ade14f18a1c9dcd603c5b5c78575d1616a59f8a36e",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "fix8.txt",
+      "sha256": "829ab4ae53442338973fd25474102b8587c96fe4639794c9ad16e7b44ad1026c",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "fix9.txt",
+      "sha256": "03b13440cadc56b3a5d494a9ac48cba6434b2f0476be7a55ed9e7269bec7a5e9",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "fixverify1.txt",
+      "sha256": "9905101f09a71eac08e5b53aa644040fa224ae37590fb6a46188ae1ad3e149cd",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "run1.txt",
+      "sha256": "d02aceb16be9c4f73b033c69e4025e04b939e33e6562637e7ac25247ac4aff3c",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "run2.txt",
+      "sha256": "13e238788640c790a89a5c6090ba34052f46cf098beb528c6c30889e0752c391",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "run3.txt",
+      "sha256": "c5dacc644048a3b586fa8bc7ddc6dec2250d17c2680f70a6e17f855491f123b6",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "s200.txt",
+      "sha256": "7494f40ad5dffbff9d83f7741f7c4a8798749786f4252da74f2d313d9b3b8385",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "s201.txt",
+      "sha256": "af201d3d5bf34757fa48420264569d17307db23825a76195300ca490458f4744",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "s202.txt",
+      "sha256": "8be4d6411d0319648792924be7c98c8a33e789950eac065d59c250b5533588f2",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "s203.txt",
+      "sha256": "64d1eb93d1b2f9a38732f902bfb9cee7d213d4b6ba8d8b388c47ffa9adff6931",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "s204.txt",
+      "sha256": "3450ea7825134769020cca76fa00d76218a6c0ddbb15f9696c9a64881d3caa26",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "s205.txt",
+      "sha256": "13f54ee7db05d6a3732b03b6178f3dee460057123bbf3fb45ea2a007fd59ae2d",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "s206.txt",
+      "sha256": "b54c09318d0e7e97ed0975f4c327c5098d2e41f5580a12ae1fb6f6e507f003f1",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "s207.txt",
+      "sha256": "365e67d78c7d0c4e2f6f608d52514332497cabbdab4b8c23a9c904ac69f85f31",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "s208.txt",
+      "sha256": "410fd8bd758862168d9f1ce07b135e844392d23d79d2f58e1a41b814f3cda101",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "s209.txt",
+      "sha256": "858570620c2aaaa26cb6b09de9db8028ec35194e6a58fae577a6a1d059726744",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "s210.txt",
+      "sha256": "fab2ea8ca60ffa2cd08920aedc653e8bf95d8aa616b4d84af084a47f22ede24d",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "s211.txt",
+      "sha256": "19664690358d19a383da1b0d1de35b72e032007c5bc7a47411447f928cb748c6",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "s212.txt",
+      "sha256": "dab0630f25b157279d6d578d8bf9ce5fa4a46c82984eed17ccf55ab981244d96",
+      "exit_markers": [
+        "1"
+      ],
+      "check_summaries": [
+        "202 check(s), FAILED (1 failure)"
+      ],
+      "failed_subcheck_lines": [
+        "[G24a  ] timeout recovery preserves an earlier external request and closes admission FAIL -- iter=2 second owner reached its stop while the first owner is still held: second guest progress froze but Run did not return during the hold"
+      ],
+      "g24_diagnostics": [
+        "[g24] detail iter=2 second_guest_progress_advanced_while_owner_held=0",
+        "[g24] detail iter=2 owner_tid=26092 wchan=(userspace/running) | second_tid=26093 wchan=futex_wait_queue_me",
+        "[g24] FAIL iter=2 order=0 stage=second owner reached its stop while the first owner is still held second guest progress froze but Run did not return during the hold"
+      ],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "stress13.txt",
+      "sha256": "5ca099554d984db1060daae8d1032ed615c7352f53f9de5e17294a86d67adc87",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "stress14.txt",
+      "sha256": "e200984c38ff680c0c0f0d48aaa28d4f3f27311971e482a1ac029734b3af5aeb",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "stress15.txt",
+      "sha256": "ba4d002efdc3373d0fcabcde11ddb55b7752bec9b636e18a78ee3db89de7d503",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "stress16.txt",
+      "sha256": "c6ed73d9eaf151fd899670def667e60671fb0ea473ba4394ea2e74d965ea2617",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "stress17.txt",
+      "sha256": "daf183154a4f0ef132033014fd2a933eaa9aa7f3e946128f6df95c37f2239437",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "stress18.txt",
+      "sha256": "5b45172bc9fb2774b47e67ec6a4cd1c7ef91d0a1bf6497e3b890d9a45f075537",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "stress19.txt",
+      "sha256": "ca8740068776954516bf4aff9019512258c30f1b0dedf573ef539fadb11479c3",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "stress20.txt",
+      "sha256": "fc908273a218cf63882f891cfbaa7b2501cd31cc3a1f2d99258516dcb69a6cb2",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "stress21.txt",
+      "sha256": "1bbfbf40dc50d9ea58d8baef92a2a45afc60d0cac24ed39d7e2b09385d9271da",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "stress22.txt",
+      "sha256": "96a87f54e95404e9adaec6743db4d7f6f25b8d159c0a1cb1c5966cd90fc20768",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "stress23.txt",
+      "sha256": "3d49f21497b81dc41ba68fcf944ecc255cac428c54fdde14e43f985cfacb10ce",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "stress24.txt",
+      "sha256": "586f4a1eb548fc8210cf1587fea9372521d07588961d9e7feeff4da16fcda802",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "stress25.txt",
+      "sha256": "96e08e34b5326c1ccd796c7f0d98860bc10652343b6a733ecffdf030d5495285",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "stress26.txt",
+      "sha256": "a7101f973037f79ee65d75a082c381cfd8b67c1e5fc7b2f3aeadcb2b81d4e974",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "stress27.txt",
+      "sha256": "c598fd90c7fb040abad938a58ce76bcb91ffde28b1ea5188a6cb3fa6db02313c",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "stress28.txt",
+      "sha256": "59d3a785ea8411e11f7b8f2bc38c55d2ba7f17dd574aa516a5412612776d1fe3",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "stress29.txt",
+      "sha256": "c2edb93a1ef205f7ca08488c1c6be00d038e420ad7a583f6ee43faa0fafb024b",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "stress30.txt",
+      "sha256": "62e9c9731c38876c4e5c200f2183eb30a2792f2d54080d612718fdc2e49161d6",
+      "exit_markers": [
+        "1"
+      ],
+      "check_summaries": [
+        "202 check(s), FAILED (1 failure)"
+      ],
+      "failed_subcheck_lines": [
+        "[G24b  ] timeout recovery preserves a later external request and closes admission FAIL -- iter=89 second owner reached its stop while the first owner is still held: second guest progress froze but Run did not return during the hold"
+      ],
+      "g24_diagnostics": [
+        "[g24] detail iter=89 second_guest_progress_advanced_while_owner_held=0 (true=>2nd still executing guest, interrupt not serviced; false=>2nd left JIT but Run did not return)",
+        "[g24] FAIL iter=89 order=1 stage=second owner reached its stop while the first owner is still held second guest progress froze but Run did not return during the hold"
+      ],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v1.txt",
+      "sha256": "fdfec216776e56e154508fdb98c86a277084071367294bb1d458d3d215c90a97",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v10.txt",
+      "sha256": "edb8ffedfa01800245dbcac55f4c4084fcdd72c0311d7c3ff65a73358f5e337f",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v11.txt",
+      "sha256": "de45f207d667f32539abafdad4ab37dd311d7a2ae2b912729c6ee31893df32d2",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v12.txt",
+      "sha256": "6eddf97b6a6226cba852f369d10c3cd5153ee2a80b59d4bfc4814d1366e0a671",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v13.txt",
+      "sha256": "0b3822c3342a3ebce466b5e9a2d17af7ffe452fdfc50fe4bf26308a2b2aa3a44",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v14.txt",
+      "sha256": "88fa2d2518607db10ec3e18da39bedeba53130fcb7dae3650a4d1b212e266294",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v15.txt",
+      "sha256": "ab6bfe805dfdc276520b8794b9f42982476d0cee8fac39db1a04db91b233cc0d",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v16.txt",
+      "sha256": "f41950325c9c2e69d22f5f16b1571187a3987ce2035e4d22505033c0bcf0b4ee",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v17.txt",
+      "sha256": "542587cc84c95a5ebd19d66022db2f85e68481e324aded9e52d9e561a20036f3",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v18.txt",
+      "sha256": "eb4735c0497b9dd21597005657955ae7fac1db93cae9250c5b5db38218fadbb5",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v19.txt",
+      "sha256": "e7a0bbdeed8cc918534f2a4f357d375a7bcf55c3740f3572f353606bcc84d78d",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v2.txt",
+      "sha256": "64aae39302df73ed7442f38a6d50d2bca6457dd7f6896aad7df459783f132ffc",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v20.txt",
+      "sha256": "c521bd8029c26055fa7ef288904f133fbde48edbd5b492cbe7541abe1d486dae",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v21.txt",
+      "sha256": "45258ec0eab448aecc8557889b25e775f4fc9176bbd7eefc7f9285544518cc10",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v22.txt",
+      "sha256": "0d3e06be51accc62e211f319800fce438d91da492347daa5e23821fec9cc0073",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v23.txt",
+      "sha256": "5545088272aae1795065c0a73a8e743ba8b7e0cdf3230005d19f851a7488805d",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v24.txt",
+      "sha256": "f12dd99ef5fbf747094abe75be0395fe83da5abac98643e72566d718686644d8",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v25.txt",
+      "sha256": "63c66ac10fe5ffb3df29fdbd0dfb11775a2e6f26caf46885e249561c6b7c83b7",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v26.txt",
+      "sha256": "a37dfb24a1f3237cff8198efb38ee81572920babd2ee170792be3ce608f45a82",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v27.txt",
+      "sha256": "1394366ad0c6baeb84b3c96320b54f8159df0ea326b9ffebf9ce8a9462983435",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v28.txt",
+      "sha256": "8277c39112d4daedb05dfd8a35db0d50c867c155d7d35685a81ed82b239652eb",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v29.txt",
+      "sha256": "9c138ab422db5e2edee20113a3c920223380eb22cd722abe0c7e53c4293eefd8",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v3.txt",
+      "sha256": "00b23e3d8294044452d3dd4abdcae82b4f6e2643be04d727f38028334f9ae9a1",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v30.txt",
+      "sha256": "8d901da10f3742860dbd49c8cd2da5a9a9e6c88bbb07b3ec99a0942cbf712bae",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v31.txt",
+      "sha256": "75336ca59a134f1510ca8e6e55fa3c611d5775d8adc46af055061a040e7b0770",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v32.txt",
+      "sha256": "29ac7902e7e1cf3e19374e0575158ebfe3fea2826726003cee4e4561e78397d0",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v33.txt",
+      "sha256": "1fead5ff681f232f3e0cf29fed6ffddedde17d24a5955d4f1ce8b9958a2eeed9",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v34.txt",
+      "sha256": "757576c27ce23cfc2144cc741eab6d04f067ed583f3bf25d1333bdea86639e5a",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v35.txt",
+      "sha256": "3d29458a61252dab7316d6757cc871248edcce44eb42719e63f5c24b05307c03",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v36.txt",
+      "sha256": "fb830da010846e203de44126e3f0e7738af43dabe6e3fdcdf0f2a2700bab20f4",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v37.txt",
+      "sha256": "7fc65cd7c75fa32339cfaee2e0447f842729dbcf490c8da12fbecc5782ab05af",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v38.txt",
+      "sha256": "a78933b66fdf48a55272d86e422a8fa45ddaaba7ef857b451a8affffb1aacc63",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v39.txt",
+      "sha256": "2645761e6c2730d5a710c627c8f9acad8ebd499ae3d3362d6676a888c69a19c5",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v4.txt",
+      "sha256": "7769c79309bbaf7a745ae032ae55471c856dead30fac481d87a4ba9e4f37755f",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v40.txt",
+      "sha256": "c7ce8b74a666d5ac2b7322f2c2ada4a1061e3bddd763b00561b585045c2f28fe",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v41.txt",
+      "sha256": "25bb5d499bdd132777c520c89957862a1d25e11ee9c0e5b86d2b0f714b6a9fae",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v42.txt",
+      "sha256": "69bc0547107fa8273a2b03788ed34043709ec3a1faa1b92000877b2d94a07508",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v43.txt",
+      "sha256": "ba9d631af8192e7aa9ad6e33b22026ee6411bd002ec04ff02a02f2b9d61bc24d",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v44.txt",
+      "sha256": "ede96525c7bf690a5a690e1f7d2b21547993558b87f53a3fd7a1a248061444ab",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v45.txt",
+      "sha256": "59497e9bc00c228d4e75797450e44ab06d66e6fa596c563d8b7dde4b2fcec2f5",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v46.txt",
+      "sha256": "ac3e91ddd037660534b588f332cc377991863afefb2e44373e9fac772619de0d",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v47.txt",
+      "sha256": "19ed208332e172c73044d85a030de7fa0f6636b8c4cc859184d561ad55d3e3d0",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v48.txt",
+      "sha256": "cc02bab900da3e477775852dd6974eb8ad91b531ff8beeead0264e3ab80ce763",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v49.txt",
+      "sha256": "ce405c48b11d9edc5a51235595bbb4dd485d253871be8f2c14d2a0e16f332e09",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v5.txt",
+      "sha256": "45140f0b936c5075475f9ea215bdf2700a5eda7e455151cc0a4673e4937ed4a1",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v50.txt",
+      "sha256": "5c445174ada36211ee0e270373b09414c25ab114e6cf10baedd2d3ffe0be1b9c",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v51.txt",
+      "sha256": "b43ddabd816496777bb5ff78dbf1c372c64c5ae89b7bcc5b9cd00cabd1a31be1",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v52.txt",
+      "sha256": "76945750d846c84388b74cec00f906ccf1ef35369bb0828b7f4f1e2843b8181e",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v53.txt",
+      "sha256": "e54b3afdb310c6988ee8112a8d5157a8b41f78dc375cd216a520957a92e763ca",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v54.txt",
+      "sha256": "eedbf2b4bd04626b217b4141df8daac24efee5c03d37d90e81e7553f8ea6ae97",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v55.txt",
+      "sha256": "2b9f24ef09ae232c1694983c29c1bde40c6145d4e9df7ece534de3d8111d8ccf",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v56.txt",
+      "sha256": "0e260b8a8189518431f25bddb96457f39230028c4afd3578e648795b1f68323f",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v57.txt",
+      "sha256": "4396ef0fe309051372981b1a1e980d4bd8d0241630bed12fa9164620553d3a4a",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v58.txt",
+      "sha256": "fb35f25862fbdb80795a943d1d9666af60f1a5367c54e5c861ca61825a41c7f9",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v59.txt",
+      "sha256": "727b32730939ac1961839b2e23eb54102638f6ffa21b5d8a9214e27844b550d8",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v6.txt",
+      "sha256": "7b13b47e37419e756a35a08531e14c79846468bad263cc85f786fdfd563ced65",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v60.txt",
+      "sha256": "bac968324bd8dbdc307e5f4442b710561507e9340720a1359c6b1df861a6ebf9",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v7.txt",
+      "sha256": "97c69866046f4c1e5f554a6ff85c18e15e21f884c54a6a89b70d4fc21b431b54",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v8.txt",
+      "sha256": "797590ac16a1a1324e1a5d549cd1b056a4432252afeb970c75b598527ac3de68",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "v9.txt",
+      "sha256": "6e9d8a998dd4701587a0e7b3fbf6ac80e26679eef4fcab5e63008ef56162d3d8",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "w100.txt",
+      "sha256": "4bda8b047e30836e3fdaee0ec0b995047bfcc246ef3ce049c04df4860c32afa0",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "w101.txt",
+      "sha256": "6f6db54ced8b131689acbdde698c4da74a78d79aaa9533b882ad68086bac0593",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "w102.txt",
+      "sha256": "4efbc2e584293b7e1f4a6b28e09e0b05711e86021469ee4822f7637cea1d67ff",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "w103.txt",
+      "sha256": "aa12c50c85884294541b49c09784435e25c54d3dfa9af700da1cc1cb9563fb92",
+      "exit_markers": [
+        "0"
+      ],
+      "check_summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ],
+      "failed_subcheck_lines": [],
+      "g24_diagnostics": [],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    },
+    {
+      "name": "w104.txt",
+      "sha256": "de304036ca95639584818dfddd36b908df2fa4a29bd61881a3008cc302b228e8",
+      "exit_markers": [
+        "1"
+      ],
+      "check_summaries": [
+        "202 check(s), FAILED (1 failure)"
+      ],
+      "failed_subcheck_lines": [
+        "[G24a  ] timeout recovery preserves an earlier external request and closes admission FAIL -- iter=88 second owner reached its stop while the first owner is still held: second guest progress froze but Run did not return during the hold"
+      ],
+      "g24_diagnostics": [
+        "[g24] detail iter=88 second_guest_progress_advanced_while_owner_held=0",
+        "[g24] detail iter=88 owner_tid=11713 wchan=(userspace/running) | second_tid=11714 wchan=futex_wait_queue_me",
+        "[g24] FAIL iter=88 order=0 stage=second owner reached its stop while the first owner is still held second guest progress froze but Run did not return during the hold"
+      ],
+      "identity_binding": "unavailable: no per-run source/binary/build-id/deployment manifest"
+    }
+  ],
+  "claimed_final_runs": 60,
+  "all_final_runs_exit0_202_pass": true,
+  "note": "Imported existing logs, not fresh executions. Hashes preserve log contents only; exact historical binary identity remains unknown."
+}

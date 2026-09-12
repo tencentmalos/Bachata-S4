@@ -1,0 +1,102 @@
+[
+  {
+    "name": "guest",
+    "command": [
+      "adb",
+      "-s",
+      "9c2841a4",
+      "shell",
+      "timeout",
+      "60",
+      "/data/local/tmp/shadps4-g3-h2-review-20260910/guest"
+    ],
+    "exit_code": 1,
+    "elapsed": 22.489393666997785,
+    "sha256": "2771bc6a7a8c4aebc116e4b38f4833b3f586587840fe6ddd3e8a3e83ee28d89c",
+    "deployed_sha256": "2771bc6a7a8c4aebc116e4b38f4833b3f586587840fe6ddd3e8a3e83ee28d89c"
+  },
+  {
+    "name": "contract",
+    "command": [
+      "adb",
+      "-s",
+      "9c2841a4",
+      "shell",
+      "timeout",
+      "60",
+      "/data/local/tmp/shadps4-g3-h2-review-20260910/contract"
+    ],
+    "exit_code": 0,
+    "elapsed": 0.22743716699187644,
+    "sha256": "26c433837cce5ca5b457c0522a4fff454b2052a3581d32d3ee287a4200458881",
+    "deployed_sha256": "26c433837cce5ca5b457c0522a4fff454b2052a3581d32d3ee287a4200458881"
+  },
+  {
+    "name": "unknown",
+    "command": [
+      "adb",
+      "-s",
+      "9c2841a4",
+      "shell",
+      "timeout",
+      "60",
+      "/data/local/tmp/shadps4-g3-h2-review-20260910/unknown",
+      "unknown"
+    ],
+    "exit_code": 2,
+    "elapsed": 0.06596112500119489,
+    "sha256": "7ff2e4a1e628beb94aecae06ade6fdcd14a26b0c4280bd1cf5cd9d2271958797",
+    "deployed_sha256": "7ff2e4a1e628beb94aecae06ade6fdcd14a26b0c4280bd1cf5cd9d2271958797"
+  },
+  {
+    "name": "rejected",
+    "command": [
+      "adb",
+      "-s",
+      "9c2841a4",
+      "shell",
+      "timeout",
+      "60",
+      "/data/local/tmp/shadps4-g3-h2-review-20260910/rejected",
+      "rejected"
+    ],
+    "exit_code": 2,
+    "elapsed": 0.065421499995864,
+    "sha256": "7ff2e4a1e628beb94aecae06ade6fdcd14a26b0c4280bd1cf5cd9d2271958797",
+    "deployed_sha256": "7ff2e4a1e628beb94aecae06ade6fdcd14a26b0c4280bd1cf5cd9d2271958797"
+  },
+  {
+    "name": "fp",
+    "command": [
+      "adb",
+      "-s",
+      "9c2841a4",
+      "shell",
+      "timeout",
+      "60",
+      "/data/local/tmp/shadps4-g3-h2-review-20260910/fp",
+      "fp"
+    ],
+    "exit_code": 2,
+    "elapsed": 0.06733462499687448,
+    "sha256": "7ff2e4a1e628beb94aecae06ade6fdcd14a26b0c4280bd1cf5cd9d2271958797",
+    "deployed_sha256": "7ff2e4a1e628beb94aecae06ade6fdcd14a26b0c4280bd1cf5cd9d2271958797"
+  },
+  {
+    "name": "exception",
+    "command": [
+      "adb",
+      "-s",
+      "9c2841a4",
+      "shell",
+      "timeout",
+      "60",
+      "/data/local/tmp/shadps4-g3-h2-review-20260910/exception",
+      "exception"
+    ],
+    "exit_code": 134,
+    "elapsed": 0.11782708299870137,
+    "sha256": "7ff2e4a1e628beb94aecae06ade6fdcd14a26b0c4280bd1cf5cd9d2271958797",
+    "deployed_sha256": "7ff2e4a1e628beb94aecae06ade6fdcd14a26b0c4280bd1cf5cd9d2271958797"
+  }
+]

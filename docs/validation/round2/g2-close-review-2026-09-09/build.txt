@@ -1,0 +1,17 @@
+[1/19] Building CXX object backend/guest_cpu/CMakeFiles/guest_cpu_api.dir/api/execution.cpp.o
+[2/19] Building CXX object backend/guest_cpu/CMakeFiles/guest_cpu_api.dir/api/status.cpp.o
+[3/19] Building CXX object backend/CMakeFiles/host_page_size_probe.dir/Users/bytedance/workspace/emulations/ps4/shadps4/tests/host_page_size/host_page_size_probe.cpp.o
+[4/19] Building CXX object CMakeFiles/permission_probe.dir/permission_probe.cpp.o
+FAILED: [code=1] CMakeFiles/permission_probe.dir/permission_probe.cpp.o 
+/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ --target=aarch64-none-linux-android35 --sysroot=/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot  -I/tmp/shadps4-g2-close-review-20260909/fixtures -I/Users/bytedance/workspace/emulations/ps4/shadps4/src/core/guest_cpu/../.. -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -O3 -DNDEBUG  -std=gnu++20 -fPIE -pthread -MD -MT CMakeFiles/permission_probe.dir/permission_probe.cpp.o -MF CMakeFiles/permission_probe.dir/permission_probe.cpp.o.d -o CMakeFiles/permission_probe.dir/permission_probe.cpp.o -c /tmp/shadps4-g2-close-review-20260909/permission_probe.cpp
+In file included from /tmp/shadps4-g2-close-review-20260909/permission_probe.cpp:2:
+/Users/bytedance/workspace/emulations/ps4/shadps4/tests/guest_cpu/guest_execution_tests.cpp:39:10: fatal error: 'guest_fixtures.h' file not found
+   39 | #include "guest_fixtures.h"
+      |          ^~~~~~~~~~~~~~~~~~
+1 error generated.
+[5/19] Building CXX object backend/guest_cpu/CMakeFiles/guest_cpu_api.dir/api/address_space.cpp.o
+[6/19] Building CXX object backend/CMakeFiles/guest_cpu_hle_abi_tests.dir/Users/bytedance/workspace/emulations/ps4/shadps4/tests/guest_cpu/hle_abi_tests.cpp.o
+[7/19] Building CXX object backend/CMakeFiles/fexcore_bionic_smoke.dir/Users/bytedance/workspace/emulations/ps4/shadps4/tests/fex_bionic/fexcore_bionic_smoke.cpp.o
+[8/19] Building CXX object backend/CMakeFiles/guest_cpu_fex.dir/Users/bytedance/workspace/emulations/ps4/shadps4/src/core/guest_cpu/fex/fex_context.cpp.o
+[9/19] Building CXX object backend/CMakeFiles/guest_cpu_contract_tests.dir/Users/bytedance/workspace/emulations/ps4/shadps4/tests/guest_cpu/api_contract_tests.cpp.o
+ninja: build stopped: subcommand failed.

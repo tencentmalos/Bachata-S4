@@ -1,0 +1,2 @@
+The diagnostic executable includes a copy of HEAD guest_execution_tests.cpp with main renamed, inserts one printf immediately before the G24a/G24b Check on failure (iteration/order/reason/closed/recovered/finished/results/progress), and runs only TestCoordinatorRecovery using setup.inc. No production source changes.
+Generated C++ SHA256: 774b5ea52fb45b80bc7b5543f8531c814a89dd7af663030bb032d6838b2ae074

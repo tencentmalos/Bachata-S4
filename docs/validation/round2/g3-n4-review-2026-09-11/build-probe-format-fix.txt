@@ -1,0 +1,5 @@
+['cmake', '--build', '/tmp/shadps4-g3-n4-review-20260911/device', '--target', 'gate_timeout_probe', '-j', '8']
+[1/2] Building CXX object CMakeFiles/gate_timeout_probe.dir/gate_timeout_probe.cpp.o
+[2/2] Linking CXX executable gate_timeout_probe
+
+EXIT 0

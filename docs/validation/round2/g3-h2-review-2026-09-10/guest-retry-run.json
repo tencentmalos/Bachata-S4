@@ -1,0 +1,14 @@
+{
+  "command": [
+    "adb",
+    "-s",
+    "9c2841a4",
+    "shell",
+    "timeout",
+    "60",
+    "/data/local/tmp/shadps4-g3-h2-review-retry"
+  ],
+  "exit_code": 1,
+  "elapsed": 22.185237666999456,
+  "deployed_sha256": "2771bc6a7a8c4aebc116e4b38f4833b3f586587840fe6ddd3e8a3e83ee28d89c"
+}

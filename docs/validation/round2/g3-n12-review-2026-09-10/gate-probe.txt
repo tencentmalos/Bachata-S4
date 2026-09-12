@@ -1,0 +1,3 @@
+timeout: initial_arm=1 owner_wait=0 rearm=0 release=0 rearm_after_release=1
+rearm_race: trial=0 new_arm_accepted_before_prior_exit=1 first_release=1 second_release=1 one_owner_return=1
+rearm_race_witness=1

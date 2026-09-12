@@ -1,0 +1,6 @@
+guest reservation base: 0x7f8000000
+code at 0x7f8010000, stack top 0x7f8023ff0
+return gate at 0xfc0000000
+
+mode=NX warmed=17 mapping_X=0 poisoned=0 Run_ok=1 returned_old_17=0
+reason=GuestFault actual_rax=17

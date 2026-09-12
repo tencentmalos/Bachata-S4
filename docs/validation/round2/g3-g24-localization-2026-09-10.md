@@ -1,5 +1,7 @@
 # G24 偶发失败定位与修复（2026-09-10，R0.4）
 
+> N2后续复核：新的Run-entry等待位置合理，但下文“严格代次握手/Arm拒绝未退出旧代”的描述被实际反例否定，见 [N1/N2复核](g3-n12-review-2026-09-10.md)。当前需要修补gate票据/退场协议；历史日志和原分析保留。
+
 > 后续复核勘误：本记录保留原始分析。下文将wchan/futex归因到具体CodeInvalidationMutex、将second进度变化等同无锁点的结论，均未得到充分证明；60份PASS日志内容已核实，但缺少历史binary身份。以 [R0复核§2](g3-r0-review-2026-09-10.md) 和 [N2执行要求](../../specs/android-fex-round2-g3-r0-exit-next.md) 为准，不据本记录宣称R0已关闭。
 
 > **2026-09-10 N2 更新（取代上述假设的测试手段）**：复核正确指出旧"freeze+progress 过滤"既不能证明冻结点无锁，也未证实具体锁。N2 按 [exit-next spec N2](../../specs/android-fex-round2-g3-r0-exit-next.md) 改用**确定性 Run-entry gate**，不再依赖任意-PC SIGUSR1。

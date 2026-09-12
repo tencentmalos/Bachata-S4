@@ -1,0 +1,9 @@
+COMMAND ['cmake', '--build', '/tmp/shadps4-g3-n4-review-20260911/nohooks', '--target', 'guest_cpu_fex', '-j', '8']
+[1/6] Building CXX object guest_cpu/CMakeFiles/guest_cpu_api.dir/api/status.cpp.o
+[2/6] Building CXX object guest_cpu/CMakeFiles/guest_cpu_api.dir/api/execution.cpp.o
+[3/6] Building CXX object guest_cpu/CMakeFiles/guest_cpu_api.dir/api/address_space.cpp.o
+[4/6] Linking CXX static library guest_cpu/libguest_cpu_api.a
+[5/6] Building CXX object CMakeFiles/guest_cpu_fex.dir/Users/bytedance/workspace/emulations/ps4/shadps4/src/core/guest_cpu/fex/fex_context.cpp.o
+[6/6] Linking CXX static library libguest_cpu_fex.a
+
+EXIT 0

@@ -1,0 +1,24 @@
+run id: Z99a-fail-exit0
+build dir: /var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmpuevjvy89
+
+api_contract_tests: 0 sub-case(s), 0 failure(s)  [UNUSABLE: not built]
+  (not attempted: not built)
+hle_abi_tests: 0 sub-case(s), 0 failure(s)  [UNUSABLE: not built]
+  (not attempted: not built)
+host_page_size_probe: 0 sub-case(s), 0 failure(s)  [UNUSABLE: not built]
+  (not attempted: not built)
+fexcore_bionic_smoke: 0 sub-case(s), 0 failure(s)  [UNUSABLE: not built]
+  (not attempted: not built)
+guest_execution_tests: 1 sub-case(s), 1 failure(s)
+
+ERROR: sub-cases failed but are not mapped to any acceptance case:
+  Z99a: printed FAIL but no V0/Round2 case references it -- independent audit
+  Add the id to SUITE_MAP/ROUND2_MAP and SUITE_OWNERSHIP, or rename it to a diagnostic that is not an acceptance sub-case.
+
+0 PASS, 0 FAIL, 57 NOT_RUN of 57 in-scope cases (3 deferred by scope)
+1 UNMAPPED sub-case failure(s) (not referenced by any case):
+  Z99a: printed FAIL but no V0/Round2 case references it
+release status: V0_IN_PROGRESS
+wrote /Users/bytedance/workspace/emulations/ps4/shadps4/docs/validation/round2/g3-r0-review-2026-09-10/runner/Z99a-fail-exit0.json
+
+main_return_code=1

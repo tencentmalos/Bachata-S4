@@ -1,0 +1,71 @@
+[
+  {
+    "name": "NX",
+    "command": [
+      "adb",
+      "-s",
+      "01108YHE01017563",
+      "shell",
+      "timeout",
+      "45",
+      "/data/local/tmp/shadps4-g2-exit-repair-20260909/NX"
+    ],
+    "expected_exit": 0,
+    "exit_code": 0,
+    "elapsed": 0.08870350000506733,
+    "local_sha256": "898d4b71c51c7f1363226f718411041a128299840f770a93d8f009cae5a510d1",
+    "deployed_sha256": "898d4b71c51c7f1363226f718411041a128299840f770a93d8f009cae5a510d1"
+  },
+  {
+    "name": "rewrite",
+    "command": [
+      "adb",
+      "-s",
+      "01108YHE01017563",
+      "shell",
+      "timeout",
+      "45",
+      "/data/local/tmp/shadps4-g2-exit-repair-20260909/rewrite",
+      "rewrite"
+    ],
+    "expected_exit": 0,
+    "exit_code": 0,
+    "elapsed": 0.07777445799729321,
+    "local_sha256": "898d4b71c51c7f1363226f718411041a128299840f770a93d8f009cae5a510d1",
+    "deployed_sha256": "898d4b71c51c7f1363226f718411041a128299840f770a93d8f009cae5a510d1"
+  },
+  {
+    "name": "store-disabled",
+    "command": [
+      "adb",
+      "-s",
+      "01108YHE01017563",
+      "shell",
+      "timeout",
+      "45",
+      "/data/local/tmp/shadps4-g2-exit-repair-20260909/store-disabled"
+    ],
+    "expected_exit": 1,
+    "exit_code": 1,
+    "elapsed": 0.13397183299821336,
+    "local_sha256": "ec40f7bd5dcd84f65e01d0be45d490fe15f036f17714ad0b6a5ad89f2cb64f94",
+    "deployed_sha256": "ec40f7bd5dcd84f65e01d0be45d490fe15f036f17714ad0b6a5ad89f2cb64f94"
+  },
+  {
+    "name": "page",
+    "command": [
+      "adb",
+      "-s",
+      "01108YHE01017563",
+      "shell",
+      "timeout",
+      "45",
+      "/data/local/tmp/shadps4-g2-exit-repair-20260909/page"
+    ],
+    "expected_exit": 0,
+    "exit_code": 0,
+    "elapsed": 0.0737924999993993,
+    "local_sha256": "4de82457348a76b31cb7091fcdfd5e80f5b7a717fee648c0d6c2d9ef2f7dc1e4",
+    "deployed_sha256": "4de82457348a76b31cb7091fcdfd5e80f5b7a717fee648c0d6c2d9ef2f7dc1e4"
+  }
+]

@@ -1,0 +1,309 @@
+guest execution through the public CPU API
+host page size: 4096
+fixtures: 16, generated from tests/guest_cpu/fixtures/guest_fixtures.S
+
+guest reservation base: 0x7f8000000
+code at 0x7f8010000, stack top 0x7f8023ff0
+return gate at 0xfc0000000
+
+[G01a  ] integer fixture returned through the gate                  PASS
+[G01b  ] add r8, r9 produced the sum                                PASS
+[G01c  ] mov r10, r8 then sub 5                                     PASS
+[G01d  ] xor r11, r11 cleared the register                          PASS
+[G01e  ] snapshot reports GPRs as valid                             PASS
+[G01f  ] snapshot kind is a safe point                              PASS
+[G02a  ] not-taken branch fell through to the mov                   PASS
+[G02b  ] taken branch skipped the mov                               PASS
+[G03a  ] pop rax read back the second push                          PASS
+[G03b  ] pop rcx read back the first push                           PASS
+[G03c  ] stack pointer is balanced after push/pop                   PASS
+[G07a  ] guest memory below rsp is readable                         PASS
+[G07b  ] store to [rsp-16] landed in guest memory                   PASS
+[G07c  ] store to [rsp-8] landed in guest memory                    PASS
+[G07d  ] direct host read agrees with the pinned-span read          PASS -- direct[rsp-16]=0xbadc0de0badc0de direct[rsp-8]=0xfeedfacefeedface (pinned read gave 0xbadc0de0badc0de / 0xfeedfacefeedface)
+[G07e  ] guest read back its own store to [rsp-16]                  PASS
+[G07f  ] guest read back its own store to [rsp-8]                   PASS
+[G04a  ] paddq result moved back to a GPR                           PASS
+[G04b  ] xmm0 low half holds the packed sum                         PASS
+[G04c  ] snapshot reports XMM as valid                              PASS
+[G05a  ] a HLT outside the gate is not reported as Returned         PASS -- GuestFault
+[G05b  ] the stop is reported as a guest fault                      PASS
+[G05c  ] fault carries a guest RIP                                  PASS
+[G05d  ] snapshot kind is Faulted, not SafePoint                    PASS
+[G08a  ] 100 same-VA publications with zero live threads between runs PASS
+[G08b  ] 100 publications invalidate both stopped threads without changing state PASS
+[G08c  ] cache regression leaves no guest threads                   PASS
+[G09a  ] 100 publications through GuestAddressSpace alone run the new code PASS
+[G09b  ] GuestAddressSpace::InvalidateCode discards the backend's translation PASS
+[G09c  ] successful publications leave no poisoned range            PASS
+[G09d  ] public publication leaves no guest threads                 PASS
+[G11a  ] guest store proves execution before pause                  PASS
+[G11b  ] request Pause                                              PASS
+[G11c  ] owner Run returns PauseRequested and acknowledges          PASS
+[G11d  ] paused registers readable and equal frozen guest store     PASS
+[G11e  ] repeated WaitStopped preserves the same stop epoch         PASS
+[G11f  ] receipt carries context and thread generation              PASS
+[G11g  ] Resume consumes exactly the acknowledged ticket            PASS
+[G11h  ] retired ticket cannot create a fresh SafePoint             PASS
+[G11i  ] resumed guest really advances its counter                  PASS
+[G11j  ] Cancel returns and its ticket receives a Cancelled receipt PASS
+[G14a  ] both guests perform memory stores before either is stopped PASS
+[G14b  ] owners have distinct actual gettid values                  PASS -- tid_a=16711 tid_b=16712
+[G14c  ] request owner A pause                                      PASS
+[G14d  ] A has a stopped receipt and returned to its command queue  PASS
+[G14e  ] while A is frozen B performs new guest stores              PASS -- A=18050 B=22549->22819
+[G14f  ] resume A                                                   PASS
+[G14g  ] both guests show new progress after A resumes              PASS
+[G14h  ] both Cancels acknowledge and return normally               PASS
+[G20a  ] QuiesceContext stops both owners and refuses new execution PASS
+[G20b  ] both owners resume and progress after quiesce              PASS
+[G21a  ] 100 serialized fresh-thread publication smoke iterations   PASS
+[G22a  ] 100 serialized fresh-thread remap smoke iterations         PASS
+[G23a  ] ClearCodeCache refuses another address space's token       PASS
+[G23b  ] RX Clear followed by ordinary invalidation does not deadlock PASS
+[G23c  ] same warmed RWX thread executes B after Clear alone (no permission mutation) PASS
+EPOCH {"case":"G25","epoch":0,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":2,"stop_b":2,"token":520,"old_counter_a":2,"old_counter_b":1}
+EPOCH {"case":"G25","epoch":1,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":4,"stop_b":4,"token":521,"old_counter_a":53,"old_counter_b":2}
+EPOCH {"case":"G25","epoch":2,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":6,"stop_b":6,"token":522,"old_counter_a":91,"old_counter_b":13480}
+EPOCH {"case":"G25","epoch":3,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":8,"stop_b":8,"token":523,"old_counter_a":1459,"old_counter_b":190}
+EPOCH {"case":"G25","epoch":4,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":10,"stop_b":10,"token":524,"old_counter_a":594,"old_counter_b":85}
+EPOCH {"case":"G25","epoch":5,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":12,"stop_b":12,"token":525,"old_counter_a":516,"old_counter_b":27}
+EPOCH {"case":"G25","epoch":6,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":14,"stop_b":14,"token":526,"old_counter_a":198,"old_counter_b":4279}
+EPOCH {"case":"G25","epoch":7,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":16,"stop_b":16,"token":527,"old_counter_a":1155,"old_counter_b":106}
+EPOCH {"case":"G25","epoch":8,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":18,"stop_b":18,"token":528,"old_counter_a":801,"old_counter_b":195}
+EPOCH {"case":"G25","epoch":9,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":20,"stop_b":20,"token":529,"old_counter_a":2032,"old_counter_b":8348}
+EPOCH {"case":"G25","epoch":10,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":22,"stop_b":22,"token":530,"old_counter_a":118,"old_counter_b":6}
+EPOCH {"case":"G25","epoch":11,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":24,"stop_b":24,"token":531,"old_counter_a":13015,"old_counter_b":237}
+EPOCH {"case":"G25","epoch":12,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":26,"stop_b":26,"token":532,"old_counter_a":2,"old_counter_b":2}
+EPOCH {"case":"G25","epoch":13,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":28,"stop_b":28,"token":533,"old_counter_a":28,"old_counter_b":286}
+EPOCH {"case":"G25","epoch":14,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":30,"stop_b":30,"token":534,"old_counter_a":59,"old_counter_b":224}
+EPOCH {"case":"G25","epoch":15,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":32,"stop_b":32,"token":535,"old_counter_a":10,"old_counter_b":844}
+EPOCH {"case":"G25","epoch":16,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":34,"stop_b":34,"token":536,"old_counter_a":77,"old_counter_b":13210}
+EPOCH {"case":"G25","epoch":17,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":36,"stop_b":36,"token":537,"old_counter_a":138,"old_counter_b":446}
+EPOCH {"case":"G25","epoch":18,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":38,"stop_b":38,"token":538,"old_counter_a":61,"old_counter_b":482}
+EPOCH {"case":"G25","epoch":19,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":40,"stop_b":40,"token":539,"old_counter_a":419,"old_counter_b":30}
+EPOCH {"case":"G25","epoch":20,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":42,"stop_b":42,"token":540,"old_counter_a":2,"old_counter_b":915}
+EPOCH {"case":"G25","epoch":21,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":44,"stop_b":44,"token":541,"old_counter_a":5693,"old_counter_b":160}
+EPOCH {"case":"G25","epoch":22,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":46,"stop_b":46,"token":542,"old_counter_a":169,"old_counter_b":5821}
+EPOCH {"case":"G25","epoch":23,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":48,"stop_b":48,"token":543,"old_counter_a":3514,"old_counter_b":81}
+EPOCH {"case":"G25","epoch":24,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":50,"stop_b":50,"token":544,"old_counter_a":935,"old_counter_b":45}
+EPOCH {"case":"G25","epoch":25,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":52,"stop_b":52,"token":545,"old_counter_a":206,"old_counter_b":2}
+EPOCH {"case":"G25","epoch":26,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":54,"stop_b":54,"token":546,"old_counter_a":47,"old_counter_b":1526}
+EPOCH {"case":"G25","epoch":27,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":56,"stop_b":56,"token":547,"old_counter_a":65,"old_counter_b":49}
+EPOCH {"case":"G25","epoch":28,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":58,"stop_b":58,"token":548,"old_counter_a":3836,"old_counter_b":66}
+EPOCH {"case":"G25","epoch":29,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":60,"stop_b":60,"token":549,"old_counter_a":802,"old_counter_b":2}
+EPOCH {"case":"G25","epoch":30,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":62,"stop_b":62,"token":550,"old_counter_a":787,"old_counter_b":73}
+EPOCH {"case":"G25","epoch":31,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":64,"stop_b":64,"token":551,"old_counter_a":951,"old_counter_b":64}
+EPOCH {"case":"G25","epoch":32,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":66,"stop_b":66,"token":552,"old_counter_a":605,"old_counter_b":2}
+EPOCH {"case":"G25","epoch":33,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":68,"stop_b":68,"token":553,"old_counter_a":426,"old_counter_b":59692}
+EPOCH {"case":"G25","epoch":34,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":70,"stop_b":70,"token":554,"old_counter_a":262,"old_counter_b":1759}
+EPOCH {"case":"G25","epoch":35,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":72,"stop_b":72,"token":555,"old_counter_a":104,"old_counter_b":7996}
+EPOCH {"case":"G25","epoch":36,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":74,"stop_b":74,"token":556,"old_counter_a":168,"old_counter_b":115}
+EPOCH {"case":"G25","epoch":37,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":76,"stop_b":76,"token":557,"old_counter_a":1675,"old_counter_b":1225}
+EPOCH {"case":"G25","epoch":38,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":78,"stop_b":78,"token":558,"old_counter_a":7,"old_counter_b":14293}
+EPOCH {"case":"G25","epoch":39,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":80,"stop_b":80,"token":559,"old_counter_a":2,"old_counter_b":2}
+EPOCH {"case":"G25","epoch":40,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":82,"stop_b":82,"token":560,"old_counter_a":122,"old_counter_b":493}
+EPOCH {"case":"G25","epoch":41,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":84,"stop_b":84,"token":561,"old_counter_a":1999,"old_counter_b":158}
+EPOCH {"case":"G25","epoch":42,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":86,"stop_b":86,"token":562,"old_counter_a":831,"old_counter_b":399}
+EPOCH {"case":"G25","epoch":43,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":88,"stop_b":88,"token":563,"old_counter_a":2,"old_counter_b":59}
+EPOCH {"case":"G25","epoch":44,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":90,"stop_b":90,"token":564,"old_counter_a":1008,"old_counter_b":101}
+EPOCH {"case":"G25","epoch":45,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":92,"stop_b":92,"token":565,"old_counter_a":573,"old_counter_b":43}
+EPOCH {"case":"G25","epoch":46,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":94,"stop_b":94,"token":566,"old_counter_a":113,"old_counter_b":3788}
+EPOCH {"case":"G25","epoch":47,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":96,"stop_b":96,"token":567,"old_counter_a":3358,"old_counter_b":2516}
+EPOCH {"case":"G25","epoch":48,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":98,"stop_b":98,"token":568,"old_counter_a":29,"old_counter_b":3204}
+EPOCH {"case":"G25","epoch":49,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":100,"stop_b":100,"token":569,"old_counter_a":65207,"old_counter_b":274}
+EPOCH {"case":"G25","epoch":50,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":102,"stop_b":102,"token":570,"old_counter_a":562,"old_counter_b":46}
+EPOCH {"case":"G25","epoch":51,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":104,"stop_b":104,"token":571,"old_counter_a":4484,"old_counter_b":9881}
+EPOCH {"case":"G25","epoch":52,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":106,"stop_b":106,"token":572,"old_counter_a":2,"old_counter_b":16}
+EPOCH {"case":"G25","epoch":53,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":108,"stop_b":108,"token":573,"old_counter_a":2,"old_counter_b":7631}
+EPOCH {"case":"G25","epoch":54,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":110,"stop_b":110,"token":574,"old_counter_a":1127,"old_counter_b":124}
+EPOCH {"case":"G25","epoch":55,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":112,"stop_b":112,"token":575,"old_counter_a":1423,"old_counter_b":113}
+EPOCH {"case":"G25","epoch":56,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":114,"stop_b":114,"token":576,"old_counter_a":2,"old_counter_b":2}
+EPOCH {"case":"G25","epoch":57,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":116,"stop_b":116,"token":577,"old_counter_a":831,"old_counter_b":69}
+EPOCH {"case":"G25","epoch":58,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":118,"stop_b":118,"token":578,"old_counter_a":1182,"old_counter_b":61}
+EPOCH {"case":"G25","epoch":59,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":120,"stop_b":120,"token":579,"old_counter_a":873,"old_counter_b":64}
+EPOCH {"case":"G25","epoch":60,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":122,"stop_b":122,"token":580,"old_counter_a":206,"old_counter_b":188}
+EPOCH {"case":"G25","epoch":61,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":124,"stop_b":124,"token":581,"old_counter_a":6003,"old_counter_b":16412}
+EPOCH {"case":"G25","epoch":62,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":126,"stop_b":126,"token":582,"old_counter_a":179,"old_counter_b":3746}
+EPOCH {"case":"G25","epoch":63,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":128,"stop_b":128,"token":583,"old_counter_a":633,"old_counter_b":40}
+EPOCH {"case":"G25","epoch":64,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":130,"stop_b":130,"token":584,"old_counter_a":651,"old_counter_b":2}
+EPOCH {"case":"G25","epoch":65,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":132,"stop_b":132,"token":585,"old_counter_a":336,"old_counter_b":50}
+EPOCH {"case":"G25","epoch":66,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":134,"stop_b":134,"token":586,"old_counter_a":19238,"old_counter_b":36}
+EPOCH {"case":"G25","epoch":67,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":136,"stop_b":136,"token":587,"old_counter_a":45,"old_counter_b":444}
+EPOCH {"case":"G25","epoch":68,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":138,"stop_b":138,"token":588,"old_counter_a":40,"old_counter_b":199}
+EPOCH {"case":"G25","epoch":69,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":140,"stop_b":140,"token":589,"old_counter_a":1601,"old_counter_b":2786}
+EPOCH {"case":"G25","epoch":70,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":142,"stop_b":142,"token":590,"old_counter_a":790,"old_counter_b":111}
+EPOCH {"case":"G25","epoch":71,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":144,"stop_b":144,"token":591,"old_counter_a":54808,"old_counter_b":47861}
+EPOCH {"case":"G25","epoch":72,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":146,"stop_b":146,"token":592,"old_counter_a":25622,"old_counter_b":4277}
+EPOCH {"case":"G25","epoch":73,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":148,"stop_b":148,"token":593,"old_counter_a":266,"old_counter_b":21331}
+EPOCH {"case":"G25","epoch":74,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":150,"stop_b":150,"token":594,"old_counter_a":9897,"old_counter_b":11532}
+EPOCH {"case":"G25","epoch":75,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":152,"stop_b":152,"token":595,"old_counter_a":2421,"old_counter_b":535}
+EPOCH {"case":"G25","epoch":76,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":154,"stop_b":154,"token":596,"old_counter_a":1765,"old_counter_b":205}
+EPOCH {"case":"G25","epoch":77,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":156,"stop_b":156,"token":597,"old_counter_a":1777,"old_counter_b":1583}
+EPOCH {"case":"G25","epoch":78,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":158,"stop_b":158,"token":598,"old_counter_a":224,"old_counter_b":2}
+EPOCH {"case":"G25","epoch":79,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":160,"stop_b":160,"token":599,"old_counter_a":63,"old_counter_b":1062}
+EPOCH {"case":"G25","epoch":80,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":162,"stop_b":162,"token":600,"old_counter_a":114,"old_counter_b":5160}
+EPOCH {"case":"G25","epoch":81,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":164,"stop_b":164,"token":601,"old_counter_a":2,"old_counter_b":50}
+EPOCH {"case":"G25","epoch":82,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":166,"stop_b":166,"token":602,"old_counter_a":448,"old_counter_b":80}
+EPOCH {"case":"G25","epoch":83,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":168,"stop_b":168,"token":603,"old_counter_a":2,"old_counter_b":21}
+EPOCH {"case":"G25","epoch":84,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":170,"stop_b":170,"token":604,"old_counter_a":219,"old_counter_b":2035}
+EPOCH {"case":"G25","epoch":85,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":172,"stop_b":172,"token":605,"old_counter_a":230,"old_counter_b":134}
+EPOCH {"case":"G25","epoch":86,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":174,"stop_b":174,"token":606,"old_counter_a":806,"old_counter_b":37}
+EPOCH {"case":"G25","epoch":87,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":176,"stop_b":176,"token":607,"old_counter_a":715,"old_counter_b":20620}
+EPOCH {"case":"G25","epoch":88,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":178,"stop_b":178,"token":608,"old_counter_a":1000,"old_counter_b":172}
+EPOCH {"case":"G25","epoch":89,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":180,"stop_b":180,"token":609,"old_counter_a":615,"old_counter_b":126}
+EPOCH {"case":"G25","epoch":90,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":182,"stop_b":182,"token":610,"old_counter_a":578,"old_counter_b":92}
+EPOCH {"case":"G25","epoch":91,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":184,"stop_b":184,"token":611,"old_counter_a":573,"old_counter_b":132}
+EPOCH {"case":"G25","epoch":92,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":186,"stop_b":186,"token":612,"old_counter_a":760,"old_counter_b":38}
+EPOCH {"case":"G25","epoch":93,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":188,"stop_b":188,"token":613,"old_counter_a":831,"old_counter_b":50}
+EPOCH {"case":"G25","epoch":94,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":190,"stop_b":190,"token":614,"old_counter_a":20,"old_counter_b":2}
+EPOCH {"case":"G25","epoch":95,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":192,"stop_b":192,"token":615,"old_counter_a":218,"old_counter_b":86}
+EPOCH {"case":"G25","epoch":96,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":194,"stop_b":194,"token":616,"old_counter_a":173,"old_counter_b":71}
+EPOCH {"case":"G25","epoch":97,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":196,"stop_b":196,"token":617,"old_counter_a":609,"old_counter_b":6}
+EPOCH {"case":"G25","epoch":98,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":198,"stop_b":198,"token":618,"old_counter_a":346,"old_counter_b":61}
+EPOCH {"case":"G25","epoch":99,"tid_a":16715,"tid_b":16716,"handle_a":617,"handle_b":618,"generation_a":618,"generation_b":619,"stop_a":200,"stop_b":200,"token":619,"old_counter_a":103,"old_counter_b":736}
+[G25a  ] 100 epochs: the SAME two persistent owners switch versions and advance PASS
+[G25b  ] persistent handles stayed stable                           PASS
+[G26a  ] 100 epochs: the SAME two persistent owners switch versions and advance FAIL -- owner/stop identity changed
+[G26b  ] persistent handles stayed stable                           PASS
+STORE {"epoch":0,"old":17,"guest_immediate":34,"target_a":621,"target_b":622,"ok":true}
+STORE {"epoch":1,"old":34,"guest_immediate":35,"target_a":621,"target_b":622,"ok":true}
+STORE {"epoch":2,"old":35,"guest_immediate":36,"target_a":621,"target_b":622,"ok":true}
+STORE {"epoch":3,"old":36,"guest_immediate":37,"target_a":621,"target_b":622,"ok":true}
+STORE {"epoch":4,"old":37,"guest_immediate":38,"target_a":621,"target_b":622,"ok":true}
+STORE {"epoch":5,"old":38,"guest_immediate":39,"target_a":621,"target_b":622,"ok":true}
+STORE {"epoch":6,"old":39,"guest_immediate":40,"target_a":621,"target_b":622,"ok":true}
+STORE {"epoch":7,"old":40,"guest_immediate":41,"target_a":621,"target_b":622,"ok":true}
+STORE {"epoch":8,"old":41,"guest_immediate":42,"target_a":621,"target_b":622,"ok":true}
+STORE {"epoch":9,"old":42,"guest_immediate":43,"target_a":621,"target_b":622,"ok":true}
+[G27a  ] 10 varying guest stores directly modify hot code reused by both original owners PASS
+[G28a  ] cached cross-block jumps cannot enter token/plain NX or an unmapped range PASS
+[G28b  ] RW rewrite then RX on the same thread automatically retires A before B PASS
+[G24a  ] timeout recovery preserves an earlier Cancel and closes admission PASS
+[G24b  ] timeout recovery preserves a later Cancel and closes admission PASS
+TRACE G13 iteration=0 request=233 stop=2 progress=1217 latency_us=256
+TRACE G13 iteration=1 request=234 stop=3 progress=2560 latency_us=104
+TRACE G13 iteration=2 request=235 stop=4 progress=3841 latency_us=134
+TRACE G13 iteration=3 request=236 stop=5 progress=5276 latency_us=104
+TRACE G13 iteration=4 request=237 stop=6 progress=6700 latency_us=100
+TRACE G13 iteration=5 request=238 stop=7 progress=7887 latency_us=142
+TRACE G13 iteration=6 request=239 stop=8 progress=11688 latency_us=204
+TRACE G13 iteration=7 request=240 stop=9 progress=27372 latency_us=122
+TRACE G13 iteration=8 request=241 stop=10 progress=28381 latency_us=92
+TRACE G13 iteration=9 request=242 stop=11 progress=29475 latency_us=136
+TRACE G13 iteration=10 request=243 stop=12 progress=30598 latency_us=122
+TRACE G13 iteration=11 request=244 stop=13 progress=31957 latency_us=91
+TRACE G13 iteration=12 request=245 stop=14 progress=33451 latency_us=130
+TRACE G13 iteration=13 request=246 stop=15 progress=34945 latency_us=114
+TRACE G13 iteration=14 request=247 stop=16 progress=36741 latency_us=226
+TRACE G13 iteration=15 request=248 stop=17 progress=38352 latency_us=121
+TRACE G13 iteration=16 request=249 stop=18 progress=40092 latency_us=152
+TRACE G13 iteration=17 request=250 stop=19 progress=41848 latency_us=133
+TRACE G13 iteration=18 request=251 stop=20 progress=43579 latency_us=160
+TRACE G13 iteration=19 request=252 stop=21 progress=121127 latency_us=181
+TRACE G13 iteration=20 request=253 stop=22 progress=122786 latency_us=97
+TRACE G13 iteration=21 request=254 stop=23 progress=124900 latency_us=114
+TRACE G13 iteration=22 request=255 stop=24 progress=129423 latency_us=222
+TRACE G13 iteration=23 request=256 stop=25 progress=131103 latency_us=94
+TRACE G13 iteration=24 request=257 stop=26 progress=132474 latency_us=102
+TRACE G13 iteration=25 request=258 stop=27 progress=133810 latency_us=77
+TRACE G13 iteration=26 request=259 stop=28 progress=135016 latency_us=76
+TRACE G13 iteration=27 request=260 stop=29 progress=136321 latency_us=73
+TRACE G13 iteration=28 request=261 stop=30 progress=137367 latency_us=99
+TRACE G13 iteration=29 request=262 stop=31 progress=138412 latency_us=97
+TRACE G13 iteration=30 request=263 stop=32 progress=140182 latency_us=105
+TRACE G13 iteration=31 request=264 stop=33 progress=141413 latency_us=99
+TRACE G13 iteration=32 request=265 stop=34 progress=142490 latency_us=81
+TRACE G13 iteration=33 request=266 stop=35 progress=151768 latency_us=175
+TRACE G13 iteration=34 request=267 stop=36 progress=178637 latency_us=110
+TRACE G13 iteration=35 request=268 stop=37 progress=184700 latency_us=139
+TRACE G13 iteration=36 request=269 stop=38 progress=186332 latency_us=93
+TRACE G13 iteration=37 request=270 stop=39 progress=188103 latency_us=94
+TRACE G13 iteration=38 request=271 stop=40 progress=189960 latency_us=82
+TRACE G13 iteration=39 request=272 stop=41 progress=191792 latency_us=122
+TRACE G13 iteration=40 request=273 stop=42 progress=194050 latency_us=279
+TRACE G13 iteration=41 request=274 stop=43 progress=204510 latency_us=194
+TRACE G13 iteration=42 request=275 stop=44 progress=224523 latency_us=219
+TRACE G13 iteration=43 request=276 stop=45 progress=226138 latency_us=124
+TRACE G13 iteration=44 request=277 stop=46 progress=228160 latency_us=89
+TRACE G13 iteration=45 request=278 stop=47 progress=229948 latency_us=121
+TRACE G13 iteration=46 request=279 stop=48 progress=231885 latency_us=298
+TRACE G13 iteration=47 request=280 stop=49 progress=232982 latency_us=235
+TRACE G13 iteration=48 request=281 stop=50 progress=273273 latency_us=115
+TRACE G13 iteration=49 request=282 stop=51 progress=275731 latency_us=143
+TRACE G13 iteration=50 request=283 stop=52 progress=277643 latency_us=97
+TRACE G13 iteration=51 request=284 stop=53 progress=279397 latency_us=69
+TRACE G13 iteration=52 request=285 stop=54 progress=281170 latency_us=64
+TRACE G13 iteration=53 request=286 stop=55 progress=282887 latency_us=68
+TRACE G13 iteration=54 request=287 stop=56 progress=284445 latency_us=66
+TRACE G13 iteration=55 request=288 stop=57 progress=286197 latency_us=139
+TRACE G13 iteration=56 request=289 stop=58 progress=287680 latency_us=154
+TRACE G13 iteration=57 request=290 stop=59 progress=294286 latency_us=223
+TRACE G13 iteration=58 request=291 stop=60 progress=352869 latency_us=104
+TRACE G13 iteration=59 request=292 stop=61 progress=354924 latency_us=231
+TRACE G13 iteration=60 request=293 stop=62 progress=358721 latency_us=139
+TRACE G13 iteration=61 request=294 stop=63 progress=362026 latency_us=495
+TRACE G13 iteration=62 request=295 stop=64 progress=363437 latency_us=100
+TRACE G13 iteration=63 request=296 stop=65 progress=364736 latency_us=178
+TRACE G13 iteration=64 request=297 stop=66 progress=366145 latency_us=60
+TRACE G13 iteration=65 request=298 stop=67 progress=371145 latency_us=147
+TRACE G13 iteration=66 request=299 stop=68 progress=380488 latency_us=106
+TRACE G13 iteration=67 request=300 stop=69 progress=382504 latency_us=110
+TRACE G13 iteration=68 request=301 stop=70 progress=384318 latency_us=197
+TRACE G13 iteration=69 request=302 stop=71 progress=399357 latency_us=249
+TRACE G13 iteration=70 request=303 stop=72 progress=401267 latency_us=76
+TRACE G13 iteration=71 request=304 stop=73 progress=429039 latency_us=75
+TRACE G13 iteration=72 request=305 stop=74 progress=431392 latency_us=70
+TRACE G13 iteration=73 request=306 stop=75 progress=433423 latency_us=94
+TRACE G13 iteration=74 request=307 stop=76 progress=435003 latency_us=147
+TRACE G13 iteration=75 request=308 stop=77 progress=436727 latency_us=87
+TRACE G13 iteration=76 request=309 stop=78 progress=439855 latency_us=58
+TRACE G13 iteration=77 request=310 stop=79 progress=441521 latency_us=86
+TRACE G13 iteration=78 request=311 stop=80 progress=442929 latency_us=58
+TRACE G13 iteration=79 request=312 stop=81 progress=444323 latency_us=166
+TRACE G13 iteration=80 request=313 stop=82 progress=445980 latency_us=81
+TRACE G13 iteration=81 request=314 stop=83 progress=447862 latency_us=90
+TRACE G13 iteration=82 request=315 stop=84 progress=449374 latency_us=91
+TRACE G13 iteration=83 request=316 stop=85 progress=451727 latency_us=116
+TRACE G13 iteration=84 request=317 stop=86 progress=453716 latency_us=138
+TRACE G13 iteration=85 request=318 stop=87 progress=455502 latency_us=120
+TRACE G13 iteration=86 request=319 stop=88 progress=457224 latency_us=95
+TRACE G13 iteration=87 request=320 stop=89 progress=458844 latency_us=254
+TRACE G13 iteration=88 request=321 stop=90 progress=460629 latency_us=248
+TRACE G13 iteration=89 request=322 stop=91 progress=462560 latency_us=154
+TRACE G13 iteration=90 request=323 stop=92 progress=464484 latency_us=62
+TRACE G13 iteration=91 request=324 stop=93 progress=465931 latency_us=96
+TRACE G13 iteration=92 request=325 stop=94 progress=466994 latency_us=68
+TRACE G13 iteration=93 request=326 stop=95 progress=467970 latency_us=66
+TRACE G13 iteration=94 request=327 stop=96 progress=469311 latency_us=120
+TRACE G13 iteration=95 request=328 stop=97 progress=471086 latency_us=79
+TRACE G13 iteration=96 request=329 stop=98 progress=472158 latency_us=51
+TRACE G13 iteration=97 request=330 stop=99 progress=473446 latency_us=70
+TRACE G13 iteration=98 request=331 stop=100 progress=474484 latency_us=96
+TRACE G13 iteration=99 request=332 stop=101 progress=477301 latency_us=67
+[G13a  ] 100 cycles each execute, pause and publish fresh state     PASS
+[G13b  ] request-to-ack budget includes RequestInterrupt itself     PASS -- p50_us=110 p95_us=254 max_us=495
+[G13c  ] immediate-entry Cancel is acknowledged without a warmup gap PASS
+[G12a  ] a ticket from another context is refused                   PASS -- InvalidArgument in WaitStopped: wrong context ticket
+[G12b  ] a stale thread generation is refused                       PASS -- InvalidHandle in RequestInterrupt: stale handle
+[G12c  ] resuming an unacknowledged epoch is refused                PASS -- StaleEpoch in Resume: resume must name the current stopped request epoch
+[G12d  ] a non-zero deadline_ns is refused before running           PASS -- Unsupported in Run: deadline_ns is unsupported
+[G15a  ] 100 concurrent Pause/Cancel pairs preserve Cancel priority PASS
+[G15b  ] older Resume never consumes a newer stopped request        PASS
+[G15c  ] 100 timed-out waits retain requests and receive late owner acks PASS
+[G15d  ] 100 pre-entry stops and concurrent Resume/Pause races retain new requests PASS
+[G15e  ] Cancel while paused has an immediate frozen-state receipt  PASS
+[G16a  ] 10 paused owner patches affect actual GPR/RIP/XMM/MXCSR/FS/GS execution PASS
+[G16b  ] running reads and wrong-owner/stale writes are rejected    PASS
+[G16c  ] all four guest rounding modes preserve host rounding and exception flags PASS
+[G17a  ] all test owners destroyed their own threads                PASS
+[G10a  ] make code writable                                         FAIL
+[G10c  ] restore real backend registration                          PASS
+
+[G06a  ] capabilities declare base integer support                  PASS
+[G06b  ] capabilities declare SSE2 support                          PASS
+[G06c  ] capabilities do not claim AVX                              PASS
+[G06d  ] capabilities report the injected host page size            PASS
+[G06e  ] a second concurrent context is refused with AlreadyActive  PASS
+[G06f  ] an unmapped entry_rip is refused                           FAIL
+[G06g  ] publish a stub fixture for the handle checks               FAIL -- Protect(RX): WrongState in GuestAddressSpace::Protect: code publication failed over this range and has not been repaired; execute cannot be granted

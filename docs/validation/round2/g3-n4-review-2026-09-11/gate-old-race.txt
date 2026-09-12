@@ -1,0 +1,4 @@
+COMMAND ['clang++', '-std=c++20', '-O2', '-pthread', '-Isrc', 'docs/validation/round2/g3-c1-review-2026-09-10/gate-race-probe.cpp', '-o', '/tmp/shadps4-g3-n4-review-20260911/gate_race_probe']
+NO_REPRO within 100 attempts
+
+EXIT 0

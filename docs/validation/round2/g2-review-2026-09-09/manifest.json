@@ -1,0 +1,48 @@
+{
+  "reviewed_commit": "5304e5a9831a4d6ccbaa776b854685332f26d23b",
+  "reviewed_remote_head": "5304e5a9831a4d6ccbaa776b854685332f26d23b\trefs/heads/codex/android-fex-round2",
+  "production_sources_dirty": false,
+  "source_sha256": {
+    "src/core/guest_cpu/fex/fex_context.cpp": "9ea5e8fac88d60ccbd0f99711de3e7758637d1bc8857d13e809ebfdc5e42e204",
+    "src/core/guest_cpu/api/address_space.cpp": "432b5ba496ac627c89fa17a7362b662b6ee9989622d10b32b895d96c121f9bab",
+    "src/core/guest_cpu/api/address_space.h": "f307d5c03d43555286f2d23a05026630f4819dcdc2cf8a4a92c867ae801f37bc",
+    "src/core/guest_cpu/api/context.h": "db4bb02fad3f5f54819050df7c6d65da0303ffb13859138e681e5f86cfbdbfda",
+    "tests/guest_cpu/guest_execution_tests.cpp": "766bb6ed9c6ce7b147c078f98da414666b6520f24e52299806d2b231c0612edb",
+    "tests/guest_cpu/api_contract_tests.cpp": "2f69d1c27581a648c5900da231bd11e8e86c89d1412059dcf0fc7a104417ac04",
+    "scripts/android/run-v0-tests": "6b73b3d50dbb793cc2abb2e1166d2d8f66ca60c6a5602896061bcd4fb783cf25"
+  },
+  "artifacts": [
+    {
+      "name": "guest",
+      "sha256": "df8c5b2372739b48032504424170aa07f14c974d68494f036177f016e7de6f24",
+      "deployed_sha256": "df8c5b2372739b48032504424170aa07f14c974d68494f036177f016e7de6f24",
+      "build_id": "b47895113564b58c9ed327450fb0042e91ced833"
+    },
+    {
+      "name": "probe",
+      "sha256": "42bc849561e4955dbdd129883b9889a756a99cf56274528ee725dcb145a346fc",
+      "deployed_sha256": "42bc849561e4955dbdd129883b9889a756a99cf56274528ee725dcb145a346fc",
+      "build_id": "9fc5c87d7765a2f59cc3b11f3a0ab24a76085cfc"
+    },
+    {
+      "name": "contract",
+      "sha256": "cb7f5e12eaf91d0f43e6fdaa1b8e4914fc1f85fabc63ac2b3d09252cedbcc783",
+      "deployed_sha256": "cb7f5e12eaf91d0f43e6fdaa1b8e4914fc1f85fabc63ac2b3d09252cedbcc783",
+      "build_id": "f1d7d9c1e42e920ef444658c633f8441d6ee803e"
+    }
+  ],
+  "host_probe_sha256": "d68156cf51a8d774a1aa5c9684e9a8ffb452ee279ec621b90f57ed6bee7ac250",
+  "device": {
+    "serial": "01108YHE01017563",
+    "sdk": "33",
+    "model": "Pocket DS",
+    "page_size": "4096"
+  },
+  "host_page_size": "16384",
+  "ndk_target_api": 35,
+  "fex_commit": "385a0cc4d81cd456c8d5c26b4f09cb5a7d8d5842",
+  "fex_assertions_enabled": false,
+  "fex_rebuilt": false,
+  "apk": null,
+  "verdict": "G2_NEEDS_REPAIR"
+}

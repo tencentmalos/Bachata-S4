@@ -1,0 +1,28 @@
+COMMAND ['adb', '-s', '9c2841a4', 'shell', 'timeout', '20', '/data/local/tmp/shadps4-g3-n4-review-20260911/hle_probe', 'valid']
+LOCAL_SHA256 77fb408f0d20d4f43dfa99184fce05b9aee736bad934ee97e0bb915cd45d2a76
+DEVICE_SHA256 77fb408f0d20d4f43dfa99184fce05b9aee736bad934ee97e0bb915cd45d2a76  /data/local/tmp/shadps4-g3-n4-review-20260911/hle_probe
+guest reservation base: 0x7f8000000
+code at 0x7f8010000, stack top 0x7f8023ff0
+return gate at 0xfc0000000
+
+RUN mode=valid host_round=1 guest_expected_round=2
+GPR rax expected=0x29 actual=0x29 match=1
+GPR rcx expected=0x7f8010002 actual=0x1234000a match=0
+GPR rdx expected=0x12340002 actual=0x12340002 match=1
+GPR rbx expected=0x12340003 actual=0x12340003 match=1
+GPR rsp expected=0x7f8023ff0 actual=0x7f8023ff0 match=1
+GPR rbp expected=0x12340005 actual=0x12340005 match=1
+GPR rsi expected=0x12340006 actual=0x12340006 match=1
+GPR rdi expected=0x28 actual=0x28 match=1
+GPR r8 expected=0x12340008 actual=0x12340008 match=1
+GPR r9 expected=0x12340009 actual=0x12340009 match=1
+GPR r10 expected=0x1234000a actual=0x1234000a match=1
+GPR r11 expected=0x202 actual=0x202 match=1
+GPR r12 expected=0x7f8020300 actual=0x7f8020300 match=1
+GPR r13 expected=0x1234000d actual=0x1234000d match=1
+GPR r14 expected=0x1234000e actual=0x1234000e match=1
+GPR r15 expected=0xfc0000000 actual=0xfc0000000 match=1
+RESULT mode=valid reason=Returned sentinel=42 gpr_mismatches=1 xmm_mismatches=0 outcome=1 validity=0x3f host_restored=1 native_result=41
+
+EXIT 2
+ELAPSED 0.06357083300827071

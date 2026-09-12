@@ -1,0 +1,7 @@
+[0/1] Re-running CMake...
+-- V0: Android arm64-v8a platform android-35
+-- Configuring done (0.2s)
+-- Generating done (0.0s)
+-- Build files have been written to: /tmp/shadps4-g3-h2-review-20260910/build
+[1/3] Building CXX object CMakeFiles/g24_diagnostic.dir/g24_diagnostic.cpp.o
+[2/3] Linking CXX executable g24_diagnostic

@@ -1,0 +1,190 @@
+{
+  "files": [
+    {
+      "name": "n2-1.txt",
+      "sha256": "1b917800e9bfc32bf1ae02d5602f893f9c45a44547882126db73ad80f8d32ff4"
+    },
+    {
+      "name": "n2-can2.txt",
+      "sha256": "e13e09c2d881975fd4f46109e5ebf2d9069aea05eed1faaa74b07b5f76db105d"
+    },
+    {
+      "name": "n2-canonical.txt",
+      "sha256": "2cf719e422a680e4b289ab7f7f8aec12d0c6e8c3ad19b16434d3d0616b0ace4f"
+    },
+    {
+      "name": "n2-canonical2-suites/hle_abi_tests.txt",
+      "sha256": "924a5b33555b6a56f78c1616ddd4ea0e382e092d7bdd6a38da3aa86294667363"
+    },
+    {
+      "name": "n2-canonical2-suites/api_contract_tests.txt",
+      "sha256": "8c0bc162ec851f9468fe9626dbb96c055fa6ce4980f96c5e26c4bfc6c5bf59cd"
+    },
+    {
+      "name": "n2-canonical2-suites/fexcore_bionic_smoke.txt",
+      "sha256": "a93763886aac621aca7a91f2dc8fc0c859cd78951da3040dd472809106f44c38"
+    },
+    {
+      "name": "n2-canonical2-suites/guest_execution_tests.txt",
+      "sha256": "49f80151a1d7cda4bdbe18e58ea5e2c9f3f10925c7340a6a54a326828cfcbb18"
+    },
+    {
+      "name": "n2-canonical2-suites/host_page_size_probe.txt",
+      "sha256": "c08589034841f01f2907868421bb9546adc831fb44ec7939425cc02863ae458a"
+    },
+    {
+      "name": "n2-canonical2-suites/guest_cpu_contract_tests.txt",
+      "sha256": "18ec807e3c579dbf5550d2eb35633e23d508c9ad411a8f272a4599ea8b9ea60f"
+    },
+    {
+      "name": "n2-canonical2.json",
+      "sha256": "6972d7593dbddd9ddee6acc9ff069d542bc422f346aba52859d8713a0a4c8479"
+    },
+    {
+      "name": "n2_stress.sh",
+      "sha256": "04d59290389524eea80d2289acea07aa4f884330be0128cf726950f936cdcc0f"
+    },
+    {
+      "name": "n2r1.txt",
+      "sha256": "02aff8f6bae6c3987f5f4d86d1e74ec4f26fec1db01531c7cdd63741c0f1b624"
+    },
+    {
+      "name": "n2r10.txt",
+      "sha256": "21408d4922b85b68da05858f39da4244499d73719030881822465f37979d5ec6"
+    },
+    {
+      "name": "n2r2.txt",
+      "sha256": "3d76bcf43ba274c3c3149aed63413104fc39a1412c50992ea88644a5a9b94ea1"
+    },
+    {
+      "name": "n2r3.txt",
+      "sha256": "cf2851853c72d4f582a97a4cdbde483d1845395bc752ccc1b7903611b58a416e"
+    },
+    {
+      "name": "n2r4.txt",
+      "sha256": "b4603f6cc5adb968b74c9dc669ca9e016fc23858290b6267bd2b712767557b82"
+    },
+    {
+      "name": "n2r5.txt",
+      "sha256": "d6b4d2fb30979e4db1b23dfd8ab6133c36ea2db75f59481c380dd9715dbf2edb"
+    },
+    {
+      "name": "n2r6.txt",
+      "sha256": "1735606d7149724509a418d74e3b64c98aacdb4526863294ab9a380b99e34b14"
+    },
+    {
+      "name": "n2r7.txt",
+      "sha256": "1efa75c0cc4855df28ba6c82c49f58623630e3303a601b33b641cd0f8c2e5142"
+    },
+    {
+      "name": "n2r8.txt",
+      "sha256": "d9c78ee878e1c593a8e477f7a6ee2bf43bf4e5ee07364027335066689826159c"
+    },
+    {
+      "name": "n2r9.txt",
+      "sha256": "41f0bd6777a5e9522e769818597c03372624a87baa445b3b57a3e935cf1ef8e7"
+    }
+  ],
+  "simple_runs": [
+    {
+      "name": "n2-1.txt",
+      "exit_markers": [
+        "0"
+      ],
+      "summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ]
+    },
+    {
+      "name": "n2r1.txt",
+      "exit_markers": [
+        "0"
+      ],
+      "summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ]
+    },
+    {
+      "name": "n2r2.txt",
+      "exit_markers": [
+        "0"
+      ],
+      "summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ]
+    },
+    {
+      "name": "n2r3.txt",
+      "exit_markers": [
+        "0"
+      ],
+      "summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ]
+    },
+    {
+      "name": "n2r4.txt",
+      "exit_markers": [
+        "0"
+      ],
+      "summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ]
+    },
+    {
+      "name": "n2r5.txt",
+      "exit_markers": [
+        "0"
+      ],
+      "summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ]
+    },
+    {
+      "name": "n2r6.txt",
+      "exit_markers": [
+        "0"
+      ],
+      "summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ]
+    },
+    {
+      "name": "n2r7.txt",
+      "exit_markers": [
+        "0"
+      ],
+      "summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ]
+    },
+    {
+      "name": "n2r8.txt",
+      "exit_markers": [
+        "0"
+      ],
+      "summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ]
+    },
+    {
+      "name": "n2r9.txt",
+      "exit_markers": [
+        "0"
+      ],
+      "summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ]
+    },
+    {
+      "name": "n2r10.txt",
+      "exit_markers": [
+        "0"
+      ],
+      "summaries": [
+        "202 check(s), ALL PASS (0 failures)"
+      ]
+    }
+  ],
+  "scope": "Imported prior runs, not executed by this review. Canonical JSON contains binary/deployment hashes but names fd1c8a86 plus dirty working tree without an archived source patch. Simple-run logs lack artifact binding."
+}

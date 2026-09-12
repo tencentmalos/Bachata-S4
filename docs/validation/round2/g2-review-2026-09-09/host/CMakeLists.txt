@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.22)
+project(g2_host_probe LANGUAGES CXX C)
+set(CMAKE_CXX_STANDARD 20)
+add_subdirectory(/Users/bytedance/workspace/emulations/ps4/shadps4/cmake/fex backend)
+add_executable(host_probe host_probe.cpp)
+target_link_libraries(host_probe PRIVATE guest_cpu_api)

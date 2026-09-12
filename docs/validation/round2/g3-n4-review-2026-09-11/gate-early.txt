@@ -1,0 +1,4 @@
+COMMAND ['/tmp/shadps4-g3-n4-review-20260911/gate_early_probe']
+EARLY first=1 second=2 release_early=0 owner_clean=1 repeat_before=0 repeat_after=1
+
+EXIT 2

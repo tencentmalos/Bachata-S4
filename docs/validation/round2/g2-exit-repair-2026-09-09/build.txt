@@ -1,0 +1,12 @@
+["cmake", "-S", "/Users/bytedance/workspace/emulations/ps4/shadps4/cmake/fex", "-B", "/tmp/shadps4-g2-exit-repair-20260909/build", "-G", "Ninja", "-DCMAKE_BUILD_TYPE=Release", "-DCMAKE_TOOLCHAIN_FILE=/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/build/cmake/android.toolchain.cmake", "-DANDROID_ABI=arm64-v8a", "-DANDROID_PLATFORM=android-35", "-DV0_ENABLE_FEX=ON", "-DFEX_BUILD_DIR=/Users/bytedance/workspace/emulations/ps4/shadps4/build/fexcore-android", "-DV0_FIXTURE_DIR=/tmp/shadps4-g2-exit-repair-20260909/fixtures"]
+-- V0: Android arm64-v8a platform android-35
+-- Configuring done (0.2s)
+-- Generating done (0.0s)
+-- Build files have been written to: /tmp/shadps4-g2-exit-repair-20260909/build
+["cmake", "--build", "/tmp/shadps4-g2-exit-repair-20260909/build", "-j", "8"]
+[1/6] Building CXX object guest_cpu/CMakeFiles/guest_cpu_api.dir/api/address_space.cpp.o
+[2/6] Linking CXX static library guest_cpu/libguest_cpu_api.a
+[3/6] Linking CXX executable guest_cpu_contract_tests
+[4/6] Linking CXX executable guest_cpu_hle_abi_tests
+[5/6] Linking CXX executable fexcore_bionic_smoke
+[6/6] Linking CXX executable guest_execution_tests

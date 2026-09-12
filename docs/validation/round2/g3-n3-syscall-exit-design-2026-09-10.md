@@ -1,5 +1,7 @@
 # N3 设计：syscall 错误后的安全立即退出原语（2026-09-10）
 
+> 最新实现复核（f3b93d98）：已经有真实 wrapper/出口探针，但当前 SpillSRA 会破坏10个GPR。只在独立诊断副本改为非spill后状态探针通过，正式实现尚未修正。见 [最新复核](g3-c1-review-2026-09-10.md)；下文保留原设计和更早审计的历史状态，不再作为当前实现结论。
+
 > 后续审计：本文仍是未验证候选。固定Dispatcher有非spill stop入口，两个stop入口都不自行恢复SP；G1是在signal handler中先改SP。wrapper连接点及C++正常返回边界尚未落实，不能据本文宣称出口能力已验证。当前按 [N1/N2复核§3](g3-n12-review-2026-09-10.md) 与 [N3分步实验](../../specs/android-fex-round2-g3-n12-fix-n3-probe.md) 执行。
 
 状态：**设计 + 待最小探针验证**。依据：[R0 收尾/R1 spec](../../specs/android-fex-round2-g3-r0-exit-next.md) N3/N4、

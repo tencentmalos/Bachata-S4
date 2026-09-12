@@ -1,0 +1,11 @@
+fails=0; runs=0
+for i in $(seq 1 60); do
+  adb -s 9c2841a4 shell "timeout 120 /data/local/tmp/g3_repro/guest; echo __EXIT__=\$?" > /tmp/g3-r0-repro/v$i.txt 2>&1
+  ec=$(grep -o '__EXIT__=[0-9]*' /tmp/g3-r0-repro/v$i.txt|tail -1)
+  g=$(grep -cE '\[g24\] FAIL' /tmp/g3-r0-repro/v$i.txt)
+  runs=$((runs+1)); fails=$((fails+g))
+  if [ "$g" != "0" ]; then echo "run$i: G24FAIL ec=$ec"; grep -E '\[g24\] detail' /tmp/g3-r0-repro/v$i.txt; break; fi
+  echo -n "."
+done
+echo ""; echo "runs=$runs g24_stage_fails=$fails"
+echo VERIFY_DONE

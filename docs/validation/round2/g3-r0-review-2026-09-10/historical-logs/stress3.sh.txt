@@ -1,0 +1,7 @@
+for i in $(seq 200 260); do
+  adb -s 9c2841a4 shell "timeout 120 /data/local/tmp/g3_repro/guest; echo __EXIT__=\$?" > /tmp/g3-r0-repro/s$i.txt 2>&1
+  fail=$(grep -cE '\[g24\] FAIL' /tmp/g3-r0-repro/s$i.txt)
+  if [ "$fail" != "0" ]; then echo "=== REPRODUCED run$i ==="; grep -E '\[g24\] detail' /tmp/g3-r0-repro/s$i.txt; break; fi
+  echo "run$i ok"
+done
+echo DONE3

@@ -1,0 +1,12 @@
+[
+  {
+    "name": "contract",
+    "exit_code": 0,
+    "elapsed": 0.23497174998919945
+  },
+  {
+    "name": "guest",
+    "exit_code": 4,
+    "elapsed": 1.22436954099976
+  }
+]

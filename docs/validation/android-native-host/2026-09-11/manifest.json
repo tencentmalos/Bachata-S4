@@ -1,0 +1,166 @@
+{
+  "reviewed_commit": "9ac6c300ef82074014dd03046dd29134ab278075",
+  "branch": "codex/android-fex-round2",
+  "origin_observed": "0e10defc04457e019c07fd2a78d4f58d506133b2",
+  "ahead": 36,
+  "scope": "source architecture assessment plus runner and Android JVM test/build-artifact checks; no new device session or game execution",
+  "source_sha256": {
+    "CMakeLists.txt": "320723e4875ae7d2d0043b46a408076d98e709a63c36d2baa608b2449f136f1a",
+    "externals/CMakeLists.txt": "fb4d97798efa9e1e1985fa23b2b03f296738d92f7dee55e78f3a22536e8bde55",
+    "src/emulator.cpp": "e9cabbee82aab99eb1e6ea2a1c46dd31602c070c90099c2ae5d5fb073fb358d0",
+    "src/core/linker.cpp": "bf367edb2e4ebc14735efef8c2dc7eb101e9c264a9a107e91ac65585454df2be",
+    "src/core/module.cpp": "e865aafe8179027f8fe2ad5dfe2591fefca1ff9f5dd317ff80e194b4bdf1608f",
+    "src/core/memory.cpp": "cda7f9aa2d48a7ec4fec69c3c2e49b196f91382bda3743f74c5c3aaeb6d3ab3e",
+    "src/core/address_space.cpp": "2c2502fb63a6a8d1851854a9cc794fa0404c8ddf160dc41ffe06e4256458b791",
+    "src/core/libraries/libs.h": "fbc143c28a67c431d7879526029a2517cf59706985cff789bd8e7a71855b805c",
+    "src/core/tls.cpp": "ebd9a5bc7fd19b9cb669a9c44c5d9d06f10de81bf9170d12b2849295be63e4ff",
+    "src/core/libraries/kernel/threads/pthread.cpp": "d9b496624040120957c39e6ab05edf6a132125db455ae69df722a424c7d230b7",
+    "src/core/libraries/kernel/threads/stack_asm.cpp": "ce43aa238dd488b8defe105b3d1ddb82eb451671c58125414eb27dd1a68369f8",
+    "src/core/guest_cpu/fex/fex_context.cpp": "6e585376059b8088e3f269f2df9af2df989a1a294d464d2dcd02e2e33a0cc53e",
+    "src/core/guest_cpu/api/address_space.h": "4fa78ff2bbd411228b81e95175e163a80deff9e90bc6761aa26b9b7289f6ea13",
+    "src/video_core/renderer_vulkan/vk_platform.cpp": "c4116595eb245f4195ae7b92d26ce8fdef626cc7e14455cb1776e901890f63cd",
+    "src/video_core/renderer_vulkan/vk_instance.cpp": "f7af026ff1ea96acbddf6bc7f5b8af26e67e6e210af79c3887b6cfa7ddad233d",
+    "src/video_core/renderer_vulkan/vk_swapchain.cpp": "cbc4580efdc8475563ced1db3d1cf399cae81fd5329059ff0a99159cda568c0d",
+    "android/shadps4-app/core/runtime/src/main/cpp/fex_session_jni.cpp": "b8b5cda20c977a9eb2646514550eb032ff978a7d9077918d15b90f4c6b93cd83",
+    "android/shadps4-app/core/runtime/src/main/cpp/CMakeLists.txt": "4981ba8450a49de09e7670b9f0010d503c297599d5eff6f05a9af4f1905371fd",
+    "android/shadps4-app/core/runtime/src/main/cpp/pkg/CMakeLists.txt": "8daa05ec5b1719da7a0a0fd05dca9f11c5802423af2acc91fd6ed63ad816e6f8",
+    "android/shadps4-app/core/runtime/src/main/cpp/pkg/pkg_extractor.cpp": "8314eedc4cacec9b35a7fb8a72a54e3bce485a74e9e92aa526c385cb7d8db0a8",
+    "android/shadps4-app/core/runtime/build.gradle.kts": "7260cfa8ecebe90721096b64ba1c9a45315d1327c497ed977df9afbda4245fbc",
+    "android/shadps4-app/app/src/main/kotlin/com/shadps4/android/service/FexSessionService.kt": "fc1eb28b79253bd5e6cca9c92bb6a206797847fefdba35aed96a45cdcaf110f1",
+    "android/shadps4-app/feature/session/src/main/kotlin/com/shadps4/android/feature/session/SessionViewModel.kt": "18d237a249391f625ea36b15bcba8472a447bdf55df0efd52d81e0cc4dca581e",
+    "references/FEX/FEXCore/Source/Utils/Allocator.cpp": "3c0a25f2c5aa841f93d9f97166cb10a35bd0725670dd94fba3bf8d0a5d424371",
+    "references/FEX/FEXCore/Source/Utils/Allocator/64BitAllocator.cpp": "1fbb868234a541a23a22afa9cdc85915e3350c843d2d2c097b8b171000ecc770",
+    "references/FEX/FEXCore/include/FEXCore/Utils/AllocatorHooks.h": "f79039227fa912ce3e8c8d911a8e4b4886c99ae0c0dc14d65961da1f26645b18"
+  },
+  "gitlinks": [
+    "160000 commit 1f7008848736b7c6c0779220480344fd5b5fc5e3\tfoundation",
+    "160000 commit 67dbf4e5b54b0467bf8a93de3de0a557a71f9f43\treferences/Bachata-S4-android",
+    "160000 commit 385a0cc4d81cd456c8d5c26b4f09cb5a7d8d5842\treferences/FEX",
+    "160000 commit be6bc2e9c60799e071dd2fafa6216e8d80ec619c\treferences/shadps4-arm64"
+  ],
+  "source_counts": [
+    {
+      "scope": "android/shadps4-app",
+      "source_files": 182,
+      "nonblank_lines": 22257,
+      "LIB_FUNCTION_source_entries": 0
+    },
+    {
+      "scope": "src/core/libraries",
+      "source_files": 418,
+      "nonblank_lines": 134327,
+      "LIB_FUNCTION_source_entries": 5277
+    },
+    {
+      "scope": "src/core/guest_cpu",
+      "source_files": 14,
+      "nonblank_lines": 5147,
+      "LIB_FUNCTION_source_entries": 0
+    },
+    {
+      "scope": "src/video_core",
+      "source_files": 93,
+      "nonblank_lines": 27203,
+      "LIB_FUNCTION_source_entries": 0
+    },
+    {
+      "scope": "src/shader_recompiler",
+      "source_files": 115,
+      "nonblank_lines": 32756,
+      "LIB_FUNCTION_source_entries": 0
+    }
+  ],
+  "apk_observed": {
+    "path": "android/shadps4-app/app/build/outputs/apk/fdroid/debug/app-fdroid-debug.apk",
+    "sha256": "57fe946256e3878e761231e4c6232c1780669d8497544d4f2c5601dbed2484f8",
+    "size": 50745178,
+    "libraries": [
+      {
+        "member": "lib/arm64-v8a/libandroidx.graphics.path.so",
+        "sha256": "41e9a793c43a0f4fddb19e33f346bace464f30f888ba7b9eaf96294ea115bfb6",
+        "size": 10096,
+        "zip_compression": 8,
+        "build_id": "a7846ae06d6bf6cf63fa7c5e056b5de493c71567",
+        "needed": [
+          "libm.so",
+          "libdl.so",
+          "libc.so"
+        ]
+      },
+      {
+        "member": "lib/arm64-v8a/libbachata_pkg.so",
+        "sha256": "b4dfb3503b6798f6c43a80febbe5772ca8c0f8d6dd6f86ed10d68362a00f1513",
+        "size": 1136760,
+        "zip_compression": 8,
+        "build_id": "3b0f9559f5beb93c6ff5e504e2553642d74e5f0e",
+        "needed": [
+          "liblog.so",
+          "libz.so",
+          "libm.so",
+          "libc++_shared.so",
+          "libdl.so",
+          "libc.so"
+        ]
+      },
+      {
+        "member": "lib/arm64-v8a/libc++_shared.so",
+        "sha256": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352",
+        "size": 9290184,
+        "zip_compression": 8,
+        "build_id": "ba615e4ff75bc2d8ba1eee93f983e02bc427c433",
+        "needed": [
+          "libc.so",
+          "libm.so",
+          "libdl.so"
+        ]
+      },
+      {
+        "member": "lib/arm64-v8a/libdatastore_shared_counter.so",
+        "sha256": "d3e48717c9aa147e0ab21063ba0e8e0211cabf8bf40b222640829519edbf58e1",
+        "size": 7112,
+        "zip_compression": 8,
+        "build_id": "17db37bd6770ac00dd2d1d2828839fd23a7959a3",
+        "needed": [
+          "libm.so",
+          "libdl.so",
+          "libc.so"
+        ]
+      },
+      {
+        "member": "lib/arm64-v8a/libshadps4_fex_session.so",
+        "sha256": "ff9e7304ff29ceac9e45db71ee7ddf6a8d15107c3bbbcc14b6b78b95e8f5a810",
+        "size": 33278080,
+        "zip_compression": 8,
+        "build_id": "d7fb57a910e0f6d4e36ea2ee6bdd22d0857c29f4",
+        "needed": [
+          "liblog.so",
+          "libm.so",
+          "libc++_shared.so",
+          "libdl.so",
+          "libc.so"
+        ]
+      }
+    ]
+  },
+  "api_observations": {
+    "jni_cmake_platform": "android-33",
+    "jni_cmake_cache": "android/shadps4-app/core/runtime/.cxx/RelWithDebInfo/4k3b3q13/arm64-v8a/CMakeCache.txt",
+    "fex_cmake_platform": "android-35",
+    "fex_cmake_cache": "build/fexcore-android/CMakeCache.txt"
+  },
+  "checks": {
+    "runner_unit": {
+      "exit": 0,
+      "methods": 23
+    },
+    "android_jvm_tests": {
+      "exit": 1,
+      "stage": "core:runtime:compileDebugUnitTestKotlin",
+      "requested": [
+        "core:runtime:testDebugUnitTest",
+        "feature:session:testDebugUnitTest",
+        "feature:library:testDebugUnitTest"
+      ]
+    }
+  }
+}

@@ -1,0 +1,19 @@
+run id: guest-crash
+build dir: /var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmpv4_zva81
+
+api_contract_tests: 0 sub-case(s), 0 failure(s)  [UNUSABLE: not built]
+  (not attempted: not built)
+hle_abi_tests: 0 sub-case(s), 0 failure(s)  [UNUSABLE: not built]
+  (not attempted: not built)
+host_page_size_probe: 0 sub-case(s), 0 failure(s)  [UNUSABLE: not built]
+  (not attempted: not built)
+fexcore_bionic_smoke: 0 sub-case(s), 0 failure(s)  [UNUSABLE: not built]
+  (not attempted: not built)
+guest_execution_tests: 0 sub-case(s), 0 failure(s)  [UNUSABLE: suite exited 7 despite its printed results]
+  no output
+
+0 PASS, 11 FAIL, 46 NOT_RUN of 57 in-scope cases (3 deferred by scope)
+release status: V0_IN_PROGRESS
+wrote /Users/bytedance/workspace/emulations/ps4/shadps4/docs/validation/round2/g3-r0-review-2026-09-10/runner/guest-crash.json
+
+main_return_code=1

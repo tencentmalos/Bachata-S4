@@ -1,0 +1,33 @@
+[0/1] Re-running CMake...
+-- V0: Android arm64-v8a platform android-35
+-- Configuring done (0.2s)
+-- Generating done (0.0s)
+-- Build files have been written to: /tmp/shadps4-g2-close-review-20260909/build
+[1/12] Linking CXX executable backend/host_page_size_probe
+[2/12] Linking CXX static library backend/guest_cpu/libguest_cpu_api.a
+[3/12] Linking CXX static library backend/libguest_cpu_fex.a
+[4/12] Linking CXX executable backend/guest_cpu_hle_abi_tests
+[5/12] Linking CXX executable backend/guest_cpu_contract_tests
+[6/12] Linking CXX executable backend/fexcore_bionic_smoke
+[7/12] Assemble and verify self-contained x86-64 guest fixtures
+wrote /tmp/shadps4-g2-close-review-20260909/fixtures/guest_fixtures.h
+15 fixture(s), combined sha256 cd9edca675dc3c23
+  bare_hlt: 1 bytes, 1 instruction(s)
+  branch: 28 bytes, 6 instruction(s)
+  constant_a: 18 bytes, 3 instruction(s)
+  constant_b: 18 bytes, 3 instruction(s)
+  integer: 26 bytes, 6 instruction(s)
+  loadstore: 17 bytes, 6 instruction(s)
+  progress_loop: 8 bytes, 3 instruction(s)
+  return_only: 13 bytes, 2 instruction(s)
+  smc_writer: 32 bytes, 7 instruction(s)
+  spin_loop: 8 bytes, 3 instruction(s)
+  sse2: 32 bytes, 6 instruction(s)
+  state_echo: 60 bytes, 11 instruction(s)
+  store_memory: 33 bytes, 6 instruction(s)
+  version_a_loop: 25 bytes, 6 instruction(s)
+  version_b_loop: 25 bytes, 6 instruction(s)
+[8/12] Building CXX object backend/CMakeFiles/guest_execution_tests.dir/Users/bytedance/workspace/emulations/ps4/shadps4/tests/guest_cpu/guest_execution_tests.cpp.o
+[9/12] Linking CXX executable backend/guest_execution_tests
+[10/12] Building CXX object CMakeFiles/permission_probe.dir/permission_probe.cpp.o
+[11/12] Linking CXX executable permission_probe

@@ -1,0 +1,117 @@
+{
+  "recorded_at": "2026-09-10T06:25:22.149270+00:00",
+  "reviewed_commit": "dfb759a0fef631ffe6c465cfbeeab7af1a2597fb",
+  "branch": "codex/android-fex-round2",
+  "remote_ref_observed": "0e10defc04457e019c07fd2a78d4f58d506133b2\trefs/heads/codex/android-fex-round2",
+  "production_or_formal_tests_modified_by_review": false,
+  "source_sha256": {
+    "src/core/guest_cpu/CMakeLists.txt": "26e59743091328ecac04e7bf4527381399b696500235386b56cf876db2a19f4b",
+    "src/core/guest_cpu/hle/call_adapter.h": "43383dea6875617bc5c77e47041263a79047cb9e5db6c69a90569db1177e7d9f",
+    "src/core/guest_cpu/fex/fex_context.cpp": "7a3a1fb403a6d3bf3c96ee0786b58cf4dca27ef35dd7f303f835ca70be359fc2",
+    "src/core/guest_cpu/fex/fex_context.h": "7fdcf5f098dcbd7cae6c68fddd80dd68a38bddfac3c92699146ba941d600e5b6",
+    "src/core/guest_cpu/api/status.h": "da3763daea4c3aa2d9099fe529030fc1562580bbcc90eb1f7349a11cd734fd76",
+    "src/core/guest_cpu/api/status.cpp": "d4f99103cf80cfb0df96a8874f0c45ad3b6e1b208163e1add156bb6e2361e9f5",
+    "src/core/guest_cpu/api/execution.h": "4234dc4fe418aa17db5301019aae6838918df9427daa42c0e4d67e9f784a9dcd",
+    "src/core/guest_cpu/api/address_space.h": "4fa78ff2bbd411228b81e95175e163a80deff9e90bc6761aa26b9b7289f6ea13",
+    "src/core/guest_cpu/api/context.h": "2c8e7cea599331456f75a8156027fbdf968762a924402e0a70bc3b8929a9bf2c",
+    "src/core/guest_cpu/api/result.h": "5cddcf6dc6992664f402182c146de23bb87b1017674428121aa0398b0eea36fc",
+    "src/core/guest_cpu/api/registers.h": "1dbdad96ce4fdc7efad47057846d905b5107c9e053316b6721f9106ec7ffebf8",
+    "src/core/guest_cpu/api/execution.cpp": "cca09415ac1c7c8f6fe24754e7cf963076ac2eea13d937e56002cea02b19fdad",
+    "src/core/guest_cpu/api/address_space.cpp": "05299efe795b38568e6821e9488328f2ea5cc910f9d0909b28dccb38b3c9b3dd",
+    "src/core/guest_cpu/api/memory.h": "93db6a9e8cb599d1bd6c9b53f72580eb5bb968f85a61f9b63d917b2bec571252",
+    "tests/guest_cpu/guest_execution_tests.cpp": "255f5ff2ee8ae14a6cb7103b90730efe266ad153d8937f5d4c69b69a06fdc9c6",
+    "tests/guest_cpu/test_v0_runner.py": "47ac7c7a509089dd92bfda70a4e48eb6db75ff8c40b53c8ec8491afe6f438be4",
+    "tests/guest_cpu/hle_abi_tests.cpp": "28b875c645aa6dc225d271651a61a98cfaf9d2074a82b182cff16acd65cdad45",
+    "tests/guest_cpu/api_contract_tests.cpp": "0ec418f3cebbdd068e12e9b9ed957f1139463994818560a7076b4638ff470e08",
+    "tests/guest_cpu/fixtures/guest_fixtures.S": "de0e9ba5eae942582171b2ad17f5227be6b4e2a4f11b24390f6493eb53ff13c1",
+    "scripts/android/run-v0-tests": "43ccea4bb27dfcefdfcc95f2646c1277e0fac8a53e398abfd95a52ef9ecb4e57",
+    "cmake/fex/CMakeLists.txt": "cc1bb63ae505e3a30525041db1354efc3d4914f9a7dab6121b7e084d90a85dff",
+    "scripts/android/test-runner-accounting": "bfaacf9ea8e3e0cc5ce1a0f901dbeaa0ef030b9cc8771cc400cfd06847c72c0b"
+  },
+  "fex_static_sha256": {
+    "build/fexcore-android/FEXCore/Source/libFEXCore_Base.a": "d59e310f8144878f5d680df230d9a7ec7bdf5cf8bb8dbe9aff8780fd33847d72",
+    "build/fexcore-android/FEXCore/Source/libFEXCore.a": "c9b1965b4fa1f5622e885f72d5cbce41c7984f1493164155cb8d4bacad0f0158",
+    "build/fexcore-android/FEXCore/Source/libJemallocLibs.a": "c1769c3519bac27d133cdcd6d3ab4f15915c76243df52178a29fd9efc6ee2769",
+    "build/fexcore-android/External/fmt/libfmt.a": "54a12729389b9b26cfaa59f2051fa07a80cbdfc3c59261dd198a792aac2fd492",
+    "build/fexcore-android/External/tiny-json/libtiny-json.a": "511cef53120c0d74bc58a75631945b3b4d1c99a63855a78854d8a7c061a35f54",
+    "build/fexcore-android/External/rpmalloc/librpmalloc.a": "94e4d71334d12b8155139e42382d99a07f79d4d5b431f0e1f127e2b49e5809cf",
+    "build/fexcore-android/External/cephes/libcephes_128bit.a": "198dd711494259787551167995c5e6be053e41759228ccc4e6e224ad107d067c",
+    "build/fexcore-android/External/SoftFloat-3e/libsoftfloat_3e.a": "1038cc10de5edac42277c9899f135b32494f86002735c3d67069e50198293cae",
+    "build/fexcore-android/External/xxhash/cmake_unofficial/libxxhash.a": "50d59374e48ebe1ffbc674f2dd3018ea8c1d35c740305bf91286cb5d92da4ff5",
+    "build/fexcore-android/Source/Common/libCommon.a": "a7c44e8a986bb41385259ac7c3d08272ad55f949f4f3d2d8cad3522b30bd204f"
+  },
+  "fex_libraries_identical_to_prior_review": true,
+  "fex_revision": "385a0cc4d81cd456c8d5c26b4f09cb5a7d8d5842",
+  "fex_status": "",
+  "foundation_revision": "1f7008848736b7c6c0779220480344fd5b5fc5e3",
+  "device": {
+    "serial": "9c2841a4",
+    "model": "AYN Thor",
+    "api": 33,
+    "page_size": 4096
+  },
+  "fresh_embedder": true,
+  "fex_rebuilt": false,
+  "ndk_target_api": 35,
+  "fixture_sha256": "1802c4f290e59328ae6ff5be28a4eadb63e63841d61d3fb8b5f33ccb34467abb",
+  "apk": null,
+  "artifacts": [
+    {
+      "name": "guest_execution_tests",
+      "path": "/tmp/shadps4-g3-n12-review-20260910/device/guest_execution_tests",
+      "sha256": "30453cfd20c1e279caefb29e2a7b37572d9b11f18e742da47da98bbfaa53e837",
+      "build_id": "67747de474786378f70ac896a2e99800a93d6bbf"
+    },
+    {
+      "name": "guest_cpu_contract_tests",
+      "path": "/tmp/shadps4-g3-n12-review-20260910/device/guest_cpu_contract_tests",
+      "sha256": "c5e4843d089199b85026ec64142f8f45d569c1b3655f1ec5442b55bf26daef44",
+      "build_id": "3d7c37fd779ca1c382824552972c34d2b64d4d3a"
+    },
+    {
+      "name": "fexcore_bionic_smoke",
+      "path": "/tmp/shadps4-g3-n12-review-20260910/device/fexcore_bionic_smoke",
+      "sha256": "b94b86ce29cf26ae2c24e6fa9b536a8cfa5714c1f5c8622e7215e6832f8510d4",
+      "build_id": "a28404666bc5ac2b42c9d55412c56844374401aa"
+    }
+  ],
+  "selftests_observed": {
+    "tests/guest_cpu/test_v0_runner.py": {
+      "exit_code": 0,
+      "tests": 18
+    },
+    "scripts/android/test-runner-accounting": {
+      "exit_code": 0,
+      "checks": 19
+    }
+  },
+  "test_hook_exclusion": [
+    {
+      "build": "device",
+      "V0_BUILD_TESTS": true,
+      "library_sha256": "b9248c5b9bcd1e62e3dd36978c09995efca7bf01dbd7088401f1216807c7232e",
+      "test_gate_symbol_count": 12,
+      "matching_symbols": [
+        "0000000000000000 t Core::GuestCpu::Fex::(anonymous namespace)::FexTestRunGateImpl::WaitAtEntry(unsigned long, unsigned long, unsigned long, unsigned long)",
+        "0000000000000000 t Core::GuestCpu::Fex::(anonymous namespace)::FexTestRunGateImpl::Arm(unsigned long)",
+        "0000000000000000 t Core::GuestCpu::Fex::(anonymous namespace)::FexTestRunGateImpl::Arrived()",
+        "0000000000000000 t Core::GuestCpu::Fex::(anonymous namespace)::FexTestRunGateImpl::Release(unsigned long)",
+        "0000000000000000 t Core::GuestCpu::Fex::(anonymous namespace)::FexTestRunGateImpl::~FexTestRunGateImpl()",
+        "0000000000000000 t Core::GuestCpu::Fex::(anonymous namespace)::FexTestRunGateImpl::~FexTestRunGateImpl()",
+        "0000000000000000 T Core::GuestCpu::Fex::FexTestRunGatePointer(Core::GuestCpu::CpuContext&)",
+        "0000000000000000 d typeinfo for Core::GuestCpu::Fex::(anonymous namespace)::FexTestRunGateImpl",
+        "0000000000000000 V typeinfo for Core::GuestCpu::Fex::FexTestRunGate",
+        "0000000000000000 r typeinfo name for Core::GuestCpu::Fex::(anonymous namespace)::FexTestRunGateImpl",
+        "0000000000000000 V typeinfo name for Core::GuestCpu::Fex::FexTestRunGate",
+        "0000000000000000 d vtable for Core::GuestCpu::Fex::(anonymous namespace)::FexTestRunGateImpl"
+      ]
+    },
+    {
+      "build": "nohooks",
+      "V0_BUILD_TESTS": false,
+      "library_sha256": "60a434111179e8488fb8d3ba7db1f5fedbcc2f61d36168960a84b85fa60a56d3",
+      "test_gate_symbol_count": 0,
+      "matching_symbols": []
+    }
+  ]
+}

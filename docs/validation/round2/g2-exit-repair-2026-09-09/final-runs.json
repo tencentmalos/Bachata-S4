@@ -1,0 +1,59 @@
+[
+  {
+    "name": "runner-final",
+    "command": [
+      "python3",
+      "scripts/android/run-v0-tests",
+      "--build-dir",
+      "/tmp/shadps4-g2-exit-repair-20260909/host-build",
+      "--fex-build-dir",
+      "/tmp/shadps4-g2-exit-repair-20260909/build",
+      "--serial",
+      "01108YHE01017563",
+      "--expected-page-size",
+      "4096",
+      "--run-id",
+      "g2-exit-repair-final-20260909",
+      "--out",
+      "/tmp/shadps4-g2-exit-repair-20260909/results.json"
+    ],
+    "exit_code": 0,
+    "elapsed": 32.641172208008356
+  },
+  {
+    "name": "probes-final",
+    "command": [
+      "python3",
+      "/tmp/g2_exit_probes.py"
+    ],
+    "exit_code": 0,
+    "elapsed": 2.0918468340096297
+  },
+  {
+    "name": "runner-unit",
+    "command": [
+      "python3",
+      "tests/guest_cpu/test_v0_runner.py"
+    ],
+    "exit_code": 0,
+    "elapsed": 0.2758547920093406
+  },
+  {
+    "name": "runner-accounting",
+    "command": [
+      "python3",
+      "tests/runner/test-runner-accounting.py"
+    ],
+    "exit_code": 0,
+    "elapsed": 18.545907207997516
+  },
+  {
+    "name": "runner-g1",
+    "command": [
+      "python3",
+      "tests/runner/test-g1-evidence.py"
+    ],
+    "exit_code": 0,
+    "elapsed": 0.3691314589959802
+  }
+]

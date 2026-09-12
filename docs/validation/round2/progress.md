@@ -1,3 +1,44 @@
+# 当前 Git 交付（2026-09-12 / 7c675280）
+
+图形修复已由091334d3保存，入口/spec由1d411955保存；新增COMMON/bionic适配06bd43bd、进度7c675280。以下“本轮未提交”和旧origin位置是各次历史观察，不是当前代码提交状态。本次按用户要求补交遗漏的研究/spec/原始复核证据，再推送当前主分支；不改历史测试的源码身份。
+
+---
+
+# 当前补充：Vulkan 编译缺口已修，整版默认 Turnip（2026-09-12）
+
+最新：[复核与直接修复](../android-native-host/vulkan-review-2026-09-12.md)，继续 [PKG v2 整版任务书](../../specs/android-native-host-pkg-v2.md)。被审 HEAD `fd3587fd`＋本轮未提交工作区；没有改动/推进子仓。
+
+- 独立完整图形 syntax census 修前97/104；修正真实bionic fallback、平台/头路径和生成依赖后，最终37+67全部生成AArch64对象104/104。
+- 两个旧sweep读/tmp/吞失败已修：统一仓库工具，缺文件负例exit1。Acquire一次有限等待，timeout/cancel不误触recreate，Suboptimal先消费图像。新增合同19/0；SessionCore新复跑807/0。
+- 用户指定默认Android/bionic Turnip。实际native loader/dispatcher接线未做，当前默认环境配置与旧glibc包不能充当实现；系统vkjson不代替Turnip能力。
+- 正式host全链接、FEX/Orbis/VM/信号/回调、Surface/Stop与完整音视频输入、真实PKG真机验收继续按一个整版推进。没有新的APK/游戏呈现验收，不倒改旧V0/Round2结果。
+
+---
+
+# 当前整版复核（2026-09-12 / 0f4fd74b）
+
+最新 [复核](../android-native-host/full-pkg-review-2026-09-12.md) / [PKG v2 spec](../../specs/android-native-host-pkg-v2.md) / [证据](../android-native-host/2026-09-12-review/README.md)。origin实查0e10defc，本地领先43提交。用户将下一版终点提升为真实PKG的完整生产链路和设备可交互验证；内部HN步骤可分批实施，但不再逐个停下来另作规划。
+
+- 主干HN0重构、RasterizerHooks、NDK time/UUID、AAudio/Android Surface源码已存在；完整host link/loader/Orbis/renderer仍未进APK，当前仍为CPU循环。
+- 本次真实重跑：host生命周期767/0，runner23/23，JVM runtime92+session11+library6=109/0。五个新增边界probe揭示早取消Destroy重叠、Prepare/Run throw abort、控制异常泄漏lease、迟到drain永久未回收。不是把旧裸JNI实现原样列作未修。
+- Service十秒整场运行超时、WSI timed acquire中的无限retry/取消未接通、实际rpmalloc与allocator审计不符均纳入整版修复。Mac已实证Darwin NDK全链接小型Android so；完整host闭包不能只交syntax-only。
+- PKG只读核实：指定TMNT1.08为gp更新，本地有匹配gd/1.00本体；另一份1.08全文件hash相同。未解包/新装包/新跑设备，AYN仅枚举在线。历史HN-U01不能用于证明allocator失败retry或完整设备矩阵。
+- 继续保留G2/G3/H3和Swan目标；PKG v2不倒改旧Round2/V0验收，也不把AYN成绩替代Swan。
+
+---
+
+# 当前补充：Android native host 评估（2026-09-11 / 9ac6c300）
+
+最新：[评估](../../android-native-host-assessment-2026-09-11.md) / [host-native v1 spec](../../specs/android-native-host-v1.md) / [独立证据](../android-native-host/2026-09-11/README.md)。origin 实查 `0e10defc`，本地领先36提交；以下旧记录按其各自源码/产物身份保留。
+
+- **已有增量**：E0/E1-a/E2-a 基础修复、A0 验证 APK，以及 `android/shadps4-app` Kotlin UI、zlib PKG native 和进程内 FEX 固定循环。旧文档的“无主仓 JNI/APK”已过时；完整 loader/Orbis HLE/renderer 尚未接入。
+- **本次独立检查**：runner23/23；Android 三模块 JVM test 命令在 core:runtime 测试 Kotlin 编译期失败，未执行完成。检查本地现存 APK 的全部5个 ELF，未新装包/跑设备会话。JNI CMake 实际 API33，FEX prebuilt API35，须统一 profile。
+- **证据边界**：手工 Room 记录、临时 exported service 的 adb 固定循环不证明真实 PKG 导入或最终非导出 service 的 UI 闭环。不要把点击失败归因于 tagging/手柄方式而不验证。
+- **HN0 优先修复**：Stop 裸 context 生命周期、early Stop/重复 join、generation/readiness/GuestFault 终态；ART allocator 的占位/sleep/释放没有检测静默或保证 SetupHooks ownership；JVM tests/API 依赖闭包。
+- **下一批 HN1–HN2**：提取可重启 HostRuntime；统一旧 VMM 与 guest_cpu（64GiB 边界冲突）；真 ELF 经主仓 loader 调用一个真实 Orbis HLE 后返回。随后 HN3 callback/kernel、HN4 WSI、HN5 guest renderer/input/audio、HN6 Swan 普通 APK。新增 spec 不使 G3/G4 或 V0 自动收口。
+
+---
+
 # 二周目进度（2026-09-11 E0/E1-a/E2-a 基础反例已修）
 
 > **N4 复核（[g3-n4-review](g3-n4-review-2026-09-11.md)）的五个确定基础缺陷已全部修复并真机验证**

@@ -1,0 +1,21 @@
+COMMAND ['cmake', '-S', 'cmake/fex', '-B', '/tmp/shadps4-g3-n4-review-20260911/host', '-G', 'Ninja', '-DCMAKE_BUILD_TYPE=Release', '-DV0_BUILD_TESTS=ON', '-DV0_ENABLE_FEX=OFF']
+-- The CXX compiler identification is AppleClang 17.0.0.17000013
+-- The C compiler identification is AppleClang 17.0.0.17000013
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Configuring done (0.8s)
+-- Generating done (0.0s)
+-- Build files have been written to: /tmp/shadps4-g3-n4-review-20260911/host
+
+EXIT 0

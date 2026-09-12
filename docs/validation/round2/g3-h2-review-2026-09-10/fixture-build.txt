@@ -1,0 +1,3 @@
+wrote /tmp/shadps4-g3-h2-review-20260910/review-fixtures/review_fixtures.h
+1 fixture(s), combined sha256 5b24746d0f3cdf2a
+  after_syscall: 23 bytes, 4 instruction(s)

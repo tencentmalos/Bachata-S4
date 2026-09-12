@@ -1,10 +1,16 @@
 # Android / FEX 开发资料索引
 
+- 最新增量：[Vulkan/NDK 复核与修复（2026-09-12）](validation/android-native-host/vulkan-review-2026-09-12.md)：104个ARM64图形对象、acquire/脚本修复、Turnip默认策略；继续[PKG v2整版](specs/android-native-host-pkg-v2.md)。
+
+**当前整版目标：[完整 PKG 最新复核（0f4fd74b）](validation/android-native-host/full-pkg-review-2026-09-12.md) → [PKG v2 执行 spec](specs/android-native-host-pkg-v2.md)**。连续补齐真实 TMNT 本体＋1.08更新的生产加载、FEX/Orbis、图形/输入/音频，推进到真机可操作场景、十分钟和同进程 Stop/重启。该次复核测试生命周期767/0、runner23/23、JVM109/0；当时边界反例见 [证据](validation/android-native-host/2026-09-12-review/README.md)。现有 APK 仍是 CPU smoke；早期小阶段计划不再作为交付终点。
+
 当前目标：Swan / Android 16 / ARM64 / **4 KiB**，原生 shadPS4 host + FEXCore 执行 PS4 x86 guest。用户于 2026-09-08 将 16 KiB 工作后置。尚未完成完整 NDK backend/app 验收。
 
-**二周目进行中：[进度记录](validation/round2/progress.md)**。G1 C01–C04 核心修复后 Pocket DS / API 33 / 4 KiB CLI guest 81/81，通过真实停止、竞争、寄存器写回和 context 重建测试；[修复报告](validation/round2/g1-repair-2026-09-09.md)区分辅助证据与尚未执行的 Swan 普通 APK 验收。下一步按 [G2 任务书](specs/android-fex-round2-g2-handoff.md) 实施。G0 runner 12/12，但 package verifier 仍需补齐 ABI/闭包/ZIP 对齐负例。
+**历史入口（2026-09-11）：[Android 原生 host 评估](android-native-host-assessment-2026-09-11.md) → [执行 spec](specs/android-native-host-v1.md) → [本次证据](validation/android-native-host/2026-09-11/README.md)**。被审 `9ac6c300`，origin `0e10defc`，领先36提交。现有主仓 Kotlin/PKG native/JNI FEX 冒烟 APK，尚未接真实 loader/HLE/renderer。runner23/23；Android JVM tests 编译失败；真实 PKG 导入和最终 UI 启动未闭环。先修会话/allocator/API profile，再交付真 ELF→主仓 loader→真实 Orbis HLE→return；后续完成线程/callback、原生 WSI、guest renderer、input/audio 和 Swan 验收。
 
-**当前状态：[一周目已提交并推送 / `85b57cb2` / V0_IN_PROGRESS](baselines/2026-09-08-round1-closeout.md)**。修复及证据见[事务加固报告](validation/v0/transaction-hardening-2026-09-08.md)：Swan contract 34/34、guest 45/45，runner 测试 6/6。历史 runner 输出 11 PASS / 0 FAIL / 46 NOT_RUN（57 在范围内、3 延期），仍需按环境和覆盖校正，尤其 B02 的独立 ELF 不是 APK 全库验收。尚无 app/ART 验收。
+**二周目仍在进行：[进度记录](validation/round2/progress.md)**。此前 [N4复核](validation/round2/g3-n4-review-2026-09-11.md) 基于 `e0693faa`；其基础 runner/gate、RCX、native FP/Invoke catch 已有后续修复。完整 [E1/E2/E3/A1](specs/android-fex-round2-n4-to-apk.md)、[G3/H3](specs/android-fex-round2-g3-repair-h3.md)、G2 Q1–Q3 和 Swan 普通 APK G4 尚未整体验收。新的 host graphics 里程碑不改写旧 Round 2 范围。
+
+**历史一周目状态：[一周目已提交并推送 / `85b57cb2` / V0_IN_PROGRESS](baselines/2026-09-08-round1-closeout.md)**。修复及证据见[事务加固报告](validation/v0/transaction-hardening-2026-09-08.md)：Swan contract 34/34、guest 45/45，runner 测试 6/6。历史 runner 输出 11 PASS / 0 FAIL / 46 NOT_RUN（57 在范围内、3 延期），仍需按环境和覆盖校正，尤其 B02 的独立 ELF 不是 APK 全库验收。该历史里程碑没有 app/ART 验收。
 
 **固定基础版本：[2026-09-07 / `a7128893`](baselines/2026-09-07-android-fex-foundation.md)**。该记录包含主仓与七个 references 的精确提交、验证结果、未完成项、未纳入基线的本地改动及恢复方法；后续里程碑以它为起点。
 

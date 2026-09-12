@@ -1,0 +1,7 @@
+guest reservation base: 0x7f8000000
+code at 0x7f8010000, stack top 0x7f8023ff0
+return gate at 0xfc0000000
+
+warm_A_17=1
+clear_RX_returned=1
+calling_regular_invalidation_after_clear

@@ -1,0 +1,9 @@
+["cmake", "-S", "/Users/bytedance/workspace/emulations/ps4/shadps4/cmake/fex", "-B", "/tmp/shadps4-g2-exit-repair-20260909/host-build", "-G", "Ninja", "-DCMAKE_BUILD_TYPE=Release"]
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: /tmp/shadps4-g2-exit-repair-20260909/host-build
+["cmake", "--build", "/tmp/shadps4-g2-exit-repair-20260909/host-build", "-j", "8"]
+[1/4] Building CXX object guest_cpu/CMakeFiles/guest_cpu_api.dir/api/address_space.cpp.o
+[2/4] Linking CXX static library guest_cpu/libguest_cpu_api.a
+[3/4] Linking CXX executable guest_cpu_contract_tests
+[4/4] Linking CXX executable guest_cpu_hle_abi_tests

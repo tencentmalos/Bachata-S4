@@ -1,0 +1,13 @@
+run id: g3-n12-independent-20260910-01
+build dir: /tmp/shadps4-g3-n12-review-20260910/host
+
+api_contract_tests: 43 sub-case(s), 0 failure(s)
+hle_abi_tests: 14 sub-case(s), 0 failure(s)
+host_page_size_probe: 22 sub-case(s), 0 failure(s)
+fexcore_bionic_smoke: 12 sub-case(s), 0 failure(s)
+guest_execution_tests: 104 sub-case(s), 0 failure(s)
+guest_cpu_contract_tests: 43 sub-case(s), 0 failure(s)
+
+10 PASS, 0 FAIL, 47 NOT_RUN of 57 in-scope cases (3 deferred by scope)
+release status: V0_IN_PROGRESS
+wrote docs/validation/round2/g3-n12-review-2026-09-10/device-results.json

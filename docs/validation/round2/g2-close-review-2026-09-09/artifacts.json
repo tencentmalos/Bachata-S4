@@ -1,0 +1,20 @@
+[
+  {
+    "name": "guest",
+    "binary": "/tmp/shadps4-g2-close-review-20260909/build/backend/guest_execution_tests",
+    "sha256": "dca279cf31543b61b1e6fe033ae7d2e5718c5baabe50784b33f41a0099649c17",
+    "deployed_sha256": "dca279cf31543b61b1e6fe033ae7d2e5718c5baabe50784b33f41a0099649c17"
+  },
+  {
+    "name": "contract",
+    "binary": "/tmp/shadps4-g2-close-review-20260909/build/backend/guest_cpu_contract_tests",
+    "sha256": "a3d94ed285c9886f8021639d813cf1f311828b212bcd76d89066ea4c250b3844",
+    "deployed_sha256": "a3d94ed285c9886f8021639d813cf1f311828b212bcd76d89066ea4c250b3844"
+  },
+  {
+    "name": "probe",
+    "binary": "/tmp/shadps4-g2-close-review-20260909/build/permission_probe",
+    "sha256": "763324f716911677fe8be33d78f1c90ea81afe2de4a0d7af6f44cc4a1218522a",
+    "deployed_sha256": "763324f716911677fe8be33d78f1c90ea81afe2de4a0d7af6f44cc4a1218522a"
+  }
+]

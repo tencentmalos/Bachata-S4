@@ -1,0 +1,3 @@
+V0_BUILD_TESTS=OFF; host guest_cpu_api build exit 0.
+Library SHA256: aaef9c386334716ad713ec4b303718330c5cc42df028ec78f75faa09e29c1686
+nm: SetMmapFailureForTest / SetMprotectFailureForTest absent.

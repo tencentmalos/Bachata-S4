@@ -1,0 +1,8 @@
+[1/8] Building CXX object backend/guest_cpu/CMakeFiles/guest_cpu_api.dir/api/address_space.cpp.o
+[2/8] Linking CXX static library backend/guest_cpu/libguest_cpu_api.a
+[3/8] Linking CXX executable backend/guest_cpu_hle_abi_tests
+[4/8] Linking CXX executable backend/guest_cpu_contract_tests
+[5/8] Linking CXX executable backend/fexcore_bionic_smoke
+[6/8] Linking CXX executable backend/guest_execution_tests
+[7/8] Linking CXX executable permission_probe
+[8/8] Linking CXX executable guest_store_negative

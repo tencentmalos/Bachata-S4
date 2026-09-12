@@ -1,0 +1,26 @@
+COMMAND ['python3', 'tests/guest_cpu/test_v0_runner.py']
+F.........F...........
+======================================================================
+FAIL: test_all_g30_g32_fail_exit0_counts_unique_subs_not_parents (__main__.RunnerTests.test_all_g30_g32_fail_exit0_counts_unique_subs_not_parents)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/bytedance/workspace/emulations/ps4/shadps4/tests/guest_cpu/test_v0_runner.py", line 236, in test_all_g30_g32_fail_exit0_counts_unique_subs_not_parents
+    self.assertEqual(data["overall"]["failed_subcheck_count"], 7)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 8 != 7
+
+======================================================================
+FAIL: test_g33_immediate_syscall_exit_owned_and_fail_exits_nonzero (__main__.RunnerTests.test_g33_immediate_syscall_exit_owned_and_fail_exits_nonzero) (sub='G34')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/bytedance/workspace/emulations/ps4/shadps4/tests/guest_cpu/test_v0_runner.py", line 212, in test_g33_immediate_syscall_exit_owned_and_fail_exits_nonzero
+    self.assertIn(sub, NS["sub_cases_owned_by"]("guest_execution_tests"))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'G34' not found in {'G01c', 'G01b', 'G15d', 'G17b', 'G21a', 'G10b', 'G32c', 'G33a', 'G05c', 'G20b', 'G01a', 'G26a', 'G22a', 'G04a', 'G07c', 'G23c', 'G15c', 'G17c', 'G08b', 'G03a', 'G14d', 'G09d', 'G11g', 'G15b', 'G20a', 'G10a', 'G33b', 'G02b', 'G14h', 'G16c', 'G11f', 'G11c', 'G16a', 'G15e', 'G30b', 'G25b', 'G11a', 'G04b', 'G11e', 'G12b', 'G31a', 'G11h', 'G13a', 'G36c', 'G01f', 'G02a', 'G14g', 'G36a', 'G27a', 'G12a', 'G07b', 'G23b', 'G09c', 'G14e', 'G16b', 'G08c', 'G03b', 'G11d', 'G25a', 'G05a', 'G05d', 'G15a', 'G14f', 'G13c', 'G11i', 'G11b', 'G11j', 'G28a', 'G26b', 'G36b', 'G31b', 'G09a', 'G14a', 'G32b', 'G28b', 'G35c', 'G12d', 'G30a', 'G10d', 'G05b', 'G10c', 'G01d', 'G12c', 'G35a', 'G23a', 'G01e', 'G32a', 'G31c', 'G04c', 'G03c', 'G09b', 'G24a', 'G08a', 'G14b', 'G13b', 'G35b', 'G24b', 'G14c', 'G07a'}
+
+----------------------------------------------------------------------
+Ran 22 tests in 7.499s
+
+FAILED (failures=2)
+
+EXIT 1

@@ -1,0 +1,37 @@
+[1/17] Building CXX object guest_cpu/CMakeFiles/guest_cpu_api.dir/api/execution.cpp.o
+[2/17] Building CXX object guest_cpu/CMakeFiles/guest_cpu_api.dir/api/status.cpp.o
+[3/17] Building CXX object CMakeFiles/host_page_size_probe.dir/Users/bytedance/workspace/emulations/ps4/shadps4/tests/host_page_size/host_page_size_probe.cpp.o
+[4/17] Linking CXX executable host_page_size_probe
+[5/17] Building CXX object CMakeFiles/guest_cpu_hle_abi_tests.dir/Users/bytedance/workspace/emulations/ps4/shadps4/tests/guest_cpu/hle_abi_tests.cpp.o
+[6/17] Building CXX object CMakeFiles/fexcore_bionic_smoke.dir/Users/bytedance/workspace/emulations/ps4/shadps4/tests/fex_bionic/fexcore_bionic_smoke.cpp.o
+[7/17] Building CXX object guest_cpu/CMakeFiles/guest_cpu_api.dir/api/address_space.cpp.o
+[8/17] Linking CXX static library guest_cpu/libguest_cpu_api.a
+[9/17] Linking CXX executable guest_cpu_hle_abi_tests
+[10/17] Building CXX object CMakeFiles/guest_cpu_fex.dir/Users/bytedance/workspace/emulations/ps4/shadps4/src/core/guest_cpu/fex/fex_context.cpp.o
+[11/17] Linking CXX static library libguest_cpu_fex.a
+[12/17] Linking CXX executable fexcore_bionic_smoke
+[13/17] Building CXX object CMakeFiles/guest_cpu_contract_tests.dir/Users/bytedance/workspace/emulations/ps4/shadps4/tests/guest_cpu/api_contract_tests.cpp.o
+[14/17] Linking CXX executable guest_cpu_contract_tests
+[15/17] Assemble and verify self-contained x86-64 guest fixtures
+wrote /tmp/shadps4-g3-r0-review-20260910/fixtures/guest_fixtures.h
+18 fixture(s), combined sha256 f5f1fe73a6330e43
+  bare_hlt: 1 bytes, 1 instruction(s)
+  branch: 28 bytes, 6 instruction(s)
+  constant_a: 18 bytes, 3 instruction(s)
+  constant_b: 18 bytes, 3 instruction(s)
+  hle_call_returns_rax: 15 bytes, 3 instruction(s)
+  hle_call_returns_xmm: 18 bytes, 4 instruction(s)
+  integer: 26 bytes, 6 instruction(s)
+  jump_target: 2 bytes, 1 instruction(s)
+  loadstore: 17 bytes, 6 instruction(s)
+  progress_loop: 8 bytes, 3 instruction(s)
+  return_only: 13 bytes, 2 instruction(s)
+  smc_writer: 19 bytes, 4 instruction(s)
+  spin_loop: 8 bytes, 3 instruction(s)
+  sse2: 32 bytes, 6 instruction(s)
+  state_echo: 60 bytes, 11 instruction(s)
+  store_memory: 33 bytes, 6 instruction(s)
+  version_a_loop: 25 bytes, 6 instruction(s)
+  version_b_loop: 25 bytes, 6 instruction(s)
+[16/17] Building CXX object CMakeFiles/guest_execution_tests.dir/Users/bytedance/workspace/emulations/ps4/shadps4/tests/guest_cpu/guest_execution_tests.cpp.o
+[17/17] Linking CXX executable guest_execution_tests

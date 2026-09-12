@@ -1,0 +1,163 @@
+{
+  "recorded_at": "2026-09-11T01:11:35.501106+00:00",
+  "reviewed_commit": "e0693faad1ac0cbeb97ae3da39655207abb7aef2",
+  "branch": "codex/android-fex-round2",
+  "remote_ref_observed": "0e10defc04457e019c07fd2a78d4f58d506133b2\trefs/heads/codex/android-fex-round2",
+  "local_commits_after_observed_origin": 24,
+  "production_formal_tests_runner_modified_by_review": false,
+  "production_diff_against_head": "",
+  "source_sha256": {
+    "src/core/guest_cpu/CMakeLists.txt": "26e59743091328ecac04e7bf4527381399b696500235386b56cf876db2a19f4b",
+    "src/core/guest_cpu/hle/call_adapter.h": "43383dea6875617bc5c77e47041263a79047cb9e5db6c69a90569db1177e7d9f",
+    "src/core/guest_cpu/fex/fex_context.cpp": "974426f898cbc7249f33f3bcdceb9c42b6dbd412f99119740f9217c5948bdca8",
+    "src/core/guest_cpu/fex/fex_context.h": "69a8cc6bde4677cf0ddd54e3f1ccfcf0fe3466bdf328efb7fc9aa34eaa9a5f0f",
+    "src/core/guest_cpu/api/status.h": "da3763daea4c3aa2d9099fe529030fc1562580bbcc90eb1f7349a11cd734fd76",
+    "src/core/guest_cpu/api/status.cpp": "d4f99103cf80cfb0df96a8874f0c45ad3b6e1b208163e1add156bb6e2361e9f5",
+    "src/core/guest_cpu/api/execution.h": "fa315140705ee9ea9c19f2c208fbe8cf3ab8ecb25a86d198617ae90258125e2e",
+    "src/core/guest_cpu/api/address_space.h": "4fa78ff2bbd411228b81e95175e163a80deff9e90bc6761aa26b9b7289f6ea13",
+    "src/core/guest_cpu/api/context.h": "2c8e7cea599331456f75a8156027fbdf968762a924402e0a70bc3b8929a9bf2c",
+    "src/core/guest_cpu/api/result.h": "5cddcf6dc6992664f402182c146de23bb87b1017674428121aa0398b0eea36fc",
+    "src/core/guest_cpu/api/registers.h": "1dbdad96ce4fdc7efad47057846d905b5107c9e053316b6721f9106ec7ffebf8",
+    "src/core/guest_cpu/api/execution.cpp": "cca09415ac1c7c8f6fe24754e7cf963076ac2eea13d937e56002cea02b19fdad",
+    "src/core/guest_cpu/api/address_space.cpp": "05299efe795b38568e6821e9488328f2ea5cc910f9d0909b28dccb38b3c9b3dd",
+    "src/core/guest_cpu/api/memory.h": "93db6a9e8cb599d1bd6c9b53f72580eb5bb968f85a61f9b63d917b2bec571252",
+    "tests/guest_cpu/guest_execution_tests.cpp": "b7ef92f9b1385c91ac6fb2332b2734a200a37c2245828d8dff524d5cf97de322",
+    "tests/guest_cpu/test_v0_runner.py": "685be9850edefac1091f7134506b83461ff28e1ce81dc8b2f9edf6e85bf4c3ac",
+    "tests/guest_cpu/hle_abi_tests.cpp": "28b875c645aa6dc225d271651a61a98cfaf9d2074a82b182cff16acd65cdad45",
+    "tests/guest_cpu/api_contract_tests.cpp": "0ec418f3cebbdd068e12e9b9ed957f1139463994818560a7076b4638ff470e08",
+    "tests/guest_cpu/fixtures/guest_fixtures.S": "36b622c98f55f141c6800f48c0e92867a8d57501c9854d4b98cc1e4739adf202",
+    "scripts/android/run-v0-tests": "de116e8c4444826ce250cdf149340af4f287fda6b055bf1bb6c343ec9860bb32",
+    "cmake/fex/CMakeLists.txt": "ec19924f859f74d271b8831aaf000aaa00fabd996aa847604cd7dd9eb7fb4b92",
+    "scripts/android/test-runner-accounting": "f1c90840a9eb826e1a77ec6b7506e5fa196f68fab2d4388d895c13f9dc66e44f",
+    "src/core/guest_cpu/fex/test_run_gate.h": "8b4d24b3b3c318c7ef0521a2bcb79ce376fc87e961c0396aeb41cff967675a49",
+    "tests/guest_cpu/test_run_gate_protocol.cpp": "a89c725c5534ce26acfb44e0d58482f0468455ffe4e7e4822259388139dc03cc",
+    "docs/validation/round2/g3-n3-probe-2026-09-10/CMakeLists.txt": "4cddf1a2044d7f66464682616bf8a83f74bcd3fd76dd38d33c093a8730f65251",
+    "docs/validation/round2/g3-n3-probe-2026-09-10/c0_probe.cpp": "7e3506d2dd71f567f701e51d2dedf11f4e58df70a922c640791e8a47a05c6ae7",
+    "docs/validation/round2/g3-n3-probe-2026-09-10/setup.inc": "3b0aa02353ae9f78068889aae4bae167471172cbf8f40d7c5779c95834923a52",
+    "docs/validation/round2/g3-c1-review-2026-09-10/gate-race-probe.cpp": "664a6e5aa10643e8d27eb3a7f4ad0e7b9c1523e9fb1dc9071b3e10dc4afa4caa"
+  },
+  "review_source_sha256": {
+    "docs/validation/round2/g3-n4-review-2026-09-11/gate_timeout_probe.cpp": "06c5191e8cf829ced1fed6912ba784116f7848a5f723c569f07a1f81d14a2432",
+    "docs/validation/round2/g3-n4-review-2026-09-11/CMakeLists.txt": "c817688e8b77acbee2de07210c93e92f68319fbedd8d43a9ff5688f9bf144202",
+    "docs/validation/round2/g3-n4-review-2026-09-11/hle_probe.cpp": "ddb87a25c54fa9e35d4b8479d0c7aa3c7564197e2aad18945bc55f4da210f20c",
+    "docs/validation/round2/g3-n4-review-2026-09-11/gate_early_probe.cpp": "944eb9dd2a5e2569475f44bd8c80a45d5cbc36cb45cf400651efffdf1cfb4691"
+  },
+  "fex_static_sha256": {
+    "build/fexcore-android/FEXCore/Source/libFEXCore_Base.a": "d59e310f8144878f5d680df230d9a7ec7bdf5cf8bb8dbe9aff8780fd33847d72",
+    "build/fexcore-android/FEXCore/Source/libFEXCore.a": "c9b1965b4fa1f5622e885f72d5cbce41c7984f1493164155cb8d4bacad0f0158",
+    "build/fexcore-android/FEXCore/Source/libJemallocLibs.a": "c1769c3519bac27d133cdcd6d3ab4f15915c76243df52178a29fd9efc6ee2769",
+    "build/fexcore-android/External/fmt/libfmt.a": "54a12729389b9b26cfaa59f2051fa07a80cbdfc3c59261dd198a792aac2fd492",
+    "build/fexcore-android/External/tiny-json/libtiny-json.a": "511cef53120c0d74bc58a75631945b3b4d1c99a63855a78854d8a7c061a35f54",
+    "build/fexcore-android/External/rpmalloc/librpmalloc.a": "94e4d71334d12b8155139e42382d99a07f79d4d5b431f0e1f127e2b49e5809cf",
+    "build/fexcore-android/External/cephes/libcephes_128bit.a": "198dd711494259787551167995c5e6be053e41759228ccc4e6e224ad107d067c",
+    "build/fexcore-android/External/SoftFloat-3e/libsoftfloat_3e.a": "1038cc10de5edac42277c9899f135b32494f86002735c3d67069e50198293cae",
+    "build/fexcore-android/External/xxhash/cmake_unofficial/libxxhash.a": "50d59374e48ebe1ffbc674f2dd3018ea8c1d35c740305bf91286cb5d92da4ff5",
+    "build/fexcore-android/Source/Common/libCommon.a": "a7c44e8a986bb41385259ac7c3d08272ad55f949f4f3d2d8cad3522b30bd204f"
+  },
+  "fex_libraries_identical_to_prior_review": true,
+  "fex_revision": "385a0cc4d81cd456c8d5c26b4f09cb5a7d8d5842",
+  "fex_status": "",
+  "foundation_revision": "1f7008848736b7c6c0779220480344fd5b5fc5e3",
+  "device": {
+    "model": "AYN Thor",
+    "api": "33",
+    "abi": "arm64-v8a",
+    "page_size": "4096"
+  },
+  "fresh_embedder": true,
+  "fex_rebuilt": false,
+  "ndk_path_observed": "/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865",
+  "ndk_actual_platform_metadata": {
+    "min": 21,
+    "max": 35,
+    "aliases": {
+      "20": 19,
+      "25": 24,
+      "J": 16,
+      "J-MR1": 17,
+      "J-MR2": 18,
+      "K": 19,
+      "L": 21,
+      "L-MR1": 22,
+      "M": 23,
+      "N": 24,
+      "N-MR1": 24,
+      "O": 26,
+      "O-MR1": 27,
+      "P": 28,
+      "Q": 29,
+      "R": 30,
+      "S": 31,
+      "Sv2": 32,
+      "Tiramisu": 33,
+      "UpsideDownCake": 34,
+      "VanillaIceCream": 35
+    }
+  },
+  "native_api": 35,
+  "fixture_generated_sha256": "23090132567fa621203adae27426ad821f927b1cc3df335cbcb1cc25c2cddefd",
+  "artifacts": [
+    {
+      "name": "hle_probe",
+      "sha256": "77fb408f0d20d4f43dfa99184fce05b9aee736bad934ee97e0bb915cd45d2a76",
+      "build_id": "345c7db852e1fdead948efcd72ec179a25995b11"
+    },
+    {
+      "name": "gate_timeout_probe",
+      "sha256": "aaab07d96fc56bb7b65cebbb1fc9010688bfc830258a2c9bb6c07f36c8c3757e",
+      "build_id": "ccd5dfc0cef9f9b5272bbe4c82d2ad302fec9bb4"
+    },
+    {
+      "name": "backend/guest_execution_tests",
+      "sha256": "5aac835c630d3c94e629b312ce92df255f50297c77dedafefa030962bc2d9198",
+      "build_id": "f84a893a78a9245dc3b25e77f86dfd328b6284fc"
+    },
+    {
+      "name": "backend/guest_cpu_contract_tests",
+      "sha256": "92a91fe14d70cf6e1c180a17efc92a0db768298fac5735280afdb20fd997d229",
+      "build_id": "1b1c02f8fda72976ad8b3af32b32e8656a61366b"
+    },
+    {
+      "name": "backend/fexcore_bionic_smoke",
+      "sha256": "256a71fae2cd9446de5af5595a3b03fde44904f9c516f443c94af509e7766033",
+      "build_id": "28caba833a4328a72c4195f35f79b701137a0bc0"
+    }
+  ],
+  "tests_off": {
+    "library_sha256": "4f12debff206df823371cde38054931a80b218cc82f4ab47f85acc24cffacbe7",
+    "selected_symbols": [
+      "0000000000000000 T FexSyscallWrapper",
+      "0000000000000000 t Core::GuestCpu::Fex::(anonymous namespace)::FexSyscallExitToStop(void*, void*, void*)"
+    ],
+    "production_wrapper_present": true,
+    "gate_trace_symbol_count": 0
+  },
+  "canonical_summary": {
+    "passed": 10,
+    "failed": 0,
+    "not_run": 47,
+    "deferred_by_scope": 3,
+    "in_scope_total": 57,
+    "total": 60,
+    "unmapped_sub_case_failures": []
+  },
+  "round2_status_counts": {
+    "PASS": 0,
+    "FAIL": 0,
+    "NOT_RUN": 24
+  },
+  "selftests": {
+    "runner_unit": {
+      "methods": 22,
+      "failed_methods": 2,
+      "exit": 1
+    },
+    "runner_accounting": {
+      "passed": 21,
+      "total": 21,
+      "exit": 0
+    }
+  },
+  "apk": null,
+  "device_probe_deployment_directory_observed": "/data/local/tmp/shadps4-g3-n4-review-20260911"
+}

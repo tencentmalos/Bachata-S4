@@ -1,0 +1,10 @@
+guest reservation base: 0x7f8000000
+code at 0x7f8010000, stack top 0x7f8023ff0
+return gate at 0xfc0000000
+
+coordinator_still_waiting=1
+admission_closed_while_stopping=0
+create_admitted_while_stopping=1
+quiesce_succeeded=1
+both_original_runs_cancelled=1
+cancelled_owner_reexecuted_without_resume=1

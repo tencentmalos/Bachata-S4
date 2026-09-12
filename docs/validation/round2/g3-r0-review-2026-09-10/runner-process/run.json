@@ -1,0 +1,20 @@
+{
+  "command": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "/Users/bytedance/workspace/emulations/ps4/shadps4/scripts/android/run-v0-tests",
+    "--build-dir",
+    "/var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmp48l3wqir",
+    "--out",
+    "/Users/bytedance/workspace/emulations/ps4/shadps4/docs/validation/round2/g3-r0-review-2026-09-10/runner-process/result.json",
+    "--run-id",
+    "g31-process-fail-exit0"
+  ],
+  "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
+  "runner_process_returncode": 0,
+  "synthetic_suite_returncode": 0,
+  "v0_failed": 0,
+  "r2_failed": [
+    "R2-H01"
+  ],
+  "note": "Synthetic G31 output emitted from a host fixture executable; tests real subprocess/parser/aggregation/exit only, not CPU execution or guest suite origin."
+}

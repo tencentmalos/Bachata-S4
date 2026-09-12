@@ -1,0 +1,79 @@
+[
+  {
+    "case": "B02",
+    "main_return_code": 0,
+    "v0_failed": 1,
+    "overall": {
+      "has_failures": false,
+      "failed_subchecks_unique": [],
+      "failed_subcheck_count": 0,
+      "v0_failed_cases": 1,
+      "round2_failed_cases": [],
+      "round2_failed_case_count": 0,
+      "unmapped_failed_subchecks": [],
+      "unmapped_failed_count": 0,
+      "failed_suites": [],
+      "failed_suite_count": 0
+    }
+  },
+  {
+    "case": "B05",
+    "main_return_code": 0,
+    "v0_failed": 1,
+    "overall": {
+      "has_failures": false,
+      "failed_subchecks_unique": [],
+      "failed_subcheck_count": 0,
+      "v0_failed_cases": 1,
+      "round2_failed_cases": [],
+      "round2_failed_case_count": 0,
+      "unmapped_failed_subchecks": [],
+      "unmapped_failed_count": 0,
+      "failed_suites": [],
+      "failed_suite_count": 0
+    }
+  },
+  {
+    "case": "B06",
+    "main_return_code": 0,
+    "v0_failed": 1,
+    "overall": {
+      "has_failures": false,
+      "failed_subchecks_unique": [],
+      "failed_subcheck_count": 0,
+      "v0_failed_cases": 1,
+      "round2_failed_cases": [],
+      "round2_failed_case_count": 0,
+      "unmapped_failed_subchecks": [],
+      "unmapped_failed_count": 0,
+      "failed_suites": [],
+      "failed_suite_count": 0
+    }
+  },
+  {
+    "case": "corrupt-artifact",
+    "command": [
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "/Users/bytedance/workspace/emulations/ps4/shadps4/scripts/android/run-v0-tests",
+      "--build-dir",
+      "/var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmp2gnvg83_",
+      "--out",
+      "/Users/bytedance/workspace/emulations/ps4/shadps4/docs/validation/round2/g3-n12-review-2026-09-10/runner/corrupt-artifact.json"
+    ],
+    "runner_process_returncode": 0,
+    "suite_never_started": true,
+    "suite_error": "cannot execute on this host (wrong architecture): /var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmp2gnvg83_/guest_cpu_contract_tests",
+    "overall": {
+      "has_failures": false,
+      "failed_subchecks_unique": [],
+      "failed_subcheck_count": 0,
+      "v0_failed_cases": 0,
+      "round2_failed_cases": [],
+      "round2_failed_case_count": 0,
+      "unmapped_failed_subchecks": [],
+      "unmapped_failed_count": 0,
+      "failed_suites": [],
+      "failed_suite_count": 0
+    }
+  }
+]

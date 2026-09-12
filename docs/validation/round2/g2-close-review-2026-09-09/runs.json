@@ -1,0 +1,59 @@
+[
+  {
+    "label": "guest",
+    "command": [
+      "adb",
+      "-s",
+      "01108YHE01017563",
+      "shell",
+      "timeout",
+      "45",
+      "/data/local/tmp/shadps4-g2-close-review-20260909/guest"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 1.481060374993831
+  },
+  {
+    "label": "contract",
+    "command": [
+      "adb",
+      "-s",
+      "01108YHE01017563",
+      "shell",
+      "timeout",
+      "45",
+      "/data/local/tmp/shadps4-g2-close-review-20260909/contract"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.2246316249947995
+  },
+  {
+    "label": "NX",
+    "command": [
+      "adb",
+      "-s",
+      "01108YHE01017563",
+      "shell",
+      "timeout",
+      "45",
+      "/data/local/tmp/shadps4-g2-close-review-20260909/probe"
+    ],
+    "exit_code": 2,
+    "elapsed_seconds": 0.08047375000023749
+  },
+  {
+    "label": "rewrite",
+    "command": [
+      "adb",
+      "-s",
+      "01108YHE01017563",
+      "shell",
+      "timeout",
+      "45",
+      "/data/local/tmp/shadps4-g2-close-review-20260909/probe",
+      "rewrite"
+    ],
+    "exit_code": 2,
+    "elapsed_seconds": 0.079775417005294
+  }
+]

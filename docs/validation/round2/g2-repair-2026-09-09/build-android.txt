@@ -1,0 +1,51 @@
+[1/17] Building CXX object guest_cpu/CMakeFiles/guest_cpu_api.dir/api/execution.cpp.o
+[2/17] Building CXX object guest_cpu/CMakeFiles/guest_cpu_api.dir/api/status.cpp.o
+[3/17] Building CXX object CMakeFiles/host_page_size_probe.dir/Users/bytedance/workspace/emulations/ps4/shadps4/tests/host_page_size/host_page_size_probe.cpp.o
+[4/17] Linking CXX executable host_page_size_probe
+[5/17] Building CXX object guest_cpu/CMakeFiles/guest_cpu_api.dir/api/address_space.cpp.o
+[6/17] Building CXX object CMakeFiles/guest_cpu_hle_abi_tests.dir/Users/bytedance/workspace/emulations/ps4/shadps4/tests/guest_cpu/hle_abi_tests.cpp.o
+[7/17] Linking CXX static library guest_cpu/libguest_cpu_api.a
+[8/17] Linking CXX executable guest_cpu_hle_abi_tests
+[9/17] Building CXX object CMakeFiles/guest_cpu_fex.dir/Users/bytedance/workspace/emulations/ps4/shadps4/src/core/guest_cpu/fex/fex_context.cpp.o
+[10/17] Linking CXX static library libguest_cpu_fex.a
+[11/17] Building CXX object CMakeFiles/fexcore_bionic_smoke.dir/Users/bytedance/workspace/emulations/ps4/shadps4/tests/fex_bionic/fexcore_bionic_smoke.cpp.o
+[12/17] Building CXX object CMakeFiles/guest_cpu_contract_tests.dir/Users/bytedance/workspace/emulations/ps4/shadps4/tests/guest_cpu/api_contract_tests.cpp.o
+[13/17] Linking CXX executable guest_cpu_contract_tests
+[14/17] Linking CXX executable fexcore_bionic_smoke
+[15/17] Assemble and verify self-contained x86-64 guest fixtures
+wrote /tmp/shadps4-g2-repair-20260909/fixtures/guest_fixtures.h
+12 fixture(s), combined sha256 f627aba999a6e280
+  bare_hlt: 1 bytes, 1 instruction(s)
+  branch: 28 bytes, 6 instruction(s)
+  constant_a: 18 bytes, 3 instruction(s)
+  constant_b: 18 bytes, 3 instruction(s)
+  integer: 26 bytes, 6 instruction(s)
+  loadstore: 17 bytes, 6 instruction(s)
+  progress_loop: 8 bytes, 3 instruction(s)
+  return_only: 13 bytes, 2 instruction(s)
+  spin_loop: 8 bytes, 3 instruction(s)
+  sse2: 32 bytes, 6 instruction(s)
+  state_echo: 60 bytes, 11 instruction(s)
+  store_memory: 33 bytes, 6 instruction(s)
+[16/17] Building CXX object CMakeFiles/guest_execution_tests.dir/Users/bytedance/workspace/emulations/ps4/shadps4/tests/guest_cpu/guest_execution_tests.cpp.o
+[17/17] Linking CXX executable guest_execution_tests
+[1/2] Building CXX object CMakeFiles/guest_execution_tests.dir/Users/bytedance/workspace/emulations/ps4/shadps4/tests/guest_cpu/guest_execution_tests.cpp.o
+[2/2] Linking CXX executable guest_execution_tests
+[1/11] Building CXX object guest_cpu/CMakeFiles/guest_cpu_api.dir/api/address_space.cpp.o
+[2/11] Linking CXX static library guest_cpu/libguest_cpu_api.a
+[3/11] Building CXX object CMakeFiles/guest_cpu_hle_abi_tests.dir/Users/bytedance/workspace/emulations/ps4/shadps4/tests/guest_cpu/hle_abi_tests.cpp.o
+[4/11] Linking CXX executable guest_cpu_hle_abi_tests
+[5/11] Building CXX object CMakeFiles/guest_cpu_fex.dir/Users/bytedance/workspace/emulations/ps4/shadps4/src/core/guest_cpu/fex/fex_context.cpp.o
+[6/11] Linking CXX static library libguest_cpu_fex.a
+[7/11] Linking CXX executable fexcore_bionic_smoke
+[8/11] Building CXX object CMakeFiles/guest_cpu_contract_tests.dir/Users/bytedance/workspace/emulations/ps4/shadps4/tests/guest_cpu/api_contract_tests.cpp.o
+[9/11] Linking CXX executable guest_cpu_contract_tests
+[10/11] Building CXX object CMakeFiles/guest_execution_tests.dir/Users/bytedance/workspace/emulations/ps4/shadps4/tests/guest_cpu/guest_execution_tests.cpp.o
+[11/11] Linking CXX executable guest_execution_tests
+[1/7] Building CXX object guest_cpu/CMakeFiles/guest_cpu_api.dir/api/address_space.cpp.o
+[2/7] Linking CXX static library guest_cpu/libguest_cpu_api.a
+[3/7] Linking CXX executable guest_cpu_hle_abi_tests
+[4/7] Linking CXX executable fexcore_bionic_smoke
+[5/7] Linking CXX executable guest_execution_tests
+[6/7] Building CXX object CMakeFiles/guest_cpu_contract_tests.dir/Users/bytedance/workspace/emulations/ps4/shadps4/tests/guest_cpu/api_contract_tests.cpp.o
+[7/7] Linking CXX executable guest_cpu_contract_tests

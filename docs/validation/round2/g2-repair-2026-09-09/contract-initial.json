@@ -1,0 +1,13 @@
+{
+  "command": [
+    "adb",
+    "-s",
+    "01108YHE01017563",
+    "shell",
+    "timeout",
+    "45",
+    "/data/local/tmp/shadps4-g2-repair-20260909/contract"
+  ],
+  "exit_code": 0,
+  "elapsed": 0.2023420830082614
+}

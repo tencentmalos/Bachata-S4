@@ -1,0 +1,4 @@
+[G31a] real process synthetic check FAIL -- audit
+
+(exit 0, 0.17s)
+{"exit_code": 0, "timed_out": false, "never_started": false, "error": null}

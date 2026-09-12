@@ -1,0 +1,1385 @@
+diff --git a/cmake/fex/CMakeLists.txt b/cmake/fex/CMakeLists.txt
+index f8ab40e8..3d59b06f 100644
+--- a/cmake/fex/CMakeLists.txt
++++ b/cmake/fex/CMakeLists.txt
+@@ -31,6 +31,7 @@ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../src/core/guest_cpu"
+                  "${CMAKE_CURRENT_BINARY_DIR}/guest_cpu")
+ 
+ if(V0_BUILD_TESTS)
++    target_compile_definitions(guest_cpu_api PRIVATE GUEST_CPU_TEST_HOOKS=1)
+     # M13g and M13j race two host threads, so this needs a threading library on hosts where it is
+     # not implicit.
+     find_package(Threads REQUIRED)
+diff --git a/scripts/android/run-v0-tests b/scripts/android/run-v0-tests
+index 4e354159..ba3d5f9b 100755
+--- a/scripts/android/run-v0-tests
++++ b/scripts/android/run-v0-tests
+@@ -89,10 +89,10 @@ CASES: dict[str, tuple[str, str | None]] = {
+     "M05": ("guard page, unmapped and read-only access faults correctly", None),
+     "M06": ("segment helper with adjacent segments sharing a host page", "segment helper not implemented in this milestone"),
+     "M07": ("host/HLE code rewrite and publication, 100x", None),
+-    "M08": ("guest store to code then publication", FEX_BLOCKED),
++    "M08": ("guest store to code then publication", None),
+     "M09": ("two threads on an old block, quiesce, patch, resume, 100 epochs", None),
+     "M10": ("two VA aliases of one backing, invalidation covers both", None),
+-    "M11": ("unmap/remap the same VA with different code, 100x", FEX_BLOCKED),
++    "M11": ("unmap/remap the same VA with different code, 100x", None),
+     "M12": ("code observer and GPU dirty observer on one host page", None),
+     "M13": ("pinned HLE span races unmap/protect", None),
+     "M14": ("ARM64 JIT publication and I-cache sync, no long-term RWX", FEX_BLOCKED),
+@@ -147,7 +147,7 @@ SUITE_MAP: dict[str, list[str]] = {
+     # two-thread race as still missing while M13 was already reported PASS. M13g is that race, and
+     # it asserts that every round actually contended, so a version that stopped racing would fail
+     # rather than pass quietly. M13d/M13e/M13f are the lease and publication-refusal negatives.
+-    "M13": ["M13", "M13b", "M13c", "M13d", "M13e", "M13f", "M13g", "M13h", "M13i", "M13j", "M13k", "M13l", "M13m", "M13n", "M13o", "M21", "M22", "M23", "M24", "M25"],
++    "M13": ["M13", "M13b", "M13c", "M13d", "M13e", "M13f", "M13g", "M13h", "M13i", "M13j", "M13k", "M13l", "M13m", "M13n", "M13o", "M21", "M22", "M23", "M24", "M25", "M27", "M28", "M29"],
+     "T01": [f"G14{c}" for c in "abcdefgh"],
+     "T02": [f"G11{c}" for c in "abcdefghij"] + ["G13a", "G13b", "G13c"],
+     "T03": ["T03a"] + [f"G15{c}" for c in "abcde"] + ["G17b", "G17c", "G24a", "G24b", "M26"],
+@@ -185,10 +185,12 @@ SUITE_MAP: dict[str, list[str]] = {
+     # Requiring a sub-case that touches no CpuContext method is what stops that evidence gap from
+     # reopening. G09c covers the failed-invalidation path leaving nothing executable.
+     #
+-    # Deliberately NOT mapped to M09: that needs two threads running the same old block and a
+-    # controller quiescing between them, which this backend cannot do yet.
+-    "M07": ["M07", "G08a", "G08b", "G08c", "G09a", "G09b", "G09c", "G09d", "G10a", "G10b", "G10c", "G10d", "G23a", "G23b", "G23c"],
+-    "M09": ["G20a", "G20b", "G21a", "G22a"],
++    # G25/G26 supply persistent dual-owner evidence; full acceptance still needs the
++    # environment and semantic requirements listed in INCOMPLETE_COVERAGE.
++    "M07": ["M07", "G08a", "G08b", "G08c", "G09a", "G09b", "G09c", "G09d", "G10a", "G10b", "G10c", "G10d", "G23a", "G23b", "G23c", "G28a", "G28b"],
++    "M09": ["G20a", "G20b", "G21a", "G22a", "G25a", "G25b"],
++    "M08": ["M08b", "G27a"],
++    "M11": ["G26a", "G26b", "G28a", "G28b"],
+ }
+ 
+ # Passing these subchecks is useful evidence, but does not meet the full spec criterion.
+@@ -198,7 +200,9 @@ INCOMPLETE_COVERAGE = {
+     "D05": "illegal instructions and the complete unregistered trap set are not exercised",
+     "H01": "hand-built host frames do not verify a real guest HLE call and callee-saved state",
+     "H04": "real syscall rejection and buffer length/lifetime through a guest HLE gate remain untested",
+-    "M09": "G21/G22 are serial fresh-thread smoke tests; persistent dual-owner epochs and APK remain pending",
++    "M09": "persistent dual-owner CLI evidence; ordinary APK is pending",
++    "M08": "real guest-store coordinator CLI evidence; HLE crossing and ordinary APK remain pending",
++    "M11": "persistent remap CLI evidence; full state/decoder-range matrix and ordinary APK remain pending",
+     "M05": "API permission refusals do not exercise actual guest memory faults",
+     "M10": "alias registration does not verify two mapped aliases and both translations",
+     "M12": "observer arithmetic alone does not verify combined code invalidation and GPU dirty tracking",
+@@ -209,6 +213,44 @@ INCOMPLETE_COVERAGE = {
+     "D03": "constructed snapshot metadata does not verify actual in-JIT fault attribution",
+ }
+ 
++# Final R2 CPU/HLE acceptance requires APK evidence. This runner currently produces CLI
++# auxiliaries only; publishing 24 entries is accounting, not an automatic gate promotion.
++ROUND2_MAP = {
++    "R2-B01": [], "R2-B02": [],
++    "R2-C01": [f"G14{c}" for c in "abcdefgh"],
++    "R2-C02": ["G13a", "G13b", "G13c"],
++    "R2-C03": ["G12a", "G12b", "G12c", "G15a", "G15b", "G15c", "G15d", "G15e", "G17b", "G17c"],
++    "R2-C04": ["G16a", "G16b", "G16c", "G12d"],
++    "R2-M01": ["G25a", "G25b"],
++    "R2-M02": ["G24a", "G24b", "M26", "M27"],
++    "R2-M03": ["G26a", "G26b", "G23a", "G23b", "G23c", "G28a", "G28b", "M28", "M29"],
++    "R2-M04": ["G27a", "M08b"],
++    "R2-M05": ["M13h", "M13i", "M13j", "M13k", "M13l", "M13m", "M13n", "M13o",
++                 "G10a", "G10b", "G10c", "G10d", "M27", "M28"],
++    **{f"R2-H{i:02}": [] for i in range(1, 7)},
++    **{f"R2-A{i:02}": [] for i in range(1, 4)},
++    "R2-F01": [], "R2-F02": [], "R2-D01": [], "R2-L01": [],
++}
++ROUND2_PENDING = {
++    "R2-M02": "InvokeGuest/WaitingHle and lifecycle combinations remain pending",
++    "R2-M03": "complete decoder-range matrix and post-Clear resumed-state sentinels remain pending",
++    "R2-M04": "real HLE publication crossing remains pending",
++    "R2-M05": "InvokeGuest failure protection remains pending",
++}
++
++
++def round2_report(observed, tainted):
++    result = []
++    for case_id, required in ROUND2_MAP.items():
++        failed = [sub for sub in required if sub in tainted or observed.get(sub, (None,))[0] == "FAIL"]
++        missing = [sub for sub in required if observed.get(sub, (None,))[0] != "PASS"]
++        result.append({"id": case_id, "status": "FAIL" if failed else "NOT_RUN",
++                       "auxiliary_status": "FAIL" if failed else ("PASS" if required and not missing else "NOT_RUN"),
++                       "auxiliary_scope": "listed CLI subchecks only",
++                       "required_subchecks": required, "missing": missing, "failed": failed,
++                       "remaining": ROUND2_PENDING.get(case_id, "target environment / full normative acceptance pending")})
++    return {"spec": "docs/specs/android-fex-round2.md", "total": len(result), "cases": result}
++
+ LINE = re.compile(r"^\[(\S+)\s*\]\s+(.*?)\s+(PASS|FAIL|SKIP)(?:\s+--\s+(.*))?$")
+ 
+ # Which suite owns which sub-case prefixes.
+@@ -222,16 +264,16 @@ LINE = re.compile(r"^\[(\S+)\s*\]\s+(.*?)\s+(PASS|FAIL|SKIP)(?:\s+--\s+(.*))?$")
+ # Prefix-matched against the sub-case ids in SUITE_MAP.
+ SUITE_OWNERSHIP: dict[str, tuple[str, ...]] = {
+     "api_contract_tests": ("M01", "M02", "M03", "M04", "M05", "M07", "M10", "M12", "M13",
+-                           "M14", "T03", "D03", "L01", "M08", "M21", "M22", "M23", "M24", "M25", "M26"),
++                           "M14", "T03", "D03", "L01", "M08", "M21", "M22", "M23", "M24", "M25", "M26", "M27", "M28", "M29"),
+     # Same suite, cross-compiled and run on the device. Owns the same sub-cases: if it crashes
+     # there, those cases are tainted exactly as they would be on the host.
+     "guest_cpu_contract_tests": ("M01", "M02", "M03", "M04", "M05", "M07", "M10", "M12", "M13",
+-                                 "M14", "T03", "D03", "L01", "M08", "M21", "M22", "M23", "M24", "M25", "M26"),
++                                 "M14", "T03", "D03", "L01", "M08", "M21", "M22", "M23", "M24", "M25", "M26", "M27", "M28", "M29"),
+     "hle_abi_tests": ("H01", "H04"),
+     "host_page_size_probe": ("P01", "P02", "P03"),
+     "fexcore_bionic_smoke": ("F01", "F02", "F03", "F04", "F05"),
+     "guest_execution_tests": ("G01", "G02", "G03", "G04", "G05", "G06", "G07", "G08", "G09", "G10",
+-                              "G11", "G12", "G13", "G14", "G15", "G16", "G17", "G20", "G21", "G22", "G23", "G24"),
++                              "G11", "G12", "G13", "G14", "G15", "G16", "G17", "G20", "G21", "G22", "G23", "G24", "G25", "G26", "G27", "G28"),
+ }
+ 
+ 
+@@ -323,6 +365,29 @@ def parse_sub_cases(text: str) -> tuple[dict[str, tuple[str, str]], dict[str, in
+             conflicts.append(f"{case_id}: reported {previous[0]} then {verdict}")
+         if severity.get(verdict, 0) > severity.get(previous[0], 0):
+             verdicts[case_id] = (verdict, detail)
++    # A PASS summary cannot replace the required per-iteration evidence.
++    for case_id, prefix, label, total in (("G25a", "EPOCH ", "G25", 100),
++                                          ("G26a", "EPOCH ", "G26", 100),
++                                          ("G27a", "STORE ", None, 10)):
++        if verdicts.get(case_id, (None,))[0] != "PASS":
++            continue
++        records = []
++        malformed = False
++        for line in text.splitlines():
++            if not line.startswith(prefix):
++                continue
++            try:
++                record = json.loads(line[len(prefix):])
++                if not isinstance(record, dict) or type(record.get("epoch")) is not int:
++                    malformed = True
++                    continue
++                if label is None or record.get("case") == label:
++                    records.append(record)
++            except (ValueError, TypeError):
++                malformed = True
++        if (malformed or sorted(record.get("epoch", -1) for record in records) != list(range(total))
++                or any(record.get("ok") is not True for record in records)):
++            verdicts[case_id] = ("FAIL", f"missing, duplicate, failed or malformed {total}-epoch evidence")
+     return verdicts, counts, conflicts
+ 
+ 
+@@ -508,15 +573,25 @@ def run_device_suite(binary: Path, serial: str | None) -> SuiteRun:
+         return SuiteRun(error="adb not found; device suite skipped", never_started=True)
+ 
+     adb = ["adb"] + (["-s", serial] if serial else [])
+-    remote = f"/data/local/tmp/{binary.name}"
++    remote = f"/data/local/tmp/shadps4-v0-{os.getpid()}-{time.monotonic_ns()}-{binary.name}"
++    local_sha = sha256_of(binary)
++    deployment = ""
+     try:
+         push = subprocess.run(adb + ["push", str(binary), remote], capture_output=True, text=True,
+                               timeout=300)
+         if push.returncode != 0:
+             # Never reached the device, so nothing was attempted there.
+             return SuiteRun(error=f"adb push failed: {push.stderr.strip()}", never_started=True)
+-        subprocess.run(adb + ["shell", "chmod", "755", remote], capture_output=True, text=True,
+-                       timeout=60)
++        chmod = subprocess.run(adb + ["shell", "chmod", "755", remote], capture_output=True, text=True,
++                               timeout=60)
++        hashed = subprocess.run(adb + ["shell", "sha256sum", remote], capture_output=True, text=True,
++                                timeout=60)
++        device_sha = hashed.stdout.split()[0] if hashed.stdout.split() else None
++        deployment = "DEPLOY " + json.dumps({"remote": remote, "local_sha256": local_sha,
++                                              "device_sha256": device_sha}) + "\n"
++        if chmod.returncode or hashed.returncode or local_sha != device_sha:
++            return SuiteRun(output=deployment + chmod.stderr + hashed.stderr,
++                            error="deployed binary permission or SHA-256 verification failed")
+         started = time.monotonic()
+         # Echo the guest exit status explicitly. `adb shell` does not reliably propagate it on every
+         # Android version, and taking adb's own status instead would report success for a suite that
+@@ -524,8 +599,10 @@ def run_device_suite(binary: Path, serial: str | None) -> SuiteRun:
+         result = subprocess.run(adb + ["shell", f"{remote}; echo __EXIT__=$?"],
+                                 capture_output=True, text=True, timeout=600)
+         elapsed = time.monotonic() - started
+-    except subprocess.TimeoutExpired:
+-        return SuiteRun(output=f"device suite timed out: {binary.name}", timed_out=True)
++    except subprocess.TimeoutExpired as exc:
++        def decoded(value):
++            return value.decode(errors="replace") if isinstance(value, bytes) else (value or "")
++        return SuiteRun(output=deployment + decoded(exc.stdout) + decoded(exc.stderr), timed_out=True)
+     except OSError as exc:
+         return SuiteRun(error=f"device suite error: {exc}")
+     finally:
+@@ -548,11 +625,11 @@ def run_device_suite(binary: Path, serial: str | None) -> SuiteRun:
+     parsed, counts, conflicts = parse_sub_cases(result.stdout)
+ 
+     if device_exit is None:
+-        return SuiteRun(cases=parsed, output=result.stdout + result.stderr,
++        return SuiteRun(cases=parsed, output=deployment + result.stdout + result.stderr,
+                         error="the device did not report an exit status",
+                         iteration_counts=counts, conflicts=conflicts)
+ 
+-    output = (result.stdout + result.stderr +
++    output = (deployment + result.stdout + result.stderr +
+               f"\n(device exit {device_exit}, adb exit {result.returncode}, {elapsed:.2f}s)")
+     return SuiteRun(cases=parsed, output=output, exit_code=device_exit,
+                     iteration_counts=counts, conflicts=conflicts)
+@@ -933,6 +1010,7 @@ def main() -> int:
+                     "deferred_by_scope": deferred, "in_scope_total": in_scope,
+                     "total": len(cases)},
+         "cases": cases,
++        "round2": round2_report(observed, tainted),
+         "release_status": release_status,
+         "release_status_reason": (
+             f"This invocation observed {passed} complete acceptance passes, {failed} failures, "
+diff --git a/src/core/guest_cpu/api/address_space.cpp b/src/core/guest_cpu/api/address_space.cpp
+index c8ebeb70..607232bc 100644
+--- a/src/core/guest_cpu/api/address_space.cpp
++++ b/src/core/guest_cpu/api/address_space.cpp
+@@ -17,9 +17,10 @@ namespace Core::GuestCpu {
+ namespace {
+ 
+ // Test seam for mmap/mprotect results. Production always calls the real syscall; the wrappers below
+-// default to invoking it. Contract tests (which link this TU) can install a hook to force a kernel
+-// failure, so the error identity and fail-closed behaviour can be exercised deterministically
++// default to invoking it. Test builds can fail before invoking the syscall, so the error
++// identity and fail-closed behaviour can be exercised deterministically
+ // without relying on resource exhaustion. The hooks are not reachable from the public API headers.
++#if defined(GUEST_CPU_TEST_HOOKS)
+ using MmapFn = void* (*)(void*, size_t, int, int, int, off_t);
+ using ProtectFn = int (*)(void*, size_t, int);
+ std::atomic<MmapFn> g_mmap_hook{nullptr};
+@@ -59,6 +60,16 @@ void SetMprotectFailureForTest(bool enable) {
+ }
+ } // namespace Test
+ 
++#else
++void* SeamMmap(void* addr, size_t length, int prot, int flags, int fd, off_t off) {
++    return ::mmap(addr, length, prot, flags, fd, off);
++}
++int SeamMprotect(void* addr, size_t length, int prot) {
++    return ::mprotect(addr, length, prot);
++}
++} // namespace
++#endif
++
+ namespace {
+ 
+ std::uint64_t DiscoverHostPageSize() {
+@@ -435,8 +446,20 @@ Result<MappingInfo> GuestAddressSpace::Map(GuestRange range, GuestPermission per
+     return info;
+ }
+ 
++Status GuestAddressSpace::RetireBeforeMutationLocked(std::unique_lock<std::mutex>& guard,
++                                                    GuestRange range) {
++    bool committed = false;
++    auto status = CallSinkUnlocked(guard, range, InvalidationReason::Unmap, committed);
++    ++code_generation;
++    if (!committed) {
++        PoisonCodeLocked(range);
++        return status;
++    }
++    return Ok();
++}
++
+ Status GuestAddressSpace::Unmap(GuestRange range) {
+-    std::lock_guard guard{lock};
++    std::unique_lock guard{lock};
+     if (auto status = CheckMappingMutationLocked("GuestAddressSpace::Unmap"); !status) {
+         return status;
+     }
+@@ -458,14 +481,19 @@ Status GuestAddressSpace::Unmap(GuestRange range) {
+                          "no mapping exactly matches this range");
+     }
+ 
++    // Guest page permissions do not revoke FEX's separate host JIT mappings. Retire
++    // shared/local/decoder entries before changing permissions/backing, even for RW -> RX.
++    if (auto retired = RetireBeforeMutationLocked(guard, range); !retired) return retired;
+     // Return the range to PROT_NONE while keeping the reservation: dropping it
+     // with munmap would let an unrelated allocation land inside our space.
+-    void* result = ::mmap(HostPointer(range.base), static_cast<std::size_t>(range.size),
++    void* result = SeamMmap(HostPointer(range.base), static_cast<std::size_t>(range.size),
+                           PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
+     if (result == MAP_FAILED) {
++        const int saved = errno;
++        PoisonCodeLocked(range);
+         auto error = MakeError(ErrorCategory::BackendFailure, "GuestAddressSpace::Unmap",
+                                "failed to restore reservation protection");
+-        error.system_error = errno;
++        error.system_error = saved;
+         return error;
+     }
+ 
+@@ -494,7 +522,7 @@ Status GuestAddressSpace::Protect(GuestRange range, GuestPermission permission)
+                 std::to_string(HostPageSize()) + ", nothing was modified");
+     }
+ 
+-    std::lock_guard guard{lock};
++    std::unique_lock guard{lock};
+     const auto found = std::find_if(mappings.begin(), mappings.end(), [&](const Mapping& m) {
+         return m.range.base.value <= range.base.value &&
+                range.base.value + range.size <= m.range.base.value + m.range.size;
+@@ -541,9 +569,13 @@ Status GuestAddressSpace::Protect(GuestRange range, GuestPermission permission)
+     if (auto status = CheckMappingMutationLocked("GuestAddressSpace::Protect"); !status) {
+         return status;
+     }
++    // Guest page permissions do not revoke FEX's separate host JIT mappings. Retire
++    // shared/local/decoder entries before changing permissions/backing, even for RW -> RX.
++    if (auto retired = RetireBeforeMutationLocked(guard, range); !retired) return retired;
+     if (SeamMprotect(HostPointer(range.base), static_cast<std::size_t>(range.size),
+                       ToHostProtection(permission)) != 0) {
+         const int saved = errno;
++        PoisonCodeLocked(range);
+         auto error = MakeError(CategoriseMapFailure(saved), "GuestAddressSpace::Protect",
+                                "mprotect failed");
+         error.system_error = saved;
+@@ -551,7 +583,7 @@ Status GuestAddressSpace::Protect(GuestRange range, GuestPermission permission)
+     }
+ 
+     found->permission = permission;
+-    ++mapping_generation;
++    found->generation = ++mapping_generation;
+     return Ok();
+ }
+ 
+@@ -654,9 +686,9 @@ Status GuestAddressSpace::Write(GuestAddress to, std::span<const std::byte> from
+         //
+         // The transaction owner is not blocked by this: it publishes through PublishCode, which
+         // has its own epoch check and does not route here.
+-        if (active_quiescence != 0) {
++        if (active_quiescence != 0 || sink_calls_in_flight != 0 || sink_draining) {
+             return MakeError(ErrorCategory::Busy, "GuestAddressSpace::Write",
+-                             "a quiescence transaction is in progress; publish through the token");
++                             "a transaction or sink callback is active; ordinary writes are excluded");
+         }
+ 
+         if (auto status = ValidateRangeLocked(range.Value(), GuestPermission::Write); !status) {
+@@ -924,7 +956,7 @@ void GuestAddressSpace::RevokeExecuteLocked(GuestRange range) {
+                        static_cast<std::size_t>(mapping.range.size),
+                        ToHostProtection(without_execute)) == 0) {
+             mapping.permission = without_execute;
+-            ++mapping_generation;
++            mapping.generation = ++mapping_generation;
+         }
+         // If even mprotect fails there is nothing further this layer can do; code_poisoned still
+         // records that the range must not be trusted, and PublishCode returns the sink's error.
+@@ -1111,12 +1143,17 @@ Status GuestAddressSpace::ReprotectUnderToken(const QuiescenceToken& token, Gues
+                          "GuestAddressSpace::ReprotectUnderToken",
+                          "code publication failed over this range and has not been repaired");
+     }
++    // Guest page permissions do not revoke FEX's separate host JIT mappings. Retire
++    // shared/local/decoder entries before changing permissions/backing, even for RW -> RX.
++    if (auto retired = RetireBeforeMutationLocked(guard, range); !retired) return retired;
++    if (auto status = CheckTokenLocked(token, "ReprotectUnderToken"); !status) return status;
+     if (SeamMprotect(HostPointer(range.base), static_cast<std::size_t>(range.size),
+                       ToHostProtection(permission)) != 0) {
+         const int saved = errno;
++        PoisonCodeLocked(range);
+         auto error = MakeError(CategoriseMapFailure(saved),
+                                "GuestAddressSpace::ReprotectUnderToken",
+-                               "mprotect failed; mapping permissions unchanged");
++                               "mprotect failed; requested protection was not committed; execution is poisoned");
+         error.system_error = saved;
+         return error;
+     }
+diff --git a/src/core/guest_cpu/api/address_space.h b/src/core/guest_cpu/api/address_space.h
+index 0f112344..c75fae50 100644
+--- a/src/core/guest_cpu/api/address_space.h
++++ b/src/core/guest_cpu/api/address_space.h
+@@ -226,7 +226,10 @@ public:
+     // quiescence (the mapping-mutation Busy guard must stay), so a coordinated remap uses this:
+     // the token proves every owner is stopped, which is exactly the precondition for flipping a
+     // code range between RW and RX. The poison rule still applies: execute cannot be granted over
+-    // a failed publication.
++    // a failed publication. Like Protect and Unmap, it synchronously retires translations
++    // before changing the mapping (including RW -> RX); guest page X does not protect host JIT
++    // code. Sink or syscall failure poisons execution until explicit repair. Releasing the
++    // token cannot clear that poison. Successful protection alone does not repair old poison.
+     [[nodiscard]] Status ReprotectUnderToken(const QuiescenceToken& token, GuestRange range,
+                                              GuestPermission permission);
+ 
+@@ -325,6 +328,8 @@ private:
+     // Requires `lock`. Clears only the failed intervals fully covered by this repair.
+     void ClearPoisonIfRepairedLocked(GuestRange repaired);
+     void PoisonCodeLocked(GuestRange range);
++    [[nodiscard]] Status RetireBeforeMutationLocked(std::unique_lock<std::mutex>& guard,
++                                                    GuestRange range);
+     [[nodiscard]] Status CheckMappingMutationLocked(std::string_view operation) const;
+ 
+     struct Mapping final {
+diff --git a/tests/guest_cpu/api_contract_tests.cpp b/tests/guest_cpu/api_contract_tests.cpp
+index b7b7504e..a0ae0782 100644
+--- a/tests/guest_cpu/api_contract_tests.cpp
++++ b/tests/guest_cpu/api_contract_tests.cpp
+@@ -1236,100 +1236,55 @@ void TestTransactions() {
+         space->ClearCodeInvalidationSink(&sink);
+     });
+ 
+-    RunCase("M27", "a sink callback blocks every mutator and pin while in flight", [] {
+-        struct BlockingSink final : CodeInvalidationSink {
+-            std::atomic<bool> entered{false};
+-            std::atomic<bool> release{false};
+-            std::string_view Name() const override { return "m27"; }
+-            Status DiscardTranslations(GuestRange, InvalidationReason) override {
+-                entered.store(true, std::memory_order_release);
+-                while (!release.load(std::memory_order_acquire)) {
+-                    std::this_thread::yield();
++    RunCase("M27", "same-token exclusion during Publish/Remap/Protect sink callbacks", [] {
++        for (int operation = 0; operation < 3; ++operation) {
++            struct Sink final : CodeInvalidationSink {
++                std::promise<void> entered, release;
++                std::shared_future<void> released{release.get_future().share()};
++                std::string_view Name() const override { return "m27"; }
++                Status DiscardTranslations(GuestRange, InvalidationReason) override {
++                    entered.set_value(); released.wait(); return Ok();
+                 }
+-                return Ok();
+-            }
+-        } sink;
+-        auto space = MakeSpace();
+-        const std::uint64_t page = HostPageSize();
+-        GuestRange range{space->ReservationBase(), page};
+-        Check(bool(space->Map(range, GuestPermission::Read | GuestPermission::Write)), "map");
+-        Check(bool(space->SetCodeInvalidationSink(&sink)), "register sink");
+-
+-        bool publish_committed = false;
+-        std::thread publisher([&] {
+-            auto q = space->Quiesce(1'000'000);
+-            if (!q) {
+-                publish_committed = false;
+-                return;
+-            }
+-            std::vector<std::byte> code(page, std::byte{0x90});
+-            publish_committed = bool(space->PublishCode(q.Value(), range, code));
+-        });
+-
+-        // Wait until the callback is actually running (the publication holds the sink lease).
+-        const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+-        while (!sink.entered.load() && std::chrono::steady_clock::now() < deadline) {
+-            std::this_thread::yield();
+-        }
+-        Check(sink.entered.load(), "sink callback entered");
+-
+-        // Probe from another thread using the same live range. Everything that touches mappings,
+-        // the code cache or host pointers must report Busy while the callback owns the interval.
+-        auto probe = [&](auto&& op, const char* what) -> bool {
+-            auto r = op();
+-            if (r) {
+-                std::fprintf(stderr, "  %s was admitted during a sink callback\n", what);
+-                return false;
++            } sink;
++            auto space = MakeSpace();
++            GuestRange range{space->ReservationBase(), HostPageSize()};
++            Check(bool(space->Map(range, GuestPermission::Read | GuestPermission::Write)), "map");
++            Check(bool(space->SetCodeInvalidationSink(&sink)), "sink");
++            auto token = space->Quiesce(1000);
++            if (!token) { Check(false, "token"); return; }
++            std::vector<std::byte> bytes(range.size, std::byte{0x5A});
++            auto publisher = std::async(std::launch::async, [&]() -> Status {
++                if (operation == 0) return space->PublishCode(token.Value(), range, bytes);
++                if (operation == 2) return space->ReprotectUnderToken(token.Value(), range, GuestPermission::Read);
++                auto mapped = space->RemapUnderToken(token.Value(), range,
++                                                   GuestPermission::Read | GuestPermission::Write);
++                return mapped ? Ok() : Status{mapped.GetError()};
++            });
++            const bool entered = sink.entered.get_future().wait_for(std::chrono::seconds(2)) == std::future_status::ready;
++            auto busy = [&](const auto& value) { return !value && value.Category() == ErrorCategory::Busy; };
++            if (entered) {
++                Check(busy(space->ReprotectUnderToken(token.Value(), range, GuestPermission::Read)), "same token reprotect Busy");
++                Check(busy(space->RemapUnderToken(token.Value(), range, GuestPermission::Read)), "same token remap Busy");
++                Check(busy(space->PublishCode(token.Value(), range, bytes)), "same token publish Busy");
++                Check(busy(space->InvalidateCode(token.Value(), range, InvalidationReason::HostWrite)), "same token invalidate Busy");
++                Check(busy(space->Protect(range, GuestPermission::Read)), "plain Protect Busy");
++                Check(busy(space->Unmap(range)), "plain Unmap Busy");
++                Check(busy(space->Write(range.base, bytes)), "plain writer Busy");
++                Check(busy(space->AcquirePinnedSpan(range, false)), "read pin Busy");
++                Check(busy(space->AcquirePinnedSpan(range, true)), "write pin Busy");
++                Check(busy(space->AcquireExecutionLease()), "execution Busy");
+             }
+-            return r.GetError().category == ErrorCategory::Busy;
+-        };
+-
+-        auto second_q = space->Quiesce(1000);
+-        bool blocked = !second_q && second_q.GetError().category == ErrorCategory::Busy;
+-
+-        // Need a live token for the token-scoped paths; try one, and if it cannot be taken while
+-        // the callback is in flight that already proves exclusion. The mutator probes that run
+-        // without a token are rejected as WrongState/InvalidArgument rather than Busy; focus on
+-        // the operations that must specifically be Busy.
+-        QuiescenceToken token{};
+-        auto tq = space->Quiesce(1000);
+-        if (tq) {
+-            token = std::move(tq.Value());
++            sink.release.set_value();
++            if (publisher.wait_for(std::chrono::seconds(2)) != std::future_status::ready) std::_Exit(4);
++            Check(entered && bool(publisher.get()), "original operation commits");
++            space->ClearCodeInvalidationSink(&sink);
+         }
+-
+-        // Plain Protect/Map/Unmap must be Busy (idle check sees sink_calls_in_flight).
+-        auto prot = space->Protect(range, GuestPermission::Read | GuestPermission::Execute);
+-        blocked &= prot.GetError().category == ErrorCategory::Busy;
+-        auto remapped = space->Map(GuestRange{GuestAddress{space->ReservationBase().value + page * 4},
+-                                              page},
+-                                   GuestPermission::Read | GuestPermission::Write);
+-        blocked &= remapped.GetError().category == ErrorCategory::Busy;
+-
+-        // New read and write pins are refused for the duration.
+-        auto read_pin = space->AcquirePinnedSpan(GuestRange{range.base, 8}, false);
+-        blocked &= !read_pin && read_pin.GetError().category == ErrorCategory::Busy;
+-        auto write_pin = space->AcquirePinnedSpan(GuestRange{range.base, 8}, true);
+-        blocked &= !write_pin && write_pin.GetError().category == ErrorCategory::Busy;
+-
+-        // Token-scoped mutators too, if we got a token (we usually won't while draining).
+-        if (token.Epoch() != 0) {
+-            auto reprotect = space->ReprotectUnderToken(token, range,
+-                                                        GuestPermission::Read | GuestPermission::Execute);
+-            blocked &= !reprotect && reprotect.GetError().category == ErrorCategory::Busy;
+-            auto remap = space->RemapUnderToken(token, range,
+-                                                GuestPermission::Read | GuestPermission::Write);
+-            blocked &= !remap && remap.GetError().category == ErrorCategory::Busy;
+-        }
+-
+-        Check(blocked, "mutators and pins are Busy while the sink callback runs");
+-
+-        sink.release.store(true);
+-        publisher.join();
+-        Check(publish_committed, "the blocked publication commits once the sink drains");
+-        space->ClearCodeInvalidationSink(&sink);
+     });
+ 
+-    RunCase("M28", "injected mmap/mprotect kernel failures fail closed and leave state intact", [] {
++    RunCase("M28", "pre-syscall mmap/mprotect failures preserve backing and fail closed", [] {
++        struct Reset {
++            ~Reset() { Test::SetMmapFailureForTest(false); Test::SetMprotectFailureForTest(false); }
++        } reset;
+         auto space = MakeSpace();
+         const std::uint64_t page = HostPageSize();
+         GuestRange range{space->ReservationBase(), page};
+@@ -1346,6 +1301,9 @@ void TestTransactions() {
+         auto real = space->Map(range, GuestPermission::Read | GuestPermission::Write);
+         Check(bool(real), "recovery map after seam reset");
+ 
++        const std::byte marker{0x5A};
++        Check(bool(space->Write(range.base, {&marker, 1})), "old backing marker");
++        const auto before_generation = space->MappingGeneration();
+         // mprotect failure on reprotect: permission category (EACCES), and the mapping's recorded
+         // permission must NOT change to reflect the call that failed.
+         auto q = space->Quiesce(1'000'000);
+@@ -1357,6 +1315,9 @@ void TestTransactions() {
+               "mprotect EACCES must surface as PermissionDenied");
+         Core::GuestCpu::Test::SetMprotectFailureForTest(false);
+ 
++        auto failed_info = space->Query(range.base);
++        Check(failed_info && failed_info.Value().permission == (GuestPermission::Read | GuestPermission::Write) &&
++              space->MappingGeneration() == before_generation, "failed mprotect does not publish new metadata");
+         // mmap failure on remap under a token: the old mapping must remain present (no half-remap).
+         Core::GuestCpu::Test::SetMmapFailureForTest(true);
+         auto failed_remap = space->RemapUnderToken(q.Value(), range,
+@@ -1374,6 +1335,13 @@ void TestTransactions() {
+                   rx_after_failure.GetError().category == ErrorCategory::WrongState,
+               "execute over a range whose remap failed stays blocked");
+ 
++        std::byte old{};
++        Check(bool(space->Read(range.base, {&old, 1})) && old == marker, "pre-syscall failure preserves backing bytes");
++        Check(space->MappingGeneration() == before_generation, "failed remap leaves mapping generation unchanged");
++        q.Value() = QuiescenceToken{};
++        Check(!space->AcquireExecutionLease(), "released token cannot bypass failure poison");
++        q = space->Quiesce(1000);
++        if (!q) { Check(false, "new recovery transaction"); return; }
+         // A successful RW remap after the seam is reset replaces the backing and recovers the
+         // mutation, proving the failed mmap did not tear the mapping apart or wedge the path.
+         auto good_remap = space->RemapUnderToken(q.Value(), range,
+@@ -1381,6 +1349,9 @@ void TestTransactions() {
+         Check(bool(good_remap), "a token remap succeeds after the injected mmap failure clears");
+         auto after_query = space->Query(range.base);
+         Check(after_query.HasValue(), "the remapped range is still queryable as a mapping");
++        Check(bool(space->Read(range.base, {&old, 1})) && old == std::byte{0}, "successful remap actually replaces backing");
++        q.Value() = QuiescenceToken{};
++        Check(bool(space->AcquireExecutionLease()), "repair reopens execution");
+     });
+ 
+     RunCase("M29", "token-scoped mutators reject bad ranges and a released/foreign token", [] {
+@@ -1394,10 +1365,19 @@ void TestTransactions() {
+         {
+             auto q = space->Quiesce(1000);
+             if (!q) { Check(false, "quiesce"); return; }
++            const auto before_generation = space->MappingGeneration();
++            for (auto invalid : {GuestRange{in.base, 0},
++                    GuestRange{GuestAddress{UINT64_MAX - page + 1}, page * 2},
++                    GuestRange{GuestAddress{in.base.value + 1}, page},
++                    GuestRange{in.base, page + 1}}) {
++                Check(!space->ReprotectUnderToken(q.Value(), invalid, GuestPermission::Read), "bad reprotect range");
++                Check(!space->RemapUnderToken(q.Value(), invalid, GuestPermission::Read), "bad remap range");
++            }
++            Check(space->MappingGeneration() == before_generation, "range refusals preserve generation");
+             GuestRange zero{in.base, 0};
+             Check(!space->ReprotectUnderToken(q.Value(), zero, GuestPermission::Read),
+                   "zero-length reprotect refused");
+-            GuestRange outside{GuestAddress{space->ReservationBase().value + (60ull << 20)}, page};
++            GuestRange outside{GuestAddress{space->ReservationBase().value + space->ReservationSize()}, page};
+             Check(!space->ReprotectUnderToken(q.Value(), outside, GuestPermission::Read) &&
+                   !space->RemapUnderToken(q.Value(), outside, GuestPermission::Read | GuestPermission::Write),
+                   "out-of-reservation ranges refused under token");
+@@ -1408,6 +1388,9 @@ void TestTransactions() {
+             auto q = space->Quiesce(1000);
+             if (!q) { Check(false, "quiesce2"); return; }
+             QuiescenceToken released = std::move(q.Value());
++            Check(!space->ReprotectUnderToken(q.Value(), in, GuestPermission::Read) &&
++                  !space->RemapUnderToken(q.Value(), in, GuestPermission::Read), "actual moved-from object refused");
++            Check(!space->AcquireExecutionLease(), "moved-to token still closes admission");
+             released = QuiescenceToken{};  // moved-out: released back to the space
+             Check(!space->ReprotectUnderToken(released, in,
+                                               GuestPermission::Read | GuestPermission::Execute),
+diff --git a/tests/guest_cpu/fixtures/guest_fixtures.S b/tests/guest_cpu/fixtures/guest_fixtures.S
+index 398482d7..be20a746 100644
+--- a/tests/guest_cpu/fixtures/guest_fixtures.S
++++ b/tests/guest_cpu/fixtures/guest_fixtures.S
+@@ -206,23 +206,23 @@ version_b_again:
+     jmp     version_b_again
+ fixture_version_b_loop_end:
+ 
+-// R2-M04 / N3 guest-store-then-publish. RDI = code region start. This routine is
+-// a real guest: it writes the first instruction of constant_b (`mov eax,34`)
+-// into [RDI], i.e. it modifies a region that was hot-executed as constant_a. The
+-// host coordinator then performs ExplicitPublication; the same thread re-runs the
+-// region and must see B (34). No host memcpy is used to touch the code bytes.
++// RDI = target code, ESI = this iteration's new immediate. Only the guest authors it.
+ .globl fixture_smc_writer
+ .globl fixture_smc_writer_end
+ fixture_smc_writer:
+-    mov     byte ptr [rdi + 0], 0xB8   // mov eax, imm32 opcode
+-    mov     byte ptr [rdi + 1], 0x22   // 34
+-    mov     byte ptr [rdi + 2], 0x00
+-    mov     byte ptr [rdi + 3], 0x00
+-    mov     byte ptr [rdi + 4], 0x00
++    mov     byte ptr [rdi], 0xB8
++    mov     dword ptr [rdi + 1], esi
+     movabs  r15, 0x1122334455667788
+     jmp     r15
+ fixture_smc_writer_end:
+ 
++// A separately cached caller for cross-block permission/unmap regressions.
++.globl fixture_jump_target
++.globl fixture_jump_target_end
++fixture_jump_target:
++    jmp     rdi
++fixture_jump_target_end:
++
+ // R2-C04: observe owner-written GPR, XMM, MXCSR rounding, FS/GS and RIP.
+ // RDI=output; XMM1=1.75. MXCSR toward-zero must make CVTSD2SI produce 1.
+ .globl fixture_state_echo
+diff --git a/tests/guest_cpu/guest_execution_tests.cpp b/tests/guest_cpu/guest_execution_tests.cpp
+index d4caf0e6..01307a76 100644
+--- a/tests/guest_cpu/guest_execution_tests.cpp
++++ b/tests/guest_cpu/guest_execution_tests.cpp
+@@ -752,6 +752,14 @@ void TestPinnedInvalidationRecovery(Harness &harness) {
+         Check("G10a", "backend sink exists", false);
+         return;
+     }
++    GuestRange range{GuestAddress{harness.code_base}, kMappingSize};
++    if (!harness.space->Protect(range, GuestPermission::Read | GuestPermission::Write | GuestPermission::Execute)) {
++        Check("G10a", "make code writable before failure injection", false); return;
++    }
++    std::uint64_t rewarmed{}; std::string rewarm_error;
++    if (!RunPublishedCode(harness, rewarmed, rewarm_error) || rewarmed != 17) {
++        Check("G10a", "rewarm before pinned-write failure", false); return;
++    }
+     struct FailingSink final : CodeInvalidationSink {
+         std::string_view Name() const override { return "guest-recovery-test"; }
+         Status DiscardTranslations(GuestRange, InvalidationReason) override {
+@@ -778,11 +786,6 @@ void TestPinnedInvalidationRecovery(Harness &harness) {
+         Check("G10a", "register failure injection", false);
+         return;
+     }
+-    GuestRange range{GuestAddress{harness.code_base}, kMappingSize};
+-    if (!harness.space->Protect(range, GuestPermission::Read | GuestPermission::Write)) {
+-        Check("G10a", "make code writable", false);
+-        return;
+-    }
+     {
+         auto pin = harness.space->AcquirePinnedSpan(range, true);
+         if (!pin) {
+@@ -1479,8 +1482,20 @@ void HoldOwnerSignal(int) {
+     while (!hold_release.load(std::memory_order_acquire)) {
+     }
+ }
++// Compare every public architectural field, without padding or cache-generation metadata.
++constexpr auto kArchitecturalFields = RegisterValidity::Gpr | RegisterValidity::Rip |
++    RegisterValidity::Rflags | RegisterValidity::Xmm | RegisterValidity::Mxcsr | RegisterValidity::SegmentBases;
++bool SameRegisters(const RegisterFile& x, const RegisterFile& y) {
++    return HasAll(x.validity, kArchitecturalFields) && x.validity == y.validity &&
++           x.gpr == y.gpr && x.rip == y.rip && x.rflags == y.rflags && x.xmm == y.xmm &&
++           x.mxcsr == y.mxcsr && x.fs_base == y.fs_base && x.gs_base == y.gs_base;
++}
++bool SameArchitecture(const CpuSnapshot& a, const CpuSnapshot& b) {
++    return SameRegisters(a.registers, b.registers) && a.thread_id == b.thread_id && a.thread_generation == b.thread_generation &&
++           a.stop_epoch == b.stop_epoch && a.invocation_id == b.invocation_id && a.kind == b.kind;
++}
+ // Regression for the reviewed ClearCodeCache path: keep the SAME warmed native thread,
+-// write B while its mapping is RW, and do not use PublishCode/Remap to invalidate on its behalf.
++// write B while its mapping is RWX, and do not use PublishCode/Remap to invalidate on its behalf.
+ void TestFullCacheRetirement(Harness& h) {
+     std::string error;
+     if (!LoadFixture(h, *FindFixture("constant_a"), error)) {
+@@ -1488,6 +1503,18 @@ void TestFullCacheRetirement(Harness& h) {
+     }
+     ThreadInit init{};
+     init.entry_rip = {h.code_base}; init.initial_rsp = {h.stack_top};
++    init.initial_state.fields = RegisterValidity::Gpr | RegisterValidity::Xmm |
++        RegisterValidity::Mxcsr | RegisterValidity::SegmentBases;
++    init.initial_state.gpr_mask = 0xffffu & ~(1u << Index(Gpr::Rsp));
++    init.initial_state.xmm_mask = 0xffff;
++    for (std::size_t i = 0; i < kGprCount; ++i) init.initial_state.values.gpr[i] = 0x12340000 + i;
++    for (std::size_t i = 0; i < kXmmCount; ++i) init.initial_state.values.xmm[i] = {0xABCD0000 + i, 0xDCBA0000 + i};
++    init.initial_state.values.mxcsr = 0x3f80;
++    init.initial_state.values.fs_base = h.data_base;
++    init.initial_state.values.gs_base = h.data_base + 128;
++    std::array<std::byte, 128> memory{};
++    memory.fill(std::byte{0xA5});
++    if (!h.space->Write({h.data_base}, memory)) std::_Exit(4);
+     auto thread = h.context->CreateThread(init);
+     if (!thread) { Check("G23setup", "create persistent thread", false); return; }
+     auto first = h.context->Run(thread.Value(), {});
+@@ -1513,10 +1540,9 @@ void TestFullCacheRetirement(Harness& h) {
+         Check("G23b", "RX Clear followed by ordinary invalidation does not deadlock", rx_clear && again);
+         // Warm A again below before the RW test; RX clear alone must preserve guest state.
+         auto after = h.context->ReadRegisters(thread.Value());
+-        preserved = before && after && before.Value().stop_epoch == after.Value().stop_epoch &&
+-                    before.Value().registers.rip == after.Value().registers.rip &&
+-                    before.Value().registers.Get(Gpr::Rax) == after.Value().registers.Get(Gpr::Rax) &&
+-                    before.Value().registers.mxcsr == after.Value().registers.mxcsr;
++        std::array<std::byte, 128> after_memory{};
++        preserved = before && after && SameArchitecture(before.Value(), after.Value()) &&
++                    h.space->Read({h.data_base}, after_memory) && memory == after_memory;
+     }
+     auto restart = [&] {
+         auto snapshot = h.context->ReadRegisters(thread.Value());
+@@ -1524,22 +1550,30 @@ void TestFullCacheRetirement(Harness& h) {
+         if (!h.context->WriteRegisters(thread.Value(), patch, snapshot.Value().stop_epoch)) std::_Exit(4);
+         return h.context->Run(thread.Value(), {});
+     };
++    if (!h.space->Protect(range, GuestPermission::Read | GuestPermission::Write |
++                                  GuestPermission::Execute)) std::_Exit(4);
+     auto rewarmed = restart();
+     warm &= rewarmed && rewarmed.Value().snapshot.registers.Get(Gpr::Rax) == 17;
+     {
+         auto token = h.context->QuiesceContext(1'000'000'000);
+         if (!token) std::_Exit(4);
+-        if (!h.space->ReprotectUnderToken(token.Value(), range,
+-                                           GuestPermission::Read | GuestPermission::Write)) std::_Exit(4);
+         const auto* fixture = FindFixture("constant_b");
+         std::memcpy(reinterpret_cast<void*>(h.code_base), fixture->bytes.data(), fixture->bytes.size());
+         std::memcpy(reinterpret_cast<void*>(h.code_base + fixture->gate_offset), &h.return_gate, 8);
++        auto before = h.context->ReadRegisters(thread.Value());
+         cleared = bool(h.context->ClearCodeCache(token.Value()));
+-        if (!h.space->ReprotectUnderToken(token.Value(), range,
+-                                           GuestPermission::Read | GuestPermission::Execute)) std::_Exit(4);
++        auto after = h.context->ReadRegisters(thread.Value());
++        preserved &= before && after && SameArchitecture(before.Value(), after.Value());
+     }
+     auto fresh = restart();
+-    Check("G23c", "same warmed thread executes B after RW Clear without publication",
++    if (rewarmed && fresh) {
++        auto expected = rewarmed.Value().snapshot.registers;
++        expected.Set(Gpr::Rax, 34); // The new fixture deliberately changes this result only.
++        preserved &= SameRegisters(expected, fresh.Value().snapshot.registers);
++        std::array<std::byte, 128> after_memory{};
++        preserved &= h.space->Read({h.data_base}, after_memory) && memory == after_memory;
++    }
++    Check("G23c", "same warmed RWX thread executes B after Clear alone (no permission mutation)",
+           warm && cleared && preserved && fresh && fresh.Value().snapshot.registers.Get(Gpr::Rax) == 34);
+     (void)h.context->DestroyThread(thread.Value());
+ }
+@@ -1563,20 +1597,15 @@ void RunPersistentOwnerSwitch(Harness& h, const char* id, bool do_remap) {
+     }
+ 
+     // Two progress slots: qword[0]=version marker, qword[8]=advancing counter.
+-    std::array<std::uint64_t, 2> slots[2]{};
+     auto slot_addr = [&](int owner) -> std::uint64_t {
+         return h.stack_base + 0x400 + owner * 128;
+     };
+-    auto marker_of = [&](int owner) -> std::uint64_t {
+-        std::uint64_t v = 0;
+-        ReadGuestU64(h, slot_addr(owner), v);
+-        return v;
+-    };
+-    auto counter_of = [&](int owner) -> std::uint64_t {
+-        std::uint64_t v = 0;
+-        ReadGuestU64(h, slot_addr(owner) + 8, v);
+-        return v;
+-    };
++    for (int owner = 0; owner < 2; ++owner) {
++        new (reinterpret_cast<void*>(slot_addr(owner))) std::uint64_t{0};
++        new (reinterpret_cast<void*>(slot_addr(owner)+8)) std::uint64_t{0};
++    }
++    auto marker_of = [&](int owner) { return Progress(slot_addr(owner)); };
++    auto counter_of = [&](int owner) { return Progress(slot_addr(owner)+8); };
+     constexpr std::uint64_t kMarkerA = 0x0A0A0A0A0A0A0A0AULL;
+     constexpr std::uint64_t kMarkerB = 0x0B0B0B0B0B0B0B0BULL;
+ 
+@@ -1591,16 +1620,30 @@ void RunPersistentOwnerSwitch(Harness& h, const char* id, bool do_remap) {
+ 
+     // Two persistent owners. They are created once and destroyed once at the end; every epoch
+     // reuses these exact handles.
+-    struct VOwner {
+-        TestOwner* owner{};
+-        ThreadHandle handle{};
+-    };
+     std::optional<TestOwner> owner_a_storage, owner_b_storage;
+     owner_a_storage.emplace(h, slot_addr(0));
+     owner_b_storage.emplace(h, slot_addr(1), 4096);
+     TestOwner& oa = *owner_a_storage;
+     TestOwner& ob = *owner_b_storage;
+ 
++    for (TestOwner* own : {&oa, &ob}) {
++        auto seeded = own->Submit([&] {
++            auto snap = h.context->ReadRegisters(own->handle);
++            if (!snap) return false;
++            RegisterPatch patch{};
++            patch.fields = RegisterValidity::Gpr | RegisterValidity::Xmm | RegisterValidity::Mxcsr | RegisterValidity::SegmentBases;
++            patch.gpr_mask = 0xffffu & ~(1u << Index(Gpr::Rsp)) & ~(1u << Index(Gpr::Rdi));
++            patch.xmm_mask = 0xffff;
++            for (std::size_t i = 0; i < kGprCount; ++i) patch.values.gpr[i] = 0x12340000 + i;
++            for (std::size_t i = 0; i < kXmmCount; ++i) patch.values.xmm[i] = {0xABCD0000 + i, 0xDCBA0000 + i};
++            patch.values.mxcsr = 0x3f80;
++            patch.values.fs_base = h.data_base;
++            patch.values.gs_base = h.data_base + 128;
++            return bool(h.context->WriteRegisters(own->handle, patch, snap.Value().stop_epoch));
++        });
++        if (!Await(seeded)) std::_Exit(4);
++    }
++
+     auto run_both = [&] {
+         auto fa = oa.Run();
+         auto fb = ob.Run();
+@@ -1623,8 +1666,8 @@ void RunPersistentOwnerSwitch(Harness& h, const char* id, bool do_remap) {
+         Check(id, "both persistent owners warm on version A", false);
+         return;
+     }
+-    (void)fa0;
+-    (void)fb0;
++    const auto a_id = oa.handle, b_id = ob.handle;
++    const auto a_tid = oa.Tid(), b_tid = ob.Tid();
+ 
+     bool ok = true;
+     std::string detail;
+@@ -1633,6 +1676,7 @@ void RunPersistentOwnerSwitch(Harness& h, const char* id, bool do_remap) {
+         const std::uint64_t want_marker = to_b ? kMarkerB : kMarkerA;
+         const Fixtures::Fixture& fixture = to_b ? *vb : *va;
+ 
++        std::uint64_t stop_a{}, stop_b{}, token_epoch{};
+         const std::uint64_t c0_before = counter_of(0), c1_before = counter_of(1);
+ 
+         {
+@@ -1643,6 +1687,20 @@ void RunPersistentOwnerSwitch(Harness& h, const char* id, bool do_remap) {
+                          Describe(token.GetError());
+                 break;
+             }
++            auto stopped_a = Await(fa0), stopped_b = Await(fb0);
++            if (!stopped_a || !stopped_b ||
++                stopped_a.Value().primary_reason != StopReason::PauseRequested ||
++                stopped_b.Value().primary_reason != StopReason::PauseRequested ||
++                stopped_a.Value().thread_id != a_id.id || stopped_b.Value().thread_id != b_id.id ||
++                stopped_a.Value().thread_generation != a_id.generation ||
++                stopped_b.Value().thread_generation != b_id.generation ||
++                oa.Tid() != a_tid || ob.Tid() != b_tid || token.Value().StoppedThreadCount() != 2) {
++                ok = false; detail = "owner/stop identity changed"; break;
++            }
++            stop_a = stopped_a.Value().stop_epoch;
++            stop_b = stopped_b.Value().stop_epoch;
++            token_epoch = token.Value().Epoch();
++            std::array<std::uint64_t, 4> before_slots{marker_of(0), counter_of(0), marker_of(1), counter_of(1)};
+             // Both owners' runs return under the drain.
+             const GuestRange range{GuestAddress{h.code_base}, kMappingSize};
+             if (do_remap) {
+@@ -1679,6 +1737,13 @@ void RunPersistentOwnerSwitch(Harness& h, const char* id, bool do_remap) {
+                 break;
+             }
+ 
++            auto state_a = h.context->ReadRegisters(oa.handle), state_b = h.context->ReadRegisters(ob.handle);
++            std::array<std::uint64_t, 4> after_slots{marker_of(0), counter_of(0), marker_of(1), counter_of(1)};
++            if (!state_a || !state_b || !SameArchitecture(stopped_a.Value().snapshot, state_a.Value()) ||
++                !SameArchitecture(stopped_b.Value().snapshot, state_b.Value()) || before_slots != after_slots) {
++                ok = false; detail = "publication changed stopped architectural state or data"; break;
++            }
++
+             // Reset each owner's RIP to the new fixture entry while the token is held: every owner
+             // is parked and its command queue is drained here, so there is no in-flight blocking
+             // Run ahead of this task to deadlock against. WriteRegisters applies on the owner thread
+@@ -1710,15 +1775,15 @@ void RunPersistentOwnerSwitch(Harness& h, const char* id, bool do_remap) {
+         }
+         if (!ok)
+             break;
+-        oa.Run();
+-        ob.Run();
++        fa0 = oa.Run();
++        fb0 = ob.Run();
+         // Both blocking Runs are now in flight on their owners; they are observed below.
+         //
+         // Marker flip proves the freshly published code is executing; the version loop resets its
+         // own counter on entry (xor rax,rax), so the counter is NOT monotonic across versions.
+         // Instead: wait for both markers to match, then wait for both counters to advance while
+         // the new marker is held -- proving live new code on each owner's independent slot -- and
+-        // assert the two counters differ (the two owners write their own slot, not one shared).
++        // verify both independent slots make progress (equal counter values are legal).
+         const auto until = std::chrono::steady_clock::now() + std::chrono::seconds(3);
+         bool flipped = false;
+         while (std::chrono::steady_clock::now() < until) {
+@@ -1741,6 +1806,17 @@ void RunPersistentOwnerSwitch(Harness& h, const char* id, bool do_remap) {
+                 std::this_thread::yield();
+             }
+         }
++        printf("EPOCH {\"case\":\"%s\",\"epoch\":%d,\"tid_a\":%llu,\"tid_b\":%llu,"
++               "\"handle_a\":%llu,\"handle_b\":%llu,\"generation_a\":%llu,\"generation_b\":%llu,"
++               "\"stop_a\":%llu,\"stop_b\":%llu,\"token\":%llu,\"old_counter_a\":%llu,\"old_counter_b\":%llu,"
++               "\"new_marker_a\":%llu,\"new_marker_b\":%llu,\"new_counter_a\":%llu,\"new_counter_b\":%llu,\"ok\":%s}\n",
++               id, epoch, (unsigned long long)a_tid, (unsigned long long)b_tid,
++               (unsigned long long)a_id.id, (unsigned long long)b_id.id,
++               (unsigned long long)a_id.generation, (unsigned long long)b_id.generation,
++               (unsigned long long)stop_a, (unsigned long long)stop_b, (unsigned long long)token_epoch,
++               (unsigned long long)c0_before, (unsigned long long)c1_before,
++               (unsigned long long)marker_of(0), (unsigned long long)marker_of(1),
++               (unsigned long long)counter_of(0), (unsigned long long)counter_of(1), flipped && live ? "true" : "false");
+         if (!(flipped && live)) {
+             ok = false;
+             detail = "epoch " + std::to_string(epoch) + " want marker " + Hex(want_marker) +
+@@ -1751,6 +1827,12 @@ void RunPersistentOwnerSwitch(Harness& h, const char* id, bool do_remap) {
+         }
+     }
+ 
++    if (fa0.valid() || fb0.valid()) {
++        auto final_stop = h.context->QuiesceContext(1'000'000'000);
++        if (!final_stop) std::_Exit(4);
++        if (fa0.valid()) ok &= bool(Await(fa0));
++        if (fb0.valid()) ok &= bool(Await(fb0));
++    }
+     Check((do_remap ? "G26a" : "G25a"), "100 epochs: the SAME two persistent owners switch versions and advance", ok,
+           detail);
+     Check((do_remap ? "G26b" : "G25b"), "persistent handles stayed stable",
+@@ -1764,184 +1846,160 @@ void TestPersistentOwnerRemap(Harness& h) {
+     RunPersistentOwnerSwitch(h, "G26", /*do_remap=*/true);
+ }
+ 
+-// --- N3 / R2-M04 host-coordinator sub-path: a real guest store authors the new code -----------
+-//
+-// A region hot-executed as constant_a (returns 17) is re-authored by a real guest routine:
+-// smc_writer executes and stores the bytes of constant_b's first instruction into a guest data
+-// page. No host memcpy produces the code bytes -- the guest store does. The host coordinator then
+-// performs ExplicitPublication (copy the guest-authored bytes to the code region under a quiesce
+-// token, discard translations), and the SAME guest thread re-runs the region and must return 34.
+-//
+-// This is the host-coordinator sub-path only: the guest->HLE publication gate that hands control
+-// from the guest's store to the host is exercised for real in G3. Here the host drives publication;
+-// the bytes themselves are provably guest-written.
+-void TestGuestStorePublication(Harness& h) {
+-    const auto* fa = FindFixture("constant_a");
+-    const auto* fwriter = FindFixture("smc_writer");
+-    if (!fa || !fwriter) {
+-        Check("G27", "constant_a / smc_writer fixtures present", false);
+-        return;
+-    }
+-    // constant_b's first instruction (mov eax,34), to compare against the guest-written bytes.
+-    const auto* fb = FindFixture("constant_b");
+-    if (!fb) {
+-        Check("G27", "constant_b fixture present", false);
+-        return;
+-    }
+-
+-    bool ok = true;
+-    std::string detail;
+-    for (int iter = 0; iter < 10; ++iter) {
+-        std::string e;
+-        // (Re)publish constant_a and warm it: returns 17.
+-        if (!PublishViaPublicApi(h, *fa, e)) {
+-            ok = false;
+-            detail = "publish A: " + e;
+-            break;
+-        }
+-        auto warm_rax = RunConstantOnce(h);
+-        if (warm_rax != 17) {
+-            ok = false;
+-            detail = "warm run did not return 17: " +
+-                     (warm_rax ? std::to_string(*warm_rax) : "no run");
+-            break;
+-        }
+-
+-        // Load the writer at the code base and run it with RDI = data page. The guest stores B's
+-        // bytes there (real guest store). LoadFixture overwrites code_base with the writer, so the
+-        // writer itself runs through the return gate.
+-        if (!LoadFixture(h, *fwriter, e)) {
+-            ok = false;
+-            detail = "load writer: " + e;
+-            break;
+-        }
+-        ThreadInit writer_init{};
+-        writer_init.entry_rip = GuestCodeAddress{h.code_base};
+-        writer_init.initial_rsp = GuestAddress{h.stack_top};
+-        writer_init.guest_tid = 400 + iter;
+-        writer_init.initial_state.fields = RegisterValidity::Gpr;
+-        writer_init.initial_state.gpr_mask = 1u << Index(Gpr::Rdi);
+-        writer_init.initial_state.values.Set(Gpr::Rdi, h.data_base);
+-        {
+-            auto thr = h.context->CreateThread(writer_init);
+-            if (!thr) {
+-                ok = false;
+-                detail = "create writer: " + Describe(thr.GetError());
+-                break;
+-            }
+-                auto ran = h.context->Run(thr.Value(), RunOptions{});
+-                auto destroyed = h.context->DestroyThread(thr.Value());
+-            if (!ran || ran.Value().primary_reason != StopReason::Returned || !destroyed) {
+-                ok = false;
+-                detail = "writer did not return cleanly";
+-                break;
+-            }
+-        }
++// Install initial fixtures at independent mapped addresses. Only setup uses host fixture bytes.
++bool InstallAt(Harness& h, const Fixtures::Fixture& fixture, std::uint64_t address) {
++    auto q = h.context->QuiesceContext(1'000'000'000);
++    if (!q) return false;
++    GuestRange range{{address}, kMappingSize};
++    if (!h.space->ReprotectUnderToken(q.Value(), range, GuestPermission::Read | GuestPermission::Write)) return false;
++    std::vector<std::byte> image(kMappingSize);
++    std::memcpy(image.data(), fixture.bytes.data(), fixture.bytes.size());
++    if (fixture.gate_offset >= 0) std::memcpy(image.data()+fixture.gate_offset, &h.return_gate, 8);
++    return h.space->PublishCode(q.Value(), range, image) &&
++           h.space->ReprotectUnderToken(q.Value(), range, GuestPermission::Read | GuestPermission::Execute);
++}
+ 
+-        // Read the bytes the GUEST stored. They must already match constant_b's first 5 bytes
+-        // (B8 22 00 00 00); the host never wrote them.
+-        std::array<std::byte, 5> guest_bytes{};
+-        {
+-            auto pin = h.space->AcquirePinnedSpan(GuestRange{GuestAddress{h.data_base}, 5},
+-                                                  /*writable=*/false);
+-            if (!pin) {
+-                ok = false;
+-                detail = "pin data page: " + Describe(pin.GetError());
+-                break;
+-            }
+-            std::memcpy(guest_bytes.data(), pin.Value().Bytes().data(), 5);
+-        }
+-        const std::array<std::byte, 5> expect_b = {
+-            static_cast<std::byte>(fb->bytes[0]), static_cast<std::byte>(fb->bytes[1]),
+-            static_cast<std::byte>(fb->bytes[2]), static_cast<std::byte>(fb->bytes[3]),
+-            static_cast<std::byte>(fb->bytes[4])};
+-        if (guest_bytes != expect_b) {
+-            ok = false;
+-            detail = "guest did not write B's bytes";
+-            break;
+-        }
++Result<RunResult> RestartAt(Harness& h, ThreadHandle handle, std::uint64_t rip,
++                            std::optional<std::uint32_t> immediate = {}) {
++    auto snap = h.context->ReadRegisters(handle);
++    if (!snap) return snap.GetError();
++    RegisterPatch patch{}; patch.fields = RegisterValidity::Rip; patch.values.rip = rip;
++    if (immediate) {
++        patch.fields |= RegisterValidity::Gpr;
++        patch.gpr_mask = 1u << Index(Gpr::Rsi); patch.values.Set(Gpr::Rsi, *immediate);
++    }
++    auto written = h.context->WriteRegisters(handle, patch, snap.Value().stop_epoch);
++    if (!written) return written.GetError();
++    return h.context->Run(handle, {});
++}
+ 
+-        // Host coordinator performs ExplicitPublication: copy the GUEST-authored bytes into the code
+-        // region under a quiesce token and discard translations. The code bytes originate from the
+-        // guest; the host only relocates them into the executable region and invalidates.
+-        {
+-            auto token = h.context->QuiesceContext(1'000'000'000);
+-            if (!token) {
+-                ok = false;
+-                detail = "quiesce: " + Describe(token.GetError());
+-                break;
+-            }
+-            const GuestRange range{GuestAddress{h.code_base}, kMappingSize};
+-            auto rw = h.space->ReprotectUnderToken(
+-                token.Value(), range, GuestPermission::Read | GuestPermission::Write);
+-            if (!rw) {
+-                ok = false;
+-                detail = "RW under token: " + Describe(rw.GetError());
+-                break;
+-            }
+-            // Copy the guest-written bytes (from the data page) to the start of the code region,
+-            // and rebuild a full image so the region is valid: use constant_b as the published body
+-            // but the FIRST FIVE BYTES are taken from the guest-written page.
+-            std::vector<std::byte> image(kMappingSize, std::byte{0});
+-            std::memcpy(image.data(), guest_bytes.data(), 5);  // guest-authored instruction
++void TestGuestStorePublication(Harness& h) {
++    auto must = [&](bool value, const char* operation) {
++        if (!value) { Check("G27setup", operation, false); std::_Exit(4); }
++    };
++    must(InstallAt(h, *FindFixture("constant_a"), h.code_base), "install target A");
++    must(InstallAt(h, *FindFixture("smc_writer"), h.data_base), "install independent writer");
++    {
++        TestOwner a(h, 0), b(h, 0, 4096);
++        const auto aid = a.handle, bid = b.handle;
++        const auto atid = a.Tid(), btid = b.Tid();
++        ThreadInit init{}; init.entry_rip = {h.data_base}; init.initial_rsp = {h.stack_top - 8192};
++        init.initial_state.fields = RegisterValidity::Gpr;
++        init.initial_state.gpr_mask = 1u << Index(Gpr::Rdi);
++        init.initial_state.values.Set(Gpr::Rdi, h.code_base);
++        auto writer = h.context->CreateThread(init); must(bool(writer), "create writer");
++        std::uint32_t previous = 17;
++        bool ok = true;
++        for (int epoch = 0; epoch < 10; ++epoch) {
++            auto ra = a.Submit([&] { return RestartAt(h, a.handle, h.code_base); });
++            auto rb = b.Submit([&] { return RestartAt(h, b.handle, h.code_base); });
++            auto va = Await(ra), vb = Await(rb);
++            ok &= va && vb && va.Value().snapshot.registers.Get(Gpr::Rax) == previous &&
++                  vb.Value().snapshot.registers.Get(Gpr::Rax) == previous;
++            GuestRange target{{h.code_base}, kMappingSize};
++            std::array<std::byte, 5> before_bytes{};
++            must(bool(h.space->Read(target.base, before_bytes)), "read actual old target bytes");
++            std::uint32_t before_immediate{}; std::memcpy(&before_immediate, before_bytes.data()+1, 4);
++            ok &= before_bytes[0] == std::byte{0xB8} && before_immediate == previous;
+             {
+-                auto pin = h.space->AcquirePinnedSpan(
+-                    GuestRange{GuestAddress{h.data_base}, kMappingSize}, /*writable=*/false);
+-                // No further copy needed: the 5 guest bytes are the whole instruction.
+-                (void)pin;
+-            }
+-            // Patch the return-gate jump in. After the 5-byte mov, jump to gate like constant_b.
+-            const std::array<std::uint8_t, 10> jmp = {0x49, 0xBF, 0x88, 0x77, 0x66,
+-                                                      0x55, 0x44, 0x33, 0x22, 0x11};
+-            // constant_b already contains the correct jmp at the right offset after its 5-byte mov;
+-            // just publish a full image derived from constant_b's bytes (which start with the exact
+-            // guest-authored 5 bytes) patched with the gate address.
+-            std::memcpy(image.data(), fb->bytes.data(), fb->bytes.size());
+-            std::memcpy(image.data() + fb->gate_offset, &h.return_gate, sizeof(h.return_gate));
+-            auto published = h.space->PublishCode(token.Value(), range,
+-                                                  std::span<const std::byte>(image));
+-            if (!published) {
+-                ok = false;
+-                detail = "publish guest-authored code: " + Describe(published.GetError());
+-                break;
++                auto q = h.context->QuiesceContext(1'000'000'000); must(bool(q), "stop target owners");
++                must(bool(h.space->ReprotectUnderToken(q.Value(), target,
++                    GuestPermission::Read | GuestPermission::Write)), "revoke target X");
+             }
+-            // Three different fixtures (A, writer, B) are published at the same VA each iteration;
+-            // retire the whole cache so the after-run decodes fresh rather than relying on the range
+-            // invalidation alone.
+-            auto cleared = h.context->ClearCodeCache(token.Value());
+-            if (!cleared) {
+-                ok = false;
+-                detail = "clear code cache: " + Describe(cleared.GetError());
+-                break;
++            // Targets are stopped with X revoked and all old target translations retired.
++            // Only the independent RX writer runs in this explicitly admitted interval.
++            const std::uint32_t version = 34 + epoch;
++            auto wrote = RestartAt(h, writer.Value(), h.data_base, version);
++            must(wrote && wrote.Value().primary_reason == StopReason::Returned, "guest writer returns");
++            std::array<std::byte, 5> bytes{};
++            must(bool(h.space->Read(target.base, bytes)), "read guest-authored target");
++            std::uint32_t observed{}; std::memcpy(&observed, bytes.data()+1, 4);
++            ok &= bytes[0] == std::byte{0xB8} && observed == version;
++            {
++                auto q = h.context->QuiesceContext(1'000'000'000); must(bool(q), "publication quiesce");
++                // No host image or memcpy: the guest already wrote the target's actual bytes.
++                must(bool(h.space->InvalidateCode(q.Value(), target, InvalidationReason::GuestPublish)), "publish guest stores");
++                must(bool(h.space->ReprotectUnderToken(q.Value(), target,
++                    GuestPermission::Read | GuestPermission::Execute)), "commit RX under token");
+             }
++            ra = a.Submit([&] { return RestartAt(h, a.handle, h.code_base); });
++            rb = b.Submit([&] { return RestartAt(h, b.handle, h.code_base); });
++            va = Await(ra); vb = Await(rb);
++            ok &= va && vb && va.Value().snapshot.registers.Get(Gpr::Rax) == version &&
++                  vb.Value().snapshot.registers.Get(Gpr::Rax) == version &&
++                  va.Value().thread_id == aid.id && vb.Value().thread_id == bid.id &&
++                  va.Value().thread_generation == aid.generation && vb.Value().thread_generation == bid.generation &&
++                  a.Tid() == atid && b.Tid() == btid;
++            printf("STORE {\"epoch\":%d,\"old\":%u,\"old_immediate\":%u,\"guest_immediate\":%u,"
++                   "\"target_a\":%llu,\"target_b\":%llu,\"generation_a\":%llu,\"generation_b\":%llu,"
++                   "\"tid_a\":%llu,\"tid_b\":%llu,\"result_a\":%llu,\"result_b\":%llu,\"ok\":%s}\n",
++                   epoch, previous, before_immediate, observed, (unsigned long long)aid.id, (unsigned long long)bid.id,
++                   (unsigned long long)aid.generation, (unsigned long long)bid.generation,
++                   (unsigned long long)atid, (unsigned long long)btid,
++                   (unsigned long long)(va ? va.Value().snapshot.registers.Get(Gpr::Rax) : 0),
++                   (unsigned long long)(vb ? vb.Value().snapshot.registers.Get(Gpr::Rax) : 0), ok?"true":"false");
++            previous = version;
+         }
+-        auto rx = h.space->Protect(GuestRange{GuestAddress{h.code_base}, kMappingSize},
+-                                   GuestPermission::Read | GuestPermission::Execute);
+-        if (!rx) {
+-            ok = false;
+-            detail = "RX after publish: " + Describe(rx.GetError());
+-            break;
+-        }
+-
+-        // The SAME thread concept (fresh run, same region) now executes the guest-authored code:
+-        // must return 34.
+-        auto after = RunConstantOnce(h);
+-        if (after != 34) {
+-            ok = false;
+-            detail = "after guest-store publication region returned " +
+-                     (after ? std::to_string(*after) : "no run") + ", want 34";
+-            break;
+-        }
++        must(bool(h.context->DestroyThread(writer.Value())), "destroy writer");
++        Check("G27a", "10 varying guest stores directly modify hot code reused by both original owners", ok);
+     }
++    must(bool(h.space->Protect({{h.data_base}, kMappingSize}, GuestPermission::Read | GuestPermission::Write)), "restore data mapping");
++}
+ 
+-    Check("G27a", "10 iterations: guest-written code is published by the host and runs", ok,
+-          detail);
++void TestPermissionRetirement(Harness& h) {
++    bool protected_old = true, rewritten = true;
++    // A separately cached caller jumps into a second mapping. Removing X/unmapping the target
++    // must retire block links as well as the entry lookup; a check of Run's initial RIP cannot pass.
++    for (int mode = 0; mode < 3; ++mode) {
++        if (!InstallAt(h, *FindFixture("jump_target"), h.code_base) ||
++            !InstallAt(h, *FindFixture("constant_a"), h.data_base)) std::_Exit(4);
++        ThreadInit init{}; init.entry_rip = {h.code_base}; init.initial_rsp = {h.stack_top};
++        init.initial_state.fields = RegisterValidity::Gpr; init.initial_state.gpr_mask = 1u << Index(Gpr::Rdi);
++        init.initial_state.values.Set(Gpr::Rdi, h.data_base);
++        auto thread = h.context->CreateThread(init); if (!thread) std::_Exit(4);
++        auto warm = h.context->Run(thread.Value(), {});
++        protected_old &= warm && warm.Value().snapshot.registers.Get(Gpr::Rax) == 17;
++        GuestRange target{{h.data_base}, kMappingSize};
++        if (mode == 0) {
++            auto q = h.context->QuiesceContext(1'000'000'000); if (!q) std::_Exit(4);
++            if (!h.space->ReprotectUnderToken(q.Value(), target, GuestPermission::Read | GuestPermission::Write)) std::_Exit(4);
++        } else if (mode == 1) {
++            if (!h.space->Protect(target, GuestPermission::Read | GuestPermission::Write)) std::_Exit(4);
++        } else if (!h.space->Unmap(target)) std::_Exit(4);
++        auto denied = RestartAt(h, thread.Value(), h.code_base);
++        protected_old &= !denied || denied.Value().primary_reason == StopReason::GuestFault;
++        if (!h.context->DestroyThread(thread.Value())) std::_Exit(4);
++        if (mode == 2 && !h.space->Map(target, GuestPermission::Read | GuestPermission::Write)) std::_Exit(4);
++    }
++    // Reprotect's documented automatic retirement permits omitted explicit Clear/Publish here,
++    // but the existing thread must execute B, never the old A.
++    if (!InstallAt(h, *FindFixture("constant_a"), h.code_base)) std::_Exit(4);
++    ThreadInit init{}; init.entry_rip = {h.code_base}; init.initial_rsp = {h.stack_top};
++    auto thread = h.context->CreateThread(init); if (!thread) std::_Exit(4);
++    auto warm = h.context->Run(thread.Value(), {});
++    {
++        auto q = h.context->QuiesceContext(1'000'000'000); if (!q) std::_Exit(4);
++        GuestRange range{{h.code_base}, kMappingSize};
++        if (!h.space->ReprotectUnderToken(q.Value(), range, GuestPermission::Read | GuestPermission::Write)) std::_Exit(4);
++        const std::uint32_t b = 34; std::memcpy(reinterpret_cast<void*>(h.code_base+1), &b, 4);
++        if (!h.space->ReprotectUnderToken(q.Value(), range, GuestPermission::Read | GuestPermission::Execute)) std::_Exit(4);
++    }
++    auto fresh = RestartAt(h, thread.Value(), h.code_base);
++    rewritten &= warm && fresh && warm.Value().snapshot.registers.Get(Gpr::Rax) == 17 &&
++                 fresh.Value().snapshot.registers.Get(Gpr::Rax) == 34;
++    if (!h.context->DestroyThread(thread.Value())) std::_Exit(4);
++    Check("G28a", "cached cross-block jumps cannot enter token/plain NX or an unmapped range", protected_old);
++    Check("G28b", "RW rewrite then RX on the same thread automatically retires A before B", rewritten);
+ }
+ 
+ void TestCoordinatorRecovery(Harness& h) {
+-    // Cancel both before and after the coordinator's own request. Hold one owner in a signal
++    // External Pause/Cancel/Shutdown both before and after the coordinator's own request. Hold one owner in a signal
+     // handler, using an observed handshake (no settle sleep), so timeout is deterministic.
+-    for (int ordering = 0; ordering < 2; ++ordering) {
++    for (int iteration = 0; iteration < 100; ++iteration) {
++        const int ordering = iteration % 2;
++        const auto external_reason = static_cast<InterruptReason>((iteration / 2) % 3);
++        const auto expected_reason = external_reason == InterruptReason::Pause ?
++                                     StopReason::PauseRequested : StopReason::Cancelled;
+         if (!LoadProgress(h)) return;
+         const auto progress = PrepareProgress(h), second_progress = PrepareProgress(h, 1);
+         TestOwner owner(h, progress), second(h, second_progress, 4096);
+@@ -1957,14 +2015,14 @@ void TestCoordinatorRecovery(Harness& h) {
+         while (!hold_entered.load() && std::chrono::steady_clock::now() < until) std::this_thread::yield();
+         if (!hold_entered.load()) std::_Exit(4);
+         std::optional<InterruptTicket> cancel;
+-        if (ordering == 0) cancel = h.context->RequestInterrupt(owner.handle, InterruptReason::Cancel).Value();
++        if (ordering == 0) cancel = h.context->RequestInterrupt(owner.handle, external_reason).Value();
+         auto draining = std::async(std::launch::async, [&] { return h.context->QuiesceContext(200'000'000); });
+         while (!h.space->IsQuiescent() && std::chrono::steady_clock::now() < until) std::this_thread::yield();
+         ThreadInit init{}; init.entry_rip = {h.code_base}; init.initial_rsp = {h.stack_top};
+         auto extra = h.context->CreateThread(init);
+         bool closed = !extra && extra.Category() == ErrorCategory::Busy;
+         if (extra) (void)h.context->DestroyThread(extra.Value());
+-        if (ordering == 1) cancel = h.context->RequestInterrupt(owner.handle, InterruptReason::Cancel).Value();
++        if (ordering == 1) cancel = h.context->RequestInterrupt(owner.handle, external_reason).Value();
+         auto concurrent = h.context->QuiesceContext(1'000'000);
+         closed &= !concurrent && concurrent.Category() == ErrorCategory::Busy;
+         auto early = Await(draining);
+@@ -1985,7 +2043,7 @@ void TestCoordinatorRecovery(Harness& h) {
+         auto cancelled = Await(forbidden_run);
+         auto receipt = h.context->WaitStopped(*cancel, 1'000'000);
+         recovered &= stopped && other_stopped && cancelled && receipt &&
+-                     cancelled.Value().primary_reason == StopReason::Cancelled && Progress(progress) == before;
++                     cancelled.Value().primary_reason == expected_reason && Progress(progress) == before;
+         recovered &= bool(h.context->Resume(owner.handle, cancel->epoch));
+         auto resumed = owner.Run();
+         recovered &= WaitProgress(progress, before);
+@@ -1993,8 +2051,8 @@ void TestCoordinatorRecovery(Harness& h) {
+         auto finished = h.context->WaitStopped(finish.Value(), 1'000'000'000);
+         (void)Await(resumed);
+         Check(ordering == 0 ? "G24a" : "G24b",
+-              ordering == 0 ? "timeout recovery preserves an earlier Cancel and closes admission" :
+-                              "timeout recovery preserves a later Cancel and closes admission",
++              ordering == 0 ? "timeout recovery preserves an earlier external request and closes admission" :
++                              "timeout recovery preserves a later external request and closes admission",
+               closed && recovered && finished);
+     }
+ }
+@@ -2426,6 +2484,7 @@ int main() {
+     TestPersistentOwnerVersionSwitch(harness);
+     TestPersistentOwnerRemap(harness);
+     TestGuestStorePublication(harness);
++    TestPermissionRetirement(harness);
+     TestCoordinatorRecovery(harness);
+     TestInterruptStress(harness);
+     TestInterruptRefusals(harness);
+diff --git a/tests/guest_cpu/test_v0_runner.py b/tests/guest_cpu/test_v0_runner.py
+index c2f327db..05801d72 100644
+--- a/tests/guest_cpu/test_v0_runner.py
++++ b/tests/guest_cpu/test_v0_runner.py
+@@ -2,6 +2,7 @@
+ import contextlib
+ import io
+ import json
++import subprocess
+ from pathlib import Path
+ import runpy
+ import sys
+@@ -80,6 +81,50 @@ class RunnerTests(unittest.TestCase):
+         _, cases = self.run_report(device=lambda *a: SuiteRun(timed_out=True))
+         self.assertEqual(cases["M09"]["status"], "FAIL")
+ 
++    def test_closeout_cases_have_ownership_and_failures_propagate(self):
++        for sub, case in (("G25a", "M09"), ("G25b", "M09"), ("G26a", "M11"), ("G26b", "M11"),
++                          ("G27a", "M08"), ("M27", "M13"), ("M28", "M13"), ("M29", "M13"),
++                          ("G28a", "M11"), ("G28b", "M11")):
++            suite = "guest_execution_tests" if sub.startswith("G") else "guest_cpu_contract_tests"
++            self.assertIn(sub, NS["sub_cases_owned_by"](suite))
++            data, cases = self.run_report(device=lambda *a: SuiteRun(cases={sub: ("FAIL", "injected")}, exit_code=0))
++            self.assertEqual(cases[case]["status"], "FAIL")
++            self.assertEqual(data["round2"]["total"], 24)
++        for sub, label, count, prefix in (("G25a", "G25", 100, "EPOCH "),
++                                           ("G26a", "G26", 100, "EPOCH "),
++                                           ("G27a", None, 10, "STORE ")):
++            records = [prefix + json.dumps({"case": label, "epoch": i, "ok": True}) for i in range(count)]
++            summary = f"[{sub}] case PASS"
++            for lines in ([], records[:-1], records + [records[-1]],
++                          records + [prefix + "null"], records + [prefix + "[]"],
++                          records[:-1] + [prefix + '{"epoch":"bad"}'],
++                          records[:-1] + [prefix + json.dumps({"case": label, "epoch": count-1})]):
++                parsed, _, _ = NS["parse_sub_cases"]("\n".join(lines + [summary]))
++                self.assertEqual(parsed[sub][0], "FAIL")
++            parsed, _, _ = NS["parse_sub_cases"]("\n".join(records + [summary]))
++            self.assertEqual(parsed[sub][0], "PASS")
++
++    def test_device_deployment_hash_is_verified_before_launch(self):
++        with tempfile.TemporaryDirectory() as td:
++            binary = Path(td) / "probe"
++            binary.write_bytes(b"binary identity")
++            for matches in (False, True):
++                calls = []
++                def run(command, **kwargs):
++                    calls.append(command)
++                    output = ""
++                    if "sha256sum" in command:
++                        output = (NS["sha256_of"](binary) if matches else "wrong") + "  remote\n"
++                    if any("__EXIT__" in arg for arg in command):
++                        output = "[G01a] result PASS\n__EXIT__=0\n"
++                    return subprocess.CompletedProcess(command, 0, output, "")
++                with patch.object(G["subprocess"], "run", side_effect=run), patch.object(G["shutil"], "which", return_value="adb"):
++                    result = NS["run_device_suite"](binary, "fake-device")
++                self.assertEqual(result.usable, matches)
++                self.assertEqual(any("__EXIT__" in arg for cmd in calls for arg in cmd), matches)
++                self.assertIn('"device_sha256"', result.output)
++                self.assertIn("rm", calls[-1])
++
+     def test_partial_semantic_coverage_is_auxiliary(self):
+         checks = {s: ("PASS", "") for s in NS["SUITE_MAP"]["C02"]}
+         _, cases = self.run_report(device=lambda *a: SuiteRun(cases=checks, exit_code=0))

@@ -1,0 +1,16 @@
+run id: 20260910T053921Z
+build dir: /tmp/g3-r0-repro/empty-host
+
+api_contract_tests: 0 sub-case(s), 0 failure(s)  [UNUSABLE: missing: /tmp/g3-r0-repro/empty-host/guest_cpu_contract_tests]
+  (not attempted: missing: /tmp/g3-r0-repro/empty-host/guest_cpu_contract_tests)
+hle_abi_tests: 0 sub-case(s), 0 failure(s)  [UNUSABLE: missing: /tmp/g3-r0-repro/empty-host/guest_cpu_hle_abi_tests]
+  (not attempted: missing: /tmp/g3-r0-repro/empty-host/guest_cpu_hle_abi_tests)
+host_page_size_probe: 0 sub-case(s), 0 failure(s)  [UNUSABLE: missing: /tmp/g3-r0-repro/empty-host/host_page_size_probe]
+  (not attempted: missing: /tmp/g3-r0-repro/empty-host/host_page_size_probe)
+fexcore_bionic_smoke: 12 sub-case(s), 0 failure(s)
+guest_execution_tests: 104 sub-case(s), 0 failure(s)
+guest_cpu_contract_tests: 43 sub-case(s), 0 failure(s)
+
+7 PASS, 0 FAIL, 50 NOT_RUN of 57 in-scope cases (3 deferred by scope)
+release status: V0_IN_PROGRESS
+wrote /tmp/g3-r0-repro/n2-canonical2.json

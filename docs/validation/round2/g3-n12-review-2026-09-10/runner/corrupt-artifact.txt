@@ -1,0 +1,13 @@
+run id: 20260910T062044Z
+build dir: /var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmp2gnvg83_
+
+api_contract_tests: 0 sub-case(s), 0 failure(s)  [UNUSABLE: cannot execute on this host (wrong architecture): /var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmp2gnvg83_/guest_cpu_contract_tests]
+  (not attempted: cannot execute on this host (wrong architecture): /var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmp2gnvg83_/guest_cpu_contract_tests)
+hle_abi_tests: 0 sub-case(s), 0 failure(s)  [UNUSABLE: missing: /var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmp2gnvg83_/guest_cpu_hle_abi_tests]
+  (not attempted: missing: /var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmp2gnvg83_/guest_cpu_hle_abi_tests)
+host_page_size_probe: 0 sub-case(s), 0 failure(s)  [UNUSABLE: missing: /var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmp2gnvg83_/host_page_size_probe]
+  (not attempted: missing: /var/folders/v_/n21n8g0j55x3jq7ph2msh9x80000gp/T/tmp2gnvg83_/host_page_size_probe)
+
+1 PASS, 0 FAIL, 56 NOT_RUN of 57 in-scope cases (3 deferred by scope)
+release status: V0_IN_PROGRESS
+wrote /Users/bytedance/workspace/emulations/ps4/shadps4/docs/validation/round2/g3-n12-review-2026-09-10/runner/corrupt-artifact.json

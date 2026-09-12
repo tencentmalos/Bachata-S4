@@ -1,0 +1,2 @@
+PASS: G1 suite crash owns every mapped control case; CLI cannot earn APK coverage
+PASS: raw .text containing an unresolved global jump is refused

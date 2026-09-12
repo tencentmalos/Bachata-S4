@@ -1,0 +1,37 @@
+[
+  {
+    "name": "baseline",
+    "exit_code": 0,
+    "command": "timeout 20 /data/local/tmp/shadps4-g2-review-20260909/guest"
+  },
+  {
+    "name": "device-contract",
+    "exit_code": 0,
+    "command": "timeout 20 /data/local/tmp/shadps4-g2-review-20260909/contract"
+  },
+  {
+    "name": "clear_rx",
+    "exit_code": 124,
+    "command": "timeout 3 /data/local/tmp/shadps4-g2-review-20260909/probe clear_rx"
+  },
+  {
+    "name": "foreign",
+    "exit_code": 0,
+    "command": "timeout 3 /data/local/tmp/shadps4-g2-review-20260909/probe foreign"
+  },
+  {
+    "name": "rw_skip",
+    "exit_code": 0,
+    "command": "timeout 3 /data/local/tmp/shadps4-g2-review-20260909/probe rw_skip"
+  },
+  {
+    "name": "admission",
+    "exit_code": 0,
+    "command": "timeout 3 /data/local/tmp/shadps4-g2-review-20260909/probe admission"
+  },
+  {
+    "name": "cancel",
+    "exit_code": 0,
+    "command": "timeout 3 /data/local/tmp/shadps4-g2-review-20260909/probe cancel"
+  }
+]

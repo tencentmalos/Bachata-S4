@@ -1,0 +1,161 @@
+[
+  {
+    "scenario": "G30a-fail-exit0",
+    "main_return_code": 0,
+    "v0_failed": 0,
+    "r2_failed": [
+      "R2-C03"
+    ],
+    "unmapped": [],
+    "release_status": "V0_IN_PROGRESS"
+  },
+  {
+    "scenario": "G30b-fail-exit0",
+    "main_return_code": 0,
+    "v0_failed": 0,
+    "r2_failed": [
+      "R2-C03"
+    ],
+    "unmapped": [],
+    "release_status": "V0_IN_PROGRESS"
+  },
+  {
+    "scenario": "G31a-fail-exit0",
+    "main_return_code": 0,
+    "v0_failed": 0,
+    "r2_failed": [
+      "R2-H01"
+    ],
+    "unmapped": [],
+    "release_status": "V0_IN_PROGRESS"
+  },
+  {
+    "scenario": "G31b-fail-exit0",
+    "main_return_code": 0,
+    "v0_failed": 0,
+    "r2_failed": [
+      "R2-H01"
+    ],
+    "unmapped": [],
+    "release_status": "V0_IN_PROGRESS"
+  },
+  {
+    "scenario": "G31c-fail-exit0",
+    "main_return_code": 0,
+    "v0_failed": 0,
+    "r2_failed": [
+      "R2-H01"
+    ],
+    "unmapped": [],
+    "release_status": "V0_IN_PROGRESS"
+  },
+  {
+    "scenario": "G32a-fail-exit0",
+    "main_return_code": 0,
+    "v0_failed": 0,
+    "r2_failed": [
+      "R2-H02"
+    ],
+    "unmapped": [],
+    "release_status": "V0_IN_PROGRESS"
+  },
+  {
+    "scenario": "G32b-fail-exit0",
+    "main_return_code": 0,
+    "v0_failed": 0,
+    "r2_failed": [
+      "R2-H02"
+    ],
+    "unmapped": [],
+    "release_status": "V0_IN_PROGRESS"
+  },
+  {
+    "scenario": "Z99a-fail-exit0",
+    "main_return_code": 1,
+    "v0_failed": 0,
+    "r2_failed": [],
+    "unmapped": [
+      {
+        "sub_case": "Z99a",
+        "verdict": "FAIL",
+        "detail": "independent audit",
+        "reason": "printed FAIL but no V0/Round2 case references it"
+      }
+    ],
+    "release_status": "V0_IN_PROGRESS"
+  },
+  {
+    "scenario": "g31-conflict",
+    "main_return_code": 0,
+    "v0_failed": 0,
+    "r2_failed": [
+      "R2-H01"
+    ],
+    "unmapped": [],
+    "release_status": "V0_IN_PROGRESS"
+  },
+  {
+    "scenario": "g31-skip",
+    "main_return_code": 0,
+    "v0_failed": 0,
+    "r2_failed": [],
+    "unmapped": [],
+    "release_status": "V0_IN_PROGRESS"
+  },
+  {
+    "scenario": "g31-pass",
+    "main_return_code": 0,
+    "v0_failed": 0,
+    "r2_failed": [],
+    "unmapped": [],
+    "release_status": "V0_IN_PROGRESS"
+  },
+  {
+    "scenario": "guest-crash",
+    "main_return_code": 1,
+    "v0_failed": 11,
+    "r2_failed": [
+      "R2-C01",
+      "R2-C02",
+      "R2-C03",
+      "R2-C04",
+      "R2-M01",
+      "R2-M02",
+      "R2-M03",
+      "R2-M04",
+      "R2-M05",
+      "R2-H01",
+      "R2-H02"
+    ],
+    "unmapped": [],
+    "release_status": "V0_IN_PROGRESS"
+  },
+  {
+    "scenario": "guest-timeout",
+    "main_return_code": 1,
+    "v0_failed": 11,
+    "r2_failed": [
+      "R2-C01",
+      "R2-C02",
+      "R2-C03",
+      "R2-C04",
+      "R2-M01",
+      "R2-M02",
+      "R2-M03",
+      "R2-M04",
+      "R2-M05",
+      "R2-H01",
+      "R2-H02"
+    ],
+    "unmapped": [],
+    "release_status": "V0_IN_PROGRESS"
+  },
+  {
+    "scenario": "missing",
+    "main_return_code": 0,
+    "v0_failed": 0,
+    "r2_failed": [],
+    "unmapped": [],
+    "release_status": "V0_IN_PROGRESS"
+  }
+]

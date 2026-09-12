@@ -1,0 +1,39 @@
+[1/19] Building CXX object backend/CMakeFiles/host_page_size_probe.dir/Users/bytedance/workspace/emulations/ps4/shadps4/tests/host_page_size/host_page_size_probe.cpp.o
+[2/19] Linking CXX executable backend/host_page_size_probe
+[3/19] Building CXX object backend/guest_cpu/CMakeFiles/guest_cpu_api.dir/api/execution.cpp.o
+[4/19] Building CXX object backend/guest_cpu/CMakeFiles/guest_cpu_api.dir/api/status.cpp.o
+[5/19] Building CXX object backend/CMakeFiles/guest_cpu_hle_abi_tests.dir/Users/bytedance/workspace/emulations/ps4/shadps4/tests/guest_cpu/hle_abi_tests.cpp.o
+[6/19] Building CXX object backend/CMakeFiles/fexcore_bionic_smoke.dir/Users/bytedance/workspace/emulations/ps4/shadps4/tests/fex_bionic/fexcore_bionic_smoke.cpp.o
+[7/19] Building CXX object backend/guest_cpu/CMakeFiles/guest_cpu_api.dir/api/address_space.cpp.o
+[8/19] Linking CXX static library backend/guest_cpu/libguest_cpu_api.a
+[9/19] Linking CXX executable backend/guest_cpu_hle_abi_tests
+[10/19] Building CXX object backend/CMakeFiles/guest_cpu_fex.dir/Users/bytedance/workspace/emulations/ps4/shadps4/src/core/guest_cpu/fex/fex_context.cpp.o
+[11/19] Linking CXX static library backend/libguest_cpu_fex.a
+[12/19] Assemble and verify self-contained x86-64 guest fixtures
+wrote /tmp/shadps4-g3-h2-review-20260910/fixtures/guest_fixtures.h
+18 fixture(s), combined sha256 f5f1fe73a6330e43
+  bare_hlt: 1 bytes, 1 instruction(s)
+  branch: 28 bytes, 6 instruction(s)
+  constant_a: 18 bytes, 3 instruction(s)
+  constant_b: 18 bytes, 3 instruction(s)
+  hle_call_returns_rax: 15 bytes, 3 instruction(s)
+  hle_call_returns_xmm: 18 bytes, 4 instruction(s)
+  integer: 26 bytes, 6 instruction(s)
+  jump_target: 2 bytes, 1 instruction(s)
+  loadstore: 17 bytes, 6 instruction(s)
+  progress_loop: 8 bytes, 3 instruction(s)
+  return_only: 13 bytes, 2 instruction(s)
+  smc_writer: 19 bytes, 4 instruction(s)
+  spin_loop: 8 bytes, 3 instruction(s)
+  sse2: 32 bytes, 6 instruction(s)
+  state_echo: 60 bytes, 11 instruction(s)
+  store_memory: 33 bytes, 6 instruction(s)
+  version_a_loop: 25 bytes, 6 instruction(s)
+  version_b_loop: 25 bytes, 6 instruction(s)
+[13/19] Linking CXX executable backend/fexcore_bionic_smoke
+[14/19] Building CXX object backend/CMakeFiles/guest_cpu_contract_tests.dir/Users/bytedance/workspace/emulations/ps4/shadps4/tests/guest_cpu/api_contract_tests.cpp.o
+[15/19] Linking CXX executable backend/guest_cpu_contract_tests
+[16/19] Building CXX object backend/CMakeFiles/guest_execution_tests.dir/Users/bytedance/workspace/emulations/ps4/shadps4/tests/guest_cpu/guest_execution_tests.cpp.o
+[17/19] Linking CXX executable backend/guest_execution_tests
+[18/19] Building CXX object CMakeFiles/review_probe.dir/review_probe.cpp.o
+[19/19] Linking CXX executable review_probe

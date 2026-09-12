@@ -1,0 +1,12 @@
+COMMAND ['adb', '-s', '9c2841a4', 'shell', 'timeout', '20', '/data/local/tmp/shadps4-g3-n4-review-20260911/hle_probe', 'throw']
+LOCAL_SHA256 77fb408f0d20d4f43dfa99184fce05b9aee736bad934ee97e0bb915cd45d2a76
+DEVICE_SHA256 77fb408f0d20d4f43dfa99184fce05b9aee736bad934ee97e0bb915cd45d2a76  /data/local/tmp/shadps4-g3-n4-review-20260911/hle_probe
+guest reservation base: 0x7f8000000
+code at 0x7f8010000, stack top 0x7f8023ff0
+return gate at 0xfc0000000
+
+RUN mode=throw host_round=1 guest_expected_round=2
+libc++abi: terminating due to uncaught exception of type std::runtime_error: review native exception
+
+EXIT 134
+ELAPSED 0.10080566702526994
