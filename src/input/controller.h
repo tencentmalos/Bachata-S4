@@ -8,8 +8,17 @@
 #include <optional>
 #include <utility>
 
+#ifdef __ANDROID__
+// Android does not link SDL. The GameController state machine is still used by the
+// pad HLE, so keep the class ABI intact with SDL types forward-declared: the
+// SDL-backed device methods are compiled out in controller.cpp and the Android
+// pad path drives Button()/Axis()/SetVibration() directly.
+struct SDL_Gamepad;
+using SDL_JoystickID = std::uint32_t;
+#else
 #include <SDL3/SDL_gamepad.h>
 #include "SDL3/SDL_joystick.h"
+#endif
 #include "common/assert.h"
 #include "common/ring_buffer_queue.h"
 #include "core/libraries/pad/pad.h"

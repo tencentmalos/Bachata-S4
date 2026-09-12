@@ -8,7 +8,9 @@
 #include <unordered_set>
 #include <utility>
 
+#ifndef __ANDROID__
 #include <SDL3/SDL.h>
+#endif
 
 #include "common/logging/log.h"
 #include "core/emulator_settings.h"
@@ -217,16 +219,20 @@ void GameController::PushStateLocked(u64 timestamp) {
 
 void GameController::SetLightBarRGB(u8 const r, u8 const g, u8 const b) {
     if (override_colour.has_value()) {
+#ifndef __ANDROID__
         if (m_sdl_gamepad) {
             SDL_SetGamepadLED(m_sdl_gamepad, override_colour->r, override_colour->g,
                               override_colour->b);
         }
+#endif
         return;
     }
     colour = {r, g, b};
+#ifndef __ANDROID__
     if (m_sdl_gamepad != nullptr) {
         SDL_SetGamepadLED(m_sdl_gamepad, r, g, b);
     }
+#endif
 }
 
 void GameController::SetLightBarRGB(Colour const c) {
@@ -238,9 +244,11 @@ Colour GameController::GetLightBarRGB() {
 }
 
 void GameController::PollLightColour() {
+#ifndef __ANDROID__
     if (m_sdl_gamepad != nullptr) {
         SDL_SetGamepadLED(m_sdl_gamepad, colour.r, colour.g, colour.b);
     }
+#endif
 }
 
 void GameControllers::ResetLightbarColors() {
@@ -260,10 +268,17 @@ void GameControllers::ResetLightbarColors() {
 }
 
 bool GameController::SetVibration(u8 smallMotor, u8 largeMotor) {
+#ifndef __ANDROID__
     if (m_sdl_gamepad != nullptr) {
         return SDL_RumbleGamepad(m_sdl_gamepad, (smallMotor / 255.0f) * 0xFFFF,
                                  (largeMotor / 255.0f) * 0xFFFF, -1);
     }
+#else
+    // Android haptics are executed by the app's HapticsPump via OrbisPadAdapter,
+    // not through an SDL gamepad handle here.
+    (void)smallMotor;
+    (void)largeMotor;
+#endif
     return true;
 }
 
@@ -271,6 +286,21 @@ static bool is_first_check = true;
 
 void GameControllers::TryOpenSDLControllers() {
     using namespace Libraries::UserService;
+#ifdef __ANDROID__
+    // Android has no SDL controller discovery. Physical/overlay input reaches the
+    // guest through OrbisPadAdapter; here we just ensure Player 1 is logged in and
+    // its GameController is marked connected so libScePad opens a handle. The
+    // per-frame Button()/Axis() state is driven by the Android pad path.
+    if (is_first_check) [[unlikely]] {
+        is_first_check = false;
+        if (auto u = UserManagement.GetUserByPlayerIndex(1)) {
+            controllers[0]->user_id = u->user_id;
+            controllers[0]->ConnectController(nullptr);
+            UserManagement.LoginUser(u, 1);
+        }
+    }
+    return;
+#else
     int controller_count;
     SDL_JoystickID* new_joysticks = SDL_GetGamepads(&controller_count);
     LOG_INFO(Input, "{} controllers are currently connected", controller_count);
@@ -357,8 +387,14 @@ void GameControllers::TryOpenSDLControllers() {
         }
     }
     SDL_free(new_joysticks);
+#endif // !__ANDROID__
 }
 u8 GameControllers::GetGamepadIndexFromJoystickId(SDL_JoystickID id) {
+#ifdef __ANDROID__
+    // No SDL joystick IDs on Android; this is only used by SDL event handling.
+    (void)id;
+    return -1;
+#else
     auto g = SDL_GetGamepadFromID(id);
     ASSERT(g != nullptr);
     for (int i = 0; i < 5; i++) {
@@ -368,6 +404,7 @@ u8 GameControllers::GetGamepadIndexFromJoystickId(SDL_JoystickID id) {
     }
     // LOG_TRACE(Input, "Gamepad index: {}", index);
     return -1;
+#endif
 }
 
 std::optional<u8> GameControllers::GetControllerIndexFromUserID(s32 user_id) {

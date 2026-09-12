@@ -86,8 +86,10 @@ if (NOT TARGET Freetype::Freetype)
     add_library(Freetype::Freetype ALIAS freetype)
 endif()
 
-# SDL3
-if (NOT TARGET SDL3::SDL3)
+# SDL3 — desktop only. The Android host is SDL-free (BUILD_HOST_CORE): input,
+# audio, mouse/camera and window come from Android-native paths, and every shared
+# TU is guarded by __ANDROID__. Do not configure/build SDL for the Android target.
+if (NOT BUILD_HOST_CORE AND NOT TARGET SDL3::SDL3)
     set(SDL_TEST_LIBRARY OFF)
     set(SDL_PIPEWIRE OFF)
     set(SDL_AVX512F OFF)

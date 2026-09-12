@@ -4,7 +4,9 @@
 #pragma once
 
 #include <string>
+#ifndef __ANDROID__
 #include <SDL3/SDL_audio.h>
+#endif
 
 #include "imgui/imgui_layer.h"
 #include "imgui/imgui_texture.h"
@@ -29,8 +31,10 @@ private:
     std::string_view trophy_type;
     ImGui::RefCountedTexture trophy_icon;
     ImGui::RefCountedTexture trophy_type_icon;
+#ifndef __ANDROID__
     SDL_AudioStream* stream;
     SDL_AudioDeviceID audioDevice;
+#endif
 };
 
 struct TrophyInfo {

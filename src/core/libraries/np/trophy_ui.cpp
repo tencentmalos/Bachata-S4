@@ -4,7 +4,9 @@
 #include <filesystem>
 #include <fstream>
 #include <mutex>
+#ifndef __ANDROID__
 #include <SDL3/SDL_init.h>
+#endif
 #include <cmrc/cmrc.hpp>
 #include <imgui.h>
 #include <queue>
@@ -87,6 +89,7 @@ TrophyUI::TrophyUI(const std::filesystem::path& trophyIconPath, const std::strin
 
     AddLayer(this);
 
+#ifndef __ANDROID__
     if (SDL_WasInit(SDL_INIT_AUDIO) != 0) {
         if (!SDL_Init(SDL_INIT_AUDIO)) {
             LOG_ERROR(Lib_NpTrophy, "Unable to init SDL Audio for trophy sound: {}",
@@ -155,9 +158,11 @@ TrophyUI::TrophyUI(const std::filesystem::path& trophyIconPath, const std::strin
         sound_data = std::vector<unsigned char>(soundFile.begin(), soundFile.end());
         PlayWav(sound_data);
     }
+#endif // !__ANDROID__
 }
 
 TrophyUI::~TrophyUI() {
+#ifndef __ANDROID__
     if (stream) {
         SDL_DestroyAudioStream(stream);
     }
@@ -167,6 +172,7 @@ TrophyUI::~TrophyUI() {
         SDL_CloseAudioDevice(audioDevice);
         SDL_QuitSubSystem(SDL_INIT_AUDIO);
     }
+#endif
 
     Finish();
 }
@@ -319,6 +325,9 @@ void TrophyUI::Draw() {
 }
 
 void TrophyUI::PlayMp3(std::vector<unsigned char> mp3Data) {
+#ifdef __ANDROID__
+    (void)mp3Data; // Trophy sound is disabled on Android (no SDL audio); popup is visual only.
+#else
     mp3dec_t mp3d;
     mp3dec_frame_info_t info;
     std::vector<short> pcm(MINIMP3_MAX_SAMPLES_PER_FRAME);
@@ -353,9 +362,13 @@ void TrophyUI::PlayMp3(std::vector<unsigned char> mp3Data) {
             break;
         }
     }
+#endif // !__ANDROID__
 }
 
 void TrophyUI::PlayWav(std::vector<unsigned char> wavData) {
+#ifdef __ANDROID__
+    (void)wavData; // Trophy sound is disabled on Android (no SDL audio); popup is visual only.
+#else
     SDL_AudioSpec spec;
     Uint8* audioBuf = nullptr;
     Uint32 audioLen = 0;
@@ -374,6 +387,7 @@ void TrophyUI::PlayWav(std::vector<unsigned char> wavData) {
                            static_cast<float>(EmulatorSettings.GetVolumeSlider() * 0.01f * 1.2f));
     SDL_PutAudioStreamData(stream, audioBuf, audioLen);
     SDL_free(audioBuf);
+#endif // !__ANDROID__
 }
 
 void AddTrophyToQueue(const std::filesystem::path& trophyIconPath, const std::string& trophyName,

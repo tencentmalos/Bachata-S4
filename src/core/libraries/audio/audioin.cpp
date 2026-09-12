@@ -61,7 +61,12 @@ int PS4_SYSV_ABI sceAudioInOpen(Libraries::UserService::OrbisUserServiceUserId u
     if (!initOnce) {
         // sceAudioInInit doesn't seem to be called by most apps before sceAudioInOpen so we init
         // here
+#if defined(__ANDROID__)
+        // Android does not link SDL audio capture; use the no-mic fallback.
+        audio = std::make_unique<NullAudioIn>();
+#else
         audio = std::make_unique<SDLAudioIn>();
+#endif
         initOnce = true;
     }
 

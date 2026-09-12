@@ -15,7 +15,9 @@
 #include <utility>
 
 #include <thread>
+#ifndef __ANDROID__
 #include "SDL3/SDL_camera.h"
+#endif
 
 namespace Libraries::Camera {
 
@@ -27,7 +29,11 @@ static constexpr s32 c_width = 1280, c_height = 800;
 static u16 *raw16_buffer1{}, *raw16_buffer2{};
 static u8 *raw8_buffer1{}, *raw8_buffer2{};
 
+#ifndef __ANDROID__
 SDL_Camera* sdl_camera = nullptr;
+#else
+void* sdl_camera = nullptr; // Android has no SDL camera; kept for null-checks.
+#endif
 OrbisCameraConfigExtention output_config0, output_config1;
 
 s32 PS4_SYSV_ABI sceCameraAccGetData() {
@@ -461,6 +467,11 @@ s32 PS4_SYSV_ABI sceCameraGetFrameData(s32 handle, OrbisCameraFrameData* frame_d
     if (EmulatorSettings.GetCameraId() == -1) {
         return ORBIS_CAMERA_ERROR_NOT_CONNECTED;
     }
+#ifdef __ANDROID__
+    // Android has no SDL camera capture; sdl_camera is never opened, so this is
+    // unreachable, but keep the guest contract explicit and SDL-free.
+    return ORBIS_CAMERA_ERROR_NOT_CONNECTED;
+#else
     Uint64 timestampNS = 0;
     static SDL_Surface* frame = nullptr;
     if (frame) { // release previous frame, if it exists
@@ -521,6 +532,7 @@ s32 PS4_SYSV_ABI sceCameraGetFrameData(s32 handle, OrbisCameraFrameData* frame_d
         frame_data->pFramePointerListGarlic[1][0] = frame_data->pFramePointerList[1][0];
     }
     return ORBIS_OK;
+#endif
 }
 
 s32 PS4_SYSV_ABI sceCameraGetGamma(s32 handle, OrbisCameraChannel channel, OrbisCameraGamma* gamma,
@@ -1121,6 +1133,11 @@ s32 PS4_SYSV_ABI sceCameraStart(s32 handle, OrbisCameraStartParameter* param) {
         LOG_ERROR(Lib_Camera, "Downscaled image retrieval isn't supported yet!");
     }
 
+#ifdef __ANDROID__
+    // Android has no SDL camera capture; report no camera connected.
+    LOG_INFO(Lib_Camera, "Camera capture is not available on this platform");
+    return ORBIS_CAMERA_ERROR_NOT_CONNECTED;
+#else
     SDL_CameraID* devices = NULL;
     int devcount = 0;
     devices = SDL_GetCameras(&devcount);
@@ -1187,6 +1204,7 @@ s32 PS4_SYSV_ABI sceCameraStart(s32 handle, OrbisCameraStartParameter* param) {
     }
 
     return ORBIS_OK;
+#endif
 }
 
 s32 PS4_SYSV_ABI sceCameraStartByHandle(s32 handle, OrbisCameraStartParameter* param) {

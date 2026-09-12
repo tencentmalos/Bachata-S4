@@ -3,7 +3,9 @@
 
 #include <filesystem>
 #include <iostream>
+#ifndef __ANDROID__
 #include <SDL3/SDL_messagebox.h>
+#endif
 #include <common/assert.h>
 #include <common/path_util.h>
 #include <pugixml.hpp>
@@ -99,6 +101,10 @@ enum class TransferOption : s32 {
 };
 TransferOption AskMigrationOption() {
     TransferOption user_choice = TransferOption::Nothing;
+#ifdef __ANDROID__
+    // No interactive message box on Android; do not migrate implicitly.
+    return TransferOption::Nothing;
+#else
 #ifndef _WIN32
     SDL_MessageBoxButtonData btns[4]
 #else
@@ -134,6 +140,7 @@ TransferOption AskMigrationOption() {
     };
     SDL_ShowMessageBox(&msg_box, reinterpret_cast<s32*>(&user_choice));
     return user_choice;
+#endif
 }
 
 static void MoveFolder(fs::path const& _from, fs::path const& _to) {

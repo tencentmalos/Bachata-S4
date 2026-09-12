@@ -135,8 +135,48 @@ The vibration path previously reached native (`scePadSetVibration` →
 - Runtime manifest declares `android.permission.VIBRATE`.
 - Verified in the 6-test on-device suite above (`HapticsPumpInstrumentedTest`).
 
-## Still open (continuous, same package) (imgui_core Android path already scoped; audio/mouse/camera/
-  settings via host-UI interface; input_handler→settings_dialog_layer decouple;
-  drop SDL3 link + externals SDL for Android; zero SDL symbols / no SDL JNI_OnLoad).
-- Then production Runtime / real PKG per the integrated spec, incl. binding
-  `OrbisPadAdapter` into the guest `scePadReadState`.
+## SDL removal from the Android host — DONE (host link + on-device verified)
+
+`libshadps4_host.so` now builds and links `--no-undefined` on Android with SDL
+fully removed (desktop keeps SDL unchanged). Approach: SDL-only translation units
+are excluded from the Android source lists; shared TUs that also run on Android are
+guarded with `__ANDROID__`; the `SDL3::SDL3` link and the `externals/sdl3`
+subdirectory are gated to non-Android.
+
+Excluded on Android (`BUILD_HOST_CORE`): `imgui_impl_sdl3`, the big_picture SDL
+settings dialog (`settings_dialog_imgui` / `settings_dialog_layer`),
+`input_handler`, `input_mouse`, `sdl_mouse`, `sdl_audio_in`, `sdl_audio_out` (plus
+the already-excluded `big_picture` / `imgui_impl_sdlrenderer3`). Added on Android:
+`null_audio_in` (no-mic fallback) and `aaudio_audio_out`.
+
+Guarded shared TUs (desktop path intact under `#ifndef __ANDROID__`):
+- `imgui/renderer/imgui_core.cpp` — SDL include + `Sdl::*` / `SDL_Event` /
+  `SDL_GetWindowDisplayScale` paths (Android input comes from its own adapter).
+- `input/controller.{h,cpp}` — `controller.h` forward-declares `SDL_Gamepad` /
+  `SDL_JoystickID` on Android (the `GameController` state machine stays for the pad
+  HLE); SDL LED/rumble/discovery guarded; `TryOpenSDLControllers` logs in Player 1
+  without SDL so `scePadOpen` still works; vibration goes through the app haptics
+  path.
+- `libraries/audio/audioin.cpp` (NullAudioIn), `mouse/mouse.cpp`,
+  `camera/camera.cpp`, `emulator_settings.cpp`, `user_manager.cpp`, `ipc/ipc.cpp`,
+  `devtools/layer.cpp`, `np/trophy_ui.{h,cpp}` — SDL message boxes / audio / device
+  access guarded; Android returns the honest not-available / no-op path.
+
+**Verified** (`docs/.../sdl-removal/nm-verification-2026-09-13.txt`): the linked
+arm64 `.so` has **0 real SDL API functions** (`SDL_Init`/`SDL_CreateWindow`/… none),
+**0 SDL `JNI_OnLoad` / `org_libsdl` Java exports**, **0 SDL undefined imports**, and
+**no libSDL in DT_NEEDED**. The only remaining `SDL`-named symbols are four OF OUR
+OWN functions whose signatures reference SDL types by forward declaration
+(`ImGui::Core::ProcessEvent(SDL_Event*)`, `GameController::ConnectController(SDL_Gamepad*)`,
+`GameControllers::TryOpenSDLControllers()`, `Frontend::Window::GetSDLWindow()`) — no
+SDL implementation code. On-device host contract on the AYN Thor (Android 13):
+`host_library_smoke` **61 checks / 0 failures**, matching the pre-removal baseline.
+
+## Still open (continuous, same package)
+- Layer 2 follow-up: migrate the app's own producer (`GamepadInputManager`) onto
+  the Foundation Android library so the reusable mechanism has a production consumer
+  (the app path works today via `NativePad`/`NativePadBridge`).
+- Production Runtime / real PKG per the integrated spec: Turnip native loader, VMM
+  unify, guest entry → `CpuContext::Run`, typed HLE, and binding `OrbisPadAdapter`
+  into the guest `scePadReadState`, then TMNT device acceptance (10 min + Stop + 3
+  same-process restarts).

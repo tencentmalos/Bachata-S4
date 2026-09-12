@@ -1,0 +1,24 @@
+# SDL removal verification — libshadps4_host.so (2026-09-13)
+# source: host build /tmp/host-sdl-removal, BuildID bitstring)
+fc668e6b62763250f1d34e0dd800d3024e2304de
+
+## Real SDL API functions (SDL_Init/CreateWindow/GetGamepads/...): expect 0
+count = 0
+
+## SDL JNI_OnLoad / org_libsdl Java exports: expect 0
+count = 0
+
+## SDL undefined imports (U): expect 0
+count = 0
+
+## libSDL in DT_NEEDED: expect none
+(none)
+
+## Remaining 'SDL'-named symbols (OUR functions with SDL-typed forward-declared params, not SDL code):
+00000000027ad0b4 T _ZN5ImGui4Core12ProcessEventEP9SDL_Event
+00000000027c2a7c T _ZN5Input14GameController17ConnectControllerEP11SDL_Gamepad
+00000000027c2f2c T _ZN5Input15GameControllers21TryOpenSDLControllersEv
+00000000031e36a0 W _ZNK8Frontend6Window12GetSDLWindowEv
+
+## On-device host contract (AYN Thor, Android 13):
+host_library_smoke: 61 checks / 0 failures

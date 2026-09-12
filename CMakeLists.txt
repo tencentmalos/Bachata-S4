@@ -338,6 +338,12 @@ set(AUDIO_LIB src/core/libraries/audio/audioin.cpp
 # data callback). Android-only; audioout.cpp selects it behind __ANDROID__.
 if (ANDROID)
     list(APPEND AUDIO_LIB src/core/libraries/audio/aaudio_audio_out.cpp)
+    # Android does not link SDL: drop the SDL audio backends and use the no-mic
+    # NullAudioIn fallback (audioin.cpp selects it behind __ANDROID__).
+    list(REMOVE_ITEM AUDIO_LIB
+        src/core/libraries/audio/sdl_audio_in.cpp
+        src/core/libraries/audio/sdl_audio_out.cpp)
+    list(APPEND AUDIO_LIB src/core/libraries/audio/null_audio_in.cpp)
 endif()
 
 set(GNM_LIB src/core/libraries/gnmdriver/gnmdriver.cpp
@@ -1329,6 +1335,29 @@ if(BUILD_HOST_CORE)
     list(REMOVE_ITEM IMGUI src/imgui/big_picture/big_picture.cpp
         src/imgui/big_picture/imgui_impl_sdl3_big_picture.cpp
         src/imgui/big_picture/imgui_impl_sdlrenderer3.cpp)
+    # SDL removal (Android production target): drop every SDL-only translation unit.
+    # Desktop keeps them; the shared TUs that also run on Android are guarded with
+    # __ANDROID__ in source. See docs/specs/android-native-host-production-runtime.md.
+    #  * imgui_impl_sdl3: the SDL ImGui backend (imgui_core.cpp is guarded).
+    #  * big_picture settings dialog: the SDL desktop settings layer; the Android
+    #    in-game UI does not use it and input_handler (its only caller) is excluded.
+    #  * input_handler / input_mouse: the SDL event-loop input path; Android input
+    #    flows through AndroidInputSource -> NativePad -> OrbisPadAdapter instead.
+    list(REMOVE_ITEM IMGUI
+        src/imgui/renderer/imgui_impl_sdl3.cpp
+        src/imgui/renderer/imgui_impl_sdl3.h
+        src/imgui/big_picture/settings_dialog_imgui.cpp
+        src/imgui/big_picture/settings_dialog_imgui.h
+        src/imgui/big_picture/settings_dialog_layer.cpp
+        src/imgui/big_picture/settings_dialog_layer.h)
+    list(REMOVE_ITEM INPUT
+        src/input/input_handler.cpp
+        src/input/input_handler.h
+        src/input/input_mouse.cpp
+        src/input/input_mouse.h)
+    list(REMOVE_ITEM CORE
+        src/core/libraries/mouse/sdl_mouse.cpp
+        src/core/libraries/mouse/sdl_mouse.h)
     add_library(shadps4 OBJECT
         ${AUDIO_CORE}
         ${IMGUI}
@@ -1371,7 +1400,13 @@ if(ENABLE_SPATIAL_FOUNDATION)
     target_link_libraries(shadps4 PRIVATE shadps4::foundation)
 endif()
 target_link_libraries(shadps4 PRIVATE magic_enum::magic_enum fmt::fmt toml11::toml11 tsl::robin_map xbyak::xbyak Tracy::TracyClient RenderDoc::API FFmpeg::ffmpeg Dear_ImGui ImGuiFileDialog gcn half::half ZLIB::ZLIB PNG::PNG minimp3)
-target_link_libraries(shadps4 PRIVATE Boost::headers GPUOpen::VulkanMemoryAllocator LibAtrac9 sirit Vulkan::Headers xxHash::xxhash Zydis::Zydis glslang::glslang SDL3::SDL3 pugixml::pugixml)
+target_link_libraries(shadps4 PRIVATE Boost::headers GPUOpen::VulkanMemoryAllocator LibAtrac9 sirit Vulkan::Headers xxHash::xxhash Zydis::Zydis glslang::glslang pugixml::pugixml)
+# SDL is a desktop-only dependency. The Android host is SDL-free: input, audio,
+# mouse/camera and window come from Android-native paths (AndroidInputSource,
+# AAudio, ANativeWindow) with the shared TUs guarded by __ANDROID__.
+if(NOT BUILD_HOST_CORE)
+    target_link_libraries(shadps4 PRIVATE SDL3::SDL3)
+endif()
 target_link_libraries(shadps4 PRIVATE stb::headers lfreist-hwinfo::hwinfo nlohmann_json::nlohmann_json miniz::miniz fdk-aac CLI11::CLI11 OpenAL::OpenAL Cpp_Httplib miniupnpc::miniupnpc)
 target_link_libraries(shadps4 PRIVATE Freetype::Freetype)
 target_link_libraries(shadps4 PRIVATE libprotobuf)

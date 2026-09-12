@@ -6,7 +6,9 @@
 #include <iostream>
 #include <string>
 
+#ifndef __ANDROID__
 #include <SDL3/SDL.h>
+#endif
 
 #include "common/memory_patcher.h"
 #include "common/thread.h"
@@ -16,8 +18,10 @@
 #include "core/emulator_settings.h"
 #include "core/emulator_state.h"
 #include "core/libraries/audio/audioout.h"
+#ifndef __ANDROID__
 #include "input/input_handler.h"
 #include "sdl_window.h"
+#endif
 #include "src/core/libraries/usbd/usbd.h"
 #include "video_core/renderer_vulkan/vk_presenter.h"
 
@@ -142,15 +146,19 @@ void IPC::InputLoop() {
         } else if (cmd == "RESUME") {
             DebugState.ResumeGuestThreads();
         } else if (cmd == "STOP") {
+#ifndef __ANDROID__
             SDL_Event event;
             SDL_memset(&event, 0, sizeof(event));
             event.type = SDL_EVENT_QUIT;
             SDL_PushEvent(&event);
+#endif
         } else if (cmd == "TOGGLE_FULLSCREEN") {
+#ifndef __ANDROID__
             SDL_Event event;
             SDL_memset(&event, 0, sizeof(event));
             event.type = SDL_EVENT_TOGGLE_FULLSCREEN;
             SDL_PushEvent(&event);
+#endif
         } else if (cmd == "ADJUST_VOLUME") {
             int value = static_cast<int>(next_u64());
             bool is_game_specific = next_u64() != 0;
@@ -211,7 +219,11 @@ void IPC::InputLoop() {
             }
         } else if (cmd == "RELOAD_INPUTS") {
             std::string config = next_str();
+#ifndef __ANDROID__
             Input::ParseInputConfig(config);
+#else
+            (void)config; // Android input config is managed by the app, not the SDL path.
+#endif
         } else {
             std::cerr << ";UNKNOWN CMD: " << cmd << std::endl;
         }

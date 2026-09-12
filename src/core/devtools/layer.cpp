@@ -3,10 +3,14 @@
 
 #include "layer.h"
 
+#ifndef __ANDROID__
 #include <SDL3/SDL_events.h>
+#endif
 #include <imgui.h>
 
+#ifndef __ANDROID__
 #include "SDL3/SDL_log.h"
+#endif
 #include "common/singleton.h"
 #include "common/types.h"
 #include "core/debug_state.h"
@@ -463,10 +467,16 @@ void L::Draw() {
 
             if (IsKeyPressed(ImGuiKey_Enter, false) ||
                 (IsKeyPressed(ImGuiKey_GamepadFaceDown, false))) {
+#ifndef __ANDROID__
                 SDL_Event event;
                 SDL_memset(&event, 0, sizeof(event));
                 event.type = SDL_EVENT_QUIT;
                 SDL_PushEvent(&event);
+#else
+                // Android teardown is driven by the session lifecycle (Stop from
+                // the app / SessionCore), not an SDL quit event. Close the dialog.
+                show_quit_window = false;
+#endif
             }
         }
         End();

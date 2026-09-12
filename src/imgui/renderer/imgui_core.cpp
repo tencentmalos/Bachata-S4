@@ -6,7 +6,9 @@
 #include <bit>
 #include <chrono>
 #include <cstdint>
+#ifndef __ANDROID__
 #include <SDL3/SDL_events.h>
+#endif
 #include <imgui.h>
 
 #include "common/path_util.h"
@@ -18,7 +20,9 @@
 #include "frontend/window.h"
 #include "imgui/imgui_layer.h"
 #include "imgui_core.h"
+#ifndef __ANDROID__
 #include "imgui_impl_sdl3.h"
+#endif
 #include "imgui_impl_vulkan.h"
 #include "imgui_internal.h"
 #include "texture_manager.h"
@@ -125,8 +129,10 @@ void Initialize(const ::Vulkan::Instance& instance, const Frontend::Window& wind
     platform_window = &window;
     using_sdl = window.GetSDLWindow() != nullptr;
     previous_frame = std::chrono::steady_clock::now();
+#ifndef __ANDROID__
     if (using_sdl)
         Sdl::Init(window.GetSDLWindow());
+#endif
 
     const Vulkan::InitInfo vk_info{
         .instance = instance.GetInstance(),
@@ -151,8 +157,12 @@ void Initialize(const ::Vulkan::Instance& instance, const Frontend::Window& wind
     ImFormatString(label, IM_ARRAYSIZE(label), "WindowOverViewport_%08X", GetMainViewport()->ID);
     dock_id = ImHashStr(label);
 
+#ifndef __ANDROID__
     const auto dpi = using_sdl ? SDL_GetWindowDisplayScale(window.GetSDLWindow())
                                : window.GetWindowInfo().render_surface_scale;
+#else
+    const auto dpi = window.GetWindowInfo().render_surface_scale;
+#endif
     if (dpi > 0.0f) {
         GetIO().FontGlobalScale *= dpi;
     }
@@ -166,9 +176,12 @@ void Initialize(const ::Vulkan::Instance& instance, const Frontend::Window& wind
 }
 
 void OnResize() {
+#ifndef __ANDROID__
     if (using_sdl)
         Sdl::OnResize();
-    else if (platform_window)
+    else
+#endif
+    if (platform_window)
         GetIO().DisplaySize = ImVec2(static_cast<float>(platform_window->GetWidth()),
                                      static_cast<float>(platform_window->GetHeight()));
 }
@@ -191,8 +204,10 @@ void Shutdown(const vk::Device& device) {
     const auto log_filename = (void*)io.LogFilename;
 
     Vulkan::Shutdown();
+#ifndef __ANDROID__
     if (using_sdl)
         Sdl::Shutdown();
+#endif
     platform_window = nullptr;
     using_sdl = false;
     DestroyContext();
@@ -202,6 +217,10 @@ void Shutdown(const vk::Device& device) {
 }
 
 bool ProcessEvent(SDL_Event* event) {
+#ifdef __ANDROID__
+    (void)event;
+    return false; // Android input is delivered by its own adapter; no SDL events.
+#else
     if (!using_sdl)
         return false; // Android input is delivered by its own adapter.
     Sdl::ProcessEvent(event);
@@ -244,6 +263,7 @@ bool ProcessEvent(SDL_Event* event) {
     default:
         return false;
     }
+#endif
 }
 
 ImGuiID NewFrame(bool is_reusing_frame) {
@@ -261,9 +281,12 @@ ImGuiID NewFrame(bool is_reusing_frame) {
         }
     }
 
+#ifndef __ANDROID__
     if (using_sdl)
         Sdl::NewFrame(is_reusing_frame);
-    else {
+    else
+#endif
+    {
         OnResize();
         const auto now = std::chrono::steady_clock::now();
         GetIO().DeltaTime =

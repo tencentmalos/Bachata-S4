@@ -13,7 +13,9 @@
 #include "emulator_settings.h"
 #include "emulator_state.h"
 
+#ifndef __ANDROID__
 #include <SDL3/SDL_messagebox.h>
+#endif
 
 using json = nlohmann::json;
 
@@ -399,6 +401,15 @@ bool EmulatorSettingsImpl::Load(const std::string& serial) {
             } else {
                 if (std::filesystem::exists(Common::FS::GetUserPath(Common::FS::PathType::UserDir) /
                                             "config.toml")) {
+#ifdef __ANDROID__
+                    // No interactive message box on Android; auto-migrate the old
+                    // config when present, else fall through to defaults.
+                    if (TransferSettings()) {
+                        m_loaded = true;
+                        Save();
+                        return true;
+                    }
+#else
                     SDL_MessageBoxButtonData btns[2]{
                         {0, 0, "Update"},
                         {0, 1, "Defaults"},
@@ -428,6 +439,7 @@ bool EmulatorSettingsImpl::Load(const std::string& serial) {
                             std::quick_exit(1);
                         }
                     }
+#endif
                 }
                 SetDefaultValues();
                 Save();
