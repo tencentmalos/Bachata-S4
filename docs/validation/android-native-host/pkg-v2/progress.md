@@ -1,5 +1,7 @@
 # PKG v2 progress — WP-A §4.1 session boundary fixes (2026-09-12)
 
+> **最新前置交付与计划收敛**：[依赖构建/设备结果及citron FFmpeg核查](../bionic-prerequisites-2026-09-12.md) → [两包方案](../../../specs/android-native-host-full-link-plan-2026-09-12.md)。本轮新增独立FFmpeg7.1.5 provider（六库/媒体syntax7/7、AYN媒体9/9）和azahar匹配libadrenotools（五NDK DSO链接，运行未验）；扩展依赖probe已14/14，hwinfo误判已在owned fork `85bbcba3`修复；gh已恢复。其他三方库配置/归属见[核查清单](../bionic-third-party-audit-2026-09-12.md)。后文原七步设计、“FFmpeg唯一阻塞”和“无bionic参考”是已修正的历史陈述；不再作为后续执行依据。
+
 > **COMMON后续独立复核**：[当前报告](../pkg-v2-common-review-2026-09-12.md)。新实现GNU/API33路径4/4对象通过；crypto/ipc路径推断已实际重跑。POSIX strerror_r配置及ESR对齐问题已直接修复，正式回归真机GNU errno7/7、POSIX errno7/7、信号50/50，macOS errno7/7通过；此后的工作进入正式host target/link。主线与遗漏历史资料已推送，以下早期本地状态按当时记录保留。
 
 > **后续独立复核与直接修复（2026-09-12）**：[Vulkan/NDK报告](../vulkan-review-2026-09-12.md)。以下保留原提交陈述；“全host闭包已编译”当时证据不足。新修复后完整图形37+67已产出104个ARM64对象，仍非host全链接。旧脚本改为仓库工具wrapper，缺文件失败返回1；默认Turnip实际加载待整版接通。

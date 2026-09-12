@@ -87,8 +87,9 @@
 	url = https://github.com/jiixyj/epoll-shim.git
 [submodule "externals/hwinfo"]
 	path = externals/hwinfo
-	url = https://github.com/shadps4-emu/ext-hwinfo
+	url = https://github.com/tencentmalos/ext-hwinfo.git
 	shallow = true
+	branch = codex/shadps4-bionic
 [submodule "externals/ext-wepoll"]
 	path = externals/ext-wepoll
 	url = https://github.com/shadps4-emu/ext-wepoll.git
@@ -196,3 +197,11 @@
 	path = foundation
 	url = https://github.com/tencentmalos/foundation.git
 	branch = codex/shadps4-android-fex-v0
+[submodule "externals/ffmpeg"]
+	path = externals/ffmpeg
+	url = git@github.com:tencentmalos/FFmpeg.git
+	branch = codex/shadps4-bionic-7.1
+[submodule "externals/libadrenotools"]
+	path = externals/libadrenotools
+	url = git@github.com:tencentmalos/libadrenotools.git
+	branch = codex/shadps4-bionic

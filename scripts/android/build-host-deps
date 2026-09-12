@@ -1,0 +1,137 @@
+#!/usr/bin/env python3
+"""Build the shared host dependency recipes with a checked NDK profile.
+Produces five dependency groups and a real linked probe, NOT a complete host/APK.
+"""
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+
+ROOT = Path(__file__).resolve().parents[2]
+DEPS = ("date", "glslang", "zydis", "miniz", "libressl")
+
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def capture(command, cwd=ROOT):
+    return subprocess.check_output(command, cwd=cwd, text=True).strip()
+
+
+def source_identity():
+    paths = ["cmake/HostPortableDependencies.cmake", "scripts/android/build-host-deps"]
+    paths += [str(p.relative_to(ROOT)) for p in sorted((ROOT / "cmake/android-host-deps").glob("*")) if p.is_file()]
+    return {
+        "head": capture(["git", "rev-parse", "HEAD"]),
+        "recipes": {p: sha(ROOT / p) for p in paths},
+        "dependencies": {
+            dep: {
+                "commit": capture(["git", "rev-parse", "HEAD"], ROOT / "externals" / dep),
+                "status": capture(["git", "status", "--porcelain"], ROOT / "externals" / dep),
+                "diff_sha256": hashlib.sha256(capture(["git", "diff", "HEAD"], ROOT / "externals" / dep).encode()).hexdigest(),
+            } for dep in DEPS
+        },
+    }
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--ndk", type=Path, default=os.environ.get("ANDROID_NDK_HOME"))
+    parser.add_argument("--api", type=int, default=33)
+    parser.add_argument("--out", type=Path)
+    parser.add_argument("--jobs", type=int, default=4)
+    args = parser.parse_args()
+    if args.ndk is None or args.jobs < 1:
+        parser.error("--ndk (or ANDROID_NDK_HOME) and positive --jobs are required")
+    ndk = Path(args.ndk).resolve()
+    out = (args.out or ROOT / "build" / f"android-host-deps-api{args.api}").resolve()
+    metadata = json.loads((ndk / "meta/platforms.json").read_text())
+    if not max(21, metadata["min"]) <= args.api <= metadata["max"]:
+        parser.error(f"API {args.api} outside this NDK's ARM64 range 21..{metadata['max']}; no silent API fallback")
+    toolchain = ndk / "build/cmake/android.toolchain.cmake"
+    candidates = sorted(ndk.glob("toolchains/llvm/prebuilt/*/bin/clang"))
+    if not toolchain.is_file() or len(candidates) != 1:
+        parser.error("NDK toolchain/compiler missing or ambiguous")
+    compiler = candidates[0]
+    identity = {
+        "ndk": str(ndk), "ndk_properties": (ndk / "source.properties").read_text(),
+        "compiler": capture([str(compiler), "--version"]), "api": args.api,
+        "abi": "arm64-v8a", "stl": "c++_shared", "build_type": "RelWithDebInfo",
+        "source_dir": str(ROOT / "cmake/android-host-deps"),
+    }
+    out.mkdir(parents=True, exist_ok=True)
+    profile = out / "profile.json"
+    if profile.exists() and json.loads(profile.read_text()) != identity:
+        parser.error("Existing output uses another NDK/API/STL/source profile; choose a new --out")
+    cache = out / "CMakeCache.txt"
+    if cache.exists():
+        values = {}
+        for line in cache.read_text().splitlines():
+            if "=" in line and ":" in line.split("=", 1)[0]:
+                key, value = line.split("=", 1)
+                values[key.split(":", 1)[0]] = value
+        expected = {"ANDROID_ABI": "arm64-v8a", "ANDROID_PLATFORM": f"android-{args.api}",
+                    "ANDROID_STL": "c++_shared", "CMAKE_TOOLCHAIN_FILE": str(toolchain),
+                    "CMAKE_BUILD_TYPE": "RelWithDebInfo", "CMAKE_HOME_DIRECTORY": identity["source_dir"]}
+        if any(values.get(k) != v for k, v in expected.items()):
+            parser.error("Existing CMake cache does not match the requested profile; choose a new --out")
+    profile.write_text(json.dumps(identity, indent=2) + "\n")
+    result_path = out / "result.json"
+    result = {"status": "IN_PROGRESS", "scope": "five dependency groups / linked probe; not full host",
+              "profile": identity, "source": source_identity(), "commands": [], "device_status": "NOT_RUN"}
+
+    def save():
+        result_path.write_text(json.dumps(result, indent=2) + "\n")
+
+    def run(command, name):
+        entry = {"argv": command, "log": name + ".txt", "exit_code": None}
+        result["commands"].append(entry)
+        save()
+        print(f"{name}: {out / entry['log']}", flush=True)
+        with (out / entry["log"]).open("w") as log:
+            process = subprocess.run(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT)
+        entry["exit_code"] = process.returncode
+        save()
+        if process.returncode:
+            raise RuntimeError(f"{name} failed ({process.returncode}); see {out / entry['log']}")
+
+    save()
+    try:
+        run(["cmake", "-S", identity["source_dir"], "-B", str(out), "-G", "Ninja",
+             f"-DCMAKE_TOOLCHAIN_FILE={toolchain}", "-DANDROID_ABI=arm64-v8a",
+             f"-DANDROID_PLATFORM=android-{args.api}", "-DANDROID_STL=c++_shared",
+             "-DCMAKE_BUILD_TYPE=RelWithDebInfo"], "configure")
+        run(["cmake", "--build", str(out), "--target", "host_deps_smoke", "-j", str(args.jobs)], "build")
+        readelf = compiler.parent / "llvm-readelf"
+        library = out / "libhost_deps_probe.so"
+        run([str(readelf), "-h", "-d", "-n", "--version-info", str(library)], "elf")
+        elf = (out / "elf.txt").read_text()
+        if "AArch64" not in elf or "GLIBC_" in elf or "ld-linux" in elf:
+            raise RuntimeError("Probe is not a clean ARM64 bionic artifact")
+        runtime = compiler.parent.parent / "sysroot/usr/lib/aarch64-linux-android/libc++_shared.so"
+        artifacts = [library, out / "host_deps_smoke", runtime]
+        result["artifacts"] = [{"path": str(p), "sha256": sha(p)} for p in artifacts]
+        result["static_libraries"] = [{"path": str(p.relative_to(out)), "sha256": sha(p)} for p in sorted(out.rglob("*.a"))]
+        result["link_map_sha256"] = sha(out / "host_deps_probe.map")
+        if source_identity() != result["source"]:
+            raise RuntimeError("Sources changed during build; rebuild stable sources")
+        result["status"] = "BUILD_PASS"
+        save()
+        print(f"BUILD_PASS: {result_path}; device validation NOT_RUN", flush=True)
+    except BaseException as error:
+        result["status"] = "FAIL"
+        result["error"] = str(error)
+        save()
+        raise
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
+        print(error, file=sys.stderr)
+        sys.exit(1)

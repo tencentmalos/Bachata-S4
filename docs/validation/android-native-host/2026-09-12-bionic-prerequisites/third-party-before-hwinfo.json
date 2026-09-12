@@ -1,0 +1,13 @@
+{
+  "scope": "before hwinfo fix, final root CMake config",
+  "command": [
+    "adb",
+    "-s",
+    "9c2841a4",
+    "shell",
+    "ALSOFT_DRIVERS=opensl LD_LIBRARY_PATH=/data/local/tmp/shadps4-third-party-probe /data/local/tmp/shadps4-third-party-probe/third_party_smoke"
+  ],
+  "exit_code": 1,
+  "probe_sha256": "72cd8bb2ae1178986a83bab9444a96a8372118659c43863635d80687f48d2165",
+  "hwinfo_commit": "8660006e0ca4aae5dda7a29e585968b50b0273b7"
+}

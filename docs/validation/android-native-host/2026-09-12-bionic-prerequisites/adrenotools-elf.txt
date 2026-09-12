@@ -1,0 +1,399 @@
+ELF Header:
+  Magic:   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00
+  Class:                             ELF64
+  Data:                              2's complement, little endian
+  Version:                           1 (current)
+  OS/ABI:                            UNIX - System V
+  ABI Version:                       0
+  Type:                              DYN (Shared object file)
+  Machine:                           AArch64
+  Version:                           0x1
+  Entry point address:               0x0
+  Start of program headers:          64 (bytes into file)
+  Start of section headers:          41392 (bytes into file)
+  Flags:                             0x0
+  Size of this header:               64 (bytes)
+  Size of program headers:           56 (bytes)
+  Number of program headers:         10
+  Size of section headers:           64 (bytes)
+  Number of section headers:         28
+  Section header string table index: 27
+Dynamic section at offset 0x99e0 contains 31 entries:
+  Tag                Type              Name/Value
+  0x0000000000000001 (NEEDED)          Shared library: [libandroid.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libdl.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libm.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libc++_shared.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libc.so]
+  0x000000000000000e (SONAME)          Library soname: [libadrenotools.so]
+  0x000000000000001e (FLAGS)           BIND_NOW 
+  0x000000006ffffffb (FLAGS_1)         NOW 
+  0x0000000000000007 (RELA)            0x1488
+  0x0000000000000008 (RELASZ)          288 (bytes)
+  0x0000000000000009 (RELAENT)         24 (bytes)
+  0x000000006fffe000 (ANDROID_RELR)    0x15a8
+  0x000000006fffe001 (ANDROID_RELRSZ)  0x28
+  0x000000006fffe003 (ANDROID_RELRENT) 0x8
+  0x0000000000000017 (JMPREL)          0x15d0
+  0x0000000000000002 (PLTRELSZ)        1536 (bytes)
+  0x0000000000000003 (PLTGOT)          0x11c48
+  0x0000000000000014 (PLTREL)          RELA
+  0x0000000000000006 (SYMTAB)          0x330
+  0x000000000000000b (SYMENT)          24 (bytes)
+  0x0000000000000005 (STRTAB)          0xc78
+  0x000000000000000a (STRSZ)           2057 (bytes)
+  0x000000006ffffef5 (GNU_HASH)        0xc28
+  0x0000000000000019 (INIT_ARRAY)      0x119d8
+  0x000000000000001b (INIT_ARRAYSZ)    8 (bytes)
+  0x000000000000001a (FINI_ARRAY)      0x119c8
+  0x000000000000001c (FINI_ARRAYSZ)    16 (bytes)
+  0x000000006ffffff0 (VERSYM)          0xb28
+  0x000000006ffffffe (VERNEED)         0xbd4
+  0x000000006fffffff (VERNEEDNUM)      2
+  0x0000000000000000 (NULL)            0x0
+Version symbols section '.gnu.version' contains 85 entries:
+ Addr: 0000000000000b28  Offset: 0x000b28  Link: 3 (.dynsym)
+  000:   0 (*local*)       2 (LIBC)          2 (LIBC)          2 (LIBC)       
+  004:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  008:   1 (*global*)      1 (*global*)      2 (LIBC)          2 (LIBC)       
+  00c:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  010:   1 (*global*)      2 (LIBC)          2 (LIBC)          2 (LIBC)       
+  014:   2 (LIBC)          2 (LIBC)          1 (*global*)      1 (*global*)   
+  018:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  01c:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  020:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  024:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  028:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  02c:   3 (LIBC_Q)        2 (LIBC)          1 (*global*)      2 (LIBC)       
+  030:   4 (LIBC)          2 (LIBC)          2 (LIBC)          2 (LIBC)       
+  034:   4 (LIBC)          1 (*global*)      1 (*global*)      1 (*global*)   
+  038:   4 (LIBC)          2 (LIBC)          2 (LIBC)          2 (LIBC)       
+  03c:   2 (LIBC)          2 (LIBC)          2 (LIBC)          4 (LIBC)       
+  040:   2 (LIBC)          2 (LIBC)          2 (LIBC)          2 (LIBC)       
+  044:   2 (LIBC)          2 (LIBC)          2 (LIBC)          2 (LIBC)       
+  048:   2 (LIBC)          2 (LIBC)          2 (LIBC)          1 (*global*)   
+  04c:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  050:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  054:   1 (*global*)   
+
+Version needs section '.gnu.version_r' contains 2 entries:
+ Addr: 0000000000000bd4  Offset: 0x000bd4  Link: 7 (.dynstr)
+  0x0000: Version: 1  File: libdl.so  Cnt: 1
+  0x0020:   Name: LIBC  Flags: none  Version: 4
+  0x0010: Version: 1  File: libc.so  Cnt: 2
+  0x0030:   Name: LIBC  Flags: none  Version: 2
+  0x0040:   Name: LIBC_Q  Flags: none  Version: 3
+
+Displaying notes found in: .note.android.ident
+  Owner                Data size 	Description
+  Android              0x00000084	NT_ANDROID_TYPE_IDENT
+   description data: 21 00 00 00 72 32 39 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 31 34 32 30 36 38 36 35 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+Displaying notes found in: .note.gnu.build-id
+  Owner                Data size 	Description
+  GNU                  0x00000014	NT_GNU_BUILD_ID (unique build ID bitstring)
+    Build ID: af5d3d572dc6dee88e053378e1b92e5e070fc1b7
+
+ELF Header:
+  Magic:   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00
+  Class:                             ELF64
+  Data:                              2's complement, little endian
+  Version:                           1 (current)
+  OS/ABI:                            UNIX - System V
+  ABI Version:                       0
+  Type:                              DYN (Shared object file)
+  Machine:                           AArch64
+  Version:                           0x1
+  Entry point address:               0x0
+  Start of program headers:          64 (bytes into file)
+  Start of section headers:          5256 (bytes into file)
+  Flags:                             0x0
+  Size of this header:               64 (bytes)
+  Size of program headers:           56 (bytes)
+  Number of program headers:         9
+  Size of section headers:           64 (bytes)
+  Number of section headers:         28
+  Section header string table index: 26
+Dynamic section at offset 0x6c8 contains 28 entries:
+  Tag                Type              Name/Value
+  0x0000000000000001 (NEEDED)          Shared library: [libhook_impl.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libandroid.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libdl.so]
+  0x0000000000000001 (NEEDED)          Shared library: [liblog.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libm.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libc++_shared.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libc.so]
+  0x000000000000000e (SONAME)          Library soname: [libfile_redirect_hook.so]
+  0x000000000000001e (FLAGS)           BIND_NOW 
+  0x000000006ffffffb (FLAGS_1)         NOW GLOBAL 
+  0x000000006fffe000 (ANDROID_RELR)    0x488
+  0x000000006fffe001 (ANDROID_RELRSZ)  0x10
+  0x000000006fffe003 (ANDROID_RELRENT) 0x8
+  0x0000000000000017 (JMPREL)          0x498
+  0x0000000000000002 (PLTRELSZ)        96 (bytes)
+  0x0000000000000003 (PLTGOT)          0x8888
+  0x0000000000000014 (PLTREL)          RELA
+  0x0000000000000006 (SYMTAB)          0x2f8
+  0x000000000000000b (SYMENT)          24 (bytes)
+  0x0000000000000005 (STRTAB)          0x3d8
+  0x000000000000000a (STRSZ)           176 (bytes)
+  0x000000006ffffef5 (GNU_HASH)        0x3b8
+  0x000000000000001a (FINI_ARRAY)      0x86b8
+  0x000000000000001c (FINI_ARRAYSZ)    16 (bytes)
+  0x000000006ffffff0 (VERSYM)          0x388
+  0x000000006ffffffe (VERNEED)         0x394
+  0x000000006fffffff (VERNEEDNUM)      1
+  0x0000000000000000 (NULL)            0x0
+Version symbols section '.gnu.version' contains 6 entries:
+ Addr: 0000000000000388  Offset: 0x000388  Link: 3 (.dynsym)
+  000:   0 (*local*)       2 (LIBC)          2 (LIBC)          2 (LIBC)       
+  004:   1 (*global*)      1 (*global*)   
+
+Version needs section '.gnu.version_r' contains 1 entries:
+ Addr: 0000000000000394  Offset: 0x000394  Link: 7 (.dynstr)
+  0x0000: Version: 1  File: libc.so  Cnt: 1
+  0x0010:   Name: LIBC  Flags: none  Version: 2
+
+Displaying notes found in: .note.android.ident
+  Owner                Data size 	Description
+  Android              0x00000084	NT_ANDROID_TYPE_IDENT
+   description data: 21 00 00 00 72 32 39 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 31 34 32 30 36 38 36 35 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+Displaying notes found in: .note.gnu.build-id
+  Owner                Data size 	Description
+  GNU                  0x00000014	NT_GNU_BUILD_ID (unique build ID bitstring)
+    Build ID: 8fb279e591b29d2ba42694420650894185747348
+
+ELF Header:
+  Magic:   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00
+  Class:                             ELF64
+  Data:                              2's complement, little endian
+  Version:                           1 (current)
+  OS/ABI:                            UNIX - System V
+  ABI Version:                       0
+  Type:                              DYN (Shared object file)
+  Machine:                           AArch64
+  Version:                           0x1
+  Entry point address:               0x0
+  Start of program headers:          64 (bytes into file)
+  Start of section headers:          6448 (bytes into file)
+  Flags:                             0x0
+  Size of this header:               64 (bytes)
+  Size of program headers:           56 (bytes)
+  Number of program headers:         9
+  Size of section headers:           64 (bytes)
+  Number of section headers:         30
+  Section header string table index: 28
+Dynamic section at offset 0x7f8 contains 28 entries:
+  Tag                Type              Name/Value
+  0x0000000000000001 (NEEDED)          Shared library: [libhook_impl.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libandroid.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libdl.so]
+  0x0000000000000001 (NEEDED)          Shared library: [liblog.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libm.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libc++_shared.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libc.so]
+  0x000000000000000e (SONAME)          Library soname: [libgsl_alloc_hook.so]
+  0x000000000000001e (FLAGS)           BIND_NOW 
+  0x000000006ffffffb (FLAGS_1)         NOW GLOBAL 
+  0x000000006fffe000 (ANDROID_RELR)    0x548
+  0x000000006fffe001 (ANDROID_RELRSZ)  0x10
+  0x000000006fffe003 (ANDROID_RELRENT) 0x8
+  0x0000000000000017 (JMPREL)          0x558
+  0x0000000000000002 (PLTRELSZ)        120 (bytes)
+  0x0000000000000003 (PLTGOT)          0x89b8
+  0x0000000000000014 (PLTREL)          RELA
+  0x0000000000000006 (SYMTAB)          0x2f8
+  0x000000000000000b (SYMENT)          24 (bytes)
+  0x0000000000000005 (STRTAB)          0x430
+  0x000000000000000a (STRSZ)           279 (bytes)
+  0x000000006ffffef5 (GNU_HASH)        0x408
+  0x000000000000001a (FINI_ARRAY)      0x87e8
+  0x000000000000001c (FINI_ARRAYSZ)    16 (bytes)
+  0x000000006ffffff0 (VERSYM)          0x3d0
+  0x000000006ffffffe (VERNEED)         0x3e4
+  0x000000006fffffff (VERNEEDNUM)      1
+  0x0000000000000000 (NULL)            0x0
+Version symbols section '.gnu.version' contains 9 entries:
+ Addr: 00000000000003d0  Offset: 0x0003d0  Link: 3 (.dynsym)
+  000:   0 (*local*)       2 (LIBC)          2 (LIBC)          2 (LIBC)       
+  004:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  008:   1 (*global*)   
+
+Version needs section '.gnu.version_r' contains 1 entries:
+ Addr: 00000000000003e4  Offset: 0x0003e4  Link: 7 (.dynstr)
+  0x0000: Version: 1  File: libc.so  Cnt: 1
+  0x0010:   Name: LIBC  Flags: none  Version: 2
+
+Displaying notes found in: .note.android.ident
+  Owner                Data size 	Description
+  Android              0x00000084	NT_ANDROID_TYPE_IDENT
+   description data: 21 00 00 00 72 32 39 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 31 34 32 30 36 38 36 35 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+Displaying notes found in: .note.gnu.build-id
+  Owner                Data size 	Description
+  GNU                  0x00000014	NT_GNU_BUILD_ID (unique build ID bitstring)
+    Build ID: 2db0f70a0d0f17ab340403d141f1089bffcd09d8
+
+ELF Header:
+  Magic:   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00
+  Class:                             ELF64
+  Data:                              2's complement, little endian
+  Version:                           1 (current)
+  OS/ABI:                            UNIX - System V
+  ABI Version:                       0
+  Type:                              DYN (Shared object file)
+  Machine:                           AArch64
+  Version:                           0x1
+  Entry point address:               0x0
+  Start of program headers:          64 (bytes into file)
+  Start of section headers:          166448 (bytes into file)
+  Flags:                             0x0
+  Size of this header:               64 (bytes)
+  Size of program headers:           56 (bytes)
+  Number of program headers:         10
+  Size of section headers:           64 (bytes)
+  Number of section headers:         36
+  Section header string table index: 34
+Dynamic section at offset 0x88d0 contains 32 entries:
+  Tag                Type              Name/Value
+  0x0000000000000001 (NEEDED)          Shared library: [liblog.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libandroid.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libdl.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libm.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libc++_shared.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libc.so]
+  0x000000000000000e (SONAME)          Library soname: [libhook_impl.so]
+  0x000000000000001e (FLAGS)           BIND_NOW 
+  0x000000006ffffffb (FLAGS_1)         NOW 
+  0x0000000000000007 (RELA)            0x1028
+  0x0000000000000008 (RELASZ)          216 (bytes)
+  0x0000000000000009 (RELAENT)         24 (bytes)
+  0x000000006fffe000 (ANDROID_RELR)    0x1100
+  0x000000006fffe001 (ANDROID_RELRSZ)  0x28
+  0x000000006fffe003 (ANDROID_RELRENT) 0x8
+  0x0000000000000017 (JMPREL)          0x1128
+  0x0000000000000002 (PLTRELSZ)        1248 (bytes)
+  0x0000000000000003 (PLTGOT)          0x10b18
+  0x0000000000000014 (PLTREL)          RELA
+  0x0000000000000006 (SYMTAB)          0x330
+  0x000000000000000b (SYMENT)          24 (bytes)
+  0x0000000000000005 (STRTAB)          0xb54
+  0x000000000000000a (STRSZ)           1234 (bytes)
+  0x000000006ffffef5 (GNU_HASH)        0xad0
+  0x0000000000000019 (INIT_ARRAY)      0x108c8
+  0x000000000000001b (INIT_ARRAYSZ)    8 (bytes)
+  0x000000000000001a (FINI_ARRAY)      0x108b8
+  0x000000000000001c (FINI_ARRAYSZ)    16 (bytes)
+  0x000000006ffffff0 (VERSYM)          0x9f0
+  0x000000006ffffffe (VERNEED)         0xa80
+  0x000000006fffffff (VERNEEDNUM)      2
+  0x0000000000000000 (NULL)            0x0
+Version symbols section '.gnu.version' contains 72 entries:
+ Addr: 00000000000009f0  Offset: 0x0009f0  Link: 3 (.dynsym)
+  000:   0 (*local*)       2 (LIBC)          2 (LIBC)          2 (LIBC)       
+  004:   1 (*global*)      2 (LIBC)          3 (LIBC)          3 (LIBC)       
+  008:   3 (LIBC)          2 (LIBC)          2 (LIBC)          2 (LIBC)       
+  00c:   2 (LIBC)          1 (*global*)      2 (LIBC)          1 (*global*)   
+  010:   2 (LIBC)          2 (LIBC)          1 (*global*)      1 (*global*)   
+  014:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  018:   1 (*global*)      1 (*global*)      3 (LIBC)          1 (*global*)   
+  01c:   1 (*global*)      1 (*global*)      2 (LIBC)          2 (LIBC)       
+  020:   2 (LIBC)          2 (LIBC)          4 (LIBC_Q)        2 (LIBC)       
+  024:   2 (LIBC)          2 (LIBC)          2 (LIBC)          2 (LIBC)       
+  028:   2 (LIBC)          2 (LIBC)          3 (LIBC)          2 (LIBC)       
+  02c:   2 (LIBC)          2 (LIBC)          2 (LIBC)          2 (LIBC)       
+  030:   2 (LIBC)          2 (LIBC)          2 (LIBC)          2 (LIBC)       
+  034:   2 (LIBC)          2 (LIBC)          2 (LIBC)          1 (*global*)   
+  038:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  03c:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  040:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  044:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+
+Version needs section '.gnu.version_r' contains 2 entries:
+ Addr: 0000000000000a80  Offset: 0x000a80  Link: 7 (.dynstr)
+  0x0000: Version: 1  File: libdl.so  Cnt: 1
+  0x0020:   Name: LIBC  Flags: none  Version: 3
+  0x0010: Version: 1  File: libc.so  Cnt: 2
+  0x0030:   Name: LIBC  Flags: none  Version: 2
+  0x0040:   Name: LIBC_Q  Flags: none  Version: 4
+
+Displaying notes found in: .note.android.ident
+  Owner                Data size 	Description
+  Android              0x00000084	NT_ANDROID_TYPE_IDENT
+   description data: 21 00 00 00 72 32 39 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 31 34 32 30 36 38 36 35 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+Displaying notes found in: .note.gnu.build-id
+  Owner                Data size 	Description
+  GNU                  0x00000014	NT_GNU_BUILD_ID (unique build ID bitstring)
+    Build ID: d74e5e21701af6fbd935387bb9f2ca82a42326d9
+
+ELF Header:
+  Magic:   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00
+  Class:                             ELF64
+  Data:                              2's complement, little endian
+  Version:                           1 (current)
+  OS/ABI:                            UNIX - System V
+  ABI Version:                       0
+  Type:                              DYN (Shared object file)
+  Machine:                           AArch64
+  Version:                           0x1
+  Entry point address:               0x0
+  Start of program headers:          64 (bytes into file)
+  Start of section headers:          6720 (bytes into file)
+  Flags:                             0x0
+  Size of this header:               64 (bytes)
+  Size of program headers:           56 (bytes)
+  Number of program headers:         9
+  Size of section headers:           64 (bytes)
+  Number of section headers:         29
+  Section header string table index: 27
+Dynamic section at offset 0x798 contains 28 entries:
+  Tag                Type              Name/Value
+  0x0000000000000001 (NEEDED)          Shared library: [libhook_impl.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libandroid.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libdl.so]
+  0x0000000000000001 (NEEDED)          Shared library: [liblog.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libm.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libc++_shared.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libc.so]
+  0x000000000000000e (SONAME)          Library soname: [libmain_hook.so]
+  0x000000000000001e (FLAGS)           BIND_NOW 
+  0x000000006ffffffb (FLAGS_1)         NOW GLOBAL 
+  0x000000006fffe000 (ANDROID_RELR)    0x508
+  0x000000006fffe001 (ANDROID_RELRSZ)  0x10
+  0x000000006fffe003 (ANDROID_RELRENT) 0x8
+  0x0000000000000017 (JMPREL)          0x518
+  0x0000000000000002 (PLTRELSZ)        120 (bytes)
+  0x0000000000000003 (PLTGOT)          0x8958
+  0x0000000000000014 (PLTREL)          RELA
+  0x0000000000000006 (SYMTAB)          0x2f8
+  0x000000000000000b (SYMENT)          24 (bytes)
+  0x0000000000000005 (STRTAB)          0x40c
+  0x000000000000000a (STRSZ)           252 (bytes)
+  0x000000006ffffef5 (GNU_HASH)        0x3e8
+  0x000000000000001a (FINI_ARRAY)      0x8788
+  0x000000000000001c (FINI_ARRAYSZ)    16 (bytes)
+  0x000000006ffffff0 (VERSYM)          0x3b8
+  0x000000006ffffffe (VERNEED)         0x3c8
+  0x000000006fffffff (VERNEEDNUM)      1
+  0x0000000000000000 (NULL)            0x0
+Version symbols section '.gnu.version' contains 8 entries:
+ Addr: 00000000000003b8  Offset: 0x0003b8  Link: 3 (.dynsym)
+  000:   0 (*local*)       2 (LIBC)          2 (LIBC)          2 (LIBC)       
+  004:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+
+Version needs section '.gnu.version_r' contains 1 entries:
+ Addr: 00000000000003c8  Offset: 0x0003c8  Link: 7 (.dynstr)
+  0x0000: Version: 1  File: libc.so  Cnt: 1
+  0x0010:   Name: LIBC  Flags: none  Version: 2
+
+Displaying notes found in: .note.android.ident
+  Owner                Data size 	Description
+  Android              0x00000084	NT_ANDROID_TYPE_IDENT
+   description data: 21 00 00 00 72 32 39 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 31 34 32 30 36 38 36 35 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+Displaying notes found in: .note.gnu.build-id
+  Owner                Data size 	Description
+  GNU                  0x00000014	NT_GNU_BUILD_ID (unique build ID bitstring)
+    Build ID: cfad2bf3aa258613b93b99d1d8f5350086194aa2

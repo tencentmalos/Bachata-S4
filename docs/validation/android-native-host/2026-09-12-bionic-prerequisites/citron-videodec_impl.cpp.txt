@@ -1,0 +1,4 @@
+src/core/libraries/videodec/videodec_impl.cpp:26:29: error: use of undeclared identifier 'AV_CODEC_FLAG_COPY_OPAQUE'
+   26 |     mCodecContext->flags |= AV_CODEC_FLAG_COPY_OPAQUE;
+      |                             ^
+1 error generated.

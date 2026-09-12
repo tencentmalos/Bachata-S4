@@ -6,6 +6,8 @@
 
 ## 最新整版入口（2026-09-12）
 
+**后续以[两工作包 bionic 迁移方案](docs/specs/android-native-host-full-link-plan-2026-09-12.md)为执行入口。** [前置结果](docs/validation/android-native-host/bionic-prerequisites-2026-09-12.md)与[三方库归属核查](docs/validation/android-native-host/bionic-third-party-audit-2026-09-12.md)：五组基础probe AYN/host各8项、wrapper4项；FFmpeg7.1.5独立owned子仓`e17ba6e2`、六库NDK源码provider、生产媒体syntax7/7、AYN媒体9/9；libadrenotools复用azahar匹配pin/四hook，五DSO已NDK链接，未实际加载Turnip。已修spdlog固定fmt供给和OpenAL Android OpenSL配置。扩展依赖probe现为AYN14/14；hwinfo误判已在新owned fork `tencentmalos/ext-hwinfo`/`codex/shadps4-bionic`的`85bbcba3`修复，Android报告native process ABI，旧13/14证据保留，问题已关闭。gh已重新登录并核对owned refs。已有独立子仓不进Foundation，现有Foundation/FEX等健康pin不变。下一AI连续完成完整host/APK与真实PKG两包，不再逐库规划；上述probe不是游戏或普通APK验收。
+
 先读 [COMMON/Git 最新复核](docs/validation/android-native-host/pkg-v2-common-review-2026-09-12.md)：主线已推送到2efe7004（含此前51提交、遗漏spec/证据/研究归档），报告与新证据随后交付。新增COMMON4/4对象通过；POSIX strerror_r与ESR对齐两个问题已直接修复，正式tests/common真机回归GNU errno7/7、POSIX errno7/7、信号50/50及macOS errno7/7通过，不再列入后续待办。下一步直接创建真实host target并驱动完整链接，不再先交一轮单TU扫描或询问是否开始CMake。
 
 先读 [Vulkan/NDK 复核与本地修复](docs/validation/android-native-host/vulkan-review-2026-09-12.md)，继续 [PKG v2 整版任务书](docs/specs/android-native-host-pkg-v2.md)。图形代码/测试/脚本已提交 `091334d3`，入口同步为 `1d411955`；新增 COMMON/bionic 适配 `06bd43bd`、进度 `7c675280`，已随上述主线交付远端并完成独立复核。图形完整源列表37+67已生成104个ARM64对象，acquire合同19/0、SessionCore807/0；不是整个host链接或游戏验收。

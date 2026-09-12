@@ -1,0 +1,76 @@
+[0/2] Re-checking globbed directories...
+[1/144] Generating CXX dyndep file externals/openal-soft/CMakeFiles/OpenAL.dir/CXX.dd
+[2/49] Building CXX object externals/libadrenotools/lib/linkernsbypass/CMakeFiles/linkernsbypass.dir/elf_soname_patcher.cpp.o
+[3/49] Building CXX object externals/libadrenotools/lib/linkernsbypass/CMakeFiles/linkernsbypass.dir/android_linker_ns.cpp.o
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/libadrenotools/lib/linkernsbypass/android_linker_ns.cpp:68:5: warning: missing field 'reserved_addr' initializer [-Wmissing-designated-field-initializers]
+   68 |     };
+      |     ^
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/libadrenotools/lib/linkernsbypass/android_linker_ns.cpp:116:5: warning: missing field 'reserved_addr' initializer [-Wmissing-designated-field-initializers]
+  116 |     };
+      |     ^
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/libadrenotools/lib/linkernsbypass/android_linker_ns.cpp:106:5: warning: 'snprintf' will always be truncated; specified size is 3, but format string expands to at least 4 [-Wformat-truncation]
+  106 |     snprintf(sonameOverwrite.data(), sonameOverwrite.size(), "%03u", TargetId++);
+      |     ^
+3 warnings generated.
+[4/49] Building CXX object externals/spdlog/CMakeFiles/spdlog.dir/src/common.cpp.o
+[5/49] Building CXX object externals/spdlog/CMakeFiles/spdlog.dir/src/details/file_helper.cpp.o
+[6/49] Building CXX object _deps/fmt-build/CMakeFiles/fmt.dir/src/format.cc.o
+[7/49] Building CXX object externals/spdlog/CMakeFiles/spdlog.dir/src/spdlog.cpp.o
+[8/49] Building CXX object externals/spdlog/CMakeFiles/spdlog.dir/src/logger.cpp.o
+[9/49] Linking CXX static library _deps/fmt-build/libfmt.a
+[10/49] Building CXX object externals/spdlog/CMakeFiles/spdlog.dir/src/pattern_formatter.cpp.o
+[11/49] Building CXX object externals/spdlog/CMakeFiles/spdlog.dir/src/details/os_filesystem.cpp.o
+[12/49] Building CXX object externals/spdlog/CMakeFiles/spdlog.dir/src/details/err_helper.cpp.o
+[13/49] Building CXX object externals/spdlog/CMakeFiles/spdlog.dir/src/details/log_msg.cpp.o
+[14/49] Building CXX object externals/spdlog/CMakeFiles/spdlog.dir/src/details/async_log_msg.cpp.o
+[15/49] Building CXX object externals/spdlog/CMakeFiles/spdlog.dir/src/sinks/base_sink.cpp.o
+[16/49] Building CXX object externals/spdlog/CMakeFiles/spdlog.dir/src/sinks/stdout_sinks.cpp.o
+[17/49] Building CXX object externals/spdlog/CMakeFiles/spdlog.dir/src/sinks/basic_file_sink.cpp.o
+[18/49] Linking CXX static library externals/libadrenotools/lib/linkernsbypass/liblinkernsbypass.a
+[19/49] Building CXX object externals/spdlog/CMakeFiles/spdlog.dir/src/sinks/rotating_file_sink.cpp.o
+[20/49] Building CXX object externals/spdlog/CMakeFiles/spdlog.dir/src/sinks/async_sink.cpp.o
+[21/49] Building CXX object externals/spdlog/CMakeFiles/spdlog.dir/src/details/os_unix.cpp.o
+[22/49] Building CXX object externals/spdlog/CMakeFiles/spdlog.dir/src/sinks/ansicolor_sink.cpp.o
+[23/49] Building C object externals/libusb/CMakeFiles/usb-1.0.dir/libusb/hotplug.c.o
+[24/49] Building C object externals/libusb/CMakeFiles/usb-1.0.dir/libusb/descriptor.c.o
+[25/49] Building C object externals/libusb/CMakeFiles/usb-1.0.dir/libusb/core.c.o
+[26/49] Building C object externals/libusb/CMakeFiles/usb-1.0.dir/libusb/sync.c.o
+[27/49] Building C object externals/libusb/CMakeFiles/usb-1.0.dir/libusb/strerror.c.o
+[28/49] Building C object externals/libusb/CMakeFiles/usb-1.0.dir/libusb/os/threads_posix.c.o
+[29/49] Building C object externals/libusb/CMakeFiles/usb-1.0.dir/libusb/io.c.o
+[30/49] Building C object externals/libusb/CMakeFiles/usb-1.0.dir/libusb/os/events_posix.c.o
+[31/49] Building CXX object externals/libadrenotools/src/hook/CMakeFiles/hook_impl.dir/hook_impl.cpp.o
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/libadrenotools/src/hook/hook_impl.cpp:151:13: warning: missing field 'reserved_addr' initializer [-Wmissing-designated-field-initializers]
+  151 |             };
+      |             ^
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/libadrenotools/src/hook/hook_impl.cpp:211:9: warning: missing field 'id' initializer [-Wmissing-designated-field-initializers]
+  211 |         };
+      |         ^
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/libadrenotools/src/hook/hook_impl.cpp:220:9: warning: missing field 'flags' initializer [-Wmissing-designated-field-initializers]
+  220 |         };
+      |         ^
+3 warnings generated.
+[32/49] Building C object externals/libusb/CMakeFiles/usb-1.0.dir/libusb/os/linux_netlink.c.o
+[33/49] Building C object externals/libusb/CMakeFiles/usb-1.0.dir/libusb/os/linux_usbfs.c.o
+[34/49] Building C object externals/libadrenotools/src/hook/CMakeFiles/main_hook.dir/main_hook.c.o
+[35/49] Building C object externals/libadrenotools/src/hook/CMakeFiles/gsl_alloc_hook.dir/gsl_alloc_hook.c.o
+[36/49] Building C object externals/libadrenotools/src/hook/CMakeFiles/file_redirect_hook.dir/file_redirect_hook.c.o
+[37/49] Linking C static library externals/libusb/libusb-1.0.a
+[38/49] Linking CXX static library externals/spdlog/libspdlog.a
+[39/49] Building CXX object externals/libadrenotools/CMakeFiles/adrenotools.dir/src/driver.cpp.o
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/libadrenotools/src/driver.cpp:109:5: warning: missing field 'id' initializer [-Wmissing-designated-field-initializers]
+  109 |     };
+      |     ^
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/libadrenotools/src/driver.cpp:145:5: warning: missing field 'va_len' initializer [-Wmissing-designated-field-initializers]
+  145 |     };
+      |     ^
+2 warnings generated.
+[40/49] Building CXX object externals/libadrenotools/CMakeFiles/adrenotools.dir/src/bcenabler.cpp.o
+[41/49] Linking CXX shared library externals/libadrenotools/src/hook/libhook_impl.so
+[42/49] Linking CXX shared library externals/libadrenotools/src/hook/libgsl_alloc_hook.so
+[43/49] Linking CXX shared library externals/libadrenotools/src/hook/libmain_hook.so
+[44/49] Linking CXX shared library externals/libadrenotools/src/hook/libfile_redirect_hook.so
+[45/49] Linking CXX static library externals/libadrenotools/libadrenotools.a
+[46/49] Building CXX object CMakeFiles/third_party_probe.dir/probe.cpp.o
+[47/49] Linking CXX shared library libthird_party_probe.so
+[48/49] Linking CXX executable third_party_smoke

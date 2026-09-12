@@ -1,0 +1,7 @@
+src/core/libraries/videodec/videodec2_impl.cpp:27:31: error: use of undeclared identifier 'AV_CODEC_FLAG_COPY_OPAQUE'
+   27 |     m_codec_context->flags |= AV_CODEC_FLAG_COPY_OPAQUE;
+      |                               ^
+src/core/libraries/videodec/videodec2_impl.cpp:97:24: error: use of undeclared identifier 'AV_FRAME_FLAG_INTERLACED'
+   97 |     if (frame->flags & AV_FRAME_FLAG_INTERLACED) {
+      |                        ^
+2 errors generated.

@@ -1,5 +1,7 @@
 # Android / FEX 开发资料索引
 
+- 当前执行：[bionic 迁移两工作包方案](specs/android-native-host-full-link-plan-2026-09-12.md)，[本轮已完成的依赖前置与 citron FFmpeg 核查](validation/android-native-host/bionic-prerequisites-2026-09-12.md)、[三方库归属与复用清单](validation/android-native-host/bionic-third-party-audit-2026-09-12.md)。
+
 - 当前进展：[COMMON/bionic复核与Git交付](validation/android-native-host/pkg-v2-common-review-2026-09-12.md)：主线已推送，两个COMMON边界已修复，正式真机回归7+7+50项通过；继续PKG v2的正式host全链接与Turnip/游戏整合。
 
 - 最新增量：[Vulkan/NDK 复核与修复（2026-09-12）](validation/android-native-host/vulkan-review-2026-09-12.md)：104个ARM64图形对象、acquire/脚本修复、Turnip默认策略；继续[PKG v2整版](specs/android-native-host-pkg-v2.md)。

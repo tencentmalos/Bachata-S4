@@ -16,9 +16,20 @@ if (MSVC)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_DEPRECATE -D_SCL_SECURE_NO_WARNINGS)
 endif()
 
+include("${CMAKE_CURRENT_LIST_DIR}/../cmake/HostPortableDependencies.cmake")
+
 # Boost
 if (NOT TARGET Boost::headers)
     add_subdirectory(ext-boost)
+endif()
+
+# fmt must precede spdlog: otherwise spdlog v2 fetches its own fmt revision.
+if (NOT TARGET fmt::fmt)
+    include(FetchContent)
+    # spdlog's external mode calls find_package(fmt CONFIG); redirect that call
+    # to the already pinned source, without requiring a host install prefix.
+    FetchContent_Declare(fmt SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/fmt" OVERRIDE_FIND_PACKAGE)
+    FetchContent_MakeAvailable(fmt)
 endif()
 
 # spdlog
@@ -30,15 +41,15 @@ endif()
 add_subdirectory(spdlog EXCLUDE_FROM_ALL SYSTEM)
 target_compile_definitions(spdlog PUBLIC SPDLOG_FUNCTION=__func__)
 
-# fmtlib
-if (NOT TARGET fmt::fmt)
-    add_subdirectory(fmt)
-endif()
-
 # FFmpeg
 if (NOT TARGET FFmpeg::ffmpeg)
-    add_subdirectory(ffmpeg-core)
-    add_library(FFmpeg::ffmpeg ALIAS ffmpeg)
+    if(ANDROID)
+        # True NDK source build; never download the desktop Linux/glibc archive.
+        add_subdirectory(ffmpeg/cmake/android ffmpeg-android)
+    else()
+        add_subdirectory(ffmpeg-core)
+        add_library(FFmpeg::ffmpeg ALIAS ffmpeg)
+    endif()
 endif()
 
 # LibAtrac9
@@ -95,6 +106,13 @@ if (NOT TARGET GPUOpen::VulkanMemoryAllocator)
     add_subdirectory(vma)
 endif()
 
+# Native Android custom-driver loader. Keep its matching hook libraries built
+# with the consumer; Gradle must also package them (building is not packaging).
+if(ANDROID AND NOT TARGET adrenotools)
+    add_subdirectory(libadrenotools)
+    add_dependencies(adrenotools main_hook file_redirect_hook gsl_alloc_hook hook_impl)
+endif()
+
 # RenderDoc
 if (NOT TARGET RenderDoc::API)
     add_library(renderdoc INTERFACE)
@@ -103,18 +121,7 @@ if (NOT TARGET RenderDoc::API)
 endif()
 
 # glslang
-if (NOT TARGET glslang::glslang)
-    set(SKIP_GLSLANG_INSTALL ON CACHE BOOL "")
-    set(ENABLE_GLSLANG_BINARIES OFF CACHE BOOL "")
-    set(ENABLE_SPVREMAPPER OFF CACHE BOOL "")
-    set(ENABLE_CTEST OFF CACHE BOOL "")
-    set(ENABLE_HLSL OFF CACHE BOOL "")
-    set(BUILD_EXTERNAL OFF CACHE BOOL "")
-    set(ENABLE_OPT OFF CACHE BOOL "")
-    add_subdirectory(glslang)
-    file(COPY glslang/SPIRV DESTINATION glslang/glslang FILES_MATCHING PATTERN "*.h")
-    target_include_directories(glslang INTERFACE "${CMAKE_CURRENT_BINARY_DIR}/glslang")
-endif()
+shadps4_add_host_portable_dependency(glslang)
 
 # Robin-map
 if (NOT TARGET tsl::robin_map)
@@ -152,11 +159,7 @@ if (NOT TARGET xxHash::xxhash)
 endif()
 
 # Zydis
-if (NOT TARGET Zydis::Zydis)
-    option(ZYDIS_BUILD_TOOLS "" OFF)
-    option(ZYDIS_BUILD_EXAMPLES "" OFF)
-    add_subdirectory(zydis)
-endif()
+shadps4_add_host_portable_dependency(zydis)
 
 # sirit
 add_subdirectory(sirit)
@@ -250,15 +253,8 @@ set(HWINFO_STATIC ON)
 add_subdirectory(hwinfo)
 
 if (APPLE OR ANDROID OR ${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
-    # date — replacement for std::chrono::time_zone. bionic ships no <chrono> tz
-    # database, so kernel/time.cpp uses the HowardHinnant date library on Android
-    # too (USE_OS_TZDB reads /system/usr/share/zoneinfo). epoll-shim is NOT needed
-    # on Android (bionic has epoll), so it stays out of the Android branch.
-    if (NOT TARGET date::date-tz)
-        option(BUILD_TZ_LIB "" ON)
-        option(USE_SYSTEM_TZ_DB "" ON)
-        add_subdirectory(date)
-    endif()
+    # Android date reads the bionic tzdata (APEX first, system directory fallback).
+    shadps4_add_host_portable_dependency(date)
     if (NOT ANDROID AND NOT TARGET epoll-shim)
         add_subdirectory(epoll-shim)
     endif()
@@ -278,10 +274,7 @@ add_subdirectory(json)
 endif()
 
 # miniz
-if (NOT TARGET miniz::miniz)
-add_subdirectory(miniz)
-add_library(miniz::miniz ALIAS miniz)
-endif()
+shadps4_add_host_portable_dependency(miniz)
 
 # cli11
 if (NOT TARGET CLI11::CLI11)
@@ -328,6 +321,14 @@ if (WIN32)
     set(ALSOFT_BACKEND_WINMM OFF CACHE BOOL "" FORCE)
 elseif (APPLE)
     set(ALSOFT_BACKEND_COREAUDIO ON CACHE BOOL "" FORCE)
+elseif (ANDROID)
+    # Reuse OpenAL's existing NDK backend for Audio3D; AudioOut uses AAudio.
+    # Do not discover desktop audio packages or silently accept a null-only build.
+    foreach(backend ALSA PULSEAUDIO PIPEWIRE JACK OSS SOLARIS SNDIO PORTAUDIO OBOE)
+        set(ALSOFT_BACKEND_${backend} OFF CACHE BOOL "" FORCE)
+    endforeach()
+    set(ALSOFT_BACKEND_OPENSL ON CACHE BOOL "" FORCE)
+    set(ALSOFT_REQUIRE_OPENSL ON CACHE BOOL "" FORCE)
 else()
     set(ALSOFT_BACKEND_ALSA ON CACHE BOOL "" FORCE)
     set(ALSOFT_BACKEND_PULSEAUDIO ON CACHE BOOL "" FORCE)
@@ -343,17 +344,7 @@ add_subdirectory(openal-soft EXCLUDE_FROM_ALL)
 endif()
 
 # LibreSSL
-if (TARGET LibreSSL::SSL OR TARGET LibreSSL::Crypto)
-    set(SSL_DEPENDENCIES LibreSSL::SSL LibreSSL::Crypto)
-elseif (TARGET OpenSSL::SSL OR TARGET OpenSSL::Crypto)
-    set(SSL_DEPENDENCIES OpenSSL::SSL OpenSSL::Crypto)
-else()
-    set(LIBRESSL_SKIP_INSTALL ON CACHE BOOL "" FORCE)
-    set(LIBRESSL_APPS OFF CACHE BOOL "" FORCE)
-    set(LIBRESSL_TESTS OFF CACHE BOOL "" FORCE)
-    add_subdirectory(libressl EXCLUDE_FROM_ALL)
-    get_directory_property(SSL_DEPENDENCIES DIRECTORY libressl DEFINITION OPENSSL_LIBS)
-endif()
+shadps4_add_host_portable_dependency(libressl)
 
 # cpp-httplib
 add_library(Cpp_Httplib INTERFACE)

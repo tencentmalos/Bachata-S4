@@ -1,0 +1,163 @@
+{
+  "status": "BUILD_PASS",
+  "scope": "five dependency groups / linked probe; not full host",
+  "profile": {
+    "ndk": "/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865",
+    "ndk_properties": "Pkg.Desc = Android NDK\nPkg.Revision = 29.0.14206865\nPkg.BaseRevision = 29.0.14206865\nPkg.ReleaseName = r29\n",
+    "compiler": "Android (13989888, +pgo, -bolt, +lto, -mlgo, based on r563880c) clang version 21.0.0 (https://android.googlesource.com/toolchain/llvm-project 5e96669f06077099aa41290cdb4c5e6fa0f59349)\nTarget: arm64-apple-darwin25.5.0\nThread model: posix\nInstalledDir: /Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/bin",
+    "api": 33,
+    "abi": "arm64-v8a",
+    "stl": "c++_shared",
+    "build_type": "RelWithDebInfo",
+    "source_dir": "/Users/bytedance/workspace/emulations/ps4/shadps4/cmake/android-host-deps"
+  },
+  "source": {
+    "head": "2d01ce4b23c2b520d89904c6e702ee687c8e00c4",
+    "recipes": {
+      "cmake/HostPortableDependencies.cmake": "83db330deb2c7a87b9aabca825522b03f8cb7b0459863226d8795e9bd160daaa",
+      "scripts/android/build-host-deps": "6dc2bcb1e61eeb23c372527100b6830ec9ae323238df991ef120fd9908bd0f1e",
+      "cmake/android-host-deps/CMakeLists.txt": "05bf99e0931a032f5d4bcda9c98169c78377387d73a92ef373c4a57aaba78b56",
+      "cmake/android-host-deps/probe.cpp": "4cfcb6669fcce7d8882bab2dd72fc90f94b9a34472527e1a90c7f55c37fc6087",
+      "cmake/android-host-deps/smoke.cpp": "dee657397a6306a32387c6c0178daa3a6ade7127000b32eda9efbab4701e52c4"
+    },
+    "dependencies": {
+      "date": {
+        "commit": "a45ea7c17b4a7f320e199b71436074bd624c9e15",
+        "status": "",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "glslang": {
+        "commit": "ba1640446f3826a518721d1f083f3a8cca1120c3",
+        "status": "",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "zydis": {
+        "commit": "120e0e705f8e3b507dc49377ac2879979f0d545c",
+        "status": "",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "miniz": {
+        "commit": "174573d60290f447c13a2b1b3405de2b96e27d6c",
+        "status": "",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "libressl": {
+        "commit": "b0504086dbbc186724b0cc92e6ba1832c245de0b",
+        "status": "",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  },
+  "commands": [
+    {
+      "argv": [
+        "cmake",
+        "-S",
+        "/Users/bytedance/workspace/emulations/ps4/shadps4/cmake/android-host-deps",
+        "-B",
+        "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-deps-api33-delivery",
+        "-G",
+        "Ninja",
+        "-DCMAKE_TOOLCHAIN_FILE=/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/build/cmake/android.toolchain.cmake",
+        "-DANDROID_ABI=arm64-v8a",
+        "-DANDROID_PLATFORM=android-33",
+        "-DANDROID_STL=c++_shared",
+        "-DCMAKE_BUILD_TYPE=RelWithDebInfo"
+      ],
+      "log": "configure.txt",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "cmake",
+        "--build",
+        "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-deps-api33-delivery",
+        "--target",
+        "host_deps_smoke",
+        "-j",
+        "6"
+      ],
+      "log": "build.txt",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-readelf",
+        "-h",
+        "-d",
+        "-n",
+        "--version-info",
+        "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-deps-api33-delivery/libhost_deps_probe.so"
+      ],
+      "log": "elf.txt",
+      "exit_code": 0
+    }
+  ],
+  "device_status": "PASS",
+  "artifacts": [
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-deps-api33-delivery/libhost_deps_probe.so",
+      "sha256": "12c3442bdd8f218f81d61aa8303a6878f10b6f0c70f8c3b9ac5aa3388381a4b5",
+      "device_sha256": "12c3442bdd8f218f81d61aa8303a6878f10b6f0c70f8c3b9ac5aa3388381a4b5"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-deps-api33-delivery/host_deps_smoke",
+      "sha256": "4039cbcb6dcd70d0b338e0fa266a7de592fccad8d2f216588a8fb9d1ac60ea8a",
+      "device_sha256": "4039cbcb6dcd70d0b338e0fa266a7de592fccad8d2f216588a8fb9d1ac60ea8a"
+    },
+    {
+      "path": "/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so",
+      "sha256": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352",
+      "device_sha256": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352"
+    }
+  ],
+  "static_libraries": [
+    {
+      "path": "date/libdate-tz.a",
+      "sha256": "53a011688d675698425bfb224687a3673d0da91a98cdcbe3964469cdf5742d95"
+    },
+    {
+      "path": "glslang/glslang/libglslang-default-resource-limits.a",
+      "sha256": "4712a7a8a27b793a9f8d4d52cdb84a4de902e1ce5140f108c04e4f8f2fd38a38"
+    },
+    {
+      "path": "glslang/glslang/libglslang.a",
+      "sha256": "d1161d847b2412fdab284a98337c4bb7779965b12757ec7bfd14df0621a512ca"
+    },
+    {
+      "path": "libressl/crypto/libcrypto.a",
+      "sha256": "893bf95b60dc69ec50fd094ecc0dca717fabbd8effde7ae2678499b5b8fc80a8"
+    },
+    {
+      "path": "libressl/ssl/libssl.a",
+      "sha256": "86c3a78a3a6a957fed5b8705a56394e02b85bdabfefcc01879ac02c5bd4db0e9"
+    },
+    {
+      "path": "miniz/libminiz.a",
+      "sha256": "3313eb8e4c41b4500acd85204d186ff5dd830fed41ff3608e9ab169350f20dc7"
+    },
+    {
+      "path": "zydis/libZydis.a",
+      "sha256": "9ce2c3faa4f88bc1626e33940baffabc0c823e95546a29206a0ebddc533ec19b"
+    },
+    {
+      "path": "zydis/zycore/libZycore.a",
+      "sha256": "994adcb1f6cddbdd882d1f5a8f44dce1b5e31e49f3f237d9e24e022e699b4b9f"
+    }
+  ],
+  "link_map_sha256": "487860645114d36b29e5af51edde6d63ce3246ba8cecdb84d36a491b7fd6ee45",
+  "device": {
+    "serial": "9c2841a4",
+    "command": [
+      "adb",
+      "-s",
+      "9c2841a4",
+      "shell",
+      "LD_LIBRARY_PATH=/data/local/tmp/shadps4-host-deps /data/local/tmp/shadps4-host-deps/host_deps_smoke"
+    ],
+    "exit_code": 0,
+    "scope": "shell UID / CLI auxiliary; not APK or Turnip",
+    "api": "33",
+    "page_size": "4096"
+  }
+}

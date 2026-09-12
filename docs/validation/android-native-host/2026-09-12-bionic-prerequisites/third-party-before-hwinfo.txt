@@ -1,0 +1,16 @@
+PASS fmt
+PASS spdlog
+PASS zlib_roundtrip
+PASS png_version
+PASS freetype_init
+PASS sdl3_version
+PASS sirit_assemble
+PASS openal_device_context
+PASS libusb_version
+PASS fdk_aac_open
+PASS zstd_roundtrip
+PASS protobuf_roundtrip
+hwinfo os=Linux kernel=5.15.123-android13-8-gafd857749d1f
+FAIL hwinfo_arch
+PASS httplib_tls_context
+checks=14 failures=1

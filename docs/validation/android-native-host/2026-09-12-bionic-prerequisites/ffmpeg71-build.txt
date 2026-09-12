@@ -1,0 +1,10 @@
+[0/1] Re-running CMake...
+-- Configuring done (8.7s)
+-- Generating done (0.9s)
+-- Build files have been written to: /Users/bytedance/workspace/emulations/ps4/shadps4/build/android-ffmpeg-api33
+[1/7] Performing build step for 'ffmpeg_android_build'
+[2/7] No install step for 'ffmpeg_android_build'
+[3/7] Completed 'ffmpeg_android_build'
+[4/7] Building CXX object CMakeFiles/ffmpeg_media_probe.dir/probe.cpp.o
+[5/7] Linking CXX shared library libffmpeg_media_probe.so
+[6/7] Linking CXX executable ffmpeg_media_smoke

@@ -1,0 +1,5 @@
+/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-ffmpeg-api33/ffmpeg_media_smoke: 1 file pushed, 0 skipped. 0.0 MB/s (7544 bytes in 0.317s)
+/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-ffmpeg-api33/libffmpeg_media_probe.so: 1 file pushed, 0 skipped. 18.8 MB/s (18210104 bytes in 0.923s)
+/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-ffmpeg-api33/probe.mp4: 1 file pushed, 0 skipped. 0.0 MB/s (1598 bytes in 0.031s)
+/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so: 1 file pushed, 0 skipped. 0.8 MB/s (9290184 bytes in 11.508s)
+4 files pushed, 0 skipped. 2.0 MB/s (27509430 bytes in 12.862s)

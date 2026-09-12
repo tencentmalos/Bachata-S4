@@ -1,0 +1,10 @@
+PASS current_timezone
+timezone=Asia/Shanghai
+PASS tzdata_lookup
+PASS libressl_sha256
+PASS libressl_tls_context
+PASS miniz_crc32
+PASS zydis_x86_decode_on_arm64
+PASS glslang_initialize
+PASS glsl_to_spirv
+checks=8 failures=0

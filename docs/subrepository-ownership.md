@@ -77,3 +77,13 @@ gh api repos/tencentmalos/Bachata-S4/git/ref/heads/codex/android-fex-v0-arm64 --
 gh api repos/tencentmalos/FEX/git/ref/heads/codex/android-fex-v0 --jq .object.sha
 gh api repos/tencentmalos/foundation/git/ref/heads/codex/shadps4-android-fex-v0 --jq .object.sha
 ```
+
+## bionic 依赖补充（2026-09-12）
+
+新增`externals/ffmpeg`：owned `tencentmalos/FFmpeg`，分支`codex/shadps4-bionic-7.1`，最终pin `e17ba6e21ed195cca87ffc1a9d580823e955d427`，官方n7.1.5基点`3a0867c2…`，增加独立NDK adapter及增量链接修复。子仓先commit/push再推进主仓。
+
+新增`externals/libadrenotools`：owned `tencentmalos/libadrenotools`，分支`codex/shadps4-bionic`，保持azahar匹配pin`60ae5bbce9741d5db38c64670bbbf8e5828cabfb`，无源码改动；嵌套owned linkernsbypass保持`aa3975893d83ef1bc84c321ec60c65fbf1287887`。已验证相应remote ref包含pin。
+
+另将`externals/hwinfo`迁至新fork `tencentmalos/ext-hwinfo`，分支`codex/shadps4-bionic`，原pin`8660006e`上修复Android位数误判，最终`85bbcba35228b32f178f02cc537c39361614e18b`。该fork由恢复登录后的gh创建；修改前先推base分支并用gh核对，修改后child先push、parent后推进。AYN原14项探针全过。
+
+早期FFmpeg/adrenotools使用Git SSH；后续gh已重新登录tencentmalos，四个owned refs均通过API重新核对，见[证据](validation/android-native-host/2026-09-12-bionic-prerequisites/owned-refs.json)。其他健康第三方子仓不因仅需主仓CMake配置而换pin。按用户修正，独立FFmpeg/其他独立库不搬入Foundation；本轮Foundation pin不变。复用矩阵和运行边界见[三方库核查](validation/android-native-host/bionic-third-party-audit-2026-09-12.md)。

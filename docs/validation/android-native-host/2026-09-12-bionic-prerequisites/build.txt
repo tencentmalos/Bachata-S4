@@ -1,0 +1,816 @@
+[1/564] Building C object zydis/zycore/CMakeFiles/Zycore.dir/src/API/Terminal.c.o
+[2/564] Building C object zydis/zycore/CMakeFiles/Zycore.dir/src/API/Synchronization.c.o
+[3/564] Building C object zydis/zycore/CMakeFiles/Zycore.dir/src/API/Thread.c.o
+[4/564] Building C object zydis/zycore/CMakeFiles/Zycore.dir/src/Allocator.c.o
+[5/564] Building C object zydis/zycore/CMakeFiles/Zycore.dir/src/ArgParse.c.o
+[6/564] Building C object zydis/zycore/CMakeFiles/Zycore.dir/src/Bitset.c.o
+[7/564] Building C object zydis/zycore/CMakeFiles/Zycore.dir/src/API/Memory.c.o
+[8/564] Building C object zydis/zycore/CMakeFiles/Zycore.dir/src/API/Process.c.o
+[9/564] Building C object zydis/zycore/CMakeFiles/Zycore.dir/src/Format.c.o
+[10/564] Building C object zydis/zycore/CMakeFiles/Zycore.dir/src/List.c.o
+[11/564] Building C object zydis/zycore/CMakeFiles/Zycore.dir/src/Zycore.c.o
+[12/564] Building C object zydis/zycore/CMakeFiles/Zycore.dir/src/String.c.o
+[13/564] Building C object libressl/crypto/CMakeFiles/compat_obj.dir/empty.c.o
+[14/564] Building C object zydis/zycore/CMakeFiles/Zycore.dir/src/Vector.c.o
+[15/564] Building C object libressl/crypto/CMakeFiles/compat_obj.dir/compat/freezero.c.o
+[16/564] Building C object libressl/crypto/CMakeFiles/compat_obj.dir/compat/recallocarray.c.o
+[17/564] Building C object libressl/crypto/CMakeFiles/compat_obj.dir/compat/strtonum.c.o
+[18/564] Building C object libressl/crypto/CMakeFiles/compat_obj.dir/compat/explicit_bzero.c.o
+[19/564] Building C object libressl/crypto/CMakeFiles/compat_obj.dir/compat/syslog_r.c.o
+[20/564] Building C object libressl/crypto/CMakeFiles/compat_obj.dir/compat/timingsafe_bcmp.c.o
+[21/564] Building C object libressl/crypto/CMakeFiles/compat_obj.dir/compat/timingsafe_memcmp.c.o
+[22/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/arch/aarch64/crypto_cpu_caps_none.c.o
+[23/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/crypto_ex_data.c.o
+[24/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/crypto_err.c.o
+[25/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/crypto_legacy.c.o
+[26/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/crypto_memory.c.o
+[27/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/aes/aes_core.c.o
+[28/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/aes/aes.c.o
+[29/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/a_enum.c.o
+[30/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/a_bitstr.c.o
+[31/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/a_int.c.o
+[32/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/a_octet.c.o
+[33/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/a_object.c.o
+[34/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/a_mbstr.c.o
+[35/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/a_pkey.c.o
+[36/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/crypto_init.c.o
+[37/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/a_pubkey.c.o
+[38/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/a_print.c.o
+[39/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/a_string.c.o
+[40/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/a_strex.c.o
+[41/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/a_strnid.c.o
+[42/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/a_time.c.o
+[43/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/a_time_tm.c.o
+[44/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/a_time_posix.c.o
+[45/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/a_type.c.o
+[46/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/a_utf8.c.o
+[47/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/asn1_err.c.o
+[48/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/asn1_item.c.o
+[49/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/asn1_gen.c.o
+[50/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/asn1_lib.c.o
+[51/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/asn1_old.c.o
+[52/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/asn1_old_lib.c.o
+[53/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/asn1_par.c.o
+[54/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/asn1_types.c.o
+[55/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/asn_moid.c.o
+[56/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/asn_mime.c.o
+[57/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/bio_asn1.c.o
+[58/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/bio_ndef.c.o
+[59/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/p5_pbe.c.o
+[60/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/p5_pbev2.c.o
+[61/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/p8_pkey.c.o
+[62/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/t_crl.c.o
+[63/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/t_req.c.o
+[64/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/t_spki.c.o
+[65/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/t_x509a.c.o
+[66/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/t_x509.c.o
+[67/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/tasn_dec.c.o
+[68/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/tasn_enc.c.o
+[69/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/tasn_new.c.o
+[70/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/tasn_fre.c.o
+[71/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/tasn_prn.c.o
+[72/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/tasn_typ.c.o
+[73/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/tasn_utl.c.o
+[74/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/x_algor.c.o
+[75/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/x_attrib.c.o
+[76/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/x_bignum.c.o
+[77/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/x_crl.c.o
+[78/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/x_exten.c.o
+[79/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/x_long.c.o
+[80/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/x_name.c.o
+[81/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/x_val.c.o
+[82/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/x_req.c.o
+[83/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/x_sig.c.o
+[84/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/x_spki.c.o
+[85/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/x_pubkey.c.o
+[86/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bf/blowfish.c.o
+[87/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bio/b_print.c.o
+[88/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/x_x509.c.o
+[89/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/asn1/x_x509a.c.o
+[90/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bio/b_dump.c.o
+[91/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bio/bf_nbio.c.o
+[92/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bio/bf_buff.c.o
+[93/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bio/bf_null.c.o
+[94/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bio/bio_cb.c.o
+[95/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bio/bio_err.c.o
+[96/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bio/bio_lib.c.o
+[97/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bio/bio_meth.c.o
+[98/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bio/bss_bio.c.o
+[99/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bio/bss_fd.c.o
+[100/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bio/bss_acpt.c.o
+[101/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bio/bss_file.c.o
+[102/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bio/bss_mem.c.o
+[103/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bio/bss_dgram.c.o
+[104/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bio/bss_conn.c.o
+[105/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bio/bss_null.c.o
+[106/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bio/bss_sock.c.o
+[107/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bn/bn_add_sub.c.o
+[108/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bn/bn_add.c.o
+[109/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bn/bn_bpsw.c.o
+[110/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bn/bn_const.c.o
+[111/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bn/bn_ctx.c.o
+[112/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bn/bn_convert.c.o
+[113/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bn/bn_div.c.o
+[114/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bn/bn_err.c.o
+[115/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bn/bn_exp.c.o
+[116/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bn/bn_isqrt.c.o
+[117/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bn/bn_kron.c.o
+[118/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bn/bn_gcd.c.o
+[119/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bn/bn_mod.c.o
+[120/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bn/bn_lib.c.o
+[121/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bn/bn_mod_sqrt.c.o
+[122/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bio/b_sock.c.o
+[123/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bn/bn_mod_words.c.o
+[124/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bn/bn_mont.c.o
+[125/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bn/bn_mul.c.o
+[126/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bn/bn_print.c.o
+[127/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bn/bn_prime.c.o
+[128/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bn/bn_primitives.c.o
+[129/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bn/bn_rand.c.o
+[130/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bn/bn_recp.c.o
+[131/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bn/bn_small_primes.c.o
+[132/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bn/bn_shift.c.o
+[133/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bn/bn_sqr.c.o
+[134/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bn/bn_word.c.o
+[135/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/buffer/buf_err.c.o
+[136/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/buffer/buffer.c.o
+[137/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bytestring/bs_ber.c.o
+[138/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bytestring/bs_cbb.c.o
+[139/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bytestring/bs_cbs.c.o
+[140/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/camellia/camellia.c.o
+[141/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/cast/cast.c.o
+[142/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/chacha/chacha.c.o
+[143/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/cmac/cmac.c.o
+[144/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/cmac/cm_ameth.c.o
+[145/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/cms/cms_asn1.c.o
+[146/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/cmac/cm_pmeth.c.o
+[147/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/cms/cms_enc.c.o
+[148/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/cms/cms_att.c.o
+[149/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/cms/cms_dd.c.o
+[150/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/cms/cms_err.c.o
+[151/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/cms/cms_kari.c.o
+[152/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/cms/cms_env.c.o
+[153/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/cms/cms_io.c.o
+[154/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/cms/cms_ess.c.o
+[155/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/cms/cms_lib.c.o
+[156/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/cms/cms_pwri.c.o
+[157/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/cms/cms_sd.c.o
+[158/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/cms/cms_smime.c.o
+[159/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/conf/conf_api.c.o
+[160/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/conf/conf_err.c.o
+[161/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/conf/conf_def.c.o
+[162/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/conf/conf_lib.c.o
+[163/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/conf/conf_mod.c.o
+[164/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ct/ct_b64.c.o
+[165/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ct/ct_err.c.o
+[166/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/conf/conf_sap.c.o
+[167/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ct/ct_log.c.o
+[168/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ct/ct_policy.c.o
+[169/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ct/ct_sct.c.o
+[170/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ct/ct_oct.c.o
+[171/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ct/ct_sct_ctx.c.o
+[172/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/curve25519/curve25519-generic.c.o
+[173/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ct/ct_x509v3.c.o
+[174/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ct/ct_vfy.c.o
+[175/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ct/ct_prn.c.o
+[176/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/curve25519/curve25519.c.o
+[177/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/des/des_fcrypt.c.o
+[178/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/des/des_cksum.c.o
+[179/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/des/des_enc.c.o
+[180/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/des/des_key.c.o
+[181/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/des/des.c.o
+[182/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/dh/dh_ameth.c.o
+[183/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/dh/dh_asn1.c.o
+[184/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/dh/dh_check.c.o
+[185/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/dh/dh_err.c.o
+[186/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/dh/dh_gen.c.o
+[187/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/dh/dh_key.c.o
+[188/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/dh/dh_lib.c.o
+[189/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/dh/dh_pmeth.c.o
+[190/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/dsa/dsa_ameth.c.o
+[191/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/dsa/dsa_asn1.c.o
+[192/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/dsa/dsa_err.c.o
+[193/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/dsa/dsa_gen.c.o
+[194/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/dsa/dsa_key.c.o
+[195/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/dsa/dsa_lib.c.o
+[196/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/dsa/dsa_meth.c.o
+[197/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/dsa/dsa_pmeth.c.o
+[198/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/dsa/dsa_ossl.c.o
+[199/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/dsa/dsa_prn.c.o
+[200/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ec/ec_ameth.c.o
+[201/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ec/ec_convert.c.o
+[202/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ec/ec_asn1.c.o
+[203/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ec/ec_curve.c.o
+[204/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ec/ec_err.c.o
+[205/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ec/ec_field.c.o
+[206/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ec/ec_key.c.o
+[207/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ec/ec_lib.c.o
+[208/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ec/ec_mult.c.o
+[209/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ec/eck_prn.c.o
+[210/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ec/ec_pmeth.c.o
+[211/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ec/ecp_methods.c.o
+[212/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ec/ecx_methods.c.o
+[213/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ec/ecp_hp_methods.c.o
+[214/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ecdh/ecdh.c.o
+[215/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ecdsa/ecdsa.c.o
+[216/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/engine/engine_stubs.c.o
+[217/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/err/err.c.o
+[218/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/err/err_prn.c.o
+[219/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/err/err_all.c.o
+[220/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/bio_enc.c.o
+[221/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/bio_b64.c.o
+[222/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/bio_md.c.o
+[223/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/e_aes.c.o
+[224/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/e_bf.c.o
+[225/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/e_cast.c.o
+[226/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/e_chacha.c.o
+[227/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/e_camellia.c.o
+[228/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/e_chacha20poly1305.c.o
+[229/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/e_des.c.o
+[230/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/e_des3.c.o
+[231/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/e_null.c.o
+[232/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/e_idea.c.o
+[233/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/e_rc4.c.o
+[234/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/e_sm4.c.o
+[235/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/e_rc2.c.o
+[236/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/evp_aead.c.o
+[237/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/e_xcbc_d.c.o
+[238/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/evp_cipher.c.o
+[239/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/evp_digest.c.o
+[240/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/evp_encode.c.o
+[241/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/evp_err.c.o
+[242/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/evp_key.c.o
+[243/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/evp_names.c.o
+[244/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/evp_pkey.c.o
+[245/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/evp_pbe.c.o
+[246/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/m_md5_sha1.c.o
+[247/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/m_md5.c.o
+[248/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/m_ripemd.c.o
+[249/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/m_md4.c.o
+[250/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/m_null.c.o
+[251/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/m_sha1.c.o
+[252/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/m_sigver.c.o
+[253/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/m_sha3.c.o
+[254/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/m_sm3.c.o
+[255/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/p_legacy.c.o
+[256/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/p_lib.c.o
+[257/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/p_sign.c.o
+[258/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/p_verify.c.o
+[259/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/pmeth_fn.c.o
+[260/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/pmeth_gn.c.o
+[261/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/hkdf/hkdf.c.o
+[262/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/evp/pmeth_lib.c.o
+[263/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/hmac/hm_ameth.c.o
+[264/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/hmac/hm_pmeth.c.o
+[265/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/hmac/hmac.c.o
+[266/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/kdf/hkdf_evp.c.o
+[267/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/idea/idea.c.o
+[268/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/kdf/kdf_err.c.o
+[269/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/kdf/tls1_prf.c.o
+[270/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/lhash/lhash.c.o
+[271/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/mlkem/mlkem_key.c.o
+[272/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/md4/md4.c.o
+[273/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/md5/md5.c.o
+[274/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/mlkem/mlkem.c.o
+[275/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/mlkem/mlkem_internal.c.o
+[276/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/modes/ctr128.c.o
+[277/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/modes/cbc128.c.o
+[278/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/modes/cfb128.c.o
+[279/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/modes/ccm128.c.o
+[280/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/modes/gcm128.c.o
+[281/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/modes/ofb128.c.o
+[282/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/modes/xts128.c.o
+[283/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/objects/obj_err.c.o
+[284/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/objects/obj_lib.c.o
+[285/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/objects/obj_dat.c.o
+[286/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/objects/obj_xref.c.o
+[287/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ocsp/ocsp_err.c.o
+[288/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ocsp/ocsp_asn.c.o
+[289/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ocsp/ocsp_cl.c.o
+[290/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ocsp/ocsp_ext.c.o
+[291/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ocsp/ocsp_ht.c.o
+[292/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ocsp/ocsp_lib.c.o
+[293/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ocsp/ocsp_prn.c.o
+[294/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ocsp/ocsp_srv.c.o
+[295/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ocsp/ocsp_vfy.c.o
+[296/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/pem/pem_err.c.o
+[297/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/pem/pem_all.c.o
+[298/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/pem/pem_info.c.o
+[299/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/pem/pem_lib.c.o
+[300/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/pem/pem_oth.c.o
+[301/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/pem/pem_pk8.c.o
+[302/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/pem/pem_sign.c.o
+[303/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/pem/pem_pkey.c.o
+[304/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/pem/pem_x509.c.o
+[305/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/pem/pem_xaux.c.o
+[306/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/pkcs12/p12_add.c.o
+[307/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/pem/pvkfmt.c.o
+[308/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/pkcs12/p12_attr.c.o
+[309/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/pkcs12/p12_asn.c.o
+[310/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/pkcs12/p12_crt.c.o
+[311/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/pkcs12/p12_init.c.o
+[312/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/pkcs12/p12_decr.c.o
+[313/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/pkcs12/p12_key.c.o
+[314/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/pkcs12/p12_kiss.c.o
+[315/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/pkcs12/p12_mutl.c.o
+[316/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/pkcs12/p12_p8d.c.o
+[317/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/pkcs12/p12_npas.c.o
+[318/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/pkcs12/p12_p8e.c.o
+[319/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/pkcs12/p12_sbag.c.o
+[320/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/pkcs12/p12_utl.c.o
+[321/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/pkcs12/pk12err.c.o
+[322/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/pkcs7/pk7_asn1.c.o
+[323/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/pkcs7/pk7_attr.c.o
+[324/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/pkcs7/pk7_doit.c.o
+[325/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/pkcs7/pk7_lib.c.o
+[326/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/pkcs7/pk7_mime.c.o
+[327/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/pkcs7/pk7_smime.c.o
+[328/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/pkcs7/pkcs7err.c.o
+[329/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/poly1305/poly1305.c.o
+[330/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/rand/rand_err.c.o
+[331/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/rand/rand_lib.c.o
+[332/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/rc2/rc2.c.o
+[333/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/rc4/rc4.c.o
+[334/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ripemd/ripemd.c.o
+[335/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/rsa/rsa_ameth.c.o
+[336/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/rsa/rsa_asn1.c.o
+[337/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/rsa/rsa_blinding.c.o
+[338/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/rsa/rsa_chk.c.o
+[339/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/rsa/rsa_err.c.o
+[340/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/rsa/rsa_eay.c.o
+[341/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/rsa/rsa_gen.c.o
+[342/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/rsa/rsa_lib.c.o
+[343/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/rsa/rsa_none.c.o
+[344/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/rsa/rsa_meth.c.o
+[345/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/rsa/rsa_oaep.c.o
+[346/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/rsa/rsa_pk1.c.o
+[347/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/rsa/rsa_prn.c.o
+[348/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/rand/randfile.c.o
+[349/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/rsa/rsa_pss.c.o
+[350/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/rsa/rsa_saos.c.o
+[351/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/rsa/rsa_pmeth.c.o
+[352/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/rsa/rsa_sign.c.o
+[353/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/rsa/rsa_x931.c.o
+[354/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/sha/sha3.c.o
+[355/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/sha/sha1.c.o
+[356/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/sha/sha256.c.o
+[357/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/sha/sha512.c.o
+[358/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/sm4/sm4.c.o
+[359/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/sm3/sm3.c.o
+[360/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/stack/stack.c.o
+[361/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ts/ts_asn1.c.o
+[362/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ts/ts_conf.c.o
+[363/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ts/ts_err.c.o
+[364/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ts/ts_lib.c.o
+[365/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ts/ts_req_print.c.o
+[366/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ts/ts_rsp_print.c.o
+[367/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ts/ts_req_utils.c.o
+[368/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ts/ts_rsp_sign.c.o
+[369/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ts/ts_rsp_utils.c.o
+[370/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ts/ts_rsp_verify.c.o
+[371/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ui/ui_err.c.o
+[372/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ui/ui_null.c.o
+[373/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ts/ts_verify_ctx.c.o
+[374/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/txt_db/txt_db.c.o
+[375/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ui/ui_lib.c.o
+[376/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/by_mem.c.o
+[377/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/by_dir.c.o
+[378/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/by_file.c.o
+[379/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_akey.c.o
+[380/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_addr.c.o
+[381/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_akeya.c.o
+[382/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_asid.c.o
+[383/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_att.c.o
+[384/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_bcons.c.o
+[385/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_bitst.c.o
+[386/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_cmp.c.o
+[387/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_conf.c.o
+[388/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_alt.c.o
+[389/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_constraints.c.o
+[390/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_d2.c.o
+[391/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_cpols.c.o
+[392/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_crld.c.o
+[393/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_def.c.o
+[394/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_err.c.o
+[395/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_ext.c.o
+[396/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_extku.c.o
+[397/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_genn.c.o
+[398/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_info.c.o
+[399/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_ia5.c.o
+[400/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_int.c.o
+[401/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_lib.c.o
+[402/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_issuer_cache.c.o
+[403/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_lu.c.o
+[404/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_ncons.c.o
+[405/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_obj.c.o
+[406/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_ocsp.c.o
+[407/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_pcons.c.o
+[408/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_pmaps.c.o
+[409/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_pku.c.o
+[410/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_policy.c.o
+[411/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_prn.c.o
+[412/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_purp.c.o
+[413/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_r2x.c.o
+[414/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_req.c.o
+[415/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_set.c.o
+[416/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_siginfo.c.o
+[417/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_skey.c.o
+[418/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_txt.c.o
+[419/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_trs.c.o
+[420/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_utl.c.o
+[421/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_v3.c.o
+[422/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509cset.c.o
+[423/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_vpm.c.o
+[424/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_verify.c.o
+[425/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509_vfy.c.o
+[426/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509name.c.o
+[427/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509rset.c.o
+[428/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509spki.c.o
+[429/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x509type.c.o
+[430/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/x509/x_all.c.o
+[431/564] Building C object libressl/crypto/CMakeFiles/crypto.dir/empty.c.o
+[432/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/crypto_lock.c.o
+[433/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/bio/b_posix.c.o
+[434/564] Building C object libressl/crypto/CMakeFiles/crypto_obj.dir/ui/ui_openssl.c.o
+[435/564] Building C object zydis/CMakeFiles/Zydis.dir/src/Mnemonic.c.o
+[436/564] Building C object zydis/CMakeFiles/Zydis.dir/src/MetaInfo.c.o
+[437/564] Building C object zydis/CMakeFiles/Zydis.dir/src/Register.c.o
+[438/564] Building C object zydis/CMakeFiles/Zydis.dir/src/SharedData.c.o
+[439/564] Building C object zydis/CMakeFiles/Zydis.dir/src/Utils.c.o
+[440/564] Building C object zydis/CMakeFiles/Zydis.dir/src/String.c.o
+[441/564] Building C object zydis/CMakeFiles/Zydis.dir/src/Zydis.c.o
+[442/564] Building C object zydis/CMakeFiles/Zydis.dir/src/DecoderData.c.o
+[443/564] Building C object zydis/CMakeFiles/Zydis.dir/src/Decoder.c.o
+[444/564] Building C object zydis/CMakeFiles/Zydis.dir/src/EncoderData.c.o
+[445/564] Building C object zydis/CMakeFiles/Zydis.dir/src/Disassembler.c.o
+[446/564] Building C object zydis/CMakeFiles/Zydis.dir/src/Encoder.c.o
+[447/564] Building C object zydis/CMakeFiles/Zydis.dir/src/Formatter.c.o
+[448/564] Building C object zydis/CMakeFiles/Zydis.dir/src/FormatterBuffer.c.o
+[449/564] Building C object zydis/CMakeFiles/Zydis.dir/src/FormatterATT.c.o
+[450/564] Building C object zydis/CMakeFiles/Zydis.dir/src/FormatterBase.c.o
+[451/564] Building C object zydis/CMakeFiles/Zydis.dir/src/FormatterIntel.c.o
+[452/564] Building C object zydis/CMakeFiles/Zydis.dir/src/Segment.c.o
+[453/564] Building C object miniz/CMakeFiles/miniz.dir/miniz.c.o
+In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.c:27:
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:605:23: warning: no newline at end of file [-Wnewline-eof]
+  605 | #include "miniz_zip.h"
+      |                       ^
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:492:16: warning: unused function 'deflateInit' [-Wunused-function]
+  492 |     static int deflateInit(mz_streamp pStream, int level)
+      |                ^~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:496:16: warning: unused function 'deflateInit2' [-Wunused-function]
+  496 |     static int deflateInit2(mz_streamp pStream, int level, int method, int window_bits, int mem_level, int strategy)
+      |                ^~~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:500:16: warning: unused function 'deflateReset' [-Wunused-function]
+  500 |     static int deflateReset(mz_streamp pStream)
+      |                ^~~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:504:16: warning: unused function 'deflate' [-Wunused-function]
+  504 |     static int deflate(mz_streamp pStream, int flush)
+      |                ^~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:508:16: warning: unused function 'deflateEnd' [-Wunused-function]
+  508 |     static int deflateEnd(mz_streamp pStream)
+      |                ^~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:512:21: warning: unused function 'deflateBound' [-Wunused-function]
+  512 |     static mz_ulong deflateBound(mz_streamp pStream, mz_ulong source_len)
+      |                     ^~~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:516:16: warning: unused function 'compress' [-Wunused-function]
+  516 |     static int compress(unsigned char *pDest, mz_ulong *pDest_len, const unsigned char *pSource, mz_ulong source_len)
+      |                ^~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:520:16: warning: unused function 'compress2' [-Wunused-function]
+  520 |     static int compress2(unsigned char *pDest, mz_ulong *pDest_len, const unsigned char *pSource, mz_ulong source_len, int level)
+      |                ^~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:524:21: warning: unused function 'compressBound' [-Wunused-function]
+  524 |     static mz_ulong compressBound(mz_ulong source_len)
+      |                     ^~~~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:532:16: warning: unused function 'inflateInit' [-Wunused-function]
+  532 |     static int inflateInit(mz_streamp pStream)
+      |                ^~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:537:16: warning: unused function 'inflateInit2' [-Wunused-function]
+  537 |     static int inflateInit2(mz_streamp pStream, int window_bits)
+      |                ^~~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:542:16: warning: unused function 'inflateReset' [-Wunused-function]
+  542 |     static int inflateReset(mz_streamp pStream)
+      |                ^~~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:547:16: warning: unused function 'inflate' [-Wunused-function]
+  547 |     static int inflate(mz_streamp pStream, int flush)
+      |                ^~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:552:16: warning: unused function 'inflateEnd' [-Wunused-function]
+  552 |     static int inflateEnd(mz_streamp pStream)
+      |                ^~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:557:16: warning: unused function 'uncompress' [-Wunused-function]
+  557 |     static int uncompress(unsigned char* pDest, mz_ulong* pDest_len, const unsigned char* pSource, mz_ulong source_len)
+      |                ^~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:562:16: warning: unused function 'uncompress2' [-Wunused-function]
+  562 |     static int uncompress2(unsigned char* pDest, mz_ulong* pDest_len, const unsigned char* pSource, mz_ulong* pSource_len)
+      |                ^~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:568:21: warning: unused function 'crc32' [-Wunused-function]
+  568 |     static mz_ulong crc32(mz_ulong crc, const unsigned char *ptr, size_t buf_len)
+      |                     ^~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:573:21: warning: unused function 'adler32' [-Wunused-function]
+  573 |     static mz_ulong adler32(mz_ulong adler, const unsigned char *ptr, size_t buf_len)
+      |                     ^~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:581:24: warning: unused function 'zError' [-Wunused-function]
+  581 |     static const char* zError(int err)
+      |                        ^~~~~~
+20 warnings generated.
+[454/564] Building C object miniz/CMakeFiles/miniz.dir/miniz_zip.c.o
+In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz_zip.c:27:
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:605:23: warning: no newline at end of file [-Wnewline-eof]
+  605 | #include "miniz_zip.h"
+      |                       ^
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz_zip.c:189:9: warning: Using fopen, ftello, fseeko, stat() etc. path for file I/O - this path may not support large files. [-W#pragma-messages]
+  189 | #pragma message("Using fopen, ftello, fseeko, stat() etc. path for file I/O - this path may not support large files.")
+      |         ^
+In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz_zip.c:27:
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:492:16: warning: unused function 'deflateInit' [-Wunused-function]
+  492 |     static int deflateInit(mz_streamp pStream, int level)
+      |                ^~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:496:16: warning: unused function 'deflateInit2' [-Wunused-function]
+  496 |     static int deflateInit2(mz_streamp pStream, int level, int method, int window_bits, int mem_level, int strategy)
+      |                ^~~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:500:16: warning: unused function 'deflateReset' [-Wunused-function]
+  500 |     static int deflateReset(mz_streamp pStream)
+      |                ^~~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:504:16: warning: unused function 'deflate' [-Wunused-function]
+  504 |     static int deflate(mz_streamp pStream, int flush)
+      |                ^~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:508:16: warning: unused function 'deflateEnd' [-Wunused-function]
+  508 |     static int deflateEnd(mz_streamp pStream)
+      |                ^~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:512:21: warning: unused function 'deflateBound' [-Wunused-function]
+  512 |     static mz_ulong deflateBound(mz_streamp pStream, mz_ulong source_len)
+      |                     ^~~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:516:16: warning: unused function 'compress' [-Wunused-function]
+  516 |     static int compress(unsigned char *pDest, mz_ulong *pDest_len, const unsigned char *pSource, mz_ulong source_len)
+      |                ^~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:520:16: warning: unused function 'compress2' [-Wunused-function]
+  520 |     static int compress2(unsigned char *pDest, mz_ulong *pDest_len, const unsigned char *pSource, mz_ulong source_len, int level)
+      |                ^~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:524:21: warning: unused function 'compressBound' [-Wunused-function]
+  524 |     static mz_ulong compressBound(mz_ulong source_len)
+      |                     ^~~~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:532:16: warning: unused function 'inflateInit' [-Wunused-function]
+  532 |     static int inflateInit(mz_streamp pStream)
+      |                ^~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:537:16: warning: unused function 'inflateInit2' [-Wunused-function]
+  537 |     static int inflateInit2(mz_streamp pStream, int window_bits)
+      |                ^~~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:542:16: warning: unused function 'inflateReset' [-Wunused-function]
+  542 |     static int inflateReset(mz_streamp pStream)
+      |                ^~~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:547:16: warning: unused function 'inflate' [-Wunused-function]
+  547 |     static int inflate(mz_streamp pStream, int flush)
+      |                ^~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:552:16: warning: unused function 'inflateEnd' [-Wunused-function]
+  552 |     static int inflateEnd(mz_streamp pStream)
+      |                ^~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:557:16: warning: unused function 'uncompress' [-Wunused-function]
+  557 |     static int uncompress(unsigned char* pDest, mz_ulong* pDest_len, const unsigned char* pSource, mz_ulong source_len)
+      |                ^~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:562:16: warning: unused function 'uncompress2' [-Wunused-function]
+  562 |     static int uncompress2(unsigned char* pDest, mz_ulong* pDest_len, const unsigned char* pSource, mz_ulong* pSource_len)
+      |                ^~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:568:21: warning: unused function 'crc32' [-Wunused-function]
+  568 |     static mz_ulong crc32(mz_ulong crc, const unsigned char *ptr, size_t buf_len)
+      |                     ^~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:573:21: warning: unused function 'adler32' [-Wunused-function]
+  573 |     static mz_ulong adler32(mz_ulong adler, const unsigned char *ptr, size_t buf_len)
+      |                     ^~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:581:24: warning: unused function 'zError' [-Wunused-function]
+  581 |     static const char* zError(int err)
+      |                        ^~~~~~
+21 warnings generated.
+[455/564] Building C object miniz/CMakeFiles/miniz.dir/miniz_tinfl.c.o
+In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz_tinfl.c:27:
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:605:23: warning: no newline at end of file [-Wnewline-eof]
+  605 | #include "miniz_zip.h"
+      |                       ^
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:492:16: warning: unused function 'deflateInit' [-Wunused-function]
+  492 |     static int deflateInit(mz_streamp pStream, int level)
+      |                ^~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:496:16: warning: unused function 'deflateInit2' [-Wunused-function]
+  496 |     static int deflateInit2(mz_streamp pStream, int level, int method, int window_bits, int mem_level, int strategy)
+      |                ^~~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:500:16: warning: unused function 'deflateReset' [-Wunused-function]
+  500 |     static int deflateReset(mz_streamp pStream)
+      |                ^~~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:504:16: warning: unused function 'deflate' [-Wunused-function]
+  504 |     static int deflate(mz_streamp pStream, int flush)
+      |                ^~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:508:16: warning: unused function 'deflateEnd' [-Wunused-function]
+  508 |     static int deflateEnd(mz_streamp pStream)
+      |                ^~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:512:21: warning: unused function 'deflateBound' [-Wunused-function]
+  512 |     static mz_ulong deflateBound(mz_streamp pStream, mz_ulong source_len)
+      |                     ^~~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:516:16: warning: unused function 'compress' [-Wunused-function]
+  516 |     static int compress(unsigned char *pDest, mz_ulong *pDest_len, const unsigned char *pSource, mz_ulong source_len)
+      |                ^~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:520:16: warning: unused function 'compress2' [-Wunused-function]
+  520 |     static int compress2(unsigned char *pDest, mz_ulong *pDest_len, const unsigned char *pSource, mz_ulong source_len, int level)
+      |                ^~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:524:21: warning: unused function 'compressBound' [-Wunused-function]
+  524 |     static mz_ulong compressBound(mz_ulong source_len)
+      |                     ^~~~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:532:16: warning: unused function 'inflateInit' [-Wunused-function]
+  532 |     static int inflateInit(mz_streamp pStream)
+      |                ^~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:537:16: warning: unused function 'inflateInit2' [-Wunused-function]
+  537 |     static int inflateInit2(mz_streamp pStream, int window_bits)
+      |                ^~~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:542:16: warning: unused function 'inflateReset' [-Wunused-function]
+  542 |     static int inflateReset(mz_streamp pStream)
+      |                ^~~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:547:16: warning: unused function 'inflate' [-Wunused-function]
+  547 |     static int inflate(mz_streamp pStream, int flush)
+      |                ^~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:552:16: warning: unused function 'inflateEnd' [-Wunused-function]
+  552 |     static int inflateEnd(mz_streamp pStream)
+      |                ^~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:557:16: warning: unused function 'uncompress' [-Wunused-function]
+  557 |     static int uncompress(unsigned char* pDest, mz_ulong* pDest_len, const unsigned char* pSource, mz_ulong source_len)
+      |                ^~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:562:16: warning: unused function 'uncompress2' [-Wunused-function]
+  562 |     static int uncompress2(unsigned char* pDest, mz_ulong* pDest_len, const unsigned char* pSource, mz_ulong* pSource_len)
+      |                ^~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:568:21: warning: unused function 'crc32' [-Wunused-function]
+  568 |     static mz_ulong crc32(mz_ulong crc, const unsigned char *ptr, size_t buf_len)
+      |                     ^~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:573:21: warning: unused function 'adler32' [-Wunused-function]
+  573 |     static mz_ulong adler32(mz_ulong adler, const unsigned char *ptr, size_t buf_len)
+      |                     ^~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:581:24: warning: unused function 'zError' [-Wunused-function]
+  581 |     static const char* zError(int err)
+      |                        ^~~~~~
+20 warnings generated.
+[456/564] Building C object miniz/CMakeFiles/miniz.dir/miniz_tdef.c.o
+In file included from /Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz_tdef.c:27:
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:605:23: warning: no newline at end of file [-Wnewline-eof]
+  605 | #include "miniz_zip.h"
+      |                       ^
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:492:16: warning: unused function 'deflateInit' [-Wunused-function]
+  492 |     static int deflateInit(mz_streamp pStream, int level)
+      |                ^~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:496:16: warning: unused function 'deflateInit2' [-Wunused-function]
+  496 |     static int deflateInit2(mz_streamp pStream, int level, int method, int window_bits, int mem_level, int strategy)
+      |                ^~~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:500:16: warning: unused function 'deflateReset' [-Wunused-function]
+  500 |     static int deflateReset(mz_streamp pStream)
+      |                ^~~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:504:16: warning: unused function 'deflate' [-Wunused-function]
+  504 |     static int deflate(mz_streamp pStream, int flush)
+      |                ^~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:508:16: warning: unused function 'deflateEnd' [-Wunused-function]
+  508 |     static int deflateEnd(mz_streamp pStream)
+      |                ^~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:512:21: warning: unused function 'deflateBound' [-Wunused-function]
+  512 |     static mz_ulong deflateBound(mz_streamp pStream, mz_ulong source_len)
+      |                     ^~~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:516:16: warning: unused function 'compress' [-Wunused-function]
+  516 |     static int compress(unsigned char *pDest, mz_ulong *pDest_len, const unsigned char *pSource, mz_ulong source_len)
+      |                ^~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:520:16: warning: unused function 'compress2' [-Wunused-function]
+  520 |     static int compress2(unsigned char *pDest, mz_ulong *pDest_len, const unsigned char *pSource, mz_ulong source_len, int level)
+      |                ^~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:524:21: warning: unused function 'compressBound' [-Wunused-function]
+  524 |     static mz_ulong compressBound(mz_ulong source_len)
+      |                     ^~~~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:532:16: warning: unused function 'inflateInit' [-Wunused-function]
+  532 |     static int inflateInit(mz_streamp pStream)
+      |                ^~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:537:16: warning: unused function 'inflateInit2' [-Wunused-function]
+  537 |     static int inflateInit2(mz_streamp pStream, int window_bits)
+      |                ^~~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:542:16: warning: unused function 'inflateReset' [-Wunused-function]
+  542 |     static int inflateReset(mz_streamp pStream)
+      |                ^~~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:547:16: warning: unused function 'inflate' [-Wunused-function]
+  547 |     static int inflate(mz_streamp pStream, int flush)
+      |                ^~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:552:16: warning: unused function 'inflateEnd' [-Wunused-function]
+  552 |     static int inflateEnd(mz_streamp pStream)
+      |                ^~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:557:16: warning: unused function 'uncompress' [-Wunused-function]
+  557 |     static int uncompress(unsigned char* pDest, mz_ulong* pDest_len, const unsigned char* pSource, mz_ulong source_len)
+      |                ^~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:562:16: warning: unused function 'uncompress2' [-Wunused-function]
+  562 |     static int uncompress2(unsigned char* pDest, mz_ulong* pDest_len, const unsigned char* pSource, mz_ulong* pSource_len)
+      |                ^~~~~~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:568:21: warning: unused function 'crc32' [-Wunused-function]
+  568 |     static mz_ulong crc32(mz_ulong crc, const unsigned char *ptr, size_t buf_len)
+      |                     ^~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:573:21: warning: unused function 'adler32' [-Wunused-function]
+  573 |     static mz_ulong adler32(mz_ulong adler, const unsigned char *ptr, size_t buf_len)
+      |                     ^~~~~~~
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/miniz.h:581:24: warning: unused function 'zError' [-Wunused-function]
+  581 |     static const char* zError(int err)
+      |                        ^~~~~~
+20 warnings generated.
+[457/564] Linking C static library zydis/zycore/libZycore.a
+[458/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/bio_ssl.c.o
+[459/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/d1_both.c.o
+[460/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/d1_lib.c.o
+[461/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/d1_pkt.c.o
+[462/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/d1_srtp.c.o
+[463/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/pqueue.c.o
+[464/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/s3_cbc.c.o
+[465/564] Linking C static library libressl/crypto/libcrypto.a
+[466/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/ssl_asn1.c.o
+[467/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/s3_lib.c.o
+[468/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/ssl_both.c.o
+[469/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/ssl_cert.c.o
+[470/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/ssl_ciph.c.o
+[471/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/ssl_ciphers.c.o
+[472/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/ssl_err.c.o
+[473/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/ssl_clnt.c.o
+[474/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/ssl_init.c.o
+[475/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/ssl_kex.c.o
+[476/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/ssl_methods.c.o
+[477/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/ssl_lib.c.o
+[478/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/ssl_pkt.c.o
+[479/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/ssl_rsa.c.o
+[480/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/ssl_seclevel.c.o
+[481/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/ssl_sigalgs.c.o
+[482/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/ssl_sess.c.o
+[483/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/ssl_stat.c.o
+[484/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/ssl_srvr.c.o
+[485/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/ssl_tlsext.c.o
+[486/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/ssl_transcript.c.o
+[487/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/ssl_txt.c.o
+[488/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/ssl_versions.c.o
+[489/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/t1_enc.c.o
+[490/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/t1_lib.c.o
+[491/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/tls_buffer.c.o
+[492/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/tls_content.c.o
+[493/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/tls_key_share.c.o
+[494/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/tls_lib.c.o
+[495/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/tls12_key_schedule.c.o
+[496/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/tls12_lib.c.o
+[497/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/tls12_record_layer.c.o
+[498/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/tls13_client.c.o
+[499/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/tls13_error.c.o
+[500/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/tls13_handshake_msg.c.o
+[501/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/tls13_handshake.c.o
+[502/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/tls13_key_schedule.c.o
+[503/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/tls13_legacy.c.o
+[504/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/tls13_quic.c.o
+[505/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/tls13_lib.c.o
+[506/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/tls13_record.c.o
+[507/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/tls13_record_layer.c.o
+[508/564] Building C object libressl/ssl/CMakeFiles/ssl.dir/empty.c.o
+[509/564] Building CXX object glslang/glslang/CMakeFiles/glslang-default-resource-limits.dir/ResourceLimits/resource_limits_c.cpp.o
+[510/564] Building C object libressl/ssl/CMakeFiles/ssl_obj.dir/tls13_server.c.o
+[511/564] Linking C static library miniz/libminiz.a
+[512/564] Linking C static library zydis/libZydis.a
+[513/564] Building CXX object CMakeFiles/host_deps_smoke.dir/smoke.cpp.o
+[514/564] Linking C static library libressl/ssl/libssl.a
+[515/564] Building CXX object glslang/glslang/CMakeFiles/glslang-default-resource-limits.dir/ResourceLimits/ResourceLimits.cpp.o
+[516/564] Linking CXX static library glslang/glslang/libglslang-default-resource-limits.a
+[517/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/cmake_pch.hxx.pch
+[518/564] Building CXX object date/CMakeFiles/date-tz.dir/src/tz.cpp.o
+[519/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/GenericCodeGen/CodeGen.cpp.o
+[520/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/GenericCodeGen/Link.cpp.o
+[521/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/attribute.cpp.o
+[522/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/CInterface/glslang_c_interface.cpp.o
+[523/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/OSDependent/Unix/ossource.cpp.o
+[524/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Constant.cpp.o
+[525/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/InfoSink.cpp.o
+[526/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/IntermTraverse.cpp.o
+[527/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Initialize.cpp.o
+[528/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/glslang_tab.cpp.o
+[529/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/iomapper.cpp.o
+[530/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/PoolAlloc.cpp.o
+[531/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Intermediate.cpp.o
+[532/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/ParseContextBase.cpp.o
+[533/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/RemoveTree.cpp.o
+[534/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Scan.cpp.o
+[535/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/SpirvIntrinsics.cpp.o
+[536/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/SymbolTable.cpp.o
+[537/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/ShaderLang.cpp.o
+[538/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/Versions.cpp.o
+[539/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/limits.cpp.o
+[540/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/ParseHelper.cpp.o
+[541/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/intermOut.cpp.o
+[542/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/parseConst.cpp.o
+[543/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/preprocessor/PpAtom.cpp.o
+[544/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/preprocessor/Pp.cpp.o
+[545/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/reflection.cpp.o
+[546/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/preprocessor/PpContext.cpp.o
+[547/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/preprocessor/PpScanner.cpp.o
+[548/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/linkValidate.cpp.o
+[549/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/preprocessor/PpTokens.cpp.o
+[550/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/Users/bytedance/workspace/emulations/ps4/shadps4/externals/glslang/SPIRV/InReadableOrder.cpp.o
+[551/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/MachineIndependent/propagateNoContraction.cpp.o
+[552/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/Users/bytedance/workspace/emulations/ps4/shadps4/externals/glslang/SPIRV/Logger.cpp.o
+[553/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/Users/bytedance/workspace/emulations/ps4/shadps4/externals/glslang/SPIRV/SpvTools.cpp.o
+[554/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/Users/bytedance/workspace/emulations/ps4/shadps4/externals/glslang/SPIRV/doc.cpp.o
+[555/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/Users/bytedance/workspace/emulations/ps4/shadps4/externals/glslang/SPIRV/SpvPostProcess.cpp.o
+[556/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/Users/bytedance/workspace/emulations/ps4/shadps4/externals/glslang/SPIRV/CInterface/spirv_c_interface.cpp.o
+[557/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/Users/bytedance/workspace/emulations/ps4/shadps4/externals/glslang/SPIRV/disassemble.cpp.o
+[558/564] Linking CXX static library date/libdate-tz.a
+[559/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/Users/bytedance/workspace/emulations/ps4/shadps4/externals/glslang/SPIRV/SpvBuilder.cpp.o
+[560/564] Building CXX object glslang/glslang/CMakeFiles/glslang.dir/Users/bytedance/workspace/emulations/ps4/shadps4/externals/glslang/SPIRV/GlslangToSpv.cpp.o
+[561/564] Linking CXX static library glslang/glslang/libglslang.a
+[562/564] Building CXX object CMakeFiles/host_deps_probe.dir/probe.cpp.o
+[563/564] Linking CXX shared library libhost_deps_probe.so
+[564/564] Linking CXX executable host_deps_smoke

@@ -1,0 +1,120 @@
+ELF Header:
+  Magic:   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00
+  Class:                             ELF64
+  Data:                              2's complement, little endian
+  Version:                           1 (current)
+  OS/ABI:                            UNIX - System V
+  ABI Version:                       0
+  Type:                              DYN (Shared object file)
+  Machine:                           AArch64
+  Version:                           0x1
+  Entry point address:               0x0
+  Start of program headers:          64 (bytes into file)
+  Start of section headers:          18207800 (bytes into file)
+  Flags:                             0x0
+  Size of this header:               64 (bytes)
+  Size of program headers:           56 (bytes)
+  Number of program headers:         10
+  Size of section headers:           64 (bytes)
+  Number of section headers:         36
+  Section header string table index: 34
+Dynamic section at offset 0xfe8770 contains 31 entries:
+  Tag                Type              Name/Value
+  0x0000000000000001 (NEEDED)          Shared library: [libz.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libm.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libdl.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libc++_shared.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libc.so]
+  0x000000000000000e (SONAME)          Library soname: [libffmpeg_media_probe.so]
+  0x000000000000001e (FLAGS)           BIND_NOW 
+  0x000000006ffffffb (FLAGS_1)         NOW 
+  0x0000000000000007 (RELA)            0x1cb0
+  0x0000000000000008 (RELASZ)          456 (bytes)
+  0x0000000000000009 (RELAENT)         24 (bytes)
+  0x000000006fffe000 (ANDROID_RELR)    0x1e78
+  0x000000006fffe001 (ANDROID_RELRSZ)  0x38a8
+  0x000000006fffe003 (ANDROID_RELRENT) 0x8
+  0x0000000000000017 (JMPREL)          0x5720
+  0x0000000000000002 (PLTRELSZ)        4056 (bytes)
+  0x0000000000000003 (PLTGOT)          0xff4cb0
+  0x0000000000000014 (PLTREL)          RELA
+  0x0000000000000006 (SYMTAB)          0x330
+  0x000000000000000b (SYMENT)          24 (bytes)
+  0x0000000000000005 (STRTAB)          0x15f0
+  0x000000000000000a (STRSZ)           1727 (bytes)
+  0x000000006ffffef5 (GNU_HASH)        0x15d0
+  0x0000000000000019 (INIT_ARRAY)      0xff0760
+  0x000000000000001b (INIT_ARRAYSZ)    16 (bytes)
+  0x000000000000001a (FINI_ARRAY)      0xff0750
+  0x000000000000001c (FINI_ARRAYSZ)    16 (bytes)
+  0x000000006ffffff0 (VERSYM)          0x13f8
+  0x000000006ffffffe (VERNEED)         0x1560
+  0x000000006fffffff (VERNEEDNUM)      3
+  0x0000000000000000 (NULL)            0x0
+Version symbols section '.gnu.version' contains 179 entries:
+ Addr: 00000000000013f8  Offset: 0x0013f8  Link: 3 (.dynsym)
+  000:   0 (*local*)       2 (LIBC)          2 (LIBC)          2 (LIBC)       
+  004:   2 (LIBC)          1 (*global*)      2 (LIBC)          1 (*global*)   
+  008:   2 (LIBC)          1 (*global*)      1 (*global*)      1 (*global*)   
+  00c:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  010:   1 (*global*)      2 (LIBC)          2 (LIBC)          2 (LIBC)       
+  014:   2 (LIBC)          2 (LIBC)          2 (LIBC)          2 (LIBC)       
+  018:   2 (LIBC)          2 (LIBC)          2 (LIBC)          2 (LIBC)       
+  01c:   2 (LIBC)          2 (LIBC)          2 (LIBC)          2 (LIBC)       
+  020:   2 (LIBC)          2 (LIBC)          2 (LIBC)          2 (LIBC)       
+  024:   2 (LIBC)          2 (LIBC)          2 (LIBC)          2 (LIBC)       
+  028:   2 (LIBC)          2 (LIBC)          2 (LIBC)          2 (LIBC)       
+  02c:   2 (LIBC)          1 (*global*)      3 (LIBC_P)        2 (LIBC)       
+  030:   3 (LIBC_P)        1 (*global*)      1 (*global*)      1 (*global*)   
+  034:   4 (LIBC)          2 (LIBC)          2 (LIBC)          3 (LIBC_P)     
+  038:   3 (LIBC_P)        3 (LIBC_P)        2 (LIBC)          2 (LIBC)       
+  03c:   2 (LIBC)          2 (LIBC)          2 (LIBC)          2 (LIBC)       
+  040:   2 (LIBC)          2 (LIBC)          2 (LIBC)          2 (LIBC)       
+  044:   2 (LIBC)          2 (LIBC)          2 (LIBC)          2 (LIBC)       
+  048:   2 (LIBC)          2 (LIBC)          2 (LIBC)          2 (LIBC)       
+  04c:   2 (LIBC)          2 (LIBC)          2 (LIBC)          2 (LIBC)       
+  050:   2 (LIBC)          2 (LIBC)          2 (LIBC)          2 (LIBC)       
+  054:   2 (LIBC)          2 (LIBC)          2 (LIBC)          2 (LIBC)       
+  058:   2 (LIBC)          4 (LIBC)          4 (LIBC)          4 (LIBC)       
+  05c:   4 (LIBC)          4 (LIBC)          4 (LIBC)          4 (LIBC)       
+  060:   4 (LIBC)          4 (LIBC)          4 (LIBC)          4 (LIBC)       
+  064:   4 (LIBC)          4 (LIBC)          4 (LIBC)          4 (LIBC)       
+  068:   4 (LIBC)          4 (LIBC)          4 (LIBC)          2 (LIBC)       
+  06c:   2 (LIBC)          2 (LIBC)          2 (LIBC)          4 (LIBC)       
+  070:   1 (*global*)      1 (*global*)      4 (LIBC)          4 (LIBC)       
+  074:   4 (LIBC)          2 (LIBC)          4 (LIBC)          4 (LIBC)       
+  078:   2 (LIBC)          4 (LIBC)          4 (LIBC)          4 (LIBC)       
+  07c:   4 (LIBC)          4 (LIBC)          4 (LIBC)          4 (LIBC)       
+  080:   4 (LIBC)          4 (LIBC)          2 (LIBC)          2 (LIBC)       
+  084:   4 (LIBC)          4 (LIBC)          4 (LIBC)          4 (LIBC)       
+  088:   4 (LIBC)          2 (LIBC)          4 (LIBC)          4 (LIBC)       
+  08c:   4 (LIBC)          2 (LIBC)          4 (LIBC)          4 (LIBC)       
+  090:   4 (LIBC)          2 (LIBC)          4 (LIBC)          2 (LIBC)       
+  094:   2 (LIBC)          2 (LIBC)          2 (LIBC)          4 (LIBC)       
+  098:   2 (LIBC)          2 (LIBC)          2 (LIBC)          2 (LIBC)       
+  09c:   2 (LIBC)          2 (LIBC)          2 (LIBC)          2 (LIBC)       
+  0a0:   2 (LIBC)          2 (LIBC)          2 (LIBC)          2 (LIBC)       
+  0a4:   2 (LIBC)          2 (LIBC)          2 (LIBC)          2 (LIBC)       
+  0a8:   2 (LIBC)          2 (LIBC)          5 (LIBC)          2 (LIBC)       
+  0ac:   2 (LIBC)          2 (LIBC)          2 (LIBC)          2 (LIBC)       
+  0b0:   2 (LIBC)          2 (LIBC)          1 (*global*)   
+
+Version needs section '.gnu.version_r' contains 3 entries:
+ Addr: 0000000000001560  Offset: 0x001560  Link: 7 (.dynstr)
+  0x0000: Version: 1  File: libm.so  Cnt: 1
+  0x0030:   Name: LIBC  Flags: none  Version: 4
+  0x0010: Version: 1  File: libdl.so  Cnt: 1
+  0x0040:   Name: LIBC  Flags: none  Version: 5
+  0x0020: Version: 1  File: libc.so  Cnt: 2
+  0x0050:   Name: LIBC  Flags: none  Version: 2
+  0x0060:   Name: LIBC_P  Flags: none  Version: 3
+
+Displaying notes found in: .note.android.ident
+  Owner                Data size 	Description
+  Android              0x00000084	NT_ANDROID_TYPE_IDENT
+   description data: 21 00 00 00 72 32 39 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 31 34 32 30 36 38 36 35 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+Displaying notes found in: .note.gnu.build-id
+  Owner                Data size 	Description
+  GNU                  0x00000014	NT_GNU_BUILD_ID (unique build ID bitstring)
+    Build ID: ca641e51bb3300b132b0a3f028e72b949eade6e8

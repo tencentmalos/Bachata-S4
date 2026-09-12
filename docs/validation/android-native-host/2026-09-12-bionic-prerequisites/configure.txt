@@ -1,0 +1,153 @@
+-- The C compiler identification is Clang 21.0.0
+-- The CXX compiler identification is Clang 21.0.0
+-- The ASM compiler identification is Clang with GNU-like command-line
+-- Found assembler: /Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+CMake Warning (deprecated) at /Users/bytedance/workspace/emulations/ps4/shadps4/externals/date/CMakeLists.txt:18 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+This warning is for project developers.  Use -Wno-author or -Wno-deprecated
+to suppress it.
+
+# date: USE_SYSTEM_TZ_DB ON
+# date: MANUAL_TZ_DB OFF
+# date: USE_TZ_DB_IN_DOT OFF
+# date: BUILD_SHARED_LIBS OFF
+# date: ENABLE_DATE_TESTING OFF
+# date: DISABLE_STRING_VIEW OFF
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Failed
+-- Looking for pthread_create in pthreads
+-- Looking for pthread_create in pthreads - not found
+-- Looking for pthread_create in pthread
+-- Looking for pthread_create in pthread - not found
+-- Check if compiler accepts -pthread
+-- Check if compiler accepts -pthread - yes
+-- Found Threads: TRUE
+CMake Warning (deprecated) at /Users/bytedance/workspace/emulations/ps4/shadps4/externals/zydis/CMakeLists.txt:1 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+This warning is for project developers.  Use -Wno-author or -Wno-deprecated
+to suppress it.
+
+CMake Warning (deprecated) at /Users/bytedance/workspace/emulations/ps4/shadps4/externals/zydis/dependencies/zycore/CMakeLists.txt:5 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+This warning is for project developers.  Use -Wno-author or -Wno-deprecated
+to suppress it.
+
+-- Could NOT find Doxygen (missing: DOXYGEN_EXECUTABLE) 
+CMake Warning (policy) at /Users/bytedance/workspace/emulations/ps4/shadps4/externals/miniz/CMakeLists.txt:45 (option):
+  Policy CMP0077 is not set: option() honors normal variables.  Run "cmake
+  --help-policy CMP0077" for policy details.  Use the cmake_policy command to
+  set the policy and suppress this warning.
+
+  For compatibility with older versions of CMake, option is clearing the
+  normal variable 'BUILD_SHARED_LIBS'.
+This warning is for project developers.  Use -Wno-author or -Wno-policy to
+suppress it.
+
+-- Performing Test COMPILER_HAS_HIDDEN_VISIBILITY
+-- Performing Test COMPILER_HAS_HIDDEN_VISIBILITY - Success
+-- Performing Test COMPILER_HAS_HIDDEN_INLINE_VISIBILITY
+-- Performing Test COMPILER_HAS_HIDDEN_INLINE_VISIBILITY - Success
+-- Performing Test COMPILER_HAS_DEPRECATED_ATTR
+-- Performing Test COMPILER_HAS_DEPRECATED_ATTR - Success
+-- Looking for asprintf
+-- Looking for asprintf - found
+-- Looking for ftruncate
+-- Looking for ftruncate - found
+-- Looking for getdelim
+-- Looking for getdelim - found
+-- Looking for getline
+-- Looking for getline - found
+-- Looking for getopt
+-- Looking for getopt - found
+-- Looking for reallocarray
+-- Looking for reallocarray - found
+-- Looking for strcasecmp
+-- Looking for strcasecmp - found
+-- Looking for strlcat
+-- Looking for strlcat - found
+-- Looking for strlcpy
+-- Looking for strlcpy - found
+-- Looking for strndup
+-- Looking for strndup - found
+-- Looking for strnlen
+-- Looking for strnlen - found
+-- Looking for strsep
+-- Looking for strsep - found
+-- Looking for strtonum
+-- Looking for strtonum - not found
+-- Looking for arc4random_buf
+-- Looking for arc4random_buf - found
+-- Looking for arc4random_uniform
+-- Looking for arc4random_uniform - found
+-- Looking for explicit_bzero
+-- Looking for explicit_bzero - not found
+-- Looking for getauxval
+-- Looking for getauxval - found
+-- Looking for getentropy
+-- Looking for getentropy - found
+-- Looking for getpagesize
+-- Looking for getpagesize - found
+-- Looking for getprogname
+-- Looking for getprogname - found
+-- Looking for syslog_r
+-- Looking for syslog_r - not found
+-- Looking for syslog
+-- Looking for syslog - found
+-- Looking for timespecsub
+-- Looking for timespecsub - not found
+-- Looking for timingsafe_bcmp
+-- Looking for timingsafe_bcmp - not found
+-- Looking for timingsafe_memcmp
+-- Looking for timingsafe_memcmp - not found
+-- Looking for memmem
+-- Looking for memmem - found
+-- Looking for include file endian.h
+-- Looking for include file endian.h - found
+-- Looking for include file machine/endian.h
+-- Looking for include file machine/endian.h - not found
+-- Looking for include file err.h
+-- Looking for include file err.h - found
+-- Looking for 3 include files sys/types.h, ..., netinet/ip.h
+-- Looking for 3 include files sys/types.h, ..., netinet/ip.h - found
+-- Looking for include file resolv.h
+-- Looking for include file resolv.h - found
+-- Looking for include file arpa/nameser.h
+-- Looking for include file arpa/nameser.h - found
+-- Looking for clock_gettime
+-- Looking for clock_gettime - found
+-- Looking for sys/types.h
+-- Looking for sys/types.h - found
+-- Looking for stdint.h
+-- Looking for stdint.h - found
+-- Looking for stddef.h
+-- Looking for stddef.h - found
+-- Check size of time_t
+-- Check size of time_t - done
+-- Configuring done (56.9s)
+-- Generating done (1.2s)
+-- Build files have been written to: /Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-deps-api33-delivery

@@ -1,0 +1,30 @@
+{
+  "auth_verified_login": "tencentmalos",
+  "verification": "gh api after device-flow reauthentication; no credentials archived",
+  "refs": [
+    {
+      "repo": "tencentmalos/FFmpeg",
+      "branch": "codex/shadps4-bionic-7.1",
+      "commit": "e17ba6e21ed195cca87ffc1a9d580823e955d427",
+      "ref_url": "https://api.github.com/repos/tencentmalos/FFmpeg/git/refs/heads/codex/shadps4-bionic-7.1"
+    },
+    {
+      "repo": "tencentmalos/libadrenotools",
+      "branch": "codex/shadps4-bionic",
+      "commit": "60ae5bbce9741d5db38c64670bbbf8e5828cabfb",
+      "ref_url": "https://api.github.com/repos/tencentmalos/libadrenotools/git/refs/heads/codex/shadps4-bionic"
+    },
+    {
+      "repo": "tencentmalos/liblinkernsbypass",
+      "branch": "master",
+      "commit": "aa3975893d83ef1bc84c321ec60c65fbf1287887",
+      "ref_url": "https://api.github.com/repos/tencentmalos/liblinkernsbypass/git/refs/heads/master"
+    },
+    {
+      "repo": "tencentmalos/ext-hwinfo",
+      "branch": "codex/shadps4-bionic",
+      "commit": "85bbcba35228b32f178f02cc537c39361614e18b",
+      "ref_url": "https://api.github.com/repos/tencentmalos/ext-hwinfo/git/refs/heads/codex/shadps4-bionic"
+    }
+  ]
+}

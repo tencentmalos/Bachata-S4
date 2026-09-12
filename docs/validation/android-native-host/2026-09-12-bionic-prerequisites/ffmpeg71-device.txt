@@ -1,0 +1,12 @@
+[swscaler @ 0xb400007e8c500010] No accelerated colorspace conversion found from yuv420p to rgba.
+PASS header_library_versions
+FFmpeg=e17ba6e codec=4002661 format=3999591 util=3876708
+PASS avfilter_graph
+PASS audio_decoders
+PASS avformat_demux
+PASS decoder_open
+PASS h264_decode
+PASS packet_frame_copy_opaque
+PASS swscale_rgba
+PASS swresample_pcm
+checks=9 failures=0

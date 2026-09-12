@@ -1,0 +1,41 @@
+[1/14] Building CXX object lib/linkernsbypass/CMakeFiles/linkernsbypass.dir/elf_soname_patcher.cpp.o
+[2/14] Building CXX object lib/linkernsbypass/CMakeFiles/linkernsbypass.dir/android_linker_ns.cpp.o
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/libadrenotools/lib/linkernsbypass/android_linker_ns.cpp:68:5: warning: missing field 'reserved_addr' initializer [-Wmissing-designated-field-initializers]
+   68 |     };
+      |     ^
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/libadrenotools/lib/linkernsbypass/android_linker_ns.cpp:116:5: warning: missing field 'reserved_addr' initializer [-Wmissing-designated-field-initializers]
+  116 |     };
+      |     ^
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/libadrenotools/lib/linkernsbypass/android_linker_ns.cpp:106:5: warning: 'snprintf' will always be truncated; specified size is 3, but format string expands to at least 4 [-Wformat-truncation]
+  106 |     snprintf(sonameOverwrite.data(), sonameOverwrite.size(), "%03u", TargetId++);
+      |     ^
+3 warnings generated.
+[3/14] Linking CXX static library lib/linkernsbypass/liblinkernsbypass.a
+[4/14] Building C object src/hook/CMakeFiles/main_hook.dir/main_hook.c.o
+[5/14] Building C object src/hook/CMakeFiles/file_redirect_hook.dir/file_redirect_hook.c.o
+[6/14] Building C object src/hook/CMakeFiles/gsl_alloc_hook.dir/gsl_alloc_hook.c.o
+[7/14] Building CXX object src/hook/CMakeFiles/hook_impl.dir/hook_impl.cpp.o
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/libadrenotools/src/hook/hook_impl.cpp:151:13: warning: missing field 'reserved_addr' initializer [-Wmissing-designated-field-initializers]
+  151 |             };
+      |             ^
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/libadrenotools/src/hook/hook_impl.cpp:211:9: warning: missing field 'id' initializer [-Wmissing-designated-field-initializers]
+  211 |         };
+      |         ^
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/libadrenotools/src/hook/hook_impl.cpp:220:9: warning: missing field 'flags' initializer [-Wmissing-designated-field-initializers]
+  220 |         };
+      |         ^
+3 warnings generated.
+[8/14] Building CXX object CMakeFiles/adrenotools.dir/src/driver.cpp.o
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/libadrenotools/src/driver.cpp:109:5: warning: missing field 'id' initializer [-Wmissing-designated-field-initializers]
+  109 |     };
+      |     ^
+/Users/bytedance/workspace/emulations/ps4/shadps4/externals/libadrenotools/src/driver.cpp:145:5: warning: missing field 'va_len' initializer [-Wmissing-designated-field-initializers]
+  145 |     };
+      |     ^
+2 warnings generated.
+[9/14] Linking CXX shared library src/hook/libhook_impl.so
+[10/14] Linking CXX shared library src/hook/libmain_hook.so
+[11/14] Linking CXX shared library src/hook/libfile_redirect_hook.so
+[12/14] Linking CXX shared library src/hook/libgsl_alloc_hook.so
+[13/14] Building CXX object CMakeFiles/adrenotools.dir/src/bcenabler.cpp.o
+[14/14] Linking CXX shared library libadrenotools.so

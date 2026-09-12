@@ -1,0 +1,5 @@
+[0/2] Re-checking globbed directories...
+[1/5] Building CXX object externals/hwinfo/src/CMakeFiles/hwinfo_os.dir/linux/os.cpp.o
+[2/5] Linking CXX static library externals/hwinfo/src/libhwinfo_os.a
+[3/5] Linking CXX shared library libthird_party_probe.so
+[4/5] Linking CXX executable third_party_smoke

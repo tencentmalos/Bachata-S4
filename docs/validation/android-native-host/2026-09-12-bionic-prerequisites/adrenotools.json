@@ -1,0 +1,40 @@
+{
+  "status": "BUILD_PASS",
+  "runtime_status": "NOT_RUN",
+  "scope": "source supply and five NDK DSO links; no Turnip loading/identity/ordinary APK proof",
+  "source": "60ae5bbce9741d5db38c64670bbbf8e5828cabfb",
+  "linkernsbypass": "aa3975893d83ef1bc84c321ec60c65fbf1287887",
+  "abi": "arm64-v8a",
+  "api": 33,
+  "stl": "c++_shared",
+  "artifacts": {
+    "libadrenotools.so": "a3f3ad1b24b01f0e7a1b54017a87eb906be4e1a47478babf9379bb0c330b4957",
+    "src/hook/libfile_redirect_hook.so": "0bf5316c9c17fb442eca8c0ddb371288e186506b230807e70e89f204f03d642b",
+    "src/hook/libgsl_alloc_hook.so": "4c6bc10c5f2c22d78c610b6ac52732d83c8311a3ad9236faa3041b8ca085285b",
+    "src/hook/libhook_impl.so": "8a2ec1071d85c75a9388b38bcd2515dcb3502e2a90a10477c43305ff91b2d1bc",
+    "src/hook/libmain_hook.so": "496bfe714325e5506701b78cfa47abe2beb6c55707e3560aafb11c149d2ed2b8"
+  },
+  "configure_command": [
+    "cmake",
+    "-S",
+    "externals/libadrenotools",
+    "-B",
+    "build/android-adrenotools-api33",
+    "-G",
+    "Ninja",
+    "-DCMAKE_TOOLCHAIN_FILE=/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/build/cmake/android.toolchain.cmake",
+    "-DANDROID_ABI=arm64-v8a",
+    "-DANDROID_PLATFORM=android-33",
+    "-DANDROID_STL=c++_shared",
+    "-DCMAKE_POSITION_INDEPENDENT_CODE=ON",
+    "-DBUILD_SHARED_LIBS=ON",
+    "-DCMAKE_BUILD_TYPE=RelWithDebInfo",
+    "-DCMAKE_SHARED_LINKER_FLAGS=-Wl,--no-undefined -Wl,--build-id=sha1 -Wl,-z,max-page-size=16384"
+  ],
+  "build_command": [
+    "cmake",
+    "--build",
+    "build/android-adrenotools-api33",
+    "-j4"
+  ]
+}
