@@ -1,0 +1,47 @@
+ld.lld: error: undefined symbol: g_window
+>>> referenced by mouse.cpp:67 (/Users/bytedance/workspace/emulations/ps4/shadps4/src/core/libraries/mouse/mouse.cpp:67)
+>>>               CMakeFiles/shadps4.dir/src/core/libraries/mouse/mouse.cpp.o:(Libraries::Mouse::sceMouseInit())
+>>> referenced by mouse.cpp:67 (/Users/bytedance/workspace/emulations/ps4/shadps4/src/core/libraries/mouse/mouse.cpp:67)
+>>>               CMakeFiles/shadps4.dir/src/core/libraries/mouse/mouse.cpp.o:(Libraries::Mouse::sceMouseInit())
+>>> referenced by gnmdriver.cpp:2880 (/Users/bytedance/workspace/emulations/ps4/shadps4/src/core/libraries/gnmdriver/gnmdriver.cpp:2880)
+>>>               CMakeFiles/shadps4.dir/src/core/libraries/gnmdriver/gnmdriver.cpp.o:(Libraries::GnmDriver::RegisterLib(Core::Loader::SymbolsResolver*))
+>>> referenced 5 more times
+
+ld.lld: error: undefined symbol: Core::Emulator::Emulator()
+>>> referenced by unique_ptr.h:767 (/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/include/c++/v1/__memory/unique_ptr.h:767)
+>>>               CMakeFiles/shadps4.dir/src/core/libraries/system/systemservice.cpp.o:(Libraries::SystemService::sceSystemServiceLoadExec(char const*, char const**))
+>>> referenced by unique_ptr.h:767 (/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/include/c++/v1/__memory/unique_ptr.h:767)
+>>>               CMakeFiles/shadps4.dir/src/imgui/big_picture/big_picture.cpp.o:(BigPictureMode::Launch(char*, bool))
+
+ld.lld: error: undefined symbol: Core::Emulator::~Emulator()
+>>> referenced by unique_ptr.h:78 (/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/include/c++/v1/__memory/unique_ptr.h:78)
+>>>               CMakeFiles/shadps4.dir/src/core/libraries/system/systemservice.cpp.o:(Libraries::SystemService::sceSystemServiceLoadExec(char const*, char const**))
+>>> referenced by unique_ptr.h:78 (/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/include/c++/v1/__memory/unique_ptr.h:78)
+>>>               CMakeFiles/shadps4.dir/src/imgui/big_picture/big_picture.cpp.o:(BigPictureMode::Launch(char*, bool))
+>>> referenced by unique_ptr.h:78 (/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/include/c++/v1/__memory/unique_ptr.h:78)
+>>>               CMakeFiles/shadps4.dir/src/imgui/big_picture/big_picture.cpp.o:(std::__ndk1::unique_ptr<Core::Emulator, std::__ndk1::default_delete<Core::Emulator>>::~unique_ptr[abi:ne210000]())
+
+ld.lld: error: undefined symbol: Core::Emulator::Restart(std::__ndk1::__fs::filesystem::path, std::__ndk1::vector<std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>, std::__ndk1::allocator<std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>>> const&)
+>>> referenced by systemservice.cpp:1900 (/Users/bytedance/workspace/emulations/ps4/shadps4/src/core/libraries/system/systemservice.cpp:1900)
+>>>               CMakeFiles/shadps4.dir/src/core/libraries/system/systemservice.cpp.o:(Libraries::SystemService::sceSystemServiceLoadExec(char const*, char const**))
+
+ld.lld: error: undefined symbol: Frontend::WindowSDL::RequestKeyboard()
+>>> referenced by shader_list.cpp:34 (/Users/bytedance/workspace/emulations/ps4/shadps4/src/core/devtools/widget/shader_list.cpp:34)
+>>>               CMakeFiles/shadps4.dir/src/core/devtools/widget/shader_list.cpp.o:(Core::Devtools::Widget::ShaderList::Selection::Selection(int))
+
+ld.lld: error: undefined symbol: Frontend::WindowSDL::ReleaseKeyboard()
+>>> referenced by shader_list.cpp:39 (/Users/bytedance/workspace/emulations/ps4/shadps4/src/core/devtools/widget/shader_list.cpp:39)
+>>>               CMakeFiles/shadps4.dir/src/core/devtools/widget/shader_list.cpp.o:(Core::Devtools::Widget::ShaderList::Selection::~Selection())
+
+ld.lld: error: undefined symbol: Frontend::SetDefaultWindowIcon(SDL_Window*)
+>>> referenced by big_picture.cpp:246 (/Users/bytedance/workspace/emulations/ps4/shadps4/src/imgui/big_picture/big_picture.cpp:246)
+>>>               CMakeFiles/shadps4.dir/src/imgui/big_picture/big_picture.cpp.o:(BigPictureMode::Launch(char*, bool))
+
+ld.lld: error: undefined symbol: Core::Emulator::Run(std::__ndk1::__fs::filesystem::path, std::__ndk1::vector<std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>, std::__ndk1::allocator<std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>>>, std::__ndk1::optional<std::__ndk1::__fs::filesystem::path>, std::__ndk1::vector<std::__ndk1::pair<std::__ndk1::__fs::filesystem::path, std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>>, std::__ndk1::allocator<std::__ndk1::pair<std::__ndk1::__fs::filesystem::path, std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>>>>, std::__ndk1::vector<std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>, std::__ndk1::allocator<std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>>> const&)
+>>> referenced by big_picture.cpp:437 (/Users/bytedance/workspace/emulations/ps4/shadps4/src/imgui/big_picture/big_picture.cpp:437)
+>>>               CMakeFiles/shadps4.dir/src/imgui/big_picture/big_picture.cpp.o:(BigPictureMode::Launch(char*, bool))
+
+ld.lld: error: undefined symbol: Core::Emulator::Relaunch(std::__ndk1::vector<std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>, std::__ndk1::allocator<std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>>>)
+>>> referenced by big_picture.cpp:439 (/Users/bytedance/workspace/emulations/ps4/shadps4/src/imgui/big_picture/big_picture.cpp:439)
+>>>               CMakeFiles/shadps4.dir/src/imgui/big_picture/big_picture.cpp.o:(BigPictureMode::Launch(char*, bool))
+clang++: error: linker command failed with exit code 1 (use -v to see invocation)

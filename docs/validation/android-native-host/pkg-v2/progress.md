@@ -1,5 +1,7 @@
 # PKG v2 progress — WP-A §4.1 session boundary fixes (2026-09-12)
 
+> **最新host复核（1a7da92c）**：[完整报告](../pkg-v2-host-closure-review-2026-09-12.md) → [生产Runtime整块实施spec](../../../specs/android-native-host-production-runtime.md)。已有BUILD_HOST_CORE正式target，增量构建exit0、388/388 AArch64对象（补AAudio前387）；真实--no-undefined链接exit1、9个前端符号，无host DSO。static STL/Foundation OFF首链不能充当shared STL/FEX生产APK结果。ARM64 Ucontext寄存器未初始化已通过正式exception.cpp.o在AYN shell复现，空Sync及epoll正微秒截断待一并修复。APK仍为CPU smoke，生产guest入口/异常回调/VM/Turnip/平台/内容接线继续整块实施。以下旧“target尚未创建”等陈述保留历史含义，当前状态以本段及新报告为准。
+
 > **最新前置交付与计划收敛**：[依赖构建/设备结果及citron FFmpeg核查](../bionic-prerequisites-2026-09-12.md) → [两包方案](../../../specs/android-native-host-full-link-plan-2026-09-12.md)。本轮新增独立FFmpeg7.1.5 provider（六库/媒体syntax7/7、AYN媒体9/9）和azahar匹配libadrenotools（五NDK DSO链接，运行未验）；扩展依赖probe已14/14，hwinfo误判已在owned fork `85bbcba3`修复；gh已恢复。其他三方库配置/归属见[核查清单](../bionic-third-party-audit-2026-09-12.md)。后文原七步设计、“FFmpeg唯一阻塞”和“无bionic参考”是已修正的历史陈述；不再作为后续执行依据。
 
 > **COMMON后续独立复核**：[当前报告](../pkg-v2-common-review-2026-09-12.md)。新实现GNU/API33路径4/4对象通过；crypto/ipc路径推断已实际重跑。POSIX strerror_r配置及ESR对齐问题已直接修复，正式回归真机GNU errno7/7、POSIX errno7/7、信号50/50，macOS errno7/7通过；此后的工作进入正式host target/link。主线与遗漏历史资料已推送，以下早期本地状态按当时记录保留。

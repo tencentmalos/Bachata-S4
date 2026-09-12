@@ -1,6 +1,8 @@
 # Android / FEX 开发资料索引
 
-- 当前执行：[bionic 迁移两工作包方案](specs/android-native-host-full-link-plan-2026-09-12.md)，[本轮已完成的依赖前置与 citron FFmpeg 核查](validation/android-native-host/bionic-prerequisites-2026-09-12.md)、[三方库归属与复用清单](validation/android-native-host/bionic-third-party-audit-2026-09-12.md)。
+- **当前执行：[生产 Android Runtime 整块 spec](specs/android-native-host-production-runtime.md)。** [1a7da92c host复核](validation/android-native-host/pkg-v2-host-closure-review-2026-09-12.md)：388个AArch64对象、增量构建成功；完整链接仍失败、9个前端符号。ARM64 Ucontext未初始化用实际对象在AYN复现；生产profile、epoll及完整guest/平台接线待补。连续推进到真实PKG APK，不以补齐9个符号为终点。[本次原始证据](validation/android-native-host/2026-09-12-host-closure-review/README.md)不代表APK/Swan验收。
+
+- 已有架构与依赖：[bionic 迁移两工作包方案](specs/android-native-host-full-link-plan-2026-09-12.md)，[依赖前置与 citron FFmpeg 核查](validation/android-native-host/bionic-prerequisites-2026-09-12.md)、[三方库归属与复用清单](validation/android-native-host/bionic-third-party-audit-2026-09-12.md)。
 
 - 当前进展：[COMMON/bionic复核与Git交付](validation/android-native-host/pkg-v2-common-review-2026-09-12.md)：主线已推送，两个COMMON边界已修复，正式真机回归7+7+50项通过；继续PKG v2的正式host全链接与Turnip/游戏整合。
 

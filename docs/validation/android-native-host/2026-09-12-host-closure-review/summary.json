@@ -1,0 +1,27 @@
+{
+  "source_commit": "1a7da92c514f11b9923dd13f6887a1733a076be5",
+  "build_directory": "/tmp/host-core-cfg",
+  "fresh_configure": false,
+  "link_returncode": 1,
+  "link_extra_flag": "--error-limit=0",
+  "undefined_symbols": [
+    "Core::Emulator::Emulator()",
+    "Core::Emulator::Relaunch(std::__ndk1::vector<std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>, std::__ndk1::allocator<std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>>>)",
+    "Core::Emulator::Restart(std::__ndk1::__fs::filesystem::path, std::__ndk1::vector<std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>, std::__ndk1::allocator<std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>>> const&)",
+    "Core::Emulator::Run(std::__ndk1::__fs::filesystem::path, std::__ndk1::vector<std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>, std::__ndk1::allocator<std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>>>, std::__ndk1::optional<std::__ndk1::__fs::filesystem::path>, std::__ndk1::vector<std::__ndk1::pair<std::__ndk1::__fs::filesystem::path, std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>>, std::__ndk1::allocator<std::__ndk1::pair<std::__ndk1::__fs::filesystem::path, std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>>>>, std::__ndk1::vector<std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>, std::__ndk1::allocator<std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>>> const&)",
+    "Core::Emulator::~Emulator()",
+    "Frontend::SetDefaultWindowIcon(SDL_Window*)",
+    "Frontend::WindowSDL::ReleaseKeyboard()",
+    "Frontend::WindowSDL::RequestKeyboard()",
+    "g_window"
+  ],
+  "object_count": 388,
+  "elf_aarch64_rel_count": 388,
+  "host_dso_exists": false,
+  "stl": "c++_static (NDK default; link contains -static-libstdc++)",
+  "foundation_enabled": false,
+  "incremental_object_build_returncode": 0,
+  "source_changes_during_review": false,
+  "object_manifest_after_refresh": "objects.json",
+  "validation_note": "Existing build regenerated and incrementally rebuilt; not a clean-checkout build. scm_rev.o records review-time dirty metadata."
+}

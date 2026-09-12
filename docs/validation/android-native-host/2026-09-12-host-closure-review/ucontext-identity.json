@@ -1,0 +1,11 @@
+{
+  "object_sha256": "6ed950b5b349c330a383acb4bfa76af10eb195d125f656554a9d92233e844acf",
+  "binary_sha256": "c6762d128740c40a0d89e3c5bd13c8d5af8fa249bfff8b5a1be8ba14227a9271",
+  "serial": "9c2841a4",
+  "environment": "adb shell CLI auxiliary; no APK; no real signal delivered",
+  "observed_bug": true,
+  "api": "33",
+  "model": "AYN Thor",
+  "page_size": "4096",
+  "uid": "uid=2000(shell) gid=2000(shell) groups=2000(shell),1004(input),1007(log),1011(adb),1015(sdcard_rw),1028(sdcard_r),1078(ext_data_rw),1079(ext_obb_rw),3001(net_bt_admin),3002(net_bt),3003(inet),3006(net_bw_stats),3009(readproc),3011(uhid),3012(readtracefs) context=u:r:shell:s0"
+}

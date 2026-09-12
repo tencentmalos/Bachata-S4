@@ -1,5 +1,7 @@
 # Android host bionic 迁移：整包执行方案
 
+> **1a7da92c后续执行入口**：[生产Runtime整块spec](android-native-host-production-runtime.md)，依据[最新host复核](../validation/android-native-host/pkg-v2-host-closure-review-2026-09-12.md)。388个正式AArch64对象已存在，增量构建成功，但完整host链接仍失败，生产guest/平台/APK尚未接通。本文保留依赖前置时的基点与架构要求；下面“尚不存在完整host target”描述的是当时状态，不再要求重建一轮对象扫描。
+
 更新：2026-09-12。实现基点 `2d01ce4b`，分支 `codex/android-fex-round2`。本次已直接完成下面的依赖前置，具体源码身份与验证见 [前置交付记录](../validation/android-native-host/bionic-prerequisites-2026-09-12.md)。本文替代原来的七步 full-link 设计；与 [PKG v2 整版任务书](android-native-host-pkg-v2.md) 配合执行，原 CPU/VM/生命周期合同不变。
 
 **只保留两个连续工作包：完整 bionic host/APK，真实 PKG 集成与真机收口。两个包属于同一 PKG v2 版本；内部可以按依赖顺序编译、小提交和定位，不能在一个 option、一个库、一次 first-link 后再次交接规划或等待许可。**
