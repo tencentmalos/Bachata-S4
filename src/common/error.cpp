@@ -31,8 +31,11 @@ std::string NativeErrorToString(int e) {
 #else
     char err_str[255];
 #if defined(__GLIBC__) && (_GNU_SOURCE || (_POSIX_C_SOURCE < 200112L && _XOPEN_SOURCE < 600)) ||   \
-    defined(ANDROID)
-    // Thread safe (GNU-specific)
+    defined(ANDROID) || defined(__ANDROID__)
+    // Thread safe (GNU-specific). bionic's strerror_r returns char* like glibc's
+    // GNU variant. The NDK defines __ANDROID__ (CMake also adds ANDROID); match
+    // both so a standalone NDK build does not fall into the XSI (int-returning)
+    // branch and fail to compile.
     const char* str = strerror_r(e, err_str, sizeof(err_str));
     return std::string(str);
 #else
