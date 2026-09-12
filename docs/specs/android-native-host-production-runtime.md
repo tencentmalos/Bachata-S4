@@ -52,9 +52,31 @@ Swan / Android16 / ARM64 / 4KiB 是目标。AYN Thor/API33/4KiB 是当前可用�
 
 `Common::FS::InitializeAndroidUserPaths(filesDir/shadPS4)` 必须在日志/配置/HLE/线程启动前显式调用。成功后布局在进程内不变，同路径重复调用幂等；失败可重试，JNI/Prepare 捕获异常并返回结构化错误。不要通过更改 HOME、cwd 或 SDLActivity 绕过它；现 `SetUserPath` 在 Android 明确拒绝修改。按 Android storage 边界提供 cache/content/save 的子路径策略，不能复用桌面全局构造 I/O。
 
-**Android 生产平台去 SDL（用户本轮决定）。** 不迁移 SDLActivity、不为 `org/libsdl/app/*` 补类、不接 SDL 窗口/手柄/音频事件循环。Android最终target不链接SDL3 archive/shared library；desktop继续保留SDL adapter。当前host库依然拉入 `SDL_android.c.o:JNI_OnLoad`，必须在下一版通过真实职责拆分消除，不能只隐藏/改名JNI符号。
+### Android 生产 target 移除 SDL
+
+**可行性与当前状态：Android原生接口已有替代方向，可以在本次整版实施中完成移除；当前库尚不能直接删掉SDL链接项。** 本项由下一位AI与citron手柄迁移、生产Runtime一起完成，不另拆交接。SDL没有承担FEX执行或PS4 guest ABI语义，需替换的是host平台服务及历史共用代码的耦合。
+
+不迁移 SDLActivity、不为 `org/libsdl/app/*` 补类、不接 SDL 窗口/手柄/音频事件循环。Android最终target不链接SDL3 archive/shared library；desktop继续保留SDL adapter及原子仓。当前host库依然拉入 `SDL_android.c.o:JNI_OnLoad`，必须通过真实职责拆分消除，不能只隐藏/改名JNI符号。
 
 范围包括 controller/input_handler/input_mouse、ImGui SDL平台backend、trophy音效、SDL音频输入/输出、mouse/camera，以及user_manager/emulator_settings/devtools/ipc的SDL消息框/事件。普通音频输出使用AAudio，Audio3D保留有效OpenAL链。Android UI或session control承接平台交互；暂未提供的camera/microphone/mouse能力返回正确的未支持/未初始化状态，保留HLE注册及错误语义，不假成功。仅删除桌面启动器不能称为去SDL。用最终link map确认没有SDL实现对象和SDL JNI初始化，并确认真实游戏必需HLE未被删掉。
+
+| 当前SDL职责 | Android替换与保留边界 |
+|---|---|
+| 窗口、尺寸、呈现 | 已有AndroidWindow/ANativeWindow与Vulkan Surface接线；继续补齐generation/Stop/重建，保留ImGui的Vulkan renderer |
+| 手柄、按键、轴、震动 | 按下文固定版本迁移citron Android输入，接Orbis pad；清除Android路径中的SDL_Gamepad、joystick id和SDL事件队列依赖 |
+| 音频输出、trophy提示音 | AAudio承接实际PCM输出及音量/停止；提示音使用同一原生输出服务，避免为其保留整个SDL；Audio3D继续OpenAL |
+| UI、设置、键盘捕获、退出事件 | Kotlin UI/原生ImGui输入adapter与ApplicationControl/SessionCore承接；desktop launcher和SDL renderer不编入Android |
+| 摄像头、录音、鼠标外围能力 | 实现实际需要的Android backend；本轮未支持的功能明确返回对应Orbis错误，不删除RegisterLib或伪造数据/成功 |
+| SDL计时、内存、字符串等工具调用 | 换为已有Common/Foundation或C++标准库；不新增一套同名SDL兼容stub来维持链接 |
+
+构建调整同时覆盖根`CMakeLists.txt`的源列表/`SDL3::SDL3`链接、`externals/CMakeLists.txt`的SDL子目录和系统包查找、共用header及下游target传递依赖。Android配置不再查找、下载或编译SDL；desktop条件下继续使用现有SDL依赖。把SDL专有类型从Android需要编译的接口中隔离，不能只移除几个`.cpp`而依赖其header或旧cache才能编译。
+
+**完成条件必须同时满足：**
+
+- 从新Android输出目录完成host及最终JNI库的`--no-undefined`链接；配置/compile commands/依赖图没有SDL包、源码或include依赖。
+- link command/map中没有SDL archive或实现对象，未剥离库的符号检查无SDL函数定义/未解析导入；`DT_NEEDED`及APK/splits中没有SDL动态库。仅检查`DT_NEEDED`不足以排除目前这种静态SDL。
+- APK普通UID真实加载，只执行本项目自己的JNI初始化；不要求`org/libsdl/app/*`类或SDL Java setup。现有61项host库契约及被修改的desktop adapter编译检查保持通过。
+- 实际游戏呈现、citron手柄/震动、音频、UI控制、焦点/Surface变化、Stop和同进程重启通过下文整版验收；未支持外围能力的错误返回有负例。不能用“去SDL后能链接”替代这些行为验证。
 
 ### 一个 session 拥有完整执行资源
 
