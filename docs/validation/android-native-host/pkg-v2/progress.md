@@ -158,3 +158,25 @@ fe6f8fca §4.2, 9b9ac50e + fd3587fd §4.3 closure-compile, 06bd43bd COMMON bioni
 full HLE + video_core[104 objs] + audio + media + input + guest_cpu_fex; resolve
 undefined symbols by link map, no empty RegisterLib / ignore-all), then Turnip
 native loader wiring, then WP-B execution.
+
+## WP-A §4.3 → §5: full host link plan (design complete, 7c675280+)
+
+Full architecture design in
+[android-native-host-full-link-plan-2026-09-12.md](../../../specs/android-native-host-full-link-plan-2026-09-12.md).
+Decisive finding: Bachata's Android host is **glibc** (Winlator proot,
+`aarch64-linux-gnu`, ld-linux), so **no bionic externals are reusable** — our
+in-process app needs a true bionic NDK build of the top-level source lists (new).
+
+Design: layered `shadps4_common` → `shadps4_host_core` (CPU/HLE spine, FIRST link
+milestone) → `shadps4_host_video` → `shadps4_host` SHARED, reusing the existing
+root source-list variables under `option(BUILD_HOST_CORE)`. Notable facts: `AUDIO_CORE`
+is undefined/empty (audio HLE is inside `${CORE}`, no audio_core to port);
+`cpu_patches.cpp`/`FIBER_LIB` already x86-only. FFmpeg is the ONLY blocker external
+(download-prebuilt glibc; confined to VDEC/AVPLAYER/ajm_mp3 → defer past first link).
+Cheap enablements: enable `externals/date` for Android (currently APPLE/FreeBSD-gated
+at externals/CMakeLists.txt:252), drop uuid/discord, defer SHADNET (protoc host-tool).
+
+Staging (real deps, no stubs): common → cross-compile non-FFmpeg externals for NDK
+(libressl/zarchive/zstd/freetype/fdk-aac/LibAtrac9/zydis/glslang/sirit/VMA/png/miniz/
+date) → link host_core minus FFmpeg (first --no-undefined) → FFmpeg-from-source →
+host_video → host SHARED + Android Run driver + JNI → Turnip loader → WP-B execution.
