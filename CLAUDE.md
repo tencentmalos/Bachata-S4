@@ -4,9 +4,19 @@
 
 `AGENTS.md` is the shared project context and working guidance. Read it first; this file provides the Claude entry point without maintaining a second independent policy.
 
-## 快速入口
+## 最新整版入口（2026-09-12）
 
-- **当前执行：[host 原生化评估](docs/android-native-host-assessment-2026-09-11.md) → [host-native v1 spec](docs/specs/android-native-host-v1.md) → [进度](docs/validation/round2/progress.md)**。基点 `9ac6c300`；HN0 已落地 4 提交(`5d9edb92` HN0.1/HN0.3、`d6fb4df3` HN0.2、`e7195f0d` HN0 证据、`d4ea078e` HN1.1 seam)，均本机验证、未 push。**HN0.1 session 生命周期重构完成**：新 `src/core/host_runtime/`（backend-free `SessionCore` + `ISessionBackend` seam + `FexSessionBackend` + test gate），修掉 UAF/early-Stop 丢失/join 竞争/GuestFault 当 exit0；JNI 变薄(generation API、每出口 try/catch)；Kotlin 加 Ready/Stopping+generation guard。host `session_lifecycle_tests` 767 checks×20 run 全过(内建 alive UAF tripwire，本沙箱 ASan/TSan 不可用)；JVM 92/0；runner 23/23；arm64 `.so` 经 NDK29+FEX 构建成功、新 9-method JNI surface 导出。**HN1.1**：`RasterizerHooks` seam 让 `core/memory.cpp` 不再 include `vk_rasterizer.h`(headless 闭包唯一 blocker 解除)。仍未接主仓 loader/Orbis HLE/renderer。不要继续用占位游戏记录或固定循环宣称游戏整合。
+先读 [Vulkan/NDK 复核与本地修复](docs/validation/android-native-host/vulkan-review-2026-09-12.md)，继续 [PKG v2 整版任务书](docs/specs/android-native-host-pkg-v2.md)。被审 HEAD `fd3587fd`；本轮代码/测试/脚本尚未 commit/push，须保留工作区。图形完整源列表37+67已生成104个ARM64对象，acquire合同19/0、SessionCore807/0；不是整个host链接或游戏验收。
+
+**用户最新指定默认 Android/bionic Turnip，系统驱动适配后置。** 实際 native Turnip loader/dispatcher 尚未接入，不能只修改环境变量/枚举就宣布完成；锁定 bionic 包/ELF身份并查实际 shaderInt64，旧 glibc EMULATOR.zip 不能用于 native host。系统 Adreno 的 vkjson 仅为参考，不是 Turnip 结果。
+
+下一 AI 连续完成正式host全链接+Turnip实际加载→完整guest/Orbis/VM/线程/Surface/音频输入→UI导入TMNT本体及更新/真机可交互/十分钟/Stop/同进程重启。不要重复修已关闭的SpinLock/platform/include/sweep/acquire局部缺陷，也不再按每个小gate停工。ANativeWindow寿命、完整WSI退出、allocator、信号/guest ABI等整版合同仍未关闭。
+
+TMNT1.08是更新，匹配1.00本体已核实，路径/hash见 [pkg-set.json](docs/validation/android-native-host/2026-09-12-review/pkg-set.json)。以下早期记录仅作历史参考；事实冲突以 AGENTS 和最新复核为准。
+
+## 历史入口与通用资料
+
+- **历史执行：[host 原生化评估](docs/android-native-host-assessment-2026-09-11.md) → [host-native v1 spec](docs/specs/android-native-host-v1.md) → [进度](docs/validation/round2/progress.md)**。基点 `9ac6c300`；HN0 已落地 4 提交(`5d9edb92` HN0.1/HN0.3、`d6fb4df3` HN0.2、`e7195f0d` HN0 证据、`d4ea078e` HN1.1 seam)，均本机验证、未 push。**HN0.1 session 生命周期重构完成**：新 `src/core/host_runtime/`（backend-free `SessionCore` + `ISessionBackend` seam + `FexSessionBackend` + test gate），修掉 UAF/early-Stop 丢失/join 竞争/GuestFault 当 exit0；JNI 变薄(generation API、每出口 try/catch)；Kotlin 加 Ready/Stopping+generation guard。host `session_lifecycle_tests` 767 checks×20 run 全过(内建 alive UAF tripwire，本沙箱 ASan/TSan 不可用)；JVM 92/0；runner 23/23；arm64 `.so` 经 NDK29+FEX 构建成功、新 9-method JNI surface 导出。**HN1.1**：`RasterizerHooks` seam 让 `core/memory.cpp` 不再 include `vk_rasterizer.h`(headless 闭包唯一 blocker 解除)。仍未接主仓 loader/Orbis HLE/renderer。不要继续用占位游戏记录或固定循环宣称游戏整合。
 - **关键限制**：（HN0.1 已修，勿再当原样缺陷）JNI 已无裸 context、无 join 竞争、GuestFault→Failed。仍未解：allocator pre-owned-region provider **BLOCKED**(FEX public 只有 self-steal `SetupHooks`，`Create64BitAllocatorWithRegions` 非 public，pre-steal 与 public SetupHooks 不兼容；见 `docs/validation/android-native-host/allocator-provider.md`)——已修 `call_once` 永久吞错。旧 VMM `address_space.cpp` USER_MIN=64GiB/USER_MAX=85TiB 与 guest_cpu `1<<36` 冲突、`module.cpp:104`/`linker.cpp` 把 guest 入口当 native 指针，都属 HN2 未做。**环境阻塞**：desktop 全量 build 在本 Mac 编不过(Vulkan-Hpp `eMesaKosmickrisp` + libc++ `stop_token`/`jthread`，未改文件同样报，项目在 Linux/CI 构建)，故 HN1 target-split 与 HN2 需 Linux/CI；device `9c2841a4`(AYN Thor/API33/4KiB) 用于 HN0 真机验收——**HN-U01 已 PASS(2026-09-12)**:UI 驱动 10 次 start/stop、generation 严格递增 gen 3→11、进程全程存活无崩溃(见 `docs/validation/android-native-host/hn0-device-u01-2026-09-12.md`),同时验证了 HN0.2 retriable guard;HN-S01/S02 设备矩阵、HN-A01、HN2 的 HN-L01 仍欠。Linux 无 public regions-taking SetupHooks，不误用 Windows HookPtrs，不擅改 FEX 子仓(pin `385a0cc4`)。完整 E1/E2/E3/H3、HLE 归属和 Swan G4 仍需验证。
 - [一周目提交与全量欠项](docs/baselines/2026-09-08-round1-closeout.md)：`85b57cb2` 已推送；Swan contract 34/34、guest 45/45。历史 runner 的 11 PASS 不等于 app 验收，尤其 B02 仅有独立 ELF 证据。
 - [事务加固与验证](docs/validation/v0/transaction-hardening-2026-09-08.md)：源码/hash/原始日志；测试时 dirty patch 已纳入上述提交，不倒改历史测试身份。

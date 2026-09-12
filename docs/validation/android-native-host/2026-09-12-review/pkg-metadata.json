@@ -1,0 +1,44 @@
+{
+  "exists": true,
+  "size": 1867120640,
+  "header_sha256": "e5867ce648f560e4a804168c16bdd6de842c9b7a60976b207fd7e7a0c67ddd3e",
+  "magic": "7f434e54",
+  "content_id": "UB0511-CUSA50828_00-0673996215904686",
+  "content_type": "0x1a",
+  "content_flags": "0x62300000",
+  "table_entry_count": 17,
+  "table_offset": 10944,
+  "selected_entries": [
+    {
+      "id": "0x1000",
+      "offset": 127344,
+      "size": 5376,
+      "flags1": "0x0",
+      "flags2": "0x0",
+      "magic": "00505346",
+      "sfo": {
+        "APP_VER": "01.08",
+        "CATEGORY": "gp",
+        "CONTENT_ID": "UB0511-CUSA50828_00-0673996215904686",
+        "SYSTEM_VER": 302022656,
+        "TITLE": "Teenage Mutant Ninja Turtles: Splintered Fate",
+        "TITLE_ID": "CUSA50828",
+        "VERSION": "01.00"
+      }
+    },
+    {
+      "id": "0x1001",
+      "offset": 12176,
+      "size": 416,
+      "flags1": "0x0",
+      "flags2": "0x0"
+    },
+    {
+      "id": "0x1008",
+      "offset": 126928,
+      "size": 416,
+      "flags1": "0x0",
+      "flags2": "0x0"
+    }
+  ]
+}

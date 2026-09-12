@@ -1,0 +1,15 @@
+COMMAND ['cmake', '--build', 'build/host-hn0', '--target', 'session_lifecycle_tests', '-j', '4']
+[ 50%] Built target guest_cpu_api
+[100%] Built target session_lifecycle_tests
+EXIT 0
+COMMAND ['build/host-hn0/session_lifecycle_tests']
+session_lifecycle_tests
+Case1: Stop-vs-Destroy window (UAF closed)
+Case2: Stop during Preparing (context not published)
+Case3: Prepare failure and owner-spawn failure
+Case4: late old-generation stop is rejected
+Case5: GuestFault maps to Failed, not exit-0
+Fixture: 100 rounds, rotating interleavings
+
+767 checks, 0 failures
+EXIT 0

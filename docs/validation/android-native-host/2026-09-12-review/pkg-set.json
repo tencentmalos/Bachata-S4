@@ -1,0 +1,38 @@
+[
+  {
+    "path": "/Users/bytedance/game/ps4/TMNT.Splintered.Fate_CUSA50828_v1.08.pkg",
+    "size": 1867120640,
+    "sha256": "c3ad762919ca1e2bbf781d856b842379b08d0a5e6ef71fff122f0d8a859e0af1",
+    "sfo": {
+      "APP_VER": "01.08",
+      "CATEGORY": "gp",
+      "CONTENT_ID": "UB0511-CUSA50828_00-0673996215904686",
+      "SYSTEM_VER": 302022656,
+      "TITLE_ID": "CUSA50828"
+    }
+  },
+  {
+    "path": "/Users/bytedance/game/ps4/TMNT/CUSA50828/TMNT.Splintered.Fate_CUSA50828_v1.00_[12.02]_OPOISSO893[2468c.com].pkg",
+    "size": 1772814336,
+    "sha256": "4ebea14adbabdd48c68875839f9e65800954a8a916247b1f353e8d76b414f2b6",
+    "sfo": {
+      "APP_VER": "01.00",
+      "CATEGORY": "gd",
+      "CONTENT_ID": "UB0511-CUSA50828_00-0673996215904686",
+      "SYSTEM_VER": 302022656,
+      "TITLE_ID": "CUSA50828"
+    }
+  },
+  {
+    "path": "/Users/bytedance/game/ps4/TMNT/CUSA50828/TMNT.Splintered.Fate_CUSA50828_v1.08_BACKPORT_[5.05-6.72-7.xx-9.00-11.00]_OPOISSO893[2468c.com].pkg",
+    "size": 1867120640,
+    "sha256": "c3ad762919ca1e2bbf781d856b842379b08d0a5e6ef71fff122f0d8a859e0af1",
+    "sfo": {
+      "APP_VER": "01.08",
+      "CATEGORY": "gp",
+      "CONTENT_ID": "UB0511-CUSA50828_00-0673996215904686",
+      "SYSTEM_VER": 302022656,
+      "TITLE_ID": "CUSA50828"
+    }
+  }
+]

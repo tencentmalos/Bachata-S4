@@ -1,0 +1,32 @@
+[
+  {
+    "mode": "early_cancel",
+    "exit": 1,
+    "stdout": "first=CancelPending terminal=1 exited=1 destroy_with_active_control=1 control_after_destroy=1\n",
+    "stderr": ""
+  },
+  {
+    "mode": "prepare_throw",
+    "exit": -6,
+    "stdout": "",
+    "stderr": "libc++abi: terminating due to uncaught exception of type std::runtime_error: injected Prepare exception\n"
+  },
+  {
+    "mode": "run_throw",
+    "exit": -6,
+    "stdout": "",
+    "stderr": "libc++abi: terminating due to uncaught exception of type std::runtime_error: injected Run exception\n"
+  },
+  {
+    "mode": "stop_throw",
+    "exit": 1,
+    "stdout": "escaped=1 terminal=1 exited=0 phase=Stopping after_control_return_terminal=1 exited=0 destroys=0 next_start=0\n",
+    "stderr": ""
+  },
+  {
+    "mode": "late_drain",
+    "exit": 1,
+    "stdout": "escaped=0 terminal=1 exited=0 phase=Stopping after_control_return_terminal=1 exited=0 destroys=0 next_start=0\n",
+    "stderr": ""
+  }
+]

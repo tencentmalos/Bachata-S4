@@ -1,0 +1,349 @@
+{
+  "core/runtime": [
+    {
+      "file": "TEST-com.shadps4.android.runtime.input.PhysicalBindingTest.xml",
+      "name": "com.shadps4.android.runtime.input.PhysicalBindingTest",
+      "tests": "4",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-12T05:10:43.315Z",
+      "hostname": "MacBook-Pro-9.local",
+      "time": "0.001"
+    },
+    {
+      "file": "TEST-com.shadps4.android.runtime.driver.TurnipDownloadManagerTest.xml",
+      "name": "com.shadps4.android.runtime.driver.TurnipDownloadManagerTest",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-12T05:10:43.272Z",
+      "hostname": "MacBook-Pro-9.local",
+      "time": "0.013"
+    },
+    {
+      "file": "TEST-com.shadps4.android.runtime.driver.BundledTurnipInstallerTest.xml",
+      "name": "com.shadps4.android.runtime.driver.BundledTurnipInstallerTest",
+      "tests": "5",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-12T05:10:43.184Z",
+      "hostname": "MacBook-Pro-9.local",
+      "time": "0.077"
+    },
+    {
+      "file": "TEST-com.shadps4.android.runtime.diagnostics.SessionLogTest.xml",
+      "name": "com.shadps4.android.runtime.diagnostics.SessionLogTest",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-12T05:10:43.165Z",
+      "hostname": "MacBook-Pro-9.local",
+      "time": "0.018"
+    },
+    {
+      "file": "TEST-com.shadps4.android.runtime.driver.TurnipReleaseClientTest.xml",
+      "name": "com.shadps4.android.runtime.driver.TurnipReleaseClientTest",
+      "tests": "3",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-12T05:10:43.301Z",
+      "hostname": "MacBook-Pro-9.local",
+      "time": "0.006"
+    },
+    {
+      "file": "TEST-com.shadps4.android.runtime.diagnostics.DiagnosticExporterTest.xml",
+      "name": "com.shadps4.android.runtime.diagnostics.DiagnosticExporterTest",
+      "tests": "1",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-12T05:10:43.153Z",
+      "hostname": "MacBook-Pro-9.local",
+      "time": "0.001"
+    },
+    {
+      "file": "TEST-com.shadps4.android.runtime.diagnostics.DiagnosticCheckpointStoreTest.xml",
+      "name": "com.shadps4.android.runtime.diagnostics.DiagnosticCheckpointStoreTest",
+      "tests": "1",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-12T05:10:43.143Z",
+      "hostname": "MacBook-Pro-9.local",
+      "time": "0.009"
+    },
+    {
+      "file": "TEST-com.shadps4.android.runtime.settings.RuntimeProfileResolverTest.xml",
+      "name": "com.shadps4.android.runtime.settings.RuntimeProfileResolverTest",
+      "tests": "7",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-12T05:10:43.368Z",
+      "hostname": "MacBook-Pro-9.local",
+      "time": "0.001"
+    },
+    {
+      "file": "TEST-com.shadps4.android.runtime.session.ManagedSessionGenerationTest.xml",
+      "name": "com.shadps4.android.runtime.session.ManagedSessionGenerationTest",
+      "tests": "3",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-12T05:10:43.364Z",
+      "hostname": "MacBook-Pro-9.local",
+      "time": "0.002"
+    },
+    {
+      "file": "TEST-com.shadps4.android.runtime.device.DeviceCapabilityProbeTest.xml",
+      "name": "com.shadps4.android.runtime.device.DeviceCapabilityProbeTest",
+      "tests": "3",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-12T05:10:29.023Z",
+      "hostname": "MacBook-Pro-9.local",
+      "time": "0.001"
+    },
+    {
+      "file": "TEST-com.shadps4.android.runtime.settings.RuntimeSettingCatalogTest.xml",
+      "name": "com.shadps4.android.runtime.settings.RuntimeSettingCatalogTest",
+      "tests": "3",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-12T05:10:43.369Z",
+      "hostname": "MacBook-Pro-9.local",
+      "time": "0.008"
+    },
+    {
+      "file": "TEST-com.shadps4.android.runtime.session.FrameTelemetryReporterTest.xml",
+      "name": "com.shadps4.android.runtime.session.FrameTelemetryReporterTest",
+      "tests": "3",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-12T05:10:43.362Z",
+      "hostname": "MacBook-Pro-9.local",
+      "time": "0.001"
+    },
+    {
+      "file": "TEST-com.shadps4.android.runtime.input.ControllerMapperTest.xml",
+      "name": "com.shadps4.android.runtime.input.ControllerMapperTest",
+      "tests": "4",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-12T05:10:43.314Z",
+      "hostname": "MacBook-Pro-9.local",
+      "time": "0.0"
+    },
+    {
+      "file": "TEST-com.shadps4.android.runtime.settings.ShadPs4JsonCodecTest.xml",
+      "name": "com.shadps4.android.runtime.settings.ShadPs4JsonCodecTest",
+      "tests": "4",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-12T05:10:43.378Z",
+      "hostname": "MacBook-Pro-9.local",
+      "time": "0.001"
+    },
+    {
+      "file": "TEST-com.shadps4.android.runtime.device.VulkanCapabilitiesTest.xml",
+      "name": "com.shadps4.android.runtime.device.VulkanCapabilitiesTest",
+      "tests": "6",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-12T05:10:29.025Z",
+      "hostname": "MacBook-Pro-9.local",
+      "time": "0.002"
+    },
+    {
+      "file": "TEST-com.shadps4.android.runtime.driver.TurnipPackageInstallerTest.xml",
+      "name": "com.shadps4.android.runtime.driver.TurnipPackageInstallerTest",
+      "tests": "3",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-12T05:10:43.286Z",
+      "hostname": "MacBook-Pro-9.local",
+      "time": "0.013"
+    },
+    {
+      "file": "TEST-com.shadps4.android.runtime.diagnostics.DiagnosticBundleBuilderTest.xml",
+      "name": "com.shadps4.android.runtime.diagnostics.DiagnosticBundleBuilderTest",
+      "tests": "4",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-12T05:10:29.028Z",
+      "hostname": "MacBook-Pro-9.local",
+      "time": "14.113"
+    },
+    {
+      "file": "TEST-com.shadps4.android.runtime.diagnostics.ProcessTerminationClassifierTest.xml",
+      "name": "com.shadps4.android.runtime.diagnostics.ProcessTerminationClassifierTest",
+      "tests": "7",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-12T05:10:43.164Z",
+      "hostname": "MacBook-Pro-9.local",
+      "time": "0.001"
+    },
+    {
+      "file": "TEST-com.shadps4.android.runtime.input.ControllerBindingResolverTest.xml",
+      "name": "com.shadps4.android.runtime.input.ControllerBindingResolverTest",
+      "tests": "7",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-12T05:10:43.310Z",
+      "hostname": "MacBook-Pro-9.local",
+      "time": "0.003"
+    },
+    {
+      "file": "TEST-com.shadps4.android.runtime.install.RuntimeInstallerTest.xml",
+      "name": "com.shadps4.android.runtime.install.RuntimeInstallerTest",
+      "tests": "6",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-12T05:10:43.317Z",
+      "hostname": "MacBook-Pro-9.local",
+      "time": "0.043"
+    },
+    {
+      "file": "TEST-com.shadps4.android.runtime.diagnostics.DiagnosticRedactorTest.xml",
+      "name": "com.shadps4.android.runtime.diagnostics.DiagnosticRedactorTest",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-12T05:10:43.157Z",
+      "hostname": "MacBook-Pro-9.local",
+      "time": "0.001"
+    },
+    {
+      "file": "TEST-com.shadps4.android.runtime.diagnostics.DiagnosticReportIdsTest.xml",
+      "name": "com.shadps4.android.runtime.diagnostics.DiagnosticReportIdsTest",
+      "tests": "3",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-12T05:10:43.159Z",
+      "hostname": "MacBook-Pro-9.local",
+      "time": "0.004"
+    },
+    {
+      "file": "TEST-com.shadps4.android.runtime.config.ShadPs4ConfigManagerTest.xml",
+      "name": "com.shadps4.android.runtime.config.ShadPs4ConfigManagerTest",
+      "tests": "4",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-12T05:10:28.918Z",
+      "hostname": "MacBook-Pro-9.local",
+      "time": "0.104"
+    },
+    {
+      "file": "TEST-com.shadps4.android.runtime.diagnostics.DiagnosticModelsTest.xml",
+      "name": "com.shadps4.android.runtime.diagnostics.DiagnosticModelsTest",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-12T05:10:43.155Z",
+      "hostname": "MacBook-Pro-9.local",
+      "time": "0.001"
+    },
+    {
+      "file": "TEST-com.shadps4.android.runtime.driver.DriverRegistryTest.xml",
+      "name": "com.shadps4.android.runtime.driver.DriverRegistryTest",
+      "tests": "1",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-12T05:10:43.262Z",
+      "hostname": "MacBook-Pro-9.local",
+      "time": "0.008"
+    },
+    {
+      "file": "TEST-com.shadps4.android.runtime.session.ManagedSessionTelemetryTest.xml",
+      "name": "com.shadps4.android.runtime.session.ManagedSessionTelemetryTest",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-12T05:10:43.367Z",
+      "hostname": "MacBook-Pro-9.local",
+      "time": "0.0"
+    }
+  ],
+  "feature/session": [
+    {
+      "file": "TEST-com.shadps4.android.feature.session.controller.TouchControllerStateTest.xml",
+      "name": "com.shadps4.android.feature.session.controller.TouchControllerStateTest",
+      "tests": "5",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-12T05:10:49.624Z",
+      "hostname": "MacBook-Pro-9.local",
+      "time": "0.012"
+    },
+    {
+      "file": "TEST-com.shadps4.android.feature.session.controller.TouchLayoutTest.xml",
+      "name": "com.shadps4.android.feature.session.controller.TouchLayoutTest",
+      "tests": "3",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-12T05:10:49.636Z",
+      "hostname": "MacBook-Pro-9.local",
+      "time": "0.011"
+    },
+    {
+      "file": "TEST-com.shadps4.android.feature.session.controller.TouchControlVisualStyleTest.xml",
+      "name": "com.shadps4.android.feature.session.controller.TouchControlVisualStyleTest",
+      "tests": "1",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-12T05:10:49.609Z",
+      "hostname": "MacBook-Pro-9.local",
+      "time": "0.014"
+    },
+    {
+      "file": "TEST-com.shadps4.android.feature.session.SessionWindowModeTest.xml",
+      "name": "com.shadps4.android.feature.session.SessionWindowModeTest",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-12T05:10:49.608Z",
+      "hostname": "MacBook-Pro-9.local",
+      "time": "0.0"
+    }
+  ],
+  "feature/library": [
+    {
+      "file": "TEST-com.shadps4.android.feature.library.LibraryViewModelTest.xml",
+      "name": "com.shadps4.android.feature.library.LibraryViewModelTest",
+      "tests": "6",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-09-12T05:10:49.226Z",
+      "hostname": "MacBook-Pro-9.local",
+      "time": "0.066"
+    }
+  ]
+}

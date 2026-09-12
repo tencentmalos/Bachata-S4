@@ -1,0 +1,40 @@
+Artifact: android/shadps4-app/core/runtime/build/intermediates/cxx/RelWithDebInfo/4k3b3q13/obj/arm64-v8a/libshadps4_fex_session.so
+Symbols: ['_ZN7FEXCore9Allocator19InitializeAllocatorEm', '_ZN7FEXCore9Allocator19SetupAllocatorHooksEPFPvS1_miiilEPFiS1_mE']
+
+android/shadps4-app/core/runtime/build/intermediates/cxx/RelWithDebInfo/4k3b3q13/obj/arm64-v8a/libshadps4_fex_session.so:	file format elf64-littleaarch64
+
+Disassembly of section .text:
+
+00000000001871d4 <_ZN7FEXCore9Allocator19InitializeAllocatorEm>:
+  1871d4: f81f0ffe     	str	x30, [sp, #-0x10]!
+  1871d8: d0000bc1     	adrp	x1, 0x301000 <write+0x301000>
+  1871dc: 911ce021     	add	x1, x1, #0x738
+  1871e0: aa0103e8     	mov	x8, x1
+  1871e4: f8028500     	str	x0, [x8], #0x28
+  1871e8: aa0803e0     	mov	x0, x8
+  1871ec: 9400a121     	bl	0x1af670 <rpmalloc_initialize_config@plt>
+  1871f0: b0000ba8     	adrp	x8, 0x2fc000 <_ZTVN3fmt3v1212format_errorE+0x8>
+  1871f4: b0000ba9     	adrp	x9, 0x2fc000 <_ZTVN3fmt3v1212format_errorE+0x8>
+  1871f8: d503201f     	nop
+  1871fc: 1000012a     	adr	x10, 0x187220 <_ZN7FEXCore9AllocatorL11FEX_rp_mmapEmmPmS1_>
+  187200: f9431d08     	ldr	x8, [x8, #0x638]
+  187204: f9432129     	ldr	x9, [x9, #0x640]
+  187208: f900010a     	str	x10, [x8]
+  18720c: d503201f     	nop
+  187210: 10000968     	adr	x8, 0x18733c <_ZN7FEXCore9AllocatorL19FEX_rp_memory_unmapEPvmm>
+  187214: f9000128     	str	x8, [x9]
+  187218: f84107fe     	ldr	x30, [sp], #0x10
+  18721c: d65f03c0     	ret
+
+android/shadps4-app/core/runtime/build/intermediates/cxx/RelWithDebInfo/4k3b3q13/obj/arm64-v8a/libshadps4_fex_session.so:	file format elf64-littleaarch64
+
+Disassembly of section .text:
+
+00000000001871b8 <_ZN7FEXCore9Allocator19SetupAllocatorHooksEPFPvS1_miiilEPFiS1_mE>:
+  1871b8: b0000ba8     	adrp	x8, 0x2fc000 <_ZTVN3fmt3v1212format_errorE+0x8>
+  1871bc: b0000ba9     	adrp	x9, 0x2fc000 <_ZTVN3fmt3v1212format_errorE+0x8>
+  1871c0: f9431508     	ldr	x8, [x8, #0x628]
+  1871c4: f9431929     	ldr	x9, [x9, #0x630]
+  1871c8: f9000100     	str	x0, [x8]
+  1871cc: f9000121     	str	x1, [x9]
+  1871d0: d65f03c0     	ret

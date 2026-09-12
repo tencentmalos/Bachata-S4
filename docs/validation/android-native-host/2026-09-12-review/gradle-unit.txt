@@ -1,0 +1,155 @@
+['./gradlew', '--offline', '--rerun-tasks', ':core:runtime:testDebugUnitTest', ':feature:session:testDebugUnitTest', ':feature:library:testDebugUnitTest']
+> Task :core:model:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:model:preBuild UP-TO-DATE
+> Task :core:model:preDebugBuild UP-TO-DATE
+> Task :core:model:generateDebugResValues
+> Task :core:model:generateDebugResources
+> Task :core:model:packageDebugResources
+> Task :core:model:processDebugNavigationResources
+> Task :core:runtime:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:runtime:preBuild UP-TO-DATE
+> Task :core:runtime:preDebugBuild UP-TO-DATE
+> Task :core:model:javaPreCompileDebug
+> Task :core:runtime:generateDebugResValues
+> Task :core:runtime:generateDebugResources
+> Task :core:model:parseDebugLocalResources
+> Task :core:runtime:packageDebugResources
+> Task :core:runtime:processDebugNavigationResources
+> Task :core:runtime:preDebugUnitTestBuild UP-TO-DATE
+> Task :core:runtime:parseDebugLocalResources
+> Task :core:runtime:javaPreCompileDebug
+> Task :core:model:generateDebugRFile
+> Task :core:data:preBuild UP-TO-DATE
+> Task :core:runtime:javaPreCompileDebugUnitTest
+> Task :core:data:preDebugBuild UP-TO-DATE
+> Task :core:data:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:data:generateDebugResValues
+> Task :core:runtime:generateDebugRFile
+> Task :core:data:generateDebugResources
+> Task :core:runtime:generateDebugUnitTestStubRFile
+> Task :core:data:packageDebugResources
+> Task :core:data:processDebugNavigationResources
+> Task :core:database:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:database:preBuild UP-TO-DATE
+> Task :core:database:preDebugBuild UP-TO-DATE
+> Task :core:database:generateDebugResValues
+> Task :core:data:parseDebugLocalResources
+> Task :core:database:generateDebugResources
+> Task :core:data:generateDebugRFile
+> Task :core:database:packageDebugResources
+> Task :core:database:processDebugNavigationResources
+> Task :core:database:parseDebugLocalResources
+> Task :core:database:generateDebugRFile
+> Task :core:designsystem:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:designsystem:preBuild UP-TO-DATE
+> Task :core:designsystem:preDebugBuild UP-TO-DATE
+> Task :core:designsystem:generateDebugResValues
+> Task :core:database:javaPreCompileDebug
+> Task :core:designsystem:generateDebugResources
+> Task :core:designsystem:packageDebugResources
+> Task :core:data:javaPreCompileDebug
+> Task :core:designsystem:processDebugNavigationResources
+> Task :feature:session:preBuild UP-TO-DATE
+> Task :feature:session:preDebugBuild UP-TO-DATE
+> Task :feature:session:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:designsystem:javaPreCompileDebug
+> Task :feature:session:generateDebugResValues
+> Task :core:designsystem:parseDebugLocalResources
+> Task :feature:session:generateDebugResources
+> Task :core:designsystem:generateDebugRFile
+> Task :feature:session:packageDebugResources
+> Task :feature:session:processDebugNavigationResources
+> Task :feature:session:preDebugUnitTestBuild UP-TO-DATE
+> Task :feature:library:preBuild UP-TO-DATE
+> Task :feature:library:preDebugBuild UP-TO-DATE
+> Task :feature:library:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :feature:session:parseDebugLocalResources
+> Task :feature:session:javaPreCompileDebugUnitTest
+> Task :feature:session:javaPreCompileDebug
+> Task :feature:library:generateDebugResValues
+> Task :feature:library:generateDebugResources
+> Task :feature:session:generateDebugRFile
+> Task :feature:library:packageDebugResources
+> Task :feature:library:processDebugNavigationResources
+> Task :feature:library:parseDebugLocalResources
+> Task :feature:library:preDebugUnitTestBuild UP-TO-DATE
+> Task :feature:library:javaPreCompileDebug
+> Task :feature:library:javaPreCompileDebugUnitTest
+> Task :feature:library:generateDebugRFile
+> Task :feature:library:generateDebugUnitTestStubRFile
+> Task :feature:session:generateDebugUnitTestStubRFile
+> Task :core:model:compileDebugKotlin
+> Task :core:model:compileDebugJavaWithJavac NO-SOURCE
+> Task :core:model:bundleLibRuntimeToJarDebug
+> Task :core:model:processDebugJavaRes
+> Task :core:model:bundleLibCompileToJarDebug
+> Task :core:designsystem:compileDebugKotlin
+> Task :core:designsystem:compileDebugJavaWithJavac NO-SOURCE
+> Task :core:designsystem:bundleLibRuntimeToJarDebug
+> Task :core:designsystem:processDebugJavaRes
+> Task :core:designsystem:bundleLibCompileToJarDebug
+> Task :core:database:kspDebugKotlin
+> Task :core:database:compileDebugKotlin
+> Task :core:database:compileDebugJavaWithJavac
+> Task :core:database:bundleLibCompileToJarDebug
+> Task :core:database:bundleLibRuntimeToJarDebug
+> Task :core:database:processDebugJavaRes
+> Task :core:runtime:compileDebugKotlin
+> Task :core:runtime:compileDebugJavaWithJavac NO-SOURCE
+> Task :core:runtime:bundleLibRuntimeToJarDebug
+> Task :core:runtime:bundleLibCompileToJarDebug
+> Task :core:runtime:processDebugJavaRes
+> Task :core:data:kspDebugKotlin
+> Task :core:runtime:compileDebugUnitTestKotlin
+> Task :core:runtime:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :core:runtime:processDebugUnitTestJavaRes
+> Task :core:data:compileDebugKotlin
+> Task :core:runtime:testDebugUnitTest
+> Task :core:data:compileDebugJavaWithJavac
+> Task :core:data:processDebugJavaRes
+> Task :core:data:transformDebugClassesWithAsm
+> Task :core:data:bundleLibRuntimeToJarDebug
+> Task :core:data:bundleLibCompileToJarDebug
+> Task :feature:library:kspDebugKotlin
+> Task :feature:session:kspDebugKotlin
+> Task :feature:library:compileDebugKotlin
+> Task :feature:library:compileDebugJavaWithJavac
+> Task :feature:session:compileDebugKotlin
+> Task :feature:session:compileDebugJavaWithJavac
+> Task :feature:session:processDebugJavaRes
+> Task :feature:library:processDebugJavaRes
+> Task :feature:library:transformDebugClassesWithAsm
+> Task :feature:library:bundleLibRuntimeToJarDebug
+> Task :feature:library:bundleLibCompileToJarDebug
+> Task :feature:session:transformDebugClassesWithAsm
+> Task :feature:session:bundleLibRuntimeToJarDebug
+> Task :feature:session:bundleLibCompileToJarDebug
+> Task :feature:library:kspDebugUnitTestKotlin
+> Task :feature:session:kspDebugUnitTestKotlin
+
+> Task :feature:library:compileDebugUnitTestKotlin
+w: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/feature/library/src/test/kotlin/com/shadps4/android/feature/library/LibraryViewModelTest.kt:51:9 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/feature/library/src/test/kotlin/com/shadps4/android/feature/library/LibraryViewModelTest.kt:54:9 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/feature/library/src/test/kotlin/com/shadps4/android/feature/library/LibraryViewModelTest.kt:71:9 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/feature/library/src/test/kotlin/com/shadps4/android/feature/library/LibraryViewModelTest.kt:74:9 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/feature/library/src/test/kotlin/com/shadps4/android/feature/library/LibraryViewModelTest.kt:90:9 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/feature/library/src/test/kotlin/com/shadps4/android/feature/library/LibraryViewModelTest.kt:93:9 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+
+> Task :feature:library:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :feature:library:hiltAggregateDepsDebugUnitTest
+> Task :feature:library:hiltJavaCompileDebugUnitTest NO-SOURCE
+> Task :feature:library:processDebugUnitTestJavaRes
+> Task :feature:session:compileDebugUnitTestKotlin
+> Task :feature:session:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :feature:library:transformDebugUnitTestClassesWithAsm
+> Task :feature:session:hiltAggregateDepsDebugUnitTest
+> Task :feature:library:testDebugUnitTest
+> Task :feature:session:hiltJavaCompileDebugUnitTest NO-SOURCE
+> Task :feature:session:processDebugUnitTestJavaRes
+> Task :feature:session:transformDebugUnitTestClassesWithAsm
+> Task :feature:session:testDebugUnitTest
+
+BUILD SUCCESSFUL in 29s
+109 actionable tasks: 109 executed
+
+EXIT 0

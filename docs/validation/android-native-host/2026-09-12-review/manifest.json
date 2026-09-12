@@ -1,0 +1,141 @@
+{
+  "date": "2026-09-12",
+  "head": "0f4fd74b1ef7b704fe6250805f7a6365c538e1a6",
+  "branch": "codex/android-fex-round2",
+  "origin_observed": "0e10defc04457e019c07fd2a78d4f58d506133b2",
+  "ahead": 43,
+  "gitlinks": [
+    "160000 commit 1f7008848736b7c6c0779220480344fd5b5fc5e3\tfoundation",
+    "160000 commit 67dbf4e5b54b0467bf8a93de3de0a557a71f9f43\treferences/Bachata-S4-android",
+    "160000 commit 385a0cc4d81cd456c8d5c26b4f09cb5a7d8d5842\treferences/FEX",
+    "160000 commit be6bc2e9c60799e071dd2fafa6216e8d80ec619c\treferences/shadps4-arm64"
+  ],
+  "scope": "source review; unchanged production SessionCore edge probes; host/unit checks; NDK link feasibility; local PKG metadata/hash only; no new device session/import/game run",
+  "sources_sha256": {
+    "src/core/host_runtime/session_core.cpp": "68af687dd0eaf31ddde3d281a55ef2c453599c2f77cc0b429fd6416bd07341eb",
+    "src/core/host_runtime/session_core.h": "cbab4073a1fc51d15da02330d22de6dff5259236a30efb3a6b8c5862719a0051",
+    "src/core/host_runtime/session_backend_fex.cpp": "4fb7ac8251466a649aaab65adef12396518914a44b0c4606358da12701b1665f",
+    "src/core/host_runtime/session_backend.h": "6af43d6cb6628ea034c1fc2ae59a3b8f9d58609a829b5a32d599b630b4b4c7f7",
+    "src/core/guest_cpu/fex/fex_context.cpp": "ce7ac5551db06741168e66c1de47e1ba513ca0d6fbb48dd5eaa15e5108697692",
+    "src/core/guest_cpu/api/address_space.cpp": "05299efe795b38568e6821e9488328f2ea5cc910f9d0909b28dccb38b3c9b3dd",
+    "src/core/linker.cpp": "bf367edb2e4ebc14735efef8c2dc7eb101e9c264a9a107e91ac65585454df2be",
+    "src/core/module.cpp": "e865aafe8179027f8fe2ad5dfe2591fefca1ff9f5dd317ff80e194b4bdf1608f",
+    "src/core/libraries/libs.cpp": "d7703c1711ccd3cd066084bf2401b334d2eb1baab180c65978e5342dd3c261f7",
+    "src/core/libraries/libs.h": "fbc143c28a67c431d7879526029a2517cf59706985cff789bd8e7a71855b805c",
+    "src/core/libraries/audio/aaudio_audio_out.cpp": "5865af1a186714127b4baf9d25b230b67da2c9147fa1abbe4b54faac1ae9281a",
+    "src/core/libraries/audio/audioout.cpp": "54d876bab56e6c1374afdb11ae347932b18bece6b4013f87d55a4bdf38129f95",
+    "src/video_core/renderer_vulkan/vk_swapchain.cpp": "7755dd9c2ebac89ac0d35a721b65c777c4abfd7756e2de49b61f6b5b171ac8ac",
+    "src/video_core/renderer_vulkan/vk_swapchain.h": "68f643b35ef48180c9a9c765eb451e40fd9a82cc17d54c98d9c939f7fc62ed56",
+    "src/video_core/renderer_vulkan/vk_presenter.cpp": "1ccfda7b475b3df51a4b54aba8d235137958cb04a17bfc3d5504f1935c7c2719",
+    "src/core/libraries/videoout/driver.cpp": "871f85815ce919d37373f4da05e63ccd2cacc3c1c308024e54237a4ed3053785",
+    "android/shadps4-app/app/src/main/kotlin/com/shadps4/android/service/FexSessionService.kt": "84c07e7d5618dc774be12a3227a02312e4e61dc1c1ae031966a06983b91e7f28",
+    "android/shadps4-app/core/runtime/src/main/cpp/fex_session_jni.cpp": "a7614b80d2c1cc42cbfdc8d7b2f11bee06c53cf97bf4f7a2bbb1107272366ca8",
+    "android/shadps4-app/core/runtime/src/main/cpp/CMakeLists.txt": "85ccbc3f3edce88401f5ecb82c679017d27e0baf68aa986923dbda33d2a84118",
+    "android/shadps4-app/core/data/src/main/kotlin/com/shadps4/android/data/ContentImporter.kt": "d5769b3540a34ee8e84c67d097a84432d0fa9383f79baf007bb32606e4981ff1",
+    "android/shadps4-app/core/data/src/main/kotlin/com/shadps4/android/data/ParamSfoReader.kt": "ea122a8efc6aa2f5c84bff1a6c8db99253abbbec4366adfff5bb75ce6d70926c",
+    "CMakeLists.txt": "320723e4875ae7d2d0043b46a408076d98e709a63c36d2baa608b2449f136f1a"
+  },
+  "jvm": {
+    "core/runtime": {
+      "tests": 92,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "feature/session": {
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "feature/library": {
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "runner": {
+    "tests": 23,
+    "failures": 0
+  },
+  "session_suite": {
+    "checks": 767,
+    "failures": 0
+  },
+  "edge_probes": [
+    {
+      "mode": "early_cancel",
+      "exit": 1,
+      "stdout": "first=CancelPending terminal=1 exited=1 destroy_with_active_control=1 control_after_destroy=1\n",
+      "stderr": ""
+    },
+    {
+      "mode": "prepare_throw",
+      "exit": -6,
+      "stdout": "",
+      "stderr": "libc++abi: terminating due to uncaught exception of type std::runtime_error: injected Prepare exception\n"
+    },
+    {
+      "mode": "run_throw",
+      "exit": -6,
+      "stdout": "",
+      "stderr": "libc++abi: terminating due to uncaught exception of type std::runtime_error: injected Run exception\n"
+    },
+    {
+      "mode": "stop_throw",
+      "exit": 1,
+      "stdout": "escaped=1 terminal=1 exited=0 phase=Stopping after_control_return_terminal=1 exited=0 destroys=0 next_start=0\n",
+      "stderr": ""
+    },
+    {
+      "mode": "late_drain",
+      "exit": 1,
+      "stdout": "escaped=0 terminal=1 exited=0 phase=Stopping after_control_return_terminal=1 exited=0 destroys=0 next_start=0\n",
+      "stderr": ""
+    }
+  ],
+  "observed_so": {
+    "path": "android/shadps4-app/core/runtime/build/intermediates/cxx/RelWithDebInfo/4k3b3q13/obj/arm64-v8a/libshadps4_fex_session.so",
+    "sha256": "59cf989a3e39c9da9553293d1df3d95faba3db6b3db3e3282ec62da170593f01",
+    "note": "existing artifact disassembly; not source-exact clean APK build"
+  },
+  "pkg_set": [
+    {
+      "path": "/Users/bytedance/game/ps4/TMNT.Splintered.Fate_CUSA50828_v1.08.pkg",
+      "size": 1867120640,
+      "sha256": "c3ad762919ca1e2bbf781d856b842379b08d0a5e6ef71fff122f0d8a859e0af1",
+      "sfo": {
+        "APP_VER": "01.08",
+        "CATEGORY": "gp",
+        "CONTENT_ID": "UB0511-CUSA50828_00-0673996215904686",
+        "SYSTEM_VER": 302022656,
+        "TITLE_ID": "CUSA50828"
+      }
+    },
+    {
+      "path": "/Users/bytedance/game/ps4/TMNT/CUSA50828/TMNT.Splintered.Fate_CUSA50828_v1.00_[12.02]_OPOISSO893[2468c.com].pkg",
+      "size": 1772814336,
+      "sha256": "4ebea14adbabdd48c68875839f9e65800954a8a916247b1f353e8d76b414f2b6",
+      "sfo": {
+        "APP_VER": "01.00",
+        "CATEGORY": "gd",
+        "CONTENT_ID": "UB0511-CUSA50828_00-0673996215904686",
+        "SYSTEM_VER": 302022656,
+        "TITLE_ID": "CUSA50828"
+      }
+    },
+    {
+      "path": "/Users/bytedance/game/ps4/TMNT/CUSA50828/TMNT.Splintered.Fate_CUSA50828_v1.08_BACKPORT_[5.05-6.72-7.xx-9.00-11.00]_OPOISSO893[2468c.com].pkg",
+      "size": 1867120640,
+      "sha256": "c3ad762919ca1e2bbf781d856b842379b08d0a5e6ef71fff122f0d8a859e0af1",
+      "sfo": {
+        "APP_VER": "01.08",
+        "CATEGORY": "gp",
+        "CONTENT_ID": "UB0511-CUSA50828_00-0673996215904686",
+        "SYSTEM_VER": 302022656,
+        "TITLE_ID": "CUSA50828"
+      }
+    }
+  ]
+}
