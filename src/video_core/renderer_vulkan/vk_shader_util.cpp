@@ -4,7 +4,13 @@
 #include <memory>
 #include <glslang/Include/ResourceLimits.h>
 #include <glslang/Public/ShaderLang.h>
+#if __has_include(<glslang/SPIRV/GlslangToSpv.h>)
 #include <glslang/SPIRV/GlslangToSpv.h>
+#else
+// The in-tree glslang target exports its source root; installed packages nest
+// SPIRV under glslang instead.
+#include <SPIRV/GlslangToSpv.h>
+#endif
 #include "common/assert.h"
 #include "common/logging/log.h"
 #include "video_core/renderer_vulkan/vk_shader_util.h"

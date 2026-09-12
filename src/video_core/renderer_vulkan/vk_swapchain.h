@@ -7,6 +7,7 @@
 #include <mutex>
 #include <vector>
 #include "common/types.h"
+#include "video_core/renderer_vulkan/swapchain_acquire.h"
 #include "video_core/renderer_vulkan/vk_common.h"
 
 namespace Frontend {
@@ -30,16 +31,20 @@ public:
     void Recreate(u32 width, u32 height);
 
     /// Acquires the next image in the swapchain.
-    bool AcquireNextImage();
+    AcquireStatus AcquireNextImage();
 
     /// Presents the current image and move to the next one
     bool Present();
 
-    /// Asks a blocked AcquireNextImage to return promptly so teardown can proceed.
-    /// Idempotent and thread-safe; used on Stop / surface detach so a bounded
-    /// acquire that keeps timing out does not spin forever (HN4).
+    /// Stops subsequent acquire calls. An already-running call has a finite
+    /// timeout; an image it acquired successfully must still be consumed.
+    /// The session owner calls this before joining rendering workers.
     void RequestStop() {
         stop_requested.store(true, std::memory_order_release);
+    }
+
+    bool StopRequested() const {
+        return stop_requested.load(std::memory_order_acquire);
     }
 
     vk::SurfaceKHR GetSurface() const {
@@ -150,8 +155,7 @@ private:
     // Set when acquire/present returned eErrorSurfaceLostKHR: the next Recreate
     // must rebuild the VkSurfaceKHR, not just the swapchain.
     bool surface_lost = false;
-    // Set by RequestStop() from any thread; makes the bounded acquire retry loop
-    // bail out instead of blocking teardown.
+    // Set by RequestStop() from any thread; prevents further acquires.
     std::atomic<bool> stop_requested{false};
     bool needs_hdr = false;    // The game requested HDR swapchain
     bool supports_hdr = false; // SC supports HDR output

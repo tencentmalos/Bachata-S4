@@ -52,6 +52,11 @@ public:
     Presenter(Frontend::WindowSDL& window, AmdGpu::Liverpool* liverpool);
     ~Presenter();
 
+    // The session owner must call this before joining rendering workers.
+    void RequestStop() {
+        swapchain.RequestStop();
+    }
+
     HostPasses::PostProcessingPass::Settings& GetPPSettingsRef() {
         return pp_settings;
     }

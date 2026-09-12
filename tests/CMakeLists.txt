@@ -383,3 +383,6 @@ gtest_discover_tests(shadps4_http_test
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     DISCOVERY_TIMEOUT 60
 )
+
+# Standalone-capable WSI contract checks, no GPU or full emulator link required.
+add_subdirectory(video_core)

@@ -1,0 +1,17 @@
+{
+  "serial": "9c2841a4",
+  "source": "adb shell cmd gpu vkjson (system driver; NOT Turnip, NOT app rendering)",
+  "gpu": "Adreno (TM) 740",
+  "api": "1.3.128",
+  "raw_sha256": "2ddb8bf6f7105230ec99e715714eee09efc8e77d6663d63003e3a614d4a37b40",
+  "ro.build.version.release": "13",
+  "ro.build.version.sdk": "33",
+  "pagesize": "4096",
+  "shaderInt64": 0.0,
+  "extensions": {
+    "VK_KHR_swapchain": true,
+    "VK_KHR_push_descriptor": true,
+    "VK_EXT_vertex_attribute_divisor": true,
+    "VK_EXT_robustness2": true
+  }
+}

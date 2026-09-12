@@ -852,19 +852,26 @@ void Presenter::Present(Frame* frame, bool is_reusing_frame) {
         }
     };
 
+    if (swapchain.StopRequested()) {
+        free_frame();
+        return;
+    }
+
     // Recreate the swapchain if the window was resized.
     if (window.GetWidth() != swapchain.GetWidth() || window.GetHeight() != swapchain.GetHeight()) {
         swapchain.Recreate(window.GetWidth(), window.GetHeight());
     }
 
-    if (!swapchain.AcquireNextImage()) {
+    auto acquired = swapchain.AcquireNextImage();
+    if (acquired == AcquireStatus::Recreate && !swapchain.StopRequested()) {
         swapchain.Recreate(window.GetWidth(), window.GetHeight());
-        if (!swapchain.AcquireNextImage()) {
-            // User resizes the window too fast and GPU can't keep up. Skip this frame.
-            LOG_WARNING(Render_Vulkan, "Skipping frame!");
-            free_frame();
-            return;
-        }
+        acquired = swapchain.AcquireNextImage();
+    }
+    if (acquired != AcquireStatus::Acquired) {
+        // Timeout/cancel does not retire or rebuild a working swapchain. Leave
+        // this frame's fence signalled so it can be safely reused next time.
+        free_frame();
+        return;
     }
 
     // Reset fence for queue submission. Do it here instead of GetRenderFrame() because we may
@@ -1082,7 +1089,7 @@ void Presenter::Present(Frame* frame, bool is_reusing_frame) {
     // Present to swapchain.
     {
         std::scoped_lock submit_lock{Scheduler::submit_mutex};
-        if (!swapchain.Present()) {
+        if (!swapchain.Present() && !swapchain.StopRequested()) {
             swapchain.Recreate(window.GetWidth(), window.GetHeight());
         }
     }

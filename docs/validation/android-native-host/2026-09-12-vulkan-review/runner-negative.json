@@ -1,0 +1,24 @@
+[
+  {
+    "command": [
+      "bash",
+      "/Users/bytedance/workspace/emulations/ps4/shadps4/docs/validation/android-native-host/pkg-v2/ndk_host_closure_sweep.sh",
+      "src/does-not-exist.cpp"
+    ],
+    "cwd": "/tmp",
+    "returncode": 1,
+    "stdout": "pass=0 fail=1\nsrc/does-not-exist.cpp exit 1\nclang-21: error: no such file or directory: 'src/does-not-exist.cpp'\nclang-21: error: no input files\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "bash",
+      "/Users/bytedance/workspace/emulations/ps4/shadps4/docs/validation/android-native-host/pkg-v2/ndk_gfx_closure_sweep.sh",
+      "src/does-not-exist.cpp"
+    ],
+    "cwd": "/tmp",
+    "returncode": 1,
+    "stdout": "pass=0 fail=1\nsrc/does-not-exist.cpp exit 1\nclang-21: error: no such file or directory: 'src/does-not-exist.cpp'\nclang-21: error: no input files\n",
+    "stderr": ""
+  }
+]

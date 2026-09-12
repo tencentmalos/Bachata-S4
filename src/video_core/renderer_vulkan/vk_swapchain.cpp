@@ -132,50 +132,18 @@ void Swapchain::SetHDR(bool hdr) {
                                                  : surface_format.format);
 }
 
-bool Swapchain::AcquireNextImage() {
-    vk::Device device = instance.GetDevice();
-    // Bounded acquire: never block forever. On Android a surface can be yanked
-    // (backgrounding / rotation) while we are inside acquire; with an infinite
-    // timeout the present thread would wedge and teardown could not proceed. Poll
-    // with a bounded timeout and honor RequestStop() so Stop returns promptly.
-    // Reference research flagged that neither azahar nor citron interrupt a
-    // blocked acquire; this is the fix spec HN4 requires.
-    static constexpr u64 kAcquireTimeoutNs = 100'000'000; // 100 ms
-    for (;;) {
-        if (stop_requested.load(std::memory_order_acquire)) {
-            // Asked to stop: do not keep the caller here. Report "not ready" so the
-            // frame is skipped and teardown can run; do not flag recreation.
-            return false;
-        }
-        vk::Result result =
-            device.acquireNextImageKHR(swapchain, kAcquireTimeoutNs, image_acquired[frame_index],
-                                       VK_NULL_HANDLE, &image_index);
-
-        switch (result) {
-        case vk::Result::eSuccess:
-            return true;
-        case vk::Result::eTimeout:
-        case vk::Result::eNotReady:
-            // No image yet within the bounded window. Loop and re-check the stop
-            // flag rather than busy-spinning (acquire itself waited the timeout).
-            continue;
-        case vk::Result::eErrorSurfaceLostKHR:
-            // The surface object is dead; Recreate must rebuild the VkSurfaceKHR.
-            surface_lost = true;
-            needs_recreation = true;
-            return false;
-        case vk::Result::eSuboptimalKHR:
-        case vk::Result::eErrorOutOfDateKHR:
-        case vk::Result::eErrorUnknown:
-            needs_recreation = true;
-            return false;
-        default:
-            LOG_CRITICAL(Render_Vulkan, "Swapchain acquire returned unknown result {}",
-                         vk::to_string(result));
-            UNREACHABLE();
-            return false;
-        }
+AcquireStatus Swapchain::AcquireNextImage() {
+    const auto acquired = AcquireSwapchainImage(stop_requested, [&](u64 timeout_ns) {
+        return instance.GetDevice().acquireNextImageKHR(
+            swapchain, timeout_ns, image_acquired[frame_index], VK_NULL_HANDLE, &image_index);
+    });
+    needs_recreation |= acquired.recreate;
+    surface_lost |= acquired.surface_lost;
+    if (acquired.status == AcquireStatus::Error) {
+        LOG_CRITICAL(Render_Vulkan, "Swapchain acquire failed: {}", vk::to_string(acquired.result));
+        UNREACHABLE();
     }
+    return acquired.status;
 }
 
 bool Swapchain::Present() {

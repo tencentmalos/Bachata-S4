@@ -1,0 +1,16 @@
+[
+  {
+    "entry": "ndk_host_closure_sweep.sh",
+    "source": "HEAD:ndk_host_closure_sweep.sh",
+    "returncode": 0,
+    "stdout": "pass=0 fail=1\n--- FAIL: src/does-not-exist.cpp ---\nclang++: error: no such file or directory: 'src/does-not-exist.cpp'\nclang++: error: no input files\n",
+    "stderr": ""
+  },
+  {
+    "entry": "ndk_gfx_closure_sweep.sh",
+    "source": "HEAD:ndk_gfx_closure_sweep.sh",
+    "returncode": 0,
+    "stdout": "pass=0 fail=1\n--- FAIL: src/does-not-exist.cpp ---\nclang++: error: no such file or directory: 'src/does-not-exist.cpp'\nclang++: error: no input files\n",
+    "stderr": ""
+  }
+]

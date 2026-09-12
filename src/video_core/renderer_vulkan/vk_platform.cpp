@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 // Include the vulkan platform specific header
-#if defined(ANDROID)
+#if defined(__ANDROID__) || defined(ANDROID)
+#ifndef VK_USE_PLATFORM_ANDROID_KHR
 #define VK_USE_PLATFORM_ANDROID_KHR
+#endif
 #elif defined(_WIN64)
 #define VK_USE_PLATFORM_WIN32_KHR
 #elif defined(__APPLE__)
@@ -13,7 +15,7 @@
 #define VK_USE_PLATFORM_XLIB_KHR
 #endif
 
-#if defined(ANDROID)
+#if defined(__ANDROID__) || defined(ANDROID)
 #include <android/native_window.h>
 #endif
 

@@ -1,0 +1,834 @@
+[
+  {
+    "source": "src/video_core/amdgpu/liverpool.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_amdgpu_liverpool.cpp.o",
+    "size": 1469432,
+    "sha256": "ba06339f29ad1b08a50ce119af296944093789cdd694e9dc18b20639eb026e26",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/amdgpu/pixel_format.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_amdgpu_pixel_format.cpp.o",
+    "size": 160488,
+    "sha256": "d8b7c9af4f039c4b7c005ab8e30b6017e7d2f2c5789ed2cbb1844ad0162b065b",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/amdgpu/regs.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_amdgpu_regs.cpp.o",
+    "size": 4656,
+    "sha256": "256b2dd1e6bec60e4f76c2ffaf865f355eee7a008ef33973f6b093370513da11",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/amdgpu/tiling.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_amdgpu_tiling.cpp.o",
+    "size": 198048,
+    "sha256": "4c1e7bc954e33765bce9f7709e3aeaa3a63b3a3a14613021e4386ffe23ab3eca",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/buffer_cache/buffer.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_buffer_cache_buffer.cpp.o",
+    "size": 792424,
+    "sha256": "5d0d7385a9201eeeaf4744287e34200cb0c2a12e810ec40661b28a0c0ebea7a2",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/buffer_cache/buffer_cache.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_buffer_cache_buffer_cache.cpp.o",
+    "size": 2171672,
+    "sha256": "bca43af85dc8c999a2693fd97dcd1771e00ecf4c6b4a067bef3c1bbdbc89772d",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/buffer_cache/fault_manager.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_buffer_cache_fault_manager.cpp.o",
+    "size": 1127832,
+    "sha256": "c835774bc38be909f0dab979584f00d12df010b8aeccceabd17fe44f8750f0c3",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/renderer_vulkan/liverpool_to_vk.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_renderer_vulkan_liverpool_to_vk.cpp.o",
+    "size": 250856,
+    "sha256": "dd2461142cf420735d281efa3c8a38f596d51c6dc393fb7f75e17e2edcebd9d8",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/renderer_vulkan/vk_common.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_renderer_vulkan_vk_common.cpp.o",
+    "size": 419304,
+    "sha256": "c3f95bfcc730f4f4b9579f1f0ce0d60c5bde87486365dd2b732e6e192dcd6253",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/renderer_vulkan/vk_compute_pipeline.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_renderer_vulkan_vk_compute_pipeline.cpp.o",
+    "size": 817000,
+    "sha256": "d872224150b0314f9606915d5d0a77f2c7a9197914a03aa57ded8fff0ee18507",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/renderer_vulkan/vk_graphics_pipeline.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_renderer_vulkan_vk_graphics_pipeline.cpp.o",
+    "size": 1031944,
+    "sha256": "a6c7769d6625d3da12b72790e0d4a04b55cbfc2ebb5a4db5385a095689c83a8a",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/renderer_vulkan/vk_instance.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_renderer_vulkan_vk_instance.cpp.o",
+    "size": 1860712,
+    "sha256": "4151980e2d7ef99a51cbd08a2c852bf495785d3c12d8a24b33447f5ed6867eaf",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/renderer_vulkan/vk_master_semaphore.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_renderer_vulkan_vk_master_semaphore.cpp.o",
+    "size": 735352,
+    "sha256": "75711cd9e5d10b8be8d5cf28aea22ae01a5a486358209b8eea9c5cae1bbd886e",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/renderer_vulkan/vk_pipeline_cache.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_renderer_vulkan_vk_pipeline_cache.cpp.o",
+    "size": 2142656,
+    "sha256": "ab8a52f1d266ef438b227dc00370c096d51b45fde69b9d4687d3eb30b6ce67a0",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/renderer_vulkan/vk_pipeline_common.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_renderer_vulkan_vk_pipeline_common.cpp.o",
+    "size": 56416,
+    "sha256": "c63a0d23a75eaf62a3b0f6b089b7a4cd59e884046f25471cc8de7da8c1e2566a",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/renderer_vulkan/vk_pipeline_serialization.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_renderer_vulkan_vk_pipeline_serialization.cpp.o",
+    "size": 1210608,
+    "sha256": "9ca5b440aae7ee9bd77279f07f0c7fd7eea50309b6663b7fbba14789f065c58d",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/renderer_vulkan/vk_platform.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_renderer_vulkan_vk_platform.cpp.o",
+    "size": 1184640,
+    "sha256": "a7c8890231cc4729a3edbf94b470dc244605c0052a220e815b9d2135184971bd",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/renderer_vulkan/vk_presenter.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_renderer_vulkan_vk_presenter.cpp.o",
+    "size": 1601800,
+    "sha256": "3b18c494135312e19d038bdd717f96d01a1e7fd2d3b1ab3552c3acc08b285a4d",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/renderer_vulkan/vk_rasterizer.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_renderer_vulkan_vk_rasterizer.cpp.o",
+    "size": 915816,
+    "sha256": "adf2d39bb1271d096dc09f64aff3b93950adb55dc475b07397d9cfa45ae68227",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/renderer_vulkan/vk_resource_pool.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_renderer_vulkan_vk_resource_pool.cpp.o",
+    "size": 1082792,
+    "sha256": "f10dfd5e5603d97ff038d74310b914203c3e958d12299ae1435b36add8275001",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/renderer_vulkan/vk_scheduler.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_renderer_vulkan_vk_scheduler.cpp.o",
+    "size": 958832,
+    "sha256": "24f119d5ca1ab5e8647aeff9a4777e5be2f773874c1ac591702cf88a812fb4dd",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/renderer_vulkan/vk_shader_hle.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_renderer_vulkan_vk_shader_hle.cpp.o",
+    "size": 210104,
+    "sha256": "05a97f2ea529b2906daebba8822f058fbc92a7737c866804e8e6eb40dd2c0c8a",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/renderer_vulkan/vk_shader_util.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_renderer_vulkan_vk_shader_util.cpp.o",
+    "size": 818688,
+    "sha256": "5c21e2ef8e23a5a90415c2f76a82b28541407db0db8f8e8dcabf80fb97417cdc",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/renderer_vulkan/vk_swapchain.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_renderer_vulkan_vk_swapchain.cpp.o",
+    "size": 1096752,
+    "sha256": "3bc9397b388b5a6b3f72acbe4d305a5aedda8c7275268808b00c05575e0147cb",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/renderer_vulkan/host_passes/fsr_pass.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_renderer_vulkan_host_passes_fsr_pass.cpp.o",
+    "size": 1258664,
+    "sha256": "92393b7dc74644e6f2fa7315c7086330442d3a2e98ee9d2a04028525d83bf5e0",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/renderer_vulkan/host_passes/pp_pass.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_renderer_vulkan_host_passes_pp_pass.cpp.o",
+    "size": 851176,
+    "sha256": "54bdfcc0c0b57f86a7118346d88af7109409214b4ccf87e23c2952cfaf537a3f",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/texture_cache/blit_helper.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_texture_cache_blit_helper.cpp.o",
+    "size": 1055048,
+    "sha256": "292a4a1687b09b03d78dca7fc3d759bfc64be1c91c1cadcfadb8bf92ffdf0dfb",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/texture_cache/host_compatibility.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_texture_cache_host_compatibility.cpp.o",
+    "size": 86648,
+    "sha256": "6c326042f261b456b10c63a34ae6fe67ee584024f565efc61a96172f80cc5de0",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/texture_cache/image.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_texture_cache_image.cpp.o",
+    "size": 1344568,
+    "sha256": "8e54392fc8190da59cc3849a82420a29bd1024f492992fb8f2c359b089397708",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/texture_cache/image_info.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_texture_cache_image_info.cpp.o",
+    "size": 835560,
+    "sha256": "f30eae7edc3ec3f00a6f07264c0a3513765b5cb6ff371110690c6d5044fe7a58",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/texture_cache/image_view.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_texture_cache_image_view.cpp.o",
+    "size": 811912,
+    "sha256": "d45f3faeaaa1af0817da8f0f8880abdb2963da1481547f588f01f9e425af9b9a",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/texture_cache/sampler.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_texture_cache_sampler.cpp.o",
+    "size": 748224,
+    "sha256": "3a8c89dc319408aed72285fe02fd93151cf42b5c877e268c64a8f2e0e43696be",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/texture_cache/texture_cache.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_texture_cache_texture_cache.cpp.o",
+    "size": 1840744,
+    "sha256": "99336a5028ccd3c4ee9475143931227b9fac18cc8c4fd983fa385ba7d286c992",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/texture_cache/tile_manager.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_texture_cache_tile_manager.cpp.o",
+    "size": 1045664,
+    "sha256": "4d94e30f64dfa37d8e269e187ad90b1bf5f855db063c8cc30442e214aec9f5ef",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/cache_storage.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_cache_storage.cpp.o",
+    "size": 733256,
+    "sha256": "a4971138a8f03c8aeb506dd25712203229919683c2d16a69e4c6a61f1629f8ed",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/page_manager.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_page_manager.cpp.o",
+    "size": 270376,
+    "sha256": "dfbc2abc2c50f4f51c0b67907c64c61a7dc839512925097c5f97207438039af9",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/video_core/renderdoc.cpp",
+    "object": "build/vulkan-review/final-objects/src_video_core_renderdoc.cpp.o",
+    "size": 231672,
+    "sha256": "bb2502225142f040f7532e52892586c007b03b11c4264c7adc63e3a36fa51e07",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/recompiler.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_recompiler.cpp.o",
+    "size": 467464,
+    "sha256": "d7a88eac1f683c0f93b2cc49ff8957a17582510bcf13eeb6edf11e63e0f97fc9",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/backend/spirv/emit_spirv.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_backend_spirv_emit_spirv.cpp.o",
+    "size": 1046712,
+    "sha256": "bb0e008e5626f229aa29b2e605540803de75fa4f2d14730b9c961247b7f09512",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/backend/spirv/emit_spirv_atomic.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_backend_spirv_emit_spirv_atomic.cpp.o",
+    "size": 194560,
+    "sha256": "903eab4976cc7b0f76d7eab0777d6c1f9d3ebc7fbbb3e0378793dc831c13b035",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/backend/spirv/emit_spirv_barriers.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_backend_spirv_emit_spirv_barriers.cpp.o",
+    "size": 13160,
+    "sha256": "40b60fcf223f9587e78cfcbdf6f308a9013026a49196ef1e74d5c7602470fb4d",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/backend/spirv/emit_spirv_bitwise_conversion.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_backend_spirv_emit_spirv_bitwise_conversion.cpp.o",
+    "size": 79696,
+    "sha256": "24173a175492efc0973dc141c086dc722695c180926ded84b9e456c8e0b7ed88",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/backend/spirv/emit_spirv_composite.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_backend_spirv_emit_spirv_composite.cpp.o",
+    "size": 33904,
+    "sha256": "0cc0391787873d00beb0a66cd5e572293352e4aefcd6c5949f3b4c4403d3b48e",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/backend/spirv/emit_spirv_context_get_set.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_backend_spirv_emit_spirv_context_get_set.cpp.o",
+    "size": 299976,
+    "sha256": "9eb407f1fe00fd4db844e85f6d184f45add048730121b08dcf635cdbb8815b22",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/backend/spirv/emit_spirv_convert.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_backend_spirv_emit_spirv_convert.cpp.o",
+    "size": 16584,
+    "sha256": "9b3bb09f59dc41dcfe23b2c65ac0b2c74e42e359ae93e005d96b87557ddc39ed",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/backend/spirv/emit_spirv_discard_frag.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_backend_spirv_emit_spirv_discard_frag.cpp.o",
+    "size": 336624,
+    "sha256": "1babede8a9719ed584b9547f6b73ad100063da8ddf082c15acc5cb555eeba56e",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/backend/spirv/emit_spirv_floating_point.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_backend_spirv_emit_spirv_floating_point.cpp.o",
+    "size": 206464,
+    "sha256": "e4d7d0dbd08dfee406bf116f495fb25ed17251a8b6d899819b5673bbfa019a01",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/backend/spirv/emit_spirv_image.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_backend_spirv_emit_spirv_image.cpp.o",
+    "size": 230464,
+    "sha256": "9ba179f14ca94cddbe1f25b4d0ed656a2602708b20e96d928be68fdb4b812e62",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/backend/spirv/emit_spirv_integer.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_backend_spirv_emit_spirv_integer.cpp.o",
+    "size": 64984,
+    "sha256": "1ca15bd1408a3537b1056c32eec793fe08ad0bfa18adb9bb7701a87e0527fc8a",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/backend/spirv/emit_spirv_logical.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_backend_spirv_emit_spirv_logical.cpp.o",
+    "size": 3640,
+    "sha256": "edc55e903d30bea699db7a9420229df12396c6abe8310e0a5564a81fcf3159e7",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/backend/spirv/emit_spirv_quad_rect.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_backend_spirv_emit_spirv_quad_rect.cpp.o",
+    "size": 148600,
+    "sha256": "ccb50d35e905fb022f405b5adbf638e9e4faea2ef86506718e1465c9f607c347",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/backend/spirv/emit_spirv_select.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_backend_spirv_emit_spirv_select.cpp.o",
+    "size": 3192,
+    "sha256": "76f066d3e3c1b5f85e4ff35f177e3dcc7f5ab8aa27d78901d4f74df6470347bd",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/backend/spirv/emit_spirv_shared_memory.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_backend_spirv_emit_spirv_shared_memory.cpp.o",
+    "size": 19088,
+    "sha256": "b82bc1cf827ea55873d2a34c73ffe048e9226827572853cffb6e31724e2200bf",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/backend/spirv/emit_spirv_special.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_backend_spirv_emit_spirv_special.cpp.o",
+    "size": 188832,
+    "sha256": "0b902876c85f2ee3a0d1eafc5a391e492a0a24981cfebb9b031111209510c99e",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/backend/spirv/emit_spirv_undefined.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_backend_spirv_emit_spirv_undefined.cpp.o",
+    "size": 140448,
+    "sha256": "1cb54aec1b6950529278fa6c11a730bede53eacaee357f9860ff4d133a74282a",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/backend/spirv/emit_spirv_warp.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_backend_spirv_emit_spirv_warp.cpp.o",
+    "size": 149480,
+    "sha256": "e4c9eaf3e04ab2fef3b664bf392eb9d8cccb74c662070634a9a86096f532fbc5",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/backend/spirv/spirv_emit_context.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_backend_spirv_spirv_emit_context.cpp.o",
+    "size": 648984,
+    "sha256": "ee0e309b5b5aa264a9a74e8ce36e0927cc2f4239e3d1ce52cea72cf2545a4da7",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/frontend/translate/data_share.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_frontend_translate_data_share.cpp.o",
+    "size": 205480,
+    "sha256": "905e53986c6b97e7650a60162a7ae56ec6232e8aa8d4c674aaf9d9106d06ea5e",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/frontend/translate/export.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_frontend_translate_export.cpp.o",
+    "size": 212872,
+    "sha256": "89eaf099e8a70477f1ebea0e02a756a31fff16db06dff5755b2d12fcf231b26d",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/frontend/translate/scalar_alu.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_frontend_translate_scalar_alu.cpp.o",
+    "size": 210272,
+    "sha256": "778966ef1906f22015fbfdf09500cf445b19f59692f20a502d24fc3965dd0283",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/frontend/translate/scalar_flow.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_frontend_translate_scalar_flow.cpp.o",
+    "size": 147216,
+    "sha256": "7a0f9ec2aafa82fc36c8acdbd8420f3228197a6927c2063c1ec0cc94f7134f4e",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/frontend/translate/scalar_memory.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_frontend_translate_scalar_memory.cpp.o",
+    "size": 145944,
+    "sha256": "0d66759c471c2c50ff6f0931909f6ec8c15d206f82b50e468f59641642a5ff4d",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/frontend/translate/translate.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_frontend_translate_translate.cpp.o",
+    "size": 842888,
+    "sha256": "8a8cd18069411898c57ed559752f2b35ad2b27d0367417189a5890f68f0255e5",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/frontend/translate/vector_alu.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_frontend_translate_vector_alu.cpp.o",
+    "size": 349856,
+    "sha256": "f5f640db8814826d05616fd931a22936835404808b9bf10f795d6ed2703e3d25",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/frontend/translate/vector_interpolation.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_frontend_translate_vector_interpolation.cpp.o",
+    "size": 154552,
+    "sha256": "480101762b739fa6967eb3a9b93d2f6cc2bb9f42c6dcc67d750ababa9717e234",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/frontend/translate/vector_memory.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_frontend_translate_vector_memory.cpp.o",
+    "size": 278136,
+    "sha256": "2e56a98547e38264ee6767cdecb91c608f544067e0598da6a72c2391eea982c3",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/frontend/control_flow_graph.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_frontend_control_flow_graph.cpp.o",
+    "size": 509384,
+    "sha256": "0f40d3bff18fa837771dd8e17b39ca7d4e8520aa483df0ec63e63271cdbeac8b",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/frontend/copy_shader.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_frontend_copy_shader.cpp.o",
+    "size": 214536,
+    "sha256": "69b27fe00094c2a9d5f563f912e8e4e8dbd419fb75a8a796bcd80eed8f3f50b8",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/frontend/decode.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_frontend_decode.cpp.o",
+    "size": 520200,
+    "sha256": "e6516f126b3b95c6126d0d938cb34bc8b41be8ce6eb3d658bf4e5a937ca328bd",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/frontend/fetch_shader.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_frontend_fetch_shader.cpp.o",
+    "size": 186968,
+    "sha256": "15290e283a06c3e543a2531062c8f3ffc95a85e9da2402672ae4923a28f42cd0",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/frontend/format.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_frontend_format.cpp.o",
+    "size": 193920,
+    "sha256": "5309138d12adf87982421b0c59be16740ebce0924ed0a3cdff89accabaa9a587",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/frontend/instruction.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_frontend_instruction.cpp.o",
+    "size": 137672,
+    "sha256": "72ce127cc80e77c9dc0e2e66dd692d055375b46cdc413c015238f142a2f8a7f3",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/frontend/structured_control_flow.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_frontend_structured_control_flow.cpp.o",
+    "size": 446928,
+    "sha256": "cd2995326608cb5f7c7099cbc82a49787bbc9d0aadb4910177a5e9aa07d57f53",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/ir/passes/constant_propagation_pass.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_ir_passes_constant_propagation_pass.cpp.o",
+    "size": 283808,
+    "sha256": "da68973091bda1b1f910d552a6f49f1ac4a1d7ce86175d6df2f31ca8891d225c",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/ir/passes/dead_code_elimination_pass.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_ir_passes_dead_code_elimination_pass.cpp.o",
+    "size": 11992,
+    "sha256": "cefba5287f6c99dc4ca9f5eeaeaad9cbab3cbab09b68ec352f25efa853da752c",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/ir/passes/flatten_extended_userdata_pass.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_ir_passes_flatten_extended_userdata_pass.cpp.o",
+    "size": 137608,
+    "sha256": "8074b451588c707d89064db44207d811d60bfb2a1e00bd3f98e34266d5cc3edd",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/ir/passes/hull_shader_transform.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_ir_passes_hull_shader_transform.cpp.o",
+    "size": 566560,
+    "sha256": "42627f5ac3aeeff7775d8604838f1b068e5e0d3d4c980f715afb5c5953ded8ad",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/ir/passes/inject_clip_distance_attributes.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_ir_passes_inject_clip_distance_attributes.cpp.o",
+    "size": 151624,
+    "sha256": "54bd2e689bc2eabfc4e1d49c0a49291be509a62c2090aa8eba0e18c44c631557",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/ir/passes/lower_buffer_format_to_raw.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_ir_passes_lower_buffer_format_to_raw.cpp.o",
+    "size": 236912,
+    "sha256": "c77b1b86cd98bee23cd5f55ac517754ff992940029275060a98e9d4d5a57cd04",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/ir/passes/lower_fp64_to_fp32.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_ir_passes_lower_fp64_to_fp32.cpp.o",
+    "size": 166904,
+    "sha256": "c21e2bba2a20b61bc0d4f3f0304088e0ca2617c9b0db57cbb8a9972e3bba45fc",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/ir/passes/lower_user_clip_planes.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_ir_passes_lower_user_clip_planes.cpp.o",
+    "size": 182416,
+    "sha256": "1ddd078da0e3e754a02bfc7422c8fd692aa06b42230f0ef7f18b9811582bcc00",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/ir/passes/readlane_elimination_pass.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_ir_passes_readlane_elimination_pass.cpp.o",
+    "size": 409368,
+    "sha256": "69b54c3587d3f28501c79e99bce568c727c928ade2a20f62b37f5cd3bdd16552",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/ir/passes/resource_discover_pass.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_ir_passes_resource_discover_pass.cpp.o",
+    "size": 201096,
+    "sha256": "8160c2c4c1fe2fe2f3a30c125efef0f9639fbc5189496d463c461ee0357b3325",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/ir/passes/resource_patching_pass.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_ir_passes_resource_patching_pass.cpp.o",
+    "size": 384296,
+    "sha256": "81f3d5bfadddd0bf6a1617dfad2705f9d4a368eec5076852a7256882f32dd684",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/ir/passes/ring_access_elimination.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_ir_passes_ring_access_elimination.cpp.o",
+    "size": 239632,
+    "sha256": "e35cb924b7f769ae546afbfe6a5996eaa39d8a8b7f513405211344dad7a19dc2",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/ir/passes/shader_info_collection_pass.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_ir_passes_shader_info_collection_pass.cpp.o",
+    "size": 175952,
+    "sha256": "1071d0d2fd3ee05584639cf0f6781b6b1bea73d91edac3cd6341cafa7234bff2",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/ir/passes/shared_memory_barrier_pass.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_ir_passes_shared_memory_barrier_pass.cpp.o",
+    "size": 362344,
+    "sha256": "8f0db1b69aef1b9a4f5d1a3b94d4d071014b03d1e3812d353c6933ba0d498c67",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/ir/passes/shared_memory_simplify_pass.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_ir_passes_shared_memory_simplify_pass.cpp.o",
+    "size": 169624,
+    "sha256": "dd1136867732ba0422d17d7c2131344f8a896b1cbaffa35406d5535c2626efa0",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/ir/passes/shared_memory_to_storage_pass.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_ir_passes_shared_memory_to_storage_pass.cpp.o",
+    "size": 181136,
+    "sha256": "25f40f90a3c53cc187560bf8a2f9efdfb382f2037c91879a330e374eeb03e9d0",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/ir/passes/lower_phis_to_regs_pass.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_ir_passes_lower_phis_to_regs_pass.cpp.o",
+    "size": 154736,
+    "sha256": "cb91309772cfce04266c4b8f3a3861e6a43e183f434db170f539efc585574f7c",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/ir/passes/ssa_repair_pass.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_ir_passes_ssa_repair_pass.cpp.o",
+    "size": 173904,
+    "sha256": "7db49373a9f619b37e570f7800c1d7e241041f828c45cc334683f870cbcebada",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/ir/passes/ssa_rewrite_pass.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_ir_passes_ssa_rewrite_pass.cpp.o",
+    "size": 501464,
+    "sha256": "a5fb0f63ac718de868e537127b646e73366cf596fca7c08bfa0ef9b16bba4fbb",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/ir/abstract_syntax_list.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_ir_abstract_syntax_list.cpp.o",
+    "size": 160512,
+    "sha256": "ae4d4482d00c19f746a63dec6e514d3a7527b7470ba814e862df5c462d9f2ca7",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/ir/attribute.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_ir_attribute.cpp.o",
+    "size": 13120,
+    "sha256": "b8dcc418cc396c2b9c12f7bcab4e41a0101e16d4157b2f055c00c11ca8ee4372",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/ir/basic_block.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_ir_basic_block.cpp.o",
+    "size": 453144,
+    "sha256": "49b6a5466fae1a64183a37752a5237e77d8621570af0278accaa8c33a3d4a983",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/ir/dominance.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_ir_dominance.cpp.o",
+    "size": 51616,
+    "sha256": "a13c644756f2d1506f71d45e7159a5d90b3d8f607de5f06e6b602d3a8e4d836a",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/ir/ir_emitter.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_ir_ir_emitter.cpp.o",
+    "size": 544312,
+    "sha256": "41f1fa444cbcc1d009174ebede7f1443f85be937515d91102d264f56ec2f55d2",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/ir/microinstruction.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_ir_microinstruction.cpp.o",
+    "size": 274896,
+    "sha256": "2684961e0041e648dd9372db650cbbe9e2e0a5f2a7bf8b08a88ee476cd7ae441",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/ir/opcodes.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_ir_opcodes.cpp.o",
+    "size": 36920,
+    "sha256": "9009dbddfd31c0537c73ddbb813b924d1aa9d0cb290211b41d8dc36a47d52aa0",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/ir/patch.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_ir_patch.cpp.o",
+    "size": 5040,
+    "sha256": "fb8bcaf8e427779a1b8ba8c882f1bc8cf3750e76c78b5cf068322aa9f157b581",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/ir/post_order.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_ir_post_order.cpp.o",
+    "size": 94472,
+    "sha256": "e31c4eb65e2737cd16252876038c0fdce2418a8b12e12e4142854a07c68ad07a",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/ir/program.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_ir_program.cpp.o",
+    "size": 270616,
+    "sha256": "008083f42d7a1ab056e73dd04a092d2809c8eea759cf30fc096f872ce7c08072",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/ir/type.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_ir_type.cpp.o",
+    "size": 11936,
+    "sha256": "65c2c4697117e7db42bd4d31796f93cf547ed6677391828db3ded151b2acb39a",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  },
+  {
+    "source": "src/shader_recompiler/ir/value.cpp",
+    "object": "build/vulkan-review/final-objects/src_shader_recompiler_ir_value.cpp.o",
+    "size": 150848,
+    "sha256": "7ed1062a2c93992fadcf4a67dd52d25da5bdcc263ab447e83f24e19b95a527c6",
+    "elf_type": "ET_REL",
+    "machine": "EM_AARCH64"
+  }
+]

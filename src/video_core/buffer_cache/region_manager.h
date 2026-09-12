@@ -9,9 +9,10 @@
 
 #ifdef __unix__
 #include "common/adaptive_mutex.h"
-#else
-#include "common/spin_lock.h"
 #endif
+// Bionic is Unix but does not provide the GNU adaptive-mutex initializer.
+// Keep the fallback declaration available on every platform.
+#include "common/spin_lock.h"
 #include "common/debug.h"
 #include "common/types.h"
 #include "video_core/buffer_cache/region_definitions.h"

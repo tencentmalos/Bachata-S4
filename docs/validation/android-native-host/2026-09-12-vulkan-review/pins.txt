@@ -1,0 +1,5 @@
+ ba1640446f3826a518721d1f083f3a8cca1120c3 externals/glslang (15.2.0-14-gba164044)
+ 174573d60290f447c13a2b1b3405de2b96e27d6c externals/miniz (3.1.0)
+ ee3b5caaa7e372715873c7b9c390ee1c3ca5db25 externals/vulkan-headers (v1.4.330)
+ 1f7008848736b7c6c0779220480344fd5b5fc5e3 foundation (heads/codex/shadps4-android-fex-v0)
+ 385a0cc4d81cd456c8d5c26b4f09cb5a7d8d5842 references/FEX (FEX-2608-240-g385a0cc4d)

@@ -1,0 +1,296 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 7f37a3f3..77f5a560 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1148,6 +1148,7 @@ set(VIDEO_CORE src/video_core/amdgpu/cb_db_extent.h
+                src/video_core/renderer_vulkan/vk_shader_util.h
+                src/video_core/renderer_vulkan/vk_swapchain.cpp
+                src/video_core/renderer_vulkan/vk_swapchain.h
++               src/video_core/renderer_vulkan/swapchain_acquire.h
+                src/video_core/renderer_vulkan/host_passes/fsr_pass.cpp
+                src/video_core/renderer_vulkan/host_passes/fsr_pass.h
+                src/video_core/renderer_vulkan/host_passes/pp_pass.cpp
+diff --git a/src/shader_recompiler/ir/debug_print.h b/src/shader_recompiler/ir/debug_print.h
+index 1ab1575d..42f7484e 100644
+--- a/src/shader_recompiler/ir/debug_print.h
++++ b/src/shader_recompiler/ir/debug_print.h
+@@ -3,7 +3,7 @@
+ 
+ #include "common/bit_field.h"
+ #include "shader_recompiler/ir/opcodes.h"
+-#include "src/common/types.h"
++#include "common/types.h"
+ 
+ #pragma once
+ 
+@@ -18,4 +18,4 @@ union DebugPrintFlags {
+     BitField<0, 32, u32> num_args;
+ };
+ 
+-} // namespace Shader::IR
+\ No newline at end of file
++} // namespace Shader::IR
+diff --git a/src/video_core/buffer_cache/region_manager.h b/src/video_core/buffer_cache/region_manager.h
+index 5e32a1d5..79684a0d 100644
+--- a/src/video_core/buffer_cache/region_manager.h
++++ b/src/video_core/buffer_cache/region_manager.h
+@@ -9,9 +9,10 @@
+ 
+ #ifdef __unix__
+ #include "common/adaptive_mutex.h"
+-#else
+-#include "common/spin_lock.h"
+ #endif
++// Bionic is Unix but does not provide the GNU adaptive-mutex initializer.
++// Keep the fallback declaration available on every platform.
++#include "common/spin_lock.h"
+ #include "common/debug.h"
+ #include "common/types.h"
+ #include "video_core/buffer_cache/region_definitions.h"
+diff --git a/src/video_core/page_manager.cpp b/src/video_core/page_manager.cpp
+index 6a4bcbd7..82eb26b7 100644
+--- a/src/video_core/page_manager.cpp
++++ b/src/video_core/page_manager.cpp
+@@ -30,9 +30,8 @@
+ 
+ #ifdef __linux__
+ #include "common/adaptive_mutex.h"
+-#else
+-#include "common/spin_lock.h"
+ #endif
++#include "common/spin_lock.h"
+ 
+ namespace VideoCore {
+ 
+diff --git a/src/video_core/renderer_vulkan/vk_platform.cpp b/src/video_core/renderer_vulkan/vk_platform.cpp
+index c740bb9c..5d9b5c65 100644
+--- a/src/video_core/renderer_vulkan/vk_platform.cpp
++++ b/src/video_core/renderer_vulkan/vk_platform.cpp
+@@ -2,8 +2,10 @@
+ // SPDX-License-Identifier: GPL-2.0-or-later
+ 
+ // Include the vulkan platform specific header
+-#if defined(ANDROID)
++#if defined(__ANDROID__) || defined(ANDROID)
++#ifndef VK_USE_PLATFORM_ANDROID_KHR
+ #define VK_USE_PLATFORM_ANDROID_KHR
++#endif
+ #elif defined(_WIN64)
+ #define VK_USE_PLATFORM_WIN32_KHR
+ #elif defined(__APPLE__)
+@@ -13,7 +15,7 @@
+ #define VK_USE_PLATFORM_XLIB_KHR
+ #endif
+ 
+-#if defined(ANDROID)
++#if defined(__ANDROID__) || defined(ANDROID)
+ #include <android/native_window.h>
+ #endif
+ 
+diff --git a/src/video_core/renderer_vulkan/vk_presenter.cpp b/src/video_core/renderer_vulkan/vk_presenter.cpp
+index 9008e360..4b292145 100644
+--- a/src/video_core/renderer_vulkan/vk_presenter.cpp
++++ b/src/video_core/renderer_vulkan/vk_presenter.cpp
+@@ -852,19 +852,26 @@ void Presenter::Present(Frame* frame, bool is_reusing_frame) {
+         }
+     };
+ 
++    if (swapchain.StopRequested()) {
++        free_frame();
++        return;
++    }
++
+     // Recreate the swapchain if the window was resized.
+     if (window.GetWidth() != swapchain.GetWidth() || window.GetHeight() != swapchain.GetHeight()) {
+         swapchain.Recreate(window.GetWidth(), window.GetHeight());
+     }
+ 
+-    if (!swapchain.AcquireNextImage()) {
++    auto acquired = swapchain.AcquireNextImage();
++    if (acquired == AcquireStatus::Recreate && !swapchain.StopRequested()) {
+         swapchain.Recreate(window.GetWidth(), window.GetHeight());
+-        if (!swapchain.AcquireNextImage()) {
+-            // User resizes the window too fast and GPU can't keep up. Skip this frame.
+-            LOG_WARNING(Render_Vulkan, "Skipping frame!");
+-            free_frame();
+-            return;
+-        }
++        acquired = swapchain.AcquireNextImage();
++    }
++    if (acquired != AcquireStatus::Acquired) {
++        // Timeout/cancel does not retire or rebuild a working swapchain. Leave
++        // this frame's fence signalled so it can be safely reused next time.
++        free_frame();
++        return;
+     }
+ 
+     // Reset fence for queue submission. Do it here instead of GetRenderFrame() because we may
+@@ -1082,7 +1089,7 @@ void Presenter::Present(Frame* frame, bool is_reusing_frame) {
+     // Present to swapchain.
+     {
+         std::scoped_lock submit_lock{Scheduler::submit_mutex};
+-        if (!swapchain.Present()) {
++        if (!swapchain.Present() && !swapchain.StopRequested()) {
+             swapchain.Recreate(window.GetWidth(), window.GetHeight());
+         }
+     }
+diff --git a/src/video_core/renderer_vulkan/vk_presenter.h b/src/video_core/renderer_vulkan/vk_presenter.h
+index 614b9b77..64e51ea6 100644
+--- a/src/video_core/renderer_vulkan/vk_presenter.h
++++ b/src/video_core/renderer_vulkan/vk_presenter.h
+@@ -52,6 +52,11 @@ public:
+     Presenter(Frontend::WindowSDL& window, AmdGpu::Liverpool* liverpool);
+     ~Presenter();
+ 
++    // The session owner must call this before joining rendering workers.
++    void RequestStop() {
++        swapchain.RequestStop();
++    }
++
+     HostPasses::PostProcessingPass::Settings& GetPPSettingsRef() {
+         return pp_settings;
+     }
+diff --git a/src/video_core/renderer_vulkan/vk_shader_util.cpp b/src/video_core/renderer_vulkan/vk_shader_util.cpp
+index 1eb9b27c..27bbcb56 100644
+--- a/src/video_core/renderer_vulkan/vk_shader_util.cpp
++++ b/src/video_core/renderer_vulkan/vk_shader_util.cpp
+@@ -4,7 +4,13 @@
+ #include <memory>
+ #include <glslang/Include/ResourceLimits.h>
+ #include <glslang/Public/ShaderLang.h>
++#if __has_include(<glslang/SPIRV/GlslangToSpv.h>)
+ #include <glslang/SPIRV/GlslangToSpv.h>
++#else
++// The in-tree glslang target exports its source root; installed packages nest
++// SPIRV under glslang instead.
++#include <SPIRV/GlslangToSpv.h>
++#endif
+ #include "common/assert.h"
+ #include "common/logging/log.h"
+ #include "video_core/renderer_vulkan/vk_shader_util.h"
+diff --git a/src/video_core/renderer_vulkan/vk_swapchain.cpp b/src/video_core/renderer_vulkan/vk_swapchain.cpp
+index 1ad042e8..d3ef5004 100644
+--- a/src/video_core/renderer_vulkan/vk_swapchain.cpp
++++ b/src/video_core/renderer_vulkan/vk_swapchain.cpp
+@@ -132,50 +132,18 @@ void Swapchain::SetHDR(bool hdr) {
+                                                  : surface_format.format);
+ }
+ 
+-bool Swapchain::AcquireNextImage() {
+-    vk::Device device = instance.GetDevice();
+-    // Bounded acquire: never block forever. On Android a surface can be yanked
+-    // (backgrounding / rotation) while we are inside acquire; with an infinite
+-    // timeout the present thread would wedge and teardown could not proceed. Poll
+-    // with a bounded timeout and honor RequestStop() so Stop returns promptly.
+-    // Reference research flagged that neither azahar nor citron interrupt a
+-    // blocked acquire; this is the fix spec HN4 requires.
+-    static constexpr u64 kAcquireTimeoutNs = 100'000'000; // 100 ms
+-    for (;;) {
+-        if (stop_requested.load(std::memory_order_acquire)) {
+-            // Asked to stop: do not keep the caller here. Report "not ready" so the
+-            // frame is skipped and teardown can run; do not flag recreation.
+-            return false;
+-        }
+-        vk::Result result =
+-            device.acquireNextImageKHR(swapchain, kAcquireTimeoutNs, image_acquired[frame_index],
+-                                       VK_NULL_HANDLE, &image_index);
+-
+-        switch (result) {
+-        case vk::Result::eSuccess:
+-            return true;
+-        case vk::Result::eTimeout:
+-        case vk::Result::eNotReady:
+-            // No image yet within the bounded window. Loop and re-check the stop
+-            // flag rather than busy-spinning (acquire itself waited the timeout).
+-            continue;
+-        case vk::Result::eErrorSurfaceLostKHR:
+-            // The surface object is dead; Recreate must rebuild the VkSurfaceKHR.
+-            surface_lost = true;
+-            needs_recreation = true;
+-            return false;
+-        case vk::Result::eSuboptimalKHR:
+-        case vk::Result::eErrorOutOfDateKHR:
+-        case vk::Result::eErrorUnknown:
+-            needs_recreation = true;
+-            return false;
+-        default:
+-            LOG_CRITICAL(Render_Vulkan, "Swapchain acquire returned unknown result {}",
+-                         vk::to_string(result));
+-            UNREACHABLE();
+-            return false;
+-        }
++AcquireStatus Swapchain::AcquireNextImage() {
++    const auto acquired = AcquireSwapchainImage(stop_requested, [&](u64 timeout_ns) {
++        return instance.GetDevice().acquireNextImageKHR(
++            swapchain, timeout_ns, image_acquired[frame_index], VK_NULL_HANDLE, &image_index);
++    });
++    needs_recreation |= acquired.recreate;
++    surface_lost |= acquired.surface_lost;
++    if (acquired.status == AcquireStatus::Error) {
++        LOG_CRITICAL(Render_Vulkan, "Swapchain acquire failed: {}", vk::to_string(acquired.result));
++        UNREACHABLE();
+     }
++    return acquired.status;
+ }
+ 
+ bool Swapchain::Present() {
+diff --git a/src/video_core/renderer_vulkan/vk_swapchain.h b/src/video_core/renderer_vulkan/vk_swapchain.h
+index 2b408a3f..9d18a59b 100644
+--- a/src/video_core/renderer_vulkan/vk_swapchain.h
++++ b/src/video_core/renderer_vulkan/vk_swapchain.h
+@@ -7,6 +7,7 @@
+ #include <mutex>
+ #include <vector>
+ #include "common/types.h"
++#include "video_core/renderer_vulkan/swapchain_acquire.h"
+ #include "video_core/renderer_vulkan/vk_common.h"
+ 
+ namespace Frontend {
+@@ -30,18 +31,22 @@ public:
+     void Recreate(u32 width, u32 height);
+ 
+     /// Acquires the next image in the swapchain.
+-    bool AcquireNextImage();
++    AcquireStatus AcquireNextImage();
+ 
+     /// Presents the current image and move to the next one
+     bool Present();
+ 
+-    /// Asks a blocked AcquireNextImage to return promptly so teardown can proceed.
+-    /// Idempotent and thread-safe; used on Stop / surface detach so a bounded
+-    /// acquire that keeps timing out does not spin forever (HN4).
++    /// Stops subsequent acquire calls. An already-running call has a finite
++    /// timeout; an image it acquired successfully must still be consumed.
++    /// The session owner calls this before joining rendering workers.
+     void RequestStop() {
+         stop_requested.store(true, std::memory_order_release);
+     }
+ 
++    bool StopRequested() const {
++        return stop_requested.load(std::memory_order_acquire);
++    }
++
+     vk::SurfaceKHR GetSurface() const {
+         return surface;
+     }
+@@ -150,8 +155,7 @@ private:
+     // Set when acquire/present returned eErrorSurfaceLostKHR: the next Recreate
+     // must rebuild the VkSurfaceKHR, not just the swapchain.
+     bool surface_lost = false;
+-    // Set by RequestStop() from any thread; makes the bounded acquire retry loop
+-    // bail out instead of blocking teardown.
++    // Set by RequestStop() from any thread; prevents further acquires.
+     std::atomic<bool> stop_requested{false};
+     bool needs_hdr = false;    // The game requested HDR swapchain
+     bool supports_hdr = false; // SC supports HDR output
+diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
+index 3bc6b035..fccebe2c 100644
+--- a/tests/CMakeLists.txt
++++ b/tests/CMakeLists.txt
+@@ -383,3 +383,6 @@ gtest_discover_tests(shadps4_http_test
+     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+     DISCOVERY_TIMEOUT 60
+ )
++
++# Standalone-capable WSI contract checks, no GPU or full emulator link required.
++add_subdirectory(video_core)

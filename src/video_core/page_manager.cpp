@@ -30,9 +30,8 @@
 
 #ifdef __linux__
 #include "common/adaptive_mutex.h"
-#else
-#include "common/spin_lock.h"
 #endif
+#include "common/spin_lock.h"
 
 namespace VideoCore {
 

@@ -1,6 +1,8 @@
 # PKG v2 progress — WP-A §4.1 session boundary fixes (2026-09-12)
 
-Executing [PKG v2 整版任务书](../../specs/android-native-host-pkg-v2.md). Base
+> **后续独立复核与直接修复（2026-09-12）**：[Vulkan/NDK报告](../vulkan-review-2026-09-12.md)。以下保留原提交陈述；“全host闭包已编译”当时证据不足。新修复后完整图形37+67已产出104个ARM64对象，仍非host全链接。旧脚本改为仓库工具wrapper，缺文件失败返回1；默认Turnip实际加载待整版接通。
+
+Executing [PKG v2 整版任务书](../../../specs/android-native-host-pkg-v2.md). Base
 `0f4fd74b`. This file tracks the continuous work; evidence artifacts land beside it.
 
 ## WP-A §4.1 — five session-boundary defects (review §2.1–2.3) — DONE (host-verified)
