@@ -55,7 +55,7 @@ bool IsWriteError(void* ctx) {
     // the ucontext __reserved area as a chain of _aarch64_ctx records. Walk the
     // chain to the ESR_MAGIC block and read bit 6 (WnR = write-not-read). Bounds
     // are validated at every step so a malformed chain returns false rather than
-    // reading out of the reserved buffer. Matches the shadps4-arm64 reference.
+    // reading out of the reserved buffer.
     const auto* context = static_cast<const ucontext_t*>(ctx);
     const auto* record = context->uc_mcontext.__reserved;
     const auto* const end = record + sizeof(context->uc_mcontext.__reserved);
@@ -65,8 +65,12 @@ bool IsWriteError(void* ctx) {
             break;
         }
         const size_t remaining = end - record;
+        // AArch64 signal records use 16-byte layout alignment. The 4-byte
+        // alignment of the header alone is insufficient: advancing by 12 would
+        // leave the next esr_context's 64-bit field misaligned.
+        constexpr size_t RecordAlignment = 16;
         if (header->size < sizeof(*header) || header->size > remaining ||
-            (header->size % alignof(_aarch64_ctx)) != 0) {
+            (header->size % RecordAlignment) != 0) {
             return false;
         }
         if (header->magic == ESR_MAGIC) {

@@ -386,3 +386,6 @@ gtest_discover_tests(shadps4_http_test
 
 # Standalone-capable WSI contract checks, no GPU or full emulator link required.
 add_subdirectory(video_core)
+
+# COMMON libc and ARM64 signal-context regressions.
+add_subdirectory(common)

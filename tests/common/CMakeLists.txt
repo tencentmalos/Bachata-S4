@@ -1,0 +1,32 @@
+# SPDX-FileCopyrightText: Copyright 2026 shadPS4 Emulator Project
+# SPDX-License-Identifier: GPL-2.0-or-later
+cmake_minimum_required(VERSION 3.22)
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    project(shadps4_common_tests LANGUAGES CXX)
+    enable_testing()
+endif()
+# POSIX errno values aren't Windows FormatMessage error codes.
+if(UNIX)
+    add_executable(common_error_tests error_tests.cpp ../../src/common/error.cpp)
+    target_compile_features(common_error_tests PRIVATE cxx_std_20)
+    target_include_directories(common_error_tests PRIVATE ../../src)
+    add_test(NAME common_error_tests COMMAND common_error_tests)
+endif()
+if(CMAKE_SYSTEM_NAME STREQUAL "Android")
+    add_executable(common_error_posix_tests error_tests.cpp ../../src/common/error.cpp)
+    target_compile_features(common_error_posix_tests PRIVATE cxx_std_20)
+    target_include_directories(common_error_posix_tests PRIVATE ../../src)
+    target_compile_options(common_error_posix_tests PRIVATE -U_GNU_SOURCE -D_POSIX_C_SOURCE=200809L)
+    add_test(NAME common_error_posix_tests COMMAND common_error_posix_tests)
+endif()
+
+if(CMAKE_SYSTEM_NAME MATCHES "^(Linux|Android)$")
+    if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(aarch64|arm64)$")
+        add_executable(common_signal_context_tests signal_context_tests.cpp
+            ../../src/common/signal_context.cpp ../../src/common/error.cpp)
+        target_compile_features(common_signal_context_tests PRIVATE cxx_std_20)
+        target_include_directories(common_signal_context_tests PRIVATE ../../src)
+        add_test(NAME common_signal_context_tests COMMAND common_signal_context_tests)
+        set_tests_properties(common_signal_context_tests PROPERTIES TIMEOUT 130)
+    endif()
+endif()

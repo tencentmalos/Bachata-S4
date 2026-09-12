@@ -1,3 +1,9 @@
+# 最新：主线已交付远端，COMMON复核完成（2026-09-12）
+
+[复核与交付](../android-native-host/pkg-v2-common-review-2026-09-12.md)：bb4d6c4a/2efe7004补交遗漏资料，主分支从0e10defc推送到2efe7004。新COMMON4/4对象、crypto/ipc头路径实际重跑通过。复核发现的POSIX strerror_r与ESR记录对齐问题已直接修复，正式tests/common回归在AYN/API33/4KiB shell通过GNU errno7/7、POSIX errno7/7、信号50/50（40次真实页异常），macOS errno7/7通过；两个问题均不再进入后续spec。现有回归807/19/23通过。尚无full-host target/link、实际Turnip加载或真实PKG验收；整版目标不变。
+
+---
+
 # 当前 Git 交付（2026-09-12 / 7c675280）
 
 图形修复已由091334d3保存，入口/spec由1d411955保存；新增COMMON/bionic适配06bd43bd、进度7c675280。以下“本轮未提交”和旧origin位置是各次历史观察，不是当前代码提交状态。本次按用户要求补交遗漏的研究/spec/原始复核证据，再推送当前主分支；不改历史测试的源码身份。

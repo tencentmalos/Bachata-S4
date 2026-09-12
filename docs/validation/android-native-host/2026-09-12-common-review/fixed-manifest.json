@@ -1,0 +1,56 @@
+{
+  "base_commit": "2efe700474c767bb36c4f19aecf557cd92297cd0",
+  "changes": "working tree COMMON fixes and formal tests, committed together with this evidence",
+  "device": "9c2841a4",
+  "abi": "arm64-v8a",
+  "native_api": 33,
+  "runtime": "CLI auxiliary / shell UID; not ordinary APK",
+  "ro.build.version.sdk": "33",
+  "ro.build.version.release": "13",
+  "pagesize": "4096",
+  "cmake_command": "cmake -S tests/common -B build/pkg-v2-common-review/fixed-tests-android -G Ninja -DCMAKE_TOOLCHAIN_FILE=/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-33 -DANDROID_STL=c++_static",
+  "build_command": "cmake --build build/pkg-v2-common-review/fixed-tests-android -j4",
+  "source_sha256": {
+    "src/common/error.cpp": "f6afbeee94feb8e3170afd6c7d35752e1bd083167cf9fa034277e8a14411bc49",
+    "src/common/signal_context.cpp": "60435e0796aef9bdc4055ffff9763a88dfb379770db101ba2ca06524e0b9426d",
+    "tests/common/CMakeLists.txt": "a831ce267b52a6060e023c3f3d04d73bf508007c7919db33f5d79cf241fe3e0b",
+    "tests/common/error_tests.cpp": "5ea49a6dcf4166a1119a053b84a9146064f4bb4615055d2ab2d6f12fdeb0c107",
+    "tests/common/signal_context_tests.cpp": "0d21ce7e60e9c8b0e0d49f462b689e542d10a7f9251683b201346644468da48c"
+  },
+  "tests": [
+    {
+      "target": "common_error_tests",
+      "binary_sha256": "232e1d57e171d05bdfc198018869153ed85929cc55a87a28302015ea3e37e6b4",
+      "device_sha256": "232e1d57e171d05bdfc198018869153ed85929cc55a87a28302015ea3e37e6b4",
+      "command": "adb -s 9c2841a4 shell /data/local/tmp/shadps4-common-review/common_error_tests",
+      "exit_code": 0,
+      "summary": "checks=7 failures=0"
+    },
+    {
+      "target": "common_error_posix_tests",
+      "binary_sha256": "dec2faacc4f16c7c689da7eab9b2578fdd6b47fb93683d8fdbc5fd6d2c2aad04",
+      "device_sha256": "dec2faacc4f16c7c689da7eab9b2578fdd6b47fb93683d8fdbc5fd6d2c2aad04",
+      "command": "adb -s 9c2841a4 shell /data/local/tmp/shadps4-common-review/common_error_posix_tests",
+      "exit_code": 0,
+      "summary": "checks=7 failures=0"
+    },
+    {
+      "target": "common_signal_context_tests",
+      "binary_sha256": "36e289372d4c221a31995864fd3bb135217bb2be292c16e5caff469712cc1af2",
+      "device_sha256": "36e289372d4c221a31995864fd3bb135217bb2be292c16e5caff469712cc1af2",
+      "command": "adb -s 9c2841a4 shell /data/local/tmp/shadps4-common-review/common_signal_context_tests",
+      "exit_code": 0,
+      "summary": "checks=50 failures=0"
+    }
+  ],
+  "host": {
+    "platform": "macOS ARM64 / AppleClang 17.0.0",
+    "configure_command": "cmake -S tests/common -B build/pkg-v2-common-review/fixed-tests-host -G Ninja",
+    "build_command": "cmake --build build/pkg-v2-common-review/fixed-tests-host -j4",
+    "binary_sha256": "19075549f9389af157a190693935681c1b5eb5e1488cd59a6803805bd3d56a04",
+    "test": "common_error_tests",
+    "checks": 7,
+    "failures": 0,
+    "ctest": "1/1 PASS"
+  }
+}

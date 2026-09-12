@@ -1,0 +1,11 @@
+$ build/pkg-v2-common-review/fixed-tests-host/common_error_tests
+checks=7 failures=0
+
+$ ctest --test-dir build/pkg-v2-common-review/fixed-tests-host --output-on-failure
+Test project /Users/bytedance/workspace/emulations/ps4/shadps4/build/pkg-v2-common-review/fixed-tests-host
+    Start 1: common_error_tests
+1/1 Test #1: common_error_tests ...............   Passed    0.01 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =   0.08 sec

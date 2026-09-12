@@ -1,0 +1,4 @@
+src/common/error.cpp:39:17: error: cannot initialize a variable of type 'const char *' with an rvalue of type 'int'
+   39 |     const char* str = strerror_r(e, err_str, sizeof(err_str));
+      |                 ^     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.

@@ -1,5 +1,7 @@
 # Android native host PKG v2：真实游戏整版交付任务书
 
+> **Git/COMMON后续复核**：[2026-09-12记录](../validation/android-native-host/pkg-v2-common-review-2026-09-12.md)。图形修复已提交，遗漏资料已归档并推送；COMMON复核发现的小问题已在本轮直接修复并通过正式回归，无需后续重复处理。直接开始target/link，不另拆扫描里程碑。
+
 > **2026-09-12 执行更新**：以 [Vulkan 复核与修复](../validation/android-native-host/vulkan-review-2026-09-12.md) 叠加当前工作区继续。用户要求本轮直接修补明确缺口，下一 AI 继续整版工作；默认 **Android/bionic Turnip**。图形编译缺口与 acquire 局部行为已有修复，不重复从原来的两份 `/tmp` sweep 起步。仍须完成正式 CMake 全链接、Turnip 的实际 native 加载、生产 guest/VM/HLE/Surface 和真实 PKG 真机验收；不另拆微型 spec。
 
 日期：2026-09-12。状态：**待实施，未完成设备验收**。起点：`codex/android-fex-round2` / `0f4fd74b1ef7b704fe6250805f7a6365c538e1a6`，FEX 固定 `385a0cc4`。先读 [本次复核](../validation/android-native-host/full-pkg-review-2026-09-12.md)和[证据](../validation/android-native-host/2026-09-12-review/README.md)。

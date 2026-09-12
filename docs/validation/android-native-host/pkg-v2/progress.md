@@ -1,5 +1,7 @@
 # PKG v2 progress — WP-A §4.1 session boundary fixes (2026-09-12)
 
+> **COMMON后续独立复核**：[当前报告](../pkg-v2-common-review-2026-09-12.md)。新实现GNU/API33路径4/4对象通过；crypto/ipc路径推断已实际重跑。POSIX strerror_r配置及ESR对齐问题已直接修复，正式回归真机GNU errno7/7、POSIX errno7/7、信号50/50，macOS errno7/7通过；此后的工作进入正式host target/link。主线与遗漏历史资料已推送，以下早期本地状态按当时记录保留。
+
 > **后续独立复核与直接修复（2026-09-12）**：[Vulkan/NDK报告](../vulkan-review-2026-09-12.md)。以下保留原提交陈述；“全host闭包已编译”当时证据不足。新修复后完整图形37+67已产出104个ARM64对象，仍非host全链接。旧脚本改为仓库工具wrapper，缺文件失败返回1；默认Turnip实际加载待整版接通。
 
 Executing [PKG v2 整版任务书](../../../specs/android-native-host-pkg-v2.md). Base

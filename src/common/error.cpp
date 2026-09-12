@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <cstddef>
+#include <type_traits>
 #ifdef _WIN32
 #include <windows.h>
 #else
@@ -30,22 +31,15 @@ std::string NativeErrorToString(int e) {
     return ret;
 #else
     char err_str[255];
-#if defined(__GLIBC__) && (_GNU_SOURCE || (_POSIX_C_SOURCE < 200112L && _XOPEN_SOURCE < 600)) ||   \
-    defined(ANDROID) || defined(__ANDROID__)
-    // Thread safe (GNU-specific). bionic's strerror_r returns char* like glibc's
-    // GNU variant. The NDK defines __ANDROID__ (CMake also adds ANDROID); match
-    // both so a standalone NDK build does not fall into the XSI (int-returning)
-    // branch and fail to compile.
-    const char* str = strerror_r(e, err_str, sizeof(err_str));
-    return std::string(str);
-#else
-    // Thread safe (XSI-compliant)
-    int second_err = strerror_r(e, err_str, sizeof(err_str));
-    if (second_err != 0) {
-        return "(strerror_r failed to format error)";
-    }
-    return std::string(err_str);
-#endif // GLIBC etc.
+    // Use the actual declaration selected by libc's feature macros. Both GNU
+    // (char*) and POSIX (int) signatures are available on bionic and glibc.
+    return [](auto result, const char* buffer) -> std::string {
+        if constexpr (std::is_same_v<decltype(result), int>) {
+            return result == 0 ? std::string(buffer) : "(strerror_r failed to format error)";
+        } else {
+            return result != nullptr ? std::string(result) : "(strerror_r failed to format error)";
+        }
+    }(strerror_r(e, err_str, sizeof(err_str)), err_str);
 #endif // _WIN32
 }
 

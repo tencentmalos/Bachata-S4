@@ -6,7 +6,9 @@
 
 ## 最新整版入口（2026-09-12）
 
-先读 [Vulkan/NDK 复核与本地修复](docs/validation/android-native-host/vulkan-review-2026-09-12.md)，继续 [PKG v2 整版任务书](docs/specs/android-native-host-pkg-v2.md)。图形代码/测试/脚本已提交 `091334d3`，入口同步为 `1d411955`；新增 COMMON/bionic 适配 `06bd43bd`、进度 `7c675280`，本轮正在交付远端并独立复核。图形完整源列表37+67已生成104个ARM64对象，acquire合同19/0、SessionCore807/0；不是整个host链接或游戏验收。
+先读 [COMMON/Git 最新复核](docs/validation/android-native-host/pkg-v2-common-review-2026-09-12.md)：主线已推送到2efe7004（含此前51提交、遗漏spec/证据/研究归档），报告与新证据随后交付。新增COMMON4/4对象通过；POSIX strerror_r与ESR对齐两个问题已直接修复，正式tests/common真机回归GNU errno7/7、POSIX errno7/7、信号50/50及macOS errno7/7通过，不再列入后续待办。下一步直接创建真实host target并驱动完整链接，不再先交一轮单TU扫描或询问是否开始CMake。
+
+先读 [Vulkan/NDK 复核与本地修复](docs/validation/android-native-host/vulkan-review-2026-09-12.md)，继续 [PKG v2 整版任务书](docs/specs/android-native-host-pkg-v2.md)。图形代码/测试/脚本已提交 `091334d3`，入口同步为 `1d411955`；新增 COMMON/bionic 适配 `06bd43bd`、进度 `7c675280`，已随上述主线交付远端并完成独立复核。图形完整源列表37+67已生成104个ARM64对象，acquire合同19/0、SessionCore807/0；不是整个host链接或游戏验收。
 
 **用户最新指定默认 Android/bionic Turnip，系统驱动适配后置。** 实際 native Turnip loader/dispatcher 尚未接入，不能只修改环境变量/枚举就宣布完成；锁定 bionic 包/ELF身份并查实际 shaderInt64，旧 glibc EMULATOR.zip 不能用于 native host。系统 Adreno 的 vkjson 仅为参考，不是 Turnip 结果。
 

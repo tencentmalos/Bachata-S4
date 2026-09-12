@@ -1,0 +1,22 @@
+{
+  "code_base": "7c675280",
+  "delivery_commit": "2efe700474c767bb36c4f19aecf557cd92297cd0",
+  "binary_sha256": "a5ddead43f2082e0302cb243d95949274a24b37f7baf4ab8de32a38714be00fb",
+  "probe_source_sha256": "6820d659dae7d6a663d2a04b392e786c86f8bdcb1c1c35e79ed0debc47f86dda",
+  "device": "9c2841a4",
+  "abi": "arm64-v8a",
+  "native_api": 33,
+  "runtime": "CLI auxiliary / shell UID; not ordinary APK",
+  "commands": {
+    "build": "aarch64-linux-android33-clang++ -std=c++23 -static-libstdc++ -fPIE -pie -Isrc docs/validation/android-native-host/2026-09-12-common-review/common_runtime_probe.cpp src/common/signal_context.cpp src/common/error.cpp -Wl,--no-undefined -Wl,--build-id=sha1 -o build/pkg-v2-common-review/common_runtime_probe",
+    "run": "adb -s 9c2841a4 shell /data/local/tmp/shadps4-common-review/common_runtime_probe"
+  },
+  "source_hashes": {
+    "src/common/signal_context.cpp": "914092838223c7a3f4e2eaf2d3f630ec0d503305c9136e577b913f4ffd9ade23",
+    "src/common/error.cpp": "bd331b24de8396961e245897fd3860db3c1851f47ff845fd394b23e8435818cb"
+  },
+  "ro.build.version.sdk": "33",
+  "ro.build.version.release": "13",
+  "pagesize": "4096",
+  "device_binary_sha256": "a5ddead43f2082e0302cb243d95949274a24b37f7baf4ab8de32a38714be00fb"
+}
