@@ -27,7 +27,7 @@
 #include "common/logging/log.h"
 #include "common/path_util.h"
 #include "core/emulator_settings.h"
-#include "sdl_window.h"
+#include "frontend/window.h"
 #include "video_core/renderer_vulkan/vk_platform.h"
 
 #ifdef __APPLE__
@@ -66,7 +66,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL DebugUtilsCallback(
     return VK_FALSE;
 }
 
-vk::SurfaceKHR CreateSurface(vk::Instance instance, const Frontend::WindowSDL& emu_window) {
+vk::SurfaceKHR CreateSurface(vk::Instance instance, const Frontend::Window& emu_window) {
     const auto& window_info = emu_window.GetWindowInfo();
     vk::SurfaceKHR surface{};
 

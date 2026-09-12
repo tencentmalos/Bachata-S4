@@ -10,7 +10,12 @@
 #include "core/libraries/libs.h"
 #include "core/libraries/system/systemservice.h"
 #include "core/libraries/system/systemservice_error.h"
+#ifdef __ANDROID__
+#include "core/host_runtime/application_control.h"
+#include "core/libraries/kernel/orbis_error.h"
+#else
 #include "emulator.h"
+#endif
 
 namespace Libraries::SystemService {
 
@@ -1874,6 +1879,30 @@ int PS4_SYSV_ABI sceSystemServiceLaunchWebBrowser() {
 
 int PS4_SYSV_ABI sceSystemServiceLoadExec(const char* path, const char* argv[]) {
     LOG_DEBUG(Lib_SystemService, "called");
+#ifdef __ANDROID__
+    // The typed guest gate must marshal these pointers before calling native HLE.
+    if (!path || !*path)
+        return ORBIS_SYSTEM_SERVICE_ERROR_PARAMETER;
+    Core::HostRuntime::LoadExecRequest request{.guest_path = path};
+    if (argv) {
+        for (const char* const* arg = argv; *arg; ++arg)
+            request.args.emplace_back(*arg);
+    }
+    using Core::HostRuntime::LoadExecResult;
+    switch (Core::HostRuntime::RequestLoadExec(request)) {
+    case LoadExecResult::Accepted:
+        return ORBIS_OK;
+    case LoadExecResult::Unavailable:
+        return ORBIS_KERNEL_ERROR_ENOSYS;
+    case LoadExecResult::Busy:
+        return ORBIS_KERNEL_ERROR_EBUSY;
+    case LoadExecResult::InvalidRequest:
+        return ORBIS_SYSTEM_SERVICE_ERROR_PARAMETER;
+    case LoadExecResult::Failed:
+        return ORBIS_KERNEL_ERROR_EIO;
+    }
+    return ORBIS_KERNEL_ERROR_EIO;
+#else
     auto emu = Common::Singleton<Core::Emulator>::Instance();
     auto mnt = Common::Singleton<Core::FileSys::MntPoints>::Instance();
     // Validate through the mount stack so archive-backed targets resolve.
@@ -1899,6 +1928,7 @@ int PS4_SYSV_ABI sceSystemServiceLoadExec(const char* path, const char* argv[]) 
     }
     emu->Restart(exec_path, args);
     return ORBIS_OK;
+#endif
 }
 
 int PS4_SYSV_ABI sceSystemServiceNavigateToAnotherApp() {

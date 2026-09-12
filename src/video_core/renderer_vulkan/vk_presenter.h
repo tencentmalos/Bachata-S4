@@ -15,7 +15,7 @@
 #include "video_core/texture_cache/texture_cache.h"
 
 namespace Frontend {
-class WindowSDL;
+class Window;
 }
 
 namespace AmdGpu {
@@ -49,7 +49,7 @@ class Rasterizer;
 
 class Presenter {
 public:
-    Presenter(Frontend::WindowSDL& window, AmdGpu::Liverpool* liverpool);
+    Presenter(std::shared_ptr<Frontend::Window> window, AmdGpu::Liverpool* liverpool);
     ~Presenter();
 
     // The session owner must call this before joining rendering workers.
@@ -65,7 +65,11 @@ public:
         return fsr_settings;
     }
 
-    Frontend::WindowSDL& GetWindow() const {
+    Frontend::Window& GetWindow() const {
+        return *window;
+    }
+
+    std::shared_ptr<Frontend::Window> ShareWindow() const {
         return window;
     }
 
@@ -117,7 +121,7 @@ private:
     u32 expected_frame_width{1920};
     u32 expected_frame_height{1080};
 
-    Frontend::WindowSDL& window;
+    std::shared_ptr<Frontend::Window> window;
     Instance instance;
     HostPasses::FsrPass fsr_pass;
     HostPasses::FsrPass::Settings fsr_settings{};

@@ -6,8 +6,8 @@
 #include "common/assert.h"
 #include "common/logging/log.h"
 #include "core/emulator_settings.h"
+#include "frontend/window.h"
 #include "imgui/renderer/imgui_core.h"
-#include "sdl_window.h"
 #include "video_core/renderer_vulkan/vk_instance.h"
 #include "video_core/renderer_vulkan/vk_swapchain.h"
 
@@ -18,7 +18,7 @@ static constexpr vk::SurfaceFormatKHR SURFACE_FORMAT_HDR = {
     .colorSpace = vk::ColorSpaceKHR::eHdr10St2084EXT,
 };
 
-Swapchain::Swapchain(const Instance& instance_, const Frontend::WindowSDL& window_)
+Swapchain::Swapchain(const Instance& instance_, const Frontend::Window& window_)
     : instance{instance_}, window{window_}, surface{CreateSurface(instance.GetInstance(), window)} {
     FindPresentFormat();
     FindPresentMode();

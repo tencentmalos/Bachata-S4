@@ -345,13 +345,16 @@ void WindowSDL::InitTimers() {
     SDL_AddTimer(33, Input::MousePolling, (void*)controllers[0]);
 }
 
-void WindowSDL::RequestKeyboard() {
+bool WindowSDL::RequestKeyboard() {
     if (keyboard_grab == 0) {
-        SDL_RunOnMainThread(
-            [](void* userdata) { SDL_StartTextInput(static_cast<SDL_Window*>(userdata)); }, window,
-            true);
+        if (!SDL_RunOnMainThread(
+                [](void* userdata) { SDL_StartTextInput(static_cast<SDL_Window*>(userdata)); },
+                window, true)) {
+            return false;
+        }
     }
     keyboard_grab++;
+    return true;
 }
 
 void WindowSDL::ReleaseKeyboard() {

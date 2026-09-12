@@ -4,6 +4,7 @@
 #pragma once
 
 #include "core/debug_state.h"
+#include "frontend/window.h"
 #include "text_editor.h"
 
 #include <filesystem>
@@ -22,6 +23,7 @@ class ShaderList {
 
         bool DrawShader(DebugStateType::ShaderDump& value);
 
+        std::shared_ptr<Frontend::Window> keyboard_window;
         int index{-1};
         std::unique_ptr<TextEditor> isa_editor{};
         std::unique_ptr<TextEditor> glsl_editor{};

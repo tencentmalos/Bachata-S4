@@ -49,6 +49,14 @@ option(ENABLE_SPATIAL_FOUNDATION "Build shared host infrastructure from Spatial 
 # composed into an OBJECT library the Android JNI .so links, with no desktop main.cpp /
 # SDL window loop / quick_exit. The Android app configures the root project with this ON.
 option(BUILD_HOST_CORE "Build the reusable in-process host library (Android), not the desktop exe" OFF)
+if(BUILD_HOST_CORE)
+    if(NOT ANDROID OR NOT ANDROID_ABI STREQUAL "arm64-v8a")
+        message(FATAL_ERROR "BUILD_HOST_CORE currently supports Android arm64-v8a")
+    endif()
+    if(NOT ANDROID_STL STREQUAL "c++_shared")
+        message(FATAL_ERROR "Android host requires -DANDROID_STL=c++_shared; use scripts/android/build-host-android")
+    endif()
+endif()
 
 # First, determine whether to use CMAKE_OSX_ARCHITECTURES or CMAKE_SYSTEM_PROCESSOR.
 if (APPLE AND CMAKE_OSX_ARCHITECTURES)
@@ -1253,9 +1261,31 @@ file(MAKE_DIRECTORY "${SHADNET_PROTO_OUT}")
 # is fine; when cross-compiling (Android host lib) the target protoc cannot run,
 # so accept a host-built protoc via SHADNET_PROTOC_EXECUTABLE.
 if(SHADNET_PROTOC_EXECUTABLE)
+    if(NOT EXISTS "${SHADNET_PROTOC_EXECUTABLE}")
+        message(FATAL_ERROR "Missing host protoc: ${SHADNET_PROTOC_EXECUTABLE}")
+    endif()
+    execute_process(COMMAND "${SHADNET_PROTOC_EXECUTABLE}" --version
+        RESULT_VARIABLE protoc_result OUTPUT_VARIABLE protoc_version OUTPUT_STRIP_TRAILING_WHITESPACE)
+    # protoc --version uses the runtime header (36.0-dev at this pin), not
+    # protobuf's CMake/SOVERSION (36.0.0). Preserve the development suffix.
+    set(protobuf_version_header "${CMAKE_CURRENT_SOURCE_DIR}/externals/protobuf/src/google/protobuf/runtime_version.h")
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${protobuf_version_header}")
+    file(STRINGS "${protobuf_version_header}" protobuf_version_line REGEX "^#define PROTOBUF_OSS_VERSION [0-9]+$")
+    string(REGEX REPLACE ".* ([0-9]+)$" "\\1" protobuf_version_number "${protobuf_version_line}")
+    file(STRINGS "${protobuf_version_header}" protobuf_suffix_line REGEX "^#define PROTOBUF_OSS_VERSION_SUFFIX ")
+    string(REGEX REPLACE "^[^\"]*\"([^\"]*)\".*$" "\\1" protobuf_version_suffix "${protobuf_suffix_line}")
+    math(EXPR protoc_minor "(${protobuf_version_number} / 1000) % 1000")
+    math(EXPR protoc_patch "${protobuf_version_number} % 1000")
+    set(target_protoc_version "${protoc_minor}.${protoc_patch}${protobuf_version_suffix}")
+    if(NOT protoc_result EQUAL 0 OR NOT protoc_version STREQUAL "libprotoc ${target_protoc_version}")
+        message(FATAL_ERROR "Host protoc ${protoc_version} must match target protobuf ${target_protoc_version}")
+    endif()
     set(SHADNET_PROTOC "${SHADNET_PROTOC_EXECUTABLE}")
-    set(SHADNET_PROTOC_DEP "")
+    set(SHADNET_PROTOC_DEP "${SHADNET_PROTOC_EXECUTABLE}")
 else()
+    if(CMAKE_CROSSCOMPILING)
+        message(FATAL_ERROR "Cross builds require SHADNET_PROTOC_EXECUTABLE; use scripts/android/build-host-android")
+    endif()
     set(SHADNET_PROTOC protobuf::protoc)
     set(SHADNET_PROTOC_DEP protobuf::protoc)
 endif()
@@ -1294,6 +1324,11 @@ if(NOT ENABLE_TESTS)
 # (emulator.cpp/sdl_window.cpp) — the Android Run driver replaces those — while
 # still building the same COMMON/CORE/VIDEO_CORE/SHADER_RECOMPILER/HLE closure.
 if(BUILD_HOST_CORE)
+    # The separate desktop launcher is not part of an embedded host. In-game
+    # settings and the Vulkan ImGui renderer remain in the real host closure.
+    list(REMOVE_ITEM IMGUI src/imgui/big_picture/big_picture.cpp
+        src/imgui/big_picture/imgui_impl_sdl3_big_picture.cpp
+        src/imgui/big_picture/imgui_impl_sdlrenderer3.cpp)
     add_library(shadps4 OBJECT
         ${AUDIO_CORE}
         ${IMGUI}
@@ -1306,6 +1341,9 @@ if(BUILD_HOST_CORE)
     )
     # OBJECT library needs PIC so the final SHARED .so can embed it.
     set_target_properties(shadps4 PROPERTIES POSITION_INDEPENDENT_CODE ON)
+    add_library(shadps4_host_objects ALIAS shadps4)
+    target_sources(shadps4 PRIVATE src/frontend/android_window.cpp
+        src/core/host_runtime/application_control.cpp)
 else()
 add_executable(shadps4
     ${AUDIO_CORE}
@@ -1325,6 +1363,7 @@ add_executable(shadps4
 )
 endif()
 
+target_sources(shadps4 PRIVATE src/frontend/window.cpp)
 create_target_directory_groups(shadps4)
 
 target_link_libraries(shadps4 PRIVATE spdlog::spdlog)
@@ -1357,7 +1396,7 @@ if (ANDROID)
     if (TARGET adrenotools)
         target_link_libraries(shadps4 PRIVATE adrenotools)
     endif()
-    target_link_libraries(shadps4 PRIVATE log android)
+    target_link_libraries(shadps4 PRIVATE log android aaudio)
 endif()
 
 target_compile_definitions(shadps4 PRIVATE IMGUI_USER_CONFIG="imgui/imgui_config.h")
@@ -1519,36 +1558,23 @@ if(NOT BUILD_HOST_CORE)
     install(TARGETS shadps4 BUNDLE DESTINATION .)
 endif()
 
-# Final reusable host shared library. Embeds the shadps4 OBJECT lib and links the
-# guest CPU backend + every external the closure needs, with --no-undefined so a
-# missing dependency is a hard link error (not deferred to app load). The Android
-# JNI links this as libshadps4_fex_session.so. Guarded so a native desktop build
-# is unaffected.
+# Native host library, without FEX or the APK session entry. The future JNI target
+# consumes the same object/dependency targets so there is only one host instance.
 if(BUILD_HOST_CORE)
+    get_target_property(host_dependencies shadps4 LINK_LIBRARIES)
+    add_library(shadps4_host_dependencies INTERFACE)
+    target_link_libraries(shadps4_host_dependencies INTERFACE ${host_dependencies})
     add_library(shadps4_host SHARED $<TARGET_OBJECTS:shadps4>)
-    # The OBJECT lib's PRIVATE deps do not propagate to a consumer, so re-link the
-    # same set here (INTERFACE include dirs already reached the objects at compile).
-    target_link_libraries(shadps4_host PRIVATE
-        spdlog::spdlog magic_enum::magic_enum fmt::fmt toml11::toml11 tsl::robin_map
-        Tracy::TracyClient RenderDoc::API FFmpeg::ffmpeg Dear_ImGui ImGuiFileDialog gcn
-        half::half ZLIB::ZLIB PNG::PNG minimp3
-        Boost::headers GPUOpen::VulkanMemoryAllocator LibAtrac9 sirit Vulkan::Headers
-        xxHash::xxhash Zydis::Zydis glslang::glslang SDL3::SDL3 pugixml::pugixml
-        stb::headers lfreist-hwinfo::hwinfo nlohmann_json::nlohmann_json miniz::miniz
-        fdk-aac CLI11::CLI11 OpenAL::OpenAL Cpp_Httplib miniupnpc::miniupnpc
-        Freetype::Freetype libprotobuf ZArchive::zarchive ${SSL_DEPENDENCIES}
-        libusb::usb date::date-tz res::embedded)
-    if(TARGET adrenotools)
-        target_link_libraries(shadps4_host PRIVATE adrenotools)
-    endif()
-    target_link_libraries(shadps4_host PRIVATE log android aaudio)
-    if(ENABLE_SPATIAL_FOUNDATION)
-        target_link_libraries(shadps4_host PRIVATE shadps4::foundation)
-    endif()
+    target_link_libraries(shadps4_host PRIVATE shadps4_host_dependencies)
     add_dependencies(shadps4_host host_shaders ImGui_Resources)
-    target_link_options(shadps4_host PRIVATE -Wl,--build-id=sha1)
-    # --no-undefined is the real link gate; enabled once guest_cpu_fex is attached
-    # by the app build (it provides the guest CPU symbols the closure references).
+    target_link_options(shadps4_host PRIVATE -Wl,--build-id=sha1 -Wl,--no-undefined
+        "-Wl,-Map,${CMAKE_CURRENT_BINARY_DIR}/shadps4_host.map")
+    option(HOST_BUILD_PROBES "Build auxiliary native host linkage/contract probes" OFF)
+    if(HOST_BUILD_PROBES)
+        add_executable(host_library_smoke tests/host_runtime/host_library_smoke.cpp)
+        target_link_libraries(host_library_smoke PRIVATE shadps4_host)
+        target_include_directories(host_library_smoke PRIVATE src)
+    endif()
 endif()
 
 else()

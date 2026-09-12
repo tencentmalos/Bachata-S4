@@ -16,6 +16,7 @@
 #include "common/assert.h"
 #include "common/error.h"
 #include "common/logging/log.h"
+#include "common/poll_timeout.h"
 #include "common/singleton.h"
 #include "core/file_sys/fs.h"
 #include "core/libraries/error_codes.h"
@@ -1019,7 +1020,7 @@ int PS4_SYSV_ABI sceNetEpollWait(OrbisNetId epollid, OrbisNetEpollEvent* events,
         // bionic (Android) does not expose epoll_pwait2 at API 33; use epoll_wait
         // with a millisecond timeout, matching the non-Linux path.
         result = epoll_wait(epoll->epoll_fd, native_events.data(), maxevents,
-                            timeout < 0 ? timeout : timeout / 1000);
+                            Common::PollTimeoutMilliseconds(timeout));
 #endif
     }
 

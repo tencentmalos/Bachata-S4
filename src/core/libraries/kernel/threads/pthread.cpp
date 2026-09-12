@@ -1028,6 +1028,14 @@ bool Pthread::DispatchSignal(s32 sig, Siginfo* info, Ucontext* context) {
         return SigDflHandler(sig);
     }
 
+    // Native handlers contain guest addresses. ARM64 needs InvokeGuest and a
+    // valid guest snapshot; never call an x86 handler as an ARM64 function.
+#ifdef ARCH_ARM64
+    return false;
+#endif
+    if (context && !context->HasGuestContext())
+        return false;
+
     Sigset old_mask{};
     GetGuestSigmask(old_mask);
 

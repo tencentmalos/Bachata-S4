@@ -56,6 +56,13 @@ constexpr auto CUSTOM_MODULES_DIR = "custom_modules";
 // Filenames
 constexpr auto LOG_FILE = "shad_log.txt";
 
+#ifdef __ANDROID__
+// Call with an app-owned filesDir child before any host service/worker starts.
+// No filesystem work runs on DSO load. Failure throws and permits retry; after
+// success the process-wide layout is immutable (same-root calls are idempotent).
+void InitializeAndroidUserPaths(const std::filesystem::path& root);
+#endif
+
 /**
  * Validates a given path.
  *

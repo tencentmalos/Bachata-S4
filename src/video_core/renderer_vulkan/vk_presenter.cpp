@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright 2024-2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <stdexcept>
 #include "common/debug.h"
 #include "common/elf_info.h"
 #include "common/io_file.h"
@@ -10,13 +11,13 @@
 #include "core/devtools/layer.h"
 #include "core/emulator_settings.h"
 #include "core/libraries/system/systemservice.h"
+#include "frontend/window.h"
 #include "imgui/friends_layer.h"
 #include "imgui/invitation_prompt_layer.h"
 #include "imgui/notifications_layer.h"
 #include "imgui/renderer/imgui_core.h"
 #include "imgui/renderer/imgui_impl_vulkan.h"
 #include "imgui/shadnet_notifications_layer.h"
-#include "sdl_window.h"
 #include "video_core/buffer_cache/buffer.h"
 #include "video_core/renderdoc.h"
 #include "video_core/renderer_vulkan/vk_platform.h"
@@ -468,12 +469,14 @@ static void SavePendingScreenshots(const std::vector<ScreenshotReadback>& readba
     }
 }
 
-Presenter::Presenter(Frontend::WindowSDL& window_, AmdGpu::Liverpool* liverpool_)
-    : window{window_}, liverpool{liverpool_},
-      instance{window, EmulatorSettings.GetGpuId(), EmulatorSettings.IsVkValidationEnabled(),
+Presenter::Presenter(std::shared_ptr<Frontend::Window> window_, AmdGpu::Liverpool* liverpool_)
+    : window{window_ ? std::move(window_)
+                     : throw std::invalid_argument("Presenter requires a window")},
+      liverpool{liverpool_},
+      instance{*window, EmulatorSettings.GetGpuId(), EmulatorSettings.IsVkValidationEnabled(),
                EmulatorSettings.IsVkCrashDiagnosticEnabled()},
       draw_scheduler{instance}, present_scheduler{instance}, flip_scheduler{instance},
-      swapchain{instance, window},
+      swapchain{instance, *window},
       rasterizer{std::make_unique<Rasterizer>(instance, draw_scheduler, liverpool)},
       texture_cache{rasterizer->GetTextureCache()} {
     const u32 num_images = swapchain.GetImageCount();
@@ -858,13 +861,14 @@ void Presenter::Present(Frame* frame, bool is_reusing_frame) {
     }
 
     // Recreate the swapchain if the window was resized.
-    if (window.GetWidth() != swapchain.GetWidth() || window.GetHeight() != swapchain.GetHeight()) {
-        swapchain.Recreate(window.GetWidth(), window.GetHeight());
+    if (window->GetWidth() != swapchain.GetWidth() ||
+        window->GetHeight() != swapchain.GetHeight()) {
+        swapchain.Recreate(window->GetWidth(), window->GetHeight());
     }
 
     auto acquired = swapchain.AcquireNextImage();
     if (acquired == AcquireStatus::Recreate && !swapchain.StopRequested()) {
-        swapchain.Recreate(window.GetWidth(), window.GetHeight());
+        swapchain.Recreate(window->GetWidth(), window->GetHeight());
         acquired = swapchain.AcquireNextImage();
     }
     if (acquired != AcquireStatus::Acquired) {
@@ -1090,7 +1094,7 @@ void Presenter::Present(Frame* frame, bool is_reusing_frame) {
     {
         std::scoped_lock submit_lock{Scheduler::submit_mutex};
         if (!swapchain.Present() && !swapchain.StopRequested()) {
-            swapchain.Recreate(window.GetWidth(), window.GetHeight());
+            swapchain.Recreate(window->GetWidth(), window->GetHeight());
         }
     }
 

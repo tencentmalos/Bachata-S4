@@ -29,6 +29,7 @@ Ucontext::Ucontext(siginfo_t const* inf, ucontext_t* raw_context) {
     }
     host_context = raw_context;
 #ifdef ARCH_X86_64
+    guest_context_valid = true;
 #ifdef __APPLE__
     const auto& regs = raw_context->uc_mcontext->__ss;
     uc_mcontext.mc_r8 = regs.__r8;
@@ -97,14 +98,9 @@ Ucontext::Ucontext(siginfo_t const* inf, ucontext_t* raw_context) {
     uc_mcontext.mc_addr = reinterpret_cast<uint64_t>(inf->si_addr);
 #endif
 #elif defined(ARCH_ARM64)
-    // On ARM64 the guest is x86-64 code executed by FEX, so the guest register
-    // state does NOT live in the host ARM64 ucontext_t — it lives in the FEX
-    // guest CPU state. Mapping host ARM64 gregs to Orbis x86-64 mc_* fields here
-    // would be wrong. The Orbis mcontext stays zero-initialised (its default);
-    // populating it from the FEX guest thread at a guest exception boundary is
-    // WP-B (guest execution) integration, not host-link work. si_addr is still
-    // the faulting guest address and is the one field meaningful pre-FEX-wiring.
-    uc_mcontext.mc_addr = reinterpret_cast<uint64_t>(inf->si_addr);
+    // No valid guest snapshot is available from an ARM64 host signal frame.
+    // Keep deterministic storage and explicit invalidity until the FEX adapter
+    // supplies a guest safe-point context. si_addr alone does not identify a guest.
 #else
 #error "ucontext_t conversion not implemented for current architecture."
 #endif
@@ -115,6 +111,7 @@ Ucontext::Ucontext(PCONTEXT context) {
         return;
     }
     host_context = context;
+    guest_context_valid = true;
     uc_mcontext.mc_r8 = context->R8;
     uc_mcontext.mc_r9 = context->R9;
     uc_mcontext.mc_r10 = context->R10;
@@ -137,9 +134,9 @@ Ucontext::Ucontext(PCONTEXT context) {
 }
 #endif
 
-void Ucontext::SyncHostFromGuest() {
-    if (!host_context) {
-        return;
+bool Ucontext::SyncHostFromGuest() {
+    if (!host_context || !guest_context_valid) {
+        return false;
     }
 
 #ifdef ARCH_X86_64
@@ -229,12 +226,11 @@ void Ucontext::SyncHostFromGuest() {
     regs[REG_RIP] = uc_mcontext.mc_rip;
 #endif
 #elif defined(ARCH_ARM64)
-    // Writing the guest x86-64 register state back is a FEX guest-state operation
-    // on ARM64, not a host ARM64 ucontext write (see the constructor above). This
-    // is WP-B; no host ucontext gregs to populate here.
+    return false; // Requires guest-state write-back through the FEX adapter.
 #else
 #error "ucontext_t conversion not implemented for current architecture."
 #endif
+    return true;
 }
 
 std::array<Sigaction, 128> PosixActions{};

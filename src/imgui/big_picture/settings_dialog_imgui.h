@@ -15,10 +15,17 @@
 
 namespace ImGuiEmuSettings {
 
+// Only the desktop launcher owns an SDL renderer and scans launcher profiles.
+// In-game settings decode textures through the emulator's Vulkan backend.
+struct LauncherServices {
+    std::function<SDL_Texture*(std::vector<u8>)> load_texture;
+    std::function<void(std::vector<BigPictureMode::IconInfo>&)> load_profiles;
+};
+
 class SettingsWindow {
 
 public:
-    SettingsWindow(bool gameRunning);
+    SettingsWindow(bool gameRunning, LauncherServices launcher = {});
     void Prepare();
     void DrawSettings(bool* open, const std::function<void()>& applySettings);
 
@@ -65,6 +72,7 @@ private:
 
     std::string runningGameSerial = "";
     bool isGameRunning = false;
+    LauncherServices launcher;
     bool closeOnSave = false;
     int deleteProfileIndex = -1;
 

@@ -123,23 +123,29 @@ struct Siginfo {
 };
 
 struct Ucontext {
-    struct Sigset uc_sigmask;
-    int field1_0x10[12];
-    Mcontext uc_mcontext;
-    Ucontext* uc_link;
-    ExStack uc_stack;
-    int uc_flags;
-    int __spare[4];
-    int field7_0x4f4[3];
+    struct Sigset uc_sigmask {};
+    int field1_0x10[12]{};
+    Mcontext uc_mcontext{};
+    Ucontext* uc_link{};
+    ExStack uc_stack{};
+    int uc_flags{};
+    int __spare[4]{};
+    int field7_0x4f4[3]{};
 
 #ifndef _WIN32
     explicit Ucontext(siginfo_t const* inf, ucontext_t* raw_context);
-    ucontext_t* host_context;
+    ucontext_t* host_context{};
 #else
     explicit Ucontext(PCONTEXT context);
-    PCONTEXT host_context;
+    PCONTEXT host_context{};
 #endif
-    void SyncHostFromGuest();
+    bool HasGuestContext() const {
+        return guest_context_valid;
+    }
+    bool SyncHostFromGuest();
+    // Host-only metadata, outside the Orbis ABI prefix. ARM64 conversion must
+    // eventually come from a verified FEX safe point, not this host constructor.
+    bool guest_context_valid{};
 };
 
 using SigHandler = void PS4_SYSV_ABI (*)(int);

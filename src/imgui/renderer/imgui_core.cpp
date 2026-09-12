@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <atomic>
 #include <bit>
+#include <chrono>
 #include <cstdint>
 #include <SDL3/SDL_events.h>
 #include <imgui.h>
@@ -14,12 +15,12 @@
 #include "core/emulator_settings.h"
 #include "font_data.h"
 #include "font_stack.h"
+#include "frontend/window.h"
 #include "imgui/imgui_layer.h"
 #include "imgui_core.h"
 #include "imgui_impl_sdl3.h"
 #include "imgui_impl_vulkan.h"
 #include "imgui_internal.h"
-#include "sdl_window.h"
 #include "texture_manager.h"
 #include "video_core/renderer_vulkan/vk_presenter.h"
 
@@ -37,6 +38,9 @@ static std::mutex change_layers_mutex{};
 
 static ImGuiID dock_id;
 static std::atomic<std::uint32_t> force_gamepad_input_capture_count{0};
+static const Frontend::Window* platform_window{}; // Owned by the presenter through Shutdown.
+static bool using_sdl{};
+static std::chrono::steady_clock::time_point previous_frame;
 
 namespace ImGui {
 
@@ -61,7 +65,7 @@ bool IsGamepadInputCaptured() {
     return force_gamepad_input_capture_count.load(std::memory_order_relaxed) > 0;
 }
 
-void Initialize(const ::Vulkan::Instance& instance, const Frontend::WindowSDL& window,
+void Initialize(const ::Vulkan::Instance& instance, const Frontend::Window& window,
                 const u32 image_count, vk::Format surface_format,
                 const vk::AllocationCallbacks* allocator) {
 
@@ -118,7 +122,11 @@ void Initialize(const ::Vulkan::Instance& instance, const Frontend::WindowSDL& w
     StyleColorsDark();
 
     ::Core::Devtools::Layer::SetupSettings();
-    Sdl::Init(window.GetSDLWindow());
+    platform_window = &window;
+    using_sdl = window.GetSDLWindow() != nullptr;
+    previous_frame = std::chrono::steady_clock::now();
+    if (using_sdl)
+        Sdl::Init(window.GetSDLWindow());
 
     const Vulkan::InitInfo vk_info{
         .instance = instance.GetInstance(),
@@ -143,15 +151,26 @@ void Initialize(const ::Vulkan::Instance& instance, const Frontend::WindowSDL& w
     ImFormatString(label, IM_ARRAYSIZE(label), "WindowOverViewport_%08X", GetMainViewport()->ID);
     dock_id = ImHashStr(label);
 
-    if (const auto dpi = SDL_GetWindowDisplayScale(window.GetSDLWindow()); dpi > 0.0f) {
+    const auto dpi = using_sdl ? SDL_GetWindowDisplayScale(window.GetSDLWindow())
+                               : window.GetWindowInfo().render_surface_scale;
+    if (dpi > 0.0f) {
         GetIO().FontGlobalScale *= dpi;
     }
 
-    std::at_quick_exit([] { SaveIniSettingsToDisk(GetIO().IniFilename); });
+#ifndef __ANDROID__
+    std::at_quick_exit([] {
+        if (GetCurrentContext())
+            SaveIniSettingsToDisk(GetIO().IniFilename);
+    });
+#endif
 }
 
 void OnResize() {
-    Sdl::OnResize();
+    if (using_sdl)
+        Sdl::OnResize();
+    else if (platform_window)
+        GetIO().DisplaySize = ImVec2(static_cast<float>(platform_window->GetWidth()),
+                                     static_cast<float>(platform_window->GetHeight()));
 }
 
 void OnSurfaceFormatChange(vk::Format surface_format) {
@@ -172,7 +191,10 @@ void Shutdown(const vk::Device& device) {
     const auto log_filename = (void*)io.LogFilename;
 
     Vulkan::Shutdown();
-    Sdl::Shutdown();
+    if (using_sdl)
+        Sdl::Shutdown();
+    platform_window = nullptr;
+    using_sdl = false;
     DestroyContext();
 
     delete[] (char*)ini_filename;
@@ -180,6 +202,8 @@ void Shutdown(const vk::Device& device) {
 }
 
 bool ProcessEvent(SDL_Event* event) {
+    if (!using_sdl)
+        return false; // Android input is delivered by its own adapter.
     Sdl::ProcessEvent(event);
     switch (event->type) {
     // Don't block release/up events
@@ -237,7 +261,15 @@ ImGuiID NewFrame(bool is_reusing_frame) {
         }
     }
 
-    Sdl::NewFrame(is_reusing_frame);
+    if (using_sdl)
+        Sdl::NewFrame(is_reusing_frame);
+    else {
+        OnResize();
+        const auto now = std::chrono::steady_clock::now();
+        GetIO().DeltaTime =
+            std::max(std::chrono::duration<float>(now - previous_frame).count(), 1e-6f);
+        previous_frame = now;
+    }
     ImGui::NewFrame();
 
     ImGuiWindowFlags flags =

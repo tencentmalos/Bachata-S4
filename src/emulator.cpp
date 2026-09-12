@@ -57,7 +57,6 @@
 #endif
 #include <core/file_format/npbind.h>
 
-Frontend::WindowSDL* g_window = nullptr;
 
 namespace Libraries::Kernel {
 extern char const* g_environment[64];
@@ -81,7 +80,9 @@ Emulator::Emulator() {
     std::at_quick_exit([]() { Common::Singleton<Core::Emulator>::Instance()->Shutdown(); });
 }
 
-Emulator::~Emulator() {}
+Emulator::~Emulator() {
+    Frontend::UnbindWindow(window);
+}
 
 void Emulator::Shutdown() {
     static bool exit_done = false;
@@ -584,11 +585,11 @@ void Emulator::Run(std::filesystem::path file, std::vector<std::string> args,
                                        Common::g_scm_branch, Common::g_scm_desc, game_title);
         }
     }
-    window = std::make_unique<Frontend::WindowSDL>(EmulatorSettings.GetWindowWidth(),
+    window = std::make_shared<Frontend::WindowSDL>(EmulatorSettings.GetWindowWidth(),
                                                    EmulatorSettings.GetWindowHeight(), controllers,
                                                    window_title);
 
-    g_window = window.get();
+    ASSERT_MSG(Frontend::BindWindow(window), "A platform window is already bound");
 
     if (auto icon = mnt->ReadFile("/app0/sce_sys/icon0.png")) {
         window->SetIcon(*icon);

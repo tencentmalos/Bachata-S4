@@ -4,6 +4,7 @@
 #include "gnm_error.h"
 #include "gnmdriver.h"
 
+#include <stdexcept>
 #include "common/assert.h"
 #include "common/debug.h"
 #include "common/elf_info.h"
@@ -20,11 +21,11 @@
 #include "core/libraries/videoout/video_out.h"
 #include "core/memory.h"
 #include "core/platform.h"
+#include "frontend/window.h"
 #include "video_core/amdgpu/liverpool.h"
 #include "video_core/amdgpu/pm4_cmds.h"
 #include "video_core/renderer_vulkan/vk_presenter.h"
 
-extern Frontend::WindowSDL* g_window;
 std::unique_ptr<Vulkan::Presenter> presenter;
 std::unique_ptr<AmdGpu::Liverpool> liverpool;
 
@@ -2876,8 +2877,11 @@ int PS4_SYSV_ABI Func_F916890425496553() {
 
 void RegisterLib(Core::Loader::SymbolsResolver* sym) {
     LOG_INFO(Lib_GnmDriver, "Initializing presenter");
+    auto window = Frontend::AcquireWindow();
+    if (!window)
+        throw std::runtime_error("GNM initialization requires a bound platform window");
     liverpool = std::make_unique<AmdGpu::Liverpool>();
-    presenter = std::make_unique<Vulkan::Presenter>(*g_window, liverpool.get());
+    presenter = std::make_unique<Vulkan::Presenter>(std::move(window), liverpool.get());
 
     const s32 result = sceKernelGetCompiledSdkVersion(&sdk_version);
     if (result != ORBIS_OK) {

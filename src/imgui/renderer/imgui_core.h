@@ -16,9 +16,8 @@ struct Frame;
 
 namespace ImGui::Core {
 
-void Initialize(const Vulkan::Instance& instance, const Frontend::WindowSDL& window,
-                u32 image_count, vk::Format surface_format,
-                const vk::AllocationCallbacks* allocator = nullptr);
+void Initialize(const Vulkan::Instance& instance, const Frontend::Window& window, u32 image_count,
+                vk::Format surface_format, const vk::AllocationCallbacks* allocator = nullptr);
 
 void OnResize();
 

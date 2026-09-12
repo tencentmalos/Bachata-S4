@@ -8,11 +8,9 @@
 #include "core/libraries/error_codes.h"
 #include "core/libraries/libs.h"
 #include "core/user_settings.h"
+#include "frontend/window.h"
 #include "mouse.h"
 #include "mouse_error.h"
-#include "sdl_window.h"
-
-extern Frontend::WindowSDL* g_window;
 
 namespace Libraries::Mouse {
 
@@ -62,10 +60,13 @@ int PS4_SYSV_ABI sceMouseGetDeviceInfo() {
 }
 
 int PS4_SYSV_ABI sceMouseInit() {
+    const auto window = Frontend::AcquireWindow();
+    if (!window || !window->GetSDLWindow())
+        return ORBIS_MOUSE_ERROR_NOT_INITIALIZED;
     g_are_mice_enabled = EmulatorSettings.IsMiceUsedAsMice();
     if (g_are_mice_enabled) {
-        SDL_WarpMouseInWindow(g_window->GetSDLWindow(), 1, 1);
-        SDL_SetWindowRelativeMouseMode(g_window->GetSDLWindow(), true);
+        SDL_WarpMouseInWindow(window->GetSDLWindow(), 1, 1);
+        SDL_SetWindowRelativeMouseMode(window->GetSDLWindow(), true);
     }
     int micecount = 0;
     auto micelist = SDL_GetMice(&micecount);

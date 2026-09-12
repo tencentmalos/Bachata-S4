@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <fstream>
+#include <mutex>
+#include <stdexcept>
 #include <unordered_map>
 #include "common/logging/log.h"
 #include "common/path_util.h"
@@ -85,33 +87,13 @@ static std::optional<std::filesystem::path> GetBundleParentDirectory() {
 }
 #endif
 
-static auto UserPaths = [] {
-    // Try the portable user directory first.
-    auto user_dir = std::filesystem::current_path() / PORTABLE_DIR;
-    if (!std::filesystem::exists(user_dir)) {
-        // If it doesn't exist, use the standard path for the platform instead.
-        // NOTE: On Windows we currently just create the portable directory instead.
-#ifdef __APPLE__
-        user_dir =
-            std::filesystem::path(getenv("HOME")) / "Library" / "Application Support" / "shadPS4";
-#elif defined(__linux__)
-        const char* xdg_data_home = getenv("XDG_DATA_HOME");
-        if (xdg_data_home != nullptr && strlen(xdg_data_home) > 0) {
-            user_dir = std::filesystem::path(xdg_data_home) / "shadPS4";
-        } else {
-            user_dir = std::filesystem::path(getenv("HOME")) / ".local" / "share" / "shadPS4";
-        }
-#elif _WIN32
-        TCHAR appdata[MAX_PATH] = {0};
-        SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, appdata);
-        user_dir = std::filesystem::path(appdata) / "shadPS4";
-#endif
-    }
+using UserPathMap = std::unordered_map<PathType, fs::path>;
 
+static UserPathMap CreateUserPaths(const fs::path& user_dir) {
     std::unordered_map<PathType, fs::path> paths;
 
     const auto create_path = [&](PathType shad_path, const fs::path& new_path) {
-        std::filesystem::create_directory(new_path);
+        std::filesystem::create_directories(new_path);
         paths.insert_or_assign(shad_path, new_path);
     };
 
@@ -151,7 +133,65 @@ static auto UserPaths = [] {
     }
 
     return paths;
+}
+
+#ifdef __ANDROID__
+// Loading a native library must not touch desktop HOME/XDG paths. The app
+// publishes one filesDir-based layout explicitly before starting host workers.
+struct AndroidUserPaths {
+    std::mutex mutex;
+    UserPathMap paths;
+};
+
+static AndroidUserPaths& GetAndroidUserPaths() {
+    static AndroidUserPaths state;
+    return state;
+}
+
+void InitializeAndroidUserPaths(const fs::path& root) {
+    if (root.empty() || !root.is_absolute()) {
+        throw std::invalid_argument("Android user directory must be an explicit absolute path");
+    }
+    const auto normalized = root.lexically_normal();
+    auto& state = GetAndroidUserPaths();
+    std::scoped_lock lock{state.mutex};
+    if (!state.paths.empty()) {
+        if (state.paths.at(PathType::UserDir) != normalized) {
+            throw std::logic_error("Android user directory is immutable after initialization");
+        }
+        return;
+    }
+    // Build locally so an I/O error leaves publication empty and initialization
+    // retryable. All exposed references remain stable for the process lifetime.
+    state.paths = CreateUserPaths(normalized);
+}
+#else
+static auto UserPaths = [] {
+    // Try the portable user directory first.
+    auto user_dir = std::filesystem::current_path() / PORTABLE_DIR;
+    if (!std::filesystem::exists(user_dir)) {
+        // If it doesn't exist, use the standard path for the platform instead.
+        // NOTE: On Windows we currently just create the portable directory instead.
+#ifdef __APPLE__
+        user_dir =
+            std::filesystem::path(getenv("HOME")) / "Library" / "Application Support" / "shadPS4";
+#elif defined(__linux__)
+        const char* xdg_data_home = getenv("XDG_DATA_HOME");
+        if (xdg_data_home != nullptr && strlen(xdg_data_home) > 0) {
+            user_dir = std::filesystem::path(xdg_data_home) / "shadPS4";
+        } else {
+            user_dir = std::filesystem::path(getenv("HOME")) / ".local" / "share" / "shadPS4";
+        }
+#elif _WIN32
+        TCHAR appdata[MAX_PATH] = {0};
+        SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, appdata);
+        user_dir = std::filesystem::path(appdata) / "shadPS4";
+#endif
+    }
+
+    return CreateUserPaths(user_dir);
 }();
+#endif
 
 bool ValidatePath(const fs::path& path) {
     if (path.empty()) {
@@ -180,7 +220,16 @@ std::string PathToUTF8String(const std::filesystem::path& path) {
 }
 
 const fs::path& GetUserPath(PathType shad_path) {
+#ifdef __ANDROID__
+    auto& state = GetAndroidUserPaths();
+    std::scoped_lock lock{state.mutex};
+    if (state.paths.empty()) {
+        throw std::logic_error("InitializeAndroidUserPaths must precede host service startup");
+    }
+    return state.paths.at(shad_path);
+#else
     return UserPaths.at(shad_path);
+#endif
 }
 
 std::string GetUserPathString(PathType shad_path) {
@@ -188,6 +237,9 @@ std::string GetUserPathString(PathType shad_path) {
 }
 
 void SetUserPath(PathType shad_path, const fs::path& new_path) {
+#ifdef __ANDROID__
+    throw std::logic_error("Use the immutable InitializeAndroidUserPaths layout on Android");
+#else
     if (!std::filesystem::is_directory(new_path)) {
         LOG_ERROR(Common_Filesystem, "Filesystem object at new_path={} is not a directory",
                   PathToUTF8String(new_path));
@@ -195,6 +247,7 @@ void SetUserPath(PathType shad_path, const fs::path& new_path) {
     }
 
     UserPaths.insert_or_assign(shad_path, new_path);
+#endif
 }
 
 std::optional<fs::path> FindGameByID(const fs::path& dir, const std::string& game_id,

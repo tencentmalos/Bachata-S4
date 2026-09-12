@@ -272,7 +272,8 @@ void Launch(char* executableName, bool sameProcess) {
     ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
     ImGui_ImplSDLRenderer3_Init(renderer);
 
-    ImGuiEmuSettings::SettingsWindow settingsWindow(false);
+    ImGuiEmuSettings::SettingsWindow settingsWindow(
+        false, {.load_texture = LoadSdlTextureData, .load_profiles = GetGameIconInfo});
 
     float sliderScale = 1.0f;
     auto applySettings = [&] {

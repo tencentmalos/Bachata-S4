@@ -1,0 +1,130 @@
+#!/usr/bin/env python3
+"""Build matching host code generators and the complete Android native host .so.
+This library does not yet contain the FEX/session/JNI game integration.
+"""
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import time
+
+ROOT = Path(__file__).resolve().parents[2]
+
+def capture(args, cwd=ROOT):
+    return subprocess.check_output(args, cwd=cwd, text=True).strip()
+
+def sha(path):
+    with Path(path).open("rb") as f:
+        return hashlib.file_digest(f, "sha256").hexdigest()
+
+def source_identity():
+    paths = [ROOT / "CMakeLists.txt", ROOT / "externals/CMakeLists.txt",
+             Path(__file__).resolve()]
+    paths += [p for folder in ("src", "cmake", "tests/host_runtime")
+              for p in (ROOT / folder).rglob("*") if p.is_file()]
+    return {"files": {str(p.relative_to(ROOT)): sha(p) for p in sorted(set(paths))},
+            "gitlinks": [line for line in capture(["git", "ls-files", "--stage"]).splitlines()
+                         if line.startswith("160000 ")]}
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("--ndk", type=Path, default=os.environ.get("ANDROID_NDK_HOME"))
+    p.add_argument("--api", type=int, default=33)
+    p.add_argument("--out", type=Path, default=ROOT / "build/android-host-api33")
+    p.add_argument("--jobs", type=int, default=6)
+    a = p.parse_args()
+    if a.ndk is None or a.jobs < 1:
+        p.error("--ndk (or ANDROID_NDK_HOME) and positive --jobs required")
+    ndk, out = a.ndk.resolve(), a.out.resolve()
+    platforms = json.loads((ndk / "meta/platforms.json").read_text())
+    if not max(33, platforms["min"]) <= a.api <= platforms["max"]:
+        p.error(f"native API must be 33..{platforms['max']}; no implicit fallback")
+    compilers = list(ndk.glob("toolchains/llvm/prebuilt/*/bin/clang"))
+    if len(compilers) != 1:
+        p.error("NDK compiler missing or ambiguous")
+    compiler = compilers[0]
+    profile = {"ndk": str(ndk), "compiler": capture([str(compiler), "--version"]),
+               "ndk_properties": (ndk / "source.properties").read_text(),
+               "api": a.api, "abi": "arm64-v8a", "stl": "c++_shared",
+               "build_type": "RelWithDebInfo", "foundation": True, "source": str(ROOT)}
+    out.mkdir(parents=True, exist_ok=True)
+    profile_path = out / "profile.json"
+    if profile_path.exists() and json.loads(profile_path.read_text()) != profile:
+        p.error("output profile differs; choose a new --out")
+    native, host_tools = out / "native", out / "tools"
+    if not profile_path.exists() and any((d / "CMakeCache.txt").exists() for d in (native, host_tools)):
+        p.error("unowned CMake cache; choose a new --out")
+    profile_path.write_text(json.dumps(profile, indent=2) + "\n")
+    run_dir = out / "runs" / str(time.time_ns())
+    run_dir.mkdir(parents=True)
+    source = source_identity()
+    (run_dir / "source.json").write_text(json.dumps(source, indent=2) + "\n")
+    (run_dir / "source.patch").write_text(capture(
+        ["git", "diff", "HEAD", "--", "src", "cmake", "scripts/android/build-host-android",
+         "tests/host_runtime", "CMakeLists.txt", "externals/CMakeLists.txt"]))
+    result = {"status": "IN_PROGRESS", "profile": profile, "commands": [],
+              "source_head": capture(["git", "rev-parse", "HEAD"]),
+              "scope": "native host library; FEX/APK/Turnip/game NOT_INTEGRATED",
+              "device_status": "NOT_RUN"}
+    result["source_manifest"] = str((run_dir / "source.json").relative_to(out))
+    result["source_manifest_sha256"] = sha(run_dir / "source.json")
+    result["source_status"] = capture(["git", "status", "--porcelain"])
+    def save():
+        (out / "result.json").write_text(json.dumps(result, indent=2) + "\n")
+        (run_dir / "result.json").write_text(json.dumps(result, indent=2) + "\n")
+    def run(args, name):
+        entry = {"argv": [str(x) for x in args],
+                 "log": str((run_dir / (name + ".log")).relative_to(out)), "exit_code": None}
+        result["commands"].append(entry); save()
+        print(f"{name}: {out / entry['log']}", flush=True)
+        with (out / entry["log"]).open("w") as f:
+            r = subprocess.run(entry["argv"], cwd=ROOT, stdout=f, stderr=subprocess.STDOUT)
+        entry["exit_code"] = r.returncode; save()
+        if r.returncode:
+            raise RuntimeError(f"{name} failed ({r.returncode}); see {out / entry['log']}")
+    save()
+    try:
+        run(["cmake", "-S", ROOT / "cmake/host-tools", "-B", host_tools, "-G", "Ninja",
+             "-DCMAKE_BUILD_TYPE=Release"], "tools-configure")
+        run(["cmake", "--build", host_tools, "--target", "protoc", "shadps4_font_embed",
+             "-j", a.jobs], "tools-build")
+        protoc, font = host_tools / "protobuf/protoc", host_tools / "shadps4_font_embed"
+        result["tools"] = {"protoc_version": capture([str(protoc), "--version"]),
+                           "protoc_sha256": sha(protoc), "font_sha256": sha(font)}
+        run(["cmake", "-S", ROOT, "-B", native, "-G", "Ninja",
+             f"-DCMAKE_TOOLCHAIN_FILE={ndk}/build/cmake/android.toolchain.cmake",
+             "-DANDROID_ABI=arm64-v8a", f"-DANDROID_PLATFORM=android-{a.api}",
+             "-DANDROID_STL=c++_shared", "-DCMAKE_BUILD_TYPE=RelWithDebInfo",
+             "-DBUILD_HOST_CORE=ON", "-DENABLE_TESTS=OFF", "-DHOST_BUILD_PROBES=ON",
+             "-DENABLE_DISCORD_RPC=OFF", "-DENABLE_UPDATER=OFF", "-DENABLE_SPATIAL_FOUNDATION=ON",
+             f"-DSHADNET_PROTOC_EXECUTABLE={protoc}", f"-DIMGUI_FONT_EMBED_EXECUTABLE={font}",
+             "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"], "host-configure")
+        run(["cmake", "--build", native, "--target", "shadps4_host", "host_library_smoke",
+             "-j", a.jobs], "host-build")
+        library = native / "libshadps4_host.so"
+        run([compiler.parent / "llvm-readelf", "-h", "-d", "-n", "--version-info", library], "elf")
+        elf = (run_dir / "elf.log").read_text()
+        if "AArch64" not in elf or "GLIBC_" in elf or "ld-linux" in elf or "libc++_shared.so" not in elf:
+            raise RuntimeError("host is not a shared-STL ARM64 bionic artifact")
+        runtime = compiler.parent.parent / "sysroot/usr/lib/aarch64-linux-android/libc++_shared.so"
+        artifacts = [library, native / "host_library_smoke", runtime]
+        artifacts += sorted((native / "externals/libadrenotools/src/hook").glob("*.so"))
+        result["artifacts"] = [{"path": str(x), "sha256": sha(x)} for x in artifacts]
+        result["map_sha256"] = sha(native / "shadps4_host.map")
+        if source_identity() != source:
+            raise RuntimeError("Sources changed during build; rerun on stable sources")
+        result["status"] = "HOST_LINK_PASS"; save()
+        print(f"HOST_LINK_PASS: {library}; APK/game integration remains open", flush=True)
+    except BaseException as e:
+        result["status"] = "FAIL"; result["error"] = str(e); save()
+        raise
+
+if __name__ == "__main__":
+    try:
+        main()
+    except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as e:
+        print(e, file=sys.stderr)
+        sys.exit(1)

@@ -3,6 +3,7 @@
 
 #include <map>
 #include <ranges>
+#include <stdexcept>
 #include <ImGuiFileDialog.h>
 #include <cmrc/cmrc.hpp>
 #include <stb_image.h>
@@ -184,21 +185,28 @@ void SettingsWindow::SaveInstallDirs() {
 }
 
 void SettingsWindow::GetProfileInfo() {
-    GetGameIconInfo(profileIcons);
+    if (!launcher.load_profiles) {
+        throw std::logic_error("Launcher profile service is unavailable in in-game settings");
+    }
+    launcher.load_profiles(profileIcons);
 
     BigPictureMode::IconInfo global;
     global.title = "Global";
     profileIcons.emplace(profileIcons.begin(), global);
 }
 
-SettingsWindow::SettingsWindow(bool gameRunning) : isGameRunning(gameRunning) {
+SettingsWindow::SettingsWindow(bool gameRunning, LauncherServices launcher_)
+    : isGameRunning(gameRunning), launcher(std::move(launcher_)) {
+    if (!gameRunning && (!launcher.load_texture || !launcher.load_profiles)) {
+        throw std::invalid_argument("Desktop settings require launcher services");
+    }
     auto resource = cmrc::res::get_filesystem();
     auto loadTexture = [&](const std::string& resourcePath,
                            std::variant<SDL_Texture*, ImGui::RefCountedTexture>& texture) {
         auto file = resource.open(resourcePath);
         std::vector<u8> texData = std::vector<u8>(file.begin(), file.end());
         gameRunning ? texture = ImGui::RefCountedTexture::DecodePngTexture(texData)
-                    : texture = BigPictureMode::LoadSdlTextureData(texData);
+                    : texture = launcher.load_texture(std::move(texData));
     };
 
     loadTexture("src/resources/big_picture/settings.png", generalTexture);

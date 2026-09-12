@@ -261,7 +261,9 @@ void SignalHandler(int sig, siginfo_t* info, void* raw_context) {
         guest_info._si_signo = sig == SIGUSR1 ? 0 : NativeToOrbisSignal(info->si_signo);
         guest_info._si_errno = NativeToPosixErrno(info->si_errno);
         guest_info._si_code = NativeSiCodeToGuest(sig, info->si_code);
-        guest_info._si_addr = (void*)context.uc_mcontext.mc_rip;
+        guest_info._si_addr = context.HasGuestContext()
+                                  ? reinterpret_cast<void*>(context.uc_mcontext.mc_rip)
+                                  : nullptr;
     }
     Siginfo* info_p = info ? &guest_info : nullptr;
     Ucontext* context_p = raw_context ? &context : nullptr;

@@ -8,6 +8,7 @@
 
 #include "common/types.h"
 #include "core/libraries/pad/pad.h"
+#include "frontend/window.h"
 #include "input/controller.h"
 
 struct SDL_Window;
@@ -20,45 +21,19 @@ class GameController;
 
 namespace Frontend {
 
-enum class WindowSystemType : u8 {
-    Headless,
-    Windows,
-    X11,
-    Wayland,
-    Metal,
-    // Android: render_surface holds an ANativeWindow*, no display_connection.
-    Android,
-};
-
-struct WindowSystemInfo {
-    // Connection to a display server. This is used on X11 and Wayland platforms.
-    void* display_connection = nullptr;
-
-    // Render surface. This is a pointer to the native window handle, which depends
-    // on the platform. e.g. HWND for Windows, Window for X11. If the surface is
-    // set to nullptr, the video backend will run in headless mode.
-    void* render_surface = nullptr;
-
-    // Scale of the render surface. For hidpi systems, this will be >1.
-    float render_surface_scale = 1.0f;
-
-    // Window system type. Determines which GL context or Vulkan WSI is used.
-    WindowSystemType type = WindowSystemType::Headless;
-};
-
-class WindowSDL {
+class WindowSDL : public Window {
     int keyboard_grab = 0;
 
 public:
     explicit WindowSDL(s32 width, s32 height, Input::GameControllers* controllers,
                        std::string_view window_title);
-    ~WindowSDL();
+    ~WindowSDL() override;
 
-    s32 GetWidth() const {
+    s32 GetWidth() const override {
         return width;
     }
 
-    s32 GetHeight() const {
+    s32 GetHeight() const override {
         return height;
     }
 
@@ -66,11 +41,11 @@ public:
         return is_open;
     }
 
-    [[nodiscard]] SDL_Window* GetSDLWindow() const {
+    [[nodiscard]] SDL_Window* GetSDLWindow() const override {
         return window;
     }
 
-    WindowSystemInfo GetWindowInfo() const {
+    WindowSystemInfo GetWindowInfo() const override {
         return window_info;
     }
 
@@ -79,8 +54,8 @@ public:
     void WaitEvent();
     void InitTimers();
 
-    void RequestKeyboard();
-    void ReleaseKeyboard();
+    bool RequestKeyboard() override;
+    void ReleaseKeyboard() override;
 
 private:
     void OnResize();

@@ -13,8 +13,8 @@
 #include "core/debug_state.h"
 #include "core/devtools/options.h"
 #include "core/emulator_settings.h"
+#include "frontend/window.h"
 #include "imgui/imgui_std.h"
-#include "sdl_window.h"
 #include "video_core/renderer_vulkan/vk_presenter.h"
 #include "video_core/renderer_vulkan/vk_rasterizer.h"
 
@@ -31,19 +31,21 @@ ShaderList::Selection::Selection(int index)
     isa_editor->SetReadOnly(true);
     glsl_editor->SetPalette(TextEditor::GetDarkPalette());
     glsl_editor->SetLanguageDefinition(TextEditor::LanguageDefinition::GLSL());
-    presenter->GetWindow().RequestKeyboard();
+    auto window = presenter->ShareWindow();
+    if (window->RequestKeyboard())
+        keyboard_window = std::move(window);
 }
 
 ShaderList::Selection::~Selection() {
-    if (index >= 0) {
-        presenter->GetWindow().ReleaseKeyboard();
-    }
+    if (keyboard_window)
+        keyboard_window->ReleaseKeyboard();
 }
 
 ShaderList::Selection::Selection(Selection&& other) noexcept
-    : index{other.index}, isa_editor{std::move(other.isa_editor)},
-      glsl_editor{std::move(other.glsl_editor)}, open{other.open}, showing_bin{other.showing_bin},
-      patch_path{std::move(other.patch_path)}, patch_bin_path{std::move(other.patch_bin_path)} {
+    : keyboard_window{std::move(other.keyboard_window)}, index{other.index},
+      isa_editor{std::move(other.isa_editor)}, glsl_editor{std::move(other.glsl_editor)},
+      open{other.open}, showing_bin{other.showing_bin}, patch_path{std::move(other.patch_path)},
+      patch_bin_path{std::move(other.patch_bin_path)} {
     other.index = -1;
 }
 

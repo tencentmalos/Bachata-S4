@@ -8,8 +8,8 @@
 #include "common/assert.h"
 #include "common/debug.h"
 #include "common/types.h"
+#include "frontend/window.h"
 #include "imgui/renderer/imgui_core.h"
-#include "sdl_window.h"
 #include "video_core/renderer_vulkan/liverpool_to_vk.h"
 #include "video_core/renderer_vulkan/vk_instance.h"
 #include "video_core/renderer_vulkan/vk_platform.h"
@@ -93,7 +93,7 @@ Instance::Instance(bool enable_validation, bool enable_crash_diagnostic)
                               enable_crash_diagnostic)},
       physical_devices{EnumeratePhysicalDevices(instance)} {}
 
-Instance::Instance(Frontend::WindowSDL& window, s32 physical_device_index,
+Instance::Instance(Frontend::Window& window, s32 physical_device_index,
                    bool enable_validation /*= false*/, bool enable_crash_diagnostic /*= false*/)
     : instance{CreateInstance(window.GetWindowInfo().type, enable_validation,
                               enable_crash_diagnostic)},
