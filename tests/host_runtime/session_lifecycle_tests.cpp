@@ -20,6 +20,7 @@
 #include <cstdio>
 #include <memory>
 #include <mutex>
+#include <stdexcept>
 #include <string>
 #include <thread>
 #include <vector>
@@ -65,6 +66,25 @@ struct FakeBackend final : ISessionBackend {
     // Simulate a WaitStopped that never observes a stop (drain-timeout path).
     bool waitstopped_hangs{false};
 
+    // Exception injection (review 2.2): a real backend allocates in these methods
+    // and can throw. The owner-thread exception (Prepare/Run) must become a clean
+    // Failed terminal, never std::terminate; a control exception (RequestCancel)
+    // must not escape RequestStop and must still return the lease.
+    bool prepare_throws{false};
+    bool run_throws{false};
+    bool requestcancel_throws{false};
+
+    // Drain-latency handshake (review 2.3): hold a control call inside the backend
+    // past the owner's soft drain budget, then release it, and assert the owner
+    // still completes Destroy and a real terminal rather than stranding the
+    // runtime. block_control gates RequestCancel entry; release_control lets it
+    // proceed; control_in_backend signals the test that the lease is held.
+    std::mutex ctl_mtx;
+    std::condition_variable ctl_cv;
+    bool block_control{false};
+    bool release_control{false};
+    bool control_in_backend{false};
+
     // last_runtime is written by the owner thread in Prepare and read by the test
     // thread; publish it under its own mutex so the test never races the write.
     std::mutex rt_mtx;
@@ -78,6 +98,8 @@ struct FakeBackend final : ISessionBackend {
     }
 
     GC::Result<std::shared_ptr<SessionRuntime>> Prepare(const SessionParams&) override {
+        if (prepare_throws)
+            throw std::runtime_error("injected Prepare exception");
         if (prepare_fails)
             return GC::MakeError(prepare_error, "FakeBackend::Prepare", "forced");
         auto rt = std::make_shared<FakeRuntime>();
@@ -94,6 +116,8 @@ struct FakeBackend final : ISessionBackend {
 #ifdef SESSION_TEST_HOOKS
         if (!rt.alive.load()) { RunReport r; r.outcome = RunOutcome::BackendFailed; r.detail = "run after destroy"; return r; }
 #endif
+        if (run_throws)
+            throw std::runtime_error("injected Run exception");
         rt.run_calls.fetch_add(1);
         std::unique_lock lock{rt.mtx};
         rt.run_entered = true;
@@ -115,9 +139,23 @@ struct FakeBackend final : ISessionBackend {
 #ifdef SESSION_TEST_HOOKS
         if (!rt.alive.load()) return GC::MakeError(GC::ErrorCategory::InvalidHandle, "RequestCancel", "after destroy");
 #endif
-        std::lock_guard lock{rt.mtx};
-        rt.cancel_requested = true;
-        rt.cv.notify_all();
+        if (requestcancel_throws)
+            throw std::runtime_error("injected RequestCancel exception");
+        // Signal the cancel first so Run returns and the owner proceeds into
+        // teardown, THEN (optionally) block while still holding the control lease.
+        // This is what drives the owner past its soft drain budget with a lease
+        // still in flight (review 2.3).
+        {
+            std::lock_guard lock{rt.mtx};
+            rt.cancel_requested = true;
+            rt.cv.notify_all();
+        }
+        if (block_control) {
+            std::unique_lock lock{ctl_mtx};
+            control_in_backend = true;
+            ctl_cv.notify_all();
+            ctl_cv.wait(lock, [&] { return release_control; });
+        }
         return StopTicket{/*value=*/1, /*valid=*/true};
     }
 
@@ -396,6 +434,148 @@ void Fixture_HundredRounds() {
     Check(core.CurrentGeneration() == 0, "no live generation after 100 rounds");
 }
 
+// --- Case 6: Prepare exception is a clean Failed terminal, not an abort ------
+// Review 2.2: Prepare/Run run on the owner thread; the JNI try/catch is on the
+// calling thread and cannot catch them. An exception must become a Failed
+// terminal (StartFailed), never std::terminate.
+void Case6_PrepareException() {
+    std::printf("Case6: Prepare exception -> Failed terminal (no abort)\n");
+    FakeBackend backend;
+    backend.prepare_throws = true;
+    SessionCore core{backend};
+    const std::uint64_t gen = core.Start({"smoke", 0});
+    Check(gen != 0, "Start spawned owner");
+    Terminal t;
+    Check(core.WaitTerminal(gen, 2000 * kMs, t), "reached terminal after Prepare throw");
+    Check(t.outcome == RunOutcome::StartFailed, "outcome is StartFailed");
+    Check(t.exited, "terminal exited");
+    Check(t.detail.find("Prepare threw") != std::string::npos, "detail names the throw");
+    Check(core.QueryPhase(gen) == Phase::Failed, "phase is Failed");
+    // The core is reusable: a fresh Start after the exception must succeed.
+    backend.prepare_throws = false;
+    const std::uint64_t g2 = core.Start({"smoke", 0});
+    Check(g2 > gen, "restart after exception gets a new generation");
+    Check(core.WaitPhase(g2, Phase::Running, 2000 * kMs) == WaitPhaseResult::ReachedTarget,
+          "restart reaches Running");
+    backend.SignalNaturalReturn(*backend.last_runtime);
+    Terminal t2;
+    Check(core.WaitTerminal(g2, 2000 * kMs, t2), "restart terminal");
+}
+
+// --- Case 7: Run exception is a clean Failed terminal, not an abort ----------
+void Case7_RunException() {
+    std::printf("Case7: Run exception -> Failed terminal (no abort)\n");
+    FakeBackend backend;
+    backend.run_throws = true;
+    SessionCore core{backend};
+    const std::uint64_t gen = core.Start({"smoke", 0});
+    Check(gen != 0, "Start spawned owner");
+    Terminal t;
+    Check(core.WaitTerminal(gen, 2000 * kMs, t), "reached terminal after Run throw");
+    Check(t.outcome == RunOutcome::BackendFailed, "outcome is BackendFailed");
+    Check(t.exited, "terminal exited");
+    Check(t.detail.find("Run threw") != std::string::npos, "detail names the throw");
+    Check(core.QueryPhase(gen) == Phase::Failed, "phase is Failed");
+    // The runtime published before Run must still be Destroyed (teardown ran).
+    Check(backend.last_runtime && !backend.last_runtime->alive.load(),
+          "runtime destroyed after Run exception");
+}
+
+// --- Case 8: control exception does not escape and still returns the lease ---
+// Review 2.2 (control half): a throwing RequestCancel must not unwind through
+// RequestStop, and the lease must be returned so the owner's drain completes.
+void Case8_ControlException() {
+    std::printf("Case8: RequestCancel exception -> Error, lease returned\n");
+    FakeBackend backend;
+    backend.requestcancel_throws = true;
+    SessionCore core{backend};
+    const std::uint64_t gen = core.Start({"smoke", 0});
+    Check(core.WaitPhase(gen, Phase::Running, 2000 * kMs) == WaitPhaseResult::ReachedTarget,
+          "Running");
+    backend.AwaitRunEntered(*backend.last_runtime);
+    // A throwing RequestCancel must come back as Error, not propagate.
+    bool escaped = false;
+    StopResult result = StopResult::Accepted;
+    try {
+        result = core.RequestStop(gen, 1000 * kMs);
+    } catch (...) {
+        escaped = true;
+    }
+    Check(!escaped, "control exception did not escape RequestStop");
+    Check(result == StopResult::Error, "control exception reported as Error");
+    // The lease was returned despite the throw: a normal stop now completes and
+    // the owner reaches a real terminal (drain did not wedge).
+    backend.requestcancel_throws = false;
+    backend.SignalNaturalReturn(*backend.last_runtime);
+    Terminal t;
+    Check(core.WaitTerminal(gen, 2000 * kMs, t), "owner reached terminal (lease not leaked)");
+    Check(t.exited, "terminal exited");
+    Check(backend.last_runtime && !backend.last_runtime->alive.load(), "runtime destroyed");
+    const std::uint64_t g2 = core.Start({"smoke", 0});
+    Check(g2 > gen, "same-process restart after control exception");
+    Check(core.WaitPhase(g2, Phase::Running, 2000 * kMs) == WaitPhaseResult::ReachedTarget,
+          "restart Running");
+    backend.SignalNaturalReturn(*backend.last_runtime);
+    Terminal t2;
+    Check(core.WaitTerminal(g2, 2000 * kMs, t2), "restart terminal");
+}
+
+// --- Case 9: a lease held past the soft drain budget still gets reclaimed ----
+// Review 2.3: when a control call is still in the backend past the owner's soft
+// drain budget, the owner must NOT latch a permanent "not exited" terminal and
+// leave. It stays, waits for the lease to drain, then Destroys and sets a real
+// terminal. The late control call must find a live runtime (no UAF).
+void Case9_SlowDrainStillReclaims() {
+    std::printf("Case9: slow control drain still reclaims (no strand, no UAF)\n");
+    FakeBackend backend;
+    backend.block_control = true;
+    SessionCore core{backend};
+    // Shrink the soft drain budget so the owner crosses it deterministically while
+    // the control lease is still held inside the backend (review 2.3).
+    core.SetTeardownDeadlineForTest(50 * kMs);  // 50ms soft budget
+    const std::uint64_t gen = core.Start({"smoke", 0});
+    Check(core.WaitPhase(gen, Phase::Running, 2000 * kMs) == WaitPhaseResult::ReachedTarget,
+          "Running");
+    backend.AwaitRunEntered(*backend.last_runtime);
+
+    // A stopper takes the lease and blocks inside RequestCancel.
+    std::thread stopper([&] { (void)core.RequestStop(gen, 1000 * kMs); });
+    {
+        std::unique_lock lock{backend.ctl_mtx};
+        Check(backend.ctl_cv.wait_for(lock, std::chrono::seconds(5),
+                                      [&] { return backend.control_in_backend; }),
+              "control call is inside the backend holding a lease");
+    }
+    // The stopper set cancel_requested before blocking, so Run has returned and
+    // the owner is now in TeardownAndDestroy waiting for the lease. The soft
+    // budget is 50ms; wait longer than that so the owner crosses it and enters the
+    // patient (unbounded) drain wait -- the exact branch review 2.3 says must not
+    // strand the runtime or leave an ownerless Stopping.
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    Check(core.QueryPhase(gen) == Phase::Stopping,
+          "owner is still in Stopping past the soft budget (not a terminal latch)");
+    // Release the lease; the owner must now finish Destroy and set a real terminal.
+    {
+        std::lock_guard lock{backend.ctl_mtx};
+        backend.release_control = true;
+        backend.ctl_cv.notify_all();
+    }
+    stopper.join();
+    Terminal t;
+    Check(core.WaitTerminal(gen, 3000 * kMs, t), "reached a real terminal after slow drain");
+    Check(t.exited, "terminal exited (not a permanent not-exited latch)");
+    Check(backend.last_runtime && !backend.last_runtime->alive.load(),
+          "runtime destroyed exactly once (late control found it alive)");
+    // Same-process restart after a slow drain.
+    const std::uint64_t g2 = core.Start({"smoke", 0});
+    Check(g2 > gen, "restart after slow drain");
+    Check(core.WaitPhase(g2, Phase::Running, 2000 * kMs) == WaitPhaseResult::ReachedTarget,
+          "restart Running");
+    backend.SignalNaturalReturn(*backend.last_runtime);
+    Terminal t2;
+    Check(core.WaitTerminal(g2, 2000 * kMs, t2), "restart terminal");
+}
+
 }  // namespace
 
 int main() {
@@ -405,6 +585,10 @@ int main() {
     Case3_StartFailure();
     Case4_LateOldWatcher();
     Case5_FaultIsFailure();
+    Case6_PrepareException();
+    Case7_RunException();
+    Case8_ControlException();
+    Case9_SlowDrainStillReclaims();
     Fixture_HundredRounds();
 
     std::printf("\n%d checks, %d failures\n", g_checks, g_failures);

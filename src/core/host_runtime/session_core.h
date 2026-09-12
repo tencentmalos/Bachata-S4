@@ -139,10 +139,22 @@ public:
     SessionTestGate& TestGate() { return gate_; }
     // Forces the next owner-thread spawn to fail, to exercise the roll-back path.
     void SetOwnerSpawnFailureForTest(bool enable) { fail_owner_spawn_ = enable; }
+    // Shrinks the soft teardown-drain budget so a test can deterministically drive
+    // the owner past it (review 2.3) without a multi-second wait.
+    void SetTeardownDeadlineForTest(std::uint64_t ns) { teardown_deadline_ns_ = ns; }
 #endif
 
 private:
     void OwnerBody(std::uint64_t generation, SessionParams params);
+    // Owner-only teardown: close admission for new control leases, drain the
+    // in-flight leases (patiently -- a slow Stop must not strand the runtime),
+    // Destroy exactly once, then set the terminal. Every owner completion path
+    // (early cancel, natural return, backend exception) funnels through here so
+    // Destroy never races a control call and the owner never leaves resources
+    // unreclaimed.
+    void TeardownAndDestroy(std::uint64_t generation,
+                            const std::shared_ptr<SessionRuntime>& runtime,
+                            const Terminal& terminal, Phase final_phase);
     void FinalizeAndJoin();  // the single join site; requires no lock held
     // Writes the terminal record exactly once for `generation`. Requires lock.
     void SetTerminalLocked(std::uint64_t generation, const Terminal& terminal, Phase phase);
@@ -166,6 +178,7 @@ private:
     std::shared_ptr<SessionRuntime> runtime_;  // published by owner after Prepare
     int in_flight_control_{0};                 // control-lease count
     bool tearing_down_{false};                 // closes admission for new leases
+    bool drain_timed_out_{false};              // soft drain budget elapsed; owner still reclaiming
     std::uint64_t cancel_generation_{0};       // persistent cancel intent
 
     bool has_terminal_{false};

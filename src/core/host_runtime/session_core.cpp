@@ -68,8 +68,19 @@ std::uint64_t SessionCore::Start(const SessionParams& params) {
         lock.unlock();
         FinalizeAndJoin();
         lock.lock();
+        // FinalizeAndJoin dropped the lock. Another Start could have run to
+        // completion in that window (spawned a new owner, advanced generation_).
+        // Re-check the invariant against the CURRENT state rather than trusting
+        // what we read before unlocking (review 4.1: recheck generation/phase
+        // after unlocking join). If a session is now live, this caller loses the
+        // race and returns AlreadyRunning.
+        if (phase_ != Phase::Idle && !IsTerminal(phase_)) {
+            return 0;  // AlreadyRunning: lost the race to a concurrent Start
+        }
     }
 
+    // Compute the new generation AFTER any unlock, so two racing Starts cannot
+    // mint the same generation value.
     const std::uint64_t gen = generation_ + 1;
 
 #ifdef SESSION_TEST_HOOKS
@@ -87,6 +98,7 @@ std::uint64_t SessionCore::Start(const SessionParams& params) {
     runtime_.reset();
     in_flight_control_ = 0;
     tearing_down_ = false;
+    drain_timed_out_ = false;
     cancel_generation_ = 0;
     has_terminal_ = false;
 
@@ -108,19 +120,53 @@ std::uint64_t SessionCore::Start(const SessionParams& params) {
 }
 
 void SessionCore::OwnerBody(std::uint64_t generation, SessionParams params) {
+    // The owner thread is the ONLY thread that runs the backend Prepare/Run/
+    // Destroy calls and the ONLY thread that writes the terminal. Every completion
+    // path -- Prepare failure, early cancel during Preparing, a natural Run return,
+    // and any exception thrown out of a backend call -- funnels through the same
+    // teardown sequence (TeardownAndDestroyLocked): close admission for new
+    // control leases, drain the in-flight leases, Destroy exactly once, then set
+    // the terminal. This is why an early cancel can no longer skip the drain
+    // (review 2.1), a backend exception can no longer abort the process (2.2), and
+    // a drain that is slow can no longer strand the runtime (2.3).
+
     // --- Prepare -----------------------------------------------------------
-    auto prepared = backend_.Prepare(params);
-    if (!prepared) {
+    std::shared_ptr<SessionRuntime> runtime;
+    try {
+        auto prepared = backend_.Prepare(params);
+        if (!prepared) {
+            Terminal t;
+            t.outcome = RunOutcome::StartFailed;
+            t.error_category = static_cast<std::uint32_t>(prepared.GetError().category);
+            t.detail = Core::GuestCpu::Describe(prepared.GetError());
+            t.exited = true;
+            std::lock_guard lock{mtx_};
+            SetTerminalLocked(generation, t, Phase::Failed);
+            return;
+        }
+        runtime = std::move(prepared).Value();
+    } catch (const std::exception& e) {
+        // Prepare threw (e.g. make_shared/vector allocation). The JNI try/catch
+        // is on the calling thread and cannot catch this owner-thread exception,
+        // so it MUST be handled here or std::terminate aborts the process.
         Terminal t;
         t.outcome = RunOutcome::StartFailed;
-        t.error_category = static_cast<std::uint32_t>(prepared.GetError().category);
-        t.detail = Core::GuestCpu::Describe(prepared.GetError());
+        t.error_category = static_cast<std::uint32_t>(Core::GuestCpu::ErrorCategory::BackendFailure);
+        t.detail = std::string("Prepare threw: ") + e.what();
+        t.exited = true;
+        std::lock_guard lock{mtx_};
+        SetTerminalLocked(generation, t, Phase::Failed);
+        return;
+    } catch (...) {
+        Terminal t;
+        t.outcome = RunOutcome::StartFailed;
+        t.error_category = static_cast<std::uint32_t>(Core::GuestCpu::ErrorCategory::BackendFailure);
+        t.detail = "Prepare threw a non-std exception";
         t.exited = true;
         std::lock_guard lock{mtx_};
         SetTerminalLocked(generation, t, Phase::Failed);
         return;
     }
-    std::shared_ptr<SessionRuntime> runtime = std::move(prepared).Value();
 
 #ifdef SESSION_TEST_HOOKS
     gate_.Wait(Checkpoint::BeforePublish, generation);
@@ -138,16 +184,17 @@ void SessionCore::OwnerBody(std::uint64_t generation, SessionParams params) {
     }
 
     if (cancel_before_run) {
-        // Stop arrived during Preparing. Skip Run entirely; tear down as a clean
-        // user cancel. Run was never entered, so there is nothing to interrupt.
+        // Stop arrived during Preparing. Skip Run entirely, but tear down through
+        // the SAME drain-then-Destroy path as a normal exit: a Stop that arrived
+        // during Preparing may already be racing toward a control lease (a second
+        // Stop after the runtime is published takes ++in_flight_control_), so
+        // Destroying here without closing admission and draining would let that
+        // control call dereference a runtime the owner is destroying (review 2.1).
         Terminal t;
         t.outcome = RunOutcome::Cancelled;
         t.user_requested_stop = true;
         t.exited = true;
-        backend_.Destroy(*runtime);
-        std::lock_guard lock{mtx_};
-        runtime_.reset();
-        SetTerminalLocked(generation, t, Phase::Stopped);
+        TeardownAndDestroy(generation, runtime, t, Phase::Stopped);
         return;
     }
 
@@ -159,39 +206,40 @@ void SessionCore::OwnerBody(std::uint64_t generation, SessionParams params) {
         cv_.notify_all();
     }
 
-    RunReport report = backend_.Run(*runtime);
+    RunReport report;
+    try {
+        report = backend_.Run(*runtime);
+    } catch (const std::exception& e) {
+        report.outcome = RunOutcome::BackendFailed;
+        report.error_category =
+            static_cast<std::uint32_t>(Core::GuestCpu::ErrorCategory::BackendFailure);
+        report.detail = std::string("Run threw: ") + e.what();
+    } catch (...) {
+        report.outcome = RunOutcome::BackendFailed;
+        report.error_category =
+            static_cast<std::uint32_t>(Core::GuestCpu::ErrorCategory::BackendFailure);
+        report.detail = "Run threw a non-std exception";
+    }
 
 #ifdef SESSION_TEST_HOOKS
     gate_.Wait(Checkpoint::OwnerAfterRunBeforeDestroy, generation);
 #endif
 
-    // --- Teardown: drain the control-lease, then Destroy -------------------
-    bool drained;
-    {
-        std::unique_lock lock{mtx_};
-        phase_ = Phase::Stopping;
-        high_water_phase_ = Phase::Stopping;
-        tearing_down_ = true;  // step below refuses NEW leases
-        cv_.notify_all();
-        // Bounded wait; releases the lock while blocked so a stopper can
-        // decrement in_flight_control_ and notify.
-        const auto deadline = std::chrono::steady_clock::now() +
-                              std::chrono::nanoseconds(teardown_deadline_ns_);
-        drained = cv_.wait_until(lock, deadline, [&] { return in_flight_control_ == 0; });
-    }
-
     Terminal t;
     t.error_category = report.error_category;
     t.detail = std::move(report.detail);
+    Phase final_phase;
     switch (report.outcome) {
     case RunOutcome::Returned:
         t.outcome = RunOutcome::Returned;
         t.exited = true;
+        final_phase = Phase::Stopped;
         break;
     case RunOutcome::Cancelled:
         t.outcome = RunOutcome::Cancelled;
         t.user_requested_stop = true;
         t.exited = true;
+        final_phase = Phase::Stopped;
         break;
     case RunOutcome::Faulted:
     case RunOutcome::BackendFailed:
@@ -200,35 +248,88 @@ void SessionCore::OwnerBody(std::uint64_t generation, SessionParams params) {
     case RunOutcome::StartFailed:
         t.outcome = report.outcome;
         t.exited = true;
+        final_phase = Phase::Failed;
         break;
     }
 
-    if (!drained) {
-        // A control call did not return within the teardown budget. Do NOT
-        // Destroy and do NOT drop the runtime: the shared_ptr keeps everything
-        // alive and owned. Report "not exited" and keep ownership; never Idle.
-        Terminal timed_out;
-        timed_out.outcome = RunOutcome::BackendFailed;
-        timed_out.error_category =
-            static_cast<std::uint32_t>(Core::GuestCpu::ErrorCategory::Timeout);
-        timed_out.detail = "teardown drain timed out; session not exited";
-        timed_out.exited = false;
+    TeardownAndDestroy(generation, runtime, t, final_phase);
+}
+
+void SessionCore::TeardownAndDestroy(std::uint64_t generation,
+                                     const std::shared_ptr<SessionRuntime>& runtime,
+                                     const Terminal& terminal, Phase final_phase) {
+    // Owner-only. Closes admission for new control leases, then waits for the
+    // in-flight leases to drain. The wait is patient: a slow Stop must not make
+    // the owner abandon the runtime while a control call is still inside a backend
+    // method (review 2.3). We publish an observable "drain is taking longer than
+    // the soft budget" note without latching a permanent terminal, then keep
+    // waiting until the lease actually reaches zero. Because tearing_down_ closes
+    // admission, in_flight_control_ is monotone non-increasing here, so this
+    // terminates once every lease returns.
+    {
+        std::unique_lock lock{mtx_};
+        phase_ = Phase::Stopping;
+        // Do NOT advance high_water_phase_ here. high_water_phase_ tracks the
+        // highest EXECUTION phase (Preparing/Ready/Running) the session actually
+        // reached, so WaitPhase(Running) reports TerminatedBeforeTarget for an
+        // early cancel that never entered Run. Stopping is teardown, numerically
+        // above Running; bumping it would fabricate a "reached Running" signal for
+        // a session that skipped Run (the "never fabricate Running" rule).
+        tearing_down_ = true;  // RequestStop refuses NEW leases from here on
+        cv_.notify_all();
+
+        const auto soft_deadline = std::chrono::steady_clock::now() +
+                                   std::chrono::nanoseconds(teardown_deadline_ns_);
+        if (!cv_.wait_until(lock, soft_deadline, [&] { return in_flight_control_ == 0; })) {
+            // Soft budget elapsed with a lease still held. This is a NOTIFICATION,
+            // not a terminal: the session is still owned and the owner stays to
+            // finish reclaim. drain_timed_out_ lets an observer see "stop is taking
+            // longer than expected" via the terminal note without the owner
+            // leaving (review 2.3: no ownerless Stopping, no permanent latch).
+            drain_timed_out_ = true;
+            cv_.notify_all();
+            // Keep waiting until the lease truly drains. Admission is closed, so
+            // this cannot grow again; a control call inside the backend will
+            // return and decrement.
+            cv_.wait(lock, [&] { return in_flight_control_ == 0; });
+        }
+    }
+
+    // Lease drained: the owner holds the last reference. Destroy is owner-only and
+    // runs with no concurrent dereference -- exactly why the drain barrier exists.
+    // Destroy must not throw the owner out of teardown either.
+    try {
+        backend_.Destroy(*runtime);
+    } catch (const std::exception& e) {
         std::lock_guard lock{mtx_};
-        SetTerminalLocked(generation, timed_out, Phase::Stopping);
+        Terminal failed = terminal;
+        failed.outcome = RunOutcome::BackendFailed;
+        failed.error_category =
+            static_cast<std::uint32_t>(Core::GuestCpu::ErrorCategory::BackendFailure);
+        failed.detail = std::string("Destroy threw: ") + e.what();
+        failed.exited = true;
+        runtime_.reset();
+        SetTerminalLocked(generation, failed, Phase::Failed);
+        return;
+    } catch (...) {
+        std::lock_guard lock{mtx_};
+        Terminal failed = terminal;
+        failed.outcome = RunOutcome::BackendFailed;
+        failed.error_category =
+            static_cast<std::uint32_t>(Core::GuestCpu::ErrorCategory::BackendFailure);
+        failed.detail = "Destroy threw a non-std exception";
+        failed.exited = true;
+        runtime_.reset();
+        SetTerminalLocked(generation, failed, Phase::Failed);
         return;
     }
 
-    // Lease drained: the owner holds the last reference. DestroyThread is
-    // owner-only; running it here with no concurrent dereference is exactly why
-    // the drain barrier exists.
-    backend_.Destroy(*runtime);
     {
         std::lock_guard lock{mtx_};
         runtime_.reset();  // owner drops the last ref -> deterministic destruction
-        SetTerminalLocked(generation, t,
-                          t.outcome == RunOutcome::Returned || t.outcome == RunOutcome::Cancelled
-                              ? Phase::Stopped
-                              : Phase::Failed);
+        Terminal done = terminal;
+        done.exited = true;  // the session did reach a real terminal
+        SetTerminalLocked(generation, done, final_phase);
     }
 }
 
@@ -265,29 +366,47 @@ StopResult SessionCore::RequestStop(std::uint64_t generation, std::uint64_t time
     }
 
     // Lease held (shared_ptr copy also held). No lock across the blocking calls.
+    // The lease MUST be returned even if a backend call throws: RequestCancel /
+    // WaitStopped on a real backend allocate and can throw, and if the lease is
+    // not decremented the owner's teardown drain never completes (review 2.2).
+    // This RAII guard decrements in_flight_control_ and notifies on every exit
+    // path, including an exception propagating out of this function.
+    struct LeaseGuard {
+        SessionCore* self;
+        ~LeaseGuard() {
+            std::lock_guard lock{self->mtx_};
+            --self->in_flight_control_;
+            self->cv_.notify_all();
+        }
+    } lease_guard{this};
+
     StopResult result;
 #ifdef SESSION_TEST_HOOKS
     gate_.Wait(Checkpoint::StopAfterLeaseBeforeInterrupt, generation);
 #endif
-    auto ticket = backend_.RequestCancel(*rt);
-    if (!ticket) {
-        result = StopResult::Error;
-    } else {
-        const std::uint64_t budget = timeout_ns != 0 ? timeout_ns : 1'000'000'000ull;
-        auto stopped = backend_.WaitStopped(*rt, ticket.Value(), budget);
-        if (stopped)
-            result = StopResult::Accepted;
-        else if (stopped.Category() == Core::GuestCpu::ErrorCategory::Timeout)
-            result = StopResult::Timeout;
-        else
+    // A backend RequestCancel/WaitStopped can throw (they allocate on a real
+    // backend). An exception must not escape RequestStop: the caller (JNI/Service)
+    // gets a StopResult, and the lease is already returned by LeaseGuard above, so
+    // the owner's drain still completes (review 2.2). Convert any exception to
+    // Error rather than unwinding through the caller.
+    try {
+        auto ticket = backend_.RequestCancel(*rt);
+        if (!ticket) {
             result = StopResult::Error;
+        } else {
+            const std::uint64_t budget = timeout_ns != 0 ? timeout_ns : 1'000'000'000ull;
+            auto stopped = backend_.WaitStopped(*rt, ticket.Value(), budget);
+            if (stopped)
+                result = StopResult::Accepted;
+            else if (stopped.Category() == Core::GuestCpu::ErrorCategory::Timeout)
+                result = StopResult::Timeout;
+            else
+                result = StopResult::Error;
+        }
+    } catch (...) {
+        result = StopResult::Error;
     }
 
-    {
-        std::lock_guard lock{mtx_};
-        --in_flight_control_;
-        cv_.notify_all();
-    }
     return result;
 }
 
