@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<testsuite name="spatial.input.android.AndroidInputLibraryInstrumentedTest" tests="4" failures="0" errors="0" skipped="0" time="1.1" timestamp="2026-09-12T15:22:16" hostname="localhost">
+  <properties>
+    <property name="device" value="AYN Thor - 13" />
+    <property name="flavor" value="" />
+    <property name="project" value=":foundation-input-android" />
+  </properties>
+  <testcase name="mappingIsByPhysicalPosition" classname="spatial.input.android.AndroidInputLibraryInstrumentedTest" time="0.016" />
+  <testcase name="neutralPacketShapeMatchesProtocol" classname="spatial.input.android.AndroidInputLibraryInstrumentedTest" time="0.026" />
+  <testcase name="sourceConstructsAndReportsNoFakeDevices" classname="spatial.input.android.AndroidInputLibraryInstrumentedTest" time="0.004" />
+  <testcase name="hapticsExecutorDrainsInjectedSource" classname="spatial.input.android.AndroidInputLibraryInstrumentedTest" time="0.005" />
+</testsuite>

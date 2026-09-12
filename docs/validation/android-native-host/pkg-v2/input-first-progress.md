@@ -29,6 +29,44 @@ Satisfies the plan's "真正共用" acceptance dimension for the C++ core: the r
 mechanism exists in exactly one place (Foundation) and builds without SDL/JNI/XR
 or the main repo.
 
+## Layer 2 — Foundation Android input library — DONE (on-device verified)
+
+Foundation subrepo `codex/shadps4-android-fex-v0`, committed + pushed `96a3eea`
+(parent gitlink advanced from `087fcef`).
+
+The injectable Kotlin mechanism under `foundation/modules/input/android/` (a plain
+Android library, namespace `spatial.input.android`, referenced once from the
+subrepo path via the app's `settings.gradle.kts`):
+- `spatial.input.model.*` — neutral Kotlin model mirroring the C++ value types
+  (Button/Axis by physical position, DeviceIdentity with connection epoch separate
+  from profile key, InputPacket/InputEvent/ControlEvent, HapticCommand). Enum
+  ordinals match the C++ side.
+- `AndroidInputSource(context, emitExecutor, sink)` — device discovery via
+  `InputManager.InputDeviceListener`, capability reporting from `motionRanges` /
+  `hasKeys`, `dispatchKeyEvent`/`dispatchGenericMotionEvent` → neutral `InputPacket`
+  on the injected serial executor. Reconnect → new epoch; no fabricated device; no
+  user remap/dead zone applied (host does that once, matching the C++ hub contract).
+- `InputSink` / `HapticFeedbackSource` — the two injection interfaces the host wires.
+- `AndroidHapticsExecutor(context, source)` — bounded pump draining the feedback
+  source onto the platform / per-controller `Vibrator`; no-vibrator no-op,
+  single-actuator honest downmix. Migrated in spirit from citron's vibrator
+  (system-vs-controller, API-31 split) without the Citron singleton / R /
+  `CitronApplication` deps.
+
+**Verified:** own namespace, references no host `R`/Compose/`ManagedSession`/
+`CitronApplication`; declares NO app-specific native methods, no
+`System.loadLibrary`, no `JNI_OnLoad`, no `.so`. Built as an AAR (`classes.jar`
+only — no `.so`, no `jni/`, no `JNI_OnLoad`). Instrumented test on the AYN Thor
+(Android 13): **4 tests / 0 failures** with an injected fake sink, referencing no
+shadPS4/citron package or native library (spec §130 acceptance). Evidence:
+`foundation-android-input-instrumented-2026-09-12.xml`.
+
+Note on the app's own path: the main-repo `GamepadInputManager` +
+`NativePad`/`NativePadBridge` (Layer 3) remain the production controller path
+today, already on-device-verified. This Foundation library is the reusable
+mechanism extraction other Foundation consumers can adopt; a follow-up can migrate
+the app's producer onto it, but the app path is not blocked on that.
+
 ## Layer 3 — native OrbisPadAdapter + pad JNI + Kotlin bridge — DONE (on-device verified)
 
 The seam the Kotlin input stack was missing. Before this, `GamepadInputManager`
