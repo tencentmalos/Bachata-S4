@@ -65,3 +65,40 @@ run needs the real game (WP-B), but the Service no longer *imposes* a lifetime c
 ## Still open in WP-A
 - §4.3 allocator re-audit against the ACTUALLY-LINKED rpmalloc branch; `shadps4_host_core` target on the real source list; full `--no-undefined` Android host link.
 - WP-B loader→guest→Orbis→renderer; WP-C device.
+
+## WP-A §4.3 — host-core build foundation (in progress)
+
+### Allocator: confirmed the review's correction (rpmalloc, not bionic no-op)
+The linked `libshadps4_fex_session.so`'s `FEXCore::Allocator::InitializeAllocator`
+disassembly (review evidence `allocator-linked-implementation.txt`) really calls
+`rpmalloc_initialize_config` and installs `FEX_rp_mmap`/`FEX_rp_memory_unmap`
+hooks — the FEX allocator path, from `libFEXCore.a` (child pin 385a0cc4), NOT the
+`__BIONIC__` Dummy branch the earlier `allocator-provider.md` audit selected. The
+FEX Android prebuilt is present at `build/fexcore-android/FEXCore/Source/libFEXCore.a`
+and the app already links a 33 MB FEX-backed `.so`, so a real host link is
+achievable on this Mac. Full provider re-audit (small-allocator / mmap providers /
+JIT-backing / ART cold-start + churn故障注入) remains open — HN-A01 not closed.
+
+### Renderer-free host closure compiles under NDK bionic (evidence)
+Extracted the authoritative include/define set from `build/desktop-probe`'s
+`compile_commands.json` (portable repo-relative dirs only) and swept the
+dependency-closure spine + full HLE registration under
+`aarch64-linux-android33 -std=gnu++2b`:
+- spine 10/10: linker, module, tls, memory, address_space, aerolib{,stubs},
+  loader/{elf,symbols_resolver,dwarf}.
+- HLE 11/11: **libs.cpp (the full InitHLELibs / every RegisterLib)**, kernel{,
+  threads,memory,process,time,file_system,equeue}, libc_internal, playgo, sysmodule.
+
+This confirms the `shadps4_host_core` source set compiles for bionic. The next
+step is the real `--no-undefined` LINK: `libs.cpp` references ALL RegisterLib, so
+linking pulls the renderer/audio-coupled libs (gnmdriver/videoout/audio/np/system/
+pad → video_core/audio_core/imgui). Per review §3.2 the answer is a REAL link
+closure (link map / undefined symbols), not empty RegisterLib or
+`--unresolved-symbols=ignore-all`. That link is the WP-A §4.3 / WP-B boundary:
+the full game APK must link its真实所需 HLE/video/audio, so `shadps4_host_core`
++ the video_core/audio_core targets link together — staged next.
+
+## Still open
+- `shadps4_host_core` CMake target on the real source list + full `--no-undefined` Android host link (needs video_core/audio_core in the closure for the coupled RegisterLibs).
+- Allocator provider full re-audit (HN-A01).
+- WP-B loader→guest→Orbis→renderer; WP-C device.
