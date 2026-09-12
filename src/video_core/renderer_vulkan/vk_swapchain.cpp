@@ -82,7 +82,37 @@ void Swapchain::Create(u32 width_, u32 height_) {
 void Swapchain::Recreate(u32 width_, u32 height_) {
     LOG_DEBUG(Render_Vulkan, "Recreate the swapchain: width={} height={} HDR={}", width_, height_,
               needs_hdr);
+    // If the previous acquire/present reported the surface itself was lost (Android
+    // hands back a fresh ANativeWindow* on backgrounding/rotation), the VkSurfaceKHR
+    // is dead and recreating only the swapchain would fail. Rebuild the surface
+    // first. Desktop never sets surface_lost, so this is Android-only in practice.
+    if (surface_lost) {
+        RebuildSurface();
+        surface_lost = false;
+    }
     Create(width_, height_);
+}
+
+void Swapchain::RebuildSurface() {
+    vk::Device device = instance.GetDevice();
+    const auto wait_result = device.waitIdle();
+    if (wait_result != vk::Result::eSuccess) {
+        LOG_WARNING(Render_Vulkan, "waitIdle before surface rebuild failed: {}",
+                    vk::to_string(wait_result));
+    }
+    // Drop the swapchain that referenced the dead surface before destroying it.
+    Destroy();
+    if (surface) {
+        instance.GetInstance().destroySurfaceKHR(surface);
+        surface = VK_NULL_HANDLE;
+    }
+    // CreateSurface reads the window's current native handle (ANativeWindow* in
+    // window_info.render_surface on Android), so this picks up the new surface.
+    surface = CreateSurface(instance.GetInstance(), window);
+    // Formats/present modes are queried against a surface; refresh them for the new
+    // one before the swapchain is rebuilt.
+    FindPresentFormat();
+    FindPresentMode();
 }
 
 void Swapchain::SetHDR(bool hdr) {
@@ -104,27 +134,48 @@ void Swapchain::SetHDR(bool hdr) {
 
 bool Swapchain::AcquireNextImage() {
     vk::Device device = instance.GetDevice();
-    vk::Result result =
-        device.acquireNextImageKHR(swapchain, std::numeric_limits<u64>::max(),
-                                   image_acquired[frame_index], VK_NULL_HANDLE, &image_index);
+    // Bounded acquire: never block forever. On Android a surface can be yanked
+    // (backgrounding / rotation) while we are inside acquire; with an infinite
+    // timeout the present thread would wedge and teardown could not proceed. Poll
+    // with a bounded timeout and honor RequestStop() so Stop returns promptly.
+    // Reference research flagged that neither azahar nor citron interrupt a
+    // blocked acquire; this is the fix spec HN4 requires.
+    static constexpr u64 kAcquireTimeoutNs = 100'000'000; // 100 ms
+    for (;;) {
+        if (stop_requested.load(std::memory_order_acquire)) {
+            // Asked to stop: do not keep the caller here. Report "not ready" so the
+            // frame is skipped and teardown can run; do not flag recreation.
+            return false;
+        }
+        vk::Result result =
+            device.acquireNextImageKHR(swapchain, kAcquireTimeoutNs, image_acquired[frame_index],
+                                       VK_NULL_HANDLE, &image_index);
 
-    switch (result) {
-    case vk::Result::eSuccess:
-        break;
-    case vk::Result::eSuboptimalKHR:
-    case vk::Result::eErrorSurfaceLostKHR:
-    case vk::Result::eErrorOutOfDateKHR:
-    case vk::Result::eErrorUnknown:
-        needs_recreation = true;
-        break;
-    default:
-        LOG_CRITICAL(Render_Vulkan, "Swapchain acquire returned unknown result {}",
-                     vk::to_string(result));
-        UNREACHABLE();
-        break;
+        switch (result) {
+        case vk::Result::eSuccess:
+            return true;
+        case vk::Result::eTimeout:
+        case vk::Result::eNotReady:
+            // No image yet within the bounded window. Loop and re-check the stop
+            // flag rather than busy-spinning (acquire itself waited the timeout).
+            continue;
+        case vk::Result::eErrorSurfaceLostKHR:
+            // The surface object is dead; Recreate must rebuild the VkSurfaceKHR.
+            surface_lost = true;
+            needs_recreation = true;
+            return false;
+        case vk::Result::eSuboptimalKHR:
+        case vk::Result::eErrorOutOfDateKHR:
+        case vk::Result::eErrorUnknown:
+            needs_recreation = true;
+            return false;
+        default:
+            LOG_CRITICAL(Render_Vulkan, "Swapchain acquire returned unknown result {}",
+                         vk::to_string(result));
+            UNREACHABLE();
+            return false;
+        }
     }
-
-    return !needs_recreation;
 }
 
 bool Swapchain::Present() {
@@ -139,6 +190,11 @@ bool Swapchain::Present() {
 
     auto result = instance.GetPresentQueue().presentKHR(present_info);
     if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR) {
+        needs_recreation = true;
+    } else if (result == vk::Result::eErrorSurfaceLostKHR) {
+        // Surface object died mid-present (Android detach): the next Recreate must
+        // rebuild the VkSurfaceKHR, not just the swapchain.
+        surface_lost = true;
         needs_recreation = true;
     } else {
         ASSERT_MSG(result == vk::Result::eSuccess, "Swapchain presentation failed: {}",
@@ -241,7 +297,14 @@ void Swapchain::SetSurfaceProperties() {
         image_count = std::min(image_count, capabilities.maxImageCount);
     }
 
-    // Prefer identity transform if possible
+    // Prefer identity transform if possible.
+    //
+    // On Android the driver's currentTransform is often a rotation (the compositor
+    // rotates the display); forcing eIdentity keeps the swapchain in the frontend's
+    // orientation and lets the frontend own rotation, matching azahar/citron which
+    // both pin identity on Android. supportedTransforms includes eIdentity on the
+    // Adreno/Turnip targets we care about; the fallback below only triggers if a
+    // driver genuinely cannot present identity.
     transform = vk::SurfaceTransformFlagBitsKHR::eIdentity;
     if (!(capabilities.supportedTransforms & transform)) {
         transform = capabilities.currentTransform;

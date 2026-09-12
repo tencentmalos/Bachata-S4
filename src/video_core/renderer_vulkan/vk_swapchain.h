@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <atomic>
 #include <mutex>
 #include <vector>
 #include "common/types.h"
@@ -33,6 +34,13 @@ public:
 
     /// Presents the current image and move to the next one
     bool Present();
+
+    /// Asks a blocked AcquireNextImage to return promptly so teardown can proceed.
+    /// Idempotent and thread-safe; used on Stop / surface detach so a bounded
+    /// acquire that keeps timing out does not spin forever (HN4).
+    void RequestStop() {
+        stop_requested.store(true, std::memory_order_release);
+    }
 
     vk::SurfaceKHR GetSurface() const {
         return surface;
@@ -102,6 +110,13 @@ private:
     /// Sets the surface properties according to device capabilities
     void SetSurfaceProperties();
 
+    /// Destroys the current VkSurfaceKHR and creates a fresh one from the window's
+    /// current native handle. Needed on Android when the platform hands back a new
+    /// ANativeWindow* (surface loss / backgrounding / rotation): the swapchain
+    /// alone cannot recover, the surface object itself is dead. No-op-equivalent on
+    /// desktop, which never loses its surface.
+    void RebuildSurface();
+
     /// Destroys current swapchain resources
     void Destroy();
 
@@ -132,6 +147,12 @@ private:
     u32 image_index = 0;
     u32 frame_index = 0;
     bool needs_recreation = true;
+    // Set when acquire/present returned eErrorSurfaceLostKHR: the next Recreate
+    // must rebuild the VkSurfaceKHR, not just the swapchain.
+    bool surface_lost = false;
+    // Set by RequestStop() from any thread; makes the bounded acquire retry loop
+    // bail out instead of blocking teardown.
+    std::atomic<bool> stop_requested{false};
     bool needs_hdr = false;    // The game requested HDR swapchain
     bool supports_hdr = false; // SC supports HDR output
 };

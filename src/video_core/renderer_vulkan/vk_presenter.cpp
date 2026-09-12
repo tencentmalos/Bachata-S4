@@ -505,6 +505,10 @@ Presenter::Presenter(Frontend::WindowSDL& window_, AmdGpu::Liverpool* liverpool_
 }
 
 Presenter::~Presenter() {
+    // Release any acquire that is (or becomes) blocked so teardown never wedges on
+    // a surface the platform may already have taken (HN4 bounded-acquire stop).
+    swapchain.RequestStop();
+
     ImGui::InvitationPrompt::Unregister();
     ImGui::ShadNetNotify::Unregister();
     ImGui::Friends::Unregister();
