@@ -249,14 +249,17 @@ endif()
 set(HWINFO_STATIC ON)
 add_subdirectory(hwinfo)
 
-if (APPLE OR ${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
-    # date
+if (APPLE OR ANDROID OR ${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
+    # date — replacement for std::chrono::time_zone. bionic ships no <chrono> tz
+    # database, so kernel/time.cpp uses the HowardHinnant date library on Android
+    # too (USE_OS_TZDB reads /system/usr/share/zoneinfo). epoll-shim is NOT needed
+    # on Android (bionic has epoll), so it stays out of the Android branch.
     if (NOT TARGET date::date-tz)
         option(BUILD_TZ_LIB "" ON)
         option(USE_SYSTEM_TZ_DB "" ON)
         add_subdirectory(date)
     endif()
-    if (NOT TARGET epoll-shim)
+    if (NOT ANDROID AND NOT TARGET epoll-shim)
         add_subdirectory(epoll-shim)
     endif()
 endif()
