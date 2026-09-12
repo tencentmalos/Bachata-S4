@@ -17,7 +17,7 @@
 #include <windows.h>
 #include "common/ntapi.h"
 #else
-#if defined(__APPLE__) || defined(__FreeBSD__)
+#if defined(__APPLE__) || defined(__FreeBSD__) || defined(__ANDROID__)
 #include <date/tz.h>
 #endif
 #include <ctime>
@@ -501,8 +501,10 @@ s32 PS4_SYSV_ABI sceKernelConvertUtcToLocaltime(time_t time, time_t* local_time,
         *dst_sec = res == TIME_ZONE_ID_DAYLIGHT ? -_dstbias : 0;
     }
 #else
-#if defined(__APPLE__) || defined(__FreeBSD__)
-    // std::chrono::current_zone() not available yet.
+#if defined(__APPLE__) || defined(__FreeBSD__) || defined(__ANDROID__)
+    // std::chrono::current_zone() is not available in libc++ on these platforms
+    // (bionic ships no <chrono> time-zone database), so use the HowardHinnant
+    // date library's tz DB that the project already links.
     const auto* time_zone = date::current_zone();
 #else
     const auto* time_zone = std::chrono::current_zone();

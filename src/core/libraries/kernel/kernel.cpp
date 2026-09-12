@@ -31,6 +31,9 @@
 
 #ifdef _WIN64
 #include <Rpc.h>
+#elif defined(__ANDROID__)
+// bionic ships no libuuid; UUIDs are generated from arc4random_buf below.
+#include <cstdlib>
 #else
 #include <uuid/uuid.h>
 #endif
@@ -175,6 +178,12 @@ s32 PS4_SYSV_ABI sceKernelUuidCreate(OrbisKernelUuid* orbisUuid) {
     if (UuidCreate(&uuid) != RPC_S_OK) {
         return ORBIS_KERNEL_ERROR_EFAULT;
     }
+#elif defined(__ANDROID__)
+    // No libuuid on bionic: build an RFC 4122 v4 (random) UUID from arc4random.
+    u8 uuid[0x10];
+    arc4random_buf(uuid, sizeof(uuid));
+    uuid[6] = static_cast<u8>((uuid[6] & 0x0F) | 0x40); // version 4
+    uuid[8] = static_cast<u8>((uuid[8] & 0x3F) | 0x80); // variant 1
 #else
     uuid_t uuid;
     uuid_generate(uuid);

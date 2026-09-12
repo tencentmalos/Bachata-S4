@@ -26,6 +26,8 @@ enum class WindowSystemType : u8 {
     X11,
     Wayland,
     Metal,
+    // Android: render_surface holds an ANativeWindow*, no display_connection.
+    Android,
 };
 
 struct WindowSystemInfo {

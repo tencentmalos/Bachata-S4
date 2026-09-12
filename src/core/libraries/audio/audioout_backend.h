@@ -36,4 +36,11 @@ public:
     std::unique_ptr<PortBackend> Open(PortOut& port) override;
 };
 
+#if defined(__ANDROID__)
+class AAudioOut final : public AudioOutBackend {
+public:
+    std::unique_ptr<PortBackend> Open(PortOut& port) override;
+};
+#endif
+
 } // namespace Libraries::AudioOut

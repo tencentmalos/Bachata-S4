@@ -29,3 +29,5 @@
 - 调试先落地 host LLDB + guest 状态适配；异步 JIT stop 不能直接把 CPUState 当完整寄存器快照。
 - 子仓提交、主仓 gitlink、部署 binary Build ID 是三个不同对象。记录和核对实际用到的版本；保留子仓中的独立未提交工作。
 - Foundation 不替代 guest CPU API；网络命令投递给 owner thread，停用服务后等待 in-flight 请求退出再销毁 registry。不要将通用反射、序列化或网络设施在主仓重复实现。
+- **测试用 PKG**：`/Users/bytedance/game/ps4/TMNT.Splintered.Fate_CUSA50828_v1.08.pkg`（CUSA50828 v1.08，1.87 GB）——后续 host loader/PKG 导入/真机运行阶段（HN2 真 ELF 起、HN6 PKG 导入）的测试内容。不提交进仓库。
+- **host NDK/bionic 编译已起步**（`docs/validation/android-native-host/ndk-host-closure-2026-09-12.md`）：loader/memory/kernel-min 17/17 TU 过 NDK 交叉编译；修了 bionic 两处缺口——`time.cpp` 用 `date` 库+`USE_OS_TZDB=1` 代 `std::chrono::current_zone`，`kernel.cpp` 用 `arc4random_buf` 代 libuuid。新增 `AAudioOut`（阻塞写模型，无 callback，参考 citron）与 vk_platform Android surface 分支（`ANativeWindow*`→`vkCreateAndroidSurfaceKHR`）。bounded acquire、swapchain 生命周期、`CreateSurface` 去 SDL 耦合留 HN4。音频/Vulkan 参考本地 azahar/citron；foundation 仅 DebugBus 可复用。

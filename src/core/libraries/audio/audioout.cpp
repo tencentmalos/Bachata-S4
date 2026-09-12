@@ -217,7 +217,12 @@ s32 PS4_SYSV_ABI sceAudioOutInit() {
     if (EmulatorSettings.GetAudioBackend() == AudioBackend::OpenAL) {
         audio = std::make_unique<OpenALAudioOut>();
     } else {
+#if defined(__ANDROID__)
+        // The Android host has no SDL audio device; use AAudio directly.
+        audio = std::make_unique<AAudioOut>();
+#else
         audio = std::make_unique<SDLAudioOut>();
+#endif
     }
 
     LOG_INFO(Lib_AudioOut, "Audio system initialized");
