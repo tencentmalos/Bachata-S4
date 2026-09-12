@@ -7,7 +7,10 @@ cmake_minimum_required(VERSION 3.24)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-if(APPLE)
+# ANDROID is only defined after project() applies the NDK toolchain; ANDROID_ABI /
+# CMAKE_ANDROID_NDK are available earlier (passed via -D or the toolchain file), so
+# gate the Apple-only ObjC language on them to avoid an ObjC compiler probe under NDK.
+if(APPLE AND NOT ANDROID AND NOT ANDROID_ABI AND NOT CMAKE_ANDROID_NDK)
     list(APPEND ADDITIONAL_LANGUAGES OBJC)
     # Minimum OS version for KosmicKrisp
     set(CMAKE_OSX_DEPLOYMENT_TARGET 26.0 CACHE STRING "")
@@ -41,6 +44,11 @@ option(ENABLE_UPDATER "Enables the options to updater" ON)
 option(ENABLE_TESTS "Build unit tests (requires GTest)" OFF)
 option(ENABLE_SYSTEM_LIBRARIES "Enable building against system libraries" OFF)
 option(ENABLE_SPATIAL_FOUNDATION "Build shared host infrastructure from Spatial Foundation" ON)
+# BUILD_HOST_CORE builds the reusable in-process host library instead of the desktop
+# `shadps4` executable: the same COMMON/CORE/VIDEO_CORE/SHADER_RECOMPILER source lists,
+# composed into an OBJECT library the Android JNI .so links, with no desktop main.cpp /
+# SDL window loop / quick_exit. The Android app configures the root project with this ON.
+option(BUILD_HOST_CORE "Build the reusable in-process host library (Android), not the desktop exe" OFF)
 
 # First, determine whether to use CMAKE_OSX_ARCHITECTURES or CMAKE_SYSTEM_PROCESSOR.
 if (APPLE AND CMAKE_OSX_ARCHITECTURES)
@@ -1261,6 +1269,27 @@ endif()
 
 if(NOT ENABLE_TESTS)
 
+# The same source lists build either the desktop `shadps4` executable or, under
+# BUILD_HOST_CORE (Android), a reusable OBJECT library the JNI .so links. The
+# target keeps the name `shadps4` so every downstream target_link_libraries /
+# add_dependencies / target_include_directories below applies to both. The host
+# library excludes main.cpp (defines main()), and the SDL frontend
+# (emulator.cpp/sdl_window.cpp) — the Android Run driver replaces those — while
+# still building the same COMMON/CORE/VIDEO_CORE/SHADER_RECOMPILER/HLE closure.
+if(BUILD_HOST_CORE)
+    add_library(shadps4 OBJECT
+        ${AUDIO_CORE}
+        ${IMGUI}
+        ${INPUT}
+        ${COMMON}
+        ${CORE}
+        ${SHADER_RECOMPILER}
+        ${VIDEO_CORE}
+        ${SHADNET}
+    )
+    # OBJECT library needs PIC so the final SHARED .so can embed it.
+    set_target_properties(shadps4 PROPERTIES POSITION_INDEPENDENT_CODE ON)
+else()
 add_executable(shadps4
     ${AUDIO_CORE}
     ${IMGUI}
@@ -1277,6 +1306,7 @@ add_executable(shadps4
     src/sdl_window.h
     src/sdl_window.cpp
 )
+endif()
 
 create_target_directory_groups(shadps4)
 
@@ -1457,7 +1487,9 @@ if (ENABLE_DISCORD_RPC)
 endif()
 
 # Install rules
-install(TARGETS shadps4 BUNDLE DESTINATION .)
+if(NOT BUILD_HOST_CORE)
+    install(TARGETS shadps4 BUNDLE DESTINATION .)
+endif()
 
 else()
     enable_testing()
