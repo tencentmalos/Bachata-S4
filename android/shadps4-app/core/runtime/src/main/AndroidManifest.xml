@@ -1,3 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Controller haptics: the HapticsPump drives VibratorManager from drained
+         native pad vibration commands (scePadSetVibration -> OrbisPadAdapter). -->
+    <uses-permission android:name="android.permission.VIBRATE" />
 </manifest>

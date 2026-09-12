@@ -64,27 +64,40 @@ New:
   enqueue/cancel/drain). Registered in `cmake/fex` as a first-class host gate.
 - Same test cross-compiled to an arm64 device executable and run **on the AYN Thor
   (arm64/API33/4KiB bionic): 59/0**.
-- On-device instrumented test `NativePadInstrumentedTest` on the AYN Thor (Android
-  13, `qti/kalama` Thor): **4 tests / 0 failures** — full JVM→JNI→native path:
-  buttons+sticks round-trip, stale-token session guard, the `NativePadBridge` +
-  `ManagedSession` sink wiring (the dead end now closed), and vibration through JNI.
+- On-device instrumented tests on the AYN Thor (Android 13, `qti/kalama` Thor):
+  **6 tests / 0 failures** — full JVM→JNI→native path.
+  - `NativePadInstrumentedTest` (4): buttons+sticks round-trip, stale-token session
+    guard, the `NativePadBridge` + `ManagedSession` sink wiring (the dead end now
+    closed), and vibration through JNI.
+  - `HapticsPumpInstrumentedTest` (2): native vibration slot → `HapticsPump` drain →
+    sink (rumble + cancel + empty), and the threaded start/stop cancel-all.
   Evidence: `native-pad-instrumented-2026-09-12.xml`.
-- Full `com.shadps4.android` debug APK (50M) builds, installs, and launches cleanly
-  on the AYN Thor (no `UnsatisfiedLinkError`, process stays up).
+- Full `com.shadps4.android` debug APK builds, installs, and launches cleanly on the
+  AYN Thor (no `UnsatisfiedLinkError`, process stays up). The APK manifest carries
+  `android.permission.VIBRATE` (merged from the runtime module).
 
 Boundary kept honest: this makes real controller input reach a real PS4 pad-state
 consumer. It does NOT yet run a PS4 game — wiring `OrbisPadAdapter` into the FEX
 guest's `scePadReadState` is a later stage (the injection shape matches that seam,
 so the swap is wiring not a rewrite).
 
-## Still open (continuous, same package)
-- Layer 2: Foundation Android Kotlin library (AndroidInputSource / InputSink /
-  HapticsExecutor) — Gradle library, injectable, no app-specific native methods.
-  The main-repo `GamepadInputManager` already fills this role for the app today;
-  extracting the reusable Kotlin mechanism into Foundation is the remaining part.
-- Vibration executor on the Android side (drain `NativePad.drainVibration` →
-  `VibratorManager`); haptics currently reach native but no Android pump executes.
-- Then SDL removal (imgui_core Android path already scoped; audio/mouse/camera/
+## Haptics executor — DONE (on-device verified)
+
+The vibration path previously reached native (`scePadSetVibration` →
+`OrbisPadAdapter.SetVibration`) but nothing pumped it to hardware. Closed:
+- `HapticsSink` interface (injectable mechanism) + `HapticsPump` (bounded worker
+  that drains `NativePad.drainVibration` per port each tick → sink; start/stop with
+  a join budget; a final `cancelAll` on stop; not session-guarded on drain so a
+  stop can still deliver a final cancel — the native adapter clears the queue on a
+  new session, so no stale rumble leaks into the next game).
+- `VibratorHapticsSink` — Android `VibratorManager`/`Vibrator` impl mapping the two
+  DS4 motors to a combined amplitude; safe no-op with no actuator.
+- `FexSessionService` starts the pump after `NativePadBridge.begin()` and stops it
+  after the terminal / in `onDestroy`, so the actuator follows the game generation.
+- Runtime manifest declares `android.permission.VIBRATE`.
+- Verified in the 6-test on-device suite above (`HapticsPumpInstrumentedTest`).
+
+## Still open (continuous, same package) (imgui_core Android path already scoped; audio/mouse/camera/
   settings via host-UI interface; input_handler→settings_dialog_layer decouple;
   drop SDL3 link + externals SDL for Android; zero SDL symbols / no SDL JNI_OnLoad).
 - Then production Runtime / real PKG per the integrated spec, incl. binding

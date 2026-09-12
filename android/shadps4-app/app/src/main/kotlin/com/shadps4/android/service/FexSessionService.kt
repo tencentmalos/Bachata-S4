@@ -8,7 +8,9 @@ import com.shadps4.android.model.RuntimeErrorCode
 import com.shadps4.android.runtime.diagnostics.ProcessTerminationInfo
 import com.shadps4.android.runtime.diagnostics.TerminationKind
 import com.shadps4.android.runtime.input.GamepadInputManager
+import com.shadps4.android.runtime.input.HapticsPump
 import com.shadps4.android.runtime.input.NativePadBridge
+import com.shadps4.android.runtime.input.VibratorHapticsSink
 import com.shadps4.android.runtime.session.ManagedSession
 import com.shadps4.android.runtime.session.ManagedSessionState
 import com.shadps4.android.runtime.session.NativeFexSession
@@ -30,6 +32,9 @@ import kotlin.concurrent.thread
 class FexSessionService : Service() {
 
     @Volatile private var observer: Thread? = null
+    // Drives VibratorManager from drained native pad vibration commands. Created
+    // per session so the actuator follows the game generation.
+    @Volatile private var hapticsPump: HapticsPump? = null
     // Set when a stop was requested for the live generation. Distinguishes "the
     // game is still running normally" (a WaitTerminal timeout is NOT a failure)
     // from "teardown was asked for and is now overdue" (a bounded failure).
@@ -63,6 +68,9 @@ class FexSessionService : Service() {
         // touch overlay) reaches the native OrbisPadAdapter for this generation.
         GamepadInputManager.onSessionStart()
         NativePadBridge.begin()
+        // Start haptics: drain native pad vibration -> VibratorManager for this
+        // generation. Safe no-op on a device without a vibrator.
+        hapticsPump = HapticsPump(VibratorHapticsSink(applicationContext)).also { it.start() }
         Log.i(TAG, "native: ${NativeFexSession.nativeIdentity()} gen=$generation")
 
         // One generation-tagged observer. It never fabricates Running: WaitPhase returns
@@ -117,6 +125,8 @@ class FexSessionService : Service() {
             // into the next session's pad.
             NativePadBridge.end()
             GamepadInputManager.onSessionEnd()
+            hapticsPump?.stop()
+            hapticsPump = null
             stopSelf(startId)
         }
     }
@@ -198,6 +208,9 @@ class FexSessionService : Service() {
                 NativeFexSession.nativeRequestStop(generation, STOP_TIMEOUT_MS)
             }
         }
+        // Safety net: stop haptics even if the observer never published a terminal.
+        hapticsPump?.stop()
+        hapticsPump = null
         super.onDestroy()
     }
 

@@ -1,12 +1,14 @@
 <?xml version='1.0' encoding='UTF-8' ?>
-<testsuite name="com.shadps4.android.runtime.input.NativePadInstrumentedTest" tests="4" failures="0" errors="0" skipped="0" time="0.715" timestamp="2026-09-12T14:58:18" hostname="localhost">
+<testsuite name="com.shadps4.android.runtime.input.HapticsPumpInstrumentedTest" tests="6" failures="0" errors="0" skipped="0" time="0.915" timestamp="2026-09-12T15:07:32" hostname="localhost">
   <properties>
     <property name="device" value="AYN Thor - 13" />
     <property name="flavor" value="" />
     <property name="project" value=":core:runtime" />
   </properties>
-  <testcase name="jniRoundTrip_buttonsAndSticks" classname="com.shadps4.android.runtime.input.NativePadInstrumentedTest" time="0.007" />
-  <testcase name="bridge_connectsManagedSessionSinkToNative" classname="com.shadps4.android.runtime.input.NativePadInstrumentedTest" time="0.0" />
-  <testcase name="vibration_enqueueDrainThroughJni" classname="com.shadps4.android.runtime.input.NativePadInstrumentedTest" time="0.0" />
-  <testcase name="sessionGuard_staleTokenRefused" classname="com.shadps4.android.runtime.input.NativePadInstrumentedTest" time="0.0" />
+  <testcase name="pumpDrainsNativeVibrationToSink" classname="com.shadps4.android.runtime.input.HapticsPumpInstrumentedTest" time="0.016" />
+  <testcase name="startStopThreadedPumpDeliversAndCancelsAll" classname="com.shadps4.android.runtime.input.HapticsPumpInstrumentedTest" time="0.005" />
+  <testcase name="jniRoundTrip_buttonsAndSticks" classname="com.shadps4.android.runtime.input.NativePadInstrumentedTest" time="0.008" />
+  <testcase name="bridge_connectsManagedSessionSinkToNative" classname="com.shadps4.android.runtime.input.NativePadInstrumentedTest" time="0.003" />
+  <testcase name="vibration_enqueueDrainThroughJni" classname="com.shadps4.android.runtime.input.NativePadInstrumentedTest" time="0.003" />
+  <testcase name="sessionGuard_staleTokenRefused" classname="com.shadps4.android.runtime.input.NativePadInstrumentedTest" time="0.004" />
 </testsuite>
