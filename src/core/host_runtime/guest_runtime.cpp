@@ -10,6 +10,9 @@
 #include <stdexcept>
 #include <thread>
 #include <sys/mman.h>
+#if defined(__linux__)
+#include <sched.h>
+#endif
 #include <unistd.h>
 #include "common/alignment.h"
 #include "common/elf_info.h"
@@ -20,9 +23,12 @@
 #include "core/guest_cpu/hle/scope.h"
 #include "core/guest_cpu/hle/veneer_allocator.h"
 #include "core/host_runtime/guest_clock.h"
+#include "core/host_runtime/guest_libc_policy.h"
+#include "core/host_runtime/guest_rwlock.h"
 #include "core/host_runtime/guest_graphics.h"
 #include "core/host_runtime/guest_mutex.h"
 #include "core/host_runtime/guest_semaphore.h"
+#include "core/host_runtime/guest_thread_attributes.h"
 #include "core/host_runtime/guest_platform.h"
 #include "core/host_runtime/guest_runtime.h"
 #include "core/host_runtime/guest_save_dialog.h"
@@ -161,7 +167,9 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         return *graphics;
     }
 
+    std::unique_ptr<GuestThreadAttributeDomain> thread_attributes;
     std::unique_ptr<GuestMutexDomain> mutex_domain;
+    std::unique_ptr<GuestRwlockDomain> rwlock_domain;
     std::unique_ptr<GuestSemaphoreDomain> semaphore_domain;
     int backing_fd{-1};
     u8* backing{};
@@ -199,6 +207,9 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     std::array<SpecificKey, 256> specific_keys{};
     struct Owner {
         u64 id{}, stack{}, stack_size{}, tls{}, tls_size{}, tcb{}, dtv{}, handle_va{};
+        GuestThreadAttributes attributes{};
+        int startup_error{};
+        bool startup_done{};
         std::array<SpecificValue, 256> specific{};
         ThreadHandle handle{};
         std::thread worker;
@@ -208,7 +219,9 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     };
     std::map<u64, std::shared_ptr<Owner>> owners;
     u64 next_id{1};
-    bool prepared{};
+    std::optional<GuestCallResult> child_fault;
+    std::optional<Error> child_error;
+    bool prepared{}, has_system_libc{};
     std::vector<u32> init_order;
     std::vector<std::string> hle_modules;
     std::mutex once_mutex;
@@ -312,6 +325,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
                     // A deliberately narrow guest-libc compatibility policy. The
                     // game libc and libSceLibcInternal are distinct libraries; do
                     // not alias arbitrary functions or other libraries by NID.
+                    // Functions use the separately audited guest_libc_policy surface.
                     // Reuse real guest-owned stream objects and the libc's real
                     // 4-byte dependency tag instead of fabricated zero objects.
                     const auto suffix = "#libSceLibcInternal#1#libSceLibcInternal#Object";
@@ -321,7 +335,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
                         known && (std::string_view(known->name) == "_Stdin" ||
                                   std::string_view(known->name) == "_Stdout" ||
                                   std::string_view(known->name) == "_Stderr");
-                    if (symbol.name.substr(nid.size()) == suffix &&
+                    if (!has_system_libc && symbol.name.substr(nid.size()) == suffix &&
                         (standard_stream || nid == "ZT4ODD2Ts9o")) {
                         Loader::SymbolResolver lookup;
                         lookup.name = nid == "ZT4ODD2Ts9o" ? "P330P3dFF68" : nid;
@@ -503,8 +517,10 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         }
         throw std::runtime_error("unterminated guest string");
     }
-    std::shared_ptr<Owner> NewOwner() {
+    std::shared_ptr<Owner> NewOwner(GuestThreadAttributes attributes = {}) {
         auto o = std::make_shared<Owner>();
+        o->attributes = attributes;
+        o->detached = attributes.detached;
         {
             std::lock_guard lock(threads_mutex);
             if (cancelling)
@@ -513,11 +529,21 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         }
         {
             VmGuard vm(*this);
-            o->stack_size = 2 << 20;
-            o->stack = Allocate(o->stack_size + 0x4000, "GuestStack");
-            // Guard page stays in the VMA ledger with no access.
-            if (memory->Protect(o->stack, 0x4000, MemoryProt::NoAccess))
-                throw std::runtime_error("guest stack guard failed");
+            o->stack_size = attributes.size;
+            if (attributes.stack) {
+                Require(space.ValidateRange({GuestAddress{attributes.stack}, attributes.size},
+                                            GuestPermission::Read | GuestPermission::Write));
+                o->stack = attributes.stack;
+                o->attributes.guard = 0; // Caller owns neighboring memory; never protect it.
+            } else {
+                const u64 guard = Common::AlignUp(std::max<u64>(0x4000, attributes.guard), 0x4000ULL);
+                const u64 allocation = Allocate(o->stack_size + guard, "GuestStack");
+                if (memory->Protect(allocation, guard, MemoryProt::NoAccess))
+                    throw std::runtime_error("guest stack guard failed");
+                o->stack = allocation + guard; // Always the first usable guest byte.
+                o->attributes.guard = guard;
+            }
+            o->attributes.stack = o->stack;
             o->tls_size =
                 Common::AlignUp(linker->StaticTlsSize() + sizeof(Tcb) +
                                     (linker->MaxTlsIndex() + 2) * sizeof(DtvEntry) + 0x100,
@@ -573,7 +599,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         SetTcbBase(reinterpret_cast<void*>(o->tcb));
         ThreadInit init;
         init.entry_rip = GuestCodeAddress{entry};
-        init.initial_rsp = GuestAddress{o->stack + 0x4000 + o->stack_size - 16};
+        init.initial_rsp = GuestAddress{Common::AlignDown(o->stack + o->stack_size, 16ULL) - 16};
         init.guest_tid = o->id;
         init.initial_state.fields = RegisterValidity::SegmentBases;
         init.initial_state.values.fs_base = o->tcb;
@@ -631,6 +657,19 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
             }
         }
 
+        if (o->id != 1 && (o->error || (o->result &&
+            o->result->reason != StopReason::Returned && o->result->reason != StopReason::Cancelled))) {
+            {
+                std::lock_guard lock(threads_mutex);
+                if (!child_fault && !child_error) {
+                    if (o->error) child_error = o->error;
+                    else child_fault = o->result;
+                }
+            }
+            // A failed background owner cannot leave the main guest blocked on
+            // its semaphore/condition forever. Preserve its exact fault first.
+            (void)Cancel();
+        }
         if (o->handle.IsValid()) {
             // A finished owner has already released its Run lease. Serialize
             // backend retirement with publication so a new VM token cannot turn
@@ -647,6 +686,12 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
             o->finished = true;
         }
         threads_changed.notify_all();
+    }
+    std::optional<Result<GuestCallResult>> ChildFailure() {
+        std::lock_guard lock(threads_mutex);
+        if (child_error) return Result<GuestCallResult>(*child_error);
+        if (child_fault) return Result<GuestCallResult>(*child_fault);
+        return {};
     }
     Status Cancel() {
         std::vector<ThreadHandle> handles;
@@ -679,6 +724,37 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         if (auto it = veneers.find(symbol.name); it != veneers.end())
             return it->second;
         const auto nid = symbol.name.substr(0, symbol.name.find('#'));
+        if (!has_system_libc && IsGuestLibcFunction(nid) && symbol.name.substr(nid.size()) ==
+            "#libSceLibcInternal#1#libSceLibcInternal#Function") {
+            Loader::SymbolResolver lookup;
+            lookup.name = nid; lookup.library = "libc"; lookup.module = "libc";
+            lookup.library_version = 1; lookup.type = Loader::SymbolType::Function;
+            const Loader::SymbolRecord* provider{};
+            Module* provider_module{};
+            for (u32 id = 0; auto* module = linker->GetModule(id); ++id) {
+                if (const auto* candidate = module->export_sym.FindSymbol(lookup)) {
+                    if (provider) throw std::runtime_error("ambiguous guest libc provider");
+                    provider = candidate;
+                    provider_module = module;
+                }
+            }
+            if (provider) {
+                // Relocations run while module pages are RW. Check the defining
+                // ELF's executable segment, not permissions finalized afterward.
+                const auto info = provider_module->GetModuleInfo();
+                bool executable{};
+                for (u32 i = 0; i < info.num_segments; ++i) {
+                    const auto& segment = info.segments[i];
+                    executable |= (segment.prot & PF_EXEC) &&
+                        provider->virtual_address >= segment.address &&
+                        provider->virtual_address - segment.address < segment.size;
+                }
+                if (!executable || !space.OwnsRange({GuestAddress{provider->virtual_address}, 1}))
+                    throw std::runtime_error("guest libc provider is outside executable ELF segments");
+                veneers.emplace(symbol.name, provider->virtual_address);
+                return provider->virtual_address; // x86 va_list remains entirely in guest libc.
+            }
+        }
         // Only the sysmodule NIDs this runtime implements are admitted under the
         // libSceSysmodule library suffix; every other sysmodule function still
         // name-faults so a missing capability is never silently a success.
@@ -858,6 +934,34 @@ void GuestRuntime::Impl::InstallHandlers() {
             return Ok();
         };
     }
+    thread_attributes = std::make_unique<GuestThreadAttributeDomain>(space, [this] {
+        VmGuard vm(*this);
+        return Allocate(0x4000, "GuestThreadAttr");
+    }, &vm_mutex);
+    for (const auto& entry : ThreadAttrEntries) {
+        handlers[std::string(entry.nid)] = [this, entry](HleCallFrame& frame) {
+            const u64 a = frame.registers.Get(Gpr::Rdi), b = frame.registers.Get(Gpr::Rsi),
+                      c = frame.registers.Get(Gpr::Rdx);
+            int error{};
+            if (entry.op == ThreadAttrOp::GetThread) {
+                GuestThreadAttributes value{};
+                bool found{};
+                {
+                    std::lock_guard lock(threads_mutex);
+                    for (auto& [id, owner] : owners) {
+                        if (owner->handle_va != a || owner->finished) continue;
+                        value = owner->attributes;
+                        value.detached = owner->detached;
+                        found = true;
+                        break;
+                    }
+                }
+                error = found ? thread_attributes->Store(b, value) : POSIX_ESRCH;
+            } else error = thread_attributes->Invoke(entry, a, b, c);
+            frame.registers.Set(Gpr::Rax, error && entry.sce ? u64(0x80020000u | error) : u64(error));
+            return Ok();
+        };
+    }
     semaphore_domain = std::make_unique<GuestSemaphoreDomain>(space, [this] {
         VmGuard vm(*this);
         return Allocate(0x4000, "GuestSemaphore");
@@ -911,46 +1015,110 @@ void GuestRuntime::Impl::InstallHandlers() {
             steady + std::min(remaining, std::chrono::duration_cast<std::chrono::nanoseconds>(room)));
         return error ? PosixFailure(error) : 0;
     });
+    rwlock_domain = std::make_unique<GuestRwlockDomain>(space, [this] {
+        VmGuard vm(*this);
+        return Allocate(0x4000, "GuestRwlock");
+    }, &vm_mutex);
+    auto pthread_bind = [&](const char* posix, const char* sce, std::function<int(const std::array<u64, 6>&)> fn) {
+        bind({posix}, [fn](const auto& a) -> u64 { return fn(a); });
+        bind({sce}, [fn](const auto& a) -> u64 {
+            const auto error = fn(a); return error ? u64(0x80020000u | error) : 0;
+        });
+    };
+    pthread_bind("xFebsA4YsFI", "yOfGg-I1ZII", [this](const auto& a) { return rwlock_domain->Attribute(a[0], 0, a[1]); });
+    pthread_bind("qsdmgXjqSgk", "i2ifZ3fS2fo", [this](const auto& a) { return rwlock_domain->Attribute(a[0], 1, a[1]); });
+    pthread_bind("VqEMuCv-qHY", "LcOZBHGqbFk", [this](const auto& a) { return rwlock_domain->Attribute(a[0], 2, a[1]); });
+    pthread_bind("OuKg+kRDD7U", "-ZvQH18j10c", [this](const auto& a) { return rwlock_domain->Attribute(a[0], 3, a[1]); });
+    pthread_bind("l+bG5fsYkhg", "Kyls1ChFyrc", [this](const auto& a) { return rwlock_domain->Attribute(a[0], 4, a[1]); });
+    pthread_bind("8NuOHiTr1Vw", "h-OifiouBd8", [this](const auto& a) { return rwlock_domain->Attribute(a[0], 5, a[1]); });
+    pthread_bind("ytQULN-nhL4", "6ULAa0fq4jA", [this](const auto& a) { return rwlock_domain->Init(a[0], a[1]); });
+    pthread_bind("1471ajPzxh0", "BB+kb08Tl9A", [this](const auto& a) { return rwlock_domain->Destroy(a[0]); });
+    pthread_bind("EgmLo6EWgso", "+L98PIbGttk", [this](const auto& a) { return rwlock_domain->Unlock(a[0], Current()->id); });
+    auto rw_lock = [this](const auto& a, bool write, bool attempt, bool timed) {
+        std::optional<std::chrono::system_clock::time_point> deadline;
+        if (timed) {
+            Libraries::Kernel::OrbisKernelTimespec ts{};
+            if (!space.Read(GuestAddress{a[1]}, std::as_writable_bytes(std::span{&ts, 1}))) return POSIX_EFAULT;
+            std::chrono::nanoseconds duration;
+            if (!GuestClock::Duration(ts, duration)) return POSIX_EINVAL;
+            deadline = std::chrono::system_clock::time_point(
+                std::chrono::duration_cast<std::chrono::system_clock::duration>(duration));
+        }
+        return rwlock_domain->Lock(a[0], Current()->id, write, attempt, HleScope::Current()->CancellationToken(), deadline);
+    };
+    pthread_bind("iGjsr1WAtI0", "Ox9i0c7L5w0", [rw_lock](const auto& a) { return rw_lock(a, false, false, false); });
+    pthread_bind("sIlRvQqsN2Y", "mqdNorrB+gI", [rw_lock](const auto& a) { return rw_lock(a, true, false, false); });
+    pthread_bind("SFxTMOfuCkE", "XD3mDeybCnk", [rw_lock](const auto& a) { return rw_lock(a, false, true, false); });
+    pthread_bind("XhWHn6P5R7U", "bIHoZCTomsI", [rw_lock](const auto& a) { return rw_lock(a, true, true, false); });
+    pthread_bind("lb8lnYo-o7k", "iPtZRWICjrM", [rw_lock](const auto& a) { return rw_lock(a, false, false, true); });
+    pthread_bind("9zklzAl9CGM", "adh--6nIqTk", [rw_lock](const auto& a) { return rw_lock(a, true, false, true); });
     mutex_domain = std::make_unique<GuestMutexDomain>(space, [this] {
         VmGuard vm(*this);
         return Allocate(0x4000, "GuestMutex");
-    });
-    bind({"dQHWEsJtoE4", "n2MMpvU8igI", "F8bUHwAG284"},
+    }, &vm_mutex);
+    pthread_bind("5txKfcMUAok", "1FGvU0i9saQ", [this](const auto& a) { return mutex_domain->AttributePolicy(a[0], a[1], false, false); });
+    pthread_bind("yDaWxUE50s0", "GoTmFeui+hQ", [this](const auto& a) { return mutex_domain->AttributePolicy(a[0], a[1], true, false); });
+    pthread_bind("EXv3ztGqtDM", "mxKx9bxXF2I", [this](const auto& a) { return mutex_domain->AttributePolicy(a[0], a[1], false, true); });
+    pthread_bind("PmL-TwKUzXI", "losEubHc64c", [this](const auto& a) { return mutex_domain->AttributePolicy(a[0], a[1], true, true); });
+    pthread_bind("dQHWEsJtoE4", "n2MMpvU8igI",
          [this](const auto& a) { return mutex_domain->AttributeInit(a[0]); });
-    bind({"HF7lK46xzjY", "smWEktiyyG0"},
+    pthread_bind("HF7lK46xzjY", "smWEktiyyG0",
          [this](const auto& a) { return mutex_domain->Attribute(a[0], 0, 0); });
-    bind({"mDmgMOGVUqg", "J9rlRuQ8H5s", "iMp8QpE+XO4", "UWZbVSFze24"},
+    pthread_bind("mDmgMOGVUqg", "iMp8QpE+XO4",
          [this](const auto& a) { return mutex_domain->Attribute(a[0], a[1], 1); });
-    bind({"GZFlI7RhuQo", "U6SNV+RnyLQ", "gquEhBrS2iw", "rH2mWEndluc"},
+    pthread_bind("GZFlI7RhuQo", "gquEhBrS2iw",
          [this](const auto& a) { return mutex_domain->Attribute(a[0], a[1], 2); });
-    bind({"ttHNfU+qDBU", "cmo1RIYva9o", "qH1gXoq71RY"},
+    pthread_bind("ttHNfU+qDBU", "cmo1RIYva9o",
          [this](const auto& a) { return mutex_domain->Init(a[0], a[1]); });
-    bind({"7H0iTOciTLo", "9UK1vLZQft4"}, [this](const auto& a) {
+    pthread_bind("7H0iTOciTLo", "9UK1vLZQft4", [this](const auto& a) {
         return mutex_domain->Lock(a[0], Current()->handle_va, false,
                                   HleScope::Current()->CancellationToken());
     });
-    bind({"K-jXhbt2gn4", "upoVrzMHFeE"}, [this](const auto& a) {
+    pthread_bind("K-jXhbt2gn4", "upoVrzMHFeE", [this](const auto& a) {
         return mutex_domain->Lock(a[0], Current()->handle_va, true,
                                   HleScope::Current()->CancellationToken());
     });
-    bind({"2Z+PpY6CaJg", "tn3VlD0hG60"},
+    pthread_bind("2Z+PpY6CaJg", "tn3VlD0hG60",
          [this](const auto& a) { return mutex_domain->Unlock(a[0], Current()->handle_va); });
-    bind({"ltCfaGr2JGE", "2Of0f+3mhhE"},
+    pthread_bind("ltCfaGr2JGE", "2Of0f+3mhhE",
          [this](const auto& a) { return mutex_domain->Destroy(a[0]); });
     bind({"gKqzW-zWhvY", "W6OrTBO95UY"},
          [this](const auto& a) { return mutex_domain->IsOwned(a[0], Current()->handle_va); });
-    bind({"mkx2fVhNMsg", "JGgj7Uvrl+A"},
+    pthread_bind("mkx2fVhNMsg", "JGgj7Uvrl+A",
          [this](const auto& a) { return mutex_domain->CondNotify(a[0], true); });
-    bind({"2MOy+rUfuhQ", "kDh-NfxgMtE"},
+    pthread_bind("2MOy+rUfuhQ", "kDh-NfxgMtE",
          [this](const auto& a) { return mutex_domain->CondNotify(a[0], false); });
-    bind({"0TyVk4MSLt0", "2Tb92quprl0"},
+    pthread_bind("0TyVk4MSLt0", "2Tb92quprl0",
          [this](const auto& a) { return mutex_domain->CondInit(a[0], a[1]); });
-    bind({"RXXqi4CtF8w", "g+PZd2hiacg"},
+    pthread_bind("RXXqi4CtF8w", "g+PZd2hiacg",
          [this](const auto& a) { return mutex_domain->CondDestroy(a[0]); });
-    bind({"Op8TBGY5KHg", "WKAXJ4XBPQ4"}, [this](const auto& a) {
+    pthread_bind("Op8TBGY5KHg", "WKAXJ4XBPQ4", [this](const auto& a) {
         return mutex_domain->CondWait(a[0], a[1], Current()->handle_va,
                                       HleScope::Current()->CancellationToken());
     });
+    handlers["F8bUHwAG284"] = handlers.at("n2MMpvU8igI");
+    handlers["qH1gXoq71RY"] = handlers.at("cmo1RIYva9o");
+    pthread_bind("ZLvf6lVAc4M", "532IaQguwMg", [this](const auto& a) { return mutex_domain->AttributeCeiling(a[0], a[1], false); });
+    pthread_bind("+m8+quqOwhM", "SgjMpyH9Z9I", [this](const auto& a) { return mutex_domain->AttributeCeiling(a[0], a[1], true); });
+    // The legacy *_kind_np ABI takes/returns the handle/type directly, unlike
+    // gettype's two pointers. Preserve its -1 + guest errno failure convention.
+    bind({"U6SNV+RnyLQ"}, [this](const auto& a) -> u64 {
+        const int kind = mutex_domain->AttributeKind(a[0]);
+        return kind < 0 ? PosixFailure(POSIX_EINVAL) : u64(kind);
+    });
+    bind({"J9rlRuQ8H5s"}, [this](const auto& a) -> u64 {
+        const int error = mutex_domain->Attribute(a[0], a[1], 1);
+        return error ? PosixFailure(error) : 0;
+    });
+    for (const auto& pair : {std::pair{"rH2mWEndluc", "U6SNV+RnyLQ"}, std::pair{"UWZbVSFze24", "J9rlRuQ8H5s"}}) {
+        auto posix = handlers.at(pair.second);
+        handlers[pair.first] = [posix](HleCallFrame& frame) {
+            auto status = posix(frame);
+            const u32 result = frame.registers.Get(Gpr::Rax);
+            if (status && result) frame.registers.Set(Gpr::Rax, u32(result + 0x80020000u));
+            return status;
+        };
+    }
     bind({"mqULNdimTn0", "geDaqgH9lTg"}, [this](const auto& a) -> u64 {
         if (!space.ValidateRange({GuestAddress{a[0]}, 4}, GuestPermission::Write))
             return POSIX_EFAULT;
@@ -1034,12 +1202,31 @@ void GuestRuntime::Impl::InstallHandlers() {
         guest_heap_api = table;
         return 0;
     });
-    bind({"QcteRwbsnV0"}, [this](const auto& a) -> u64 {
-        if (a[0] >= 1'000'000)
-            return PosixFailure(POSIX_EINVAL);
-        auto* scope = HleScope::Current();
-        return scope->WaitFor(std::chrono::microseconds(a[0])) ? 0 : PosixFailure(POSIX_EINTR);
-    });
+    auto usleep = [this](const auto& a, bool sce) -> u64 {
+        // Orbis accepts the full u32 microsecond domain, including >= 1 second.
+        if (HleScope::Current()->WaitFor(std::chrono::microseconds(u32(a[0])))) return 0;
+        return sce ? u64(0x80020000u | POSIX_EINTR) : PosixFailure(POSIX_EINTR);
+    };
+    bind({"QcteRwbsnV0"}, [usleep](const auto& a) { return usleep(a, false); });
+    bind({"1jfXLRVzisc"}, [usleep](const auto& a) { return usleep(a, true); });
+    auto sleep = [this](const auto& a, bool sce) -> u64 {
+        using namespace std::chrono;
+        const auto total = nanoseconds(seconds(u32(a[0])));
+        const auto start = steady_clock::now();
+        auto remaining = total;
+        while (remaining.count() > 0) {
+            const bool complete = HleScope::Current()->WaitFor(std::min(remaining, nanoseconds(seconds(1))));
+            remaining = std::max(nanoseconds::zero(), total - duration_cast<nanoseconds>(steady_clock::now() - start));
+            if (!complete) {
+                if (sce) return u64(0x80020000u | POSIX_EINTR);
+                (void)PosixFailure(POSIX_EINTR);
+                return duration_cast<seconds>(remaining).count() + (remaining % seconds(1) != nanoseconds::zero());
+            }
+        }
+        return 0;
+    };
+    bind({"0wu33hunNdE"}, [sleep](const auto& a) { return sleep(a, false); });
+    bind({"-ZR+hG7aDHw"}, [sleep](const auto& a) { return sleep(a, true); });
     // Marshal without calling the desktop wrappers: those mutate native
     // pthread errno and depend on RegisterTime's process-global clock.
     {
@@ -1234,16 +1421,72 @@ void GuestRuntime::Impl::InstallHandlers() {
         return static_cast<u32>(
             Libraries::Kernel::sceKernelMprotect(reinterpret_cast<void*>(a[0]), a[1], a[2]));
     });
-    bind({"OxhIB8LB-PQ", "Jmi+9w9u0E4", "6UgtwV+0zb4"}, [this](const auto& a) -> u64 {
-        // Non-default attributes must be handled by the attribute domain, never
-        // reinterpret an unvalidated guest pointer as a host PthreadAttr.
-        if (a[1] && Read<u64>(a[1]))
-            return POSIX_ENOTSUP;
+    bind({"7Xl257M4VNI", "3PtV6p3QNX4"}, [](const auto& a) -> u64 { return a[0] == a[1]; });
+    bind({"3eqs37G74-s", "EI-5-jlq2dE"}, [this](const auto&) -> u64 { return Current()->id; });
+    bind({"B5GmVDKwpn0", "T72hz6ffq08", "6XG4B33N09g"}, [](const auto&) -> u64 {
+        std::this_thread::yield(); return 0;
+    });
+    auto get_scheduling = [this](const auto& a) -> u64 {
+        auto policy = space.AcquirePinnedSpan({GuestAddress{a[1]}, 4}, true);
+        auto priority = space.AcquirePinnedSpan({GuestAddress{a[2]}, 4}, true);
+        if (!policy || !priority) return POSIX_EFAULT;
+        std::lock_guard lock(threads_mutex);
+        for (const auto& [id, owner] : owners) {
+            if (owner->handle_va != a[0] || owner->finished) continue;
+            std::memcpy(policy.Value().WritableBytes().data(), &owner->attributes.policy, 4);
+            std::memcpy(priority.Value().WritableBytes().data(), &owner->attributes.priority, 4);
+            return 0;
+        }
+        return POSIX_ESRCH;
+    };
+    auto set_scheduling = [this](const auto& a) -> u64 {
+        s32 priority{};
+        if (!space.Read(GuestAddress{a[2]}, std::as_writable_bytes(std::span{&priority, 1})))
+            return POSIX_EFAULT;
+        if (!GuestThreadAttributeDomain::ValidPriority(a[1], priority)) return POSIX_EINVAL;
+        std::lock_guard lock(threads_mutex);
+        for (const auto& [id, owner] : owners) {
+            if (owner->handle_va != a[0] || owner->finished) continue;
+            owner->attributes.policy = a[1]; owner->attributes.priority = priority;
+            return 0;
+        }
+        return POSIX_ESRCH;
+    };
+    bind({"FIs3-UQT9sg"}, get_scheduling);
+    bind({"Xs9hdiD7sAA"}, set_scheduling);
+    bind({"P41kTWUS3EI"}, [get_scheduling](const auto& a) -> u64 {
+        const u64 error = get_scheduling(a); return error ? 0x80020000u | error : 0;
+    });
+    bind({"oIRFTjoILbg"}, [set_scheduling](const auto& a) -> u64 {
+        const u64 error = set_scheduling(a); return error ? 0x80020000u | error : 0;
+    });
+    auto create_thread = [this](const auto& a) -> u64 {
+        GuestThreadAttributes attributes{};
+        if (int error = thread_attributes->Snapshot(a[1], attributes)) return error;
+        if (attributes.stack &&
+            (attributes.stack % 16 || attributes.stack > UINT64_MAX - attributes.size ||
+             !space.ValidateRange({GuestAddress{attributes.stack}, attributes.size},
+                                  GuestPermission::Read | GuestPermission::Write)))
+            return POSIX_EINVAL;
+        // These are guest scheduling attributes, as in the desktop emulator;
+        // they do not claim Android real-time scheduler privileges.
+        if (attributes.inherit == 4) {
+            auto current = Current();
+            std::lock_guard lock(threads_mutex);
+            attributes.policy = current->attributes.policy;
+            attributes.priority = current->attributes.priority;
+            attributes.scope = current->attributes.scope;
+        }
+#if !defined(__linux__)
+        if (attributes.affinity) return POSIX_ENOTSUP;
+#endif
         Require(space.ValidateRange({GuestAddress{a[0]}, sizeof(u64)}, GuestPermission::Write));
         auto code = Require(space.Query(GuestAddress{a[2]}));
         if (!HasPermission(code.permission, GuestPermission::Execute))
             return POSIX_EINVAL;
-        auto o = NewOwner();
+        std::shared_ptr<Owner> o;
+        try { o = NewOwner(attributes); }
+        catch (const std::exception&) { return POSIX_EAGAIN; }
         try {
             Write(a[0], o->handle_va);
             // Publish the native worker under the same lock used by join. A
@@ -1254,7 +1497,29 @@ void GuestRuntime::Impl::InstallHandlers() {
                     std::lock_guard published(threads_mutex);
                 }
                 try {
+#if defined(__linux__)
+                    if (o->attributes.affinity) {
+                        // Map eight logical guest CPU IDs onto the inherited allowed
+                        // native set; never use a guest mask as a host cpu_set_t.
+                        cpu_set_t available, selected;
+                        CPU_ZERO(&available); CPU_ZERO(&selected);
+                        std::vector<int> cpus;
+                        if (::sched_getaffinity(0, sizeof(available), &available) == 0)
+                            for (int i = 0; i < CPU_SETSIZE; ++i)
+                                if (CPU_ISSET(i, &available)) cpus.push_back(i);
+                        if (cpus.empty()) throw std::runtime_error("no native CPUs available");
+                        for (unsigned i = 0; i < 8; ++i)
+                            if (o->attributes.affinity & (u64{1} << i)) CPU_SET(cpus[i % cpus.size()], &selected);
+                        if (::sched_setaffinity(0, sizeof(selected), &selected))
+                            throw std::runtime_error("native guest CPU affinity rejected");
+                    }
+#endif
                     Attach(o, entry);
+                    {
+                        std::lock_guard lock(threads_mutex);
+                        o->startup_done = true;
+                    }
+                    threads_changed.notify_all();
                     GuestCallArgs args;
                     args.values[0] = arg;
                     args.count = 1;
@@ -1265,6 +1530,11 @@ void GuestRuntime::Impl::InstallHandlers() {
                         o->error = result.GetError();
                 } catch (const std::exception& e) {
                     o->error = MakeError(ErrorCategory::BackendFailure, "GuestThread", e.what());
+                    {
+                        std::lock_guard lock(threads_mutex);
+                        if (!o->startup_done) { o->startup_error = POSIX_EAGAIN; o->startup_done = true; }
+                    }
+                    threads_changed.notify_all();
                 }
                 try {
                     Finish(o);
@@ -1285,7 +1555,22 @@ void GuestRuntime::Impl::InstallHandlers() {
             Write(a[0], u64{0});
             return POSIX_EAGAIN;
         }
-        return 0;
+        // Report a native startup failure to the creator, instead of returning
+        // success and leaving a silently dead child. No guest pin spans this wait.
+        std::unique_lock started(threads_mutex);
+        while (!o->startup_done) {
+            if (HleScope::Current()->CancellationToken().stop_requested()) return POSIX_EINTR;
+            threads_changed.wait_for(started, std::chrono::milliseconds(1));
+        }
+        const int error = o->startup_error;
+        started.unlock();
+        if (error) Write(a[0], u64{});
+        return error;
+    };
+    bind({"OxhIB8LB-PQ", "Jmi+9w9u0E4"}, create_thread);
+    bind({"6UgtwV+0zb4"}, [create_thread](const auto& a) -> u64 {
+        const u64 error = create_thread(a);
+        return error ? 0x80020000u | error : 0;
     });
     bind({"h9CcP3J0oVM", "onNY9Byn-W8"}, [this](const auto& a) -> u64 {
         if (a[1])
@@ -1604,12 +1889,11 @@ void GuestRuntime::Impl::InstallHandlers() {
             (void)String(a[1], 256);
         return static_cast<u32>(Libraries::GnmDriver::sceGnmRegisterOwner(nullptr, nullptr));
     });
+    // Remaining legacy error-returning handlers. Mutex/condition wrappers are
+    // paired explicitly above and must not be wrapped a second time here.
     for (const char* nid :
-         {"6UgtwV+0zb4", "onNY9Byn-W8", "4qGrR6eoP9Y", "14bOACANTBo", "n2MMpvU8igI",
-          "F8bUHwAG284", "smWEktiyyG0", "iMp8QpE+XO4", "UWZbVSFze24", "gquEhBrS2iw",
-          "rH2mWEndluc", "cmo1RIYva9o", "qH1gXoq71RY", "9UK1vLZQft4", "upoVrzMHFeE",
-          "tn3VlD0hG60", "2Of0f+3mhhE", "JGgj7Uvrl+A", "kDh-NfxgMtE", "2Tb92quprl0",
-          "g+PZd2hiacg", "WKAXJ4XBPQ4", "geDaqgH9lTg", "PrdHuuDekhY", "+BzXYkqYeLE"}) {
+         {"6UgtwV+0zb4", "onNY9Byn-W8", "4qGrR6eoP9Y", "14bOACANTBo",
+          "geDaqgH9lTg", "PrdHuuDekhY", "+BzXYkqYeLE"}) {
         auto posix = handlers.at(nid);
         handlers[nid] = [posix](HleCallFrame& frame) {
             auto status = posix(frame);
@@ -1703,10 +1987,26 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
     // Load explicit roots before walking dependencies to preserve their module
     // IDs; a dependency discovered twice is initialized only once.
     std::vector<u32> roots{0};
+    // Desktop prefers a user-supplied complete LibcInternal over partial HLE.
+    // Execute it through FEX as another guest module, with the same TLS/init graph.
+    const auto system_libc = EmulatorSettings.GetSysModulesDir() / "libSceLibcInternal.sprx";
+    if (std::filesystem::is_regular_file(system_libc))
+        roots.push_back(load(system_libc));
     for (const auto& module : modules)
         roots.push_back(load(module));
     for (auto id : roots)
         visit(id);
+    for (u32 id = 0; auto* loaded_module = impl->linker->GetModule(id); ++id) {
+        const auto& libraries = loaded_module->GetExportLibs();
+        if (std::any_of(libraries.begin(), libraries.end(), [](const auto& library) {
+                return library.name == "libSceLibcInternal" && library.version == 1;
+            })) {
+            if (impl->has_system_libc) throw std::runtime_error("duplicate guest LibcInternal provider");
+            impl->has_system_libc = true;
+        }
+    }
+    if (std::filesystem::is_regular_file(system_libc) && !impl->has_system_libc)
+        throw std::runtime_error("system LibcInternal does not export the expected library");
     u32 sdk{};
     if (auto* param = impl->linker->GetProcParam()) {
         Require(impl->space.ValidateRange({GuestAddress{reinterpret_cast<u64>(param)}, 0x20},
@@ -1767,7 +2067,7 @@ Result<GuestCallResult> GuestRuntime::Run(const std::vector<std::string>& args) 
     if (!impl->prepared)
         return MakeError(ErrorCategory::WrongState, "GuestRuntime::Run", "Prepare is required");
     auto* module = impl->linker->GetModule(0);
-    auto owner = impl->NewOwner();
+    auto owner = impl->NewOwner(GuestThreadAttributes{.size = 2 << 20});
     try {
         impl->Attach(owner, module->GetEntryAddress());
         // libkernel initializes each guest libc allocator before constructors.
@@ -1823,7 +2123,7 @@ Result<GuestCallResult> GuestRuntime::Run(const std::vector<std::string>& args) 
             (1u << Index(Gpr::Rdi)) | (1u << Index(Gpr::Rsi)) | (1u << Index(Gpr::Rsp));
         patch.values.Set(Gpr::Rdi, params_address);
         patch.values.Set(Gpr::Rsi, impl->cpu.Capabilities().return_gate_address);
-        const u64 stack = owner->stack + 0x4000 + owner->stack_size - 24;
+        const u64 stack = Common::AlignDown(owner->stack + owner->stack_size, 16ULL) - 24;
         patch.values.Set(Gpr::Rsp, stack);
         patch.values.rip = module->GetEntryAddress();
         impl->Write(stack, static_cast<u64>(params.argc));
@@ -1832,6 +2132,7 @@ Result<GuestCallResult> GuestRuntime::Run(const std::vector<std::string>& args) 
         auto run = impl->cpu.Run(owner->handle, {});
         if (!run) {
             impl->Finish(owner);
+            if (auto failure = impl->ChildFailure()) return *failure;
             return run.GetError();
         }
         GuestCallResult result;
@@ -1846,6 +2147,7 @@ Result<GuestCallResult> GuestRuntime::Run(const std::vector<std::string>& args) 
         impl->Finish(owner);
         if (impl->graphics)
             impl->graphics->CheckHealth();
+        if (auto failure = impl->ChildFailure()) return *failure;
         if (owner->error)
             return *owner->error;
         return *owner->result;
@@ -1853,11 +2155,13 @@ Result<GuestCallResult> GuestRuntime::Run(const std::vector<std::string>& args) 
         owner->result = stopped.result;
         (void)impl->Cancel();
         impl->Finish(owner);
+        if (auto failure = impl->ChildFailure()) return *failure;
         return stopped.result;
     } catch (const std::exception& e) {
         auto error = MakeError(ErrorCategory::BackendFailure, "GuestRuntime::Run", e.what());
         (void)impl->Cancel();
         impl->Finish(owner);
+        if (auto failure = impl->ChildFailure()) return *failure;
         return error;
     }
 }

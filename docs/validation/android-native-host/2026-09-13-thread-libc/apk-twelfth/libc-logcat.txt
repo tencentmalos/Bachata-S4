@@ -1,0 +1,60 @@
+--------- beginning of main
+09-13 21:56:15.350 16156 16177 I ProductionRuntime: run: guest returned to host
+09-13 21:56:15.357 16156 16174 I ThreadAttributeAcceptance: case=thread-attributes outcome=0 page_size=4096 pid=16156 uid=10157 guest return=51966
+09-13 21:56:15.357 16156 16174 I ThreadAttributeAcceptance: production Linker/VM; owners=3 veneers=33
+09-13 21:56:15.357 16156 16174 I ThreadAttributeAcceptance: UNSUPPORTED_IMPORT ChildFault0#libkernel#1#libkernel#Function graphics=not-created modules=1
+09-13 21:56:15.360 16156 16191 I ProductionRuntime: prepare: reserve guest VA
+09-13 21:56:15.360 16156 16191 I ProductionRuntime: prepare: create FEX context
+09-13 21:56:15.360 16156 16191 I ProductionRuntime: prepare: create production VM/Linker
+09-13 21:56:15.464 16156 16191 I ProductionRuntime: prepare: load/relocate modules
+09-13 21:56:15.469 16156 16191 I ProductionRuntime: prepare: ready
+09-13 21:56:15.469 16156 16191 I ProductionRuntime: run: enter production guest
+09-13 21:56:15.472 16156 16191 I ProductionRuntime: run: guest returned to host
+09-13 21:56:15.473 16156 16174 I ThreadAttributeAcceptance: case=thread-attributes-fault outcome=2 page_size=4096 pid=16156 uid=10157 guest return=0 guest_rip=103079460877 operation=16 import=ChildFault0#libkernel#1#libkernel#Function context=5 thread=2 generation=7 invocation=1 category=10
+09-13 21:56:15.473 16156 16174 I ThreadAttributeAcceptance: production Linker/VM; owners=2 veneers=33
+09-13 21:56:15.473 16156 16174 I ThreadAttributeAcceptance: UNSUPPORTED_IMPORT ChildFault0#libkernel#1#libkernel#Function graphics=not-created modules=1
+09-13 21:56:16.166 16225 16248 I ProductionRuntime: prepare: reserve guest VA
+09-13 21:56:16.166 16225 16248 I ProductionRuntime: prepare: create FEX context
+09-13 21:56:16.167 16225 16248 I ProductionRuntime: prepare: create production VM/Linker
+09-13 21:56:16.292 16225 16248 I ProductionRuntime: prepare: load/relocate modules
+09-13 21:56:16.293 16225 16248 I ProductionRuntime: prepare: ready
+09-13 21:56:16.293 16225 16248 I ProductionRuntime: run: enter production guest
+09-13 21:56:16.293 16225 16248 I ProductionRuntime: run: guest returned to host
+09-13 21:56:16.294 16225 16243 I LibcPolicyAcceptance: case=fallback outcome=0 page_size=4096 pid=16225 uid=10157 guest return=260
+09-13 21:56:16.294 16225 16243 I LibcPolicyAcceptance: production Linker/VM; owners=1 veneers=1 graphics=not-created modules=2
+09-13 21:56:16.297 16225 16249 I ProductionRuntime: prepare: reserve guest VA
+09-13 21:56:16.297 16225 16249 I ProductionRuntime: prepare: create FEX context
+09-13 21:56:16.298 16225 16249 I ProductionRuntime: prepare: create production VM/Linker
+09-13 21:56:16.402 16225 16249 I ProductionRuntime: prepare: load/relocate modules
+09-13 21:56:16.405 16225 16249 I ProductionRuntime: prepare: ready
+09-13 21:56:16.406 16225 16249 I ProductionRuntime: run: enter production guest
+09-13 21:56:16.408 16225 16249 I ProductionRuntime: run: guest returned to host
+09-13 21:56:16.410 16225 16243 I LibcPolicyAcceptance: case=system outcome=0 page_size=4096 pid=16225 uid=10157 guest return=516
+09-13 21:56:16.410 16225 16243 I LibcPolicyAcceptance: production Linker/VM; owners=1 veneers=0 graphics=not-created modules=3
+09-13 21:56:16.410 16225 16252 I ProductionRuntime: prepare: reserve guest VA
+09-13 21:56:16.411 16225 16252 I ProductionRuntime: prepare: create FEX context
+09-13 21:56:16.411 16225 16252 I ProductionRuntime: prepare: create production VM/Linker
+09-13 21:56:16.516 16225 16252 I ProductionRuntime: prepare: load/relocate modules
+09-13 21:56:16.519 16225 16252 I ProductionRuntime: prepare: ready
+09-13 21:56:16.519 16225 16252 I ProductionRuntime: run: enter production guest
+09-13 21:56:16.520 16225 16252 I ProductionRuntime: run: guest returned to host
+09-13 21:56:16.521 16225 16243 I LibcPolicyAcceptance: case=bad-init outcome=3 page_size=4096 pid=16225 uid=10157 BackendFailure in GuestRuntime::Run: guest _malloc_init failed: libSceLibcInternal.sprx
+09-13 21:56:16.521 16225 16243 I LibcPolicyAcceptance: production Linker/VM; owners=1 veneers=0 graphics=not-created modules=3
+09-13 21:56:16.523 16225 16253 I ProductionRuntime: prepare: reserve guest VA
+09-13 21:56:16.523 16225 16253 I ProductionRuntime: prepare: create FEX context
+09-13 21:56:16.524 16225 16253 I ProductionRuntime: prepare: create production VM/Linker
+09-13 21:56:16.629 16225 16253 I ProductionRuntime: prepare: load/relocate modules
+09-13 21:56:16.632 16225 16253 I ProductionRuntime: prepare: ready
+09-13 21:56:16.632 16225 16253 I ProductionRuntime: run: enter production guest
+09-13 21:56:16.633 16225 16253 I ProductionRuntime: run: guest returned to host
+09-13 21:56:16.634 16225 16243 I LibcPolicyAcceptance: case=fallback-recovery outcome=0 page_size=4096 pid=16225 uid=10157 guest return=260
+09-13 21:56:16.634 16225 16243 I LibcPolicyAcceptance: production Linker/VM; owners=1 veneers=1 graphics=not-created modules=2
+09-13 21:56:16.635 16225 16254 I ProductionRuntime: prepare: reserve guest VA
+09-13 21:56:16.635 16225 16254 I ProductionRuntime: prepare: create FEX context
+09-13 21:56:16.636 16225 16254 I ProductionRuntime: prepare: create production VM/Linker
+09-13 21:56:16.739 16225 16254 I ProductionRuntime: prepare: load/relocate modules
+09-13 21:56:16.744 16225 16254 I ProductionRuntime: prepare: ready
+09-13 21:56:16.744 16225 16254 I ProductionRuntime: run: enter production guest
+09-13 21:56:16.753 16225 16254 I ProductionRuntime: run: guest returned to host
+09-13 21:56:16.754 16225 16243 I LibcPolicyAcceptance: case=bootstrap-legacy outcome=0 page_size=4096 pid=16225 uid=10157 guest return=51966
+09-13 21:56:16.754 16225 16243 I LibcPolicyAcceptance: production Linker/VM; owners=2 veneers=9 graphics=not-created modules=2

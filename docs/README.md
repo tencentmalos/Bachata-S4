@@ -1,5 +1,7 @@
 # Android / FEX 开发资料索引
 
+- **当前（2026-09-13）**：[桌面 libc 策略与线程族整批实现](validation/android-native-host/thread-libc-integration-2026-09-13.md)。系统 guest libc 优先＋显式兼容回退、attr/create、rwlock/mutex 与 VM 写回竞争已处理。AYN定向43/0、60/0、FEX6/0，APK provider五模式；TMNT三轮同PID到sysmodule WithArg/op527，仍0帧。只测改动、不做全量回归；后续每个缺口先对照desktop，按函数族推进，不另拆微型spec。此记录覆盖下方旧启动边界。
+
 - **最新直接实现（2026-09-13）**：[WP1复核与原生Turnip／Session图形接入](validation/android-native-host/wp2-native-turnip-runtime-review-2026-09-13.md)。普通APK实际Turnip/WSI、guest VideoOut与会话寿命已接通；修复provider/信号/发布准入及线程退出竞态。真实选取TMNT的新边界为RegisterBuffers；非可玩/Swan验收。该记录优先于下文历史“CPU smoke／尚无图形接入”描述。
 
 

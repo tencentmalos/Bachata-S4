@@ -1,0 +1,45 @@
+{
+  "source": "f4ba0623783136c010492c4142eb0da0288ee2c5",
+  "scope": "focused thread attribute guest test and real TMNT boundary; no full regression",
+  "runs": [
+    {
+      "name": "attrs",
+      "junit_pass": true,
+      "scope": "synthetic"
+    },
+    {
+      "name": "tmnt",
+      "junit_pass": true,
+      "scope": "boundary observation only"
+    }
+  ],
+  "artifacts": {
+    "android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk": "50157eca93468b8a25ffbf9fe4732f5d5ff2266b792471ff4c4be3d6b90f977e",
+    "android/shadps4-app/app/build/outputs/apk/androidTest/playstore/debug/app-playstore-debug-androidTest.apk": "3b2b7d3e6632fabf9dd7b1f57d52af0e334da72318bc4ca45bfa117bb048efe2",
+    "build/android-host-api33/native/libshadps4_host.so": "a8b4d335ababb95e303c098fdbcc34cb29f33f11f3ad0807db9f565f83d6f1ac"
+  },
+  "sources": {
+    "android/shadps4-app/app/src/androidTest/kotlin/com/shadps4/android/ThreadAttributeRuntimeInstrumentedTest.kt": "f1964e8fdb1d0b71b269b74b19cdc67d2ad31e1357e78336ff8e41dc11274655",
+    "src/core/host_runtime/guest_thread_attributes.h": "9cefc7f41f6fd5aa21daf0cc0221c23e76820f69b045a80b990125e47ce77abf",
+    "tests/guest_cpu/fixtures/runtime_thread_attributes.S": "531b4333a21ea1fa6c56105ddf257aef2a59a530c0553623a842139e7c9a15ba",
+    "tests/host_runtime/guest_thread_attribute_tests.cpp": "99ed4375c237d4d5fc0c2705366345738b40e7a513309786fc7f5e67c47cbe65",
+    "android/shadps4-app/app/build.gradle.kts": "4daae1761477d2bc5270a6dd3a5238b965f4665c36ecd785f444f198190ebaa8",
+    "android/shadps4-app/app/src/androidTest/kotlin/com/shadps4/android/RenderedRuntimeInstrumentedTest.kt": "2028aab7aa2988a11e2bdc7b2fbcb0bc9a2f7ddc593d0a61abaaf329f19b5331",
+    "cmake/fex/CMakeLists.txt": "58748eb534d52bf266277847610e6e5b2a234430657c3f997588ad634e31f060",
+    "scripts/android/generate-production-runtime-fixture": "3f5c9e2f585d76235b34c69b1803a2dd9b62d1dc209b169d892610cf4d4faf66",
+    "src/core/guest_cpu/fex/fex_context.cpp": "192430cfb2617e73d7d09399beef446b704fe93e4f02923e9d9de9d516f92412",
+    "src/core/guest_cpu/fex/fex_context.h": "58e3a4d4689fc9f0e7fc41222620b47a9f502f40b70cd5733b7eaf54ff060c9d",
+    "src/core/host_runtime/guest_runtime.cpp": "f044f93cca45400e76db4f43344509d007fba833d3d492819d612adf23e1e9a3",
+    "tests/guest_cpu/guest_execution_tests.cpp": "4f13d19692e18d48e1fb98bc3ae472787eb32b47dfba74c0efac9a20839f96bb"
+  },
+  "identity": "AYN Thor",
+  "libshadps4_host.so": {
+    "sha256": "a8b4d335ababb95e303c098fdbcc34cb29f33f11f3ad0807db9f565f83d6f1ac",
+    "build_id": "d27e3c22f9bc051405a595f1276628ef06c5e06f"
+  },
+  "libshadps4_fex_session.so": {
+    "sha256": "a59cc3b86861c3f60a2254f908b794e8f74873bb9f0388efe772eceefa2fb7c2",
+    "build_id": "d24f14038981cab3cfcbbb2319d1e3389caf19d4"
+  },
+  "status": "FOCUSED_PASS_BOUNDARY_OBSERVED"
+}

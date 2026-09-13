@@ -1,0 +1,8 @@
+{
+  "remote": "/data/local/tmp/shadps4-attrs-1789304499445797000",
+  "files": {
+    "guest_thread_attribute_tests": "aa71947db79e6b1df66359f66250da5bda7c79a951ca936ee627f563e279dcad",
+    "libc++_shared.so": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352"
+  },
+  "exit": 0
+}

@@ -1555,14 +1555,39 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
             continue;
         }
 
+#if defined(GUEST_CPU_TEST_HOOKS)
+        // Hold after the real syscall exit but before publishing the HLE boundary.
+        // No coordinator lock is held; a test can make the drainer wait first.
+        if (!test_hle_boundary_gate_->WaitAtEntry(context_id_, thread.id, invocation, 5000)) {
+            syscall_handler_->UnregisterThreadFrame(binding.native->CurrentFrame);
+            std::lock_guard guard{lock_};
+            auto* entry = FindOwnedLocked(thread);
+            entry->interrupt->last_reason = StopReason::BackendFailure;
+            if (::mprotect(entry->native->InterruptFaultPage, host_page_size_, PROT_READ | PROT_WRITE))
+                return BackendError(ErrorCategory::BackendFailure, "HLE boundary", "test abort page restore", errno);
+            return BackendError(ErrorCategory::BackendFailure, "HLE boundary", "test gate aborted");
+        }
+#endif
         std::stop_token cancel;
         {
             std::lock_guard guard{lock_};
             auto* entry = FindOwnedLocked(thread);
+            // Pause may have armed the poll page after the last JIT poll but
+            // before this syscall exit. We are now safely outside JIT; retire
+            // the page protection without consuming any Pause/Cancel tickets.
+            if (entry->interrupt->pending != 0 &&
+                ::mprotect(entry->native->InterruptFaultPage, host_page_size_,
+                           PROT_READ | PROT_WRITE) != 0)
+                return BackendError(ErrorCategory::BackendFailure, "HLE boundary",
+                                    "restore interrupt page", errno);
             entry->running = false;
             entry->interrupt->stopped_snapshot =
                 CaptureSnapshot(thread, *entry, SnapshotKind::HleBoundary);
             cancel = entry->hle_cancel.get_token();
+            // A drainer may already be waiting for this owner to leave JIT.
+            // Syscall exit is just as quiescent as interrupt-page exit. Wake
+            // the coordinator before dispatch, which may itself need the VM lock.
+            stopped_changed_.notify_all();
         }
         // No JIT frame is parked here. Release the call-frame pin before the
         // execution lease, so a VM HLE can enter a real coordinated transaction.
@@ -1810,6 +1835,8 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
     [[nodiscard]] FexTestRunGate* TestContinuationGatePointer() {
         return test_continuation_gate_.get();
     }
+    void* TestHleBoundaryGatePointer() { return test_hle_boundary_gate_.get(); }
+    std::uint64_t TestHleDrainWaits() const { return test_hle_drain_waits_.load(std::memory_order_acquire); }
     std::uint64_t TestContinuationRetries() const {
         return test_continuation_retries_.load(std::memory_order_acquire);
     }
@@ -1873,6 +1900,9 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
                 return BackendError(ErrorCategory::Timeout, "QuiesceContext", "drain deadline expired; retry to recover");
             if (config_.resume_internal_drains) {
                 std::unique_lock guard{lock_};
+#if defined(GUEST_CPU_TEST_HOOKS)
+                test_hle_drain_waits_.fetch_add(1, std::memory_order_release);
+#endif
                 if (!stopped_changed_.wait_for(guard, std::chrono::nanoseconds(left), [&] {
                         auto* entry = Find({ticket.thread_id, ticket.thread_generation});
                         // HLE return and nested entry must reacquire admission
@@ -2421,6 +2451,8 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
     // Constructed eagerly with the context (single-threaded, before any Run), so owner threads that
     // read this in Run never race the lazy creation that a lazily-assigned unique_ptr would allow.
     std::unique_ptr<FexTestRunGate> test_run_gate_{std::make_unique<FexTestRunGateImpl>()};
+    std::unique_ptr<FexTestRunGate> test_hle_boundary_gate_{std::make_unique<FexTestRunGateImpl>()};
+    std::atomic<std::uint64_t> test_hle_drain_waits_{};
     std::unique_ptr<FexTestRunGate> test_continuation_gate_{std::make_unique<FexTestRunGateImpl>()};
     std::atomic<std::uint64_t> test_continuation_retries_{};
     // N3 probe syscall-point trace (test builds only); the immediate-exit wrapper itself is
@@ -2501,6 +2533,12 @@ void* FexTestContinuationGatePointer(CpuContext& context) {
     return static_cast<FexCpuContext*>(&context)->TestContinuationGatePointer();
 }
 
+void* FexTestHleBoundaryGatePointer(CpuContext& context) {
+    return static_cast<FexCpuContext*>(&context)->TestHleBoundaryGatePointer();
+}
+std::uint64_t FexTestHleDrainWaits(CpuContext& context) {
+    return static_cast<FexCpuContext*>(&context)->TestHleDrainWaits();
+}
 std::uint64_t FexTestContinuationRetries(CpuContext& context) {
     return static_cast<FexCpuContext*>(&context)->TestContinuationRetries();
 }

@@ -1,0 +1,57 @@
+{
+  "scope": "only this review-owned selected-content directory; real saves untouched; synthetic system provider confirmed absent",
+  "calls": [
+    {
+      "args": [
+        "shell",
+        "am",
+        "force-stop",
+        "com.shadps4.android"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "shell",
+        "run-as",
+        "com.shadps4.android",
+        "test",
+        "!",
+        "-e",
+        "files/host/sys_modules/libSceLibcInternal.sprx"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "shell",
+        "run-as",
+        "com.shadps4.android",
+        "rm",
+        "-rf",
+        "files/validation/tmnt-wp2-1789304527980771000"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "shell",
+        "run-as",
+        "com.shadps4.android",
+        "test",
+        "!",
+        "-e",
+        "files/validation/tmnt-wp2-1789304527980771000"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ]
+}

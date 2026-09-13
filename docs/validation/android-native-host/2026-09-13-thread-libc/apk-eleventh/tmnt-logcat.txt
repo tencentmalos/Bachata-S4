@@ -1,0 +1,73 @@
+--------- beginning of main
+09-13 21:48:36.050 12429 12450 I ProductionRuntime: prepare: load/relocate modules
+09-13 21:48:36.051 12429 12450 I ProductionRuntime: prepare: ready
+09-13 21:48:36.051 12429 12450 I ProductionRuntime: run: enter production guest
+09-13 21:48:36.052 12429 12450 I ProductionRuntime: run: guest returned to host
+09-13 21:48:36.052 12429 12447 I LibcPolicyAcceptance: case=fallback outcome=0 page_size=4096 pid=12429 uid=10157 guest return=260
+09-13 21:48:36.052 12429 12447 I LibcPolicyAcceptance: production Linker/VM; owners=1 veneers=1 graphics=not-created modules=2
+09-13 21:48:36.055 12429 12452 I ProductionRuntime: prepare: reserve guest VA
+09-13 21:48:36.056 12429 12452 I ProductionRuntime: prepare: create FEX context
+09-13 21:48:36.057 12429 12452 I ProductionRuntime: prepare: create production VM/Linker
+09-13 21:48:36.162 12429 12452 I ProductionRuntime: prepare: load/relocate modules
+09-13 21:48:36.165 12429 12452 I ProductionRuntime: prepare: ready
+09-13 21:48:36.165 12429 12452 I ProductionRuntime: run: enter production guest
+09-13 21:48:36.167 12429 12452 I ProductionRuntime: run: guest returned to host
+09-13 21:48:36.168 12429 12447 I LibcPolicyAcceptance: case=system outcome=0 page_size=4096 pid=12429 uid=10157 guest return=516
+09-13 21:48:36.168 12429 12447 I LibcPolicyAcceptance: production Linker/VM; owners=1 veneers=0 graphics=not-created modules=3
+09-13 21:48:36.168 12429 12454 I ProductionRuntime: prepare: reserve guest VA
+09-13 21:48:36.169 12429 12454 I ProductionRuntime: prepare: create FEX context
+09-13 21:48:36.169 12429 12454 I ProductionRuntime: prepare: create production VM/Linker
+09-13 21:48:36.274 12429 12454 I ProductionRuntime: prepare: load/relocate modules
+09-13 21:48:36.278 12429 12454 I ProductionRuntime: prepare: ready
+09-13 21:48:36.278 12429 12454 I ProductionRuntime: run: enter production guest
+09-13 21:48:36.279 12429 12454 I ProductionRuntime: run: guest returned to host
+09-13 21:48:36.280 12429 12447 I LibcPolicyAcceptance: case=bad-init outcome=3 page_size=4096 pid=12429 uid=10157 BackendFailure in GuestRuntime::Run: guest _malloc_init failed: libSceLibcInternal.sprx
+09-13 21:48:36.280 12429 12447 I LibcPolicyAcceptance: production Linker/VM; owners=1 veneers=0 graphics=not-created modules=3
+09-13 21:48:36.282 12429 12456 I ProductionRuntime: prepare: reserve guest VA
+09-13 21:48:36.282 12429 12456 I ProductionRuntime: prepare: create FEX context
+09-13 21:48:36.283 12429 12456 I ProductionRuntime: prepare: create production VM/Linker
+09-13 21:48:36.387 12429 12456 I ProductionRuntime: prepare: load/relocate modules
+09-13 21:48:36.390 12429 12456 I ProductionRuntime: prepare: ready
+09-13 21:48:36.390 12429 12456 I ProductionRuntime: run: enter production guest
+09-13 21:48:36.392 12429 12456 I ProductionRuntime: run: guest returned to host
+09-13 21:48:36.393 12429 12447 I LibcPolicyAcceptance: case=fallback-recovery outcome=0 page_size=4096 pid=12429 uid=10157 guest return=260
+09-13 21:48:36.393 12429 12447 I LibcPolicyAcceptance: production Linker/VM; owners=1 veneers=1 graphics=not-created modules=2
+09-13 21:48:36.394 12429 12458 I ProductionRuntime: prepare: reserve guest VA
+09-13 21:48:36.394 12429 12458 I ProductionRuntime: prepare: create FEX context
+09-13 21:48:36.395 12429 12458 I ProductionRuntime: prepare: create production VM/Linker
+09-13 21:48:36.501 12429 12458 I ProductionRuntime: prepare: load/relocate modules
+09-13 21:48:36.505 12429 12458 I ProductionRuntime: prepare: ready
+09-13 21:48:36.506 12429 12458 I ProductionRuntime: run: enter production guest
+09-13 21:48:36.517 12429 12458 I ProductionRuntime: run: guest returned to host
+09-13 21:48:36.518 12429 12447 I LibcPolicyAcceptance: case=bootstrap-legacy outcome=0 page_size=4096 pid=12429 uid=10157 guest return=51966
+09-13 21:48:36.518 12429 12447 I LibcPolicyAcceptance: production Linker/VM; owners=2 veneers=9 graphics=not-created modules=2
+09-13 21:48:37.785 12496 12554 I ProductionRuntime: prepare: reserve guest VA
+09-13 21:48:37.785 12496 12554 I ProductionRuntime: prepare: create FEX context
+09-13 21:48:37.786 12496 12554 I ProductionRuntime: prepare: create production VM/Linker
+09-13 21:48:37.951 12496 12554 I ProductionRuntime: prepare: load/relocate modules
+09-13 21:48:38.127 12496 12554 I ProductionRuntime: prepare: ready
+09-13 21:48:38.157 12496 12554 I ProductionRuntime: run: enter production guest
+--------- beginning of crash
+09-13 21:48:39.747 12581 12581 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+09-13 21:48:39.747 12581 12581 F DEBUG   : Build fingerprint: 'qti/kalama/kalama:13/TKQ1.231222.001/eng.Thor.20260206.163241:user/release-keys'
+09-13 21:48:39.747 12581 12581 F DEBUG   : Revision: '0'
+09-13 21:48:39.747 12581 12581 F DEBUG   : ABI: 'arm64'
+09-13 21:48:39.747 12581 12581 F DEBUG   : Timestamp: 2026-09-13 21:48:39.514536049+0800
+09-13 21:48:39.747 12581 12581 F DEBUG   : Process uptime: 3s
+09-13 21:48:39.747 12581 12581 F DEBUG   : Cmdline: com.shadps4.android
+09-13 21:48:39.747 12581 12581 F DEBUG   : pid: 12496, tid: 12554, name: roidJUnitRunner  >>> com.shadps4.android <<<
+09-13 21:48:39.747 12581 12581 F DEBUG   : uid: 10157
+09-13 21:48:39.747 12581 12581 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+09-13 21:48:39.747 12581 12581 F DEBUG   : pac_enabled_keys: 000000000000000f (PR_PAC_APIAKEY, PR_PAC_APIBKEY, PR_PAC_APDAKEY, PR_PAC_APDBKEY)
+09-13 21:48:39.747 12581 12581 F DEBUG   : signal 4 (SIGILL), code 1 (ILL_ILLOPC), fault addr 0x0000007b391dc370
+09-13 21:48:39.747 12581 12581 F DEBUG   :     x0  0000007450004400  x1  0000000000000000  x2  00000077700e0080  x3  00000077700e00a0
+09-13 21:48:39.747 12581 12581 F DEBUG   :     x4  000000008002002d  x5  00000001015c2d75  x6  0000000000000000  x7  000000180083c00f
+09-13 21:48:39.747 12581 12581 F DEBUG   :     x8  0000001000209020  x9  0000001000209050  x10 0000000000000001  x11 0000001000209020
+09-13 21:48:39.747 12581 12581 F DEBUG   :     x12 0000000001000160  x13 0000000000000010  x14 000000180064400f  x15 0000000000000246
+09-13 21:48:39.747 12581 12581 F DEBUG   :     x16 0000001000000000  x17 0000001000000000  x18 000000778efae000  x19 00000001015c2d75
+09-13 21:48:39.747 12581 12581 F DEBUG   :     x20 00000001015b6090  x21 000000778fd6a6c0  x22 000000778fd68d78  x23 0000000000000000
+09-13 21:48:39.747 12581 12581 F DEBUG   :     x24 00000003b5c95088  x25 000000743390bfc0  x26 000000008002002d  x27 0000000000000000
+09-13 21:48:39.747 12581 12581 F DEBUG   :     x28 0000007450004140  x29 00000001015e0bb8
+09-13 21:48:39.747 12581 12581 F DEBUG   :     lr  0000007b391dc158  sp  000000778fd68be0  pc  0000007b391dc370  pst 00000000a0001000
+09-13 21:48:39.747 12581 12581 F DEBUG   : backtrace:
+09-13 21:48:39.747 12581 12581 F DEBUG   :       #00 pc 0000000000000370  [anon:FEXMem_Misc]

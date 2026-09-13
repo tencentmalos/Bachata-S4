@@ -1,0 +1,10 @@
+--------- beginning of main
+09-13 21:07:05.504 26790 26811 I ProductionRuntime: prepare: reserve guest VA
+09-13 21:07:05.504 26790 26811 I ProductionRuntime: prepare: create FEX context
+09-13 21:07:05.504 26790 26811 I ProductionRuntime: prepare: create production VM/Linker
+09-13 21:07:05.635 26790 26811 I ProductionRuntime: prepare: load/relocate modules
+09-13 21:07:05.637 26790 26811 I ProductionRuntime: prepare: ready
+09-13 21:07:05.637 26790 26811 I ProductionRuntime: run: enter production guest
+09-13 21:07:05.650 26790 26811 I ProductionRuntime: run: guest returned to host
+09-13 21:07:05.650 26790 26808 I ThreadAttributeAcceptance: outcome=0 page_size=4096 pid=26790 uid=10157 guest return=51966
+09-13 21:07:05.650 26790 26808 I ThreadAttributeAcceptance: production Linker/VM; owners=3 veneers=15 graphics=not-created modules=1

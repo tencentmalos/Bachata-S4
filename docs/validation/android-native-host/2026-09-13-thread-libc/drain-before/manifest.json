@@ -1,0 +1,16 @@
+{
+  "scope": "only G49 and G48; no full regression",
+  "source": "f4ba0623783136c010492c4142eb0da0288ee2c5",
+  "sources": {
+    "src/core/guest_cpu/fex/fex_context.cpp": "2a12b098e9fc3f160c5361437cd5b8474d4f73b6020ac01a03046c25b83e68ff",
+    "src/core/guest_cpu/fex/fex_context.h": "58e3a4d4689fc9f0e7fc41222620b47a9f502f40b70cd5733b7eaf54ff060c9d",
+    "tests/guest_cpu/guest_execution_tests.cpp": "955487df1d24d759de72cafaee3d6d3e43b0659d63b7503fcae06a942eb674f5"
+  },
+  "remote": "/data/local/tmp/shadps4-drain-1789305846842929000",
+  "files": {
+    "guest_execution_tests": "a3b254baef7bae6d5d89ace5142e434629bf6a41931d15591199582369f6c58c",
+    "libc++_shared.so": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352"
+  },
+  "exit": 1,
+  "cleanup_exit": 0
+}

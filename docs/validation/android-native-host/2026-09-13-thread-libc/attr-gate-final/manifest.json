@@ -1,0 +1,19 @@
+{
+  "scope": "only thread attribute domain; no full regression",
+  "source": "f4ba0623783136c010492c4142eb0da0288ee2c5",
+  "sources": {
+    "src/core/host_runtime/guest_mutex.h": "8104f7555e4650512898f21eaa028b4a4e248a5c85a036cdcef7b54f2c862f9c",
+    "src/core/host_runtime/guest_rwlock.h": "486ce27d03ead3f8ce0540f0cf30ed16fe54b227b145b192f5e66dac7c1f13d7",
+    "src/core/host_runtime/guest_libc_policy.h": "0d81f10edb518e79c39e271330a03139df37a4d281c463de8e6472ef6cab2a18",
+    "tests/host_runtime/guest_thread_attribute_tests.cpp": "99ed4375c237d4d5fc0c2705366345738b40e7a513309786fc7f5e67c47cbe65",
+    "src/core/host_runtime/guest_thread_attributes.h": "4e08e3f855ab50c4c6ed72d637c42b3b5873f9f3b1d44e058abe926e4e060972"
+  },
+  "remote": "/data/local/tmp/shadps4-drain-1789308032756533000",
+  "files": {
+    "guest_thread_attribute_tests": "d2fe2318beefcaf01007c9811ffb497c60c46a66d04fd273cda1648ee60da2df",
+    "libc++_shared.so": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352"
+  },
+  "exit": 0,
+  "cleanup_exit": 0,
+  "note": "Thread-attribute header SHA added after the run to correct a copied runner source list; header unchanged since compilation. Extra mutex/rwlock SHAs are inventory only."
+}

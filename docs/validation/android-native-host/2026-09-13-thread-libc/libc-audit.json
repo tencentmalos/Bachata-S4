@@ -1,0 +1,188 @@
+{
+  "scope": "static symbol availability and prepared import policy only; not execution coverage for every function",
+  "desktop_strategy_source": "src/core/linker.cpp:83",
+  "desktop_registered_count": 58,
+  "explicit_policy_count": 112,
+  "actual_game_libc_providers": 102,
+  "without_game_provider": [
+    {
+      "nid": "xGT4Mc55ViQ",
+      "name": "_Fofind"
+    },
+    {
+      "nid": "jVDuvE3s5Bs",
+      "name": "_Fofree"
+    },
+    {
+      "nid": "sQL8D-jio7U",
+      "name": "_Fopen"
+    },
+    {
+      "nid": "dREVnZkAKRE",
+      "name": "_Foprep"
+    },
+    {
+      "nid": "9s3P+LCvWP8",
+      "name": "_Frprep"
+    },
+    {
+      "nid": "Ss3108pBuZY",
+      "name": "_Nnl"
+    },
+    {
+      "nid": "LaPaA6mYA38",
+      "name": "_Mtxdst"
+    },
+    {
+      "nid": "z7STeF6abuU",
+      "name": "_Mtxinit"
+    },
+    {
+      "nid": "pE4Ot3CffW0",
+      "name": "_Mtxlock"
+    },
+    {
+      "nid": "cMwgSSmpE5o",
+      "name": "_Mtxunlock"
+    }
+  ],
+  "previously_refused": 27,
+  "still_refused": 0,
+  "resolved_surface": [
+    {
+      "nid": "-hn1tcVHq5Q",
+      "name": "sceLibcMspaceCreate",
+      "guest_export": true
+    },
+    {
+      "nid": "1mecP7RgI2A",
+      "name": "gmtime",
+      "guest_export": true
+    },
+    {
+      "nid": "5bBacGLyLOs",
+      "name": "gmtime_s",
+      "guest_export": true
+    },
+    {
+      "nid": "6sJWiWSRuqk",
+      "name": "strncpy",
+      "guest_export": true
+    },
+    {
+      "nid": "8zTFvBIAIN8",
+      "name": "memset",
+      "guest_export": true
+    },
+    {
+      "nid": "H2e8t5ScQGc",
+      "name": "__cxa_finalize",
+      "guest_export": true
+    },
+    {
+      "nid": "L1SBTkC+Cvw",
+      "name": "abort",
+      "guest_export": true
+    },
+    {
+      "nid": "OJjm-QOIHlI",
+      "name": "sceLibcMspaceMalloc",
+      "guest_export": true
+    },
+    {
+      "nid": "Ovb2dSJOAuE",
+      "name": "strcmp",
+      "guest_export": true
+    },
+    {
+      "nid": "Q3VBxCXhUHs",
+      "name": "memcpy",
+      "guest_export": true
+    },
+    {
+      "nid": "Vla-Z+eXlxo",
+      "name": "sceLibcMspaceFree",
+      "guest_export": true
+    },
+    {
+      "nid": "W6SiVSiCDtI",
+      "name": "sceLibcMspaceDestroy",
+      "guest_export": true
+    },
+    {
+      "nid": "aesyjrHVWy4",
+      "name": "strncmp",
+      "guest_export": true
+    },
+    {
+      "nid": "efhK-YSUYYQ",
+      "name": "localtime",
+      "guest_export": true
+    },
+    {
+      "nid": "gQX+4GDQjpM",
+      "name": "malloc",
+      "guest_export": true
+    },
+    {
+      "nid": "gigoVHZvVPE",
+      "name": "sceLibcMspaceRealloc",
+      "guest_export": true
+    },
+    {
+      "nid": "j4ViWNHEgww",
+      "name": "strlen",
+      "guest_export": true
+    },
+    {
+      "nid": "kHg45qPC6f0",
+      "name": "strncat",
+      "guest_export": true
+    },
+    {
+      "nid": "mfHdJTIvhuo",
+      "name": "sceLibcMspaceMallocStats",
+      "guest_export": true
+    },
+    {
+      "nid": "n7AepwR0s34",
+      "name": "mktime",
+      "guest_export": true
+    },
+    {
+      "nid": "tIhsqj0qsFE",
+      "name": "free",
+      "guest_export": true
+    },
+    {
+      "nid": "tsvEmnenz48",
+      "name": "__cxa_atexit",
+      "guest_export": true
+    },
+    {
+      "nid": "viiwFMaNamA",
+      "name": "strstr",
+      "guest_export": true
+    },
+    {
+      "nid": "wLlFkwG9UcQ",
+      "name": "time",
+      "guest_export": true
+    },
+    {
+      "nid": "z+P+xCnWLBk",
+      "name": "_ZdlPv",
+      "guest_export": true
+    },
+    {
+      "nid": "zlfEH8FmyUA",
+      "name": "_Stoul",
+      "guest_export": true
+    },
+    {
+      "nid": "zr094EQ39Ww",
+      "name": "__cxa_pure_virtual",
+      "guest_export": true
+    }
+  ]
+}

@@ -205,13 +205,15 @@ val runtimeFixtureAssets = layout.buildDirectory.dir("generated/productionRuntim
 android.sourceSets.getByName("androidTest").assets.srcDir(runtimeFixtureAssets)
 val fixtureRepo = rootProject.projectDir.resolve("../..")
 val fixtureNdk = android.sdkDirectory.resolve("ndk/29.0.14206865")
-val runtimeFixtureTasks = listOf("gpu-flip", "storage", "storage-read", "save-dialog", "videoout", "videoout-bad", "videoout-format", "bootstrap", "bootstrap-wait", "libc", "libc-wait", "services", "fixture", "self", "wait", "dependency", "dependency-wait", "bad", "unknown").map { kind ->
+val runtimeFixtureTasks = listOf("libc-policy-main", "libc-policy-fallback", "libc-policy-system", "libc-policy-bad-init", "thread-attributes", "thread-attributes-fault", "gpu-flip", "storage", "storage-read", "save-dialog", "videoout", "videoout-bad", "videoout-format", "bootstrap", "bootstrap-wait", "libc", "libc-wait", "services", "fixture", "self", "wait", "dependency", "dependency-wait", "bad", "unknown").map { kind ->
     tasks.register<Exec>("generate${kind.replaceFirstChar { it.uppercase() }}RuntimeElf") {
         inputs.file(fixtureRepo.resolve("scripts/android/generate-production-runtime-fixture"))
         inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/production_runtime.S"))
         inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/runtime_services.S"))
         inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/runtime_videoout.S"))
         inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/runtime_gpu_flip.S"))
+        inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/runtime_thread_attributes.S"))
+        inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/runtime_libc_policy.S"))
         inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/runtime_storage.S"))
         inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/runtime_save_dialog.S"))
         val output = runtimeFixtureAssets.get().file(if (kind == "dependency") "fixture_dependency.sprx" else "$kind.elf").asFile
@@ -227,6 +229,12 @@ val runtimeFixtureTasks = listOf("gpu-flip", "storage", "storage-read", "save-di
                 "storage" -> listOf("--storage")
                 "storage-read" -> listOf("--storage", "--read-save")
                 "save-dialog" -> listOf("--save-dialog")
+                "thread-attributes-fault" -> listOf("--thread-attributes", "--child-fault")
+                "thread-attributes" -> listOf("--thread-attributes")
+                "libc-policy-main" -> listOf("--libc-policy")
+                "libc-policy-fallback" -> listOf("--libc-policy", "--module")
+                "libc-policy-system" -> listOf("--libc-policy", "--module", "--system-libc")
+                "libc-policy-bad-init" -> listOf("--libc-policy", "--module", "--system-libc", "--bad-pointer")
                 "gpu-flip" -> listOf("--gpu-flip")
                 "videoout" -> listOf("--videoout")
                 "videoout-bad" -> listOf("--videoout", "--bad-pointer")

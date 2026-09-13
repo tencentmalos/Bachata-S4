@@ -94,8 +94,9 @@ class RenderedRuntimeInstrumentedTest {
                 assertTrue("new generation", generation > previous)
                 previous = generation
                 try {
-                    assertEquals("prepared", NativeFexSession.WaitPhase.REACHED_TARGET,
-                        NativeFexSession.nativeWaitPhase(generation, NativeFexSession.PhaseOrdinal.READY, 10000))
+                    val prepared = NativeFexSession.nativeWaitPhase(generation, NativeFexSession.PhaseOrdinal.READY, 10000)
+                    assertEquals("prepared: ${NativeFexSession.nativeTerminalDetail(generation)}",
+                        NativeFexSession.WaitPhase.REACHED_TARGET, prepared)
                     assertEquals("guest waits for input/platform", NativeFexSession.WaitPhase.TIMEOUT,
                         NativeFexSession.nativeWaitPhase(generation, NativeFexSession.PhaseOrdinal.RUNNING, 20))
                     instrumentation.runOnMainSync {

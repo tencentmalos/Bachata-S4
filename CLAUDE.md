@@ -6,6 +6,10 @@
 
 ## 当前交接（2026-09-13）
 
+优先读[桌面 libc 策略与线程族整批实现](docs/validation/android-native-host/thread-libc-integration-2026-09-13.md)。本轮已接系统 `libSceLibcInternal.sprx` 优先加载、初始化失败不混用回退；无系统库时用显式 112-NID 策略解析真实 guest libc（当前游戏102导出、原27个Internal缺口归零，仅静态导入覆盖）。attr/create实际消费、rwlock、desktop mutex protocol/ceiling 与 VM 写回排他已接；后台fault保留原owner并取消主线程。最终AYN：attr43/0、locks60/0、G49/G48定向6/0；普通APK三个JUnit选择器通过，其中TMNT仅边界观察，三轮均到 `sceSysmoduleLoadModuleInternalWithArg` / op527 / Unsupported，guest_presents=0。没有真实系统固件libc/完整游戏/全量回归/Swan验收；最终源码与产物见manifest，FEX/Foundation未改。
+
+**用户要求：每个缺口先查桌面版注册、实现及依赖，按函数族连同provider/init/生命周期一起处理，不再单个NID交微型spec。** desktop protocol同样没有实时优先级捐赠，不能把其现有模拟语义说成Android实时调度保证，也不应未经对照就返回更严格的ENOTSUP。继续当前整版目标，默认只测改动相关部分；下一实际边界是动态sysmodule加载族，必须真实处理初始化参数/provider就绪，不能假成功。以下旧pthread_attr_init、libc逐个补洞等状态由本段取代。
+
 最新读[图形／存档实际集成与设备证据](docs/validation/android-native-host/graphics-storage-integration-2026-09-13.md)，它覆盖下方旧状态：GNM→VideoOut→Turnip→Surface 已由 FEX synthetic guest 三轮各呈现四帧；会话 GPU 页保护/FEX fault 分发、命令所有权/VM drain 已接。存档跨进程及 APP_VER 更新读回、生产 Compose Cancel 已过；信号量已接。host511/0、FEX244/0、Session840/0。**真实 TMNT 仍未出画面，当前 op280 pthread_attr_init，不能说所有非图形启动已完成**。下一实际工作是 attr 域和 pthread_create 消费属性，继而完整内容/实际游戏负载；不要重做初始图形接线，不另拆 spec。以下旧“RegisterBuffers 边界／保存未接”的说法作为历史保留，以此为准。
 
 用户补充：本版必须正确支持存档。缺失的 libSceSaveDataDialog 是交互层，libSceSaveData 是持久化服务；二者现已接入，范围与未覆盖模式见最新记录。缺失错误不是完成或延期理由。随真实游戏推进接入会话隔离、guest 指针/文件挂载、稳定用户/标题存档目录与真实 dialog 状态；验证保存→退出→重启读回、更新保留存档及失败/取消，不能假成功或把存档放进临时内容目录。详见当前复核记录的存档补充，不另拆 spec。

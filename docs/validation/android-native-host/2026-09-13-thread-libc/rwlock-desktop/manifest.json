@@ -1,0 +1,19 @@
+{
+  "scope": "only rwlock/libc-policy domain; no full regression",
+  "source": "f4ba0623783136c010492c4142eb0da0288ee2c5",
+  "sources": {
+    "src/core/host_runtime/guest_mutex.h": "d629efe2dfa13f89bdb1de95837f30f065925e5605b559772eb9fb5d1987fb8a",
+    "src/core/host_runtime/guest_rwlock.h": "a988d38568d7c601d7969e0f66f4bfe81be8f1857e19ae7045aa7db84da0d00e",
+    "src/core/host_runtime/guest_libc_policy.h": "0d81f10edb518e79c39e271330a03139df37a4d281c463de8e6472ef6cab2a18",
+    "tests/host_runtime/guest_rwlock_tests.cpp": "274e1454a05847e477df115aab806cd56648c047cf225e3db9d5b4966a309d83"
+  },
+  "remote": "/data/local/tmp/shadps4-drain-1789307622242857000",
+  "files": {
+    "guest_rwlock_tests": "0479b94960cfce54a6721ba92f1a967b549b105f168aefff232bad27788e9e61",
+    "libc++_shared.so": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352"
+  },
+  "exit": 0,
+  "cleanup_exit": 0,
+  "status": "INVALID_EVIDENCE",
+  "reason": "Test was dispatched before the ongoing rebuild completed; its 41-check binary predates the new mutex protocol changes. Do not use this run as validation for these source hashes."
+}

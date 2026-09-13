@@ -1,0 +1,21 @@
+--------- beginning of main
+09-13 22:03:11.463 18520 18543 I ProductionRuntime: prepare: reserve guest VA
+09-13 22:03:11.463 18520 18543 I ProductionRuntime: prepare: create FEX context
+09-13 22:03:11.464 18520 18543 I ProductionRuntime: prepare: create production VM/Linker
+09-13 22:03:11.588 18520 18543 I ProductionRuntime: prepare: load/relocate modules
+09-13 22:03:11.590 18520 18543 I ProductionRuntime: prepare: ready
+09-13 22:03:11.590 18520 18543 I ProductionRuntime: run: enter production guest
+09-13 22:03:12.601 18520 18543 I ProductionRuntime: run: guest returned to host
+09-13 22:03:12.607 18520 18540 I ThreadAttributeAcceptance: case=thread-attributes outcome=0 page_size=4096 pid=18520 uid=10157 guest return=51966
+09-13 22:03:12.607 18520 18540 I ThreadAttributeAcceptance: production Linker/VM; owners=3 veneers=33
+09-13 22:03:12.607 18520 18540 I ThreadAttributeAcceptance: UNSUPPORTED_IMPORT ChildFault0#libkernel#1#libkernel#Function graphics=not-created modules=1
+09-13 22:03:12.610 18520 18548 I ProductionRuntime: prepare: reserve guest VA
+09-13 22:03:12.610 18520 18548 I ProductionRuntime: prepare: create FEX context
+09-13 22:03:12.611 18520 18548 I ProductionRuntime: prepare: create production VM/Linker
+09-13 22:03:12.716 18520 18548 I ProductionRuntime: prepare: load/relocate modules
+09-13 22:03:12.723 18520 18548 I ProductionRuntime: prepare: ready
+09-13 22:03:12.723 18520 18548 I ProductionRuntime: run: enter production guest
+09-13 22:03:12.727 18520 18548 I ProductionRuntime: run: guest returned to host
+09-13 22:03:12.729 18520 18540 I ThreadAttributeAcceptance: case=thread-attributes-fault outcome=2 page_size=4096 pid=18520 uid=10157 guest return=0 guest_rip=103079460877 operation=16 import=ChildFault0#libkernel#1#libkernel#Function context=5 thread=2 generation=7 invocation=1 category=10
+09-13 22:03:12.729 18520 18540 I ThreadAttributeAcceptance: production Linker/VM; owners=2 veneers=33
+09-13 22:03:12.729 18520 18540 I ThreadAttributeAcceptance: UNSUPPORTED_IMPORT ChildFault0#libkernel#1#libkernel#Function graphics=not-created modules=1

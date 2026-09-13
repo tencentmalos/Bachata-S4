@@ -91,13 +91,14 @@ wait_loop:
     call qword ptr [rip + got_errno]
     cmp dword ptr [rax], 0
     jne failed
-    mov edi, 1000000
+    mov edi, 1000
     call qword ptr [rip + got_sleep]
-    cmp eax, -1
+    test eax, eax
     jne failed
     call qword ptr [rip + got_errno]
-    cmp dword ptr [rax], 22
+    cmp dword ptr [rax], 0
     jne failed
+    mov dword ptr [rax], 22 // Seed parent errno; the child must have independent TLS.
     lea rdi, [rip + child_handle]
 #ifdef BAD_POINTER
     mov edi, 1

@@ -1,0 +1,21 @@
+--------- beginning of main
+09-13 21:40:58.278  9616  9636 I ProductionRuntime: prepare: reserve guest VA
+09-13 21:40:58.279  9616  9636 I ProductionRuntime: prepare: create FEX context
+09-13 21:40:58.280  9616  9636 I ProductionRuntime: prepare: create production VM/Linker
+09-13 21:40:58.404  9616  9636 I ProductionRuntime: prepare: load/relocate modules
+09-13 21:40:58.406  9616  9636 I ProductionRuntime: prepare: ready
+09-13 21:40:58.406  9616  9636 I ProductionRuntime: run: enter production guest
+09-13 21:40:59.418  9616  9636 I ProductionRuntime: run: guest returned to host
+09-13 21:40:59.425  9616  9633 I ThreadAttributeAcceptance: case=thread-attributes outcome=0 page_size=4096 pid=9616 uid=10157 guest return=51966
+09-13 21:40:59.425  9616  9633 I ThreadAttributeAcceptance: production Linker/VM; owners=3 veneers=20
+09-13 21:40:59.425  9616  9633 I ThreadAttributeAcceptance: UNSUPPORTED_IMPORT ChildFault0#libkernel#1#libkernel#Function graphics=not-created modules=1
+09-13 21:40:59.428  9616  9643 I ProductionRuntime: prepare: reserve guest VA
+09-13 21:40:59.429  9616  9643 I ProductionRuntime: prepare: create FEX context
+09-13 21:40:59.429  9616  9643 I ProductionRuntime: prepare: create production VM/Linker
+09-13 21:40:59.533  9616  9643 I ProductionRuntime: prepare: load/relocate modules
+09-13 21:40:59.537  9616  9643 I ProductionRuntime: prepare: ready
+09-13 21:40:59.537  9616  9643 I ProductionRuntime: run: enter production guest
+09-13 21:40:59.541  9616  9643 I ProductionRuntime: run: guest returned to host
+09-13 21:40:59.542  9616  9633 I ThreadAttributeAcceptance: case=thread-attributes-fault outcome=2 page_size=4096 pid=9616 uid=10157 guest return=0 guest_rip=103079460877 operation=16 import=ChildFault0#libkernel#1#libkernel#Function context=5 thread=2 generation=7 invocation=1 category=10
+09-13 21:40:59.542  9616  9633 I ThreadAttributeAcceptance: production Linker/VM; owners=2 veneers=20
+09-13 21:40:59.542  9616  9633 I ThreadAttributeAcceptance: UNSUPPORTED_IMPORT ChildFault0#libkernel#1#libkernel#Function graphics=not-created modules=1

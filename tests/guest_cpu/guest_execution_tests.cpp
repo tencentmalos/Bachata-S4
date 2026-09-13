@@ -3942,6 +3942,64 @@ void TestContinuationAdmissionRace(Harness& h) {
           cancelled && result && result.Value().primary_reason == StopReason::Cancelled);
 }
 
+// Coordinator must wake when a requested owner exits JIT through a syscall,
+// rather than the interrupt-page branch. Force this ordering without sleeps.
+void TestHleBoundaryDrainWake(Harness& h) {
+    h.context.reset();
+    CpuConfig cfg;
+    cfg.resume_internal_drains = true;
+    auto created = CreateContext(cfg, *h.space);
+    if (!created) std::_Exit(4);
+    h.context = std::move(created).Value();
+    h.return_gate = h.context->Capabilities().return_gate_address;
+    std::string error;
+    if (!LoadFixture(h, *FindFixture("hle_call_returns_rax"), error)) std::_Exit(4);
+    auto* registry = static_cast<HleCallRegistry*>(Fex::FexHleRegistryPointer(*h.context));
+    auto op = registry->Register(&HleAddOne, "drain-boundary-add");
+    if (!op) std::_Exit(4);
+    for (bool cancel : {false, true}) {
+        TestOwner owner(h, 41);
+        auto patch = owner.Submit([&] {
+            auto snapshot = h.context->ReadRegisters(owner.handle);
+            if (!snapshot) return false;
+            RegisterPatch value;
+            value.fields = RegisterValidity::Gpr;
+            value.gpr_mask = 1u << Index(Gpr::Rax);
+            value.values.Set(Gpr::Rax, op.Value());
+            return bool(h.context->WriteRegisters(owner.handle, value, snapshot.Value().stop_epoch));
+        });
+        if (!Await(patch)) std::_Exit(4);
+        auto* gate = static_cast<Fex::FexTestRunGate*>(Fex::FexTestHleBoundaryGatePointer(*h.context));
+        const auto hold = gate->Arm(owner.handle.id, h.context->ContextId());
+        auto running = owner.Run();
+        auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(3);
+        while (!gate->Arrived(hold) && std::chrono::steady_clock::now() < deadline)
+            std::this_thread::yield();
+        if (!gate->Arrived(hold)) std::_Exit(4);
+        const auto before = Fex::FexTestHleDrainWaits(*h.context);
+        auto drain = std::async(std::launch::async, [&] { return h.context->QuiesceContext(1'500'000'000); });
+        while (Fex::FexTestHleDrainWaits(*h.context) == before && std::chrono::steady_clock::now() < deadline)
+            std::this_thread::yield();
+        if (Fex::FexTestHleDrainWaits(*h.context) == before) std::_Exit(4);
+        const auto start = std::chrono::steady_clock::now();
+        if (!gate->Release(hold, 1000)) std::_Exit(4);
+        auto token = Await(drain);
+        const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
+        Check(cancel ? "G49c" : "G49a", "syscall HLE boundary wakes a waiting publication coordinator",
+              token && elapsed < 750, "drain_ms=" + std::to_string(elapsed));
+        if (!token) std::_Exit(4);
+        if (cancel) {
+            auto request = h.context->RequestInterrupt(owner.handle, InterruptReason::Cancel);
+            if (!request) std::_Exit(4);
+        }
+        token.Value() = QuiescenceToken{};
+        auto result = Await(running);
+        Check(cancel ? "G49d" : "G49b", cancel ? "Cancel survives syscall-page retirement and publication" : "owner continues with its original HLE result",
+              result && result.Value().primary_reason == (cancel ? StopReason::Cancelled : StopReason::Returned) &&
+              (cancel || result.Value().snapshot.registers.Get(Gpr::Rax) == 42) && h.space->Counts().live_pins == 0);
+    }
+}
+
 void TestWarmEntryBackedge(Harness& h) {
     std::string detail;
     const auto* fixture = FindFixture("entry_backedge");
@@ -4047,13 +4105,15 @@ void TestHighAddressPolicy() {
 
 } // namespace
 
-int main() {
+int main(int argc, char** argv) {
+    const bool focused = argc == 2 && std::strcmp(argv[1], "--focused-publication") == 0;
+    if (argc > 1 && !focused) { std::fprintf(stderr, "unknown test selection\n"); return 2; }
     printf("guest execution through the public CPU API\n");
     printf("host page size: %ld\n", ::sysconf(_SC_PAGESIZE));
     printf("fixtures: %zu, generated from tests/guest_cpu/fixtures/guest_fixtures.S\n\n",
            std::size(Fixtures::kAll));
 
-    TestHighAddressPolicy(); // Reserve before FEX claims its process-wide allocator arena.
+    if (!focused) TestHighAddressPolicy(); // Reserve before FEX claims its process-wide allocator arena.
     Harness harness{};
 
     AddressSpaceConfig space_config{};
@@ -4111,6 +4171,12 @@ int main() {
            harness.stack_top);
     printf("return gate at 0x%" PRIx64 "\n\n", harness.return_gate);
 
+    if (focused) {
+        TestHleBoundaryDrainWake(harness);
+        TestContinuationAdmissionRace(harness);
+        printf("FOCUSED_PUBLICATION checks=%d failures=%d\n", g_checks, g_failures);
+        return g_failures ? 1 : 0;
+    }
     TestIntegerArithmetic(harness);
     TestBranches(harness);
     TestLoadStore(harness);
@@ -4152,6 +4218,7 @@ int main() {
     TestContracts(harness);
     TestRetiredContextsAndFaultPriority(harness);
     TestContinuationAdmissionRace(harness);
+    TestHleBoundaryDrainWake(harness);
     harness.context.reset();
     harness.space.reset();
 

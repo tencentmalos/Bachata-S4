@@ -1,0 +1,17 @@
+{
+  "scope": "only rwlock/libc-policy domain; no full regression",
+  "source": "f4ba0623783136c010492c4142eb0da0288ee2c5",
+  "sources": {
+    "src/core/host_runtime/guest_mutex.h": "8104f7555e4650512898f21eaa028b4a4e248a5c85a036cdcef7b54f2c862f9c",
+    "src/core/host_runtime/guest_rwlock.h": "486ce27d03ead3f8ce0540f0cf30ed16fe54b227b145b192f5e66dac7c1f13d7",
+    "src/core/host_runtime/guest_libc_policy.h": "0d81f10edb518e79c39e271330a03139df37a4d281c463de8e6472ef6cab2a18",
+    "tests/host_runtime/guest_rwlock_tests.cpp": "9849c77ca733a711e6bced7c88a81ed8ff3ea120f582d8b4a2761e79513ceea8"
+  },
+  "remote": "/data/local/tmp/shadps4-drain-1789308032115143000",
+  "files": {
+    "guest_rwlock_tests": "bae41832421a1c5976ae51de73b1b96a99582687e9dcac9c03e4af6d82dff7ef",
+    "libc++_shared.so": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352"
+  },
+  "exit": 0,
+  "cleanup_exit": 0
+}

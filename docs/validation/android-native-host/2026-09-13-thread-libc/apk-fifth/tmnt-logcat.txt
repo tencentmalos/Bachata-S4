@@ -1,0 +1,5 @@
+--------- beginning of main
+09-13 21:13:07.012 29689 29736 I ProductionRuntime: prepare: reserve guest VA
+09-13 21:13:07.012 29689 29736 I ProductionRuntime: prepare: create FEX context
+09-13 21:13:07.013 29689 29736 I ProductionRuntime: prepare: create production VM/Linker
+09-13 21:13:07.178 29689 29736 I ProductionRuntime: prepare: load/relocate modules

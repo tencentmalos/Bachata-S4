@@ -89,6 +89,8 @@ void* FexTestRunGatePointer(CpuContext& context);
 // Test-only hold between release observation and continuation admission.
 void* FexTestContinuationGatePointer(CpuContext& context);
 std::uint64_t FexTestContinuationRetries(CpuContext& context);
+void* FexTestHleBoundaryGatePointer(CpuContext& context);
+std::uint64_t FexTestHleDrainWaits(CpuContext& context);
 
 // N3 probe syscall-point diagnostic facts (populated when trace is enabled; test builds only).
 struct FexSyscallTraceRecord {

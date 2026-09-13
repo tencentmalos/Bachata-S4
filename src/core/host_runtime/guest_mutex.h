@@ -25,14 +25,18 @@ class GuestMutexDomain final {
     static_assert(offsetof(Prefix, flags) == 0x20);
     struct Mutex {
         u64 address{}, owner{};
-        u32 depth{}, type{1}, waiters{};
+        u32 depth{}, type{1}, waiters{}, protocol{};
+    };
+    struct AttributeState {
+        u32 type{1}, protocol{}, ceiling{};
     };
     GuestCpu::GuestAddressSpace& space;
     std::function<u64()> allocate;
+    std::recursive_mutex* vm_mutex{};
     std::mutex guard;
     std::condition_variable_any changed;
     std::map<u64, Mutex> mutexes;
-    std::map<u64, u32> attributes;
+    std::map<u64, AttributeState> attributes;
     struct Waiter {
         bool notified{};
         bool reacquiring{};
@@ -65,6 +69,9 @@ class GuestMutexDomain final {
     }
     template <class T>
     void Write(u64 addr, const T& value) {
+        // Allocation/publication holds this same gate. Release it before any wait.
+        std::unique_lock<std::recursive_mutex> vm;
+        if (vm_mutex) vm = std::unique_lock(*vm_mutex);
         auto s = space.Write(GuestCpu::GuestAddress{addr}, std::as_bytes(std::span{&value, 1}));
         if (!s)
             throw std::runtime_error(GuestCpu::Describe(s.GetError()));
@@ -73,7 +80,7 @@ class GuestMutexDomain final {
         return bool(space.ValidateRange({GuestCpu::GuestAddress{addr}, size},
                                         GuestCpu::GuestPermission::Write));
     }
-    int Create(u64 slot, u32 type) {
+    int Create(u64 slot, u32 type, u32 protocol = 0) {
         if (!Writable(slot, sizeof(u64)))
             return POSIX_EFAULT;
         if (allocations >= 4096)
@@ -82,15 +89,17 @@ class GuestMutexDomain final {
         ++allocations; // Includes destroyed objects: bound generation memory use.
         Prefix prefix{};
         prefix.flags = type;
+        prefix.protocol = protocol;
         Write(addr, prefix);
-        mutexes.emplace(addr, Mutex{.address = addr, .type = type});
+        mutexes.emplace(addr, Mutex{.address = addr, .type = type, .protocol = protocol});
         Write(slot, addr);
         return 0;
     }
 
 public:
-    GuestMutexDomain(GuestCpu::GuestAddressSpace& space, std::function<u64()> allocate)
-        : space(space), allocate(std::move(allocate)) {}
+    GuestMutexDomain(GuestCpu::GuestAddressSpace& space, std::function<u64()> allocate,
+                      std::recursive_mutex* vm_mutex = nullptr)
+        : space(space), allocate(std::move(allocate)), vm_mutex(vm_mutex) {}
 
     int AttributeInit(u64 slot) {
         std::lock_guard lock(guard);
@@ -100,8 +109,8 @@ public:
             return POSIX_ENOMEM;
         const u64 addr = allocate();
         ++allocations;
-        Write(addr, u32{1});
-        attributes.emplace(addr, 1);
+        Write(addr, AttributeState{});
+        attributes.emplace(addr, AttributeState{});
         Write(slot, addr);
         return 0;
     }
@@ -122,26 +131,71 @@ public:
             if (value < 1 || value > 4)
                 return POSIX_EINVAL;
             Write(addr, static_cast<u32>(value));
-            it->second = value;
+            it->second.type = value;
             return 0;
         }
         if (!Writable(value, 4))
             return POSIX_EFAULT;
-        Write(value, it->second);
+        Write(value, it->second.type);
         return 0;
     }
     int Init(u64 slot, u64 attribute_slot) {
         std::lock_guard lock(guard);
-        u32 type = 1;
+        AttributeState value;
         if (attribute_slot) {
             auto it = attributes.find(Read<u64>(attribute_slot));
             if (it == attributes.end())
                 return POSIX_EINVAL;
-            type = it->second;
+            value = it->second;
         }
         if (mutexes.contains(Read<u64>(slot)))
             return POSIX_EBUSY;
-        return Create(slot, type);
+        return Create(slot, value.type, value.protocol);
+    }
+    int AttributePolicy(u64 slot, u64 value, bool get, bool shared) {
+        std::lock_guard lock(guard);
+        const auto address = Read<u64>(slot);
+        auto it = attributes.find(address);
+        if (it == attributes.end())
+            return POSIX_EINVAL;
+        if (get) {
+            if (!Writable(value, 4)) return POSIX_EFAULT;
+            Write(value, shared ? u32{0} : it->second.protocol);
+            return 0;
+        }
+        if (shared) return value ? POSIX_EINVAL : 0;
+        if (value > 2) return POSIX_EINVAL;
+        // Match desktop mutex.cpp: protocol is copied into the real lock and
+        // non-None locks skip adaptive spinning. All our waits already block.
+        // Neither backend implements real-time priority donation or scheduling.
+        auto updated = it->second;
+        updated.protocol = value;
+        updated.ceiling = 767;
+        Write(address, updated);
+        it->second = updated;
+        return 0;
+    }
+    int AttributeCeiling(u64 slot, u64 value, bool get) {
+        std::lock_guard lock(guard);
+        const auto address = Read<u64>(slot);
+        auto it = attributes.find(address);
+        if (it == attributes.end() || it->second.protocol != 2) return POSIX_EINVAL;
+        if (get) {
+            if (!Writable(value, 4)) return POSIX_EFAULT;
+            Write(value, it->second.ceiling);
+        } else {
+            if (value < 256 || value > 767) return POSIX_EINVAL;
+            auto updated = it->second;
+            updated.ceiling = value;
+            Write(address, updated);
+            it->second = updated;
+        }
+        return 0;
+    }
+    int AttributeKind(u64 address) {
+        std::lock_guard lock(guard);
+        auto it = attributes.find(address);
+        return it == attributes.end() ? -1 : int(it->second.type);
     }
     int Lock(u64 slot, u64 owner, bool try_only, std::stop_token cancel) {
         std::unique_lock lock(guard);
