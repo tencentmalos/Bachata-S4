@@ -198,5 +198,12 @@ if(V0_ENABLE_FEX)
         # declaration the test drives. Release consumers do not define this.
         target_compile_definitions(guest_execution_tests PRIVATE GUEST_CPU_TEST_HOOKS=1)
 
+        # HN2 Stage 0: run a REAL PS4 eboot's _start prologue on the FEX backend.
+        # Self-contained SELF/ELF reader; links only guest_cpu_fex (not the host
+        # loader closure). Proves real title bytes translate+execute on-device.
+        add_executable(eboot_prologue_harness
+            "${CMAKE_CURRENT_SOURCE_DIR}/../../tools/eboot_prologue_harness.cpp")
+        target_link_libraries(eboot_prologue_harness PRIVATE guest_cpu_fex)
+
     endif()
 endif()
