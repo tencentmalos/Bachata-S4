@@ -265,6 +265,28 @@ void InterruptFaultHandler(int signal, siginfo_t *info, void *raw_context) {
         uc->uc_mcontext.pc = binding->stop_spill;
         return;
     }
+    // Diagnostic only (does NOT recover): a SIGSEGV whose host PC is inside the JIT
+    // code buffer but is not the interrupt fault page is a guest-side access fault
+    // (e.g. a null dereference during boot). Log the guest block entry and fault
+    // address so it can be attributed to a module/RIP, then fall through to the
+    // previous handler. General guest SIGSEGV-to-clean-fault recovery is a separate
+    // careful change: a mid-instruction fault is not a safe point the way the
+    // block-entry interrupt page is, so spilling here could reconstruct wrong state.
+    if (binding && info && (info->si_code == SEGV_MAPERR || info->si_code == SEGV_ACCERR)) {
+        auto *uc = static_cast<ucontext_t *>(raw_context);
+        const auto pc = uc->uc_mcontext.pc;
+        if (binding->fex->IsAddressInCodeBuffer(binding->native, pc)) {
+            const auto guest_rip = binding->fex->GetGuestBlockEntry(binding->native);
+#if defined(__ANDROID__)
+            __android_log_print(ANDROID_LOG_ERROR, "FexCore",
+                                "guest SIGSEGV in JIT: guest_block_rip=%#llx fault_addr=%#llx "
+                                "host_pc=%#llx",
+                                (unsigned long long)guest_rip,
+                                (unsigned long long)reinterpret_cast<std::uintptr_t>(info->si_addr),
+                                (unsigned long long)pc);
+#endif
+        }
+    }
 #endif
     ForwardAction(signal, info, raw_context, g_previous_fault_action);
 }
