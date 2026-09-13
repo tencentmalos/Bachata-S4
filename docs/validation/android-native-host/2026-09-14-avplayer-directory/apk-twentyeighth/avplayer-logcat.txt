@@ -1,0 +1,28 @@
+--------- beginning of main
+09-14 03:19:58.657 28120 28146 I ProductionRuntime: prepare: reserve guest VA
+09-14 03:19:58.658 28120 28146 I ProductionRuntime: prepare: create FEX context
+09-14 03:19:58.659 28120 28146 I ProductionRuntime: prepare: create production VM/Linker
+09-14 03:19:58.889 28120 28146 I ProductionRuntime: prepare: load/relocate modules
+09-14 03:19:58.890 28120 28146 I ProductionRuntime: prepare: ready
+09-14 03:19:58.890 28120 28146 I ProductionRuntime: run: enter production guest
+09-14 03:19:59.026 28120 28146 I ProductionRuntime: run: guest returned to host
+09-14 03:19:59.027 28120 28143 I AvPlayerAcceptance: round=0 case=avplayer outcome=0 page_size=4096 pid=28120 uid=10157 guest return=51966
+09-14 03:19:59.027 28120 28143 I AvPlayerAcceptance: production Linker/VM; owners=1 veneers=9 graphics=not-created modules=1
+09-14 03:19:59.030 28120 28160 I ProductionRuntime: prepare: reserve guest VA
+09-14 03:19:59.030 28120 28160 I ProductionRuntime: prepare: create FEX context
+09-14 03:19:59.030 28120 28160 I ProductionRuntime: prepare: create production VM/Linker
+09-14 03:19:59.235 28120 28160 I ProductionRuntime: prepare: load/relocate modules
+09-14 03:19:59.237 28120 28160 I ProductionRuntime: prepare: ready
+09-14 03:19:59.237 28120 28160 I ProductionRuntime: run: enter production guest
+09-14 03:19:59.355 28120 28160 I ProductionRuntime: run: guest returned to host
+09-14 03:19:59.356 28120 28143 I AvPlayerAcceptance: round=1 case=avplayer outcome=0 page_size=4096 pid=28120 uid=10157 guest return=51966
+09-14 03:19:59.356 28120 28143 I AvPlayerAcceptance: production Linker/VM; owners=1 veneers=9 graphics=not-created modules=1
+09-14 03:19:59.357 28120 28188 I ProductionRuntime: prepare: reserve guest VA
+09-14 03:19:59.357 28120 28188 I ProductionRuntime: prepare: create FEX context
+09-14 03:19:59.357 28120 28188 I ProductionRuntime: prepare: create production VM/Linker
+09-14 03:19:59.561 28120 28188 I ProductionRuntime: prepare: load/relocate modules
+09-14 03:19:59.562 28120 28188 I ProductionRuntime: prepare: ready
+09-14 03:19:59.562 28120 28188 I ProductionRuntime: run: enter production guest
+09-14 03:19:59.674 28120 28188 I ProductionRuntime: run: guest returned to host
+09-14 03:19:59.675 28120 28143 I AvPlayerAcceptance: round=2 case=avplayer outcome=0 page_size=4096 pid=28120 uid=10157 guest return=51966
+09-14 03:19:59.675 28120 28143 I AvPlayerAcceptance: production Linker/VM; owners=1 veneers=9 graphics=not-created modules=1

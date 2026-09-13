@@ -12,7 +12,6 @@
 
 #include "core/libraries/avplayer/avplayer.h"
 #include "core/libraries/avplayer/avplayer_source.h"
-#include "core/libraries/kernel/threads.h"
 
 namespace Libraries::AvPlayer {
 
@@ -90,7 +89,7 @@ private:
     std::shared_mutex m_source_mutex{};
     std::mutex m_state_machine_mutex{};
     std::mutex m_event_handler_mutex{};
-    Kernel::Thread m_controller_thread{};
+    AvPlayerThread m_controller_thread{};
     AvPlayerQueue<AvPlayerEvent> m_event_queue{};
 };
 

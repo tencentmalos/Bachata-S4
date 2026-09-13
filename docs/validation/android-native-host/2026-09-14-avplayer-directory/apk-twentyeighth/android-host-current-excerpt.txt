@@ -1,0 +1,38 @@
+[Lib.SysModule] <Info> (roidJUnitRunner) guest_runtime.cpp:999 SysmoduleLoad: session sysmodule id=0xa5 name=libSceAvPlayer result=0x0
+[Lib.AvPlayer] <Info> (roidJUnitRunner) avplayer_source.cpp:73 Init: Opening /app0/build/98/98048838D451130F894F8E1FE38D3BB6 through the game-provided file replacement
+[Lib.AvPlayer] <Info> (shadPS4:AvContr) avplayer_source.cpp:170 CreateStreamInfo: Stream 0 language = und
+[Lib.AvPlayer] <Info> (shadPS4:AvContr) avplayer_source.cpp:176 CreateStreamInfo: Stream 0 is a video stream.
+[Lib.AvPlayer] <Info> (shadPS4:AvContr) avplayer_source.cpp:170 CreateStreamInfo: Stream 1 language = und
+[Lib.AvPlayer] <Info> (shadPS4:AvContr) avplayer_source.cpp:190 CreateStreamInfo: Stream 1 is an audio stream.
+[Lib.AvPlayer] <Info> (shadPS4:AvContr) avplayer_state.cpp:432 EmitEvent: Sending event to the game: id = StateReady
+[Lib.AvPlayer] <Info> (shadPS4:AvContr) avplayer_source.cpp:141 GetStreamCount: Stream Count: 2
+[Lib.AvPlayer] <Info> (shadPS4:AvContr) avplayer_source.cpp:235 EnableStream: Video stream 0 enabled
+[Lib.AvPlayer] <Info> (shadPS4:AvContr) avplayer_source.cpp:240 EnableStream: Audio stream 1 enabled
+[Lib.AvPlayer] <Info> (shadPS4:AvVideo) avplayer_source.cpp:730 VideoDecoderThread: Video Decoder Thread started
+[Lib.AvPlayer] <Info> (shadPS4:AvAudio) avplayer_source.cpp:854 AudioDecoderThread: Audio Decoder Thread started
+[Lib.AvPlayer] <Info> (shadPS4:AvContr) avplayer_state.cpp:432 EmitEvent: Sending event to the game: id = StatePlay
+[Lib.AvPlayer] <Info> (shadPS4:AvDemux) avplayer_source.cpp:568 DemuxerThread: Demuxer Thread started
+[Lib.AvPlayer] <Info> (shadPS4:AvContr) avplayer_state.cpp:432 EmitEvent: Sending event to the game: id = StateBuffering
+[Lib.AvPlayer] <Error> (roidJUnitRunner) avplayer_state.cpp:221 Resume: Could not resume playback.
+[Lib.AvPlayer] <Info> (shadPS4:AvContr) avplayer_state.cpp:432 EmitEvent: Sending event to the game: id = StatePlay
+[Lib.AvPlayer] <Info> (shadPS4:AvDemux) avplayer_source.cpp:598 DemuxerThread: EOF reached in demuxer. Exiting.
+[Lib.AvPlayer] <Info> (shadPS4:AvDemux) avplayer_source.cpp:628 DemuxerThread: Demuxer Thread exited normally
+[Lib.AvPlayer] <Info> (shadPS4:AvVideo) avplayer_source.cpp:755 VideoDecoderThread: EOF reached in video decoder
+[Lib.AvPlayer] <Warning> (roidJUnitRunner) guest_avplayer.cpp:501 Dispatch: Guest AvPlayer d8FcbzfAdQw rejected: 0x806a0002
+[Lib.AvPlayer] <Info> (shadPS4:AvAudio) avplayer_source.cpp:911 AudioDecoderThread: Audio Decoder Thread exited normally
+[Lib.AvPlayer] <Info> (roidJUnitRunner) avplayer_source.cpp:73 Init: Opening /app0/build/2F/2FA4F010AA47FD1C7E9A665E4EF6A0D4 through the game-provided file replacement
+[Lib.AvPlayer] <Info> (shadPS4:AvContr) avplayer_source.cpp:170 CreateStreamInfo: Stream 0 language = eng
+[Lib.AvPlayer] <Info> (shadPS4:AvContr) avplayer_source.cpp:176 CreateStreamInfo: Stream 0 is a video stream.
+[Lib.AvPlayer] <Info> (shadPS4:AvContr) avplayer_state.cpp:432 EmitEvent: Sending event to the game: id = StateReady
+[Lib.AvPlayer] <Info> (shadPS4:AvContr) avplayer_source.cpp:141 GetStreamCount: Stream Count: 1
+[Lib.AvPlayer] <Info> (shadPS4:AvContr) avplayer_source.cpp:235 EnableStream: Video stream 0 enabled
+[Lib.AvPlayer] <Info> (shadPS4:AvContr) avplayer_state.cpp:432 EmitEvent: Sending event to the game: id = StatePlay
+[Lib.AvPlayer] <Info> (shadPS4:AvVideo) avplayer_source.cpp:730 VideoDecoderThread: Video Decoder Thread started
+[Lib.AvPlayer] <Info> (shadPS4:AvDemux) avplayer_source.cpp:568 DemuxerThread: Demuxer Thread started
+[Lib.AvPlayer] <Info> (shadPS4:AvContr) avplayer_state.cpp:432 EmitEvent: Sending event to the game: id = StateBuffering
+[Lib.AvPlayer] <Error> (roidJUnitRunner) avplayer_state.cpp:221 Resume: Could not resume playback.
+[Lib.AvPlayer] <Info> (shadPS4:AvContr) avplayer_state.cpp:432 EmitEvent: Sending event to the game: id = StatePlay
+[Lib.AvPlayer] <Info> (shadPS4:AvDemux) avplayer_source.cpp:598 DemuxerThread: EOF reached in demuxer. Exiting.
+[Lib.AvPlayer] <Info> (shadPS4:AvDemux) avplayer_source.cpp:628 DemuxerThread: Demuxer Thread exited normally
+[Lib.AvPlayer] <Info> (shadPS4:AvVideo) avplayer_source.cpp:755 VideoDecoderThread: EOF reached in video decoder
+[Lib.AvPlayer] <Info> (shadPS4:AvContr) avplayer_state.cpp:432 EmitEvent: Sending event to the game: id = StateStop

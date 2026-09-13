@@ -6,6 +6,8 @@
 
 ## 当前交接（2026-09-14）
 
+最新先读[本地AvPlayer、存档目录与Stop修复](docs/validation/android-native-host/avplayer-directory-integration-2026-09-14.md)。21个AvPlayer NID已接入桌面解码＋真实FEX回调，目录O_DIRECTORY失败导致的存档崩溃已修复；native1042/0、目录334/0、图形准入9/0。最终普通APK合成AvPlayer三轮PASS；真实TMNT单轮120秒、2525 presents、主动Stop CANCELLED/JUnit PASS。游戏弹窗可见但文字损坏，没有可玩/十分钟/Swan或真实游戏三次长启动验收。GNM等待准入取消和AvPlayer全局Stop后回收映射的失败均已修复，不应再列为待实现。FEX/Foundation未改；保留分阶段失败与dirty产物身份。网络/SSL只按desktop离线dummy处理，不扩在线功能；继续图形正确性和可操作场景，定向测试，不另写spec。以下“AvPlayer未实现”已是历史边界。
+
 最新先读[SRT、BC纹理与WSI修复](docs/validation/android-native-host/srt-bc-integration-2026-09-14.md)。ARM64现代SRT已补，native479/0、x86 syntax4/4、shader8变体PASS；普通APK synthetic六代PASS。真实TMNT143次present后在sceAvPlayerSetLogCallback/op110具名fault，120秒用例仍FAIL、未确认可用游戏画面。Android逐帧swapchain重建已消除。继续desktop本地AvPlayer实例/解码/guest回调/取消整族，尚未实现；网络SSL仅离线兼容，定向测试，无新spec。以下“ARM64 SRT未实现”是历史边界。
 
 优先读[AudioOut、内核信号量与Json2兼容交付](docs/validation/android-native-host/audio-semaphore-integration-2026-09-14.md)。Native55/0＋55/0、Json2 35/0；普通APK13-import三轮。TMNT原invalid-free已按desktop的Json2可选模块记账策略修复，同PID三次运行20秒后正常取消，仍guest_presents=0、不可玩。延长观察后约51秒真正到首次compute shader，ARM64 FlattenExtendedUserdataPass未实现导致SIGABRT；直接补现代SRT实现/缓存，不能照搬仅静态offset的旧reference。只做定向验证；网络/SSL不扩展，不新建spec；下文AudioOutInit边界已过时。

@@ -1,0 +1,64 @@
+--------- beginning of main
+09-14 03:14:19.053 26818 26866 I ProductionRuntime: run: guest returned to host
+09-14 03:14:19.055 26818 26841 I AvPlayerAcceptance: round=2 case=avplayer outcome=0 page_size=4096 pid=26818 uid=10157 guest return=51966
+09-14 03:14:19.055 26818 26841 I AvPlayerAcceptance: production Linker/VM; owners=1 veneers=9 graphics=not-created modules=1
+09-14 03:14:20.448 26902 26968 I ProductionRuntime: prepare: reserve guest VA
+09-14 03:14:20.448 26902 26968 I ProductionRuntime: prepare: create FEX context
+09-14 03:14:20.449 26902 26968 I ProductionRuntime: prepare: create production VM/Linker
+09-14 03:14:20.721 26902 26968 I ProductionRuntime: prepare: load/relocate modules
+09-14 03:14:20.907 26902 26968 I ProductionRuntime: prepare: ready
+09-14 03:14:20.938 26902 26968 I ProductionRuntime: run: enter production guest
+09-14 03:14:21.681 26902 26968 I ProductionModule: SysmoduleLoad id=0xa0 name=libSceSaveDataDialog result=0
+09-14 03:14:21.681 26902 26968 I ProductionModule: SysmoduleLoad id=0xa4 name=libSceMsgDialog result=0x805a10ff
+09-14 03:14:22.548 26902 26968 I ProductionModule: SysmoduleLoad id=0xb4 name=libSceAppContent result=0
+09-14 03:14:26.230 26902 26968 I ProductionModule: SysmoduleLoad id=0x96 name=libSceImeDialog result=0x805a10ff
+09-14 03:14:26.359 26902 26968 I ProductionModule: LoadStartModule existing path=/app0/modules/libfmod.prx handle=1
+09-14 03:14:26.359 26902 26968 I ProductionModule: LoadStartModule existing path=/app0/modules/libfmodstudio.prx handle=4
+09-14 03:14:26.389 26902 26968 I AAudio  : AAudioStreamBuilder_openStream() called ----------------------------------------
+09-14 03:14:26.389 26902 26968 I AudioStreamBuilder: rate   =  48000, channels  = 8, channelMask = 0x800000ff, format   = 5, sharing = SH, dir = OUTPUT
+09-14 03:14:26.389 26902 26968 I AudioStreamBuilder: device =      0, sessionId = -1, perfMode = 12, callback: OFF with frames = 0
+09-14 03:14:26.389 26902 26968 I AudioStreamBuilder: usage  =     14, contentType = 0, inputPreset = 0, allowedCapturePolicy = 0
+09-14 03:14:26.389 26902 26968 I AudioStreamBuilder: privacy sensitive = false, opPackageName = (null), attributionTag = (null)
+09-14 03:14:26.408 26902 26968 I AAudio  : AAudioStreamBuilder_openStream() returns 0 = AAUDIO_OK for s#2 ----------------
+09-14 03:14:29.960 26902 26968 I ProductionModule: LoadStartModule existing path=/app0/sce_module/libSceNpEntitlementAccess.prx handle=5
+09-14 03:14:29.960 26902 26968 I ProductionModule: SysmoduleLoad id=0xb4 name=libSceAppContent result=0
+09-14 03:14:29.966 26902 26968 I ProductionModule: SysmoduleLoad id=0x9d name=libSceNpAuth result=0x805a10ff
+09-14 03:14:29.967 26902 26968 I ProductionModule: SysmoduleLoad id=0xe7 name=libSceJson2 result=0
+09-14 03:15:12.393 26902 26968 I ProductionModule: SysmoduleLoad id=0xa5 name=libSceAvPlayer result=0x805a10ff
+09-14 03:15:12.484 26902 27334 I AAudio  : AAudioStreamBuilder_openStream() called ----------------------------------------
+09-14 03:15:12.484 26902 27334 I AudioStreamBuilder: rate   =  48000, channels  = 2, channelMask = 0x80000003, format   = 5, sharing = SH, dir = OUTPUT
+09-14 03:15:12.484 26902 27334 I AudioStreamBuilder: device =      0, sessionId = -1, perfMode = 12, callback: OFF with frames = 0
+09-14 03:15:12.484 26902 27334 I AudioStreamBuilder: usage  =     14, contentType = 0, inputPreset = 0, allowedCapturePolicy = 0
+09-14 03:15:12.484 26902 27334 I AudioStreamBuilder: privacy sensitive = false, opPackageName = (null), attributionTag = (null)
+09-14 03:15:12.503 26902 27334 I AAudio  : AAudioStreamBuilder_openStream() returns 0 = AAUDIO_OK for s#4 ----------------
+09-14 03:15:12.979 26902 26968 I ProductionModule: SysmoduleLoad id=0xa5 name=libSceAvPlayer result=0x805a10ff
+09-14 03:15:13.062 26902 27344 I AAudio  : AAudioStreamBuilder_openStream() called ----------------------------------------
+09-14 03:15:13.063 26902 27344 I AudioStreamBuilder: rate   =  48000, channels  = 2, channelMask = 0x80000003, format   = 5, sharing = SH, dir = OUTPUT
+09-14 03:15:13.063 26902 27344 I AudioStreamBuilder: device =      0, sessionId = -1, perfMode = 12, callback: OFF with frames = 0
+09-14 03:15:13.063 26902 27344 I AudioStreamBuilder: usage  =     14, contentType = 0, inputPreset = 0, allowedCapturePolicy = 0
+09-14 03:15:13.063 26902 27344 I AudioStreamBuilder: privacy sensitive = false, opPackageName = (null), attributionTag = (null)
+09-14 03:15:13.080 26902 27344 I AAudio  : AAudioStreamBuilder_openStream() returns 0 = AAUDIO_OK for s#6 ----------------
+--------- beginning of crash
+09-14 03:15:17.084 27365 27365 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+09-14 03:15:17.084 27365 27365 F DEBUG   : Build fingerprint: 'qti/kalama/kalama:13/TKQ1.231222.001/eng.Thor.20260206.163241:user/release-keys'
+09-14 03:15:17.084 27365 27365 F DEBUG   : Revision: '0'
+09-14 03:15:17.084 27365 27365 F DEBUG   : ABI: 'arm64'
+09-14 03:15:17.084 27365 27365 F DEBUG   : Timestamp: 2026-09-14 03:15:16.897807219+0800
+09-14 03:15:17.084 27365 27365 F DEBUG   : Process uptime: 59s
+09-14 03:15:17.084 27365 27365 F DEBUG   : Cmdline: com.shadps4.android
+09-14 03:15:17.084 27365 27365 F DEBUG   : pid: 26902, tid: 26968, name: roidJUnitRunner  >>> com.shadps4.android <<<
+09-14 03:15:17.084 27365 27365 F DEBUG   : uid: 10157
+09-14 03:15:17.084 27365 27365 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+09-14 03:15:17.084 27365 27365 F DEBUG   : pac_enabled_keys: 000000000000000f (PR_PAC_APIAKEY, PR_PAC_APIBKEY, PR_PAC_APDAKEY, PR_PAC_APDBKEY)
+09-14 03:15:17.084 27365 27365 F DEBUG   : signal 11 (SIGSEGV), code 2 (SEGV_ACCERR), fault addr 0x0000000a65606f90
+09-14 03:15:17.084 27365 27365 F DEBUG   :     x0  0000006be153b6e0  x1  0000000000000000  x2  00000071b0170080  x3  00000071b01700a0
+09-14 03:15:17.084 27365 27365 F DEBUG   :     x4  0000000265606fa0  x5  00000000fffffffe  x6  00000002658d9320  x7  000000023b696b20
+09-14 03:15:17.084 27365 27365 F DEBUG   :     x8  00000010001f8570  x9  00000010001f8680  x10 0000000000000001  x11 0000000238400398
+09-14 03:15:17.084 27365 27365 F DEBUG   :     x12 0000000000000220  x13 ff00fffffffffff8  x14 00000018001a800f  x15 0000000000000202
+09-14 03:15:17.084 27365 27365 F DEBUG   :     x16 000000000000002f  x17 0000001000000000  x18 0000000000000000  x19 00000000ffffffff
+09-14 03:15:17.084 27365 27365 F DEBUG   :     x20 0000000a65606f90  x21 0000000000000000  x22 000000778ff46d68  x23 0000000038400398
+09-14 03:15:17.084 27365 27365 F DEBUG   :     x24 00000003b5b43088  x25 000000743453bfe0  x26 0000000000000204  x27 00000000fffffdfc
+09-14 03:15:17.084 27365 27365 F DEBUG   :     x28 0000007450004140  x29 00000000000000af
+09-14 03:15:17.084 27365 27365 F DEBUG   :     lr  0000007b3b601158  sp  000000778ff46bd0  pc  0000006be153b700  pst 0000000000001000
+09-14 03:15:17.084 27365 27365 F DEBUG   : backtrace:
+09-14 03:15:17.084 27365 27365 F DEBUG   :       #00 pc 000000000044c700  [anon:FEXMemJIT]

@@ -1,0 +1,14 @@
+[
+  {
+    "source": "src/core/file_sys/directories/base_directory.cpp",
+    "exit": 0
+  },
+  {
+    "source": "src/core/file_sys/directories/normal_directory.cpp",
+    "exit": 0
+  },
+  {
+    "source": "src/core/libraries/kernel/kernel.cpp",
+    "exit": 0
+  }
+]

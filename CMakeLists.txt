@@ -1609,6 +1609,7 @@ if(BUILD_HOST_CORE)
         src/core/host_runtime/guest_storage_hle.cpp
         src/core/host_runtime/guest_runtime.cpp
         src/core/host_runtime/guest_audio.cpp
+        src/core/host_runtime/guest_avplayer.cpp
         src/core/host_runtime/guest_ajm.cpp
         src/core/host_runtime/guest_graphics.cpp
         src/core/host_runtime/guest_graphics_hle.cpp)
@@ -1633,6 +1634,14 @@ if(BUILD_HOST_CORE)
         target_link_libraries(guest_kernel_semaphore_tests PRIVATE shadps4_host)
         target_include_directories(guest_kernel_semaphore_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
         target_compile_definitions(guest_kernel_semaphore_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(guest_avplayer_tests tests/host_runtime/guest_avplayer_tests.cpp)
+        target_link_libraries(guest_avplayer_tests PRIVATE shadps4_host)
+        target_include_directories(guest_avplayer_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(guest_avplayer_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(guest_graphics_admission_tests tests/host_runtime/guest_graphics_admission_tests.cpp)
+        target_link_libraries(guest_graphics_admission_tests PRIVATE shadps4_host)
+        target_include_directories(guest_graphics_admission_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(guest_graphics_admission_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         add_executable(srt_tests tests/host_runtime/srt_tests.cpp)
         target_link_libraries(srt_tests PRIVATE shadps4_host spdlog::spdlog)
         target_include_directories(srt_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)

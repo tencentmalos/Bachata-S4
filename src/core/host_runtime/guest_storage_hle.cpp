@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include <cstring>
+#include "common/logging/log.h"
 #include "core/libraries/kernel/kernel.h"
 #include "guest_storage_hle.h"
 namespace Core::HostRuntime {
@@ -50,9 +51,33 @@ u64 DispatchStorage(GuestStorage& storage, GuestAddressSpace& space, const Stora
                        : static_cast<u64>(s64(Libraries::Kernel::ErrnoToSceKernelError(posix)));
     };
     auto io = [&](GuestStorage::IoResult r) -> u64 {
+        if (r.error)
+            LOG_WARNING(Lib_SaveData, "Session file nid={} error={} result={}", e.nid, r.error,
+                        r.value);
         return r.error ? error(r.error) : u64(r.value);
     };
     switch (e.op) {
+    case StorageOp::GetDents:
+    case StorageOp::GetDirEntries: {
+        if (a[2] < 512 || a[2] > u64(INT64_MAX)) return error(EINVAL);
+        const auto size = std::min<u64>(a[2], 64 * 1024);
+        auto pin = space.AcquirePinnedSpan({GuestAddress{a[1]}, size}, true);
+        if (!pin) return error(EFAULT);
+        std::optional<PinnedSpan> base_out;
+        if (e.op == StorageOp::GetDirEntries && a[3]) {
+            auto base = space.AcquirePinnedSpan({GuestAddress{a[3]}, sizeof(s64)}, true);
+            if (!base) return error(EFAULT); // No cursor mutation on bad output.
+            base_out = std::move(base).Value();
+        }
+        std::vector<u8> data(size);
+        s64 base{};
+        const auto result = storage.GetDents(s32(a[0]), data, &base);
+        if (!result.error) {
+            std::memcpy(pin.Value().WritableBytes().data(), data.data(), result.value);
+            if (base_out) std::memcpy(base_out->WritableBytes().data(), &base, sizeof(base));
+        }
+        return io(result);
+    }
     case StorageOp::Stat:
     case StorageOp::Fstat: {
         using Stat = Libraries::Kernel::OrbisKernelStat;
@@ -311,8 +336,12 @@ u64 DispatchStorage(GuestStorage& storage, GuestAddressSpace& space, const Stora
         auto path = String(space, a[0], 1024);
         if (!path)
             return error(EFAULT);
-        if (e.op == StorageOp::Open)
-            return io(storage.Open(*path, a[1], a[2]));
+        if (e.op == StorageOp::Open) {
+            const auto result = storage.Open(*path, a[1], a[2]);
+            LOG_DEBUG(Lib_SaveData, "Session open path={} flags={:#x} fd={} error={}", *path,
+                      a[1], result.value, result.error);
+            return io(result);
+        }
         if (e.op == StorageOp::Mkdir)
             return io(storage.Mkdir(*path, a[1]));
         if (e.op == StorageOp::Unlink)

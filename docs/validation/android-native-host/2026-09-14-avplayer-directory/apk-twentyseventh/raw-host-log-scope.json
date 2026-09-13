@@ -1,0 +1,8 @@
+[
+  {
+    "original_path": "build/sysmodule-review/apk-twentyseventh/android-host.log",
+    "sha256": "2c1c8b89376ac6ad8eea919ac89b5f4605e90fdf013e0239a119c771f251cc74",
+    "bytes": 7770112,
+    "scope": "cumulative raw log excluded; selected AvPlayer/sysmodule/save lines follow final VM start"
+  }
+]

@@ -1,0 +1,49 @@
+{
+  "source": "4b8710b1a118bf3d3e742055c3563727c7ae1823",
+  "scope": "focused AvPlayer guest callbacks, native local media and bounded real TMNT startup; no full regression",
+  "runs": [
+    {
+      "name": "avplayer",
+      "junit_pass": true,
+      "scope": "synthetic"
+    },
+    {
+      "name": "tmnt",
+      "junit_pass": false,
+      "scope": "boundary observation only"
+    }
+  ],
+  "artifacts": {
+    "android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk": "2f8d4f5808a470b6f9903b6193016a5c41c02773ca28847818e0e5c704073405",
+    "android/shadps4-app/app/build/outputs/apk/androidTest/playstore/debug/app-playstore-debug-androidTest.apk": "a2a0a792ad4e850e2b6206012d217733e6e63f0b2dfd75a93b93f44c8ec3adaa",
+    "build/android-host-api33/native/libshadps4_host.so": "7bb9528750abe19555ce5deba2ef22d15d8ece19a923929a2be98c429a02787d"
+  },
+  "sources": {
+    "android/shadps4-app/app/src/androidTest/kotlin/com/shadps4/android/AvPlayerRuntimeInstrumentedTest.kt": "5c9851014ebd563639f150f6b6e421ab4b15ed36933413be1246587a46ee0ffd",
+    "src/core/host_runtime/guest_avplayer.cpp": "a25571aa6a10fcd5b228f7931486c602072538d34cd2bee57819d9b4f5346d1d",
+    "src/core/host_runtime/guest_avplayer.h": "db49309a5b73cc917b298ea07f00c9f9e6bc02a7467f0150f1b62f9011a84f91",
+    "tests/guest_cpu/fixtures/runtime_avplayer.S": "a5c6b25f9cd667b68575edd36b98c735d83f702adaa7b318a48074915cfcbc2e",
+    "tests/host_runtime/guest_avplayer_tests.cpp": "07abfb05b180057be88023f46ac0297dc71be9721d72b722f8f4380ce5f4dd61",
+    "android/shadps4-app/app/build.gradle.kts": "4d392c7155a0e861a5af3b33d08cb807e4ec65c047ce412dce62d9034e9ce912",
+    "scripts/android/generate-production-runtime-fixture": "adcbd048424acf731d160f0958fe75424c38125ee0ebdb0189461f7de06fbf7a",
+    "src/core/host_runtime/guest_runtime.cpp": "468940c95938622b9c00587294219960743fe2fd5d7d73026e6725f0f699f7eb",
+    "src/core/libraries/avplayer/avplayer_common.h": "b3964f473e904af0af71dc799b1c9b95bf86a6ec6a69337a97426600f17d5e09",
+    "src/core/libraries/avplayer/avplayer_file_streamer.cpp": "f6f34d3fab7d3a66b28b5c0ba7f6808be3a830083a4eff36c2df64eea0ff8ab7",
+    "src/core/libraries/avplayer/avplayer_source.cpp": "e3b19be578af958e065a94ddedeb3da6e5ae8e7f894b9b6c759079e8060eb83d",
+    "src/core/libraries/avplayer/avplayer_source.h": "4bad3fb95f4df51b135e1f6c947b0b51368b61e11bf06b69523643ce57e08a5f",
+    "src/core/libraries/avplayer/avplayer_state.cpp": "23d2ae4053b578ad8748069c62cecae359e5aa1e781ededf54e105985dc212ea",
+    "src/core/libraries/avplayer/avplayer_state.h": "4d63dcb15b4ec8bbca8b44a828308679f1f87ecce60453c4ff78d5ad5f09b0d2",
+    "src/core/libraries/videodec/video_utils.cpp": "6d7a39a1c6aa6962b1279811d66881b2839121880c4ad7b5a7c39a3a748cd122"
+  },
+  "identity": "AYN Thor",
+  "libshadps4_host.so": {
+    "sha256": "7bb9528750abe19555ce5deba2ef22d15d8ece19a923929a2be98c429a02787d",
+    "build_id": "1a6b8df95087dfc9ce7945aa329ffc103301d351"
+  },
+  "libshadps4_fex_session.so": {
+    "sha256": "e2ff39687c2737f455483193cf78b7f71b91608f300e185e23619989cd47823c",
+    "build_id": "402388f8dd6875264821ca20685c4782d76890e5"
+  },
+  "status": "FAIL",
+  "error": ""
+}

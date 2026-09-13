@@ -1,0 +1,7 @@
+{
+  "raw_path": "build/sysmodule-review/directory-apk2-host.log",
+  "raw_sha256": "04b6f19261255e575544f4104416e092688352a568d62c1655408f45c8c9aefe",
+  "start_marker": "last Virtual memory space initialized",
+  "complete_log": false,
+  "selection": "save operations + AvPlayer only; captured before final flush"
+}

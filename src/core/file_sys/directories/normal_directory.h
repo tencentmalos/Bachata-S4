@@ -4,6 +4,8 @@
 #pragma once
 
 #include <memory>
+#include <functional>
+#include <filesystem>
 #include <string_view>
 #include <vector>
 #include "common/types.h"
@@ -14,8 +16,12 @@ namespace Core::Directories {
 
 class NormalDirectory final : public BaseDirectory {
 public:
+    using Visitor = std::function<void(const std::filesystem::path&, bool)>;
+    using Reader = std::function<void(const Visitor&)>;
     static std::shared_ptr<BaseDirectory> Create(std::string_view guest_path);
     explicit NormalDirectory(std::string_view guest_path);
+    // Session adapters supply their own descriptor-relative directory reader.
+    explicit NormalDirectory(Reader reader);
     ~NormalDirectory() override = default;
 
     virtual s64 read(void* buf, u64 nbytes) override;
@@ -33,7 +39,7 @@ private:
     };
 #pragma pack(pop)
 
-    std::string_view guest_directory{};
+    Reader reader;
     s64 previous_file_offset = -1;
 
     void RebuildDirents(void);

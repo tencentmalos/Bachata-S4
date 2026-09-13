@@ -1,0 +1,4 @@
+decoded video=12 audio=90 callbacks=23 events=1 reads=11
+guest_avplayer_tests: 449 checks, 0 failures
+[mov,mp4,m4a,3gp,3g2,mj2 @ 0xb4000076ed5df150] Packet corrupt (stream = 1, dts = 10240).
+[mov,mp4,m4a,3gp,3g2,mj2 @ 0xb4000076ed5df150] stream 1, offset 0x10ba: partial file

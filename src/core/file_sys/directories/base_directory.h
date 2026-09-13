@@ -4,6 +4,7 @@
 #pragma once
 
 #include <vector>
+#include <atomic>
 #include "common/types.h"
 #include "core/libraries/kernel/file_system.h"
 #include "core/libraries/kernel/orbis_error.h"
@@ -18,7 +19,7 @@ namespace Core::Directories {
 
 class BaseDirectory {
 protected:
-    static inline u32 fileno_pool{10};
+    static inline std::atomic<u32> fileno_pool{10};
 
     static u32 next_fileno() {
         return ++fileno_pool;

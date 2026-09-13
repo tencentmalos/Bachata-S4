@@ -22,14 +22,16 @@
 #include "core/file_sys/fs.h"
 #include "core/guest_cpu/hle/scope.h"
 #include "core/guest_cpu/hle/veneer_allocator.h"
+#include "core/host_runtime/guest_ajm.h"
 #include "core/host_runtime/guest_app_content.h"
+#include "core/host_runtime/guest_audio.h"
+#include "core/host_runtime/guest_avplayer.h"
 #include "core/host_runtime/guest_clock.h"
 #include "core/host_runtime/guest_graphics.h"
+#include "core/host_runtime/guest_kernel_semaphore.h"
 #include "core/host_runtime/guest_libc_policy.h"
 #include "core/host_runtime/guest_mutex.h"
 #include "core/host_runtime/guest_network.h"
-#include "core/host_runtime/guest_ajm.h"
-#include "core/host_runtime/guest_audio.h"
 #include "core/host_runtime/guest_pad.h"
 #include "core/host_runtime/guest_platform.h"
 #include "core/host_runtime/guest_rtc.h"
@@ -37,7 +39,6 @@
 #include "core/host_runtime/guest_rwlock.h"
 #include "core/host_runtime/guest_save_dialog.h"
 #include "core/host_runtime/guest_semaphore.h"
-#include "core/host_runtime/guest_kernel_semaphore.h"
 #include "core/host_runtime/guest_storage_hle.h"
 #include "core/host_runtime/guest_sysmodule_hle.h"
 #include "core/host_runtime/guest_thread_attributes.h"
@@ -137,6 +138,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     std::unique_ptr<GuestStorage> storage;
     std::unique_ptr<GuestNetwork> network;
     std::unique_ptr<GuestAjm> ajm;
+    std::unique_ptr<GuestAvPlayer> avplayer;
     std::unique_ptr<GuestAudio> audio;
     std::unique_ptr<GuestKernelSemaphore> kernel_semaphores;
     std::unique_ptr<GuestPad> pad;
@@ -420,6 +422,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     }
     ~Impl() {
         (void)Cancel();
+        avplayer.reset(); // join native decode and owned FEX callback workers before VM teardown
         for (auto& [id, o] : owners)
             if (o->worker.joinable())
                 o->worker.join();
@@ -733,6 +736,116 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         }
         threads_changed.notify_all();
     }
+    GuestAvPlayer::Callbacks AvCallbacks() {
+        struct State {
+            std::shared_ptr<Owner> owner;
+            u64 scratch{};
+            std::atomic_bool closing{};
+        };
+        auto state = std::make_shared<State>();
+        return {
+            .begin =
+                [this, state](u64 entry) {
+                    auto o = NewOwner();
+                    {
+                        std::lock_guard lock(threads_mutex);
+                        state->owner = o;
+                    }
+                    {
+                        VmGuard vm(*this);
+                        state->scratch =
+                            Allocate(GuestAvPlayer::ScratchSize, "AvPlayerCallbackScratch");
+                    }
+                    Attach(state->owner, entry);
+                    return state->scratch;
+                },
+            .call = [this, state](u64 entry, std::span<const u64> values) -> u64 {
+                GuestCallArgs args;
+                args.count = values.size();
+                std::copy(values.begin(), values.end(), args.values.begin());
+                auto result = Call(entry, args);
+                if (!result) {
+                    state->owner->error = result.GetError();
+                    (void)Cancel();
+                    throw std::runtime_error("AvPlayer guest callback failed");
+                }
+                state->owner->result = result.Value();
+                if (result.Value().reason != StopReason::Returned) {
+                    if (!state->closing || result.Value().reason != StopReason::Cancelled)
+                        (void)Cancel();
+                    throw std::runtime_error("AvPlayer guest callback stopped");
+                }
+                return result.Value().return_value;
+            },
+            .cancel =
+                [this, state] {
+                    state->closing = true;
+                    ThreadHandle handle;
+                    {
+                        std::lock_guard lock(threads_mutex);
+                        if (state->owner)
+                            handle = state->owner->handle;
+                    }
+                    if (handle.IsValid())
+                        (void)cpu.RequestInterrupt(handle, InterruptReason::Cancel);
+                },
+            .end =
+                [this, state] {
+                    auto o = state->owner;
+                    if (!o)
+                        return;
+                    if (state->closing && !o->error &&
+                        (!o->result || o->result->reason == StopReason::Returned))
+                        o->result = GuestCallResult{.reason = StopReason::Cancelled};
+                    try {
+                        Finish(o);
+                        // During global Stop, mappings still belong to Session VM.
+                        // Keep them until GPU/decoder/guest workers are joined; a
+                        // stopped renderer cannot admit another per-owner drain.
+                        std::optional<VmGuard> vm;
+                        if (!cancelling) {
+                            try {
+                                vm.emplace(*this);
+                            } catch (...) {
+                                // Stop may race entry to Quiesce/WaitIdle. Only
+                                // defer admission failure; mutation errors below
+                                // remain failures even if Stop arrives meanwhile.
+                                if (!cancelling) throw;
+                            }
+                        }
+                        if (vm && !cancelling) {
+                            if ((state->scratch &&
+                                 memory->UnmapMemory(state->scratch, GuestAvPlayer::ScratchSize)) ||
+                                memory->UnmapMemory(o->tls, o->tls_size) ||
+                                memory->UnmapMemory(o->stack - o->attributes.guard,
+                                                    o->stack_size + o->attributes.guard))
+                                throw std::runtime_error("AvPlayer callback VM release failed");
+                        }
+                        vm.reset();
+                        {
+                            std::lock_guard lock(threads_mutex);
+                            owners.erase(o->id);
+                        }
+                    } catch (const std::exception& e) {
+                        {
+                            std::lock_guard lock(threads_mutex);
+                            o->error = MakeError(ErrorCategory::BackendFailure, "AvPlayer::Finish",
+                                                 e.what());
+                            if (!child_error && !child_fault)
+                                child_error = o->error;
+                            o->finished =
+                                true; // retain failed owner resources for session teardown
+                        }
+                        SetTcbBase(nullptr);
+                        active_runtime = nullptr;
+                        active_thread = 0;
+                        (void)Cancel();
+                        threads_changed.notify_all();
+                    }
+                },
+            .invalidate = [this](u64 at, size_t bytes) { memory->InvalidateMemory(at, bytes); },
+        };
+    }
     std::optional<Result<GuestCallResult>> ChildFailure() {
         std::lock_guard lock(threads_mutex);
         if (child_error) return Result<GuestCallResult>(*child_error);
@@ -748,6 +861,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
                 if (o->handle.IsValid())
                     handles.push_back(o->handle);
         }
+        if (avplayer)
+            avplayer->RequestStop();
         if (audio) audio->RequestStop();
         if (ajm) ajm->RequestStop();
         if (storage)
@@ -830,22 +945,29 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         const bool np_poll_nid = nid == "3Zl8BePTh9Y" || nid == "JELHf4xPufo";
         const bool ssl_nid = nid == "hdpVEUDFW3s" || nid == "0K1yQ6Lv-Yc";
         const bool kernel_nid =
-            !np_poll_nid && !ssl_nid && !IsAudioNid(nid) && !IsAjmNid(nid) && !IsPadNid(nid) && !IsNetNid(nid) && !IsNetCtlNid(nid) && !IsAppContentNid(nid) && !IsRtcNid(nid) &&
-            !IsDiscMapNid(nid) && !dialog_nid && !common_nid && !save_nid &&
+            !np_poll_nid && !ssl_nid && !IsAvPlayerNid(nid) && !IsAudioNid(nid) && !IsAjmNid(nid) &&
+            !IsPadNid(nid) && !IsNetNid(nid) && !IsNetCtlNid(nid) && !IsAppContentNid(nid) &&
+            !IsRtcNid(nid) && !IsDiscMapNid(nid) && !dialog_nid && !common_nid && !save_nid &&
             !videoout_functions.contains(nid) && !sysmodule_functions.contains(nid) &&
             !userservice_functions.contains(nid) && !systemservice_functions.contains(nid) &&
             !gnmdriver_functions.contains(nid) && nid != "NWtTN10cJzE";
         std::shared_ptr<HleCallAdapter> adapter;
         if (auto it = handlers.find(nid);
             it != handlers.end() &&
-            ((audio && IsAudioNid(nid) && symbol.name.substr(nid.size()) == "#libSceAudioOut#1#libSceAudioOut#Function") ||
-             (ajm && IsAjmNid(nid) && symbol.name.substr(nid.size()) == "#libSceAjm#1#libSceAjm#Function") ||
-             (pad && IsPadNid(nid) && symbol.name.substr(nid.size()) == "#libScePad#1#libScePad#Function") ||
+            ((avplayer && IsAvPlayerNid(nid) &&
+              symbol.name.substr(nid.size()) == "#libSceAvPlayer#1#libSceAvPlayer#Function") ||
+             (audio && IsAudioNid(nid) &&
+              symbol.name.substr(nid.size()) == "#libSceAudioOut#1#libSceAudioOut#Function") ||
+             (ajm && IsAjmNid(nid) &&
+              symbol.name.substr(nid.size()) == "#libSceAjm#1#libSceAjm#Function") ||
+             (pad && IsPadNid(nid) &&
+              symbol.name.substr(nid.size()) == "#libScePad#1#libScePad#Function") ||
              (np_poll_nid && !EmulatorSettings.IsShadNetEnabled() &&
               !EmulatorSettings.IsConnectedToNetwork() &&
               (symbol.name.substr(nid.size()) == "#libSceNpManager#1#libSceNpManager#Function" ||
-               (nid == "JELHf4xPufo" && symbol.name.substr(nid.size()) ==
-                   "#libSceNpManagerForToolkit#1#libSceNpManager#Function"))) ||
+               (nid == "JELHf4xPufo" &&
+                symbol.name.substr(nid.size()) ==
+                    "#libSceNpManagerForToolkit#1#libSceNpManager#Function"))) ||
              (ssl_nid && symbol.name.substr(nid.size()) == "#libSceSsl#1#libSceSsl#Function") ||
              (network && IsNetNid(nid) &&
               symbol.name.substr(nid.size()) == "#libSceNet#1#libSceNet#Function") ||
@@ -1009,9 +1131,11 @@ void GuestRuntime::Impl::InstallHandlers() {
             std::unique_lock vm(vm_mutex, std::defer_lock);
             if (!entry.save)
                 vm.lock();
-            frame.registers.Set(Gpr::Rax,
-                                DispatchStorage(*storage, space, entry, args,
-                                                [this](int error) { return PosixFailure(error); }));
+            const auto result = DispatchStorage(
+                *storage, space, entry, args, [this](int error) { return PosixFailure(error); });
+            if (entry.save)
+                LOG_INFO(Lib_SaveData, "Session storage nid={} result={:#x}", entry.nid, result);
+            frame.registers.Set(Gpr::Rax, result);
             return Ok();
         };
     }
@@ -1962,6 +2086,10 @@ void GuestRuntime::Impl::InstallHandlers() {
             return Ok();
         };
     }
+    for (const auto nid : AvPlayerNids) {
+        bind({nid.data()},
+             [this, nid](const auto& a) -> u64 { return avplayer->Dispatch(nid, a); });
+    }
     // Desktop sceNpCheckCallback/ForLib return OK after draining an empty queue.
     // This offline-only session has no NP event producers or admitted callback
     // registrations. Never enter the desktop global callbacks (native function
@@ -2464,6 +2592,9 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
     impl->sysmodules.Publish("libScePad", 0x1000000d);
     impl->audio = std::make_unique<GuestAudio>(impl->space, impl->vm_mutex, impl->clock);
     impl->ajm = std::make_unique<GuestAjm>(impl->space, impl->vm_mutex);
+    impl->avplayer = std::make_unique<GuestAvPlayer>(impl->space, impl->vm_mutex,
+                                                     [p = impl.get()] { return p->AvCallbacks(); });
+    impl->sysmodules.Publish("libSceAvPlayer", 0x1000000e);
     impl->network = std::make_unique<GuestNetwork>(EmulatorSettings.IsConnectedToNetwork());
     LOG_INFO(Lib_Net, "Session network control: requested_online={}, online transport unavailable",
              EmulatorSettings.IsConnectedToNetwork());

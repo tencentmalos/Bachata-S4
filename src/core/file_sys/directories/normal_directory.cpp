@@ -16,7 +16,11 @@ std::shared_ptr<BaseDirectory> NormalDirectory::Create(std::string_view guest_di
 }
 
 NormalDirectory::NormalDirectory(std::string_view guest_directory)
-    : guest_directory(guest_directory) {
+    : NormalDirectory([path = std::string(guest_directory)](const Visitor& visitor) {
+          Common::Singleton<Core::FileSys::MntPoints>::Instance()->IterateDirectory(path, visitor);
+      }) {}
+
+NormalDirectory::NormalDirectory(Reader reader) : reader(std::move(reader)) {
     RebuildDirents();
 }
 
@@ -29,10 +33,9 @@ s64 NormalDirectory::read(void* buf, u64 nbytes) {
     // space will be left untouched
     // reclen always sums up to end of current alignment
 
-    s64 bytes_available = this->dirent_cache_bin.size() - file_offset;
-    if (bytes_available <= 0)
+    if (file_offset >= this->dirent_cache_bin.size())
         return 0;
-    bytes_available = std::min<s64>(bytes_available, static_cast<s64>(nbytes));
+    const u64 bytes_available = std::min<u64>(dirent_cache_bin.size() - file_offset, nbytes);
 
     // data
     memcpy(buf, this->dirent_cache_bin.data() + file_offset, bytes_available);
@@ -101,7 +104,6 @@ void NormalDirectory::RebuildDirents() {
     // no reason for testing - read is always raw and dirents get processed on the go
     if (previous_file_offset == file_offset)
         return;
-    previous_file_offset = file_offset;
 
     constexpr u32 dirent_meta_size =
         sizeof(NormalDirectoryDirent::d_fileno) + sizeof(NormalDirectoryDirent::d_type) +
@@ -113,13 +115,12 @@ void NormalDirectory::RebuildDirents() {
     dirent_cache_bin.clear();
     dirent_cache_bin.reserve(512);
 
-    auto* mnt = Common::Singleton<Core::FileSys::MntPoints>::Instance();
-
-    mnt->IterateDirectory(
-        guest_directory, [this, &next_ceiling, &dirent_offset, &last_reclen_offset](
+    reader([this, &next_ceiling, &dirent_offset, &last_reclen_offset](
                              const std::filesystem::path& ent_path, const bool ent_is_file) {
             NormalDirectoryDirent tmp{};
             std::string leaf(ent_path.filename().string());
+            if (leaf.empty() || leaf.size() > 255)
+                return;
 
             // prepare dirent
             tmp.d_fileno = BaseDirectory::next_fileno();
@@ -131,8 +132,9 @@ void NormalDirectory::RebuildDirents() {
             // next element may break 512 byte alignment
             if (tmp.d_reclen + dirent_offset > next_ceiling) {
                 // align previous dirent's size to the current ceiling
-                *reinterpret_cast<u16*>(static_cast<u8*>(dirent_cache_bin.data()) +
-                                        last_reclen_offset) += next_ceiling - dirent_offset;
+                if (!dirent_cache_bin.empty())
+                    *reinterpret_cast<u16*>(dirent_cache_bin.data() + last_reclen_offset) +=
+                        next_ceiling - dirent_offset;
                 // set writing pointer to the aligned start position (current ceiling)
                 dirent_offset = next_ceiling;
                 // move the ceiling up and zero-out the buffer
@@ -149,11 +151,13 @@ void NormalDirectory::RebuildDirents() {
         });
 
     // last reclen, as before
-    *reinterpret_cast<u16*>(static_cast<u8*>(dirent_cache_bin.data()) + last_reclen_offset) +=
-        next_ceiling - dirent_offset;
+    if (!dirent_cache_bin.empty())
+        *reinterpret_cast<u16*>(dirent_cache_bin.data() + last_reclen_offset) +=
+            next_ceiling - dirent_offset;
 
     // i have no idea if this is the case, but lseek returns size aligned to 512
     directory_size = next_ceiling;
+    previous_file_offset = file_offset;
 }
 
 } // namespace Core::Directories

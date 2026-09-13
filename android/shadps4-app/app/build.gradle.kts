@@ -205,7 +205,7 @@ val runtimeFixtureAssets = layout.buildDirectory.dir("generated/productionRuntim
 android.sourceSets.getByName("androidTest").assets.srcDir(runtimeFixtureAssets)
 val fixtureRepo = rootProject.projectDir.resolve("../..")
 val fixtureNdk = android.sdkDirectory.resolve("ndk/29.0.14206865")
-val runtimeFixtureTasks = listOf("audio", "ajm", "thread-dtors", "thread-dtors-bad", "module-lookup", "module-lookup-zero", "module-lookup-nonzero", "module-lookup-absent", "pad", "clock-vm", "sysmodule", "network-wait", "libc-policy-main", "libc-policy-fallback", "libc-policy-system", "libc-policy-bad-init", "thread-attributes", "thread-attributes-fault", "gpu-flip", "storage", "storage-read", "save-dialog", "videoout", "videoout-bad", "videoout-format", "bootstrap", "bootstrap-wait", "libc", "libc-wait", "services", "fixture", "self", "wait", "dependency", "dependency-wait", "bad", "unknown").map { kind ->
+val runtimeFixtureTasks = listOf("avplayer", "avplayer-wait", "audio", "ajm", "thread-dtors", "thread-dtors-bad", "module-lookup", "module-lookup-zero", "module-lookup-nonzero", "module-lookup-absent", "pad", "clock-vm", "sysmodule", "network-wait", "libc-policy-main", "libc-policy-fallback", "libc-policy-system", "libc-policy-bad-init", "thread-attributes", "thread-attributes-fault", "gpu-flip", "storage", "storage-read", "save-dialog", "videoout", "videoout-bad", "videoout-format", "bootstrap", "bootstrap-wait", "libc", "libc-wait", "services", "fixture", "self", "wait", "dependency", "dependency-wait", "bad", "unknown").map { kind ->
     tasks.register<Exec>("generate${kind.replaceFirstChar { it.uppercase() }}RuntimeElf") {
         inputs.file(fixtureRepo.resolve("scripts/android/generate-production-runtime-fixture"))
         inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/production_runtime.S"))
@@ -213,6 +213,7 @@ val runtimeFixtureTasks = listOf("audio", "ajm", "thread-dtors", "thread-dtors-b
         inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/runtime_module_lookup.S"))
         inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/runtime_thread_dtors.S"))
         inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/runtime_ajm.S"))
+        inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/runtime_avplayer.S"))
         inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/runtime_audio.S"))
         inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/runtime_pad.S"))
         inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/runtime_videoout.S"))
@@ -241,6 +242,8 @@ val runtimeFixtureTasks = listOf("audio", "ajm", "thread-dtors", "thread-dtors-b
                 "thread-attributes" -> listOf("--thread-attributes")
                 "clock-vm" -> listOf("--clock-vm")
                 "pad" -> listOf("--pad")
+                "avplayer" -> listOf("--avplayer")
+                "avplayer-wait" -> listOf("--avplayer", "--wait")
                 "audio" -> listOf("--audio")
                 "ajm" -> listOf("--ajm")
                 "thread-dtors" -> listOf("--thread-dtors")

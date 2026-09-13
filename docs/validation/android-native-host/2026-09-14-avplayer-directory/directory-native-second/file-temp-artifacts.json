@@ -1,0 +1,14 @@
+{
+  "sources": {
+    "src/core/host_runtime/guest_storage.cpp": "73f5abc01d37a7fde5df87cc332aaf5906d3150a58a6b281f486566430664762",
+    "src/core/host_runtime/guest_storage_hle.cpp": "d5716f9e52895ff2db688b0add6da7b0908ca11a911b77c4e1e440885feeddd8"
+  },
+  "artifacts": {
+    "libshadps4_host.so": "ca0d7026812f7f9afc979d9480ff1a97c013625216d69b8ec67aa92578ba524f",
+    "guest_file_io_tests": "8a9d457d5cb6a8d93d8936e247513bbf6d7f9f797c2fa9744f0c22f79c85c5be"
+  },
+  "serial": "9c2841a4",
+  "scope": "targeted directory enumeration, file/content/temporary storage and desktop Logger integration",
+  "exit": 0,
+  "test_root": "/data/local/tmp/shadps4-sysmodule-review-1789309491/file-temp-1789329324944373000"
+}

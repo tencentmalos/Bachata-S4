@@ -114,11 +114,12 @@ AvPlayerState::AvPlayerState(const AvPlayerInitData& init_data)
 }
 
 AvPlayerState::~AvPlayerState() {
+    // Join before releasing source state; controller may be discovering streams.
+    m_controller_thread.Stop();
     {
         std::unique_lock lock(m_source_mutex);
         m_up_source.reset();
     }
-    m_controller_thread.Stop();
     m_event_queue.Clear();
 }
 
@@ -140,8 +141,6 @@ bool AvPlayerState::AddSource(std::string_view path, AvPlayerSourceType source_t
             return false;
         }
 
-        s32 sdk_ver{};
-        Libraries::Kernel::sceKernelGetCompiledSdkVersion(&sdk_ver);
         m_up_source = std::make_unique<AvPlayerSource>(*this);
         if (!m_up_source->Init(m_init_data, path)) {
             SetState(AvState::Error);
@@ -175,8 +174,10 @@ bool AvPlayerState::GetStreamInfo(u32 stream_index, AvPlayerStreamInfo& info) {
 
 // Called inside GAME thread
 bool AvPlayerState::Start() {
+    if (m_current_state != AvState::Ready && m_current_state != AvState::Stop && !Stop())
+        return false;
     std::unique_lock lock(m_source_mutex);
-    if (m_current_state == AvState::Ready || m_current_state == AvState::Stop || Stop()) {
+    if (m_up_source) {
         m_eof_stop_event_sent = false;
         SetState(AvState::Starting);
         if (!m_up_source->Start()) {

@@ -2,8 +2,11 @@
 #include <cstdio>
 #include <cstring>
 #include <fstream>
+#include <set>
 #include "common/path_util.h"
 #include "core/file_sys/fs.h"
+#include "core/file_sys/directories/normal_directory.h"
+#include "core/libraries/kernel/kernel.h"
 #include "core/host_runtime/guest_app_content.h"
 #include "core/host_runtime/guest_storage_hle.h"
 #include "core/libraries/kernel/posix_error.h"
@@ -88,6 +91,84 @@ int main(int argc, char** argv) {
                 return UINT64_MAX;
             });
         };
+        // Real TMNT opens the save root as a directory before enabling writes.
+        CHECK(storage.Open("/savedata0/data", 0x20000, 0).error == ENOTDIR);
+        CHECK(storage.Open("/savedata0/", 0x20002, 0).error == EISDIR);
+        CHECK(storage.Mkdir("/savedata0/./", 0700).error == EEXIST);
+        for (int i = 0; i < 70; ++i)
+            std::ofstream(root / "users/1000/savedata/CUSA99991/io" /
+                          ("entry-" + std::to_string(i))) << i;
+        auto directory = storage.Open("/savedata0/./", 0x20000, 0);
+        CHECK(!directory.error);
+        CHECK(storage.Unmount("/savedata0") == GuestStorage::Error::BUSY);
+        std::array<u8, 512> entries{};
+        s64 directory_base{-1};
+        CHECK(storage.GetDents(directory.value, std::span{entries}.first(511), nullptr).error == EINVAL);
+        CHECK(storage.GetDents(fd.value, entries, nullptr).error == EINVAL);
+        CHECK(u32(call(StorageOp::GetDirEntries,
+                       {u64(directory.value), base + 2048, 512, 1})) == u32(ORBIS_KERNEL_ERROR_EFAULT));
+        CHECK(storage.Seek(directory.value, 0, 1).value == 0); // failed basep did not consume
+        CHECK(call(StorageOp::GetDirEntries,
+                   {u64(directory.value), base + 2048, 512, base + 1536}) == 512);
+        CHECK(space->Read(GuestAddress{base + 1536},
+                          std::as_writable_bytes(std::span{&directory_base, 1})) && directory_base == 0);
+        CHECK(storage.Seek(directory.value, 0, 0).value == 0);
+        std::set<std::string> names;
+        s64 total{};
+        for (unsigned chunk = 0; chunk < 20; ++chunk) {
+            const auto got = storage.GetDents(directory.value, entries, &directory_base);
+            CHECK(!got.error && (got.value == 0 || got.value == 512));
+            CHECK(directory_base == total);
+            if (!got.value) break;
+            total += got.value;
+            for (size_t at = 0; at < size_t(got.value);) {
+                u16 length{};
+                std::memcpy(&length, entries.data() + at + 4, 2);
+                CHECK(length >= 12 && length % 4 == 0 && length <= got.value - at);
+                if (length < 12 || length > got.value - at) break;
+                const auto name_length = entries[at + 7];
+                CHECK(name_length && size_t(name_length) + 9 <= length &&
+                      entries[at + 8 + name_length] == 0);
+                names.emplace(reinterpret_cast<char*>(entries.data() + at + 8), name_length);
+                at += length;
+            }
+        }
+        CHECK(names.contains(".") && names.contains("..") && names.contains("entry-0") &&
+              names.contains("entry-69") && names.contains("data") && total > 512);
+        CHECK(storage.GetDents(directory.value, entries, nullptr).value == 0);
+        CHECK(storage.Seek(directory.value, INT64_MAX, 1).error == EINVAL);
+        CHECK(storage.Seek(directory.value, -1, 0).error == EINVAL);
+        CHECK(storage.Seek(directory.value, 0, 0).value == 0);
+        CHECK(storage.Read(directory.value, entries).value == 512);
+        CHECK(storage.Fstat(directory.value, st).value == 0 && st.st_size == total &&
+              st.st_mode == 0040777 && st.st_blksize == 0x8000);
+        const std::array<GuestStorage::Buffer, 1> dir_buffers{{{entries.data(), entries.size()}}};
+        CHECK(storage.Positioned(directory.value, dir_buffers, 0, false).value == 512);
+        CHECK(storage.Seek(directory.value, 0, 1).value == 512);
+        CHECK(storage.Positioned(directory.value, dir_buffers, INT64_MAX - 512, false).value == 0);
+        CHECK(storage.Seek(directory.value, 0, 1).value == 512);
+        CHECK(storage.Positioned(directory.value, dir_buffers, 0, true).error == EBADF);
+        CHECK(storage.Close(directory.value).value == 0);
+        CHECK(storage.GetDents(directory.value, entries, nullptr).error == EBADF);
+        CHECK(Libraries::Kernel::NativeToPosixErrno(EOVERFLOW) == POSIX_EOVERFLOW);
+        CHECK(Libraries::Kernel::NativeToPosixErrno(ENAMETOOLONG) == POSIX_ENAMETOOLONG);
+        CHECK(Libraries::Kernel::NativeToPosixErrno(ENOTEMPTY) == POSIX_ENOTEMPTY);
+        const std::array<u8, 5> log_line{'t', 'e', 's', 't', '\n'};
+        CHECK(storage.Write(1, log_line).value == 5 && storage.Write(2, log_line).value == 5);
+        CHECK(storage.Sync(1).value == 0 && storage.Close(1).error == EPERM);
+        Core::Directories::NormalDirectory empty([](const auto&) {});
+        CHECK(empty.getdents(entries.data(), entries.size(), nullptr) == 0);
+        bool fail_reader = false;
+        Core::Directories::NormalDirectory throwing([&](const auto&) {
+            if (fail_reader) throw std::system_error(EIO, std::generic_category());
+        });
+        fail_reader = true;
+        const Libraries::Kernel::OrbisKernelIovec one{entries.data(), entries.size()};
+        bool failed{};
+        try { (void)throwing.preadv(&one, 1, 1); }
+        catch (const std::system_error& e) { failed = e.code().value() == EIO; }
+        CHECK(failed && throwing.lseek(0, 1) == 0);
+        CHECK(throwing.preadv(&one, 1, -1) == ORBIS_KERNEL_ERROR_EINVAL);
         auto write = [&](u64 address, const auto& value) {
             CHECK(space->Write(GuestAddress{address}, std::as_bytes(std::span{&value, 1})));
         };

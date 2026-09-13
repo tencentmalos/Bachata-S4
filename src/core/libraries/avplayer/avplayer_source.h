@@ -17,7 +17,6 @@
 #include "core/libraries/avplayer/avplayer.h"
 #include "core/libraries/avplayer/avplayer_common.h"
 #include "core/libraries/avplayer/avplayer_data_streamer.h"
-#include "core/libraries/kernel/threads.h"
 
 struct AVCodecContext;
 struct AVFormatContext;
@@ -48,7 +47,7 @@ public:
           m_data(is_texture ? AllocateTexture(memory_replacement, align, size)
                             : Allocate(memory_replacement, align, size)),
           m_size(size), m_is_texture(is_texture) {
-        ASSERT_MSG(m_data, "Could not allocate frame buffer.");
+
     }
 
     ~GuestBuffer() {
@@ -213,6 +212,7 @@ private:
     std::atomic_bool m_is_looping = false;
     std::atomic_bool m_is_paused = false;
     std::atomic_bool m_is_eof = false;
+    std::atomic_bool m_video_done{true}, m_audio_done{true};
 
     std::unique_ptr<IDataStreamer> m_up_data_streamer;
 
@@ -240,9 +240,9 @@ private:
     EventCV m_video_buffers_cv{};
 
     std::mutex m_state_mutex{};
-    Kernel::Thread m_demuxer_thread{};
-    Kernel::Thread m_video_decoder_thread{};
-    Kernel::Thread m_audio_decoder_thread{};
+    AvPlayerThread m_demuxer_thread{};
+    AvPlayerThread m_video_decoder_thread{};
+    AvPlayerThread m_audio_decoder_thread{};
 
     AVFormatContextPtr m_avformat_context{nullptr, &ReleaseAVFormatContext};
     AVCodecContextPtr m_video_codec_context{nullptr, &ReleaseAVCodecContext};

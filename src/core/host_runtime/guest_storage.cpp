@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <limits>
 #include <fcntl.h>
+#include <dirent.h>
 #include <sys/stat.h>
 #include <sys/syscall.h>
 #include <sys/uio.h>
@@ -12,6 +13,7 @@
 #include "common/path_util.h"
 #include "common/scope_exit.h"
 #include "core/file_sys/fs.h"
+#include "core/file_sys/directories/normal_directory.h"
 #include "guest_storage.h"
 
 namespace Core::HostRuntime {
@@ -75,8 +77,12 @@ GuestStorage::GuestStorage(FileSys::MntPoints& m, fs::path h, std::string t, int
     // Context.filesDir may use Android's legitimate /data/user/0 symlink.
     // Resolve the host-provided root once; reject symlinks only below that root.
     home = fs::weakly_canonical(home);
+    stdio[0] = std::make_unique<Core::Devices::Logger>("stdin", false);
+    stdio[1] = std::make_unique<Core::Devices::Logger>("stdout", false);
+    stdio[2] = std::make_unique<Core::Devices::Logger>("stderr", true);
 }
 GuestStorage::~GuestStorage() {
+    for (auto& device : stdio) device->fsync();
     for (auto [id, file] : files)
         ::close(file.host);
     files.clear();
@@ -411,6 +417,21 @@ GuestStorage::Parent GuestStorage::Resolve(std::string_view path, bool write, bo
         p.error = EINVAL;
         return p;
     }
+    // POSIX separators and '.' do not change mount ownership. Keep '..' rejected
+    // instead of normalizing it through a mount or metadata boundary.
+    std::string normalized;
+    for (size_t start = 1; start <= path.size();) {
+        auto end = path.find('/', start);
+        if (end == path.npos) end = path.size();
+        const auto part = path.substr(start, end - start);
+        if (!part.empty() && part != ".") {
+            if (!Component(part)) { p.error = EACCES; return p; }
+            normalized += '/';
+            normalized += part;
+        }
+        start = end + 1;
+    }
+    path = normalized;
     const auto slash = path.find('/', 1);
     if (!allow_root && (slash == path.npos || slash + 1 == path.size())) {
         p.error = EINVAL;
@@ -494,13 +515,12 @@ GuestStorage::Parent GuestStorage::Resolve(std::string_view path, bool write, bo
 }
 GuestStorage::IoResult GuestStorage::Open(std::string_view path, u32 flags, u32 mode) {
     std::lock_guard lock(mutex);
-    constexpr u32 allowed = 3 | 8 | 0x80 | 0x200 | 0x400 | 0x800;
+    constexpr u32 allowed = 3 | 4 | 8 | 0x80 | 0x200 | 0x400 | 0x800 | 0x1000 |
+                            0x10000 | 0x20000;
     if ((flags & ~allowed) || (flags & 3) == 3)
         return {-1, EINVAL};
     bool write = (flags & 3) != 0;
-    if (!write && (flags & (0x200 | 0x400 | 8)))
-        return {-1, EINVAL};
-    auto p = Resolve(path, write);
+    auto p = Resolve(path, write, true);
     if (p.error)
         return {-1, p.error};
     int native = (flags & 3) == 2 ? O_RDWR : (write ? O_WRONLY : O_RDONLY);
@@ -514,27 +534,75 @@ GuestStorage::IoResult GuestStorage::Open(std::string_view path, u32 flags, u32 
         native |= O_TRUNC;
     if (flags & 0x800)
         native |= O_EXCL;
+    if (flags & 0x1000)
+        native |= O_DSYNC;
+    if (flags & 0x20000)
+        native |= O_DIRECTORY;
+    // Desktop also admits directory opens without O_DIRECTORY. Detect type
+    // before open so a writable-directory request reports the guest EISDIR.
+    struct stat before{};
+    if (::fstatat(p.fd, p.leaf.c_str(), &before, AT_SYMLINK_NOFOLLOW) == 0 &&
+        S_ISDIR(before.st_mode) && (write || (flags & 0x400))) {
+        ::close(p.fd);
+        return {-1, EISDIR};
+    }
     int fd =
         ::openat(p.fd, p.leaf.c_str(), native | O_CLOEXEC | O_NOFOLLOW | O_NONBLOCK, mode & 0777);
     int error = errno;
     ::close(p.fd);
     if (fd < 0)
         return {-1, error};
+    bool owned = false;
+    SCOPE_EXIT { if (!owned) ::close(fd); };
     struct stat st {};
-    if (::fstat(fd, &st) || !S_ISREG(st.st_mode)) {
-        ::close(fd);
+    if (::fstat(fd, &st))
+        return {-1, errno};
+    if (!S_ISREG(st.st_mode) && !S_ISDIR(st.st_mode)) {
         return {-1, EACCES};
     }
     if (next_fd == std::numeric_limits<int>::max()) {
-        ::close(fd);
         return {-1, EMFILE};
     }
+    std::shared_ptr<Core::Directories::BaseDirectory> directory;
+    if (S_ISDIR(st.st_mode)) {
+        try {
+            directory = std::make_shared<Core::Directories::NormalDirectory>(
+                [fd](const Core::Directories::NormalDirectory::Visitor& visitor) {
+                    // New open description for each scan; dup would share the
+                    // previous readdir cursor. The owned fd pins the directory.
+                    int scan = ::openat(fd, ".", O_RDONLY | O_DIRECTORY | O_CLOEXEC);
+                    if (scan < 0) throw std::system_error(errno, std::generic_category());
+                    DIR* dir = ::fdopendir(scan);
+                    if (!dir) {
+                        const int error = errno;
+                        ::close(scan);
+                        throw std::system_error(error, std::generic_category());
+                    }
+                    SCOPE_EXIT { ::closedir(dir); };
+                    for (;;) {
+                        errno = 0;
+                        const auto* entry = ::readdir(dir);
+                        if (!entry) {
+                            if (errno) throw std::system_error(errno, std::generic_category());
+                            break;
+                        }
+                        struct stat item{};
+                        if (::fstatat(scan, entry->d_name, &item, AT_SYMLINK_NOFOLLOW))
+                            continue; // An entry removed during enumeration.
+                        if (S_ISREG(item.st_mode) || S_ISDIR(item.st_mode))
+                            visitor(entry->d_name, S_ISREG(item.st_mode));
+                    }
+                });
+        } catch (const std::system_error& e) { return {-1, e.code().value()}; }
+    }
     int id = next_fd++;
-    files.emplace(id, File{fd, p.slot, write, bool(flags & 8)});
+    files.emplace(id, File{fd, p.slot, write, bool(flags & 8), std::move(directory)});
+    owned = true;
     return {id, 0};
 }
 GuestStorage::IoResult GuestStorage::Close(int fd) {
     std::lock_guard lock(mutex);
+    if (fd >= 0 && fd < 3) return {-1, EPERM}; // Same reserved handles as desktop.
     auto it = files.find(fd);
     if (it == files.end())
         return {-1, EBADF};
@@ -548,11 +616,17 @@ GuestStorage::IoResult GuestStorage::Read(int fd, std::span<u8> data) {
     auto it = files.find(fd);
     if (it == files.end())
         return {-1, EBADF};
+    if (it->second.directory) {
+        try { return {it->second.directory->read(data.data(), data.size()), 0}; }
+        catch (const std::system_error& e) { return {-1, e.code().value()}; }
+    }
     auto r = ::read(it->second.host, data.data(), data.size());
     return {r, r < 0 ? errno : 0};
 }
 GuestStorage::IoResult GuestStorage::Write(int fd, std::span<const u8> data) {
     std::lock_guard lock(mutex);
+    if (fd >= 0 && fd < 3)
+        return {data.empty() ? 0 : stdio[fd]->write(data.data(), data.size()), 0};
     auto it = files.find(fd);
     if (it == files.end() || !it->second.writable)
         return {-1, EBADF};
@@ -633,6 +707,10 @@ GuestStorage::IoResult GuestStorage::Fstat(int fd, Libraries::Kernel::OrbisKerne
     auto it = files.find(fd);
     if (it == files.end())
         return {-1, EBADF};
+    if (it->second.directory) {
+        out = {};
+        return {it->second.directory->fstat(&out), 0};
+    }
     struct stat native {};
     if (::fstat(it->second.host, &native))
         return {-1, errno};
@@ -660,6 +738,15 @@ GuestStorage::IoResult GuestStorage::Positioned(int fd, std::span<const Buffer> 
         return {-1, EOVERFLOW};
     if (cancelled)
         return {-1, EINTR};
+    if (file.directory) {
+        std::vector<Libraries::Kernel::OrbisKernelIovec> directory_vectors;
+        for (const auto& buffer : buffers)
+            directory_vectors.push_back({buffer.data, buffer.size});
+        try {
+            return {file.directory->preadv(directory_vectors.data(), directory_vectors.size(), offset),
+                    0};
+        } catch (const std::system_error& e) { return {-1, e.code().value()}; }
+    }
     if (write) {
         struct stat native {};
         if (::fstat(file.host, &native))
@@ -706,20 +793,34 @@ GuestStorage::IoResult GuestStorage::Seek(int fd, s64 offset, int whence) {
         return {-1, EBADF};
     if (whence < 0 || whence > 2)
         return {-1, EINVAL};
+    if (it->second.directory) {
+        const auto result = it->second.directory->lseek(offset, whence);
+        return {result, result < 0 ? EINVAL : 0};
+    }
     auto r = ::lseek(it->second.host, offset, whence);
     return {r, r < 0 ? errno : 0};
 }
 GuestStorage::IoResult GuestStorage::Sync(int fd) {
     std::lock_guard lock(mutex);
+    if (fd >= 0 && fd < 3) return {stdio[fd]->fsync(), 0};
     auto it = files.find(fd);
     if (it == files.end())
         return {-1, EBADF};
     auto r = ::fsync(it->second.host);
     return {r, r < 0 ? errno : 0};
 }
+GuestStorage::IoResult GuestStorage::GetDents(int fd, std::span<u8> bytes, s64* base) {
+    std::lock_guard lock(mutex);
+    const auto it = files.find(fd);
+    if (it == files.end()) return {-1, EBADF};
+    if (!it->second.directory || bytes.size() < 512) return {-1, EINVAL};
+    if (cancelled) return {-1, EINTR};
+    try { return {it->second.directory->getdents(bytes.data(), bytes.size(), base), 0}; }
+    catch (const std::system_error& e) { return {-1, e.code().value()}; }
+}
 GuestStorage::IoResult GuestStorage::Mkdir(std::string_view path, u32 mode) {
     std::lock_guard lock(mutex);
-    auto p = Resolve(path, true);
+    auto p = Resolve(path, true, true);
     if (p.error)
         return {-1, p.error};
     auto r = ::mkdirat(p.fd, p.leaf.c_str(), mode & 0777);

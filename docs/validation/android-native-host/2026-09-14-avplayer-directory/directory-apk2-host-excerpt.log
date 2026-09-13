@@ -1,0 +1,74 @@
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=TywrFKCoLGY result=0x0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=0z45PIH+SNI result=0x0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=VwadwBBBJ80 result=0x0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=j8xKtiFj0SY result=0x0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=0z45PIH+SNI result=0x0
+[Lib.SaveData] <Debug> (roidJUnitRunner) guest_storage_hle.cpp:342 DispatchStorage: Session open path=/savedata0/ flags=0x20000 fd=5 error=0
+[Lib.SaveData] <Debug> (roidJUnitRunner) guest_storage_hle.cpp:342 DispatchStorage: Session open path=/savedata0/User.ini.json flags=0x0 fd=6 error=0
+[Lib.SaveData] <Debug> (roidJUnitRunner) guest_storage_hle.cpp:342 DispatchStorage: Session open path=/savedata0/local.player.TOSConsent.json flags=0x0 fd=7 error=0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=VwadwBBBJ80 result=0x0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=j8xKtiFj0SY result=0x0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=0z45PIH+SNI result=0x0
+[Lib.SaveData] <Debug> (roidJUnitRunner) guest_storage_hle.cpp:342 DispatchStorage: Session open path=/savedata0/User.ini.json flags=0x601 fd=10 error=0
+[Lib.SaveData] <Debug> (roidJUnitRunner) guest_storage_hle.cpp:342 DispatchStorage: Session open path=/savedata0/local.player.TOSConsent.json flags=0x601 fd=11 error=0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=VwadwBBBJ80 result=0x0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=j8xKtiFj0SY result=0x0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=0z45PIH+SNI result=0x0
+[Lib.SaveData] <Debug> (roidJUnitRunner) guest_storage_hle.cpp:342 DispatchStorage: Session open path=/savedata0/User.ini.json flags=0x601 fd=12 error=0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=VwadwBBBJ80 result=0x0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=j8xKtiFj0SY result=0x0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=0z45PIH+SNI result=0x0
+[Lib.SaveData] <Debug> (roidJUnitRunner) guest_storage_hle.cpp:342 DispatchStorage: Session open path=/savedata0/User.ini.json flags=0x601 fd=13 error=0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=VwadwBBBJ80 result=0x0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=j8xKtiFj0SY result=0x0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=0z45PIH+SNI result=0x0
+[Lib.SaveData] <Debug> (roidJUnitRunner) guest_storage_hle.cpp:342 DispatchStorage: Session open path=/savedata0/User.ini.json flags=0x601 fd=14 error=0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=VwadwBBBJ80 result=0x0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=j8xKtiFj0SY result=0x0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=0z45PIH+SNI result=0x0
+[Lib.SaveData] <Debug> (roidJUnitRunner) guest_storage_hle.cpp:342 DispatchStorage: Session open path=/savedata0/User.ini.json flags=0x601 fd=15 error=0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=VwadwBBBJ80 result=0x0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=j8xKtiFj0SY result=0x0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=0z45PIH+SNI result=0x0
+[Lib.SaveData] <Debug> (roidJUnitRunner) guest_storage_hle.cpp:342 DispatchStorage: Session open path=/savedata0/User.ini.json flags=0x601 fd=16 error=0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=VwadwBBBJ80 result=0x0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=j8xKtiFj0SY result=0x0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=0z45PIH+SNI result=0x0
+[Lib.SaveData] <Debug> (roidJUnitRunner) guest_storage_hle.cpp:342 DispatchStorage: Session open path=/savedata0/User.ini.json flags=0x601 fd=17 error=0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=VwadwBBBJ80 result=0x0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=j8xKtiFj0SY result=0x0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=0z45PIH+SNI result=0x0
+[Lib.SaveData] <Debug> (roidJUnitRunner) guest_storage_hle.cpp:342 DispatchStorage: Session open path=/savedata0/User.ini.json flags=0x601 fd=19 error=0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=VwadwBBBJ80 result=0x0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=j8xKtiFj0SY result=0x0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=0z45PIH+SNI result=0x0
+[Lib.SaveData] <Debug> (roidJUnitRunner) guest_storage_hle.cpp:342 DispatchStorage: Session open path=/savedata0/User.ini.json flags=0x601 fd=20 error=0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=VwadwBBBJ80 result=0x0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=j8xKtiFj0SY result=0x0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=0z45PIH+SNI result=0x0
+[Lib.SaveData] <Debug> (roidJUnitRunner) guest_storage_hle.cpp:342 DispatchStorage: Session open path=/savedata0/User.ini.json flags=0x601 fd=21 error=0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=VwadwBBBJ80 result=0x0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=j8xKtiFj0SY result=0x0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=0z45PIH+SNI result=0x0
+[Lib.SaveData] <Debug> (roidJUnitRunner) guest_storage_hle.cpp:342 DispatchStorage: Session open path=/savedata0/User.ini.json flags=0x601 fd=22 error=0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=VwadwBBBJ80 result=0x0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=j8xKtiFj0SY result=0x0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=0z45PIH+SNI result=0x0
+[Lib.SaveData] <Debug> (roidJUnitRunner) guest_storage_hle.cpp:342 DispatchStorage: Session open path=/savedata0/User.ini.json flags=0x601 fd=23 error=0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=VwadwBBBJ80 result=0x0
+[Lib.SaveData] <Info> (roidJUnitRunner) guest_runtime.cpp:1123 lambda: Session storage nid=j8xKtiFj0SY result=0x0
+[Lib.AvPlayer] <Info> (roidJUnitRunner) avplayer_source.cpp:73 Init: Opening /app0/build/98/98048838D451130F894F8E1FE38D3BB6 through the game-provided file replacement
+[Lib.AvPlayer] <Info> (shadPS4:AvContr) avplayer_source.cpp:170 CreateStreamInfo: Stream 0 language = und
+[Lib.AvPlayer] <Info> (shadPS4:AvContr) avplayer_source.cpp:176 CreateStreamInfo: Stream 0 is a video stream.
+[Lib.AvPlayer] <Info> (shadPS4:AvContr) avplayer_source.cpp:170 CreateStreamInfo: Stream 1 language = und
+[Lib.AvPlayer] <Info> (shadPS4:AvContr) avplayer_source.cpp:190 CreateStreamInfo: Stream 1 is an audio stream.
+[Lib.AvPlayer] <Info> (shadPS4:AvContr) avplayer_state.cpp:432 EmitEvent: Sending event to the game: id = StateReady
+[Lib.AvPlayer] <Info> (shadPS4:AvContr) avplayer_source.cpp:141 GetStreamCount: Stream Count: 2
+[Lib.AvPlayer] <Info> (shadPS4:AvContr) avplayer_source.cpp:235 EnableStream: Video stream 0 enabled
+[Lib.AvPlayer] <Info> (shadPS4:AvContr) avplayer_source.cpp:240 EnableStream: Audio stream 1 enabled
+[Lib.AvPlayer] <Info> (shadPS4:AvContr) avplayer_state.cpp:432 EmitEvent: Sending event to the game: id = StatePlay
+[Lib.AvPlayer] <Info> (shadPS4:AvVideo) avplayer_source.cpp:748 VideoDecoderThread: Video Decoder Thread started
+[Lib.AvPlayer] <Info> (shadPS4:AvDemux) avplayer_source.cpp:586 DemuxerThread: Demuxer Thread started
+[Lib.AvPlayer] <Info> (shadPS4:AvAudio) avplayer_source.cpp:879 AudioDecoderThread: Audio Decoder Thread started
+[Lib.AvPlayer] <Info> (shadPS4:AvContr) avplayer_state.cpp:432 EmitEvent: Sending event to the game: id = StateBuffering
+[Lib.AvPlayer] <Error> (roidJUnitRunner) avplayer_state.cpp:221 Resume: Could not resume playback.

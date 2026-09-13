@@ -65,6 +65,20 @@ u64 EncoderCall(u32* output, const Args& a, const u32* regs, const char* marker,
     return static_cast<u32>(Fn(argument.template operator()<I>()...));
 }
 } // namespace
+Result<ExecutionLease> AcquireGraphicsAdmission(
+    GuestAddressSpace& space, std::stop_token cancel,
+    std::chrono::steady_clock::time_point deadline, const std::function<void()>& wait) {
+    for (;;) {
+        if (cancel.stop_requested()) return ExecutionLease{};
+        auto acquired = space.AcquireExecutionLease();
+        if (acquired || acquired.GetError().category != ErrorCategory::Busy)
+            return acquired;
+        if (cancel.stop_requested()) return ExecutionLease{};
+        if (!wait || std::chrono::steady_clock::now() >= deadline)
+            return acquired.GetError();
+        wait();
+    }
+}
 void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallFrame&)>>& handlers,
                              std::set<std::string>& gnm, std::set<std::string>& video,
                              GuestAddressSpace& space, std::function<GuestGraphics&()> graphics) {
@@ -81,23 +95,23 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
                     return value.GetError();
                 args[i] = value.Value();
             }
-            auto& renderer = graphics();
+            auto* scope = HleScope::Current();
+            const auto cancel = scope ? scope->CancellationToken() : std::stop_token{};
+            if (cancel.stop_requested()) return Ok();
             // Native HLE is outside FEX's execution lease. Keep GPU publication
             // admitted through enqueue, so VM quiescence cannot observe an idle
             // GPU and then race a delayed submission with backing replacement.
             std::optional<ExecutionLease> admission;
             if (native_memory) {
-                const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
-                for (;;) {
-                    auto acquired = space.AcquireExecutionLease();
-                    if (acquired) { admission.emplace(std::move(acquired).Value()); break; }
-                    auto* scope = HleScope::Current();
-                    if (acquired.GetError().category != ErrorCategory::Busy || !scope ||
-                        scope->CancellationToken().stop_requested() || std::chrono::steady_clock::now() >= deadline)
-                        return acquired.GetError();
-                    scope->WaitFor(std::chrono::milliseconds(1));
-                }
+                std::function<void()> wait;
+                if (scope) wait = [scope] { scope->WaitFor(std::chrono::milliseconds(1)); };
+                auto acquired = AcquireGraphicsAdmission(space, cancel,
+                    std::chrono::steady_clock::now() + std::chrono::seconds(2), wait);
+                if (!acquired) return acquired.GetError();
+                if (!acquired.Value().IsValid() || cancel.stop_requested()) return Ok();
+                admission.emplace(std::move(acquired).Value());
             }
+            auto& renderer = graphics();
             frame.registers.Set(Gpr::Rax, fn(renderer, args));
             return Ok();
         };

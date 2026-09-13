@@ -8,6 +8,8 @@
 #include <mutex>
 #include <span>
 #include "core/libraries/kernel/file_system.h"
+#include "core/file_sys/directories/base_directory.h"
+#include "core/file_sys/devices/logger.h"
 #include "core/libraries/save_data/save_instance.h"
 #include "core/libraries/save_data/savedata.h"
 #include "core/libraries/save_data/savedata_error.h"
@@ -67,6 +69,7 @@ public:
     IoResult Write(int fd, std::span<const u8> data);
     IoResult Seek(int fd, s64 offset, int whence);
     IoResult Sync(int fd);
+    IoResult GetDents(int fd, std::span<u8> bytes, s64* base);
     IoResult Stat(std::string_view path, Libraries::Kernel::OrbisKernelStat& out);
     IoResult Fstat(int fd, Libraries::Kernel::OrbisKernelStat& out);
     // Buffers here are already checked and pinned by the guest ABI adapter.
@@ -93,6 +96,7 @@ private:
         int slot{-1};
         bool writable{};
         bool append{};
+        std::shared_ptr<Core::Directories::BaseDirectory> directory;
     };
     struct Parent {
         int fd{-1};
@@ -112,6 +116,7 @@ private:
     Error CheckIdentity(int uid, std::string_view tid, std::string_view directory);
     std::array<std::unique_ptr<Save>, 16> slots;
     std::map<int, File> files;
+    std::array<std::unique_ptr<Core::Devices::Logger>, 3> stdio;
     std::filesystem::path temporary_root;
     int next_fd{3};
     Save* Find(std::string_view point);

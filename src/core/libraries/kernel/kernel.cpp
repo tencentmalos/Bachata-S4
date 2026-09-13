@@ -149,6 +149,26 @@ s32 NativeToPosixErrno(s32 const e) {
     case ETIMEDOUT:
         return POSIX_ETIMEDOUT;
         break;
+    case EIO: return POSIX_EIO;
+    case EBADF: return POSIX_EBADF;
+    case EBUSY: return POSIX_EBUSY;
+    case EEXIST: return POSIX_EEXIST;
+    case EXDEV: return POSIX_EXDEV;
+    case ENOTDIR: return POSIX_ENOTDIR;
+    case EISDIR: return POSIX_EISDIR;
+    case EMFILE: return POSIX_EMFILE;
+    case ENFILE: return POSIX_ENFILE;
+    case EROFS: return POSIX_EROFS;
+    case ENOTEMPTY: return POSIX_ENOTEMPTY;
+    case ELOOP: return POSIX_ELOOP;
+    case ENAMETOOLONG: return POSIX_ENAMETOOLONG;
+    case EFBIG: return POSIX_EFBIG;
+    case ESPIPE: return POSIX_ESPIPE;
+    case ENODEV: return POSIX_ENODEV;
+    case ENXIO: return POSIX_ENXIO;
+    case ENOEXEC: return POSIX_ENOEXEC;
+    case EOVERFLOW: return POSIX_EOVERFLOW;
+    case ENOSYS: return POSIX_ENOSYS;
     default:
         LOG_WARNING(Kernel, "Unhandled errno {}", e);
         return e;

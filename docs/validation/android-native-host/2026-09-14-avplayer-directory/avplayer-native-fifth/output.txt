@@ -1,0 +1,12 @@
+decoded video=12 audio=90 callbacks=23 events=1 reads=11
+FAIL 249: space->Unmap({GuestAddress{replaced + 4096}, 4096})
+FAIL 250: space->Map({GuestAddress{replaced + 4096}, 4096}, rw)
+FAIL 262: reinterpret_cast<u64>( read.template operator()<AvPlayerFrameInfoEx>(output).p_data) != replaced
+FAIL 262: reinterpret_cast<u64>( read.template operator()<AvPlayerFrameInfoEx>(output).p_data) != replaced
+FAIL 262: reinterpret_cast<u64>( read.template operator()<AvPlayerFrameInfoEx>(output).p_data) != replaced
+FAIL 269: read.template operator()<u64>(replaced) == 0x5a5a5a5a5a5a5a5aULL
+FAIL 270: read.template operator()<u64>(replaced + 4096) == 0x5a5a5a5a5a5a5a5aULL
+FAIL 276: allocations.size() == 1 && allocations.contains(replaced)
+guest_avplayer_tests: 1042 checks, 8 failures
+[mov,mp4,m4a,3gp,3g2,mj2 @ 0xb400006ec51927f0] Packet corrupt (stream = 1, dts = 10240).
+[mov,mp4,m4a,3gp,3g2,mj2 @ 0xb400006ec51927f0] stream 1, offset 0x10ba: partial file

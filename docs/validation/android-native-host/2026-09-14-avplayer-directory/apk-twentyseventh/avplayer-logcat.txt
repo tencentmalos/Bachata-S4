@@ -1,0 +1,28 @@
+--------- beginning of main
+09-14 03:14:18.047 26818 26844 I ProductionRuntime: prepare: reserve guest VA
+09-14 03:14:18.047 26818 26844 I ProductionRuntime: prepare: create FEX context
+09-14 03:14:18.048 26818 26844 I ProductionRuntime: prepare: create production VM/Linker
+09-14 03:14:18.264 26818 26844 I ProductionRuntime: prepare: load/relocate modules
+09-14 03:14:18.265 26818 26844 I ProductionRuntime: prepare: ready
+09-14 03:14:18.265 26818 26844 I ProductionRuntime: run: enter production guest
+09-14 03:14:18.380 26818 26844 I ProductionRuntime: run: guest returned to host
+09-14 03:14:18.381 26818 26841 I AvPlayerAcceptance: round=0 case=avplayer outcome=0 page_size=4096 pid=26818 uid=10157 guest return=51966
+09-14 03:14:18.381 26818 26841 I AvPlayerAcceptance: production Linker/VM; owners=1 veneers=9 graphics=not-created modules=1
+09-14 03:14:18.384 26818 26856 I ProductionRuntime: prepare: reserve guest VA
+09-14 03:14:18.384 26818 26856 I ProductionRuntime: prepare: create FEX context
+09-14 03:14:18.384 26818 26856 I ProductionRuntime: prepare: create production VM/Linker
+09-14 03:14:18.587 26818 26856 I ProductionRuntime: prepare: load/relocate modules
+09-14 03:14:18.589 26818 26856 I ProductionRuntime: prepare: ready
+09-14 03:14:18.589 26818 26856 I ProductionRuntime: run: enter production guest
+09-14 03:14:18.704 26818 26856 I ProductionRuntime: run: guest returned to host
+09-14 03:14:18.704 26818 26841 I AvPlayerAcceptance: round=1 case=avplayer outcome=0 page_size=4096 pid=26818 uid=10157 guest return=51966
+09-14 03:14:18.704 26818 26841 I AvPlayerAcceptance: production Linker/VM; owners=1 veneers=9 graphics=not-created modules=1
+09-14 03:14:18.705 26818 26866 I ProductionRuntime: prepare: reserve guest VA
+09-14 03:14:18.705 26818 26866 I ProductionRuntime: prepare: create FEX context
+09-14 03:14:18.705 26818 26866 I ProductionRuntime: prepare: create production VM/Linker
+09-14 03:14:18.911 26818 26866 I ProductionRuntime: prepare: load/relocate modules
+09-14 03:14:18.918 26818 26866 I ProductionRuntime: prepare: ready
+09-14 03:14:18.918 26818 26866 I ProductionRuntime: run: enter production guest
+09-14 03:14:19.053 26818 26866 I ProductionRuntime: run: guest returned to host
+09-14 03:14:19.055 26818 26841 I AvPlayerAcceptance: round=2 case=avplayer outcome=0 page_size=4096 pid=26818 uid=10157 guest return=51966
+09-14 03:14:19.055 26818 26841 I AvPlayerAcceptance: production Linker/VM; owners=1 veneers=9 graphics=not-created modules=1

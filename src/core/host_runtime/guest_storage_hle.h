@@ -29,6 +29,8 @@ enum class StorageOp {
     Rename,
     Stat,
     Fstat,
+    GetDents,
+    GetDirEntries,
     Pread,
     Pwrite,
     Preadv,
@@ -41,7 +43,11 @@ struct StorageEntry {
     bool save;
     bool posix{};
 };
-inline constexpr StorageEntry StorageEntries[]{{"eV9wAD2riIA", StorageOp::Stat, false},
+inline constexpr StorageEntry StorageEntries[]{{"j2AIqSqJP0w", StorageOp::GetDents, false},
+                                               {"2G6i6hMIUUY", StorageOp::GetDents, false, true},
+                                               {"taRWhTJFTgE", StorageOp::GetDirEntries, false},
+                                               {"sfKygSjIbI8", StorageOp::GetDirEntries, false, true},
+                                               {"eV9wAD2riIA", StorageOp::Stat, false},
                                                {"E6ao34wPw+U", StorageOp::Stat, false, true},
                                                {"kBwCPsYX-m4", StorageOp::Fstat, false},
                                                {"mqQMh1zPPT8", StorageOp::Fstat, false, true},

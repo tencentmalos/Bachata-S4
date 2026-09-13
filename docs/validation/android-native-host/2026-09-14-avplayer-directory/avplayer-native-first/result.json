@@ -1,0 +1,10 @@
+{
+  "exit_code": 0,
+  "device_dir": "/data/local/tmp/shadps4-avplayer-1789326476941806000",
+  "artifacts": {
+    "/Users/bytedance/workspace/emulations/ps4/shadps4/build/sysmodule-review/avplayer-probe.mp4": "1637fe9c65250f769978fe9626097c745547e71fb09e5f91fe56151902f2e372",
+    "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native/guest_avplayer_tests": "c290dd7cfffbd75252dd2ca7e4aeb9dfb2c340b42a03aae9bf2c644e65a16622",
+    "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native/libshadps4_host.so": "6ef99f8f0a5ca5d4a9145dde55d5313f1a73ac503dc1e5d638daabfe775a9200",
+    "/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352"
+  }
+}

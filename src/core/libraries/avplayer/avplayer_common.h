@@ -3,17 +3,52 @@
 
 #pragma once
 
+#include <functional>
 #include <mutex>
 #include <optional>
 #include <string_view>
+#include <thread>
 #include <utility>
 #include <queue>
+#ifndef __ANDROID__
+#include "core/libraries/kernel/threads.h"
+#endif
 
 #include "core/libraries/avplayer/avplayer.h"
 
 #define AVPLAYER_IS_ERROR(x) ((x) < 0)
 
 namespace Libraries::AvPlayer {
+
+// Android decoder workers are native bionic threads. Guest callbacks are
+// explicitly marshaled by GuestAvPlayer and never enter desktop pthread state.
+#ifdef __ANDROID__
+class AvPlayerThread {
+public:
+    ~AvPlayerThread() {
+        Stop();
+    }
+    void Run(std::function<void(std::stop_token)> fn) {
+        worker = std::jthread(std::move(fn));
+    }
+    bool Joinable() const {
+        return worker.joinable();
+    }
+    void RequestStop() {
+        worker.request_stop();
+    }
+    void Stop() {
+        worker.request_stop();
+        if (worker.joinable())
+            worker.join();
+    }
+
+private:
+    std::jthread worker;
+};
+#else
+using AvPlayerThread = Kernel::Thread;
+#endif
 
 enum class AvState {
     Unknown,
@@ -57,6 +92,7 @@ template <class T>
 class AvPlayerQueue {
 public:
     size_t Size() {
+        std::lock_guard guard(m_mutex);
         return m_queue.size();
     }
 
@@ -65,18 +101,17 @@ public:
         m_queue.emplace(std::forward<T>(value));
     }
 
-    T& Front() {
-        return m_queue.front();
-    }
-
-    std::optional<T> Pop() {
-        if (Size() == 0) {
-            return std::nullopt;
-        }
+    template <class Predicate>
+    std::optional<T> PopIf(Predicate predicate) {
         std::lock_guard guard(m_mutex);
+        if (m_queue.empty() || !predicate(m_queue.front()))
+            return std::nullopt;
         auto result = std::move(m_queue.front());
         m_queue.pop();
         return result;
+    }
+    std::optional<T> Pop() {
+        return PopIf([](const T&) { return true; });
     }
 
     void Clear() {

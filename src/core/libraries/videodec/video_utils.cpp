@@ -21,16 +21,13 @@ void CopyNV12Data(u8* dst, u64 max_size, const AVFrame& src) {
     const auto luma_dst = dst;
     const auto chroma_dst = dst + dst_pitch * dst_height;
 
-    if (src.width != dst_pitch) {
-        for (u32 y = 0; y < src.height; ++y) {
-            std::memcpy(luma_dst + y * dst_pitch, src.data[0] + y * src.linesize[0], src.width);
-        }
-        for (u32 y = 0; y < src.height / 2; ++y) {
-            std::memcpy(chroma_dst + y * dst_pitch, src.data[1] + y * src.linesize[1], src.width);
-        }
-    } else {
-        std::memcpy(luma_dst, src.data[0], src.width * src.height);
-        std::memcpy(chroma_dst, src.data[1], (src.width * src.height) / 2);
+    // Source line stride is independent of the guest's aligned destination pitch.
+    // Even width == dst_pitch can have padding in an FFmpeg AVFrame.
+    for (u32 y = 0; y < src.height; ++y) {
+        std::memcpy(luma_dst + y * dst_pitch, src.data[0] + y * src.linesize[0], src.width);
+    }
+    for (u32 y = 0; y < src.height / 2; ++y) {
+        std::memcpy(chroma_dst + y * dst_pitch, src.data[1] + y * src.linesize[1], src.width);
     }
 
     if (src.height != dst_height) {

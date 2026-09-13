@@ -1,0 +1,13 @@
+{
+  "session": "2ea57a136e70470ea5a60d8a27842143",
+  "pid": 30436,
+  "host_build_id": "5a486f3f84eeb1a21afe79066607e0904487732a",
+  "jni_build_id": "7cf426c4525e2760ef26fac38b3c552d311d1880",
+  "stop_epoch": 3,
+  "guest_rip": "0xa10008",
+  "guest_index": "0xfffffffe",
+  "finding": "save-root directory Open returned EINVAL, then save provider disabled writes and guest used failed file handle as index",
+  "attribution": "original signal ucontext + exact FEX JIT compact PC mapping; not unqualified CPUState",
+  "debug_cleanup": "first cleanup attempts reported incomplete after target crash; terminal health later showed no host/adapter/server/forward ownership and recoveryRequired=false",
+  "raw_guest_memory_committed": false
+}
