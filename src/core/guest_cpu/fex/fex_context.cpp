@@ -43,6 +43,7 @@
 #include <FEXCore/Debug/InternalThreadState.h>
 #include <FEXCore/HLE/SyscallHandler.h>
 #include <FEXCore/Utils/Allocator.h>
+#include <FEXCore/Utils/ArchHelpers/Arm64.h>
 #include <FEXCore/Utils/LogManager.h>
 #include <FEXCore/Utils/TypeDefines.h>
 
@@ -189,6 +190,7 @@ struct ThreadInterruptBinding final {
 static_assert(std::atomic<bool>::is_always_lock_free);
 thread_local ThreadInterruptBinding *t_binding = nullptr;
 struct sigaction g_previous_fault_action {};
+struct sigaction g_previous_bus_action {};
 std::mutex g_interrupt_install_lock;
 bool g_interrupt_installed{};
 
@@ -267,6 +269,36 @@ void InterruptFaultHandler(int signal, siginfo_t *info, void *raw_context) {
     ForwardAction(signal, info, raw_context, g_previous_fault_action);
 }
 
+// x86 permits unaligned atomic and vector accesses that the FEX JIT translates to
+// AArch64 instructions which fault with SIGBUS/BUS_ADRALN (exclusive monitors and
+// some vector ops require alignment). FEX ships a backpatch handler that rewrites
+// the faulting instruction to an unaligned-safe sequence and reports how far to
+// advance the PC to retry. Without it a game that does an unaligned atomic (real
+// TMNT libc/module init does) takes a hard host SIGBUS instead of continuing.
+// This runs on the owner thread inside the JIT, so t_binding is set; only a fault
+// whose PC is inside this thread's code buffer is backpatched, everything else is
+// forwarded unchanged.
+void UnalignedFaultHandler(int signal, siginfo_t *info, void *raw_context) {
+#if defined(__aarch64__)
+    auto *binding = t_binding;
+    if (binding && info && info->si_code == BUS_ADRALN) {
+        auto *uc = static_cast<ucontext_t *>(raw_context);
+        const auto pc = static_cast<std::uintptr_t>(uc->uc_mcontext.pc);
+        if (binding->fex->IsAddressInCodeBuffer(binding->native, pc)) {
+            auto *regs = reinterpret_cast<std::uint64_t *>(uc->uc_mcontext.regs);
+            const auto adjustment = FEXCore::ArchHelpers::Arm64::HandleUnalignedAccess(
+                binding->native, FEXCore::ArchHelpers::Arm64::UnalignedHandlerType::HalfBarrier, pc,
+                regs);
+            if (adjustment.has_value()) {
+                uc->uc_mcontext.pc = pc + *adjustment;
+                return;
+            }
+        }
+    }
+#endif
+    ForwardAction(signal, info, raw_context, g_previous_bus_action);
+}
+
 Status InstallInterruptHandler() {
     std::lock_guard guard{g_interrupt_install_lock};
     if (g_interrupt_installed)
@@ -278,6 +310,18 @@ Status InstallInterruptHandler() {
     if (::sigaction(SIGSEGV, &action, &g_previous_fault_action) != 0)
         return BackendError(ErrorCategory::BackendFailure, "InstallInterruptHandler",
                             "sigaction(SIGSEGV) failed", errno);
+    // The JIT's unaligned atomic/vector accesses arrive as SIGBUS; back them up
+    // with FEX's unaligned handler on the same altstack.
+    struct sigaction bus_action {};
+    bus_action.sa_sigaction = UnalignedFaultHandler;
+    bus_action.sa_flags = SA_SIGINFO | SA_ONSTACK;
+    ::sigemptyset(&bus_action.sa_mask);
+    if (::sigaction(SIGBUS, &bus_action, &g_previous_bus_action) != 0) {
+        const int saved = errno;
+        ::sigaction(SIGSEGV, &g_previous_fault_action, nullptr);
+        return BackendError(ErrorCategory::BackendFailure, "InstallInterruptHandler",
+                            "sigaction(SIGBUS) failed", saved);
+    }
     g_interrupt_installed = true;
     return Ok();
 }
@@ -287,6 +331,7 @@ void RestoreInterruptHandler() {
     if (!g_interrupt_installed)
         return;
     ::sigaction(SIGSEGV, &g_previous_fault_action, nullptr);
+    ::sigaction(SIGBUS, &g_previous_bus_action, nullptr);
     g_interrupt_installed = false;
 }
 
