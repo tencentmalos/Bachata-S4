@@ -6,9 +6,11 @@
 #include <functional>
 #include <map>
 #include <mutex>
+#include <optional>
 #include <stop_token>
 #include <vector>
 #include "core/guest_cpu/api/address_space.h"
+#include "core/host_runtime/guest_clock.h"
 #include "core/libraries/kernel/posix_error.h"
 
 namespace Core::HostRuntime {
@@ -38,22 +40,26 @@ class GuestMutexDomain final {
     std::map<u64, Mutex> mutexes;
     std::map<u64, AttributeState> attributes;
     struct Waiter {
+        u64 owner{};
         bool notified{};
         bool reacquiring{};
     };
     struct Cond {
         std::vector<Waiter*> waiters;
+        u32 clock{};
     };
     std::map<u64, Cond> conditions;
+    std::map<u64, u32> condition_attributes;
+    GuestClock clock;
     size_t allocations{};
-    int CondCreate(u64 slot) {
+    int CondCreate(u64 slot, u32 clock_id = 0) {
         if (!Writable(slot, 8))
             return POSIX_EFAULT;
         if (allocations >= 4096)
             return POSIX_ENOMEM;
         const u64 addr = allocate();
         ++allocations;
-        conditions.emplace(addr, Cond{});
+        conditions.emplace(addr, Cond{.clock = clock_id});
         Write(slot, addr);
         return 0;
     }
@@ -273,16 +279,76 @@ public:
         mutexes.erase(it);
         return 0;
     }
+    enum class CondAttrOp { Init, Destroy, GetClock, SetClock, GetShared, SetShared };
+    int CondAttribute(u64 slot, u64 value, CondAttrOp op) {
+        std::lock_guard lock(guard);
+        if (!space.ValidateRange({GuestCpu::GuestAddress{slot}, 8},
+                                 GuestCpu::GuestPermission::Read))
+            return POSIX_EFAULT;
+        const auto address = Read<u64>(slot);
+        if (op == CondAttrOp::Init) {
+            if (!Writable(slot, 8))
+                return POSIX_EFAULT;
+            if (condition_attributes.contains(address))
+                return POSIX_EBUSY;
+            if (allocations >= 4096)
+                return POSIX_ENOMEM;
+            const u64 created = allocate();
+            ++allocations;
+            condition_attributes.emplace(created, 0);
+            Write(slot, created);
+            return 0;
+        }
+        const auto it = condition_attributes.find(address);
+        if (it == condition_attributes.end())
+            return POSIX_EINVAL;
+        if (op == CondAttrOp::Destroy) {
+            if (!Writable(slot, 8))
+                return POSIX_EFAULT;
+            Write(slot, u64{0});
+            condition_attributes.erase(it);
+            return 0;
+        }
+        if (op == CondAttrOp::SetClock) {
+            // Same four clocks admitted by desktop condattr_setclock.
+            if (u32(value) != 0 && u32(value) != 1 && u32(value) != 2 && u32(value) != 4)
+                return POSIX_EINVAL;
+            it->second = u32(value);
+            return 0;
+        }
+        if (op == CondAttrOp::SetShared)
+            return u32(value) == 0 ? 0 : POSIX_EINVAL;
+        if (!Writable(value, 4))
+            return POSIX_EFAULT;
+        Write(value, op == CondAttrOp::GetClock ? it->second : 0u);
+        return 0;
+    }
     int CondInit(u64 slot, u64 attr) {
         std::lock_guard lock(guard);
-        if (attr && Read<u64>(attr))
-            return POSIX_ENOTSUP;
+        if (!space.ValidateRange({GuestCpu::GuestAddress{slot}, 8},
+                                 GuestCpu::GuestPermission::Read) ||
+            (attr && !space.ValidateRange({GuestCpu::GuestAddress{attr}, 8},
+                                          GuestCpu::GuestPermission::Read)))
+            return POSIX_EFAULT;
+        u32 clock_id{};
+        if (attr) {
+            const auto address = Read<u64>(attr);
+            if (address) {
+                auto it = condition_attributes.find(address);
+                if (it == condition_attributes.end())
+                    return POSIX_EINVAL;
+                clock_id = it->second;
+            }
+        }
         if (conditions.contains(Read<u64>(slot)))
             return POSIX_EBUSY;
-        return CondCreate(slot);
+        return CondCreate(slot, clock_id);
     }
-    int CondNotify(u64 slot, bool broadcast) {
+    int CondNotify(u64 slot, bool broadcast, u64 target_owner = 0) {
         std::lock_guard lock(guard);
+        if (!space.ValidateRange({GuestCpu::GuestAddress{slot}, 8},
+                                 GuestCpu::GuestPermission::Read))
+            return POSIX_EFAULT;
         auto addr = Read<u64>(slot);
         if (!addr) {
             if (int e = CondCreate(slot))
@@ -292,18 +358,24 @@ public:
         auto it = conditions.find(addr);
         if (it == conditions.end())
             return POSIX_EINVAL;
+        bool notified = false;
         for (auto* waiter : it->second.waiters) {
-            if (waiter->notified)
+            if (waiter->notified || waiter->reacquiring ||
+                (target_owner && waiter->owner != target_owner))
                 continue;
             waiter->notified = true;
+            notified = true;
             if (!broadcast)
                 break;
         }
         changed.notify_all();
-        return 0;
+        return target_owner && !notified ? POSIX_EPERM : 0; // desktop returns 1 if not waiting
     }
     int CondDestroy(u64 slot) {
         std::lock_guard lock(guard);
+        if (!space.ValidateRange({GuestCpu::GuestAddress{slot}, 8},
+                                 GuestCpu::GuestPermission::Read))
+            return POSIX_EFAULT;
         const auto addr = Read<u64>(slot);
         if (!addr)
             return 0;
@@ -318,8 +390,18 @@ public:
         conditions.erase(it);
         return 0;
     }
-    int CondWait(u64 slot, u64 mutex_slot, u64 owner, std::stop_token cancel) {
+    struct CondDeadline {
+        std::optional<u64> relative_us;
+        std::optional<std::chrono::nanoseconds> absolute;
+    };
+    int CondWait(u64 slot, u64 mutex_slot, u64 owner, std::stop_token cancel,
+                 const CondDeadline& limit = {}) {
         std::unique_lock lock(guard);
+        if (!space.ValidateRange({GuestCpu::GuestAddress{slot}, 8},
+                                 GuestCpu::GuestPermission::Read) ||
+            !space.ValidateRange({GuestCpu::GuestAddress{mutex_slot}, 8},
+                                 GuestCpu::GuestPermission::Read))
+            return POSIX_EFAULT;
         auto addr = Read<u64>(slot);
         if (!addr) {
             if (int e = CondCreate(slot))
@@ -333,7 +415,7 @@ public:
         auto& mutex = m->second;
         if (mutex.owner != owner)
             return POSIX_EPERM;
-        Waiter waiter;
+        Waiter waiter{.owner = owner};
         c->second.waiters.push_back(&waiter);
         ++mutex.waiters;
         struct Waiting {
@@ -352,7 +434,42 @@ public:
         mutex.owner = 0;
         mutex.depth = 0;
         changed.notify_all();
-        changed.wait(lock, cancel, [&] { return waiter.notified; });
+        int result{};
+        if (limit.relative_us) {
+            const auto now = std::chrono::steady_clock::now();
+            const auto available = std::chrono::duration_cast<std::chrono::microseconds>(
+                                       std::chrono::steady_clock::time_point::max() - now)
+                                       .count();
+            const auto deadline = *limit.relative_us > u64(available)
+                                      ? std::chrono::steady_clock::time_point::max()
+                                      : now + std::chrono::microseconds(*limit.relative_us);
+            if (!changed.wait_until(lock, cancel, deadline, [&] { return waiter.notified; }))
+                result = POSIX_ETIMEDOUT;
+        } else if (limit.absolute) {
+            while (!waiter.notified && !cancel.stop_requested()) {
+                Libraries::Kernel::OrbisKernelTimespec current{};
+                std::chrono::nanoseconds now{};
+                result = clock.Read(c->second.clock, current, false);
+                if (result)
+                    break;
+                if (!GuestClock::Duration(current, now)) {
+                    result = POSIX_EINVAL;
+                    break;
+                }
+                if (now >= *limit.absolute) {
+                    result = POSIX_ETIMEDOUT;
+                    break;
+                }
+                // Re-read the selected clock to honor realtime adjustments and
+                // virtual/profiling CPU time rather than treating them as monotonic.
+                changed.wait_for(lock, cancel,
+                                 std::min(*limit.absolute - now,
+                                          std::chrono::nanoseconds(std::chrono::milliseconds(20))),
+                                 [&] { return waiter.notified; });
+            }
+        } else {
+            changed.wait(lock, cancel, [&] { return waiter.notified; });
+        }
         // Retain the condition's waiter until reacquisition finishes. Otherwise
         // CondDestroy can erase the Cond while Waiting still refers to it.
         waiter.reacquiring = true;
@@ -365,7 +482,7 @@ public:
             mutex.owner = owner;
             mutex.depth = depth;
         }
-        return cancel.stop_requested() ? POSIX_EINTR : 0;
+        return cancel.stop_requested() ? POSIX_EINTR : result;
     }
     size_t PendingWaits(u64 slot) {
         std::lock_guard lock(guard);

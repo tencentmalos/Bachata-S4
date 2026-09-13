@@ -4,7 +4,11 @@
 
 `AGENTS.md` 是共享事实与工程约束；本文件只提供 Claude/Opus 入口。
 
-## 当前交接（2026-09-13）
+## 当前交接（2026-09-14）
+
+先读[离线兼容、条件变量/VM与生产Pad交付](docs/validation/android-native-host/network-condition-pad-integration-2026-09-14.md)。最终TMNT同PID三轮已越过NetInit/SSL/Pad，现为LoadStartModule/op44，仍0帧。定向native network199/0、cond66/0、Pad85/0；APK52-import取消恢复五轮、clock/VM三轮、Pad真实guest三轮均过。**用户最新明确网络和SSL不展开实现，按桌面兼容处理；SSL Init/Term复用已有dummy，不宣称TLS。** 后续直接确认并处理LoadStartModule路径与guest初始化/TLS，不再写spec，不跑全量回归。FEX/Foundation未改；输入从JNI到同一host InputHub再到guest已经过新用例。
+
+## 前一交付（2026-09-13）
 
 先读[Sysmodule／文件／RTC／AppContent 增量与验收限制](docs/validation/android-native-host/sysmodule-rtc-content-integration-2026-09-13.md)，它覆盖下文旧 WithArg 卡点。设备已重连：sysmodule30/0、文件/DLC/临时目录144/0、最终RTC397/0；22-import真实guest三轮返回，完整PFS资源TMNT同PID三轮到 **sceNetInit/op312**，仍零帧。AppContent八入口、实际DLC/临时挂载、空间查询和Stop清理已真机验证；RTC格式化/解析由desktop与guest共享纯helper。临时目录每会话新建，不能称持久缓存；Precise保留原桌面两位小数输出。旧“设备断开未测”和APK/host不一致保留为历史，最新库SHA已核对一致。继续直接处理网络会话/init/池/状态/errno/回调与取消等依赖，不用另写spec或重跑全量回归。所有源码/产物/内容身份、测试目录与明确缺失项在该报告。
 

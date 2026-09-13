@@ -1,0 +1,31 @@
+--------- beginning of main
+09-13 23:50:12.524  9640  9671 I ProductionRuntime: prepare: reserve guest VA
+09-13 23:50:12.524  9640  9671 I ProductionRuntime: prepare: create FEX context
+09-13 23:50:12.524  9640  9671 I ProductionRuntime: prepare: create production VM/Linker
+09-13 23:50:12.743  9640  9671 I ProductionRuntime: prepare: load/relocate modules
+09-13 23:50:12.750  9640  9671 I ProductionRuntime: prepare: ready
+09-13 23:50:12.750  9640  9671 I ProductionRuntime: run: enter production guest
+09-13 23:50:12.780  9640  9671 I ProductionRuntime: run: guest returned to host
+09-13 23:50:12.781  9640  9668 I ThreadAttributeAcceptance: clock-vm round=0 outcome=0 page_size=4096 pid=9640 uid=10157 guest return=51966
+09-13 23:50:12.781  9640  9668 I ThreadAttributeAcceptance: production Linker/VM; owners=2 veneers=35
+09-13 23:50:12.781  9640  9668 I ThreadAttributeAcceptance: UNSUPPORTED_IMPORT ChildFault0#libkernel#1#libkernel#Function graphics=not-created modules=1
+09-13 23:50:12.783  9640  9681 I ProductionRuntime: prepare: reserve guest VA
+09-13 23:50:12.783  9640  9681 I ProductionRuntime: prepare: create FEX context
+09-13 23:50:12.783  9640  9681 I ProductionRuntime: prepare: create production VM/Linker
+09-13 23:50:12.987  9640  9681 I ProductionRuntime: prepare: load/relocate modules
+09-13 23:50:12.989  9640  9681 I ProductionRuntime: prepare: ready
+09-13 23:50:12.989  9640  9681 I ProductionRuntime: run: enter production guest
+09-13 23:50:13.018  9640  9681 I ProductionRuntime: run: guest returned to host
+09-13 23:50:13.018  9640  9668 I ThreadAttributeAcceptance: clock-vm round=1 outcome=0 page_size=4096 pid=9640 uid=10157 guest return=51966
+09-13 23:50:13.018  9640  9668 I ThreadAttributeAcceptance: production Linker/VM; owners=2 veneers=35
+09-13 23:50:13.018  9640  9668 I ThreadAttributeAcceptance: UNSUPPORTED_IMPORT ChildFault0#libkernel#1#libkernel#Function graphics=not-created modules=1
+09-13 23:50:13.019  9640  9686 I ProductionRuntime: prepare: reserve guest VA
+09-13 23:50:13.019  9640  9686 I ProductionRuntime: prepare: create FEX context
+09-13 23:50:13.019  9640  9686 I ProductionRuntime: prepare: create production VM/Linker
+09-13 23:50:13.222  9640  9686 I ProductionRuntime: prepare: load/relocate modules
+09-13 23:50:13.224  9640  9686 I ProductionRuntime: prepare: ready
+09-13 23:50:13.224  9640  9686 I ProductionRuntime: run: enter production guest
+09-13 23:50:13.252  9640  9686 I ProductionRuntime: run: guest returned to host
+09-13 23:50:13.252  9640  9668 I ThreadAttributeAcceptance: clock-vm round=2 outcome=0 page_size=4096 pid=9640 uid=10157 guest return=51966
+09-13 23:50:13.252  9640  9668 I ThreadAttributeAcceptance: production Linker/VM; owners=2 veneers=35
+09-13 23:50:13.252  9640  9668 I ThreadAttributeAcceptance: UNSUPPORTED_IMPORT ChildFault0#libkernel#1#libkernel#Function graphics=not-created modules=1

@@ -1,0 +1,46 @@
+--------- beginning of main
+09-13 23:28:10.328 31211 31247 I ProductionRuntime: prepare: reserve guest VA
+09-13 23:28:10.329 31211 31247 I ProductionRuntime: prepare: create FEX context
+09-13 23:28:10.329 31211 31247 I ProductionRuntime: prepare: create production VM/Linker
+09-13 23:28:10.439 31211 31247 I ProductionRuntime: prepare: load/relocate modules
+09-13 23:28:10.441 31211 31247 I ProductionRuntime: prepare: ready
+09-13 23:28:10.441 31211 31247 I ProductionRuntime: run: enter production guest
+09-13 23:28:10.444 31211 31247 I ProductionRuntime: run: guest returned to host
+09-13 23:28:10.444 31211 31244 I SysmoduleAcceptance: round=0 cancel=false outcome=0 page_size=4096 pid=31211 uid=10157 guest return=51966
+09-13 23:28:10.444 31211 31244 I SysmoduleAcceptance: production Linker/VM; owners=1 veneers=37 graphics=not-created modules=1
+09-13 23:28:10.446 31211 31254 I ProductionRuntime: prepare: reserve guest VA
+09-13 23:28:10.446 31211 31254 I ProductionRuntime: prepare: create FEX context
+09-13 23:28:10.447 31211 31254 I ProductionRuntime: prepare: create production VM/Linker
+09-13 23:28:10.549 31211 31254 I ProductionRuntime: prepare: load/relocate modules
+09-13 23:28:10.551 31211 31254 I ProductionRuntime: prepare: ready
+09-13 23:28:10.551 31211 31254 I ProductionRuntime: run: enter production guest
+09-13 23:28:10.553 31211 31254 I ProductionRuntime: run: guest returned to host
+09-13 23:28:10.554 31211 31244 I SysmoduleAcceptance: round=1 cancel=false outcome=0 page_size=4096 pid=31211 uid=10157 guest return=51966
+09-13 23:28:10.554 31211 31244 I SysmoduleAcceptance: production Linker/VM; owners=1 veneers=37 graphics=not-created modules=1
+09-13 23:28:10.554 31211 31256 I ProductionRuntime: prepare: reserve guest VA
+09-13 23:28:10.554 31211 31256 I ProductionRuntime: prepare: create FEX context
+09-13 23:28:10.554 31211 31256 I ProductionRuntime: prepare: create production VM/Linker
+09-13 23:28:10.656 31211 31256 I ProductionRuntime: prepare: load/relocate modules
+09-13 23:28:10.658 31211 31256 I ProductionRuntime: prepare: ready
+09-13 23:28:10.658 31211 31256 I ProductionRuntime: run: enter production guest
+09-13 23:28:10.660 31211 31256 I ProductionRuntime: run: guest returned to host
+09-13 23:28:10.660 31211 31244 I SysmoduleAcceptance: round=2 cancel=false outcome=0 page_size=4096 pid=31211 uid=10157 guest return=51966
+09-13 23:28:10.660 31211 31244 I SysmoduleAcceptance: production Linker/VM; owners=1 veneers=37 graphics=not-created modules=1
+09-13 23:28:10.661 31211 31257 I ProductionRuntime: prepare: reserve guest VA
+09-13 23:28:10.661 31211 31257 I ProductionRuntime: prepare: create FEX context
+09-13 23:28:10.661 31211 31257 I ProductionRuntime: prepare: create production VM/Linker
+09-13 23:28:10.763 31211 31257 I ProductionRuntime: prepare: load/relocate modules
+09-13 23:28:10.765 31211 31257 I ProductionRuntime: prepare: ready
+09-13 23:28:10.765 31211 31257 I ProductionRuntime: run: enter production guest
+09-13 23:28:10.772 31211 31257 I ProductionRuntime: run: guest returned to host
+09-13 23:28:10.773 31211 31244 I SysmoduleAcceptance: round=3 cancel=true outcome=1 page_size=4096 pid=31211 uid=10157 guest return=2151743748
+09-13 23:28:10.773 31211 31244 I SysmoduleAcceptance: production Linker/VM; owners=1 veneers=37 graphics=not-created modules=1
+09-13 23:28:10.773 31211 31258 I ProductionRuntime: prepare: reserve guest VA
+09-13 23:28:10.773 31211 31258 I ProductionRuntime: prepare: create FEX context
+09-13 23:28:10.773 31211 31258 I ProductionRuntime: prepare: create production VM/Linker
+09-13 23:28:10.877 31211 31258 I ProductionRuntime: prepare: load/relocate modules
+09-13 23:28:10.883 31211 31258 I ProductionRuntime: prepare: ready
+09-13 23:28:10.884 31211 31258 I ProductionRuntime: run: enter production guest
+09-13 23:28:10.887 31211 31258 I ProductionRuntime: run: guest returned to host
+09-13 23:28:10.888 31211 31244 I SysmoduleAcceptance: round=4 cancel=false outcome=0 page_size=4096 pid=31211 uid=10157 guest return=51966
+09-13 23:28:10.888 31211 31244 I SysmoduleAcceptance: production Linker/VM; owners=1 veneers=37 graphics=not-created modules=1

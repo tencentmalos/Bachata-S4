@@ -1,0 +1,42 @@
+{
+  "source": "f530dc96fbf15c6f51ffe6f0ae9bfd3efddcb2ab",
+  "scope": "focused sysmodule/DiscMap/file IO and real TMNT boundary; no full regression",
+  "runs": [
+    {
+      "name": "sysmodule",
+      "junit_pass": true,
+      "scope": "synthetic"
+    },
+    {
+      "name": "tmnt",
+      "junit_pass": true,
+      "scope": "boundary observation only"
+    }
+  ],
+  "artifacts": {
+    "android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk": "d8fdf99c9f001a40cd2b40d7def1f01bfd08242393156aecd247cf8a20673561",
+    "android/shadps4-app/app/build/outputs/apk/androidTest/playstore/debug/app-playstore-debug-androidTest.apk": "38a2a8050efff51e9a360a4dc07077db9783977140d473e69f11694fa51c8a7a",
+    "build/android-host-api33/native/libshadps4_host.so": "0b7d3f475b7e27c8da2dd6e095e892098d0edcde2dd17c53ce328799eca00693"
+  },
+  "sources": {
+    "src/core/host_runtime/guest_network.h": "ed988ff3a3fb82bc403607176ea8f88f4de8ad2c8e396baa1db09533fdc82a45",
+    "tests/host_runtime/guest_condition_tests.cpp": "07f4e7130d8decbff7e682c0dcf3c66348ef0888d5eaa90d17afc0e7cef5d349",
+    "tests/host_runtime/guest_network_tests.cpp": "c6787b6a3cf30df7d19d8187dc95263e5fc48e3df066330bfdeb910b2ec4cebd",
+    "android/shadps4-app/app/build.gradle.kts": "2a33aa182823d7ff2594baea10e6446a122e19d45d2edaef0124dfc02271c104",
+    "android/shadps4-app/app/src/androidTest/kotlin/com/shadps4/android/SysmoduleRuntimeInstrumentedTest.kt": "73a29972661a1b53ef3c175e170f5fd9aec44d0c83cf4665e545f4d64ee20fcf",
+    "scripts/android/generate-production-runtime-fixture": "fb072796b044a41a7a90851fa6c45929a29812cde73fc2e4309e14fb877e8cf2",
+    "src/core/host_runtime/guest_mutex.h": "7009920079eaae4ba9237819bc1bcaa9344a8e069aece486d58fdee4963776f4",
+    "src/core/host_runtime/guest_runtime.cpp": "aae8127fec8c56f7698326deee6111eb88d7a963b1b1bcd775cedd970e7af60f",
+    "tests/guest_cpu/fixtures/runtime_sysmodule.S": "c3641bc31acdeb301d249bebbc5228ca76524085f9687f2c15cb7423d64ac282"
+  },
+  "identity": "AYN Thor",
+  "libshadps4_host.so": {
+    "sha256": "0b7d3f475b7e27c8da2dd6e095e892098d0edcde2dd17c53ce328799eca00693",
+    "build_id": "314750910d2a0fc5dc206613bbd11912538a4932"
+  },
+  "libshadps4_fex_session.so": {
+    "sha256": "ceceb9e1200952f8482527a8798d51df777daa4c90181c0f74281dab5a833b19",
+    "build_id": "ef6f4649679ae8c229e7589d26d8cf019f7fc39a"
+  },
+  "status": "FOCUSED_PASS_BOUNDARY_OBSERVED"
+}

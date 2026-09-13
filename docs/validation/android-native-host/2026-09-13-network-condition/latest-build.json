@@ -1,0 +1,32 @@
+{
+  "source_base": "f530dc96fbf15c6f51ffe6f0ae9bfd3efddcb2ab",
+  "host": {
+    "sha256": "8b816b68f5f1a4d85522e48683013bd3b201591f027d6bda592efd5d919c0da1",
+    "build_id": "e3059cf93568536e786548a280b78845808e2c1c"
+  },
+  "jni": {
+    "sha256": "e7922857b1a168d308ec45216605ec279f98ddbe0e4d4709bc4afe94de4fb115",
+    "build_id": "253444d30ea4b0b7e14571b620fc35808b03e650"
+  },
+  "apk_host_matches_pad_native_probe": true,
+  "scope": "targeted only; complete-content TMNT remains zero-present named LoadStartModule fault; no network transport/TLS implementation",
+  "sources": {
+    "android/shadps4-app/app/src/androidTest/kotlin/com/shadps4/android/PadRuntimeInstrumentedTest.kt": "b98a22fb21c91eb1ebf74292512f23625c2273bbd7857a262fce83880801375c",
+    "src/core/host_runtime/guest_network.h": "ed988ff3a3fb82bc403607176ea8f88f4de8ad2c8e396baa1db09533fdc82a45",
+    "src/core/host_runtime/guest_pad.h": "e9d08ebfe26a9ff3e3e6411c712b5bdb8f5dec137bd9906beb0b716fc394b8f1",
+    "tests/guest_cpu/fixtures/runtime_pad.S": "30c96c28453ea9a00e775b412c736d00aeeb8d7b3a7a47769b0a8212c09d4006",
+    "tests/host_runtime/guest_condition_tests.cpp": "07f4e7130d8decbff7e682c0dcf3c66348ef0888d5eaa90d17afc0e7cef5d349",
+    "tests/host_runtime/guest_network_tests.cpp": "c6787b6a3cf30df7d19d8187dc95263e5fc48e3df066330bfdeb910b2ec4cebd",
+    "tests/host_runtime/guest_pad_tests.cpp": "f2290ac3a0d081186fd05e36e7faa2a0c5fe7a9f98ff1319c1d24db16d2c7f8a",
+    "CMakeLists.txt": "afd62933e378fd9d051a4f00c21c835274a588a112ea6268828404157042f57b",
+    "android/shadps4-app/app/build.gradle.kts": "b0732f755ee941ad99d6bc60febf9fbbe0a8d97fd4aa796547bd494c59a8939e",
+    "android/shadps4-app/app/src/androidTest/kotlin/com/shadps4/android/SysmoduleRuntimeInstrumentedTest.kt": "73a29972661a1b53ef3c175e170f5fd9aec44d0c83cf4665e545f4d64ee20fcf",
+    "android/shadps4-app/app/src/androidTest/kotlin/com/shadps4/android/ThreadAttributeRuntimeInstrumentedTest.kt": "2c68ae1d67063ff60f11f84ad6a901e9c0dcba6b09cd2214694f48069bc07849",
+    "scripts/android/generate-production-runtime-fixture": "053a309289d01c73f8df2e6df7995829eb338c97928e9b2cd297c9e54ae44eee",
+    "src/core/host_runtime/guest_mutex.h": "7009920079eaae4ba9237819bc1bcaa9344a8e069aece486d58fdee4963776f4",
+    "src/core/host_runtime/guest_runtime.cpp": "68db5b0bceb74da3633848c833aa64235fd103c8b8ecd0929e22cb2b809b7f32",
+    "src/core/libraries/network/ssl2.h": "56ec4940a4c066b2f81b1a41fca9c072c5165881701b53ebe66e35e97b34618a",
+    "tests/guest_cpu/fixtures/runtime_sysmodule.S": "c3641bc31acdeb301d249bebbc5228ca76524085f9687f2c15cb7423d64ac282",
+    "tests/guest_cpu/fixtures/runtime_thread_attributes.S": "73e31b2fae60984c6f3af1e7e11b1a9851f8cb39870cbd54faad87845cbe50b7"
+  }
+}

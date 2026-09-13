@@ -205,7 +205,7 @@ val runtimeFixtureAssets = layout.buildDirectory.dir("generated/productionRuntim
 android.sourceSets.getByName("androidTest").assets.srcDir(runtimeFixtureAssets)
 val fixtureRepo = rootProject.projectDir.resolve("../..")
 val fixtureNdk = android.sdkDirectory.resolve("ndk/29.0.14206865")
-val runtimeFixtureTasks = listOf("sysmodule", "libc-policy-main", "libc-policy-fallback", "libc-policy-system", "libc-policy-bad-init", "thread-attributes", "thread-attributes-fault", "gpu-flip", "storage", "storage-read", "save-dialog", "videoout", "videoout-bad", "videoout-format", "bootstrap", "bootstrap-wait", "libc", "libc-wait", "services", "fixture", "self", "wait", "dependency", "dependency-wait", "bad", "unknown").map { kind ->
+val runtimeFixtureTasks = listOf("pad", "clock-vm", "sysmodule", "network-wait", "libc-policy-main", "libc-policy-fallback", "libc-policy-system", "libc-policy-bad-init", "thread-attributes", "thread-attributes-fault", "gpu-flip", "storage", "storage-read", "save-dialog", "videoout", "videoout-bad", "videoout-format", "bootstrap", "bootstrap-wait", "libc", "libc-wait", "services", "fixture", "self", "wait", "dependency", "dependency-wait", "bad", "unknown").map { kind ->
     tasks.register<Exec>("generate${kind.replaceFirstChar { it.uppercase() }}RuntimeElf") {
         inputs.file(fixtureRepo.resolve("scripts/android/generate-production-runtime-fixture"))
         inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/production_runtime.S"))
@@ -227,12 +227,15 @@ val runtimeFixtureTasks = listOf("sysmodule", "libc-policy-main", "libc-policy-f
                 "libc" -> listOf("--module", "--libc")
                 "libc-wait" -> listOf("--module", "--libc", "--wait")
                 "sysmodule" -> listOf("--sysmodule")
+                "network-wait" -> listOf("--network-wait")
                 "services" -> listOf("--services")
                 "storage" -> listOf("--storage")
                 "storage-read" -> listOf("--storage", "--read-save")
                 "save-dialog" -> listOf("--save-dialog")
                 "thread-attributes-fault" -> listOf("--thread-attributes", "--child-fault")
                 "thread-attributes" -> listOf("--thread-attributes")
+                "clock-vm" -> listOf("--clock-vm")
+                "pad" -> listOf("--pad")
                 "libc-policy-main" -> listOf("--libc-policy")
                 "libc-policy-fallback" -> listOf("--libc-policy", "--module")
                 "libc-policy-system" -> listOf("--libc-policy", "--module", "--system-libc")

@@ -1,5 +1,7 @@
 # Android / FEX 开发资料索引
 
+**当前（2026-09-14）：[离线兼容、条件变量/VM与生产Pad](validation/android-native-host/network-condition-pad-integration-2026-09-14.md)。** 真机定向network199/0、cond66/0、Pad85/0；真实guest回调取消恢复、clock/VM并发、Pad读取/震动队列通过。完整TMNT三轮推进到LoadStartModule/op44，仍零帧。用户决定网络/SSL按桌面兼容即可，暂不实现在线功能；直接继续实际游戏阻塞，无新spec/全回归。
+
 **最新增量（2026-09-13）：[Sysmodule／文件／RTC／AppContent 实现与验收边界](validation/android-native-host/sysmodule-rtc-content-integration-2026-09-13.md)。** 设备重连后已验证文件/DLC/临时空间144/0、RTC397/0及22-import guest三轮；完整PFS资源TMNT越过WithArg、AppContent与RTC格式化，三轮到sceNetInit/op312，仍无画面。最新APK/host身份一致；直接继续网络族，避免空桩成功，不另写spec或重跑全量回归。
 
 - **当前（2026-09-13）**：[桌面 libc 策略与线程族整批实现](validation/android-native-host/thread-libc-integration-2026-09-13.md)。系统 guest libc 优先＋显式兼容回退、attr/create、rwlock/mutex 与 VM 写回竞争已处理。AYN定向43/0、60/0、FEX6/0，APK provider五模式；TMNT三轮同PID到sysmodule WithArg/op527，仍0帧。只测改动、不做全量回归；后续每个缺口先对照desktop，按函数族推进，不另拆微型spec。此记录覆盖下方旧启动边界。

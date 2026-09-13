@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <cstddef>
 #include "common/types.h"
 
 namespace Core::Loader {
@@ -21,6 +22,9 @@ struct OrbisSslCaCerts {
     u64 num;
     void* pool;
 };
+
+int PS4_SYSV_ABI sceSslInit(std::size_t pool_size);
+int PS4_SYSV_ABI sceSslTerm();
 
 void RegisterLib(Core::Loader::SymbolsResolver* sym);
 } // namespace Libraries::Ssl2

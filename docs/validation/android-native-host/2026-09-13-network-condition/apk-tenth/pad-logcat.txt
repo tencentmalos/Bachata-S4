@@ -1,0 +1,28 @@
+--------- beginning of main
+09-13 23:58:26.536 13003 13030 I ProductionRuntime: prepare: reserve guest VA
+09-13 23:58:26.536 13003 13030 I ProductionRuntime: prepare: create FEX context
+09-13 23:58:26.537 13003 13030 I ProductionRuntime: prepare: create production VM/Linker
+09-13 23:58:26.762 13003 13030 I ProductionRuntime: prepare: load/relocate modules
+09-13 23:58:26.763 13003 13030 I ProductionRuntime: prepare: ready
+09-13 23:58:26.763 13003 13030 I ProductionRuntime: run: enter production guest
+09-13 23:58:26.764 13003 13030 I ProductionRuntime: run: guest returned to host
+09-13 23:58:26.765 13003 13024 I PadRuntimeAcceptance: round=0 outcome=0 page_size=4096 pid=13003 uid=10157 guest return=51966
+09-13 23:58:26.765 13003 13024 I PadRuntimeAcceptance: production Linker/VM; owners=1 veneers=10 graphics=not-created modules=1
+09-13 23:58:26.767 13003 13036 I ProductionRuntime: prepare: reserve guest VA
+09-13 23:58:26.767 13003 13036 I ProductionRuntime: prepare: create FEX context
+09-13 23:58:26.767 13003 13036 I ProductionRuntime: prepare: create production VM/Linker
+09-13 23:58:26.971 13003 13036 I ProductionRuntime: prepare: load/relocate modules
+09-13 23:58:26.974 13003 13036 I ProductionRuntime: prepare: ready
+09-13 23:58:26.974 13003 13036 I ProductionRuntime: run: enter production guest
+09-13 23:58:26.977 13003 13036 I ProductionRuntime: run: guest returned to host
+09-13 23:58:26.978 13003 13024 I PadRuntimeAcceptance: round=1 outcome=0 page_size=4096 pid=13003 uid=10157 guest return=51966
+09-13 23:58:26.978 13003 13024 I PadRuntimeAcceptance: production Linker/VM; owners=1 veneers=10 graphics=not-created modules=1
+09-13 23:58:26.978 13003 13038 I ProductionRuntime: prepare: reserve guest VA
+09-13 23:58:26.978 13003 13038 I ProductionRuntime: prepare: create FEX context
+09-13 23:58:26.979 13003 13038 I ProductionRuntime: prepare: create production VM/Linker
+09-13 23:58:27.185 13003 13038 I ProductionRuntime: prepare: load/relocate modules
+09-13 23:58:27.188 13003 13038 I ProductionRuntime: prepare: ready
+09-13 23:58:27.188 13003 13038 I ProductionRuntime: run: enter production guest
+09-13 23:58:27.191 13003 13038 I ProductionRuntime: run: guest returned to host
+09-13 23:58:27.192 13003 13024 I PadRuntimeAcceptance: round=2 outcome=0 page_size=4096 pid=13003 uid=10157 guest return=51966
+09-13 23:58:27.192 13003 13024 I PadRuntimeAcceptance: production Linker/VM; owners=1 veneers=10 graphics=not-created modules=1

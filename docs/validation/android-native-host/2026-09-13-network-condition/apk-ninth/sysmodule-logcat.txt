@@ -1,0 +1,60 @@
+--------- beginning of main
+09-13 23:50:13.018  9640  9681 I ProductionRuntime: run: guest returned to host
+09-13 23:50:13.018  9640  9668 I ThreadAttributeAcceptance: clock-vm round=1 outcome=0 page_size=4096 pid=9640 uid=10157 guest return=51966
+09-13 23:50:13.018  9640  9668 I ThreadAttributeAcceptance: production Linker/VM; owners=2 veneers=35
+09-13 23:50:13.018  9640  9668 I ThreadAttributeAcceptance: UNSUPPORTED_IMPORT ChildFault0#libkernel#1#libkernel#Function graphics=not-created modules=1
+09-13 23:50:13.019  9640  9686 I ProductionRuntime: prepare: reserve guest VA
+09-13 23:50:13.019  9640  9686 I ProductionRuntime: prepare: create FEX context
+09-13 23:50:13.019  9640  9686 I ProductionRuntime: prepare: create production VM/Linker
+09-13 23:50:13.222  9640  9686 I ProductionRuntime: prepare: load/relocate modules
+09-13 23:50:13.224  9640  9686 I ProductionRuntime: prepare: ready
+09-13 23:50:13.224  9640  9686 I ProductionRuntime: run: enter production guest
+09-13 23:50:13.252  9640  9686 I ProductionRuntime: run: guest returned to host
+09-13 23:50:13.252  9640  9668 I ThreadAttributeAcceptance: clock-vm round=2 outcome=0 page_size=4096 pid=9640 uid=10157 guest return=51966
+09-13 23:50:13.252  9640  9668 I ThreadAttributeAcceptance: production Linker/VM; owners=2 veneers=35
+09-13 23:50:13.252  9640  9668 I ThreadAttributeAcceptance: UNSUPPORTED_IMPORT ChildFault0#libkernel#1#libkernel#Function graphics=not-created modules=1
+09-13 23:50:13.855  9724  9748 I ProductionRuntime: prepare: reserve guest VA
+09-13 23:50:13.855  9724  9748 I ProductionRuntime: prepare: create FEX context
+09-13 23:50:13.856  9724  9748 I ProductionRuntime: prepare: create production VM/Linker
+09-13 23:50:14.089  9724  9748 I ProductionRuntime: prepare: load/relocate modules
+09-13 23:50:14.100  9724  9748 I ProductionRuntime: prepare: ready
+09-13 23:50:14.100  9724  9748 I ProductionRuntime: run: enter production guest
+09-13 23:50:14.114  9724  9748 I ProductionRuntime: run: guest returned to host
+09-13 23:50:14.114  9724  9744 I SysmoduleAcceptance: round=0 cancel=false outcome=0 page_size=4096 pid=9724 uid=10157 guest return=51966
+09-13 23:50:14.114  9724  9744 I SysmoduleAcceptance: production Linker/VM; owners=1 veneers=52 graphics=not-created modules=1
+09-13 23:50:14.117  9724  9752 I ProductionRuntime: prepare: reserve guest VA
+09-13 23:50:14.117  9724  9752 I ProductionRuntime: prepare: create FEX context
+09-13 23:50:14.118  9724  9752 I ProductionRuntime: prepare: create production VM/Linker
+09-13 23:50:14.324  9724  9752 I ProductionRuntime: prepare: load/relocate modules
+09-13 23:50:14.329  9724  9752 I ProductionRuntime: prepare: ready
+09-13 23:50:14.329  9724  9752 I ProductionRuntime: run: enter production guest
+09-13 23:50:14.331  9724  9752 I ProductionRuntime: run: guest returned to host
+09-13 23:50:14.332  9724  9744 I SysmoduleAcceptance: round=1 cancel=false outcome=0 page_size=4096 pid=9724 uid=10157 guest return=51966
+09-13 23:50:14.332  9724  9744 I SysmoduleAcceptance: production Linker/VM; owners=1 veneers=52 graphics=not-created modules=1
+09-13 23:50:14.333  9724  9757 I ProductionRuntime: prepare: reserve guest VA
+09-13 23:50:14.333  9724  9757 I ProductionRuntime: prepare: create FEX context
+09-13 23:50:14.334  9724  9757 I ProductionRuntime: prepare: create production VM/Linker
+09-13 23:50:14.539  9724  9757 I ProductionRuntime: prepare: load/relocate modules
+09-13 23:50:14.549  9724  9757 I ProductionRuntime: prepare: ready
+09-13 23:50:14.549  9724  9757 I ProductionRuntime: run: enter production guest
+09-13 23:50:14.557  9724  9757 I ProductionRuntime: run: guest returned to host
+09-13 23:50:14.559  9724  9744 I SysmoduleAcceptance: round=2 cancel=false outcome=0 page_size=4096 pid=9724 uid=10157 guest return=51966
+09-13 23:50:14.559  9724  9744 I SysmoduleAcceptance: production Linker/VM; owners=1 veneers=52 graphics=not-created modules=1
+09-13 23:50:14.559  9724  9761 I ProductionRuntime: prepare: reserve guest VA
+09-13 23:50:14.559  9724  9761 I ProductionRuntime: prepare: create FEX context
+09-13 23:50:14.560  9724  9761 I ProductionRuntime: prepare: create production VM/Linker
+09-13 23:50:14.765  9724  9761 I ProductionRuntime: prepare: load/relocate modules
+09-13 23:50:14.775  9724  9761 I ProductionRuntime: prepare: ready
+09-13 23:50:14.775  9724  9761 I ProductionRuntime: run: enter production guest
+09-13 23:50:14.785  9724  9761 I ProductionRuntime: run: guest returned to host
+09-13 23:50:14.787  9724  9744 I SysmoduleAcceptance: round=3 cancel=true outcome=1 page_size=4096 pid=9724 uid=10157 guest return=2151743748
+09-13 23:50:14.787  9724  9744 I SysmoduleAcceptance: production Linker/VM; owners=1 veneers=52 graphics=not-created modules=1
+09-13 23:50:14.788  9724  9764 I ProductionRuntime: prepare: reserve guest VA
+09-13 23:50:14.788  9724  9764 I ProductionRuntime: prepare: create FEX context
+09-13 23:50:14.789  9724  9764 I ProductionRuntime: prepare: create production VM/Linker
+09-13 23:50:14.995  9724  9764 I ProductionRuntime: prepare: load/relocate modules
+09-13 23:50:15.004  9724  9764 I ProductionRuntime: prepare: ready
+09-13 23:50:15.004  9724  9764 I ProductionRuntime: run: enter production guest
+09-13 23:50:15.013  9724  9764 I ProductionRuntime: run: guest returned to host
+09-13 23:50:15.015  9724  9744 I SysmoduleAcceptance: round=4 cancel=false outcome=0 page_size=4096 pid=9724 uid=10157 guest return=51966
+09-13 23:50:15.015  9724  9744 I SysmoduleAcceptance: production Linker/VM; owners=1 veneers=52 graphics=not-created modules=1

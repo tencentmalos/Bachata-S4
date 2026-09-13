@@ -1,0 +1,8 @@
+{
+  "scope": "focused checked production pad HLE against application InputHub",
+  "artifacts": {
+    "libshadps4_host.so": "8b816b68f5f1a4d85522e48683013bd3b201591f027d6bda592efd5d919c0da1",
+    "guest_pad_tests": "43585bdac84edb3733ec8c7577b0a06306a7a21339fe17b7bd4a9292124280d5"
+  },
+  "exit": 0
+}

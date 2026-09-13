@@ -11,6 +11,28 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class ThreadAttributeRuntimeInstrumentedTest {
+    @Test fun guestClockWritesRaceVmPublication() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val context = instrumentation.targetContext
+        assertTrue(NativePad.nativeInitializeHost(File(context.filesDir, "host").path))
+        val root = File(context.filesDir, "validation/clock-vm-${System.nanoTime()}").apply { mkdirs() }
+        val entry = File(root, "eboot.bin")
+        instrumentation.context.assets.open("clock-vm.elf").use { input -> entry.outputStream().use { input.copyTo(it) } }
+        try {
+            repeat(3) { round ->
+                val generation = NativeFexSession.nativeStartExecutable("clock-vm", entry.path)
+                assertTrue(generation > 0)
+                try {
+                    val outcome = NativeFexSession.nativeWaitTerminal(generation, 20000)
+                    val detail = NativeFexSession.nativeTerminalDetail(generation).orEmpty()
+                    android.util.Log.i("ThreadAttributeAcceptance", "clock-vm round=$round outcome=$outcome ${NativeFexSession.nativeIdentity()} $detail")
+                    assertEquals(detail, NativeFexSession.Outcome.RETURNED, outcome)
+                    assertTrue(detail, detail.startsWith("guest return=51966"))
+                } finally { NativeFexSession.nativeRequestStop(generation, 1000) }
+            }
+        } finally { if (NativeFexSession.nativeCurrentGeneration() == 0L) root.deleteRecursively() }
+    }
+
     @Test fun guestThreadsConsumeAttributes() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val context = instrumentation.targetContext

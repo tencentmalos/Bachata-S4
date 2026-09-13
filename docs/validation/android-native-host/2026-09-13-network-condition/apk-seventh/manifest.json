@@ -1,0 +1,40 @@
+{
+  "source": "f530dc96fbf15c6f51ffe6f0ae9bfd3efddcb2ab",
+  "scope": "focused sysmodule/DiscMap/file IO and real TMNT boundary; no full regression",
+  "runs": [
+    {
+      "name": "sysmodule",
+      "junit_pass": true,
+      "scope": "synthetic"
+    },
+    {
+      "name": "tmnt",
+      "junit_pass": true,
+      "scope": "boundary observation only"
+    }
+  ],
+  "artifacts": {
+    "android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk": "e2c1600182a4f1223437b11f528d3fd76722dc632da20b59dc838132d27ac917",
+    "android/shadps4-app/app/build/outputs/apk/androidTest/playstore/debug/app-playstore-debug-androidTest.apk": "6a09baea0db43ccd9fbd566438caf4223ebc3a4c9518b76a6763bab10679efed",
+    "build/android-host-api33/native/libshadps4_host.so": "56246294f23f714695743ac2fa820bf1099943dd33543a5d04b4b5823027e428"
+  },
+  "sources": {
+    "src/core/host_runtime/guest_network.h": "87e474c2bd1fdddbb887853033cc477708948880f585254c5c551242dd8c223e",
+    "tests/host_runtime/guest_network_tests.cpp": "7a1e3bdccfcb1d28899715ac72debfda5a17916b56de8fa9151c6c339004e887",
+    "android/shadps4-app/app/build.gradle.kts": "2a33aa182823d7ff2594baea10e6446a122e19d45d2edaef0124dfc02271c104",
+    "android/shadps4-app/app/src/androidTest/kotlin/com/shadps4/android/SysmoduleRuntimeInstrumentedTest.kt": "73a29972661a1b53ef3c175e170f5fd9aec44d0c83cf4665e545f4d64ee20fcf",
+    "scripts/android/generate-production-runtime-fixture": "17f3d7f7cab84acb74cadf5645463b799812a0413e385280c046a23fd408601a",
+    "src/core/host_runtime/guest_runtime.cpp": "d50bc335b89ef545fd0dd0064a448934427b092e880502cfe74db430366ee091",
+    "tests/guest_cpu/fixtures/runtime_sysmodule.S": "13e380c4d84bb152402a98d98a10d60b9b9ce6d7862ee9a56719fc6828a49040"
+  },
+  "identity": "AYN Thor",
+  "libshadps4_host.so": {
+    "sha256": "56246294f23f714695743ac2fa820bf1099943dd33543a5d04b4b5823027e428",
+    "build_id": "2a5bf92fd2de6761d0c6fd1169c8785637bbefb1"
+  },
+  "libshadps4_fex_session.so": {
+    "sha256": "0bf0d65e6f34cdaccdfe39b0f36319c732e060546562b4504b86e3c7a16a4528",
+    "build_id": "2f3341b4195a369f925a91407c0176a7980535f3"
+  },
+  "status": "FOCUSED_PASS_BOUNDARY_OBSERVED"
+}

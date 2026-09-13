@@ -1,0 +1,414 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 215c09fb..b5800824 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1627,6 +1627,14 @@ if(BUILD_HOST_CORE)
+     if(HOST_BUILD_PROBES)
+         add_executable(host_dlopen_smoke tests/host_runtime/host_dlopen_smoke.cpp)
+         target_link_libraries(host_dlopen_smoke PRIVATE dl)
++        add_executable(guest_condition_tests tests/host_runtime/guest_condition_tests.cpp)
++        target_link_libraries(guest_condition_tests PRIVATE shadps4_host)
++        target_include_directories(guest_condition_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
++        target_compile_definitions(guest_condition_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
++        add_executable(guest_network_tests tests/host_runtime/guest_network_tests.cpp)
++        target_link_libraries(guest_network_tests PRIVATE shadps4_host)
++        target_include_directories(guest_network_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
++        target_compile_definitions(guest_network_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+         add_executable(guest_rtc_tests tests/host_runtime/guest_rtc_tests.cpp)
+         target_link_libraries(guest_rtc_tests PRIVATE shadps4_host)
+         target_include_directories(guest_rtc_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+diff --git a/src/core/host_runtime/guest_mutex.h b/src/core/host_runtime/guest_mutex.h
+index be013931..7c362908 100644
+--- a/src/core/host_runtime/guest_mutex.h
++++ b/src/core/host_runtime/guest_mutex.h
+@@ -6,9 +6,11 @@
+ #include <functional>
+ #include <map>
+ #include <mutex>
++#include <optional>
+ #include <stop_token>
+ #include <vector>
+ #include "core/guest_cpu/api/address_space.h"
++#include "core/host_runtime/guest_clock.h"
+ #include "core/libraries/kernel/posix_error.h"
+ 
+ namespace Core::HostRuntime {
+@@ -38,22 +40,26 @@ class GuestMutexDomain final {
+     std::map<u64, Mutex> mutexes;
+     std::map<u64, AttributeState> attributes;
+     struct Waiter {
++        u64 owner{};
+         bool notified{};
+         bool reacquiring{};
+     };
+     struct Cond {
+         std::vector<Waiter*> waiters;
++        u32 clock{};
+     };
+     std::map<u64, Cond> conditions;
++    std::map<u64, u32> condition_attributes;
++    GuestClock clock;
+     size_t allocations{};
+-    int CondCreate(u64 slot) {
++    int CondCreate(u64 slot, u32 clock_id = 0) {
+         if (!Writable(slot, 8))
+             return POSIX_EFAULT;
+         if (allocations >= 4096)
+             return POSIX_ENOMEM;
+         const u64 addr = allocate();
+         ++allocations;
+-        conditions.emplace(addr, Cond{});
++        conditions.emplace(addr, Cond{.clock = clock_id});
+         Write(slot, addr);
+         return 0;
+     }
+@@ -273,16 +279,76 @@ public:
+         mutexes.erase(it);
+         return 0;
+     }
++    enum class CondAttrOp { Init, Destroy, GetClock, SetClock, GetShared, SetShared };
++    int CondAttribute(u64 slot, u64 value, CondAttrOp op) {
++        std::lock_guard lock(guard);
++        if (!space.ValidateRange({GuestCpu::GuestAddress{slot}, 8},
++                                 GuestCpu::GuestPermission::Read))
++            return POSIX_EFAULT;
++        const auto address = Read<u64>(slot);
++        if (op == CondAttrOp::Init) {
++            if (!Writable(slot, 8))
++                return POSIX_EFAULT;
++            if (condition_attributes.contains(address))
++                return POSIX_EBUSY;
++            if (allocations >= 4096)
++                return POSIX_ENOMEM;
++            const u64 created = allocate();
++            ++allocations;
++            condition_attributes.emplace(created, 0);
++            Write(slot, created);
++            return 0;
++        }
++        const auto it = condition_attributes.find(address);
++        if (it == condition_attributes.end())
++            return POSIX_EINVAL;
++        if (op == CondAttrOp::Destroy) {
++            if (!Writable(slot, 8))
++                return POSIX_EFAULT;
++            Write(slot, u64{0});
++            condition_attributes.erase(it);
++            return 0;
++        }
++        if (op == CondAttrOp::SetClock) {
++            // Same four clocks admitted by desktop condattr_setclock.
++            if (u32(value) != 0 && u32(value) != 1 && u32(value) != 2 && u32(value) != 4)
++                return POSIX_EINVAL;
++            it->second = u32(value);
++            return 0;
++        }
++        if (op == CondAttrOp::SetShared)
++            return u32(value) == 0 ? 0 : POSIX_EINVAL;
++        if (!Writable(value, 4))
++            return POSIX_EFAULT;
++        Write(value, op == CondAttrOp::GetClock ? it->second : 0u);
++        return 0;
++    }
+     int CondInit(u64 slot, u64 attr) {
+         std::lock_guard lock(guard);
+-        if (attr && Read<u64>(attr))
+-            return POSIX_ENOTSUP;
++        if (!space.ValidateRange({GuestCpu::GuestAddress{slot}, 8},
++                                 GuestCpu::GuestPermission::Read) ||
++            (attr && !space.ValidateRange({GuestCpu::GuestAddress{attr}, 8},
++                                          GuestCpu::GuestPermission::Read)))
++            return POSIX_EFAULT;
++        u32 clock_id{};
++        if (attr) {
++            const auto address = Read<u64>(attr);
++            if (address) {
++                auto it = condition_attributes.find(address);
++                if (it == condition_attributes.end())
++                    return POSIX_EINVAL;
++                clock_id = it->second;
++            }
++        }
+         if (conditions.contains(Read<u64>(slot)))
+             return POSIX_EBUSY;
+-        return CondCreate(slot);
++        return CondCreate(slot, clock_id);
+     }
+-    int CondNotify(u64 slot, bool broadcast) {
++    int CondNotify(u64 slot, bool broadcast, u64 target_owner = 0) {
+         std::lock_guard lock(guard);
++        if (!space.ValidateRange({GuestCpu::GuestAddress{slot}, 8},
++                                 GuestCpu::GuestPermission::Read))
++            return POSIX_EFAULT;
+         auto addr = Read<u64>(slot);
+         if (!addr) {
+             if (int e = CondCreate(slot))
+@@ -292,18 +358,24 @@ public:
+         auto it = conditions.find(addr);
+         if (it == conditions.end())
+             return POSIX_EINVAL;
++        bool notified = false;
+         for (auto* waiter : it->second.waiters) {
+-            if (waiter->notified)
++            if (waiter->notified || waiter->reacquiring ||
++                (target_owner && waiter->owner != target_owner))
+                 continue;
+             waiter->notified = true;
++            notified = true;
+             if (!broadcast)
+                 break;
+         }
+         changed.notify_all();
+-        return 0;
++        return target_owner && !notified ? POSIX_EPERM : 0; // desktop returns 1 if not waiting
+     }
+     int CondDestroy(u64 slot) {
+         std::lock_guard lock(guard);
++        if (!space.ValidateRange({GuestCpu::GuestAddress{slot}, 8},
++                                 GuestCpu::GuestPermission::Read))
++            return POSIX_EFAULT;
+         const auto addr = Read<u64>(slot);
+         if (!addr)
+             return 0;
+@@ -318,8 +390,18 @@ public:
+         conditions.erase(it);
+         return 0;
+     }
+-    int CondWait(u64 slot, u64 mutex_slot, u64 owner, std::stop_token cancel) {
++    struct CondDeadline {
++        std::optional<u64> relative_us;
++        std::optional<std::chrono::nanoseconds> absolute;
++    };
++    int CondWait(u64 slot, u64 mutex_slot, u64 owner, std::stop_token cancel,
++                 const CondDeadline& limit = {}) {
+         std::unique_lock lock(guard);
++        if (!space.ValidateRange({GuestCpu::GuestAddress{slot}, 8},
++                                 GuestCpu::GuestPermission::Read) ||
++            !space.ValidateRange({GuestCpu::GuestAddress{mutex_slot}, 8},
++                                 GuestCpu::GuestPermission::Read))
++            return POSIX_EFAULT;
+         auto addr = Read<u64>(slot);
+         if (!addr) {
+             if (int e = CondCreate(slot))
+@@ -333,7 +415,7 @@ public:
+         auto& mutex = m->second;
+         if (mutex.owner != owner)
+             return POSIX_EPERM;
+-        Waiter waiter;
++        Waiter waiter{.owner = owner};
+         c->second.waiters.push_back(&waiter);
+         ++mutex.waiters;
+         struct Waiting {
+@@ -352,7 +434,42 @@ public:
+         mutex.owner = 0;
+         mutex.depth = 0;
+         changed.notify_all();
+-        changed.wait(lock, cancel, [&] { return waiter.notified; });
++        int result{};
++        if (limit.relative_us) {
++            const auto now = std::chrono::steady_clock::now();
++            const auto available = std::chrono::duration_cast<std::chrono::microseconds>(
++                                       std::chrono::steady_clock::time_point::max() - now)
++                                       .count();
++            const auto deadline = *limit.relative_us > u64(available)
++                                      ? std::chrono::steady_clock::time_point::max()
++                                      : now + std::chrono::microseconds(*limit.relative_us);
++            if (!changed.wait_until(lock, cancel, deadline, [&] { return waiter.notified; }))
++                result = POSIX_ETIMEDOUT;
++        } else if (limit.absolute) {
++            while (!waiter.notified && !cancel.stop_requested()) {
++                Libraries::Kernel::OrbisKernelTimespec current{};
++                std::chrono::nanoseconds now{};
++                result = clock.Read(c->second.clock, current, false);
++                if (result)
++                    break;
++                if (!GuestClock::Duration(current, now)) {
++                    result = POSIX_EINVAL;
++                    break;
++                }
++                if (now >= *limit.absolute) {
++                    result = POSIX_ETIMEDOUT;
++                    break;
++                }
++                // Re-read the selected clock to honor realtime adjustments and
++                // virtual/profiling CPU time rather than treating them as monotonic.
++                changed.wait_for(lock, cancel,
++                                 std::min(*limit.absolute - now,
++                                          std::chrono::nanoseconds(std::chrono::milliseconds(20))),
++                                 [&] { return waiter.notified; });
++            }
++        } else {
++            changed.wait(lock, cancel, [&] { return waiter.notified; });
++        }
+         // Retain the condition's waiter until reacquisition finishes. Otherwise
+         // CondDestroy can erase the Cond while Waiting still refers to it.
+         waiter.reacquiring = true;
+@@ -365,7 +482,7 @@ public:
+             mutex.owner = owner;
+             mutex.depth = depth;
+         }
+-        return cancel.stop_requested() ? POSIX_EINTR : 0;
++        return cancel.stop_requested() ? POSIX_EINTR : result;
+     }
+     size_t PendingWaits(u64 slot) {
+         std::lock_guard lock(guard);
+diff --git a/src/core/host_runtime/guest_runtime.cpp b/src/core/host_runtime/guest_runtime.cpp
+index 31425df6..5eb3e1e9 100644
+--- a/src/core/host_runtime/guest_runtime.cpp
++++ b/src/core/host_runtime/guest_runtime.cpp
+@@ -27,6 +27,7 @@
+ #include "core/host_runtime/guest_graphics.h"
+ #include "core/host_runtime/guest_libc_policy.h"
+ #include "core/host_runtime/guest_mutex.h"
++#include "core/host_runtime/guest_network.h"
+ #include "core/host_runtime/guest_platform.h"
+ #include "core/host_runtime/guest_rtc.h"
+ #include "core/host_runtime/guest_runtime.h"
+@@ -125,6 +126,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
+     HleCallRegistry& registry;
+     GuestClock clock;
+     std::unique_ptr<GuestStorage> storage;
++    std::unique_ptr<GuestNetwork> network;
+     std::shared_ptr<GuestSaveDialog> save_dialog;
+     std::shared_ptr<Frontend::Window> graphics_window;
+     std::shared_ptr<const Vulkan::Driver> graphics_driver;
+@@ -785,15 +787,19 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
+         const bool dialog_nid = GuestSaveDialog::IsSaveNid(nid);
+         const bool common_nid = GuestSaveDialog::IsCommonNid(nid);
+         const bool kernel_nid =
+-            !IsAppContentNid(nid) && !IsRtcNid(nid) && !IsDiscMapNid(nid) && !dialog_nid &&
+-            !common_nid && !save_nid && !videoout_functions.contains(nid) &&
+-            !sysmodule_functions.contains(nid) && !userservice_functions.contains(nid) &&
+-            !systemservice_functions.contains(nid) && !gnmdriver_functions.contains(nid) &&
+-            nid != "NWtTN10cJzE";
++            !IsNetNid(nid) && !IsNetCtlNid(nid) && !IsAppContentNid(nid) && !IsRtcNid(nid) &&
++            !IsDiscMapNid(nid) && !dialog_nid && !common_nid && !save_nid &&
++            !videoout_functions.contains(nid) && !sysmodule_functions.contains(nid) &&
++            !userservice_functions.contains(nid) && !systemservice_functions.contains(nid) &&
++            !gnmdriver_functions.contains(nid) && nid != "NWtTN10cJzE";
+         std::shared_ptr<HleCallAdapter> adapter;
+         if (auto it = handlers.find(nid);
+             it != handlers.end() &&
+-            ((app_content && IsAppContentNid(nid) &&
++            ((network && IsNetNid(nid) &&
++              symbol.name.substr(nid.size()) == "#libSceNet#1#libSceNet#Function") ||
++             (network && IsNetCtlNid(nid) &&
++              symbol.name.substr(nid.size()) == "#libSceNetCtl#1#libSceNetCtl#Function") ||
++             (app_content && IsAppContentNid(nid) &&
+               symbol.name.substr(nid.size()) ==
+                   "#libSceAppContent#1#libSceAppContentUtil#Function") ||
+              (IsRtcNid(nid) &&
+@@ -1114,6 +1120,44 @@ void GuestRuntime::Impl::InstallHandlers() {
+         return mutex_domain->CondWait(a[0], a[1], Current()->handle_va,
+                                       HleScope::Current()->CancellationToken());
+     });
++    pthread_bind("K953PF5u6Pc", "BmMjYxmew1w", [this](const auto& a) {
++        return mutex_domain->CondWait(a[0], a[1], Current()->handle_va,
++                                      HleScope::Current()->CancellationToken(),
++                                      {.relative_us = a[2]});
++    });
++    bind({"27bAgiJmOh0"}, [this](const auto& a) -> u64 {
++        Libraries::Kernel::OrbisKernelTimespec absolute{};
++        if (!space.Read(GuestAddress{a[2]}, std::as_writable_bytes(std::span{&absolute, 1})))
++            return POSIX_EFAULT;
++        std::chrono::nanoseconds duration{};
++        if (!GuestClock::Duration(absolute, duration))
++            return POSIX_EINVAL;
++        return mutex_domain->CondWait(a[0], a[1], Current()->handle_va,
++                                      HleScope::Current()->CancellationToken(),
++                                      {.absolute = duration});
++    });
++    pthread_bind("CI6Qy73ae10", "o69RpYO-Mu0", [this](const auto& a) {
++        if (a[1]) {
++            std::lock_guard lock(threads_mutex);
++            if (std::ranges::none_of(owners, [&](const auto& pair) {
++                    return pair.second->handle_va == a[1] && !pair.second->finished;
++                }))
++                return POSIX_ESRCH;
++        }
++        return mutex_domain->CondNotify(a[0], false, a[1]);
++    });
++    using CondAttrOp = GuestMutexDomain::CondAttrOp;
++    const auto condattr_bind = [&](const char* posix, const char* sce, CondAttrOp op) {
++        pthread_bind(posix, sce, [this, op](const auto& a) {
++            return mutex_domain->CondAttribute(a[0], a[1], op);
++        });
++    };
++    condattr_bind("mKoTx03HRWA", "m5-2bsNfv7s", CondAttrOp::Init);
++    condattr_bind("dJcuQVn6-Iw", "waPcxYiR3WA", CondAttrOp::Destroy);
++    condattr_bind("cTDYxTUNPhM", "6qM3kO5S3Oo", CondAttrOp::GetClock);
++    condattr_bind("EjllaAqAPZo", "c-bxj027czs", CondAttrOp::SetClock);
++    condattr_bind("h0qUqSuOmC8", "Dn-DRWi9t54", CondAttrOp::GetShared);
++    condattr_bind("3BpP850hBT4", "6xMew9+rZwI", CondAttrOp::SetShared);
+     handlers["F8bUHwAG284"] = handlers.at("n2MMpvU8igI");
+     handlers["qH1gXoq71RY"] = handlers.at("cmo1RIYva9o");
+     pthread_bind("ZLvf6lVAc4M", "532IaQguwMg", [this](const auto& a) { return mutex_domain->AttributeCeiling(a[0], a[1], false); });
+@@ -1700,6 +1744,56 @@ void GuestRuntime::Impl::InstallHandlers() {
+                  s32(a[1]), result);
+         return result;
+     });
++    auto network_handler = [this](std::string_view nid) {
++        handlers[std::string(nid)] = [this, nid](HleCallFrame& frame) {
++            if (!network)
++                return Status(MakeError(ErrorCategory::Unsupported, "GuestNetwork",
++                                        "missing session domain"));
++            if (nid == "iQw3iQPhvUQ") {
++                auto callbacks = network->BeginCallbacks();
++                if (!callbacks) {
++                    frame.registers.Set(Gpr::Rax, u32(ORBIS_NET_CTL_ERROR_NOT_AVAIL));
++                    return Ok();
++                }
++                auto end = [this](void*) { network->EndCallbacks(); };
++                std::unique_ptr<void, decltype(end)> active(reinterpret_cast<void*>(1), end);
++                // No VM/domain lock or guest pin may span a callback. Registration
++                // revisions reject slots removed/reused by earlier callbacks.
++                for (const auto& callback : *callbacks) {
++                    if (!network->IsCurrent(callback))
++                        continue;
++                    GuestCallArgs args;
++                    args.values = {u64(ORBIS_NET_CTL_EVENT_TYPE_DISCONNECTED), callback.argument};
++                    args.count = 2;
++                    auto result = Call(callback.function, args);
++                    if (!result)
++                        return Status(result.GetError());
++                    if (result.Value().reason != StopReason::Returned ||
++                        HleScope::Current()->ThreadExitResult()) {
++                        // HleScope preserves the nested stop/fault for the outer
++                        // dispatcher; do not swallow it or call another callback.
++                        frame.registers.Set(Gpr::Rax, u32(ORBIS_NET_ERROR_EINTR));
++                        return Ok();
++                    }
++                }
++                frame.registers.Set(Gpr::Rax, 0);
++                return Ok();
++            }
++            std::array<u64, 6> args{};
++            for (size_t i = 0; i < args.size(); ++i)
++                args[i] = frame.registers.Get(kSysVIntegerOrder[i]);
++            std::lock_guard vm(vm_mutex);
++            // Independent guest TLS slots: net errno must not alias POSIX errno
++            // or another owner. NewOwner reserves/zeros the final 64 TLS bytes.
++            const u64 net_errno = Current()->handle_va + sizeof(u64) + sizeof(s32);
++            frame.registers.Set(Gpr::Rax, network->Dispatch(space, nid, args, net_errno));
++            return Ok();
++        };
++    };
++    for (auto nid : NetNids)
++        network_handler(nid);
++    for (auto nid : NetCtlNids)
++        network_handler(nid);
+     for (auto nid : AppContentNids) {
+         handlers[std::string(nid)] = [this, nid](HleCallFrame& frame) {
+             if (!app_content)
+@@ -2132,6 +2226,11 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
+     impl->platform = std::make_unique<GuestPlatform>(std::move(users), sdk,
+                                                      EmulatorSettings.GetConsoleLanguage(),
+                                                      EmulatorSettings.IsCircleEnter());
++    impl->network = std::make_unique<GuestNetwork>(EmulatorSettings.IsConnectedToNetwork());
++    LOG_INFO(Lib_Net, "Session network control: requested_online={}, online transport unavailable",
++             EmulatorSettings.IsConnectedToNetwork());
++    impl->sysmodules.Publish("libSceNet", 0x1000000b);
++    impl->sysmodules.Publish("libSceNetCtl", 0x1000000c);
+     // These services have actual per-session implementations. DT_NEEDED alone
+     // never publishes a provider (VideoOut/Audio/AppContent must initialize theirs).
+     s32 handle = 0x10000000;

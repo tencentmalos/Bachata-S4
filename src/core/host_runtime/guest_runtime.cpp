@@ -27,6 +27,8 @@
 #include "core/host_runtime/guest_graphics.h"
 #include "core/host_runtime/guest_libc_policy.h"
 #include "core/host_runtime/guest_mutex.h"
+#include "core/host_runtime/guest_network.h"
+#include "core/host_runtime/guest_pad.h"
 #include "core/host_runtime/guest_platform.h"
 #include "core/host_runtime/guest_rtc.h"
 #include "core/host_runtime/guest_runtime.h"
@@ -42,6 +44,7 @@
 #include "core/libraries/kernel/posix_error.h"
 #include "core/libraries/kernel/time.h"
 #include "core/libraries/libs.h"
+#include "core/libraries/network/ssl2.h"
 #include "core/libraries/sysmodule/sysmodule_error.h"
 #include "core/libraries/sysmodule/sysmodule_internal.h"
 #include "core/libraries/system/systemservice.h"
@@ -89,6 +92,10 @@ struct FunctionAdapter final : HleCallAdapter {
             status = call(frame);
         } catch (const std::exception& e) {
             LOG_ERROR(Core, "Production HLE operation {} failed: {}", frame.operation, e.what());
+#if defined(__ANDROID__)
+            __android_log_print(ANDROID_LOG_ERROR, "ProductionHLE", "failed op=%llu: %s",
+                                (unsigned long long)frame.operation, e.what());
+#endif
             throw;
         }
 #if defined(__ANDROID__)
@@ -125,6 +132,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     HleCallRegistry& registry;
     GuestClock clock;
     std::unique_ptr<GuestStorage> storage;
+    std::unique_ptr<GuestNetwork> network;
+    std::unique_ptr<GuestPad> pad;
     std::shared_ptr<GuestSaveDialog> save_dialog;
     std::shared_ptr<Frontend::Window> graphics_window;
     std::shared_ptr<const Vulkan::Driver> graphics_driver;
@@ -510,6 +519,9 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     }
     template <class T>
     void Write(u64 address, const T& value) {
+        // Short outputs (clock/TLS/handles included) cannot race a different
+        // owner's VM publication. This gate is released before guest waits or callbacks.
+        std::lock_guard vm(vm_mutex);
         Require(space.Write(GuestAddress{address}, std::as_bytes(std::span{&value, 1})));
     }
     std::string String(u64 address, size_t limit = 4096) {
@@ -784,16 +796,23 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
                                           [&](const auto& e) { return e.save && e.nid == nid; });
         const bool dialog_nid = GuestSaveDialog::IsSaveNid(nid);
         const bool common_nid = GuestSaveDialog::IsCommonNid(nid);
+        const bool ssl_nid = nid == "hdpVEUDFW3s" || nid == "0K1yQ6Lv-Yc";
         const bool kernel_nid =
-            !IsAppContentNid(nid) && !IsRtcNid(nid) && !IsDiscMapNid(nid) && !dialog_nid &&
-            !common_nid && !save_nid && !videoout_functions.contains(nid) &&
-            !sysmodule_functions.contains(nid) && !userservice_functions.contains(nid) &&
-            !systemservice_functions.contains(nid) && !gnmdriver_functions.contains(nid) &&
-            nid != "NWtTN10cJzE";
+            !ssl_nid && !IsPadNid(nid) && !IsNetNid(nid) && !IsNetCtlNid(nid) && !IsAppContentNid(nid) && !IsRtcNid(nid) &&
+            !IsDiscMapNid(nid) && !dialog_nid && !common_nid && !save_nid &&
+            !videoout_functions.contains(nid) && !sysmodule_functions.contains(nid) &&
+            !userservice_functions.contains(nid) && !systemservice_functions.contains(nid) &&
+            !gnmdriver_functions.contains(nid) && nid != "NWtTN10cJzE";
         std::shared_ptr<HleCallAdapter> adapter;
         if (auto it = handlers.find(nid);
             it != handlers.end() &&
-            ((app_content && IsAppContentNid(nid) &&
+            ((pad && IsPadNid(nid) && symbol.name.substr(nid.size()) == "#libScePad#1#libScePad#Function") ||
+             (ssl_nid && symbol.name.substr(nid.size()) == "#libSceSsl#1#libSceSsl#Function") ||
+             (network && IsNetNid(nid) &&
+              symbol.name.substr(nid.size()) == "#libSceNet#1#libSceNet#Function") ||
+             (network && IsNetCtlNid(nid) &&
+              symbol.name.substr(nid.size()) == "#libSceNetCtl#1#libSceNetCtl#Function") ||
+             (app_content && IsAppContentNid(nid) &&
               symbol.name.substr(nid.size()) ==
                   "#libSceAppContent#1#libSceAppContentUtil#Function") ||
              (IsRtcNid(nid) &&
@@ -1114,6 +1133,44 @@ void GuestRuntime::Impl::InstallHandlers() {
         return mutex_domain->CondWait(a[0], a[1], Current()->handle_va,
                                       HleScope::Current()->CancellationToken());
     });
+    pthread_bind("K953PF5u6Pc", "BmMjYxmew1w", [this](const auto& a) {
+        return mutex_domain->CondWait(a[0], a[1], Current()->handle_va,
+                                      HleScope::Current()->CancellationToken(),
+                                      {.relative_us = a[2]});
+    });
+    bind({"27bAgiJmOh0"}, [this](const auto& a) -> u64 {
+        Libraries::Kernel::OrbisKernelTimespec absolute{};
+        if (!space.Read(GuestAddress{a[2]}, std::as_writable_bytes(std::span{&absolute, 1})))
+            return POSIX_EFAULT;
+        std::chrono::nanoseconds duration{};
+        if (!GuestClock::Duration(absolute, duration))
+            return POSIX_EINVAL;
+        return mutex_domain->CondWait(a[0], a[1], Current()->handle_va,
+                                      HleScope::Current()->CancellationToken(),
+                                      {.absolute = duration});
+    });
+    pthread_bind("CI6Qy73ae10", "o69RpYO-Mu0", [this](const auto& a) {
+        if (a[1]) {
+            std::lock_guard lock(threads_mutex);
+            if (std::ranges::none_of(owners, [&](const auto& pair) {
+                    return pair.second->handle_va == a[1] && !pair.second->finished;
+                }))
+                return POSIX_ESRCH;
+        }
+        return mutex_domain->CondNotify(a[0], false, a[1]);
+    });
+    using CondAttrOp = GuestMutexDomain::CondAttrOp;
+    const auto condattr_bind = [&](const char* posix, const char* sce, CondAttrOp op) {
+        pthread_bind(posix, sce, [this, op](const auto& a) {
+            return mutex_domain->CondAttribute(a[0], a[1], op);
+        });
+    };
+    condattr_bind("mKoTx03HRWA", "m5-2bsNfv7s", CondAttrOp::Init);
+    condattr_bind("dJcuQVn6-Iw", "waPcxYiR3WA", CondAttrOp::Destroy);
+    condattr_bind("cTDYxTUNPhM", "6qM3kO5S3Oo", CondAttrOp::GetClock);
+    condattr_bind("EjllaAqAPZo", "c-bxj027czs", CondAttrOp::SetClock);
+    condattr_bind("h0qUqSuOmC8", "Dn-DRWi9t54", CondAttrOp::GetShared);
+    condattr_bind("3BpP850hBT4", "6xMew9+rZwI", CondAttrOp::SetShared);
     handlers["F8bUHwAG284"] = handlers.at("n2MMpvU8igI");
     handlers["qH1gXoq71RY"] = handlers.at("cmo1RIYva9o");
     pthread_bind("ZLvf6lVAc4M", "532IaQguwMg", [this](const auto& a) { return mutex_domain->AttributeCeiling(a[0], a[1], false); });
@@ -1700,6 +1757,76 @@ void GuestRuntime::Impl::InstallHandlers() {
                  s32(a[1]), result);
         return result;
     });
+    for (auto nid : PadNids) {
+        handlers[std::string(nid)] = [this, nid](HleCallFrame& frame) {
+            std::array<u64, 6> args{};
+            for (size_t i = 0; i < args.size(); ++i)
+                args[i] = frame.registers.Get(kSysVIntegerOrder[i]);
+            std::lock_guard vm(vm_mutex); // bounded copy; no input wait/callback
+            frame.registers.Set(Gpr::Rax, pad->Dispatch(space, nid, args));
+            return Ok();
+        };
+    }
+    // User policy: reuse the existing desktop SSL compatibility entry points.
+    // sceSslInit allocates only a dummy id; it does NOT establish TLS, a pool,
+    // certificate validation or a connection. Do not broaden this to pointer APIs.
+    bind({"hdpVEUDFW3s"}, [this](const auto& a) -> u64 {
+        std::lock_guard vm(vm_mutex); // serialize desktop's non-atomic dummy id
+        return u32(Libraries::Ssl2::sceSslInit(a[0]));
+    });
+    bind({"0K1yQ6Lv-Yc"}, [](const auto&) -> u64 {
+        return u32(Libraries::Ssl2::sceSslTerm());
+    });
+    auto network_handler = [this](std::string_view nid) {
+        handlers[std::string(nid)] = [this, nid](HleCallFrame& frame) {
+            if (!network)
+                return Status(MakeError(ErrorCategory::Unsupported, "GuestNetwork",
+                                        "missing session domain"));
+            if (nid == "iQw3iQPhvUQ") {
+                auto callbacks = network->BeginCallbacks();
+                if (!callbacks) {
+                    frame.registers.Set(Gpr::Rax, u32(ORBIS_NET_CTL_ERROR_NOT_AVAIL));
+                    return Ok();
+                }
+                auto end = [this](void*) { network->EndCallbacks(); };
+                std::unique_ptr<void, decltype(end)> active(reinterpret_cast<void*>(1), end);
+                // No VM/domain lock or guest pin may span a callback. Registration
+                // revisions reject slots removed/reused by earlier callbacks.
+                for (const auto& callback : *callbacks) {
+                    if (!network->IsCurrent(callback))
+                        continue;
+                    GuestCallArgs args;
+                    args.values = {u64(ORBIS_NET_CTL_EVENT_TYPE_DISCONNECTED), callback.argument};
+                    args.count = 2;
+                    auto result = Call(callback.function, args);
+                    if (!result)
+                        return Status(result.GetError());
+                    if (result.Value().reason != StopReason::Returned ||
+                        HleScope::Current()->ThreadExitResult()) {
+                        // HleScope preserves the nested stop/fault for the outer
+                        // dispatcher; do not swallow it or call another callback.
+                        frame.registers.Set(Gpr::Rax, u32(ORBIS_NET_ERROR_EINTR));
+                        return Ok();
+                    }
+                }
+                frame.registers.Set(Gpr::Rax, 0);
+                return Ok();
+            }
+            std::array<u64, 6> args{};
+            for (size_t i = 0; i < args.size(); ++i)
+                args[i] = frame.registers.Get(kSysVIntegerOrder[i]);
+            std::lock_guard vm(vm_mutex);
+            // Independent guest TLS slots: net errno must not alias POSIX errno
+            // or another owner. NewOwner reserves/zeros the final 64 TLS bytes.
+            const u64 net_errno = Current()->handle_va + sizeof(u64) + sizeof(s32);
+            frame.registers.Set(Gpr::Rax, network->Dispatch(space, nid, args, net_errno));
+            return Ok();
+        };
+    };
+    for (auto nid : NetNids)
+        network_handler(nid);
+    for (auto nid : NetCtlNids)
+        network_handler(nid);
     for (auto nid : AppContentNids) {
         handlers[std::string(nid)] = [this, nid](HleCallFrame& frame) {
             if (!app_content)
@@ -2132,6 +2259,13 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
     impl->platform = std::make_unique<GuestPlatform>(std::move(users), sdk,
                                                      EmulatorSettings.GetConsoleLanguage(),
                                                      EmulatorSettings.IsCircleEnter());
+    impl->pad = std::make_unique<GuestPad>(GlobalPadAdapter(), *impl->platform);
+    impl->sysmodules.Publish("libScePad", 0x1000000d);
+    impl->network = std::make_unique<GuestNetwork>(EmulatorSettings.IsConnectedToNetwork());
+    LOG_INFO(Lib_Net, "Session network control: requested_online={}, online transport unavailable",
+             EmulatorSettings.IsConnectedToNetwork());
+    impl->sysmodules.Publish("libSceNet", 0x1000000b);
+    impl->sysmodules.Publish("libSceNetCtl", 0x1000000c);
     // These services have actual per-session implementations. DT_NEEDED alone
     // never publishes a provider (VideoOut/Audio/AppContent must initialize theirs).
     s32 handle = 0x10000000;

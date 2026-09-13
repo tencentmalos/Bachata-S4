@@ -1,0 +1,8 @@
+{
+  "scope": "focused offline network control, pools, inet, errno, and callback registration",
+  "artifacts": {
+    "libshadps4_host.so": "56246294f23f714695743ac2fa820bf1099943dd33543a5d04b4b5823027e428",
+    "guest_network_tests": "e02e21a173d445890abc7efbec4b9a1c7c9e2df33193b33234f499582b3e7404"
+  },
+  "exit": 0
+}

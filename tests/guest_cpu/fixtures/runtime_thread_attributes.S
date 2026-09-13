@@ -5,6 +5,70 @@
 _start:
     mov r12,rsi
     sub rsp,8
+#ifdef CLOCK_VM
+    lea rdi,[rip+thread]
+    xor esi,esi
+    lea rdx,[rip+clock_child]
+    xor ecx,ecx
+    call qword ptr [rip+got_create]
+    test eax,eax
+    jne failed
+clock_ready:
+    cmp qword ptr [rip+clock_count],0
+    jne clock_begin
+    pause
+    jmp clock_ready
+clock_begin:
+    mov r13d,128
+clock_map:
+    mov qword ptr [rip+allocated],0
+    lea rdi,[rip+allocated]
+    mov esi,0x4000
+    mov edx,3
+    xor ecx,ecx
+    lea r8,[rip+name]
+    call qword ptr [rip+got_map]
+    test eax,eax
+    jne failed
+    mov rdi,[rip+allocated]
+    mov esi,0x4000
+    call qword ptr [rip+got_unmap]
+    test eax,eax
+    jne failed
+    dec r13d
+    jnz clock_map
+    mov dword ptr [rip+clock_done],1
+    mov rdi,[rip+thread]
+    lea rsi,[rip+result]
+    call qword ptr [rip+got_join]
+    test eax,eax
+    jne failed
+    cmp qword ptr [rip+result],0xabcd
+    jne failed
+    cmp qword ptr [rip+clock_count],2
+    jb failed
+    mov eax,0xcafe
+    add rsp,8
+    jmp r12
+clock_child:
+    sub rsp,8
+clock_loop:
+    mov edi,4
+    lea rsi,[rip+clock_output]
+    call qword ptr [rip+got_clock]
+    test eax,eax
+    jne clock_bad
+    inc qword ptr [rip+clock_count]
+    cmp dword ptr [rip+clock_done],0
+    je clock_loop
+    mov eax,0xabcd
+    add rsp,8
+    ret
+clock_bad:
+    mov eax,0xbad
+    add rsp,8
+    ret
+#endif
 #ifndef CHILD_FAULT
     mov edi,1000000
     call qword ptr [rip+got_sleep]
@@ -287,6 +351,10 @@ mutex_slot:.quad 0
 rw_slot:.quad 0
 mutex_protocol:.long 0
 name:.asciz "AttributeStack"
+.org 0x4400
+clock_count:.quad 0
+clock_done:.quad 0
+clock_output:.quad 0,0
 .org 0x8000
 got_init:.quad 0
 got_size:.quad 0
@@ -322,3 +390,5 @@ got_rw_init:.quad 0
 got_rw_read:.quad 0
 got_rw_unlock:.quad 0
 got_rw_destroy:.quad 0
+got_clock:.quad 0
+got_unmap:.quad 0
