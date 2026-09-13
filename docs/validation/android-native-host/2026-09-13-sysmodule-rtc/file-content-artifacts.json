@@ -1,0 +1,7 @@
+{
+  "artifacts": {
+    "build/android-host-api33/native/guest_file_io_tests": "0fe35668c06dc12eddbc86b2832871ffe36265a006797093c93075de23f18a81",
+    "build/android-host-api33/native/libshadps4_host.so": "6700e23a40b0dddb746cfeb12802947423711fb7430e2bf554555aaca56dd84d"
+  },
+  "exit_code": 0
+}

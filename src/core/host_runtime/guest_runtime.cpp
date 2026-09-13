@@ -22,17 +22,20 @@
 #include "core/file_sys/fs.h"
 #include "core/guest_cpu/hle/scope.h"
 #include "core/guest_cpu/hle/veneer_allocator.h"
+#include "core/host_runtime/guest_app_content.h"
 #include "core/host_runtime/guest_clock.h"
-#include "core/host_runtime/guest_libc_policy.h"
-#include "core/host_runtime/guest_rwlock.h"
 #include "core/host_runtime/guest_graphics.h"
+#include "core/host_runtime/guest_libc_policy.h"
 #include "core/host_runtime/guest_mutex.h"
-#include "core/host_runtime/guest_semaphore.h"
-#include "core/host_runtime/guest_thread_attributes.h"
 #include "core/host_runtime/guest_platform.h"
+#include "core/host_runtime/guest_rtc.h"
 #include "core/host_runtime/guest_runtime.h"
+#include "core/host_runtime/guest_rwlock.h"
 #include "core/host_runtime/guest_save_dialog.h"
+#include "core/host_runtime/guest_semaphore.h"
 #include "core/host_runtime/guest_storage_hle.h"
+#include "core/host_runtime/guest_sysmodule_hle.h"
+#include "core/host_runtime/guest_thread_attributes.h"
 #include "core/libraries/gnmdriver/gnmdriver.h"
 #include "core/libraries/kernel/memory.h"
 #include "core/libraries/kernel/orbis_error.h"
@@ -183,6 +186,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     Common::ElfInfo elf_info;
     std::unique_ptr<Common::Singleton<Common::ElfInfo>::Binding> elf_binding;
     FileSys::MntPoints mounts;
+    std::unique_ptr<GuestAppContent> app_content;
     std::unique_ptr<Common::Singleton<FileSys::MntPoints>::Binding> mount_binding;
     std::map<std::string, u64> veneers;
     std::map<u64, std::string> operation_names;
@@ -400,6 +404,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
             if (o->worker.joinable())
                 o->worker.join();
         storage.reset();
+        app_content.reset();
         graphics.reset();
         graphics_window.reset();
         graphics_driver.reset();
@@ -758,9 +763,9 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         // Only the sysmodule NIDs this runtime implements are admitted under the
         // libSceSysmodule library suffix; every other sysmodule function still
         // name-faults so a missing capability is never silently a success.
-        static const std::set<std::string> sysmodule_functions{"g8cM39EUZ6o", "39iV5E1HoCk",
-                                                               "eR2bZFAAU0Q", "fMP5NHUOaMk",
-                                                               "ynFKQ5bfGks", "D8cuU4d72xM"};
+        static const std::set<std::string> sysmodule_functions{
+            "g8cM39EUZ6o", "39iV5E1HoCk", "eR2bZFAAU0Q", "fMP5NHUOaMk",
+            "ynFKQ5bfGks", "D8cuU4d72xM", "hHrGoGoNf+s"};
         // Guest-facing libSceUserService startup family; same policy as above.
         static const std::set<std::string> userservice_functions{
             "j3YMu1MVNNo", "bwFjS+bX9mA", "CdWp0oHWGr0", "eNb53LQJmIM",
@@ -780,14 +785,22 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         const bool dialog_nid = GuestSaveDialog::IsSaveNid(nid);
         const bool common_nid = GuestSaveDialog::IsCommonNid(nid);
         const bool kernel_nid =
-            !dialog_nid && !common_nid && !save_nid && !videoout_functions.contains(nid) &&
+            !IsAppContentNid(nid) && !IsRtcNid(nid) && !IsDiscMapNid(nid) && !dialog_nid &&
+            !common_nid && !save_nid && !videoout_functions.contains(nid) &&
             !sysmodule_functions.contains(nid) && !userservice_functions.contains(nid) &&
             !systemservice_functions.contains(nid) && !gnmdriver_functions.contains(nid) &&
             nid != "NWtTN10cJzE";
         std::shared_ptr<HleCallAdapter> adapter;
         if (auto it = handlers.find(nid);
             it != handlers.end() &&
-            ((kernel_nid &&
+            ((app_content && IsAppContentNid(nid) &&
+              symbol.name.substr(nid.size()) ==
+                  "#libSceAppContent#1#libSceAppContentUtil#Function") ||
+             (IsRtcNid(nid) &&
+              symbol.name.substr(nid.size()) == "#libSceRtc#1#libSceRtc#Function") ||
+             (IsDiscMapNid(nid) &&
+              symbol.name.substr(nid.size()) == "#libSceDiscMap#1#libSceDiscMap#Function") ||
+             (kernel_nid &&
               (symbol.name.substr(nid.size()) == "#libkernel#1#libkernel#Function" ||
                symbol.name.substr(nid.size()) == "#libScePosix#1#libkernel#Function")) ||
              (save_dialog && dialog_nid &&
@@ -928,6 +941,11 @@ void GuestRuntime::Impl::InstallHandlers() {
             std::array<u64, 6> args{};
             for (size_t i = 0; i < args.size(); ++i)
                 args[i] = frame.registers.Get(kSysVIntegerOrder[i]);
+            // Regular-file HLE has no guest callbacks. Serialize its pin set
+            // with VM publication; never let a coordinator drain between pins.
+            std::unique_lock vm(vm_mutex, std::defer_lock);
+            if (!entry.save)
+                vm.lock();
             frame.registers.Set(Gpr::Rax,
                                 DispatchStorage(*storage, space, entry, args,
                                                 [this](int error) { return PosixFailure(error); }));
@@ -1674,6 +1692,48 @@ void GuestRuntime::Impl::InstallHandlers() {
          [this](const auto& a) -> u64 { return SysmoduleIsLoaded(static_cast<u32>(a[0])); });
     bind({"D8cuU4d72xM"},
          [this](const auto& a) -> u64 { return SysmoduleGetHandle(static_cast<u32>(a[0]), a[1]); });
+    bind({"hHrGoGoNf+s"}, [this](const auto& a) -> u64 {
+        // A short reference/output transaction; no guest callback or wait with pins.
+        std::lock_guard vm(vm_mutex);
+        const auto result = LoadInitializedSysmodule(sysmodules, space, a);
+        LOG_INFO(Lib_SysModule, "session WithArg id={:#x} bytes={} result={:#x}", u32(a[0]),
+                 s32(a[1]), result);
+        return result;
+    });
+    for (auto nid : AppContentNids) {
+        handlers[std::string(nid)] = [this, nid](HleCallFrame& frame) {
+            if (!app_content)
+                return Status(MakeError(ErrorCategory::Unsupported, "AppContent",
+                                        "missing installed title metadata"));
+            std::array<u64, 6> args{};
+            for (size_t i = 0; i < args.size(); ++i)
+                args[i] = frame.registers.Get(kSysVIntegerOrder[i]);
+            std::lock_guard vm(vm_mutex);
+            frame.registers.Set(Gpr::Rax, app_content->Dispatch(space, nid, args, storage.get()));
+            return Ok();
+        };
+    }
+    for (auto nid : RtcNids) {
+        handlers[std::string(nid)] = [this, nid](HleCallFrame& frame) {
+            std::array<u64, 6> args{};
+            for (size_t i = 0; i < args.size(); ++i)
+                args[i] = frame.registers.Get(kSysVIntegerOrder[i]);
+            std::lock_guard vm(vm_mutex);
+            frame.registers.Set(Gpr::Rax,
+                                DispatchRtc(space, clock, elf_info.CompiledSdkVer(), nid, args));
+            return Ok();
+        };
+    }
+    for (auto nid : DiscMapNids) {
+        handlers[std::string(nid)] = [this, nid](HleCallFrame& frame) {
+            std::array<u64, 6> args{};
+            for (size_t i = 0; i < args.size(); ++i)
+                args[i] = frame.registers.Get(kSysVIntegerOrder[i]);
+            std::lock_guard vm(vm_mutex);
+            frame.registers.Set(Gpr::Rax, DispatchDiscMap(space, nid, args));
+            return Ok();
+        };
+    }
     // Session guest-facing libSceUserService startup family. Each output pointer
     // is validated against the guest address space; the real emulator function
     // runs on a host-local object and the result is written back. No guest
@@ -2017,6 +2077,8 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
     }
     std::string serial, title, version, save_title;
     u32 attributes{};
+    std::array<s32, 5> app_parameters{
+        Libraries::AppContent::ORBIS_APP_CONTENT_APPPARAM_SKU_FLAG_FULL, 0, 0, 0, 0};
     if (auto bytes = impl->mounts.ReadFile("/app0/sce_sys/param.sfo")) {
         PSF psf;
         if (!psf.Open(*bytes))
@@ -2026,6 +2088,9 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
         title = psf.GetString("TITLE").value_or("");
         version = psf.GetString("APP_VER").value_or("");
         attributes = psf.GetInteger("ATTRIBUTE").value_or(0);
+        for (unsigned i = 1; i < app_parameters.size(); ++i)
+            app_parameters[i] =
+                psf.GetInteger("USER_DEFINED_PARAM_" + std::to_string(i)).value_or(0);
     }
     impl->elf_info.InitializeGuestMetadata(executable.parent_path(), sdk, serial, title, version,
                                            attributes);
@@ -2046,6 +2111,24 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
             impl->sysmodules.Publish("libSceCommonDialog", 0x10000007);
         }
     }
+    if (GuestStorage::ValidTitle(serial)) {
+        auto roots =
+            Core::FileSys::ListContentRoots(EmulatorSettings.GetAddonInstallDir() / serial);
+        const auto sibling =
+            Core::FileSys::OverlayPath(executable.parent_path(), Core::FileSys::DlcSuffix);
+        if (const auto root = Core::FileSys::ResolveGameRoot(sibling)) {
+            auto found = Core::FileSys::IsZArchiveFile(*root)
+                             ? Core::FileSys::ExpandBundleRoots(*root)
+                             : Core::FileSys::ListContentRoots(*root);
+            roots.insert(roots.end(), found.begin(), found.end());
+        }
+        impl->app_content = std::make_unique<GuestAppContent>(impl->mounts, sdk, serial,
+                                                              app_parameters, std::move(roots),
+            [p = impl.get()] { return p->platform->EntitlementsChanged(); });
+        impl->sysmodules.Publish("libSceAppContent", 0x1000000a);
+    }
+    impl->sysmodules.Publish("libSceDiscMap", 0x10000008);
+    impl->sysmodules.Publish("libSceRtc", 0x10000009);
     impl->platform = std::make_unique<GuestPlatform>(std::move(users), sdk,
                                                      EmulatorSettings.GetConsoleLanguage(),
                                                      EmulatorSettings.IsCircleEnter());

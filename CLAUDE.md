@@ -6,6 +6,10 @@
 
 ## 当前交接（2026-09-13）
 
+先读[Sysmodule／文件／RTC／AppContent 增量与验收限制](docs/validation/android-native-host/sysmodule-rtc-content-integration-2026-09-13.md)，它覆盖下文旧 WithArg 卡点。设备已重连：sysmodule30/0、文件/DLC/临时目录144/0、最终RTC397/0；22-import真实guest三轮返回，完整PFS资源TMNT同PID三轮到 **sceNetInit/op312**，仍零帧。AppContent八入口、实际DLC/临时挂载、空间查询和Stop清理已真机验证；RTC格式化/解析由desktop与guest共享纯helper。临时目录每会话新建，不能称持久缓存；Precise保留原桌面两位小数输出。旧“设备断开未测”和APK/host不一致保留为历史，最新库SHA已核对一致。继续直接处理网络会话/init/池/状态/errno/回调与取消等依赖，不用另写spec或重跑全量回归。所有源码/产物/内容身份、测试目录与明确缺失项在该报告。
+
+下文是之前已交付的线程/libc与更早阶段记录：
+
 优先读[桌面 libc 策略与线程族整批实现](docs/validation/android-native-host/thread-libc-integration-2026-09-13.md)。本轮已接系统 `libSceLibcInternal.sprx` 优先加载、初始化失败不混用回退；无系统库时用显式 112-NID 策略解析真实 guest libc（当前游戏102导出、原27个Internal缺口归零，仅静态导入覆盖）。attr/create实际消费、rwlock、desktop mutex protocol/ceiling 与 VM 写回排他已接；后台fault保留原owner并取消主线程。最终AYN：attr43/0、locks60/0、G49/G48定向6/0；普通APK三个JUnit选择器通过，其中TMNT仅边界观察，三轮均到 `sceSysmoduleLoadModuleInternalWithArg` / op527 / Unsupported，guest_presents=0。没有真实系统固件libc/完整游戏/全量回归/Swan验收；最终源码与产物见manifest，FEX/Foundation未改。
 
 **用户要求：每个缺口先查桌面版注册、实现及依赖，按函数族连同provider/init/生命周期一起处理，不再单个NID交微型spec。** desktop protocol同样没有实时优先级捐赠，不能把其现有模拟语义说成Android实时调度保证，也不应未经对照就返回更严格的ENOTSUP。继续当前整版目标，默认只测改动相关部分；下一实际边界是动态sysmodule加载族，必须真实处理初始化参数/provider就绪，不能假成功。以下旧pthread_attr_init、libc逐个补洞等状态由本段取代。

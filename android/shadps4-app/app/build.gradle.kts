@@ -205,7 +205,7 @@ val runtimeFixtureAssets = layout.buildDirectory.dir("generated/productionRuntim
 android.sourceSets.getByName("androidTest").assets.srcDir(runtimeFixtureAssets)
 val fixtureRepo = rootProject.projectDir.resolve("../..")
 val fixtureNdk = android.sdkDirectory.resolve("ndk/29.0.14206865")
-val runtimeFixtureTasks = listOf("libc-policy-main", "libc-policy-fallback", "libc-policy-system", "libc-policy-bad-init", "thread-attributes", "thread-attributes-fault", "gpu-flip", "storage", "storage-read", "save-dialog", "videoout", "videoout-bad", "videoout-format", "bootstrap", "bootstrap-wait", "libc", "libc-wait", "services", "fixture", "self", "wait", "dependency", "dependency-wait", "bad", "unknown").map { kind ->
+val runtimeFixtureTasks = listOf("sysmodule", "libc-policy-main", "libc-policy-fallback", "libc-policy-system", "libc-policy-bad-init", "thread-attributes", "thread-attributes-fault", "gpu-flip", "storage", "storage-read", "save-dialog", "videoout", "videoout-bad", "videoout-format", "bootstrap", "bootstrap-wait", "libc", "libc-wait", "services", "fixture", "self", "wait", "dependency", "dependency-wait", "bad", "unknown").map { kind ->
     tasks.register<Exec>("generate${kind.replaceFirstChar { it.uppercase() }}RuntimeElf") {
         inputs.file(fixtureRepo.resolve("scripts/android/generate-production-runtime-fixture"))
         inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/production_runtime.S"))
@@ -214,6 +214,7 @@ val runtimeFixtureTasks = listOf("libc-policy-main", "libc-policy-fallback", "li
         inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/runtime_gpu_flip.S"))
         inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/runtime_thread_attributes.S"))
         inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/runtime_libc_policy.S"))
+        inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/runtime_sysmodule.S"))
         inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/runtime_storage.S"))
         inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/runtime_save_dialog.S"))
         val output = runtimeFixtureAssets.get().file(if (kind == "dependency") "fixture_dependency.sprx" else "$kind.elf").asFile
@@ -225,6 +226,7 @@ val runtimeFixtureTasks = listOf("libc-policy-main", "libc-policy-fallback", "li
                 "bootstrap", "bootstrap-wait" -> listOf("--with-dependency", "--libc")
                 "libc" -> listOf("--module", "--libc")
                 "libc-wait" -> listOf("--module", "--libc", "--wait")
+                "sysmodule" -> listOf("--sysmodule")
                 "services" -> listOf("--services")
                 "storage" -> listOf("--storage")
                 "storage-read" -> listOf("--storage", "--read-save")

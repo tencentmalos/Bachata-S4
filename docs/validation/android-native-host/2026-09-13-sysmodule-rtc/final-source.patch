@@ -1,0 +1,741 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 97043800..215c09fb 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1627,6 +1627,14 @@ if(BUILD_HOST_CORE)
+     if(HOST_BUILD_PROBES)
+         add_executable(host_dlopen_smoke tests/host_runtime/host_dlopen_smoke.cpp)
+         target_link_libraries(host_dlopen_smoke PRIVATE dl)
++        add_executable(guest_rtc_tests tests/host_runtime/guest_rtc_tests.cpp)
++        target_link_libraries(guest_rtc_tests PRIVATE shadps4_host)
++        target_include_directories(guest_rtc_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
++        target_compile_definitions(guest_rtc_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
++        add_executable(guest_file_io_tests tests/host_runtime/guest_file_io_tests.cpp)
++        target_link_libraries(guest_file_io_tests PRIVATE shadps4_host)
++        target_include_directories(guest_file_io_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
++        target_compile_definitions(guest_file_io_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+         add_executable(host_library_smoke tests/host_runtime/host_library_smoke.cpp)
+         target_link_libraries(host_library_smoke PRIVATE shadps4_host)
+         target_include_directories(host_library_smoke PRIVATE src)
+diff --git a/cmake/fex/CMakeLists.txt b/cmake/fex/CMakeLists.txt
+index 23f15f8d..1e8d7727 100644
+--- a/cmake/fex/CMakeLists.txt
++++ b/cmake/fex/CMakeLists.txt
+@@ -113,6 +113,8 @@ if(V0_BUILD_TESTS)
+     target_link_libraries(session_lifecycle_tests PRIVATE guest_cpu_api Threads::Threads)
+     target_compile_definitions(session_lifecycle_tests PRIVATE SESSION_TEST_HOOKS=1)
+ 
++    add_executable(guest_sysmodule_tests "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/host_runtime/guest_sysmodule_tests.cpp")
++    target_link_libraries(guest_sysmodule_tests PRIVATE guest_cpu_api Threads::Threads)
+     add_executable(guest_thread_attribute_tests
+         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/host_runtime/guest_thread_attribute_tests.cpp")
+     target_link_libraries(guest_thread_attribute_tests PRIVATE guest_cpu_api Threads::Threads)
+diff --git a/src/core/file_sys/fs.h b/src/core/file_sys/fs.h
+index eed7ff4c..893d4777 100644
+--- a/src/core/file_sys/fs.h
++++ b/src/core/file_sys/fs.h
+@@ -147,6 +147,16 @@ public:
+         return it == m_mnt_pairs.end() ? nullptr : &*it;
+     }
+ 
++    // Readers that can overlap mount publication need an owned snapshot; a raw
++    // vector element returned after unlocking may be invalidated by Mount.
++    std::optional<MntPair> GetMountSnapshot(const std::string& guest_path) {
++        std::scoped_lock lock{m_mutex};
++        const auto it = std::ranges::find_if(m_mnt_pairs, [&](const auto& mount) {
++            return guest_path == mount.mount || guest_path.starts_with(mount.mount + "/");
++        });
++        if (it == m_mnt_pairs.end()) return std::nullopt;
++        return *it;
++    }
+     const MntPair* GetMount(const std::string& guest_path) {
+         std::scoped_lock lock{m_mutex};
+         const auto it = std::ranges::find_if(m_mnt_pairs, [&](const auto& mount) {
+diff --git a/src/core/host_runtime/guest_platform.h b/src/core/host_runtime/guest_platform.h
+index 652d8fa2..8e1e4c87 100644
+--- a/src/core/host_runtime/guest_platform.h
++++ b/src/core/host_runtime/guest_platform.h
+@@ -27,7 +27,7 @@ public:
+         if (!providers.emplace(std::move(name), handle).second)
+             throw std::logic_error("duplicate sysmodule provider");
+     }
+-    s32 Load(u32 id) {
++    s32 Load(u32 id, s32* start_result = nullptr) {
+         const auto name = lookup(id);
+         if (!name)
+             return ORBIS_SYSMODULE_INVALID_ID;
+@@ -38,6 +38,10 @@ public:
+         auto& count = references[id];
+         if (count == std::numeric_limits<u32>::max())
+             return ORBIS_SYSMODULE_LOCK_FAILED;
++        // Providers here have already completed their real session/guest init.
++        // Match desktop: repeated loads retain the handle and leave res_out alone.
++        if (count == 0 && start_result)
++            *start_result = 0;
+         ++count;
+         return 0;
+     }
+@@ -155,6 +159,17 @@ public:
+         system_events.pop_front();
+         return 0;
+     }
++    bool EntitlementsChanged() {
++        std::lock_guard lock(mutex);
++        if (system_events.size() >= 64) return false;
++        Libraries::SystemService::OrbisSystemServiceEvent event{};
++        event.event_type = Libraries::SystemService::OrbisSystemServiceEventType::EntitlementUpdate;
++        // Desktop uses the local service label/user slot zero for this event.
++        event.service_entitlement_update.userId = 0;
++        event.service_entitlement_update.np_service_label = 0;
++        system_events.push_back(event);
++        return true;
++    }
+     void SetBackground(bool value) {
+         std::lock_guard lock(mutex);
+         if (background && !value && system_events.size() < 64)
+diff --git a/src/core/host_runtime/guest_runtime.cpp b/src/core/host_runtime/guest_runtime.cpp
+index 70f37052..dab8d4a7 100644
+--- a/src/core/host_runtime/guest_runtime.cpp
++++ b/src/core/host_runtime/guest_runtime.cpp
+@@ -22,17 +22,20 @@
+ #include "core/file_sys/fs.h"
+ #include "core/guest_cpu/hle/scope.h"
+ #include "core/guest_cpu/hle/veneer_allocator.h"
++#include "core/host_runtime/guest_app_content.h"
+ #include "core/host_runtime/guest_clock.h"
+-#include "core/host_runtime/guest_libc_policy.h"
+-#include "core/host_runtime/guest_rwlock.h"
+ #include "core/host_runtime/guest_graphics.h"
++#include "core/host_runtime/guest_libc_policy.h"
+ #include "core/host_runtime/guest_mutex.h"
+-#include "core/host_runtime/guest_semaphore.h"
+-#include "core/host_runtime/guest_thread_attributes.h"
+ #include "core/host_runtime/guest_platform.h"
++#include "core/host_runtime/guest_rtc.h"
+ #include "core/host_runtime/guest_runtime.h"
++#include "core/host_runtime/guest_rwlock.h"
+ #include "core/host_runtime/guest_save_dialog.h"
++#include "core/host_runtime/guest_semaphore.h"
+ #include "core/host_runtime/guest_storage_hle.h"
++#include "core/host_runtime/guest_sysmodule_hle.h"
++#include "core/host_runtime/guest_thread_attributes.h"
+ #include "core/libraries/gnmdriver/gnmdriver.h"
+ #include "core/libraries/kernel/memory.h"
+ #include "core/libraries/kernel/orbis_error.h"
+@@ -183,6 +186,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
+     Common::ElfInfo elf_info;
+     std::unique_ptr<Common::Singleton<Common::ElfInfo>::Binding> elf_binding;
+     FileSys::MntPoints mounts;
++    std::unique_ptr<GuestAppContent> app_content;
+     std::unique_ptr<Common::Singleton<FileSys::MntPoints>::Binding> mount_binding;
+     std::map<std::string, u64> veneers;
+     std::map<u64, std::string> operation_names;
+@@ -400,6 +404,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
+             if (o->worker.joinable())
+                 o->worker.join();
+         storage.reset();
++        app_content.reset();
+         graphics.reset();
+         graphics_window.reset();
+         graphics_driver.reset();
+@@ -758,9 +763,9 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
+         // Only the sysmodule NIDs this runtime implements are admitted under the
+         // libSceSysmodule library suffix; every other sysmodule function still
+         // name-faults so a missing capability is never silently a success.
+-        static const std::set<std::string> sysmodule_functions{"g8cM39EUZ6o", "39iV5E1HoCk",
+-                                                               "eR2bZFAAU0Q", "fMP5NHUOaMk",
+-                                                               "ynFKQ5bfGks", "D8cuU4d72xM"};
++        static const std::set<std::string> sysmodule_functions{
++            "g8cM39EUZ6o", "39iV5E1HoCk", "eR2bZFAAU0Q", "fMP5NHUOaMk",
++            "ynFKQ5bfGks", "D8cuU4d72xM", "hHrGoGoNf+s"};
+         // Guest-facing libSceUserService startup family; same policy as above.
+         static const std::set<std::string> userservice_functions{
+             "j3YMu1MVNNo", "bwFjS+bX9mA", "CdWp0oHWGr0", "eNb53LQJmIM",
+@@ -780,14 +785,22 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
+         const bool dialog_nid = GuestSaveDialog::IsSaveNid(nid);
+         const bool common_nid = GuestSaveDialog::IsCommonNid(nid);
+         const bool kernel_nid =
+-            !dialog_nid && !common_nid && !save_nid && !videoout_functions.contains(nid) &&
++            !IsAppContentNid(nid) && !IsRtcNid(nid) && !IsDiscMapNid(nid) && !dialog_nid &&
++            !common_nid && !save_nid && !videoout_functions.contains(nid) &&
+             !sysmodule_functions.contains(nid) && !userservice_functions.contains(nid) &&
+             !systemservice_functions.contains(nid) && !gnmdriver_functions.contains(nid) &&
+             nid != "NWtTN10cJzE";
+         std::shared_ptr<HleCallAdapter> adapter;
+         if (auto it = handlers.find(nid);
+             it != handlers.end() &&
+-            ((kernel_nid &&
++            ((app_content && IsAppContentNid(nid) &&
++              symbol.name.substr(nid.size()) ==
++                  "#libSceAppContent#1#libSceAppContentUtil#Function") ||
++             (IsRtcNid(nid) &&
++              symbol.name.substr(nid.size()) == "#libSceRtc#1#libSceRtc#Function") ||
++             (IsDiscMapNid(nid) &&
++              symbol.name.substr(nid.size()) == "#libSceDiscMap#1#libSceDiscMap#Function") ||
++             (kernel_nid &&
+               (symbol.name.substr(nid.size()) == "#libkernel#1#libkernel#Function" ||
+                symbol.name.substr(nid.size()) == "#libScePosix#1#libkernel#Function")) ||
+              (save_dialog && dialog_nid &&
+@@ -928,6 +941,11 @@ void GuestRuntime::Impl::InstallHandlers() {
+             std::array<u64, 6> args{};
+             for (size_t i = 0; i < args.size(); ++i)
+                 args[i] = frame.registers.Get(kSysVIntegerOrder[i]);
++            // Regular-file HLE has no guest callbacks. Serialize its pin set
++            // with VM publication; never let a coordinator drain between pins.
++            std::unique_lock vm(vm_mutex, std::defer_lock);
++            if (!entry.save)
++                vm.lock();
+             frame.registers.Set(Gpr::Rax,
+                                 DispatchStorage(*storage, space, entry, args,
+                                                 [this](int error) { return PosixFailure(error); }));
+@@ -1674,6 +1692,48 @@ void GuestRuntime::Impl::InstallHandlers() {
+          [this](const auto& a) -> u64 { return SysmoduleIsLoaded(static_cast<u32>(a[0])); });
+     bind({"D8cuU4d72xM"},
+          [this](const auto& a) -> u64 { return SysmoduleGetHandle(static_cast<u32>(a[0]), a[1]); });
++    bind({"hHrGoGoNf+s"}, [this](const auto& a) -> u64 {
++        // A short reference/output transaction; no guest callback or wait with pins.
++        std::lock_guard vm(vm_mutex);
++        const auto result = LoadInitializedSysmodule(sysmodules, space, a);
++        LOG_INFO(Lib_SysModule, "session WithArg id={:#x} bytes={} result={:#x}", u32(a[0]),
++                 s32(a[1]), result);
++        return result;
++    });
++    for (auto nid : AppContentNids) {
++        handlers[std::string(nid)] = [this, nid](HleCallFrame& frame) {
++            if (!app_content)
++                return Status(MakeError(ErrorCategory::Unsupported, "AppContent",
++                                        "missing installed title metadata"));
++            std::array<u64, 6> args{};
++            for (size_t i = 0; i < args.size(); ++i)
++                args[i] = frame.registers.Get(kSysVIntegerOrder[i]);
++            std::lock_guard vm(vm_mutex);
++            frame.registers.Set(Gpr::Rax, app_content->Dispatch(space, nid, args));
++            return Ok();
++        };
++    }
++    for (auto nid : RtcNids) {
++        handlers[std::string(nid)] = [this, nid](HleCallFrame& frame) {
++            std::array<u64, 6> args{};
++            for (size_t i = 0; i < args.size(); ++i)
++                args[i] = frame.registers.Get(kSysVIntegerOrder[i]);
++            std::lock_guard vm(vm_mutex);
++            frame.registers.Set(Gpr::Rax,
++                                DispatchRtc(space, clock, elf_info.CompiledSdkVer(), nid, args));
++            return Ok();
++        };
++    }
++    for (auto nid : DiscMapNids) {
++        handlers[std::string(nid)] = [this, nid](HleCallFrame& frame) {
++            std::array<u64, 6> args{};
++            for (size_t i = 0; i < args.size(); ++i)
++                args[i] = frame.registers.Get(kSysVIntegerOrder[i]);
++            std::lock_guard vm(vm_mutex);
++            frame.registers.Set(Gpr::Rax, DispatchDiscMap(space, nid, args));
++            return Ok();
++        };
++    }
+     // Session guest-facing libSceUserService startup family. Each output pointer
+     // is validated against the guest address space; the real emulator function
+     // runs on a host-local object and the result is written back. No guest
+@@ -2017,6 +2077,8 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
+     }
+     std::string serial, title, version, save_title;
+     u32 attributes{};
++    std::array<s32, 5> app_parameters{
++        Libraries::AppContent::ORBIS_APP_CONTENT_APPPARAM_SKU_FLAG_FULL, 0, 0, 0, 0};
+     if (auto bytes = impl->mounts.ReadFile("/app0/sce_sys/param.sfo")) {
+         PSF psf;
+         if (!psf.Open(*bytes))
+@@ -2026,6 +2088,9 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
+         title = psf.GetString("TITLE").value_or("");
+         version = psf.GetString("APP_VER").value_or("");
+         attributes = psf.GetInteger("ATTRIBUTE").value_or(0);
++        for (unsigned i = 1; i < app_parameters.size(); ++i)
++            app_parameters[i] =
++                psf.GetInteger("USER_DEFINED_PARAM_" + std::to_string(i)).value_or(0);
+     }
+     impl->elf_info.InitializeGuestMetadata(executable.parent_path(), sdk, serial, title, version,
+                                            attributes);
+@@ -2046,6 +2111,24 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
+             impl->sysmodules.Publish("libSceCommonDialog", 0x10000007);
+         }
+     }
++    if (GuestStorage::ValidTitle(serial)) {
++        auto roots =
++            Core::FileSys::ListContentRoots(EmulatorSettings.GetAddonInstallDir() / serial);
++        const auto sibling =
++            Core::FileSys::OverlayPath(executable.parent_path(), Core::FileSys::DlcSuffix);
++        if (const auto root = Core::FileSys::ResolveGameRoot(sibling)) {
++            auto found = Core::FileSys::IsZArchiveFile(*root)
++                             ? Core::FileSys::ExpandBundleRoots(*root)
++                             : Core::FileSys::ListContentRoots(*root);
++            roots.insert(roots.end(), found.begin(), found.end());
++        }
++        impl->app_content = std::make_unique<GuestAppContent>(impl->mounts, sdk, serial,
++                                                              app_parameters, std::move(roots),
++            [p = impl.get()] { return p->platform->EntitlementsChanged(); });
++        impl->sysmodules.Publish("libSceAppContent", 0x1000000a);
++    }
++    impl->sysmodules.Publish("libSceDiscMap", 0x10000008);
++    impl->sysmodules.Publish("libSceRtc", 0x10000009);
+     impl->platform = std::make_unique<GuestPlatform>(std::move(users), sdk,
+                                                      EmulatorSettings.GetConsoleLanguage(),
+                                                      EmulatorSettings.IsCircleEnter());
+diff --git a/src/core/host_runtime/guest_storage.cpp b/src/core/host_runtime/guest_storage.cpp
+index e4657ac2..3d5ed22a 100644
+--- a/src/core/host_runtime/guest_storage.cpp
++++ b/src/core/host_runtime/guest_storage.cpp
+@@ -6,6 +6,7 @@
+ #include <fcntl.h>
+ #include <sys/stat.h>
+ #include <sys/syscall.h>
++#include <sys/uio.h>
+ #include <unistd.h>
+ #include "core/file_sys/fs.h"
+ #include "guest_storage.h"
+@@ -334,14 +335,14 @@ GuestStorage::Error GuestStorage::SetParam(std::string_view point, u32 type,
+ }
+ // Walk from the selected mount root with O_NOFOLLOW. No host path, symlink,
+ // '..', or stale /savedataN handle can escape into the host application's files.
+-GuestStorage::Parent GuestStorage::Resolve(std::string_view path, bool write) {
++GuestStorage::Parent GuestStorage::Resolve(std::string_view path, bool write, bool allow_root) {
+     Parent p;
+     if (path.empty() || path.front() != '/' || path.find('\0') != path.npos) {
+         p.error = EINVAL;
+         return p;
+     }
+     const auto slash = path.find('/', 1);
+-    if (slash == path.npos || slash + 1 == path.size()) {
++    if (!allow_root && (slash == path.npos || slash + 1 == path.size())) {
+         p.error = EINVAL;
+         return p;
+     }
+@@ -357,7 +358,10 @@ GuestStorage::Parent GuestStorage::Resolve(std::string_view path, bool write) {
+             }
+         }
+     if (p.slot < 0) {
+-        if (mount != "/app0") {
++        const bool addcont = mount.starts_with("/addcont") && mount.size() > 8 &&
++                             std::all_of(mount.begin() + 8, mount.end(),
++                                         [](char c) { return c >= '0' && c <= '9'; });
++        if (mount != "/app0" && !addcont) {
+             p.error = ENOENT;
+             return p;
+         }
+@@ -365,7 +369,7 @@ GuestStorage::Parent GuestStorage::Resolve(std::string_view path, bool write) {
+             p.error = EROFS;
+             return p;
+         }
+-        const auto* m = mounts.GetMount("/app0");
++        const auto m = mounts.GetMountSnapshot(std::string(mount));
+         if (!m) {
+             p.error = ENOENT;
+             return p;
+@@ -377,6 +381,11 @@ GuestStorage::Parent GuestStorage::Resolve(std::string_view path, bool write) {
+         p.error = errno;
+         return p;
+     }
++    if (slash == path.npos || slash + 1 == path.size()) {
++        p.fd = fd;
++        p.leaf = "."; // Only Stat may address the selected mount itself.
++        return p;
++    }
+     auto tail = path.substr(slash + 1);
+     while (true) {
+         auto next = tail.find('/');
+@@ -475,21 +484,142 @@ GuestStorage::IoResult GuestStorage::Write(int fd, std::span<const u8> data) {
+     auto offset = f.append ? st.st_size : ::lseek(f.host, 0, SEEK_CUR);
+     if (offset < 0)
+         return {-1, errno};
+-    if (f.slot >= 0) {
+-        try {
+-            auto used = Used(slots[f.slot]->GetSavePath());
+-            auto cap = u64(slots[f.slot]->GetMaxBlocks()) * 32768;
+-            u64 end = u64(offset) + data.size();
+-            if (end < u64(offset) || end > cap ||
+-                (end > u64(st.st_size) && end - u64(st.st_size) > cap - std::min(cap, used)))
+-                return {-1, ENOSPC};
+-        } catch (const fs::filesystem_error&) {
+-            return {-1, EIO};
+-        }
++    const u64 end = u64(offset) + data.size();
++    if (end < u64(offset))
++        return {-1, EFBIG};
++    if (!data.empty()) {
++        if (int error = CheckGrowth(f, st.st_size, end))
++            return {-1, error};
+     }
+     auto r = ::write(f.host, data.data(), data.size());
+     return {r, r < 0 ? errno : 0};
+ }
++// The same quota admission applies to ordinary writes, positioned writes and
++// truncation. Hold the session descriptor mutex across admission and mutation.
++int GuestStorage::CheckGrowth(const File& file, u64 old_size, u64 end) {
++    if (file.slot < 0 || end <= old_size)
++        return 0;
++    try {
++        const auto used = Used(slots[file.slot]->GetSavePath());
++        const u64 cap = u64(slots[file.slot]->GetMaxBlocks()) * 32768;
++        if (end > cap || end - old_size > cap - std::min(cap, used))
++            return ENOSPC;
++    } catch (const fs::filesystem_error&) {
++        return EIO;
++    }
++    return 0;
++}
++namespace {
++void GuestStat(const struct stat& native, Libraries::Kernel::OrbisKernelStat& out) {
++    // PS4/FreeBSD ABI, never copy an Android/Darwin struct stat into guest memory.
++    // Match desktop's logical file sizes and block geometry for extracted content.
++    out = {};
++    const bool directory = S_ISDIR(native.st_mode);
++    out.st_mode = (directory ? 0040000 : 0100000) | 0777;
++    out.st_size = directory ? 65536 : native.st_size;
++    out.st_blksize = directory ? 65536 : 512;
++    out.st_blocks = (out.st_size + 511) / 512;
++#if defined(__APPLE__)
++    const auto atime = native.st_atimespec, mtime = native.st_mtimespec,
++               ctime = native.st_ctimespec;
++#else
++    const auto atime = native.st_atim, mtime = native.st_mtim, ctime = native.st_ctim;
++#endif
++    out.st_atim = {atime.tv_sec, atime.tv_nsec};
++    out.st_mtim = {mtime.tv_sec, mtime.tv_nsec};
++    out.st_ctim = {ctime.tv_sec, ctime.tv_nsec};
++}
++static_assert(sizeof(Libraries::Kernel::OrbisKernelStat) == 120);
++static_assert(offsetof(Libraries::Kernel::OrbisKernelStat, st_size) == 72);
++} // namespace
++GuestStorage::IoResult GuestStorage::Stat(std::string_view path,
++                                          Libraries::Kernel::OrbisKernelStat& out) {
++    std::lock_guard lock(mutex);
++    auto p = Resolve(path, false, true);
++    if (p.error)
++        return {-1, p.error};
++    struct stat native {};
++    const int result = ::fstatat(p.fd, p.leaf.c_str(), &native, AT_SYMLINK_NOFOLLOW);
++    const int error = errno;
++    ::close(p.fd);
++    if (result < 0)
++        return {-1, error};
++    if (!S_ISREG(native.st_mode) && !S_ISDIR(native.st_mode))
++        return {-1, EACCES};
++    GuestStat(native, out);
++    return {0, 0};
++}
++GuestStorage::IoResult GuestStorage::Fstat(int fd, Libraries::Kernel::OrbisKernelStat& out) {
++    std::lock_guard lock(mutex);
++    auto it = files.find(fd);
++    if (it == files.end())
++        return {-1, EBADF};
++    struct stat native {};
++    if (::fstat(it->second.host, &native))
++        return {-1, errno};
++    GuestStat(native, out);
++    return {0, 0};
++}
++GuestStorage::IoResult GuestStorage::Positioned(int fd, std::span<const Buffer> buffers, s64 offset,
++                                                bool write) {
++    std::lock_guard lock(mutex);
++    if (offset < 0 || buffers.size() > 1024)
++        return {-1, EINVAL};
++    auto it = files.find(fd);
++    if (it == files.end() || (write && !it->second.writable))
++        return {-1, EBADF};
++    auto& file = it->second;
++    std::vector<iovec> vectors;
++    u64 total{};
++    for (const auto& buffer : buffers) {
++        if (buffer.size > u64(INT64_MAX) - total)
++            return {-1, EINVAL};
++        total += buffer.size;
++        vectors.push_back({buffer.data, buffer.size});
++    }
++    if (total > u64(INT64_MAX) - u64(offset))
++        return {-1, EOVERFLOW};
++    if (cancelled)
++        return {-1, EINTR};
++    if (write) {
++        struct stat native {};
++        if (::fstat(file.host, &native))
++            return {-1, errno};
++        if (total) {
++            if (int error = CheckGrowth(file, native.st_size, u64(offset) + total))
++                return {-1, error};
++        }
++    }
++    // Linux pwritev otherwise honors O_APPEND, unlike the positioned API. The
++    // descriptor is private and every operation holds mutex, including Close.
++    int flags = 0;
++    if (write && file.append) {
++        flags = ::fcntl(file.host, F_GETFL);
++        if (flags < 0 || ::fcntl(file.host, F_SETFL, flags & ~O_APPEND))
++            return {-1, errno};
++    }
++    const auto result = write ? ::pwritev(file.host, vectors.data(), vectors.size(), offset)
++                              : ::preadv(file.host, vectors.data(), vectors.size(), offset);
++    const int error = result < 0 ? errno : 0;
++    if (write && file.append && ::fcntl(file.host, F_SETFL, flags))
++        return {-1, errno};
++    return {result, error};
++}
++GuestStorage::IoResult GuestStorage::Truncate(int fd, s64 length) {
++    std::lock_guard lock(mutex);
++    if (length < 0)
++        return {-1, EINVAL};
++    auto it = files.find(fd);
++    if (it == files.end() || !it->second.writable)
++        return {-1, EBADF};
++    struct stat native {};
++    if (::fstat(it->second.host, &native))
++        return {-1, errno};
++    if (int error = CheckGrowth(it->second, native.st_size, length))
++        return {-1, error};
++    const int result = ::ftruncate(it->second.host, length);
++    return {result, result < 0 ? errno : 0};
++}
+ GuestStorage::IoResult GuestStorage::Seek(int fd, s64 offset, int whence) {
+     std::lock_guard lock(mutex);
+     auto it = files.find(fd);
+diff --git a/src/core/host_runtime/guest_storage.h b/src/core/host_runtime/guest_storage.h
+index 7fe07a53..dcba1e98 100644
+--- a/src/core/host_runtime/guest_storage.h
++++ b/src/core/host_runtime/guest_storage.h
+@@ -7,6 +7,7 @@
+ #include <map>
+ #include <mutex>
+ #include <span>
++#include "core/libraries/kernel/file_system.h"
+ #include "core/libraries/save_data/save_instance.h"
+ #include "core/libraries/save_data/savedata.h"
+ #include "core/libraries/save_data/savedata_error.h"
+@@ -66,6 +67,15 @@ public:
+     IoResult Write(int fd, std::span<const u8> data);
+     IoResult Seek(int fd, s64 offset, int whence);
+     IoResult Sync(int fd);
++    IoResult Stat(std::string_view path, Libraries::Kernel::OrbisKernelStat& out);
++    IoResult Fstat(int fd, Libraries::Kernel::OrbisKernelStat& out);
++    // Buffers here are already checked and pinned by the guest ABI adapter.
++    struct Buffer {
++        void* data;
++        size_t size;
++    };
++    IoResult Positioned(int fd, std::span<const Buffer> buffers, s64 offset, bool write);
++    IoResult Truncate(int fd, s64 length);
+     IoResult Mkdir(std::string_view path, u32 mode);
+     IoResult Unlink(std::string_view path);
+     IoResult Rename(std::string_view from, std::string_view to);
+@@ -99,7 +109,8 @@ private:
+     std::map<int, File> files;
+     int next_fd{3};
+     Save* Find(std::string_view point);
+-    Parent Resolve(std::string_view path, bool write);
++    Parent Resolve(std::string_view path, bool write, bool allow_root = false);
++    int CheckGrowth(const File& file, u64 old_size, u64 end);
+     Error UnmountLocked(std::string_view point);
+     static u64 Used(const std::filesystem::path& root);
+ };
+diff --git a/src/core/host_runtime/guest_storage_hle.cpp b/src/core/host_runtime/guest_storage_hle.cpp
+index 95ceda5b..37c86271 100644
+--- a/src/core/host_runtime/guest_storage_hle.cpp
++++ b/src/core/host_runtime/guest_storage_hle.cpp
+@@ -53,6 +53,80 @@ u64 DispatchStorage(GuestStorage& storage, GuestAddressSpace& space, const Stora
+         return r.error ? error(r.error) : u64(r.value);
+     };
+     switch (e.op) {
++    case StorageOp::Stat:
++    case StorageOp::Fstat: {
++        using Stat = Libraries::Kernel::OrbisKernelStat;
++        auto pin = space.AcquirePinnedSpan({GuestAddress{a[1]}, sizeof(Stat)}, true);
++        if (!pin)
++            return error(EFAULT);
++        Stat value{};
++        GuestStorage::IoResult result{};
++        if (e.op == StorageOp::Stat) {
++            auto path = String(space, a[0], 1024);
++            if (!path)
++                return error(EFAULT);
++            result = storage.Stat(*path, value);
++        } else {
++            result = storage.Fstat(s32(a[0]), value);
++        }
++        if (!result.error)
++            std::memcpy(pin.Value().WritableBytes().data(), &value, sizeof(value));
++        return io(result);
++    }
++    case StorageOp::Truncate:
++        return io(storage.Truncate(s32(a[0]), s64(a[1])));
++    case StorageOp::Pread:
++    case StorageOp::Pwrite:
++    case StorageOp::Preadv:
++    case StorageOp::Pwritev: {
++        const bool vector = e.op == StorageOp::Preadv || e.op == StorageOp::Pwritev;
++        const bool write = e.op == StorageOp::Pwrite || e.op == StorageOp::Pwritev;
++        struct Iovec {
++            u64 address, length;
++        };
++        std::vector<Iovec> input;
++        if (s64(a[3]) < 0)
++            return error(EINVAL);
++        if (vector) {
++            const s32 count = s32(a[2]);
++            if (count < 0 || count > 1024)
++                return error(EINVAL);
++            input.resize(count);
++            if (count && !space.Read(GuestAddress{a[1]}, std::as_writable_bytes(std::span{input})))
++                return error(EFAULT);
++        } else {
++            input.push_back({a[1], a[2]});
++        }
++        u64 total{};
++        for (const auto& item : input) {
++            if (item.length > u64(INT64_MAX) - total)
++                return error(EINVAL);
++            total += item.length;
++        }
++        if (total > u64(INT64_MAX) - a[3])
++            return error(EOVERFLOW);
++        // One bounded regular-file admission; partial I/O is legal. Validate all
++        // buffers participating in it before disk I/O, including later vectors.
++        u64 remaining = std::min<u64>(total, 16 * 1024 * 1024);
++        std::vector<PinnedSpan> pins;
++        std::vector<GuestStorage::Buffer> buffers;
++        for (const auto& item : input) {
++            if (!remaining)
++                break;
++            const u64 length = std::min(remaining, item.length);
++            if (!length)
++                continue;
++            auto pin = space.AcquirePinnedSpan({GuestAddress{item.address}, length}, !write);
++            if (!pin)
++                return error(EFAULT);
++            pins.push_back(std::move(pin).Value());
++            auto* data = write ? const_cast<std::byte*>(pins.back().Bytes().data())
++                               : pins.back().WritableBytes().data();
++            buffers.push_back({data, size_t(length)});
++            remaining -= length;
++        }
++        return io(storage.Positioned(s32(a[0]), buffers, s64(a[3]), write));
++    }
+     case StorageOp::Event: {
+         auto pin = space.AcquirePinnedSpan({GuestAddress{a[1]}, sizeof(GuestStorage::Event)}, true);
+         if (!pin)
+diff --git a/src/core/host_runtime/guest_storage_hle.h b/src/core/host_runtime/guest_storage_hle.h
+index 90fa3b14..63bba21a 100644
+--- a/src/core/host_runtime/guest_storage_hle.h
++++ b/src/core/host_runtime/guest_storage_hle.h
+@@ -26,7 +26,14 @@ enum class StorageOp {
+     Sync,
+     Mkdir,
+     Unlink,
+-    Rename
++    Rename,
++    Stat,
++    Fstat,
++    Pread,
++    Pwrite,
++    Preadv,
++    Pwritev,
++    Truncate
+ };
+ struct StorageEntry {
+     std::string_view nid;
+@@ -34,24 +41,56 @@ struct StorageEntry {
+     bool save;
+     bool posix{};
+ };
+-inline constexpr StorageEntry StorageEntries[]{
+-    {"VwadwBBBJ80", StorageOp::UnmountBackup, true}, {"RQOqDbk3bSU", StorageOp::CheckBackup, true},
+-    {"lU9YRFsgwSU", StorageOp::RestoreBackup, true}, {"S1GkePI17zQ", StorageOp::Delete, true},
+-    {"j8xKtiFj0SY", StorageOp::Event, true},         {"ZkZhskCPXFw", StorageOp::Init, true},
+-    {"l1NmDeDpNGU", StorageOp::Init, true},          {"TywrFKCoLGY", StorageOp::Init, true},
+-    {"yKDy8S5yLA0", StorageOp::Term, true},          {"32HQAQdwM2o", StorageOp::Mount, true},
+-    {"0z45PIH+SNI", StorageOp::Mount2, true},        {"BMR4F-Uek3E", StorageOp::Unmount, true},
+-    {"65VH0Qaaz6s", StorageOp::Info, true},          {"XgvSuIdnMlw", StorageOp::GetParam, true},
+-    {"85zul--eGXs", StorageOp::SetParam, true},      {"1G3lF1Gg1k8", StorageOp::Open, false},
+-    {"6c3rCVE-fTU", StorageOp::Open, false, true},   {"wuCroIGjt2g", StorageOp::Open, false, true},
+-    {"UK2Tl2DWUns", StorageOp::Close, false},        {"NNtFaKJbPt0", StorageOp::Close, false, true},
+-    {"bY-PO6JhzhQ", StorageOp::Close, false, true},  {"Cg4srZ6TKbU", StorageOp::Read, false},
+-    {"DRuBt2pvICk", StorageOp::Read, false, true},   {"AqBioC2vF3I", StorageOp::Read, false, true},
+-    {"4wSze92BhLI", StorageOp::Write, false},        {"FxVZqBAA7ks", StorageOp::Write, false, true},
+-    {"FN4gaPmuFV8", StorageOp::Write, false, true},  {"oib76F-12fk", StorageOp::Seek, false},
+-    {"Oy6IpwgtYOk", StorageOp::Seek, false, true},   {"fTx66l5iWIA", StorageOp::Sync, false},
+-    {"1-LFLmRFxxM", StorageOp::Mkdir, false},        {"JGMio+21L4c", StorageOp::Mkdir, false, true},
+-    {"AUXVxWeJU-A", StorageOp::Unlink, false},       {"52NcYU9+lEo", StorageOp::Rename, false}};
++inline constexpr StorageEntry StorageEntries[]{{"eV9wAD2riIA", StorageOp::Stat, false},
++                                               {"E6ao34wPw+U", StorageOp::Stat, false, true},
++                                               {"kBwCPsYX-m4", StorageOp::Fstat, false},
++                                               {"mqQMh1zPPT8", StorageOp::Fstat, false, true},
++                                               {"+r3rMFwItV4", StorageOp::Pread, false},
++                                               {"ezv-RSBNKqI", StorageOp::Pread, false, true},
++                                               {"nKWi-N2HBV4", StorageOp::Pwrite, false},
++                                               {"C2kJ-byS5rM", StorageOp::Pwrite, false, true},
++                                               {"yTj62I7kw4s", StorageOp::Preadv, false},
++                                               {"mBd4AfLP+u8", StorageOp::Pwritev, false},
++                                               {"FCcmRZhWtOk", StorageOp::Pwritev, false, true},
++                                               {"VW3TVZiM4-E", StorageOp::Truncate, false},
++                                               {"ih4CD9-gghM", StorageOp::Truncate, false, true},
++                                               {"juWbTNM+8hw", StorageOp::Sync, false, true},
++                                               {"VAzswvTOCzI", StorageOp::Unlink, false, true},
++                                               {"NN01qLRhiqU", StorageOp::Rename, false, true},
++                                               {"VwadwBBBJ80", StorageOp::UnmountBackup, true},
++                                               {"RQOqDbk3bSU", StorageOp::CheckBackup, true},
++                                               {"lU9YRFsgwSU", StorageOp::RestoreBackup, true},
++                                               {"S1GkePI17zQ", StorageOp::Delete, true},
++                                               {"j8xKtiFj0SY", StorageOp::Event, true},
++                                               {"ZkZhskCPXFw", StorageOp::Init, true},
++                                               {"l1NmDeDpNGU", StorageOp::Init, true},
++                                               {"TywrFKCoLGY", StorageOp::Init, true},
++                                               {"yKDy8S5yLA0", StorageOp::Term, true},
++                                               {"32HQAQdwM2o", StorageOp::Mount, true},
++                                               {"0z45PIH+SNI", StorageOp::Mount2, true},
++                                               {"BMR4F-Uek3E", StorageOp::Unmount, true},
++                                               {"65VH0Qaaz6s", StorageOp::Info, true},
++                                               {"XgvSuIdnMlw", StorageOp::GetParam, true},
++                                               {"85zul--eGXs", StorageOp::SetParam, true},
++                                               {"1G3lF1Gg1k8", StorageOp::Open, false},
++                                               {"6c3rCVE-fTU", StorageOp::Open, false, true},
++                                               {"wuCroIGjt2g", StorageOp::Open, false, true},
++                                               {"UK2Tl2DWUns", StorageOp::Close, false},
++                                               {"NNtFaKJbPt0", StorageOp::Close, false, true},
++                                               {"bY-PO6JhzhQ", StorageOp::Close, false, true},
++                                               {"Cg4srZ6TKbU", StorageOp::Read, false},
++                                               {"DRuBt2pvICk", StorageOp::Read, false, true},
++                                               {"AqBioC2vF3I", StorageOp::Read, false, true},
++                                               {"4wSze92BhLI", StorageOp::Write, false},
++                                               {"FxVZqBAA7ks", StorageOp::Write, false, true},
++                                               {"FN4gaPmuFV8", StorageOp::Write, false, true},
++                                               {"oib76F-12fk", StorageOp::Seek, false},
++                                               {"Oy6IpwgtYOk", StorageOp::Seek, false, true},
++                                               {"fTx66l5iWIA", StorageOp::Sync, false},
++                                               {"1-LFLmRFxxM", StorageOp::Mkdir, false},
++                                               {"JGMio+21L4c", StorageOp::Mkdir, false, true},
++                                               {"AUXVxWeJU-A", StorageOp::Unlink, false},
++                                               {"52NcYU9+lEo", StorageOp::Rename, false}};
+ u64 DispatchStorage(GuestStorage& storage, GuestCpu::GuestAddressSpace& space,
+                     const StorageEntry& entry, const std::array<u64, 6>& args,
+                     const std::function<u64(int)>& posix_failure);
+diff --git a/src/core/libraries/rtc/rtc.cpp b/src/core/libraries/rtc/rtc.cpp
+index ca63d2f4..3462d5ac 100644
+--- a/src/core/libraries/rtc/rtc.cpp
++++ b/src/core/libraries/rtc/rtc.cpp
+@@ -607,6 +607,9 @@ int PS4_SYSV_ABI sceRtcGetTick(OrbisRtcDateTime* pTime, OrbisRtcTick* pTick) {
+     if (isTimeValid != 0)
+         return isTimeValid;
+ 
++    // Conversion is a read of the caller date, including on the desktop path.
++    OrbisRtcDateTime local = *pTime;
++    pTime = &local;
+     if (pTime->month > 2) {
+         pTime->month -= 3;
+     } else {
+@@ -624,8 +627,8 @@ int PS4_SYSV_ABI sceRtcGetTick(OrbisRtcDateTime* pTime, OrbisRtcTick* pTick) {
+     days -= 307;
+     days *= 86400000000;
+ 
+-    msec = pTime->hour * 3600000000 + pTime->minute * 60000000 + pTime->second * 1000000 +
+-           pTime->microsecond;
++    msec = u64(pTime->hour) * 3600000000ULL + u64(pTime->minute) * 60000000ULL +
++           u64(pTime->second) * 1000000ULL + pTime->microsecond;
+ 
+     pTick->tick = days + msec;

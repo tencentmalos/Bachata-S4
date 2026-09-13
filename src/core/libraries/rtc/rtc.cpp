@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <chrono>
+#include <cstring>
+#include "core/libraries/rtc/rtc_text.h"
 
 #include "common/logging/log.h"
 #include "core/libraries/kernel/kernel.h"
@@ -105,155 +107,19 @@ int PS4_SYSV_ABI sceRtcEnd() {
     return ORBIS_OK;
 }
 
-int PS4_SYSV_ABI sceRtcFormatRFC2822(char* pszDateTime, const OrbisRtcTick* pTickUtc,
-                                     int iTimeZoneMinutes) {
-    LOG_TRACE(Lib_Rtc, "called");
-
-    if (pszDateTime == nullptr)
+int PS4_SYSV_ABI sceRtcFormatRFC2822(char* output, const OrbisRtcTick* input, int minutes) {
+    if (!output)
         return ORBIS_RTC_ERROR_INVALID_POINTER;
-
-    OrbisRtcTick formatTick;
-
-    if (pTickUtc == nullptr) {
-        sceRtcGetCurrentTick(&formatTick);
-    } else {
-        formatTick.tick = pTickUtc->tick;
-    }
-
-    sceRtcTickAddMinutes(&formatTick, &formatTick, iTimeZoneMinutes);
-
-    OrbisRtcDateTime formatTime;
-    sceRtcSetTick(&formatTime, &formatTick);
-
-    int validTime = sceRtcCheckValid(&formatTime);
-
-    std::string formattedString;
-
-    if (validTime >= 0) {
-        int weekDay = sceRtcGetDayOfWeek(formatTime.year, formatTime.month, formatTime.day);
-        switch (weekDay) {
-        case 0:
-            formattedString = "Sun, ";
-            break;
-        case 1:
-            formattedString = "Mon, ";
-            break;
-        case 2:
-            formattedString = "Tue, ";
-            break;
-        case 3:
-            formattedString = "Wed, ";
-            break;
-        case 4:
-            formattedString = "Thu, ";
-            break;
-        case 5:
-            formattedString = "Fri, ";
-            break;
-        case 6:
-            formattedString = "Sat, ";
-            break;
-        }
-
-        if (formatTime.day < 10) {
-            formattedString += "0" + std::to_string(formatTime.day) + " ";
-        } else {
-            formattedString += std::to_string(formatTime.day) + " ";
-        }
-
-        switch (formatTime.month) {
-        case 1:
-            formattedString += "Jan ";
-            break;
-        case 2:
-            formattedString += "Feb ";
-            break;
-        case 3:
-            formattedString += "Mar ";
-            break;
-        case 4:
-            formattedString += "Apr ";
-            break;
-        case 5:
-            formattedString += "May ";
-            break;
-        case 6:
-            formattedString += "Jun ";
-            break;
-        case 7:
-            formattedString += "Jul ";
-            break;
-        case 8:
-            formattedString += "Aug ";
-            break;
-        case 9:
-            formattedString += "Sep ";
-            break;
-        case 10:
-            formattedString += "Oct ";
-            break;
-        case 11:
-            formattedString += "Nov ";
-            break;
-        case 12:
-            formattedString += "Dec ";
-            break;
-        }
-
-        formattedString += std::to_string(formatTime.year) + " ";
-
-        if (formatTime.hour < 10) {
-            formattedString += "0" + std::to_string(formatTime.hour) + ":";
-        } else {
-            formattedString += std::to_string(formatTime.hour) + ":";
-        }
-
-        if (formatTime.minute < 10) {
-            formattedString += "0" + std::to_string(formatTime.minute) + ":";
-        } else {
-            formattedString += std::to_string(formatTime.minute) + ":";
-        }
-
-        if (formatTime.second < 10) {
-            formattedString += "0" + std::to_string(formatTime.second) + " ";
-        } else {
-            formattedString += std::to_string(formatTime.second) + " ";
-        }
-
-        if (iTimeZoneMinutes == 0) {
-            formattedString += "+0000";
-        } else {
-            int timeZoneHours = iTimeZoneMinutes / 60;
-            int timeZoneRemainder = iTimeZoneMinutes % 60;
-
-            if (timeZoneHours < 0) {
-                formattedString += "-";
-                timeZoneHours *= -1;
-            } else {
-                formattedString += "+";
-            }
-
-            if (timeZoneHours < 10) {
-                formattedString += "0" + std::to_string(timeZoneHours);
-            } else {
-                formattedString += std::to_string(timeZoneHours);
-            }
-
-            if (timeZoneRemainder == 0) {
-                formattedString += "00";
-            } else {
-                if (timeZoneRemainder < 0)
-                    timeZoneRemainder *= -1;
-                formattedString += std::to_string(timeZoneRemainder);
-            }
-        }
-
-        for (int i = 0; i < formattedString.size() + 1; ++i) {
-            pszDateTime[i] = formattedString.c_str()[i];
-        }
-    }
-
-    return ORBIS_OK;
+    OrbisRtcTick tick{};
+    if (input)
+        tick = *input;
+    else if (const int status = sceRtcGetCurrentTick(&tick))
+        return status;
+    std::string text;
+    if (const int status = FormatRtcText(tick, minutes, true, text))
+        return status;
+    std::memcpy(output, text.c_str(), text.size() + 1);
+    return 0;
 }
 
 int PS4_SYSV_ABI sceRtcFormatRFC2822LocalTime(char* pszDateTime, const OrbisRtcTick* pTickUtc) {
@@ -282,99 +148,19 @@ int PS4_SYSV_ABI sceRtcFormatRFC3339LocalTime(char* pszDateTime, const OrbisRtcT
                                -(timeZone.tz_minuteswest - (timeZone.tz_dsttime * 60)));
 }
 
-int PS4_SYSV_ABI sceRtcFormatRFC3339Precise(char* pszDateTime, const OrbisRtcTick* pTickUtc,
-                                            int iTimeZoneMinutes) {
-    LOG_TRACE(Lib_Rtc, "called");
-
-    if (pszDateTime == nullptr)
+int PS4_SYSV_ABI sceRtcFormatRFC3339Precise(char* output, const OrbisRtcTick* input, int minutes) {
+    if (!output)
         return ORBIS_RTC_ERROR_INVALID_POINTER;
-
-    OrbisRtcTick formatTick;
-
-    if (pTickUtc == nullptr) {
-        sceRtcGetCurrentTick(&formatTick);
-    } else {
-        formatTick.tick = pTickUtc->tick;
-    }
-
-    sceRtcTickAddMinutes(&formatTick, &formatTick, iTimeZoneMinutes);
-
-    OrbisRtcDateTime formatTime;
-
-    sceRtcSetTick(&formatTime, &formatTick);
-
-    std::string formattedString;
-    formattedString = std::to_string(formatTime.year) + "-";
-
-    if (formatTime.month < 10) {
-        formattedString += "0" + std::to_string(formatTime.month) + "-";
-    } else {
-        formattedString += std::to_string(formatTime.month) + "-";
-    }
-
-    if (formatTime.day < 10) {
-        formattedString += "0" + std::to_string(formatTime.day) + "T";
-    } else {
-        formattedString += std::to_string(formatTime.day) + "T";
-    }
-
-    if (formatTime.hour < 10) {
-        formattedString += "0" + std::to_string(formatTime.hour) + ":";
-    } else {
-        formattedString += std::to_string(formatTime.hour) + ":";
-    }
-
-    if (formatTime.minute < 10) {
-        formattedString += "0" + std::to_string(formatTime.minute) + ":";
-    } else {
-        formattedString += std::to_string(formatTime.minute) + ":";
-    }
-
-    if (formatTime.second < 10) {
-        formattedString += "0" + std::to_string(formatTime.second);
-    } else {
-        formattedString += std::to_string(formatTime.second);
-    }
-
-    if (formatTime.microsecond != 0) {
-        formattedString += "." + std::to_string(formatTime.microsecond / 1000).substr(0, 2);
-    } else {
-        formattedString += ".00";
-    }
-
-    if (iTimeZoneMinutes == 0) {
-        formattedString += "Z";
-    } else {
-        int timeZoneHours = iTimeZoneMinutes / 60;
-        int timeZoneRemainder = iTimeZoneMinutes % 60;
-
-        if (timeZoneHours < 0) {
-            formattedString += "-";
-            timeZoneHours *= -1;
-        } else {
-            formattedString += "+";
-        }
-
-        if (timeZoneHours < 10) {
-            formattedString += "0" + std::to_string(timeZoneHours);
-        } else {
-            formattedString += std::to_string(timeZoneHours);
-        }
-
-        if (timeZoneRemainder == 0) {
-            formattedString += ":00";
-        } else {
-            if (timeZoneRemainder < 0)
-                timeZoneRemainder *= -1;
-            formattedString += ":" + std::to_string(timeZoneRemainder);
-        }
-    }
-
-    for (int i = 0; i < formattedString.size() + 1; ++i) {
-        pszDateTime[i] = formattedString.c_str()[i];
-    }
-
-    return ORBIS_OK;
+    OrbisRtcTick tick{};
+    if (input)
+        tick = *input;
+    else if (const int status = sceRtcGetCurrentTick(&tick))
+        return status;
+    std::string text;
+    if (const int status = FormatRtcText(tick, minutes, false, text))
+        return status;
+    std::memcpy(output, text.c_str(), text.size() + 1);
+    return 0;
 }
 
 int PS4_SYSV_ABI sceRtcFormatRFC3339PreciseLocalTime(char* pszDateTime,
@@ -607,6 +393,9 @@ int PS4_SYSV_ABI sceRtcGetTick(OrbisRtcDateTime* pTime, OrbisRtcTick* pTick) {
     if (isTimeValid != 0)
         return isTimeValid;
 
+    // Conversion is a read of the caller date, including on the desktop path.
+    OrbisRtcDateTime local = *pTime;
+    pTime = &local;
     if (pTime->month > 2) {
         pTime->month -= 3;
     } else {
@@ -624,8 +413,8 @@ int PS4_SYSV_ABI sceRtcGetTick(OrbisRtcDateTime* pTime, OrbisRtcTick* pTick) {
     days -= 307;
     days *= 86400000000;
 
-    msec = pTime->hour * 3600000000 + pTime->minute * 60000000 + pTime->second * 1000000 +
-           pTime->microsecond;
+    msec = u64(pTime->hour) * 3600000000ULL + u64(pTime->minute) * 60000000ULL +
+           u64(pTime->second) * 1000000ULL + pTime->microsecond;
 
     pTick->tick = days + msec;
 
@@ -700,138 +489,16 @@ int PS4_SYSV_ABI sceRtcIsLeapYear(int yearInt) {
     return (ymdl.day() == 29d);
 }
 
-int GetMonthFromString(std::string monthStr) {
-    if (monthStr == "Jan")
-        return 1;
-
-    if (monthStr == "Feb")
-        return 2;
-
-    if (monthStr == "Mar")
-        return 3;
-
-    if (monthStr == "Apr")
-        return 4;
-
-    if (monthStr == "May")
-        return 5;
-
-    if (monthStr == "Jun")
-        return 6;
-
-    if (monthStr == "Jul")
-        return 7;
-
-    if (monthStr == "Aug")
-        return 8;
-
-    if (monthStr == "Sep")
-        return 9;
-
-    if (monthStr == "Oct")
-        return 10;
-
-    if (monthStr == "Nov")
-        return 11;
-
-    if (monthStr == "Dec")
-        return 12;
-
-    return 1;
+int PS4_SYSV_ABI sceRtcParseDateTime(OrbisRtcTick* output, const char* input) {
+    if (!output || !input)
+        return ORBIS_RTC_ERROR_INVALID_POINTER;
+    return ParseRtcText(std::string_view(input, strnlen(input, 96)), false, *output);
 }
 
-int PS4_SYSV_ABI sceRtcParseDateTime(OrbisRtcTick* pTickUtc, const char* pszDateTime) {
-    LOG_TRACE(Lib_Rtc, "called");
-
-    if (pTickUtc == nullptr || pszDateTime == nullptr)
+int PS4_SYSV_ABI sceRtcParseRFC3339(OrbisRtcTick* output, const char* input) {
+    if (!output || !input)
         return ORBIS_RTC_ERROR_INVALID_POINTER;
-
-    std::string dateTimeString = std::string(pszDateTime);
-
-    char formatKey = dateTimeString[19];
-    OrbisRtcDateTime dateTime;
-
-    if (formatKey == 'Z' || formatKey == '-' || formatKey == '+' || formatKey == '.') {
-        // RFC3339
-        sceRtcParseRFC3339(pTickUtc, pszDateTime);
-    } else if (formatKey == ':') {
-        // RFC2822
-        dateTime.day = std::stoi(dateTimeString.substr(5, 2));
-        dateTime.month = GetMonthFromString(dateTimeString.substr(8, 3));
-        dateTime.year = std::stoi(dateTimeString.substr(12, 4));
-        dateTime.hour = std::stoi(dateTimeString.substr(17, 2));
-        dateTime.minute = std::stoi(dateTimeString.substr(20, 2));
-        dateTime.second = std::stoi(dateTimeString.substr(23, 2));
-        dateTime.microsecond = 0;
-
-        sceRtcGetTick(&dateTime, pTickUtc);
-
-        if (dateTimeString[26] == '+') {
-            int timeZoneOffset = std::stoi(dateTimeString.substr(27, 2)) * 60;
-            timeZoneOffset += std::stoi(dateTimeString.substr(29, 2));
-            sceRtcTickAddMinutes(pTickUtc, pTickUtc, timeZoneOffset);
-        } else if (dateTimeString[26] == '-') {
-            int timeZoneOffset = std::stoi(dateTimeString.substr(27, 2)) * 60;
-            timeZoneOffset += std::stoi(dateTimeString.substr(29, 2));
-            timeZoneOffset *= -1;
-            sceRtcTickAddMinutes(pTickUtc, pTickUtc, timeZoneOffset);
-        }
-
-    } else {
-        // asctime
-        dateTime.month = GetMonthFromString(dateTimeString.substr(4, 3));
-        dateTime.day = std::stoi(dateTimeString.substr(8, 2));
-        dateTime.hour = std::stoi(dateTimeString.substr(11, 2));
-        dateTime.minute = std::stoi(dateTimeString.substr(14, 2));
-        dateTime.second = std::stoi(dateTimeString.substr(17, 2));
-        dateTime.year = std::stoi(dateTimeString.substr(20, 4));
-        dateTime.microsecond = 0;
-
-        sceRtcGetTick(&dateTime, pTickUtc);
-    }
-
-    return ORBIS_OK;
-}
-
-int PS4_SYSV_ABI sceRtcParseRFC3339(OrbisRtcTick* pTickUtc, const char* pszDateTime) {
-    LOG_TRACE(Lib_Rtc, "called");
-
-    if (pTickUtc == nullptr || pszDateTime == nullptr)
-        return ORBIS_RTC_ERROR_INVALID_POINTER;
-
-    std::string dateTimeString = std::string(pszDateTime);
-
-    OrbisRtcDateTime dateTime;
-    dateTime.year = std::stoi(dateTimeString.substr(0, 4));
-    dateTime.month = std::stoi(dateTimeString.substr(5, 2));
-    dateTime.day = std::stoi(dateTimeString.substr(8, 2));
-    dateTime.hour = std::stoi(dateTimeString.substr(11, 2));
-    dateTime.minute = std::stoi(dateTimeString.substr(14, 2));
-    dateTime.second = std::stoi(dateTimeString.substr(17, 2));
-    s32 timezone_pos = 22;
-    if (dateTimeString[19] == '.') {
-        dateTime.microsecond = std::stoi(dateTimeString.substr(20, 2));
-    } else {
-        timezone_pos = 19;
-        dateTime.microsecond = 0;
-    }
-
-    sceRtcGetTick(&dateTime, pTickUtc);
-
-    if (dateTimeString[timezone_pos] != 'Z') {
-        if (dateTimeString[timezone_pos] == '-') {
-            int timeZoneOffset = std::stoi(dateTimeString.substr(timezone_pos + 1, 2)) * 60;
-            timeZoneOffset += std::stoi(dateTimeString.substr(timezone_pos + 4, 2));
-            timeZoneOffset *= -1;
-            sceRtcTickAddMinutes(pTickUtc, pTickUtc, timeZoneOffset);
-        } else if (dateTimeString[timezone_pos] == '+') {
-            int timeZoneOffset = std::stoi(dateTimeString.substr(timezone_pos + 1, 2)) * 60;
-            timeZoneOffset += std::stoi(dateTimeString.substr(timezone_pos + 4, 2));
-            sceRtcTickAddMinutes(pTickUtc, pTickUtc, timeZoneOffset);
-        }
-    }
-
-    return ORBIS_OK;
+    return ParseRtcText(std::string_view(input, strnlen(input, 96)), true, *output);
 }
 
 void PS4_SYSV_ABI sceRtcSetConf(void* p1, void* p2, s32 minuteswest, s32 dsttime) {

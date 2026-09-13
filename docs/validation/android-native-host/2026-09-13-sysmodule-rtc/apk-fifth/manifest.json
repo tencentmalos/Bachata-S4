@@ -1,0 +1,52 @@
+{
+  "source": "12b6e904f59b476c6c53857bd8334f2fffc62758",
+  "scope": "focused sysmodule/DiscMap/file IO and real TMNT boundary; no full regression",
+  "runs": [
+    {
+      "name": "sysmodule",
+      "junit_pass": true,
+      "scope": "synthetic"
+    },
+    {
+      "name": "tmnt",
+      "junit_pass": true,
+      "scope": "boundary observation only"
+    }
+  ],
+  "artifacts": {
+    "android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk": "ff52a03bf5f699e39751f0f4058d1f346a47ae6433a67cbb69aa6c3182f9f010",
+    "android/shadps4-app/app/build/outputs/apk/androidTest/playstore/debug/app-playstore-debug-androidTest.apk": "cc224332d7a4c851fe2e1b89c16a132a669e937af40a677816fb5677e186b05d",
+    "build/android-host-api33/native/libshadps4_host.so": "fb420d24217ef9e031b9c6ed14462abe2d9ab37c9a61b422415dc8b46b3fe181"
+  },
+  "sources": {
+    "android/shadps4-app/app/src/androidTest/kotlin/com/shadps4/android/SysmoduleRuntimeInstrumentedTest.kt": "719adda3a6792080fdf8d96c41396af046e3d2fa3e8f822d1f9b716439ac3004",
+    "src/core/host_runtime/guest_app_content.h": "19183fdd5bbbef0697b5723a19bc1935b87ae41f2c1af1bef49968149b4ede65",
+    "src/core/host_runtime/guest_rtc.h": "d97d95031c0d2c9ba9021d67a80b9863517542be00e51a759638d99dec8c0764",
+    "src/core/host_runtime/guest_sysmodule_hle.h": "044773e3ff8cdef82d62853662e4d475248351a79d0c6bf1602aaa8e16e7412a",
+    "tests/guest_cpu/fixtures/runtime_sysmodule.S": "774676f74ce210a8ea82db1eb0b2fc58131c3ded0c2ccbbb20dc9f651b468f32",
+    "tests/host_runtime/guest_file_io_tests.cpp": "d9200b3ac1b90390806d5a4c3245074b0b162458f02325afe3911b9881e4fcfd",
+    "tests/host_runtime/guest_rtc_tests.cpp": "8979c6033fd4c03f4d482e5567b6b888222ceda99706bc2f39d46c9a68f815cd",
+    "tests/host_runtime/guest_sysmodule_tests.cpp": "187054f505db38f43697685f78174cf8d8696b776c1eefe1616d2e0970b8e5d5",
+    "android/shadps4-app/app/build.gradle.kts": "664842eeb4d6238b73fa8aef219fece506ddc0fd715f8b16c30f5c5d2f9b9d6b",
+    "cmake/fex/CMakeLists.txt": "04c1842dea9925889c200176f0ef828dfcbe761648e746434e34e926b43bbb96",
+    "scripts/android/generate-production-runtime-fixture": "287941feca9c50573d114120bd41211c8dc43b02929456f3b2320749a2041ed5",
+    "src/core/file_sys/fs.h": "a5972dd5b7cbd006351258e111550c1ed57ac0645bab9f5b3619e8b6626ee900",
+    "src/core/host_runtime/guest_platform.h": "b46aa76670f7c9579ce54ec79a95f30700b2c8468f5b7be261d95367d3ace9d2",
+    "src/core/host_runtime/guest_runtime.cpp": "8b6251d768c3c08dc4d870a4a82c80c49f920b52f90c0095ce9e43bb313c9ae4",
+    "src/core/host_runtime/guest_storage.cpp": "57ca0d86020e070cd1a6397fe11a483c34e92b34ad87634735f8cfe9e34f83d1",
+    "src/core/host_runtime/guest_storage.h": "7b95a71ef3ed41438988e1cf1a5ab918a7e361d9e7c60729a552d1da11389047",
+    "src/core/host_runtime/guest_storage_hle.cpp": "258eba557dc63683990b6437ca3c0bb81322481c5bddb2089de9c7305741691b",
+    "src/core/host_runtime/guest_storage_hle.h": "9ce6212c20f417e452f6b7aaf7874f34863b867b91b55650939f9607ff933c74",
+    "src/core/libraries/rtc/rtc.cpp": "24a6fffc3a10c68f2bf657615db2708c5a8d3da4770679eb852fc6a72e034dfb"
+  },
+  "identity": "AYN Thor",
+  "libshadps4_host.so": {
+    "sha256": "fb420d24217ef9e031b9c6ed14462abe2d9ab37c9a61b422415dc8b46b3fe181",
+    "build_id": "9c3a03c78c3098f04274a416e9e71542d66e54b4"
+  },
+  "libshadps4_fex_session.so": {
+    "sha256": "b945959c235af486d4a76f44abcf630d01becaed421997615ddfcdad8b313b23",
+    "build_id": "c8b3d7f835e7c6741f60aad8ed5e798b17465d4a"
+  },
+  "status": "FOCUSED_PASS_BOUNDARY_OBSERVED"
+}

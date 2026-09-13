@@ -113,6 +113,8 @@ if(V0_BUILD_TESTS)
     target_link_libraries(session_lifecycle_tests PRIVATE guest_cpu_api Threads::Threads)
     target_compile_definitions(session_lifecycle_tests PRIVATE SESSION_TEST_HOOKS=1)
 
+    add_executable(guest_sysmodule_tests "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/host_runtime/guest_sysmodule_tests.cpp")
+    target_link_libraries(guest_sysmodule_tests PRIVATE guest_cpu_api Threads::Threads)
     add_executable(guest_thread_attribute_tests
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/host_runtime/guest_thread_attribute_tests.cpp")
     target_link_libraries(guest_thread_attribute_tests PRIVATE guest_cpu_api Threads::Threads)

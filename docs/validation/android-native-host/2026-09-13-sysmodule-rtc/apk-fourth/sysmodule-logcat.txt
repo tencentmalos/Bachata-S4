@@ -1,0 +1,28 @@
+--------- beginning of main
+09-13 22:52:11.335 17366 17397 I ProductionRuntime: prepare: reserve guest VA
+09-13 22:52:11.335 17366 17397 I ProductionRuntime: prepare: create FEX context
+09-13 22:52:11.336 17366 17397 I ProductionRuntime: prepare: create production VM/Linker
+09-13 22:52:11.449 17366 17397 I ProductionRuntime: prepare: load/relocate modules
+09-13 22:52:11.451 17366 17397 I ProductionRuntime: prepare: ready
+09-13 22:52:11.451 17366 17397 I ProductionRuntime: run: enter production guest
+09-13 22:52:11.452 17366 17397 I ProductionRuntime: run: guest returned to host
+09-13 22:52:11.453 17366 17393 I SysmoduleAcceptance: round=0 outcome=0 page_size=4096 pid=17366 uid=10157 guest return=51966
+09-13 22:52:11.453 17366 17393 I SysmoduleAcceptance: production Linker/VM; owners=1 veneers=17 graphics=not-created modules=1
+09-13 22:52:11.455 17366 17402 I ProductionRuntime: prepare: reserve guest VA
+09-13 22:52:11.455 17366 17402 I ProductionRuntime: prepare: create FEX context
+09-13 22:52:11.455 17366 17402 I ProductionRuntime: prepare: create production VM/Linker
+09-13 22:52:11.557 17366 17402 I ProductionRuntime: prepare: load/relocate modules
+09-13 22:52:11.559 17366 17402 I ProductionRuntime: prepare: ready
+09-13 22:52:11.559 17366 17402 I ProductionRuntime: run: enter production guest
+09-13 22:52:11.560 17366 17402 I ProductionRuntime: run: guest returned to host
+09-13 22:52:11.560 17366 17393 I SysmoduleAcceptance: round=1 outcome=0 page_size=4096 pid=17366 uid=10157 guest return=51966
+09-13 22:52:11.560 17366 17393 I SysmoduleAcceptance: production Linker/VM; owners=1 veneers=17 graphics=not-created modules=1
+09-13 22:52:11.560 17366 17408 I ProductionRuntime: prepare: reserve guest VA
+09-13 22:52:11.560 17366 17408 I ProductionRuntime: prepare: create FEX context
+09-13 22:52:11.561 17366 17408 I ProductionRuntime: prepare: create production VM/Linker
+09-13 22:52:11.663 17366 17408 I ProductionRuntime: prepare: load/relocate modules
+09-13 22:52:11.664 17366 17408 I ProductionRuntime: prepare: ready
+09-13 22:52:11.664 17366 17408 I ProductionRuntime: run: enter production guest
+09-13 22:52:11.665 17366 17408 I ProductionRuntime: run: guest returned to host
+09-13 22:52:11.666 17366 17393 I SysmoduleAcceptance: round=2 outcome=0 page_size=4096 pid=17366 uid=10157 guest return=51966
+09-13 22:52:11.666 17366 17393 I SysmoduleAcceptance: production Linker/VM; owners=1 veneers=17 graphics=not-created modules=1

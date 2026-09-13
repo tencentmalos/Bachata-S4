@@ -53,6 +53,80 @@ u64 DispatchStorage(GuestStorage& storage, GuestAddressSpace& space, const Stora
         return r.error ? error(r.error) : u64(r.value);
     };
     switch (e.op) {
+    case StorageOp::Stat:
+    case StorageOp::Fstat: {
+        using Stat = Libraries::Kernel::OrbisKernelStat;
+        auto pin = space.AcquirePinnedSpan({GuestAddress{a[1]}, sizeof(Stat)}, true);
+        if (!pin)
+            return error(EFAULT);
+        Stat value{};
+        GuestStorage::IoResult result{};
+        if (e.op == StorageOp::Stat) {
+            auto path = String(space, a[0], 1024);
+            if (!path)
+                return error(EFAULT);
+            result = storage.Stat(*path, value);
+        } else {
+            result = storage.Fstat(s32(a[0]), value);
+        }
+        if (!result.error)
+            std::memcpy(pin.Value().WritableBytes().data(), &value, sizeof(value));
+        return io(result);
+    }
+    case StorageOp::Truncate:
+        return io(storage.Truncate(s32(a[0]), s64(a[1])));
+    case StorageOp::Pread:
+    case StorageOp::Pwrite:
+    case StorageOp::Preadv:
+    case StorageOp::Pwritev: {
+        const bool vector = e.op == StorageOp::Preadv || e.op == StorageOp::Pwritev;
+        const bool write = e.op == StorageOp::Pwrite || e.op == StorageOp::Pwritev;
+        struct Iovec {
+            u64 address, length;
+        };
+        std::vector<Iovec> input;
+        if (s64(a[3]) < 0)
+            return error(EINVAL);
+        if (vector) {
+            const s32 count = s32(a[2]);
+            if (count < 0 || count > 1024)
+                return error(EINVAL);
+            input.resize(count);
+            if (count && !space.Read(GuestAddress{a[1]}, std::as_writable_bytes(std::span{input})))
+                return error(EFAULT);
+        } else {
+            input.push_back({a[1], a[2]});
+        }
+        u64 total{};
+        for (const auto& item : input) {
+            if (item.length > u64(INT64_MAX) - total)
+                return error(EINVAL);
+            total += item.length;
+        }
+        if (total > u64(INT64_MAX) - a[3])
+            return error(EOVERFLOW);
+        // One bounded regular-file admission; partial I/O is legal. Validate all
+        // buffers participating in it before disk I/O, including later vectors.
+        u64 remaining = std::min<u64>(total, 16 * 1024 * 1024);
+        std::vector<PinnedSpan> pins;
+        std::vector<GuestStorage::Buffer> buffers;
+        for (const auto& item : input) {
+            if (!remaining)
+                break;
+            const u64 length = std::min(remaining, item.length);
+            if (!length)
+                continue;
+            auto pin = space.AcquirePinnedSpan({GuestAddress{item.address}, length}, !write);
+            if (!pin)
+                return error(EFAULT);
+            pins.push_back(std::move(pin).Value());
+            auto* data = write ? const_cast<std::byte*>(pins.back().Bytes().data())
+                               : pins.back().WritableBytes().data();
+            buffers.push_back({data, size_t(length)});
+            remaining -= length;
+        }
+        return io(storage.Positioned(s32(a[0]), buffers, s64(a[3]), write));
+    }
     case StorageOp::Event: {
         auto pin = space.AcquirePinnedSpan({GuestAddress{a[1]}, sizeof(GuestStorage::Event)}, true);
         if (!pin)

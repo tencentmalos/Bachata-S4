@@ -1,0 +1,6 @@
+--------- beginning of main
+09-13 22:26:20.470  1640  1666 I ProductionRuntime: prepare: reserve guest VA
+09-13 22:26:20.470  1640  1666 I ProductionRuntime: prepare: create FEX context
+09-13 22:26:20.471  1640  1666 I ProductionRuntime: prepare: create production VM/Linker
+09-13 22:26:20.598  1640  1666 I ProductionRuntime: prepare: load/relocate modules
+09-13 22:26:20.604  1640  1659 I SysmoduleAcceptance: round=0 outcome=6 page_size=4096 pid=1640 uid=10157 BackendFailure in FexSessionBackend::Prepare: invalid process parameters

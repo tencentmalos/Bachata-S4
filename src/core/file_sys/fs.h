@@ -107,6 +107,13 @@ public:
     void Mount(const std::filesystem::path& host_folder, const std::string& guest_folder,
                bool read_only = false);
     void Unmount(const std::filesystem::path& host_folder, const std::string& guest_folder);
+    // Session retirement must not remove a replacement mount with the same VA path.
+    void UnmountOwned(const std::filesystem::path& host_folder, const std::string& guest_folder) {
+        std::scoped_lock lock{m_mutex};
+        std::erase_if(m_mnt_pairs, [&](const MntPair& pair) {
+            return pair.mount == guest_folder && pair.host_path == host_folder;
+        });
+    }
     void UnmountAll();
 
     std::filesystem::path GetHostPath(std::string_view guest_directory,
@@ -147,6 +154,16 @@ public:
         return it == m_mnt_pairs.end() ? nullptr : &*it;
     }
 
+    // Readers that can overlap mount publication need an owned snapshot; a raw
+    // vector element returned after unlocking may be invalidated by Mount.
+    std::optional<MntPair> GetMountSnapshot(const std::string& guest_path) {
+        std::scoped_lock lock{m_mutex};
+        const auto it = std::ranges::find_if(m_mnt_pairs, [&](const auto& mount) {
+            return guest_path == mount.mount || guest_path.starts_with(mount.mount + "/");
+        });
+        if (it == m_mnt_pairs.end()) return std::nullopt;
+        return *it;
+    }
     const MntPair* GetMount(const std::string& guest_path) {
         std::scoped_lock lock{m_mutex};
         const auto it = std::ranges::find_if(m_mnt_pairs, [&](const auto& mount) {

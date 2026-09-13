@@ -1,0 +1,11 @@
+{
+  "artifacts": {
+    "build/android-host-api33/native/guest_rtc_tests": "69b39dbe10c44f5e5a42d0795b8293ba7992bfbb701ab112538891e2c799efaf",
+    "build/android-host-api33/native/guest_file_io_tests": "72e5912f61d3c9b44b1596c1b5dfc1dc76c9ccf2e19b4ce2ca251cf477e0bd74",
+    "build/android-host-api33/native/libshadps4_host.so": "262f0041fe54c5936f7eeecc36235d5fc05e90ed129b7b77709e34d24855758c"
+  },
+  "checks": {
+    "guest_rtc_tests": 0,
+    "guest_file_io_tests": 0
+  }
+}

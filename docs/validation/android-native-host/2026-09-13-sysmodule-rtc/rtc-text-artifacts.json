@@ -1,0 +1,8 @@
+{
+  "scope": "focused shared RTC text and checked guest adapter",
+  "artifacts": {
+    "libshadps4_host.so": "4f0cb3ea06419d594bd1fc806331536227f7b9ad1a30adc144c8425711e76113",
+    "guest_rtc_tests": "b0ae8dcca87b7a81be5d70e0fd67d82e80137bdb1898397f9f883aa190ab9316"
+  },
+  "exit": 0
+}

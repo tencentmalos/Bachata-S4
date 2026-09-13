@@ -27,7 +27,7 @@ public:
         if (!providers.emplace(std::move(name), handle).second)
             throw std::logic_error("duplicate sysmodule provider");
     }
-    s32 Load(u32 id) {
+    s32 Load(u32 id, s32* start_result = nullptr) {
         const auto name = lookup(id);
         if (!name)
             return ORBIS_SYSMODULE_INVALID_ID;
@@ -38,6 +38,10 @@ public:
         auto& count = references[id];
         if (count == std::numeric_limits<u32>::max())
             return ORBIS_SYSMODULE_LOCK_FAILED;
+        // Providers here have already completed their real session/guest init.
+        // Match desktop: repeated loads retain the handle and leave res_out alone.
+        if (count == 0 && start_result)
+            *start_result = 0;
         ++count;
         return 0;
     }
@@ -154,6 +158,17 @@ public:
         out = system_events.front();
         system_events.pop_front();
         return 0;
+    }
+    bool EntitlementsChanged() {
+        std::lock_guard lock(mutex);
+        if (system_events.size() >= 64) return false;
+        Libraries::SystemService::OrbisSystemServiceEvent event{};
+        event.event_type = Libraries::SystemService::OrbisSystemServiceEventType::EntitlementUpdate;
+        // Desktop uses the local service label/user slot zero for this event.
+        event.service_entitlement_update.userId = 0;
+        event.service_entitlement_update.np_service_label = 0;
+        system_events.push_back(event);
+        return true;
     }
     void SetBackground(bool value) {
         std::lock_guard lock(mutex);

@@ -2,11 +2,15 @@
 #include <algorithm>
 #include <cerrno>
 #include <cstring>
+#include <cstdlib>
 #include <limits>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/syscall.h>
+#include <sys/uio.h>
 #include <unistd.h>
+#include "common/path_util.h"
+#include "common/scope_exit.h"
 #include "core/file_sys/fs.h"
 #include "guest_storage.h"
 
@@ -76,6 +80,8 @@ GuestStorage::~GuestStorage() {
     for (auto [id, file] : files)
         ::close(file.host);
     files.clear();
+    if (const int error = UnmountTemporaryLocked())
+        LOG_ERROR(Lib_AppContent, "Session temporary retirement failed: {}", error);
     for (auto& slot : slots)
         if (slot) {
             auto result = UnmountLocked(slot->GetMountPoint());
@@ -86,6 +92,71 @@ GuestStorage::~GuestStorage() {
                     slot->Abandon();
             }
         }
+}
+int GuestStorage::MountTemporary(u32 option, std::array<char, 16>& point) {
+    std::lock_guard lock(mutex);
+    if (option > 1)
+        return EINVAL;
+    if (!temporary_root.empty() || mounts.GetMountSnapshot("/temp0"))
+        return EBUSY;
+    try {
+        const auto base = Common::FS::GetUserPath(Common::FS::PathType::TempDataDir);
+        if (!fs::is_directory(fs::symlink_status(base)))
+            return ENOENT;
+        // Both NONE and FORMAT start with empty session-owned storage. Never
+        // format a live mount, another session's directory or persistent saves.
+        std::string pattern = (base / (title + "-XXXXXX")).string();
+        if (!::mkdtemp(pattern.data()))
+            return errno;
+        bool published = false;
+        SCOPE_EXIT {
+            if (!published) {
+                std::error_code ignored;
+                fs::remove_all(pattern, ignored);
+                temporary_root.clear();
+            }
+        };
+        temporary_root = pattern;
+        mounts.Mount(temporary_root, "/temp0");
+        published = true;
+        point = {};
+        std::memcpy(point.data(), "/temp0", 6);
+        return 0;
+    } catch (const fs::filesystem_error& e) {
+        return e.code().value();
+    }
+}
+int GuestStorage::TemporarySpace(std::string_view point, u64& available_kib) {
+    std::lock_guard lock(mutex);
+    if (point != "/temp0")
+        return EINVAL;
+    const auto mount = mounts.GetMountSnapshot("/temp0");
+    if (temporary_root.empty() || !mount || mount->host_path != temporary_root)
+        return ENOENT;
+    std::error_code error;
+    const auto info = fs::space(temporary_root, error);
+    if (error)
+        return error.value();
+    available_kib = info.available / 1024;
+    return 0;
+}
+int GuestStorage::UnmountTemporaryLocked() {
+    if (temporary_root.empty())
+        return 0;
+    for (const auto& [id, file] : files)
+        if (file.slot == -2)
+            return EBUSY;
+    mounts.UnmountOwned(temporary_root, "/temp0");
+    std::error_code error;
+    fs::remove_all(temporary_root, error);
+    if (error)
+        return error.value(); // retain ownership so cleanup can be retried
+    temporary_root.clear();
+    return 0;
+}
+int GuestStorage::UnmountTemporary() {
+    std::lock_guard lock(mutex);
+    return UnmountTemporaryLocked();
 }
 GuestStorage::Error GuestStorage::Initialize() {
     std::lock_guard lock(mutex);
@@ -334,14 +405,14 @@ GuestStorage::Error GuestStorage::SetParam(std::string_view point, u32 type,
 }
 // Walk from the selected mount root with O_NOFOLLOW. No host path, symlink,
 // '..', or stale /savedataN handle can escape into the host application's files.
-GuestStorage::Parent GuestStorage::Resolve(std::string_view path, bool write) {
+GuestStorage::Parent GuestStorage::Resolve(std::string_view path, bool write, bool allow_root) {
     Parent p;
     if (path.empty() || path.front() != '/' || path.find('\0') != path.npos) {
         p.error = EINVAL;
         return p;
     }
     const auto slash = path.find('/', 1);
-    if (slash == path.npos || slash + 1 == path.size()) {
+    if (!allow_root && (slash == path.npos || slash + 1 == path.size())) {
         p.error = EINVAL;
         return p;
     }
@@ -356,8 +427,20 @@ GuestStorage::Parent GuestStorage::Resolve(std::string_view path, bool write) {
                 return p;
             }
         }
-    if (p.slot < 0) {
-        if (mount != "/app0") {
+    if (root.empty() && mount == "/temp0" && !temporary_root.empty()) {
+        const auto m = mounts.GetMountSnapshot("/temp0");
+        if (!m || m->host_path != temporary_root) {
+            p.error = ENOENT;
+            return p;
+        }
+        p.slot = -2;
+        root = temporary_root;
+    }
+    if (root.empty()) {
+        const bool addcont = mount.starts_with("/addcont") && mount.size() > 8 &&
+                             std::all_of(mount.begin() + 8, mount.end(),
+                                         [](char c) { return c >= '0' && c <= '9'; });
+        if (mount != "/app0" && !addcont) {
             p.error = ENOENT;
             return p;
         }
@@ -365,7 +448,7 @@ GuestStorage::Parent GuestStorage::Resolve(std::string_view path, bool write) {
             p.error = EROFS;
             return p;
         }
-        const auto* m = mounts.GetMount("/app0");
+        const auto m = mounts.GetMountSnapshot(std::string(mount));
         if (!m) {
             p.error = ENOENT;
             return p;
@@ -375,6 +458,11 @@ GuestStorage::Parent GuestStorage::Resolve(std::string_view path, bool write) {
     int fd = ::open(root.c_str(), O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
     if (fd < 0) {
         p.error = errno;
+        return p;
+    }
+    if (slash == path.npos || slash + 1 == path.size()) {
+        p.fd = fd;
+        p.leaf = "."; // Only Stat may address the selected mount itself.
         return p;
     }
     auto tail = path.substr(slash + 1);
@@ -475,20 +563,141 @@ GuestStorage::IoResult GuestStorage::Write(int fd, std::span<const u8> data) {
     auto offset = f.append ? st.st_size : ::lseek(f.host, 0, SEEK_CUR);
     if (offset < 0)
         return {-1, errno};
-    if (f.slot >= 0) {
-        try {
-            auto used = Used(slots[f.slot]->GetSavePath());
-            auto cap = u64(slots[f.slot]->GetMaxBlocks()) * 32768;
-            u64 end = u64(offset) + data.size();
-            if (end < u64(offset) || end > cap ||
-                (end > u64(st.st_size) && end - u64(st.st_size) > cap - std::min(cap, used)))
-                return {-1, ENOSPC};
-        } catch (const fs::filesystem_error&) {
-            return {-1, EIO};
-        }
+    const u64 end = u64(offset) + data.size();
+    if (end < u64(offset))
+        return {-1, EFBIG};
+    if (!data.empty()) {
+        if (int error = CheckGrowth(f, st.st_size, end))
+            return {-1, error};
     }
     auto r = ::write(f.host, data.data(), data.size());
     return {r, r < 0 ? errno : 0};
+}
+// The same quota admission applies to ordinary writes, positioned writes and
+// truncation. Hold the session descriptor mutex across admission and mutation.
+int GuestStorage::CheckGrowth(const File& file, u64 old_size, u64 end) {
+    if (file.slot < 0 || end <= old_size)
+        return 0;
+    try {
+        const auto used = Used(slots[file.slot]->GetSavePath());
+        const u64 cap = u64(slots[file.slot]->GetMaxBlocks()) * 32768;
+        if (end > cap || end - old_size > cap - std::min(cap, used))
+            return ENOSPC;
+    } catch (const fs::filesystem_error&) {
+        return EIO;
+    }
+    return 0;
+}
+namespace {
+void GuestStat(const struct stat& native, Libraries::Kernel::OrbisKernelStat& out) {
+    // PS4/FreeBSD ABI, never copy an Android/Darwin struct stat into guest memory.
+    // Match desktop's logical file sizes and block geometry for extracted content.
+    out = {};
+    const bool directory = S_ISDIR(native.st_mode);
+    out.st_mode = (directory ? 0040000 : 0100000) | 0777;
+    out.st_size = directory ? 65536 : native.st_size;
+    out.st_blksize = directory ? 65536 : 512;
+    out.st_blocks = (out.st_size + 511) / 512;
+#if defined(__APPLE__)
+    const auto atime = native.st_atimespec, mtime = native.st_mtimespec,
+               ctime = native.st_ctimespec;
+#else
+    const auto atime = native.st_atim, mtime = native.st_mtim, ctime = native.st_ctim;
+#endif
+    out.st_atim = {atime.tv_sec, atime.tv_nsec};
+    out.st_mtim = {mtime.tv_sec, mtime.tv_nsec};
+    out.st_ctim = {ctime.tv_sec, ctime.tv_nsec};
+}
+static_assert(sizeof(Libraries::Kernel::OrbisKernelStat) == 120);
+static_assert(offsetof(Libraries::Kernel::OrbisKernelStat, st_size) == 72);
+} // namespace
+GuestStorage::IoResult GuestStorage::Stat(std::string_view path,
+                                          Libraries::Kernel::OrbisKernelStat& out) {
+    std::lock_guard lock(mutex);
+    auto p = Resolve(path, false, true);
+    if (p.error)
+        return {-1, p.error};
+    struct stat native {};
+    const int result = ::fstatat(p.fd, p.leaf.c_str(), &native, AT_SYMLINK_NOFOLLOW);
+    const int error = errno;
+    ::close(p.fd);
+    if (result < 0)
+        return {-1, error};
+    if (!S_ISREG(native.st_mode) && !S_ISDIR(native.st_mode))
+        return {-1, EACCES};
+    GuestStat(native, out);
+    return {0, 0};
+}
+GuestStorage::IoResult GuestStorage::Fstat(int fd, Libraries::Kernel::OrbisKernelStat& out) {
+    std::lock_guard lock(mutex);
+    auto it = files.find(fd);
+    if (it == files.end())
+        return {-1, EBADF};
+    struct stat native {};
+    if (::fstat(it->second.host, &native))
+        return {-1, errno};
+    GuestStat(native, out);
+    return {0, 0};
+}
+GuestStorage::IoResult GuestStorage::Positioned(int fd, std::span<const Buffer> buffers, s64 offset,
+                                                bool write) {
+    std::lock_guard lock(mutex);
+    if (offset < 0 || buffers.size() > 1024)
+        return {-1, EINVAL};
+    auto it = files.find(fd);
+    if (it == files.end() || (write && !it->second.writable))
+        return {-1, EBADF};
+    auto& file = it->second;
+    std::vector<iovec> vectors;
+    u64 total{};
+    for (const auto& buffer : buffers) {
+        if (buffer.size > u64(INT64_MAX) - total)
+            return {-1, EINVAL};
+        total += buffer.size;
+        vectors.push_back({buffer.data, buffer.size});
+    }
+    if (total > u64(INT64_MAX) - u64(offset))
+        return {-1, EOVERFLOW};
+    if (cancelled)
+        return {-1, EINTR};
+    if (write) {
+        struct stat native {};
+        if (::fstat(file.host, &native))
+            return {-1, errno};
+        if (total) {
+            if (int error = CheckGrowth(file, native.st_size, u64(offset) + total))
+                return {-1, error};
+        }
+    }
+    // Linux pwritev otherwise honors O_APPEND, unlike the positioned API. The
+    // descriptor is private and every operation holds mutex, including Close.
+    int flags = 0;
+    if (write && file.append) {
+        flags = ::fcntl(file.host, F_GETFL);
+        if (flags < 0 || ::fcntl(file.host, F_SETFL, flags & ~O_APPEND))
+            return {-1, errno};
+    }
+    const auto result = write ? ::pwritev(file.host, vectors.data(), vectors.size(), offset)
+                              : ::preadv(file.host, vectors.data(), vectors.size(), offset);
+    const int error = result < 0 ? errno : 0;
+    if (write && file.append && ::fcntl(file.host, F_SETFL, flags))
+        return {-1, errno};
+    return {result, error};
+}
+GuestStorage::IoResult GuestStorage::Truncate(int fd, s64 length) {
+    std::lock_guard lock(mutex);
+    if (length < 0)
+        return {-1, EINVAL};
+    auto it = files.find(fd);
+    if (it == files.end() || !it->second.writable)
+        return {-1, EBADF};
+    struct stat native {};
+    if (::fstat(it->second.host, &native))
+        return {-1, errno};
+    if (int error = CheckGrowth(it->second, native.st_size, length))
+        return {-1, error};
+    const int result = ::ftruncate(it->second.host, length);
+    return {result, result < 0 ? errno : 0};
 }
 GuestStorage::IoResult GuestStorage::Seek(int fd, s64 offset, int whence) {
     std::lock_guard lock(mutex);

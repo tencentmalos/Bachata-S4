@@ -1,0 +1,11 @@
+{
+  "status": "DEVICE_NOT_AVAILABLE",
+  "pending": [
+    "latest AppContent six-NID adapter and DLC/file snapshot native checks",
+    "17-import x86 production fixture including AppContent",
+    "full-content TMNT boundary after AppContent"
+  ],
+  "not_run_reason": "AYN 9c2841a4 disappeared before pushing the newly built file/content probe; adb devices and mdns services have no device",
+  "last_device_accepted_stage": "APK third; RTC/file/sysmodule fixture3 same-process rounds; full content3 rounds end on AppContent init with zero presents",
+  "source_base": "12b6e904f59b476c6c53857bd8334f2fffc62758"
+}

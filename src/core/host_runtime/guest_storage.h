@@ -7,6 +7,7 @@
 #include <map>
 #include <mutex>
 #include <span>
+#include "core/libraries/kernel/file_system.h"
 #include "core/libraries/save_data/save_instance.h"
 #include "core/libraries/save_data/savedata.h"
 #include "core/libraries/save_data/savedata_error.h"
@@ -66,9 +67,23 @@ public:
     IoResult Write(int fd, std::span<const u8> data);
     IoResult Seek(int fd, s64 offset, int whence);
     IoResult Sync(int fd);
+    IoResult Stat(std::string_view path, Libraries::Kernel::OrbisKernelStat& out);
+    IoResult Fstat(int fd, Libraries::Kernel::OrbisKernelStat& out);
+    // Buffers here are already checked and pinned by the guest ABI adapter.
+    struct Buffer {
+        void* data;
+        size_t size;
+    };
+    IoResult Positioned(int fd, std::span<const Buffer> buffers, s64 offset, bool write);
+    IoResult Truncate(int fd, s64 length);
     IoResult Mkdir(std::string_view path, u32 mode);
     IoResult Unlink(std::string_view path);
     IoResult Rename(std::string_view from, std::string_view to);
+    // AppContent temporary data is separate from persistent save mounts. These
+    // return host errno; the AppContent adapter translates to its own errors.
+    int MountTemporary(u32 option, std::array<char, 16>& point);
+    int TemporarySpace(std::string_view point, u64& available_kib);
+    int UnmountTemporary();
     static bool ValidTitle(std::string_view title);
 
 private:
@@ -97,10 +112,13 @@ private:
     Error CheckIdentity(int uid, std::string_view tid, std::string_view directory);
     std::array<std::unique_ptr<Save>, 16> slots;
     std::map<int, File> files;
+    std::filesystem::path temporary_root;
     int next_fd{3};
     Save* Find(std::string_view point);
-    Parent Resolve(std::string_view path, bool write);
+    Parent Resolve(std::string_view path, bool write, bool allow_root = false);
+    int CheckGrowth(const File& file, u64 old_size, u64 end);
     Error UnmountLocked(std::string_view point);
+    int UnmountTemporaryLocked();
     static u64 Used(const std::filesystem::path& root);
 };
 static_assert(sizeof(GuestStorage::MountResult) == 64);

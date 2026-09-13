@@ -1,0 +1,14 @@
+{
+  "sources": {
+    "src/core/host_runtime/guest_storage.cpp": "57ca0d86020e070cd1a6397fe11a483c34e92b34ad87634735f8cfe9e34f83d1",
+    "src/core/host_runtime/guest_app_content.h": "19183fdd5bbbef0697b5723a19bc1935b87ae41f2c1af1bef49968149b4ede65"
+  },
+  "artifacts": {
+    "libshadps4_host.so": "fb420d24217ef9e031b9c6ed14462abe2d9ab37c9a61b422415dc8b46b3fe181",
+    "guest_file_io_tests": "67403df000c27eea2edee9a165919ac11262c73b1b48be3e2951b47d58c320f1"
+  },
+  "serial": "9c2841a4",
+  "scope": "targeted file/content/temporary storage",
+  "exit": 0,
+  "test_root": "/data/local/tmp/shadps4-sysmodule-review-1789309491/file-temp-1789311719972235000"
+}
