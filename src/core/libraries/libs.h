@@ -3,10 +3,36 @@
 
 #pragma once
 
+#include <string>
+
+#include "common/arch.h"
 #include "core/loader/elf.h"
 #include "core/loader/symbols_resolver.h"
 #include "core/tls.h"
 
+#ifdef ARCH_ARM64
+#include "core/guest_cpu/hle/call_adapter.h"
+#endif
+
+// On the desktop x86 path the guest and host share the ABI, so the GOT can hold
+// the host wrapper pointer directly. On the FEX ARM64 path a translated guest
+// cannot call a native pointer: the symbol also carries a typed HLE adapter that
+// the linker turns into a guest-callable veneer at relocation time. The host
+// pointer is still recorded so debug dumps and any host-side use keep working.
+#ifdef ARCH_ARM64
+#define LIB_FUNCTION(nid, lib, libversion, mod, function)                                          \
+    do {                                                                                           \
+        Core::Loader::SymbolResolver sr{};                                                         \
+        sr.name = nid;                                                                             \
+        sr.library = lib;                                                                          \
+        sr.library_version = libversion;                                                           \
+        sr.module = mod;                                                                           \
+        sr.type = Core::Loader::SymbolType::Function;                                              \
+        auto func = reinterpret_cast<u64>(HOST_CALL(function));                                    \
+        sym->AddSymbol(sr, func,                                                                   \
+                       Core::GuestCpu::Hle::MakeHleAdapter(function, std::string{nid}));           \
+    } while (0)
+#else
 #define LIB_FUNCTION(nid, lib, libversion, mod, function)                                          \
     do {                                                                                           \
         Core::Loader::SymbolResolver sr{};                                                         \
@@ -18,6 +44,7 @@
         auto func = reinterpret_cast<u64>(HOST_CALL(function));                                    \
         sym->AddSymbol(sr, func);                                                                  \
     } while (0)
+#endif
 
 #define LIB_OBJ(nid, lib, libversion, mod, obj)                                                    \
     do {                                                                                           \

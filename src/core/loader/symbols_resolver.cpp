@@ -14,6 +14,11 @@ void SymbolsResolver::AddSymbol(const SymbolResolver& s, u64 virtual_addr) {
     m_symbols.emplace_back(GenerateName(s), s.nidName, virtual_addr);
 }
 
+void SymbolsResolver::AddSymbol(const SymbolResolver& s, u64 virtual_addr,
+                                std::shared_ptr<Core::GuestCpu::Hle::HleCallAdapter> adapter) {
+    m_symbols.emplace_back(GenerateName(s), s.nidName, virtual_addr, std::move(adapter));
+}
+
 std::string SymbolsResolver::GenerateName(const SymbolResolver& s) {
     return fmt::format("{}#{}#{}#{}#{}", s.name, s.library, s.library_version, s.module,
                        SymbolTypeToS(s.type));

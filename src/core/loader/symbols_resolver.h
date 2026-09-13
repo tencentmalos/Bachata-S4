@@ -4,11 +4,16 @@
 #pragma once
 
 #include <filesystem>
+#include <memory>
 #include <span>
 #include <string>
 #include <vector>
 #include "common/assert.h"
 #include "common/types.h"
+
+namespace Core::GuestCpu::Hle {
+class HleCallAdapter;
+} // namespace Core::GuestCpu::Hle
 
 namespace Core::Loader {
 
@@ -24,6 +29,12 @@ struct SymbolRecord {
     std::string name;
     std::string nid_name;
     u64 virtual_address;
+    // On the FEX (ARM64 guest) path an HLE function symbol carries the typed
+    // adapter the loader built for it. The linker assigns it a guest operation
+    // number and writes the veneer VA for that op into the GOT, instead of the
+    // host `virtual_address` (which a translated guest cannot call). Null on the
+    // desktop x86 path, where `virtual_address` is the callable host pointer.
+    std::shared_ptr<Core::GuestCpu::Hle::HleCallAdapter> hle_adapter;
 };
 
 struct SymbolResolver {
@@ -41,6 +52,9 @@ public:
     virtual ~SymbolsResolver() = default;
 
     void AddSymbol(const SymbolResolver& s, u64 virtual_addr);
+    // FEX path: also record the typed HLE adapter the loader built for a function.
+    void AddSymbol(const SymbolResolver& s, u64 virtual_addr,
+                   std::shared_ptr<Core::GuestCpu::Hle::HleCallAdapter> adapter);
     const SymbolRecord* FindSymbol(const SymbolResolver& s) const;
 
     void DebugDump(const std::filesystem::path& file_name);

@@ -140,6 +140,14 @@ namespace detail {
 template <typename T>
 inline constexpr bool IsGuestPointer = std::is_pointer_v<T>;
 
+// A pointer to a function is a guest CODE address (a callback the HLE stores and
+// later enters via InvokeGuest), not a data buffer the host dereferences. It is
+// passed through as an opaque value: taking sizeof() of a function type is
+// ill-formed, and pinning it as data would be wrong.
+template <typename T>
+inline constexpr bool IsGuestFunctionPointer =
+    std::is_pointer_v<T> && std::is_function_v<std::remove_pointer_t<T>>;
+
 // Written as a lambda so `sizeof(T)` is never instantiated for void, which is
 // an incomplete type.
 template <typename T>
@@ -178,40 +186,48 @@ Result<T> DecodePointer(CallCursor& cursor, HleCallFrame& frame) {
     if (!raw) {
         return raw.GetError();
     }
-    if (raw.Value() == 0) {
-        return static_cast<T>(nullptr);
-    }
-    if (frame.space == nullptr) {
-        return MakeError(ErrorCategory::InvalidArgument, "Hle::DecodePointer",
-                         "cannot validate a guest pointer without an address space");
-    }
-
-    using Pointee = std::remove_cv_t<std::remove_pointer_t<T>>;
-    constexpr std::size_t needed = [] {
-        if constexpr (std::is_void_v<Pointee>) {
-            return std::size_t{1};
-        } else {
-            return sizeof(Pointee);
+    // A guest function pointer is an opaque code address: pass it through without a
+    // data range/pin (the host never dereferences it; the HLE re-enters it as guest
+    // code). sizeof() of a function type is ill-formed, so this must precede the
+    // data-pointer path below.
+    if constexpr (IsGuestFunctionPointer<T>) {
+        return reinterpret_cast<T>(static_cast<std::uintptr_t>(raw.Value()));
+    } else {
+        if (raw.Value() == 0) {
+            return static_cast<T>(nullptr);
         }
-    }();
-    constexpr bool writable = !std::is_const_v<std::remove_pointer_t<T>>;
+        if (frame.space == nullptr) {
+            return MakeError(ErrorCategory::InvalidArgument, "Hle::DecodePointer",
+                             "cannot validate a guest pointer without an address space");
+        }
 
-    auto range = GuestRange::Checked(GuestAddress{raw.Value()}, needed);
-    if (!range) {
-        return range.GetError();
-    }
+        using Pointee = std::remove_cv_t<std::remove_pointer_t<T>>;
+        constexpr std::size_t needed = [] {
+            if constexpr (std::is_void_v<Pointee>) {
+                return std::size_t{1};
+            } else {
+                return sizeof(Pointee);
+            }
+        }();
+        constexpr bool writable = !std::is_const_v<std::remove_pointer_t<T>>;
 
-    // Pin the span for the whole native call, not just a one-shot permission check: a concurrent
-    // remap/unmap on another owner must not retire the backing while native code holds the pointer.
-    // The pin is owned by the frame and released on return (success or failure).
-    auto pin = frame.space->AcquirePinnedSpan(range.Value(), writable);
-    if (!pin) {
-        auto error = pin.GetError();
-        error.operation = "Hle::DecodePointer";
-        return error;
+        auto range = GuestRange::Checked(GuestAddress{raw.Value()}, needed);
+        if (!range) {
+            return range.GetError();
+        }
+
+        // Pin the span for the whole native call, not just a one-shot permission check: a concurrent
+        // remap/unmap on another owner must not retire the backing while native code holds the
+        // pointer. The pin is owned by the frame and released on return (success or failure).
+        auto pin = frame.space->AcquirePinnedSpan(range.Value(), writable);
+        if (!pin) {
+            auto error = pin.GetError();
+            error.operation = "Hle::DecodePointer";
+            return error;
+        }
+        frame.pins.push_back(std::move(pin.Value()));
+        return reinterpret_cast<T>(static_cast<std::uintptr_t>(raw.Value()));
     }
-    frame.pins.push_back(std::move(pin.Value()));
-    return reinterpret_cast<T>(static_cast<std::uintptr_t>(raw.Value()));
 }
 
 template <typename T>
