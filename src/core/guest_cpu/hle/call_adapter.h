@@ -380,6 +380,44 @@ private:
     Return (*function)(Args...);
 };
 
+class UnsupportedHleCallAdapter final : public HleCallAdapter {
+public:
+    explicit UnsupportedHleCallAdapter(std::string description)
+        : description_{std::move(description)} {}
+
+    [[nodiscard]] bool SignatureSupported() const noexcept override {
+        return false;
+    }
+    [[nodiscard]] std::string SignatureDescription() const override {
+        return description_;
+    }
+    Status Invoke(HleCallFrame&) const override {
+        return MakeError(ErrorCategory::Unsupported, "UnsupportedHleCallAdapter::Invoke",
+                         "HLE function has a signature this backend cannot marshal: " +
+                             description_);
+    }
+
+private:
+    std::string description_;
+};
+
+// Builds a typed adapter for `function` WITHOUT assigning an operation number or
+// touching a registry. A signature the marshaller cannot handle yields an
+// Unsupported adapter that faults cleanly when a guest actually reaches it, rather
+// than refusing at build time -- the HLE surface has thousands of functions and a
+// handful with aggregate/by-value-struct parameters must not break the whole
+// image; they simply return Unsupported if called. Used by LIB_FUNCTION so every
+// symbol carries a ready adapter that the session's registry adopts later.
+template <typename Function>
+[[nodiscard]] inline std::shared_ptr<HleCallAdapter> MakeHleAdapter(Function function,
+                                                                    std::string name) {
+    auto typed = std::make_shared<TypedHleCallAdapter<Function>>(function);
+    if (typed->SignatureSupported()) {
+        return typed;
+    }
+    return std::make_shared<UnsupportedHleCallAdapter>(typed->SignatureDescription());
+}
+
 class HleCallRegistry final {
 public:
     // Refuses an unsupported signature here, so a guest can never reach a
@@ -398,14 +436,33 @@ public:
         return operation;
     }
 
+    // Assigns an operation number to a pre-built adapter (from MakeHleAdapter) and
+    // stores it. This is how the loader-built adapters on each SymbolRecord get a
+    // guest-visible operation at session start: registration (init time, no
+    // context) and operation assignment (session time, one registry) are separate.
+    // Unlike Register it accepts an Unsupported adapter -- the op is real so a GOT
+    // slot can point at it, and the guest gets a clean Unsupported fault if it
+    // calls that import, never a silent zero.
+    [[nodiscard]] Result<std::uint64_t> Adopt(std::shared_ptr<HleCallAdapter> adapter,
+                                              std::string name) {
+        if (adapter == nullptr) {
+            return MakeError(ErrorCategory::InvalidArgument, "HleCallRegistry::Adopt",
+                             "null adapter");
+        }
+        std::unique_lock guard{registry_mutex};
+        const std::uint64_t operation = next_operation++;
+        adapter->Assign(operation, std::move(name));
+        adapters.push_back(std::move(adapter));
+        return operation;
+    }
+
+    // O(1): operations are dense and 1-based, so op N is adapters[N-1].
     [[nodiscard]] std::shared_ptr<HleCallAdapter> Find(std::uint64_t operation) const {
         std::shared_lock guard{registry_mutex};
-        for (const auto& adapter : adapters) {
-            if (adapter->Operation() == operation) {
-                return adapter;
-            }
+        if (operation == 0 || operation > adapters.size()) {
+            return nullptr;
         }
-        return nullptr;
+        return adapters[operation - 1];
     }
 
     // Dispatch entry. An unregistered operation is an error, never an attempt
