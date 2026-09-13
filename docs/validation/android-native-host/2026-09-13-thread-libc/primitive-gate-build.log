@@ -1,0 +1,4 @@
+[1/4] Building CXX object CMakeFiles/guest_thread_attribute_tests.dir/Users/bytedance/workspace/emulations/ps4/shadps4/tests/host_runtime/guest_thread_attribute_tests.cpp.o
+[2/4] Linking CXX executable guest_thread_attribute_tests
+[3/4] Building CXX object CMakeFiles/guest_rwlock_tests.dir/Users/bytedance/workspace/emulations/ps4/shadps4/tests/host_runtime/guest_rwlock_tests.cpp.o
+[4/4] Linking CXX executable guest_rwlock_tests

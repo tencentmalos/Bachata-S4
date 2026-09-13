@@ -1,0 +1,13 @@
+guest execution through the public CPU API
+host page size: 4096
+fixtures: 27, generated from tests/guest_cpu/fixtures/guest_fixtures.S
+
+guest reservation base: 0xff8000000
+code at 0xff8010000, stack top 0xff8023ff0
+return gate at 0x1fc0000000
+
+[G49a  ] syscall HLE boundary wakes a waiting publication coordinator PASS -- drain_ms=0
+[G49b  ] owner continues after publication with its original HLE result FAIL
+[G48a  ] 33 forced continuation/publication collisions retain the live invocation PASS
+[G48b  ] Cancel wins while continuation waits under the next publication token PASS
+FOCUSED_PUBLICATION checks=4 failures=1

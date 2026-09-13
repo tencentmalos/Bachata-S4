@@ -1,0 +1,44 @@
+INSTRUMENTATION_STATUS: class=com.shadps4.android.ThreadAttributeRuntimeInstrumentedTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.shadps4.android.ThreadAttributeRuntimeInstrumentedTest:
+INSTRUMENTATION_STATUS: test=guestThreadsConsumeAttributes
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.shadps4.android.ThreadAttributeRuntimeInstrumentedTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: guest return=0
+production Linker/VM; owners=3 veneers=12 graphics=not-created modules=1
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.shadps4.android.ThreadAttributeRuntimeInstrumentedTest.guestThreadsConsumeAttributes(ThreadAttributeRuntimeInstrumentedTest.kt:29)
+
+INSTRUMENTATION_STATUS: stream=
+Error in guestThreadsConsumeAttributes(com.shadps4.android.ThreadAttributeRuntimeInstrumentedTest):
+java.lang.AssertionError: guest return=0
+production Linker/VM; owners=3 veneers=12 graphics=not-created modules=1
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.shadps4.android.ThreadAttributeRuntimeInstrumentedTest.guestThreadsConsumeAttributes(ThreadAttributeRuntimeInstrumentedTest.kt:29)
+
+INSTRUMENTATION_STATUS: test=guestThreadsConsumeAttributes
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 0.179
+There was 1 failure:
+1) guestThreadsConsumeAttributes(com.shadps4.android.ThreadAttributeRuntimeInstrumentedTest)
+java.lang.AssertionError: guest return=0
+production Linker/VM; owners=3 veneers=12 graphics=not-created modules=1
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.shadps4.android.ThreadAttributeRuntimeInstrumentedTest.guestThreadsConsumeAttributes(ThreadAttributeRuntimeInstrumentedTest.kt:29)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1
