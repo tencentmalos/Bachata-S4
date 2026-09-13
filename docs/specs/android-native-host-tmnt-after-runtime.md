@@ -4,6 +4,8 @@
 
 交付目标：普通 APK 经 UI 导入 TMNT CUSA50828 本体01.00和更新01.08，生产 loader/FEX/Orbis/Turnip/原生 Surface 到实际可操作场景，画面、输入和音频工作，运行十分钟，正常 Stop，同一进程完成三轮游戏启动/停止。两个工作包连续实施，可按内部依赖分提交；不得到首个 HLE、首帧或某个子库编译通过就停下另写微型 spec。
 
+**2026-09-13 直接修复增量：** 先读[libc/runtime修复结果](../validation/android-native-host/libc-runtime-repair-2026-09-13.md)。guest libc bootstrap、session clock/errno、基本mutex/cond/TSD析构、heap/VM启动族现已实现；合成验证更新为CLI10组×3和普通APK16代。真实选取模块六个DT_INIT完成，当前确证失败为`g8cM39EUZ6o#libSceSysmodule#1#libSceSysmodule#Function`。不重做已完成基础接线，不把基础族的通过扩大成完整pthread/动态TLS/游戏兼容。本spec整版目标不变。
+
 ## 已有基线，直接复用
 
 生产 `GuestRuntime` 已拥有 Linker/MemoryManager、模块依赖图、guest backing/栈/线程/TLS/errno/stack guard；`FexSessionBackend`、JNI、Service 已接真实 executable path。G45的受控 HleScope/两层InvokeGuest/WaitingHle取消，G46的高VA tag，G47的热回边中断，以及跨owner VM token/pin/失效机制已存在。普通APK12代及CLI7组×3轮是合成程序证据。后续扩覆盖、修新发现，不能恢复旧 CPU loop 当游戏，也不另造 CallGuest、ELF runner 或第二个内存账本。
@@ -16,7 +18,7 @@ Foundation owned分支 `codex/shadps4-android-fex-v0` / `5388ef45313d6c32cb5f4bb
 
 从真实 base+update 的完整有效树启动。参考 `tmnt-content-selection.json` 与最新 `tmnt-*` 边界证据；仅 eboot 缺 FMOD，不能作为装载器失败的最终诊断。`modules/`、`sce_module/`、内容根的正常依赖图已经支持，guest库导出优先参与解析；不要把所有guest库强行换成host HLE或跳过DT_INIT。synthetic SELF的原始节表偏移不在容器内是正常测试输入，不可恢复旧物理offset误判。真实libc/Fios的STT_SECTION当前模块DTPMOD64标记已适配并有fixture；不再当成STT_TLS变量硬拒绝，也不能把此例外扩到所有TLS符号。
 
-当前确证入口是 `tmnt-tls-marker`：Prepare拒绝 `ZT4ODD2Ts9o#libSceLibcInternal#1#libSceLibcInternal#Object`（AeroLib：Need_sceLibcInternal），尚无真实游戏DT_INIT执行证据。先核对该导入的真实ABI、guest库提供方和当前主仓/参考的libc选择规则；选择有依据的guest LLE或完整host HLE策略。不能因为名字像占位标志就返回0或随意分配一块假对象。若需要额外系统模块，使用已有/用户合法提供的文件并记录身份，不擅自获取固件或把不可用提供方伪装成成功。
+历史入口 `tmnt-tls-marker` 已越过：限定Internal标准流/tag兼容策略复用真实guest libc导出，移除了假8字节对象和全库alias；`_malloc_init`通过既有Call执行且可取消，六模块初始化完成。当前入口见`tmnt-libc-close`：sceSysmoduleLoadModule尚未实现。沿当前session图实现provider readiness、引用/加载事务和guest start/cancel，不能直接复用desktop全局模块表里“缺provider也返回成功”的路径；动态TLS/卸载仍须完成live-owner协议。模块ID须由实际调用参数确认。若需要额外系统模块，使用已有/用户合法提供的文件并记录身份，不擅自获取固件或把不可用提供方伪装成成功。
 
 先保存真实模块/import分类清单：模块及Build ID/hash、NID、library/version/module、函数或对象/TLS、重定位位置、guest export/HLE/data-policy/未实现分类。结合具体 crossing 的context/thread/generation/invocation/operation/guest RIP确定实现顺序；映射过不等于调用过，所有UNSUPPORTED_IMPORT清单不等于全部运行失败。先做成族的基础服务，再沿最早确证失败推进，避免每个NID一份交接。
 

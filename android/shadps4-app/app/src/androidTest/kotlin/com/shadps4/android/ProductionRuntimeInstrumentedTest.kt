@@ -47,14 +47,17 @@ class ProductionRuntimeInstrumentedTest {
         }
         var previous = observedGeneration()
         try {
-            val scenarios = listOf("self", "wait", "fixture", "wait", "fixture", "wait", "bad", "fixture", "unknown", "fixture", "init-wait", "fixture")
+            val scenarios = listOf("bootstrap", "bootstrap-wait", "services", "self", "wait", "fixture", "wait", "fixture", "wait", "bad", "fixture", "unknown", "fixture", "init-wait", "fixture", "services")
             scenarios.forEachIndexed { round, scenario ->
-                val cancel = scenario == "wait" || scenario == "init-wait"
+                val cancel = scenario == "wait" || scenario == "init-wait" || scenario == "bootstrap-wait"
                 val fault = scenario == "bad" || scenario == "unknown"
                 val entryAsset = if (scenario == "init-wait") "fixture.elf" else "$scenario.elf"
-                val dependencyAsset = if (scenario == "init-wait") "dependency-wait.elf" else "fixture_dependency.sprx"
+                val bootstrap = scenario.startsWith("bootstrap")
+                val dependencyAsset = if (bootstrap) (if (cancel) "libc-wait.elf" else "libc.elf")
+                    else if (scenario == "init-wait") "dependency-wait.elf" else "fixture_dependency.sprx"
+                val dependencyPath = if (bootstrap) "modules/libc.prx" else "modules/fixture_dependency.sprx"
                 instrumentation.context.assets.open(dependencyAsset).use { input ->
-                    File(root, "modules/fixture_dependency.sprx").outputStream().use { input.copyTo(it) }
+                    File(root, dependencyPath).outputStream().use { input.copyTo(it) }
                 }
                 instrumentation.context.assets.open(entryAsset).use { input ->
                     File(root, "eboot.bin").outputStream().use { input.copyTo(it) }
@@ -62,8 +65,8 @@ class ProductionRuntimeInstrumentedTest {
                 InstallManifestIo.write(root, InstallManifest(status = InstallManifestIo.STATUS_INSTALLED,
                     gameId = "runtime-synthetic", contentId = null, mode = "synthetic-elf-test",
                     sourceUri = "generated:test", installedAtMs = System.currentTimeMillis(),
-                    requiredFiles = listOf("eboot.bin", "modules/fixture_dependency.sprx"),
-                    bytesTotal = File(root, "eboot.bin").length() + File(root, "modules/fixture_dependency.sprx").length()))
+                    requiredFiles = listOf("eboot.bin", dependencyPath),
+                    bytesTotal = File(root, "eboot.bin").length() + File(root, dependencyPath).length()))
                 context.startService(Intent(context, FexSessionService::class.java)
                     .setAction(ManagedSession.ACTION_START)
                     .putExtra(ManagedSession.EXTRA_GAME_ID, "runtime-synthetic")

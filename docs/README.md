@@ -1,5 +1,7 @@
 # Android / FEX 开发资料索引
 
+**最新直接修复（2026-09-13）：[guest libc 启动、时间/mutex/cond/TSD 与真机验证](validation/android-native-host/libc-runtime-repair-2026-09-13.md)。** 修复漏调_malloc_init和getspecific误绑，真实六模块初始化完成；普通APK16代、CLI10组×3、services43/0、FEX242/0。TMNT当前是具名sysmodule缺口，尚无游戏画面/Swan验收；继续同一份[TMNT整版spec](specs/android-native-host-tmnt-after-runtime.md)，不再重做已接通部分。
+
 **最新（2026-09-13）：[生产运行时复核、修复与 APK 验证](validation/android-native-host/wp1-mechanism-review-2026-09-13.md) → [交给 Opus4.8 的 TMNT 整版 spec](specs/android-native-host-tmnt-after-runtime.md)。** 生产 Module/Linker/VM、guest线程/TLS、HleScope/可取消回调已在本轮接通，普通APK12代通过；下一步补游戏必需Orbis HLE、Turnip和平台服务，推进真实游戏。复现用[canonical证据入口](validation/android-native-host/2026-09-13-wp1-review/README.md)。
 
 下列“最新/当前”均是对应日期的历史记录；旧“未接输入/仍SDL/CPU smoke only/缺生产运行时”状态由上述入口取代，勿据此重复实施。

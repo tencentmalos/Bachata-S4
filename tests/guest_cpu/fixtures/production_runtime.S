@@ -17,7 +17,11 @@ dependency_wait:
     call qword ptr [rip + got_sleep]
     jmp dependency_wait
 #endif
+#ifdef BOOTSTRAP_LIBC
+    cmp qword ptr fs:[-128], 0x567a
+#else
     cmp qword ptr fs:[-128], 0x5678
+#endif
     jne dependency_bad
     inc qword ptr fs:[-128]
     xor eax, eax
@@ -25,6 +29,26 @@ dependency_wait:
 dependency_bad:
     mov eax, -1
     ret
+#ifdef BOOTSTRAP_LIBC
+    .org 0x180
+malloc_init:
+#ifdef WAIT_FOREVER
+    sub rsp,8
+malloc_wait:
+    mov edi,500000
+    call qword ptr [rip+got_sleep]
+    jmp malloc_wait
+#endif
+    cmp qword ptr fs:[-128],0x5678
+    jne dependency_bad
+    inc qword ptr fs:[-128]
+    xor eax,eax
+    ret
+    .org 0x200
+mutex_enable:
+    inc qword ptr fs:[-128]
+    ret
+#endif
 #else
     mov r12, rsi
     sub rsp, 8
@@ -57,7 +81,11 @@ wait_loop:
 #ifdef EXPECT_DEPENDENCY
     lea rdi, [rip + dependency_tls_index]
     call qword ptr [rip + got_tls]
+#ifdef BOOTSTRAP_LIBC
+    cmp qword ptr [rax], 0x567b
+#else
     cmp qword ptr [rax], 0x5679
+#endif
     jne failed
 #endif
     call qword ptr [rip + got_errno]

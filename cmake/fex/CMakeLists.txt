@@ -113,6 +113,12 @@ if(V0_BUILD_TESTS)
     target_link_libraries(session_lifecycle_tests PRIVATE guest_cpu_api Threads::Threads)
     target_compile_definitions(session_lifecycle_tests PRIVATE SESSION_TEST_HOOKS=1)
 
+    add_executable(guest_services_tests
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/host_runtime/guest_services_tests.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../src/common/native_clock.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../src/common/rdtsc.cpp")
+    target_link_libraries(guest_services_tests PRIVATE guest_cpu_api Threads::Threads)
+
     # Native pad adapter contract. OrbisPadAdapter is the native consumer of Android
     # controller input; it reuses the real Libraries::Pad::OrbisPadData layout and
     # depends only on that header + the C++ stdlib (no FEX, no SDL, no guest_cpu), so

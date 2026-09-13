@@ -203,15 +203,20 @@ val runtimeFixtureAssets = layout.buildDirectory.dir("generated/productionRuntim
 android.sourceSets.getByName("androidTest").assets.srcDir(runtimeFixtureAssets)
 val fixtureRepo = rootProject.projectDir.resolve("../..")
 val fixtureNdk = android.sdkDirectory.resolve("ndk/29.0.14206865")
-val runtimeFixtureTasks = listOf("fixture", "self", "wait", "dependency", "dependency-wait", "bad", "unknown").map { kind ->
+val runtimeFixtureTasks = listOf("bootstrap", "bootstrap-wait", "libc", "libc-wait", "services", "fixture", "self", "wait", "dependency", "dependency-wait", "bad", "unknown").map { kind ->
     tasks.register<Exec>("generate${kind.replaceFirstChar { it.uppercase() }}RuntimeElf") {
         inputs.file(fixtureRepo.resolve("scripts/android/generate-production-runtime-fixture"))
         inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/production_runtime.S"))
+        inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/runtime_services.S"))
         val output = runtimeFixtureAssets.get().file(if (kind == "dependency") "fixture_dependency.sprx" else "$kind.elf").asFile
         outputs.file(output)
         commandLine(listOf("python3", fixtureRepo.resolve("scripts/android/generate-production-runtime-fixture").absolutePath,
             "--ndk", fixtureNdk.absolutePath, "--out", output.absolutePath) +
             when (kind) {
+                "bootstrap", "bootstrap-wait" -> listOf("--with-dependency", "--libc")
+                "libc" -> listOf("--module", "--libc")
+                "libc-wait" -> listOf("--module", "--libc", "--wait")
+                "services" -> listOf("--services")
                 "self" -> listOf("--self", "--with-dependency")
                 "wait" -> listOf("--wait")
                 "dependency" -> listOf("--module")

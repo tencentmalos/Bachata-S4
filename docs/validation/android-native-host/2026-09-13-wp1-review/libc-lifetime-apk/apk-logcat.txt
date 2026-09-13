@@ -1,0 +1,279 @@
+--------- beginning of main
+09-13 15:45:40.434 26313 26313 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+09-13 15:45:40.436 26313 26313 I AndroidRuntime: Using default boot image
+09-13 15:45:40.436 26313 26313 I AndroidRuntime: Leaving lock profiling enabled
+09-13 15:45:40.499 26313 26313 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+09-13 15:45:41.161 26349 26423 I ProductionRuntime: prepare: reserve guest VA
+09-13 15:45:41.162 26349 26423 I ProductionRuntime: prepare: create FEX context
+09-13 15:45:41.162 26349 26423 I ProductionRuntime: prepare: create production VM/Linker
+09-13 15:45:41.264 26349 26423 I ProductionRuntime: prepare: load/relocate modules
+09-13 15:45:41.265 26349 26423 I ProductionRuntime: prepare: ready
+09-13 15:45:41.265 26349 26423 I ProductionRuntime: run: enter production guest
+09-13 15:45:41.266 26349 26423 I ProductionHLE: enter op=4 rip=180000c00d
+09-13 15:45:41.266 26349 26423 I ProductionHLE: leave op=4 rax=1000210000
+09-13 15:45:41.266 26349 26423 I ProductionHLE: enter op=9 rip=180002000d
+09-13 15:45:41.266 26349 26423 I ProductionHLE: leave op=9 rax=1000213fc8
+09-13 15:45:41.266 26349 26423 I ProductionHLE: enter op=8 rip=180001c00d
+09-13 15:45:41.266 26349 26423 I ProductionHLE: leave op=8 rax=ffffffffffffffff
+09-13 15:45:41.266 26349 26423 I ProductionHLE: enter op=9 rip=180002000d
+09-13 15:45:41.266 26349 26423 I ProductionHLE: leave op=9 rax=1000213fc8
+09-13 15:45:41.266 26349 26423 I ProductionHLE: enter op=1 rip=180000000d
+09-13 15:45:41.266 26349 26423 I ProductionHLE: leave op=1 rax=0
+09-13 15:45:41.267 26349 26430 I ProductionHLE: enter op=9 rip=180002000d
+09-13 15:45:41.267 26349 26430 I ProductionHLE: leave op=9 rax=100041ffc8
+09-13 15:45:41.267 26349 26423 I ProductionHLE: enter op=5 rip=180001000d
+09-13 15:45:41.267 26349 26423 I ProductionHLE: leave op=5 rax=0
+09-13 15:45:41.267 26349 26423 I ProductionHLE: enter op=6 rip=180001400d
+09-13 15:45:41.267 26349 26423 I ProductionHLE: leave op=6 rax=0
+09-13 15:45:41.267 26349 26423 I ProductionHLE: enter op=7 rip=180001800d
+09-13 15:45:41.267 26349 26423 I ProductionHLE: leave op=7 rax=0
+09-13 15:45:41.267 26349 26423 I ProductionHLE: enter op=2 rip=180000400d
+09-13 15:45:41.267 26349 26423 I ProductionHLE: leave op=2 rax=0
+09-13 15:45:41.267 26349 26423 I ProductionHLE: enter op=9 rip=180002000d
+09-13 15:45:41.267 26349 26423 I ProductionHLE: leave op=9 rax=1000213fc8
+09-13 15:45:41.267 26349 26423 I ProductionHLE: enter op=3 rip=180000800d
+09-13 15:45:41.267 26349 26423 I ProductionHLE: enter op=4 rip=180000c00d
+09-13 15:45:41.267 26349 26423 I ProductionHLE: leave op=4 rax=1000210040
+09-13 15:45:41.267 26349 26423 I ProductionHLE: enter op=5 rip=180001000d
+09-13 15:45:41.268 26349 26423 I ProductionHLE: leave op=5 rax=0
+09-13 15:45:41.268 26349 26423 I ProductionHLE: enter op=6 rip=180001400d
+09-13 15:45:41.268 26349 26423 I ProductionHLE: leave op=6 rax=0
+09-13 15:45:41.268 26349 26423 I ProductionHLE: enter op=7 rip=180001800d
+09-13 15:45:41.268 26349 26423 I ProductionHLE: leave op=7 rax=0
+09-13 15:45:41.268 26349 26423 I ProductionHLE: leave op=3 rax=0
+09-13 15:45:41.268 26349 26423 I ProductionRuntime: run: guest returned to host
+09-13 15:45:41.273 26349 26384 I ProductionRuntimeAcceptance: round=1 gen=1 outcome=0 page_size=4096 pid=26349 uid=10157 guest return=51966
+09-13 15:45:41.273 26349 26384 I ProductionRuntimeAcceptance: production Linker/VM; owners=2 veneers=9 modules=2
+09-13 15:45:41.278 26349 26432 I ProductionRuntime: prepare: reserve guest VA
+09-13 15:45:41.278 26349 26432 I ProductionRuntime: prepare: create FEX context
+09-13 15:45:41.278 26349 26432 I ProductionRuntime: prepare: create production VM/Linker
+09-13 15:45:41.379 26349 26432 I ProductionRuntime: prepare: load/relocate modules
+09-13 15:45:41.380 26349 26432 I ProductionRuntime: prepare: ready
+09-13 15:45:41.380 26349 26432 I ProductionRuntime: run: enter production guest
+09-13 15:45:41.381 26349 26432 I ProductionHLE: enter op=8 rip=180001c00d
+09-13 15:45:41.382 26349 26432 I ProductionHLE: leave op=8 rax=ffffffffffffffff
+09-13 15:45:41.382 26349 26432 I ProductionRuntime: run: guest returned to host
+09-13 15:45:41.388 26349 26384 I ProductionRuntimeAcceptance: round=2 gen=2 outcome=1 page_size=4096 pid=26349 uid=10157 guest return=0
+09-13 15:45:41.388 26349 26384 I ProductionRuntimeAcceptance: production Linker/VM; owners=1 veneers=9 modules=2
+09-13 15:45:41.391 26349 26436 I ProductionRuntime: prepare: reserve guest VA
+09-13 15:45:41.391 26349 26436 I ProductionRuntime: prepare: create FEX context
+09-13 15:45:41.391 26349 26436 I ProductionRuntime: prepare: create production VM/Linker
+09-13 15:45:41.493 26349 26436 I ProductionRuntime: prepare: load/relocate modules
+09-13 15:45:41.494 26349 26436 I ProductionRuntime: prepare: ready
+09-13 15:45:41.494 26349 26436 I ProductionRuntime: run: enter production guest
+09-13 15:45:41.494 26349 26436 I ProductionHLE: enter op=1 rip=180000000d
+09-13 15:45:41.494 26349 26436 I ProductionHLE: leave op=1 rax=0
+09-13 15:45:41.494 26349 26436 I ProductionHLE: enter op=1 rip=180000000d
+09-13 15:45:41.494 26349 26436 I ProductionHLE: leave op=1 rax=ffffffffffffffff
+09-13 15:45:41.494 26349 26436 I ProductionHLE: enter op=3 rip=180000800d
+09-13 15:45:41.494 26349 26436 I ProductionHLE: leave op=3 rax=1000207fc8
+09-13 15:45:41.494 26349 26436 I ProductionHLE: enter op=2 rip=180000400d
+09-13 15:45:41.494 26349 26436 I ProductionHLE: leave op=2 rax=8002000e
+09-13 15:45:41.494 26349 26436 I ProductionHLE: enter op=4 rip=180000c00d
+09-13 15:45:41.494 26349 26436 I ProductionHLE: leave op=4 rax=124f800
+09-13 15:45:41.494 26349 26436 I ProductionHLE: enter op=5 rip=180001000d
+09-13 15:45:41.494 26349 26436 I ProductionHLE: leave op=5 rax=72d0
+09-13 15:45:41.494 26349 26436 I ProductionHLE: enter op=5 rip=180001000d
+09-13 15:45:41.494 26349 26436 I ProductionHLE: leave op=5 rax=73ed
+09-13 15:45:41.494 26349 26436 I ProductionHLE: enter op=6 rip=180001400d
+09-13 15:45:41.494 26349 26436 I ProductionHLE: leave op=6 rax=ffffffffffffffff
+09-13 15:45:41.494 26349 26436 I ProductionHLE: enter op=3 rip=180000800d
+09-13 15:45:41.494 26349 26436 I ProductionHLE: leave op=3 rax=1000207fc8
+09-13 15:45:41.494 26349 26436 I ProductionHLE: enter op=7 rip=180001800d
+09-13 15:45:41.494 26349 26436 I ProductionHLE: leave op=7 rax=0
+09-13 15:45:41.494 26349 26436 I ProductionHLE: enter op=8 rip=180001c00d
+09-13 15:45:41.494 26349 26436 I ProductionHLE: leave op=8 rax=0
+09-13 15:45:41.494 26349 26436 I ProductionHLE: enter op=9 rip=180002000d
+09-13 15:45:41.494 26349 26436 I ProductionHLE: leave op=9 rax=0
+09-13 15:45:41.494 26349 26436 I ProductionHLE: enter op=10 rip=180002400d
+09-13 15:45:41.494 26349 26436 I ProductionHLE: leave op=10 rax=0
+09-13 15:45:41.494 26349 26436 I ProductionHLE: enter op=10 rip=180002400d
+09-13 15:45:41.494 26349 26436 I ProductionHLE: leave op=10 rax=0
+09-13 15:45:41.494 26349 26436 I ProductionHLE: enter op=12 rip=180002c00d
+09-13 15:45:41.494 26349 26436 I ProductionHLE: leave op=12 rax=10
+09-13 15:45:41.494 26349 26436 I ProductionHLE: enter op=11 rip=180002800d
+09-13 15:45:41.494 26349 26436 I ProductionHLE: leave op=11 rax=0
+09-13 15:45:41.494 26349 26436 I ProductionHLE: enter op=11 rip=180002800d
+09-13 15:45:41.494 26349 26436 I ProductionHLE: leave op=11 rax=0
+09-13 15:45:41.494 26349 26436 I ProductionHLE: enter op=12 rip=180002c00d
+09-13 15:45:41.494 26349 26436 I ProductionHLE: leave op=12 rax=0
+09-13 15:45:41.494 26349 26436 I ProductionHLE: enter op=10 rip=180002400d
+09-13 15:45:41.494 26349 26436 I ProductionHLE: leave op=10 rax=16
+09-13 15:45:41.494 26349 26436 I ProductionHLE: enter op=13 rip=180003000d
+09-13 15:45:41.494 26349 26436 I ProductionHLE: leave op=13 rax=0
+09-13 15:45:41.495 26349 26436 I ProductionHLE: enter op=15 rip=180003800d
+09-13 15:45:41.495 26349 26436 I ProductionHLE: leave op=15 rax=0
+09-13 15:45:41.495 26349 26436 I ProductionHLE: enter op=16 rip=180003c00d
+09-13 15:45:41.495 26349 26436 I ProductionHLE: leave op=16 rax=123
+09-13 15:45:41.495 26349 26436 I ProductionHLE: enter op=17 rip=180004000d
+09-13 15:45:41.495 26349 26436 I ProductionHLE: leave op=17 rax=0
+09-13 15:45:41.495 26349 26436 I ProductionHLE: enter op=18 rip=180004400d
+09-13 15:45:41.495 26349 26438 I ProductionHLE: enter op=16 rip=180003c00d
+09-13 15:45:41.495 26349 26438 I ProductionHLE: leave op=16 rax=0
+09-13 15:45:41.495 26349 26438 I ProductionHLE: enter op=15 rip=180003800d
+09-13 15:45:41.495 26349 26438 I ProductionHLE: leave op=15 rax=0
+09-13 15:45:41.495 26349 26438 I ProductionHLE: enter op=15 rip=180003800d
+09-13 15:45:41.495 26349 26438 I ProductionHLE: leave op=15 rax=0
+09-13 15:45:41.495 26349 26438 I ProductionHLE: enter op=15 rip=180003800d
+09-13 15:45:41.495 26349 26438 I ProductionHLE: leave op=15 rax=0
+09-13 15:45:41.495 26349 26438 I ProductionHLE: enter op=15 rip=180003800d
+09-13 15:45:41.495 26349 26438 I ProductionHLE: leave op=15 rax=0
+09-13 15:45:41.495 26349 26438 I ProductionHLE: enter op=15 rip=180003800d
+09-13 15:45:41.495 26349 26438 I ProductionHLE: leave op=15 rax=0
+09-13 15:45:41.495 26349 26436 I ProductionHLE: leave op=18 rax=0
+09-13 15:45:41.495 26349 26436 I ProductionHLE: enter op=16 rip=180003c00d
+09-13 15:45:41.495 26349 26436 I ProductionHLE: leave op=16 rax=123
+09-13 15:45:41.495 26349 26436 I ProductionHLE: enter op=14 rip=180003400d
+09-13 15:45:41.495 26349 26436 I ProductionHLE: leave op=14 rax=0
+09-13 15:45:41.495 26349 26436 I ProductionHLE: enter op=16 rip=180003c00d
+09-13 15:45:41.495 26349 26436 I ProductionHLE: leave op=16 rax=0
+09-13 15:45:41.495 26349 26436 I ProductionRuntime: run: guest returned to host
+09-13 15:45:41.501 26349 26384 I ProductionRuntimeAcceptance: round=3 gen=3 outcome=0 page_size=4096 pid=26349 uid=10157 guest return=51966
+09-13 15:45:41.501 26349 26384 I ProductionRuntimeAcceptance: production Linker/VM; owners=2 veneers=18 modules=1
+09-13 15:45:41.505 26349 26439 I ProductionRuntime: prepare: reserve guest VA
+09-13 15:45:41.505 26349 26439 I ProductionRuntime: prepare: create FEX context
+09-13 15:45:41.505 26349 26439 I ProductionRuntime: prepare: create production VM/Linker
+09-13 15:45:41.607 26349 26439 I ProductionRuntime: prepare: load/relocate modules
+09-13 15:45:41.608 26349 26439 I ProductionRuntime: prepare: ready
+09-13 15:45:41.608 26349 26439 I ProductionRuntime: run: enter production guest
+09-13 15:45:41.608 26349 26439 I ProductionHLE: enter op=4 rip=180000c00d
+09-13 15:45:41.608 26349 26439 I ProductionHLE: leave op=4 rax=1000210000
+09-13 15:45:41.608 26349 26439 I ProductionHLE: enter op=9 rip=180002000d
+09-13 15:45:41.608 26349 26439 I ProductionHLE: leave op=9 rax=1000213fc8
+09-13 15:45:41.608 26349 26439 I ProductionHLE: enter op=8 rip=180001c00d
+09-13 15:45:41.608 26349 26439 I ProductionHLE: leave op=8 rax=ffffffffffffffff
+09-13 15:45:41.608 26349 26439 I ProductionHLE: enter op=9 rip=180002000d
+09-13 15:45:41.608 26349 26439 I ProductionHLE: leave op=9 rax=1000213fc8
+09-13 15:45:41.608 26349 26439 I ProductionHLE: enter op=1 rip=180000000d
+09-13 15:45:41.608 26349 26439 I ProductionHLE: leave op=1 rax=0
+09-13 15:45:41.608 26349 26441 I ProductionHLE: enter op=9 rip=180002000d
+09-13 15:45:41.608 26349 26441 I ProductionHLE: leave op=9 rax=100041ffc8
+09-13 15:45:41.609 26349 26439 I ProductionHLE: enter op=5 rip=180001000d
+09-13 15:45:41.609 26349 26439 I ProductionHLE: leave op=5 rax=0
+09-13 15:45:41.609 26349 26439 I ProductionHLE: enter op=6 rip=180001400d
+09-13 15:45:41.609 26349 26439 I ProductionHLE: leave op=6 rax=0
+09-13 15:45:41.609 26349 26439 I ProductionHLE: enter op=7 rip=180001800d
+09-13 15:45:41.609 26349 26439 I ProductionHLE: leave op=7 rax=0
+09-13 15:45:41.609 26349 26439 I ProductionHLE: enter op=2 rip=180000400d
+09-13 15:45:41.609 26349 26439 I ProductionHLE: leave op=2 rax=0
+09-13 15:45:41.609 26349 26439 I ProductionHLE: enter op=9 rip=180002000d
+09-13 15:45:41.609 26349 26439 I ProductionHLE: leave op=9 rax=1000213fc8
+09-13 15:45:41.609 26349 26439 I ProductionHLE: enter op=3 rip=180000800d
+09-13 15:45:41.609 26349 26439 I ProductionHLE: enter op=4 rip=180000c00d
+09-13 15:45:41.609 26349 26439 I ProductionHLE: leave op=4 rax=1000210040
+09-13 15:45:41.609 26349 26439 I ProductionHLE: enter op=5 rip=180001000d
+09-13 15:45:41.609 26349 26439 I ProductionHLE: leave op=5 rax=0
+09-13 15:45:41.610 26349 26439 I ProductionHLE: leave op=3 rax=0
+09-13 15:45:41.610 26349 26439 I ProductionRuntime: run: guest returned to host
+09-13 15:45:41.615 26349 26384 I ProductionRuntimeAcceptance: round=4 gen=4 outcome=0 page_size=4096 pid=26349 uid=10157 guest return=51966
+09-13 15:45:41.615 26349 26384 I ProductionRuntimeAcceptance: production Linker/VM; owners=2 veneers=9 modules=2
+09-13 15:45:41.619 26349 26442 I ProductionRuntime: prepare: reserve guest VA
+09-13 15:45:41.619 26349 26442 I ProductionRuntime: prepare: create FEX context
+09-13 15:45:41.620 26349 26442 I ProductionRuntime: prepare: create production VM/Linker
+09-13 15:45:41.721 26349 26442 I ProductionRuntime: prepare: load/relocate modules
+09-13 15:45:41.722 26349 26442 I ProductionRuntime: prepare: ready
+09-13 15:45:41.722 26349 26442 I ProductionRuntime: run: enter production guest
+09-13 15:45:41.724 26349 26442 I ProductionRuntime: run: guest returned to host
+09-13 15:45:41.729 26349 26384 I ProductionRuntimeAcceptance: round=5 gen=5 outcome=1 page_size=4096 pid=26349 uid=10157 guest return=18446744073709551615
+09-13 15:45:41.729 26349 26384 I ProductionRuntimeAcceptance: production Linker/VM; owners=1 veneers=9 modules=1
+09-13 15:45:41.733 26349 26445 I ProductionRuntime: prepare: reserve guest VA
+09-13 15:45:41.733 26349 26445 I ProductionRuntime: prepare: create FEX context
+09-13 15:45:41.734 26349 26445 I ProductionRuntime: prepare: create production VM/Linker
+09-13 15:45:41.835 26349 26445 I ProductionRuntime: prepare: load/relocate modules
+09-13 15:45:41.836 26349 26445 I ProductionRuntime: prepare: ready
+09-13 15:45:41.837 26349 26445 I ProductionRuntime: run: enter production guest
+09-13 15:45:41.838 26349 26445 I ProductionRuntime: run: guest returned to host
+09-13 15:45:41.844 26349 26384 I ProductionRuntimeAcceptance: round=6 gen=6 outcome=0 page_size=4096 pid=26349 uid=10157 guest return=51966
+09-13 15:45:41.844 26349 26384 I ProductionRuntimeAcceptance: production Linker/VM; owners=2 veneers=9 modules=2
+09-13 15:45:41.849 26349 26450 I ProductionRuntime: prepare: reserve guest VA
+09-13 15:45:41.849 26349 26450 I ProductionRuntime: prepare: create FEX context
+09-13 15:45:41.849 26349 26450 I ProductionRuntime: prepare: create production VM/Linker
+09-13 15:45:41.951 26349 26450 I ProductionRuntime: prepare: load/relocate modules
+09-13 15:45:41.951 26349 26450 I ProductionRuntime: prepare: ready
+09-13 15:45:41.951 26349 26450 I ProductionRuntime: run: enter production guest
+09-13 15:45:41.954 26349 26450 I ProductionRuntime: run: guest returned to host
+09-13 15:45:41.960 26349 26384 I ProductionRuntimeAcceptance: round=7 gen=7 outcome=1 page_size=4096 pid=26349 uid=10157 guest return=18446744073709551615
+09-13 15:45:41.960 26349 26384 I ProductionRuntimeAcceptance: production Linker/VM; owners=1 veneers=9 modules=1
+09-13 15:45:41.963 26349 26453 I ProductionRuntime: prepare: reserve guest VA
+09-13 15:45:41.963 26349 26453 I ProductionRuntime: prepare: create FEX context
+09-13 15:45:41.964 26349 26453 I ProductionRuntime: prepare: create production VM/Linker
+09-13 15:45:42.065 26349 26453 I ProductionRuntime: prepare: load/relocate modules
+09-13 15:45:42.066 26349 26453 I ProductionRuntime: prepare: ready
+09-13 15:45:42.066 26349 26453 I ProductionRuntime: run: enter production guest
+09-13 15:45:42.068 26349 26453 I ProductionRuntime: run: guest returned to host
+09-13 15:45:42.074 26349 26384 I ProductionRuntimeAcceptance: round=8 gen=8 outcome=0 page_size=4096 pid=26349 uid=10157 guest return=51966
+09-13 15:45:42.074 26349 26384 I ProductionRuntimeAcceptance: production Linker/VM; owners=2 veneers=9 modules=2
+09-13 15:45:42.078 26349 26456 I ProductionRuntime: prepare: reserve guest VA
+09-13 15:45:42.078 26349 26456 I ProductionRuntime: prepare: create FEX context
+09-13 15:45:42.079 26349 26456 I ProductionRuntime: prepare: create production VM/Linker
+09-13 15:45:42.180 26349 26456 I ProductionRuntime: prepare: load/relocate modules
+09-13 15:45:42.181 26349 26456 I ProductionRuntime: prepare: ready
+09-13 15:45:42.181 26349 26456 I ProductionRuntime: run: enter production guest
+09-13 15:45:42.183 26349 26456 I ProductionRuntime: run: guest returned to host
+09-13 15:45:42.189 26349 26384 I ProductionRuntimeAcceptance: round=9 gen=9 outcome=1 page_size=4096 pid=26349 uid=10157 guest return=18446744073709551615
+09-13 15:45:42.189 26349 26384 I ProductionRuntimeAcceptance: production Linker/VM; owners=1 veneers=9 modules=1
+09-13 15:45:42.193 26349 26459 I ProductionRuntime: prepare: reserve guest VA
+09-13 15:45:42.193 26349 26459 I ProductionRuntime: prepare: create FEX context
+09-13 15:45:42.194 26349 26459 I ProductionRuntime: prepare: create production VM/Linker
+09-13 15:45:42.296 26349 26459 I ProductionRuntime: prepare: load/relocate modules
+09-13 15:45:42.297 26349 26459 I ProductionRuntime: prepare: ready
+09-13 15:45:42.297 26349 26459 I ProductionRuntime: run: enter production guest
+09-13 15:45:42.298 26349 26459 I ProductionRuntime: run: guest returned to host
+09-13 15:45:42.304 26349 26384 I ProductionRuntimeAcceptance: round=10 gen=10 outcome=2 page_size=4096 pid=26349 uid=10157 guest return=1 guest_rip=103079215117 operation=1 import=OxhIB8LB-PQ#libkernel#1#libkernel#Function context=24 thread=1 generation=25 invocation=2 category=14
+09-13 15:45:42.304 26349 26384 I ProductionRuntimeAcceptance: production Linker/VM; owners=1 veneers=9 modules=2
+09-13 15:45:42.309 26349 26462 I ProductionRuntime: prepare: reserve guest VA
+09-13 15:45:42.309 26349 26462 I ProductionRuntime: prepare: create FEX context
+09-13 15:45:42.309 26349 26462 I ProductionRuntime: prepare: create production VM/Linker
+09-13 15:45:42.411 26349 26462 I ProductionRuntime: prepare: load/relocate modules
+09-13 15:45:42.412 26349 26462 I ProductionRuntime: prepare: ready
+09-13 15:45:42.412 26349 26462 I ProductionRuntime: run: enter production guest
+09-13 15:45:42.414 26349 26462 I ProductionRuntime: run: guest returned to host
+09-13 15:45:42.420 26349 26384 I ProductionRuntimeAcceptance: round=11 gen=11 outcome=0 page_size=4096 pid=26349 uid=10157 guest return=51966
+09-13 15:45:42.420 26349 26384 I ProductionRuntimeAcceptance: production Linker/VM; owners=2 veneers=9 modules=2
+09-13 15:45:42.424 26349 26465 I ProductionRuntime: prepare: reserve guest VA
+09-13 15:45:42.424 26349 26465 I ProductionRuntime: prepare: create FEX context
+09-13 15:45:42.425 26349 26465 I ProductionRuntime: prepare: create production VM/Linker
+09-13 15:45:42.526 26349 26465 I ProductionRuntime: prepare: load/relocate modules
+09-13 15:45:42.528 26349 26465 I ProductionRuntime: prepare: ready
+09-13 15:45:42.528 26349 26465 I ProductionRuntime: run: enter production guest
+09-13 15:45:42.528 26349 26465 I ProductionRuntime: run: guest returned to host
+09-13 15:45:42.534 26349 26384 I ProductionRuntimeAcceptance: round=12 gen=12 outcome=2 page_size=4096 pid=26349 uid=10157 guest return=1 guest_rip=103079215117 operation=1 import=UnknownRunt#libkernel#1#libkernel#Function context=29 thread=1 generation=30 invocation=2 category=10
+09-13 15:45:42.534 26349 26384 I ProductionRuntimeAcceptance: production Linker/VM; owners=1 veneers=10
+09-13 15:45:42.534 26349 26384 I ProductionRuntimeAcceptance: UNSUPPORTED_IMPORT UnknownRunt#libkernel#1#libkernel#Function modules=2
+09-13 15:45:42.538 26349 26468 I ProductionRuntime: prepare: reserve guest VA
+09-13 15:45:42.538 26349 26468 I ProductionRuntime: prepare: create FEX context
+09-13 15:45:42.539 26349 26468 I ProductionRuntime: prepare: create production VM/Linker
+09-13 15:45:42.640 26349 26468 I ProductionRuntime: prepare: load/relocate modules
+09-13 15:45:42.642 26349 26468 I ProductionRuntime: prepare: ready
+09-13 15:45:42.642 26349 26468 I ProductionRuntime: run: enter production guest
+09-13 15:45:42.644 26349 26468 I ProductionRuntime: run: guest returned to host
+09-13 15:45:42.650 26349 26384 I ProductionRuntimeAcceptance: round=13 gen=13 outcome=0 page_size=4096 pid=26349 uid=10157 guest return=51966
+09-13 15:45:42.650 26349 26384 I ProductionRuntimeAcceptance: production Linker/VM; owners=2 veneers=9 modules=2
+09-13 15:45:42.654 26349 26471 I ProductionRuntime: prepare: reserve guest VA
+09-13 15:45:42.654 26349 26471 I ProductionRuntime: prepare: create FEX context
+09-13 15:45:42.655 26349 26471 I ProductionRuntime: prepare: create production VM/Linker
+09-13 15:45:42.756 26349 26471 I ProductionRuntime: prepare: load/relocate modules
+09-13 15:45:42.757 26349 26471 I ProductionRuntime: prepare: ready
+09-13 15:45:42.757 26349 26471 I ProductionRuntime: run: enter production guest
+09-13 15:45:42.760 26349 26471 I ProductionRuntime: run: guest returned to host
+09-13 15:45:42.765 26349 26384 I ProductionRuntimeAcceptance: round=14 gen=14 outcome=1 page_size=4096 pid=26349 uid=10157 guest return=0
+09-13 15:45:42.765 26349 26384 I ProductionRuntimeAcceptance: production Linker/VM; owners=1 veneers=9 modules=2
+09-13 15:45:42.769 26349 26477 I ProductionRuntime: prepare: reserve guest VA
+09-13 15:45:42.769 26349 26477 I ProductionRuntime: prepare: create FEX context
+09-13 15:45:42.770 26349 26477 I ProductionRuntime: prepare: create production VM/Linker
+09-13 15:45:42.871 26349 26477 I ProductionRuntime: prepare: load/relocate modules
+09-13 15:45:42.873 26349 26477 I ProductionRuntime: prepare: ready
+09-13 15:45:42.873 26349 26477 I ProductionRuntime: run: enter production guest
+09-13 15:45:42.876 26349 26477 I ProductionRuntime: run: guest returned to host
+09-13 15:45:42.882 26349 26384 I ProductionRuntimeAcceptance: round=15 gen=15 outcome=0 page_size=4096 pid=26349 uid=10157 guest return=51966
+09-13 15:45:42.882 26349 26384 I ProductionRuntimeAcceptance: production Linker/VM; owners=2 veneers=9 modules=2
+09-13 15:45:42.888 26349 26480 I ProductionRuntime: prepare: reserve guest VA
+09-13 15:45:42.888 26349 26480 I ProductionRuntime: prepare: create FEX context
+09-13 15:45:42.888 26349 26480 I ProductionRuntime: prepare: create production VM/Linker
+09-13 15:45:42.990 26349 26480 I ProductionRuntime: prepare: load/relocate modules
+09-13 15:45:42.991 26349 26480 I ProductionRuntime: prepare: ready
+09-13 15:45:42.991 26349 26480 I ProductionRuntime: run: enter production guest
+09-13 15:45:42.993 26349 26480 I ProductionRuntime: run: guest returned to host
+09-13 15:45:42.998 26349 26384 I ProductionRuntimeAcceptance: round=16 gen=16 outcome=0 page_size=4096 pid=26349 uid=10157 guest return=51966
+09-13 15:45:42.998 26349 26384 I ProductionRuntimeAcceptance: production Linker/VM; owners=2 veneers=18 modules=1
+09-13 15:45:43.624 26313 26313 I AndroidRuntime: VM exiting with result code 0.

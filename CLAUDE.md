@@ -6,11 +6,13 @@
 
 ## 当前交接（2026-09-13）
 
+最新先读[libc 启动与服务直接修复](docs/validation/android-native-host/libc-runtime-repair-2026-09-13.md)：本轮已修 `_malloc_init` 顺序、错误 getspecific NID、session clock/errno、mutex/cond/TSD、heap/VM 启动族及通知后 cond 销毁竞态。最终 AYN services43/0、guest242/0、CLI10组×3、普通APK16代同PID；保留d499219e+dirty身份。真实选取内容已完成六模块DT_INIT，具名停在sceSysmoduleLoadModule，仍非可玩/Swan验收。不能重复原先“clock_gettime已正确、0x445c5f是精确fault RIP、两libc是同一库”的结论。继续下列整版spec，session sysmodule/provider与平台服务仍需实接；不要再从基础运行时或libc bootstrap重做。
+
 先读[本轮运行时复核与修复](docs/validation/android-native-host/wp1-mechanism-review-2026-09-13.md)，然后连续执行[TMNT整版spec](docs/specs/android-native-host-tmnt-after-runtime.md)。用户明确要求生产 Linker、VM、线程/TLS、可取消HLE回调由当前复核轮完成，**这部分已经实现，不再交给下一位从头接线**。
 
 生产 `GuestRuntime` 通过 `FexSessionBackend`、JNI 和普通 Service 执行 ELF/SELF；Module/Linker/VM/backing、guest pthread/TLS/errno/stack guard、HleScope/两层InvokeGuest/WaitingHle取消都已组成运行时。AYN/API33/4KiB：guest242/0、contract46/46、ABI14/0、registry13/0、veneer19/0；普通APK12个同PID generation覆盖双模块DT_INIT/TLS、子线程运行期间VM、正常/取消/坏指针/未知import/初始化取消及恢复。host dlopen+85/0、macOS现代LLVM contract45+1SKIP/46、Session807/0。原始证据保留07ce52ae+dirty身份；不能把它们说成TMNT已可玩或Swan已验。
 
-下一阶段扩真实游戏的Orbis函数族和guest libc启动，集成Turnip/Surface/AAudio/FEX-origin pad/内容版本事务，最后UI本体+更新、交互场景、十分钟、Stop、同进程三轮游戏。连续推进两个工作包，不在每个NID/库/首帧处重新交回微型规划。
+下一阶段扩真实游戏的Orbis函数族与session sysmodule/provider，集成Turnip/Surface/AAudio/FEX-origin pad/内容版本事务，最后UI本体+更新、交互场景、十分钟、Stop、同进程三轮游戏。已完成的guest libc启动直接复用，连续推进两个工作包，不在每个NID/库/首帧处重新交回微型规划。
 
 ## 必须保留
 

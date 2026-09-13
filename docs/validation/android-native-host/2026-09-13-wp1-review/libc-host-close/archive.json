@@ -1,0 +1,7 @@
+{
+  "kind": "bounded archive; full original ELF log kept locally",
+  "original_elf_log_sha256": "462da39ea62ea157d04c042fcc8e89f554feb8de9b5be4a9956fb0d146973c74",
+  "original_source_manifest": "runs/1789285412639629000/source.json",
+  "source_manifest_archive": "source.json",
+  "source_manifest_sha256": "d98f7d73aaa8cddceee7fd43aa8c715bc20f869887c8434809887f3ad3e849c4"
+}

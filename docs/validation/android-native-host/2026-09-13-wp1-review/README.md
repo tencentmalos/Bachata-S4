@@ -4,8 +4,15 @@
 
 ## 最新入口
 
+新增[libc/runtime直接修复](../libc-runtime-repair-2026-09-13.md)，证据基点为d499219e+dirty；下表此前07ce52ae系列保留。最终采用`libc-lifetime-apk`，普通APK16代同PID26349/UID10157、CLI10组×3；`libc-lifetime-cpu`服务43/0、`libc-final-cpu`FEX242/0。`libc-host-close`归档正式构建，`tmnt-libc-close`记录真实六模块初始化后sysmodule缺口；不是游戏成功。`libc-apk-close`是修复cond销毁竞态前的16代成功，`services-first`的APK为NOT_RUN。
+
 | 证据 | 口径 |
 |---|---|
+| [libc-lifetime-apk](libc-lifetime-apk/manifest.json) | 最终10组CLI×3、普通APK16代；加入_malloc_init/互斥初始化顺序、初始化中取消、时间/mutex/TSD/非对齐原子与恢复 |
+| [libc-lifetime-cpu](libc-lifetime-cpu/device-result.json) | 服务43/0，包括通知后重新加锁期间cond销毁排他 |
+| [libc-final-cpu](libc-final-cpu/device-result.json) | 本轮FEX242/0；当时服务41/0，之后增加两项生命周期检查 |
+| [libc-host-close](libc-host-close/result.json) | HOST_LINK_PASS；原始source_manifest路径相对当时build目录，归档位置见archive.json/source.json |
+| [tmnt-libc-close](tmnt-libc-close/manifest.json) | 真实选取内容六模块DT_INIT完成，sceSysmoduleLoadModule具名Faulted，非零退出 |
 | [canonical-runtime-close](canonical-runtime-close/manifest.json) | 7组CLI×3轮；1个普通APK测试、12代同PID；ELF/SELF、模块、guest stack guard、TLS/errno/线程/VM/once、取消/坏指针/未知import/初始化取消/恢复 |
 | [host-accepted-runtime](host-accepted-runtime/result.json) | 单独host dlopen及85 checks/0；不等于游戏，产物身份见自身manifest |
 | [warm-entry-pass](warm-entry-pass/device-result.json) | 实际FEX guest242/0，含确定热循环后取消G47 |
@@ -45,7 +52,7 @@ scripts/android/validate-production-runtime-android \
   --test-apk android/shadps4-app/app/build/outputs/apk/androidTest/playstore/debug/app-playstore-debug-androidTest.apk
 ```
 
-最后一步构建独立production runner（V0_BUILD_TESTS=OFF）、从源码生成fixture、比对部署SHA、检查7组每组3个唯一终止行及退出码。APK检查JUnit成功、12代唯一ID及同PID/UID，源host与strip后host Build ID相同；adb exit0本身不能通过。`--out`必须新目录，保留失败；runner在唯一shell目录运行，超时由设备timeout KILL，清理只涉及该次目录。测试失败时结束本次instrumentation的目标app。
+最后一步构建独立production runner（V0_BUILD_TESTS=OFF）、从源码生成fixture、比对部署SHA、检查10组每组3个唯一终止行及退出码。APK检查JUnit成功、16代唯一ID及同PID/UID，源host与strip后host Build ID相同；adb exit0本身不能通过。`--out`必须新目录，保留失败；runner在唯一shell目录运行，超时由设备timeout KILL，清理只涉及该次目录。测试失败时结束本次instrumentation的目标app。
 
 CPU回归仍从cmake/fex的独立test构建（V0_BUILD_TESTS=ON）运行，不能把这些hooks带进APK。最新记录的device runner参数/部署SHA在各manifest；portable-modern使用Homebrew LLVM和其libc++，`-fexperimental-library`。旧AppleClang缺stop_token的失败保留在portable/，不当作NDK构建阻塞。
 

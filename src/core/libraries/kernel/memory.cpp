@@ -22,6 +22,12 @@ namespace Libraries::Kernel {
 static s32 g_sdk_version = -1;
 static bool g_alias_dmem = false;
 
+static s32 CurrentSdkVersion() {
+    const auto* memory = Core::Memory::Instance();
+    return memory->IsGuestBackend() ? static_cast<s32>(Common::ElfInfo::Instance().CompiledSdkVer())
+                                   : g_sdk_version;
+}
+
 u64 PS4_SYSV_ABI sceKernelGetDirectMemorySize() {
     LOG_TRACE(Kernel_Vmm, "called");
     const auto* memory = Core::Memory::Instance();
@@ -172,7 +178,7 @@ s32 PS4_SYSV_ABI sceKernelReserveVirtualRange(void** addr, u64 len, s32 flags, u
     auto map_flags = static_cast<Core::MemoryMapFlags>(flags);
 
     if (True(map_flags & Core::MemoryMapFlags::Fixed) && in_addr == 0) {
-        if (Common::ElfInfo::FW_170 <= g_sdk_version) {
+        if (Common::ElfInfo::FW_170 <= CurrentSdkVersion()) {
             return ORBIS_KERNEL_ERROR_EINVAL;
         }
         map_flags &= ~Core::MemoryMapFlags::Fixed;
@@ -226,14 +232,14 @@ s32 PS4_SYSV_ABI sceKernelMapNamedDirectMemory(void** addr, u64 len, s32 prot, s
 
     auto* memory = Core::Memory::Instance();
     bool should_check = false;
-    if (g_sdk_version >= Common::ElfInfo::FW_250 &&
+    if (CurrentSdkVersion() >= Common::ElfInfo::FW_250 &&
         False(map_flags & Core::MemoryMapFlags::Stack)) {
         // Under these conditions, this would normally redirect to sceKernelMapDirectMemory2.
-        should_check = !g_alias_dmem;
+        should_check = memory->IsGuestBackend() || !g_alias_dmem;
     }
 
     if (True(map_flags & Core::MemoryMapFlags::Fixed) && in_addr == 0) {
-        if (Common::ElfInfo::FW_170 <= g_sdk_version) {
+        if (Common::ElfInfo::FW_170 <= CurrentSdkVersion()) {
             return ORBIS_KERNEL_ERROR_EINVAL;
         }
         map_flags &= ~Core::MemoryMapFlags::Fixed;
@@ -326,7 +332,7 @@ s32 PS4_SYSV_ABI sceKernelMapNamedFlexibleMemory(void** addr_in_out, u64 len, s3
     auto* memory = Core::Memory::Instance();
 
     if (True(map_flags & Core::MemoryMapFlags::Fixed) && in_addr == 0) {
-        if (Common::ElfInfo::FW_170 <= g_sdk_version) {
+        if (Common::ElfInfo::FW_170 <= CurrentSdkVersion()) {
             return ORBIS_KERNEL_ERROR_EINVAL;
         }
         map_flags &= ~Core::MemoryMapFlags::Fixed;
@@ -359,7 +365,7 @@ s32 PS4_SYSV_ABI sceKernelMapNamedSystemFlexibleMemory(void** addr_in_out, u64 l
     auto map_flags = static_cast<Core::MemoryMapFlags>(flags);
     VAddr in_addr = reinterpret_cast<VAddr>(*addr_in_out);
     if (True(map_flags & Core::MemoryMapFlags::Fixed) && in_addr == 0) {
-        if (Common::ElfInfo::FW_170 <= g_sdk_version) {
+        if (Common::ElfInfo::FW_170 <= CurrentSdkVersion()) {
             return ORBIS_KERNEL_ERROR_EINVAL;
         }
         map_flags &= ~Core::MemoryMapFlags::Fixed;

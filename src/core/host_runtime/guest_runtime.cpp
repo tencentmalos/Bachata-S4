@@ -13,11 +13,13 @@
 #include "common/alignment.h"
 #include "common/elf_info.h"
 #include "common/singleton.h"
+#include "core/aerolib/aerolib.h"
 #include "core/file_format/psf.h"
 #include "core/file_sys/fs.h"
-#include "core/aerolib/aerolib.h"
 #include "core/guest_cpu/hle/scope.h"
 #include "core/guest_cpu/hle/veneer_allocator.h"
+#include "core/host_runtime/guest_clock.h"
+#include "core/host_runtime/guest_mutex.h"
 #include "core/host_runtime/guest_runtime.h"
 #include "core/libraries/kernel/memory.h"
 #include "core/libraries/kernel/orbis_error.h"
@@ -90,6 +92,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     CpuContext& cpu;
     GuestAddressSpace& space;
     HleCallRegistry& registry;
+    GuestClock clock;
+    std::unique_ptr<GuestMutexDomain> mutex_domain;
     int backing_fd{-1};
     u8* backing{};
     static constexpr u64 BackingSize = 12ULL << 30;
@@ -105,20 +109,27 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     std::unique_ptr<Common::Singleton<FileSys::MntPoints>::Binding> mount_binding;
     std::map<std::string, u64> veneers;
     std::map<u64, std::string> operation_names;
-    u64 stack_guard{}, progname_object{}, environ_object{};
-    // Orbis libc dependency-marker objects (Need_sceLibc / Need_sceLibcInternal).
-    // A game imports one 8-byte object per libc it depends on to force load
-    // ordering; the object is never dereferenced as meaningful data. Each gets one
-    // owned read-only zero word so a stray read is defined rather than a null GOT.
-    std::map<std::string, u64> libc_marker_objects;
+    u64 stack_guard{}, progname_object{}, environ_object{}, heap_trace{};
+    // Guest PCs copied from the libc heap table. Never install them in the
+    // desktop Linker's native function-pointer HeapAPI.
+    std::array<u64, sizeof(HeapAPI) / sizeof(u64)> guest_heap_api{};
     std::string program_name;
     std::map<std::string, std::function<Status(HleCallFrame&)>> handlers;
     std::vector<std::string> refused;
     std::atomic<bool> cancelling{};
     mutable std::mutex threads_mutex;
     std::condition_variable threads_changed;
+    struct SpecificValue {
+        u64 sequence{}, value{};
+    };
+    struct SpecificKey {
+        bool allocated{};
+        u64 sequence{}, destructor{};
+    };
+    std::array<SpecificKey, 256> specific_keys{};
     struct Owner {
         u64 id{}, stack{}, stack_size{}, tls{}, tls_size{}, tcb{}, dtv{}, handle_va{};
+        std::array<SpecificValue, 256> specific{};
         ThreadHandle handle{};
         std::thread worker;
         std::optional<GuestCallResult> result;
@@ -214,27 +225,37 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
                     return object;
                 }
                 if (symbol.name != "f7uOxY9mM1U#libkernel#1#libkernel#Object") {
-                    // Orbis libc dependency markers (Need_sceLibc / Need_sceLibcInternal). Every SCE
-                    // executable imports one 8-byte object per libc it links, purely to force that
-                    // module into the dependency graph; the desktop linker resolves them to a null
-                    // address because the game never dereferences them. On the guest backend a null
-                    // GOT slot could fault if the guest ever loaded through it, so give each marker
-                    // one owned read-only zero word -- a defined, guest-owned object with known size
-                    // and lifetime, not a host pointer and not a raw zero address.
-                    const auto* nid = AeroLib::FindByNid(symbol.nid_name.c_str());
-                    const std::string_view marker = nid ? nid->name : std::string_view{};
-                    if (marker == "Need_sceLibc" || marker == "Need_sceLibcInternal") {
-                        auto& object = libc_marker_objects[symbol.name];
-                        if (!object) {
-                            VmGuard vm(*this);
-                            const auto address = Allocate(0x4000, "GuestLibcMarker");
-                            const u64 zero{};
-                            std::memcpy(reinterpret_cast<void*>(address), &zero, sizeof(zero));
-                            if (memory->Protect(address, 0x4000, MemoryProt::CpuRead))
-                                throw std::runtime_error("libc marker publication failed");
-                            object = address;
+                    // A deliberately narrow guest-libc compatibility policy. The
+                    // game libc and libSceLibcInternal are distinct libraries; do
+                    // not alias arbitrary functions or other libraries by NID.
+                    // Reuse real guest-owned stream objects and the libc's real
+                    // 4-byte dependency tag instead of fabricated zero objects.
+                    const auto suffix = "#libSceLibcInternal#1#libSceLibcInternal#Object";
+                    const auto nid = symbol.name.substr(0, symbol.name.find('#'));
+                    const auto* known = AeroLib::FindByNid(nid.c_str());
+                    const bool standard_stream =
+                        known && (std::string_view(known->name) == "_Stdin" ||
+                                  std::string_view(known->name) == "_Stdout" ||
+                                  std::string_view(known->name) == "_Stderr");
+                    if (symbol.name.substr(nid.size()) == suffix &&
+                        (standard_stream || nid == "ZT4ODD2Ts9o")) {
+                        Loader::SymbolResolver lookup;
+                        lookup.name = nid == "ZT4ODD2Ts9o" ? "P330P3dFF68" : nid;
+                        lookup.library = "libc";
+                        lookup.module = "libc";
+                        lookup.library_version = 1;
+                        lookup.type = Loader::SymbolType::Object;
+                        const Loader::SymbolRecord* provider{};
+                        for (u32 id = 0; auto* m = linker->GetModule(id); ++id) {
+                            if (const auto* candidate = m->export_sym.FindSymbol(lookup)) {
+                                if (provider)
+                                    throw std::runtime_error(
+                                        "ambiguous guest libc object provider");
+                                provider = candidate;
+                            }
                         }
-                        return object;
+                        if (provider)
+                            return provider->virtual_address;
                     }
                     throw std::runtime_error("unimplemented guest data policy: " + symbol.name);
                 }
@@ -444,6 +465,45 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         threads_changed.notify_all();
     }
     void Finish(const std::shared_ptr<Owner>& o) {
+        // Guest destructors run through the same callback gate, without the key
+        // lock or a guest pin. Values are cleared before invocation; a destructor
+        // may repopulate them, up to the Orbis four-pass bound.
+        if (o->result && o->result->reason == StopReason::Returned && !cancelling) {
+            bool stopped{};
+            for (unsigned pass = 0; pass < 4 && !stopped; ++pass) {
+                for (size_t i = 0; i < specific_keys.size(); ++i) {
+                    u64 value{}, destructor{};
+                    {
+                        std::lock_guard lock(threads_mutex);
+                        auto& slot = o->specific[i];
+                        const auto& key = specific_keys[i];
+                        if (key.allocated && key.sequence == slot.sequence) {
+                            value = slot.value;
+                            destructor = key.destructor;
+                        }
+                        slot.value = 0;
+                    }
+                    if (!value || !destructor)
+                        continue;
+                    GuestCallArgs args;
+                    args.count = 1;
+                    args.values[0] = value;
+                    auto result = Call(destructor, args);
+                    if (!result) {
+                        o->error = result.GetError();
+                        stopped = true;
+                    } else if (result.Value().reason != StopReason::Returned) {
+                        o->result = result.Value();
+                        stopped = true;
+                    }
+                    if (stopped) {
+                        (void)Cancel();
+                        break;
+                    }
+                }
+            }
+        }
+
         if (o->handle.IsValid())
             Require(cpu.DestroyThread(o->handle));
         SetTcbBase(nullptr);
@@ -481,7 +541,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         if (auto it = handlers.find(nid);
             it != handlers.end() &&
             (symbol.name.substr(nid.size()) == "#libkernel#1#libkernel#Function" ||
-             symbol.name.substr(nid.size()) == "#libScePosix#1#libkernel#Function"))
+             symbol.name.substr(nid.size()) == "#libScePosix#1#libkernel#Function" ||
+             symbol.name == "NWtTN10cJzE#libSceLibcInternalExt#1#libSceLibcInternal#Function"))
             adapter = std::make_shared<FunctionAdapter>(it->second);
         else {
             // No unspecialized raw pointers, host stubs, or scalar functions with
@@ -551,82 +612,226 @@ void GuestRuntime::Impl::InstallHandlers() {
                 return Ok();
             };
     };
+    mutex_domain = std::make_unique<GuestMutexDomain>(space, [this] {
+        VmGuard vm(*this);
+        return Allocate(0x4000, "GuestMutex");
+    });
+    bind({"dQHWEsJtoE4", "n2MMpvU8igI", "F8bUHwAG284"},
+         [this](const auto& a) { return mutex_domain->AttributeInit(a[0]); });
+    bind({"HF7lK46xzjY", "smWEktiyyG0"},
+         [this](const auto& a) { return mutex_domain->Attribute(a[0], 0, 0); });
+    bind({"mDmgMOGVUqg", "J9rlRuQ8H5s", "iMp8QpE+XO4", "UWZbVSFze24"},
+         [this](const auto& a) { return mutex_domain->Attribute(a[0], a[1], 1); });
+    bind({"GZFlI7RhuQo", "U6SNV+RnyLQ", "gquEhBrS2iw", "rH2mWEndluc"},
+         [this](const auto& a) { return mutex_domain->Attribute(a[0], a[1], 2); });
+    bind({"ttHNfU+qDBU", "cmo1RIYva9o", "qH1gXoq71RY"},
+         [this](const auto& a) { return mutex_domain->Init(a[0], a[1]); });
+    bind({"7H0iTOciTLo", "9UK1vLZQft4"}, [this](const auto& a) {
+        return mutex_domain->Lock(a[0], Current()->handle_va, false,
+                                  HleScope::Current()->CancellationToken());
+    });
+    bind({"K-jXhbt2gn4", "upoVrzMHFeE"}, [this](const auto& a) {
+        return mutex_domain->Lock(a[0], Current()->handle_va, true,
+                                  HleScope::Current()->CancellationToken());
+    });
+    bind({"2Z+PpY6CaJg", "tn3VlD0hG60"},
+         [this](const auto& a) { return mutex_domain->Unlock(a[0], Current()->handle_va); });
+    bind({"ltCfaGr2JGE", "2Of0f+3mhhE"},
+         [this](const auto& a) { return mutex_domain->Destroy(a[0]); });
+    bind({"gKqzW-zWhvY", "W6OrTBO95UY"},
+         [this](const auto& a) { return mutex_domain->IsOwned(a[0], Current()->handle_va); });
+    bind({"mkx2fVhNMsg", "JGgj7Uvrl+A"},
+         [this](const auto& a) { return mutex_domain->CondNotify(a[0], true); });
+    bind({"2MOy+rUfuhQ", "kDh-NfxgMtE"},
+         [this](const auto& a) { return mutex_domain->CondNotify(a[0], false); });
+    bind({"0TyVk4MSLt0", "2Tb92quprl0"},
+         [this](const auto& a) { return mutex_domain->CondInit(a[0], a[1]); });
+    bind({"RXXqi4CtF8w", "g+PZd2hiacg"},
+         [this](const auto& a) { return mutex_domain->CondDestroy(a[0]); });
+    bind({"Op8TBGY5KHg", "WKAXJ4XBPQ4"}, [this](const auto& a) {
+        return mutex_domain->CondWait(a[0], a[1], Current()->handle_va,
+                                      HleScope::Current()->CancellationToken());
+    });
+    bind({"mqULNdimTn0", "geDaqgH9lTg"}, [this](const auto& a) -> u64 {
+        if (!space.ValidateRange({GuestAddress{a[0]}, 4}, GuestPermission::Write))
+            return POSIX_EFAULT;
+        if (a[1] && !space.ValidateRange({GuestAddress{a[1]}, 1}, GuestPermission::Execute))
+            return POSIX_EINVAL;
+        std::lock_guard lock(threads_mutex);
+        for (u32 i = 0; i < specific_keys.size(); ++i) {
+            auto& key = specific_keys[i];
+            if (key.allocated || key.sequence == UINT64_MAX)
+                continue;
+            Write(a[0], i);
+            key.allocated = true;
+            ++key.sequence;
+            key.destructor = a[1];
+            return 0;
+        }
+        return POSIX_EAGAIN;
+    });
+    bind({"6BpEZuDT7YI", "PrdHuuDekhY"}, [this](const auto& a) -> u64 {
+        std::lock_guard lock(threads_mutex);
+        if (a[0] >= specific_keys.size() || !specific_keys[a[0]].allocated)
+            return POSIX_EINVAL;
+        specific_keys[a[0]].allocated = false;
+        return 0;
+    });
+    bind({"0-KXaS70xy4", "eoht7mQOCmo"}, [this](const auto& a) -> u64 {
+        auto owner = Current();
+        std::lock_guard lock(threads_mutex);
+        if (a[0] >= specific_keys.size())
+            return 0;
+        const auto& key = specific_keys[a[0]];
+        const auto& value = owner->specific[a[0]];
+        return key.allocated && value.sequence == key.sequence ? value.value : 0;
+    });
+    bind({"WrOLvHU0yQM", "+BzXYkqYeLE"}, [this](const auto& a) -> u64 {
+        auto owner = Current();
+        std::lock_guard lock(threads_mutex);
+        if (a[0] >= specific_keys.size() || !specific_keys[a[0]].allocated)
+            return POSIX_EINVAL;
+        owner->specific[a[0]] = {specific_keys[a[0]].sequence, a[1]};
+        return 0;
+    });
     bind({"9BcDykPmo1I"}, [this](const auto&) -> u64 { return ErrnoAddress(); });
+    // No guest AddressSanitizer runtime or shadow mapping in this profile.
+    bind({"jh+8XiK4LeE"}, [](const auto&) -> u64 { return 0; });
+    // Match the emulator's virtual process identity (GLOBAL_PID), not Android PID.
+    bind({"HoLVWNanBBc"}, [](const auto&) -> u64 { return 0xBAD1; });
+    bind({"3PtV6p3QNX4"}, [](const auto& a) -> u64 { return a[0] == a[1]; });
+    bind({"EI-5-jlq2dE"}, [this](const auto&) -> u64 { return Current()->id; });
+    bind({"959qrazPIrg"},
+         [this](const auto&) -> u64 { return reinterpret_cast<u64>(linker->GetProcParam()); });
+    bind({"NWtTN10cJzE"}, [this](const auto& a) -> u64 {
+        struct TraceInfo {
+            u64 size;
+            u32 flags, get_segment_info;
+            u64 mask, table;
+        };
+        auto info = Read<TraceInfo>(a[0]);
+        if (info.size < sizeof(info))
+            throw std::runtime_error("invalid guest heap trace info size");
+        Require(space.ValidateRange({GuestAddress{a[0]}, sizeof(info)}, GuestPermission::Write));
+        u64 trace;
+        {
+            VmGuard vm(*this);
+            if (!heap_trace)
+                heap_trace = Allocate(0x4000, "GuestHeapTrace");
+            trace = heap_trace;
+        }
+        info.get_segment_info = 0;
+        info.mask = trace;
+        info.table = trace + sizeof(u64); // 64 guest mstate pointers, initially zero.
+        Write(a[0], info);
+        return 0;
+    });
+    bind({"p5EcQeEeJAE"}, [this](const auto& a) -> u64 {
+        const auto table = Read<decltype(guest_heap_api)>(a[0]);
+        for (auto entry : table)
+            if (entry)
+                Require(space.ValidateRange({GuestAddress{entry}, 1}, GuestPermission::Execute));
+        std::lock_guard lock(threads_mutex);
+        guest_heap_api = table;
+        return 0;
+    });
     bind({"QcteRwbsnV0"}, [this](const auto& a) -> u64 {
         if (a[0] >= 1'000'000)
             return PosixFailure(POSIX_EINVAL);
         auto* scope = HleScope::Current();
         return scope->WaitFor(std::chrono::microseconds(a[0])) ? 0 : PosixFailure(POSIX_EINTR);
     });
-    // Time family. The real Orbis implementations only read the clock and fill an
-    // output struct, so call them against a host-local struct and copy the result
-    // into validated guest memory rather than handing a guest pointer to native
-    // code. clock_gettime/getres take (clock_id, timespec*); gettimeofday takes
-    // (timeval*, timezone*); the sceKernel* variants share the same shapes. A null
-    // or unwritable output pointer is a guest fault, not a silent success.
+    // Marshal without calling the desktop wrappers: those mutate native
+    // pthread errno and depend on RegisterTime's process-global clock.
     {
-        namespace Kernel = Libraries::Kernel;
-        auto write_timespec = [this](u64 clock_id, u64 ptr,
-                                     s32 (*fn)(u32, Kernel::OrbisKernelTimespec*)) -> u64 {
-            if (ptr == 0)
-                return PosixFailure(POSIX_EFAULT);
-            Require(space.ValidateRange({GuestAddress{ptr}, sizeof(Kernel::OrbisKernelTimespec)},
-                                        GuestPermission::Write));
-            Kernel::OrbisKernelTimespec ts{};
-            const s32 result = fn(static_cast<u32>(clock_id), &ts);
-            if (result == 0)
-                Write(ptr, ts);
-            return static_cast<u32>(result);
+        using Ts = Libraries::Kernel::OrbisKernelTimespec;
+        auto clock_call = [this](const auto& a, bool resolution, bool sce) -> u64 {
+            int error{};
+            Ts value{};
+            if ((!a[1] && !resolution) ||
+                (a[1] &&
+                 !space.ValidateRange({GuestAddress{a[1]}, sizeof(Ts)}, GuestPermission::Write)))
+                error = POSIX_EFAULT;
+            else
+                error = clock.Read(static_cast<u32>(a[0]), value, resolution);
+            if (!error && a[1])
+                Write(a[1], value);
+            if (!error)
+                return 0;
+            return sce ? u64(0x80020000u | error) : PosixFailure(error);
         };
-        // posix_clock_gettime: return -1 + errno on failure.
-        bind({"lLMT9vJAck0", "0-KXaS70xy4"}, [this, write_timespec](const auto& a) -> u64 {
-            return write_timespec(a[0], a[1], &Kernel::posix_clock_gettime);
-        });
-        // sceKernelClockGettime: SCE error convention (0 / negative Sce code).
-        bind({"QBi7HCK03hw"}, [this](const auto& a) -> u64 {
-            if (a[1] == 0)
-                return static_cast<u32>(ORBIS_KERNEL_ERROR_EFAULT);
-            Require(space.ValidateRange({GuestAddress{a[1]}, sizeof(Kernel::OrbisKernelTimespec)},
-                                        GuestPermission::Write));
-            Kernel::OrbisKernelTimespec ts{};
-            const s32 result = Kernel::sceKernelClockGettime(static_cast<u32>(a[0]), &ts);
-            if (result == 0)
-                Write(a[1], ts);
-            return static_cast<u32>(result);
-        });
-        // Pure scalar clock reads: no guest pointer.
-        bind({"4J2sUJmuHZQ"},
-             [](const auto&) -> u64 { return Kernel::sceKernelGetProcessTime(); });
+        bind({"lLMT9vJAck0"}, [clock_call](const auto& a) { return clock_call(a, false, false); });
+        bind({"smIj7eqzZE8"}, [clock_call](const auto& a) { return clock_call(a, true, false); });
+        bind({"QBi7HCK03hw"}, [clock_call](const auto& a) { return clock_call(a, false, true); });
+        bind({"wRYVA5Zolso"}, [clock_call](const auto& a) { return clock_call(a, true, true); });
+        bind({"4J2sUJmuHZQ"}, [this](const auto&) { return clock.ticks.GetTimeUS(clock.origin); });
         bind({"fgxnMeTNUtY"},
-             [](const auto&) -> u64 { return Kernel::sceKernelGetProcessTimeCounter(); });
-        bind({"-2IRUCO--PM"}, [](const auto&) -> u64 { return Kernel::sceKernelReadTsc(); });
-        bind({"1j3S3n-tTW4"},
-             [](const auto&) -> u64 { return Kernel::sceKernelGetTscFrequency(); });
-        // nanosleep(rqtp, rmtp): read the request from guest memory, wait through
-        // the cancellable HLE scope, write back remaining time when interrupted.
-        bind({"NhpspxdjEKU", "yS8U2TGCe1A"}, [this](const auto& a) -> u64 {
-            if (a[0] == 0)
-                return PosixFailure(POSIX_EFAULT);
-            Require(space.ValidateRange({GuestAddress{a[0]}, sizeof(Kernel::OrbisKernelTimespec)},
-                                        GuestPermission::Read));
-            const auto req = Read<Kernel::OrbisKernelTimespec>(a[0]);
-            if (req.tv_sec < 0 || req.tv_nsec < 0 || req.tv_nsec >= 1'000'000'000)
-                return PosixFailure(POSIX_EINVAL);
-            const auto total = std::chrono::seconds{req.tv_sec} +
-                               std::chrono::nanoseconds{req.tv_nsec};
-            const bool completed = HleScope::Current()->WaitFor(total);
-            if (!completed) {
-                if (a[1]) {
-                    Require(space.ValidateRange(
-                        {GuestAddress{a[1]}, sizeof(Kernel::OrbisKernelTimespec)},
-                        GuestPermission::Write));
-                    Write(a[1], Kernel::OrbisKernelTimespec{});
+             [this](const auto&) { return clock.ticks.GetUptime() - clock.origin; });
+        bind({"-2IRUCO--PM"}, [this](const auto&) { return clock.ticks.GetUptime(); });
+        bind({"1j3S3n-tTW4", "BNowx2l588E"},
+             [this](const auto&) { return clock.ticks.GetTscFrequency(); });
+        auto nanosleep = [this](const auto& a, bool sce) -> u64 {
+            auto fail = [&](int error) {
+                return sce ? u64(0x80020000u | error) : PosixFailure(error);
+            };
+            if (!space.ValidateRange({GuestAddress{a[0]}, sizeof(Ts)}, GuestPermission::Read) ||
+                (a[1] &&
+                 !space.ValidateRange({GuestAddress{a[1]}, sizeof(Ts)}, GuestPermission::Write)))
+                return fail(POSIX_EFAULT);
+            const auto request = Read<Ts>(a[0]);
+            std::chrono::nanoseconds total;
+            if (!GuestClock::Duration(request, total))
+                return fail(POSIX_EINVAL);
+            const auto start = std::chrono::steady_clock::now();
+            // Chunking also prevents steady_clock deadline addition overflow.
+            auto remaining = total;
+            while (remaining.count() > 0) {
+                const auto slice =
+                    std::min(remaining, std::chrono::nanoseconds(std::chrono::seconds(1)));
+                if (!HleScope::Current()->WaitFor(slice)) {
+                    remaining =
+                        std::max(std::chrono::nanoseconds::zero(),
+                                 total - std::chrono::duration_cast<std::chrono::nanoseconds>(
+                                             std::chrono::steady_clock::now() - start));
+                    if (a[1])
+                        Write(a[1],
+                              Ts{remaining.count() / 1000000000, remaining.count() % 1000000000});
+                    return fail(POSIX_EINTR);
                 }
-                return PosixFailure(POSIX_EINTR);
+                remaining = std::max(std::chrono::nanoseconds::zero(),
+                                     total - std::chrono::duration_cast<std::chrono::nanoseconds>(
+                                                 std::chrono::steady_clock::now() - start));
             }
             return 0;
-        });
+        };
+        bind({"NhpspxdjEKU", "yS8U2TGCe1A"},
+             [nanosleep](const auto& a) { return nanosleep(a, false); });
+        bind({"QvsZxomvUHs"}, [nanosleep](const auto& a) { return nanosleep(a, true); });
     }
+    auto gettimeofday = [this](const auto& a, bool sce) -> u64 {
+        using Tv = Libraries::Kernel::OrbisKernelTimeval;
+        using Tz = Libraries::Kernel::OrbisKernelTimezone;
+        auto fail = [&](int error) { return sce ? u64(0x80020000u | error) : PosixFailure(error); };
+        if ((a[0] &&
+             !space.ValidateRange({GuestAddress{a[0]}, sizeof(Tv)}, GuestPermission::Write)) ||
+            (a[1] &&
+             !space.ValidateRange({GuestAddress{a[1]}, sizeof(Tz)}, GuestPermission::Write)))
+            return fail(POSIX_EFAULT);
+        Libraries::Kernel::OrbisKernelTimespec ts{};
+        if (int error = clock.Read(Libraries::Kernel::ORBIS_CLOCK_REALTIME, ts, false))
+            return fail(error);
+        if (a[0])
+            Write(a[0], Tv{ts.tv_sec, ts.tv_nsec / 1000});
+        if (a[1])
+            Write(a[1], Tz{}); // Current guest session timezone profile is UTC.
+        return 0;
+    };
+    bind({"n88vx3C5nW8"}, [gettimeofday](const auto& a) { return gettimeofday(a, false); });
+    bind({"ejekcaNQNq0"}, [gettimeofday](const auto& a) {
+        auto args = a;
+        args[1] = 0;
+        return gettimeofday(args, true);
+    });
     bind({"FJrT5LuUBAU", "3kg7rT0NQIs"}, [](const auto& a) -> u64 {
         HleScope::Current()->ExitThread(a[0]);
         return a[0];
@@ -640,6 +845,69 @@ void GuestRuntime::Impl::InstallHandlers() {
         auto index = Read<Index>(a[0]);
         return TlsAddress(index.module, index.offset);
     });
+    bind({"pO96TwzOm5E"}, [this](const auto&) { return memory->GetTotalDirectSize(); });
+    bind({"aNz11fnnzi4"}, [this](const auto& a) -> u64 {
+        if (!space.ValidateRange({GuestAddress{a[0]}, 8}, GuestPermission::Write))
+            return ORBIS_KERNEL_ERROR_EFAULT;
+        Write(a[0], memory->GetAvailableFlexibleSize());
+        return 0;
+    });
+    bind({"n1-v6FgU7MQ"}, [this](const auto& a) -> u64 {
+        if (!space.ValidateRange({GuestAddress{a[0]}, 8}, GuestPermission::Write))
+            return ORBIS_KERNEL_ERROR_EFAULT;
+        Write(a[0], memory->GetTotalFlexibleSize());
+        return 0;
+    });
+    bind({"rTXw65xmLIA"}, [this](const auto& a) -> u64 {
+        if (!space.ValidateRange({GuestAddress{a[5]}, 8}, GuestPermission::Write))
+            return ORBIS_KERNEL_ERROR_EFAULT;
+        s64 physical{};
+        s32 result;
+        {
+            VmGuard vm(*this);
+            result = Libraries::Kernel::sceKernelAllocateDirectMemory(a[0], a[1], a[2], a[3], a[4],
+                                                                      &physical);
+        }
+        if (!result)
+            Write(a[5], physical);
+        return static_cast<u32>(result);
+    });
+    bind({"L-Q3LEjIbgA"}, [this](const auto& a) -> u64 {
+        if (!space.ValidateRange({GuestAddress{a[0]}, 8}, GuestPermission::Write))
+            return ORBIS_KERNEL_ERROR_EFAULT;
+        auto address = reinterpret_cast<void*>(Read<u64>(a[0]));
+        s32 result;
+        {
+            VmGuard vm(*this);
+            result =
+                Libraries::Kernel::sceKernelMapDirectMemory(&address, a[1], a[2], a[3], a[4], a[5]);
+        }
+        if (!result)
+            Write(a[0], reinterpret_cast<u64>(address));
+        return static_cast<u32>(result);
+    });
+    handlers["NcaWUxfMNIQ"] = [this](HleCallFrame& frame) {
+        CallCursor cursor(frame);
+        std::array<u64, 7> a{};
+        for (auto& value : a)
+            value = Require(cursor.NextInteger());
+        if (!space.ValidateRange({GuestAddress{a[0]}, 8}, GuestPermission::Write)) {
+            frame.registers.Set(Gpr::Rax, ORBIS_KERNEL_ERROR_EFAULT);
+            return Ok();
+        }
+        auto name = String(a[6], 33);
+        auto address = reinterpret_cast<void*>(Read<u64>(a[0]));
+        s32 result;
+        {
+            VmGuard vm(*this);
+            result = Libraries::Kernel::sceKernelMapNamedDirectMemory(&address, a[1], a[2], a[3],
+                                                                      a[4], a[5], name.c_str());
+        }
+        if (!result)
+            Write(a[0], reinterpret_cast<u64>(address));
+        frame.registers.Set(Gpr::Rax, static_cast<u32>(result));
+        return Ok();
+    };
     bind({"mL8NDH86iQI"}, [this](const auto& a) -> u64 {
         Require(space.ValidateRange({GuestAddress{a[0]}, sizeof(u64)}, GuestPermission::Write));
         auto address = Read<u64>(a[0]);
@@ -806,7 +1074,12 @@ void GuestRuntime::Impl::InstallHandlers() {
         Write(a[0], u32{1});
         return 0;
     });
-    for (const char* nid : {"6UgtwV+0zb4", "onNY9Byn-W8", "4qGrR6eoP9Y", "14bOACANTBo"}) {
+    for (const char* nid :
+         {"6UgtwV+0zb4", "onNY9Byn-W8", "4qGrR6eoP9Y", "14bOACANTBo", "n2MMpvU8igI",
+          "F8bUHwAG284", "smWEktiyyG0", "iMp8QpE+XO4", "UWZbVSFze24", "gquEhBrS2iw",
+          "rH2mWEndluc", "cmo1RIYva9o", "qH1gXoq71RY", "9UK1vLZQft4", "upoVrzMHFeE",
+          "tn3VlD0hG60", "2Of0f+3mhhE", "JGgj7Uvrl+A", "kDh-NfxgMtE", "2Tb92quprl0",
+          "g+PZd2hiacg", "WKAXJ4XBPQ4", "geDaqgH9lTg", "PrdHuuDekhY", "+BzXYkqYeLE"}) {
         auto posix = handlers.at(nid);
         handlers[nid] = [posix](HleCallFrame& frame) {
             auto status = posix(frame);
@@ -928,10 +1201,30 @@ Result<GuestCallResult> GuestRuntime::Run(const std::vector<std::string>& args) 
     auto owner = impl->NewOwner();
     try {
         impl->Attach(owner, module->GetEntryAddress());
+        // libkernel initializes each guest libc allocator before constructors.
+        // DT_INIT alone leaves libc's replaceable malloc table on its bootstrap
+        // implementation. These exports are guest PCs and must go through FEX.
+        for (u32 id = 0; auto* m = impl->linker->GetModule(id); ++id) {
+            if (m->name != "libc.prx" && m->name != "libSceLibcInternal.sprx")
+                continue;
+            if (const auto entry = m->FindByName("_malloc_init")) {
+                auto result = Require(impl->Call(reinterpret_cast<u64>(entry), {}));
+                if (result.reason != StopReason::Returned)
+                    throw GuestCallbackStop{result};
+                if (static_cast<s32>(result.return_value) != 0)
+                    throw std::runtime_error("guest _malloc_init failed: " + m->name);
+            }
+            if (const auto entry = m->FindByName("sceLibcInternalMemoryMutexEnable")) {
+                auto result = Require(impl->Call(reinterpret_cast<u64>(entry), {}));
+                if (result.reason != StopReason::Returned)
+                    throw GuestCallbackStop{result};
+            }
+        }
         for (auto id : impl->init_order) {
             auto* m = impl->linker->GetModule(id);
             if (m->Start(0, nullptr, nullptr) != 0)
                 throw std::runtime_error("module initialization failed: " + m->name);
+            LOG_INFO(Core_Linker, "Guest DT_INIT completed: {}", m->name);
         }
         u64 params_address;
         {
@@ -980,7 +1273,9 @@ Result<GuestCallResult> GuestRuntime::Run(const std::vector<std::string>& args) 
         result.stop_epoch = run.Value().snapshot.stop_epoch;
         owner->result = result;
         impl->Finish(owner);
-        return result;
+        if (owner->error)
+            return *owner->error;
+        return *owner->result;
     } catch (const GuestCallbackStop& stopped) {
         owner->result = stopped.result;
         (void)impl->Cancel();

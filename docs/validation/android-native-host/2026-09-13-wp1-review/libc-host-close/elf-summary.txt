@@ -1,0 +1,13 @@
+  Class:                             ELF64
+  Type:                              DYN (Shared object file)
+  Machine:                           AArch64
+  0x0000000000000001 (NEEDED)          Shared library: [libz.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libm.so]
+  0x0000000000000001 (NEEDED)          Shared library: [liblog.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libdl.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libandroid.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libaaudio.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libc++_shared.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libc.so]
+  0x000000000000000e (SONAME)          Library soname: [libshadps4_host.so]
+    Build ID: 446ec4a0d98923fd62bd03d2796c74a484885cb5

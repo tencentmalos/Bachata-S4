@@ -1,0 +1,135 @@
+{
+  "kind": "offline symbol observations only; no executable bytes",
+  "source": "d499219e + current review changes",
+  "modules": [
+    {
+      "content_path": "eboot.bin",
+      "sha256": "6122da7190de6b08d921b2c42c3ca9ed11dc4d11524f1139ff67aeceea5b204d",
+      "bytes": 31337969,
+      "selected_symbols": [
+        {
+          "index": 338,
+          "name": "P330P3dFF68#R#Q",
+          "info": 17,
+          "shndx": 0,
+          "va": 0,
+          "size": 0,
+          "known": "Need_sceLibc"
+        },
+        {
+          "index": 347,
+          "name": "2sWzhYqFH4E#R#Q",
+          "info": 17,
+          "shndx": 0,
+          "va": 0,
+          "size": 0,
+          "known": "_Stdout"
+        },
+        {
+          "index": 432,
+          "name": "gQX+4GDQjpM#R#Q",
+          "info": 18,
+          "shndx": 0,
+          "va": 0,
+          "size": 0,
+          "known": "malloc"
+        },
+        {
+          "index": 582,
+          "name": "lLMT9vJAck0#O#O",
+          "info": 18,
+          "shndx": 0,
+          "va": 0,
+          "size": 0,
+          "known": "clock_gettime"
+        },
+        {
+          "index": 610,
+          "name": "0-KXaS70xy4#O#O",
+          "info": 18,
+          "shndx": 0,
+          "va": 0,
+          "size": 0,
+          "known": "pthread_getspecific"
+        }
+      ]
+    },
+    {
+      "content_path": "sce_module/libc.prx",
+      "sha256": "e9ff426367f594a22d8122c63199c3350630ac7f46a78e4845cfa16edbea2a38",
+      "bytes": 1374546,
+      "selected_symbols": [
+        {
+          "index": 34,
+          "name": "lLMT9vJAck0#A#B",
+          "info": 18,
+          "shndx": 0,
+          "va": 0,
+          "size": 0,
+          "known": "clock_gettime"
+        },
+        {
+          "index": 111,
+          "name": "P330P3dFF68#E#A",
+          "info": 17,
+          "shndx": 5,
+          "va": 816512,
+          "size": 4,
+          "known": "Need_sceLibc"
+        },
+        {
+          "index": 271,
+          "name": "H8AprKeZtNg#E#A",
+          "info": 17,
+          "shndx": 461,
+          "va": 1193648,
+          "size": 456,
+          "known": "_Stderr"
+        },
+        {
+          "index": 272,
+          "name": "1TDo-ImqkJc#E#A",
+          "info": 17,
+          "shndx": 461,
+          "va": 1192736,
+          "size": 456,
+          "known": "_Stdin"
+        },
+        {
+          "index": 273,
+          "name": "2sWzhYqFH4E#E#A",
+          "info": 17,
+          "shndx": 461,
+          "va": 1193192,
+          "size": 456,
+          "known": "_Stdout"
+        },
+        {
+          "index": 2101,
+          "name": "z8GPiQwaAEY#E#A",
+          "info": 18,
+          "shndx": 3,
+          "va": 162304,
+          "size": 1127,
+          "known": "_malloc_init"
+        },
+        {
+          "index": 2374,
+          "name": "gQX+4GDQjpM#E#A",
+          "info": 18,
+          "shndx": 3,
+          "va": 162128,
+          "size": 12,
+          "known": "malloc"
+        }
+      ]
+    }
+  ],
+  "interpretation": {
+    "old_fault_report": "0x445c5f is guest block attribution, not exact faulting instruction",
+    "eboot_block": "String growth after malloc; code writes a string terminator using the allocation result. Inspection supports uninitialized libc allocation as the startup failure mechanism, not a clock ABI conclusion from temporal proximity.",
+    "libc_initialization": "malloc uses a replaceable function table; _malloc_init initializes allocator state and registers heap callbacks. Production GuestRuntime omitted this call before the review.",
+    "compatibility_policy": "Real libc object exports are reused only for named internal stream/tag imports. This is an explicit compatibility policy, not proof that libc and libSceLibcInternal are identical.",
+    "nid_correction": "0-KXaS70xy4 names pthread_getspecific; it must not be registered as clock_gettime."
+  }
+}

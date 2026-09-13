@@ -1,0 +1,44 @@
+PASS default init
+PASS guest ABI prefix flags
+PASS lock owner
+PASS recursive errorcheck
+PASS foreign unlock
+PASS busy trylock
+PASS owned destroy busy
+PASS waiter actually queued
+PASS cancel lock bounded
+PASS cancel lock result
+PASS owner retained after cancellation
+PASS unlock
+PASS destroy
+PASS stale handle
+PASS attribute init
+PASS recursive type
+PASS recursive init
+PASS recursive lock twice
+PASS recursive unlock twice
+PASS bad attribute type
+PASS attribute destroy
+PASS stale attribute
+PASS condition init
+PASS condition no waiter broadcast
+PASS condition owner lock
+PASS condition releases mutex
+PASS condition destroy busy
+PASS signal
+PASS notified waiter is reacquiring
+PASS condition remains alive during reacquire
+PASS wait must reacquire
+PASS signaller unlock
+PASS condition returned with mutex
+PASS second condition releases
+PASS terminal cancel does not wait for stopped owner
+PASS condition cancelled
+PASS no dangling waiter
+PASS other owner retained
+PASS clock initialized outside desktop registry
+PASS bad clock is errno
+PASS duration overflow rejected
+PASS invalid nanoseconds rejected
+PASS duration zero
+GUEST_SERVICES checks=43 failures=0

@@ -88,20 +88,20 @@ def main():
             timeout=600, log='build.log')
         fixture_dir = args.build_dir / 'fixtures'
         generator = ROOT / 'scripts/android/generate-production-runtime-fixture'
-        scenarios = [('fixture.elf', ['--with-dependency'], 'return'),
+        scenarios = [('libc-main.elf', ['--with-dependency', '--libc'], 'return'), ('libc-wait.elf', ['--with-dependency', '--libc'], 'cancel'), ('services.elf', ['--services'], 'return'), ('fixture.elf', ['--with-dependency'], 'return'),
                      ('self.elf', ['--self', '--with-dependency'], 'return'),
                      ('wait.elf', ['--wait'], 'cancel'),
                      ('bad.elf', ['--with-dependency', '--bad-pointer'], 'fault'),
                      ('unknown.elf', ['--with-dependency', '--unknown-import'], 'fault'),
                      ('init-wait.elf', ['--with-dependency'], 'cancel')]
         for name, flags, _ in scenarios + [('fixture_dependency.sprx', ['--module'], ''),
-                                          ('dependency-wait.sprx', ['--module', '--wait'], '')]:
+                                          ('dependency-wait.sprx', ['--module', '--wait'], ''), ('libc.prx', ['--module', '--libc'], ''), ('libc-wait.prx', ['--module', '--libc', '--wait'], '')]:
             run(['python3', generator, '--ndk', args.ndk, '--out', fixture_dir / name] + flags)
         # A truncated ELF must fail Prepare and allow another context to be constructed.
         (fixture_dir / 'truncated.elf').write_bytes((fixture_dir / 'fixture.elf').read_bytes()[:80])
         scenarios.append(('truncated.elf', [], 'reject'))
         shell('mkdir -p ' + shlex.quote(remote))
-        files = [args.build_dir / 'production_runtime_runner', host, stl] + sorted(fixture_dir.glob('*.elf')) + sorted(fixture_dir.glob('*.sprx'))
+        files = [args.build_dir / 'production_runtime_runner', host, stl] + sorted(fixture_dir.glob('*.elf')) + sorted(fixture_dir.glob('*.sprx')) + sorted(fixture_dir.glob('*.prx'))
         for path in files:
             entry = record(path)
             run(adb + ['push', path, remote + '/' + path.name])
@@ -114,6 +114,11 @@ def main():
             run(adb + ['push', dependency, remote + '/fixture_dependency.sprx'])
             if shell('sha256sum ' + shlex.quote(remote + '/fixture_dependency.sprx')).stdout.split()[0] != digest(dependency):
                 raise RuntimeError('device dependency SHA mismatch')
+            if name.startswith('libc-'):
+                libc = fixture_dir / ('libc-wait.prx' if name == 'libc-wait.elf' else 'libc.prx')
+                run(adb + ['push', libc, remote + '/libc.prx'])
+                if shell('sha256sum ' + shlex.quote(remote + '/libc.prx')).stdout.split()[0] != digest(libc):
+                    raise RuntimeError('device libc SHA mismatch')
             command = f'cd {shlex.quote(remote)} && LD_LIBRARY_PATH={shlex.quote(remote)} timeout -s KILL 30 ./production_runtime_runner {shlex.quote(remote + "/user")} {shlex.quote(remote + "/" + name)} {mode}'
             completed = shell(command, timeout=40, log=name + '.log', check=False)
             marker = f'PRODUCTION_RUNTIME_PASS mode={mode} rounds=3'
@@ -151,9 +156,9 @@ def main():
                          log='apk-logcat.txt').stdout
             rounds = re.findall(r'ProductionRuntimeAcceptance: round=(\d+) gen=(\d+) outcome=(\d+) page_size=4096 pid=(\d+) uid=(\d+)', logcat)
             passed = (completed.returncode == 0 and re.search(r'\bOK \(1 test\)', completed.stdout) is not None
-                      and 'FAILURES!!!' not in completed.stdout and len(rounds) == 12
-                      and [int(r[0]) for r in rounds] == list(range(1, 13))
-                      and len({r[1] for r in rounds}) == 12 and len({(r[3], r[4]) for r in rounds}) == 1
+                      and 'FAILURES!!!' not in completed.stdout and len(rounds) == 16
+                      and [int(r[0]) for r in rounds] == list(range(1, 17))
+                      and len({r[1] for r in rounds}) == 16 and len({(r[3], r[4]) for r in rounds}) == 1
                       and all(int(r[4]) >= 10000 for r in rounds))
             results.append({'case': 'ordinary_apk', 'status': 'PASS' if passed else 'FAIL', 'rounds': rounds})
             if not passed:

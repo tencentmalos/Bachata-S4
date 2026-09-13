@@ -265,26 +265,34 @@ void InterruptFaultHandler(int signal, siginfo_t *info, void *raw_context) {
         uc->uc_mcontext.pc = binding->stop_spill;
         return;
     }
-    // Diagnostic only (does NOT recover): a SIGSEGV whose host PC is inside the JIT
-    // code buffer but is not the interrupt fault page is a guest-side access fault
-    // (e.g. a null dereference during boot). Log the guest block entry and fault
-    // address so it can be attributed to a module/RIP, then fall through to the
-    // previous handler. General guest SIGSEGV-to-clean-fault recovery is a separate
-    // careful change: a mid-instruction fault is not a safe point the way the
-    // block-entry interrupt page is, so spilling here could reconstruct wrong state.
+    // A JIT PC alone does not prove a guest access fault or an exact guest RIP.
+    // Emit a bounded, allocation-free diagnostic and forward unchanged. Do not
+    // call Android logging (locks/allocation) or spill mid-instruction state.
     if (binding && info && (info->si_code == SEGV_MAPERR || info->si_code == SEGV_ACCERR)) {
-        auto *uc = static_cast<ucontext_t *>(raw_context);
+        auto* uc = static_cast<ucontext_t*>(raw_context);
         const auto pc = uc->uc_mcontext.pc;
         if (binding->fex->IsAddressInCodeBuffer(binding->native, pc)) {
-            const auto guest_rip = binding->fex->GetGuestBlockEntry(binding->native);
-#if defined(__ANDROID__)
-            __android_log_print(ANDROID_LOG_ERROR, "FexCore",
-                                "guest SIGSEGV in JIT: guest_block_rip=%#llx fault_addr=%#llx "
-                                "host_pc=%#llx",
-                                (unsigned long long)guest_rip,
-                                (unsigned long long)reinterpret_cast<std::uintptr_t>(info->si_addr),
-                                (unsigned long long)pc);
-#endif
+            const int saved_errno = errno;
+            char message[192];
+            size_t length{};
+            auto append = [&](const char* text) {
+                while (*text && length < sizeof(message))
+                    message[length++] = *text++;
+            };
+            auto hex = [&](std::uint64_t value) {
+                append("0x");
+                for (int shift = 60; shift >= 0; shift -= 4)
+                    message[length++] = "0123456789abcdef"[(value >> shift) & 15];
+            };
+            append("FEX JIT fault (block attribution only): block=");
+            hex(binding->fex->GetGuestBlockEntry(binding->native));
+            append(" address=");
+            hex(reinterpret_cast<uintptr_t>(info->si_addr));
+            append(" host_pc=");
+            hex(pc);
+            append("\n");
+            (void)::write(STDERR_FILENO, message, length);
+            errno = saved_errno;
         }
     }
 #endif
