@@ -1,0 +1,8 @@
+{
+  "repair_commit": "98eb0534ddba90d8fc53d4e393a510edb89e3c91",
+  "build_source_head": "768636aadd6dd136ea2bff042627d642d58e5c3e",
+  "build_source_was_dirty": true,
+  "changed_source_hashes_match_delivery": true,
+  "foundation": "5388ef45313d6c32cb5f4bb5b07f1246ee381370",
+  "note": "Delivery mapping added after validation; original build manifests/SCM unchanged."
+}

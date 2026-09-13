@@ -1,5 +1,7 @@
 # Android input-first progress — Foundation modules/input (2026-09-12)
 
+> **2026-09-13复核更新：** 下文分层DONE不能推导整条生产输入已接通。[本轮修复](../runtime-input-review-2026-09-13.md)实际消除了Foundation采集旁路、JNI/生产pad双状态和反馈寿命问题，并修复ART加载。现在Foundation5388ef4、portable49/Android5、主仓pad45、APK input6及三轮Service实际pad按下/松开通过；自定义profile、真实震感与FEX guest-origin尚未验收。原记录保留历史；后续执行[整版新spec](../../../specs/android-native-host-runtime-after-input.md)。
+
 Executing [android-foundation-input-first.md](../../specs/android-foundation-input-first.md).
 Order: controller in → Android SDL removal → continue production Runtime/PKG.
 

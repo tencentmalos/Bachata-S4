@@ -1,5 +1,7 @@
 # HN2 Stage 0 — real TMNT guest code executes on FEX (AYN Thor, 2026-09-13)
 
+> **更正（2026-09-13）：下文 Stage0/crt/首个HLE 的执行结论不成立。** [独立复核与修复](../../runtime-input-review-2026-09-13.md)确认遗漏真实RELRO、gap-fill清零、重定位/TLS不完整，以及native pc0误作guest RIP0。新harness仅报告LOAD_AUDIT_PASS/EXECUTION_NOT_RUN；请求执行exit3。下文原样保留为历史，命令和成功判据已废弃，不能作为生产执行证据。
+
 ## Result: STAGE0 achieved — real title bytes translate and execute on the FEX backend
 
 The production APK still runs a synthetic decrement loop. Stage 0 proves the FEX

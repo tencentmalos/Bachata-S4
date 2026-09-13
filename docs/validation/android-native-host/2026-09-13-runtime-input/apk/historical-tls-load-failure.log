@@ -1,0 +1,227 @@
+INSTRUMENTATION_STATUS: class=com.shadps4.android.runtime.input.NativePadInstrumentedTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=
+com.shadps4.android.runtime.input.NativePadInstrumentedTest:
+INSTRUMENTATION_STATUS: test=foundationAndroidSourceToProductionPadWithSyntheticKey
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.shadps4.android.runtime.input.NativePadInstrumentedTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stack=java.lang.UnsatisfiedLinkError: dlopen failed: TLS symbol "(null)" in dlopened "/data/app/~~eOGKi3TW7q_N96P_MGCYmA==/com.shadps4.android.runtime.test-V37lEVvGi3ESrQzYui9LkA==/base.apk!/lib/arm64-v8a/libshadps4_host.so" referenced from "/data/app/~~eOGKi3TW7q_N96P_MGCYmA==/com.shadps4.android.runtime.test-V37lEVvGi3ESrQzYui9LkA==/base.apk!/lib/arm64-v8a/libshadps4_host.so" using IE access model
+	at java.lang.Runtime.loadLibrary0(Runtime.java:1077)
+	at java.lang.Runtime.loadLibrary0(Runtime.java:998)
+	at java.lang.System.loadLibrary(System.java:1661)
+	at com.shadps4.android.runtime.session.NativeFexSession.<clinit>(NativeFexSession.kt:16)
+	at com.shadps4.android.runtime.input.NativePadInstrumentedTest.load(NativePadInstrumentedTest.kt:23)
+
+INSTRUMENTATION_STATUS: stream=
+Error in foundationAndroidSourceToProductionPadWithSyntheticKey(com.shadps4.android.runtime.input.NativePadInstrumentedTest):
+java.lang.UnsatisfiedLinkError: dlopen failed: TLS symbol "(null)" in dlopened "/data/app/~~eOGKi3TW7q_N96P_MGCYmA==/com.shadps4.android.runtime.test-V37lEVvGi3ESrQzYui9LkA==/base.apk!/lib/arm64-v8a/libshadps4_host.so" referenced from "/data/app/~~eOGKi3TW7q_N96P_MGCYmA==/com.shadps4.android.runtime.test-V37lEVvGi3ESrQzYui9LkA==/base.apk!/lib/arm64-v8a/libshadps4_host.so" using IE access model
+	at java.lang.Runtime.loadLibrary0(Runtime.java:1077)
+	at java.lang.Runtime.loadLibrary0(Runtime.java:998)
+	at java.lang.System.loadLibrary(System.java:1661)
+	at com.shadps4.android.runtime.session.NativeFexSession.<clinit>(NativeFexSession.kt:16)
+	at com.shadps4.android.runtime.input.NativePadInstrumentedTest.load(NativePadInstrumentedTest.kt:23)
+
+INSTRUMENTATION_STATUS: test=foundationAndroidSourceToProductionPadWithSyntheticKey
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.shadps4.android.runtime.input.NativePadInstrumentedTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=productionVibrationTargetsEpochAndStaleDrainCannotSteal
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.shadps4.android.runtime.input.NativePadInstrumentedTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stack=java.lang.NoClassDefFoundError: com.shadps4.android.runtime.session.NativeFexSession
+	at com.shadps4.android.runtime.input.NativePadInstrumentedTest.load(NativePadInstrumentedTest.kt:23)
+	... 32 trimmed
+Caused by: java.lang.UnsatisfiedLinkError: dlopen failed: TLS symbol "(null)" in dlopened "/data/app/~~eOGKi3TW7q_N96P_MGCYmA==/com.shadps4.android.runtime.test-V37lEVvGi3ESrQzYui9LkA==/base.apk!/lib/arm64-v8a/libshadps4_host.so" referenced from "/data/app/~~eOGKi3TW7q_N96P_MGCYmA==/com.shadps4.android.runtime.test-V37lEVvGi3ESrQzYui9LkA==/base.apk!/lib/arm64-v8a/libshadps4_host.so" using IE access model
+	at java.lang.Runtime.loadLibrary0(Runtime.java:1077)
+	at java.lang.Runtime.loadLibrary0(Runtime.java:998)
+	at java.lang.System.loadLibrary(System.java:1661)
+	at com.shadps4.android.runtime.session.NativeFexSession.<clinit>(NativeFexSession.kt:16)
+	... 34 more
+
+INSTRUMENTATION_STATUS: stream=
+Error in productionVibrationTargetsEpochAndStaleDrainCannotSteal(com.shadps4.android.runtime.input.NativePadInstrumentedTest):
+java.lang.NoClassDefFoundError: com.shadps4.android.runtime.session.NativeFexSession
+	at com.shadps4.android.runtime.input.NativePadInstrumentedTest.load(NativePadInstrumentedTest.kt:23)
+	... 32 trimmed
+Caused by: java.lang.UnsatisfiedLinkError: dlopen failed: TLS symbol "(null)" in dlopened "/data/app/~~eOGKi3TW7q_N96P_MGCYmA==/com.shadps4.android.runtime.test-V37lEVvGi3ESrQzYui9LkA==/base.apk!/lib/arm64-v8a/libshadps4_host.so" referenced from "/data/app/~~eOGKi3TW7q_N96P_MGCYmA==/com.shadps4.android.runtime.test-V37lEVvGi3ESrQzYui9LkA==/base.apk!/lib/arm64-v8a/libshadps4_host.so" using IE access model
+	at java.lang.Runtime.loadLibrary0(Runtime.java:1077)
+	at java.lang.Runtime.loadLibrary0(Runtime.java:998)
+	at java.lang.System.loadLibrary(System.java:1661)
+	at com.shadps4.android.runtime.session.NativeFexSession.<clinit>(NativeFexSession.kt:16)
+	... 34 more
+
+INSTRUMENTATION_STATUS: test=productionVibrationTargetsEpochAndStaleDrainCannotSteal
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.shadps4.android.runtime.input.NativePadInstrumentedTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=physicalPacketNormalizationIsolationAndReconnect
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.shadps4.android.runtime.input.NativePadInstrumentedTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stack=java.lang.NoClassDefFoundError: com.shadps4.android.runtime.session.NativeFexSession
+	at com.shadps4.android.runtime.input.NativePadInstrumentedTest.load(NativePadInstrumentedTest.kt:23)
+	... 32 trimmed
+Caused by: java.lang.UnsatisfiedLinkError: dlopen failed: TLS symbol "(null)" in dlopened "/data/app/~~eOGKi3TW7q_N96P_MGCYmA==/com.shadps4.android.runtime.test-V37lEVvGi3ESrQzYui9LkA==/base.apk!/lib/arm64-v8a/libshadps4_host.so" referenced from "/data/app/~~eOGKi3TW7q_N96P_MGCYmA==/com.shadps4.android.runtime.test-V37lEVvGi3ESrQzYui9LkA==/base.apk!/lib/arm64-v8a/libshadps4_host.so" using IE access model
+	at java.lang.Runtime.loadLibrary0(Runtime.java:1077)
+	at java.lang.Runtime.loadLibrary0(Runtime.java:998)
+	at java.lang.System.loadLibrary(System.java:1661)
+	at com.shadps4.android.runtime.session.NativeFexSession.<clinit>(NativeFexSession.kt:16)
+	... 34 more
+
+INSTRUMENTATION_STATUS: stream=
+Error in physicalPacketNormalizationIsolationAndReconnect(com.shadps4.android.runtime.input.NativePadInstrumentedTest):
+java.lang.NoClassDefFoundError: com.shadps4.android.runtime.session.NativeFexSession
+	at com.shadps4.android.runtime.input.NativePadInstrumentedTest.load(NativePadInstrumentedTest.kt:23)
+	... 32 trimmed
+Caused by: java.lang.UnsatisfiedLinkError: dlopen failed: TLS symbol "(null)" in dlopened "/data/app/~~eOGKi3TW7q_N96P_MGCYmA==/com.shadps4.android.runtime.test-V37lEVvGi3ESrQzYui9LkA==/base.apk!/lib/arm64-v8a/libshadps4_host.so" referenced from "/data/app/~~eOGKi3TW7q_N96P_MGCYmA==/com.shadps4.android.runtime.test-V37lEVvGi3ESrQzYui9LkA==/base.apk!/lib/arm64-v8a/libshadps4_host.so" using IE access model
+	at java.lang.Runtime.loadLibrary0(Runtime.java:1077)
+	at java.lang.Runtime.loadLibrary0(Runtime.java:998)
+	at java.lang.System.loadLibrary(System.java:1661)
+	at com.shadps4.android.runtime.session.NativeFexSession.<clinit>(NativeFexSession.kt:16)
+	... 34 more
+
+INSTRUMENTATION_STATUS: test=physicalPacketNormalizationIsolationAndReconnect
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.shadps4.android.runtime.input.NativePadInstrumentedTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=overlayToProductionHleAndRetiredHandle
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.shadps4.android.runtime.input.NativePadInstrumentedTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stack=java.lang.NoClassDefFoundError: com.shadps4.android.runtime.session.NativeFexSession
+	at com.shadps4.android.runtime.input.NativePadInstrumentedTest.load(NativePadInstrumentedTest.kt:23)
+	... 32 trimmed
+Caused by: java.lang.UnsatisfiedLinkError: dlopen failed: TLS symbol "(null)" in dlopened "/data/app/~~eOGKi3TW7q_N96P_MGCYmA==/com.shadps4.android.runtime.test-V37lEVvGi3ESrQzYui9LkA==/base.apk!/lib/arm64-v8a/libshadps4_host.so" referenced from "/data/app/~~eOGKi3TW7q_N96P_MGCYmA==/com.shadps4.android.runtime.test-V37lEVvGi3ESrQzYui9LkA==/base.apk!/lib/arm64-v8a/libshadps4_host.so" using IE access model
+	at java.lang.Runtime.loadLibrary0(Runtime.java:1077)
+	at java.lang.Runtime.loadLibrary0(Runtime.java:998)
+	at java.lang.System.loadLibrary(System.java:1661)
+	at com.shadps4.android.runtime.session.NativeFexSession.<clinit>(NativeFexSession.kt:16)
+	... 34 more
+
+INSTRUMENTATION_STATUS: stream=
+Error in overlayToProductionHleAndRetiredHandle(com.shadps4.android.runtime.input.NativePadInstrumentedTest):
+java.lang.NoClassDefFoundError: com.shadps4.android.runtime.session.NativeFexSession
+	at com.shadps4.android.runtime.input.NativePadInstrumentedTest.load(NativePadInstrumentedTest.kt:23)
+	... 32 trimmed
+Caused by: java.lang.UnsatisfiedLinkError: dlopen failed: TLS symbol "(null)" in dlopened "/data/app/~~eOGKi3TW7q_N96P_MGCYmA==/com.shadps4.android.runtime.test-V37lEVvGi3ESrQzYui9LkA==/base.apk!/lib/arm64-v8a/libshadps4_host.so" referenced from "/data/app/~~eOGKi3TW7q_N96P_MGCYmA==/com.shadps4.android.runtime.test-V37lEVvGi3ESrQzYui9LkA==/base.apk!/lib/arm64-v8a/libshadps4_host.so" using IE access model
+	at java.lang.Runtime.loadLibrary0(Runtime.java:1077)
+	at java.lang.Runtime.loadLibrary0(Runtime.java:998)
+	at java.lang.System.loadLibrary(System.java:1661)
+	at com.shadps4.android.runtime.session.NativeFexSession.<clinit>(NativeFexSession.kt:16)
+	... 34 more
+
+INSTRUMENTATION_STATUS: test=overlayToProductionHleAndRetiredHandle
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.shadps4.android.runtime.input.NativePadInstrumentedTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=oldObserverCannotEndNewBridge
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.shadps4.android.runtime.input.NativePadInstrumentedTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stack=java.lang.NoClassDefFoundError: com.shadps4.android.runtime.session.NativeFexSession
+	at com.shadps4.android.runtime.input.NativePadInstrumentedTest.load(NativePadInstrumentedTest.kt:23)
+	... 32 trimmed
+Caused by: java.lang.UnsatisfiedLinkError: dlopen failed: TLS symbol "(null)" in dlopened "/data/app/~~eOGKi3TW7q_N96P_MGCYmA==/com.shadps4.android.runtime.test-V37lEVvGi3ESrQzYui9LkA==/base.apk!/lib/arm64-v8a/libshadps4_host.so" referenced from "/data/app/~~eOGKi3TW7q_N96P_MGCYmA==/com.shadps4.android.runtime.test-V37lEVvGi3ESrQzYui9LkA==/base.apk!/lib/arm64-v8a/libshadps4_host.so" using IE access model
+	at java.lang.Runtime.loadLibrary0(Runtime.java:1077)
+	at java.lang.Runtime.loadLibrary0(Runtime.java:998)
+	at java.lang.System.loadLibrary(System.java:1661)
+	at com.shadps4.android.runtime.session.NativeFexSession.<clinit>(NativeFexSession.kt:16)
+	... 34 more
+
+INSTRUMENTATION_STATUS: stream=
+Error in oldObserverCannotEndNewBridge(com.shadps4.android.runtime.input.NativePadInstrumentedTest):
+java.lang.NoClassDefFoundError: com.shadps4.android.runtime.session.NativeFexSession
+	at com.shadps4.android.runtime.input.NativePadInstrumentedTest.load(NativePadInstrumentedTest.kt:23)
+	... 32 trimmed
+Caused by: java.lang.UnsatisfiedLinkError: dlopen failed: TLS symbol "(null)" in dlopened "/data/app/~~eOGKi3TW7q_N96P_MGCYmA==/com.shadps4.android.runtime.test-V37lEVvGi3ESrQzYui9LkA==/base.apk!/lib/arm64-v8a/libshadps4_host.so" referenced from "/data/app/~~eOGKi3TW7q_N96P_MGCYmA==/com.shadps4.android.runtime.test-V37lEVvGi3ESrQzYui9LkA==/base.apk!/lib/arm64-v8a/libshadps4_host.so" using IE access model
+	at java.lang.Runtime.loadLibrary0(Runtime.java:1077)
+	at java.lang.Runtime.loadLibrary0(Runtime.java:998)
+	at java.lang.System.loadLibrary(System.java:1661)
+	at com.shadps4.android.runtime.session.NativeFexSession.<clinit>(NativeFexSession.kt:16)
+	... 34 more
+
+INSTRUMENTATION_STATUS: test=oldObserverCannotEndNewBridge
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 0.035
+There were 5 failures:
+1) foundationAndroidSourceToProductionPadWithSyntheticKey(com.shadps4.android.runtime.input.NativePadInstrumentedTest)
+java.lang.UnsatisfiedLinkError: dlopen failed: TLS symbol "(null)" in dlopened "/data/app/~~eOGKi3TW7q_N96P_MGCYmA==/com.shadps4.android.runtime.test-V37lEVvGi3ESrQzYui9LkA==/base.apk!/lib/arm64-v8a/libshadps4_host.so" referenced from "/data/app/~~eOGKi3TW7q_N96P_MGCYmA==/com.shadps4.android.runtime.test-V37lEVvGi3ESrQzYui9LkA==/base.apk!/lib/arm64-v8a/libshadps4_host.so" using IE access model
+	at java.lang.Runtime.loadLibrary0(Runtime.java:1077)
+	at java.lang.Runtime.loadLibrary0(Runtime.java:998)
+	at java.lang.System.loadLibrary(System.java:1661)
+	at com.shadps4.android.runtime.session.NativeFexSession.<clinit>(NativeFexSession.kt:16)
+	at com.shadps4.android.runtime.input.NativePadInstrumentedTest.load(NativePadInstrumentedTest.kt:23)
+2) productionVibrationTargetsEpochAndStaleDrainCannotSteal(com.shadps4.android.runtime.input.NativePadInstrumentedTest)
+java.lang.NoClassDefFoundError: com.shadps4.android.runtime.session.NativeFexSession
+	at com.shadps4.android.runtime.input.NativePadInstrumentedTest.load(NativePadInstrumentedTest.kt:23)
+	... 32 trimmed
+Caused by: java.lang.UnsatisfiedLinkError: dlopen failed: TLS symbol "(null)" in dlopened "/data/app/~~eOGKi3TW7q_N96P_MGCYmA==/com.shadps4.android.runtime.test-V37lEVvGi3ESrQzYui9LkA==/base.apk!/lib/arm64-v8a/libshadps4_host.so" referenced from "/data/app/~~eOGKi3TW7q_N96P_MGCYmA==/com.shadps4.android.runtime.test-V37lEVvGi3ESrQzYui9LkA==/base.apk!/lib/arm64-v8a/libshadps4_host.so" using IE access model
+	at java.lang.Runtime.loadLibrary0(Runtime.java:1077)
+	at java.lang.Runtime.loadLibrary0(Runtime.java:998)
+	at java.lang.System.loadLibrary(System.java:1661)
+	at com.shadps4.android.runtime.session.NativeFexSession.<clinit>(NativeFexSession.kt:16)
+	... 34 more
+3) physicalPacketNormalizationIsolationAndReconnect(com.shadps4.android.runtime.input.NativePadInstrumentedTest)
+java.lang.NoClassDefFoundError: com.shadps4.android.runtime.session.NativeFexSession
+	at com.shadps4.android.runtime.input.NativePadInstrumentedTest.load(NativePadInstrumentedTest.kt:23)
+	... 32 trimmed
+Caused by: java.lang.UnsatisfiedLinkError: dlopen failed: TLS symbol "(null)" in dlopened "/data/app/~~eOGKi3TW7q_N96P_MGCYmA==/com.shadps4.android.runtime.test-V37lEVvGi3ESrQzYui9LkA==/base.apk!/lib/arm64-v8a/libshadps4_host.so" referenced from "/data/app/~~eOGKi3TW7q_N96P_MGCYmA==/com.shadps4.android.runtime.test-V37lEVvGi3ESrQzYui9LkA==/base.apk!/lib/arm64-v8a/libshadps4_host.so" using IE access model
+	at java.lang.Runtime.loadLibrary0(Runtime.java:1077)
+	at java.lang.Runtime.loadLibrary0(Runtime.java:998)
+	at java.lang.System.loadLibrary(System.java:1661)
+	at com.shadps4.android.runtime.session.NativeFexSession.<clinit>(NativeFexSession.kt:16)
+	... 34 more
+4) overlayToProductionHleAndRetiredHandle(com.shadps4.android.runtime.input.NativePadInstrumentedTest)
+java.lang.NoClassDefFoundError: com.shadps4.android.runtime.session.NativeFexSession
+	at com.shadps4.android.runtime.input.NativePadInstrumentedTest.load(NativePadInstrumentedTest.kt:23)
+	... 32 trimmed
+Caused by: java.lang.UnsatisfiedLinkError: dlopen failed: TLS symbol "(null)" in dlopened "/data/app/~~eOGKi3TW7q_N96P_MGCYmA==/com.shadps4.android.runtime.test-V37lEVvGi3ESrQzYui9LkA==/base.apk!/lib/arm64-v8a/libshadps4_host.so" referenced from "/data/app/~~eOGKi3TW7q_N96P_MGCYmA==/com.shadps4.android.runtime.test-V37lEVvGi3ESrQzYui9LkA==/base.apk!/lib/arm64-v8a/libshadps4_host.so" using IE access model
+	at java.lang.Runtime.loadLibrary0(Runtime.java:1077)
+	at java.lang.Runtime.loadLibrary0(Runtime.java:998)
+	at java.lang.System.loadLibrary(System.java:1661)
+	at com.shadps4.android.runtime.session.NativeFexSession.<clinit>(NativeFexSession.kt:16)
+	... 34 more
+5) oldObserverCannotEndNewBridge(com.shadps4.android.runtime.input.NativePadInstrumentedTest)
+java.lang.NoClassDefFoundError: com.shadps4.android.runtime.session.NativeFexSession
+	at com.shadps4.android.runtime.input.NativePadInstrumentedTest.load(NativePadInstrumentedTest.kt:23)
+	... 32 trimmed
+Caused by: java.lang.UnsatisfiedLinkError: dlopen failed: TLS symbol "(null)" in dlopened "/data/app/~~eOGKi3TW7q_N96P_MGCYmA==/com.shadps4.android.runtime.test-V37lEVvGi3ESrQzYui9LkA==/base.apk!/lib/arm64-v8a/libshadps4_host.so" referenced from "/data/app/~~eOGKi3TW7q_N96P_MGCYmA==/com.shadps4.android.runtime.test-V37lEVvGi3ESrQzYui9LkA==/base.apk!/lib/arm64-v8a/libshadps4_host.so" using IE access model
+	at java.lang.Runtime.loadLibrary0(Runtime.java:1077)
+	at java.lang.Runtime.loadLibrary0(Runtime.java:998)
+	at java.lang.System.loadLibrary(System.java:1661)
+	at com.shadps4.android.runtime.session.NativeFexSession.<clinit>(NativeFexSession.kt:16)
+	... 34 more
+
+FAILURES!!!
+Tests run: 5,  Failures: 5
+
+
+INSTRUMENTATION_CODE: -1

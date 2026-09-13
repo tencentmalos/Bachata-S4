@@ -1,0 +1,88 @@
+{
+  "scope": "AUXILIARY_LOAD_AUDIT; guest execution NOT_RUN",
+  "status": "PASS",
+  "cases": [
+    {
+      "id": "relro-relative-before-protect",
+      "expected_exit": 0,
+      "status": "PASS"
+    },
+    {
+      "id": "require-execution-is-nonzero",
+      "expected_exit": 3,
+      "status": "PASS"
+    },
+    {
+      "id": "zero-relaent",
+      "expected_exit": 1,
+      "status": "PASS"
+    },
+    {
+      "id": "overflow-rela-table",
+      "expected_exit": 1,
+      "status": "PASS"
+    },
+    {
+      "id": "partial-rela-entry",
+      "expected_exit": 1,
+      "status": "PASS"
+    },
+    {
+      "id": "target-in-unmapped-hole",
+      "expected_exit": 1,
+      "status": "PASS"
+    },
+    {
+      "id": "filesz-exceeds-memsz",
+      "expected_exit": 1,
+      "status": "PASS"
+    },
+    {
+      "id": "virtual-address-overflow",
+      "expected_exit": 1,
+      "status": "PASS"
+    },
+    {
+      "id": "overlapping-segments",
+      "expected_exit": 1,
+      "status": "PASS"
+    },
+    {
+      "id": "truncated-segment",
+      "expected_exit": 1,
+      "status": "PASS"
+    },
+    {
+      "id": "no-dynamic-terminator",
+      "expected_exit": 1,
+      "status": "PASS"
+    }
+  ],
+  "device": {
+    "api": 33,
+    "identity": "uid=2000(shell) gid=2000(shell) groups=2000(shell),1004(input),1007(log),1011(adb),1015(sdcard_rw),1028(sdcard_r),1078(ext_data_rw),1079(ext_obb_rw),3001(net_bt_admin),3002(net_bt),3003(inet),3006(net_bw_stats),3009(readproc),3011(uhid),3012(readtracefs) context=u:r:shell:s0",
+    "pagesize": "4096"
+  },
+  "native_platform": "android-33",
+  "artifacts": [
+    {
+      "path": "build/eboot-audit-api33/eboot_prologue_harness",
+      "sha256": "c1f174f0c0f6cdca6ba1a5a047a0b81797bb17bf208f327edbc7a83bf98f2445"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native/libshadps4_host.so",
+      "sha256": "3bf364d95b261c112c4547e75396046cd7715e935ac02d371be493e33f947104"
+    },
+    {
+      "path": "/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so",
+      "sha256": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352"
+    }
+  ],
+  "remote_directory": "/data/local/tmp/shadps4-load-audit-1789264950769968000",
+  "real_eboot": {
+    "load_audit": "PASS",
+    "execution": "NOT_RUN",
+    "exit": 3,
+    "sha256": "6cc980b770aa4f5880c6be7aefa245a77e96de33d80c8ebf9bb2b4d8d9b52a5f"
+  }
+}

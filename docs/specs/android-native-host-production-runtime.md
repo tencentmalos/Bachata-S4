@@ -1,6 +1,8 @@
 # Android 生产 Runtime：从已链接 host 库推进到真实 PKG APK
 
-更新：2026-09-12。实施分支：`codex/android-fex-round2`。本轮先完成了用户指定的 host `.so` 里程碑，源码基点见[host 库交付记录](../validation/android-native-host/host-library-milestone-2026-09-12.md)；此前[九符号失败复核](../validation/android-native-host/pkg-v2-host-closure-review-2026-09-12.md)保留为历史。本文交给下一位 AI，连续接通生产 Runtime 到真实 PKG APK，保留[两工作包方案](android-native-host-full-link-plan-2026-09-12.md)及[PKG v2](android-native-host-pkg-v2.md)的正确性要求。**手柄迁移由下一位 AI 实施，明确复用 citron Android 输入，不适配当前 SDL 手柄。**
+更新：2026-09-13。实施分支 `codex/android-fex-round2`。本文件保留整版架构/正确性要求；当前事实以[Runtime/输入复核](../validation/android-native-host/runtime-input-review-2026-09-13.md)为准，下一位 AI 按[新的两个连续工作包](android-native-host-runtime-after-input.md)推进，不再重做 host 链接和已接通的标准输入。此前[host库里程碑](../validation/android-native-host/host-library-milestone-2026-09-12.md)、[输入优先设计](android-foundation-input-first.md)保留为历史和规范来源。
+
+Foundation5388ef4的独立输入库已被APK采集路径使用，真实生产scePad状态只有host中的一份；Android SDL已从host移除，Tracy的ART dlopen问题已修。当前APK已加载host与FEX/JNI，仍由CPU smoke backend执行；生产loader/VM/typed HLE/TLS/callback/Turnip/游戏尚未闭合。旧Stage0“crt完成/首个HLE”已撤回。
 
 ## 本轮交付目标
 
@@ -16,15 +18,15 @@ Swan / Android16 / ARM64 / 4KiB 是目标。AYN Thor/API33/4KiB 是当前可用�
 
 已完成 `Frontend::Window` / `AndroidWindow`、Presenter 持有窗口、带身份校验的窗口发布/撤回、`ApplicationControl` 重载请求接口、设置界面对桌面启动器的依赖注入。它们尚未绑定生产 SessionCore。ARM64 Ucontext 已确定初始化，缺 guest 快照和写回时显式失败，禁止原生执行 guest signal handler；这不等于 guest 异常支持。epoll 正微秒取整已修。Android 数据目录改为显式初始化，避免库装载前使用 HOME/XDG 目录而崩溃。保留这些修复，继续完整 guest/平台接线。
 
-**当前 APK 仍为 CPU smoke；新 host 库尚不含 FEX/session/JNI，仍静态拉入旧 SDL 实现。host 链接/CLI 验证不能视为 APK/ART/Turnip/游戏验收。**
+**当前 APK 的执行 backend 仍为 CPU smoke；host/ART 装载和标准输入已验证，Turnip/生产游戏仍未验收。**
 
 | 项目 | 本轮决定 |
 |---|---|
-| 最终库 | 沿用 `libshadps4_fex_session.so` 作为唯一生产session/host/FEX JNI库；`libbachata_pkg.so`保留导入职责。当前 `shadps4_host` 是已能构建和装载的独立 host 库，最终不并存两份host/FEX/global registry |
+| 最终库 | 保留已验证的 `libshadps4_host.so`（唯一host/Orbis/input）和 `libshadps4_fex_session.so`（JNI/session/FEX，DT_NEEDED引用host）；`libbachata_pkg.so`保留导入职责。不为单库形式重做整合，禁止重复global registry |
 | profile | NDK29.0.14206865、arm64-v8a、native API33、`c++_shared`；target/compileSdk36独立记录。主仓host需要C++23，清理Gradle无条件`-std=c++20`对host的覆盖；依赖和FEX自身标准按target隔离 |
 | FEX | 固定owned pin `385a0cc4`，通过既有独立构建和`cmake/fex`接入；核对实际prebuilt的API/STL/options，不无条件复用旧API35缓存；生产`V0_BUILD_TESTS=OFF` |
 | 第三方 | 复用已完成的date/glslang/Zydis/miniz/LibreSSL配置、独立FFmpeg `e17ba6e2`、hwinfo `85bbcba3`、adrenotools `60ae5bbc`＋linkernsbypass `aa397589`；不再次逐库调研或迁入Foundation |
-| Foundation | 保持已开启的DebugBus/Android dumpsys链接范围，并完成进程内注册和退出；复用其诊断设施。反射/网络按真实需要审计后启用，不扩大为本轮另一个框架项目 |
+| Foundation | 保留已开启的DebugBus/Android dumpsys；复用已接通、可独立引用的 `modules/input`，共用设备/状态/反馈机制和 Android 采集组件。各 target 独立接入，不解析完整 Foundation 闭包；反射/网络按实际需要启用 |
 | 平台 | Kotlin Service/SessionCore掌管会话，ANativeWindow原生呈现，Android controller输入，AAudio普通输出、OpenAL保留Audio3D用途；Turnip为唯一默认Vulkan路径 |
 | 内容 | TMNT CUSA50828，gd/01.00本体＋gp/01.08更新。身份和本机路径见[pkg-set.json](../validation/android-native-host/2026-09-12-review/pkg-set.json)；外机通过显式本地路径提供同hash内容 |
 
@@ -54,9 +56,7 @@ Swan / Android16 / ARM64 / 4KiB 是目标。AYN Thor/API33/4KiB 是当前可用�
 
 ### Android 生产 target 移除 SDL
 
-**可行性与当前状态：Android原生接口已有替代方向，可以在本次整版实施中完成移除；当前库尚不能直接删掉SDL链接项。** 本项由下一位AI与citron手柄迁移、生产Runtime一起完成，不另拆交接。SDL没有承担FEX执行或PS4 guest ABI语义，需替换的是host平台服务及历史共用代码的耦合。
-
-不迁移 SDLActivity、不为 `org/libsdl/app/*` 补类、不接 SDL 窗口/手柄/音频事件循环。Android最终target不链接SDL3 archive/shared library；desktop继续保留SDL adapter及原子仓。当前host库依然拉入 `SDL_android.c.o:JNI_OnLoad`，必须通过真实职责拆分消除，不能只隐藏/改名JNI符号。
+**当前状态（2026-09-13）：Android host 已不再编译/链接 SDL，APK 已在普通 UID 装载，无 SDL JNI。** 下列清单作为保留行为与游戏验收要求，不再当作尚未实施的源码排除任务。桌面保留 SDL；不可重新引入 SDLActivity、SDL Java setup 或同名成功 stub。已排除的 settings layer 等仍需由真实 Android UI/会话承担必要功能。
 
 范围包括 controller/input_handler/input_mouse、ImGui SDL平台backend、trophy音效、SDL音频输入/输出、mouse/camera，以及user_manager/emulator_settings/devtools/ipc的SDL消息框/事件。普通音频输出使用AAudio，Audio3D保留有效OpenAL链。Android UI或session control承接平台交互；暂未提供的camera/microphone/mouse能力返回正确的未支持/未初始化状态，保留HLE注册及错误语义，不假成功。仅删除桌面启动器不能称为去SDL。用最终link map确认没有SDL实现对象和SDL JNI初始化，并确认真实游戏必需HLE未被删掉。
 
@@ -115,7 +115,7 @@ VM先列出真实模块、direct/flexible memory、栈、TLS、veneer/gate和GPU
 
 真实异步host signal处理保持异步信号安全；不得在任意host信号栈调用native C++ HLE或嵌套FEX。明确FEX、GPU保护页、ART/原有handler的处理顺序与链式转交，未知host fault不当成guest正常返回；不用恢复host SIGILL、SleepThread parking或settle sleep修补控制流。
 
-将本轮epoll正微秒值向下截断问题在同一bionic迁移中修正，保留poll/infinite/EINTR语义。把[Ucontext反例](../validation/android-native-host/2026-09-12-host-closure-review/ucontext_probe.cpp)转成正式有效性/恢复测试；反例exit0表示旧缺陷存在，不能直接抄成通过断言。
+保留已经完成的epoll正微秒取整修复，保留poll/infinite/EINTR语义。把[Ucontext反例](../validation/android-native-host/2026-09-12-host-closure-review/ucontext_probe.cpp)转成正式有效性/恢复测试；反例exit0表示旧缺陷存在，不能直接抄成通过断言。
 
 实现范围以真实TMNT静态imports＋运行时访问为依据，优先完成启动/互动需要的kernel、libc/sysmodule、filesystem、userservice/systemservice、pad、GNM/VideoOut、audio、保存及实际媒体功能。未使用能力可以明确Unsupported；raw pointer、varargs、aggregate/sret或callback签名不能由模板猜成支持。没有要求无差别迁移所有数千条注册，但实际必需导入不能靠统一返回成功跳过。
 
@@ -127,7 +127,7 @@ VM先列出真实模块、direct/flexible memory、栈、TLS、veneer/gate和GPU
 
 **Surface与GPU。** JNI取得ANativeWindow引用，尺寸/attach/detach独立generation；渲染线程验证并使用当前引用。Stop/detach在join前通知Presenter和相关scheduler。保留有限acquire及success/suboptimal被Stop打断仍退休semaphore/image的修复；处理fence/queue/present和device-lost，不能用无界waitIdle卡死销毁，也不能超时后释放仍被GPU使用的对象。需要保留资源到迟到完成时，状态明确且拒绝不安全重启。
 
-**输入由 citron 迁移。** 使用下节固定来源，把 Android KeyEvent/MotionEvent、InputDevice 注册和震动派发接到本仓 pad HLE 的平台无关状态，不复用当前 SDLGamepad/SDL_PushEvent 链。既有虚拟按键/overlay与实体手柄汇合到同一输入状态，用户/端口归属、时间戳和 session generation 明确；焦点丢失、Stop、断连清除按键/轴和震动，旧设备回调不污染下一局。以真实游戏操作及 guest pad read 观察值验收。
+**输入由 citron 迁移，共用机制下沉 Foundation。** 按[输入优先补充](android-foundation-input-first.md)分离 Android采集、应用JNI、Foundation InputHub与Orbis adapter，不复用当前 SDLGamepad/SDL_PushEvent 链。既有虚拟按键/overlay与实体手柄按来源合并，用户/端口归属、时间戳和 session generation 明确；焦点丢失、Stop、断连清除按键/轴和震动，旧设备回调不污染下一局。普通APK的生产pad入口验收与真实FEX guest消费分别记录，最终以真实游戏操作及guest pad read观察值验收。
 
 **音频。** AAudio补短写、gain、格式/通道、open失败不发布假成功、断连/停止；Audio3D仍走有效OpenAL输出链，媒体保留FFmpeg真实解码/seek/EOF/退出。以真实guest PCM和实际听感验收，静音/音量/重启有效。
 
@@ -142,15 +142,15 @@ VM先列出真实模块、direct/flexible memory、栈、TLS、veneer/gate和GPU
 | 参考路径（均相对 citron 根） | 迁移用途 |
 |---|---|
 | `src/android/app/src/main/java/org/citron/citron_emu/utils/InputHandler.kt` | KeyEvent/MotionEvent 分发、设备发现、注册与 overlay 入口 |
-| `src/android/app/src/main/java/org/citron/citron_emu/features/input/NativeInput.kt`、`src/android/app/src/main/jni/native_input.cpp` | 按键/轴/运动的 JNI 数据协议；替换 Citron singleton 和包名为本仓有 generation 的 session 接口 |
+| `src/android/app/src/main/java/org/citron/citron_emu/features/input/NativeInput.kt`、`src/android/app/src/main/jni/native_input.cpp` | 参考按键/轴/运动的调用链；新JNI由主仓拥有，不把Citron singleton或应用native声明迁入Foundation |
 | `src/android/app/src/main/java/org/citron/citron_emu/features/input/citronInputDevice.kt`、`citronVibrator.kt` | 实体/overlay 设备、VibratorManager 和震动能力判定 |
-| `src/input_common/drivers/android.{h,cpp}` | Android 驱动映射、控制器登记、震动 worker 与 JNI 引用寿命 |
+| `src/input_common/drivers/android.{h,cpp}` | 参考设备映射、登记及反馈逻辑；采用Foundation值命令＋Kotlin executor，避免照搬native worker的JNI/global-ref耦合 |
 
-迁移保留来源和许可证；不把整个 Switch InputSubsystem/EmulationSession 搬入 shadPS4。保留本仓Orbis pad ABI/按钮位/数值范围，平台层剥离现 `SDL_Gamepad*`、joystick id 和桌面配置依赖。可共用诊断/线程等优先走已有Foundation，guest pad语义由本仓负责。
+迁移逐文件保留来源和实际许可证；不把整个 Switch InputSubsystem/EmulationSession 搬入 shadPS4或Foundation。共用设备/事件/状态/反馈放Foundation `modules/input`，Android library采用注入接口且不定义JNI_OnLoad/native方法；保留本仓Orbis pad ABI/按钮位/数值范围和用户策略，Android可见接口剥离现 `SDL_Gamepad*`、joystick id 和桌面配置依赖。
 
-参考实现也需适配而非照抄：其GUID由PID/VID生成，同型号设备会相同；port依枚举顺序，且使用 `controllerNumber` 去重。要求在本仓处理同型号双设备、热插拔/端口复用、InputDevice为null、端口数量上限、AXIS_HAT/扳机范围及dead zone；不能照搬Switch的A/B翻转表当PS4按钮映射。震动worker停止和GlobalRef释放须在设备撤回/session退役后闭环，不跨线程保存JNIEnv。
+参考实现也需适配而非照抄：其GUID由PID/VID生成，同型号设备会相同；port依枚举顺序，且使用 `controllerNumber` 去重。要求处理同型号双设备、热插拔/端口复用、InputDevice为null、端口数量上限、AXIS_HAT/扳机范围及dead zone；不能照搬Switch的A/B翻转表当PS4按钮映射。运行期device实例/连接代次与持久profile身份分开；震动zero/Stop实际cancel，旧队列不得重新开振。输入补充约束所有者和并发模型，不跨线程保存JNIEnv。
 
-迁移验收包含：实体按键/两摇杆/扳机/方向键、overlay、guest实际消费、震动、两设备隔离、断连与焦点丢失释放、同进程重启无陈旧输入。与下面完整游戏验收一起交付，不另切一个手柄微型spec。
+迁移验收包含：Foundation独立复用、实体按键/两摇杆/扳机/方向键、overlay合并、生产pad与guest实际消费、震动、两设备隔离、断连与焦点丢失释放、同进程重启无陈旧输入。先连续完成输入与SDL实施包，再继续下面完整游戏验收；不为各控件另切微型spec。
 
 ## 真实内容持续驱动实现与验收
 

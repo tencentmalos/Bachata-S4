@@ -4,11 +4,11 @@
 
 `AGENTS.md` is the shared project context and working guidance. Read it first; this file provides the Claude entry point without maintaining a second independent policy.
 
-## 最新整版入口（2026-09-12）
+## 最新整版入口（2026-09-13）
 
-**当前已完成[host `.so` 里程碑](docs/validation/android-native-host/host-library-milestone-2026-09-12.md)，源码`1149e948`；下一位AI执行[更新后的生产Runtime整块spec](docs/specs/android-native-host-production-runtime.md)。** 真实`--no-undefined`链接成功，API33/arm64/c++_shared/Foundation ON，388个host TU；AYN装载/契约61/0，macOS portable42/0，desktop adapter NDK syntax3/3。构建入口`scripts/android/build-host-android`和共用对象/依赖targets已存在，不再重复闭包扫描。原九符号缺失、Ucontext未初始化和epoll取整问题已修；Android构造期HOME目录崩溃也已修，启动host服务前显式调用`InitializeAndroidUserPaths`。guest快照/异常写回、完整生产session/loader/FEX/VM/HLE/callback/Turnip/APK仍待接通。
+先读[本轮 Runtime/输入复核与修复](docs/validation/android-native-host/runtime-input-review-2026-09-13.md)，下一位 Opus4.8 连续执行[新的整版 spec](docs/specs/android-native-host-runtime-after-input.md)。Foundation5388ef4已先push；主仓修复了生产pad旁路、epoch/Stop/反馈退役、ART加载被Tracy initial-exec TLS阻止、录音假成功和ELF审计。APK真实加载host+FEX/JNI两库，同一生产pad只在host存在；无需为了单库重做链接图。AYN/API33/4KiB：host dlopen+85/0、Foundation49/0+Android5、pad portable45/0、APK input6、实际Service三轮同PID运行/取消及真实pad按下松开。默认映射和host-origin HLE验证通过，自定义remap、真实手柄震感、FEX-origin pad及游戏仍待验。
 
-**手柄留给下一位AI，从citron Android输入迁移，不适配现SDL手柄。** spec已固定远端可取commit2106bcd8和具体Kotlin/JNI/native driver/震动路径。当前host库仍含SDL JNI_OnLoad，尚非可直接加载的最终APK库；下一版Android生产target去SDL，desktop保留其adapter，不补SDLActivity。新库不含FEX/session生产接线，现APK仍CPU smoke。按整块spec推进真实TMNT本体+更新、交互场景/10分钟/Stop/三轮同进程重启。库链接与辅助CLI不代表APK、游戏或Swan验收。
+旧768636aa Stage0结论撤回：漏RELRO并gap-fill，未完成符号/PLT/TLS，native pc0不等于guest RIP0。新audit11项通过；真实eboot仅LOAD_AUDIT_PASS/EXECUTION_NOT_RUN，请求执行exit3。后续整块实现生产Module/Linker/VM/typed HLE/TLS/pthread/InvokeGuest/WaitingHle，再接Turnip/Surface/AAudio/UI本体+更新与TMNT交互10分钟/Stop/三轮游戏重启；当前三轮CPU smoke不能抵作游戏验收。
 
 之前的[两工作包 bionic 迁移方案](docs/specs/android-native-host-full-link-plan-2026-09-12.md)保留架构选择。[前置结果](docs/validation/android-native-host/bionic-prerequisites-2026-09-12.md)与[三方库归属核查](docs/validation/android-native-host/bionic-third-party-audit-2026-09-12.md)：五组基础probe AYN/host各8项、wrapper4项；FFmpeg7.1.5独立owned子仓`e17ba6e2`、六库NDK源码provider、生产媒体syntax7/7、AYN媒体9/9；libadrenotools复用azahar匹配pin/四hook，五DSO已NDK链接，未实际加载Turnip。已修spdlog固定fmt供给和OpenAL Android OpenSL配置。扩展依赖probe现为AYN14/14；hwinfo误判已在新owned fork `tencentmalos/ext-hwinfo`/`codex/shadps4-bionic`的`85bbcba3`修复，Android报告native process ABI，旧13/14证据保留，问题已关闭。gh已重新登录并核对owned refs。已有独立子仓不进Foundation，现有Foundation/FEX等健康pin不变。上述probe不是游戏或普通APK验收。
 
@@ -42,10 +42,10 @@ TMNT1.08是更新，匹配1.00本体已核实，路径/hash见 [pkg-set.json](do
 ## 必须记住
 
 - 当前目标是 Swan / Android 16 / ARM64 / **4 KiB**；用户于 2026-09-08 将 16 KiB 工作后置。FEXCore 只执行 PS4 x86 guest，shadPS4 host 保持原生 ARM64。
-- Android 前端与 ARM64 HLE/guest 桥有可复用代码；当前有 NDK/bionic harness 和主仓 JNI CPU 冒烟 APK，完整 host APK 尚未整合。使用 FEX `385a0cc4d…`，不要按旧初稿回退至 reference 的旧 runtime pin。
+- Android 前端与 ARM64 HLE/guest 桥有可复用代码；当前有 NDK/bionic harness 和主仓 JNI CPU 冒烟 APK，host DSO 已在 APK 加载，完整游戏 backend 尚未整合。使用 FEX `385a0cc4d…`，不要按旧初稿回退至 reference 的旧 runtime pin。
 - 第一阶段关注 NDK/bionic、4 KiB 设备上的真实 FEX 执行、原生 Vulkan Surface 和停止/重启生命周期；普通手柄接通不等于 PSVR/Move 支持。
 - 调试先落地 host LLDB + guest 状态适配；异步 JIT stop 不能直接把 CPUState 当完整寄存器快照。
 - 子仓提交、主仓 gitlink、部署 binary Build ID 是三个不同对象。记录和核对实际用到的版本；保留子仓中的独立未提交工作。
 - Foundation 不替代 guest CPU API；网络命令投递给 owner thread，停用服务后等待 in-flight 请求退出再销毁 registry。不要将通用反射、序列化或网络设施在主仓重复实现。
 - **测试用 PKG**：`/Users/bytedance/game/ps4/TMNT.Splintered.Fate_CUSA50828_v1.08.pkg`（CUSA50828 v1.08，1.87 GB）——后续 host loader/PKG 导入/真机运行阶段（HN2 真 ELF 起、HN6 PKG 导入）的测试内容。不提交进仓库。
-- **host NDK/bionic 编译已起步**（`docs/validation/android-native-host/ndk-host-closure-2026-09-12.md`）：loader/memory/kernel-min 17/17 TU 过 NDK 交叉编译；修了 bionic 两处缺口——`time.cpp` 用 `date` 库+`USE_OS_TZDB=1` 代 `std::chrono::current_zone`，`kernel.cpp` 用 `arc4random_buf` 代 libuuid。新增 `AAudioOut`（阻塞写模型，无 callback，参考 citron）与 vk_platform Android surface 分支（`ANativeWindow*`→`vkCreateAndroidSurfaceKHR`）。bounded acquire、swapchain 生命周期、`CreateSurface` 去 SDL 耦合留 HN4。音频/Vulkan 参考本地 azahar/citron；foundation 仅 DebugBus 可复用。
+- **host NDK/bionic 编译已起步**（`docs/validation/android-native-host/ndk-host-closure-2026-09-12.md`）：loader/memory/kernel-min 17/17 TU 过 NDK 交叉编译；修了 bionic 两处缺口——`time.cpp` 用 `date` 库+`USE_OS_TZDB=1` 代 `std::chrono::current_zone`，`kernel.cpp` 用 `arc4random_buf` 代 libuuid。新增 `AAudioOut`（阻塞写模型，无 callback，参考 citron）与 vk_platform Android surface 分支（`ANativeWindow*`→`vkCreateAndroidSurfaceKHR`）。bounded acquire、swapchain 生命周期、`CreateSurface` 去 SDL 耦合留 HN4。音频/Vulkan 参考本地 azahar/citron；Foundation DebugBus/input 可复用。

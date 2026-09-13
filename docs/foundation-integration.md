@@ -28,6 +28,8 @@
 
 ## 必须优先复用的能力
 
+**2026-09-13 输入已接通：** owned `codex/shadps4-android-fex-v0`已push `5388ef45313d6c32cb5f4bb5b07f1246ee381370`。[Runtime/input复核](validation/android-native-host/runtime-input-review-2026-09-13.md)记录Foundation portable49/0、Android5 tests及主仓真实scePad/普通APK证据。根host单独加入 `modules/input` / `spatial::foundation_input`，Gradle单独引用其Android Kotlin library；通用设备/值事件/状态/反馈留Foundation，PS4用户/端口/ABI/历史、应用JNI/Session归属留主仓。无Foundation JNI_OnLoad/Java-calling C++ worker或OpenXR耦合；原[输入设计](specs/android-foundation-input-first.md)保留完整合同，自定义profile/物理震感/guest-origin验收尚未完成。本节以下2026-09-07成绩保持历史，不覆盖当前input证据。
+
 下表后两列是 **待执行要求**，不能把目标名称存在当作本仓已完成集成。
 
 | 能力 | Foundation 实现 | V0 的使用边界和后续工作 |

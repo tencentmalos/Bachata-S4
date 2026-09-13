@@ -1,5 +1,7 @@
 # V0 子仓归属与开发分支
 
+2026-09-13增量：Foundation继续复用owned `codex/shadps4-android-fex-v0`，`5388ef45313d6c32cb5f4bb5b07f1246ee381370`已先push，主仓随后更新gitlink；[输入/Runtime修复](validation/android-native-host/runtime-input-review-2026-09-13.md)给出证据。FEX385a0cc4、FFmpeg、其他reference pins未随本轮变更，无关`references/Bachata-S4`本地修改保留。以下旧pin按其记录时间解释。
+
 检查日期：2026-09-07。先检查 GitHub fork 网络、提交可达性及远端 ref，再开始依赖改动。
 本次用已登录 `tencentmalos` 的 `gh` 创建 FEX fork、查询仓库和创建/验证 refs；
 GitHub commit API 能读到但 ref API 不能直接引用的跨 fork 提交，通过 Git push 写入目标仓库后再次用 `gh api` 验证。

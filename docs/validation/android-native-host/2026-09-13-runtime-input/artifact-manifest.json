@@ -1,0 +1,160 @@
+{
+  "scope": "host loading/input + CPU smoke; production PKG execution NOT_RUN",
+  "source_head": "768636aadd6dd136ea2bff042627d642d58e5c3e",
+  "source_dirty": true,
+  "foundation": "5388ef45313d6c32cb5f4bb5b07f1246ee381370",
+  "fex": "385a0cc4d81cd456c8d5c26b4f09cb5a7d8d5842",
+  "host": {
+    "sha256": "0ce6762bf9a658e37b9bb03debc12fe620626c942af44fea344b2e9d05e18c2f",
+    "build_id": "3293fedc559fb4675e06ec010f29a5fa7b9739fb",
+    "needed": [
+      "libz.so",
+      "libm.so",
+      "liblog.so",
+      "libdl.so",
+      "libandroid.so",
+      "libaaudio.so",
+      "libc++_shared.so",
+      "libc.so"
+    ]
+  },
+  "apks": {
+    "app": {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/app/build/outputs/apk/fdroid/debug/app-fdroid-debug.apk",
+      "sha256": "26089938c4c0c1c31a1e70b4a99e201b692dddcfbfb278487b6c53f88744a81d",
+      "libraries": {
+        "lib/arm64-v8a/libshadps4_fex_session.so": {
+          "sha256": "343a8d394ddf9012ef63967fe77ec325f8dd238cfc7a912df96440b2acaddbca",
+          "build_id": "cee05544407a0911dd304a2f97394cd6182428ae",
+          "needed": [
+            "libshadps4_host.so",
+            "liblog.so",
+            "libm.so",
+            "libc++_shared.so",
+            "libdl.so",
+            "libc.so"
+          ]
+        },
+        "lib/arm64-v8a/libshadps4_host.so": {
+          "sha256": "0ce6762bf9a658e37b9bb03debc12fe620626c942af44fea344b2e9d05e18c2f",
+          "build_id": "3293fedc559fb4675e06ec010f29a5fa7b9739fb",
+          "needed": [
+            "libz.so",
+            "libm.so",
+            "liblog.so",
+            "libdl.so",
+            "libandroid.so",
+            "libaaudio.so",
+            "libc++_shared.so",
+            "libc.so"
+          ]
+        }
+      },
+      "library_entries": [
+        "lib/arm64-v8a/libandroidx.graphics.path.so",
+        "lib/arm64-v8a/libc++_shared.so",
+        "lib/arm64-v8a/libdatastore_shared_counter.so",
+        "lib/arm64-v8a/libbachata_pkg.so",
+        "lib/arm64-v8a/libshadps4_fex_session.so",
+        "lib/arm64-v8a/libshadps4_host.so"
+      ],
+      "jni_pad_symbols": [
+        "                 U _ZN4Core11HostRuntime16GlobalPadAdapterEv"
+      ]
+    },
+    "app-test": {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/app/build/outputs/apk/androidTest/fdroid/debug/app-fdroid-debug-androidTest.apk",
+      "sha256": "24c057bedfae2d1f273848b9f6c75657f2c747e7932917ab558f7b4b90240970",
+      "libraries": {},
+      "library_entries": []
+    },
+    "runtime-test": {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/core/runtime/build/outputs/apk/androidTest/debug/runtime-debug-androidTest.apk",
+      "sha256": "93904eba652ec1fef57ac367dd25389e7496bbb0bbd7fac736182d27be985e12",
+      "libraries": {
+        "lib/arm64-v8a/libshadps4_fex_session.so": {
+          "sha256": "b798f10d44ac36e285c15f0a44dc2f1aad35e206617636bede5e7b930aeeab4f",
+          "build_id": "cee05544407a0911dd304a2f97394cd6182428ae",
+          "needed": [
+            "libshadps4_host.so",
+            "liblog.so",
+            "libm.so",
+            "libc++_shared.so",
+            "libdl.so",
+            "libc.so"
+          ]
+        },
+        "lib/arm64-v8a/libshadps4_host.so": {
+          "sha256": "cf78739d2a03641f90bc95d6d4d9bf51963cf983bf089fefdb715503dd1dcda1",
+          "build_id": "3293fedc559fb4675e06ec010f29a5fa7b9739fb",
+          "needed": [
+            "libz.so",
+            "libm.so",
+            "liblog.so",
+            "libdl.so",
+            "libandroid.so",
+            "libaaudio.so",
+            "libc++_shared.so",
+            "libc.so"
+          ]
+        }
+      },
+      "library_entries": [
+        "lib/arm64-v8a/libc++_shared.so",
+        "lib/arm64-v8a/libbachata_pkg.so",
+        "lib/arm64-v8a/libshadps4_fex_session.so",
+        "lib/arm64-v8a/libshadps4_host.so"
+      ],
+      "jni_pad_symbols": [
+        "                 U _ZN4Core11HostRuntime16GlobalPadAdapterEv"
+      ]
+    }
+  },
+  "host_sdl_definitions": [],
+  "host_jni_onload": [],
+  "host_initial_exec_tls_relocations": [],
+  "host_pad_definitions": [
+    "00000000031d2628 T _ZN4Core11HostRuntime16GlobalPadAdapterEv"
+  ],
+  "device": {
+    "serial": "9c2841a4",
+    "model": "AYN Thor",
+    "fingerprint": "qti/kalama/kalama:13/TKQ1.231222.001/eng.Thor.20260206.163241:user/release-keys",
+    "api": "33",
+    "pagesize": "4096"
+  },
+  "changed_source_sha256": {
+    "CMakeLists.txt": "5d49c10de86c8ec66d94423825eb69e31629dedf95c831bdaa146381c79d15c4",
+    "android/shadps4-app/app/build.gradle.kts": "5842522a955283cf612d74506e8f9df076162e144a86e1d735e5e3e307959804",
+    "android/shadps4-app/app/src/androidTest/kotlin/com/shadps4/android/HostInputServiceInstrumentedTest.kt": "9fb2095a9f30f6c5c6225eeb82c814a2ce9e135aba10512d5987e978146f46f4",
+    "android/shadps4-app/app/src/main/kotlin/com/shadps4/android/MainActivity.kt": "be7ca2a5eb04d214e7055ef2df680bbbb1af279a1ab3b50ac798db445b7fd9b0",
+    "android/shadps4-app/app/src/main/kotlin/com/shadps4/android/service/FexSessionService.kt": "85494698adf923a2ff016690128c85e138be1c1bb81a427bba6c44a65003f281",
+    "android/shadps4-app/core/runtime/build.gradle.kts": "c0df16bd348dfb4be5f97c94ca40982d7705f2052a1df44439b82c6d0e448836",
+    "android/shadps4-app/core/runtime/src/androidTest/kotlin/com/shadps4/android/runtime/input/NativePadInstrumentedTest.kt": "3fdaa5d9045915e7da383c25f96ed5227c81832244fa4f74e823b5a40dcb8ae5",
+    "android/shadps4-app/core/runtime/src/main/cpp/CMakeLists.txt": "d62a09be3d5f6ee279621bcc49f867d7c78b098825c59bba74f3313c0733518a",
+    "android/shadps4-app/core/runtime/src/main/cpp/orbis_pad_jni.cpp": "3e4b5b0b5d23383fa029cad9f0f4679c73bf2057032cab01d208894d80963aea",
+    "android/shadps4-app/core/runtime/src/main/kotlin/com/shadps4/android/runtime/input/GamepadInputManager.kt": "dd3e4e056782ef900b21c18d41dde396fd72c4903b4767f0300df2345d9c56b8",
+    "android/shadps4-app/core/runtime/src/main/kotlin/com/shadps4/android/runtime/input/NativePad.kt": "abab6eaab25e9676a8a5bdd66a47c20cd7428694d3acdb63d9239818654ee793",
+    "android/shadps4-app/core/runtime/src/main/kotlin/com/shadps4/android/runtime/input/NativePadBridge.kt": "24ce7170a231b95bf2f8c316c4ea3c12f0e466aa5e21b68f90f935a6ee2e7888",
+    "android/shadps4-app/core/runtime/src/main/kotlin/com/shadps4/android/runtime/session/ManagedSession.kt": "f2dfdf6e1519afc28e35f6d664ba8eabccecbab1903f765a4f726fdc561eb8ee",
+    "android/shadps4-app/feature/session/src/main/kotlin/com/shadps4/android/feature/session/SessionScreen.kt": "17a3d2df09e77210d332876dd784131143c5d1a88cd4f2d75ee14a0846b57d17",
+    "cmake/fex/CMakeLists.txt": "69eb0bd8e525b6819371f3984078b752564d8be138e66c5a467d86814e04301b",
+    "externals/CMakeLists.txt": "9944a02a48a0c4ac0055b46820605eb250ca5b03079489630190b2edfec7a256",
+    "scripts/android/build-host-android": "69d864aa160af6fd131ccf472302cb84f004ad6d0ddb939b252256826a311a3d",
+    "scripts/android/check-eboot-load-audit.py": "af8f8d9ea4d24643707df97065edcf25b77087cc82463d1b248ca60dc4f4188c",
+    "scripts/android/run-host-library-smoke.py": "e3c38449233018bc6268c97f15f2d48e28ab957e7b3ba90cc409bb9c48275ff5",
+    "src/core/guest_cpu/fex/fex_context.h": "f9f781d4a2c5f2eac474e30d1fbfb9c84052ad78f9eb4697128ed59186a20957",
+    "src/core/host_runtime/orbis_pad_adapter.cpp": "8247a76ddd30f7f53899a21938ac81bdcbfbb3f9a81a1b77cc3951ed083626bd",
+    "src/core/host_runtime/orbis_pad_adapter.h": "927b2e08d3761473c9bdfbd95c9f072a132ed43d7ee819e7762c34c89376eb6a",
+    "src/core/libraries/audio/audioin.cpp": "7fb092e62b19142b5b7e950fce1f4a94f9908bf5d95d821fc9721a1776bce5be",
+    "src/core/libraries/audio/audioin_backend.h": "06588d3df9da2dd975a5f0ee6dae50fda4aa235fac6fbaf78d33c3ce4cad9027",
+    "src/core/libraries/audio/null_audio_in.cpp": "fe15b6ffdba7580077372e786c7642bb5e94fefe9d8981007efaeafd1d8345bd",
+    "src/core/libraries/pad/pad.cpp": "564ac5be3009226cee91af6219524fe1eb824e2ad9f19842de2a85d82214871c",
+    "src/core/loader/elf.cpp": "5fe00c989f98221d15b4946fc5d72c3f731980e5b3b42b3cd5037fabea17cc15",
+    "src/core/loader/elf.h": "db6f4955027d4e695d6a255055924d7e1c6d1825ec94b7ed2d0d9a0bf4b19895",
+    "tests/host_runtime/host_dlopen_smoke.cpp": "ebf5a23a66a7d1f5d45853685cce3a22d340194cbf67a0c8bdaab7e9ccc54df6",
+    "tests/host_runtime/host_library_smoke.cpp": "d59c8e5a003d5a27ca5ca646aa14a6b6571f093b4f2423aa7172cbc531312071",
+    "tests/host_runtime/orbis_pad_adapter_tests.cpp": "07e4c37f23665a5e118214d4e7a84ae848c23a8215284fb798b281fab00e30c4",
+    "tools/eboot_prologue_harness.cpp": "d12d5e8867921457795899b76b0e6aa75a936414b25ffc0f1a6d2a8ce4d3f6b4"
+  }
+}

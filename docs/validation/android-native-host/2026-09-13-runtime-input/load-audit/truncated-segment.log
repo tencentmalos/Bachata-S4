@@ -1,0 +1,3 @@
+segment type=0x1 va=0 filesz=0x100 memsz=0x100 flags=5
+LOAD_AUDIT_FAIL: invalid/truncated/encoded segment
+EXECUTION_NOT_RUN

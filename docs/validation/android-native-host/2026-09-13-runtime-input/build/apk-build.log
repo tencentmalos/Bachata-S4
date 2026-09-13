@@ -1,0 +1,442 @@
+> Task :foundation-input-android:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :foundation-input-android:preBuild UP-TO-DATE
+> Task :foundation-input-android:preDebugBuild UP-TO-DATE
+> Task :foundation-input-android:generateDebugResValues UP-TO-DATE
+> Task :foundation-input-android:generateDebugResources UP-TO-DATE
+> Task :foundation-input-android:packageDebugResources UP-TO-DATE
+> Task :foundation-input-android:processDebugNavigationResources UP-TO-DATE
+> Task :foundation-input-android:parseDebugLocalResources UP-TO-DATE
+> Task :foundation-input-android:generateDebugRFile UP-TO-DATE
+> Task :foundation-input-android:compileDebugKotlin UP-TO-DATE
+> Task :foundation-input-android:javaPreCompileDebug UP-TO-DATE
+> Task :foundation-input-android:compileDebugJavaWithJavac NO-SOURCE
+> Task :foundation-input-android:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :core:model:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:model:preBuild UP-TO-DATE
+> Task :core:model:preDebugBuild UP-TO-DATE
+> Task :core:model:generateDebugResValues UP-TO-DATE
+> Task :core:model:generateDebugResources UP-TO-DATE
+> Task :core:model:packageDebugResources UP-TO-DATE
+> Task :core:model:processDebugNavigationResources UP-TO-DATE
+> Task :core:model:parseDebugLocalResources UP-TO-DATE
+> Task :core:model:generateDebugRFile UP-TO-DATE
+> Task :core:model:compileDebugKotlin UP-TO-DATE
+> Task :core:model:javaPreCompileDebug UP-TO-DATE
+> Task :core:model:compileDebugJavaWithJavac NO-SOURCE
+> Task :core:model:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :core:runtime:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:runtime:preBuild UP-TO-DATE
+> Task :core:runtime:preDebugBuild UP-TO-DATE
+> Task :core:runtime:generateDebugResValues UP-TO-DATE
+> Task :core:runtime:generateDebugResources UP-TO-DATE
+> Task :core:runtime:packageDebugResources UP-TO-DATE
+> Task :core:runtime:processDebugNavigationResources UP-TO-DATE
+> Task :core:runtime:parseDebugLocalResources UP-TO-DATE
+> Task :core:runtime:generateDebugRFile UP-TO-DATE
+> Task :core:runtime:javaPreCompileDebug UP-TO-DATE
+> Task :foundation-input-android:compileDebugLibraryResources UP-TO-DATE
+> Task :core:model:compileDebugLibraryResources UP-TO-DATE
+> Task :foundation-input-android:writeDebugAarMetadata UP-TO-DATE
+> Task :core:model:writeDebugAarMetadata UP-TO-DATE
+> Task :core:runtime:preDebugAndroidTestBuild UP-TO-DATE
+> Task :core:runtime:writeDebugAarMetadata UP-TO-DATE
+> Task :core:runtime:checkDebugAndroidTestAarMetadata UP-TO-DATE
+> Task :core:runtime:processDebugAndroidTestNavigationResources UP-TO-DATE
+> Task :core:runtime:compileDebugAndroidTestNavigationResources UP-TO-DATE
+> Task :core:runtime:compileDebugLibraryResources UP-TO-DATE
+> Task :core:runtime:generateDebugAndroidTestResValues UP-TO-DATE
+> Task :core:runtime:mapDebugAndroidTestSourceSetPaths UP-TO-DATE
+> Task :core:runtime:generateDebugAndroidTestResources UP-TO-DATE
+> Task :core:runtime:mergeDebugAndroidTestResources UP-TO-DATE
+> Task :foundation-input-android:extractDeepLinksDebug UP-TO-DATE
+> Task :foundation-input-android:processDebugManifest UP-TO-DATE
+> Task :core:model:extractDeepLinksDebug UP-TO-DATE
+> Task :core:model:processDebugManifest UP-TO-DATE
+> Task :core:runtime:extractDeepLinksDebug UP-TO-DATE
+> Task :core:runtime:processDebugManifest UP-TO-DATE
+> Task :core:runtime:processDebugAndroidTestManifest UP-TO-DATE
+> Task :core:runtime:processDebugAndroidTestResources UP-TO-DATE
+> Task :core:runtime:javaPreCompileDebugAndroidTest UP-TO-DATE
+> Task :foundation-input-android:mergeDebugShaders UP-TO-DATE
+> Task :foundation-input-android:compileDebugShaders NO-SOURCE
+> Task :foundation-input-android:generateDebugAssets UP-TO-DATE
+> Task :foundation-input-android:mergeDebugAssets UP-TO-DATE
+> Task :core:model:mergeDebugShaders UP-TO-DATE
+> Task :core:model:compileDebugShaders NO-SOURCE
+> Task :core:model:generateDebugAssets UP-TO-DATE
+> Task :core:model:mergeDebugAssets UP-TO-DATE
+> Task :core:runtime:mergeDebugAndroidTestShaders UP-TO-DATE
+> Task :core:runtime:compileDebugAndroidTestShaders NO-SOURCE
+> Task :core:runtime:generateDebugAndroidTestAssets UP-TO-DATE
+> Task :core:runtime:mergeDebugShaders UP-TO-DATE
+> Task :core:runtime:compileDebugShaders NO-SOURCE
+> Task :core:runtime:generateDebugAssets UP-TO-DATE
+> Task :core:runtime:mergeDebugAssets UP-TO-DATE
+> Task :core:runtime:mergeDebugAndroidTestAssets UP-TO-DATE
+> Task :core:runtime:compressDebugAndroidTestAssets UP-TO-DATE
+> Task :core:model:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :foundation-input-android:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :core:runtime:desugarDebugAndroidTestFileDependencies UP-TO-DATE
+> Task :foundation-input-android:processDebugJavaRes UP-TO-DATE
+> Task :core:model:processDebugJavaRes UP-TO-DATE
+> Task :core:runtime:checkDebugAndroidTestDuplicateClasses UP-TO-DATE
+> Task :core:runtime:mergeExtDexDebugAndroidTest UP-TO-DATE
+> Task :core:model:bundleLibRuntimeToDirDebug UP-TO-DATE
+> Task :foundation-input-android:bundleLibRuntimeToDirDebug UP-TO-DATE
+> Task :foundation-input-android:mergeDebugJniLibFolders UP-TO-DATE
+> Task :foundation-input-android:mergeDebugNativeLibs NO-SOURCE
+> Task :foundation-input-android:copyDebugJniLibsProjectOnly UP-TO-DATE
+> Task :core:model:mergeDebugJniLibFolders UP-TO-DATE
+> Task :core:model:mergeDebugNativeLibs NO-SOURCE
+> Task :core:model:copyDebugJniLibsProjectOnly UP-TO-DATE
+> Task :core:runtime:preReleaseBuild UP-TO-DATE
+> Task :core:runtime:compileDebugKotlin
+> Task :core:runtime:configureCMakeRelWithDebInfo[arm64-v8a]
+> Task :core:runtime:compileDebugJavaWithJavac NO-SOURCE
+> Task :core:runtime:processDebugJavaRes UP-TO-DATE
+> Task :core:runtime:bundleLibRuntimeToDirDebug
+> Task :core:runtime:bundleLibCompileToJarDebug
+> Task :core:runtime:bundleLibRuntimeToJarDebug
+> Task :core:runtime:buildCMakeRelWithDebInfo[arm64-v8a]
+> Task :core:runtime:mergeDebugJniLibFolders UP-TO-DATE
+> Task :core:runtime:mergeDebugAndroidTestJniLibFolders UP-TO-DATE
+> Task :core:runtime:validateSigningDebugAndroidTest UP-TO-DATE
+> Task :core:runtime:writeDebugAndroidTestSigningConfigVersions UP-TO-DATE
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preFdroidDebugBuild UP-TO-DATE
+> Task :app:mergeFdroidDebugNativeDebugMetadata NO-SOURCE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:generateFdroidDebugBuildConfig UP-TO-DATE
+> Task :core:data:preBuild UP-TO-DATE
+> Task :core:data:preDebugBuild UP-TO-DATE
+> Task :core:data:writeDebugAarMetadata UP-TO-DATE
+> Task :core:database:preBuild UP-TO-DATE
+> Task :core:database:preDebugBuild UP-TO-DATE
+> Task :core:database:writeDebugAarMetadata UP-TO-DATE
+> Task :core:designsystem:preBuild UP-TO-DATE
+> Task :core:designsystem:preDebugBuild UP-TO-DATE
+> Task :core:designsystem:writeDebugAarMetadata UP-TO-DATE
+> Task :feature:drivers:preBuild UP-TO-DATE
+> Task :feature:drivers:preDebugBuild UP-TO-DATE
+> Task :feature:drivers:writeDebugAarMetadata UP-TO-DATE
+> Task :feature:library:preBuild UP-TO-DATE
+> Task :feature:library:preDebugBuild UP-TO-DATE
+> Task :feature:library:writeDebugAarMetadata UP-TO-DATE
+> Task :feature:session:preBuild UP-TO-DATE
+> Task :feature:session:preDebugBuild UP-TO-DATE
+> Task :feature:session:writeDebugAarMetadata UP-TO-DATE
+> Task :feature:settings:preBuild UP-TO-DATE
+> Task :feature:settings:preDebugBuild UP-TO-DATE
+> Task :feature:settings:writeDebugAarMetadata UP-TO-DATE
+> Task :feature:setup:preBuild UP-TO-DATE
+> Task :feature:setup:preDebugBuild UP-TO-DATE
+> Task :feature:setup:writeDebugAarMetadata UP-TO-DATE
+> Task :core:runtime:mergeLibDexDebugAndroidTest
+> Task :app:checkFdroidDebugAarMetadata UP-TO-DATE
+> Task :core:data:processDebugNavigationResources UP-TO-DATE
+> Task :core:database:processDebugNavigationResources UP-TO-DATE
+> Task :core:designsystem:processDebugNavigationResources UP-TO-DATE
+> Task :feature:drivers:processDebugNavigationResources UP-TO-DATE
+> Task :feature:library:processDebugNavigationResources UP-TO-DATE
+> Task :feature:session:processDebugNavigationResources UP-TO-DATE
+> Task :feature:settings:processDebugNavigationResources UP-TO-DATE
+> Task :feature:setup:processDebugNavigationResources UP-TO-DATE
+> Task :app:processFdroidDebugNavigationResources UP-TO-DATE
+> Task :app:compileFdroidDebugNavigationResources UP-TO-DATE
+> Task :app:generateFdroidDebugResValues UP-TO-DATE
+> Task :core:data:generateDebugResValues UP-TO-DATE
+> Task :core:data:generateDebugResources UP-TO-DATE
+> Task :core:data:packageDebugResources UP-TO-DATE
+> Task :core:database:generateDebugResValues UP-TO-DATE
+> Task :core:database:generateDebugResources UP-TO-DATE
+> Task :core:database:packageDebugResources UP-TO-DATE
+> Task :core:designsystem:generateDebugResValues UP-TO-DATE
+> Task :core:designsystem:generateDebugResources UP-TO-DATE
+> Task :core:designsystem:packageDebugResources UP-TO-DATE
+> Task :feature:drivers:generateDebugResValues UP-TO-DATE
+> Task :feature:drivers:generateDebugResources UP-TO-DATE
+> Task :feature:drivers:packageDebugResources UP-TO-DATE
+> Task :feature:library:generateDebugResValues UP-TO-DATE
+> Task :feature:library:generateDebugResources UP-TO-DATE
+> Task :feature:library:packageDebugResources UP-TO-DATE
+> Task :feature:session:generateDebugResValues UP-TO-DATE
+> Task :feature:session:generateDebugResources UP-TO-DATE
+> Task :feature:session:packageDebugResources UP-TO-DATE
+> Task :feature:settings:generateDebugResValues UP-TO-DATE
+> Task :feature:settings:generateDebugResources UP-TO-DATE
+> Task :feature:settings:packageDebugResources UP-TO-DATE
+> Task :feature:setup:generateDebugResValues UP-TO-DATE
+> Task :feature:setup:generateDebugResources UP-TO-DATE
+> Task :feature:setup:packageDebugResources UP-TO-DATE
+> Task :app:mapFdroidDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateFdroidDebugResources UP-TO-DATE
+> Task :app:mergeFdroidDebugResources UP-TO-DATE
+> Task :app:packageFdroidDebugResources UP-TO-DATE
+> Task :app:parseFdroidDebugLocalResources UP-TO-DATE
+> Task :app:createFdroidDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksFdroidDebug UP-TO-DATE
+> Task :core:data:extractDeepLinksDebug UP-TO-DATE
+> Task :core:data:processDebugManifest UP-TO-DATE
+> Task :core:database:extractDeepLinksDebug UP-TO-DATE
+> Task :core:database:processDebugManifest UP-TO-DATE
+> Task :core:designsystem:extractDeepLinksDebug UP-TO-DATE
+> Task :core:designsystem:processDebugManifest UP-TO-DATE
+> Task :feature:drivers:extractDeepLinksDebug UP-TO-DATE
+> Task :feature:drivers:processDebugManifest UP-TO-DATE
+> Task :feature:library:extractDeepLinksDebug UP-TO-DATE
+> Task :feature:library:processDebugManifest UP-TO-DATE
+> Task :feature:session:extractDeepLinksDebug UP-TO-DATE
+> Task :feature:session:processDebugManifest UP-TO-DATE
+> Task :feature:settings:extractDeepLinksDebug UP-TO-DATE
+> Task :feature:settings:processDebugManifest UP-TO-DATE
+> Task :feature:setup:extractDeepLinksDebug UP-TO-DATE
+> Task :feature:setup:processDebugManifest UP-TO-DATE
+> Task :app:processFdroidDebugMainManifest UP-TO-DATE
+> Task :app:processFdroidDebugManifest UP-TO-DATE
+> Task :app:processFdroidDebugManifestForPackage UP-TO-DATE
+> Task :core:data:compileDebugLibraryResources UP-TO-DATE
+> Task :core:data:parseDebugLocalResources UP-TO-DATE
+> Task :core:data:generateDebugRFile UP-TO-DATE
+> Task :core:database:compileDebugLibraryResources UP-TO-DATE
+> Task :core:database:parseDebugLocalResources UP-TO-DATE
+> Task :core:database:generateDebugRFile UP-TO-DATE
+> Task :core:designsystem:compileDebugLibraryResources UP-TO-DATE
+> Task :core:designsystem:parseDebugLocalResources UP-TO-DATE
+> Task :core:designsystem:generateDebugRFile UP-TO-DATE
+> Task :feature:drivers:compileDebugLibraryResources UP-TO-DATE
+> Task :core:runtime:compileDebugAndroidTestKotlin
+> Task :feature:drivers:parseDebugLocalResources UP-TO-DATE
+> Task :core:runtime:compileDebugAndroidTestJavaWithJavac NO-SOURCE
+> Task :core:runtime:dexBuilderDebugAndroidTest
+> Task :core:runtime:mergeDebugAndroidTestGlobalSynthetics UP-TO-DATE
+> Task :core:runtime:processDebugAndroidTestJavaRes UP-TO-DATE
+> Task :core:runtime:mergeDebugAndroidTestJavaResource UP-TO-DATE
+> Task :feature:drivers:generateDebugRFile UP-TO-DATE
+> Task :feature:library:compileDebugLibraryResources UP-TO-DATE
+> Task :feature:library:parseDebugLocalResources UP-TO-DATE
+> Task :feature:library:generateDebugRFile UP-TO-DATE
+> Task :feature:session:compileDebugLibraryResources UP-TO-DATE
+> Task :feature:session:parseDebugLocalResources UP-TO-DATE
+> Task :feature:session:generateDebugRFile UP-TO-DATE
+> Task :feature:settings:compileDebugLibraryResources UP-TO-DATE
+> Task :feature:settings:parseDebugLocalResources UP-TO-DATE
+> Task :feature:settings:generateDebugRFile UP-TO-DATE
+> Task :feature:setup:compileDebugLibraryResources UP-TO-DATE
+> Task :feature:setup:parseDebugLocalResources UP-TO-DATE
+> Task :feature:setup:generateDebugRFile UP-TO-DATE
+> Task :core:runtime:mergeProjectDexDebugAndroidTest
+> Task :app:processFdroidDebugResources UP-TO-DATE
+> Task :core:data:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:database:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:database:kspDebugKotlin UP-TO-DATE
+> Task :core:database:compileDebugKotlin UP-TO-DATE
+> Task :core:database:javaPreCompileDebug UP-TO-DATE
+> Task :core:database:compileDebugJavaWithJavac UP-TO-DATE
+> Task :core:database:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :core:runtime:mergeDebugNativeLibs
+> Task :core:data:javaPreCompileDebug UP-TO-DATE
+> Task :core:database:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :core:designsystem:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:designsystem:compileDebugKotlin UP-TO-DATE
+> Task :core:designsystem:javaPreCompileDebug UP-TO-DATE
+> Task :core:designsystem:compileDebugJavaWithJavac NO-SOURCE
+> Task :core:designsystem:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :core:designsystem:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :feature:drivers:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :feature:drivers:javaPreCompileDebug UP-TO-DATE
+> Task :feature:library:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :feature:library:javaPreCompileDebug UP-TO-DATE
+> Task :feature:session:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :feature:session:javaPreCompileDebug UP-TO-DATE
+> Task :feature:settings:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :feature:settings:javaPreCompileDebug UP-TO-DATE
+> Task :feature:setup:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :feature:setup:javaPreCompileDebug UP-TO-DATE
+> Task :app:javaPreCompileFdroidDebug UP-TO-DATE
+> Task :app:mergeFdroidDebugShaders UP-TO-DATE
+> Task :app:compileFdroidDebugShaders NO-SOURCE
+> Task :app:generateFdroidDebugAssets UP-TO-DATE
+> Task :core:data:mergeDebugShaders UP-TO-DATE
+> Task :core:data:compileDebugShaders NO-SOURCE
+> Task :core:data:generateDebugAssets UP-TO-DATE
+> Task :core:data:mergeDebugAssets UP-TO-DATE
+> Task :core:database:mergeDebugShaders UP-TO-DATE
+> Task :core:database:compileDebugShaders NO-SOURCE
+> Task :core:database:generateDebugAssets UP-TO-DATE
+> Task :core:database:mergeDebugAssets UP-TO-DATE
+> Task :core:designsystem:mergeDebugShaders UP-TO-DATE
+> Task :core:designsystem:compileDebugShaders NO-SOURCE
+> Task :core:designsystem:generateDebugAssets UP-TO-DATE
+> Task :core:designsystem:mergeDebugAssets UP-TO-DATE
+> Task :feature:drivers:mergeDebugShaders UP-TO-DATE
+> Task :feature:drivers:compileDebugShaders NO-SOURCE
+> Task :feature:drivers:generateDebugAssets UP-TO-DATE
+> Task :feature:drivers:mergeDebugAssets UP-TO-DATE
+> Task :feature:library:mergeDebugShaders UP-TO-DATE
+> Task :feature:library:compileDebugShaders NO-SOURCE
+> Task :feature:library:generateDebugAssets UP-TO-DATE
+> Task :feature:library:mergeDebugAssets UP-TO-DATE
+> Task :feature:session:mergeDebugShaders UP-TO-DATE
+> Task :feature:session:compileDebugShaders NO-SOURCE
+> Task :feature:session:generateDebugAssets UP-TO-DATE
+> Task :feature:session:mergeDebugAssets UP-TO-DATE
+> Task :feature:settings:mergeDebugShaders UP-TO-DATE
+> Task :feature:settings:compileDebugShaders NO-SOURCE
+> Task :feature:settings:generateDebugAssets UP-TO-DATE
+> Task :feature:settings:mergeDebugAssets UP-TO-DATE
+> Task :feature:setup:mergeDebugShaders UP-TO-DATE
+> Task :feature:setup:compileDebugShaders NO-SOURCE
+> Task :feature:setup:generateDebugAssets UP-TO-DATE
+> Task :feature:setup:mergeDebugAssets UP-TO-DATE
+> Task :app:mergeFdroidDebugAssets UP-TO-DATE
+> Task :app:compressFdroidDebugAssets UP-TO-DATE
+> Task :app:checkFdroidDebugDuplicateClasses UP-TO-DATE
+> Task :app:desugarFdroidDebugFileDependencies UP-TO-DATE
+> Task :app:mergeExtDexFdroidDebug UP-TO-DATE
+> Task :core:database:processDebugJavaRes UP-TO-DATE
+> Task :core:designsystem:processDebugJavaRes UP-TO-DATE
+> Task :core:designsystem:bundleLibRuntimeToDirDebug UP-TO-DATE
+> Task :core:database:bundleLibRuntimeToDirDebug UP-TO-DATE
+> Task :app:mergeFdroidDebugJniLibFolders UP-TO-DATE
+> Task :core:data:mergeDebugJniLibFolders UP-TO-DATE
+> Task :core:data:mergeDebugNativeLibs NO-SOURCE
+> Task :core:data:copyDebugJniLibsProjectOnly UP-TO-DATE
+> Task :core:database:mergeDebugJniLibFolders UP-TO-DATE
+> Task :core:database:mergeDebugNativeLibs NO-SOURCE
+> Task :core:database:copyDebugJniLibsProjectOnly UP-TO-DATE
+> Task :core:designsystem:mergeDebugJniLibFolders UP-TO-DATE
+> Task :core:designsystem:mergeDebugNativeLibs NO-SOURCE
+> Task :core:designsystem:copyDebugJniLibsProjectOnly UP-TO-DATE
+> Task :feature:drivers:mergeDebugJniLibFolders UP-TO-DATE
+> Task :feature:drivers:mergeDebugNativeLibs NO-SOURCE
+> Task :feature:drivers:copyDebugJniLibsProjectOnly UP-TO-DATE
+> Task :feature:library:mergeDebugJniLibFolders UP-TO-DATE
+> Task :feature:library:mergeDebugNativeLibs NO-SOURCE
+> Task :feature:library:copyDebugJniLibsProjectOnly UP-TO-DATE
+> Task :feature:session:mergeDebugJniLibFolders UP-TO-DATE
+> Task :feature:session:mergeDebugNativeLibs NO-SOURCE
+> Task :feature:session:copyDebugJniLibsProjectOnly UP-TO-DATE
+> Task :feature:settings:mergeDebugJniLibFolders UP-TO-DATE
+> Task :feature:settings:mergeDebugNativeLibs NO-SOURCE
+> Task :feature:settings:copyDebugJniLibsProjectOnly UP-TO-DATE
+> Task :feature:setup:mergeDebugJniLibFolders UP-TO-DATE
+> Task :feature:setup:mergeDebugNativeLibs NO-SOURCE
+> Task :feature:setup:copyDebugJniLibsProjectOnly UP-TO-DATE
+> Task :app:validateSigningFdroidDebug UP-TO-DATE
+> Task :app:writeFdroidDebugAppMetadata UP-TO-DATE
+> Task :app:writeFdroidDebugSigningConfigVersions UP-TO-DATE
+> Task :app:preFdroidDebugAndroidTestBuild SKIPPED
+> Task :app:processFdroidDebugAndroidTestManifest UP-TO-DATE
+> Task :app:generateFdroidDebugAndroidTestBuildConfig UP-TO-DATE
+> Task :app:checkFdroidDebugAndroidTestAarMetadata UP-TO-DATE
+> Task :app:processFdroidDebugAndroidTestNavigationResources UP-TO-DATE
+> Task :app:compileFdroidDebugAndroidTestNavigationResources UP-TO-DATE
+> Task :app:generateFdroidDebugAndroidTestResValues UP-TO-DATE
+> Task :app:mapFdroidDebugAndroidTestSourceSetPaths UP-TO-DATE
+> Task :app:generateFdroidDebugAndroidTestResources UP-TO-DATE
+> Task :app:mergeFdroidDebugAndroidTestResources UP-TO-DATE
+> Task :app:processFdroidDebugAndroidTestResources UP-TO-DATE
+> Task :app:javaPreCompileFdroidDebugAndroidTest UP-TO-DATE
+> Task :app:mergeFdroidDebugAndroidTestShaders UP-TO-DATE
+> Task :app:compileFdroidDebugAndroidTestShaders NO-SOURCE
+> Task :app:generateFdroidDebugAndroidTestAssets UP-TO-DATE
+> Task :app:mergeFdroidDebugAndroidTestAssets UP-TO-DATE
+> Task :app:compressFdroidDebugAndroidTestAssets UP-TO-DATE
+> Task :app:checkFdroidDebugAndroidTestDuplicateClasses UP-TO-DATE
+> Task :app:desugarFdroidDebugAndroidTestFileDependencies UP-TO-DATE
+> Task :app:mergeExtDexFdroidDebugAndroidTest UP-TO-DATE
+> Task :app:mergeFdroidDebugAndroidTestJniLibFolders UP-TO-DATE
+> Task :app:validateSigningFdroidDebugAndroidTest UP-TO-DATE
+> Task :app:writeFdroidDebugAndroidTestSigningConfigVersions UP-TO-DATE
+> Task :core:data:kspDebugKotlin
+> Task :core:data:compileDebugKotlin
+> Task :core:data:compileDebugJavaWithJavac UP-TO-DATE
+> Task :core:data:processDebugJavaRes UP-TO-DATE
+> Task :core:data:transformDebugClassesWithAsm
+> Task :core:data:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :core:data:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :core:runtime:copyDebugJniLibsProjectOnly
+> Task :core:data:bundleLibRuntimeToDirDebug UP-TO-DATE
+> Task :feature:drivers:kspDebugKotlin
+> Task :feature:library:kspDebugKotlin
+> Task :feature:drivers:compileDebugKotlin
+> Task :feature:session:kspDebugKotlin
+> Task :feature:library:compileDebugKotlin
+> Task :feature:drivers:compileDebugJavaWithJavac UP-TO-DATE
+> Task :feature:library:compileDebugJavaWithJavac UP-TO-DATE
+> Task :feature:drivers:processDebugJavaRes UP-TO-DATE
+> Task :feature:library:processDebugJavaRes UP-TO-DATE
+> Task :feature:drivers:transformDebugClassesWithAsm
+> Task :feature:drivers:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :feature:drivers:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :feature:drivers:bundleLibRuntimeToDirDebug UP-TO-DATE
+> Task :feature:library:transformDebugClassesWithAsm
+> Task :feature:library:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :feature:library:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :feature:library:bundleLibRuntimeToDirDebug UP-TO-DATE
+> Task :core:runtime:mergeDebugAndroidTestNativeLibs
+> Task :feature:setup:kspDebugKotlin
+> Task :feature:setup:compileDebugKotlin
+> Task :feature:setup:compileDebugJavaWithJavac UP-TO-DATE
+> Task :feature:setup:processDebugJavaRes UP-TO-DATE
+> Task :feature:setup:transformDebugClassesWithAsm
+> Task :feature:setup:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :feature:setup:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :feature:setup:bundleLibRuntimeToDirDebug UP-TO-DATE
+> Task :app:mergeFdroidDebugNativeLibs
+> Task :app:mergeFdroidDebugAndroidTestNativeLibs NO-SOURCE
+> Task :app:stripFdroidDebugAndroidTestDebugSymbols NO-SOURCE
+> Task :feature:session:compileDebugKotlin
+> Task :feature:session:compileDebugJavaWithJavac UP-TO-DATE
+> Task :feature:session:processDebugJavaRes UP-TO-DATE
+> Task :feature:session:transformDebugClassesWithAsm
+> Task :feature:session:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :feature:session:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :feature:session:bundleLibRuntimeToDirDebug UP-TO-DATE
+> Task :core:runtime:stripDebugAndroidTestDebugSymbols
+> Task :feature:settings:kspDebugKotlin
+> Task :core:runtime:packageDebugAndroidTest
+> Task :core:runtime:createDebugAndroidTestApkListingFileRedirect UP-TO-DATE
+> Task :core:runtime:assembleDebugAndroidTest
+> Task :app:stripFdroidDebugDebugSymbols
+> Task :feature:settings:compileDebugKotlin
+> Task :feature:settings:compileDebugJavaWithJavac UP-TO-DATE
+> Task :feature:settings:processDebugJavaRes UP-TO-DATE
+> Task :feature:settings:transformDebugClassesWithAsm
+> Task :feature:settings:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :feature:settings:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :feature:settings:bundleLibRuntimeToDirDebug UP-TO-DATE
+> Task :app:mergeLibDexFdroidDebugAndroidTest UP-TO-DATE
+> Task :app:mergeLibDexFdroidDebug
+> Task :app:kspFdroidDebugKotlin
+> Task :app:compileFdroidDebugKotlin
+> Task :app:compileFdroidDebugJavaWithJavac UP-TO-DATE
+> Task :app:hiltAggregateDepsFdroidDebug UP-TO-DATE
+> Task :app:hiltJavaCompileFdroidDebug UP-TO-DATE
+> Task :app:processFdroidDebugJavaRes UP-TO-DATE
+> Task :app:mergeFdroidDebugJavaResource UP-TO-DATE
+> Task :app:bundleFdroidDebugClassesToCompileJar
+> Task :app:transformFdroidDebugClassesWithAsm
+> Task :app:dexBuilderFdroidDebug
+> Task :app:mergeFdroidDebugGlobalSynthetics UP-TO-DATE
+> Task :app:mergeProjectDexFdroidDebug
+> Task :app:kspFdroidDebugAndroidTestKotlin
+> Task :app:compileFdroidDebugAndroidTestKotlin
+> Task :app:compileFdroidDebugAndroidTestJavaWithJavac UP-TO-DATE
+> Task :app:hiltAggregateDepsFdroidDebugAndroidTest UP-TO-DATE
+> Task :app:hiltJavaCompileFdroidDebugAndroidTest NO-SOURCE
+> Task :app:processFdroidDebugAndroidTestJavaRes UP-TO-DATE
+> Task :app:mergeFdroidDebugAndroidTestJavaResource UP-TO-DATE
+> Task :app:transformFdroidDebugAndroidTestClassesWithAsm
+> Task :app:dexBuilderFdroidDebugAndroidTest
+> Task :app:mergeFdroidDebugAndroidTestGlobalSynthetics UP-TO-DATE
+> Task :app:mergeProjectDexFdroidDebugAndroidTest
+> Task :app:packageFdroidDebugAndroidTest
+> Task :app:createFdroidDebugAndroidTestApkListingFileRedirect UP-TO-DATE
+> Task :app:assembleFdroidDebugAndroidTest
+> Task :app:packageFdroidDebug
+> Task :app:createFdroidDebugApkListingFileRedirect UP-TO-DATE
+> Task :app:assembleFdroidDebug
+
+BUILD SUCCESSFUL in 14s
+350 actionable tasks: 49 executed, 301 up-to-date

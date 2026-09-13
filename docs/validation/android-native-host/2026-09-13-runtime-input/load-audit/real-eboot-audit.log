@@ -1,0 +1,7 @@
+segment type=0x1 va=0 filesz=0x17b5cdc memsz=0x17b5cdc flags=5
+segment type=0x61000010 va=0x1800000 filesz=0x1264c0 memsz=0x1264c0 flags=4
+segment type=0x1 va=0x1a00000 filesz=0xec70 memsz=0x32de20 flags=6
+unresolved relocation type=1 count=406
+unresolved relocation type=7 count=652
+LOAD_AUDIT_PASS segments=3 relro=1 relative=92929 plt_entries=652 tls_bytes=40144
+EXECUTION_NOT_RUN: production import/TLS/entry/session integration required; load audit is not execution evidence

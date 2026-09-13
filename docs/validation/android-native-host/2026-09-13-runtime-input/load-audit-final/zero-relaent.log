@@ -1,0 +1,5 @@
+segment type=0x1 va=0 filesz=0x100 memsz=0x100 flags=5
+segment type=0x61000010 va=0x2000 filesz=0x8 memsz=0x8 flags=4
+segment type=0x1 va=0x4000 filesz=0x8 memsz=0x100 flags=6
+LOAD_AUDIT_FAIL: invalid RELA entry size
+EXECUTION_NOT_RUN

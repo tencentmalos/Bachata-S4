@@ -1,0 +1,121 @@
+INSTRUMENTATION_STATUS: class=com.shadps4.android.runtime.input.NativePadInstrumentedTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=
+com.shadps4.android.runtime.input.NativePadInstrumentedTest:
+INSTRUMENTATION_STATUS: test=foundationAndroidSourceToProductionPadWithSyntheticKey
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.shadps4.android.runtime.input.NativePadInstrumentedTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=foundationAndroidSourceToProductionPadWithSyntheticKey
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.shadps4.android.runtime.input.NativePadInstrumentedTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=productionVibrationTargetsEpochAndStaleDrainCannotSteal
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.shadps4.android.runtime.input.NativePadInstrumentedTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Array elements differ at index 2. Expected element <180>, actual element <90>.
+Expected <[710, 5, 180, 90, 1000, 0]>, actual <[710, 5, 90, 180, 1000, 0]>.
+	at org.junit.Assert.fail(Assert.java:89)
+	at kotlin.test.junit.JUnitAsserter.fail(JUnitSupport.kt:56)
+	at kotlin.test.AssertionsKt__AssertionsKt.fail(Assertions.kt:562)
+	at kotlin.test.AssertionsKt.fail(Unknown Source:1)
+	at kotlin.test.AssertContentEqualsImplKt.assertArrayContentEquals(AssertContentEqualsImpl.kt:80)
+	at kotlin.test.AssertionsKt__AssertionsKt.assertContentEquals(Assertions.kt:453)
+	at kotlin.test.AssertionsKt.assertContentEquals(Unknown Source:1)
+	at kotlin.test.AssertionsKt__AssertionsKt.assertContentEquals$default(Assertions.kt:451)
+	at kotlin.test.AssertionsKt.assertContentEquals$default(Unknown Source:1)
+	at com.shadps4.android.runtime.input.NativePadInstrumentedTest.productionVibrationTargetsEpochAndStaleDrainCannotSteal(NativePadInstrumentedTest.kt:76)
+
+INSTRUMENTATION_STATUS: stream=
+Error in productionVibrationTargetsEpochAndStaleDrainCannotSteal(com.shadps4.android.runtime.input.NativePadInstrumentedTest):
+java.lang.AssertionError: Array elements differ at index 2. Expected element <180>, actual element <90>.
+Expected <[710, 5, 180, 90, 1000, 0]>, actual <[710, 5, 90, 180, 1000, 0]>.
+	at org.junit.Assert.fail(Assert.java:89)
+	at kotlin.test.junit.JUnitAsserter.fail(JUnitSupport.kt:56)
+	at kotlin.test.AssertionsKt__AssertionsKt.fail(Assertions.kt:562)
+	at kotlin.test.AssertionsKt.fail(Unknown Source:1)
+	at kotlin.test.AssertContentEqualsImplKt.assertArrayContentEquals(AssertContentEqualsImpl.kt:80)
+	at kotlin.test.AssertionsKt__AssertionsKt.assertContentEquals(Assertions.kt:453)
+	at kotlin.test.AssertionsKt.assertContentEquals(Unknown Source:1)
+	at kotlin.test.AssertionsKt__AssertionsKt.assertContentEquals$default(Assertions.kt:451)
+	at kotlin.test.AssertionsKt.assertContentEquals$default(Unknown Source:1)
+	at com.shadps4.android.runtime.input.NativePadInstrumentedTest.productionVibrationTargetsEpochAndStaleDrainCannotSteal(NativePadInstrumentedTest.kt:76)
+
+INSTRUMENTATION_STATUS: test=productionVibrationTargetsEpochAndStaleDrainCannotSteal
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.shadps4.android.runtime.input.NativePadInstrumentedTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=physicalPacketNormalizationIsolationAndReconnect
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.shadps4.android.runtime.input.NativePadInstrumentedTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=physicalPacketNormalizationIsolationAndReconnect
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.shadps4.android.runtime.input.NativePadInstrumentedTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=overlayToProductionHleAndRetiredHandle
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.shadps4.android.runtime.input.NativePadInstrumentedTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=overlayToProductionHleAndRetiredHandle
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.shadps4.android.runtime.input.NativePadInstrumentedTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=oldObserverCannotEndNewBridge
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.shadps4.android.runtime.input.NativePadInstrumentedTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=oldObserverCannotEndNewBridge
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 0.061
+There was 1 failure:
+1) productionVibrationTargetsEpochAndStaleDrainCannotSteal(com.shadps4.android.runtime.input.NativePadInstrumentedTest)
+java.lang.AssertionError: Array elements differ at index 2. Expected element <180>, actual element <90>.
+Expected <[710, 5, 180, 90, 1000, 0]>, actual <[710, 5, 90, 180, 1000, 0]>.
+	at org.junit.Assert.fail(Assert.java:89)
+	at kotlin.test.junit.JUnitAsserter.fail(JUnitSupport.kt:56)
+	at kotlin.test.AssertionsKt__AssertionsKt.fail(Assertions.kt:562)
+	at kotlin.test.AssertionsKt.fail(Unknown Source:1)
+	at kotlin.test.AssertContentEqualsImplKt.assertArrayContentEquals(AssertContentEqualsImpl.kt:80)
+	at kotlin.test.AssertionsKt__AssertionsKt.assertContentEquals(Assertions.kt:453)
+	at kotlin.test.AssertionsKt.assertContentEquals(Unknown Source:1)
+	at kotlin.test.AssertionsKt__AssertionsKt.assertContentEquals$default(Assertions.kt:451)
+	at kotlin.test.AssertionsKt.assertContentEquals$default(Unknown Source:1)
+	at com.shadps4.android.runtime.input.NativePadInstrumentedTest.productionVibrationTargetsEpochAndStaleDrainCannotSteal(NativePadInstrumentedTest.kt:76)
+
+FAILURES!!!
+Tests run: 5,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

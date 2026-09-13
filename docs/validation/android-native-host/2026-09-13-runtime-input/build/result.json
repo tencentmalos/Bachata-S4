@@ -1,0 +1,144 @@
+{
+  "status": "HOST_LINK_PASS",
+  "profile": {
+    "ndk": "/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865",
+    "compiler": "Android (13989888, +pgo, -bolt, +lto, -mlgo, based on r563880c) clang version 21.0.0 (https://android.googlesource.com/toolchain/llvm-project 5e96669f06077099aa41290cdb4c5e6fa0f59349)\nTarget: arm64-apple-darwin25.5.0\nThread model: posix\nInstalledDir: /Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/bin",
+    "ndk_properties": "Pkg.Desc = Android NDK\nPkg.Revision = 29.0.14206865\nPkg.BaseRevision = 29.0.14206865\nPkg.ReleaseName = r29\n",
+    "api": 33,
+    "abi": "arm64-v8a",
+    "stl": "c++_shared",
+    "build_type": "RelWithDebInfo",
+    "foundation": true,
+    "source": "/Users/bytedance/workspace/emulations/ps4/shadps4"
+  },
+  "commands": [
+    {
+      "argv": [
+        "cmake",
+        "-S",
+        "/Users/bytedance/workspace/emulations/ps4/shadps4/cmake/host-tools",
+        "-B",
+        "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/tools",
+        "-G",
+        "Ninja",
+        "-DCMAKE_BUILD_TYPE=Release"
+      ],
+      "log": "runs/1789265362832086000/tools-configure.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "cmake",
+        "--build",
+        "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/tools",
+        "--target",
+        "protoc",
+        "shadps4_font_embed",
+        "-j",
+        "7"
+      ],
+      "log": "runs/1789265362832086000/tools-build.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "cmake",
+        "-S",
+        "/Users/bytedance/workspace/emulations/ps4/shadps4",
+        "-B",
+        "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native",
+        "-G",
+        "Ninja",
+        "-DCMAKE_TOOLCHAIN_FILE=/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/build/cmake/android.toolchain.cmake",
+        "-DANDROID_ABI=arm64-v8a",
+        "-DANDROID_PLATFORM=android-33",
+        "-DANDROID_STL=c++_shared",
+        "-DCMAKE_BUILD_TYPE=RelWithDebInfo",
+        "-DBUILD_HOST_CORE=ON",
+        "-DENABLE_TESTS=OFF",
+        "-DHOST_BUILD_PROBES=ON",
+        "-DENABLE_DISCORD_RPC=OFF",
+        "-DENABLE_UPDATER=OFF",
+        "-DENABLE_SPATIAL_FOUNDATION=ON",
+        "-DSHADNET_PROTOC_EXECUTABLE=/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/tools/protobuf/protoc",
+        "-DIMGUI_FONT_EMBED_EXECUTABLE=/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/tools/shadps4_font_embed",
+        "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
+      ],
+      "log": "runs/1789265362832086000/host-configure.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "cmake",
+        "--build",
+        "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native",
+        "--target",
+        "shadps4_host",
+        "host_library_smoke",
+        "host_dlopen_smoke",
+        "-j",
+        "7"
+      ],
+      "log": "runs/1789265362832086000/host-build.log",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-readelf",
+        "-h",
+        "-d",
+        "-n",
+        "--version-info",
+        "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native/libshadps4_host.so"
+      ],
+      "log": "runs/1789265362832086000/elf.log",
+      "exit_code": 0
+    }
+  ],
+  "source_head": "768636aadd6dd136ea2bff042627d642d58e5c3e",
+  "scope": "native host library; FEX/APK/Turnip/game NOT_INTEGRATED",
+  "device_status": "NOT_RUN",
+  "source_manifest": "runs/1789265362832086000/source.json",
+  "source_manifest_sha256": "6fd574b190b4aeaeaef63d67350fdbfb18b71a6f27c84bd340096cb3603cc561",
+  "source_status": "M AGENTS.md\n M CLAUDE.md\n M CMakeLists.txt\n M android/shadps4-app/app/build.gradle.kts\n M android/shadps4-app/app/src/main/kotlin/com/shadps4/android/MainActivity.kt\n M android/shadps4-app/app/src/main/kotlin/com/shadps4/android/service/FexSessionService.kt\n M android/shadps4-app/core/runtime/build.gradle.kts\n D android/shadps4-app/core/runtime/src/androidTest/kotlin/com/shadps4/android/runtime/input/HapticsPumpInstrumentedTest.kt\n M android/shadps4-app/core/runtime/src/androidTest/kotlin/com/shadps4/android/runtime/input/NativePadInstrumentedTest.kt\n M android/shadps4-app/core/runtime/src/main/cpp/CMakeLists.txt\n M android/shadps4-app/core/runtime/src/main/cpp/orbis_pad_jni.cpp\n M android/shadps4-app/core/runtime/src/main/kotlin/com/shadps4/android/runtime/input/GamepadInputManager.kt\n D android/shadps4-app/core/runtime/src/main/kotlin/com/shadps4/android/runtime/input/HapticsPump.kt\n D android/shadps4-app/core/runtime/src/main/kotlin/com/shadps4/android/runtime/input/HapticsSink.kt\n M android/shadps4-app/core/runtime/src/main/kotlin/com/shadps4/android/runtime/input/NativePad.kt\n M android/shadps4-app/core/runtime/src/main/kotlin/com/shadps4/android/runtime/input/NativePadBridge.kt\n D android/shadps4-app/core/runtime/src/main/kotlin/com/shadps4/android/runtime/input/VibratorHapticsSink.kt\n M android/shadps4-app/core/runtime/src/main/kotlin/com/shadps4/android/runtime/session/ManagedSession.kt\n M android/shadps4-app/feature/session/src/main/kotlin/com/shadps4/android/feature/session/SessionScreen.kt\n M cmake/fex/CMakeLists.txt\n M docs/README.md\n M docs/foundation-integration.md\n M docs/specs/android-native-host-production-runtime.md\n M externals/CMakeLists.txt\nM  foundation\n M references/Bachata-S4\n M scripts/android/build-host-android\n M scripts/android/run-host-library-smoke.py\n M src/core/guest_cpu/fex/fex_context.h\n M src/core/host_runtime/orbis_pad_adapter.cpp\n M src/core/host_runtime/orbis_pad_adapter.h\n M src/core/libraries/audio/audioin.cpp\n M src/core/libraries/audio/audioin_backend.h\n M src/core/libraries/audio/null_audio_in.cpp\n M src/core/libraries/pad/pad.cpp\n M src/core/loader/elf.cpp\n M src/core/loader/elf.h\n M tests/host_runtime/host_library_smoke.cpp\n M tests/host_runtime/orbis_pad_adapter_tests.cpp\n M tools/eboot_prologue_harness.cpp\n?? android/shadps4-app/app/src/androidTest/kotlin/com/shadps4/android/HostInputServiceInstrumentedTest.kt\n?? docs/specs/android-foundation-input-first.md\n?? docs/validation/android-native-host/2026-09-13-runtime-input/\n?? docs/validation/android-native-host/foundation-input-review-2026-09-12.md\n?? externals/dear_imgui/\n?? scripts/android/check-eboot-load-audit.py\n?? tests/host_runtime/host_dlopen_smoke.cpp",
+  "tools": {
+    "protoc_version": "libprotoc 36.0-dev",
+    "protoc_sha256": "9429e830326b020a29854a210fcb9b4a77212e7ebb8b9469687d9af141658c0a",
+    "font_sha256": "8fa1e066765ee304dd593ef6da424a4ef74b2d6bf66d7cc5de75c702bf8e87ff"
+  },
+  "artifacts": [
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native/libshadps4_host.so",
+      "sha256": "0ce6762bf9a658e37b9bb03debc12fe620626c942af44fea344b2e9d05e18c2f"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native/host_library_smoke",
+      "sha256": "2a17b6d1049e48a3838c55b8c968df222a85add855c9280f382283ebb89bc866"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native/host_dlopen_smoke",
+      "sha256": "c1c6b53b65918b0ef748e8d4c1de09c1f0e3ac2b8847d06c87396c86e2349be8"
+    },
+    {
+      "path": "/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so",
+      "sha256": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native/externals/libadrenotools/src/hook/libfile_redirect_hook.so",
+      "sha256": "cd72356d85a50aa9faac29a95f74c5ead1c2d4e014f4340075027516b3782624"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native/externals/libadrenotools/src/hook/libgsl_alloc_hook.so",
+      "sha256": "22a7309ba4cdcb8da5e168dada6d44369d6a02fae8344972a9536f549f301502"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native/externals/libadrenotools/src/hook/libhook_impl.so",
+      "sha256": "b96a86085e9d6adda00f9d8385269a646033e832857348ba19f4d800e39d6b3f"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native/externals/libadrenotools/src/hook/libmain_hook.so",
+      "sha256": "6f07f902085159abbab1430a5100453c62293c16f54a4d9ca5df7dda9c61ebf0"
+    }
+  ],
+  "map_sha256": "84e9effcbd18e3480871a935e8a86fd06c702f0b639b2bb584aede3837926339"
+}

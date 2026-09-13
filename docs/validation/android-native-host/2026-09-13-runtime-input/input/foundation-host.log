@@ -1,0 +1,7 @@
+foundation_input_tests
+control correctness: buttons, axis normalization, rejection
+identity: stale epoch, wrong session, unknown device
+multi-device isolation + focus-lost release
+feedback: enqueue, cancel supersede, unsupported, drain
+
+49 checks, 0 failures
