@@ -20,7 +20,9 @@
 #include "core/guest_cpu/hle/veneer_allocator.h"
 #include "core/host_runtime/guest_runtime.h"
 #include "core/libraries/kernel/memory.h"
+#include "core/libraries/kernel/orbis_error.h"
 #include "core/libraries/kernel/posix_error.h"
+#include "core/libraries/kernel/time.h"
 #include "core/libraries/libs.h"
 #include "core/linker.h"
 #include "core/memory.h"
@@ -556,6 +558,75 @@ void GuestRuntime::Impl::InstallHandlers() {
         auto* scope = HleScope::Current();
         return scope->WaitFor(std::chrono::microseconds(a[0])) ? 0 : PosixFailure(POSIX_EINTR);
     });
+    // Time family. The real Orbis implementations only read the clock and fill an
+    // output struct, so call them against a host-local struct and copy the result
+    // into validated guest memory rather than handing a guest pointer to native
+    // code. clock_gettime/getres take (clock_id, timespec*); gettimeofday takes
+    // (timeval*, timezone*); the sceKernel* variants share the same shapes. A null
+    // or unwritable output pointer is a guest fault, not a silent success.
+    {
+        namespace Kernel = Libraries::Kernel;
+        auto write_timespec = [this](u64 clock_id, u64 ptr,
+                                     s32 (*fn)(u32, Kernel::OrbisKernelTimespec*)) -> u64 {
+            if (ptr == 0)
+                return PosixFailure(POSIX_EFAULT);
+            Require(space.ValidateRange({GuestAddress{ptr}, sizeof(Kernel::OrbisKernelTimespec)},
+                                        GuestPermission::Write));
+            Kernel::OrbisKernelTimespec ts{};
+            const s32 result = fn(static_cast<u32>(clock_id), &ts);
+            if (result == 0)
+                Write(ptr, ts);
+            return static_cast<u32>(result);
+        };
+        // posix_clock_gettime: return -1 + errno on failure.
+        bind({"lLMT9vJAck0", "0-KXaS70xy4"}, [this, write_timespec](const auto& a) -> u64 {
+            return write_timespec(a[0], a[1], &Kernel::posix_clock_gettime);
+        });
+        // sceKernelClockGettime: SCE error convention (0 / negative Sce code).
+        bind({"QBi7HCK03hw"}, [this](const auto& a) -> u64 {
+            if (a[1] == 0)
+                return static_cast<u32>(ORBIS_KERNEL_ERROR_EFAULT);
+            Require(space.ValidateRange({GuestAddress{a[1]}, sizeof(Kernel::OrbisKernelTimespec)},
+                                        GuestPermission::Write));
+            Kernel::OrbisKernelTimespec ts{};
+            const s32 result = Kernel::sceKernelClockGettime(static_cast<u32>(a[0]), &ts);
+            if (result == 0)
+                Write(a[1], ts);
+            return static_cast<u32>(result);
+        });
+        // Pure scalar clock reads: no guest pointer.
+        bind({"4J2sUJmuHZQ"},
+             [](const auto&) -> u64 { return Kernel::sceKernelGetProcessTime(); });
+        bind({"fgxnMeTNUtY"},
+             [](const auto&) -> u64 { return Kernel::sceKernelGetProcessTimeCounter(); });
+        bind({"-2IRUCO--PM"}, [](const auto&) -> u64 { return Kernel::sceKernelReadTsc(); });
+        bind({"1j3S3n-tTW4"},
+             [](const auto&) -> u64 { return Kernel::sceKernelGetTscFrequency(); });
+        // nanosleep(rqtp, rmtp): read the request from guest memory, wait through
+        // the cancellable HLE scope, write back remaining time when interrupted.
+        bind({"NhpspxdjEKU", "yS8U2TGCe1A"}, [this](const auto& a) -> u64 {
+            if (a[0] == 0)
+                return PosixFailure(POSIX_EFAULT);
+            Require(space.ValidateRange({GuestAddress{a[0]}, sizeof(Kernel::OrbisKernelTimespec)},
+                                        GuestPermission::Read));
+            const auto req = Read<Kernel::OrbisKernelTimespec>(a[0]);
+            if (req.tv_sec < 0 || req.tv_nsec < 0 || req.tv_nsec >= 1'000'000'000)
+                return PosixFailure(POSIX_EINVAL);
+            const auto total = std::chrono::seconds{req.tv_sec} +
+                               std::chrono::nanoseconds{req.tv_nsec};
+            const bool completed = HleScope::Current()->WaitFor(total);
+            if (!completed) {
+                if (a[1]) {
+                    Require(space.ValidateRange(
+                        {GuestAddress{a[1]}, sizeof(Kernel::OrbisKernelTimespec)},
+                        GuestPermission::Write));
+                    Write(a[1], Kernel::OrbisKernelTimespec{});
+                }
+                return PosixFailure(POSIX_EINTR);
+            }
+            return 0;
+        });
+    }
     bind({"FJrT5LuUBAU", "3kg7rT0NQIs"}, [](const auto& a) -> u64 {
         HleScope::Current()->ExitThread(a[0]);
         return a[0];
