@@ -1,0 +1,102 @@
+clock-vm True INSTRUMENTATION_STATUS: class=com.shadps4.android.ThreadAttributeRuntimeInstrumentedTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.shadps4.android.ThreadAttributeRuntimeInstrumentedTest:
+INSTRUMENTATION_STATUS: test=guestClockWritesRaceVmPublication
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.shadps4.android.ThreadAttributeRuntimeInstrumentedTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=guestClockWritesRaceVmPublication
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 0.758
+
+OK (1 test)
+
+
+INSTRUMENTATION_CODE: -1
+
+09-13 23:50:12.781  9640  9668 I ThreadAttributeAcceptance: clock-vm round=0 outcome=0 page_size=4096 pid=9640 uid=10157 guest return=51966
+09-13 23:50:12.781  9640  9668 I ThreadAttributeAcceptance: production Linker/VM; owners=2 veneers=35
+09-13 23:50:12.781  9640  9668 I ThreadAttributeAcceptance: UNSUPPORTED_IMPORT ChildFault0#libkernel#1#libkernel#Function graphics=not-created modules=1
+09-13 23:50:13.018  9640  9668 I ThreadAttributeAcceptance: clock-vm round=1 outcome=0 page_size=4096 pid=9640 uid=10157 guest return=51966
+09-13 23:50:13.018  9640  9668 I ThreadAttributeAcceptance: production Linker/VM; owners=2 veneers=35
+09-13 23:50:13.018  9640  9668 I ThreadAttributeAcceptance: UNSUPPORTED_IMPORT ChildFault0#libkernel#1#libkernel#Function graphics=not-created modules=1
+09-13 23:50:13.252  9640  9668 I ThreadAttributeAcceptance: clock-vm round=2 outcome=0 page_size=4096 pid=9640 uid=10157 guest return=51966
+09-13 23:50:13.252  9640  9668 I ThreadAttributeAcceptance: production Linker/VM; owners=2 veneers=35
+09-13 23:50:13.252  9640  9668 I ThreadAttributeAcceptance: UNSUPPORTED_IMPORT ChildFault0#libkernel#1#libkernel#Function graphics=not-created modules=1
+sysmodule True INSTRUMENTATION_STATUS: class=com.shadps4.android.SysmoduleRuntimeInstrumentedTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.shadps4.android.SysmoduleRuntimeInstrumentedTest:
+INSTRUMENTATION_STATUS: test=initializedProvidersAndPositionedFileIo
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.shadps4.android.SysmoduleRuntimeInstrumentedTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=initializedProvidersAndPositionedFileIo
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 1.198
+
+OK (1 test)
+
+
+INSTRUMENTATION_CODE: -1
+
+09-13 23:50:13.018  9640  9668 I ThreadAttributeAcceptance: clock-vm round=1 outcome=0 page_size=4096 pid=9640 uid=10157 guest return=51966
+09-13 23:50:13.018  9640  9668 I ThreadAttributeAcceptance: production Linker/VM; owners=2 veneers=35
+09-13 23:50:13.018  9640  9668 I ThreadAttributeAcceptance: UNSUPPORTED_IMPORT ChildFault0#libkernel#1#libkernel#Function graphics=not-created modules=1
+09-13 23:50:13.252  9640  9668 I ThreadAttributeAcceptance: clock-vm round=2 outcome=0 page_size=4096 pid=9640 uid=10157 guest return=51966
+09-13 23:50:13.252  9640  9668 I ThreadAttributeAcceptance: production Linker/VM; owners=2 veneers=35
+09-13 23:50:13.252  9640  9668 I ThreadAttributeAcceptance: UNSUPPORTED_IMPORT ChildFault0#libkernel#1#libkernel#Function graphics=not-created modules=1
+09-13 23:50:14.114  9724  9744 I SysmoduleAcceptance: round=0 cancel=false outcome=0 page_size=4096 pid=9724 uid=10157 guest return=51966
+09-13 23:50:14.114  9724  9744 I SysmoduleAcceptance: production Linker/VM; owners=1 veneers=52 graphics=not-created modules=1
+09-13 23:50:14.332  9724  9744 I SysmoduleAcceptance: round=1 cancel=false outcome=0 page_size=4096 pid=9724 uid=10157 guest return=51966
+09-13 23:50:14.332  9724  9744 I SysmoduleAcceptance: production Linker/VM; owners=1 veneers=52 graphics=not-created modules=1
+09-13 23:50:14.559  9724  9744 I SysmoduleAcceptance: round=2 cancel=false outcome=0 page_size=4096 pid=9724 uid=10157 guest return=51966
+09-13 23:50:14.559  9724  9744 I SysmoduleAcceptance: production Linker/VM; owners=1 veneers=52 graphics=not-created modules=1
+09-13 23:50:14.787  9724  9744 I SysmoduleAcceptance: round=3 cancel=true outcome=1 page_size=4096 pid=9724 uid=10157 guest return=2151743748
+09-13 23:50:14.787  9724  9744 I SysmoduleAcceptance: production Linker/VM; owners=1 veneers=52 graphics=not-created modules=1
+09-13 23:50:15.015  9724  9744 I SysmoduleAcceptance: round=4 cancel=false outcome=0 page_size=4096 pid=9724 uid=10157 guest return=51966
+09-13 23:50:15.015  9724  9744 I SysmoduleAcceptance: production Linker/VM; owners=1 veneers=52 graphics=not-created modules=1
+tmnt True INSTRUMENTATION_STATUS: class=com.shadps4.android.RenderedRuntimeInstrumentedTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.shadps4.android.RenderedRuntimeInstrumentedTest:
+INSTRUMENTATION_STATUS: test=realContentUsesSessionRendererAcrossThreeRestarts
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.shadps4.android.RenderedRuntimeInstrumentedTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=realContentUsesSessionRendererAcrossThreeRestarts
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 18.912
+
+OK (1 test)
+
+
+INSTRUMENTATION_CODE: -1
+
+09-13 23:50:15.015  9724  9744 I SysmoduleAcceptance: round=4 cancel=false outcome=0 page_size=4096 pid=9724 uid=10157 guest return=51966
+09-13 23:50:15.015  9724  9744 I SysmoduleAcceptance: production Linker/VM; owners=1 veneers=52 graphics=not-created modules=1
+09-13 23:50:21.757  9804  9824 I RenderedRuntimeAcceptance: round=1 gen=1 outcome=2 page_size=4096 pid=9804 uid=10157 guest return=116 guest_rip=103081099277 operation=116 import=hv1luiJrqQM#libScePad#1#libScePad#Function context=1 thread=1 generation=2 invocation=2 category=10
+09-13 23:50:27.913  9804  9824 I RenderedRuntimeAcceptance: round=2 gen=2 outcome=2 page_size=4096 pid=9804 uid=10157 guest return=116 guest_rip=103081099277 operation=116 import=hv1luiJrqQM#libScePad#1#libScePad#Function context=14 thread=1 generation=15 invocation=2 category=10
+09-13 23:50:33.966  9804  9824 I RenderedRuntimeAcceptance: round=3 gen=3 outcome=2 page_size=4096 pid=9804 uid=10157 guest return=116 guest_rip=103081099277 operation=116 import=hv1luiJrqQM#libScePad#1#libScePad#Function context=27 thread=1 generation=28 invocation=2 category=10
