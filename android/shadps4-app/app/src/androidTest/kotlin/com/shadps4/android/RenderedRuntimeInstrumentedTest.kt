@@ -60,7 +60,15 @@ class RenderedRuntimeInstrumentedTest {
         }
     }
 
-    @Test fun realContentUsesSessionRendererAcrossThreeRestarts() {
+    @Test fun realContentUsesSessionRendererAcrossThreeRestarts() = realContent(0)
+
+    /** Bounded liveness/cancellation observation, not playable-scene acceptance. */
+    @Test fun realContentRunsAndStopsAcrossThreeRestarts() = realContent(20000)
+
+    /** Longer cold-start observation; still requires no rendering or playability. */
+    @Test fun realContentRunsAndStopsAfterLongStartup() = realContent(120000, 1)
+
+    private fun realContent(observeMs: Long, rounds: Int = 3) {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val context = instrumentation.targetContext
         val relative = InstrumentationRegistry.getArguments().getString("contentRelativePath")
@@ -87,7 +95,7 @@ class RenderedRuntimeInstrumentedTest {
         val paths = AndroidTurnip.prepare(context)
         val identity = NativeFexSession.nativeIdentity()
         var previous = 0L
-        repeat(3) { round ->
+        repeat(rounds) { round ->
             RuntimeTestSurface(instrumentation).use { window ->
                 val generation = NativeFexSession.nativeStartRenderedExecutable("real-content-boundary",
                     entry.path, window.surface, paths.hooks, paths.driver)
@@ -104,10 +112,21 @@ class RenderedRuntimeInstrumentedTest {
                         NativePadBridge.begin(context, generation)
                     }
                     assertTrue(NativeFexSession.nativePlatformReady(generation))
-                    val outcome = NativeFexSession.nativeWaitTerminal(generation, 45000)
+                    val observation = NativeFexSession.nativeWaitTerminal(generation,
+                        if (observeMs > 0) observeMs else 45000)
+                    if (observeMs > 0) {
+                        assertEquals("content terminated before observation: ${NativeFexSession.nativeTerminalDetail(generation)}",
+                            NativeFexSession.Outcome.TIMEOUT, observation)
+                        assertEquals(NativeFexSession.PhaseOrdinal.RUNNING, NativeFexSession.nativePhase(generation))
+                        val stopped = NativeFexSession.nativeRequestStop(generation, 2000)
+                        assertTrue("bounded Stop result=$stopped", stopped == NativeFexSession.Stop.ACCEPTED ||
+                            stopped == NativeFexSession.Stop.ALREADY_STOPPED)
+                    }
+                    val outcome = if (observeMs > 0) NativeFexSession.nativeWaitTerminal(generation, 2000) else observation
                     val detail = NativeFexSession.nativeTerminalDetail(generation).orEmpty()
                     android.util.Log.i("RenderedRuntimeAcceptance", "round=${round + 1} gen=$generation outcome=$outcome $identity $detail")
-                    assertEquals(detail, NativeFexSession.Outcome.FAULTED, outcome)
+                    assertEquals(detail, if (observeMs > 0) NativeFexSession.Outcome.CANCELLED
+                        else NativeFexSession.Outcome.FAULTED, outcome)
                     assertTrue(detail, detail.contains("graphics=ready"))
                     assertFalse(detail, detail.contains("import=Up36PTk687E#"))
                     assertEquals(identity, NativeFexSession.nativeIdentity())

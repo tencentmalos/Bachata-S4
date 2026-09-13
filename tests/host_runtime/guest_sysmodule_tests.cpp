@@ -33,6 +33,8 @@ int main() {
             return "libSceDiscMap";
         if (id == 0xab)
             return "missing";
+        if (id == 0xe7)
+            return "libSceJson2";
         return {};
     });
     modules.Publish("libSceDiscMap", 31);
@@ -74,6 +76,18 @@ int main() {
     args[4] = 0;
     check("zero args and optional output", load() == 0);
     check("reload uses stable provider", modules.Handle(0xd7, &handle) == 0 && handle == 31);
+    check("Json2 absent before explicit desktop policy",
+          modules.Load(0xe7) == ORBIS_SYSMODULE_LOCK_FAILED);
+    modules.AllowDesktopJson2Compatibility();
+    check("desktop optional Json2 bookkeeping", modules.Load(0xe7) == 0 &&
+          modules.Handle(0xe7, &handle) == 0 && handle == 0x10000100);
+    check("compatibility does not admit arbitrary missing providers",
+          modules.Load(0xab) == ORBIS_SYSMODULE_LOCK_FAILED);
+    check("compatibility reference release", modules.Unload(0xe7) == 0 &&
+          modules.Handle(0xe7) == ORBIS_SYSMODULE_NOT_LOADED);
+    modules.Publish("libSceJson2", 41);
+    check("actual provider takes precedence", modules.Load(0xe7) == 0 &&
+          modules.Handle(0xe7, &handle) == 0 && handle == 41);
     args = {1, 0, 0, base, base + 4, base + 8};
     for (const auto nid : DiscMapNids) {
         set(base, 5);

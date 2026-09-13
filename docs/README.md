@@ -1,5 +1,7 @@
 # Android / FEX 开发资料索引
 
+**2026-09-14最新：[AudioOut、内核信号量与Json2桌面兼容](validation/android-native-host/audio-semaphore-integration-2026-09-14.md)。** Native55/0＋55/0＋35/0，普通APK实际FEX/AAudio三轮；TMNT修复Json2失败清理崩溃后可运行20秒并取消三轮，仍0帧、不可玩。随后长观察约51秒到首次compute shader，ARM64 SRT未实现导致SIGABRT；继续补SRT，只测改动，不扩网络/SSL，不新增spec。
+
 **最新（2026-09-14）：[AJM会话解码与真实FEX调用](validation/android-native-host/ajm-runtime-integration-2026-09-14.md)。** native126/0、真实MP3输出32256bytes；APK三轮8/10参数batch、完整TMNT三轮到AudioOutInit/op95，仍0帧。继续AudioOut，不扩网络SSL，无全回归。
 
 **当前（2026-09-14）：[零偏移 DT_INIT、模块复用与 libc 线程析构](validation/android-native-host/module-init-thread-dtors-2026-09-14.md)。** 修复实际跳过 libc/FMOD 构造器的根因，纠正此前初始化日志；APK模块矩阵9轮、析构4轮、完整TMNT3轮到AJM初始化，Turnip已就绪但仍0帧。继续生产AJM，无网络/SSL扩展，无全量回归。

@@ -1,0 +1,75 @@
+audio True INSTRUMENTATION_STATUS: class=com.shadps4.android.AudioRuntimeInstrumentedTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.shadps4.android.AudioRuntimeInstrumentedTest:
+INSTRUMENTATION_STATUS: test=aaudioAcceptsGuestBuffersAndClosesAcrossRestarts
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.shadps4.android.AudioRuntimeInstrumentedTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=aaudioAcceptsGuestBuffersAndClosesAcrossRestarts
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 0.852
+
+OK (1 test)
+
+
+INSTRUMENTATION_CODE: -1
+
+09-14 01:49:06.225  7844  7871 I AudioAcceptance: round=0 case=audio outcome=0 page_size=4096 pid=7844 uid=10157 guest return=51966
+09-14 01:49:06.225  7844  7871 I AudioAcceptance: production Linker/VM; owners=1 veneers=13 graphics=not-created modules=1
+09-14 01:49:06.487  7844  7871 I AudioAcceptance: round=1 case=audio outcome=0 page_size=4096 pid=7844 uid=10157 guest return=51966
+09-14 01:49:06.487  7844  7871 I AudioAcceptance: production Linker/VM; owners=1 veneers=13 graphics=not-created modules=1
+09-14 01:49:06.759  7844  7871 I AudioAcceptance: round=2 case=audio outcome=0 page_size=4096 pid=7844 uid=10157 guest return=51966
+09-14 01:49:06.759  7844  7871 I AudioAcceptance: production Linker/VM; owners=1 veneers=13 graphics=not-created modules=1
+tmnt False redRuntimeInstrumentedTest.realContentUsesSessionRendererAcrossThreeRestarts(RenderedRuntimeInstrumentedTest.kt:110)
+
+INSTRUMENTATION_STATUS: stream=
+Error in realContentUsesSessionRendererAcrossThreeRestarts(com.shadps4.android.RenderedRuntimeInstrumentedTest):
+java.lang.AssertionError: expected:<2> but was:<-1>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at com.shadps4.android.RenderedRuntimeInstrumentedTest.realContentUsesSessionRendererAcrossThreeRestarts(RenderedRuntimeInstrumentedTest.kt:110)
+
+INSTRUMENTATION_STATUS: test=realContentUsesSessionRendererAcrossThreeRestarts
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 46.73
+There was 1 failure:
+1) realContentUsesSessionRendererAcrossThreeRestarts(com.shadps4.android.RenderedRuntimeInstrumentedTest)
+java.lang.AssertionError: expected:<2> but was:<-1>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at com.shadps4.android.RenderedRuntimeInstrumentedTest.realContentUsesSessionRendererAcrossThreeRestarts(RenderedRuntimeInstrumentedTest.kt:110)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1
+
+09-14 01:49:09.339  7926  7971 I ProductionModule: SysmoduleLoad id=0xa0 name=libSceSaveDataDialog result=0
+09-14 01:49:09.339  7926  7971 I ProductionModule: SysmoduleLoad id=0xa4 name=libSceMsgDialog result=0x805a10ff
+09-14 01:49:10.175  7926  7971 I ProductionModule: SysmoduleLoad id=0xb4 name=libSceAppContent result=0
+09-14 01:49:13.891  7926  7971 I ProductionModule: SysmoduleLoad id=0x96 name=libSceImeDialog result=0x805a10ff
+09-14 01:49:14.011  7926  7971 I ProductionModule: LoadStartModule existing path=/app0/modules/libfmod.prx handle=1
+09-14 01:49:14.011  7926  7971 I ProductionModule: LoadStartModule existing path=/app0/modules/libfmodstudio.prx handle=4
+09-14 01:49:17.851  7926  7971 I ProductionModule: LoadStartModule existing path=/app0/sce_module/libSceNpEntitlementAccess.prx handle=5
+09-14 01:49:17.851  7926  7971 I ProductionModule: SysmoduleLoad id=0xb4 name=libSceAppContent result=0
+09-14 01:49:17.858  7926  7971 I ProductionModule: SysmoduleLoad id=0x9d name=libSceNpAuth result=0x805a10ff
+09-14 01:49:17.860  7926  7971 I ProductionModule: SysmoduleLoad id=0xe7 name=libSceJson2 result=0
+09-14 01:49:53.665  7926  7945 I RenderedRuntimeAcceptance: round=1 gen=1 outcome=-1 page_size=4096 pid=7926 uid=10157 
+Traceback (most recent call last):
+  File "/Users/bytedance/workspace/emulations/ps4/shadps4/build/sysmodule-review/run-audio-json-focused.py", line 28, in <module>
+    assert ok
+           ^^
+AssertionError

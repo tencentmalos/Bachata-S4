@@ -1,0 +1,26 @@
+tmnt False INSTRUMENTATION_STATUS: class=com.shadps4.android.RenderedRuntimeInstrumentedTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.shadps4.android.RenderedRuntimeInstrumentedTest:
+INSTRUMENTATION_STATUS: test=realContentRunsAndStopsAfterLongStartup
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_RESULT: shortMsg=Process crashed.
+INSTRUMENTATION_CODE: 0
+
+09-14 02:07:47.734 12992 13049 I ProductionModule: SysmoduleLoad id=0xa0 name=libSceSaveDataDialog result=0
+09-14 02:07:47.734 12992 13049 I ProductionModule: SysmoduleLoad id=0xa4 name=libSceMsgDialog result=0x805a10ff
+09-14 02:07:48.564 12992 13049 I ProductionModule: SysmoduleLoad id=0xb4 name=libSceAppContent result=0
+09-14 02:07:52.337 12992 13049 I ProductionModule: SysmoduleLoad id=0x96 name=libSceImeDialog result=0x805a10ff
+09-14 02:07:52.458 12992 13049 I ProductionModule: LoadStartModule existing path=/app0/modules/libfmod.prx handle=1
+09-14 02:07:52.458 12992 13049 I ProductionModule: LoadStartModule existing path=/app0/modules/libfmodstudio.prx handle=4
+09-14 02:07:56.244 12992 13049 I ProductionModule: LoadStartModule existing path=/app0/sce_module/libSceNpEntitlementAccess.prx handle=5
+09-14 02:07:56.244 12992 13049 I ProductionModule: SysmoduleLoad id=0xb4 name=libSceAppContent result=0
+09-14 02:07:56.251 12992 13049 I ProductionModule: SysmoduleLoad id=0x9d name=libSceNpAuth result=0x805a10ff
+09-14 02:07:56.252 12992 13049 I ProductionModule: SysmoduleLoad id=0xe7 name=libSceJson2 result=0
+Traceback (most recent call last):
+  File "/Users/bytedance/workspace/emulations/ps4/shadps4/build/sysmodule-review/run-audio-long-focused.py", line 28, in <module>
+    assert ok
+           ^^
+AssertionError

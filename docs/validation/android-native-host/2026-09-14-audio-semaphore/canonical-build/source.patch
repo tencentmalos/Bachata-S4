@@ -1,0 +1,462 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index ae48151b..b00c22f3 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1608,6 +1608,7 @@ if(BUILD_HOST_CORE)
+         src/core/host_runtime/guest_storage.cpp
+         src/core/host_runtime/guest_storage_hle.cpp
+         src/core/host_runtime/guest_runtime.cpp
++        src/core/host_runtime/guest_audio.cpp
+         src/core/host_runtime/guest_ajm.cpp
+         src/core/host_runtime/guest_graphics.cpp
+         src/core/host_runtime/guest_graphics_hle.cpp)
+@@ -1628,6 +1629,14 @@ if(BUILD_HOST_CORE)
+     if(HOST_BUILD_PROBES)
+         add_executable(host_dlopen_smoke tests/host_runtime/host_dlopen_smoke.cpp)
+         target_link_libraries(host_dlopen_smoke PRIVATE dl)
++        add_executable(guest_kernel_semaphore_tests tests/host_runtime/guest_kernel_semaphore_tests.cpp)
++        target_link_libraries(guest_kernel_semaphore_tests PRIVATE shadps4_host)
++        target_include_directories(guest_kernel_semaphore_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
++        target_compile_definitions(guest_kernel_semaphore_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
++        add_executable(guest_audio_tests tests/host_runtime/guest_audio_tests.cpp)
++        target_link_libraries(guest_audio_tests PRIVATE shadps4_host)
++        target_include_directories(guest_audio_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
++        target_compile_definitions(guest_audio_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+         add_executable(guest_ajm_tests tests/host_runtime/guest_ajm_tests.cpp)
+         target_link_libraries(guest_ajm_tests PRIVATE shadps4_host)
+         target_include_directories(guest_ajm_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+diff --git a/src/core/host_runtime/guest_platform.h b/src/core/host_runtime/guest_platform.h
+index 8e1e4c87..c3145f11 100644
+--- a/src/core/host_runtime/guest_platform.h
++++ b/src/core/host_runtime/guest_platform.h
+@@ -16,6 +16,8 @@
+ 
+ namespace Core::HostRuntime {
+ // Providers are published by successful initialization, never by DT_NEEDED.
++// The separate no-HLE policy models desktop's optional Json2 load bookkeeping;
++// it supplies no function provider and does not admit additional guest imports.
+ // Statically loaded guest dependencies remain pinned until generation teardown;
+ // these references govern API visibility, not dynamic ELF/TLS unload.
+ class GuestSysmodules {
+@@ -27,18 +29,23 @@ public:
+         if (!providers.emplace(std::move(name), handle).second)
+             throw std::logic_error("duplicate sysmodule provider");
+     }
++    void AllowDesktopJson2Compatibility() {
++        std::lock_guard lock(mutex);
++        compatibility.emplace("libSceJson2", 0x10000100);
++    }
+     s32 Load(u32 id, s32* start_result = nullptr) {
+         const auto name = lookup(id);
+         if (!name)
+             return ORBIS_SYSMODULE_INVALID_ID;
+         std::lock_guard lock(mutex);
+         const auto provider = providers.find(*name);
+-        if (provider == providers.end())
++        if (provider == providers.end() && !compatibility.contains(*name))
+             return ORBIS_SYSMODULE_LOCK_FAILED;
+         auto& count = references[id];
+         if (count == std::numeric_limits<u32>::max())
+             return ORBIS_SYSMODULE_LOCK_FAILED;
+-        // Providers here have already completed their real session/guest init.
++        // Actual providers have completed init; the explicit desktop no-HLE
++        // policy only acquires a bookkeeping reference, not a capability.
+         // Match desktop: repeated loads retain the handle and leave res_out alone.
+         if (count == 0 && start_result)
+             *start_result = 0;
+@@ -64,7 +71,7 @@ public:
+         if (!references.contains(id))
+             return ORBIS_SYSMODULE_NOT_LOADED;
+         if (out)
+-            *out = providers.at(*name);
++            *out = providers.contains(*name) ? providers.at(*name) : compatibility.at(*name);
+         return 0;
+     }
+ 
+@@ -72,6 +79,7 @@ private:
+     Lookup lookup;
+     mutable std::mutex mutex;
+     std::map<std::string, s32> providers;
++    std::map<std::string, s32> compatibility;
+     std::map<u32, u32> references;
+ };
+ 
+diff --git a/src/core/host_runtime/guest_runtime.cpp b/src/core/host_runtime/guest_runtime.cpp
+index f79d8e7e..2f8ff1eb 100644
+--- a/src/core/host_runtime/guest_runtime.cpp
++++ b/src/core/host_runtime/guest_runtime.cpp
+@@ -29,6 +29,7 @@
+ #include "core/host_runtime/guest_mutex.h"
+ #include "core/host_runtime/guest_network.h"
+ #include "core/host_runtime/guest_ajm.h"
++#include "core/host_runtime/guest_audio.h"
+ #include "core/host_runtime/guest_pad.h"
+ #include "core/host_runtime/guest_platform.h"
+ #include "core/host_runtime/guest_rtc.h"
+@@ -36,6 +37,7 @@
+ #include "core/host_runtime/guest_rwlock.h"
+ #include "core/host_runtime/guest_save_dialog.h"
+ #include "core/host_runtime/guest_semaphore.h"
++#include "core/host_runtime/guest_kernel_semaphore.h"
+ #include "core/host_runtime/guest_storage_hle.h"
+ #include "core/host_runtime/guest_sysmodule_hle.h"
+ #include "core/host_runtime/guest_thread_attributes.h"
+@@ -135,6 +137,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
+     std::unique_ptr<GuestStorage> storage;
+     std::unique_ptr<GuestNetwork> network;
+     std::unique_ptr<GuestAjm> ajm;
++    std::unique_ptr<GuestAudio> audio;
++    std::unique_ptr<GuestKernelSemaphore> kernel_semaphores;
+     std::unique_ptr<GuestPad> pad;
+     std::shared_ptr<GuestSaveDialog> save_dialog;
+     std::shared_ptr<Frontend::Window> graphics_window;
+@@ -419,6 +423,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
+         for (auto& [id, o] : owners)
+             if (o->worker.joinable())
+                 o->worker.join();
++        audio.reset(); // joins audio workers before clock/VM teardown
+         ajm.reset(); // joins decoder worker before VM/backing teardown
+         storage.reset();
+         app_content.reset();
+@@ -743,6 +748,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
+                 if (o->handle.IsValid())
+                     handles.push_back(o->handle);
+         }
++        if (audio) audio->RequestStop();
+         if (ajm) ajm->RequestStop();
+         if (storage)
+             storage->Cancel();
+@@ -823,7 +829,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
+         const bool common_nid = GuestSaveDialog::IsCommonNid(nid);
+         const bool ssl_nid = nid == "hdpVEUDFW3s" || nid == "0K1yQ6Lv-Yc";
+         const bool kernel_nid =
+-            !ssl_nid && !IsAjmNid(nid) && !IsPadNid(nid) && !IsNetNid(nid) && !IsNetCtlNid(nid) && !IsAppContentNid(nid) && !IsRtcNid(nid) &&
++            !ssl_nid && !IsAudioNid(nid) && !IsAjmNid(nid) && !IsPadNid(nid) && !IsNetNid(nid) && !IsNetCtlNid(nid) && !IsAppContentNid(nid) && !IsRtcNid(nid) &&
+             !IsDiscMapNid(nid) && !dialog_nid && !common_nid && !save_nid &&
+             !videoout_functions.contains(nid) && !sysmodule_functions.contains(nid) &&
+             !userservice_functions.contains(nid) && !systemservice_functions.contains(nid) &&
+@@ -831,7 +837,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
+         std::shared_ptr<HleCallAdapter> adapter;
+         if (auto it = handlers.find(nid);
+             it != handlers.end() &&
+-            ((ajm && IsAjmNid(nid) && symbol.name.substr(nid.size()) == "#libSceAjm#1#libSceAjm#Function") ||
++            ((audio && IsAudioNid(nid) && symbol.name.substr(nid.size()) == "#libSceAudioOut#1#libSceAudioOut#Function") ||
++             (ajm && IsAjmNid(nid) && symbol.name.substr(nid.size()) == "#libSceAjm#1#libSceAjm#Function") ||
+              (pad && IsPadNid(nid) && symbol.name.substr(nid.size()) == "#libScePad#1#libScePad#Function") ||
+              (ssl_nid && symbol.name.substr(nid.size()) == "#libSceSsl#1#libSceSsl#Function") ||
+              (network && IsNetNid(nid) &&
+@@ -929,6 +936,11 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
+         (void)Libraries::SysModule::LookupSysmodule(id, &name, nullptr);
+         LOG_INFO(Lib_SysModule, "session sysmodule id={:#x} name={} result={:#x}", id,
+                  name ? name : "unknown", static_cast<u32>(result));
++#ifdef __ANDROID__
++        __android_log_print(ANDROID_LOG_INFO, "ProductionModule",
++                            "SysmoduleLoad id=%#x name=%s result=%#x", id,
++                            name ? name : "unknown", static_cast<u32>(result));
++#endif
+         return static_cast<u32>(result);
+     }
+     u64 SysmoduleUnload(u32 id) {
+@@ -1025,6 +1037,13 @@ void GuestRuntime::Impl::InstallHandlers() {
+             return Ok();
+         };
+     }
++    kernel_semaphores = std::make_unique<GuestKernelSemaphore>(space, vm_mutex);
++    for (const char* nid : {"188x57JYp0g", "Zxa0VhQVTsk", "4czppHBiriw", "12wOHk8ywb0", "4DM06U2BNEY", "R1Jvn8bSCW8"}) {
++        bind({nid}, [this, nid](const auto& args) -> u64 {
++            return kernel_semaphores->Dispatch(nid, args, Current()->attributes.priority,
++                                               HleScope::Current()->CancellationToken());
++        });
++    }
+     semaphore_domain = std::make_unique<GuestSemaphoreDomain>(space, [this] {
+         VmGuard vm(*this);
+         return Allocate(0x4000, "GuestSemaphore");
+@@ -1900,6 +1919,14 @@ void GuestRuntime::Impl::InstallHandlers() {
+                  s32(a[1]), result);
+         return result;
+     });
++    for (auto nid : AudioNids) {
++        handlers[std::string(nid)] = [this, nid](HleCallFrame& frame) {
++            std::array<u64, 6> args{};
++            for (size_t i = 0; i < args.size(); ++i) args[i] = frame.registers.Get(kSysVIntegerOrder[i]);
++            frame.registers.Set(Gpr::Rax, audio->Dispatch(nid, args, HleScope::Current()->CancellationToken()));
++            return Ok();
++        };
++    }
+     for (auto nid : AjmNids) {
+         handlers[std::string(nid)] = [this, nid](HleCallFrame& frame) {
+             std::array<u64, 10> args{};
+@@ -2423,12 +2450,18 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
+                                                      EmulatorSettings.IsCircleEnter());
+     impl->pad = std::make_unique<GuestPad>(GlobalPadAdapter(), *impl->platform);
+     impl->sysmodules.Publish("libScePad", 0x1000000d);
++    impl->audio = std::make_unique<GuestAudio>(impl->space, impl->vm_mutex, impl->clock);
+     impl->ajm = std::make_unique<GuestAjm>(impl->space, impl->vm_mutex);
+     impl->network = std::make_unique<GuestNetwork>(EmulatorSettings.IsConnectedToNetwork());
+     LOG_INFO(Lib_Net, "Session network control: requested_online={}, online transport unavailable",
+              EmulatorSettings.IsConnectedToNetwork());
+     impl->sysmodules.Publish("libSceNet", 0x1000000b);
+     impl->sysmodules.Publish("libSceNetCtl", 0x1000000c);
++    // Desktop explicitly allows Json2 load bookkeeping when its optional LLE
++    // is absent and no HLE exists (sysmodule_internal.cpp). Preserve that
++    // offline compatibility without publishing a JSON/network implementation.
++    // Any actual Json2 import still goes through Bind's unsupported gate.
++    impl->sysmodules.AllowDesktopJson2Compatibility();
+     // These services have actual per-session implementations. DT_NEEDED alone
+     // never publishes a provider (VideoOut/Audio/AppContent must initialize theirs).
+     s32 handle = 0x10000000;
+diff --git a/src/core/libraries/audio/aaudio_audio_out.cpp b/src/core/libraries/audio/aaudio_audio_out.cpp
+index a4e490c4..8550f79b 100644
+--- a/src/core/libraries/audio/aaudio_audio_out.cpp
++++ b/src/core/libraries/audio/aaudio_audio_out.cpp
+@@ -15,41 +15,38 @@
+ //
+ // Reference: citron oboe_sink.cpp ConfigureBuilder (builder settings) and the SDL
+ // backend's Convert* family (S16/F32 interleaved conversion). We output float to
+-// AAudio and convert guest S16 up-front; guest float is copied through.
++// AAudio and convert guest S16 up-front; guest float and S16 both receive channel mapping and
++// actual gain.
+ 
++#include <algorithm>
+ #include <array>
++#include <chrono>
+ #include <cstring>
+ #include <memory>
++#include <stdexcept>
+ #include <vector>
+ 
+ #include <aaudio/AAudio.h>
+ 
+ #include "common/logging/log.h"
++#include "core/emulator_settings.h"
+ #include "core/libraries/audio/audioout.h"
+ #include "core/libraries/audio/audioout_backend.h"
++#include "core/libraries/audio/audioout_transfer.h"
+ 
+ namespace Libraries::AudioOut {
+ 
+-namespace {
+-
+-constexpr float kInvVolume0dB = 1.0f / 32768.0f; // S16 -> [-1,1]
+-// Blocking-write timeout: generous relative to a buffer period; a write that
+-// cannot make progress within this returns and is logged rather than wedging the
+-// guest audio thread forever.
+-constexpr int64_t kWriteTimeoutNs = 200'000'000; // 200 ms
+-
+-} // namespace
+-
+ class AAudioPortBackend final : public PortBackend {
+ public:
+     explicit AAudioPortBackend(const PortOut& port)
+         : buffer_frames(port.buffer_frames), sample_rate(port.sample_rate),
+-          num_channels(port.format_info.num_channels), is_float(port.format_info.is_float) {
++          num_channels(port.format_info.num_channels), is_float(port.format_info.is_float),
++          format_info(port.format_info) {
+         // AAudio output is always float here; size the conversion scratch to one
+         // guest buffer of interleaved float. Allocated once, reused every Output.
+         scratch.resize(static_cast<size_t>(buffer_frames) * num_channels);
+         if (!OpenStream()) {
+-            LOG_ERROR(Lib_AudioOut, "Failed to open AAudio stream");
++            throw std::runtime_error("Failed to open AAudio stream");
+         }
+     }
+ 
+@@ -58,52 +55,41 @@ public:
+     }
+ 
+     void Output(void* ptr) override {
+-        if (stream == nullptr || ptr == nullptr) [[unlikely]] {
+-            return;
+-        }
+-        const float* out = ToFloat(ptr);
++        const int error = OutputChecked(ptr, {});
++        if (error < 0)
++            LOG_ERROR(Lib_AudioOut, "AAudio output failed: {}", AAudio_convertResultToText(error));
++    }
+ 
+-        aaudio_result_t written =
+-            AAudioStream_write(stream, out, static_cast<int32_t>(buffer_frames), kWriteTimeoutNs);
+-        if (written == AAUDIO_ERROR_DISCONNECTED || written == AAUDIO_ERROR_INVALID_STATE) {
+-            // Device changed / stream died: rebuild once and retry this buffer.
+-            LOG_WARNING(Lib_AudioOut, "AAudio stream disconnected ({}); rebuilding",
+-                        AAudio_convertResultToText(written));
+-            CloseStream();
+-            if (OpenStream()) {
+-                written = AAudioStream_write(stream, out, static_cast<int32_t>(buffer_frames),
+-                                             kWriteTimeoutNs);
+-            }
+-        }
+-        if (written < 0) [[unlikely]] {
+-            LOG_ERROR(Lib_AudioOut, "AAudio write failed: {}",
+-                      AAudio_convertResultToText(written));
+-        }
++    int OutputChecked(void* ptr, std::stop_token stop) override {
++        if (!stream || !ptr)
++            return AAUDIO_ERROR_INVALID_STATE;
++        const float* out = ToFloat(ptr);
++        const auto result = TransferAudioFrames(
++            buffer_frames, stop,
++            [&](u32 offset, u32 remaining, int64_t timeout) {
++                return AAudioStream_write(stream, out + offset * num_channels, remaining, timeout);
++            },
++            [&](int error) {
++                if (error != AAUDIO_ERROR_DISCONNECTED && error != AAUDIO_ERROR_INVALID_STATE)
++                    return false;
++                CloseStream();
++                return !stop.stop_requested() && OpenStream();
++            });
++        if (result.cancelled)
++            return AAUDIO_ERROR_INVALID_STATE;
++        if (result.timed_out)
++            return AAUDIO_ERROR_TIMEOUT;
++        return result.error;
+     }
+ 
+-    void SetVolume(const std::array<int, 8>& ch_volumes) override {
+-        // AAudio has no per-stream gain; the guest's PCM already carries level and
+-        // shadPS4's mixer applies volume upstream. Track the max for parity with
+-        // the other backends' semantics without a second gain stage.
+-        int max_v = 0;
+-        const u32 n = std::min<u32>(num_channels, 8);
+-        for (u32 i = 0; i < n; ++i) {
+-            max_v = std::max(max_v, ch_volumes[i]);
+-        }
+-        (void)max_v;
++    void SetVolume(const std::array<int, 8>& volumes) override {
++        channel_volumes = volumes;
+     }
+ 
+ private:
+     const float* ToFloat(void* ptr) {
+-        if (is_float) {
+-            return static_cast<const float*>(ptr);
+-        }
+-        // S16 interleaved -> float, matching the SDL backend's ConvertS16*.
+-        const s16* s = static_cast<const s16*>(ptr);
+-        const size_t samples = static_cast<size_t>(buffer_frames) * num_channels;
+-        for (size_t i = 0; i < samples; ++i) {
+-            scratch[i] = static_cast<float>(s[i]) * kInvVolume0dB;
+-        }
++        ConvertAudioFrames(format_info, buffer_frames, ptr, channel_volumes,
++                           EmulatorSettings.GetVolumeSlider() * 0.01f, scratch);
+         return scratch.data();
+     }
+ 
+@@ -125,8 +111,8 @@ private:
+         AAudioStreamBuilder_setUsage(builder, AAUDIO_USAGE_GAME);
+         // Blocking-write model: no data callback. AAudio's own buffer decouples us
+         // from the device; keep a couple of guest buffers of capacity.
+-        AAudioStreamBuilder_setBufferCapacityInFrames(
+-            builder, static_cast<int32_t>(buffer_frames) * 4);
++        AAudioStreamBuilder_setBufferCapacityInFrames(builder,
++                                                      static_cast<int32_t>(buffer_frames) * 4);
+ 
+         r = AAudioStreamBuilder_openStream(builder, &stream);
+         AAudioStreamBuilder_delete(builder);
+@@ -141,7 +127,9 @@ private:
+         // our interleaving no longer matches. Report and bail rather than emit
+         // garbled audio.
+         const int32_t dev_channels = AAudioStream_getChannelCount(stream);
+-        if (dev_channels != static_cast<int32_t>(num_channels)) {
++        if (dev_channels != static_cast<int32_t>(num_channels) ||
++            AAudioStream_getFormat(stream) != AAUDIO_FORMAT_PCM_FLOAT ||
++            AAudioStream_getSampleRate(stream) != static_cast<int32_t>(sample_rate)) {
+             LOG_ERROR(Lib_AudioOut, "AAudio granted {} channels, requested {}", dev_channels,
+                       num_channels);
+             CloseStream();
+@@ -174,6 +162,8 @@ private:
+     const u32 sample_rate;
+     const u32 num_channels;
+     const bool is_float;
++    const AudioFormatInfo format_info;
++    std::array<int, 8> channel_volumes{32768, 32768, 32768, 32768, 32768, 32768, 32768, 32768};
+ 
+     AAudioStream* stream{nullptr};
+     std::vector<float> scratch;
+diff --git a/src/core/libraries/audio/audioout.cpp b/src/core/libraries/audio/audioout.cpp
+index b8fd4d2d..297d2e66 100644
+--- a/src/core/libraries/audio/audioout.cpp
++++ b/src/core/libraries/audio/audioout.cpp
+@@ -46,7 +46,7 @@ constexpr struct PortRange {
+     {24, 24}, // Type 125
+ };
+ 
+-static AudioFormatInfo GetFormatInfo(const OrbisAudioOutParamFormat format) {
++AudioFormatInfo GetFormatInfo(const OrbisAudioOutParamFormat format) {
+     static constexpr std::array<AudioFormatInfo, 8> format_infos = {{
+         // S16Mono
+         {false, 2, 1, {0}, false},
+diff --git a/src/core/libraries/audio/audioout.h b/src/core/libraries/audio/audioout.h
+index 0252daea..195156d7 100644
+--- a/src/core/libraries/audio/audioout.h
++++ b/src/core/libraries/audio/audioout.h
+@@ -117,6 +117,8 @@ struct AudioFormatInfo {
+     }
+ };
+ 
++AudioFormatInfo GetFormatInfo(OrbisAudioOutParamFormat format);
++
+ struct PortOut {
+     std::mutex mutex;
+     std::unique_ptr<PortBackend> impl{};
+diff --git a/src/core/libraries/audio/audioout_backend.h b/src/core/libraries/audio/audioout_backend.h
+index 02bddef2..9f838db9 100644
+--- a/src/core/libraries/audio/audioout_backend.h
++++ b/src/core/libraries/audio/audioout_backend.h
+@@ -3,6 +3,10 @@
+ 
+ #pragma once
+ 
++#include <array>
++#include <memory>
++#include <stop_token>
++
+ namespace Libraries::AudioOut {
+ 
+ struct PortOut;
+@@ -14,6 +18,13 @@ public:
+     /// Guaranteed to be called in intervals of at least port buffer time,
+     /// with size equal to port buffer size.
+     virtual void Output(void* ptr) = 0;
++    // Zero means a complete buffer was accepted; negative means a native error.
++    // The Android production domain consumes this result and passes cancellation.
++    virtual int OutputChecked(void* ptr, std::stop_token stop) {
++        if (stop.stop_requested()) return -1;
++        Output(ptr);
++        return 0;
++    }
+ 
+     virtual void SetVolume(const std::array<int, 8>& ch_volumes) = 0;
+ };
+diff --git a/tests/host_runtime/guest_sysmodule_tests.cpp b/tests/host_runtime/guest_sysmodule_tests.cpp
+index 4ff9cb9f..9eb60fb8 100644
+--- a/tests/host_runtime/guest_sysmodule_tests.cpp
++++ b/tests/host_runtime/guest_sysmodule_tests.cpp
+@@ -33,6 +33,8 @@ int main() {
+             return "libSceDiscMap";
+         if (id == 0xab)
+             return "missing";
++        if (id == 0xe7)
++            return "libSceJson2";
+         return {};
+     });
+     modules.Publish("libSceDiscMap", 31);
+@@ -74,6 +76,18 @@ int main() {
+     args[4] = 0;
+     check("zero args and optional output", load() == 0);
+     check("reload uses stable provider", modules.Handle(0xd7, &handle) == 0 && handle == 31);
++    check("Json2 absent before explicit desktop policy",
++          modules.Load(0xe7) == ORBIS_SYSMODULE_LOCK_FAILED);
++    modules.AllowDesktopJson2Compatibility();
++    check("desktop optional Json2 bookkeeping", modules.Load(0xe7) == 0 &&
++          modules.Handle(0xe7, &handle) == 0 && handle == 0x10000100);
++    check("compatibility does not admit arbitrary missing providers",
++          modules.Load(0xab) == ORBIS_SYSMODULE_LOCK_FAILED);
++    check("compatibility reference release", modules.Unload(0xe7) == 0 &&
++          modules.Handle(0xe7) == ORBIS_SYSMODULE_NOT_LOADED);
++    modules.Publish("libSceJson2", 41);
++    check("actual provider takes precedence", modules.Load(0xe7) == 0 &&
++          modules.Handle(0xe7, &handle) == 0 && handle == 41);
+     args = {1, 0, 0, base, base + 4, base + 8};
+     for (const auto nid : DiscMapNids) {
+         set(base, 5);

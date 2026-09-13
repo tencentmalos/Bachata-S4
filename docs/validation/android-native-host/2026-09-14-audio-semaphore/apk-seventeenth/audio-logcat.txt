@@ -1,0 +1,46 @@
+--------- beginning of main
+09-14 01:25:34.014  1561  1602 I ProductionRuntime: prepare: reserve guest VA
+09-14 01:25:34.014  1561  1602 I ProductionRuntime: prepare: create FEX context
+09-14 01:25:34.014  1561  1602 I ProductionRuntime: prepare: create production VM/Linker
+09-14 01:25:34.228  1561  1602 I ProductionRuntime: prepare: load/relocate modules
+09-14 01:25:34.229  1561  1602 I ProductionRuntime: prepare: ready
+09-14 01:25:34.229  1561  1602 I ProductionRuntime: run: enter production guest
+09-14 01:25:34.230  1561  1602 I AAudio  : AAudioStreamBuilder_openStream() called ----------------------------------------
+09-14 01:25:34.230  1561  1602 I AudioStreamBuilder: rate   =  48000, channels  = 2, channelMask = 0x80000003, format   = 5, sharing = SH, dir = OUTPUT
+09-14 01:25:34.230  1561  1602 I AudioStreamBuilder: device =      0, sessionId = -1, perfMode = 12, callback: OFF with frames = 0
+09-14 01:25:34.230  1561  1602 I AudioStreamBuilder: usage  =     14, contentType = 0, inputPreset = 0, allowedCapturePolicy = 0
+09-14 01:25:34.230  1561  1602 I AudioStreamBuilder: privacy sensitive = false, opPackageName = (null), attributionTag = (null)
+09-14 01:25:34.255  1561  1602 I AAudio  : AAudioStreamBuilder_openStream() returns 0 = AAUDIO_OK for s#2 ----------------
+09-14 01:25:34.295  1561  1602 I ProductionRuntime: run: guest returned to host
+09-14 01:25:34.296  1561  1598 I AudioAcceptance: round=0 case=audio outcome=0 page_size=4096 pid=1561 uid=10157 guest return=51966
+09-14 01:25:34.296  1561  1598 I AudioAcceptance: production Linker/VM; owners=1 veneers=7 graphics=not-created modules=1
+09-14 01:25:34.299  1561  1622 I ProductionRuntime: prepare: reserve guest VA
+09-14 01:25:34.299  1561  1622 I ProductionRuntime: prepare: create FEX context
+09-14 01:25:34.299  1561  1622 I ProductionRuntime: prepare: create production VM/Linker
+09-14 01:25:34.503  1561  1622 I ProductionRuntime: prepare: load/relocate modules
+09-14 01:25:34.504  1561  1622 I ProductionRuntime: prepare: ready
+09-14 01:25:34.504  1561  1622 I ProductionRuntime: run: enter production guest
+09-14 01:25:34.504  1561  1622 I AAudio  : AAudioStreamBuilder_openStream() called ----------------------------------------
+09-14 01:25:34.504  1561  1622 I AudioStreamBuilder: rate   =  48000, channels  = 2, channelMask = 0x80000003, format   = 5, sharing = SH, dir = OUTPUT
+09-14 01:25:34.504  1561  1622 I AudioStreamBuilder: device =      0, sessionId = -1, perfMode = 12, callback: OFF with frames = 0
+09-14 01:25:34.504  1561  1622 I AudioStreamBuilder: usage  =     14, contentType = 0, inputPreset = 0, allowedCapturePolicy = 0
+09-14 01:25:34.504  1561  1622 I AudioStreamBuilder: privacy sensitive = false, opPackageName = (null), attributionTag = (null)
+09-14 01:25:34.522  1561  1622 I AAudio  : AAudioStreamBuilder_openStream() returns 0 = AAUDIO_OK for s#4 ----------------
+09-14 01:25:34.548  1561  1622 I ProductionRuntime: run: guest returned to host
+09-14 01:25:34.549  1561  1598 I AudioAcceptance: round=1 case=audio outcome=0 page_size=4096 pid=1561 uid=10157 guest return=51966
+09-14 01:25:34.549  1561  1598 I AudioAcceptance: production Linker/VM; owners=1 veneers=7 graphics=not-created modules=1
+09-14 01:25:34.550  1561  1626 I ProductionRuntime: prepare: reserve guest VA
+09-14 01:25:34.550  1561  1626 I ProductionRuntime: prepare: create FEX context
+09-14 01:25:34.550  1561  1626 I ProductionRuntime: prepare: create production VM/Linker
+09-14 01:25:34.755  1561  1626 I ProductionRuntime: prepare: load/relocate modules
+09-14 01:25:34.758  1561  1626 I ProductionRuntime: prepare: ready
+09-14 01:25:34.758  1561  1626 I ProductionRuntime: run: enter production guest
+09-14 01:25:34.759  1561  1626 I AAudio  : AAudioStreamBuilder_openStream() called ----------------------------------------
+09-14 01:25:34.759  1561  1626 I AudioStreamBuilder: rate   =  48000, channels  = 2, channelMask = 0x80000003, format   = 5, sharing = SH, dir = OUTPUT
+09-14 01:25:34.759  1561  1626 I AudioStreamBuilder: device =      0, sessionId = -1, perfMode = 12, callback: OFF with frames = 0
+09-14 01:25:34.759  1561  1626 I AudioStreamBuilder: usage  =     14, contentType = 0, inputPreset = 0, allowedCapturePolicy = 0
+09-14 01:25:34.759  1561  1626 I AudioStreamBuilder: privacy sensitive = false, opPackageName = (null), attributionTag = (null)
+09-14 01:25:34.782  1561  1626 I AAudio  : AAudioStreamBuilder_openStream() returns 0 = AAUDIO_OK for s#6 ----------------
+09-14 01:25:34.816  1561  1626 I ProductionRuntime: run: guest returned to host
+09-14 01:25:34.818  1561  1598 I AudioAcceptance: round=2 case=audio outcome=0 page_size=4096 pid=1561 uid=10157 guest return=51966
+09-14 01:25:34.818  1561  1598 I AudioAcceptance: production Linker/VM; owners=1 veneers=7 graphics=not-created modules=1

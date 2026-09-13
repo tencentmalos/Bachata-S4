@@ -1,0 +1,53 @@
+--------- beginning of main
+09-14 01:34:47.000  4381  4424 I ProductionRuntime: prepare: load/relocate modules
+09-14 01:34:47.004  4381  4424 I ProductionRuntime: prepare: ready
+09-14 01:34:47.004  4381  4424 I ProductionRuntime: run: enter production guest
+09-14 01:34:47.004  4381  4424 I AAudio  : AAudioStreamBuilder_openStream() called ----------------------------------------
+09-14 01:34:47.004  4381  4424 I AudioStreamBuilder: rate   =  48000, channels  = 2, channelMask = 0x80000003, format   = 5, sharing = SH, dir = OUTPUT
+09-14 01:34:47.004  4381  4424 I AudioStreamBuilder: device =      0, sessionId = -1, perfMode = 12, callback: OFF with frames = 0
+09-14 01:34:47.004  4381  4424 I AudioStreamBuilder: usage  =     14, contentType = 0, inputPreset = 0, allowedCapturePolicy = 0
+09-14 01:34:47.004  4381  4424 I AudioStreamBuilder: privacy sensitive = false, opPackageName = (null), attributionTag = (null)
+09-14 01:34:47.031  4381  4424 I AAudio  : AAudioStreamBuilder_openStream() returns 0 = AAUDIO_OK for s#6 ----------------
+09-14 01:34:47.072  4381  4424 I ProductionRuntime: run: guest returned to host
+09-14 01:34:47.077  4381  4406 I AudioAcceptance: round=2 case=audio outcome=0 page_size=4096 pid=4381 uid=10157 guest return=51966
+09-14 01:34:47.077  4381  4406 I AudioAcceptance: production Linker/VM; owners=1 veneers=13 graphics=not-created modules=1
+09-14 01:34:48.530  4476  4523 I ProductionRuntime: prepare: reserve guest VA
+09-14 01:34:48.530  4476  4523 I ProductionRuntime: prepare: create FEX context
+09-14 01:34:48.530  4476  4523 I ProductionRuntime: prepare: create production VM/Linker
+09-14 01:34:48.802  4476  4523 I ProductionRuntime: prepare: load/relocate modules
+09-14 01:34:48.997  4476  4523 I ProductionRuntime: prepare: ready
+09-14 01:34:49.027  4476  4523 I ProductionRuntime: run: enter production guest
+09-14 01:34:54.376  4476  4523 I ProductionModule: LoadStartModule existing path=/app0/modules/libfmod.prx handle=1
+09-14 01:34:54.376  4476  4523 I ProductionModule: LoadStartModule existing path=/app0/modules/libfmodstudio.prx handle=4
+09-14 01:34:54.406  4476  4523 I AAudio  : AAudioStreamBuilder_openStream() called ----------------------------------------
+09-14 01:34:54.406  4476  4523 I AudioStreamBuilder: rate   =  48000, channels  = 8, channelMask = 0x800000ff, format   = 5, sharing = SH, dir = OUTPUT
+09-14 01:34:54.406  4476  4523 I AudioStreamBuilder: device =      0, sessionId = -1, perfMode = 12, callback: OFF with frames = 0
+09-14 01:34:54.406  4476  4523 I AudioStreamBuilder: usage  =     14, contentType = 0, inputPreset = 0, allowedCapturePolicy = 0
+09-14 01:34:54.406  4476  4523 I AudioStreamBuilder: privacy sensitive = false, opPackageName = (null), attributionTag = (null)
+09-14 01:34:54.424  4476  4523 I AAudio  : AAudioStreamBuilder_openStream() returns 0 = AAUDIO_OK for s#2 ----------------
+09-14 01:34:58.173  4476  4523 I ProductionModule: LoadStartModule existing path=/app0/sce_module/libSceNpEntitlementAccess.prx handle=5
+--------- beginning of crash
+09-14 01:34:58.542  4618  4618 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+09-14 01:34:58.542  4618  4618 F DEBUG   : Build fingerprint: 'qti/kalama/kalama:13/TKQ1.231222.001/eng.Thor.20260206.163241:user/release-keys'
+09-14 01:34:58.542  4618  4618 F DEBUG   : Revision: '0'
+09-14 01:34:58.542  4618  4618 F DEBUG   : ABI: 'arm64'
+09-14 01:34:58.542  4618  4618 F DEBUG   : Timestamp: 2026-09-14 01:34:58.268676129+0800
+09-14 01:34:58.542  4618  4618 F DEBUG   : Process uptime: 12s
+09-14 01:34:58.542  4618  4618 F DEBUG   : Cmdline: com.shadps4.android
+09-14 01:34:58.542  4618  4618 F DEBUG   : pid: 4476, tid: 4523, name: roidJUnitRunner  >>> com.shadps4.android <<<
+09-14 01:34:58.542  4618  4618 F DEBUG   : uid: 10157
+09-14 01:34:58.542  4618  4618 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+09-14 01:34:58.542  4618  4618 F DEBUG   : pac_enabled_keys: 000000000000000f (PR_PAC_APIAKEY, PR_PAC_APIBKEY, PR_PAC_APDAKEY, PR_PAC_APDBKEY)
+09-14 01:34:58.542  4618  4618 F DEBUG   : signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x0000000000000039
+09-14 01:34:58.542  4618  4618 F DEBUG   : Cause: null pointer dereference
+09-14 01:34:58.542  4618  4618 F DEBUG   :     x0  0000006fa2b7de90  x1  0000000000000000  x2  0000007010150080  x3  00000070101500a0
+09-14 01:34:58.542  4618  4618 F DEBUG   :     x4  162d7fc18b8ea200  x5  0000000238400020  x6  0000000238400020  x7  00000018000f000f
+09-14 01:34:58.542  4618  4618 F DEBUG   :     x8  0000001000208ff0  x9  0000001000209020  x10 0000000000000041  x11 0000000238400020
+09-14 01:34:58.542  4618  4618 F DEBUG   :     x12 0000000238400020  x13 0000000000000060  x14 00000018001ac00f  x15 0000000000000246
+09-14 01:34:58.542  4618  4618 F DEBUG   :     x16 0000000000000041  x17 000000000000000b  x18 0000000262e04860  x19 0000000000000041
+09-14 01:34:58.542  4618  4618 F DEBUG   :     x20 0000000000000039  x21 0000000100c7796a  x22 000000778ee36d68  x23 000000003bc071a0
+09-14 01:34:58.542  4618  4618 F DEBUG   :     x24 00000003b6bc6088  x25 00000074345d6000  x26 0000000000000041  x27 00000000ffdf6f57
+09-14 01:34:58.542  4618  4618 F DEBUG   :     x28 0000007450004140  x29 0000001000209650
+09-14 01:34:58.542  4618  4618 F DEBUG   :     lr  0000007b3b7e7158  sp  000000778ee36bd0  pc  0000006fa2b7dea4  pst 0000000020001000
+09-14 01:34:58.542  4618  4618 F DEBUG   : backtrace:
+09-14 01:34:58.542  4618  4618 F DEBUG   :       #00 pc 0000000000b83ea4  [anon:FEXMemJIT]

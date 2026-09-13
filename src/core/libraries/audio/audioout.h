@@ -117,6 +117,8 @@ struct AudioFormatInfo {
     }
 };
 
+AudioFormatInfo GetFormatInfo(OrbisAudioOutParamFormat format);
+
 struct PortOut {
     std::mutex mutex;
     std::unique_ptr<PortBackend> impl{};

@@ -3,6 +3,10 @@
 
 #pragma once
 
+#include <array>
+#include <memory>
+#include <stop_token>
+
 namespace Libraries::AudioOut {
 
 struct PortOut;
@@ -14,6 +18,13 @@ public:
     /// Guaranteed to be called in intervals of at least port buffer time,
     /// with size equal to port buffer size.
     virtual void Output(void* ptr) = 0;
+    // Zero means a complete buffer was accepted; negative means a native error.
+    // The Android production domain consumes this result and passes cancellation.
+    virtual int OutputChecked(void* ptr, std::stop_token stop) {
+        if (stop.stop_requested()) return -1;
+        Output(ptr);
+        return 0;
+    }
 
     virtual void SetVolume(const std::array<int, 8>& ch_volumes) = 0;
 };

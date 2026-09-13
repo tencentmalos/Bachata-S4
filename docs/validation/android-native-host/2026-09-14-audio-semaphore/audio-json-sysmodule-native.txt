@@ -1,0 +1,36 @@
+PASS prepare sentinel
+PASS missing provider does not fake init
+PASS unknown id
+PASS reserved argument
+PASS negative byte count
+PASS bounded byte count
+PASS bad input before reference
+PASS bad output before reference
+PASS all failures preserve refs and output
+PASS initialized provider publishes result
+PASS actual provider handle
+PASS repeat load leaves start result alone
+PASS first unload retains ref
+PASS last unload hides provider
+PASS zero args and optional output
+PASS reload uses stable provider
+PASS Json2 absent before explicit desktop policy
+PASS desktop optional Json2 bookkeeping
+PASS compatibility does not admit arbitrary missing providers
+PASS compatibility reference release
+PASS actual provider takes precedence
+PASS disc map exact registered NID
+PASS desktop optical capability semantics
+PASS disc map exact registered NID
+PASS desktop optical capability semantics
+PASS disc map exact registered NID
+PASS desktop optical capability semantics
+PASS disc map exact registered NID
+PASS desktop optical capability semantics
+PASS disc map exact registered NID
+PASS desktop optical capability semantics
+PASS all output pins before any write
+PASS all output pins before any write
+PASS all output pins before any write
+PASS unknown DiscMap import not admitted
+GUEST_SYSMODULE checks=35 failures=0

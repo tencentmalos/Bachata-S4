@@ -1,0 +1,18 @@
+{
+  "results": [
+    {
+      "name": "guest_audio_tests",
+      "exit_code": 0
+    },
+    {
+      "name": "guest_kernel_semaphore_tests",
+      "exit_code": 0
+    }
+  ],
+  "device_dir": "/data/local/tmp/shadps4-ajm-1789319400",
+  "artifacts": {
+    "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native/libshadps4_host.so": "6c2f91977d7f5d8040e8897aaa15a1873839dc4cc793729531d3812448cbd05f",
+    "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native/guest_audio_tests": "d1fde6dc5386124dc363e910811a91a700570306adf66aa742aa16ea8a2aa4bf",
+    "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native/guest_kernel_semaphore_tests": "3dd69f4ed40da4f54367b1790638f25da8b1332219496724602cd1c97094ca91"
+  }
+}

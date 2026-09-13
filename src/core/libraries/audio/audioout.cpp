@@ -46,7 +46,7 @@ constexpr struct PortRange {
     {24, 24}, // Type 125
 };
 
-static AudioFormatInfo GetFormatInfo(const OrbisAudioOutParamFormat format) {
+AudioFormatInfo GetFormatInfo(const OrbisAudioOutParamFormat format) {
     static constexpr std::array<AudioFormatInfo, 8> format_infos = {{
         // S16Mono
         {false, 2, 1, {0}, false},

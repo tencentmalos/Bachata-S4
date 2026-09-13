@@ -15,41 +15,38 @@
 //
 // Reference: citron oboe_sink.cpp ConfigureBuilder (builder settings) and the SDL
 // backend's Convert* family (S16/F32 interleaved conversion). We output float to
-// AAudio and convert guest S16 up-front; guest float is copied through.
+// AAudio and convert guest S16 up-front; guest float and S16 both receive channel mapping and
+// actual gain.
 
+#include <algorithm>
 #include <array>
+#include <chrono>
 #include <cstring>
 #include <memory>
+#include <stdexcept>
 #include <vector>
 
 #include <aaudio/AAudio.h>
 
 #include "common/logging/log.h"
+#include "core/emulator_settings.h"
 #include "core/libraries/audio/audioout.h"
 #include "core/libraries/audio/audioout_backend.h"
+#include "core/libraries/audio/audioout_transfer.h"
 
 namespace Libraries::AudioOut {
-
-namespace {
-
-constexpr float kInvVolume0dB = 1.0f / 32768.0f; // S16 -> [-1,1]
-// Blocking-write timeout: generous relative to a buffer period; a write that
-// cannot make progress within this returns and is logged rather than wedging the
-// guest audio thread forever.
-constexpr int64_t kWriteTimeoutNs = 200'000'000; // 200 ms
-
-} // namespace
 
 class AAudioPortBackend final : public PortBackend {
 public:
     explicit AAudioPortBackend(const PortOut& port)
         : buffer_frames(port.buffer_frames), sample_rate(port.sample_rate),
-          num_channels(port.format_info.num_channels), is_float(port.format_info.is_float) {
+          num_channels(port.format_info.num_channels), is_float(port.format_info.is_float),
+          format_info(port.format_info) {
         // AAudio output is always float here; size the conversion scratch to one
         // guest buffer of interleaved float. Allocated once, reused every Output.
         scratch.resize(static_cast<size_t>(buffer_frames) * num_channels);
         if (!OpenStream()) {
-            LOG_ERROR(Lib_AudioOut, "Failed to open AAudio stream");
+            throw std::runtime_error("Failed to open AAudio stream");
         }
     }
 
@@ -58,52 +55,41 @@ public:
     }
 
     void Output(void* ptr) override {
-        if (stream == nullptr || ptr == nullptr) [[unlikely]] {
-            return;
-        }
-        const float* out = ToFloat(ptr);
-
-        aaudio_result_t written =
-            AAudioStream_write(stream, out, static_cast<int32_t>(buffer_frames), kWriteTimeoutNs);
-        if (written == AAUDIO_ERROR_DISCONNECTED || written == AAUDIO_ERROR_INVALID_STATE) {
-            // Device changed / stream died: rebuild once and retry this buffer.
-            LOG_WARNING(Lib_AudioOut, "AAudio stream disconnected ({}); rebuilding",
-                        AAudio_convertResultToText(written));
-            CloseStream();
-            if (OpenStream()) {
-                written = AAudioStream_write(stream, out, static_cast<int32_t>(buffer_frames),
-                                             kWriteTimeoutNs);
-            }
-        }
-        if (written < 0) [[unlikely]] {
-            LOG_ERROR(Lib_AudioOut, "AAudio write failed: {}",
-                      AAudio_convertResultToText(written));
-        }
+        const int error = OutputChecked(ptr, {});
+        if (error < 0)
+            LOG_ERROR(Lib_AudioOut, "AAudio output failed: {}", AAudio_convertResultToText(error));
     }
 
-    void SetVolume(const std::array<int, 8>& ch_volumes) override {
-        // AAudio has no per-stream gain; the guest's PCM already carries level and
-        // shadPS4's mixer applies volume upstream. Track the max for parity with
-        // the other backends' semantics without a second gain stage.
-        int max_v = 0;
-        const u32 n = std::min<u32>(num_channels, 8);
-        for (u32 i = 0; i < n; ++i) {
-            max_v = std::max(max_v, ch_volumes[i]);
-        }
-        (void)max_v;
+    int OutputChecked(void* ptr, std::stop_token stop) override {
+        if (!stream || !ptr)
+            return AAUDIO_ERROR_INVALID_STATE;
+        const float* out = ToFloat(ptr);
+        const auto result = TransferAudioFrames(
+            buffer_frames, stop,
+            [&](u32 offset, u32 remaining, int64_t timeout) {
+                return AAudioStream_write(stream, out + offset * num_channels, remaining, timeout);
+            },
+            [&](int error) {
+                if (error != AAUDIO_ERROR_DISCONNECTED && error != AAUDIO_ERROR_INVALID_STATE)
+                    return false;
+                CloseStream();
+                return !stop.stop_requested() && OpenStream();
+            });
+        if (result.cancelled)
+            return AAUDIO_ERROR_INVALID_STATE;
+        if (result.timed_out)
+            return AAUDIO_ERROR_TIMEOUT;
+        return result.error;
+    }
+
+    void SetVolume(const std::array<int, 8>& volumes) override {
+        channel_volumes = volumes;
     }
 
 private:
     const float* ToFloat(void* ptr) {
-        if (is_float) {
-            return static_cast<const float*>(ptr);
-        }
-        // S16 interleaved -> float, matching the SDL backend's ConvertS16*.
-        const s16* s = static_cast<const s16*>(ptr);
-        const size_t samples = static_cast<size_t>(buffer_frames) * num_channels;
-        for (size_t i = 0; i < samples; ++i) {
-            scratch[i] = static_cast<float>(s[i]) * kInvVolume0dB;
-        }
+        ConvertAudioFrames(format_info, buffer_frames, ptr, channel_volumes,
+                           EmulatorSettings.GetVolumeSlider() * 0.01f, scratch);
         return scratch.data();
     }
 
@@ -125,8 +111,8 @@ private:
         AAudioStreamBuilder_setUsage(builder, AAUDIO_USAGE_GAME);
         // Blocking-write model: no data callback. AAudio's own buffer decouples us
         // from the device; keep a couple of guest buffers of capacity.
-        AAudioStreamBuilder_setBufferCapacityInFrames(
-            builder, static_cast<int32_t>(buffer_frames) * 4);
+        AAudioStreamBuilder_setBufferCapacityInFrames(builder,
+                                                      static_cast<int32_t>(buffer_frames) * 4);
 
         r = AAudioStreamBuilder_openStream(builder, &stream);
         AAudioStreamBuilder_delete(builder);
@@ -141,7 +127,9 @@ private:
         // our interleaving no longer matches. Report and bail rather than emit
         // garbled audio.
         const int32_t dev_channels = AAudioStream_getChannelCount(stream);
-        if (dev_channels != static_cast<int32_t>(num_channels)) {
+        if (dev_channels != static_cast<int32_t>(num_channels) ||
+            AAudioStream_getFormat(stream) != AAUDIO_FORMAT_PCM_FLOAT ||
+            AAudioStream_getSampleRate(stream) != static_cast<int32_t>(sample_rate)) {
             LOG_ERROR(Lib_AudioOut, "AAudio granted {} channels, requested {}", dev_channels,
                       num_channels);
             CloseStream();
@@ -174,6 +162,8 @@ private:
     const u32 sample_rate;
     const u32 num_channels;
     const bool is_float;
+    const AudioFormatInfo format_info;
+    std::array<int, 8> channel_volumes{32768, 32768, 32768, 32768, 32768, 32768, 32768, 32768};
 
     AAudioStream* stream{nullptr};
     std::vector<float> scratch;

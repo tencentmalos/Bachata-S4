@@ -29,6 +29,7 @@
 #include "core/host_runtime/guest_mutex.h"
 #include "core/host_runtime/guest_network.h"
 #include "core/host_runtime/guest_ajm.h"
+#include "core/host_runtime/guest_audio.h"
 #include "core/host_runtime/guest_pad.h"
 #include "core/host_runtime/guest_platform.h"
 #include "core/host_runtime/guest_rtc.h"
@@ -36,6 +37,7 @@
 #include "core/host_runtime/guest_rwlock.h"
 #include "core/host_runtime/guest_save_dialog.h"
 #include "core/host_runtime/guest_semaphore.h"
+#include "core/host_runtime/guest_kernel_semaphore.h"
 #include "core/host_runtime/guest_storage_hle.h"
 #include "core/host_runtime/guest_sysmodule_hle.h"
 #include "core/host_runtime/guest_thread_attributes.h"
@@ -135,6 +137,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     std::unique_ptr<GuestStorage> storage;
     std::unique_ptr<GuestNetwork> network;
     std::unique_ptr<GuestAjm> ajm;
+    std::unique_ptr<GuestAudio> audio;
+    std::unique_ptr<GuestKernelSemaphore> kernel_semaphores;
     std::unique_ptr<GuestPad> pad;
     std::shared_ptr<GuestSaveDialog> save_dialog;
     std::shared_ptr<Frontend::Window> graphics_window;
@@ -419,6 +423,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         for (auto& [id, o] : owners)
             if (o->worker.joinable())
                 o->worker.join();
+        audio.reset(); // joins audio workers before clock/VM teardown
         ajm.reset(); // joins decoder worker before VM/backing teardown
         storage.reset();
         app_content.reset();
@@ -743,6 +748,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
                 if (o->handle.IsValid())
                     handles.push_back(o->handle);
         }
+        if (audio) audio->RequestStop();
         if (ajm) ajm->RequestStop();
         if (storage)
             storage->Cancel();
@@ -823,7 +829,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         const bool common_nid = GuestSaveDialog::IsCommonNid(nid);
         const bool ssl_nid = nid == "hdpVEUDFW3s" || nid == "0K1yQ6Lv-Yc";
         const bool kernel_nid =
-            !ssl_nid && !IsAjmNid(nid) && !IsPadNid(nid) && !IsNetNid(nid) && !IsNetCtlNid(nid) && !IsAppContentNid(nid) && !IsRtcNid(nid) &&
+            !ssl_nid && !IsAudioNid(nid) && !IsAjmNid(nid) && !IsPadNid(nid) && !IsNetNid(nid) && !IsNetCtlNid(nid) && !IsAppContentNid(nid) && !IsRtcNid(nid) &&
             !IsDiscMapNid(nid) && !dialog_nid && !common_nid && !save_nid &&
             !videoout_functions.contains(nid) && !sysmodule_functions.contains(nid) &&
             !userservice_functions.contains(nid) && !systemservice_functions.contains(nid) &&
@@ -831,7 +837,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         std::shared_ptr<HleCallAdapter> adapter;
         if (auto it = handlers.find(nid);
             it != handlers.end() &&
-            ((ajm && IsAjmNid(nid) && symbol.name.substr(nid.size()) == "#libSceAjm#1#libSceAjm#Function") ||
+            ((audio && IsAudioNid(nid) && symbol.name.substr(nid.size()) == "#libSceAudioOut#1#libSceAudioOut#Function") ||
+             (ajm && IsAjmNid(nid) && symbol.name.substr(nid.size()) == "#libSceAjm#1#libSceAjm#Function") ||
              (pad && IsPadNid(nid) && symbol.name.substr(nid.size()) == "#libScePad#1#libScePad#Function") ||
              (ssl_nid && symbol.name.substr(nid.size()) == "#libSceSsl#1#libSceSsl#Function") ||
              (network && IsNetNid(nid) &&
@@ -929,6 +936,11 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         (void)Libraries::SysModule::LookupSysmodule(id, &name, nullptr);
         LOG_INFO(Lib_SysModule, "session sysmodule id={:#x} name={} result={:#x}", id,
                  name ? name : "unknown", static_cast<u32>(result));
+#ifdef __ANDROID__
+        __android_log_print(ANDROID_LOG_INFO, "ProductionModule",
+                            "SysmoduleLoad id=%#x name=%s result=%#x", id,
+                            name ? name : "unknown", static_cast<u32>(result));
+#endif
         return static_cast<u32>(result);
     }
     u64 SysmoduleUnload(u32 id) {
@@ -1024,6 +1036,13 @@ void GuestRuntime::Impl::InstallHandlers() {
             frame.registers.Set(Gpr::Rax, error && entry.sce ? u64(0x80020000u | error) : u64(error));
             return Ok();
         };
+    }
+    kernel_semaphores = std::make_unique<GuestKernelSemaphore>(space, vm_mutex);
+    for (const char* nid : {"188x57JYp0g", "Zxa0VhQVTsk", "4czppHBiriw", "12wOHk8ywb0", "4DM06U2BNEY", "R1Jvn8bSCW8"}) {
+        bind({nid}, [this, nid](const auto& args) -> u64 {
+            return kernel_semaphores->Dispatch(nid, args, Current()->attributes.priority,
+                                               HleScope::Current()->CancellationToken());
+        });
     }
     semaphore_domain = std::make_unique<GuestSemaphoreDomain>(space, [this] {
         VmGuard vm(*this);
@@ -1900,6 +1919,14 @@ void GuestRuntime::Impl::InstallHandlers() {
                  s32(a[1]), result);
         return result;
     });
+    for (auto nid : AudioNids) {
+        handlers[std::string(nid)] = [this, nid](HleCallFrame& frame) {
+            std::array<u64, 6> args{};
+            for (size_t i = 0; i < args.size(); ++i) args[i] = frame.registers.Get(kSysVIntegerOrder[i]);
+            frame.registers.Set(Gpr::Rax, audio->Dispatch(nid, args, HleScope::Current()->CancellationToken()));
+            return Ok();
+        };
+    }
     for (auto nid : AjmNids) {
         handlers[std::string(nid)] = [this, nid](HleCallFrame& frame) {
             std::array<u64, 10> args{};
@@ -2423,12 +2450,18 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
                                                      EmulatorSettings.IsCircleEnter());
     impl->pad = std::make_unique<GuestPad>(GlobalPadAdapter(), *impl->platform);
     impl->sysmodules.Publish("libScePad", 0x1000000d);
+    impl->audio = std::make_unique<GuestAudio>(impl->space, impl->vm_mutex, impl->clock);
     impl->ajm = std::make_unique<GuestAjm>(impl->space, impl->vm_mutex);
     impl->network = std::make_unique<GuestNetwork>(EmulatorSettings.IsConnectedToNetwork());
     LOG_INFO(Lib_Net, "Session network control: requested_online={}, online transport unavailable",
              EmulatorSettings.IsConnectedToNetwork());
     impl->sysmodules.Publish("libSceNet", 0x1000000b);
     impl->sysmodules.Publish("libSceNetCtl", 0x1000000c);
+    // Desktop explicitly allows Json2 load bookkeeping when its optional LLE
+    // is absent and no HLE exists (sysmodule_internal.cpp). Preserve that
+    // offline compatibility without publishing a JSON/network implementation.
+    // Any actual Json2 import still goes through Bind's unsupported gate.
+    impl->sysmodules.AllowDesktopJson2Compatibility();
     // These services have actual per-session implementations. DT_NEEDED alone
     // never publishes a provider (VideoOut/Audio/AppContent must initialize theirs).
     s32 handle = 0x10000000;

@@ -1,0 +1,46 @@
+{
+  "source": "8762e5414e2a040793159c94e214b79bba750774",
+  "scope": "focused production AudioOut, actual AAudio submission and real TMNT boundary; no full regression",
+  "runs": [
+    {
+      "name": "audio",
+      "junit_pass": true,
+      "scope": "synthetic"
+    },
+    {
+      "name": "tmnt",
+      "junit_pass": true,
+      "scope": "boundary observation only"
+    }
+  ],
+  "artifacts": {
+    "android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk": "98c813acda9127b91c30734290a64856a6d5923b6e4697c65812ab0605878b6e",
+    "android/shadps4-app/app/build/outputs/apk/androidTest/playstore/debug/app-playstore-debug-androidTest.apk": "4bd8b91137f519d9fabb525a6dbf1c2090cc7fa8a76875d305b033f07d84b915",
+    "build/android-host-api33/native/libshadps4_host.so": "a9704e4f84e35ee462f65f37aa164023f20487759643390be0645b29875b794a"
+  },
+  "sources": {
+    "android/shadps4-app/app/src/androidTest/kotlin/com/shadps4/android/AudioRuntimeInstrumentedTest.kt": "d26f843642459feee9c7b5d983e83ebd0523e7151d8e48fb6c98c025569a4308",
+    "src/core/host_runtime/guest_audio.cpp": "78b1274d455ec29bf351084dcef9c3b40d74a847db67d680e9601b4245e1245d",
+    "src/core/host_runtime/guest_audio.h": "788ab7e6c3b6ceb002a77615f4017a67d2114154c9f529fd2d02dac18e9d9648",
+    "src/core/libraries/audio/audioout_transfer.h": "0b1db6c45b313f897be1c65f7d178fc80855b165e5380ef974a87664411e5473",
+    "tests/guest_cpu/fixtures/runtime_audio.S": "dae0a6b220610017a0ebf3d63d20f10db2872150c2f8aff8e5aff136865c9683",
+    "tests/host_runtime/guest_audio_tests.cpp": "86b1ff621bcbe13ab4483ab38606523147b49fffb0e2097ecff256688652aeb2",
+    "android/shadps4-app/app/build.gradle.kts": "2d77b64744223c752c21274519d8b72e399b9c6975e192b0c218751394bc9c38",
+    "scripts/android/generate-production-runtime-fixture": "ba98dffbe084ed8774d3387ff87a27b2c63f6773b4959a70f30252594397f1d0",
+    "src/core/host_runtime/guest_runtime.cpp": "a75fa2ac3e6159378234a8bdea46b2047f3c5eedc6936fff09a199b5bd89b3ef",
+    "src/core/libraries/audio/aaudio_audio_out.cpp": "7effd30e2fee2c831d7e83335127cc29e6c69b72ab07f89a07ab465d49e41786",
+    "src/core/libraries/audio/audioout.cpp": "8ec03ce8dfca11cc6448c5ddb2af8546145b21483aa1342254dd71dd3caccc76",
+    "src/core/libraries/audio/audioout.h": "ed3a0965ae97bdf798627561ca8d29933fcb4bd88ce5bdd0381eda637c8d6aab",
+    "src/core/libraries/audio/audioout_backend.h": "9122f33282cde4e9d6afe071e24ebe0d4a87b40e1d53b7e2aa694322c604b4f6"
+  },
+  "identity": "AYN Thor",
+  "libshadps4_host.so": {
+    "sha256": "a9704e4f84e35ee462f65f37aa164023f20487759643390be0645b29875b794a",
+    "build_id": "81f9cc216c083320da1177eadc721ce3655b0617"
+  },
+  "libshadps4_fex_session.so": {
+    "sha256": "45096ef04e72e43b63dd55a1106988a48183e7e397a56eab098ba4870a5b8beb",
+    "build_id": "1d1f2d33d0626ae5d8e127e43b14f8ea3d3d32bc"
+  },
+  "status": "FOCUSED_PASS_BOUNDARY_OBSERVED"
+}

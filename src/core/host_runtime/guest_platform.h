@@ -16,6 +16,8 @@
 
 namespace Core::HostRuntime {
 // Providers are published by successful initialization, never by DT_NEEDED.
+// The separate no-HLE policy models desktop's optional Json2 load bookkeeping;
+// it supplies no function provider and does not admit additional guest imports.
 // Statically loaded guest dependencies remain pinned until generation teardown;
 // these references govern API visibility, not dynamic ELF/TLS unload.
 class GuestSysmodules {
@@ -27,18 +29,23 @@ public:
         if (!providers.emplace(std::move(name), handle).second)
             throw std::logic_error("duplicate sysmodule provider");
     }
+    void AllowDesktopJson2Compatibility() {
+        std::lock_guard lock(mutex);
+        compatibility.emplace("libSceJson2", 0x10000100);
+    }
     s32 Load(u32 id, s32* start_result = nullptr) {
         const auto name = lookup(id);
         if (!name)
             return ORBIS_SYSMODULE_INVALID_ID;
         std::lock_guard lock(mutex);
         const auto provider = providers.find(*name);
-        if (provider == providers.end())
+        if (provider == providers.end() && !compatibility.contains(*name))
             return ORBIS_SYSMODULE_LOCK_FAILED;
         auto& count = references[id];
         if (count == std::numeric_limits<u32>::max())
             return ORBIS_SYSMODULE_LOCK_FAILED;
-        // Providers here have already completed their real session/guest init.
+        // Actual providers have completed init; the explicit desktop no-HLE
+        // policy only acquires a bookkeeping reference, not a capability.
         // Match desktop: repeated loads retain the handle and leave res_out alone.
         if (count == 0 && start_result)
             *start_result = 0;
@@ -64,7 +71,7 @@ public:
         if (!references.contains(id))
             return ORBIS_SYSMODULE_NOT_LOADED;
         if (out)
-            *out = providers.at(*name);
+            *out = providers.contains(*name) ? providers.at(*name) : compatibility.at(*name);
         return 0;
     }
 
@@ -72,6 +79,7 @@ private:
     Lookup lookup;
     mutable std::mutex mutex;
     std::map<std::string, s32> providers;
+    std::map<std::string, s32> compatibility;
     std::map<u32, u32> references;
 };
 

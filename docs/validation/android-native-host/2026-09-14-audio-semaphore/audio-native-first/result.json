@@ -1,0 +1,9 @@
+{
+  "exit_code": 0,
+  "scope": "injected backend plus actual transfer/conversion helpers, not AAudio hardware",
+  "device_dir": "/data/local/tmp/shadps4-ajm-1789319400",
+  "artifacts": {
+    "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native/libshadps4_host.so": "a9704e4f84e35ee462f65f37aa164023f20487759643390be0645b29875b794a",
+    "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native/guest_audio_tests": "4238e7bda087fb5c0edd3791b1d229da1eaa16c2dfac79fdfd8ee9b8115329bf"
+  }
+}

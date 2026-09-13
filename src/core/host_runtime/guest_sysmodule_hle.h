@@ -35,7 +35,8 @@ inline u32 DispatchDiscMap(GuestCpu::GuestAddressSpace& space, std::string_view 
 }
 
 // This operation acquires API references to initialized providers. It cannot
-// load a new ELF or pretend an absent provider initialized. Existing guest
+// load a new ELF or infer a provider from DT_NEEDED. The explicit optional
+// desktop Json2 compatibility has bookkeeping only, without function bindings. Existing guest
 // modules were started by the runtime dependency graph; host providers publish
 // only after installing their actual checked import surface.
 inline u32 LoadInitializedSysmodule(GuestSysmodules& modules, GuestCpu::GuestAddressSpace& space,
