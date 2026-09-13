@@ -26,6 +26,12 @@
 #include "core/libraries/kernel/posix_error.h"
 #include "core/libraries/kernel/time.h"
 #include "core/libraries/libs.h"
+#include "core/libraries/sysmodule/sysmodule_error.h"
+#include "core/libraries/sysmodule/sysmodule_internal.h"
+#include "core/libraries/system/userservice.h"
+#include "core/libraries/system/userservice_error.h"
+#include "core/libraries/system/systemservice.h"
+#include "core/libraries/system/systemservice_error.h"
 #include "core/linker.h"
 #include "core/memory.h"
 #include "core/tls.h"
@@ -143,6 +149,16 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     std::vector<std::string> hle_modules;
     std::mutex once_mutex;
     std::map<u64, u64> once_owners;
+    // Session-owned sysmodule state. This is deliberately not the desktop global
+    // g_modules_array path: that reports success for modules whose provider is
+    // absent. Here a load only succeeds when this session graph can actually
+    // provide the module (an already-loaded guest module, or a system library
+    // whose HLE import surface is wired at Prepare). A refcount per public id
+    // makes load/unload a real transaction; a missing provider fails by name.
+    std::mutex sysmodule_mutex;
+    std::map<u32, s32> sysmodule_refcount;
+    std::map<u32, s32> sysmodule_handles;
+    s32 sysmodule_next_handle{0x10000000};
 
     struct VmGuard {
         Impl& rt;
@@ -537,11 +553,31 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         if (auto it = veneers.find(symbol.name); it != veneers.end())
             return it->second;
         const auto nid = symbol.name.substr(0, symbol.name.find('#'));
+        // Only the sysmodule NIDs this runtime implements are admitted under the
+        // libSceSysmodule library suffix; every other sysmodule function still
+        // name-faults so a missing capability is never silently a success.
+        static const std::set<std::string> sysmodule_functions{
+            "g8cM39EUZ6o", "39iV5E1HoCk", "eR2bZFAAU0Q",
+            "fMP5NHUOaMk", "ynFKQ5bfGks", "D8cuU4d72xM"};
+        // Guest-facing libSceUserService startup family; same policy as above.
+        static const std::set<std::string> userservice_functions{
+            "j3YMu1MVNNo", "bwFjS+bX9mA", "CdWp0oHWGr0", "eNb53LQJmIM",
+            "fPhymKNvK-A", "1xxcMiGu2fo", "yH17Q6NWtVg"};
+        // Guest-facing libSceSystemService startup family; same policy as above.
+        static const std::set<std::string> systemservice_functions{
+            "fZo48un7LK4", "rPo6tV8D9bM", "656LMQSrg6U", "Vo5V8KAwCmk"};
         std::shared_ptr<HleCallAdapter> adapter;
         if (auto it = handlers.find(nid);
             it != handlers.end() &&
             (symbol.name.substr(nid.size()) == "#libkernel#1#libkernel#Function" ||
              symbol.name.substr(nid.size()) == "#libScePosix#1#libkernel#Function" ||
+             (symbol.name.substr(nid.size()) == "#libSceSysmodule#1#libSceSysmodule#Function" &&
+              sysmodule_functions.contains(nid)) ||
+             (symbol.name.substr(nid.size()) == "#libSceUserService#1#libSceUserService#Function" &&
+              userservice_functions.contains(nid)) ||
+             (symbol.name.substr(nid.size()) ==
+                  "#libSceSystemService#1#libSceSystemService#Function" &&
+              systemservice_functions.contains(nid)) ||
              symbol.name == "NWtTN10cJzE#libSceLibcInternalExt#1#libSceLibcInternal#Function"))
             adapter = std::make_shared<FunctionAdapter>(it->second);
         else {
@@ -596,6 +632,86 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     u64 PosixFailure(int error) {
         Write(ErrnoAddress(), static_cast<s32>(error));
         return UINT64_MAX;
+    }
+    // True when this session graph can already provide the module's exports:
+    // a game module loaded during Prepare's DT_NEEDED walk, or a system library
+    // whose HLE import surface was wired at Prepare (recorded in hle_modules).
+    // The sysmodule library names have no extension; loaded/HLE modules carry
+    // .prx/.sprx. Individual functions inside an HLE library may still name-fault
+    // when called; that is a per-function boundary, not a missing provider.
+    bool SysmoduleProviderReady(const char* bare_name) {
+        const std::string base(bare_name);
+        for (const auto& suffix : {".prx", ".sprx"}) {
+            const auto candidate = base + suffix;
+            for (u32 id = 0; auto* m = linker->GetModule(id); ++id)
+                if (m->name == candidate)
+                    return true;
+            for (const auto& name : hle_modules)
+                if (name == candidate)
+                    return true;
+        }
+        return false;
+    }
+    // sceSysmoduleLoadModule / sceSysmoduleLoadModuleInternal. Validates the id
+    // against the module table, checks provider readiness on the current graph,
+    // and maintains a session refcount. A known id with no provider fails by
+    // name (ORBIS_SYSMODULE_LOCK_FAILED); an unknown id is INVALID_ID. Nothing
+    // is silently reported as success.
+    u64 SysmoduleLoad(u32 id) {
+        const char* name{};
+        bool is_game{};
+        if (!Libraries::SysModule::LookupSysmodule(id, &name, &is_game))
+            return static_cast<u32>(ORBIS_SYSMODULE_INVALID_ID);
+        std::lock_guard lock(sysmodule_mutex);
+        if (auto it = sysmodule_refcount.find(id); it != sysmodule_refcount.end() && it->second > 0) {
+            ++it->second;
+            return ORBIS_OK;
+        }
+        if (!SysmoduleProviderReady(name)) {
+            LOG_ERROR(Lib_SysModule, "sysmodule id {:#x} ({}) has no session provider", id, name);
+            return static_cast<u32>(ORBIS_SYSMODULE_LOCK_FAILED);
+        }
+        sysmodule_refcount[id] = 1;
+        sysmodule_handles[id] = sysmodule_next_handle++;
+        LOG_INFO(Lib_SysModule, "sysmodule id {:#x} ({}) loaded (game={})", id, name, is_game);
+        return ORBIS_OK;
+    }
+    u64 SysmoduleUnload(u32 id) {
+        const char* name{};
+        if (!Libraries::SysModule::LookupSysmodule(id, &name, nullptr))
+            return static_cast<u32>(ORBIS_SYSMODULE_INVALID_ID);
+        std::lock_guard lock(sysmodule_mutex);
+        auto it = sysmodule_refcount.find(id);
+        if (it == sysmodule_refcount.end() || it->second <= 0)
+            return static_cast<u32>(ORBIS_SYSMODULE_NOT_LOADED);
+        if (--it->second == 0)
+            sysmodule_handles.erase(id);
+        return ORBIS_OK;
+    }
+    // sceSysmoduleIsLoaded / sceSysmoduleIsLoadedInternal.
+    u64 SysmoduleIsLoaded(u32 id) {
+        if (!Libraries::SysModule::LookupSysmodule(id, nullptr, nullptr))
+            return static_cast<u32>(ORBIS_SYSMODULE_INVALID_ID);
+        std::lock_guard lock(sysmodule_mutex);
+        auto it = sysmodule_refcount.find(id);
+        return (it != sysmodule_refcount.end() && it->second > 0)
+                   ? ORBIS_OK
+                   : static_cast<u32>(ORBIS_SYSMODULE_NOT_LOADED);
+    }
+    // sceSysmoduleGetModuleHandleInternal(id, s32* handle_out).
+    u64 SysmoduleGetHandle(u32 id, u64 handle_ptr) {
+        if (!Libraries::SysModule::LookupSysmodule(id, nullptr, nullptr))
+            return static_cast<u32>(ORBIS_SYSMODULE_INVALID_ID);
+        std::lock_guard lock(sysmodule_mutex);
+        auto it = sysmodule_handles.find(id);
+        if (it == sysmodule_handles.end())
+            return static_cast<u32>(ORBIS_SYSMODULE_NOT_LOADED);
+        if (handle_ptr) {
+            if (!space.ValidateRange({GuestAddress{handle_ptr}, sizeof(s32)}, GuestPermission::Write))
+                return POSIX_EFAULT;
+            Write(handle_ptr, it->second);
+        }
+        return ORBIS_OK;
     }
     void InstallHandlers();
 };
@@ -1074,6 +1190,145 @@ void GuestRuntime::Impl::InstallHandlers() {
         Write(a[0], u32{1});
         return 0;
     });
+    // Session-owned libSceSysmodule. Not the desktop global module table: a load
+    // succeeds only when this session graph provides the module, and a missing
+    // provider fails by name. The public API takes a u16 id; the internal API a
+    // u32 id. Both resolve through the same table and refcount.
+    bind({"g8cM39EUZ6o"}, [this](const auto& a) -> u64 {
+        return SysmoduleLoad(static_cast<u16>(a[0]));
+    });
+    bind({"39iV5E1HoCk"}, [this](const auto& a) -> u64 {
+        return SysmoduleLoad(static_cast<u32>(a[0]));
+    });
+    bind({"eR2bZFAAU0Q"}, [this](const auto& a) -> u64 {
+        return SysmoduleUnload(static_cast<u16>(a[0]));
+    });
+    bind({"fMP5NHUOaMk"}, [this](const auto& a) -> u64 {
+        return SysmoduleIsLoaded(static_cast<u16>(a[0]));
+    });
+    bind({"ynFKQ5bfGks"}, [this](const auto& a) -> u64 {
+        return SysmoduleIsLoaded(static_cast<u32>(a[0]));
+    });
+    bind({"D8cuU4d72xM"}, [this](const auto& a) -> u64 {
+        return SysmoduleGetHandle(static_cast<u32>(a[0]), a[1]);
+    });
+    // Session guest-facing libSceUserService startup family. Each output pointer
+    // is validated against the guest address space; the real emulator function
+    // runs on a host-local object and the result is written back. No guest
+    // pointer is reinterpreted as a host struct and no host state address is
+    // handed to the guest.
+    namespace UserService = Libraries::UserService;
+    bind({"j3YMu1MVNNo"}, [this](const auto& a) -> u64 {
+        if (a[0] && !space.ValidateRange({GuestAddress{a[0]}, sizeof(s32)}, GuestPermission::Read))
+            return static_cast<u32>(ORBIS_USER_SERVICE_ERROR_INVALID_ARGUMENT);
+        UserService::OrbisUserServiceInitializeParams params{};
+        if (a[0])
+            params.priority = Read<s32>(a[0]);
+        return static_cast<u32>(UserService::sceUserServiceInitialize(a[0] ? &params : nullptr));
+    });
+    bind({"bwFjS+bX9mA"},
+         [](const auto&) -> u64 { return static_cast<u32>(UserService::sceUserServiceTerminate()); });
+    bind({"CdWp0oHWGr0"}, [this](const auto& a) -> u64 {
+        if (!space.ValidateRange({GuestAddress{a[0]}, sizeof(s32)}, GuestPermission::Write))
+            return static_cast<u32>(ORBIS_USER_SERVICE_ERROR_INVALID_ARGUMENT);
+        int user_id{};
+        const auto result = UserService::sceUserServiceGetInitialUser(&user_id);
+        if (result == 0)
+            Write(a[0], user_id);
+        return static_cast<u32>(result);
+    });
+    bind({"eNb53LQJmIM"}, [this](const auto& a) -> u64 {
+        // The real API reports the foreground user through an out pointer; the
+        // desktop stub omits it. Report the initial user so the guest sees a
+        // consistent identity instead of an uninitialized value.
+        if (!space.ValidateRange({GuestAddress{a[0]}, sizeof(s32)}, GuestPermission::Write))
+            return static_cast<u32>(ORBIS_USER_SERVICE_ERROR_INVALID_ARGUMENT);
+        int user_id{};
+        const auto result = UserService::sceUserServiceGetInitialUser(&user_id);
+        if (result == 0)
+            Write(a[0], user_id);
+        return static_cast<u32>(result);
+    });
+    bind({"fPhymKNvK-A"}, [this](const auto& a) -> u64 {
+        UserService::OrbisUserServiceLoginUserIdList list{};
+        if (!space.ValidateRange({GuestAddress{a[0]}, sizeof(list)}, GuestPermission::Write))
+            return static_cast<u32>(ORBIS_USER_SERVICE_ERROR_INVALID_ARGUMENT);
+        const auto result = UserService::sceUserServiceGetLoginUserIdList(&list);
+        if (result == 0)
+            Write(a[0], list);
+        return static_cast<u32>(result);
+    });
+    bind({"1xxcMiGu2fo"}, [this](const auto& a) -> u64 {
+        const auto size = a[2];
+        if (size == 0 || size > 0x1000)
+            return static_cast<u32>(ORBIS_USER_SERVICE_ERROR_INVALID_ARGUMENT);
+        if (!space.ValidateRange({GuestAddress{a[1]}, size}, GuestPermission::Write))
+            return static_cast<u32>(ORBIS_USER_SERVICE_ERROR_INVALID_ARGUMENT);
+        std::vector<char> name(size, '\0');
+        const auto result =
+            UserService::sceUserServiceGetUserName(static_cast<s32>(a[0]), name.data(), size);
+        if (result == 0) {
+            const auto used = std::min<size_t>(size, std::strlen(name.data()) + 1);
+            Require(space.Write(GuestAddress{a[1]},
+                                std::as_bytes(std::span{name.data(), used})));
+        }
+        return static_cast<u32>(result);
+    });
+    bind({"yH17Q6NWtVg"}, [this](const auto& a) -> u64 {
+        UserService::OrbisUserServiceEvent event{};
+        if (!space.ValidateRange({GuestAddress{a[0]}, sizeof(event)}, GuestPermission::Write))
+            return static_cast<u32>(ORBIS_USER_SERVICE_ERROR_INVALID_ARGUMENT);
+        const auto result = UserService::sceUserServiceGetEvent(&event);
+        if (result == 0)
+            Write(a[0], event);
+        return static_cast<u32>(result);
+    });
+    // libkernel process-identity scalars. Pure, pointer-free; dispatch to the
+    // real desktop implementations so the guest sees values consistent with the
+    // rest of the emulator (Neo/devkit/SDK/cpu-mode), not fabricated constants.
+    namespace Kernel = Libraries::Kernel;
+    bind({"xeu-pV8wkKs"}, [](const auto&) -> u64 { return Kernel::sceKernelIsInSandbox(); });
+    bind({"WslcK1FQcGI"}, [](const auto&) -> u64 { return Kernel::sceKernelIsNeoMode(); });
+    bind({"rNRtm1uioyY"}, [](const auto&) -> u64 { return Kernel::sceKernelHasNeoMode(); });
+    bind({"QNjGUdj1HPM"}, [](const auto&) -> u64 { return Kernel::sceKernelIsDevkit(); });
+    bind({"mpxAdqW7dKY"}, [](const auto&) -> u64 { return Kernel::sceKernelIsProspero(); });
+    bind({"8aCOCGoRkUI"}, [](const auto&) -> u64 { return Kernel::sceKernelIsCEX(); });
+    bind({"0vTn5IDMU9A"}, [](const auto&) -> u64 { return Kernel::sceKernelGetMainSocId(); });
+    bind({"VOx8NGmHXTs"}, [](const auto&) -> u64 { return Kernel::sceKernelGetCpumode(); });
+    bind({"g0VTBxfJyu0"}, [](const auto&) -> u64 { return Kernel::sceKernelGetCurrentCpu(); });
+    // libSceSystemService startup family. Output pointers are validated and the
+    // real emulator functions run on host-local objects; results are copied back.
+    namespace SystemService = Libraries::SystemService;
+    bind({"fZo48un7LK4"}, [this](const auto& a) -> u64 {
+        if (!space.ValidateRange({GuestAddress{a[1]}, sizeof(s32)}, GuestPermission::Write))
+            return static_cast<u32>(ORBIS_SYSTEM_SERVICE_ERROR_PARAMETER);
+        int value{};
+        const auto result = SystemService::sceSystemServiceParamGetInt(
+            static_cast<SystemService::OrbisSystemServiceParamId>(a[0]), &value);
+        if (result == 0)
+            Write(a[1], value);
+        return static_cast<u32>(result);
+    });
+    bind({"rPo6tV8D9bM"}, [this](const auto& a) -> u64 {
+        SystemService::OrbisSystemServiceStatus status{};
+        if (!space.ValidateRange({GuestAddress{a[0]}, sizeof(status)}, GuestPermission::Write))
+            return static_cast<u32>(ORBIS_SYSTEM_SERVICE_ERROR_PARAMETER);
+        const auto result = SystemService::sceSystemServiceGetStatus(&status);
+        if (result == 0)
+            Write(a[0], status);
+        return static_cast<u32>(result);
+    });
+    bind({"656LMQSrg6U"}, [this](const auto& a) -> u64 {
+        auto event = std::make_unique<SystemService::OrbisSystemServiceEvent>();
+        if (!space.ValidateRange({GuestAddress{a[0]}, sizeof(*event)}, GuestPermission::Write))
+            return static_cast<u32>(ORBIS_SYSTEM_SERVICE_ERROR_PARAMETER);
+        const auto result = SystemService::sceSystemServiceReceiveEvent(event.get());
+        if (result == 0)
+            Write(a[0], *event);
+        return static_cast<u32>(result);
+    });
+    bind({"Vo5V8KAwCmk"},
+         [](const auto&) -> u64 { return SystemService::sceSystemServiceHideSplashScreen(); });
     for (const char* nid :
          {"6UgtwV+0zb4", "onNY9Byn-W8", "4qGrR6eoP9Y", "14bOACANTBo", "n2MMpvU8igI",
           "F8bUHwAG284", "smWEktiyyG0", "iMp8QpE+XO4", "UWZbVSFze24", "gquEhBrS2iw",

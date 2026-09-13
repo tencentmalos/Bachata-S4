@@ -89,8 +89,7 @@ bool isDebugModule(s32 id) {
     return false;
 }
 
-bool validateModuleId(s32 id) {
-    if ((id & 0x7fffffff) == 0) {
+bool validateModuleId(s32 id) {    if ((id & 0x7fffffff) == 0) {
         return ORBIS_SYSMODULE_INVALID_ID;
     }
 
@@ -480,6 +479,22 @@ s32 preloadModulesForLibkernel() {
         }
     }
     return ORBIS_OK;
+}
+
+bool LookupSysmodule(u32 id, const char** name_out, bool* is_game_out) {
+    for (const OrbisSysmoduleModuleInternal& mod : g_modules_array) {
+        if (mod.id != id || mod.id == 0 || mod.name == nullptr) {
+            continue;
+        }
+        if (name_out != nullptr) {
+            *name_out = mod.name;
+        }
+        if (is_game_out != nullptr) {
+            *is_game_out = (mod.flags & OrbisSysmoduleModuleInternalFlags::IsGame) != 0;
+        }
+        return true;
+    }
+    return false;
 }
 
 } // namespace Libraries::SysModule

@@ -27,6 +27,18 @@ s32 PS4_SYSV_ABI sceKernelIsNeoMode();
 
 s32 PS4_SYSV_ABI sceKernelGetCompiledSdkVersion(s32* ver);
 
+// Process identity scalars used during guest libc/runtime startup. Declared so
+// the Android production runtime can dispatch them through the same real
+// implementations the desktop core uses, instead of re-deriving the values.
+s32 PS4_SYSV_ABI sceKernelIsInSandbox();
+s32 PS4_SYSV_ABI sceKernelHasNeoMode();
+s32 PS4_SYSV_ABI sceKernelIsDevkit();
+s32 PS4_SYSV_ABI sceKernelIsProspero();
+s32 PS4_SYSV_ABI sceKernelIsCEX();
+s32 PS4_SYSV_ABI sceKernelGetMainSocId();
+s32 PS4_SYSV_ABI sceKernelGetCpumode();
+s32 PS4_SYSV_ABI sceKernelGetCurrentCpu();
+
 s32 PS4_SYSV_ABI sceKernelGetModuleInfoForUnwind(VAddr addr, s32 flags,
                                                  OrbisModuleInfoForUnwind* info);
 
