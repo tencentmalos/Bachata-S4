@@ -205,13 +205,14 @@ val runtimeFixtureAssets = layout.buildDirectory.dir("generated/productionRuntim
 android.sourceSets.getByName("androidTest").assets.srcDir(runtimeFixtureAssets)
 val fixtureRepo = rootProject.projectDir.resolve("../..")
 val fixtureNdk = android.sdkDirectory.resolve("ndk/29.0.14206865")
-val runtimeFixtureTasks = listOf("thread-dtors", "thread-dtors-bad", "module-lookup", "module-lookup-zero", "module-lookup-nonzero", "module-lookup-absent", "pad", "clock-vm", "sysmodule", "network-wait", "libc-policy-main", "libc-policy-fallback", "libc-policy-system", "libc-policy-bad-init", "thread-attributes", "thread-attributes-fault", "gpu-flip", "storage", "storage-read", "save-dialog", "videoout", "videoout-bad", "videoout-format", "bootstrap", "bootstrap-wait", "libc", "libc-wait", "services", "fixture", "self", "wait", "dependency", "dependency-wait", "bad", "unknown").map { kind ->
+val runtimeFixtureTasks = listOf("ajm", "thread-dtors", "thread-dtors-bad", "module-lookup", "module-lookup-zero", "module-lookup-nonzero", "module-lookup-absent", "pad", "clock-vm", "sysmodule", "network-wait", "libc-policy-main", "libc-policy-fallback", "libc-policy-system", "libc-policy-bad-init", "thread-attributes", "thread-attributes-fault", "gpu-flip", "storage", "storage-read", "save-dialog", "videoout", "videoout-bad", "videoout-format", "bootstrap", "bootstrap-wait", "libc", "libc-wait", "services", "fixture", "self", "wait", "dependency", "dependency-wait", "bad", "unknown").map { kind ->
     tasks.register<Exec>("generate${kind.replaceFirstChar { it.uppercase() }}RuntimeElf") {
         inputs.file(fixtureRepo.resolve("scripts/android/generate-production-runtime-fixture"))
         inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/production_runtime.S"))
         inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/runtime_services.S"))
         inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/runtime_module_lookup.S"))
         inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/runtime_thread_dtors.S"))
+        inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/runtime_ajm.S"))
         inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/runtime_pad.S"))
         inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/runtime_videoout.S"))
         inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/runtime_gpu_flip.S"))
@@ -239,6 +240,7 @@ val runtimeFixtureTasks = listOf("thread-dtors", "thread-dtors-bad", "module-loo
                 "thread-attributes" -> listOf("--thread-attributes")
                 "clock-vm" -> listOf("--clock-vm")
                 "pad" -> listOf("--pad")
+                "ajm" -> listOf("--ajm")
                 "thread-dtors" -> listOf("--thread-dtors")
                 "thread-dtors-bad" -> listOf("--thread-dtors", "--bad-pointer")
                 "module-lookup" -> listOf("--module-lookup")

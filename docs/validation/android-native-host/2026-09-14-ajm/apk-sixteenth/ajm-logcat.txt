@@ -1,0 +1,28 @@
+--------- beginning of main
+09-14 01:11:09.208 30795 30825 I ProductionRuntime: prepare: reserve guest VA
+09-14 01:11:09.208 30795 30825 I ProductionRuntime: prepare: create FEX context
+09-14 01:11:09.209 30795 30825 I ProductionRuntime: prepare: create production VM/Linker
+09-14 01:11:09.423 30795 30825 I ProductionRuntime: prepare: load/relocate modules
+09-14 01:11:09.425 30795 30825 I ProductionRuntime: prepare: ready
+09-14 01:11:09.425 30795 30825 I ProductionRuntime: run: enter production guest
+09-14 01:11:09.427 30795 30825 I ProductionRuntime: run: guest returned to host
+09-14 01:11:09.428 30795 30819 I AjmAcceptance: round=0 case=ajm outcome=0 page_size=4096 pid=30795 uid=10157 guest return=51966
+09-14 01:11:09.428 30795 30819 I AjmAcceptance: production Linker/VM; owners=1 veneers=8 graphics=not-created modules=1
+09-14 01:11:09.431 30795 30827 I ProductionRuntime: prepare: reserve guest VA
+09-14 01:11:09.431 30795 30827 I ProductionRuntime: prepare: create FEX context
+09-14 01:11:09.431 30795 30827 I ProductionRuntime: prepare: create production VM/Linker
+09-14 01:11:09.635 30795 30827 I ProductionRuntime: prepare: load/relocate modules
+09-14 01:11:09.637 30795 30827 I ProductionRuntime: prepare: ready
+09-14 01:11:09.637 30795 30827 I ProductionRuntime: run: enter production guest
+09-14 01:11:09.638 30795 30827 I ProductionRuntime: run: guest returned to host
+09-14 01:11:09.639 30795 30819 I AjmAcceptance: round=1 case=ajm outcome=0 page_size=4096 pid=30795 uid=10157 guest return=51966
+09-14 01:11:09.639 30795 30819 I AjmAcceptance: production Linker/VM; owners=1 veneers=8 graphics=not-created modules=1
+09-14 01:11:09.639 30795 30833 I ProductionRuntime: prepare: reserve guest VA
+09-14 01:11:09.639 30795 30833 I ProductionRuntime: prepare: create FEX context
+09-14 01:11:09.640 30795 30833 I ProductionRuntime: prepare: create production VM/Linker
+09-14 01:11:09.843 30795 30833 I ProductionRuntime: prepare: load/relocate modules
+09-14 01:11:09.845 30795 30833 I ProductionRuntime: prepare: ready
+09-14 01:11:09.845 30795 30833 I ProductionRuntime: run: enter production guest
+09-14 01:11:09.846 30795 30833 I ProductionRuntime: run: guest returned to host
+09-14 01:11:09.846 30795 30819 I AjmAcceptance: round=2 case=ajm outcome=0 page_size=4096 pid=30795 uid=10157 guest return=51966
+09-14 01:11:09.846 30795 30819 I AjmAcceptance: production Linker/VM; owners=1 veneers=8 graphics=not-created modules=1

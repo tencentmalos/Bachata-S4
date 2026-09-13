@@ -1,3 +1,4 @@
+#include <stdexcept>
 // SPDX-FileCopyrightText: Copyright 2024 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -149,10 +150,17 @@ DecoderResult AjmMp3Decoder::ProcessData(std::span<u8>& in_buf, SparseOutputBuff
                                          AjmInstanceGapless& gapless) {
     DecoderResult result{};
     AVPacket* pkt = av_packet_alloc();
+    if (!pkt)
+        throw std::bad_alloc();
+    auto release_packet = [](AVPacket* packet) { av_packet_free(&packet); };
+    std::unique_ptr<AVPacket, decltype(release_packet)> packet_owner(pkt, release_packet);
 
     m_header = std::byteswap(*reinterpret_cast<u32*>(in_buf.data()));
     AjmDecMp3ParseFrame info{};
-    ParseMp3Header(in_buf.data(), in_buf.size(), true, &info);
+    if (ParseMp3Header(in_buf.data(), in_buf.size(), true, &info) != 0) {
+        result.result = ORBIS_AJM_RESULT_INVALID_PARAMETER;
+        return result;
+    }
     m_frame_samples = info.samples_per_channel;
     if (info.total_samples != 0 || info.encoder_delay != 0) {
         gapless.init = {
@@ -165,11 +173,18 @@ DecoderResult AjmMp3Decoder::ProcessData(std::span<u8>& in_buf, SparseOutputBuff
 
     if (in_buf.size() < info.frame_size) {
         result.result |= ORBIS_AJM_RESULT_PARTIAL_INPUT;
+        return result;
     }
 
-    int ret = av_parser_parse2(m_parser, m_codec_context, &pkt->data, &pkt->size, in_buf.data(),
+    std::vector<u8> padded(in_buf.begin(), in_buf.end());
+    padded.resize(padded.size() + AV_INPUT_BUFFER_PADDING_SIZE);
+    int ret = av_parser_parse2(m_parser, m_codec_context, &pkt->data, &pkt->size, padded.data(),
                                in_buf.size(), AV_NOPTS_VALUE, AV_NOPTS_VALUE, 0);
-    ASSERT_MSG(ret >= 0, "Error while parsing {}", ret);
+    if (ret < 0 || size_t(ret) > in_buf.size()) {
+        result.result = ORBIS_AJM_RESULT_CODEC_ERROR;
+        result.internal_result = ret;
+        return result;
+    }
     in_buf = in_buf.subspan(ret);
 
     if (pkt->size) {
@@ -178,7 +193,11 @@ DecoderResult AjmMp3Decoder::ProcessData(std::span<u8>& in_buf, SparseOutputBuff
         pkt->dts = m_parser->dts;
         pkt->flags = (m_parser->key_frame == 1) ? AV_PKT_FLAG_KEY : 0;
         ret = avcodec_send_packet(m_codec_context, pkt);
-        ASSERT_MSG(ret >= 0, "Error submitting the packet to the decoder {}", ret);
+        if (ret < 0) {
+            result.result = ORBIS_AJM_RESULT_CODEC_ERROR;
+            result.internal_result = ret;
+            return result;
+        }
 
         // Read all the output frames (in general there may be any number of them
         while (ret >= 0) {
@@ -188,7 +207,10 @@ DecoderResult AjmMp3Decoder::ProcessData(std::span<u8>& in_buf, SparseOutputBuff
                 av_frame_free(&frame);
                 break;
             } else if (ret < 0) {
-                UNREACHABLE_MSG("Error during decoding");
+                av_frame_free(&frame);
+                result.result = ORBIS_AJM_RESULT_CODEC_ERROR;
+                result.internal_result = ret;
+                return result;
             }
             frame = ConvertAudioFrame(frame);
 
@@ -230,7 +252,7 @@ DecoderResult AjmMp3Decoder::ProcessData(std::span<u8>& in_buf, SparseOutputBuff
         }
     }
 
-    av_packet_free(&pkt);
+    packet_owner.reset();
 
     return result;
 }
@@ -246,7 +268,7 @@ u32 AjmMp3Decoder::GetNextFrameSize(const AjmInstanceGapless& gapless) const {
 
 class BitReader {
 public:
-    BitReader(const u8* data) : m_data(data) {}
+    BitReader(const u8* data, size_t size) : m_data(data), m_limit(size * 8) {}
 
     template <class T>
     T Read(u32 const nbits) {
@@ -258,6 +280,8 @@ public:
     }
 
     void Skip(size_t nbits) {
+        if (nbits > m_limit - m_bit_offset)
+            throw std::invalid_argument("truncated MP3 side info");
         m_bit_offset += nbits;
     }
 
@@ -267,6 +291,8 @@ public:
 
 private:
     u8 GetBit() {
+        if (m_bit_offset >= m_limit)
+            throw std::invalid_argument("truncated MP3 side info");
         const auto bit = (m_data[m_bit_offset / 8] >> (7 - (m_bit_offset % 8))) & 1;
         m_bit_offset += 1;
         return bit;
@@ -274,10 +300,11 @@ private:
 
     const u8* m_data;
     size_t m_bit_offset = 0;
+    size_t m_limit = 0;
 };
 
 int AjmMp3Decoder::ParseMp3Header(const u8* p_begin, u32 stream_size, int parse_ofl,
-                                  AjmDecMp3ParseFrame* frame) {
+                                  AjmDecMp3ParseFrame* frame) try {
     LOG_TRACE(Lib_Ajm, "called stream_size = {} parse_ofl = {}", stream_size, parse_ofl);
 
     if (p_begin == nullptr || stream_size < 4 || frame == nullptr) {
@@ -295,6 +322,8 @@ int AjmMp3Decoder::ParseMp3Header(const u8* p_begin, u32 stream_size, int parse_
 
     frame->sample_rate = Mp3SampleRateTable[u32(header->version)][header->sampling_rate_idx];
     frame->bitrate = Mp3BitRateTable[u32(header->version)][header->bitrate_idx] * 1000;
+    if (!frame->sample_rate || !frame->bitrate || header->layer_type != 1)
+        return ORBIS_AJM_ERROR_INVALID_PARAMETER;
     frame->num_channels = header->channel_mode == Mp3ChannelMode::SingleChannel ? 1 : 2;
     if (header->version == Mp3AudioVersion::V1) {
         frame->frame_size = (144 * frame->bitrate) / frame->sample_rate + header->padding;
@@ -309,11 +338,11 @@ int AjmMp3Decoder::ParseMp3Header(const u8* p_begin, u32 stream_size, int parse_
     frame->total_samples = 0;
     frame->ofl_type = AjmDecMp3OflType::None;
 
-    if (!parse_ofl) {
+    if (!parse_ofl || stream_size < frame->frame_size) {
         return ORBIS_OK;
     }
 
-    BitReader reader(p_current);
+    BitReader reader(p_current, frame->frame_size - 4);
     if (header->protection_type == 0) {
         // crc = reader.Read<u16>(16);
         reader.Skip(16);
@@ -398,6 +427,8 @@ int AjmMp3Decoder::ParseMp3Header(const u8* p_begin, u32 stream_size, int parse_
     p_current += ((reader.GetCurrentOffset() + 7) / 8);
 
     const auto* p_end = p_begin + frame->frame_size;
+    if (p_current > p_end || size_t(p_end - p_current) < 4)
+        return ORBIS_OK;
     if (memcmp(p_current, "Xing", 4) == 0 || memcmp(p_current, "Info", 4) == 0) {
         // TODO: Parse Xing/Lame header
         LOG_ERROR(Lib_Ajm, "Xing/Lame header is not implemented.");
@@ -433,6 +464,8 @@ int AjmMp3Decoder::ParseMp3Header(const u8* p_begin, u32 stream_size, int parse_
     }
 
     return ORBIS_OK;
+} catch (const std::invalid_argument&) {
+    return ORBIS_AJM_ERROR_INVALID_PARAMETER;
 }
 
 AjmSidebandFormat AjmMp3Decoder::GetFormat() const {

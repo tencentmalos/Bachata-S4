@@ -1,5 +1,7 @@
 # Android / FEX 开发资料索引
 
+**最新（2026-09-14）：[AJM会话解码与真实FEX调用](validation/android-native-host/ajm-runtime-integration-2026-09-14.md)。** native126/0、真实MP3输出32256bytes；APK三轮8/10参数batch、完整TMNT三轮到AudioOutInit/op95，仍0帧。继续AudioOut，不扩网络SSL，无全回归。
+
 **当前（2026-09-14）：[零偏移 DT_INIT、模块复用与 libc 线程析构](validation/android-native-host/module-init-thread-dtors-2026-09-14.md)。** 修复实际跳过 libc/FMOD 构造器的根因，纠正此前初始化日志；APK模块矩阵9轮、析构4轮、完整TMNT3轮到AJM初始化，Turnip已就绪但仍0帧。继续生产AJM，无网络/SSL扩展，无全量回归。
 
 **当前（2026-09-14）：[离线兼容、条件变量/VM与生产Pad](validation/android-native-host/network-condition-pad-integration-2026-09-14.md)。** 真机定向network199/0、cond66/0、Pad85/0；真实guest回调取消恢复、clock/VM并发、Pad读取/震动队列通过。完整TMNT三轮推进到LoadStartModule/op44，仍零帧。用户决定网络/SSL按桌面兼容即可，暂不实现在线功能；直接继续实际游戏阻塞，无新spec/全回归。

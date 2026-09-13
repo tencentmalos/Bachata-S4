@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright 2024 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <stdexcept>
 #include "ajm_result.h"
 #include "common/assert.h"
 #include "core/libraries/ajm/ajm_at9.h"
@@ -64,8 +65,16 @@ AjmAt9Decoder::~AjmAt9Decoder() {
 void AjmAt9Decoder::Reset() {
     Atrac9ReleaseHandle(m_handle);
     m_handle = Atrac9GetHandle();
-    Atrac9InitDecoder(m_handle, m_config_data);
-    Atrac9GetCodecInfo(m_handle, &m_codec_info);
+    if (!m_handle)
+        throw std::bad_alloc();
+    if (!m_is_initialized)
+        return;
+    if (Atrac9InitDecoder(m_handle, m_config_data) != 0 ||
+        Atrac9GetCodecInfo(m_handle, &m_codec_info) != 0 || m_codec_info.channels <= 0 ||
+        m_codec_info.channels > 8 || m_codec_info.frameSamples <= 0 ||
+        m_codec_info.frameSamples > 4096 || m_codec_info.framesInSuperframe <= 0 ||
+        m_codec_info.superframeSize <= 0)
+        throw std::invalid_argument("invalid AT9 configuration");
 
     m_num_frames = 0;
     m_superframe_bytes_remain = m_codec_info.superframeSize;
@@ -76,6 +85,7 @@ void AjmAt9Decoder::Initialize(const void* buffer, u32 buffer_size) {
                "Incorrect At9 initialization buffer size {}", buffer_size);
     const auto params = reinterpret_cast<const AjmDecAt9InitializeParameters*>(buffer);
     std::memcpy(m_config_data, params->config_data, ORBIS_AT9_CONFIG_DATA_SIZE);
+    m_is_initialized = true;
     AjmAt9Decoder::Reset();
     m_pcm_buffer.resize(m_codec_info.frameSamples * m_codec_info.channels * GetPCMSize(m_format),
                         0);
@@ -94,43 +104,44 @@ u8 g_at9_guid[] = {0xD2, 0x42, 0xE1, 0x47, 0xBA, 0x36, 0x8D, 0x4D,
                    0x88, 0xFC, 0x61, 0x65, 0x4F, 0x8C, 0x83, 0x6C};
 
 void AjmAt9Decoder::ParseRIFFHeader(std::span<u8>& in_buf, AjmInstanceGapless& gapless) {
-    auto* header = reinterpret_cast<RIFFHeader*>(in_buf.data());
-    in_buf = in_buf.subspan(sizeof(RIFFHeader));
-
-    ASSERT(header->riff == 'FFIR');
-    ASSERT(header->wave == 'EVAW');
-
-    auto* chunk = reinterpret_cast<ChunkHeader*>(in_buf.data());
-    in_buf = in_buf.subspan(sizeof(ChunkHeader));
-    while (chunk->tag != 'atad') {
-        switch (chunk->tag) {
-        case ' tmf': {
-            ASSERT(chunk->length == sizeof(AudioFormat));
-            auto* fmt = reinterpret_cast<AudioFormat*>(in_buf.data());
-
-            ASSERT(fmt->fmt_type == 0xFFFE);
-            ASSERT(memcmp(fmt->guid, g_at9_guid, 16) == 0);
-            AjmDecAt9InitializeParameters init_params = {};
-            std::memcpy(init_params.config_data, fmt->config_data, ORBIS_AT9_CONFIG_DATA_SIZE);
-            Initialize(&init_params, sizeof(init_params));
-            break;
-        }
-        case 'tcaf': {
-            ASSERT(chunk->length == sizeof(SampleData));
-            auto* samples = reinterpret_cast<SampleData*>(in_buf.data());
-
-            gapless.init.total_samples = samples->sample_length;
-            gapless.init.skip_samples = samples->encoder_delay;
+    auto take = [&]<class T>() {
+        if (in_buf.size() < sizeof(T))
+            throw std::invalid_argument("truncated AT9 RIFF");
+        T result;
+        std::memcpy(&result, in_buf.data(), sizeof(T));
+        in_buf = in_buf.subspan(sizeof(T));
+        return result;
+    };
+    const auto header = take.operator()<RIFFHeader>();
+    if (header.riff != 'FFIR' || header.wave != 'EVAW')
+        throw std::invalid_argument("invalid AT9 RIFF header");
+    for (;;) {
+        const auto chunk = take.operator()<ChunkHeader>();
+        if (chunk.tag == 'atad')
+            break; // compressed data may be delivered incrementally
+        if (chunk.length > in_buf.size())
+            throw std::invalid_argument("truncated AT9 RIFF chunk");
+        auto payload = in_buf.first(chunk.length);
+        in_buf = in_buf.subspan(chunk.length);
+        if (chunk.tag == ' tmf') {
+            if (payload.size() != sizeof(AudioFormat))
+                throw std::invalid_argument("invalid AT9 fmt size");
+            AudioFormat fmt;
+            std::memcpy(&fmt, payload.data(), sizeof(fmt));
+            if (fmt.fmt_type != 0xfffe || std::memcmp(fmt.guid, g_at9_guid, 16))
+                throw std::invalid_argument("invalid AT9 fmt");
+            AjmDecAt9InitializeParameters params{};
+            std::memcpy(params.config_data, fmt.config_data, 4);
+            Initialize(&params, sizeof(params));
+        } else if (chunk.tag == 'tcaf') {
+            if (payload.size() != sizeof(SampleData))
+                throw std::invalid_argument("invalid AT9 fact size");
+            SampleData samples;
+            std::memcpy(&samples, payload.data(), sizeof(samples));
+            gapless.init.total_samples = samples.sample_length;
+            gapless.init.skip_samples = samples.encoder_delay;
             gapless.Reset();
-            break;
         }
-        default:
-            break;
-        }
-        in_buf = in_buf.subspan(chunk->length);
-
-        chunk = reinterpret_cast<ChunkHeader*>(in_buf.data());
-        in_buf = in_buf.subspan(sizeof(ChunkHeader));
     }
 }
 
@@ -141,7 +152,7 @@ u32 AjmAt9Decoder::GetMinimumInputSize() const {
 DecoderResult AjmAt9Decoder::ProcessData(std::span<u8>& in_buf, SparseOutputBuffer& output,
                                          AjmInstanceGapless& gapless) {
     DecoderResult result{};
-    if (True(m_flags & AjmAt9CodecFlags::ParseRiffHeader) &&
+    if (True(m_flags & AjmAt9CodecFlags::ParseRiffHeader) && in_buf.size() >= 4 &&
         *reinterpret_cast<u32*>(in_buf.data()) == 'FFIR') {
         ParseRIFFHeader(in_buf, gapless);
         result.is_reset = true;
@@ -181,6 +192,9 @@ DecoderResult AjmAt9Decoder::ProcessData(std::span<u8>& in_buf, SparseOutputBuff
     }
 
     result.frames_decoded += 1;
+    if (ret != 0 || bytes_used <= 0 || size_t(bytes_used) > in_buf.size() ||
+        u32(bytes_used) > m_superframe_bytes_remain)
+        throw std::invalid_argument("invalid AT9 consumed size");
     in_buf = in_buf.subspan(bytes_used);
 
     m_superframe_bytes_remain -= bytes_used;
@@ -219,6 +233,8 @@ DecoderResult AjmAt9Decoder::ProcessData(std::span<u8>& in_buf, SparseOutputBuff
     m_num_frames += 1;
     if ((m_num_frames % m_codec_info.framesInSuperframe) == 0) {
         if (m_superframe_bytes_remain) {
+            if (m_superframe_bytes_remain > in_buf.size())
+                throw std::invalid_argument("truncated AT9 superframe");
             in_buf = in_buf.subspan(m_superframe_bytes_remain);
         }
         m_superframe_bytes_remain = m_codec_info.superframeSize;
@@ -229,11 +245,16 @@ DecoderResult AjmAt9Decoder::ProcessData(std::span<u8>& in_buf, SparseOutputBuff
         while ((m_num_frames % m_codec_info.framesInSuperframe) != 0) {
             ret = Atrac9Decode(m_handle, in_buf.data(), static_cast<int>(in_buf.size()), buf.data(),
                                &bytes_used, True(m_flags & AjmAt9CodecFlags::NonInterleavedOutput));
+            if (ret != 0 || bytes_used <= 0 || size_t(bytes_used) > in_buf.size() ||
+                u32(bytes_used) > m_superframe_bytes_remain)
+                throw std::invalid_argument("invalid AT9 consumed size");
             in_buf = in_buf.subspan(bytes_used);
             m_superframe_bytes_remain -= bytes_used;
             result.frames_decoded += 1;
             m_num_frames += 1;
         }
+        if (m_superframe_bytes_remain > in_buf.size())
+            throw std::invalid_argument("truncated AT9 superframe");
         in_buf = in_buf.subspan(m_superframe_bytes_remain);
         m_superframe_bytes_remain = m_codec_info.superframeSize;
         m_num_frames = 0;
@@ -243,12 +264,14 @@ DecoderResult AjmAt9Decoder::ProcessData(std::span<u8>& in_buf, SparseOutputBuff
 }
 
 AjmSidebandFormat AjmAt9Decoder::GetFormat() const {
+    if (!m_is_initialized || !m_codec_info.framesInSuperframe || !m_codec_info.frameSamples)
+        return {.sample_encoding = m_format};
     return AjmSidebandFormat{
         .num_channels = u32(m_codec_info.channels),
         .channel_mask = GetChannelMask(u32(m_codec_info.channels)),
         .sampl_freq = u32(m_codec_info.samplingRate),
         .sample_encoding = m_format,
-        .bitrate = u32((m_codec_info.samplingRate * m_codec_info.superframeSize * 8) /
+        .bitrate = u32((u64(m_codec_info.samplingRate) * m_codec_info.superframeSize * 8) /
                        (m_codec_info.framesInSuperframe * m_codec_info.frameSamples)),
         .reserved = 0,
     };

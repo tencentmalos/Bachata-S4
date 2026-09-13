@@ -1,0 +1,12 @@
+[1/12] Performing build step for 'ffmpeg_android_build'
+[2/12] No install step for 'ffmpeg_android_build'
+[3/12] Completed 'ffmpeg_android_build'
+[4/12] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/ajm/ajm_instance.cpp.o
+[5/12] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/ajm/ajm_mp3.cpp.o
+[6/12] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/ajm/ajm_context.cpp.o
+[7/12] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/ajm/ajm.cpp.o
+[8/12] Building CXX object CMakeFiles/guest_ajm_tests.dir/tests/host_runtime/guest_ajm_tests.cpp.o
+[9/12] Building CXX object CMakeFiles/shadps4.dir/src/core/host_runtime/guest_ajm.cpp.o
+[10/12] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/avplayer/avplayer_source.cpp.o
+[11/12] Linking CXX shared library libshadps4_host.so
+[12/12] Linking CXX executable guest_ajm_tests

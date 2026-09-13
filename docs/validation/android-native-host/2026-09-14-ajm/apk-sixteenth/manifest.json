@@ -1,0 +1,47 @@
+{
+  "source": "8276deb717b3947929cf6db10f05802dbaaa5838",
+  "scope": "focused production AJM stack ABI, asynchronous batch and real TMNT boundary; no full regression",
+  "runs": [
+    {
+      "name": "ajm",
+      "junit_pass": true,
+      "scope": "synthetic"
+    },
+    {
+      "name": "tmnt",
+      "junit_pass": true,
+      "scope": "boundary observation only"
+    }
+  ],
+  "artifacts": {
+    "android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk": "b40ec65a768b6f671490672149c8974b249eadca0977d9d3b7bf95f8094b2b1b",
+    "android/shadps4-app/app/build/outputs/apk/androidTest/playstore/debug/app-playstore-debug-androidTest.apk": "7ee70adac7c0b768548b472134afc2f7a8918f1d662770f7294cfe794a952822",
+    "build/android-host-api33/native/libshadps4_host.so": "65f10bcf4d710f079b0c593466412e47b28c70ff3cdf94b099898db767baa597"
+  },
+  "sources": {
+    "android/shadps4-app/app/src/androidTest/kotlin/com/shadps4/android/AjmRuntimeInstrumentedTest.kt": "e1de8e0b9609e3a5e30478632cf7407663e75313d25ae8b08a1c04ba50279d74",
+    "src/core/host_runtime/guest_ajm.cpp": "06d25b15fb0d006b170812f0c5f90b55a3fda961db1ef6d2c2451ff8d4eadae2",
+    "src/core/host_runtime/guest_ajm.h": "d50eaff623869e1e28c3ea7a870509d3624b6a350248e5112746bb4c06c9bd85",
+    "tests/guest_cpu/fixtures/runtime_ajm.S": "57078d201e9ec4c8121e036bf5ffe25715c5473fa771f09fa49f09adfec4d9dc",
+    "tests/host_runtime/guest_ajm_tests.cpp": "762bb219d9e77b016aaed0241b916498fd9d33cbe04c5e7351c8ef8c0351fcd4",
+    "android/shadps4-app/app/build.gradle.kts": "9f0138245073b161fbcaf0ca2af67fb37b58c47d1de878cb4eb35e85c73411e8",
+    "scripts/android/generate-production-runtime-fixture": "32257c4d484948f472032e0c18539cec7333b6c47acea0504eb2732b0657cf83",
+    "src/core/host_runtime/guest_runtime.cpp": "740d577f688ceb36953a330b628b58ef601bb4b593b302159d54a2fb225f8791",
+    "src/core/libraries/ajm/ajm.cpp": "c3bb92176bf6587c555c4fc6c5c65b0755fc39942bff0159c71a0c5db76ea034",
+    "src/core/libraries/ajm/ajm_aac.cpp": "45186b29c1cf4cc958db2cdd10c88f85cb08e5d4d8f61ebf17a52edc25116723",
+    "src/core/libraries/ajm/ajm_at9.cpp": "7b83ddf652b59a88bee87e93811283d236c5c49ce277e00e4cd7b26dda7003ce",
+    "src/core/libraries/ajm/ajm_instance.cpp": "c5e710d2c13ca9ed2b0f3149013b6cb4108ec3bb36ee4e56941a0fa25f86253e",
+    "src/core/libraries/ajm/ajm_instance.h": "1cfbf3468a9f6b87d1eafd4d44c90b2a80ef81d6cc3a66ace06f02b664e3d57b",
+    "src/core/libraries/ajm/ajm_mp3.cpp": "7c6ea7fe77f67e1e62634384fa1ad94e2852db67090d8aeec188022aa3ca69e1"
+  },
+  "identity": "AYN Thor",
+  "libshadps4_host.so": {
+    "sha256": "65f10bcf4d710f079b0c593466412e47b28c70ff3cdf94b099898db767baa597",
+    "build_id": "f39dd7bde2e37a2ec23b5fd76425a88bd0841316"
+  },
+  "libshadps4_fex_session.so": {
+    "sha256": "dcd16d36c667af1ffc4e5d45b8cce186fd1ac0f1d4ebeb32594d4dc9efbf0bac",
+    "build_id": "457d7ba7c04582d8e2d2ba19ff36928f319bf0a0"
+  },
+  "status": "FOCUSED_PASS_BOUNDARY_OBSERVED"
+}

@@ -1,0 +1,3 @@
+FAIL 145: start() == u32(ORBIS_AJM_ERROR_MALFORMED_BATCH)
+AJM_MP3 input=2925 output=32256 samples=8064
+GUEST_AJM checks=96 failures=1

@@ -9,6 +9,7 @@
 #include "core/libraries/ajm/ajm_batch.h"
 
 #include <memory>
+#include <stop_token>
 #include <optional>
 #include <tuple>
 
@@ -99,7 +100,7 @@ class AjmInstance {
 public:
     AjmInstance(AjmCodecType codec_type, AjmInstanceFlags flags);
 
-    void ExecuteJob(AjmJob& job);
+    void ExecuteJob(AjmJob& job, std::stop_token cancel = {});
 
 private:
     bool HasEnoughSpace(const SparseOutputBuffer& output) const;

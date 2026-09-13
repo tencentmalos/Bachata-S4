@@ -6,6 +6,8 @@
 
 ## 当前交接（2026-09-14）
 
+最新先读[生产AJM异步解码与真机证据](docs/validation/android-native-host/ajm-runtime-integration-2026-09-14.md)。Native126/0含真实MP3解码；普通APK三轮真实FEX验证8/10参数batch，完整TMNT三轮到AudioOutInit/op95，仍0帧。继续会话AudioOut和AAudio短写/音量/打开失败，不扩网络SSL，不全回归。下文模块/libc修复仍保留。
+
 先读[零偏移 DT_INIT、模块复用与线程析构修复](docs/validation/android-native-host/module-init-thread-dtors-2026-09-14.md)。FMOD 空指针根因是把存在但值为0的DT_INIT误当缺失，现已修正；旧“六模块初始化完成”日志不可信。普通APK模块矩阵9轮、析构4轮、完整TMNT同PID3轮越过原崩溃，稳定到sceAjmInitialize/op385，Turnip已就绪但0帧。继续AJM整族的checked batch/解码/会话寿命；动态新模块/TLS卸载仍未完成。网络/SSL不扩展，只做定向测试；FEX/Foundation不变。
 
 ## 前一交付（2026-09-14）

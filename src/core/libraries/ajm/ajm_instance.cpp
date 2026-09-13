@@ -52,7 +52,7 @@ void AjmInstance::Reset() {
     m_codec->Reset();
 }
 
-void AjmInstance::ExecuteJob(AjmJob& job) {
+void AjmInstance::ExecuteJob(AjmJob& job, std::stop_token cancel) {
     const auto control_flags = job.flags.control_flags;
     job.output.p_result->result = 0;
     if (True(control_flags & AjmJobControlFlags::Reset)) {
@@ -113,6 +113,7 @@ void AjmInstance::ExecuteJob(AjmJob& job) {
 
     if (!job.input.buffer.empty()) {
         for (;;) {
+            if (cancel.stop_requested()) break;
             if (m_flags.gapless_loop && m_gapless.IsEnd()) {
                 m_gapless.Reset();
                 m_total_samples = 0;
@@ -128,6 +129,8 @@ void AjmInstance::ExecuteJob(AjmJob& job) {
             if (job.output.p_result->result != 0) {
                 break;
             }
+            const auto before_input = in_buf.size();
+            const auto before_output = out_buf.Size();
             const auto result = m_codec->ProcessData(in_buf, out_buf, m_gapless);
             if (result.is_reset) {
                 m_total_samples = 0;
@@ -138,6 +141,10 @@ void AjmInstance::ExecuteJob(AjmJob& job) {
             if (result.result != 0) {
                 job.output.p_result->result |= result.result;
                 job.output.p_result->internal_result = result.internal_result;
+                break;
+            }
+            if (in_buf.size() == before_input && out_buf.Size() == before_output) {
+                job.output.p_result->result |= ORBIS_AJM_RESULT_PARTIAL_INPUT;
                 break;
             }
             if (False(job.flags.run_flags & AjmJobRunFlags::MultipleFrames)) {

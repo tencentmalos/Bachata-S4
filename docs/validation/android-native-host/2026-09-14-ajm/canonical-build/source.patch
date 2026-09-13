@@ -1,0 +1,617 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index ebad8f6f..ae48151b 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1608,6 +1608,7 @@ if(BUILD_HOST_CORE)
+         src/core/host_runtime/guest_storage.cpp
+         src/core/host_runtime/guest_storage_hle.cpp
+         src/core/host_runtime/guest_runtime.cpp
++        src/core/host_runtime/guest_ajm.cpp
+         src/core/host_runtime/guest_graphics.cpp
+         src/core/host_runtime/guest_graphics_hle.cpp)
+     target_link_libraries(shadps4 PRIVATE spatial::foundation_input)
+@@ -1627,6 +1628,10 @@ if(BUILD_HOST_CORE)
+     if(HOST_BUILD_PROBES)
+         add_executable(host_dlopen_smoke tests/host_runtime/host_dlopen_smoke.cpp)
+         target_link_libraries(host_dlopen_smoke PRIVATE dl)
++        add_executable(guest_ajm_tests tests/host_runtime/guest_ajm_tests.cpp)
++        target_link_libraries(guest_ajm_tests PRIVATE shadps4_host)
++        target_include_directories(guest_ajm_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
++        target_compile_definitions(guest_ajm_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+         add_executable(guest_pad_tests tests/host_runtime/guest_pad_tests.cpp)
+         target_link_libraries(guest_pad_tests PRIVATE shadps4_host spatial::foundation_input)
+         target_include_directories(guest_pad_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+diff --git a/src/core/host_runtime/guest_runtime.cpp b/src/core/host_runtime/guest_runtime.cpp
+index eb310f58..f79d8e7e 100644
+--- a/src/core/host_runtime/guest_runtime.cpp
++++ b/src/core/host_runtime/guest_runtime.cpp
+@@ -28,6 +28,7 @@
+ #include "core/host_runtime/guest_libc_policy.h"
+ #include "core/host_runtime/guest_mutex.h"
+ #include "core/host_runtime/guest_network.h"
++#include "core/host_runtime/guest_ajm.h"
+ #include "core/host_runtime/guest_pad.h"
+ #include "core/host_runtime/guest_platform.h"
+ #include "core/host_runtime/guest_rtc.h"
+@@ -133,6 +134,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
+     GuestClock clock;
+     std::unique_ptr<GuestStorage> storage;
+     std::unique_ptr<GuestNetwork> network;
++    std::unique_ptr<GuestAjm> ajm;
+     std::unique_ptr<GuestPad> pad;
+     std::shared_ptr<GuestSaveDialog> save_dialog;
+     std::shared_ptr<Frontend::Window> graphics_window;
+@@ -417,6 +419,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
+         for (auto& [id, o] : owners)
+             if (o->worker.joinable())
+                 o->worker.join();
++        ajm.reset(); // joins decoder worker before VM/backing teardown
+         storage.reset();
+         app_content.reset();
+         graphics.reset();
+@@ -740,6 +743,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
+                 if (o->handle.IsValid())
+                     handles.push_back(o->handle);
+         }
++        if (ajm) ajm->RequestStop();
+         if (storage)
+             storage->Cancel();
+         if (save_dialog)
+@@ -819,7 +823,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
+         const bool common_nid = GuestSaveDialog::IsCommonNid(nid);
+         const bool ssl_nid = nid == "hdpVEUDFW3s" || nid == "0K1yQ6Lv-Yc";
+         const bool kernel_nid =
+-            !ssl_nid && !IsPadNid(nid) && !IsNetNid(nid) && !IsNetCtlNid(nid) && !IsAppContentNid(nid) && !IsRtcNid(nid) &&
++            !ssl_nid && !IsAjmNid(nid) && !IsPadNid(nid) && !IsNetNid(nid) && !IsNetCtlNid(nid) && !IsAppContentNid(nid) && !IsRtcNid(nid) &&
+             !IsDiscMapNid(nid) && !dialog_nid && !common_nid && !save_nid &&
+             !videoout_functions.contains(nid) && !sysmodule_functions.contains(nid) &&
+             !userservice_functions.contains(nid) && !systemservice_functions.contains(nid) &&
+@@ -827,7 +831,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
+         std::shared_ptr<HleCallAdapter> adapter;
+         if (auto it = handlers.find(nid);
+             it != handlers.end() &&
+-            ((pad && IsPadNid(nid) && symbol.name.substr(nid.size()) == "#libScePad#1#libScePad#Function") ||
++            ((ajm && IsAjmNid(nid) && symbol.name.substr(nid.size()) == "#libSceAjm#1#libSceAjm#Function") ||
++             (pad && IsPadNid(nid) && symbol.name.substr(nid.size()) == "#libScePad#1#libScePad#Function") ||
+              (ssl_nid && symbol.name.substr(nid.size()) == "#libSceSsl#1#libSceSsl#Function") ||
+              (network && IsNetNid(nid) &&
+               symbol.name.substr(nid.size()) == "#libSceNet#1#libSceNet#Function") ||
+@@ -1895,6 +1900,25 @@ void GuestRuntime::Impl::InstallHandlers() {
+                  s32(a[1]), result);
+         return result;
+     });
++    for (auto nid : AjmNids) {
++        handlers[std::string(nid)] = [this, nid](HleCallFrame& frame) {
++            std::array<u64, 10> args{};
++            const size_t count = nid == "dmDybN--Fn8" ? 8 :
++                (nid == "ElslOCpOIns" || nid == "7jdAXK+2fMo") ? 10 :
++                nid == "fFFkk0xfGWs" ? 6 :
++                (nid == "stlghnic3Jc" || nid == "-qLsfDAywIY" || nid == "AxoDrINp4J8" || nid == "eDFeTyi+G3Y") ? 4 :
++                (nid == "Q3dyFuwGn64" || nid == "bkRHEYG6lEM") ? 3 :
++                nid == "diXjQNiMu-s" ? 1 : 2;
++            CallCursor cursor(frame);
++            for (size_t i = 0; i < count; ++i) {
++                auto value = cursor.NextInteger();
++                if (!value) return Status(value.GetError());
++                args[i] = value.Value();
++            }
++            frame.registers.Set(Gpr::Rax, ajm->Dispatch(nid, args, HleScope::Current()->CancellationToken()));
++            return Ok();
++        };
++    }
+     for (auto nid : PadNids) {
+         handlers[std::string(nid)] = [this, nid](HleCallFrame& frame) {
+             std::array<u64, 6> args{};
+@@ -2399,6 +2423,7 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
+                                                      EmulatorSettings.IsCircleEnter());
+     impl->pad = std::make_unique<GuestPad>(GlobalPadAdapter(), *impl->platform);
+     impl->sysmodules.Publish("libScePad", 0x1000000d);
++    impl->ajm = std::make_unique<GuestAjm>(impl->space, impl->vm_mutex);
+     impl->network = std::make_unique<GuestNetwork>(EmulatorSettings.IsConnectedToNetwork());
+     LOG_INFO(Lib_Net, "Session network control: requested_online={}, online transport unavailable",
+              EmulatorSettings.IsConnectedToNetwork());
+diff --git a/src/core/libraries/ajm/ajm.cpp b/src/core/libraries/ajm/ajm.cpp
+index 2bec1bf0..663eeaa5 100644
+--- a/src/core/libraries/ajm/ajm.cpp
++++ b/src/core/libraries/ajm/ajm.cpp
+@@ -34,7 +34,7 @@ u32 GetChannelMask(u32 num_channels) {
+     case 8:
+         return ORBIS_AJM_CHANNELMASK_7POINT1;
+     default:
+-        UNREACHABLE_MSG("Unexpected number of channels: {}", num_channels);
++        return 0; // unknown/uninitialized channel layout
+     }
+ }
+ 
+diff --git a/src/core/libraries/ajm/ajm_aac.cpp b/src/core/libraries/ajm/ajm_aac.cpp
+index 0de639ed..febe4ec6 100644
+--- a/src/core/libraries/ajm/ajm_aac.cpp
++++ b/src/core/libraries/ajm/ajm_aac.cpp
+@@ -1,6 +1,7 @@
+ // SPDX-FileCopyrightText: Copyright 2026 shadPS4 Emulator Project
+ // SPDX-License-Identifier: GPL-2.0-or-later
+ 
++#include <stdexcept>
+ #include "ajm.h"
+ #include "ajm_aac.h"
+ #include "ajm_result.h"
+@@ -62,6 +63,8 @@ static UINT g_freq[] = {
+ };
+ 
+ void AjmAacDecoder::Reset() {
++    if (m_init_params.config_type != ADTS && m_init_params.config_type != RAW)
++        return;
+     if (m_decoder) {
+         aacDecoder_Close(m_decoder);
+     }
+@@ -106,11 +109,19 @@ void AjmAacDecoder::Reset() {
+ 
+ void AjmAacDecoder::Initialize(const void* buffer, u32 buffer_size) {
+     ASSERT(buffer_size == 8);
+-    m_init_params = *reinterpret_cast<const InitializeParameters*>(buffer);
++    const auto params = *reinterpret_cast<const InitializeParameters*>(buffer);
++    if ((params.config_type != ADTS && params.config_type != RAW) ||
++        (params.config_type == RAW && params.sampling_freq_type >= std::size(g_freq)))
++        throw std::invalid_argument("invalid AAC initialization");
++    m_init_params = params;
+     Reset();
+ }
+ 
+ void AjmAacDecoder::GetInfo(void* out_info) const {
++    if (!m_decoder) {
++        *reinterpret_cast<AjmSidebandDecM4aacCodecInfo*>(out_info) = {};
++        return;
++    }
+     const auto* const info = aacDecoder_GetStreamInfo(m_decoder);
+     auto* codec_info = reinterpret_cast<AjmSidebandDecM4aacCodecInfo*>(out_info);
+     *codec_info = {
+@@ -120,6 +131,8 @@ void AjmAacDecoder::GetInfo(void* out_info) const {
+ }
+ 
+ AjmSidebandFormat AjmAacDecoder::GetFormat() const {
++    if (!m_decoder)
++        return {};
+     const auto* const info = aacDecoder_GetStreamInfo(m_decoder);
+     return {
+         .num_channels = static_cast<u32>(info->numChannels),
+@@ -135,6 +148,8 @@ u32 AjmAacDecoder::GetMinimumInputSize() const {
+ }
+ 
+ u32 AjmAacDecoder::GetNextFrameSize(const AjmInstanceGapless& gapless) const {
++    if (!m_decoder)
++        return {};
+     const auto* const info = aacDecoder_GetStreamInfo(m_decoder);
+     if (info->aacSamplesPerFrame <= 0) {
+         return 0;
+@@ -150,6 +165,10 @@ u32 AjmAacDecoder::GetNextFrameSize(const AjmInstanceGapless& gapless) const {
+ DecoderResult AjmAacDecoder::ProcessData(std::span<u8>& input, SparseOutputBuffer& output,
+                                          AjmInstanceGapless& gapless) {
+     DecoderResult result{};
++    if (!m_decoder) {
++        result.result = ORBIS_AJM_RESULT_NOT_INITIALIZED;
++        return result;
++    }
+ 
+     // Discard the previous contents of the internal buffer and replace them with new ones
+     aacDecoder_SetParam(m_decoder, AAC_TPDEC_CLEAR_BUFFER, 1);
+@@ -172,10 +191,14 @@ DecoderResult AjmAacDecoder::ProcessData(std::span<u8>& input, SparseOutputBuffe
+         return result;
+     }
+ 
++    if (!m_decoder)
++        return {};
+     const auto* const info = aacDecoder_GetStreamInfo(m_decoder);
+     auto bytes_used = info->numTotalBytes;
+ 
+     result.frames_decoded += 1;
++    if (bytes_used < 0 || size_t(bytes_used) > input.size())
++        throw std::invalid_argument("invalid AAC consumed size");
+     input = input.subspan(bytes_used);
+ 
+     if (m_skip_frames > 0) {
+diff --git a/src/core/libraries/ajm/ajm_at9.cpp b/src/core/libraries/ajm/ajm_at9.cpp
+index 0af6cbb3..2f273b8c 100644
+--- a/src/core/libraries/ajm/ajm_at9.cpp
++++ b/src/core/libraries/ajm/ajm_at9.cpp
+@@ -1,6 +1,7 @@
+ // SPDX-FileCopyrightText: Copyright 2024 shadPS4 Emulator Project
+ // SPDX-License-Identifier: GPL-2.0-or-later
+ 
++#include <stdexcept>
+ #include "ajm_result.h"
+ #include "common/assert.h"
+ #include "core/libraries/ajm/ajm_at9.h"
+@@ -64,8 +65,16 @@ AjmAt9Decoder::~AjmAt9Decoder() {
+ void AjmAt9Decoder::Reset() {
+     Atrac9ReleaseHandle(m_handle);
+     m_handle = Atrac9GetHandle();
+-    Atrac9InitDecoder(m_handle, m_config_data);
+-    Atrac9GetCodecInfo(m_handle, &m_codec_info);
++    if (!m_handle)
++        throw std::bad_alloc();
++    if (!m_is_initialized)
++        return;
++    if (Atrac9InitDecoder(m_handle, m_config_data) != 0 ||
++        Atrac9GetCodecInfo(m_handle, &m_codec_info) != 0 || m_codec_info.channels <= 0 ||
++        m_codec_info.channels > 8 || m_codec_info.frameSamples <= 0 ||
++        m_codec_info.frameSamples > 4096 || m_codec_info.framesInSuperframe <= 0 ||
++        m_codec_info.superframeSize <= 0)
++        throw std::invalid_argument("invalid AT9 configuration");
+ 
+     m_num_frames = 0;
+     m_superframe_bytes_remain = m_codec_info.superframeSize;
+@@ -76,6 +85,7 @@ void AjmAt9Decoder::Initialize(const void* buffer, u32 buffer_size) {
+                "Incorrect At9 initialization buffer size {}", buffer_size);
+     const auto params = reinterpret_cast<const AjmDecAt9InitializeParameters*>(buffer);
+     std::memcpy(m_config_data, params->config_data, ORBIS_AT9_CONFIG_DATA_SIZE);
++    m_is_initialized = true;
+     AjmAt9Decoder::Reset();
+     m_pcm_buffer.resize(m_codec_info.frameSamples * m_codec_info.channels * GetPCMSize(m_format),
+                         0);
+@@ -94,43 +104,44 @@ u8 g_at9_guid[] = {0xD2, 0x42, 0xE1, 0x47, 0xBA, 0x36, 0x8D, 0x4D,
+                    0x88, 0xFC, 0x61, 0x65, 0x4F, 0x8C, 0x83, 0x6C};
+ 
+ void AjmAt9Decoder::ParseRIFFHeader(std::span<u8>& in_buf, AjmInstanceGapless& gapless) {
+-    auto* header = reinterpret_cast<RIFFHeader*>(in_buf.data());
+-    in_buf = in_buf.subspan(sizeof(RIFFHeader));
+-
+-    ASSERT(header->riff == 'FFIR');
+-    ASSERT(header->wave == 'EVAW');
+-
+-    auto* chunk = reinterpret_cast<ChunkHeader*>(in_buf.data());
+-    in_buf = in_buf.subspan(sizeof(ChunkHeader));
+-    while (chunk->tag != 'atad') {
+-        switch (chunk->tag) {
+-        case ' tmf': {
+-            ASSERT(chunk->length == sizeof(AudioFormat));
+-            auto* fmt = reinterpret_cast<AudioFormat*>(in_buf.data());
+-
+-            ASSERT(fmt->fmt_type == 0xFFFE);
+-            ASSERT(memcmp(fmt->guid, g_at9_guid, 16) == 0);
+-            AjmDecAt9InitializeParameters init_params = {};
+-            std::memcpy(init_params.config_data, fmt->config_data, ORBIS_AT9_CONFIG_DATA_SIZE);
+-            Initialize(&init_params, sizeof(init_params));
+-            break;
+-        }
+-        case 'tcaf': {
+-            ASSERT(chunk->length == sizeof(SampleData));
+-            auto* samples = reinterpret_cast<SampleData*>(in_buf.data());
+-
+-            gapless.init.total_samples = samples->sample_length;
+-            gapless.init.skip_samples = samples->encoder_delay;
++    auto take = [&]<class T>() {
++        if (in_buf.size() < sizeof(T))
++            throw std::invalid_argument("truncated AT9 RIFF");
++        T result;
++        std::memcpy(&result, in_buf.data(), sizeof(T));
++        in_buf = in_buf.subspan(sizeof(T));
++        return result;
++    };
++    const auto header = take.operator()<RIFFHeader>();
++    if (header.riff != 'FFIR' || header.wave != 'EVAW')
++        throw std::invalid_argument("invalid AT9 RIFF header");
++    for (;;) {
++        const auto chunk = take.operator()<ChunkHeader>();
++        if (chunk.tag == 'atad')
++            break; // compressed data may be delivered incrementally
++        if (chunk.length > in_buf.size())
++            throw std::invalid_argument("truncated AT9 RIFF chunk");
++        auto payload = in_buf.first(chunk.length);
++        in_buf = in_buf.subspan(chunk.length);
++        if (chunk.tag == ' tmf') {
++            if (payload.size() != sizeof(AudioFormat))
++                throw std::invalid_argument("invalid AT9 fmt size");
++            AudioFormat fmt;
++            std::memcpy(&fmt, payload.data(), sizeof(fmt));
++            if (fmt.fmt_type != 0xfffe || std::memcmp(fmt.guid, g_at9_guid, 16))
++                throw std::invalid_argument("invalid AT9 fmt");
++            AjmDecAt9InitializeParameters params{};
++            std::memcpy(params.config_data, fmt.config_data, 4);
++            Initialize(&params, sizeof(params));
++        } else if (chunk.tag == 'tcaf') {
++            if (payload.size() != sizeof(SampleData))
++                throw std::invalid_argument("invalid AT9 fact size");
++            SampleData samples;
++            std::memcpy(&samples, payload.data(), sizeof(samples));
++            gapless.init.total_samples = samples.sample_length;
++            gapless.init.skip_samples = samples.encoder_delay;
+             gapless.Reset();
+-            break;
+         }
+-        default:
+-            break;
+-        }
+-        in_buf = in_buf.subspan(chunk->length);
+-
+-        chunk = reinterpret_cast<ChunkHeader*>(in_buf.data());
+-        in_buf = in_buf.subspan(sizeof(ChunkHeader));
+     }
+ }
+ 
+@@ -141,7 +152,7 @@ u32 AjmAt9Decoder::GetMinimumInputSize() const {
+ DecoderResult AjmAt9Decoder::ProcessData(std::span<u8>& in_buf, SparseOutputBuffer& output,
+                                          AjmInstanceGapless& gapless) {
+     DecoderResult result{};
+-    if (True(m_flags & AjmAt9CodecFlags::ParseRiffHeader) &&
++    if (True(m_flags & AjmAt9CodecFlags::ParseRiffHeader) && in_buf.size() >= 4 &&
+         *reinterpret_cast<u32*>(in_buf.data()) == 'FFIR') {
+         ParseRIFFHeader(in_buf, gapless);
+         result.is_reset = true;
+@@ -181,6 +192,9 @@ DecoderResult AjmAt9Decoder::ProcessData(std::span<u8>& in_buf, SparseOutputBuff
+     }
+ 
+     result.frames_decoded += 1;
++    if (ret != 0 || bytes_used <= 0 || size_t(bytes_used) > in_buf.size() ||
++        u32(bytes_used) > m_superframe_bytes_remain)
++        throw std::invalid_argument("invalid AT9 consumed size");
+     in_buf = in_buf.subspan(bytes_used);
+ 
+     m_superframe_bytes_remain -= bytes_used;
+@@ -219,6 +233,8 @@ DecoderResult AjmAt9Decoder::ProcessData(std::span<u8>& in_buf, SparseOutputBuff
+     m_num_frames += 1;
+     if ((m_num_frames % m_codec_info.framesInSuperframe) == 0) {
+         if (m_superframe_bytes_remain) {
++            if (m_superframe_bytes_remain > in_buf.size())
++                throw std::invalid_argument("truncated AT9 superframe");
+             in_buf = in_buf.subspan(m_superframe_bytes_remain);
+         }
+         m_superframe_bytes_remain = m_codec_info.superframeSize;
+@@ -229,11 +245,16 @@ DecoderResult AjmAt9Decoder::ProcessData(std::span<u8>& in_buf, SparseOutputBuff
+         while ((m_num_frames % m_codec_info.framesInSuperframe) != 0) {
+             ret = Atrac9Decode(m_handle, in_buf.data(), static_cast<int>(in_buf.size()), buf.data(),
+                                &bytes_used, True(m_flags & AjmAt9CodecFlags::NonInterleavedOutput));
++            if (ret != 0 || bytes_used <= 0 || size_t(bytes_used) > in_buf.size() ||
++                u32(bytes_used) > m_superframe_bytes_remain)
++                throw std::invalid_argument("invalid AT9 consumed size");
+             in_buf = in_buf.subspan(bytes_used);
+             m_superframe_bytes_remain -= bytes_used;
+             result.frames_decoded += 1;
+             m_num_frames += 1;
+         }
++        if (m_superframe_bytes_remain > in_buf.size())
++            throw std::invalid_argument("truncated AT9 superframe");
+         in_buf = in_buf.subspan(m_superframe_bytes_remain);
+         m_superframe_bytes_remain = m_codec_info.superframeSize;
+         m_num_frames = 0;
+@@ -243,12 +264,14 @@ DecoderResult AjmAt9Decoder::ProcessData(std::span<u8>& in_buf, SparseOutputBuff
+ }
+ 
+ AjmSidebandFormat AjmAt9Decoder::GetFormat() const {
++    if (!m_is_initialized || !m_codec_info.framesInSuperframe || !m_codec_info.frameSamples)
++        return {.sample_encoding = m_format};
+     return AjmSidebandFormat{
+         .num_channels = u32(m_codec_info.channels),
+         .channel_mask = GetChannelMask(u32(m_codec_info.channels)),
+         .sampl_freq = u32(m_codec_info.samplingRate),
+         .sample_encoding = m_format,
+-        .bitrate = u32((m_codec_info.samplingRate * m_codec_info.superframeSize * 8) /
++        .bitrate = u32((u64(m_codec_info.samplingRate) * m_codec_info.superframeSize * 8) /
+                        (m_codec_info.framesInSuperframe * m_codec_info.frameSamples)),
+         .reserved = 0,
+     };
+diff --git a/src/core/libraries/ajm/ajm_instance.cpp b/src/core/libraries/ajm/ajm_instance.cpp
+index d25517c8..088ac518 100644
+--- a/src/core/libraries/ajm/ajm_instance.cpp
++++ b/src/core/libraries/ajm/ajm_instance.cpp
+@@ -52,7 +52,7 @@ void AjmInstance::Reset() {
+     m_codec->Reset();
+ }
+ 
+-void AjmInstance::ExecuteJob(AjmJob& job) {
++void AjmInstance::ExecuteJob(AjmJob& job, std::stop_token cancel) {
+     const auto control_flags = job.flags.control_flags;
+     job.output.p_result->result = 0;
+     if (True(control_flags & AjmJobControlFlags::Reset)) {
+@@ -113,6 +113,7 @@ void AjmInstance::ExecuteJob(AjmJob& job) {
+ 
+     if (!job.input.buffer.empty()) {
+         for (;;) {
++            if (cancel.stop_requested()) break;
+             if (m_flags.gapless_loop && m_gapless.IsEnd()) {
+                 m_gapless.Reset();
+                 m_total_samples = 0;
+@@ -128,6 +129,8 @@ void AjmInstance::ExecuteJob(AjmJob& job) {
+             if (job.output.p_result->result != 0) {
+                 break;
+             }
++            const auto before_input = in_buf.size();
++            const auto before_output = out_buf.Size();
+             const auto result = m_codec->ProcessData(in_buf, out_buf, m_gapless);
+             if (result.is_reset) {
+                 m_total_samples = 0;
+@@ -140,6 +143,10 @@ void AjmInstance::ExecuteJob(AjmJob& job) {
+                 job.output.p_result->internal_result = result.internal_result;
+                 break;
+             }
++            if (in_buf.size() == before_input && out_buf.Size() == before_output) {
++                job.output.p_result->result |= ORBIS_AJM_RESULT_PARTIAL_INPUT;
++                break;
++            }
+             if (False(job.flags.run_flags & AjmJobRunFlags::MultipleFrames)) {
+                 break;
+             }
+diff --git a/src/core/libraries/ajm/ajm_instance.h b/src/core/libraries/ajm/ajm_instance.h
+index db53add4..3f0e7aca 100644
+--- a/src/core/libraries/ajm/ajm_instance.h
++++ b/src/core/libraries/ajm/ajm_instance.h
+@@ -9,6 +9,7 @@
+ #include "core/libraries/ajm/ajm_batch.h"
+ 
+ #include <memory>
++#include <stop_token>
+ #include <optional>
+ #include <tuple>
+ 
+@@ -99,7 +100,7 @@ class AjmInstance {
+ public:
+     AjmInstance(AjmCodecType codec_type, AjmInstanceFlags flags);
+ 
+-    void ExecuteJob(AjmJob& job);
++    void ExecuteJob(AjmJob& job, std::stop_token cancel = {});
+ 
+ private:
+     bool HasEnoughSpace(const SparseOutputBuffer& output) const;
+diff --git a/src/core/libraries/ajm/ajm_mp3.cpp b/src/core/libraries/ajm/ajm_mp3.cpp
+index d1c9374c..07a0d472 100644
+--- a/src/core/libraries/ajm/ajm_mp3.cpp
++++ b/src/core/libraries/ajm/ajm_mp3.cpp
+@@ -1,3 +1,4 @@
++#include <stdexcept>
+ // SPDX-FileCopyrightText: Copyright 2024 shadPS4 Emulator Project
+ // SPDX-License-Identifier: GPL-2.0-or-later
+ 
+@@ -149,10 +150,17 @@ DecoderResult AjmMp3Decoder::ProcessData(std::span<u8>& in_buf, SparseOutputBuff
+                                          AjmInstanceGapless& gapless) {
+     DecoderResult result{};
+     AVPacket* pkt = av_packet_alloc();
++    if (!pkt)
++        throw std::bad_alloc();
++    auto release_packet = [](AVPacket* packet) { av_packet_free(&packet); };
++    std::unique_ptr<AVPacket, decltype(release_packet)> packet_owner(pkt, release_packet);
+ 
+     m_header = std::byteswap(*reinterpret_cast<u32*>(in_buf.data()));
+     AjmDecMp3ParseFrame info{};
+-    ParseMp3Header(in_buf.data(), in_buf.size(), true, &info);
++    if (ParseMp3Header(in_buf.data(), in_buf.size(), true, &info) != 0) {
++        result.result = ORBIS_AJM_RESULT_INVALID_PARAMETER;
++        return result;
++    }
+     m_frame_samples = info.samples_per_channel;
+     if (info.total_samples != 0 || info.encoder_delay != 0) {
+         gapless.init = {
+@@ -165,11 +173,18 @@ DecoderResult AjmMp3Decoder::ProcessData(std::span<u8>& in_buf, SparseOutputBuff
+ 
+     if (in_buf.size() < info.frame_size) {
+         result.result |= ORBIS_AJM_RESULT_PARTIAL_INPUT;
++        return result;
+     }
+ 
+-    int ret = av_parser_parse2(m_parser, m_codec_context, &pkt->data, &pkt->size, in_buf.data(),
++    std::vector<u8> padded(in_buf.begin(), in_buf.end());
++    padded.resize(padded.size() + AV_INPUT_BUFFER_PADDING_SIZE);
++    int ret = av_parser_parse2(m_parser, m_codec_context, &pkt->data, &pkt->size, padded.data(),
+                                in_buf.size(), AV_NOPTS_VALUE, AV_NOPTS_VALUE, 0);
+-    ASSERT_MSG(ret >= 0, "Error while parsing {}", ret);
++    if (ret < 0 || size_t(ret) > in_buf.size()) {
++        result.result = ORBIS_AJM_RESULT_CODEC_ERROR;
++        result.internal_result = ret;
++        return result;
++    }
+     in_buf = in_buf.subspan(ret);
+ 
+     if (pkt->size) {
+@@ -178,7 +193,11 @@ DecoderResult AjmMp3Decoder::ProcessData(std::span<u8>& in_buf, SparseOutputBuff
+         pkt->dts = m_parser->dts;
+         pkt->flags = (m_parser->key_frame == 1) ? AV_PKT_FLAG_KEY : 0;
+         ret = avcodec_send_packet(m_codec_context, pkt);
+-        ASSERT_MSG(ret >= 0, "Error submitting the packet to the decoder {}", ret);
++        if (ret < 0) {
++            result.result = ORBIS_AJM_RESULT_CODEC_ERROR;
++            result.internal_result = ret;
++            return result;
++        }
+ 
+         // Read all the output frames (in general there may be any number of them
+         while (ret >= 0) {
+@@ -188,7 +207,10 @@ DecoderResult AjmMp3Decoder::ProcessData(std::span<u8>& in_buf, SparseOutputBuff
+                 av_frame_free(&frame);
+                 break;
+             } else if (ret < 0) {
+-                UNREACHABLE_MSG("Error during decoding");
++                av_frame_free(&frame);
++                result.result = ORBIS_AJM_RESULT_CODEC_ERROR;
++                result.internal_result = ret;
++                return result;
+             }
+             frame = ConvertAudioFrame(frame);
+ 
+@@ -230,7 +252,7 @@ DecoderResult AjmMp3Decoder::ProcessData(std::span<u8>& in_buf, SparseOutputBuff
+         }
+     }
+ 
+-    av_packet_free(&pkt);
++    packet_owner.reset();
+ 
+     return result;
+ }
+@@ -246,7 +268,7 @@ u32 AjmMp3Decoder::GetNextFrameSize(const AjmInstanceGapless& gapless) const {
+ 
+ class BitReader {
+ public:
+-    BitReader(const u8* data) : m_data(data) {}
++    BitReader(const u8* data, size_t size) : m_data(data), m_limit(size * 8) {}
+ 
+     template <class T>
+     T Read(u32 const nbits) {
+@@ -258,6 +280,8 @@ public:
+     }
+ 
+     void Skip(size_t nbits) {
++        if (nbits > m_limit - m_bit_offset)
++            throw std::invalid_argument("truncated MP3 side info");
+         m_bit_offset += nbits;
+     }
+ 
+@@ -267,6 +291,8 @@ public:
+ 
+ private:
+     u8 GetBit() {
++        if (m_bit_offset >= m_limit)
++            throw std::invalid_argument("truncated MP3 side info");
+         const auto bit = (m_data[m_bit_offset / 8] >> (7 - (m_bit_offset % 8))) & 1;
+         m_bit_offset += 1;
+         return bit;
+@@ -274,10 +300,11 @@ private:
+ 
+     const u8* m_data;
+     size_t m_bit_offset = 0;
++    size_t m_limit = 0;
+ };
+ 
+ int AjmMp3Decoder::ParseMp3Header(const u8* p_begin, u32 stream_size, int parse_ofl,
+-                                  AjmDecMp3ParseFrame* frame) {
++                                  AjmDecMp3ParseFrame* frame) try {
+     LOG_TRACE(Lib_Ajm, "called stream_size = {} parse_ofl = {}", stream_size, parse_ofl);
+ 
+     if (p_begin == nullptr || stream_size < 4 || frame == nullptr) {
+@@ -295,6 +322,8 @@ int AjmMp3Decoder::ParseMp3Header(const u8* p_begin, u32 stream_size, int parse_
+ 
+     frame->sample_rate = Mp3SampleRateTable[u32(header->version)][header->sampling_rate_idx];
+     frame->bitrate = Mp3BitRateTable[u32(header->version)][header->bitrate_idx] * 1000;
++    if (!frame->sample_rate || !frame->bitrate || header->layer_type != 1)
++        return ORBIS_AJM_ERROR_INVALID_PARAMETER;
+     frame->num_channels = header->channel_mode == Mp3ChannelMode::SingleChannel ? 1 : 2;
+     if (header->version == Mp3AudioVersion::V1) {
+         frame->frame_size = (144 * frame->bitrate) / frame->sample_rate + header->padding;
+@@ -309,11 +338,11 @@ int AjmMp3Decoder::ParseMp3Header(const u8* p_begin, u32 stream_size, int parse_
+     frame->total_samples = 0;
+     frame->ofl_type = AjmDecMp3OflType::None;
+ 
+-    if (!parse_ofl) {
++    if (!parse_ofl || stream_size < frame->frame_size) {
+         return ORBIS_OK;
+     }
+ 
+-    BitReader reader(p_current);
++    BitReader reader(p_current, frame->frame_size - 4);
+     if (header->protection_type == 0) {
+         // crc = reader.Read<u16>(16);
+         reader.Skip(16);
+@@ -398,6 +427,8 @@ int AjmMp3Decoder::ParseMp3Header(const u8* p_begin, u32 stream_size, int parse_
+     p_current += ((reader.GetCurrentOffset() + 7) / 8);
+ 
+     const auto* p_end = p_begin + frame->frame_size;
++    if (p_current > p_end || size_t(p_end - p_current) < 4)
++        return ORBIS_OK;
+     if (memcmp(p_current, "Xing", 4) == 0 || memcmp(p_current, "Info", 4) == 0) {
+         // TODO: Parse Xing/Lame header
+         LOG_ERROR(Lib_Ajm, "Xing/Lame header is not implemented.");
+@@ -433,6 +464,8 @@ int AjmMp3Decoder::ParseMp3Header(const u8* p_begin, u32 stream_size, int parse_
+     }
+ 
+     return ORBIS_OK;
++} catch (const std::invalid_argument&) {
++    return ORBIS_AJM_ERROR_INVALID_PARAMETER;
+ }
+ 
+ AjmSidebandFormat AjmMp3Decoder::GetFormat() const {

@@ -28,6 +28,7 @@
 #include "core/host_runtime/guest_libc_policy.h"
 #include "core/host_runtime/guest_mutex.h"
 #include "core/host_runtime/guest_network.h"
+#include "core/host_runtime/guest_ajm.h"
 #include "core/host_runtime/guest_pad.h"
 #include "core/host_runtime/guest_platform.h"
 #include "core/host_runtime/guest_rtc.h"
@@ -133,6 +134,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     GuestClock clock;
     std::unique_ptr<GuestStorage> storage;
     std::unique_ptr<GuestNetwork> network;
+    std::unique_ptr<GuestAjm> ajm;
     std::unique_ptr<GuestPad> pad;
     std::shared_ptr<GuestSaveDialog> save_dialog;
     std::shared_ptr<Frontend::Window> graphics_window;
@@ -417,6 +419,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         for (auto& [id, o] : owners)
             if (o->worker.joinable())
                 o->worker.join();
+        ajm.reset(); // joins decoder worker before VM/backing teardown
         storage.reset();
         app_content.reset();
         graphics.reset();
@@ -740,6 +743,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
                 if (o->handle.IsValid())
                     handles.push_back(o->handle);
         }
+        if (ajm) ajm->RequestStop();
         if (storage)
             storage->Cancel();
         if (save_dialog)
@@ -819,7 +823,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         const bool common_nid = GuestSaveDialog::IsCommonNid(nid);
         const bool ssl_nid = nid == "hdpVEUDFW3s" || nid == "0K1yQ6Lv-Yc";
         const bool kernel_nid =
-            !ssl_nid && !IsPadNid(nid) && !IsNetNid(nid) && !IsNetCtlNid(nid) && !IsAppContentNid(nid) && !IsRtcNid(nid) &&
+            !ssl_nid && !IsAjmNid(nid) && !IsPadNid(nid) && !IsNetNid(nid) && !IsNetCtlNid(nid) && !IsAppContentNid(nid) && !IsRtcNid(nid) &&
             !IsDiscMapNid(nid) && !dialog_nid && !common_nid && !save_nid &&
             !videoout_functions.contains(nid) && !sysmodule_functions.contains(nid) &&
             !userservice_functions.contains(nid) && !systemservice_functions.contains(nid) &&
@@ -827,7 +831,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         std::shared_ptr<HleCallAdapter> adapter;
         if (auto it = handlers.find(nid);
             it != handlers.end() &&
-            ((pad && IsPadNid(nid) && symbol.name.substr(nid.size()) == "#libScePad#1#libScePad#Function") ||
+            ((ajm && IsAjmNid(nid) && symbol.name.substr(nid.size()) == "#libSceAjm#1#libSceAjm#Function") ||
+             (pad && IsPadNid(nid) && symbol.name.substr(nid.size()) == "#libScePad#1#libScePad#Function") ||
              (ssl_nid && symbol.name.substr(nid.size()) == "#libSceSsl#1#libSceSsl#Function") ||
              (network && IsNetNid(nid) &&
               symbol.name.substr(nid.size()) == "#libSceNet#1#libSceNet#Function") ||
@@ -1895,6 +1900,25 @@ void GuestRuntime::Impl::InstallHandlers() {
                  s32(a[1]), result);
         return result;
     });
+    for (auto nid : AjmNids) {
+        handlers[std::string(nid)] = [this, nid](HleCallFrame& frame) {
+            std::array<u64, 10> args{};
+            const size_t count = nid == "dmDybN--Fn8" ? 8 :
+                (nid == "ElslOCpOIns" || nid == "7jdAXK+2fMo") ? 10 :
+                nid == "fFFkk0xfGWs" ? 6 :
+                (nid == "stlghnic3Jc" || nid == "-qLsfDAywIY" || nid == "AxoDrINp4J8" || nid == "eDFeTyi+G3Y") ? 4 :
+                (nid == "Q3dyFuwGn64" || nid == "bkRHEYG6lEM") ? 3 :
+                nid == "diXjQNiMu-s" ? 1 : 2;
+            CallCursor cursor(frame);
+            for (size_t i = 0; i < count; ++i) {
+                auto value = cursor.NextInteger();
+                if (!value) return Status(value.GetError());
+                args[i] = value.Value();
+            }
+            frame.registers.Set(Gpr::Rax, ajm->Dispatch(nid, args, HleScope::Current()->CancellationToken()));
+            return Ok();
+        };
+    }
     for (auto nid : PadNids) {
         handlers[std::string(nid)] = [this, nid](HleCallFrame& frame) {
             std::array<u64, 6> args{};
@@ -2399,6 +2423,7 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
                                                      EmulatorSettings.IsCircleEnter());
     impl->pad = std::make_unique<GuestPad>(GlobalPadAdapter(), *impl->platform);
     impl->sysmodules.Publish("libScePad", 0x1000000d);
+    impl->ajm = std::make_unique<GuestAjm>(impl->space, impl->vm_mutex);
     impl->network = std::make_unique<GuestNetwork>(EmulatorSettings.IsConnectedToNetwork());
     LOG_INFO(Lib_Net, "Session network control: requested_online={}, online transport unavailable",
              EmulatorSettings.IsConnectedToNetwork());

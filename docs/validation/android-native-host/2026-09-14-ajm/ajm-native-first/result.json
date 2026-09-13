@@ -1,0 +1,10 @@
+{
+  "exit_code": 1,
+  "device_dir": "/data/local/tmp/shadps4-ajm-1789319400",
+  "artifacts": {
+    "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native/libshadps4_host.so": "92a5aabc51d0b2b71b40c6cddb0416ffca6b830d907eb837cfdfc0f62e4364bd",
+    "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native/guest_ajm_tests": "ca481d89eb96bbeffaf29e72b4c4099466b9fb3bdda2f18fefa5e66edc48f933",
+    "/Users/bytedance/workspace/emulations/ps4/shadps4/build/sysmodule-review/ajm-tone.mp3": "9b1ca870b0c1c887718711ac7d5138d541f18b914d9bfc0e405100b029cd4ae8",
+    "/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352"
+  }
+}

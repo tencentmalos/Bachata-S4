@@ -1608,6 +1608,7 @@ if(BUILD_HOST_CORE)
         src/core/host_runtime/guest_storage.cpp
         src/core/host_runtime/guest_storage_hle.cpp
         src/core/host_runtime/guest_runtime.cpp
+        src/core/host_runtime/guest_ajm.cpp
         src/core/host_runtime/guest_graphics.cpp
         src/core/host_runtime/guest_graphics_hle.cpp)
     target_link_libraries(shadps4 PRIVATE spatial::foundation_input)
@@ -1627,6 +1628,10 @@ if(BUILD_HOST_CORE)
     if(HOST_BUILD_PROBES)
         add_executable(host_dlopen_smoke tests/host_runtime/host_dlopen_smoke.cpp)
         target_link_libraries(host_dlopen_smoke PRIVATE dl)
+        add_executable(guest_ajm_tests tests/host_runtime/guest_ajm_tests.cpp)
+        target_link_libraries(guest_ajm_tests PRIVATE shadps4_host)
+        target_include_directories(guest_ajm_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(guest_ajm_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         add_executable(guest_pad_tests tests/host_runtime/guest_pad_tests.cpp)
         target_link_libraries(guest_pad_tests PRIVATE shadps4_host spatial::foundation_input)
         target_include_directories(guest_pad_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)

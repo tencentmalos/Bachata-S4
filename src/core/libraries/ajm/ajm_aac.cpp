@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright 2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <stdexcept>
 #include "ajm.h"
 #include "ajm_aac.h"
 #include "ajm_result.h"
@@ -62,6 +63,8 @@ static UINT g_freq[] = {
 };
 
 void AjmAacDecoder::Reset() {
+    if (m_init_params.config_type != ADTS && m_init_params.config_type != RAW)
+        return;
     if (m_decoder) {
         aacDecoder_Close(m_decoder);
     }
@@ -106,11 +109,19 @@ void AjmAacDecoder::Reset() {
 
 void AjmAacDecoder::Initialize(const void* buffer, u32 buffer_size) {
     ASSERT(buffer_size == 8);
-    m_init_params = *reinterpret_cast<const InitializeParameters*>(buffer);
+    const auto params = *reinterpret_cast<const InitializeParameters*>(buffer);
+    if ((params.config_type != ADTS && params.config_type != RAW) ||
+        (params.config_type == RAW && params.sampling_freq_type >= std::size(g_freq)))
+        throw std::invalid_argument("invalid AAC initialization");
+    m_init_params = params;
     Reset();
 }
 
 void AjmAacDecoder::GetInfo(void* out_info) const {
+    if (!m_decoder) {
+        *reinterpret_cast<AjmSidebandDecM4aacCodecInfo*>(out_info) = {};
+        return;
+    }
     const auto* const info = aacDecoder_GetStreamInfo(m_decoder);
     auto* codec_info = reinterpret_cast<AjmSidebandDecM4aacCodecInfo*>(out_info);
     *codec_info = {
@@ -120,6 +131,8 @@ void AjmAacDecoder::GetInfo(void* out_info) const {
 }
 
 AjmSidebandFormat AjmAacDecoder::GetFormat() const {
+    if (!m_decoder)
+        return {};
     const auto* const info = aacDecoder_GetStreamInfo(m_decoder);
     return {
         .num_channels = static_cast<u32>(info->numChannels),
@@ -135,6 +148,8 @@ u32 AjmAacDecoder::GetMinimumInputSize() const {
 }
 
 u32 AjmAacDecoder::GetNextFrameSize(const AjmInstanceGapless& gapless) const {
+    if (!m_decoder)
+        return {};
     const auto* const info = aacDecoder_GetStreamInfo(m_decoder);
     if (info->aacSamplesPerFrame <= 0) {
         return 0;
@@ -150,6 +165,10 @@ u32 AjmAacDecoder::GetNextFrameSize(const AjmInstanceGapless& gapless) const {
 DecoderResult AjmAacDecoder::ProcessData(std::span<u8>& input, SparseOutputBuffer& output,
                                          AjmInstanceGapless& gapless) {
     DecoderResult result{};
+    if (!m_decoder) {
+        result.result = ORBIS_AJM_RESULT_NOT_INITIALIZED;
+        return result;
+    }
 
     // Discard the previous contents of the internal buffer and replace them with new ones
     aacDecoder_SetParam(m_decoder, AAC_TPDEC_CLEAR_BUFFER, 1);
@@ -172,10 +191,14 @@ DecoderResult AjmAacDecoder::ProcessData(std::span<u8>& input, SparseOutputBuffe
         return result;
     }
 
+    if (!m_decoder)
+        return {};
     const auto* const info = aacDecoder_GetStreamInfo(m_decoder);
     auto bytes_used = info->numTotalBytes;
 
     result.frames_decoded += 1;
+    if (bytes_used < 0 || size_t(bytes_used) > input.size())
+        throw std::invalid_argument("invalid AAC consumed size");
     input = input.subspan(bytes_used);
 
     if (m_skip_frames > 0) {
