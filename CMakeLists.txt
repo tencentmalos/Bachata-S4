@@ -1596,6 +1596,11 @@ endif()
 # Native host library, without FEX or the APK session entry. The future JNI target
 # consumes the same object/dependency targets so there is only one host instance.
 if(BUILD_HOST_CORE)
+    # One implementation of GuestAddressSpace/leases/identity for host HLE and JNI/FEX.
+    # Export the complete API from this DSO, including functions only the session uses.
+    add_subdirectory(src/core/guest_cpu guest_cpu EXCLUDE_FROM_ALL)
+    target_link_libraries(shadps4 PRIVATE "$<LINK_LIBRARY:WHOLE_ARCHIVE,guest_cpu_api>")
+    target_compile_definitions(shadps4 PRIVATE SHADPS4_TYPED_HLE_HOST=1)
     add_subdirectory(foundation/modules/input foundation/input EXCLUDE_FROM_ALL)
     target_sources(shadps4 PRIVATE src/core/host_runtime/orbis_pad_adapter.cpp)
     target_link_libraries(shadps4 PRIVATE spatial::foundation_input)
@@ -1610,7 +1615,7 @@ if(BUILD_HOST_CORE)
     # The APK and load audit consume the real host DSO and the exact header
     # environment of this target, without duplicating host source/archive lists.
     file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/shadps4-host-loader.cmake"
-        CONTENT "set(SHADPS4_HOST_LOADER_LIBRARY [==[$<TARGET_FILE:shadps4_host>]==])\nset(SHADPS4_HOST_LOADER_INCLUDES [==[$<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>]==])\nset(SHADPS4_HOST_LOADER_DEFINITIONS [==[$<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>]==])\nset(SHADPS4_HOST_LOADER_ABI [==[${ANDROID_ABI}]==])\nset(SHADPS4_HOST_LOADER_API [==[${ANDROID_PLATFORM_LEVEL}]==])\nset(SHADPS4_HOST_LOADER_STL [==[${ANDROID_STL}]==])\n")
+        CONTENT "set(SHADPS4_HOST_PROVIDES_GUEST_CPU_API TRUE)\nset(SHADPS4_HOST_LOADER_LIBRARY [==[$<TARGET_FILE:shadps4_host>]==])\nset(SHADPS4_HOST_LOADER_INCLUDES [==[$<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>]==])\nset(SHADPS4_HOST_LOADER_DEFINITIONS [==[$<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>]==])\nset(SHADPS4_HOST_LOADER_ABI [==[${ANDROID_ABI}]==])\nset(SHADPS4_HOST_LOADER_API [==[${ANDROID_PLATFORM_LEVEL}]==])\nset(SHADPS4_HOST_LOADER_STL [==[${ANDROID_STL}]==])\n")
     option(HOST_BUILD_PROBES "Build auxiliary native host linkage/contract probes" OFF)
     if(HOST_BUILD_PROBES)
         add_executable(host_dlopen_smoke tests/host_runtime/host_dlopen_smoke.cpp)

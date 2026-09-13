@@ -98,6 +98,9 @@ int main() {
     }
     auto alloc = std::move(alloc_r).Value();
 
+    Check("operation zero is refused without consuming a slot",
+          !alloc.Allocate(0) && alloc.Count() == 0);
+
     // Allocate a handful of operations; verify each stub and that they are packed
     // 16 bytes apart in allocation order.
     const std::uint64_t ops[] = {1, 2, 0x123456789abcdef0ULL, 7};
@@ -134,6 +137,15 @@ int main() {
           alloc.PopulatedRange().size == 4 * 16,
           "size=" + Hex(alloc.PopulatedRange().size));
 
+    // Execution admission prevents publishing RX; refusal leaves the allocator retryable.
+    {
+        auto lease = space->AcquireExecutionLease();
+        auto refused = alloc.Seal();
+        auto mapping = space->Query(slab.base);
+        Check("Seal during execution refuses and keeps NX",
+              lease && !refused && !alloc.IsSealed() && mapping &&
+                  !HasPermission(mapping.Value().permission, GuestPermission::Execute));
+    }
     // Seal makes the slab executable and refuses further allocation.
     auto sealed = alloc.Seal();
     Check("Seal succeeds", bool(sealed), sealed ? std::string{} : Describe(sealed.GetError()));
@@ -145,6 +157,20 @@ int main() {
     std::string post_seal_detail;
     Check("veneer bytes are intact after sealing",
           VeneerBytesMatch(*space, vas[0], ops[0], post_seal_detail), post_seal_detail);
+
+    std::string padding_detail;
+    Check(
+        "unused aligned tail slot traps through reserved op zero",
+        VeneerBytesMatch(*space, GuestAddress{slab.base.value + slab.size - 16}, 0, padding_detail),
+        padding_detail);
+    auto tail = space->Query(GuestAddress{slab.base.value + slab.size - 16});
+    Check("published mapping is entirely RX",
+          tail && tail.Value().permission == (GuestPermission::Read | GuestPermission::Execute));
+    auto empty = HleVeneerAllocator::Create(*space, {GuestAddress{base + page * 24}, page});
+    Check("empty sealed slab stays NX",
+          empty && empty.Value().Seal() &&
+              !HasPermission(space->Query(GuestAddress{base + page * 24}).Value().permission,
+                             GuestPermission::Execute));
 
     // A slab smaller than one veneer is refused at creation.
     auto tiny = HleVeneerAllocator::Create(*space, GuestRange{GuestAddress{base + page * 16}, 8});

@@ -32,8 +32,12 @@ if(ANDROID)
     add_link_options("-Wl,--build-id=sha1")
 endif()
 
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../src/core/guest_cpu"
-                 "${CMAKE_CURRENT_BINARY_DIR}/guest_cpu")
+if(NOT TARGET guest_cpu_api)
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../src/core/guest_cpu"
+                     "${CMAKE_CURRENT_BINARY_DIR}/guest_cpu")
+elseif(V0_BUILD_TESTS)
+    message(FATAL_ERROR "Imported production guest_cpu_api cannot enable test hooks; use an isolated test build")
+endif()
 
 if(V0_BUILD_TESTS)
     target_compile_definitions(guest_cpu_api PRIVATE GUEST_CPU_TEST_HOOKS=1)
@@ -48,6 +52,10 @@ if(V0_BUILD_TESTS)
     add_executable(guest_cpu_hle_abi_tests
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/guest_cpu/hle_abi_tests.cpp")
     target_link_libraries(guest_cpu_hle_abi_tests PRIVATE guest_cpu_api Threads::Threads)
+
+    add_executable(hle_registration_tests
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/guest_cpu/hle_registration_tests.cpp")
+    target_link_libraries(hle_registration_tests PRIVATE guest_cpu_api Threads::Threads)
 
     # Verifies the FEX host-page fixes (docs/fex-host-page-size-adaptation.md).
     # Deliberately standalone: it reproduces the layout and syscalls rather than
@@ -119,6 +127,31 @@ if(V0_ENABLE_FEX)
             "no libFEXCore.a under ${FEX_BUILD_DIR}. Run scripts/android/build-fexcore-android "
             "first; a stub that links would make the acceptance matrix look like it advanced while "
             "nothing executes guest code.")
+    endif()
+
+    if(ANDROID)
+        # A successful archive link does not establish its minimum Android API.
+        # Reject stale API35/static-STL caches when building an API33/shared APK.
+        if(NOT EXISTS "${FEX_BUILD_DIR}/CMakeCache.txt")
+            message(FATAL_ERROR "FEX prebuilt is missing its CMakeCache.txt provenance")
+        endif()
+        foreach(key ANDROID_ABI ANDROID_PLATFORM ANDROID_STL)
+            file(STRINGS "${FEX_BUILD_DIR}/CMakeCache.txt" cached
+                 REGEX "^${key}:[^=]*=")
+            list(LENGTH cached cached_count)
+            if(NOT cached_count EQUAL 1)
+                message(FATAL_ERROR "FEX prebuilt has no unique ${key} profile")
+            endif()
+            string(REGEX REPLACE "^[^=]*=" "" FEX_PREBUILT_${key} "${cached}")
+        endforeach()
+        string(REGEX REPLACE "^android-" "" FEX_PREBUILT_API "${FEX_PREBUILT_ANDROID_PLATFORM}")
+        if(NOT FEX_PREBUILT_ANDROID_ABI STREQUAL ANDROID_ABI
+           OR NOT FEX_PREBUILT_ANDROID_STL STREQUAL ANDROID_STL
+           OR NOT FEX_PREBUILT_API MATCHES "^[0-9]+$"
+           OR FEX_PREBUILT_API GREATER ANDROID_PLATFORM_LEVEL)
+            message(FATAL_ERROR "FEX prebuilt ABI/API/STL mismatch: ${FEX_PREBUILT_ANDROID_ABI}/${FEX_PREBUILT_API}/${FEX_PREBUILT_ANDROID_STL}; consumer ${ANDROID_ABI}/${ANDROID_PLATFORM_LEVEL}/${ANDROID_STL}")
+        endif()
+        message(STATUS "FEX prebuilt: ${FEX_PREBUILT_ANDROID_ABI}/API${FEX_PREBUILT_API}/${FEX_PREBUILT_ANDROID_STL}")
     endif()
 
     get_filename_component(FEX_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../references/FEX" ABSOLUTE)

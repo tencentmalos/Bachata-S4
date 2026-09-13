@@ -10,16 +10,17 @@
 #include "core/loader/symbols_resolver.h"
 #include "core/tls.h"
 
-#ifdef ARCH_ARM64
+#if defined(SHADPS4_TYPED_HLE_HOST)
 #include "core/guest_cpu/hle/call_adapter.h"
 #endif
 
 // On the desktop x86 path the guest and host share the ABI, so the GOT can hold
 // the host wrapper pointer directly. On the FEX ARM64 path a translated guest
-// cannot call a native pointer: the symbol also carries a typed HLE adapter that
-// the linker turns into a guest-callable veneer at relocation time. The host
+// cannot call a native pointer: the opt-in host records a typed descriptor for
+// future veneer relocation. A descriptor is not production ABI approval; raw
+// pointers/callbacks need explicit policies before registration. The host
 // pointer is still recorded so debug dumps and any host-side use keep working.
-#ifdef ARCH_ARM64
+#if defined(SHADPS4_TYPED_HLE_HOST)
 #define LIB_FUNCTION(nid, lib, libversion, mod, function)                                          \
     do {                                                                                           \
         Core::Loader::SymbolResolver sr{};                                                         \

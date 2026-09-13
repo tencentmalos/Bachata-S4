@@ -343,3 +343,19 @@ fixture_state_echo:
     movabs  r15, 0x1122334455667788
     jmp     r15
 fixture_state_echo_end:
+
+// Noncommutative spill check: argument 7 must precede argument 8.
+.globl fixture_invoke_order8
+.globl fixture_invoke_order8_end
+fixture_invoke_order8:
+    imul rax, qword ptr [rsp + 8], 100
+    add rax, qword ptr [rsp + 16]
+    ret
+fixture_invoke_order8_end:
+
+.globl fixture_invoke_tls_read
+.globl fixture_invoke_tls_read_end
+fixture_invoke_tls_read:
+    mov rax, qword ptr fs:[0]
+    ret
+fixture_invoke_tls_read_end:

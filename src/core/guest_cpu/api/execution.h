@@ -127,8 +127,8 @@ struct RunResult final {
     std::optional<StepInfo> step{};
 };
 
-// A re-entrant guest function call (InvokeGuest). The PS4 boot chain calls into
-// guest code from the host: DT_INIT / module init, `_malloc_init`,
+// A stopped-thread guest function call (the initial InvokeGuest subset). The PS4 boot chain calls
+// into guest code from the host: DT_INIT / module init, `_malloc_init`,
 // `sceLibcInternalMemoryMutexEnable`, and the program entry itself are guest
 // addresses, not native function pointers. On x86 the desktop core casts the
 // guest VA to a host pointer and calls it; that is invalid under FEX (the guest
@@ -155,6 +155,9 @@ struct GuestCallResult final {
     // reason == StopReason::Returned.
     std::uint64_t return_value{};
     StopReason reason{StopReason::Returned};
+    StopReasonBits pending_reasons{StopReasonBits::None};
+    std::uint64_t invocation_id{};
+    std::uint64_t stop_epoch{};
     // Populated when the call did not return cleanly (fault, unresolved import,
     // cancellation). The caller propagates this instead of trusting return_value.
     std::optional<GuestFaultInfo> fault{};
@@ -163,8 +166,8 @@ struct GuestCallResult final {
 };
 
 // Options for InvokeGuest. The FS base carries the guest TLS pointer (Orbis TCB)
-// the call must run under; zero leaves the owned thread's current FS base in
-// place, which is correct for a call on a thread already set up for TLS.
+// call must run under; nullopt retains the current FS, while a present zero
+// deliberately clears it. A successful call restores a temporary override.
 struct GuestCallOptions final {
     std::optional<std::uint64_t> fs_base{};
 };

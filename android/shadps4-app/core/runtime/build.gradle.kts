@@ -17,16 +17,16 @@ val localProps = Properties().apply {
     if (f.exists()) f.inputStream().use { load(it) }
 }
 val fexBuildDir: String =
-    (localProps.getProperty("fexBuildDir") ?: System.getenv("FEX_BUILD_DIR") ?: "").trim()
+    (providers.gradleProperty("fexBuildDir").orNull ?: localProps.getProperty("fexBuildDir") ?: System.getenv("FEX_BUILD_DIR") ?: "").trim()
 
-val hostLoaderConfig = (localProps.getProperty("hostLoaderConfig")
+val hostLoaderConfig = (providers.gradleProperty("hostLoaderConfig").orNull ?: localProps.getProperty("hostLoaderConfig")
     ?: System.getenv("SHADPS4_HOST_LOADER_CONFIG")
     ?: rootProject.file("../../build/android-host-api33/native/shadps4-host-loader.cmake").absolutePath).trim()
 
 android {
     namespace = "com.shadps4.android.runtime"
     compileSdk = 36
-    // NDK pinned to the A0-validated 29.0.14206865 (native API 35), NOT the reference's 30.x.
+    // NDK pinned to 29.0.14206865 (native API follows minSdk 33), NOT the reference's 30.x.
     ndkVersion = "29.0.14206865"
     defaultConfig {
         minSdk = 33

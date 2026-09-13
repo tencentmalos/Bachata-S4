@@ -18,17 +18,6 @@ set(V0_ENABLE_FEX ON CACHE BOOL "" FORCE)
 # Main repo root: android/shadps4-app/core/runtime/src/main/cpp -> up 7 -> repo root.
 get_filename_component(REPO_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../../../../../.." ABSOLUTE)
 
-add_subdirectory("${REPO_ROOT}/cmake/fex" fex)
-
-# The embeddable host session: backend-free lifecycle core (SessionCore) plus the
-# FEX-backed adapter. Production build never defines SESSION_TEST_HOOKS, so the
-# handshake gate and UAF tripwire are compiled out.
-add_library(shadps4_fex_session SHARED
-    fex_session_jni.cpp
-    orbis_pad_jni.cpp
-    "${REPO_ROOT}/src/core/host_runtime/session_core.cpp"
-    "${REPO_ROOT}/src/core/host_runtime/session_backend.cpp"
-    "${REPO_ROOT}/src/core/host_runtime/session_backend_fex.cpp")
 # One host DSO owns input and production scePad*. Never compile a second adapter
 # into JNI. Build with scripts/android/build-host-android before Gradle.
 if(NOT EXISTS "${SHADPS4_HOST_LOADER_CONFIG}")
@@ -41,6 +30,25 @@ if(NOT EXISTS "${SHADPS4_HOST_LOADER_LIBRARY}" OR NOT ANDROID_ABI STREQUAL SHADP
 endif()
 add_library(android_host SHARED IMPORTED)
 set_target_properties(android_host PROPERTIES IMPORTED_LOCATION "${SHADPS4_HOST_LOADER_LIBRARY}")
+if(NOT SHADPS4_HOST_PROVIDES_GUEST_CPU_API)
+    message(FATAL_ERROR "Rebuild host: the production guest CPU API provider is required")
+endif()
+add_library(guest_cpu_api INTERFACE)
+target_include_directories(guest_cpu_api INTERFACE "${REPO_ROOT}/src")
+target_compile_features(guest_cpu_api INTERFACE cxx_std_20)
+target_link_libraries(guest_cpu_api INTERFACE android_host)
+
+add_subdirectory("${REPO_ROOT}/cmake/fex" fex)
+
+# The embeddable host session: backend-free lifecycle core (SessionCore) plus the
+# FEX-backed adapter. Production build never defines SESSION_TEST_HOOKS, so the
+# handshake gate and UAF tripwire are compiled out.
+add_library(shadps4_fex_session SHARED
+    fex_session_jni.cpp
+    orbis_pad_jni.cpp
+    "${REPO_ROOT}/src/core/host_runtime/session_core.cpp"
+    "${REPO_ROOT}/src/core/host_runtime/session_backend.cpp"
+    "${REPO_ROOT}/src/core/host_runtime/session_backend_fex.cpp")
 target_include_directories(shadps4_fex_session PRIVATE ${SHADPS4_HOST_LOADER_INCLUDES})
 target_compile_definitions(shadps4_fex_session PRIVATE ${SHADPS4_HOST_LOADER_DEFINITIONS})
 target_compile_features(shadps4_fex_session PRIVATE cxx_std_23)

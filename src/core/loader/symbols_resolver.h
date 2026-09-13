@@ -29,10 +29,10 @@ struct SymbolRecord {
     std::string name;
     std::string nid_name;
     u64 virtual_address;
-    // On the FEX (ARM64 guest) path an HLE function symbol carries the typed
-    // adapter the loader built for it. The linker assigns it a guest operation
-    // number and writes the veneer VA for that op into the GOT, instead of the
-    // host `virtual_address` (which a translated guest cannot call). Null on the
+    // On the native ARM64 host path an HLE symbol may carry a typed descriptor.
+    // Future production relocation must validate its policy, adopt it in the
+    // session registry and write a guest veneer VA instead of this host address.
+    // Merely storing this descriptor does not implement that relocation. Null on the
     // desktop x86 path, where `virtual_address` is the callable host pointer.
     std::shared_ptr<Core::GuestCpu::Hle::HleCallAdapter> hle_adapter;
 };

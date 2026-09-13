@@ -3358,6 +3358,30 @@ void TestInvokeGuest(Harness &h) {
                  std::string{ToString(sum.Value().reason)})
               : Describe(sum.GetError()));
 
+    auto stopped = h.context->ReadRegisters(thread.Value());
+    Check("G41b", "stack restored after spilled call",
+          stopped && stopped.Value().registers.Rsp() == h.stack_top);
+    if (!LoadFixture(h, *FindFixture("invoke_order8"), e)) {
+        Check("G41c", "load ordered eight-argument fixture", false, e);
+    } else {
+        GuestCallArgs eight{};
+        eight.count = 8;
+        eight.values[6] = 7;
+        eight.values[7] = 8;
+        bool repeated = true;
+        for (int i = 0; i < 100; ++i) {
+            auto r =
+                h.context->InvokeGuest(thread.Value(), GuestCodeAddress{h.code_base}, eight, {});
+            auto state = h.context->ReadRegisters(thread.Value());
+            if (!r || r.Value().reason != StopReason::Returned || r.Value().return_value != 708 ||
+                !state || state.Value().registers.Rsp() != h.stack_top) {
+                repeated = false;
+                break;
+            }
+        }
+        Check("G41c", "100 calls preserve argument order and caller stack", repeated);
+    }
+
     // A bad entry (not mapped executable) must be refused, not run.
     GuestCallArgs none{};
     auto bad = h.context->InvokeGuest(thread.Value(), GuestCodeAddress{h.stack_base}, none, {});
@@ -3365,13 +3389,71 @@ void TestInvokeGuest(Harness &h) {
           bad ? "unexpectedly succeeded" : std::string{});
 
     (void)h.context->DestroyThread(thread.Value());
+
+    // Put two spill slots at the bottom of a mapping: the full call frame would
+    // cross its guard. Old code changed GPRs and wrote the slots before failing.
+    LoadFixture(h, *FindFixture("invoke_add3"), e);
+    ThreadInit refused_init = init;
+    refused_init.initial_rsp = GuestAddress{h.stack_base + 16};
+    refused_init.initial_state.fields = RegisterValidity::Gpr;
+    refused_init.initial_state.gpr_mask =
+        (1u << Index(Gpr::Rdi)) | (1u << Index(Gpr::Rsi)) | (1u << Index(Gpr::Rdx));
+    refused_init.initial_state.values.Set(Gpr::Rdi, 0x11);
+    refused_init.initial_state.values.Set(Gpr::Rsi, 0x22);
+    refused_init.initial_state.values.Set(Gpr::Rdx, 0x33);
+    auto refused_thread = h.context->CreateThread(refused_init);
+    if (refused_thread) {
+        std::array<std::byte, 16> sentinel{};
+        sentinel.fill(std::byte{0xa5});
+        auto wrote = h.space->Write(GuestAddress{h.stack_base}, sentinel);
+        GuestCallArgs eight{};
+        eight.count = 8;
+        eight.values.fill(0xbad);
+        auto refused = h.context->InvokeGuest(refused_thread.Value(), GuestCodeAddress{h.code_base},
+                                              eight, {});
+        std::array<std::byte, 16> after{};
+        auto read = h.space->Read(GuestAddress{h.stack_base}, after);
+        Check("G42b", "failed frame preflight leaves stack bytes untouched",
+              wrote && !refused && read && after == sentinel);
+        auto state = h.context->ReadRegisters(refused_thread.Value());
+        RegisterPatch patch{};
+        patch.fields = RegisterValidity::Gpr;
+        patch.gpr_mask = 1u << Index(Gpr::Rsp);
+        patch.values.Set(Gpr::Rsp, h.stack_top);
+        auto fixed_stack =
+            h.context->WriteRegisters(refused_thread.Value(), patch, state.Value().stop_epoch);
+        auto retry =
+            h.context->InvokeGuest(refused_thread.Value(), GuestCodeAddress{h.code_base}, {}, {});
+        Check("G42c", "failed preflight leaves actual CPU GPRs and invocation identity untouched",
+              fixed_stack && retry && retry.Value().reason == StopReason::Returned &&
+                  retry.Value().return_value == 0x66 && retry.Value().invocation_id == 1);
+        {
+            auto q = h.space->Quiesce(1'000'000'000);
+            auto blocked = h.context->InvokeGuest(refused_thread.Value(),
+                                                  GuestCodeAddress{h.code_base}, eight, {});
+            Check("G42d", "InvokeGuest respects quiescence before preparing frame",
+                  q && !blocked && blocked.GetError().category == ErrorCategory::Busy);
+        }
+        auto cancelled =
+            h.context->RequestInterrupt(refused_thread.Value(), InterruptReason::Cancel);
+        auto stop = h.context->InvokeGuest(refused_thread.Value(), GuestCodeAddress{h.code_base},
+                                           eight, {});
+        Check("G42e", "pre-entry cancel preserves stop identity and caller stack",
+              cancelled && stop && stop.Value().reason == StopReason::Cancelled &&
+                  stop.Value().invocation_id == 2 && stop.Value().stop_epoch != 0 &&
+                  stop.Value().pending_reasons != StopReasonBits::None &&
+                  stop.Value().snapshot.registers.Rsp() == h.stack_top);
+        (void)h.context->DestroyThread(refused_thread.Value());
+    } else
+        Check("G42b", "create refusal test owner", false);
 }
 
-// --- InvokeGuest coexists with a registered HLE op ------------------------------------------------
-// The boot chain registers HLE imports and then enters guest init functions. This asserts registering
-// an HLE op does not disturb InvokeGuest of a pure guest function (no shared-state regression). The
-// nested guest -> HLE -> guest round trip driven from inside a `ret`-ending init function needs the
-// loader's veneers to place the op/args, so it is exercised in Stage 2, not here.
+// --- InvokeGuest coexists with a registered HLE op
+// ------------------------------------------------ The boot chain registers HLE imports and then
+// enters guest init functions. This asserts registering an HLE op does not disturb InvokeGuest of a
+// pure guest function (no shared-state regression). The nested guest -> HLE -> guest round trip
+// still requires HleScope and WaitingHle. G44 tests only the forward guest -> HLE -> return path,
+// not a callback.
 void TestInvokeGuestWithHle(Harness &h) {
     auto *registry = static_cast<HleCallRegistry *>(Fex::FexHleRegistryPointer(*h.context));
     if (registry == nullptr) {
@@ -3413,12 +3495,29 @@ void TestInvokeGuestWithHle(Harness &h) {
     (void)h.context->DestroyThread(thread.Value());
 }
 
-// --- Guest CALL through an HLE veneer -------------------------------------------------------------
-// The end-to-end path a relocated import takes: the GOT slot holds a veneer VA, the guest CALLs it,
-// the 16-byte veneer stages rcx->r10, loads the op into rax and `syscall`s, the backend dispatches to
-// the typed HLE function, and the guest resumes at the veneer's `ret` with the result in rax. This is
-// the mechanism Stage 2's loader wiring depends on; proving it here is the veneer allocator's real
-// acceptance (the standalone veneer_allocator_tests only check byte emission, not execution).
+// A true native HLE crossing must not enter a second public Run/InvokeGuest.
+// Until HleScope exists, even a stopped sibling owned by this native thread is
+// refused, preserving the outer thread-local dispatcher/stop binding.
+CpuContext* nested_probe_context{};
+ThreadHandle nested_probe_active{}, nested_probe_other{};
+GuestCodeAddress nested_probe_entry{};
+std::uint64_t HleNestedRefusalProbe() {
+    auto same = nested_probe_context->InvokeGuest(nested_probe_active, nested_probe_entry, {}, {});
+    auto other = nested_probe_context->InvokeGuest(nested_probe_other, nested_probe_entry, {}, {});
+    auto run = nested_probe_context->Run(nested_probe_other, {});
+    const auto refused = [](const auto& r) {
+        return !r && r.GetError().category == ErrorCategory::AlreadyRunning;
+    };
+    return (refused(same) ? 1 : 0) | (refused(other) ? 2 : 0) | (refused(run) ? 4 : 0);
+}
+
+// --- Guest CALL through an HLE veneer
+// ------------------------------------------------------------- A mechanism fixture passes the
+// veneer VA in R11; it does not exercise production GOT relocation. The guest CALLs the veneer, the
+// 16-byte veneer stages rcx->r10, loads the op into rax and `syscall`s, the backend dispatches to
+// the typed HLE function, and the guest resumes at the veneer's `ret` with the result in rax. This
+// is the mechanism Stage 2's loader wiring depends on; proving it here is the veneer allocator's
+// real acceptance (the standalone veneer_allocator_tests only check byte emission, not execution).
 void TestVeneerGuestCall(Harness &h) {
     auto *registry = static_cast<HleCallRegistry *>(Fex::FexHleRegistryPointer(*h.context));
     if (registry == nullptr) {
@@ -3443,6 +3542,13 @@ void TestVeneerGuestCall(Harness &h) {
     auto veneer = alloc.Allocate(op.Value());
     if (!veneer) {
         Check("G44", "allocate the add6 veneer", false, Describe(veneer.GetError()));
+        return;
+    }
+    auto nested_op = registry->Register(&HleNestedRefusalProbe, "nested_refusal");
+    auto nested_veneer =
+        nested_op ? alloc.Allocate(nested_op.Value()) : Result<GuestAddress>{nested_op.GetError()};
+    if (!nested_veneer) {
+        Check("G44c", "allocate nested refusal veneer", false);
         return;
     }
     if (auto sealed = alloc.Seal(); !sealed) {
@@ -3496,6 +3602,86 @@ void TestVeneerGuestCall(Harness &h) {
                  run.Value().snapshot.registers.Get(Gpr::Rax), 21);
     }
     (void)h.context->DestroyThread(thread.Value());
+
+    ResetStack(h, e);
+    init.initial_state.values.Set(Gpr::R11, nested_veneer.Value().value);
+    auto outer = h.context->CreateThread(init);
+    auto other = h.context->CreateThread(init);
+    if (outer && other) {
+        nested_probe_context = h.context.get();
+        nested_probe_active = outer.Value();
+        nested_probe_other = other.Value();
+        nested_probe_entry = GuestCodeAddress{h.code_base};
+        auto nested = h.context->Run(outer.Value(), {});
+        Check("G44c", "native HLE rejects nested same/sibling entry and outer guest survives",
+              nested && nested.Value().primary_reason == StopReason::Returned &&
+                  nested.Value().snapshot.registers.Get(Gpr::Rax) == 7);
+        nested_probe_context = nullptr;
+    } else
+        Check("G44c", "create nested refusal owners", false);
+    if (outer)
+        (void)h.context->DestroyThread(outer.Value());
+    if (other)
+        (void)h.context->DestroyThread(other.Value());
+
+    // Enter an unused aligned slot through the public call API. Operation zero must become
+    // an attributed guest fault; it must not execute zero-filled guest stores.
+    auto unused = h.context->CreateThread(init);
+    if (unused) {
+        auto fault = h.context->InvokeGuest(
+            unused.Value(), GuestCodeAddress{slab.base.value + slab.size - 16}, {}, {});
+        Check("G44d", "unused veneer slot faults as guest code",
+              fault && fault.Value().reason == StopReason::GuestFault);
+        (void)h.context->DestroyThread(unused.Value());
+    } else
+        Check("G44d", "create padding fault owner", false);
+
+    // Use an owned RW TLS fixture, separate from data reused/protected by G2.
+    const GuestAddress tls_base{slab.base.value + page * 2};
+    auto tls_map = h.space->Map({tls_base, page}, GuestPermission::Read | GuestPermission::Write);
+    if (!tls_map) {
+        Check("G44e", "map dedicated TLS fixture", false, Describe(tls_map.GetError()));
+        return;
+    }
+    // A per-call FS override is temporary; the persistent owner's TLS survives.
+    if (LoadFixture(h, *FindFixture("invoke_tls_read"), e)) {
+        const std::uint64_t original = 0x1234, temporary = 0x5678;
+        auto wrote_original =
+            h.space->Write(GuestAddress{tls_base.value}, std::as_bytes(std::span{&original, 1}));
+        auto wrote_temporary = h.space->Write(GuestAddress{tls_base.value + 64},
+                                              std::as_bytes(std::span{&temporary, 1}));
+        init.initial_state.fields = RegisterValidity::SegmentBases;
+        init.initial_state.values.fs_base = tls_base.value;
+        auto tls = h.context->CreateThread(init);
+        if (tls) {
+            GuestCallOptions options{};
+            options.fs_base = tls_base.value + 64;
+            auto overridden =
+                h.context->InvokeGuest(tls.Value(), GuestCodeAddress{h.code_base}, {}, options);
+            auto restored =
+                h.context->InvokeGuest(tls.Value(), GuestCodeAddress{h.code_base}, {}, {});
+            Check("G44e", "FS override is visible only in its call",
+                  wrote_original && wrote_temporary && overridden && restored &&
+                      overridden.Value().return_value == temporary &&
+                      restored.Value().return_value == original &&
+                      overridden.Value().reason == StopReason::Returned &&
+                      restored.Value().reason == StopReason::Returned,
+                  std::string{"write="} +
+                      (wrote_original ? "ok" : Describe(wrote_original.GetError())) + "/" +
+                      (wrote_temporary ? "ok" : Describe(wrote_temporary.GetError())) +
+                      " override=" +
+                      (overridden ? Hex(overridden.Value().return_value) + "/" +
+                                        std::string{ToString(overridden.Value().reason)}
+                                  : Describe(overridden.GetError())) +
+                      " restored=" +
+                      (restored ? Hex(restored.Value().return_value) + "/" +
+                                      std::string{ToString(restored.Value().reason)}
+                                : Describe(restored.GetError())));
+            (void)h.context->DestroyThread(tls.Value());
+        } else
+            Check("G44e", "create TLS override owner", false);
+    } else
+        Check("G44e", "load TLS override fixture", false);
 }
 
 } // namespace
@@ -3605,7 +3791,7 @@ int main() {
     printf("\n%d check(s), %s (%d failure%s)\n", g_checks, g_failures == 0 ? "ALL PASS" : "FAILED",
            g_failures, g_failures == 1 ? "" : "s");
     printf("SCOPE: real x86-64 executed by FEXCore through the public API, from\n");
-    printf("       assembler-generated fixtures, two owners and boundary interrupts. No "
-           "HLE/Step/APK.\n");
+    printf("       assembler-generated fixtures, typed HLE and boundary interrupts.\n"
+           "       No nested callbacks/Step/APK.\n");
     return g_failures == 0 ? 0 : 1;
 }

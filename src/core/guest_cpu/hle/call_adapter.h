@@ -142,8 +142,8 @@ inline constexpr bool IsGuestPointer = std::is_pointer_v<T>;
 
 // A pointer to a function is a guest CODE address (a callback the HLE stores and
 // later enters via InvokeGuest), not a data buffer the host dereferences. It is
-// passed through as an opaque value: taking sizeof() of a function type is
-// ill-formed, and pinning it as data would be wrong.
+// refused until a guest-code handle and an audited callback descriptor exist.
+// A native C++ function pointer is callable, not an opaque guest address.
 template <typename T>
 inline constexpr bool IsGuestFunctionPointer =
     std::is_pointer_v<T> && std::is_function_v<std::remove_pointer_t<T>>;
@@ -152,10 +152,10 @@ inline constexpr bool IsGuestFunctionPointer =
 // an incomplete type.
 template <typename T>
 inline constexpr bool IsIntegerArgument = [] {
-    if constexpr (std::is_void_v<T>) {
-        return false;
+    if constexpr (std::is_integral_v<T> || std::is_enum_v<T>) {
+        return sizeof(T) <= sizeof(std::uint64_t);
     } else {
-        return (std::is_integral_v<T> || std::is_enum_v<T>) && sizeof(T) <= sizeof(std::uint64_t);
+        return false;
     }
 }();
 
@@ -168,15 +168,26 @@ inline constexpr bool IsBoundedBuffer = false;
 template <typename U>
 inline constexpr bool IsBoundedBuffer<GuestBoundedBuffer<U>> = true;
 
+template <typename T>
+inline constexpr bool IsPinnablePointer = [] {
+    if constexpr (!IsGuestPointer<T> || IsGuestFunctionPointer<T>)
+        return false;
+    else {
+        using P = std::remove_pointer_t<T>;
+        return std::is_void_v<P> || requires { sizeof(P); };
+    }
+}();
+
 // V0 accepts scalars, validated guest pointers and bounded buffers. Aggregates
 // and varargs are refused at registration (§8).
 template <typename T>
 inline constexpr bool IsSupportedArgument =
-    IsIntegerArgument<T> || IsVectorArgument<T> || IsGuestPointer<T> || IsBoundedBuffer<T>;
+    IsIntegerArgument<T> || IsVectorArgument<T> || IsPinnablePointer<T> || IsBoundedBuffer<T>;
 
 template <typename T>
 inline constexpr bool IsSupportedReturn =
-    std::is_void_v<T> || IsIntegerArgument<T> || IsVectorArgument<T> || IsGuestPointer<T>;
+    std::is_void_v<T> || IsIntegerArgument<T> || IsVectorArgument<T> ||
+    (IsGuestPointer<T> && !IsGuestFunctionPointer<T>);
 
 // A guest pointer argument is only handed to native code after its range and
 // permissions have been checked in the guest address space.
@@ -186,12 +197,10 @@ Result<T> DecodePointer(CallCursor& cursor, HleCallFrame& frame) {
     if (!raw) {
         return raw.GetError();
     }
-    // A guest function pointer is an opaque code address: pass it through without a
-    // data range/pin (the host never dereferences it; the HLE re-enters it as guest
-    // code). sizeof() of a function type is ill-formed, so this must precede the
-    // data-pointer path below.
+    // Never turn a guest code address into a callable ARM64 function pointer.
     if constexpr (IsGuestFunctionPointer<T>) {
-        return reinterpret_cast<T>(static_cast<std::uintptr_t>(raw.Value()));
+        return MakeError(ErrorCategory::Unsupported, "Hle::DecodePointer",
+                         "native function-pointer callbacks require a guest-call descriptor");
     } else {
         if (raw.Value() == 0) {
             return static_cast<T>(nullptr);
@@ -320,18 +329,32 @@ public:
     [[nodiscard]] virtual bool SignatureSupported() const noexcept = 0;
     [[nodiscard]] virtual std::string SignatureDescription() const = 0;
 
+protected:
+    explicit HleCallAdapter(std::uint64_t op = 0, std::string label = {})
+        : operation(op), name(std::move(label)) {}
+
 private:
-    friend class HleCallRegistry;
-    void Assign(std::uint64_t operation_, std::string name_) {
-        operation = operation_;
-        name = std::move(name_);
-    }
-    std::uint64_t operation{};
-    std::string name;
+    const std::uint64_t operation;
+    const std::string name;
 };
 
+// The primary template also makes varargs/noexcept/unsupported function forms
+// representable without instantiating an incomplete marshaller.
 template <typename Function>
-class TypedHleCallAdapter;
+class TypedHleCallAdapter final : public HleCallAdapter {
+public:
+    explicit TypedHleCallAdapter(Function) {}
+    bool SignatureSupported() const noexcept override {
+        return false;
+    }
+    std::string SignatureDescription() const override {
+        return "unsupported function form";
+    }
+    Status Invoke(HleCallFrame&) const override {
+        return MakeError(ErrorCategory::Unsupported, "HleCallAdapter::Invoke",
+                         "unsupported function form");
+    }
+};
 
 template <typename Return, typename... Args>
 class TypedHleCallAdapter<Return (*)(Args...)> final : public HleCallAdapter {
@@ -339,7 +362,7 @@ public:
     explicit TypedHleCallAdapter(Return (*function_)(Args...)) : function{function_} {}
 
     [[nodiscard]] bool SignatureSupported() const noexcept override {
-        return kSupported;
+        return kSupported && function != nullptr;
     }
 
     [[nodiscard]] std::string SignatureDescription() const override {
@@ -352,6 +375,9 @@ public:
             return MakeError(ErrorCategory::Unsupported, "HleCallAdapter::Invoke",
                              "signature was refused at registration");
         } else {
+            if (!function)
+                return MakeError(ErrorCategory::InvalidArgument, "HleCallAdapter::Invoke",
+                                 "null function");
             CallCursor cursor{frame};
             // Decode left to right: SysV argument slot assignment is
             // positional, so the order of these calls is load-bearing.
@@ -417,22 +443,48 @@ private:
     std::string description_;
 };
 
-// Builds a typed adapter for `function` WITHOUT assigning an operation number or
-// touching a registry. A signature the marshaller cannot handle yields an
-// Unsupported adapter that faults cleanly when a guest actually reaches it, rather
-// than refusing at build time -- the HLE surface has thousands of functions and a
-// handful with aggregate/by-value-struct parameters must not break the whole
-// image; they simply return Unsupported if called. Used by LIB_FUNCTION so every
-// symbol carries a ready adapter that the session's registry adopts later.
+// Automatic LIB_FUNCTION registration may only infer scalar ABI shape. A raw
+// pointer carries no length, direction, retention or guest-callback policy.
+// Keep those symbols inspectable but uncallable until an explicit adapter is supplied.
+template <typename Function>
+inline constexpr bool AutoHleSignature = false;
+template <typename R, typename... A>
+inline constexpr bool AutoHleSignature<R (*)(A...)> =
+    (std::is_void_v<R> || detail::IsIntegerArgument<R> || detail::IsVectorArgument<R>) &&
+    ((detail::IsIntegerArgument<A> || detail::IsVectorArgument<A>) && ...);
+
 template <typename Function>
 [[nodiscard]] inline std::shared_ptr<HleCallAdapter> MakeHleAdapter(Function function,
                                                                     std::string name) {
-    auto typed = std::make_shared<TypedHleCallAdapter<Function>>(function);
-    if (typed->SignatureSupported()) {
-        return typed;
+    if constexpr (AutoHleSignature<Function>) {
+        auto typed = std::make_shared<TypedHleCallAdapter<Function>>(function);
+        if (typed->SignatureSupported())
+            return typed;
     }
-    return std::make_shared<UnsupportedHleCallAdapter>(typed->SignatureDescription());
+    return std::make_shared<UnsupportedHleCallAdapter>(
+        std::move(name) +
+        ": explicit pointer/callback/aggregate descriptor required or null function");
 }
+
+// Registration metadata belongs to one registry, never the shared descriptor.
+class RegisteredHleCallAdapter final : public HleCallAdapter {
+public:
+    RegisteredHleCallAdapter(std::uint64_t op, std::string name,
+                             std::shared_ptr<HleCallAdapter> target)
+        : HleCallAdapter(op, std::move(name)), target_(std::move(target)) {}
+    Status Invoke(HleCallFrame& f) const override {
+        return target_->Invoke(f);
+    }
+    bool SignatureSupported() const noexcept override {
+        return target_->SignatureSupported();
+    }
+    std::string SignatureDescription() const override {
+        return target_->SignatureDescription();
+    }
+
+private:
+    std::shared_ptr<HleCallAdapter> target_;
+};
 
 class HleCallRegistry final {
 public:
@@ -445,30 +497,24 @@ public:
             return MakeError(ErrorCategory::Unsupported, "HleCallRegistry::Register",
                              name + ": " + adapter->SignatureDescription());
         }
-        std::unique_lock guard{registry_mutex};
-        const std::uint64_t operation = next_operation++;
-        adapter->Assign(operation, std::move(name));
-        adapters.push_back(std::move(adapter));
-        return operation;
+        return Adopt(std::move(adapter), std::move(name));
     }
 
-    // Assigns an operation number to a pre-built adapter (from MakeHleAdapter) and
-    // stores it. This is how the loader-built adapters on each SymbolRecord get a
-    // guest-visible operation at session start: registration (init time, no
-    // context) and operation assignment (session time, one registry) are separate.
-    // Unlike Register it accepts an Unsupported adapter -- the op is real so a GOT
-    // slot can point at it, and the guest gets a clean Unsupported fault if it
-    // calls that import, never a silent zero.
+    // Unsupported descriptors remain in SymbolRecord for diagnostics. They never
+    // acquire an operation/veneer until their actual marshalling policy is supplied.
     [[nodiscard]] Result<std::uint64_t> Adopt(std::shared_ptr<HleCallAdapter> adapter,
                                               std::string name) {
-        if (adapter == nullptr) {
+        if (!adapter)
             return MakeError(ErrorCategory::InvalidArgument, "HleCallRegistry::Adopt",
                              "null adapter");
-        }
+        if (!adapter->SignatureSupported())
+            return MakeError(ErrorCategory::Unsupported, "HleCallRegistry::Adopt",
+                             name + ": " + adapter->SignatureDescription());
         std::unique_lock guard{registry_mutex};
-        const std::uint64_t operation = next_operation++;
-        adapter->Assign(operation, std::move(name));
-        adapters.push_back(std::move(adapter));
+        const std::uint64_t operation = adapters.size() + 1;
+        auto binding = std::make_shared<RegisteredHleCallAdapter>(operation, std::move(name),
+                                                                  std::move(adapter));
+        adapters.push_back(std::move(binding));
         return operation;
     }
 
@@ -500,7 +546,6 @@ public:
 
 private:
     mutable std::shared_mutex registry_mutex;
-    std::uint64_t next_operation{1};
     std::vector<std::shared_ptr<HleCallAdapter>> adapters;
 };
 

@@ -142,7 +142,8 @@ public:
                                                  const StepOptions& options) = 0;
     [[nodiscard]] virtual Result<void> DestroyThread(ThreadHandle thread) = 0;
 
-    // Re-entrant guest function call. Enters `entry` as a normal SysV function on
+    // Initial stopped-thread guest-call subset (NOT a re-entrant HLE callback).
+    // Enters `entry` as a normal SysV integer-only function on
     // an already-owned guest thread: integer arguments go to rdi/rsi/rdx/rcx/r8/r9
     // (spill to the guest stack past six), the backend's return gate is pushed as
     // the return address, and the call returns when the thread lands back on that
@@ -151,6 +152,11 @@ public:
     // intends. A fault, unresolved import or cancellation during the call is
     // reported in the result, never folded into a zero return value.
     //
+    // Successful return restores caller RIP/RSP and any per-call FS override.
+    // A failed preflight changes neither registers nor stack bytes. Nested calls
+    // are refused until HleScope/WaitingHle is implemented and validated.
+    // Fault/cancel results preserve the actual stopped callee state; they do not
+    // pretend the caller continuation was reached. Resume/recovery follows Run.
     // Owner-thread only, same as Run: the caller must own `thread` and it must be
     // stopped (not mid-Run). This is the primitive the Orbis linker/module start
     // path uses instead of casting a guest VA to a native function pointer.

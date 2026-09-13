@@ -48,8 +48,10 @@ public:
 
     // `slab` is a range inside `space`'s reservation, below the guest-address
     // policy limit, reserved for veneers. The allocator maps it read/write on
-    // construction; Seal() flips the used prefix to read/execute before the guest
-    // first runs. `space` must outlive the allocator.
+    // construction; Seal() pads unused slots with operation-zero traps and flips the whole slab to
+    // read/execute before the guest first runs. `space` owns the mapping and
+    // must outlive the allocator; destroying/move-assigning an allocator does
+    // not unmap published code. The loader tears down the address space.
     [[nodiscard]] static Result<HleVeneerAllocator> Create(GuestAddressSpace& space,
                                                            GuestRange slab);
 
@@ -65,9 +67,9 @@ public:
     // reused slot. Must not be called after Seal() (the slab is read/execute).
     [[nodiscard]] Result<GuestAddress> Allocate(std::uint64_t operation);
 
-    // Flips the used prefix of the slab from read/write to read/execute. Call
+    // Flips the whole slab from read/write to read/execute (no mapping split). Call
     // once, after every veneer is allocated and before the first guest Run. After
-    // this, Allocate() is refused.
+    // this, Allocate() is refused. An empty slab remains non-executable.
     [[nodiscard]] Status Seal();
 
     // The range actually populated with veneers, so the backend/loader can report
