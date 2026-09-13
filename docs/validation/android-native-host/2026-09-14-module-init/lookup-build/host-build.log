@@ -1,0 +1,21 @@
+[1/118] Generating CXX dyndep file externals/pugixml/CMakeFiles/pugixml-static.dir/CXX.dd
+[2/116] Generating CXX dyndep file externals/openal-soft/CMakeFiles/OpenAL.dir/CXX.dd
+[3/21] Performing build step for 'ffmpeg_android_build'
+[4/21] No install step for 'ffmpeg_android_build'
+[5/21] Completed 'ffmpeg_android_build'
+[6/21] Building CXX object CMakeFiles/shadps4.dir/src/common/scm_rev.cpp.o
+[7/21] Building CXX object CMakeFiles/shadps4.dir/src/core/file_sys/fs.cpp.o
+[8/21] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/ajm/ajm_context.cpp.o
+[9/21] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/ajm/ajm.cpp.o
+[10/21] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/ajm/ajm_instance.cpp.o
+[11/21] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/avplayer/avplayer_file_streamer.cpp.o
+[12/21] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/ajm/ajm_mp3.cpp.o
+[13/21] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/avplayer/avplayer_handle_streamer.cpp.o
+[14/21] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/videodec/video_utils.cpp.o
+[15/21] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/videodec/videodec2_impl.cpp.o
+[16/21] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/videodec/videodec.cpp.o
+[17/21] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/videodec/videodec2.cpp.o
+[18/21] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/videodec/videodec_impl.cpp.o
+[19/21] Building CXX object CMakeFiles/shadps4.dir/src/core/host_runtime/guest_runtime.cpp.o
+[20/21] Linking CXX shared library libshadps4_host.so
+[21/21] Linking CXX executable host_library_smoke

@@ -11,6 +11,32 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class ThreadAttributeRuntimeInstrumentedTest {
+    @Test fun existingModulesAndGuestSymbols() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val context = instrumentation.targetContext
+        assertTrue(NativePad.nativeInitializeHost(File(context.filesDir, "host").path))
+        val root = File(context.filesDir, "validation/module-lookup-${System.nanoTime()}").apply { mkdirs() }
+        val entry = File(root, "eboot.bin")
+        instrumentation.context.assets.open("module-lookup.elf").use { input -> entry.outputStream().use { input.copyTo(it) } }
+        try {
+            listOf("zero", "nonzero", "absent").forEach { init ->
+                instrumentation.context.assets.open("module-lookup-$init.elf").use { input ->
+                    File(root, "fixture_dependency.sprx").outputStream().use { input.copyTo(it) }
+                }
+                repeat(3) { round ->
+                    val gen = NativeFexSession.nativeStartExecutable("module-lookup", entry.path)
+                    assertTrue(gen > 0)
+                    try {
+                        val outcome = NativeFexSession.nativeWaitTerminal(gen, 15000)
+                        val detail = NativeFexSession.nativeTerminalDetail(gen).orEmpty()
+                        android.util.Log.i("ThreadAttributeAcceptance", "module-lookup init=$init round=$round outcome=$outcome ${NativeFexSession.nativeIdentity()} $detail")
+                        assertEquals(detail, NativeFexSession.Outcome.RETURNED, outcome)
+                        assertTrue(detail, detail.startsWith("guest return=51966"))
+                    } finally { NativeFexSession.nativeRequestStop(gen, 1000) }
+                }
+            }
+        } finally { if (NativeFexSession.nativeCurrentGeneration() == 0L) root.deleteRecursively() }
+    }
     @Test fun guestClockWritesRaceVmPublication() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val context = instrumentation.targetContext

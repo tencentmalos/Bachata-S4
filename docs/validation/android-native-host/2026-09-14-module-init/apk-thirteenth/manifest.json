@@ -1,0 +1,42 @@
+{
+  "source": "618052703dc1b0a305eebd7424648527174a99ea",
+  "scope": "focused DT_INIT tag presence, existing module lookup, Dlsym and real TMNT boundary; no full regression",
+  "runs": [
+    {
+      "name": "module-lookup",
+      "junit_pass": true,
+      "scope": "synthetic"
+    },
+    {
+      "name": "tmnt",
+      "junit_pass": false,
+      "scope": "boundary observation only"
+    }
+  ],
+  "artifacts": {
+    "android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk": "96eb641031db572e62cc1ef4813101857f13044c65e17e5cc272efd8ef8f5685",
+    "android/shadps4-app/app/build/outputs/apk/androidTest/playstore/debug/app-playstore-debug-androidTest.apk": "7c8e7a77226aaa893e2370d6a89d208082deadb0cb6a42cbf22c95fdf02d15c8",
+    "build/android-host-api33/native/libshadps4_host.so": "434b8ff76a0d0ffacfe8688f044d997a77896b7a36ca3266fa2646ea5467d49d"
+  },
+  "sources": {
+    "tests/guest_cpu/fixtures/runtime_module_lookup.S": "06eabf84bb1e176157c451f2387ba6b693dafecfb8aa40834464d5c364ca6516",
+    "android/shadps4-app/app/build.gradle.kts": "7d556a8d090e5cd73d07c5f9d42518a72f7332e9638c3b88175dc252391df534",
+    "android/shadps4-app/app/src/androidTest/kotlin/com/shadps4/android/ThreadAttributeRuntimeInstrumentedTest.kt": "f355d44f17c3f6f9996c3a3479200ad0f046a6574d73aa80388faf3c9cfaa5a7",
+    "scripts/android/generate-production-runtime-fixture": "4915721281515cf23e46cb3ad02c2078423333bfd2480b86c4886a7289386b31",
+    "src/core/file_sys/fs.cpp": "8b5281f1a54d579cbbc5857651b1d5e9fe54f31ca3ed99e01b6adf74088a6089",
+    "src/core/host_runtime/guest_runtime.cpp": "44d15e44ffba89fec6b77d8613c6d42459ae35fe45ced402b5d910683aef011b",
+    "src/core/module.cpp": "1974227a38a860b3a9d91df7ee131ab97e57183363efbafdaa9ea6e0896352e6",
+    "src/core/module.h": "7585403f00e0ed5f035288aad6aa055bf35d12cb5f8e8e3e700660726e3a86dc"
+  },
+  "identity": "AYN Thor",
+  "libshadps4_host.so": {
+    "sha256": "434b8ff76a0d0ffacfe8688f044d997a77896b7a36ca3266fa2646ea5467d49d",
+    "build_id": "486e0634b21fb9bd64dac2979ba213f7d81d456e"
+  },
+  "libshadps4_fex_session.so": {
+    "sha256": "e7922857b1a168d308ec45216605ec279f98ddbe0e4d4709bc4afe94de4fb115",
+    "build_id": "253444d30ea4b0b7e14571b620fc35808b03e650"
+  },
+  "status": "FAIL",
+  "error": ""
+}

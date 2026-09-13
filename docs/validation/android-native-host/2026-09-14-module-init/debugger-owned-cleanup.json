@@ -1,0 +1,13 @@
+{
+  "session": "544783eacbd24dd59db0e06ff9b9823d",
+  "tool_cleanup_status": "cleanup_incomplete: target died on detach",
+  "exact_target_pid_absent": 23397,
+  "verified_owned_server_cmdline": "/data/user/0/com.shadps4.android/files/spatial-debug/544783eacbd24dd59db0e06ff9b9823d/bin/lldb-server platform --server --listen unix-abstract:///spatial-debug-544783eacbd24dd59db0e06ff9b9823d/platform.sock --log-file /data/user/0/com.shadps4.android/files/spatial-debug/544783eacbd24dd59db0e06ff9b9823d/log/platform.log --log-channels lldb process:gdb-remote packets ",
+  "action": "SIGTERM to exact owned lldb-server 23725 only; no target/system process killed",
+  "target_and_server_absent_after_cleanup": true,
+  "host_debugger_pids_absent": [
+    39102,
+    39103
+  ],
+  "exact_owned_device_directory_removed": "files/spatial-debug/544783eacbd24dd59db0e06ff9b9823d"
+}

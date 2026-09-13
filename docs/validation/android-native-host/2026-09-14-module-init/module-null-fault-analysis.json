@@ -1,0 +1,97 @@
+{
+  "source": "618052703dc1b0a305eebd7424648527174a99ea + module lookup dirty (apk-twelfth manifest)",
+  "session": "544783eacbd24dd59db0e06ff9b9823d",
+  "pid": 23397,
+  "tid": 23844,
+  "stop_epoch": 1,
+  "stop": "InterruptFaultHandler source breakpoint after original SIGSEGV; registers from ucontext, not handler live GPRs",
+  "fex_pin": "385a0cc4d81cd456c8d5c26b4f09cb5a7d8d5842",
+  "jni_build_id": "253444d30ea4b0b7e14571b620fc35808b03e650",
+  "host_build_id": "a62955918ece795f02425f3e35ea3d93076e2283",
+  "fault_address": "0x28",
+  "host_pc": "0x6fa35ddc04",
+  "block_header": "0x6fa35ddbe0",
+  "tail_offset": "0x98",
+  "block_size": "0xd0",
+  "block_guest_rip": "0x1000bd090",
+  "mapped_guest_rip": "0x1000bd09b",
+  "mapping_bytes_hex": "800180033110820010810064",
+  "applied_deltas": [
+    {
+      "host": 4,
+      "guest": 0
+    },
+    {
+      "host": 12,
+      "guest": 0
+    },
+    {
+      "host": 8,
+      "guest": 4
+    },
+    {
+      "host": 4,
+      "guest": 2
+    },
+    {
+      "host": 0,
+      "guest": 2
+    },
+    {
+      "host": 4,
+      "guest": 2
+    },
+    {
+      "host": 0,
+      "guest": 1
+    }
+  ],
+  "next_delta_exceeds_host_pc": {
+    "host": 20,
+    "guest": 7
+  },
+  "host_instruction": "ldaprb w20, [x20]",
+  "guest_instruction": "testb $0x1, 0x28(%rdi)",
+  "guest_rdi_host_x11": "0x0",
+  "guest_rsp_host_x8": "0x1000208e20",
+  "saved_cpu_state_rip": "0x100021920 (stale; not crash RIP)",
+  "module": "modules/libfmod.prx",
+  "module_base": "0x100000000",
+  "caller_return_candidates": [
+    "0x1000bd2c2",
+    "0x1000219d7",
+    "0x7b6484"
+  ],
+  "null_source": "global FMOD object at 0x100446c88, member +0x1a0 is zero",
+  "elf_tags": {
+    "modules/libfmod.prx": {
+      "DT_INIT": 0
+    },
+    "modules/libfmodstudio.prx": {
+      "DT_INIT": 0
+    },
+    "sce_module/libc.prx": {
+      "DT_INIT": 0
+    }
+  },
+  "root_cause": "Module::Start treated init_virtual_addr==0 as missing; skipped present DT_INIT at module base. Original source logs falsely stated DT_INIT completed.",
+  "limits": "No exact guest unwind/flags reconstruction; candidate return addresses are guest frame-chain observations. No inferior helper executed.",
+  "debugger_attempts": [
+    {
+      "session": "71ead8010df5468491182e2a1cb4b872",
+      "result": "host NDK21 LLDB SymbolLocatorDebugSymbols SIGBUS; cleaned"
+    },
+    {
+      "session": "23da7bc4f71142eba0830518251f38c9",
+      "result": "host NDK19 LLDB SymbolLocatorDebugSymbols SIGBUS; cleaned"
+    },
+    {
+      "session": "68e1e591b3044b85a14f95be5a6f2565",
+      "result": "attached but only internal synchronization signals captured; timeout perturbation, not acceptance"
+    },
+    {
+      "session": "544783eacbd24dd59db0e06ff9b9823d",
+      "result": "exact null capture with CodeLLDB1.12.0 + bundled LLDB21.1.7 + NDK21 server; target crashed after detach; exact orphan server cleanup recorded separately"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "source": "618052703dc1b0a305eebd7424648527174a99ea",
+  "scope": "focused sysmodule/DiscMap/file IO and real TMNT boundary; no full regression",
+  "runs": [
+    {
+      "name": "tmnt",
+      "junit_pass": true,
+      "scope": "boundary observation only"
+    }
+  ],
+  "artifacts": {
+    "android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk": "255fa6a008c3a95acea5fffe6c12700011e66db7c1c566dff4b9f2fdf0c8dc6f",
+    "android/shadps4-app/app/build/outputs/apk/androidTest/playstore/debug/app-playstore-debug-androidTest.apk": "6ad0c7270c326b474d94ef0e74f0facf54ba7e9b92dee2b4ec29ecda4cd51e2c",
+    "build/android-host-api33/native/libshadps4_host.so": "1cfb533950c6a8439b924cd51fe8d8f4f2c82d476d43de847ce616a49adde72c"
+  },
+  "sources": {
+    "src/core/host_runtime/guest_runtime.cpp": "da9ec2c4a2783609caca6fd9bc3be01c1960b938e9cc9e2b95c0956dbd2c0d17"
+  },
+  "identity": "AYN Thor",
+  "libshadps4_host.so": {
+    "sha256": "1cfb533950c6a8439b924cd51fe8d8f4f2c82d476d43de847ce616a49adde72c",
+    "build_id": "51d57299b5816fa7a2eee1d27d7afa9f5380cc6a"
+  },
+  "libshadps4_fex_session.so": {
+    "sha256": "e7922857b1a168d308ec45216605ec279f98ddbe0e4d4709bc4afe94de4fb115",
+    "build_id": "253444d30ea4b0b7e14571b620fc35808b03e650"
+  },
+  "status": "FOCUSED_PASS_BOUNDARY_OBSERVED"
+}

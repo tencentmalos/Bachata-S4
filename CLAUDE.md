@@ -6,6 +6,10 @@
 
 ## 当前交接（2026-09-14）
 
+先读[零偏移 DT_INIT、模块复用与线程析构修复](docs/validation/android-native-host/module-init-thread-dtors-2026-09-14.md)。FMOD 空指针根因是把存在但值为0的DT_INIT误当缺失，现已修正；旧“六模块初始化完成”日志不可信。普通APK模块矩阵9轮、析构4轮、完整TMNT同PID3轮越过原崩溃，稳定到sceAjmInitialize/op385，Turnip已就绪但0帧。继续AJM整族的checked batch/解码/会话寿命；动态新模块/TLS卸载仍未完成。网络/SSL不扩展，只做定向测试；FEX/Foundation不变。
+
+## 前一交付（2026-09-14）
+
 先读[离线兼容、条件变量/VM与生产Pad交付](docs/validation/android-native-host/network-condition-pad-integration-2026-09-14.md)。最终TMNT同PID三轮已越过NetInit/SSL/Pad，现为LoadStartModule/op44，仍0帧。定向native network199/0、cond66/0、Pad85/0；APK52-import取消恢复五轮、clock/VM三轮、Pad真实guest三轮均过。**用户最新明确网络和SSL不展开实现，按桌面兼容处理；SSL Init/Term复用已有dummy，不宣称TLS。** 后续直接确认并处理LoadStartModule路径与guest初始化/TLS，不再写spec，不跑全量回归。FEX/Foundation未改；输入从JNI到同一host InputHub再到guest已经过新用例。
 
 ## 前一交付（2026-09-13）

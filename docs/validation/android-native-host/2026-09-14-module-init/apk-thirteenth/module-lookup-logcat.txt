@@ -1,0 +1,118 @@
+--------- beginning of main
+09-14 00:36:03.226 25312 25345 I ProductionRuntime: prepare: reserve guest VA
+09-14 00:36:03.226 25312 25345 I ProductionRuntime: prepare: create FEX context
+09-14 00:36:03.226 25312 25345 I ProductionRuntime: prepare: create production VM/Linker
+09-14 00:36:03.440 25312 25345 I ProductionRuntime: prepare: load/relocate modules
+09-14 00:36:03.441 25312 25345 I ProductionRuntime: prepare: ready
+09-14 00:36:03.441 25312 25345 I ProductionRuntime: run: enter production guest
+09-14 00:36:03.442 25312 25345 I ProductionModule: LoadStartModule existing path=/app0/eboot.bin handle=0
+09-14 00:36:03.442 25312 25345 I ProductionModule: LoadStartModule existing path=/app0/eboot.bin handle=0
+09-14 00:36:03.442 25312 25345 I ProductionModule: LoadStartModule existing path=/app0/fixture_dependency.sprx handle=1
+09-14 00:36:03.442 25312 25345 I ProductionModule: LoadStartModule existing path=/app0/fixture_dependency.sprx handle=1
+09-14 00:36:03.443 25312 25345 I ProductionRuntime: run: guest returned to host
+09-14 00:36:03.443 25312 25342 I ThreadAttributeAcceptance: module-lookup init=zero round=0 outcome=0 page_size=4096 pid=25312 uid=10157 guest return=51966
+09-14 00:36:03.443 25312 25342 I ThreadAttributeAcceptance: production Linker/VM; owners=1 veneers=2 graphics=not-created modules=2
+09-14 00:36:03.446 25312 25347 I ProductionRuntime: prepare: reserve guest VA
+09-14 00:36:03.446 25312 25347 I ProductionRuntime: prepare: create FEX context
+09-14 00:36:03.447 25312 25347 I ProductionRuntime: prepare: create production VM/Linker
+09-14 00:36:03.650 25312 25347 I ProductionRuntime: prepare: load/relocate modules
+09-14 00:36:03.651 25312 25347 I ProductionRuntime: prepare: ready
+09-14 00:36:03.651 25312 25347 I ProductionRuntime: run: enter production guest
+09-14 00:36:03.652 25312 25347 I ProductionModule: LoadStartModule existing path=/app0/eboot.bin handle=0
+09-14 00:36:03.652 25312 25347 I ProductionModule: LoadStartModule existing path=/app0/eboot.bin handle=0
+09-14 00:36:03.653 25312 25347 I ProductionModule: LoadStartModule existing path=/app0/fixture_dependency.sprx handle=1
+09-14 00:36:03.653 25312 25347 I ProductionModule: LoadStartModule existing path=/app0/fixture_dependency.sprx handle=1
+09-14 00:36:03.653 25312 25347 I ProductionRuntime: run: guest returned to host
+09-14 00:36:03.654 25312 25342 I ThreadAttributeAcceptance: module-lookup init=zero round=1 outcome=0 page_size=4096 pid=25312 uid=10157 guest return=51966
+09-14 00:36:03.654 25312 25342 I ThreadAttributeAcceptance: production Linker/VM; owners=1 veneers=2 graphics=not-created modules=2
+09-14 00:36:03.654 25312 25348 I ProductionRuntime: prepare: reserve guest VA
+09-14 00:36:03.654 25312 25348 I ProductionRuntime: prepare: create FEX context
+09-14 00:36:03.654 25312 25348 I ProductionRuntime: prepare: create production VM/Linker
+09-14 00:36:03.858 25312 25348 I ProductionRuntime: prepare: load/relocate modules
+09-14 00:36:03.858 25312 25348 I ProductionRuntime: prepare: ready
+09-14 00:36:03.858 25312 25348 I ProductionRuntime: run: enter production guest
+09-14 00:36:03.859 25312 25348 I ProductionModule: LoadStartModule existing path=/app0/eboot.bin handle=0
+09-14 00:36:03.859 25312 25348 I ProductionModule: LoadStartModule existing path=/app0/eboot.bin handle=0
+09-14 00:36:03.860 25312 25348 I ProductionModule: LoadStartModule existing path=/app0/fixture_dependency.sprx handle=1
+09-14 00:36:03.860 25312 25348 I ProductionModule: LoadStartModule existing path=/app0/fixture_dependency.sprx handle=1
+09-14 00:36:03.860 25312 25348 I ProductionRuntime: run: guest returned to host
+09-14 00:36:03.860 25312 25342 I ThreadAttributeAcceptance: module-lookup init=zero round=2 outcome=0 page_size=4096 pid=25312 uid=10157 guest return=51966
+09-14 00:36:03.860 25312 25342 I ThreadAttributeAcceptance: production Linker/VM; owners=1 veneers=2 graphics=not-created modules=2
+09-14 00:36:03.861 25312 25354 I ProductionRuntime: prepare: reserve guest VA
+09-14 00:36:03.861 25312 25354 I ProductionRuntime: prepare: create FEX context
+09-14 00:36:03.861 25312 25354 I ProductionRuntime: prepare: create production VM/Linker
+09-14 00:36:04.068 25312 25354 I ProductionRuntime: prepare: load/relocate modules
+09-14 00:36:04.070 25312 25354 I ProductionRuntime: prepare: ready
+09-14 00:36:04.070 25312 25354 I ProductionRuntime: run: enter production guest
+09-14 00:36:04.072 25312 25354 I ProductionModule: LoadStartModule existing path=/app0/eboot.bin handle=0
+09-14 00:36:04.072 25312 25354 I ProductionModule: LoadStartModule existing path=/app0/eboot.bin handle=0
+09-14 00:36:04.074 25312 25354 I ProductionModule: LoadStartModule existing path=/app0/fixture_dependency.sprx handle=1
+09-14 00:36:04.075 25312 25354 I ProductionModule: LoadStartModule existing path=/app0/fixture_dependency.sprx handle=1
+09-14 00:36:04.075 25312 25354 I ProductionRuntime: run: guest returned to host
+09-14 00:36:04.079 25312 25342 I ThreadAttributeAcceptance: module-lookup init=nonzero round=0 outcome=0 page_size=4096 pid=25312 uid=10157 guest return=51966
+09-14 00:36:04.079 25312 25342 I ThreadAttributeAcceptance: production Linker/VM; owners=1 veneers=2 graphics=not-created modules=2
+09-14 00:36:04.080 25312 25355 I ProductionRuntime: prepare: reserve guest VA
+09-14 00:36:04.081 25312 25355 I ProductionRuntime: prepare: create FEX context
+09-14 00:36:04.081 25312 25355 I ProductionRuntime: prepare: create production VM/Linker
+09-14 00:36:04.286 25312 25355 I ProductionRuntime: prepare: load/relocate modules
+09-14 00:36:04.289 25312 25355 I ProductionRuntime: prepare: ready
+09-14 00:36:04.289 25312 25355 I ProductionRuntime: run: enter production guest
+09-14 00:36:04.290 25312 25355 I ProductionModule: LoadStartModule existing path=/app0/eboot.bin handle=0
+09-14 00:36:04.291 25312 25355 I ProductionModule: LoadStartModule existing path=/app0/eboot.bin handle=0
+09-14 00:36:04.292 25312 25355 I ProductionModule: LoadStartModule existing path=/app0/fixture_dependency.sprx handle=1
+09-14 00:36:04.293 25312 25355 I ProductionModule: LoadStartModule existing path=/app0/fixture_dependency.sprx handle=1
+09-14 00:36:04.294 25312 25355 I ProductionRuntime: run: guest returned to host
+09-14 00:36:04.295 25312 25342 I ThreadAttributeAcceptance: module-lookup init=nonzero round=1 outcome=0 page_size=4096 pid=25312 uid=10157 guest return=51966
+09-14 00:36:04.295 25312 25342 I ThreadAttributeAcceptance: production Linker/VM; owners=1 veneers=2 graphics=not-created modules=2
+09-14 00:36:04.295 25312 25356 I ProductionRuntime: prepare: reserve guest VA
+09-14 00:36:04.295 25312 25356 I ProductionRuntime: prepare: create FEX context
+09-14 00:36:04.296 25312 25356 I ProductionRuntime: prepare: create production VM/Linker
+09-14 00:36:04.502 25312 25356 I ProductionRuntime: prepare: load/relocate modules
+09-14 00:36:04.505 25312 25356 I ProductionRuntime: prepare: ready
+09-14 00:36:04.505 25312 25356 I ProductionRuntime: run: enter production guest
+09-14 00:36:04.506 25312 25356 I ProductionModule: LoadStartModule existing path=/app0/eboot.bin handle=0
+09-14 00:36:04.507 25312 25356 I ProductionModule: LoadStartModule existing path=/app0/eboot.bin handle=0
+09-14 00:36:04.509 25312 25356 I ProductionModule: LoadStartModule existing path=/app0/fixture_dependency.sprx handle=1
+09-14 00:36:04.509 25312 25356 I ProductionModule: LoadStartModule existing path=/app0/fixture_dependency.sprx handle=1
+09-14 00:36:04.510 25312 25356 I ProductionRuntime: run: guest returned to host
+09-14 00:36:04.511 25312 25342 I ThreadAttributeAcceptance: module-lookup init=nonzero round=2 outcome=0 page_size=4096 pid=25312 uid=10157 guest return=51966
+09-14 00:36:04.511 25312 25342 I ThreadAttributeAcceptance: production Linker/VM; owners=1 veneers=2 graphics=not-created modules=2
+09-14 00:36:04.513 25312 25358 I ProductionRuntime: prepare: reserve guest VA
+09-14 00:36:04.513 25312 25358 I ProductionRuntime: prepare: create FEX context
+09-14 00:36:04.514 25312 25358 I ProductionRuntime: prepare: create production VM/Linker
+09-14 00:36:04.720 25312 25358 I ProductionRuntime: prepare: load/relocate modules
+09-14 00:36:04.722 25312 25358 I ProductionRuntime: prepare: ready
+09-14 00:36:04.723 25312 25358 I ProductionRuntime: run: enter production guest
+09-14 00:36:04.723 25312 25358 I ProductionModule: LoadStartModule existing path=/app0/eboot.bin handle=0
+09-14 00:36:04.724 25312 25358 I ProductionModule: LoadStartModule existing path=/app0/eboot.bin handle=0
+09-14 00:36:04.725 25312 25358 I ProductionModule: LoadStartModule existing path=/app0/fixture_dependency.sprx handle=1
+09-14 00:36:04.726 25312 25358 I ProductionModule: LoadStartModule existing path=/app0/fixture_dependency.sprx handle=1
+09-14 00:36:04.726 25312 25358 I ProductionRuntime: run: guest returned to host
+09-14 00:36:04.727 25312 25342 I ThreadAttributeAcceptance: module-lookup init=absent round=0 outcome=0 page_size=4096 pid=25312 uid=10157 guest return=51966
+09-14 00:36:04.727 25312 25342 I ThreadAttributeAcceptance: production Linker/VM; owners=1 veneers=2 graphics=not-created modules=2
+09-14 00:36:04.728 25312 25359 I ProductionRuntime: prepare: reserve guest VA
+09-14 00:36:04.728 25312 25359 I ProductionRuntime: prepare: create FEX context
+09-14 00:36:04.729 25312 25359 I ProductionRuntime: prepare: create production VM/Linker
+09-14 00:36:04.934 25312 25359 I ProductionRuntime: prepare: load/relocate modules
+09-14 00:36:04.937 25312 25359 I ProductionRuntime: prepare: ready
+09-14 00:36:04.937 25312 25359 I ProductionRuntime: run: enter production guest
+09-14 00:36:04.938 25312 25359 I ProductionModule: LoadStartModule existing path=/app0/eboot.bin handle=0
+09-14 00:36:04.939 25312 25359 I ProductionModule: LoadStartModule existing path=/app0/eboot.bin handle=0
+09-14 00:36:04.940 25312 25359 I ProductionModule: LoadStartModule existing path=/app0/fixture_dependency.sprx handle=1
+09-14 00:36:04.941 25312 25359 I ProductionModule: LoadStartModule existing path=/app0/fixture_dependency.sprx handle=1
+09-14 00:36:04.941 25312 25359 I ProductionRuntime: run: guest returned to host
+09-14 00:36:04.942 25312 25342 I ThreadAttributeAcceptance: module-lookup init=absent round=1 outcome=0 page_size=4096 pid=25312 uid=10157 guest return=51966
+09-14 00:36:04.942 25312 25342 I ThreadAttributeAcceptance: production Linker/VM; owners=1 veneers=2 graphics=not-created modules=2
+09-14 00:36:04.942 25312 25360 I ProductionRuntime: prepare: reserve guest VA
+09-14 00:36:04.942 25312 25360 I ProductionRuntime: prepare: create FEX context
+09-14 00:36:04.943 25312 25360 I ProductionRuntime: prepare: create production VM/Linker
+09-14 00:36:05.149 25312 25360 I ProductionRuntime: prepare: load/relocate modules
+09-14 00:36:05.152 25312 25360 I ProductionRuntime: prepare: ready
+09-14 00:36:05.152 25312 25360 I ProductionRuntime: run: enter production guest
+09-14 00:36:05.153 25312 25360 I ProductionModule: LoadStartModule existing path=/app0/eboot.bin handle=0
+09-14 00:36:05.154 25312 25360 I ProductionModule: LoadStartModule existing path=/app0/eboot.bin handle=0
+09-14 00:36:05.155 25312 25360 I ProductionModule: LoadStartModule existing path=/app0/fixture_dependency.sprx handle=1
+09-14 00:36:05.156 25312 25360 I ProductionModule: LoadStartModule existing path=/app0/fixture_dependency.sprx handle=1
+09-14 00:36:05.156 25312 25360 I ProductionRuntime: run: guest returned to host
+09-14 00:36:05.157 25312 25342 I ThreadAttributeAcceptance: module-lookup init=absent round=2 outcome=0 page_size=4096 pid=25312 uid=10157 guest return=51966
+09-14 00:36:05.157 25312 25342 I ThreadAttributeAcceptance: production Linker/VM; owners=1 veneers=2 graphics=not-created modules=2

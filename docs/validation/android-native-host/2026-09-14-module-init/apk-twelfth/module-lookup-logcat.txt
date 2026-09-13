@@ -1,0 +1,34 @@
+--------- beginning of main
+09-14 00:11:29.964 18375 18404 I ProductionRuntime: prepare: reserve guest VA
+09-14 00:11:29.964 18375 18404 I ProductionRuntime: prepare: create FEX context
+09-14 00:11:29.964 18375 18404 I ProductionRuntime: prepare: create production VM/Linker
+09-14 00:11:30.175 18375 18404 I ProductionRuntime: prepare: load/relocate modules
+09-14 00:11:30.176 18375 18404 I ProductionRuntime: prepare: ready
+09-14 00:11:30.176 18375 18404 I ProductionRuntime: run: enter production guest
+09-14 00:11:30.177 18375 18404 I ProductionModule: LoadStartModule existing path=/app0/eboot.bin handle=0
+09-14 00:11:30.177 18375 18404 I ProductionModule: LoadStartModule existing path=/app0/eboot.bin handle=0
+09-14 00:11:30.177 18375 18404 I ProductionRuntime: run: guest returned to host
+09-14 00:11:30.178 18375 18400 I ThreadAttributeAcceptance: module-lookup round=0 outcome=0 page_size=4096 pid=18375 uid=10157 guest return=51966
+09-14 00:11:30.178 18375 18400 I ThreadAttributeAcceptance: production Linker/VM; owners=1 veneers=2 graphics=not-created modules=1
+09-14 00:11:30.180 18375 18408 I ProductionRuntime: prepare: reserve guest VA
+09-14 00:11:30.180 18375 18408 I ProductionRuntime: prepare: create FEX context
+09-14 00:11:30.181 18375 18408 I ProductionRuntime: prepare: create production VM/Linker
+09-14 00:11:30.384 18375 18408 I ProductionRuntime: prepare: load/relocate modules
+09-14 00:11:30.385 18375 18408 I ProductionRuntime: prepare: ready
+09-14 00:11:30.385 18375 18408 I ProductionRuntime: run: enter production guest
+09-14 00:11:30.386 18375 18408 I ProductionModule: LoadStartModule existing path=/app0/eboot.bin handle=0
+09-14 00:11:30.386 18375 18408 I ProductionModule: LoadStartModule existing path=/app0/eboot.bin handle=0
+09-14 00:11:30.386 18375 18408 I ProductionRuntime: run: guest returned to host
+09-14 00:11:30.387 18375 18400 I ThreadAttributeAcceptance: module-lookup round=1 outcome=0 page_size=4096 pid=18375 uid=10157 guest return=51966
+09-14 00:11:30.387 18375 18400 I ThreadAttributeAcceptance: production Linker/VM; owners=1 veneers=2 graphics=not-created modules=1
+09-14 00:11:30.387 18375 18412 I ProductionRuntime: prepare: reserve guest VA
+09-14 00:11:30.387 18375 18412 I ProductionRuntime: prepare: create FEX context
+09-14 00:11:30.387 18375 18412 I ProductionRuntime: prepare: create production VM/Linker
+09-14 00:11:30.591 18375 18412 I ProductionRuntime: prepare: load/relocate modules
+09-14 00:11:30.593 18375 18412 I ProductionRuntime: prepare: ready
+09-14 00:11:30.593 18375 18412 I ProductionRuntime: run: enter production guest
+09-14 00:11:30.594 18375 18412 I ProductionModule: LoadStartModule existing path=/app0/eboot.bin handle=0
+09-14 00:11:30.595 18375 18412 I ProductionModule: LoadStartModule existing path=/app0/eboot.bin handle=0
+09-14 00:11:30.597 18375 18412 I ProductionRuntime: run: guest returned to host
+09-14 00:11:30.598 18375 18400 I ThreadAttributeAcceptance: module-lookup round=2 outcome=0 page_size=4096 pid=18375 uid=10157 guest return=51966
+09-14 00:11:30.598 18375 18400 I ThreadAttributeAcceptance: production Linker/VM; owners=1 veneers=2 graphics=not-created modules=1

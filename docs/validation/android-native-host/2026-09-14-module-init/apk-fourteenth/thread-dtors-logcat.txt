@@ -1,0 +1,37 @@
+--------- beginning of main
+09-14 00:41:22.846 26225 26266 I ProductionRuntime: prepare: reserve guest VA
+09-14 00:41:22.846 26225 26266 I ProductionRuntime: prepare: create FEX context
+09-14 00:41:22.847 26225 26266 I ProductionRuntime: prepare: create production VM/Linker
+09-14 00:41:23.058 26225 26266 I ProductionRuntime: prepare: load/relocate modules
+09-14 00:41:23.059 26225 26266 I ProductionRuntime: prepare: ready
+09-14 00:41:23.059 26225 26266 I ProductionRuntime: run: enter production guest
+09-14 00:41:23.062 26225 26266 I ProductionRuntime: run: guest returned to host
+09-14 00:41:23.063 26225 26258 I ThreadDtorAcceptance: round=0 case=thread-dtors outcome=0 page_size=4096 pid=26225 uid=10157 guest return=51966
+09-14 00:41:23.063 26225 26258 I ThreadDtorAcceptance: production Linker/VM; owners=3 veneers=8 graphics=not-created modules=1
+09-14 00:41:23.066 26225 26274 I ProductionRuntime: prepare: reserve guest VA
+09-14 00:41:23.066 26225 26274 I ProductionRuntime: prepare: create FEX context
+09-14 00:41:23.066 26225 26274 I ProductionRuntime: prepare: create production VM/Linker
+09-14 00:41:23.271 26225 26274 I ProductionRuntime: prepare: load/relocate modules
+09-14 00:41:23.275 26225 26274 I ProductionRuntime: prepare: ready
+09-14 00:41:23.275 26225 26274 I ProductionRuntime: run: enter production guest
+09-14 00:41:23.284 26225 26274 I ProductionRuntime: run: guest returned to host
+09-14 00:41:23.284 26225 26258 I ThreadDtorAcceptance: round=1 case=thread-dtors outcome=0 page_size=4096 pid=26225 uid=10157 guest return=51966
+09-14 00:41:23.284 26225 26258 I ThreadDtorAcceptance: production Linker/VM; owners=3 veneers=8 graphics=not-created modules=1
+09-14 00:41:23.285 26225 26278 I ProductionRuntime: prepare: reserve guest VA
+09-14 00:41:23.285 26225 26278 I ProductionRuntime: prepare: create FEX context
+09-14 00:41:23.286 26225 26278 I ProductionRuntime: prepare: create production VM/Linker
+09-14 00:41:23.492 26225 26278 I ProductionRuntime: prepare: load/relocate modules
+09-14 00:41:23.498 26225 26278 I ProductionRuntime: prepare: ready
+09-14 00:41:23.498 26225 26278 I ProductionRuntime: run: enter production guest
+09-14 00:41:23.499 26225 26278 I ProductionRuntime: run: guest returned to host
+09-14 00:41:23.500 26225 26258 I ThreadDtorAcceptance: round=2 case=thread-dtors-bad outcome=2 page_size=4096 pid=26225 uid=10157 guest return=1 guest_rip=103079215117 operation=1 import=rNhWz+lvOMU#libkernel#1#libkernel#Function context=9 thread=1 generation=10 invocation=1 category=1
+09-14 00:41:23.500 26225 26258 I ThreadDtorAcceptance: production Linker/VM; owners=1 veneers=8 graphics=not-created modules=1
+09-14 00:41:23.502 26225 26281 I ProductionRuntime: prepare: reserve guest VA
+09-14 00:41:23.502 26225 26281 I ProductionRuntime: prepare: create FEX context
+09-14 00:41:23.503 26225 26281 I ProductionRuntime: prepare: create production VM/Linker
+09-14 00:41:23.707 26225 26281 I ProductionRuntime: prepare: load/relocate modules
+09-14 00:41:23.711 26225 26281 I ProductionRuntime: prepare: ready
+09-14 00:41:23.711 26225 26281 I ProductionRuntime: run: enter production guest
+09-14 00:41:23.714 26225 26281 I ProductionRuntime: run: guest returned to host
+09-14 00:41:23.715 26225 26258 I ThreadDtorAcceptance: round=3 case=thread-dtors outcome=0 page_size=4096 pid=26225 uid=10157 guest return=51966
+09-14 00:41:23.715 26225 26258 I ThreadDtorAcceptance: production Linker/VM; owners=3 veneers=8 graphics=not-created modules=1

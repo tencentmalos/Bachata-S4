@@ -1,0 +1,64 @@
+--------- beginning of main
+09-14 00:11:30.175 18375 18404 I ProductionRuntime: prepare: load/relocate modules
+09-14 00:11:30.176 18375 18404 I ProductionRuntime: prepare: ready
+09-14 00:11:30.176 18375 18404 I ProductionRuntime: run: enter production guest
+09-14 00:11:30.177 18375 18404 I ProductionModule: LoadStartModule existing path=/app0/eboot.bin handle=0
+09-14 00:11:30.177 18375 18404 I ProductionModule: LoadStartModule existing path=/app0/eboot.bin handle=0
+09-14 00:11:30.177 18375 18404 I ProductionRuntime: run: guest returned to host
+09-14 00:11:30.178 18375 18400 I ThreadAttributeAcceptance: module-lookup round=0 outcome=0 page_size=4096 pid=18375 uid=10157 guest return=51966
+09-14 00:11:30.178 18375 18400 I ThreadAttributeAcceptance: production Linker/VM; owners=1 veneers=2 graphics=not-created modules=1
+09-14 00:11:30.180 18375 18408 I ProductionRuntime: prepare: reserve guest VA
+09-14 00:11:30.180 18375 18408 I ProductionRuntime: prepare: create FEX context
+09-14 00:11:30.181 18375 18408 I ProductionRuntime: prepare: create production VM/Linker
+09-14 00:11:30.384 18375 18408 I ProductionRuntime: prepare: load/relocate modules
+09-14 00:11:30.385 18375 18408 I ProductionRuntime: prepare: ready
+09-14 00:11:30.385 18375 18408 I ProductionRuntime: run: enter production guest
+09-14 00:11:30.386 18375 18408 I ProductionModule: LoadStartModule existing path=/app0/eboot.bin handle=0
+09-14 00:11:30.386 18375 18408 I ProductionModule: LoadStartModule existing path=/app0/eboot.bin handle=0
+09-14 00:11:30.386 18375 18408 I ProductionRuntime: run: guest returned to host
+09-14 00:11:30.387 18375 18400 I ThreadAttributeAcceptance: module-lookup round=1 outcome=0 page_size=4096 pid=18375 uid=10157 guest return=51966
+09-14 00:11:30.387 18375 18400 I ThreadAttributeAcceptance: production Linker/VM; owners=1 veneers=2 graphics=not-created modules=1
+09-14 00:11:30.387 18375 18412 I ProductionRuntime: prepare: reserve guest VA
+09-14 00:11:30.387 18375 18412 I ProductionRuntime: prepare: create FEX context
+09-14 00:11:30.387 18375 18412 I ProductionRuntime: prepare: create production VM/Linker
+09-14 00:11:30.591 18375 18412 I ProductionRuntime: prepare: load/relocate modules
+09-14 00:11:30.593 18375 18412 I ProductionRuntime: prepare: ready
+09-14 00:11:30.593 18375 18412 I ProductionRuntime: run: enter production guest
+09-14 00:11:30.594 18375 18412 I ProductionModule: LoadStartModule existing path=/app0/eboot.bin handle=0
+09-14 00:11:30.595 18375 18412 I ProductionModule: LoadStartModule existing path=/app0/eboot.bin handle=0
+09-14 00:11:30.597 18375 18412 I ProductionRuntime: run: guest returned to host
+09-14 00:11:30.598 18375 18400 I ThreadAttributeAcceptance: module-lookup round=2 outcome=0 page_size=4096 pid=18375 uid=10157 guest return=51966
+09-14 00:11:30.598 18375 18400 I ThreadAttributeAcceptance: production Linker/VM; owners=1 veneers=2 graphics=not-created modules=1
+09-14 00:11:31.732 18459 18513 I ProductionRuntime: prepare: reserve guest VA
+09-14 00:11:31.732 18459 18513 I ProductionRuntime: prepare: create FEX context
+09-14 00:11:31.732 18459 18513 I ProductionRuntime: prepare: create production VM/Linker
+09-14 00:11:32.002 18459 18513 I ProductionRuntime: prepare: load/relocate modules
+09-14 00:11:32.177 18459 18513 I ProductionRuntime: prepare: ready
+09-14 00:11:32.207 18459 18513 I ProductionRuntime: run: enter production guest
+09-14 00:11:37.517 18459 18513 I ProductionModule: LoadStartModule existing path=/app0/modules/libfmod.prx handle=1
+09-14 00:11:37.517 18459 18513 I ProductionModule: LoadStartModule existing path=/app0/modules/libfmodstudio.prx handle=4
+--------- beginning of crash
+09-14 00:11:37.874 18589 18589 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+09-14 00:11:37.874 18589 18589 F DEBUG   : Build fingerprint: 'qti/kalama/kalama:13/TKQ1.231222.001/eng.Thor.20260206.163241:user/release-keys'
+09-14 00:11:37.874 18589 18589 F DEBUG   : Revision: '0'
+09-14 00:11:37.874 18589 18589 F DEBUG   : ABI: 'arm64'
+09-14 00:11:37.874 18589 18589 F DEBUG   : Timestamp: 2026-09-14 00:11:37.619404078+0800
+09-14 00:11:37.874 18589 18589 F DEBUG   : Process uptime: 7s
+09-14 00:11:37.874 18589 18589 F DEBUG   : Cmdline: com.shadps4.android
+09-14 00:11:37.874 18589 18589 F DEBUG   : pid: 18459, tid: 18513, name: roidJUnitRunner  >>> com.shadps4.android <<<
+09-14 00:11:37.874 18589 18589 F DEBUG   : uid: 10157
+09-14 00:11:37.874 18589 18589 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+09-14 00:11:37.874 18589 18589 F DEBUG   : pac_enabled_keys: 000000000000000f (PR_PAC_APIAKEY, PR_PAC_APIBKEY, PR_PAC_APDAKEY, PR_PAC_APDBKEY)
+09-14 00:11:37.874 18589 18589 F DEBUG   : signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x0000000000000028
+09-14 00:11:37.874 18589 18589 F DEBUG   : Cause: null pointer dereference
+09-14 00:11:37.874 18589 18589 F DEBUG   :     x0  00000077942f43e0  x1  0000000000000000  x2  0000007010150080  x3  00000070101500a0
+09-14 00:11:37.874 18589 18589 F DEBUG   :     x4  000000000000001f  x5  0000000003700000  x6  0000000000000000  x7  0000000000000004
+09-14 00:11:37.874 18589 18589 F DEBUG   :     x8  0000001000208e20  x9  0000001000208e40  x10 0000000224bcc120  x11 0000000000000000
+09-14 00:11:37.874 18589 18589 F DEBUG   :     x12 0000000000000000  x13 0000000003700000  x14 0000000100446c88  x15 0000000000000256
+09-14 00:11:37.874 18589 18589 F DEBUG   :     x16 0000000000000000  x17 0000000000000004  x18 000000022aa01920  x19 0000000003700000
+09-14 00:11:37.874 18589 18589 F DEBUG   :     x20 0000000000000028  x21 000000778da2b6c0  x22 000000778da29d78  x23 000000002a9e5220
+09-14 00:11:37.874 18589 18589 F DEBUG   :     x24 00000003b67b2088  x25 00000074328affa0  x26 0000000000000000  x27 0000000003700000
+09-14 00:11:37.874 18589 18589 F DEBUG   :     x28 0000007450004140  x29 0000000224bcc120
+09-14 00:11:37.874 18589 18589 F DEBUG   :     lr  0000007b3b7e9158  sp  000000778da29be0  pc  00000077942f4404  pst 0000000060001000
+09-14 00:11:37.874 18589 18589 F DEBUG   : backtrace:
+09-14 00:11:37.874 18589 18589 F DEBUG   :       #00 pc 00000000000d5404  [anon:FEXMemJIT]

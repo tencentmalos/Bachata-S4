@@ -1,0 +1,263 @@
+diff --git a/src/core/file_sys/fs.cpp b/src/core/file_sys/fs.cpp
+index bb24e0f8..627f1680 100644
+--- a/src/core/file_sys/fs.cpp
++++ b/src/core/file_sys/fs.cpp
+@@ -270,7 +270,8 @@ std::filesystem::path MntPoints::GetHostPath(std::string_view path, bool* is_rea
+     if (path.length() > 255)
+         return "";
+ 
+-    const auto* mount = GetMount(corrected_path);
++    // Keep the mount and its backends alive while another HLE updates the table.
++    const auto mount = GetMountSnapshot(corrected_path);
+     if (!mount) {
+         return "";
+     }
+diff --git a/src/core/host_runtime/guest_runtime.cpp b/src/core/host_runtime/guest_runtime.cpp
+index fec495b5..eb310f58 100644
+--- a/src/core/host_runtime/guest_runtime.cpp
++++ b/src/core/host_runtime/guest_runtime.cpp
+@@ -218,6 +218,11 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
+         u64 sequence{}, destructor{};
+     };
+     std::array<SpecificKey, 256> specific_keys{};
++    // libkernel's libc destructor hook is per runtime; its value is a guest PC.
++    std::atomic<u64> thread_dtors{};
++    // Optional libc reporting callbacks. Desktop leaves these unused; retain
++    // their full guest addresses without installing native function pointers.
++    std::array<std::atomic<u64>, 2> thread_atexit_reports{};
+     struct Owner {
+         u64 id{}, stack{}, stack_size{}, tls{}, tls_size{}, tcb{}, dtv{}, handle_va{};
+         GuestThreadAttributes attributes{};
+@@ -228,7 +233,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
+         std::thread worker;
+         std::optional<GuestCallResult> result;
+         std::optional<Error> error;
+-        bool started{}, finished{}, joined{}, detached{};
++        bool started{}, finished{}, joined{}, detached{}, destructors_started{};
+     };
+     std::map<u64, std::shared_ptr<Owner>> owners;
+     u64 next_id{1};
+@@ -638,8 +643,24 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
+         // Guest destructors run through the same callback gate, without the key
+         // lock or a guest pin. Values are cleared before invocation; a destructor
+         // may repopulate them, up to the Orbis four-pass bound.
+-        if (o->result && o->result->reason == StopReason::Returned && !cancelling) {
++        if (o->result && o->result->reason == StopReason::Returned && !cancelling &&
++            !o->destructors_started) {
++            o->destructors_started = true;
+             bool stopped{};
++            // Desktop pthread_exit calls the libc hook before key destructors,
++            // while this owner's TLS is still installed. Never call an x86 PC
++            // natively, or keep a registry/VM lock across the callback.
++            if (const u64 entry = thread_dtors.load(std::memory_order_acquire)) {
++                auto result = Call(entry, {});
++                if (!result) {
++                    o->error = result.GetError();
++                    stopped = true;
++                } else if (result.Value().reason != StopReason::Returned) {
++                    o->result = result.Value();
++                    stopped = true;
++                }
++                if (stopped) (void)Cancel();
++            }
+             for (unsigned pass = 0; pass < 4 && !stopped; ++pass) {
+                 for (size_t i = 0; i < specific_keys.size(); ++i) {
+                     u64 value{}, destructor{};
+@@ -1238,7 +1259,8 @@ void GuestRuntime::Impl::InstallHandlers() {
+     });
+     bind({"9BcDykPmo1I"}, [this](const auto&) -> u64 { return ErrnoAddress(); });
+     // No guest AddressSanitizer runtime or shadow mapping in this profile.
+-    bind({"jh+8XiK4LeE"}, [](const auto&) -> u64 { return 0; });
++    bind({"jh+8XiK4LeE", "bnZxYgAFeA0", "py6L8jiVAN8"},
++         [](const auto&) -> u64 { return 0; });
+     // Match the emulator's virtual process identity (GLOBAL_PID), not Android PID.
+     bind({"HoLVWNanBBc"}, [](const auto&) -> u64 { return 0xBAD1; });
+     bind({"3PtV6p3QNX4"}, [](const auto& a) -> u64 { return a[0] == a[1]; });
+@@ -1393,12 +1415,128 @@ void GuestRuntime::Impl::InstallHandlers() {
+         args[1] = 0;
+         return gettimeofday(args, true);
+     });
+-    bind({"FJrT5LuUBAU", "3kg7rT0NQIs"}, [](const auto& a) -> u64 {
++    handlers["rNhWz+lvOMU"] = [this](HleCallFrame& frame) -> Status {
++        const u64 entry = frame.registers.Get(Gpr::Rdi);
++        std::lock_guard vm(vm_mutex);
++        if (entry) {
++            auto valid = space.ValidateRange({GuestAddress{entry}, 1}, GuestPermission::Execute);
++            if (!valid) return valid;
++        }
++        thread_dtors.store(entry, std::memory_order_release);
++        frame.registers.Set(Gpr::Rax, 0); // desktop ABI is void
++        return Ok();
++    };
++    for (auto [nid, index] : {std::pair{"pB-yGZ2nQ9o", 0},
++                              std::pair{"WhCc1w3EhSI", 1}}) {
++        handlers[nid] = [this, index](HleCallFrame& frame) -> Status {
++            const u64 entry = frame.registers.Get(Gpr::Rdi);
++            std::lock_guard vm(vm_mutex);
++            if (entry) {
++                auto valid = space.ValidateRange({GuestAddress{entry}, 1}, GuestPermission::Execute);
++                if (!valid) return valid;
++            }
++            // libc supplies function pointers here (not the s32 scalars used
++            // by the older ARM64 reference stubs). No reporting consumer exists
++            // in desktop or this runtime; module unloading remains unsupported.
++            thread_atexit_reports[index].store(entry, std::memory_order_release);
++            frame.registers.Set(Gpr::Rax, 0);
++            return Ok();
++        };
++    }
++    bind({"FJrT5LuUBAU", "3kg7rT0NQIs"}, [this](const auto& a) -> u64 {
++        if (Current()->destructors_started)
++            throw std::logic_error("pthread_exit from a thread destructor");
+         HleScope::Current()->ExitThread(a[0]);
+         return a[0];
+     });
+     bind({"EotR8a3ASf4", "aI+OeCz8xrQ"},
+          [this](const auto&) -> u64 { return Current()->handle_va; });
++    // Desktop LoadAndStartModule returns the original handle immediately when
++    // a module is already loaded; neither DT_INIT nor pRes is touched again.
++    // Resolve only through guest mounts. Never pass an untrusted absolute guest
++    // path to Linker's host-filesystem fallback.
++    handlers["wzvqT4UqKX8"] = [this](HleCallFrame& frame) -> Status {
++        // This branch only looks up existing modules; no guest callback or VM
++        // mutation occurs under the short read/validation gate.
++        std::lock_guard vm(vm_mutex);
++        std::array<u64, 6> a{};
++        for (size_t i = 0; i < a.size(); ++i) a[i] = frame.registers.Get(kSysVIntegerOrder[i]);
++        auto finish = [&](s32 code) -> Status {
++            frame.registers.Set(Gpr::Rax, u32(code));
++            return Ok();
++        };
++        if (a[3] || a[4] || a[1] > 16 * 1024 * 1024)
++            return finish(ORBIS_KERNEL_ERROR_EINVAL);
++        if ((a[1] && !space.ValidateRange({GuestAddress{a[2]}, a[1]}, GuestPermission::Read)) ||
++            (a[5] && !space.ValidateRange({GuestAddress{a[5]}, 4}, GuestPermission::Write)))
++            return finish(ORBIS_KERNEL_ERROR_EFAULT);
++        std::string name;
++        for (u64 i = 0;; ++i) {
++            char c{};
++            if (!a[0] || a[0] > UINT64_MAX - i ||
++                !space.Read(GuestAddress{a[0] + i}, std::as_writable_bytes(std::span{&c, 1})))
++                return finish(ORBIS_KERNEL_ERROR_EFAULT);
++            if (!c) break;
++            if (i >= 1023) return finish(ORBIS_KERNEL_ERROR_ENAMETOOLONG);
++            name += c;
++        }
++        if (name.empty()) return finish(ORBIS_KERNEL_ERROR_ENOENT);
++        std::filesystem::path path(name);
++        for (const auto& part : path)
++            if (part == "..") return finish(ORBIS_KERNEL_ERROR_EACCES);
++        if (!path.is_absolute()) path = std::filesystem::path("/app0") / path;
++        const auto guest = path.lexically_normal().generic_string();
++        if (guest.size() > 255) return finish(ORBIS_KERNEL_ERROR_ENAMETOOLONG);
++        const auto mount = mounts.GetMountSnapshot(guest);
++        if (!mount) return finish(ORBIS_KERNEL_ERROR_ENOENT);
++        std::error_code ec;
++        const auto root = std::filesystem::weakly_canonical(mount->host_path, ec);
++        if (ec) return finish(ORBIS_KERNEL_ERROR_EIO);
++        const auto candidate = std::filesystem::weakly_canonical(mounts.GetHostPath(guest), ec);
++        if (ec) return finish(ORBIS_KERNEL_ERROR_EIO);
++        const auto relative = candidate.lexically_relative(root);
++        if (relative.empty() || *relative.begin() == "..") return finish(ORBIS_KERNEL_ERROR_EACCES);
++        for (s32 id = 0; auto* module = linker->GetModule(id); ++id) {
++            if (std::filesystem::weakly_canonical(module->file, ec) == candidate && !ec) {
++#if defined(__ANDROID__)
++                __android_log_print(ANDROID_LOG_INFO, "ProductionModule", "LoadStartModule existing path=%s handle=%d", guest.c_str(), id);
++#endif
++                return finish(id);
++            }
++        }
++        if (!std::filesystem::exists(candidate, ec))
++            return finish(ec ? ORBIS_KERNEL_ERROR_EIO : ORBIS_KERNEL_ERROR_ENOENT);
++        if (!std::filesystem::is_regular_file(candidate, ec))
++            return finish(ec ? ORBIS_KERNEL_ERROR_EIO : ORBIS_KERNEL_ERROR_EACCES);
++#if defined(__ANDROID__)
++        __android_log_print(ANDROID_LOG_INFO, "ProductionModule", "LoadStartModule new path=%s args=%llu", guest.c_str(), (unsigned long long)a[1]);
++#endif
++        // Static TLS is already installed on live owners. Do not map/relocate a
++        // new provider and pretend its dynamic TLS/initializer lifetime is ready.
++        return MakeError(ErrorCategory::Unsupported, "LoadStartModule", "new guest module requires dynamic loading: " + guest);
++    };
++    bind({"LwG8g3niqwA"}, [this](const auto& a) -> u64 {
++        auto* module = linker->GetModule(s32(a[0]));
++        if (!module) return u32(ORBIS_KERNEL_ERROR_ESRCH);
++        std::lock_guard vm(vm_mutex);
++        if (!space.ValidateRange({GuestAddress{a[2]}, 8}, GuestPermission::Write))
++            return u32(ORBIS_KERNEL_ERROR_EFAULT);
++        std::string name;
++        for (u64 i = 0;; ++i) {
++            char c{};
++            if (!a[1] || a[1] > UINT64_MAX - i ||
++                !space.Read(GuestAddress{a[1] + i}, std::as_writable_bytes(std::span{&c, 1})))
++                return u32(ORBIS_KERNEL_ERROR_EFAULT);
++            if (!c) break;
++            if (i >= 1023) return u32(ORBIS_KERNEL_ERROR_ENAMETOOLONG);
++            name += c;
++        }
++        const u64 address = reinterpret_cast<u64>(module->FindByName(name));
++        if (address && !space.ValidateRange({GuestAddress{address}, 1}, GuestPermission::Read))
++            return u32(ORBIS_KERNEL_ERROR_EFAULT);
++        Write(a[2], address); // guest export (or null), never HLE/native host lookup
++        return address ? 0 : u32(ORBIS_KERNEL_ERROR_ESRCH);
++    });
+     bind({"vNe1w4diLCs"}, [this](const auto& a) -> u64 {
+         struct Index {
+             u64 module, offset;
+@@ -2310,7 +2448,8 @@ Result<GuestCallResult> GuestRuntime::Run(const std::vector<std::string>& args)
+             auto* m = impl->linker->GetModule(id);
+             if (m->Start(0, nullptr, nullptr) != 0)
+                 throw std::runtime_error("module initialization failed: " + m->name);
+-            LOG_INFO(Core_Linker, "Guest DT_INIT completed: {}", m->name);
++            LOG_INFO(Core_Linker, "Guest module {}: {}", m->name,
++                     m->dynamic_info.has_init ? "DT_INIT completed" : "no DT_INIT");
+             impl->sysmodules.Publish(std::filesystem::path(m->name).stem().string(),
+                                      static_cast<s32>(id));
+         }
+diff --git a/src/core/module.cpp b/src/core/module.cpp
+index e770026d..7d86e9c3 100644
+--- a/src/core/module.cpp
++++ b/src/core/module.cpp
+@@ -108,10 +108,10 @@ Module::Module(Core::MemoryManager* memory_, const std::filesystem::path& file_,
+ Module::~Module() = default;
+ 
+ s32 Module::Start(u64 args, const void* argp, void* param) {
++    if (!dynamic_info.has_init)
++        return 0;
+     LOG_INFO(Core_Linker, "Module started : {}", name);
+     const VAddr addr = dynamic_info.init_virtual_addr + GetBaseAddress();
+-    if (!dynamic_info.init_virtual_addr)
+-        return 0;
+     if (memory->IsGuestBackend()) {
+         if (!memory->guest_call)
+             throw std::logic_error("guest callback is not bound");
+@@ -478,6 +478,7 @@ void Module::LoadDynamicInfo() {
+             dynamic_info.symbol_table_total_size = dyn->d_un.d_val;
+             break;
+         case DT_INIT:
++            dynamic_info.has_init = true;
+             dynamic_info.init_virtual_addr = dyn->d_un.d_ptr;
+             break;
+         case DT_FINI:
+@@ -693,7 +694,7 @@ OrbisKernelModuleInfoEx Module::GetModuleInfoEx() const {
+         .tls_size = tls.image_size,
+         .tls_offset = tls.offset,
+         .tls_align = tls.align,
+-        .init_proc_addr = base_virtual_addr + dynamic_info.init_virtual_addr,
++        .init_proc_addr = dynamic_info.has_init ? base_virtual_addr + dynamic_info.init_virtual_addr : 0,
+         .fini_proc_addr = base_virtual_addr + dynamic_info.fini_virtual_addr,
+         .eh_frame_hdr_addr = base_virtual_addr + eh_frame_hdr_addr,
+         .eh_frame_addr = base_virtual_addr + eh_frame_addr,
+diff --git a/src/core/module.h b/src/core/module.h
+index 6cc31c9a..4be2a92e 100644
+--- a/src/core/module.h
++++ b/src/core/module.h
+@@ -105,6 +105,9 @@ struct DynamicModuleInfo {
+     u64 symbol_table_total_size = 0;
+     u64 symbol_table_entries_size = 0;
+ 
++    // DT_INIT is a load-relative address: zero is a valid entry at the module base.
++    // Keep tag presence separately from its value.
++    bool has_init = false;
+     u64 init_virtual_addr = 0;
+     u64 fini_virtual_addr = 0;
+     u64 pltgot_virtual_addr = 0;

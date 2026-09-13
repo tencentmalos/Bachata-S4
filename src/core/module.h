@@ -105,6 +105,9 @@ struct DynamicModuleInfo {
     u64 symbol_table_total_size = 0;
     u64 symbol_table_entries_size = 0;
 
+    // DT_INIT is a load-relative address: zero is a valid entry at the module base.
+    // Keep tag presence separately from its value.
+    bool has_init = false;
     u64 init_virtual_addr = 0;
     u64 fini_virtual_addr = 0;
     u64 pltgot_virtual_addr = 0;

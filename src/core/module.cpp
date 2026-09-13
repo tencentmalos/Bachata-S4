@@ -108,10 +108,10 @@ Module::Module(Core::MemoryManager* memory_, const std::filesystem::path& file_,
 Module::~Module() = default;
 
 s32 Module::Start(u64 args, const void* argp, void* param) {
+    if (!dynamic_info.has_init)
+        return 0;
     LOG_INFO(Core_Linker, "Module started : {}", name);
     const VAddr addr = dynamic_info.init_virtual_addr + GetBaseAddress();
-    if (!dynamic_info.init_virtual_addr)
-        return 0;
     if (memory->IsGuestBackend()) {
         if (!memory->guest_call)
             throw std::logic_error("guest callback is not bound");
@@ -478,6 +478,7 @@ void Module::LoadDynamicInfo() {
             dynamic_info.symbol_table_total_size = dyn->d_un.d_val;
             break;
         case DT_INIT:
+            dynamic_info.has_init = true;
             dynamic_info.init_virtual_addr = dyn->d_un.d_ptr;
             break;
         case DT_FINI:
@@ -693,7 +694,7 @@ OrbisKernelModuleInfoEx Module::GetModuleInfoEx() const {
         .tls_size = tls.image_size,
         .tls_offset = tls.offset,
         .tls_align = tls.align,
-        .init_proc_addr = base_virtual_addr + dynamic_info.init_virtual_addr,
+        .init_proc_addr = dynamic_info.has_init ? base_virtual_addr + dynamic_info.init_virtual_addr : 0,
         .fini_proc_addr = base_virtual_addr + dynamic_info.fini_virtual_addr,
         .eh_frame_hdr_addr = base_virtual_addr + eh_frame_hdr_addr,
         .eh_frame_addr = base_virtual_addr + eh_frame_addr,

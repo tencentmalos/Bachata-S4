@@ -1,0 +1,2 @@
+Full retained, redacted debugger journal: /Users/bytedance/Library/Application Support/spatial_debug_tool/android-native-debugger/exports/shadps4-module-null-2026-09-14-cleanup
+Raw capture remains outside Git; selected derived facts are ../module-null-fault-analysis.json.

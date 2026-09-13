@@ -1,0 +1,40 @@
+{
+  "source": "618052703dc1b0a305eebd7424648527174a99ea",
+  "scope": "focused sysmodule/DiscMap/file IO and real TMNT boundary; no full regression",
+  "runs": [
+    {
+      "name": "module-lookup",
+      "junit_pass": true,
+      "scope": "synthetic"
+    },
+    {
+      "name": "tmnt",
+      "junit_pass": false,
+      "scope": "boundary observation only"
+    }
+  ],
+  "artifacts": {
+    "android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk": "2bd7dca429387e93d76255e3877dd04458583bbdb5af3c653f7b6b8b2c64678d",
+    "android/shadps4-app/app/build/outputs/apk/androidTest/playstore/debug/app-playstore-debug-androidTest.apk": "cf3b05cac911c56c301b417e43ffbc1e325ebb27705c305a9cbf1d18abe59f89",
+    "build/android-host-api33/native/libshadps4_host.so": "e1d7021981eef9acfd4b40502905107d692dc8d1e091db01a5e21bb18dda7442"
+  },
+  "sources": {
+    "tests/guest_cpu/fixtures/runtime_module_lookup.S": "6f236a5b6fc314c0a11fb4ff951c401c37da598c94cb4b8d307914be3985cfc6",
+    "android/shadps4-app/app/build.gradle.kts": "fe5c0076e9184e28147c74bdb4bf1ca59bddb68b867a5b5153588aab8639054f",
+    "android/shadps4-app/app/src/androidTest/kotlin/com/shadps4/android/ThreadAttributeRuntimeInstrumentedTest.kt": "1f19d6c8b9cb58e5fa4316b74dac50ee1cafcdcd0b39aa0544fddb91080d6c0b",
+    "scripts/android/generate-production-runtime-fixture": "3604ec45c203f8f229bcef633640323ac3d4091d148e112d917155ab31510b19",
+    "src/core/file_sys/fs.cpp": "8b5281f1a54d579cbbc5857651b1d5e9fe54f31ca3ed99e01b6adf74088a6089",
+    "src/core/host_runtime/guest_runtime.cpp": "a5ac9d346d45aaf0331aba27e9ee2a223e4f91aacc4e57d9108c92bdf19bc1d8"
+  },
+  "identity": "AYN Thor",
+  "libshadps4_host.so": {
+    "sha256": "e1d7021981eef9acfd4b40502905107d692dc8d1e091db01a5e21bb18dda7442",
+    "build_id": "a62955918ece795f02425f3e35ea3d93076e2283"
+  },
+  "libshadps4_fex_session.so": {
+    "sha256": "e7922857b1a168d308ec45216605ec279f98ddbe0e4d4709bc4afe94de4fb115",
+    "build_id": "253444d30ea4b0b7e14571b620fc35808b03e650"
+  },
+  "status": "FAIL",
+  "error": ""
+}

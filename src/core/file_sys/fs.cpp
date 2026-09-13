@@ -270,7 +270,8 @@ std::filesystem::path MntPoints::GetHostPath(std::string_view path, bool* is_rea
     if (path.length() > 255)
         return "";
 
-    const auto* mount = GetMount(corrected_path);
+    // Keep the mount and its backends alive while another HLE updates the table.
+    const auto mount = GetMountSnapshot(corrected_path);
     if (!mount) {
         return "";
     }
