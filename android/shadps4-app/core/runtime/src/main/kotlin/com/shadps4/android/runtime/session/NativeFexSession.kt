@@ -1,11 +1,11 @@
 package com.shadps4.android.runtime.session
 
 /**
- * JNI bridge to libshadps4_fex_session.so — the in-process FEX "smoke session".
+ * JNI bridge to libshadps4_fex_session.so and the native ARM64 host services.
  *
- * This drives the same guest_cpu_fex backend the CLI / fex-validation app use, inside this normal
- * app process. It runs a bounded x86-64 loop as proof the CPU backend is live; it does NOT run a
- * real PS4 game (the Android host is not yet native). See docs/specs/android-native-host-v1.md.
+ * The production path executes PS4 guest code through FEX and the host Module/Linker/VM/HLE
+ * runtime. Rendered sessions require a live Surface and verified bionic Turnip. Game compatibility
+ * is reported by actual terminal outcomes; nativeStart remains the explicit CPU smoke entry.
  *
  * All lifecycle logic lives in the native SessionCore (src/core/host_runtime), which is unit-tested
  * on the host. This object is a typed wrapper: every call is generation-scoped, and the native side
@@ -27,6 +27,10 @@ object NativeFexSession {
 
     /** Start the production Module/Linker/VM/FEX runtime for installed content. */
     external fun nativeStartExecutable(contentId: String, executablePath: String): Long
+
+    external fun nativeStartRenderedExecutable(contentId: String, executablePath: String,
+        surface: android.view.Surface, hookDirectory: String, driverDirectory: String): Long
+    external fun nativePlatformReady(generation: Long): Boolean
 
     /** Request a stop of [generation]. Returns a [StopResult] ordinal. */
     external fun nativeRequestStop(generation: Long, timeoutMs: Long): Int

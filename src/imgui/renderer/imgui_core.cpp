@@ -191,6 +191,8 @@ void OnSurfaceFormatChange(vk::Format surface_format) {
 }
 
 void Shutdown(const vk::Device& device) {
+    if (!GetCurrentContext())
+        return;
     auto result = device.waitIdle();
     if (result != vk::Result::eSuccess) {
         LOG_WARNING(ImGui, "Failed to wait for Vulkan device idle on shutdown: {}",

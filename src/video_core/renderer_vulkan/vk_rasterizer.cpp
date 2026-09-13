@@ -45,7 +45,9 @@ Rasterizer::Rasterizer(const Instance& instance_, Scheduler& scheduler_,
     memory->SetRasterizer(this);
 }
 
-Rasterizer::~Rasterizer() = default;
+Rasterizer::~Rasterizer() {
+    memory->SetRasterizer(nullptr);
+}
 
 void Rasterizer::CpSync() {
     scheduler.EndRendering();

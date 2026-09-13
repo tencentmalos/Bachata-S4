@@ -4,6 +4,9 @@
 
 ## 最新入口
 
+本轮最新为 [WP2直接实现复核](../wp2-native-turnip-runtime-review-2026-09-13.md)：`wp2-runtime-delivery`为完整CLI/Service回归；`wp2-graphics-final`为普通APK固定Turnip、三代WSI、五轮真实guest VideoOut正负例、三轮真实TMNT选取内容边界；`wp2-cpu-delivery`为含G48的CPU回归；`wp2-host-delivery`为host DSO和passive signal生命周期；`wp2-build-delivery`保存正式构建身份。以下旧表保留其原始状态。
+
+
 新增[libc/runtime直接修复](../libc-runtime-repair-2026-09-13.md)，证据基点为d499219e+dirty；下表此前07ce52ae系列保留。最终采用`libc-lifetime-apk`，普通APK16代同PID26349/UID10157、CLI10组×3；`libc-lifetime-cpu`服务43/0、`libc-final-cpu`FEX242/0。`libc-host-close`归档正式构建，`tmnt-libc-close`记录真实六模块初始化后sysmodule缺口；不是游戏成功。`libc-apk-close`是修复cond销毁竞态前的16代成功，`services-first`的APK为NOT_RUN。
 
 | 证据 | 口径 |

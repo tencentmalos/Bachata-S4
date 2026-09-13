@@ -25,7 +25,11 @@ void SignalHandler(int sig, siginfo_t* info, void* raw_context);
 /// Receives OS signals and dispatches to the appropriate handlers.
 class SignalDispatch {
 public:
-    SignalDispatch();
+    // Embedded runtimes own OS delivery (FEX interrupt/unaligned handlers and
+    // Android ART chaining). A borrowed passive dispatcher only holds callbacks;
+    // its construction/destruction must never replace those signal actions.
+    enum class Delivery { Native, External };
+    explicit SignalDispatch(Delivery delivery = Delivery::Native);
     ~SignalDispatch();
 
     void RemoveHandlers();
@@ -47,6 +51,7 @@ public:
     bool DispatchIllegalInstruction(void* context) const;
 
 private:
+    bool owns_handlers{};
     template <typename T>
     struct HandlerEntry {
         T handler;

@@ -2,6 +2,7 @@ package com.shadps4.android.runtime.input
 
 /** App JNI. State and production scePad* live once in libshadps4_host.so. */
 object NativePad {
+    init { System.loadLibrary("shadps4_fex_session") }
     object Result { const val OK=0; const val WRONG_SESSION=1; const val BAD_PORT=2; const val REJECTED=3; const val NO_SESSION=4 }
     const val MAX_PORTS = 4
     external fun nativeInitializeHost(path: String): Boolean

@@ -1,0 +1,17 @@
+[
+  {
+    "owned_by": "wp2-host-final",
+    "remote": "/data/local/tmp/shadps4-host-library-1789293812572378000",
+    "exit": 0
+  },
+  {
+    "owned_by": "wp2-host-delivery",
+    "remote": "/data/local/tmp/shadps4-host-library-1789294841116857000",
+    "exit": 0
+  },
+  {
+    "owned_by": "selected-content validation",
+    "remote": "files/validation/tmnt-wp2-1789292155619530000",
+    "exit": 0
+  }
+]

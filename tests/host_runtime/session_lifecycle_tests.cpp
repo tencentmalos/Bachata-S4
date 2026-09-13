@@ -576,6 +576,44 @@ void Case9_SlowDrainStillReclaims() {
     Check(core.WaitTerminal(g2, 2000 * kMs, t2), "restart terminal");
 }
 
+void Case10_PlatformAdmission() {
+    std::printf("Case10: generation-scoped platform admission/cancel/restart\n");
+    FakeBackend backend;
+    SessionCore core{backend};
+    SessionParams params;
+    params.content_id = "rendered";
+    params.requires_platform_ready = true;
+    uint64_t old{};
+    for (int round = 0; round < 3; ++round) {
+        const auto gen = core.Start(params);
+        Check(gen > old, "new platform generation");
+        Check(core.WaitPhase(gen, Phase::Ready, 2000 * kMs) == WaitPhaseResult::ReachedTarget,
+              "prepared while app platform is pending");
+        auto runtime = backend.last_runtime;
+        Check(runtime->run_calls == 0, "guest never runs before platform admission");
+        Check(!core.PlatformReady(old), "old admission cannot unlock new generation");
+        Check(core.WaitPhase(gen, Phase::Running, 10 * kMs) == WaitPhaseResult::Timeout,
+              "no Running while platform remains pending");
+        if (round == 1) {
+            (void)core.RequestStop(gen, 100 * kMs);
+            Check(!core.PlatformReady(gen), "cancel cannot be undone by late platform receipt");
+        } else {
+            Check(core.PlatformReady(gen), "current platform admitted");
+            Check(core.WaitPhase(gen, Phase::Running, 2000 * kMs) == WaitPhaseResult::ReachedTarget,
+                  "Running follows admission");
+            backend.SignalNaturalReturn(*runtime);
+        }
+        Terminal terminal;
+        Check(core.WaitTerminal(gen, 2000 * kMs, terminal), "platform generation retired");
+        Check(terminal.outcome == (round == 1 ? RunOutcome::Cancelled : RunOutcome::Returned),
+              "correct platform terminal outcome");
+        if (round == 1)
+            Check(runtime->run_calls == 0, "cancel pending platform skips backend Run");
+        Check(!core.PlatformReady(gen), "terminated generation rejects platform receipt");
+        old = gen;
+    }
+}
+
 }  // namespace
 
 int main() {
@@ -589,6 +627,7 @@ int main() {
     Case7_RunException();
     Case8_ControlException();
     Case9_SlowDrainStillReclaims();
+    Case10_PlatformAdmission();
     Fixture_HundredRounds();
 
     std::printf("\n%d checks, %d failures\n", g_checks, g_failures);

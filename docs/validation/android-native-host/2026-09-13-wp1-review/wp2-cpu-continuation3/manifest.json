@@ -1,0 +1,63 @@
+{
+  "source": "10a5b23ecbc80ea75bf4b785c921747f131f3480",
+  "remote": "/data/local/tmp/shadps4-wp2-cpu-1789294496930613000",
+  "scope": "auxiliary CLI regression",
+  "runs": [
+    {
+      "suite": "guest_execution_tests",
+      "sha256": "4bcef3e201b7c301ee8aee16a595233a9961363267518acdf97d2ba16fe60817",
+      "exit": 0,
+      "marker": "244 check(s), ALL PASS (0 failures)",
+      "pass": true
+    },
+    {
+      "suite": "guest_cpu_contract_tests",
+      "sha256": "2ad1c0a5cf18a2185736e2a38f4ba5c94305d1d56989a5670aa7e5092f1186cb",
+      "exit": 0,
+      "marker": "46/46 passed",
+      "pass": true
+    },
+    {
+      "suite": "guest_cpu_hle_abi_tests",
+      "sha256": "a30ee783d4c0831cc0803934153df9aebfe8ff31f1ed73767f7b60e1239766fe",
+      "exit": 0,
+      "marker": "14/14 passed",
+      "pass": true
+    },
+    {
+      "suite": "hle_registration_tests",
+      "sha256": "1812f8b482a8007ef08b4b60a87baf2c858cebc2e4920860b2fde2a815c5847a",
+      "exit": 0,
+      "marker": "13 checks, 0 failures",
+      "pass": true
+    },
+    {
+      "suite": "veneer_allocator_tests",
+      "sha256": "4785acf75acca624590c25cafda8be31be6d01803927bae4938053163d93d86d",
+      "exit": 0,
+      "marker": "19 check(s), ALL PASS (0 failures)",
+      "pass": true
+    },
+    {
+      "suite": "guest_services_tests",
+      "sha256": "a7b76d8bcddbb30bf0808a060ea1bf8917fa8dc20d5f25e839da39aa84b8d00a",
+      "exit": 0,
+      "marker": "GUEST_SERVICES checks=70 failures=0",
+      "pass": true
+    },
+    {
+      "suite": "session_lifecycle_tests",
+      "sha256": "0f5c08bf47182975eafdbe7a9ba8a26e906c5d3fccfa87aef0f3fde3dcdcc690",
+      "exit": 0,
+      "marker": "840 checks, 0 failures",
+      "pass": true
+    }
+  ],
+  "device": {
+    "ro.product.model": "AYN Thor",
+    "ro.build.version.sdk": "33"
+  },
+  "pagesize": "4096",
+  "status": "PASS",
+  "cleanup_exit": 0
+}

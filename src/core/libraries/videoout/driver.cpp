@@ -40,7 +40,11 @@ constexpr u32 PixelFormatBpp(PixelFormat pixel_format) {
     }
 }
 
-VideoOutDriver::VideoOutDriver(u32 width, u32 height) {
+VideoOutDriver::VideoOutDriver(u32 width, u32 height, std::function<u64()> process_time_,
+                               std::function<u64()> tsc_)
+    : process_time(process_time_ ? std::move(process_time_)
+                                 : Libraries::Kernel::sceKernelGetProcessTime),
+      read_tsc(tsc_ ? std::move(tsc_) : Libraries::Kernel::sceKernelReadTsc) {
     main_port.resolution.full_width = width;
     main_port.resolution.full_height = height;
     main_port.resolution.pane_width = width;
@@ -48,9 +52,22 @@ VideoOutDriver::VideoOutDriver(u32 width, u32 height) {
     present_thread = std::jthread([&](std::stop_token token) { PresentThread(token); });
 }
 
-VideoOutDriver::~VideoOutDriver() = default;
+void VideoOutDriver::RequestStop() {
+    present_thread.request_stop();
+    main_port.vblank_cv.notify_all();
+    main_port.vo_cv.notify_all();
+}
+void VideoOutDriver::Join() {
+    if (present_thread.joinable())
+        present_thread.join();
+}
+VideoOutDriver::~VideoOutDriver() {
+    RequestStop();
+    Join(); // requests and main_port must still exist while PresentThread retires.
+}
 
 int VideoOutDriver::Open(const ServiceThreadParams* params) {
+    std::scoped_lock lock{mutex};
     if (main_port.is_open) {
         return ORBIS_VIDEO_OUT_ERROR_RESOURCE_BUSY;
     }
@@ -246,8 +263,8 @@ void VideoOutDriver::Flip(const Request& req) {
         std::unique_lock lock{port->port_mutex};
         auto& flip_status = port->flip_status;
         flip_status.count++;
-        flip_status.process_time = Libraries::Kernel::sceKernelGetProcessTime();
-        flip_status.tsc = Libraries::Kernel::sceKernelReadTsc();
+        flip_status.process_time = process_time();
+        flip_status.tsc = read_tsc();
         flip_status.flip_arg = req.flip_arg;
         flip_status.current_buffer = req.index;
         if (req.eop) {
@@ -302,7 +319,7 @@ bool VideoOutDriver::SubmitFlip(VideoOutPort* port, s32 index, s64 flip_arg,
             ++port->flip_status.gc_queue_num;
         }
         ++port->flip_status.flip_pending_num; // integral GPU and CPU pending flips counter
-        port->flip_status.submit_tsc = Libraries::Kernel::sceKernelReadTsc();
+        port->flip_status.submit_tsc = read_tsc();
     }
 
     if (!is_eop) {
@@ -401,8 +418,8 @@ void VideoOutDriver::PresentThread(std::stop_token token) {
 
             // Update vblank status
             vblank_status.count++;
-            vblank_status.process_time = Libraries::Kernel::sceKernelGetProcessTime();
-            vblank_status.tsc = Libraries::Kernel::sceKernelReadTsc();
+            vblank_status.process_time = process_time();
+            vblank_status.tsc = read_tsc();
             main_port.vblank_cv.notify_all();
         }
 

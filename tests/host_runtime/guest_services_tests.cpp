@@ -4,6 +4,7 @@
 #include <thread>
 #include "core/host_runtime/guest_clock.h"
 #include "core/host_runtime/guest_mutex.h"
+#include "core/host_runtime/guest_platform.h"
 using namespace Core::GuestCpu;
 using namespace Core::HostRuntime;
 int main() {
@@ -115,6 +116,77 @@ int main() {
     check("duration overflow rejected", !GuestClock::Duration({INT64_MAX, 0}, ns));
     check("invalid nanoseconds rejected", !GuestClock::Duration({0, 1000000000}, ns));
     check("duration zero", GuestClock::Duration({0, 0}, ns) && ns.count() == 0);
+    GuestSysmodules modules([](u32 id) -> std::optional<std::string> {
+        if (id == 1)
+            return "libReady";
+        if (id == 2)
+            return "libRequiredButMissing";
+        return std::nullopt;
+    });
+    check("unknown sysmodule rejected", modules.Load(0) == ORBIS_SYSMODULE_INVALID_ID);
+    check("required name does not imply provider", modules.Load(2) == ORBIS_SYSMODULE_LOCK_FAILED);
+    check("failed load not visible", modules.Handle(2) == ORBIS_SYSMODULE_NOT_LOADED);
+    modules.Publish("libReady", 7);
+    s32 handle = -1;
+    check("initialized provider admits load",
+          modules.Load(1) == 0 && modules.Handle(1, &handle) == 0 && handle == 7);
+    check("repeated load same provider", modules.Load(1) == 0);
+    check("first unload preserves live ref", modules.Unload(1) == 0 && modules.Handle(1) == 0);
+    check("last unload hides handle",
+          modules.Unload(1) == 0 && modules.Handle(1) == ORBIS_SYSMODULE_NOT_LOADED);
+    check("extra unload rejected", modules.Unload(1) == ORBIS_SYSMODULE_NOT_LOADED);
+    check("static provider reload stable",
+          modules.Load(1) == 0 && modules.Handle(1, &handle) == 0 && handle == 7);
+    GuestPlatform first({GuestUser{1000, "local"}, {}, {}, {}}, 0x10000000, 0x1e, false);
+    GuestPlatform second({GuestUser{1000, "local"}, {}, {}, {}}, 0x10000000, 0x1e, false);
+    namespace U = Libraries::UserService;
+    namespace S = Libraries::SystemService;
+    s32 user = -1;
+    U::OrbisUserServiceEvent event{};
+    check("user service admission",
+          first.InitialUser(user) == ORBIS_USER_SERVICE_ERROR_NOT_INITIALIZED);
+    check("user initialize",
+          first.Initialize() == 0 && first.InitialUser(user) == 0 && user == 1000);
+    check("duplicate initialize rejected",
+          first.Initialize() == ORBIS_USER_SERVICE_ERROR_ALREADY_INITIALIZED);
+    check("second session independently initialized", second.Initialize() == 0);
+    check("login event", first.UserEvent(event) == 0 && event.userId == 1000 &&
+                             event.event == U::OrbisUserServiceEventType::Login);
+    check("event consumed exactly once",
+          first.UserEvent(event) == ORBIS_USER_SERVICE_ERROR_NO_EVENT);
+    check("other session event retained", second.UserEvent(event) == 0);
+    std::string name;
+    check("profile name", first.UserName(1000, name) == 0 && name == "local");
+    check("unknown user not fabricated",
+          first.UserName(9999, name) == ORBIS_USER_SERVICE_ERROR_NOT_LOGGED_IN);
+    first.HideSplash();
+    check("splash state isolated", !first.SplashVisible() && second.SplashVisible());
+    first.SetBackground(true);
+    check("background state isolated",
+          first.Status().is_in_background_execution && !second.Status().is_in_background_execution);
+    first.SetBackground(false);
+    check("resume event queued", first.Status().event_num == 1 && second.Status().event_num == 0);
+    S::OrbisSystemServiceEvent system_event{};
+    check("resume consumed once",
+          first.SystemEvent(system_event) == 0 &&
+              system_event.event_type == S::OrbisSystemServiceEventType::OnResume &&
+              first.SystemEvent(system_event) == ORBIS_SYSTEM_SERVICE_ERROR_NO_EVENT);
+    s32 value = -1;
+    check("system language uses session SDK",
+          first.Param(S::OrbisSystemServiceParamId::Lang, value) == 0 && value == 0x1e);
+    check("UTC timezone matches guest clock",
+          first.Param(S::OrbisSystemServiceParamId::TimeZone, value) == 0 && value == 0);
+    value = 17;
+    check("unknown system param fails without write",
+          first.Param(static_cast<S::OrbisSystemServiceParamId>(-1), value) ==
+                  ORBIS_SYSTEM_SERVICE_ERROR_PARAMETER &&
+              value == 17);
+    check("terminate closes admission",
+          first.Terminate() == 0 &&
+              first.UserEvent(event) == ORBIS_USER_SERVICE_ERROR_NOT_INITIALIZED);
+    check("initialize after terminate renews login",
+          first.Initialize() == 0 && first.UserEvent(event) == 0 &&
+              first.UserEvent(event) == ORBIS_USER_SERVICE_ERROR_NO_EVENT);
     std::printf("GUEST_SERVICES checks=%u failures=%u\n", checks, failures);
     return failures ? 1 : 0;
 }

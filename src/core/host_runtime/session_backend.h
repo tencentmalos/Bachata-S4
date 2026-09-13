@@ -21,6 +21,7 @@
 #pragma once
 
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -31,6 +32,13 @@
 
 #include "core/guest_cpu/api/result.h"
 #include "core/guest_cpu/api/status.h"
+
+namespace Frontend {
+class Window;
+}
+namespace Vulkan {
+struct Driver;
+}
 
 namespace Core::HostRuntime {
 
@@ -79,6 +87,10 @@ struct SessionParams final {
     // explicit separate mode. The caller supplies the installed effective path.
     std::string executable_path;
     std::vector<std::string> module_paths;
+    bool requires_platform_ready{};
+    std::uint64_t generation{}; // Minted by SessionCore, never supplied by JNI.
+    std::function<std::shared_ptr<Frontend::Window>(std::uint64_t)> create_window;
+    std::function<std::shared_ptr<const Vulkan::Driver>()> load_graphics_driver;
 };
 
 // Opaque cancel handle. RequestCancel returns one; the caller passes it to

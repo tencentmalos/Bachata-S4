@@ -1,0 +1,11 @@
+{
+  "source": "https://github.com/K11MCH1/AdrenoToolsDrivers",
+  "release": "v26.0.0-rc08",
+  "url": "https://github.com/K11MCH1/AdrenoToolsDrivers/releases/download/v26.0.0-rc08/Turnip_v26.0.0_R8.zip",
+  "archive_sha256": "e634db0f929e2205e95511c769071817d0390180ec72c8e690bc76375e813715",
+  "library": "vulkan.ad07xx.so",
+  "library_sha256": "fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09",
+  "build_id": "c4461feaa30a380b35d39a8ff12481795837c0d5",
+  "abi": "android-arm64-bionic",
+  "scope": "Adreno 7xx initial profile; no system fallback; external prebuilt, not a local Mesa build"
+}

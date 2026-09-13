@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <mutex>
 #include <span>
 #include <unordered_map>
 
@@ -21,9 +22,11 @@ namespace Vulkan {
 
 class Instance {
 public:
-    explicit Instance(bool validation = false, bool crash_diagnostic = false);
+    explicit Instance(bool validation = false, bool crash_diagnostic = false,
+                      DriverLease driver = {});
     explicit Instance(Frontend::Window& window, s32 physical_device_index,
-                      bool enable_validation = false, bool enable_crash_diagnostic = false);
+                      bool enable_validation = false, bool enable_crash_diagnostic = false,
+                      DriverLease driver = {});
     ~Instance();
 
     /// Returns a formatted string for the driver version
@@ -474,6 +477,8 @@ private:
     [[nodiscard]] vk::FormatFeatureFlags2 GetFormatFeatureFlags(vk::Format format) const;
 
 private:
+    std::unique_lock<std::mutex> dispatcher_lease;
+    DriverLease driver; // Destroyed after every Vulkan child and the instance.
     vk::UniqueInstance instance;
     vk::PhysicalDevice physical_device;
     vk::UniqueDevice device;

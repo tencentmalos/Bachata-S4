@@ -20,6 +20,7 @@
 #endif
 
 #include <cstring>
+#include <stdexcept>
 #include <vector>
 #include <fmt/ranges.h>
 
@@ -81,8 +82,7 @@ vk::SurfaceKHR CreateSurface(vk::Instance instance, const Frontend::Window& emu_
 
         if (instance.createAndroidSurfaceKHR(&android_ci, nullptr, &surface) !=
             vk::Result::eSuccess) {
-            LOG_CRITICAL(Render_Vulkan, "Failed to initialize Android surface");
-            UNREACHABLE();
+            throw std::runtime_error("Failed to initialize Android Vulkan surface");
         }
     }
 #elif defined(VK_USE_PLATFORM_WIN32_KHR)
@@ -281,7 +281,7 @@ std::vector<const char*> GetInstanceLayers(bool enable_validation, bool enable_c
 }
 
 vk::UniqueInstance CreateInstance(Frontend::WindowSystemType window_type, bool enable_validation,
-                                  bool enable_crash_diagnostic) {
+                                  bool enable_crash_diagnostic, const DriverLease& driver) {
     LOG_INFO(Render_Vulkan, "Creating vulkan instance");
 
 #if defined(__APPLE__)
@@ -296,9 +296,19 @@ vk::UniqueInstance CreateInstance(Frontend::WindowSystemType window_type, bool e
     setenv("VK_DRIVER_FILES", icd_path.c_str(), true);
 #endif
 
-    static vk::detail::DynamicLoader dl;
-    VULKAN_HPP_DEFAULT_DISPATCHER.init(
-        dl.getProcAddress<PFN_vkGetInstanceProcAddr>("vkGetInstanceProcAddr"));
+    PFN_vkGetInstanceProcAddr entry = driver ? driver->entry : nullptr;
+#if defined(__ANDROID__)
+    if (!entry)
+        throw std::runtime_error("Android Vulkan requires an explicit verified Turnip lease");
+#else
+    if (!entry) {
+        static vk::detail::DynamicLoader dl;
+        entry = dl.getProcAddress<PFN_vkGetInstanceProcAddr>("vkGetInstanceProcAddr");
+    }
+#endif
+    if (!entry)
+        throw std::runtime_error("Vulkan loader has no entry point");
+    VULKAN_HPP_DEFAULT_DISPATCHER.init(entry);
 
     const auto [available_version_result, available_version] =
         VULKAN_HPP_DEFAULT_DISPATCHER.vkEnumerateInstanceVersion

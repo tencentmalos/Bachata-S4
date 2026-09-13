@@ -60,3 +60,5 @@ target_link_options(shadps4_fex_session PRIVATE -Wl,--build-id=sha1)
 
 # PS4 .pkg extractor / crypto (PkgExtractor/PkgRsa JNI). Self-contained under pkg/, zlib-only.
 add_subdirectory(pkg)
+
+target_link_libraries(shadps4_fex_session PRIVATE android)

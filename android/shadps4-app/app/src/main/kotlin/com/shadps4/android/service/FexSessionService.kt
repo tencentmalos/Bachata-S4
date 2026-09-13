@@ -15,14 +15,17 @@ import com.shadps4.android.runtime.session.ManagedSession
 import com.shadps4.android.runtime.session.ManagedSessionState
 import com.shadps4.android.runtime.session.NativeFexSession
 import kotlin.concurrent.thread
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.first
+import com.shadps4.android.runtime.session.AndroidTurnip
+import com.shadps4.android.runtime.session.RuntimeSurface
 
 /**
  * In-process FEX session orchestrator. Replaces the reference EmulationService (which launched an
  * external glibc shadPS4 process under Box64/FEX + Winlator X + Vortek). Here the session runs the
- * main repo's guest_cpu_fex backend *inside this app process* via [NativeFexSession] — a bounded
- * x86-64 smoke loop that proves the CPU backend is live. The native host/input DSO is loaded,
- * but the production game backend is not bound yet. The UI seam ([ManagedSession]) is
- * unchanged.
+ * main repo's production guest runtime *inside this app process* via [NativeFexSession].
+ * Installed content uses a generation-owned Surface, native Turnip and Orbis input;
+ * the explicit CPU smoke entry remains available for diagnostics.
  *
  * Every published state is generation-tagged. The native SessionCore mints the generation and owns
  * lifecycle; this Service only observes phase/terminal transitions and maps them to UI state. A
@@ -31,6 +34,9 @@ import kotlin.concurrent.thread
  */
 class FexSessionService : Service() {
 
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+    private var startJob: Job? = null
+    private var surfaceJob: Job? = null
     @Volatile private var observer: Thread? = null
     // Set when a stop was requested for the live generation. Distinguishes "the
     // game is still running normally" (a WaitTerminal timeout is NOT a failure)
@@ -50,106 +56,147 @@ class FexSessionService : Service() {
     }
 
     private fun handleStart(intent: Intent, startId: Int) {
-        val gameId = intent.getStringExtra(ManagedSession.EXTRA_GAME_ID) ?: "smoke"
+        if (startJob?.isActive == true || NativeFexSession.nativeCurrentGeneration() != 0L) return
+        startJob = serviceScope.launch {
+            var boundSurface: RuntimeSurface? = null
+            val gameId = intent.getStringExtra(ManagedSession.EXTRA_GAME_ID) ?: "smoke"
 
-        if (!com.shadps4.android.runtime.input.NativePad.nativeInitializeHost(java.io.File(filesDir,"host").absolutePath)) {
-            Log.e(TAG,"Host paths failed to initialize")
-            return
-        }
-        val relativePath = intent.getStringExtra(ManagedSession.EXTRA_GAME_PATH)
-        val generation = if (relativePath != null) {
-            val executable = runCatching {
-                require(GameInstallVerifier.canLaunch(filesDir, relativePath)) { "content is not installed" }
-                val root = File(filesDir, relativePath).canonicalFile
-                val entry = File(root, "eboot.bin").canonicalFile
-                require(entry.toPath().startsWith(root.toPath())) { "entry escapes install directory" }
-                entry.absolutePath
-            }.getOrElse {
-                Log.e(TAG, "Invalid installed game path", it)
+            if (!com.shadps4.android.runtime.input.NativePad.nativeInitializeHost(java.io.File(filesDir,"host").absolutePath)) {
+                Log.e(TAG,"Host paths failed to initialize")
+                return@launch
+            }
+            val relativePath = intent.getStringExtra(ManagedSession.EXTRA_GAME_PATH)
+            val generation = if (relativePath != null) {
+                val executable = runCatching {
+                    require(GameInstallVerifier.canLaunch(filesDir, relativePath)) { "content is not installed" }
+                    val root = File(filesDir, relativePath).canonicalFile
+                    val entry = File(root, "eboot.bin").canonicalFile
+                    require(entry.toPath().startsWith(root.toPath())) { "entry escapes install directory" }
+                    entry.absolutePath
+                }.getOrElse {
+                    Log.e(TAG, "Invalid installed game path", it)
+                    if (NativeFexSession.nativeCurrentGeneration() == 0L) stopSelf(startId)
+                    return@launch
+                }
+                val paths = try {
+                    withContext(Dispatchers.IO) { AndroidTurnip.prepare(applicationContext) }
+                } catch (e: CancellationException) { throw e } catch (e: Exception) {
+                    Log.e(TAG, "Bionic Turnip preparation failed", e)
+                    stopSelf(startId)
+                    return@launch
+                }
+                boundSurface = try {
+                    withTimeout(10000L) { ManagedSession.surface.first { it?.surface?.isValid == true } }
+                } catch (e: TimeoutCancellationException) {
+                    Log.e(TAG, "No live Surface for installed game", e)
+                    stopSelf(startId)
+                    return@launch
+                }
+                NativeFexSession.nativeStartRenderedExecutable(gameId, executable,
+                    boundSurface!!.surface, paths.hooks, paths.driver)
+            } else if (gameId == "smoke" || gameId.endsWith("-cpu-smoke")) {
+                NativeFexSession.nativeStart(gameId, DEFAULT_ITERATIONS)
+            } else {
+                Log.e(TAG, "Game launch requires an installed-content path")
                 if (NativeFexSession.nativeCurrentGeneration() == 0L) stopSelf(startId)
-                return
+                return@launch
             }
-            NativeFexSession.nativeStartExecutable(gameId, executable)
-        } else if (gameId == "smoke" || gameId.endsWith("-cpu-smoke")) {
-            NativeFexSession.nativeStart(gameId, DEFAULT_ITERATIONS)
-        } else {
-            Log.e(TAG, "Game launch requires an installed-content path")
-            if (NativeFexSession.nativeCurrentGeneration() == 0L) stopSelf(startId)
-            return
-        }
-        if (generation == 0L) {
-            Log.w(TAG, "Session already running or failed to spawn; ignoring START")
-            return
-        }
-        stopRequestedGeneration = 0L
-        stopDeadlineUptimeMs = 0L
-        ManagedSession.beginGeneration(generation)
-        // Bind the native pad session so real controller input (physical gamepad +
-        // touch overlay) reaches the native OrbisPadAdapter for this generation.
-        GamepadInputManager.onSessionStart()
-        NativePadBridge.begin(applicationContext,generation)
-        ManagedSession.updateIfCurrent(generation, ManagedSessionState.Preparing("fex", generation))
-        Log.i(TAG, "native: ${NativeFexSession.nativeIdentity()} gen=$generation")
-
-        // One generation-tagged observer. It never fabricates Running: WaitPhase returns
-        // TerminatedBeforeTarget when a session ends before reaching a phase, and we skip it.
-        observer = thread(name = "fex-session-watch-$generation") {
-            // Ready.
-            val toReady = NativeFexSession.nativeWaitPhase(
-                generation, NativeFexSession.PhaseOrdinal.READY, PHASE_DEADLINE_MS,
-            )
-            if (toReady == NativeFexSession.WaitPhase.REACHED_TARGET) {
-                ManagedSession.updateIfCurrent(generation, ManagedSessionState.Ready(gameId, generation))
-                // Running (only if it actually got there).
-                val toRunning = NativeFexSession.nativeWaitPhase(
-                    generation, NativeFexSession.PhaseOrdinal.RUNNING, PHASE_DEADLINE_MS,
-                )
-                if (toRunning == NativeFexSession.WaitPhase.REACHED_TARGET) {
-                    ManagedSession.updateIfCurrent(generation, ManagedSessionState.Running(gameId, generation))
-                }
+            if (generation == 0L) {
+                Log.w(TAG, "Session already running or failed to spawn; ignoring START")
+                return@launch
             }
-
-            // Wait for a REAL terminal. A running game has no fixed lifetime, so a
-            // WaitTerminal timeout (-1) means "still owned / still running" and is
-            // NOT a failure (review 2.4). Loop with a bounded slice so the thread
-            // stays responsive; only publish + stop on a real terminal outcome.
-            // The one exception is an overdue STOP: once a stop was requested, we
-            // bound how long teardown may take, and exceeding that budget is a
-            // genuine failure (teardown wedged), distinct from a happily running
-            // game that was never asked to stop.
-            var outcome = NativeFexSession.Outcome.TIMEOUT
-            while (true) {
-                outcome = NativeFexSession.nativeWaitTerminal(generation, WAIT_SLICE_MS)
-                if (outcome != NativeFexSession.Outcome.TIMEOUT) {
-                    break  // a real terminal (Returned/Cancelled/Faulted/...)
-                }
-                // Still running. If a stop was asked for this generation and the
-                // stop budget has now elapsed without a terminal, treat teardown
-                // as wedged and stop observing with a failure.
-                val stopGen = stopRequestedGeneration
-                if (stopGen == generation) {
-                    val deadline = stopDeadlineUptimeMs
-                    if (deadline != 0L && android.os.SystemClock.uptimeMillis() >= deadline) {
-                        Log.w(TAG, "stop for gen=$generation overdue; teardown wedged")
-                        break  // outcome stays TIMEOUT -> published as a failure
+            stopRequestedGeneration = 0L
+            stopDeadlineUptimeMs = 0L
+            ManagedSession.beginGeneration(generation)
+            ManagedSession.updateIfCurrent(generation, ManagedSessionState.Preparing("fex", generation))
+            // Bind the native pad session so real controller input (physical gamepad +
+            // touch overlay) reaches the native OrbisPadAdapter for this generation.
+            GamepadInputManager.onSessionStart()
+            val admitted = try {
+                NativePadBridge.begin(applicationContext, generation)
+                NativeFexSession.nativePlatformReady(generation)
+            } catch (e: Exception) {
+                Log.e(TAG, "Platform admission failed", e)
+                NativePadBridge.end(generation)
+                false
+            }
+            if (!admitted) handleStop()
+            surfaceJob?.cancel()
+            boundSurface?.takeIf { admitted }?.let { owned ->
+                surfaceJob = serviceScope.launch {
+                    ManagedSession.surface.collect { current ->
+                        if (NativeFexSession.nativeCurrentGeneration() == generation &&
+                            (current?.surface !== owned.surface || !owned.surface.isValid)) {
+                            // Retire this generation before accepting any replacement Surface.
+                            handleStop()
+                        }
                     }
                 }
-                // else: no stop requested -> keep waiting indefinitely (the game
-                // is allowed to run for hours).
             }
-            publishTerminal(gameId, generation, outcome)
-            // Tear down the native pad session for this generation: detaches the
-            // controller sink and clears port state so a late producer cannot write
-            // into the next session's pad.
-            NativePadBridge.end(generation)
+            Log.i(TAG, "native: ${NativeFexSession.nativeIdentity()} gen=$generation")
 
-            stopSelf(startId)
+            // One generation-tagged observer. It never fabricates Running: WaitPhase returns
+            // TerminatedBeforeTarget when a session ends before reaching a phase, and we skip it.
+            observer = thread(name = "fex-session-watch-$generation") {
+                // Ready.
+                val toReady = NativeFexSession.nativeWaitPhase(
+                    generation, NativeFexSession.PhaseOrdinal.READY, PHASE_DEADLINE_MS,
+                )
+                if (toReady == NativeFexSession.WaitPhase.REACHED_TARGET) {
+                    ManagedSession.updateIfCurrent(generation, ManagedSessionState.Ready(gameId, generation))
+                    // Running (only if it actually got there).
+                    val toRunning = NativeFexSession.nativeWaitPhase(
+                        generation, NativeFexSession.PhaseOrdinal.RUNNING, PHASE_DEADLINE_MS,
+                    )
+                    if (toRunning == NativeFexSession.WaitPhase.REACHED_TARGET) {
+                        ManagedSession.updateIfCurrent(generation, ManagedSessionState.Running(gameId, generation))
+                    }
+                }
+
+                // Wait for a REAL terminal. A running game has no fixed lifetime, so a
+                // WaitTerminal timeout (-1) means "still owned / still running" and is
+                // NOT a failure (review 2.4). Loop with a bounded slice so the thread
+                // stays responsive; only publish + stop on a real terminal outcome.
+                // The one exception is an overdue STOP: once a stop was requested, we
+                // bound how long teardown may take, and exceeding that budget is a
+                // genuine failure (teardown wedged), distinct from a happily running
+                // game that was never asked to stop.
+                var outcome = NativeFexSession.Outcome.TIMEOUT
+                while (true) {
+                    outcome = NativeFexSession.nativeWaitTerminal(generation, WAIT_SLICE_MS)
+                    if (outcome != NativeFexSession.Outcome.TIMEOUT) {
+                        break  // a real terminal (Returned/Cancelled/Faulted/...)
+                    }
+                    // Still running. If a stop was asked for this generation and the
+                    // stop budget has now elapsed without a terminal, treat teardown
+                    // as wedged and stop observing with a failure.
+                    val stopGen = stopRequestedGeneration
+                    if (stopGen == generation) {
+                        val deadline = stopDeadlineUptimeMs
+                        if (deadline != 0L && android.os.SystemClock.uptimeMillis() >= deadline) {
+                            Log.w(TAG, "stop for gen=$generation overdue; teardown wedged")
+                            break  // outcome stays TIMEOUT -> published as a failure
+                        }
+                    }
+                    // else: no stop requested -> keep waiting indefinitely (the game
+                    // is allowed to run for hours).
+                }
+                publishTerminal(gameId, generation, outcome)
+                // Tear down the native pad session for this generation: detaches the
+                // controller sink and clears port state so a late producer cannot write
+                // into the next session's pad.
+                NativePadBridge.end(generation)
+
+                stopSelf(startId)
+            }
         }
     }
 
     private fun handleStop() {
+        startJob?.cancel()
+        surfaceJob?.cancel()
         val generation = NativeFexSession.nativeCurrentGeneration()
-        if (generation == 0L) return
+        if (generation == 0L) { stopSelf(); return }
         ManagedSession.updateIfCurrent(generation, ManagedSessionState.Stopping("", generation))
         // Mark the stop and give teardown a bounded budget; the observer treats a
         // WaitTerminal timeout past this budget as a wedged teardown, not as a
@@ -212,6 +259,7 @@ class FexSessionService : Service() {
     }
 
     override fun onDestroy() {
+        serviceScope.cancel()
         // Do not block the main thread on a multi-second JNI wait (review 2.4).
         // Hand teardown to a detached owner thread: request the stop, mark the
         // stop budget so the observer treats an overdue teardown as wedged, and

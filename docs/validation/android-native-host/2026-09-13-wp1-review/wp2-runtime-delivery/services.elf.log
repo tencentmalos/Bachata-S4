@@ -1,0 +1,88 @@
+[0;37m[Kernel.Vmm] <Info> (production_runt) memory.cpp:29 Initialize: Virtual memory space initialized with regions:[m
+[0;37m[Kernel.Vmm] <Info> (production_runt) memory.cpp:37 Initialize: 0x400000 - 0x10000000[m
+[0;37m[Kernel.Vmm] <Info> (production_runt) memory.cpp:37 Initialize: 0x100000000 - 0x1e00000000[m
+[0;37m[Loader] <Info> (production_runt) elf.cpp:273 IsSelfFile: Not a SELF file. Magic mismatch current = 0x464c457f expected = 0x1d3d154f[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:148 LoadModuleToMemory: Loading module services.elf to 0x400000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:161 LoadModuleToMemory: ======== Load Module to Memory ========[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:162 LoadModuleToMemory: base_virtual_addr ......: 0x0000000000400000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:163 LoadModuleToMemory: base_size ..............: 0x000000000000c000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:164 LoadModuleToMemory: aligned_base_size ......: 0x000000000000c000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:227 LoadModuleToMemory: program header = [0] type = Loadable[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000000400000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R_X)[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:227 LoadModuleToMemory: program header = [1] type = Loadable[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000000404000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:227 LoadModuleToMemory: program header = [2] type = SCE Read-Only After Relocation[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000000408000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:279 LoadModuleToMemory: TLS virtual address = 0x404010[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:280 LoadModuleToMemory: TLS image size      = 64[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:368 LoadModuleToMemory: program entry addr ..........: 0x0000000000400000[m
+ROUND 1 OUTCOME Returned DETAIL guest return=51966
+production Linker/VM; owners=2 veneers=18 graphics=not-created modules=1
+[0;37m[Kernel.Vmm] <Info> (production_runt) memory.cpp:29 Initialize: Virtual memory space initialized with regions:[m
+[0;37m[Kernel.Vmm] <Info> (production_runt) memory.cpp:37 Initialize: 0x400000 - 0x10000000[m
+[0;37m[Kernel.Vmm] <Info> (production_runt) memory.cpp:37 Initialize: 0x100000000 - 0x1e00000000[m
+[0;37m[Loader] <Info> (production_runt) elf.cpp:273 IsSelfFile: Not a SELF file. Magic mismatch current = 0x464c457f expected = 0x1d3d154f[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:148 LoadModuleToMemory: Loading module services.elf to 0x400000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:161 LoadModuleToMemory: ======== Load Module to Memory ========[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:162 LoadModuleToMemory: base_virtual_addr ......: 0x0000000000400000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:163 LoadModuleToMemory: base_size ..............: 0x000000000000c000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:164 LoadModuleToMemory: aligned_base_size ......: 0x000000000000c000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:227 LoadModuleToMemory: program header = [0] type = Loadable[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000000400000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R_X)[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:227 LoadModuleToMemory: program header = [1] type = Loadable[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000000404000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:227 LoadModuleToMemory: program header = [2] type = SCE Read-Only After Relocation[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000000408000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:279 LoadModuleToMemory: TLS virtual address = 0x404010[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:280 LoadModuleToMemory: TLS image size      = 64[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:368 LoadModuleToMemory: program entry addr ..........: 0x0000000000400000[m
+ROUND 2 OUTCOME Returned DETAIL guest return=51966
+production Linker/VM; owners=2 veneers=18 graphics=not-created modules=1
+[0;37m[Kernel.Vmm] <Info> (production_runt) memory.cpp:29 Initialize: Virtual memory space initialized with regions:[m
+[0;37m[Kernel.Vmm] <Info> (production_runt) memory.cpp:37 Initialize: 0x400000 - 0x10000000[m
+[0;37m[Kernel.Vmm] <Info> (production_runt) memory.cpp:37 Initialize: 0x100000000 - 0x1e00000000[m
+[0;37m[Loader] <Info> (production_runt) elf.cpp:273 IsSelfFile: Not a SELF file. Magic mismatch current = 0x464c457f expected = 0x1d3d154f[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:148 LoadModuleToMemory: Loading module services.elf to 0x400000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:161 LoadModuleToMemory: ======== Load Module to Memory ========[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:162 LoadModuleToMemory: base_virtual_addr ......: 0x0000000000400000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:163 LoadModuleToMemory: base_size ..............: 0x000000000000c000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:164 LoadModuleToMemory: aligned_base_size ......: 0x000000000000c000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:227 LoadModuleToMemory: program header = [0] type = Loadable[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000000400000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R_X)[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:227 LoadModuleToMemory: program header = [1] type = Loadable[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000000404000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:227 LoadModuleToMemory: program header = [2] type = SCE Read-Only After Relocation[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000000408000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:279 LoadModuleToMemory: TLS virtual address = 0x404010[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:280 LoadModuleToMemory: TLS image size      = 64[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:368 LoadModuleToMemory: program entry addr ..........: 0x0000000000400000[m
+ROUND 3 OUTCOME Returned DETAIL guest return=51966
+production Linker/VM; owners=2 veneers=18 graphics=not-created modules=1
+PRODUCTION_RUNTIME_PASS mode=return rounds=3

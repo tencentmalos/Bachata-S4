@@ -1,0 +1,37 @@
+Dynamic section at offset 0x45b1590 contains 35 entries:
+  Tag                Type              Name/Value
+  0x0000000000000001 (NEEDED)          Shared library: [libz.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libm.so]
+  0x0000000000000001 (NEEDED)          Shared library: [liblog.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libdl.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libandroid.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libaaudio.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libc++_shared.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libc.so]
+  0x000000000000000e (SONAME)          Library soname: [libshadps4_host.so]
+  0x000000000000001e (FLAGS)           BIND_NOW 
+  0x000000006ffffffb (FLAGS_1)         NOW 
+  0x0000000000000007 (RELA)            0x40e598
+  0x0000000000000008 (RELASZ)          604824 (bytes)
+  0x0000000000000009 (RELAENT)         24 (bytes)
+  0x000000006ffffff9 (RELACOUNT)       2118
+  0x000000006fffe000 (ANDROID_RELR)    0x4a2030
+  0x000000006fffe001 (ANDROID_RELRSZ)  0x9d00
+  0x000000006fffe003 (ANDROID_RELRENT) 0x8
+  0x0000000000000017 (JMPREL)          0x4abd30
+  0x0000000000000002 (PLTRELSZ)        439776 (bytes)
+  0x0000000000000003 (PLTGOT)          0x45d3a80
+  0x0000000000000014 (PLTREL)          RELA
+  0x0000000000000006 (SYMTAB)          0x368
+  0x000000000000000b (SYMENT)          24 (bytes)
+  0x0000000000000005 (STRTAB)          0x136ddc
+  0x000000000000000a (STRSZ)           2979771 (bytes)
+  0x000000006ffffef5 (GNU_HASH)        0xf81f8
+  0x0000000000000019 (INIT_ARRAY)      0x45b90e8
+  0x000000000000001b (INIT_ARRAYSZ)    1192 (bytes)
+  0x000000000000001a (FINI_ARRAY)      0x45b90d8
+  0x000000000000001c (FINI_ARRAYSZ)    16 (bytes)
+  0x000000006ffffff0 (VERSYM)          0xe5028
+  0x000000006ffffffe (VERNEED)         0xf8138
+  0x000000006fffffff (VERNEEDNUM)      3
+  0x0000000000000000 (NULL)            0x0

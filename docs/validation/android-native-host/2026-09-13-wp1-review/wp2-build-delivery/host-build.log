@@ -1,0 +1,49 @@
+[1/146] Generating CXX dyndep file externals/pugixml/CMakeFiles/pugixml-static.dir/CXX.dd
+[2/144] Generating CXX dyndep file externals/openal-soft/CMakeFiles/OpenAL.dir/CXX.dd
+[3/49] Performing build step for 'ffmpeg_android_build'
+[4/49] No install step for 'ffmpeg_android_build'
+[5/49] Completed 'ffmpeg_android_build'
+[6/49] Building CXX object CMakeFiles/shadps4.dir/src/common/scm_rev.cpp.o
+[7/49] Building CXX object CMakeFiles/shadps4.dir/src/common/assert.cpp.o
+[8/49] Building CXX object CMakeFiles/shadps4.dir/src/imgui/invitation_prompt_layer.cpp.o
+[9/49] Building CXX object CMakeFiles/shadps4.dir/src/core/ipc/ipc.cpp.o
+[10/49] Building CXX object CMakeFiles/shadps4.dir/src/imgui/renderer/imgui_core.cpp.o
+[11/49] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/pad/pad.cpp.o
+[12/49] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/videoout/driver.cpp.o
+[13/49] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/ime/ime_dialog_ui.cpp.o
+[14/49] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/ime/ime_ui.cpp.o
+[15/49] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/videoout/video_out.cpp.o
+[16/49] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/gnmdriver/gnmdriver.cpp.o
+[17/49] Building CXX object CMakeFiles/shadps4.dir/src/core/devtools/options.cpp.o
+[18/49] Building CXX object CMakeFiles/shadps4.dir/src/core/devtools/layer.cpp.o
+[19/49] Building CXX object CMakeFiles/shadps4.dir/src/video_core/buffer_cache/buffer.cpp.o
+[20/49] Building CXX object CMakeFiles/shadps4.dir/src/core/devtools/widget/shader_list.cpp.o
+[21/49] Building CXX object CMakeFiles/shadps4.dir/src/video_core/amdgpu/liverpool.cpp.o
+[22/49] Building CXX object CMakeFiles/shadps4.dir/src/video_core/renderer_vulkan/vk_compute_pipeline.cpp.o
+[23/49] Building CXX object CMakeFiles/shadps4.dir/src/video_core/buffer_cache/fault_manager.cpp.o
+[24/49] Building CXX object CMakeFiles/shadps4.dir/src/video_core/buffer_cache/buffer_cache.cpp.o
+[25/49] Building CXX object CMakeFiles/shadps4.dir/src/video_core/renderer_vulkan/vk_graphics_pipeline.cpp.o
+[26/49] Building CXX object CMakeFiles/shadps4.dir/src/video_core/renderer_vulkan/vk_pipeline_common.cpp.o
+[27/49] Building CXX object CMakeFiles/shadps4.dir/src/video_core/renderer_vulkan/vk_master_semaphore.cpp.o
+[28/49] Building CXX object CMakeFiles/shadps4.dir/src/video_core/renderer_vulkan/vk_instance.cpp.o
+[29/49] Building CXX object CMakeFiles/shadps4.dir/src/video_core/renderer_vulkan/vk_pipeline_cache.cpp.o
+[30/49] Building CXX object CMakeFiles/shadps4.dir/src/video_core/renderer_vulkan/vk_pipeline_serialization.cpp.o
+[31/49] Building CXX object CMakeFiles/shadps4.dir/src/video_core/renderer_vulkan/vk_platform.cpp.o
+[32/49] Building CXX object CMakeFiles/shadps4.dir/src/video_core/renderer_vulkan/vk_resource_pool.cpp.o
+[33/49] Building CXX object CMakeFiles/shadps4.dir/src/video_core/renderer_vulkan/vk_rasterizer.cpp.o
+[34/49] Building CXX object CMakeFiles/shadps4.dir/src/video_core/renderer_vulkan/vk_presenter.cpp.o
+[35/49] Building CXX object CMakeFiles/shadps4.dir/src/video_core/renderer_vulkan/vk_scheduler.cpp.o
+[36/49] Building CXX object CMakeFiles/shadps4.dir/src/video_core/texture_cache/blit_helper.cpp.o
+[37/49] Building CXX object CMakeFiles/shadps4.dir/src/video_core/renderer_vulkan/vk_swapchain.cpp.o
+[38/49] Building CXX object CMakeFiles/shadps4.dir/src/video_core/renderer_vulkan/host_passes/pp_pass.cpp.o
+[39/49] Building CXX object CMakeFiles/shadps4.dir/src/video_core/texture_cache/image_view.cpp.o
+[40/49] Building CXX object CMakeFiles/shadps4.dir/src/video_core/texture_cache/sampler.cpp.o
+[41/49] Building CXX object CMakeFiles/shadps4.dir/src/video_core/texture_cache/image.cpp.o
+[42/49] Building CXX object CMakeFiles/host_library_smoke.dir/tests/host_runtime/host_library_smoke.cpp.o
+[43/49] Building CXX object CMakeFiles/shadps4.dir/src/video_core/texture_cache/tile_manager.cpp.o
+[44/49] Building CXX object CMakeFiles/shadps4.dir/src/video_core/cache_storage.cpp.o
+[45/49] Building CXX object CMakeFiles/shadps4.dir/src/video_core/texture_cache/texture_cache.cpp.o
+[46/49] Building CXX object CMakeFiles/shadps4.dir/src/core/host_runtime/guest_graphics.cpp.o
+[47/49] Building CXX object CMakeFiles/shadps4.dir/src/core/host_runtime/guest_runtime.cpp.o
+[48/49] Linking CXX shared library libshadps4_host.so
+[49/49] Linking CXX executable host_library_smoke

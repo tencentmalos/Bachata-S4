@@ -469,12 +469,15 @@ static void SavePendingScreenshots(const std::vector<ScreenshotReadback>& readba
     }
 }
 
-Presenter::Presenter(std::shared_ptr<Frontend::Window> window_, AmdGpu::Liverpool* liverpool_)
-    : window{window_ ? std::move(window_)
+Presenter::Presenter(std::shared_ptr<Frontend::Window> window_, AmdGpu::Liverpool* liverpool_,
+                     DriverLease driver, std::function<bool()> splash_visible_)
+    : splash_visible(splash_visible_ ? std::move(splash_visible_)
+                                     : Libraries::SystemService::IsSplashVisible),
+      window{window_ ? std::move(window_)
                      : throw std::invalid_argument("Presenter requires a window")},
       liverpool{liverpool_},
       instance{*window, EmulatorSettings.GetGpuId(), EmulatorSettings.IsVkValidationEnabled(),
-               EmulatorSettings.IsVkCrashDiagnosticEnabled()},
+               EmulatorSettings.IsVkCrashDiagnosticEnabled(), std::move(driver)},
       draw_scheduler{instance}, present_scheduler{instance}, flip_scheduler{instance},
       swapchain{instance, *window},
       rasterizer{std::make_unique<Rasterizer>(instance, draw_scheduler, liverpool)},
@@ -962,7 +965,7 @@ void Presenter::Present(Frame* frame, bool is_reusing_frame) {
                 auto game_width = frame->width;
                 auto game_height = frame->height;
 
-                if (Libraries::SystemService::IsSplashVisible()) { // draw splash
+                if (splash_visible()) { // draw splash
                     if (!splash_img.has_value()) {
                         splash_img.emplace();
                         const auto& splash_data = Common::ElfInfo::Instance().GetSplashData();

@@ -80,3 +80,25 @@ dependencies {
     androidTestImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(kotlin("test"))
 }
+
+// These hook DSOs must be packaged, but MUST NOT be linked as DT_NEEDED:
+// loading them in the app namespace interposes fopen/ioctl before hook init.
+val nativeHooks = layout.buildDirectory.dir("generated/adrenotoolsJniLibs")
+android.sourceSets.getByName("main").jniLibs.srcDir(nativeHooks)
+val packageNativeHooks = tasks.register("packageNativeHooks") {
+    val config = file(hostLoaderConfig)
+    inputs.file(config)
+    val marker = "set(SHADPS4_HOST_ADRENOTOOLS_HOOKS [==["
+    val hookFiles = if (config.exists()) config.readText().substringAfter(marker, "")
+        .substringBefore("]==])").split(';').filter { it.isNotBlank() }.map { file(it) } else emptyList()
+    inputs.files(hookFiles)
+    outputs.dir(nativeHooks)
+    doLast {
+        check(hookFiles.size == 4 && hookFiles.all { it.isFile }) {
+            "Rebuild native host: expected four adrenotools hooks in host loader config"
+        }
+        val output = nativeHooks.get().dir("arm64-v8a").asFile.apply { mkdirs() }
+        hookFiles.forEach { it.copyTo(output.resolve(it.name), overwrite = true) }
+    }
+}
+tasks.named("preBuild").configure { dependsOn(packageNativeHooks) }

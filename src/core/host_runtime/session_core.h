@@ -108,6 +108,9 @@ public:
     // could not be spawned (state rolled back to Idle).
     [[nodiscard]] std::uint64_t Start(const SessionParams& params);
 
+    // Admit guest execution after the app has installed this generation's input/platform sinks.
+    [[nodiscard]] bool PlatformReady(std::uint64_t generation);
+
     // Requests a stop of `generation`. Bounded by timeout_ns for the CPU stop
     // receipt (0 = 1s default). Never joins here.
     [[nodiscard]] StopResult RequestStop(std::uint64_t generation, std::uint64_t timeout_ns);
@@ -177,6 +180,7 @@ private:
 
     std::shared_ptr<SessionRuntime> runtime_;  // published by owner after Prepare
     int in_flight_control_{0};                 // control-lease count
+    bool platform_ready_{true};
     bool tearing_down_{false};                 // closes admission for new leases
     bool drain_timed_out_{false};              // soft drain budget elapsed; owner still reclaiming
     std::uint64_t cancel_generation_{0};       // persistent cancel intent

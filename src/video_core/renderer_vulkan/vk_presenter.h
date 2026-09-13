@@ -49,7 +49,8 @@ class Rasterizer;
 
 class Presenter {
 public:
-    Presenter(std::shared_ptr<Frontend::Window> window, AmdGpu::Liverpool* liverpool);
+    Presenter(std::shared_ptr<Frontend::Window> window, AmdGpu::Liverpool* liverpool,
+              DriverLease driver = {}, std::function<bool()> splash_visible = {});
     ~Presenter();
 
     // The session owner must call this before joining rendering workers.
@@ -121,6 +122,7 @@ private:
     u32 expected_frame_width{1920};
     u32 expected_frame_height{1080};
 
+    std::function<bool()> splash_visible;
     std::shared_ptr<Frontend::Window> window;
     Instance instance;
     HostPasses::FsrPass fsr_pass;
@@ -137,7 +139,7 @@ private:
     vk::UniqueCommandPool command_pool;
     std::vector<Frame> present_frames;
     std::queue<Frame*> free_queue;
-    Frame* last_submit_frame;
+    Frame* last_submit_frame{};
     std::mutex free_mutex;
     std::condition_variable free_cv;
     std::condition_variable_any frame_cv;

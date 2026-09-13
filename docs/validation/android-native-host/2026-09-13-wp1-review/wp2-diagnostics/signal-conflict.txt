@@ -1,0 +1,32 @@
+F/libc    (23230): Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 23326 (roidJUnitRunner), pid 23230 (shadps4.android)
+F/DEBUG   (23349): *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+F/DEBUG   (23349): Build fingerprint: 'qti/kalama/kalama:13/TKQ1.231222.001/eng.Thor.20260206.163241:user/release-keys'
+F/DEBUG   (23349): Revision: '0'
+F/DEBUG   (23349): ABI: 'arm64'
+F/DEBUG   (23349): Timestamp: 2026-09-13 17:47:13.090924595+0800
+F/DEBUG   (23349): Process uptime: 4s
+F/DEBUG   (23349): Cmdline: com.shadps4.android
+F/DEBUG   (23349): pid: 23230, tid: 23326, name: roidJUnitRunner  >>> com.shadps4.android <<<
+F/DEBUG   (23349): uid: 10157
+F/DEBUG   (23349): tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+F/DEBUG   (23349): pac_enabled_keys: 000000000000000f (PR_PAC_APIAKEY, PR_PAC_APIBKEY, PR_PAC_APDAKEY, PR_PAC_APDBKEY)
+F/DEBUG   (23349): signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+F/DEBUG   (23349): Abort message: 'Host assertion failed; see native backtrace'
+F/DEBUG   (23349):     x0  0000000000000000  x1  0000000000005b1e  x2  0000000000000006  x3  0000007471d0e090
+F/DEBUG   (23349):     x4  756873606d1f6464  x5  756873606d1f6464  x6  756873606d1f6464  x7  7f7f7f7f7f7f7f7f
+F/DEBUG   (23349):     x8  00000000000000f0  x9  0000007b42f5fb28  x10 0000000000000001  x11 0000007b42f9f84c
+F/DEBUG   (23349):     x12 0000007471d0cf40  x13 000000000000002c  x14 0000007471d0e2d0  x15 000001576e3329d8
+F/DEBUG   (23349):     x16 0000007b43007d68  x17 0000007b42fe34e0  x18 0000007793af2000  x19 0000000000005abe
+F/DEBUG   (23349):     x20 0000000000005b1e  x21 00000000ffffffff  x22 0000007471d0ee20  x23 b400007864dba798
+F/DEBUG   (23349):     x24 0000007831e16000  x25 0000007471d0e820  x26 b400007864dba798  x27 000000100020befc
+F/DEBUG   (23349):     x28 00000077940df000  x29 0000007471d0e110
+F/DEBUG   (23349):     lr  0000007b42f90788  sp  0000007471d0e070  pc  0000007b42f907b4  pst 0000000000001000
+F/DEBUG   (23349): backtrace:
+F/DEBUG   (23349):       #00 pc 00000000000527b4  /apex/com.android.runtime/lib64/bionic/libc.so (abort+168) (BuildId: bf5f1ce73f89cca7d6a062eb7877e86a)
+F/DEBUG   (23349):       #01 pc 00000000006182f4  /apex/com.android.art/lib64/libart.so (art::Runtime::Abort(char const*)+120) (BuildId: 3fdfb8b8ec5407af450c28a00ba584a8)
+F/DEBUG   (23349):       #02 pc 0000000000017114  /system/lib64/libbase.so (android::base::SetAborter(std::__1::function<void (char const*)>&&)::$_3::__invoke(char const*)+84) (BuildId: ef369bfbad96b532c6d8e0b144a68b96)
+F/DEBUG   (23349):       #03 pc 0000000000006f60  /system/lib64/liblog.so (__android_log_assert+312) (BuildId: a7d65e6f6782b4b13384777bd315ba53)
+F/DEBUG   (23349):       #04 pc 000000000284a928  /data/app/~~s2lInnpgg15lmPQxjabS7Q==/com.shadps4.android-mZKEXgTrZisU7XkA7b9RNw==/lib/arm64/libshadps4_host.so (unreachable_impl()+36) (BuildId: a035ea824e0366a3ef70d2dc5bd814bac685a371)
+F/DEBUG   (23349):       #05 pc 00000000031a9b38  /data/app/~~s2lInnpgg15lmPQxjabS7Q==/com.shadps4.android-mZKEXgTrZisU7XkA7b9RNw==/lib/arm64/libshadps4_host.so (Core::SignalHandler(int, siginfo*, void*)+1636) (BuildId: a035ea824e0366a3ef70d2dc5bd814bac685a371)
+F/DEBUG   (23349):       #06 pc 000000000000084c  [vdso]
+F/DEBUG   (23349):       #07 pc 0000000000b814f0  [anon:FEXMemJIT]

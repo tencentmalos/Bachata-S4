@@ -88,15 +88,30 @@ std::string GetReadableVersion(u32 version) {
 
 } // Anonymous namespace
 
-Instance::Instance(bool enable_validation, bool enable_crash_diagnostic)
-    : instance{CreateInstance(Frontend::WindowSystemType::Headless, enable_validation,
-                              enable_crash_diagnostic)},
+static std::unique_lock<std::mutex> AcquireDispatcher() {
+#if defined(__ANDROID__)
+    static std::mutex mutex;
+    std::unique_lock lock(mutex, std::try_to_lock);
+    if (!lock.owns_lock())
+        throw std::runtime_error("Android Vulkan renderer is already active");
+    return lock;
+#else
+    return {};
+#endif
+}
+
+Instance::Instance(bool enable_validation, bool enable_crash_diagnostic, DriverLease driver_)
+    : dispatcher_lease{AcquireDispatcher()}, driver{std::move(driver_)},
+      instance{CreateInstance(Frontend::WindowSystemType::Headless, enable_validation,
+                              enable_crash_diagnostic, driver)},
       physical_devices{EnumeratePhysicalDevices(instance)} {}
 
 Instance::Instance(Frontend::Window& window, s32 physical_device_index,
-                   bool enable_validation /*= false*/, bool enable_crash_diagnostic /*= false*/)
-    : instance{CreateInstance(window.GetWindowInfo().type, enable_validation,
-                              enable_crash_diagnostic)},
+                   bool enable_validation /*= false*/, bool enable_crash_diagnostic /*= false*/,
+                   DriverLease driver_)
+    : dispatcher_lease{AcquireDispatcher()}, driver{std::move(driver_)},
+      instance{CreateInstance(window.GetWindowInfo().type, enable_validation,
+                              enable_crash_diagnostic, driver)},
       physical_devices{EnumeratePhysicalDevices(instance)} {
     if (enable_validation) {
         debug_callback = CreateDebugCallback(*instance);
@@ -171,15 +186,18 @@ Instance::Instance(Frontend::Window& window, s32 physical_device_index,
                VK_VERSION_MAJOR(TargetVulkanApiVersion), VK_VERSION_MINOR(TargetVulkanApiVersion),
                VK_VERSION_MAJOR(properties.apiVersion), VK_VERSION_MINOR(properties.apiVersion));
 
-    CreateDevice();
+    if (!CreateDevice())
+        throw std::runtime_error("Vulkan logical device creation failed");
     CollectPhysicalMemoryInfo();
     CollectImageFormatInfo();
     CollectToolingInfo();
 }
 
 Instance::~Instance() {
-    ImGui::Core::Shutdown(GetDevice());
-    vmaDestroyAllocator(allocator);
+    if (device)
+        ImGui::Core::Shutdown(GetDevice());
+    if (allocator)
+        vmaDestroyAllocator(allocator);
 }
 
 std::string Instance::GetDriverVersionName() {
@@ -213,6 +231,8 @@ bool Instance::CreateDevice() {
                           vk::PhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR,
                           vk::PhysicalDeviceImage2DViewOf3DFeaturesEXT>();
     features = feature_chain.get().features;
+    if (driver && !features.shaderInt64)
+        throw std::runtime_error("Selected Turnip device lacks required shaderInt64");
 
     const vk::StructureChain properties_chain = physical_device.getProperties2<
         vk::PhysicalDeviceProperties2, vk::PhysicalDeviceVulkan11Properties,
@@ -245,16 +265,13 @@ bool Instance::CreateDevice() {
         return false;
     };
 
-    // Required
-    ASSERT_MSG(add_extension(VK_KHR_SWAPCHAIN_EXTENSION_NAME),
-               "Required Vulkan extension unavailable: {}", VK_KHR_SWAPCHAIN_EXTENSION_NAME);
-    ASSERT_MSG(add_extension(VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME),
-               "Required Vulkan extension unavailable: {}", VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME);
-    ASSERT_MSG(add_extension(VK_EXT_VERTEX_ATTRIBUTE_DIVISOR_EXTENSION_NAME),
-               "Required Vulkan extension unavailable: {}",
-               VK_EXT_VERTEX_ATTRIBUTE_DIVISOR_EXTENSION_NAME);
-    ASSERT_MSG(add_extension(VK_EXT_ROBUSTNESS_2_EXTENSION_NAME),
-               "Required Vulkan extension unavailable: {}", VK_EXT_ROBUSTNESS_2_EXTENSION_NAME);
+    for (const char* extension :
+         {VK_KHR_SWAPCHAIN_EXTENSION_NAME, VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME,
+          VK_EXT_VERTEX_ATTRIBUTE_DIVISOR_EXTENSION_NAME, VK_EXT_ROBUSTNESS_2_EXTENSION_NAME}) {
+        if (!add_extension(extension))
+            throw std::runtime_error(std::string("Required Vulkan extension unavailable: ") +
+                                     extension);
+    }
 
     // Robustness2 makes out-of-bounds accesses well-defined instead of
     // undefined. Native drivers expose all of it, but a portability driver

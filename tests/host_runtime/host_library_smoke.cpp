@@ -12,16 +12,17 @@
 #include <stdexcept>
 #include <thread>
 #ifdef __ANDROID__
+#include <cstring>
+#include <fstream>
+#include <new>
+#include <sys/ucontext.h>
 #include "common/path_util.h"
 #include "core/libraries/audio/audioin.h"
 #include "core/libraries/audio/audioin_error.h"
 #include "core/libraries/kernel/threads/exception.h"
 #include "core/loader/elf.h"
+#include "core/signals.h"
 #include "frontend/android_window.h"
-#include <cstring>
-#include <fstream>
-#include <new>
-#include <sys/ucontext.h>
 namespace Libraries::SystemService {
 int sceSystemServiceLoadExec(const char *, const char **);
 }
@@ -38,6 +39,39 @@ static unsigned checks{}, failures{};
     } while (0)
 
 #ifdef __ANDROID__
+static void CheckPassiveSignals() {
+    constexpr int signals[] = {SIGSEGV, SIGBUS, SIGILL, SIGFPE, SIGTRAP, SIGSYS, SIGUSR1, SIGSLEEP};
+    struct sigaction before[std::size(signals)]{};
+    for (size_t i = 0; i < std::size(signals); ++i)
+        CHECK(sigaction(signals[i], nullptr, &before[i]) == 0);
+    for (unsigned round = 0; round < 3; ++round) {
+        {
+            Core::SignalDispatch passive{Core::SignalDispatch::Delivery::External};
+            Core::Signals::Binding binding{passive};
+            CHECK(Core::Signals::Instance() == &passive);
+            passive.RegisterAccessViolationHandler(
+                [](void*, void* address) { return address == reinterpret_cast<void*>(0x1234); }, 0);
+            CHECK(passive.DispatchAccessViolation(nullptr, reinterpret_cast<void*>(0x1234)));
+            CHECK(!passive.DispatchAccessViolation(nullptr, nullptr));
+            passive.RemoveHandlers();
+            for (size_t i = 0; i < std::size(signals); ++i) {
+                struct sigaction action{};
+                CHECK(sigaction(signals[i], nullptr, &action) == 0);
+                CHECK(action.sa_sigaction == before[i].sa_sigaction &&
+                      action.sa_flags == before[i].sa_flags &&
+                      std::memcmp(&action.sa_mask, &before[i].sa_mask, sizeof(sigset_t)) == 0);
+            }
+        }
+        for (size_t i = 0; i < std::size(signals); ++i) {
+            struct sigaction action{};
+            CHECK(sigaction(signals[i], nullptr, &action) == 0);
+            CHECK(action.sa_sigaction == before[i].sa_sigaction &&
+                  action.sa_flags == before[i].sa_flags &&
+                  std::memcmp(&action.sa_mask, &before[i].sa_mask, sizeof(sigset_t)) == 0);
+        }
+    }
+}
+
 static void CheckLoaderAndAudio(const std::filesystem::path &root) {
     using namespace Libraries::AudioIn;
     CHECK(sceAudioInOpen(1, 1, 0, 0, 48000, 0) == ORBIS_AUDIO_IN_ERROR_INVALID_SIZE);
@@ -180,6 +214,7 @@ struct TestControl final : Core::HostRuntime::ApplicationControl {
 
 int main(int argc, char **argv) {
 #ifdef __ANDROID__
+    CheckPassiveSignals();
     if (argc != 2) {
         std::fprintf(stderr, "usage: host_library_smoke <absolute-user-data-directory>\n");
         return 2;

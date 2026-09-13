@@ -315,7 +315,9 @@ void SignalHandler(int sig, siginfo_t* info, void* raw_context) {
 
 #endif
 
-SignalDispatch::SignalDispatch() {
+SignalDispatch::SignalDispatch(Delivery delivery) {
+    if (delivery == Delivery::External)
+        return;
 #if defined(_WIN32)
     ASSERT_MSG(handle = AddVectoredExceptionHandler(0, SignalHandler),
                "Failed to register exception handler.");
@@ -332,9 +334,12 @@ SignalDispatch::SignalDispatch() {
             sigaction(SIGUSR1, &action, nullptr) == 0 && sigaction(SIGSLEEP, &action, nullptr) == 0,
         "Failed to register signal handlers.");
 #endif
+    owns_handlers = true;
 }
 
 void SignalDispatch::RemoveHandlers() {
+    if (!owns_handlers)
+        return;
     // asserting here would get into an infinite loop until too
     // many nested exceptions makes the OS kill the process
 #if defined(_WIN32)
@@ -357,6 +362,7 @@ void SignalDispatch::RemoveHandlers() {
         std::quick_exit(1);
     }
 #endif
+    owns_handlers = false;
 }
 
 SignalDispatch::~SignalDispatch() {

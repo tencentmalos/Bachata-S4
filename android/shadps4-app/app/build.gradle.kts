@@ -203,11 +203,12 @@ val runtimeFixtureAssets = layout.buildDirectory.dir("generated/productionRuntim
 android.sourceSets.getByName("androidTest").assets.srcDir(runtimeFixtureAssets)
 val fixtureRepo = rootProject.projectDir.resolve("../..")
 val fixtureNdk = android.sdkDirectory.resolve("ndk/29.0.14206865")
-val runtimeFixtureTasks = listOf("bootstrap", "bootstrap-wait", "libc", "libc-wait", "services", "fixture", "self", "wait", "dependency", "dependency-wait", "bad", "unknown").map { kind ->
+val runtimeFixtureTasks = listOf("videoout", "videoout-bad", "videoout-format", "bootstrap", "bootstrap-wait", "libc", "libc-wait", "services", "fixture", "self", "wait", "dependency", "dependency-wait", "bad", "unknown").map { kind ->
     tasks.register<Exec>("generate${kind.replaceFirstChar { it.uppercase() }}RuntimeElf") {
         inputs.file(fixtureRepo.resolve("scripts/android/generate-production-runtime-fixture"))
         inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/production_runtime.S"))
         inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/runtime_services.S"))
+        inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/runtime_videoout.S"))
         val output = runtimeFixtureAssets.get().file(if (kind == "dependency") "fixture_dependency.sprx" else "$kind.elf").asFile
         outputs.file(output)
         commandLine(listOf("python3", fixtureRepo.resolve("scripts/android/generate-production-runtime-fixture").absolutePath,
@@ -217,6 +218,9 @@ val runtimeFixtureTasks = listOf("bootstrap", "bootstrap-wait", "libc", "libc-wa
                 "libc" -> listOf("--module", "--libc")
                 "libc-wait" -> listOf("--module", "--libc", "--wait")
                 "services" -> listOf("--services")
+                "videoout" -> listOf("--videoout")
+                "videoout-bad" -> listOf("--videoout", "--bad-pointer")
+                "videoout-format" -> listOf("--videoout", "--bad-format")
                 "self" -> listOf("--self", "--with-dependency")
                 "wait" -> listOf("--wait")
                 "dependency" -> listOf("--module")
@@ -230,3 +234,15 @@ val runtimeFixtureTasks = listOf("bootstrap", "bootstrap-wait", "libc", "libc-wa
 tasks.configureEach {
     if (name.startsWith("merge") && name.endsWith("AndroidTestAssets")) dependsOn(runtimeFixtureTasks)
 }
+
+// Native host profile: checksum-pinned bionic Turnip, generated outside source.
+val nativeTurnipAssets = layout.buildDirectory.dir("generated/nativeTurnipAssets")
+android.sourceSets.getByName("main").assets.srcDir(nativeTurnipAssets)
+val prepareNativeTurnip = tasks.register<Exec>("prepareNativeTurnip") {
+    inputs.file(fixtureRepo.resolve("runtime/locks/turnip-bionic.json"))
+    inputs.file(fixtureRepo.resolve("scripts/android/prepare-bionic-turnip"))
+    outputs.dir(nativeTurnipAssets)
+    commandLine("python3", fixtureRepo.resolve("scripts/android/prepare-bionic-turnip").absolutePath,
+        "--out", nativeTurnipAssets.get().dir("native-turnip").asFile.absolutePath)
+}
+tasks.named("preBuild").configure { dependsOn(prepareNativeTurnip) }

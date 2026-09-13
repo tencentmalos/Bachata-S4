@@ -5,7 +5,13 @@
 #include "common/assert.h"
 #include "core/signals.h"
 
-#if defined(ARCH_X86_64)
+#if defined(__ANDROID__)
+#include <android/log.h>
+// SIGTRAP does not reliably produce an Android ApplicationExitInfo tombstone.
+// Preserve a debuggerd stack even when asynchronous host logs have not drained.
+#define Crash()                                                                                    \
+    __android_log_assert(nullptr, "shadps4", "Host assertion failed; see native backtrace")
+#elif defined(ARCH_X86_64)
 #define Crash() __asm__ __volatile__("int $3")
 #elif defined(ARCH_ARM64)
 #define Crash() __asm__ __volatile__("brk 0")
@@ -14,7 +20,9 @@
 #endif
 
 void assert_fail_impl() {
+#if !defined(__ANDROID__)
     Core::Signals::Instance()->RemoveHandlers();
+#endif
     Crash();
 }
 

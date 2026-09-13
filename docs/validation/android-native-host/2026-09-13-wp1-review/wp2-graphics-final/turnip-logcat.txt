@@ -1,0 +1,5 @@
+--------- beginning of main
+09-13 18:20:44.219 14064 14085 I TurnipAcceptance: page_size=4096 pid=14064 uid=10157 device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+09-13 18:20:44.996 14064 14085 I TurnipAcceptance: WSI round=1 device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 surface=1920x1080 images=6
+09-13 18:20:45.938 14064 14085 I TurnipAcceptance: WSI round=2 device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 surface=1920x1080 images=6
+09-13 18:20:46.854 14064 14085 I TurnipAcceptance: WSI round=3 device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 surface=1920x1080 images=6

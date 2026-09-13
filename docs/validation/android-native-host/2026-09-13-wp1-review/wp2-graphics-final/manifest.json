@@ -1,0 +1,90 @@
+{
+  "source": "10a5b23ecbc80ea75bf4b785c921747f131f3480",
+  "source_status": " M AGENTS.md\n M CLAUDE.md\n M CMakeLists.txt\n M android/shadps4-app/app/build.gradle.kts\n M android/shadps4-app/app/src/androidTest/kotlin/com/shadps4/android/ProductionRuntimeInstrumentedTest.kt\n M android/shadps4-app/app/src/main/kotlin/com/shadps4/android/service/FexSessionService.kt\n M android/shadps4-app/core/runtime/build.gradle.kts\n M android/shadps4-app/core/runtime/src/main/cpp/CMakeLists.txt\n M android/shadps4-app/core/runtime/src/main/cpp/fex_session_jni.cpp\n M android/shadps4-app/core/runtime/src/main/kotlin/com/shadps4/android/runtime/input/NativePad.kt\n M android/shadps4-app/core/runtime/src/main/kotlin/com/shadps4/android/runtime/session/NativeFexSession.kt\n M docs/README.md\n M docs/validation/android-native-host/2026-09-13-wp1-review/README.md\n m references/Bachata-S4\n M scripts/android/generate-production-runtime-fixture\n M src/common/assert.cpp\n M src/core/guest_cpu/fex/fex_context.cpp\n M src/core/guest_cpu/fex/fex_context.h\n M src/core/host_runtime/guest_runtime.cpp\n M src/core/host_runtime/guest_runtime.h\n M src/core/host_runtime/session_backend.h\n M src/core/host_runtime/session_backend_fex.cpp\n M src/core/host_runtime/session_core.cpp\n M src/core/host_runtime/session_core.h\n M src/core/libraries/sysmodule/sysmodule_internal.cpp\n M src/core/libraries/videoout/driver.cpp\n M src/core/libraries/videoout/driver.h\n M src/core/signals.cpp\n M src/core/signals.h\n M src/imgui/renderer/imgui_core.cpp\n M src/video_core/renderer_vulkan/vk_instance.cpp\n M src/video_core/renderer_vulkan/vk_instance.h\n M src/video_core/renderer_vulkan/vk_platform.cpp\n M src/video_core/renderer_vulkan/vk_platform.h\n M src/video_core/renderer_vulkan/vk_presenter.cpp\n M src/video_core/renderer_vulkan/vk_presenter.h\n M src/video_core/renderer_vulkan/vk_rasterizer.cpp\n M tests/guest_cpu/guest_execution_tests.cpp\n M tests/host_runtime/guest_services_tests.cpp\n M tests/host_runtime/host_library_smoke.cpp\n M tests/host_runtime/session_lifecycle_tests.cpp\n?? android/shadps4-app/app/src/androidTest/kotlin/com/shadps4/android/RenderedRuntimeInstrumentedTest.kt\n?? android/shadps4-app/app/src/androidTest/kotlin/com/shadps4/android/RuntimeTestSurface.kt\n?? android/shadps4-app/app/src/androidTest/kotlin/com/shadps4/android/TurnipInstrumentedTest.kt\n?? android/shadps4-app/core/runtime/src/main/kotlin/com/shadps4/android/runtime/session/AndroidTurnip.kt\n?? docs/validation/android-native-host/2026-09-13-wp1-review/wp2-cpu-continuation/\n?? docs/validation/android-native-host/2026-09-13-wp1-review/wp2-cpu-continuation2/\n?? docs/validation/android-native-host/2026-09-13-wp1-review/wp2-cpu-continuation3/\n?? docs/validation/android-native-host/2026-09-13-wp1-review/wp2-cpu-final/\n?? docs/validation/android-native-host/2026-09-13-wp1-review/wp2-host-delivery/\n?? docs/validation/android-native-host/2026-09-13-wp1-review/wp2-host-final/\n?? docs/validation/android-native-host/2026-09-13-wp1-review/wp2-platform-boundary/\n?? docs/validation/android-native-host/2026-09-13-wp1-review/wp2-platform-tests/\n?? docs/validation/android-native-host/2026-09-13-wp1-review/wp2-runtime-continuation/\n?? docs/validation/android-native-host/2026-09-13-wp1-review/wp2-runtime-delivery/\n?? docs/validation/android-native-host/2026-09-13-wp1-review/wp2-runtime-final/\n?? docs/validation/android-native-host/2026-09-13-wp1-review/wp2-runtime-internal-pause/\n?? docs/validation/android-native-host/2026-09-13-wp1-review/wp2-runtime-join-diagnostic/\n?? docs/validation/android-native-host/2026-09-13-wp1-review/wp2-runtime-retirement/\n?? docs/validation/android-native-host/wp2-native-turnip-runtime-review-2026-09-13.md\n?? externals/dear_imgui/\n?? runtime/\n?? scripts/android/prepare-bionic-turnip\n?? src/core/host_runtime/guest_graphics.cpp\n?? src/core/host_runtime/guest_graphics.h\n?? src/core/host_runtime/guest_platform.h\n?? src/video_core/renderer_vulkan/vk_driver.h\n?? src/video_core/renderer_vulkan/vk_driver_android.cpp\n?? tests/guest_cpu/fixtures/runtime_videoout.S\n",
+  "scope": "ordinary APK native Turnip/WSI/synthetic guest plus selected TMNT boundary, not gameplay/Swan acceptance",
+  "runs": [
+    {
+      "case": "turnip",
+      "junit_tests": 2,
+      "pass": true
+    },
+    {
+      "case": "synthetic-videoout",
+      "junit_tests": 1,
+      "pass": true
+    },
+    {
+      "case": "tmnt-boundary",
+      "junit_tests": 1,
+      "pass": true
+    }
+  ],
+  "device": {
+    "ro.product.model": "AYN Thor",
+    "ro.build.version.sdk": "33",
+    "ro.build.fingerprint": "qti/kalama/kalama:13/TKQ1.231222.001/eng.Thor.20260206.163241:user/release-keys"
+  },
+  "page_size": "4096",
+  "artifacts": {
+    "android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk": "2294474489a56ce88322c1d84ff461e7929141113c7b924570e0084410e93cfa",
+    "android/shadps4-app/app/build/outputs/apk/androidTest/playstore/debug/app-playstore-debug-androidTest.apk": "4995cc2898c3db122aa342ff8e640c090c31cad1ac3308ef86281633dc9274d0",
+    "build/android-host-api33/native/libshadps4_host.so": "bf3f1d6e73eca0422270907ec4b04d7e3cf769232d082207c5847a0e2e28e08b"
+  },
+  "changed_sources": {
+    "android/shadps4-app/app/src/androidTest/kotlin/com/shadps4/android/RenderedRuntimeInstrumentedTest.kt": "d4a212f28a0976f9dec2ca0a81bff60fc50db47b81b83d7e34215c23e235fa0a",
+    "android/shadps4-app/app/src/androidTest/kotlin/com/shadps4/android/RuntimeTestSurface.kt": "418881c95505478fa065f8875a95e46a88eb59d271a4286717b42522f6acb002",
+    "android/shadps4-app/app/src/androidTest/kotlin/com/shadps4/android/TurnipInstrumentedTest.kt": "a2e8e2c7d00629eb7889034d9cf3840cd51e2d3d49e81b2090874b35b5d82334",
+    "android/shadps4-app/core/runtime/src/main/kotlin/com/shadps4/android/runtime/session/AndroidTurnip.kt": "1473afce0f918b6a3b5f98fe47c1f6d0e2ee6958f657b4d32cfc10f024ecbf43",
+    "scripts/android/prepare-bionic-turnip": "9406efe098efb9d737e8d60f8ea20242a62d7295504d174b3c35ba43c9be50d3",
+    "src/core/host_runtime/guest_graphics.cpp": "461faae00a247af084fa34594e4e4c4949a6029766e3319c1f7501ee3769dba9",
+    "src/core/host_runtime/guest_graphics.h": "494bfe5a2982aacba1467d9e12440961ea29b23387d58b10e25f442d5814f6c1",
+    "src/core/host_runtime/guest_platform.h": "0de2b2c7acffb927ee68955d0c3fa15ece707009798aa6189228f12ba7683127",
+    "src/video_core/renderer_vulkan/vk_driver.h": "f4cf1045ec41796ade74ef57c0a8fec19521b029ea175f028a87620986c591d4",
+    "src/video_core/renderer_vulkan/vk_driver_android.cpp": "b64581b9198dcffefb331e70c516aab447ddac6837ff686a03014aa3c1d777a4",
+    "tests/guest_cpu/fixtures/runtime_videoout.S": "32f675d3de62e477d5e073a3391d16bbb5bc81c373ea5506b2b14abac083c2fb",
+    "android/shadps4-app/app/build.gradle.kts": "24765f2ce5eac45fa02632b24833d2bff55dacf77873fc8e2357a6f4a251fec4",
+    "android/shadps4-app/app/src/androidTest/kotlin/com/shadps4/android/ProductionRuntimeInstrumentedTest.kt": "d91ae0cf09f5c16c42151fb5068ff93af3d09c5a35710cec98c9a503e7da9fbc",
+    "android/shadps4-app/app/src/main/kotlin/com/shadps4/android/service/FexSessionService.kt": "e021c3b55a82750dbe8c33319ff77ee815690d45ff80cac5d796e78171daeca9",
+    "android/shadps4-app/core/runtime/build.gradle.kts": "b32c07866b633d1a01fc55de98e09464ddb3f809bfd7cf5138e14cbfced5dc67",
+    "android/shadps4-app/core/runtime/src/main/cpp/CMakeLists.txt": "76f480cbc4c063f92c6da9f724686bfe7e0608a6fd438cb87d3e8a8125a44efc",
+    "android/shadps4-app/core/runtime/src/main/cpp/fex_session_jni.cpp": "c7be516736878e02f10887fff628f18dbde98403591381b59dbd5c9d5973fe89",
+    "android/shadps4-app/core/runtime/src/main/kotlin/com/shadps4/android/runtime/input/NativePad.kt": "2c47cbb3bd33b096f85060b35d81aa91ca2508b625587c146d5a4332212062ba",
+    "android/shadps4-app/core/runtime/src/main/kotlin/com/shadps4/android/runtime/session/NativeFexSession.kt": "a51fedc2afe8e7f4f7b94c3cb012ff3d5f8ea7323ee5be718a29caf4be53fa2b",
+    "scripts/android/generate-production-runtime-fixture": "1b2c483a594ccc80d9b2402cd8dbcfbf0cccdd1692a7cd6b89c4b501ed4d6267",
+    "src/common/assert.cpp": "479778c3ed99de48488e331d35f567cf5565a2f27ad96a5375cb35f0049b8edb",
+    "src/core/guest_cpu/fex/fex_context.cpp": "577ea8f93d19f4f302e69e86961d934d91d4753a19b8d609179b3bd884bba928",
+    "src/core/guest_cpu/fex/fex_context.h": "9e4f7ba27d144ff987570940feba8c6d9637e1a63c4cf6936d2169cef2129978",
+    "src/core/host_runtime/guest_runtime.cpp": "409c599c0831c0b32ba1dc5f01025facfc9cb9ef4db9d7bb5afe112ad781c398",
+    "src/core/host_runtime/guest_runtime.h": "e8a8107ee47eef4b5f688a1aa1490655a78d8ec7ca68e980f1693fef91343330",
+    "src/core/host_runtime/session_backend.h": "b872e2a644dce5c4a975fdb0d8ee3c6d7f32bdc47dfd5be1d36ea049b23e1ff0",
+    "src/core/host_runtime/session_backend_fex.cpp": "2db574cb4c1f8e1cb4ddde8caca8008a1f92ea594d96c9fd1f993050427af53e",
+    "src/core/host_runtime/session_core.cpp": "29ae180795e74598e2fbfba93d3a606e34a2f632d4145611c1cf7df39efc97cd",
+    "src/core/host_runtime/session_core.h": "38f5ae9063d95d9f9ae59f0de9d06b9252de1c4eef474cee39e47ff2ea9ce1a0",
+    "src/core/libraries/sysmodule/sysmodule_internal.cpp": "c9ee8dec9b62333ddd331eab70b9a6668593b12d2f1516a597f23e44e62bba70",
+    "src/core/libraries/videoout/driver.cpp": "fce5389d756ae2adbe6692c741edc3efe5fbad780ef6712df7d79e55e228c573",
+    "src/core/libraries/videoout/driver.h": "129bd6a4fac79ee97d56a4a4582dd10ce79da9626bcace69974cffcc2ed8a5bb",
+    "src/core/signals.cpp": "66f9d67280262e607e7874301270682e8eb132a9a3942a1843716138f9fbbcae",
+    "src/core/signals.h": "286638a170d2a3cf8726d94b5120be0e2aeb10c4823fed10c06735252ba2dc54",
+    "src/imgui/renderer/imgui_core.cpp": "63d69f164c995587a378ee4492dab86ebaf76864e40a1d0cac087e332c5a8131",
+    "src/video_core/renderer_vulkan/vk_instance.cpp": "e30b3ade3fd1692030cb8e21ab893933a8d5a6cd7892a68f51b02fb7734aca82",
+    "src/video_core/renderer_vulkan/vk_instance.h": "33180b2fe50ee5030fe3a827a413b9ef726102f9e675f38a5081dbf2024399ae",
+    "src/video_core/renderer_vulkan/vk_platform.cpp": "55a2370c8746f0cdb3e2a8cc53e161d6950f5e2b0a9cf0d3d0119fb55292f8be",
+    "src/video_core/renderer_vulkan/vk_platform.h": "09e516cdcd2247e9b37f2ffb77354ab3bb724ca8063099eb547397a66d71c0fe",
+    "src/video_core/renderer_vulkan/vk_presenter.cpp": "d3571a140901c64d193ff23b1f795e01e5f42c609e31ae51318ebd439ff5d7ee",
+    "src/video_core/renderer_vulkan/vk_presenter.h": "1c23581003b09b3b9b1463ae0b98161c7ff8c78c1b96690eab0e0e6710700218",
+    "src/video_core/renderer_vulkan/vk_rasterizer.cpp": "ce9ebb211dd0b56b6e938e7393a106e634568364eb4626422afbd9540fde2488",
+    "tests/guest_cpu/guest_execution_tests.cpp": "d613404d88c186cb435d0efc78a56901e8dc8f6b9d5ec22e43240ac1fcf4b0bb",
+    "tests/host_runtime/guest_services_tests.cpp": "735c82cc992769278c3f7002e13c4beb38907a73f141d533d9748415886f5621",
+    "tests/host_runtime/host_library_smoke.cpp": "5f28ed31a0576480c12df649b7015a1875f4fe86ad08139ae10ea60876549445",
+    "tests/host_runtime/session_lifecycle_tests.cpp": "8f3c7f8910d7a432e607cd4c7d74e1e8d8873d3e20027ee61b02aa8fb2c48748"
+  },
+  "libshadps4_host.so": {
+    "build_id": "9c8df3d6af500a24994f3c3f388ca1b37843eb07",
+    "sha256": "bf3f1d6e73eca0422270907ec4b04d7e3cf769232d082207c5847a0e2e28e08b"
+  },
+  "libshadps4_fex_session.so": {
+    "build_id": "b903766b1155f68af99c7c6369156072faeafda4",
+    "sha256": "ec64217e6bddc78bd0dc47c05dc2bff2b448bbeeba49fe9ea9e5444c9a97a059"
+  },
+  "status": "PASS"
+}

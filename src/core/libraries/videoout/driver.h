@@ -1,4 +1,4 @@
-﻿// SPDX-FileCopyrightText: Copyright 2024 shadPS4 Emulator Project
+// SPDX-FileCopyrightText: Copyright 2024 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #pragma once
@@ -7,7 +7,9 @@
 #include "common/polyfill_thread.h"
 #include "core/libraries/videoout/video_out.h"
 
+#include <atomic>
 #include <condition_variable>
+#include <functional>
 #include <mutex>
 #include <queue>
 
@@ -33,7 +35,7 @@ struct VideoOutPort {
     std::condition_variable vblank_cv;
     int flip_rate = 0;
     int prev_index = -1;
-    bool is_open = false;
+    std::atomic<bool> is_open{false};
     bool is_hdr = false;
 
     s32 FindFreeGroup() const {
@@ -76,7 +78,10 @@ struct ServiceThreadParams {
 
 class VideoOutDriver {
 public:
-    VideoOutDriver(u32 width, u32 height);
+    VideoOutDriver(u32 width, u32 height, std::function<u64()> process_time = {},
+                   std::function<u64()> tsc = {});
+    void RequestStop();
+    void Join();
     ~VideoOutDriver();
 
     int Open(const ServiceThreadParams* params);
@@ -111,6 +116,8 @@ private:
     void SubmitFlipInternal(VideoOutPort* port, s32 index, s64 flip_arg, bool is_eop = false);
     void PresentThread(std::stop_token token);
 
+    std::function<u64()> process_time;
+    std::function<u64()> read_tsc;
     std::mutex mutex;
     VideoOutPort main_port{};
     std::jthread present_thread;

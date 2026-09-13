@@ -1,0 +1,1 @@
+诊断与中间验证，不能替代最终产物：signal-conflict 为修复前的 Core::SignalHandler/JIT 断言；两个 instrumentation 文件分别是修复信号归属后的 SetBufferAttribute 边界、随后 RegisterBuffers 边界。最终原始日志/Build ID 见 ../wp2-graphics-final/。selected-content.json 只记录选取文件的 SHA 与大小，没有游戏数据。失败 LLDB 尝试已清理并核对 TracerPid=0，未获得有效活体会话证据。

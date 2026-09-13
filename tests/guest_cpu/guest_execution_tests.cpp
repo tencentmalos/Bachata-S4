@@ -3848,6 +3848,100 @@ void TestHleRuntime(Harness& h) {
     }
 }
 
+// Force a second publication into the release-observation/admission gap.
+// No timing sleeps: the same generation-checked gate used for entry tests holds
+// this owner, and a counter confirms the real AcquireExecutionLease Busy path.
+void TestContinuationAdmissionRace(Harness& h) {
+    h.context.reset();
+    CpuConfig cfg;
+    cfg.resume_internal_drains = true;
+    auto created = CreateContext(cfg, *h.space);
+    if (!created)
+        ([] {
+            std::fprintf(stderr, "G48 setup failed line %d\n", __LINE__);
+            std::_Exit(4);
+        }());
+    h.context = std::move(created).Value();
+    h.return_gate = h.context->Capabilities().return_gate_address;
+    if (!LoadProgress(h))
+        ([] {
+            std::fprintf(stderr, "G48 setup failed line %d\n", __LINE__);
+            std::_Exit(4);
+        }());
+    const auto progress = PrepareProgress(h);
+    TestOwner owner(h, progress);
+    auto* gate = static_cast<Fex::FexTestRunGate*>(Fex::FexTestContinuationGatePointer(*h.context));
+    auto running = owner.Run();
+    if (!WaitProgress(progress, 0))
+        ([] {
+            std::fprintf(stderr, "G48 setup failed line %d\n", __LINE__);
+            std::_Exit(4);
+        }());
+    bool recovered = true, cancelled = false;
+    for (unsigned round = 0; round < 33; ++round) {
+        const auto hold = gate->Arm(owner.handle.id, h.context->ContextId());
+        if (!hold)
+            ([] {
+                std::fprintf(stderr, "G48 setup failed line %d\n", __LINE__);
+                std::_Exit(4);
+            }());
+        auto first = h.context->QuiesceContext(1'000'000'000);
+        if (!first)
+            ([] {
+                std::fprintf(stderr, "G48 setup failed line %d\n", __LINE__);
+                std::_Exit(4);
+            }());
+        first.Value() = QuiescenceToken{};
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+        while (!gate->Arrived(hold) && std::chrono::steady_clock::now() < deadline)
+            std::this_thread::yield();
+        if (!gate->Arrived(hold))
+            ([] {
+                std::fprintf(stderr, "G48 setup failed line %d\n", __LINE__);
+                std::_Exit(4);
+            }());
+        auto second = h.context->QuiesceContext(1'000'000'000);
+        if (!second)
+            ([] {
+                std::fprintf(stderr, "G48 setup failed line %d\n", __LINE__);
+                std::_Exit(4);
+            }());
+        const auto before = Progress(progress);
+        const auto retries = Fex::FexTestContinuationRetries(*h.context);
+        if (!gate->Release(hold, 1000))
+            ([] {
+                std::fprintf(stderr, "G48 setup failed line %d\n", __LINE__);
+                std::_Exit(4);
+            }());
+        while (Fex::FexTestContinuationRetries(*h.context) == retries &&
+               running.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready &&
+               std::chrono::steady_clock::now() < deadline)
+            std::this_thread::yield();
+        recovered &= Fex::FexTestContinuationRetries(*h.context) > retries &&
+                     Progress(progress) == before &&
+                     running.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready;
+        if (round == 32) {
+            auto request = h.context->RequestInterrupt(owner.handle, InterruptReason::Cancel);
+            auto stopped = request ? h.context->WaitStopped(request.Value(), 1'000'000'000)
+                                   : Result<StopReceipt>{request.GetError()};
+            cancelled = stopped && stopped.Value().reason == StopReason::Cancelled;
+        }
+        second.Value() = QuiescenceToken{};
+        if (round != 32)
+            recovered &= WaitProgress(progress, before);
+        if (!recovered)
+            break;
+    }
+    auto stop = h.context->RequestInterrupt(owner.handle, InterruptReason::Cancel);
+    if (stop)
+        (void)h.context->WaitStopped(stop.Value(), 1'000'000'000);
+    auto result = Await(running);
+    Check("G48a", "33 forced continuation/publication collisions retain the live invocation",
+          recovered);
+    Check("G48b", "Cancel wins while continuation waits under the next publication token",
+          cancelled && result && result.Value().primary_reason == StopReason::Cancelled);
+}
+
 void TestWarmEntryBackedge(Harness& h) {
     std::string detail;
     const auto* fixture = FindFixture("entry_backedge");
@@ -4057,6 +4151,7 @@ int main() {
     // Contract checks last: they publish their own stub at the same address.
     TestContracts(harness);
     TestRetiredContextsAndFaultPriority(harness);
+    TestContinuationAdmissionRace(harness);
     harness.context.reset();
     harness.space.reset();
 

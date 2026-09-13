@@ -19,8 +19,11 @@
 #include "core/guest_cpu/hle/scope.h"
 #include "core/guest_cpu/hle/veneer_allocator.h"
 #include "core/host_runtime/guest_clock.h"
+#include "core/host_runtime/guest_graphics.h"
 #include "core/host_runtime/guest_mutex.h"
+#include "core/host_runtime/guest_platform.h"
 #include "core/host_runtime/guest_runtime.h"
+#include "core/libraries/gnmdriver/gnmdriver.h"
 #include "core/libraries/kernel/memory.h"
 #include "core/libraries/kernel/orbis_error.h"
 #include "core/libraries/kernel/posix_error.h"
@@ -28,14 +31,16 @@
 #include "core/libraries/libs.h"
 #include "core/libraries/sysmodule/sysmodule_error.h"
 #include "core/libraries/sysmodule/sysmodule_internal.h"
-#include "core/libraries/system/userservice.h"
-#include "core/libraries/system/userservice_error.h"
 #include "core/libraries/system/systemservice.h"
 #include "core/libraries/system/systemservice_error.h"
-#include "core/libraries/gnmdriver/gnmdriver.h"
+#include "core/libraries/system/userservice.h"
+#include "core/libraries/system/userservice_error.h"
+#include "core/libraries/videoout/driver.h"
+#include "core/libraries/videoout/videoout_error.h"
 #include "core/linker.h"
 #include "core/memory.h"
 #include "core/tls.h"
+#include "core/user_settings.h"
 #if defined(__ANDROID__)
 #include <android/log.h>
 #endif
@@ -66,7 +71,13 @@ struct FunctionAdapter final : HleCallAdapter {
                                 (unsigned long long)frame.operation,
                                 (unsigned long long)frame.registers.rip);
 #endif
-        auto status = call(frame);
+        Status status;
+        try {
+            status = call(frame);
+        } catch (const std::exception& e) {
+            LOG_ERROR(Core, "Production HLE operation {} failed: {}", frame.operation, e.what());
+            throw;
+        }
 #if defined(__ANDROID__)
         if (trace)
             __android_log_print(ANDROID_LOG_INFO, "ProductionHLE", "leave op=%llu rax=%llx",
@@ -100,6 +111,33 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     GuestAddressSpace& space;
     HleCallRegistry& registry;
     GuestClock clock;
+    std::shared_ptr<Frontend::Window> graphics_window;
+    std::shared_ptr<const Vulkan::Driver> graphics_driver;
+    std::unique_ptr<GuestGraphics> graphics;
+    std::mutex graphics_init_mutex;
+    std::mutex graphics_mutex;
+
+    GuestGraphics& Graphics() {
+        std::scoped_lock creation(graphics_init_mutex);
+        if (!graphics) {
+            if (!graphics_window || !graphics_driver)
+                throw std::runtime_error("VideoOut requires a session Surface and verified Turnip");
+            if (cancelling)
+                throw std::runtime_error("Graphics initialization cancelled");
+            auto created = std::make_unique<GuestGraphics>(
+                graphics_window, graphics_driver,
+                [this] { return clock.ticks.GetTimeUS(clock.origin); },
+                [this] { return clock.ticks.GetUptime(); },
+                [this] { return platform->SplashVisible(); });
+            std::scoped_lock lock(graphics_mutex);
+            if (cancelling)
+                created->RequestStop();
+            graphics = std::move(created);
+            sysmodules.Publish("libSceVideoOut", 0x10000004);
+        }
+        return *graphics;
+    }
+
     std::unique_ptr<GuestMutexDomain> mutex_domain;
     int backing_fd{-1};
     u8* backing{};
@@ -150,16 +188,13 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     std::vector<std::string> hle_modules;
     std::mutex once_mutex;
     std::map<u64, u64> once_owners;
-    // Session-owned sysmodule state. This is deliberately not the desktop global
-    // g_modules_array path: that reports success for modules whose provider is
-    // absent. Here a load only succeeds when this session graph can actually
-    // provide the module (an already-loaded guest module, or a system library
-    // whose HLE import surface is wired at Prepare). A refcount per public id
-    // makes load/unload a real transaction; a missing provider fails by name.
-    std::mutex sysmodule_mutex;
-    std::map<u32, s32> sysmodule_refcount;
-    std::map<u32, s32> sysmodule_handles;
-    s32 sysmodule_next_handle{0x10000000};
+    std::unique_ptr<GuestPlatform> platform;
+    GuestSysmodules sysmodules{[](u32 id) -> std::optional<std::string> {
+        const char* name{};
+        if (!Libraries::SysModule::LookupSysmodule(id, &name, nullptr))
+            return std::nullopt;
+        return name;
+    }};
 
     struct VmGuard {
         Impl& rt;
@@ -318,6 +353,9 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         for (auto& [id, o] : owners)
             if (o->worker.joinable())
                 o->worker.join();
+        graphics.reset();
+        graphics_window.reset();
+        graphics_driver.reset();
         linker_binding.reset();
         linker.reset();
         memory_binding.reset();
@@ -471,7 +509,11 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         init.guest_tid = o->id;
         init.initial_state.fields = RegisterValidity::SegmentBases;
         init.initial_state.values.fs_base = o->tcb;
-        auto handle = Require(cpu.CreateThread(init));
+        ThreadHandle handle;
+        {
+            std::scoped_lock vm(vm_mutex);
+            handle = Require(cpu.CreateThread(init));
+        }
         {
             std::lock_guard lock(threads_mutex);
             o->handle = handle;
@@ -521,8 +563,13 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
             }
         }
 
-        if (o->handle.IsValid())
+        if (o->handle.IsValid()) {
+            // A finished owner has already released its Run lease. Serialize
+            // backend retirement with publication so a new VM token cannot turn
+            // ordinary pthread exit into a Busy failure (or strand its handle).
+            std::scoped_lock vm(vm_mutex);
             Require(cpu.DestroyThread(o->handle));
+        }
         SetTcbBase(nullptr);
         active_runtime = nullptr;
         active_thread = 0;
@@ -542,13 +589,19 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
                 if (o->handle.IsValid())
                     handles.push_back(o->handle);
         }
+        Status result = Ok();
         for (auto handle : handles) {
             auto s = cpu.RequestInterrupt(handle, InterruptReason::Cancel);
-            if (!s && s.GetError().category != ErrorCategory::InvalidHandle)
-                return s.GetError();
+            if (!s && s.GetError().category != ErrorCategory::InvalidHandle && result)
+                result = s.GetError();
+        }
+        {
+            std::scoped_lock lock(graphics_mutex);
+            if (graphics)
+                graphics->RequestStop();
         }
         threads_changed.notify_all();
-        return Ok();
+        return result;
     }
     u64 Bind(const Loader::SymbolRecord& symbol) {
         if (auto it = veneers.find(symbol.name); it != veneers.end())
@@ -557,24 +610,32 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         // Only the sysmodule NIDs this runtime implements are admitted under the
         // libSceSysmodule library suffix; every other sysmodule function still
         // name-faults so a missing capability is never silently a success.
-        static const std::set<std::string> sysmodule_functions{
-            "g8cM39EUZ6o", "39iV5E1HoCk", "eR2bZFAAU0Q",
-            "fMP5NHUOaMk", "ynFKQ5bfGks", "D8cuU4d72xM"};
+        static const std::set<std::string> sysmodule_functions{"g8cM39EUZ6o", "39iV5E1HoCk",
+                                                               "eR2bZFAAU0Q", "fMP5NHUOaMk",
+                                                               "ynFKQ5bfGks", "D8cuU4d72xM"};
         // Guest-facing libSceUserService startup family; same policy as above.
         static const std::set<std::string> userservice_functions{
             "j3YMu1MVNNo", "bwFjS+bX9mA", "CdWp0oHWGr0", "eNb53LQJmIM",
             "fPhymKNvK-A", "1xxcMiGu2fo", "yH17Q6NWtVg"};
         // Guest-facing libSceSystemService startup family; same policy as above.
-        static const std::set<std::string> systemservice_functions{
-            "fZo48un7LK4", "rPo6tV8D9bM", "656LMQSrg6U", "Vo5V8KAwCmk"};
+        static const std::set<std::string> systemservice_functions{"fZo48un7LK4", "rPo6tV8D9bM",
+                                                                   "656LMQSrg6U", "Vo5V8KAwCmk"};
         // libSceGnmDriver: only owner registration (retail returns failure). The
         // GPU submission/flip path is intentionally excluded and name-faults.
         static const std::set<std::string> gnmdriver_functions{"ZFqKFl23aMc"};
+        static const std::set<std::string> videoout_functions{"Up36PTk687E", "6kPnj51T62Y",
+                                                              "8XGijEoThE0", "i6-sR91Wt-4",
+                                                              "1FZBKy8HeNU", "d1AjT2uZJn0"};
+        const bool kernel_nid =
+            !videoout_functions.contains(nid) && !sysmodule_functions.contains(nid) &&
+            !userservice_functions.contains(nid) && !systemservice_functions.contains(nid) &&
+            !gnmdriver_functions.contains(nid) && nid != "NWtTN10cJzE";
         std::shared_ptr<HleCallAdapter> adapter;
         if (auto it = handlers.find(nid);
             it != handlers.end() &&
-            (symbol.name.substr(nid.size()) == "#libkernel#1#libkernel#Function" ||
-             symbol.name.substr(nid.size()) == "#libScePosix#1#libkernel#Function" ||
+            ((kernel_nid &&
+              (symbol.name.substr(nid.size()) == "#libkernel#1#libkernel#Function" ||
+               symbol.name.substr(nid.size()) == "#libScePosix#1#libkernel#Function")) ||
              (symbol.name.substr(nid.size()) == "#libSceSysmodule#1#libSceSysmodule#Function" &&
               sysmodule_functions.contains(nid)) ||
              (symbol.name.substr(nid.size()) == "#libSceUserService#1#libSceUserService#Function" &&
@@ -584,6 +645,9 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
               systemservice_functions.contains(nid)) ||
              (symbol.name.substr(nid.size()) == "#libSceGnmDriver#1#libSceGnmDriver#Function" &&
               gnmdriver_functions.contains(nid)) ||
+             (graphics_window &&
+              symbol.name.substr(nid.size()) == "#libSceVideoOut#1#libSceVideoOut#Function" &&
+              videoout_functions.contains(nid)) ||
              symbol.name == "NWtTN10cJzE#libSceLibcInternalExt#1#libSceLibcInternal#Function"))
             adapter = std::make_shared<FunctionAdapter>(it->second);
         else {
@@ -639,85 +703,29 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         Write(ErrnoAddress(), static_cast<s32>(error));
         return UINT64_MAX;
     }
-    // True when this session graph can already provide the module's exports:
-    // a game module loaded during Prepare's DT_NEEDED walk, or a system library
-    // whose HLE import surface was wired at Prepare (recorded in hle_modules).
-    // The sysmodule library names have no extension; loaded/HLE modules carry
-    // .prx/.sprx. Individual functions inside an HLE library may still name-fault
-    // when called; that is a per-function boundary, not a missing provider.
-    bool SysmoduleProviderReady(const char* bare_name) {
-        const std::string base(bare_name);
-        for (const auto& suffix : {".prx", ".sprx"}) {
-            const auto candidate = base + suffix;
-            for (u32 id = 0; auto* m = linker->GetModule(id); ++id)
-                if (m->name == candidate)
-                    return true;
-            for (const auto& name : hle_modules)
-                if (name == candidate)
-                    return true;
-        }
-        return false;
-    }
-    // sceSysmoduleLoadModule / sceSysmoduleLoadModuleInternal. Validates the id
-    // against the module table, checks provider readiness on the current graph,
-    // and maintains a session refcount. A known id with no provider fails by
-    // name (ORBIS_SYSMODULE_LOCK_FAILED); an unknown id is INVALID_ID. Nothing
-    // is silently reported as success.
     u64 SysmoduleLoad(u32 id) {
+        const s32 result = sysmodules.Load(id);
         const char* name{};
-        bool is_game{};
-        if (!Libraries::SysModule::LookupSysmodule(id, &name, &is_game))
-            return static_cast<u32>(ORBIS_SYSMODULE_INVALID_ID);
-        std::lock_guard lock(sysmodule_mutex);
-        if (auto it = sysmodule_refcount.find(id); it != sysmodule_refcount.end() && it->second > 0) {
-            ++it->second;
-            return ORBIS_OK;
-        }
-        if (!SysmoduleProviderReady(name)) {
-            LOG_ERROR(Lib_SysModule, "sysmodule id {:#x} ({}) has no session provider", id, name);
-            return static_cast<u32>(ORBIS_SYSMODULE_LOCK_FAILED);
-        }
-        sysmodule_refcount[id] = 1;
-        sysmodule_handles[id] = sysmodule_next_handle++;
-        LOG_INFO(Lib_SysModule, "sysmodule id {:#x} ({}) loaded (game={})", id, name, is_game);
-        return ORBIS_OK;
+        (void)Libraries::SysModule::LookupSysmodule(id, &name, nullptr);
+        LOG_INFO(Lib_SysModule, "session sysmodule id={:#x} name={} result={:#x}", id,
+                 name ? name : "unknown", static_cast<u32>(result));
+        return static_cast<u32>(result);
     }
     u64 SysmoduleUnload(u32 id) {
-        const char* name{};
-        if (!Libraries::SysModule::LookupSysmodule(id, &name, nullptr))
-            return static_cast<u32>(ORBIS_SYSMODULE_INVALID_ID);
-        std::lock_guard lock(sysmodule_mutex);
-        auto it = sysmodule_refcount.find(id);
-        if (it == sysmodule_refcount.end() || it->second <= 0)
-            return static_cast<u32>(ORBIS_SYSMODULE_NOT_LOADED);
-        if (--it->second == 0)
-            sysmodule_handles.erase(id);
-        return ORBIS_OK;
+        return static_cast<u32>(sysmodules.Unload(id));
     }
-    // sceSysmoduleIsLoaded / sceSysmoduleIsLoadedInternal.
     u64 SysmoduleIsLoaded(u32 id) {
-        if (!Libraries::SysModule::LookupSysmodule(id, nullptr, nullptr))
-            return static_cast<u32>(ORBIS_SYSMODULE_INVALID_ID);
-        std::lock_guard lock(sysmodule_mutex);
-        auto it = sysmodule_refcount.find(id);
-        return (it != sysmodule_refcount.end() && it->second > 0)
-                   ? ORBIS_OK
-                   : static_cast<u32>(ORBIS_SYSMODULE_NOT_LOADED);
+        return static_cast<u32>(sysmodules.Handle(id));
     }
-    // sceSysmoduleGetModuleHandleInternal(id, s32* handle_out).
     u64 SysmoduleGetHandle(u32 id, u64 handle_ptr) {
-        if (!Libraries::SysModule::LookupSysmodule(id, nullptr, nullptr))
-            return static_cast<u32>(ORBIS_SYSMODULE_INVALID_ID);
-        std::lock_guard lock(sysmodule_mutex);
-        auto it = sysmodule_handles.find(id);
-        if (it == sysmodule_handles.end())
-            return static_cast<u32>(ORBIS_SYSMODULE_NOT_LOADED);
-        if (handle_ptr) {
-            if (!space.ValidateRange({GuestAddress{handle_ptr}, sizeof(s32)}, GuestPermission::Write))
-                return POSIX_EFAULT;
-            Write(handle_ptr, it->second);
-        }
-        return ORBIS_OK;
+        if (handle_ptr &&
+            !space.ValidateRange({GuestAddress{handle_ptr}, sizeof(s32)}, GuestPermission::Write))
+            return static_cast<u32>(ORBIS_KERNEL_ERROR_EFAULT);
+        s32 handle{};
+        const s32 result = sysmodules.Handle(id, &handle);
+        if (!result && handle_ptr)
+            Write(handle_ptr, handle);
+        return static_cast<u32>(result);
     }
     void InstallHandlers();
 };
@@ -1200,24 +1208,18 @@ void GuestRuntime::Impl::InstallHandlers() {
     // succeeds only when this session graph provides the module, and a missing
     // provider fails by name. The public API takes a u16 id; the internal API a
     // u32 id. Both resolve through the same table and refcount.
-    bind({"g8cM39EUZ6o"}, [this](const auto& a) -> u64 {
-        return SysmoduleLoad(static_cast<u16>(a[0]));
-    });
-    bind({"39iV5E1HoCk"}, [this](const auto& a) -> u64 {
-        return SysmoduleLoad(static_cast<u32>(a[0]));
-    });
-    bind({"eR2bZFAAU0Q"}, [this](const auto& a) -> u64 {
-        return SysmoduleUnload(static_cast<u16>(a[0]));
-    });
-    bind({"fMP5NHUOaMk"}, [this](const auto& a) -> u64 {
-        return SysmoduleIsLoaded(static_cast<u16>(a[0]));
-    });
-    bind({"ynFKQ5bfGks"}, [this](const auto& a) -> u64 {
-        return SysmoduleIsLoaded(static_cast<u32>(a[0]));
-    });
-    bind({"D8cuU4d72xM"}, [this](const auto& a) -> u64 {
-        return SysmoduleGetHandle(static_cast<u32>(a[0]), a[1]);
-    });
+    bind({"g8cM39EUZ6o"},
+         [this](const auto& a) -> u64 { return SysmoduleLoad(static_cast<u16>(a[0])); });
+    bind({"39iV5E1HoCk"},
+         [this](const auto& a) -> u64 { return SysmoduleLoad(static_cast<u32>(a[0])); });
+    bind({"eR2bZFAAU0Q"},
+         [this](const auto& a) -> u64 { return SysmoduleUnload(static_cast<u16>(a[0])); });
+    bind({"fMP5NHUOaMk"},
+         [this](const auto& a) -> u64 { return SysmoduleIsLoaded(static_cast<u16>(a[0])); });
+    bind({"ynFKQ5bfGks"},
+         [this](const auto& a) -> u64 { return SysmoduleIsLoaded(static_cast<u32>(a[0])); });
+    bind({"D8cuU4d72xM"},
+         [this](const auto& a) -> u64 { return SysmoduleGetHandle(static_cast<u32>(a[0]), a[1]); });
     // Session guest-facing libSceUserService startup family. Each output pointer
     // is validated against the guest address space; the real emulator function
     // runs on a host-local object and the result is written back. No guest
@@ -1230,15 +1232,18 @@ void GuestRuntime::Impl::InstallHandlers() {
         UserService::OrbisUserServiceInitializeParams params{};
         if (a[0])
             params.priority = Read<s32>(a[0]);
-        return static_cast<u32>(UserService::sceUserServiceInitialize(a[0] ? &params : nullptr));
+        if (a[0] && (params.priority < UserService::ORBIS_KERNEL_PRIO_FIFO_HIGHEST ||
+                     params.priority > UserService::ORBIS_KERNEL_PRIO_FIFO_LOWEST))
+            return static_cast<u32>(ORBIS_USER_SERVICE_ERROR_INVALID_ARGUMENT);
+        return static_cast<u32>(platform->Initialize());
     });
     bind({"bwFjS+bX9mA"},
-         [](const auto&) -> u64 { return static_cast<u32>(UserService::sceUserServiceTerminate()); });
+         [this](const auto&) -> u64 { return static_cast<u32>(platform->Terminate()); });
     bind({"CdWp0oHWGr0"}, [this](const auto& a) -> u64 {
         if (!space.ValidateRange({GuestAddress{a[0]}, sizeof(s32)}, GuestPermission::Write))
             return static_cast<u32>(ORBIS_USER_SERVICE_ERROR_INVALID_ARGUMENT);
         int user_id{};
-        const auto result = UserService::sceUserServiceGetInitialUser(&user_id);
+        const auto result = platform->InitialUser(user_id);
         if (result == 0)
             Write(a[0], user_id);
         return static_cast<u32>(result);
@@ -1250,7 +1255,7 @@ void GuestRuntime::Impl::InstallHandlers() {
         if (!space.ValidateRange({GuestAddress{a[0]}, sizeof(s32)}, GuestPermission::Write))
             return static_cast<u32>(ORBIS_USER_SERVICE_ERROR_INVALID_ARGUMENT);
         int user_id{};
-        const auto result = UserService::sceUserServiceGetInitialUser(&user_id);
+        const auto result = platform->InitialUser(user_id);
         if (result == 0)
             Write(a[0], user_id);
         return static_cast<u32>(result);
@@ -1259,7 +1264,7 @@ void GuestRuntime::Impl::InstallHandlers() {
         UserService::OrbisUserServiceLoginUserIdList list{};
         if (!space.ValidateRange({GuestAddress{a[0]}, sizeof(list)}, GuestPermission::Write))
             return static_cast<u32>(ORBIS_USER_SERVICE_ERROR_INVALID_ARGUMENT);
-        const auto result = UserService::sceUserServiceGetLoginUserIdList(&list);
+        const auto result = platform->LoginUsers(list);
         if (result == 0)
             Write(a[0], list);
         return static_cast<u32>(result);
@@ -1270,13 +1275,13 @@ void GuestRuntime::Impl::InstallHandlers() {
             return static_cast<u32>(ORBIS_USER_SERVICE_ERROR_INVALID_ARGUMENT);
         if (!space.ValidateRange({GuestAddress{a[1]}, size}, GuestPermission::Write))
             return static_cast<u32>(ORBIS_USER_SERVICE_ERROR_INVALID_ARGUMENT);
-        std::vector<char> name(size, '\0');
-        const auto result =
-            UserService::sceUserServiceGetUserName(static_cast<s32>(a[0]), name.data(), size);
+        std::string name;
+        const auto result = platform->UserName(static_cast<s32>(a[0]), name);
         if (result == 0) {
-            const auto used = std::min<size_t>(size, std::strlen(name.data()) + 1);
+            if (name.size() + 1 > size)
+                return static_cast<u32>(ORBIS_USER_SERVICE_ERROR_BUFFER_TOO_SHORT);
             Require(space.Write(GuestAddress{a[1]},
-                                std::as_bytes(std::span{name.data(), used})));
+                                std::as_bytes(std::span{name.c_str(), name.size() + 1})));
         }
         return static_cast<u32>(result);
     });
@@ -1284,7 +1289,7 @@ void GuestRuntime::Impl::InstallHandlers() {
         UserService::OrbisUserServiceEvent event{};
         if (!space.ValidateRange({GuestAddress{a[0]}, sizeof(event)}, GuestPermission::Write))
             return static_cast<u32>(ORBIS_USER_SERVICE_ERROR_INVALID_ARGUMENT);
-        const auto result = UserService::sceUserServiceGetEvent(&event);
+        const auto result = platform->UserEvent(event);
         if (result == 0)
             Write(a[0], event);
         return static_cast<u32>(result);
@@ -1309,8 +1314,8 @@ void GuestRuntime::Impl::InstallHandlers() {
         if (!space.ValidateRange({GuestAddress{a[1]}, sizeof(s32)}, GuestPermission::Write))
             return static_cast<u32>(ORBIS_SYSTEM_SERVICE_ERROR_PARAMETER);
         int value{};
-        const auto result = SystemService::sceSystemServiceParamGetInt(
-            static_cast<SystemService::OrbisSystemServiceParamId>(a[0]), &value);
+        const auto result =
+            platform->Param(static_cast<SystemService::OrbisSystemServiceParamId>(a[0]), value);
         if (result == 0)
             Write(a[1], value);
         return static_cast<u32>(result);
@@ -1319,7 +1324,8 @@ void GuestRuntime::Impl::InstallHandlers() {
         SystemService::OrbisSystemServiceStatus status{};
         if (!space.ValidateRange({GuestAddress{a[0]}, sizeof(status)}, GuestPermission::Write))
             return static_cast<u32>(ORBIS_SYSTEM_SERVICE_ERROR_PARAMETER);
-        const auto result = SystemService::sceSystemServiceGetStatus(&status);
+        status = platform->Status();
+        const s32 result = 0;
         if (result == 0)
             Write(a[0], status);
         return static_cast<u32>(result);
@@ -1328,13 +1334,95 @@ void GuestRuntime::Impl::InstallHandlers() {
         auto event = std::make_unique<SystemService::OrbisSystemServiceEvent>();
         if (!space.ValidateRange({GuestAddress{a[0]}, sizeof(*event)}, GuestPermission::Write))
             return static_cast<u32>(ORBIS_SYSTEM_SERVICE_ERROR_PARAMETER);
-        const auto result = SystemService::sceSystemServiceReceiveEvent(event.get());
+        const auto result = platform->SystemEvent(*event);
         if (result == 0)
             Write(a[0], *event);
         return static_cast<u32>(result);
     });
-    bind({"Vo5V8KAwCmk"},
-         [](const auto&) -> u64 { return SystemService::sceSystemServiceHideSplashScreen(); });
+    bind({"Vo5V8KAwCmk"}, [this](const auto&) -> u64 {
+        platform->HideSplash();
+        return 0;
+    });
+    bind({"1FZBKy8HeNU", "d1AjT2uZJn0"}, [this](const auto& a) -> u64 {
+        using namespace Libraries::VideoOut;
+        if (!space.ValidateRange({GuestAddress{a[1]}, sizeof(SceVideoOutVblankStatus)},
+                                 GuestPermission::Write))
+            return static_cast<u32>(ORBIS_VIDEO_OUT_ERROR_INVALID_ADDRESS);
+        auto* port = Graphics().VideoOut().GetPort(static_cast<s32>(a[0]));
+        if (!port || !port->is_open)
+            return static_cast<u32>(ORBIS_VIDEO_OUT_ERROR_INVALID_HANDLE);
+        SceVideoOutVblankStatus status{};
+        {
+            std::scoped_lock lock(port->vo_mutex);
+            status = port->vblank_status;
+        }
+        Write(a[1], status);
+        return 0;
+    });
+    handlers["i6-sR91Wt-4"] = [this](HleCallFrame& frame) {
+        using namespace Libraries::VideoOut;
+        CallCursor cursor(frame);
+        std::array<u64, 7> args{};
+        for (auto& arg : args) {
+            auto decoded = cursor.NextInteger();
+            if (!decoded)
+                return Status(decoded.GetError());
+            arg = decoded.Value();
+        }
+        // The seventh SysV argument (pitch) is on the guest stack. Decode it
+        // before native entry, and keep the output pinned throughout the copy.
+        auto pin = space.AcquirePinnedSpan({GuestAddress{args[0]}, sizeof(BufferAttribute)}, true);
+        if (!pin)
+            return Status(pin.GetError());
+        const auto format = static_cast<PixelFormat>(args[1]);
+        switch (format) {
+        case PixelFormat::A8R8G8B8Srgb:
+        case PixelFormat::A8B8G8R8Srgb:
+        case PixelFormat::A2R10G10B10:
+        case PixelFormat::A2R10G10B10Srgb:
+        case PixelFormat::A2R10G10B10Bt2020Pq:
+        case PixelFormat::A16R16G16B16Float:
+            break;
+        default:
+            return Status(MakeError(ErrorCategory::Unsupported, "sceVideoOutSetBufferAttribute",
+                                    "unsupported pixel format"));
+        }
+        BufferAttribute value{};
+        sceVideoOutSetBufferAttribute(&value, format, args[2], args[3], args[4], args[5], args[6]);
+        std::memcpy(pin.Value().WritableBytes().data(), &value, sizeof(value));
+        return Ok(); // void ABI: do not fabricate a return code
+    };
+    bind({"Up36PTk687E"}, [this](const auto& a) -> u64 {
+        using namespace Libraries::VideoOut;
+        if (static_cast<s32>(a[1]) != SCE_VIDEO_OUT_BUS_TYPE_MAIN || a[2] != 0)
+            return static_cast<u32>(ORBIS_VIDEO_OUT_ERROR_INVALID_VALUE);
+        // The optional service-thread structure is copied; its pointers can
+        // never escape into a worker. Current native driver uses default QoS.
+        ServiceThreadParams params{};
+        if (a[3]) {
+            if (!space.ValidateRange({GuestAddress{a[3]}, sizeof(params)}, GuestPermission::Read))
+                return static_cast<u32>(ORBIS_VIDEO_OUT_ERROR_INVALID_ADDRESS);
+            params = Read<ServiceThreadParams>(a[3]);
+        }
+        auto& video = Graphics().VideoOut();
+        if (cancelling)
+            return static_cast<u32>(ORBIS_VIDEO_OUT_ERROR_RESOURCE_BUSY);
+        auto result = video.Open(a[3] ? &params : nullptr);
+        LOG_INFO(Lib_VideoOut, "Production VideoOutOpen: handle={} (native Turnip/Presenter)",
+                 result);
+        return static_cast<u32>(result);
+    });
+    bind({"6kPnj51T62Y", "8XGijEoThE0"}, [this](const auto& a) -> u64 {
+        using namespace Libraries::VideoOut;
+        if (!space.ValidateRange({GuestAddress{a[1]}, sizeof(SceVideoOutResolutionStatus)},
+                                 GuestPermission::Write))
+            return static_cast<u32>(ORBIS_VIDEO_OUT_ERROR_INVALID_ADDRESS);
+        auto* port = Graphics().VideoOut().GetPort(static_cast<s32>(a[0]));
+        if (!port || !port->is_open)
+            return static_cast<u32>(ORBIS_VIDEO_OUT_ERROR_INVALID_HANDLE);
+        Write(a[1], port->resolution);
+        return 0;
+    });
     // libSceGnmDriver owner registration. On retail firmware this is not
     // available and returns failure; the guest tolerates that. Validate the
     // guest name string (when present) and return the real retail code. The GPU
@@ -1343,8 +1431,7 @@ void GuestRuntime::Impl::InstallHandlers() {
     bind({"ZFqKFl23aMc"}, [this](const auto& a) -> u64 {
         if (a[1])
             (void)String(a[1], 256);
-        return static_cast<u32>(
-            Libraries::GnmDriver::sceGnmRegisterOwner(reinterpret_cast<void*>(a[0]), nullptr));
+        return static_cast<u32>(Libraries::GnmDriver::sceGnmRegisterOwner(nullptr, nullptr));
     });
     for (const char* nid :
          {"6UgtwV+0zb4", "onNY9Byn-W8", "4qGrR6eoP9Y", "14bOACANTBo", "n2MMpvU8igI",
@@ -1366,6 +1453,13 @@ void GuestRuntime::Impl::InstallHandlers() {
 GuestRuntime::GuestRuntime(CpuContext& cpu, GuestAddressSpace& space, HleCallRegistry& registry)
     : impl(std::make_unique<Impl>(cpu, space, registry)) {}
 GuestRuntime::~GuestRuntime() = default;
+void GuestRuntime::ConfigureGraphics(std::shared_ptr<Frontend::Window> window,
+                                     std::shared_ptr<const Vulkan::Driver> driver) {
+    if (impl->prepared || !window || !driver)
+        throw std::logic_error("ConfigureGraphics requires a complete platform before Prepare");
+    impl->graphics_window = std::move(window);
+    impl->graphics_driver = std::move(driver);
+}
 void GuestRuntime::Prepare(const std::filesystem::path& executable,
                            const std::vector<std::filesystem::path>& modules) {
     if (impl->prepared)
@@ -1459,6 +1553,22 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
     impl->elf_info.InitializeGuestMetadata(executable.parent_path(), sdk, serial, title, version,
                                            attributes);
     impl->memory->SetGuestSdkVersion(sdk);
+    // Snapshot only the local gameplay identity, never credentials or desktop events.
+    std::array<GuestUser, 4> users{};
+    if (const auto* user = UserManagement.GetUserByPlayerIndex(1))
+        users[0] = {user->user_id, user->user_name};
+    else
+        users[0] = {1000, "shadPS4"}; // Same initial local profile as UserManager.
+    impl->platform = std::make_unique<GuestPlatform>(std::move(users), sdk,
+                                                     EmulatorSettings.GetConsoleLanguage(),
+                                                     EmulatorSettings.IsCircleEnter());
+    // These services have actual per-session implementations. DT_NEEDED alone
+    // never publishes a provider (VideoOut/Audio/AppContent must initialize theirs).
+    s32 handle = 0x10000000;
+    for (const char* name :
+         {"libkernel", "libSceSysmodule", "libSceUserService", "libSceSystemService"})
+        impl->sysmodules.Publish(name, handle++);
+
     // Production imports are registered by Bind with an explicit guest policy.
     // Desktop InitHLELibs also starts graphics/audio/global worker services; those
     // require the platform session lifecycle and cannot run during relocation.
@@ -1497,6 +1607,8 @@ Result<GuestCallResult> GuestRuntime::Run(const std::vector<std::string>& args) 
             if (m->Start(0, nullptr, nullptr) != 0)
                 throw std::runtime_error("module initialization failed: " + m->name);
             LOG_INFO(Core_Linker, "Guest DT_INIT completed: {}", m->name);
+            impl->sysmodules.Publish(std::filesystem::path(m->name).stem().string(),
+                                     static_cast<s32>(id));
         }
         u64 params_address;
         {
@@ -1583,6 +1695,10 @@ std::string GuestRuntime::Diagnostics() const {
         text += "\nUNSUPPORTED_IMPORT " + name;
     for (auto& name : impl->hle_modules)
         text += "\nHLE_MODULE " + name;
+    {
+        std::scoped_lock lock(impl->graphics_mutex);
+        text += impl->graphics ? " graphics=ready" : " graphics=not-created";
+    }
     text += " modules=" + std::to_string(impl->init_order.size() + 1);
     return text;
 }

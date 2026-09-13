@@ -7,6 +7,13 @@
 #include "core/guest_cpu/api/context.h"
 #include "core/guest_cpu/hle/call_adapter.h"
 
+namespace Frontend {
+class Window;
+}
+namespace Vulkan {
+struct Driver;
+}
+
 namespace Core::HostRuntime {
 // One production Linker/MemoryManager/thread domain per Session generation.
 // CPU implementation is injected; this library never links a second FEX runtime.
@@ -19,6 +26,8 @@ public:
     ~GuestRuntime();
     GuestRuntime(const GuestRuntime&) = delete;
     GuestRuntime& operator=(const GuestRuntime&) = delete;
+    void ConfigureGraphics(std::shared_ptr<Frontend::Window> window,
+                           std::shared_ptr<const Vulkan::Driver> driver);
     void Prepare(const std::filesystem::path& executable,
                  const std::vector<std::filesystem::path>& modules = {});
     GuestCpu::Result<GuestCpu::GuestCallResult> Run(const std::vector<std::string>& args);

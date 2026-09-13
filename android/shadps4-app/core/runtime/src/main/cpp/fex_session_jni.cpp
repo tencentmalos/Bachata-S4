@@ -25,9 +25,10 @@
 
 #include <jni.h>
 
+#include <atomic>
 #include <cstdio>
-#include <string>
 #include <stdexcept>
+#include <string>
 
 #include <unistd.h>
 
@@ -223,4 +224,156 @@ Java_com_shadps4_android_runtime_session_NativeFexSession_nativePhase(JNIEnv*, j
     } catch (...) {
         return PhaseOrdinal(Phase::Idle);
     }
+}
+
+// Keep the loader in the native host DSO; JNI owns neither a second Vulkan
+// dispatcher nor an adrenotools namespace.
+#include "video_core/renderer_vulkan/vk_driver.h"
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_shadps4_android_runtime_session_AndroidTurnip_nativeLoad(
+    JNIEnv *env, jobject, jstring hooks, jstring files) {
+  try {
+    auto copy = [&](jstring value) {
+      if (!value)
+        throw std::invalid_argument("Missing Turnip directory");
+      const char *chars = env->GetStringUTFChars(value, nullptr);
+      if (!chars)
+        throw std::runtime_error("Cannot read Turnip directory");
+      std::string result;
+      try {
+        result = chars;
+      } catch (...) {
+        env->ReleaseStringUTFChars(value, chars);
+        throw;
+      }
+      env->ReleaseStringUTFChars(value, chars);
+      return result;
+    };
+    const auto driver = Vulkan::LoadAndroidTurnip(copy(hooks), copy(files));
+    return env->NewStringUTF(driver->identity.c_str());
+  } catch (const std::exception &e) {
+    if (!env->ExceptionCheck())
+      env->ThrowNew(env->FindClass("java/lang/IllegalStateException"),
+                    e.what());
+    return nullptr;
+  } catch (...) {
+    if (!env->ExceptionCheck())
+      env->ThrowNew(env->FindClass("java/lang/IllegalStateException"),
+                    "Turnip native failure");
+    return nullptr;
+  }
+}
+
+#include "frontend/android_window.h"
+#include "video_core/renderer_vulkan/vk_instance.h"
+#include "video_core/renderer_vulkan/vk_swapchain.h"
+#include <android/native_window_jni.h>
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_shadps4_android_runtime_session_AndroidTurnip_nativeInspectSurface(
+    JNIEnv *env, jobject, jstring hooks, jstring files, jobject surface) {
+  try {
+    auto copy = [&](jstring value) {
+      if (!value)
+        throw std::invalid_argument("Missing Turnip directory");
+      const char *chars = env->GetStringUTFChars(value, nullptr);
+      if (!chars)
+        throw std::runtime_error("Cannot read Turnip directory");
+      std::string result;
+      try {
+        result = chars;
+      } catch (...) {
+        env->ReleaseStringUTFChars(value, chars);
+        throw;
+      }
+      env->ReleaseStringUTFChars(value, chars);
+      return result;
+    };
+    if (!surface)
+      throw std::invalid_argument("Missing Android Surface");
+    auto native =
+        std::unique_ptr<ANativeWindow, decltype(&ANativeWindow_release)>(
+            ANativeWindow_fromSurface(env, surface), ANativeWindow_release);
+    if (!native)
+      throw std::runtime_error("Android Surface is unavailable");
+    static std::atomic<u64> next_surface{1};
+    auto window = std::make_shared<Frontend::AndroidWindow>(
+        native.get(), next_surface.fetch_add(1));
+    auto driver = Vulkan::LoadAndroidTurnip(copy(hooks), copy(files));
+    Vulkan::Instance instance(*window, -1, false, false, driver);
+    Vulkan::Swapchain swapchain(instance, *window);
+    const auto detail = driver->identity +
+                        "surface=" + std::to_string(swapchain.GetWidth()) +
+                        "x" + std::to_string(swapchain.GetHeight()) +
+                        " images=" + std::to_string(swapchain.GetImageCount());
+    swapchain.RequestStop();
+    return env->NewStringUTF(detail.c_str());
+  } catch (const std::exception &e) {
+    if (!env->ExceptionCheck())
+      env->ThrowNew(env->FindClass("java/lang/IllegalStateException"),
+                    e.what());
+    return nullptr;
+  } catch (...) {
+    if (!env->ExceptionCheck())
+      env->ThrowNew(env->FindClass("java/lang/IllegalStateException"),
+                    "Turnip Surface failure");
+    return nullptr;
+  }
+}
+
+extern "C" JNIEXPORT jlong JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeStartRenderedExecutable(
+    JNIEnv *env, jclass, jstring content_id, jstring executable_path,
+    jobject surface, jstring hook_directory, jstring driver_directory) {
+  try {
+    auto copy = [&](jstring value) {
+      if (!value)
+        throw std::invalid_argument("Missing rendered-session argument");
+      const char *chars = env->GetStringUTFChars(value, nullptr);
+      if (!chars)
+        throw std::runtime_error("JNI string unavailable");
+      std::string result;
+      try {
+        result = chars;
+      } catch (...) {
+        env->ReleaseStringUTFChars(value, chars);
+        throw;
+      }
+      env->ReleaseStringUTFChars(value, chars);
+      return result;
+    };
+    if (!surface)
+      throw std::invalid_argument("Missing Android Surface");
+    std::shared_ptr<ANativeWindow> native(
+        ANativeWindow_fromSurface(env, surface), ANativeWindow_release);
+    if (!native)
+      throw std::runtime_error("Android Surface is unavailable");
+    SessionParams params;
+    params.content_id = copy(content_id);
+    params.executable_path = copy(executable_path);
+    params.requires_platform_ready = true;
+    params.create_window = [native](std::uint64_t generation) {
+      return std::make_shared<Frontend::AndroidWindow>(native.get(),
+                                                       generation);
+    };
+    params.load_graphics_driver = [hooks = copy(hook_directory),
+                                   files = copy(driver_directory)] {
+      return Vulkan::LoadAndroidTurnip(hooks, files);
+    };
+    return static_cast<jlong>(Session().Start(params));
+  } catch (const std::exception &e) {
+    __android_log_print(ANDROID_LOG_ERROR, kTag,
+                        "nativeStartRenderedExecutable: %s", e.what());
+    return 0;
+  } catch (...) {
+    return 0;
+  }
+}
+extern "C" JNIEXPORT jboolean JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativePlatformReady(
+    JNIEnv *, jclass, jlong generation) {
+  try {
+    return Session().PlatformReady(static_cast<std::uint64_t>(generation));
+  } catch (...) {
+    return false;
+  }
 }

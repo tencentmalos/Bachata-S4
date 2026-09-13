@@ -29,8 +29,7 @@ class ProductionRuntimeInstrumentedTest {
     @Test fun productionContentRunsCancelsAndRecoversAcrossServiceGenerations() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val context = instrumentation.targetContext
-        val activity = instrumentation.startActivitySync(Intent(context, MainActivity::class.java)
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        val surface = RuntimeTestSurface(instrumentation)
         val identity = NativeFexSession.nativeIdentity()
         val runDeadline = InstrumentationRegistry.getArguments().getString("runtimeDeadlineMs")?.toLong() ?: 10000L
         val root = File(context.filesDir, "games/runtime-synthetic-${SystemClock.uptimeMillis()}")
@@ -93,7 +92,7 @@ class ProductionRuntimeInstrumentedTest {
             }
         } finally {
             context.startService(Intent(context, FexSessionService::class.java).setAction(ManagedSession.ACTION_STOP))
-            instrumentation.runOnMainSync { activity.finish() }
+            surface.close()
             if (NativeFexSession.nativeCurrentGeneration() == 0L) root.deleteRecursively()
         }
     }

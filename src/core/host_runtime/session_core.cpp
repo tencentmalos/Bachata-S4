@@ -97,12 +97,14 @@ std::uint64_t SessionCore::Start(const SessionParams& params) {
     high_water_phase_ = Phase::Preparing;
     runtime_.reset();
     in_flight_control_ = 0;
+    platform_ready_ = !params.requires_platform_ready;
     tearing_down_ = false;
     drain_timed_out_ = false;
     cancel_generation_ = 0;
     has_terminal_ = false;
 
     SessionParams owned = params;
+    owned.generation = gen;
     try {
         owner_ = std::thread(&SessionCore::OwnerBody, this, gen, std::move(owned));
         joined_ = false;
@@ -175,12 +177,13 @@ void SessionCore::OwnerBody(std::uint64_t generation, SessionParams params) {
     // --- Publish runtime, become Ready, honor any preparing-phase cancel ---
     bool cancel_before_run = false;
     {
-        std::lock_guard lock{mtx_};
+        std::unique_lock lock{mtx_};
         runtime_ = runtime;
         phase_ = Phase::Ready;
         high_water_phase_ = Phase::Ready;
-        cancel_before_run = (cancel_generation_ == generation);
         cv_.notify_all();
+        cv_.wait(lock, [&] { return platform_ready_ || cancel_generation_ == generation; });
+        cancel_before_run = (cancel_generation_ == generation);
     }
 
     if (cancel_before_run) {
@@ -333,6 +336,16 @@ void SessionCore::TeardownAndDestroy(std::uint64_t generation,
     }
 }
 
+bool SessionCore::PlatformReady(std::uint64_t generation) {
+    std::lock_guard lock{mtx_};
+    if (generation != generation_ || IsTerminal(phase_) || phase_ == Phase::Idle ||
+        cancel_generation_ == generation || tearing_down_)
+        return false;
+    platform_ready_ = true;
+    cv_.notify_all();
+    return true;
+}
+
 StopResult SessionCore::RequestStop(std::uint64_t generation, std::uint64_t timeout_ns) {
     std::shared_ptr<SessionRuntime> rt;
     {
@@ -350,12 +363,14 @@ StopResult SessionCore::RequestStop(std::uint64_t generation, std::uint64_t time
         if (phase_ == Phase::Preparing && runtime_ == nullptr) {
             // Context not yet published: record intent, dereference nothing.
             cancel_generation_ = generation;
+            cv_.notify_all();
             return StopResult::CancelPending;
         }
         if (tearing_down_) {
             return StopResult::AlreadyStopping;
         }
         cancel_generation_ = generation;
+        cv_.notify_all();
         rt = runtime_;  // shared_ptr copy: keeps the runtime alive across the calls
         if (rt == nullptr) {
             // Ready/Running but runtime somehow null: treat as pending, owner

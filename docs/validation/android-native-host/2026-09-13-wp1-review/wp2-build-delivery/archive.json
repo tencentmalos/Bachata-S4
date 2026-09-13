@@ -1,0 +1,13 @@
+{
+  "source_manifest_original": "runs/1789294583381518000/source.json",
+  "source_manifest_archive": "source.json",
+  "source_manifest_sha256": "9510afc826d07a9ee95503e0963b7f04f0730c6add82229eb596b2eebd8ccf87",
+  "host_build_id": "9c8df3d6af500a24994f3c3f388ca1b37843eb07",
+  "jni_build_id": "b903766b1155f68af99c7c6369156072faeafda4",
+  "identity": "Built on 10a5b23e plus recorded changes; do not relabel as a later commit",
+  "static_checks": {
+    "host_sdl_definitions": 0,
+    "production_runner_test_gate_definitions": 0,
+    "validation": "llvm-nm --defined-only --demangle, exact built host/runner"
+  }
+}

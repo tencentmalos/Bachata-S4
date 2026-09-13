@@ -1,0 +1,22 @@
+{
+  "source": "10a5b23ecbc80ea75bf4b785c921747f131f3480",
+  "remote": "/data/local/tmp/shadps4-wp2-cpu-1789294284259875000",
+  "scope": "auxiliary CLI regression",
+  "runs": [
+    {
+      "suite": "guest_execution_tests",
+      "sha256": "027d336077a6b5f54d6da2b65f27f38a6a22da239957be2dbf10af98a52b4a7a",
+      "exit": 4,
+      "marker": "244 check(s), ALL PASS (0 failures)",
+      "pass": false
+    }
+  ],
+  "device": {
+    "ro.product.model": "AYN Thor",
+    "ro.build.version.sdk": "33"
+  },
+  "pagesize": "4096",
+  "status": "FAIL",
+  "error": "('guest_execution_tests', 'ase integer support                  PASS\\n[G06b  ] capabilities declare SSE2 support                          PASS\\n[G06c  ] capabilities do not claim AVX                              PASS\\n[G06d  ] capabilities report the injected host page size            PASS\\n[G06e  ] a second concurrent context is refused with AlreadyActive  PASS\\n[G06f  ] an unmapped entry_rip is refused                           PASS\\n[G06g  ] Step is refused with Unsupported, not silently run as a block PASS\\n[G06h  ] WriteRegisters refuses a stale stop epoch                  PASS\\n[G06i  ] a destroyed handle is refused with InvalidHandle           PASS\\n[G06j  ] InvalidateCode refuses a token from another address space  PASS -- InvalidArgument in GuestAddressSpace::InvalidateCode: the token belongs to a different address space, or its space has been destroyed\\n[G17b  ] 100 destroyed/recreated contexts reject real old tickets and handles PASS\\n[G17c  ] 100 real HLT faults outrank subsequent Cancel and refuse Resume PASS\\n')",
+  "cleanup_exit": 0
+}

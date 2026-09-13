@@ -1207,9 +1207,7 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         std::array<std::byte, 256> saved_stack_bytes{};
         if (options.deadline_ns != 0)
             return BackendError(ErrorCategory::Unsupported, "Run", "deadline_ns is unsupported");
-        auto lease = space_.AcquireExecutionLease();
-        if (!lease)
-            return lease.GetError();
+        Result<ExecutionLease> lease{ExecutionLease{}};
         OwnerSignalStack signal_stack;
         if (auto status = signal_stack.Install(host_page_size_); !status)
             return status.GetError();
@@ -1218,11 +1216,27 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         std::uint64_t invocation{};
         std::shared_ptr<std::atomic<bool>> syscall_fault;
         {
-            std::lock_guard guard{lock_};
-            // A lease may have been acquired just before BeginDrain. Do not enter after
-            // the coordinator's owner snapshot; the lease will drain on this refusal.
-            if (space_.IsQuiescent())
-                return BackendError(ErrorCategory::Busy, "Run", "coordinated drain is active");
+            std::unique_lock guard{lock_};
+            const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+            for (;;) {
+                auto admission = space_.AcquireExecutionLease();
+                if (admission) {
+                    lease.Value() = std::move(admission).Value();
+                    break;
+                }
+                if (!config_.resume_internal_drains ||
+                    admission.GetError().category != ErrorCategory::Busy)
+                    return admission.GetError();
+                if (std::chrono::steady_clock::now() >= deadline)
+                    return BackendError(ErrorCategory::Timeout, "Run",
+                                        "publication admission remained busy");
+                guard.unlock();
+                (void)space_.WaitForQuiescenceRelease(20'000'000);
+                std::this_thread::yield();
+                guard.lock();
+            }
+            // Admission and running-state publication share the coordinator lock.
+            // BeginDrain cannot snapshot owners between these two operations.
             auto *entry = FindOwnedLocked(thread);
             if (!entry)
                 return OwnershipError(thread, "Run");
@@ -1371,6 +1385,74 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         ::fegetenv(&host_fp);
         bool cooperative_stop = false;
         std::optional<GuestCallResult> nested_stop;
+        // Waiting for epoch A to end does not reserve admission: epoch B may
+        // start before we reacquire lock_. Retry Busy within one bounded budget,
+        // and publish running=true under the coordinator lock with the lease.
+        // Never rerun a native HLE or rebuild an InvokeGuest frame on this retry.
+        const auto resume_continuation = [&]() -> Result<bool> {
+            const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+            for (;;) {
+                {
+                    std::lock_guard guard{lock_};
+                    auto* entry = FindOwnedLocked(thread);
+                    const auto cancel_mask =
+                        (1u << static_cast<unsigned>(InterruptReason::Cancel)) |
+                        (1u << static_cast<unsigned>(InterruptReason::Shutdown));
+                    if (entry->interrupt->pending & cancel_mask)
+                        return false;
+                }
+                if (config_.resume_internal_drains) {
+                    const auto now = std::chrono::steady_clock::now();
+                    if (now >= deadline)
+                        return BackendError(ErrorCategory::Timeout, "Run continuation",
+                                            "publication admission remained busy");
+                    const auto left =
+                        std::chrono::duration_cast<std::chrono::nanoseconds>(deadline - now)
+                            .count();
+                    auto ready =
+                        space_.WaitForQuiescenceRelease(std::min<std::uint64_t>(left, 20'000'000));
+                    if (!ready) {
+                        if (ready.GetError().category == ErrorCategory::Timeout)
+                            continue;
+                        return ready.GetError();
+                    }
+                }
+#if defined(GUEST_CPU_TEST_HOOKS)
+                if (!test_continuation_gate_->WaitAtEntry(context_id_, thread.id, invocation, 5000))
+                    return BackendError(ErrorCategory::BackendFailure, "Run continuation",
+                                        "test continuation gate aborted");
+#endif
+                {
+                    std::lock_guard guard{lock_};
+                    auto* entry = FindOwnedLocked(thread);
+                    auto admission = space_.AcquireExecutionLease();
+                    if (admission) {
+                        if (entry->interrupt->pending)
+                            return false;
+                        auto target =
+                            space_.Query(GuestAddress{entry->native->CurrentFrame->State.rip});
+                        if (!target ||
+                            !HasPermission(target.Value().permission, GuestPermission::Execute))
+                            return BackendError(ErrorCategory::PermissionDenied, "Run continuation",
+                                                "continuation is no longer executable");
+                        lease.Value() = std::move(admission).Value();
+                        entry->internally_parked = false;
+                        entry->running = true;
+                        entry->interrupt->stopped_snapshot.reset();
+                        return true;
+                    }
+                    if (!config_.resume_internal_drains ||
+                        admission.GetError().category != ErrorCategory::Busy)
+                        return admission.GetError();
+#if defined(GUEST_CPU_TEST_HOOKS)
+                    test_continuation_retries_.fetch_add(1, std::memory_order_release);
+#endif
+                }
+                // Also bound transient sink exclusion (which need not own a
+                // quiescence epoch). No context lock or execution lease is held.
+                std::this_thread::yield();
+            }
+        };
         for (;;) {
             t_binding = &binding;
             binding.hle_pending = false;
@@ -1456,25 +1538,13 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
             binding.interrupted.store(false, std::memory_order_release);
             call_stack.reset();
             lease.Value() = ExecutionLease{};
-            if (auto released = space_.WaitForQuiescenceRelease(2'000'000'000); !released)
-                return released.GetError();
-            std::lock_guard guard{lock_};
-            auto* entry = FindOwnedLocked(thread);
-            entry->internally_parked = false;
-            if (entry->interrupt->pending) {
+            auto resumed = resume_continuation();
+            if (!resumed)
+                return resumed.GetError();
+            if (!resumed.Value()) {
                 cooperative_stop = true;
                 break;
             }
-            auto admission = space_.AcquireExecutionLease();
-            if (!admission)
-                return admission.GetError();
-            lease.Value() = std::move(admission).Value();
-            auto target = space_.Query(GuestAddress{entry->native->CurrentFrame->State.rip});
-            if (!target || !HasPermission(target.Value().permission, GuestPermission::Execute))
-                return BackendError(ErrorCategory::PermissionDenied, "internal drain",
-                                    "continuation unmapped");
-            entry->running = true;
-            entry->interrupt->stopped_snapshot.reset();
             continue;
         }
 
@@ -1514,29 +1584,12 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         // architectural RCX; start a fresh translation there, not in old JIT code.
         binding.native->CurrentFrame->State.rip =
             binding.native->CurrentFrame->State.gregs[FEXCore::X86State::REG_RCX];
-        if (config_.resume_internal_drains) {
-            if (auto released = space_.WaitForQuiescenceRelease(2'000'000'000); !released)
-                return released.GetError();
-        }
-        {
-            std::lock_guard guard{lock_};
-            auto* entry = FindOwnedLocked(thread);
-            if (entry->interrupt->pending != 0) {
-                cooperative_stop = true;
-                break;
-            }
-            auto admission = space_.AcquireExecutionLease();
-            if (!admission)
-                return admission.GetError();
-            lease.Value() = std::move(admission).Value();
-            // Publication may have removed the saved continuation. Never ask
-            // FEX to translate an unchecked/unmapped successor after a host call.
-            auto target = space_.Query(GuestAddress{binding.native->CurrentFrame->State.rip});
-            if (!target || !HasPermission(target.Value().permission, GuestPermission::Execute))
-                return BackendError(ErrorCategory::PermissionDenied, "HLE return",
-                                    "continuation is no longer executable");
-            entry->running = true;
-            entry->interrupt->stopped_snapshot.reset();
+        auto resumed = resume_continuation();
+        if (!resumed)
+            return resumed.GetError();
+        if (!resumed.Value()) {
+            cooperative_stop = true;
+            break;
         }
         }
 
@@ -1747,6 +1800,12 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
     [[nodiscard]] FexTestRunGate* TestRunGatePointer() {
         return test_run_gate_.get();
     }
+    [[nodiscard]] FexTestRunGate* TestContinuationGatePointer() {
+        return test_continuation_gate_.get();
+    }
+    std::uint64_t TestContinuationRetries() const {
+        return test_continuation_retries_.load(std::memory_order_acquire);
+    }
     void SetSyscallTraceEnabled(bool trace) { test_syscall_trace_enabled_ = trace; }
 #endif
 
@@ -1790,7 +1849,11 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
                 auto ticket = RequestInterruptLocked({id, entry.generation}, InterruptReason::Pause);
                 if (!ticket) return ticket.GetError();
                 drain_tickets_.push_back(ticket.Value());
-                hle_wakes.push_back(entry.hle_cancel);
+                // Production publication parks only JIT execution. A native HLE
+                // boundary already has no execution lease; poisoning its persistent
+                // cancellation source would cancel all future HLEs in this Run.
+                if (!config_.resume_internal_drains)
+                    hle_wakes.push_back(entry.hle_cancel);
             }
         }
 
@@ -1805,8 +1868,9 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
                 std::unique_lock guard{lock_};
                 if (!stopped_changed_.wait_for(guard, std::chrono::nanoseconds(left), [&] {
                         auto* entry = Find({ticket.thread_id, ticket.thread_generation});
-                        return !entry || (!entry->running &&
-                                          (entry->internally_parked || entry->active_runs == 0));
+                        // HLE return and nested entry must reacquire admission
+                        // under lock_; a live frame outside JIT is quiescent too.
+                        return !entry || !entry->running;
                     })) {
                     return BackendError(ErrorCategory::Timeout, "QuiesceContext",
                                         "owner has not left JIT");
@@ -2350,6 +2414,8 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
     // Constructed eagerly with the context (single-threaded, before any Run), so owner threads that
     // read this in Run never race the lazy creation that a lazily-assigned unique_ptr would allow.
     std::unique_ptr<FexTestRunGate> test_run_gate_{std::make_unique<FexTestRunGateImpl>()};
+    std::unique_ptr<FexTestRunGate> test_continuation_gate_{std::make_unique<FexTestRunGateImpl>()};
+    std::atomic<std::uint64_t> test_continuation_retries_{};
     // N3 probe syscall-point trace (test builds only); the immediate-exit wrapper itself is
     // production and always installed, not gated by this flag.
     bool test_syscall_trace_enabled_{false};
@@ -2422,6 +2488,14 @@ void* FexHleRegistryPointer(CpuContext& context) {
 #if defined(GUEST_CPU_TEST_HOOKS)
 void* FexTestRunGatePointer(CpuContext& context) {
     return static_cast<FexCpuContext*>(&context)->TestRunGatePointer();
+}
+
+void* FexTestContinuationGatePointer(CpuContext& context) {
+    return static_cast<FexCpuContext*>(&context)->TestContinuationGatePointer();
+}
+
+std::uint64_t FexTestContinuationRetries(CpuContext& context) {
+    return static_cast<FexCpuContext*>(&context)->TestContinuationRetries();
 }
 
 // N3 probe diagnostic: enable syscall-point trace for the next Run and read the last record. The
