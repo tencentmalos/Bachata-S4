@@ -55,3 +55,13 @@ SessionParams 由 SessionCore 写入 generation，生产 backend 创建 AndroidW
 后续实际缺口集中在 GPU buffer/submit/flip：guest 范围与尺寸验证、registration 事务、buffer/label 寿命、GPU tracking 与 guest VM protection reason／FEX fault delivery 的组合、event/IRQ guest 语义，以及 driver wait/error 的完整 Stop 行为。当前 passive dispatcher **没有**宣称接通 GPU fault recovery；不应仅扩 allow-set 或直接套用桌面 raw pointer 接口。
 
 完整 assets/UI base+update 事务、FEX-origin pad、AAudio 游戏输出、十分钟交互及三轮游戏重启仍待验证。上述已实现路径不应再交回另一份“初始窗口／Turnip／CPU runtime 尚未接入”的规划。
+
+## 用户补充：存档是本版必需能力
+
+`libSceSaveDataDialog`（sysmodule id `0xa0`）负责存档交互，`libSceSaveData` 负责存储。前文返回 `0x805a10ff` 仅表示尚无 provider；游戏当前容忍该返回值，不能据此把存档从本版目标移除。
+
+代码复核：桌面 [savedata.cpp](../../../src/core/libraries/save_data/savedata.cpp) 使用全局初始化状态、游戏标识及 mount slots；[savedatadialog.cpp](../../../src/core/libraries/save_data/dialog/savedatadialog.cpp) 使用全局 dialog 状态及 UI。二者目前均不在生产 GuestRuntime 的准入集合中；编进 host DSO 不等于 guest 已能安全调用。
+
+在当前整版实施中复用已有存储后端，接通会话持有的状态、guest 嵌套结构与指针校验、文件系统挂载、初始化/卸载/Stop 回收。持久数据按稳定的用户与标题标识隔离，不能跟随 generation 或临时内容目录删除；本体更新不应更换或覆盖存档根目录。Dialog 的状态、选择、取消及结果必须来自真实交互或实际操作完成，不能用无 UI 的假成功代替。
+
+验收必须包含真实 guest 创建/写入/卸载存档、正常退出及进程重启后读回一致内容、本体更新后仍可读取，以及坏指针、只读挂载、I/O 失败和取消。当前这些生产存档验收均未完成；此补充只明确用户要求和代码现状，没有宣称新实现或新测试通过。

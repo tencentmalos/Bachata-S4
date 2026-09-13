@@ -6,6 +6,8 @@
 
 ## 当前交接（2026-09-13）
 
+用户补充：本版必须正确支持存档。缺失的 libSceSaveDataDialog 是交互层，libSceSaveData 是持久化服务；二者目前均未接入生产 GuestRuntime。缺失错误不是完成或延期理由。随真实游戏推进接入会话隔离、guest 指针/文件挂载、稳定用户/标题存档目录与真实 dialog 状态；验证保存→退出→重启读回、更新保留存档及失败/取消，不能假成功或把存档放进临时内容目录。详见当前复核记录的存档补充，不另拆 spec。
+
 最新先读[WP1复核与原生Turnip／Session图形接入](docs/validation/android-native-host/wp2-native-turnip-runtime-review-2026-09-13.md)。本轮直接修复并推进，没有新增 spec：普通 APK 已加载固定 bionic Turnip（实测 shaderInt64=1），四个 hook 仅打包、不静态变成 JNI DT_NEEDED；Session generation 持有窗口/Presenter/VideoOut/IRQ，输入桥接完成后才 PlatformReady。VideoOutOpen/Resolution/SetBufferAttribute/Vblank 已过实际 guest；SetBufferAttribute 正确解第七个栈参数。真实选取 TMNT 的新边界是 sceVideoOutRegisterBuffers（w3BY+tAEiQY, op153），并非游戏画面或可玩验收。
 
 已修 provider readiness、每代用户/系统队列、库准入绕过、PageManager覆盖FEX信号、VM发布与继续执行的准入竞态、线程销毁与发布冲突、内部Pause污染HLE取消源。G48强制33次交错和token下Cancel；FEX子仓保持385a0cc4。passive SignalDispatch只解决OS信号归属，GPU tracking与guest VM/FEX fault delivery仍需真正组合；不得仅扩大allow-set透传桌面缓冲/命令指针。精确测试计数和产物身份见交付manifest。旧“所有非图形启动已完成／尚未绑定Turnip窗口”两种描述都不再作为当前事实。用户要求继续在当前实现推进，不另拆微型spec。
