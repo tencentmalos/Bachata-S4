@@ -18,6 +18,8 @@ add_library(guest_cpu_api STATIC
     api/address_space.h
     api/address_space.cpp
     hle/call_adapter.h
+    hle/veneer_allocator.h
+    hle/veneer_allocator.cpp
 )
 
 target_compile_features(guest_cpu_api PUBLIC cxx_std_20)

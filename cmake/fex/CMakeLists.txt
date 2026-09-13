@@ -87,6 +87,14 @@ if(V0_BUILD_TESTS)
         add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../foundation/modules/input" foundation/input EXCLUDE_FROM_ALL)
     endif()
     target_link_libraries(orbis_pad_adapter_tests PRIVATE Threads::Threads foundation_input)
+
+    # HLE veneer allocator contract. Backend-free: links guest_cpu_api only (the
+    # allocator lives in that library), so it runs on the CI host and cross-compiles
+    # under the NDK. The guest-call-through-a-veneer round trip is in
+    # guest_execution_tests, which needs FEX.
+    add_executable(veneer_allocator_tests
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/guest_cpu/veneer_allocator_tests.cpp")
+    target_link_libraries(veneer_allocator_tests PRIVATE guest_cpu_api Threads::Threads)
 endif()
 
 if(V0_ENABLE_FEX)

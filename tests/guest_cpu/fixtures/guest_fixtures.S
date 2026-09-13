@@ -180,6 +180,25 @@ fixture_invoke_sum7:
 fixture_invoke_sum7_end:
 
 // ---------------------------------------------------------------------------
+// Guest CALL through an HLE veneer. r11 holds the veneer VA (set by the harness
+// via RegisterPatch, since it is only known at run time). The six SysV integer
+// args are already in rdi/rsi/rdx/rcx/r8/r9. `call r11` lands in the 16-byte
+// veneer, which stages rcx into r10, loads the operation into rax and executes
+// `syscall`; the backend dispatches to the typed HLE function and resumes at the
+// veneer's `ret`, leaving the result in rax. The fixture then jumps to the gate.
+//
+// This proves the whole GOT->veneer->syscall->HLE->resume path a relocated import
+// takes, not just that the syscall gate works when the guest sets rax directly.
+// ---------------------------------------------------------------------------
+.globl fixture_call_veneer
+.globl fixture_call_veneer_end
+fixture_call_veneer:
+    call    r11
+    movabs  r15, 0x1122334455667788
+    jmp     r15
+fixture_call_veneer_end:
+
+// ---------------------------------------------------------------------------
 // R2-C02: a loop with no HLE call, no syscall, no yield and no natural exit.
 //
 // This is the fixture an asynchronous stop has to work against. A cooperative

@@ -38,6 +38,7 @@
 #include "core/guest_cpu/api/context.h"
 #include "core/guest_cpu/fex/fex_context.h"
 #include "core/guest_cpu/hle/call_adapter.h"
+#include "core/guest_cpu/hle/veneer_allocator.h"
 
 #include "guest_fixtures.h"
 
@@ -3412,6 +3413,91 @@ void TestInvokeGuestWithHle(Harness &h) {
     (void)h.context->DestroyThread(thread.Value());
 }
 
+// --- Guest CALL through an HLE veneer -------------------------------------------------------------
+// The end-to-end path a relocated import takes: the GOT slot holds a veneer VA, the guest CALLs it,
+// the 16-byte veneer stages rcx->r10, loads the op into rax and `syscall`s, the backend dispatches to
+// the typed HLE function, and the guest resumes at the veneer's `ret` with the result in rax. This is
+// the mechanism Stage 2's loader wiring depends on; proving it here is the veneer allocator's real
+// acceptance (the standalone veneer_allocator_tests only check byte emission, not execution).
+void TestVeneerGuestCall(Harness &h) {
+    auto *registry = static_cast<HleCallRegistry *>(Fex::FexHleRegistryPointer(*h.context));
+    if (registry == nullptr) {
+        Check("G44", "HLE registry reachable for the veneer path", false);
+        return;
+    }
+    const auto op = registry->Register(&HleAdd6, "veneer_add6");
+    if (!op) {
+        Check("G44", "register HLE add6 for the veneer path", false, Describe(op.GetError()));
+        return;
+    }
+
+    // Carve a veneer slab from the reservation, well past the code/stack/data the harness uses.
+    const std::uint64_t page = static_cast<std::uint64_t>(::sysconf(_SC_PAGESIZE));
+    const GuestRange slab{GuestAddress{h.space->ReservationBase().value + 0x100000}, page};
+    auto alloc_r = Hle::HleVeneerAllocator::Create(*h.space, slab);
+    if (!alloc_r) {
+        Check("G44", "create the veneer slab", false, Describe(alloc_r.GetError()));
+        return;
+    }
+    auto alloc = std::move(alloc_r).Value();
+    auto veneer = alloc.Allocate(op.Value());
+    if (!veneer) {
+        Check("G44", "allocate the add6 veneer", false, Describe(veneer.GetError()));
+        return;
+    }
+    if (auto sealed = alloc.Seal(); !sealed) {
+        Check("G44", "seal the veneer slab", false, Describe(sealed.GetError()));
+        return;
+    }
+    // The freshly published veneer bytes are code the JIT has never seen; invalidate any stale decode
+    // of that range so the first CALL there decodes the real stub.
+    if (auto q = h.space->Quiesce(1'000'000'000)) {
+        (void)h.context->InvalidateCode(q.Value(), slab, InvalidationReason::HostWrite);
+    }
+
+    std::string e;
+    if (!LoadFixture(h, *FindFixture("call_veneer"), e)) {
+        Check("G44", "load call_veneer fixture", false, e);
+        return;
+    }
+    if (!ResetStack(h, e)) {
+        Check("G44", "reset stack", false, e);
+        return;
+    }
+
+    ThreadInit init{};
+    init.entry_rip = GuestCodeAddress{h.code_base};
+    init.initial_rsp = GuestAddress{h.stack_top};
+    init.guest_tid = 702;
+    init.initial_state.fields = RegisterValidity::Gpr;
+    init.initial_state.gpr_mask =
+        (1u << Index(Gpr::Rdi)) | (1u << Index(Gpr::Rsi)) | (1u << Index(Gpr::Rdx)) |
+        (1u << Index(Gpr::Rcx)) | (1u << Index(Gpr::R8)) | (1u << Index(Gpr::R9)) |
+        (1u << Index(Gpr::R11));
+    init.initial_state.values.Set(Gpr::Rdi, 1);
+    init.initial_state.values.Set(Gpr::Rsi, 2);
+    init.initial_state.values.Set(Gpr::Rdx, 3);
+    init.initial_state.values.Set(Gpr::Rcx, 4);  // 4th SysV arg; the veneer stages it to r10
+    init.initial_state.values.Set(Gpr::R8, 5);
+    init.initial_state.values.Set(Gpr::R9, 6);
+    init.initial_state.values.Set(Gpr::R11, veneer.Value().value);
+
+    auto thread = h.context->CreateThread(init);
+    if (!thread) {
+        Check("G44", "create the veneer-call thread", false, Describe(thread.GetError()));
+        return;
+    }
+    auto run = h.context->Run(thread.Value(), RunOptions{});
+    const bool returned = run && run.Value().primary_reason == StopReason::Returned;
+    Check("G44a", "guest CALL through the veneer returned via the gate", returned,
+          run ? std::string{ToString(run.Value().primary_reason)} : Describe(run.GetError()));
+    if (returned) {
+        CheckU64("G44b", "veneer dispatched HLE add6(1..6) -> rax == 21",
+                 run.Value().snapshot.registers.Get(Gpr::Rax), 21);
+    }
+    (void)h.context->DestroyThread(thread.Value());
+}
+
 } // namespace
 
 int main() {
@@ -3499,6 +3585,7 @@ int main() {
     TestRealHleGate(harness);
     TestInvokeGuest(harness);
     TestInvokeGuestWithHle(harness);
+    TestVeneerGuestCall(harness);
     TestHleBufferPinning(harness);
     TestImmediateSyscallExit(harness);
     TestConcurrentSyscallFaultIsolation(harness);
