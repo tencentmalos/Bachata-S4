@@ -1374,6 +1374,113 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         return FinishRunLocked(thread, *entry, invocation, interrupted);
     }
 
+    [[nodiscard]] Result<GuestCallResult> InvokeGuest(ThreadHandle thread, GuestCodeAddress entry,
+                                                      const GuestCallArgs &args,
+                                                      const GuestCallOptions &options) override {
+        if (args.count > GuestCallArgs::kMaxArguments) {
+            return BackendError(ErrorCategory::InvalidArgument, "InvokeGuest",
+                                "too many guest call arguments");
+        }
+        // The x86-64 SysV integer argument registers, in order.
+        static constexpr std::array<int, 6> kIntegerRegs{
+            FEXCore::X86State::REG_RDI, FEXCore::X86State::REG_RSI, FEXCore::X86State::REG_RDX,
+            FEXCore::X86State::REG_RCX, FEXCore::X86State::REG_R8,  FEXCore::X86State::REG_R9,
+        };
+
+        // Set up the call frame on the owned, stopped thread under the lock, then
+        // release it and run through the normal Run path (which takes the lease,
+        // installs the syscall wrapper, saves/restores the owner FP env and builds
+        // the result). The return address is the backend's HLT return gate; with
+        // EnableExitOnHLT the guest's final `ret` lands there and Run reports
+        // StopReason::Returned, which is how the call boundary is detected.
+        const std::uint64_t gate = return_gate_.Address();
+        {
+            std::lock_guard guard{lock_};
+            auto *e = FindOwnedLocked(thread);
+            if (e == nullptr) {
+                return OwnershipError(thread, "InvokeGuest");
+            }
+            if (e->running) {
+                return BackendError(ErrorCategory::AlreadyRunning, "InvokeGuest",
+                                    "thread is executing; cannot enter a nested guest call");
+            }
+            if (e->interrupt->last_reason == StopReason::GuestFault ||
+                e->interrupt->last_reason == StopReason::BackendFailure) {
+                return BackendError(ErrorCategory::WrongState, "InvokeGuest",
+                                    "destroy and recreate a faulted thread");
+            }
+            auto entry_mapping = space_.Query(GuestAddress{entry.value});
+            if (!entry_mapping) {
+                return BackendError(ErrorCategory::InvalidArgument, "InvokeGuest",
+                                    "entry is not mapped in this address space");
+            }
+            if (!HasPermission(entry_mapping.Value().permission, GuestPermission::Execute)) {
+                return BackendError(ErrorCategory::PermissionDenied, "InvokeGuest",
+                                    "entry is mapped without execute permission");
+            }
+
+            auto &state = e->native->CurrentFrame->State;
+
+            // Register arguments 1..6.
+            const std::size_t reg_args = std::min<std::size_t>(args.count, kIntegerRegs.size());
+            for (std::size_t i = 0; i < reg_args; ++i) {
+                state.gregs[kIntegerRegs[i]] = args.values[i];
+            }
+
+            // Spill arguments 7.. onto the guest stack, above the return address.
+            // Lay them out first (higher addresses), then push the return address
+            // last so it sits at [rsp] like a real CALL left it.
+            const std::size_t stack_args = args.count - reg_args;
+            std::uint64_t rsp = state.gregs[FEXCore::X86State::REG_RSP];
+            // 16-byte align the stack, then reserve stack args + the return slot so
+            // that after pushing the return address rsp is 16-byte-misaligned by 8,
+            // exactly as a `call` instruction leaves it for the SysV ABI.
+            const std::uint64_t frame_slots = stack_args + 1;  // args + return address
+            rsp &= ~std::uint64_t{15};
+            if ((frame_slots & 1) == 0) {
+                // Keep the post-push misalignment invariant.
+                rsp -= 8;
+            }
+            for (std::size_t i = 0; i < stack_args; ++i) {
+                rsp -= 8;
+                const std::uint64_t value = args.values[reg_args + i];
+                if (auto w = space_.Write(GuestAddress{rsp},
+                                          {reinterpret_cast<const std::byte *>(&value),
+                                           sizeof(value)});
+                    !w) {
+                    return BackendError(ErrorCategory::InvalidArgument, "InvokeGuest",
+                                        "failed to write a spilled guest call argument");
+                }
+            }
+            rsp -= 8;
+            if (auto w = space_.Write(GuestAddress{rsp},
+                                      {reinterpret_cast<const std::byte *>(&gate), sizeof(gate)});
+                !w) {
+                return BackendError(ErrorCategory::InvalidArgument, "InvokeGuest",
+                                    "failed to write the guest call return address");
+            }
+            state.gregs[FEXCore::X86State::REG_RSP] = rsp;
+            state.rip = entry.value;
+            if (options.fs_base) {
+                state.fs_cached = *options.fs_base;
+            }
+        }
+
+        auto run = Run(thread, RunOptions{});
+        if (!run) {
+            return run.GetError();
+        }
+        const RunResult &r = run.Value();
+        GuestCallResult call{};
+        call.reason = r.primary_reason;
+        call.snapshot = r.snapshot;
+        call.fault = r.fault;
+        if (r.primary_reason == StopReason::Returned) {
+            call.return_value = r.snapshot.registers.Get(Gpr::Rax);
+        }
+        return call;
+    }
+
     [[nodiscard]] Result<RunResult> Step(ThreadHandle thread, const StepOptions &) override {
         std::lock_guard guard{lock_};
         if (FindOwnedLocked(thread) == nullptr) {

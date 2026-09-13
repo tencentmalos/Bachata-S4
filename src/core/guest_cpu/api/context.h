@@ -142,6 +142,23 @@ public:
                                                  const StepOptions& options) = 0;
     [[nodiscard]] virtual Result<void> DestroyThread(ThreadHandle thread) = 0;
 
+    // Re-entrant guest function call. Enters `entry` as a normal SysV function on
+    // an already-owned guest thread: integer arguments go to rdi/rsi/rdx/rcx/r8/r9
+    // (spill to the guest stack past six), the backend's return gate is pushed as
+    // the return address, and the call returns when the thread lands back on that
+    // gate. The thread's guest stack, FS/TLS and heap persist, so a sequence of
+    // boot calls (DT_INIT, `_malloc_init`, ...) share state as the PS4 kernel
+    // intends. A fault, unresolved import or cancellation during the call is
+    // reported in the result, never folded into a zero return value.
+    //
+    // Owner-thread only, same as Run: the caller must own `thread` and it must be
+    // stopped (not mid-Run). This is the primitive the Orbis linker/module start
+    // path uses instead of casting a guest VA to a native function pointer.
+    [[nodiscard]] virtual Result<GuestCallResult> InvokeGuest(ThreadHandle thread,
+                                                              GuestCodeAddress entry,
+                                                              const GuestCallArgs& args,
+                                                              const GuestCallOptions& options) = 0;
+
     // Readable at a stopped boundary. The returned snapshot's kind says how
     // much of it is authoritative; it is never silently upgraded to SafePoint.
     [[nodiscard]] virtual Result<CpuSnapshot> ReadRegisters(ThreadHandle thread) const = 0;

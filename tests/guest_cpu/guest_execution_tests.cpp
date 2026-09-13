@@ -3283,6 +3283,135 @@ void TestInterruptRefusals(Harness &harness) {
     (void)harness.context->DestroyThread(handle);
 }
 
+// --- InvokeGuest: re-entrant guest function call --------------------------------------------------
+// Proves the primitive the Orbis boot chain uses instead of casting a guest VA to a native pointer:
+// DT_INIT, _malloc_init and the program entry are all guest addresses entered as SysV functions.
+void TestInvokeGuest(Harness &h) {
+    // A persistent thread the calls run on; its guest stack/state survive across calls, which is the
+    // whole point (a sequence of module inits must share heap/TLS). The thread is created but never
+    // Run directly -- InvokeGuest drives it.
+    ThreadInit init{};
+    init.entry_rip = GuestCodeAddress{h.code_base};
+    init.initial_rsp = GuestAddress{h.stack_top};
+    init.guest_tid = 700;
+    auto thread = h.context->CreateThread(init);
+    if (!thread) {
+        Check("G40", "create the InvokeGuest host thread", false, Describe(thread.GetError()));
+        return;
+    }
+
+    // add3: rax = rdi + rsi + rdx, then a bare `ret` back to the pushed gate.
+    std::string e;
+    if (!LoadFixture(h, *FindFixture("invoke_add3"), e)) {
+        Check("G40", "load invoke_add3 fixture", false, e);
+        (void)h.context->DestroyThread(thread.Value());
+        return;
+    }
+
+    GuestCallArgs add_args{};
+    add_args.values[0] = 2;
+    add_args.values[1] = 3;
+    add_args.values[2] = 5;
+    add_args.count = 3;
+    auto add = h.context->InvokeGuest(thread.Value(), GuestCodeAddress{h.code_base}, add_args, {});
+    if (!add) {
+        Check("G40", "InvokeGuest(add3) returned a result", false, Describe(add.GetError()));
+        (void)h.context->DestroyThread(thread.Value());
+        return;
+    }
+    const bool add_returned = add.Value().reason == StopReason::Returned;
+    Check("G40a", "InvokeGuest(add3) reached the return gate", add_returned,
+          add_returned ? std::string{} : std::string{ToString(add.Value().reason)});
+    CheckU64("G40b", "InvokeGuest(add3) rax == rdi+rsi+rdx", add.Value().return_value, 10);
+
+    // The thread is reusable: a second call on the same thread must work and see a fresh frame (the
+    // guest RSP returned to its resting value, so pushes don't accumulate).
+    GuestCallArgs add2_args{};
+    add2_args.values[0] = 100;
+    add2_args.values[1] = 20;
+    add2_args.values[2] = 3;
+    add2_args.count = 3;
+    auto add2 = h.context->InvokeGuest(thread.Value(), GuestCodeAddress{h.code_base}, add2_args, {});
+    const bool add2_ok = add2 && add2.Value().reason == StopReason::Returned &&
+                         add2.Value().return_value == 123;
+    Check("G40c", "InvokeGuest is repeatable on the same thread", add2_ok,
+          add2 ? ("rax=" + Hex(add2.Value().return_value)) : Describe(add2.GetError()));
+
+    // sum7: 6 register args + one stack-spilled 7th, proving the spill layout ([rsp+8] after the
+    // pushed return address). rax = 1+2+3+4+5+6+7 = 28.
+    if (!LoadFixture(h, *FindFixture("invoke_sum7"), e)) {
+        Check("G41", "load invoke_sum7 fixture", false, e);
+        (void)h.context->DestroyThread(thread.Value());
+        return;
+    }
+    GuestCallArgs sum_args{};
+    for (std::uint64_t i = 0; i < 7; ++i) {
+        sum_args.values[i] = i + 1;
+    }
+    sum_args.count = 7;
+    auto sum = h.context->InvokeGuest(thread.Value(), GuestCodeAddress{h.code_base}, sum_args, {});
+    const bool sum_ok =
+        sum && sum.Value().reason == StopReason::Returned && sum.Value().return_value == 28;
+    Check("G41a", "InvokeGuest spills the 7th argument to the guest stack", sum_ok,
+          sum ? ("rax=" + Hex(sum.Value().return_value) + " reason=" +
+                 std::string{ToString(sum.Value().reason)})
+              : Describe(sum.GetError()));
+
+    // A bad entry (not mapped executable) must be refused, not run.
+    GuestCallArgs none{};
+    auto bad = h.context->InvokeGuest(thread.Value(), GuestCodeAddress{h.stack_base}, none, {});
+    Check("G42", "InvokeGuest refuses a non-executable entry", !bad,
+          bad ? "unexpectedly succeeded" : std::string{});
+
+    (void)h.context->DestroyThread(thread.Value());
+}
+
+// --- InvokeGuest coexists with a registered HLE op ------------------------------------------------
+// The boot chain registers HLE imports and then enters guest init functions. This asserts registering
+// an HLE op does not disturb InvokeGuest of a pure guest function (no shared-state regression). The
+// nested guest -> HLE -> guest round trip driven from inside a `ret`-ending init function needs the
+// loader's veneers to place the op/args, so it is exercised in Stage 2, not here.
+void TestInvokeGuestWithHle(Harness &h) {
+    auto *registry = static_cast<HleCallRegistry *>(Fex::FexHleRegistryPointer(*h.context));
+    if (registry == nullptr) {
+        Check("G43", "HLE registry reachable for InvokeGuest+HLE", false);
+        return;
+    }
+    const auto op_add6 = registry->Register(&HleAdd6, "invoke_add6");
+    if (!op_add6) {
+        Check("G43", "register HLE add6 for InvokeGuest", false, Describe(op_add6.GetError()));
+        return;
+    }
+
+    ThreadInit init{};
+    init.entry_rip = GuestCodeAddress{h.code_base};
+    init.initial_rsp = GuestAddress{h.stack_top};
+    init.guest_tid = 701;
+    auto thread = h.context->CreateThread(init);
+    if (!thread) {
+        Check("G43", "create the InvokeGuest+HLE thread", false, Describe(thread.GetError()));
+        return;
+    }
+
+    std::string e;
+    if (!LoadFixture(h, *FindFixture("invoke_add3"), e)) {
+        Check("G43", "load invoke_add3 after HLE registration", false, e);
+        (void)h.context->DestroyThread(thread.Value());
+        return;
+    }
+    GuestCallArgs args{};
+    args.values[0] = 11;
+    args.values[1] = 22;
+    args.values[2] = 33;
+    args.count = 3;
+    auto r = h.context->InvokeGuest(thread.Value(), GuestCodeAddress{h.code_base}, args, {});
+    const bool ok = r && r.Value().reason == StopReason::Returned && r.Value().return_value == 66;
+    Check("G43a", "InvokeGuest still works alongside a registered HLE op", ok,
+          r ? ("rax=" + Hex(r.Value().return_value)) : Describe(r.GetError()));
+
+    (void)h.context->DestroyThread(thread.Value());
+}
+
 } // namespace
 
 int main() {
@@ -3368,6 +3497,8 @@ int main() {
     TestPermissionRetirement(harness);
     TestFaultAttribution(harness);
     TestRealHleGate(harness);
+    TestInvokeGuest(harness);
+    TestInvokeGuestWithHle(harness);
     TestHleBufferPinning(harness);
     TestImmediateSyscallExit(harness);
     TestConcurrentSyscallFaultIsolation(harness);

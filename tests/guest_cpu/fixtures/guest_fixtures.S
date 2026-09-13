@@ -145,6 +145,41 @@ fixture_return_only:
 fixture_return_only_end:
 
 // ---------------------------------------------------------------------------
+// InvokeGuest: a normal SysV function. rax = rdi + rsi + rdx, then `ret`.
+//
+// Unlike the other fixtures this does NOT jump to the return gate itself: the
+// InvokeGuest primitive pushes the gate as the call's return address, so the
+// bare `ret` pops it and lands on the gate exactly like a real guest function
+// returning to its caller. This proves argument marshaling (rdi/rsi/rdx), the
+// rax return value, and that a guest `ret` reaches the backend return boundary.
+// ---------------------------------------------------------------------------
+.globl fixture_invoke_add3
+.globl fixture_invoke_add3_end
+fixture_invoke_add3:
+    lea     rax, [rdi + rsi]
+    add     rax, rdx
+    ret
+fixture_invoke_add3_end:
+
+// ---------------------------------------------------------------------------
+// InvokeGuest stack-spill: rax = sum of the 6 register args plus a 7th arg that
+// SysV places on the stack. Confirms InvokeGuest lays the 7th argument above the
+// pushed return address and the guest reads it at the ABI-mandated [rsp + 8].
+// rax = rdi + rsi + rdx + rcx + r8 + r9 + [rsp + 8]
+// ---------------------------------------------------------------------------
+.globl fixture_invoke_sum7
+.globl fixture_invoke_sum7_end
+fixture_invoke_sum7:
+    lea     rax, [rdi + rsi]
+    add     rax, rdx
+    add     rax, rcx
+    add     rax, r8
+    add     rax, r9
+    add     rax, qword ptr [rsp + 8]
+    ret
+fixture_invoke_sum7_end:
+
+// ---------------------------------------------------------------------------
 // R2-C02: a loop with no HLE call, no syscall, no yield and no natural exit.
 //
 // This is the fixture an asynchronous stop has to work against. A cooperative

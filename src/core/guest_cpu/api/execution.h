@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include <array>
+#include <cstddef>
 #include <cstdint>
 #include <optional>
 #include <string_view>
@@ -123,6 +125,48 @@ struct RunResult final {
     CpuSnapshot snapshot{};
     std::optional<GuestFaultInfo> fault{};
     std::optional<StepInfo> step{};
+};
+
+// A re-entrant guest function call (InvokeGuest). The PS4 boot chain calls into
+// guest code from the host: DT_INIT / module init, `_malloc_init`,
+// `sceLibcInternalMemoryMutexEnable`, and the program entry itself are guest
+// addresses, not native function pointers. On x86 the desktop core casts the
+// guest VA to a host pointer and calls it; that is invalid under FEX (the guest
+// cannot be entered by a native call), so those sites route through InvokeGuest.
+//
+// Integer arguments follow the SysV order rdi, rsi, rdx, rcx, r8, r9; anything
+// past six spills to the guest stack. The call runs on an existing owned guest
+// thread so its stack, FS/TLS and guest heap persist across the boot sequence
+// (DT_INIT for one module must see the heap another init already touched). The
+// backend pushes its return gate as the call's return address and detects the
+// return by the thread landing on that gate; a fault mid-call is reported as a
+// fault, never a zero return value.
+struct GuestCallArgs final {
+    // At most six register arguments plus any stack spill. Bounded so a bad
+    // caller cannot ask the backend to write an unbounded amount onto the guest
+    // stack; the boot sites use zero to three.
+    static constexpr std::size_t kMaxArguments = 8;
+    std::array<std::uint64_t, kMaxArguments> values{};
+    std::size_t count{};
+};
+
+struct GuestCallResult final {
+    // rax after the guest function returned. Only meaningful when
+    // reason == StopReason::Returned.
+    std::uint64_t return_value{};
+    StopReason reason{StopReason::Returned};
+    // Populated when the call did not return cleanly (fault, unresolved import,
+    // cancellation). The caller propagates this instead of trusting return_value.
+    std::optional<GuestFaultInfo> fault{};
+    // The snapshot at the stop, same authoritativeness rules as RunResult.
+    CpuSnapshot snapshot{};
+};
+
+// Options for InvokeGuest. The FS base carries the guest TLS pointer (Orbis TCB)
+// the call must run under; zero leaves the owned thread's current FS base in
+// place, which is correct for a call on a thread already set up for TLS.
+struct GuestCallOptions final {
+    std::optional<std::uint64_t> fs_base{};
 };
 
 enum class InterruptReason : std::uint8_t {
