@@ -15,6 +15,7 @@
 #include "common/singleton.h"
 #include "core/file_format/psf.h"
 #include "core/file_sys/fs.h"
+#include "core/aerolib/aerolib.h"
 #include "core/guest_cpu/hle/scope.h"
 #include "core/guest_cpu/hle/veneer_allocator.h"
 #include "core/host_runtime/guest_runtime.h"
@@ -103,6 +104,11 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     std::map<std::string, u64> veneers;
     std::map<u64, std::string> operation_names;
     u64 stack_guard{}, progname_object{}, environ_object{};
+    // Orbis libc dependency-marker objects (Need_sceLibc / Need_sceLibcInternal).
+    // A game imports one 8-byte object per libc it depends on to force load
+    // ordering; the object is never dereferenced as meaningful data. Each gets one
+    // owned read-only zero word so a stray read is defined rather than a null GOT.
+    std::map<std::string, u64> libc_marker_objects;
     std::string program_name;
     std::map<std::string, std::function<Status(HleCallFrame&)>> handlers;
     std::vector<std::string> refused;
@@ -205,8 +211,31 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
                     }
                     return object;
                 }
-                if (symbol.name != "f7uOxY9mM1U#libkernel#1#libkernel#Object")
+                if (symbol.name != "f7uOxY9mM1U#libkernel#1#libkernel#Object") {
+                    // Orbis libc dependency markers (Need_sceLibc / Need_sceLibcInternal). Every SCE
+                    // executable imports one 8-byte object per libc it links, purely to force that
+                    // module into the dependency graph; the desktop linker resolves them to a null
+                    // address because the game never dereferences them. On the guest backend a null
+                    // GOT slot could fault if the guest ever loaded through it, so give each marker
+                    // one owned read-only zero word -- a defined, guest-owned object with known size
+                    // and lifetime, not a host pointer and not a raw zero address.
+                    const auto* nid = AeroLib::FindByNid(symbol.nid_name.c_str());
+                    const std::string_view marker = nid ? nid->name : std::string_view{};
+                    if (marker == "Need_sceLibc" || marker == "Need_sceLibcInternal") {
+                        auto& object = libc_marker_objects[symbol.name];
+                        if (!object) {
+                            VmGuard vm(*this);
+                            const auto address = Allocate(0x4000, "GuestLibcMarker");
+                            const u64 zero{};
+                            std::memcpy(reinterpret_cast<void*>(address), &zero, sizeof(zero));
+                            if (memory->Protect(address, 0x4000, MemoryProt::CpuRead))
+                                throw std::runtime_error("libc marker publication failed");
+                            object = address;
+                        }
+                        return object;
+                    }
                     throw std::runtime_error("unimplemented guest data policy: " + symbol.name);
+                }
                 if (!stack_guard) {
                     VmGuard vm(*this);
                     const auto address = Allocate(0x4000, "GuestStackGuard");

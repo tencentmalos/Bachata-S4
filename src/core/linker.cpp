@@ -506,6 +506,27 @@ bool Linker::Resolve(const std::string& name, Loader::SymbolType sym_type, Modul
         }
     }
 
+    // libc and libSceLibcInternal are the same PS4 library under two names: a game
+    // links libc.prx (which exports its objects/functions under `libc`) yet also
+    // imports some of them under `libSceLibcInternal` (the system-module name).
+    // When the system module is not present as its own file, resolve those imports
+    // against the loaded libc module's `libc` exports rather than synthesising a
+    // host object -- the guest's own libc owns _Stdin/_Stdout/_Stderr and the rest.
+    if (library->name == "libSceLibcInternal" || module->name == "libSceLibcInternal") {
+        Loader::SymbolResolver alias = sr;
+        alias.library = "libc";
+        alias.module = "libc";
+        for (const auto& mod : m_modules) {
+            if (mod->export_sym.GetSize() == 0) {
+                continue;
+            }
+            if (const auto* aliased = mod->export_sym.FindSymbol(alias)) {
+                *return_info = *aliased;
+                return true;
+            }
+        }
+    }
+
     if (memory->IsGuestBackend()) {
         Loader::SymbolRecord missing{Loader::SymbolsResolver::GenerateName(sr), sr.name, 0, {}};
         if (sym_type == Loader::SymbolType::Object && guest_data_resolver) {
