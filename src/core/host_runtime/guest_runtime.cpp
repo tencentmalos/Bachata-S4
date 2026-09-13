@@ -32,6 +32,7 @@
 #include "core/libraries/system/userservice_error.h"
 #include "core/libraries/system/systemservice.h"
 #include "core/libraries/system/systemservice_error.h"
+#include "core/libraries/gnmdriver/gnmdriver.h"
 #include "core/linker.h"
 #include "core/memory.h"
 #include "core/tls.h"
@@ -566,6 +567,9 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         // Guest-facing libSceSystemService startup family; same policy as above.
         static const std::set<std::string> systemservice_functions{
             "fZo48un7LK4", "rPo6tV8D9bM", "656LMQSrg6U", "Vo5V8KAwCmk"};
+        // libSceGnmDriver: only owner registration (retail returns failure). The
+        // GPU submission/flip path is intentionally excluded and name-faults.
+        static const std::set<std::string> gnmdriver_functions{"ZFqKFl23aMc"};
         std::shared_ptr<HleCallAdapter> adapter;
         if (auto it = handlers.find(nid);
             it != handlers.end() &&
@@ -578,6 +582,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
              (symbol.name.substr(nid.size()) ==
                   "#libSceSystemService#1#libSceSystemService#Function" &&
               systemservice_functions.contains(nid)) ||
+             (symbol.name.substr(nid.size()) == "#libSceGnmDriver#1#libSceGnmDriver#Function" &&
+              gnmdriver_functions.contains(nid)) ||
              symbol.name == "NWtTN10cJzE#libSceLibcInternalExt#1#libSceLibcInternal#Function"))
             adapter = std::make_shared<FunctionAdapter>(it->second);
         else {
@@ -1329,6 +1335,17 @@ void GuestRuntime::Impl::InstallHandlers() {
     });
     bind({"Vo5V8KAwCmk"},
          [](const auto&) -> u64 { return SystemService::sceSystemServiceHideSplashScreen(); });
+    // libSceGnmDriver owner registration. On retail firmware this is not
+    // available and returns failure; the guest tolerates that. Validate the
+    // guest name string (when present) and return the real retail code. The GPU
+    // command-submission and display-flip path is renderer/Turnip work and is
+    // deliberately NOT bound here; those functions still name-fault.
+    bind({"ZFqKFl23aMc"}, [this](const auto& a) -> u64 {
+        if (a[1])
+            (void)String(a[1], 256);
+        return static_cast<u32>(
+            Libraries::GnmDriver::sceGnmRegisterOwner(reinterpret_cast<void*>(a[0]), nullptr));
+    });
     for (const char* nid :
          {"6UgtwV+0zb4", "onNY9Byn-W8", "4qGrR6eoP9Y", "14bOACANTBo", "n2MMpvU8igI",
           "F8bUHwAG284", "smWEktiyyG0", "iMp8QpE+XO4", "UWZbVSFze24", "gquEhBrS2iw",
