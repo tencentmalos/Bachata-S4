@@ -479,14 +479,25 @@ std::string Elf::ElfPHeaderStr(u16 no) {
 }
 
 void Elf::LoadSegment(u64 virtual_addr, u64 file_offset, u64 size) {
-    if (!is_self) {
-        // It's elf file
-        if (!m_f.Seek(file_offset, SeekOrigin::SetOrigin)) {
-            LOG_CRITICAL(Loader, "Failed to seek to ELF header");
-            return;
+    ASSERT_MSG(TryLoadSegment(virtual_addr, file_offset, size),
+               "Invalid or truncated ELF/SELF segment: offset={:#x} size={:#x}", file_offset, size);
+}
+
+bool Elf::TryLoadSegment(u64 virtual_addr, u64 file_offset, u64 size) {
+    if (!m_f.IsOpen() || !IsElfFile() || (size != 0 && virtual_addr == 0)) {
+        return false;
+    }
+    const auto read = [&](u64 offset) {
+        const auto file_size = m_f.GetSize();
+        if (offset > file_size || size > file_size - offset ||
+            offset > static_cast<u64>(INT64_MAX)) {
+            return false;
         }
-        m_f.ReadRaw<u8>(reinterpret_cast<u8*>(virtual_addr), size);
-        return;
+        return m_f.Seek(offset, SeekOrigin::SetOrigin) &&
+               m_f.ReadRaw<u8>(reinterpret_cast<u8*>(virtual_addr), size) == size;
+    };
+    if (!is_self) {
+        return read(file_offset);
     }
 
     for (uint16_t i = 0; i < m_self.segment_count; i++) {
@@ -494,20 +505,23 @@ void Elf::LoadSegment(u64 virtual_addr, u64 file_offset, u64 size) {
 
         if (seg.IsBlocked()) {
             auto phdr_id = seg.GetId();
+            if (phdr_id >= m_elf_phdr.size()) {
+                return false;
+            }
             const auto& phdr = m_elf_phdr[phdr_id];
 
-            if (file_offset >= phdr.p_offset && file_offset < phdr.p_offset + phdr.p_filesz) {
-                auto offset = file_offset - phdr.p_offset;
-                if (!m_f.Seek(offset + seg.file_offset, SeekOrigin::SetOrigin)) {
-                    LOG_CRITICAL(Loader, "Failed to seek to segment");
-                    return;
+            if (file_offset >= phdr.p_offset && file_offset - phdr.p_offset < phdr.p_filesz) {
+                const auto offset = file_offset - phdr.p_offset;
+                if (size > phdr.p_filesz - offset || offset > seg.file_size ||
+                    size > seg.file_size - offset || seg.IsEncrypted() || seg.IsCompressed() ||
+                    offset > UINT64_MAX - seg.file_offset) {
+                    return false;
                 }
-                m_f.ReadRaw<u8>(reinterpret_cast<u8*>(virtual_addr), size);
-                return;
+                return read(offset + seg.file_offset);
             }
         }
     }
-    UNREACHABLE();
+    return false;
 }
 
 bool Elf::IsSharedLib() {

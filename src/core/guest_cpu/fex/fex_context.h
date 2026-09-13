@@ -9,10 +9,10 @@
 //
 // STATE: context creation, thread lifecycle, register transfer and the handle/
 // ownership contracts work and are covered by tests/guest_cpu/guest_execution_tests.
-// Guest code does NOT yet execute: the dispatcher enters and exits without
-// translating a block on the first Run. See docs/fex-guest-execution-bringup.md
-// for the measurements and the narrowed-down cause. Do not treat a Returned stop
-// from this backend as proof that guest instructions ran until that is fixed.
+// Real x86-64 fixtures execute through this backend. The initial no-translation
+// failure in docs/fex-guest-execution-bringup.md is historical. A Returned stop
+// alone still does not prove execution: tests must assert architectural effects.
+// Production loader/HLE/callback integration is a separate acceptance boundary.
 
 #pragma once
 

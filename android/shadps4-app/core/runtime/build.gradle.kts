@@ -19,6 +19,10 @@ val localProps = Properties().apply {
 val fexBuildDir: String =
     (localProps.getProperty("fexBuildDir") ?: System.getenv("FEX_BUILD_DIR") ?: "").trim()
 
+val hostLoaderConfig = (localProps.getProperty("hostLoaderConfig")
+    ?: System.getenv("SHADPS4_HOST_LOADER_CONFIG")
+    ?: rootProject.file("../../build/android-host-api33/native/shadps4-host-loader.cmake").absolutePath).trim()
+
 android {
     namespace = "com.shadps4.android.runtime"
     compileSdk = 36
@@ -35,9 +39,10 @@ android {
                     "-DV0_ENABLE_FEX=ON",
                     "-DV0_BUILD_TESTS=OFF",
                     "-DFEX_BUILD_DIR=$fexBuildDir",
+                    "-DSHADPS4_HOST_LOADER_CONFIG=$hostLoaderConfig",
                     "-DCMAKE_BUILD_TYPE=RelWithDebInfo",
                 )
-                cppFlags += listOf("-std=c++20")
+                cppFlags += listOf("-std=c++23")
             }
         }
     }
@@ -58,6 +63,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":foundation-input-android"))
     api(project(":core:model"))
     api(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)

@@ -11,6 +11,9 @@
 #include "imgui/renderer/imgui_core.h"
 #include "input/controller.h"
 #include "pad.h"
+#ifdef __ANDROID__
+#include "core/host_runtime/orbis_pad_adapter.h"
+#endif
 
 #include <algorithm>
 #include <array>
@@ -44,6 +47,9 @@ static std::unordered_map<HandleKey, s32, HandleKeyHash> pad_handle_map{};
 static std::unordered_map<s32, GameController*> handle_to_controller_map{};
 
 int PS4_SYSV_ABI scePadClose(s32 handle) {
+#ifdef __ANDROID__
+    return Core::HostRuntime::GlobalPadAdapter().Close(handle);
+#else
     LOG_WARNING(Lib_Pad, "called, handle: {}", handle);
     if (handle_to_controller_map.erase(handle) == 0) {
         return ORBIS_PAD_ERROR_INVALID_HANDLE;
@@ -55,6 +61,7 @@ int PS4_SYSV_ABI scePadClose(s32 handle) {
         }
     }
     return ORBIS_OK;
+#endif
 }
 
 int PS4_SYSV_ABI scePadConnectPort() {
@@ -133,6 +140,9 @@ int PS4_SYSV_ABI scePadGetCapability() {
 }
 
 int PS4_SYSV_ABI scePadGetControllerInformation(s32 handle, OrbisPadControllerInformation* pInfo) {
+#ifdef __ANDROID__
+    return Core::HostRuntime::GlobalPadAdapter().Information(handle, pInfo);
+#else
     LOG_DEBUG(Lib_Pad, "called handle = {}", handle);
     auto it = handle_to_controller_map.find(handle);
     if (it == handle_to_controller_map.end()) {
@@ -158,6 +168,7 @@ int PS4_SYSV_ABI scePadGetControllerInformation(s32 handle, OrbisPadControllerIn
     LOG_DEBUG(Lib_Pad, "c: {} cc: {}, ct: {}, dc: {}", pInfo->connected, pInfo->connectedCount,
               pInfo->connectionType, std::to_underlying(pInfo->deviceClass));
     return ORBIS_OK;
+#endif
 }
 
 int PS4_SYSV_ABI scePadGetDataInternal() {
@@ -178,6 +189,7 @@ int PS4_SYSV_ABI scePadGetDeviceInfo() {
 int PS4_SYSV_ABI scePadGetExtControllerInformation(s32 handle,
                                                    OrbisPadExtendedControllerInformation* pInfo) {
     LOG_INFO(Lib_Pad, "called handle = {}", handle);
+    if (!pInfo) return ORBIS_PAD_ERROR_INVALID_ARG;
     std::memset(pInfo, 0, sizeof(OrbisPadExtendedControllerInformation));
     return scePadGetControllerInformation(handle, &pInfo->base);
 }
@@ -194,6 +206,9 @@ int PS4_SYSV_ABI scePadGetFeatureReport() {
 
 int PS4_SYSV_ABI scePadGetHandle(Libraries::UserService::OrbisUserServiceUserId userId, s32 type,
                                  s32 index) {
+#ifdef __ANDROID__
+    return Core::HostRuntime::GlobalPadAdapter().GetHandle(userId, type, index);
+#else
     if (!g_initialized) {
         return ORBIS_PAD_ERROR_NOT_INITIALIZED;
     }
@@ -207,6 +222,7 @@ int PS4_SYSV_ABI scePadGetHandle(Libraries::UserService::OrbisUserServiceUserId 
     s32 pad_handle = it->second;
     LOG_DEBUG(Lib_Pad, "called, userid: {}, out pad handle: {}", userId, pad_handle);
     return pad_handle;
+#endif
 }
 
 int PS4_SYSV_ABI scePadGetIdleCount() {
@@ -260,9 +276,13 @@ int PS4_SYSV_ABI scePadGetVersionInfo() {
 }
 
 int PS4_SYSV_ABI scePadInit() {
+#ifdef __ANDROID__
+    return Core::HostRuntime::GlobalPadAdapter().Initialize();
+#else
     LOG_ERROR(Lib_Pad, "(STUBBED) called");
     g_initialized = true;
     return ORBIS_OK;
+#endif
 }
 
 int PS4_SYSV_ABI scePadIsBlasterConnected() {
@@ -307,6 +327,14 @@ int PS4_SYSV_ABI scePadMbusTerm() {
 
 int PS4_SYSV_ABI scePadOpen(Libraries::UserService::OrbisUserServiceUserId userId, s32 type,
                             s32 index, const OrbisPadOpenParam* pParam) {
+#ifdef __ANDROID__
+    if (userId < 0 || userId == ORBIS_USER_SERVICE_USER_ID_SYSTEM)
+        return ORBIS_DEVICE_SERVICE_ERROR_INVALID_USER;
+    const auto* user = UserManagement.GetUserByID(userId);
+    if (!user || !user->logged_in || user->player_index < 1 || user->player_index > 4)
+        return ORBIS_DEVICE_SERVICE_ERROR_USER_NOT_LOGIN;
+    return Core::HostRuntime::GlobalPadAdapter().Open(userId, type, index, user->player_index - 1);
+#else
     if (!g_initialized) {
         return ORBIS_PAD_ERROR_NOT_INITIALIZED;
     }
@@ -347,6 +375,7 @@ int PS4_SYSV_ABI scePadOpen(Libraries::UserService::OrbisUserServiceUserId userI
     scePadResetLightBar(new_handle);
     scePadResetOrientation(new_handle);
     return new_handle;
+#endif
 }
 
 int PS4_SYSV_ABI scePadOpenExt(Libraries::UserService::OrbisUserServiceUserId userId, s32 type,
@@ -430,6 +459,9 @@ int ProcessStates(OrbisPadData* pData, const Input::State* states, s32 num) {
 }
 
 int PS4_SYSV_ABI scePadRead(s32 handle, OrbisPadData* pData, s32 num) {
+#ifdef __ANDROID__
+    return Core::HostRuntime::GlobalPadAdapter().Read(handle, pData, num);
+#else
     LOG_TRACE(Lib_Pad, "called");
     if (pData == nullptr || num < 1 || num > ORBIS_PAD_MAX_DATA_NUM) {
         return ORBIS_PAD_ERROR_INVALID_ARG;
@@ -442,6 +474,7 @@ int PS4_SYSV_ABI scePadRead(s32 handle, OrbisPadData* pData, s32 num) {
     std::array<Input::State, ORBIS_PAD_MAX_DATA_NUM> states;
     const int ret_num = controller.ReadStates(states.data(), num);
     return ProcessStates(pData, states.data(), ret_num);
+#endif
 }
 
 int PS4_SYSV_ABI scePadReadBlasterForTracker() {
@@ -465,9 +498,14 @@ int PS4_SYSV_ABI scePadReadHistory() {
 }
 
 int PS4_SYSV_ABI scePadReadState(s32 handle, OrbisPadData* pData) {
+#ifdef __ANDROID__
+    const int n = Core::HostRuntime::GlobalPadAdapter().Read(handle, pData, 1, true);
+    return n < 0 ? n : ORBIS_OK;
+#else
     LOG_TRACE(Lib_Pad, "handle: {}", handle);
     const int result = scePadRead(handle, pData, 1);
     return result < 0 ? result : ORBIS_OK;
+#endif
 }
 
 int PS4_SYSV_ABI scePadReadStateExt() {
@@ -649,6 +687,9 @@ int PS4_SYSV_ABI scePadSetUserColor() {
 }
 
 int PS4_SYSV_ABI scePadSetVibration(s32 handle, const OrbisPadVibrationParam* pParam) {
+#ifdef __ANDROID__
+    return Core::HostRuntime::GlobalPadAdapter().Vibrate(handle, pParam);
+#else
     auto it = handle_to_controller_map.find(handle);
     if (it == handle_to_controller_map.end()) {
         return ORBIS_PAD_ERROR_INVALID_HANDLE;
@@ -661,6 +702,7 @@ int PS4_SYSV_ABI scePadSetVibration(s32 handle, const OrbisPadVibrationParam* pP
         return ORBIS_OK;
     }
     return ORBIS_PAD_ERROR_INVALID_ARG;
+#endif
 }
 
 int PS4_SYSV_ABI scePadSetVibrationForce() {
@@ -744,7 +786,9 @@ int PS4_SYSV_ABI Func_EF103E845B6F0420() {
 }
 
 void RegisterLib(Core::Loader::SymbolsResolver* sym) {
+#ifndef __ANDROID__
     Common::Singleton<GameControllers>::Instance()->TryOpenSDLControllers();
+#endif
 
     LIB_FUNCTION("6ncge5+l5Qs", "libScePad", 1, "libScePad", scePadClose);
     LIB_FUNCTION("kazv1NzSB8c", "libScePad", 1, "libScePad", scePadConnectPort);

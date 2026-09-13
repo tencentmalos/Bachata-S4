@@ -26,6 +26,11 @@ class MainActivity : ComponentActivity() {
     @Inject lateinit var legacyRuntimeSettingsMigration: LegacyRuntimeSettingsMigration
 
     @SuppressLint("RestrictedApi")
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        com.shadps4.android.runtime.input.NativePadBridge.setFocused(hasFocus)
+    }
+
     override fun dispatchKeyEvent(event: KeyEvent): Boolean =
         GamepadInputManager.dispatchKeyEvent(event) || super.dispatchKeyEvent(event)
 

@@ -88,6 +88,12 @@ object ManagedSession {
     fun updateIfCurrent(generation: Long, state: ManagedSessionState) {
         if (generation == currentGeneration) mutableState.value = state
     }
+    fun controllerPublisher(generation: Long, slot: Int = 0): (ControllerSnapshot) -> Unit {
+        val sink = controllerSlotSink.get()
+        return { snapshot ->
+            if (generation != 0L && generation == currentGeneration) sink?.invoke(slot,snapshot)
+        }
+    }
     fun attachControllerSink(sink: (ControllerSnapshot) -> Unit) { controllerSink.set(sink) }
     fun detachControllerSink(sink: (ControllerSnapshot) -> Unit) { controllerSink.compareAndSet(sink, null) }
     fun submitController(snapshot: ControllerSnapshot) { submitController(0, snapshot) }

@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Link this to the complete host DSO on Android; on the build host the portable
 // frontend/control sources can be linked directly. No game, GPU or APK acceptance.
+#include "common/poll_timeout.h"
+#include "core/host_runtime/application_control.h"
+#include "frontend/window.h"
 #include <atomic>
 #include <climits>
 #include <condition_variable>
@@ -8,19 +11,19 @@
 #include <mutex>
 #include <stdexcept>
 #include <thread>
-#include "common/poll_timeout.h"
-#include "core/host_runtime/application_control.h"
-#include "frontend/window.h"
 #ifdef __ANDROID__
+#include "common/path_util.h"
+#include "core/libraries/audio/audioin.h"
+#include "core/libraries/audio/audioin_error.h"
+#include "core/libraries/kernel/threads/exception.h"
+#include "core/loader/elf.h"
+#include "frontend/android_window.h"
 #include <cstring>
 #include <fstream>
 #include <new>
 #include <sys/ucontext.h>
-#include "common/path_util.h"
-#include "core/libraries/kernel/threads/exception.h"
-#include "frontend/android_window.h"
 namespace Libraries::SystemService {
-int sceSystemServiceLoadExec(const char*, const char**);
+int sceSystemServiceLoadExec(const char *, const char **);
 }
 #endif
 
@@ -34,8 +37,98 @@ static unsigned checks{}, failures{};
         }                                                                                          \
     } while (0)
 
+#ifdef __ANDROID__
+static void CheckLoaderAndAudio(const std::filesystem::path &root) {
+    using namespace Libraries::AudioIn;
+    CHECK(sceAudioInOpen(1, 1, 0, 0, 48000, 0) == ORBIS_AUDIO_IN_ERROR_INVALID_SIZE);
+    CHECK(sceAudioInOpen(1, 1, 0, 256, 44100, 0) == ORBIS_AUDIO_IN_ERROR_INVALID_FREQ);
+    CHECK(sceAudioInOpen(1, 1, 0, 256, 48000, 1) == ORBIS_AUDIO_IN_ERROR_INVALID_PARAM);
+    // Absence of capture must not allocate fictitious ports or consume all slots.
+    for (unsigned i = 0; i < ORBIS_AUDIO_IN_NUM_PORTS + 2; ++i)
+        CHECK(sceAudioInOpen(1, 1, 0, 256, 48000, i % 2 ? 2 : 0) ==
+              ORBIS_AUDIO_IN_ERROR_NOT_OPENED);
+
+    elf_header eh{};
+    const u8 magic[] = {0x7f, 'E', 'L', 'F'};
+    std::memcpy(eh.e_ident.magic, magic, sizeof(magic));
+    eh.e_ident.ei_class = ELF_CLASS_64;
+    eh.e_ident.ei_data = ELF_DATA_2LSB;
+    eh.e_ident.ei_version = ELF_VERSION_CURRENT;
+    eh.e_ident.ei_osabi = ELF_OSABI_FREEBSD;
+    eh.e_ident.ei_abiversion = ELF_ABI_VERSION_AMDGPU_HSA_V2;
+    eh.e_type = ET_SCE_DYNEXEC;
+    eh.e_machine = EM_X86_64;
+    eh.e_version = EV_CURRENT;
+    eh.e_ehsize = sizeof(eh);
+    eh.e_phentsize = sizeof(elf_program_header);
+    const auto path = root / "synthetic-loader.bin";
+    const u64 expected = 0x3210fedcba987654;
+    auto write = [&](const auto &v, std::ofstream &out) {
+        out.write(reinterpret_cast<const char *>(&v), sizeof(v));
+    };
+    {
+        std::ofstream out(path, std::ios::binary);
+        write(eh, out);
+        write(expected, out);
+    }
+    Core::Loader::Elf elf;
+    elf.Open(path);
+    u64 value = 0;
+    CHECK(elf.TryLoadSegment(reinterpret_cast<u64>(&value), sizeof(eh), sizeof(value)));
+    CHECK(value == expected);
+    CHECK(!elf.TryLoadSegment(reinterpret_cast<u64>(&value), sizeof(eh) + 1, sizeof(value)));
+    CHECK(!elf.TryLoadSegment(reinterpret_cast<u64>(&value), UINT64_MAX, sizeof(value)));
+    CHECK(!elf.TryLoadSegment(0, sizeof(eh), sizeof(value)));
+    // The SELF resolver must validate header indices, encoding and both logical
+    // and physical segment bounds before reading. All data below is synthetic.
+    self_header sh{};
+    sh.magic = self_header::signature;
+    sh.version = 0;
+    sh.mode = 1;
+    sh.endian = 1;
+    sh.attributes = 0x12;
+    sh.category = 1;
+    sh.program_type = 1;
+    sh.segment_count = 1;
+    elf_program_header ph{};
+    ph.p_type = PT_LOAD;
+    ph.p_offset = 0x1000;
+    ph.p_filesz = sizeof(expected);
+    ph.p_memsz = sizeof(expected);
+    eh.e_phnum = 1;
+    eh.e_phoff = sizeof(eh);
+    self_segment_header segment{};
+    segment.flags = 0x800;
+    segment.file_offset = sizeof(sh) + sizeof(segment) + sizeof(eh) + sizeof(ph);
+    segment.file_size = segment.memory_size = sizeof(expected);
+    auto selfRead = [&](u64 flags, u64 physical_size, u64 offset, u64 size) {
+        segment.flags = flags;
+        segment.file_size = physical_size;
+        {
+            std::ofstream out(path, std::ios::binary | std::ios::trunc);
+            write(sh, out);
+            write(segment, out);
+            write(eh, out);
+            write(ph, out);
+            write(expected, out);
+        }
+        Core::Loader::Elf self;
+        self.Open(path);
+        return self.TryLoadSegment(reinterpret_cast<u64>(&value), offset, size);
+    };
+    CHECK(selfRead(0x800, 8, 0x1000, 8));
+    CHECK(value == expected);
+    CHECK(!selfRead(0x800 | (1ull << 20), 8, 0x1000, 8));
+    CHECK(!selfRead(0x802, 8, 0x1000, 8));
+    CHECK(!selfRead(0x808, 8, 0x1000, 8));
+    CHECK(!selfRead(0x800, 7, 0x1000, 8));
+    CHECK(!selfRead(0x800, 8, 0x1001, 8));
+    std::filesystem::remove(path);
+}
+#endif
+
 struct TestWindow final : Frontend::Window {
-    explicit TestWindow(std::atomic<unsigned>& destroyed_) : destroyed{destroyed_} {}
+    explicit TestWindow(std::atomic<unsigned> &destroyed_) : destroyed{destroyed_} {}
     ~TestWindow() override {
         ++destroyed;
     }
@@ -55,7 +148,7 @@ struct TestWindow final : Frontend::Window {
     void ReleaseKeyboard() override {
         --keyboard;
     }
-    std::atomic<unsigned>& destroyed;
+    std::atomic<unsigned> &destroyed;
     int keyboard{};
 };
 
@@ -66,8 +159,8 @@ struct CallLatch {
 };
 
 struct TestControl final : Core::HostRuntime::ApplicationControl {
-    Core::HostRuntime::LoadExecResult RequestLoadExec(
-        const Core::HostRuntime::LoadExecRequest& r) override {
+    Core::HostRuntime::LoadExecResult
+    RequestLoadExec(const Core::HostRuntime::LoadExecRequest &r) override {
         seen = r;
         if (fail)
             throw std::runtime_error("injected frontend failure");
@@ -85,7 +178,7 @@ struct TestControl final : Core::HostRuntime::ApplicationControl {
     Core::HostRuntime::LoadExecRequest seen;
 };
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
 #ifdef __ANDROID__
     if (argc != 2) {
         std::fprintf(stderr, "usage: host_library_smoke <absolute-user-data-directory>\n");
@@ -95,14 +188,14 @@ int main(int argc, char** argv) {
     bool uninitialized = false;
     try {
         (void)GetUserPath(PathType::UserDir);
-    } catch (const std::logic_error&) {
+    } catch (const std::logic_error &) {
         uninitialized = true;
     }
     CHECK(uninitialized);
     bool bad_path = false;
     try {
         InitializeAndroidUserPaths("relative/path");
-    } catch (const std::invalid_argument&) {
+    } catch (const std::invalid_argument &) {
         bad_path = true;
     }
     CHECK(bad_path);
@@ -117,12 +210,12 @@ int main(int argc, char** argv) {
     bool io_failed = false;
     try {
         InitializeAndroidUserPaths(blocker / "child");
-    } catch (const std::filesystem::filesystem_error&) {
+    } catch (const std::filesystem::filesystem_error &) {
         io_failed = true;
     }
     CHECK(io_failed);
     InitializeAndroidUserPaths(root);
-    const auto* stable = &GetUserPath(PathType::UserDir);
+    const auto *stable = &GetUserPath(PathType::UserDir);
     CHECK(*stable == root);
     CHECK(std::filesystem::is_directory(GetUserPath(PathType::LogDir)));
     InitializeAndroidUserPaths(root);
@@ -130,11 +223,12 @@ int main(int argc, char** argv) {
     bool changed = false;
     try {
         InitializeAndroidUserPaths(root / "new");
-    } catch (const std::logic_error&) {
+    } catch (const std::logic_error &) {
         changed = true;
     }
     CHECK(changed);
     CHECK(GetUserPath(PathType::UserDir) == root);
+    CheckLoaderAndAudio(root);
 #endif
     using namespace Core::HostRuntime;
     CHECK(!Frontend::AcquireWindow());
@@ -216,7 +310,7 @@ int main(int argc, char** argv) {
     CHECK(Libraries::SystemService::sceSystemServiceLoadExec("/app0/next.self", nullptr) != 0);
     CHECK(Libraries::SystemService::sceSystemServiceLoadExec(nullptr, nullptr) != 0);
     CHECK(BindApplicationControl(replacement));
-    const char* guest_argv[] = {"hello", nullptr};
+    const char *guest_argv[] = {"hello", nullptr};
     CHECK(Libraries::SystemService::sceSystemServiceLoadExec("/app0/next.self", guest_argv) == 0);
     CHECK(replacement->seen.args == std::vector<std::string>{"hello"});
     CHECK(UnbindApplicationControl(replacement));
@@ -226,7 +320,7 @@ int main(int argc, char** argv) {
     siginfo_t info{};
     ucontext_t host{};
     host.uc_mcontext.pc = 0x11223344;
-    auto* context = new (storage) Ucontext(&info, &host);
+    auto *context = new (storage) Ucontext(&info, &host);
     CHECK(context->uc_mcontext.mc_rip == 0 && context->uc_mcontext.mc_rsp == 0);
     CHECK(!context->HasGuestContext());
     CHECK(!context->SyncHostFromGuest());
@@ -235,7 +329,7 @@ int main(int argc, char** argv) {
     bool rejected = false;
     try {
         Frontend::AndroidWindow invalid(nullptr, 1);
-    } catch (const std::invalid_argument&) {
+    } catch (const std::invalid_argument &) {
         rejected = true;
     }
     CHECK(rejected);

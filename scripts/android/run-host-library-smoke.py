@@ -53,9 +53,9 @@ def main():
         result["build_result_sha256"] = sha(build_result)
         result["source_manifest_sha256"] = build["source_manifest_sha256"]
         artifacts = [x for x in build["artifacts"] if Path(x["path"]).name in
-                     {"libshadps4_host.so", "libc++_shared.so", "host_library_smoke"}]
-        if len(artifacts) != 3:
-            raise RuntimeError("three matching deployment artifacts required")
+                     {"libshadps4_host.so", "libc++_shared.so", "host_library_smoke", "host_dlopen_smoke"}]
+        if len(artifacts) != 4:
+            raise RuntimeError("four matching deployment artifacts required")
         for x in artifacts:
             if sha(x["path"]) != x["sha256"]:
                 raise RuntimeError(f"artifact changed since build: {x['path']}")
@@ -77,11 +77,17 @@ def main():
             actual = run(adb + ["shell", "sha256sum", remote + "/" + name], "sha-" + name)
             if actual.split()[0] != x["sha256"]:
                 raise RuntimeError(f"deployed hash mismatch: {name}")
-        run(adb + ["shell", "chmod", "755", remote + "/host_library_smoke"], "chmod")
+        run(adb + ["shell", "chmod", "755", remote + "/host_library_smoke", remote + "/host_dlopen_smoke"], "chmod")
         # Device-side timeout also bounds the inferior if the adb client disconnects.
         command = "cd " + shlex.quote(remote) + " && " + shlex.join(
             ["env", "LD_LIBRARY_PATH=" + remote, "timeout", "30", "./host_library_smoke",
              remote + "/user-data"])
+        load_command = "cd " + shlex.quote(remote) + " && " + shlex.join(
+            ["env", "LD_LIBRARY_PATH=" + remote, "timeout", "30", "./host_dlopen_smoke",
+             remote + "/libshadps4_host.so"])
+        load_output = run(adb + ["shell", load_command], "dlopen", timeout=45)
+        if load_output.count("HOST_DLOPEN_PASS") != 1:
+            raise RuntimeError("missing dlopen acceptance")
         output = run(adb + ["shell", command], "smoke", timeout=45)
         counts = re.findall(r"^host_library_smoke: (\d+) checks / (\d+) failures$", output, re.M)
         if len(counts) != 1 or int(counts[0][0]) < 1 or int(counts[0][1]) != 0:

@@ -1,268 +1,238 @@
 // SPDX-FileCopyrightText: Copyright 2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
-
-// HN2 Stage 0: prove REAL PS4 eboot (SELF) code translates and executes on the FEX
-// guest backend, with NO Orbis-VMM/HLE integration. It uses the repo's Elf loader
-// (correct SELF segment/decryption resolution), maps each PT_LOAD into a
-// GuestAddressSpace at reservation_base + p_vaddr, applies R_X86_64_RELATIVE
-// relocations (so the PIE's absolute pointers point at the load base), lays out a
-// minimal EntryParams, then Runs the guest from e_entry. Real title bytes executing
-// (a guest fault whose RIP is inside the module span, or a clean HLE boundary) is
-// positive proof — not the synthetic decrement loop. Stage 4 wires the production
-// Linker/Orbis path; this is a bring-up harness.
-
+// Auxiliary LOAD AUDIT. The historical name is retained for build
+// compatibility. This is not a production Module/Linker and never executes an
+// unresolved image.
 #include <algorithm>
-#include <cstdint>
 #include <cstdio>
 #include <cstring>
+#include <limits>
+#include <map>
+#include <stdexcept>
+#include <string_view>
 #include <vector>
 
 #include "core/guest_cpu/api/address_space.h"
-#include "core/guest_cpu/api/context.h"
-#include "core/guest_cpu/api/execution.h"
 #include "core/guest_cpu/api/memory.h"
-#include "core/guest_cpu/api/registers.h"
-#include "core/guest_cpu/api/result.h"
 #include "core/loader/elf.h"
 
 using namespace Core::GuestCpu;
 using Core::Loader::Elf;
-
 namespace {
-
-const char* StopReasonName(StopReason r) {
-    switch (r) {
-    case StopReason::Returned: return "Returned";
-    case StopReason::PauseRequested: return "PauseRequested";
-    case StopReason::Cancelled: return "Cancelled";
-    case StopReason::StepComplete: return "StepComplete";
-    case StopReason::HleBoundary: return "HleBoundary";
-    case StopReason::GuestFault: return "GuestFault";
-    case StopReason::Unsupported: return "Unsupported";
-    case StopReason::BackendFailure: return "BackendFailure";
-    default: return "?";
-    }
+constexpr u64 Page = 4096;
+constexpr u64 MaxImage = 512 * 1024 * 1024; // Bounded auxiliary probe, not PS4 VM geometry.
+constexpr u32 R_X86_64_NONE = 0;
+constexpr s64 DT_RELASZ = 8, DT_RELAENT = 9, DT_JMPREL = 23;
+void Require(bool ok, const char *why) {
+    if (!ok)
+        throw std::runtime_error(why);
+}
+u64 Add(u64 a, u64 b) {
+    Require(b <= UINT64_MAX - a, "address overflow");
+    return a + b;
+}
+u64 RoundUp(u64 n) {
+    return Add(n, Page - 1) & ~(Page - 1);
+}
+struct Segment {
+    elf_program_header ph;
+    u64 low, high;
+};
+std::vector<std::byte> Read(Elf &elf, const elf_program_header &ph) {
+    Require(ph.p_filesz <= MaxImage, "metadata/segment exceeds probe size limit");
+    std::vector<std::byte> bytes(ph.p_filesz);
+    if (!bytes.empty())
+        Require(elf.TryLoadSegment(reinterpret_cast<u64>(bytes.data()), ph.p_offset, ph.p_filesz),
+                "invalid/truncated/encoded segment");
+    return bytes;
 }
 
-std::uint64_t AlignDown(std::uint64_t v, std::uint64_t a) { return v & ~(a - 1); }
-std::uint64_t AlignUp(std::uint64_t v, std::uint64_t a) { return (v + a - 1) & ~(a - 1); }
-
-} // namespace
-
-int main(int argc, char** argv) {
-    std::setvbuf(stdout, nullptr, _IONBF, 0);
-    if (argc != 2) {
-        std::fprintf(stderr, "usage: %s <eboot.bin (decrypted SELF/ELF)>\n", argv[0]);
-        return 2;
-    }
-
+int Audit(const char *path, bool require_execution) {
     Elf elf;
-    elf.Open(argv[1]);
-    if (!elf.IsSelfFile() && !elf.IsElfFile()) {
-        std::fprintf(stderr, "not a SELF/ELF: %s\n", argv[1]);
-        return 1;
-    }
+    elf.Open(path);
+    Require(elf.IsElfFile(), "invalid ELF/SELF ELF header");
     const auto eh = elf.GetElfHeader();
     const auto phdrs = elf.GetProgramHeader();
-    std::printf("elf: type=%#x entry=%#llx phnum=%zu self=%d\n", eh.e_type,
-                (unsigned long long)eh.e_entry, phdrs.size(), elf.IsSelfFile());
-
-    std::uint64_t lo = ~0ull, hi = 0;
-    for (const auto& ph : phdrs) {
-        if (ph.p_type != PT_LOAD || ph.p_memsz == 0) continue;
-        lo = std::min<std::uint64_t>(lo, ph.p_vaddr);
-        hi = std::max<std::uint64_t>(hi, ph.p_vaddr + ph.p_memsz);
+    // This probe implements a PIE load bias only. Fixed-address executables need
+    // the production loader and must not silently be rebased here.
+    Require(eh.e_type == ET_SCE_DYNEXEC, "probe requires ET_SCE_DYNEXEC");
+    std::vector<Segment> segments;
+    const elf_program_header *dynamic = nullptr, *dynlib = nullptr;
+    u64 tls_bytes = 0;
+    for (const auto &ph : phdrs) {
+        if (ph.p_type == PT_DYNAMIC) {
+            Require(!dynamic, "duplicate PT_DYNAMIC");
+            dynamic = &ph;
+        } else if (ph.p_type == PT_SCE_DYNLIBDATA) {
+            Require(!dynlib, "duplicate PT_SCE_DYNLIBDATA");
+            dynlib = &ph;
+        } else if (ph.p_type == PT_TLS) {
+            tls_bytes = Add(tls_bytes, ph.p_memsz);
+        }
+        if (ph.p_type != PT_LOAD && ph.p_type != PT_SCE_RELRO)
+            continue;
+        Require(ph.p_filesz <= ph.p_memsz, "filesz exceeds memsz");
+        if (!ph.p_memsz)
+            continue;
+        Require(!((ph.p_flags & PF_EXEC) && (ph.p_flags & PF_WRITE)), "RWX image unsupported");
+        segments.push_back({ph, ph.p_vaddr & ~(Page - 1), RoundUp(Add(ph.p_vaddr, ph.p_memsz))});
     }
-    if (lo == ~0ull) {
-        std::fprintf(stderr, "no PT_LOAD segments\n");
-        return 1;
+    Require(!segments.empty(), "no loadable segments");
+    std::sort(segments.begin(), segments.end(), [](auto &a, auto &b) { return a.low < b.low; });
+    const auto lo = segments.front().low, hi = segments.back().high;
+    Require(hi > lo && hi - lo <= MaxImage, "module span exceeds probe size limit");
+    bool entry_executable = false;
+    for (size_t i = 0; i < segments.size(); ++i) {
+        const auto &s = segments[i];
+        Require(!i || segments[i - 1].high <= s.low, "overlapping mapped pages unsupported");
+        if ((s.ph.p_flags & PF_EXEC) && eh.e_entry >= s.ph.p_vaddr &&
+            eh.e_entry - s.ph.p_vaddr < s.ph.p_memsz)
+            entry_executable = true;
     }
-    constexpr std::uint64_t kPage = 0x1000;
-    lo = AlignDown(lo, kPage);
-    hi = AlignUp(hi, kPage);
-    const std::uint64_t module_span = hi - lo;
-    std::printf("module span: [%#llx, %#llx) size=%#llx\n", (unsigned long long)lo,
-                (unsigned long long)hi, (unsigned long long)module_span);
-
-    const auto caps = QueryBackendCapabilities();
-    std::printf("backend: max_guest_address=%#llx\n", (unsigned long long)caps.max_guest_address);
-
-    constexpr std::uint64_t kStackSize = 0x200000;
+    Require(entry_executable, "entry outside executable segment");
     AddressSpaceConfig cfg{};
-    cfg.reservation_size = AlignUp(module_span + kStackSize + 0x100000, kPage);
-    auto space_r = GuestAddressSpace::Create(cfg);
-    if (!space_r) {
-        std::fprintf(stderr, "GuestAddressSpace::Create failed\n");
-        return 1;
+    cfg.reservation_size = hi - lo;
+    auto created = GuestAddressSpace::Create(cfg);
+    Require(bool(created), "GuestAddressSpace::Create failed");
+    auto space = std::move(created.Value());
+    const u64 base = space->ReservationBase().value;
+    Require(base >= lo, "load bias underflow");
+    const u64 bias = base - lo;
+    auto contains = [&](u64 va, u64 size) {
+        return std::any_of(segments.begin(), segments.end(), [&](const auto &s) {
+            return va >= s.ph.p_vaddr && va - s.ph.p_vaddr <= s.ph.p_memsz &&
+                   size <= s.ph.p_memsz - (va - s.ph.p_vaddr);
+        });
+    };
+    size_t relro = 0;
+    for (const auto &s : segments) {
+        const auto &ph = s.ph;
+        Require(bool(space->Map({GuestAddress{Add(bias, s.low)}, s.high - s.low},
+                                GuestPermission::Read | GuestPermission::Write)),
+                "Map failed");
+        const auto bytes = Read(elf, ph);
+        if (!bytes.empty())
+            Require(bool(space->Write(GuestAddress{Add(bias, ph.p_vaddr)}, bytes)),
+                    "segment Write failed");
+        // Anonymous mapping zeroes only the segment's BSS/page padding. Gaps stay
+        // inaccessible.
+        if (ph.p_type == PT_SCE_RELRO)
+            ++relro;
+        std::printf("segment type=%#x va=%#llx filesz=%#llx memsz=%#llx flags=%u\n", ph.p_type,
+                    (unsigned long long)ph.p_vaddr, (unsigned long long)ph.p_filesz,
+                    (unsigned long long)ph.p_memsz, ph.p_flags);
     }
-    auto space = std::move(space_r.Value());
-    const std::uint64_t rbase = space->ReservationBase().value;
-    std::printf("reservation base=%#llx size=%#llx\n", (unsigned long long)rbase,
-                (unsigned long long)cfg.reservation_size);
-
-    auto ctx_r = CreateContext(CpuConfig{}, *space);
-    if (!ctx_r) {
-        std::fprintf(stderr, "CreateContext failed\n");
-        return 1;
-    }
-    auto ctx = std::move(ctx_r.Value());
-
-    // Map each PT_LOAD RW, load bytes via the Elf loader (correct SELF resolution),
-    // then Protect. Also map any gap between consecutive segments (.bss / alignment
-    // holes the crt touches) as RW so a real access there does not wild-fault.
-    std::uint64_t prev_hi = 0;
-    for (const auto& ph : phdrs) {
-        if (ph.p_type != PT_LOAD || ph.p_memsz == 0) continue;
-        const std::uint64_t gv = rbase + (ph.p_vaddr - lo);
-        const std::uint64_t map_lo = AlignDown(gv, kPage);
-        const std::uint64_t map_hi = AlignUp(gv + ph.p_memsz, kPage);
-        // Fill the hole before this segment (relative to the previous segment's end).
-        if (prev_hi != 0 && map_lo > prev_hi) {
-            if (auto m = space->Map(GuestRange{GuestAddress{prev_hi}, map_lo - prev_hi},
-                                    GuestPermission::Read | GuestPermission::Write);
-                !m) {
-                std::fprintf(stderr, "gap Map failed at %#llx\n", (unsigned long long)prev_hi);
-                return 1;
+    std::map<u32, size_t> unresolved;
+    size_t applied = 0, plt_count = 0;
+    if (dynamic || dynlib) {
+        Require(dynamic && dynlib, "incomplete dynamic metadata");
+        auto entries = Read(elf, *dynamic), data = Read(elf, *dynlib);
+        Require(!entries.empty() && entries.size() % sizeof(elf_dynamic) == 0,
+                "invalid dynamic size");
+        std::map<s64, u64> tags;
+        bool terminated = false;
+        for (size_t off = 0; off < entries.size(); off += sizeof(elf_dynamic)) {
+            elf_dynamic d{};
+            std::memcpy(&d, entries.data() + off, sizeof(d));
+            if (d.d_tag == DT_NULL) {
+                terminated = true;
+                break;
+            }
+            switch (d.d_tag) {
+            case DT_RELA:
+            case DT_RELASZ:
+            case DT_RELAENT:
+            case DT_JMPREL:
+                throw std::runtime_error("non-SCE relocation table unsupported by probe");
+            case DT_SCE_RELA:
+            case DT_SCE_RELASZ:
+            case DT_SCE_RELAENT:
+            case DT_SCE_JMPREL:
+            case DT_SCE_PLTRELSZ:
+            case DT_SCE_PLTREL:
+                Require(tags.emplace(d.d_tag, d.d_un.d_val).second, "duplicate relocation tag");
+                break;
+            default:
+                break;
             }
         }
-        if (auto m = space->Map(GuestRange{GuestAddress{map_lo}, map_hi - map_lo},
-                                GuestPermission::Read | GuestPermission::Write);
-            !m) {
-            std::fprintf(stderr, "Map failed at %#llx\n", (unsigned long long)map_lo);
-            return 1;
-        }
-        prev_hi = map_hi;
-        if (ph.p_filesz > 0) {
-            std::vector<std::byte> buf(ph.p_filesz);
-            elf.LoadSegment(reinterpret_cast<std::uint64_t>(buf.data()), ph.p_offset, ph.p_filesz);
-            if (auto w = space->Write(GuestAddress{gv}, {buf.data(), buf.size()}); !w) {
-                std::fprintf(stderr, "Write failed at %#llx\n", (unsigned long long)gv);
-                return 1;
-            }
-        }
-        const bool x = (ph.p_flags & PF_EXEC) != 0;
-        const bool w = (ph.p_flags & PF_WRITE) != 0;
-        GuestPermission perm = GuestPermission::Read;
-        if (x) perm = perm | GuestPermission::Execute;
-        if (w && !x) perm = perm | GuestPermission::Write;
-        if (auto p = space->Protect(GuestRange{GuestAddress{map_lo}, map_hi - map_lo}, perm); !p) {
-            std::fprintf(stderr, "Protect failed at %#llx\n", (unsigned long long)map_lo);
-            return 1;
-        }
-        std::printf("  seg vaddr=%#llx -> guest=%#llx filesz=%#llx memsz=%#llx %c%c%c\n",
-                    (unsigned long long)ph.p_vaddr, (unsigned long long)gv,
-                    (unsigned long long)ph.p_filesz, (unsigned long long)ph.p_memsz,
-                    (ph.p_flags & PF_READ) ? 'r' : '-', w ? 'w' : '-', x ? 'x' : '-');
-    }
-
-    // Apply R_X86_64_RELATIVE relocations. The Elf loader resolves PT_DYNAMIC and
-    // PT_SCE_DYNLIBDATA; DT_SCE_RELA/RELASZ point into the dynlibdata blob. Load
-    // both blobs via LoadSegment, then rebase (B+A - lo == reservation offset).
-    {
-        const elf_program_header* dyn = nullptr;
-        const elf_program_header* dld = nullptr;
-        for (const auto& ph : phdrs) {
-            if (ph.p_type == PT_DYNAMIC) dyn = &ph;
-            else if (ph.p_type == PT_SCE_DYNLIBDATA) dld = &ph;
-        }
-        int applied = 0;
-        std::uint64_t rela_off = 0, rela_sz = 0, rela_ent = sizeof(elf_relocation);
-        if (dyn != nullptr && dld != nullptr && dyn->p_filesz > 0 && dld->p_filesz > 0) {
-            std::vector<std::byte> dynbuf(dyn->p_filesz), dldbuf(dld->p_filesz);
-            elf.LoadSegment(reinterpret_cast<std::uint64_t>(dynbuf.data()), dyn->p_offset,
-                            dyn->p_filesz);
-            elf.LoadSegment(reinterpret_cast<std::uint64_t>(dldbuf.data()), dld->p_offset,
-                            dld->p_filesz);
-            const auto* d = reinterpret_cast<const elf_dynamic*>(dynbuf.data());
-            const std::uint64_t dcount = dyn->p_filesz / sizeof(elf_dynamic);
-            for (std::uint64_t i = 0; i < dcount; ++i) {
-                if (d[i].d_tag == DT_NULL) break;
-                if (d[i].d_tag == DT_SCE_RELA) rela_off = d[i].d_un.d_ptr;
-                else if (d[i].d_tag == DT_SCE_RELASZ) rela_sz = d[i].d_un.d_val;
-                else if (d[i].d_tag == DT_SCE_RELAENT) rela_ent = d[i].d_un.d_val;
-            }
-            if (rela_sz != 0 && rela_off + rela_sz <= dldbuf.size()) {
-                for (std::uint64_t o = 0; o + sizeof(elf_relocation) <= rela_sz;
-                     o += rela_ent) {
-                    elf_relocation rl;
-                    std::memcpy(&rl, dldbuf.data() + rela_off + o, sizeof(rl));
-                    if (rl.GetType() != R_X86_64_RELATIVE) continue;
-                    const std::uint64_t target = rbase + (rl.rel_offset - lo);
-                    const std::uint64_t value =
-                        rbase + static_cast<std::uint64_t>(rl.rel_addend) - lo;
-                    std::byte vb[8];
-                    std::memcpy(vb, &value, 8);
-                    if (auto w = space->Write(GuestAddress{target}, {vb, 8}); w) ++applied;
+        Require(terminated, "unterminated dynamic table");
+        if (tags.contains(DT_SCE_RELAENT))
+            Require(tags.at(DT_SCE_RELAENT) == sizeof(elf_relocation), "invalid RELA entry size");
+        auto table = [&](s64 offset_tag, s64 size_tag, bool plt) {
+            if (!tags.contains(offset_tag) && !tags.contains(size_tag))
+                return;
+            Require(tags.contains(offset_tag) && tags.contains(size_tag),
+                    "incomplete relocation table");
+            const u64 off = tags.at(offset_tag), size = tags.at(size_tag);
+            Require(off <= data.size() && size <= data.size() - off &&
+                        size % sizeof(elf_relocation) == 0,
+                    "relocation table out of range");
+            if (plt && size)
+                Require(tags.contains(DT_SCE_PLTREL) && tags.at(DT_SCE_PLTREL) == DT_RELA,
+                        "PLT table is not RELA");
+            for (u64 at = 0; at < size; at += sizeof(elf_relocation)) {
+                elf_relocation r{};
+                std::memcpy(&r, data.data() + off + at, sizeof(r));
+                if (plt)
+                    ++plt_count;
+                if (r.GetType() == R_X86_64_NONE)
+                    continue;
+                Require(contains(r.rel_offset, sizeof(u64)), "relocation target outside segment");
+                if (r.GetType() != R_X86_64_RELATIVE) {
+                    ++unresolved[r.GetType()];
+                    continue;
                 }
+                Require(r.GetSymbol() == 0, "RELATIVE has a symbol");
+                // Signed addend without unsigned wrap or INT64_MIN negation.
+                const u64 magnitude =
+                    r.rel_addend < 0 ? u64(-(r.rel_addend + 1)) + 1 : u64(r.rel_addend);
+                Require(r.rel_addend >= 0 || bias >= magnitude, "relative addend underflow");
+                const u64 value = r.rel_addend < 0 ? bias - magnitude : Add(bias, magnitude);
+                Require(bool(space->Write(
+                            GuestAddress{Add(bias, r.rel_offset)},
+                            {reinterpret_cast<const std::byte *>(&value), sizeof(value)})),
+                        "relocation Write failed");
+                ++applied;
             }
-        }
-        std::printf("relocations: RELATIVE applied=%d (rela_off=%#llx sz=%#llx)\n", applied,
-                    (unsigned long long)rela_off, (unsigned long long)rela_sz);
+        };
+        table(DT_SCE_RELA, DT_SCE_RELASZ, false);
+        table(DT_SCE_JMPREL, DT_SCE_PLTRELSZ, true);
     }
+    // Final protections only AFTER all writes; no execute/write overlap.
+    for (const auto &s : segments) {
+        GuestPermission perm = GuestPermission::None;
+        if (s.ph.p_flags & PF_READ)
+            perm = perm | GuestPermission::Read;
+        if (s.ph.p_flags & PF_WRITE)
+            perm = perm | GuestPermission::Write;
+        if (s.ph.p_flags & PF_EXEC)
+            perm = perm | GuestPermission::Execute;
+        Require(bool(space->Protect({GuestAddress{Add(bias, s.low)}, s.high - s.low}, perm)),
+                "Protect failed");
+    }
+    for (auto [type, count] : unresolved)
+        std::printf("unresolved relocation type=%u count=%zu\n", type, count);
+    std::printf("LOAD_AUDIT_PASS segments=%zu relro=%zu relative=%zu "
+                "plt_entries=%zu tls_bytes=%llu\n",
+                segments.size(), relro, applied, plt_count, (unsigned long long)tls_bytes);
+    std::printf("EXECUTION_NOT_RUN: production import/TLS/entry/session "
+                "integration required; "
+                "load audit is not execution evidence\n");
+    return require_execution ? 3 : 0;
+}
+} // namespace
 
-    const std::uint64_t stack_hi = AlignDown(rbase + cfg.reservation_size - kPage, kPage);
-    const std::uint64_t stack_lo = stack_hi - kStackSize;
-    if (auto m = space->Map(GuestRange{GuestAddress{stack_lo}, kStackSize},
-                            GuestPermission::Read | GuestPermission::Write);
-        !m) {
-        std::fprintf(stderr, "stack Map failed\n");
+int main(int argc, char **argv) {
+    std::setvbuf(stdout, nullptr, _IONBF, 0);
+    if (argc < 2 || argc > 3 || (argc == 3 && std::string_view(argv[2]) != "--require-execution")) {
+        std::fprintf(stderr, "usage: %s <eboot.bin> [--require-execution]\n", argv[0]);
+        return 2;
+    }
+    try {
+        return Audit(argv[1], argc == 3);
+    } catch (const std::exception &e) {
+        std::fprintf(stderr, "LOAD_AUDIT_FAIL: %s\nEXECUTION_NOT_RUN\n", e.what());
         return 1;
     }
-
-    // Minimal EntryParams for OpenOrbis _start: argc=0, argv[0]=NULL.
-    struct GuestEntryParams {
-        std::int32_t argc;
-        std::uint32_t padding;
-        std::uint64_t argv[33];
-        std::uint64_t entry_addr;
-    } ep{};
-    const std::uint64_t ep_addr = AlignDown(stack_hi - sizeof(ep) - 64, 16);
-    if (auto w = space->Write(GuestAddress{ep_addr},
-                              {reinterpret_cast<const std::byte*>(&ep), sizeof(ep)});
-        !w) {
-        std::fprintf(stderr, "EntryParams Write failed\n");
-        return 1;
-    }
-    const std::uint64_t rsp = (ep_addr - 16) & ~std::uint64_t{15};
-    const std::uint64_t entry = rbase + (eh.e_entry - lo);
-    std::printf("entry guest=%#llx rsp=%#llx entry_params=%#llx\n", (unsigned long long)entry,
-                (unsigned long long)rsp, (unsigned long long)ep_addr);
-
-    ThreadInit init{};
-    init.entry_rip = GuestCodeAddress{entry};
-    init.initial_rsp = GuestAddress{rsp};
-    init.guest_tid = 1;
-    init.initial_state.fields = RegisterValidity::Gpr;
-    init.initial_state.gpr_mask = (std::uint16_t{1} << static_cast<int>(Gpr::Rdi)) |
-                                  (std::uint16_t{1} << static_cast<int>(Gpr::Rsi));
-    init.initial_state.values.Set(Gpr::Rdi, ep_addr);
-    init.initial_state.values.Set(Gpr::Rsi, rbase);
-    auto th_r = ctx->CreateThread(init);
-    if (!th_r) {
-        std::fprintf(stderr, "CreateThread failed\n");
-        return 1;
-    }
-
-    std::printf("running guest _start...\n");
-    auto run = ctx->Run(th_r.Value(), RunOptions{});
-    if (!run) {
-        std::fprintf(stderr, "Run returned error status\n");
-        return 1;
-    }
-    const RunResult& r = run.Value();
-    const std::uint64_t stop_rip = r.guest_pc.value_or(r.snapshot.registers.rip);
-    const bool in_module = stop_rip >= rbase && stop_rip < rbase + module_span;
-    std::printf("STOP reason=%s stop_rip=%#llx in_module=%d\n", StopReasonName(r.primary_reason),
-                (unsigned long long)stop_rip, in_module);
-    if (r.fault.has_value()) {
-        std::printf("fault guest_rip=%#llx fault_addr=%#llx\n",
-                    (unsigned long long)r.fault->guest_rip.value_or(0),
-                    (unsigned long long)r.fault->fault_address.value_or(0));
-    }
-    const bool executed = in_module || (r.fault.has_value() && r.fault->guest_rip.has_value() &&
-                                        *r.fault->guest_rip >= rbase &&
-                                        *r.fault->guest_rip < rbase + module_span);
-    std::printf("%s\n", executed ? "STAGE0_PASS: executed real eboot bytes"
-                                 : "STAGE0_INCONCLUSIVE");
-    return executed ? 0 : 3;
 }

@@ -102,7 +102,7 @@ def main():
              "-DENABLE_DISCORD_RPC=OFF", "-DENABLE_UPDATER=OFF", "-DENABLE_SPATIAL_FOUNDATION=ON",
              f"-DSHADNET_PROTOC_EXECUTABLE={protoc}", f"-DIMGUI_FONT_EMBED_EXECUTABLE={font}",
              "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"], "host-configure")
-        run(["cmake", "--build", native, "--target", "shadps4_host", "host_library_smoke",
+        run(["cmake", "--build", native, "--target", "shadps4_host", "host_library_smoke", "host_dlopen_smoke",
              "-j", a.jobs], "host-build")
         library = native / "libshadps4_host.so"
         run([compiler.parent / "llvm-readelf", "-h", "-d", "-n", "--version-info", library], "elf")
@@ -110,7 +110,7 @@ def main():
         if "AArch64" not in elf or "GLIBC_" in elf or "ld-linux" in elf or "libc++_shared.so" not in elf:
             raise RuntimeError("host is not a shared-STL ARM64 bionic artifact")
         runtime = compiler.parent.parent / "sysroot/usr/lib/aarch64-linux-android/libc++_shared.so"
-        artifacts = [library, native / "host_library_smoke", runtime]
+        artifacts = [library, native / "host_library_smoke", native / "host_dlopen_smoke", runtime]
         artifacts += sorted((native / "externals/libadrenotools/src/hook").glob("*.so"))
         result["artifacts"] = [{"path": str(x), "sha256": sha(x)} for x in artifacts]
         result["map_sha256"] = sha(native / "shadps4_host.map")

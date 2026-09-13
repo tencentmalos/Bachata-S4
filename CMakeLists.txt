@@ -1596,6 +1596,9 @@ endif()
 # Native host library, without FEX or the APK session entry. The future JNI target
 # consumes the same object/dependency targets so there is only one host instance.
 if(BUILD_HOST_CORE)
+    add_subdirectory(foundation/modules/input foundation/input EXCLUDE_FROM_ALL)
+    target_sources(shadps4 PRIVATE src/core/host_runtime/orbis_pad_adapter.cpp)
+    target_link_libraries(shadps4 PRIVATE spatial::foundation_input)
     get_target_property(host_dependencies shadps4 LINK_LIBRARIES)
     add_library(shadps4_host_dependencies INTERFACE)
     target_link_libraries(shadps4_host_dependencies INTERFACE ${host_dependencies})
@@ -1604,11 +1607,19 @@ if(BUILD_HOST_CORE)
     add_dependencies(shadps4_host host_shaders ImGui_Resources)
     target_link_options(shadps4_host PRIVATE -Wl,--build-id=sha1 -Wl,--no-undefined
         "-Wl,-Map,${CMAKE_CURRENT_BINARY_DIR}/shadps4_host.map")
+    # The APK and load audit consume the real host DSO and the exact header
+    # environment of this target, without duplicating host source/archive lists.
+    file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/shadps4-host-loader.cmake"
+        CONTENT "set(SHADPS4_HOST_LOADER_LIBRARY [==[$<TARGET_FILE:shadps4_host>]==])\nset(SHADPS4_HOST_LOADER_INCLUDES [==[$<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>]==])\nset(SHADPS4_HOST_LOADER_DEFINITIONS [==[$<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>]==])\nset(SHADPS4_HOST_LOADER_ABI [==[${ANDROID_ABI}]==])\nset(SHADPS4_HOST_LOADER_API [==[${ANDROID_PLATFORM_LEVEL}]==])\nset(SHADPS4_HOST_LOADER_STL [==[${ANDROID_STL}]==])\n")
     option(HOST_BUILD_PROBES "Build auxiliary native host linkage/contract probes" OFF)
     if(HOST_BUILD_PROBES)
+        add_executable(host_dlopen_smoke tests/host_runtime/host_dlopen_smoke.cpp)
+        target_link_libraries(host_dlopen_smoke PRIVATE dl)
         add_executable(host_library_smoke tests/host_runtime/host_library_smoke.cpp)
         target_link_libraries(host_library_smoke PRIVATE shadps4_host)
         target_include_directories(host_library_smoke PRIVATE src)
+        target_include_directories(host_library_smoke PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(host_library_smoke PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
     endif()
 endif()
 

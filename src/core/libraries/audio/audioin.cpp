@@ -15,8 +15,6 @@ std::array<std::shared_ptr<PortIn>, ORBIS_AUDIO_IN_NUM_PORTS> port_table{};
 std::shared_mutex port_table_mutex;
 std::mutex port_allocation_mutex;
 
-static std::unique_ptr<AudioInBackend> audio;
-
 /*
  * Helper functions
  **/
@@ -42,7 +40,7 @@ static s32 GetPortType(s32 handle) {
 
 static int AllocatePort(OrbisAudioInType type) {
     // TODO implement port type ranges if needed
-    for (int i = 0; i <= ORBIS_AUDIO_IN_NUM_PORTS; i++) {
+    for (int i = 0; i < ORBIS_AUDIO_IN_NUM_PORTS; i++) {
         std::shared_lock read_lock{port_table_mutex};
         if (!port_table[i]) {
             return i;
@@ -53,23 +51,10 @@ static int AllocatePort(OrbisAudioInType type) {
 /*
  * sceAudioIn implementation
  **/
-static bool initOnce = false;
 int PS4_SYSV_ABI sceAudioInOpen(Libraries::UserService::OrbisUserServiceUserId userId, u32 type,
                                 u32 index, u32 len, u32 freq, u32 param) {
     LOG_INFO(Lib_AudioIn, "called, userId={}, type={}, index={}, len={}, freq={}, param={}", userId,
              type, index, len, freq, param);
-    if (!initOnce) {
-        // sceAudioInInit doesn't seem to be called by most apps before sceAudioInOpen so we init
-        // here
-#if defined(__ANDROID__)
-        // Android does not link SDL audio capture; use the no-mic fallback.
-        audio = std::make_unique<NullAudioIn>();
-#else
-        audio = std::make_unique<SDLAudioIn>();
-#endif
-        initOnce = true;
-    }
-
     if (len == 0 || len > 2048) {
         LOG_ERROR(Lib_AudioIn, "Invalid size");
         return ORBIS_AUDIO_IN_ERROR_INVALID_SIZE;
@@ -125,7 +110,13 @@ int PS4_SYSV_ABI sceAudioInOpen(Libraries::UserService::OrbisUserServiceUserId u
         }
 
         // Open backend
-        port->impl = audio->Open(*port);
+        // Function-local construction is thread-safe; no racy initOnce flag.
+#if defined(__ANDROID__)
+        static NullAudioIn audio;
+#else
+        static SDLAudioIn audio;
+#endif
+        port->impl = audio.Open(*port);
         if (!port->impl) {
             throw std::runtime_error("Failed to create audio backend");
         }

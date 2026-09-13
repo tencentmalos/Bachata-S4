@@ -17,6 +17,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -132,6 +133,18 @@ fun SessionScreen(
         }
     }
 
+    val inputGeneration = when (val sessionState = state) {
+        is ManagedSessionState.Preparing -> sessionState.generation
+        is ManagedSessionState.Ready -> sessionState.generation
+        is ManagedSessionState.Running -> sessionState.generation
+        else -> 0L
+    }
+    val publishController = remember(inputGeneration) { ManagedSession.controllerPublisher(inputGeneration) }
+    DisposableEffect(inputGeneration, showStopOverlay) {
+        com.shadps4.android.runtime.input.NativePadBridge.setUiCaptured(inputGeneration,showStopOverlay)
+        onDispose { com.shadps4.android.runtime.input.NativePadBridge.setUiCaptured(inputGeneration,false) }
+    }
+
     BackHandler(
         enabled = state is ManagedSessionState.Running ||
             state is ManagedSessionState.Ready ||
@@ -172,9 +185,9 @@ fun SessionScreen(
                     showStopOverlay = true
                 }
                 if (showStopOverlay) {
-                    ManagedSession.submitController(ControllerSnapshot.Neutral)
+                    publishController(ControllerSnapshot.Neutral)
                 } else if (!GamepadInputManager.hasPhysicalController) {
-                    ManagedSession.submitController(snapshot)
+                    publishController(snapshot)
                 }
             }
         )

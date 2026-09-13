@@ -1,200 +1,118 @@
-// SPDX-FileCopyrightText: Copyright 2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
-
-// Host contract test for OrbisPadAdapter — the native consumer of Android
-// controller input. Runs on the build host and cross-compiles under the NDK. It
-// exercises the spec's control-correctness, session/generation, port isolation,
-// and feedback dimensions against the real Libraries::Pad::OrbisPadData layout.
-
-#include <cmath>
-#include <cstdint>
+#include "core/host_runtime/orbis_pad_adapter.h"
+#include "core/libraries/pad/pad_errors.h"
 #include <cstdio>
 #include <limits>
-
-#include "core/host_runtime/orbis_pad_adapter.h"
-#include "core/libraries/pad/pad.h"
-
-using Core::HostRuntime::OrbisPadAdapter;
-using Core::HostRuntime::PadResult;
-using Core::HostRuntime::PadSnapshot;
-using Core::HostRuntime::PadVibration;
-using Libraries::Pad::OrbisPadButtonDataOffset;
-using Libraries::Pad::OrbisPadData;
-
-namespace {
-
-int g_checks = 0;
-int g_failures = 0;
-
-void Check(bool ok, const char* what) {
-    ++g_checks;
-    if (!ok) {
-        ++g_failures;
-        std::fprintf(stderr, "  FAIL: %s\n", what);
-    }
-}
-
-std::uint64_t ButtonsOf(const OrbisPadData& d) {
-    return static_cast<std::uint64_t>(d.buttons);
-}
-
-void TestConversionAndButtons() {
-    std::printf("control correctness: buttons, stick/trigger conversion, rejection\n");
-    OrbisPadAdapter pad;
-    const auto s = pad.BeginSession();
-    Check(s != 0, "session token nonzero");
-
-    // Cross bit passes through unchanged; neutral sticks centre at 128.
-    PadSnapshot snap;
-    snap.buttons = static_cast<std::uint64_t>(OrbisPadButtonDataOffset::Cross);
-    Check(pad.Submit(s, 0, snap) == PadResult::Ok, "submit ok");
-
-    OrbisPadData d{};
-    Check(pad.ReadState(0, &d), "read ok");
-    Check(ButtonsOf(d) == static_cast<std::uint64_t>(OrbisPadButtonDataOffset::Cross),
-          "cross bit preserved");
-    Check(d.leftStick.x == 128 && d.leftStick.y == 128, "neutral left stick = 128");
-    Check(d.rightStick.x == 128 && d.rightStick.y == 128, "neutral right stick = 128");
-    Check(d.connected, "port connected after submit");
-
-    // Full right / up. left_x = +1 -> 255, left_y = -1 -> 1 (centre 128 - 127).
-    snap = PadSnapshot{};
-    snap.left_x = 1.0f;
-    snap.left_y = -1.0f;
-    snap.right_x = -1.0f;
-    snap.right_y = 1.0f;
-    Check(pad.Submit(s, 0, snap) == PadResult::Ok, "submit deflection ok");
-    Check(pad.ReadState(0, &d), "read deflection");
-    Check(d.leftStick.x == 255, "left_x +1 -> 255");
-    Check(d.leftStick.x >= 1 && d.leftStick.x == 255, "left_x max");
-    Check(d.leftStick.y == 1, "left_y -1 -> 1");
-    Check(d.rightStick.x == 1, "right_x -1 -> 1");
-    Check(d.rightStick.y == 255, "right_y +1 -> 255");
-
-    // Triggers 0..1 -> 0..255.
-    snap = PadSnapshot{};
-    snap.left_trigger = 1.0f;
-    snap.right_trigger = 0.5f;
-    Check(pad.Submit(s, 0, snap) == PadResult::Ok, "submit triggers ok");
-    Check(pad.ReadState(0, &d), "read triggers");
-    Check(d.analogButtons.l2 == 255, "left trigger 1.0 -> 255");
-    Check(d.analogButtons.r2 >= 127 && d.analogButtons.r2 <= 128, "right trigger 0.5 ~ 128");
-
-    // NaN / Inf rejected; last good state unchanged.
-    snap = PadSnapshot{};
-    snap.left_x = std::numeric_limits<float>::quiet_NaN();
-    Check(pad.Submit(s, 0, snap) == PadResult::Rejected, "NaN rejected");
-    snap.left_x = std::numeric_limits<float>::infinity();
-    Check(pad.Submit(s, 0, snap) == PadResult::Rejected, "Inf rejected");
-    Check(pad.ReadState(0, &d) && d.analogButtons.l2 == 255, "state unchanged after reject");
-
-    // Bad port.
-    Check(pad.Submit(s, 4, PadSnapshot{}) == PadResult::BadPort, "port 4 rejected");
-    Check(pad.Submit(s, -1, PadSnapshot{}) == PadResult::BadPort, "port -1 rejected");
-}
-
-void TestSessionGuard() {
-    std::printf("session/generation: wrong token, no session, re-begin clears state\n");
-    OrbisPadAdapter pad;
-
-    // No session yet.
-    Check(pad.Submit(1, 0, PadSnapshot{}) == PadResult::NoSession, "submit before begin refused");
-
-    const auto s1 = pad.BeginSession();
-    PadSnapshot snap;
-    snap.buttons = static_cast<std::uint64_t>(OrbisPadButtonDataOffset::Circle);
-    Check(pad.Submit(s1, 0, snap) == PadResult::Ok, "s1 submit ok");
-
-    // Wrong token refused.
-    Check(pad.Submit(s1 + 999, 0, snap) == PadResult::WrongSession, "wrong token refused");
-
-    // A new session is a new generation: state cleared, old token stale.
-    const auto s2 = pad.BeginSession();
-    Check(s2 != s1, "new session token differs");
-    Check(pad.Submit(s1, 0, snap) == PadResult::WrongSession, "old token stale after re-begin");
-    OrbisPadData d{};
-    Check(pad.ReadState(0, &d), "read after re-begin");
-    Check(ButtonsOf(d) == 0, "state cleared on new session");
-    Check(!d.connected, "port neutral (disconnected) after new session");
-
-    // EndSession with a stale token is a no-op; with the live token clears.
-    pad.EndSession(s1);
-    Check(pad.CurrentToken() == s2, "stale EndSession ignored");
-    pad.EndSession(s2);
-    Check(pad.CurrentToken() == 0, "live EndSession clears");
-    Check(pad.Submit(s2, 0, snap) == PadResult::NoSession, "submit after end refused");
-}
-
-void TestPortIsolationAndConnect() {
-    std::printf("multi-port isolation + connect/disconnect\n");
-    OrbisPadAdapter pad;
-    const auto s = pad.BeginSession();
-
-    PadSnapshot a;
-    a.buttons = static_cast<std::uint64_t>(OrbisPadButtonDataOffset::Triangle);
-    PadSnapshot b;
-    b.buttons = static_cast<std::uint64_t>(OrbisPadButtonDataOffset::Square);
-    Check(pad.Submit(s, 0, a) == PadResult::Ok, "port0 submit");
-    Check(pad.Submit(s, 1, b) == PadResult::Ok, "port1 submit");
-
-    Check(pad.ReadButtons(0) == static_cast<std::uint64_t>(OrbisPadButtonDataOffset::Triangle),
-          "port0 triangle");
-    Check(pad.ReadButtons(1) == static_cast<std::uint64_t>(OrbisPadButtonDataOffset::Square),
-          "port1 square (isolated)");
-    Check(pad.ReadButtons(2) == 0, "port2 untouched");
-
-    // Disconnect port0 neutralizes it but preserves connectedCount for reconnect.
-    OrbisPadData d{};
-    Check(pad.ReadState(0, &d), "read port0");
-    const std::uint8_t count_before = d.connectedCount;
-    Check(pad.SetConnected(s, 0, false) == PadResult::Ok, "disconnect port0");
-    Check(!pad.Connected(0), "port0 disconnected");
-    Check(pad.ReadButtons(0) == 0, "port0 neutralized on disconnect");
-    Check(pad.Connected(1), "port1 unaffected");
-
-    // Reconnect bumps connectedCount.
-    Check(pad.SetConnected(s, 0, true) == PadResult::Ok, "reconnect port0");
-    Check(pad.ReadState(0, &d), "read port0 reconnected");
-    Check(d.connectedCount > count_before, "connectedCount bumped on reconnect");
-}
-
-void TestVibration() {
-    std::printf("feedback: enqueue latest-wins, cancel, drain, session guard\n");
-    OrbisPadAdapter pad;
-    const auto s = pad.BeginSession();
-
-    Check(pad.SetVibration(s, 0, 200, 100) == PadResult::Ok, "vibration enqueued");
-    // Latest wins: a second enqueue overwrites the first pending command.
-    Check(pad.SetVibration(s, 0, 50, 25) == PadResult::Ok, "vibration overwrite");
-    PadVibration v{};
-    Check(pad.DrainVibration(0, &v), "drain ok");
-    Check(v.small_motor == 50 && v.large_motor == 25, "latest vibration wins");
-    Check(!v.cancel, "not a cancel");
-    Check(!pad.DrainVibration(0, &v), "nothing left after drain");
-
-    // A (0,0) request is a cancel.
-    Check(pad.SetVibration(s, 0, 0, 0) == PadResult::Ok, "cancel enqueued");
-    Check(pad.DrainVibration(0, &v), "drain cancel");
-    Check(v.cancel && v.small_motor == 0 && v.large_motor == 0, "cancel zeroes motors");
-
-    // Wrong session refused.
-    Check(pad.SetVibration(s + 7, 0, 100, 100) == PadResult::WrongSession,
-          "wrong-session vibration refused");
-
-    // New session clears queued feedback.
-    Check(pad.SetVibration(s, 1, 100, 100) == PadResult::Ok, "queue on port1");
-    pad.BeginSession();
-    Check(!pad.DrainVibration(1, &v), "feedback cleared on new session");
-}
-
-} // namespace
-
+using namespace Core::HostRuntime;
+using namespace spatial::input;
+using namespace Libraries::Pad;
+static int checks{}, failures{};
+#define CHECK(x)                                                                                   \
+    do {                                                                                           \
+        ++checks;                                                                                  \
+        if (!(x)) {                                                                                \
+            ++failures;                                                                            \
+            std::printf("FAIL %d: %s\n", __LINE__, #x);                                            \
+        }                                                                                          \
+    } while (0)
 int main() {
-    std::printf("orbis_pad_adapter_tests\n");
-    TestConversionAndButtons();
-    TestSessionGuard();
-    TestPortIsolationAndConnect();
-    TestVibration();
-    std::printf("\n%d checks, %d failures\n", g_checks, g_failures);
-    return g_failures == 0 ? 0 : 1;
+    OrbisPadAdapter pad;
+    auto t = pad.BeginSession();
+    CHECK(t != 0);
+    CHECK(pad.SetConnected(t, 0, true) == PadResult::Ok);
+    PadSnapshot overlay;
+    overlay.buttons = 0x4000;
+    overlay.left_x = -1;
+    overlay.left_y = 1;
+    CHECK(pad.Submit(t, 0, overlay) == PadResult::Ok);
+    OrbisPadData d{};
+    CHECK(pad.ReadState(0, &d));
+    CHECK(d.leftStick.x == 0 && d.leftStick.y == 255 && d.rightStick.x == 128);
+    auto before = d.timestamp;
+    auto nan = overlay;
+    nan.left_x = std::numeric_limits<float>::quiet_NaN();
+    CHECK(pad.Submit(t, 0, nan) == PadResult::Rejected);
+    CHECK(pad.ReadState(0, &d) && d.timestamp == before);
+    CHECK(pad.Submit(t, -1, overlay) == PadResult::BadPort);
+    CHECK(pad.SetConnected(t, 0, false) == PadResult::Ok);
+    CHECK(pad.Submit(t, 0, overlay) == PadResult::Rejected);
+    DeviceCapabilities caps;
+    caps.axes = {{Axis::LeftStickX, -32768, 32767, 0}, {Axis::RightTrigger, 0, 255, 0}};
+    caps.has_rumble = true;
+    auto a = pad.RegisterDevice(t, 0, 100, caps), b = pad.RegisterDevice(t, 1, 101, caps);
+    CHECK(a && b && a != b);
+    CHECK(!pad.RegisterDevice(t, 2, 100, caps));
+    InputPacket p;
+    p.session_token = t;
+    p.device = {Source::AndroidGamepad, 100, a, "same model"};
+    p.sequence = 1;
+    p.events = {
+        {.button = Button::East, .pressed = true},
+        {.kind = InputEvent::Kind::AxisValue, .axis = Axis::LeftStickX, .raw_value = -32768},
+        {.kind = InputEvent::Kind::AxisValue, .axis = Axis::RightTrigger, .raw_value = 255}};
+    CHECK(pad.SubmitPacket(t, 0, p) == PadResult::Ok);
+    CHECK(pad.ReadState(0, &d) && u32(d.buttons) == 0x2200 && d.leftStick.x == 0 &&
+          d.analogButtons.r2 == 255);
+    CHECK(pad.ReadButtons(1) == 0);
+    CHECK(pad.SubmitPacket(t, 0, p) == PadResult::Rejected); // duplicate sequence
+    CHECK(pad.Initialize() == 0);
+    auto h = pad.Open(1000, 0, 0, 0);
+    CHECK(h > 0);
+    CHECK(pad.GetHandle(1000, 0, 0) == h);
+    CHECK(pad.Open(1000, 0, 0, 0) == ORBIS_PAD_ERROR_ALREADY_OPENED);
+    CHECK(pad.Read(h, &d, 1, true) == 1 && u32(d.buttons) == 0x2200);
+    // A short down/up between two guest polls remains present in bounded history.
+    p.sequence = 2;
+    p.events = {{.button = Button::South, .pressed = true}};
+    CHECK(pad.SubmitPacket(t, 0, p) == PadResult::Ok);
+    p.sequence = 3;
+    p.events[0].pressed = false;
+    CHECK(pad.SubmitPacket(t, 0, p) == PadResult::Ok);
+    OrbisPadData history[ORBIS_PAD_MAX_DATA_NUM]{};
+    const int n = pad.Read(h, history, ORBIS_PAD_MAX_DATA_NUM);
+    bool saw_down = false, saw_up = false;
+    for (int i = 0; i < n; ++i) {
+        if (u32(history[i].buttons) & 0x4000)
+            saw_down = true;
+        else if (saw_down)
+            saw_up = true;
+    }
+    CHECK(saw_down && saw_up);
+    OrbisPadControllerInformation info{};
+    CHECK(pad.Information(h, &info) == 0 && info.connected);
+    OrbisPadVibrationParam rumble{.largeMotor = 60, .smallMotor = 120};
+    CHECK(pad.Vibrate(h, &rumble) == 0);
+    CHECK(pad.DrainHaptics(t + 1).empty());
+    auto c = pad.DrainHaptics(t);
+    CHECK(c.size() == 1 && c[0].device.backend_id == 100 && c[0].device.connection_epoch == a);
+    CHECK(c.size() == 1 && c[0].small_motor > .47f && c[0].large_motor < .24f);
+    CHECK(pad.SetVibration(t, 0, 0, 0) == PadResult::Ok);
+    c = pad.DrainHaptics(t);
+    CHECK(c.size() == 1 && c[0].cancel);
+    CHECK(pad.SetVibration(t, 0, 100, 100) == PadResult::Ok);
+    pad.RemoveDevice(t, 0, a);
+    CHECK(pad.DrainHaptics(t).empty());
+    CHECK(pad.Read(h, &d, 1, true) == 1 && !d.connected && u32(d.buttons) == 0);
+    const auto replacement = pad.RegisterDevice(t, 0, 100, caps);
+    CHECK(replacement && replacement != a);
+    p.sequence = 4;
+    CHECK(pad.SubmitPacket(t, 0, p) == PadResult::Rejected);
+    pad.RemoveDevice(t, 0, a);
+    CHECK(pad.Connected(0));
+    p.device.connection_epoch = replacement;
+    p.sequence = 1;
+    CHECK(pad.SubmitPacket(t, 0, p) == PadResult::Ok);
+    pad.FocusLost(t);
+    CHECK(pad.ReadButtons(0) == 0 && pad.ReadButtons(1) == 0);
+    auto next = pad.BeginSession();
+    pad.EndSession(t);
+    CHECK(pad.CurrentToken() == next);
+    CHECK(pad.Read(h, &d, 1, true) == ORBIS_PAD_ERROR_INVALID_HANDLE);
+    CHECK(pad.Submit(t, 0, overlay) == PadResult::WrongSession);
+    CHECK(pad.DrainHaptics(t).empty());
+    pad.EndSession(next);
+    CHECK(pad.CurrentToken() == 0);
+    CHECK(pad.Submit(next, 0, overlay) == PadResult::NoSession);
+    std::printf("orbis_pad_adapter_tests: %d checks / %d failures\n", checks, failures);
+    return failures ? 1 : 0;
 }

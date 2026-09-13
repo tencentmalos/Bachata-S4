@@ -8,9 +8,7 @@ import com.shadps4.android.model.RuntimeErrorCode
 import com.shadps4.android.runtime.diagnostics.ProcessTerminationInfo
 import com.shadps4.android.runtime.diagnostics.TerminationKind
 import com.shadps4.android.runtime.input.GamepadInputManager
-import com.shadps4.android.runtime.input.HapticsPump
 import com.shadps4.android.runtime.input.NativePadBridge
-import com.shadps4.android.runtime.input.VibratorHapticsSink
 import com.shadps4.android.runtime.session.ManagedSession
 import com.shadps4.android.runtime.session.ManagedSessionState
 import com.shadps4.android.runtime.session.NativeFexSession
@@ -20,8 +18,8 @@ import kotlin.concurrent.thread
  * In-process FEX session orchestrator. Replaces the reference EmulationService (which launched an
  * external glibc shadPS4 process under Box64/FEX + Winlator X + Vortek). Here the session runs the
  * main repo's guest_cpu_fex backend *inside this app process* via [NativeFexSession] — a bounded
- * x86-64 smoke loop that proves the CPU backend is live. It is NOT a real game (the Android host is
- * not yet native; see docs/specs/android-native-host-v1.md). The UI seam ([ManagedSession]) is
+ * x86-64 smoke loop that proves the CPU backend is live. The native host/input DSO is loaded,
+ * but the production game backend is not bound yet. The UI seam ([ManagedSession]) is
  * unchanged.
  *
  * Every published state is generation-tagged. The native SessionCore mints the generation and owns
@@ -32,9 +30,6 @@ import kotlin.concurrent.thread
 class FexSessionService : Service() {
 
     @Volatile private var observer: Thread? = null
-    // Drives VibratorManager from drained native pad vibration commands. Created
-    // per session so the actuator follows the game generation.
-    @Volatile private var hapticsPump: HapticsPump? = null
     // Set when a stop was requested for the live generation. Distinguishes "the
     // game is still running normally" (a WaitTerminal timeout is NOT a failure)
     // from "teardown was asked for and is now overdue" (a bounded failure).
@@ -55,6 +50,10 @@ class FexSessionService : Service() {
     private fun handleStart(intent: Intent, startId: Int) {
         val gameId = intent.getStringExtra(ManagedSession.EXTRA_GAME_ID) ?: "smoke"
 
+        if (!com.shadps4.android.runtime.input.NativePad.nativeInitializeHost(java.io.File(filesDir,"host").absolutePath)) {
+            Log.e(TAG,"Host paths failed to initialize")
+            return
+        }
         val generation = NativeFexSession.nativeStart(gameId, DEFAULT_ITERATIONS)
         if (generation == 0L) {
             Log.w(TAG, "Session already running or failed to spawn; ignoring START")
@@ -63,14 +62,11 @@ class FexSessionService : Service() {
         stopRequestedGeneration = 0L
         stopDeadlineUptimeMs = 0L
         ManagedSession.beginGeneration(generation)
-        ManagedSession.updateIfCurrent(generation, ManagedSessionState.Preparing("fex", generation))
         // Bind the native pad session so real controller input (physical gamepad +
         // touch overlay) reaches the native OrbisPadAdapter for this generation.
         GamepadInputManager.onSessionStart()
-        NativePadBridge.begin()
-        // Start haptics: drain native pad vibration -> VibratorManager for this
-        // generation. Safe no-op on a device without a vibrator.
-        hapticsPump = HapticsPump(VibratorHapticsSink(applicationContext)).also { it.start() }
+        NativePadBridge.begin(applicationContext,generation)
+        ManagedSession.updateIfCurrent(generation, ManagedSessionState.Preparing("fex", generation))
         Log.i(TAG, "native: ${NativeFexSession.nativeIdentity()} gen=$generation")
 
         // One generation-tagged observer. It never fabricates Running: WaitPhase returns
@@ -123,10 +119,8 @@ class FexSessionService : Service() {
             // Tear down the native pad session for this generation: detaches the
             // controller sink and clears port state so a late producer cannot write
             // into the next session's pad.
-            NativePadBridge.end()
-            GamepadInputManager.onSessionEnd()
-            hapticsPump?.stop()
-            hapticsPump = null
+            NativePadBridge.end(generation)
+
             stopSelf(startId)
         }
     }
@@ -140,6 +134,7 @@ class FexSessionService : Service() {
         // still-running game.
         stopRequestedGeneration = generation
         stopDeadlineUptimeMs = android.os.SystemClock.uptimeMillis() + STOP_COMPLETION_BUDGET_MS
+        NativePadBridge.requestStop(generation)
         // Async interrupt from a worker thread; the observer publishes the terminal.
         thread(name = "fex-session-stop-$generation") {
             NativeFexSession.nativeRequestStop(generation, STOP_TIMEOUT_MS)
@@ -209,8 +204,7 @@ class FexSessionService : Service() {
             }
         }
         // Safety net: stop haptics even if the observer never published a terminal.
-        hapticsPump?.stop()
-        hapticsPump = null
+        NativePadBridge.end(generation)
         super.onDestroy()
     }
 

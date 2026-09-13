@@ -192,6 +192,7 @@ dependencies {
     ksp(libs.hilt.compiler)
     ksp(libs.kotlin.metadata.jvm)
     androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
 }

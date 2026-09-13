@@ -16,6 +16,11 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 option(V0_ENABLE_FEX "Link the FEX guest CPU backend" OFF)
 option(V0_BUILD_TESTS "Build the guest CPU contract tests" ON)
+option(V0_BUILD_EBOOT_HARNESS "Build the auxiliary eboot probe using a native host build" OFF)
+set(V0_HOST_LOADER_CONFIG "" CACHE FILEPATH "Generated shadps4-host-loader.cmake from BUILD_HOST_CORE")
+if(V0_BUILD_EBOOT_HARNESS AND (NOT V0_BUILD_TESTS OR NOT ANDROID))
+    message(FATAL_ERROR "The eboot load audit requires Android and V0_BUILD_TESTS")
+endif()
 
 if(ANDROID)
     message(STATUS "V0: Android ${ANDROID_ABI} platform ${ANDROID_PLATFORM}")
@@ -78,7 +83,10 @@ if(V0_BUILD_TESTS)
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/host_runtime/orbis_pad_adapter_tests.cpp")
     target_include_directories(orbis_pad_adapter_tests PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/../../src")
-    target_link_libraries(orbis_pad_adapter_tests PRIVATE Threads::Threads)
+    if(NOT TARGET foundation_input)
+        add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../foundation/modules/input" foundation/input EXCLUDE_FROM_ALL)
+    endif()
+    target_link_libraries(orbis_pad_adapter_tests PRIVATE Threads::Threads foundation_input)
 endif()
 
 if(V0_ENABLE_FEX)
@@ -198,12 +206,30 @@ if(V0_ENABLE_FEX)
         # declaration the test drives. Release consumers do not define this.
         target_compile_definitions(guest_execution_tests PRIVATE GUEST_CPU_TEST_HOOKS=1)
 
-        # HN2 Stage 0: run a REAL PS4 eboot's _start prologue on the FEX backend.
-        # Self-contained SELF/ELF reader; links only guest_cpu_fex (not the host
-        # loader closure). Proves real title bytes translate+execute on-device.
-        add_executable(eboot_prologue_harness
-            "${CMAKE_CURRENT_SOURCE_DIR}/../../tools/eboot_prologue_harness.cpp")
-        target_link_libraries(eboot_prologue_harness PRIVATE guest_cpu_fex)
-
     endif()
+endif()
+
+# Load audit does not execute guest code; it needs no FEX runtime archive.
+if(V0_BUILD_EBOOT_HARNESS)
+    if(NOT EXISTS "${V0_HOST_LOADER_CONFIG}")
+        message(FATAL_ERROR "Build the native host first and set V0_HOST_LOADER_CONFIG")
+    endif()
+    include("${V0_HOST_LOADER_CONFIG}")
+    if(NOT EXISTS "${SHADPS4_HOST_LOADER_LIBRARY}" OR
+       NOT ANDROID_ABI STREQUAL SHADPS4_HOST_LOADER_ABI OR
+       NOT ANDROID_STL STREQUAL SHADPS4_HOST_LOADER_STL OR
+       ANDROID_PLATFORM_LEVEL LESS SHADPS4_HOST_LOADER_API)
+        message(FATAL_ERROR "Native host loader is missing or ABI/API/STL is incompatible")
+    endif()
+    add_library(eboot_host_loader SHARED IMPORTED)
+    set_target_properties(eboot_host_loader PROPERTIES
+        IMPORTED_LOCATION "${SHADPS4_HOST_LOADER_LIBRARY}")
+    add_executable(eboot_prologue_harness
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tools/eboot_prologue_harness.cpp")
+    target_compile_features(eboot_prologue_harness PRIVATE cxx_std_23)
+    target_include_directories(eboot_prologue_harness PRIVATE ${SHADPS4_HOST_LOADER_INCLUDES})
+    target_compile_definitions(eboot_prologue_harness PRIVATE ${SHADPS4_HOST_LOADER_DEFINITIONS})
+    target_link_libraries(eboot_prologue_harness PRIVATE guest_cpu_api eboot_host_loader)
+    target_link_options(eboot_prologue_harness PRIVATE -Wl,--no-undefined
+        "-Wl,-Map,${CMAKE_CURRENT_BINARY_DIR}/eboot_prologue_harness.map")
 endif()

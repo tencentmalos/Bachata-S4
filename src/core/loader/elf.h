@@ -503,6 +503,9 @@ public:
     std::string ElfPheaderFlagsStr(u32 flags);
 
     void LoadSegment(u64 virtual_addr, u64 file_offset, u64 size);
+    // Checked loader access for callers which can report malformed/truncated
+    // images without entering the legacy fatal-error path.
+    [[nodiscard]] bool TryLoadSegment(u64 virtual_addr, u64 file_offset, u64 size);
     bool IsSharedLib();
     void ElfHeaderDebugDump(const std::filesystem::path& file_name);
     void SelfHeaderDebugDump(const std::filesystem::path& file_name);

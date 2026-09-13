@@ -34,9 +34,8 @@ object GamepadInputManager {
     private const val KEYCODE_DPAD_LEFT = 21
     private const val KEYCODE_DPAD_RIGHT = 22
 
-    @Volatile
-    var hasPhysicalController: Boolean = false
-        private set
+    val hasPhysicalController: Boolean
+        get() = NativePadBridge.hasPhysicalController()
 
     /** Update the active controller profile at runtime (called when settings change). */
     fun setProfile(p: ControllerProfile) { profile.set(p) }
@@ -72,6 +71,8 @@ object GamepadInputManager {
             return true
         }
 
+        if (navSink.get() == null && NativePadBridge.currentToken() != 0L)
+            return NativePadBridge.dispatchKeyEvent(event)
         if (event.repeatCount > 0) return true
 
         val controlEvent = mapper.button(
@@ -131,6 +132,9 @@ object GamepadInputManager {
             }
             return false
         }
+
+        if (NativePadBridge.currentToken() != 0L)
+            return NativePadBridge.dispatchGenericMotionEvent(event)
 
         val activeProfile = profile.get()
         val state = perDeviceState.getOrPut(deviceId) { HashMap() }
@@ -204,16 +208,13 @@ object GamepadInputManager {
 
     fun onSessionStart() {
         perDeviceState.clear()
-        hasPhysicalController = false
     }
 
     fun onSessionEnd() {
         perDeviceState.clear()
-        hasPhysicalController = false
     }
 
     private fun submitFromDevice(deviceId: Int, state: Map<PhysicalBinding, Float>) {
-        hasPhysicalController = perDeviceState.isNotEmpty()
         val snapshot = resolver.snapshot(profile.get(), state)
         ManagedSession.submitController(snapshot)
     }

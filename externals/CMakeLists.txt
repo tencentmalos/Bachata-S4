@@ -198,8 +198,12 @@ add_library(Dear_ImGui
 )
 target_include_directories(Dear_ImGui INTERFACE imgui/)
 
-# Tracy
-if (CMAKE_BUILD_TYPE STREQUAL "Release")
+# Tracy's pinned embedded rpmalloc uses initial-exec TLS, which bionic rejects
+# when ART dlopens this host DSO. Keep desktop profiling; Android uses DebugBus
+# until a separately validated dynamic-TLS Tracy version is selected.
+if (ANDROID)
+    set(TRACY_ENABLE OFF CACHE BOOL "Tracy is not dlopen-safe on this Android pin" FORCE)
+elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
     option(TRACY_ENABLE "" OFF)
 else()
     option(TRACY_ENABLE "" ON)

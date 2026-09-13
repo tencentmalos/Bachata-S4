@@ -28,11 +28,8 @@ public:
     std::unique_ptr<PortInBackend> Open(PortIn& port) override;
 };
 
-// No-microphone fallback used on Android (no SDL audio capture). Read fills the
-// caller's buffer with silence at the requested cadence and reports available, the
-// same observable behavior SDLAudioIn produces when no capture device is present.
-// This is a no-mic fallback, not a proven semantic microphone; a title that needs
-// real capture is not satisfied by it.
+// Android has no capture backend yet. Refuse opening a port; do not publish a
+// successful recording session backed by fabricated samples.
 class NullAudioIn final : public AudioInBackend {
 public:
     std::unique_ptr<PortInBackend> Open(PortIn& port) override;
