@@ -4,6 +4,8 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
+import com.shadps4.android.data.GameInstallVerifier
+import java.io.File
 import com.shadps4.android.model.RuntimeErrorCode
 import com.shadps4.android.runtime.diagnostics.ProcessTerminationInfo
 import com.shadps4.android.runtime.diagnostics.TerminationKind
@@ -54,7 +56,27 @@ class FexSessionService : Service() {
             Log.e(TAG,"Host paths failed to initialize")
             return
         }
-        val generation = NativeFexSession.nativeStart(gameId, DEFAULT_ITERATIONS)
+        val relativePath = intent.getStringExtra(ManagedSession.EXTRA_GAME_PATH)
+        val generation = if (relativePath != null) {
+            val executable = runCatching {
+                require(GameInstallVerifier.canLaunch(filesDir, relativePath)) { "content is not installed" }
+                val root = File(filesDir, relativePath).canonicalFile
+                val entry = File(root, "eboot.bin").canonicalFile
+                require(entry.toPath().startsWith(root.toPath())) { "entry escapes install directory" }
+                entry.absolutePath
+            }.getOrElse {
+                Log.e(TAG, "Invalid installed game path", it)
+                if (NativeFexSession.nativeCurrentGeneration() == 0L) stopSelf(startId)
+                return
+            }
+            NativeFexSession.nativeStartExecutable(gameId, executable)
+        } else if (gameId == "smoke" || gameId.endsWith("-cpu-smoke")) {
+            NativeFexSession.nativeStart(gameId, DEFAULT_ITERATIONS)
+        } else {
+            Log.e(TAG, "Game launch requires an installed-content path")
+            if (NativeFexSession.nativeCurrentGeneration() == 0L) stopSelf(startId)
+            return
+        }
         if (generation == 0L) {
             Log.w(TAG, "Session already running or failed to spawn; ignoring START")
             return

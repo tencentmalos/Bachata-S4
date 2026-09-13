@@ -1,0 +1,29 @@
+[0;37m[Kernel.Vmm] <Info> (production_runt) memory.cpp:29 Initialize: Virtual memory space initialized with regions:[m
+[0;37m[Kernel.Vmm] <Info> (production_runt) memory.cpp:37 Initialize: 0x400000 - 0x1e00000000[m
+[0;37m[Loader] <Info> (production_runt) elf.cpp:261 IsSelfFile: Not a SELF file. Magic mismatch current = 0x464c457f expected = 0x1d3d154f[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:144 LoadModuleToMemory: Loading module fixture.elf to 0x400000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:157 LoadModuleToMemory: ======== Load Module to Memory ========[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:158 LoadModuleToMemory: base_virtual_addr ......: 0x0000000000400000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:159 LoadModuleToMemory: base_size ..............: 0x000000000000c000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:160 LoadModuleToMemory: aligned_base_size ......: 0x000000000000c000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:220 LoadModuleToMemory: program header = [0] type = Loadable[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:221 LoadModuleToMemory: segment_addr ..........: 0x0000000000400000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:222 LoadModuleToMemory: segment_file_size .....: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:223 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:224 LoadModuleToMemory: segment_mode ..........: (R_X)[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:220 LoadModuleToMemory: program header = [1] type = Loadable[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:221 LoadModuleToMemory: segment_addr ..........: 0x0000000000404000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:222 LoadModuleToMemory: segment_file_size .....: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:223 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:224 LoadModuleToMemory: segment_mode ..........: (RW_)[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:220 LoadModuleToMemory: program header = [2] type = SCE Read-Only After Relocation[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:221 LoadModuleToMemory: segment_addr ..........: 0x0000000000408000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:222 LoadModuleToMemory: segment_file_size .....: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:223 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:224 LoadModuleToMemory: segment_mode ..........: (RW_)[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:265 LoadModuleToMemory: TLS virtual address = 0x404010[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:266 LoadModuleToMemory: TLS image size      = 64[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:354 LoadModuleToMemory: program entry addr ..........: 0x0000000000400000[m
+[0;37m[Lib.Kernel] <Info> (production_runt) libs.cpp:97 InitHLELibs: Initializing HLE libraries[m
+[0;37m[Lib.GnmDriver] <Info> (production_runt) gnmdriver.cpp:2879 RegisterLib: Initializing presenter[m
+PRODUCTION_RUNTIME_FAIL GNM initialization requires a bound platform window

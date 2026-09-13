@@ -359,3 +359,27 @@ fixture_invoke_tls_read:
     mov rax, qword ptr fs:[0]
     ret
 fixture_invoke_tls_read_end:
+
+// SysV function: call the veneer supplied in RSI, then distinguish guest continuation.
+.globl fixture_invoke_hle_chain
+.globl fixture_invoke_hle_chain_end
+fixture_invoke_hle_chain:
+    sub rsp, 8
+    call rsi
+    add rsp, 8
+    add rax, 10
+    ret
+fixture_invoke_hle_chain_end:
+
+// Entire function is a conditional self-loop after warm-up. A native counter
+// proves thousands of real backedges before the coordinator requests a stop.
+.globl fixture_entry_backedge
+.globl fixture_entry_backedge_end
+fixture_entry_backedge:
+.Lentry_backedge:
+    inc qword ptr [rdi]
+    cmp qword ptr [rdi + 8], 1
+    jne .Lentry_backedge
+    mov eax, 123
+    ret
+fixture_entry_backedge_end:

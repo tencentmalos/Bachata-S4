@@ -21,15 +21,14 @@
 //     0f 05                 syscall
 //     c3                    ret              ; returns to the caller's return address
 //
-// DELIBERATE DIVERGENCE from references/shadps4-arm64, which mmaps a bare host
-// page per veneer OUTSIDE the guest VMM: those pages can land above the FEX
-// guest-address policy limit (1<<36) where the JIT's block lookup would alias
-// them. This allocator publishes the veneers INSIDE the owned GuestAddressSpace
-// reservation (a slab the caller carves below the limit), so a veneer VA is a
-// real guest-executable address the JIT resolves like any other guest code.
+// Veneers are published inside the owned guest reservation, so every indirect
+// target has the same permission, pin and code-retirement contract as module code.
+// The embedder chooses its tested address policy; a masked cache index alone is
+// not evidence of aliasing because the pinned FEX lookup also checks full tags.
 
 #pragma once
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <mutex>
@@ -45,6 +44,7 @@ class HleVeneerAllocator final {
 public:
     // Each veneer is exactly this many bytes; slots are packed 16-byte aligned.
     static constexpr std::size_t kVeneerSize = 16;
+    static std::array<std::byte, kVeneerSize> Encode(std::uint64_t operation);
 
     // `slab` is a range inside `space`'s reservation, below the guest-address
     // policy limit, reserved for veneers. The allocator maps it read/write on

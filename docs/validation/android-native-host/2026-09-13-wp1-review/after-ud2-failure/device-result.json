@@ -1,0 +1,33 @@
+{
+  "device_api": "33",
+  "pagesize": "4096",
+  "native_api": 33,
+  "remote": "/data/local/tmp/shadps4-wp1-review-1789270250588779000",
+  "runs": [
+    {
+      "suite": "guest_execution_tests",
+      "sha256": "e01351dc0b4d836a72babce7299499f0be3455e1464d122c18d5ba1adbc85f30",
+      "exit": 132
+    },
+    {
+      "suite": "veneer_allocator_tests",
+      "sha256": "4ed8f1a5fdae0a38f8c0532825cb98ce9a42b412304c9f45a21ad9841ea5d0f1",
+      "exit": 0
+    },
+    {
+      "suite": "hle_registration_tests",
+      "sha256": "6af935b955fa91fcba5f92461e453d23dd1efa8cef847adef11250669836a670",
+      "exit": 0
+    },
+    {
+      "suite": "guest_cpu_contract_tests",
+      "sha256": "eb5905e582159550008eaaba438c578c9ad7c9e24cb3dff27c7725148c001200",
+      "exit": 0
+    },
+    {
+      "suite": "guest_cpu_hle_abi_tests",
+      "sha256": "157f9a3fad8194fb573ae809c34b3d53b4b6817db132aed8569f9bf69bc57589",
+      "exit": 0
+    }
+  ]
+}

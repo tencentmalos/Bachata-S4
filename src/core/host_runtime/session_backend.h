@@ -23,6 +23,7 @@
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <vector>
 
 #ifdef SESSION_TEST_HOOKS
 #include <atomic>
@@ -74,6 +75,10 @@ struct RunReport final {
 struct SessionParams final {
     std::string content_id;       // game id / "smoke"; diagnostic only
     std::uint64_t iterations{0};  // smoke-loop bound; 0 = backend default
+    // Nonempty selects the production Linker/VM/runtime. CPU smoke remains an
+    // explicit separate mode. The caller supplies the installed effective path.
+    std::string executable_path;
+    std::vector<std::string> module_paths;
 };
 
 // Opaque cancel handle. RequestCancel returns one; the caller passes it to

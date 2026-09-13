@@ -162,6 +162,14 @@ class MemoryManager {
 
 public:
     explicit MemoryManager();
+    explicit MemoryManager(GuestMemoryBackend* guest);
+    bool IsGuestBackend() const noexcept {
+        return guest_backend;
+    }
+    void SetGuestSdkVersion(u32 sdk) {
+        sdk_version = sdk;
+    }
+    std::function<s32(VAddr, u64, u64, u64)> guest_call;
     ~MemoryManager();
 
     void SetRasterizer(RasterizerHooks* rasterizer_) {
@@ -189,12 +197,18 @@ public:
     }
 
     bool IsValidGpuMapping(VAddr virtual_addr, u64 size) {
+        // The production loader runs before renderer construction. GPU tracking
+        // starts only after an actual RasterizerHooks provider is attached.
+        if (!rasterizer)
+            return false;
         // The PS4's GPU can only handle 40 bit addresses.
         const VAddr max_gpu_address{0x10000000000};
         return virtual_addr + size < max_gpu_address;
     }
 
     bool IsValidMapping(const VAddr virtual_addr, const u64 size = 0) {
+        if (guest_backend && !impl.OwnsGuestRange(virtual_addr, size ? size : 1))
+            return false;
         const auto end_it = std::prev(vma_map.end());
         const VAddr end_addr = end_it->first + end_it->second.size;
 
@@ -328,6 +342,8 @@ private:
 
 private:
     AddressSpace impl;
+    bool guest_backend{};
+    void Initialize();
     PhysMap dmem_map;
     PhysMap fmem_map;
     VMAMap vma_map;

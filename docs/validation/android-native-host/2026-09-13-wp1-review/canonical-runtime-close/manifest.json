@@ -1,0 +1,284 @@
+{
+  "kind": "synthetic production runtime; not game acceptance",
+  "serial": "9c2841a4",
+  "results": [
+    {
+      "case": "fixture.elf",
+      "mode": "return",
+      "status": "PASS",
+      "exit": 0,
+      "rounds": 3
+    },
+    {
+      "case": "self.elf",
+      "mode": "return",
+      "status": "PASS",
+      "exit": 0,
+      "rounds": 3
+    },
+    {
+      "case": "wait.elf",
+      "mode": "cancel",
+      "status": "PASS",
+      "exit": 0,
+      "rounds": 3
+    },
+    {
+      "case": "bad.elf",
+      "mode": "fault",
+      "status": "PASS",
+      "exit": 0,
+      "rounds": 3
+    },
+    {
+      "case": "unknown.elf",
+      "mode": "fault",
+      "status": "PASS",
+      "exit": 0,
+      "rounds": 3
+    },
+    {
+      "case": "init-wait.elf",
+      "mode": "cancel",
+      "status": "PASS",
+      "exit": 0,
+      "rounds": 3
+    },
+    {
+      "case": "truncated.elf",
+      "mode": "reject",
+      "status": "PASS",
+      "exit": 0,
+      "rounds": 3
+    },
+    {
+      "case": "ordinary_apk",
+      "status": "PASS",
+      "rounds": [
+        [
+          "1",
+          "1",
+          "0",
+          "11906",
+          "10157"
+        ],
+        [
+          "2",
+          "2",
+          "1",
+          "11906",
+          "10157"
+        ],
+        [
+          "3",
+          "3",
+          "0",
+          "11906",
+          "10157"
+        ],
+        [
+          "4",
+          "4",
+          "1",
+          "11906",
+          "10157"
+        ],
+        [
+          "5",
+          "5",
+          "0",
+          "11906",
+          "10157"
+        ],
+        [
+          "6",
+          "6",
+          "1",
+          "11906",
+          "10157"
+        ],
+        [
+          "7",
+          "7",
+          "2",
+          "11906",
+          "10157"
+        ],
+        [
+          "8",
+          "8",
+          "0",
+          "11906",
+          "10157"
+        ],
+        [
+          "9",
+          "9",
+          "2",
+          "11906",
+          "10157"
+        ],
+        [
+          "10",
+          "10",
+          "0",
+          "11906",
+          "10157"
+        ],
+        [
+          "11",
+          "11",
+          "1",
+          "11906",
+          "10157"
+        ],
+        [
+          "12",
+          "12",
+          "0",
+          "11906",
+          "10157"
+        ]
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/wp1-review/production-build/production_runtime_runner",
+      "sha256": "44474c49c80f848ddd0f88183c8d72e35be0158a3c411f1d55b50f504d7ec9b3",
+      "bytes": 32102624
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native/libshadps4_host.so",
+      "sha256": "7f157e4c93dfb116d34f405a212621f84087d2d0270f5a611853baaabf15cec3",
+      "bytes": 425253536
+    },
+    {
+      "path": "/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so",
+      "sha256": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352",
+      "bytes": 9290184
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/wp1-review/production-build/fixtures/bad.elf",
+      "sha256": "fb6392d197ee57ba0f891802e19c95d1468d4a977de9a29409f6aa06d1a45deb",
+      "bytes": 82880
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/wp1-review/production-build/fixtures/fixture.elf",
+      "sha256": "a2753d0749ec2841186b4969a40e85216ac32f07f2b306d0e1d38efbec265d88",
+      "bytes": 82880
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/wp1-review/production-build/fixtures/init-wait.elf",
+      "sha256": "a2753d0749ec2841186b4969a40e85216ac32f07f2b306d0e1d38efbec265d88",
+      "bytes": 82880
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/wp1-review/production-build/fixtures/self.elf",
+      "sha256": "526cb8428f4a0e929ba4afddb698240dd186d5b491ce03e7bc2ebfb4c82e8e90",
+      "bytes": 51072
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/wp1-review/production-build/fixtures/truncated.elf",
+      "sha256": "be5e7036fa84d92f59488a3d9737eb9d105f038d0d4f69a3918589cd0c8b4644",
+      "bytes": 80
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/wp1-review/production-build/fixtures/unknown.elf",
+      "sha256": "fc1fb3c8e78e4d08a3468040a342d78a5acc3b737266c29bba761c9c869a2060",
+      "bytes": 82880
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/wp1-review/production-build/fixtures/wait.elf",
+      "sha256": "b47902a4d645c92ec2df2000ebdb8c0800f7d5124f1272fa694cddf13e9382df",
+      "bytes": 82856
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/wp1-review/production-build/fixtures/dependency-wait.sprx",
+      "sha256": "358e2a82d0218100dca598e42a97d87454aeeddec362f00748b3db7204112d06",
+      "bytes": 82856
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/wp1-review/production-build/fixtures/fixture_dependency.sprx",
+      "sha256": "c24e6c7a19c94ca094451011f4f17e2de115de09eed66ac66b72af3329fe3ec2",
+      "bytes": 82856
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk",
+      "sha256": "0dcdd6e7b6b1168073b14782a8cf7e14b6e12ca678dc6d51830af6b7f15a7ece",
+      "bytes": 322226457
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/app/build/outputs/apk/androidTest/playstore/debug/app-playstore-debug-androidTest.apk",
+      "sha256": "e090863c4008474831c5c9dd2ff43fadd16c4b88edf9176a23c1d543dcdea24e",
+      "bytes": 864048
+    }
+  ],
+  "source": "07ce52ae37910f614ecafbf6889df48834943b0c",
+  "status": " M AGENTS.md\n M CLAUDE.md\n M CMakeLists.txt\n M android/shadps4-app/app/build.gradle.kts\n M android/shadps4-app/app/src/main/kotlin/com/shadps4/android/service/FexSessionService.kt\n M android/shadps4-app/core/runtime/src/main/cpp/fex_session_jni.cpp\n M android/shadps4-app/core/runtime/src/main/cpp/orbis_pad_jni.cpp\n M android/shadps4-app/core/runtime/src/main/kotlin/com/shadps4/android/runtime/session/NativeFexSession.kt\n M cmake/fex/CMakeLists.txt\n M docs/README.md\n m references/Bachata-S4\n M scripts/android/build-host-android\n M src/common/elf_info.h\n M src/common/singleton.h\n M src/core/address_space.cpp\n M src/core/address_space.h\n M src/core/guest_cpu/CMakeLists.txt\n M src/core/guest_cpu/api/address_space.cpp\n M src/core/guest_cpu/api/address_space.h\n M src/core/guest_cpu/api/context.h\n M src/core/guest_cpu/fex/fex_context.cpp\n M src/core/guest_cpu/hle/veneer_allocator.cpp\n M src/core/guest_cpu/hle/veneer_allocator.h\n M src/core/host_runtime/session_backend.h\n M src/core/host_runtime/session_backend_fex.cpp\n M src/core/libraries/font/font_internal.cpp\n M src/core/libraries/font/font_internal.h\n M src/core/libraries/save_data/dialog/savedatadialog_ui.cpp\n M src/core/libraries/save_data/save_instance.cpp\n M src/core/libraries/save_data/save_memory.cpp\n M src/core/linker.cpp\n M src/core/linker.h\n M src/core/loader/elf.cpp\n M src/core/loader/elf.h\n M src/core/memory.cpp\n M src/core/memory.h\n M src/core/module.cpp\n M src/core/module.h\n M tests/guest_cpu/api_contract_tests.cpp\n M tests/guest_cpu/fixtures/guest_fixtures.S\n M tests/guest_cpu/guest_execution_tests.cpp\n?? android/shadps4-app/app/src/androidTest/kotlin/com/shadps4/android/ProductionRuntimeInstrumentedTest.kt\n?? docs/specs/android-native-host-runtime-wp1-integration.md\n?? docs/specs/android-native-host-tmnt-after-runtime.md\n?? docs/validation/android-native-host/2026-09-13-wp1-review/\n?? docs/validation/android-native-host/wp1-mechanism-review-2026-09-13.md\n?? externals/dear_imgui/\n?? scripts/android/generate-production-runtime-fixture\n?? scripts/android/validate-production-runtime-android\n?? src/core/guest_cpu/fex/entry_backedge_pass.h\n?? src/core/guest_cpu/hle/scope.cpp\n?? src/core/guest_cpu/hle/scope.h\n?? src/core/host_runtime/guest_runtime.cpp\n?? src/core/host_runtime/guest_runtime.h\n?? tests/guest_cpu/fixtures/production_runtime.S\n?? tools/production_runtime_runner.cpp\n",
+  "gitlinks": " 12ba4ac4dbaa6489cb07e01be796e2bc074ef4f4 externals/CLI11 (v1.7.1-685-g12ba4ac)\n 57a1c6a6d44bd99e844e3642d27851f6c065af62 externals/ImGuiFileDialog (v0.6.6.1-4-g57a1c6a)\n 946e05a9212976626a9f5e52f29c0a7202871f29 externals/LibAtrac9 (heads/master)\n ee76460efbdb147e26d804c798949c23f174460b externals/aacdec/fdk-aac (android-platform-15.0.0_r17-24-gee76460)\n 76bb24329e8bf5f39704eb10d21b9a80befa7c81 externals/abseil-cpp (76bb243)\n 28f8264d134a576422cd0f99f19719c2749d9e47 externals/cpp-httplib (v0.31.0-185-g28f8264)\n a45ea7c17b4a7f320e199b71436074bd624c9e15 externals/date (v3.0.3-12-ga45ea7c)\n 19f66e6dcabb2268965f453db9e5774ede43238f externals/discord-rpc (heads/master)\n 18159584bb3d17e601b9315a7398ace018251bdc externals/epoll-shim (v0.0.20240608-6-g1815958)\n ca6f230e67be7cc45fc919057f07b2aee64dadc1 externals/ext-boost (ca6f230)\n d3bb81035304a0dc6a5ca48ebf0f8cee1fe269e4 externals/ext-wepoll (heads/dist)\n e17ba6e21ed195cca87ffc1a9d580823e955d427 externals/ffmpeg (heads/codex/shadps4-bionic-7.1)\n 94dde08c8a9e4271a93a2a7e4159e9fb05d30c0a externals/ffmpeg-core (94dde08)\n ec73fb72477d80926c758894a3ab2cb3994fd051 externals/fmt (heads/master)\n b91f75bd02db43b06d634591eb286d3eb0ce3b65 externals/freetype (VER-2-14-1-38-gb91f75bd)\n ba1640446f3826a518721d1f083f3a8cca1120c3 externals/glslang (15.2.0-14-gba164044)\n 1ddada225144cac0de8f6b5c0dd9acffd99a2e68 externals/half (rocm-6.4.4)\n 85bbcba35228b32f178f02cc537c39361614e18b externals/hwinfo (heads/codex/shadps4-bionic)\n 7e1b65d26d52e9dd199d889c148c72184de647b4 externals/imgui (7e1b65d)\n 55f93686c01528224f448c19128836e7df245f72 externals/json (v3.12.0)\n 60ae5bbce9741d5db38c64670bbbf8e5828cabfb externals/libadrenotools (heads/codex/shadps4-bionic)\n c1cc0f3f4c3d4abd11ca68c59446a29ff6f95003 externals/libpng (v1.6.44-31-gc1cc0f3f4)\n b0504086dbbc186724b0cc92e6ba1832c245de0b externals/libressl (heads/main)\n d087ea86539ab1f1ec42faf86e2357e2fad126a6 externals/libusb (v1.0.23-rc1-672-gd087ea86)\n a413fcc9c46a020a746907136a384c227f3cd095 externals/magic_enum (v0.9.7-9-ga413fcc)\n c502a84d3f62f7b8031222c81a948506bf1d6a54 externals/mesa-kosmickrisp (heads/main)\n 7b590fdcfa5a79c033e76eacc05d0c3e4c79f536 externals/minimp3 (7b590fd)\n bf4215a7574f88aa55859db9db00e3ae58cf42d6 externals/miniupnp (miniupnpd_2_1-1138-gbf4215a)\n 174573d60290f447c13a2b1b3405de2b96e27d6c externals/miniz (3.1.0)\n 83ea7236c6f23fc98e2b62eb9c5b3abfd4b2be86 externals/openal-soft (latest-217-g83ea7236c)\n 5917ee224a7e47383a78acc129628511fe210dff externals/protobuf (v33-dev-1748-g5917ee224)\n caade5a28aad86b92a4b5337a9dc70c4ba73c5eb externals/pugixml (v1.15-11-gcaade5a)\n 4ec1bf19c6a96125ea22062f38c2cf5b958e448e externals/robin-map (v1.4.0)\n d5af35e3fbb5bb6555ed00e69740d52af2a4e877 externals/sdl3 (release-3.4.0-744-gd5af35e3f)\n c58f4d441cfdb6905d011a906704716833485486 externals/sirit (remotes/origin/HEAD)\n b8944a4bcd478ee03375c9c50dc8d6c741f43f7b externals/spdlog (v1.12.0-487-gb8944a4)\n a01fe3b4c14c6d7b99ee3f07c9e80058c6403097 externals/toml11 (v4.4.0-19-ga01fe3b)\n 143a53d1985b8e52a7590a0daca30a0a7c653b42 externals/tracy (143a53d)\n f378e7b3f18f6e2b06b957f6ba7b1c7207d2a536 externals/vma (v3.2.1-38-gf378e7b)\n ee3b5caaa7e372715873c7b9c390ee1c3ca5db25 externals/vulkan-headers (v1.4.330)\n 466498bc64eb77955c3b782f0127520548224de0 externals/vulkan-loader (v1.4.330)\n 44a72f369268f7d552650891b296693e91db86bb externals/xbyak (v7.24.2-6-g44a72f3)\n 953a09abc39096da9e216b6eb0002c681cdc1199 externals/xxhash (v0.7.4-869-g953a09a)\n 965b66c8d67b6b7e30fd63b3b75aa91a99ff303b externals/zarchive (heads/master)\n fd0d263cedab1a136f40d65199987e3eaeecfcbd externals/zlib-ng (heads/develop)\n 5c7b7bad26808e6b40ac3b3d0075466e27738a9d externals/zstd (v1.4.7-3029-g5c7b7bad)\n 120e0e705f8e3b507dc49377ac2879979f0d545c externals/zydis (v4.0.0-65-g120e0e7)\n 5388ef45313d6c32cb5f4bb5b07f1246ee381370 foundation (heads/codex/shadps4-android-fex-v0)\n e170f8005970ae416e0f39997d82b4fcc57214fe references/Bachata-S4 (v0.1.6-44-ge170f800)\n 67dbf4e5b54b0467bf8a93de3de0a557a71f9f43 references/Bachata-S4-android (v0.1.6-60-g67dbf4e5)\n 385a0cc4d81cd456c8d5c26b4f09cb5a7d8d5842 references/FEX (FEX-2608-240-g385a0cc4d)\n 96a803e921ba19bde0fbb315264971fd268fb2ed references/dynarmic-azahar (heads/feature/azahar-memory-watchpoints)\n a593d9262388e3216985b982e400f19ef9ce9749 references/dynarmic-citron (heads/feature/tencentmalos/basic_version)\n 45baedaa29b8da42b3c6fe912800d2fa4119834b references/ps4-pkg-tools (v20260801-153821-45baedaa)\n be6bc2e9c60799e071dd2fafa6216e8d80ec619c references/shadps4-arm64 (heads/codex/android-fex-v0-arm64)\n",
+  "remote": "/data/local/tmp/shadps4-runtime-1789280313917404000",
+  "changed_source_sha256": {
+    "CMakeLists.txt": "77191b772c2548cf06612d4cde8a6ecfa37ac4f741f2c61c7b8cbaaa1378888d",
+    "android/shadps4-app/app/build.gradle.kts": "1c7e47f7b97e71dc83dd88ac893c0bf77de95fe3a7e231aaefb8280b92b762c0",
+    "android/shadps4-app/app/src/androidTest/kotlin/com/shadps4/android/ProductionRuntimeInstrumentedTest.kt": "cdbd28d5bdaa830ebf3a71eaf14a31549f896d90353772651b9210770bb52fc7",
+    "android/shadps4-app/app/src/main/kotlin/com/shadps4/android/service/FexSessionService.kt": "7b8b41bc7afa9cc44a4653a7a18de50ff9f11ee3dbe046d6565ffef8ce723ab4",
+    "android/shadps4-app/core/runtime/src/main/cpp/fex_session_jni.cpp": "f5568631d22a3196b12696a8493347cab2491df3dba46ae7633c3a371359991c",
+    "android/shadps4-app/core/runtime/src/main/cpp/orbis_pad_jni.cpp": "0bb77aefd9e8b86b80cfff89e8d0749f19524081421c8099d43db9afc663102f",
+    "android/shadps4-app/core/runtime/src/main/kotlin/com/shadps4/android/runtime/session/NativeFexSession.kt": "4098ef80fc741655a4ede1351a169e61c8215864743ecfb44fcfb8af74a16b55",
+    "cmake/fex/CMakeLists.txt": "adfbac8af69420c2047972d82d23597ce423b210817994f14d36716d972e6e76",
+    "scripts/android/build-host-android": "d30ebe9d3214631f5c874793de1824c756a85b94109a9714d0cc1ad5a4513f71",
+    "scripts/android/generate-production-runtime-fixture": "98fb43ed2cb88f10ea82bffd1078776208e142bfa92f4a4254a3de92887c41d2",
+    "scripts/android/validate-production-runtime-android": "433f9b0a0f7ad5e642578b3580e285b71e14e5542910d2ca950fcaf0e4a50323",
+    "src/common/elf_info.h": "ec3a3a6285f019078aab37f98230924d719144722e58ec8a2d54267d93dc8ced",
+    "src/common/singleton.h": "512f9357f3020d57b42fefc9c2c5f8d12dfe2d66f285224a341ee69e7bc2696b",
+    "src/core/address_space.cpp": "cfac132136051b007854395fe544e3645c49e9d83598dabb4f9ee1efdce2f670",
+    "src/core/address_space.h": "5d52eae811911c1662f80b09401076a1306a2b9d30040c2f0f6d006fa14e58b4",
+    "src/core/guest_cpu/CMakeLists.txt": "afb5b5bbc069c4233c7709912b4e58295a5e0935b24adf0cae08bd39cb466ef3",
+    "src/core/guest_cpu/api/address_space.cpp": "4cca20109059aea6178a2cd7d67adb724fd6f10bc5d7f365c186546bf5e11a90",
+    "src/core/guest_cpu/api/address_space.h": "1857d79386c9625421329bdcdcb24eef23fc896ebfaf5494c84c1cefcbea72c1",
+    "src/core/guest_cpu/api/context.h": "cf13016b5c6e8a1ffc0018ce57d40383e8336be78832f16e75130b3e08790457",
+    "src/core/guest_cpu/fex/entry_backedge_pass.h": "91c7533e1a69c4d4123cc44cb56f720ab699cd4b960eb21b0955c2363f1a0b50",
+    "src/core/guest_cpu/fex/fex_context.cpp": "0d796528033d8fb91e646abb30d5c72e3e773bdeeef929623de7f6099615dbeb",
+    "src/core/guest_cpu/hle/scope.cpp": "f84750467cf6970ac8604bebe23bc92d35ed3ac78a3910f560db0f266ed55f50",
+    "src/core/guest_cpu/hle/scope.h": "8746acac6cecb4e81b9d492021073215c9e6b82e74f92bbaa760ef925994afaf",
+    "src/core/guest_cpu/hle/veneer_allocator.cpp": "82311b8282ff59715e9660279ffc9cca911ba1e65ba721cda64f79506a3cf52f",
+    "src/core/guest_cpu/hle/veneer_allocator.h": "e5dff2202d514cb9875977c5bdf7ae210bc305e3938693a83c0b9c706db3c3e3",
+    "src/core/host_runtime/guest_runtime.cpp": "0dae2e4966c0f41863d479e2075f2d73439daf4b6f352d9b7ae2324220fe4b09",
+    "src/core/host_runtime/guest_runtime.h": "dabca1e2124c671a55042cef2eb3d6f64738c4921f816b85b50e61e3cdc0c6d8",
+    "src/core/host_runtime/session_backend.h": "54ddf3dda75769f5964d6c673959aecbc21f6d38f821c2266ec49876b641cb44",
+    "src/core/host_runtime/session_backend_fex.cpp": "e3446be71ae93448e45b304bbc5ccc8ca7658a9ab295bb69e58abc034a0c7989",
+    "src/core/libraries/font/font_internal.cpp": "eefab1a5c9d051cd6340fa4f3b34a08500ffc1b69c8c56c83bb915190053a220",
+    "src/core/libraries/font/font_internal.h": "f3ec1d40185426a306aae9c2f09c58b3fb550cff4c42ca423cc1a0b1135df480",
+    "src/core/libraries/save_data/dialog/savedatadialog_ui.cpp": "0eee312a94bd41da8815916254c259749e0e920a8e45b6eeb564d03b028a5bc7",
+    "src/core/libraries/save_data/save_instance.cpp": "2b23fd0b5804e4a93d3ab68eb7d84f9a542345f6e6d5ecc6c2aa2e4c67b5f124",
+    "src/core/libraries/save_data/save_memory.cpp": "770ade5a553b6a4b4cc9eb9b534792ca7fdfe0b8accd69a00b57279db91e3946",
+    "src/core/linker.cpp": "50afe59af850cb121bfd37d5b794d8b4e0ee09bb3093e208cb5badca6493fc86",
+    "src/core/linker.h": "3e7c71ee7e21e0bc1bfa2a11540b3139b81286e990078d29bead99af15d46a88",
+    "src/core/loader/elf.cpp": "33b70f959725b2894300ba3f823c71c2fd52e2eb98f6482b80a729a0e2976a42",
+    "src/core/loader/elf.h": "97c4ad1f0859a9f7e60faf9dce4bc6b61a15b4408046a4a417550642424973d4",
+    "src/core/memory.cpp": "e1ec22dee00d41b58158df0888fcec789af5bec967e51815f3aa8d09f5bb731f",
+    "src/core/memory.h": "21521b9e7d457c522e4ca8df31084692915da733e08489d6ff274505f5571754",
+    "src/core/module.cpp": "037bfd17ee9a742e064a0d732c4bf569ea0558b780c637b89be1bf0b4dc9ea69",
+    "src/core/module.h": "b6daec8632c44b5df85e7f725ceca5ab36764d815546880eeac25cbd28651e0f",
+    "tests/guest_cpu/api_contract_tests.cpp": "fd02508dd4afec14dbda755fffb7e479bb5db48047945417d039f5f712b82e74",
+    "tests/guest_cpu/fixtures/guest_fixtures.S": "8d435a142293564814ce5e06320bf1b3be5093bf0a5d5a697da08b1c38058583",
+    "tests/guest_cpu/fixtures/production_runtime.S": "d2fa29ed06cba62e98403bd566be7fc56adf75660142eee2cb042efc8069a3b4",
+    "tests/guest_cpu/guest_execution_tests.cpp": "42f2de012255ba38c83dcc5e0d451cd8149c9beec36c48220d447d128149ed78",
+    "tools/production_runtime_runner.cpp": "66cad045a4ae2e830435533278b9e6e3c88d14fe0fe09d288a386138db135463"
+  },
+  "device": {
+    "ro.product.model": "AYN Thor",
+    "ro.build.version.sdk": "33",
+    "ro.build.fingerprint": "qti/kalama/kalama:13/TKQ1.231222.001/eng.Thor.20260206.163241:user/release-keys"
+  },
+  "shell_identity": "uid=2000(shell) gid=2000(shell) groups=2000(shell),1004(input),1007(log),1011(adb),1015(sdcard_rw),1028(sdcard_r),1078(ext_data_rw),1079(ext_obb_rw),3001(net_bt_admin),3002(net_bt),3003(inet),3006(net_bw_stats),3009(readproc),3011(uhid),3012(readtracefs) context=u:r:shell:s0",
+  "page_size": 4096,
+  "host_build_id": {
+    "source": "4a0b9d2c5a5e803a92c3005a2a468d08ca6d0cee",
+    "apk": "4a0b9d2c5a5e803a92c3005a2a468d08ca6d0cee",
+    "packed_sha256": "7f157e4c93dfb116d34f405a212621f84087d2d0270f5a611853baaabf15cec3"
+  },
+  "status_result": "PASS",
+  "remote_cleanup_exit": 0
+}

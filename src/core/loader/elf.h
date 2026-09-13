@@ -449,6 +449,8 @@ constexpr u32 R_X86_64_GLOB_DAT = 6;
 constexpr u32 R_X86_64_JUMP_SLOT = 7; // Create PLT entry
 constexpr u32 R_X86_64_RELATIVE = 8;  // Adjust by program base
 constexpr u32 R_X86_64_DTPMOD64 = 16;
+constexpr u32 R_X86_64_DTPOFF64 = 17;
+constexpr u32 R_X86_64_TPOFF64 = 18;
 
 struct eh_frame_hdr {
     uint8_t version;

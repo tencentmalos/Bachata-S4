@@ -1,6 +1,8 @@
 # Android / FEX 开发资料索引
 
-**最新（2026-09-13）：[Runtime/输入复核与修复](validation/android-native-host/runtime-input-review-2026-09-13.md) → [交给 Opus4.8 的整版实施 spec](specs/android-native-host-runtime-after-input.md)。** host ART加载/标准输入/三轮Service已有实际证据；旧TMNT Stage0结论撤回，下一步是生产guest运行时整体，再验真实PKG。
+**最新（2026-09-13）：[生产运行时复核、修复与 APK 验证](validation/android-native-host/wp1-mechanism-review-2026-09-13.md) → [交给 Opus4.8 的 TMNT 整版 spec](specs/android-native-host-tmnt-after-runtime.md)。** 生产 Module/Linker/VM、guest线程/TLS、HleScope/可取消回调已在本轮接通，普通APK12代通过；下一步补游戏必需Orbis HLE、Turnip和平台服务，推进真实游戏。复现用[canonical证据入口](validation/android-native-host/2026-09-13-wp1-review/README.md)。
+
+下列“最新/当前”均是对应日期的历史记录；旧“未接输入/仍SDL/CPU smoke only/缺生产运行时”状态由上述入口取代，勿据此重复实施。
 
 - **最新施工顺序（用户指定）：[Foundation 输入优先实施补充](specs/android-foundation-input-first.md) → Android SDL 清理 → 生产 Runtime/真实 PKG。** [本次复核](validation/android-native-host/foundation-input-review-2026-09-12.md)确认手柄和JNI尚未接通，并纠正“设置依赖不可拆”和静音麦克风假设。共用输入拟下沉Foundation `modules/input`，Android采集采用可注入Kotlin library，JNI与Orbis语义留主仓；当前仅规划，下一位AI连续实施，不按控件交回微型任务。
 

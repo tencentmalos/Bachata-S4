@@ -1,0 +1,287 @@
+[0;37m[Kernel.Vmm] <Info> (production_runt) memory.cpp:29 Initialize: Virtual memory space initialized with regions:[m
+[0;37m[Kernel.Vmm] <Info> (production_runt) memory.cpp:37 Initialize: 0x400000 - 0x10000000[m
+[0;37m[Kernel.Vmm] <Info> (production_runt) memory.cpp:37 Initialize: 0x100000000 - 0x1e00000000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:148 LoadModuleToMemory: Loading module eboot.bin to 0x400000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:161 LoadModuleToMemory: ======== Load Module to Memory ========[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:162 LoadModuleToMemory: base_virtual_addr ......: 0x0000000000400000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:163 LoadModuleToMemory: base_size ..............: 0x0000000001f78000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:164 LoadModuleToMemory: aligned_base_size ......: 0x0000000001f78000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:227 LoadModuleToMemory: program header = [0] type = Loadable[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000000400000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000001a33c90[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000001a34000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R_X)[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:227 LoadModuleToMemory: program header = [1] type = SCE Read-Only After Relocation[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000002000000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x000000000013c6a0[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000200000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R__)[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:227 LoadModuleToMemory: program header = [2] type = Loadable[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000002200000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x000000000000ef98[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000178000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)[m
+[1;31m[Core.Linker] <Error> (production_runt) module.cpp:309 LoadModuleToMemory: Unimplemented type Interpreter Path[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:279 LoadModuleToMemory: TLS virtual address = 0x2200060[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:280 LoadModuleToMemory: TLS image size      = 40144[m
+[1;31m[Core.Linker] <Error> (production_runt) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Comment[m
+[1;31m[Core.Linker] <Error> (production_runt) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Library Version[m
+[1;31m[Core.Linker] <Error> (production_runt) module.cpp:309 LoadModuleToMemory: Unimplemented type Note[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:368 LoadModuleToMemory: program entry addr ..........: 0x0000000000400080[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0018000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x000b000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x000c000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0026000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0028000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x001e000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0009000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0003000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0007000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0025000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x001d000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0029000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x000f000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0002000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0014000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x002c000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0022000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x001c000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0017000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0024000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0015000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0023000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0016000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x001b000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0005000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0020000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x001f000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0027000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x002b000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0004000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0012000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0021000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0006000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x000a000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x002a000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0011000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0000000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0001000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x000e000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0010000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:580 LoadDynamicInfo: DT_SCE_FINGERPRINT value = 0x0000000000000000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:603 LoadDynamicInfo: unsupported DT_SCE_MODULE_ATTR value = ..........: 0x0000000000000000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:148 LoadModuleToMemory: Loading module libfmod.prx to 0x100000000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:161 LoadModuleToMemory: ======== Load Module to Memory ========[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:162 LoadModuleToMemory: base_virtual_addr ......: 0x0000000100000000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:163 LoadModuleToMemory: base_size ..............: 0x0000000000450000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:164 LoadModuleToMemory: aligned_base_size ......: 0x0000000000450000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:227 LoadModuleToMemory: program header = [0] type = Loadable[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000100000000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000168cd4[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x000000000016c000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R_X)[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:227 LoadModuleToMemory: program header = [1] type = SCE Read-Only After Relocation[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000100200000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000004418[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000200000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R__)[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:227 LoadModuleToMemory: program header = [2] type = Loadable[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000100400000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x000000000000d2a0[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000050000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)[m
+[1;31m[Core.Linker] <Error> (production_runt) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Module Parameters[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:279 LoadModuleToMemory: TLS virtual address = 0x100000000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:280 LoadModuleToMemory: TLS image size      = 0[m
+[1;31m[Core.Linker] <Error> (production_runt) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Comment[m
+[1;31m[Core.Linker] <Error> (production_runt) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Library Version[m
+[1;31m[Core.Linker] <Error> (production_runt) module.cpp:309 LoadModuleToMemory: Unimplemented type Note[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:368 LoadModuleToMemory: program entry addr ..........: 0x0000000100000000[m
+[1;33m[Core.Linker] <Warning> (production_runt) module.cpp:549 LoadDynamicInfo: DT_FLAGS is NOT 0x04 should check![m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:613 LoadDynamicInfo: unsupported dynamic tag ..........: 0x0000000061000017[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0004000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0002000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0001000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0000000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0007000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0003000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0006000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0005000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0009000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0008000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:580 LoadDynamicInfo: DT_SCE_FINGERPRINT value = 0x0000000000000000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:603 LoadDynamicInfo: unsupported DT_SCE_MODULE_ATTR value = ..........: 0x0000000000000000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:148 LoadModuleToMemory: Loading module libc.prx to 0x100c50000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:161 LoadModuleToMemory: ======== Load Module to Memory ========[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:162 LoadModuleToMemory: base_virtual_addr ......: 0x0000000100c50000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:163 LoadModuleToMemory: base_size ..............: 0x000000000012c000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:164 LoadModuleToMemory: aligned_base_size ......: 0x000000000012c000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:227 LoadModuleToMemory: program header = [0] type = Loadable[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000100c50000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x00000000001179f8[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000118000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R_X)[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:227 LoadModuleToMemory: program header = [1] type = SCE Read-Only After Relocation[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000100d68000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000003a20[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R__)[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:227 LoadModuleToMemory: program header = [2] type = Loadable[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000100d6c000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x000000000000aa28[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000010000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)[m
+[1;31m[Core.Linker] <Error> (production_runt) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Module Parameters[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:279 LoadModuleToMemory: TLS virtual address = 0x100d728e0[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:280 LoadModuleToMemory: TLS image size      = 1152[m
+[1;31m[Core.Linker] <Error> (production_runt) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Comment[m
+[1;31m[Core.Linker] <Error> (production_runt) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Library Version[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:368 LoadModuleToMemory: program entry addr ..........: 0x0000000100c50000[m
+[1;33m[Core.Linker] <Warning> (production_runt) module.cpp:549 LoadDynamicInfo: DT_FLAGS is NOT 0x04 should check![m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:613 LoadDynamicInfo: unsupported dynamic tag ..........: 0x000000000000000e[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:613 LoadDynamicInfo: unsupported dynamic tag ..........: 0x0000000061000017[m
+[0;37mSkipped 1 duplicate messages..[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0001000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0002000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0003000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0000000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:580 LoadDynamicInfo: DT_SCE_FINGERPRINT value = 0x0000000000000000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:603 LoadDynamicInfo: unsupported DT_SCE_MODULE_ATTR value = ..........: 0x0000000000000000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:148 LoadModuleToMemory: Loading module libSceFios2.prx to 0x10157c000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:161 LoadModuleToMemory: ======== Load Module to Memory ========[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:162 LoadModuleToMemory: base_virtual_addr ......: 0x000000010157c000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:163 LoadModuleToMemory: base_size ..............: 0x0000000000190000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:164 LoadModuleToMemory: aligned_base_size ......: 0x0000000000190000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:227 LoadModuleToMemory: program header = [0] type = Loadable[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x000000010157c000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x000000000005c508[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000060000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R_X)[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:227 LoadModuleToMemory: program header = [1] type = SCE Read-Only After Relocation[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x00000001015dc000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000000660[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R__)[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:227 LoadModuleToMemory: program header = [2] type = Loadable[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x00000001015e0000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x000000000000d4d0[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x000000000012c000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)[m
+[1;31m[Core.Linker] <Error> (production_runt) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Module Parameters[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:279 LoadModuleToMemory: TLS virtual address = 0x1015e0020[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:280 LoadModuleToMemory: TLS image size      = 64[m
+[1;31m[Core.Linker] <Error> (production_runt) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Library Version[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:368 LoadModuleToMemory: program entry addr ..........: 0x000000010157c000[m
+[1;33m[Core.Linker] <Warning> (production_runt) module.cpp:549 LoadDynamicInfo: DT_FLAGS is NOT 0x04 should check![m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:613 LoadDynamicInfo: unsupported dynamic tag ..........: 0x000000000000000e[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:613 LoadDynamicInfo: unsupported dynamic tag ..........: 0x0000000061000017[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0000000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0004000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0002000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0003000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:580 LoadDynamicInfo: DT_SCE_FINGERPRINT value = 0x0000000000000000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:603 LoadDynamicInfo: unsupported DT_SCE_MODULE_ATTR value = ..........: 0x0000000000000000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:148 LoadModuleToMemory: Loading module libfmodstudio.prx to 0x101f0c000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:161 LoadModuleToMemory: ======== Load Module to Memory ========[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:162 LoadModuleToMemory: base_virtual_addr ......: 0x0000000101f0c000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:163 LoadModuleToMemory: base_size ..............: 0x0000000000404000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:164 LoadModuleToMemory: aligned_base_size ......: 0x0000000000404000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:227 LoadModuleToMemory: program header = [0] type = Loadable[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000101f0c000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x000000000015dcc4[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000160000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R_X)[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:227 LoadModuleToMemory: program header = [1] type = SCE Read-Only After Relocation[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x000000010210c000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000009bc8[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000200000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R__)[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:227 LoadModuleToMemory: program header = [2] type = Loadable[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x000000010230c000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000000090[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)[m
+[1;31m[Core.Linker] <Error> (production_runt) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Module Parameters[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:279 LoadModuleToMemory: TLS virtual address = 0x101f0c000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:280 LoadModuleToMemory: TLS image size      = 0[m
+[1;31m[Core.Linker] <Error> (production_runt) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Comment[m
+[1;31m[Core.Linker] <Error> (production_runt) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Library Version[m
+[1;31m[Core.Linker] <Error> (production_runt) module.cpp:309 LoadModuleToMemory: Unimplemented type Note[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:368 LoadModuleToMemory: program entry addr ..........: 0x0000000101f0c000[m
+[1;33m[Core.Linker] <Warning> (production_runt) module.cpp:549 LoadDynamicInfo: DT_FLAGS is NOT 0x04 should check![m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:613 LoadDynamicInfo: unsupported dynamic tag ..........: 0x0000000061000017[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0002000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0000000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0001000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:580 LoadDynamicInfo: DT_SCE_FINGERPRINT value = 0x0000000000000000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:603 LoadDynamicInfo: unsupported DT_SCE_MODULE_ATTR value = ..........: 0x0000000000000000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:148 LoadModuleToMemory: Loading module libSceNpEntitlementAccess.prx to 0x102b10000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:161 LoadModuleToMemory: ======== Load Module to Memory ========[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:162 LoadModuleToMemory: base_virtual_addr ......: 0x0000000102b10000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:163 LoadModuleToMemory: base_size ..............: 0x0000000000404000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:164 LoadModuleToMemory: aligned_base_size ......: 0x0000000000404000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:227 LoadModuleToMemory: program header = [0] type = Loadable[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000102b10000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000001188[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R_X)[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:227 LoadModuleToMemory: program header = [1] type = SCE Read-Only After Relocation[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000102d10000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x00000000000000d8[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000200000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R__)[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:227 LoadModuleToMemory: program header = [2] type = Loadable[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000102f10000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000000060[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)[m
+[1;31m[Core.Linker] <Error> (production_runt) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Module Parameters[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:279 LoadModuleToMemory: TLS virtual address = 0x102b10000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:280 LoadModuleToMemory: TLS image size      = 0[m
+[1;31m[Core.Linker] <Error> (production_runt) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Comment[m
+[1;31m[Core.Linker] <Error> (production_runt) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Library Version[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:368 LoadModuleToMemory: program entry addr ..........: 0x0000000102b10000[m
+[1;33m[Core.Linker] <Warning> (production_runt) module.cpp:549 LoadDynamicInfo: DT_FLAGS is NOT 0x04 should check![m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:613 LoadDynamicInfo: unsupported dynamic tag ..........: 0x0000000061000017[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0000000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0001000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0003000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0002000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:580 LoadDynamicInfo: DT_SCE_FINGERPRINT value = 0x0000000000000000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:603 LoadDynamicInfo: unsupported DT_SCE_MODULE_ATTR value = ..........: 0x0000000000000000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:148 LoadModuleToMemory: Loading module libSceNpCppWebApi.prx to 0x103714000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:161 LoadModuleToMemory: ======== Load Module to Memory ========[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:162 LoadModuleToMemory: base_virtual_addr ......: 0x0000000103714000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:163 LoadModuleToMemory: base_size ..............: 0x0000000000620000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:164 LoadModuleToMemory: aligned_base_size ......: 0x0000000000620000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:227 LoadModuleToMemory: program header = [0] type = Loadable[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000103714000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000614da8[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000618000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R_X)[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:227 LoadModuleToMemory: program header = [1] type = SCE Read-Only After Relocation[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000103d2c000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000002430[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R__)[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:227 LoadModuleToMemory: program header = [2] type = Loadable[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000103d30000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x00000000000001c0[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)[m
+[1;31m[Core.Linker] <Error> (production_runt) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Module Parameters[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:279 LoadModuleToMemory: TLS virtual address = 0x103714000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:280 LoadModuleToMemory: TLS image size      = 0[m
+[1;31m[Core.Linker] <Error> (production_runt) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Library Version[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:368 LoadModuleToMemory: program entry addr ..........: 0x0000000103714000[m
+[1;33m[Core.Linker] <Warning> (production_runt) module.cpp:549 LoadDynamicInfo: DT_FLAGS is NOT 0x04 should check![m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:613 LoadDynamicInfo: unsupported dynamic tag ..........: 0x0000000061000017[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0003000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0000000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0005000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0002000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0001000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:587 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0004000000000009[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:580 LoadDynamicInfo: DT_SCE_FINGERPRINT value = 0x0000000000000000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:603 LoadDynamicInfo: unsupported DT_SCE_MODULE_ATTR value = ..........: 0x0000000000000000[m
+ROUND 1 PREPARE_REJECT BackendFailure in FexSessionBackend::Prepare: TLS relocation references non-TLS symbol

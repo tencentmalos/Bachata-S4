@@ -1,0 +1,3 @@
+[0;37m[Kernel.Vmm] <Info> (production_runt) memory.cpp:29 Initialize: Virtual memory space initialized with regions:[m
+[0;37m[Kernel.Vmm] <Info> (production_runt) memory.cpp:37 Initialize: 0x400000 - 0x1e00000000[m
+[0;37m[Loader] <Info> (production_runt) elf.cpp:261 IsSelfFile: Not a SELF file. Magic mismatch current = 0x464c457f expected = 0x1d3d154f[m

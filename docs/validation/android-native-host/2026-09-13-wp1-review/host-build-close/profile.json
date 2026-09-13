@@ -1,0 +1,11 @@
+{
+  "ndk": "/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865",
+  "compiler": "Android (13989888, +pgo, -bolt, +lto, -mlgo, based on r563880c) clang version 21.0.0 (https://android.googlesource.com/toolchain/llvm-project 5e96669f06077099aa41290cdb4c5e6fa0f59349)\nTarget: arm64-apple-darwin25.5.0\nThread model: posix\nInstalledDir: /Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/bin",
+  "ndk_properties": "Pkg.Desc = Android NDK\nPkg.Revision = 29.0.14206865\nPkg.BaseRevision = 29.0.14206865\nPkg.ReleaseName = r29\n",
+  "api": 33,
+  "abi": "arm64-v8a",
+  "stl": "c++_shared",
+  "build_type": "RelWithDebInfo",
+  "foundation": true,
+  "source": "/Users/bytedance/workspace/emulations/ps4/shadps4"
+}

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <map>
+#include <stdexcept>
 #include "common/alignment.h"
 #include "common/arch.h"
 #include "common/assert.h"
@@ -818,7 +819,21 @@ AddressSpace::AddressSpace() : impl{std::make_unique<Impl>()} {
 
 AddressSpace::~AddressSpace() = default;
 
+AddressSpace::AddressSpace(GuestMemoryBackend* backend) : guest(backend) {
+    if (!guest)
+        throw std::invalid_argument("guest VM backend is required");
+    backing_base = guest->BackingBase();
+    system_managed_base = reinterpret_cast<u8*>(0x400000ULL);
+    system_managed_size = 0x7ffffc000ULL - 0x400000ULL;
+    system_reserved_base = reinterpret_cast<u8*>(0x7ffffc000ULL);
+    system_reserved_size = 0x1000000000ULL - 0x7ffffc000ULL;
+    user_base = reinterpret_cast<u8*>(0x1000000000ULL);
+    user_size = 0xe00000000ULL; // 64..120 GiB; explicit production reservation.
+}
+
 void* AddressSpace::Map(VAddr virtual_addr, u64 size, PAddr phys_addr, bool is_exec) {
+    if (guest)
+        return guest->Map(virtual_addr, size, phys_addr, is_exec);
 #if ARCH_X86_64
     const auto prot = is_exec ? PAGE_EXECUTE_READWRITE : PAGE_READWRITE;
 #else
@@ -830,6 +845,8 @@ void* AddressSpace::Map(VAddr virtual_addr, u64 size, PAddr phys_addr, bool is_e
 }
 
 void* AddressSpace::MapFile(VAddr virtual_addr, u64 size, u64 offset, u32 prot, uintptr_t fd) {
+    if (guest)
+        return guest->MapFile(virtual_addr, size, offset, prot, fd);
 #ifdef _WIN32
     return impl->Map(virtual_addr, offset, size,
                      ToWindowsProt(std::bit_cast<Core::MemoryProt>(prot)), fd);
@@ -840,10 +857,18 @@ void* AddressSpace::MapFile(VAddr virtual_addr, u64 size, u64 offset, u32 prot, 
 }
 
 void AddressSpace::Unmap(VAddr virtual_addr, u64 size) {
+    if (guest) {
+        guest->Unmap(virtual_addr, size);
+        return;
+    }
     impl->Unmap(virtual_addr, size);
 }
 
 void AddressSpace::Protect(VAddr virtual_addr, u64 size, MemoryPermission perms) {
+    if (guest) {
+        guest->Protect(virtual_addr, size, perms);
+        return;
+    }
     const bool read = True(perms & MemoryPermission::Read);
     const bool write = True(perms & MemoryPermission::Write);
     const bool execute = True(perms & MemoryPermission::Execute);
@@ -851,6 +876,8 @@ void AddressSpace::Protect(VAddr virtual_addr, u64 size, MemoryPermission perms)
 }
 
 boost::icl::interval_set<VAddr> AddressSpace::GetUsableRegions() {
+    if (guest)
+        return guest->UsableRegions();
 #ifdef _WIN32
     // On Windows, we need to obtain the accessible intervals from the implementation's regions.
     return impl->GetUsableRegions();

@@ -7,6 +7,8 @@
 #include <jni.h>
 
 #include "common/path_util.h"
+#include "common/logging/log.h"
+#include <mutex>
 #include "core/user_settings.h"
 #include <cstdint>
 #include <vector>
@@ -167,6 +169,8 @@ Java_com_shadps4_android_runtime_input_NativePad_nativeInitializeHost(JNIEnv *en
         env->ReleaseStringUTFChars(path, chars);
         chars = nullptr;
         Common::FS::InitializeAndroidUserPaths(value);
+        static std::once_flag logging;
+        std::call_once(logging, [] { Common::Log::Setup("android-host.log"); });
         return JNI_TRUE;
     } catch (...) {
         if (chars)

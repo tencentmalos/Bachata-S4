@@ -10,6 +10,22 @@
 
 namespace Core::GuestCpu::Hle {
 
+std::array<std::byte, HleVeneerAllocator::kVeneerSize> HleVeneerAllocator::Encode(
+    std::uint64_t operation) {
+    std::array<std::byte, kVeneerSize> stub{};
+    auto* p = reinterpret_cast<std::uint8_t*>(stub.data());
+    p[0] = 0x49;
+    p[1] = 0x89;
+    p[2] = 0xca;
+    p[3] = 0x48;
+    p[4] = 0xb8;
+    std::memcpy(p + 5, &operation, sizeof(operation));
+    p[13] = 0x0f;
+    p[14] = 0x05;
+    p[15] = 0xc3;
+    return stub;
+}
+
 Result<HleVeneerAllocator> HleVeneerAllocator::Create(GuestAddressSpace& space, GuestRange slab) {
     if (slab.size < kVeneerSize) {
         return MakeError(ErrorCategory::InvalidArgument, "HleVeneerAllocator::Create",
@@ -75,21 +91,7 @@ Result<GuestAddress> HleVeneerAllocator::Allocate(std::uint64_t operation) {
                          "veneer slab exhausted");
     }
 
-    // Assemble the 16-byte stub with the operation baked as the movabs immediate.
-    std::array<std::byte, kVeneerSize> stub{};
-    auto* p = reinterpret_cast<std::uint8_t*>(stub.data());
-    // mov r10, rcx
-    p[0] = 0x49;
-    p[1] = 0x89;
-    p[2] = 0xca;
-    // movabs rax, imm64
-    p[3] = 0x48;
-    p[4] = 0xb8;
-    std::memcpy(p + 5, &operation, sizeof(operation));
-    // syscall ; ret
-    p[13] = 0x0f;
-    p[14] = 0x05;
-    p[15] = 0xc3;
+    const auto stub = Encode(operation);
 
     const GuestAddress va{slab_.base.value + next_offset_};
     // Allocate metadata first: an allocation failure cannot consume a slot or
@@ -133,17 +135,8 @@ Status HleVeneerAllocator::Seal() {
     // not a replacement for the live-code quiescence transaction.
     std::array<std::byte, 4096> padding{};
     for (std::size_t i = 0; i < padding.size(); i += kVeneerSize) {
-        // mov r10,rcx; movabs rax,0; syscall; ret. Operation zero is never
-        // registered, so the production per-owner NON-spill exit catches it.
-        // Raw UD2 would go through an unimplemented guest SIGILL path.
-        padding[i] = std::byte{0x49};
-        padding[i + 1] = std::byte{0x89};
-        padding[i + 2] = std::byte{0xca};
-        padding[i + 3] = std::byte{0x48};
-        padding[i + 4] = std::byte{0xb8};
-        padding[i + 13] = std::byte{0x0f};
-        padding[i + 14] = std::byte{0x05};
-        padding[i + 15] = std::byte{0xc3};
+        const auto trap = Encode(0);
+        std::copy(trap.begin(), trap.end(), padding.begin() + i);
     }
     for (auto offset = next_offset_; offset < slab_.size;) {
         const auto bytes = std::min<std::uint64_t>(padding.size(), slab_.size - offset);

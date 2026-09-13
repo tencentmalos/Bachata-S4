@@ -71,6 +71,7 @@ using AppHeapAPI = HeapAPI*;
 class Linker {
 public:
     explicit Linker();
+    explicit Linker(MemoryManager& memory);
     ~Linker();
 
     Loader::SymbolsResolver& GetHLESymbols() {
@@ -161,6 +162,12 @@ public:
                  Loader::SymbolRecord* return_info);
     void Execute(const std::vector<std::string>& args = {});
     void DebugDump();
+    void PrepareGuest();
+    std::function<u64(const Loader::SymbolRecord&)> guest_hle_resolver;
+    std::function<u64(const Loader::SymbolRecord&)> guest_data_resolver;
+    std::function<void*(u64, u64)> guest_tls_resolver;
+    std::function<void*(u64)> guest_tls_allocate;
+    std::function<void(void*)> guest_tls_free;
 
 private:
     MemoryManager* memory;

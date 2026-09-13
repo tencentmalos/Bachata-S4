@@ -1,0 +1,15 @@
+{
+  "sha256": "7f157e4c93dfb116d34f405a212621f84087d2d0270f5a611853baaabf15cec3",
+  "build_id": "4a0b9d2c5a5e803a92c3005a2a468d08ca6d0cee",
+  "forbidden_sdl_jni_definitions": [],
+  "needed_libraries": [
+    "0x0000000000000001 (NEEDED)          Shared library: [libz.so]",
+    "0x0000000000000001 (NEEDED)          Shared library: [libm.so]",
+    "0x0000000000000001 (NEEDED)          Shared library: [liblog.so]",
+    "0x0000000000000001 (NEEDED)          Shared library: [libdl.so]",
+    "0x0000000000000001 (NEEDED)          Shared library: [libandroid.so]",
+    "0x0000000000000001 (NEEDED)          Shared library: [libaaudio.so]",
+    "0x0000000000000001 (NEEDED)          Shared library: [libc++_shared.so]",
+    "0x0000000000000001 (NEEDED)          Shared library: [libc.so]"
+  ]
+}

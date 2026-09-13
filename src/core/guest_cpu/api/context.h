@@ -88,6 +88,9 @@ struct CpuConfig final {
     GuestFeature requested_features{GuestFeature::BaseInteger | GuestFeature::Sse2};
     MemoryMode memory_mode{MemoryMode::DirectMapped};
     SmcMode smc_mode{SmcMode::ExplicitPublication};
+    // Production owner remains in its host Run frame across coordinator-owned
+    // pauses. Explicit user Pause/Cancel retains the normal returned receipt.
+    bool resume_internal_drains{false};
 };
 
 // Initial architectural state for a guest thread. Deliberately not a host

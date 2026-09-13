@@ -131,6 +131,12 @@ struct AddressSpaceConfig final {
     //
     // Callers should take this from BackendCapabilities::max_guest_address.
     std::uint64_t max_address{};
+    // Optional exact placement, acquired by an advisory mmap then checked. Never
+    // overwrites an existing host mapping. Used for the production PS4 layout.
+    std::uint64_t preferred_base{};
+    // Optional sorted, disjoint exact reservations inside the logical envelope.
+    // Gaps remain host-owned (for example ART's compressed-reference heap).
+    std::vector<GuestRange> owned_ranges;
 };
 
 class GuestAddressSpace final {
@@ -244,6 +250,15 @@ public:
                                                       GuestRange range,
                                                       GuestPermission permission);
 
+    enum class VmOperation { Map, Protect, Unmap };
+    // Production VM operation, with page-aligned splitting across old mappings.
+    // Map replaces backing inside the owned reservation; fd >= 0 means MAP_SHARED.
+    // Every translation is retired first, including executable backing aliases.
+    // A syscall failure poisons the space: callers must abort the generation.
+    [[nodiscard]] Status UpdateVmUnderToken(const QuiescenceToken& token, VmOperation operation,
+                                            GuestRange range, GuestPermission permission,
+                                            int fd = -1, std::uint64_t offset = 0);
+
     // Registers the backend that owns translated code. One at a time: a second
     // registration is refused rather than silently replacing the first, since
     // that would leave the displaced backend's caches unreachable by any
@@ -271,6 +286,11 @@ public:
     // True while a transaction token is held. The backend uses this to keep Resume closed for the
     // transaction; the token itself already closes Run/CreateThread through execution leases.
     [[nodiscard]] bool IsQuiescent() const;
+    [[nodiscard]] bool OwnsRange(GuestRange range) const;
+    [[nodiscard]] std::span<const GuestRange> OwnedRanges() const {
+        return reservations;
+    }
+    [[nodiscard]] Status WaitForQuiescenceRelease(std::uint64_t timeout_ns);
 
     // Second VA for the same backing. Invalidating through one alias must
     // invalidate every executable alias (acceptance M10).
@@ -350,12 +370,14 @@ private:
 
     mutable std::mutex lock;
     void* reservation_host{};
+    std::vector<GuestRange> reservations;
     GuestAddress reservation_base{};
     std::uint64_t reservation_size{};
     MemoryMode memory_mode{MemoryMode::DirectMapped};
     SmcMode smc_mode{SmcMode::ExplicitPublication};
 
     std::vector<Mapping> mappings;
+    bool shared_backing_seen{};
     std::vector<Alias> aliases;
     std::vector<Pin> pins;
     std::vector<MemoryObserver*> observers;

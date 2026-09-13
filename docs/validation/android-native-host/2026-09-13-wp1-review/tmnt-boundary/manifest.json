@@ -1,0 +1,30 @@
+{
+  "purpose": "earliest production runtime boundary only; NOT game acceptance",
+  "source": "07ce52ae37910f614ecafbf6889df48834943b0c + dirty runtime changes",
+  "artifacts": [
+    {
+      "path": "build/wp1-review/production-build/production_runtime_runner",
+      "sha256": "a3f97ed91c7c2ccb9896d749d0dba833ab0f7ae87da821a9a99aef059b45b034",
+      "size": 32101040
+    },
+    {
+      "path": "build/android-host-api33/native/libshadps4_host.so",
+      "sha256": "4ada551a101edfa82f648d8fe0add5ad6f7604f8cbccb69fd075008c12ee1f4b",
+      "size": 425133208
+    },
+    {
+      "path": "/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so",
+      "sha256": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352",
+      "size": 9290184
+    },
+    {
+      "path": "build/hn2-review-evidence/eboot.bin",
+      "sha256": "6cc980b770aa4f5880c6be7aefa245a77e96de33d80c8ebf9bb2b4d8d9b52a5f",
+      "size": 28478325
+    }
+  ],
+  "content": "previously extracted eboot only; not complete installed base+update tree",
+  "device": "AYN Thor API33 ARM64 4 KiB shell",
+  "exit": 1,
+  "cleanup_exit": 0
+}

@@ -1,0 +1,20 @@
+[
+  {
+    "name": "app",
+    "path": "android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk",
+    "sha256": "69e862c9dded288ef14cafd745e5e9ccb1249a293674e290e683581112b87fb5",
+    "exit": 0
+  },
+  {
+    "name": "app-test",
+    "path": "android/shadps4-app/app/build/outputs/apk/androidTest/playstore/debug/app-playstore-debug-androidTest.apk",
+    "sha256": "225a968b9383acc678515a13bf3a174d703a9a240e06312312a1fabae982e90c",
+    "exit": 0
+  },
+  {
+    "name": "runtime-test",
+    "path": "android/shadps4-app/core/runtime/build/outputs/apk/androidTest/debug/runtime-debug-androidTest.apk",
+    "sha256": "6972fbdda9a79e3ef298ebf08a299a28728df583e401204ff20d3eb0a764ba1a",
+    "exit": 0
+  }
+]

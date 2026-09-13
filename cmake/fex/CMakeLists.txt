@@ -16,6 +16,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 option(V0_ENABLE_FEX "Link the FEX guest CPU backend" OFF)
 option(V0_BUILD_TESTS "Build the guest CPU contract tests" ON)
+option(V0_BUILD_PRODUCTION_RUNTIME "Build the production host/FEX Session runner" OFF)
 option(V0_BUILD_EBOOT_HARNESS "Build the auxiliary eboot probe using a native host build" OFF)
 set(V0_HOST_LOADER_CONFIG "" CACHE FILEPATH "Generated shadps4-host-loader.cmake from BUILD_HOST_CORE")
 if(V0_BUILD_EBOOT_HARNESS AND (NOT V0_BUILD_TESTS OR NOT ANDROID))
@@ -32,11 +33,41 @@ if(ANDROID)
     add_link_options("-Wl,--build-id=sha1")
 endif()
 
+if(V0_BUILD_PRODUCTION_RUNTIME)
+    if(V0_BUILD_TESTS OR NOT V0_ENABLE_FEX OR NOT ANDROID OR NOT EXISTS "${V0_HOST_LOADER_CONFIG}")
+        message(FATAL_ERROR "Production runner requires Android, FEX, tests OFF and the generated host SDK")
+    endif()
+    include("${V0_HOST_LOADER_CONFIG}")
+    if(NOT SHADPS4_HOST_PROVIDES_GUEST_CPU_API OR NOT EXISTS "${SHADPS4_HOST_LOADER_LIBRARY}" OR
+       NOT ANDROID_ABI STREQUAL SHADPS4_HOST_LOADER_ABI OR
+       NOT ANDROID_STL STREQUAL SHADPS4_HOST_LOADER_STL OR
+       ANDROID_PLATFORM_LEVEL LESS SHADPS4_HOST_LOADER_API)
+        message(FATAL_ERROR "Incompatible production host SDK")
+    endif()
+    add_library(production_host SHARED IMPORTED)
+    set_target_properties(production_host PROPERTIES IMPORTED_LOCATION "${SHADPS4_HOST_LOADER_LIBRARY}")
+    add_library(guest_cpu_api INTERFACE)
+    target_include_directories(guest_cpu_api INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/../../src")
+    target_link_libraries(guest_cpu_api INTERFACE production_host)
+endif()
+
 if(NOT TARGET guest_cpu_api)
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../src/core/guest_cpu"
                      "${CMAKE_CURRENT_BINARY_DIR}/guest_cpu")
 elseif(V0_BUILD_TESTS)
     message(FATAL_ERROR "Imported production guest_cpu_api cannot enable test hooks; use an isolated test build")
+endif()
+
+if(V0_BUILD_PRODUCTION_RUNTIME)
+    add_executable(production_runtime_runner
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tools/production_runtime_runner.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../src/core/host_runtime/session_backend.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../src/core/host_runtime/session_backend_fex.cpp")
+    target_compile_features(production_runtime_runner PRIVATE cxx_std_23)
+    target_include_directories(production_runtime_runner PRIVATE ${SHADPS4_HOST_LOADER_INCLUDES})
+    target_compile_definitions(production_runtime_runner PRIVATE ${SHADPS4_HOST_LOADER_DEFINITIONS})
+    target_link_libraries(production_runtime_runner PRIVATE guest_cpu_fex production_host)
+    target_link_options(production_runtime_runner PRIVATE -Wl,--no-undefined)
 endif()
 
 if(V0_BUILD_TESTS)

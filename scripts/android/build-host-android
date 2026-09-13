@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Build matching host code generators and the complete Android native host .so.
-This library does not yet contain the FEX/session/JNI game integration.
+The host owns production guest services; FEX/JNI consume it through the generated SDK.
 """
 import argparse
 import hashlib
@@ -67,7 +67,7 @@ def main():
          "tests/host_runtime", "CMakeLists.txt", "externals/CMakeLists.txt"]))
     result = {"status": "IN_PROGRESS", "profile": profile, "commands": [],
               "source_head": capture(["git", "rev-parse", "HEAD"]),
-              "scope": "native host library; FEX/APK/Turnip/game NOT_INTEGRATED",
+              "scope": "native host library build only; validate runtime/APK separately, Turnip/game NOT_ACCEPTED",
               "device_status": "NOT_RUN"}
     result["source_manifest"] = str((run_dir / "source.json").relative_to(out))
     result["source_manifest_sha256"] = sha(run_dir / "source.json")
@@ -117,7 +117,7 @@ def main():
         if source_identity() != source:
             raise RuntimeError("Sources changed during build; rerun on stable sources")
         result["status"] = "HOST_LINK_PASS"; save()
-        print(f"HOST_LINK_PASS: {library}; APK/game integration remains open", flush=True)
+        print(f"HOST_LINK_PASS: {library}; host build only; run runtime/APK acceptance separately", flush=True)
     except BaseException as e:
         result["status"] = "FAIL"; result["error"] = str(e); save()
         raise

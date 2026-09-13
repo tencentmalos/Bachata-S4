@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright 2024 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <stdexcept>
 #include <fmt/core.h>
 #include "common/assert.h"
 #include "common/logging/log.h"
@@ -189,6 +190,12 @@ void Elf::Open(const std::filesystem::path& file_name) {
 }
 
 void Elf::Open(std::unique_ptr<Core::FileSys::IFile> handle) {
+    m_self = {};
+    m_elf_header = {};
+    m_self_segments.clear();
+    m_elf_phdr.clear();
+    m_elf_shdr.clear();
+    m_self_id_header = {};
     m_f.Reset(std::move(handle));
     if (!m_f.IsOpen()) {
         return;
@@ -202,11 +209,13 @@ void Elf::Open(std::unique_ptr<Core::FileSys::IFile> handle) {
         m_f.Seek(0, SeekOrigin::SetOrigin);
     } else {
         m_self_segments.resize(m_self.segment_count);
-        m_f.Read(m_self_segments);
+        if (m_f.Read(m_self_segments) != m_self_segments.size())
+            throw std::runtime_error("truncated SELF segment headers");
     }
 
     const u64 elf_header_pos = m_f.Tell();
-    m_f.Read(m_elf_header);
+    if (!m_f.ReadObject(m_elf_header))
+        throw std::runtime_error("truncated ELF header");
     if (!IsElfFile()) {
         return;
     }
@@ -217,15 +226,28 @@ void Elf::Open(std::unique_ptr<Core::FileSys::IFile> handle) {
         }
 
         out.resize(num);
+        if (offset > m_f.GetSize() || u64(num) * sizeof(T) > m_f.GetSize() - offset)
+            throw std::runtime_error("ELF header table outside file");
         if (!m_f.Seek(offset, SeekOrigin::SetOrigin)) {
             LOG_CRITICAL(Loader, "Failed to seek to header tables");
             return;
         }
-        m_f.Read(out);
+        if (m_f.Read(out) != out.size())
+            throw std::runtime_error("truncated ELF header table");
     };
 
+    if (m_elf_header.e_phoff > m_f.GetSize() ||
+        elf_header_pos > m_f.GetSize() - m_elf_header.e_phoff)
+        throw std::runtime_error("ELF header offset overflow");
     load_headers(m_elf_phdr, elf_header_pos + m_elf_header.e_phoff, m_elf_header.e_phnum);
-    load_headers(m_elf_shdr, elf_header_pos + m_elf_header.e_shoff, m_elf_header.e_shnum);
+    // SELF carries the original ELF's logical section offsets, which may be
+    // beyond the compressed container. Only program headers are serialized in
+    // its header; loading uses SELF segment records, never ELF section headers.
+    if (!is_self && m_elf_header.e_shnum) {
+        if (m_elf_header.e_shoff > m_f.GetSize())
+            throw std::runtime_error("ELF section header offset outside file");
+        load_headers(m_elf_shdr, m_elf_header.e_shoff, m_elf_header.e_shnum);
+    }
 
     if (is_self) {
         u64 header_size = 0;
@@ -233,11 +255,12 @@ void Elf::Open(std::unique_ptr<Core::FileSys::IFile> handle) {
         header_size += sizeof(self_segment_header) * m_self.segment_count;
         header_size += sizeof(elf_header);
         header_size += m_elf_header.e_phnum * m_elf_header.e_phentsize;
-        header_size += m_elf_header.e_shnum * m_elf_header.e_shentsize;
         header_size += 15;
         header_size &= ~15; // Align
 
-        if (m_elf_header.e_ehsize - header_size >= sizeof(elf_program_id_header)) {
+        const u64 container_header_size = std::min<u64>(m_self.header_size, m_f.GetSize());
+        if (container_header_size >= header_size &&
+            container_header_size - header_size >= sizeof(elf_program_id_header)) {
             m_f.Seek(header_size, SeekOrigin::SetOrigin);
             m_f.ReadObject(m_self_id_header);
         }

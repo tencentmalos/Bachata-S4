@@ -1,0 +1,185 @@
+#!/usr/bin/env python3
+"""Reproduce production runtime CLI and ordinary-APK evidence; never accepts an adb exit alone."""
+import argparse
+import hashlib
+import json
+import pathlib
+import re
+import shlex
+import subprocess
+import tempfile
+import time
+import zipfile
+
+ROOT = pathlib.Path(__file__).resolve().parents[2]
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--serial', required=True)
+    parser.add_argument('--ndk', required=True, type=pathlib.Path)
+    parser.add_argument('--fex-build-dir', required=True, type=pathlib.Path)
+    parser.add_argument('--host-config', required=True, type=pathlib.Path)
+    parser.add_argument('--out', required=True, type=pathlib.Path)
+    parser.add_argument('--build-dir', type=pathlib.Path, default=ROOT / 'build/production-runtime-validation')
+    parser.add_argument('--apk', type=pathlib.Path)
+    parser.add_argument('--test-apk', type=pathlib.Path)
+    args = parser.parse_args()
+    if bool(args.apk) != bool(args.test_apk):
+        parser.error('--apk and --test-apk must be supplied together')
+    args.out.mkdir(parents=True, exist_ok=False)
+    adb = ['adb', '-s', args.serial]
+    results = []
+    artifacts = []
+    instrumentation_started = False
+    remote = '/data/local/tmp/shadps4-runtime-' + str(time.time_ns())
+
+    def run(command, *, timeout=120, log=None, check=True):
+        completed = subprocess.run([str(x) for x in command], cwd=ROOT, text=True,
+                                   stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=timeout)
+        if log:
+            (args.out / log).write_text(completed.stdout)
+        if check and completed.returncode:
+            raise RuntimeError(f'exit {completed.returncode}: {shlex.join([str(x) for x in command[:5]])}; log={log}')
+        return completed
+
+    def shell(command, **kw):
+        return run(adb + ['shell', command], **kw)
+
+    def digest(path):
+        return hashlib.sha256(path.read_bytes()).hexdigest()
+
+    def record(path):
+        entry = {'path': str(path.resolve()), 'sha256': digest(path), 'bytes': path.stat().st_size}
+        artifacts.append(entry)
+        return entry
+
+    evidence = {'kind': 'synthetic production runtime; not game acceptance',
+                'serial': args.serial, 'results': results, 'artifacts': artifacts,
+                'source': run(['git', 'rev-parse', 'HEAD']).stdout.strip(),
+                'status': run(['git', 'status', '--short']).stdout,
+                'gitlinks': run(['git', 'submodule', 'status']).stdout,
+                'remote': remote}
+    try:
+        changed = run(['git', 'ls-files', '--modified', '--others', '--exclude-standard']).stdout.splitlines()
+        evidence['changed_source_sha256'] = {name: digest(ROOT / name) for name in sorted(set(changed))
+            if (ROOT / name).is_file() and
+               (name == 'CMakeLists.txt' or name.startswith(('src/', 'cmake/', 'tools/', 'tests/', 'scripts/', 'android/')))}
+        evidence['device'] = {key: shell('getprop ' + key).stdout.strip() for key in
+                              ['ro.product.model', 'ro.build.version.sdk', 'ro.build.fingerprint']}
+        evidence['shell_identity'] = shell('id').stdout.strip()
+        evidence['page_size'] = int(shell('getconf PAGESIZE').stdout.strip())
+        if evidence['page_size'] != 4096:
+            raise RuntimeError('this production profile requires a 4 KiB host')
+        host_text = args.host_config.read_text()
+        match = re.search(r'set\(SHADPS4_HOST_LOADER_LIBRARY \[==\[(.*?)\]==\]\)', host_text)
+        if not match:
+            raise RuntimeError('invalid generated host loader config')
+        host = pathlib.Path(match[1])
+        llvm = next((args.ndk / 'toolchains/llvm/prebuilt').iterdir()) / 'bin'
+        stl = llvm.parent / 'sysroot/usr/lib/aarch64-linux-android/libc++_shared.so'
+        run(['cmake', '-S', ROOT / 'cmake/fex', '-B', args.build_dir, '-G', 'Ninja',
+             '-DCMAKE_TOOLCHAIN_FILE=' + str(args.ndk / 'build/cmake/android.toolchain.cmake'),
+             '-DANDROID_ABI=arm64-v8a', '-DANDROID_PLATFORM=android-33', '-DANDROID_STL=c++_shared',
+             '-DCMAKE_BUILD_TYPE=RelWithDebInfo', '-DV0_ENABLE_FEX=ON', '-DV0_BUILD_TESTS=OFF',
+             '-DV0_BUILD_PRODUCTION_RUNTIME=ON', '-DFEX_BUILD_DIR=' + str(args.fex_build_dir.resolve()),
+             '-DV0_HOST_LOADER_CONFIG=' + str(args.host_config.resolve())], log='configure.log')
+        run(['cmake', '--build', args.build_dir, '--target', 'production_runtime_runner', '-j', '6'],
+            timeout=600, log='build.log')
+        fixture_dir = args.build_dir / 'fixtures'
+        generator = ROOT / 'scripts/android/generate-production-runtime-fixture'
+        scenarios = [('fixture.elf', ['--with-dependency'], 'return'),
+                     ('self.elf', ['--self', '--with-dependency'], 'return'),
+                     ('wait.elf', ['--wait'], 'cancel'),
+                     ('bad.elf', ['--with-dependency', '--bad-pointer'], 'fault'),
+                     ('unknown.elf', ['--with-dependency', '--unknown-import'], 'fault'),
+                     ('init-wait.elf', ['--with-dependency'], 'cancel')]
+        for name, flags, _ in scenarios + [('fixture_dependency.sprx', ['--module'], ''),
+                                          ('dependency-wait.sprx', ['--module', '--wait'], '')]:
+            run(['python3', generator, '--ndk', args.ndk, '--out', fixture_dir / name] + flags)
+        # A truncated ELF must fail Prepare and allow another context to be constructed.
+        (fixture_dir / 'truncated.elf').write_bytes((fixture_dir / 'fixture.elf').read_bytes()[:80])
+        scenarios.append(('truncated.elf', [], 'reject'))
+        shell('mkdir -p ' + shlex.quote(remote))
+        files = [args.build_dir / 'production_runtime_runner', host, stl] + sorted(fixture_dir.glob('*.elf')) + sorted(fixture_dir.glob('*.sprx'))
+        for path in files:
+            entry = record(path)
+            run(adb + ['push', path, remote + '/' + path.name])
+            actual = shell('sha256sum ' + shlex.quote(remote + '/' + path.name)).stdout.split()[0]
+            if actual != entry['sha256']:
+                raise RuntimeError('device SHA mismatch: ' + path.name)
+        shell('chmod 700 ' + shlex.quote(remote + '/production_runtime_runner'))
+        for name, _, mode in scenarios:
+            dependency = fixture_dir / ('dependency-wait.sprx' if name == 'init-wait.elf' else 'fixture_dependency.sprx')
+            run(adb + ['push', dependency, remote + '/fixture_dependency.sprx'])
+            if shell('sha256sum ' + shlex.quote(remote + '/fixture_dependency.sprx')).stdout.split()[0] != digest(dependency):
+                raise RuntimeError('device dependency SHA mismatch')
+            command = f'cd {shlex.quote(remote)} && LD_LIBRARY_PATH={shlex.quote(remote)} timeout -s KILL 30 ./production_runtime_runner {shlex.quote(remote + "/user")} {shlex.quote(remote + "/" + name)} {mode}'
+            completed = shell(command, timeout=40, log=name + '.log', check=False)
+            marker = f'PRODUCTION_RUNTIME_PASS mode={mode} rounds=3'
+            rounds = re.findall(r'^ROUND ([1-3]) (OUTCOME|PREPARE_REJECT) ', completed.stdout, re.M)
+            passed = completed.returncode == 0 and completed.stdout.count(marker) == 1 and [r[0] for r in rounds] == ['1', '2', '3']
+            results.append({'case': name, 'mode': mode, 'status': 'PASS' if passed else 'FAIL',
+                            'exit': completed.returncode, 'rounds': len(rounds)})
+            if not passed:
+                raise RuntimeError('production runtime case failed: ' + name)
+        if args.apk:
+            record(args.apk); record(args.test_apk)
+            with zipfile.ZipFile(args.apk) as package:
+                packed = package.read('lib/arm64-v8a/libshadps4_host.so')
+                # AGP strips debug info; Build ID must match the exact source DSO.
+                with tempfile.NamedTemporaryFile(suffix='.so') as file:
+                    file.write(packed); file.flush()
+                    def build_id(path):
+                        note = run([llvm / 'llvm-readelf', '-n', path]).stdout
+                        return re.search(r'Build ID: (\w+)', note).group(1)
+                    source_id, apk_id = build_id(host), build_id(file.name)
+                evidence['host_build_id'] = {'source': source_id, 'apk': apk_id,
+                                             'packed_sha256': hashlib.sha256(packed).hexdigest()}
+                if source_id != apk_id:
+                    raise RuntimeError('APK contains a different host DSO Build ID')
+            run(adb + ['install', '-r', args.apk], log='install-app.log')
+            run(adb + ['install', '-r', args.test_apk], log='install-test.log')
+            start = shell('date "+%m-%d %H:%M:%S.000"').stdout.strip()
+            command = ['am', 'instrument', '-w', '-r', '-e', 'class',
+                       'com.shadps4.android.ProductionRuntimeInstrumentedTest',
+                       'com.shadps4.android.test/androidx.test.runner.AndroidJUnitRunner']
+            instrumentation_started = True
+            completed = run(adb + ['shell'] + command, timeout=90, log='instrumentation.log', check=False)
+            logcat = run(adb + ['logcat', '-d', '-v', 'threadtime', '-T', start, '-s',
+                               'ProductionRuntimeAcceptance', 'ProductionRuntime', 'ProductionHLE', 'AndroidRuntime'],
+                         log='apk-logcat.txt').stdout
+            rounds = re.findall(r'ProductionRuntimeAcceptance: round=(\d+) gen=(\d+) outcome=(\d+) page_size=4096 pid=(\d+) uid=(\d+)', logcat)
+            passed = (completed.returncode == 0 and re.search(r'\bOK \(1 test\)', completed.stdout) is not None
+                      and 'FAILURES!!!' not in completed.stdout and len(rounds) == 12
+                      and [int(r[0]) for r in rounds] == list(range(1, 13))
+                      and len({r[1] for r in rounds}) == 12 and len({(r[3], r[4]) for r in rounds}) == 1
+                      and all(int(r[4]) >= 10000 for r in rounds))
+            results.append({'case': 'ordinary_apk', 'status': 'PASS' if passed else 'FAIL', 'rounds': rounds})
+            if not passed:
+                raise RuntimeError('ordinary APK runtime acceptance failed; inspect JUnit and logcat')
+        else:
+            results.append({'case': 'ordinary_apk', 'status': 'NOT_RUN'})
+        evidence['status_result'] = 'PASS'
+    except Exception as error:
+        evidence['status_result'] = 'FAIL'
+        evidence['error'] = str(error)
+        print(str(error))
+    finally:
+        # Only this invocation's unique auxiliary directory is removed. timeout
+        # kills a stalled runner before this cleanup; no user content is touched.
+        try:
+            if instrumentation_started and evidence.get('status_result') != 'PASS':
+                stopped = shell('am force-stop com.shadps4.android', check=False)
+                evidence['failed_test_cleanup_exit'] = stopped.returncode
+            evidence['remote_cleanup_exit'] = shell('rm -rf ' + shlex.quote(remote), check=False).returncode
+        except Exception as cleanup_error:
+            evidence['cleanup_error'] = str(cleanup_error)
+            evidence['status_result'] = 'FAIL'
+        (args.out / 'manifest.json').write_text(json.dumps(evidence, indent=2) + '\n')
+    print(json.dumps(results, indent=2))
+    return 0 if evidence.get('status_result') == 'PASS' else 1
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

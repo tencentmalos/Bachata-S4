@@ -1,0 +1,38 @@
+[
+  {
+    "name": "input",
+    "argv": [
+      "adb",
+      "-s",
+      "9c2841a4",
+      "shell",
+      "am",
+      "instrument",
+      "-w",
+      "-e",
+      "class",
+      "com.shadps4.android.runtime.input.NativePadInstrumentedTest",
+      "com.shadps4.android.runtime.test/androidx.test.runner.AndroidJUnitRunner"
+    ],
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "service",
+    "argv": [
+      "adb",
+      "-s",
+      "9c2841a4",
+      "shell",
+      "am",
+      "instrument",
+      "-w",
+      "-e",
+      "class",
+      "com.shadps4.android.HostInputServiceInstrumentedTest",
+      "com.shadps4.android.test/androidx.test.runner.AndroidJUnitRunner"
+    ],
+    "exit": 0,
+    "pass": true
+  }
+]

@@ -1,0 +1,567 @@
+guest execution through the public CPU API
+host page size: 4096
+fixtures: 26, generated from tests/guest_cpu/fixtures/guest_fixtures.S
+
+[G46   ] create high VA owner                                       FAIL
+guest reservation base: 0xff8000000
+code at 0xff8010000, stack top 0xff8023ff0
+return gate at 0x1fc0000000
+
+[G01a  ] integer fixture returned through the gate                  PASS
+[G01b  ] add r8, r9 produced the sum                                PASS
+[G01c  ] mov r10, r8 then sub 5                                     PASS
+[G01d  ] xor r11, r11 cleared the register                          PASS
+[G01e  ] snapshot reports GPRs as valid                             PASS
+[G01f  ] snapshot kind is a safe point                              PASS
+  fixture integer (26 bytes):
+    0x0000  addq	%r9, %r8
+0x0003  movq	%r8, %r10
+0x0006  xorq	%r11, %r11
+0x0009  subq	$0x5, %r10
+0x000d  movabsq	$0x1122334455667788, %r15 # imm = 0x1122334455667788
+0x0017  jmpq	*%r15
+[G02a  ] not-taken branch fell through to the mov                   PASS
+[G02b  ] taken branch skipped the mov                               PASS
+[G03a  ] pop rax read back the second push                          PASS
+[G03b  ] pop rcx read back the first push                           PASS
+[G03c  ] stack pointer is balanced after push/pop                   PASS
+[G07a  ] guest memory below rsp is readable                         PASS
+[G07b  ] store to [rsp-16] landed in guest memory                   PASS
+[G07c  ] store to [rsp-8] landed in guest memory                    PASS
+[G07d  ] direct host read agrees with the pinned-span read          PASS -- direct[rsp-16]=0xbadc0de0badc0de direct[rsp-8]=0xfeedfacefeedface (pinned read gave 0xbadc0de0badc0de / 0xfeedfacefeedface)
+[G07e  ] guest read back its own store to [rsp-16]                  PASS
+[G07f  ] guest read back its own store to [rsp-8]                   PASS
+[G04a  ] paddq result moved back to a GPR                           PASS
+[G04b  ] xmm0 low half holds the packed sum                         PASS
+[G04c  ] snapshot reports XMM as valid                              PASS
+[G05a  ] a HLT outside the gate is not reported as Returned         PASS -- GuestFault
+[G05b  ] the stop is reported as a guest fault                      PASS
+[G05c  ] fault carries a guest RIP                                  PASS
+[G05d  ] snapshot kind is Faulted, not SafePoint                    PASS
+[G08a  ] 100 same-VA publications with zero live threads between runs PASS
+[G08b  ] 100 publications invalidate both stopped threads without changing state PASS
+[G08c  ] cache regression leaves no guest threads                   PASS
+[G09a  ] 100 publications through GuestAddressSpace alone run the new code PASS
+[G09b  ] GuestAddressSpace::InvalidateCode discards the backend's translation PASS
+[G09c  ] successful publications leave no poisoned range            PASS
+[G09d  ] public publication leaves no guest threads                 PASS
+[G11a  ] guest store proves execution before pause                  PASS
+[G11b  ] request Pause                                              PASS
+[G11c  ] owner Run returns PauseRequested and acknowledges          PASS
+[G11d  ] paused registers readable and equal frozen guest store     PASS
+[G11e  ] repeated WaitStopped preserves the same stop epoch         PASS
+[G11f  ] receipt carries context and thread generation              PASS
+[G11g  ] Resume consumes exactly the acknowledged ticket            PASS
+[G11h  ] retired ticket cannot create a fresh SafePoint             PASS
+[G11i  ] resumed guest really advances its counter                  PASS
+[G11j  ] Cancel returns and its ticket receives a Cancelled receipt PASS
+[G14a  ] both guests perform memory stores before either is stopped PASS
+[G14b  ] owners have distinct actual gettid values                  PASS -- tid_a=14084 tid_b=14085
+[G14c  ] request owner A pause                                      PASS
+[G14d  ] A has a stopped receipt and returned to its command queue  PASS
+[G14e  ] while A is frozen B performs new guest stores              PASS -- A=11713 B=32111->32399
+[G14f  ] resume A                                                   PASS
+[G14g  ] both guests show new progress after A resumes              PASS
+[G14h  ] both Cancels acknowledge and return normally               PASS
+[G20a  ] QuiesceContext stops both owners and refuses new execution PASS
+[G20b  ] both owners resume and progress after quiesce              PASS
+[G21a  ] 100 serialized fresh-thread publication smoke iterations   PASS
+[G22a  ] 100 serialized fresh-thread remap smoke iterations         PASS
+[G23a  ] ClearCodeCache refuses another address space's token       PASS
+[G23b  ] RX Clear followed by ordinary invalidation does not deadlock PASS
+[G23c  ] same warmed RWX thread executes B after Clear alone (no permission mutation) PASS
+EPOCH {"case":"G25","epoch":0,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":3,"stop_b":3,"token":520,"old_counter_a":1,"old_counter_b":1,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":4399,"new_counter_b":4,"ok":true}
+EPOCH {"case":"G25","epoch":1,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":5,"stop_b":5,"token":521,"old_counter_a":4632,"old_counter_b":235,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":54,"new_counter_b":246,"ok":true}
+EPOCH {"case":"G25","epoch":2,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":7,"stop_b":7,"token":522,"old_counter_a":193,"old_counter_b":386,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":39,"new_counter_b":211,"ok":true}
+EPOCH {"case":"G25","epoch":3,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":9,"stop_b":9,"token":523,"old_counter_a":155,"old_counter_b":325,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":60,"new_counter_b":429,"ok":true}
+EPOCH {"case":"G25","epoch":4,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":11,"stop_b":11,"token":524,"old_counter_a":153,"old_counter_b":517,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":2,"new_counter_b":774,"ok":true}
+EPOCH {"case":"G25","epoch":5,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":13,"stop_b":13,"token":525,"old_counter_a":95,"old_counter_b":879,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":49,"new_counter_b":721,"ok":true}
+EPOCH {"case":"G25","epoch":6,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":15,"stop_b":15,"token":526,"old_counter_a":147,"old_counter_b":821,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":855,"new_counter_b":46,"ok":true}
+EPOCH {"case":"G25","epoch":7,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":17,"stop_b":17,"token":527,"old_counter_a":957,"old_counter_b":147,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":25,"new_counter_b":577,"ok":true}
+EPOCH {"case":"G25","epoch":8,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":19,"stop_b":19,"token":528,"old_counter_a":113,"old_counter_b":659,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":31,"new_counter_b":524,"ok":true}
+EPOCH {"case":"G25","epoch":9,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":21,"stop_b":21,"token":529,"old_counter_a":112,"old_counter_b":599,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":57,"new_counter_b":735,"ok":true}
+EPOCH {"case":"G25","epoch":10,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":23,"stop_b":23,"token":530,"old_counter_a":140,"old_counter_b":812,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":275,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G25","epoch":11,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":25,"stop_b":25,"token":531,"old_counter_a":376,"old_counter_b":85,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":2,"new_counter_b":229,"ok":true}
+EPOCH {"case":"G25","epoch":12,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":27,"stop_b":27,"token":532,"old_counter_a":85,"old_counter_b":324,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":2,"new_counter_b":793,"ok":true}
+EPOCH {"case":"G25","epoch":13,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":29,"stop_b":29,"token":533,"old_counter_a":2619,"old_counter_b":3463,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":58,"new_counter_b":958,"ok":true}
+EPOCH {"case":"G25","epoch":14,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":31,"stop_b":31,"token":534,"old_counter_a":187,"old_counter_b":1080,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":15,"new_counter_b":766,"ok":true}
+EPOCH {"case":"G25","epoch":15,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":33,"stop_b":33,"token":535,"old_counter_a":110,"old_counter_b":855,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":29,"new_counter_b":695,"ok":true}
+EPOCH {"case":"G25","epoch":16,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":35,"stop_b":35,"token":536,"old_counter_a":113,"old_counter_b":773,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":61,"new_counter_b":895,"ok":true}
+EPOCH {"case":"G25","epoch":17,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":37,"stop_b":37,"token":537,"old_counter_a":144,"old_counter_b":972,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":51,"new_counter_b":3894,"ok":true}
+EPOCH {"case":"G25","epoch":18,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":39,"stop_b":39,"token":538,"old_counter_a":140,"old_counter_b":3984,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":728,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G25","epoch":19,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":41,"stop_b":41,"token":539,"old_counter_a":830,"old_counter_b":62,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":885,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G25","epoch":20,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":43,"stop_b":43,"token":540,"old_counter_a":973,"old_counter_b":48,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":2,"new_counter_b":10725,"ok":true}
+EPOCH {"case":"G25","epoch":21,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":45,"stop_b":45,"token":541,"old_counter_a":29,"old_counter_b":10810,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":157,"new_counter_b":36,"ok":true}
+EPOCH {"case":"G25","epoch":22,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":47,"stop_b":47,"token":542,"old_counter_a":251,"old_counter_b":124,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":10,"new_counter_b":707,"ok":true}
+EPOCH {"case":"G25","epoch":23,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":49,"stop_b":49,"token":543,"old_counter_a":92,"old_counter_b":790,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":44,"new_counter_b":1474,"ok":true}
+EPOCH {"case":"G25","epoch":24,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":51,"stop_b":51,"token":544,"old_counter_a":129,"old_counter_b":1553,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":2,"new_counter_b":994,"ok":true}
+EPOCH {"case":"G25","epoch":25,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":53,"stop_b":53,"token":545,"old_counter_a":38,"old_counter_b":1079,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":30,"new_counter_b":154,"ok":true}
+EPOCH {"case":"G25","epoch":26,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":55,"stop_b":55,"token":546,"old_counter_a":2299,"old_counter_b":2417,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":3669,"new_counter_b":59,"ok":true}
+EPOCH {"case":"G25","epoch":27,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":57,"stop_b":57,"token":547,"old_counter_a":3803,"old_counter_b":192,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":197,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G25","epoch":28,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":59,"stop_b":59,"token":548,"old_counter_a":283,"old_counter_b":39,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":171389,"new_counter_b":3825,"ok":true}
+EPOCH {"case":"G25","epoch":29,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":61,"stop_b":61,"token":549,"old_counter_a":171486,"old_counter_b":3916,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":758,"new_counter_b":2236,"ok":true}
+EPOCH {"case":"G25","epoch":30,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":63,"stop_b":63,"token":550,"old_counter_a":861,"old_counter_b":2236,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":643,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G25","epoch":31,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":65,"stop_b":65,"token":551,"old_counter_a":733,"old_counter_b":47,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":521,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G25","epoch":32,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":67,"stop_b":67,"token":552,"old_counter_a":635,"old_counter_b":110,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":665,"new_counter_b":18,"ok":true}
+EPOCH {"case":"G25","epoch":33,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":69,"stop_b":69,"token":553,"old_counter_a":782,"old_counter_b":134,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":976,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G25","epoch":34,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":71,"stop_b":71,"token":554,"old_counter_a":1071,"old_counter_b":44,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":77,"new_counter_b":5704,"ok":true}
+EPOCH {"case":"G25","epoch":35,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":73,"stop_b":73,"token":555,"old_counter_a":167,"old_counter_b":5788,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":381,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G25","epoch":36,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":75,"stop_b":75,"token":556,"old_counter_a":471,"old_counter_b":28,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":481,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G25","epoch":37,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":77,"stop_b":77,"token":557,"old_counter_a":572,"old_counter_b":30,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":2,"new_counter_b":1066,"ok":true}
+EPOCH {"case":"G25","epoch":38,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":79,"stop_b":79,"token":558,"old_counter_a":27,"old_counter_b":1157,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":2,"new_counter_b":885,"ok":true}
+EPOCH {"case":"G25","epoch":39,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":81,"stop_b":81,"token":559,"old_counter_a":2730,"old_counter_b":3680,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":83,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G25","epoch":40,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":83,"stop_b":83,"token":560,"old_counter_a":205,"old_counter_b":95,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":122,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G25","epoch":41,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":85,"stop_b":85,"token":561,"old_counter_a":211,"old_counter_b":91,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":782,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G25","epoch":42,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":87,"stop_b":87,"token":562,"old_counter_a":872,"old_counter_b":58,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":2,"new_counter_b":183,"ok":true}
+EPOCH {"case":"G25","epoch":43,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":89,"stop_b":89,"token":563,"old_counter_a":54,"old_counter_b":278,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":2,"new_counter_b":95,"ok":true}
+EPOCH {"case":"G25","epoch":44,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":91,"stop_b":91,"token":564,"old_counter_a":2,"old_counter_b":189,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":2,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G25","epoch":45,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":93,"stop_b":93,"token":565,"old_counter_a":38,"old_counter_b":86,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":74,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G25","epoch":46,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":95,"stop_b":95,"token":566,"old_counter_a":161,"old_counter_b":46,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":2,"new_counter_b":104,"ok":true}
+EPOCH {"case":"G25","epoch":47,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":97,"stop_b":97,"token":567,"old_counter_a":68,"old_counter_b":194,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":76,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G25","epoch":48,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":99,"stop_b":99,"token":568,"old_counter_a":166,"old_counter_b":52,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":288,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G25","epoch":49,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":101,"stop_b":101,"token":569,"old_counter_a":369,"old_counter_b":65,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":212,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G25","epoch":50,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":103,"stop_b":103,"token":570,"old_counter_a":307,"old_counter_b":74,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":111,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G25","epoch":51,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":105,"stop_b":105,"token":571,"old_counter_a":195,"old_counter_b":83,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":2,"new_counter_b":125,"ok":true}
+EPOCH {"case":"G25","epoch":52,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":107,"stop_b":107,"token":572,"old_counter_a":2069,"old_counter_b":2192,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":2,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G25","epoch":53,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":109,"stop_b":109,"token":573,"old_counter_a":71,"old_counter_b":117,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":2,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G25","epoch":54,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":111,"stop_b":111,"token":574,"old_counter_a":72,"old_counter_b":24,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":300,"new_counter_b":47,"ok":true}
+EPOCH {"case":"G25","epoch":55,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":113,"stop_b":113,"token":575,"old_counter_a":300,"old_counter_b":137,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":2,"new_counter_b":123,"ok":true}
+EPOCH {"case":"G25","epoch":56,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":115,"stop_b":115,"token":576,"old_counter_a":93,"old_counter_b":216,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":2,"new_counter_b":93,"ok":true}
+EPOCH {"case":"G25","epoch":57,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":117,"stop_b":117,"token":577,"old_counter_a":54,"old_counter_b":177,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":260,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G25","epoch":58,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":119,"stop_b":119,"token":578,"old_counter_a":344,"old_counter_b":76,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":5,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G25","epoch":59,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":121,"stop_b":121,"token":579,"old_counter_a":90,"old_counter_b":45,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":2,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G25","epoch":60,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":123,"stop_b":123,"token":580,"old_counter_a":12,"old_counter_b":60,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":2,"new_counter_b":132,"ok":true}
+EPOCH {"case":"G25","epoch":61,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":125,"stop_b":125,"token":581,"old_counter_a":94,"old_counter_b":224,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":2,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G25","epoch":62,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":127,"stop_b":127,"token":582,"old_counter_a":30,"old_counter_b":77,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":1559,"new_counter_b":22,"ok":true}
+EPOCH {"case":"G25","epoch":63,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":129,"stop_b":129,"token":583,"old_counter_a":1651,"old_counter_b":116,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":115,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G25","epoch":64,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":131,"stop_b":131,"token":584,"old_counter_a":2387,"old_counter_b":2263,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":455,"new_counter_b":30,"ok":true}
+EPOCH {"case":"G25","epoch":65,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":133,"stop_b":133,"token":585,"old_counter_a":575,"old_counter_b":145,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":187618,"new_counter_b":12,"ok":true}
+EPOCH {"case":"G25","epoch":66,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":135,"stop_b":135,"token":586,"old_counter_a":187725,"old_counter_b":118,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":6879,"new_counter_b":6036,"ok":true}
+EPOCH {"case":"G25","epoch":67,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":137,"stop_b":137,"token":587,"old_counter_a":7001,"old_counter_b":6036,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":264,"new_counter_b":19,"ok":true}
+EPOCH {"case":"G25","epoch":68,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":139,"stop_b":139,"token":588,"old_counter_a":744,"old_counter_b":501,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":2147,"new_counter_b":77,"ok":true}
+EPOCH {"case":"G25","epoch":69,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":141,"stop_b":141,"token":589,"old_counter_a":2344,"old_counter_b":275,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":2,"new_counter_b":304,"ok":true}
+EPOCH {"case":"G25","epoch":70,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":143,"stop_b":143,"token":590,"old_counter_a":170,"old_counter_b":479,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":102,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G25","epoch":71,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":145,"stop_b":145,"token":591,"old_counter_a":259,"old_counter_b":137,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":2,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G25","epoch":72,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":147,"stop_b":147,"token":592,"old_counter_a":45,"old_counter_b":89,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":928,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G25","epoch":73,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":149,"stop_b":149,"token":593,"old_counter_a":1081,"old_counter_b":111,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":102,"new_counter_b":4881,"ok":true}
+EPOCH {"case":"G25","epoch":74,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":151,"stop_b":151,"token":594,"old_counter_a":239,"old_counter_b":5014,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":1107,"new_counter_b":34,"ok":true}
+EPOCH {"case":"G25","epoch":75,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":153,"stop_b":153,"token":595,"old_counter_a":1252,"old_counter_b":180,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":153,"new_counter_b":26,"ok":true}
+EPOCH {"case":"G25","epoch":76,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":155,"stop_b":155,"token":596,"old_counter_a":290,"old_counter_b":163,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":501,"new_counter_b":50,"ok":true}
+EPOCH {"case":"G25","epoch":77,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":157,"stop_b":157,"token":597,"old_counter_a":7328,"old_counter_b":6879,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":109,"new_counter_b":49,"ok":true}
+EPOCH {"case":"G25","epoch":78,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":159,"stop_b":159,"token":598,"old_counter_a":349,"old_counter_b":285,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":180,"new_counter_b":82,"ok":true}
+EPOCH {"case":"G25","epoch":79,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":161,"stop_b":161,"token":599,"old_counter_a":334,"old_counter_b":232,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":67,"new_counter_b":3349,"ok":true}
+EPOCH {"case":"G25","epoch":80,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":163,"stop_b":163,"token":600,"old_counter_a":212,"old_counter_b":3494,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":2,"new_counter_b":113,"ok":true}
+EPOCH {"case":"G25","epoch":81,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":165,"stop_b":165,"token":601,"old_counter_a":137,"old_counter_b":275,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":152,"new_counter_b":18,"ok":true}
+EPOCH {"case":"G25","epoch":82,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":167,"stop_b":167,"token":602,"old_counter_a":299,"old_counter_b":166,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":81,"new_counter_b":1087,"ok":true}
+EPOCH {"case":"G25","epoch":83,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":169,"stop_b":169,"token":603,"old_counter_a":230,"old_counter_b":1232,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":585,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G25","epoch":84,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":171,"stop_b":171,"token":604,"old_counter_a":732,"old_counter_b":111,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":580,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G25","epoch":85,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":173,"stop_b":173,"token":605,"old_counter_a":721,"old_counter_b":37,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":612,"new_counter_b":8,"ok":true}
+EPOCH {"case":"G25","epoch":86,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":175,"stop_b":175,"token":606,"old_counter_a":759,"old_counter_b":156,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":50,"new_counter_b":171,"ok":true}
+EPOCH {"case":"G25","epoch":87,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":177,"stop_b":177,"token":607,"old_counter_a":185,"old_counter_b":305,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":61,"new_counter_b":327,"ok":true}
+EPOCH {"case":"G25","epoch":88,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":179,"stop_b":179,"token":608,"old_counter_a":201,"old_counter_b":463,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":2,"new_counter_b":31,"ok":true}
+EPOCH {"case":"G25","epoch":89,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":181,"stop_b":181,"token":609,"old_counter_a":121,"old_counter_b":171,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":40,"new_counter_b":176,"ok":true}
+EPOCH {"case":"G25","epoch":90,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":183,"stop_b":183,"token":610,"old_counter_a":4867,"old_counter_b":4998,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":2,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G25","epoch":91,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":185,"stop_b":185,"token":611,"old_counter_a":181,"old_counter_b":233,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":2,"new_counter_b":128,"ok":true}
+EPOCH {"case":"G25","epoch":92,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":187,"stop_b":187,"token":612,"old_counter_a":140,"old_counter_b":276,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":2,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G25","epoch":93,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":189,"stop_b":189,"token":613,"old_counter_a":127,"old_counter_b":77,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":14,"new_counter_b":157,"ok":true}
+EPOCH {"case":"G25","epoch":94,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":191,"stop_b":191,"token":614,"old_counter_a":144,"old_counter_b":283,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":18,"new_counter_b":151,"ok":true}
+EPOCH {"case":"G25","epoch":95,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":193,"stop_b":193,"token":615,"old_counter_a":169,"old_counter_b":298,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":209,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G25","epoch":96,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":195,"stop_b":195,"token":616,"old_counter_a":349,"old_counter_b":131,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":11,"new_counter_b":1654,"ok":true}
+EPOCH {"case":"G25","epoch":97,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":197,"stop_b":197,"token":617,"old_counter_a":167,"old_counter_b":1806,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":2,"new_counter_b":410,"ok":true}
+EPOCH {"case":"G25","epoch":98,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":199,"stop_b":199,"token":618,"old_counter_a":84,"old_counter_b":562,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":2,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G25","epoch":99,"tid_a":14089,"tid_b":14090,"handle_a":617,"handle_b":618,"generation_a":619,"generation_b":620,"stop_a":201,"stop_b":201,"token":619,"old_counter_a":88,"old_counter_b":34,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":2144,"new_counter_b":68,"ok":true}
+[G25a  ] 100 epochs: the SAME two persistent owners switch versions and advance PASS
+[G25b  ] persistent handles stayed stable                           PASS
+EPOCH {"case":"G26","epoch":0,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":3,"stop_b":3,"token":622,"old_counter_a":1,"old_counter_b":1,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":2,"new_counter_b":1018,"ok":true}
+EPOCH {"case":"G26","epoch":1,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":5,"stop_b":5,"token":623,"old_counter_a":243,"old_counter_b":1354,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":2,"new_counter_b":943,"ok":true}
+EPOCH {"case":"G26","epoch":2,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":7,"stop_b":7,"token":624,"old_counter_a":65,"old_counter_b":1110,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":2,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G26","epoch":3,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":9,"stop_b":9,"token":625,"old_counter_a":103,"old_counter_b":156,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":59,"new_counter_b":665,"ok":true}
+EPOCH {"case":"G26","epoch":4,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":11,"stop_b":11,"token":626,"old_counter_a":212,"old_counter_b":814,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":42,"new_counter_b":163,"ok":true}
+EPOCH {"case":"G26","epoch":5,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":13,"stop_b":13,"token":627,"old_counter_a":228,"old_counter_b":349,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":2,"new_counter_b":1023,"ok":true}
+EPOCH {"case":"G26","epoch":6,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":15,"stop_b":15,"token":628,"old_counter_a":126,"old_counter_b":1202,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":2,"new_counter_b":26,"ok":true}
+EPOCH {"case":"G26","epoch":7,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":17,"stop_b":17,"token":629,"old_counter_a":148,"old_counter_b":199,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":77,"new_counter_b":693,"ok":true}
+EPOCH {"case":"G26","epoch":8,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":19,"stop_b":19,"token":630,"old_counter_a":229,"old_counter_b":845,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":136,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G26","epoch":9,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":21,"stop_b":21,"token":631,"old_counter_a":291,"old_counter_b":123,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":66,"new_counter_b":701,"ok":true}
+EPOCH {"case":"G26","epoch":10,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":23,"stop_b":23,"token":632,"old_counter_a":216,"old_counter_b":852,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":2,"new_counter_b":758,"ok":true}
+EPOCH {"case":"G26","epoch":11,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":25,"stop_b":25,"token":633,"old_counter_a":120,"old_counter_b":922,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":18,"new_counter_b":554,"ok":true}
+EPOCH {"case":"G26","epoch":12,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":27,"stop_b":27,"token":634,"old_counter_a":164,"old_counter_b":698,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":76,"new_counter_b":421,"ok":true}
+EPOCH {"case":"G26","epoch":13,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":29,"stop_b":29,"token":635,"old_counter_a":5124,"old_counter_b":5467,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":60,"new_counter_b":260,"ok":true}
+EPOCH {"case":"G26","epoch":14,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":31,"stop_b":31,"token":636,"old_counter_a":302,"old_counter_b":501,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":43,"new_counter_b":328,"ok":true}
+EPOCH {"case":"G26","epoch":15,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":33,"stop_b":33,"token":637,"old_counter_a":195,"old_counter_b":478,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":2,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G26","epoch":16,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":35,"stop_b":35,"token":638,"old_counter_a":78,"old_counter_b":132,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":2,"new_counter_b":782,"ok":true}
+EPOCH {"case":"G26","epoch":17,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":37,"stop_b":37,"token":639,"old_counter_a":121,"old_counter_b":940,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":2,"new_counter_b":807,"ok":true}
+EPOCH {"case":"G26","epoch":18,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":39,"stop_b":39,"token":640,"old_counter_a":85,"old_counter_b":957,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":99,"new_counter_b":853,"ok":true}
+EPOCH {"case":"G26","epoch":19,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":41,"stop_b":41,"token":641,"old_counter_a":244,"old_counter_b":993,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":2,"new_counter_b":108,"ok":true}
+EPOCH {"case":"G26","epoch":20,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":43,"stop_b":43,"token":642,"old_counter_a":148,"old_counter_b":278,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":147,"new_counter_b":23,"ok":true}
+EPOCH {"case":"G26","epoch":21,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":45,"stop_b":45,"token":643,"old_counter_a":310,"old_counter_b":187,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":261,"new_counter_b":6,"ok":true}
+EPOCH {"case":"G26","epoch":22,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":47,"stop_b":47,"token":644,"old_counter_a":414,"old_counter_b":161,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":88,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G26","epoch":23,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":49,"stop_b":49,"token":645,"old_counter_a":247,"old_counter_b":123,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":140,"new_counter_b":20,"ok":true}
+EPOCH {"case":"G26","epoch":24,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":51,"stop_b":51,"token":646,"old_counter_a":294,"old_counter_b":169,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":8347,"new_counter_b":29,"ok":true}
+EPOCH {"case":"G26","epoch":25,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":53,"stop_b":53,"token":647,"old_counter_a":8494,"old_counter_b":172,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":334,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G26","epoch":26,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":55,"stop_b":55,"token":648,"old_counter_a":4895,"old_counter_b":4529,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":11942,"new_counter_b":40,"ok":true}
+EPOCH {"case":"G26","epoch":27,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":57,"stop_b":57,"token":649,"old_counter_a":14774,"old_counter_b":488,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":28,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G26","epoch":28,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":59,"stop_b":59,"token":650,"old_counter_a":236,"old_counter_b":196,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":88,"new_counter_b":304,"ok":true}
+EPOCH {"case":"G26","epoch":29,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":61,"stop_b":61,"token":651,"old_counter_a":238,"old_counter_b":449,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":142158,"new_counter_b":3660,"ok":true}
+EPOCH {"case":"G26","epoch":30,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":63,"stop_b":63,"token":652,"old_counter_a":142366,"old_counter_b":3867,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":2,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G26","epoch":31,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":65,"stop_b":65,"token":653,"old_counter_a":127,"old_counter_b":200,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":371,"new_counter_b":64,"ok":true}
+EPOCH {"case":"G26","epoch":32,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":67,"stop_b":67,"token":654,"old_counter_a":533,"old_counter_b":221,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":2048,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G26","epoch":33,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":69,"stop_b":69,"token":655,"old_counter_a":2183,"old_counter_b":34,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":1014,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G26","epoch":34,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":71,"stop_b":71,"token":656,"old_counter_a":1156,"old_counter_b":100,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":2,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G26","epoch":35,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":73,"stop_b":73,"token":657,"old_counter_a":145,"old_counter_b":89,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":337,"new_counter_b":26,"ok":true}
+EPOCH {"case":"G26","epoch":36,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":75,"stop_b":75,"token":658,"old_counter_a":497,"old_counter_b":185,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":77,"new_counter_b":3063,"ok":true}
+EPOCH {"case":"G26","epoch":37,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":77,"stop_b":77,"token":659,"old_counter_a":226,"old_counter_b":3211,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":37,"new_counter_b":4805,"ok":true}
+EPOCH {"case":"G26","epoch":38,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":79,"stop_b":79,"token":660,"old_counter_a":195,"old_counter_b":4958,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":860,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G26","epoch":39,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":81,"stop_b":81,"token":661,"old_counter_a":6192,"old_counter_b":5295,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":887,"new_counter_b":17,"ok":true}
+EPOCH {"case":"G26","epoch":40,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":83,"stop_b":83,"token":662,"old_counter_a":1146,"old_counter_b":271,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":254,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G26","epoch":41,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":85,"stop_b":85,"token":663,"old_counter_a":434,"old_counter_b":133,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":224,"new_counter_b":42,"ok":true}
+EPOCH {"case":"G26","epoch":42,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":87,"stop_b":87,"token":664,"old_counter_a":368,"old_counter_b":181,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":2,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G26","epoch":43,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":89,"stop_b":89,"token":665,"old_counter_a":102,"old_counter_b":40,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":174,"new_counter_b":44,"ok":true}
+EPOCH {"case":"G26","epoch":44,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":91,"stop_b":91,"token":666,"old_counter_a":321,"old_counter_b":186,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":2,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G26","epoch":45,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":93,"stop_b":93,"token":667,"old_counter_a":109,"old_counter_b":48,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":1156,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G26","epoch":46,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":95,"stop_b":95,"token":668,"old_counter_a":1294,"old_counter_b":59,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":810,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G26","epoch":47,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":97,"stop_b":97,"token":669,"old_counter_a":953,"old_counter_b":40,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":971,"new_counter_b":55,"ok":true}
+EPOCH {"case":"G26","epoch":48,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":99,"stop_b":99,"token":670,"old_counter_a":1116,"old_counter_b":201,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":2,"new_counter_b":5471,"ok":true}
+EPOCH {"case":"G26","epoch":49,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":101,"stop_b":101,"token":671,"old_counter_a":79,"old_counter_b":5630,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":804,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G26","epoch":50,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":103,"stop_b":103,"token":672,"old_counter_a":957,"old_counter_b":105,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":534,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G26","epoch":51,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":105,"stop_b":105,"token":673,"old_counter_a":671,"old_counter_b":42,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":33,"new_counter_b":612,"ok":true}
+EPOCH {"case":"G26","epoch":52,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":107,"stop_b":107,"token":674,"old_counter_a":4548,"old_counter_b":3974,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":17,"new_counter_b":718,"ok":true}
+EPOCH {"case":"G26","epoch":53,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":109,"stop_b":109,"token":675,"old_counter_a":267,"old_counter_b":967,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":180,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G26","epoch":54,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":111,"stop_b":111,"token":676,"old_counter_a":342,"old_counter_b":153,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":651,"new_counter_b":11,"ok":true}
+EPOCH {"case":"G26","epoch":55,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":113,"stop_b":113,"token":677,"old_counter_a":830,"old_counter_b":191,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":381,"new_counter_b":57,"ok":true}
+EPOCH {"case":"G26","epoch":56,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":115,"stop_b":115,"token":678,"old_counter_a":537,"old_counter_b":215,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":2,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G26","epoch":57,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":117,"stop_b":117,"token":679,"old_counter_a":122,"old_counter_b":62,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":1400,"new_counter_b":41,"ok":true}
+EPOCH {"case":"G26","epoch":58,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":119,"stop_b":119,"token":680,"old_counter_a":1558,"old_counter_b":200,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":29,"new_counter_b":667,"ok":true}
+EPOCH {"case":"G26","epoch":59,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":121,"stop_b":121,"token":681,"old_counter_a":183,"old_counter_b":819,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":18273,"new_counter_b":116399,"ok":true}
+EPOCH {"case":"G26","epoch":60,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":123,"stop_b":123,"token":682,"old_counter_a":18475,"old_counter_b":116602,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":12909,"new_counter_b":6985,"ok":true}
+EPOCH {"case":"G26","epoch":61,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":125,"stop_b":125,"token":683,"old_counter_a":13086,"old_counter_b":7161,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":531,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G26","epoch":62,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":127,"stop_b":127,"token":684,"old_counter_a":695,"old_counter_b":117,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":201,"new_counter_b":11,"ok":true}
+EPOCH {"case":"G26","epoch":63,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":129,"stop_b":129,"token":685,"old_counter_a":339,"old_counter_b":151,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":230,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G26","epoch":64,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":131,"stop_b":131,"token":686,"old_counter_a":4266,"old_counter_b":4962,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":56,"new_counter_b":730,"ok":true}
+EPOCH {"case":"G26","epoch":65,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":133,"stop_b":133,"token":687,"old_counter_a":287,"old_counter_b":961,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":1469,"new_counter_b":67,"ok":true}
+EPOCH {"case":"G26","epoch":66,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":135,"stop_b":135,"token":688,"old_counter_a":1624,"old_counter_b":224,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":2,"new_counter_b":16,"ok":true}
+EPOCH {"case":"G26","epoch":67,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":137,"stop_b":137,"token":689,"old_counter_a":124,"old_counter_b":177,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":2,"new_counter_b":6266,"ok":true}
+EPOCH {"case":"G26","epoch":68,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":139,"stop_b":139,"token":690,"old_counter_a":136,"old_counter_b":6438,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":2,"new_counter_b":83,"ok":true}
+EPOCH {"case":"G26","epoch":69,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":141,"stop_b":141,"token":691,"old_counter_a":107,"old_counter_b":238,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":26,"new_counter_b":890,"ok":true}
+EPOCH {"case":"G26","epoch":70,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":143,"stop_b":143,"token":692,"old_counter_a":184,"old_counter_b":1048,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":18,"new_counter_b":524,"ok":true}
+EPOCH {"case":"G26","epoch":71,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":145,"stop_b":145,"token":693,"old_counter_a":158,"old_counter_b":665,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":56,"new_counter_b":779,"ok":true}
+EPOCH {"case":"G26","epoch":72,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":147,"stop_b":147,"token":694,"old_counter_a":214,"old_counter_b":938,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":26,"new_counter_b":1010,"ok":true}
+EPOCH {"case":"G26","epoch":73,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":149,"stop_b":149,"token":695,"old_counter_a":174,"old_counter_b":1158,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":43,"new_counter_b":926,"ok":true}
+EPOCH {"case":"G26","epoch":74,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":151,"stop_b":151,"token":696,"old_counter_a":196,"old_counter_b":1079,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":65,"new_counter_b":783,"ok":true}
+EPOCH {"case":"G26","epoch":75,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":153,"stop_b":153,"token":697,"old_counter_a":214,"old_counter_b":932,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":23,"new_counter_b":775,"ok":true}
+EPOCH {"case":"G26","epoch":76,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":155,"stop_b":155,"token":698,"old_counter_a":172,"old_counter_b":924,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":178,"new_counter_b":67,"ok":true}
+EPOCH {"case":"G26","epoch":77,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":157,"stop_b":157,"token":699,"old_counter_a":3780,"old_counter_b":3667,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":812,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G26","epoch":78,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":159,"stop_b":159,"token":700,"old_counter_a":1062,"old_counter_b":220,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":2,"new_counter_b":951,"ok":true}
+EPOCH {"case":"G26","epoch":79,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":161,"stop_b":161,"token":701,"old_counter_a":168,"old_counter_b":1128,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":15,"new_counter_b":165,"ok":true}
+EPOCH {"case":"G26","epoch":80,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":163,"stop_b":163,"token":702,"old_counter_a":153,"old_counter_b":298,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":6,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G26","epoch":81,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":165,"stop_b":165,"token":703,"old_counter_a":152,"old_counter_b":46,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":2,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G26","epoch":82,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":167,"stop_b":167,"token":704,"old_counter_a":143,"old_counter_b":92,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":8,"new_counter_b":134,"ok":true}
+EPOCH {"case":"G26","epoch":83,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":169,"stop_b":169,"token":705,"old_counter_a":139,"old_counter_b":264,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":202,"new_counter_b":64,"ok":true}
+EPOCH {"case":"G26","epoch":84,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":171,"stop_b":171,"token":706,"old_counter_a":347,"old_counter_b":205,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":2,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G26","epoch":85,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":173,"stop_b":173,"token":707,"old_counter_a":109,"old_counter_b":60,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":83,"new_counter_b":3087,"ok":true}
+EPOCH {"case":"G26","epoch":86,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":175,"stop_b":175,"token":708,"old_counter_a":245,"old_counter_b":3244,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":332,"new_counter_b":10,"ok":true}
+EPOCH {"case":"G26","epoch":87,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":177,"stop_b":177,"token":709,"old_counter_a":484,"old_counter_b":158,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":11,"new_counter_b":833,"ok":true}
+EPOCH {"case":"G26","epoch":88,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":179,"stop_b":179,"token":710,"old_counter_a":155,"old_counter_b":972,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":2,"new_counter_b":379,"ok":true}
+EPOCH {"case":"G26","epoch":89,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":181,"stop_b":181,"token":711,"old_counter_a":125,"old_counter_b":533,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":2,"new_counter_b":396,"ok":true}
+EPOCH {"case":"G26","epoch":90,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":183,"stop_b":183,"token":712,"old_counter_a":3612,"old_counter_b":4035,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":263,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G26","epoch":91,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":185,"stop_b":185,"token":713,"old_counter_a":506,"old_counter_b":201,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":9,"new_counter_b":344,"ok":true}
+EPOCH {"case":"G26","epoch":92,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":187,"stop_b":187,"token":714,"old_counter_a":154,"old_counter_b":486,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":35,"new_counter_b":121792,"ok":true}
+EPOCH {"case":"G26","epoch":93,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":189,"stop_b":189,"token":715,"old_counter_a":226,"old_counter_b":121985,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":591,"new_counter_b":10,"ok":true}
+EPOCH {"case":"G26","epoch":94,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":191,"stop_b":191,"token":716,"old_counter_a":754,"old_counter_b":173,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":2,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G26","epoch":95,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":193,"stop_b":193,"token":717,"old_counter_a":130,"old_counter_b":82,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":5,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G26","epoch":96,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":195,"stop_b":195,"token":718,"old_counter_a":162,"old_counter_b":109,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":202,"new_counter_b":71,"ok":true}
+EPOCH {"case":"G26","epoch":97,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":197,"stop_b":197,"token":719,"old_counter_a":348,"old_counter_b":213,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":2,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G26","epoch":98,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":199,"stop_b":199,"token":720,"old_counter_a":87,"old_counter_b":128,"new_marker_a":795741901218843403,"new_marker_b":795741901218843403,"new_counter_a":107,"new_counter_b":2,"ok":true}
+EPOCH {"case":"G26","epoch":99,"tid_a":14091,"tid_b":14092,"handle_a":619,"handle_b":620,"generation_a":621,"generation_b":622,"stop_a":201,"stop_b":201,"token":721,"old_counter_a":253,"old_counter_b":136,"new_marker_a":723401728380766730,"new_marker_b":723401728380766730,"new_counter_a":2,"new_counter_b":2,"ok":true}
+[G26a  ] 100 epochs: the SAME two persistent owners switch versions and advance PASS
+[G26b  ] persistent handles stayed stable                           PASS
+STORE {"epoch":0,"old":17,"old_immediate":17,"guest_immediate":34,"target_a":621,"target_b":622,"generation_a":623,"generation_b":624,"tid_a":14093,"tid_b":14094,"result_a":34,"result_b":34,"ok":true}
+STORE {"epoch":1,"old":34,"old_immediate":34,"guest_immediate":35,"target_a":621,"target_b":622,"generation_a":623,"generation_b":624,"tid_a":14093,"tid_b":14094,"result_a":35,"result_b":35,"ok":true}
+STORE {"epoch":2,"old":35,"old_immediate":35,"guest_immediate":36,"target_a":621,"target_b":622,"generation_a":623,"generation_b":624,"tid_a":14093,"tid_b":14094,"result_a":36,"result_b":36,"ok":true}
+STORE {"epoch":3,"old":36,"old_immediate":36,"guest_immediate":37,"target_a":621,"target_b":622,"generation_a":623,"generation_b":624,"tid_a":14093,"tid_b":14094,"result_a":37,"result_b":37,"ok":true}
+STORE {"epoch":4,"old":37,"old_immediate":37,"guest_immediate":38,"target_a":621,"target_b":622,"generation_a":623,"generation_b":624,"tid_a":14093,"tid_b":14094,"result_a":38,"result_b":38,"ok":true}
+STORE {"epoch":5,"old":38,"old_immediate":38,"guest_immediate":39,"target_a":621,"target_b":622,"generation_a":623,"generation_b":624,"tid_a":14093,"tid_b":14094,"result_a":39,"result_b":39,"ok":true}
+STORE {"epoch":6,"old":39,"old_immediate":39,"guest_immediate":40,"target_a":621,"target_b":622,"generation_a":623,"generation_b":624,"tid_a":14093,"tid_b":14094,"result_a":40,"result_b":40,"ok":true}
+STORE {"epoch":7,"old":40,"old_immediate":40,"guest_immediate":41,"target_a":621,"target_b":622,"generation_a":623,"generation_b":624,"tid_a":14093,"tid_b":14094,"result_a":41,"result_b":41,"ok":true}
+STORE {"epoch":8,"old":41,"old_immediate":41,"guest_immediate":42,"target_a":621,"target_b":622,"generation_a":623,"generation_b":624,"tid_a":14093,"tid_b":14094,"result_a":42,"result_b":42,"ok":true}
+STORE {"epoch":9,"old":42,"old_immediate":42,"guest_immediate":43,"target_a":621,"target_b":622,"generation_a":623,"generation_b":624,"tid_a":14093,"tid_b":14094,"result_a":43,"result_b":43,"ok":true}
+[G27a  ] 10 varying guest stores directly modify hot code reused by both original owners PASS
+[G28a  ] cached cross-block jumps cannot enter token/plain NX or an unmapped range PASS
+[G28b  ] RW rewrite then RX on the same thread automatically retires A before B PASS
+[G30a  ] the faulting owner returns GuestFault every round          PASS
+[G30b  ] the concurrent owner never inherits the fault and runs its own code PASS
+[G31a  ] real guest syscall gate returns the 6-integer sum          PASS
+[G31b  ] stack-spilled 7th/8th integer args cross the gate          PASS
+[G31c  ] 4-double arguments produce a double host return            PASS
+[G40a  ] InvokeGuest(add3) reached the return gate                  PASS
+[G40b  ] InvokeGuest(add3) rax == rdi+rsi+rdx                       PASS
+[G40c  ] InvokeGuest is repeatable on the same thread               PASS -- rax=0x7b
+[G41a  ] InvokeGuest spills the 7th argument to the guest stack     PASS -- rax=0x1c reason=Returned
+[G41b  ] stack restored after spilled call                          PASS
+[G41c  ] 100 calls preserve argument order and caller stack         PASS
+[G42   ] InvokeGuest refuses a non-executable entry                 PASS
+[G42b  ] failed frame preflight leaves stack bytes untouched        PASS
+[G42c  ] failed preflight leaves actual CPU GPRs and invocation identity untouched PASS
+[G42d  ] InvokeGuest respects quiescence before preparing frame     PASS
+[G42e  ] pre-entry cancel preserves stop identity and caller stack  PASS
+[G43a  ] InvokeGuest still works alongside a registered HLE op      PASS -- rax=0x42
+[G44a  ] guest CALL through the veneer returned via the gate        PASS -- Returned
+[G44b  ] veneer dispatched HLE add6(1..6) -> rax == 21              PASS
+[G44c  ] native HLE rejects nested same/sibling entry and outer guest survives PASS
+[G44d  ] unused veneer slot faults as guest code                    PASS
+[G44e  ] FS override is visible only in its call                    PASS -- write=ok/ok override=0x5678/Returned restored=0x1234/Returned
+[G45a  ] two nested guest callbacks return through all guest/HLE continuations PASS -- rax=0xe7 depth=3 restored=1
+[G45b  ] HLE transaction drains without its own Run lease and guest resumes PASS -- rax=0x57
+[G45c  ] WaitingHle cancellation wakes native wait and drains owner frames PASS
+[G32a  ] pinned in/out buffers marshal and the host writes the result PASS
+[G32b  ] bad/overflow pointers never reach native code              PASS
+[G32c  ] rejected buffer syscall exits immediately; successor sentinel NOT written PASS -- reason=GuestFault sentinel=0 native_called=0
+[G33a  ] unknown syscall stops at syscall PC; successor sentinel NOT written PASS -- sentinel=0 rip=0xff8010000 want 0xff8010000
+[G33b  ] valid syscall successor store executes (sentinel written)  PASS -- sentinel=42
+[G33c  ] valid HLE returns value and does not leak R10 view over architectural RCX PASS -- reason=Returned rax=0x29 rcx=0xff8010002 r10=0x1234000a sentinel=42
+[G34   ] faulting syscall self-loop returns to owner <=1s without external cancel PASS -- fault=1 elapsed_ms=0
+[G37a  ] native HLE throw caught in boundary -> GuestFault, no abort, no successor PASS -- throw not converted to attributed GuestFault
+[G37b  ] backend still runs a valid HLE after a native throw        PASS
+[G35a  ] unknown fault carries structured operation/context/thread/invocation PASS -- reason=GuestFault has_fault=1
+[G35b  ] a valid Run on a fresh owner is clean (no inherited fault) PASS -- Returned
+[G35c  ] recreated owner with a valid op does not inherit the prior fault event PASS -- Returned
+[G36a  ] concurrent unknown-syscall fault attributed to faulting owner only PASS -- fault=1 sentinel_zero=1
+[G36b  ] healthy concurrent owner keeps running after another owner's syscall fault PASS -- running=1 advanced=1
+[G36c  ] healthy owner cancelled cleanly (Cancelled, not GuestFault) PASS -- reason_ok=1 receipt_owner_ok=1
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+[G24a  ] timeout recovery preserves an earlier external request and closes admission PASS
+[G24b  ] timeout recovery preserves a later external request and closes admission PASS
+TRACE G13 iteration=0 request=1228 stop=2 progress=1154 latency_us=106
+TRACE G13 iteration=1 request=1229 stop=3 progress=2388 latency_us=90
+TRACE G13 iteration=2 request=1230 stop=4 progress=4032 latency_us=90
+TRACE G13 iteration=3 request=1231 stop=5 progress=5462 latency_us=90
+TRACE G13 iteration=4 request=1232 stop=6 progress=7488 latency_us=93
+TRACE G13 iteration=5 request=1233 stop=7 progress=8894 latency_us=192
+TRACE G13 iteration=6 request=1234 stop=8 progress=10168 latency_us=190
+TRACE G13 iteration=7 request=1235 stop=9 progress=11587 latency_us=93
+TRACE G13 iteration=8 request=1236 stop=10 progress=12942 latency_us=89
+TRACE G13 iteration=9 request=1237 stop=11 progress=14390 latency_us=426
+TRACE G13 iteration=10 request=1238 stop=12 progress=17533 latency_us=95
+TRACE G13 iteration=11 request=1239 stop=13 progress=19492 latency_us=129
+TRACE G13 iteration=12 request=1240 stop=14 progress=497818 latency_us=172
+TRACE G13 iteration=13 request=1241 stop=15 progress=585335 latency_us=357
+TRACE G13 iteration=14 request=1242 stop=16 progress=590016 latency_us=293
+TRACE G13 iteration=15 request=1243 stop=17 progress=592583 latency_us=122
+TRACE G13 iteration=16 request=1244 stop=18 progress=594351 latency_us=117
+TRACE G13 iteration=17 request=1245 stop=19 progress=596210 latency_us=122
+TRACE G13 iteration=18 request=1246 stop=20 progress=598587 latency_us=126
+TRACE G13 iteration=19 request=1247 stop=21 progress=600429 latency_us=119
+TRACE G13 iteration=20 request=1248 stop=22 progress=602395 latency_us=117
+TRACE G13 iteration=21 request=1249 stop=23 progress=630226 latency_us=238
+TRACE G13 iteration=22 request=1250 stop=24 progress=641895 latency_us=152
+TRACE G13 iteration=23 request=1251 stop=25 progress=644929 latency_us=227
+TRACE G13 iteration=24 request=1252 stop=26 progress=647584 latency_us=118
+TRACE G13 iteration=25 request=1253 stop=27 progress=650052 latency_us=120
+TRACE G13 iteration=26 request=1254 stop=28 progress=652378 latency_us=121
+TRACE G13 iteration=27 request=1255 stop=29 progress=654762 latency_us=117
+TRACE G13 iteration=28 request=1256 stop=30 progress=656453 latency_us=117
+TRACE G13 iteration=29 request=1257 stop=31 progress=658198 latency_us=113
+TRACE G13 iteration=30 request=1258 stop=32 progress=661015 latency_us=123
+TRACE G13 iteration=31 request=1259 stop=33 progress=673673 latency_us=116
+TRACE G13 iteration=32 request=1260 stop=34 progress=675762 latency_us=106
+TRACE G13 iteration=33 request=1261 stop=35 progress=682069 latency_us=103
+TRACE G13 iteration=34 request=1262 stop=36 progress=683979 latency_us=57
+TRACE G13 iteration=35 request=1263 stop=37 progress=685643 latency_us=58
+TRACE G13 iteration=36 request=1264 stop=38 progress=687217 latency_us=56
+TRACE G13 iteration=37 request=1265 stop=39 progress=688665 latency_us=57
+TRACE G13 iteration=38 request=1266 stop=40 progress=690333 latency_us=57
+TRACE G13 iteration=39 request=1267 stop=41 progress=692328 latency_us=59
+TRACE G13 iteration=40 request=1268 stop=42 progress=694145 latency_us=55
+TRACE G13 iteration=41 request=1269 stop=43 progress=703816 latency_us=65
+TRACE G13 iteration=42 request=1270 stop=44 progress=705303 latency_us=78
+TRACE G13 iteration=43 request=1271 stop=45 progress=706589 latency_us=79
+TRACE G13 iteration=44 request=1272 stop=46 progress=707583 latency_us=77
+TRACE G13 iteration=45 request=1273 stop=47 progress=708937 latency_us=77
+TRACE G13 iteration=46 request=1274 stop=48 progress=710231 latency_us=76
+TRACE G13 iteration=47 request=1275 stop=49 progress=711224 latency_us=77
+TRACE G13 iteration=48 request=1276 stop=50 progress=712614 latency_us=77
+TRACE G13 iteration=49 request=1277 stop=51 progress=714038 latency_us=76
+TRACE G13 iteration=50 request=1278 stop=52 progress=716096 latency_us=79
+TRACE G13 iteration=51 request=1279 stop=53 progress=717528 latency_us=55
+TRACE G13 iteration=52 request=1280 stop=54 progress=718922 latency_us=77
+TRACE G13 iteration=53 request=1281 stop=55 progress=720248 latency_us=78
+TRACE G13 iteration=54 request=1282 stop=56 progress=721979 latency_us=78
+TRACE G13 iteration=55 request=1283 stop=57 progress=723410 latency_us=76
+TRACE G13 iteration=56 request=1284 stop=58 progress=725024 latency_us=79
+TRACE G13 iteration=57 request=1285 stop=59 progress=727009 latency_us=70
+TRACE G13 iteration=58 request=1286 stop=60 progress=728917 latency_us=67
+TRACE G13 iteration=59 request=1287 stop=61 progress=739039 latency_us=68
+TRACE G13 iteration=60 request=1288 stop=62 progress=740567 latency_us=87
+TRACE G13 iteration=61 request=1289 stop=63 progress=742185 latency_us=66
+TRACE G13 iteration=62 request=1290 stop=64 progress=743676 latency_us=56
+TRACE G13 iteration=63 request=1291 stop=65 progress=745972 latency_us=58
+TRACE G13 iteration=64 request=1292 stop=66 progress=747445 latency_us=56
+TRACE G13 iteration=65 request=1293 stop=67 progress=749206 latency_us=83
+TRACE G13 iteration=66 request=1294 stop=68 progress=750915 latency_us=56
+TRACE G13 iteration=67 request=1295 stop=69 progress=752678 latency_us=78
+TRACE G13 iteration=68 request=1296 stop=70 progress=754364 latency_us=55
+TRACE G13 iteration=69 request=1297 stop=71 progress=755966 latency_us=54
+TRACE G13 iteration=70 request=1298 stop=72 progress=757458 latency_us=77
+TRACE G13 iteration=71 request=1299 stop=73 progress=759289 latency_us=55
+TRACE G13 iteration=72 request=1300 stop=74 progress=761049 latency_us=77
+TRACE G13 iteration=73 request=1301 stop=75 progress=762783 latency_us=54
+TRACE G13 iteration=74 request=1302 stop=76 progress=764992 latency_us=57
+TRACE G13 iteration=75 request=1303 stop=77 progress=766747 latency_us=54
+TRACE G13 iteration=76 request=1304 stop=78 progress=768731 latency_us=79
+TRACE G13 iteration=77 request=1305 stop=79 progress=770513 latency_us=55
+TRACE G13 iteration=78 request=1306 stop=80 progress=772274 latency_us=56
+TRACE G13 iteration=79 request=1307 stop=81 progress=774322 latency_us=55
+TRACE G13 iteration=80 request=1308 stop=82 progress=776255 latency_us=55
+TRACE G13 iteration=81 request=1309 stop=83 progress=778230 latency_us=55
+TRACE G13 iteration=82 request=1310 stop=84 progress=779865 latency_us=77
+TRACE G13 iteration=83 request=1311 stop=85 progress=781635 latency_us=54
+TRACE G13 iteration=84 request=1312 stop=86 progress=783214 latency_us=54
+TRACE G13 iteration=85 request=1313 stop=87 progress=784929 latency_us=54
+TRACE G13 iteration=86 request=1314 stop=88 progress=786797 latency_us=54
+TRACE G13 iteration=87 request=1315 stop=89 progress=788505 latency_us=52
+TRACE G13 iteration=88 request=1316 stop=90 progress=790425 latency_us=56
+TRACE G13 iteration=89 request=1317 stop=91 progress=792399 latency_us=56
+TRACE G13 iteration=90 request=1318 stop=92 progress=794009 latency_us=54
+TRACE G13 iteration=91 request=1319 stop=93 progress=795697 latency_us=54
+TRACE G13 iteration=92 request=1320 stop=94 progress=797382 latency_us=77
+TRACE G13 iteration=93 request=1321 stop=95 progress=802075 latency_us=90
+TRACE G13 iteration=94 request=1322 stop=96 progress=806448 latency_us=100
+TRACE G13 iteration=95 request=1323 stop=97 progress=808247 latency_us=91
+TRACE G13 iteration=96 request=1324 stop=98 progress=810120 latency_us=110
+TRACE G13 iteration=97 request=1325 stop=99 progress=812195 latency_us=108
+TRACE G13 iteration=98 request=1326 stop=100 progress=819064 latency_us=104
+TRACE G13 iteration=99 request=1327 stop=101 progress=821136 latency_us=154
+[G13a  ] 100 cycles each execute, pause and publish fresh state     PASS
+[G13b  ] request-to-ack budget includes RequestInterrupt itself     PASS -- p50_us=78 p95_us=227 max_us=426
+[G13c  ] immediate-entry Cancel is acknowledged without a warmup gap PASS
+[G12a  ] a ticket from another context is refused                   PASS -- InvalidArgument in WaitStopped: wrong context ticket
+[G12b  ] a stale thread generation is refused                       PASS -- InvalidHandle in RequestInterrupt: stale handle
+[G12c  ] resuming an unacknowledged epoch is refused                PASS -- StaleEpoch in Resume: resume must name the current stopped request epoch
+[G12d  ] a non-zero deadline_ns is refused before running           PASS -- Unsupported in Run: deadline_ns is unsupported
+[G15a  ] 100 concurrent Pause/Cancel pairs preserve Cancel priority PASS
+[G15b  ] older Resume never consumes a newer stopped request        PASS
+[G15c  ] 100 timed-out waits retain requests and receive late owner acks PASS
+[G15d  ] 100 pre-entry stops and concurrent Resume/Pause races retain new requests PASS
+[G15e  ] Cancel while paused has an immediate frozen-state receipt  PASS
+[G16a  ] 10 paused owner patches affect actual GPR/RIP/XMM/MXCSR/FS/GS execution PASS
+[G16b  ] running reads and wrong-owner/stale writes are rejected    PASS
+[G16c  ] all four guest rounding modes preserve host rounding and exception flags PASS
+[G17a  ] all test owners destroyed their own threads                PASS
+[G10a  ] pinned rewrite with failed invalidation poisons code       PASS
+[G10b  ] poison refuses execute permission and real guest admission PASS
+[G10c  ] restore real backend registration                          PASS
+[G10d  ] successful repair resumes the new B translation            PASS
+
+[G06a  ] capabilities declare base integer support                  PASS
+[G06b  ] capabilities declare SSE2 support                          PASS
+[G06c  ] capabilities do not claim AVX                              PASS
+[G06d  ] capabilities report the injected host page size            PASS
+[G06e  ] a second concurrent context is refused with AlreadyActive  PASS
+[G06f  ] an unmapped entry_rip is refused                           PASS
+[G06g  ] Step is refused with Unsupported, not silently run as a block PASS
+[G06h  ] WriteRegisters refuses a stale stop epoch                  PASS
+[G06i  ] a destroyed handle is refused with InvalidHandle           PASS
+[G06j  ] InvalidateCode refuses a token from another address space  PASS -- InvalidArgument in GuestAddressSpace::InvalidateCode: the token belongs to a different address space, or its space has been destroyed
+[G17b  ] 100 destroyed/recreated contexts reject real old tickets and handles PASS
+[G17c  ] 100 real HLT faults outrank subsequent Cancel and refuse Resume PASS
+
+236 check(s), FAILED (1 failure)
+SCOPE: real x86-64 executed by FEXCore through the public API, from
+       assembler-generated fixtures, typed HLE and boundary interrupts.
+       Nested HLE callbacks and cancellable waits included; no Step/APK.

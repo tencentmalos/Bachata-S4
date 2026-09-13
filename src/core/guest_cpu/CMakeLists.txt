@@ -17,6 +17,8 @@ add_library(guest_cpu_api STATIC
     api/memory.h
     api/address_space.h
     api/address_space.cpp
+    hle/scope.h
+    hle/scope.cpp
     hle/call_adapter.h
     hle/veneer_allocator.h
     hle/veneer_allocator.cpp

@@ -1,0 +1,4 @@
+[1/4] Building CXX object CMakeFiles/production_runtime_runner.dir/Users/bytedance/workspace/emulations/ps4/shadps4/src/core/host_runtime/session_backend_fex.cpp.o
+[2/4] Building CXX object CMakeFiles/guest_cpu_fex.dir/Users/bytedance/workspace/emulations/ps4/shadps4/src/core/guest_cpu/fex/fex_context.cpp.o
+[3/4] Linking CXX static library libguest_cpu_fex.a
+[4/4] Linking CXX executable production_runtime_runner

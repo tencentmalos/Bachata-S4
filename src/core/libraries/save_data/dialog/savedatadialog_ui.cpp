@@ -27,8 +27,9 @@ static constexpr ImVec2 BUTTON_SIZE{100.0f, 30.0f};
 constexpr auto FOOTER_HEIGHT = BUTTON_SIZE.y + 15.0f;
 static constexpr float PROGRESS_BAR_WIDTH{0.8f};
 
-static ::Core::FileSys::MntPoints* g_mnt =
-    Common::Singleton<::Core::FileSys::MntPoints>::Instance();
+static ::Core::FileSys::MntPoints* GetMounts() {
+    return Common::Singleton<::Core::FileSys::MntPoints>::Instance();
+}
 
 static std::string SpaceSizeToString(size_t size) {
     std::string size_str;
@@ -138,7 +139,7 @@ SaveDialogState::SaveDialogState(const OrbisSaveDataDialogParam& param) {
             auto buf = (u8*)new_item->iconBuf;
             icon = RefCountedTexture::DecodePngTexture({buf, buf + new_item->iconSize});
         } else {
-            if (auto bytes = g_mnt->ReadFile("/app0/sce_sys/save_data.png")) {
+            if (auto bytes = GetMounts()->ReadFile("/app0/sce_sys/save_data.png")) {
                 icon = RefCountedTexture::DecodePngTexture(std::move(*bytes));
             }
         }

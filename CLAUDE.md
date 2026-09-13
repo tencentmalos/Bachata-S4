@@ -2,50 +2,34 @@
 
 @AGENTS.md
 
-`AGENTS.md` is the shared project context and working guidance. Read it first; this file provides the Claude entry point without maintaining a second independent policy.
+`AGENTS.md` 是共享事实与工程约束；本文件只提供 Claude/Opus 入口。
 
-## 最新整版入口（2026-09-13）
+## 当前交接（2026-09-13）
 
-先读[本轮 Runtime/输入复核与修复](docs/validation/android-native-host/runtime-input-review-2026-09-13.md)，下一位 Opus4.8 连续执行[新的整版 spec](docs/specs/android-native-host-runtime-after-input.md)。Foundation5388ef4已先push；主仓修复了生产pad旁路、epoch/Stop/反馈退役、ART加载被Tracy initial-exec TLS阻止、录音假成功和ELF审计。APK真实加载host+FEX/JNI两库，同一生产pad只在host存在；无需为了单库重做链接图。AYN/API33/4KiB：host dlopen+85/0、Foundation49/0+Android5、pad portable45/0、APK input6、实际Service三轮同PID运行/取消及真实pad按下松开。默认映射和host-origin HLE验证通过，自定义remap、真实手柄震感、FEX-origin pad及游戏仍待验。
+先读[本轮运行时复核与修复](docs/validation/android-native-host/wp1-mechanism-review-2026-09-13.md)，然后连续执行[TMNT整版spec](docs/specs/android-native-host-tmnt-after-runtime.md)。用户明确要求生产 Linker、VM、线程/TLS、可取消HLE回调由当前复核轮完成，**这部分已经实现，不再交给下一位从头接线**。
 
-旧768636aa Stage0结论撤回：漏RELRO并gap-fill，未完成符号/PLT/TLS，native pc0不等于guest RIP0。新audit11项通过；真实eboot仅LOAD_AUDIT_PASS/EXECUTION_NOT_RUN，请求执行exit3。后续整块实现生产Module/Linker/VM/typed HLE/TLS/pthread/InvokeGuest/WaitingHle，再接Turnip/Surface/AAudio/UI本体+更新与TMNT交互10分钟/Stop/三轮游戏重启；当前三轮CPU smoke不能抵作游戏验收。
+生产 `GuestRuntime` 通过 `FexSessionBackend`、JNI 和普通 Service 执行 ELF/SELF；Module/Linker/VM/backing、guest pthread/TLS/errno/stack guard、HleScope/两层InvokeGuest/WaitingHle取消都已组成运行时。AYN/API33/4KiB：guest242/0、contract46/46、ABI14/0、registry13/0、veneer19/0；普通APK12个同PID generation覆盖双模块DT_INIT/TLS、子线程运行期间VM、正常/取消/坏指针/未知import/初始化取消及恢复。host dlopen+85/0、macOS现代LLVM contract45+1SKIP/46、Session807/0。原始证据保留07ce52ae+dirty身份；不能把它们说成TMNT已可玩或Swan已验。
 
-之前的[两工作包 bionic 迁移方案](docs/specs/android-native-host-full-link-plan-2026-09-12.md)保留架构选择。[前置结果](docs/validation/android-native-host/bionic-prerequisites-2026-09-12.md)与[三方库归属核查](docs/validation/android-native-host/bionic-third-party-audit-2026-09-12.md)：五组基础probe AYN/host各8项、wrapper4项；FFmpeg7.1.5独立owned子仓`e17ba6e2`、六库NDK源码provider、生产媒体syntax7/7、AYN媒体9/9；libadrenotools复用azahar匹配pin/四hook，五DSO已NDK链接，未实际加载Turnip。已修spdlog固定fmt供给和OpenAL Android OpenSL配置。扩展依赖probe现为AYN14/14；hwinfo误判已在新owned fork `tencentmalos/ext-hwinfo`/`codex/shadps4-bionic`的`85bbcba3`修复，Android报告native process ABI，旧13/14证据保留，问题已关闭。gh已重新登录并核对owned refs。已有独立子仓不进Foundation，现有Foundation/FEX等健康pin不变。上述probe不是游戏或普通APK验收。
+下一阶段扩真实游戏的Orbis函数族和guest libc启动，集成Turnip/Surface/AAudio/FEX-origin pad/内容版本事务，最后UI本体+更新、交互场景、十分钟、Stop、同进程三轮游戏。连续推进两个工作包，不在每个NID/库/首帧处重新交回微型规划。
 
-历史 [COMMON/Git复核](docs/validation/android-native-host/pkg-v2-common-review-2026-09-12.md)：主线已推送到2efe7004（含此前51提交、遗漏spec/证据/研究归档），报告与新证据随后交付。新增COMMON4/4对象通过；POSIX strerror_r与ESR对齐两个问题已直接修复，正式tests/common真机回归GNU errno7/7、POSIX errno7/7、信号50/50及macOS errno7/7通过，不再列入后续待办。正式host target现已建立，继续按最新spec完成生产接线与完整链接。
+## 必须保留
 
-先读 [Vulkan/NDK 复核与本地修复](docs/validation/android-native-host/vulkan-review-2026-09-12.md)，继续 [PKG v2 整版任务书](docs/specs/android-native-host-pkg-v2.md)。图形代码/测试/脚本已提交 `091334d3`，入口同步为 `1d411955`；新增 COMMON/bionic 适配 `06bd43bd`、进度 `7c675280`，已随上述主线交付远端并完成独立复核。图形完整源列表37+67已生成104个ARM64对象，acquire合同19/0、SessionCore807/0；不是整个host链接或游戏验收。
+- 目标Swan/Android16/API36/ARM64/**4KiB**；AYN为辅助，Swan不在线标NOT_RUN；16KiB和PSVR后置。FEX只跑PS4 x86 guest，host是NDK/bionic原生ARM64。
+- host DSO唯一提供GuestAddressSpace和Foundation InputHub/OrbisPadAdapter；JNI/FEX导入生成SDK。无需重做单库。Android已无SDL和冲突JNI_OnLoad，桌面SDL保留。
+- Foundation owned `codex/shadps4-android-fex-v0` / `5388ef45313d6c32cb5f4bb5b07f1246ee381370` 已push；FEX维持 `385a0cc4`，不绕过子仓指令改动。依赖修改先查owned ref和[归属](docs/subrepository-ownership.md)，子仓先push再pin。
+- FEX使用实际rpmalloc+普通mmap/munmap hooks；不steal ART高VA、不替换bionic malloc、不用Windows HookPtrs。guest owns4MiB–256MiB、4GiB–120GiB，ART hole不在账本。exact reserve碰撞可回收失败，不扫描maps后MAP_FIXED。
+- 保留主仓EntryBackedgePass：pinned FEX局部条件回边会跳过entry interrupt poll，G47以真实热循环复现。pass只改guest EntryPoint边；不改REP/原子内部循环、不用MAXINST=1掩盖。
+- NON-spill退出JIT后执行HLE，scope控制回调；native fenv/errno、outer continuation、fault/cancel/exit归属保留。VM内部park必须真实退出JIT、释放资格；不能清用户Cancel或带pin跨任意callback。
+- SELF原ELF节表offset不是容器offset；模块依赖支持modules/与sce_module/。guard是显式guest数据；未知对象拒绝，未知函数具名fault，不写native函数或global地址到guest GOT。
+- 通用guest指令异常、非默认pthread/动态TLS/API覆盖仍有实际边界；新调用沿已接好的runtime完善，不把合成check数当全部HLE语义已经完成。
+- 默认Android/bionic Turnip，无静默系统driver fallback；实际loader handle/shaderInt64/namespace/Surface寿命必须验。FFmpeg是独立owned子仓，不塞Foundation。
+- TMNT01.08是更新；[本体/更新身份](docs/validation/android-native-host/2026-09-12-review/pkg-set.json)。本轮选择了base后overlay的eboot/模块/param.sfo，不含完整游戏assets。不能拿旧01.00 eboot-only冒充完整1.08启动。
+- 不提交游戏/PKG/driver/APK/DSO或凭据；保留无关`references/Bachata-S4`和`externals/dear_imgui/`本地工作。所有失败和旧NOT_RUN保留，不能倒写历史Build ID或源码身份。
 
-**用户最新指定默认 Android/bionic Turnip，系统驱动适配后置。** 实際 native Turnip loader/dispatcher 尚未接入，不能只修改环境变量/枚举就宣布完成；锁定 bionic 包/ELF身份并查实际 shaderInt64，旧 glibc EMULATOR.zip 不能用于 native host。系统 Adreno 的 vkjson 仅为参考，不是 Turnip 结果。
+## 复现与历史资料
 
-下一 AI 连续完成正式host全链接+Turnip实际加载→完整guest/Orbis/VM/线程/Surface/音频输入→UI导入TMNT本体及更新/真机可交互/十分钟/Stop/同进程重启。不要重复修已关闭的SpinLock/platform/include/sweep/acquire局部缺陷，也不再按每个小gate停工。ANativeWindow寿命、完整WSI退出、allocator、信号/guest ABI等整版合同仍未关闭。
+[本轮命令与证据](docs/validation/android-native-host/2026-09-13-wp1-review/README.md)；构建入口`scripts/android/build-host-android`、匹配profile FEX、Gradle的`fexBuildDir`/`hostLoaderConfig`；验证入口`scripts/android/validate-production-runtime-android`。源host与APK剥离符号后的Build ID必须相同。
 
-TMNT1.08是更新，匹配1.00本体已核实，路径/hash见 [pkg-set.json](docs/validation/android-native-host/2026-09-12-review/pkg-set.json)。以下早期记录仅作历史参考；事实冲突以 AGENTS 和最新复核为准。
+[输入接通复核](docs/validation/android-native-host/runtime-input-review-2026-09-13.md)保留Foundation49/0+Android5、pad45/0、APK input6等证据。旧Stage0“crt到首个HLE已过”已撤回；prologue harness仅LOAD_AUDIT，不重新用作执行门槛。
 
-## 历史入口与通用资料
-
-- **历史执行：[host 原生化评估](docs/android-native-host-assessment-2026-09-11.md) → [host-native v1 spec](docs/specs/android-native-host-v1.md) → [进度](docs/validation/round2/progress.md)**。基点 `9ac6c300`；HN0 已落地 4 提交(`5d9edb92` HN0.1/HN0.3、`d6fb4df3` HN0.2、`e7195f0d` HN0 证据、`d4ea078e` HN1.1 seam)，均本机验证、未 push。**HN0.1 session 生命周期重构完成**：新 `src/core/host_runtime/`（backend-free `SessionCore` + `ISessionBackend` seam + `FexSessionBackend` + test gate），修掉 UAF/early-Stop 丢失/join 竞争/GuestFault 当 exit0；JNI 变薄(generation API、每出口 try/catch)；Kotlin 加 Ready/Stopping+generation guard。host `session_lifecycle_tests` 767 checks×20 run 全过(内建 alive UAF tripwire，本沙箱 ASan/TSan 不可用)；JVM 92/0；runner 23/23；arm64 `.so` 经 NDK29+FEX 构建成功、新 9-method JNI surface 导出。**HN1.1**：`RasterizerHooks` seam 让 `core/memory.cpp` 不再 include `vk_rasterizer.h`(headless 闭包唯一 blocker 解除)。仍未接主仓 loader/Orbis HLE/renderer。不要继续用占位游戏记录或固定循环宣称游戏整合。
-- **关键限制**：（HN0.1 已修，勿再当原样缺陷）JNI 已无裸 context、无 join 竞争、GuestFault→Failed。仍未解：allocator pre-owned-region provider **BLOCKED**(FEX public 只有 self-steal `SetupHooks`，`Create64BitAllocatorWithRegions` 非 public，pre-steal 与 public SetupHooks 不兼容；见 `docs/validation/android-native-host/allocator-provider.md`)——已修 `call_once` 永久吞错。旧 VMM `address_space.cpp` USER_MIN=64GiB/USER_MAX=85TiB 与 guest_cpu `1<<36` 冲突、`module.cpp:104`/`linker.cpp` 把 guest 入口当 native 指针，都属 HN2 未做。**历史环境判断已纠正**：desktop在本Mac的编译问题不阻塞NDK交叉构建；现在已在本Mac完成host共享库链接和AYN装载，不再要求先转Linux/CI；device `9c2841a4`(AYN Thor/API33/4KiB) 用于 HN0 真机验收——**HN-U01 已 PASS(2026-09-12)**:UI 驱动 10 次 start/stop、generation 严格递增 gen 3→11、进程全程存活无崩溃(见 `docs/validation/android-native-host/hn0-device-u01-2026-09-12.md`),同时验证了 HN0.2 retriable guard;HN-S01/S02 设备矩阵、HN-A01、HN2 的 HN-L01 仍欠。Linux 无 public regions-taking SetupHooks，不误用 Windows HookPtrs，不擅改 FEX 子仓(pin `385a0cc4`)。完整 E1/E2/E3/H3、HLE 归属和 Swan G4 仍需验证。
-- [一周目提交与全量欠项](docs/baselines/2026-09-08-round1-closeout.md)：`85b57cb2` 已推送；Swan contract 34/34、guest 45/45。历史 runner 的 11 PASS 不等于 app 验收，尤其 B02 仅有独立 ELF 证据。
-- [事务加固与验证](docs/validation/v0/transaction-hardening-2026-09-08.md)：源码/hash/原始日志；测试时 dirty patch 已纳入上述提交，不倒改历史测试身份。
-
-- [子仓归属与开发分支](docs/subrepository-ownership.md)：动依赖前核对自有 remote、分支和固定版本。
-- [Foundation 接入](docs/foundation-integration.md)：DebugBus 已有构建入口；反射、packing、网络优先复用，完整闭包仍待验证。
-- [基础版本状态：2026-09-07 / a7128893](docs/baselines/2026-09-07-android-fex-foundation.md)：固定起点、已验证结果、未完成项和恢复方法。
-- [V0 总 spec](docs/specs/android-fex-v0.md)：完整目标及 CPU API/验收矩阵；二周目只是其子集。
-- [较早的发布失败保护与执行准入](docs/validation/v0/followup-poison-2026-09-08.md)：历史记录，后续增量修复及当前成绩以一周目结项为准。构建入口统一为 `cmake/fex`（`-DV0_ENABLE_FEX=ON -DFEX_BUILD_DIR=…`）。
-
-- [研究索引](docs/README.md)：整体方案、Android 基础、FEX/Dynarmic、guest debugger 与 LLDB。
-- [references 源码索引](references/README.md)：用途、固定提交、初始化方法。
-- [Android / ARM64 整合审计](docs/android-arm64-integration-audit.md)：后续开发首先引用这份。
-
-## 必须记住
-
-- 当前目标是 Swan / Android 16 / ARM64 / **4 KiB**；用户于 2026-09-08 将 16 KiB 工作后置。FEXCore 只执行 PS4 x86 guest，shadPS4 host 保持原生 ARM64。
-- Android 前端与 ARM64 HLE/guest 桥有可复用代码；当前有 NDK/bionic harness 和主仓 JNI CPU 冒烟 APK，host DSO 已在 APK 加载，完整游戏 backend 尚未整合。使用 FEX `385a0cc4d…`，不要按旧初稿回退至 reference 的旧 runtime pin。
-- 第一阶段关注 NDK/bionic、4 KiB 设备上的真实 FEX 执行、原生 Vulkan Surface 和停止/重启生命周期；普通手柄接通不等于 PSVR/Move 支持。
-- 调试先落地 host LLDB + guest 状态适配；异步 JIT stop 不能直接把 CPUState 当完整寄存器快照。
-- 子仓提交、主仓 gitlink、部署 binary Build ID 是三个不同对象。记录和核对实际用到的版本；保留子仓中的独立未提交工作。
-- Foundation 不替代 guest CPU API；网络命令投递给 owner thread，停用服务后等待 in-flight 请求退出再销毁 registry。不要将通用反射、序列化或网络设施在主仓重复实现。
-- **测试用 PKG**：`/Users/bytedance/game/ps4/TMNT.Splintered.Fate_CUSA50828_v1.08.pkg`（CUSA50828 v1.08，1.87 GB）——后续 host loader/PKG 导入/真机运行阶段（HN2 真 ELF 起、HN6 PKG 导入）的测试内容。不提交进仓库。
-- **host NDK/bionic 编译已起步**（`docs/validation/android-native-host/ndk-host-closure-2026-09-12.md`）：loader/memory/kernel-min 17/17 TU 过 NDK 交叉编译；修了 bionic 两处缺口——`time.cpp` 用 `date` 库+`USE_OS_TZDB=1` 代 `std::chrono::current_zone`，`kernel.cpp` 用 `arc4random_buf` 代 libuuid。新增 `AAudioOut`（阻塞写模型，无 callback，参考 citron）与 vk_platform Android surface 分支（`ANativeWindow*`→`vkCreateAndroidSurfaceKHR`）。bounded acquire、swapchain 生命周期、`CreateSurface` 去 SDL 耦合留 HN4。音频/Vulkan 参考本地 azahar/citron；Foundation DebugBus/input 可复用。
+[完整资料索引](docs/README.md)、[基础版本](docs/baselines/2026-09-07-android-fex-foundation.md)、[V0](docs/specs/android-fex-v0.md)、[Foundation](docs/foundation-integration.md)、[host→guest LLDB](docs/fex-lldb-host-guest-workflow.md)。历史allocator BLOCKED/无HleScope/未接runtime等描述是旧状态，当前实现以本轮复核和AGENTS为准。

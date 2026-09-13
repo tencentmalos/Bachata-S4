@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: Copyright 2024-2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <limits>
+#include <stdexcept>
 #include "common/alignment.h"
 #include "common/arch.h"
 #include "common/assert.h"
@@ -25,6 +27,9 @@ static constexpr u64 GameModuleLoadBase = 0x80000000;
 static constexpr u64 SystemModuleLoadBase = 0x800000000;
 
 static u64 GetAlignedSize(const elf_program_header& phdr) {
+    if (phdr.p_align && ((phdr.p_align & (phdr.p_align - 1)) ||
+                         phdr.p_memsz > std::numeric_limits<u64>::max() - (phdr.p_align - 1)))
+        throw std::runtime_error("invalid ELF segment alignment/size");
     return (phdr.p_align != 0 ? (phdr.p_memsz + (phdr.p_align - 1)) & ~(phdr.p_align - 1)
                               : phdr.p_memsz);
 }
@@ -33,7 +38,11 @@ static u64 CalculateBaseSize(const elf_header& ehdr, std::span<const elf_program
     u64 base_size = 0;
     for (u16 i = 0; i < ehdr.e_phnum; i++) {
         if (phdr[i].p_memsz != 0 && (phdr[i].p_type == PT_LOAD || phdr[i].p_type == PT_SCE_RELRO)) {
-            const u64 last_addr = phdr[i].p_vaddr + GetAlignedSize(phdr[i]);
+            const auto size = GetAlignedSize(phdr[i]);
+            if (phdr[i].p_vaddr > std::numeric_limits<u64>::max() - size ||
+                phdr[i].p_filesz > phdr[i].p_memsz)
+                throw std::runtime_error("invalid ELF segment extent");
+            const u64 last_addr = phdr[i].p_vaddr + size;
             base_size = std::max(last_addr, base_size);
         }
     }
@@ -101,6 +110,14 @@ Module::~Module() = default;
 s32 Module::Start(u64 args, const void* argp, void* param) {
     LOG_INFO(Core_Linker, "Module started : {}", name);
     const VAddr addr = dynamic_info.init_virtual_addr + GetBaseAddress();
+    if (!dynamic_info.init_virtual_addr)
+        return 0;
+    if (memory->IsGuestBackend()) {
+        if (!memory->guest_call)
+            throw std::logic_error("guest callback is not bound");
+        return memory->guest_call(addr, args, reinterpret_cast<u64>(argp),
+                                  reinterpret_cast<u64>(param));
+    }
     return reinterpret_cast<EntryFunc>(addr)(args, argp, param);
 }
 
@@ -112,6 +129,8 @@ void Module::LoadModuleToMemory(u32& max_tls_index) {
     const auto elf_header = elf.GetElfHeader();
     const auto elf_pheader = elf.GetProgramHeader();
     const u64 base_size = CalculateBaseSize(elf_header, elf_pheader);
+    if (base_size == 0 || base_size > (1ULL << 34))
+        throw std::runtime_error("invalid or excessive module virtual size");
     aligned_base_size = Common::AlignUp(base_size, BlockAlign);
 
     // Reserve memory area for module
@@ -124,7 +143,8 @@ void Module::LoadModuleToMemory(u32& max_tls_index) {
     s32 result =
         memory->MapMemory(out_addr, load_base, aligned_base_size + TrampolineSize,
                           MemoryProt::NoAccess, MemoryMapFlags::NoFlags, VMAType::Reserved, name);
-    ASSERT_MSG(result == ORBIS_OK, "Failed to reserve memory for module {}", name);
+    if (result != ORBIS_OK)
+        throw std::runtime_error("failed to reserve module: " + name);
     LOG_INFO(Core_Linker, "Loading module {} to {}", name, fmt::ptr(*out_addr));
 
 #ifdef ARCH_X86_64
@@ -162,11 +182,16 @@ void Module::LoadModuleToMemory(u32& max_tls_index) {
 
             // Map module segments
             const auto memory_type = IsSystemLib() ? VMAType::Code : VMAType::Flexible;
-            s32 result = memory->MapMemory(&segment_addr, segment_vaddr, segment_size, segment_prot,
+            s32 result = memory->MapMemory(&segment_addr, segment_vaddr, segment_size,
+                                           memory->IsGuestBackend() ? MemoryProt::CpuReadWrite
+                                                                    : segment_prot,
                                            MemoryMapFlags::Fixed, memory_type, name);
+            if (memory->IsGuestBackend() && result != ORBIS_OK)
+                throw std::runtime_error("failed to map guest module segment: " + name);
             ASSERT_MSG(result == ORBIS_OK, "Failed to map segment at {:#x} for module {}",
                        segment_vaddr, name);
-            elf.LoadSegment(segment_vaddr, phdr.p_offset, phdr.p_filesz);
+            if (phdr.p_filesz && !elf.TryLoadSegment(segment_vaddr, phdr.p_offset, phdr.p_filesz))
+                throw std::runtime_error("ELF/SELF segment read failed: " + name);
         }
         if (info.num_segments < 4) {
             auto& segment = info.segments[info.num_segments++];
@@ -224,7 +249,9 @@ void Module::LoadModuleToMemory(u32& max_tls_index) {
             if (elf_pheader[i].p_filesz != 0) {
                 m_dynamic.resize(elf_pheader[i].p_filesz);
                 const VAddr segment_addr = std::bit_cast<VAddr>(m_dynamic.data());
-                elf.LoadSegment(segment_addr, elf_pheader[i].p_offset, elf_pheader[i].p_filesz);
+                if (!elf.TryLoadSegment(segment_addr, elf_pheader[i].p_offset,
+                                        elf_pheader[i].p_filesz))
+                    throw std::runtime_error("truncated dynamic data: " + name);
             } else {
                 LOG_ERROR(Core_Linker, "p_filesz==0 in type {}", header_type);
             }
@@ -233,12 +260,17 @@ void Module::LoadModuleToMemory(u32& max_tls_index) {
             if (elf_pheader[i].p_filesz != 0) {
                 m_dynamic_data.resize(elf_pheader[i].p_filesz);
                 const VAddr segment_addr = std::bit_cast<VAddr>(m_dynamic_data.data());
-                elf.LoadSegment(segment_addr, elf_pheader[i].p_offset, elf_pheader[i].p_filesz);
+                if (!elf.TryLoadSegment(segment_addr, elf_pheader[i].p_offset,
+                                        elf_pheader[i].p_filesz))
+                    throw std::runtime_error("truncated dynamic data: " + name);
             } else {
                 LOG_ERROR(Core_Linker, "p_filesz==0 in type {}", header_type);
             }
             break;
         case PT_TLS:
+            if (elf_pheader[i].p_filesz > elf_pheader[i].p_memsz ||
+                GetAlignedSize(elf_pheader[i]) > (64ULL << 20))
+                throw std::runtime_error("invalid TLS extent: " + name);
             tls.init_image_size = elf_pheader[i].p_filesz;
             tls.align = elf_pheader[i].p_align;
             tls.image_virtual_addr = elf_pheader[i].p_vaddr + base_virtual_addr;
@@ -344,7 +376,83 @@ void Module::LoadModuleToMemory(u32& max_tls_index) {
     }
 }
 
+void Module::FinalizeGuestPermissions() {
+    if (!memory->IsGuestBackend())
+        return;
+    for (const auto& p : elf.GetProgramHeader()) {
+        if ((p.p_type != PT_LOAD && p.p_type != PT_SCE_RELRO) || !p.p_memsz)
+            continue;
+        MemoryProt prot = MemoryProt::NoAccess;
+        if (p.p_flags & PF_READ)
+            prot |= MemoryProt::CpuRead;
+        if ((p.p_flags & PF_WRITE) && p.p_type != PT_SCE_RELRO)
+            prot |= MemoryProt::CpuWrite;
+        if (p.p_flags & PF_EXEC)
+            prot |= MemoryProt::CpuExec;
+        if (memory->Protect(base_virtual_addr + p.p_vaddr, GetAlignedSize(p), prot) != 0)
+            throw std::runtime_error("failed to publish module permissions: " + name);
+    }
+}
+
 void Module::LoadDynamicInfo() {
+    if (m_dynamic.empty())
+        return;
+    if (m_dynamic.size() % sizeof(elf_dynamic))
+        throw std::runtime_error("unaligned dynamic table: " + name);
+    const auto* entries = reinterpret_cast<const elf_dynamic*>(m_dynamic.data());
+    const auto count = m_dynamic.size() / sizeof(elf_dynamic);
+    size_t end = 0;
+    while (end < count && entries[end].d_tag != DT_NULL)
+        ++end;
+    if (end == count)
+        throw std::runtime_error("unterminated dynamic table: " + name);
+    auto value = [&](s64 tag) -> u64 {
+        for (size_t i = 0; i < end; ++i)
+            if (entries[i].d_tag == tag)
+                return entries[i].d_un.d_val;
+        return 0;
+    };
+    auto checked_data = [&](u64 offset, u64 size, u64 alignment) -> u8* {
+        if (offset > m_dynamic_data.size() || size > m_dynamic_data.size() - offset ||
+            offset % std::min<u64>(alignment, 8) || size % alignment)
+            throw std::runtime_error("dynamic table outside DYNLIBDATA: " + name);
+        return m_dynamic_data.data() + offset;
+    };
+    const auto strings_size = value(DT_SCE_STRSZ);
+    auto* strings = reinterpret_cast<char*>(checked_data(value(DT_SCE_STRTAB), strings_size, 1));
+    auto checked_string = [&](u64 offset) {
+        if (offset >= strings_size || !std::memchr(strings + offset, 0, strings_size - offset))
+            throw std::runtime_error("invalid dynamic string: " + name);
+    };
+    checked_data(value(DT_SCE_RELA), value(DT_SCE_RELASZ), sizeof(elf_relocation));
+    checked_data(value(DT_SCE_JMPREL), value(DT_SCE_PLTRELSZ), sizeof(elf_relocation));
+    checked_data(value(DT_SCE_SYMTAB), value(DT_SCE_SYMTABSZ), sizeof(elf_symbol));
+    checked_data(value(DT_SCE_HASH), value(DT_SCE_HASHSZ), 1);
+    for (size_t i = 0; i < end; ++i) {
+        const auto& e = entries[i];
+        switch (e.d_tag) {
+        case DT_NEEDED:
+        case DT_SCE_ORIGINAL_FILENAME:
+            checked_string(e.d_un.d_val);
+            break;
+        case DT_SCE_IMPORT_LIB:
+        case DT_SCE_EXPORT_LIB:
+        case DT_SCE_MODULE_INFO:
+        case DT_SCE_NEEDED_MODULE:
+            checked_string(static_cast<u32>(e.d_un.d_val));
+            break;
+        default:
+            break;
+        }
+    }
+    const auto* symbols = reinterpret_cast<const elf_symbol*>(
+        checked_data(value(DT_SCE_SYMTAB), value(DT_SCE_SYMTABSZ), sizeof(elf_symbol)));
+    for (size_t i = 0; i < value(DT_SCE_SYMTABSZ) / sizeof(elf_symbol); ++i)
+        checked_string(symbols[i].st_name);
+    // String references are legal regardless of dynamic-tag order.
+    dynamic_info.str_table = strings;
+    dynamic_info.str_table_size = strings_size;
+
     for (const auto* dyn = reinterpret_cast<elf_dynamic*>(m_dynamic.data()); dyn->d_tag != DT_NULL;
          dyn++) {
         switch (dyn->d_tag) {
@@ -532,9 +640,12 @@ void Module::LoadSymbols() {
 
             const auto* library = FindLibrary(ids[1]);
             const auto* module = FindModule(ids[2]);
+            if ((!library || !module) && memory->IsGuestBackend())
+                throw std::runtime_error("symbol references unknown library/module: " + id);
             ASSERT_MSG(library && module, "Unable to find library and module");
             if ((bind != STB_GLOBAL && bind != STB_WEAK) ||
-                (type != STT_FUN && type != STT_OBJECT) || export_func != (sym->st_value != 0)) {
+                (type != STT_FUN && type != STT_OBJECT && type != STT_TLS) ||
+                export_func != (sym->st_shndx != 0)) {
                 continue;
             }
 
@@ -556,6 +667,9 @@ void Module::LoadSymbols() {
                 break;
             case STT_OBJECT:
                 sym_r.type = Loader::SymbolType::Object;
+                break;
+            case STT_TLS:
+                sym_r.type = Loader::SymbolType::Tls;
                 break;
             default:
                 sym_r.type = Loader::SymbolType::Unknown;

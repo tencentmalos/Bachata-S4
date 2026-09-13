@@ -21,12 +21,27 @@ enum class MemoryPermission : u32 {
 };
 DECLARE_ENUM_FLAG_OPERATORS(MemoryPermission)
 
+// Injected production guest VM. Desktop keeps its native implementation;
+// Android uses the same MemoryManager against the FEX-owned reservation.
+class GuestMemoryBackend {
+public:
+    virtual ~GuestMemoryBackend() = default;
+    virtual u8* BackingBase() const = 0;
+    virtual boost::icl::interval_set<VAddr> UsableRegions() const = 0;
+    virtual bool OwnsRange(VAddr address, u64 size) const = 0;
+    virtual void* Map(VAddr address, u64 size, PAddr physical, bool executable) = 0;
+    virtual void* MapFile(VAddr address, u64 size, u64 offset, u32 prot, uintptr_t fd) = 0;
+    virtual void Unmap(VAddr address, u64 size) = 0;
+    virtual void Protect(VAddr address, u64 size, MemoryPermission permission) = 0;
+};
+
 /**
  * Represents the user virtual address space backed by a dmem memory block
  */
 class AddressSpace {
 public:
     explicit AddressSpace();
+    explicit AddressSpace(GuestMemoryBackend* guest);
     ~AddressSpace();
 
     [[nodiscard]] u8* BackingBase() const noexcept {
@@ -86,8 +101,12 @@ public:
 
     // Returns an interval set containing all usable regions.
     boost::icl::interval_set<VAddr> GetUsableRegions();
+    bool OwnsGuestRange(VAddr address, u64 size) const {
+        return !guest || guest->OwnsRange(address, size);
+    }
 
 private:
+    GuestMemoryBackend* guest{};
     struct Impl;
     std::unique_ptr<Impl> impl;
     u8* backing_base{};

@@ -38,6 +38,7 @@
 #include "core/guest_cpu/api/context.h"
 #include "core/guest_cpu/fex/fex_context.h"
 #include "core/guest_cpu/hle/call_adapter.h"
+#include "core/guest_cpu/hle/scope.h"
 #include "core/guest_cpu/hle/veneer_allocator.h"
 
 #include "guest_fixtures.h"
@@ -3684,6 +3685,272 @@ void TestVeneerGuestCall(Harness &h) {
         Check("G44e", "load TLS override fixture", false);
 }
 
+GuestCodeAddress hle_chain_entry{};
+std::uint64_t hle_chain_veneer{};
+std::atomic<unsigned> hle_chain_max_depth{};
+std::atomic<bool> hle_wait_entered{};
+GuestAddressSpace* hle_vm_space{};
+GuestRange hle_vm_range{};
+bool hle_caller_restored{true};
+unsigned hle_chain_mode{};
+std::uint64_t HleCallChain(std::uint64_t depth, std::uint64_t) {
+    auto* scope = HleScope::Current();
+    if (!scope)
+        return 0xbad;
+    hle_chain_max_depth.store(std::max(hle_chain_max_depth.load(), scope->Depth()));
+    if (depth == 0) {
+        if (hle_chain_mode == 1)
+            scope->ExitThread(0xee);
+        if (hle_chain_mode == 2)
+            throw std::runtime_error("nested production-boundary exception");
+        return 1;
+    }
+    auto before = scope->Context().ReadRegisters(scope->Thread());
+    GuestCallArgs args{};
+    args.count = 2;
+    args.values[0] = depth - 1;
+    args.values[1] = hle_chain_veneer;
+    auto nested = scope->InvokeGuest(hle_chain_entry, args);
+    auto after = scope->Context().ReadRegisters(scope->Thread());
+    hle_caller_restored &= before && after &&
+                           before.Value().registers.gpr == after.Value().registers.gpr &&
+                           before.Value().registers.rip == after.Value().registers.rip &&
+                           before.Value().invocation_id == after.Value().invocation_id;
+    if (!nested || nested.Value().reason != StopReason::Returned)
+        return 0xbad;
+    return nested.Value().return_value + 100;
+}
+std::uint64_t HleWaitCancellable(std::uint64_t, std::uint64_t) {
+    auto* scope = HleScope::Current();
+    if (!scope)
+        return 0xbad;
+    hle_wait_entered.store(true, std::memory_order_release);
+    return scope->WaitFor(std::chrono::seconds(30)) ? 1 : 2;
+}
+std::uint64_t HleVmTransaction(std::uint64_t, std::uint64_t) {
+    auto* scope = HleScope::Current();
+    if (!scope)
+        return 0xbad;
+    auto token = scope->Context().QuiesceContext(1'000'000'000);
+    if (!token)
+        return 0xbad;
+    auto remap = hle_vm_space->RemapUnderToken(token.Value(), hle_vm_range,
+                                               GuestPermission::Read | GuestPermission::Write);
+    return remap ? 77 : 0xbad;
+}
+void TestHleRuntime(Harness& h) {
+    std::string detail;
+    if (!LoadFixture(h, *FindFixture("invoke_hle_chain"), detail)) {
+        Check("G45", "load nested-call fixture", false, detail);
+        return;
+    }
+    auto* registry = static_cast<HleCallRegistry*>(Fex::FexHleRegistryPointer(*h.context));
+    const auto page = HostPageSize();
+    GuestRange slab{GuestAddress{h.space->ReservationBase().value + 0x120000}, page};
+    auto allocator = HleVeneerAllocator::Create(*h.space, slab);
+    if (!allocator) {
+        Check("G45", "allocate HLE runtime slab", false);
+        return;
+    }
+    auto chain = registry->Register(&HleCallChain, "chain");
+    auto wait = registry->Register(&HleWaitCancellable, "wait");
+    auto vm = registry->Register(&HleVmTransaction, "vm");
+    if (!chain || !wait || !vm) {
+        Check("G45", "register runtime HLE", false);
+        return;
+    }
+    auto chain_va = allocator.Value().Allocate(chain.Value());
+    auto wait_va = allocator.Value().Allocate(wait.Value());
+    auto vm_va = allocator.Value().Allocate(vm.Value());
+    if (!chain_va || !wait_va || !vm_va || !allocator.Value().Seal()) {
+        Check("G45", "publish HLE runtime veneers", false);
+        return;
+    }
+    hle_chain_entry = GuestCodeAddress{h.code_base};
+    hle_chain_veneer = chain_va.Value().value;
+    ThreadInit init{};
+    init.entry_rip = hle_chain_entry;
+    init.initial_rsp = GuestAddress{h.stack_top};
+    auto thread = h.context->CreateThread(init);
+    if (!thread) {
+        Check("G45", "create callback owner", false);
+        return;
+    }
+    GuestCallArgs args{};
+    args.count = 2;
+    args.values[0] = 2;
+    args.values[1] = hle_chain_veneer;
+    auto nested = h.context->InvokeGuest(thread.Value(), hle_chain_entry, args, {});
+    Check("G45a", "two nested guest callbacks return through all guest/HLE continuations",
+          nested && nested.Value().reason == StopReason::Returned &&
+              nested.Value().return_value == 231 && hle_chain_max_depth.load() == 3 &&
+              hle_caller_restored,
+          nested ? "rax=" + Hex(nested.Value().return_value) +
+                       " depth=" + std::to_string(hle_chain_max_depth.load()) +
+                       " restored=" + std::to_string(hle_caller_restored)
+                 : Describe(nested.GetError()));
+    hle_vm_space = h.space.get();
+    hle_vm_range = {GuestAddress{slab.base.value + page * 2}, page};
+    auto mapped = h.space->Map(hle_vm_range, GuestPermission::Read | GuestPermission::Write);
+    args.values[1] = vm_va.Value().value;
+    auto vm_run = h.context->InvokeGuest(thread.Value(), hle_chain_entry, args, {});
+    Check("G45b", "HLE transaction drains without its own Run lease and guest resumes",
+          mapped && vm_run && vm_run.Value().reason == StopReason::Returned &&
+              vm_run.Value().return_value == 87 && !h.space->IsQuiescent() &&
+              h.space->Counts().live_pins == 0,
+          vm_run ? "rax=" + Hex(vm_run.Value().return_value) : Describe(vm_run.GetError()));
+    args.values[1] = chain_va.Value().value;
+    hle_chain_mode = 1;
+    auto exited = h.context->InvokeGuest(thread.Value(), hle_chain_entry, args, {});
+    Check("G45d",
+          "pthread_exit in deepest callback unwinds every HLE frame without guest continuation",
+          exited && exited.Value().reason == StopReason::Returned &&
+              exited.Value().return_value == 0xee);
+    hle_chain_mode = 0;
+    const int original_errno = errno;
+    fenv_t original_env{};
+    fegetenv(&original_env);
+    fesetround(FE_UPWARD);
+    errno = EDOM;
+    auto env_call = h.context->InvokeGuest(thread.Value(), hle_chain_entry, args, {});
+    Check("G45e", "nested calls preserve native errno and FP environment",
+          env_call && env_call.Value().reason == StopReason::Returned && errno == EDOM &&
+              fegetround() == FE_UPWARD);
+    fesetenv(&original_env);
+    errno = original_errno;
+    hle_chain_mode = 2;
+    auto thrown = h.context->InvokeGuest(thread.Value(), hle_chain_entry, args, {});
+    Check("G45f", "deep native exception remains a fault even if outer callback ignores it",
+          thrown && thrown.Value().reason == StopReason::GuestFault && thrown.Value().fault &&
+              h.space->Counts().live_pins == 0);
+    hle_chain_mode = 0;
+    (void)h.context->DestroyThread(thread.Value());
+    {
+        TestOwner owner(h, 0);
+        args.values[1] = wait_va.Value().value;
+        hle_wait_entered.store(false);
+        auto work = owner.Submit(
+            [&] { return h.context->InvokeGuest(owner.handle, hle_chain_entry, args, {}); });
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+        while (!hle_wait_entered.load(std::memory_order_acquire) &&
+               std::chrono::steady_clock::now() < deadline)
+            std::this_thread::yield();
+        auto snapshot = h.context->ReadRegisters(owner.handle);
+        auto ticket = h.context->RequestInterrupt(owner.handle, InterruptReason::Cancel);
+        auto receipt = ticket ? h.context->WaitStopped(ticket.Value(), 1'000'000'000)
+                              : Result<StopReceipt>{ticket.GetError()};
+        auto result = Await(work);
+        Check("G45c", "WaitingHle cancellation wakes native wait and drains owner frames",
+              hle_wait_entered.load() && snapshot &&
+                  snapshot.Value().kind == SnapshotKind::HleBoundary && receipt && result &&
+                  result.Value().reason == StopReason::Cancelled &&
+                  h.space->Counts().live_pins == 0);
+    }
+}
+
+void TestWarmEntryBackedge(Harness& h) {
+    std::string detail;
+    const auto* fixture = FindFixture("entry_backedge");
+    if (!fixture || !LoadFixture(h, *fixture, detail)) {
+        Check("G47", "load conditional entry-backedge fixture", false, detail);
+        return;
+    }
+    const auto counter = PrepareProgress(h);
+    new (reinterpret_cast<void*>(counter + 8)) std::uint64_t{0};
+    TestOwner owner(h, counter);
+    auto run = owner.Run();
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+    while (Progress(counter) < 10000 && std::chrono::steady_clock::now() < deadline)
+        std::this_thread::yield();
+    const bool warmed = Progress(counter) >= 10000;
+    auto ticket = h.context->RequestInterrupt(owner.handle, InterruptReason::Cancel);
+    auto receipt = ticket ? h.context->WaitStopped(ticket.Value(), 1'000'000'000)
+                          : Result<StopReceipt>{ticket.GetError()};
+    // Permit cleanup even on an old backend that cannot interrupt the loop.
+    std::atomic_ref<std::uint64_t>(*reinterpret_cast<std::uint64_t*>(counter + 8)).store(1);
+    auto result = Await(run);
+    Check("G47", "warmed conditional entry-backedge remains interruptible",
+          warmed && receipt && result && result.Value().primary_reason == StopReason::Cancelled,
+          receipt ? "" : Describe(receipt.GetError()));
+}
+
+void TestHighAddressPolicy() {
+    AddressSpaceConfig config;
+    config.preferred_base = 0x400000;
+    config.reservation_size = (72ULL << 30) - config.preferred_base;
+    config.max_address = QueryBackendCapabilities().max_guest_address;
+    auto created = GuestAddressSpace::Create(config);
+    if (!created) {
+        Check("G46", "reserve low/high VA comparison", false, Describe(created.GetError()));
+        return;
+    }
+    auto space = std::move(created).Value();
+    const std::uint64_t low = config.preferred_base + 0x10000, high = low + (1ULL << 36),
+                        stack = low + 0x10000;
+    const auto page = HostPageSize();
+    auto code = [](std::uint64_t value) {
+        std::array<std::byte, 11> b{};
+        b[0] = std::byte{0x48};
+        b[1] = std::byte{0xb8};
+        std::memcpy(b.data() + 2, &value, 8);
+        b[10] = std::byte{0xc3};
+        return b;
+    };
+    bool ok = true;
+    for (auto address : {low, high}) {
+        auto bytes = code(address == low ? 11 : 22);
+        ok &= bool(space->Map({GuestAddress{address}, page},
+                              GuestPermission::Read | GuestPermission::Write));
+        ok &= bool(space->Write(GuestAddress{address}, bytes));
+        ok &= bool(space->Protect({GuestAddress{address}, page},
+                                  GuestPermission::Read | GuestPermission::Execute));
+    }
+    ok &= bool(
+        space->Map({GuestAddress{stack}, page}, GuestPermission::Read | GuestPermission::Write));
+    auto context = CreateContext(CpuConfig{}, *space);
+    if (!ok || !context) {
+        Check("G46", "map collision comparison", false);
+        return;
+    }
+    ThreadInit init;
+    init.entry_rip = GuestCodeAddress{low};
+    init.initial_rsp = GuestAddress{stack + page - 16};
+    auto thread = context.Value()->CreateThread(init);
+    if (!thread) {
+        Check("G46", "create high VA owner", false, Describe(thread.GetError()));
+        return;
+    }
+    for (unsigned i = 0; i < 100; ++i) {
+        auto a = context.Value()->InvokeGuest(thread.Value(), GuestCodeAddress{low}, {}, {});
+        auto b = context.Value()->InvokeGuest(thread.Value(), GuestCodeAddress{high}, {}, {});
+        ok &= a && b && a.Value().reason == StopReason::Returned &&
+              b.Value().reason == StopReason::Returned && a.Value().return_value == 11 &&
+              b.Value().return_value == 22;
+    }
+    Check("G46a", "100 low/high blocks with identical 36-bit lookup index retain full guest tags",
+          ok);
+    {
+        auto token = context.Value()->QuiesceContext(1'000'000'000);
+        if (!token) {
+            Check("G46b", "drain masked-index owners", false);
+            return;
+        }
+        auto remap = space->RemapUnderToken(token.Value(), {GuestAddress{high}, page},
+                                            GuestPermission::Read | GuestPermission::Write);
+        auto bytes = code(33);
+        ok &= bool(remap) &&
+              bool(space->PublishCode(token.Value(), {GuestAddress{high}, bytes.size()}, bytes)) &&
+              bool(space->ReprotectUnderToken(token.Value(), {GuestAddress{high}, page},
+                                              GuestPermission::Read | GuestPermission::Execute));
+    }
+    auto a = context.Value()->InvokeGuest(thread.Value(), GuestCodeAddress{low}, {}, {});
+    auto b = context.Value()->InvokeGuest(thread.Value(), GuestCodeAddress{high}, {}, {});
+    Check("G46b", "retiring/remapping high VA preserves low block and executes only new high code",
+          ok && a && b && a.Value().return_value == 11 && b.Value().return_value == 33);
+    Check("G46c", "high VA owner destroyed on its native owner",
+          bool(context.Value()->DestroyThread(thread.Value())));
+}
+
 } // namespace
 
 int main() {
@@ -3692,6 +3959,7 @@ int main() {
     printf("fixtures: %zu, generated from tests/guest_cpu/fixtures/guest_fixtures.S\n\n",
            std::size(Fixtures::kAll));
 
+    TestHighAddressPolicy(); // Reserve before FEX claims its process-wide allocator arena.
     Harness harness{};
 
     AddressSpaceConfig space_config{};
@@ -3772,10 +4040,12 @@ int main() {
     TestInvokeGuest(harness);
     TestInvokeGuestWithHle(harness);
     TestVeneerGuestCall(harness);
+    TestHleRuntime(harness);
     TestHleBufferPinning(harness);
     TestImmediateSyscallExit(harness);
     TestConcurrentSyscallFaultIsolation(harness);
     TestCoordinatorRecovery(harness);
+    TestWarmEntryBackedge(harness);
     TestInterruptStress(harness);
     TestInterruptRefusals(harness);
     TestInterruptInterleavings(harness);
@@ -3787,11 +4057,13 @@ int main() {
     // Contract checks last: they publish their own stub at the same address.
     TestContracts(harness);
     TestRetiredContextsAndFaultPriority(harness);
+    harness.context.reset();
+    harness.space.reset();
 
     printf("\n%d check(s), %s (%d failure%s)\n", g_checks, g_failures == 0 ? "ALL PASS" : "FAILED",
            g_failures, g_failures == 1 ? "" : "s");
     printf("SCOPE: real x86-64 executed by FEXCore through the public API, from\n");
     printf("       assembler-generated fixtures, typed HLE and boundary interrupts.\n"
-           "       No nested callbacks/Step/APK.\n");
+           "       Nested HLE callbacks and cancellable waits included; no Step/APK.\n");
     return g_failures == 0 ? 0 : 1;
 }

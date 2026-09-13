@@ -79,6 +79,19 @@ class ElfInfo {
     std::map<s32, std::string> trophy_index_map{};
 
 public:
+    // Native runtime initializes metadata before exposing HLE services. The
+    // object is generation-owned through Singleton::Binding, not process sticky.
+    void InitializeGuestMetadata(std::filesystem::path folder, u32 sdk, std::string serial = {},
+                                 std::string game_title = {}, std::string version = {},
+                                 u32 attributes = 0) {
+        game_folder = std::move(folder);
+        sdk_ver = sdk;
+        game_serial = std::move(serial);
+        title = std::move(game_title);
+        app_ver = std::move(version);
+        psf_attributes.raw = attributes;
+        initialized = true;
+    }
     static constexpr u32 FW_100 = 0x1000000;
     static constexpr u32 FW_150 = 0x1500000;
     static constexpr u32 FW_160 = 0x1600000;

@@ -1,0 +1,9 @@
+PASS independent operations
+FAIL first registry identity immutable
+FAIL factory descriptor remains unassigned
+FAIL unsupported adoption refused
+FAIL raw callback signature refused
+FAIL null function refused
+FAIL refusals do not consume operations
+PASS original dispatch intact
+8 checks, 6 failures

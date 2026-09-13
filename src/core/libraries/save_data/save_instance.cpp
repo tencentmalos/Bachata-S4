@@ -17,7 +17,9 @@ constexpr auto OrbisSaveDataBlocksMin2 = 96;    // 3MiB
 constexpr auto OrbisSaveDataBlocksMax = 32768;  // 1 GiB
 constexpr std::string_view sce_sys = "sce_sys"; // system folder inside save
 
-static Core::FileSys::MntPoints* g_mnt = Common::Singleton<Core::FileSys::MntPoints>::Instance();
+static Core::FileSys::MntPoints* GetMounts() {
+    return Common::Singleton<Core::FileSys::MntPoints>::Instance();
+}
 
 namespace fs = std::filesystem;
 
@@ -106,7 +108,7 @@ SaveInstance::SaveInstance(int slot_num, Libraries::UserService::OrbisUserServic
     mount_point = "/savedata" + std::to_string(slot_num);
 
     this->exists = fs::exists(param_sfo_path);
-    this->mounted = g_mnt->GetMount(mount_point) != nullptr;
+    this->mounted = GetMounts()->GetMount(mount_point) != nullptr;
 }
 
 SaveInstance::~SaveInstance() {
@@ -151,7 +153,7 @@ void SaveInstance::SetupAndMount(bool read_only, bool copy_icon, bool ignore_cor
     if (!exists) {
         CreateFiles();
         if (copy_icon) {
-            if (auto bytes = g_mnt->ReadFile("/app0/sce_sys/save_data.png")) {
+            if (auto bytes = GetMounts()->ReadFile("/app0/sce_sys/save_data.png")) {
                 auto output_icon = GetIconPath();
                 if (fs::exists(output_icon)) {
                     fs::remove(output_icon);
@@ -187,7 +189,7 @@ void SaveInstance::SetupAndMount(bool read_only, bool copy_icon, bool ignore_cor
 
     max_blocks = static_cast<int>(GetMaxBlockFromSFO(param_sfo));
 
-    g_mnt->Mount(save_path, mount_point, read_only);
+    GetMounts()->Mount(save_path, mount_point, read_only);
     mounted = true;
     this->read_only = read_only;
 }
@@ -206,7 +208,7 @@ void SaveInstance::Umount() {
     param_sfo = PSF();
 
     fs::remove(corrupt_file_path);
-    g_mnt->Unmount(save_path, mount_point);
+    GetMounts()->Unmount(save_path, mount_point);
 }
 
 void SaveInstance::CreateFiles() {

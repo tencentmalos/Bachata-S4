@@ -31,7 +31,9 @@ constexpr std::string_view CorruptFileName = "corrupted";
 
 namespace Libraries::SaveData::SaveMemory {
 
-static Core::FileSys::MntPoints* g_mnt = Common::Singleton<Core::FileSys::MntPoints>::Instance();
+static Core::FileSys::MntPoints* GetMounts() {
+    return Common::Singleton<Core::FileSys::MntPoints>::Instance();
+}
 
 struct SlotData {
     OrbisUserServiceUserId user_id{};
@@ -144,7 +146,7 @@ void SetIcon(u32 slot_id, void* buf, size_t buf_size) {
         }
         // Read the source through the mount stack so archive-backed base
         // games can seed save-slot icons too.
-        if (auto bytes = g_mnt->ReadFile("/app0/sce_sys/save_data.png")) {
+        if (auto bytes = GetMounts()->ReadFile("/app0/sce_sys/save_data.png")) {
             fs::create_directories(icon_path.parent_path());
             IOFile dst(icon_path, Common::FS::FileAccessMode::Create);
             dst.WriteRaw<u8>(bytes->data(), bytes->size());

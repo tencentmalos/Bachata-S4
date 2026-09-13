@@ -144,6 +144,7 @@ public:
     explicit Module(Core::MemoryManager* memory, const std::filesystem::path& file,
                     std::unique_ptr<Core::FileSys::IFile> handle, u32& max_tls_index, s32 id);
     ~Module();
+    void FinalizeGuestPermissions();
 
     VAddr GetBaseAddress() const noexcept {
         return base_virtual_addr;

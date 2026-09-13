@@ -65,10 +65,13 @@ static PS4_SYSV_ABI void* RunMainEntry [[noreturn]] (EntryParams* params) {
 }
 
 Linker::Linker() : memory{Memory::Instance()} {}
+Linker::Linker(MemoryManager& manager) : memory(&manager) {}
 
 Linker::~Linker() = default;
 
 void Linker::Execute(const std::vector<std::string>& args) {
+    if (memory->IsGuestBackend())
+        throw std::logic_error("guest execution must be owned by the production Session runtime");
     if (EmulatorSettings.IsDebugDump()) {
         DebugDump();
     }
@@ -243,9 +246,8 @@ s32 Linker::LoadModule(const std::filesystem::path& elf_name, bool is_dynamic) {
     s32 mod_id = m_modules.size();
     auto module =
         std::make_unique<Module>(memory, elf_name, std::move(handle), max_tls_index, mod_id);
-    ASSERT_MSG(module->IsValid(),
-               "Provided file {} is not valid ELF file. This usually indicated a corrupted dump.",
-               elf_name.string());
+    if (!module->IsValid())
+        throw std::runtime_error("invalid module: " + elf_name.string());
 
     num_static_modules += !is_dynamic;
     m_modules.emplace_back(std::move(module));
@@ -309,6 +311,19 @@ void Linker::Relocate(Module* module) {
 
         const VAddr rel_base_virtual_addr = module->GetBaseAddress();
         const VAddr rel_virtual_addr = rel_base_virtual_addr + rel->rel_offset;
+        if (memory->IsGuestBackend()) {
+            bool contained = false;
+            for (const auto& p : module->elf.GetProgramHeader()) {
+                if ((p.p_type == PT_LOAD || p.p_type == PT_SCE_RELRO) && p.p_memsz >= 8 &&
+                    rel->rel_offset >= p.p_vaddr && rel->rel_offset - p.p_vaddr <= p.p_memsz - 8)
+                    contained = true;
+            }
+            if (!contained)
+                throw std::runtime_error("relocation target outside module: " + module->name);
+            if (type != R_X86_64_RELATIVE && type != R_X86_64_DTPMOD64 &&
+                symbol >= module->dynamic_info.symbol_table_total_size / sizeof(elf_symbol))
+                throw std::runtime_error("relocation symbol outside table: " + module->name);
+        }
         bool rel_is_resolved = false;
         u64 rel_value = 0;
         Loader::SymbolType rel_sym_type = Loader::SymbolType::Unknown;
@@ -321,11 +336,51 @@ void Linker::Relocate(Module* module) {
             module->SetRelaBit(bit_idx);
             break;
         case R_X86_64_DTPMOD64:
-            rel_value = static_cast<u64>(module->tls.modid);
+        case R_X86_64_DTPOFF64:
+        case R_X86_64_TPOFF64: {
+            Module* target = module;
+            u64 tls_value = 0;
+            if (symbol != 0) {
+                if (symbol >= module->dynamic_info.symbol_table_total_size / sizeof(elf_symbol))
+                    throw std::runtime_error("TLS relocation symbol outside table");
+                const auto& tls_symbol = symbol_table[symbol];
+                // The supplied PS4 libc/Fios SELF uses an unnamed, zero local
+                // STT_SECTION entry as the current-module DTPMOD64 marker.
+                // It names a module, not a TLS variable/export. Do not apply
+                // this exception to offset relocations or named symbols.
+                const bool self_module_marker = memory->IsGuestBackend() &&
+                    type == R_X86_64_DTPMOD64 && tls_symbol.GetType() == STT_SECTION &&
+                    tls_symbol.GetBind() == STB_LOCAL && tls_symbol.st_name == 0 &&
+                    tls_symbol.st_shndx == 0 && tls_symbol.st_value == 0 && addend == 0;
+                if (!self_module_marker && tls_symbol.GetType() != STT_TLS)
+                    throw std::runtime_error("TLS relocation references non-TLS symbol: " +
+                        module->name + " symbol=" + std::to_string(symbol));
+                if (self_module_marker) {
+                    if (!module->tls.modid || !module->tls.image_size)
+                        throw std::runtime_error("TLS module marker without an image");
+                } else if (tls_symbol.st_shndx != 0)
+                    tls_value = tls_symbol.st_value;
+                else {
+                    Loader::SymbolRecord resolved{};
+                    if (!Resolve(names_tlb + tls_symbol.st_name, Loader::SymbolType::Tls, module,
+                                 &resolved))
+                        throw std::runtime_error("unresolved guest TLS symbol");
+                    target = FindByAddress(resolved.virtual_address);
+                    if (!target)
+                        throw std::runtime_error("TLS export has no owning guest module");
+                    tls_value = resolved.virtual_address - target->GetBaseAddress();
+                }
+            }
+            if (type == R_X86_64_DTPMOD64)
+                rel_value = target->tls.modid;
+            else
+                rel_value =
+                    tls_value + addend - (type == R_X86_64_TPOFF64 ? target->tls.offset : 0);
             rel_is_resolved = true;
             rel_sym_type = Loader::SymbolType::Tls;
             module->SetRelaBit(bit_idx);
             break;
+        }
         case R_X86_64_GLOB_DAT:
         case R_X86_64_JUMP_SLOT:
             addend = 0;
@@ -347,6 +402,8 @@ void Linker::Relocate(Module* module) {
                 rel_sym_type = Loader::SymbolType::NoType;
                 break;
             default:
+                if (memory->IsGuestBackend())
+                    throw std::runtime_error("unsupported guest relocation symbol type");
                 ASSERT_MSG(0, "unknown symbol type {}", sym_type);
             }
 
@@ -370,6 +427,8 @@ void Linker::Relocate(Module* module) {
                 break;
             }
             default:
+                if (memory->IsGuestBackend())
+                    throw std::runtime_error("unsupported guest symbol binding");
                 UNREACHABLE_MSG("Unknown bind type {}", sym_bind);
             }
             rel_is_resolved = (symbol_virtual_addr != 0);
@@ -378,6 +437,8 @@ void Linker::Relocate(Module* module) {
             break;
         }
         default:
+            if (memory->IsGuestBackend())
+                throw std::runtime_error("unsupported guest relocation " + std::to_string(type));
             LOG_INFO(Core_Linker, "UNK type {:#010x} rel symbol : {:#010x}", type, symbol);
         }
 
@@ -401,6 +462,8 @@ bool Linker::Resolve(const std::string& name, Loader::SymbolType sym_type, Modul
 
     const LibraryInfo* library = m->FindLibrary(ids[1]);
     const ModuleInfo* module = m->FindModule(ids[2]);
+    if ((!library || !module) && memory->IsGuestBackend())
+        throw std::runtime_error("import references unknown module/library: " + name);
     ASSERT_MSG(library && module, "Unable to find library and module");
 
     Loader::SymbolResolver sr{};
@@ -413,6 +476,16 @@ bool Linker::Resolve(const std::string& name, Loader::SymbolType sym_type, Modul
     const auto* record = m_hle_symbols.FindSymbol(sr);
     if (record) {
         *return_info = *record;
+        if (memory->IsGuestBackend()) {
+            if (sym_type == Loader::SymbolType::Object && guest_data_resolver) {
+                return_info->virtual_address = guest_data_resolver(*record);
+                return true;
+            }
+            if (sym_type != Loader::SymbolType::Function || !guest_hle_resolver)
+                throw std::runtime_error("guest ABI data import needs an explicit descriptor: " +
+                                         name);
+            return_info->virtual_address = guest_hle_resolver(*record);
+        }
         Core::Devtools::Widget::ModuleList::AddModule(sr.library);
         return true;
     }
@@ -433,6 +506,19 @@ bool Linker::Resolve(const std::string& name, Loader::SymbolType sym_type, Modul
         }
     }
 
+    if (memory->IsGuestBackend()) {
+        Loader::SymbolRecord missing{Loader::SymbolsResolver::GenerateName(sr), sr.name, 0, {}};
+        if (sym_type == Loader::SymbolType::Object && guest_data_resolver) {
+            *return_info = missing;
+            return_info->virtual_address = guest_data_resolver(missing);
+            return true;
+        }
+        if (sym_type != Loader::SymbolType::Function || !guest_hle_resolver)
+            throw std::runtime_error("unresolved guest data import: " + missing.name);
+        *return_info = missing;
+        return_info->virtual_address = guest_hle_resolver(missing);
+        return false;
+    }
     const auto aeronid = AeroLib::FindByNid(sr.name.c_str());
     if (sym_type == Loader::SymbolType::Object) {
         return_info->name = aeronid ? aeronid->name : "Unknown object";
@@ -459,6 +545,10 @@ bool Linker::Resolve(const std::string& name, Loader::SymbolType sym_type, Modul
 }
 
 void* Linker::TlsGetAddr(u64 module_index, u64 offset) {
+    if (guest_tls_resolver)
+        return guest_tls_resolver(module_index, offset);
+    if (memory->IsGuestBackend())
+        throw std::logic_error("guest TLS resolver is not bound");
     std::scoped_lock lk{mutex};
 
     DtvEntry* dtv_table = GetTcbBase()->tcb_dtv;
@@ -499,6 +589,10 @@ void* Linker::TlsGetAddr(u64 module_index, u64 offset) {
 }
 
 void* Linker::AllocateTlsForThread(bool is_primary) {
+    if (guest_tls_allocate)
+        return guest_tls_allocate(Common::AlignUp(static_tls_size, 32ULL) + 64);
+    if (memory->IsGuestBackend())
+        throw std::logic_error("guest TLS allocator is not bound");
     static constexpr size_t TcbSize = 0x40;
     static constexpr size_t TlsAllocAlign = 0x20;
     const size_t total_tls_size = Common::AlignUp(static_tls_size, TlsAllocAlign) + TcbSize;
@@ -529,11 +623,36 @@ void* Linker::AllocateTlsForThread(bool is_primary) {
 }
 
 void Linker::FreeTlsForNonPrimaryThread(void* pointer) {
+    if (guest_tls_free) {
+        guest_tls_free(pointer);
+        return;
+    }
+    if (memory->IsGuestBackend())
+        throw std::logic_error("guest TLS owner is not bound");
     if (heap_api && heap_api->heap_free) {
         heap_api->heap_free(pointer);
     } else {
         std::free(pointer);
     }
+}
+
+void Linker::PrepareGuest() {
+    if (!memory->IsGuestBackend() || m_modules.empty())
+        throw std::logic_error("production guest Linker has no executable");
+    static_tls_size = 0;
+    for (auto& module : m_modules) {
+        if (!module->tls.image_size)
+            continue;
+        const u64 alignment = std::max<u64>(module->tls.align, 32);
+        static_tls_size = Common::AlignUp(static_tls_size + module->tls.image_size, alignment);
+        if (static_tls_size > 64_MB)
+            throw std::runtime_error("static TLS exceeds guest policy");
+        module->tls.offset = static_tls_size;
+    }
+    static_tls_size = Common::AlignUp(static_tls_size, size_t{32});
+    RelocateAllImports();
+    for (auto& module : m_modules)
+        module->FinalizeGuestPermissions();
 }
 
 void Linker::DebugDump() {

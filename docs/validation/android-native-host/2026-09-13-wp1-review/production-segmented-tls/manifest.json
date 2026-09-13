@@ -1,0 +1,24 @@
+{
+  "artifacts": [
+    {
+      "file": "build/wp1-review/production-build/production_runtime_runner",
+      "sha256": "785d48c7d2ea8276b893b04dab3a1254bae01e51785515664d1b9c18d834ea2f"
+    },
+    {
+      "file": "build/android-host-api33/native/libshadps4_host.so",
+      "sha256": "4053e9c4b8b843265667e2ec2f40abda39e89b590bcb6d25afe2894de2bfde07"
+    },
+    {
+      "file": "/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so",
+      "sha256": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352"
+    },
+    {
+      "file": "build/wp1-review/production/fixture.elf",
+      "sha256": "44886b9433fce23b843d3ef09e810188b5171e286414d38a1d9aaf8b48b0629b"
+    }
+  ],
+  "exit": 0,
+  "remote": "/data/local/tmp/shadps4-production-production-segmented-tls-1789275621621001000",
+  "device": "AYN Thor",
+  "api": "33"
+}

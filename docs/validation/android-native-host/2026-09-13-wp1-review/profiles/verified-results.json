@@ -1,0 +1,87 @@
+[
+  {
+    "case": "old-api35",
+    "argv": [
+      "cmake",
+      "-S",
+      "cmake/fex",
+      "-B",
+      "build/wp1-review/profile-old-api35",
+      "-G",
+      "Ninja",
+      "-DCMAKE_TOOLCHAIN_FILE=/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/build/cmake/android.toolchain.cmake",
+      "-DANDROID_ABI=arm64-v8a",
+      "-DANDROID_PLATFORM=android-33",
+      "-DANDROID_STL=c++_shared",
+      "-DV0_ENABLE_FEX=ON",
+      "-DV0_BUILD_TESTS=OFF",
+      "-DFEX_BUILD_DIR=/Users/bytedance/workspace/emulations/ps4/shadps4/build/fexcore-android"
+    ],
+    "exit": 1,
+    "expected_rejection_observed": true,
+    "reason": "legacy cache missing explicit STL provenance; rejected before API comparison"
+  },
+  {
+    "case": "wrong-stl",
+    "argv": [
+      "cmake",
+      "-S",
+      "cmake/fex",
+      "-B",
+      "build/wp1-review/profile-wrong-stl",
+      "-G",
+      "Ninja",
+      "-DCMAKE_TOOLCHAIN_FILE=/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/build/cmake/android.toolchain.cmake",
+      "-DANDROID_ABI=arm64-v8a",
+      "-DANDROID_PLATFORM=android-33",
+      "-DANDROID_STL=c++_static",
+      "-DV0_ENABLE_FEX=ON",
+      "-DV0_BUILD_TESTS=OFF",
+      "-DFEX_BUILD_DIR=/Users/bytedance/workspace/emulations/ps4/shadps4/build/fexcore-android-api33"
+    ],
+    "exit": 1,
+    "expected_rejection_observed": true
+  },
+  {
+    "case": "wrong-abi",
+    "argv": [
+      "cmake",
+      "-S",
+      "cmake/fex",
+      "-B",
+      "build/wp1-review/profile-wrong-abi",
+      "-G",
+      "Ninja",
+      "-DCMAKE_TOOLCHAIN_FILE=/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/build/cmake/android.toolchain.cmake",
+      "-DANDROID_ABI=x86_64",
+      "-DANDROID_PLATFORM=android-33",
+      "-DANDROID_STL=c++_shared",
+      "-DV0_ENABLE_FEX=ON",
+      "-DV0_BUILD_TESTS=OFF",
+      "-DFEX_BUILD_DIR=/Users/bytedance/workspace/emulations/ps4/shadps4/build/fexcore-android-api33"
+    ],
+    "exit": 1,
+    "expected_rejection_observed": true
+  },
+  {
+    "case": "API33 prebuilt into API32 consumer",
+    "argv": [
+      "cmake",
+      "-S",
+      "cmake/fex",
+      "-B",
+      "build/wp1-review/profile-high-api",
+      "-G",
+      "Ninja",
+      "-DCMAKE_TOOLCHAIN_FILE=/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/build/cmake/android.toolchain.cmake",
+      "-DANDROID_ABI=arm64-v8a",
+      "-DANDROID_PLATFORM=android-32",
+      "-DANDROID_STL=c++_shared",
+      "-DV0_ENABLE_FEX=ON",
+      "-DV0_BUILD_TESTS=OFF",
+      "-DFEX_BUILD_DIR=/Users/bytedance/workspace/emulations/ps4/shadps4/build/fexcore-android-api33"
+    ],
+    "exit": 1,
+    "expected_rejection_observed": true
+  }
+]

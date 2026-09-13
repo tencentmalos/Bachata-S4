@@ -196,3 +196,32 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
 }
+
+// Rebuild our own ELF test content from source; never package games or checked-in
+// binary fixtures. These assets belong only to the instrumentation APK.
+val runtimeFixtureAssets = layout.buildDirectory.dir("generated/productionRuntimeAssets")
+android.sourceSets.getByName("androidTest").assets.srcDir(runtimeFixtureAssets)
+val fixtureRepo = rootProject.projectDir.resolve("../..")
+val fixtureNdk = android.sdkDirectory.resolve("ndk/29.0.14206865")
+val runtimeFixtureTasks = listOf("fixture", "self", "wait", "dependency", "dependency-wait", "bad", "unknown").map { kind ->
+    tasks.register<Exec>("generate${kind.replaceFirstChar { it.uppercase() }}RuntimeElf") {
+        inputs.file(fixtureRepo.resolve("scripts/android/generate-production-runtime-fixture"))
+        inputs.file(fixtureRepo.resolve("tests/guest_cpu/fixtures/production_runtime.S"))
+        val output = runtimeFixtureAssets.get().file(if (kind == "dependency") "fixture_dependency.sprx" else "$kind.elf").asFile
+        outputs.file(output)
+        commandLine(listOf("python3", fixtureRepo.resolve("scripts/android/generate-production-runtime-fixture").absolutePath,
+            "--ndk", fixtureNdk.absolutePath, "--out", output.absolutePath) +
+            when (kind) {
+                "self" -> listOf("--self", "--with-dependency")
+                "wait" -> listOf("--wait")
+                "dependency" -> listOf("--module")
+                "dependency-wait" -> listOf("--module", "--wait")
+                "bad" -> listOf("--bad-pointer", "--with-dependency")
+                "unknown" -> listOf("--unknown-import", "--with-dependency")
+                else -> listOf("--with-dependency")
+            })
+    }
+}
+tasks.configureEach {
+    if (name.startsWith("merge") && name.endsWith("AndroidTestAssets")) dependsOn(runtimeFixtureTasks)
+}

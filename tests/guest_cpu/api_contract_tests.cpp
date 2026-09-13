@@ -23,6 +23,7 @@
 #include <thread>
 #include <vector>
 
+#include <sys/mman.h>
 #include <unistd.h>
 
 #include "core/guest_cpu/api/address_space.h"
@@ -1621,9 +1622,122 @@ void TestStopSemantics() {
     });
 }
 
+void TestProductionVm() {
+    RunCase("M30", "production VM splitting, holes and transaction refusal", [] {
+        AddressSpaceConfig config;
+        config.reservation_size = HostPageSize() * 8;
+        auto made = GuestAddressSpace::Create(config);
+        Check(bool(made), "reservation failed");
+        if (!made)
+            return;
+        auto& space = *made.Value();
+        const auto base = space.ReservationBase().value, page = HostPageSize();
+        const GuestRange all{GuestAddress{base}, page * 3}, middle{GuestAddress{base + page}, page};
+        auto token = space.Quiesce(1);
+        Check(bool(token), "quiesce failed");
+        if (!token)
+            return;
+        using Op = GuestAddressSpace::VmOperation;
+        Check(bool(space.UpdateVmUnderToken(token.Value(), Op::Map, all,
+                                            GuestPermission::Read | GuestPermission::Write)),
+              "map failed");
+        Check(bool(space.UpdateVmUnderToken(token.Value(), Op::Protect, middle,
+                                            GuestPermission::Read)),
+              "split protect failed");
+        auto a = space.Query(GuestAddress{base}), b = space.Query(middle.base),
+             c = space.Query(GuestAddress{base + page * 2});
+        Check(a && b && c && HasPermission(a.Value().permission, GuestPermission::Write) &&
+                  !HasPermission(b.Value().permission, GuestPermission::Write) &&
+                  HasPermission(c.Value().permission, GuestPermission::Write),
+              "split ledger wrong");
+        Check(
+            bool(space.UpdateVmUnderToken(token.Value(), Op::Unmap, middle, GuestPermission::None)),
+            "unmap failed");
+        const auto generation = space.MappingGeneration();
+        Check(!space.Query(middle.base), "hole remains mapped");
+        Check(!space.UpdateVmUnderToken(token.Value(), Op::Protect, all, GuestPermission::Read),
+              "protect crossed hole");
+        Check(space.MappingGeneration() == generation, "refusal changed generation");
+        Check(!space.UpdateVmUnderToken({}, Op::Map, middle, GuestPermission::Read),
+              "default token accepted");
+        Check(!space.UpdateVmUnderToken(token.Value(), static_cast<Op>(255), middle,
+                                        GuestPermission::Read),
+              "invalid operation accepted");
+        Check(!space.UpdateVmUnderToken(token.Value(), Op::Map, middle, GuestPermission::Read, -1,
+                                        page),
+              "anonymous backing offset ignored");
+        Check(bool(space.UpdateVmUnderToken(token.Value(), Op::Map, middle,
+                                            GuestPermission::Read | GuestPermission::Write)),
+              "hole remap failed");
+    });
+    RunCase("M31", "production VM syscall failure poisons execution and preserves error", [] {
+        AddressSpaceConfig config;
+        config.reservation_size = HostPageSize() * 4;
+        auto made = GuestAddressSpace::Create(config);
+        if (!made) {
+            Check(false, "reservation failed");
+            return;
+        }
+        auto& space = *made.Value();
+        GuestRange range{space.ReservationBase(), HostPageSize()};
+        {
+            auto token = space.Quiesce(1);
+            if (!token) {
+                Check(false, "quiesce failed");
+                return;
+            }
+            Test::SetMmapFailureForTest(true);
+            auto mapped = space.UpdateVmUnderToken(
+                token.Value(), GuestAddressSpace::VmOperation::Map, range, GuestPermission::Read);
+            Test::SetMmapFailureForTest(false);
+            Check(!mapped && mapped.GetError().category == ErrorCategory::OutOfMemory &&
+                      mapped.GetError().system_error != 0,
+                  "mmap error identity lost");
+        }
+        Check(!space.AcquireExecutionLease(), "failed VM admitted execution");
+    });
+}
+
 } // namespace
 
+void TestSegmentedReservations() {
+    const auto page = HostPageSize();
+    auto* base = static_cast<std::byte*>(
+        ::mmap(nullptr, page * 3, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0));
+    if (base == MAP_FAILED) {
+        Check(false, "M32 fixture allocation");
+        return;
+    }
+    base[page] = std::byte{0x5a};
+    ::munmap(base, page);
+    ::munmap(base + page * 2, page);
+    AddressSpaceConfig config;
+    config.preferred_base = reinterpret_cast<std::uint64_t>(base);
+    config.reservation_size = page * 3;
+    config.owned_ranges = {{{config.preferred_base}, page},
+                           {{config.preferred_base + 2 * page}, page}};
+    auto created = GuestAddressSpace::Create(config);
+    bool ok = bool(created);
+    if (created) {
+        auto& space = *created.Value();
+        const GuestRange hole{{config.preferred_base + page}, page};
+        ok &= !space.Map(hole, GuestPermission::Read | GuestPermission::Write);
+        auto token = space.Quiesce(1000000);
+        ok &= token && !space.UpdateVmUnderToken(token.Value(), GuestAddressSpace::VmOperation::Map,
+                                                 hole, GuestPermission::Read);
+        ok &= bool(space.Map({{config.preferred_base}, page}, GuestPermission::Read)) ==
+              false; // token excludes mutation
+        token = Result<QuiescenceToken>{QuiescenceToken{}};
+        ok &= bool(space.Map({{config.preferred_base}, page}, GuestPermission::Read));
+        created.Value().reset();
+    }
+    ok &= base[page] == std::byte{0x5a};
+    ::munmap(base + page, page);
+    Check(ok, "M32 segmented guest ownership preserves host hole through teardown");
+}
+
 int main() {
+    RunCase("M32", "segmented reservation preserves host hole", TestSegmentedReservations);
     std::printf("shadPS4 guest CPU API contract tests\n");
     std::printf("host page size: %llu bytes\n",
                 static_cast<unsigned long long>(HostPageSize()));
@@ -1637,6 +1751,7 @@ int main() {
     TestHandleLifetime();
     TestUnsupportedModes();
     TestStopSemantics();
+    TestProductionVm();
 
     const auto failed = static_cast<std::size_t>(
         std::count_if(g_results.begin(), g_results.end(),

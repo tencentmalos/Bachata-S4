@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright 2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include "core/guest_cpu/fex/entry_backedge_pass.h"
 #include "core/guest_cpu/fex/fex_context.h"
 #if defined(GUEST_CPU_TEST_HOOKS)
 #include "core/guest_cpu/fex/test_run_gate.h"
@@ -47,7 +48,9 @@
 
 #include "Common/HostFeatures.h"
 #include "Interface/Core/CPUBackend.h"
+#include "Utils/Allocator.h" // Pinned FEX private allocator initialization; no VA-stealing hooks.
 #include "core/guest_cpu/hle/call_adapter.h"
+#include "core/guest_cpu/hle/scope.h"
 
 namespace Core::GuestCpu::Fex {
 namespace {
@@ -112,115 +115,6 @@ std::uint64_t NextContextId() {
     return counter.fetch_add(1, std::memory_order_relaxed) + 1;
 }
 
-#if defined(__ANDROID__)
-// FEXCore's 64-bit object allocator (SetupHooks -> Create64BitAllocator ->
-// AllocateMemoryRegions) reserves a >=64 MiB slab out of the free VA gaps in
-// [4 GiB, 1<<HostVABits) and calls ERROR_AND_DIE (a trapping instruction ->
-// SIGILL) if it can't. In a bare CLI process that always succeeds, but in an
-// Android app process the ART runtime is still bringing itself up when the first
-// guest context is created (JIT threads, GC heap, class-loader mappings), and it
-// races FEX for that VA window: SetupHooks then aborts the whole process with no
-// recoverable error. Empirically the window closes within ~2 s of the first run.
-//
-// This is not a real "VA exhausted" condition (the device reports gaps far larger
-// than 64 MiB), so rather than duplicate FEX's allocator or sleep blindly, prove
-// the region is claimable before handing control to FEX's fatal path: try to
-// reserve a 64 MiB PROT_NONE block with MAP_FIXED_NOREPLACE across the same range,
-// release it immediately, and only proceed once one attempt succeeds. Bounded
-// retry with backoff; returns false on timeout so the caller can surface a normal
-// error instead of letting FEX abort. Not needed off Android (no ART race there).
-bool WaitForClaimableAllocatorRegion(std::uint64_t page_size, std::chrono::milliseconds budget) {
-    constexpr std::size_t kSlab = std::size_t{64} << 20;  // FEX ObjectAllocSize
-    constexpr std::uint64_t kLower = std::uint64_t{1} << 32;  // FEX LOWER_BOUND (4 GiB)
-
-    // Detect the VA ceiling the way FEX does: highest power-of-two whose top page
-    // is mappable. Kept conservative; only used to bound the scan.
-    std::uint64_t va_bits = 39;
-    for (std::uint64_t bits : {std::uint64_t{48}, std::uint64_t{47}, std::uint64_t{42},
-                              std::uint64_t{39}, std::uint64_t{36}}) {
-        void* top = reinterpret_cast<void*>((std::uint64_t{1} << bits) - page_size);
-        void* p = ::mmap(top, page_size, PROT_NONE,
-                         MAP_FIXED_NOREPLACE | MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-        if (p != MAP_FAILED)
-            ::munmap(p, page_size);
-        if (p != MAP_FAILED || errno == EEXIST) {
-            va_bits = bits;
-            break;
-        }
-    }
-    const std::uint64_t upper = std::uint64_t{1} << va_bits;
-
-    // FEX's CollectMemoryGaps only considers gaps *between existing mappings* and
-    // stops at the first mapping ending at/above `upper`, so a transiently high ART
-    // mapping (thread stack, JIT cache) can truncate collection to a handful of
-    // small low gaps even though the range is mostly free. That window closes once
-    // ART's startup burst ends. There is no way to hand FEX a pre-reserved region
-    // through the public SetupHooks entry, so instead of injecting regions we wait
-    // for the address space to *quiesce*: require several consecutive cycles in
-    // which a contiguous >=64 MiB run stays claimable across a short dwell. A single
-    // lucky probe is not enough (ART can re-carve the region in the gap before FEX
-    // re-collects), so proceed only after the region has been demonstrably quiet for
-    // a sustained stretch. Bounded by `budget`; returns false on timeout so the
-    // caller reports a normal error instead of letting FEX abort.
-    constexpr int kRunBlocks = 4;              // probe a contiguous 256 MiB run
-    constexpr int kNeededStable = 5;           // consecutive quiet cycles required
-    const auto min_settle = std::chrono::milliseconds(300);
-    const auto start = std::chrono::steady_clock::now();
-    const auto deadline = start + budget;
-    int stable = 0;
-    for (;;) {
-        void* run_base = nullptr;
-        int held = 0;
-        std::uint64_t held_addrs[kRunBlocks] = {};
-        for (std::uint64_t addr = kLower; addr + kSlab * kRunBlocks <= upper; addr += kSlab) {
-            held = 0;
-            run_base = nullptr;
-            for (int b = 0; b < kRunBlocks; ++b) {
-                const std::uint64_t a = addr + static_cast<std::uint64_t>(b) * kSlab;
-                void* p = ::mmap(reinterpret_cast<void*>(a), kSlab, PROT_NONE,
-                                 MAP_FIXED_NOREPLACE | MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-                if (p == MAP_FAILED)
-                    break;
-                held_addrs[held++] = a;
-                if (b == 0)
-                    run_base = p;
-            }
-            if (held == kRunBlocks)
-                break;  // got a full contiguous run at this address
-            for (int b = 0; b < held; ++b)
-                ::munmap(reinterpret_cast<void*>(held_addrs[b]), kSlab);
-            held = 0;
-        }
-
-        bool cycle_ok = false;
-        if (held == kRunBlocks && run_base != nullptr) {
-            // Hold across a dwell; if the run is still entirely ours afterward, ART
-            // did not carve this region during the dwell -> count it as quiet.
-            std::this_thread::sleep_for(std::chrono::milliseconds(60));
-            cycle_ok = true;
-            for (int b = 0; b < kRunBlocks; ++b) {
-                // Re-reserve check: MAP_FIXED_NOREPLACE on a still-held page returns
-                // EEXIST (ours), which is fine; a *different* return would mean it was
-                // taken. We simply release; the sustained-cycle count is the guard.
-                ::munmap(reinterpret_cast<void*>(held_addrs[b]), kSlab);
-            }
-        }
-
-        const auto now = std::chrono::steady_clock::now();
-        if (cycle_ok) {
-            ++stable;
-            if (stable >= kNeededStable && (now - start) >= min_settle)
-                return true;
-        } else {
-            stable = 0;  // region still churning; restart the quiet-streak
-        }
-        if (now >= deadline)
-            return false;
-        std::this_thread::sleep_for(std::chrono::milliseconds(30));
-    }
-}
-#endif  // __ANDROID__
-
 // --- FEXCore embedder obligations -------------------------------------------
 // InitCore dereferences the signal delegator to install the dispatcher config,
 // so a context without one crashes there. FEXCore::SignalDelegator is concrete
@@ -264,6 +158,7 @@ struct ThreadInterruptBinding final {
     // Set by HandleSyscall on this owner thread when the syscall has no valid HLE path; the syscall
     // wrapper reads it to take the immediate-exit branch instead of running the in-block successor.
     std::atomic<bool> syscall_fault_pending{false};
+    bool hle_pending{};
     // Structured syscall-fault attribution for this crossing (N4). Filled by HandleSyscall on the
     // owner thread when fault_pending is set; consumed by BuildRunResultLocked after Run returns.
     // Identity (context/thread gen/invocation) is seeded by Run before ExecuteThread; the fault
@@ -312,13 +207,16 @@ void ForwardAction(int signal, siginfo_t *info, void *ucontext, const struct sig
 
 void InterruptFaultHandler(int signal, siginfo_t *info, void *raw_context) {
 #if defined(__aarch64__)
+
     auto *binding = t_binding;
     if (binding && info && info->si_code == SEGV_ACCERR &&
         reinterpret_cast<std::uintptr_t>(info->si_addr) == binding->fault_page) {
+
         auto *uc = static_cast<ucontext_t *>(raw_context);
         const auto pc = uc->uc_mcontext.pc;
         const bool in_jit = binding->fex->IsAddressInCodeBuffer(binding->native, pc);
         if (!in_jit) {
+
             // FEX's deferred-signal guards also store zero to this exclusively
             // owned page after host work. Skip that probe, NOT its host frame;
             // keep the page protected until the next JIT entry. AArch64 stores
@@ -347,9 +245,11 @@ void InterruptFaultHandler(int signal, siginfo_t *info, void *raw_context) {
             }
         }
         if (!entry_probe) {
+
             uc->uc_mcontext.pc += 4;
             return;
         }
+
         // MULTIBLOCK is disabled and the fault check is before guest operations.
         // InlineJITBlockHeader was installed by EmitEntryPoint immediately before
         // this store. Preserve NZCV/GPRs for FEX's flag reconstruction on return.
@@ -495,7 +395,8 @@ static int FexSyscallDispatch(void* obj, FEXCore::Core::CpuStateFrame* frame) {
     }
 #endif
     auto* binding = t_binding;
-    if (binding && binding->syscall_fault_pending.load(std::memory_order_acquire)) {
+    if (binding &&
+        (binding->hle_pending || binding->syscall_fault_pending.load(std::memory_order_acquire))) {
         // The JIT syscall epilogue that clears InSyscallInfo is bypassed; clear it here. Guest RIP
         // already holds the syscall PC (SyscallOp stored NewRIP before _Syscall; the in-block
         // successor does not reload it).
@@ -525,7 +426,18 @@ class FexSyscallHandler final : public FEXCore::HLE::SyscallHandler {
     // build a frame from the spilled state and dispatch to a registered native function; the return
     // value is encoded back into the frame and the guest continues after the syscall. An
     // unregistered operation is a per-thread fault, never an implicit host syscall.
-    void HandleSyscall(FEXCore::Core::CpuStateFrame *Frame) override {
+    void HandleSyscall(FEXCore::Core::CpuStateFrame* frame) override {
+        if (frame && t_binding && registry_.Find(frame->State.gregs[FEXCore::X86State::REG_RAX])) {
+            // Exit ExecuteThread before running C++ HLE. No outer JIT/C++ frame
+            // remains suspended when a host HLE waits, changes VM or calls guest.
+            t_binding->hle_pending = true;
+            return;
+        }
+        DispatchNative(frame, t_binding, false);
+    }
+
+    void DispatchNative(FEXCore::Core::CpuStateFrame* Frame, ThreadInterruptBinding* binding,
+                        bool outside_jit) {
         if (Frame == nullptr) {
             unknown_thread_syscall_.store(true, std::memory_order_release);
             return;
@@ -564,7 +476,9 @@ class FexSyscallHandler final : public FEXCore::HLE::SyscallHandler {
             // by Run before it loaded the guest FPCR), not whatever fegetenv would read here (which
             // is the guest environment); then invoke the native function. Restore the guest FP state
             // (derived from its MXCSR, the same mapping Run uses) before the guest resumes.
-            const auto install_guest_fenv = [&frame = Frame->State] {
+            const auto install_guest_fenv = [&frame = Frame->State, outside_jit] {
+                if (outside_jit)
+                    return;
                 const std::uint64_t mx = frame.mxcsr;
                 const std::uint64_t r = (mx >> 13) & 3;
                 const std::uint64_t fpcr =
@@ -574,10 +488,9 @@ class FexSyscallHandler final : public FEXCore::HLE::SyscallHandler {
             };
 
             fenv_t owner_fp{};
-            const bool have_owner_fp =
-                t_binding && t_binding->owner_host_fenv_valid;
+            const bool have_owner_fp = binding && binding->owner_host_fenv_valid;
             if (have_owner_fp)
-                owner_fp = t_binding->owner_host_fenv;
+                owner_fp = binding->owner_host_fenv;
             else
                 ::fegetenv(&owner_fp);
             ::fesetenv(&owner_fp);
@@ -627,9 +540,9 @@ class FexSyscallHandler final : public FEXCore::HLE::SyscallHandler {
         // Signal the production syscall wrapper (same owner thread, owner binding) that this syscall
         // faulted, so it takes the immediate-exit branch instead of running the in-block successor,
         // and record the structured attribution event for BuildRunResultLocked.
-        if (t_binding) {
-            t_binding->syscall_fault_pending.store(true, std::memory_order_release);
-            auto& ev = t_binding->syscall_fault_event;
+        if (binding) {
+            binding->syscall_fault_pending.store(true, std::memory_order_release);
+            auto& ev = binding->syscall_fault_event;
             ev.present = true;
             ev.operation = operation;
             ev.fault_guest_rip = Frame->State.rip;
@@ -750,17 +663,11 @@ class FexSyscallHandler final : public FEXCore::HLE::SyscallHandler {
 // Upper bound this backend places on guest addresses.
 //
 // This is a V0 policy, NOT a demonstrated FEXCore capability limit. An earlier revision claimed
-// FEXCore could not address above 1<<36 because LookupCache masks the guest RIP when computing its
-// page index. That reasoning does not hold: after indexing, both LookupCache (`LookupCache.h:207`)
-// and the dispatcher (`Dispatcher.cpp:211-218`) compare the *full* address and fall through to L3
-// or recompile on a mismatch, so an index collision costs a lookup miss rather than executing the
-// wrong block. The 2026-09-08 review, finding R8, is correct on this point.
-//
-// The bound is kept because it makes guest placement deterministic while execution is still being
-// brought up, and because Config.VirtualMemSize is 1<<36 so staying inside it avoids exercising the
-// aliasing path at the same time as everything else. Removing it needs a same-fixture low-VA vs
-// high-VA comparison, not just deleting the constant.
-constexpr std::uint64_t kGuestAddressPolicyLimit = std::uint64_t{1} << 36;
+// The pinned lookup compares full guest tags after masking the cache index.
+// G46 executes and republishes blocks separated by 64 GiB in one owner. Keep a
+// bounded 128 GiB embedder policy for the production PS4 layout; this is not a
+// claim that every x86-64 canonical address or 16 KiB host configuration is tested.
+constexpr std::uint64_t kGuestAddressPolicyLimit = std::uint64_t{1} << 37;
 
 // --- return gate -------------------------------------------------------------
 // A host page holding a single x86 HLT, mapped executable and registered as a
@@ -782,8 +689,7 @@ class ReturnGate final {
         const long host_page = ::sysconf(_SC_PAGESIZE);
         size = host_page > 0 ? static_cast<std::size_t>(host_page) : 4096;
 
-        // The gate is guest-executable code, so it is subject to the same addressing limit as any
-        // other guest mapping: above kGuestAddressPolicyLimit the block lookup would alias it.
+        // The gate is guest code and must stay within the verified embedder VA policy.
         //
         // Hinted near the top of the addressable range, because the guest reservation is placed in
         // the lower half and a hint that lands inside it would be rejected and fall back to a high
@@ -1015,49 +921,17 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
             });
         }
 
-        // FEX's allocator owns process-wide VA reservations and static objects.
-        // ClearHooks intentionally leaks that arena (ReleaseAllocatorWorkaround),
-        // so reinstalling it per context cannot reclaim the old reservation and
-        // asserts on context rebuild. Keep one allocator for the process lifetime.
-        //
-        // SetupHooks cannot fail in-band: on any failure StealMemoryRegion /
-        // AllocateMemoryRegions call ERROR_AND_DIE (SIGILL) and the process is
-        // gone (see docs/validation/android-native-host/allocator-provider.md).
-        // So "SetupHooks was called" is the same fact as "it succeeded", and the
-        // guard below is a plain success latch: at most one successful install,
-        // and a *retriable* failure before that install.
-        static std::mutex allocator_mtx;
-        static bool allocator_ready = false;
-#if defined(__ANDROID__)
-        // In an app process ART is still carving the VA range when the first
-        // context is created, so SetupHooks can hit the fatal path. Prove the
-        // region is claimable first; on timeout report a normal error. Crucially
-        // this is NOT std::call_once: a transient timeout must not permanently
-        // brick every later CreateContext, so the guard is left unset and the
-        // next call retries once ART has quiesced.
-        {
-            std::lock_guard<std::mutex> lk(allocator_mtx);
-            if (!allocator_ready) {
-                if (!WaitForClaimableAllocatorRegion(host_page_size_,
-                                                     std::chrono::milliseconds(8000))) {
-                    return BackendError(ErrorCategory::OutOfMemory, "CreateContext",
-                                        "FEXCore allocator could not reserve its VA region "
-                                        "(host address space did not stabilize in time; "
-                                        "retry once ART startup settles)");
-                }
-                FEXCore::Allocator::SetupHooks(host_page_size_);
-                allocator_ready = true;
-            }
-        }
-#else
-        {
-            std::lock_guard<std::mutex> lk(allocator_mtx);
-            if (!allocator_ready) {
-                FEXCore::Allocator::SetupHooks(host_page_size_);
-                allocator_ready = true;
-            }
-        }
-#endif
+        // A native embedder already owns the guest reservation. FEXLoader's
+        // SetupHooks steals all high-VA gaps, starving bionic/ART, pthread stacks
+        // and native services. Initialize the pinned rpmalloc implementation with
+        // ordinary host mmap/munmap instead; kernel placement excludes our owned
+        // guest reservation. Do not replace global libc allocation or mmap hooks.
+        // InitializeAllocator is a pinned private API, just like CPUBackend above.
+        static std::once_flag allocator_once;
+        std::call_once(allocator_once, [&] {
+            FEXCore::Allocator::SetupAllocatorHooks(::mmap, ::munmap);
+            FEXCore::Allocator::InitializeAllocator(host_page_size_);
+        });
 
         // Reads the real ID registers rather than assuming a feature set.
         host_features_ = FEX::FetchHostFeatures();
@@ -1159,6 +1033,9 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         InitializeSegments(state, *gdt);
 
         auto *native = context_->CreateThread(&state);
+        if (native)
+            native->PassManager->InsertPass(fextl::make_unique<EntryBackedgePass>(),
+                                            "ShadGuestEntryPoll");
         if (native == nullptr) {
             return BackendError(ErrorCategory::OutOfMemory, "CreateThread",
                                 "FEXCore could not create a thread state");
@@ -1214,13 +1091,45 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
                                                 const GuestCallArgs* call_args = nullptr,
                                                 GuestCodeAddress call_entry = {},
                                                 const GuestCallOptions& call_options = {}) {
-        if (t_binding != nullptr)
+        struct HostErrno {
+            int value = errno;
+            ~HostErrno() {
+                errno = value;
+            }
+        } host_errno;
+        auto* invoking_scope = Hle::HleScope::Current();
+        const bool nested = call_args && invoking_scope && invoking_scope->CallbackAdmission() &&
+                            &invoking_scope->Context() == this &&
+                            invoking_scope->Thread() == thread;
+        if (t_binding != nullptr || (invoking_scope && !nested))
             return BackendError(
                 ErrorCategory::AlreadyRunning, "Run/InvokeGuest",
                 "nested entry requires HleScope; this subset is stopped-thread only");
+        bool owns_frame = false;
+        std::uint64_t previous_invocation{};
+        const auto retire_frame = [&](void*) {
+            if (!owns_frame)
+                return;
+            std::lock_guard guard{lock_};
+            if (auto* entry = FindOwnedLocked(thread)) {
+                entry->running = false;
+                entry->internally_parked = false;
+                --entry->active_runs;
+                if (entry->active_runs != 0)
+                    entry->current_invocation = previous_invocation;
+                if (entry->active_runs == 0) {
+                    entry->running = false;
+                    if (entry->interrupt->stopped_snapshot)
+                        PublishReceiptLocked(thread, *entry);
+                }
+                stopped_changed_.notify_all();
+            }
+        };
+        std::unique_ptr<void, decltype(retire_frame)> run_frame{reinterpret_cast<void*>(1),
+                                                                retire_frame};
         std::optional<RegisterFile> saved_call_state;
         std::optional<PinnedSpan> call_stack;
-        std::array<std::byte, 64> saved_stack_bytes{};
+        std::array<std::byte, 256> saved_stack_bytes{};
         if (options.deadline_ns != 0)
             return BackendError(ErrorCategory::Unsupported, "Run", "deadline_ns is unsupported");
         auto lease = space_.AcquireExecutionLease();
@@ -1242,8 +1151,10 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
             auto *entry = FindOwnedLocked(thread);
             if (!entry)
                 return OwnershipError(thread, "Run");
-            if (entry->running)
-                return BackendError(ErrorCategory::AlreadyRunning, "Run", "thread already running");
+            if (entry->running || (entry->active_runs != 0 && !nested) ||
+                (nested && entry->active_runs == 0))
+                return BackendError(ErrorCategory::AlreadyRunning, "Run",
+                                    "no matching stopped HLE frame");
             if (entry->interrupt->last_reason == StopReason::GuestFault ||
                 entry->interrupt->last_reason == StopReason::BackendFailure)
                 return BackendError(ErrorCategory::WrongState, "Run",
@@ -1255,7 +1166,8 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
             if (entry->interrupt->pending != 0) {
                 // A request before entry is handled by the owner without executing
                 // an instruction; it cannot disappear in the entering-JIT window.
-                return FinishRunLocked(thread, *entry, ++entry->invocation_counter, true);
+                entry->current_invocation = ++entry->invocation_counter;
+                return FinishRunLocked(thread, *entry, entry->current_invocation, true);
             }
             if (call_args) {
                 auto executable = space_.Query(GuestAddress{call_entry.value});
@@ -1267,11 +1179,12 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
                 const auto original_rsp = state.gregs[FEXCore::X86State::REG_RSP];
                 const std::size_t stack_args = call_args->count > 6 ? call_args->count - 6 : 0;
                 const std::uint64_t spill_bytes = stack_args * sizeof(std::uint64_t);
-                if (original_rsp < spill_bytes + 24)
+                const auto red_zone = nested ? 128u : 0u;
+                if (original_rsp < spill_bytes + 24 + red_zone)
                     return BackendError(ErrorCategory::InvalidArgument, "InvokeGuest",
                                         "stack arithmetic underflow");
                 // At function entry RSP % 16 == 8. Argument 7 is [RSP+8], then 8.
-                const auto rsp = ((original_rsp - spill_bytes) & ~std::uint64_t{15}) - 8;
+                const auto rsp = ((original_rsp - red_zone - spill_bytes) & ~std::uint64_t{15}) - 8;
                 const GuestRange frame{GuestAddress{rsp}, original_rsp - rsp};
                 auto stack_mapping = space_.Query(frame.base);
                 if (!stack_mapping ||
@@ -1287,7 +1200,7 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
                     return BackendError(ErrorCategory::InvalidArgument, "InvokeGuest",
                                         "oversized call frame");
                 std::memcpy(saved_stack_bytes.data(), bytes.data(), bytes.size());
-                std::array<std::byte, 64> frame_bytes{};
+                std::array<std::byte, 256> frame_bytes{};
                 const auto gate = return_gate_.Address();
                 std::memcpy(frame_bytes.data(), &gate, sizeof(gate));
                 for (std::size_t i = 0; i < stack_args; ++i)
@@ -1308,6 +1221,12 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
                     state.fs_cached = *call_options.fs_base;
             }
             invocation = ++entry->invocation_counter;
+            previous_invocation = entry->current_invocation;
+            entry->current_invocation = invocation;
+            if (entry->active_runs == 0)
+                entry->hle_cancel = std::stop_source{};
+            ++entry->active_runs;
+            owns_frame = true;
             entry->running = true;
             entry->interrupt->receipt.reset();
             entry->interrupt->stopped_snapshot.reset();
@@ -1373,43 +1292,50 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
 #endif
         // The controller may protect the page at any point from claiming the
         // entry above onwards. No tgkill/TID reuse or late unbound signal exists.
-        t_binding = &binding;
         fenv_t host_fp{};
         ::fegetenv(&host_fp);
-        // Publish the real owner host FP env to the binding so HandleSyscall can install it around
-        // the native call (it runs later, after the guest FPCR has been loaded).
-        binding.owner_host_fenv = host_fp;
-        binding.owner_host_fenv_valid = true;
-        // Writing CPUState.mxcsr alone does not update the executing owner's
-        // FPCR. Mirror FEX's SetRoundingMode mapping: x86 down/up are reversed
-        // relative to ARM64. Start from guest defaults, not host trap/DN/FZ bits.
-        // FEX FillSpecialRegs configures AFP/FIZ from mxcsr when supported.
-        const auto mxcsr = binding.native->CurrentFrame->State.mxcsr;
-        const std::uint64_t rounding = (mxcsr >> 13) & 3;
-        const std::uint64_t guest_fpcr = (((rounding & 1) << 1) | ((rounding & 2) >> 1)) << 22 |
-                                         (static_cast<std::uint64_t>((mxcsr >> 15) & 1) << 24);
-        asm volatile("msr fpcr, %0\n\tmsr fpsr, xzr" : : "r"(guest_fpcr) : "memory");
-        syscall_handler_->RegisterThreadFrame(binding.native->CurrentFrame, syscall_fault);
-        // Install the production syscall-fault immediate-exit wrapper for this Run. Save the
-        // JIT-installed obj/func so the wrapper can forward to the real handler, and restore them
-        // after ExecuteThread. The wrapper runs on this owner thread and reads t_binding for its
-        // per-thread stop address/fault flag.
-        auto* sys_ptrs = &binding.native->CurrentFrame->Pointers;
-        const std::uint64_t saved_syscall_func = sys_ptrs->SyscallHandlerFunc;
-        const std::uint64_t saved_syscall_obj = sys_ptrs->SyscallHandlerObj;
-        binding.stop_no_spill = signal_delegator_->GetConfig().ThreadStopHandlerAddress;
-        binding.syscall_fault_pending.store(false, std::memory_order_release);
-        // Seed the per-thread syscall-fault event identity for this Run (N4). The handler fills the
-        // fault/operation/PC/category fields if a syscall faults; identity is fixed here so a stale
-        // event from a prior Run/invocation can never be reported against the wrong crossing.
-        binding.syscall_fault_event = ThreadInterruptBinding::SyscallFaultEvent{};
-        binding.syscall_fault_event.context_id = context_id_;
-        binding.syscall_fault_event.thread_id = thread.id;
-        binding.syscall_fault_event.thread_generation = thread.generation;
-        binding.syscall_fault_event.invocation_id = invocation;
-        t_syscall_original.obj = reinterpret_cast<void*>(saved_syscall_obj);
-        t_syscall_original.func =
-            reinterpret_cast<void (*)(void*, FEXCore::Core::CpuStateFrame*)>(saved_syscall_func);
+        bool cooperative_stop = false;
+        std::optional<GuestCallResult> nested_stop;
+        for (;;) {
+            t_binding = &binding;
+            binding.hle_pending = false;
+            binding.interrupted.store(false, std::memory_order_release);
+            // Publish the real owner host FP env to the binding so HandleSyscall can install it
+            // around the native call (it runs later, after the guest FPCR has been loaded).
+            binding.owner_host_fenv = host_fp;
+            binding.owner_host_fenv_valid = true;
+            // Writing CPUState.mxcsr alone does not update the executing owner's
+            // FPCR. Mirror FEX's SetRoundingMode mapping: x86 down/up are reversed
+            // relative to ARM64. Start from guest defaults, not host trap/DN/FZ bits.
+            // FEX FillSpecialRegs configures AFP/FIZ from mxcsr when supported.
+            const auto mxcsr = binding.native->CurrentFrame->State.mxcsr;
+            const std::uint64_t rounding = (mxcsr >> 13) & 3;
+            const std::uint64_t guest_fpcr = (((rounding & 1) << 1) | ((rounding & 2) >> 1)) << 22 |
+                                             (static_cast<std::uint64_t>((mxcsr >> 15) & 1) << 24);
+            asm volatile("msr fpcr, %0\n\tmsr fpsr, xzr" : : "r"(guest_fpcr) : "memory");
+            syscall_handler_->RegisterThreadFrame(binding.native->CurrentFrame, syscall_fault);
+            // Install the production syscall-fault immediate-exit wrapper for this Run. Save the
+            // JIT-installed obj/func so the wrapper can forward to the real handler, and restore
+            // them after ExecuteThread. The wrapper runs on this owner thread and reads t_binding
+            // for its per-thread stop address/fault flag.
+            auto* sys_ptrs = &binding.native->CurrentFrame->Pointers;
+            const std::uint64_t saved_syscall_func = sys_ptrs->SyscallHandlerFunc;
+            const std::uint64_t saved_syscall_obj = sys_ptrs->SyscallHandlerObj;
+            binding.stop_no_spill = signal_delegator_->GetConfig().ThreadStopHandlerAddress;
+            binding.syscall_fault_pending.store(false, std::memory_order_release);
+            // Seed the per-thread syscall-fault event identity for this Run (N4). The handler fills
+            // the fault/operation/PC/category fields if a syscall faults; identity is fixed here so
+            // a stale event from a prior Run/invocation can never be reported against the wrong
+            // crossing.
+            binding.syscall_fault_event = ThreadInterruptBinding::SyscallFaultEvent{};
+            binding.syscall_fault_event.context_id = context_id_;
+            binding.syscall_fault_event.thread_id = thread.id;
+            binding.syscall_fault_event.thread_generation = thread.generation;
+            binding.syscall_fault_event.invocation_id = invocation;
+            t_syscall_original.obj = reinterpret_cast<void*>(saved_syscall_obj);
+            t_syscall_original.func =
+                reinterpret_cast<void (*)(void*, FEXCore::Core::CpuStateFrame*)>(
+                    saved_syscall_func);
 #if defined(GUEST_CPU_TEST_HOOKS)
         t_syscall_trace_enabled = test_syscall_trace_enabled_;
         if (t_syscall_trace_enabled) g_syscall_trace_probe = FexSyscallTraceRecord{};
@@ -1419,9 +1345,125 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         context_->ExecuteThread(binding.native);
         sys_ptrs->SyscallHandlerFunc = saved_syscall_func;
         sys_ptrs->SyscallHandlerObj = saved_syscall_obj;
+        ::fesetenv(&host_fp);
+        errno = host_errno.value;
+        t_binding = nullptr;
+        if (!binding.hle_pending) {
+            syscall_handler_->UnregisterThreadFrame(binding.native->CurrentFrame);
+            bool park = false;
+            if (config_.resume_internal_drains &&
+                binding.interrupted.load(std::memory_order_acquire)) {
+                std::lock_guard guard{lock_};
+                auto* entry = FindOwnedLocked(thread);
+                park =
+                    std::any_of(drain_tickets_.begin(), drain_tickets_.end(),
+                                [&](const auto& ticket) { return ticket.thread_id == thread.id; });
+                if (park) {
+                    // Already outside ExecuteThread: restore architectural state
+                    // from the interrupt snapshot before invalidating any JIT code.
+                    const auto flags = context_->ReconstructCompactedEFLAGS(
+                        entry->native, true, binding.gprs.data(), binding.pstate);
+                    context_->SetFlagsFromCompactedEFLAGS(entry->native, flags);
+                    entry->native->CurrentFrame->State.rip = binding.guest_rip;
+                    if (::mprotect(entry->native->InterruptFaultPage, host_page_size_,
+                                   PROT_READ | PROT_WRITE))
+                        return BackendError(ErrorCategory::BackendFailure, "internal drain",
+                                            "restore interrupt page", errno);
+                    entry->running = false;
+                    entry->internally_parked = true;
+                    entry->interrupt->stopped_snapshot =
+                        CaptureSnapshot(thread, *entry, SnapshotKind::SafePoint);
+                    stopped_changed_.notify_all();
+                }
+            }
+            if (!park)
+                break;
+            binding.interrupted.store(false, std::memory_order_release);
+            call_stack.reset();
+            lease.Value() = ExecutionLease{};
+            if (auto released = space_.WaitForQuiescenceRelease(2'000'000'000); !released)
+                return released.GetError();
+            std::lock_guard guard{lock_};
+            auto* entry = FindOwnedLocked(thread);
+            entry->internally_parked = false;
+            if (entry->interrupt->pending) {
+                cooperative_stop = true;
+                break;
+            }
+            auto admission = space_.AcquireExecutionLease();
+            if (!admission)
+                return admission.GetError();
+            lease.Value() = std::move(admission).Value();
+            auto target = space_.Query(GuestAddress{entry->native->CurrentFrame->State.rip});
+            if (!target || !HasPermission(target.Value().permission, GuestPermission::Execute))
+                return BackendError(ErrorCategory::PermissionDenied, "internal drain",
+                                    "continuation unmapped");
+            entry->running = true;
+            entry->interrupt->stopped_snapshot.reset();
+            continue;
+        }
+
+        std::stop_token cancel;
+        {
+            std::lock_guard guard{lock_};
+            auto* entry = FindOwnedLocked(thread);
+            entry->running = false;
+            entry->interrupt->stopped_snapshot =
+                CaptureSnapshot(thread, *entry, SnapshotKind::HleBoundary);
+            cancel = entry->hle_cancel.get_token();
+        }
+        // No JIT frame is parked here. Release the call-frame pin before the
+        // execution lease, so a VM HLE can enter a real coordinated transaction.
+        call_stack.reset();
+        lease.Value() = ExecutionLease{};
+        std::optional<std::uint64_t> thread_exit;
+        {
+            Hle::HleScope scope{*this, thread, invocation, cancel};
+            syscall_handler_->DispatchNative(binding.native->CurrentFrame, &binding, true);
+            nested_stop = scope.FailedCallback();
+            thread_exit = scope.ThreadExitResult();
+        }
         syscall_handler_->UnregisterThreadFrame(binding.native->CurrentFrame);
         ::fesetenv(&host_fp);
-        t_binding = nullptr;
+        if (binding.syscall_fault_pending.load(std::memory_order_acquire))
+            break;
+        if (nested_stop && (nested_stop->reason == StopReason::GuestFault ||
+                            nested_stop->reason == StopReason::BackendFailure))
+            break;
+        if (thread_exit) {
+            binding.native->CurrentFrame->State.rip = return_gate_.Address();
+            binding.native->CurrentFrame->State.gregs[FEXCore::X86State::REG_RAX] = *thread_exit;
+            break;
+        }
+        // x86 SYSCALL saved its successor in RCX. Native marshaling restores the
+        // architectural RCX; start a fresh translation there, not in old JIT code.
+        binding.native->CurrentFrame->State.rip =
+            binding.native->CurrentFrame->State.gregs[FEXCore::X86State::REG_RCX];
+        if (config_.resume_internal_drains) {
+            if (auto released = space_.WaitForQuiescenceRelease(2'000'000'000); !released)
+                return released.GetError();
+        }
+        {
+            std::lock_guard guard{lock_};
+            auto* entry = FindOwnedLocked(thread);
+            if (entry->interrupt->pending != 0) {
+                cooperative_stop = true;
+                break;
+            }
+            auto admission = space_.AcquireExecutionLease();
+            if (!admission)
+                return admission.GetError();
+            lease.Value() = std::move(admission).Value();
+            // Publication may have removed the saved continuation. Never ask
+            // FEX to translate an unchecked/unmapped successor after a host call.
+            auto target = space_.Query(GuestAddress{binding.native->CurrentFrame->State.rip});
+            if (!target || !HasPermission(target.Value().permission, GuestPermission::Execute))
+                return BackendError(ErrorCategory::PermissionDenied, "HLE return",
+                                    "continuation is no longer executable");
+            entry->running = true;
+            entry->interrupt->stopped_snapshot.reset();
+        }
+        }
 
         std::lock_guard guard{lock_};
         auto *entry = FindOwnedLocked(thread);
@@ -1443,7 +1485,17 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
             context_->SetFlagsFromCompactedEFLAGS(entry->native, flags);
             entry->native->CurrentFrame->State.rip = binding.guest_rip;
         }
-        auto result = FinishRunLocked(thread, *entry, invocation, interrupted);
+        auto result = FinishRunLocked(thread, *entry, invocation, interrupted || cooperative_stop);
+        if (nested_stop && result &&
+            (nested_stop->reason == StopReason::GuestFault ||
+             nested_stop->reason == StopReason::BackendFailure)) {
+            result.Value().primary_reason = nested_stop->reason;
+            result.Value().pending_reasons |= nested_stop->pending_reasons;
+            result.Value().fault = nested_stop->fault;
+            result.Value().snapshot = nested_stop->snapshot;
+            entry->interrupt->last_reason = nested_stop->reason;
+            entry->interrupt->stopped_snapshot = nested_stop->snapshot;
+        }
         if (saved_call_state && result && result.Value().primary_reason == StopReason::Returned) {
             auto& state = entry->native->CurrentFrame->State;
             state.gregs[FEXCore::X86State::REG_RSP] = saved_call_state->Rsp();
@@ -1466,6 +1518,40 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
             return BackendError(ErrorCategory::InvalidArgument, "InvokeGuest",
                                 "too many guest call arguments");
         }
+        auto* scope = Hle::HleScope::Current();
+        const bool nested = scope && scope->CallbackAdmission() && &scope->Context() == this &&
+                            scope->Thread() == thread;
+        std::optional<CpuSnapshot> caller;
+        std::uint64_t returning_stack{}, callret_stack{};
+        StopReason previous_reason{};
+        if (nested) {
+            std::lock_guard guard{lock_};
+            auto* owner = FindOwnedLocked(thread);
+            if (!owner || owner->running || owner->active_runs == 0)
+                return BackendError(ErrorCategory::WrongState, "InvokeGuest", "no live HLE caller");
+            caller = CaptureSnapshot(thread, *owner, SnapshotKind::HleBoundary);
+            returning_stack = owner->native->CurrentFrame->ReturningStackLocation;
+            callret_stack = owner->native->CurrentFrame->State.callret_sp;
+            previous_reason = owner->interrupt->last_reason;
+        }
+        auto restore_caller = [&](void*) {
+            if (!caller)
+                return;
+            std::lock_guard guard{lock_};
+            if (auto* owner = FindOwnedLocked(thread)) {
+                ApplyRegistersToCpuState(caller->registers, owner->native->CurrentFrame->State);
+                context_->SetFlagsFromCompactedEFLAGS(
+                    owner->native, static_cast<std::uint32_t>(caller->registers.rflags));
+                owner->native->CurrentFrame->ReturningStackLocation = returning_stack;
+                owner->native->CurrentFrame->State.callret_sp = callret_stack;
+                owner->current_invocation = caller->invocation_id;
+                owner->interrupt->last_reason = previous_reason;
+                owner->interrupt->stopped_snapshot =
+                    CaptureSnapshot(thread, *owner, SnapshotKind::HleBoundary);
+            }
+        };
+        std::unique_ptr<void, decltype(restore_caller)> continuation{reinterpret_cast<void*>(1),
+                                                                     restore_caller};
         auto run = RunInternal(thread, RunOptions{}, &args, entry, options);
         if (!run) {
             return run.GetError();
@@ -1523,7 +1609,7 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         if (entry == nullptr) {
             return OwnershipError(thread, "WriteRegisters");
         }
-        if (entry->running) {
+        if (entry->running || entry->active_runs != 0) {
             return BackendError(ErrorCategory::AlreadyRunning, "WriteRegisters",
                                 "cannot write registers of an executing thread");
         }
@@ -1553,7 +1639,7 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         if (entry == nullptr) {
             return OwnershipError(thread, "DestroyThread");
         }
-        if (entry->running) {
+        if (entry->running || entry->active_runs != 0) {
             return BackendError(ErrorCategory::AlreadyRunning, "DestroyThread",
                                 "cannot destroy a thread that is executing");
         }
@@ -1602,35 +1688,65 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
             return ns > 0 ? ns : 0;
         };
         std::size_t stopped_count{};
+        std::vector<std::stop_source> hle_wakes;
         {
+
             std::lock_guard guard{lock_};
+
             if (!drain_) {
+
                 auto admission = space_.BeginDrain();
+
                 if (!admission) return admission.GetError();
                 drain_.emplace(std::move(admission).Value());
             }
             stopped_count = threads_.size();
             // Issue ALL stop requests before waiting. A retry keeps its original tickets.
             for (auto& [id, entry] : threads_) {
-                if (!entry.running) continue;
+                if (!entry.running && (entry.active_runs == 0 || config_.resume_internal_drains))
+                    continue;
+                if (auto* scope = Hle::HleScope::Current();
+                    scope && &scope->Context() == this &&
+                    scope->Thread() == ThreadHandle{id, entry.generation})
+                    continue;
                 const bool requested = std::any_of(drain_tickets_.begin(), drain_tickets_.end(),
                     [&](const auto& t) { return t.thread_id == id; });
                 if (requested) continue;
                 auto ticket = RequestInterruptLocked({id, entry.generation}, InterruptReason::Pause);
                 if (!ticket) return ticket.GetError();
                 drain_tickets_.push_back(ticket.Value());
+                hle_wakes.push_back(entry.hle_cancel);
             }
         }
+
+        for (auto& wake : hle_wakes)
+            wake.request_stop();
+
         for (const auto& ticket : drain_tickets_) {
             const auto left = remaining();
             if (!left)
                 return BackendError(ErrorCategory::Timeout, "QuiesceContext", "drain deadline expired; retry to recover");
-            if (auto receipt = WaitStopped(ticket, left); !receipt) return receipt.GetError();
+            if (config_.resume_internal_drains) {
+                std::unique_lock guard{lock_};
+                if (!stopped_changed_.wait_for(guard, std::chrono::nanoseconds(left), [&] {
+                        auto* entry = Find({ticket.thread_id, ticket.thread_generation});
+                        return !entry || (!entry->running &&
+                                          (entry->internally_parked || entry->active_runs == 0));
+                    })) {
+                    return BackendError(ErrorCategory::Timeout, "QuiesceContext",
+                                        "owner has not left JIT");
+                }
+            } else if (auto receipt = WaitStopped(ticket, left); !receipt)
+                return receipt.GetError();
         }
+
         auto token = space_.FinishDrain(*drain_, remaining(), stopped_count);
+
         if (!token) return token.GetError(); // Retain admission on every failure.
         {
+
             std::lock_guard guard{lock_};
+
             for (const auto& ticket : drain_tickets_) {
                 auto* entry = Find({ticket.thread_id, ticket.thread_generation});
                 if (!entry) continue;
@@ -1661,8 +1777,15 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
 
     [[nodiscard]] Result<InterruptTicket> RequestInterrupt(ThreadHandle thread,
                                                            InterruptReason reason) override {
-        std::lock_guard guard{lock_};
-        return RequestInterruptLocked(thread, reason);
+        std::unique_lock guard{lock_};
+        auto ticket = RequestInterruptLocked(thread, reason);
+        std::optional<std::stop_source> wake;
+        if (ticket)
+            wake = Find(thread)->hle_cancel;
+        guard.unlock();
+        if (wake)
+            wake->request_stop(); // callbacks never run with the context lock held
+        return ticket;
     }
 
   private:
@@ -1686,7 +1809,7 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         state.pending |= 1u << static_cast<std::uint32_t>(reason);
         // Already stopped: a new request is covered by the existing owner-published
         // snapshot. Reuse its stop epoch; never re-read state or fabricate a stop.
-        if (!entry->running && state.stopped_snapshot)
+        if (!entry->running && entry->active_runs == 0 && state.stopped_snapshot)
             PublishReceiptLocked(thread, *entry);
         return InterruptTicket{context_id_, thread.id, thread.generation, epoch, reason};
     }
@@ -1710,8 +1833,8 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         if (!valid())
             return BackendError(ErrorCategory::InvalidHandle, "WaitStopped",
                                 "stale or unknown ticket");
-        if (auto *entry = Find(handle);
-            entry->running && entry->owner == std::this_thread::get_id())
+        if (auto* entry = Find(handle); (entry->running || entry->active_runs != 0) &&
+                                        entry->owner == std::this_thread::get_id())
             return BackendError(ErrorCategory::WrongThread, "WaitStopped",
                                 "owner cannot wait for itself");
         const auto bounded_timeout =
@@ -1720,7 +1843,7 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
                 if (!valid())
                     return true;
                 auto *entry = Find(handle);
-                return !entry->running && entry->interrupt->receipt &&
+                return !entry->running && entry->active_runs == 0 && entry->interrupt->receipt &&
                        entry->interrupt->acked_epoch >= ticket.epoch;
             }))
             return BackendError(ErrorCategory::Timeout, "WaitStopped", "owner has not stopped");
@@ -1812,8 +1935,12 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         std::uint64_t guest_tid{};
         std::uint64_t entry_rip{};
         std::uint64_t invocation_counter{};
+        std::uint64_t current_invocation{};
         std::uint64_t stop_epoch{1};
         bool running{false};
+        bool internally_parked{false};
+        unsigned active_runs{};
+        std::stop_source hle_cancel{};
         // Stable address, so the signal handler can hold a pointer to it while the map changes.
         std::shared_ptr<InterruptState> interrupt{std::make_shared<InterruptState>()};
 
@@ -1842,8 +1969,8 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
 
     [[nodiscard]] Status ConsumeResumeLocked(ThreadEntry &entry, std::uint64_t epoch) {
         auto &state = *entry.interrupt;
-        if (entry.running || !state.receipt || epoch == 0 || epoch != state.acked_epoch ||
-            epoch != state.request_epoch)
+        if (entry.running || entry.active_runs != 0 || !state.receipt || epoch == 0 ||
+            epoch != state.acked_epoch || epoch != state.request_epoch)
             return BackendError(ErrorCategory::StaleEpoch, "Resume",
                                 "resume must name the current stopped request epoch");
         if (state.last_reason == StopReason::GuestFault ||
@@ -2024,7 +2151,7 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         snapshot.thread_id = handle.id;
         snapshot.thread_generation = handle.generation;
         snapshot.stop_epoch = entry.stop_epoch;
-        snapshot.invocation_id = entry.invocation_counter;
+        snapshot.invocation_id = entry.current_invocation;
         snapshot.kind = kind;
         snapshot.mapping_generation = space_.MappingGeneration();
         snapshot.code_generation = space_.CodeGeneration();

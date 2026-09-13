@@ -295,6 +295,7 @@ GuestAddressSpace::GuestAddressSpace(void* reservation, std::uint64_t size,
       reservation_base{GuestAddress{reinterpret_cast<std::uint64_t>(reservation)}},
       reservation_size{size}, memory_mode{config.memory_mode}, smc_mode{config.smc_mode},
       liveness{std::make_shared<AddressSpaceLiveness>()} {
+    reservations.push_back({reservation_base, reservation_size});
     liveness->space = this;
 }
 
@@ -317,6 +318,54 @@ Result<std::unique_ptr<GuestAddressSpace>> GuestAddressSpace::Create(
                          "reservation size is zero or overflows when aligned");
     }
 
+    if (!config.owned_ranges.empty()) {
+        const auto envelope = GuestRange::Checked(GuestAddress{config.preferred_base}, size);
+        if (!envelope || !config.preferred_base ||
+            (config.max_address && envelope.Value().End() > config.max_address))
+            return MakeError(ErrorCategory::InvalidArgument, "GuestAddressSpace::Create",
+                             "invalid segmented envelope");
+        std::uint64_t previous_end = config.preferred_base;
+        for (auto range : config.owned_ranges) {
+            const auto checked = GuestRange::Checked(range.base, range.size);
+            if (!checked || !IsHostPageAligned(range.base.value) ||
+                !IsHostPageAligned(range.size) || range.base.value < previous_end ||
+                checked.Value().End() > envelope.Value().End())
+                return MakeError(ErrorCategory::InvalidArgument, "GuestAddressSpace::Create",
+                                 "invalid/disordered owned ranges");
+            previous_end = checked.Value().End();
+        }
+        auto owned = config.owned_ranges;
+        std::size_t held = 0;
+        auto release = [&] {
+            for (std::size_t i = 0; i < held; ++i)
+                ::munmap(reinterpret_cast<void*>(config.owned_ranges[i].base.value),
+                         config.owned_ranges[i].size);
+        };
+        for (auto range : config.owned_ranges) {
+            void* mapped = ::mmap(reinterpret_cast<void*>(range.base.value), range.size, PROT_NONE,
+                                  MAP_PRIVATE | MAP_ANONYMOUS | MAP_NORESERVE, -1, 0);
+            if (mapped == MAP_FAILED ||
+                reinterpret_cast<std::uint64_t>(mapped) != range.base.value) {
+                if (mapped != MAP_FAILED)
+                    ::munmap(mapped, range.size);
+                release();
+                return MakeError(ErrorCategory::OutOfMemory, "GuestAddressSpace::Create",
+                                 "exact guest segment is occupied; host mappings preserved");
+            }
+            ++held;
+        }
+        try {
+            auto result = std::unique_ptr<GuestAddressSpace>(new GuestAddressSpace(
+                reinterpret_cast<void*>(config.preferred_base), size, config));
+            // Replace only the ownership record; never unmap the envelope.
+            result->reservations.swap(owned);
+            return result;
+        } catch (...) {
+            release();
+            throw;
+        }
+    }
+
     // PROT_NONE reservation. The kernel picks the address: we never scan
     // /proc/self/maps for a hole and then MAP_FIXED into it, because ART or a
     // driver can claim that hole in between (spec §5.1).
@@ -334,6 +383,14 @@ Result<std::unique_ptr<GuestAddressSpace>> GuestAddressSpace::Create(
         hint = reinterpret_cast<void*>((config.max_address - size) / 2);
     }
 
+    if (config.preferred_base) {
+        auto checked = GuestRange::Checked(GuestAddress{config.preferred_base}, size);
+        if (!checked || !IsHostPageAligned(config.preferred_base) ||
+            (config.max_address && checked.Value().End() > config.max_address))
+            return MakeError(ErrorCategory::InvalidArgument, "GuestAddressSpace::Create",
+                             "invalid requested placement");
+        hint = reinterpret_cast<void*>(config.preferred_base);
+    }
     void* reservation = ::mmap(hint, static_cast<std::size_t>(size), PROT_NONE,
                                MAP_PRIVATE | MAP_ANONYMOUS | MAP_NORESERVE, -1, 0);
     if (reservation == MAP_FAILED) {
@@ -344,17 +401,38 @@ Result<std::unique_ptr<GuestAddressSpace>> GuestAddressSpace::Create(
         return error;
     }
 
-    if (config.max_address != 0) {
-        const auto base = reinterpret_cast<std::uint64_t>(reservation);
-        if (base + size > config.max_address) {
-            // Fail rather than proceed: a backend that cannot address this range
-            // would mis-handle it silently -- FEXCore's block lookup, for one,
-            // masks the guest RIP and would alias unrelated addresses together.
-            ::munmap(reservation, static_cast<std::size_t>(size));
-            return MakeError(ErrorCategory::OutOfMemory, "GuestAddressSpace::Create",
-                             "the kernel placed the reservation above the requested maximum "
-                             "address and no lower region was available");
+    if (config.preferred_base &&
+        reinterpret_cast<std::uint64_t>(reservation) != config.preferred_base) {
+        ::munmap(reservation, static_cast<std::size_t>(size));
+        return MakeError(ErrorCategory::OutOfMemory, "GuestAddressSpace::Create",
+                         "requested guest placement is occupied; no host mapping was replaced");
+    }
+
+    if (config.max_address &&
+        reinterpret_cast<std::uint64_t>(reservation) > config.max_address - size) {
+        ::munmap(reservation, static_cast<std::size_t>(size));
+        reservation = MAP_FAILED;
+        // The kernel can ignore a colliding hint even while lower space exists.
+        // Try bounded, separated hints; each mmap claims its range atomically.
+        // Never infer ownership from /proc/maps or overwrite another mapping.
+        for (unsigned slot = 1; slot < 32; ++slot) {
+            const auto candidate =
+                ((config.max_address - size) / 32 * slot) & ~(HostPageSize() - 1);
+            if (candidate < HostPageSize())
+                continue;
+            void* mapped = ::mmap(reinterpret_cast<void*>(candidate), size, PROT_NONE,
+                                  MAP_PRIVATE | MAP_ANONYMOUS | MAP_NORESERVE, -1, 0);
+            if (mapped == MAP_FAILED)
+                continue;
+            if (reinterpret_cast<std::uint64_t>(mapped) <= config.max_address - size) {
+                reservation = mapped;
+                break;
+            }
+            ::munmap(mapped, size);
         }
+        if (reservation == MAP_FAILED)
+            return MakeError(ErrorCategory::OutOfMemory, "GuestAddressSpace::Create",
+                             "no bounded reservation attempt landed below the requested maximum");
     }
 
     return std::unique_ptr<GuestAddressSpace>(
@@ -367,9 +445,18 @@ GuestAddressSpace::~GuestAddressSpace() {
     if (liveness) {
         liveness->space = nullptr;
     }
-    if (reservation_host != nullptr) {
-        ::munmap(reservation_host, static_cast<std::size_t>(reservation_size));
-    }
+    for (auto range : reservations)
+        ::munmap(reinterpret_cast<void*>(range.base.value), static_cast<std::size_t>(range.size));
+}
+
+bool GuestAddressSpace::OwnsRange(GuestRange range) const {
+    const auto checked = GuestRange::Checked(range.base, range.size);
+    if (!checked)
+        return false;
+    for (auto owned : reservations)
+        if (range.base.value >= owned.base.value && checked.Value().End() <= owned.End())
+            return true;
+    return false;
 }
 
 std::uint64_t GuestAddressSpace::MappingGeneration() const {
@@ -403,8 +490,7 @@ Result<MappingInfo> GuestAddressSpace::Map(GuestRange range, GuestPermission per
                          "range must be host-page aligned; host page is " +
                              std::to_string(HostPageSize()));
     }
-    if (range.base.value < reservation_base.value ||
-        range.base.value + range.size > reservation_base.value + reservation_size) {
+    if (!OwnsRange(range)) {
         return MakeError(ErrorCategory::InvalidArgument, "GuestAddressSpace::Map",
                          "range is outside this address space's reservation");
     }
@@ -831,7 +917,17 @@ void GuestAddressSpace::ReleaseQuiescence(std::uint64_t epoch) {
     std::lock_guard guard{lock};
     if (active_quiescence == epoch) {
         active_quiescence = 0;
+        leases_idle.notify_all();
     }
+}
+
+Status GuestAddressSpace::WaitForQuiescenceRelease(std::uint64_t timeout_ns) {
+    std::unique_lock guard{lock};
+    if (!leases_idle.wait_for(guard, std::chrono::nanoseconds(timeout_ns),
+                              [&] { return active_quiescence == 0; }))
+        return MakeError(ErrorCategory::Timeout, "WaitForQuiescenceRelease",
+                         "coordinator still owns the reservation");
+    return Ok();
 }
 
 // Requires lock. Checks that a token authorises a transaction on *this* space right now.
@@ -970,6 +1066,13 @@ void GuestAddressSpace::RevokeExecuteLocked(GuestRange range) {
 // is no longer the one that owns translated code, so its answer cannot authorise anything.
 Status GuestAddressSpace::CallSinkUnlocked(std::unique_lock<std::mutex>& guard, GuestRange range,
                                            InvalidationReason reason, bool& committed) {
+    // Direct/file mappings may alias at different offsets. Until an indexed
+    // backing graph is needed, explicit publication conservatively retires all
+    // translations. A generation increment alone cannot retire an alias.
+    if (shared_backing_seen) {
+        range = {reservation_base, reservation_size};
+        reason = InvalidationReason::FullFlush;
+    }
     committed = false;
     CodeInvalidationSink* sink = code_sink;
     if (sink == nullptr) {
@@ -1172,8 +1275,7 @@ Result<MappingInfo> GuestAddressSpace::RemapUnderToken(const QuiescenceToken& to
                          "GuestAddressSpace::RemapUnderToken",
                          "range must be host-page aligned");
     }
-    if (range.base.value < reservation_base.value ||
-        range.base.value + range.size > reservation_base.value + reservation_size) {
+    if (!OwnsRange(range)) {
         return MakeError(ErrorCategory::InvalidArgument, "GuestAddressSpace::RemapUnderToken",
                          "range is outside this address space's reservation");
     }
@@ -1241,6 +1343,105 @@ Result<MappingInfo> GuestAddressSpace::RemapUnderToken(const QuiescenceToken& to
     info.mapping_generation = mapping_generation;
     info.host_owned = true;
     return info;
+}
+
+Status GuestAddressSpace::UpdateVmUnderToken(const QuiescenceToken& token, VmOperation operation,
+                                             GuestRange range, GuestPermission permission, int fd,
+                                             std::uint64_t offset) {
+    constexpr auto name = "GuestAddressSpace::UpdateVmUnderToken";
+    auto checked = GuestRange::Checked(range.base, range.size);
+    if (!checked || !IsHostPageAligned(range.base.value) || !IsHostPageAligned(range.size) ||
+        (operation != VmOperation::Map && operation != VmOperation::Protect &&
+         operation != VmOperation::Unmap) ||
+        fd < -1 || (fd == -1 && offset != 0) || !OwnsRange(range) || !IsHostPageAligned(offset) ||
+        offset > INT64_MAX || range.size > INT64_MAX - offset ||
+        (operation != VmOperation::Map && (fd != -1 || offset != 0)))
+        return MakeError(ErrorCategory::InvalidArgument, name, "invalid VM range/backing");
+    std::unique_lock guard{lock};
+    if (auto s = CheckTokenLocked(token, name); !s)
+        return s;
+    if (sink_draining || sink_calls_in_flight || !pins.empty())
+        return MakeError(ErrorCategory::Busy, name, "VM requires drained pins and sink");
+    if (!poisoned_ranges.empty())
+        return MakeError(ErrorCategory::WrongState, name,
+                         "generation requires recovery after VM failure");
+
+    // Build the complete post-operation ledger before changing any host mapping.
+    // Allocation failure leaves the old ledger and backing intact.
+    std::vector<Mapping> updated;
+    updated.reserve(mappings.size() + 2);
+    std::uint64_t covered{};
+    for (auto m : mappings) {
+        if (!RangesOverlap(m.range, range)) {
+            updated.push_back(m);
+            continue;
+        }
+        const auto begin = std::max(m.range.base.value, range.base.value);
+        const auto end = std::min(m.range.End(), range.End());
+        covered += end - begin;
+        if (m.range.base.value < begin) {
+            auto left = m;
+            left.range.size = begin - left.range.base.value;
+            updated.push_back(left);
+        }
+        if (operation == VmOperation::Protect) {
+            auto middle = m;
+            middle.range = {GuestAddress{begin}, end - begin};
+            middle.permission = permission;
+            middle.generation = mapping_generation + 1;
+            updated.push_back(middle);
+        }
+        if (end < m.range.End()) {
+            auto right = m;
+            right.range = {GuestAddress{end}, m.range.End() - end};
+            updated.push_back(right);
+        }
+    }
+    if (operation == VmOperation::Protect && covered != range.size)
+        return MakeError(ErrorCategory::InvalidArgument, name,
+                         "protection crosses unmapped memory");
+    if (operation == VmOperation::Map)
+        updated.push_back(
+            Mapping{range, permission, ProtectionReason::GuestPermission, mapping_generation + 1});
+
+    // Full retirement also covers partial and differently placed shared backing aliases.
+    // FEX walks its sparse compiled-page keys here, not every reserved host page.
+    const GuestRange all{reservation_base, reservation_size};
+    bool committed = false;
+    auto retired = CallSinkUnlocked(guard, all, InvalidationReason::FullFlush, committed);
+    if (!committed) {
+        PoisonCodeLocked(all);
+        ++code_generation;
+        return retired;
+    }
+    if (auto s = CheckTokenLocked(token, name); !s) {
+        PoisonCodeLocked(all);
+        return s;
+    }
+    bool success;
+    if (operation == VmOperation::Protect) {
+        success =
+            SeamMprotect(HostPointer(range.base), range.size, ToHostProtection(permission)) == 0;
+    } else {
+        const bool backed = operation == VmOperation::Map && fd >= 0;
+        const int flags = MAP_FIXED | (backed ? MAP_SHARED : MAP_PRIVATE | MAP_ANONYMOUS);
+        const auto prot = operation == VmOperation::Unmap ? GuestPermission::None : permission;
+        success = SeamMmap(HostPointer(range.base), range.size, ToHostProtection(prot), flags,
+                           backed ? fd : -1, backed ? offset : 0) != MAP_FAILED;
+    }
+    ++code_generation;
+    if (!success) {
+        const int saved = errno;
+        PoisonCodeLocked(all);
+        auto error =
+            MakeError(CategoriseMapFailure(saved), name, "VM syscall failed; generation poisoned");
+        error.system_error = saved;
+        return error;
+    }
+    mappings.swap(updated);
+    shared_backing_seen |= operation == VmOperation::Map && fd >= 0;
+    ++mapping_generation;
+    return Ok();
 }
 
 // Requires lock. Poison clears only when the range that failed has itself been republished or

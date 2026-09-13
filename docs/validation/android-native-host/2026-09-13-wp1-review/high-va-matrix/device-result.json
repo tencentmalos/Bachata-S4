@@ -1,0 +1,18 @@
+{
+  "device_api": "33",
+  "pagesize": "4096",
+  "native_api": 33,
+  "remote": "/data/local/tmp/shadps4-wp1-review-1789273752951129000",
+  "runs": [
+    {
+      "suite": "guest_execution_tests",
+      "sha256": "156a7c1530351bf9e1e39154890c71ae5ff0c8d3f9c3dc24c28b2830a8d0849d",
+      "exit": 1
+    },
+    {
+      "suite": "guest_cpu_contract_tests",
+      "sha256": "3536c10600f9aa16d7ae6367de3b78eab58d6f59c0362b26c887988432479da9",
+      "exit": 0
+    }
+  ]
+}

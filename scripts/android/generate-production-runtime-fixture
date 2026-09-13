@@ -1,0 +1,65 @@
+#!/usr/bin/env python3
+"""Build a PS4-format synthetic ELF for the production Module/Linker path."""
+import argparse, pathlib, struct, subprocess, tempfile, json
+p=argparse.ArgumentParser();p.add_argument('--ndk',required=True);p.add_argument('--out',required=True);p.add_argument('--wait',action='store_true');p.add_argument('--self',action='store_true');p.add_argument('--module',action='store_true');p.add_argument('--with-dependency',action='store_true');p.add_argument('--bad-pointer',action='store_true');p.add_argument('--unknown-import',action='store_true');a=p.parse_args()
+repo=pathlib.Path(__file__).resolve().parents[2]
+tools=next((pathlib.Path(a.ndk)/'toolchains/llvm/prebuilt').glob('*'))/'bin'
+out=pathlib.Path(a.out);out.parent.mkdir(parents=True,exist_ok=True)
+with tempfile.TemporaryDirectory(prefix='shadps4-runtime-fixture-') as tmp:
+    obj=pathlib.Path(tmp)/'fixture.o';blob=pathlib.Path(tmp)/'fixture.bin'
+    subprocess.run([str(tools/'clang'),'--target=x86_64-linux-gnu','-c',str(repo/'tests/guest_cpu/fixtures/production_runtime.S'),'-o',str(obj)]+(['-DWAIT_FOREVER'] if a.wait else [])+(['-DRUNTIME_DEPENDENCY'] if a.module else [])+(['-DEXPECT_DEPENDENCY'] if a.with_dependency else [])+(['-DBAD_POINTER'] if a.bad_pointer else []),check=True)
+    rel=subprocess.check_output([str(tools/'llvm-readelf'),'-r',str(obj)],text=True)
+    if 'There are no relocations' not in rel:raise SystemExit('fixture assembly has unresolved relocations: '+rel)
+    subprocess.run([str(tools/'llvm-objcopy'),'-O','binary','--only-section=.text',str(obj),str(blob)],check=True)
+    payload=blob.read_bytes()
+    disassembly=subprocess.check_output([str(tools/'llvm-objdump'),'-d',str(obj)],text=True)
+strings=bytearray(b'\0')
+def string(s):
+    offset=len(strings);strings.extend(s.encode()+b'\0');return offset
+lib=string('libkernel')
+nids=['OxhIB8LB-PQ','h9CcP3J0oVM','Z4QosVuAsA0','vNe1w4diLCs','mL8NDH86iQI','vSMAm3cxYTY','cQke9UuBQOk','QcteRwbsnV0','9BcDykPmo1I','f7uOxY9mM1U','djxxOmW6-aw','+2thxYZ4syk']
+if a.unknown_import:nids[0]='UnknownRunt'
+names=[string(n+'#A#A') for n in nids]
+tls_name=string('fixture_tls')
+dependency_name=string('fixture_dependency.sprx') if a.with_dependency else None
+symbols=bytes(24)+b''.join(struct.pack('<IBBHQQ',s,0x12 if i<9 else 0x11,0,0,0,0 if i<9 else 8) for i,s in enumerate(names))+struct.pack('<IBBHQQ',tls_name,6,0,1,0,8)
+symbols+=struct.pack('<IBBHQQ',0,3,0,0,0,0) # PS4 current-module DTPMOD marker
+syms=(len(strings)+7)&~7
+rels=syms+len(symbols)
+relocations=b''.join(struct.pack('<QQq',0x8000+i*8,((i+1)<<32)|(6 if i>=9 else 7),0) for i in range(len(nids)))
+tls_relocs=b''.join(struct.pack('<QQq',0x4300+i*8,((len(nids)+(2 if a.module and i==0 else 1))<<32)|kind,0) for i,kind in enumerate([16,17,18]))
+data=bytes(strings).ljust(syms,b'\0')+symbols+relocations+tls_relocs
+# Tag values from src/core/loader/elf.h. Tables use byte offsets in DYNLIBDATA.
+dyn=[(0x61000035,0),(0x61000037,len(strings)),(0x61000039,syms),(0x6100003f,len(symbols)),(0x6100003b,24),(0x61000029,rels),(0x6100002d,len(relocations)),(0x6100002b,7),(0x6100002f,rels+len(relocations)),(0x61000031,len(tls_relocs)),(0x61000033,24),(0x6100000f,lib|(1<<40)),(0x61000015,lib|(1<<32)),(0,0)]
+if a.module:dyn.insert(-1,(12,0x100))
+if a.with_dependency:dyn.insert(-1,(1,dependency_name))
+dynamic=b''.join(struct.pack('<qQ',tag,val) for tag,val in dyn)
+ph=[(1,5,0x4000,0,0,0x4000,0x4000,0x4000),(1,6,0x8000,0x4000,0,0x4000,0x4000,0x4000),(0x61000010,6,0xc000,0x8000,0,0x4000,0x4000,0x4000),(7,4,0x8010,0x4010,0,8,64,32),(0x61000001,4,0x8100,0x4100,0,0x20,0x20,8),(2,4,0x10000,0,0,len(dynamic),len(dynamic),8),(0x61000000,4,0x14000,0,0,len(data),len(data),8)]
+ident=b'\x7fELF'+bytes([2,1,1,9,0])+bytes(7)
+eh=struct.pack('<16sHHIQQQIHHHHHH',ident,0xfe18 if a.module else 0xfe10,62,1,0,64,0,0,64,56,len(ph),64,0,0)
+elf=(eh+b''.join(struct.pack('<IIQQQQQQ',*h) for h in ph)).ljust(0x4000,b'\0')+payload
+elf=elf.ljust(0x10000,b'\0')+dynamic
+elf=elf.ljust(0x14000,b'\0')+data
+if a.self:
+    # A SELF contains embedded ELF program headers and independently positioned
+    # segment payloads. Original section offsets need not exist in the container.
+    header = bytearray(eh)
+    struct.pack_into('<Q', header, 40, 0x70000000)
+    struct.pack_into('<H', header, 60, 40)
+    selected = [(i, h) for i, h in enumerate(ph) if h[0] not in (7, 0x61000001)]
+    header_size = (32 + 32 * len(selected) + len(header) + 56 * len(ph) + 64 + 15) & ~15
+    position = header_size
+    records = []
+    segments = []
+    for index, h in selected:
+        chunk = elf[h[2]:h[2] + h[5]]
+        records.append(struct.pack('<QQQQ', 0x800 | (index << 20), position, len(chunk), len(chunk)))
+        segments.append(chunk)
+        position += len(chunk)
+    container = struct.pack('<I6BHHHIIHHI', 0x1d3d154f, 0, 1, 1, 0x12, 1, 1,
+                            0, header_size, 0, position, 0, len(selected), 0x22, 0)
+    elf = (container + b''.join(records) + header + b''.join(struct.pack('<IIQQQQQQ', *h) for h in ph)).ljust(header_size, b'\0') + b''.join(segments)
+out.write_bytes(elf)
+out.with_suffix('.disasm.txt').write_text(disassembly)
+out.with_suffix('.json').write_text(json.dumps({'kind':'synthetic PS4 ELF; no game data','wait':a.wait,'self':a.self,'module':a.module,'with_dependency':a.with_dependency,'bad_pointer':a.bad_pointer,'unknown_import':a.unknown_import,'expected_return':None if a.wait else 0xcafe,'imports':nids,'size':len(elf)},indent=2)+'\n')
+print(out)

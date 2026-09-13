@@ -18,8 +18,6 @@
 
 namespace Libraries::Font::Internal {
 
-Core::FileSys::MntPoints* g_mnt = Common::Singleton<Core::FileSys::MntPoints>::Instance();
-
 using Libraries::Font::OrbisFontGenerateGlyphParams;
 using Libraries::Font::OrbisFontGlyph;
 using Libraries::Font::OrbisFontGlyphMetrics;
@@ -907,9 +905,7 @@ std::filesystem::path ResolveGuestPath(const char* guest_path) {
     if (guest_path[0] != '/') {
         return std::filesystem::path(guest_path);
     }
-    if (!g_mnt) {
-        g_mnt = Common::Singleton<Core::FileSys::MntPoints>::Instance();
-    }
+    auto* g_mnt = Common::Singleton<Core::FileSys::MntPoints>::Instance();
     if (!g_mnt) {
         return {};
     }
@@ -948,9 +944,7 @@ bool LoadGuestPathBytes(const char* guest_path, std::vector<unsigned char>& out_
         return false;
     }
     if (guest_path[0] == '/') {
-        if (!g_mnt) {
-            g_mnt = Common::Singleton<Core::FileSys::MntPoints>::Instance();
-        }
+        auto* g_mnt = Common::Singleton<Core::FileSys::MntPoints>::Instance();
         if (g_mnt) {
             if (auto bytes = g_mnt->ReadFile(guest_path)) {
                 out_bytes = std::move(*bytes);

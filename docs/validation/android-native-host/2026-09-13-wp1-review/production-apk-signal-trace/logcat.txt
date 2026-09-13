@@ -1,0 +1,339 @@
+--------- beginning of main
+09-13 13:14:42.302  9676  9762 I ProductionHLE: enter op=1 rip=180000000d
+09-13 13:14:42.302  9676  9762 I ProductionHLE: leave op=1 rax=0
+09-13 13:14:42.302  9676  9762 I ProductionHLE: enter op=5 rip=180001000d
+09-13 13:17:19.280 10940 11013 I ProductionVM: drain begin tid=11013
+09-13 13:17:19.280 10940 11013 I ProductionVM: drain ready tid=11013
+09-13 13:17:19.280 10940 11013 I ProductionVM: drain begin tid=11013
+09-13 13:17:19.280 10940 11013 I ProductionVM: drain ready tid=11013
+09-13 13:17:19.281 10940 11013 I ProductionVM: update begin op=0
+09-13 13:17:19.281 10940 11013 I ProductionVM: update end
+09-13 13:17:19.281 10940 11013 I ProductionVM: update begin op=0
+09-13 13:17:19.281 10940 11013 I ProductionVM: update end
+09-13 13:17:19.281 10940 11013 I ProductionVM: update begin op=0
+09-13 13:17:19.281 10940 11013 I ProductionVM: update end
+09-13 13:17:19.281 10940 11013 I ProductionVM: update begin op=0
+09-13 13:17:19.281 10940 11013 I ProductionVM: update end
+09-13 13:17:19.281 10940 11013 I ProductionVM: update begin op=1
+09-13 13:17:19.281 10940 11013 I ProductionVM: update end
+09-13 13:17:19.281 10940 11013 I ProductionVM: update begin op=0
+09-13 13:17:19.281 10940 11013 I ProductionVM: update end
+09-13 13:17:19.281 10940 11013 I ProductionVM: update begin op=1
+09-13 13:17:19.281 10940 11013 I ProductionVM: update end
+09-13 13:17:19.281 10940 11013 I ProductionVM: update begin op=0
+09-13 13:17:19.281 10940 11013 I ProductionVM: update end
+09-13 13:17:19.281 10940 11013 I ProductionVM: update begin op=1
+09-13 13:17:19.281 10940 11013 I ProductionVM: update end
+09-13 13:17:19.281 10940 11013 I ProductionVM: update begin op=0
+09-13 13:17:19.281 10940 11013 I ProductionVM: update end
+09-13 13:17:19.281 10940 11013 I ProductionVM: update begin op=1
+09-13 13:17:19.281 10940 11013 I ProductionVM: update end
+09-13 13:17:19.281 10940 11013 I ProductionVM: update begin op=0
+09-13 13:17:19.281 10940 11013 I ProductionVM: update end
+09-13 13:17:19.281 10940 11013 I ProductionVM: update begin op=1
+09-13 13:17:19.281 10940 11013 I ProductionVM: update end
+09-13 13:17:19.281 10940 11013 I ProductionVM: update begin op=0
+09-13 13:17:19.281 10940 11013 I ProductionVM: update end
+09-13 13:17:19.281 10940 11013 I ProductionVM: update begin op=1
+09-13 13:17:19.281 10940 11013 I ProductionVM: update end
+09-13 13:17:19.281 10940 11013 I ProductionVM: update begin op=0
+09-13 13:17:19.281 10940 11013 I ProductionVM: update end
+09-13 13:17:19.281 10940 11013 I ProductionVM: update begin op=1
+09-13 13:17:19.281 10940 11013 I ProductionVM: update end
+09-13 13:17:19.282 10940 11013 I ProductionVM: update begin op=0
+09-13 13:17:19.282 10940 11013 I ProductionVM: update end
+09-13 13:17:19.282 10940 11013 I ProductionVM: update begin op=1
+09-13 13:17:19.282 10940 11013 I ProductionVM: update end
+09-13 13:17:19.282 10940 11013 I ProductionVM: update begin op=1
+09-13 13:17:19.282 10940 11013 I ProductionVM: update end
+09-13 13:17:19.282 10940 11013 I ProductionVM: update begin op=1
+09-13 13:17:19.282 10940 11013 I ProductionVM: update end
+09-13 13:17:19.282 10940 11013 I ProductionVM: drain begin tid=11013
+09-13 13:17:19.282 10940 11013 I ProductionVM: drain ready tid=11013
+09-13 13:17:19.282 10940 11013 I ProductionVM: update begin op=0
+09-13 13:17:19.282 10940 11013 I ProductionVM: update end
+09-13 13:17:19.282 10940 11013 I ProductionVM: update begin op=1
+09-13 13:17:19.282 10940 11013 I ProductionVM: update end
+09-13 13:17:19.282 10940 11013 I ProductionVM: update begin op=0
+09-13 13:17:19.282 10940 11013 I ProductionVM: update end
+09-13 13:17:19.282 10940 11013 I ProductionVM: drain begin tid=11013
+09-13 13:17:19.282 10940 11013 I ProductionVM: drain ready tid=11013
+09-13 13:17:19.282 10940 11013 I ProductionVM: update begin op=0
+09-13 13:17:19.282 10940 11013 I ProductionVM: update end
+09-13 13:17:19.282 10940 11013 I ProductionHLE: enter op=1 rip=180000000d
+09-13 13:17:19.282 10940 11013 I ProductionVM: drain begin tid=11013
+09-13 13:17:19.282 10940 11013 I ProductionVM: drain ready tid=11013
+09-13 13:17:19.282 10940 11013 I ProductionVM: update begin op=0
+09-13 13:17:19.282 10940 11013 I ProductionVM: update end
+09-13 13:17:19.282 10940 11013 I ProductionVM: update begin op=1
+09-13 13:17:19.282 10940 11013 I ProductionVM: update end
+09-13 13:17:19.282 10940 11013 I ProductionVM: update begin op=0
+09-13 13:17:19.282 10940 11013 I ProductionVM: update end
+09-13 13:17:19.282 10940 11013 I ProductionHLE: leave op=1 rax=0
+09-13 13:17:19.282 10940 11013 I ProductionHLE: enter op=5 rip=180001000d
+09-13 13:17:19.282 10940 11013 I ProductionVM: drain begin tid=11013
+09-13 13:18:37.637 11630 11713 I ProductionVM: drain begin tid=11713
+09-13 13:18:37.637 11630 11713 I FexDrain: begin tid=11713
+09-13 13:18:37.637 11630 11713 I FexDrain: lock begin tid=11713
+09-13 13:18:37.637 11630 11713 I FexDrain: lock acquired tid=11713
+09-13 13:18:37.637 11630 11713 I FexDrain: admission begin tid=11713
+09-13 13:18:37.637 11630 11713 I FexDrain: admission end tid=11713
+09-13 13:18:37.637 11630 11713 I FexDrain: wakes tid=11713
+09-13 13:18:37.637 11630 11713 I FexDrain: wait owners tid=11713
+09-13 13:18:37.637 11630 11713 I FexDrain: owners stopped tid=11713
+09-13 13:18:37.637 11630 11713 I FexDrain: drain finished tid=11713
+09-13 13:18:37.637 11630 11713 I FexDrain: lock begin tid=11713
+09-13 13:18:37.637 11630 11713 I FexDrain: lock acquired tid=11713
+09-13 13:18:37.637 11630 11713 I ProductionVM: drain ready tid=11713
+09-13 13:18:37.637 11630 11713 I ProductionVM: drain begin tid=11713
+09-13 13:18:37.637 11630 11713 I FexDrain: begin tid=11713
+09-13 13:18:37.637 11630 11713 I FexDrain: lock begin tid=11713
+09-13 13:18:37.637 11630 11713 I FexDrain: lock acquired tid=11713
+09-13 13:18:37.637 11630 11713 I FexDrain: admission begin tid=11713
+09-13 13:18:37.637 11630 11713 I FexDrain: admission end tid=11713
+09-13 13:18:37.637 11630 11713 I FexDrain: wakes tid=11713
+09-13 13:18:37.637 11630 11713 I FexDrain: wait owners tid=11713
+09-13 13:18:37.637 11630 11713 I FexDrain: owners stopped tid=11713
+09-13 13:18:37.637 11630 11713 I FexDrain: drain finished tid=11713
+09-13 13:18:37.637 11630 11713 I FexDrain: lock begin tid=11713
+09-13 13:18:37.637 11630 11713 I FexDrain: lock acquired tid=11713
+09-13 13:18:37.637 11630 11713 I ProductionVM: drain ready tid=11713
+09-13 13:18:37.637 11630 11713 I ProductionVM: update begin op=0
+09-13 13:18:37.637 11630 11713 I ProductionVM: update end
+09-13 13:18:37.637 11630 11713 I ProductionVM: update begin op=0
+09-13 13:18:37.637 11630 11713 I ProductionVM: update end
+09-13 13:18:37.637 11630 11713 I ProductionVM: update begin op=0
+09-13 13:18:37.637 11630 11713 I ProductionVM: update end
+09-13 13:18:37.638 11630 11713 I ProductionVM: update begin op=0
+09-13 13:18:37.638 11630 11713 I ProductionVM: update end
+09-13 13:18:37.638 11630 11713 I ProductionVM: update begin op=1
+09-13 13:18:37.638 11630 11713 I ProductionVM: update end
+09-13 13:18:37.638 11630 11713 I ProductionVM: update begin op=0
+09-13 13:18:37.638 11630 11713 I ProductionVM: update end
+09-13 13:18:37.638 11630 11713 I ProductionVM: update begin op=1
+09-13 13:18:37.638 11630 11713 I ProductionVM: update end
+09-13 13:18:37.638 11630 11713 I ProductionVM: update begin op=0
+09-13 13:18:37.638 11630 11713 I ProductionVM: update end
+09-13 13:18:37.638 11630 11713 I ProductionVM: update begin op=1
+09-13 13:18:37.638 11630 11713 I ProductionVM: update end
+09-13 13:18:37.638 11630 11713 I ProductionVM: update begin op=0
+09-13 13:18:37.638 11630 11713 I ProductionVM: update end
+09-13 13:18:37.638 11630 11713 I ProductionVM: update begin op=1
+09-13 13:18:37.638 11630 11713 I ProductionVM: update end
+09-13 13:18:37.638 11630 11713 I ProductionVM: update begin op=0
+09-13 13:18:37.638 11630 11713 I ProductionVM: update end
+09-13 13:18:37.638 11630 11713 I ProductionVM: update begin op=1
+09-13 13:18:37.638 11630 11713 I ProductionVM: update end
+09-13 13:18:37.638 11630 11713 I ProductionVM: update begin op=0
+09-13 13:18:37.638 11630 11713 I ProductionVM: update end
+09-13 13:18:37.638 11630 11713 I ProductionVM: update begin op=1
+09-13 13:18:37.638 11630 11713 I ProductionVM: update end
+09-13 13:18:37.638 11630 11713 I ProductionVM: update begin op=0
+09-13 13:18:37.638 11630 11713 I ProductionVM: update end
+09-13 13:18:37.638 11630 11713 I ProductionVM: update begin op=1
+09-13 13:18:37.638 11630 11713 I ProductionVM: update end
+09-13 13:18:37.638 11630 11713 I ProductionVM: update begin op=0
+09-13 13:18:37.638 11630 11713 I ProductionVM: update end
+09-13 13:18:37.638 11630 11713 I ProductionVM: update begin op=1
+09-13 13:18:37.638 11630 11713 I ProductionVM: update end
+09-13 13:18:37.638 11630 11713 I ProductionVM: update begin op=1
+09-13 13:18:37.638 11630 11713 I ProductionVM: update end
+09-13 13:18:37.638 11630 11713 I ProductionVM: update begin op=1
+09-13 13:18:37.638 11630 11713 I ProductionVM: update end
+09-13 13:18:37.638 11630 11713 I ProductionVM: drain begin tid=11713
+09-13 13:18:37.638 11630 11713 I FexDrain: begin tid=11713
+09-13 13:18:37.638 11630 11713 I FexDrain: lock begin tid=11713
+09-13 13:18:37.638 11630 11713 I FexDrain: lock acquired tid=11713
+09-13 13:18:37.638 11630 11713 I FexDrain: admission begin tid=11713
+09-13 13:18:37.638 11630 11713 I FexDrain: admission end tid=11713
+09-13 13:18:37.638 11630 11713 I FexDrain: wakes tid=11713
+09-13 13:18:37.638 11630 11713 I FexDrain: wait owners tid=11713
+09-13 13:18:37.638 11630 11713 I FexDrain: owners stopped tid=11713
+09-13 13:18:37.638 11630 11713 I FexDrain: drain finished tid=11713
+09-13 13:18:37.638 11630 11713 I FexDrain: lock begin tid=11713
+09-13 13:18:37.638 11630 11713 I FexDrain: lock acquired tid=11713
+09-13 13:18:37.638 11630 11713 I ProductionVM: drain ready tid=11713
+09-13 13:18:37.638 11630 11713 I ProductionVM: update begin op=0
+09-13 13:18:37.638 11630 11713 I ProductionVM: update end
+09-13 13:18:37.638 11630 11713 I ProductionVM: update begin op=1
+09-13 13:18:37.638 11630 11713 I ProductionVM: update end
+09-13 13:18:37.638 11630 11713 I ProductionVM: update begin op=0
+09-13 13:18:37.638 11630 11713 I ProductionVM: update end
+09-13 13:18:37.639 11630 11713 I ProductionVM: drain begin tid=11713
+09-13 13:18:37.639 11630 11713 I FexDrain: begin tid=11713
+09-13 13:18:37.639 11630 11713 I FexDrain: lock begin tid=11713
+09-13 13:18:37.639 11630 11713 I FexDrain: lock acquired tid=11713
+09-13 13:18:37.639 11630 11713 I FexDrain: admission begin tid=11713
+09-13 13:18:37.639 11630 11713 I FexDrain: admission end tid=11713
+09-13 13:18:37.639 11630 11713 I FexDrain: wakes tid=11713
+09-13 13:18:37.639 11630 11713 I FexDrain: wait owners tid=11713
+09-13 13:18:37.639 11630 11713 I FexDrain: owners stopped tid=11713
+09-13 13:18:37.639 11630 11713 I FexDrain: drain finished tid=11713
+09-13 13:18:37.639 11630 11713 I FexDrain: lock begin tid=11713
+09-13 13:18:37.639 11630 11713 I FexDrain: lock acquired tid=11713
+09-13 13:18:37.639 11630 11713 I ProductionVM: drain ready tid=11713
+09-13 13:18:37.639 11630 11713 I ProductionVM: update begin op=0
+09-13 13:18:37.639 11630 11713 I ProductionVM: update end
+09-13 13:18:37.639 11630 11713 I ProductionHLE: enter op=1 rip=180000000d
+09-13 13:18:37.639 11630 11713 I ProductionVM: drain begin tid=11713
+09-13 13:18:37.639 11630 11713 I FexDrain: begin tid=11713
+09-13 13:18:37.639 11630 11713 I FexDrain: lock begin tid=11713
+09-13 13:18:37.639 11630 11713 I FexDrain: lock acquired tid=11713
+09-13 13:18:37.639 11630 11713 I FexDrain: admission begin tid=11713
+09-13 13:18:37.639 11630 11713 I FexDrain: admission end tid=11713
+09-13 13:18:37.639 11630 11713 I FexDrain: wakes tid=11713
+09-13 13:18:37.639 11630 11713 I FexDrain: wait owners tid=11713
+09-13 13:18:37.639 11630 11713 I FexDrain: owners stopped tid=11713
+09-13 13:18:37.639 11630 11713 I FexDrain: drain finished tid=11713
+09-13 13:18:37.639 11630 11713 I FexDrain: lock begin tid=11713
+09-13 13:18:37.639 11630 11713 I FexDrain: lock acquired tid=11713
+09-13 13:18:37.639 11630 11713 I ProductionVM: drain ready tid=11713
+09-13 13:18:37.639 11630 11713 I ProductionVM: update begin op=0
+09-13 13:18:37.639 11630 11713 I ProductionVM: update end
+09-13 13:18:37.639 11630 11713 I ProductionVM: update begin op=1
+09-13 13:18:37.639 11630 11713 I ProductionVM: update end
+09-13 13:18:37.639 11630 11713 I ProductionVM: update begin op=0
+09-13 13:18:37.639 11630 11713 I ProductionVM: update end
+09-13 13:18:37.639 11630 11713 I ProductionHLE: leave op=1 rax=0
+09-13 13:18:37.639 11630 11713 I ProductionHLE: enter op=5 rip=180001000d
+09-13 13:18:37.639 11630 11713 I ProductionVM: drain begin tid=11713
+09-13 13:18:37.639 11630 11713 I FexDrain: begin tid=11713
+09-13 13:18:37.639 11630 11713 I FexDrain: lock begin tid=11713
+09-13 13:18:37.639 11630 11713 I FexDrain: lock acquired tid=11713
+09-13 13:18:37.639 11630 11713 I FexDrain: admission begin tid=11713
+09-13 13:18:37.639 11630 11713 I FexDrain: admission end tid=11713
+09-13 13:18:37.639 11630 11713 I FexDrain: wakes tid=11713
+09-13 13:18:37.639 11630 11713 I FexDrain: wait owners tid=11713
+09-13 13:20:10.317 12530 12605 I ProductionVM: drain begin tid=12605
+09-13 13:20:10.317 12530 12605 I FexDrain: begin tid=12605
+09-13 13:20:10.317 12530 12605 I FexDrain: lock begin tid=12605
+09-13 13:20:10.317 12530 12605 I FexDrain: lock acquired tid=12605
+09-13 13:20:10.317 12530 12605 I FexDrain: admission begin tid=12605
+09-13 13:20:10.317 12530 12605 I FexDrain: admission end tid=12605
+09-13 13:20:10.317 12530 12605 I FexDrain: wakes tid=12605
+09-13 13:20:10.317 12530 12605 I FexDrain: wait owners tid=12605
+09-13 13:20:10.317 12530 12605 I FexDrain: owners stopped tid=12605
+09-13 13:20:10.317 12530 12605 I FexDrain: drain finished tid=12605
+09-13 13:20:10.317 12530 12605 I FexDrain: lock begin tid=12605
+09-13 13:20:10.317 12530 12605 I FexDrain: lock acquired tid=12605
+09-13 13:20:10.317 12530 12605 I ProductionVM: drain ready tid=12605
+09-13 13:20:10.318 12530 12605 I ProductionVM: drain begin tid=12605
+09-13 13:20:10.318 12530 12605 I FexDrain: begin tid=12605
+09-13 13:20:10.318 12530 12605 I FexDrain: lock begin tid=12605
+09-13 13:20:10.318 12530 12605 I FexDrain: lock acquired tid=12605
+09-13 13:20:10.318 12530 12605 I FexDrain: admission begin tid=12605
+09-13 13:20:10.318 12530 12605 I FexDrain: admission end tid=12605
+09-13 13:20:10.318 12530 12605 I FexDrain: wakes tid=12605
+09-13 13:20:10.318 12530 12605 I FexDrain: wait owners tid=12605
+09-13 13:20:10.318 12530 12605 I FexDrain: owners stopped tid=12605
+09-13 13:20:10.318 12530 12605 I FexDrain: drain finished tid=12605
+09-13 13:20:10.318 12530 12605 I FexDrain: lock begin tid=12605
+09-13 13:20:10.318 12530 12605 I FexDrain: lock acquired tid=12605
+09-13 13:20:10.318 12530 12605 I ProductionVM: drain ready tid=12605
+09-13 13:20:10.318 12530 12605 I ProductionVM: update begin op=0
+09-13 13:20:10.318 12530 12605 I ProductionVM: update end
+09-13 13:20:10.318 12530 12605 I ProductionVM: update begin op=0
+09-13 13:20:10.318 12530 12605 I ProductionVM: update end
+09-13 13:20:10.318 12530 12605 I ProductionVM: update begin op=0
+09-13 13:20:10.318 12530 12605 I ProductionVM: update end
+09-13 13:20:10.319 12530 12605 I ProductionVM: update begin op=0
+09-13 13:20:10.319 12530 12605 I ProductionVM: update end
+09-13 13:20:10.319 12530 12605 I ProductionVM: update begin op=1
+09-13 13:20:10.319 12530 12605 I ProductionVM: update end
+09-13 13:20:10.319 12530 12605 I ProductionVM: update begin op=0
+09-13 13:20:10.319 12530 12605 I ProductionVM: update end
+09-13 13:20:10.319 12530 12605 I ProductionVM: update begin op=1
+09-13 13:20:10.319 12530 12605 I ProductionVM: update end
+09-13 13:20:10.319 12530 12605 I ProductionVM: update begin op=0
+09-13 13:20:10.319 12530 12605 I ProductionVM: update end
+09-13 13:20:10.319 12530 12605 I ProductionVM: update begin op=1
+09-13 13:20:10.319 12530 12605 I ProductionVM: update end
+09-13 13:20:10.319 12530 12605 I ProductionVM: update begin op=0
+09-13 13:20:10.319 12530 12605 I ProductionVM: update end
+09-13 13:20:10.319 12530 12605 I ProductionVM: update begin op=1
+09-13 13:20:10.319 12530 12605 I ProductionVM: update end
+09-13 13:20:10.319 12530 12605 I ProductionVM: update begin op=0
+09-13 13:20:10.319 12530 12605 I ProductionVM: update end
+09-13 13:20:10.319 12530 12605 I ProductionVM: update begin op=1
+09-13 13:20:10.319 12530 12605 I ProductionVM: update end
+09-13 13:20:10.319 12530 12605 I ProductionVM: update begin op=0
+09-13 13:20:10.319 12530 12605 I ProductionVM: update end
+09-13 13:20:10.319 12530 12605 I ProductionVM: update begin op=1
+09-13 13:20:10.319 12530 12605 I ProductionVM: update end
+09-13 13:20:10.319 12530 12605 I ProductionVM: update begin op=0
+09-13 13:20:10.319 12530 12605 I ProductionVM: update end
+09-13 13:20:10.319 12530 12605 I ProductionVM: update begin op=1
+09-13 13:20:10.319 12530 12605 I ProductionVM: update end
+09-13 13:20:10.319 12530 12605 I ProductionVM: update begin op=0
+09-13 13:20:10.319 12530 12605 I ProductionVM: update end
+09-13 13:20:10.319 12530 12605 I ProductionVM: update begin op=1
+09-13 13:20:10.319 12530 12605 I ProductionVM: update end
+09-13 13:20:10.319 12530 12605 I ProductionVM: update begin op=1
+09-13 13:20:10.319 12530 12605 I ProductionVM: update end
+09-13 13:20:10.319 12530 12605 I ProductionVM: update begin op=1
+09-13 13:20:10.319 12530 12605 I ProductionVM: update end
+09-13 13:20:10.319 12530 12605 I ProductionVM: drain begin tid=12605
+09-13 13:20:10.319 12530 12605 I FexDrain: begin tid=12605
+09-13 13:20:10.319 12530 12605 I FexDrain: lock begin tid=12605
+09-13 13:20:10.319 12530 12605 I FexDrain: lock acquired tid=12605
+09-13 13:20:10.319 12530 12605 I FexDrain: admission begin tid=12605
+09-13 13:20:10.319 12530 12605 I FexDrain: admission end tid=12605
+09-13 13:20:10.319 12530 12605 I FexDrain: wakes tid=12605
+09-13 13:20:10.319 12530 12605 I FexDrain: wait owners tid=12605
+09-13 13:20:10.319 12530 12605 I FexDrain: owners stopped tid=12605
+09-13 13:20:10.319 12530 12605 I FexDrain: drain finished tid=12605
+09-13 13:20:10.319 12530 12605 I FexDrain: lock begin tid=12605
+09-13 13:20:10.319 12530 12605 I FexDrain: lock acquired tid=12605
+09-13 13:20:10.319 12530 12605 I ProductionVM: drain ready tid=12605
+09-13 13:20:10.319 12530 12605 I ProductionVM: update begin op=0
+09-13 13:20:10.319 12530 12605 I ProductionVM: update end
+09-13 13:20:10.319 12530 12605 I ProductionVM: update begin op=1
+09-13 13:20:10.319 12530 12605 I ProductionVM: update end
+09-13 13:20:10.319 12530 12605 I ProductionVM: update begin op=0
+09-13 13:20:10.319 12530 12605 I ProductionVM: update end
+09-13 13:20:10.319 12530 12605 I ProductionVM: drain begin tid=12605
+09-13 13:20:10.319 12530 12605 I FexDrain: begin tid=12605
+09-13 13:20:10.319 12530 12605 I FexDrain: lock begin tid=12605
+09-13 13:20:10.319 12530 12605 I FexDrain: lock acquired tid=12605
+09-13 13:20:10.319 12530 12605 I FexDrain: admission begin tid=12605
+09-13 13:20:10.319 12530 12605 I FexDrain: admission end tid=12605
+09-13 13:20:10.319 12530 12605 I FexDrain: wakes tid=12605
+09-13 13:20:10.319 12530 12605 I FexDrain: wait owners tid=12605
+09-13 13:20:10.319 12530 12605 I FexDrain: owners stopped tid=12605
+09-13 13:20:10.319 12530 12605 I FexDrain: drain finished tid=12605
+09-13 13:20:10.319 12530 12605 I FexDrain: lock begin tid=12605
+09-13 13:20:10.319 12530 12605 I FexDrain: lock acquired tid=12605
+09-13 13:20:10.319 12530 12605 I ProductionVM: drain ready tid=12605
+09-13 13:20:10.319 12530 12605 I ProductionVM: update begin op=0
+09-13 13:20:10.319 12530 12605 I ProductionVM: update end
+09-13 13:20:10.320 12530 12605 I ProductionHLE: enter op=1 rip=180000000d
+09-13 13:20:10.320 12530 12605 I ProductionVM: drain begin tid=12605
+09-13 13:20:10.320 12530 12605 I FexDrain: begin tid=12605
+09-13 13:20:10.320 12530 12605 I FexDrain: lock begin tid=12605
+09-13 13:20:10.320 12530 12605 I FexDrain: lock acquired tid=12605
+09-13 13:20:10.320 12530 12605 I FexDrain: admission begin tid=12605
+09-13 13:20:10.320 12530 12605 I FexDrain: admission end tid=12605
+09-13 13:20:10.320 12530 12605 I FexDrain: wakes tid=12605
+09-13 13:20:10.320 12530 12605 I FexDrain: wait owners tid=12605
+09-13 13:20:10.320 12530 12605 I FexDrain: owners stopped tid=12605
+09-13 13:20:10.320 12530 12605 I FexDrain: drain finished tid=12605
+09-13 13:20:10.320 12530 12605 I FexDrain: lock begin tid=12605
+09-13 13:20:10.320 12530 12605 I FexDrain: lock acquired tid=12605
+09-13 13:20:10.320 12530 12605 I ProductionVM: drain ready tid=12605
+09-13 13:20:10.320 12530 12605 I ProductionVM: update begin op=0
+09-13 13:20:10.320 12530 12605 I ProductionVM: update end
+09-13 13:20:10.320 12530 12605 I ProductionVM: update begin op=1
+09-13 13:20:10.320 12530 12605 I ProductionVM: update end
+09-13 13:20:10.320 12530 12605 I ProductionVM: update begin op=0
+09-13 13:20:10.320 12530 12605 I ProductionVM: update end
+09-13 13:20:10.320 12530 12605 I ProductionHLE: leave op=1 rax=0
+09-13 13:20:10.320 12530 12605 I ProductionHLE: enter op=5 rip=180001000d
+09-13 13:20:10.320 12530 12605 I ProductionVM: drain begin tid=12605
+09-13 13:20:10.320 12530 12605 I FexDrain: begin tid=12605
+09-13 13:20:10.320 12530 12605 I FexDrain: lock begin tid=12605
+09-13 13:20:10.320 12530 12605 I FexDrain: lock acquired tid=12605
+09-13 13:20:10.320 12530 12605 I FexDrain: admission begin tid=12605
+09-13 13:20:10.320 12530 12605 I FexDrain: admission end tid=12605
+09-13 13:20:10.320 12530 12605 I FexDrain: wakes tid=12605
+09-13 13:20:10.320 12530 12605 I FexDrain: wait owners tid=12605
+09-13 13:20:12.321 12530 12605 E FexDrain: timeout signals 0 0 0 0 0

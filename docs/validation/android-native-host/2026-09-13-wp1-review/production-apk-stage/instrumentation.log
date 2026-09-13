@@ -1,0 +1,44 @@
+INSTRUMENTATION_STATUS: class=com.shadps4.android.ProductionRuntimeInstrumentedTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.shadps4.android.ProductionRuntimeInstrumentedTest:
+INSTRUMENTATION_STATUS: test=productionContentRunsAndCancelsAcrossSixServiceGenerations
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.shadps4.android.ProductionRuntimeInstrumentedTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: expected:<0> but was:<-1>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at com.shadps4.android.ProductionRuntimeInstrumentedTest.productionContentRunsAndCancelsAcrossSixServiceGenerations(ProductionRuntimeInstrumentedTest.kt:72)
+
+INSTRUMENTATION_STATUS: stream=
+Error in productionContentRunsAndCancelsAcrossSixServiceGenerations(com.shadps4.android.ProductionRuntimeInstrumentedTest):
+java.lang.AssertionError: expected:<0> but was:<-1>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at com.shadps4.android.ProductionRuntimeInstrumentedTest.productionContentRunsAndCancelsAcrossSixServiceGenerations(ProductionRuntimeInstrumentedTest.kt:72)
+
+INSTRUMENTATION_STATUS: test=productionContentRunsAndCancelsAcrossSixServiceGenerations
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 11.124
+There was 1 failure:
+1) productionContentRunsAndCancelsAcrossSixServiceGenerations(com.shadps4.android.ProductionRuntimeInstrumentedTest)
+java.lang.AssertionError: expected:<0> but was:<-1>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at com.shadps4.android.ProductionRuntimeInstrumentedTest.productionContentRunsAndCancelsAcrossSixServiceGenerations(ProductionRuntimeInstrumentedTest.kt:72)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

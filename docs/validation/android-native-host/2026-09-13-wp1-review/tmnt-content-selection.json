@@ -1,0 +1,107 @@
+{
+  "scope": "base then update; executable/modules/param.sfo only, no game assets",
+  "files": [
+    {
+      "pkg_sha256": "4ebea14adbabdd48c68875839f9e65800954a8a916247b1f353e8d76b414f2b6",
+      "path": "eboot.bin",
+      "size": 28478325,
+      "sha256": "6cc980b770aa4f5880c6be7aefa245a77e96de33d80c8ebf9bb2b4d8d9b52a5f"
+    },
+    {
+      "pkg_sha256": "4ebea14adbabdd48c68875839f9e65800954a8a916247b1f353e8d76b414f2b6",
+      "path": "modules/libfmod.prx",
+      "size": 1673676,
+      "sha256": "dd188ff57dde1839e67ce06cccc538104972e4f3c1603469bea9e5a9125ea48f"
+    },
+    {
+      "pkg_sha256": "4ebea14adbabdd48c68875839f9e65800954a8a916247b1f353e8d76b414f2b6",
+      "path": "modules/libfmodstudio.prx",
+      "size": 1616709,
+      "sha256": "8fe01d4dacb80faf4bb54869cfc0f8c15caea69826a641cb0c347db8deb1c4be"
+    },
+    {
+      "pkg_sha256": "4ebea14adbabdd48c68875839f9e65800954a8a916247b1f353e8d76b414f2b6",
+      "path": "sce_module/libSceFios2.prx",
+      "size": 457105,
+      "sha256": "4372978f996ca9a7ff9eed343bde7416182cbc436cc487cf6a2280e68ba5a1aa"
+    },
+    {
+      "pkg_sha256": "4ebea14adbabdd48c68875839f9e65800954a8a916247b1f353e8d76b414f2b6",
+      "path": "sce_module/libSceNpCppWebApi.prx",
+      "size": 8367615,
+      "sha256": "27b969eb71e638907b61fc28719e8141bfc3270426d1b33f00e8e56eabd63f74"
+    },
+    {
+      "pkg_sha256": "4ebea14adbabdd48c68875839f9e65800954a8a916247b1f353e8d76b414f2b6",
+      "path": "sce_module/libSceNpToolkit2.prx",
+      "size": 830470,
+      "sha256": "0fbb7f928485413cb544bc1abd78f865241dbf4b97e2cc7d609b20ecc9fc718b"
+    },
+    {
+      "pkg_sha256": "4ebea14adbabdd48c68875839f9e65800954a8a916247b1f353e8d76b414f2b6",
+      "path": "sce_module/libc.prx",
+      "size": 1374546,
+      "sha256": "5c9d7acf1282e19ba00bb134cd292d76d5221e2bd93dd3173ca53febe3d7fbfa"
+    },
+    {
+      "pkg_sha256": "4ebea14adbabdd48c68875839f9e65800954a8a916247b1f353e8d76b414f2b6",
+      "path": "sce_sys/about/right.sprx",
+      "size": 16025,
+      "sha256": "7ac46af09bedc1ff31a51977e52c959080e1213cede37d9794315a3986c72de7"
+    },
+    {
+      "pkg_sha256": "c3ad762919ca1e2bbf781d856b842379b08d0a5e6ef71fff122f0d8a859e0af1",
+      "path": "eboot.bin",
+      "size": 31337969,
+      "sha256": "6122da7190de6b08d921b2c42c3ca9ed11dc4d11524f1139ff67aeceea5b204d"
+    },
+    {
+      "pkg_sha256": "c3ad762919ca1e2bbf781d856b842379b08d0a5e6ef71fff122f0d8a859e0af1",
+      "path": "modules/libfmod.prx",
+      "size": 1673676,
+      "sha256": "e1c11c0cffe67d84f4b90dc6469ba36ac46f51c6265632f9f6a43220e31f82b4"
+    },
+    {
+      "pkg_sha256": "c3ad762919ca1e2bbf781d856b842379b08d0a5e6ef71fff122f0d8a859e0af1",
+      "path": "modules/libfmodstudio.prx",
+      "size": 1616709,
+      "sha256": "2b4e4ef16cbe65cc936f4df92655bd913fc4520aa03936a990c9133742c464c0"
+    },
+    {
+      "pkg_sha256": "c3ad762919ca1e2bbf781d856b842379b08d0a5e6ef71fff122f0d8a859e0af1",
+      "path": "sce_module/libSceFios2.prx",
+      "size": 457105,
+      "sha256": "cdba7270959c106737182a4100b8d34a1c55ab2ff335ae38561733bf249c2aa8"
+    },
+    {
+      "pkg_sha256": "c3ad762919ca1e2bbf781d856b842379b08d0a5e6ef71fff122f0d8a859e0af1",
+      "path": "sce_module/libSceNpCppWebApi.prx",
+      "size": 8367615,
+      "sha256": "86567e067727049a2626e885d3cdd68acaa37b8cb663d7acb1415bcef4b6982f"
+    },
+    {
+      "pkg_sha256": "c3ad762919ca1e2bbf781d856b842379b08d0a5e6ef71fff122f0d8a859e0af1",
+      "path": "sce_module/libSceNpEntitlementAccess.prx",
+      "size": 10506,
+      "sha256": "bdb6d271ae53dbcee15d26a74a78597de43f0e17366c82ea0bdbcf5ff4146170"
+    },
+    {
+      "pkg_sha256": "c3ad762919ca1e2bbf781d856b842379b08d0a5e6ef71fff122f0d8a859e0af1",
+      "path": "sce_module/libSceNpToolkit2.prx",
+      "size": 830470,
+      "sha256": "25c60c0cd1c680fc6bbe42199a2fa14da202783fb73fd38d88eccba9b899946f"
+    },
+    {
+      "pkg_sha256": "c3ad762919ca1e2bbf781d856b842379b08d0a5e6ef71fff122f0d8a859e0af1",
+      "path": "sce_module/libc.prx",
+      "size": 1374546,
+      "sha256": "e9ff426367f594a22d8122c63199c3350630ac7f46a78e4845cfa16edbea2a38"
+    },
+    {
+      "pkg_sha256": "c3ad762919ca1e2bbf781d856b842379b08d0a5e6ef71fff122f0d8a859e0af1",
+      "path": "sce_sys/about/right.sprx",
+      "size": 16025,
+      "sha256": "7ac46af09bedc1ff31a51977e52c959080e1213cede37d9794315a3986c72de7"
+    }
+  ]
+}

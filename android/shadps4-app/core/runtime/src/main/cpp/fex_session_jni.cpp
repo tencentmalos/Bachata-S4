@@ -27,6 +27,7 @@
 
 #include <cstdio>
 #include <string>
+#include <stdexcept>
 
 #include <unistd.h>
 
@@ -106,6 +107,32 @@ Java_com_shadps4_android_runtime_session_NativeFexSession_nativeStart(JNIEnv* en
         __android_log_print(ANDROID_LOG_ERROR, kTag, "nativeStart threw");
         return 0;
     }
+}
+
+// The installed-content path uses the same SessionCore as CPU smoke. Copy all
+// JNI strings before handing immutable parameters to its owner thread.
+extern "C" JNIEXPORT jlong JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeStartExecutable(
+    JNIEnv* env, jclass, jstring content_id, jstring executable_path) {
+    try {
+        auto copy = [&](jstring value) {
+            if (!value) throw std::invalid_argument("missing production path/identity");
+            const char* chars = env->GetStringUTFChars(value, nullptr);
+            if (!chars) throw std::runtime_error("JNI string unavailable");
+            std::string result;
+            try { result = chars; } catch (...) { env->ReleaseStringUTFChars(value, chars); throw; }
+            env->ReleaseStringUTFChars(value, chars);
+            return result;
+        };
+        SessionParams params;
+        params.content_id = copy(content_id);
+        params.executable_path = copy(executable_path);
+        if (params.executable_path.empty()) return 0;
+        return static_cast<jlong>(Session().Start(params));
+    } catch (const std::exception& e) {
+        __android_log_print(ANDROID_LOG_ERROR, kTag, "nativeStartExecutable: %s", e.what());
+        return 0;
+    } catch (...) { return 0; }
 }
 
 // Requests a stop of `generation`. Returns a StopResult ordinal.

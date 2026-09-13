@@ -18,6 +18,14 @@
 namespace Core {
 
 MemoryManager::MemoryManager() {
+    Initialize();
+}
+
+MemoryManager::MemoryManager(GuestMemoryBackend* guest) : impl(guest), guest_backend(true) {
+    Initialize();
+}
+
+void MemoryManager::Initialize() {
     LOG_INFO(Kernel_Vmm, "Virtual memory space initialized with regions:");
 
     // Construct vma_map using the regions reserved by the address space
@@ -48,8 +56,9 @@ MemoryManager::MemoryManager() {
     fmem_map.clear();
     fmem_map.emplace(total_size, PhysicalMemoryArea{total_size, total_flexible_size});
 
-    ASSERT_MSG(Libraries::Kernel::sceKernelGetCompiledSdkVersion(&sdk_version) == 0,
-               "Failed to get compiled SDK version");
+    if (!guest_backend)
+        ASSERT_MSG(Libraries::Kernel::sceKernelGetCompiledSdkVersion(&sdk_version) == 0,
+                   "Failed to get compiled SDK version");
 }
 
 MemoryManager::~MemoryManager() = default;
@@ -516,6 +525,10 @@ MemoryManager::VMAHandle MemoryManager::CreateArea(VAddr virtual_addr, u64 size,
 s32 MemoryManager::MapMemory(void** out_addr, VAddr virtual_addr, u64 size, MemoryProt prot,
                              MemoryMapFlags flags, VMAType type, std::string_view name,
                              bool validate_dmem, PAddr phys_addr, u64 alignment) {
+    if (guest_backend &&
+        (size == 0 || virtual_addr > UINT64_MAX - size ||
+         (True(flags & MemoryMapFlags::Fixed) && !impl.OwnsGuestRange(virtual_addr, size))))
+        return ORBIS_KERNEL_ERROR_EINVAL;
     // Certain games perform flexible mappings on loop to determine
     // the available flexible memory size. Questionable but we need to handle this.
     if (type == VMAType::Flexible && flexible_usage + size > total_flexible_size) {
@@ -1440,7 +1453,14 @@ VAddr MemoryManager::SearchFree(VAddr virtual_addr, u64 size, u32 alignment) {
         virtual_addr = min_search_address;
     }
 
-    // If the requested address is beyond the maximum our code can handle, throw an assert
+    // A non-fixed hint may point into an intentionally unowned host interval
+    // (ART on Android). Continue at the next guest VMA; never map the host gap.
+    if (guest_backend && !IsValidMapping(virtual_addr)) {
+        const auto next = vma_map.lower_bound(virtual_addr);
+        if (next == vma_map.end())
+            return -1;
+        virtual_addr = next->first;
+    }
     if (!IsValidMapping(virtual_addr)) {
         LOG_ERROR(Kernel_Vmm, "addr = {:#x} is outside the memory map", virtual_addr);
         return -1;

@@ -1,0 +1,4 @@
+--------- beginning of main
+09-13 11:41:07.352 16594 16612 I HostInputAcceptance: round=1 generation=1 input=1 pad=press_release_pass terminal=1 page_size=4096 pid=16594 uid=10157
+09-13 11:41:09.086 16594 16612 I HostInputAcceptance: round=2 generation=2 input=2 pad=press_release_pass terminal=1 page_size=4096 pid=16594 uid=10157
+09-13 11:41:10.815 16594 16612 I HostInputAcceptance: round=3 generation=3 input=3 pad=press_release_pass terminal=1 page_size=4096 pid=16594 uid=10157

@@ -1,0 +1,46 @@
+[
+  {
+    "file": "sce_module/libSceFios2.prx",
+    "relocation": 16,
+    "target": "0x603c8",
+    "symbol_index": 1,
+    "symbol_info": 3,
+    "symbol_section": 0,
+    "symbol_value": 0,
+    "symbol_name": "",
+    "addend": 0
+  },
+  {
+    "file": "sce_module/libc.prx",
+    "relocation": 16,
+    "target": "0x11b680",
+    "symbol_index": 1,
+    "symbol_info": 3,
+    "symbol_section": 0,
+    "symbol_value": 0,
+    "symbol_name": "",
+    "addend": 0
+  },
+  {
+    "file": "sce_module/libc.prx",
+    "relocation": 16,
+    "target": "0x11b690",
+    "symbol_index": 1,
+    "symbol_info": 3,
+    "symbol_section": 0,
+    "symbol_value": 0,
+    "symbol_name": "",
+    "addend": 0
+  },
+  {
+    "file": "sce_module/libc.prx",
+    "relocation": 16,
+    "target": "0x11b6a0",
+    "symbol_index": 1,
+    "symbol_info": 3,
+    "symbol_section": 0,
+    "symbol_value": 0,
+    "symbol_name": "",
+    "addend": 0
+  }
+]

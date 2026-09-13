@@ -25,6 +25,9 @@ object NativeFexSession {
      */
     external fun nativeStart(contentId: String?, iterations: Long): Long
 
+    /** Start the production Module/Linker/VM/FEX runtime for installed content. */
+    external fun nativeStartExecutable(contentId: String, executablePath: String): Long
+
     /** Request a stop of [generation]. Returns a [StopResult] ordinal. */
     external fun nativeRequestStop(generation: Long, timeoutMs: Long): Int
 
