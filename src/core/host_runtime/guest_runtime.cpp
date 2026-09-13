@@ -32,6 +32,7 @@
 #include "core/host_runtime/guest_libc_policy.h"
 #include "core/host_runtime/guest_mutex.h"
 #include "core/host_runtime/guest_network.h"
+#include "core/host_runtime/guest_np.h"
 #include "core/host_runtime/guest_pad.h"
 #include "core/host_runtime/guest_platform.h"
 #include "core/host_runtime/guest_rtc.h"
@@ -137,6 +138,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     GuestClock clock;
     std::unique_ptr<GuestStorage> storage;
     std::unique_ptr<GuestNetwork> network;
+    std::unique_ptr<GuestNpOffline> np;
+    bool np_offline{};
     std::unique_ptr<GuestAjm> ajm;
     std::unique_ptr<GuestAvPlayer> avplayer;
     std::unique_ptr<GuestAudio> audio;
@@ -942,10 +945,10 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
                                           [&](const auto& e) { return e.save && e.nid == nid; });
         const bool dialog_nid = GuestSaveDialog::IsSaveNid(nid);
         const bool common_nid = GuestSaveDialog::IsCommonNid(nid);
-        const bool np_poll_nid = nid == "3Zl8BePTh9Y" || nid == "JELHf4xPufo";
+        const bool np_nid = IsNpOfflineNid(nid);
         const bool ssl_nid = nid == "hdpVEUDFW3s" || nid == "0K1yQ6Lv-Yc";
         const bool kernel_nid =
-            !np_poll_nid && !ssl_nid && !IsAvPlayerNid(nid) && !IsAudioNid(nid) && !IsAjmNid(nid) &&
+            !np_nid && !ssl_nid && !IsAvPlayerNid(nid) && !IsAudioNid(nid) && !IsAjmNid(nid) &&
             !IsPadNid(nid) && !IsNetNid(nid) && !IsNetCtlNid(nid) && !IsAppContentNid(nid) &&
             !IsRtcNid(nid) && !IsDiscMapNid(nid) && !dialog_nid && !common_nid && !save_nid &&
             !videoout_functions.contains(nid) && !sysmodule_functions.contains(nid) &&
@@ -962,12 +965,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
               symbol.name.substr(nid.size()) == "#libSceAjm#1#libSceAjm#Function") ||
              (pad && IsPadNid(nid) &&
               symbol.name.substr(nid.size()) == "#libScePad#1#libScePad#Function") ||
-             (np_poll_nid && !EmulatorSettings.IsShadNetEnabled() &&
-              !EmulatorSettings.IsConnectedToNetwork() &&
-              (symbol.name.substr(nid.size()) == "#libSceNpManager#1#libSceNpManager#Function" ||
-               (nid == "JELHf4xPufo" &&
-                symbol.name.substr(nid.size()) ==
-                    "#libSceNpManagerForToolkit#1#libSceNpManager#Function"))) ||
+             (np && AdmitsNpOffline(nid, symbol.name.substr(nid.size()), np_offline)) ||
              (ssl_nid && symbol.name.substr(nid.size()) == "#libSceSsl#1#libSceSsl#Function") ||
              (network && IsNetNid(nid) &&
               symbol.name.substr(nid.size()) == "#libSceNet#1#libSceNet#Function") ||
@@ -2090,12 +2088,17 @@ void GuestRuntime::Impl::InstallHandlers() {
         bind({nid.data()},
              [this, nid](const auto& a) -> u64 { return avplayer->Dispatch(nid, a); });
     }
-    // Desktop sceNpCheckCallback/ForLib return OK after draining an empty queue.
-    // This offline-only session has no NP event producers or admitted callback
-    // registrations. Never enter the desktop global callbacks (native function
-    // pointers); admitting NP registrations later requires an owned guest queue.
-    // Bind() rejects these polls for online/shadNet sessions.
-    bind({"3Zl8BePTh9Y", "JELHf4xPufo"}, [](const auto&) -> u64 { return 0; });
+    for (const auto nid : NpOfflineNids) {
+        bind({nid.data()}, [this, nid, observed = false](const auto& a) mutable -> u64 {
+            std::lock_guard vm(vm_mutex); // bounded marshalling; no NP callback/network
+            const auto result = np->Dispatch(space, nid, a);
+            if (!observed) {
+                observed = true;
+                LOG_INFO(Lib_NpManager, "Session offline NP nid={} result={:#x}", nid, result);
+            }
+            return result;
+        });
+    }
     // User policy: reuse the existing desktop SSL compatibility entry points.
     // sceSslInit allocates only a dummy id; it does NOT establish TLS, a pool,
     // certificate validation or a connection. Do not broaden this to pointer APIs.
@@ -2595,6 +2598,12 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
     impl->avplayer = std::make_unique<GuestAvPlayer>(impl->space, impl->vm_mutex,
                                                      [p = impl.get()] { return p->AvCallbacks(); });
     impl->sysmodules.Publish("libSceAvPlayer", 0x1000000e);
+    std::map<s32, bool> signup;
+    for (const auto& user : UserManagement.GetAllUsers())
+        signup.emplace(user.user_id, !user.shadnet_npid.empty());
+    impl->np = std::make_unique<GuestNpOffline>(s32(sdk), std::move(signup));
+    impl->np_offline = !EmulatorSettings.IsShadNetEnabled() &&
+                       !EmulatorSettings.IsConnectedToNetwork();
     impl->network = std::make_unique<GuestNetwork>(EmulatorSettings.IsConnectedToNetwork());
     LOG_INFO(Lib_Net, "Session network control: requested_online={}, online transport unavailable",
              EmulatorSettings.IsConnectedToNetwork());

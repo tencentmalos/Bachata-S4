@@ -1,0 +1,10 @@
+[
+  {
+    "file": "np_manager.cpp",
+    "returncode": 0
+  },
+  {
+    "file": "guest_np_tests.cpp",
+    "returncode": 0
+  }
+]

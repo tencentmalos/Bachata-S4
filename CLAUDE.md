@@ -1,5 +1,9 @@
 # shadPS4 Android / FEX development context
 
+## 最新：按键后 NP 账号查询故障（2026-09-14）
+
+[本轮修复及证据](docs/validation/android-native-host/np-offline-identity-fix-2026-09-14.md)：op56/GetAccountIdA Unsupported已关闭。桌面/guest共享离线身份规则，11查询＋2原有poll，SDK/signup快照、checked输出、库名/online准入。native339/0、x86 syntax2/2、APK真实FEX13接口同PID三轮PASS。真实TMNT已走到账号/online ID并返回SIGNED_OUT，继续账号存档读写；单轮120秒、主动Stop CANCELLED，但只有161 presents、截图黑屏，画面正确性/可玩仍未关闭。不要重报op56缺失，也不要将存活测试写成游戏验收。host/JNI仍RelWithDebInfo、FEXCore Release、playstoreDebug；保持网络SSL仅桌面离线策略，无全回归、FEX/Foundation不变。
+
 @AGENTS.md
 
 `AGENTS.md` 是共享事实与工程约束；本文件只提供 Claude/Opus 入口。

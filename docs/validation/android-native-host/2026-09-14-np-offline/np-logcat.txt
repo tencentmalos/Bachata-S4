@@ -1,0 +1,28 @@
+--------- beginning of main
+09-14 07:41:35.190 10454 10487 I ProductionRuntime: prepare: reserve guest VA
+09-14 07:41:35.190 10454 10487 I ProductionRuntime: prepare: create FEX context
+09-14 07:41:35.191 10454 10487 I ProductionRuntime: prepare: create production VM/Linker
+09-14 07:41:35.408 10454 10487 I ProductionRuntime: prepare: load/relocate modules
+09-14 07:41:35.411 10454 10487 I ProductionRuntime: prepare: ready
+09-14 07:41:35.411 10454 10487 I ProductionRuntime: run: enter production guest
+09-14 07:41:35.413 10454 10487 I ProductionRuntime: run: guest returned to host
+09-14 07:41:35.413 10454 10483 I NpAcceptance: round=0 case=np outcome=0 page_size=4096 pid=10454 uid=10157 guest return=51966
+09-14 07:41:35.413 10454 10483 I NpAcceptance: production Linker/VM; owners=1 veneers=13 graphics=not-created modules=1
+09-14 07:41:35.418 10454 10492 I ProductionRuntime: prepare: reserve guest VA
+09-14 07:41:35.418 10454 10492 I ProductionRuntime: prepare: create FEX context
+09-14 07:41:35.418 10454 10492 I ProductionRuntime: prepare: create production VM/Linker
+09-14 07:41:35.623 10454 10492 I ProductionRuntime: prepare: load/relocate modules
+09-14 07:41:35.625 10454 10492 I ProductionRuntime: prepare: ready
+09-14 07:41:35.625 10454 10492 I ProductionRuntime: run: enter production guest
+09-14 07:41:35.626 10454 10492 I ProductionRuntime: run: guest returned to host
+09-14 07:41:35.627 10454 10483 I NpAcceptance: round=1 case=np outcome=0 page_size=4096 pid=10454 uid=10157 guest return=51966
+09-14 07:41:35.627 10454 10483 I NpAcceptance: production Linker/VM; owners=1 veneers=13 graphics=not-created modules=1
+09-14 07:41:35.628 10454 10495 I ProductionRuntime: prepare: reserve guest VA
+09-14 07:41:35.628 10454 10495 I ProductionRuntime: prepare: create FEX context
+09-14 07:41:35.628 10454 10495 I ProductionRuntime: prepare: create production VM/Linker
+09-14 07:41:35.833 10454 10495 I ProductionRuntime: prepare: load/relocate modules
+09-14 07:41:35.835 10454 10495 I ProductionRuntime: prepare: ready
+09-14 07:41:35.835 10454 10495 I ProductionRuntime: run: enter production guest
+09-14 07:41:35.836 10454 10495 I ProductionRuntime: run: guest returned to host
+09-14 07:41:35.837 10454 10483 I NpAcceptance: round=2 case=np outcome=0 page_size=4096 pid=10454 uid=10157 guest return=51966
+09-14 07:41:35.837 10454 10483 I NpAcceptance: production Linker/VM; owners=1 veneers=13 graphics=not-created modules=1

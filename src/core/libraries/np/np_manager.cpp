@@ -17,6 +17,7 @@
 #include "core/libraries/libs.h"
 #include "core/libraries/np/np_error.h"
 #include "core/libraries/np/np_manager.h"
+#include "core/libraries/np/np_offline_identity.h"
 #include "core/tls.h"
 #include "core/user_manager.h"
 #include "np_handler.h"
@@ -547,6 +548,8 @@ s32 PS4_SYSV_ABI sceNpGetGamePresenceStatus(OrbisNpOnlineId* online_id,
 
 s32 PS4_SYSV_ABI sceNpGetGamePresenceStatusA(Libraries::UserService::OrbisUserServiceUserId user_id,
                                              OrbisNpGamePresenseStatus* game_status) {
+    if (!g_shadnet_enabled)
+        return Offline::Presence(user_id, game_status);
     if (game_status == nullptr ||
         user_id == Libraries::UserService::ORBIS_USER_SERVICE_USER_ID_INVALID) {
         return ORBIS_NP_ERROR_INVALID_ARGUMENT;
@@ -578,6 +581,8 @@ s32 PS4_SYSV_ABI sceNpGetAccountId(OrbisNpOnlineId* online_id, u64* account_id) 
 
 s32 PS4_SYSV_ABI sceNpGetAccountIdA(Libraries::UserService::OrbisUserServiceUserId user_id,
                                     u64* account_id) {
+    if (!g_shadnet_enabled)
+        return Offline::AccountId(user_id, account_id);
     LOG_DEBUG(Lib_NpManager, "user_id {}", user_id);
     if (account_id == nullptr ||
         user_id == Libraries::UserService::ORBIS_USER_SERVICE_USER_ID_INVALID) {
@@ -593,6 +598,8 @@ s32 PS4_SYSV_ABI sceNpGetAccountIdA(Libraries::UserService::OrbisUserServiceUser
 
 s32 PS4_SYSV_ABI sceNpGetNpId(Libraries::UserService::OrbisUserServiceUserId user_id,
                               OrbisNpId* np_id) {
+    if (!g_shadnet_enabled)
+        return Offline::Identity(user_id, np_id, g_firmware_version);
     LOG_DEBUG(Lib_NpManager, "user_id {}", user_id);
     if (user_id == Libraries::UserService::ORBIS_USER_SERVICE_USER_ID_INVALID) {
         return (g_firmware_version >= 0 && g_firmware_version < Common::ElfInfo::FW_900)
@@ -617,6 +624,8 @@ s32 PS4_SYSV_ABI sceNpGetNpId(Libraries::UserService::OrbisUserServiceUserId use
 
 s32 PS4_SYSV_ABI sceNpGetOnlineId(Libraries::UserService::OrbisUserServiceUserId user_id,
                                   OrbisNpOnlineId* online_id) {
+    if (!g_shadnet_enabled)
+        return Offline::Identity(user_id, online_id, g_firmware_version);
     LOG_DEBUG(Lib_NpManager, "user_id {}", user_id);
     if (user_id == Libraries::UserService::ORBIS_USER_SERVICE_USER_ID_INVALID) {
         return (g_firmware_version >= 0 && g_firmware_version < Common::ElfInfo::FW_900)
@@ -640,6 +649,8 @@ s32 PS4_SYSV_ABI sceNpGetOnlineId(Libraries::UserService::OrbisUserServiceUserId
 
 s32 PS4_SYSV_ABI sceNpGetNpReachabilityState(Libraries::UserService::OrbisUserServiceUserId user_id,
                                              OrbisNpReachabilityState* state) {
+    if (!g_shadnet_enabled)
+        return Offline::Reachability(user_id, state, g_firmware_version);
     if (state == nullptr) {
         return ORBIS_NP_ERROR_INVALID_ARGUMENT;
     }
@@ -656,6 +667,8 @@ s32 PS4_SYSV_ABI sceNpGetNpReachabilityState(Libraries::UserService::OrbisUserSe
 
 s32 PS4_SYSV_ABI sceNpGetState(Libraries::UserService::OrbisUserServiceUserId user_id,
                                OrbisNpState* state) {
+    if (!g_shadnet_enabled)
+        return Offline::State(user_id, state, g_firmware_version);
     if (state == nullptr) {
         return ORBIS_NP_ERROR_INVALID_ARGUMENT;
     }
@@ -679,6 +692,8 @@ s32 PS4_SYSV_ABI sceNpGetState(Libraries::UserService::OrbisUserServiceUserId us
 
 s32 PS4_SYSV_ABI
 sceNpGetUserIdByAccountId(u64 account_id, Libraries::UserService::OrbisUserServiceUserId* user_id) {
+    if (!g_shadnet_enabled)
+        return Offline::UserByAccount(account_id, user_id);
     if (account_id == 0 || user_id == nullptr) {
         LOG_ERROR(Lib_NpManager, "invalid argument: account_id={}", account_id);
         return ORBIS_NP_ERROR_INVALID_ARGUMENT;
@@ -702,6 +717,8 @@ sceNpGetUserIdByAccountId(u64 account_id, Libraries::UserService::OrbisUserServi
 
 s32 PS4_SYSV_ABI sceNpGetUserIdByOnlineId(const OrbisNpOnlineId* online_id,
                                           Libraries::UserService::OrbisUserServiceUserId* user_id) {
+    if (!g_shadnet_enabled)
+        return Offline::UserByOnline(online_id, user_id);
     if (online_id == nullptr || user_id == nullptr) {
         LOG_ERROR(Lib_NpManager, "invalid argument");
         return ORBIS_NP_ERROR_INVALID_ARGUMENT;
@@ -725,24 +742,9 @@ s32 PS4_SYSV_ABI sceNpGetUserIdByOnlineId(const OrbisNpOnlineId* online_id,
 
 s32 PS4_SYSV_ABI sceNpHasSignedUp(Libraries::UserService::OrbisUserServiceUserId user_id,
                                   bool* has_signed_up) {
-    LOG_DEBUG(Lib_NpManager, "called");
-    if (has_signed_up == nullptr) {
-        return ORBIS_NP_ERROR_INVALID_ARGUMENT;
-    }
-    *has_signed_up = false;
-    if (user_id == Libraries::UserService::ORBIS_USER_SERVICE_USER_ID_INVALID) {
-        if (g_firmware_version < 0 || g_firmware_version >= Common::ElfInfo::FW_900) {
-            return ORBIS_NP_ERROR_INVALID_ARGUMENT;
-        }
-    }
-    const User* u = UserManagement.GetUserByID(user_id);
-    if (u == nullptr) {
-        return ORBIS_NP_ERROR_USER_NOT_FOUND;
-    }
-    // A user has signed up if they have a shadNet npid configured.
-    // This is independent of shadnet_enabled and current connection state.
-    *has_signed_up = !u->shadnet_npid.empty();
-    return ORBIS_OK;
+    const User* user = UserManagement.GetUserByID(user_id);
+    return Offline::SignedUp(user_id, has_signed_up, g_firmware_version, user != nullptr,
+                             user && !user->shadnet_npid.empty());
 }
 
 s32 PS4_SYSV_ABI sceNpSetContentRestriction(const OrbisNpContentRestriction* restriction) {

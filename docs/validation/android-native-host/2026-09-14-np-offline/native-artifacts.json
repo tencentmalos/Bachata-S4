@@ -1,0 +1,14 @@
+{
+  "sources": {
+    "src/core/host_runtime/guest_np.h": "1d48b03d459d640a081e4768773b2f2ba71c6a7dd4cddc1a12c6e73cf21feb0f",
+    "src/core/host_runtime/guest_runtime.cpp": "f4d285b7a868eabe4290e3be1a0f6d6214104cf0113e7e3950f182e28694ed02"
+  },
+  "artifacts": {
+    "libshadps4_host.so": "2c0f8dceec5621388a83e219dfbc09fb9cdfb4caa59520f0198c0d261792a209",
+    "guest_np_tests": "b7fa82e0d9f358ade28c5c90feb25b00564b7c5ea95d4ff59946fe209c02a990"
+  },
+  "serial": "9c2841a4",
+  "scope": "NP offline identities: output widths, bounds, errors, SDK and library gates",
+  "exit": 0,
+  "test_root": "/data/local/tmp/shadps4-sysmodule-review-1789309491/file-temp-1789342853068095000"
+}

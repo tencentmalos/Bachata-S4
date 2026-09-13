@@ -1,0 +1,10 @@
+{
+  "build/android-host-api33/native/libshadps4_host.so": {
+    "sha256": "2c0f8dceec5621388a83e219dfbc09fb9cdfb4caa59520f0198c0d261792a209",
+    "build_id": "2368c1b805872f4d44629458eaed779eeaef9afe"
+  },
+  "build/android-host-api33/native/guest_np_tests": {
+    "sha256": "b7fa82e0d9f358ade28c5c90feb25b00564b7c5ea95d4ff59946fe209c02a990",
+    "build_id": "3c768094042173df2dedbad3321c5dad730a2d34"
+  }
+}

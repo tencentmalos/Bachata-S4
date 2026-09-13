@@ -1,0 +1,29 @@
+{
+  "source": "cecd823dd1fb7c3c89f7bce5e04a50f1f725e687",
+  "scope": "rerun existing APK: TMNT120s and Stop only; no rebuild, reinstall or full regression",
+  "runs": [
+    {
+      "name": "tmnt",
+      "junit_pass": false,
+      "scope": "boundary observation only"
+    }
+  ],
+  "artifacts": {
+    "android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk": "6992f36f4dd1e895c47d794d79e3bc1c1289ba659a9d44b55bb6838fff2064b1",
+    "android/shadps4-app/app/build/outputs/apk/androidTest/playstore/debug/app-playstore-debug-androidTest.apk": "a2a0a792ad4e850e2b6206012d217733e6e63f0b2dfd75a93b93f44c8ec3adaa",
+    "build/android-host-api33/native/libshadps4_host.so": "5c91be0268bf7335aeb41232c5c469773e5ea28125e66c5ba3e19cb64de732fb"
+  },
+  "sources": {},
+  "identity": "AYN Thor",
+  "libshadps4_host.so": {
+    "sha256": "5c91be0268bf7335aeb41232c5c469773e5ea28125e66c5ba3e19cb64de732fb",
+    "build_id": "59d043d79f72a979bd253463d003f89352d4ca6c"
+  },
+  "libshadps4_fex_session.so": {
+    "sha256": "0f6243856b0c925fedb312b7f3d678082402b66bc728e09fea446a21cb67fbaf",
+    "build_id": "d53acdfc440fa4c471bbcdb63134d8a19a8beadf"
+  },
+  "built_from": "4b8710b1 + dirty source, matches archived apk-thirtythird; commit cecd823d contains delivered source",
+  "status": "FAIL",
+  "error": ""
+}

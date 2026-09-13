@@ -1,5 +1,7 @@
 # Android / FEX 开发资料索引
 
+**2026-09-14最新：[按键后NP账号查询修复](validation/android-native-host/np-offline-identity-fix-2026-09-14.md)。** 原op56故障已越过；native339/0、APK真实FEX三轮、真实TMNT120秒正常Stop。只有161 presents且采样黑屏，尚不可玩；保持RelWithDebInfo、网络SSL仅桌面兼容。
+
 **2026-09-14最新：[本地AvPlayer、存档目录与Stop修复](validation/android-native-host/avplayer-directory-integration-2026-09-14.md)。** 最终普通APK合成回调三轮PASS；真实TMNT单轮120秒、2525 presents、主动Stop CANCELLED/JUnit PASS。已出现游戏弹窗但文字损坏，未达可玩/十分钟/Swan。native媒体1042/0、目录334/0、图形准入9/0；网络/SSL保持桌面离线兼容，不另拆spec。
 
 **2026-09-14最新：[ARM64 SRT、BC纹理与Android WSI](validation/android-native-host/srt-bc-integration-2026-09-14.md)。** 定向native479/0、shader8变体与APK synthetic六代PASS；真实TMNT143次present后停于AvPlayerSetLogCallback/op110，长运行仍FAIL、不可玩。继续本地AvPlayer与FEX回调，网络/SSL仅桌面离线兼容。

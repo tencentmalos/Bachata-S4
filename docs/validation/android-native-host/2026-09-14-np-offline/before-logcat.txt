@@ -1,0 +1,37 @@
+--------- beginning of main
+09-14 07:24:24.640  4752  4797 I ProductionRuntime: prepare: reserve guest VA
+09-14 07:24:24.640  4752  4797 I ProductionRuntime: prepare: create FEX context
+09-14 07:24:24.640  4752  4797 I ProductionRuntime: prepare: create production VM/Linker
+09-14 07:24:24.920  4752  4797 I ProductionRuntime: prepare: load/relocate modules
+09-14 07:24:25.090  4752  4797 I ProductionRuntime: prepare: ready
+09-14 07:24:25.121  4752  4797 I ProductionRuntime: run: enter production guest
+09-14 07:24:25.753  4752  4797 I ProductionModule: SysmoduleLoad id=0xa0 name=libSceSaveDataDialog result=0
+09-14 07:24:25.753  4752  4797 I ProductionModule: SysmoduleLoad id=0xa4 name=libSceMsgDialog result=0x805a10ff
+09-14 07:24:26.536  4752  4797 I ProductionModule: SysmoduleLoad id=0xb4 name=libSceAppContent result=0
+09-14 07:24:30.264  4752  4797 I ProductionModule: SysmoduleLoad id=0x96 name=libSceImeDialog result=0x805a10ff
+09-14 07:24:30.394  4752  4797 I ProductionModule: LoadStartModule existing path=/app0/modules/libfmod.prx handle=1
+09-14 07:24:30.394  4752  4797 I ProductionModule: LoadStartModule existing path=/app0/modules/libfmodstudio.prx handle=4
+09-14 07:24:30.425  4752  4797 I AAudio  : AAudioStreamBuilder_openStream() called ----------------------------------------
+09-14 07:24:30.425  4752  4797 I AudioStreamBuilder: rate   =  48000, channels  = 8, channelMask = 0x800000ff, format   = 5, sharing = SH, dir = OUTPUT
+09-14 07:24:30.425  4752  4797 I AudioStreamBuilder: device =      0, sessionId = -1, perfMode = 12, callback: OFF with frames = 0
+09-14 07:24:30.425  4752  4797 I AudioStreamBuilder: usage  =     14, contentType = 0, inputPreset = 0, allowedCapturePolicy = 0
+09-14 07:24:30.425  4752  4797 I AudioStreamBuilder: privacy sensitive = false, opPackageName = (null), attributionTag = (null)
+09-14 07:24:30.445  4752  4797 I AAudio  : AAudioStreamBuilder_openStream() returns 0 = AAUDIO_OK for s#2 ----------------
+09-14 07:24:33.653  4752  4797 I ProductionModule: LoadStartModule existing path=/app0/sce_module/libSceNpEntitlementAccess.prx handle=5
+09-14 07:24:33.653  4752  4797 I ProductionModule: SysmoduleLoad id=0xb4 name=libSceAppContent result=0
+09-14 07:24:33.667  4752  4797 I ProductionModule: SysmoduleLoad id=0x9d name=libSceNpAuth result=0x805a10ff
+09-14 07:24:33.668  4752  4797 I ProductionModule: SysmoduleLoad id=0xe7 name=libSceJson2 result=0
+09-14 07:25:21.629  4752  4797 I ProductionModule: SysmoduleLoad id=0xa5 name=libSceAvPlayer result=0
+09-14 07:25:21.705  4752  5522 I AAudio  : AAudioStreamBuilder_openStream() called ----------------------------------------
+09-14 07:25:21.705  4752  5522 I AudioStreamBuilder: rate   =  48000, channels  = 2, channelMask = 0x80000003, format   = 5, sharing = SH, dir = OUTPUT
+09-14 07:25:21.705  4752  5522 I AudioStreamBuilder: device =      0, sessionId = -1, perfMode = 12, callback: OFF with frames = 0
+09-14 07:25:21.705  4752  5522 I AudioStreamBuilder: usage  =     14, contentType = 0, inputPreset = 0, allowedCapturePolicy = 0
+09-14 07:25:21.705  4752  5522 I AudioStreamBuilder: privacy sensitive = false, opPackageName = (null), attributionTag = (null)
+09-14 07:25:21.721  4752  5522 I AAudio  : AAudioStreamBuilder_openStream() returns 0 = AAUDIO_OK for s#4 ----------------
+09-14 07:25:29.524  4752  5562 I AAudio  : AAudioStreamBuilder_openStream() called ----------------------------------------
+09-14 07:25:29.524  4752  5562 I AudioStreamBuilder: rate   =  48000, channels  = 2, channelMask = 0x80000003, format   = 5, sharing = SH, dir = OUTPUT
+09-14 07:25:29.524  4752  5562 I AudioStreamBuilder: device =      0, sessionId = -1, perfMode = 12, callback: OFF with frames = 0
+09-14 07:25:29.524  4752  5562 I AudioStreamBuilder: usage  =     14, contentType = 0, inputPreset = 0, allowedCapturePolicy = 0
+09-14 07:25:29.524  4752  5562 I AudioStreamBuilder: privacy sensitive = false, opPackageName = (null), attributionTag = (null)
+09-14 07:25:29.543  4752  5562 I AAudio  : AAudioStreamBuilder_openStream() returns 0 = AAUDIO_OK for s#6 ----------------
+09-14 07:25:45.047  4752  4797 I ProductionRuntime: run: guest returned to host
