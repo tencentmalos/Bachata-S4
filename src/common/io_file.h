@@ -169,6 +169,9 @@ public:
 
     template <typename T>
     size_t ReadRaw(void* data, size_t size) const {
+        if (!IsOpen()) {
+            return 0;
+        }
         u64 read = std::fread(data, sizeof(T), size, file);
         ASSERT_MSG(std::ferror(file) == 0, "Failed to read file, error = {}", std::strerror(errno));
         return read;
@@ -205,6 +208,9 @@ public:
 
     template <typename T>
     size_t WriteRaw(const void* data, size_t size) const {
+        if (!IsOpen()) {
+            return 0;
+        }
         u64 bytes = std::fwrite(data, sizeof(T), size, file);
         ASSERT_MSG(std::ferror(file) == 0, "Failed to write to file, error = {}",
                    std::strerror(errno));
