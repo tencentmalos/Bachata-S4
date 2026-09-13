@@ -137,7 +137,8 @@ AcquireStatus Swapchain::AcquireNextImage() {
         return instance.GetDevice().acquireNextImageKHR(
             swapchain, timeout_ns, image_acquired[frame_index], VK_NULL_HANDLE, &image_index);
     });
-    needs_recreation |= acquired.recreate;
+    needs_recreation |= acquired.recreate &&
+        (acquired.result != vk::Result::eSuboptimalKHR || SuboptimalNeedsRecreation());
     surface_lost |= acquired.surface_lost;
     if (acquired.status == AcquireStatus::Error) {
         LOG_CRITICAL(Render_Vulkan, "Swapchain acquire failed: {}", vk::to_string(acquired.result));
@@ -160,7 +161,7 @@ bool Swapchain::Present() {
     if (result == vk::Result::eSuccess || result == vk::Result::eSuboptimalKHR)
         ++successful_presents;
     if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR) {
-        needs_recreation = true;
+        needs_recreation |= result == vk::Result::eErrorOutOfDateKHR || SuboptimalNeedsRecreation();
     } else if (result == vk::Result::eErrorSurfaceLostKHR) {
         // Surface object died mid-present (Android detach): the next Recreate must
         // rebuild the VkSurfaceKHR, not just the swapchain.
@@ -174,6 +175,27 @@ bool Swapchain::Present() {
     frame_index = (frame_index + 1) % image_count;
 
     return !needs_recreation;
+}
+
+bool Swapchain::SuboptimalNeedsRecreation() {
+#ifdef __ANDROID__
+    const auto [result, capabilities] = instance.GetPhysicalDevice().getSurfaceCapabilitiesKHR(surface);
+    if (result != vk::Result::eSuccess || capabilities != created_capabilities)
+        return true;
+    // Android may continuously report SUBOPTIMAL for a compositor transform.
+    // Recreating with identical capabilities and policy cannot improve it. Keep
+    // the acquired image/present semaphore lifecycle; resize, changed surface
+    // capabilities, OUT_OF_DATE and SURFACE_LOST still rebuild normally.
+    if (!reported_unchanged_suboptimal) {
+        LOG_INFO(Render_Vulkan, "Keeping suboptimal Android swapchain with unchanged capabilities: "
+                 "extent={}x{}, transform={}, currentTransform={}", extent.width, extent.height,
+                 vk::to_string(transform), vk::to_string(capabilities.currentTransform));
+        reported_unchanged_suboptimal = true;
+    }
+    return false;
+#else
+    return true;
+#endif
 }
 
 void Swapchain::FindPresentFormat() {
@@ -253,6 +275,7 @@ void Swapchain::SetSurfaceProperties() {
     ASSERT_MSG(capabilities_result == vk::Result::eSuccess,
                "Failed to query surface capabilities: {}", vk::to_string(capabilities_result));
 
+    created_capabilities = capabilities;
     extent = capabilities.currentExtent;
     if (capabilities.currentExtent.width == std::numeric_limits<u32>::max()) {
         extent.width = std::max(capabilities.minImageExtent.width,

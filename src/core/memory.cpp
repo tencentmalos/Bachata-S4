@@ -13,6 +13,13 @@
 #include "core/libraries/kernel/orbis_error.h"
 #include "core/libraries/kernel/process.h"
 #include "core/memory.h"
+#if defined(__linux__)
+#include <sys/uio.h>
+#include <unistd.h>
+#elif defined(__APPLE__)
+#include <mach/mach.h>
+#include <mach/mach_vm.h>
+#endif
 #include "core/rasterizer_hooks.h"
 
 namespace Core {
@@ -186,6 +193,58 @@ void MemoryManager::CopySparseMemory(VAddr virtual_addr, u8* dest, u64 size) {
         dest += copy_size;
         ++vma;
     }
+}
+
+bool MemoryManager::TryReadSrtMemory(VAddr address, void* data, u64 size) {
+    if (!data || !size || size > 8 || address > UINT64_MAX - size)
+        return false;
+    std::shared_lock lock(mutex);
+    if (!IsValidMapping(address, size))
+        return false;
+    auto* out = static_cast<u8*>(data);
+    while (size) {
+        auto it = FindVMA(address);
+        const auto& vma = it->second;
+        if (!vma.IsMapped() || !True(vma.prot & (MemoryProt::CpuRead | MemoryProt::GpuRead)))
+            return false;
+        u64 count = std::min(size, (vma.base + vma.size) - address);
+        if (HasPhysicalBacking(vma)) {
+            const u64 offset = address - vma.base;
+            auto phys = vma.phys_areas.upper_bound(offset);
+            if (phys == vma.phys_areas.begin())
+                return false;
+            --phys;
+            const u64 within = offset - phys->first;
+            if (within >= phys->second.size)
+                return false;
+            count = std::min(count, phys->second.size - within);
+            std::memcpy(out, impl.BackingBase() + phys->second.base + within, count);
+        } else {
+#if defined(__linux__)
+            // The kernel returns EFAULT for an inaccessible page; never install
+            // a second SIGSEGV handler or patch native walker code in ART/FEX.
+            iovec local{out, size_t(count)},
+                remote{reinterpret_cast<void*>(address), size_t(count)};
+            if (process_vm_readv(getpid(), &local, 1, &remote, 1, 0) != ssize_t(count))
+                return false;
+#elif defined(__APPLE__)
+            mach_vm_size_t copied{};
+            if (mach_vm_read_overwrite(mach_task_self(), address, count,
+                                       reinterpret_cast<mach_vm_address_t>(out),
+                                       &copied) != KERN_SUCCESS ||
+                copied != count)
+                return false;
+#else
+            // Other portable hosts need a fault-safe self-memory reader before
+            // non-physical SRT mappings can be consumed. Never dereference blindly.
+            return false;
+#endif
+        }
+        address += count;
+        out += count;
+        size -= count;
+    }
+    return true;
 }
 
 bool MemoryManager::TryWriteBacking(void* address, const void* data, u64 size) {

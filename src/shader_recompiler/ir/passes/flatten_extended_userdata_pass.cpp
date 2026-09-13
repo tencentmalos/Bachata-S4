@@ -4,15 +4,20 @@
 #include <unordered_map>
 #include <boost/container/flat_map.hpp>
 #include <queue>
+#include "common/arch.h"
+#ifdef ARCH_X86_64
 #include <xbyak/xbyak.h>
 #include <xbyak/xbyak_util.h>
-#include "common/arch.h"
+#endif
 #include "common/decoder.h"
 #include "common/io_file.h"
 #include "common/logging/log.h"
 #include "common/path_util.h"
 #include "common/signal_context.h"
 #include "core/emulator_settings.h"
+#ifndef ARCH_X86_64
+#include "core/memory.h"
+#endif
 #include "core/signals.h"
 #include "shader_recompiler/info.h"
 #include "shader_recompiler/ir/ir_emitter.h"
@@ -120,6 +125,10 @@ static bool SrtWalkerSignalHandler(void* context, void* fault_address) {
     return true;
 }
 
+} // namespace
+#endif // ARCH_X86_64
+
+namespace {
 using namespace Shader;
 
 struct PassInfo {
@@ -166,9 +175,10 @@ struct PassInfo {
 
     // pick a single inst for a given value number
     std::unordered_map<u32, IR::Inst*> vn_to_inst;
+    std::unordered_map<IR::Inst*, IR::Inst*> same_loads;
 
     // Bumped during codegen to assign offsets to readconsts
-    u16 dst_off_dw;
+    u32 dst_off_dw;
 
     PtrUserList* GetUsesAsPointer(IR::Inst* inst) {
         auto it = pointer_uses.find(inst);
@@ -184,6 +194,42 @@ struct PassInfo {
     IR::Inst* DeduplicateInstruction(IR::Inst* inst) {
         auto it = vn_to_inst.try_emplace(gvn_table.GetValueNumber(inst), inst);
         return it.first->second;
+    }
+
+    IR::Inst* ResolveLoad(IR::Inst* inst) {
+        inst = DeduplicateInstruction(inst);
+        for (;;) {
+            auto it = same_loads.find(inst);
+            if (it == same_loads.end())
+                return inst;
+            inst = it->second;
+        }
+    }
+
+    void CanonicalizePointers() {
+        // A ReadConstBuffer can alias both a scalar index and a pointer load.
+        // Merge its children as well as its flat slot. Discovery order need not
+        // put parent aliases before children, so converge before generating code.
+        bool changed;
+        do {
+            changed = false;
+            decltype(pointer_uses) canonical;
+            for (auto& [pointer, uses] : pointer_uses) {
+                auto* root = ResolveLoad(pointer);
+                changed |= root != pointer;
+                auto& output = canonical[root];
+                for (auto [offset, use] : uses) {
+                    use = ResolveLoad(use);
+                    auto [entry, inserted] = output.try_emplace(offset, use);
+                    auto* original = ResolveLoad(entry->second);
+                    if (!inserted && original != use) {
+                        same_loads[use] = original;
+                        changed = true;
+                    }
+                }
+            }
+            pointer_uses = std::move(canonical);
+        } while (changed);
     }
 };
 } // namespace
@@ -217,6 +263,7 @@ static inline void SetFlatbufOffset(IR::Inst* inst, u16 offset) {
     UNREACHABLE_MSG("Instruction not supported");
 }
 
+#ifdef ARCH_X86_64
 static bool ComputeOffset(Xbyak::CodeGenerator& c, Xbyak::Reg32 reg, PassInfo& pass_info,
                           const IR::Value& off_dw);
 
@@ -485,28 +532,6 @@ static bool EmitComputeOffsetBitFieldUExtract(Xbyak::CodeGenerator& c, Xbyak::Re
     return true;
 }
 
-static bool IsAllowedOffsetInstruction(const IR::Inst* inst) {
-    switch (inst->GetOpcode()) {
-    case IR::Opcode::GetUserData:
-    case IR::Opcode::ReadConst:
-    case IR::Opcode::ReadConstBuffer:
-    case IR::Opcode::IAdd32:
-    case IR::Opcode::ISub32:
-    case IR::Opcode::IMul32:
-    case IR::Opcode::ShiftLeftLogical32:
-    case IR::Opcode::ShiftRightLogical32:
-    case IR::Opcode::BitwiseAnd32:
-    case IR::Opcode::BitwiseOr32:
-    case IR::Opcode::BitwiseXor32:
-    case IR::Opcode::BitwiseNot32:
-    case IR::Opcode::UMin32:
-    case IR::Opcode::UMax32:
-    case IR::Opcode::BitFieldUExtract:
-        return true;
-    default:
-        return false;
-    }
-}
 
 static bool ComputeOffset(Xbyak::CodeGenerator& c, Xbyak::Reg32 reg, PassInfo& pass_info,
                           const IR::Value& off_dw) {
@@ -518,7 +543,7 @@ static bool ComputeOffset(Xbyak::CodeGenerator& c, Xbyak::Reg32 reg, PassInfo& p
         return true;
     case IR::Opcode::ReadConst:
     case IR::Opcode::ReadConstBuffer:
-        if (u16 offset = GetFlatbufOffset(pass_info.DeduplicateInstruction(inst)); offset != 0) {
+        if (u16 offset = GetFlatbufOffset(pass_info.ResolveLoad(inst)); offset != 0) {
             c.mov(reg, ptr[rsi + (offset << 2)]);
             return true;
         }
@@ -669,6 +694,135 @@ static void GenerateSrtProgram(Info& info, PassInfo& pass_info) {
     }
 
     info.srt_info.flattened_bufsize_dw = pass_info.dst_off_dw;
+}
+
+#else
+using SrtOp = PortableSrt::Op;
+using SrtKind = PortableSrt::Kind;
+static u32 AddExpression(PortableSrt& plan, PortableSrt::Expr expr) {
+    if (plan.expressions.size() >= PortableSrt::MaxEntries)
+        throw std::runtime_error("SRT expression bound exceeded");
+    plan.expressions.push_back(expr);
+    return plan.expressions.size() - 1;
+}
+static u32 CompileOffset(PortableSrt& plan, PassInfo& info, const IR::Value& value, u32 depth = 0) {
+    if (depth >= PortableSrt::MaxDepth)
+        throw std::runtime_error("SRT expression recursion bound");
+    if (value.IsImmediate())
+        return AddExpression(plan, {SrtOp::Constant, value.U32()});
+    auto* inst = value.Inst();
+    if (inst->GetOpcode() == IR::Opcode::GetUserData)
+        return AddExpression(plan, {SrtOp::Flat, static_cast<u32>(inst->Arg(0).ScalarReg())});
+    if (inst->GetOpcode() == IR::Opcode::ReadConst ||
+        inst->GetOpcode() == IR::Opcode::ReadConstBuffer) {
+        const u16 offset = GetFlatbufOffset(info.ResolveLoad(inst));
+        if (!offset)
+            throw std::runtime_error("SRT offset depends on a value not yet flattened");
+        return AddExpression(plan, {SrtOp::Flat, offset});
+    }
+    SrtOp op;
+    switch (inst->GetOpcode()) {
+    case IR::Opcode::IAdd32:
+        op = SrtOp::Add;
+        break;
+    case IR::Opcode::ISub32:
+        op = SrtOp::Sub;
+        break;
+    case IR::Opcode::IMul32:
+        op = SrtOp::Mul;
+        break;
+    case IR::Opcode::ShiftLeftLogical32:
+        op = SrtOp::Shl;
+        break;
+    case IR::Opcode::ShiftRightLogical32:
+        op = SrtOp::Shr;
+        break;
+    case IR::Opcode::BitwiseAnd32:
+        op = SrtOp::And;
+        break;
+    case IR::Opcode::BitwiseOr32:
+        op = SrtOp::Or;
+        break;
+    case IR::Opcode::BitwiseXor32:
+        op = SrtOp::Xor;
+        break;
+    case IR::Opcode::BitwiseNot32:
+        op = SrtOp::Not;
+        break;
+    case IR::Opcode::UMin32:
+        op = SrtOp::Min;
+        break;
+    case IR::Opcode::UMax32:
+        op = SrtOp::Max;
+        break;
+    case IR::Opcode::BitFieldUExtract:
+        op = SrtOp::Extract;
+        break;
+    default:
+        throw std::runtime_error("unsupported SRT dynamic offset opcode " +
+                                 std::to_string(u32(inst->GetOpcode())));
+    }
+    const u32 a = CompileOffset(plan, info, inst->Arg(0), depth + 1);
+    const u32 b = op == SrtOp::Not ? 0 : CompileOffset(plan, info, inst->Arg(1), depth + 1);
+    const u32 c = op == SrtOp::Extract ? CompileOffset(plan, info, inst->Arg(2), depth + 1) : 0;
+    return AddExpression(plan, {op, a, b, c});
+}
+static void VisitPortablePointer(const IR::Value& offset, IR::Inst* subtree, PassInfo& info,
+                                 PortableSrt& plan, u32 depth = 0) {
+    if (depth >= PortableSrt::MaxDepth || plan.commands.size() >= PortableSrt::MaxEntries)
+        throw std::runtime_error("SRT pointer recursion/command bound exceeded");
+    const u32 expression = CompileOffset(plan, info, offset);
+    plan.commands.push_back({SrtKind::Push, expression});
+    auto* uses = info.GetUsesAsPointer(subtree);
+    if (!uses)
+        throw std::runtime_error("SRT pointer has no uses");
+    // Keep desktop's contiguous sharp layout: copy this level before descending.
+    for (auto [source, use] : *uses) {
+        if (info.dst_off_dw >= PortableSrt::MaxEntries)
+            throw std::runtime_error("SRT flattened buffer bound exceeded");
+        plan.commands.push_back(
+            {SrtKind::Copy, CompileOffset(plan, info, source), info.dst_off_dw});
+        SetFlatbufOffset(use, info.dst_off_dw++);
+    }
+    for (auto [source, use] : *uses)
+        if (info.GetUsesAsPointer(use))
+            VisitPortablePointer(source, use, info, plan, depth + 1);
+    plan.commands.push_back({SrtKind::Pop});
+}
+static void GenerateSrtProgram(Info& info, PassInfo& pass_info) {
+    PortableSrt plan;
+    pass_info.dst_off_dw = NUM_USER_DATA_REGS;
+    for (auto [sgpr, root] : pass_info.srt_roots)
+        VisitPortablePointer(IR::Value(static_cast<u32>(sgpr)), root, pass_info, plan);
+    if (!plan.Validate(pass_info.dst_off_dw))
+        throw std::runtime_error("invalid generated SRT plan");
+    info.srt_info.portable = std::move(plan);
+    info.srt_info.flattened_bufsize_dw = pass_info.dst_off_dw;
+}
+
+#endif
+
+static bool IsAllowedOffsetInstruction(const IR::Inst* inst) {
+    switch (inst->GetOpcode()) {
+    case IR::Opcode::GetUserData:
+    case IR::Opcode::ReadConst:
+    case IR::Opcode::ReadConstBuffer:
+    case IR::Opcode::IAdd32:
+    case IR::Opcode::ISub32:
+    case IR::Opcode::IMul32:
+    case IR::Opcode::ShiftLeftLogical32:
+    case IR::Opcode::ShiftRightLogical32:
+    case IR::Opcode::BitwiseAnd32:
+    case IR::Opcode::BitwiseOr32:
+    case IR::Opcode::BitwiseXor32:
+    case IR::Opcode::BitwiseNot32:
+    case IR::Opcode::UMin32:
+    case IR::Opcode::UMax32:
+    case IR::Opcode::BitFieldUExtract:
+        return true;
+    default:
+        return false;
+    }
 }
 
 static bool IsReadConstSource(const IR::Value base) {
@@ -840,7 +994,12 @@ void FlattenExtendedUserdataPass(IR::Program& program) {
         auto ptr_uses_kv = pass_info.pointer_uses.try_emplace(ptr_lo, PassInfo::PtrUserList{});
         PassInfo::PtrUserList& user_list = ptr_uses_kv.first->second;
 
-        user_list[inst->Arg(1)] = inst;
+        // ReadConst and sharp-source ReadConstBuffer at the same pointer/offset
+        // are the same scalar load even though GVN distinguishes their opcodes.
+        // Do not overwrite an earlier load and leave its flat offset at zero.
+        auto [use, inserted] = user_list.try_emplace(inst->Arg(1), inst);
+        if (!inserted)
+            pass_info.same_loads.emplace(inst, use->second);
 
         if (ptr_lo->GetOpcode() == IR::Opcode::GetUserData) {
             IR::ScalarReg ud_reg = ptr_lo->Arg(0).ScalarReg();
@@ -848,12 +1007,13 @@ void FlattenExtendedUserdataPass(IR::Program& program) {
         }
     }
 
+    pass_info.CanonicalizePointers();
     GenerateSrtProgram(program.info, pass_info);
 
     // Assign offsets to duplicate readconsts
     for (IR::Inst* readconst : all_readconsts) {
         ASSERT(pass_info.vn_to_inst.contains(pass_info.gvn_table.GetValueNumber(readconst)));
-        IR::Inst* original = pass_info.DeduplicateInstruction(readconst);
+        IR::Inst* original = pass_info.ResolveLoad(readconst);
         SetFlatbufOffset(readconst, GetFlatbufOffset(original));
     }
 
@@ -862,22 +1022,14 @@ void FlattenExtendedUserdataPass(IR::Program& program) {
 
 } // namespace Shader::Optimization
 
-#else
-
+#ifndef ARCH_X86_64
 namespace Shader {
-
-PFN_SrtWalker RegisterWalkerCode(const u8* ptr, size_t size) {
-    UNREACHABLE_MSG("RegisterWalkerCode unimplemented for target architecture.");
+bool ReadSrtGuestMemory(u64 address, void* data, size_t size) {
+    return Core::Memory::Instance()->TryReadSrtMemory(address, data, size);
 }
-
-namespace Optimization {
-
-void FlattenExtendedUserdataPass(IR::Program& program) {
-    UNREACHABLE_MSG("FlattenExtendedUserdataPass unimplemented for target architecture.");
+PFN_SrtWalker RegisterWalkerCode(const u8*, size_t) {
+    // Native x86 walker bytes are never executable on this backend.
+    return nullptr;
 }
-
-} // namespace Optimization
-
-} // namespace Shader
-
+}
 #endif

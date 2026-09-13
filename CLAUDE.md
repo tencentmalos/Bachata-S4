@@ -6,6 +6,8 @@
 
 ## 当前交接（2026-09-14）
 
+最新先读[SRT、BC纹理与WSI修复](docs/validation/android-native-host/srt-bc-integration-2026-09-14.md)。ARM64现代SRT已补，native479/0、x86 syntax4/4、shader8变体PASS；普通APK synthetic六代PASS。真实TMNT143次present后在sceAvPlayerSetLogCallback/op110具名fault，120秒用例仍FAIL、未确认可用游戏画面。Android逐帧swapchain重建已消除。继续desktop本地AvPlayer实例/解码/guest回调/取消整族，尚未实现；网络SSL仅离线兼容，定向测试，无新spec。以下“ARM64 SRT未实现”是历史边界。
+
 优先读[AudioOut、内核信号量与Json2兼容交付](docs/validation/android-native-host/audio-semaphore-integration-2026-09-14.md)。Native55/0＋55/0、Json2 35/0；普通APK13-import三轮。TMNT原invalid-free已按desktop的Json2可选模块记账策略修复，同PID三次运行20秒后正常取消，仍guest_presents=0、不可玩。延长观察后约51秒真正到首次compute shader，ARM64 FlattenExtendedUserdataPass未实现导致SIGABRT；直接补现代SRT实现/缓存，不能照搬仅静态offset的旧reference。只做定向验证；网络/SSL不扩展，不新建spec；下文AudioOutInit边界已过时。
 
 最新先读[生产AJM异步解码与真机证据](docs/validation/android-native-host/ajm-runtime-integration-2026-09-14.md)。Native126/0含真实MP3解码；普通APK三轮真实FEX验证8/10参数batch，完整TMNT三轮到AudioOutInit/op95，仍0帧。继续会话AudioOut和AAudio短写/音量/打开失败，不扩网络SSL，不全回归。下文模块/libc修复仍保留。

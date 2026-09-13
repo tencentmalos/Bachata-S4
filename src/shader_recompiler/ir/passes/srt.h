@@ -5,7 +5,11 @@
 
 #include <boost/container/set.hpp>
 #include <boost/container/small_vector.hpp>
+#include "common/arch.h"
 #include "common/types.h"
+#ifndef ARCH_X86_64
+#include "shader_recompiler/ir/passes/srt_portable.h"
+#endif
 
 namespace Serialization {
 struct Archive;
@@ -24,6 +28,9 @@ struct PersistentSrtInfo {
         u32 num_dwords;
     };
 
+#ifndef ARCH_X86_64
+    PortableSrt portable;
+#endif
     PFN_SrtWalker walker_func{};
     size_t walker_func_size{};
     u32 flattened_bufsize_dw = 16; // NumUserDataRegs

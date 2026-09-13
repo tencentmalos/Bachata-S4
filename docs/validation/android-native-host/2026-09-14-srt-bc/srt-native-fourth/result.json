@@ -1,0 +1,9 @@
+{
+  "exit_code": 0,
+  "device_dir": "/data/local/tmp/shadps4-srt-1789324283342286000",
+  "artifacts": {
+    "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native/srt_tests": "f312e06892c4480b1ea12611946cdc02e44d31d19228bcb1479a969a021fbf80",
+    "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native/libshadps4_host.so": "8c17ac62a3af7aca560fe2c70e8001cc85625509e9dfb6f8f829cd79c59867f1",
+    "/Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352"
+  }
+}

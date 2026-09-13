@@ -13,7 +13,11 @@
 namespace Serialization {
 /* You should increment versions below once corresponding serialization scheme is changed. */
 static constexpr u32 ShaderBinaryVersion = 4u;
-static constexpr u32 ShaderMetaVersion = 3u;
+#ifdef ARCH_X86_64
+static constexpr u32 ShaderMetaVersion = 4u; // invalidate pre-alias-fix flattened layouts
+#else
+static constexpr u32 ShaderMetaVersion = 5u; // portable SRT plan; never native x86 bytes
+#endif
 static constexpr u32 PipelineKeyVersion = 3u;
 } // namespace Serialization
 
@@ -426,21 +430,55 @@ bool Gcn::FetchShaderData::Deserialize(Serialization::Archive& ar) {
 void PersistentSrtInfo::Serialize(Serialization::Archive& ar) const {
     Serialization::Writer srt{ar};
 
+#ifndef ARCH_X86_64
+    srt.Write(flattened_bufsize_dw);
+    srt.Write(portable.expressions);
+    srt.Write(portable.commands);
+#else
     srt.Write(this, sizeof(*this));
     if (walker_func_size) {
         srt.Write(reinterpret_cast<void*>(walker_func), walker_func_size);
     }
+#endif
 }
 
 bool PersistentSrtInfo::Deserialize(Serialization::Archive& ar) {
     Serialization::Reader srt{ar};
 
+#ifndef ARCH_X86_64
+    if (ar.RemainingBytes() < sizeof(flattened_bufsize_dw) + sizeof(size_t))
+        return false;
+    srt.Read(flattened_bufsize_dw);
+    PortableSrt plan;
+    size_t count{};
+    srt.Read(count);
+    if (count > PortableSrt::MaxEntries || count > ar.RemainingBytes() / sizeof(PortableSrt::Expr))
+        return false;
+    plan.expressions.resize(count);
+    for (auto& expr : plan.expressions)
+        srt.Read(expr);
+    if (ar.RemainingBytes() < sizeof(count))
+        return false;
+    srt.Read(count);
+    if (count > PortableSrt::MaxEntries ||
+        count > ar.RemainingBytes() / sizeof(PortableSrt::Command))
+        return false;
+    plan.commands.resize(count);
+    for (auto& command : plan.commands)
+        srt.Read(command);
+    if (!plan.Validate(flattened_bufsize_dw))
+        return false;
+    portable = std::move(plan);
+    walker_func = nullptr;
+    walker_func_size = 0;
+#else
     srt.Read(this, sizeof(*this));
 
     if (walker_func_size) {
         walker_func = RegisterWalkerCode(ar.CurrPtr(), walker_func_size);
         ar.Advance(walker_func_size);
     }
+#endif
 
     return true;
 }

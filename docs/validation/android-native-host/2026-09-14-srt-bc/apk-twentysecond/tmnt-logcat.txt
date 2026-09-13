@@ -1,0 +1,27 @@
+--------- beginning of main
+09-14 02:24:13.040 16455 16692 I ProductionRuntime: run: guest returned to host
+09-14 02:24:13.111 16455 16480 I RenderedRuntimeAcceptance: synthetic round=6 case=gpu-flip gen=6 outcome=0 page_size=4096 pid=16455 uid=10157 guest return=51966
+09-14 02:24:13.111 16455 16480 I RenderedRuntimeAcceptance: production Linker/VM; owners=1 veneers=11 graphics=ready guest_presents=4 modules=1
+09-14 02:24:15.125 16742 16784 I ProductionRuntime: prepare: reserve guest VA
+09-14 02:24:15.125 16742 16784 I ProductionRuntime: prepare: create FEX context
+09-14 02:24:15.126 16742 16784 I ProductionRuntime: prepare: create production VM/Linker
+09-14 02:24:15.398 16742 16784 I ProductionRuntime: prepare: load/relocate modules
+09-14 02:24:15.591 16742 16784 I ProductionRuntime: prepare: ready
+09-14 02:24:15.622 16742 16784 I ProductionRuntime: run: enter production guest
+09-14 02:24:16.324 16742 16784 I ProductionModule: SysmoduleLoad id=0xa0 name=libSceSaveDataDialog result=0
+09-14 02:24:16.324 16742 16784 I ProductionModule: SysmoduleLoad id=0xa4 name=libSceMsgDialog result=0x805a10ff
+09-14 02:24:17.155 16742 16784 I ProductionModule: SysmoduleLoad id=0xb4 name=libSceAppContent result=0
+09-14 02:24:20.977 16742 16784 I ProductionModule: SysmoduleLoad id=0x96 name=libSceImeDialog result=0x805a10ff
+09-14 02:24:21.096 16742 16784 I ProductionModule: LoadStartModule existing path=/app0/modules/libfmod.prx handle=1
+09-14 02:24:21.096 16742 16784 I ProductionModule: LoadStartModule existing path=/app0/modules/libfmodstudio.prx handle=4
+09-14 02:24:21.127 16742 16784 I AAudio  : AAudioStreamBuilder_openStream() called ----------------------------------------
+09-14 02:24:21.127 16742 16784 I AudioStreamBuilder: rate   =  48000, channels  = 8, channelMask = 0x800000ff, format   = 5, sharing = SH, dir = OUTPUT
+09-14 02:24:21.127 16742 16784 I AudioStreamBuilder: device =      0, sessionId = -1, perfMode = 12, callback: OFF with frames = 0
+09-14 02:24:21.127 16742 16784 I AudioStreamBuilder: usage  =     14, contentType = 0, inputPreset = 0, allowedCapturePolicy = 0
+09-14 02:24:21.127 16742 16784 I AudioStreamBuilder: privacy sensitive = false, opPackageName = (null), attributionTag = (null)
+09-14 02:24:21.153 16742 16784 I AAudio  : AAudioStreamBuilder_openStream() returns 0 = AAUDIO_OK for s#2 ----------------
+09-14 02:24:25.027 16742 16784 I ProductionModule: LoadStartModule existing path=/app0/sce_module/libSceNpEntitlementAccess.prx handle=5
+09-14 02:24:25.027 16742 16784 I ProductionModule: SysmoduleLoad id=0xb4 name=libSceAppContent result=0
+09-14 02:24:25.034 16742 16784 I ProductionModule: SysmoduleLoad id=0x9d name=libSceNpAuth result=0x805a10ff
+09-14 02:24:25.035 16742 16784 I ProductionModule: SysmoduleLoad id=0xe7 name=libSceJson2 result=0
+09-14 02:25:05.947 16742 16784 I ProductionRuntime: run: guest returned to host

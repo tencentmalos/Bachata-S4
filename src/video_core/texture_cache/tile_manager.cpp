@@ -21,8 +21,10 @@ struct TilingInfo {
     u32 bank_swizzle;
     u32 num_slices;
     u32 num_mips;
+    u32 micro_mip_mask;
     std::array<ImageInfo::MipInfo, 16> mips;
 };
+static_assert(offsetof(TilingInfo, mips) == 16 && sizeof(ImageInfo::MipInfo) == 16);
 
 TileManager::TileManager(const Vulkan::Instance& instance, Vulkan::Scheduler& scheduler,
                          StreamBuffer& stream_buffer_)
@@ -169,6 +171,7 @@ TileManager::Result TileManager::DetileImage(vk::Buffer in_buffer, u32 in_offset
 
     TilingInfo params{};
     params.bank_swizzle = info.bank_swizzle;
+    params.micro_mip_mask = info.micro_mip_mask;
     params.num_slices = info.props.is_volume ? info.size.depth : info.resources.layers;
     params.num_mips = info.resources.levels;
     for (u32 mip = 0; mip < params.num_mips; ++mip) {
@@ -254,6 +257,7 @@ void TileManager::TileImage(Image& in_image, std::span<vk::BufferImageCopy> buff
 
     TilingInfo params{};
     params.bank_swizzle = info.bank_swizzle;
+    params.micro_mip_mask = info.micro_mip_mask;
     params.num_slices = info.props.is_volume ? info.size.depth : info.resources.layers;
     params.num_mips = static_cast<u32>(buffer_copies.size());
     for (u32 mip = 0; mip < params.num_mips; ++mip) {

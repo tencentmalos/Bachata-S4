@@ -1,0 +1,55 @@
+--------- beginning of main
+09-14 02:47:14.470 22591 22651 I ProductionRuntime: prepare: reserve guest VA
+09-14 02:47:14.470 22591 22651 I ProductionRuntime: prepare: create FEX context
+09-14 02:47:14.471 22591 22651 I ProductionRuntime: prepare: create production VM/Linker
+09-14 02:47:14.759 22591 22651 I ProductionRuntime: prepare: load/relocate modules
+09-14 02:47:14.760 22591 22651 I ProductionRuntime: prepare: ready
+09-14 02:47:14.760 22591 22651 I ProductionRuntime: run: enter production guest
+09-14 02:47:15.601 22591 22651 I ProductionRuntime: run: guest returned to host
+09-14 02:47:15.685 22591 22621 I RenderedRuntimeAcceptance: synthetic round=1 case=videoout gen=1 outcome=0 page_size=4096 pid=22591 uid=10157 guest return=51966
+09-14 02:47:15.685 22591 22621 I RenderedRuntimeAcceptance: production Linker/VM; owners=1 veneers=3 graphics=ready guest_presents=0 modules=1
+09-14 02:47:16.289 22591 22679 I ProductionRuntime: prepare: reserve guest VA
+09-14 02:47:16.289 22591 22679 I ProductionRuntime: prepare: create FEX context
+09-14 02:47:16.289 22591 22679 I ProductionRuntime: prepare: create production VM/Linker
+09-14 02:47:16.554 22591 22679 I ProductionRuntime: prepare: load/relocate modules
+09-14 02:47:16.555 22591 22679 I ProductionRuntime: prepare: ready
+09-14 02:47:16.555 22591 22679 I ProductionRuntime: run: enter production guest
+09-14 02:47:17.282 22591 22679 I ProductionRuntime: run: guest returned to host
+09-14 02:47:17.351 22591 22621 I RenderedRuntimeAcceptance: synthetic round=2 case=gpu-flip gen=2 outcome=0 page_size=4096 pid=22591 uid=10157 guest return=51966
+09-14 02:47:17.351 22591 22621 I RenderedRuntimeAcceptance: production Linker/VM; owners=1 veneers=11 graphics=ready guest_presents=4 modules=1
+09-14 02:47:17.974 22591 22705 I ProductionRuntime: prepare: reserve guest VA
+09-14 02:47:17.974 22591 22705 I ProductionRuntime: prepare: create FEX context
+09-14 02:47:17.974 22591 22705 I ProductionRuntime: prepare: create production VM/Linker
+09-14 02:47:18.231 22591 22705 I ProductionRuntime: prepare: load/relocate modules
+09-14 02:47:18.232 22591 22705 I ProductionRuntime: prepare: ready
+09-14 02:47:18.232 22591 22705 I ProductionRuntime: run: enter production guest
+09-14 02:47:18.865 22591 22705 I ProductionRuntime: run: guest returned to host
+09-14 02:47:18.944 22591 22621 I RenderedRuntimeAcceptance: synthetic round=3 case=videoout-bad gen=3 outcome=2 page_size=4096 pid=22591 uid=10157 guest return=2 guest_rip=103079231501 operation=2 import=i6-sR91Wt-4#libSceVideoOut#1#libSceVideoOut#Function context=5 thread=1 generation=6 invocation=1 category=1
+09-14 02:47:18.944 22591 22621 I RenderedRuntimeAcceptance: production Linker/VM; owners=1 veneers=3 graphics=ready guest_presents=0 modules=1
+09-14 02:47:19.544 22591 22735 I ProductionRuntime: prepare: reserve guest VA
+09-14 02:47:19.544 22591 22735 I ProductionRuntime: prepare: create FEX context
+09-14 02:47:19.545 22591 22735 I ProductionRuntime: prepare: create production VM/Linker
+09-14 02:47:19.800 22591 22735 I ProductionRuntime: prepare: load/relocate modules
+09-14 02:47:19.801 22591 22735 I ProductionRuntime: prepare: ready
+09-14 02:47:19.801 22591 22735 I ProductionRuntime: run: enter production guest
+09-14 02:47:20.500 22591 22735 I ProductionRuntime: run: guest returned to host
+09-14 02:47:20.567 22591 22621 I RenderedRuntimeAcceptance: synthetic round=4 case=gpu-flip gen=4 outcome=0 page_size=4096 pid=22591 uid=10157 guest return=51966
+09-14 02:47:20.567 22591 22621 I RenderedRuntimeAcceptance: production Linker/VM; owners=1 veneers=11 graphics=ready guest_presents=4 modules=1
+09-14 02:47:21.167 22591 22763 I ProductionRuntime: prepare: reserve guest VA
+09-14 02:47:21.167 22591 22763 I ProductionRuntime: prepare: create FEX context
+09-14 02:47:21.167 22591 22763 I ProductionRuntime: prepare: create production VM/Linker
+09-14 02:47:21.422 22591 22763 I ProductionRuntime: prepare: load/relocate modules
+09-14 02:47:21.422 22591 22763 I ProductionRuntime: prepare: ready
+09-14 02:47:21.422 22591 22763 I ProductionRuntime: run: enter production guest
+09-14 02:47:22.050 22591 22763 I ProductionRuntime: run: guest returned to host
+09-14 02:47:22.125 22591 22621 I RenderedRuntimeAcceptance: synthetic round=5 case=videoout-format gen=5 outcome=2 page_size=4096 pid=22591 uid=10157 guest return=2 guest_rip=103079231501 operation=2 import=i6-sR91Wt-4#libSceVideoOut#1#libSceVideoOut#Function context=9 thread=1 generation=10 invocation=1 category=10
+09-14 02:47:22.125 22591 22621 I RenderedRuntimeAcceptance: production Linker/VM; owners=1 veneers=3 graphics=ready guest_presents=0 modules=1
+09-14 02:47:22.720 22591 22786 I ProductionRuntime: prepare: reserve guest VA
+09-14 02:47:22.720 22591 22786 I ProductionRuntime: prepare: create FEX context
+09-14 02:47:22.721 22591 22786 I ProductionRuntime: prepare: create production VM/Linker
+09-14 02:47:22.978 22591 22786 I ProductionRuntime: prepare: load/relocate modules
+09-14 02:47:22.979 22591 22786 I ProductionRuntime: prepare: ready
+09-14 02:47:22.979 22591 22786 I ProductionRuntime: run: enter production guest
+09-14 02:47:23.672 22591 22786 I ProductionRuntime: run: guest returned to host
+09-14 02:47:23.742 22591 22621 I RenderedRuntimeAcceptance: synthetic round=6 case=gpu-flip gen=6 outcome=0 page_size=4096 pid=22591 uid=10157 guest return=51966
+09-14 02:47:23.742 22591 22621 I RenderedRuntimeAcceptance: production Linker/VM; owners=1 veneers=11 graphics=ready guest_presents=4 modules=1

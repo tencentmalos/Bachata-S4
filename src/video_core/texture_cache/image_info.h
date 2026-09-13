@@ -84,6 +84,9 @@ struct ImageInfo {
     std::array<MipInfo, 16> mips_layout;
     VAddr guest_address{};
     u32 guest_size{};
+    // Macro-tiled surfaces can switch to micro tiling in their smaller mips.
+    // Preserve the pre-alignment decision, which cannot be inferred from padded extents.
+    u32 micro_mip_mask{};
     u8 bank_swizzle{};
     bool alt_tile{};
 

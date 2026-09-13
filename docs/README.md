@@ -1,5 +1,7 @@
 # Android / FEX 开发资料索引
 
+**2026-09-14最新：[ARM64 SRT、BC纹理与Android WSI](validation/android-native-host/srt-bc-integration-2026-09-14.md)。** 定向native479/0、shader8变体与APK synthetic六代PASS；真实TMNT143次present后停于AvPlayerSetLogCallback/op110，长运行仍FAIL、不可玩。继续本地AvPlayer与FEX回调，网络/SSL仅桌面离线兼容。
+
 **2026-09-14最新：[AudioOut、内核信号量与Json2桌面兼容](validation/android-native-host/audio-semaphore-integration-2026-09-14.md)。** Native55/0＋55/0＋35/0，普通APK实际FEX/AAudio三轮；TMNT修复Json2失败清理崩溃后可运行20秒并取消三轮，仍0帧、不可玩。随后长观察约51秒到首次compute shader，ARM64 SRT未实现导致SIGABRT；继续补SRT，只测改动，不扩网络/SSL，不新增spec。
 
 **最新（2026-09-14）：[AJM会话解码与真实FEX调用](validation/android-native-host/ajm-runtime-integration-2026-09-14.md)。** native126/0、真实MP3输出32256bytes；APK三轮8/10参数batch、完整TMNT三轮到AudioOutInit/op95，仍0帧。继续AudioOut，不扩网络SSL，无全回归。

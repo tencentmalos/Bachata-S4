@@ -1,0 +1,8 @@
+{
+  "cumulative_source_sha256": "8c89415b8ffba9e22c5408d23e63c30e202bf023db90502f0a626c72a261fc0a",
+  "first_line_one_based": 54961,
+  "excerpt_line_count": 1018,
+  "recreate_messages": 0,
+  "unchanged_suboptimal_messages": 1,
+  "note": "last VM initialization in append-only host log; buffered final line incomplete; full JUnit independently reports 143 presents"
+}

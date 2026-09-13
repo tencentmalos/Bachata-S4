@@ -104,6 +104,7 @@ layout (set = 0, binding = 2, scalar) uniform TilingInfo {
     uint bank_swizzle;
     uint num_slices;
     uint num_mips;
+    uint micro_mip_mask;
     MipInfo mips[16];
 } info;
 
@@ -210,7 +211,6 @@ uint32_t ComputePixelIndexWithinMicroTile(uint32_t x, uint32_t y, uint32_t z) {
     return pixel_number;
 }
 
-#if ARRAY_MODE == ARRAY_1D_TILED_THIN1 || ARRAY_MODE == ARRAY_1D_TILED_THICK
 uint32_t ComputeSurfaceAddrFromCoordMicroTiled(uint32_t x, uint32_t y, uint32_t slice, uint32_t pitch, uint32_t height, uint32_t sample_index) {
     uint32_t slice_bytes = BITS_TO_BYTES(pitch * height * MICRO_TILE_THICKNESS * BITS_PER_PIXEL * NUM_SAMPLES);
 
@@ -237,7 +237,7 @@ uint32_t ComputeSurfaceAddrFromCoordMicroTiled(uint32_t x, uint32_t y, uint32_t 
     uint32_t elem_offset = (sample_offset + pixel_offset) / 8;
     return slice_offset + micro_tile_offset + elem_offset;
 }
-#else
+#if ARRAY_MODE != ARRAY_1D_TILED_THIN1 && ARRAY_MODE != ARRAY_1D_TILED_THICK
 uint32_t ComputePipeFromCoord(uint32_t x, uint32_t y, uint32_t slice) {
     uint32_t p0 = 0;
     uint32_t p1 = 0;
@@ -410,19 +410,19 @@ uint32_t ComputeSurfaceAddrFromCoordMacroTiled(uint32_t x, uint32_t y, uint32_t 
 #endif
 
 uint GetMipLevel(inout uint texel) {
-    uint mip = 0;
-    uint mip_size = info.mips[mip].size / BYTES_PER_PIXEL;
-    while (texel >= mip_size && mip < info.num_mips) {
+    const uint end = min(info.num_mips, 16u);
+    for (uint mip = 0; mip < end; ++mip) {
+        const uint mip_size = info.mips[mip].size / BYTES_PER_PIXEL;
+        if (texel < mip_size) return mip;
         texel -= mip_size;
-        ++mip;
-        mip_size = info.mips[mip].size / BYTES_PER_PIXEL;
     }
-    return mip;
+    return end;
 }
 
 void main() {
     uint texel = gl_GlobalInvocationID.x;
     uint mip = GetMipLevel(texel);
+    if (mip >= min(info.num_mips, 16u)) return;
     uint pitch = info.mips[mip].pitch;
     uint height = info.mips[mip].height;
     uint tiled_offset = info.mips[mip].offset;
@@ -433,7 +433,11 @@ void main() {
 #if ARRAY_MODE == ARRAY_1D_TILED_THIN1 || ARRAY_MODE == ARRAY_1D_TILED_THICK
     tiled_offset += ComputeSurfaceAddrFromCoordMicroTiled(x, y, slice, pitch, height, 0);
 #else
-    tiled_offset += ComputeSurfaceAddrFromCoordMacroTiled(x, y, slice, pitch, height, 0);
+    if ((info.micro_mip_mask & (1u << mip)) != 0) {
+        tiled_offset += ComputeSurfaceAddrFromCoordMicroTiled(x, y, slice, pitch, height, 0);
+    } else {
+        tiled_offset += ComputeSurfaceAddrFromCoordMacroTiled(x, y, slice, pitch, height, 0);
+    }
 #endif
 
 #ifdef IS_TILER

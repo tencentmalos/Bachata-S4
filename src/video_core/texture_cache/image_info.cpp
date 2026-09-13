@@ -155,6 +155,7 @@ bool ImageInfo::IsCompatible(const ImageInfo& info) const {
 
 void ImageInfo::UpdateSize() {
     guest_size = 0;
+    micro_mip_mask = 0;
     for (s32 mip = 0; mip < resources.levels; ++mip) {
         u32 mip_w = pitch >> mip;
         u32 mip_h = size.height >> mip;
@@ -194,7 +195,11 @@ void ImageInfo::UpdateSize() {
             mip_d += (-mip_d) & (thickness - 1);
             [[fallthrough]];
         case AmdGpu::ArrayMode::Array2DTiledThin1: {
-            ASSERT(!props.is_block);
+            // BC formats are already expressed in 4x4 blocks above. Each
+            // 64/128-bit block is one tiling element, just as in the detiler.
+            if (MipUsesMicroTiling(mip_w, mip_h, num_bits, num_samples, tile_mode, mip, alt_tile)) {
+                micro_mip_mask |= 1u << mip;
+            }
             std::tie(mip_info.pitch, mip_info.height, mip_info.size) = ImageSizeMacroTiled(
                 mip_w, mip_h, thickness, num_bits, num_samples, tile_mode, mip, alt_tile);
             break;

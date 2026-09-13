@@ -1,0 +1,25 @@
+--------- beginning of main
+09-14 02:42:54.560 21431 21491 I ProductionRuntime: prepare: reserve guest VA
+09-14 02:42:54.560 21431 21491 I ProductionRuntime: prepare: create FEX context
+09-14 02:42:54.561 21431 21491 I ProductionRuntime: prepare: create production VM/Linker
+09-14 02:42:54.836 21431 21491 I ProductionRuntime: prepare: load/relocate modules
+09-14 02:42:55.039 21431 21491 I ProductionRuntime: prepare: ready
+09-14 02:42:55.069 21431 21491 I ProductionRuntime: run: enter production guest
+09-14 02:42:55.761 21431 21491 I ProductionModule: SysmoduleLoad id=0xa0 name=libSceSaveDataDialog result=0
+09-14 02:42:55.761 21431 21491 I ProductionModule: SysmoduleLoad id=0xa4 name=libSceMsgDialog result=0x805a10ff
+09-14 02:42:56.595 21431 21491 I ProductionModule: SysmoduleLoad id=0xb4 name=libSceAppContent result=0
+09-14 02:43:00.376 21431 21491 I ProductionModule: SysmoduleLoad id=0x96 name=libSceImeDialog result=0x805a10ff
+09-14 02:43:00.512 21431 21491 I ProductionModule: LoadStartModule existing path=/app0/modules/libfmod.prx handle=1
+09-14 02:43:00.512 21431 21491 I ProductionModule: LoadStartModule existing path=/app0/modules/libfmodstudio.prx handle=4
+09-14 02:43:00.544 21431 21491 I AAudio  : AAudioStreamBuilder_openStream() called ----------------------------------------
+09-14 02:43:00.544 21431 21491 I AudioStreamBuilder: rate   =  48000, channels  = 8, channelMask = 0x800000ff, format   = 5, sharing = SH, dir = OUTPUT
+09-14 02:43:00.544 21431 21491 I AudioStreamBuilder: device =      0, sessionId = -1, perfMode = 12, callback: OFF with frames = 0
+09-14 02:43:00.544 21431 21491 I AudioStreamBuilder: usage  =     14, contentType = 0, inputPreset = 0, allowedCapturePolicy = 0
+09-14 02:43:00.544 21431 21491 I AudioStreamBuilder: privacy sensitive = false, opPackageName = (null), attributionTag = (null)
+09-14 02:43:00.563 21431 21491 I AAudio  : AAudioStreamBuilder_openStream() returns 0 = AAUDIO_OK for s#2 ----------------
+09-14 02:43:04.249 21431 21491 I ProductionModule: LoadStartModule existing path=/app0/sce_module/libSceNpEntitlementAccess.prx handle=5
+09-14 02:43:04.250 21431 21491 I ProductionModule: SysmoduleLoad id=0xb4 name=libSceAppContent result=0
+09-14 02:43:04.255 21431 21491 I ProductionModule: SysmoduleLoad id=0x9d name=libSceNpAuth result=0x805a10ff
+09-14 02:43:04.257 21431 21491 I ProductionModule: SysmoduleLoad id=0xe7 name=libSceJson2 result=0
+09-14 02:43:49.047 21431 21491 I ProductionModule: SysmoduleLoad id=0xa5 name=libSceAvPlayer result=0x805a10ff
+09-14 02:43:49.047 21431 21491 I ProductionRuntime: run: guest returned to host

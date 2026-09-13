@@ -116,6 +116,7 @@ private:
 
     /// Sets the surface properties according to device capabilities
     void SetSurfaceProperties();
+    bool SuboptimalNeedsRecreation();
 
     /// Destroys the current VkSurfaceKHR and creates a fresh one from the window's
     /// current native handle. Needed on Android when the platform hands back a new
@@ -142,6 +143,8 @@ private:
     vk::Format view_format;
     vk::PresentModeKHR present_mode;
     vk::Extent2D extent;
+    vk::SurfaceCapabilitiesKHR created_capabilities{};
+    bool reported_unchanged_suboptimal{};
     vk::SurfaceTransformFlagBitsKHR transform;
     vk::CompositeAlphaFlagBitsKHR composite_alpha;
     std::vector<vk::Image> images;

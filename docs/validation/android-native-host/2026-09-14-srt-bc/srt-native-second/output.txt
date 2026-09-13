@@ -1,0 +1,5 @@
+FAIL 58: memory.MapMemory(&mapped, base + 0x10000, 0x4000, MemoryProt::CpuReadWrite, MemoryMapFlags::NoFlags, VMAType::Direct, "srt-direct", false, 0) == 0
+FAIL 62: memory.TryReadSrtMemory(base + 0x10000, &checked, 4) && u32(checked) == sentinel
+FAIL 85: value(c0) == 55 && value(c1) == 66 && value(dynamic) == 77
+FAIL 87: c1.Inst()->Flags<u16>() == c0.Inst()->Flags<u16>() + 1
+srt checks=37 failures=4

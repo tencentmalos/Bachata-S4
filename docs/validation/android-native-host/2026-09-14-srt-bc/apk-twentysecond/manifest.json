@@ -1,0 +1,43 @@
+{
+  "source": "f2bcd299ecf1bafc1a78c5ffbcbb44943f4abe9c",
+  "scope": "focused portable SRT, synthetic guest graphics and bounded real TMNT startup; no full regression",
+  "runs": [
+    {
+      "name": "synthetic-graphics",
+      "junit_pass": true,
+      "scope": "boundary observation only"
+    },
+    {
+      "name": "tmnt",
+      "junit_pass": false,
+      "scope": "boundary observation only"
+    }
+  ],
+  "artifacts": {
+    "android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk": "52efa83bef5b6dc0618cd0595e4e7c5628416e6e18aa647240b1fe825c3ec3a4",
+    "android/shadps4-app/app/build/outputs/apk/androidTest/playstore/debug/app-playstore-debug-androidTest.apk": "dbd002265a73eeed2f6f6372453ed8d4993a7eab51b598284d249f11a4a0fbf4",
+    "build/android-host-api33/native/libshadps4_host.so": "d6859013d09e5cb83950a134e4fc9a5aad5a1225187eb6d10cb05e0fae8377f5"
+  },
+  "sources": {
+    "src/shader_recompiler/ir/passes/srt_portable.h": "bc50442c45e00ae7b08dccf2d453dc0693304f4d399fe82468a51dfe70c03c74",
+    "tests/host_runtime/srt_tests.cpp": "1b6b4a67c0c4712fc035392654e8346a127bb2a8bd5cafd73511ea6ecb3d2fa8",
+    "src/common/serdes.h": "2b66d623996f4d1a4034ac143e001883ace3a09f69d4da013ceb62cf73b1a17b",
+    "src/core/memory.cpp": "7e93f533f958156313e920f5583a8c309d5fc9828de36b8bf6e0eea7329efd37",
+    "src/core/memory.h": "9680b779ab9cf43532fa62d8bdeff4afb061a7780b1c46928aa79fa8cd188aa3",
+    "src/shader_recompiler/info.h": "13b8f2fc6cc1d2df27609b313f0d03e8ba780a6617d4dbca6e12be048ddf9a56",
+    "src/shader_recompiler/ir/passes/flatten_extended_userdata_pass.cpp": "90ffc68989f2cdba9545b4158de2688d64f718ca8d14351ad5fe0f1a1fcdd854",
+    "src/shader_recompiler/ir/passes/srt.h": "55191981e961fce362ebf2f1012b0f858cd64f175ca5427a9f3c113647960d10",
+    "src/video_core/renderer_vulkan/vk_pipeline_serialization.cpp": "517be19b091cc0f585fc554d2f736cf5149b3c1f82ca5460bd41e18920b87f0e"
+  },
+  "identity": "AYN Thor",
+  "libshadps4_host.so": {
+    "sha256": "d6859013d09e5cb83950a134e4fc9a5aad5a1225187eb6d10cb05e0fae8377f5",
+    "build_id": "2f0949b148a2e294494f53cfed22ae6bc1447205"
+  },
+  "libshadps4_fex_session.so": {
+    "sha256": "6bfb5d3461f431e0025151794c2d58f528ddd55800c6b0448e413a866a8afeaa",
+    "build_id": "135008cb861885c0e8b0f48ed8cf88f4b562390e"
+  },
+  "status": "FAIL",
+  "error": ""
+}

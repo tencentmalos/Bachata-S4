@@ -1,0 +1,60 @@
+{
+  "source": "f2bcd299ecf1bafc1a78c5ffbcbb44943f4abe9c",
+  "scope": "focused portable SRT, synthetic guest graphics and bounded real TMNT startup; no full regression",
+  "runs": [
+    {
+      "name": "synthetic-graphics",
+      "junit_pass": true,
+      "scope": "boundary observation only"
+    },
+    {
+      "name": "tmnt",
+      "junit_pass": false,
+      "scope": "boundary observation only"
+    }
+  ],
+  "artifacts": {
+    "android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk": "105f3d0a62bad7d596b9bb9ece537c651fd787fa18b7d600e09391efe5a9f5ad",
+    "android/shadps4-app/app/build/outputs/apk/androidTest/playstore/debug/app-playstore-debug-androidTest.apk": "dbd002265a73eeed2f6f6372453ed8d4993a7eab51b598284d249f11a4a0fbf4",
+    "build/android-host-api33/native/libshadps4_host.so": "56128bdc055861ba64a3754d16397449c5e181c3f29d6a494eb703dff66cdbaf"
+  },
+  "sources": {
+    "src/shader_recompiler/ir/passes/srt_portable.h": "5541f9bd21c1453527b447006b10cbfab3758d7da6783d60169cfd79a40d06ca",
+    "tests/host_runtime/srt_tests.cpp": "18fd1b7e4f6d9b0034a6092d3e9f3d9a3a50e7aabbece9a0c53202eaf9bcbb13",
+    "src/common/serdes.h": "2b66d623996f4d1a4034ac143e001883ace3a09f69d4da013ceb62cf73b1a17b",
+    "src/core/host_runtime/guest_runtime.cpp": "0f8e7353c0199b2110ccb58505c51fd505c0d700cacd9dc15d4db2f59c488dea",
+    "src/core/memory.cpp": "d676274da922218898110912562df8e8880d97b65645600d1dde660d21b25e59",
+    "src/core/memory.h": "dc0627a07c4a2c9395e7b29acf57b1acd208f24755949bbda4d7fba1801ad572",
+    "src/shader_recompiler/info.h": "13b8f2fc6cc1d2df27609b313f0d03e8ba780a6617d4dbca6e12be048ddf9a56",
+    "src/shader_recompiler/ir/passes/flatten_extended_userdata_pass.cpp": "7f5e1f3b3aadb0a3fbcc769f832d7731f6e9d9c207063125aeec0e8d15b9dd86",
+    "src/shader_recompiler/ir/passes/srt.h": "9e182eeb7b5886b2141579060001c52bc2f8a6bbbc49c9d363838c15d3047d70",
+    "src/video_core/host_shaders/tiling.comp": "3b455dadb86478191276b521c4109120166033c3a1a588dd4b1ea3bd389bb7da",
+    "src/video_core/renderer_vulkan/vk_pipeline_serialization.cpp": "b636c59956d41b2ddd86d44cbfdb665c691ed796a20036d1d8d4cd5409085021",
+    "src/video_core/renderer_vulkan/vk_swapchain.cpp": "2efed445f6439b2d102a1d79011cae4f34d5c142509e9a28d92a8d76f1da1a7a",
+    "src/video_core/renderer_vulkan/vk_swapchain.h": "a2ce6c91266918be772ef49947556c1f30f4623a738acb113772656153dbe90b",
+    "src/video_core/texture_cache/image_info.cpp": "6faa0137d0cb787535dbdb66324d975aaad1d466398c8848ddd916f45a225ab8",
+    "src/video_core/texture_cache/image_info.h": "dd725c37574b9278c150f522f78f33a6d41c7e419a6389ae9bd43ac6887b6cf2",
+    "src/video_core/texture_cache/tile.h": "53d657125c0d040eb4344e2c3dcf09facd0aa0d469ca53caf5dc5bf7275f36c1",
+    "src/video_core/texture_cache/tile_manager.cpp": "cc06ce375806296b32159f2e29cb28b141f28a2c36d6dcba69706dcf2561c10c"
+  },
+  "identity": "AYN Thor",
+  "libshadps4_host.so": {
+    "sha256": "56128bdc055861ba64a3754d16397449c5e181c3f29d6a494eb703dff66cdbaf",
+    "build_id": "0fb74d950aa28a1aa8f6355f5444d8c75aeef7d1"
+  },
+  "libshadps4_fex_session.so": {
+    "sha256": "8a65315740931e6de5243e60a2f352c0aace0c059ac4201933e171db6e4bf367",
+    "build_id": "fe0d2545fbf444aa8a69c539cefce40cf49859f1"
+  },
+  "status": "FAIL",
+  "error": "",
+  "source_state": "f2bcd299 + dirty implementation, exact per-file SHA preserved",
+  "acceptance": {
+    "srt_native": "479 checks / 0 failures, pre-WSI DSO; see srt-native-sixth",
+    "synthetic_graphics": "PASS, six generations, actual GPU presents",
+    "real_tmnt": "FAIL: 143 presents then sceAvPlayerSetLogCallback Unsupported; not playable",
+    "shader_variants": "8 glslang + spirv-val passes; not GPU pixel oracle",
+    "x86": "4 syntax checks only",
+    "full_regression": false
+  }
+}

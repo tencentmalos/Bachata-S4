@@ -190,12 +190,20 @@ struct Info : InfoPersistent {
     }
 
     void RefreshFlatBuf() {
+#ifndef ARCH_X86_64
+        flattened_ud_buf.assign(srt_info.flattened_bufsize_dw, 0);
+#else
         flattened_ud_buf.resize(srt_info.flattened_bufsize_dw);
+#endif
         ASSERT(user_data.size() <= NUM_USER_DATA_REGS);
         std::memcpy(flattened_ud_buf.data(), user_data.data(), user_data.size_bytes());
+#ifndef ARCH_X86_64
+        srt_info.portable.Run(user_data, flattened_ud_buf, ReadSrtGuestMemory);
+#else
         if (srt_info.walker_func) {
             srt_info.walker_func(user_data.data(), flattened_ud_buf.data());
         }
+#endif
     }
 
     void ReadTessConstantBuffer(TessellationDataConstantBuffer& tess_constants) const {

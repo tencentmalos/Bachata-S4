@@ -1,0 +1,2 @@
+FAIL 222: !VideoCore::MipUsesMicroTiling(64, 64, bits, 1, texture.tile_mode, 1, false)
+srt checks=479 failures=1

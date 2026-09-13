@@ -325,20 +325,20 @@ constexpr std::tuple<u32, u32, size_t> ImageSizeMicroTiled(u32 pitch, u32 height
     return {pitch_aligned, height_aligned, log_sz};
 }
 
+// The same decision must drive allocation and the detiler's address calculation.
+constexpr bool MipUsesMicroTiling(u32 pitch, u32 height, u32 bpp, u32 num_samples,
+                                 AmdGpu::TileMode tile_mode, u32 mip, bool alt) {
+    const auto [tile_width, tile_height] = GetMacroTileExtents(tile_mode, bpp, num_samples, alt);
+    return mip > 0 && (pitch < tile_width || height < tile_height);
+}
+
 constexpr std::tuple<u32, u32, size_t> ImageSizeMacroTiled(u32 pitch, u32 height, u32 thickness,
                                                            u32 bpp, u32 num_samples,
                                                            AmdGpu::TileMode tile_mode, u32 mip_n,
                                                            bool alt) {
     const auto [pitch_align, height_align] = GetMacroTileExtents(tile_mode, bpp, num_samples, alt);
     ASSERT(pitch_align != 0 && height_align != 0);
-    bool downgrade_to_micro = false;
-    if (mip_n > 0) {
-        const bool is_less_than_tile = pitch < pitch_align || height < height_align;
-        // TODO: threshold check
-        downgrade_to_micro = is_less_than_tile;
-    }
-
-    if (downgrade_to_micro) {
+    if (MipUsesMicroTiling(pitch, height, bpp, num_samples, tile_mode, mip_n, alt)) {
         return ImageSizeMicroTiled(pitch, height, thickness, bpp, num_samples);
     }
 

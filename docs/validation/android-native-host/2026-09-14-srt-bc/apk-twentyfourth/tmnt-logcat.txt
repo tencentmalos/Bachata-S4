@@ -1,0 +1,64 @@
+--------- beginning of main
+09-14 02:38:03.073 20351 20409 I ProductionRuntime: prepare: reserve guest VA
+09-14 02:38:03.073 20351 20409 I ProductionRuntime: prepare: create FEX context
+09-14 02:38:03.074 20351 20409 I ProductionRuntime: prepare: create production VM/Linker
+09-14 02:38:03.356 20351 20409 I ProductionRuntime: prepare: load/relocate modules
+09-14 02:38:03.575 20351 20409 I ProductionRuntime: prepare: ready
+09-14 02:38:03.605 20351 20409 I ProductionRuntime: run: enter production guest
+09-14 02:38:04.346 20351 20409 I ProductionModule: SysmoduleLoad id=0xa0 name=libSceSaveDataDialog result=0
+09-14 02:38:04.346 20351 20409 I ProductionModule: SysmoduleLoad id=0xa4 name=libSceMsgDialog result=0x805a10ff
+09-14 02:38:05.192 20351 20409 I ProductionModule: SysmoduleLoad id=0xb4 name=libSceAppContent result=0
+09-14 02:38:08.994 20351 20409 I ProductionModule: SysmoduleLoad id=0x96 name=libSceImeDialog result=0x805a10ff
+09-14 02:38:09.117 20351 20409 I ProductionModule: LoadStartModule existing path=/app0/modules/libfmod.prx handle=1
+09-14 02:38:09.117 20351 20409 I ProductionModule: LoadStartModule existing path=/app0/modules/libfmodstudio.prx handle=4
+09-14 02:38:09.147 20351 20409 I AAudio  : AAudioStreamBuilder_openStream() called ----------------------------------------
+09-14 02:38:09.147 20351 20409 I AudioStreamBuilder: rate   =  48000, channels  = 8, channelMask = 0x800000ff, format   = 5, sharing = SH, dir = OUTPUT
+09-14 02:38:09.147 20351 20409 I AudioStreamBuilder: device =      0, sessionId = -1, perfMode = 12, callback: OFF with frames = 0
+09-14 02:38:09.147 20351 20409 I AudioStreamBuilder: usage  =     14, contentType = 0, inputPreset = 0, allowedCapturePolicy = 0
+09-14 02:38:09.147 20351 20409 I AudioStreamBuilder: privacy sensitive = false, opPackageName = (null), attributionTag = (null)
+09-14 02:38:09.158 20351 20409 I AAudio  : AAudioStreamBuilder_openStream() returns 0 = AAUDIO_OK for s#2 ----------------
+09-14 02:38:12.850 20351 20409 I ProductionModule: LoadStartModule existing path=/app0/sce_module/libSceNpEntitlementAccess.prx handle=5
+09-14 02:38:12.850 20351 20409 I ProductionModule: SysmoduleLoad id=0xb4 name=libSceAppContent result=0
+09-14 02:38:12.856 20351 20409 I ProductionModule: SysmoduleLoad id=0x9d name=libSceNpAuth result=0x805a10ff
+09-14 02:38:12.857 20351 20409 I ProductionModule: SysmoduleLoad id=0xe7 name=libSceJson2 result=0
+09-14 02:38:54.667 20351 20411 E SrtDiagnostic: pgm=92b6e24d addr=273a90000 fmt=37 tile=14 width=1024 height=512 pitch=1024 levels=11 layers=1 bits=128 load_mask=255
+--------- beginning of crash
+09-14 02:38:54.928 20785 20785 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+09-14 02:38:54.928 20785 20785 F DEBUG   : Build fingerprint: 'qti/kalama/kalama:13/TKQ1.231222.001/eng.Thor.20260206.163241:user/release-keys'
+09-14 02:38:54.928 20785 20785 F DEBUG   : Revision: '0'
+09-14 02:38:54.928 20785 20785 F DEBUG   : ABI: 'arm64'
+09-14 02:38:54.928 20785 20785 F DEBUG   : Timestamp: 2026-09-14 02:38:54.751234926+0800
+09-14 02:38:54.928 20785 20785 F DEBUG   : Process uptime: 53s
+09-14 02:38:54.928 20785 20785 F DEBUG   : Cmdline: com.shadps4.android
+09-14 02:38:54.928 20785 20785 F DEBUG   : pid: 20351, tid: 20411, name: shadPS4:GpuComm  >>> com.shadps4.android <<<
+09-14 02:38:54.928 20785 20785 F DEBUG   : uid: 10157
+09-14 02:38:54.928 20785 20785 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+09-14 02:38:54.928 20785 20785 F DEBUG   : pac_enabled_keys: 000000000000000f (PR_PAC_APIAKEY, PR_PAC_APIBKEY, PR_PAC_APDAKEY, PR_PAC_APDBKEY)
+09-14 02:38:54.928 20785 20785 F DEBUG   : signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+09-14 02:38:54.928 20785 20785 F DEBUG   : Abort message: 'Host assertion failed; see native backtrace'
+09-14 02:38:54.928 20785 20785 F DEBUG   :     x0  0000000000000000  x1  0000000000004fbb  x2  0000000000000006  x3  000000779a961980
+09-14 02:38:54.928 20785 20785 F DEBUG   :     x4  756873606d1f6464  x5  756873606d1f6464  x6  756873606d1f6464  x7  7f7f7f7f7f7f7f7f
+09-14 02:38:54.928 20785 20785 F DEBUG   :     x8  00000000000000f0  x9  0000007b42f5fb28  x10 0000000000000001  x11 0000007b42f9f84c
+09-14 02:38:54.928 20785 20785 F DEBUG   :     x12 000000779a960830  x13 000000000000002c  x14 000000779a961bc0  x15 000001e60abd893a
+09-14 02:38:54.928 20785 20785 F DEBUG   :     x16 0000007b43007d68  x17 0000007b42fe34e0  x18 0000007417ffc000  x19 0000000000004f7f
+09-14 02:38:54.928 20785 20785 F DEBUG   :     x20 0000000000004fbb  x21 00000000ffffffff  x22 b400007a34edb750  x23 0000000000000100
+09-14 02:38:54.928 20785 20785 F DEBUG   :     x24 0000007831e16000  x25 0000000000000001  x26 b400007a34edb750  x27 0000000000000001
+09-14 02:38:54.928 20785 20785 F DEBUG   :     x28 0000000000000001  x29 000000779a961a00
+09-14 02:38:54.928 20785 20785 F DEBUG   :     lr  0000007b42f90788  sp  000000779a961960  pc  0000007b42f907b4  pst 0000000000001000
+09-14 02:38:54.928 20785 20785 F DEBUG   : backtrace:
+09-14 02:38:54.928 20785 20785 F DEBUG   :       #00 pc 00000000000527b4  /apex/com.android.runtime/lib64/bionic/libc.so (abort+168) (BuildId: bf5f1ce73f89cca7d6a062eb7877e86a)
+09-14 02:38:54.928 20785 20785 F DEBUG   :       #01 pc 00000000006182f4  /apex/com.android.art/lib64/libart.so (art::Runtime::Abort(char const*)+120) (BuildId: 3fdfb8b8ec5407af450c28a00ba584a8)
+09-14 02:38:54.928 20785 20785 F DEBUG   :       #02 pc 0000000000017114  /system/lib64/libbase.so (android::base::SetAborter(std::__1::function<void (char const*)>&&)::$_3::__invoke(char const*)+84) (BuildId: ef369bfbad96b532c6d8e0b144a68b96)
+09-14 02:38:54.928 20785 20785 F DEBUG   :       #03 pc 0000000000006f60  /system/lib64/liblog.so (__android_log_assert+312) (BuildId: a7d65e6f6782b4b13384777bd315ba53)
+09-14 02:38:54.928 20785 20785 F DEBUG   :       #04 pc 00000000028927b4  /data/app/~~4hH3A5vUopQP3Ri1MAr0fg==/com.shadps4.android-u-A5qaFce40EZlMgzZ1Ypw==/lib/arm64/libshadps4_host.so (assert_fail_impl()+28) (BuildId: 6e63f68c9ce2d3d16b9ccd4b9569c655c7192d86)
+09-14 02:38:54.928 20785 20785 F DEBUG   :       #05 pc 0000000003399800  /data/app/~~4hH3A5vUopQP3Ri1MAr0fg==/com.shadps4.android-u-A5qaFce40EZlMgzZ1Ypw==/lib/arm64/libshadps4_host.so (VideoCore::ImageInfo::UpdateSize()+1000) (BuildId: 6e63f68c9ce2d3d16b9ccd4b9569c655c7192d86)
+09-14 02:38:54.928 20785 20785 F DEBUG   :       #06 pc 000000000339a32c  /data/app/~~4hH3A5vUopQP3Ri1MAr0fg==/com.shadps4.android-u-A5qaFce40EZlMgzZ1Ypw==/lib/arm64/libshadps4_host.so (VideoCore::ImageInfo::ImageInfo(AmdGpu::Image const&, Shader::ImageResource const&)+968) (BuildId: 6e63f68c9ce2d3d16b9ccd4b9569c655c7192d86)
+09-14 02:38:54.928 20785 20785 F DEBUG   :       #07 pc 0000000003367520  /data/app/~~4hH3A5vUopQP3Ri1MAr0fg==/com.shadps4.android-u-A5qaFce40EZlMgzZ1Ypw==/lib/arm64/libshadps4_host.so (Vulkan::Rasterizer::BindTextures(Shader::Info const&, Shader::Backend::Bindings&)+2472) (BuildId: 6e63f68c9ce2d3d16b9ccd4b9569c655c7192d86)
+09-14 02:38:54.928 20785 20785 F DEBUG   :       #08 pc 00000000033640dc  /data/app/~~4hH3A5vUopQP3Ri1MAr0fg==/com.shadps4.android-u-A5qaFce40EZlMgzZ1Ypw==/lib/arm64/libshadps4_host.so (Vulkan::Rasterizer::BindResources(Vulkan::Pipeline const*)+400) (BuildId: 6e63f68c9ce2d3d16b9ccd4b9569c655c7192d86)
+09-14 02:38:54.928 20785 20785 F DEBUG   :       #09 pc 0000000003363d44  /data/app/~~4hH3A5vUopQP3Ri1MAr0fg==/com.shadps4.android-u-A5qaFce40EZlMgzZ1Ypw==/lib/arm64/libshadps4_host.so (Vulkan::Rasterizer::Draw(bool, unsigned int)+120) (BuildId: 6e63f68c9ce2d3d16b9ccd4b9569c655c7192d86)
+09-14 02:38:54.928 20785 20785 F DEBUG   :       #10 pc 00000000032d8c9c  /data/app/~~4hH3A5vUopQP3Ri1MAr0fg==/com.shadps4.android-u-A5qaFce40EZlMgzZ1Ypw==/lib/arm64/libshadps4_host.so (AmdGpu::Liverpool::ProcessGraphics(std::__ndk1::span<unsigned int const, 18446744073709551615ul>, std::__ndk1::span<unsigned int const, 18446744073709551615ul>) (.resume)+8084) (BuildId: 6e63f68c9ce2d3d16b9ccd4b9569c655c7192d86)
+09-14 02:38:54.928 20785 20785 F DEBUG   :       #11 pc 00000000032da8b4  /data/app/~~4hH3A5vUopQP3Ri1MAr0fg==/com.shadps4.android-u-A5qaFce40EZlMgzZ1Ypw==/lib/arm64/libshadps4_host.so (AmdGpu::Liverpool::ProcessOwnedGraphics(std::__ndk1::vector<unsigned int, std::__ndk1::allocator<unsigned int> >, std::__ndk1::vector<unsigned int, std::__ndk1::allocator<unsigned int> >) (.resume)+144) (BuildId: 6e63f68c9ce2d3d16b9ccd4b9569c655c7192d86)
+09-14 02:38:54.928 20785 20785 F DEBUG   :       #12 pc 00000000032d24e0  /data/app/~~4hH3A5vUopQP3Ri1MAr0fg==/com.shadps4.android-u-A5qaFce40EZlMgzZ1Ypw==/lib/arm64/libshadps4_host.so (AmdGpu::Liverpool::Process(std::__ndk1::stop_token)+940) (BuildId: 6e63f68c9ce2d3d16b9ccd4b9569c655c7192d86)
+09-14 02:38:54.928 20785 20785 F DEBUG   :       #13 pc 00000000032d4f80  /data/app/~~4hH3A5vUopQP3Ri1MAr0fg==/com.shadps4.android-u-A5qaFce40EZlMgzZ1Ypw==/lib/arm64/libshadps4_host.so (void* std::__ndk1::__thread_proxy[abi:ne210000]<std::__ndk1::tuple<std::__ndk1::unique_ptr<std::__ndk1::__thread_struct, std::__ndk1::default_delete<std::__ndk1::__thread_struct> >, AmdGpu::Liverpool::Liverpool()::$_0, std::__ndk1::stop_token> >(void*)+100) (BuildId: 6e63f68c9ce2d3d16b9ccd4b9569c655c7192d86)
+09-14 02:38:54.928 20785 20785 F DEBUG   :       #14 pc 00000000000ba650  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*)+208) (BuildId: bf5f1ce73f89cca7d6a062eb7877e86a)
+09-14 02:38:54.928 20785 20785 F DEBUG   :       #15 pc 0000000000053ffc  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+68) (BuildId: bf5f1ce73f89cca7d6a062eb7877e86a)

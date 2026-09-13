@@ -1,0 +1,40 @@
+{
+  "source": "f2bcd299ecf1bafc1a78c5ffbcbb44943f4abe9c",
+  "scope": "focused portable SRT, synthetic guest graphics and bounded real TMNT startup; no full regression",
+  "runs": [
+    {
+      "name": "tmnt",
+      "junit_pass": false,
+      "scope": "boundary observation only"
+    }
+  ],
+  "artifacts": {
+    "android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk": "8f5e5c55c7eb59f44068efe66214156482a483a2566ce0b05a9d0a4472151cbb",
+    "android/shadps4-app/app/build/outputs/apk/androidTest/playstore/debug/app-playstore-debug-androidTest.apk": "dbd002265a73eeed2f6f6372453ed8d4993a7eab51b598284d249f11a4a0fbf4",
+    "build/android-host-api33/native/libshadps4_host.so": "a1b184f65b1946bdb7ee89194473a968485dbdc8982f07eb77262d8fcc682c91"
+  },
+  "sources": {
+    "src/shader_recompiler/ir/passes/srt_portable.h": "5541f9bd21c1453527b447006b10cbfab3758d7da6783d60169cfd79a40d06ca",
+    "tests/host_runtime/srt_tests.cpp": "88f233f5b473840d86d3509b451be57c95161edf25b86ac3304bf5d731e249ac",
+    "src/common/serdes.h": "2b66d623996f4d1a4034ac143e001883ace3a09f69d4da013ceb62cf73b1a17b",
+    "src/core/host_runtime/guest_runtime.cpp": "0f8e7353c0199b2110ccb58505c51fd505c0d700cacd9dc15d4db2f59c488dea",
+    "src/core/memory.cpp": "d676274da922218898110912562df8e8880d97b65645600d1dde660d21b25e59",
+    "src/core/memory.h": "dc0627a07c4a2c9395e7b29acf57b1acd208f24755949bbda4d7fba1801ad572",
+    "src/shader_recompiler/info.h": "13b8f2fc6cc1d2df27609b313f0d03e8ba780a6617d4dbca6e12be048ddf9a56",
+    "src/shader_recompiler/ir/passes/flatten_extended_userdata_pass.cpp": "7f5e1f3b3aadb0a3fbcc769f832d7731f6e9d9c207063125aeec0e8d15b9dd86",
+    "src/shader_recompiler/ir/passes/srt.h": "9e182eeb7b5886b2141579060001c52bc2f8a6bbbc49c9d363838c15d3047d70",
+    "src/video_core/renderer_vulkan/vk_pipeline_serialization.cpp": "b636c59956d41b2ddd86d44cbfdb665c691ed796a20036d1d8d4cd5409085021",
+    "src/video_core/renderer_vulkan/vk_rasterizer.cpp": "8432ac33094bef38a06f17a2be3204d150b122ea43bd34bc49b3844795f59344"
+  },
+  "identity": "AYN Thor",
+  "libshadps4_host.so": {
+    "sha256": "a1b184f65b1946bdb7ee89194473a968485dbdc8982f07eb77262d8fcc682c91",
+    "build_id": "6e63f68c9ce2d3d16b9ccd4b9569c655c7192d86"
+  },
+  "libshadps4_fex_session.so": {
+    "sha256": "6bfb5d3461f431e0025151794c2d58f528ddd55800c6b0448e413a866a8afeaa",
+    "build_id": "135008cb861885c0e8b0f48ed8cf88f4b562390e"
+  },
+  "status": "FAIL",
+  "error": ""
+}

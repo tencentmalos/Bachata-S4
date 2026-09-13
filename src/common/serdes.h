@@ -52,6 +52,10 @@ struct Archive {
         return std::move(container);
     }
 
+    [[nodiscard]] size_t RemainingBytes() const {
+        return container.size() - offset;
+    }
+
     [[nodiscard]] bool IsEoS() const {
         return offset >= container.size();
     }
