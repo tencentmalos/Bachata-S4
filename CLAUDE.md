@@ -1,5 +1,9 @@
 # shadPS4 Android / FEX development context
 
+## 下一阶段：图形调试工具整包（待实施）
+
+执行 [android-graphics-debugging-toolkit.md](docs/specs/android-graphics-debugging-toolkit.md)，来源见 [审核](docs/validation/android-native-host/graphics-debug-tooling-audit-2026-09-14.md)。用户让另一位Opus4.8实施RenderDoc、litep/PROF、Foundation ImGui Layer、guest command trace、PM4/GPU指令证据与统一关联。**最新明确auto tag先不做；不改FEX、不加guest二进制探针。** 两个连续工作包，不拆微型spec。工具目前尚未补齐，不能将该规划写成实现状态；具体版本/命令/ABI/验收见spec。Citron本机6a86baf4未发布，远端仍2106bcd8；参考Foundation2b2683ff可取得，SDK保留原独立子仓来源。
+
 ## 最新：按键后 NP 账号查询故障（2026-09-14）
 
 [本轮修复及证据](docs/validation/android-native-host/np-offline-identity-fix-2026-09-14.md)：op56/GetAccountIdA Unsupported已关闭。桌面/guest共享离线身份规则，11查询＋2原有poll，SDK/signup快照、checked输出、库名/online准入。native339/0、x86 syntax2/2、APK真实FEX13接口同PID三轮PASS。真实TMNT已走到账号/online ID并返回SIGNED_OUT，继续账号存档读写；单轮120秒、主动Stop CANCELLED，但只有161 presents、截图黑屏，画面正确性/可玩仍未关闭。不要重报op56缺失，也不要将存活测试写成游戏验收。host/JNI仍RelWithDebInfo、FEXCore Release、playstoreDebug；保持网络SSL仅桌面离线策略，无全回归、FEX/Foundation不变。

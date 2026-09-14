@@ -1,0 +1,59 @@
+{
+  "date": "2026-09-14",
+  "kind": "read-only source audit; not runtime capability acceptance",
+  "citron_remote_branch_head": "2106bcd83844e05dfbb5251a902143233a7ec43b",
+  "citron_local_head_remote_status": "gh commit API 422; no remote tracking ref contains local HEAD; do not assume fetchable",
+  "groups": {
+    "citron": {
+      "head": "6a86baf4b6521ca3ee5b2f5e2a0ca6a8e6007cc0",
+      "files": {
+        "src/core/tools/renderdoc.cpp": "cfd7b83cb520ec105e7bc9012c2808bee84b4c19e7be9bf2486a07cbd715d607",
+        "src/core/tools/renderdoc.h": "5dd630252de7414f46fa8811342579996c480d0515944086fc4777dcdd8744dd",
+        "src/core/diagnostics/process_diagnostics.cpp": "09465bfbf01dc8d9903a18240644a41ebc5cd9f003c0b85c2b12bbb5b59650ed",
+        "src/common/profiler.cpp": "c994d278da0205e9b9b53664505e276182f168c7ee7ede688a3cf672ecccedeb",
+        "src/common/profiler.h": "3b0905e1cce457725da2861e9d82f744b50f60aaaf41991e56d2a704264409b6",
+        "src/core/debugging/guest_auto_tag.cpp": "70b369fc4482152e9c75f15990fa18955c7f67ef9627d0331612b5527d32fa24",
+        "src/core/debugging/guest_auto_tag.h": "69310e1e6de2b5a5e54ac3cbb420642bbfe92b604b3f342facc425b3e935bd7f",
+        "src/core/arm/dynarmic/arm_dynarmic_64.cpp": "ed7bbc32904f57a52677a2833e94c8ba74cf38c9326fff15a00cd30dd4734c41",
+        "src/video_core/maxwell_trace.cpp": "f3752756ce41a2f8780df5edb58173ad8d0cd65cff685c558892bd69012f126e",
+        "src/video_core/maxwell_trace.h": "a0002ae5c785589bb6a1306c4e5a160652c35db2cdf5c3532c414da36b11abd9",
+        "src/video_core/guest_command_trace.cpp": "2c237a227f9361ba8ff746606d73537b9f50da33793b388e331868ae1aba017c",
+        "src/video_core/guest_command_trace_binary.cpp": "0bab91fb8cc3b221e7c8098b92b44360edccd7646b111bca10df4b9cbd6f9c10",
+        "src/video_core/guest_command_trace_binary.h": "18a64b120368a5e991cb8ffa30ffe796498448088893e14a776ecf62eb1d10fb",
+        "src/video_core/renderdoc_scope.h": "8696f94bb088ec43973817c6574cc23fd8955524829f62e12aa1ec5b0c7c4b49",
+        "src/video_core/status_layer/status_layer.cpp": "096fc17fff87ba48a13feefb701fd31fb137d91b9f7034d467ede2ec4b3ba9b0",
+        "src/video_core/renderer_vulkan/vk_status_layer.cpp": "ec92694e8b351a8af27b86ddff71604e3da94b9bc845ef44ec0a1b6a6af141b5",
+        "src/video_core/renderer_vulkan/vk_profiler.cpp": "4d0d8f5242fb6d58e160a1a523dd1cd903a5de29b41e052a43323fbd42380cdb"
+      }
+    },
+    "foundation_reference": {
+      "head": "2b2683ff765e8aee90e7f8eca66d2476591094f9",
+      "files": {
+        "docs/guides/profiler-ringbuffer.md": "6d56380ce210e4ff4aae9a2bb89472474d7e8f5aa666798b09c580480ab3b859",
+        "docs/guides/emulator-gpu-evidence.md": "caa664c17e16778cd55b5fce8badcc2675d3738389ca2dab5719a32c6e23d393",
+        "basic/underlying/core/private/spatial/core/utils/ProfilerRing.cpp": "c6b8b9b90e4075c2a77e10a64269bf73036c353e8ad79786860f9170529a9479",
+        "basic/underlying/core/public/spatial/core/utils/ProfilerRing.h": "b496df5c8ef3789da8d863e0ad02c67336c565f81a3b4748141e766b56c5ea29",
+        "modules/debugbus/src/ProfilerCommands.cpp": "4a05bb649aa14740376473811053d417e4c60d4634dc3866c5c2f6bfbb141670",
+        "modules/imgui/public/spatial/imgui/LayerManager.hpp": "27bc71a67e8c83635da4862f42287b6098f4bd9f4362bf626aa60394fd8f95ea",
+        "tools/gpu-snapshot/snapshot.py": "6b4a8b846c469947f4998cfb364828dd56df8f7db04da69aa94e8aba3f598ddf"
+      }
+    },
+    "main": {
+      "head": "b382adddef58841e7171dbd981e04eb778abf2a9",
+      "files": {
+        "src/video_core/renderdoc.cpp": "459d766b42d82f74758361e4e4df2ee74d83e31af3c604a0e5561ada095b9024",
+        "src/video_core/amdgpu/liverpool.cpp": "1da9360a0a26195f6dc3155cdfbe23c32d1a604c8b1bad376668e259c51c28c6",
+        "src/core/host_runtime/guest_graphics_hle.cpp": "1495f0b8b86fa461c37be4c123f9ea16bcab12b0620ed38f23f638aae3d9c89b",
+        "src/imgui/renderer/imgui_core.cpp": "63d69f164c995587a378ee4492dab86ebaf76864e40a1d0cac087e332c5a8131",
+        "src/video_core/renderer_vulkan/vk_presenter.cpp": "9fb111b3cb8fbbac2d5564d76116d316a8c7a88d97b51b011f05e2a1300741bd",
+        "cmake/SpatialFoundation.cmake": "10f18003ef9b580c835f081d7a8bfedf7050041e2777706b4151ef7923ae0701",
+        "externals/CMakeLists.txt": "9944a02a48a0c4ac0055b46820605eb250ca5b03079489630190b2edfec7a256"
+      }
+    }
+  },
+  "profiler_sdk": {
+    "revision": "107a620a64b0ac91f49e5de37ffc6d486ec42378",
+    "remote": "git@code.byted.org:spatial/profiler_sdk.git",
+    "note": "Existing nested submodule; preserve ownership/access, do not publish its source to a different remote."
+  }
+}
