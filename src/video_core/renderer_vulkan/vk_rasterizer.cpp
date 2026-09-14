@@ -3,6 +3,7 @@
 
 #include "common/debug.h"
 #include "core/debug_state.h"
+#include "core/diagnostics/diagnostics_hub_registry.h"
 #include "core/emulator_settings.h"
 #include "core/memory.h"
 #include "shader_recompiler/runtime_info.h"
@@ -233,6 +234,8 @@ void Rasterizer::Draw(bool is_indexed, u32 index_offset) {
                     instance_offset);
     }
     DebugState.IncDrawCall();
+    Core::Diagnostics::DiagnosticsHub::Instance().Advance(
+        Core::Diagnostics::AdvanceSignal::HostDraw);
 
     ResetBindings();
 }
@@ -303,6 +306,8 @@ void Rasterizer::DrawIndirect(bool is_indexed, VAddr arg_address, u32 offset, u3
             cmdbuf.drawIndexedIndirect(buffer->Handle(), base, max_count, stride);
         }
         DebugState.IncDrawCall();
+    Core::Diagnostics::DiagnosticsHub::Instance().Advance(
+        Core::Diagnostics::AdvanceSignal::HostDraw);
     } else {
         ASSERT(sizeof(VkDrawIndirectCommand) == stride);
 
@@ -313,6 +318,8 @@ void Rasterizer::DrawIndirect(bool is_indexed, VAddr arg_address, u32 offset, u3
             cmdbuf.drawIndirect(buffer->Handle(), base, max_count, stride);
         }
         DebugState.IncDrawCall();
+    Core::Diagnostics::DiagnosticsHub::Instance().Advance(
+        Core::Diagnostics::AdvanceSignal::HostDraw);
     }
 
     ResetBindings();
@@ -345,6 +352,8 @@ void Rasterizer::DispatchDirect() {
     cmdbuf.bindPipeline(vk::PipelineBindPoint::eCompute, pipeline->Handle());
     cmdbuf.dispatch(cs_program.dim_x, cs_program.dim_y, cs_program.dim_z);
     DebugState.IncDispatch();
+    Core::Diagnostics::DiagnosticsHub::Instance().Advance(
+        Core::Diagnostics::AdvanceSignal::HostDraw);
 
     ResetBindings();
 }
@@ -378,6 +387,8 @@ void Rasterizer::DispatchIndirect(VAddr address, u32 offset, u32 size) {
     cmdbuf.bindPipeline(vk::PipelineBindPoint::eCompute, pipeline->Handle());
     cmdbuf.dispatchIndirect(buffer->Handle(), base);
     DebugState.IncDispatch();
+    Core::Diagnostics::DiagnosticsHub::Instance().Advance(
+        Core::Diagnostics::AdvanceSignal::HostDraw);
 
     ResetBindings();
 }

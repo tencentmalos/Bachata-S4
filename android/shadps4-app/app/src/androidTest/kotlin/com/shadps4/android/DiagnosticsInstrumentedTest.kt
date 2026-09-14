@@ -120,6 +120,7 @@ class DiagnosticsInstrumentedTest {
         var peakSubmit = 0L
         var peakPresent = 0L
         var peakPm4 = 0L
+        var peakDraw = 0L
         fun signal(status: String, name: String): Long =
             Regex("$name: (\\d+)").find(status)?.groupValues?.get(1)?.toLong() ?: 0L
         fun sample(status: String) {
@@ -128,6 +129,7 @@ class DiagnosticsInstrumentedTest {
             peakSubmit = maxOf(peakSubmit, signal(status, "queue_submit"))
             peakPresent = maxOf(peakPresent, signal(status, "host_present"))
             peakPm4 = maxOf(peakPm4, signal(status, "pm4_consumed"))
+            peakDraw = maxOf(peakDraw, signal(status, "host_draw"))
         }
         try {
             RuntimeTestSurface(instrumentation).use { window ->
@@ -144,10 +146,18 @@ class DiagnosticsInstrumentedTest {
                 // Final read after the terminal, before teardown revokes the publisher:
                 // the retained counts reflect the whole run, immune to poll timing.
                 sample(NativeFexSession.nativeDebugCommand("debug_status"))
+                // host_present is published from the async GPU present, which can land
+                // shortly after the guest returns. Give it a bounded settle window
+                // (the session stays registered until Destroy, triggered in finally).
+                val presentDeadline = SystemClock.uptimeMillis() + 3000
+                while (peakPresent < 1 && SystemClock.uptimeMillis() < presentDeadline) {
+                    sample(NativeFexSession.nativeDebugCommand("debug_status"))
+                    SystemClock.sleep(25)
+                }
                 val detail = NativeFexSession.nativeTerminalDetail(generation).orEmpty()
                 val detailPresents = signal(detail, "guest_presents")
                 android.util.Log.i("DiagnosticsAcceptance",
-                    "gpu-flip gen=$generation flip=$peakFlip submit=$peakSubmit present=$peakPresent pm4=$peakPm4 detailPresents=$detailPresents detail=$detail")
+                    "gpu-flip gen=$generation flip=$peakFlip submit=$peakSubmit present=$peakPresent pm4=$peakPm4 draw=$peakDraw detailPresents=$detailPresents detail=$detail")
                 assertTrue("saw active rendering session", sawActive)
                 assertTrue("graphics=ready: $detail", detail.contains("graphics=ready"))
                 // The synthetic gpu-flip presents real frames; the producers must
@@ -159,6 +169,12 @@ class DiagnosticsInstrumentedTest {
                 // authoritative guest_presents must show a real present.
                 assertTrue("host_present advanced (hub=$peakPresent detail=$detailPresents)",
                     peakPresent >= 1 || detailPresents >= 1)
+                // NOTE: host_draw stays 0 here by design -- the gpu-flip synthetic
+                // fixture's DCB is a PrepareFlip only and issues no draw packets, so
+                // Rasterizer::Draw is never called. The host_draw producer is wired at
+                // the real IncDrawCall/IncDispatch sites (verified by NDK compile);
+                // it is simply not exercised by a flip-only fixture. Logged, not asserted.
+                assertEquals("host_draw is 0 for a flip-only fixture (draw=$peakDraw)", 0L, peakDraw)
             }
         } finally {
             NativeFexSession.nativeRequestStop(NativeFexSession.nativeCurrentGeneration(), 1000)
