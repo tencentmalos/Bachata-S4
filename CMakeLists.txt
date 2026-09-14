@@ -971,6 +971,11 @@ set(CORE src/core/aerolib/stubs.cpp
          src/core/debug_state.h
          src/core/debugger.cpp
          src/core/debugger.h
+         src/core/diagnostics/diagnostics_hub.cpp
+         src/core/diagnostics/diagnostics_hub.h
+         src/core/diagnostics/diagnostics_hub_registry.cpp
+         src/core/diagnostics/diagnostics_hub_registry.h
+         src/core/diagnostics/trace_identity.h
          src/core/linker.cpp
          src/core/linker.h
          src/core/memory.cpp
@@ -1613,8 +1618,6 @@ if(BUILD_HOST_CORE)
         src/core/host_runtime/guest_ajm.cpp
         src/core/host_runtime/guest_graphics.cpp
         src/core/host_runtime/guest_graphics_hle.cpp
-        src/core/diagnostics/diagnostics_hub.cpp
-        src/core/diagnostics/diagnostics_hub_registry.cpp
         src/core/diagnostics/diagnostics_commands.cpp
         src/core/diagnostics/diagnostics_service.cpp)
     target_link_libraries(shadps4 PRIVATE spatial::foundation_input)

@@ -8,6 +8,7 @@
 #include "common/polyfill_thread.h"
 #include "common/thread.h"
 #include "core/debug_state.h"
+#include "core/diagnostics/diagnostics_hub_registry.h"
 #include "core/emulator_settings.h"
 #include "core/libraries/kernel/process.h"
 #include "core/libraries/videoout/driver.h"
@@ -172,6 +173,12 @@ void Liverpool::Process(std::stop_token stoken) {
                 queue.submits.pop();
 
                 --num_submits;
+                // One gfx/compute submission's PM4 has been fully consumed by the
+                // command processor (spec §3.1 Pm4Consumed). This is the actual
+                // submit-task drain path, not the control command_queue. No-op when
+                // no diagnostics session is registered (e.g. desktop).
+                Core::Diagnostics::DiagnosticsHub::Instance().Advance(
+                    Core::Diagnostics::AdvanceSignal::Pm4Consumed);
                 std::scoped_lock lock2{submit_mutex};
                 submit_cv.notify_all();
             }
