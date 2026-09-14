@@ -3,7 +3,18 @@
 
 #include "core/diagnostics/diagnostics_hub_registry.h"
 
+#include <chrono>
+
 namespace Core::Diagnostics {
+
+namespace {
+std::uint64_t MonotonicNs() {
+    return static_cast<std::uint64_t>(
+        std::chrono::duration_cast<std::chrono::nanoseconds>(
+            std::chrono::steady_clock::now().time_since_epoch())
+            .count());
+}
+}  // namespace
 
 DiagnosticsHub& DiagnosticsHub::Instance() {
     static DiagnosticsHub hub;
@@ -58,6 +69,28 @@ bool DiagnosticsHub::QuerySnapshot(DiagnosticsSnapshot& out, std::uint64_t now_n
 std::uint64_t DiagnosticsHub::ActiveGeneration() const {
     std::lock_guard lock(mtx_);
     return active_generation_;
+}
+
+void DiagnosticsHub::Advance(AdvanceSignal signal, std::uint64_t delta) {
+    std::shared_ptr<DiagnosticsPublisher> publisher;
+    {
+        std::lock_guard lock(mtx_);
+        publisher = active_;
+    }
+    if (publisher) {
+        publisher->Advance(signal, MonotonicNs(), delta);
+    }
+}
+
+void DiagnosticsHub::PublishCount(AdvanceSignal signal, std::uint64_t absolute) {
+    std::shared_ptr<DiagnosticsPublisher> publisher;
+    {
+        std::lock_guard lock(mtx_);
+        publisher = active_;
+    }
+    if (publisher) {
+        publisher->PublishCount(signal, absolute, MonotonicNs());
+    }
 }
 
 }  // namespace Core::Diagnostics

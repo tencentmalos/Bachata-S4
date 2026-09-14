@@ -5,6 +5,7 @@
 #include <vector>
 #include "core/guest_cpu/api/address_space.h"
 #include "core/guest_cpu/hle/scope.h"
+#include "core/diagnostics/diagnostics_hub_registry.h"
 #include "core/libraries/gnmdriver/gnmdriver.h"
 #include "core/libraries/kernel/orbis_error.h"
 #include "core/libraries/videoout/driver.h"
@@ -301,9 +302,23 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
                     if (flip) {
                         if (ds.back() < 256 || dcbs.back()[dcbs.back().size() - 64] != 0xc03e1000)
                             return 0x80d11000u;
-                        return u32(GnmDriver::sceGnmSubmitAndFlipCommandBuffers(
+                        const u32 flip_result = u32(GnmDriver::sceGnmSubmitAndFlipCommandBuffers(
                             count, dp.data(), ds.data(), a[3] ? cp.data() : nullptr,
                             a[4] ? cs.data() : nullptr, a[5], a[6], a[7], a[8]));
+                        // A guest flip was accepted (spec §3.1 GuestFlip signal).
+                        // The gap between GuestFlip and HostPresent is the direct
+                        // black-screen diagnostic: guest asked, did the host present?
+                        if (flip_result == 0) {
+                            auto& hub = Diagnostics::DiagnosticsHub::Instance();
+                            hub.Advance(Diagnostics::AdvanceSignal::GuestFlip);
+                            // Publish the live host-present count too, so the two
+                            // signals stay in step per flip rather than only at
+                            // Run-return. guest_presents increments only on a real
+                            // Presenter::Present.
+                            hub.PublishCount(Diagnostics::AdvanceSignal::HostPresent,
+                                             graphics.VideoOut().guest_presents.load());
+                        }
+                        return flip_result;
                     }
                     return u32(GnmDriver::sceGnmSubmitCommandBuffers(
                         count, const_cast<const u32**>(dp.data()), ds.data(),

@@ -132,6 +132,30 @@ int main() {
         CHECK(&a == &b);  // same process-wide instance
     }
 
+    // --- convenience producer pushes: no-op when empty, apply to active ---
+    {
+        DiagnosticsHub hub;
+        // No active generation: convenience pushes must be safe no-ops.
+        hub.Advance(AdvanceSignal::GuestFlip);
+        hub.PublishCount(AdvanceSignal::HostPresent, 5);
+        DiagnosticsSnapshot snap;
+        CHECK(!hub.QuerySnapshot(snap, 0));
+
+        // With an active generation, they land on its publisher.
+        auto pub = hub.Register(3, 30);
+        hub.Advance(AdvanceSignal::GuestFlip);
+        hub.Advance(AdvanceSignal::GuestFlip, 2);
+        hub.PublishCount(AdvanceSignal::HostPresent, 9);
+        CHECK(hub.QuerySnapshot(snap, 0));
+        CHECK(snap.Counter(AdvanceSignal::GuestFlip).count == 3);
+        CHECK(snap.Counter(AdvanceSignal::HostPresent).count == 9);
+        // After revoke, pushes are no-ops again (don't resurrect a dead gen).
+        CHECK(hub.Revoke(3));
+        hub.Advance(AdvanceSignal::GuestFlip);
+        CHECK(!hub.QuerySnapshot(snap, 0));
+        (void)pub;
+    }
+
     std::printf("diagnostics_hub_registry: %u checks, %u failures\n", checks, failures);
     return failures == 0 ? 0 : 1;
 }

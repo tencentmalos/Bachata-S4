@@ -62,6 +62,18 @@ public:
     // the snapshot; callers pass a monotonic clock reading.
     bool QuerySnapshot(DiagnosticsSnapshot& out, std::uint64_t now_ns) const;
 
+    // Convenience producer push: advance a signal on the active publisher with an
+    // internal monotonic timestamp, or no-op if no generation is registered.
+    // Producers (present/submit/flip/PM4 sites) call this without holding a
+    // publisher reference, so there is no lifetime coupling to a generation. The
+    // hub lock is held only to copy the active shared_ptr, never across the push.
+    void Advance(AdvanceSignal signal, std::uint64_t delta = 1);
+
+    // Convenience producer push for an absolute mirrored counter (e.g.
+    // guest_presents), with an internal monotonic timestamp. No-op if no active
+    // generation.
+    void PublishCount(AdvanceSignal signal, std::uint64_t absolute);
+
     // The generation currently registered, or 0 if none.
     [[nodiscard]] std::uint64_t ActiveGeneration() const;
 
