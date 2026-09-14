@@ -61,7 +61,7 @@ int main() {
     {
         const std::string r = registry.Handle("renderdoc_status");
         CHECK(Has(r, "renderdoc_api_loaded:"));
-        CHECK(Has(r, "capture_backend: not-implemented"));
+        CHECK(Has(r, "capture_backend: coordinator"));
     }
 
     // --- overlay status: honest not-implemented + redraw counter ---
@@ -74,9 +74,24 @@ int main() {
         CHECK(Has(show, "status: not-implemented"));
     }
 
-    // --- pending commands never fake success ---
+    // --- renderdoc_capture is now a real coordinator command; with RenderDoc
+    //     absent (stub IsRenderDocLoaded=false) it arms then fails, never fakes success ---
     {
-        for (const char* name : {"renderdoc_capture", "profiler_ring", "profiler_capture",
+        const std::string r = registry.Handle("renderdoc_capture 2");
+        CHECK(Has(r, "state:"));
+        CHECK(Has(r, "requested_frames: 2"));
+        // RenderDoc not loaded in this test -> failed with a reason, not ready.
+        CHECK(Has(r, "state: failed"));
+        CHECK(!Has(r, "state: ready"));
+        const std::string st = registry.Handle("renderdoc_capture_status");
+        CHECK(Has(st, "state:"));
+        const std::string cancel = registry.Handle("renderdoc_capture_cancel");
+        CHECK(Has(cancel, "state:"));
+    }
+
+    // --- still-pending commands never fake success ---
+    {
+        for (const char* name : {"profiler_ring", "profiler_capture",
                                  "performance_capture", "guest_command_trace",
                                  "gpu_command_trace", "guest_screenshot"}) {
             const std::string r = registry.Handle(name);

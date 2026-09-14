@@ -1117,6 +1117,12 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame) {
     if (!is_reusing_frame) {
         DebugState.IncFlipFrameNum();
     }
+    if (presented) {
+        // A frame was provably presented to the swapchain: advance any armed
+        // RenderDoc capture at this frame boundary (spec §3.2). No-op when nothing
+        // is armed.
+        VideoCore::NotifyPresentBoundary();
+    }
     return presented;
 }
 

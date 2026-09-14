@@ -27,6 +27,17 @@ void SetOutputDir(const std::filesystem::path& path, const std::string& prefix);
 /// Returns true when RenderDoc API was loaded and is usable.
 bool IsRenderDocLoaded();
 
+/// The process-wide capture coordinator (spec §3.2), backed by the loaded
+/// RenderDoc API. Arm/Query/Cancel drive request/receipt captures; the presenter
+/// calls its OnFrameBoundary after a provable present. Valid for the process
+/// lifetime.
+class CaptureCoordinator;
+[[nodiscard]] CaptureCoordinator& GetCaptureCoordinator();
+
+/// Called by the presenter after a successful present, so an armed capture
+/// advances at a provable frame boundary. Cheap no-op when no capture is armed.
+void NotifyPresentBoundary();
+
 enum class ScreenshotRequest : u32 {
     None = 0,
     GameOnly = 1,

@@ -1210,6 +1210,8 @@ set(VIDEO_CORE src/video_core/amdgpu/cb_db_extent.h
                src/video_core/multi_level_page_table.h
                src/video_core/renderdoc.cpp
                src/video_core/renderdoc.h
+               src/video_core/renderdoc_capture.cpp
+               src/video_core/renderdoc_capture.h
 )
 
 set(IMGUI src/imgui/imgui_config.h
@@ -1717,6 +1719,13 @@ if(BUILD_HOST_CORE)
         target_include_directories(diagnostics_service_tests PRIVATE src)
         target_include_directories(diagnostics_service_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
         target_compile_definitions(diagnostics_service_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        # RenderDoc capture coordinator state machine (spec §3.2); backend-injected,
+        # no RenderDoc library needed.
+        add_executable(renderdoc_capture_tests tests/host_runtime/renderdoc_capture_tests.cpp
+            src/video_core/renderdoc_capture.cpp)
+        target_include_directories(renderdoc_capture_tests PRIVATE src)
+        target_include_directories(renderdoc_capture_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(renderdoc_capture_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         add_executable(host_library_smoke tests/host_runtime/host_library_smoke.cpp)
         target_link_libraries(host_library_smoke PRIVATE shadps4_host)
         target_include_directories(host_library_smoke PRIVATE src)

@@ -3,6 +3,7 @@
 
 #include "core/diagnostics/diagnostics_commands.h"
 
+#include <cstdlib>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -12,6 +13,7 @@
 #include "core/diagnostics/diagnostics_hub.h"
 #include "core/diagnostics/diagnostics_hub_registry.h"
 #include "video_core/renderdoc.h"
+#include "video_core/renderdoc_capture.h"
 
 namespace Core::Diagnostics {
 namespace {
@@ -66,6 +68,35 @@ std::string NotImplemented(std::string_view command) {
     return out.str();
 }
 
+// Formats a RenderDoc capture receipt (spec §3.2). Ready always includes the
+// stable file path; failure includes the reason. Never claims Ready without a path.
+std::string FormatReceipt(const VideoCore::CaptureReceipt& r) {
+    std::ostringstream out;
+    out << "request_id: " << r.request_id << "\n";
+    out << "state: " << VideoCore::ToString(r.state) << "\n";
+    out << "requested_frames: " << r.requested_frames << "\n";
+    out << "captures_before: " << r.num_captures_before << "\n";
+    out << "captures_after: " << r.num_captures_after << "\n";
+    if (!r.run_uuid.empty()) {
+        out << "run_uuid: " << r.run_uuid << "\n";
+    }
+    if (!r.capture_uuid.empty()) {
+        out << "capture_uuid: " << r.capture_uuid << "\n";
+    }
+    if (r.state == VideoCore::CaptureRequestState::Ready) {
+        out << "file: " << r.file_path << "\n";
+        out << "timestamp: " << r.capture_timestamp << "\n";
+    }
+    if (!r.failure_reason.empty()) {
+        out << "failure_reason: " << r.failure_reason << "\n";
+    }
+    return out.str();
+}
+
+std::uint64_t NowNs(const MonotonicClockNs& clock) {
+    return clock ? clock() : 0;
+}
+
 }  // namespace
 
 void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& registry,
@@ -87,8 +118,51 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
             std::ostringstream out;
             out << "renderdoc_api_loaded: " << (VideoCore::IsRenderDocLoaded() ? "true" : "false")
                 << "\n";
-            out << "capture_backend: not-implemented\n";
+            out << "capture_backend: coordinator\n";
             return out.str();
+        });
+
+    // renderdoc_capture [frames]: arm a request/receipt capture (spec §3.2). The
+    // coordinator advances at real present boundaries; this returns the initial
+    // receipt (armed, or failed if RenderDoc is absent).
+    registry.Register(
+        "renderdoc_capture", "renderdoc_capture [frames] -- arm a frame capture",
+        [&hub, clock](const std::vector<std::string>& args) {
+            u32 frames = 1;
+            if (!args.empty()) {
+                frames = static_cast<u32>(std::strtoul(args.front().c_str(), nullptr, 10));
+                if (frames < 1) {
+                    frames = 1;
+                }
+            }
+            DiagnosticsSnapshot snap;
+            hub.QuerySnapshot(snap, NowNs(clock));
+            const auto r = VideoCore::GetCaptureCoordinator().Arm(
+                frames, snap.run_uuid, snap.run_uuid.empty() ? std::string{} : (snap.run_uuid + ":cap"),
+                NowNs(clock));
+            return FormatReceipt(r);
+        });
+
+    // renderdoc_capture_status [request_id]: query the current or a specific
+    // request's receipt without blocking.
+    registry.Register(
+        "renderdoc_capture_status", "renderdoc_capture_status [request_id]",
+        [clock](const std::vector<std::string>& args) {
+            auto& coord = VideoCore::GetCaptureCoordinator();
+            if (args.empty()) {
+                return FormatReceipt(coord.Query(NowNs(clock)));
+            }
+            const auto id = std::strtoull(args.front().c_str(), nullptr, 10);
+            return FormatReceipt(coord.Query(id, NowNs(clock)));
+        });
+
+    // renderdoc_capture_cancel: cancel the active request.
+    registry.Register(
+        "renderdoc_capture_cancel", "renderdoc_capture_cancel -- cancel the active capture",
+        [clock](const std::vector<std::string>&) {
+            auto& coord = VideoCore::GetCaptureCoordinator();
+            coord.Cancel();
+            return FormatReceipt(coord.Query(NowNs(clock)));
         });
 
     // overlay status: overlay redraw counter from the hub. show/hide need the
@@ -112,9 +186,6 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
     // Commands whose backends are not built yet. Registered so help/schema is
     // complete and callers get an honest, uniform reply -- never a faked success.
     static constexpr const char* kPending[] = {
-        "renderdoc_capture",
-        "renderdoc_capture_status",
-        "renderdoc_capture_cancel",
         "guest_screenshot",
         "guest_screenshot_status",
         "profiler_ring",

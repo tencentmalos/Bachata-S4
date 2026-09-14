@@ -61,13 +61,27 @@ class DiagnosticsInstrumentedTest {
                 assertTrue("$signal listed: $status", status.contains("$signal:"))
             }
 
-            // renderdoc_status works; capture backend honestly not implemented.
+            // renderdoc_status works; the capture coordinator is wired.
             val rdoc = NativeFexSession.nativeDebugCommand("renderdoc_status")
             assertTrue("rdoc: $rdoc", rdoc.contains("renderdoc_api_loaded:"))
-            assertTrue("rdoc capture: $rdoc", rdoc.contains("capture_backend: not-implemented"))
+            assertTrue("rdoc capture backend: $rdoc", rdoc.contains("capture_backend: coordinator"))
 
-            // Pending commands never fake success.
-            for (cmd in listOf("renderdoc_capture", "profiler_ring", "gpu_command_trace")) {
+            // renderdoc_capture is a real request/receipt command now (spec §3.2).
+            // RenderDoc is not injected on this device, so it must honestly report a
+            // failed receipt with a reason -- never a faked ready/capture file.
+            val cap = NativeFexSession.nativeDebugCommand("renderdoc_capture 1")
+            android.util.Log.i("DiagnosticsAcceptance", "renderdoc_capture:\n$cap")
+            assertTrue("capture has a receipt state: $cap", cap.contains("state:"))
+            assertTrue("capture requested_frames: $cap", cap.contains("requested_frames: 1"))
+            assertTrue("capture failed without RenderDoc: $cap", cap.contains("state: failed"))
+            assertFalse("capture not faked ready: $cap", cap.contains("state: ready"))
+            assertTrue("capture reason names RenderDoc: $cap",
+                cap.contains("RenderDoc API not loaded"))
+            val capStatus = NativeFexSession.nativeDebugCommand("renderdoc_capture_status")
+            assertTrue("capture status has a receipt: $capStatus", capStatus.contains("state:"))
+
+            // Still-pending commands never fake success.
+            for (cmd in listOf("profiler_ring", "gpu_command_trace")) {
                 val r = NativeFexSession.nativeDebugCommand(cmd)
                 assertTrue("$cmd not-implemented: $r", r.contains("status: not-implemented"))
                 assertFalse("$cmd not ready: $r", r.contains("ready"))

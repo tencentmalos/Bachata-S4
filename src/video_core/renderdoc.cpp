@@ -4,8 +4,10 @@
 #include "common/logging/formatter.h"
 #include "core/emulator_settings.h"
 #include "video_core/renderdoc.h"
+#include "video_core/renderdoc_capture.h"
 
 #include <atomic>
+#include <chrono>
 #include <renderdoc_app.h>
 
 #ifdef _WIN32
@@ -166,6 +168,72 @@ void SetOutputDir(const std::filesystem::path& path, const std::string& prefix) 
 bool IsRenderDocLoaded() {
     return rdoc_api != nullptr;
 }
+
+namespace {
+// Production backend adapter over the loaded RenderDoc API. Uses the top-level
+// device/window (nullptr) capture like the legacy Start/EndCapture; the coordinator
+// only sequences requests and reads back the capture list.
+class RdocApiBackend final : public IRenderDocBackend {
+public:
+    bool IsLoaded() const override {
+        return rdoc_api != nullptr;
+    }
+    u32 GetNumCaptures() override {
+        return rdoc_api ? rdoc_api->GetNumCaptures() : 0;
+    }
+    void StartFrameCapture() override {
+        if (rdoc_api) {
+            rdoc_api->StartFrameCapture(nullptr, nullptr);
+        }
+    }
+    bool EndFrameCapture() override {
+        if (!rdoc_api) {
+            return false;
+        }
+        // EndFrameCapture returns 1 if a capture was in progress.
+        return rdoc_api->EndFrameCapture(nullptr, nullptr) == 1;
+    }
+    bool GetCapture(u32 idx, std::string& path, u64& timestamp) override {
+        if (!rdoc_api) {
+            return false;
+        }
+        u32 path_len = 0;
+        // First call: query the required path length.
+        if (rdoc_api->GetCapture(idx, nullptr, &path_len, nullptr) != 1 || path_len == 0) {
+            return false;
+        }
+        std::string buf(path_len, '\0');
+        u64 ts = 0;
+        if (rdoc_api->GetCapture(idx, buf.data(), &path_len, &ts) != 1) {
+            return false;
+        }
+        // path_len includes the trailing NUL; trim it.
+        if (!buf.empty() && buf.back() == '\0') {
+            buf.pop_back();
+        }
+        path = std::move(buf);
+        timestamp = ts;
+        return true;
+    }
+};
+
+RdocApiBackend g_rdoc_backend;
+}  // namespace
+
+CaptureCoordinator& GetCaptureCoordinator() {
+    static CaptureCoordinator coordinator{g_rdoc_backend};
+    return coordinator;
+}
+
+void NotifyPresentBoundary() {
+    // Cheap: the coordinator internally no-ops unless a request is armed/capturing.
+    const u64 now_ns = static_cast<u64>(
+        std::chrono::duration_cast<std::chrono::nanoseconds>(
+            std::chrono::steady_clock::now().time_since_epoch())
+            .count());
+    GetCaptureCoordinator().OnFrameBoundary(now_ns);
+}
+
 
 void RequestScreenshot(const ScreenshotRequest request) {
     switch (request) {
