@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: Copyright 2024-2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#include "common/assert.h"
 #include "common/logging/formatter.h"
 #include "core/emulator_settings.h"
 #include "video_core/renderdoc.h"
@@ -24,16 +23,48 @@ enum class CaptureState {
     Triggered,
     InProgress,
 };
-static CaptureState capture_state{CaptureState::Idle};
+// Written from the input/UI thread (TriggerCapture) and the GPU thread
+// (StartCapture/EndCapture); a plain static here was a genuine cross-thread data
+// race. The transitions are a tiny state machine, so each is done with a
+// compare-exchange: every RenderDoc frame-capture call fires exactly once per
+// armed request even if two callers race.
+static std::atomic<CaptureState> capture_state{CaptureState::Idle};
 static std::atomic<u32> screenshot_game_only_count{0};
 static std::atomic<u32> screenshot_with_overlays_count{0};
 
 RENDERDOC_API_1_6_0* rdoc_api{};
 
-void LoadRenderDoc() {
-#ifdef WIN32
+// Runs the RENDERDOC_GetAPI handshake against an obtained module handle and
+// publishes rdoc_api on success. Fail-safe: a missing symbol or a rejected API
+// version leaves rdoc_api null and logs, rather than aborting the process. The
+// old code asserted ret == 1, which turned a benign version mismatch on a user's
+// device into a hard crash.
+static void ResolveRenderDocApi(void* mod) {
+    if (!mod) {
+        return;
+    }
+#ifdef _WIN32
+    const auto get_api = reinterpret_cast<pRENDERDOC_GetAPI>(
+        GetProcAddress(static_cast<HMODULE>(mod), "RENDERDOC_GetAPI"));
+#else
+    const auto get_api = reinterpret_cast<pRENDERDOC_GetAPI>(dlsym(mod, "RENDERDOC_GetAPI"));
+#endif
+    if (!get_api) {
+        LOG_ERROR(Render, "RenderDoc module found but RENDERDOC_GetAPI is missing");
+        return;
+    }
+    RENDERDOC_API_1_6_0* api{};
+    const s32 ret = get_api(eRENDERDOC_API_Version_1_6_0, reinterpret_cast<void**>(&api));
+    if (ret != 1 || api == nullptr) {
+        LOG_ERROR(Render, "RenderDoc GetAPI(1.6.0) rejected: ret={}", ret);
+        return;
+    }
+    rdoc_api = api;
+}
 
-    // Check if we are running by RDoc GUI
+void LoadRenderDoc() {
+#ifdef _WIN32
+    // If the RenderDoc GUI launched us, renderdoc.dll is already resident.
     HMODULE mod = GetModuleHandleA("renderdoc.dll");
     if (!mod && EmulatorSettings.IsRenderdocEnabled()) {
         // If enabled in config, try to load RDoc runtime in offline mode
@@ -56,32 +87,27 @@ void LoadRenderDoc() {
         const auto path_to_lib = path.generic_string();
         mod = LoadLibraryA(path_to_lib.c_str());
     }
-
-    if (mod) {
-        const auto RENDERDOC_GetAPI =
-            reinterpret_cast<pRENDERDOC_GetAPI>(GetProcAddress(mod, "RENDERDOC_GetAPI"));
-        const s32 ret = RENDERDOC_GetAPI(eRENDERDOC_API_Version_1_6_0, (void**)&rdoc_api);
-        ASSERT(ret == 1);
-    }
+    ResolveRenderDocApi(mod);
 #else
 #ifdef ANDROID
     static constexpr const char RENDERDOC_LIB[] = "libVkLayer_GLES_RenderDoc.so";
 #else
     static constexpr const char RENDERDOC_LIB[] = "librenderdoc.so";
 #endif
-    // Check if we are running by RDoc GUI
+    // If the RenderDoc layer is already injected (GUI launch or Android capture
+    // layer), the library is resident and RTLD_NOLOAD returns its handle. The old
+    // code only resolved the API on the offline-load branch, so an already-loaded
+    // RenderDoc -- the normal capture case -- left rdoc_api null and every capture
+    // silently no-opped. Resolve the API for the resident handle too.
     void* mod = dlopen(RENDERDOC_LIB, RTLD_NOW | RTLD_NOLOAD);
     if (!mod && EmulatorSettings.IsRenderdocEnabled()) {
         // If enabled in config, try to load RDoc runtime in offline mode
-        if ((mod = dlopen(RENDERDOC_LIB, RTLD_NOW))) {
-            const auto RENDERDOC_GetAPI =
-                reinterpret_cast<pRENDERDOC_GetAPI>(dlsym(mod, "RENDERDOC_GetAPI"));
-            const s32 ret = RENDERDOC_GetAPI(eRENDERDOC_API_Version_1_6_0, (void**)&rdoc_api);
-            ASSERT(ret == 1);
-        } else {
+        mod = dlopen(RENDERDOC_LIB, RTLD_NOW);
+        if (!mod) {
             LOG_ERROR(Render, "Cannot load RenderDoc: {}", dlerror());
         }
     }
+    ResolveRenderDocApi(mod);
 #endif
     if (rdoc_api) {
         // Disable default capture keys as they suppose to trigger present-to-present capturing
@@ -98,9 +124,12 @@ void StartCapture() {
         return;
     }
 
-    if (capture_state == CaptureState::Triggered) {
+    // Only the thread that wins Triggered -> InProgress issues StartFrameCapture,
+    // so a racing GPU-thread call cannot double-start a capture.
+    CaptureState expected = CaptureState::Triggered;
+    if (capture_state.compare_exchange_strong(expected, CaptureState::InProgress,
+                                              std::memory_order_acq_rel)) {
         rdoc_api->StartFrameCapture(nullptr, nullptr);
-        capture_state = CaptureState::InProgress;
     }
 }
 
@@ -109,16 +138,21 @@ void EndCapture() {
         return;
     }
 
-    if (capture_state == CaptureState::InProgress) {
+    // Symmetric to StartCapture: exactly one InProgress -> Idle winner ends the
+    // capture.
+    CaptureState expected = CaptureState::InProgress;
+    if (capture_state.compare_exchange_strong(expected, CaptureState::Idle,
+                                              std::memory_order_acq_rel)) {
         rdoc_api->EndFrameCapture(nullptr, nullptr);
-        capture_state = CaptureState::Idle;
     }
 }
 
 void TriggerCapture() {
-    if (capture_state == CaptureState::Idle) {
-        capture_state = CaptureState::Triggered;
-    }
+    // Arm a capture only from the idle state; a second trigger while a capture is
+    // already armed or running is ignored rather than clobbering the state.
+    CaptureState expected = CaptureState::Idle;
+    capture_state.compare_exchange_strong(expected, CaptureState::Triggered,
+                                          std::memory_order_acq_rel);
 }
 
 void SetOutputDir(const std::filesystem::path& path, const std::string& prefix) {
