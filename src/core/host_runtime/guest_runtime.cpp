@@ -2767,4 +2767,8 @@ std::string GuestRuntime::OperationName(u64 operation) const {
     const auto found = impl->operation_names.find(operation);
     return found == impl->operation_names.end() ? std::string{} : found->second;
 }
+u64 GuestRuntime::PresentCount() const {
+    std::scoped_lock lock(impl->graphics_mutex);
+    return impl->graphics ? impl->graphics->VideoOut().guest_presents.load() : 0;
+}
 } // namespace Core::HostRuntime

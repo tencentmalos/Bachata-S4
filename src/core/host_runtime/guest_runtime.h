@@ -37,6 +37,11 @@ public:
     GuestCpu::Status WaitStopped(std::uint64_t timeout_ns);
     std::string Diagnostics() const;
     std::string OperationName(std::uint64_t operation) const;
+    // Current successful host-present count (mirrors VideoOutDriver::guest_presents).
+    // Returns 0 when graphics has not been created. Read under the graphics lock;
+    // safe to call from the session thread. Feeds the DiagnosticsHub HostPresent
+    // signal without exposing the internal VideoOut driver.
+    std::uint64_t PresentCount() const;
 
 private:
     struct Impl;

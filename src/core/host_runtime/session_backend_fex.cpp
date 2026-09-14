@@ -7,7 +7,9 @@
 
 #include <array>
 #include <atomic>
+#include <chrono>
 #include <cstdint>
+#include <memory>
 #include <mutex>
 #include <unordered_map>
 #include <unordered_set>
@@ -15,6 +17,7 @@
 #if defined(__ANDROID__)
 #include <android/log.h>
 #endif
+#include <unistd.h>
 
 #include "core/guest_cpu/api/address_space.h"
 #include "core/guest_cpu/api/context.h"
@@ -24,6 +27,8 @@
 #include "core/guest_cpu/api/result.h"
 #include "core/guest_cpu/api/status.h"
 #include "core/host_runtime/session_backend_fex.h"
+#include "core/diagnostics/diagnostics_hub.h"
+#include "core/diagnostics/diagnostics_hub_registry.h"
 #if defined(SHADPS4_TYPED_HLE_HOST)
 #include "core/guest_cpu/fex/fex_context.h"
 #include "core/host_runtime/guest_runtime.h"
@@ -39,6 +44,14 @@ void RuntimeStage(const char* stage) {
 #if defined(__ANDROID__)
     __android_log_print(ANDROID_LOG_INFO, "ProductionRuntime", "%s", stage);
 #endif
+}
+
+// Monotonic nanoseconds for DiagnosticsHub advance timestamps.
+std::uint64_t MonotonicNs() {
+    return static_cast<std::uint64_t>(
+        std::chrono::duration_cast<std::chrono::nanoseconds>(
+            std::chrono::steady_clock::now().time_since_epoch())
+            .count());
 }
 std::atomic<std::uint64_t> next_stop_ticket{1};
 constexpr std::uint64_t kReservationSize = std::uint64_t{1} << 28;
@@ -81,6 +94,12 @@ struct FexSessionRuntime final : SessionRuntime {
     std::mutex ticket_mtx;
     std::unordered_set<std::uint64_t> production_tickets;
     std::unordered_map<std::uint64_t, InterruptTicket> tickets;
+
+    // DiagnosticsHub publisher for this generation (spec §3.1). Registered at
+    // Prepare, revoked at Destroy. Producers push stage/present advances into it;
+    // a null publisher (registration failed) makes every push a no-op.
+    std::uint64_t generation{0};
+    std::shared_ptr<Diagnostics::DiagnosticsPublisher> diag;
 };
 
 } // namespace
@@ -139,6 +158,16 @@ Result<std::shared_ptr<SessionRuntime>> FexSessionBackend::Prepare(
         rt->production->Prepare(params.executable_path, modules);
         RuntimeStage("prepare: ready");
         rt->args = {params.executable_path};
+        // Publish this generation to the DiagnosticsHub so debug_status/ImGui can
+        // read non-blocking status. GPU retire has no timestamp-query backend yet,
+        // so it is marked unavailable rather than reported as 0.
+        rt->generation = params.generation;
+        rt->diag = Diagnostics::DiagnosticsHub::Instance().Register(
+            params.generation, static_cast<std::uint64_t>(::getpid()));
+        if (rt->diag) {
+            rt->diag->MarkAvailable(Diagnostics::AdvanceSignal::GpuRetire, false);
+            rt->diag->SetStage("ready");
+        }
         return std::shared_ptr<SessionRuntime>(std::move(rt));
     }
 #endif
@@ -237,6 +266,14 @@ RunReport FexSessionBackend::Run(SessionRuntime& runtime) {
             }
         }
         report.detail += "\n" + rt.production->Diagnostics();
+        // Mirror the successful-present count into the DiagnosticsHub HostPresent
+        // signal (spec §3.1). guest_presents increments only on a real
+        // Presenter::Present, so this is a genuine advance, not a heartbeat.
+        if (rt.diag) {
+            rt.diag->PublishCount(Diagnostics::AdvanceSignal::HostPresent,
+                                  rt.production->PresentCount(), MonotonicNs());
+            rt.diag->SetStage("returned");
+        }
         return report;
     }
 #endif
@@ -341,6 +378,13 @@ Status FexSessionBackend::WaitStopped(SessionRuntime& runtime, const StopTicket&
 
 void FexSessionBackend::Destroy(SessionRuntime& runtime) {
     auto& rt = static_cast<FexSessionRuntime&>(runtime);
+    // Revoke this generation from the DiagnosticsHub before tearing down. Revoke
+    // is generation-checked, so a newer session that already registered is
+    // untouched. Drop our publisher reference after.
+    if (rt.generation) {
+        (void)Diagnostics::DiagnosticsHub::Instance().Revoke(rt.generation);
+    }
+    rt.diag.reset();
 #if defined(SHADPS4_TYPED_HLE_HOST)
     rt.production.reset();
 #endif
