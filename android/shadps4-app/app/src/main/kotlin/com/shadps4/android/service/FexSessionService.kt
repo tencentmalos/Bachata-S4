@@ -46,6 +46,23 @@ class FexSessionService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
+    /**
+     * Routes `adb shell dumpsys` for this service into the native diagnostics toolkit
+     * (spec §3.1). `adb shell dumpsys activity service com.shadps4.android/.service.FexSessionService
+     * <cmd>` reaches nativeDebugCommand and the same DebugCommandRegistry the app JNI uses.
+     * With no args, emits debug_status; otherwise the joined args are the command
+     * (e.g. "renderdoc_status", "overlay status"). Status commands read a non-blocking
+     * DiagnosticsHub snapshot, so this never blocks the dumping thread on the session.
+     */
+    override fun dump(fd: java.io.FileDescriptor, writer: java.io.PrintWriter, args: Array<out String>?) {
+        val command = if (args.isNullOrEmpty()) "debug_status" else args.joinToString(" ")
+        try {
+            writer.println(NativeFexSession.nativeDebugCommand(command))
+        } catch (t: Throwable) {
+            writer.println("debug-command-error: ${t.message}")
+        }
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             ManagedSession.ACTION_START -> handleStart(intent, startId)

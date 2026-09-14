@@ -223,6 +223,18 @@ Result<std::shared_ptr<SessionRuntime>> FexSessionBackend::Prepare(
         return th_r.GetError();
     rt->thread = th_r.Value();
 
+    // The CPU-smoke path also registers with the DiagnosticsHub so debug_status
+    // reflects a real generation/run_uuid/stage. Graphics advance signals stay 0
+    // here (no GuestGraphics), which is correct: smoke does not present.
+    rt->generation = params.generation;
+    rt->diag = Diagnostics::DiagnosticsHub::Instance().Register(
+        params.generation, static_cast<std::uint64_t>(::getpid()));
+    if (rt->diag) {
+        rt->diag->MarkAvailable(Diagnostics::AdvanceSignal::GpuRetire, false);
+        rt->diag->SetRunUuid(Diagnostics::MakeRunUuid());
+        rt->diag->SetStage("cpu-smoke");
+    }
+
     return std::shared_ptr<SessionRuntime>(std::move(rt));
 } catch (const std::bad_alloc&) {
     return MakeError(ErrorCategory::OutOfMemory, "FexSessionBackend::Prepare",
