@@ -43,6 +43,7 @@ struct GuestGraphics::Impl : Libraries::Kernel::SessionEqueues {
         auto it = queues.find(handle);
         return it == queues.end() || it->second.deleted ? nullptr : it->second.queue.get();
     }
+    std::shared_ptr<Diagnostics::DiagnosticsPublisher> diagnostics{Diagnostics::DiagnosticsHub::Instance().Acquire()};
     std::shared_ptr<Frontend::Window> window;
     Platform::IrqController irq;
     Platform::IrqC::Binding irq_binding{irq};
@@ -89,6 +90,13 @@ GuestGraphics::GuestGraphics(std::shared_ptr<Frontend::Window> window,
                              std::function<void()> fault_notify)
     : impl(std::make_unique<Impl>(std::move(window))) {
     impl->fault_notify = std::move(fault_notify);
+    if (impl->diagnostics) {
+        for (auto signal : {Diagnostics::AdvanceSignal::GuestFlip, Diagnostics::AdvanceSignal::GuestSubmission,
+                            Diagnostics::AdvanceSignal::Pm4Consumed, Diagnostics::AdvanceSignal::HostDraw,
+                            Diagnostics::AdvanceSignal::QueueSubmit, Diagnostics::AdvanceSignal::HostPresent})
+            impl->diagnostics->MarkAvailable(signal, true);
+        impl->diagnostics->SetDriverIdentity(driver ? driver->identity : "unavailable");
+    }
     liverpool = std::make_unique<AmdGpu::Liverpool>();
     liverpool->fault_handler = [this](std::exception_ptr error) { impl->Fail(error); };
     liverpool->UseOwnedSubmissions();
@@ -113,6 +121,9 @@ GuestGraphics::GuestGraphics(std::shared_ptr<Frontend::Window> window,
         });
 }
 GuestGraphics::~GuestGraphics() = default;
+std::shared_ptr<Diagnostics::DiagnosticsPublisher> GuestGraphics::DiagnosticsPublisher() const {
+    return impl->diagnostics;
+}
 void GuestGraphics::RequestStop() {
     impl->Stop();
 }

@@ -1,0 +1,14 @@
+{
+"schema":"shadps4.renderdoc.v1",
+"run_uuid":"697a9745cf360ce38a6ffad319609d18",
+"capture_uuid":"697a9745cf360ce38a6ffad319609d18:1:1",
+"generation":"1",
+"request_id":"1",
+"first_present":"876",
+"last_present":"877",
+"coverage":"host_present_interval",
+"guest_frame_equivalence":"unverified",
+"driver":"25.99.99",
+"size":"223818013",
+"sha256":"9ee847367cc38db45fa839293d0ed24d74b2b720ffa7c43edd6570ea6533d83b"
+}

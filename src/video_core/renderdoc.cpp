@@ -1,239 +1,203 @@
 // SPDX-FileCopyrightText: Copyright 2024-2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
-
-#include "common/logging/formatter.h"
-#include "core/emulator_settings.h"
 #include "video_core/renderdoc.h"
 #include "video_core/renderdoc_capture.h"
-
-#include <atomic>
-#include <chrono>
+#include "core/emulator_settings.h"
+#include "core/diagnostics/diagnostics_hub_registry.h"
+#include "core/diagnostics/trace_identity.h"
+#include "common/logging/formatter.h"
+#include "common/path_util.h"
 #include <renderdoc_app.h>
-
+#include <openssl/sha.h>
+#include <atomic>
+#include <array>
+#include <fstream>
+#include <sstream>
+#include <mutex>
 #ifdef _WIN32
 #include <windows.h>
 #else
 #include <dlfcn.h>
 #endif
 
-#include <filesystem>
-
 namespace VideoCore {
-
-enum class CaptureState {
-    Idle,
-    Triggered,
-    InProgress,
-};
-// Written from the input/UI thread (TriggerCapture) and the GPU thread
-// (StartCapture/EndCapture); a plain static here was a genuine cross-thread data
-// race. The transitions are a tiny state machine, so each is done with a
-// compare-exchange: every RenderDoc frame-capture call fires exactly once per
-// armed request even if two callers race.
-static std::atomic<CaptureState> capture_state{CaptureState::Idle};
-static std::atomic<u32> screenshot_game_only_count{0};
-static std::atomic<u32> screenshot_with_overlays_count{0};
-
-RENDERDOC_API_1_6_0* rdoc_api{};
-
-// Runs the RENDERDOC_GetAPI handshake against an obtained module handle and
-// publishes rdoc_api on success. Fail-safe: a missing symbol or a rejected API
-// version leaves rdoc_api null and logs, rather than aborting the process. The
-// old code asserted ret == 1, which turned a benign version mismatch on a user's
-// device into a hard crash.
-static void ResolveRenderDocApi(void* mod) {
-    if (!mod) {
-        return;
-    }
-#ifdef _WIN32
-    const auto get_api = reinterpret_cast<pRENDERDOC_GetAPI>(
-        GetProcAddress(static_cast<HMODULE>(mod), "RENDERDOC_GetAPI"));
-#else
-    const auto get_api = reinterpret_cast<pRENDERDOC_GetAPI>(dlsym(mod, "RENDERDOC_GetAPI"));
-#endif
-    if (!get_api) {
-        LOG_ERROR(Render, "RenderDoc module found but RENDERDOC_GetAPI is missing");
-        return;
-    }
-    RENDERDOC_API_1_6_0* api{};
-    const s32 ret = get_api(eRENDERDOC_API_Version_1_6_0, reinterpret_cast<void**>(&api));
-    if (ret != 1 || api == nullptr) {
-        LOG_ERROR(Render, "RenderDoc GetAPI(1.6.0) rejected: ret={}", ret);
-        return;
-    }
-    rdoc_api = api;
+namespace {
+std::atomic<RENDERDOC_API_1_6_0*> loaded_api{};
+std::mutex loader_mutex;
+std::atomic<u32> screenshot_game_only_count{}, screenshot_with_overlays_count{};
+std::string FileStem(std::string text) {
+    for (char& c : text) if (c == ':') c = '_';
+    return text;
 }
-
+RENDERDOC_API_1_6_0* Api() { return loaded_api.load(std::memory_order_acquire); }
+}
 void LoadRenderDoc() {
+    std::lock_guard lock(loader_mutex);
+    if (Api()) return;
+    pRENDERDOC_GetAPI get{};
 #ifdef _WIN32
-    // If the RenderDoc GUI launched us, renderdoc.dll is already resident.
-    HMODULE mod = GetModuleHandleA("renderdoc.dll");
+    auto mod = GetModuleHandleA("renderdoc.dll");
     if (!mod && EmulatorSettings.IsRenderdocEnabled()) {
-        // If enabled in config, try to load RDoc runtime in offline mode
-        HKEY h_reg_key;
-        LONG result = RegOpenKeyExW(HKEY_LOCAL_MACHINE,
-                                    L"SOFTWARE\\Classes\\RenderDoc.RDCCapture.1\\DefaultIcon\\", 0,
-                                    KEY_READ, &h_reg_key);
-        if (result != ERROR_SUCCESS) {
-            return;
+        HKEY key{};
+        if (RegOpenKeyExW(HKEY_LOCAL_MACHINE,
+                L"SOFTWARE\\Classes\\RenderDoc.RDCCapture.1\\DefaultIcon", 0, KEY_READ, &key) == ERROR_SUCCESS) {
+            std::array<wchar_t, MAX_PATH> value{};
+            DWORD size = sizeof(value), type{};
+            const auto result = RegQueryValueExW(key, L"", nullptr, &type,
+                reinterpret_cast<LPBYTE>(value.data()), &size);
+            RegCloseKey(key);
+            if (result == ERROR_SUCCESS && (type == REG_SZ || type == REG_EXPAND_SZ)) {
+                value.back() = 0;
+                std::wstring icon{value.data()};
+                if (auto comma = icon.rfind(L','); comma != std::wstring::npos) icon.resize(comma);
+                if (icon.size() >= 2 && icon.front() == L'"' && icon.back() == L'"')
+                    icon = icon.substr(1, icon.size() - 2);
+                const auto library = std::filesystem::path(icon).parent_path() / L"renderdoc.dll";
+                mod = LoadLibraryW(library.c_str());
+            }
         }
-        std::array<wchar_t, MAX_PATH> key_str{};
-        DWORD str_sz_out{key_str.size()};
-        result = RegQueryValueExW(h_reg_key, L"", 0, NULL, (LPBYTE)key_str.data(), &str_sz_out);
-        if (result != ERROR_SUCCESS) {
-            return;
-        }
-
-        std::filesystem::path path{key_str.cbegin(), key_str.cend()};
-        path = path.parent_path().append("renderdoc.dll");
-        const auto path_to_lib = path.generic_string();
-        mod = LoadLibraryA(path_to_lib.c_str());
     }
-    ResolveRenderDocApi(mod);
+    if (mod) get = reinterpret_cast<pRENDERDOC_GetAPI>(GetProcAddress(mod, "RENDERDOC_GetAPI"));
 #else
-#ifdef ANDROID
-    static constexpr const char RENDERDOC_LIB[] = "libVkLayer_GLES_RenderDoc.so";
+    // Injected layers can already be globally visible under another absolute path.
+    get = reinterpret_cast<pRENDERDOC_GetAPI>(dlsym(RTLD_DEFAULT, "RENDERDOC_GetAPI"));
+#if defined(__ANDROID__)
+    constexpr const char* library = "libVkLayer_GLES_RenderDoc.so";
 #else
-    static constexpr const char RENDERDOC_LIB[] = "librenderdoc.so";
+    constexpr const char* library = "librenderdoc.so";
 #endif
-    // If the RenderDoc layer is already injected (GUI launch or Android capture
-    // layer), the library is resident and RTLD_NOLOAD returns its handle. The old
-    // code only resolved the API on the offline-load branch, so an already-loaded
-    // RenderDoc -- the normal capture case -- left rdoc_api null and every capture
-    // silently no-opped. Resolve the API for the resident handle too.
-    void* mod = dlopen(RENDERDOC_LIB, RTLD_NOW | RTLD_NOLOAD);
-    if (!mod && EmulatorSettings.IsRenderdocEnabled()) {
-        // If enabled in config, try to load RDoc runtime in offline mode
-        mod = dlopen(RENDERDOC_LIB, RTLD_NOW);
-        if (!mod) {
-            LOG_ERROR(Render, "Cannot load RenderDoc: {}", dlerror());
-        }
+    if (!get) {
+        void* mod = dlopen(library, RTLD_NOW | RTLD_NOLOAD);
+        if (!mod && EmulatorSettings.IsRenderdocEnabled()) mod = dlopen(library, RTLD_NOW);
+        if (mod) get = reinterpret_cast<pRENDERDOC_GetAPI>(dlsym(mod, "RENDERDOC_GetAPI"));
+        // Retain a successful dlopen handle for process lifetime, like the driver namespace.
     }
-    ResolveRenderDocApi(mod);
 #endif
-    if (rdoc_api) {
-        // Disable default capture keys as they suppose to trigger present-to-present capturing
-        // and it is not what we want
-        rdoc_api->SetCaptureKeys(nullptr, 0);
-
-        // Also remove rdoc crash handler
-        rdoc_api->UnloadCrashHandler();
-    }
-}
-
-void StartCapture() {
-    if (!rdoc_api) {
+    if (!get) return;
+    RENDERDOC_API_1_6_0* api{};
+    if (get(eRENDERDOC_API_Version_1_6_0, reinterpret_cast<void**>(&api)) != 1 || !api) {
+        LOG_ERROR(Render, "RenderDoc API 1.6 unavailable");
         return;
     }
-
-    // Only the thread that wins Triggered -> InProgress issues StartFrameCapture,
-    // so a racing GPU-thread call cannot double-start a capture.
-    CaptureState expected = CaptureState::Triggered;
-    if (capture_state.compare_exchange_strong(expected, CaptureState::InProgress,
-                                              std::memory_order_acq_rel)) {
-        rdoc_api->StartFrameCapture(nullptr, nullptr);
-    }
+    api->SetCaptureKeys(nullptr, 0);
+    api->UnloadCrashHandler();
+    loaded_api.store(api, std::memory_order_release);
 }
-
-void EndCapture() {
-    if (!rdoc_api) {
-        return;
-    }
-
-    // Symmetric to StartCapture: exactly one InProgress -> Idle winner ends the
-    // capture.
-    CaptureState expected = CaptureState::InProgress;
-    if (capture_state.compare_exchange_strong(expected, CaptureState::Idle,
-                                              std::memory_order_acq_rel)) {
-        rdoc_api->EndFrameCapture(nullptr, nullptr);
-    }
-}
-
-void TriggerCapture() {
-    // Arm a capture only from the idle state; a second trigger while a capture is
-    // already armed or running is ignored rather than clobbering the state.
-    CaptureState expected = CaptureState::Idle;
-    capture_state.compare_exchange_strong(expected, CaptureState::Triggered,
-                                          std::memory_order_acq_rel);
-}
-
-void SetOutputDir(const std::filesystem::path& path, const std::string& prefix) {
-    if (!rdoc_api) {
-        return;
-    }
-    LOG_WARNING(Common, "RenderDoc capture path: {}", (path / prefix).string());
-    rdoc_api->SetCaptureFilePathTemplate(fmt::UTF((path / prefix).u8string()).data.data());
-}
-
-bool IsRenderDocLoaded() {
-    return rdoc_api != nullptr;
-}
+bool IsRenderDocLoaded() { return Api() != nullptr; }
 
 namespace {
-// Production backend adapter over the loaded RenderDoc API. Uses the top-level
-// device/window (nullptr) capture like the legacy Start/EndCapture; the coordinator
-// only sequences requests and reads back the capture list.
 class RdocApiBackend final : public IRenderDocBackend {
 public:
-    bool IsLoaded() const override {
-        return rdoc_api != nullptr;
+    bool IsLoaded() const override { return IsRenderDocLoaded(); }
+    bool IsCapturing() override { const auto a = Api(); return a && a->IsFrameCapturing(); }
+    u32 GetNumCaptures() override { const auto a = Api(); return a ? a->GetNumCaptures() : 0; }
+    bool StartFrameCapture(const CaptureTarget& target, const CaptureReceipt& request) override {
+        const auto a = Api();
+        if (!a || !target.device || target.output_directory.empty()) return false;
+        std::filesystem::create_directories(target.output_directory);
+        const auto prefix = std::filesystem::path(target.output_directory) / FileStem(request.capture_uuid);
+        a->SetCaptureFilePathTemplate(prefix.string().c_str());
+        a->StartFrameCapture(target.device, target.window);
+        if (!a->IsFrameCapturing()) return false;
+        a->SetCaptureTitle(request.capture_uuid.c_str());
+        return true;
     }
-    u32 GetNumCaptures() override {
-        return rdoc_api ? rdoc_api->GetNumCaptures() : 0;
+    bool EndFrameCapture(const CaptureTarget& target) override {
+        const auto a = Api();
+        return a && a->EndFrameCapture(target.device, target.window) == 1;
     }
-    void StartFrameCapture() override {
-        if (rdoc_api) {
-            rdoc_api->StartFrameCapture(nullptr, nullptr);
-        }
+    bool DiscardFrameCapture(const CaptureTarget& target) override {
+        const auto a = Api();
+        if (!a) return false;
+        if (!a->IsFrameCapturing()) return true;
+        const auto result = a->DiscardFrameCapture(target.device, target.window);
+        return result == 1 && !a->IsFrameCapturing();
     }
-    bool EndFrameCapture() override {
-        if (!rdoc_api) {
-            return false;
-        }
-        // EndFrameCapture returns 1 if a capture was in progress.
-        return rdoc_api->EndFrameCapture(nullptr, nullptr) == 1;
+    bool GetCapture(u32 index, std::string& path, u64& timestamp) override {
+        const auto a = Api();
+        u32 size{};
+        if (!a || !a->GetCapture(index, nullptr, &size, nullptr) || !size || size > 65536) return false;
+        std::string buffer(size, '\0');
+        if (!a->GetCapture(index, buffer.data(), &size, &timestamp)) return false;
+        if (!buffer.empty() && buffer.back() == '\0') buffer.pop_back();
+        path = std::move(buffer);
+        return !path.empty();
     }
-    bool GetCapture(u32 idx, std::string& path, u64& timestamp) override {
-        if (!rdoc_api) {
+    bool Finalize(const CaptureTarget& target, CaptureReceipt& r) override {
+        const auto path = std::filesystem::canonical(r.file_path);
+        const auto root = std::filesystem::canonical(target.output_directory);
+        if (path.parent_path() != root || !path.filename().string().starts_with(FileStem(r.capture_uuid)))
             return false;
+        const auto size = std::filesystem::file_size(path);
+        if (!size || size > 4ull * 1024 * 1024 * 1024) return false;
+        std::ifstream file(path, std::ios::binary);
+        if (!file) return false;
+        SHA256_CTX hash;
+        SHA256_Init(&hash);
+        char bytes[65536];
+        u64 read{};
+        while (file.read(bytes, sizeof(bytes)) || file.gcount()) {
+            SHA256_Update(&hash, bytes, static_cast<size_t>(file.gcount()));
+            read += file.gcount();
         }
-        u32 path_len = 0;
-        // First call: query the required path length.
-        if (rdoc_api->GetCapture(idx, nullptr, &path_len, nullptr) != 1 || path_len == 0) {
-            return false;
-        }
-        std::string buf(path_len, '\0');
-        u64 ts = 0;
-        if (rdoc_api->GetCapture(idx, buf.data(), &path_len, &ts) != 1) {
-            return false;
-        }
-        // path_len includes the trailing NUL; trim it.
-        if (!buf.empty() && buf.back() == '\0') {
-            buf.pop_back();
-        }
-        path = std::move(buf);
-        timestamp = ts;
+        if (!file.eof() || read != size || std::filesystem::file_size(path) != size) return false;
+        unsigned char digest[SHA256_DIGEST_LENGTH];
+        SHA256_Final(digest, &hash);
+        constexpr char hex[] = "0123456789abcdef";
+        for (auto byte : digest) { r.file_sha256 += hex[byte >> 4]; r.file_sha256 += hex[byte & 15]; }
+        r.file_size = size;
+        r.file_path = path.string();
+        r.sidecar_path = path.string() + ".json";
+        const auto temp = r.sidecar_path + ".partial";
+        std::ofstream sidecar(temp, std::ios::binary | std::ios::trunc);
+        using Core::Diagnostics::JsonEscape;
+        sidecar << "{\n\"schema\":\"shadps4.renderdoc.v1\",\n"
+                << "\"run_uuid\":\"" << JsonEscape(r.run_uuid) << "\",\n"
+                << "\"capture_uuid\":\"" << JsonEscape(r.capture_uuid) << "\",\n"
+                << "\"generation\":\"" << r.generation << "\",\n"
+                << "\"request_id\":\"" << r.request_id << "\",\n"
+                << "\"first_present\":\"" << r.first_present << "\",\n"
+                << "\"last_present\":\"" << r.last_present << "\",\n"
+                << "\"coverage\":\"host_present_interval\",\n"
+                << "\"guest_frame_equivalence\":\"unverified\",\n"
+                << "\"driver\":\"" << JsonEscape(target.driver_identity) << "\",\n"
+                << "\"size\":\"" << size << "\",\n"
+                << "\"sha256\":\"" << r.file_sha256 << "\"\n}\n";
+        sidecar.close();
+        if (!sidecar) return false;
+        std::filesystem::rename(temp, r.sidecar_path);
         return true;
     }
 };
-
-RdocApiBackend g_rdoc_backend;
-}  // namespace
-
+RdocApiBackend backend;
+}
 CaptureCoordinator& GetCaptureCoordinator() {
-    static CaptureCoordinator coordinator{g_rdoc_backend};
+    static CaptureCoordinator coordinator{backend, Core::Diagnostics::DiagnosticNowNs};
     return coordinator;
 }
-
-void NotifyPresentBoundary() {
-    // Cheap: the coordinator internally no-ops unless a request is armed/capturing.
-    const u64 now_ns = static_cast<u64>(
-        std::chrono::duration_cast<std::chrono::nanoseconds>(
-            std::chrono::steady_clock::now().time_since_epoch())
-            .count());
-    GetCaptureCoordinator().OnFrameBoundary(now_ns);
+void BindCaptureTarget(u64 generation, void* instance, void* window, std::string driver) {
+    LoadRenderDoc(); // Also retry AFTER instance creation, when Android has loaded its layers.
+    CaptureTarget target{generation, RENDERDOC_DEVICEPOINTER_FROM_VKINSTANCE(instance), window,
+        Common::FS::GetUserPath(Common::FS::PathType::CapturesDir).string(), std::move(driver)};
+    if (!GetCaptureCoordinator().Bind(std::move(target)))
+        throw std::runtime_error("Capture target from the preceding session has not retired");
 }
-
+void StopCaptureTarget(u64 generation) { GetCaptureCoordinator().RequestStop(generation); }
+void UnbindCaptureTarget(u64 generation) { GetCaptureCoordinator().Unbind(generation); }
+void NotifyPresentBoundary(u64 generation, u64 present_id) {
+    GetCaptureCoordinator().OnFrameBoundary(generation, present_id, Core::Diagnostics::DiagnosticNowNs());
+}
+// Desktop hotkeys and command requests share exactly one capture owner. The old
+// Liverpool drain callbacks no longer drive an independent Start/End machine.
+void StartCapture() {}
+void EndCapture() {}
+void TriggerCapture() {
+    auto& c = GetCaptureCoordinator();
+    (void)c.Arm(1, c.BoundGeneration(), Core::Diagnostics::ProcessRunUuid(), Core::Diagnostics::DiagnosticNowNs());
+}
+void SetOutputDir(const std::filesystem::path&, const std::string&) {
+    // Output belongs to the bound Session target and each unique request.
+}
 
 void RequestScreenshot(const ScreenshotRequest request) {
     switch (request) {

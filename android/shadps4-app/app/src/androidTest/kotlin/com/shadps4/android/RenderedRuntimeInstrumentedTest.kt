@@ -66,7 +66,11 @@ class RenderedRuntimeInstrumentedTest {
     @Test fun realContentRunsAndStopsAcrossThreeRestarts() = realContent(20000)
 
     /** Longer cold-start observation; still requires no rendering or playability. */
-    @Test fun realContentRunsAndStopsAfterLongStartup() = realContent(120000, 1)
+    @Test fun realContentRunsAndStopsAfterLongStartup() {
+        val duration = InstrumentationRegistry.getArguments().getString("observationMs")?.toLong() ?: 120000L
+        require(duration in 30000L..300000L)
+        realContent(duration, 1)
+    }
 
     private fun realContent(observeMs: Long, rounds: Int = 3) {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -112,7 +116,51 @@ class RenderedRuntimeInstrumentedTest {
                         NativePadBridge.begin(context, generation)
                     }
                     assertTrue(NativeFexSession.nativePlatformReady(generation))
-                    val observation = NativeFexSession.nativeWaitTerminal(generation,
+                    val diagnostics = InstrumentationRegistry.getArguments().getString("graphicsDiagnostics") == "true"
+                    val observation = if (diagnostics && observeMs > 0) {
+                        val capture = InstrumentationRegistry.getArguments().getString("renderdocCapture") == "true"
+                        val captureAfterMs = InstrumentationRegistry.getArguments().getString("renderdocAfterMs")
+                            ?.toLong()?.also { require(it >= 0 && it < observeMs) } ?: 0L
+                        val run = "${android.os.Process.myPid()}-$generation-${System.nanoTime()}"
+                        val log = File(context.cacheDir, "graphics-diagnostics-$run.txt")
+                        val start = android.os.SystemClock.uptimeMillis()
+                        val end = start + observeMs
+                        var outcome = NativeFexSession.Outcome.TIMEOUT
+                        var captureRequested = false
+                        var handoffAt = 0L
+                        var handoffSaved = false
+                        while (android.os.SystemClock.uptimeMillis() < end) {
+                            val status = NativeFexSession.nativeDebugCommand("debug_status")
+                            log.appendText("monotonic_ms=${android.os.SystemClock.uptimeMillis()}\n$status" +
+                                NativeFexSession.nativeDebugCommand("gpu_reshape_status"))
+                            if (handoffAt == 0L &&
+                                (Regex("host_present: (\\d+)").find(status)?.groupValues?.get(1)?.toLong() ?: 0) >= 120) {
+                                log.appendText(NativeFexSession.nativeDebugCommand("pipeline_handoff start 5000"))
+                                handoffAt = android.os.SystemClock.uptimeMillis()
+                            }
+                            if (handoffAt != 0L && !handoffSaved && android.os.SystemClock.uptimeMillis() >= handoffAt + 5500) {
+                                File(context.cacheDir, "pipeline-handoff-$run.json").writeText(
+                                    NativeFexSession.nativeDebugCommand("pipeline_handoff dump"))
+                                handoffSaved = true
+                            }
+                            if (capture && !captureRequested && android.os.SystemClock.uptimeMillis() >= start + captureAfterMs &&
+                                (Regex("host_present: (\\d+)").find(status)?.groupValues?.get(1)?.toLong() ?: 0) >= 20) {
+                                log.appendText(NativeFexSession.nativeDebugCommand("renderdoc_capture 1"))
+                                captureRequested = true
+                            }
+                            if (captureRequested) log.appendText(NativeFexSession.nativeDebugCommand("renderdoc_capture_status"))
+                            outcome = NativeFexSession.nativeWaitTerminal(generation,
+                                minOf(1000L, (end - android.os.SystemClock.uptimeMillis()).coerceAtLeast(1)))
+                            if (outcome != NativeFexSession.Outcome.TIMEOUT) break
+                        }
+                        if (capture) {
+                            val receipt = NativeFexSession.nativeDebugCommand("renderdoc_capture_status")
+                            log.appendText("final capture receipt:\n$receipt")
+                            assertTrue("No real capture requested: $receipt", captureRequested)
+                            assertTrue("RenderDoc did not finalize a capture: $receipt", receipt.contains("state: ready"))
+                        }
+                        outcome
+                    } else NativeFexSession.nativeWaitTerminal(generation,
                         if (observeMs > 0) observeMs else 45000)
                     if (observeMs > 0) {
                         assertEquals("content terminated before observation: ${NativeFexSession.nativeTerminalDetail(generation)}",

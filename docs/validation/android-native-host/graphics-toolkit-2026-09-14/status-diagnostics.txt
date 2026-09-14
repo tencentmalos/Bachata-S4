@@ -1,0 +1,5387 @@
+monotonic_ms=158074609
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: unavailable
+snapshot_ns: 158074609092248
+guest_flip: unavailable
+pm4_consumed: unavailable
+host_draw: unavailable
+queue_submit: unavailable
+gpu_retire: unavailable
+host_present: unavailable
+overlay_redraw: unavailable
+guest_submission: unavailable
+reason=no_renderer
+monotonic_ms=158075612
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158075612613550
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 0 (never)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158076613
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158076613688445
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 3 (age_ns=23342187)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158077614
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158077614187247
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 6 (age_ns=100771719)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158078614
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158078614707299
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 9 (age_ns=177724740)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158079615
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158079615218653
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 12 (age_ns=254017813)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158080615
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158080615687194
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 16 (age_ns=24672969)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158081616
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158081616382975
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 19 (age_ns=93626042)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158082617
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158082617142922
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 22 (age_ns=166632031)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158083617
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158083617916932
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 25 (age_ns=240598750)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158084618
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158084618610682
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 29 (age_ns=3000365)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158085619
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158085619314952
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 32 (age_ns=76080468)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158086620
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158086620411931
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 35 (age_ns=147661927)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158087622
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158087622070577
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 38 (age_ns=203103750)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158088623
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158088623520472
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 41 (age_ns=276736927)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158089624
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158089624912503
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 45 (age_ns=37484896)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158090626
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158090625952138
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 48 (age_ns=114662656)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158091626
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158091626911929
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 51 (age_ns=192545468)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158092628
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158092627951981
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 54 (age_ns=269870937)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158093628
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158093628919012
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 58 (age_ns=39115573)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158094629
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158094629896095
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 61 (age_ns=115608802)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158095630
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158095630910574
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 64 (age_ns=193421667)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158096632
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158096631936511
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 67 (age_ns=270562084)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158097633
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158097632936406
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 71 (age_ns=40582500)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158098633
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158098633932760
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 74 (age_ns=118011198)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158099634
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158099634897812
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 77 (age_ns=195073959)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158100635
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158100635925988
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 80 (age_ns=272700677)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158101637
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158101637378332
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 84 (age_ns=42312188)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158102638
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158102638408383
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 87 (age_ns=119179635)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158103639
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158103639462758
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 90 (age_ns=196152396)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158104640
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158104640500570
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 93 (age_ns=273785989)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158105641
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158105641506351
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 97 (age_ns=43176302)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158106642
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158106642469892
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 100 (age_ns=120392083)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158107643
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158107643439006
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 103 (age_ns=197611197)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158108644
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158108644564319
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 106 (age_ns=280666511)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158109646
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158109646227599
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 110 (age_ns=46831250)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158110648
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158110647917547
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 113 (age_ns=122178958)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158111649
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158111649386036
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 116 (age_ns=192529531)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158112650
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158112650436036
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 119 (age_ns=269969792)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158113651
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158113651389213
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 123 (age_ns=39340209)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158114652
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158114652351400
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 126 (age_ns=116697344)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158115653
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158115653337233
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 129 (age_ns=194234532)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158116654
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158116654304576
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 132 (age_ns=271764740)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158117655
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158117655265565
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 136 (age_ns=41353854)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158118656
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158118656241815
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 139 (age_ns=118535834)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158119657
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158119657202752
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 142 (age_ns=196121042)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158120658
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158120658332752
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 145 (age_ns=278617448)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158121662
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158121661952959
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 149 (age_ns=45294010)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158122666
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158122666510355
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 152 (age_ns=122080313)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158123668
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158123668017594
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 155 (age_ns=197182239)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158124669
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158124668997906
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 158 (age_ns=271579687)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158125669
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158125669781604
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 162 (age_ns=34994531)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158126670
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158126670583791
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 165 (age_ns=108150781)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158127671
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158127671489363
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 168 (age_ns=181779114)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158128672
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158128672297436
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 171 (age_ns=252804740)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158129672
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158129672941446
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 175 (age_ns=12678385)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158130673
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158130673522383
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 178 (age_ns=88850521)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158131674
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158131674526549
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 181 (age_ns=166990468)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158132675
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158132675520872
+guest_flip: 0 (never)
+pm4_consumed: 0 (never)
+host_draw: 0 (never)
+queue_submit: 184 (age_ns=244198385)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 0 (never)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158133676
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158133676591080
+guest_flip: 0 (never)
+pm4_consumed: 124 (age_ns=7578125)
+host_draw: 1 (age_ns=7614531)
+queue_submit: 188 (age_ns=29765313)
+gpu_retire: unavailable
+host_present: 0 (never)
+overlay_redraw: unavailable
+guest_submission: 2 (age_ns=29489427)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158134677
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158134677695455
+guest_flip: 2 (age_ns=977968802)
+pm4_consumed: 252 (age_ns=977961823)
+host_draw: 2 (age_ns=982542136)
+queue_submit: 195 (age_ns=97097240)
+gpu_retire: unavailable
+host_present: 2 (age_ns=948128281)
+overlay_redraw: 2 (age_ns=951394896)
+guest_submission: 2 (age_ns=1030593802)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158135678
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158135678655558
+guest_flip: 2 (age_ns=1978928905)
+pm4_consumed: 252 (age_ns=1978921926)
+host_draw: 2 (age_ns=1983502239)
+queue_submit: 198 (age_ns=173999479)
+gpu_retire: unavailable
+host_present: 2 (age_ns=1949088384)
+overlay_redraw: 2 (age_ns=1952354999)
+guest_submission: 2 (age_ns=2031553905)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158136679
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158136679621183
+guest_flip: 27 (age_ns=317448)
+pm4_consumed: 6459 (age_ns=311511)
+host_draw: 105 (age_ns=5172813)
+queue_submit: 274 (age_ns=5086406)
+gpu_retire: unavailable
+host_present: 26 (age_ns=5133438)
+overlay_redraw: 26 (age_ns=6977761)
+guest_submission: 27 (age_ns=5748958)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158137681
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158137680861495
+guest_flip: 51 (age_ns=56294427)
+pm4_consumed: 12363 (age_ns=56271562)
+host_draw: 201 (age_ns=61686250)
+queue_submit: 347 (age_ns=36046667)
+gpu_retire: unavailable
+host_present: 51 (age_ns=34037969)
+overlay_redraw: 51 (age_ns=41168490)
+guest_submission: 51 (age_ns=63815573)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158138682
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158138682695505
+guest_flip: 68 (age_ns=34144583)
+pm4_consumed: 16545 (age_ns=34115937)
+host_draw: 269 (age_ns=39239479)
+queue_submit: 398 (age_ns=25657448)
+gpu_retire: unavailable
+host_present: 68 (age_ns=24036458)
+overlay_redraw: 68 (age_ns=26511302)
+guest_submission: 68 (age_ns=40222240)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158139684
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158139684512536
+guest_flip: 78 (age_ns=449204114)
+pm4_consumed: 18895 (age_ns=449181458)
+host_draw: 307 (age_ns=454206302)
+queue_submit: 429 (age_ns=169313438)
+gpu_retire: unavailable
+host_present: 78 (age_ns=442673958)
+overlay_redraw: 78 (age_ns=445068854)
+guest_submission: 78 (age_ns=455614792)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158140686
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158140686232015
+guest_flip: 81 (age_ns=592967813)
+pm4_consumed: 19877 (age_ns=592960000)
+host_draw: 324 (age_ns=597983750)
+queue_submit: 441 (age_ns=34706979)
+gpu_retire: unavailable
+host_present: 81 (age_ns=577994167)
+overlay_redraw: 81 (age_ns=580095833)
+guest_submission: 81 (age_ns=598785573)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158141687
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158141687641337
+guest_flip: 104 (age_ns=5466562)
+pm4_consumed: 28538 (age_ns=5451093)
+host_draw: 483 (age_ns=15053802)
+queue_submit: 509 (age_ns=14981614)
+gpu_retire: unavailable
+host_present: 103 (age_ns=29602031)
+overlay_redraw: 103 (age_ns=31520573)
+guest_submission: 104 (age_ns=17562604)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158142689
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158142688897639
+guest_flip: 131 (age_ns=24234010)
+pm4_consumed: 38561 (age_ns=24225313)
+host_draw: 666 (age_ns=29319531)
+queue_submit: 591 (age_ns=15197969)
+gpu_retire: unavailable
+host_present: 130 (age_ns=30937031)
+overlay_redraw: 131 (age_ns=16022292)
+guest_submission: 131 (age_ns=35077969)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+state=recording
+capture_id=397
+generation=1
+events=0
+reason=recording
+monotonic_ms=158143691
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158143690856649
+guest_flip: 158 (age_ns=2024635)
+pm4_consumed: 48742 (age_ns=2010625)
+host_draw: 853 (age_ns=11495625)
+queue_submit: 672 (age_ns=609531)
+gpu_retire: unavailable
+host_present: 157 (age_ns=47197292)
+overlay_redraw: 158 (age_ns=1289792)
+guest_submission: 158 (age_ns=14902552)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158144692
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158144692275972
+guest_flip: 185 (age_ns=43657761)
+pm4_consumed: 58881 (age_ns=9271)
+host_draw: 1036 (age_ns=53324063)
+queue_submit: 754 (age_ns=572917)
+gpu_retire: unavailable
+host_present: 185 (age_ns=33738021)
+overlay_redraw: 185 (age_ns=36006146)
+guest_submission: 186 (age_ns=761980)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158145694
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158145694530242
+guest_flip: 211 (age_ns=20029010)
+pm4_consumed: 68487 (age_ns=20020469)
+host_draw: 1214 (age_ns=25095365)
+queue_submit: 831 (age_ns=4214896)
+gpu_retire: unavailable
+host_present: 211 (age_ns=2385365)
+overlay_redraw: 211 (age_ns=4909688)
+guest_submission: 211 (age_ns=25899740)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158146695
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158146695576179
+guest_flip: 242 (age_ns=24080989)
+pm4_consumed: 79951 (age_ns=24071354)
+host_draw: 1423 (age_ns=33437500)
+queue_submit: 924 (age_ns=21727812)
+gpu_retire: unavailable
+host_present: 242 (age_ns=20239271)
+overlay_redraw: 242 (age_ns=22565885)
+guest_submission: 242 (age_ns=37937812)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158147696
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158147696783054
+guest_flip: 243 (age_ns=989580000)
+pm4_consumed: 80252 (age_ns=989570260)
+host_draw: 1428 (age_ns=994780885)
+queue_submit: 930 (age_ns=41746563)
+gpu_retire: unavailable
+host_present: 243 (age_ns=971367865)
+overlay_redraw: 243 (age_ns=973786719)
+guest_submission: 243 (age_ns=995638542)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158148697
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158148697566178
+guest_flip: 261 (age_ns=19129479)
+pm4_consumed: 89558 (age_ns=19119531)
+host_draw: 1644 (age_ns=24481614)
+queue_submit: 984 (age_ns=6944843)
+gpu_retire: unavailable
+host_present: 261 (age_ns=5472760)
+overlay_redraw: 261 (age_ns=7827031)
+guest_submission: 261 (age_ns=25383437)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158149733
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158149733469720
+guest_flip: 279 (age_ns=10061511)
+pm4_consumed: 98864 (age_ns=10040990)
+host_draw: 1860 (age_ns=15610417)
+queue_submit: 1037 (age_ns=15286511)
+gpu_retire: unavailable
+host_present: 278 (age_ns=57944792)
+overlay_redraw: 278 (age_ns=60419896)
+guest_submission: 279 (age_ns=18177605)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158150734
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158150734160865
+guest_flip: 301 (age_ns=18172500)
+pm4_consumed: 110238 (age_ns=18124896)
+host_draw: 2124 (age_ns=23491979)
+queue_submit: 1104 (age_ns=10494531)
+gpu_retire: unavailable
+host_present: 301 (age_ns=9219740)
+overlay_redraw: 301 (age_ns=11136927)
+guest_submission: 301 (age_ns=25378646)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158151734
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158151734583052
+guest_flip: 326 (age_ns=28917969)
+pm4_consumed: 123163 (age_ns=28897916)
+host_draw: 2424 (age_ns=34468125)
+queue_submit: 1179 (age_ns=27588750)
+gpu_retire: unavailable
+host_present: 326 (age_ns=26300573)
+overlay_redraw: 326 (age_ns=28215781)
+guest_submission: 326 (age_ns=36440677)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158152735
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158152735208729
+guest_flip: 342 (age_ns=46708490)
+pm4_consumed: 131435 (age_ns=46682917)
+host_draw: 2616 (age_ns=52517136)
+queue_submit: 1227 (age_ns=44416302)
+gpu_retire: unavailable
+host_present: 342 (age_ns=42661302)
+overlay_redraw: 342 (age_ns=45323386)
+guest_submission: 342 (age_ns=53974531)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158153735
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158153735773260
+guest_flip: 361 (age_ns=41171354)
+pm4_consumed: 141258 (age_ns=41141459)
+host_draw: 2844 (age_ns=46823177)
+queue_submit: 1284 (age_ns=28328386)
+gpu_retire: unavailable
+host_present: 361 (age_ns=26848490)
+overlay_redraw: 361 (age_ns=29204063)
+guest_submission: 361 (age_ns=49102031)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158154736
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158154736331020
+guest_flip: 380 (age_ns=55462604)
+pm4_consumed: 151197 (age_ns=20000)
+host_draw: 3072 (age_ns=61238750)
+queue_submit: 1342 (age_ns=700313)
+gpu_retire: unavailable
+host_present: 380 (age_ns=43601979)
+overlay_redraw: 380 (age_ns=46394948)
+guest_submission: 381 (age_ns=1006094)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158155736
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158155736853363
+guest_flip: 399 (age_ns=32653177)
+pm4_consumed: 160904 (age_ns=32619010)
+host_draw: 3300 (age_ns=38076458)
+queue_submit: 1398 (age_ns=29545000)
+gpu_retire: unavailable
+host_present: 399 (age_ns=28195208)
+overlay_redraw: 399 (age_ns=30369375)
+guest_submission: 400 (age_ns=96979)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158156737
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158156737375498
+guest_flip: 421 (age_ns=39150000)
+pm4_consumed: 172278 (age_ns=39131771)
+host_draw: 3564 (age_ns=44591719)
+queue_submit: 1465 (age_ns=210000)
+gpu_retire: unavailable
+host_present: 421 (age_ns=28532916)
+overlay_redraw: 421 (age_ns=30855833)
+guest_submission: 422 (age_ns=624739)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158157738
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158157737979039
+guest_flip: 436 (age_ns=42298750)
+pm4_consumed: 180033 (age_ns=42271927)
+host_draw: 3744 (age_ns=47715989)
+queue_submit: 1509 (age_ns=30541875)
+gpu_retire: unavailable
+host_present: 436 (age_ns=28978437)
+overlay_redraw: 436 (age_ns=31374895)
+guest_submission: 436 (age_ns=49134010)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158158738
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158158738581852
+guest_flip: 453 (age_ns=41595000)
+pm4_consumed: 188822 (age_ns=41565677)
+host_draw: 3948 (age_ns=47194271)
+queue_submit: 1560 (age_ns=31201198)
+gpu_retire: unavailable
+host_present: 453 (age_ns=29771927)
+overlay_redraw: 453 (age_ns=32021667)
+guest_submission: 453 (age_ns=49750209)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158159739
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158159739171330
+guest_flip: 467 (age_ns=11662864)
+pm4_consumed: 196060 (age_ns=11634843)
+host_draw: 4116 (age_ns=17382760)
+queue_submit: 1601 (age_ns=16932864)
+gpu_retire: unavailable
+host_present: 466 (age_ns=79702708)
+overlay_redraw: 466 (age_ns=82382708)
+guest_submission: 467 (age_ns=21060468)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158160740
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158160739896226
+guest_flip: 483 (age_ns=11292031)
+pm4_consumed: 204332 (age_ns=11256875)
+host_draw: 4308 (age_ns=16912761)
+queue_submit: 1649 (age_ns=16561354)
+gpu_retire: unavailable
+host_present: 482 (age_ns=80767604)
+overlay_redraw: 482 (age_ns=83260365)
+guest_submission: 483 (age_ns=19270156)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158161741
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158161741173621
+guest_flip: 505 (age_ns=39315625)
+pm4_consumed: 215706 (age_ns=39292812)
+host_draw: 4572 (age_ns=44891562)
+queue_submit: 1716 (age_ns=33571979)
+gpu_retire: unavailable
+host_present: 505 (age_ns=31893021)
+overlay_redraw: 505 (age_ns=34459271)
+guest_submission: 505 (age_ns=47614948)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158162742
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158162742363569
+guest_flip: 523 (age_ns=15437292)
+pm4_consumed: 225012 (age_ns=15411459)
+host_draw: 4788 (age_ns=20909011)
+queue_submit: 1770 (age_ns=1529740)
+gpu_retire: unavailable
+host_present: 523 (age_ns=114271)
+overlay_redraw: 523 (age_ns=2324948)
+guest_submission: 523 (age_ns=23412344)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158163743
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158163743396850
+guest_flip: 539 (age_ns=6945365)
+pm4_consumed: 233284 (age_ns=6932813)
+host_draw: 4980 (age_ns=12315782)
+queue_submit: 1817 (age_ns=12154948)
+gpu_retire: unavailable
+host_present: 538 (age_ns=81846979)
+overlay_redraw: 539 (age_ns=3003282)
+guest_submission: 539 (age_ns=13477344)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158164745
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158164745335183
+guest_flip: 558 (age_ns=20355938)
+pm4_consumed: 243107 (age_ns=20335157)
+host_draw: 5208 (age_ns=25825938)
+queue_submit: 1875 (age_ns=4442032)
+gpu_retire: unavailable
+host_present: 558 (age_ns=2978021)
+overlay_redraw: 558 (age_ns=5259219)
+guest_submission: 558 (age_ns=27870834)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158165746
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158165746604818
+guest_flip: 573 (age_ns=64064792)
+pm4_consumed: 250862 (age_ns=64026459)
+host_draw: 5388 (age_ns=69816354)
+queue_submit: 1920 (age_ns=55565990)
+gpu_retire: unavailable
+host_present: 573 (age_ns=53880469)
+overlay_redraw: 573 (age_ns=56440417)
+guest_submission: 573 (age_ns=72595469)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158166748
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158166748178880
+guest_flip: 591 (age_ns=56452604)
+pm4_consumed: 260168 (age_ns=56430156)
+host_draw: 5604 (age_ns=62105729)
+queue_submit: 1974 (age_ns=40524740)
+gpu_retire: unavailable
+host_present: 591 (age_ns=39100261)
+overlay_redraw: 591 (age_ns=41399427)
+guest_submission: 591 (age_ns=64206771)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158167749
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158167749434400
+guest_flip: 604 (age_ns=52242812)
+pm4_consumed: 266889 (age_ns=52222291)
+host_draw: 5760 (age_ns=57777916)
+queue_submit: 2013 (age_ns=41616510)
+gpu_retire: unavailable
+host_present: 604 (age_ns=40042344)
+overlay_redraw: 604 (age_ns=42524271)
+guest_submission: 604 (age_ns=58760104)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158168750
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158168750675285
+guest_flip: 619 (age_ns=15066927)
+pm4_consumed: 274644 (age_ns=15031458)
+host_draw: 5940 (age_ns=20573489)
+queue_submit: 2058 (age_ns=9722396)
+gpu_retire: unavailable
+host_present: 619 (age_ns=8237968)
+overlay_redraw: 619 (age_ns=10524062)
+guest_submission: 619 (age_ns=23204583)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158169751
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158169751853774
+guest_flip: 635 (age_ns=40917760)
+pm4_consumed: 282916 (age_ns=40887916)
+host_draw: 6132 (age_ns=46591093)
+queue_submit: 2106 (age_ns=27359166)
+gpu_retire: unavailable
+host_present: 635 (age_ns=25756875)
+overlay_redraw: 635 (age_ns=28320312)
+guest_submission: 635 (age_ns=48359531)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158170753
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158170752965232
+guest_flip: 654 (age_ns=17362187)
+pm4_consumed: 292739 (age_ns=17339635)
+host_draw: 6360 (age_ns=22858802)
+queue_submit: 2163 (age_ns=11978906)
+gpu_retire: unavailable
+host_present: 654 (age_ns=10547968)
+overlay_redraw: 654 (age_ns=12797708)
+guest_submission: 654 (age_ns=24280416)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158171754
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158171753987211
+guest_flip: 678 (age_ns=28203646)
+pm4_consumed: 305662 (age_ns=287604)
+host_draw: 6660 (age_ns=288385)
+queue_submit: 2237 (age_ns=170729)
+gpu_retire: unavailable
+host_present: 678 (age_ns=11591094)
+overlay_redraw: 678 (age_ns=13770677)
+guest_submission: 679 (age_ns=1252656)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158172754
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158172754870440
+guest_flip: 697 (age_ns=17326198)
+pm4_consumed: 314970 (age_ns=17306979)
+host_draw: 6876 (age_ns=22876458)
+queue_submit: 2292 (age_ns=13805417)
+gpu_retire: unavailable
+host_present: 697 (age_ns=12457292)
+overlay_redraw: 697 (age_ns=14630052)
+guest_submission: 697 (age_ns=25194948)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158173756
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158173755906117
+guest_flip: 713 (age_ns=23057084)
+pm4_consumed: 323242 (age_ns=23031875)
+host_draw: 7068 (age_ns=28578386)
+queue_submit: 2340 (age_ns=14756407)
+gpu_retire: unavailable
+host_present: 713 (age_ns=13307240)
+overlay_redraw: 713 (age_ns=15542657)
+guest_submission: 713 (age_ns=31082448)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158174757
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158174757239293
+guest_flip: 730 (age_ns=30966145)
+pm4_consumed: 332031 (age_ns=30945416)
+host_draw: 7272 (age_ns=36446458)
+queue_submit: 2391 (age_ns=15934791)
+gpu_retire: unavailable
+host_present: 730 (age_ns=14467968)
+overlay_redraw: 730 (age_ns=16918385)
+guest_submission: 730 (age_ns=39314531)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158175758
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158175758361168
+guest_flip: 750 (age_ns=7483281)
+pm4_consumed: 342371 (age_ns=7456146)
+host_draw: 7512 (age_ns=12944010)
+queue_submit: 2451 (age_ns=584323)
+gpu_retire: unavailable
+host_present: 749 (age_ns=32511458)
+overlay_redraw: 750 (age_ns=1391458)
+guest_submission: 750 (age_ns=15300417)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158176759
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158176759503147
+guest_flip: 764 (age_ns=22927552)
+pm4_consumed: 349609 (age_ns=22905573)
+host_draw: 7680 (age_ns=28624844)
+queue_submit: 2493 (age_ns=18418646)
+gpu_retire: unavailable
+host_present: 764 (age_ns=17018073)
+overlay_redraw: 764 (age_ns=19166823)
+guest_submission: 764 (age_ns=30256042)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158177762
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158177762111636
+guest_flip: 780 (age_ns=64982917)
+pm4_consumed: 357881 (age_ns=64945417)
+host_draw: 7872 (age_ns=70611615)
+queue_submit: 2541 (age_ns=53878125)
+gpu_retire: unavailable
+host_present: 780 (age_ns=52358750)
+overlay_redraw: 780 (age_ns=54979792)
+guest_submission: 780 (age_ns=73571927)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158178763
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158178763296740
+guest_flip: 800 (age_ns=8441875)
+pm4_consumed: 368221 (age_ns=8413698)
+host_draw: 8112 (age_ns=13920886)
+queue_submit: 2601 (age_ns=5560573)
+gpu_retire: unavailable
+host_present: 800 (age_ns=4228386)
+overlay_redraw: 800 (age_ns=6260156)
+guest_submission: 800 (age_ns=15541615)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158179764
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158179764570333
+guest_flip: 815 (age_ns=22004375)
+pm4_consumed: 375976 (age_ns=21976406)
+host_draw: 8292 (age_ns=27524167)
+queue_submit: 2646 (age_ns=6520000)
+gpu_retire: unavailable
+host_present: 815 (age_ns=4847812)
+overlay_redraw: 815 (age_ns=7444427)
+guest_submission: 815 (age_ns=30293906)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158180765
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158180765677885
+guest_flip: 828 (age_ns=37455104)
+pm4_consumed: 382697 (age_ns=37441302)
+host_draw: 8448 (age_ns=43290104)
+queue_submit: 2685 (age_ns=24422708)
+gpu_retire: unavailable
+host_present: 828 (age_ns=22787865)
+overlay_redraw: 828 (age_ns=25209896)
+guest_submission: 828 (age_ns=47479740)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158181766
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158181766774916
+guest_flip: 848 (age_ns=54414219)
+pm4_consumed: 393552 (age_ns=3701354)
+host_draw: 8700 (age_ns=3702969)
+queue_submit: 2747 (age_ns=3382865)
+gpu_retire: unavailable
+host_present: 848 (age_ns=40406615)
+overlay_redraw: 848 (age_ns=42942604)
+guest_submission: 849 (age_ns=6031459)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158182767
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158182767807832
+guest_flip: 866 (age_ns=16424167)
+pm4_consumed: 402343 (age_ns=16397812)
+host_draw: 8904 (age_ns=22004635)
+queue_submit: 2799 (age_ns=9769375)
+gpu_retire: unavailable
+host_present: 866 (age_ns=8350052)
+overlay_redraw: 866 (age_ns=10489010)
+guest_submission: 866 (age_ns=24287656)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158183769
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158183769121009
+guest_flip: 881 (age_ns=16702709)
+pm4_consumed: 410098 (age_ns=16678802)
+host_draw: 9084 (age_ns=22293125)
+queue_submit: 2844 (age_ns=10979011)
+gpu_retire: unavailable
+host_present: 881 (age_ns=9547292)
+overlay_redraw: 881 (age_ns=11797865)
+guest_submission: 881 (age_ns=24537709)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158184771
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158184770890019
+guest_flip: 895 (age_ns=71314896)
+pm4_consumed: 417336 (age_ns=71285000)
+host_draw: 9252 (age_ns=77084219)
+queue_submit: 2886 (age_ns=62559948)
+gpu_retire: unavailable
+host_present: 895 (age_ns=60953594)
+overlay_redraw: 895 (age_ns=63524948)
+guest_submission: 895 (age_ns=79896354)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158185772
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158185772041998
+guest_flip: 911 (age_ns=15580209)
+pm4_consumed: 425608 (age_ns=15552136)
+host_draw: 9444 (age_ns=21215573)
+queue_submit: 2934 (age_ns=13849688)
+gpu_retire: unavailable
+host_present: 911 (age_ns=12215573)
+overlay_redraw: 911 (age_ns=14758386)
+guest_submission: 911 (age_ns=22806198)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158186773
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158186773432674
+guest_flip: 929 (age_ns=8825833)
+pm4_consumed: 434914 (age_ns=8805469)
+host_draw: 9660 (age_ns=14269062)
+queue_submit: 2987 (age_ns=13968541)
+gpu_retire: unavailable
+host_present: 928 (age_ns=46914479)
+overlay_redraw: 928 (age_ns=49495469)
+guest_submission: 929 (age_ns=16772448)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158187774
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158187774708559
+guest_flip: 949 (age_ns=1682343)
+pm4_consumed: 445254 (age_ns=1536250)
+host_draw: 9900 (age_ns=7600416)
+queue_submit: 3047 (age_ns=7280885)
+gpu_retire: unavailable
+host_present: 948 (age_ns=64935989)
+overlay_redraw: 949 (age_ns=605989)
+guest_submission: 949 (age_ns=10084948)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158188775
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158188775848715
+guest_flip: 963 (age_ns=15153073)
+pm4_consumed: 452492 (age_ns=15142083)
+host_draw: 10068 (age_ns=21128906)
+queue_submit: 3090 (age_ns=849167)
+gpu_retire: unavailable
+host_present: 962 (age_ns=82771875)
+overlay_redraw: 963 (age_ns=1801614)
+guest_submission: 963 (age_ns=22328073)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158189777
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158189777308715
+guest_flip: 984 (age_ns=9098490)
+pm4_consumed: 463349 (age_ns=9078177)
+host_draw: 10320 (age_ns=14628594)
+queue_submit: 3153 (age_ns=2457240)
+gpu_retire: unavailable
+host_present: 984 (age_ns=625261)
+overlay_redraw: 984 (age_ns=3299375)
+guest_submission: 984 (age_ns=17062292)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158190779
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158190779389548
+guest_flip: 1002 (age_ns=10936979)
+pm4_consumed: 472655 (age_ns=10915625)
+host_draw: 10536 (age_ns=16511042)
+queue_submit: 3207 (age_ns=4372761)
+gpu_retire: unavailable
+host_present: 1002 (age_ns=2700365)
+overlay_redraw: 1002 (age_ns=5351875)
+guest_submission: 1002 (age_ns=18545000)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158191781
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158191781389443
+guest_flip: 1022 (age_ns=30449010)
+pm4_consumed: 482995 (age_ns=30438698)
+host_draw: 10776 (age_ns=35782604)
+queue_submit: 3267 (age_ns=22990989)
+gpu_retire: unavailable
+host_present: 1022 (age_ns=21431875)
+overlay_redraw: 1022 (age_ns=23882344)
+guest_submission: 1022 (age_ns=37029010)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158192783
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158192782830797
+guest_flip: 1039 (age_ns=6634271)
+pm4_consumed: 491784 (age_ns=6625781)
+host_draw: 10980 (age_ns=11963125)
+queue_submit: 3317 (age_ns=11842292)
+gpu_retire: unavailable
+host_present: 1038 (age_ns=39839375)
+overlay_redraw: 1038 (age_ns=42072656)
+guest_submission: 1039 (age_ns=12762344)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158193784
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158193783978297
+guest_flip: 1055 (age_ns=37432917)
+pm4_consumed: 500056 (age_ns=37347240)
+host_draw: 11172 (age_ns=43504219)
+queue_submit: 3366 (age_ns=25651875)
+gpu_retire: unavailable
+host_present: 1055 (age_ns=23168178)
+overlay_redraw: 1055 (age_ns=26531146)
+guest_submission: 1055 (age_ns=46468125)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158194785
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158194785202046
+guest_flip: 1071 (age_ns=1023177)
+pm4_consumed: 508328 (age_ns=1014635)
+host_draw: 11364 (age_ns=6396562)
+queue_submit: 3413 (age_ns=6257292)
+gpu_retire: unavailable
+host_present: 1070 (age_ns=41896302)
+overlay_redraw: 1070 (age_ns=44283594)
+guest_submission: 1071 (age_ns=7520937)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158195786
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158195786293035
+guest_flip: 1086 (age_ns=40282812)
+pm4_consumed: 516083 (age_ns=40262968)
+host_draw: 11544 (age_ns=45741823)
+queue_submit: 3459 (age_ns=27740260)
+gpu_retire: unavailable
+host_present: 1086 (age_ns=26170208)
+overlay_redraw: 1086 (age_ns=28666093)
+guest_submission: 1086 (age_ns=48096510)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158196787
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158196787396212
+guest_flip: 1104 (age_ns=4164948)
+pm4_consumed: 525389 (age_ns=4139010)
+host_draw: 11760 (age_ns=9690625)
+queue_submit: 3512 (age_ns=9385625)
+gpu_retire: unavailable
+host_present: 1103 (age_ns=43870417)
+overlay_redraw: 1103 (age_ns=46390521)
+guest_submission: 1104 (age_ns=11898490)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158197788
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158197788475274
+guest_flip: 1122 (age_ns=36075677)
+pm4_consumed: 534695 (age_ns=36049791)
+host_draw: 11976 (age_ns=41788229)
+queue_submit: 3567 (age_ns=29829427)
+gpu_retire: unavailable
+host_present: 1122 (age_ns=28181875)
+overlay_redraw: 1122 (age_ns=30803958)
+guest_submission: 1122 (age_ns=44298854)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158198789
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158198789784909
+guest_flip: 1141 (age_ns=14633646)
+pm4_consumed: 544518 (age_ns=14614739)
+host_draw: 12204 (age_ns=20021250)
+queue_submit: 3623 (age_ns=19765677)
+gpu_retire: unavailable
+host_present: 1140 (age_ns=46643229)
+overlay_redraw: 1140 (age_ns=48901041)
+guest_submission: 1141 (age_ns=22246094)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158199791
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158199790875430
+guest_flip: 1157 (age_ns=47741459)
+pm4_consumed: 552790 (age_ns=47717552)
+host_draw: 12396 (age_ns=53397709)
+queue_submit: 3672 (age_ns=32307292)
+gpu_retire: unavailable
+host_present: 1157 (age_ns=30719948)
+overlay_redraw: 1157 (age_ns=33262604)
+guest_submission: 1157 (age_ns=55187709)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158200792
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158200791962252
+guest_flip: 1174 (age_ns=17437135)
+pm4_consumed: 561579 (age_ns=17411666)
+host_draw: 12600 (age_ns=23082448)
+queue_submit: 3723 (age_ns=102187)
+gpu_retire: unavailable
+host_present: 1173 (age_ns=115011823)
+overlay_redraw: 1174 (age_ns=927344)
+guest_submission: 1174 (age_ns=25019427)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158201793
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158201793598814
+guest_flip: 1194 (age_ns=29924531)
+pm4_consumed: 571919 (age_ns=29906458)
+host_draw: 12840 (age_ns=35503229)
+queue_submit: 3783 (age_ns=18303437)
+gpu_retire: unavailable
+host_present: 1194 (age_ns=16652656)
+overlay_redraw: 1194 (age_ns=19152343)
+guest_submission: 1194 (age_ns=37861458)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158202794
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158202794832616
+guest_flip: 1214 (age_ns=30954323)
+pm4_consumed: 582259 (age_ns=30932187)
+host_draw: 13080 (age_ns=36524479)
+queue_submit: 3843 (age_ns=17087083)
+gpu_retire: unavailable
+host_present: 1214 (age_ns=15210625)
+overlay_redraw: 1214 (age_ns=20198854)
+guest_submission: 1214 (age_ns=38941562)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158203796
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158203796685324
+guest_flip: 1235 (age_ns=28263385)
+pm4_consumed: 593116 (age_ns=28239688)
+host_draw: 13332 (age_ns=33802656)
+queue_submit: 3906 (age_ns=21434427)
+gpu_retire: unavailable
+host_present: 1235 (age_ns=19823854)
+overlay_redraw: 1235 (age_ns=22290156)
+guest_submission: 1235 (age_ns=35005260)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158204797
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158204797807094
+guest_flip: 1251 (age_ns=26886510)
+pm4_consumed: 601388 (age_ns=26845260)
+host_draw: 13524 (age_ns=32362239)
+queue_submit: 3954 (age_ns=20040781)
+gpu_retire: unavailable
+host_present: 1251 (age_ns=18170000)
+overlay_redraw: 1251 (age_ns=23210260)
+guest_submission: 1251 (age_ns=34731406)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158205799
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158205799190740
+guest_flip: 1266 (age_ns=31504792)
+pm4_consumed: 609143 (age_ns=31478854)
+host_draw: 13704 (age_ns=37023906)
+queue_submit: 3999 (age_ns=24005208)
+gpu_retire: unavailable
+host_present: 1266 (age_ns=22528750)
+overlay_redraw: 1266 (age_ns=24798542)
+guest_submission: 1266 (age_ns=39371823)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158206800
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158206800350323
+guest_flip: 1282 (age_ns=65749740)
+pm4_consumed: 617930 (age_ns=4914427)
+host_draw: 13908 (age_ns=4918698)
+queue_submit: 4049 (age_ns=4480156)
+gpu_retire: unavailable
+host_present: 1282 (age_ns=56963438)
+overlay_redraw: 1282 (age_ns=59277500)
+guest_submission: 1283 (age_ns=8124792)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158207801
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158207801675843
+guest_flip: 1298 (age_ns=131875)
+pm4_consumed: 625687 (age_ns=123437)
+host_draw: 14088 (age_ns=5404583)
+queue_submit: 4094 (age_ns=5274375)
+gpu_retire: unavailable
+host_present: 1297 (age_ns=41463125)
+overlay_redraw: 1297 (age_ns=43794271)
+guest_submission: 1298 (age_ns=6455416)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158208803
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158208802862197
+guest_flip: 1318 (age_ns=14985417)
+pm4_consumed: 636027 (age_ns=14961979)
+host_draw: 14328 (age_ns=20563437)
+queue_submit: 4155 (age_ns=10670625)
+gpu_retire: unavailable
+host_present: 1318 (age_ns=9263854)
+overlay_redraw: 1318 (age_ns=11603125)
+guest_submission: 1318 (age_ns=22885990)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158209804
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158209804372509
+guest_flip: 1334 (age_ns=14408073)
+pm4_consumed: 644299 (age_ns=14387083)
+host_draw: 14520 (age_ns=20054739)
+queue_submit: 4203 (age_ns=12202135)
+gpu_retire: unavailable
+host_present: 1334 (age_ns=10630677)
+overlay_redraw: 1334 (age_ns=13108281)
+guest_submission: 1334 (age_ns=22553073)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158210805
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158210805507457
+guest_flip: 1349 (age_ns=13843698)
+pm4_consumed: 652054 (age_ns=13816875)
+host_draw: 14700 (age_ns=19520573)
+queue_submit: 4247 (age_ns=19131823)
+gpu_retire: unavailable
+host_present: 1348 (age_ns=78545729)
+overlay_redraw: 1348 (age_ns=80924844)
+guest_submission: 1349 (age_ns=22748177)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158211806
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158211806709175
+guest_flip: 1367 (age_ns=51246146)
+pm4_consumed: 661360 (age_ns=51217135)
+host_draw: 14916 (age_ns=56802239)
+queue_submit: 4302 (age_ns=47842500)
+gpu_retire: unavailable
+host_present: 1367 (age_ns=46073646)
+overlay_redraw: 1367 (age_ns=48812708)
+guest_submission: 1367 (age_ns=59177656)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158212808
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158212808707977
+guest_flip: 1384 (age_ns=16819844)
+pm4_consumed: 670149 (age_ns=16795052)
+host_draw: 15120 (age_ns=22585209)
+queue_submit: 4352 (age_ns=22264792)
+gpu_retire: unavailable
+host_present: 1383 (age_ns=97875573)
+overlay_redraw: 1384 (age_ns=636979)
+guest_submission: 1384 (age_ns=25141615)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158213810
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158213809997351
+guest_flip: 1401 (age_ns=27232864)
+pm4_consumed: 678938 (age_ns=27212864)
+host_draw: 15324 (age_ns=32972812)
+queue_submit: 4404 (age_ns=17934114)
+gpu_retire: unavailable
+host_present: 1401 (age_ns=16463333)
+overlay_redraw: 1401 (age_ns=18743177)
+guest_submission: 1401 (age_ns=37016666)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158214811
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158214811433236
+guest_flip: 1420 (age_ns=89741406)
+pm4_consumed: 688761 (age_ns=89716250)
+host_draw: 15552 (age_ns=95347135)
+queue_submit: 4461 (age_ns=85687812)
+gpu_retire: unavailable
+host_present: 1420 (age_ns=84049843)
+overlay_redraw: 1420 (age_ns=86696718)
+guest_submission: 1421 (age_ns=285000)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158215813
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158215813016101
+guest_flip: 1435 (age_ns=30510209)
+pm4_consumed: 696516 (age_ns=30500365)
+host_draw: 15732 (age_ns=35990677)
+queue_submit: 4506 (age_ns=20501980)
+gpu_retire: unavailable
+host_present: 1435 (age_ns=18901198)
+overlay_redraw: 1435 (age_ns=21689584)
+guest_submission: 1435 (age_ns=37244896)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158216814
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158216814144850
+guest_flip: 1450 (age_ns=16020312)
+pm4_consumed: 704271 (age_ns=15997291)
+host_draw: 15912 (age_ns=21717448)
+queue_submit: 4551 (age_ns=5257968)
+gpu_retire: unavailable
+host_present: 1450 (age_ns=3728541)
+overlay_redraw: 1450 (age_ns=6066718)
+guest_submission: 1450 (age_ns=24356927)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158217815
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158217815350631
+guest_flip: 1472 (age_ns=11103281)
+pm4_consumed: 715645 (age_ns=11079792)
+host_draw: 16176 (age_ns=16675729)
+queue_submit: 4617 (age_ns=6396823)
+gpu_retire: unavailable
+host_present: 1472 (age_ns=5052031)
+overlay_redraw: 1472 (age_ns=7183281)
+guest_submission: 1472 (age_ns=20089271)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158218816
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158218816614277
+guest_flip: 1486 (age_ns=28909063)
+pm4_consumed: 722883 (age_ns=28867188)
+host_draw: 16344 (age_ns=34943334)
+queue_submit: 4659 (age_ns=21757709)
+gpu_retire: unavailable
+host_present: 1486 (age_ns=19525417)
+overlay_redraw: 1486 (age_ns=24880209)
+guest_submission: 1486 (age_ns=37856667)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158219817
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158219817845057
+guest_flip: 1503 (age_ns=55042395)
+pm4_consumed: 731672 (age_ns=55031979)
+host_draw: 16548 (age_ns=60368072)
+queue_submit: 4710 (age_ns=42174843)
+gpu_retire: unavailable
+host_present: 1503 (age_ns=40665781)
+overlay_redraw: 1503 (age_ns=43053177)
+guest_submission: 1503 (age_ns=61711145)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158220819
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158220818880526
+guest_flip: 1521 (age_ns=14613021)
+pm4_consumed: 740978 (age_ns=14589479)
+host_draw: 16764 (age_ns=20376198)
+queue_submit: 4764 (age_ns=9915834)
+gpu_retire: unavailable
+host_present: 1521 (age_ns=8336563)
+overlay_redraw: 1521 (age_ns=10753542)
+guest_submission: 1521 (age_ns=21984063)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158221820
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158221820275473
+guest_flip: 1541 (age_ns=40832343)
+pm4_consumed: 751318 (age_ns=40814479)
+host_draw: 17004 (age_ns=46475833)
+queue_submit: 4824 (age_ns=27770208)
+gpu_retire: unavailable
+host_present: 1541 (age_ns=26081979)
+overlay_redraw: 1541 (age_ns=28646145)
+guest_submission: 1541 (age_ns=48822083)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158222821
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158222821391827
+guest_flip: 1557 (age_ns=32667917)
+pm4_consumed: 759590 (age_ns=32647344)
+host_draw: 17196 (age_ns=37961979)
+queue_submit: 4872 (age_ns=28965521)
+gpu_retire: unavailable
+host_present: 1557 (age_ns=27431406)
+overlay_redraw: 1557 (age_ns=29782396)
+guest_submission: 1557 (age_ns=38910625)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665
+monotonic_ms=158223822
+session: active
+generation: 1
+pid: 23157
+phase: 3
+run_uuid: 36b1ae35ad997a581e3f4f5826ad38da
+stage: Running
+driver: device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 158223822454900
+guest_flip: 1573 (age_ns=35023386)
+pm4_consumed: 767862 (age_ns=34986302)
+host_draw: 17388 (age_ns=40677292)
+queue_submit: 4920 (age_ns=29775209)
+gpu_retire: unavailable
+host_present: 1573 (age_ns=28360938)
+overlay_redraw: 1573 (age_ns=30833334)
+guest_submission: 1573 (age_ns=43437761)
+schema=shadps4.gpu-reshape.v1
+adapter_compiled=true
+generation=1
+driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+sampled_status=true
+requested=false
+buffer_lifetime=not_annotated
+reason=not_requested
+command_observation_active=false
+resource_bounds_active=false
+shader_replacement_active=false
+shader_hash_allowlist_valid=1
+descriptor_safe_guard=implicit_when_replaced
+shader_hash_allowlist=0
+indirect_hooks=0
+graphics_stores_enabled=0
+descriptor_registrations=0
+descriptor_registration_failures=0
+snapshot_ns=158075218097665

@@ -36,7 +36,26 @@ class CaptureCoordinator;
 
 /// Called by the presenter after a successful present, so an armed capture
 /// advances at a provable frame boundary. Cheap no-op when no capture is armed.
-void NotifyPresentBoundary();
+void BindCaptureTarget(u64 generation, void* instance, void* window, std::string driver);
+void StopCaptureTarget(u64 generation);
+void UnbindCaptureTarget(u64 generation);
+void NotifyPresentBoundary(u64 generation, u64 present_id);
+class CaptureBinding final {
+public:
+    CaptureBinding() = default;
+    CaptureBinding(const CaptureBinding&) = delete;
+    CaptureBinding& operator=(const CaptureBinding&) = delete;
+    ~CaptureBinding() { Close(); }
+    void Bind(u64 generation, void* instance, void* window, std::string driver) {
+        BindCaptureTarget(generation, instance, window, std::move(driver));
+        generation_ = generation;
+    }
+    void Stop() { if (generation_) StopCaptureTarget(generation_); }
+    void Close() { if (generation_) { UnbindCaptureTarget(generation_); generation_ = 0; } }
+    u64 Generation() const { return generation_; }
+private:
+    u64 generation_{};
+};
 
 enum class ScreenshotRequest : u32 {
     None = 0,

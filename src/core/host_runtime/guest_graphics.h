@@ -19,6 +19,8 @@ namespace Libraries::VideoOut {
 class VideoOutDriver;
 }
 
+namespace Core::Diagnostics { class DiagnosticsPublisher; }
+
 namespace Core::HostRuntime {
 // Owned by the production runtime, inside its exclusive desktop-service lease.
 // GPU/VideoOut workers retire before the guest VM and its singleton bindings.
@@ -38,6 +40,7 @@ public:
     s32 DeleteEqueue(s64 handle);
     Libraries::Kernel::EqueueInternal* FindEqueue(s64 handle);
     bool Stopping() const;
+    std::shared_ptr<Diagnostics::DiagnosticsPublisher> DiagnosticsPublisher() const;
     std::recursive_mutex& SubmissionMutex();
     Libraries::VideoOut::VideoOutDriver& VideoOut();
 private:

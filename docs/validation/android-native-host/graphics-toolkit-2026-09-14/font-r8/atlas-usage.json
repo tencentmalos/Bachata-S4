@@ -1,0 +1,24 @@
+{
+  "request": {
+    "method": "tools/call",
+    "params": {
+      "name": "resource_usage",
+      "arguments": {
+        "resourceId": "2395",
+        "limit": 30
+      }
+    }
+  },
+  "response": {
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"schemaVersion\":\"1.0\",\"session\":{\"captureId\":\"b8a1ed90-d3ba-44b7-9a72-0ffd39ac4d4b\",\"captureRevision\":{\"value\":16},\"currentEventId\":\"240\"},\"data\":{\"dataset\":\"resource_usage\",\"materialization\":\"ready\",\"rows\":{\"columns\":[{\"name\":\"resource_id\",\"declaredType\":\"TEXT\"},{\"name\":\"event_id\",\"declaredType\":\"INTEGER\"},{\"name\":\"usage\",\"declaredType\":\"TEXT\"},{\"name\":\"access\",\"declaredType\":\"TEXT\"},{\"name\":\"stage\",\"declaredType\":\"TEXT\"},{\"name\":\"view_resource_id\",\"declaredType\":\"TEXT\"}],\"rows\":[[\"2395\",\"81\",\"PS_Resource\",\"read\",\"pixel\",null],[\"2395\",\"95\",\"PS_Resource\",\"read\",\"pixel\",null],[\"2395\",\"109\",\"PS_Resource\",\"read\",\"pixel\",null],[\"2395\",\"212\",\"PS_Resource\",\"read\",\"pixel\",null],[\"2395\",\"226\",\"PS_Resource\",\"read\",\"pixel\",null],[\"2395\",\"240\",\"PS_Resource\",\"read\",\"pixel\",null]],\"truncated\":false,\"executionMs\":0.031},\"warnings\":[]}}"
+        }
+      ]
+    },
+    "id": 30,
+    "jsonrpc": "2.0"
+  }
+}

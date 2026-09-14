@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <limits>
+#include <stdexcept>
 #include "common/assert.h"
 #include "common/logging/log.h"
 #include "core/emulator_settings.h"
@@ -10,6 +11,7 @@
 #include "imgui/renderer/imgui_core.h"
 #include "video_core/renderer_vulkan/vk_instance.h"
 #include "video_core/renderer_vulkan/vk_swapchain.h"
+#include "video_core/renderer_vulkan/vk_scheduler.h"
 
 namespace Vulkan {
 
@@ -71,6 +73,10 @@ void Swapchain::Create(u32 width_, u32 height_) {
     };
 
     auto [swapchain_result, chain] = instance.GetDevice().createSwapchainKHR(swapchain_info);
+#ifdef __ANDROID__
+    if (swapchain_result != vk::Result::eSuccess)
+        throw std::runtime_error("Android swapchain create: " + vk::to_string(swapchain_result));
+#endif
     ASSERT_MSG(swapchain_result == vk::Result::eSuccess, "Failed to create swapchain: {}",
                vk::to_string(swapchain_result));
     swapchain = chain;
@@ -87,7 +93,13 @@ void Swapchain::Recreate(u32 width_, u32 height_) {
     // is dead and recreating only the swapchain would fail. Rebuild the surface
     // first. Desktop never sets surface_lost, so this is Android-only in practice.
     if (surface_lost) {
+#ifdef __ANDROID__
+        // ANativeWindow is immutable within one Session generation. A replacement
+        // Surface requires a new generation; rebuilding from the dead handle is unsafe.
+        throw std::runtime_error("Android session Surface lost");
+#else
         RebuildSurface();
+#endif
         surface_lost = false;
     }
     Create(width_, height_);
@@ -95,7 +107,10 @@ void Swapchain::Recreate(u32 width_, u32 height_) {
 
 void Swapchain::RebuildSurface() {
     vk::Device device = instance.GetDevice();
-    const auto wait_result = device.waitIdle();
+    const auto wait_result = [&] {
+        std::scoped_lock lock{Scheduler::submit_mutex};
+        return device.waitIdle();
+    }();
     if (wait_result != vk::Result::eSuccess) {
         LOG_WARNING(Render_Vulkan, "waitIdle before surface rebuild failed: {}",
                     vk::to_string(wait_result));
@@ -120,7 +135,10 @@ void Swapchain::SetHDR(bool hdr) {
         return;
     }
 
-    auto result = instance.GetDevice().waitIdle();
+    auto result = [&] {
+        std::scoped_lock lock{Scheduler::submit_mutex};
+        return instance.GetDevice().waitIdle();
+    }();
     if (result != vk::Result::eSuccess) {
         LOG_WARNING(ImGui, "Failed to wait for Vulkan device idle on mode change: {}",
                     vk::to_string(result));
@@ -140,6 +158,10 @@ AcquireStatus Swapchain::AcquireNextImage() {
     needs_recreation |= acquired.recreate &&
         (acquired.result != vk::Result::eSuboptimalKHR || SuboptimalNeedsRecreation());
     surface_lost |= acquired.surface_lost;
+#ifdef __ANDROID__
+    if (acquired.surface_lost || acquired.status == AcquireStatus::Error)
+        throw std::runtime_error("Android swapchain acquire: " + vk::to_string(acquired.result));
+#endif
     if (acquired.status == AcquireStatus::Error) {
         LOG_CRITICAL(Render_Vulkan, "Swapchain acquire failed: {}", vk::to_string(acquired.result));
         UNREACHABLE();
@@ -163,11 +185,18 @@ bool Swapchain::Present() {
     if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR) {
         needs_recreation |= result == vk::Result::eErrorOutOfDateKHR || SuboptimalNeedsRecreation();
     } else if (result == vk::Result::eErrorSurfaceLostKHR) {
+#ifdef __ANDROID__
+        throw std::runtime_error("Android swapchain present: Surface lost");
+#endif
         // Surface object died mid-present (Android detach): the next Recreate must
         // rebuild the VkSurfaceKHR, not just the swapchain.
         surface_lost = true;
         needs_recreation = true;
     } else {
+#ifdef __ANDROID__
+        if (result != vk::Result::eSuccess)
+            throw std::runtime_error("Android swapchain present: " + vk::to_string(result));
+#endif
         ASSERT_MSG(result == vk::Result::eSuccess, "Swapchain presentation failed: {}",
                    vk::to_string(result));
     }
@@ -272,6 +301,10 @@ void Swapchain::FindPresentMode() {
 void Swapchain::SetSurfaceProperties() {
     const auto [capabilities_result, capabilities] =
         instance.GetPhysicalDevice().getSurfaceCapabilitiesKHR(surface);
+#ifdef __ANDROID__
+    if (capabilities_result != vk::Result::eSuccess)
+        throw std::runtime_error("Android surface capabilities: " + vk::to_string(capabilities_result));
+#endif
     ASSERT_MSG(capabilities_result == vk::Result::eSuccess,
                "Failed to query surface capabilities: {}", vk::to_string(capabilities_result));
 
@@ -312,7 +345,11 @@ void Swapchain::SetSurfaceProperties() {
 
 void Swapchain::Destroy() {
     vk::Device device = instance.GetDevice();
-    const auto wait_result = device.waitIdle();
+    // vkDeviceWaitIdle requires external synchronization of every device queue.
+    const auto wait_result = [&] {
+        std::scoped_lock lock{Scheduler::submit_mutex};
+        return device.waitIdle();
+    }();
     if (wait_result != vk::Result::eSuccess) {
         LOG_WARNING(Render_Vulkan, "Failed to wait for device to become idle: {}",
                     vk::to_string(wait_result));
@@ -325,7 +362,11 @@ void Swapchain::Destroy() {
 
     if (swapchain) {
         device.destroySwapchainKHR(swapchain);
+        swapchain = nullptr;
     }
+    images.clear();
+    frame_index = 0;
+    image_index = 0;
 
     for (const auto& sem : image_acquired) {
         device.destroySemaphore(sem);

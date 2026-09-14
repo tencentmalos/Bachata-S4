@@ -972,6 +972,7 @@ set(CORE src/core/aerolib/stubs.cpp
          src/core/debugger.cpp
          src/core/debugger.h
          src/core/diagnostics/diagnostics_hub.cpp
+         src/core/diagnostics/pipeline_handoff.cpp
          src/core/diagnostics/diagnostics_hub.h
          src/core/diagnostics/diagnostics_hub_registry.cpp
          src/core/diagnostics/diagnostics_hub_registry.h
@@ -1156,6 +1157,7 @@ set(VIDEO_CORE src/video_core/amdgpu/cb_db_extent.h
                src/video_core/renderer_vulkan/vk_graphics_pipeline.cpp
                src/video_core/renderer_vulkan/vk_graphics_pipeline.h
                src/video_core/renderer_vulkan/vk_instance.cpp
+               src/video_core/renderer_vulkan/vk_gpu_reshape.cpp
                src/video_core/renderer_vulkan/vk_instance.h
                src/video_core/renderer_vulkan/vk_master_semaphore.cpp
                src/video_core/renderer_vulkan/vk_master_semaphore.h
@@ -1215,6 +1217,8 @@ set(VIDEO_CORE src/video_core/amdgpu/cb_db_extent.h
 )
 
 set(IMGUI src/imgui/imgui_config.h
+          src/imgui/status_layer.cpp
+          src/imgui/status_layer.h
           src/imgui/imgui_layer.h
           src/imgui/imgui_std.h
           src/imgui/imgui_texture.h
@@ -1623,6 +1627,23 @@ if(BUILD_HOST_CORE)
         src/core/diagnostics/diagnostics_commands.cpp
         src/core/diagnostics/diagnostics_service.cpp)
     target_link_libraries(shadps4 PRIVATE spatial::foundation_input)
+    # Optional independent SDK checkout, matching Cemu's source SDK integration.
+    set(SHADPS4_GPU_RESHAPE_SDK_ROOT "" CACHE PATH "GPU Reshape source SDK root (Android debug tooling)")
+    set(SHADPS4_GPU_RESHAPE_LIBRARY "")
+    if(SHADPS4_GPU_RESHAPE_SDK_ROOT)
+        set(SHADPS4_GPU_RESHAPE_LIBRARY "${SHADPS4_GPU_RESHAPE_SDK_ROOT}/out/android-arm64/Artifacts/Lib/Release/libGPUReshapeAndroid.so")
+        if(NOT ANDROID OR NOT EXISTS "${SHADPS4_GPU_RESHAPE_LIBRARY}" OR
+           NOT EXISTS "${SHADPS4_GPU_RESHAPE_SDK_ROOT}/Source/Backends/Vulkan/Android/Include/GpuReshape/AndroidSdk.h")
+            message(FATAL_ERROR "Build the matching ARM64 GPU Reshape Android SDK before configuring host")
+        endif()
+        add_library(shadps4_gpu_reshape_sdk SHARED IMPORTED)
+        set_target_properties(shadps4_gpu_reshape_sdk PROPERTIES IMPORTED_LOCATION "${SHADPS4_GPU_RESHAPE_LIBRARY}")
+        # Only the adapter TU needs the SDK ABI; do not rebuild or expose its headers to JNI.
+        set_source_files_properties(src/video_core/renderer_vulkan/vk_gpu_reshape.cpp PROPERTIES
+            COMPILE_DEFINITIONS SHADPS4_HAS_GPU_RESHAPE_ANDROID=1
+            INCLUDE_DIRECTORIES "${SHADPS4_GPU_RESHAPE_SDK_ROOT}/Source/Backends/Vulkan/Android/Include")
+        target_link_libraries(shadps4 PRIVATE shadps4_gpu_reshape_sdk)
+    endif()
     get_target_property(host_dependencies shadps4 LINK_LIBRARIES)
     add_library(shadps4_host_dependencies INTERFACE)
     target_link_libraries(shadps4_host_dependencies INTERFACE ${host_dependencies})
@@ -1634,7 +1655,7 @@ if(BUILD_HOST_CORE)
     # The APK and load audit consume the real host DSO and the exact header
     # environment of this target, without duplicating host source/archive lists.
     file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/shadps4-host-loader.cmake"
-        CONTENT "set(SHADPS4_HOST_ADRENOTOOLS_HOOKS [==[$<TARGET_FILE:hook_impl>;$<TARGET_FILE:main_hook>;$<TARGET_FILE:file_redirect_hook>;$<TARGET_FILE:gsl_alloc_hook>]==])\nset(SHADPS4_HOST_PROVIDES_GUEST_CPU_API TRUE)\nset(SHADPS4_HOST_LOADER_LIBRARY [==[$<TARGET_FILE:shadps4_host>]==])\nset(SHADPS4_HOST_LOADER_INCLUDES [==[$<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>]==])\nset(SHADPS4_HOST_LOADER_DEFINITIONS [==[$<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>]==])\nset(SHADPS4_HOST_LOADER_ABI [==[${ANDROID_ABI}]==])\nset(SHADPS4_HOST_LOADER_API [==[${ANDROID_PLATFORM_LEVEL}]==])\nset(SHADPS4_HOST_LOADER_STL [==[${ANDROID_STL}]==])\n")
+        CONTENT "set(SHADPS4_HOST_GPU_RESHAPE_LIBRARY [==[${SHADPS4_GPU_RESHAPE_LIBRARY}]==])\nset(SHADPS4_HOST_ADRENOTOOLS_HOOKS [==[$<TARGET_FILE:hook_impl>;$<TARGET_FILE:main_hook>;$<TARGET_FILE:file_redirect_hook>;$<TARGET_FILE:gsl_alloc_hook>]==])\nset(SHADPS4_HOST_PROVIDES_GUEST_CPU_API TRUE)\nset(SHADPS4_HOST_LOADER_LIBRARY [==[$<TARGET_FILE:shadps4_host>]==])\nset(SHADPS4_HOST_LOADER_INCLUDES [==[$<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>]==])\nset(SHADPS4_HOST_LOADER_DEFINITIONS [==[$<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>]==])\nset(SHADPS4_HOST_LOADER_ABI [==[${ANDROID_ABI}]==])\nset(SHADPS4_HOST_LOADER_API [==[${ANDROID_PLATFORM_LEVEL}]==])\nset(SHADPS4_HOST_LOADER_STL [==[${ANDROID_STL}]==])\n")
     option(HOST_BUILD_PROBES "Build auxiliary native host linkage/contract probes" OFF)
     if(HOST_BUILD_PROBES)
         add_executable(host_dlopen_smoke tests/host_runtime/host_dlopen_smoke.cpp)

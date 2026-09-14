@@ -1,0 +1,88 @@
+$ /Users/bytedance/Library/Android/sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android33-clang++ -O2 -std=c++20 -static-libstdc++ /Users/bytedance/workspace/emulations/ps4/shadps4/tests/video_core/android_r8_tiling_probe.cpp -ldl -o /Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/probe
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 shell mkdir -p /data/local/tmp/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 shell run-as com.picoxr.renderdoccmd.arm64 mkdir -p files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 push /Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/probe /data/local/tmp/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/probe
+/Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/probe: 1 file pushed, 0 skipped. 480.6 MB/s (5505000 bytes in 0.011s)
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 shell run-as com.picoxr.renderdoccmd.arm64 cp /data/local/tmp/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/probe files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/probe
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 shell run-as com.picoxr.renderdoccmd.arm64 chmod 700 files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/probe
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 push /Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/linear.bin /data/local/tmp/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/linear.bin
+/Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/linear.bin: 1 file pushed, 0 skipped. 723.1 MB/s (1048576 bytes in 0.001s)
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 shell run-as com.picoxr.renderdoccmd.arm64 cp /data/local/tmp/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/linear.bin files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/linear.bin
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 push /Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/tiled.bin /data/local/tmp/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/tiled.bin
+/Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/tiled.bin: 1 file pushed, 0 skipped. 556.8 MB/s (1048576 bytes in 0.002s)
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 shell run-as com.picoxr.renderdoccmd.arm64 cp /data/local/tmp/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/tiled.bin files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/tiled.bin
+$ glslangValidator -V --target-env spirv1.3 -S comp -DBITS_PER_PIXEL=8 -DNUM_SAMPLES=1 -DMICRO_TILE_THICKNESS=1 -DARRAY_MODE=4 -DMICRO_TILE_MODE=1 -DPIPE_CONFIG=12 -DBANK_WIDTH=1 -DBANK_HEIGHT=4 -DNUM_BANKS=16 -DNUM_BANK_BITS=4 -DTILE_SPLIT_BYTES=256 -DMACRO_TILE_ASPECT=4 /Users/bytedance/workspace/emulations/ps4/shadps4/src/video_core/host_shaders/tiling.comp -o /Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/thin-detile.spv
+/Users/bytedance/workspace/emulations/ps4/shadps4/src/video_core/host_shaders/tiling.comp
+$ spirv-val --target-env vulkan1.2 --scalar-block-layout /Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/thin-detile.spv
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 push /Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/thin-detile.spv /data/local/tmp/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/shader.spv
+/Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/thin-detile.spv: 1 file pushed, 0 skipped. 20.1 MB/s (17644 bytes in 0.001s)
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 shell run-as com.picoxr.renderdoccmd.arm64 cp /data/local/tmp/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/shader.spv files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/shader.spv
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 shell run-as com.picoxr.renderdoccmd.arm64 files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/probe /data/user/0/com.picoxr.renderdoccmd.arm64/files/shadps4-turnip/librenderdoc_turnip.so files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/shader.spv files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/tiled.bin files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/linear.bin
+GPU Turnip Adreno (TM) 740
+storage8=0 storage16=1 int8=1 int16=1 scalar=1
+MISMATCH=0 NONZERO=1044480
+$ glslangValidator -V --target-env spirv1.3 -S comp -DBITS_PER_PIXEL=8 -DNUM_SAMPLES=1 -DMICRO_TILE_THICKNESS=1 -DARRAY_MODE=4 -DMICRO_TILE_MODE=1 -DPIPE_CONFIG=12 -DBANK_WIDTH=1 -DBANK_HEIGHT=4 -DNUM_BANKS=16 -DNUM_BANK_BITS=4 -DTILE_SPLIT_BYTES=256 -DMACRO_TILE_ASPECT=4 -DIS_TILER=1 /Users/bytedance/workspace/emulations/ps4/shadps4/src/video_core/host_shaders/tiling.comp -o /Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/thin-tile.spv
+/Users/bytedance/workspace/emulations/ps4/shadps4/src/video_core/host_shaders/tiling.comp
+$ spirv-val --target-env vulkan1.2 --scalar-block-layout /Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/thin-tile.spv
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 push /Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/thin-tile.spv /data/local/tmp/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/shader.spv
+/Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/thin-tile.spv: 1 file pushed, 0 skipped. 14.8 MB/s (17432 bytes in 0.001s)
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 shell run-as com.picoxr.renderdoccmd.arm64 cp /data/local/tmp/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/shader.spv files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/shader.spv
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 shell run-as com.picoxr.renderdoccmd.arm64 files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/probe /data/user/0/com.picoxr.renderdoccmd.arm64/files/shadps4-turnip/librenderdoc_turnip.so files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/shader.spv files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/linear.bin files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/tiled.bin tile
+GPU Turnip Adreno (TM) 740
+storage8=0 storage16=1 int8=1 int16=1 scalar=1
+MISMATCH=0 NONZERO=1044480
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 push /Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/linear.bin /data/local/tmp/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/linear.bin
+/Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/linear.bin: 1 file pushed, 0 skipped. 251.8 MB/s (1048576 bytes in 0.004s)
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 shell run-as com.picoxr.renderdoccmd.arm64 cp /data/local/tmp/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/linear.bin files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/linear.bin
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 push /Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/tiled.bin /data/local/tmp/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/tiled.bin
+/Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/tiled.bin: 1 file pushed, 0 skipped. 539.2 MB/s (1048576 bytes in 0.002s)
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 shell run-as com.picoxr.renderdoccmd.arm64 cp /data/local/tmp/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/tiled.bin files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/tiled.bin
+$ glslangValidator -V --target-env spirv1.3 -S comp -DBITS_PER_PIXEL=8 -DNUM_SAMPLES=1 -DMICRO_TILE_THICKNESS=1 -DARRAY_MODE=4 -DMICRO_TILE_MODE=0 -DPIPE_CONFIG=12 -DBANK_WIDTH=1 -DBANK_HEIGHT=4 -DNUM_BANKS=16 -DNUM_BANK_BITS=4 -DTILE_SPLIT_BYTES=256 -DMACRO_TILE_ASPECT=4 /Users/bytedance/workspace/emulations/ps4/shadps4/src/video_core/host_shaders/tiling.comp -o /Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/display-detile.spv
+/Users/bytedance/workspace/emulations/ps4/shadps4/src/video_core/host_shaders/tiling.comp
+$ spirv-val --target-env vulkan1.2 --scalar-block-layout /Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/display-detile.spv
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 push /Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/display-detile.spv /data/local/tmp/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/shader.spv
+/Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/display-detile.spv: 1 file pushed, 0 skipped. 14.7 MB/s (17644 bytes in 0.001s)
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 shell run-as com.picoxr.renderdoccmd.arm64 cp /data/local/tmp/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/shader.spv files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/shader.spv
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 shell run-as com.picoxr.renderdoccmd.arm64 files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/probe /data/user/0/com.picoxr.renderdoccmd.arm64/files/shadps4-turnip/librenderdoc_turnip.so files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/shader.spv files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/tiled.bin files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/linear.bin
+GPU Turnip Adreno (TM) 740
+storage8=0 storage16=1 int8=1 int16=1 scalar=1
+MISMATCH=0 NONZERO=1044480
+$ glslangValidator -V --target-env spirv1.3 -S comp -DBITS_PER_PIXEL=8 -DNUM_SAMPLES=1 -DMICRO_TILE_THICKNESS=1 -DARRAY_MODE=4 -DMICRO_TILE_MODE=0 -DPIPE_CONFIG=12 -DBANK_WIDTH=1 -DBANK_HEIGHT=4 -DNUM_BANKS=16 -DNUM_BANK_BITS=4 -DTILE_SPLIT_BYTES=256 -DMACRO_TILE_ASPECT=4 -DIS_TILER=1 /Users/bytedance/workspace/emulations/ps4/shadps4/src/video_core/host_shaders/tiling.comp -o /Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/display-tile.spv
+/Users/bytedance/workspace/emulations/ps4/shadps4/src/video_core/host_shaders/tiling.comp
+$ spirv-val --target-env vulkan1.2 --scalar-block-layout /Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/display-tile.spv
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 push /Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/display-tile.spv /data/local/tmp/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/shader.spv
+/Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/display-tile.spv: 1 file pushed, 0 skipped. 9.9 MB/s (17432 bytes in 0.002s)
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 shell run-as com.picoxr.renderdoccmd.arm64 cp /data/local/tmp/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/shader.spv files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/shader.spv
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 shell run-as com.picoxr.renderdoccmd.arm64 files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/probe /data/user/0/com.picoxr.renderdoccmd.arm64/files/shadps4-turnip/librenderdoc_turnip.so files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/shader.spv files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/linear.bin files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/tiled.bin tile
+GPU Turnip Adreno (TM) 740
+storage8=0 storage16=1 int8=1 int16=1 scalar=1
+MISMATCH=0 NONZERO=1044480
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 push /Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/linear.bin /data/local/tmp/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/linear.bin
+/Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/linear.bin: 1 file pushed, 0 skipped. 364.5 MB/s (1048576 bytes in 0.003s)
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 shell run-as com.picoxr.renderdoccmd.arm64 cp /data/local/tmp/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/linear.bin files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/linear.bin
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 push /Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/tiled.bin /data/local/tmp/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/tiled.bin
+/Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/tiled.bin: 1 file pushed, 0 skipped. 608.6 MB/s (1048576 bytes in 0.002s)
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 shell run-as com.picoxr.renderdoccmd.arm64 cp /data/local/tmp/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/tiled.bin files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/tiled.bin
+$ glslangValidator -V --target-env spirv1.3 -S comp -DBITS_PER_PIXEL=8 -DNUM_SAMPLES=1 -DMICRO_TILE_THICKNESS=1 -DARRAY_MODE=2 -DMICRO_TILE_MODE=1 /Users/bytedance/workspace/emulations/ps4/shadps4/src/video_core/host_shaders/tiling.comp -o /Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/micro-detile.spv
+/Users/bytedance/workspace/emulations/ps4/shadps4/src/video_core/host_shaders/tiling.comp
+$ spirv-val --target-env vulkan1.2 --scalar-block-layout /Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/micro-detile.spv
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 push /Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/micro-detile.spv /data/local/tmp/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/shader.spv
+/Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/micro-detile.spv: 1 file pushed, 0 skipped. 15.3 MB/s (9072 bytes in 0.001s)
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 shell run-as com.picoxr.renderdoccmd.arm64 cp /data/local/tmp/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/shader.spv files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/shader.spv
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 shell run-as com.picoxr.renderdoccmd.arm64 files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/probe /data/user/0/com.picoxr.renderdoccmd.arm64/files/shadps4-turnip/librenderdoc_turnip.so files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/shader.spv files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/tiled.bin files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/linear.bin
+GPU Turnip Adreno (TM) 740
+storage8=0 storage16=1 int8=1 int16=1 scalar=1
+MISMATCH=0 NONZERO=1044480
+$ glslangValidator -V --target-env spirv1.3 -S comp -DBITS_PER_PIXEL=8 -DNUM_SAMPLES=1 -DMICRO_TILE_THICKNESS=1 -DARRAY_MODE=2 -DMICRO_TILE_MODE=1 -DIS_TILER=1 /Users/bytedance/workspace/emulations/ps4/shadps4/src/video_core/host_shaders/tiling.comp -o /Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/micro-tile.spv
+/Users/bytedance/workspace/emulations/ps4/shadps4/src/video_core/host_shaders/tiling.comp
+$ spirv-val --target-env vulkan1.2 --scalar-block-layout /Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/micro-tile.spv
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 push /Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/micro-tile.spv /data/local/tmp/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/shader.spv
+/Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/r8-tests/micro-tile.spv: 1 file pushed, 0 skipped. 11.7 MB/s (8860 bytes in 0.001s)
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 shell run-as com.picoxr.renderdoccmd.arm64 cp /data/local/tmp/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/shader.spv files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/shader.spv
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 shell run-as com.picoxr.renderdoccmd.arm64 files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/probe /data/user/0/com.picoxr.renderdoccmd.arm64/files/shadps4-turnip/librenderdoc_turnip.so files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/shader.spv files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/linear.bin files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda/tiled.bin tile
+GPU Turnip Adreno (TM) 740
+storage8=0 storage16=1 int8=1 int16=1 scalar=1
+MISMATCH=0 NONZERO=1044480
+R8_TILING_PASS 6/6
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 shell run-as com.picoxr.renderdoccmd.arm64 rm -rf files/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda
+$ /Users/bytedance/Library/Android/sdk/platform-tools/adb -s 9c2841a4 shell rm -rf /data/local/tmp/shadps4-r8-78fce9211cf04fe18aa1f21f3f07bfda

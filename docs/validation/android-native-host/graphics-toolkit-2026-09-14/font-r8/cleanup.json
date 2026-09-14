@@ -1,0 +1,16 @@
+{
+  "settings": {
+    "enable_gpu_debug_layers": "null",
+    "gpu_debug_app": "null",
+    "gpu_debug_layers": "null",
+    "gpu_debug_layer_app": "null"
+  },
+  "properties": {
+    "debug.rdoc.vulkan_loader": "",
+    "debug.shadps4.gpu_reshape": "",
+    "debug.shadps4.gpu_reshape_resource_bounds": "",
+    "debug.shadps4.gpu_reshape_shader_analysis": "",
+    "debug.shadps4.gpu_reshape_shader_hashes": "",
+    "debug.shadps4.gpu_reshape_shader_replacement": ""
+  }
+}

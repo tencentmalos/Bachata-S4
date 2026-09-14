@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "deliver",
+  "type": "timeline",
+  "input": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/concurrency/tmnt-off-timeline.json",
+  "output": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/concurrency/tmnt-off.html",
+  "specification": {
+    "sha256": "e5bde7e4e8348db2ee51c04658eb8baad8fe8adfb7c8efa431171aa737a79408",
+    "bytes": 21311
+  },
+  "artifact": {
+    "sha256": "e9ac7c0bc6f7581d4b627e5906c5c613258f1f1eff655b01d273b335cec136f3",
+    "bytes": 853345
+  },
+  "validation": {
+    "checksPassed": 9,
+    "checkCount": 9,
+    "compositionProfile": "showcase",
+    "compositionStatus": "pass",
+    "errors": 0,
+    "warnings": 0
+  }
+}

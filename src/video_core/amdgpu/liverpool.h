@@ -14,6 +14,7 @@
 #include <queue>
 
 #include "common/assert.h"
+#include "core/diagnostics/diagnostics_hub_registry.h"
 #include "common/slot_vector.h"
 #include "common/types.h"
 #include "common/unique_function.h"
@@ -31,6 +32,7 @@ struct VideoOutPort;
 namespace AmdGpu {
 
 struct Liverpool {
+    std::shared_ptr<Core::Diagnostics::DiagnosticsPublisher> diagnostics{Core::Diagnostics::DiagnosticsHub::Instance().Acquire()};
     static constexpr u32 GfxQueueId = 0u;
     static constexpr u32 NumGfxRings = 1u;     // actually 2, but HP is reserved by system software
     static constexpr u32 NumComputePipes = 7u; // actually 8, but #7 is reserved by system software
@@ -193,6 +195,7 @@ private:
             void unhandled_exception() {
                 error = std::current_exception();
             }
+            u64 diagnostic_id{};
             void return_void() {}
             struct empty {};
             std::suspend_always yield_value(empty&&) {
@@ -244,7 +247,7 @@ private:
         ComputeProgram cs_state{};
     };
     std::array<GpuQueue, NumTotalQueues> mapped_queues{};
-    u32 num_mapped_queues{1u}; // GFX is always available
+    std::atomic<u32> num_mapped_queues{1u}; // GFX is always available
 
     VAddr indirect_args_addr{};
     u32 num_counter_pairs{};

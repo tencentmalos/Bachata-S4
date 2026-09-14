@@ -1,0 +1,24 @@
+{
+  "request": {
+    "method": "tools/call",
+    "params": {
+      "name": "pipeline_bindings",
+      "arguments": {
+        "eventId": "240",
+        "limit": 25
+      }
+    }
+  },
+  "response": {
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"schemaVersion\":\"1.0\",\"session\":{\"captureId\":\"b8a1ed90-d3ba-44b7-9a72-0ffd39ac4d4b\",\"captureRevision\":{\"value\":4}},\"data\":{\"dataset\":\"shader_binding\",\"materialization\":\"ready\",\"rows\":{\"columns\":[{\"name\":\"event_id\",\"declaredType\":\"INTEGER\"},{\"name\":\"stage\",\"declaredType\":\"TEXT\"},{\"name\":\"kind\",\"declaredType\":\"TEXT\"},{\"name\":\"space\",\"declaredType\":\"INTEGER\"},{\"name\":\"binding\",\"declaredType\":\"INTEGER\"},{\"name\":\"array_index\",\"declaredType\":\"INTEGER\"},{\"name\":\"resource_id\",\"declaredType\":\"TEXT\"},{\"name\":\"view_format\",\"declaredType\":\"TEXT\"}],\"rows\":[[\"240\",\"pixel\",\"read_only_image\",0,0,0,\"2395\",\"type=0;component=2;count=1;width=1;flags=0x0000\"],[\"240\",\"pixel\",\"sampler\",0,1,0,\"2400\",\"type=0;component=0;count=0;width=0;flags=0x0000\"],[\"240\",\"vertex\",\"read_write_buffer\",0,2,0,\"277\",\"type=0;component=0;count=0;width=0;flags=0x0000\"],[\"240\",\"vertex\",\"read_write_buffer\",0,3,0,null,\"type=0;component=0;count=0;width=0;flags=0x0000\"]],\"truncated\":false,\"executionMs\":0.0502},\"warnings\":[]}}"
+        }
+      ]
+    },
+    "id": 17,
+    "jsonrpc": "2.0"
+  }
+}

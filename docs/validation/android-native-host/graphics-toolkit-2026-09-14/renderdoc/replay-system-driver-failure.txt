@@ -1,0 +1,261 @@
+--------- beginning of main
+09-14 17:26:57.921 27994 27994 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 10192 <<<<<<
+09-14 17:26:57.923 27994 27994 I AndroidRuntime: Using default boot image
+09-14 17:26:57.923 27994 27994 I AndroidRuntime: Leaving lock profiling enabled
+09-14 17:26:57.925 27994 27994 W com.picoxr.renderdoccmd.arm64: ART APEX data files are untrusted.
+09-14 17:26:57.969 27994 27994 D com.picoxr.renderdoccmd.arm64: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+09-14 17:26:57.969 27994 27994 D com.picoxr.renderdoccmd.arm64: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt70l.dat
+09-14 17:26:57.984 27994 27994 D AndroidRuntime: Calling main entry com.android.internal.os.WrapperInit
+09-14 17:26:57.984 27994 27994 D Zygote  : begin preload
+09-14 17:26:57.984 27994 27994 I Zygote  : Calling ZygoteHooks.beginPreload()
+09-14 17:26:58.001 27994 27994 I Zygote  : Preloading classes...
+09-14 17:26:58.018 27994 27994 I Typeface: Preloading /system/fonts/Roboto-Regular.ttf
+09-14 17:26:58.018 27994 27994 I Typeface: Preloading /system/fonts/RobotoStatic-Regular.ttf
+09-14 17:26:58.028 27994 27994 I Typeface: Preloading /system/fonts/NotoSansCJK-Regular.ttc
+09-14 17:26:58.028 27994 27994 I Typeface: Preloading /system/fonts/NotoSerifCJK-Regular.ttc
+09-14 17:26:58.031 27994 27994 E ActivityRecognitionHardware: activity_recognition HAL is deprecated. class_init is effectively a no-op
+09-14 17:26:58.118 27994 27994 D MtpDeviceJNI: register_android_mtp_MtpDevice
+09-14 17:26:58.118 27994 27994 I MediaProfiles: Profiles xml path: /vendor/etc/media_profiles_kalama_iot.xml
+09-14 17:26:58.126 27994 27994 I com.picoxr.renderdoccmd.arm64: Thread[1,tid=27994,Native,Thread*=0xb400007943b897b0,peer=0x13a40078,"main"] recursive attempt to load library "librtp_jni.so"
+09-14 17:26:58.156 27994 27994 W UnsafeUtil: platform method missing - proto runtime falling back to safer methods: java.lang.NoSuchMethodException: sun.misc.Unsafe.copyMemory [class java.lang.Object, long, class java.lang.Object, long, long]
+09-14 17:26:58.205 27994 27994 W Zygote  : Class not found for preloading: com.android.internal.telephony.ServiceStateTracker$$ExternalSyntheticLambda6
+09-14 17:26:58.208 27994 27994 W Zygote  : Class not found for preloading: com.android.internal.telephony.imsphone.ImsPhone$3
+09-14 17:26:58.208 27994 27994 W Zygote  : Class not found for preloading: com.android.internal.telephony.imsphone.ImsPhone$4
+09-14 17:26:58.220 27994 27994 W ziparchive: Unable to open '/system/framework/tcmclient.dm': No such file or directory
+09-14 17:26:58.220 27994 27994 W ziparchive: Unable to open '/system/framework/tcmclient.dm': No such file or directory
+09-14 17:26:58.221 27994 27994 W ziparchive: Unable to open '/system/framework/tcmiface.dm': No such file or directory
+09-14 17:26:58.221 27994 27994 W ziparchive: Unable to open '/system/framework/tcmiface.dm': No such file or directory
+09-14 17:26:58.221 27994 27994 I DpmTcmClient: RegisterTcmMonitor from: $Proxy2
+09-14 17:26:58.232 27994 27994 W System.err: java.security.KeyStoreException: JKS not found
+09-14 17:26:58.233 27994 27994 W System.err: 	at java.security.KeyStore.getInstance(KeyStore.java:904)
+09-14 17:26:58.233 27994 27994 W System.err: 	at sun.security.util.AnchorCertificates$1.run(AnchorCertificates.java:57)
+09-14 17:26:58.233 27994 27994 W System.err: 	at sun.security.util.AnchorCertificates$1.run(AnchorCertificates.java:50)
+09-14 17:26:58.233 27994 27994 W System.err: 	at java.security.AccessController.doPrivileged(AccessController.java:43)
+09-14 17:26:58.233 27994 27994 W System.err: 	at sun.security.util.AnchorCertificates.<clinit>(AnchorCertificates.java:50)
+09-14 17:26:58.233 27994 27994 W System.err: 	at java.lang.Class.classForName(Native Method)
+09-14 17:26:58.233 27994 27994 W System.err: 	at java.lang.Class.forName(Class.java:454)
+09-14 17:26:58.233 27994 27994 W System.err: 	at com.android.internal.os.ZygoteInit.preloadClasses(ZygoteInit.java:307)
+09-14 17:26:58.233 27994 27994 W System.err: 	at com.android.internal.os.ZygoteInit.preload(ZygoteInit.java:140)
+09-14 17:26:58.233 27994 27994 W System.err: 	at com.android.internal.os.WrapperInit.main(WrapperInit.java:86)
+09-14 17:26:58.233 27994 27994 W System.err: 	at com.android.internal.os.RuntimeInit.nativeFinishInit(Native Method)
+09-14 17:26:58.233 27994 27994 W System.err: 	at com.android.internal.os.RuntimeInit.main(RuntimeInit.java:355)
+09-14 17:26:58.233 27994 27994 W System.err: Caused by: java.security.NoSuchAlgorithmException: JKS KeyStore not available
+09-14 17:26:58.233 27994 27994 W System.err: 	at sun.security.jca.GetInstance.getInstance(GetInstance.java:159)
+09-14 17:26:58.233 27994 27994 W System.err: 	at java.security.Security.getImpl(Security.java:628)
+09-14 17:26:58.233 27994 27994 W System.err: 	at java.security.KeyStore.getInstance(KeyStore.java:901)
+09-14 17:26:58.233 27994 27994 W System.err: 	... 11 more
+09-14 17:26:58.235 27994 27994 I Zygote  : ...preloaded 16428 classes in 234ms.
+09-14 17:26:58.236 27994 27994 D ApplicationLoaders: Created zygote-cached class loader: /system/framework/android.hidl.base-V1.0-java.jar
+09-14 17:26:58.237 27994 27994 D ApplicationLoaders: Created zygote-cached class loader: /system/framework/android.hidl.manager-V1.0-java.jar
+09-14 17:26:58.237 27994 27994 D ApplicationLoaders: Created zygote-cached class loader: /system/framework/android.test.base.jar
+09-14 17:26:58.237 27994 27994 I Zygote  : Preloading resources...
+09-14 17:26:58.239 27994 27994 W Resources: Preloaded drawable resource #0x1080287 (android:drawable/dialog_background_material) that varies with configuration!!
+09-14 17:26:58.243 27994 27994 I Zygote  : ...preloaded 64 resources in 6ms.
+09-14 17:26:58.244 27994 27994 I Zygote  : ...preloaded 41 resources in 1ms.
+09-14 17:26:58.251 27994 27994 D libEGL  : loaded /vendor/lib64/egl/libEGL_adreno.so
+09-14 17:26:58.254 27994 27994 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_adreno.so
+09-14 17:26:58.256 27994 27994 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_adreno.so
+09-14 17:26:58.269 27994 27994 I Zygote  : Preloading shared libraries...
+09-14 17:26:58.271 27994 27994 E com.picoxr.renderdoccmd.arm64: Unable to find pattern file or unable to map it for am
+09-14 17:26:58.271 27994 27994 I Zygote  : Called ZygoteHooks.endPreload()
+09-14 17:26:58.271 27994 27994 I Zygote  : Installed AndroidKeyStoreProvider in 0ms.
+09-14 17:26:58.272 27994 27994 I Zygote  : Warmed up JCA providers in 1ms.
+09-14 17:26:58.272 27994 27994 D Zygote  : end preload
+09-14 17:26:58.278 27994 27994 D CompatibilityChangeReporter: Compat change id reported: 171979766; UID 10192; state: DISABLED
+09-14 17:26:58.279 27994 27994 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+09-14 17:26:58.280 27994 27994 W ziparchive: Unable to open '/data/app/~~cGoX55uq-G13mOMQgxqz0w==/com.picoxr.renderdoccmd.arm64-964wDgi3ou9OLtlT-3ZcXQ==/base.dm': No such file or directory
+09-14 17:26:58.281 27994 27994 W ziparchive: Unable to open '/data/app/~~cGoX55uq-G13mOMQgxqz0w==/com.picoxr.renderdoccmd.arm64-964wDgi3ou9OLtlT-3ZcXQ==/base.dm': No such file or directory
+09-14 17:26:58.286 27994 27994 I Perf    : Connecting to perf service.
+09-14 17:26:58.287 27994 27994 V GraphicsEnvironment: ANGLE Developer option for 'com.picoxr.renderdoccmd.arm64' set to: 'default'
+09-14 17:26:58.287 27994 27994 V GraphicsEnvironment: ANGLE GameManagerService for com.picoxr.renderdoccmd.arm64: false
+09-14 17:26:58.287 27994 27994 V GraphicsEnvironment: Updatable production driver is not supported on the device.
+09-14 17:26:58.288 27994 27994 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+09-14 17:26:58.288 27994 27994 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+09-14 17:26:58.291 27994 27994 I renderdoc: @6aa7bde200000001@ RDOC 027994: [17:26:58]             core.cpp( 389) - Log     - RenderDoc construct, m_Replay: 0, RenderDoc: 000000774E753C08
+09-14 17:26:58.292 27994 27994 I renderdoc: @6aa7bde200000002@ RDOC 027994: [17:26:58]        gl_driver.cpp(1376) - Error   - Failed to load libRenderdocUtils.pxr.so, dlopen failed: library "libRenderdocUtils.pxr.so" not found
+09-14 17:26:58.292 27994 27994 I renderdoc: @6aa7bde200000003@ RDOC 027994: [17:26:58]        gl_driver.cpp( 692) - Log     - WrappedOpenGL construct, m_State: 3
+09-14 17:26:58.293 27994 27994 I renderdoc: @6aa7bde200000004@ RDOC 027994: [17:26:58]             core.cpp(1564) - Log     - RegisterDeviceProtocol: adb
+09-14 17:26:58.293 27994 27994 I renderdoc: @6aa7bde200000005@ RDOC 027994: [17:26:58]   posix_libentry.cpp(  35) - Log     - library_loaded
+09-14 17:26:58.293 27994 27994 I renderdoc: @6aa7bde200000006@ RDOC 027994: [17:26:58]     android_hook.cpp( 754) - Log     - Detecting symbol renderdoc__replay__marker by dlsym: yes
+09-14 17:26:58.293 27994 27994 I renderdoc: @6aa7bde200000007@ RDOC 027994: [17:26:58]     android_hook.cpp( 755) - Log     - Detecting symbol renderdoc__replay__marker by getenv: yes
+09-14 17:26:58.308 27994 27994 I renderdoc: @6aa7bde200000008@ RDOC 027994: [17:26:58]   posix_stringio.cpp( 524) - Warning - Couldn't acquire shared lock to '/sdcard/Android/media/com.picoxr.renderdoccmd.arm64/files/RenderDocForPico/RenderDoc_2026.09.14_17.26.58.log': 38
+09-14 17:26:58.308 27994 27994 I renderdoc: @6aa7bde200000009@ RDOC 027994: [17:26:58]             core.cpp( 488) - Log     - m_LoggingFilename: /sdcard/Android/media/com.picoxr.renderdoccmd.arm64/files/RenderDocForPico/RenderDoc_2026.09.14_17.26.58.log, capture_filename: /sdcard/Android/media/com.picoxr.renderdoccmd.arm64/files/RenderDocForPico/com.picoxr.renderdoccmd.arm64_2026.09.14_17.26.rdc, m_Target: com.picoxr.renderdoccmd.arm64
+09-14 17:26:58.308 27994 27994 I renderdoc: @6aa7bde20000000a@ RDOC 027994: [17:26:58]             core.cpp( 510) - Log     - RenderDoc v1.27 Android 64-bit Release (6ae929af16150fe39fd13f2c41b4ee00b60c704b) loaded in replay application
+09-14 17:26:58.308 27994 27994 I renderdoc: @6aa7bde20000000b@ RDOC 027994: [17:26:58]             core.cpp( 513) - Log     - Packaged for PicoXR (1.2) - https://www.picoxr.com/
+09-14 17:26:58.308 27994 27994 I renderdoc: @6aa7bde20000000c@ RDOC 027994: [17:26:58]         settings.cpp( 460) - Log     - Loading config from /sdcard/Android/media/com.picoxr.renderdoccmd.arm64/files/renderdoc.conf
+09-14 17:26:58.315 27994 27994 I renderdoccmd: Creating lock m_DrawLock
+09-14 17:26:58.315 27994 27994 I renderdoccmd: Creating lock m_CmdLock
+09-14 17:26:58.316 27994 27994 I ActivityThread: performLaunchActivity com.picoxr.renderdoccmd.arm64 displayId 0
+09-14 17:26:58.317 27994 27994 I ActivityThread: getDefaultLauncherPackage pkn com.android.launcher3
+09-14 17:26:58.325 27994 28025 I renderdoccmd: android_main android_state->window: 0x0
+09-14 17:26:58.325 27994 27994 D Loader  : startForegroundService
+09-14 17:26:58.325 27994 28025 I renderdoccmd: spawning headless remote server command thread
+09-14 17:26:58.325 27994 28026 I renderdoccmd: Entering cmd thread
+09-14 17:26:58.325 27994 28026 I renderdoc: @6aa7bde20000000d@ RDOC 027994: [17:26:58]             core.cpp( 624) - Log     - Replay application 'com.picoxr.renderdoccmd.arm64' launched
+09-14 17:26:58.326 27994 28026 I renderdoc: @6aa7bde20000000e@ RDOC 027994: [17:26:58]             core.cpp( 628) - Log     - Parameter [0]: 
+09-14 17:26:58.326 27994 28026 I renderdoc: @6aa7bde20000000f@ RDOC 027994: [17:26:58]    posix_network.cpp( 444) - Log     - Created and bind socket: 70
+09-14 17:26:58.326 27994 28025 I renderdoccmd: handle_cmd(10)
+09-14 17:26:58.326 27994 28027 I renderdoc: @6aa7bde200000010@ RDOC 027994: [17:26:58]          vk_core.cpp( 121) - Log     - Disable FSRLayer
+09-14 17:26:58.326 27994 27994 D CompatibilityChangeReporter: Compat change id reported: 210923482; UID 10192; state: DISABLED
+09-14 17:26:58.326 27994 27994 D CompatibilityChangeReporter: Compat change id reported: 37756858; UID 10192; state: DISABLED
+09-14 17:26:58.326 27994 28026 I renderdoc: @6aa7bde200000011@ RDOC 027994: [17:26:58]    remote_server.cpp(1039) - Log     - No whitelist IP ranges configured - using default private IP ranges.
+09-14 17:26:58.326 27994 28026 I renderdoc: @6aa7bde200000012@ RDOC 027994: [17:26:58]    remote_server.cpp(1043) - Log     - Create a config file remoteserver.conf in ~/.renderdoc or %APPDATA%/renderdoc to narrow this down or accept connections from more ranges.
+09-14 17:26:58.327 27994 28026 I renderdoc: @6aa7bde200000013@ RDOC 027994: [17:26:58]    remote_server.cpp(1050) - Log     - Allowing connections from:
+09-14 17:26:58.327 27994 28026 I renderdoc: @6aa7bde200000014@ RDOC 027994: [17:26:58]    remote_server.cpp(1059) - Log     - 10.0.0.0 / 255.0.0.0
+09-14 17:26:58.327 27994 28026 I renderdoc: @6aa7bde200000015@ RDOC 027994: [17:26:58]    remote_server.cpp(1059) - Log     - 172.16.0.0 / 255.240.0.0
+09-14 17:26:58.327 27994 28026 I renderdoc: @6aa7bde200000016@ RDOC 027994: [17:26:58]    remote_server.cpp(1059) - Log     - 192.168.0.0 / 255.255.0.0
+09-14 17:26:58.327 27994 28026 I renderdoc: @6aa7bde200000017@ RDOC 027994: [17:26:58]    remote_server.cpp(1063) - Log     - Allowing execution commands
+09-14 17:26:58.327 27994 28026 I renderdoc: @6aa7bde200000018@ RDOC 027994: [17:26:58]    remote_server.cpp(1067) - Log     - Replay host ready for requests...
+09-14 17:26:58.327 27994 28025 I renderdoccmd: handle_cmd(11)
+09-14 17:26:58.327 27994 27994 I ActivityThread: performResumeActivity com.picoxr.renderdoccmd.arm64 displayId 0
+09-14 17:26:58.327 27994 27994 I ActivityThread: getDefaultLauncherPackage pkn com.android.launcher3
+09-14 17:26:58.329 27994 27994 D CompatibilityChangeReporter: Compat change id reported: 237531167; UID 10192; state: DISABLED
+09-14 17:26:58.331 27994 28025 I renderdoccmd: handle_cmd(0)
+09-14 17:26:58.332 27994 27994 D ForegroundService: OnCreate
+09-14 17:26:58.332 27994 27994 D ForegroundService: createNotificationChannel
+09-14 17:26:58.332 27994 27994 D CompatibilityChangeReporter: Compat change id reported: 160794467; UID 10192; state: DISABLED
+09-14 17:26:58.333 27994 27994 D ForegroundService: set ChannelId
+09-14 17:26:58.333 27994 27994 D ForegroundService: onStartCommand()
+09-14 17:26:58.337 27994 28027 D vulkan  : searching for layers in '/data/app/~~cGoX55uq-G13mOMQgxqz0w==/com.picoxr.renderdoccmd.arm64-964wDgi3ou9OLtlT-3ZcXQ==/lib/arm64'
+09-14 17:26:58.337 27994 28027 D vulkan  : added global layer 'VK_LAYER_RENDERDOC_Capture' from library '/data/app/~~cGoX55uq-G13mOMQgxqz0w==/com.picoxr.renderdoccmd.arm64-964wDgi3ou9OLtlT-3ZcXQ==/lib/arm64/libVkLayer_GLES_RenderDoc.so'
+09-14 17:26:58.337 27994 28027 D vulkan  : searching for layers in '/data/app/~~cGoX55uq-G13mOMQgxqz0w==/com.picoxr.renderdoccmd.arm64-964wDgi3ou9OLtlT-3ZcXQ==/base.apk!/lib/arm64-v8a'
+09-14 17:26:58.341 27994 28027 I AdrenoVK-0: ===== BEGIN DUMP OF OVERRIDDEN SETTINGS =====
+09-14 17:26:58.341 27994 28027 I AdrenoVK-0: ===== END DUMP OF OVERRIDDEN SETTINGS =====
+09-14 17:26:58.342 27994 28027 I AdrenoVK-0: QUALCOMM build          : 69e13475cb, I1df7ad3aa9
+09-14 17:26:58.342 27994 28027 I AdrenoVK-0: Build Date              : 12/27/23
+09-14 17:26:58.342 27994 28027 I AdrenoVK-0: Shader Compiler Version : E031.41.03.47
+09-14 17:26:58.342 27994 28027 I AdrenoVK-0: Local Branch            : 
+09-14 17:26:58.342 27994 28027 I AdrenoVK-0: Remote Branch           : refs/tags/AU_LINUX_ANDROID_LA.VENDOR.13.2.0.11.00.00.855.759
+09-14 17:26:58.342 27994 28027 I AdrenoVK-0: Remote Branch           : NONE
+09-14 17:26:58.342 27994 28027 I AdrenoVK-0: Reconstruct Branch      : NOTHING
+09-14 17:26:58.342 27994 28027 I AdrenoVK-0: Build Config            : S P 14.1.4 AArch64
+09-14 17:26:58.342 27994 28027 I AdrenoVK-0: Driver Path             : /vendor/lib64/hw/vulkan.adreno.so
+09-14 17:26:58.342 27994 28027 I AdrenoVK-0: Driver Version          : 0676.53
+09-14 17:26:58.342 27994 28027 I AdrenoVK-0: PFP                     : 0x01740168
+09-14 17:26:58.342 27994 28027 I AdrenoVK-0: ME                      : 0x00000000
+09-14 17:26:58.342 27994 28027 I AdrenoVK-0: Application Name    : RenderDoc Capturing App
+09-14 17:26:58.342 27994 28027 I AdrenoVK-0: Application Version : 0x0041b000
+09-14 17:26:58.342 27994 28027 I AdrenoVK-0: Engine Name         : RenderDoc
+09-14 17:26:58.342 27994 28027 I AdrenoVK-0: Engine Version      : 0x0041b000
+09-14 17:26:58.342 27994 28027 I AdrenoVK-0: Api Version         : 0x00400000
+09-14 17:26:58.342 27994 28027 I renderdoc: @6aa7bde200000019@ RDOC 027994: [17:26:58]        vk_replay.cpp(4760) - Log     - Created device.
+09-14 17:26:58.351 27994 28025 I renderdoccmd: handle_cmd(1)
+09-14 17:26:58.351 27994 28025 I renderdoccmd: APP_CMD_INIT_WINDOW
+09-14 17:26:58.351 27994 28025 I renderdoccmd: headless remote server command thread already running
+09-14 17:26:58.351 27994 28025 I renderdoccmd: Trying to splash
+09-14 17:26:58.351 27994 28025 I renderdoccmd: Doing a splash
+09-14 17:26:58.351 27994 28025 I AdrenoGLES-0: QUALCOMM build                   : 69e13475cb, I1df7ad3aa9
+09-14 17:26:58.351 27994 28025 I AdrenoGLES-0: Build Date                       : 12/27/23
+09-14 17:26:58.351 27994 28025 I AdrenoGLES-0: OpenGL ES Shader Compiler Version: E031.41.03.47
+09-14 17:26:58.351 27994 28025 I AdrenoGLES-0: Local Branch                     : 
+09-14 17:26:58.351 27994 28025 I AdrenoGLES-0: Remote Branch                    : refs/tags/AU_LINUX_ANDROID_LA.VENDOR.13.2.0.11.00.00.855.759
+09-14 17:26:58.351 27994 28025 I AdrenoGLES-0: Remote Branch                    : NONE
+09-14 17:26:58.351 27994 28025 I AdrenoGLES-0: Reconstruct Branch               : NOTHING
+09-14 17:26:58.351 27994 28025 I AdrenoGLES-0: Build Config                     : S P 14.1.4 AArch64
+09-14 17:26:58.351 27994 28025 I AdrenoGLES-0: Driver Path                      : /vendor/lib64/egl/libGLESv2_adreno.so
+09-14 17:26:58.351 27994 28025 I AdrenoGLES-0: Driver Version                   : 0676.53
+09-14 17:26:58.353 27994 28025 I AdrenoGLES-0: PFP: 0x01740168, ME: 0x00000000
+09-14 17:26:58.364 27994 28025 I AdrenoUtils: <ReadGpuID:407>: Reading chip ID through GSL
+09-14 17:26:58.372 27994 27994 I InsetsSourceConsumer: setControl gSourceControl control InsetsSourceControl: {type=ITYPE_IME, mSurfacePosition=Point(0, 55), mInsetsHint=Insets{left=0, top=0, right=0, bottom=111}}
+09-14 17:26:58.381 27994 28025 I renderdoccmd: Done splashing
+09-14 17:26:58.381 27994 28025 I renderdoccmd: handle_cmd(3)
+09-14 17:26:58.381 27994 28025 I renderdoccmd: handle_cmd(5)
+09-14 17:26:58.381 27994 28025 I renderdoccmd: handle_cmd(4)
+09-14 17:26:58.381 27994 28025 I renderdoccmd: doing misc splash
+09-14 17:26:58.381 27994 28025 I renderdoccmd: Trying to splash
+09-14 17:26:58.381 27994 28025 I renderdoccmd: Doing a splash
+09-14 17:26:58.381 27994 28025 I AdrenoGLES-0: QUALCOMM build                   : 69e13475cb, I1df7ad3aa9
+09-14 17:26:58.381 27994 28025 I AdrenoGLES-0: Build Date                       : 12/27/23
+09-14 17:26:58.381 27994 28025 I AdrenoGLES-0: OpenGL ES Shader Compiler Version: E031.41.03.47
+09-14 17:26:58.381 27994 28025 I AdrenoGLES-0: Local Branch                     : 
+09-14 17:26:58.381 27994 28025 I AdrenoGLES-0: Remote Branch                    : refs/tags/AU_LINUX_ANDROID_LA.VENDOR.13.2.0.11.00.00.855.759
+09-14 17:26:58.381 27994 28025 I AdrenoGLES-0: Remote Branch                    : NONE
+09-14 17:26:58.381 27994 28025 I AdrenoGLES-0: Reconstruct Branch               : NOTHING
+09-14 17:26:58.381 27994 28025 I AdrenoGLES-0: Build Config                     : S P 14.1.4 AArch64
+09-14 17:26:58.381 27994 28025 I AdrenoGLES-0: Driver Path                      : /vendor/lib64/egl/libGLESv2_adreno.so
+09-14 17:26:58.381 27994 28025 I AdrenoGLES-0: Driver Version                   : 0676.53
+09-14 17:26:58.382 27994 28025 I AdrenoGLES-0: PFP: 0x01740168, ME: 0x00000000
+09-14 17:26:58.390 27994 28025 I renderdoccmd: Done splashing
+09-14 17:26:58.390 27994 28025 I renderdoccmd: handle_cmd(6)
+09-14 17:26:58.390 27994 28025 I renderdoccmd: doing misc splash
+09-14 17:26:58.390 27994 28025 I renderdoccmd: Trying to splash
+09-14 17:26:58.390 27994 28025 I renderdoccmd: Doing a splash
+09-14 17:26:58.390 27994 28025 I AdrenoGLES-0: QUALCOMM build                   : 69e13475cb, I1df7ad3aa9
+09-14 17:26:58.390 27994 28025 I AdrenoGLES-0: Build Date                       : 12/27/23
+09-14 17:26:58.390 27994 28025 I AdrenoGLES-0: OpenGL ES Shader Compiler Version: E031.41.03.47
+09-14 17:26:58.390 27994 28025 I AdrenoGLES-0: Local Branch                     : 
+09-14 17:26:58.390 27994 28025 I AdrenoGLES-0: Remote Branch                    : refs/tags/AU_LINUX_ANDROID_LA.VENDOR.13.2.0.11.00.00.855.759
+09-14 17:26:58.390 27994 28025 I AdrenoGLES-0: Remote Branch                    : NONE
+09-14 17:26:58.390 27994 28025 I AdrenoGLES-0: Reconstruct Branch               : NOTHING
+09-14 17:26:58.390 27994 28025 I AdrenoGLES-0: Build Config                     : S P 14.1.4 AArch64
+09-14 17:26:58.390 27994 28025 I AdrenoGLES-0: Driver Path                      : /vendor/lib64/egl/libGLESv2_adreno.so
+09-14 17:26:58.390 27994 28025 I AdrenoGLES-0: Driver Version                   : 0676.53
+09-14 17:26:58.391 27994 28025 I AdrenoGLES-0: PFP: 0x01740168, ME: 0x00000000
+09-14 17:26:58.398 27994 28025 I renderdoccmd: Done splashing
+09-14 17:27:05.849 27994 28026 I renderdoc: @6aa7bde90000001a@ RDOC 027994: [17:27:05]    remote_server.cpp(1125) - Log     - Connection received from 127.0.0.1.
+09-14 17:27:05.849 27994 28026 I renderdoc: @6aa7bde90000001b@ RDOC 027994: [17:27:05]    remote_server.cpp(1148) - Log     - Processing connection
+09-14 17:27:05.850 27994 28097 I renderdoc: @6aa7bde90000001c@ RDOC 027994: [17:27:05]    remote_server.cpp( 239) - Log     - Promoting connection from 127.0.0.1 to active.
+09-14 17:27:05.850 27994 28097 I renderdoc: @6aa7bde90000001d@ RDOC 027994: [17:27:05]    remote_server.cpp( 258) - Log     - Returning OK signal for connection from 127.0.0.1.
+09-14 17:27:05.852 27994 28097 I renderdoc: @6aa7bde90000001e@ RDOC 027994: [17:27:05]    remote_server.cpp( 273) - Log     - ActiveRemoteClientThread
+09-14 17:27:06.523 27994 28097 I renderdoc: @6aa7bdea0000001f@ RDOC 027994: [17:27:06]    remote_server.cpp( 524) - Log     - eRemoteServer_OpenLog path: /sdcard/Download/shadps4-graphics-20260914/tmnt-dialog-697a9745.rdc
+09-14 17:27:06.523 27994 28097 I renderdoc: @6aa7bdea00000020@ RDOC 027994: [17:27:06]          rdcfile.cpp( 250) - Log     - Opening RDCFile /sdcard/Download/shadps4-graphics-20260914/tmnt-dialog-697a9745.rdc
+09-14 17:27:06.531 27994 28097 I renderdoc: @6aa7bdea00000021@ RDOC 027994: [17:27:06]             core.cpp(1724) - Log     - RenderDoc::CreateReplayDriver
+09-14 17:27:06.534 27994 28097 I renderdoc: @6aa7bdea00000022@ RDOC 027994: [17:27:06]          amd_rgp.cpp(  76) - Log     - AMD RGP Interop is not enabled
+09-14 17:27:06.535 27994 28097 I renderdoc: @6aa7bdea00000023@ RDOC 027994: [17:27:06]          vk_core.cpp( 121) - Log     - Disable FSRLayer
+09-14 17:27:06.535 27994 28097 I renderdoc: @6aa7bdea00000024@ RDOC 027994: [17:27:06]  vk_device_funcs.cpp( 314) - Log     - Inst Ext 0: VK_EXT_debug_report
+09-14 17:27:06.535 27994 28097 I renderdoc: @6aa7bdea00000025@ RDOC 027994: [17:27:06]  vk_device_funcs.cpp( 314) - Log     - Inst Ext 1: VK_EXT_debug_utils
+09-14 17:27:06.535 27994 28097 I renderdoc: @6aa7bdea00000026@ RDOC 027994: [17:27:06]  vk_device_funcs.cpp( 314) - Log     - Inst Ext 2: VK_EXT_swapchain_colorspace
+09-14 17:27:06.535 27994 28097 I renderdoc: @6aa7bdea00000027@ RDOC 027994: [17:27:06]  vk_device_funcs.cpp( 314) - Log     - Inst Ext 3: VK_GOOGLE_surfaceless_query
+09-14 17:27:06.535 27994 28097 I renderdoc: @6aa7bdea00000028@ RDOC 027994: [17:27:06]  vk_device_funcs.cpp( 314) - Log     - Inst Ext 4: VK_KHR_android_surface
+09-14 17:27:06.535 27994 28097 I renderdoc: @6aa7bdea00000029@ RDOC 027994: [17:27:06]  vk_device_funcs.cpp( 314) - Log     - Inst Ext 5: VK_KHR_device_group_creation
+09-14 17:27:06.535 27994 28097 I renderdoc: @6aa7bdea0000002a@ RDOC 027994: [17:27:06]  vk_device_funcs.cpp( 314) - Log     - Inst Ext 6: VK_KHR_external_fence_capabilities
+09-14 17:27:06.535 27994 28097 I renderdoc: @6aa7bdea0000002b@ RDOC 027994: [17:27:06]  vk_device_funcs.cpp( 314) - Log     - Inst Ext 7: VK_KHR_external_memory_capabilities
+09-14 17:27:06.535 27994 28097 I renderdoc: @6aa7bdea0000002c@ RDOC 027994: [17:27:06]  vk_device_funcs.cpp( 314) - Log     - Inst Ext 8: VK_KHR_external_semaphore_capabilities
+09-14 17:27:06.535 27994 28097 I renderdoc: @6aa7bdea0000002d@ RDOC 027994: [17:27:06]  vk_device_funcs.cpp( 314) - Log     - Inst Ext 9: VK_KHR_get_physical_device_properties2
+09-14 17:27:06.535 27994 28097 I renderdoc: @6aa7bdea0000002e@ RDOC 027994: [17:27:06]  vk_device_funcs.cpp( 314) - Log     - Inst Ext 10: VK_KHR_get_surface_capabilities2
+09-14 17:27:06.535 27994 28097 I renderdoc: @6aa7bdea0000002f@ RDOC 027994: [17:27:06]  vk_device_funcs.cpp( 314) - Log     - Inst Ext 11: VK_KHR_surface
+09-14 17:27:06.536 27994 28097 I renderdoc: @6aa7bdea00000030@ RDOC 027994: [17:27:06]  vk_device_funcs.cpp( 314) - Log     - Inst Ext 12: VK_KHR_surface_protected_capabilities
+09-14 17:27:06.536 27994 28097 I renderdoc: @6aa7bdea00000031@ RDOC 027994: [17:27:06]  vk_device_funcs.cpp( 321) - Log     - Inst Layer 0: VK_LAYER_RENDERDOC_Capture
+09-14 17:27:06.536 27994 28097 I renderdoc: @6aa7bdea00000032@ RDOC 027994: [17:27:06]  vk_device_funcs.cpp( 370) - Log     - Enabling VK_EXT_debug_utils
+09-14 17:27:06.540 27994 28097 I AdrenoVK-0: QUALCOMM build          : 69e13475cb, I1df7ad3aa9
+09-14 17:27:06.540 27994 28097 I AdrenoVK-0: Build Date              : 12/27/23
+09-14 17:27:06.540 27994 28097 I AdrenoVK-0: Shader Compiler Version : E031.41.03.47
+09-14 17:27:06.540 27994 28097 I AdrenoVK-0: Local Branch            : 
+09-14 17:27:06.540 27994 28097 I AdrenoVK-0: Remote Branch           : refs/tags/AU_LINUX_ANDROID_LA.VENDOR.13.2.0.11.00.00.855.759
+09-14 17:27:06.540 27994 28097 I AdrenoVK-0: Remote Branch           : NONE
+09-14 17:27:06.540 27994 28097 I AdrenoVK-0: Reconstruct Branch      : NOTHING
+09-14 17:27:06.540 27994 28097 I AdrenoVK-0: Build Config            : S P 14.1.4 AArch64
+09-14 17:27:06.540 27994 28097 I AdrenoVK-0: Driver Path             : /vendor/lib64/hw/vulkan.adreno.so
+09-14 17:27:06.540 27994 28097 I AdrenoVK-0: Driver Version          : 0676.53
+09-14 17:27:06.540 27994 28097 I AdrenoVK-0: PFP                     : 0x01740168
+09-14 17:27:06.540 27994 28097 I AdrenoVK-0: ME                      : 0x00000000
+09-14 17:27:06.540 27994 28097 I AdrenoVK-0: Application Name    : RenderDoc Capturing App
+09-14 17:27:06.540 27994 28097 I AdrenoVK-0: Application Version : 0x0041b000
+09-14 17:27:06.540 27994 28097 I AdrenoVK-0: Engine Name         : RenderDoc
+09-14 17:27:06.540 27994 28097 I AdrenoVK-0: Engine Version      : 0x0041b000
+09-14 17:27:06.540 27994 28097 I AdrenoVK-0: Api Version         : 0x00403000
+09-14 17:27:06.540 27994 28097 I renderdoc: @6aa7bdea00000033@ RDOC 027994: [17:27:06]        vk_replay.cpp(4760) - Log     - Created device.
+09-14 17:27:06.542 27994 28097 I renderdoc: @6aa7bdea00000034@ RDOC 027994: [17:27:06]  vk_device_funcs.cpp(1215) - Log     - Replay has physical device 0 available:
+09-14 17:27:06.542 27994 28097 I renderdoc: @6aa7bdea00000035@ RDOC 027994: [17:27:06]  vk_device_funcs.cpp(1218) - Log     -    - Adreno (TM) 740 (ver 512.676 patch 0x35) - 5143:43050a01
+09-14 17:27:06.542 27994 28097 I renderdoc: @6aa7bdea00000036@ RDOC 027994: [17:27:06]  vk_device_funcs.cpp(1226) - Log     -    - VK_DRIVER_ID_QUALCOMM_PROPRIETARY driver: Qualcomm Technologies Inc. Adreno Vulkan Driver (Driver Build: 69e13475cb, I1df7ad3aa9, 1703680572
+09-14 17:27:06.542 27994 28097 I renderdoc: @6aa7bdea00000037@ RDOC 027994: [17:27:06]  vk_device_funcs.cpp(1226) - Log     - Date: 12/27/23
+09-14 17:27:06.542 27994 28097 I renderdoc: @6aa7bdea00000038@ RDOC 027994: [17:27:06]  vk_device_funcs.cpp(1226) - Log     - Compiler Version: E031.41.03.47
+09-14 17:27:06.542 27994 28097 I renderdoc: @6aa7bdea00000039@ RDOC 027994: [17:27:06]  vk_device_funcs.cpp(1226) - Log     - Driver Branch: 
+09-14 17:27:06.542 27994 28097 I renderdoc: @6aa7bdea0000003a@ RDOC 027994: [17:27:06]  vk_device_funcs.cpp(1226) - Log     - ) - CTS 1.3.1.0
+09-14 17:27:06.542 27994 28097 I renderdoc: @6aa7bdea0000003b@ RDOC 027994: [17:27:06]  vk_device_funcs.cpp(1395) - Log     - Found capture physical device 0:
+09-14 17:27:06.542 27994 28097 I renderdoc: @6aa7bdea0000003c@ RDOC 027994: [17:27:06]  vk_device_funcs.cpp(1398) - Log     -    - Turnip Adreno (TM) 740 (ver 25.99 patch 0x63) - 5143:43050a01
+09-14 17:27:06.542 27994 28097 I renderdoc: @6aa7bdea0000003d@ RDOC 027994: [17:27:06]  vk_device_funcs.cpp(1405) - Log     -    - VK_DRIVER_ID_MESA_TURNIP driver: turnip Mesa driver (Mesa 26.0.0-devel (git-5ac41be677)) - CTS 1.4.0.0
+09-14 17:27:06.542 27994 28097 I renderdoc: @6aa7bdea0000003e@ RDOC 027994: [17:27:06]  vk_device_funcs.cpp(1409) - Log     - Mapping during replay to best-match physical device 0
+09-14 17:27:06.542 27994 28097 I renderdoc: @6aa7bdea0000003f@ RDOC 027994: [17:27:06]  vk_device_funcs.cpp(1683) - Log     - Creating replay device from physical device 0
+09-14 17:27:06.542 27994 28097 I renderdoc: @6aa7bdea00000040@ RDOC 027994: [17:27:06]        vk_common.cpp(1126) - Log     - Enabling Qualcomm driver workarounds
+09-14 17:27:06.542 27994 28097 I renderdoc: @6aa7bdea00000041@ RDOC 027994: [17:27:06]  vk_device_funcs.cpp(1769) - Error   - Capture requires extension 'VK_KHR_workgroup_memory_explicit_layout' which is not supported
+09-14 17:27:06.542 27994 28097 I renderdoc: @6aa7bdea00000042@ RDOC 027994: [17:27:06]  vk_device_funcs.cpp(1769) - Error   - 
+09-14 17:27:06.542 27994 28097 I renderdoc: @6aa7bdea00000043@ RDOC 027994: [17:27:06]  vk_device_funcs.cpp(1769) - Error   - Capture was made on: Qualcomm Turnip Adreno (TM) 740, 25.99.99
+09-14 17:27:06.542 27994 28097 I renderdoc: @6aa7bdea00000044@ RDOC 027994: [17:27:06]  vk_device_funcs.cpp(1769) - Error   - Replayed on: Qualcomm Adreno (TM) 740, 512.676.53
+09-14 17:27:06.542 27994 28097 I renderdoc: @6aa7bdea00000045@ RDOC 027994: [17:27:06]  vk_device_funcs.cpp(1769) - Error   - Captures are sometimes not portable between different GPUs from a vendor.
+09-14 17:27:06.542 27994 28097 I renderdoc: @6aa7bdea00000046@ RDOC 027994: [17:27:06]          vk_core.cpp(2693) - Log     - Timer chunk initialisation - 1.478 ms
+09-14 17:27:06.542 27994 28097 I renderdoc: @6aa7bdea00000047@ RDOC 027994: [17:27:06]    remote_server.cpp( 577) - Error   - Failed to initialise remote driver.
+09-14 17:27:06.804 27994 28097 I renderdoc: @6aa7bdea00000048@ RDOC 027994: [17:27:06]         streamio.cpp( 424) - Warning - RecvDataBlocking err
+09-14 17:27:06.804 27994 28097 I renderdoc: @6aa7bdea00000049@ RDOC 027994: [17:27:06]         streamio.cpp( 433) - Warning - Socket unexpectedly disconnected during reading
+09-14 17:27:06.804 27994 28097 I renderdoc: @6aa7bdea0000004a@ RDOC 027994: [17:27:06]    remote_server.cpp( 952) - Log     - Closing active connection from 127.0.0.1.
+09-14 17:27:06.804 27994 28097 I renderdoc: @6aa7bdea0000004b@ RDOC 027994: [17:27:06]    remote_server.cpp( 954) - Log     - Ready for new active connection...

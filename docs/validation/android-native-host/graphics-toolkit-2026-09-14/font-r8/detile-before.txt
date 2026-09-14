@@ -1,0 +1,3 @@
+GPU Turnip Adreno (TM) 740
+storage8=0 storage16=1 int8=1 int16=1 scalar=1
+MISMATCH=11463 NONZERO=4109

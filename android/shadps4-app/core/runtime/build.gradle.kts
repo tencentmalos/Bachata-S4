@@ -46,6 +46,14 @@ android {
             }
         }
     }
+    buildTypes {
+        getByName("debug") {
+            externalNativeBuild.cmake.arguments += "-DSHADPS4_ANDROID_DEBUG_COMMANDS=ON"
+        }
+        getByName("release") {
+            externalNativeBuild.cmake.arguments += "-DSHADPS4_ANDROID_DEBUG_COMMANDS=OFF"
+        }
+    }
     // Builds libshadps4_fex_session.so from src/main/cpp (FEX in-process session; no winlator/vortek).
     externalNativeBuild {
         cmake {
@@ -102,3 +110,26 @@ val packageNativeHooks = tasks.register("packageNativeHooks") {
     }
 }
 tasks.named("preBuild").configure { dependsOn(packageNativeHooks) }
+
+// The generated host SDK is authoritative: package exactly the DSO host links.
+val gpuReshapeLibs = layout.buildDirectory.dir("generated/gpuReshapeJniLibs")
+android.sourceSets.getByName("main").jniLibs.srcDir(gpuReshapeLibs)
+val packageGpuReshape = tasks.register("packageGpuReshape") {
+    val config = file(hostLoaderConfig)
+    inputs.file(config)
+    val sdkPath = if (config.exists()) config.readText()
+        .substringAfter("set(SHADPS4_HOST_GPU_RESHAPE_LIBRARY [==[", "").substringBefore("]==])") else ""
+    if (sdkPath.isNotBlank()) inputs.file(file(sdkPath))
+    outputs.dir(gpuReshapeLibs)
+    doLast {
+        val root = gpuReshapeLibs.get().asFile
+        root.deleteRecursively() // Only this task's generated output; avoids stale SDK packaging.
+        if (sdkPath.isNotBlank()) {
+            val sdk = file(sdkPath)
+            check(sdk.isFile) { "Missing GPU Reshape library from host loader config: $sdkPath" }
+            val abi = root.resolve("arm64-v8a").apply { mkdirs() }
+            sdk.copyTo(abi.resolve(sdk.name), overwrite = true)
+        }
+    }
+}
+tasks.named("preBuild").configure { dependsOn(packageGpuReshape) }

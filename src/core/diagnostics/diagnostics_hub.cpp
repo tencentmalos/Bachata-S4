@@ -20,10 +20,18 @@ void DiagnosticsPublisher::SetStopReason(std::string_view reason) {
     stop_reason_.assign(reason);
 }
 
+void DiagnosticsPublisher::SetDriverIdentity(std::string_view identity) {
+    std::lock_guard lock(strings_mtx_);
+    driver_identity_.assign(identity.substr(0, 4096));
+}
+void DiagnosticsPublisher::SetTerminalDetail(std::string_view detail) {
+    std::lock_guard lock(strings_mtx_);
+    terminal_detail_.assign(detail.substr(0, 4096));
+}
 void DiagnosticsPublisher::CopyInto(DiagnosticsSnapshot& out, u64 now_ns) const {
     // Numeric identity from atomics.
     const u64 gen = generation_.load(std::memory_order_acquire);
-    out.has_session = gen != 0;
+    out.has_session = gen != 0 && active_.load(std::memory_order_acquire);
     out.generation = gen;
     out.pid = pid_.load(std::memory_order_relaxed);
     out.phase = phase_.load(std::memory_order_relaxed);
@@ -43,6 +51,8 @@ void DiagnosticsPublisher::CopyInto(DiagnosticsSnapshot& out, u64 now_ns) const 
         out.run_uuid = run_uuid_;
         out.stage = stage_;
         out.stop_reason = stop_reason_;
+        out.driver_identity = driver_identity_;
+        out.terminal_detail = terminal_detail_;
     }
 }
 

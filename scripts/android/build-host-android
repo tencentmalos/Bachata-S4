@@ -24,10 +24,22 @@ def source_identity():
     paths = [ROOT / "CMakeLists.txt", ROOT / "externals/CMakeLists.txt",
              Path(__file__).resolve()]
     paths += [p for folder in ("src", "cmake", "tests/host_runtime")
-              for p in (ROOT / folder).rglob("*") if p.is_file()]
+              for p in (ROOT / folder).rglob("*")
+              if p.is_file() and "__pycache__" not in p.parts and p.suffix != ".pyc"]
     return {"files": {str(p.relative_to(ROOT)): sha(p) for p in sorted(set(paths))},
             "gitlinks": [line for line in capture(["git", "ls-files", "--stage"]).splitlines()
                          if line.startswith("160000 ")]}
+
+def gpu_reshape_identity(root):
+    root = root.resolve()
+    library = root / "out/android-arm64/Artifacts/Lib/Release/libGPUReshapeAndroid.so"
+    paths = [root / "CMakeLists.txt"] + [p for p in (root / "Source").rglob("*")
+        if p.is_file() and p.suffix in (".h", ".hpp", ".cpp", ".c", ".cmake", ".txt", ".xml")]
+    return {"head": capture(["git", "rev-parse", "HEAD"], root),
+            "source_files": {str(p.relative_to(root)): sha(p) for p in sorted(paths)},
+            "source_diff_sha256": hashlib.sha256(capture(["git", "diff", "HEAD", "--", "Source", "CMakeLists.txt"], root).encode()).hexdigest(),
+            "library": str(library), "library_sha256": sha(library),
+            "provenance": "external source checkout; HEAD alone is insufficient when source is dirty"}
 
 def main():
     p = argparse.ArgumentParser(description=__doc__)
@@ -35,6 +47,7 @@ def main():
     p.add_argument("--api", type=int, default=33)
     p.add_argument("--out", type=Path, default=ROOT / "build/android-host-api33")
     p.add_argument("--jobs", type=int, default=6)
+    p.add_argument("--gpu-reshape-sdk-root", type=Path, help="Independent optional Android SDK source checkout")
     a = p.parse_args()
     if a.ndk is None or a.jobs < 1:
         p.error("--ndk (or ANDROID_NDK_HOME) and positive --jobs required")
@@ -72,6 +85,13 @@ def main():
     result["source_manifest"] = str((run_dir / "source.json").relative_to(out))
     result["source_manifest_sha256"] = sha(run_dir / "source.json")
     result["source_status"] = capture(["git", "status", "--porcelain"])
+    sdk_identity = gpu_reshape_identity(a.gpu_reshape_sdk_root) if a.gpu_reshape_sdk_root else None
+    if sdk_identity:
+        (run_dir / "gpu-reshape-source.json").write_text(json.dumps(sdk_identity, indent=2) + "\n")
+        result["gpu_reshape"] = {"head": sdk_identity["head"],
+            "manifest": str((run_dir / "gpu-reshape-source.json").relative_to(out)),
+            "manifest_sha256": sha(run_dir / "gpu-reshape-source.json"),
+            "library_sha256": sdk_identity["library_sha256"]}
     def save():
         (out / "result.json").write_text(json.dumps(result, indent=2) + "\n")
         (run_dir / "result.json").write_text(json.dumps(result, indent=2) + "\n")
@@ -101,7 +121,8 @@ def main():
              "-DBUILD_HOST_CORE=ON", "-DENABLE_TESTS=OFF", "-DHOST_BUILD_PROBES=ON",
              "-DENABLE_DISCORD_RPC=OFF", "-DENABLE_UPDATER=OFF", "-DENABLE_SPATIAL_FOUNDATION=ON",
              f"-DSHADNET_PROTOC_EXECUTABLE={protoc}", f"-DIMGUI_FONT_EMBED_EXECUTABLE={font}",
-             "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"], "host-configure")
+             "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+             f"-DSHADPS4_GPU_RESHAPE_SDK_ROOT={a.gpu_reshape_sdk_root.resolve() if a.gpu_reshape_sdk_root else ''}"], "host-configure")
         run(["cmake", "--build", native, "--target", "shadps4_host", "host_library_smoke", "host_dlopen_smoke",
              "-j", a.jobs], "host-build")
         library = native / "libshadps4_host.so"
@@ -116,6 +137,8 @@ def main():
         result["map_sha256"] = sha(native / "shadps4_host.map")
         if source_identity() != source:
             raise RuntimeError("Sources changed during build; rerun on stable sources")
+        if sdk_identity and gpu_reshape_identity(a.gpu_reshape_sdk_root) != sdk_identity:
+            raise RuntimeError("GPU Reshape source/library changed during build")
         result["status"] = "HOST_LINK_PASS"; save()
         print(f"HOST_LINK_PASS: {library}; host build only; run runtime/APK acceptance separately", flush=True)
     except BaseException as e:

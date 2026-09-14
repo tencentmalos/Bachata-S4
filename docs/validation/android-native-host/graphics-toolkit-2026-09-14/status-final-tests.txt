@@ -1,0 +1,20 @@
+[frame_history] exit=0
+11 checks, 0 failures
+[gpu_reshape_config] exit=0
+11 checks, 0 failures
+[pipeline_handoff] exit=0
+21 checks, 0 failures
+[trace_identity] exit=0
+trace_identity: 27 checks, 0 failures
+[diagnostics_hub] exit=0
+concurrency: 15615 reads, final count 160000
+diagnostics_hub: 28 checks, 0 failures
+[diagnostics_hub_registry] exit=0
+registry concurrency: 11648 consistent reads
+diagnostics_hub_registry: 32 checks, 0 failures
+[renderdoc_capture] exit=0
+renderdoc_capture: 46 checks, 0 failures
+[diagnostics_commands] exit=0
+diagnostics_commands: 58 checks, 0 failures
+[diagnostics_service] exit=0
+diagnostics_service: 8 checks, 0 failures

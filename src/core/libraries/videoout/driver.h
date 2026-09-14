@@ -104,6 +104,7 @@ public:
 
 private:
     struct Request {
+        u64 diagnostic_id{};
         Vulkan::Frame* frame;
         VideoOutPort* port;
         s64 flip_arg;

@@ -25,7 +25,9 @@ layout (local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
 #define BYTES_PER_PIXEL (BITS_PER_PIXEL / 8)
 
 #if BITS_PER_PIXEL == 8
-#define BLOCK_TYPE uint8_t
+// shaderInt8 does not imply storageBuffer8BitAccess (Turnip exposes only the
+// former). Keep byte textures in packed words, without an 8-bit SSBO capability.
+#define BLOCK_TYPE uint32_t
 #elif BITS_PER_PIXEL == 16
 #define BLOCK_TYPE uint16_t
 #elif BITS_PER_PIXEL == 32
@@ -419,10 +421,9 @@ uint GetMipLevel(inout uint texel) {
     return end;
 }
 
-void main() {
-    uint texel = gl_GlobalInvocationID.x;
+uint GetTiledOffset(uint texel) {
     uint mip = GetMipLevel(texel);
-    if (mip >= min(info.num_mips, 16u)) return;
+    if (mip >= min(info.num_mips, 16u)) return 0xffffffffu;
     uint pitch = info.mips[mip].pitch;
     uint height = info.mips[mip].height;
     uint tiled_offset = info.mips[mip].offset;
@@ -440,9 +441,43 @@ void main() {
     }
 #endif
 
+    return tiled_offset;
+}
+
+void main() {
+#if BITS_PER_PIXEL == 8 && !defined(IS_TILER)
+    // One invocation owns an entire output word. Byte stores emulated with
+    // non-atomic read/modify/write would lose neighbouring invocations' data.
+    uint first = gl_GlobalInvocationID.x * 4u;
+    uint packed = 0u;
+    for (uint lane = 0u; lane < 4u; ++lane) {
+        uint address = GetTiledOffset(first + lane);
+        if (address == 0xffffffffu) {
+            if (lane == 0u) return;
+            break;
+        }
+        uint value = bitfieldExtract(tiled_data[address >> 2u], int((address & 3u) * 8u), 8);
+        packed |= value << (lane * 8u);
+    }
+    linear_data[gl_GlobalInvocationID.x] = packed;
+#else
+    uint tiled_offset = GetTiledOffset(gl_GlobalInvocationID.x);
+    if (tiled_offset == 0xffffffffu) return;
+
 #ifdef IS_TILER
+#if BITS_PER_PIXEL == 8
+    uint linear_index = gl_GlobalInvocationID.x;
+    uint value = bitfieldExtract(linear_data[linear_index >> 2u], int((linear_index & 3u) * 8u), 8);
+    uint shift = (tiled_offset & 3u) * 8u;
+    // The tiling map gives each byte a unique writer. Disjoint masks commute;
+    // both operations must be atomic to preserve the other three byte lanes.
+    atomicAnd(tiled_data[tiled_offset >> 2u], ~(0xffu << shift));
+    atomicOr(tiled_data[tiled_offset >> 2u], value << shift);
+#else
     tiled_data[tiled_offset / BYTES_PER_PIXEL] = linear_data[gl_GlobalInvocationID.x];
+#endif
 #else
     linear_data[gl_GlobalInvocationID.x] = tiled_data[tiled_offset / BYTES_PER_PIXEL];
+#endif
 #endif
 }

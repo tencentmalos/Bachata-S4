@@ -1,3 +1,4 @@
+#include "video_core/renderdoc.h"
 // SPDX-FileCopyrightText: Copyright 2024-2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -282,6 +283,7 @@ std::vector<const char*> GetInstanceLayers(bool enable_validation, bool enable_c
 
 vk::UniqueInstance CreateInstance(Frontend::WindowSystemType window_type, bool enable_validation,
                                   bool enable_crash_diagnostic, const DriverLease& driver) {
+    VideoCore::LoadRenderDoc();
     LOG_INFO(Render_Vulkan, "Creating vulkan instance");
 
 #if defined(__APPLE__)

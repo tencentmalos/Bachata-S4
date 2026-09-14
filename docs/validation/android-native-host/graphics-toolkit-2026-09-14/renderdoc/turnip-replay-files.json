@@ -1,0 +1,8 @@
+{
+  "librenderdoc_turnip.so": "c496dfe8c15cf58c2146388c560829ad8917b1c136437e235489edfa8c0db585",
+  "libmain_hook.so": "d45754d7c9488aa868714afa1fc9dca8b316e8d08b78f7bcbaf5fe9ace922a32",
+  "vulkan.ad07xx.so": "fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09",
+  "libgsl_alloc_hook.so": "9ce98c2e4f61595577cf933fa5927d1fa756bc105b737785ed869a2d0002803a",
+  "libfile_redirect_hook.so": "c1e65a245772bb7f040886f3806ef99d1c62a630634d20b40a496e8cd28f85e5",
+  "libhook_impl.so": "150fd0e2a9f818e1bb108429b9a2c01a85f1f8f93a6fae71752ce356023ed0c0"
+}

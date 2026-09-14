@@ -1,0 +1,73 @@
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"columns\":[\"compile_type\",\"runtime_type\",\"is_table_not_bound\",\"is_undefined\",\"n\"],\"rows\":[[{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":1},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":13312}],[{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":1},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":63488}]],\"truncated\":false,\"elapsedMilliseconds\":47,\"schemaRevision\":13,\"watermark\":\"raw_event:29268\",\"coverage\":\"partialLive\",\"provenance\":\"direct\"}"
+      }
+    ],
+    "structuredContent": {
+      "columns": [
+        "compile_type",
+        "runtime_type",
+        "is_table_not_bound",
+        "is_undefined",
+        "n"
+      ],
+      "rows": [
+        [
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 1
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 13312
+          }
+        ],
+        [
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 1
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 63488
+          }
+        ]
+      ],
+      "truncated": false,
+      "elapsedMilliseconds": 47,
+      "schemaRevision": 13,
+      "watermark": "raw_event:29268",
+      "coverage": "partialLive",
+      "provenance": "direct"
+    }
+  },
+  "id": 32,
+  "jsonrpc": "2.0"
+}

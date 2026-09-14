@@ -5,6 +5,7 @@
 
 #include "common/types.h"
 #include "video_core/renderer_vulkan/vk_common.h"
+namespace Vulkan { class Instance; class Scheduler; }
 #include "video_core/texture_cache/image.h"
 
 namespace Vulkan::HostPasses {
@@ -17,9 +18,9 @@ public:
         float rcas_attenuation{0.25f};
     };
 
-    void Create(vk::Device device, VmaAllocator allocator, u32 num_images);
+    void Create(const Instance& instance, VmaAllocator allocator, u32 num_images);
 
-    vk::ImageView Render(vk::CommandBuffer cmdbuf, vk::ImageView input, vk::Extent2D input_size,
+    vk::ImageView Render(Scheduler& scheduler, vk::ImageView input, vk::Extent2D input_size,
                          vk::Extent2D output_size, Settings settings, bool hdr);
 
 private:

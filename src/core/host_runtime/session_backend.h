@@ -24,6 +24,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #ifdef SESSION_TEST_HOOKS
@@ -133,6 +134,11 @@ public:
     // control-lease has fully drained, so no other thread is inside a backend
     // call on this runtime.
     virtual void Destroy(SessionRuntime& runtime) = 0;
+
+    // Telemetry only. Never wait on VM/renderer work or call back into SessionCore.
+    virtual void PublishLifecycle(std::uint64_t, std::uint32_t, std::string_view,
+                                  std::string_view = {}, std::string_view = {}) noexcept {}
+
 
 protected:
     ISessionBackend() = default;

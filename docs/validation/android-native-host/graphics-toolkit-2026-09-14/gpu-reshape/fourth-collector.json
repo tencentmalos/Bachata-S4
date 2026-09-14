@@ -1,0 +1,51 @@
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"columns\":[\"reason\",\"completed\",\"batches\",\"misses\",\"drops\"],\"rows\":[[{\"kind\":\"text\",\"value\":\"complete\"},{\"kind\":\"integer\",\"value\":1},{\"kind\":\"integer\",\"value\":1387},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0}]],\"truncated\":false,\"elapsedMilliseconds\":2,\"schemaRevision\":13,\"watermark\":\"raw_event:25684\",\"coverage\":\"partialLive\",\"provenance\":\"direct\"}"
+      }
+    ],
+    "structuredContent": {
+      "columns": [
+        "reason",
+        "completed",
+        "batches",
+        "misses",
+        "drops"
+      ],
+      "rows": [
+        [
+          {
+            "kind": "text",
+            "value": "complete"
+          },
+          {
+            "kind": "integer",
+            "value": 1
+          },
+          {
+            "kind": "integer",
+            "value": 1387
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          }
+        ]
+      ],
+      "truncated": false,
+      "elapsedMilliseconds": 2,
+      "schemaRevision": 13,
+      "watermark": "raw_event:25684",
+      "coverage": "partialLive",
+      "provenance": "direct"
+    }
+  },
+  "id": 29,
+  "jsonrpc": "2.0"
+}

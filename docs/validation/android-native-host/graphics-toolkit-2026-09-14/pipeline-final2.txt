@@ -1,0 +1,17 @@
+test_boundary_scope_is_explicit_unknown (test_pipeline_analysis.Tests.test_boundary_scope_is_explicit_unknown) ... ok
+test_capacity_is_not_complete (test_pipeline_analysis.Tests.test_capacity_is_not_complete) ... ok
+test_cross_capture_identity_required (test_pipeline_analysis.Tests.test_cross_capture_identity_required) ... ok
+test_duplicate_handoff_rejected (test_pipeline_analysis.Tests.test_duplicate_handoff_rejected) ... ok
+test_duplicate_rejected (test_pipeline_analysis.Tests.test_duplicate_rejected) ... ok
+test_nearest_timestamp_is_not_a_join (test_pipeline_analysis.Tests.test_nearest_timestamp_is_not_a_join) ... ok
+test_nested_physical_union_and_wait_subtraction (test_pipeline_analysis.Tests.test_nested_physical_union_and_wait_subtraction) ... ok
+test_projection_does_not_invent_missing_present_boundaries (test_pipeline_analysis.Tests.test_projection_does_not_invent_missing_present_boundaries) ... ok
+test_projection_preserves_crossing_endpoints_and_nested_scopes (test_pipeline_analysis.Tests.test_projection_preserves_crossing_endpoints_and_nested_scopes) ... ok
+test_scope_cross_thread_rejected (test_pipeline_analysis.Tests.test_scope_cross_thread_rejected) ... ok
+test_touching_intervals_are_not_parallel (test_pipeline_analysis.Tests.test_touching_intervals_are_not_parallel) ... ok
+test_wait_only_is_not_work (test_pipeline_analysis.Tests.test_wait_only_is_not_work) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.001s
+
+OK

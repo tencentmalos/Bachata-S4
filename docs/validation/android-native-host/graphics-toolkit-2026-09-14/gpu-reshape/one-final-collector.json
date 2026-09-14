@@ -1,0 +1,41 @@
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"columns\":[\"reason\",\"completed\",\"n\"],\"rows\":[[{\"kind\":\"text\",\"value\":\"complete\"},{\"kind\":\"integer\",\"value\":1},{\"kind\":\"integer\",\"value\":1147}]],\"truncated\":false,\"elapsedMilliseconds\":6,\"schemaRevision\":13,\"watermark\":\"raw_event:34177\",\"coverage\":\"partialLive\",\"provenance\":\"direct\"}"
+      }
+    ],
+    "structuredContent": {
+      "columns": [
+        "reason",
+        "completed",
+        "n"
+      ],
+      "rows": [
+        [
+          {
+            "kind": "text",
+            "value": "complete"
+          },
+          {
+            "kind": "integer",
+            "value": 1
+          },
+          {
+            "kind": "integer",
+            "value": 1147
+          }
+        ]
+      ],
+      "truncated": false,
+      "elapsedMilliseconds": 6,
+      "schemaRevision": 13,
+      "watermark": "raw_event:34177",
+      "coverage": "partialLive",
+      "provenance": "direct"
+    }
+  },
+  "id": 42,
+  "jsonrpc": "2.0"
+}

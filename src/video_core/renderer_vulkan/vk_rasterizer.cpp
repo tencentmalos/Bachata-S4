@@ -234,8 +234,8 @@ void Rasterizer::Draw(bool is_indexed, u32 index_offset) {
                     instance_offset);
     }
     DebugState.IncDrawCall();
-    Core::Diagnostics::DiagnosticsHub::Instance().Advance(
-        Core::Diagnostics::AdvanceSignal::HostDraw);
+    if (const auto& diag = instance.Diagnostics())
+        diag->Advance(Core::Diagnostics::AdvanceSignal::HostDraw, Core::Diagnostics::DiagnosticNowNs());
 
     ResetBindings();
 }
@@ -306,8 +306,8 @@ void Rasterizer::DrawIndirect(bool is_indexed, VAddr arg_address, u32 offset, u3
             cmdbuf.drawIndexedIndirect(buffer->Handle(), base, max_count, stride);
         }
         DebugState.IncDrawCall();
-    Core::Diagnostics::DiagnosticsHub::Instance().Advance(
-        Core::Diagnostics::AdvanceSignal::HostDraw);
+    if (const auto& diag = instance.Diagnostics())
+        diag->Advance(Core::Diagnostics::AdvanceSignal::HostDraw, Core::Diagnostics::DiagnosticNowNs());
     } else {
         ASSERT(sizeof(VkDrawIndirectCommand) == stride);
 
@@ -318,8 +318,8 @@ void Rasterizer::DrawIndirect(bool is_indexed, VAddr arg_address, u32 offset, u3
             cmdbuf.drawIndirect(buffer->Handle(), base, max_count, stride);
         }
         DebugState.IncDrawCall();
-    Core::Diagnostics::DiagnosticsHub::Instance().Advance(
-        Core::Diagnostics::AdvanceSignal::HostDraw);
+    if (const auto& diag = instance.Diagnostics())
+        diag->Advance(Core::Diagnostics::AdvanceSignal::HostDraw, Core::Diagnostics::DiagnosticNowNs());
     }
 
     ResetBindings();
@@ -352,8 +352,8 @@ void Rasterizer::DispatchDirect() {
     cmdbuf.bindPipeline(vk::PipelineBindPoint::eCompute, pipeline->Handle());
     cmdbuf.dispatch(cs_program.dim_x, cs_program.dim_y, cs_program.dim_z);
     DebugState.IncDispatch();
-    Core::Diagnostics::DiagnosticsHub::Instance().Advance(
-        Core::Diagnostics::AdvanceSignal::HostDraw);
+    if (const auto& diag = instance.Diagnostics())
+        diag->Advance(Core::Diagnostics::AdvanceSignal::HostDraw, Core::Diagnostics::DiagnosticNowNs());
 
     ResetBindings();
 }
@@ -387,8 +387,8 @@ void Rasterizer::DispatchIndirect(VAddr address, u32 offset, u32 size) {
     cmdbuf.bindPipeline(vk::PipelineBindPoint::eCompute, pipeline->Handle());
     cmdbuf.dispatchIndirect(buffer->Handle(), base);
     DebugState.IncDispatch();
-    Core::Diagnostics::DiagnosticsHub::Instance().Advance(
-        Core::Diagnostics::AdvanceSignal::HostDraw);
+    if (const auto& diag = instance.Diagnostics())
+        diag->Advance(Core::Diagnostics::AdvanceSignal::HostDraw, Core::Diagnostics::DiagnosticNowNs());
 
     ResetBindings();
 }

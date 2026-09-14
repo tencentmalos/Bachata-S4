@@ -1,0 +1,12 @@
+{
+  "base_commit": "6ae929af16150fe39fd13f2c41b4ee00b60c704b",
+  "source_worktree": "build/graphics-toolkit-review/renderdoc/paired-source",
+  "state": "base plus android-vulkan-loader.patch (including existing-keystore reuse); no full upstream or MCP ABI changes",
+  "sdk_apk_sha256": "a8006cea0b82cc77476cb39abf78bfba2f55fa048b9d1cc3ce10960817e27d49",
+  "patch_sha256": "26f84e3f44a9236b5790e0994ffc130f2221f20209ff684edb32e487e5ca4f2c",
+  "gpu_reshape_replay_provider": "not bundled in this isolated build; app SDK integration evidence is separate",
+  "libs": {
+    "lib/arm64-v8a/libVkLayer_GLES_RenderDoc.so": "453b297ced6f5c4fb5ece079e39d8278529097e65873867f3985589a5ae39b82",
+    "lib/arm64-v8a/librenderdoccmd.so": "b905cbaf569d6a459212fd47bc6c08dd242a06cecf751480045631ad9f54de2c"
+  }
+}

@@ -56,6 +56,7 @@ enum class AdvanceSignal : u32 {
     GpuRetire,       // verifiable GPU retire (may be UNAVAILABLE)
     HostPresent,     // host present succeeded (Presenter::Present true)
     OverlayRedraw,   // debug overlay redraw (NOT a guest flip)
+    GuestSubmission, // accepted GNM submission, distinct from Vulkan queue submit
     Count,
 };
 
@@ -77,6 +78,8 @@ inline constexpr u32 kAdvanceSignalCount = static_cast<u32>(AdvanceSignal::Count
         return "host_present";
     case AdvanceSignal::OverlayRedraw:
         return "overlay_redraw";
+    case AdvanceSignal::GuestSubmission:
+        return "guest_submission";
     case AdvanceSignal::Count:
         break;
     }
@@ -104,6 +107,8 @@ struct DiagnosticsSnapshot final {
     std::string run_uuid;
     std::string stage;        // free-form most-recent stage label
     std::string stop_reason;  // set once a stop is initiated/known
+    std::string driver_identity;
+    std::string terminal_detail;
     u64 snapshot_ns{0};       // when this snapshot was taken (monotonic)
 
     std::array<AdvanceCounter, kAdvanceSignalCount> counters{};
@@ -126,6 +131,7 @@ public:
         generation_.store(generation, std::memory_order_release);
         pid_.store(pid, std::memory_order_relaxed);
     }
+    void Complete() noexcept { active_.store(false, std::memory_order_release); }
     void SetPhase(u32 phase_ordinal) noexcept {
         phase_.store(phase_ordinal, std::memory_order_relaxed);
     }
@@ -136,6 +142,7 @@ public:
     }
     // Records delta advances of a signal at monotonic time now_ns.
     void Advance(AdvanceSignal s, u64 now_ns, u64 delta = 1) noexcept {
+        if (!active_.load(std::memory_order_acquire)) return;
         auto& c = slot(s);
         c.count.fetch_add(delta, std::memory_order_relaxed);
         c.last_advance_ns.store(now_ns, std::memory_order_relaxed);
@@ -144,6 +151,7 @@ public:
     // VideoOutDriver::guest_presents) and only bumps the timestamp when it moved
     // forward.
     void PublishCount(AdvanceSignal s, u64 absolute, u64 now_ns) noexcept {
+        if (!active_.load(std::memory_order_acquire)) return;
         auto& c = slot(s);
         const u64 prev = c.count.exchange(absolute, std::memory_order_relaxed);
         if (absolute > prev) {
@@ -154,6 +162,8 @@ public:
     void SetRunUuid(std::string_view uuid);
     void SetStage(std::string_view stage);
     void SetStopReason(std::string_view reason);
+    void SetDriverIdentity(std::string_view identity);
+    void SetTerminalDetail(std::string_view detail);
 
     // Copies numeric fields from atomics and strings under the string lock. Never
     // blocks on runtime work. now_ns stamps the snapshot time.
@@ -176,6 +186,7 @@ private:
         return counters_[static_cast<u32>(s)];
     }
 
+    std::atomic<bool> active_{true};
     std::atomic<u64> generation_{0};
     std::atomic<u64> pid_{0};
     std::atomic<u32> phase_{0};
@@ -188,6 +199,8 @@ private:
     std::string run_uuid_;
     std::string stage_;
     std::string stop_reason_;
+    std::string driver_identity_;
+    std::string terminal_detail_;
 };
 
 }  // namespace Core::Diagnostics

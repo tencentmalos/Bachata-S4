@@ -36,6 +36,9 @@
 
 namespace Core::Diagnostics {
 
+const std::string& ProcessRunUuid();
+std::uint64_t DiagnosticNowNs();
+
 class DiagnosticsHub final {
 public:
     // Process-wide instance (function-local static, matching the SessionCore
@@ -76,6 +79,7 @@ public:
 
     // The generation currently registered, or 0 if none.
     [[nodiscard]] std::uint64_t ActiveGeneration() const;
+    std::shared_ptr<DiagnosticsPublisher> Acquire(std::uint64_t generation = 0) const;
 
 private:
     mutable std::mutex mtx_;

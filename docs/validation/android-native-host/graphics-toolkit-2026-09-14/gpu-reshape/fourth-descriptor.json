@@ -1,0 +1,342 @@
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"columns\":[\"token\",\"sguid\",\"is_undefined\",\"is_out_of_bounds\",\"is_table_not_bound\",\"findings\"],\"rows\":[[{\"kind\":\"integer\",\"value\":4194301},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":1},{\"kind\":\"integer\",\"value\":13312}],[{\"kind\":\"integer\",\"value\":4194330},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":64}],[{\"kind\":\"integer\",\"value\":4195059},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":64}],[{\"kind\":\"integer\",\"value\":4195067},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":64}],[{\"kind\":\"integer\",\"value\":4195388},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":64}],[{\"kind\":\"integer\",\"value\":4195420},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":64}],[{\"kind\":\"integer\",\"value\":4195513},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":64}],[{\"kind\":\"integer\",\"value\":4195606},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":64}],[{\"kind\":\"integer\",\"value\":4195641},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":64}],[{\"kind\":\"integer\",\"value\":4195729},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":64}],[{\"kind\":\"integer\",\"value\":4195764},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":64}],[{\"kind\":\"integer\",\"value\":4195785},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":64}]],\"truncated\":false,\"elapsedMilliseconds\":31,\"schemaRevision\":13,\"watermark\":\"raw_event:25761\",\"coverage\":\"partialLive\",\"provenance\":\"direct\"}"
+      }
+    ],
+    "structuredContent": {
+      "columns": [
+        "token",
+        "sguid",
+        "is_undefined",
+        "is_out_of_bounds",
+        "is_table_not_bound",
+        "findings"
+      ],
+      "rows": [
+        [
+          {
+            "kind": "integer",
+            "value": 4194301
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 1
+          },
+          {
+            "kind": "integer",
+            "value": 13312
+          }
+        ],
+        [
+          {
+            "kind": "integer",
+            "value": 4194330
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 64
+          }
+        ],
+        [
+          {
+            "kind": "integer",
+            "value": 4195059
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 64
+          }
+        ],
+        [
+          {
+            "kind": "integer",
+            "value": 4195067
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 64
+          }
+        ],
+        [
+          {
+            "kind": "integer",
+            "value": 4195388
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 64
+          }
+        ],
+        [
+          {
+            "kind": "integer",
+            "value": 4195420
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 64
+          }
+        ],
+        [
+          {
+            "kind": "integer",
+            "value": 4195513
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 64
+          }
+        ],
+        [
+          {
+            "kind": "integer",
+            "value": 4195606
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 64
+          }
+        ],
+        [
+          {
+            "kind": "integer",
+            "value": 4195641
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 64
+          }
+        ],
+        [
+          {
+            "kind": "integer",
+            "value": 4195729
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 64
+          }
+        ],
+        [
+          {
+            "kind": "integer",
+            "value": 4195764
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 64
+          }
+        ],
+        [
+          {
+            "kind": "integer",
+            "value": 4195785
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 64
+          }
+        ]
+      ],
+      "truncated": false,
+      "elapsedMilliseconds": 31,
+      "schemaRevision": 13,
+      "watermark": "raw_event:25761",
+      "coverage": "partialLive",
+      "provenance": "direct"
+    }
+  },
+  "id": 31,
+  "jsonrpc": "2.0"
+}

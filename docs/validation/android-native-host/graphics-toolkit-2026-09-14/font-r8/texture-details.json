@@ -1,0 +1,23 @@
+{
+  "request": {
+    "method": "tools/call",
+    "params": {
+      "name": "texture_list",
+      "arguments": {
+        "limit": 20
+      }
+    }
+  },
+  "response": {
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"schemaVersion\":\"1.0\",\"session\":{\"captureId\":\"1c687ac2-4025-49cd-b78e-73dfd551fb36\",\"captureRevision\":{\"value\":1}},\"data\":[{\"resourceId\":\"192\",\"width\":1920,\"height\":1080,\"depth\":1,\"mipCount\":1,\"arraySize\":1,\"sampleCount\":1,\"byteSize\":8294400,\"creationFlags\":19,\"formatType\":0,\"componentCount\":4,\"componentByteWidth\":1,\"componentType\":2,\"formatFlags\":0},{\"resourceId\":\"193\",\"width\":1920,\"height\":1080,\"depth\":1,\"mipCount\":1,\"arraySize\":1,\"sampleCount\":1,\"byteSize\":8294400,\"creationFlags\":19,\"formatType\":0,\"componentCount\":4,\"componentByteWidth\":1,\"componentType\":2,\"formatFlags\":0},{\"resourceId\":\"194\",\"width\":1920,\"height\":1080,\"depth\":1,\"mipCount\":1,\"arraySize\":1,\"sampleCount\":1,\"byteSize\":8294400,\"creationFlags\":19,\"formatType\":0,\"componentCount\":4,\"componentByteWidth\":1,\"componentType\":2,\"formatFlags\":0},{\"resourceId\":\"195\",\"width\":1920,\"height\":1080,\"depth\":1,\"mipCount\":1,\"arraySize\":1,\"sampleCount\":1,\"byteSize\":8294400,\"creationFlags\":19,\"formatType\":0,\"componentCount\":4,\"componentByteWidth\":1,\"componentType\":2,\"formatFlags\":0},{\"resourceId\":\"196\",\"width\":1920,\"height\":1080,\"depth\":1,\"mipCount\":1,\"arraySize\":1,\"sampleCount\":1,\"byteSize\":8294400,\"creationFlags\":19,\"formatType\":0,\"componentCount\":4,\"componentByteWidth\":1,\"componentType\":2,\"formatFlags\":0},{\"resourceId\":\"197\",\"width\":1920,\"height\":1080,\"depth\":1,\"mipCount\":1,\"arraySize\":1,\"sampleCount\":1,\"byteSize\":8294400,\"creationFlags\":19,\"formatType\":0,\"componentCount\":4,\"componentByteWidth\":1,\"componentType\":2,\"formatFlags\":0},{\"resourceId\":\"257\",\"width\":4096,\"height\":8192,\"depth\":1,\"mipCount\":1,\"arraySize\":1,\"sampleCount\":1,\"byteSize\":134217728,\"creationFlags\":1,\"formatType\":0,\"componentCount\":4,\"componentByteWidth\":1,\"componentType\":2,\"formatFlags\":0},{\"resourceId\":\"494\",\"width\":1920,\"height\":1080,\"depth\":1,\"mipCount\":1,\"arraySize\":1,\"sampleCount\":1,\"byteSize\":8294400,\"creationFlags\":11,\"formatType\":0,\"componentCount\":4,\"componentByteWidth\":1,\"componentType\":9,\"formatFlags\":0},{\"resourceId\":\"498\",\"width\":1920,\"height\":1080,\"depth\":1,\"mipCount\":1,\"arraySize\":1,\"sampleCount\":1,\"byteSize\":8294400,\"creationFlags\":3,\"formatType\":0,\"componentCount\":4,\"componentByteWidth\":1,\"componentType\":2,\"formatFlags\":0},{\"resourceId\":\"507\",\"width\":1920,\"height\":1080,\"depth\":1,\"mipCount\":1,\"arraySize\":1,\"sampleCount\":1,\"byteSize\":8294400,\"creationFlags\":11,\"formatType\":0,\"componentCount\":4,\"componentByteWidth\":1,\"componentType\":9,\"formatFlags\":0},{\"resourceId\":\"509\",\"width\":1920,\"height\":1080,\"depth\":1,\"mipCount\":1,\"arraySize\":1,\"sampleCount\":1,\"byteSize\":8294400,\"creationFlags\":3,\"formatType\":0,\"componentCount\":4,\"componentByteWidth\":1,\"componentType\":2,\"formatFlags\":0},{\"resourceId\":\"988\",\"width\":4,\"height\":4,\"depth\":1,\"mipCount\":1,\"arraySize\":1,\"sampleCount\":1,\"byteSize\":64,\"creationFlags\":11,\"formatType\":0,\"componentCount\":4,\"componentByteWidth\":1,\"componentType\":2,\"formatFlags\":0},{\"resourceId\":\"2270\",\"width\":1920,\"height\":1080,\"depth\":1,\"mipCount\":1,\"arraySize\":1,\"sampleCount\":1,\"byteSize\":8294400,\"creationFlags\":11,\"formatType\":0,\"componentCount\":4,\"componentByteWidth\":1,\"componentType\":2,\"formatFlags\":0},{\"resourceId\":\"2388\",\"width\":2048,\"height\":2048,\"depth\":1,\"mipCount\":12,\"arraySize\":1,\"sampleCount\":1,\"byteSize\":5592432,\"creationFlags\":9,\"formatType\":4,\"componentCount\":4,\"componentByteWidth\":1,\"componentType\":2,\"formatFlags\":0},{\"resourceId\":\"2395\",\"width\":1024,\"height\":1024,\"depth\":1,\"mipCount\":1,\"arraySize\":1,\"sampleCount\":1,\"byteSize\":1048576,\"creationFlags\":11,\"formatType\":0,\"componentCount\":1,\"componentByteWidth\":1,\"componentType\":2,\"formatFlags\":0},{\"resourceId\":\"2401\",\"width\":2048,\"height\":1024,\"depth\":1,\"mipCount\":12,\"arraySize\":1,\"sampleCount\":1,\"byteSize\":2796240,\"creationFlags\":9,\"formatType\":4,\"componentCount\":4,\"componentByteWidth\":1,\"componentType\":2,\"formatFlags\":0}]}"
+        }
+      ]
+    },
+    "id": 13,
+    "jsonrpc": "2.0"
+  }
+}

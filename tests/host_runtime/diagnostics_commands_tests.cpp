@@ -57,6 +57,25 @@ int main() {
         CHECK(Has(r, "guest_flip: 0 (never)"));        // available and genuinely 0
     }
 
+    {
+        auto pub = hub.Acquire(11);
+        pub->SetPhase(5);
+        pub->SetStage("Stopped");
+        pub->SetStopReason("user_stop");
+        pub->SetTerminalDetail("guest_presents=3");
+        pub->Complete();
+        pub->Advance(AdvanceSignal::HostPresent, 200, 1); // retired lease cannot advance
+        const auto r = registry.Handle("debug_status");
+        CHECK(Has(r, "session: none"));
+        CHECK(Has(r, "phase: 5"));
+        CHECK(Has(r, "host_present: 3 (age_ns=9899)"));
+        CHECK(Has(r, "terminal_detail: guest_presents=3"));
+        auto next = hub.Register(12, 22);
+        CHECK(next->Generation() == 12);
+        CHECK(hub.Acquire(11) == nullptr);
+
+    }
+
     // --- renderdoc_status: reports API-loaded and capture-not-implemented ---
     {
         const std::string r = registry.Handle("renderdoc_status");
@@ -67,11 +86,13 @@ int main() {
     // --- overlay status: honest not-implemented + redraw counter ---
     {
         const std::string r = registry.Handle("overlay status");
-        CHECK(Has(r, "overlay: not-implemented"));
+        CHECK(Has(r, "overlay: hidden"));
         CHECK(Has(r, "overlay_redraw:"));
-        // overlay show is not-implemented, never faked.
+        // Visibility is actual control state; it does not claim a renderer exists.
         const std::string show = registry.Handle("overlay show");
-        CHECK(Has(show, "status: not-implemented"));
+        CHECK(Has(show, "overlay: shown"));
+        CHECK(Has(registry.Handle("overlay hide"), "overlay: hidden"));
+        CHECK(Has(registry.Handle("overlay invalid"), "invalid_arguments"));
     }
 
     // --- renderdoc_capture is now a real coordinator command; with RenderDoc
@@ -79,14 +100,17 @@ int main() {
     {
         const std::string r = registry.Handle("renderdoc_capture 2");
         CHECK(Has(r, "state:"));
-        CHECK(Has(r, "requested_frames: 2"));
+
         // RenderDoc not loaded in this test -> failed with a reason, not ready.
-        CHECK(Has(r, "state: failed"));
+        CHECK(Has(r, "status: no_matching_renderer"));
         CHECK(!Has(r, "state: ready"));
         const std::string st = registry.Handle("renderdoc_capture_status");
         CHECK(Has(st, "state:"));
         const std::string cancel = registry.Handle("renderdoc_capture_cancel");
-        CHECK(Has(cancel, "state:"));
+        CHECK(Has(cancel, "status: invalid_arguments"));
+        for (const char* arg : {"-1", "0", "9", "1junk", "1 2", "18446744073709551616"})
+            CHECK(Has(registry.Handle(std::string("renderdoc_capture ") + arg), "invalid_arguments"));
+        CHECK(Has(registry.Handle("renderdoc_capture_cancel 1 22 extra"), "invalid_arguments"));
     }
 
     // --- still-pending commands never fake success ---

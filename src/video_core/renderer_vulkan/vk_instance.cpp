@@ -198,6 +198,14 @@ Instance::~Instance() {
         ImGui::Core::Shutdown(GetDevice());
     if (allocator)
         vmaDestroyAllocator(allocator);
+    if (gpu_reshape.IsActive()) {
+        // Children have drained before Instance destruction. Keep the downstream
+        // resolver/driver live while the SDK retires its collector and objects.
+        VULKAN_HPP_DEFAULT_DISPATCHER.vkGetDeviceProcAddr = downstream_device_proc;
+        VULKAN_HPP_DEFAULT_DISPATCHER.init(*device);
+        gpu_reshape.Shutdown();
+        gpu_reshape.PublishStatus(true);
+    }
 }
 
 std::string Instance::GetDriverVersionName() {
@@ -583,6 +591,11 @@ bool Instance::CreateDevice() {
         device_chain.unlink<vk::PhysicalDeviceImageViewMinLodFeaturesEXT>();
     }
 
+    gpu_reshape.ConfigureDeviceFeatures(
+        static_cast<const VkPhysicalDeviceFeatures&>(features),
+        static_cast<VkPhysicalDeviceFeatures&>(device_chain.get<vk::PhysicalDeviceFeatures2>().features),
+        static_cast<const VkPhysicalDeviceVulkan12Features&>(vk12_features),
+        static_cast<VkPhysicalDeviceVulkan12Features&>(device_chain.get<vk::PhysicalDeviceVulkan12Features>()));
     auto [device_result, dev] = physical_device.createDeviceUnique(device_chain.get());
     if (device_result != vk::Result::eSuccess) {
         LOG_CRITICAL(Render_Vulkan, "Failed to create device: {}", vk::to_string(device_result));
@@ -591,6 +604,20 @@ bool Instance::CreateDevice() {
     device = std::move(dev);
 
     VULKAN_HPP_DEFAULT_DISPATCHER.init(*device);
+
+    downstream_device_proc = VULKAN_HPP_DEFAULT_DISPATCHER.vkGetDeviceProcAddr;
+    gpu_reshape.SetIdentity(diagnostics ? diagnostics->Generation() : 0,
+        driver ? driver->identity : std::string{properties.deviceName.data()});
+    gpu_reshape.Initialize(*instance, physical_device, *device,
+        std::min(TargetVulkanApiVersion, properties.apiVersion),
+        VULKAN_HPP_DEFAULT_DISPATCHER.vkGetInstanceProcAddr, downstream_device_proc);
+    if (gpu_reshape.IsActive()) {
+        VULKAN_HPP_DEFAULT_DISPATCHER.vkGetDeviceProcAddr = gpu_reshape.GetHookedDeviceProcAddr();
+        VULKAN_HPP_DEFAULT_DISPATCHER.init(*device);
+    }
+    gpu_reshape.PublishStatus(true);
+    LOG_INFO(Render_Vulkan, "GPU Reshape: {} maxPushConstantsSize={}",
+        gpu_reshape.StatusText(), properties.limits.maxPushConstantsSize);
 
     graphics_queue = device->getQueue(queue_family_index, 0);
     present_queue = device->getQueue(queue_family_index, 0);

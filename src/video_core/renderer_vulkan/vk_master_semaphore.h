@@ -39,15 +39,18 @@ public:
     [[nodiscard]] vk::Semaphore Handle() const noexcept {
         return semaphore.get();
     }
+    u64 DiagnosticId() const { return diagnostic_id; }
 
     /// Refresh the known GPU tick
     void Refresh();
 
     /// Waits for a tick to be hit on the GPU
     void Wait(u64 tick);
+    bool Wait(u64 tick, std::stop_token stop);
 
 protected:
     const Instance& instance;
+    const u64 diagnostic_id;
     vk::UniqueSemaphore semaphore;    ///< Timeline semaphore.
     std::atomic<u64> gpu_tick{0};     ///< Current known GPU tick.
     std::atomic<u64> current_tick{1}; ///< Current logical tick.

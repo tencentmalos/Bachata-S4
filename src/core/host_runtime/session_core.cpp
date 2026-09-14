@@ -95,6 +95,7 @@ std::uint64_t SessionCore::Start(const SessionParams& params) {
     generation_ = gen;
     phase_ = Phase::Preparing;
     high_water_phase_ = Phase::Preparing;
+    backend_.PublishLifecycle(gen, static_cast<std::uint32_t>(phase_), "Preparing");
     runtime_.reset();
     in_flight_control_ = 0;
     platform_ready_ = !params.requires_platform_ready;
@@ -114,6 +115,8 @@ std::uint64_t SessionCore::Start(const SessionParams& params) {
         phase_ = Phase::Idle;
         high_water_phase_ = Phase::Idle;
         runtime_.reset();
+        backend_.PublishLifecycle(gen, static_cast<std::uint32_t>(Phase::Failed), "Failed",
+                                  "owner_spawn_failed");
         return 0;
     }
 
@@ -181,6 +184,7 @@ void SessionCore::OwnerBody(std::uint64_t generation, SessionParams params) {
         runtime_ = runtime;
         phase_ = Phase::Ready;
         high_water_phase_ = Phase::Ready;
+        backend_.PublishLifecycle(generation, static_cast<std::uint32_t>(phase_), "Ready");
         cv_.notify_all();
         cv_.wait(lock, [&] { return platform_ready_ || cancel_generation_ == generation; });
         cancel_before_run = (cancel_generation_ == generation);
@@ -206,6 +210,7 @@ void SessionCore::OwnerBody(std::uint64_t generation, SessionParams params) {
         std::lock_guard lock{mtx_};
         phase_ = Phase::Running;
         high_water_phase_ = Phase::Running;
+        backend_.PublishLifecycle(generation, static_cast<std::uint32_t>(phase_), "Running");
         cv_.notify_all();
     }
 
@@ -272,6 +277,8 @@ void SessionCore::TeardownAndDestroy(std::uint64_t generation,
     {
         std::unique_lock lock{mtx_};
         phase_ = Phase::Stopping;
+        backend_.PublishLifecycle(generation, static_cast<std::uint32_t>(phase_), "Stopping",
+                                  terminal.user_requested_stop ? "user_stop" : ToString(terminal.outcome));
         // Do NOT advance high_water_phase_ here. high_water_phase_ tracks the
         // highest EXECUTION phase (Preparing/Ready/Running) the session actually
         // reached, so WaitPhase(Running) reports TerminatedBeforeTarget for an
@@ -362,6 +369,7 @@ StopResult SessionCore::RequestStop(std::uint64_t generation, std::uint64_t time
         }
         if (phase_ == Phase::Preparing && runtime_ == nullptr) {
             // Context not yet published: record intent, dereference nothing.
+            backend_.PublishLifecycle(generation, static_cast<std::uint32_t>(phase_), "StopRequested", "user_stop");
             cancel_generation_ = generation;
             cv_.notify_all();
             return StopResult::CancelPending;
@@ -369,6 +377,7 @@ StopResult SessionCore::RequestStop(std::uint64_t generation, std::uint64_t time
         if (tearing_down_) {
             return StopResult::AlreadyStopping;
         }
+        backend_.PublishLifecycle(generation, static_cast<std::uint32_t>(phase_), "StopRequested", "user_stop");
         cancel_generation_ = generation;
         cv_.notify_all();
         rt = runtime_;  // shared_ptr copy: keeps the runtime alive across the calls
@@ -550,6 +559,9 @@ void SessionCore::SetTerminalLocked(std::uint64_t generation, const Terminal& te
     if (generation > last_terminated_generation_)
         last_terminated_generation_ = generation;
     phase_ = phase;
+    backend_.PublishLifecycle(generation, static_cast<std::uint32_t>(phase_), ToString(phase),
+                              terminal.user_requested_stop ? "user_stop" : ToString(terminal.outcome),
+                              terminal.detail);
     cv_.notify_all();
 }
 

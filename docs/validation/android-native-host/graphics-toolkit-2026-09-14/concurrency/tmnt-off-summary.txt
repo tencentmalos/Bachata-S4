@@ -1,0 +1,121 @@
+{
+  "schema": "shadps4.pipeline-analysis.v1",
+  "identity": {
+    "generation": 1,
+    "pid": 16628,
+    "capture_id": 412,
+    "run_uuid": "81f79684e08bfcce55283d6790f40a1f"
+  },
+  "window_ns": [
+    156707836458499,
+    156712836458499
+  ],
+  "events": 3651,
+  "scopes": {
+    "PM4.Resume": {
+      "count": 166,
+      "total_ms": 787.239275,
+      "median_ms": 2.6966145,
+      "p95_ms": 13.170104,
+      "max_ms": 14.201406
+    },
+    "Present.AcquireImage": {
+      "count": 83,
+      "total_ms": 3.915994,
+      "median_ms": 0.034427,
+      "p95_ms": 0.081146,
+      "max_ms": 0.333802
+    },
+    "Present.DriverCall": {
+      "count": 83,
+      "total_ms": 29.344689,
+      "median_ms": 0.311355,
+      "p95_ms": 0.739167,
+      "max_ms": 1.073229
+    },
+    "Present.Frame": {
+      "count": 82,
+      "total_ms": 221.921252,
+      "median_ms": 2.4802865,
+      "p95_ms": 5.267031,
+      "max_ms": 6.146719
+    },
+    "Present.FrameFenceWait": {
+      "count": 83,
+      "total_ms": 3.368385,
+      "median_ms": 0.037396,
+      "p95_ms": 0.058958,
+      "max_ms": 0.201511
+    },
+    "Present.FreeFrameWait": {
+      "count": 83,
+      "total_ms": 1.854068,
+      "median_ms": 0.02,
+      "p95_ms": 0.041563,
+      "max_ms": 0.07474
+    },
+    "Present.QueueLock": {
+      "count": 83,
+      "total_ms": 0.220001,
+      "median_ms": 0.001979,
+      "p95_ms": 0.00573,
+      "max_ms": 0.015573
+    },
+    "VideoOut.Flip": {
+      "count": 82,
+      "total_ms": 223.175783,
+      "median_ms": 2.4906765,
+      "p95_ms": 5.29,
+      "max_ms": 6.175573
+    },
+    "VideoOut.Prepare": {
+      "count": 83,
+      "total_ms": 624.987192,
+      "median_ms": 9.322135,
+      "p95_ms": 9.846094,
+      "max_ms": 10.925781
+    },
+    "Vulkan.Submit": {
+      "count": 249,
+      "total_ms": 14.686187,
+      "median_ms": 0.054219,
+      "p95_ms": 0.107968,
+      "max_ms": 0.23625
+    },
+    "Vulkan.SubmitLock": {
+      "count": 249,
+      "total_ms": 0.629729,
+      "median_ms": 0.001979,
+      "p95_ms": 0.005469,
+      "max_ms": 0.017292
+    }
+  },
+  "physical_threads": {
+    "16675": {
+      "observed_work_ms": 786.653488,
+      "named_wait_ms": 5.665673
+    },
+    "16688": {
+      "observed_work_ms": 219.411612,
+      "named_wait_ms": 4.322504
+    }
+  },
+  "observed_work_lane_histogram_ms": {
+    "0": 3993.9349,
+    "1": 1006.0651
+  },
+  "unknown": {
+    "boundary_unpaired_scopes": 2,
+    "present_completion_unmatched": 2
+  },
+  "limitations": [
+    "Host paired observations only; unpaired boundaries are omitted.",
+    "Named waits excluded; work may contain uninstrumented waits or preemption.",
+    "No complete Guest CPU, HLE, shader-worker coverage or CPU utilization.",
+    "No calibrated GPU duration, scanout, same-frame guest-to-present join or critical-path proof."
+  ],
+  "source": {
+    "path": "build/graphics-toolkit-review/concurrency/tmnt-off.json",
+    "sha256": "d5e8c89bf4c7a86aa40f03f52347c65420c08845a18e810ec85b1fbdd159f83f"
+  }
+}

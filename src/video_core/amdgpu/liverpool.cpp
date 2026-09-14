@@ -9,6 +9,7 @@
 #include "common/thread.h"
 #include "core/debug_state.h"
 #include "core/diagnostics/diagnostics_hub_registry.h"
+#include "core/diagnostics/pipeline_handoff.h"
 #include "core/emulator_settings.h"
 #include "core/libraries/kernel/process.h"
 #include "core/libraries/videoout/driver.h"
@@ -150,7 +151,7 @@ void Liverpool::Process(std::stop_token stoken) {
         while (!stoken.stop_requested() && (num_submits || num_commands)) {
             ProcessCommands();
 
-            curr_qid = (curr_qid + 1) % num_mapped_queues;
+            curr_qid = (curr_qid + 1) % num_mapped_queues.load();
 
             auto& queue = mapped_queues[curr_qid];
 
@@ -162,9 +163,16 @@ void Liverpool::Process(std::stop_token stoken) {
                 }
                 task = queue.submits.front();
             }
-            task.resume();
+            const auto generation = diagnostics ? diagnostics->Generation() : 0;
+            SHAD_HANDOFF(generation, "queue_resume", curr_qid, task.promise().diagnostic_id);
+            {
+                Core::Diagnostics::Handoff::Scope scope{"PM4.Resume", generation,
+                    static_cast<u64>(curr_qid), task.promise().diagnostic_id};
+                task.resume();
+            }
 
             if (task.done()) {
+                SHAD_HANDOFF(generation, "queue_complete", curr_qid, task.promise().diagnostic_id);
                 if (task.promise().error)
                     ReportFault(task.promise().error);
                 task.destroy();
@@ -173,12 +181,6 @@ void Liverpool::Process(std::stop_token stoken) {
                 queue.submits.pop();
 
                 --num_submits;
-                // One gfx/compute submission's PM4 has been fully consumed by the
-                // command processor (spec §3.1 Pm4Consumed). This is the actual
-                // submit-task drain path, not the control command_queue. No-op when
-                // no diagnostics session is registered (e.g. desktop).
-                Core::Diagnostics::DiagnosticsHub::Instance().Advance(
-                    Core::Diagnostics::AdvanceSignal::Pm4Consumed);
                 std::scoped_lock lock2{submit_mutex};
                 submit_cv.notify_all();
             }
@@ -259,6 +261,9 @@ Liverpool::Task Liverpool::ProcessCeUpdate(std::span<const u32> ccb) {
             UNREACHABLE_MSG("Unknown PM4 type 3 opcode {:#x} with count {}",
                             static_cast<u32>(opcode), count);
         }
+        if (diagnostics)
+            diagnostics->Advance(Core::Diagnostics::AdvanceSignal::Pm4Consumed,
+                                 Core::Diagnostics::DiagnosticNowNs());
         ccb = NextPacket(ccb, header->type3.NumWords() + 1);
     }
 
@@ -299,6 +304,9 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
             break;
         case 2:
             // Type-2 packet are used for padding purposes
+            if (diagnostics)
+                diagnostics->Advance(Core::Diagnostics::AdvanceSignal::Pm4Consumed,
+                                     Core::Diagnostics::DiagnosticNowNs());
             dcb = NextPacket(dcb, 1);
             continue;
         case 3:
@@ -936,6 +944,9 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
                 UNREACHABLE_MSG("Unknown PM4 type 3 opcode {:#x} with count {}",
                                 static_cast<u32>(opcode), count);
             }
+            if (diagnostics)
+                diagnostics->Advance(Core::Diagnostics::AdvanceSignal::Pm4Consumed,
+                                     Core::Diagnostics::DiagnosticNowNs());
             dcb = NextPacket(dcb, header->type3.NumWords() + 1);
             break;
         }
@@ -993,6 +1004,9 @@ Liverpool::Task Liverpool::ProcessCompute(std::span<const u32> acb, u32 vqid) {
         if (header->type == 2) {
             // Type-2 packet are used for padding purposes
             next_dw_off = 1;
+            if (diagnostics)
+                diagnostics->Advance(Core::Diagnostics::AdvanceSignal::Pm4Consumed,
+                                     Core::Diagnostics::DiagnosticNowNs());
             acb = NextPacket(acb, next_dw_off);
             if constexpr (!is_indirect) {
                 *queue.read_addr += next_dw_off;
@@ -1213,6 +1227,9 @@ Liverpool::Task Liverpool::ProcessCompute(std::span<const u32> acb, u32 vqid) {
                             static_cast<u32>(opcode), header->type3.NumWords());
         }
 
+        if (diagnostics)
+            diagnostics->Advance(Core::Diagnostics::AdvanceSignal::Pm4Consumed,
+                                 Core::Diagnostics::DiagnosticNowNs());
         acb = NextPacket(acb, next_dw_off);
 
         if constexpr (!is_indirect) {
@@ -1278,13 +1295,17 @@ void Liverpool::SubmitGfx(std::span<const u32> dcb, std::span<const u32> ccb) {
     auto task = owned_submissions
                     ? ProcessOwnedGraphics({dcb.begin(), dcb.end()}, {ccb.begin(), ccb.end()})
                     : ProcessGraphics(dcb, ccb);
+    const auto generation = diagnostics ? diagnostics->Generation() : 0;
+    task.handle.promise().diagnostic_id = Core::Diagnostics::Handoff::NextId();
     {
         std::scoped_lock lock{queue.m_access};
+        SHAD_HANDOFF(generation, "queue_enqueue", GfxQueueId, task.handle.promise().diagnostic_id, dcb.size());
         queue.submits.emplace(task.Release());
+        // Publish count before releasing the queue to an already-running consumer.
+        ++num_submits;
     }
 
     std::scoped_lock lk{submit_mutex};
-    ++num_submits;
     submit_cv.notify_one();
 }
 
@@ -1306,14 +1327,17 @@ void Liverpool::SubmitAsc(u32 gnm_vqid, std::span<const u32> acb) {
     const auto vqid = gnm_vqid - 1;
     auto task = owned_submissions ? ProcessOwnedCompute({acb.begin(), acb.end()}, vqid)
                                   : ProcessCompute(acb, vqid);
+    const auto generation = diagnostics ? diagnostics->Generation() : 0;
+    task.handle.promise().diagnostic_id = Core::Diagnostics::Handoff::NextId();
     {
         std::scoped_lock lock{queue.m_access};
+        SHAD_HANDOFF(generation, "queue_enqueue", gnm_vqid, task.handle.promise().diagnostic_id, acb.size());
         queue.submits.emplace(task.Release());
+        ++num_submits;
     }
 
     std::scoped_lock lk{submit_mutex};
-    num_mapped_queues = std::max(num_mapped_queues, gnm_vqid + 1);
-    ++num_submits;
+    num_mapped_queues = std::max(num_mapped_queues.load(), gnm_vqid + 1);
     submit_cv.notify_one();
 }
 

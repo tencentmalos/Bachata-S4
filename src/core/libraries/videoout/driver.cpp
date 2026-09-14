@@ -4,6 +4,7 @@
 #include "common/assert.h"
 #include "common/debug.h"
 #include "common/thread.h"
+#include "core/diagnostics/pipeline_handoff.h"
 #include "core/debug_state.h"
 #include "core/emulator_settings.h"
 #include "core/libraries/kernel/time.h"
@@ -271,12 +272,22 @@ int VideoOutDriver::ChangeBufferAttribute(VideoOutPort* port, s32 attributeIndex
 }
 
 void VideoOutDriver::Flip(const Request& req) {
-    std::scoped_lock lifecycle_lock(lifecycle_mutex);
+    SHAD_HANDOFF(presenter->CaptureGeneration(), "present_dequeue", 0, req.diagnostic_id);
+    Core::Diagnostics::Handoff::Scope scope{"VideoOut.Flip", presenter->CaptureGeneration(), 0, req.diagnostic_id};
+    std::unique_lock lifecycle_lock(lifecycle_mutex);
     // Update HDR status before presenting.
     presenter->SetHDR(req.port->is_hdr);
 
     // Present the frame.
-    if (presenter->Present(req.frame) && req.index >= 0) ++guest_presents;
+    const bool presented = presenter->Present(req.frame) && req.index >= 0;
+    u64 present_id{};
+    const auto generation = presenter->CaptureGeneration();
+    if (presented) {
+        present_id = ++guest_presents;
+        SHAD_HANDOFF(presenter->CaptureGeneration(), "host_present", 0, req.diagnostic_id, present_id);
+        if (const auto& diag = presenter->Diagnostics())
+            diag->Advance(Core::Diagnostics::AdvanceSignal::HostPresent, Core::Diagnostics::DiagnosticNowNs());
+    }
 
     // Update flip status.
     auto* port = req.port;
@@ -318,6 +329,10 @@ void VideoOutDriver::Flip(const Request& req) {
     }
     // save to prev buf index
     port->prev_index = req.index;
+    lifecycle_lock.unlock();
+    // EndCapture may write a large file. Hold no VideoOut/VM/queue mutex while
+    // advancing capture; its immutable control snapshot remains independently readable.
+    if (presented) VideoCore::NotifyPresentBoundary(generation, present_id);
 }
 
 void VideoOutDriver::DrawBlankFrame() {
@@ -356,10 +371,15 @@ bool VideoOutDriver::SubmitFlip(VideoOutPort* port, s32 index, s64 flip_arg,
         SubmitFlipInternal(port, index, flip_arg, is_eop);
     }
 
+    if (index >= 0) {
+        if (const auto& diag = presenter->Diagnostics())
+            diag->Advance(Core::Diagnostics::AdvanceSignal::GuestFlip, Core::Diagnostics::DiagnosticNowNs());
+    }
     return true;
 }
 
 void VideoOutDriver::SubmitFlipInternal(VideoOutPort* port, s32 index, s64 flip_arg, bool is_eop) {
+    Core::Diagnostics::Handoff::Scope scope{"VideoOut.Prepare", presenter->CaptureGeneration()};
     if (port->stopping)
         return;
     Vulkan::Frame* frame;
@@ -375,7 +395,10 @@ void VideoOutDriver::SubmitFlipInternal(VideoOutPort* port, s32 index, s64 flip_
     if (!frame)
         return;
     std::scoped_lock lock{mutex};
+    const auto diagnostic_id = Core::Diagnostics::Handoff::NextId();
+    SHAD_HANDOFF(presenter->CaptureGeneration(), "present_enqueue", 0, diagnostic_id);
     requests.push({
+        .diagnostic_id = diagnostic_id,
         .frame = frame,
         .port = port,
         .flip_arg = flip_arg,

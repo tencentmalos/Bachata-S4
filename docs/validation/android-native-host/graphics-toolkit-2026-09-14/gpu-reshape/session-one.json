@@ -1,0 +1,36 @@
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"columns\":[\"session_id\",\"opened_utc\"],\"rows\":[[{\"kind\":\"text\",\"value\":\"session:6f3cf4eecf09461dbed1e9f891c0292c\"},{\"kind\":\"text\",\"value\":\"2026-09-14T08:50:30.8925920\\u002B00:00\"}]],\"truncated\":false,\"elapsedMilliseconds\":2,\"schemaRevision\":13,\"watermark\":\"raw_event:29541\",\"coverage\":\"partialLive\",\"provenance\":\"direct\"}"
+      }
+    ],
+    "structuredContent": {
+      "columns": [
+        "session_id",
+        "opened_utc"
+      ],
+      "rows": [
+        [
+          {
+            "kind": "text",
+            "value": "session:6f3cf4eecf09461dbed1e9f891c0292c"
+          },
+          {
+            "kind": "text",
+            "value": "2026-09-14T08:50:30.8925920+00:00"
+          }
+        ]
+      ],
+      "truncated": false,
+      "elapsedMilliseconds": 2,
+      "schemaRevision": 13,
+      "watermark": "raw_event:29541",
+      "coverage": "partialLive",
+      "provenance": "direct"
+    }
+  },
+  "id": 37,
+  "jsonrpc": "2.0"
+}

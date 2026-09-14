@@ -1,0 +1,74 @@
+--- a/Source/Backends/Vulkan/Android/Source/AndroidVulkanLifecycle.cpp
++++ b/Source/Backends/Vulkan/Android/Source/AndroidVulkanLifecycle.cpp
+@@ -1701,6 +1701,49 @@
+             buffer, offset, drawCount, stride);
+     }
+ 
++    VKAPI_ATTR void VKAPI_CALL HookCmdDrawIndirectCount(VkCommandBuffer commandBuffer,
++        VkBuffer buffer, VkDeviceSize offset, VkBuffer countBuffer, VkDeviceSize countOffset,
++        uint32_t maxDrawCount, uint32_t stride) {
++        DrawWithInstrumentation<PFN_vkCmdDrawIndirectCount>("vkCmdDrawIndirectCount", commandBuffer,
++            buffer, offset, countBuffer, countOffset, maxDrawCount, stride);
++    }
++
++    VKAPI_ATTR void VKAPI_CALL HookCmdDrawIndexedIndirectCount(VkCommandBuffer commandBuffer,
++        VkBuffer buffer, VkDeviceSize offset, VkBuffer countBuffer, VkDeviceSize countOffset,
++        uint32_t maxDrawCount, uint32_t stride) {
++        DrawWithInstrumentation<PFN_vkCmdDrawIndexedIndirectCount>("vkCmdDrawIndexedIndirectCount", commandBuffer,
++            buffer, offset, countBuffer, countOffset, maxDrawCount, stride);
++    }
++
++    VKAPI_ATTR void VKAPI_CALL HookCmdDrawIndirectCountKHR(VkCommandBuffer commandBuffer,
++        VkBuffer buffer, VkDeviceSize offset, VkBuffer countBuffer, VkDeviceSize countOffset,
++        uint32_t maxDrawCount, uint32_t stride) {
++        DrawWithInstrumentation<PFN_vkCmdDrawIndirectCountKHR>("vkCmdDrawIndirectCountKHR", commandBuffer,
++            buffer, offset, countBuffer, countOffset, maxDrawCount, stride);
++    }
++
++    VKAPI_ATTR void VKAPI_CALL HookCmdDrawIndexedIndirectCountKHR(VkCommandBuffer commandBuffer,
++        VkBuffer buffer, VkDeviceSize offset, VkBuffer countBuffer, VkDeviceSize countOffset,
++        uint32_t maxDrawCount, uint32_t stride) {
++        DrawWithInstrumentation<PFN_vkCmdDrawIndexedIndirectCountKHR>("vkCmdDrawIndexedIndirectCountKHR", commandBuffer,
++            buffer, offset, countBuffer, countOffset, maxDrawCount, stride);
++    }
++
++    VKAPI_ATTR void VKAPI_CALL HookCmdDispatchIndirect(VkCommandBuffer commandBuffer,
++        VkBuffer buffer, VkDeviceSize offset) {
++        GrsAndroidSdk* sdk = GrsAndroidGetActiveSdk();
++        if (!sdk) return;
++        const auto next = Next<PFN_vkCmdDispatchIndirect>(sdk, sdk->attachedDevice, "vkCmdDispatchIndirect");
++        if (!next) return;
++        try {
++            ApplyBoundInstrumentation(sdk, commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE);
++        } catch (...) {
++        }
++        next(commandBuffer, buffer, offset);
++        // Group counts are GPU data. Do not invent a direct-dispatch event with
++        // zero counts; the actual instrumented submission supplies GPU evidence.
++    }
++
+     VKAPI_ATTR void VKAPI_CALL HookCmdDispatch(
+         VkCommandBuffer commandBuffer,
+         uint32_t groupCountX,
+@@ -2149,6 +2192,21 @@
+     if (IsName(name, "vkCmdDispatch")) {
+         return reinterpret_cast<PFN_vkVoidFunction>(HookCmdDispatch);
+     }
++    if (IsName(name, "vkCmdDispatchIndirect")) {
++        return reinterpret_cast<PFN_vkVoidFunction>(HookCmdDispatchIndirect);
++    }
++    if (IsName(name, "vkCmdDrawIndirectCount")) {
++        return reinterpret_cast<PFN_vkVoidFunction>(HookCmdDrawIndirectCount);
++    }
++    if (IsName(name, "vkCmdDrawIndexedIndirectCount")) {
++        return reinterpret_cast<PFN_vkVoidFunction>(HookCmdDrawIndexedIndirectCount);
++    }
++    if (IsName(name, "vkCmdDrawIndirectCountKHR")) {
++        return reinterpret_cast<PFN_vkVoidFunction>(HookCmdDrawIndirectCountKHR);
++    }
++    if (IsName(name, "vkCmdDrawIndexedIndirectCountKHR")) {
++        return reinterpret_cast<PFN_vkVoidFunction>(HookCmdDrawIndexedIndirectCountKHR);
++    }
+     if (IsName(name, "vkCmdDraw")) {
+         return reinterpret_cast<PFN_vkVoidFunction>(HookCmdDraw);
+     }

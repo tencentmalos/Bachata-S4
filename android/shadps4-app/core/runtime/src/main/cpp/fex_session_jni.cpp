@@ -113,6 +113,9 @@ Java_com_shadps4_android_runtime_session_NativeFexSession_nativeIdentity(JNIEnv*
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_shadps4_android_runtime_session_NativeFexSession_nativeDebugCommand(JNIEnv* env, jclass,
                                                                             jstring command) {
+#if !defined(SHADPS4_ANDROID_DEBUG_COMMANDS)
+    return env->NewStringUTF("status: disabled_in_release\n");
+#else
     try {
         std::string request;
         if (command != nullptr) {
@@ -126,6 +129,7 @@ Java_com_shadps4_android_runtime_session_NativeFexSession_nativeDebugCommand(JNI
     } catch (...) {
         return env->NewStringUTF("debug-command-error");
     }
+#endif
 }
 
 // Starts a session. Returns the new generation (>0), or 0 if a session is

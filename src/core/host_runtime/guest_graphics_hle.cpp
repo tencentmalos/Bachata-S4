@@ -305,19 +305,10 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
                         const u32 flip_result = u32(GnmDriver::sceGnmSubmitAndFlipCommandBuffers(
                             count, dp.data(), ds.data(), a[3] ? cp.data() : nullptr,
                             a[4] ? cs.data() : nullptr, a[5], a[6], a[7], a[8]));
-                        // A guest flip was accepted (spec §3.1 GuestFlip signal).
-                        // The gap between GuestFlip and HostPresent is the direct
-                        // black-screen diagnostic: guest asked, did the host present?
                         if (flip_result == 0) {
-                            auto& hub = Diagnostics::DiagnosticsHub::Instance();
-                            hub.Advance(Diagnostics::AdvanceSignal::QueueSubmit);
-                            hub.Advance(Diagnostics::AdvanceSignal::GuestFlip);
-                            // Publish the live host-present count too, so the two
-                            // signals stay in step per flip rather than only at
-                            // Run-return. guest_presents increments only on a real
-                            // Presenter::Present.
-                            hub.PublishCount(Diagnostics::AdvanceSignal::HostPresent,
-                                             graphics.VideoOut().guest_presents.load());
+                            if (const auto diag = graphics.DiagnosticsPublisher())
+                                diag->Advance(Diagnostics::AdvanceSignal::GuestSubmission,
+                                              Diagnostics::DiagnosticNowNs());
                         }
                         return flip_result;
                     }
@@ -325,12 +316,10 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
                         count, const_cast<const u32**>(dp.data()), ds.data(),
                         a[3] ? const_cast<const u32**>(cp.data()) : nullptr,
                         a[4] ? cs.data() : nullptr));
-                    // A command-buffer submission without flip (spec §3.1
-                    // QueueSubmit). Submits advancing while GuestFlip stays flat is
-                    // a distinct diagnostic from flips without presents.
                     if (submit_result == 0) {
-                        Diagnostics::DiagnosticsHub::Instance().Advance(
-                            Diagnostics::AdvanceSignal::QueueSubmit);
+                        if (const auto diag = graphics.DiagnosticsPublisher())
+                            diag->Advance(Diagnostics::AdvanceSignal::GuestSubmission,
+                                          Diagnostics::DiagnosticNowNs());
                     }
                     return submit_result;
                 });

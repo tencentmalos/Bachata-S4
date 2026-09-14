@@ -3,6 +3,7 @@
 
 #include <stdexcept>
 #include "common/debug.h"
+#include "core/diagnostics/pipeline_handoff.h"
 #include "common/elf_info.h"
 #include "common/io_file.h"
 #include "common/path_util.h"
@@ -482,6 +483,11 @@ Presenter::Presenter(std::shared_ptr<Frontend::Window> window_, AmdGpu::Liverpoo
       swapchain{instance, *window},
       rasterizer{std::make_unique<Rasterizer>(instance, draw_scheduler, liverpool)},
       texture_cache{rasterizer->GetTextureCache()} {
+    const auto& diag = instance.Diagnostics();
+    status_layer = std::make_unique<ImGui::StatusLayer>(diag);
+    const u64 generation = diag ? diag->Generation() : 1;
+    capture_binding.Bind(generation, static_cast<VkInstance>(instance.GetInstance()),
+                         window->GetWindowInfo().render_surface, instance.GetDriverVersionName());
     const u32 num_images = swapchain.GetImageCount();
     const vk::Device device = instance.GetDevice();
 
@@ -501,8 +507,8 @@ Presenter::Presenter(std::shared_ptr<Frontend::Window> window_, AmdGpu::Liverpoo
     fsr_settings.rcas_attenuation =
         static_cast<float>(EmulatorSettings.GetRcasAttenuation() / 1000.f);
 
-    fsr_pass.Create(device, instance.GetAllocator(), num_images);
-    pp_pass.Create(device, swapchain.GetSurfaceFormat().format);
+    fsr_pass.Create(instance, instance.GetAllocator(), num_images);
+    pp_pass.Create(instance, swapchain.GetSurfaceFormat().format);
 
     ImGui::Layer::AddLayer(Common::Singleton<Core::Devtools::Layer>::Instance());
     ImGui::Friends::Register();
@@ -511,6 +517,7 @@ Presenter::Presenter(std::shared_ptr<Frontend::Window> window_, AmdGpu::Liverpoo
 }
 
 Presenter::~Presenter() {
+    capture_binding.Close();
     // Release any acquire that is (or becomes) blocked so teardown never wedges on
     // a surface the platform may already have taken (HN4 bounded-acquire stop).
     swapchain.RequestStop();
@@ -750,14 +757,14 @@ Frame* Presenter::PrepareFrame(const Libraries::VideoOut::BufferAttributeGroup& 
     image.Transit(vk::ImageLayout::eShaderReadOnlyOptimal, vk::AccessFlagBits2::eShaderRead, {},
                   cmdbuf);
 
-    image_view = fsr_pass.Render(cmdbuf, image_view, image_size, {frame->width, frame->height},
+    image_view = fsr_pass.Render(draw_scheduler, image_view, image_size, {frame->width, frame->height},
                                  fsr_settings, frame->is_hdr);
 
     // Vulkan has no sRGB variant of the 10-bit format, so an A2R10G10B10Srgb buffer reaches
     // the post process pass still sRGB encoded and has to be decoded there instead.
     pp_settings.srgb_input =
         attribute.attrib.pixel_format == Libraries::VideoOut::PixelFormat::A2R10G10B10Srgb;
-    pp_pass.Render(cmdbuf, image_view, image_size, *frame, pp_settings);
+    pp_pass.Render(draw_scheduler, image_view, image_size, *frame, pp_settings);
 
     DebugState.game_resolution = {image_size.width, image_size.height};
     DebugState.output_resolution = {frame->width, frame->height};
@@ -854,6 +861,7 @@ Frame* Presenter::PrepareBlankFrame(bool present_thread) {
 }
 
 bool Presenter::Present(Frame* frame, bool is_reusing_frame) {
+    Core::Diagnostics::Handoff::Scope present_scope{"Present.Frame", instance.DiagnosticGeneration()};
     if (!frame)
         return false;
     // Free the frame for reuse
@@ -877,7 +885,10 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame) {
         swapchain.Recreate(window->GetWidth(), window->GetHeight());
     }
 
-    auto acquired = swapchain.AcquireNextImage();
+    auto acquired = [&] {
+        Core::Diagnostics::Handoff::Scope scope{"Present.AcquireImage", instance.DiagnosticGeneration(), 0, 0, true};
+        return swapchain.AcquireNextImage();
+    }();
     if (acquired == AcquireStatus::Recreate && !swapchain.StopRequested()) {
         swapchain.Recreate(window->GetWidth(), window->GetHeight());
         acquired = swapchain.AcquireNextImage();
@@ -940,7 +951,7 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame) {
             },
             vk::ImageMemoryBarrier{
                 .srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite,
-                .dstAccessMask = vk::AccessFlagBits::eColorAttachmentRead,
+                .dstAccessMask = vk::AccessFlagBits::eShaderRead,
                 .oldLayout = vk::ImageLayout::eGeneral,
                 .newLayout = vk::ImageLayout::eShaderReadOnlyOptimal,
                 .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
@@ -959,7 +970,8 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame) {
         bool swapchain_copied_for_screenshot = false;
 
         cmdbuf.pipelineBarrier(vk::PipelineStageFlagBits::eColorAttachmentOutput,
-                               vk::PipelineStageFlagBits::eColorAttachmentOutput,
+                               vk::PipelineStageFlagBits::eColorAttachmentOutput |
+                                   vk::PipelineStageFlagBits::eFragmentShader,
                                vk::DependencyFlagBits::eByRegion, {}, {}, pre_barriers);
 
         { // Draw the game
@@ -1014,6 +1026,7 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame) {
             ImGui::PopStyleVar(3);
             ImGui::PopStyleColor();
         }
+        status_layer->Draw(Core::Diagnostics::DiagnosticNowNs(), extent.width, extent.height);
         ImGui::Core::Render(cmdbuf, swapchain_image_view, swapchain.GetExtent());
 
         if (capture_with_overlays_count > 0) {
@@ -1096,6 +1109,8 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame) {
 
     SubmitInfo info{};
     info.AddWait(swapchain.GetImageAcquiredSemaphore());
+    // The frame is consumed by transfer/blit or fragment sampling before color
+    // output. Waiting only at COLOR_ATTACHMENT_OUTPUT does not protect those reads.
     info.AddWait(frame->ready_semaphore, frame->ready_tick);
     info.AddSignal(swapchain.GetPresentReadySemaphore());
     info.AddSignal(frame->present_done);
@@ -1103,25 +1118,28 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame) {
 
     bool presented{};
     // Present to swapchain.
+    bool reusable;
     {
-        std::scoped_lock submit_lock{Scheduler::submit_mutex};
-        const auto previous = swapchain.SuccessfulPresents();
-        const bool reusable = swapchain.Present();
-        presented = swapchain.SuccessfulPresents() > previous;
-        if (!reusable && !swapchain.StopRequested()) {
-            swapchain.Recreate(window->GetWidth(), window->GetHeight());
+        std::unique_lock submit_lock{Scheduler::submit_mutex, std::defer_lock};
+        {
+            Core::Diagnostics::Handoff::Scope scope{"Present.QueueLock", instance.DiagnosticGeneration(), 0, 0, true};
+            submit_lock.lock();
         }
+        Core::Diagnostics::Handoff::Scope scope{"Present.DriverCall", instance.DiagnosticGeneration()};
+        const auto previous = swapchain.SuccessfulPresents();
+        reusable = swapchain.Present();
+        presented = swapchain.SuccessfulPresents() > previous;
+        if (presented)
+            status_layer->Presented(Core::Diagnostics::DiagnosticNowNs(), is_reusing_frame);
+    }
+    // Recreate may wait for GPU resources. Do not prevent their producer from submitting.
+    if (!reusable && !swapchain.StopRequested()) {
+        swapchain.Recreate(window->GetWidth(), window->GetHeight());
     }
 
     free_frame();
     if (!is_reusing_frame) {
         DebugState.IncFlipFrameNum();
-    }
-    if (presented) {
-        // A frame was provably presented to the swapchain: advance any armed
-        // RenderDoc capture at this frame boundary (spec §3.2). No-op when nothing
-        // is armed.
-        VideoCore::NotifyPresentBoundary();
     }
     return presented;
 }
@@ -1130,6 +1148,7 @@ Frame* Presenter::GetRenderFrame() {
     // Wait for free presentation frames
     Frame* frame;
     {
+        Core::Diagnostics::Handoff::Scope scope{"Present.FreeFrameWait", instance.DiagnosticGeneration(), 0, 0, true};
         std::unique_lock lock{free_mutex};
         free_cv.wait(lock, [this] { return swapchain.StopRequested() || !free_queue.empty(); });
         if (swapchain.StopRequested())
@@ -1145,6 +1164,7 @@ Frame* Presenter::GetRenderFrame() {
     vk::Result result{};
 
     const auto wait = [&]() {
+        Core::Diagnostics::Handoff::Scope scope{"Present.FrameFenceWait", instance.DiagnosticGeneration(), 0, 0, true};
         result = device.waitForFences(frame->present_done, false, 50'000'000);
         return result;
     };

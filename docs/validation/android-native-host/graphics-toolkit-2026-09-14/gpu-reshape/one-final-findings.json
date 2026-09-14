@@ -1,0 +1,27 @@
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"columns\":[\"shader_guid\",\"sguid\",\"token\",\"n\"],\"rows\":[],\"truncated\":false,\"elapsedMilliseconds\":365,\"schemaRevision\":13,\"watermark\":\"raw_event:34177\",\"coverage\":\"partialLive\",\"provenance\":\"direct\"}"
+      }
+    ],
+    "structuredContent": {
+      "columns": [
+        "shader_guid",
+        "sguid",
+        "token",
+        "n"
+      ],
+      "rows": [],
+      "truncated": false,
+      "elapsedMilliseconds": 365,
+      "schemaRevision": 13,
+      "watermark": "raw_event:34177",
+      "coverage": "partialLive",
+      "provenance": "direct"
+    }
+  },
+  "id": 43,
+  "jsonrpc": "2.0"
+}

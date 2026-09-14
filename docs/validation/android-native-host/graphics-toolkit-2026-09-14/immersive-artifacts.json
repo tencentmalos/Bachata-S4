@@ -1,0 +1,19 @@
+{
+  "stage": "StatusLayer + immersive validation, before capture-selector test extension",
+  "source_head": "6062df92f61fdf3649eeecd6993a6c33e11806ae",
+  "installed_apk_sha256": "0fe47a2cf6b01f58351054d9696b65fad762304e1f1b1df6478a9a843e9fc8d2",
+  "libraries": {
+    "lib/arm64-v8a/libshadps4_host.so": {
+      "sha256": "3307cf5fc0d8e74ae91ae278632dcdc782e6f35fbc49c034eb101fc45b499b87",
+      "build_id": "f1f1de4047a3a1b468d741ce5b10dff45fbbdc9d"
+    },
+    "lib/arm64-v8a/libshadps4_fex_session.so": {
+      "sha256": "f5e3ef815e17e2a8b0a57b1b005591796ccfacad3d3ffe5a9123c698815a6ac6",
+      "build_id": "c393a559f40fd18412ce07667fdfe9df52c6fb5e"
+    },
+    "lib/arm64-v8a/libGPUReshapeAndroid.so": {
+      "sha256": "1242e1b8ea282f072aa983cc7b56ce5bff40a1b7665620d6edc85cec1195b24f",
+      "build_id": "5ca2ae127fe606c2cebd246cd8ae8cabe648d5c2"
+    }
+  }
+}

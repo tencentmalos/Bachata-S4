@@ -86,7 +86,10 @@ struct FunctionAdapter final : HleCallAdapter {
     Status Invoke(HleCallFrame& frame) const override {
 #if defined(__ANDROID__)
         static std::atomic<unsigned> traces{};
-        const bool trace = traces.fetch_add(1) < 64;
+        // Once the startup sample is exhausted, avoid a shared atomic RMW on
+        // every HLE call (and eventual wraparound re-enabling startup logging).
+        const bool trace = traces.load(std::memory_order_relaxed) < 64 &&
+                           traces.fetch_add(1, std::memory_order_relaxed) < 64;
         if (trace)
             __android_log_print(ANDROID_LOG_INFO, "ProductionHLE", "enter op=%llu rip=%llx",
                                 (unsigned long long)frame.operation,

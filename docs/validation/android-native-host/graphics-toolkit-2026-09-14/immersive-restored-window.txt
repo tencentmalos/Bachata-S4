@@ -1,0 +1,31 @@
+  Window #13 Window{2bf1c1f u0 com.shadps4.android/com.shadps4.android.RuntimeValidationActivity}:
+    mDisplayId=0 rootTaskId=1093 mSession=Session{d756f27 25340:u0a10190} mClient=android.os.BinderProxy@51533be
+    mOwnerUid=10190 showForAllUsers=false package=com.shadps4.android appop=NONE
+    mAttrs={(0,0)(fillxfill) sim={adjust=pan} ty=BASE_APPLICATION fmt=TRANSLUCENT wanim=0x10302fd
+      fl=KEEP_SCREEN_ON LAYOUT_IN_SCREEN LAYOUT_INSET_DECOR SPLIT_TOUCH HARDWARE_ACCELERATED DRAWS_SYSTEM_BAR_BACKGROUNDS
+      pfl=NO_MOVE_ANIMATION FORCE_DRAW_STATUS_BAR_BACKGROUND USE_BLAST BEHAVIOR_CONTROLLED FIT_INSETS_CONTROLLED
+      bhv=SHOW_TRANSIENT_BARS_BY_SWIPE
+      fitSides=}
+    Requested w=1920 h=1080 mLayoutSeq=14101
+    mBaseLayer=21000 mSubLayer=0    mToken=ActivityRecord{572f855 u0 com.shadps4.android/.RuntimeValidationActivity} t1093}
+    mActivityRecord=ActivityRecord{572f855 u0 com.shadps4.android/.RuntimeValidationActivity} t1093}
+    mAppDied=false    drawnStateEvaluated=true    mightAffectAllDrawn=true
+    mViewVisibility=0x0 mHaveFrame=true mObscured=false
+    mGivenContentInsets=[0,0][0,0] mGivenVisibleInsets=[0,0][0,0]
+    mFullConfiguration={1.0 ?mcc?mnc [zh_CN_#Hans] ldltr sw468dp w833dp h444dp 369dpi nrml long hdr widecg land finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1920, 1080) mAppBounds=Rect(0, 0 - 1920, 1025) mMaxBounds=Rect(0, 0 - 1920, 1080) mDisplayRotation=ROTATION_90 mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=standard mAlwaysOnTop=undefined mRotation=ROTATION_90} s.1 fontWeightAdjustment=0}
+    mLastReportedConfiguration={1.0 ?mcc?mnc [zh_CN_#Hans] ldltr sw468dp w833dp h444dp 369dpi nrml long hdr widecg land finger -keyb/v/h -nav/h winConfig={ mBounds=Rect(0, 0 - 1920, 1080) mAppBounds=Rect(0, 0 - 1920, 1025) mMaxBounds=Rect(0, 0 - 1920, 1080) mDisplayRotation=ROTATION_90 mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=standard mAlwaysOnTop=undefined mRotation=ROTATION_90} s.1 fontWeightAdjustment=0}
+    mHasSurface=true isReadyForDisplay()=true mWindowRemovalAllowed=false
+    Frames: parent=[0,0][1920,1080] display=[0,0][1920,1080] frame=[0,0][1920,1080] last=[0,0][1920,1080] insetsChanged=false
+     surface=[0,0][0,0]
+    WindowStateAnimator{e4f8242 com.shadps4.android/com.shadps4.android.RuntimeValidationActivity}:
+      mSurface=Surface(name=com.shadps4.android/com.shadps4.android.RuntimeValidationActivity)/@0x296c253
+      Surface: shown=true layer=0 alpha=1.0 rect=(0.0,0.0)  transform=(1.0, 0.0, 0.0, 1.0)
+      mDrawState=HAS_DRAWN       mLastHidden=false
+      mEnterAnimationPending=false      mSystemDecorRect=[0,0][0,0]
+    mForceSeamlesslyRotate=false seamlesslyRotate: pending=null    isOnScreen=true
+    isVisible=true
+    keepClearAreas: restricted=[], unrestricted=[]
+    Requested visibilities: ITYPE_STATUS_BAR: invisible, ITYPE_NAVIGATION_BAR: invisible, ITYPE_CLIMATE_BAR: invisible, ITYPE_EXTRA_NAVIGATION_BAR: invisible
+    mPrepareSyncSeqId=0
+  Window #14 Window{ab97a7e u0 com.android.launcher3/com.android.launcher3.uioverrides.QuickstepLauncher}:
+    mDisplayId=0 rootTaskId=1 mSession=Session{d637054 3078:u0a10091} mClient=android.os.BinderProxy@424a439

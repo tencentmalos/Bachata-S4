@@ -1,0 +1,31 @@
+    mDisplayId=0 rootTaskId=1 mSession=Session{5b02899 2625:u0a10090} mClient=android.os.BinderProxy@e5eac37
+    mDisplayId=0 rootTaskId=1 mSession=Session{5b02899 2625:u0a10090} mClient=android.os.BinderProxy@39bfe86
+    mDisplayId=0 rootTaskId=1 mSession=Session{622529b 2811:1000} mClient=android.os.BinderProxy@ec03573
+    mDisplayId=0 rootTaskId=1 mSession=Session{622529b 2811:1000} mClient=android.os.BinderProxy@d8981fb
+    mDisplayId=0 rootTaskId=1 mSession=Session{622529b 2811:1000} mClient=android.os.BinderProxy@20ae583
+    mDisplayId=0 rootTaskId=1 mSession=Session{7b1eb4c 2900:1000} mClient=android.os.BinderProxy@5c73ed6
+    mDisplayId=0 rootTaskId=1 mSession=Session{5b02899 2625:u0a10090} mClient=android.os.BinderProxy@91293e
+    mDisplayId=0 rootTaskId=1 mSession=Session{5b02899 2625:u0a10090} mClient=android.os.BinderProxy@189c4ea
+    mDisplayId=0 rootTaskId=1 mSession=Session{5b02899 2625:u0a10090} mClient=android.os.BinderProxy@3113bfb
+    mDisplayId=0 rootTaskId=1 mSession=Session{5b02899 2625:u0a10090} mClient=android.os.BinderProxy@cabd716
+    mDisplayId=0 rootTaskId=1 mSession=Session{5b02899 2625:u0a10090} mClient=android.os.BinderProxy@b2ae38f
+    mDisplayId=0 rootTaskId=1 mSession=Session{5b02899 2625:u0a10090} mClient=android.os.BinderProxy@99ef312
+    mDisplayId=0 rootTaskId=1 mSession=Session{e424e64 3338:u0a10078} mClient=android.os.BinderProxy@de95eb1
+  Window #13 Window{d7fb07a u0 com.shadps4.android/com.shadps4.android.RuntimeValidationActivity}:
+    mDisplayId=0 rootTaskId=1082 mSession=Session{bd464ed 16628:u0a10190} mClient=android.os.BinderProxy@b0244a5
+    mBaseLayer=21000 mSubLayer=0    mToken=ActivityRecord{d2ed7c2 u0 com.shadps4.android/.RuntimeValidationActivity} t1082}
+    mActivityRecord=ActivityRecord{d2ed7c2 u0 com.shadps4.android/.RuntimeValidationActivity} t1082}
+    WindowStateAnimator{be73666 com.shadps4.android/com.shadps4.android.RuntimeValidationActivity}:
+      mSurface=Surface(name=com.shadps4.android/com.shadps4.android.RuntimeValidationActivity)/@0xce96da7
+    mDisplayId=0 rootTaskId=1 mSession=Session{d637054 3078:u0a10091} mClient=android.os.BinderProxy@424a439
+    mDisplayId=0 rootTaskId=924 mSession=Session{fb2814b 12791:u0a10124} mClient=android.os.BinderProxy@26a1410
+    mDisplayId=0 rootTaskId=924 mSession=Session{fb2814b 12791:u0a10124} mClient=android.os.BinderProxy@e235b7d
+    mDisplayId=0 rootTaskId=1 mSession=Session{5b02899 2625:u0a10090} mClient=android.os.BinderProxy@59b4b0f
+    mDisplayId=4 rootTaskId=795 mSession=Session{5b02899 2625:u0a10090} mClient=android.os.BinderProxy@24a1fb4
+    mDisplayId=4 rootTaskId=795 mSession=Session{5b02899 2625:u0a10090} mClient=android.os.BinderProxy@d7c91c
+    mDisplayId=4 rootTaskId=795 mSession=Session{5b02899 2625:u0a10090} mClient=android.os.BinderProxy@d7ae1af
+    mDisplayId=4 rootTaskId=795 mSession=Session{d637054 3078:u0a10091} mClient=android.os.BinderProxy@a0d2764
+    mDisplayId=4 rootTaskId=795 mSession=Session{5b02899 2625:u0a10090} mClient=android.os.BinderProxy@bf07017
+  imeLayeringTarget in display# 0 Window{d7fb07a u0 com.shadps4.android/com.shadps4.android.RuntimeValidationActivity}
+  imeInputTarget in display# 0 Window{d7fb07a u0 com.shadps4.android/com.shadps4.android.RuntimeValidationActivity}
+  imeControlTarget in display# 0 Window{d7fb07a u0 com.shadps4.android/com.shadps4.android.RuntimeValidationActivity}

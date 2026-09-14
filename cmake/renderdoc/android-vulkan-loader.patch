@@ -1,0 +1,50 @@
+diff --git a/renderdoc/driver/vulkan/vk_android.cpp b/renderdoc/driver/vulkan/vk_android.cpp
+index 794eb389f..b7ba218ba 100644
+--- a/renderdoc/driver/vulkan/vk_android.cpp
++++ b/renderdoc/driver/vulkan/vk_android.cpp
+@@ -23,6 +23,7 @@
+  ******************************************************************************/
+ 
+ #include <android/native_window.h>
++#include <sys/system_properties.h>
+ #include "vk_core.h"
+ #include "vk_replay.h"
+ 
+@@ -109,5 +110,20 @@ void VulkanReplay::GetOutputWindowDimensions(uint64_t id, int32_t &w, int32_t &h
+ 
+ void *LoadVulkanLibrary()
+ {
++  // Optional replay loader (e.g. adrenotools + a pinned bionic Turnip). The
++  // factory returns a Vulkan loader handle, not a raw ICD or a replacement GIPA.
++  // An explicitly requested loader must fail closed, never use the system ICD.
++  char path[PROP_VALUE_MAX] = {};
++  if(__system_property_get("debug.rdoc.vulkan_loader", path) > 0)
++  {
++    void *module = Process::LoadModule(path);
++    using Factory = void *(*)();
++    Factory factory = module ? (Factory)Process::GetFunctionAddress(module, "RenderDoc_LoadAndroidVulkan") : NULL;
++    void *loader = factory ? factory() : NULL;
++    if(!loader)
++      RDCERR("Requested Android Vulkan loader failed: %s; system fallback disabled", path);
++    // Keep both the factory and its namespace alive until process exit.
++    return loader;
++  }
+   return Process::LoadModule("libvulkan.so");
+ }
+diff --git a/renderdoccmd/CMakeLists.txt b/renderdoccmd/CMakeLists.txt
+index ed542fc52..8fba26adc 100644
+--- a/renderdoccmd/CMakeLists.txt
++++ b/renderdoccmd/CMakeLists.txt
+@@ -198,9 +198,12 @@ if(ANDROID)
+         set(CLASS_PATH "${ANDROID_JAR}:obj")
+     endif()
+     set(KEYSTORE ${CMAKE_CURRENT_BINARY_DIR}/debug.keystore)
++    # A local SDK rebuild may deliberately reuse the installed server's key.
++    if(NOT EXISTS "${KEYSTORE}")
+     add_custom_command(OUTPUT ${KEYSTORE}
+                        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+                        COMMAND ${JAVA_BIN}/keytool -genkey -keystore ${KEYSTORE} -storepass android -alias rdocandroidkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=, OU=, O=, L=, S=, C=")
++    endif()
+ 
+     # APK_VERSION_CODE corresponds to android:versionCode, an internal integer value that can be queried. Higher numbers indicate more recent versions.
+     # APK_VERSION_NAME corresponds to android:versionName, a string value that is displayed to the user.

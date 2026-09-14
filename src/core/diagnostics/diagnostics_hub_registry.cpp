@@ -4,6 +4,7 @@
 #include "core/diagnostics/diagnostics_hub_registry.h"
 
 #include <chrono>
+#include "core/diagnostics/trace_identity.h"
 
 namespace Core::Diagnostics {
 
@@ -15,6 +16,16 @@ std::uint64_t MonotonicNs() {
             .count());
 }
 }  // namespace
+
+const std::string& ProcessRunUuid() {
+    static const std::string identity = MakeRunUuid();
+    return identity;
+}
+std::uint64_t DiagnosticNowNs() { return MonotonicNs(); }
+std::shared_ptr<DiagnosticsPublisher> DiagnosticsHub::Acquire(std::uint64_t generation) const {
+    std::lock_guard lock(mtx_);
+    return !generation || generation == active_generation_ ? active_ : nullptr;
+}
 
 DiagnosticsHub& DiagnosticsHub::Instance() {
     static DiagnosticsHub hub;
@@ -28,6 +39,7 @@ std::shared_ptr<DiagnosticsPublisher> DiagnosticsHub::Register(std::uint64_t gen
     }
     auto publisher = std::make_shared<DiagnosticsPublisher>();
     publisher->SetIdentity(generation, pid);
+    publisher->SetRunUuid(ProcessRunUuid());
     {
         std::lock_guard lock(mtx_);
         active_ = publisher;

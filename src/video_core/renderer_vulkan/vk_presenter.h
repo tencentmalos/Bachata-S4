@@ -6,7 +6,9 @@
 #include <condition_variable>
 
 #include "core/libraries/videoout/buffer.h"
+#include "video_core/renderdoc.h"
 #include "imgui/imgui_texture.h"
+#include "imgui/status_layer.h"
 #include "video_core/renderer_vulkan/host_passes/fsr_pass.h"
 #include "video_core/renderer_vulkan/host_passes/pp_pass.h"
 #include "video_core/renderer_vulkan/vk_instance.h"
@@ -55,9 +57,13 @@ public:
 
     // The session owner must call this before joining rendering workers.
     void RequestStop() {
+        capture_binding.Stop();
         swapchain.RequestStop();
         free_cv.notify_all();
     }
+
+    const auto& Diagnostics() const { return instance.Diagnostics(); }
+    u64 CaptureGeneration() const { return capture_binding.Generation(); }
 
     HostPasses::PostProcessingPass::Settings& GetPPSettingsRef() {
         return pp_settings;
@@ -126,6 +132,8 @@ private:
     std::function<bool()> splash_visible;
     std::shared_ptr<Frontend::Window> window;
     Instance instance;
+    VideoCore::CaptureBinding capture_binding;
+    std::unique_ptr<ImGui::StatusLayer> status_layer;
     HostPasses::FsrPass fsr_pass;
     HostPasses::FsrPass::Settings fsr_settings{};
     HostPasses::PostProcessingPass::Settings pp_settings{};

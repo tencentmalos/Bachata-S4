@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright 2024 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include "common/div_ceil.h"
 #include "video_core/buffer_cache/buffer.h"
 #include "video_core/renderer_vulkan/vk_instance.h"
 #include "video_core/renderer_vulkan/vk_scheduler.h"
@@ -52,7 +53,7 @@ TileManager::TileManager(const Vulkan::Instance& instance, Vulkan::Scheduler& sc
     }};
 
     const vk::DescriptorSetLayoutCreateInfo desc_layout_ci = {
-        .flags = vk::DescriptorSetLayoutCreateFlagBits::ePushDescriptorKHR,
+        .flags = instance.HostDescriptorFlags(),
         .bindingCount = static_cast<u32>(bindings.size()),
         .pBindings = bindings.data(),
     };
@@ -237,9 +238,11 @@ TileManager::Result TileManager::DetileImage(vk::Buffer in_buffer, u32 in_offset
             .pBufferInfo = &params_buffer_info,
         },
     }};
-    cmdbuf.pushDescriptorSetKHR(vk::PipelineBindPoint::eCompute, *pl_layout, 0, set_writes);
+    scheduler.BindHostDescriptors(vk::PipelineBindPoint::eCompute, *pl_layout, *desc_layout, set_writes);
 
-    const auto dim_x = (info.guest_size / (info.num_bits / 8)) / 64;
+    const u32 texels_per_invocation = info.num_bits == 8 ? 4 : 1;
+    const auto dim_x = Common::DivCeil(info.guest_size / (info.num_bits / 8),
+                                      64U * texels_per_invocation);
     cmdbuf.dispatch(dim_x, 1, 1);
     return {out_buffer, 0};
 }
@@ -323,7 +326,7 @@ void TileManager::TileImage(Image& in_image, std::span<vk::BufferImageCopy> buff
             .pBufferInfo = &params_buffer_info,
         },
     }};
-    cmdbuf.pushDescriptorSetKHR(vk::PipelineBindPoint::eCompute, *pl_layout, 0, set_writes);
+    scheduler.BindHostDescriptors(vk::PipelineBindPoint::eCompute, *pl_layout, *desc_layout, set_writes);
 
     const auto dim_x = (info.guest_size / (info.num_bits / 8)) / 64;
     cmdbuf.dispatch(dim_x, 1, 1);

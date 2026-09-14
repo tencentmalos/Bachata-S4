@@ -4,6 +4,7 @@
 #include "common/assert.h"
 #include "common/debug.h"
 #include "common/thread.h"
+#include "core/diagnostics/pipeline_handoff.h"
 #include "imgui/renderer/texture_manager.h"
 #include "video_core/renderer_vulkan/vk_instance.h"
 #include "video_core/renderer_vulkan/vk_scheduler.h"
@@ -17,15 +18,50 @@ Scheduler::Scheduler(const Instance& instance)
 #if TRACY_GPU_ENABLED
     profiler_scope = reinterpret_cast<tracy::VkCtxScope*>(std::malloc(sizeof(tracy::VkCtxScope)));
 #endif
+    if (instance.GpuReshapeAdapter().IsActive()) {
+        static constexpr vk::DescriptorPoolSize sizes[] = {
+            {vk::DescriptorType::eStorageBuffer, 4096},
+            {vk::DescriptorType::eUniformBuffer, 4096},
+            {vk::DescriptorType::eSampledImage, 4096},
+            {vk::DescriptorType::eStorageImage, 4096},
+            {vk::DescriptorType::eCombinedImageSampler, 4096},
+            {vk::DescriptorType::eSampler, 4096},
+        };
+        diagnostic_descriptors = std::make_unique<DescriptorHeap>(instance, &master_semaphore, sizes);
+    }
     AllocateWorkerCommandBuffers();
     priority_pending_ops_thread =
-        std::jthread(std::bind_front(&Scheduler::PriorityPendingOpsThread, this));
+        std::jthread([this](std::stop_token stop) {
+            try { PriorityPendingOpsThread(stop); }
+            catch (...) {
+                // Propagate on the renderer owner at its next pending-op poll.
+                // An exception escaping std::thread would terminate the whole APK.
+                std::lock_guard lock{priority_pending_ops_mutex};
+                priority_error = std::current_exception();
+            }
+        });
 }
 
 Scheduler::~Scheduler() {
+    priority_pending_ops_thread.request_stop();
+    priority_pending_ops_cv.notify_all();
+    if (priority_pending_ops_thread.joinable()) priority_pending_ops_thread.join();
 #if TRACY_GPU_ENABLED
     std::free(profiler_scope);
 #endif
+}
+
+void Scheduler::BindHostDescriptors(vk::PipelineBindPoint point, vk::PipelineLayout layout,
+    vk::DescriptorSetLayout set_layout, vk::ArrayProxy<const vk::WriteDescriptorSet> writes) {
+    if (!diagnostic_descriptors) {
+        current_cmdbuf.pushDescriptorSetKHR(point, layout, 0, writes);
+        return;
+    }
+    const auto set = diagnostic_descriptors->Commit(set_layout);
+    std::vector<vk::WriteDescriptorSet> assigned(writes.begin(), writes.end());
+    for (auto& write : assigned) write.dstSet = set;
+    instance.GetDevice().updateDescriptorSets(assigned, {});
+    current_cmdbuf.bindDescriptorSets(point, layout, 0, set, {});
 }
 
 void Scheduler::BeginRendering(const RenderState& new_state) {
@@ -119,11 +155,20 @@ void Scheduler::Wait(u64 tick) {
 }
 
 void Scheduler::PopPendingOperations() {
-    std::unique_lock lk(pending_ops_mutex);
+    {
+        std::lock_guard lock{priority_pending_ops_mutex};
+        if (priority_error) std::rethrow_exception(priority_error);
+    }
     master_semaphore.Refresh();
-    while (!pending_ops.empty() && master_semaphore.IsFree(pending_ops.front().gpu_tick)) {
-        pending_ops.front().callback();
-        pending_ops.pop();
+    while (true) {
+        Common::UniqueFunction<void> callback;
+        {
+            std::unique_lock lk(pending_ops_mutex);
+            if (pending_ops.empty() || !master_semaphore.IsFree(pending_ops.front().gpu_tick)) break;
+            callback = std::move(pending_ops.front().callback);
+            pending_ops.pop(); // Retire before invoking a callback which can enqueue more work.
+        }
+        callback();
     }
 }
 
@@ -149,7 +194,7 @@ void Scheduler::AllocateWorkerCommandBuffers() {
 }
 
 void Scheduler::SubmitExecution(SubmitInfo& info) {
-    std::scoped_lock lk{submit_mutex};
+    const auto generation = instance.DiagnosticGeneration();
     const u64 signal_value = master_semaphore.NextTick();
 
 #if TRACY_GPU_ENABLED
@@ -166,11 +211,6 @@ void Scheduler::SubmitExecution(SubmitInfo& info) {
     const vk::Semaphore timeline = master_semaphore.Handle();
     info.AddSignal(timeline, signal_value);
 
-    static constexpr std::array<vk::PipelineStageFlags, 2> wait_stage_masks = {
-        vk::PipelineStageFlagBits::eAllCommands,
-        vk::PipelineStageFlagBits::eColorAttachmentOutput,
-    };
-
     const vk::TimelineSemaphoreSubmitInfo timeline_si = {
         .waitSemaphoreValueCount = info.num_wait_semas,
         .pWaitSemaphoreValues = info.wait_ticks.data(),
@@ -182,7 +222,7 @@ void Scheduler::SubmitExecution(SubmitInfo& info) {
         .pNext = &timeline_si,
         .waitSemaphoreCount = info.num_wait_semas,
         .pWaitSemaphores = info.wait_semas.data(),
-        .pWaitDstStageMask = wait_stage_masks.data(),
+        .pWaitDstStageMask = info.wait_stages.data(),
         .commandBufferCount = 1U,
         .pCommandBuffers = &current_cmdbuf,
         .signalSemaphoreCount = info.num_signal_semas,
@@ -190,9 +230,30 @@ void Scheduler::SubmitExecution(SubmitInfo& info) {
     };
 
     ImGui::Core::TextureManager::Submit();
-    auto submit_result = instance.GetGraphicsQueue().submit(submit_info, info.fence);
-    ASSERT_MSG(submit_result != vk::Result::eErrorDeviceLost, "Device lost during submit");
+    vk::Result submit_result;
+    {
+        std::unique_lock lock{submit_mutex, std::defer_lock};
+        {
+            Core::Diagnostics::Handoff::Scope scope{"Vulkan.SubmitLock", generation,
+                master_semaphore.DiagnosticId(), signal_value, true};
+            lock.lock();
+        }
+        Core::Diagnostics::Handoff::Scope scope{"Vulkan.Submit", generation,
+            master_semaphore.DiagnosticId(), signal_value};
+        submit_result = instance.GetGraphicsQueue().submit(submit_info, info.fence);
+        SHAD_HANDOFF(generation, "vk_submit", master_semaphore.DiagnosticId(), signal_value,
+                     static_cast<u64>(submit_result));
+    } // Queue external synchronization does not include pool waits or callbacks.
+    Check(submit_result);
+    if (submit_result == vk::Result::eSuccess) {
+        if (const auto& diag = instance.Diagnostics()) {
+            diag->MarkAvailable(Core::Diagnostics::AdvanceSignal::QueueSubmit, true);
+            diag->Advance(Core::Diagnostics::AdvanceSignal::QueueSubmit,
+                          Core::Diagnostics::DiagnosticNowNs());
+        }
+    }
 
+    instance.GpuReshapeAdapter().PublishStatus();
     master_semaphore.Refresh();
     AllocateWorkerCommandBuffers();
 
@@ -217,8 +278,7 @@ void Scheduler::PriorityPendingOpsThread(std::stop_token stoken) {
             priority_pending_ops.pop();
         }
 
-        master_semaphore.Wait(op.gpu_tick);
-        if (stoken.stop_requested()) {
+        if (!master_semaphore.Wait(op.gpu_tick, stoken) || stoken.stop_requested()) {
             break;
         }
 

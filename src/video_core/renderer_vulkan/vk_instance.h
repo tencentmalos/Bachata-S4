@@ -8,6 +8,8 @@
 #include <unordered_map>
 
 #include "video_core/renderer_vulkan/vk_platform.h"
+#include "video_core/renderer_vulkan/vk_gpu_reshape.h"
+#include "core/diagnostics/diagnostics_hub_registry.h"
 
 #define TRACY_VK_USE_SYMBOL_TABLE
 #include <tracy/TracyVulkan.hpp>
@@ -28,6 +30,9 @@ public:
                       bool enable_validation = false, bool enable_crash_diagnostic = false,
                       DriverLease driver = {});
     ~Instance();
+
+    const auto& Diagnostics() const { return diagnostics; }
+    u64 DiagnosticGeneration() const { return diagnostics ? diagnostics->Generation() : 0; }
 
     /// Returns a formatted string for the driver version
     std::string GetDriverVersionName();
@@ -361,7 +366,15 @@ public:
     }
 
     /// Returns the maximum number of push descriptors.
+    const GpuReshape::Adapter& GpuReshapeAdapter() const { return gpu_reshape; }
+
+    vk::DescriptorSetLayoutCreateFlags HostDescriptorFlags() const {
+        return gpu_reshape.IsActive() ? vk::DescriptorSetLayoutCreateFlags{} :
+            vk::DescriptorSetLayoutCreateFlagBits::ePushDescriptorKHR;
+    }
+
     u32 MaxPushDescriptors() const {
+        if (gpu_reshape.IsActive()) return 0;
         return push_descriptor_props.maxPushDescriptors;
     }
 
@@ -478,10 +491,13 @@ private:
 
 private:
     std::unique_lock<std::mutex> dispatcher_lease;
+    std::shared_ptr<Core::Diagnostics::DiagnosticsPublisher> diagnostics{Core::Diagnostics::DiagnosticsHub::Instance().Acquire()};
     DriverLease driver; // Destroyed after every Vulkan child and the instance.
     vk::UniqueInstance instance;
     vk::PhysicalDevice physical_device;
     vk::UniqueDevice device;
+    GpuReshape::Adapter gpu_reshape; // SDK dies before device, explicit restore after renderer drain.
+    PFN_vkGetDeviceProcAddr downstream_device_proc{};
     vk::PhysicalDeviceProperties properties;
     vk::PhysicalDeviceMemoryProperties memory_properties;
     vk::PhysicalDeviceVulkan11Properties vk11_props;

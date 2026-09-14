@@ -1,0 +1,18 @@
+{
+  "apk": "android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk",
+  "apk_sha256": "34fb0ae768e0e29a7072f2ffb910739b6d702715da429e304557d1d1cc679180",
+  "libraries": {
+    "lib/arm64-v8a/libandroidx.graphics.path.so": "41e9a793c43a0f4fddb19e33f346bace464f30f888ba7b9eaf96294ea115bfb6",
+    "lib/arm64-v8a/libc++_shared.so": "0c52cfab2df0d957d8b346a2bdc5ae8d71feca2591924d77e1cd724d5bf74352",
+    "lib/arm64-v8a/libdatastore_shared_counter.so": "d3e48717c9aa147e0ab21063ba0e8e0211cabf8bf40b222640829519edbf58e1",
+    "lib/arm64-v8a/libfile_redirect_hook.so": "cd72356d85a50aa9faac29a95f74c5ead1c2d4e014f4340075027516b3782624",
+    "assets/native-turnip/vulkan.ad07xx.so": "fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09",
+    "lib/arm64-v8a/libbachata_pkg.so": "6f0a942da50073257aafc66d6e74c981d8c92f8956ea43a38e71db7bb0145e83",
+    "lib/arm64-v8a/libgsl_alloc_hook.so": "22a7309ba4cdcb8da5e168dada6d44369d6a02fae8344972a9536f549f301502",
+    "lib/arm64-v8a/libhook_impl.so": "b96a86085e9d6adda00f9d8385269a646033e832857348ba19f4d800e39d6b3f",
+    "lib/arm64-v8a/libmain_hook.so": "6f07f902085159abbab1430a5100453c62293c16f54a4d9ca5df7dda9c61ebf0",
+    "lib/arm64-v8a/libGPUReshapeAndroid.so": "ca72410f236a178e3ec08422e5d78ea89d891e9c32ad855d359d260ace77b8a0",
+    "lib/arm64-v8a/libshadps4_fex_session.so": "25c92b02f6da780000489bdf849453279ce14ec4fffb8a2fefdc3cd7c9b1db7d",
+    "lib/arm64-v8a/libshadps4_host.so": "840970d1c6ba223fa1dc44586906f58aee4483840f214ef882dc19593c348ad4"
+  }
+}

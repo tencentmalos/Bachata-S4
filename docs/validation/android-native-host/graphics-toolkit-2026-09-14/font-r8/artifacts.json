@@ -1,0 +1,27 @@
+{
+  "source_head": "6062df92f61fdf3649eeecd6993a6c33e11806ae",
+  "state": "dirty; source identities in host-source.json",
+  "host_build_run": "1789380374347761000",
+  "build_type": "host/JNI RelWithDebInfo; FEXCore Release; playstoreDebug APK",
+  "apk_sha256": "44af23b065d05f28706bc4720567b67d92c71017e1687208b74f6334798b28f1",
+  "installed_apk_sha256": "44af23b065d05f28706bc4720567b67d92c71017e1687208b74f6334798b28f1",
+  "libraries": {
+    "libshadps4_host.so": {
+      "sha256": "261e4a9988fc51d6255e6ee68afc72ab30c808fe8ed6f1fca28d6a2dff4c069a",
+      "build_id": "8730d4865daeb17bf2b62f2e27e002377a39f3b5"
+    },
+    "libshadps4_fex_session.so": {
+      "sha256": "f5e3ef815e17e2a8b0a57b1b005591796ccfacad3d3ffe5a9123c698815a6ac6",
+      "build_id": "c393a559f40fd18412ce07667fdfe9df52c6fb5e"
+    },
+    "libGPUReshapeAndroid.so": {
+      "sha256": "1242e1b8ea282f072aa983cc7b56ce5bff40a1b7665620d6edc85cec1195b24f",
+      "build_id": "5ca2ae127fe606c2cebd246cd8ae8cabe648d5c2"
+    }
+  },
+  "raw_cpu_memory_sha256": "c5e53d60c36c20ff148f405f5a2778d0b00f28a6c4e8deba8050b1ee51b80a31",
+  "raw_memory_not_committed": true,
+  "debug_session": "f083cc78fa634bb8be7f1c096f4a4d76",
+  "stop_epoch": 4,
+  "guest_address": "0x274240000"
+}

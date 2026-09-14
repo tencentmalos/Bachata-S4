@@ -29,6 +29,7 @@
 #include "core/host_runtime/session_backend_fex.h"
 #include "core/diagnostics/diagnostics_hub.h"
 #include "core/diagnostics/diagnostics_hub_registry.h"
+#include "core/diagnostics/pipeline_handoff.h"
 #include "core/diagnostics/trace_identity.h"
 #if defined(SHADPS4_TYPED_HLE_HOST)
 #include "core/guest_cpu/fex/fex_context.h"
@@ -47,13 +48,6 @@ void RuntimeStage(const char* stage) {
 #endif
 }
 
-// Monotonic nanoseconds for DiagnosticsHub advance timestamps.
-std::uint64_t MonotonicNs() {
-    return static_cast<std::uint64_t>(
-        std::chrono::duration_cast<std::chrono::nanoseconds>(
-            std::chrono::steady_clock::now().time_since_epoch())
-            .count());
-}
 std::atomic<std::uint64_t> next_stop_ticket{1};
 constexpr std::uint64_t kReservationSize = std::uint64_t{1} << 28;
 constexpr std::uint64_t kMappingSize = 0x4000;
@@ -159,17 +153,8 @@ Result<std::shared_ptr<SessionRuntime>> FexSessionBackend::Prepare(
         rt->production->Prepare(params.executable_path, modules);
         RuntimeStage("prepare: ready");
         rt->args = {params.executable_path};
-        // Publish this generation to the DiagnosticsHub so debug_status/ImGui can
-        // read non-blocking status. GPU retire has no timestamp-query backend yet,
-        // so it is marked unavailable rather than reported as 0.
         rt->generation = params.generation;
-        rt->diag = Diagnostics::DiagnosticsHub::Instance().Register(
-            params.generation, static_cast<std::uint64_t>(::getpid()));
-        if (rt->diag) {
-            rt->diag->MarkAvailable(Diagnostics::AdvanceSignal::GpuRetire, false);
-            rt->diag->SetRunUuid(Diagnostics::MakeRunUuid());
-            rt->diag->SetStage("ready");
-        }
+        rt->diag = Diagnostics::DiagnosticsHub::Instance().Acquire(params.generation);
         return std::shared_ptr<SessionRuntime>(std::move(rt));
     }
 #endif
@@ -223,17 +208,8 @@ Result<std::shared_ptr<SessionRuntime>> FexSessionBackend::Prepare(
         return th_r.GetError();
     rt->thread = th_r.Value();
 
-    // The CPU-smoke path also registers with the DiagnosticsHub so debug_status
-    // reflects a real generation/run_uuid/stage. Graphics advance signals stay 0
-    // here (no GuestGraphics), which is correct: smoke does not present.
     rt->generation = params.generation;
-    rt->diag = Diagnostics::DiagnosticsHub::Instance().Register(
-        params.generation, static_cast<std::uint64_t>(::getpid()));
-    if (rt->diag) {
-        rt->diag->MarkAvailable(Diagnostics::AdvanceSignal::GpuRetire, false);
-        rt->diag->SetRunUuid(Diagnostics::MakeRunUuid());
-        rt->diag->SetStage("cpu-smoke");
-    }
+    rt->diag = Diagnostics::DiagnosticsHub::Instance().Acquire(params.generation);
 
     return std::shared_ptr<SessionRuntime>(std::move(rt));
 } catch (const std::bad_alloc&) {
@@ -280,14 +256,6 @@ RunReport FexSessionBackend::Run(SessionRuntime& runtime) {
             }
         }
         report.detail += "\n" + rt.production->Diagnostics();
-        // Mirror the successful-present count into the DiagnosticsHub HostPresent
-        // signal (spec §3.1). guest_presents increments only on a real
-        // Presenter::Present, so this is a genuine advance, not a heartbeat.
-        if (rt.diag) {
-            rt.diag->PublishCount(Diagnostics::AdvanceSignal::HostPresent,
-                                  rt.production->PresentCount(), MonotonicNs());
-            rt.diag->SetStage("returned");
-        }
         return report;
     }
 #endif
@@ -390,14 +358,34 @@ Status FexSessionBackend::WaitStopped(SessionRuntime& runtime, const StopTicket&
     return Ok();
 }
 
+void FexSessionBackend::PublishLifecycle(std::uint64_t generation, std::uint32_t phase,
+                                        std::string_view stage, std::string_view reason,
+                                        std::string_view detail) noexcept {
+    try {
+        auto& hub = Diagnostics::DiagnosticsHub::Instance();
+        auto publisher = hub.Acquire(generation);
+        if (!publisher && phase == 1) {
+            publisher = hub.Register(generation, static_cast<u64>(::getpid()));
+            for (u32 i = 0; i < Diagnostics::kAdvanceSignalCount; ++i)
+                publisher->MarkAvailable(static_cast<Diagnostics::AdvanceSignal>(i), false);
+        }
+        if (!publisher) return;
+        publisher->SetPhase(phase);
+        publisher->SetStage(stage);
+        if (!reason.empty()) publisher->SetStopReason(reason);
+        if (!detail.empty()) publisher->SetTerminalDetail(detail);
+        if (phase == 5 || phase == 6) {
+            Core::Diagnostics::Handoff::EndGeneration(generation);
+            publisher->Complete();
+        }
+    } catch (...) {
+        // Telemetry failure must not change execution or cancellation.
+    }
+}
+
 void FexSessionBackend::Destroy(SessionRuntime& runtime) {
     auto& rt = static_cast<FexSessionRuntime&>(runtime);
-    // Revoke this generation from the DiagnosticsHub before tearing down. Revoke
-    // is generation-checked, so a newer session that already registered is
-    // untouched. Drop our publisher reference after.
-    if (rt.generation) {
-        (void)Diagnostics::DiagnosticsHub::Instance().Revoke(rt.generation);
-    }
+    // Retain the independent snapshot while renderer/worker teardown is pending.
     rt.diag.reset();
 #if defined(SHADPS4_TYPED_HLE_HOST)
     rt.production.reset();

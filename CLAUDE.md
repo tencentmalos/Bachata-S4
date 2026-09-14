@@ -1,5 +1,14 @@
 # shadPS4 Android / FEX development context
 
+## 最新：R8文字修复与真实RenderDoc回放
+
+先读 [字体根因与复验](docs/validation/android-native-host/font-r8-tiling-fix-2026-09-14.md)。TMNT自带字形在guest内存中完好；Turnip shaderInt8=1但storageBuffer8BitAccess=0，原host R8解平铺错误依赖后者。现改32位打包，真机6/6（逐组1MiB独立CPU比较）通过，普通APK使用条款文字清晰，FPS曲线和全屏保留。实际RDC及Android同Turnip replay已完成，具体hash/SDK配对补丁见图形工具交付和cmake/renderdoc。后面的“无真实RDC/文字破损”是历史阶段；完整工具/其他画面/guest8位SSBO/可玩验收不因此自动关闭。没有新增spec或全回归，FEX/Foundation不变。
+
+## 最新直接修复：图形控制、GPU Reshape、并发分析
+
+先读 [交付和证据边界](docs/validation/android-native-host/graphics-toolkit-repair-2026-09-14.md)。旧6062df92审核的控制/capture/counter问题已经直接修复；Citron有界handoff recorder、分析/Archify投影已迁移，四类队列/同步问题已修正。Cemu式可选GPU Reshape已接普通Turnip APK，独立SDK仍含未发布dirty源码，使用主仓补丁和精确清单，不伪造可fetch新pin。242/0定向C++、Python12；SDK OFF和单shader各120秒Stop通过，正确物理屏截图显示背景/弹窗，但文字破损仍在。全量SDK映射告警尚不能归因为游戏越界。真实RDC/replay、完整PROF/Layer/PM4和可玩验收仍未完成；不改spec、不全回归、不加auto tag、不改FEX/Foundation。后面的“本轮只审核未修代码”已由此交付覆盖。
+
+
 ## 最新复核：调试工具尚未完成（30e3b21f）
 
 见 [进展审核](docs/validation/android-native-host/graphics-toolkit-progress-review-2026-09-14.md)。§3.1 部分完成，§3.2 仍有同边界空捕获、超时遗留 backend、Query 等待 End、跨请求/Session 归属及 Android loader 未调用等问题；queue_submit 实为 guest 入队，host_present 非实时，phase/Stop 未接。原 native173/0 重跑通过，但12个反例也全部复现；原 APK2/0 未验证真实 RDC/replay。本轮只审核与归档，未修生产代码。先整批修控制/捕获，再按原 spec 连续推进 PROF/Layer/PM4；不以常规子仓/ImGui 适配为由改变目标，auto tag仍延期。

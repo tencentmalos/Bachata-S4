@@ -1,0 +1,1003 @@
+{
+  "schema_version": 1,
+  "diagram_type": "timeline",
+  "meta": {
+    "title": "TMNT 主机并发：已配对观测，非 CPU 利用率／完整 Guest 帧",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "interval_color": "label"
+  },
+  "evidence_kind": "measured",
+  "clock": {
+    "id": "steady",
+    "unit": "ms",
+    "origin": "156707836458499",
+    "gpu_alignment": "not_applicable"
+  },
+  "window": {
+    "start": 1.709479,
+    "end": 401.188958
+  },
+  "sources": [
+    {
+      "id": "trace",
+      "reference": "build/graphics-toolkit-review/concurrency/tmnt-off.json；仅完整采集中的已配对观测，边界未配对区间省略。GPU Reshape 关闭；记录器开启。",
+      "sha256": "d5e8c89bf4c7a86aa40f03f52347c65420c08845a18e810ec85b1fbdd159f83f",
+      "complete": true
+    }
+  ],
+  "lanes": [
+    {
+      "id": "t16675",
+      "label": "Host TID 16675",
+      "kind": "cpu"
+    },
+    {
+      "id": "t16688",
+      "label": "Host TID 16688",
+      "kind": "cpu"
+    }
+  ],
+  "intervals": [
+    {
+      "id": "s417",
+      "lane": "t16675",
+      "label": "PM4.Resume",
+      "start": 81.207135,
+      "end": 81.228333,
+      "role": "work",
+      "source": "trace",
+      "token": "417"
+    },
+    {
+      "id": "s418",
+      "lane": "t16675",
+      "label": "PM4.Resume",
+      "start": 81.231041,
+      "end": 86.830469,
+      "role": "work",
+      "source": "trace",
+      "token": "418"
+    },
+    {
+      "id": "s419",
+      "lane": "t16675",
+      "label": "VideoOut.Prepare",
+      "start": 81.614479,
+      "end": 86.814219,
+      "role": "work",
+      "source": "trace",
+      "token": "419"
+    },
+    {
+      "id": "s420",
+      "lane": "t16675",
+      "label": "Present.FreeFrameWait",
+      "start": 81.618333,
+      "end": 81.634427,
+      "role": "wait",
+      "source": "trace",
+      "token": "420"
+    },
+    {
+      "id": "s421",
+      "lane": "t16675",
+      "label": "Present.FrameFenceWait",
+      "start": 81.635364,
+      "end": 81.681823,
+      "role": "wait",
+      "source": "trace",
+      "token": "421"
+    },
+    {
+      "id": "s422",
+      "lane": "t16675",
+      "label": "Vulkan.SubmitLock",
+      "start": 81.733802,
+      "end": 81.735208,
+      "role": "wait",
+      "source": "trace",
+      "token": "422"
+    },
+    {
+      "id": "s423",
+      "lane": "t16675",
+      "label": "Vulkan.Submit",
+      "start": 81.735677,
+      "end": 81.809375,
+      "role": "work",
+      "source": "trace",
+      "token": "423"
+    },
+    {
+      "id": "s425",
+      "lane": "t16675",
+      "label": "Vulkan.SubmitLock",
+      "start": 86.958698,
+      "end": 86.959948,
+      "role": "wait",
+      "source": "trace",
+      "token": "425"
+    },
+    {
+      "id": "s426",
+      "lane": "t16675",
+      "label": "Vulkan.Submit",
+      "start": 86.960364,
+      "end": 87.03651,
+      "role": "work",
+      "source": "trace",
+      "token": "426"
+    },
+    {
+      "id": "s427",
+      "lane": "t16688",
+      "label": "VideoOut.Flip",
+      "start": 98.783385,
+      "end": 101.63401,
+      "role": "work",
+      "source": "trace",
+      "token": "427"
+    },
+    {
+      "id": "s428",
+      "lane": "t16688",
+      "label": "Present.Frame",
+      "start": 98.785937,
+      "end": 101.623229,
+      "role": "work",
+      "source": "trace",
+      "token": "428"
+    },
+    {
+      "id": "s429",
+      "lane": "t16688",
+      "label": "Present.AcquireImage",
+      "start": 98.800885,
+      "end": 98.871614,
+      "role": "wait",
+      "source": "trace",
+      "token": "429"
+    },
+    {
+      "id": "s430",
+      "lane": "t16688",
+      "label": "Vulkan.SubmitLock",
+      "start": 99.96026,
+      "end": 99.961979,
+      "role": "wait",
+      "source": "trace",
+      "token": "430"
+    },
+    {
+      "id": "s431",
+      "lane": "t16688",
+      "label": "Vulkan.Submit",
+      "start": 99.962552,
+      "end": 100.033437,
+      "role": "work",
+      "source": "trace",
+      "token": "431"
+    },
+    {
+      "id": "s432",
+      "lane": "t16688",
+      "label": "Present.QueueLock",
+      "start": 101.276875,
+      "end": 101.279166,
+      "role": "wait",
+      "source": "trace",
+      "token": "432"
+    },
+    {
+      "id": "s433",
+      "lane": "t16688",
+      "label": "Present.DriverCall",
+      "start": 101.279687,
+      "end": 101.620052,
+      "role": "work",
+      "source": "trace",
+      "token": "433"
+    },
+    {
+      "id": "s436",
+      "lane": "t16675",
+      "label": "Vulkan.SubmitLock",
+      "start": 167.77875,
+      "end": 167.781093,
+      "role": "wait",
+      "source": "trace",
+      "token": "436"
+    },
+    {
+      "id": "s437",
+      "lane": "t16675",
+      "label": "Vulkan.Submit",
+      "start": 167.781562,
+      "end": 167.839114,
+      "role": "work",
+      "source": "trace",
+      "token": "437"
+    },
+    {
+      "id": "s438",
+      "lane": "t16675",
+      "label": "PM4.Resume",
+      "start": 168.363854,
+      "end": 168.377343,
+      "role": "work",
+      "source": "trace",
+      "token": "438"
+    },
+    {
+      "id": "s439",
+      "lane": "t16675",
+      "label": "PM4.Resume",
+      "start": 168.379218,
+      "end": 173.805156,
+      "role": "work",
+      "source": "trace",
+      "token": "439"
+    },
+    {
+      "id": "s440",
+      "lane": "t16675",
+      "label": "VideoOut.Prepare",
+      "start": 168.664323,
+      "end": 173.780885,
+      "role": "work",
+      "source": "trace",
+      "token": "440"
+    },
+    {
+      "id": "s441",
+      "lane": "t16675",
+      "label": "Present.FreeFrameWait",
+      "start": 168.667396,
+      "end": 168.683021,
+      "role": "wait",
+      "source": "trace",
+      "token": "441"
+    },
+    {
+      "id": "s442",
+      "lane": "t16675",
+      "label": "Present.FrameFenceWait",
+      "start": 168.683802,
+      "end": 168.713177,
+      "role": "wait",
+      "source": "trace",
+      "token": "442"
+    },
+    {
+      "id": "s443",
+      "lane": "t16675",
+      "label": "Vulkan.SubmitLock",
+      "start": 168.752552,
+      "end": 168.753646,
+      "role": "wait",
+      "source": "trace",
+      "token": "443"
+    },
+    {
+      "id": "s444",
+      "lane": "t16675",
+      "label": "Vulkan.Submit",
+      "start": 168.75401,
+      "end": 168.783021,
+      "role": "work",
+      "source": "trace",
+      "token": "444"
+    },
+    {
+      "id": "s446",
+      "lane": "t16688",
+      "label": "VideoOut.Flip",
+      "start": 182.085104,
+      "end": 184.621146,
+      "role": "work",
+      "source": "trace",
+      "token": "446"
+    },
+    {
+      "id": "s447",
+      "lane": "t16688",
+      "label": "Present.Frame",
+      "start": 182.087604,
+      "end": 184.590521,
+      "role": "work",
+      "source": "trace",
+      "token": "447"
+    },
+    {
+      "id": "s448",
+      "lane": "t16688",
+      "label": "Present.AcquireImage",
+      "start": 182.103437,
+      "end": 182.162448,
+      "role": "wait",
+      "source": "trace",
+      "token": "448"
+    },
+    {
+      "id": "s449",
+      "lane": "t16688",
+      "label": "Vulkan.SubmitLock",
+      "start": 183.034739,
+      "end": 183.036198,
+      "role": "wait",
+      "source": "trace",
+      "token": "449"
+    },
+    {
+      "id": "s450",
+      "lane": "t16688",
+      "label": "Vulkan.Submit",
+      "start": 183.036771,
+      "end": 183.101406,
+      "role": "work",
+      "source": "trace",
+      "token": "450"
+    },
+    {
+      "id": "s451",
+      "lane": "t16688",
+      "label": "Present.QueueLock",
+      "start": 184.189791,
+      "end": 184.191666,
+      "role": "wait",
+      "source": "trace",
+      "token": "451"
+    },
+    {
+      "id": "s452",
+      "lane": "t16688",
+      "label": "Present.DriverCall",
+      "start": 184.192187,
+      "end": 184.583333,
+      "role": "work",
+      "source": "trace",
+      "token": "452"
+    },
+    {
+      "id": "s455",
+      "lane": "t16675",
+      "label": "Vulkan.SubmitLock",
+      "start": 217.025781,
+      "end": 217.040521,
+      "role": "wait",
+      "source": "trace",
+      "token": "455"
+    },
+    {
+      "id": "s456",
+      "lane": "t16675",
+      "label": "Vulkan.Submit",
+      "start": 217.041354,
+      "end": 217.095312,
+      "role": "work",
+      "source": "trace",
+      "token": "456"
+    },
+    {
+      "id": "s457",
+      "lane": "t16675",
+      "label": "PM4.Resume",
+      "start": 217.504948,
+      "end": 217.520104,
+      "role": "work",
+      "source": "trace",
+      "token": "457"
+    },
+    {
+      "id": "s458",
+      "lane": "t16675",
+      "label": "PM4.Resume",
+      "start": 217.522604,
+      "end": 229.660052,
+      "role": "work",
+      "source": "trace",
+      "token": "458"
+    },
+    {
+      "id": "s459",
+      "lane": "t16675",
+      "label": "VideoOut.Prepare",
+      "start": 220.357968,
+      "end": 229.647552,
+      "role": "work",
+      "source": "trace",
+      "token": "459"
+    },
+    {
+      "id": "s460",
+      "lane": "t16675",
+      "label": "Present.FreeFrameWait",
+      "start": 220.362135,
+      "end": 220.381458,
+      "role": "wait",
+      "source": "trace",
+      "token": "460"
+    },
+    {
+      "id": "s461",
+      "lane": "t16675",
+      "label": "Present.FrameFenceWait",
+      "start": 220.381979,
+      "end": 220.418021,
+      "role": "wait",
+      "source": "trace",
+      "token": "461"
+    },
+    {
+      "id": "s462",
+      "lane": "t16675",
+      "label": "Vulkan.SubmitLock",
+      "start": 220.448437,
+      "end": 220.449635,
+      "role": "wait",
+      "source": "trace",
+      "token": "462"
+    },
+    {
+      "id": "s463",
+      "lane": "t16675",
+      "label": "Vulkan.Submit",
+      "start": 220.45,
+      "end": 220.488021,
+      "role": "work",
+      "source": "trace",
+      "token": "463"
+    },
+    {
+      "id": "s465",
+      "lane": "t16688",
+      "label": "VideoOut.Flip",
+      "start": 232.122396,
+      "end": 234.610468,
+      "role": "work",
+      "source": "trace",
+      "token": "465"
+    },
+    {
+      "id": "s466",
+      "lane": "t16688",
+      "label": "Present.Frame",
+      "start": 232.125729,
+      "end": 234.602396,
+      "role": "work",
+      "source": "trace",
+      "token": "466"
+    },
+    {
+      "id": "s467",
+      "lane": "t16688",
+      "label": "Present.AcquireImage",
+      "start": 232.140104,
+      "end": 232.21026,
+      "role": "wait",
+      "source": "trace",
+      "token": "467"
+    },
+    {
+      "id": "s468",
+      "lane": "t16688",
+      "label": "Vulkan.SubmitLock",
+      "start": 232.969218,
+      "end": 232.971406,
+      "role": "wait",
+      "source": "trace",
+      "token": "468"
+    },
+    {
+      "id": "s469",
+      "lane": "t16688",
+      "label": "Vulkan.Submit",
+      "start": 232.972083,
+      "end": 233.035364,
+      "role": "work",
+      "source": "trace",
+      "token": "469"
+    },
+    {
+      "id": "s470",
+      "lane": "t16688",
+      "label": "Present.QueueLock",
+      "start": 234.237448,
+      "end": 234.241718,
+      "role": "wait",
+      "source": "trace",
+      "token": "470"
+    },
+    {
+      "id": "s471",
+      "lane": "t16688",
+      "label": "Present.DriverCall",
+      "start": 234.243021,
+      "end": 234.599687,
+      "role": "work",
+      "source": "trace",
+      "token": "471"
+    },
+    {
+      "id": "s474",
+      "lane": "t16675",
+      "label": "Vulkan.SubmitLock",
+      "start": 278.002656,
+      "end": 278.005468,
+      "role": "wait",
+      "source": "trace",
+      "token": "474"
+    },
+    {
+      "id": "s475",
+      "lane": "t16675",
+      "label": "Vulkan.Submit",
+      "start": 278.006562,
+      "end": 278.06401,
+      "role": "work",
+      "source": "trace",
+      "token": "475"
+    },
+    {
+      "id": "s476",
+      "lane": "t16675",
+      "label": "PM4.Resume",
+      "start": 278.490989,
+      "end": 278.508854,
+      "role": "work",
+      "source": "trace",
+      "token": "476"
+    },
+    {
+      "id": "s477",
+      "lane": "t16675",
+      "label": "PM4.Resume",
+      "start": 278.510833,
+      "end": 290.770625,
+      "role": "work",
+      "source": "trace",
+      "token": "477"
+    },
+    {
+      "id": "s478",
+      "lane": "t16675",
+      "label": "VideoOut.Prepare",
+      "start": 281.435677,
+      "end": 290.757812,
+      "role": "work",
+      "source": "trace",
+      "token": "478"
+    },
+    {
+      "id": "s479",
+      "lane": "t16675",
+      "label": "Present.FreeFrameWait",
+      "start": 281.439843,
+      "end": 281.492708,
+      "role": "wait",
+      "source": "trace",
+      "token": "479"
+    },
+    {
+      "id": "s480",
+      "lane": "t16675",
+      "label": "Present.FrameFenceWait",
+      "start": 281.493646,
+      "end": 281.529635,
+      "role": "wait",
+      "source": "trace",
+      "token": "480"
+    },
+    {
+      "id": "s481",
+      "lane": "t16675",
+      "label": "Vulkan.SubmitLock",
+      "start": 281.562343,
+      "end": 281.563385,
+      "role": "wait",
+      "source": "trace",
+      "token": "481"
+    },
+    {
+      "id": "s482",
+      "lane": "t16675",
+      "label": "Vulkan.Submit",
+      "start": 281.563906,
+      "end": 281.598229,
+      "role": "work",
+      "source": "trace",
+      "token": "482"
+    },
+    {
+      "id": "s484",
+      "lane": "t16688",
+      "label": "VideoOut.Flip",
+      "start": 298.760729,
+      "end": 304.028073,
+      "role": "work",
+      "source": "trace",
+      "token": "484"
+    },
+    {
+      "id": "s485",
+      "lane": "t16688",
+      "label": "Present.Frame",
+      "start": 298.763489,
+      "end": 304.01125,
+      "role": "work",
+      "source": "trace",
+      "token": "485"
+    },
+    {
+      "id": "s486",
+      "lane": "t16688",
+      "label": "Present.AcquireImage",
+      "start": 298.777916,
+      "end": 298.839896,
+      "role": "wait",
+      "source": "trace",
+      "token": "486"
+    },
+    {
+      "id": "s487",
+      "lane": "t16688",
+      "label": "Vulkan.SubmitLock",
+      "start": 301.934739,
+      "end": 301.939635,
+      "role": "wait",
+      "source": "trace",
+      "token": "487"
+    },
+    {
+      "id": "s488",
+      "lane": "t16688",
+      "label": "Vulkan.Submit",
+      "start": 301.941093,
+      "end": 302.104218,
+      "role": "work",
+      "source": "trace",
+      "token": "488"
+    },
+    {
+      "id": "s489",
+      "lane": "t16688",
+      "label": "Present.QueueLock",
+      "start": 303.262396,
+      "end": 303.265625,
+      "role": "wait",
+      "source": "trace",
+      "token": "489"
+    },
+    {
+      "id": "s490",
+      "lane": "t16688",
+      "label": "Present.DriverCall",
+      "start": 303.267083,
+      "end": 304.00625,
+      "role": "work",
+      "source": "trace",
+      "token": "490"
+    },
+    {
+      "id": "s493",
+      "lane": "t16675",
+      "label": "Vulkan.SubmitLock",
+      "start": 328.040573,
+      "end": 328.043281,
+      "role": "wait",
+      "source": "trace",
+      "token": "493"
+    },
+    {
+      "id": "s494",
+      "lane": "t16675",
+      "label": "Vulkan.Submit",
+      "start": 328.044062,
+      "end": 328.097239,
+      "role": "work",
+      "source": "trace",
+      "token": "494"
+    },
+    {
+      "id": "s495",
+      "lane": "t16675",
+      "label": "PM4.Resume",
+      "start": 328.569635,
+      "end": 328.587343,
+      "role": "work",
+      "source": "trace",
+      "token": "495"
+    },
+    {
+      "id": "s496",
+      "lane": "t16675",
+      "label": "PM4.Resume",
+      "start": 328.589791,
+      "end": 341.242968,
+      "role": "work",
+      "source": "trace",
+      "token": "496"
+    },
+    {
+      "id": "s497",
+      "lane": "t16675",
+      "label": "VideoOut.Prepare",
+      "start": 331.779739,
+      "end": 341.217552,
+      "role": "work",
+      "source": "trace",
+      "token": "497"
+    },
+    {
+      "id": "s498",
+      "lane": "t16675",
+      "label": "Present.FreeFrameWait",
+      "start": 331.785312,
+      "end": 331.806979,
+      "role": "wait",
+      "source": "trace",
+      "token": "498"
+    },
+    {
+      "id": "s499",
+      "lane": "t16675",
+      "label": "Present.FrameFenceWait",
+      "start": 331.807552,
+      "end": 331.843489,
+      "role": "wait",
+      "source": "trace",
+      "token": "499"
+    },
+    {
+      "id": "s500",
+      "lane": "t16675",
+      "label": "Vulkan.SubmitLock",
+      "start": 331.874896,
+      "end": 331.876198,
+      "role": "wait",
+      "source": "trace",
+      "token": "500"
+    },
+    {
+      "id": "s501",
+      "lane": "t16675",
+      "label": "Vulkan.Submit",
+      "start": 331.876614,
+      "end": 331.913229,
+      "role": "work",
+      "source": "trace",
+      "token": "501"
+    },
+    {
+      "id": "s503",
+      "lane": "t16688",
+      "label": "VideoOut.Flip",
+      "start": 348.760885,
+      "end": 351.004843,
+      "role": "work",
+      "source": "trace",
+      "token": "503"
+    },
+    {
+      "id": "s504",
+      "lane": "t16688",
+      "label": "Present.Frame",
+      "start": 348.761875,
+      "end": 350.985781,
+      "role": "work",
+      "source": "trace",
+      "token": "504"
+    },
+    {
+      "id": "s505",
+      "lane": "t16688",
+      "label": "Present.AcquireImage",
+      "start": 348.769062,
+      "end": 348.797708,
+      "role": "wait",
+      "source": "trace",
+      "token": "505"
+    },
+    {
+      "id": "s506",
+      "lane": "t16688",
+      "label": "Vulkan.SubmitLock",
+      "start": 349.516093,
+      "end": 349.517396,
+      "role": "wait",
+      "source": "trace",
+      "token": "506"
+    },
+    {
+      "id": "s507",
+      "lane": "t16688",
+      "label": "Vulkan.Submit",
+      "start": 349.517864,
+      "end": 349.568698,
+      "role": "work",
+      "source": "trace",
+      "token": "507"
+    },
+    {
+      "id": "s508",
+      "lane": "t16688",
+      "label": "Present.QueueLock",
+      "start": 350.721875,
+      "end": 350.723021,
+      "role": "wait",
+      "source": "trace",
+      "token": "508"
+    },
+    {
+      "id": "s509",
+      "lane": "t16688",
+      "label": "Present.DriverCall",
+      "start": 350.723646,
+      "end": 350.982187,
+      "role": "work",
+      "source": "trace",
+      "token": "509"
+    },
+    {
+      "id": "s512",
+      "lane": "t16675",
+      "label": "Vulkan.SubmitLock",
+      "start": 375.474843,
+      "end": 375.477083,
+      "role": "wait",
+      "source": "trace",
+      "token": "512"
+    },
+    {
+      "id": "s513",
+      "lane": "t16675",
+      "label": "Vulkan.Submit",
+      "start": 375.477448,
+      "end": 375.540677,
+      "role": "work",
+      "source": "trace",
+      "token": "513"
+    },
+    {
+      "id": "s514",
+      "lane": "t16675",
+      "label": "PM4.Resume",
+      "start": 375.966927,
+      "end": 375.979218,
+      "role": "work",
+      "source": "trace",
+      "token": "514"
+    },
+    {
+      "id": "s515",
+      "lane": "t16675",
+      "label": "PM4.Resume",
+      "start": 375.980989,
+      "end": 388.265156,
+      "role": "work",
+      "source": "trace",
+      "token": "515"
+    },
+    {
+      "id": "s516",
+      "lane": "t16675",
+      "label": "VideoOut.Prepare",
+      "start": 378.927343,
+      "end": 388.253385,
+      "role": "work",
+      "source": "trace",
+      "token": "516"
+    },
+    {
+      "id": "s517",
+      "lane": "t16675",
+      "label": "Present.FreeFrameWait",
+      "start": 378.930989,
+      "end": 378.95151,
+      "role": "wait",
+      "source": "trace",
+      "token": "517"
+    },
+    {
+      "id": "s518",
+      "lane": "t16675",
+      "label": "Present.FrameFenceWait",
+      "start": 378.952135,
+      "end": 378.992031,
+      "role": "wait",
+      "source": "trace",
+      "token": "518"
+    },
+    {
+      "id": "s519",
+      "lane": "t16675",
+      "label": "Vulkan.SubmitLock",
+      "start": 379.025052,
+      "end": 379.025781,
+      "role": "wait",
+      "source": "trace",
+      "token": "519"
+    },
+    {
+      "id": "s520",
+      "lane": "t16675",
+      "label": "Vulkan.Submit",
+      "start": 379.026198,
+      "end": 379.05677,
+      "role": "work",
+      "source": "trace",
+      "token": "520"
+    },
+    {
+      "id": "s522",
+      "lane": "t16688",
+      "label": "VideoOut.Flip",
+      "start": 398.762343,
+      "end": 401.19776,
+      "role": "work",
+      "source": "trace",
+      "token": "522"
+    },
+    {
+      "id": "s523",
+      "lane": "t16688",
+      "label": "Present.Frame",
+      "start": 398.763437,
+      "end": 401.187916,
+      "role": "work",
+      "source": "trace",
+      "token": "523"
+    },
+    {
+      "id": "s524",
+      "lane": "t16688",
+      "label": "Present.AcquireImage",
+      "start": 398.772656,
+      "end": 398.805989,
+      "role": "wait",
+      "source": "trace",
+      "token": "524"
+    },
+    {
+      "id": "s525",
+      "lane": "t16688",
+      "label": "Vulkan.SubmitLock",
+      "start": 399.572656,
+      "end": 399.575156,
+      "role": "wait",
+      "source": "trace",
+      "token": "525"
+    },
+    {
+      "id": "s526",
+      "lane": "t16688",
+      "label": "Vulkan.Submit",
+      "start": 399.575625,
+      "end": 399.654635,
+      "role": "work",
+      "source": "trace",
+      "token": "526"
+    },
+    {
+      "id": "s527",
+      "lane": "t16688",
+      "label": "Present.QueueLock",
+      "start": 400.874218,
+      "end": 400.876041,
+      "role": "wait",
+      "source": "trace",
+      "token": "527"
+    },
+    {
+      "id": "s528",
+      "lane": "t16688",
+      "label": "Present.DriverCall",
+      "start": 400.876458,
+      "end": 401.18526,
+      "role": "work",
+      "source": "trace",
+      "token": "528"
+    }
+  ]
+}

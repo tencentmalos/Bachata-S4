@@ -6,12 +6,15 @@
 #include "video_core/renderer_vulkan/vk_master_semaphore.h"
 
 #include "common/assert.h"
+#include "core/diagnostics/pipeline_handoff.h"
+#include <stdexcept>
 
 namespace Vulkan {
 
-constexpr u64 WAIT_TIMEOUT = std::numeric_limits<u64>::max();
+constexpr u64 WAIT_TIMEOUT = 50'000'000;
 
-MasterSemaphore::MasterSemaphore(const Instance& instance_) : instance{instance_} {
+MasterSemaphore::MasterSemaphore(const Instance& instance_)
+    : instance{instance_}, diagnostic_id{Core::Diagnostics::Handoff::NextId()} {
     const vk::StructureChain semaphore_chain = {
         vk::SemaphoreCreateInfo{},
         vk::SemaphoreTypeCreateInfo{
@@ -34,8 +37,9 @@ void MasterSemaphore::Refresh() {
     do {
         this_tick = gpu_tick.load(std::memory_order_acquire);
         auto [counter_result, cntr] = instance.GetDevice().getSemaphoreCounterValue(*semaphore);
-        ASSERT_MSG(counter_result == vk::Result::eSuccess,
-                   "Failed to get master semaphore value: {}", vk::to_string(counter_result));
+        if (counter_result != vk::Result::eSuccess)
+            throw std::runtime_error("Failed to get master semaphore value: " +
+                                     vk::to_string(counter_result));
         counter = cntr;
         if (counter < this_tick) {
             return;
@@ -45,14 +49,18 @@ void MasterSemaphore::Refresh() {
 }
 
 void MasterSemaphore::Wait(u64 tick) {
+    (void)Wait(tick, {});
+}
+
+bool MasterSemaphore::Wait(u64 tick, std::stop_token stop) {
     // No need to wait if the GPU is ahead of the tick
     if (IsFree(tick)) {
-        return;
+        return true;
     }
     // Update the GPU tick and try again
     Refresh();
     if (IsFree(tick)) {
-        return;
+        return true;
     }
 
     // If none of the above is hit, fallback to a regular wait
@@ -62,9 +70,18 @@ void MasterSemaphore::Wait(u64 tick) {
         .pValues = &tick,
     };
 
-    while (instance.GetDevice().waitSemaphores(&wait_info, WAIT_TIMEOUT) != vk::Result::eSuccess) {
+    Core::Diagnostics::Handoff::Scope scope{"Vulkan.TimelineWait", instance.DiagnosticGeneration(),
+        diagnostic_id, tick, true};
+    while (true) {
+        if (stop.stop_requested()) return false;
+        const auto result = instance.GetDevice().waitSemaphores(&wait_info, WAIT_TIMEOUT);
+        if (result == vk::Result::eSuccess) break;
+        if (result != vk::Result::eTimeout)
+            throw std::runtime_error("Vulkan timeline wait failed: " + vk::to_string(result));
     }
     Refresh();
+    SHAD_HANDOFF(instance.DiagnosticGeneration(), "gpu_completed", diagnostic_id, tick);
+    return true;
 }
 
 } // namespace Vulkan

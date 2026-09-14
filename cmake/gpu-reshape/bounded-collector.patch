@@ -1,0 +1,41 @@
+--- a/Source/Backends/Vulkan/Android/Source/AndroidAsyncCollector.cpp
++++ b/Source/Backends/Vulkan/Android/Source/AndroidAsyncCollector.cpp
+@@ -240,9 +240,12 @@
+             if (!sdk_->resourceBoundsRuntime) {
+                 return fail("runtime_detached");
+             }
+-            words.resize(sdk_->resourceBoundsConfig.stream_word_capacity);
+-            descriptorWords.resize(
+-                sdk_->resourceBoundsConfig.stream_word_capacity);
++            // A wire event is bounded to 64 KiB, unlike the GPU export stream.
++            // Read complete records only; a full 65536-word stream ends with a
++            // partial five-word bounds record and used to discard every finding.
++            // Preserve the actual produced count and explicitly mark sampling.
++            words.resize(5u * 64u);
++            descriptorWords.resize(2u * 64u);
+             readback.words = words.data();
+             readback.word_capacity = static_cast<uint32_t>(words.size());
+             descriptorReadback.words = descriptorWords.data();
+@@ -291,6 +294,22 @@
+                 }
+             }
+         }
++        // Portable compilation allocates SGUIDs locally per shader. A submission
++        // can contain several shaders with the same SGUID. Never publish competing
++        // source rows which cause the host SQL join to multiply one finding into
++        // several falsely attributed shader faults. Preserve the raw finding;
++        // unknown source is preferable to an invented owner.
++        const auto allMappings = sourceMappings;
++        std::erase_if(sourceMappings, [&](const auto& mapping) {
++            return std::any_of(allMappings.begin(), allMappings.end(), [&](const auto& other) {
++                return other.sguid == mapping.sguid && other.shaderGuid != mapping.shaderGuid;
++            });
++        });
++        readback.words_written -= readback.words_written % 5u;
++        descriptorReadback.words_written -= descriptorReadback.words_written % 2u;
++        readback.overflowed |= readback.produced_word_count > readback.words_written;
++        descriptorReadback.overflowed |=
++            descriptorReadback.produced_word_count > descriptorReadback.words_written;
+         sdk_->collectorLastProducedWords.store(
+             readback.produced_word_count, std::memory_order_relaxed);
+         sdk_->collectorLastWrittenWords.store(

@@ -1,0 +1,27 @@
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"columns\":[\"shader_guid\",\"compile_type\",\"runtime_type\",\"n\"],\"rows\":[],\"truncated\":false,\"elapsedMilliseconds\":19,\"schemaRevision\":13,\"watermark\":\"raw_event:34177\",\"coverage\":\"partialLive\",\"provenance\":\"direct\"}"
+      }
+    ],
+    "structuredContent": {
+      "columns": [
+        "shader_guid",
+        "compile_type",
+        "runtime_type",
+        "n"
+      ],
+      "rows": [],
+      "truncated": false,
+      "elapsedMilliseconds": 19,
+      "schemaRevision": 13,
+      "watermark": "raw_event:34177",
+      "coverage": "partialLive",
+      "provenance": "direct"
+    }
+  },
+  "id": 44,
+  "jsonrpc": "2.0"
+}

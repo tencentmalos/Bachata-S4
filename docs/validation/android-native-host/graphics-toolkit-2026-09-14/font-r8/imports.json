@@ -1,0 +1,178 @@
+[
+  {
+    "file": "eboot.bin",
+    "sha256": "6122da7190de6b08d921b2c42c3ca9ed11dc4d11524f1139ff67aeceea5b204d",
+    "libraries": [
+      "GameRebirth",
+      "libSceAppContent",
+      "libSceAppContentUtil",
+      "libSceAudioOut",
+      "libSceAvPlayer",
+      "libSceCommonDialog",
+      "libSceErrorDialog",
+      "libSceFios2",
+      "libSceGnmDriver",
+      "libSceHttp2",
+      "libSceImeDialog",
+      "libSceInvitationDialog",
+      "libSceJson",
+      "libSceJson2",
+      "libSceMsgDialog",
+      "libSceNet",
+      "libSceNetCtl",
+      "libSceNpAuth",
+      "libSceNpAuthAuthorizedAppDialog",
+      "libSceNpCommerce",
+      "libSceNpCppWebApi",
+      "libSceNpEntitlementAccess",
+      "libSceNpFriendListDialog",
+      "libSceNpManager",
+      "libSceNpProfileDialog",
+      "libSceNpTrophy",
+      "libSceNpWebApi2",
+      "libScePad",
+      "libScePosix",
+      "libSceRtc",
+      "libSceSaveData",
+      "libSceSaveDataDialog",
+      "libSceSigninDialog",
+      "libSceSsl",
+      "libSceSysmodule",
+      "libSceSystemService",
+      "libSceUserService",
+      "libSceVideoOut",
+      "libSceWebBrowserDialog",
+      "libc",
+      "libfmod",
+      "libfmodstudio",
+      "libkernel"
+    ],
+    "named_font_symbols": [],
+    "dynamic_symbol_count": 670
+  },
+  {
+    "file": "modules/libfmod.prx",
+    "sha256": "e1c11c0cffe67d84f4b90dc6469ba36ac46f51c6265632f9f6a43220e31f82b4",
+    "libraries": [
+      "libSceAjm",
+      "libSceAudio3d",
+      "libSceAudioIn",
+      "libSceAudioOut",
+      "libSceGnmDriver",
+      "libSceNet",
+      "libSceSysmodule",
+      "libSceUserService",
+      "libc",
+      "libfmod",
+      "libkernel"
+    ],
+    "named_font_symbols": [],
+    "dynamic_symbol_count": 1362
+  },
+  {
+    "file": "modules/libfmodstudio.prx",
+    "sha256": "2b4e4ef16cbe65cc936f4df92655bd913fc4520aa03936a990c9133742c464c0",
+    "libraries": [
+      "libc",
+      "libfmod",
+      "libfmodstudio",
+      "libkernel"
+    ],
+    "named_font_symbols": [],
+    "dynamic_symbol_count": 602
+  },
+  {
+    "file": "sce_module/libSceFios2.prx",
+    "sha256": "cdba7270959c106737182a4100b8d34a1c55ab2ff335ae38561733bf249c2aa8",
+    "libraries": [
+      "libSceDiscMap",
+      "libSceFios2",
+      "libSceLibcInternal",
+      "libSceSysmodule",
+      "libkernel"
+    ],
+    "named_font_symbols": [],
+    "dynamic_symbol_count": 251
+  },
+  {
+    "file": "sce_module/libSceNpCppWebApi.prx",
+    "sha256": "86567e067727049a2626e885d3cdd68acaa37b8cb663d7acb1415bcef4b6982f",
+    "libraries": [
+      "libSceHttp",
+      "libSceJson",
+      "libSceJson2",
+      "libSceLibcInternal",
+      "libSceNpCppWebApi",
+      "libSceNpWebApi2",
+      "libSceRtc",
+      "libkernel"
+    ],
+    "named_font_symbols": [],
+    "dynamic_symbol_count": 43102
+  },
+  {
+    "file": "sce_module/libSceNpEntitlementAccess.prx",
+    "sha256": "bdb6d271ae53dbcee15d26a74a78597de43f0e17366c82ea0bdbcf5ff4146170",
+    "libraries": [
+      "libSceAppContent",
+      "libSceAppContentUtil",
+      "libSceNpEntitlementAccess",
+      "libSceRtc",
+      "libc",
+      "libkernel"
+    ],
+    "named_font_symbols": [],
+    "dynamic_symbol_count": 35
+  },
+  {
+    "file": "sce_module/libSceNpToolkit2.prx",
+    "sha256": "25c60c0cd1c680fc6bbe42199a2fa14da202783fb73fd38d88eccba9b899946f",
+    "libraries": [
+      "libSceHttp",
+      "libSceInvitationDialog",
+      "libSceLibcInternal",
+      "libSceNet",
+      "libSceNetCtl",
+      "libSceNetCtlForNpToolkit",
+      "libSceNpAuth",
+      "libSceNpCommerce",
+      "libSceNpCommon",
+      "libSceNpManager",
+      "libSceNpManagerForToolkit",
+      "libSceNpMatching2",
+      "libSceNpProfileDialog",
+      "libSceNpScore",
+      "libSceNpToolkit2",
+      "libSceNpTrophy",
+      "libSceNpTus",
+      "libSceNpUtility",
+      "libSceNpWebApi",
+      "libScePosix",
+      "libSceRtc",
+      "libSceSigninDialog",
+      "libSceSsl",
+      "libSceSysmodule",
+      "libSceSystemService",
+      "libSceUserService",
+      "libSceUserServiceForNpToolkit",
+      "libkernel"
+    ],
+    "named_font_symbols": [],
+    "dynamic_symbol_count": 3007
+  },
+  {
+    "file": "sce_module/libc.prx",
+    "sha256": "e9ff426367f594a22d8122c63199c3350630ac7f46a78e4845cfa16edbea2a38",
+    "libraries": [
+      "libSceFios2",
+      "libSceLibcInternal",
+      "libSceLibcInternalExt",
+      "libSceSysmodule",
+      "libc",
+      "libc_setjmp",
+      "libkernel"
+    ],
+    "named_font_symbols": [],
+    "dynamic_symbol_count": 2678
+  }
+]

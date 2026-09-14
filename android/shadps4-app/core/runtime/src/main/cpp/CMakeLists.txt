@@ -62,3 +62,9 @@ target_link_options(shadps4_fex_session PRIVATE -Wl,--build-id=sha1)
 add_subdirectory(pkg)
 
 target_link_libraries(shadps4_fex_session PRIVATE android)
+
+# The APK variant, not native NDEBUG (RelWithDebInfo), controls command exposure.
+option(SHADPS4_ANDROID_DEBUG_COMMANDS "Enable local debug commands in a debug APK" OFF)
+if(SHADPS4_ANDROID_DEBUG_COMMANDS)
+    target_compile_definitions(shadps4_fex_session PRIVATE SHADPS4_ANDROID_DEBUG_COMMANDS=1)
+endif()

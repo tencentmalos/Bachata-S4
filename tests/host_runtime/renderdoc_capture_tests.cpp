@@ -1,175 +1,140 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
+#include <chrono>
 #include <cstdio>
-#include <string>
-#include <vector>
-
+#include <future>
 #include "video_core/renderdoc_capture.h"
-
 using namespace VideoCore;
-
-static unsigned checks{}, failures{};
-#define CHECK(x)                                                                                    \
-    do {                                                                                            \
-        ++checks;                                                                                   \
-        if (!(x)) {                                                                                 \
-            ++failures;                                                                             \
-            std::printf("FAIL line %d: %s\n", __LINE__, #x);                                        \
-        }                                                                                           \
-    } while (0)
-
-// A controllable fake RenderDoc backend.
-class FakeBackend : public IRenderDocBackend {
-public:
-    bool loaded = true;
-    u32 num_captures = 0;
-    bool capturing = false;
-    int starts = 0;
-    int ends = 0;
-    // When a capture ends, whether a new capture file "appears".
-    bool produce_capture_on_end = true;
-    std::string path_to_return = "/data/captures/frame.rdc";
-    bool get_capture_ok = true;
-
+using namespace std::chrono_literals;
+unsigned checks{}, failures{};
+#define CHECK(x) do { ++checks; if (!(x)) { ++failures; std::printf("FAIL %d: %s\n", __LINE__, #x); } } while (0)
+struct Backend : IRenderDocBackend {
+    bool loaded{true}, active{}, discard_ok{true}, finalize_ok{true};
+    unsigned starts{}, ends{}, discards{}, files{}, work{};
+    std::promise<void>* end_entered{};
+    std::shared_future<void> release_end;
     bool IsLoaded() const override { return loaded; }
-    u32 GetNumCaptures() override { return num_captures; }
-    void StartFrameCapture() override { ++starts; capturing = true; }
-    bool EndFrameCapture() override {
-        if (!capturing) return false;
-        ++ends;
-        capturing = false;
-        if (produce_capture_on_end) ++num_captures;
-        return true;
+    bool IsCapturing() override { return active; }
+    u32 GetNumCaptures() override { return files; }
+    bool StartFrameCapture(const CaptureTarget&, const CaptureReceipt&) override {
+        ++starts; active = true; return true;
     }
-    bool GetCapture(u32 idx, std::string& path, u64& timestamp) override {
-        if (!get_capture_ok || idx >= num_captures) return false;
-        path = path_to_return;
-        timestamp = 1700000000ull + idx;
-        return true;
+    bool EndFrameCapture(const CaptureTarget&) override {
+        if (end_entered) { end_entered->set_value(); release_end.wait(); }
+        ++ends; active = false; ++files; return true;
+    }
+    bool DiscardFrameCapture(const CaptureTarget&) override {
+        ++discards; if (discard_ok) active = false; return discard_ok;
+    }
+    bool GetCapture(u32, std::string& path, u64& time) override {
+        path = "test.rdc"; time = 123; return true;
+    }
+    bool Finalize(const CaptureTarget&, CaptureReceipt& r) override {
+        r.file_size = 123; r.file_sha256 = "verified-test-hash"; r.sidecar_path = "test.rdc.json";
+        return finalize_ok;
     }
 };
-
+CaptureTarget Target(u64 gen = 10) { return {gen, reinterpret_cast<void*>(1), nullptr, "test", "test-driver"}; }
 int main() {
-    // --- happy path: arm 1 frame, one boundary starts, next completes -> Ready ---
     {
-        FakeBackend be;
-        CaptureCoordinator c(be);
-        auto r = c.Arm(1, "run-1", "cap-1", 0);
+        Backend b; CaptureCoordinator c{b};
+        CHECK(c.Arm(1, 10, "run", 0).command_status == "no_matching_renderer");
+        CHECK(c.Bind(Target()));
+        CHECK(!c.Bind(Target(11)));
+        CHECK(c.Arm(0, 10, "run", 0).command_status == "invalid_frames");
+        CHECK(c.Arm(9, 10, "run", 0).command_status == "invalid_frames");
+        CHECK(c.Arm(1, 11, "run", 0).command_status == "no_matching_renderer");
+        auto r = c.Arm(1, 10, "run", 0);
         CHECK(r.state == CaptureRequestState::Armed);
-        CHECK(r.request_id == 1);
-        CHECK(r.num_captures_before == 0);
-        CHECK(r.run_uuid == "run-1" && r.capture_uuid == "cap-1");
-        // First boundary starts and (frames==1) completes in the same boundary.
-        c.OnFrameBoundary(1);
-        CHECK(be.starts == 1 && be.ends == 1);
-        auto q = c.Query(2);
-        CHECK(q.state == CaptureRequestState::Ready);
-        CHECK(q.num_captures_after == 1);
-        CHECK(q.file_path == "/data/captures/frame.rdc");
-        CHECK(q.capture_timestamp == 1700000000ull);
+        CHECK(c.Arm(1, 10, "run", 0).command_status == "busy");
+        c.OnFrameBoundary(11, 1, 1); CHECK(b.starts == 0);
+        c.OnFrameBoundary(10, 5, 1);
+        CHECK(b.starts == 1 && b.ends == 0 && b.active);
+        CHECK(c.Query().state == CaptureRequestState::Capturing);
+        c.OnFrameBoundary(10, 5, 2); CHECK(b.ends == 0);
+        if (b.active) ++b.work;
+        c.OnFrameBoundary(10, 6, 3);
+        r = c.Query();
+        CHECK(b.work == 1 && b.ends == 1);
+        CHECK(r.state == CaptureRequestState::Ready && r.completed_frames == 1);
+        CHECK(r.first_present == 5 && r.last_present == 6);
+        CHECK(!r.file_sha256.empty() && !r.sidecar_path.empty());
+        auto second = c.Arm(1, 10, "run", 4);
+        CHECK(second.capture_uuid != r.capture_uuid);
+        CHECK(c.Query(r.request_id, 4).state == CaptureRequestState::Ready);
+        CHECK(c.Cancel(r.request_id, 10).command_status == "stale_request");
+        CHECK(c.Cancel(second.request_id, 11).command_status == "stale_request");
+        CHECK(c.Query().state == CaptureRequestState::Armed);
+        c.RequestStop(10); c.Poll(5);
+        CHECK(c.Query().state == CaptureRequestState::Cancelled);
+        CHECK(b.discards == 0); // Never started; no external capture touched.
+        c.Unbind(10); CHECK(c.Bind(Target(11)));
+        CHECK(c.Arm(1, 10, "run", 6).command_status == "no_matching_renderer");
     }
-
-    // --- multi-frame: 3 frames need 3 boundaries ---
     {
-        FakeBackend be;
-        CaptureCoordinator c(be);
-        c.Arm(3, "run", "cap", 0);
-        c.OnFrameBoundary(1);  // start + frame 1
-        CHECK(c.Query(1).state == CaptureRequestState::Capturing);
-        c.OnFrameBoundary(2);  // frame 2
-        CHECK(c.Query(2).state == CaptureRequestState::Capturing);
-        c.OnFrameBoundary(3);  // frame 3 -> end
-        CHECK(c.Query(3).state == CaptureRequestState::Ready);
-        CHECK(be.starts == 1 && be.ends == 1);
+        Backend b; CaptureCoordinator c{b}; c.Bind(Target());
+        c.Arm(3, 10, "run", 0);
+        for (u64 i = 1; i <= 3; ++i) { c.OnFrameBoundary(10, i, i); CHECK(b.ends == 0); }
+        c.OnFrameBoundary(10, 4, 4);
+        CHECK(c.Query().completed_frames == 3 && b.ends == 1);
     }
-
-    // --- RenderDoc absent -> Failed immediately, never fake success ---
     {
-        FakeBackend be; be.loaded = false;
-        CaptureCoordinator c(be);
-        auto r = c.Arm(1, "run", "cap", 0);
-        CHECK(r.state == CaptureRequestState::Failed);
-        CHECK(r.failure_reason.find("not loaded") != std::string::npos);
+        Backend b; CaptureCoordinator c{b}; c.Bind(Target()); c.SetTimeoutNs(10);
+        c.Arm(1, 10, "run", 0); c.OnFrameBoundary(10, 1, 100);
+        CHECK(b.starts == 0 && c.Query().state == CaptureRequestState::Failed);
+        c.Arm(3, 10, "run", 101); c.OnFrameBoundary(10, 1, 102);
+        c.Poll(112);
+        CHECK(c.Query().state == CaptureRequestState::Failed && !b.active && b.discards == 1);
+        CHECK(b.ends == 0 && b.files == 0);
     }
-
-    // --- busy: a second Arm while armed returns the existing request ---
     {
-        FakeBackend be;
-        CaptureCoordinator c(be);
-        auto r1 = c.Arm(2, "run", "cap-a", 0);
-        auto r2 = c.Arm(2, "run", "cap-b", 0);
-        CHECK(r1.request_id == r2.request_id);       // same request (busy)
-        CHECK(r2.capture_uuid == "cap-a");           // not clobbered by cap-b
-        CHECK(r2.state == CaptureRequestState::Armed);
+        Backend b; CaptureCoordinator c{b}; c.Bind(Target());
+        auto r = c.Arm(3, 10, "run", 0); c.OnFrameBoundary(10, 1, 1);
+        b.discard_ok = false;
+        CHECK(c.Cancel(r.request_id, 10).state == CaptureRequestState::Cancelling);
+        c.Poll(2);
+        CHECK(c.Query().cleanup_pending && b.active);
+        CHECK(c.Arm(1, 10, "run", 3).command_status == "busy");
+        b.discard_ok = true; c.Poll(4);
+        CHECK(c.Query().state == CaptureRequestState::Cancelled && !b.active);
+        CHECK(b.files == 0);
     }
-
-    // --- no new capture appeared -> Failed, never Ready ---
     {
-        FakeBackend be; be.produce_capture_on_end = false;
-        CaptureCoordinator c(be);
-        c.Arm(1, "run", "cap", 0);
-        c.OnFrameBoundary(1);
-        auto q = c.Query(2);
-        CHECK(q.state == CaptureRequestState::Failed);
-        CHECK(q.failure_reason.find("no new capture") != std::string::npos);
+        Backend b; CaptureCoordinator c{b}; c.Bind(Target());
+        c.Arm(1, 10, "run", 0); c.OnFrameBoundary(10, 1, 1);
+        b.finalize_ok = false; c.OnFrameBoundary(10, 2, 2);
+        CHECK(c.Query().state == CaptureRequestState::Failed);
     }
-
-    // --- capture appeared but path not retrievable -> Failed ---
     {
-        FakeBackend be; be.get_capture_ok = false;
-        CaptureCoordinator c(be);
-        c.Arm(1, "run", "cap", 0);
-        c.OnFrameBoundary(1);
-        auto q = c.Query(2);
-        CHECK(q.state == CaptureRequestState::Failed);
-        CHECK(q.failure_reason.find("file path") != std::string::npos);
+        Backend b; b.loaded = false; CaptureCoordinator c{b}; c.Bind(Target());
+        CHECK(c.Arm(1, 10, "run", 0).state == CaptureRequestState::Failed);
+        CHECK(b.starts == 0);
     }
-
-    // --- cancel an in-progress capture ends and discards it ---
     {
-        FakeBackend be;
-        CaptureCoordinator c(be);
-        c.Arm(3, "run", "cap", 0);
-        c.OnFrameBoundary(1);  // Capturing
-        CHECK(c.Query(1).state == CaptureRequestState::Capturing);
-        c.Cancel();
-        CHECK(be.ends == 1);  // ended to not leave RenderDoc mid-frame
-        CHECK(c.Query(2).state == CaptureRequestState::Cancelled);
+        Backend b; CaptureCoordinator c{b}; c.Bind(Target());
+        auto r = c.Arm(1, 10, "run", 0); c.OnFrameBoundary(10, 1, 1);
+        std::promise<void> entered, release;
+        b.end_entered = &entered; b.release_end = release.get_future().share();
+        auto render = std::async(std::launch::async, [&] { c.OnFrameBoundary(10, 2, 2); });
+        entered.get_future().wait();
+        auto status = std::async(std::launch::async, [&] { return c.Query(); });
+        CHECK(status.wait_for(100ms) == std::future_status::ready);
+        CHECK(status.get().state == CaptureRequestState::Writing);
+        auto cancel = std::async(std::launch::async, [&] { return c.Cancel(r.request_id, 10); });
+        CHECK(cancel.wait_for(100ms) == std::future_status::ready);
+        CHECK(cancel.get().cleanup_pending);
+        release.set_value(); render.get();
+        CHECK(c.Query().state == CaptureRequestState::Cancelled);
     }
-
-    // --- timeout: armed with no boundary within budget -> Failed on Query ---
     {
-        FakeBackend be;
-        CaptureCoordinator c(be);
-        c.SetTimeoutNs(1000);
-        c.Arm(1, "run", "cap", 0);
-        CHECK(c.Query(500).state == CaptureRequestState::Armed);   // within budget
-        CHECK(c.Query(2000).state == CaptureRequestState::Failed); // past budget
-        CHECK(c.Query(2000).failure_reason.find("timeout") != std::string::npos);
+        Backend b;
+        std::atomic<u64> now{0};
+        CaptureCoordinator c{b, [&] { return now.load(); }}; c.Bind(Target()); c.SetTimeoutNs(10);
+        c.Arm(1, 10, "run", 0); now = 20;
+        const auto limit = std::chrono::steady_clock::now() + 1s;
+        while (c.Query().state != CaptureRequestState::Failed && std::chrono::steady_clock::now() < limit)
+            std::this_thread::yield();
+        CHECK(c.Query().state == CaptureRequestState::Failed && b.starts == 0);
     }
-
-    // --- after Ready, a new Arm starts a fresh request ---
-    {
-        FakeBackend be;
-        CaptureCoordinator c(be);
-        c.Arm(1, "run", "cap-1", 0);
-        c.OnFrameBoundary(1);
-        CHECK(c.Query(1).state == CaptureRequestState::Ready);
-        auto r2 = c.Arm(1, "run", "cap-2", 2);
-        CHECK(r2.request_id == 2);
-        CHECK(r2.state == CaptureRequestState::Armed);
-        CHECK(r2.num_captures_before == 1);  // one capture already exists
-    }
-
-    // --- Query(unknown request_id) reports idle/unknown ---
-    {
-        FakeBackend be;
-        CaptureCoordinator c(be);
-        c.Arm(1, "run", "cap", 0);
-        auto q = c.Query(999u, 0);
-        CHECK(q.state == CaptureRequestState::Idle);
-        CHECK(q.failure_reason.find("unknown") != std::string::npos);
-    }
-
     std::printf("renderdoc_capture: %u checks, %u failures\n", checks, failures);
-    return failures == 0 ? 0 : 1;
+    return failures ? 1 : 0;
 }

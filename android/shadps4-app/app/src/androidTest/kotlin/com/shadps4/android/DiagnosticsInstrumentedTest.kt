@@ -23,6 +23,40 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class DiagnosticsInstrumentedTest {
+    @Test fun destroyedSurfaceFaultsAndNextGenerationRenders() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val context = instrumentation.targetContext
+        assertTrue(NativePad.nativeInitializeHost(File(context.filesDir, "host").absolutePath))
+        val paths = AndroidTurnip.prepare(context)
+        val root = File(context.filesDir, "validation/surface-loss-${System.nanoTime()}").apply { mkdirs() }
+        val entry = File(root, "eboot.bin")
+        instrumentation.context.assets.open("gpu-flip.elf").use { input -> entry.outputStream().use { input.copyTo(it) } }
+        try {
+            repeat(2) { round ->
+                RuntimeTestSurface(instrumentation).use { window ->
+                    val generation = NativeFexSession.nativeStartRenderedExecutable(
+                        "surface-loss-recovery", entry.path, window.surface, paths.hooks, paths.driver)
+                    assertTrue(generation > 0)
+                    try {
+                        assertEquals(NativeFexSession.WaitPhase.REACHED_TARGET,
+                            NativeFexSession.nativeWaitPhase(generation, NativeFexSession.PhaseOrdinal.READY, 10000))
+                        // Exercise native WSI's dead-window failure, independent of the
+                        // Service's normal Surface observer which proactively requests Stop.
+                        if (round == 0) { window.close(); assertFalse(window.surface.isValid) }
+                        assertTrue(NativeFexSession.nativePlatformReady(generation))
+                        val outcome = NativeFexSession.nativeWaitTerminal(generation, 15000)
+                        val detail = NativeFexSession.nativeTerminalDetail(generation).orEmpty()
+                        assertEquals(detail, if (round == 0) NativeFexSession.Outcome.FAULTED else NativeFexSession.Outcome.RETURNED, outcome)
+                        if (round == 0) assertTrue(detail, detail.contains("import=Up36PTk687E#libSceVideoOut#") &&
+                            detail.contains("graphics=not-created"))
+                        else assertTrue(detail, (Regex("guest_presents=(\\d+)").find(detail)?.groupValues?.get(1)?.toInt() ?: 0) >= 4)
+                        android.util.Log.i("DiagnosticsAcceptance", "surface round=$round generation=$generation outcome=$outcome $detail")
+                    } finally { NativeFexSession.nativeRequestStop(generation, 1000) }
+                }
+            }
+        } finally { if (NativeFexSession.nativeCurrentGeneration() == 0L) root.deleteRecursively() }
+    }
+
     private fun await(message: String, predicate: () -> Boolean) {
         val deadline = SystemClock.uptimeMillis() + 5000
         while (!predicate() && SystemClock.uptimeMillis() < deadline) SystemClock.sleep(5)
@@ -50,6 +84,8 @@ class DiagnosticsInstrumentedTest {
             // advance signal, with gpu_retire UNAVAILABLE (never a misleading 0).
             val status = NativeFexSession.nativeDebugCommand("debug_status")
             android.util.Log.i("DiagnosticsAcceptance", "debug_status:\n$status")
+            assertTrue("running phase: $status", status.contains("phase: 3"))
+            assertTrue("overlay unavailable: $status", status.contains("overlay_redraw: unavailable"))
             assertTrue("active: $status", status.contains("session: active"))
             assertTrue("generation: $status", status.contains("generation: $generation"))
             assertTrue("run_uuid present: $status",
@@ -72,11 +108,10 @@ class DiagnosticsInstrumentedTest {
             val cap = NativeFexSession.nativeDebugCommand("renderdoc_capture 1")
             android.util.Log.i("DiagnosticsAcceptance", "renderdoc_capture:\n$cap")
             assertTrue("capture has a receipt state: $cap", cap.contains("state:"))
-            assertTrue("capture requested_frames: $cap", cap.contains("requested_frames: 1"))
-            assertTrue("capture failed without RenderDoc: $cap", cap.contains("state: failed"))
+            assertTrue("capture rejected without renderer: $cap", cap.contains("status: no_matching_renderer"))
             assertFalse("capture not faked ready: $cap", cap.contains("state: ready"))
-            assertTrue("capture reason names RenderDoc: $cap",
-                cap.contains("RenderDoc API not loaded"))
+            assertTrue(NativeFexSession.nativeDebugCommand("renderdoc_capture -1").contains("invalid_arguments"))
+            assertTrue(NativeFexSession.nativeDebugCommand("renderdoc_capture_cancel").contains("invalid_arguments"))
             val capStatus = NativeFexSession.nativeDebugCommand("renderdoc_capture_status")
             assertTrue("capture status has a receipt: $capStatus", capStatus.contains("state:"))
 
@@ -91,7 +126,7 @@ class DiagnosticsInstrumentedTest {
             val help = NativeFexSession.nativeDebugCommand("")
             assertTrue("help: $help", help.contains("debug_status") && help.contains("profiler_ring"))
 
-            // Stop, and the hub reports no session again (Revoke on Destroy).
+            // Stop retains terminal evidence while reporting no active session.
             context.startService(Intent(context, FexSessionService::class.java)
                 .setAction(ManagedSession.ACTION_STOP))
             val terminal = NativeFexSession.nativeWaitTerminal(generation, 3000)
@@ -101,6 +136,10 @@ class DiagnosticsInstrumentedTest {
             await("session revoked from hub") {
                 NativeFexSession.nativeDebugCommand("debug_status").contains("session: none")
             }
+            val retained = NativeFexSession.nativeDebugCommand("debug_status")
+            assertTrue("retained generation: $retained", retained.contains("generation: $generation"))
+            assertTrue("terminal phase: $retained", retained.contains("phase: 5"))
+            android.util.Log.i("DiagnosticsAcceptance", "retained:\n$retained")
             android.util.Log.i("DiagnosticsAcceptance",
                 "generation=$generation terminal=$terminal PASS")
         } finally {
@@ -127,8 +166,7 @@ class DiagnosticsInstrumentedTest {
         }
         // Sample the hub while the rendering session runs; capture the peak signals seen.
         // A final post-terminal read backstops the race where a fast synthetic returns
-        // between polls: the hub retains counts until Destroy (Revoke), which happens
-        // later in teardown.
+        // between polls: the final publisher retains its identity and counts after teardown.
         var sawActive = false
         var peakFlip = 0L
         var peakSubmit = 0L
@@ -157,19 +195,19 @@ class DiagnosticsInstrumentedTest {
                     sample(NativeFexSession.nativeDebugCommand("debug_status"))
                     if (NativeFexSession.nativeWaitTerminal(generation, 50) != NativeFexSession.Outcome.TIMEOUT) break
                 }
-                // Final read after the terminal, before teardown revokes the publisher:
+                // Final read after the terminal, from the retained publisher:
                 // the retained counts reflect the whole run, immune to poll timing.
                 sample(NativeFexSession.nativeDebugCommand("debug_status"))
                 // host_present is published from the async GPU present, which can land
                 // shortly after the guest returns. Give it a bounded settle window
-                // (the session stays registered until Destroy, triggered in finally).
+                // (the publisher retains the terminal evidence after teardown).
                 val presentDeadline = SystemClock.uptimeMillis() + 3000
                 while (peakPresent < 1 && SystemClock.uptimeMillis() < presentDeadline) {
                     sample(NativeFexSession.nativeDebugCommand("debug_status"))
                     SystemClock.sleep(25)
                 }
                 val detail = NativeFexSession.nativeTerminalDetail(generation).orEmpty()
-                val detailPresents = signal(detail, "guest_presents")
+                val detailPresents = Regex("guest_presents=(\\d+)").find(detail)?.groupValues?.get(1)?.toLong() ?: 0L
                 android.util.Log.i("DiagnosticsAcceptance",
                     "gpu-flip gen=$generation flip=$peakFlip submit=$peakSubmit present=$peakPresent pm4=$peakPm4 draw=$peakDraw detailPresents=$detailPresents detail=$detail")
                 assertTrue("saw active rendering session", sawActive)
@@ -178,11 +216,12 @@ class DiagnosticsInstrumentedTest {
                 // reflect actual GPU submission and presentation, not stay at 0.
                 assertTrue("guest_flip advanced (was $peakFlip)", peakFlip >= 1)
                 assertTrue("queue_submit advanced (was $peakSubmit)", peakSubmit >= 1)
+                assertEquals("live presents match terminal summary", detailPresents, peakPresent)
                 assertTrue("pm4_consumed advanced (was $peakPm4)", peakPm4 >= 1)
                 // host_present: the hub's live count OR the terminal detail's
                 // authoritative guest_presents must show a real present.
                 assertTrue("host_present advanced (hub=$peakPresent detail=$detailPresents)",
-                    peakPresent >= 1 || detailPresents >= 1)
+                    peakPresent >= 1)
                 // NOTE: host_draw stays 0 here by design -- the gpu-flip synthetic
                 // fixture's DCB is a PrepareFlip only and issues no draw packets, so
                 // Rasterizer::Draw is never called. The host_draw producer is wired at

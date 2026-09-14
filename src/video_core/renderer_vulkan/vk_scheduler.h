@@ -55,14 +55,17 @@ static_assert(std::has_unique_object_representations_v<RenderState>);
 struct SubmitInfo {
     std::array<vk::Semaphore, 3> wait_semas;
     std::array<u64, 3> wait_ticks;
+    std::array<vk::PipelineStageFlags, 3> wait_stages;
     std::array<vk::Semaphore, 3> signal_semas;
     std::array<u64, 3> signal_ticks;
     vk::Fence fence;
     u32 num_wait_semas;
     u32 num_signal_semas;
 
-    void AddWait(vk::Semaphore semaphore, u64 tick = 1) {
+    void AddWait(vk::Semaphore semaphore, u64 tick = 1,
+                 vk::PipelineStageFlags stages = vk::PipelineStageFlagBits::eAllCommands) {
         wait_semas[num_wait_semas] = semaphore;
+        wait_stages[num_wait_semas] = stages;
         wait_ticks[num_wait_semas++] = tick;
     }
 
@@ -403,6 +406,11 @@ public:
     }
 
     /// Returns the master timeline semaphore.
+    // Host passes normally push descriptors. Diagnostic mode uses ordinary sets
+    // with the existing timeline-owned heap so SDK instrumentation sees real bindings.
+    void BindHostDescriptors(vk::PipelineBindPoint point, vk::PipelineLayout layout,
+        vk::DescriptorSetLayout set_layout, vk::ArrayProxy<const vk::WriteDescriptorSet> writes);
+
     [[nodiscard]] MasterSemaphore* GetMasterSemaphore() noexcept {
         return &master_semaphore;
     }
@@ -437,6 +445,7 @@ private:
     const Instance& instance;
     MasterSemaphore master_semaphore;
     CommandPool command_pool;
+    std::unique_ptr<DescriptorHeap> diagnostic_descriptors;
     DynamicState dynamic_state;
     vk::CommandBuffer current_cmdbuf;
     std::condition_variable_any event_cv;
@@ -447,6 +456,7 @@ private:
     std::queue<PendingOp> pending_ops;
     std::recursive_mutex pending_ops_mutex;
     std::queue<PendingOp> priority_pending_ops;
+    std::exception_ptr priority_error;
     std::mutex priority_pending_ops_mutex;
     std::condition_variable_any priority_pending_ops_cv;
     std::jthread priority_pending_ops_thread;
