@@ -4,9 +4,12 @@ import android.content.Intent
 import android.os.SystemClock
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.shadps4.android.runtime.input.NativePad
+import com.shadps4.android.runtime.session.AndroidTurnip
 import com.shadps4.android.runtime.session.ManagedSession
 import com.shadps4.android.runtime.session.NativeFexSession
 import com.shadps4.android.service.FexSessionService
+import java.io.File
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -27,16 +30,14 @@ class DiagnosticsInstrumentedTest {
     }
 
     @Test fun debugStatusReflectsLiveSessionAndHonestBoundaries() {
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
-        val context = instrumentation.targetContext
-        val activity = instrumentation.startActivitySync(
-            Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
         try {
             // Before any session: the registry builds lazily and reports no session.
             val idle = NativeFexSession.nativeDebugCommand("debug_status")
             assertTrue("idle status: $idle", idle.contains("session: none"))
 
-            // Start a real CPU-smoke session through the ordinary Service.
+            // Start a real CPU-smoke session through the ordinary Service. No Activity
+            // is needed -- nativeDebugCommand reaches the hub directly.
             context.startService(Intent(context, FexSessionService::class.java)
                 .setAction(ManagedSession.ACTION_START)
                 .putExtra(ManagedSession.EXTRA_GAME_ID, "diagnostics-cpu-smoke"))
@@ -91,7 +92,62 @@ class DiagnosticsInstrumentedTest {
         } finally {
             context.startService(Intent(context, FexSessionService::class.java)
                 .setAction(ManagedSession.ACTION_STOP))
-            instrumentation.runOnMainSync { activity.finish() }
+        }
+    }
+
+    /**
+     * Verifies the graphics advance producers (guest_flip / queue_submit / host_present)
+     * fire in a REAL rendering session (spec §3.1). Uses the synthetic gpu-flip fixture
+     * that drives actual VideoOut/GPU submission and >=4 real guest presents through
+     * Turnip -- no copyrighted assets. Not a game/playability claim.
+     */
+    @Test fun graphicsProducersAdvanceInRenderingSession() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val context = instrumentation.targetContext
+        assertTrue(NativePad.nativeInitializeHost(File(context.filesDir, "host").absolutePath))
+        val paths = AndroidTurnip.prepare(context)
+        val root = File(context.filesDir, "validation/diag-gpuflip-${System.nanoTime()}").apply { mkdirs() }
+        val entry = File(root, "eboot.bin")
+        instrumentation.context.assets.open("gpu-flip.elf").use { input ->
+            entry.outputStream().use { input.copyTo(it) }
+        }
+        // Sample the hub while the rendering session runs; capture the peak signals seen.
+        var sawActive = false
+        var peakFlip = 0L
+        var peakSubmit = 0L
+        var peakPresent = 0L
+        fun signal(status: String, name: String): Long =
+            Regex("$name: (\\d+)").find(status)?.groupValues?.get(1)?.toLong() ?: 0L
+        try {
+            RuntimeTestSurface(instrumentation).use { window ->
+                val generation = NativeFexSession.nativeStartRenderedExecutable(
+                    "diagnostics-gpu-flip", entry.path, window.surface, paths.hooks, paths.driver)
+                assertTrue("rendering generation", generation > 0)
+                assertTrue(NativeFexSession.nativePlatformReady(generation))
+                // Poll debug_status until the session ends, tracking peak signals.
+                val deadline = SystemClock.uptimeMillis() + 15000
+                while (SystemClock.uptimeMillis() < deadline) {
+                    val status = NativeFexSession.nativeDebugCommand("debug_status")
+                    if (status.contains("session: active")) sawActive = true
+                    peakFlip = maxOf(peakFlip, signal(status, "guest_flip"))
+                    peakSubmit = maxOf(peakSubmit, signal(status, "queue_submit"))
+                    peakPresent = maxOf(peakPresent, signal(status, "host_present"))
+                    if (NativeFexSession.nativeWaitTerminal(generation, 50) != NativeFexSession.Outcome.TIMEOUT) break
+                }
+                val detail = NativeFexSession.nativeTerminalDetail(generation).orEmpty()
+                android.util.Log.i("DiagnosticsAcceptance",
+                    "gpu-flip gen=$generation flip=$peakFlip submit=$peakSubmit present=$peakPresent detail=$detail")
+                assertTrue("saw active rendering session", sawActive)
+                assertTrue("graphics=ready: $detail", detail.contains("graphics=ready"))
+                // The synthetic gpu-flip presents >=4 real frames; the producers must
+                // reflect actual GPU submission and presentation, not stay at 0.
+                assertTrue("guest_flip advanced (was $peakFlip)", peakFlip >= 1)
+                assertTrue("queue_submit advanced (was $peakSubmit)", peakSubmit >= 1)
+                assertTrue("host_present advanced (was $peakPresent)", peakPresent >= 1)
+            }
+        } finally {
+            NativeFexSession.nativeRequestStop(NativeFexSession.nativeCurrentGeneration(), 1000)
+            if (NativeFexSession.nativeCurrentGeneration() == 0L) root.deleteRecursively()
         }
     }
 }

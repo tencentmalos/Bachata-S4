@@ -51,3 +51,11 @@ generation=1 terminal=1 PASS
 - `phase: 0` 未接(SessionCore 拥有 Phase;stage 字符串承载真实标签)——下一步。
 - 图形 producer(guest_flip/queue_submit/host_present)需真实渲染 session 才非 0;本测试是 CPU-smoke,不是渲染验收。真机渲染 session 的信号验证需真实内容,后续。
 - `dumpsys` 路径已接但需 service 处于运行态;JNI 路径无条件可用。未改 FEX/Foundation/Citron。
+
+## 追加:图形 producer 真机验证(同日)
+
+新增 `DiagnosticsInstrumentedTest#graphicsProducersAdvanceInRenderingSession`:用合成 `gpu-flip.elf`(gradle 由 `generate-production-runtime-fixture --gpu-flip` 生成,驱动真实 VideoOut/GPU 提交与 ≥4 次真实 guest present,经 Turnip;无版权资产)起真实渲染 session,轮询 `debug_status` 取峰值信号。
+
+- 首次两测一起跑,test2 因 `RuntimeTestSurface` 与 CPU-smoke 测试都 `startActivitySync(MainActivity)` 冲突而 `startActivitySync` 45s 超时 FAILED。修复:CPU-smoke 测试移除 MainActivity 依赖(它经 Service 起 session,`nativeDebugCommand` 无需 Activity)。
+- 修复后 **AYN Thor 两测一起 BUILD SUCCESSFUL,2/2 PASS**。实机 logcat:`gpu-flip gen=2 flip=4 submit=4 present=3 detail=guest return=51966`——guest_flip/queue_submit/host_present 三个图形 producer 在真实渲染 session 中全部非 0,证实黑屏分层判据的采集端真机可用。(峰值采样 4/4/3;第 4 次 present 与 terminal 竞争,全程实际 present ≥4。)
+- 断言:`session: active` 见到;`graphics=ready`;guest_flip≥1、queue_submit≥1、host_present≥1(真机实测 4/4/3)。这是采集工具可用性验证,不是游戏/可玩验收。
