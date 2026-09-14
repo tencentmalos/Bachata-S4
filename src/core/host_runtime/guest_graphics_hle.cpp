@@ -310,6 +310,7 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
                         // black-screen diagnostic: guest asked, did the host present?
                         if (flip_result == 0) {
                             auto& hub = Diagnostics::DiagnosticsHub::Instance();
+                            hub.Advance(Diagnostics::AdvanceSignal::QueueSubmit);
                             hub.Advance(Diagnostics::AdvanceSignal::GuestFlip);
                             // Publish the live host-present count too, so the two
                             // signals stay in step per flip rather than only at
@@ -320,10 +321,18 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
                         }
                         return flip_result;
                     }
-                    return u32(GnmDriver::sceGnmSubmitCommandBuffers(
+                    const u32 submit_result = u32(GnmDriver::sceGnmSubmitCommandBuffers(
                         count, const_cast<const u32**>(dp.data()), ds.data(),
                         a[3] ? const_cast<const u32**>(cp.data()) : nullptr,
                         a[4] ? cs.data() : nullptr));
+                    // A command-buffer submission without flip (spec §3.1
+                    // QueueSubmit). Submits advancing while GuestFlip stays flat is
+                    // a distinct diagnostic from flips without presents.
+                    if (submit_result == 0) {
+                        Diagnostics::DiagnosticsHub::Instance().Advance(
+                            Diagnostics::AdvanceSignal::QueueSubmit);
+                    }
+                    return submit_result;
                 });
     };
     submit("zwY0YV91TTI", false, false);

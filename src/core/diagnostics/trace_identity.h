@@ -28,8 +28,10 @@
 
 #pragma once
 
+#include <array>
 #include <cstdint>
 #include <optional>
+#include <random>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -43,6 +45,27 @@ namespace Core::Diagnostics {
 // changes in a way an offline decoder must distinguish; an unknown version must
 // make a decoder refuse rather than misread.
 inline constexpr u32 kTraceSchemaVersion = 1;
+
+// Generates a random 128-bit run identifier as 32 lowercase hex chars. This is a
+// diagnostic correlation id (run scope), not a security token, so a seeded
+// std::mt19937_64 pair is sufficient and dependency-free. Distinct per call.
+[[nodiscard]] inline std::string MakeRunUuid() {
+    std::random_device rd;
+    std::mt19937_64 gen(((static_cast<std::uint64_t>(rd()) << 32) ^ rd()) ^
+                        std::random_device{}());
+    const std::uint64_t hi = gen();
+    const std::uint64_t lo = gen();
+    static constexpr char kHex[] = "0123456789abcdef";
+    std::string out;
+    out.reserve(32);
+    for (int shift = 60; shift >= 0; shift -= 4) {
+        out += kHex[(hi >> shift) & 0xF];
+    }
+    for (int shift = 60; shift >= 0; shift -= 4) {
+        out += kHex[(lo >> shift) & 0xF];
+    }
+    return out;
+}
 
 // Escapes a string for embedding inside a JSON double-quoted value. Kept local so
 // the identity layer needs no JSON dependency (spec §4.4 keeps the runtime free

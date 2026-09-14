@@ -98,6 +98,22 @@ int main() {
         CHECK(FieldsToJsonObject({{"a", "1"}, {"b", "2"}}) == "{\"a\":\"1\",\"b\":\"2\"}");
     }
 
+    // --- MakeRunUuid: 32 lowercase hex chars, distinct per call ---
+    {
+        const std::string a = MakeRunUuid();
+        const std::string b = MakeRunUuid();
+        CHECK(a.size() == 32);
+        CHECK(b.size() == 32);
+        CHECK(a != b);  // random; collision negligible
+        bool all_hex = true;
+        for (char c : a) {
+            if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f'))) {
+                all_hex = false;
+            }
+        }
+        CHECK(all_hex);
+    }
+
     std::printf("trace_identity: %u checks, %u failures\n", checks, failures);
     return failures == 0 ? 0 : 1;
 }

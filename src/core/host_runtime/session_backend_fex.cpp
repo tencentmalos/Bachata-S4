@@ -29,6 +29,7 @@
 #include "core/host_runtime/session_backend_fex.h"
 #include "core/diagnostics/diagnostics_hub.h"
 #include "core/diagnostics/diagnostics_hub_registry.h"
+#include "core/diagnostics/trace_identity.h"
 #if defined(SHADPS4_TYPED_HLE_HOST)
 #include "core/guest_cpu/fex/fex_context.h"
 #include "core/host_runtime/guest_runtime.h"
@@ -166,6 +167,7 @@ Result<std::shared_ptr<SessionRuntime>> FexSessionBackend::Prepare(
             params.generation, static_cast<std::uint64_t>(::getpid()));
         if (rt->diag) {
             rt->diag->MarkAvailable(Diagnostics::AdvanceSignal::GpuRetire, false);
+            rt->diag->SetRunUuid(Diagnostics::MakeRunUuid());
             rt->diag->SetStage("ready");
         }
         return std::shared_ptr<SessionRuntime>(std::move(rt));
