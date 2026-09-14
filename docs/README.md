@@ -1,5 +1,7 @@
 # Android / FEX 开发资料索引
 
+**2026-09-14调试工具复核：[30e3b21f 进展与问题](validation/android-native-host/graphics-toolkit-progress-review-2026-09-14.md)。** §3.1部分完成、§3.2未闭环；native173/0之外12个反例复现。先修实际抓帧/控制/计数，再续原整包；未修改生产实现。
+
 **下一阶段待实施：[图形/性能调试工具整包 spec](specs/android-graphics-debugging-toolkit.md)**，附[源码审核](validation/android-native-host/graphics-debug-tooling-audit-2026-09-14.md)。RenderDoc、litep、Foundation ImGui Layer、guest command与PM4 trace一并交付；auto tag按用户最新要求延期。不是已实现或已抓帧证据。
 
 **2026-09-14最新：[按键后NP账号查询修复](validation/android-native-host/np-offline-identity-fix-2026-09-14.md)。** 原op56故障已越过；native339/0、APK真实FEX三轮、真实TMNT120秒正常Stop。只有161 presents且采样黑屏，尚不可玩；保持RelWithDebInfo、网络SSL仅桌面兼容。

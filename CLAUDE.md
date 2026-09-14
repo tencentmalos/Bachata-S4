@@ -1,5 +1,9 @@
 # shadPS4 Android / FEX development context
 
+## 最新复核：调试工具尚未完成（30e3b21f）
+
+见 [进展审核](docs/validation/android-native-host/graphics-toolkit-progress-review-2026-09-14.md)。§3.1 部分完成，§3.2 仍有同边界空捕获、超时遗留 backend、Query 等待 End、跨请求/Session 归属及 Android loader 未调用等问题；queue_submit 实为 guest 入队，host_present 非实时，phase/Stop 未接。原 native173/0 重跑通过，但12个反例也全部复现；原 APK2/0 未验证真实 RDC/replay。本轮只审核与归档，未修生产代码。先整批修控制/捕获，再按原 spec 连续推进 PROF/Layer/PM4；不以常规子仓/ImGui 适配为由改变目标，auto tag仍延期。
+
 ## 下一阶段：图形调试工具整包（待实施）
 
 执行 [android-graphics-debugging-toolkit.md](docs/specs/android-graphics-debugging-toolkit.md)，来源见 [审核](docs/validation/android-native-host/graphics-debug-tooling-audit-2026-09-14.md)。用户让另一位Opus4.8实施RenderDoc、litep/PROF、Foundation ImGui Layer、guest command trace、PM4/GPU指令证据与统一关联。**最新明确auto tag先不做；不改FEX、不加guest二进制探针。** 两个连续工作包，不拆微型spec。工具目前尚未补齐，不能将该规划写成实现状态；具体版本/命令/ABI/验收见spec。Citron本机6a86baf4未发布，远端仍2106bcd8；参考Foundation2b2683ff可取得，SDK保留原独立子仓来源。

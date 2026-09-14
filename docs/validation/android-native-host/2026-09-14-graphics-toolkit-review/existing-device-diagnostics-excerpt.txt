@@ -1,0 +1,29 @@
+[debugStatusReflectsLiveSessionAndHonestBoundaries]
+09-14 14:39:52.826 15879 15914 I DiagnosticsAcceptance: debug_status:
+09-14 14:39:52.826 15879 15914 I DiagnosticsAcceptance: session: active
+09-14 14:39:52.826 15879 15914 I DiagnosticsAcceptance: generation: 1
+09-14 14:39:52.826 15879 15914 I DiagnosticsAcceptance: pid: 15879
+09-14 14:39:52.826 15879 15914 I DiagnosticsAcceptance: phase: 0
+09-14 14:39:52.826 15879 15914 I DiagnosticsAcceptance: run_uuid: 2418a9c6433340ee7e57033ec00c7f5f
+09-14 14:39:52.826 15879 15914 I DiagnosticsAcceptance: stage: cpu-smoke
+09-14 14:39:52.826 15879 15914 I DiagnosticsAcceptance: snapshot_ns: 148981333626602
+09-14 14:39:52.826 15879 15914 I DiagnosticsAcceptance: guest_flip: 0 (never)
+09-14 14:39:52.826 15879 15914 I DiagnosticsAcceptance: pm4_consumed: 0 (never)
+09-14 14:39:52.826 15879 15914 I DiagnosticsAcceptance: host_draw: 0 (never)
+09-14 14:39:52.826 15879 15914 I DiagnosticsAcceptance: queue_submit: 0 (never)
+09-14 14:39:52.826 15879 15914 I DiagnosticsAcceptance: gpu_retire: unavailable
+09-14 14:39:52.826 15879 15914 I DiagnosticsAcceptance: host_present: 0 (never)
+09-14 14:39:52.826 15879 15914 I DiagnosticsAcceptance: overlay_redraw: 0 (never)
+09-14 14:39:52.830 15879 15914 I DiagnosticsAcceptance: renderdoc_capture:
+09-14 14:39:52.830 15879 15914 I DiagnosticsAcceptance: request_id: 1
+09-14 14:39:52.830 15879 15914 I DiagnosticsAcceptance: state: failed
+09-14 14:39:52.830 15879 15914 I DiagnosticsAcceptance: requested_frames: 1
+09-14 14:39:52.830 15879 15914 I DiagnosticsAcceptance: captures_before: 0
+09-14 14:39:52.830 15879 15914 I DiagnosticsAcceptance: captures_after: 0
+09-14 14:39:52.830 15879 15914 I DiagnosticsAcceptance: run_uuid: 2418a9c6433340ee7e57033ec00c7f5f
+09-14 14:39:52.830 15879 15914 I DiagnosticsAcceptance: capture_uuid: 2418a9c6433340ee7e57033ec00c7f5f:cap
+09-14 14:39:52.830 15879 15914 I DiagnosticsAcceptance: failure_reason: RenderDoc API not loaded
+09-14 14:39:52.857 15879 15914 I DiagnosticsAcceptance: generation=1 terminal=1 PASS
+[graphicsProducersAdvanceInRenderingSession]
+09-14 14:39:54.863 15879 15914 I DiagnosticsAcceptance: gpu-flip gen=2 flip=4 submit=4 present=3 pm4=8 draw=0 detailPresents=0 detail=guest return=51966
+09-14 14:39:54.863 15879 15914 I DiagnosticsAcceptance: production Linker/VM; owners=1 veneers=11 graphics=ready guest_presents=4 modules=1

@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<testsuite name="com.shadps4.android.DiagnosticsInstrumentedTest" tests="2" failures="0" errors="0" skipped="0" time="3.03" timestamp="2026-09-14T06:39:54" hostname="localhost">
+  <properties>
+    <property name="device" value="AYN Thor - 13" />
+    <property name="flavor" value="playstore" />
+    <property name="project" value=":app" />
+  </properties>
+  <testcase name="debugStatusReflectsLiveSessionAndHonestBoundaries" classname="com.shadps4.android.DiagnosticsInstrumentedTest" time="0.038" />
+  <testcase name="graphicsProducersAdvanceInRenderingSession" classname="com.shadps4.android.DiagnosticsInstrumentedTest" time="2.069" />
+</testsuite>

@@ -1,0 +1,28 @@
+[trace_identity] exit=0
+trace_identity: 27 checks, 0 failures
+[diagnostics_hub] exit=0
+concurrency: 14586 reads, final count 160000
+diagnostics_hub: 28 checks, 0 failures
+[diagnostics_hub_registry] exit=0
+registry concurrency: 12307 consistent reads
+diagnostics_hub_registry: 32 checks, 0 failures
+[renderdoc_capture] exit=0
+renderdoc_capture: 34 checks, 0 failures
+[diagnostics_commands] exit=0
+diagnostics_commands: 44 checks, 0 failures
+[diagnostics_service] exit=0
+diagnostics_service: 8 checks, 0 failures
+[counterexamples] exit=0
+R1_same_boundary_zero_work_ready REPRODUCED
+R2_ready_without_file_or_sidecar REPRODUCED
+R3_late_boundary_bypasses_timeout REPRODUCED
+R4_timeout_then_cancel_leaves_backend_active REPRODUCED
+R5_rearm_starts_over_active_capture REPRODUCED
+R6_cancel_calls_writing_end_not_discard REPRODUCED
+R7_status_waits_for_backend_end REPRODUCED
+R8_capture_uuid_reused REPRODUCED
+R9_stale_cancel_cancels_new_request REPRODUCED
+R10_new_generation_finishes_old_capture REPRODUCED
+R11_negative_frames_accepted_as_u32max REPRODUCED
+R12_capture_accepted_without_session REPRODUCED
+Review counterexamples: 12 reproduced, 0 not reproduced. This is NOT implementation acceptance.
