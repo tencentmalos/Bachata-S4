@@ -34,6 +34,7 @@
 
 #include <android/log.h>
 
+#include "core/diagnostics/diagnostics_service.h"
 #include "core/host_runtime/guest_save_dialog.h"
 #include "core/host_runtime/session_backend_fex.h"
 #include "core/host_runtime/session_core.h"
@@ -100,6 +101,30 @@ Java_com_shadps4_android_runtime_session_NativeFexSession_nativeIdentity(JNIEnv*
         return env->NewStringUTF(msg);
     } catch (...) {
         return env->NewStringUTF("identity-error");
+    }
+}
+
+// Dispatches a graphics/perf debugging toolkit command (spec §3.1), e.g.
+// "debug_status" or "overlay status", through the process command registry. The
+// same registry is bound to the Android dumpsys bridge, so `adb shell dumpsys`
+// and this JNI entry share one typed backend. Status commands read a
+// non-blocking DiagnosticsHub snapshot; this never waits on the session mutex,
+// VM drain, or GPU fence. An empty/null command returns the help text.
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeDebugCommand(JNIEnv* env, jclass,
+                                                                            jstring command) {
+    try {
+        std::string request;
+        if (command != nullptr) {
+            const char* c = env->GetStringUTFChars(command, nullptr);
+            if (c != nullptr) {
+                request = c;
+                env->ReleaseStringUTFChars(command, c);
+            }
+        }
+        return env->NewStringUTF(Core::Diagnostics::HandleDebugCommand(request).c_str());
+    } catch (...) {
+        return env->NewStringUTF("debug-command-error");
     }
 }
 

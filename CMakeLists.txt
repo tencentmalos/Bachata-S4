@@ -1615,7 +1615,8 @@ if(BUILD_HOST_CORE)
         src/core/host_runtime/guest_graphics_hle.cpp
         src/core/diagnostics/diagnostics_hub.cpp
         src/core/diagnostics/diagnostics_hub_registry.cpp
-        src/core/diagnostics/diagnostics_commands.cpp)
+        src/core/diagnostics/diagnostics_commands.cpp
+        src/core/diagnostics/diagnostics_service.cpp)
     target_link_libraries(shadps4 PRIVATE spatial::foundation_input)
     get_target_property(host_dependencies shadps4 LINK_LIBRARIES)
     add_library(shadps4_host_dependencies INTERFACE)
@@ -1707,6 +1708,12 @@ if(BUILD_HOST_CORE)
         target_include_directories(diagnostics_commands_tests PRIVATE src)
         target_include_directories(diagnostics_commands_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
         target_compile_definitions(diagnostics_commands_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        # Process command service: registry build + dumpsys bind + dispatch (spec §3.1).
+        add_executable(diagnostics_service_tests tests/host_runtime/diagnostics_service_tests.cpp)
+        target_link_libraries(diagnostics_service_tests PRIVATE shadps4_host spatial::foundation_debugbus)
+        target_include_directories(diagnostics_service_tests PRIVATE src)
+        target_include_directories(diagnostics_service_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(diagnostics_service_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         add_executable(host_library_smoke tests/host_runtime/host_library_smoke.cpp)
         target_link_libraries(host_library_smoke PRIVATE shadps4_host)
         target_include_directories(host_library_smoke PRIVATE src)

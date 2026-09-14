@@ -23,6 +23,15 @@ object NativeFexSession {
     external fun nativeIdentity(): String
 
     /**
+     * Dispatch a graphics/performance debugging toolkit command (e.g. "debug_status",
+     * "renderdoc_status", "overlay status") and return its text reply. The same command
+     * registry is bound to the Android dumpsys bridge, so `adb shell dumpsys` reaches the
+     * same backend. Status commands read a non-blocking DiagnosticsHub snapshot and never
+     * wait on the session mutex, VM drain, or GPU fence. An empty command returns help.
+     */
+    external fun nativeDebugCommand(command: String): String
+
+    /**
      * Start a session. Returns the new generation (> 0), or 0 if a session is already running or the
      * owner thread could not be spawned. `iterations` bounds the smoke loop (<= 0 = large default).
      */
