@@ -29,6 +29,7 @@ public:
         }
         return observed * 1e9 / duration;
     }
+    uint64_t LastPresentNs() const { return started ? previous : 0; }
     size_t Count() const { return count; }
     const Sample& At(size_t ordered_index) const {
         return samples[(next + Capacity - count + ordered_index) % Capacity];

@@ -1,0 +1,16 @@
+REPLAY round=-1 mode=0 requests=1004 bytes=17486277 total_ns=3582397 p50_ns=2396 p95_ns=9375 max_ns=20104 errors=0
+REPLAY round=0 mode=0 requests=1004 bytes=17486277 total_ns=2340619 p50_ns=1510 p95_ns=6250 max_ns=14739 errors=0
+REPLAY round=0 mode=1 requests=1004 bytes=17486277 total_ns=2234332 p50_ns=1459 p95_ns=5677 max_ns=18541 errors=0
+REPLAY round=0 mode=2 requests=1004 bytes=17486277 total_ns=2781967 p50_ns=1875 p95_ns=6615 max_ns=22084 errors=0
+REPLAY round=1 mode=1 requests=1004 bytes=17486277 total_ns=2316810 p50_ns=1459 p95_ns=6146 max_ns=21562 errors=0
+REPLAY round=1 mode=2 requests=1004 bytes=17486277 total_ns=2601057 p50_ns=1771 p95_ns=6198 max_ns=8646 errors=0
+REPLAY round=1 mode=0 requests=1004 bytes=17486277 total_ns=2172476 p50_ns=1303 p95_ns=5937 max_ns=8594 errors=0
+REPLAY round=2 mode=2 requests=1004 bytes=17486277 total_ns=2722776 p50_ns=1822 p95_ns=6510 max_ns=22396 errors=0
+REPLAY round=2 mode=0 requests=1004 bytes=17486277 total_ns=2196245 p50_ns=1302 p95_ns=5886 max_ns=8646 errors=0
+REPLAY round=2 mode=1 requests=1004 bytes=17486277 total_ns=2332000 p50_ns=1459 p95_ns=6094 max_ns=8646 errors=0
+REPLAY round=3 mode=0 requests=1004 bytes=17486277 total_ns=2246825 p50_ns=1354 p95_ns=6146 max_ns=11875 errors=0
+REPLAY round=3 mode=1 requests=1004 bytes=17486277 total_ns=2491667 p50_ns=1562 p95_ns=6354 max_ns=24010 errors=0
+REPLAY round=3 mode=2 requests=1004 bytes=17486277 total_ns=2672945 p50_ns=1823 p95_ns=6406 max_ns=9479 errors=0
+REPLAY round=4 mode=1 requests=1004 bytes=17486277 total_ns=2290209 p50_ns=1458 p95_ns=5989 max_ns=8594 errors=0
+REPLAY round=4 mode=2 requests=1004 bytes=17486277 total_ns=2631734 p50_ns=1771 p95_ns=6302 max_ns=25781 errors=0
+REPLAY round=4 mode=0 requests=1004 bytes=17486277 total_ns=2380012 p50_ns=1406 p95_ns=6354 max_ns=26302 errors=0

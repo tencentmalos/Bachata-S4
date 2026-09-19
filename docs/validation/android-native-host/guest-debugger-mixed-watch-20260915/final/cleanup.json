@@ -1,0 +1,14 @@
+{
+  "serial": "9c2841a4",
+  "guest_debug_port": "",
+  "guest_debug_wait": "",
+  "remaining_forwards": [
+    "9c2841a4 tcp:48969 localabstract:renderdoc_49920",
+    "9c2841a4 tcp:48960 localabstract:renderdoc_48920",
+    "PB3110PGL6240001G tcp:48979 localabstract:renderdoc_49920",
+    "PB3110PGL6240001G tcp:48970 localabstract:renderdoc_48920",
+    ""
+  ],
+  "notes": "Existing RenderDoc forwards preserved. Both owned CLI sessions exited Cancelled; no LLDB/ptrace attach was used. Instrumentation stopped its sessions and exited.",
+  "owned_mcp_sessions": "both ownershipReleased=true"
+}

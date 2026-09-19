@@ -1,0 +1,66 @@
+{
+  "oboe-artifacts.json": {
+    "sha256": "1a13b28cdecb264a07b741590bdaaebf4f4e641df8c94af01bebaf7b1fba387d",
+    "bytes": 3363
+  },
+  "source-manifest.json": {
+    "sha256": "4026169a227f000260ade3cfacd04ff611762c19fd96e8e669f16bc9eeb5386c",
+    "bytes": 3262
+  },
+  "host-build-result.json": {
+    "sha256": "165e1aaf599e4dd40d674ee3010d9dd5518b557290299c851b6a4a6accdb0f9b",
+    "bytes": 9019
+  },
+  "apk-audio-logcat.txt": {
+    "sha256": "fd96ebebb455d528888bf224d15e5cf4a6a5867aaf0e1af88ddb5673dfd2d1e2",
+    "bytes": 35008
+  },
+  "tmnt-audio-test.txt": {
+    "sha256": "8301d95151e2a0c5a92f258d0ab951b4acc7733195c9297ac8b11f67a7c48615",
+    "bytes": 799
+  },
+  "canonical-host.txt": {
+    "sha256": "47e353151d3dde521b874922262cf35ca1bd4475da3ff0ee3a2a12ad4b62eef5",
+    "bytes": 814
+  },
+  "README.md": {
+    "sha256": "69147421ff0e3d682a4f8dc3f4bfad5f989329052126a25600f71f11a9597b53",
+    "bytes": 3488
+  },
+  "oboe-device-final.txt": {
+    "sha256": "79136ba30ca29144ac15380695a5fdd4a85ab77a58dc1822e32892c0ebabe21c",
+    "bytes": 401
+  },
+  "tmnt-logcat.txt": {
+    "sha256": "c0b423838ec6539b00de156f32f6ccb0257090b05232bc60eaff5326210a16c5",
+    "bytes": 75230
+  },
+  "asan-final.txt": {
+    "sha256": "e702d66bed024001727802457b5516008d84e6e1b1da043e4f4023278e815905",
+    "bytes": 61
+  },
+  "tmnt-oboe.log": {
+    "sha256": "4479151bd7f12e2079126c075928ee995b33e29b6005bb4e1d47a3b357f555c7",
+    "bytes": 32773
+  },
+  "oboe-device-lifecycle.txt": {
+    "sha256": "631399a844d95677ebb61bb924e1afb0a9544417ad1b8e56f91ed9d8259289f7",
+    "bytes": 401
+  },
+  "final-native-tests.txt": {
+    "sha256": "e71ea843cd874d572bd0930a1b5b88ebe4f1755c0fa8b163543d01739bc811d4",
+    "bytes": 95
+  },
+  "tsan-final.txt": {
+    "sha256": "e702d66bed024001727802457b5516008d84e6e1b1da043e4f4023278e815905",
+    "bytes": 61
+  },
+  "apk-audio-test.txt": {
+    "sha256": "328f4733059ed7a3c0f3a4fa9e204ba1b183aa85241c0bc2aa4d3276df97f5b8",
+    "bytes": 803
+  },
+  "tmnt-audio-counters.json": {
+    "sha256": "ee1a049b56f1e2afc9afc107a8f90bf26ad379d88db2950b7f4222bfdaeffe32",
+    "bytes": 1766
+  }
+}

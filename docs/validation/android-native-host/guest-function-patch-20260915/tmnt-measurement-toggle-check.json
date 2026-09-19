@@ -1,0 +1,12 @@
+{
+  "pid": 32104,
+  "generation": 2,
+  "context_id": 33,
+  "disabled_seconds": 15.647012285,
+  "guest_flips": 207,
+  "guest_fps": 13.22936265592636,
+  "sdk_before": 770,
+  "sdk_after": 770,
+  "sdk_reenabled": 855,
+  "verdict": "PASS"
+}

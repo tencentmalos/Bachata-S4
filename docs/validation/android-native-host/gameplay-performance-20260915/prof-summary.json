@@ -1,0 +1,1160 @@
+{
+  "pid": 410,
+  "events": 6215429,
+  "chunks_ok": 641,
+  "chunks_skipped": 17,
+  "diagnostics": [
+    "invalid zero-sized chunk",
+    "invalid zero-sized chunk",
+    "invalid zero-sized chunk",
+    "invalid zero-sized chunk",
+    "invalid zero-sized chunk",
+    "invalid zero-sized chunk",
+    "invalid zero-sized chunk",
+    "invalid zero-sized chunk",
+    "invalid zero-sized chunk",
+    "invalid zero-sized chunk",
+    "invalid zero-sized chunk",
+    "invalid zero-sized chunk",
+    "invalid zero-sized chunk",
+    "invalid zero-sized chunk",
+    "invalid zero-sized chunk",
+    "invalid zero-sized chunk",
+    "invalid zero-sized chunk",
+    "unbalanced span end on tid 8308",
+    "unbalanced span end on tid 8349",
+    "unbalanced span end on tid 8285",
+    "unbalanced span end on tid 8311",
+    "unbalanced span end on tid 8309",
+    "unbalanced span end on tid 8310",
+    "unbalanced span end on tid 8351",
+    "unbalanced span end on tid 8348",
+    "unbalanced span end on tid 8350",
+    "unbalanced span end on tid 8350",
+    "unbalanced span end on tid 8584",
+    "unbalanced span end on tid 8307",
+    "1 unclosed spans on tid 8311",
+    "1 unclosed spans on tid 8309",
+    "1 unclosed spans on tid 8310",
+    "2 unclosed spans on tid 8300",
+    "1 unclosed spans on tid 8348",
+    "1 unclosed spans on tid 8417",
+    "1 unclosed spans on tid 8584",
+    "1 unclosed spans on tid 8307",
+    "1 unclosed spans on tid 8315",
+    "1 unclosed spans on tid 8312"
+  ],
+  "spans": [
+    {
+      "tid": 8308,
+      "thread": "Guest-3",
+      "name": "HLE.pthread_mutex_unlock",
+      "count": 200121,
+      "inclusive_s": 2.912846167,
+      "exclusive_s": 2.912846167,
+      "max_ms": 2.551406
+    },
+    {
+      "tid": 8308,
+      "thread": "Guest-3",
+      "name": "HLE.pthread_mutex_lock",
+      "count": 200119,
+      "inclusive_s": 33.855957298,
+      "exclusive_s": 33.855957298,
+      "max_ms": 20.986198
+    },
+    {
+      "tid": 8349,
+      "thread": "Guest-16",
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 160220,
+      "inclusive_s": 7.948536212,
+      "exclusive_s": 7.948536212,
+      "max_ms": 5.501042
+    },
+    {
+      "tid": 8285,
+      "thread": "shadps4.android",
+      "name": "GNM.SubmitDone",
+      "count": 570,
+      "inclusive_s": 0.021415466,
+      "exclusive_s": 0.021415466,
+      "max_ms": 0.136666
+    },
+    {
+      "tid": 8349,
+      "thread": "Guest-16",
+      "name": "HLE.scePthreadMutexLock",
+      "count": 160216,
+      "inclusive_s": 8.255688206,
+      "exclusive_s": 8.255688206,
+      "max_ms": 6.227448
+    },
+    {
+      "tid": 8308,
+      "thread": "Guest-3",
+      "name": "HLE.sem_wait",
+      "count": 5927,
+      "inclusive_s": 0.025788434,
+      "exclusive_s": 0.025788434,
+      "max_ms": 0.156458
+    },
+    {
+      "tid": 8311,
+      "thread": "Guest-6",
+      "name": "HLE.pthread_mutex_lock",
+      "count": 200600,
+      "inclusive_s": 34.041680831,
+      "exclusive_s": 34.041680831,
+      "max_ms": 24.692447
+    },
+    {
+      "tid": 8311,
+      "thread": "Guest-6",
+      "name": "HLE.pthread_mutex_unlock",
+      "count": 200601,
+      "inclusive_s": 2.878198012,
+      "exclusive_s": 2.878198012,
+      "max_ms": 5.623854
+    },
+    {
+      "tid": 8311,
+      "thread": "Guest-6",
+      "name": "HLE.sem_wait",
+      "count": 5921,
+      "inclusive_s": 0.025938516,
+      "exclusive_s": 0.025938516,
+      "max_ms": 0.152448
+    },
+    {
+      "tid": 8310,
+      "thread": "Guest-5",
+      "name": "HLE.pthread_mutex_unlock",
+      "count": 197877,
+      "inclusive_s": 2.849670227,
+      "exclusive_s": 2.849670227,
+      "max_ms": 3.10651
+    },
+    {
+      "tid": 8349,
+      "thread": "Guest-16",
+      "name": "HLE.sceKernelClockGettime",
+      "count": 4155,
+      "inclusive_s": 0.136097099,
+      "exclusive_s": 0.136097099,
+      "max_ms": 1.183542
+    },
+    {
+      "tid": 8309,
+      "thread": "Guest-4",
+      "name": "HLE.pthread_mutex_lock",
+      "count": 198513,
+      "inclusive_s": 33.914938039,
+      "exclusive_s": 33.914938039,
+      "max_ms": 25.482292
+    },
+    {
+      "tid": 8309,
+      "thread": "Guest-4",
+      "name": "HLE.pthread_mutex_unlock",
+      "count": 198514,
+      "inclusive_s": 2.877645349,
+      "exclusive_s": 2.877645349,
+      "max_ms": 2.6575
+    },
+    {
+      "tid": 8349,
+      "thread": "Guest-16",
+      "name": "HLE.sceKernelSignalSema",
+      "count": 2078,
+      "inclusive_s": 0.132021116,
+      "exclusive_s": 0.132021116,
+      "max_ms": 0.728282
+    },
+    {
+      "tid": 8309,
+      "thread": "Guest-4",
+      "name": "HLE.sem_wait",
+      "count": 5805,
+      "inclusive_s": 0.024971177,
+      "exclusive_s": 0.024971177,
+      "max_ms": 0.099062
+    },
+    {
+      "tid": 8310,
+      "thread": "Guest-5",
+      "name": "HLE.pthread_mutex_lock",
+      "count": 197876,
+      "inclusive_s": 34.091597341,
+      "exclusive_s": 34.091597341,
+      "max_ms": 21.279791
+    },
+    {
+      "tid": 8310,
+      "thread": "Guest-5",
+      "name": "HLE.sem_wait",
+      "count": 5787,
+      "inclusive_s": 0.027756714,
+      "exclusive_s": 0.027756714,
+      "max_ms": 1.140417
+    },
+    {
+      "tid": 8351,
+      "thread": "Guest-18",
+      "name": "HLE.scePthreadGetthreadid",
+      "count": 2079,
+      "inclusive_s": 0.009953484,
+      "exclusive_s": 0.009953484,
+      "max_ms": 0.377396
+    },
+    {
+      "tid": 8351,
+      "thread": "Guest-18",
+      "name": "HLE.sceKernelGetProcessTimeCounter",
+      "count": 16617,
+      "inclusive_s": 0.020596126,
+      "exclusive_s": 0.020596126,
+      "max_ms": 1.532604
+    },
+    {
+      "tid": 8351,
+      "thread": "Guest-18",
+      "name": "HLE.scePthreadMutexLock",
+      "count": 50128,
+      "inclusive_s": 3.291562642,
+      "exclusive_s": 3.291562642,
+      "max_ms": 4.779115
+    },
+    {
+      "tid": 8351,
+      "thread": "Guest-18",
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 50127,
+      "inclusive_s": 3.144411727,
+      "exclusive_s": 3.144411727,
+      "max_ms": 4.405677
+    },
+    {
+      "tid": 8306,
+      "thread": "shadPS4:Present",
+      "name": "Present.AcquireImage",
+      "count": 2700,
+      "inclusive_s": 0.03807274,
+      "exclusive_s": 0.03807274,
+      "max_ms": 0.057864
+    },
+    {
+      "tid": 8348,
+      "thread": "Guest-15",
+      "name": "HLE.sceKernelGetProcessTimeCounter",
+      "count": 7006,
+      "inclusive_s": 0.004256099,
+      "exclusive_s": 0.004256099,
+      "max_ms": 0.02276
+    },
+    {
+      "tid": 8348,
+      "thread": "Guest-15",
+      "name": "HLE.scePthreadMutexLock",
+      "count": 78541,
+      "inclusive_s": 2.158927445,
+      "exclusive_s": 2.158927445,
+      "max_ms": 9.361615
+    },
+    {
+      "tid": 8300,
+      "thread": "shadPS4:GpuComm",
+      "name": "Vulkan.SubmitLock",
+      "count": 1140,
+      "inclusive_s": 0.001301944,
+      "exclusive_s": 0.001301944,
+      "max_ms": 0.199635
+    },
+    {
+      "tid": 8300,
+      "thread": "shadPS4:GpuComm",
+      "name": "Vulkan.Submit",
+      "count": 1140,
+      "inclusive_s": 0.036425006,
+      "exclusive_s": 0.036425006,
+      "max_ms": 0.347084
+    },
+    {
+      "tid": 8348,
+      "thread": "Guest-15",
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 78541,
+      "inclusive_s": 2.127303366,
+      "exclusive_s": 2.127303366,
+      "max_ms": 8.18026
+    },
+    {
+      "tid": 8300,
+      "thread": "shadPS4:GpuComm",
+      "name": "PM4.Resume",
+      "count": 1139,
+      "inclusive_s": 43.644606227,
+      "exclusive_s": 5.79195811,
+      "max_ms": 85.775573
+    },
+    {
+      "tid": 8285,
+      "thread": "shadps4.android",
+      "name": "HLE.sceGnmSubmitAndFlipCommandBuffers",
+      "count": 570,
+      "inclusive_s": 3.491812416,
+      "exclusive_s": 3.491812416,
+      "max_ms": 35.715
+    },
+    {
+      "tid": 8306,
+      "thread": "shadPS4:Present",
+      "name": "Vulkan.SubmitLock",
+      "count": 4830,
+      "inclusive_s": 0.002362654,
+      "exclusive_s": 0.002362654,
+      "max_ms": 0.081979
+    },
+    {
+      "tid": 8285,
+      "thread": "shadps4.android",
+      "name": "HLE.gettimeofday",
+      "count": 2280,
+      "inclusive_s": 0.033308306,
+      "exclusive_s": 0.033308306,
+      "max_ms": 1.097812
+    },
+    {
+      "tid": 8285,
+      "thread": "shadps4.android",
+      "name": "HLE.sceKernelUsleep",
+      "count": 570,
+      "inclusive_s": 0.001574273,
+      "exclusive_s": 0.001574273,
+      "max_ms": 0.053906
+    },
+    {
+      "tid": 8306,
+      "thread": "shadPS4:Present",
+      "name": "Vulkan.Submit",
+      "count": 4830,
+      "inclusive_s": 0.154547365,
+      "exclusive_s": 0.154547365,
+      "max_ms": 0.437084
+    },
+    {
+      "tid": 8285,
+      "thread": "shadps4.android",
+      "name": "HLE.pthread_mutex_lock",
+      "count": 54042,
+      "inclusive_s": 1.390384101,
+      "exclusive_s": 1.390384101,
+      "max_ms": 5.497865
+    },
+    {
+      "tid": 8285,
+      "thread": "shadps4.android",
+      "name": "HLE.pthread_mutex_unlock",
+      "count": 54041,
+      "inclusive_s": 0.943335501,
+      "exclusive_s": 0.943335501,
+      "max_ms": 2.084218
+    },
+    {
+      "tid": 8285,
+      "thread": "shadps4.android",
+      "name": "HLE.sceSystemServiceGetStatus",
+      "count": 570,
+      "inclusive_s": 0.006697194,
+      "exclusive_s": 0.006697194,
+      "max_ms": 0.146146
+    },
+    {
+      "tid": 8285,
+      "thread": "shadps4.android",
+      "name": "HLE.clock_gettime",
+      "count": 3988,
+      "inclusive_s": 0.052154472,
+      "exclusive_s": 0.052154472,
+      "max_ms": 2.877865
+    },
+    {
+      "tid": 8285,
+      "thread": "shadps4.android",
+      "name": "HLE.sceNpCheckCallback",
+      "count": 570,
+      "inclusive_s": 0.002908033,
+      "exclusive_s": 0.002908033,
+      "max_ms": 0.199115
+    },
+    {
+      "tid": 8285,
+      "thread": "shadps4.android",
+      "name": "HLE.sceUserServiceGetEvent",
+      "count": 570,
+      "inclusive_s": 0.003150159,
+      "exclusive_s": 0.003150159,
+      "max_ms": 0.068437
+    },
+    {
+      "tid": 8285,
+      "thread": "shadps4.android",
+      "name": "HLE.scePadReadState",
+      "count": 570,
+      "inclusive_s": 0.007652797,
+      "exclusive_s": 0.007652797,
+      "max_ms": 0.387812
+    },
+    {
+      "tid": 8306,
+      "thread": "shadPS4:Present",
+      "name": "Present.QueueLock",
+      "count": 2700,
+      "inclusive_s": 0.00135375,
+      "exclusive_s": 0.00135375,
+      "max_ms": 0.042812
+    },
+    {
+      "tid": 8285,
+      "thread": "shadps4.android",
+      "name": "HLE.scePthreadMutexLock",
+      "count": 130071,
+      "inclusive_s": 2.154361983,
+      "exclusive_s": 2.154361983,
+      "max_ms": 4.44724
+    },
+    {
+      "tid": 8285,
+      "thread": "shadps4.android",
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 130071,
+      "inclusive_s": 1.940803236,
+      "exclusive_s": 1.940803236,
+      "max_ms": 5.553073
+    },
+    {
+      "tid": 8306,
+      "thread": "shadPS4:Present",
+      "name": "Present.DriverCall",
+      "count": 2700,
+      "inclusive_s": 0.232647199,
+      "exclusive_s": 0.232647199,
+      "max_ms": 0.400572
+    },
+    {
+      "tid": 8306,
+      "thread": "shadPS4:Present",
+      "name": "Present.Frame",
+      "count": 2700,
+      "inclusive_s": 6.442344199,
+      "exclusive_s": 6.058921122,
+      "max_ms": 69.601927
+    },
+    {
+      "tid": 8306,
+      "thread": "shadPS4:Present",
+      "name": "VideoOut.Flip",
+      "count": 570,
+      "inclusive_s": 0.944202252,
+      "exclusive_s": 0.003680224,
+      "max_ms": 5.262239
+    },
+    {
+      "tid": 8351,
+      "thread": "Guest-18",
+      "name": "HLE.sceKernelClockGettime",
+      "count": 4154,
+      "inclusive_s": 0.17105721,
+      "exclusive_s": 0.17105721,
+      "max_ms": 1.837396
+    },
+    {
+      "tid": 8417,
+      "thread": "Guest-23",
+      "name": "HLE.pthread_mutex_lock",
+      "count": 1332,
+      "inclusive_s": 0.098680365,
+      "exclusive_s": 0.098680365,
+      "max_ms": 0.892656
+    },
+    {
+      "tid": 8417,
+      "thread": "Guest-23",
+      "name": "HLE.pthread_mutex_unlock",
+      "count": 1332,
+      "inclusive_s": 0.10509028,
+      "exclusive_s": 0.10509028,
+      "max_ms": 1.788282
+    },
+    {
+      "tid": 8417,
+      "thread": "Guest-23",
+      "name": "HLE.clock_gettime",
+      "count": 444,
+      "inclusive_s": 0.019979629,
+      "exclusive_s": 0.019979629,
+      "max_ms": 0.476771
+    },
+    {
+      "tid": 8350,
+      "thread": "Guest-17",
+      "name": "HLE.sceKernelSignalSema",
+      "count": 4213,
+      "inclusive_s": 0.088367474,
+      "exclusive_s": 0.088367474,
+      "max_ms": 1.185365
+    },
+    {
+      "tid": 8584,
+      "thread": "Guest-24",
+      "name": "HLE.scePthreadMutexLock",
+      "count": 5808,
+      "inclusive_s": 0.266262332,
+      "exclusive_s": 0.266262332,
+      "max_ms": 2.354011
+    },
+    {
+      "tid": 8584,
+      "thread": "Guest-24",
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 5808,
+      "inclusive_s": 0.204736342,
+      "exclusive_s": 0.204736342,
+      "max_ms": 7.623541
+    },
+    {
+      "tid": 8349,
+      "thread": "Guest-16",
+      "name": "HLE.sceKernelGetProcessTimeCounter",
+      "count": 8308,
+      "inclusive_s": 0.009528918,
+      "exclusive_s": 0.009528918,
+      "max_ms": 0.222812
+    },
+    {
+      "tid": 8300,
+      "thread": "shadPS4:GpuComm",
+      "name": "Present.FreeFrameWait",
+      "count": 570,
+      "inclusive_s": 0.011599217,
+      "exclusive_s": 0.011599217,
+      "max_ms": 0.064063
+    },
+    {
+      "tid": 8300,
+      "thread": "shadPS4:GpuComm",
+      "name": "Present.FrameFenceWait",
+      "count": 570,
+      "inclusive_s": 0.013658491,
+      "exclusive_s": 0.013658491,
+      "max_ms": 0.13974
+    },
+    {
+      "tid": 8285,
+      "thread": "shadps4.android",
+      "name": "HLE.sem_post",
+      "count": 9135,
+      "inclusive_s": 0.127365202,
+      "exclusive_s": 0.127365202,
+      "max_ms": 0.575781
+    },
+    {
+      "tid": 8309,
+      "thread": "Guest-4",
+      "name": "HLE.sem_post",
+      "count": 4348,
+      "inclusive_s": 0.059436156,
+      "exclusive_s": 0.059436156,
+      "max_ms": 1.257604
+    },
+    {
+      "tid": 8285,
+      "thread": "shadps4.android",
+      "name": "HLE.pthread_getspecific",
+      "count": 10966,
+      "inclusive_s": 0.007467237,
+      "exclusive_s": 0.007467237,
+      "max_ms": 0.190365
+    },
+    {
+      "tid": 8285,
+      "thread": "shadps4.android",
+      "name": "HLE.sem_wait",
+      "count": 1862,
+      "inclusive_s": 7.441956909,
+      "exclusive_s": 7.441956909,
+      "max_ms": 24.663385
+    },
+    {
+      "tid": 8285,
+      "thread": "shadps4.android",
+      "name": "HLE.sceKernelClockGettime",
+      "count": 569,
+      "inclusive_s": 0.006107614,
+      "exclusive_s": 0.006107614,
+      "max_ms": 0.095469
+    },
+    {
+      "tid": 8309,
+      "thread": "Guest-4",
+      "name": "HLE.scePthreadMutexLock",
+      "count": 3864,
+      "inclusive_s": 0.083316194,
+      "exclusive_s": 0.083316194,
+      "max_ms": 1.055937
+    },
+    {
+      "tid": 8309,
+      "thread": "Guest-4",
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 3864,
+      "inclusive_s": 0.070289121,
+      "exclusive_s": 0.070289121,
+      "max_ms": 0.512709
+    },
+    {
+      "tid": 8584,
+      "thread": "Guest-24",
+      "name": "HLE.sceKernelUsleep",
+      "count": 4292,
+      "inclusive_s": 43.510585087,
+      "exclusive_s": 43.510585087,
+      "max_ms": 18.59401
+    },
+    {
+      "tid": 8285,
+      "thread": "shadps4.android",
+      "name": "HLE.sceGnmDrawInitDefaultHardwareState350",
+      "count": 569,
+      "inclusive_s": 0.714050721,
+      "exclusive_s": 0.714050721,
+      "max_ms": 3.215
+    },
+    {
+      "tid": 8285,
+      "thread": "shadps4.android",
+      "name": "HLE.sceGnmInsertWaitFlipDone",
+      "count": 569,
+      "inclusive_s": 0.011590477,
+      "exclusive_s": 0.011590477,
+      "max_ms": 0.198906
+    },
+    {
+      "tid": 8285,
+      "thread": "shadps4.android",
+      "name": "HLE.sceGnmSetCsShaderWithModifier",
+      "count": 569,
+      "inclusive_s": 0.014965092,
+      "exclusive_s": 0.014965092,
+      "max_ms": 0.106771
+    },
+    {
+      "tid": 8285,
+      "thread": "shadps4.android",
+      "name": "HLE.sceGnmDispatchDirect",
+      "count": 19346,
+      "inclusive_s": 0.312867452,
+      "exclusive_s": 0.312867452,
+      "max_ms": 0.414115
+    },
+    {
+      "tid": 8348,
+      "thread": "Guest-15",
+      "name": "HLE.sceKernelUsleep",
+      "count": 3502,
+      "inclusive_s": 35.499877823,
+      "exclusive_s": 35.499877823,
+      "max_ms": 17.799167
+    },
+    {
+      "tid": 8310,
+      "thread": "Guest-5",
+      "name": "HLE.sem_post",
+      "count": 3980,
+      "inclusive_s": 0.057978278,
+      "exclusive_s": 0.057978278,
+      "max_ms": 0.822239
+    },
+    {
+      "tid": 8350,
+      "thread": "Guest-17",
+      "name": "Audio.QueueWait",
+      "count": 4213,
+      "inclusive_s": 44.472293222,
+      "exclusive_s": 44.472293222,
+      "max_ms": 30.489114
+    },
+    {
+      "tid": 8350,
+      "thread": "Guest-17",
+      "name": "HLE.sceAudioOutOutputs",
+      "count": 4213,
+      "inclusive_s": 44.640870848,
+      "exclusive_s": 0.168577626,
+      "max_ms": 30.511198
+    },
+    {
+      "tid": 8351,
+      "thread": "Guest-18",
+      "name": "HLE.sceKernelWaitSema",
+      "count": 2077,
+      "inclusive_s": 28.983140965,
+      "exclusive_s": 28.983140965,
+      "max_ms": 42.364896
+    },
+    {
+      "tid": 8285,
+      "thread": "shadps4.android",
+      "name": "HLE.sceGnmInsertPushMarker",
+      "count": 4552,
+      "inclusive_s": 0.151814772,
+      "exclusive_s": 0.151814772,
+      "max_ms": 0.644688
+    },
+    {
+      "tid": 8285,
+      "thread": "shadps4.android",
+      "name": "HLE.sceGnmSetPsShader350",
+      "count": 42992,
+      "inclusive_s": 0.775134102,
+      "exclusive_s": 0.775134102,
+      "max_ms": 0.294375
+    },
+    {
+      "tid": 8285,
+      "thread": "shadps4.android",
+      "name": "HLE.sceGnmSetEmbeddedVsShader",
+      "count": 4552,
+      "inclusive_s": 0.070031374,
+      "exclusive_s": 0.070031374,
+      "max_ms": 0.436718
+    },
+    {
+      "tid": 8285,
+      "thread": "shadps4.android",
+      "name": "HLE.sceGnmDrawIndexAuto",
+      "count": 48243,
+      "inclusive_s": 0.730282481,
+      "exclusive_s": 0.730282481,
+      "max_ms": 0.990469
+    },
+    {
+      "tid": 8285,
+      "thread": "shadps4.android",
+      "name": "HLE.sceGnmInsertPopMarker",
+      "count": 4552,
+      "inclusive_s": 0.065358243,
+      "exclusive_s": 0.065358243,
+      "max_ms": 0.197396
+    },
+    {
+      "tid": 8285,
+      "thread": "shadps4.android",
+      "name": "HLE.sceGnmSetVsShader",
+      "count": 29336,
+      "inclusive_s": 0.579306936,
+      "exclusive_s": 0.579306936,
+      "max_ms": 1.467084
+    },
+    {
+      "tid": 8285,
+      "thread": "shadps4.android",
+      "name": "HLE.sceGnmDrawIndex",
+      "count": 158778,
+      "inclusive_s": 2.376462723,
+      "exclusive_s": 2.376462723,
+      "max_ms": 0.779531
+    },
+    {
+      "tid": 8285,
+      "thread": "shadps4.android",
+      "name": "HLE.sceGnmUpdateVsShader",
+      "count": 4109,
+      "inclusive_s": 0.080693407,
+      "exclusive_s": 0.080693407,
+      "max_ms": 0.164479
+    },
+    {
+      "tid": 8285,
+      "thread": "shadps4.android",
+      "name": "HLE.sceGnmUpdatePsShader350",
+      "count": 15073,
+      "inclusive_s": 0.261557303,
+      "exclusive_s": 0.261557303,
+      "max_ms": 0.444948
+    },
+    {
+      "tid": 8285,
+      "thread": "shadps4.android",
+      "name": "HLE.sceGnmSubmitDone",
+      "count": 569,
+      "inclusive_s": 0.028575985,
+      "exclusive_s": 0.007265675,
+      "max_ms": 0.262656
+    },
+    {
+      "tid": 8307,
+      "thread": "Guest-2",
+      "name": "HLE.gettimeofday",
+      "count": 437,
+      "inclusive_s": 0.022382344,
+      "exclusive_s": 0.022382344,
+      "max_ms": 1.428698
+    },
+    {
+      "tid": 8300,
+      "thread": "shadPS4:GpuComm",
+      "name": "VideoOut.Prepare",
+      "count": 569,
+      "inclusive_s": 37.852648117,
+      "exclusive_s": 37.808597007,
+      "max_ms": 73.337396
+    },
+    {
+      "tid": 8349,
+      "thread": "Guest-16",
+      "name": "HLE.sceKernelWaitSema",
+      "count": 4204,
+      "inclusive_s": 1.282940793,
+      "exclusive_s": 1.282940793,
+      "max_ms": 19.777136
+    },
+    {
+      "tid": 8348,
+      "thread": "Guest-15",
+      "name": "HLE.__error",
+      "count": 112,
+      "inclusive_s": 0.000169171,
+      "exclusive_s": 0.000169171,
+      "max_ms": 0.007396
+    },
+    {
+      "tid": 8308,
+      "thread": "Guest-3",
+      "name": "HLE.sem_post",
+      "count": 4008,
+      "inclusive_s": 0.057285192,
+      "exclusive_s": 0.057285192,
+      "max_ms": 0.267708
+    },
+    {
+      "tid": 8310,
+      "thread": "Guest-5",
+      "name": "HLE.scePthreadMutexLock",
+      "count": 3144,
+      "inclusive_s": 0.06670202,
+      "exclusive_s": 0.06670202,
+      "max_ms": 0.728802
+    },
+    {
+      "tid": 8310,
+      "thread": "Guest-5",
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 3144,
+      "inclusive_s": 0.065159751,
+      "exclusive_s": 0.065159751,
+      "max_ms": 2.010885
+    },
+    {
+      "tid": 8311,
+      "thread": "Guest-6",
+      "name": "HLE.sem_post",
+      "count": 3821,
+      "inclusive_s": 0.053493567,
+      "exclusive_s": 0.053493567,
+      "max_ms": 0.167865
+    },
+    {
+      "tid": 8417,
+      "thread": "Guest-23",
+      "name": "HLE.usleep",
+      "count": 443,
+      "inclusive_s": 44.353903129,
+      "exclusive_s": 44.353903129,
+      "max_ms": 101.341093
+    },
+    {
+      "tid": 8307,
+      "thread": "Guest-2",
+      "name": "HLE.sceKernelUsleep",
+      "count": 436,
+      "inclusive_s": 44.706235455,
+      "exclusive_s": 44.706235455,
+      "max_ms": 103.599792
+    },
+    {
+      "tid": 8311,
+      "thread": "Guest-6",
+      "name": "HLE.scePthreadMutexLock",
+      "count": 3312,
+      "inclusive_s": 0.069118645,
+      "exclusive_s": 0.069118645,
+      "max_ms": 1.584323
+    },
+    {
+      "tid": 8311,
+      "thread": "Guest-6",
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 3312,
+      "inclusive_s": 0.061666518,
+      "exclusive_s": 0.061666518,
+      "max_ms": 1.795886
+    },
+    {
+      "tid": 8584,
+      "thread": "Guest-24",
+      "name": "HLE.__tls_get_addr",
+      "count": 204,
+      "inclusive_s": 0.003020884,
+      "exclusive_s": 0.003020884,
+      "max_ms": 0.155469
+    },
+    {
+      "tid": 8584,
+      "thread": "Guest-24",
+      "name": "HLE.scePthreadRwlockRdlock",
+      "count": 51,
+      "inclusive_s": 0.000344531,
+      "exclusive_s": 0.000344531,
+      "max_ms": 0.074739
+    },
+    {
+      "tid": 8584,
+      "thread": "Guest-24",
+      "name": "HLE.scePthreadSelf",
+      "count": 3224,
+      "inclusive_s": 0.001404338,
+      "exclusive_s": 0.001404338,
+      "max_ms": 0.046302
+    },
+    {
+      "tid": 8584,
+      "thread": "Guest-24",
+      "name": "HLE.scePthreadEqual",
+      "count": 1768,
+      "inclusive_s": 0.000396299,
+      "exclusive_s": 0.000396299,
+      "max_ms": 0.009427
+    },
+    {
+      "tid": 8584,
+      "thread": "Guest-24",
+      "name": "HLE.scePthreadRwlockUnlock",
+      "count": 51,
+      "inclusive_s": 0.00018656,
+      "exclusive_s": 0.00018656,
+      "max_ms": 0.017552
+    },
+    {
+      "tid": 8584,
+      "thread": "Guest-24",
+      "name": "HLE.sceDiscMapIsRequestOnHDD",
+      "count": 51,
+      "inclusive_s": 0.000213126,
+      "exclusive_s": 0.000213126,
+      "max_ms": 0.039167
+    },
+    {
+      "tid": 8584,
+      "thread": "Guest-24",
+      "name": "HLE.fJgP+wqifno",
+      "count": 51,
+      "inclusive_s": 0.000970103,
+      "exclusive_s": 0.000970103,
+      "max_ms": 0.073229
+    },
+    {
+      "tid": 8584,
+      "thread": "Guest-24",
+      "name": "HLE.sceKernelClockGettime",
+      "count": 153,
+      "inclusive_s": 0.002289424,
+      "exclusive_s": 0.002289424,
+      "max_ms": 0.081563
+    },
+    {
+      "tid": 8584,
+      "thread": "Guest-24",
+      "name": "HLE.sceKernelPread",
+      "count": 51,
+      "inclusive_s": 0.003664168,
+      "exclusive_s": 0.003664168,
+      "max_ms": 0.132708
+    },
+    {
+      "tid": 8584,
+      "thread": "Guest-24",
+      "name": "HLE.scePthreadCondBroadcast",
+      "count": 108,
+      "inclusive_s": 0.005272186,
+      "exclusive_s": 0.005272186,
+      "max_ms": 0.474792
+    },
+    {
+      "tid": 8315,
+      "thread": "Guest-10",
+      "name": "HLE.scePthreadSelf",
+      "count": 301,
+      "inclusive_s": 0.000301976,
+      "exclusive_s": 0.000301976,
+      "max_ms": 0.041198
+    },
+    {
+      "tid": 8315,
+      "thread": "Guest-10",
+      "name": "HLE.scePthreadEqual",
+      "count": 199,
+      "inclusive_s": 7.2549e-05,
+      "exclusive_s": 7.2549e-05,
+      "max_ms": 0.002448
+    },
+    {
+      "tid": 8315,
+      "thread": "Guest-10",
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 102,
+      "inclusive_s": 0.003714739,
+      "exclusive_s": 0.003714739,
+      "max_ms": 0.200365
+    },
+    {
+      "tid": 8315,
+      "thread": "Guest-10",
+      "name": "HLE.scePthreadMutexLock",
+      "count": 102,
+      "inclusive_s": 0.012452858,
+      "exclusive_s": 0.012452858,
+      "max_ms": 2.639271
+    },
+    {
+      "tid": 8315,
+      "thread": "Guest-10",
+      "name": "HLE.scePthreadCondBroadcast",
+      "count": 46,
+      "inclusive_s": 0.002858121,
+      "exclusive_s": 0.002858121,
+      "max_ms": 0.630156
+    },
+    {
+      "tid": 8312,
+      "thread": "Guest-7",
+      "name": "HLE.scePthreadMutexLock",
+      "count": 1377,
+      "inclusive_s": 0.038495899,
+      "exclusive_s": 0.038495899,
+      "max_ms": 0.722396
+    },
+    {
+      "tid": 8312,
+      "thread": "Guest-7",
+      "name": "HLE.scePthreadSelf",
+      "count": 2856,
+      "inclusive_s": 0.001267072,
+      "exclusive_s": 0.001267072,
+      "max_ms": 0.065
+    },
+    {
+      "tid": 8312,
+      "thread": "Guest-7",
+      "name": "HLE.scePthreadEqual",
+      "count": 1479,
+      "inclusive_s": 0.000379871,
+      "exclusive_s": 0.000379871,
+      "max_ms": 0.001823
+    },
+    {
+      "tid": 8312,
+      "thread": "Guest-7",
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 1377,
+      "inclusive_s": 0.042097081,
+      "exclusive_s": 0.042097081,
+      "max_ms": 0.753333
+    },
+    {
+      "tid": 8312,
+      "thread": "Guest-7",
+      "name": "HLE.sceKernelClockGettime",
+      "count": 306,
+      "inclusive_s": 0.005072346,
+      "exclusive_s": 0.005072346,
+      "max_ms": 1.312448
+    },
+    {
+      "tid": 8312,
+      "thread": "Guest-7",
+      "name": "HLE.scePthreadCondBroadcast",
+      "count": 51,
+      "inclusive_s": 0.001216302,
+      "exclusive_s": 0.001216302,
+      "max_ms": 0.143594
+    },
+    {
+      "tid": 8584,
+      "thread": "Guest-24",
+      "name": "HLE.scePthreadCondWait",
+      "count": 51,
+      "inclusive_s": 0.203812141,
+      "exclusive_s": 0.203812141,
+      "max_ms": 11.284271
+    },
+    {
+      "tid": 8308,
+      "thread": "Guest-3",
+      "name": "HLE.scePthreadMutexLock",
+      "count": 3336,
+      "inclusive_s": 0.074638904,
+      "exclusive_s": 0.074638904,
+      "max_ms": 1.011354
+    },
+    {
+      "tid": 8308,
+      "thread": "Guest-3",
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 3336,
+      "inclusive_s": 0.067926167,
+      "exclusive_s": 0.067926167,
+      "max_ms": 1.275938
+    },
+    {
+      "tid": 8315,
+      "thread": "Guest-10",
+      "name": "HLE.scePthreadCondWait",
+      "count": 50,
+      "inclusive_s": 44.109388435,
+      "exclusive_s": 44.109388435,
+      "max_ms": 1889.868385
+    },
+    {
+      "tid": 8312,
+      "thread": "Guest-7",
+      "name": "HLE.scePthreadCondWait",
+      "count": 50,
+      "inclusive_s": 43.929636251,
+      "exclusive_s": 43.929636251,
+      "max_ms": 1885.04151
+    }
+  ],
+  "counters": {
+    "Input.GuestButtons": 570,
+    "Input.SampleAgeUs": 570,
+    "Audio.Port": 4214,
+    "Audio.QueuedFrames": 4214,
+    "GuestPoll.Operation": 352,
+    "GuestPoll.Caller": 352,
+    "GuestPoll.Arg0": 352,
+    "GuestPoll.Rbp": 352,
+    "GuestPoll.R14": 352,
+    "GuestPoll.Parent": 352,
+    "GuestPoll.Grandparent": 346,
+    "Audio.Callbacks": 44,
+    "Audio.DeviceFrames": 44,
+    "Audio.ConsumedFrames": 44,
+    "Audio.SourceStarvedFrames": 44,
+    "Audio.EditFrames": 44,
+    "Audio.Xruns": 44,
+    "Audio.DeviceQueuedFrames": 44,
+    "Audio.DeviceBufferFrames": 44,
+    "Audio.Reconnects": 44
+  }
+}

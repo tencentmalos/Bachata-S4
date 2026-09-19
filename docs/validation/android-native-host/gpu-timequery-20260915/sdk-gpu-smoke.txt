@@ -1,0 +1,8 @@
+session: gpu-smoke
+clock: MachAbsTime tick0=6446492128151 ns0=271698112580916 numer=125 denom=3
+main_thread_id: 0
+events: 4  (SpanBegin 1, SpanEnd 1, GpuZoneBegin 1, GpuZoneEnd 1)
+gpu_records: (GpuContextDef 1, GpuZoneBegin 1, GpuZoneEnd 1, GpuTime 2)
+chunks: 1 ok, 0 skipped
+span: 2.71698e+08 ms .. 2.71698e+08 ms
+truncated: no

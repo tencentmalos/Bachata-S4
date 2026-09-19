@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <cstring>
 #include <fstream>
+#include <future>
 #include <map>
 #include <thread>
 #include "core/guest_cpu/api/address_space.h"
@@ -66,11 +67,14 @@ int main(int argc, char** argv) {
     CHECK(
         space->Map({GuestAddress{base}, 0x1000}, GuestPermission::Read | GuestPermission::Execute));
     CHECK(space->Map({GuestAddress{base + 0x1000}, 0xff000}, rw));
-    std::recursive_mutex vm;
+    std::recursive_mutex fixture_memory;
     std::mutex allocations_mutex;
     std::map<u64, u64> allocations;
     std::atomic_uint begins{}, ends{}, calls{}, events{}, allocs{}, frees{}, reads{};
     std::atomic_bool hang_event{}, event_entered{}, cancelled{};
+    std::atomic_bool hold_publication{}, publication_entered{};
+    std::atomic_bool hold_pause{}, pause_entered{};
+    std::atomic_uint play_events{}, ready_events{};
     u64 next = base + 0x100000;
     auto pc = [&](u64 n) { return base + n * 16; };
     auto read = [&]<class T>(u64 at) {
@@ -79,10 +83,10 @@ int main(int argc, char** argv) {
         return v;
     };
     auto put = [&](u64 at, const auto& v) {
-        std::lock_guard lock(vm);
+        std::lock_guard lock(fixture_memory);
         CHECK(space->Write(GuestAddress{at}, std::as_bytes(std::span{&v, 1})));
     };
-    auto owned_player = std::make_unique<GuestAvPlayer>(*space, vm, [&] {
+    auto callbacks_factory = [&] {
         return GuestAvPlayer::Callbacks{
             .begin =
                 [&](u64 entry) {
@@ -96,7 +100,7 @@ int main(int argc, char** argv) {
                 if (entry == pc(1) || entry == pc(3)) {
                     CHECK(args.size() == 3 && args[0] == 0x1234);
                     const u64 bytes = (args[2] + 4095) & ~u64(4095);
-                    std::lock_guard lock(vm);
+                    std::lock_guard lock(fixture_memory);
                     std::lock_guard table(allocations_mutex);
                     const u64 va = next;
                     next += bytes;
@@ -107,7 +111,7 @@ int main(int argc, char** argv) {
                 }
                 if (entry == pc(2) || entry == pc(4)) {
                     CHECK(args.size() == 2 && args[0] == 0x1234);
-                    std::lock_guard lock(vm);
+                    std::lock_guard lock(fixture_memory);
                     std::lock_guard table(allocations_mutex);
                     auto it = allocations.find(args[1]);
                     CHECK(it != allocations.end());
@@ -131,7 +135,7 @@ int main(int argc, char** argv) {
                     const size_t n =
                         args[2] < file.size() ? std::min<u64>(args[3], file.size() - args[2]) : 0;
                     if (n) {
-                        std::lock_guard lock(vm);
+                        std::lock_guard lock(fixture_memory);
                         CHECK(space->Write(
                             GuestAddress{args[1]},
                             std::span{reinterpret_cast<const std::byte*>(file.data() + args[2]),
@@ -144,6 +148,15 @@ int main(int argc, char** argv) {
                 if (entry == pc(9)) {
                     CHECK(args.size() == 4 && args[0] == 0x9876);
                     ++events;
+                    if (args[1] == u32(AvPlayerEvents::StateReady))
+                        ++ready_events;
+                    if (args[1] == u32(AvPlayerEvents::StatePlay))
+                        ++play_events;
+                    if (args[1] == u32(AvPlayerEvents::StatePause)) {
+                        pause_entered = true;
+                        while (hold_pause && !cancelled)
+                            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                    }
                     event_entered = true;
                     while (hang_event && !cancelled)
                         std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -154,8 +167,16 @@ int main(int argc, char** argv) {
             },
             .cancel = [&] { cancelled = true; },
             .end = [&] { ++ends; },
+            .invalidate = [&](u64, size_t) {
+                if (hold_publication) {
+                    publication_entered = true;
+                    while (hold_publication)
+                        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                }
+            },
         };
-    });
+    };
+    auto owned_player = std::make_unique<GuestAvPlayer>(*space, callbacks_factory);
     auto& player = *owned_player;
     auto call = [&](std::string_view nid, std::array<u64, 6> args = {}) {
         return player.Dispatch(nid, args);
@@ -201,6 +222,31 @@ int main(int argc, char** argv) {
     CHECK(call("KMcEa+rHsIo", {handle, path}) == 0);
     CHECK(call("k-q+xOxdc3E", {handle, 1}) == 0);
     unsigned video{}, audio{};
+    // A concurrent video publication is not EOF. Hold a real decoded frame
+    // before returning it, while another guest owner polls IsActive/stream count.
+    hold_publication = true;
+    auto publish = std::async(std::launch::async, [&] {
+        const auto until = std::chrono::steady_clock::now() + std::chrono::seconds(3);
+        while (std::chrono::steady_clock::now() < until) {
+            if (call("JdksQu8pNdQ", {handle, output}) == 1)
+                return true;
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+        return false;
+    });
+    const auto entered_by = std::chrono::steady_clock::now() + std::chrono::seconds(3);
+    while (!publication_entered && std::chrono::steady_clock::now() < entered_by)
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    CHECK(publication_entered);
+    auto active = std::async(std::launch::async, [&] { return call("UbQoYawOsfY", {handle}); });
+    auto streams = std::async(std::launch::async, [&] { return call("hdTyRzCXQeQ", {handle}); });
+    CHECK(active.wait_for(std::chrono::milliseconds(30)) == std::future_status::timeout);
+    CHECK(streams.wait_for(std::chrono::milliseconds(30)) == std::future_status::timeout);
+    hold_publication = false;
+    CHECK(publish.get());
+    ++video;
+    CHECK(active.get() == 1);
+    CHECK(streams.get() == 2);
     bool nonzero{};
     const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(8);
     while (std::chrono::steady_clock::now() < deadline && (video < 12 || audio < 90)) {
@@ -228,6 +274,46 @@ int main(int argc, char** argv) {
     CHECK(call("NkJwDzKmIlw", {handle}) == 0);
     CHECK(begins == ends && allocs == frees && allocations.empty());
     CHECK(call("NkJwDzKmIlw", {handle}) == u32(ORBIS_AVPLAYER_ERROR_INVALID_PARAMS));
+    // Close must drain events accepted before it started. A queued Play event
+    // behind an entered Pause callback cannot disappear just because Close
+    // has set its admission flag while waiting for the worker barrier.
+    auto manual = data;
+    manual.auto_start = false;
+    put(at, manual);
+    const u64 he = call("aS66RI0gGgo", {at});
+    put(at, data);
+    const auto ready_before = ready_events.load();
+    CHECK(he && call("KMcEa+rHsIo", {he, path}) == 0);
+    const auto event_ready_by = std::chrono::steady_clock::now() + std::chrono::seconds(3);
+    // Stream discovery precedes the Ready transition/event. A positive
+    // stream count alone does not authorize a manual Start.
+    while (ready_events == ready_before && std::chrono::steady_clock::now() < event_ready_by)
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    CHECK(ready_events > ready_before);
+    CHECK(call("ODJK2sn9w4A", {he, 0}) == 0);
+    CHECK(call("ODJK2sn9w4A", {he, 1}) == 0);
+    CHECK(call("OVths0xGfho", {he, 1}) == 0);
+    CHECK(call("ET4Gr-Uu07s", {he}) == 0);
+    bool event_video{};
+    while (!event_video && std::chrono::steady_clock::now() < event_ready_by) {
+        event_video = call("JdksQu8pNdQ", {he, output}) == 1;
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+    CHECK(event_video);
+    hold_pause = true;
+    pause_entered = false;
+    CHECK(call("9y5v+fGN4Wk", {he}) == 0);
+    const auto pause_by = std::chrono::steady_clock::now() + std::chrono::seconds(3);
+    while (!pause_entered && std::chrono::steady_clock::now() < pause_by)
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    CHECK(pause_entered);
+    const auto played = play_events.load();
+    CHECK(call("w5moABNwnRY", {he}) == 0);
+    auto close_events = std::async(std::launch::async, [&] { return call("NkJwDzKmIlw", {he}); });
+    CHECK(close_events.wait_for(std::chrono::milliseconds(30)) == std::future_status::timeout);
+    hold_pause = false;
+    CHECK(close_events.get() == 0);
+    CHECK(play_events == played + 1);
     // Replacing an interior page cannot authorize a stale decoded buffer or
     // cause its old deallocator to free the replacement mapping.
     const u64 remap_handle = call("aS66RI0gGgo", {at});
@@ -245,7 +331,7 @@ int main(int argc, char** argv) {
     CHECK(replaced);
     if (replaced) {
         {
-            std::lock_guard lock(vm);
+            std::lock_guard lock(fixture_memory);
             {
                 auto token = space->Quiesce(0);
                 CHECK(token);
@@ -278,7 +364,7 @@ int main(int argc, char** argv) {
     }
     CHECK(call("NkJwDzKmIlw", {remap_handle}) == 0);
     if (replaced) {
-        std::lock_guard lock(vm);
+        std::lock_guard lock(fixture_memory);
         std::lock_guard table(allocations_mutex);
         CHECK(allocations.size() == 1 && allocations.contains(replaced));
         if (auto it = allocations.find(replaced); it != allocations.end()) {
@@ -307,6 +393,38 @@ int main(int argc, char** argv) {
     CHECK(call("aS66RI0gGgo", {at}) == 0);
     owned_player.reset();
     CHECK(begins == ends);
+    // Stop must release an API waiter even while another owner still has the
+    // publication gate. It must not wait for that owner's VM copy to finish.
+    hang_event = false;
+    hold_publication = true;
+    publication_entered = false;
+    GuestAvPlayer cancel_player(*space, callbacks_factory);
+    const u64 hc = cancel_player.Dispatch("aS66RI0gGgo", {at});
+    CHECK(hc);
+    CHECK(cancel_player.Dispatch("k-q+xOxdc3E", {hc, 1}) == 0);
+    CHECK(cancel_player.Dispatch("KMcEa+rHsIo", {hc, path}) == 0);
+    auto blocked_publish = std::async(std::launch::async, [&] {
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(3);
+        while (std::chrono::steady_clock::now() < deadline) {
+            if (cancel_player.Dispatch("JdksQu8pNdQ", {hc, output}) == 1)
+                return true;
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+        return false;
+    });
+    const auto publication_by = std::chrono::steady_clock::now() + std::chrono::seconds(3);
+    while (!publication_entered && std::chrono::steady_clock::now() < publication_by)
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    CHECK(publication_entered);
+    auto cancelled_query = std::async(std::launch::async, [&] {
+        return cancel_player.Dispatch("UbQoYawOsfY", {hc});
+    });
+    CHECK(cancelled_query.wait_for(std::chrono::milliseconds(30)) == std::future_status::timeout);
+    cancel_player.RequestStop();
+    CHECK(cancelled_query.wait_for(std::chrono::milliseconds(500)) == std::future_status::ready);
+    hold_publication = false;
+    CHECK(blocked_publish.get());
+    CHECK(cancelled_query.get() == 0);
     std::printf("guest_avplayer_tests: %u checks, %u failures\n", checks.load(), failures.load());
     return failures ? 1 : 0;
 }

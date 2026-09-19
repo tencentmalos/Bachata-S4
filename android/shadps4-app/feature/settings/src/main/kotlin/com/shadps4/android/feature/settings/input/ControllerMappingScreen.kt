@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
@@ -138,6 +139,17 @@ fun ControllerMappingScreen(
                     TextButton(onClick = { viewModel.cancelConflict() }) { Text("Cancel") }
                 },
             )
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth().clickable { viewModel.setSwapFaceButtons(!profile.swapFaceButtons) },
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Checkbox(checked = profile.swapFaceButtons, onCheckedChange = viewModel::setSwapFaceButtons)
+            Column {
+                Text("Xbox / Nintendo 面键翻转", color = BachataPalette.Primary)
+                Text("交换 A/B 与 X/Y；不影响触屏按键", color = BachataPalette.Secondary)
+            }
         }
 
         // --- Visual gamepad diagram ---

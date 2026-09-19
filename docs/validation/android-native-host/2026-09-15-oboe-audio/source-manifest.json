@@ -1,0 +1,53 @@
+{
+  "source_head": "4da582b7b3a36d74403a4985c3c03f37e570bcb7",
+  "dirty": true,
+  "audio_sources": {
+    "src/core/host_runtime/guest_audio.cpp": "85d0a0c81adaba31dd5a20f2415a91a7778fa553d317665a55d70ae3c02c79af",
+    "src/core/libraries/audio/audioout.cpp": "1de766fecd5d98d0a905b52febefd503c95eca18061caf4d12b372c790940ff5",
+    "src/core/libraries/audio/audioout_backend.h": "160771774fbb40743d1b79dca51ae4523a6c40b977e9dccd946873a214131a63",
+    "src/core/libraries/audio/audioout_transfer.h": "9af40397a7c378a0f85a177823a668574fcfb28e90e24499f76aa6cf9219114d",
+    "src/core/libraries/audio/oboe_audio_out.cpp": "1b566d99dd0ff1fce77de0ac17430f23341741192b4626c623085c5331e434a4",
+    "tests/host_runtime/guest_audio_tests.cpp": "376c651247afe20fc1a89dfe253720a272d4960630423b69ca33cdd66de88d5a",
+    "tests/guest_cpu/fixtures/runtime_audio.S": "d23dd6359b19e308fc0ab90527deccaa01e3f3955aadc9b2657feb4b8cade8f7",
+    "CMakeLists.txt": "865a0618298a31007af9de46a33b0c252fb2401b339eb2f944d18a5863483770",
+    "cmake/SpatialFoundation.cmake": "eb24420f5c76f8fa86f14baba2917ce5d70967a805115e051a918cbdb4a43f42",
+    "scripts/android/build-host-android": "cc5e3994ff4c15c811f65cc30f7d603a5588fe34ea72b440e499fc9e36a722ea",
+    "foundation/modules/CMakeLists.txt": "7b2b921a1d9ad6e1d6ec91e9b28f0837817123cc2fe3a492bc2d57ea8f51881f",
+    "foundation/modules/audio/CMakeLists.txt": "7842ff0b16618378ca3222d3748a6a1a1cbe12e1660e4f367f426a46c07684c7",
+    "foundation/modules/audio/README.md": "45059ecd3365e13d27c6c97115bdd0cbb107e3ed8a9d55d4f07a4af44d9b23cf",
+    "foundation/modules/audio/tests/callback_mixer_tests.cpp": "f474fc9647ee0688e51550404070677bf5e9f2a66cbc95d799b9a9ee2facb842",
+    "foundation/modules/audio/tests/oboe_output_tests.cpp": "5dc08f7ea04982c8c3840ccf7c60765410e7a56cdda25201739215e78b6cbcfb",
+    "foundation/modules/audio/src/oboe_output.cpp": "11149f1fd3ec8a3adf7d59e22f43658c69930ad532c6d7af1750326e582e343c",
+    "foundation/modules/audio/src/callback_mixer.cpp": "e1da7be260d9721d0a7611200e9f5e1bdb7724f3a0341d34f4ba9a14e8c64df0",
+    "foundation/modules/audio/include/foundation/audio/oboe_output.h": "15173ac3fac2661c29e42bf12a34755d9311a3068428e2aeeeb1cdd0de923cff",
+    "foundation/modules/audio/include/foundation/audio/callback_mixer.h": "9eb690d590bf926de694706590048e9a4c7f96a2ba07fbbe7496fa7801fadf10"
+  },
+  "children": {
+    "foundation": {
+      "head": "8a564bfe3b69b9ac41664f3a03e56a379c6f4ace",
+      "status": " M modules/CMakeLists.txt\n?? modules/audio/\n?? modules/profiler_ring/\n"
+    },
+    "externals/oboe": {
+      "head": "987538b6ec4cb9e699b117a890e686de7a9302fa",
+      "status": ""
+    },
+    "references/FEX": {
+      "head": "385a0cc4d81cd456c8d5c26b4f09cb5a7d8d5842",
+      "status": ""
+    }
+  },
+  "native_test_binaries": {
+    "guest_audio_tests": {
+      "sha256": "a87381f02a964d69c5b378666e7d0d805ec1c8d03dc8b9c82d134782cdb44b30",
+      "bytes": 1046360
+    },
+    "foundation/audio/foundation_audio_tests": {
+      "sha256": "5f98318060dd505fec2fefa8ec7e174b9b868e8957bc8e0ced74f2bcf0c9eadd",
+      "bytes": 515976
+    },
+    "foundation/audio/foundation_audio_device_tests": {
+      "sha256": "c85a30dd4133f3aee871b97dbbd36abc189e637e797a5014807d978a01d01a89",
+      "bytes": 2927912
+    }
+  }
+}

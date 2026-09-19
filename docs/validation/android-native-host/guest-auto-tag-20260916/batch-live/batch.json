@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "schema": "spatial.guest-profile.batch.v1",
+  "backend": "study0",
+  "captures": 1,
+  "long_frames": 165,
+  "output_directory": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/guest-auto-tag-20260916/batch-live",
+  "request_path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/guest-auto-tag-20260916/batch-live/next-probes.request.json",
+  "request_sha256": "8534eabe2ed3750acaf8b5b67ea2e8da82825b4307cc661b43f755c02f339831",
+  "targets": 3,
+  "requires_explicit_next_iteration": true,
+  "next_action": "guest_auto_tag_plan"
+}

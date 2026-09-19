@@ -5,7 +5,10 @@
 
 #pragma once
 
+#include <mutex>
+
 #include "common/types.h"
+#include <functional>
 #include "video_core/renderer_vulkan/vk_common.h"
 
 struct ImDrawData;
@@ -24,6 +27,8 @@ struct InitInfo {
     vk::Device device;
     uint32_t queue_family;
     vk::Queue queue;
+    std::mutex* queue_mutex{};
+    std::function<void()> drain_submissions;
     uint32_t image_count;               // >= 2
     vk::DeviceSize min_allocation_size; // Minimum allocation size
     vk::PipelineCache pipeline_cache;

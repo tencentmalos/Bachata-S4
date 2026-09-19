@@ -52,13 +52,35 @@ int main() {
         CHECK(!AdmitsNpOffline(nid, "#libSceNpManager#1#libSceNpManager#Function", false));
         CHECK(!AdmitsNpOffline(nid, "#libkernel#1#libkernel#Function", true));
         CHECK(!AdmitsNpOffline(nid, "#libSceNpManager#2#libSceNpManager#Function", true));
-        if (nid == "3Zl8BePTh9Y" || nid == "JELHf4xPufo")
+        if (nid == "3Zl8BePTh9Y" || nid == "JELHf4xPufo" || nid == "A2CQ3kgSopQ" || nid == "Ec63y59l9tw")
             continue;
         for (auto ptr : {u64{0}, u64{1}, base + 0x4000, base + 0x8000, UINT64_MAX})
             CHECK(current.Dispatch(*space, nid, {1000, ptr}) == bad);
     }
+    struct Restriction { u64 size; s8 age; u8 pad[3]; s32 count; u64 entries; } restriction{24, 18, {}, 0, 0};
+    auto restriction_call = [&] {
+        CHECK(space->WriteData(GuestAddress{base}, std::as_bytes(std::span{&restriction, 1})));
+        return current.Dispatch(*space, "A2CQ3kgSopQ", {base});
+    };
+    CHECK(restriction_call() == 0);
+    restriction.size = 16;
+    CHECK(restriction_call() == u32(ORBIS_NP_ERROR_INVALID_SIZE));
+    restriction.size = 24; restriction.count = -1;
+    CHECK(restriction_call() == bad);
+    restriction.count = 257;
+    CHECK(restriction_call() == bad);
+    restriction.count = 1;
+    CHECK(restriction_call() == bad);
+    restriction.entries = base + 512;
+    CHECK(restriction_call() == 0);
+    restriction.age = -1;
+    CHECK(restriction_call() == bad);
+    CHECK(current.Dispatch(*space, "A2CQ3kgSopQ", {base + 0x8000 - 8}) == bad);
+    CHECK(current.Dispatch(*space, "Ec63y59l9tw", {base, base + 1024}) == 0);
+    CHECK(current.Dispatch(*space, "Ec63y59l9tw", {base, 1}) == bad);
+    CHECK(current.Dispatch(*space, "Ec63y59l9tw", {0, base}) == bad);
     CHECK(!IsNpOfflineNid("qQJfO8HAiaY")); // no callbacks, online requests or fabricated success
-    CHECK(!IsNpOfflineNid("8Z2Jc5GvGDI"));
+    CHECK(IsNpOfflineNid("8Z2Jc5GvGDI")); // desktop offline request family now admitted
     CHECK(
         !AdmitsNpOffline("rbknaUjpqWo", "#libSceNpManagerCompat#1#libSceNpManager#Function", true));
     CHECK(
@@ -161,6 +183,41 @@ int main() {
               u32(ORBIS_NP_ERROR_USER_NOT_FOUND));
         prefix(false); // session isolation
     }
+    // Desktop request state and guest ownership/ABI are exercised together.
+    GuestNpControl control, other;
+    auto ctl=[&](std::string_view nid,std::array<u64,6> a={}) { return control.Dispatch(*space,nid,a); };
+    OrbisNpCreateAsyncRequestParameter parameter{sizeof(parameter),0xff,700,{}};
+    CHECK(space->WriteData(GuestAddress{base+1024},std::as_bytes(std::span{&parameter,1})));
+    CHECK(ctl("eiqMCt9UshI",{1})==bad);
+    const u64 request=ctl("eiqMCt9UshI",{base+1024}); CHECK(s32(request)>0);
+    CHECK(other.Dispatch(*space,"S7QTn72PrDw",{request})==u32(ORBIS_NP_ERROR_REQUEST_NOT_FOUND));
+    CHECK(ctl("uqcPJLWL08M",{request,output})==u32(ORBIS_NP_ERROR_INVALID_ID));
+    CHECK(ctl("8Z2Jc5GvGDI",{request,1000})==0);
+    CHECK(ctl("uqcPJLWL08M",{request,1})==bad);
+    CHECK(ctl("uqcPJLWL08M",{request,output})==0);
+    s32 request_result{}; CHECK(space->ReadData(GuestAddress{output},std::as_writable_bytes(std::span{&request_result,1})));
+    CHECK(u32(request_result)==u32(ORBIS_NP_ERROR_SIGNED_OUT));
+    CHECK(ctl("S7QTn72PrDw",{request})==0);
+    CHECK(ctl("jyi5p9XWUSs",{request,output})==u32(ORBIS_NP_ERROR_REQUEST_NOT_FOUND));
+    CHECK(space->Map({GuestAddress{base+0x8000},0x4000},GuestPermission::Read|GuestPermission::Execute));
+    CHECK(ctl("VfRSmPmj8Q8",{base,123})==bad);
+    CHECK(ctl("VfRSmPmj8Q8",{base+0x8000,123})==0);
+    CHECK(ctl("VfRSmPmj8Q8",{base+0x8000,456})==u32(ORBIS_NP_ERROR_CALLBACK_ALREADY_REGISTERED));
+    NotifyNpStateFromUserServiceEvent(Libraries::UserService::OrbisUserServiceEventType::Login,1000);
+    auto callbacks=control.BeginCallbacks(); CHECK(callbacks && callbacks->size()==1);
+    CHECK(!control.BeginCallbacks());
+    if (callbacks && callbacks->size()==1) {
+        const auto cb=callbacks->front();
+        CHECK(cb.user==1000 && cb.state==u32(OrbisNpState::SignedOut) && cb.argument==123 && !cb.unsupported_identity);
+        CHECK(control.IsCurrent(cb));
+        CHECK(ctl("mjjTXh+NHWY")==0);
+        CHECK(!control.IsCurrent(cb));
+    }
+    control.EndCallbacks();
+    callbacks=control.BeginCallbacks(); CHECK(callbacks && callbacks->empty()); control.EndCallbacks();
+    CHECK(ctl("GImICnh+boA",{base+0x8000,987})==0);
+    CHECK(ctl("xViqJdDgKl0")==0);
+    CHECK(ctl("xViqJdDgKl0")==u32(ORBIS_NP_ERROR_CALLBACK_NOT_REGISTERED));
     std::printf("NP offline: %u checks, %u failures\n", checks, failures);
     return failures ? 1 : 0;
 }

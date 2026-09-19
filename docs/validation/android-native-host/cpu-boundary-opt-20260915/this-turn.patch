@@ -1,0 +1,293 @@
+--- before/src/core/guest_cpu/api/address_space.cpp
++++ after/src/core/guest_cpu/api/address_space.cpp
+@@ -678,20 +678,39 @@
+ 
+ Result<MappingInfo> GuestAddressSpace::Query(GuestAddress address) const {
+     std::lock_guard guard{lock};
+-    for (const auto& mapping : mappings) {
+-        if (address.value >= mapping.range.base.value &&
+-            address.value < mapping.range.base.value + mapping.range.size) {
+-            MappingInfo info{};
+-            info.range = mapping.range;
+-            info.permission = mapping.permission;
+-            info.reasons = mapping.reasons;
+-            info.mapping_generation = mapping.generation;
+-            info.host_owned = true;
+-            return info;
+-        }
++    if (const auto* found = FindContainingMappingLocked({address, 1})) {
++        MappingInfo info{};
++        info.range = found->range;
++        info.permission = found->permission;
++        info.reasons = found->reasons;
++        info.mapping_generation = found->generation;
++        info.host_owned = true;
++        return info;
+     }
+     return MakeError(ErrorCategory::InvalidArgument, "GuestAddressSpace::Query",
+                      "address is not mapped");
++}
++
++const GuestAddressSpace::Mapping* GuestAddressSpace::FindContainingMappingLocked(
++    GuestRange range) const {
++    // Fold page bits so the production 16 KiB object allocations do not all
++    // collide on the low bits. This is a hint, not an address/permission cache.
++    const auto page = range.base.value >> 12;
++    auto& index = lookup_indices[(page ^ (page >> 6) ^ (page >> 12)) & 63];
++    const auto contains = [&](const Mapping& m) {
++        return range.base.value >= m.range.base.value &&
++               range.base.value - m.range.base.value < m.range.size &&
++               range.size <= m.range.size - (range.base.value - m.range.base.value);
++    };
++    if (index < mappings.size() && contains(mappings[index]))
++        return &mappings[index];
++    for (std::size_t i = 0; i < mappings.size(); ++i) {
++        if (contains(mappings[i])) {
++            index = i;
++            return &mappings[i];
++        }
++    }
++    return nullptr;
+ }
+ 
+ std::vector<MappingInfo> GuestAddressSpace::Mappings() const {
+@@ -728,16 +747,13 @@
+                          "base + size overflows");
+     }
+ 
+-    for (const auto& mapping : mappings) {
+-        if (range.base.value >= mapping.range.base.value &&
+-            range.base.value + range.size <= mapping.range.base.value + mapping.range.size) {
+-            if (!HasPermission(mapping.permission, required)) {
+-                return MakeError(ErrorCategory::PermissionDenied,
+-                                 "GuestAddressSpace::ValidateRange",
+-                                 "mapping lacks the requested permission");
+-            }
+-            return Ok();
+-        }
++    if (const auto* mapping = FindContainingMappingLocked(range)) {
++        if (!HasPermission(mapping->permission, required)) {
++            return MakeError(ErrorCategory::PermissionDenied,
++                             "GuestAddressSpace::ValidateRange",
++                             "mapping lacks the requested permission");
++        }
++        return Ok();
+     }
+     // Deliberately not merging adjacent mappings: a span crossing two separate
+     // mappings is rejected, because their permissions can differ.
+--- before/src/core/guest_cpu/api/address_space.h
++++ after/src/core/guest_cpu/api/address_space.h
+@@ -12,6 +12,7 @@
+ #pragma once
+ 
+ #include <condition_variable>
++#include <array>
+ #include <cstddef>
+ #include <memory>
+ #include <mutex>
+@@ -358,6 +359,10 @@
+         ProtectionReason reasons{ProtectionReason::GuestPermission};
+         std::uint64_t generation{};
+     };
++    // Requires lock. Cache only a vector index, never permissions, pointers or
++    // negative results. Recheck the current record on every hit: erase/split/
++    // replace may change what the index means, without requiring invalidation.
++    [[nodiscard]] const Mapping* FindContainingMappingLocked(GuestRange range) const;
+     struct Alias final {
+         GuestRange primary{};
+         GuestAddress alias_base{};
+@@ -377,6 +382,7 @@
+     SmcMode smc_mode{SmcMode::ExplicitPublication};
+ 
+     std::vector<Mapping> mappings;
++    mutable std::array<std::size_t, 64> lookup_indices{};
+     bool shared_backing_seen{};
+     std::vector<Alias> aliases;
+     std::vector<Pin> pins;
+--- before/src/core/host_runtime/guest_mutex.h
++++ after/src/core/host_runtime/guest_mutex.h
+@@ -3,6 +3,7 @@
+ 
+ #include <algorithm>
+ #include <condition_variable>
++#include <cstring>
+ #include <functional>
+ #include <map>
+ #include <memory>
+@@ -88,6 +89,14 @@
+         if (!s)
+             throw std::runtime_error(GuestCpu::Describe(s.GetError()));
+     }
++    void WriteOwnership(u64 address, u64 owner, u32 depth) {
++        // One checked publication / VM gate instead of two. Preserve libc's
++        // spin/yield/protocol/flags fields; only the first 12 ABI bytes change.
++        std::array<std::byte, 12> bytes;
++        std::memcpy(bytes.data(), &owner, sizeof(owner));
++        std::memcpy(bytes.data() + sizeof(owner), &depth, sizeof(depth));
++        Write(address, bytes);
++    }
+     bool Writable(u64 addr, u64 size) {
+         return bool(space.ValidateRange({GuestCpu::GuestAddress{addr}, size},
+                                         GuestCpu::GuestPermission::Write));
+@@ -246,8 +255,7 @@
+         const bool ready = !m.owner || m.changed->wait(lock, cancel, [&] { return m.owner == 0; });
+         if (!ready || cancel.stop_requested())
+             return POSIX_EINTR;
+-        Write(addr, owner);
+-        Write(addr + 8, u32{1});
++        WriteOwnership(addr, owner, 1);
+         m.owner = owner;
+         m.depth = 1;
+         return 0;
+@@ -260,9 +268,7 @@
+         auto& m = it->second;
+         if (m.owner != owner)
+             return POSIX_EPERM;
+-        Write(m.address + 8, m.depth - 1);
+-        if (m.depth == 1)
+-            Write(m.address, u64{0});
++        WriteOwnership(m.address, m.depth == 1 ? 0 : owner, m.depth - 1);
+         if (--m.depth == 0) {
+             m.owner = 0;
+             if (m.waiters)
+@@ -437,8 +443,7 @@
+         } waiting{c->second, &waiter, mutex};
+         const auto depth = mutex.depth;
+         // Enqueue and release atomically with respect to signal/broadcast/lock.
+-        Write(mutex.address, u64{0});
+-        Write(mutex.address + 8, u32{0});
++        WriteOwnership(mutex.address, 0, 0);
+         mutex.owner = 0;
+         mutex.depth = 0;
+         mutex.changed->notify_all();
+@@ -485,8 +490,7 @@
+         // It must not deadlock reacquiring a mutex whose owner is also stopped.
+         bool acquired = mutex.changed->wait(lock, cancel, [&] { return mutex.owner == 0; });
+         if (acquired) {
+-            Write(mutex.address, owner);
+-            Write(mutex.address + 8, depth);
++            WriteOwnership(mutex.address, owner, depth);
+             mutex.owner = owner;
+             mutex.depth = depth;
+         }
+--- before/src/core/guest_cpu/fex/fex_context.cpp
++++ after/src/core/guest_cpu/fex/fex_context.cpp
+@@ -220,6 +220,9 @@
+     // the guest environment is restored before the guest resumes (per-crossing host/guest FP).
+     fenv_t owner_host_fenv{};
+     bool owner_host_fenv_valid{false};
++    // Owned by this physical Run's shared_ptr and active-run lease. A nested
++    // InvokeGuest gets its own binding; never cache this across Run teardown.
++    std::atomic<bool>* syscall_fault_flag{};
+ };
+ static_assert(std::atomic<bool>::is_always_lock_free);
+ thread_local ThreadInterruptBinding *t_binding = nullptr;
+@@ -577,12 +580,15 @@
+         }
+ 
+         // Per-thread attribution first: a fault flag unique to this thread.
+-        std::shared_ptr<std::atomic<bool>> fault_flag;
+-        {
++        std::shared_ptr<std::atomic<bool>> fallback_flag;
++        auto* fault_flag = binding && binding->native->CurrentFrame == Frame
++                               ? binding->syscall_fault_flag : nullptr;
++        if (!fault_flag) {
+             std::lock_guard guard{threads_lock_};
+             auto it = syscall_fault_by_frame_.find(Frame);
+             if (it != syscall_fault_by_frame_.end()) {
+-                fault_flag = it->second.lock();
++                fallback_flag = it->second.flag.lock();
++                fault_flag = fallback_flag.get();
+             }
+         }
+ 
+@@ -687,17 +693,21 @@
+ 
+     Hle::HleCallRegistry& Registry() { return registry_; }
+ 
+-    // Registers the per-thread syscall-fault flag for the duration of an ExecuteThread call. The
+-    // weak_ptr entry is dropped when the owner unregisters, so a stale frame never faults the
+-    // wrong thread and a destroyed thread's flag does not outlive it.
++    // CurrentFrame is const in FEX InternalThreadState. Register once per
++    // physical Run, not once per syscall continuation. Reentrant callbacks on
++    // that same owner retain the outer registration until both Runs retire.
+     void RegisterThreadFrame(FEXCore::Core::CpuStateFrame* frame,
+                              std::weak_ptr<std::atomic<bool>> flag) {
+         std::lock_guard guard{threads_lock_};
+-        syscall_fault_by_frame_[frame] = std::move(flag);
++        auto [it, inserted] = syscall_fault_by_frame_.try_emplace(frame);
++        if (inserted) it->second.flag = std::move(flag);
++        ++it->second.active_runs;
+     }
+     void UnregisterThreadFrame(FEXCore::Core::CpuStateFrame* frame) {
+         std::lock_guard guard{threads_lock_};
+-        syscall_fault_by_frame_.erase(frame);
++        auto it = syscall_fault_by_frame_.find(frame);
++        if (it != syscall_fault_by_frame_.end() && --it->second.active_runs == 0)
++            syscall_fault_by_frame_.erase(it);
+     }
+ 
+     [[nodiscard]] bool TakeUnknownThreadSyscall() {
+@@ -782,8 +792,11 @@
+     // Per-thread syscall-fault attribution (R2-H05). Keyed by the frame FEXCore passes to
+     // HandleSyscall; weak so a thread that has exited never keeps the map entry alive.
+     mutable std::mutex threads_lock_;
+-    std::unordered_map<FEXCore::Core::CpuStateFrame*, std::weak_ptr<std::atomic<bool>>>
+-        syscall_fault_by_frame_;
++    struct FrameRegistration {
++        std::weak_ptr<std::atomic<bool>> flag;
++        std::size_t active_runs{};
++    };
++    std::unordered_map<FEXCore::Core::CpuStateFrame*, FrameRegistration> syscall_fault_by_frame_;
+     std::atomic<bool> unknown_thread_syscall_{false};
+     std::atomic<ErrorCategory> last_hle_error_{ErrorCategory::None};
+ 
+@@ -1428,7 +1441,15 @@
+                 reinterpret_cast<std::uintptr_t>(entry->native->InterruptFaultPage);
+             binding.stop_spill = signal_delegator_->GetConfig().ThreadStopHandlerAddressSpillSRA;
+             syscall_fault = entry->syscall_fault;
+-        }
++            binding.syscall_fault_flag = syscall_fault.get();
++        }
++        syscall_handler_->RegisterThreadFrame(binding.native->CurrentFrame, syscall_fault);
++        const auto unregister_frame = [this](void* frame) {
++            syscall_handler_->UnregisterThreadFrame(
++                static_cast<FEXCore::Core::CpuStateFrame*>(frame));
++        };
++        std::unique_ptr<void, decltype(unregister_frame)> registered_frame{
++            binding.native->CurrentFrame, unregister_frame};
+ #if defined(GUEST_CPU_TEST_HOOKS)
+         // Test-only deterministic owner delay. Running is set, the execution lease is held and every
+         // coordinator/context/address-space lock has been released; we are not inside a signal handler
+@@ -1671,7 +1692,6 @@
+             const std::uint64_t guest_fpcr = (((rounding & 1) << 1) | ((rounding & 2) >> 1)) << 22 |
+                                              (static_cast<std::uint64_t>((mxcsr >> 15) & 1) << 24);
+             asm volatile("msr fpcr, %0\n\tmsr fpsr, xzr" : : "r"(guest_fpcr) : "memory");
+-            syscall_handler_->RegisterThreadFrame(binding.native->CurrentFrame, syscall_fault);
+             // Install the production syscall-fault immediate-exit wrapper for this Run. Save the
+             // JIT-installed obj/func so the wrapper can forward to the real handler, and restore
+             // them after ExecuteThread. The wrapper runs on this owner thread and reads t_binding
+@@ -1741,7 +1761,6 @@
+         errno = host_errno.value;
+         t_binding = nullptr;
+         if (!binding.hle_pending) {
+-            syscall_handler_->UnregisterThreadFrame(binding.native->CurrentFrame);
+             if (watching && debug_stop == StopReason::StepComplete) {
+                 std::lock_guard guard{lock_};
+                 auto* e = FindOwnedLocked(thread);
+@@ -1823,7 +1842,6 @@
+         // Hold after the real syscall exit but before publishing the HLE boundary.
+         // No coordinator lock is held; a test can make the drainer wait first.
+         if (!test_hle_boundary_gate_->WaitAtEntry(context_id_, thread.id, invocation, 5000)) {
+-            syscall_handler_->UnregisterThreadFrame(binding.native->CurrentFrame);
+             std::lock_guard guard{lock_};
+             auto* entry = FindOwnedLocked(thread);
+             entry->interrupt->last_reason = StopReason::BackendFailure;
+@@ -1891,7 +1909,6 @@
+             nested_stop = scope.FailedCallback();
+             thread_exit = scope.ThreadExitResult();
+         }
+-        syscall_handler_->UnregisterThreadFrame(binding.native->CurrentFrame);
+         ::fesetenv(&host_fp);
+         if (binding.syscall_fault_pending.load(std::memory_order_acquire))
+             break;

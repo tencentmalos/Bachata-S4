@@ -11,7 +11,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class AudioRuntimeInstrumentedTest {
-    @Test fun aaudioAcceptsGuestBuffersAndClosesAcrossRestarts() {
+    @Test fun oboeConsumesGuestBuffersAndClosesAcrossRestarts() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val context = instrumentation.targetContext
         assertTrue(NativePad.nativeInitializeHost(File(context.filesDir, "host").path))

@@ -1,0 +1,1932 @@
+[
+  {
+    "tool": "guest_debug.start_session",
+    "time": 1789463995.690144,
+    "args": {
+      "emulator": "shadps4-fex",
+      "serial": "9c2841a4",
+      "port": 24681,
+      "remotePort": 24680,
+      "expectedArchitecture": "i386:x86-64",
+      "byteOrder": "little",
+      "stopOnAttach": false,
+      "stopLeaseMs": 10000,
+      "hostPid": 11258,
+      "hostStartTimeTicks": 24776960,
+      "dryRun": true
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {}
+  },
+  {
+    "tool": "guest_debug.start_session",
+    "time": 1789463995.9399629,
+    "args": {
+      "emulator": "shadps4-fex",
+      "serial": "9c2841a4",
+      "port": 24681,
+      "remotePort": 24680,
+      "expectedArchitecture": "i386:x86-64",
+      "byteOrder": "little",
+      "stopOnAttach": false,
+      "stopLeaseMs": 10000,
+      "hostPid": 11258,
+      "hostStartTimeTicks": 24776960,
+      "dryRun": false
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_f7459a74497d40658dd58de90989f2b7",
+      "hostPid": 11258,
+      "hostStartTimeTicks": 24776960,
+      "state": "connected_unknown",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 0,
+      "stopReason": "",
+      "stoppedThreadId": "",
+      "latestEventCursor": 1,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.list_modules",
+    "time": 1789463995.987093,
+    "args": {
+      "sessionId": "gdbg_f7459a74497d40658dd58de90989f2b7"
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [
+        {
+          "name": "eboot.bin",
+          "kind": "",
+          "buildId": "",
+          "moduleId": "",
+          "guestTextBase": "0x400000",
+          "guestLoadBase": "",
+          "mappedSize": 0,
+          "registryGeneration": 0,
+          "loadGeneration": 0,
+          "segments": []
+        },
+        {
+          "name": "libfmod.prx",
+          "kind": "",
+          "buildId": "",
+          "moduleId": "",
+          "guestTextBase": "0x100000000",
+          "guestLoadBase": "",
+          "mappedSize": 0,
+          "registryGeneration": 0,
+          "loadGeneration": 0,
+          "segments": []
+        },
+        {
+          "name": "libc.prx",
+          "kind": "",
+          "buildId": "",
+          "moduleId": "",
+          "guestTextBase": "0x100c50000",
+          "guestLoadBase": "",
+          "mappedSize": 0,
+          "registryGeneration": 0,
+          "loadGeneration": 0,
+          "segments": []
+        },
+        {
+          "name": "libSceFios2.prx",
+          "kind": "",
+          "buildId": "",
+          "moduleId": "",
+          "guestTextBase": "0x10157c000",
+          "guestLoadBase": "",
+          "mappedSize": 0,
+          "registryGeneration": 0,
+          "loadGeneration": 0,
+          "segments": []
+        },
+        {
+          "name": "libfmodstudio.prx",
+          "kind": "",
+          "buildId": "",
+          "moduleId": "",
+          "guestTextBase": "0x101f0c000",
+          "guestLoadBase": "",
+          "mappedSize": 0,
+          "registryGeneration": 0,
+          "loadGeneration": 0,
+          "segments": []
+        },
+        {
+          "name": "libSceNpEntitlementAccess.prx",
+          "kind": "",
+          "buildId": "",
+          "moduleId": "",
+          "guestTextBase": "0x102b10000",
+          "guestLoadBase": "",
+          "mappedSize": 0,
+          "registryGeneration": 0,
+          "loadGeneration": 0,
+          "segments": []
+        },
+        {
+          "name": "libSceNpCppWebApi.prx",
+          "kind": "",
+          "buildId": "",
+          "moduleId": "",
+          "guestTextBase": "0x103714000",
+          "guestLoadBase": "",
+          "mappedSize": 0,
+          "registryGeneration": 0,
+          "loadGeneration": 0,
+          "segments": []
+        }
+      ],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_f7459a74497d40658dd58de90989f2b7",
+      "hostPid": 11258,
+      "hostStartTimeTicks": 24776960,
+      "state": "connected_unknown",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 0,
+      "stopReason": "",
+      "stoppedThreadId": "",
+      "latestEventCursor": 1,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.control",
+    "time": 1789463996.0213609,
+    "args": {
+      "sessionId": "gdbg_f7459a74497d40658dd58de90989f2b7",
+      "action": "pause",
+      "waitForStopMs": 1500
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_f7459a74497d40658dd58de90989f2b7",
+      "hostPid": 11258,
+      "hostStartTimeTicks": 24776960,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 2,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.list_threads",
+    "time": 1789463996.0705621,
+    "args": {
+      "sessionId": "gdbg_f7459a74497d40658dd58de90989f2b7"
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [
+        {
+          "id": "1",
+          "name": "guest-stopped guest=1 host=11308 gen=2 snapshot=SafePoint epoch=11 invocation=8",
+          "core": "",
+          "state": "Runnable",
+          "stepEligible": true
+        },
+        {
+          "id": "2",
+          "name": "hle-boundary-read-only guest=2 host=11333 gen=3 snapshot=HleBoundary epoch=2 invocation=1 hle-op=17",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        },
+        {
+          "id": "3",
+          "name": "hle-boundary-read-only guest=3 host=11334 gen=4 snapshot=HleBoundary epoch=1 invocation=1 hle-op=277",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        },
+        {
+          "id": "4",
+          "name": "hle-boundary-read-only guest=4 host=11335 gen=5 snapshot=HleBoundary epoch=1 invocation=1 hle-op=277",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        },
+        {
+          "id": "5",
+          "name": "guest-stopped guest=5 host=11336 gen=6 snapshot=SafePoint epoch=2 invocation=1",
+          "core": "",
+          "state": "Runnable",
+          "stepEligible": true
+        },
+        {
+          "id": "6",
+          "name": "hle-boundary-read-only guest=6 host=11337 gen=7 snapshot=HleBoundary epoch=1 invocation=1 hle-op=277",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        },
+        {
+          "id": "7",
+          "name": "hle-boundary-read-only guest=7 host=11339 gen=8 snapshot=HleBoundary epoch=1 invocation=1 hle-op=465",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        },
+        {
+          "id": "8",
+          "name": "hle-boundary-read-only guest=8 host=11340 gen=9 snapshot=HleBoundary epoch=1 invocation=1 hle-op=465",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        },
+        {
+          "id": "9",
+          "name": "hle-boundary-read-only guest=9 host=11341 gen=10 snapshot=HleBoundary epoch=1 invocation=1 hle-op=465",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        },
+        {
+          "id": "a",
+          "name": "hle-boundary-read-only guest=10 host=11342 gen=11 snapshot=HleBoundary epoch=1 invocation=1 hle-op=465",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        },
+        {
+          "id": "b",
+          "name": "hle-boundary-read-only guest=11 host=11343 gen=12 snapshot=HleBoundary epoch=1 invocation=1 hle-op=465",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        },
+        {
+          "id": "c",
+          "name": "guest-stopped guest=12 host=11344 gen=13 snapshot=SafePoint epoch=3 invocation=1",
+          "core": "",
+          "state": "Runnable",
+          "stepEligible": true
+        },
+        {
+          "id": "d",
+          "name": "hle-boundary-read-only guest=13 host=11371 gen=14 snapshot=HleBoundary epoch=1 invocation=1 hle-op=265",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        },
+        {
+          "id": "e",
+          "name": "hle-boundary-read-only guest=14 host=11372 gen=15 snapshot=HleBoundary epoch=1 invocation=1 hle-op=5",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        },
+        {
+          "id": "f",
+          "name": "guest-stopped guest=15 host=11376 gen=16 snapshot=SafePoint epoch=3 invocation=1",
+          "core": "",
+          "state": "Runnable",
+          "stepEligible": true
+        },
+        {
+          "id": "10",
+          "name": "guest-stopped guest=16 host=11377 gen=17 snapshot=SafePoint epoch=2 invocation=1",
+          "core": "",
+          "state": "Runnable",
+          "stepEligible": true
+        },
+        {
+          "id": "11",
+          "name": "guest-stopped guest=17 host=11378 gen=18 snapshot=SafePoint epoch=3 invocation=1",
+          "core": "",
+          "state": "Runnable",
+          "stepEligible": true
+        },
+        {
+          "id": "12",
+          "name": "hle-boundary-read-only guest=18 host=11379 gen=19 snapshot=HleBoundary epoch=2 invocation=1 hle-op=408",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        },
+        {
+          "id": "13",
+          "name": "hle-boundary-read-only guest=19 host=11381 gen=20 snapshot=HleBoundary epoch=1 invocation=1 hle-op=408",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        },
+        {
+          "id": "14",
+          "name": "hle-boundary-read-only guest=20 host=11383 gen=21 snapshot=HleBoundary epoch=1 invocation=1 hle-op=408",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        },
+        {
+          "id": "15",
+          "name": "hle-boundary-read-only guest=21 host=11384 gen=22 snapshot=HleBoundary epoch=1 invocation=1 hle-op=5",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        },
+        {
+          "id": "16",
+          "name": "hle-boundary-read-only guest=22 host=11443 gen=23 snapshot=HleBoundary epoch=1 invocation=1 hle-op=265",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        },
+        {
+          "id": "17",
+          "name": "hle-boundary-read-only guest=23 host=11445 gen=24 snapshot=HleBoundary epoch=2 invocation=1 hle-op=294",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        },
+        {
+          "id": "18",
+          "name": "guest-stopped guest=24 host=11597 gen=25 snapshot=SafePoint epoch=3 invocation=1",
+          "core": "",
+          "state": "Runnable",
+          "stepEligible": true
+        },
+        {
+          "id": "1c",
+          "name": "hle-boundary-read-only guest=28 host=12510 gen=29 snapshot=HleBoundary epoch=1 invocation=1 hle-op=408",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        }
+      ],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_f7459a74497d40658dd58de90989f2b7",
+      "hostPid": 11258,
+      "hostStartTimeTicks": 24776960,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 2,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.read_registers",
+    "time": 1789463996.77232,
+    "args": {
+      "sessionId": "gdbg_f7459a74497d40658dd58de90989f2b7",
+      "stopEpoch": 1,
+      "threadId": "1",
+      "registerNames": [
+        "rip",
+        "rsp",
+        "rbp",
+        "rbx",
+        "r12",
+        "r13",
+        "r14",
+        "r15",
+        "rdi",
+        "rsi",
+        "rdx",
+        "rcx",
+        "r8",
+        "r9",
+        "rax"
+      ]
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [
+        {
+          "number": 16,
+          "name": "rip",
+          "bitSize": 64,
+          "rawHex": "0f40430018000000",
+          "numericHex": "0x180043400f",
+          "available": true
+        },
+        {
+          "number": 7,
+          "name": "rsp",
+          "bitSize": 64,
+          "rawHex": "688b1f0010000000",
+          "numericHex": "0x10001f8b68",
+          "available": true
+        },
+        {
+          "number": 6,
+          "name": "rbp",
+          "bitSize": 64,
+          "rawHex": "a08b1f0010000000",
+          "numericHex": "0x10001f8ba0",
+          "available": true
+        },
+        {
+          "number": 1,
+          "name": "rbx",
+          "bitSize": 64,
+          "rawHex": "58c6300200000000",
+          "numericHex": "0x230c658",
+          "available": true
+        },
+        {
+          "number": 12,
+          "name": "r12",
+          "bitSize": 64,
+          "rawHex": "38c6300200000000",
+          "numericHex": "0x230c638",
+          "available": true
+        },
+        {
+          "number": 13,
+          "name": "r13",
+          "bitSize": 64,
+          "rawHex": "80c6300200000000",
+          "numericHex": "0x230c680",
+          "available": true
+        },
+        {
+          "number": 14,
+          "name": "r14",
+          "bitSize": 64,
+          "rawHex": "e0c5300200000000",
+          "numericHex": "0x230c5e0",
+          "available": true
+        },
+        {
+          "number": 15,
+          "name": "r15",
+          "bitSize": 64,
+          "rawHex": "e07f693b02000000",
+          "numericHex": "0x23b697fe0",
+          "available": true
+        },
+        {
+          "number": 5,
+          "name": "rdi",
+          "bitSize": 64,
+          "rawHex": "38c6300200000000",
+          "numericHex": "0x230c638",
+          "available": true
+        },
+        {
+          "number": 4,
+          "name": "rsi",
+          "bitSize": 64,
+          "rawHex": "20e3940100000000",
+          "numericHex": "0x194e320",
+          "available": true
+        },
+        {
+          "number": 3,
+          "name": "rdx",
+          "bitSize": 64,
+          "rawHex": "80c6300200000000",
+          "numericHex": "0x230c680",
+          "available": true
+        },
+        {
+          "number": 2,
+          "name": "rcx",
+          "bitSize": 64,
+          "rawHex": "0f40430018000000",
+          "numericHex": "0x180043400f",
+          "available": true
+        },
+        {
+          "number": 8,
+          "name": "r8",
+          "bitSize": 64,
+          "rawHex": "0100000000000000",
+          "numericHex": "0x1",
+          "available": true
+        },
+        {
+          "number": 9,
+          "name": "r9",
+          "bitSize": 64,
+          "rawHex": "0000000000000000",
+          "numericHex": "0x0",
+          "available": true
+        },
+        {
+          "number": 0,
+          "name": "rax",
+          "bitSize": 64,
+          "rawHex": "0000000000000000",
+          "numericHex": "0x0",
+          "available": true
+        }
+      ],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_f7459a74497d40658dd58de90989f2b7",
+      "hostPid": 11258,
+      "hostStartTimeTicks": 24776960,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 2,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.read_stack",
+    "time": 1789463996.8217862,
+    "args": {
+      "sessionId": "gdbg_f7459a74497d40658dd58de90989f2b7",
+      "stopEpoch": 1,
+      "threadId": "1"
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "mixedStack": {
+        "schemaVersion": 1,
+        "contextId": 1,
+        "threadId": 1,
+        "generation": 2,
+        "stopEpoch": 11,
+        "phase": "parked",
+        "limitation": "Bounded verified RBP links only; frameless/DWARF unwind is unavailable. Host PCs are historical boundary captures, not an asynchronous native stop. HLE memory may still change. No host boundary was captured before attachment.",
+        "frames": [
+          {
+            "kind": "guest",
+            "provenance": "safe-point",
+            "module": "",
+            "symbol": "",
+            "pc": "0x180043400f",
+            "sp": "0x10001f8b68",
+            "fp": "0x10001f8ba0",
+            "invocation": 8,
+            "operation": 0
+          },
+          {
+            "kind": "guest",
+            "provenance": "verified-rbp-return-address",
+            "module": "eboot.bin",
+            "symbol": "",
+            "pc": "0x4a5032",
+            "sp": "0x10001f8bb0",
+            "fp": "0x100020bea0",
+            "invocation": 8,
+            "operation": 0
+          },
+          {
+            "kind": "guest",
+            "provenance": "verified-rbp-return-address",
+            "module": "eboot.bin",
+            "symbol": "",
+            "pc": "0x49e520",
+            "sp": "0x100020beb0",
+            "fp": "0x100020beb0",
+            "invocation": 8,
+            "operation": 0
+          },
+          {
+            "kind": "guest",
+            "provenance": "verified-rbp-return-address",
+            "module": "eboot.bin",
+            "symbol": "",
+            "pc": "0x7bc34a",
+            "sp": "0x100020bec0",
+            "fp": "0x100020bfb0",
+            "invocation": 8,
+            "operation": 0
+          },
+          {
+            "kind": "guest",
+            "provenance": "verified-rbp-return-address",
+            "module": "eboot.bin",
+            "symbol": "",
+            "pc": "0x4000bf",
+            "sp": "0x100020bfc0",
+            "fp": "0x100020bfe0",
+            "invocation": 8,
+            "operation": 0
+          }
+        ]
+      },
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_f7459a74497d40658dd58de90989f2b7",
+      "hostPid": 11258,
+      "hostStartTimeTicks": 24776960,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 2,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.read_registers",
+    "time": 1789463997.507787,
+    "args": {
+      "sessionId": "gdbg_f7459a74497d40658dd58de90989f2b7",
+      "stopEpoch": 1,
+      "threadId": "c",
+      "registerNames": [
+        "rip",
+        "rsp",
+        "rbp",
+        "rbx",
+        "r12",
+        "r13",
+        "r14",
+        "r15",
+        "rdi",
+        "rsi",
+        "rdx",
+        "rcx",
+        "r8",
+        "r9",
+        "rax"
+      ]
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [
+        {
+          "number": 16,
+          "name": "rip",
+          "bitSize": 64,
+          "rawHex": "0f005e0018000000",
+          "numericHex": "0x18005e000f",
+          "available": true
+        },
+        {
+          "number": 7,
+          "name": "rsp",
+          "bitSize": 64,
+          "rawHex": "f8b80d0110000000",
+          "numericHex": "0x10010db8f8",
+          "available": true
+        },
+        {
+          "number": 6,
+          "name": "rbp",
+          "bitSize": 64,
+          "rawHex": "50b90d0110000000",
+          "numericHex": "0x10010db950",
+          "available": true
+        },
+        {
+          "number": 1,
+          "name": "rbx",
+          "bitSize": 64,
+          "rawHex": "b094310200000000",
+          "numericHex": "0x23194b0",
+          "available": true
+        },
+        {
+          "number": 12,
+          "name": "r12",
+          "bitSize": 64,
+          "rawHex": "0000000010000000",
+          "numericHex": "0x1000000000",
+          "available": true
+        },
+        {
+          "number": 13,
+          "name": "r13",
+          "bitSize": 64,
+          "rawHex": "68625e4c02000000",
+          "numericHex": "0x24c5e6268",
+          "available": true
+        },
+        {
+          "number": 14,
+          "name": "r14",
+          "bitSize": 64,
+          "rawHex": "d06d340200000000",
+          "numericHex": "0x2346dd0",
+          "available": true
+        },
+        {
+          "number": 15,
+          "name": "r15",
+          "bitSize": 64,
+          "rawHex": "4301000000000000",
+          "numericHex": "0x143",
+          "available": true
+        },
+        {
+          "number": 5,
+          "name": "rdi",
+          "bitSize": 64,
+          "rawHex": "c8c35d0101000000",
+          "numericHex": "0x1015dc3c8",
+          "available": true
+        },
+        {
+          "number": 4,
+          "name": "rsi",
+          "bitSize": 64,
+          "rawHex": "80b90d0110000000",
+          "numericHex": "0x10010db980",
+          "available": true
+        },
+        {
+          "number": 3,
+          "name": "rdx",
+          "bitSize": 64,
+          "rawHex": "4301000000000000",
+          "numericHex": "0x143",
+          "available": true
+        },
+        {
+          "number": 2,
+          "name": "rcx",
+          "bitSize": 64,
+          "rawHex": "0f005e0018000000",
+          "numericHex": "0x18005e000f",
+          "available": true
+        },
+        {
+          "number": 8,
+          "name": "r8",
+          "bitSize": 64,
+          "rawHex": "d894310200000000",
+          "numericHex": "0x23194d8",
+          "available": true
+        },
+        {
+          "number": 9,
+          "name": "r9",
+          "bitSize": 64,
+          "rawHex": "90b90d0110000000",
+          "numericHex": "0x10010db990",
+          "available": true
+        },
+        {
+          "number": 0,
+          "name": "rax",
+          "bitSize": 64,
+          "rawHex": "00c00d0110000000",
+          "numericHex": "0x10010dc000",
+          "available": true
+        }
+      ],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_f7459a74497d40658dd58de90989f2b7",
+      "hostPid": 11258,
+      "hostStartTimeTicks": 24776960,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 2,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.read_stack",
+    "time": 1789463997.552586,
+    "args": {
+      "sessionId": "gdbg_f7459a74497d40658dd58de90989f2b7",
+      "stopEpoch": 1,
+      "threadId": "c"
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "mixedStack": {
+        "schemaVersion": 1,
+        "contextId": 1,
+        "threadId": 12,
+        "generation": 13,
+        "stopEpoch": 3,
+        "phase": "parked",
+        "limitation": "Bounded verified RBP links only; frameless/DWARF unwind is unavailable. Host PCs are historical boundary captures, not an asynchronous native stop. HLE memory may still change. No host boundary was captured before attachment.",
+        "frames": [
+          {
+            "kind": "guest",
+            "provenance": "safe-point",
+            "module": "",
+            "symbol": "",
+            "pc": "0x18005e000f",
+            "sp": "0x10010db8f8",
+            "fp": "0x10010db950",
+            "invocation": 1,
+            "operation": 0
+          },
+          {
+            "kind": "guest",
+            "provenance": "verified-rbp-return-address",
+            "module": "libSceFios2.prx",
+            "symbol": "",
+            "pc": "0x10157ff6a",
+            "sp": "0x10010db960",
+            "fp": "0x10010db9c0",
+            "invocation": 1,
+            "operation": 0
+          },
+          {
+            "kind": "guest",
+            "provenance": "verified-rbp-return-address",
+            "module": "libSceFios2.prx",
+            "symbol": "",
+            "pc": "0x101587bc1",
+            "sp": "0x10010db9d0",
+            "fp": "0x10010dba30",
+            "invocation": 1,
+            "operation": 0
+          },
+          {
+            "kind": "guest",
+            "provenance": "verified-rbp-return-address",
+            "module": "eboot.bin",
+            "symbol": "",
+            "pc": "0x19544aa",
+            "sp": "0x10010dba40",
+            "fp": "0x10010dbfe0",
+            "invocation": 1,
+            "operation": 0
+          }
+        ]
+      },
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_f7459a74497d40658dd58de90989f2b7",
+      "hostPid": 11258,
+      "hostStartTimeTicks": 24776960,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 2,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.read_registers",
+    "time": 1789463998.223536,
+    "args": {
+      "sessionId": "gdbg_f7459a74497d40658dd58de90989f2b7",
+      "stopEpoch": 1,
+      "threadId": "d",
+      "registerNames": [
+        "rip",
+        "rsp",
+        "rbp",
+        "rbx",
+        "r12",
+        "r13",
+        "r14",
+        "r15",
+        "rdi",
+        "rsi",
+        "rdx",
+        "rcx",
+        "r8",
+        "r9",
+        "rax"
+      ]
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [
+        {
+          "number": 16,
+          "name": "rip",
+          "bitSize": 64,
+          "rawHex": "0d00420018000000",
+          "numericHex": "0x180042000d",
+          "available": true
+        },
+        {
+          "number": 7,
+          "name": "rsp",
+          "bitSize": 64,
+          "rawHex": "487f300110000000",
+          "numericHex": "0x1001307f48",
+          "available": true
+        },
+        {
+          "number": 6,
+          "name": "rbp",
+          "bitSize": 64,
+          "rawHex": "c07f300110000000",
+          "numericHex": "0x1001307fc0",
+          "available": true
+        },
+        {
+          "number": 1,
+          "name": "rbx",
+          "bitSize": 64,
+          "rawHex": "c0acaf3b02000000",
+          "numericHex": "0x23bafacc0",
+          "available": true
+        },
+        {
+          "number": 12,
+          "name": "r12",
+          "bitSize": 64,
+          "rawHex": "0000000000000000",
+          "numericHex": "0x0",
+          "available": true
+        },
+        {
+          "number": 13,
+          "name": "r13",
+          "bitSize": 64,
+          "rawHex": "7825b43b02000000",
+          "numericHex": "0x23bb42578",
+          "available": true
+        },
+        {
+          "number": 14,
+          "name": "r14",
+          "bitSize": 64,
+          "rawHex": "58adaf3b02000000",
+          "numericHex": "0x23bafad58",
+          "available": true
+        },
+        {
+          "number": 15,
+          "name": "r15",
+          "bitSize": 64,
+          "rawHex": "60adaf3b02000000",
+          "numericHex": "0x23bafad60",
+          "available": true
+        },
+        {
+          "number": 5,
+          "name": "rdi",
+          "bitSize": 64,
+          "rawHex": "50adaf3b02000000",
+          "numericHex": "0x23bafad50",
+          "available": true
+        },
+        {
+          "number": 4,
+          "name": "rsi",
+          "bitSize": 64,
+          "rawHex": "60adaf3b02000000",
+          "numericHex": "0x23bafad60",
+          "available": true
+        },
+        {
+          "number": 3,
+          "name": "rdx",
+          "bitSize": 64,
+          "rawHex": "1000000000000000",
+          "numericHex": "0x10",
+          "available": true
+        },
+        {
+          "number": 2,
+          "name": "rcx",
+          "bitSize": 64,
+          "rawHex": "0f00420018000000",
+          "numericHex": "0x180042000f",
+          "available": true
+        },
+        {
+          "number": 8,
+          "name": "r8",
+          "bitSize": 64,
+          "rawHex": "4000000000000000",
+          "numericHex": "0x40",
+          "available": true
+        },
+        {
+          "number": 9,
+          "name": "r9",
+          "bitSize": 64,
+          "rawHex": "f8ffffffffff00ff",
+          "numericHex": "0xff00fffffffffff8",
+          "available": true
+        },
+        {
+          "number": 0,
+          "name": "rax",
+          "bitSize": 64,
+          "rawHex": "0901000000000000",
+          "numericHex": "0x109",
+          "available": true
+        }
+      ],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_f7459a74497d40658dd58de90989f2b7",
+      "hostPid": 11258,
+      "hostStartTimeTicks": 24776960,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 2,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.read_stack",
+    "time": 1789463998.2692301,
+    "args": {
+      "sessionId": "gdbg_f7459a74497d40658dd58de90989f2b7",
+      "stopEpoch": 1,
+      "threadId": "d"
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "mixedStack": {
+        "schemaVersion": 1,
+        "contextId": 1,
+        "threadId": 13,
+        "generation": 14,
+        "stopEpoch": 1,
+        "phase": "hle",
+        "limitation": "Bounded verified RBP links only; frameless/DWARF unwind is unavailable. Host PCs are historical boundary captures, not an asynchronous native stop. HLE memory may still change. No host boundary was captured before attachment.",
+        "frames": [
+          {
+            "kind": "guest",
+            "provenance": "saved-hle-continuation",
+            "module": "",
+            "symbol": "",
+            "pc": "0x180042000d",
+            "sp": "0x1001307f48",
+            "fp": "0x1001307fc0",
+            "invocation": 1,
+            "operation": 0
+          },
+          {
+            "kind": "guest",
+            "provenance": "verified-rbp-return-address",
+            "module": "eboot.bin",
+            "symbol": "",
+            "pc": "0x1990c4b",
+            "sp": "0x1001307fd0",
+            "fp": "0x1001307fe0",
+            "invocation": 1,
+            "operation": 0
+          }
+        ]
+      },
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_f7459a74497d40658dd58de90989f2b7",
+      "hostPid": 11258,
+      "hostStartTimeTicks": 24776960,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 2,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.read_registers",
+    "time": 1789463998.959946,
+    "args": {
+      "sessionId": "gdbg_f7459a74497d40658dd58de90989f2b7",
+      "stopEpoch": 1,
+      "threadId": "e",
+      "registerNames": [
+        "rip",
+        "rsp",
+        "rbp",
+        "rbx",
+        "r12",
+        "r13",
+        "r14",
+        "r15",
+        "rdi",
+        "rsi",
+        "rdx",
+        "rcx",
+        "r8",
+        "r9",
+        "rax"
+      ]
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [
+        {
+          "number": 16,
+          "name": "rip",
+          "bitSize": 64,
+          "rawHex": "0d00010018000000",
+          "numericHex": "0x180001000d",
+          "available": true
+        },
+        {
+          "number": 7,
+          "name": "rsp",
+          "bitSize": 64,
+          "rawHex": "887f550110000000",
+          "numericHex": "0x1001557f88",
+          "available": true
+        },
+        {
+          "number": 6,
+          "name": "rbp",
+          "bitSize": 64,
+          "rawHex": "e07f550110000000",
+          "numericHex": "0x1001557fe0",
+          "available": true
+        },
+        {
+          "number": 1,
+          "name": "rbx",
+          "bitSize": 64,
+          "rawHex": "c84b9f3b02000000",
+          "numericHex": "0x23b9f4bc8",
+          "available": true
+        },
+        {
+          "number": 12,
+          "name": "r12",
+          "bitSize": 64,
+          "rawHex": "0000000000000000",
+          "numericHex": "0x0",
+          "available": true
+        },
+        {
+          "number": 13,
+          "name": "r13",
+          "bitSize": 64,
+          "rawHex": "0000000000000000",
+          "numericHex": "0x0",
+          "available": true
+        },
+        {
+          "number": 14,
+          "name": "r14",
+          "bitSize": 64,
+          "rawHex": "88fd9e3b02000000",
+          "numericHex": "0x23b9efd88",
+          "available": true
+        },
+        {
+          "number": 15,
+          "name": "r15",
+          "bitSize": 64,
+          "rawHex": "60fd9e3b02000000",
+          "numericHex": "0x23b9efd60",
+          "available": true
+        },
+        {
+          "number": 5,
+          "name": "rdi",
+          "bitSize": 64,
+          "rawHex": "20cc9e3b02000000",
+          "numericHex": "0x23b9ecc20",
+          "available": true
+        },
+        {
+          "number": 4,
+          "name": "rsi",
+          "bitSize": 64,
+          "rawHex": "b07f550110000000",
+          "numericHex": "0x1001557fb0",
+          "available": true
+        },
+        {
+          "number": 3,
+          "name": "rdx",
+          "bitSize": 64,
+          "rawHex": "0000000000000000",
+          "numericHex": "0x0",
+          "available": true
+        },
+        {
+          "number": 2,
+          "name": "rcx",
+          "bitSize": 64,
+          "rawHex": "0f00010018000000",
+          "numericHex": "0x180001000f",
+          "available": true
+        },
+        {
+          "number": 8,
+          "name": "r8",
+          "bitSize": 64,
+          "rawHex": "0000000010000000",
+          "numericHex": "0x1000000000",
+          "available": true
+        },
+        {
+          "number": 9,
+          "name": "r9",
+          "bitSize": 64,
+          "rawHex": "0a00000000000000",
+          "numericHex": "0xa",
+          "available": true
+        },
+        {
+          "number": 0,
+          "name": "rax",
+          "bitSize": 64,
+          "rawHex": "0500000000000000",
+          "numericHex": "0x5",
+          "available": true
+        }
+      ],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_f7459a74497d40658dd58de90989f2b7",
+      "hostPid": 11258,
+      "hostStartTimeTicks": 24776960,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 2,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.read_stack",
+    "time": 1789463999.008348,
+    "args": {
+      "sessionId": "gdbg_f7459a74497d40658dd58de90989f2b7",
+      "stopEpoch": 1,
+      "threadId": "e"
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "mixedStack": {
+        "schemaVersion": 1,
+        "contextId": 1,
+        "threadId": 14,
+        "generation": 15,
+        "stopEpoch": 1,
+        "phase": "hle",
+        "limitation": "Bounded verified RBP links only; frameless/DWARF unwind is unavailable. Host PCs are historical boundary captures, not an asynchronous native stop. HLE memory may still change. No host boundary was captured before attachment.",
+        "frames": [
+          {
+            "kind": "guest",
+            "provenance": "saved-hle-continuation",
+            "module": "",
+            "symbol": "",
+            "pc": "0x180001000d",
+            "sp": "0x1001557f88",
+            "fp": "0x1001557fe0",
+            "invocation": 1,
+            "operation": 0
+          }
+        ]
+      },
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_f7459a74497d40658dd58de90989f2b7",
+      "hostPid": 11258,
+      "hostStartTimeTicks": 24776960,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 2,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.read_registers",
+    "time": 1789463999.695503,
+    "args": {
+      "sessionId": "gdbg_f7459a74497d40658dd58de90989f2b7",
+      "stopEpoch": 1,
+      "threadId": "12",
+      "registerNames": [
+        "rip",
+        "rsp",
+        "rbp",
+        "rbx",
+        "r12",
+        "r13",
+        "r14",
+        "r15",
+        "rdi",
+        "rsi",
+        "rdx",
+        "rcx",
+        "r8",
+        "r9",
+        "rax"
+      ]
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [
+        {
+          "number": 16,
+          "name": "rip",
+          "bitSize": 64,
+          "rawHex": "0dc0650018000000",
+          "numericHex": "0x180065c00d",
+          "available": true
+        },
+        {
+          "number": 7,
+          "name": "rsp",
+          "bitSize": 64,
+          "rawHex": "58fe790110000000",
+          "numericHex": "0x100179fe58",
+          "available": true
+        },
+        {
+          "number": 6,
+          "name": "rbp",
+          "bitSize": 64,
+          "rawHex": "60fe790110000000",
+          "numericHex": "0x100179fe60",
+          "available": true
+        },
+        {
+          "number": 1,
+          "name": "rbx",
+          "bitSize": 64,
+          "rawHex": "601e155d02000000",
+          "numericHex": "0x25d151e60",
+          "available": true
+        },
+        {
+          "number": 12,
+          "name": "r12",
+          "bitSize": 64,
+          "rawHex": "0000000010000000",
+          "numericHex": "0x1000000000",
+          "available": true
+        },
+        {
+          "number": 13,
+          "name": "r13",
+          "bitSize": 64,
+          "rawHex": "a0c4300201000000",
+          "numericHex": "0x10230c4a0",
+          "available": true
+        },
+        {
+          "number": 14,
+          "name": "r14",
+          "bitSize": 64,
+          "rawHex": "702b030201000000",
+          "numericHex": "0x102032b70",
+          "available": true
+        },
+        {
+          "number": 15,
+          "name": "r15",
+          "bitSize": 64,
+          "rawHex": "70fe790110000000",
+          "numericHex": "0x100179fe70",
+          "available": true
+        },
+        {
+          "number": 5,
+          "name": "rdi",
+          "bitSize": 64,
+          "rawHex": "050000000f7a3529",
+          "numericHex": "0x29357a0f00000005",
+          "available": true
+        },
+        {
+          "number": 4,
+          "name": "rsi",
+          "bitSize": 64,
+          "rawHex": "0100000000000000",
+          "numericHex": "0x1",
+          "available": true
+        },
+        {
+          "number": 3,
+          "name": "rdx",
+          "bitSize": 64,
+          "rawHex": "0000000000000000",
+          "numericHex": "0x0",
+          "available": true
+        },
+        {
+          "number": 2,
+          "name": "rcx",
+          "bitSize": 64,
+          "rawHex": "0fc0650018000000",
+          "numericHex": "0x180065c00f",
+          "available": true
+        },
+        {
+          "number": 8,
+          "name": "r8",
+          "bitSize": 64,
+          "rawHex": "0100000000000000",
+          "numericHex": "0x1",
+          "available": true
+        },
+        {
+          "number": 9,
+          "name": "r9",
+          "bitSize": 64,
+          "rawHex": "0000000000000000",
+          "numericHex": "0x0",
+          "available": true
+        },
+        {
+          "number": 0,
+          "name": "rax",
+          "bitSize": 64,
+          "rawHex": "9801000000000000",
+          "numericHex": "0x198",
+          "available": true
+        }
+      ],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_f7459a74497d40658dd58de90989f2b7",
+      "hostPid": 11258,
+      "hostStartTimeTicks": 24776960,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 2,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.read_stack",
+    "time": 1789463999.739876,
+    "args": {
+      "sessionId": "gdbg_f7459a74497d40658dd58de90989f2b7",
+      "stopEpoch": 1,
+      "threadId": "12"
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "mixedStack": {
+        "schemaVersion": 1,
+        "contextId": 1,
+        "threadId": 18,
+        "generation": 19,
+        "stopEpoch": 2,
+        "phase": "hle",
+        "limitation": "Bounded verified RBP links only; frameless/DWARF unwind is unavailable. Host PCs are historical boundary captures, not an asynchronous native stop. HLE memory may still change. No host boundary was captured before attachment.",
+        "frames": [
+          {
+            "kind": "guest",
+            "provenance": "saved-hle-continuation",
+            "module": "",
+            "symbol": "",
+            "pc": "0x180065c00d",
+            "sp": "0x100179fe58",
+            "fp": "0x100179fe60",
+            "invocation": 1,
+            "operation": 0
+          },
+          {
+            "kind": "guest",
+            "provenance": "verified-rbp-return-address",
+            "module": "libfmodstudio.prx",
+            "symbol": "",
+            "pc": "0x101ff875c",
+            "sp": "0x100179fe70",
+            "fp": "0x100179ffa0",
+            "invocation": 1,
+            "operation": 0
+          },
+          {
+            "kind": "guest",
+            "provenance": "verified-rbp-return-address",
+            "module": "libfmodstudio.prx",
+            "symbol": "",
+            "pc": "0x101f12601",
+            "sp": "0x100179ffb0",
+            "fp": "0x100179ffc0",
+            "invocation": 1,
+            "operation": 0
+          },
+          {
+            "kind": "guest",
+            "provenance": "verified-rbp-return-address",
+            "module": "libfmodstudio.prx",
+            "symbol": "",
+            "pc": "0x101f0f39f",
+            "sp": "0x100179ffd0",
+            "fp": "0x100179ffe0",
+            "invocation": 1,
+            "operation": 0
+          }
+        ]
+      },
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_f7459a74497d40658dd58de90989f2b7",
+      "hostPid": 11258,
+      "hostStartTimeTicks": 24776960,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 2,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.read_registers",
+    "time": 1789464000.4474308,
+    "args": {
+      "sessionId": "gdbg_f7459a74497d40658dd58de90989f2b7",
+      "stopEpoch": 1,
+      "threadId": "18",
+      "registerNames": [
+        "rip",
+        "rsp",
+        "rbp",
+        "rbx",
+        "r12",
+        "r13",
+        "r14",
+        "r15",
+        "rdi",
+        "rsi",
+        "rdx",
+        "rcx",
+        "r8",
+        "r9",
+        "rax"
+      ]
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [
+        {
+          "number": 16,
+          "name": "rip",
+          "bitSize": 64,
+          "rawHex": "0f00040018000000",
+          "numericHex": "0x180004000f",
+          "available": true
+        },
+        {
+          "number": 7,
+          "name": "rsp",
+          "bitSize": 64,
+          "rawHex": "983ff30110000000",
+          "numericHex": "0x1001f33f98",
+          "available": true
+        },
+        {
+          "number": 6,
+          "name": "rbp",
+          "bitSize": 64,
+          "rawHex": "a03ff30110000000",
+          "numericHex": "0x1001f33fa0",
+          "available": true
+        },
+        {
+          "number": 1,
+          "name": "rbx",
+          "bitSize": 64,
+          "rawHex": "48e9195d02000000",
+          "numericHex": "0x25d19e948",
+          "available": true
+        },
+        {
+          "number": 12,
+          "name": "r12",
+          "bitSize": 64,
+          "rawHex": "0000000000000000",
+          "numericHex": "0x0",
+          "available": true
+        },
+        {
+          "number": 13,
+          "name": "r13",
+          "bitSize": 64,
+          "rawHex": "0000000000000000",
+          "numericHex": "0x0",
+          "available": true
+        },
+        {
+          "number": 14,
+          "name": "r14",
+          "bitSize": 64,
+          "rawHex": "58ea195d02000000",
+          "numericHex": "0x25d19ea58",
+          "available": true
+        },
+        {
+          "number": 15,
+          "name": "r15",
+          "bitSize": 64,
+          "rawHex": "0000000000000000",
+          "numericHex": "0x0",
+          "available": true
+        },
+        {
+          "number": 5,
+          "name": "rdi",
+          "bitSize": 64,
+          "rawHex": "1027000000000000",
+          "numericHex": "0x2710",
+          "available": true
+        },
+        {
+          "number": 4,
+          "name": "rsi",
+          "bitSize": 64,
+          "rawHex": "0d00000000000000",
+          "numericHex": "0xd",
+          "available": true
+        },
+        {
+          "number": 3,
+          "name": "rdx",
+          "bitSize": 64,
+          "rawHex": "0000000000000000",
+          "numericHex": "0x0",
+          "available": true
+        },
+        {
+          "number": 2,
+          "name": "rcx",
+          "bitSize": 64,
+          "rawHex": "0f00040018000000",
+          "numericHex": "0x180004000f",
+          "available": true
+        },
+        {
+          "number": 8,
+          "name": "r8",
+          "bitSize": 64,
+          "rawHex": "7f00000000000000",
+          "numericHex": "0x7f",
+          "available": true
+        },
+        {
+          "number": 9,
+          "name": "r9",
+          "bitSize": 64,
+          "rawHex": "0000200000000000",
+          "numericHex": "0x200000",
+          "available": true
+        },
+        {
+          "number": 0,
+          "name": "rax",
+          "bitSize": 64,
+          "rawHex": "0000000000000000",
+          "numericHex": "0x0",
+          "available": true
+        }
+      ],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_f7459a74497d40658dd58de90989f2b7",
+      "hostPid": 11258,
+      "hostStartTimeTicks": 24776960,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 2,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.read_stack",
+    "time": 1789464000.495403,
+    "args": {
+      "sessionId": "gdbg_f7459a74497d40658dd58de90989f2b7",
+      "stopEpoch": 1,
+      "threadId": "18"
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "mixedStack": {
+        "schemaVersion": 1,
+        "contextId": 1,
+        "threadId": 24,
+        "generation": 25,
+        "stopEpoch": 3,
+        "phase": "parked",
+        "limitation": "Bounded verified RBP links only; frameless/DWARF unwind is unavailable. Host PCs are historical boundary captures, not an asynchronous native stop. HLE memory may still change. No host boundary was captured before attachment.",
+        "frames": [
+          {
+            "kind": "guest",
+            "provenance": "safe-point",
+            "module": "",
+            "symbol": "",
+            "pc": "0x180004000f",
+            "sp": "0x1001f33f98",
+            "fp": "0x1001f33fa0",
+            "invocation": 1,
+            "operation": 0
+          },
+          {
+            "kind": "guest",
+            "provenance": "verified-rbp-return-address",
+            "module": "libfmod.prx",
+            "symbol": "",
+            "pc": "0x1000e2c87",
+            "sp": "0x1001f33fb0",
+            "fp": "0x1001f33fc0",
+            "invocation": 1,
+            "operation": 0
+          },
+          {
+            "kind": "guest",
+            "provenance": "verified-rbp-return-address",
+            "module": "libfmod.prx",
+            "symbol": "",
+            "pc": "0x1000e6a0f",
+            "sp": "0x1001f33fd0",
+            "fp": "0x1001f33fe0",
+            "invocation": 1,
+            "operation": 0
+          }
+        ]
+      },
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_f7459a74497d40658dd58de90989f2b7",
+      "hostPid": 11258,
+      "hostStartTimeTicks": 24776960,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 2,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.read_memory",
+    "time": 1789464000.5835571,
+    "args": {
+      "sessionId": "gdbg_f7459a74497d40658dd58de90989f2b7",
+      "stopEpoch": 1,
+      "address": "0x265601288",
+      "length": 8
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": [],
+      "memory": {
+        "address": "0x265601288",
+        "length": 8,
+        "hex": "0000000000000000",
+        "dataBase64": "AAAAAAAAAAA="
+      }
+    },
+    "session": {
+      "sessionId": "gdbg_f7459a74497d40658dd58de90989f2b7",
+      "hostPid": 11258,
+      "hostStartTimeTicks": 24776960,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 2,
+      "breakpoints": []
+    }
+  }
+]

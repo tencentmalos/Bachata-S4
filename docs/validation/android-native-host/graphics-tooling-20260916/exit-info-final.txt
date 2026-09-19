@@ -1,0 +1,68 @@
+ACTIVITY MANAGER PROCESS EXIT INFO (dumpsys activity exit-info)
+Last Timestamp of Persistence Into Persistent Storage: 2026-09-16 20:10:56.480
+  package: com.shadps4.android
+    Historical Process Exit for uid=10190
+        ApplicationExitInfo #0:
+          timestamp=2026-09-16 20:06:57.682 pid=3184 realUid=10190 packageUid=10190 definingUid=10190 user=0
+          process=com.shadps4.android reason=3 (LOW_MEMORY) subreason=0 (UNKNOWN) status=0
+          importance=100 pss=2.8GB rss=2.9GB description=null state=empty trace=null
+        ApplicationExitInfo #1:
+          timestamp=2026-09-16 20:01:33.028 pid=32010 realUid=10190 packageUid=10190 definingUid=10190 user=0
+          process=com.shadps4.android reason=5 (APP CRASH(NATIVE)) subreason=0 (UNKNOWN) status=6
+          importance=100 pss=2.2GB rss=2.3GB description=crash state=empty trace=null
+        ApplicationExitInfo #2:
+          timestamp=2026-09-16 19:57:28.577 pid=28450 realUid=10190 packageUid=10190 definingUid=10190 user=0
+          process=com.shadps4.android reason=3 (LOW_MEMORY) subreason=0 (UNKNOWN) status=0
+          importance=100 pss=2.6GB rss=2.7GB description=null state=empty trace=null
+        ApplicationExitInfo #3:
+          timestamp=2026-09-16 19:55:12.623 pid=25941 realUid=10190 packageUid=10190 definingUid=10190 user=0
+          process=com.shadps4.android reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=100 pss=2.8GB rss=2.9GB description=stop com.shadps4.android due to from pid 28436 state=empty trace=null
+        ApplicationExitInfo #4:
+          timestamp=2026-09-16 19:48:50.758 pid=18891 realUid=10190 packageUid=10190 definingUid=10190 user=0
+          process=com.shadps4.android reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=300 pss=2.6GB rss=2.8GB description=stop com.shadps4.android due to installPackageLI state=empty trace=null
+        ApplicationExitInfo #5:
+          timestamp=2026-09-16 19:41:03.678 pid=32590 realUid=10190 packageUid=10190 definingUid=10190 user=0
+          process=com.shadps4.android reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=400 pss=230MB rss=358MB description=stop com.shadps4.android due to installPackageLI state=empty trace=null
+        ApplicationExitInfo #6:
+          timestamp=2026-09-16 18:59:24.944 pid=27609 realUid=10190 packageUid=10190 definingUid=10190 user=0
+          process=com.shadps4.android reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=100 pss=2.7GB rss=2.9GB description=stop com.shadps4.android due to installPackageLI state=empty trace=null
+        ApplicationExitInfo #7:
+          timestamp=2026-09-16 18:43:55.271 pid=23969 realUid=10190 packageUid=10190 definingUid=10190 user=0
+          process=com.shadps4.android reason=5 (APP CRASH(NATIVE)) subreason=0 (UNKNOWN) status=11
+          importance=100 pss=2.7GB rss=2.9GB description=crash state=empty trace=null
+        ApplicationExitInfo #8:
+          timestamp=2026-09-16 18:36:49.282 pid=18977 realUid=10190 packageUid=10190 definingUid=10190 user=0
+          process=com.shadps4.android reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=100 pss=2.7GB rss=2.8GB description=stop com.shadps4.android due to installPackageLI state=empty trace=null
+        ApplicationExitInfo #9:
+          timestamp=2026-09-16 18:26:35.892 pid=10213 realUid=10190 packageUid=10190 definingUid=10190 user=0
+          process=com.shadps4.android reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=100 pss=2.7GB rss=2.8GB description=stop com.shadps4.android due to installPackageLI state=empty trace=null
+        ApplicationExitInfo #10:
+          timestamp=2026-09-16 17:49:27.080 pid=8183 realUid=10190 packageUid=10190 definingUid=10190 user=0
+          process=com.shadps4.android reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=100 pss=4.6GB rss=4.7GB description=stop com.shadps4.android due to installPackageLI state=empty trace=null
+        ApplicationExitInfo #11:
+          timestamp=2026-09-16 17:45:18.659 pid=5709 realUid=10190 packageUid=10190 definingUid=10190 user=0
+          process=com.shadps4.android reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=100 pss=2.7GB rss=2.8GB description=stop com.shadps4.android due to installPackageLI state=empty trace=null
+        ApplicationExitInfo #12:
+          timestamp=2026-09-16 17:37:33.552 pid=4954 realUid=10190 packageUid=10190 definingUid=10190 user=0
+          process=com.shadps4.android reason=5 (APP CRASH(NATIVE)) subreason=0 (UNKNOWN) status=11
+          importance=100 pss=1.3GB rss=1.4GB description=crash state=empty trace=null
+        ApplicationExitInfo #13:
+          timestamp=2026-09-16 17:36:58.153 pid=8776 realUid=10190 packageUid=10190 definingUid=10190 user=0
+          process=com.shadps4.android reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=400 pss=200MB rss=333MB description=stop com.shadps4.android due to installPackageLI state=empty trace=null
+        ApplicationExitInfo #14:
+          timestamp=2026-09-16 15:39:22.122 pid=31258 realUid=10190 packageUid=10190 definingUid=10190 user=0
+          process=com.shadps4.android reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=400 pss=327MB rss=266MB description=stop com.shadps4.android due to installPackageLI state=empty trace=null
+        ApplicationExitInfo #15:
+          timestamp=2026-09-16 14:00:24.102 pid=27243 realUid=10190 packageUid=10190 definingUid=10190 user=0
+          process=com.shadps4.android reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=100 pss=163MB rss=287MB description=stop com.shadps4.android due to installPackageLI state=empty trace=null

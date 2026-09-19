@@ -428,6 +428,8 @@ s32 MemoryManager::Free(PAddr phys_addr, u64 size, bool is_checked) {
         }
     }
 
+    auto preparation = impl.PrepareMapping(remove_list);
+
     // Early unmap from GPU to avoid deadlocking.
     for (auto& [addr, unmap_size] : remove_list) {
         if (IsValidGpuMapping(addr, unmap_size)) {
@@ -460,13 +462,15 @@ s32 MemoryManager::Free(PAddr phys_addr, u64 size, bool is_checked) {
 
 s32 MemoryManager::PoolCommit(VAddr virtual_addr, u64 size, MemoryProt prot, s32 mtype) {
     std::scoped_lock lk{unmap_mutex};
-    std::unique_lock lk2{mutex};
     ASSERT_MSG(IsValidMapping(virtual_addr, size), "Attempted to access invalid address {:#x}",
                virtual_addr);
 
     // Input addresses to PoolCommit are treated as fixed, and have a constant alignment.
     const u64 alignment = 64_KB;
     VAddr mapped_addr = Common::AlignUp(virtual_addr, alignment);
+
+    auto preparation = impl.PrepareMapping(mapped_addr, size);
+    std::unique_lock lk2{mutex};
 
     auto& vma = FindVMA(mapped_addr)->second;
     if (vma.type != VMAType::PoolReserved) {
@@ -601,6 +605,7 @@ s32 MemoryManager::MapMemory(void** out_addr, VAddr virtual_addr, u64 size, Memo
         (size == 0 || virtual_addr > UINT64_MAX - size ||
          (True(flags & MemoryMapFlags::Fixed) && !impl.OwnsGuestRange(virtual_addr, size))))
         return ORBIS_KERNEL_ERROR_EINVAL;
+    std::scoped_lock lk{unmap_mutex};
     // Certain games perform flexible mappings on loop to determine
     // the available flexible memory size. Questionable but we need to handle this.
     if (type == VMAType::Flexible && flexible_usage + size > total_flexible_size) {
@@ -610,7 +615,6 @@ s32 MemoryManager::MapMemory(void** out_addr, VAddr virtual_addr, u64 size, Memo
                   total_flexible_size - flexible_usage, size);
         return ORBIS_KERNEL_ERROR_EINVAL;
     }
-    std::scoped_lock lk{unmap_mutex};
 
     PhysHandle dmem_area;
     // Validate the requested physical address range
@@ -667,8 +671,10 @@ s32 MemoryManager::MapMemory(void** out_addr, VAddr virtual_addr, u64 size, Memo
         }
     }
 
+    auto preparation = impl.PrepareMapping(virtual_addr, size, True(prot & MemoryProt::CpuExec));
+
     // Perform early GPU unmap to avoid potential deadlocks
-    if (IsValidGpuMapping(virtual_addr, size)) {
+    if (rasterizer && IsValidGpuMapping(virtual_addr, size)) {
         rasterizer->UnmapMemory(virtual_addr, size);
     }
 
@@ -781,45 +787,37 @@ s32 MemoryManager::MapMemory(void** out_addr, VAddr virtual_addr, u64 size, Memo
 }
 
 s32 MemoryManager::MapFile(void** out_addr, VAddr virtual_addr, u64 size, MemoryProt prot,
-                           MemoryMapFlags flags, s32 fd, s64 phys_addr) {
+                           MemoryMapFlags flags, s32 fd, s64 phys_addr,
+                           const NativeFileMapping* native_file) {
+    if (phys_addr < 0 || (phys_addr & (16_KB - 1)) ||
+        size > u64(INT64_MAX - phys_addr))
+        return ORBIS_KERNEL_ERROR_EINVAL;
     uintptr_t handle = 0;
     std::scoped_lock lk{unmap_mutex};
-    // Get the file to map
-    auto* h = Common::Singleton<Core::FileSys::HandleTable>::Instance();
-    auto file = h->GetFile(fd);
-    if (file == nullptr) {
-        LOG_WARNING(Kernel_Vmm, "Invalid file for mmap, fd {}", fd);
-        return ORBIS_KERNEL_ERROR_EBADF;
-    }
-
-    if (file->type != Core::FileSys::FileType::Regular) {
-        LOG_WARNING(Kernel_Vmm, "Unsupported file type for mmap, fd {}", fd);
-        return ORBIS_KERNEL_ERROR_EBADF;
-    }
-
-    if (True(prot & MemoryProt::CpuWrite)) {
-        // On PS4, read is appended to write mappings.
-        prot |= MemoryProt::CpuRead;
-    }
-
-    // Detect a non-host backend (ZArchive, ...).
-    Common::FS::IOFile* host_file = file->handle ? file->handle->GetHostFile() : nullptr;
-    const bool non_host_backed = file->handle && host_file == nullptr;
-
-    if (non_host_backed) {
-        // Non-host backends are read-only
-        prot &= ~MemoryProt::CpuWrite;
+    Core::FileSys::File* file{};
+    bool writable{};
+    if (native_file) {
+        handle = native_file->handle;
+        writable = native_file->writable;
     } else {
-        handle = host_file->GetFileMapping();
-
-        if (False(host_file->GetAccessMode() & Common::FS::FileAccessMode::Write) &&
-            False(host_file->GetAccessMode() & Common::FS::FileAccessMode::Append)) {
-            // If the file does not have write access, ensure prot does not contain write
-            // permissions. On real hardware, these mappings succeed, but the memory cannot be
-            // written to.
-            prot &= ~MemoryProt::CpuWrite;
+        auto* table = Common::Singleton<Core::FileSys::HandleTable>::Instance();
+        file = table->GetFile(fd);
+        if (!file || file->type != Core::FileSys::FileType::Regular || !file->handle) {
+            LOG_WARNING(Kernel_Vmm, "Invalid file for mmap, fd {}", fd);
+            return ORBIS_KERNEL_ERROR_EBADF;
+        }
+        if (auto* host_file = file->handle->GetHostFile()) {
+            handle = host_file->GetFileMapping();
+            writable = True(host_file->GetAccessMode() & Common::FS::FileAccessMode::Write) ||
+                       True(host_file->GetAccessMode() & Common::FS::FileAccessMode::Append);
         }
     }
+    if (True(prot & MemoryProt::CpuWrite))
+        prot |= MemoryProt::CpuRead;
+    // Retain the desktop policy: read-only files (including archive backends)
+    // never acquire write permission from the guest mapping request.
+    if (!writable)
+        prot &= ~MemoryProt::CpuWrite;
 
     if (prot >= MemoryProt::GpuRead) {
         // On real hardware, GPU file mmaps cause a full system crash due to an internal error.
@@ -853,8 +851,10 @@ s32 MemoryManager::MapFile(void** out_addr, VAddr virtual_addr, u64 size, Memory
         }
     }
 
+    auto preparation = impl.PrepareMapping(virtual_addr, size, false);
+
     // Perform early GPU unmap to avoid potential deadlocks
-    if (IsValidGpuMapping(virtual_addr, size)) {
+    if (rasterizer && IsValidGpuMapping(virtual_addr, size)) {
         rasterizer->UnmapMemory(virtual_addr, size);
     }
 
@@ -872,7 +872,8 @@ s32 MemoryManager::MapFile(void** out_addr, VAddr virtual_addr, u64 size, Memory
     Core::FileSys::FileMapContext map_ctx{};
     map_ctx.mapping_handle = handle;
     map_ctx.map_native = [&](u8* addr, u64 sz, u64 off, u32 p, uintptr_t map_handle) {
-        impl.MapFile(reinterpret_cast<VAddr>(addr), sz, off, p, map_handle);
+        impl.MapFile(reinterpret_cast<VAddr>(addr), sz, off, p, map_handle,
+                     False(flags & MemoryMapFlags::Private));
     };
     map_ctx.map_anonymous = [&](u8* addr, u64 sz) {
         constexpr auto kAnonMarker = static_cast<u64>(-1);
@@ -882,21 +883,17 @@ s32 MemoryManager::MapFile(void** out_addr, VAddr virtual_addr, u64 size, Memory
     };
     map_ctx.protect = [&](u8* addr, u64 sz, u32 p) {
         const auto mp = std::bit_cast<MemoryProt>(p);
-        Core::MemoryPermission perms{};
-        if (True(mp & MemoryProt::CpuRead)) {
-            perms |= Core::MemoryPermission::Read;
-        }
-        if (True(mp & MemoryProt::CpuReadWrite)) {
-            perms |= Core::MemoryPermission::ReadWrite;
-        }
-        if (True(mp & MemoryProt::CpuExec)) {
-            perms |= Core::MemoryPermission::Execute;
-        }
+        const auto perms = ToMemoryPermission(mp);
         impl.Protect(reinterpret_cast<VAddr>(addr), sz, perms);
     };
 
-    file->handle->Map(reinterpret_cast<u8*>(mapped_addr), size, phys_addr, std::bit_cast<u32>(prot),
-                      map_ctx);
+    if (native_file) {
+        map_ctx.map_native(reinterpret_cast<u8*>(mapped_addr), size, phys_addr,
+                           std::bit_cast<u32>(prot), handle);
+    } else {
+        file->handle->Map(reinterpret_cast<u8*>(mapped_addr), size, phys_addr,
+                          std::bit_cast<u32>(prot), map_ctx);
+    }
 
     *out_addr = std::bit_cast<void*>(mapped_addr);
     return ORBIS_OK;
@@ -916,6 +913,8 @@ s32 MemoryManager::PoolDecommit(VAddr virtual_addr, u64 size) {
         }
         it++;
     }
+
+    auto preparation = impl.PrepareMapping(virtual_addr, size, false);
 
     // Perform early GPU unmap to avoid potential deadlocks
     if (IsValidGpuMapping(virtual_addr, size)) {
@@ -1000,6 +999,8 @@ s32 MemoryManager::UnmapMemory(VAddr virtual_addr, u64 size) {
         return ORBIS_KERNEL_ERROR_EINVAL;
     }
 
+    auto preparation = impl.PrepareMapping(virtual_addr, size);
+
     // If the requested range has GPU access, unmap from GPU.
     if (IsValidGpuMapping(virtual_addr, size)) {
         rasterizer->UnmapMemory(virtual_addr, size);
@@ -1016,6 +1017,12 @@ u64 MemoryManager::UnmapBytesFromEntry(VAddr virtual_addr, VirtualMemoryArea vma
     const auto vma_type = vma_base.type;
     if (vma_base.type == VMAType::Free || vma_base.type == VMAType::Pooled) {
         return size_in_vma;
+    }
+
+    if (vma_type != VMAType::Reserved && vma_type != VMAType::PoolReserved) {
+        // Drain the affected native spans before recycling/zeroing their backing.
+        // Failure leaves this entry's metadata and physical allocator unchanged.
+        impl.Unmap(virtual_addr, size_in_vma);
     }
 
     VAddr current_addr = virtual_addr;
@@ -1070,12 +1077,6 @@ u64 MemoryManager::UnmapBytesFromEntry(VAddr virtual_addr, VirtualMemoryArea vma
     vma.name = "";
     MergeAdjacent(vma_map, new_it);
 
-    if (vma_type != VMAType::Reserved && vma_type != VMAType::PoolReserved) {
-        // Unmap the memory region.
-        impl.Unmap(virtual_addr, size_in_vma);
-        // Tracy memory tracking breaks from merging memory areas. Disabled for now.
-        // TRACK_FREE(virtual_addr, "VMEM");
-    }
     return size_in_vma;
 }
 
@@ -1139,26 +1140,7 @@ s64 MemoryManager::ProtectBytes(VAddr addr, VirtualMemoryArea& vma_base, u64 siz
     }
 
     // Set permissions
-    Core::MemoryPermission perms{};
-
-    if (True(prot & MemoryProt::CpuRead)) {
-        perms |= Core::MemoryPermission::Read;
-    }
-    if (True(prot & MemoryProt::CpuReadWrite)) {
-        perms |= Core::MemoryPermission::ReadWrite;
-    }
-    if (True(prot & MemoryProt::CpuExec)) {
-        perms |= Core::MemoryPermission::Execute;
-    }
-    if (True(prot & MemoryProt::GpuRead)) {
-        perms |= Core::MemoryPermission::Read;
-    }
-    if (True(prot & MemoryProt::GpuWrite)) {
-        perms |= Core::MemoryPermission::Write;
-    }
-    if (True(prot & MemoryProt::GpuReadWrite)) {
-        perms |= Core::MemoryPermission::ReadWrite;
-    }
+    const auto perms = ToMemoryPermission(prot);
 
     if (vma_base.type == VMAType::Direct || vma_base.type == VMAType::Pooled ||
         vma_base.type == VMAType::File) {
@@ -1167,22 +1149,14 @@ s64 MemoryManager::ProtectBytes(VAddr addr, VirtualMemoryArea& vma_base, u64 siz
         prot &= ~MemoryProt::CpuExec;
     }
 
-    // Split VMAs and apply protection change.
+    // References were drained before taking the interval-table mutex.
+    // Commit host protection before changing VMA metadata.
+    if (vma_base.type != VMAType::Reserved && new_prot != old_prot)
+        impl.Protect(addr, adjusted_size, perms);
     const auto new_it = CarveVMA(addr, adjusted_size);
     auto& new_vma = new_it->second;
     new_vma.prot = prot;
     MergeAdjacent(vma_map, new_it);
-
-    if (vma_base.type == VMAType::Reserved) {
-        // On PS4, protections change vma_map, but don't apply.
-        // Return early to avoid protecting memory that isn't mapped in address space.
-        return adjusted_size;
-    }
-
-    // Perform address-space memory protections if needed.
-    if (new_prot != old_prot) {
-        impl.Protect(addr, adjusted_size, perms);
-    }
 
     return adjusted_size;
 }
@@ -1194,8 +1168,11 @@ s32 MemoryManager::Protect(VAddr addr, u64 size, MemoryProt prot) {
     }
 
     // Ensure the range to modify is valid
-    std::scoped_lock lk{mutex, unmap_mutex};
+    std::scoped_lock writer{unmap_mutex};
     ASSERT_MSG(IsValidMapping(addr, size), "Attempted to access invalid address {:#x}", addr);
+
+    auto preparation = impl.PrepareMapping(addr, size, True(prot & MemoryProt::CpuExec));
+    std::scoped_lock lk{mutex};
 
     // Appropriately restrict flags.
     constexpr static MemoryProt flag_mask =
@@ -1401,16 +1378,22 @@ s32 MemoryManager::SetDirectMemoryType(VAddr addr, u64 size, s32 memory_type) {
     return ORBIS_OK;
 }
 
-void MemoryManager::NameVirtualRange(VAddr virtual_addr, u64 size, std::string_view name) {
+s32 MemoryManager::NameVirtualRange(VAddr virtual_addr, u64 size, std::string_view name) {
     std::scoped_lock lk{mutex, unmap_mutex};
+
+    // This API is guest-facing. Validate under the same metadata lock used
+    // below, including alignment overflow; invalid guest input must not assert.
+    if (!size || size > UINT64_MAX - (16_KB - 1))
+        return ORBIS_KERNEL_ERROR_EINVAL;
 
     // Sizes are aligned up to the nearest 16_KB
     u64 aligned_size = Common::AlignUp(size, 16_KB);
     // Addresses are aligned down to the nearest 16_KB
     VAddr aligned_addr = Common::AlignDown(virtual_addr, 16_KB);
 
-    ASSERT_MSG(IsValidMapping(aligned_addr, aligned_size),
-               "Attempted to access invalid address {:#x}", aligned_addr);
+    if (aligned_size > UINT64_MAX - aligned_addr ||
+        !IsValidMapping(aligned_addr, aligned_size))
+        return ORBIS_KERNEL_ERROR_EINVAL;
     auto it = FindVMA(aligned_addr);
     u64 remaining_size = aligned_size;
     VAddr current_addr = aligned_addr;
@@ -1438,6 +1421,7 @@ void MemoryManager::NameVirtualRange(VAddr virtual_addr, u64 size, std::string_v
             it++;
         }
     }
+    return ORBIS_OK;
 }
 
 s32 MemoryManager::GetDirectMemoryType(PAddr addr, s32* directMemoryTypeOut,

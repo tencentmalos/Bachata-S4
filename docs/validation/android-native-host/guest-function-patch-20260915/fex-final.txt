@@ -1,0 +1,95 @@
+[PATCH001] PASS production CPU/GPU permission combinations preserve read-only
+refused: invalid x86 instruction
+[PATCH002] PASS reject partial instruction
+refused: call/pop PC discovery is unsupported
+[PATCH003] PASS reject PC discovery
+refused: unsupported PC/control-sensitive trampoline instruction
+[PATCH004] PASS reject LOOP
+refused: RIP-relative target outside rel32 range
+[PATCH005] PASS reject RIP range overflow
+refused: branch enters middle of stolen instruction
+[PATCH006] PASS reject branch into instruction
+[PATCH007] PASS internal branch maps to relocated boundary
+refused: unsupported patch format/ABI/SDK
+[PATCH008] PASS SDK version mismatch rejected
+refused: payload segment SHA mismatch
+[PATCH009] PASS payload digest mismatch rejected
+refused: unknown host/guest import
+[PATCH010] PASS unknown host import rejected
+refused: invalid import slot
+[PATCH011] PASS overlapping slots rejected
+refused: export outside RX
+[PATCH012] PASS invalid export rejected
+refused: title/module SHA256 identity mismatch
+[PATCH013] PASS wrong module identity never patches
+refused: entry preimage mismatch: varargs
+[PATCH014] PASS last hook mismatch refuses whole package
+[PATCH015] PASS failed preflight left first entry unchanged
+[PATCH016] PASS original baseline
+[PATCH017] PASS 8 integer/stack arguments and original trampoline
+[PATCH018] PASS RIP memory / initialized data / C helper
+[PATCH019] PASS relative call / ASM helper
+[PATCH020] PASS conditional taken
+[PATCH021] PASS conditional not taken
+[PATCH022] PASS FP and hidden struct-return through public hooks
+[PATCH023] PASS BSS initialized / shared atomic state
+[PATCH024] PASS explicit ASM variadic trampoline preserves AL
+[PATCH025] PASS SysV all callee-saved GPRs and aligned stack
+[PATCH026] PASS guest originals made zero HLE crossings
+[PATCH027] PASS versioned SDK clock / counter / RAII / refusal
+[PATCH028] PASS counter carries owner provenance
+[PATCH029] PASS disabled dispatch executes original
+[PATCH030] PASS re-enabled cached owners execute replacement
+refused: uninstall requires all guest handles destroyed
+[PATCH031] PASS uninstall refuses live continuations
+refused: invalid/foreign patch transaction
+[PATCH032] PASS foreign/default token cannot toggle
+[PATCH033] PASS both persistent owners reached compiled guest before toggle
+[PATCH034] PASS two persistent owners survive 20 publication epochs
+[PATCH035] PASS patched guest loop remains cancellable
+[PATCH036] PASS physical entry restored after owners destroyed
+refused: patch not installed/healthy
+[PATCH037] PASS retired package cannot toggle
+package: fixture
+sha256: f876b9f0aa6fd021ef4f166b6e600dd04dc77bff607d2f71af92bdcc6da82942
+installed: 0
+enabled: 0
+failed: 0
+switches: 22
+context: 3
+hook: sum8 entry=0xff8010000 original=0xff8082010 replacement=0xff8080000 slot=0xff8083000 stolen=5
+instruction: 0xff8010000 -> 0xff8082010
+instruction: 0xff8010001 -> 0xff8082011
+instruction: 0xff8010004 -> 0xff8082014
+hook: rip entry=0xff8010020 original=0xff8082210 replacement=0xff8080090 slot=0xff8083008 stolen=7
+instruction: 0xff8010020 -> 0xff8082210
+hook: call entry=0xff8010030 original=0xff8082410 replacement=0xff80800c0 slot=0xff8083010 stolen=5
+instruction: 0xff8010030 -> 0xff8082410
+hook: branch entry=0xff8010040 original=0xff8082610 replacement=0xff80800e0 slot=0xff8083018 stolen=5
+instruction: 0xff8010040 -> 0xff8082610
+instruction: 0xff8010042 -> 0xff8082612
+instruction: 0xff8010044 -> 0xff8082622
+hook: float entry=0xff8010060 original=0xff8082810 replacement=0xff80800f0 slot=0xff8083020 stolen=5
+instruction: 0xff8010060 -> 0xff8082810
+instruction: 0xff8010061 -> 0xff8082811
+instruction: 0xff8010064 -> 0xff8082814
+hook: sret entry=0xff8010070 original=0xff8082a10 replacement=0xff8080110 slot=0xff8083028 stolen=5
+instruction: 0xff8010070 -> 0xff8082a10
+instruction: 0xff8010071 -> 0xff8082a11
+instruction: 0xff8010074 -> 0xff8082a14
+hook: varargs entry=0xff8010090 original=0xff8082c10 replacement=0xff8080330 slot=0xff8083030 stolen=5
+instruction: 0xff8010090 -> 0xff8082c10
+instruction: 0xff8010093 -> 0xff8082c13
+instruction: 0xff8010094 -> 0xff8082c14
+sdk_calls: 3914
+last_owner: 3:16:19:1
+counter: 1 GuestPatch.fixture.duration_ns samples=1 last=5625
+counter: 2 GuestPatch.fixture.calls samples=3906 last=3999744
+
+[PATCH038] PASS poison fixture warmed actual translated patch
+refused: BackendFailure in PatchTest: injected post-copy invalidation failure
+[PATCH039] PASS post-copy invalidation failure rejects switch
+[PATCH040] PASS failed switch poisons execution
+refused: WrongState in GuestAddressSpace::AcquireExecutionLease: code publication failed and has not been repaired; execution is blocked
+[PATCH041] PASS old translated patch cannot execute after failed switch
+PATCH_SUMMARY checks=41 failures=0

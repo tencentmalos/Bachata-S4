@@ -1,0 +1,122 @@
+{
+  "transition-v2-probe.json": {
+    "local_raw_sha256": "f7014d9604ce6261dda1d6e2d21b873cd9574e4dc012a1c3b1a48bf2dea835d4",
+    "archived": "identity/control/registers/stack + selected code/status; bulk guest memory omitted"
+  },
+  "scene-probe.json": {
+    "local_raw_sha256": "bbd54e47db406f30122e60b0906191d5719f7b670ebd6d68f06c9a600477896e",
+    "archived": "identity/control/registers/stack + selected code/status; bulk guest memory omitted"
+  },
+  "auth-probe.json": {
+    "local_raw_sha256": "0e14325b6bfc8629cdffb89f1ef2ca676f483696d3c393efe3c8cd2324e9d6ae",
+    "archived": "identity/control/registers/stack + selected code/status; bulk guest memory omitted"
+  },
+  "auth-tree-probe.json": {
+    "local_raw_sha256": "64e0589f42037e31aee36639455d83d5ab43850e3bbf788298e202215a054f9e",
+    "archived": "identity/control/registers/stack + selected code/status; bulk guest memory omitted"
+  },
+  "rest-queue-probe.json": {
+    "local_raw_sha256": "90750d7c06b91d3faff6e087baf87d1fee51af87993f144bb7bf258b47c41bcc",
+    "archived": "identity/control/registers/stack + selected code/status; bulk guest memory omitted"
+  },
+  "rest-consumer-probe.json": {
+    "local_raw_sha256": "4ba0ed591d3c8fdcab071941ac99fc0f0847e26c6bc31f835c1d042a75d4de47",
+    "archived": "identity/control/registers/stack + selected code/status; bulk guest memory omitted"
+  },
+  "rest-stub-probe.json": {
+    "local_raw_sha256": "75720f80b5acacf19750e80c17535c1a43437d59a6de938dab87ace6d1f21fb5",
+    "archived": "identity/control/registers/stack + selected code/status; bulk guest memory omitted"
+  },
+  "http-failure-callback-probe.json": {
+    "local_raw_sha256": "263a888b1da92a33b62f95f9f83ab732ec92595ce71b19291b5b3734c2084428",
+    "archived": "identity/control/registers/stack + selected code/status; bulk guest memory omitted"
+  },
+  "http-failure-late-probe.json": {
+    "local_raw_sha256": "4126ec69aef8459c0204c2fcde7ceae2e0944df256e8f688e4d30dcc5e59cfcf",
+    "archived": "identity/control/registers/stack + selected code/status; bulk guest memory omitted"
+  },
+  "http-failure-wait-probe.json": {
+    "local_raw_sha256": "07c0c03c8c539048df319f96c55a4d07bca4793a2abe2259805d79febae69b37",
+    "archived": "identity/control/registers/stack + selected code/status; bulk guest memory omitted"
+  },
+  "identities": {
+    "main_head": "4da582b7b3a36d74403a4985c3c03f37e570bcb7",
+    "main_dirty": true,
+    "APK_sha256": "a01c30e38bb2075e0fd4b729d0d819bd5546a68e2b6774cc80a0213ae7330e15",
+    "original_SELF_sha256": "6122da7190de6b08d921b2c42c3ca9ed11dc4d11524f1139ff67aeceea5b204d",
+    "fresh_extracted_ELF_sha256": "cf14264107ef499c5fcaffc97386dcee25652c16d3975d1be27edc4e7e40ede5",
+    "pkg_sha256_recorded": "c3ad762919ca1e2bbf781d856b842379b08d0a5e6ef71fff122f0d8a859e0af1",
+    "normal_native_APK_sha256": "e2dbb756cbd729baae0cdd5a8bc093627b6c2a3944cbc652c54705d8f3dddbb6",
+    "serial": "9c2841a4",
+    "API": 33,
+    "page_size": 4096,
+    "turnip_sha256": "fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09"
+  },
+  "archive_sha256": {
+    "C-http-130.png": "ca80f93679f4906c8b515184a59ea55f0791e693d6d3d4f0adc2c50136bfd042",
+    "C-http-130.txt": "b44a509f68070fc9f9972c9afac974240ebf5977a5ff6dfd6208f4eb50eb90fd",
+    "C-http-200.png": "4c12cafaad3ba83d48ff081d42f3b1072423dba5abb882476008ec84bb4998e8",
+    "C-http-200.txt": "01a94676605c4c1dbeafc4085497c84231b729d9cf5072d19af6579497fb910e",
+    "C-http-240.png": "842f6e632a8ea50a04c2e1e7e9a1f50f7aac7d13bed64101ffae4302ea46efd7",
+    "C-http-240.txt": "ba6afb069911872f3c0201349c2c671482fe3eb2c50d2ec911438dffd9170c88",
+    "D-extra-input.json": "773f02118a840b7002411ccb5af656bdf700dad0ec5886084af8c3ea9beee90d",
+    "D-http-180.png": "2d4c2bd435b178790144611510ee59893e075e329669b153a7be5a9696e0fa35",
+    "D-http-180.txt": "a03d3e3aa93a718720e833e3995a063891e907a68d5a6abee64bb8db5299bb69",
+    "D-http-210.png": "cf34a40e9a4d3866cd4adcfc1f7e142f52d2f02ea416fe82664f916e3ab223cf",
+    "D-http-210.txt": "bf766a53f955f14d0a57fecd99c72871dace5477254f46152acb48d0fb18e877",
+    "D-http-250.png": "aeb37618e9096f7099645294eb50fd50587e6b5206774b103d2688e3ea9421b8",
+    "D-http-250.txt": "e7bb7b398921c527a8966ffdc9659413e33b992646ecb46788c782bcfbfda332",
+    "D-http-310.png": "0af75306284c3aa2c23a94682297cc6eed31251da879db9d182f1ac83c63e4dc",
+    "D-http-310.txt": "b30849c54b0e3d39051c97e3081eb0f0cb04210a5e5158cd87c7b631451db77e",
+    "D-http-console.txt": "de50434f1ab6698b0eaaac3ad34bac7ba2943449771cd2ff98688e9ef4c01960",
+    "N-meta.json": "77f890247f9783e7a416f0c64c2a4ed398843f40f13a98d755d95f1338b8aa2d",
+    "N-t115.png": "95410b466e916939f024f6bd76c9b32ca0553fefe1438c36472188b0b3d4989f",
+    "N-t180.png": "ce648dddc024c6b8a35cb83605759181fbdba6159e894fe16a171f1228390233",
+    "auth-probe.boundaries.json": "c6e590417fde4a15d5939418f6f3e4aff363214c0d83ebc36e6f80362e07caa8",
+    "auth-tree-probe.boundaries.json": "4fe8517b3f8a8958d0b2926024c61ac40e89e4c51e9723739be3a5b3ff8100ca",
+    "final-cleanup.json": "4cf76296804a8229727add778ec8de42541e781dc54901b346b7f135e2057f8c",
+    "http-failure-callback-probe.boundaries.json": "4b35b152fb91443346c9ba9b63b7f57ba6dff92debc05fef2ec3161c025650ab",
+    "http-failure-injection.json": "07eef4f2ed72f79cd3d8e3eea4a13289852f8857bdc2c3f8720fc1abce9c4dfa",
+    "http-failure-late-probe.boundaries.json": "9f33e58b549ea2c0e0fff0d8b5dd044f3141dabefb52cd4c25104606fb56363b",
+    "http-failure-wait-cleanup.json": "569f6421629a5dc511eb37a4c58adf88328fb6f7817082a43e77cce57ea79620",
+    "http-failure-wait-probe.boundaries.json": "7aa2f165206c0049adef949442933a865a4f09003959f1ad0fdd0ae502d164e8",
+    "http2-stub-audit.json": "e9eeb96db55bf28aec0bd020f22b5a2a6ba07d3aec5f47abccffd775a9a507ce",
+    "rest-consumer-probe.boundaries.json": "abc114e92d1c388ca9c8bd3f51f1fa7cb63826c5c279f56d834a9f2aa2bb66a6",
+    "rest-queue-probe.boundaries.json": "bbfd1d3f05d4a2c1c880f81bfffa4b52d7acc6a02392931d7bfdb5757b0d7d6a",
+    "rest-stub-probe.boundaries.json": "06ca1d29699a8420ccd893dc9d9cb61312aabf46238069a9fc0444661fa952bf",
+    "scene-probe.boundaries.json": "a1bb12ffcfadf1802478437eb59f64c22abb1d11b938ea7ea2da4e0d4841bc19",
+    "terminal-host-build.log": "2006eb09f6e6ed6699e103a05d25e824062731967122bacfce85a4d8e620b1ae",
+    "transition-v2-probe.boundaries.json": "a319ce0fd7514c3a8d452ad6e840e18017ff25e5d4fad64c37a29e12836646e5"
+  },
+  "D_unattached_replay": {
+    "pid": 14071,
+    "generation": 1,
+    "run_uuid": "4f85fb1d3d9ace5bf05e1583849244a5",
+    "debugger_attached": false,
+    "observation_seconds": [
+      90,
+      130,
+      180,
+      210,
+      220,
+      250,
+      280,
+      310
+    ],
+    "menu_visible_seconds": [
+      180,
+      210,
+      250,
+      310
+    ],
+    "last_observation_guest_flip": 7127,
+    "last_observation_host_present": 7127,
+    "stop_guest_flip": 7152,
+    "stop_host_present": 7152,
+    "Circle_injected_at_seconds": 220,
+    "additional_input": "Cross, see D-extra-input.json",
+    "gameplay_entered_verified": false,
+    "original_content_restored": true,
+    "session_stopped": true
+  }
+}

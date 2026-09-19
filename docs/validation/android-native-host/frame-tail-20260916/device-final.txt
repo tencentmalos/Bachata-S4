@@ -1,0 +1,6 @@
+Linux localhost 5.15.123-android13-8-gafd857749d1f #1 SMP PREEMPT Thu Feb 5 07:59:03 UTC 2026 aarch64 Toybox
+qti/kalama/kalama:13/TKQ1.231222.001/eng.Thor.20260206.163241:user/release-keys
+/data/user/0/com.shadps4.android/files/guest-patches/active.json
+
+    topResumedActivity=ActivityRecord{797c069 u0 com.android.settings/.SubSettings} t1167}
+      topResumedActivity=ActivityRecord{55e841d u0 com.android.launcher3/.secondarydisplay.SecondaryDisplayLauncher} t796}

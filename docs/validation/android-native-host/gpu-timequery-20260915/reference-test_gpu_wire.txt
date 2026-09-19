@@ -1,0 +1,19 @@
+Running main() from /Users/bytedance/workspace/emulations/ps4/shadps4/foundation/third_party/profiler_sdk/build/_deps/googletest-src/googletest/src/gtest_main.cc
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from GpuWire
+[ RUN      ] GpuWire.PublicApiAndTagsAreDeclared
+[       OK ] GpuWire.PublicApiAndTagsAreDeclared (0 ms)
+[ RUN      ] GpuWire.PublicGpuApiDoesNotEncodeWhenRouteIsOff
+[       OK ] GpuWire.PublicGpuApiDoesNotEncodeWhenRouteIsOff (0 ms)
+[ RUN      ] GpuWire.PublicGpuContextCreateStopsAfter255Contexts
+[       OK ] GpuWire.PublicGpuContextCreateStopsAfter255Contexts (0 ms)
+[ RUN      ] GpuWire.EncoderWritesGpuRecordsAndReaderPairsCompleteZone
+[       OK ] GpuWire.EncoderWritesGpuRecordsAndReaderPairsCompleteZone (0 ms)
+[ RUN      ] GpuWire.ContextMetadataSurvivesRingOverwriteAndLaterCapture
+[       OK ] GpuWire.ContextMetadataSurvivesRingOverwriteAndLaterCapture (0 ms)
+[----------] 5 tests from GpuWire (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 5 tests.

@@ -23,14 +23,16 @@ inline u32 DispatchDiscMap(GuestCpu::GuestAddressSpace& space, std::string_view 
         return ORBIS_DISC_MAP_ERROR_NO_BITMAP_INFO;
     // Desktop's flags query writes three zeros. Validate all outputs before the
     // first write, retaining no native pointer or guest pin after this call.
-    auto flags = space.AcquirePinnedSpan({GuestCpu::GuestAddress{args[3]}, 4}, true);
-    auto first = space.AcquirePinnedSpan({GuestCpu::GuestAddress{args[4]}, 4}, true);
-    auto second = space.AcquirePinnedSpan({GuestCpu::GuestAddress{args[5]}, 4}, true);
-    if (!flags || !first || !second)
+    using namespace GuestCpu;
+    const std::array<GuestAddressSpace::DataRequest, 3> requests{
+        {{{GuestAddress{args[3]}, 4}, GuestPermission::Write},
+         {{GuestAddress{args[4]}, 4}, GuestPermission::Write},
+         {{GuestAddress{args[5]}, 4}, GuestPermission::Write}}};
+    auto pinned = space.AcquireDataBatch(requests);
+    if (!pinned)
         return u32(ORBIS_KERNEL_ERROR_EFAULT);
-    std::memset(flags.Value().WritableBytes().data(), 0, 4);
-    std::memset(first.Value().WritableBytes().data(), 0, 4);
-    std::memset(second.Value().WritableBytes().data(), 0, 4);
+    for (auto& pin : pinned.Value())
+        std::memset(pin.WritableBytes().data(), 0, 4);
     return 0;
 }
 
@@ -51,7 +53,7 @@ inline u32 LoadInitializedSysmodule(GuestSysmodules& modules, GuestCpu::GuestAdd
         return u32(ORBIS_KERNEL_ERROR_EFAULT);
     std::optional<GuestCpu::PinnedSpan> output;
     if (args[4]) {
-        auto pin = space.AcquirePinnedSpan({GuestCpu::GuestAddress{args[4]}, 4}, true);
+        auto pin = space.AcquireDataSpan({GuestCpu::GuestAddress{args[4]}, 4}, true);
         if (!pin)
             return u32(ORBIS_KERNEL_ERROR_EFAULT);
         output = std::move(pin).Value();

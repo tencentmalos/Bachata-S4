@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+"""Deploy and control explicitly authored FEX guest packages (next Session install)."""
+import argparse, hashlib, json, re, shlex, subprocess, sys
+from pathlib import Path
+APP='com.shadps4.android'
+REL='files/guest-patches/active.json'
+ABS='/data/user/0/'+APP+'/'+REL
+
+def main():
+    p=argparse.ArgumentParser(description=__doc__)
+    p.add_argument('serial');p.add_argument('action',choices=['deploy','clear','status','enable','disable'])
+    p.add_argument('package',nargs='?',type=Path)
+    p.add_argument('--hook',help='Toggle only this exact semantic hook name; no code unload')
+    a=p.parse_args()
+    if a.hook and a.action not in ('enable','disable'):p.error('--hook needs enable or disable')
+    if (a.action=='deploy') != (a.package is not None):p.error('deploy requires a package; other commands take none')
+    def adb(*args, data=None):
+        return subprocess.run(['adb','-s',a.serial,*map(str,args)],input=data,stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE,check=True,timeout=40).stdout.decode()
+    def command(*args):
+        result=adb('shell','dumpsys','activity','service',APP+'/.service.FexSessionService','guest_patch',*args)
+        if (not re.search(r'^\s*package: \S+',result,re.M) or
+            re.search(r'status: (error|invalid_arguments|no_session|session_retired|disabled_at_startup)',result)):
+            raise ValueError(result)
+        return result
+    if a.action=='deploy':
+        data=a.package.read_bytes()
+        if len(data)>4*1024*1024:raise ValueError('package exceeds 4 MiB')
+        doc=json.loads(data)
+        if doc.get('schema')!='shadps4.guest-functions.v1' or doc.get('sdk_version')!=1:
+            raise ValueError('unsupported package; rebuild with tools/guest-functions/build.py')
+        adb('shell','run-as',APP,'mkdir','-p','files/guest-patches')
+        adb('shell','run-as',APP,'sh','-c',shlex.quote('cat > '+REL+'.tmp'),data=data)
+        actual=adb('shell','run-as',APP,'sha256sum',REL+'.tmp').split()[0]
+        expected=hashlib.sha256(data).hexdigest()
+        if actual!=expected:raise ValueError('device package SHA mismatch')
+        adb('shell','run-as',APP,'mv',REL+'.tmp',REL)
+        adb('shell','setprop','debug.shadps4.guest_patch',ABS)
+        print('DEPLOYED sha256='+expected+'; install on next Session; current Session is unchanged')
+    elif a.action=='clear':
+        adb('shell','setprop','debug.shadps4.guest_patch',"''")
+        print('CLEARED next-Session package; current Session retains its resident patch')
+    elif a.action=='status':print(command('status'),end='')
+    else:
+        status=command('status');ids=re.findall(r'^\s*context: ([0-9]+)\s*$',status,re.M)
+        if len(ids)!=1:raise ValueError('no unambiguous current patch context\n'+status)
+        print(command(a.action,ids[0],*([a.hook] if a.hook else [])),end='')
+    return 0
+if __name__=='__main__':
+    try:sys.exit(main())
+    except (OSError,ValueError,subprocess.SubprocessError) as e:
+        print('GUEST_PATCH_ERROR: '+str(e),file=sys.stderr);sys.exit(1)

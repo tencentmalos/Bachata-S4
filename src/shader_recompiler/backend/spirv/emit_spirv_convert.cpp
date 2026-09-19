@@ -40,11 +40,11 @@ Id EmitConvertS32F64(EmitContext& ctx, Id value) {
 }
 
 Id EmitConvertS64F32(EmitContext& ctx, Id value) {
-    return ctx.OpConvertFToS(ctx.U64, value);
+    return ctx.FloatToU64(value, true, false);
 }
 
 Id EmitConvertS64F64(EmitContext& ctx, Id value) {
-    return ctx.OpConvertFToS(ctx.U64, value);
+    return ctx.FloatToU64(value, true, true);
 }
 
 Id EmitConvertU16F32(EmitContext& ctx, Id value) {
@@ -64,19 +64,19 @@ Id EmitConvertU32F64(EmitContext& ctx, Id value) {
 }
 
 Id EmitConvertU64F32(EmitContext& ctx, Id value) {
-    return ctx.OpConvertFToU(ctx.U64, value);
+    return ctx.FloatToU64(value, false, false);
 }
 
 Id EmitConvertU64F64(EmitContext& ctx, Id value) {
-    return ctx.OpConvertFToU(ctx.U64, value);
+    return ctx.FloatToU64(value, false, true);
 }
 
 Id EmitConvertU64U32(EmitContext& ctx, Id value) {
-    return ctx.OpUConvert(ctx.U64, value);
+    return ctx.WidenU32(value);
 }
 
 Id EmitConvertU32U64(EmitContext& ctx, Id value) {
-    return ctx.OpUConvert(ctx.U32[1], value);
+    return ctx.NarrowU64(value);
 }
 
 Id EmitConvertF16F32(EmitContext& ctx, Id value) {
@@ -108,7 +108,7 @@ Id EmitConvertF32S32(EmitContext& ctx, Id value) {
 }
 
 Id EmitConvertF32S64(EmitContext& ctx, Id value) {
-    return ctx.OpConvertSToF(ctx.F32[1], value);
+    return ctx.U64ToFloat(value, true, false);
 }
 
 Id EmitConvertF32U8(EmitContext& ctx, Id value) {
@@ -124,7 +124,7 @@ Id EmitConvertF32U32(EmitContext& ctx, Id value) {
 }
 
 Id EmitConvertF32U64(EmitContext& ctx, Id value) {
-    return ctx.OpConvertUToF(ctx.F32[1], value);
+    return ctx.U64ToFloat(value, false, false);
 }
 
 Id EmitConvertF64S8(EmitContext& ctx, Id value) {
@@ -140,7 +140,7 @@ Id EmitConvertF64S32(EmitContext& ctx, Id value) {
 }
 
 Id EmitConvertF64S64(EmitContext& ctx, Id value) {
-    return ctx.OpConvertSToF(ctx.F64[1], value);
+    return ctx.U64ToFloat(value, true, true);
 }
 
 Id EmitConvertF64U8(EmitContext& ctx, Id value) {
@@ -156,7 +156,7 @@ Id EmitConvertF64U32(EmitContext& ctx, Id value) {
 }
 
 Id EmitConvertF64U64(EmitContext& ctx, Id value) {
-    return ctx.OpConvertUToF(ctx.F64[1], value);
+    return ctx.U64ToFloat(value, false, true);
 }
 
 Id EmitConvertU16U32(EmitContext& ctx, Id value) {

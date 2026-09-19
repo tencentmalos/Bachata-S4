@@ -1,0 +1,100 @@
+{
+  "architecture": "x86_64",
+  "abi": "x86_64-sysv",
+  "endianness": "little",
+  "pointer_bits": 64,
+  "identity": {
+    "emulator": "shadps4",
+    "title": "CUSA50828",
+    "module": "eboot.bin",
+    "module_sha256": "6122da7190de6b08d921b2c42c3ca9ed11dc4d11524f1139ff67aeceea5b204d"
+  },
+  "schema": "spatial.guest-profile.capture.v1",
+  "analysis": {
+    "module": "eboot.bin",
+    "sha256": "504fc22628a2a7c563e593aab298b9273e2a80eaf8814a095ffb6f464152da99",
+    "imagebase": 0
+  },
+  "process": {
+    "pid": 31258,
+    "session": "58020b2c40b685b48089328e1d746bad:2",
+    "context": 33
+  },
+  "trace": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/capture-v2/capture.prof",
+  "trace_sha256": "73d743640278ffbf87f78ebdb697cd28b97e9e8c7226532de53cba6bc282d26d",
+  "device": "9c2841a4",
+  "instrumentation": "automatic-probes",
+  "evidence": {
+    "session-before.txt": "dda6223a3c52ae098bad702856f5639dd36f953758299970a030e7355419e72c",
+    "session-after.txt": "3c492973a5604ff48fb0ff7cfdf03907c0b1d7456bbd255b08fb1157b369813b",
+    "tag-before.json": "8e3a3a134f4689884cc7ec7cb5ad569733c380b2af17bdd162bf0d6847fa4b64",
+    "tag-after.json": "1671276879aad5977f3c68393f2ca39b0edbe985626d6f3b3a489d1f3de8bc0e",
+    "patch-before.txt": "550b6f44a081847951d63da88a430da3b9799119128869d59410264f93b2b7dc",
+    "patch-after.txt": "b1e574656c4e39e3c717679fe09232ebbea7b41e7dcff6ae06aacb1a02297c8c"
+  },
+  "profile": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-profile/auto-tag.json",
+  "profile_sha256": "270c8a83e7d37a320cace14225fdd381a3a619b4a4397cfdf9f94a225667ce50",
+  "bindings": [
+    {
+      "counter_prefix": "GuestPatch.tmnt_frame_recompiled_v2.frame",
+      "offset": 648544,
+      "name": "frame",
+      "role": "frame"
+    },
+    {
+      "counter_prefix": "GuestPatch.tmnt_frame_recompiled_v2.begin",
+      "offset": 22306016,
+      "name": "begin",
+      "role": "phase"
+    },
+    {
+      "counter_prefix": "GuestPatch.tmnt_frame_recompiled_v2.submit",
+      "offset": 22306592,
+      "name": "submit",
+      "role": "phase"
+    },
+    {
+      "counter_prefix": "GuestPatch.tmnt_frame_recompiled_v2.jobs",
+      "offset": 22615408,
+      "name": "jobs",
+      "role": "phase"
+    },
+    {
+      "counter_prefix": "GuestPatch.tmnt_frame_recompiled_v2.fmod",
+      "offset": 22809376,
+      "name": "fmod",
+      "role": "phase"
+    },
+    {
+      "counter_prefix": "GuestPatch.tmnt_frame_recompiled_v2.write_label",
+      "offset": 176240,
+      "name": "write_label",
+      "role": "phase"
+    },
+    {
+      "counter_prefix": "GuestPatch.tmnt_frame_recompiled_v2.default_state",
+      "offset": 150624,
+      "name": "default_state",
+      "role": "phase"
+    },
+    {
+      "counter_prefix": "GuestPatch.tmnt_frame_recompiled_v2.submit_packets",
+      "offset": 103328,
+      "name": "submit_packets",
+      "role": "phase"
+    },
+    {
+      "counter_prefix": "GuestPatch.tmnt_frame_recompiled_v2.submit_label",
+      "offset": 103984,
+      "name": "submit_label",
+      "role": "phase"
+    },
+    {
+      "counter_prefix": "GuestPatch.tmnt_frame_recompiled_v2.frame_dispatch",
+      "offset": 22341264,
+      "name": "frame_dispatch",
+      "role": "phase"
+    }
+  ],
+  "compiled_guest_package_sha256": "882c3181b0b20eaa165fb337884e9335d88b699e75c37adcf502f3fb1a88eb02"
+}

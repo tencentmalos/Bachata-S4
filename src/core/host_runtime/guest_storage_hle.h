@@ -5,6 +5,11 @@
 #include "guest_storage.h"
 namespace Core::HostRuntime {
 enum class StorageOp {
+    SetupMemory,
+    GetMemory,
+    SetMemory,
+    SaveIcon,
+    Search,
     UnmountBackup,
     CheckBackup,
     RestoreBackup,
@@ -43,7 +48,13 @@ struct StorageEntry {
     bool save;
     bool posix{};
 };
-inline constexpr StorageEntry StorageEntries[]{{"j2AIqSqJP0w", StorageOp::GetDents, false},
+inline constexpr StorageEntry StorageEntries[]{
+    {"v7AAAMo0Lz4", StorageOp::SetupMemory, true},
+    {"7Bt5pBC-Aco", StorageOp::GetMemory, true},
+    {"h3YURzXGSVQ", StorageOp::SetMemory, true},
+    {"c88Yy54Mx0w", StorageOp::SaveIcon, true},
+    {"dyIhnXq-0SM", StorageOp::Search, true},
+{"j2AIqSqJP0w", StorageOp::GetDents, false},
                                                {"2G6i6hMIUUY", StorageOp::GetDents, false, true},
                                                {"taRWhTJFTgE", StorageOp::GetDirEntries, false},
                                                {"sfKygSjIbI8", StorageOp::GetDirEntries, false, true},

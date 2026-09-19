@@ -1,0 +1,15 @@
+{
+  "apk": {
+    "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk",
+    "sha256": "2412969b00148325867eec18e2e70634230a6666a6c8099a5eda50f13d922d2f"
+  },
+  "unstripped_host": {
+    "sha256": "189a1b29b2cf6548774ba37badbe625d14ead92f195ea831ae3c56179a845b18"
+  },
+  "guest_package_sha256": "562938ee08dc04889944550320325ea4d53e79cb2fe3745c4415e81288b1119a",
+  "guest_elf_sha256": "1342cea8d464ff6de82533d17bbea59520cc57294410bb19e0370977a767d701",
+  "apk_libraries": {
+    "lib/arm64-v8a/libshadps4_fex_session.so": "1a152e8eb29cba03ffa3b8527169f0a0758098c3a12a2cb8c10c8ee8d738dc3d",
+    "lib/arm64-v8a/libshadps4_host.so": "189a1b29b2cf6548774ba37badbe625d14ead92f195ea831ae3c56179a845b18"
+  }
+}

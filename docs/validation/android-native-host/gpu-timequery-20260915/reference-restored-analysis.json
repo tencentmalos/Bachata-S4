@@ -1,0 +1,163 @@
+{
+  "pid": 17372,
+  "events": 4307426,
+  "truncated": true,
+  "diagnostics": [
+    "unbalanced span end on tid 17483",
+    "unbalanced span end on tid 17426",
+    "unbalanced span end on tid 17485",
+    "unbalanced span end on tid 17482",
+    "unbalanced span end on tid 17508",
+    "unbalanced span end on tid 17568",
+    "unbalanced span end on tid 17510",
+    "unbalanced span end on tid 17510",
+    "unbalanced span end on tid 17479",
+    "unbalanced span end on tid 17479",
+    "unbalanced span end on tid 17447",
+    "unbalanced span end on tid 17445",
+    "unbalanced span end on tid 17445",
+    "unbalanced span end on tid 17445",
+    "unbalanced span end on tid 17445",
+    "unbalanced span end on tid 17445",
+    "unbalanced span end on tid 17479",
+    "unbalanced span end on tid 17479",
+    "1 unclosed spans on tid 17484",
+    "1 unclosed spans on tid 17509",
+    "1 unclosed spans on tid 17485",
+    "1 unclosed spans on tid 17483",
+    "1 unclosed spans on tid 17508",
+    "1 unclosed spans on tid 17568",
+    "1 unclosed spans on tid 17511",
+    "2 unclosed spans on tid 17510",
+    "1 unclosed spans on tid 17481",
+    "4 unclosed spans on tid 17479",
+    "1 unclosed spans on tid 17449",
+    "2 unclosed spans on tid 17445",
+    "1 unclosed spans on tid 17447",
+    "1 unclosed spans on tid 17527",
+    "1 unclosed spans on tid 17490",
+    "1 unclosed spans on tid 17486"
+  ],
+  "gpu_contexts": {
+    "Queue 0 / present+redraw (estimated clock)": 2392,
+    "Queue 0 / blank (estimated clock)": 1868,
+    "Queue 0 / guest+prepare (estimated clock)": 2408
+  },
+  "gpu_zones": {
+    "GPU.OverlayRedraw": {
+      "n": 935,
+      "mean_ms": 0.5950728941176471,
+      "p95_ms": 0.717708,
+      "max_ms": 0.879219
+    },
+    "GPU.Present": {
+      "n": 261,
+      "mean_ms": 0.5821925210727968,
+      "p95_ms": 0.623281,
+      "max_ms": 0.658542
+    },
+    "GPU.BlankFlip": {
+      "n": 934,
+      "mean_ms": 0.0005133169164882227,
+      "p95_ms": 0.000521,
+      "max_ms": 0.000573
+    },
+    "GPU.GuestCommands": {
+      "n": 317,
+      "mean_ms": 39.58908929022082,
+      "p95_ms": 68.969217,
+      "max_ms": 73.409373
+    },
+    "GPU.FSR": {
+      "n": 190,
+      "mean_ms": 0.0005167578947368421,
+      "p95_ms": 0.000573,
+      "max_ms": 0.000573
+    },
+    "GPU.PostProcess": {
+      "n": 190,
+      "mean_ms": 0.3930167315789474,
+      "p95_ms": 0.424479,
+      "max_ms": 0.438334
+    },
+    "GPU.HostPrepare": {
+      "n": 190,
+      "mean_ms": 0.3950898842105263,
+      "p95_ms": 0.426719,
+      "max_ms": 0.440573
+    },
+    "GPU.DrawBatch": {
+      "n": 317,
+      "mean_ms": 39.82723795583596,
+      "p95_ms": 69.399321,
+      "max_ms": 73.8338
+    }
+  },
+  "counters": {
+    "GPU.OverlayRedraw": {
+      "n": 936,
+      "mean_ms": 0.5950562136752137,
+      "p95_ms": 0.717708,
+      "max_ms": 0.879218
+    },
+    "GPU.DrawBatch": {
+      "n": 436,
+      "mean_ms": 39.768375970183484,
+      "p95_ms": 69.594685,
+      "max_ms": 73.8338
+    },
+    "GPU.GuestCommands": {
+      "n": 436,
+      "mean_ms": 39.530582676605505,
+      "p95_ms": 69.176092,
+      "max_ms": 73.409373
+    },
+    "GPU.HostPrepare": {
+      "n": 261,
+      "mean_ms": 0.3949886896551724,
+      "p95_ms": 0.427343,
+      "max_ms": 0.440572
+    },
+    "GPU.FSR": {
+      "n": 261,
+      "mean_ms": 0.0005152183908045977,
+      "p95_ms": 0.000572,
+      "max_ms": 0.000572
+    },
+    "GPU.PostProcess": {
+      "n": 261,
+      "mean_ms": 0.3929149463601533,
+      "p95_ms": 0.425104,
+      "max_ms": 0.438333
+    },
+    "GPU.BlankFlip": {
+      "n": 936,
+      "mean_ms": 0.0005124444444444445,
+      "p95_ms": 0.00052,
+      "max_ms": 0.000572
+    },
+    "GPU.Present": {
+      "n": 262,
+      "mean_ms": 0.5821497519083969,
+      "p95_ms": 0.623229,
+      "max_ms": 0.658541
+    },
+    "GPU.ClockAlignmentUncertaintyNs": {
+      "n": 3334,
+      "mean_ms": 8.340573,
+      "p95_ms": 8.340573,
+      "max_ms": 8.340573
+    },
+    "GPU.GuestFrame": {
+      "n": 260,
+      "mean_ms": 66.04530580384615,
+      "p95_ms": 71.347967,
+      "max_ms": 73.409946
+    }
+  },
+  "gpu_bad": [],
+  "gpu_open": 0,
+  "gpu_outside_cpu_range_1s": 0,
+  "chunks_ok": 428,
+  "chunks_skipped": 0
+}

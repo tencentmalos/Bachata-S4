@@ -22,8 +22,7 @@ int main() {
     auto space = std::move(made).Value();
     u64 base = space->ReservationBase().value;
     CHECK(space->Map({GuestAddress{base}, 0x4000}, GuestPermission::Read | GuestPermission::Write));
-    std::recursive_mutex vm;
-    GuestKernelSemaphore sem(*space, vm);
+    GuestKernelSemaphore sem(*space);
     auto put = [&](u64 a, const auto& v) {
         CHECK(space->Write(GuestAddress{a}, std::as_bytes(std::span{&v, 1})));
     };
@@ -112,7 +111,6 @@ int main() {
     });
     entered(priority_id, 1);
     {
-        std::lock_guard gate(vm);
         auto token = space->Quiesce(0);
         CHECK(token);
         if (token)
@@ -126,6 +124,29 @@ int main() {
     CHECK(first == u32(ORBIS_KERNEL_ERROR_EFAULT));
     CHECK(get.operator()<u32>(base + 8) == 0xdeadbeef);
     CHECK(call("R1Jvn8bSCW8", {priority_id}) == 0);
+    GuestKernelSemaphore foreground(*space);
+    foreground.AdmitForeground();
+    put(base + 0x200, std::array<char, 17>{'S', 'u', 's', 'p', 'e', 'n', 'd',
+                                            'S', 'e', 'm', 'a', 'p', 'h', 'o', 'r', 'e', 0});
+    auto foreground_call = [&](std::string_view n, std::array<u64, 6> a = {}) {
+        return foreground.Dispatch(n, a, 700);
+    };
+    CHECK(foreground_call("188x57JYp0g", {base + 0x300, base + 0x200, 1, 0, 1, 0}) == 0);
+    const u32 foreground_id = [&] {
+        u32 value{};
+        CHECK(space->Read(GuestAddress{base + 0x300}, std::as_writable_bytes(std::span{&value, 1})));
+        return value;
+    }();
+    CHECK(foreground_call("Zxa0VhQVTsk", {foreground_id, 1, 0}) == 0);
+    put(base + 0x240, std::array<char, 17>{'R', 'e', 's', 'u', 'm', 'e',
+                                            'S', 'e', 'm', 'a', 'p', 'h', 'o', 'r', 'e', 0});
+    CHECK(foreground_call("188x57JYp0g", {base + 0x300, base + 0x240, 1, 0, 1, 0}) == 0);
+    const u32 resume_id = [&] {
+        u32 value{};
+        CHECK(space->Read(GuestAddress{base + 0x300}, std::as_writable_bytes(std::span{&value, 1})));
+        return value;
+    }();
+    CHECK(foreground_call("Zxa0VhQVTsk", {resume_id, 1, 0}) == 0);
     std::printf("GUEST_KERNEL_SEMAPHORE checks=%u failures=%u\n", checks, failures);
     return failures ? 1 : 0;
 }

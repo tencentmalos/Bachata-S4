@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <cstddef>
+
 #include "common/types.h"
 #include "core/libraries/system/userservice.h"
 
@@ -11,6 +13,7 @@ class SymbolsResolver;
 }
 
 namespace Libraries::Hmd {
+
 
 enum OrbisHmdDeviceStatus : u32 {
     ORBIS_HMD_DEVICE_STATUS_READY,
@@ -66,8 +69,80 @@ struct OrbisHmdEyeOffset {
     u8 reserve[20];
 };
 
-// Reprojection
-s32 PS4_SYSV_ABI sceHmdReprojectionStartMultilayer();
+static_assert(sizeof(OrbisHmdFieldOfView) == 0x10);
+static_assert(sizeof(OrbisHmdDeviceInfo) == 0x0c);
+static_assert(sizeof(OrbisHmdDeviceInformation) == 0x20);
+static_assert(sizeof(OrbisHmdEyeOffset) == 0x20);
+
+// Firmware 11.00 validates this object in sceHmdReprojectionInitialize.
+// The first two qwords are consumed as handles/buffer roots by the firmware;
+// their pointee types are not recoverable from the public export.  Firmware
+// validates the dwords at 0x20 and 0x24 as selectors and requires 0x28, 0x2c
+// and 0x30 to be zero.  Beat Saber prepares exactly 0x38 bytes before the
+// call.  Keep the unknown fields explicit instead of passing a guessed native
+// pointer or a zero-argument scalar veneer.
+struct OrbisHmdReprojectionInitializeParam {
+    u64 opaque0;
+    u64 opaque8;
+    u64 field10;
+    u64 field18;
+    u32 selector20;
+    u32 selector24;
+    u32 reserved28;
+    u32 reserved2c;
+    u32 reserved30;
+    u32 reserved34;
+};
+
+static_assert(sizeof(OrbisHmdInitializeParam) == 0x10);
+static_assert(sizeof(OrbisHmdOpenParam) == 0x20);
+static_assert(sizeof(OrbisHmdReprojectionInitializeParam) == 0x38);
+static_assert(offsetof(OrbisHmdReprojectionInitializeParam, selector20) == 0x20);
+static_assert(offsetof(OrbisHmdReprojectionInitializeParam, reserved30) == 0x30);
+
+// Partial wire layouts from firmware 11.00 +0x17950/+0x17bd0. All address
+// fields remain numeric guest addresses, never dereferenceable host pointers.
+// Copying these records alone does NOT validate their nested GPU resources.
+struct OrbisHmdReprojectionLayer {
+    u64 roots00[4];
+    u64 root20;
+    u8 opaque28[0x40];
+    float field68;
+    float field6c;
+    u64 optional70;
+    u32 kind78;
+    u32 reserved7c[9];
+    u64 reserved_a0;
+};
+
+struct OrbisHmdReprojectionSubmission {
+    u64 root00;
+    u32 selector08;
+    u32 opaque0c;
+    u64 opaque10;
+    u32 selector18;
+    u32 opaque1c;
+    u64 flags20;
+    u64 reserved28[5];
+};
+
+static_assert(sizeof(OrbisHmdReprojectionLayer) == 0xa8);
+static_assert(offsetof(OrbisHmdReprojectionLayer, root20) == 0x20);
+static_assert(offsetof(OrbisHmdReprojectionLayer, optional70) == 0x70);
+static_assert(offsetof(OrbisHmdReprojectionLayer, kind78) == 0x78);
+static_assert(offsetof(OrbisHmdReprojectionLayer, reserved7c) == 0x7c);
+static_assert(offsetof(OrbisHmdReprojectionLayer, reserved_a0) == 0xa0);
+static_assert(sizeof(OrbisHmdReprojectionSubmission) == 0x50);
+static_assert(offsetof(OrbisHmdReprojectionSubmission, selector18) == 0x18);
+static_assert(offsetof(OrbisHmdReprojectionSubmission, flags20) == 0x20);
+
+// Reprojection.  These are deliberately raw guest-facing records until the
+// layer/submit layouts are fully recovered; the HLE must not reinterpret them
+// as host pointers.
+s32 PS4_SYSV_ABI sceHmdReprojectionStartMultilayer(const void* layers, u32 layer_count,
+                                               const void* submission,
+                                               const void* shared_layer_data,
+                                               u64 opaque_arg4, const void* reserved);
 s32 PS4_SYSV_ABI sceHmdReprojectionAddDisplayBuffer();
 s32 PS4_SYSV_ABI sceHmdReprojectionClearUserEventEnd();
 s32 PS4_SYSV_ABI sceHmdReprojectionClearUserEventStart();
@@ -75,18 +150,20 @@ s32 PS4_SYSV_ABI sceHmdReprojectionDebugGetLastInfo();
 s32 PS4_SYSV_ABI sceHmdReprojectionDebugGetLastInfoMultilayer();
 s32 PS4_SYSV_ABI sceHmdReprojectionFinalize();
 s32 PS4_SYSV_ABI sceHmdReprojectionFinalizeCapture();
-s32 PS4_SYSV_ABI sceHmdReprojectionInitialize();
+s32 PS4_SYSV_ABI sceHmdReprojectionInitialize(
+    const OrbisHmdReprojectionInitializeParam* param, u32 mode, const void* reserved);
 s32 PS4_SYSV_ABI sceHmdReprojectionInitializeCapture();
 s32 PS4_SYSV_ABI sceHmdReprojectionQueryGarlicBuffAlign();
 s32 PS4_SYSV_ABI sceHmdReprojectionQueryGarlicBuffSize();
 s32 PS4_SYSV_ABI sceHmdReprojectionQueryOnionBuffAlign();
 s32 PS4_SYSV_ABI sceHmdReprojectionQueryOnionBuffSize();
 s32 PS4_SYSV_ABI sceHmdReprojectionSetCallback();
-s32 PS4_SYSV_ABI sceHmdReprojectionSetDisplayBuffers();
-s32 PS4_SYSV_ABI sceHmdReprojectionSetOutputMinColor();
+s32 PS4_SYSV_ABI sceHmdReprojectionSetDisplayBuffers(s32 video_handle, s32 buffer_index0,
+                                                     s32 buffer_index1, const void* reserved);
+s32 PS4_SYSV_ABI sceHmdReprojectionSetOutputMinColor(float red, float green, float blue);
 s32 PS4_SYSV_ABI sceHmdReprojectionSetUserEventEnd();
 s32 PS4_SYSV_ABI sceHmdReprojectionSetUserEventStart();
-s32 PS4_SYSV_ABI sceHmdReprojectionStart();
+s32 PS4_SYSV_ABI sceHmdReprojectionStart(const void* start_param);
 s32 PS4_SYSV_ABI sceHmdReprojectionStart2dVr();
 s32 PS4_SYSV_ABI sceHmdReprojectionStartCapture();
 s32 PS4_SYSV_ABI sceHmdReprojectionStartLiveCapture();

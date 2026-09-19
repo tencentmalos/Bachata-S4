@@ -35,6 +35,11 @@ void Shutdown();
 
 void Flush();
 
+// Writes a diagnostic record to the dedicated guest-patch sink. This is kept
+// outside ALL_LOGGERS so guest instrumentation cannot change the user's main
+// log filters or duplicate records into the console.
+void WriteGuestPatch(std::string_view message) noexcept;
+
 void Terminate();
 
 void UpdateSinks();

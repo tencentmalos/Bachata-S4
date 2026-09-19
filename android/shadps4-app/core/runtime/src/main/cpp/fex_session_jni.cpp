@@ -33,6 +33,7 @@
 #include <unistd.h>
 
 #include <android/log.h>
+#include <sys/system_properties.h>
 
 #include "core/diagnostics/diagnostics_service.h"
 #include "core/host_runtime/guest_save_dialog.h"
@@ -406,9 +407,17 @@ Java_com_shadps4_android_runtime_session_NativeFexSession_nativeStartRenderedExe
       return std::make_shared<Frontend::AndroidWindow>(native.get(),
                                                        generation);
     };
+    char driver_property[PROP_VALUE_MAX]{};
+    __system_property_get("debug.shadps4.vulkan_driver", driver_property);
+    const std::string driver_kind = driver_property;
+    if (!driver_kind.empty() && driver_kind != "turnip" && driver_kind != "system")
+      throw std::invalid_argument("Unknown debug.shadps4.vulkan_driver (turnip/system)");
     params.load_graphics_driver = [hooks = copy(hook_directory),
-                                   files = copy(driver_directory)] {
-      return Vulkan::LoadAndroidTurnip(hooks, files);
+                                   files = copy(driver_directory),
+                                   system = driver_kind == "system"] {
+      auto driver = system ? Vulkan::LoadAndroidSystemDriver() : Vulkan::LoadAndroidTurnip(hooks, files);
+      __android_log_print(ANDROID_LOG_INFO, kTag, "Selected Vulkan driver: %s", driver->identity.c_str());
+      return driver;
     };
     return static_cast<jlong>(Session().Start(params));
   } catch (const std::exception &e) {

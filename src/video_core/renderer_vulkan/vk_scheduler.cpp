@@ -11,10 +11,8 @@
 
 namespace Vulkan {
 
-std::mutex Scheduler::submit_mutex;
-
-Scheduler::Scheduler(const Instance& instance)
-    : instance{instance}, master_semaphore{instance}, command_pool{instance, &master_semaphore} {
+Scheduler::Scheduler(const Instance& instance, GpuProfiler::Stage stage)
+    : instance{instance}, master_semaphore{instance}, command_pool{instance, &master_semaphore}, gpu_profiler{instance, stage} {
 #if TRACY_GPU_ENABLED
     profiler_scope = reinterpret_cast<tracy::VkCtxScope*>(std::malloc(sizeof(tracy::VkCtxScope)));
 #endif
@@ -43,6 +41,12 @@ Scheduler::Scheduler(const Instance& instance)
 }
 
 Scheduler::~Scheduler() {
+    try { WaitSubmitted(); }
+    catch (const std::exception& e) {
+        // The worker has discarded unexecuted jobs before publishing failure.
+        // Never throw from teardown; the owner already observes the same error.
+        LOG_ERROR(Render_Vulkan, "Submission worker teardown: {}", e.what());
+    }
     priority_pending_ops_thread.request_stop();
     priority_pending_ops_cv.notify_all();
     if (priority_pending_ops_thread.joinable()) priority_pending_ops_thread.join();
@@ -116,6 +120,8 @@ void Scheduler::BeginRendering(const RenderState& new_state) {
         .pStencilAttachment = db.has_stencil ? &stencil_attachment : nullptr,
     };
 
+    if (Common::Profiler::GpuTimingDetailed())
+        gpu_render_zone = gpu_profiler.Begin(current_cmdbuf, GpuProfiler::Stage::RenderPass);
     current_cmdbuf.beginRendering(rendering_info);
 }
 
@@ -125,10 +131,13 @@ void Scheduler::EndRendering() {
     }
     is_rendering = false;
     current_cmdbuf.endRendering();
+    gpu_profiler.End(current_cmdbuf, gpu_render_zone);
+    gpu_render_zone = GpuProfiler::Invalid;
 }
 
 void Scheduler::Flush(SubmitInfo& info) {
-    // When flushing, we only send data to the driver; no waiting is necessary.
+    // Android transfers an ended command buffer to a bounded device FIFO. Only
+    // explicit GPU/resource waits and queue capacity cause producer backpressure.
     SubmitExecution(info);
 }
 
@@ -143,6 +152,15 @@ void Scheduler::Finish() {
     SubmitInfo info{};
     SubmitExecution(info);
     Wait(presubmit_tick);
+    WaitSubmitted();
+    gpu_profiler.Collect(master_semaphore.KnownGpuTick());
+}
+
+void Scheduler::WaitSubmitted() {
+    if (auto* worker = instance.Submissions()) {
+        Common::Profiler::Scope scope{"Vulkan.WaitSubmitted"};
+        worker->Wait(last_submission);
+    }
 }
 
 void Scheduler::Wait(u64 tick) {
@@ -172,6 +190,20 @@ void Scheduler::PopPendingOperations() {
     }
 }
 
+void Scheduler::BeginMarker(std::string name) {
+    if (!VULKAN_HPP_DEFAULT_DISPATCHER.vkCmdBeginDebugUtilsLabelEXT) return;
+    marker_stack.push_back(std::move(name));
+    current_cmdbuf.beginDebugUtilsLabelEXT(vk::DebugUtilsLabelEXT{
+        .pLabelName = marker_stack.back().c_str(),
+    });
+}
+
+void Scheduler::EndMarker() {
+    if (marker_stack.empty()) return;
+    current_cmdbuf.endDebugUtilsLabelEXT();
+    marker_stack.pop_back();
+}
+
 void Scheduler::AllocateWorkerCommandBuffers() {
     const vk::CommandBufferBeginInfo begin_info = {
         .flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit,
@@ -179,6 +211,12 @@ void Scheduler::AllocateWorkerCommandBuffers() {
 
     current_cmdbuf = command_pool.Commit();
     Check(current_cmdbuf.begin(begin_info));
+    gpu_profiler.BeginBatch(current_cmdbuf, master_semaphore.KnownGpuTick());
+    for (const auto& label : marker_stack) {
+        current_cmdbuf.beginDebugUtilsLabelEXT(vk::DebugUtilsLabelEXT{
+            .pLabelName = label.c_str(),
+        });
+    }
 
     // Invalidate dynamic state so it gets applied to the new command buffer.
     dynamic_state.Invalidate();
@@ -194,7 +232,15 @@ void Scheduler::AllocateWorkerCommandBuffers() {
 }
 
 void Scheduler::SubmitExecution(SubmitInfo& info) {
+    Common::Profiler::Scope execution_scope{"Vulkan.SubmitExecution"};
     const auto generation = instance.DiagnosticGeneration();
+    instance.CheckSubmissionHealth();
+    if (instance.Submissions() && CurrentTick() > 8) {
+        // Also bound work already accepted by Vulkan, not just the host FIFO.
+        // Tick reservation alone must never make a command buffer reusable.
+        Common::Profiler::Scope scope{"Vulkan.InflightBudget"};
+        master_semaphore.Wait(CurrentTick() - 8);
+    }
     const u64 signal_value = master_semaphore.NextTick();
 
 #if TRACY_GPU_ENABLED
@@ -205,60 +251,102 @@ void Scheduler::SubmitExecution(SubmitInfo& info) {
     }
 #endif
 
-    EndRendering();
-    Check(current_cmdbuf.end());
+    {
+        Common::Profiler::Scope scope{"Vulkan.EndCommandBuffer"};
+        EndRendering();
+        gpu_profiler.EndBatch(current_cmdbuf);
+        for (size_t i = 0; i < marker_stack.size(); ++i)
+            current_cmdbuf.endDebugUtilsLabelEXT();
+        Check(current_cmdbuf.end());
+    }
 
     const vk::Semaphore timeline = master_semaphore.Handle();
     info.AddSignal(timeline, signal_value);
 
-    const vk::TimelineSemaphoreSubmitInfo timeline_si = {
-        .waitSemaphoreValueCount = info.num_wait_semas,
-        .pWaitSemaphoreValues = info.wait_ticks.data(),
-        .signalSemaphoreValueCount = info.num_signal_semas,
-        .pSignalSemaphoreValues = info.signal_ticks.data(),
-    };
-
-    const vk::SubmitInfo submit_info = {
-        .pNext = &timeline_si,
-        .waitSemaphoreCount = info.num_wait_semas,
-        .pWaitSemaphores = info.wait_semas.data(),
-        .pWaitDstStageMask = info.wait_stages.data(),
-        .commandBufferCount = 1U,
-        .pCommandBuffers = &current_cmdbuf,
-        .signalSemaphoreCount = info.num_signal_semas,
-        .pSignalSemaphores = info.signal_semas.data(),
-    };
-
-    ImGui::Core::TextureManager::Submit();
-    vk::Result submit_result;
     {
-        std::unique_lock lock{submit_mutex, std::defer_lock};
+        Common::Profiler::Scope scope{"Vulkan.ImGuiUploads"};
+        ImGui::Core::TextureManager::Submit();
+    }
+    // No pointers to the caller's SubmitInfo, current_cmdbuf, or stack arrays
+    // escape. The scheduler owns the command pool and drains before destruction.
+    auto submit = [instance_ptr = &instance, master = &master_semaphore, generation,
+                   signal_value, buffer = current_cmdbuf, packet = info]
+                  (SubmissionReceipt& receipt) {
+        Common::Profiler::Scope execution{"Vulkan.WorkerSubmit"};
+        const vk::TimelineSemaphoreSubmitInfo timeline_si{
+            .waitSemaphoreValueCount = packet.num_wait_semas,
+            .pWaitSemaphoreValues = packet.wait_ticks.data(),
+            .signalSemaphoreValueCount = packet.num_signal_semas,
+            .pSignalSemaphoreValues = packet.signal_ticks.data(),
+        };
+        const vk::SubmitInfo submit_info{
+            .pNext = &timeline_si,
+            .waitSemaphoreCount = packet.num_wait_semas,
+            .pWaitSemaphores = packet.wait_semas.data(),
+            .pWaitDstStageMask = packet.wait_stages.data(),
+            .commandBufferCount = 1,
+            .pCommandBuffers = &buffer,
+            .signalSemaphoreCount = packet.num_signal_semas,
+            .pSignalSemaphores = packet.signal_semas.data(),
+        };
+        vk::Result result;
         {
-            Core::Diagnostics::Handoff::Scope scope{"Vulkan.SubmitLock", generation,
-                master_semaphore.DiagnosticId(), signal_value, true};
-            lock.lock();
+            std::unique_lock lock{instance_ptr->QueueMutex(), std::defer_lock};
+            {
+                Core::Diagnostics::Handoff::Scope scope{"Vulkan.SubmitLock", generation,
+                    master->DiagnosticId(), signal_value, true};
+                lock.lock();
+            }
+            Core::Diagnostics::Handoff::Scope scope{"Vulkan.Submit", generation,
+                master->DiagnosticId(), signal_value};
+            receipt.started_ns = Core::Diagnostics::DiagnosticNowNs();
+            result = instance_ptr->GetGraphicsQueue().submit(submit_info, packet.fence);
+            SHAD_HANDOFF(generation, "vk_submit", master->DiagnosticId(), signal_value,
+                         static_cast<u64>(result));
         }
-        Core::Diagnostics::Handoff::Scope scope{"Vulkan.Submit", generation,
-            master_semaphore.DiagnosticId(), signal_value};
-        submit_result = instance.GetGraphicsQueue().submit(submit_info, info.fence);
-        SHAD_HANDOFF(generation, "vk_submit", master_semaphore.DiagnosticId(), signal_value,
-                     static_cast<u64>(submit_result));
-    } // Queue external synchronization does not include pool waits or callbacks.
-    Check(submit_result);
-    if (submit_result == vk::Result::eSuccess) {
-        if (const auto& diag = instance.Diagnostics()) {
+        // The worker's poison path must see real driver failures as well as
+        // injected exceptions; a process-wide assertion bypasses its waiters.
+        if (result != vk::Result::eSuccess)
+            throw std::runtime_error("vkQueueSubmit failed: " + vk::to_string(result));
+        master->Submitted(signal_value);
+        if (const auto& diag = instance_ptr->Diagnostics()) {
             diag->MarkAvailable(Core::Diagnostics::AdvanceSignal::QueueSubmit, true);
             diag->Advance(Core::Diagnostics::AdvanceSignal::QueueSubmit,
                           Core::Diagnostics::DiagnosticNowNs());
         }
+    };
+    if (auto* worker = instance.Submissions()) {
+        Common::Profiler::Scope scope{"Vulkan.EnqueueSubmission"};
+        auto receipt = worker->Enqueue(std::move(submit));
+        last_submission = receipt->serial;
+        SHAD_HANDOFF(generation, "submit_accepted", master_semaphore.DiagnosticId(),
+                     signal_value, last_submission);
+        gpu_profiler.Queued(signal_value, std::move(receipt));
+    } else {
+        SubmissionReceipt receipt;
+        gpu_profiler.Submitting();
+        submit(receipt);
+        gpu_profiler.Submitted(signal_value);
     }
 
-    instance.GpuReshapeAdapter().PublishStatus();
-    master_semaphore.Refresh();
-    AllocateWorkerCommandBuffers();
+    {
+        Common::Profiler::Scope scope{"Vulkan.ReshapeStatus"};
+        instance.GpuReshapeAdapter().PublishStatus();
+    }
+    {
+        Common::Profiler::Scope scope{"Vulkan.RefreshTimeline"};
+        master_semaphore.Refresh();
+    }
+    {
+        Common::Profiler::Scope scope{"Vulkan.NextCommandBuffer"};
+        AllocateWorkerCommandBuffers();
+    }
 
     // Apply pending operations
-    PopPendingOperations();
+    {
+        Common::Profiler::Scope scope{"Vulkan.RetireOperations"};
+        PopPendingOperations();
+    }
 }
 
 void Scheduler::PriorityPendingOpsThread(std::stop_token stoken) {

@@ -63,6 +63,8 @@ public:
     }
 
     const auto& Diagnostics() const { return instance.Diagnostics(); }
+    void CheckSubmissionHealth() const { instance.CheckSubmissionHealth(); }
+    void DrainSubmissions() const { instance.DrainSubmissions(); }
     u64 CaptureGeneration() const { return capture_binding.Generation(); }
 
     HostPasses::PostProcessingPass::Settings& GetPPSettingsRef() {
@@ -109,8 +111,10 @@ public:
 
     bool IsVideoOutSurface(const AmdGpu::ColorBuffer& color_buffer) const;
 
+    Frame* PrepareVrFrame(const std::array<AmdGpu::Image, 4>& eyes, u32 image_count,
+                          std::function<void(bool)> complete);
     Frame* PrepareFrame(const Libraries::VideoOut::BufferAttributeGroup& attribute,
-                        VAddr cpu_address);
+                        VAddr cpu_address, u64 diagnostic_id = 0);
 
     Frame* PrepareBlankFrame(bool present_thread);
 

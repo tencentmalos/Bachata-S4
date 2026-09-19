@@ -7,6 +7,14 @@ using namespace Core::HostRuntime;
 using namespace Core::GuestCpu;
 using namespace std::chrono_literals;
 static unsigned checks{}, failures{};
+static std::array<GuestMutexDomain::CondTraceEvent, 128> trace_events{};
+static size_t trace_count{};
+static std::mutex trace_guard;
+static void Observe(const GuestMutexDomain::CondTraceEvent& event) noexcept {
+    std::lock_guard lock(trace_guard);
+    if (trace_count < trace_events.size()) trace_events[trace_count] = event;
+    ++trace_count;
+}
 #define CHECK(...)                                                                                 \
     do {                                                                                           \
         ++checks;                                                                                  \
@@ -15,7 +23,7 @@ static unsigned checks{}, failures{};
             std::printf("FAIL line %d: %s\n", __LINE__, #__VA_ARGS__);                             \
         }                                                                                          \
     } while (0)
-int main() {
+int main(int argc, char**) {
     AddressSpaceConfig config{};
     config.reservation_size = 16 << 20;
     auto made = GuestAddressSpace::Create(config);
@@ -31,6 +39,7 @@ int main() {
         next += 64;
         return value;
     });
+    if (argc > 1) domain.SetCondObserver(Observe);
     auto read = [&]<class T>(u64 address) {
         T value{};
         CHECK(space->Read(GuestAddress{address}, std::as_writable_bytes(std::span{&value, 1})));
@@ -119,6 +128,17 @@ int main() {
     CHECK(domain.CondAttribute(attr, 0, Op::Destroy) == 0);
     CHECK(domain.CondAttribute(attr, out, Op::GetClock) == POSIX_EINVAL);
     CHECK(domain.CondAttribute(attr, 0, Op::Destroy) == POSIX_EINVAL);
+    if (argc > 1) {
+        CHECK(trace_count > 0 && trace_count <= trace_events.size());
+        std::array<size_t, 4> phases{};
+        for (size_t i = 0; i < std::min(trace_count, trace_events.size()); ++i) {
+            const auto& e = trace_events[i];
+            CHECK(e.condition != 0 && e.mutex != 0 && e.owner != 0);
+            ++phases[static_cast<size_t>(e.kind)];
+        }
+        CHECK(phases[0] == phases[2] && phases[2] == phases[3]);
+        CHECK(phases[1] > 0 && phases[1] <= phases[0]);
+    } else CHECK(trace_count == 0);
     std::printf("GUEST_CONDITION checks=%u failures=%u\n", checks, failures);
     return failures ? 1 : 0;
 }

@@ -8,6 +8,10 @@
 #include "common/assert.h"
 #include "common/debug.h"
 #include "common/types.h"
+#include "common/thread.h"
+#ifdef __ANDROID__
+#include <sys/system_properties.h>
+#endif
 #include "frontend/window.h"
 #include "imgui/renderer/imgui_core.h"
 #include "video_core/renderer_vulkan/liverpool_to_vk.h"
@@ -191,9 +195,22 @@ Instance::Instance(Frontend::Window& window, s32 physical_device_index,
     CollectPhysicalMemoryInfo();
     CollectImageFormatInfo();
     CollectToolingInfo();
+#ifdef __ANDROID__
+    char async_mode[PROP_VALUE_MAX]{};
+    __system_property_get("debug.shadps4.async_submit", async_mode);
+    if (std::string_view(async_mode) != "0") {
+        submissions = std::make_unique<SubmissionWorker>(16, [] {
+            Common::SetCurrentThreadName("shadPS4:VkSubmit");
+        });
+    }
+    LOG_INFO(Render_Vulkan, "Vulkan submission worker: {} (capacity=16, GPU budget=8/scheduler)",
+             submissions ? "enabled" : "synchronous diagnostic override");
+#endif
 }
 
 Instance::~Instance() {
+    // Scheduler owners have drained before allocator, GUI and driver teardown.
+    submissions.reset();
     if (device)
         ImGui::Core::Shutdown(GetDevice());
     if (allocator)
@@ -239,8 +256,8 @@ bool Instance::CreateDevice() {
                           vk::PhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR,
                           vk::PhysicalDeviceImage2DViewOf3DFeaturesEXT>();
     features = feature_chain.get().features;
-    if (driver && !features.shaderInt64)
-        throw std::runtime_error("Selected Turnip device lacks required shaderInt64");
+    LOG_INFO(Render_Vulkan, "Shader Int64 path: {}",
+             features.shaderInt64 ? "native" : "u32 pair lowering (including BDA)");
 
     const vk::StructureChain properties_chain = physical_device.getProperties2<
         vk::PhysicalDeviceProperties2, vk::PhysicalDeviceVulkan11Properties,
@@ -381,7 +398,12 @@ bool Instance::CreateDevice() {
     image_view_min_lod = add_extension(VK_EXT_IMAGE_VIEW_MIN_LOD_EXTENSION_NAME);
     supports_memory_budget = add_extension(VK_EXT_MEMORY_BUDGET_EXTENSION_NAME);
     const bool calibrated_timestamps =
+#if defined(SHADPS4_PROFILER_RING)
+        add_extension(VK_EXT_CALIBRATED_TIMESTAMPS_EXTENSION_NAME);
+#else
         TRACY_GPU_ENABLED ? add_extension(VK_EXT_CALIBRATED_TIMESTAMPS_EXTENSION_NAME) : false;
+#endif
+    calibrated_timestamps_enabled = calibrated_timestamps;
 
     const auto family_properties = physical_device.getQueueFamilyProperties();
     if (family_properties.empty()) {
@@ -622,7 +644,7 @@ bool Instance::CreateDevice() {
     graphics_queue = device->getQueue(queue_family_index, 0);
     present_queue = device->getQueue(queue_family_index, 0);
 
-    if (calibrated_timestamps) {
+    if (TRACY_GPU_ENABLED && calibrated_timestamps) {
         const auto [time_domains_result, time_domains] =
             physical_device.getCalibrateableTimeDomainsEXT();
         if (time_domains_result == vk::Result::eSuccess) {

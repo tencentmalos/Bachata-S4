@@ -363,10 +363,7 @@ fun LibraryScreen(
         if (id == "__import_card__") {
             requestImport()
         } else {
-            scope.launch {
-                runCatching { dependencies.gameRepository().updateLastLaunched(id) }
-                onLaunch(id)
-            }
+            onLaunch(id)
         }
     }
     DisposableEffect(viewModel) {
@@ -378,7 +375,6 @@ fun LibraryScreen(
             if (id == "__import_card__") {
                 requestImport()
             } else {
-                runCatching { dependencies.gameRepository().updateLastLaunched(id) }
                 onLaunch(id)
             }
         }

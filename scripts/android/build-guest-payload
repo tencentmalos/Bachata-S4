@@ -1,0 +1,133 @@
+#!/usr/bin/env python3
+"""Compile a bounded, freestanding C/C++ x86-64 payload for rebased FEX execution.
+
+This is not an Android x86 application: no bionic, host C++ runtime, CRT, TLS,
+constructors or writable globals. State and guest HLE veneer addresses are args.
+"""
+import argparse
+import hashlib
+import json
+from pathlib import Path
+import struct
+import subprocess
+
+ROOT = Path(__file__).resolve().parents[2]
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+def elf(path):
+    data = path.read_bytes()
+    if data[:6] != b"\x7fELF\x02\x01":
+        raise ValueError(f"{path}: expected ELF64 little endian")
+    h = struct.unpack_from("<16sHHIQQQIHHHHHH", data)
+    if h[2] != 62:
+        raise ValueError(f"{path}: not x86-64")
+    sections = [struct.unpack_from("<IIQQQQIIQQ", data, h[6] + i*h[11])
+                for i in range(h[12])]
+    strings = sections[h[13]]
+    table = data[strings[4]:strings[4]+strings[5]]
+    names = [table[s[0]:].split(b"\0", 1)[0].decode() for s in sections]
+    return data, h, sections, names
+
+def validate_object(path):
+    data, _, sections, names = elf(path)
+    for section, name in zip(sections, names):
+        # Relocations in DWARF do not affect runtime rebasing.
+        if section[1] not in (4, 9) or not (sections[section[7]][2] & 2):
+            continue
+        if section[1] != 4 or section[9] != 24:
+            raise ValueError(f"unsupported runtime relocation format: {path}:{name}")
+        for pos in range(section[4], section[4]+section[5], 24):
+            _, info, _ = struct.unpack_from("<QQq", data, pos)
+            if (info & 0xffffffff) not in (2, 4): # PC32/PLT32, resolved locally by ld
+                raise ValueError(f"non-PC-relative runtime relocation: {path}:{name}: {info & 0xffffffff}")
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("--clang", type=Path, required=True)
+    p.add_argument("--source", type=Path, action="append", required=True)
+    p.add_argument("--output", type=Path, required=True)
+    args = p.parse_args()
+    compiler = args.clang.resolve()
+    linker = compiler.parent / "ld.lld"
+    objdump = compiler.parent / "llvm-objdump"
+    out = args.output.resolve()
+    out.mkdir(parents=True, exist_ok=True)
+    # A rejected rebuild must not leave a prior PASS header/manifest consumable.
+    for name in ("guest_payload.h", "manifest.json"):
+        (out / name).unlink(missing_ok=True)
+    commands = []
+    def run(command):
+        command = [str(a) for a in command]
+        commands.append(command)
+        return subprocess.check_output(command, text=True, stderr=subprocess.STDOUT)
+    objects = []
+    for index, source in enumerate(args.source):
+        source = source.resolve()
+        if source.suffix not in (".c", ".cpp", ".cc"):
+            raise ValueError("only C/C++ translation units are supported")
+        obj = out / f"{index}-{source.stem}.o"
+        flags = ["--target=x86_64-none-elf", "-O2", "-gline-tables-only", "-ffreestanding",
+                 "-fPIE", "-fvisibility=hidden", "-fno-builtin", "-fno-stack-protector",
+                 "-mno-red-zone", "-fno-unwind-tables", "-fno-asynchronous-unwind-tables",
+                 "-ffunction-sections", "-fdata-sections", "-nostdinc", "-Wall", "-Wextra", "-Werror"]
+        if source.suffix != ".c":
+            flags += ["-std=c++20", "-fno-exceptions", "-fno-rtti", "-fno-threadsafe-statics"]
+        else:
+            flags += ["-std=c11"]
+        run([compiler, *flags, "-c", source, "-o", obj])
+        validate_object(obj)
+        objects.append(obj)
+    payload = out / "guest_payload.elf"
+    script = ROOT / "cmake/guest-code/payload.ld"
+    run([linker, "-static", "--no-undefined", "--fatal-warnings", "-T", script,
+         "-o", payload, *objects])
+    data, h, sections, names = elf(payload)
+    for s, name in zip(sections, names):
+        if s[2] & 2 and s[5] and (s[2] & (1 | 0x400) or s[1] in (4, 9)):
+            raise ValueError(f"unsupported writable/TLS/relocation section: {name}")
+        if name.startswith((".init", ".fini", ".ctors", ".dtors")) and s[5]:
+            raise ValueError(f"unsupported initialization section: {name}")
+    loads = []
+    for i in range(h[10]):
+        ph = struct.unpack_from("<IIQQQQQQ", data, h[5]+i*h[9])
+        if ph[0] == 1:
+            loads.append(ph)
+        elif ph[0] in (2, 3, 7):
+            raise ValueError("dynamic loader/TLS payload is outside this stage")
+    if len(loads) != 1:
+        raise ValueError("expected one RX load segment")
+    _, flags, offset, va, _, filesz, memsz, _ = loads[0]
+    if flags != 5 or filesz != memsz or not 0 < filesz <= 1 << 20 or not va <= h[4] < va+filesz:
+        raise ValueError("invalid bounded RX image/entry")
+    blob = data[offset:offset+filesz]
+    if len(blob) != filesz:
+        raise ValueError("truncated load segment")
+    (out / "guest_payload.bin").write_bytes(blob)
+    (out / "guest_payload.disassembly.txt").write_text(run([objdump, "-d", "--no-show-raw-insn", payload]))
+    header = ("// Generated by build-guest-payload; do not edit.\n#pragma once\n"
+              "#include <cstdint>\nnamespace CompiledGuest {\n"
+              f"inline constexpr uint64_t EntryOffset = {h[4]-va};\n"
+              "inline constexpr unsigned char Image[] = {\n")
+    header += "\n".join(",".join(f"0x{b:02x}" for b in blob[i:i+16])+"," for i in range(0,len(blob),16))
+    header += "\n};\n}\n"
+    (out / "guest_payload.h").write_text(header)
+    sources = args.source + [script, Path(__file__).resolve()]
+    sources += [x for parent in {s.parent for s in args.source} for x in parent.glob("*.h")]
+    manifest = {"schema":"shadps4.freestanding-guest.v1", "abi":"x86_64-sysv",
+                "compiler":run([compiler,"--version"]), "linker":run([linker,"--version"]),
+                "sources":{str(s.resolve()):sha(s) for s in sources}, "commands":commands,
+                "entry_offset":h[4]-va, "image_bytes":len(blob),
+                "elf_sha256":sha(payload), "image_sha256":hashlib.sha256(blob).hexdigest(),
+                "runtime_dependencies":[], "rebasing":"PC-relative input relocations only",
+                "limits":"RX only; explicit state/veneer args; no libc/STL/TLS/constructors"}
+    (out / "manifest.json").write_text(json.dumps(manifest,indent=2)+"\n")
+    print(f"GUEST_PAYLOAD_PASS bytes={len(blob)} entry={h[4]-va} sha256={manifest['image_sha256']}")
+
+if __name__ == "__main__":
+    try:
+        main()
+    except (ValueError, OSError, subprocess.CalledProcessError) as e:
+        print(getattr(e, "output", "") or str(e))
+        raise SystemExit(1)

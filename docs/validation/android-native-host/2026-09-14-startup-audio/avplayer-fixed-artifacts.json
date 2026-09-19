@@ -1,0 +1,13 @@
+{
+  "apk_sha256": "e48e5822081085526631129035e217dbfe0fa135ebaef92779a4465ef3ae544b",
+  "source_head": "4da582b7b3a36d74403a4985c3c03f37e570bcb7",
+  "state": "dirty; audio queue and ordered VM lookup retained; AvPlayer normal-owner contention waits; callback reentry remains nonblocking",
+  "libshadps4_host.so": {
+    "sha256": "8432ce66e470be12484d39e884f1fb25be4202918de2b1d03079b06901bd6f4a",
+    "elf_notes": "Displaying notes found in: .note.android.ident\n  Owner                Data size \tDescription\n  Android              0x00000084\tNT_ANDROID_TYPE_IDENT\n   description data: 21 00 00 00 72 32 39 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 31 34 32 30 36 38 36 35 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n\nDisplaying notes found in: .note.gnu.build-id\n  Owner                Data size \tDescription\n  GNU                  0x00000014\tNT_GNU_BUILD_ID (unique build ID bitstring)\n    Build ID: 5338abf9d78dc082df1bef1ff02ff848d77249e8"
+  },
+  "libshadps4_fex_session.so": {
+    "sha256": "a26a3c8c3555da8096e05cf6da388c57d2eda666221b6129cfc6b07fa05333eb",
+    "elf_notes": "Displaying notes found in: .note.android.ident\n  Owner                Data size \tDescription\n  Android              0x00000084\tNT_ANDROID_TYPE_IDENT\n   description data: 21 00 00 00 72 32 39 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 31 34 32 30 36 38 36 35 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n\nDisplaying notes found in: .note.gnu.build-id\n  Owner                Data size \tDescription\n  GNU                  0x00000014\tNT_GNU_BUILD_ID (unique build ID bitstring)\n    Build ID: bee19bd6272163000b14acf9d04683660ccf877f"
+  }
+}

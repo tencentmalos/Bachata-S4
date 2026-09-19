@@ -44,6 +44,10 @@ CaptureCoordinator::~CaptureCoordinator() {
     Unbind(BoundGeneration());
 }
 void CaptureCoordinator::PublishLocked() {
+    guest_boundary_generation_.store(
+        current_.boundary == CaptureBoundary::GuestFlip &&
+        (current_.state == CaptureRequestState::Armed || current_.state == CaptureRequestState::Capturing)
+            ? current_.generation : 0, std::memory_order_release);
     auto records = std::make_shared<std::vector<CaptureReceipt>>(history_);
     records->push_back(current_);
     std::shared_ptr<const std::vector<CaptureReceipt>> immutable = std::move(records);
@@ -68,6 +72,10 @@ void CaptureCoordinator::SetTimeoutNs(u64 ns) {
     std::lock_guard lock(state_mutex_);
     timeout_ns_ = std::max<u64>(1, ns);
 }
+void CaptureCoordinator::SetWriteTimeoutNs(u64 ns) {
+    std::lock_guard lock(state_mutex_);
+    write_timeout_ns_ = std::max<u64>(1, ns);
+}
 bool CaptureCoordinator::Bind(CaptureTarget target) {
     std::scoped_lock api(api_mutex_);
     std::lock_guard lock(state_mutex_);
@@ -77,7 +85,8 @@ bool CaptureCoordinator::Bind(CaptureTarget target) {
     target_stopping_ = false;
     return true;
 }
-CaptureReceipt CaptureCoordinator::Arm(u32 frames, u64 generation, std::string run, u64 now) {
+CaptureReceipt CaptureCoordinator::Arm(u32 frames, u64 generation, std::string run, u64 now,
+                                      CaptureBoundary boundary) {
     std::lock_guard lock(state_mutex_);
     auto reject = [&](const char* status) {
         auto r = current_;
@@ -100,6 +109,8 @@ CaptureReceipt CaptureCoordinator::Arm(u32 frames, u64 generation, std::string r
     current_.capture_uuid = current_.run_uuid + ":" + std::to_string(generation) + ":" +
                             std::to_string(current_.request_id);
     current_.requested_frames = frames;
+    current_.boundary = boundary;
+    current_.coverage = boundary == CaptureBoundary::GuestFlip ? "guest_flip_interval" : "host_present_interval";
     if (!backend_.IsLoaded()) {
         current_.state = CaptureRequestState::Failed;
         current_.failure_reason = "RenderDoc API not loaded";
@@ -189,7 +200,8 @@ void CaptureCoordinator::Unbind(u64 generation) {
         std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
 }
-void CaptureCoordinator::OnFrameBoundary(u64 generation, u64 present, u64 now) {
+void CaptureCoordinator::OnFrameBoundary(u64 generation, u64 present, u64 now,
+                                        CaptureBoundary boundary) {
     std::unique_lock api(api_mutex_, std::try_to_lock);
     if (!api.owns_lock()) return;
     CaptureTarget target;
@@ -198,25 +210,34 @@ void CaptureCoordinator::OnFrameBoundary(u64 generation, u64 present, u64 now) {
     {
         std::lock_guard lock(state_mutex_);
         if (generation != target_.generation || target_stopping_ || !present) return;
+        if (boundary != current_.boundary) return;
+        auto& first = boundary == CaptureBoundary::GuestFlip ? current_.first_guest_flip : current_.first_present;
+        auto& last = boundary == CaptureBoundary::GuestFlip ? current_.last_guest_flip : current_.last_present;
         CheckDeadlineLocked(now);
         if (current_.cleanup_pending) {
             // Clean up below without retaining the state lock.
         } else if (current_.state == CaptureRequestState::Armed) {
             current_.state = CaptureRequestState::Starting;
-            current_.first_present = current_.last_present = present;
+            first = last = present;
             start = true;
         } else if (current_.state == CaptureRequestState::Capturing) {
-            if (present <= current_.last_present) return; // Duplicate/stale callbacks never count.
-            if (present != current_.last_present + 1) {
-                RequestCleanupLocked(CaptureRequestState::Failed, "present_boundary_gap");
+            if (present <= last) return; // Duplicate/stale callbacks never count.
+            if (present != last + 1) {
+                RequestCleanupLocked(CaptureRequestState::Failed,
+                    boundary == CaptureBoundary::GuestFlip ? "guest_flip_boundary_gap" : "present_boundary_gap");
             } else {
-                current_.last_present = present;
+                last = present;
                 ++current_.completed_frames;
                 if (current_.completed_frames < current_.requested_frames) {
                     PublishLocked();
                     return;
                 }
                 current_.state = CaptureRequestState::Writing;
+                // A complete guest frame can contain a GiB of initial resources.
+                // File serialization/hash validation has a separate bounded budget;
+                // waiting for a frame still fails promptly on a stalled guest.
+                deadline_ = now > std::numeric_limits<u64>::max() - write_timeout_ns_
+                                ? std::numeric_limits<u64>::max() : now + write_timeout_ns_;
             }
         } else return;
         target = target_;

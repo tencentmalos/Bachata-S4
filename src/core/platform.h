@@ -67,6 +67,9 @@ struct IrqController {
         ASSERT_MSG(static_cast<u32>(irq) <= static_cast<u32>(InterruptId::InterruptIdMax),
                    "Unexpected IRQ signaled");
         auto& ctx = irq_contexts[static_cast<u32>(irq)];
+        // Preserve FIFO delivery across concurrent signalers without retaining
+        // the subscriber lock throughout a potentially slow one-shot callback.
+        std::unique_lock delivery_lock{ctx.delivery_lock};
         std::unique_lock lock{ctx.m_lock};
 
         LOG_TRACE(Core, "IRQ signaled: {}", magic_enum::enum_name(irq));
@@ -76,10 +79,10 @@ struct IrqController {
         }
 
         if (!ctx.one_time_subscribers.empty()) {
-            const auto& h = ctx.one_time_subscribers.front();
-            h(irq);
-
+            auto h = std::move(ctx.one_time_subscribers.front());
             ctx.one_time_subscribers.pop();
+            lock.unlock();
+            h(irq);
         }
     }
 
@@ -88,6 +91,7 @@ private:
         std::unordered_map<void*, IrqHandler> persistent_handlers{};
         std::queue<IrqHandler> one_time_subscribers{};
         std::mutex m_lock{};
+        std::mutex delivery_lock{};
     };
     std::array<IrqContext, static_cast<u32>(InterruptId::InterruptIdMax) + 1> irq_contexts{};
 };

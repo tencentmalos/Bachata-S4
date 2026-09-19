@@ -556,8 +556,7 @@ s32 PS4_SYSV_ABI sceKernelSetVirtualRangeName(const void* addr, u64 len, const c
     }
 
     auto* memory = Core::Memory::Instance();
-    memory->NameVirtualRange(std::bit_cast<VAddr>(addr), len, name);
-    return ORBIS_OK;
+    return memory->NameVirtualRange(std::bit_cast<VAddr>(addr), len, name);
 }
 
 s32 PS4_SYSV_ABI sceKernelMemoryPoolExpand(u64 searchStart, u64 searchEnd, u64 len, u64 alignment,
@@ -741,17 +740,16 @@ s32 PS4_SYSV_ABI sceKernelMemoryPoolGetBlockStats(OrbisKernelMemoryPoolBlockStat
     return ORBIS_OK;
 }
 
-void* PS4_SYSV_ABI posix_mmap(void* addr, u64 len, s32 prot, s32 flags, s32 fd, s64 phys_addr) {
+s32 MapVirtualMemory(void* addr, u64 len, s32 prot, s32 flags, s32 fd, s64 phys_addr,
+                     void** out, const Core::NativeFileMapping* native_file) {
     LOG_INFO(
         Kernel_Vmm,
         "called addr = {}, len = {:#x}, prot = {:#x}, flags = {:#x}, fd = {}, phys_addr = {:#x}",
         fmt::ptr(addr), len, prot, flags, fd, phys_addr);
 
-    if (len == 0) {
-        // If length is 0, mmap returns EINVAL.
-        ErrSceToPosix(ORBIS_KERNEL_ERROR_EINVAL);
-        LOG_ERROR(Kernel_Vmm, "Invalid length");
-        return reinterpret_cast<void*>(-1);
+    if (!out || !len || len > UINT64_MAX - (16_KB - 1) ||
+        reinterpret_cast<VAddr>(addr) > UINT64_MAX - (16_KB - 1)) {
+        return ORBIS_KERNEL_ERROR_EINVAL;
     }
 
     void* addr_out;
@@ -766,10 +764,12 @@ void* PS4_SYSV_ABI posix_mmap(void* addr, u64 len, s32 prot, s32 flags, s32 fd, 
 
     if (True(mem_flags & Core::MemoryMapFlags::Fixed) && vaddr != aligned_addr) {
         // If flags Fixed is specified, the input address must be aligned.
-        ErrSceToPosix(ORBIS_KERNEL_ERROR_EINVAL);
         LOG_ERROR(Kernel_Vmm, "Misaligned input address");
-        return reinterpret_cast<void*>(-1);
+        return ORBIS_KERNEL_ERROR_EINVAL;
     }
+
+    if (aligned_size > UINT64_MAX - aligned_addr)
+        return ORBIS_KERNEL_ERROR_EINVAL;
 
     s32 result = ORBIS_OK;
     if (True(mem_flags & Core::MemoryMapFlags::Anon)) {
@@ -791,19 +791,22 @@ void* PS4_SYSV_ABI posix_mmap(void* addr, u64 len, s32 prot, s32 flags, s32 fd, 
     } else {
         // Default to file mapping
         result = memory->MapFile(&addr_out, aligned_addr, aligned_size, mem_prot, mem_flags, fd,
-                                 phys_addr);
+                                 phys_addr, native_file);
     }
 
-    if (result != ORBIS_OK) {
-        // If the memory mappings fail, mmap sets errno to the appropriate error code,
-        // then returns (void*)-1;
+    if (!result)
+        *out = addr_out;
+    return result;
+}
+
+void* PS4_SYSV_ABI posix_mmap(void* addr, u64 len, s32 prot, s32 flags, s32 fd, s64 phys_addr) {
+    void* out{};
+    const s32 result = MapVirtualMemory(addr, len, prot, flags, fd, phys_addr, &out);
+    if (result) {
         ErrSceToPosix(result);
-        LOG_ERROR(Kernel_Vmm, "error = {}", *__Error());
         return reinterpret_cast<void*>(-1);
     }
-
-    LOG_INFO(Kernel_Vmm, "addr_out = {}", fmt::ptr(addr_out));
-    return addr_out;
+    return out;
 }
 
 s32 PS4_SYSV_ABI sceKernelMmap(void* addr, u64 len, s32 prot, s32 flags, s32 fd, s64 phys_addr,

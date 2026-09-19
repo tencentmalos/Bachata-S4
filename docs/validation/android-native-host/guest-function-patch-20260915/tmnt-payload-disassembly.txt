@@ -1,0 +1,464 @@
+
+/Users/bytedance/workspace/emulations/ps4/shadps4/build/guest-patch/tmnt-measurement/patch.elf:	file format elf64-x86-64
+
+Disassembly of section .text:
+
+0000000000000000 <patch_update>:
+       0: be 01 00 00 00               	movl	$0x1, %esi
+       5: f0                           	lock
+       6: 48 0f c1 35 f2 0f 00 00      	xaddq	%rsi, 0xff2(%rip)       # 0x1000 <_ZL12update_calls>
+		000000000000000a:  R_X86_64_PC32	.bss-0x4
+       e: 48 ff c6                     	incq	%rsi
+      11: 89 f0                        	movl	%esi, %eax
+      13: 83 e0 0f                     	andl	$0xf, %eax
+      16: 83 f8 01                     	cmpl	$0x1, %eax
+      19: 0f 85 71 05 00 00            	jne	0x590 <original_update>
+		000000000000001b:  R_X86_64_PLT32	original_update-0x4
+      1f: 55                           	pushq	%rbp
+      20: 48 89 e5                     	movq	%rsp, %rbp
+      23: 41 56                        	pushq	%r14
+      25: 53                           	pushq	%rbx
+      26: 48 89 fb                     	movq	%rdi, %rbx
+      29: bf 04 00 00 00               	movl	$0x4, %edi
+      2e: e8 4d 05 00 00               	callq	0x580 <shad_sdk_counter>
+		000000000000002f:  R_X86_64_PLT32	shad_sdk_counter-0x4
+      33: e8 38 05 00 00               	callq	0x570 <shad_sdk_clock_ns>
+		0000000000000034:  R_X86_64_PLT32	shad_sdk_clock_ns-0x4
+      38: 49 89 c6                     	movq	%rax, %r14
+      3b: 48 89 df                     	movq	%rbx, %rdi
+      3e: e8 4d 05 00 00               	callq	0x590 <original_update>
+		000000000000003f:  R_X86_64_PLT32	original_update-0x4
+      43: 89 c3                        	movl	%eax, %ebx
+      45: e8 26 05 00 00               	callq	0x570 <shad_sdk_clock_ns>
+		0000000000000046:  R_X86_64_PLT32	shad_sdk_clock_ns-0x4
+      4a: 4c 29 f0                     	subq	%r14, %rax
+      4d: bf 01 00 00 00               	movl	$0x1, %edi
+      52: 48 89 c6                     	movq	%rax, %rsi
+      55: e8 26 05 00 00               	callq	0x580 <shad_sdk_counter>
+		0000000000000056:  R_X86_64_PLT32	shad_sdk_counter-0x4
+      5a: 48 63 db                     	movslq	%ebx, %rbx
+      5d: bf 05 00 00 00               	movl	$0x5, %edi
+      62: 48 89 de                     	movq	%rbx, %rsi
+      65: e8 16 05 00 00               	callq	0x580 <shad_sdk_counter>
+		0000000000000066:  R_X86_64_PLT32	shad_sdk_counter-0x4
+      6a: 89 d8                        	movl	%ebx, %eax
+      6c: 5b                           	popq	%rbx
+      6d: 41 5e                        	popq	%r14
+      6f: 5d                           	popq	%rbp
+      70: c3                           	retq
+      71: 66 66 66 66 66 66 2e 0f 1f 84 00 00 00 00 00 	nopw	%cs:(%rax,%rax)
+
+0000000000000080 <patch_flush_commands>:
+      80: 55                           	pushq	%rbp
+      81: 48 89 e5                     	movq	%rsp, %rbp
+      84: 41 56                        	pushq	%r14
+      86: 53                           	pushq	%rbx
+      87: 48 89 fb                     	movq	%rdi, %rbx
+      8a: e8 e1 04 00 00               	callq	0x570 <shad_sdk_clock_ns>
+		000000000000008b:  R_X86_64_PLT32	shad_sdk_clock_ns-0x4
+      8f: 49 89 c6                     	movq	%rax, %r14
+      92: 48 89 df                     	movq	%rbx, %rdi
+      95: e8 06 05 00 00               	callq	0x5a0 <original_flush_commands>
+		0000000000000096:  R_X86_64_PLT32	original_flush_commands-0x4
+      9a: 89 c3                        	movl	%eax, %ebx
+      9c: e8 cf 04 00 00               	callq	0x570 <shad_sdk_clock_ns>
+		000000000000009d:  R_X86_64_PLT32	shad_sdk_clock_ns-0x4
+      a1: 4c 29 f0                     	subq	%r14, %rax
+      a4: bf 02 00 00 00               	movl	$0x2, %edi
+      a9: 48 89 c6                     	movq	%rax, %rsi
+      ac: e8 cf 04 00 00               	callq	0x580 <shad_sdk_counter>
+		00000000000000ad:  R_X86_64_PLT32	shad_sdk_counter-0x4
+      b1: 48 63 db                     	movslq	%ebx, %rbx
+      b4: bf 06 00 00 00               	movl	$0x6, %edi
+      b9: 48 89 de                     	movq	%rbx, %rsi
+      bc: e8 bf 04 00 00               	callq	0x580 <shad_sdk_counter>
+		00000000000000bd:  R_X86_64_PLT32	shad_sdk_counter-0x4
+      c1: 89 d8                        	movl	%ebx, %eax
+      c3: 5b                           	popq	%rbx
+      c4: 41 5e                        	popq	%r14
+      c6: 5d                           	popq	%rbp
+      c7: c3                           	retq
+      c8: 0f 1f 84 00 00 00 00 00      	nopl	(%rax,%rax)
+
+00000000000000d0 <patch_flush_samples>:
+      d0: 55                           	pushq	%rbp
+      d1: 48 89 e5                     	movq	%rsp, %rbp
+      d4: 41 56                        	pushq	%r14
+      d6: 53                           	pushq	%rbx
+      d7: 48 89 fb                     	movq	%rdi, %rbx
+      da: e8 91 04 00 00               	callq	0x570 <shad_sdk_clock_ns>
+		00000000000000db:  R_X86_64_PLT32	shad_sdk_clock_ns-0x4
+      df: 49 89 c6                     	movq	%rax, %r14
+      e2: 48 89 df                     	movq	%rbx, %rdi
+      e5: e8 c6 04 00 00               	callq	0x5b0 <original_flush_samples>
+		00000000000000e6:  R_X86_64_PLT32	original_flush_samples-0x4
+      ea: 89 c3                        	movl	%eax, %ebx
+      ec: e8 7f 04 00 00               	callq	0x570 <shad_sdk_clock_ns>
+		00000000000000ed:  R_X86_64_PLT32	shad_sdk_clock_ns-0x4
+      f1: 4c 29 f0                     	subq	%r14, %rax
+      f4: bf 03 00 00 00               	movl	$0x3, %edi
+      f9: 48 89 c6                     	movq	%rax, %rsi
+      fc: e8 7f 04 00 00               	callq	0x580 <shad_sdk_counter>
+		00000000000000fd:  R_X86_64_PLT32	shad_sdk_counter-0x4
+     101: 48 63 db                     	movslq	%ebx, %rbx
+     104: bf 07 00 00 00               	movl	$0x7, %edi
+     109: 48 89 de                     	movq	%rbx, %rsi
+     10c: e8 6f 04 00 00               	callq	0x580 <shad_sdk_counter>
+		000000000000010d:  R_X86_64_PLT32	shad_sdk_counter-0x4
+     111: 89 d8                        	movl	%ebx, %eax
+     113: 5b                           	popq	%rbx
+     114: 41 5e                        	popq	%r14
+     116: 5d                           	popq	%rbp
+     117: c3                           	retq
+     118: cc                           	int3
+     119: cc                           	int3
+     11a: cc                           	int3
+     11b: cc                           	int3
+     11c: cc                           	int3
+     11d: cc                           	int3
+     11e: cc                           	int3
+     11f: cc                           	int3
+
+0000000000000120 <memcpy>:
+     120: 55                           	pushq	%rbp
+     121: 48 89 e5                     	movq	%rsp, %rbp
+     124: 48 89 f8                     	movq	%rdi, %rax
+     127: 48 85 d2                     	testq	%rdx, %rdx
+     12a: 0f 84 fb 00 00 00            	je	0x22b <memcpy+0x10b>
+     130: 48 83 fa 04                  	cmpq	$0x4, %rdx
+     134: 0f 93 c1                     	setae	%cl
+     137: 48 89 c7                     	movq	%rax, %rdi
+     13a: 48 29 f7                     	subq	%rsi, %rdi
+     13d: 48 83 ff 20                  	cmpq	$0x20, %rdi
+     141: 40 0f 93 c7                  	setae	%dil
+     145: 40 84 f9                     	testb	%dil, %cl
+     148: 75 04                        	jne	0x14e <memcpy+0x2e>
+     14a: 31 c9                        	xorl	%ecx, %ecx
+     14c: eb 78                        	jmp	0x1c6 <memcpy+0xa6>
+     14e: 48 83 fa 20                  	cmpq	$0x20, %rdx
+     152: 73 04                        	jae	0x158 <memcpy+0x38>
+     154: 31 c9                        	xorl	%ecx, %ecx
+     156: eb 41                        	jmp	0x199 <memcpy+0x79>
+     158: 48 89 d1                     	movq	%rdx, %rcx
+     15b: 48 83 e1 e0                  	andq	$-0x20, %rcx
+     15f: 31 ff                        	xorl	%edi, %edi
+     161: 66 66 66 66 66 66 2e 0f 1f 84 00 00 00 00 00 	nopw	%cs:(%rax,%rax)
+     170: 0f 10 04 3e                  	movups	(%rsi,%rdi), %xmm0
+     174: 0f 10 4c 3e 10               	movups	0x10(%rsi,%rdi), %xmm1
+     179: 0f 11 04 38                  	movups	%xmm0, (%rax,%rdi)
+     17d: 0f 11 4c 38 10               	movups	%xmm1, 0x10(%rax,%rdi)
+     182: 48 83 c7 20                  	addq	$0x20, %rdi
+     186: 48 39 f9                     	cmpq	%rdi, %rcx
+     189: 75 e5                        	jne	0x170 <memcpy+0x50>
+     18b: 48 39 ca                     	cmpq	%rcx, %rdx
+     18e: 0f 84 97 00 00 00            	je	0x22b <memcpy+0x10b>
+     194: f6 c2 1c                     	testb	$0x1c, %dl
+     197: 74 2d                        	je	0x1c6 <memcpy+0xa6>
+     199: 48 89 cf                     	movq	%rcx, %rdi
+     19c: 48 89 d1                     	movq	%rdx, %rcx
+     19f: 48 83 e1 fc                  	andq	$-0x4, %rcx
+     1a3: 66 66 66 66 2e 0f 1f 84 00 00 00 00 00       	nopw	%cs:(%rax,%rax)
+     1b0: 44 8b 04 3e                  	movl	(%rsi,%rdi), %r8d
+     1b4: 44 89 04 38                  	movl	%r8d, (%rax,%rdi)
+     1b8: 48 83 c7 04                  	addq	$0x4, %rdi
+     1bc: 48 39 f9                     	cmpq	%rdi, %rcx
+     1bf: 75 ef                        	jne	0x1b0 <memcpy+0x90>
+     1c1: 48 39 ca                     	cmpq	%rcx, %rdx
+     1c4: 74 65                        	je	0x22b <memcpy+0x10b>
+     1c6: 49 89 d0                     	movq	%rdx, %r8
+     1c9: 48 89 cf                     	movq	%rcx, %rdi
+     1cc: 49 83 e0 03                  	andq	$0x3, %r8
+     1d0: 74 1f                        	je	0x1f1 <memcpy+0xd1>
+     1d2: 48 89 cf                     	movq	%rcx, %rdi
+     1d5: 66 66 2e 0f 1f 84 00 00 00 00 00     	nopw	%cs:(%rax,%rax)
+     1e0: 44 0f b6 0c 3e               	movzbl	(%rsi,%rdi), %r9d
+     1e5: 44 88 0c 38                  	movb	%r9b, (%rax,%rdi)
+     1e9: 48 ff c7                     	incq	%rdi
+     1ec: 49 ff c8                     	decq	%r8
+     1ef: 75 ef                        	jne	0x1e0 <memcpy+0xc0>
+     1f1: 48 29 d1                     	subq	%rdx, %rcx
+     1f4: 48 83 f9 fc                  	cmpq	$-0x4, %rcx
+     1f8: 77 31                        	ja	0x22b <memcpy+0x10b>
+     1fa: 66 0f 1f 44 00 00            	nopw	(%rax,%rax)
+     200: 0f b6 0c 3e                  	movzbl	(%rsi,%rdi), %ecx
+     204: 88 0c 38                     	movb	%cl, (%rax,%rdi)
+     207: 0f b6 4c 3e 01               	movzbl	0x1(%rsi,%rdi), %ecx
+     20c: 88 4c 38 01                  	movb	%cl, 0x1(%rax,%rdi)
+     210: 0f b6 4c 3e 02               	movzbl	0x2(%rsi,%rdi), %ecx
+     215: 88 4c 38 02                  	movb	%cl, 0x2(%rax,%rdi)
+     219: 0f b6 4c 3e 03               	movzbl	0x3(%rsi,%rdi), %ecx
+     21e: 88 4c 38 03                  	movb	%cl, 0x3(%rax,%rdi)
+     222: 48 83 c7 04                  	addq	$0x4, %rdi
+     226: 48 39 fa                     	cmpq	%rdi, %rdx
+     229: 75 d5                        	jne	0x200 <memcpy+0xe0>
+     22b: 5d                           	popq	%rbp
+     22c: c3                           	retq
+     22d: 0f 1f 00                     	nopl	(%rax)
+
+0000000000000230 <memmove>:
+     230: 48 89 f8                     	movq	%rdi, %rax
+     233: 48 89 f9                     	movq	%rdi, %rcx
+     236: 48 29 f1                     	subq	%rsi, %rcx
+     239: 73 24                        	jae	0x25f <memmove+0x2f>
+     23b: 48 85 d2                     	testq	%rdx, %rdx
+     23e: 0f 84 2d 02 00 00            	je	0x471 <memmove+0x241>
+     244: 48 83 fa 04                  	cmpq	$0x4, %rdx
+     248: 40 0f 92 c7                  	setb	%dil
+     24c: 48 83 f9 20                  	cmpq	$0x20, %rcx
+     250: 0f 92 c1                     	setb	%cl
+     253: 40 08 f9                     	orb	%dil, %cl
+     256: 74 32                        	je	0x28a <memmove+0x5a>
+     258: 31 c9                        	xorl	%ecx, %ecx
+     25a: e9 ab 00 00 00               	jmp	0x30a <memmove+0xda>
+     25f: 48 85 d2                     	testq	%rdx, %rdx
+     262: 0f 84 09 02 00 00            	je	0x471 <memmove+0x241>
+     268: 48 83 fa 04                  	cmpq	$0x4, %rdx
+     26c: 0f 93 c1                     	setae	%cl
+     26f: 48 89 f7                     	movq	%rsi, %rdi
+     272: 48 29 c7                     	subq	%rax, %rdi
+     275: 48 83 ff 10                  	cmpq	$0x10, %rdi
+     279: 40 0f 93 c7                  	setae	%dil
+     27d: 40 84 f9                     	testb	%dil, %cl
+     280: 75 12                        	jne	0x294 <memmove+0x64>
+     282: 48 89 d7                     	movq	%rdx, %rdi
+     285: e9 6e 01 00 00               	jmp	0x3f8 <memmove+0x1c8>
+     28a: 48 83 fa 20                  	cmpq	$0x20, %rdx
+     28e: 73 15                        	jae	0x2a5 <memmove+0x75>
+     290: 31 c9                        	xorl	%ecx, %ecx
+     292: eb 45                        	jmp	0x2d9 <memmove+0xa9>
+     294: 48 83 fa 10                  	cmpq	$0x10, %rdx
+     298: 0f 83 d2 00 00 00            	jae	0x370 <memmove+0x140>
+     29e: 31 c9                        	xorl	%ecx, %ecx
+     2a0: e9 10 01 00 00               	jmp	0x3b5 <memmove+0x185>
+     2a5: 48 89 d1                     	movq	%rdx, %rcx
+     2a8: 48 83 e1 e0                  	andq	$-0x20, %rcx
+     2ac: 31 ff                        	xorl	%edi, %edi
+     2ae: 66 90                        	nop
+     2b0: 0f 10 04 3e                  	movups	(%rsi,%rdi), %xmm0
+     2b4: 0f 10 4c 3e 10               	movups	0x10(%rsi,%rdi), %xmm1
+     2b9: 0f 11 04 38                  	movups	%xmm0, (%rax,%rdi)
+     2bd: 0f 11 4c 38 10               	movups	%xmm1, 0x10(%rax,%rdi)
+     2c2: 48 83 c7 20                  	addq	$0x20, %rdi
+     2c6: 48 39 f9                     	cmpq	%rdi, %rcx
+     2c9: 75 e5                        	jne	0x2b0 <memmove+0x80>
+     2cb: 48 39 ca                     	cmpq	%rcx, %rdx
+     2ce: 0f 84 9d 01 00 00            	je	0x471 <memmove+0x241>
+     2d4: f6 c2 1c                     	testb	$0x1c, %dl
+     2d7: 74 31                        	je	0x30a <memmove+0xda>
+     2d9: 48 89 cf                     	movq	%rcx, %rdi
+     2dc: 48 89 d1                     	movq	%rdx, %rcx
+     2df: 48 83 e1 fc                  	andq	$-0x4, %rcx
+     2e3: 66 66 66 66 2e 0f 1f 84 00 00 00 00 00       	nopw	%cs:(%rax,%rax)
+     2f0: 44 8b 04 3e                  	movl	(%rsi,%rdi), %r8d
+     2f4: 44 89 04 38                  	movl	%r8d, (%rax,%rdi)
+     2f8: 48 83 c7 04                  	addq	$0x4, %rdi
+     2fc: 48 39 f9                     	cmpq	%rdi, %rcx
+     2ff: 75 ef                        	jne	0x2f0 <memmove+0xc0>
+     301: 48 39 ca                     	cmpq	%rcx, %rdx
+     304: 0f 84 67 01 00 00            	je	0x471 <memmove+0x241>
+     30a: 49 89 d0                     	movq	%rdx, %r8
+     30d: 48 89 cf                     	movq	%rcx, %rdi
+     310: 49 83 e0 03                  	andq	$0x3, %r8
+     314: 74 1b                        	je	0x331 <memmove+0x101>
+     316: 48 89 cf                     	movq	%rcx, %rdi
+     319: 0f 1f 80 00 00 00 00         	nopl	(%rax)
+     320: 44 0f b6 0c 3e               	movzbl	(%rsi,%rdi), %r9d
+     325: 44 88 0c 38                  	movb	%r9b, (%rax,%rdi)
+     329: 48 ff c7                     	incq	%rdi
+     32c: 49 ff c8                     	decq	%r8
+     32f: 75 ef                        	jne	0x320 <memmove+0xf0>
+     331: 48 29 d1                     	subq	%rdx, %rcx
+     334: 48 83 f9 fc                  	cmpq	$-0x4, %rcx
+     338: 0f 87 33 01 00 00            	ja	0x471 <memmove+0x241>
+     33e: 66 90                        	nop
+     340: 0f b6 0c 3e                  	movzbl	(%rsi,%rdi), %ecx
+     344: 88 0c 38                     	movb	%cl, (%rax,%rdi)
+     347: 0f b6 4c 3e 01               	movzbl	0x1(%rsi,%rdi), %ecx
+     34c: 88 4c 38 01                  	movb	%cl, 0x1(%rax,%rdi)
+     350: 0f b6 4c 3e 02               	movzbl	0x2(%rsi,%rdi), %ecx
+     355: 88 4c 38 02                  	movb	%cl, 0x2(%rax,%rdi)
+     359: 0f b6 4c 3e 03               	movzbl	0x3(%rsi,%rdi), %ecx
+     35e: 88 4c 38 03                  	movb	%cl, 0x3(%rax,%rdi)
+     362: 48 83 c7 04                  	addq	$0x4, %rdi
+     366: 48 39 fa                     	cmpq	%rdi, %rdx
+     369: 75 d5                        	jne	0x340 <memmove+0x110>
+     36b: e9 01 01 00 00               	jmp	0x471 <memmove+0x241>
+     370: 48 89 d1                     	movq	%rdx, %rcx
+     373: 48 83 e1 f0                  	andq	$-0x10, %rcx
+     377: 48 8d 3c 10                  	leaq	(%rax,%rdx), %rdi
+     37b: 48 83 c7 f0                  	addq	$-0x10, %rdi
+     37f: 4c 8d 04 16                  	leaq	(%rsi,%rdx), %r8
+     383: 49 83 c0 f0                  	addq	$-0x10, %r8
+     387: 49 89 c9                     	movq	%rcx, %r9
+     38a: 49 f7 d9                     	negq	%r9
+     38d: 45 31 d2                     	xorl	%r10d, %r10d
+     390: 43 0f 10 04 10               	movups	(%r8,%r10), %xmm0
+     395: 42 0f 11 04 17               	movups	%xmm0, (%rdi,%r10)
+     39a: 49 83 c2 f0                  	addq	$-0x10, %r10
+     39e: 4d 39 d1                     	cmpq	%r10, %r9
+     3a1: 75 ed                        	jne	0x390 <memmove+0x160>
+     3a3: 48 39 ca                     	cmpq	%rcx, %rdx
+     3a6: 0f 84 c5 00 00 00            	je	0x471 <memmove+0x241>
+     3ac: f6 c2 0c                     	testb	$0xc, %dl
+     3af: 0f 84 bd 00 00 00            	je	0x472 <memmove+0x242>
+     3b5: 55                           	pushq	%rbp
+     3b6: 48 89 e5                     	movq	%rsp, %rbp
+     3b9: 53                           	pushq	%rbx
+     3ba: 49 89 d0                     	movq	%rdx, %r8
+     3bd: 49 83 e0 fc                  	andq	$-0x4, %r8
+     3c1: 89 d7                        	movl	%edx, %edi
+     3c3: 83 e7 03                     	andl	$0x3, %edi
+     3c6: 4c 8d 0c 10                  	leaq	(%rax,%rdx), %r9
+     3ca: 49 83 c1 fc                  	addq	$-0x4, %r9
+     3ce: 48 f7 d9                     	negq	%rcx
+     3d1: 4c 8d 14 16                  	leaq	(%rsi,%rdx), %r10
+     3d5: 49 83 c2 fc                  	addq	$-0x4, %r10
+     3d9: 4d 89 c3                     	movq	%r8, %r11
+     3dc: 49 f7 db                     	negq	%r11
+     3df: 90                           	nop
+     3e0: 41 8b 1c 0a                  	movl	(%r10,%rcx), %ebx
+     3e4: 41 89 1c 09                  	movl	%ebx, (%r9,%rcx)
+     3e8: 48 83 c1 fc                  	addq	$-0x4, %rcx
+     3ec: 49 39 cb                     	cmpq	%rcx, %r11
+     3ef: 75 ef                        	jne	0x3e0 <memmove+0x1b0>
+     3f1: 4c 39 c2                     	cmpq	%r8, %rdx
+     3f4: 5b                           	popq	%rbx
+     3f5: 5d                           	popq	%rbp
+     3f6: 74 79                        	je	0x471 <memmove+0x241>
+     3f8: 48 8d 57 ff                  	leaq	-0x1(%rdi), %rdx
+     3fc: 49 89 f8                     	movq	%rdi, %r8
+     3ff: 49 83 e0 03                  	andq	$0x3, %r8
+     403: 74 2a                        	je	0x42f <memmove+0x1ff>
+     405: 66 66 2e 0f 1f 84 00 00 00 00 00     	nopw	%cs:(%rax,%rax)
+     410: 48 8d 4f ff                  	leaq	-0x1(%rdi), %rcx
+     414: 44 0f b6 4c 3e ff            	movzbl	-0x1(%rsi,%rdi), %r9d
+     41a: 44 88 4c 38 ff               	movb	%r9b, -0x1(%rax,%rdi)
+     41f: 48 89 cf                     	movq	%rcx, %rdi
+     422: 49 ff c8                     	decq	%r8
+     425: 75 e9                        	jne	0x410 <memmove+0x1e0>
+     427: 48 83 fa 03                  	cmpq	$0x3, %rdx
+     42b: 73 0b                        	jae	0x438 <memmove+0x208>
+     42d: eb 42                        	jmp	0x471 <memmove+0x241>
+     42f: 48 89 f9                     	movq	%rdi, %rcx
+     432: 48 83 fa 03                  	cmpq	$0x3, %rdx
+     436: 72 39                        	jb	0x471 <memmove+0x241>
+     438: 48 89 ca                     	movq	%rcx, %rdx
+     43b: 0f 1f 44 00 00               	nopl	(%rax,%rax)
+     440: 0f b6 7c 0e ff               	movzbl	-0x1(%rsi,%rcx), %edi
+     445: 40 88 7c 08 ff               	movb	%dil, -0x1(%rax,%rcx)
+     44a: 0f b6 7c 0e fe               	movzbl	-0x2(%rsi,%rcx), %edi
+     44f: 40 88 7c 08 fe               	movb	%dil, -0x2(%rax,%rcx)
+     454: 0f b6 7c 0e fd               	movzbl	-0x3(%rsi,%rcx), %edi
+     459: 40 88 7c 08 fd               	movb	%dil, -0x3(%rax,%rcx)
+     45e: 0f b6 7c 0e fc               	movzbl	-0x4(%rsi,%rcx), %edi
+     463: 40 88 7c 08 fc               	movb	%dil, -0x4(%rax,%rcx)
+     468: 48 83 c2 fc                  	addq	$-0x4, %rdx
+     46c: 48 89 d1                     	movq	%rdx, %rcx
+     46f: 75 cf                        	jne	0x440 <memmove+0x210>
+     471: c3                           	retq
+     472: 83 e2 0f                     	andl	$0xf, %edx
+     475: e9 08 fe ff ff               	jmp	0x282 <memmove+0x52>
+     47a: 66 0f 1f 44 00 00            	nopw	(%rax,%rax)
+
+0000000000000480 <memset>:
+     480: 55                           	pushq	%rbp
+     481: 48 89 e5                     	movq	%rsp, %rbp
+     484: 48 89 f8                     	movq	%rdi, %rax
+     487: 48 85 d2                     	testq	%rdx, %rdx
+     48a: 0f 84 9d 00 00 00            	je	0x52d <memset+0xad>
+     490: 48 83 fa 03                  	cmpq	$0x3, %rdx
+     494: 77 07                        	ja	0x49d <memset+0x1d>
+     496: 31 c9                        	xorl	%ecx, %ecx
+     498: e9 84 00 00 00               	jmp	0x521 <memset+0xa1>
+     49d: 40 0f b6 fe                  	movzbl	%sil, %edi
+     4a1: 48 83 fa 20                  	cmpq	$0x20, %rdx
+     4a5: 73 04                        	jae	0x4ab <memset+0x2b>
+     4a7: 31 c9                        	xorl	%ecx, %ecx
+     4a9: eb 45                        	jmp	0x4f0 <memset+0x70>
+     4ab: 48 89 d1                     	movq	%rdx, %rcx
+     4ae: 48 83 e1 e0                  	andq	$-0x20, %rcx
+     4b2: 66 0f 6e c7                  	movd	%edi, %xmm0
+     4b6: 66 0f 60 c0                  	punpcklbw	%xmm0, %xmm0    # xmm0 = xmm0[0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7]
+     4ba: f2 0f 70 c0 00               	pshuflw	$0x0, %xmm0, %xmm0      # xmm0 = xmm0[0,0,0,0,4,5,6,7]
+     4bf: 66 0f 70 c0 00               	pshufd	$0x0, %xmm0, %xmm0      # xmm0 = xmm0[0,0,0,0]
+     4c4: 45 31 c0                     	xorl	%r8d, %r8d
+     4c7: 66 0f 1f 84 00 00 00 00 00   	nopw	(%rax,%rax)
+     4d0: f3 42 0f 7f 04 00            	movdqu	%xmm0, (%rax,%r8)
+     4d6: f3 42 0f 7f 44 00 10         	movdqu	%xmm0, 0x10(%rax,%r8)
+     4dd: 49 83 c0 20                  	addq	$0x20, %r8
+     4e1: 4c 39 c1                     	cmpq	%r8, %rcx
+     4e4: 75 ea                        	jne	0x4d0 <memset+0x50>
+     4e6: 48 39 ca                     	cmpq	%rcx, %rdx
+     4e9: 74 42                        	je	0x52d <memset+0xad>
+     4eb: f6 c2 1c                     	testb	$0x1c, %dl
+     4ee: 74 31                        	je	0x521 <memset+0xa1>
+     4f0: 49 89 c8                     	movq	%rcx, %r8
+     4f3: 48 89 d1                     	movq	%rdx, %rcx
+     4f6: 48 83 e1 fc                  	andq	$-0x4, %rcx
+     4fa: 66 0f 6e c7                  	movd	%edi, %xmm0
+     4fe: 66 0f 60 c0                  	punpcklbw	%xmm0, %xmm0    # xmm0 = xmm0[0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7]
+     502: f2 0f 70 c0 00               	pshuflw	$0x0, %xmm0, %xmm0      # xmm0 = xmm0[0,0,0,0,4,5,6,7]
+     507: 66 0f 1f 84 00 00 00 00 00   	nopw	(%rax,%rax)
+     510: 66 42 0f 7e 04 00            	movd	%xmm0, (%rax,%r8)
+     516: 49 83 c0 04                  	addq	$0x4, %r8
+     51a: 4c 39 c1                     	cmpq	%r8, %rcx
+     51d: 75 f1                        	jne	0x510 <memset+0x90>
+     51f: eb 07                        	jmp	0x528 <memset+0xa8>
+     521: 40 88 34 08                  	movb	%sil, (%rax,%rcx)
+     525: 48 ff c1                     	incq	%rcx
+     528: 48 39 ca                     	cmpq	%rcx, %rdx
+     52b: 75 f4                        	jne	0x521 <memset+0xa1>
+     52d: 5d                           	popq	%rbp
+     52e: c3                           	retq
+     52f: 90                           	nop
+
+0000000000000530 <memcmp>:
+     530: 55                           	pushq	%rbp
+     531: 48 89 e5                     	movq	%rsp, %rbp
+     534: 48 85 d2                     	testq	%rdx, %rdx
+     537: 74 1d                        	je	0x556 <memcmp+0x26>
+     539: 31 c9                        	xorl	%ecx, %ecx
+     53b: 0f 1f 44 00 00               	nopl	(%rax,%rax)
+     540: 0f b6 04 0f                  	movzbl	(%rdi,%rcx), %eax
+     544: 44 0f b6 04 0e               	movzbl	(%rsi,%rcx), %r8d
+     549: 44 38 c0                     	cmpb	%r8b, %al
+     54c: 75 0c                        	jne	0x55a <memcmp+0x2a>
+     54e: 48 ff c1                     	incq	%rcx
+     551: 48 39 ca                     	cmpq	%rcx, %rdx
+     554: 75 ea                        	jne	0x540 <memcmp+0x10>
+     556: 31 c0                        	xorl	%eax, %eax
+     558: 5d                           	popq	%rbp
+     559: c3                           	retq
+     55a: 44 29 c0                     	subl	%r8d, %eax
+     55d: 5d                           	popq	%rbp
+     55e: c3                           	retq
+     55f: cc                           	int3
+
+0000000000000560 <shad_sdk_query>:
+     560: ff 25 52 00 00 00            	jmpq	*0x52(%rip)             # 0x5b8 <shad_import_slot_shad_sdk_query>
+		0000000000000562:  R_X86_64_PC32	shad_import_slot_shad_sdk_query-0x4
+     566: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
+
+0000000000000570 <shad_sdk_clock_ns>:
+     570: ff 25 4a 00 00 00            	jmpq	*0x4a(%rip)             # 0x5c0 <shad_import_slot_shad_sdk_clock_ns>
+		0000000000000572:  R_X86_64_PC32	shad_import_slot_shad_sdk_clock_ns-0x4
+     576: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
+
+0000000000000580 <shad_sdk_counter>:
+     580: ff 25 42 00 00 00            	jmpq	*0x42(%rip)             # 0x5c8 <shad_import_slot_shad_sdk_counter>
+		0000000000000582:  R_X86_64_PC32	shad_import_slot_shad_sdk_counter-0x4
+     586: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
+
+0000000000000590 <original_update>:
+     590: ff 25 3a 00 00 00            	jmpq	*0x3a(%rip)             # 0x5d0 <shad_import_slot_original_update>
+		0000000000000592:  R_X86_64_PC32	shad_import_slot_original_update-0x4
+     596: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
+
+00000000000005a0 <original_flush_commands>:
+     5a0: ff 25 32 00 00 00            	jmpq	*0x32(%rip)             # 0x5d8 <shad_import_slot_original_flush_commands>
+		00000000000005a2:  R_X86_64_PC32	shad_import_slot_original_flush_commands-0x4
+     5a6: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
+
+00000000000005b0 <original_flush_samples>:
+     5b0: ff 25 2a 00 00 00            	jmpq	*0x2a(%rip)             # 0x5e0 <shad_import_slot_original_flush_samples>
+		00000000000005b2:  R_X86_64_PC32	shad_import_slot_original_flush_samples-0x4

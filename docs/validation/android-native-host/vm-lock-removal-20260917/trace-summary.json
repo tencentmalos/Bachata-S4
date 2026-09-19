@@ -1,0 +1,99 @@
+{
+  "events": 44392172,
+  "unmatched": 0,
+  "open_scopes": 56,
+  "first_present_ms": 20527.456719,
+  "chunks_skipped": 0,
+  "container_complete": true,
+  "capture_complete": true,
+  "sha256": "a55975df9c6bf5a0cff8002a8078b0031a371471ec6f14eaece50a26a4ff7f20",
+  "gpu_records": {
+    "context_defs": 0,
+    "zone_begins": 0,
+    "zone_ends": 0,
+    "times": 0,
+    "orphan_times": 0
+  },
+  "gpu_cpu_alignment": "unknown",
+  "pid": 21722,
+  "generation": 1,
+  "uuid": "cd67d4b909d60220fe607cf2acce478e",
+  "vm": [
+    {
+      "name": "VM.AllocatePhysical",
+      "count": 3,
+      "elapsed_ms": 0.032552,
+      "max_ms": 0.014531,
+      "last_end_s": 1.231657396
+    },
+    {
+      "name": "VM.DataMapping",
+      "count": 504,
+      "elapsed_ms": 9.124212,
+      "max_ms": 0.07823,
+      "last_end_s": 99.528822136
+    },
+    {
+      "name": "VM.FullCodeRetirement",
+      "count": 1227,
+      "elapsed_ms": 13.513919,
+      "max_ms": 4.976458,
+      "last_end_s": 0.722663646
+    },
+    {
+      "name": "VM.QuiesceAllOwners",
+      "count": 2,
+      "elapsed_ms": 0.053855,
+      "max_ms": 0.044115,
+      "last_end_s": 0.238122813
+    }
+  ],
+  "gaps": [
+    {
+      "begin_s": 64.245642032,
+      "end_s": 93.931014844,
+      "ms": 29685.372812,
+      "from_flip": 563,
+      "to_flip": 564,
+      "io_count": 12779,
+      "io_bytes": 289378427,
+      "io_syscall_ms": 137.607388,
+      "vm_overlaps": 0
+    },
+    {
+      "begin_s": 27.481035261,
+      "end_s": 46.806107657,
+      "ms": 19325.072396,
+      "from_flip": 337,
+      "to_flip": 338,
+      "io_count": 9033,
+      "io_bytes": 119229251,
+      "io_syscall_ms": 67.095176,
+      "vm_overlaps": 6
+    },
+    {
+      "begin_s": 50.792277761,
+      "end_s": 63.571120886,
+      "ms": 12778.843125,
+      "from_flip": 560,
+      "to_flip": 561,
+      "io_count": 5298,
+      "io_bytes": 58326972,
+      "io_syscall_ms": 40.702292,
+      "vm_overlaps": 0
+    },
+    {
+      "begin_s": 20.53564073,
+      "end_s": 21.449658646,
+      "ms": 914.017916,
+      "from_flip": 2,
+      "to_flip": 3,
+      "io_count": 729,
+      "io_bytes": 18513908,
+      "io_syscall_ms": 7.402676,
+      "vm_overlaps": 2
+    }
+  ],
+  "io_count": 39084,
+  "io_bytes": 702283639
+}

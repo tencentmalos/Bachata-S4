@@ -1,0 +1,41 @@
+{
+  "identity": {
+    "emulator": "shadps4",
+    "title": "CUSA50828",
+    "module": "eboot.bin",
+    "module_sha256": "6122da7190de6b08d921b2c42c3ca9ed11dc4d11524f1139ff67aeceea5b204d"
+  },
+  "architecture": "x86_64",
+  "abi": "x86_64-sysv",
+  "endianness": "little",
+  "pointer_bits": 64,
+  "analysis": {
+    "module": "eboot.bin",
+    "sha256": "504fc22628a2a7c563e593aab298b9273e2a80eaf8814a095ffb6f464152da99",
+    "imagebase": 0
+  },
+  "schema": "spatial.guest-auto-tag.request.v1",
+  "backend": "study0",
+  "targets": [
+    {
+      "offset": 103984,
+      "measured_inclusive_ns": 8752464525
+    },
+    {
+      "offset": 22806656,
+      "measured_inclusive_ns": 878257135
+    },
+    {
+      "offset": 150624,
+      "measured_inclusive_ns": 185275470
+    }
+  ],
+  "max_probes": 0,
+  "depth": 2,
+  "capture_evidence": [
+    {
+      "manifest_sha256": "f597514158228d2ace6545e1144e5c4b22eafea62a676ec1b3675c0e962d876d",
+      "trace_sha256": "4755c237e4dbcd8eceb3d2d1dbcfaea1b310d53d2aca79c48d7bc4023663f611"
+    }
+  ]
+}

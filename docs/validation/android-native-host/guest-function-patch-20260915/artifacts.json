@@ -1,0 +1,135 @@
+{
+  "apk": {
+    "path": "android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk",
+    "sha256": "eada9e30099563d383eefefd5cd676f45f51b7706fe2d6211b905015252012e0"
+  },
+  "host": {
+    "path": "build/android-host-api33/native/libshadps4_host.so",
+    "sha256": "62f2d92ae4ee518c38f4013dbdd07490d3bd437ffdfddd0bf985bf8b621a4ee4",
+    "build_id": "8bf15985aef4038795e3555e0061f4fcca31e600"
+  },
+  "native_test": {
+    "path": "build/wp1-review/production-build/guest_patch_tests",
+    "sha256": "bfc54bd003290c2b26f15fa5c22cc6f36bc4a1954217516e9d388469d83b1a37",
+    "build_id": "9269c5eaca3a766f782451a8f3ccc581ead71857"
+  },
+  "apk_libs": {
+    "libshadps4_host.so": {
+      "path": "build/guest-patch/libshadps4_host.so",
+      "sha256": "62f2d92ae4ee518c38f4013dbdd07490d3bd437ffdfddd0bf985bf8b621a4ee4",
+      "build_id": "8bf15985aef4038795e3555e0061f4fcca31e600"
+    },
+    "libshadps4_fex_session.so": {
+      "path": "build/guest-patch/libshadps4_fex_session.so",
+      "sha256": "3f72fee3f0c03bba7d3d98545acdaf60ebc8bf2ecb864ffa8f843637e26e6536",
+      "build_id": "57cfd575ea3cd5886634999202124155a825aa67"
+    }
+  },
+  "tmnt": {
+    "package_sha256": "bbe17a87a100119b7f39fb89e907323a53e303b13907e4133b0168b0aae326d3",
+    "elf_sha256": "fba2c271b3423d77909447644fd831b76fc4e95f11ba5500e748f77720bb763f",
+    "build_manifest": "tmnt-build.json",
+    "module_sha256": "2b4e4ef16cbe65cc936f4df92655bd913fc4520aa03936a990c9133742c464c0",
+    "executable_sha256": "6122da7190de6b08d921b2c42c3ca9ed11dc4d11524f1139ff67aeceea5b204d"
+  },
+  "native_fixture": {
+    "package_sha256": "f876b9f0aa6fd021ef4f166b6e600dd04dc77bff607d2f71af92bdcc6da82942",
+    "elf_sha256": "80f8a48ba73df9e4fc0e60b12f6068ebc3b8ef163921b0113fb202cda3f08a9a"
+  },
+  "apk_fixture": {
+    "package_sha256": "3d3e5af2d5894304283fa874fca4dff98b42d2ebc935dc452a8b6d5ebe1cc41c",
+    "elf_sha256": "4c56bfe376e58d7b4f51d720084742762e5d8f119beb80c63ae07cfc388a6341"
+  },
+  "repository_heads": {
+    ".": "4da582b7b3a36d74403a4985c3c03f37e570bcb7",
+    "references/FEX": "385a0cc4d81cd456c8d5c26b4f09cb5a7d8d5842",
+    "foundation": "d41ade4b77f46a84962a6f9af515b9e174410d42",
+    "foundation/third_party/profiler_sdk": "368177d458109b0413142215a52dfe31567b81e4"
+  },
+  "main_source_sha256": {
+    "CMakeLists.txt": "6ac14eea21ca5b3abd4e615d589633c686ff8ddb1665c092aef005096cecd66f",
+    "android/shadps4-app/app/src/androidTest/kotlin/com/shadps4/android/GuestPatchInstrumentedTest.kt": "f78e7c5e1836a9cd41ed70be55d320b5ea8043f691b7faca992b683cac053837",
+    "cmake/fex/CMakeLists.txt": "3123c1f7828b0f126e1e068f92642bcccbdb0ebcb116e84320ae118ad1a2cd03",
+    "guest/custom/v1/include/shad_guest.h": "525466629e26835a93ba3effadbf5288165294544dbc2b51cf200e0faccf4087",
+    "guest/custom/v1/payload.ld": "c80b60001a982a68ab7015a283916361885ff4bda8719d1104ddbf23972fdd37",
+    "guest/custom/v1/runtime.c": "738743ec6e1e5c6c918747035787c7c7f9dddd01d3ddcb2e339299bd008df2a1",
+    "guest/games/CUSA50828/01.08/fmod_studio.cpp": "08c8af842872795d2a128d47ce363beffea8697731900e2a9fc9fc7c3b90542f",
+    "guest/games/CUSA50828/01.08/fmod_studio.recipe.json": "52982991607a563d5a89889984de07749a2652be9e58b7728f4b11641e4fd635",
+    "scripts/android/guest-patch": "eb35703db67c46996494e882a11ae61c7d1c7ef409824c55c55d3d4a1f147b6f",
+    "src/core/diagnostics/diagnostics_commands.cpp": "a9be25d99a296b463e7632c6f42c358d956b18d08783b49ccd3a9d02edeeaddb",
+    "src/core/host_runtime/guest_patch.cpp": "5f0103e64994da15bee55f477a328d601b37e0964b50dccf6ea2e7e78c9948c3",
+    "src/core/host_runtime/guest_patch.h": "9d79da90085aef5b36ae4a57cc81be65e65c879e78ceb3a3e394628f7ea1c05b",
+    "src/core/host_runtime/guest_patch_relocator.cpp": "76cd78f3abe594eb917b59bb4f5117278071a379803307844479a1970a4a5b66",
+    "src/core/host_runtime/guest_runtime.cpp": "d8a57ac8886b772fe92db457759b4b520a448bdd9177e23c56d875d5868f6bf5",
+    "src/core/memory.cpp": "a4a6263e4adf937712a338fa92db94725fee7794d30dd4679f9b312608301bf4",
+    "src/core/memory.h": "2201f13a787f7605070dc564e313a7b9ae337ae9541802cebccd132a7df9fe8b",
+    "tests/guest_cpu/guest_patch_tests.cpp": "e33526f721445b668eeb6da612441a17cb2abfb33f25d27a2858d15ae9cc3817",
+    "tests/guest_cpu/patch/abi.h": "a99cad90dae5a31ddef2b6df5ab4133562ac9bc8fece89bcbf430d71f67eb315",
+    "tests/guest_cpu/patch/app_entry.S": "09672aa4b8e266ffebadb263042e84e153b6ab4009c4ef67921c63bc62242831",
+    "tests/guest_cpu/patch/helpers.S": "bc96dd3d35c86db338d4cdab4067a36e7002182092ad2178f790526275460981",
+    "tests/guest_cpu/patch/helpers.c": "59aefb0124e90683178c61ff820619fed5aed082f0710580f7e7085fcbbe69d0",
+    "tests/guest_cpu/patch/make_apk_fixture.py": "3e9721edb8c188437d0f442ddca323554f0b078a18a3ad13506ac1b53973c01d",
+    "tests/guest_cpu/patch/make_fixture.py": "4306f66af2a822265fe1c6932cd2218d92a8899fa12d610d02d696fdce5b502a",
+    "tests/guest_cpu/patch/patch.cpp": "ce6a426de2fe1763c67ca4ae6692e119fbb1dd9436075ab21fba69f4fbeac21a",
+    "tests/guest_cpu/patch/target.S": "11ac35e1e6c30ff5b02acb01517d8986d42780e465cff402e1e584004692a962",
+    "tests/guest_cpu/test_guest_functions_builder.py": "8853b913e0890669e620aded8707fee6e9fd0e3537f4a47bb44a4a09c79383b5",
+    "tools/guest-functions/build.py": "0d9d309904a37a1ac132347385cdf9a2f1e44304d6617b1d1e41b5aeedf7eac2",
+    "tools/guest-functions/analyze-prof.py": "358b7187f74c1caac592cc702f273b37310838ea61d4b296cff1f11014a9d840"
+  },
+  "main_state": "4da582b7 plus preserved previous dirty work and this uncommitted patch implementation",
+  "tmnt_previous_stage": {
+    "package_sha256": "3458ac1f579fe3c2572a7cb96ff893b20d46f3f44e4fe380dc1f535cac1c0f48",
+    "elf_sha256": "f066c5f9e3b52750617e52d57b237c97b6b077812d8c084ce526029a4203f41f"
+  },
+  "final_tmnt_session": {
+    "pid": 32104,
+    "generation": 2,
+    "run_uuid": "75dc51c721f049b8d88f90e9595bf181",
+    "context_id": 33,
+    "package_sha256": "bbe17a87a100119b7f39fb89e907323a53e303b13907e4133b0168b0aae326d3",
+    "warmup": "GAMEPLAY_REVIEWED",
+    "state": "Running",
+    "debugger_attached": false
+  },
+  "tmnt_profiler": {
+    "path": "build/guest-patch/tmnt-measurement.prof",
+    "sha256": "ed03b602dc13598b901ed900f57cb0f672a50e2b21d9cfa6dfbe010cbcd11011",
+    "bytes": 53153875,
+    "sdk_revision": "368177d458109b0413142215a52dfe31567b81e4",
+    "capture_id": 2
+  },
+  "native_acceptance": {
+    "checks": 41,
+    "failures": 0,
+    "real_fex": true
+  },
+  "builder_acceptance": {
+    "tests": 7,
+    "failures": 0
+  },
+  "apk_acceptance": {
+    "junit_tests": 1,
+    "same_pid_rounds": 3,
+    "pid": 31985,
+    "generations": [
+      1,
+      2,
+      3
+    ],
+    "iterations_per_round": 10000
+  },
+  "device": {
+    "serial": "9c2841a4",
+    "model": "AYN Thor",
+    "api": 33,
+    "page_size": 4096,
+    "abi": "arm64-v8a",
+    "swan_operated": false
+  },
+  "build_modes": {
+    "host": "RelWithDebInfo",
+    "jni": "RelWithDebInfo",
+    "fex_core": "Release",
+    "apk": "playstoreDebug"
+  }
+}

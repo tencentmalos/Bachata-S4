@@ -24,6 +24,7 @@
 #include "core/libraries/sysmodule/sysmodule.h"
 #include "core/libraries/sysmodule/sysmodule_internal.h"
 #include "core/linker.h"
+#include "common/scope_exit.h"
 #include "core/memory.h"
 #include "core/tls.h"
 #include "ipc/ipc.h"
@@ -473,9 +474,18 @@ bool Linker::Resolve(const std::string& name, Loader::SymbolType sym_type, Modul
     sr.module = module->name;
     sr.type = sym_type;
 
+    std::string provider = "unresolved";
+    SCOPE_EXIT {
+        if (memory->IsGuestBackend() && return_info->virtual_address) {
+            auto record = *return_info;
+            record.name = Loader::SymbolsResolver::GenerateName(sr);
+            guest_import_bindings.push_back({m, std::move(record), provider});
+        }
+    };
     const auto* record = m_hle_symbols.FindSymbol(sr);
     if (record) {
         *return_info = *record;
+        provider = "registered_hle";
         if (memory->IsGuestBackend()) {
             if (sym_type == Loader::SymbolType::Object && guest_data_resolver) {
                 return_info->virtual_address = guest_data_resolver(*record);
@@ -502,11 +512,13 @@ bool Linker::Resolve(const std::string& name, Loader::SymbolType sym_type, Modul
         record = mod->export_sym.FindSymbol(sr);
         if (record) {
             *return_info = *record;
+            provider = "guest_export";
             return true;
         }
     }
 
     if (memory->IsGuestBackend()) {
+        provider = "runtime_fallback";
         Loader::SymbolRecord missing{Loader::SymbolsResolver::GenerateName(sr), sr.name, 0, {}};
         if (sym_type == Loader::SymbolType::Object && guest_data_resolver) {
             *return_info = missing;

@@ -1,0 +1,79 @@
+{
+  "pid": 8463,
+  "generation": 2,
+  "run_uuid": "1c9aee872e67e28297d55a653dacd1b6",
+  "host_build_id": "8bf15985aef4038795e3555e0061f4fcca31e600",
+  "serial": "9c2841a4",
+  "artifacts": [
+    {
+      "path": "build/vulkan-wait-chain-20260916/queue.prof",
+      "bytes": 35491626,
+      "sha256": "c147f693126191eef94117ceee08bf45215e9b9cde8c27ab74c012adb126ec85"
+    },
+    {
+      "path": "build/vulkan-wait-chain-20260916/queue2.prof",
+      "bytes": 13933049,
+      "sha256": "032e94108be6d2cf9b6d6cd9608c35e2ff951833cea26316c296518643d382cf"
+    },
+    {
+      "path": "build/vulkan-wait-chain-20260916/handoff.json",
+      "bytes": 1273164,
+      "sha256": "4d789b50cae859edda4e41320c9957492657eed35b14472f38064a18680c1ee7"
+    },
+    {
+      "path": "build/vulkan-wait-chain-20260916/handoff2.json",
+      "bytes": 577137,
+      "sha256": "ba9f916b90448f2f34fe8e30782438f9b8dbb9e4b4f00ad84b9e9ee57740036e"
+    },
+    {
+      "path": "build/vulkan-wait-chain-20260916/sched.txt",
+      "bytes": 77008686,
+      "sha256": "438d5402cb964d616d68d5c0c355efb3d65267dc64fed96ef4572723c7951399"
+    },
+    {
+      "path": "build/vulkan-wait-chain-20260916/sched2.txt",
+      "bytes": 36168046,
+      "sha256": "3345241aaab3b842caaa0f34a5f3f735bfee74e598aa1b35073dc8025067c951"
+    },
+    {
+      "path": "build/vulkan-wait-chain-20260916/probe.pftrace",
+      "bytes": 1237,
+      "sha256": "39285018a636e03dcecf2de972b0bc92ef83f8cb9e624ca3c804c9636ab7f31a"
+    },
+    {
+      "path": "build/vulkan-wait-chain-20260916/probe2.pftrace",
+      "bytes": 1237,
+      "sha256": "1657e272f4dadd4a6e88be170e75f0c179eb4b1b2356f68468f83a80eb625dcd"
+    },
+    {
+      "path": "build/vulkan-wait-chain-20260916/queue.analysis.json",
+      "bytes": 45751,
+      "sha256": "3fdfbd5e38a9ea2a14fe30936d7223bf864e835ee91bbfec21c0941d19d16af2"
+    },
+    {
+      "path": "build/vulkan-wait-chain-20260916/queue2.analysis.json",
+      "bytes": 45254,
+      "sha256": "e5d44a6f7b80eb3ab751975f55021975ade2be13531ed499eda176633070817d"
+    },
+    {
+      "path": "build/vulkan-wait-chain-20260916/scheduling-analysis.json",
+      "bytes": 15644,
+      "sha256": "d0977f50790c96fc05206c02dab529dd70d2149a1d59ff191bcdee1f7743da6b"
+    },
+    {
+      "path": "build/vulkan-wait-chain-20260916/overlay-aba.json",
+      "bytes": 1798,
+      "sha256": "8a2b32b2aec2d473e07f5c1e4bcf74f14bc39082c03f5cd1b176b7ffe8b9fb56"
+    },
+    {
+      "path": "build/vulkan-wait-chain-20260916/native-attach-evidence/evidence-manifest.json",
+      "bytes": 2304,
+      "sha256": "3156b1bafab615dc129d84606cbc75854652a0156865c420b1533413e6197aad"
+    },
+    {
+      "path": "build/vulkan-wait-chain-20260916/warmup/manifest.json",
+      "bytes": 15457,
+      "sha256": "abd72213bbb1eb4c14bcbd1f9feae40d048215b16633a3953b1a9a6b8dd0faed"
+    }
+  ]
+}

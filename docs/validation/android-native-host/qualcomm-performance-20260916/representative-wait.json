@@ -1,0 +1,30 @@
+{
+  "lock_wait": {
+    "start": 333660795233340,
+    "end": 333660858680215,
+    "tid": 10320,
+    "obj": 1,
+    "related": 13372,
+    "name": "Vulkan.SubmitLock"
+  },
+  "present_calls": [
+    {
+      "start": 333660795165059,
+      "end": 333660858616986,
+      "tid": 10358,
+      "obj": 0,
+      "related": 0,
+      "name": "Present.DriverCall"
+    }
+  ],
+  "actual_submit": [
+    {
+      "start": 333660858725580,
+      "end": 333660858786882,
+      "tid": 10320,
+      "obj": 1,
+      "related": 13372,
+      "name": "Vulkan.Submit"
+    }
+  ]
+}

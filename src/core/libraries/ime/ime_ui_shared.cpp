@@ -9,6 +9,9 @@
 
 #include "common/singleton.h"
 #include "input/controller.h"
+#ifdef __ANDROID__
+#include "core/host_runtime/orbis_pad_adapter.h"
+#endif
 
 namespace Libraries::Ime {
 
@@ -77,6 +80,36 @@ bool ReadControllerState(Libraries::UserService::OrbisUserServiceUserId user_id,
     if (!out_state) {
         return false;
     }
+
+#ifdef __ANDROID__
+    // The Android production pad path is deliberately independent from the
+    // desktop SDL GameControllers singleton.  IME/OSK owns gamepad capture,
+    // so it must read the same session-owned snapshot as scePadReadState
+    // instead of relying on the guest pad call (which is masked while the
+    // overlay is active).
+    Libraries::Pad::OrbisPadData android_state{};
+    if (Core::HostRuntime::GlobalPadAdapter().ReadState(0, &android_state) &&
+        android_state.connected) {
+        out_state->buttonsState = android_state.buttons;
+        out_state->axes[static_cast<std::size_t>(Input::Axis::LeftX)] =
+            android_state.leftStick.x;
+        out_state->axes[static_cast<std::size_t>(Input::Axis::LeftY)] =
+            android_state.leftStick.y;
+        out_state->axes[static_cast<std::size_t>(Input::Axis::RightX)] =
+            android_state.rightStick.x;
+        out_state->axes[static_cast<std::size_t>(Input::Axis::RightY)] =
+            android_state.rightStick.y;
+        out_state->axes[static_cast<std::size_t>(Input::Axis::TriggerLeft)] =
+            android_state.analogButtons.l2;
+        out_state->axes[static_cast<std::size_t>(Input::Axis::TriggerRight)] =
+            android_state.analogButtons.r2;
+        out_state->time = android_state.timestamp;
+        out_state->connected = true;
+        out_state->connected_count = android_state.connectedCount;
+        return true;
+    }
+#endif
+
     auto* controllers = Common::Singleton<Input::GameControllers>::Instance();
     if (!controllers) {
         return false;
@@ -500,11 +533,11 @@ VirtualPadSnapshot ReadVirtualPadSnapshot(Libraries::UserService::OrbisUserServi
     constexpr u32 kMaskRight = static_cast<u32>(Libraries::Pad::OrbisPadButtonDataOffset::Right);
     constexpr u32 kMaskUp = static_cast<u32>(Libraries::Pad::OrbisPadButtonDataOffset::Up);
     constexpr u32 kMaskDown = static_cast<u32>(Libraries::Pad::OrbisPadButtonDataOffset::Down);
-    constexpr u32 kMaskCross = static_cast<u32>(Libraries::Pad::OrbisPadButtonDataOffset::Cross);
+    constexpr u32 kMaskCross = static_cast<u32>(ImeConfirmButton());
     constexpr u32 kMaskTriangle =
         static_cast<u32>(Libraries::Pad::OrbisPadButtonDataOffset::Triangle);
     constexpr u32 kMaskSquare = static_cast<u32>(Libraries::Pad::OrbisPadButtonDataOffset::Square);
-    constexpr u32 kMaskCircle = static_cast<u32>(Libraries::Pad::OrbisPadButtonDataOffset::Circle);
+    constexpr u32 kMaskCircle = static_cast<u32>(ImeCancelButton());
     constexpr u32 kMaskL1 = static_cast<u32>(Libraries::Pad::OrbisPadButtonDataOffset::L1);
     constexpr u32 kMaskR1 = static_cast<u32>(Libraries::Pad::OrbisPadButtonDataOffset::R1);
     constexpr u32 kMaskL2 = static_cast<u32>(Libraries::Pad::OrbisPadButtonDataOffset::L2);
@@ -583,10 +616,14 @@ VirtualPadSnapshot ReadVirtualPadSnapshot(Libraries::UserService::OrbisUserServi
         merge_imgui_button(ImGuiKey_GamepadDpadRight, kMaskRight);
         merge_imgui_button(ImGuiKey_GamepadDpadUp, kMaskUp);
         merge_imgui_button(ImGuiKey_GamepadDpadDown, kMaskDown);
-        merge_imgui_button(ImGuiKey_GamepadFaceDown, kMaskCross);
+        constexpr u32 kPhysicalCross =
+            static_cast<u32>(Libraries::Pad::OrbisPadButtonDataOffset::Cross);
+        constexpr u32 kPhysicalCircle =
+            static_cast<u32>(Libraries::Pad::OrbisPadButtonDataOffset::Circle);
+        merge_imgui_button(ImGuiKey_GamepadFaceDown, kPhysicalCross);
         merge_imgui_button(ImGuiKey_GamepadFaceUp, kMaskTriangle);
         merge_imgui_button(ImGuiKey_GamepadFaceLeft, kMaskSquare);
-        merge_imgui_button(ImGuiKey_GamepadFaceRight, kMaskCircle);
+        merge_imgui_button(ImGuiKey_GamepadFaceRight, kPhysicalCircle);
         merge_imgui_button(ImGuiKey_GamepadL1, kMaskL1);
         merge_imgui_button(ImGuiKey_GamepadR1, kMaskR1);
         merge_imgui_button(ImGuiKey_GamepadL3, kMaskL3);
@@ -917,11 +954,11 @@ OskPadInputFrame ComputeOskPadInputFrame(const VirtualPadSnapshot& virtual_pad,
     constexpr u32 kMaskRight = static_cast<u32>(Libraries::Pad::OrbisPadButtonDataOffset::Right);
     constexpr u32 kMaskUp = static_cast<u32>(Libraries::Pad::OrbisPadButtonDataOffset::Up);
     constexpr u32 kMaskDown = static_cast<u32>(Libraries::Pad::OrbisPadButtonDataOffset::Down);
-    constexpr u32 kMaskCross = static_cast<u32>(Libraries::Pad::OrbisPadButtonDataOffset::Cross);
+    constexpr u32 kMaskCross = static_cast<u32>(ImeConfirmButton());
     constexpr u32 kMaskTriangle =
         static_cast<u32>(Libraries::Pad::OrbisPadButtonDataOffset::Triangle);
     constexpr u32 kMaskSquare = static_cast<u32>(Libraries::Pad::OrbisPadButtonDataOffset::Square);
-    constexpr u32 kMaskCircle = static_cast<u32>(Libraries::Pad::OrbisPadButtonDataOffset::Circle);
+    constexpr u32 kMaskCircle = static_cast<u32>(ImeCancelButton());
     constexpr u32 kMaskL1 = static_cast<u32>(Libraries::Pad::OrbisPadButtonDataOffset::L1);
     constexpr u32 kMaskR1 = static_cast<u32>(Libraries::Pad::OrbisPadButtonDataOffset::R1);
     constexpr u32 kMaskL2 = static_cast<u32>(Libraries::Pad::OrbisPadButtonDataOffset::L2);

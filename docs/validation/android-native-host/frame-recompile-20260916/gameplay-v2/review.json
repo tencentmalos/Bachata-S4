@@ -1,0 +1,8 @@
+{
+  "run_id": "c4bcb565781a4fb78e3bf68af80129a4",
+  "scene_frame": 10,
+  "response_frame": 14,
+  "note": "New guest C++ frame-list dispatcher executes on actual Leonardo rooftop, MOVE becomes ATTACK after right stick movement; camera and character change position, same generation2.",
+  "method": "explicit_visual_review",
+  "reviewed_at": 1789540433.33328
+}

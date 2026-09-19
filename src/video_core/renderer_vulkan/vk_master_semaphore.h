@@ -7,6 +7,7 @@
 #include <condition_variable>
 #include <thread>
 #include <queue>
+#include <memory>
 #include "common/types.h"
 #include "video_core/renderer_vulkan/vk_common.h"
 
@@ -14,6 +15,7 @@ namespace Vulkan {
 
 class Instance;
 class Scheduler;
+class TimelineCompletion;
 
 class MasterSemaphore {
 public:
@@ -24,9 +26,8 @@ public:
         return current_tick.load(std::memory_order_acquire);
     }
 
-    [[nodiscard]] u64 KnownGpuTick() const noexcept {
-        return gpu_tick.load(std::memory_order_acquire);
-    }
+    // Conservative retirement watermark: both GPU complete and host submit returned.
+    [[nodiscard]] u64 KnownGpuTick() const noexcept;
 
     [[nodiscard]] bool IsFree(u64 tick) const noexcept {
         return KnownGpuTick() >= tick;
@@ -43,6 +44,8 @@ public:
 
     /// Refresh the known GPU tick
     void Refresh();
+    // Call only after the queue accepted the signal operation.
+    void Submitted(u64 tick);
 
     /// Waits for a tick to be hit on the GPU
     void Wait(u64 tick);
@@ -54,6 +57,9 @@ protected:
     vk::UniqueSemaphore semaphore;    ///< Timeline semaphore.
     std::atomic<u64> gpu_tick{0};     ///< Current known GPU tick.
     std::atomic<u64> current_tick{1}; ///< Current logical tick.
+#ifdef __ANDROID__
+    std::unique_ptr<TimelineCompletion> completion;
+#endif
 };
 
 } // namespace Vulkan

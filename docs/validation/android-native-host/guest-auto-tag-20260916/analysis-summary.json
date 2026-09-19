@@ -1,0 +1,1062 @@
+{
+  "schema": "spatial.guest-profile.analysis.v1",
+  "identity": {
+    "emulator": "shadps4",
+    "title": "CUSA50828",
+    "module": "eboot.bin",
+    "module_sha256": "6122da7190de6b08d921b2c42c3ca9ed11dc4d11524f1139ff67aeceea5b204d"
+  },
+  "process": {
+    "pid": 27493,
+    "session": "f8c0e2ef097990597e550538cf2f2887:2",
+    "context": 33
+  },
+  "architecture": "x86_64",
+  "trace_sha256": "4755c237e4dbcd8eceb3d2d1dbcfaea1b310d53d2aca79c48d7bc4023663f611",
+  "manifest_sha256": "f597514158228d2ace6545e1144e5c4b22eafea62a676ec1b3675c0e962d876d",
+  "frames": {
+    "count": 204,
+    "mean_ms": 74.1541316764706,
+    "p50_ms": 47.183438,
+    "p95_ms": 144.6275,
+    "max_ms": 146.953958
+  },
+  "long_frame_count": 165,
+  "attribution": [
+    {
+      "kind": "guest",
+      "name": "frame",
+      "overlap_ns": 13946815831,
+      "offset": 648544,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "submit",
+      "overlap_ns": 8770397390,
+      "offset": 22306592,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x1545f69",
+      "overlap_ns": 8752464525,
+      "offset": 22306665,
+      "function_offset": 22306592,
+      "target_offset": 103984,
+      "probe_id": 2,
+      "frames": 165
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceGnmSubmitAndFlipCommandBuffers",
+      "overlap_ns": 8746925576,
+      "frames": 165
+    },
+    {
+      "kind": "host",
+      "name": "GNM.SubmissionGate",
+      "overlap_ns": 8707041344,
+      "frames": 165
+    },
+    {
+      "kind": "gpu",
+      "name": "GPU.DrawBatch",
+      "overlap_ns": 8147505931,
+      "frames": 106
+    },
+    {
+      "kind": "gpu",
+      "name": "GPU.GuestCommands",
+      "overlap_ns": 8106376096,
+      "frames": 106
+    },
+    {
+      "kind": "guest",
+      "name": "jobs",
+      "overlap_ns": 1108597153,
+      "offset": 22615408,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x1591733",
+      "overlap_ns": 878257135,
+      "offset": 22615859,
+      "function_offset": 22615408,
+      "target_offset": 22806656,
+      "probe_id": 23,
+      "frames": 165
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sem_wait",
+      "overlap_ns": 862195040,
+      "frames": 165
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceGnmDrawIndex",
+      "overlap_ns": 282142161,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "begin",
+      "overlap_ns": 219076662,
+      "offset": 22306016,
+      "frames": 165
+    },
+    {
+      "kind": "host",
+      "name": "HLE.pthread_mutex_lock",
+      "overlap_ns": 194099811,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x1545d77",
+      "overlap_ns": 185275470,
+      "offset": 22306167,
+      "function_offset": 22306016,
+      "target_offset": 150624,
+      "probe_id": 29,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x24ca2",
+      "overlap_ns": 184894119,
+      "offset": 150690,
+      "function_offset": 150624,
+      "target_offset": 22813184,
+      "probe_id": 73,
+      "frames": 165
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceGnmDrawInitDefaultHardwareState350",
+      "overlap_ns": 179038533,
+      "frames": 165
+    },
+    {
+      "kind": "host",
+      "name": "HLE.scePthreadMutexLock",
+      "overlap_ns": 135401099,
+      "frames": 165
+    },
+    {
+      "kind": "host",
+      "name": "HLE.scePthreadMutexUnlock",
+      "overlap_ns": 113813576,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x158ff24",
+      "overlap_ns": 109481383,
+      "offset": 22609700,
+      "function_offset": 22609168,
+      "target_offset": 160048,
+      "probe_id": 122,
+      "frames": 165
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceGnmSetPsShader350",
+      "overlap_ns": 104255559,
+      "frames": 165
+    },
+    {
+      "kind": "host",
+      "name": "HLE.pthread_mutex_unlock",
+      "overlap_ns": 100397406,
+      "frames": 165
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceGnmDrawIndexAuto",
+      "overlap_ns": 92794340,
+      "frames": 165
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceGnmSetVsShader",
+      "overlap_ns": 81215211,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x15915f8",
+      "overlap_ns": 71802595,
+      "offset": 22615544,
+      "function_offset": 22615408,
+      "target_offset": 22814400,
+      "probe_id": 12,
+      "frames": 165
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sem_post",
+      "overlap_ns": 70207254,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x1590d73",
+      "overlap_ns": 61402187,
+      "offset": 22613363,
+      "function_offset": 22613328,
+      "target_offset": 22814400,
+      "probe_id": 52,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x1590d8b",
+      "overlap_ns": 44998774,
+      "offset": 22613387,
+      "function_offset": 22613328,
+      "target_offset": 22814288,
+      "probe_id": 53,
+      "frames": 165
+    },
+    {
+      "kind": "gpu",
+      "name": "GPU.HostPrepare",
+      "overlap_ns": 40904837,
+      "frames": 62
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceGnmDispatchDirect",
+      "overlap_ns": 40873609,
+      "frames": 165
+    },
+    {
+      "kind": "gpu",
+      "name": "GPU.PostProcess",
+      "overlap_ns": 40689382,
+      "frames": 62
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceGnmUpdatePsShader350",
+      "overlap_ns": 37722812,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x134d9",
+      "overlap_ns": 26744856,
+      "offset": 79065,
+      "function_offset": 78864,
+      "target_offset": 154560,
+      "probe_id": 95,
+      "frames": 165
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceGnmInsertPushMarker",
+      "overlap_ns": 19462489,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x159161c",
+      "overlap_ns": 19386733,
+      "offset": 22615580,
+      "function_offset": 22615408,
+      "target_offset": 22613328,
+      "probe_id": 13,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "fmod",
+      "overlap_ns": 18368594,
+      "offset": 22809376,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x159169f",
+      "overlap_ns": 17242950,
+      "offset": 22615711,
+      "function_offset": 22615408,
+      "target_offset": 22613328,
+      "probe_id": 17,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x1545edb",
+      "overlap_ns": 17025010,
+      "offset": 22306523,
+      "function_offset": 22306016,
+      "target_offset": 22609168,
+      "probe_id": 40,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x159168d",
+      "overlap_ns": 14624125,
+      "offset": 22615693,
+      "function_offset": 22615408,
+      "target_offset": 22806688,
+      "probe_id": 16,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x159170e",
+      "overlap_ns": 12370940,
+      "offset": 22615822,
+      "function_offset": 22615408,
+      "target_offset": 22806688,
+      "probe_id": 20,
+      "frames": 165
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceGnmUpdateVsShader",
+      "overlap_ns": 12268318,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x1591599",
+      "overlap_ns": 12055848,
+      "offset": 22615449,
+      "function_offset": 22615408,
+      "target_offset": 22807744,
+      "probe_id": 6,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x159171b",
+      "overlap_ns": 12010881,
+      "offset": 22615835,
+      "function_offset": 22615408,
+      "target_offset": 22814288,
+      "probe_id": 21,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x1591660",
+      "overlap_ns": 10997447,
+      "offset": 22615648,
+      "function_offset": 22615408,
+      "target_offset": 22814288,
+      "probe_id": 15,
+      "frames": 165
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceGnmSetEmbeddedVsShader",
+      "overlap_ns": 9982195,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x1545f27",
+      "overlap_ns": 9956557,
+      "offset": 22306599,
+      "function_offset": 22306592,
+      "target_offset": 252544,
+      "probe_id": 1,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x158ff07",
+      "overlap_ns": 9596678,
+      "offset": 22609671,
+      "function_offset": 22609168,
+      "target_offset": 91856,
+      "probe_id": 121,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x15915df",
+      "overlap_ns": 9447452,
+      "offset": 22615519,
+      "function_offset": 22615408,
+      "target_offset": 22807744,
+      "probe_id": 11,
+      "frames": 165
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceGnmInsertPopMarker",
+      "overlap_ns": 8899516,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x159164c",
+      "overlap_ns": 8199467,
+      "offset": 22615628,
+      "function_offset": 22615408,
+      "target_offset": 22814400,
+      "probe_id": 14,
+      "frames": 165
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceGnmSubmitDone",
+      "overlap_ns": 6944798,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x1545d92",
+      "overlap_ns": 6446457,
+      "offset": 22306194,
+      "function_offset": 22306016,
+      "target_offset": 175824,
+      "probe_id": 30,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x2af19",
+      "overlap_ns": 6109956,
+      "offset": 175897,
+      "function_offset": 175824,
+      "target_offset": 22813840,
+      "probe_id": 76,
+      "frames": 165
+    },
+    {
+      "kind": "host",
+      "name": "GNM.SubmitDone",
+      "overlap_ns": 5413128,
+      "frames": 165
+    },
+    {
+      "kind": "host",
+      "name": "HLE.clock_gettime",
+      "overlap_ns": 5357776,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x1591726",
+      "overlap_ns": 4983028,
+      "offset": 22615846,
+      "function_offset": 22615408,
+      "target_offset": 22807744,
+      "probe_id": 22,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x15916e3",
+      "overlap_ns": 4912559,
+      "offset": 22615779,
+      "function_offset": 22615408,
+      "target_offset": 22814288,
+      "probe_id": 19,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x15916cf",
+      "overlap_ns": 4735522,
+      "offset": 22615759,
+      "function_offset": 22615408,
+      "target_offset": 22814400,
+      "probe_id": 18,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x1545f89",
+      "overlap_ns": 4503753,
+      "offset": 22306697,
+      "function_offset": 22306592,
+      "target_offset": 22807776,
+      "probe_id": 3,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x158fdac",
+      "overlap_ns": 3007395,
+      "offset": 22609324,
+      "function_offset": 22609168,
+      "target_offset": 237520,
+      "probe_id": 108,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x1545e24",
+      "overlap_ns": 2685259,
+      "offset": 22306340,
+      "function_offset": 22306016,
+      "target_offset": 78864,
+      "probe_id": 35,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x158fe79",
+      "overlap_ns": 2613340,
+      "offset": 22609529,
+      "function_offset": 22609168,
+      "target_offset": 100144,
+      "probe_id": 114,
+      "frames": 165
+    },
+    {
+      "kind": "host",
+      "name": "HLE.pthread_getspecific",
+      "overlap_ns": 2476740,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x159008b",
+      "overlap_ns": 2466707,
+      "offset": 22610059,
+      "function_offset": 22609168,
+      "target_offset": 140416,
+      "probe_id": 128,
+      "frames": 165
+    },
+    {
+      "kind": "host",
+      "name": "HLE.gettimeofday",
+      "overlap_ns": 2261356,
+      "frames": 165
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceGnmSetCsShaderWithModifier",
+      "overlap_ns": 2164379,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x149a8",
+      "overlap_ns": 2110529,
+      "offset": 84392,
+      "function_offset": 84224,
+      "target_offset": 167600,
+      "probe_id": 81,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x149dd",
+      "overlap_ns": 1871194,
+      "offset": 84445,
+      "function_offset": 84224,
+      "target_offset": 168016,
+      "probe_id": 85,
+      "frames": 165
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceGnmInsertWaitFlipDone",
+      "overlap_ns": 1858230,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x158fe58",
+      "overlap_ns": 1796541,
+      "offset": 22609496,
+      "function_offset": 22609168,
+      "target_offset": 134864,
+      "probe_id": 112,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x1545de5",
+      "overlap_ns": 1783537,
+      "offset": 22306277,
+      "function_offset": 22306016,
+      "target_offset": 84224,
+      "probe_id": 33,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x14adb",
+      "overlap_ns": 1781810,
+      "offset": 84699,
+      "function_offset": 84224,
+      "target_offset": 154288,
+      "probe_id": 87,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x149c9",
+      "overlap_ns": 1776795,
+      "offset": 84425,
+      "function_offset": 84224,
+      "target_offset": 168512,
+      "probe_id": 84,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x14a43",
+      "overlap_ns": 1762092,
+      "offset": 84547,
+      "function_offset": 84224,
+      "target_offset": 154160,
+      "probe_id": 86,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x158feb2",
+      "overlap_ns": 1712633,
+      "offset": 22609586,
+      "function_offset": 22609168,
+      "target_offset": 99952,
+      "probe_id": 117,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x158fef7",
+      "overlap_ns": 1698427,
+      "offset": 22609655,
+      "function_offset": 22609168,
+      "target_offset": 99552,
+      "probe_id": 120,
+      "frames": 165
+    },
+    {
+      "kind": "host",
+      "name": "HLE.scePadReadState",
+      "overlap_ns": 1682547,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x158ff9e",
+      "overlap_ns": 1571149,
+      "offset": 22609822,
+      "function_offset": 22609168,
+      "target_offset": 174656,
+      "probe_id": 127,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x158fd4d",
+      "overlap_ns": 1568850,
+      "offset": 22609229,
+      "function_offset": 22609168,
+      "target_offset": 166192,
+      "probe_id": 106,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x149b4",
+      "overlap_ns": 1543003,
+      "offset": 84404,
+      "function_offset": 84224,
+      "target_offset": 228192,
+      "probe_id": 82,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x158ff5a",
+      "overlap_ns": 1484791,
+      "offset": 22609754,
+      "function_offset": 22609168,
+      "target_offset": 155200,
+      "probe_id": 124,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x158ff36",
+      "overlap_ns": 1419320,
+      "offset": 22609718,
+      "function_offset": 22609168,
+      "target_offset": 166192,
+      "probe_id": 123,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x158ff8a",
+      "overlap_ns": 1380830,
+      "offset": 22609802,
+      "function_offset": 22609168,
+      "target_offset": 173536,
+      "probe_id": 126,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x15906f1",
+      "overlap_ns": 1214362,
+      "offset": 22611697,
+      "function_offset": 22609168,
+      "target_offset": 140624,
+      "probe_id": 132,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x158fec4",
+      "overlap_ns": 1199838,
+      "offset": 22609604,
+      "function_offset": 22609168,
+      "target_offset": 166192,
+      "probe_id": 118,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x158ff6f",
+      "overlap_ns": 1144039,
+      "offset": 22609775,
+      "function_offset": 22609168,
+      "target_offset": 175536,
+      "probe_id": 125,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x158fe40",
+      "overlap_ns": 1131134,
+      "offset": 22609472,
+      "function_offset": 22609168,
+      "target_offset": 99392,
+      "probe_id": 111,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x158fd60",
+      "overlap_ns": 1127531,
+      "offset": 22609248,
+      "function_offset": 22609168,
+      "target_offset": 236864,
+      "probe_id": 107,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x149be",
+      "overlap_ns": 1087031,
+      "offset": 84414,
+      "function_offset": 84224,
+      "target_offset": 228208,
+      "probe_id": 83,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x158fe91",
+      "overlap_ns": 1015657,
+      "offset": 22609553,
+      "function_offset": 22609168,
+      "target_offset": 134864,
+      "probe_id": 115,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x158fdca",
+      "overlap_ns": 1002756,
+      "offset": 22609354,
+      "function_offset": 22609168,
+      "target_offset": 140592,
+      "probe_id": 110,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x158fdbe",
+      "overlap_ns": 963357,
+      "offset": 22609342,
+      "function_offset": 22609168,
+      "target_offset": 236864,
+      "probe_id": 109,
+      "frames": 165
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceSystemServiceGetStatus",
+      "overlap_ns": 942407,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x158fe65",
+      "overlap_ns": 928882,
+      "offset": 22609509,
+      "function_offset": 22609168,
+      "target_offset": 134688,
+      "probe_id": 113,
+      "frames": 165
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceKernelClockGettime",
+      "overlap_ns": 892612,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x158fee3",
+      "overlap_ns": 861577,
+      "offset": 22609635,
+      "function_offset": 22609168,
+      "target_offset": 135312,
+      "probe_id": 119,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x1590db9",
+      "overlap_ns": 837863,
+      "offset": 22613433,
+      "function_offset": 22613328,
+      "target_offset": 22814288,
+      "probe_id": 55,
+      "frames": 53
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x158fe9e",
+      "overlap_ns": 798201,
+      "offset": 22609566,
+      "function_offset": 22609168,
+      "target_offset": 134688,
+      "probe_id": 116,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x1590da5",
+      "overlap_ns": 605991,
+      "offset": 22613413,
+      "function_offset": 22613328,
+      "target_offset": 22814400,
+      "probe_id": 54,
+      "frames": 53
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceNpCheckCallback",
+      "overlap_ns": 594681,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x1545d62",
+      "overlap_ns": 408755,
+      "offset": 22306146,
+      "function_offset": 22306016,
+      "target_offset": 101712,
+      "probe_id": 28,
+      "frames": 165
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceUserServiceGetEvent",
+      "overlap_ns": 352709,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x1545e71",
+      "overlap_ns": 271613,
+      "offset": 22306417,
+      "function_offset": 22306016,
+      "target_offset": 155200,
+      "probe_id": 37,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x1545e4d",
+      "overlap_ns": 215989,
+      "offset": 22306381,
+      "function_offset": 22306016,
+      "target_offset": 166192,
+      "probe_id": 36,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x1545d9b",
+      "overlap_ns": 174735,
+      "offset": 22306203,
+      "function_offset": 22306016,
+      "target_offset": 228192,
+      "probe_id": 31,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x1545db3",
+      "overlap_ns": 164101,
+      "offset": 22306227,
+      "function_offset": 22306016,
+      "target_offset": 168512,
+      "probe_id": 32,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x1545dff",
+      "overlap_ns": 163347,
+      "offset": 22306303,
+      "function_offset": 22306016,
+      "target_offset": 152512,
+      "probe_id": 34,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x1545e93",
+      "overlap_ns": 161626,
+      "offset": 22306451,
+      "function_offset": 22306016,
+      "target_offset": 172944,
+      "probe_id": 38,
+      "frames": 165
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x1545eb2",
+      "overlap_ns": 128071,
+      "offset": 22306482,
+      "function_offset": 22306016,
+      "target_offset": 173536,
+      "probe_id": 39,
+      "frames": 165
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceKernelSignalSema",
+      "overlap_ns": 121457,
+      "frames": 1
+    },
+    {
+      "kind": "guest",
+      "name": "eboot.bin+0x1965b",
+      "overlap_ns": 105162,
+      "offset": 104027,
+      "function_offset": 103984,
+      "target_offset": 176240,
+      "probe_id": 44,
+      "frames": 165
+    },
+    {
+      "kind": "gpu",
+      "name": "GPU.FSR",
+      "overlap_ns": 54220,
+      "frames": 62
+    },
+    {
+      "kind": "host",
+      "name": "HLE.__tls_get_addr",
+      "overlap_ns": 27082,
+      "frames": 1
+    },
+    {
+      "kind": "host",
+      "name": "HLE.scePthreadSelf",
+      "overlap_ns": 24217,
+      "frames": 1
+    },
+    {
+      "kind": "host",
+      "name": "HLE.scePthreadRwlockRdlock",
+      "overlap_ns": 2240,
+      "frames": 1
+    },
+    {
+      "kind": "host",
+      "name": "HLE.scePthreadEqual",
+      "overlap_ns": 2238,
+      "frames": 1
+    },
+    {
+      "kind": "host",
+      "name": "HLE.scePthreadCondBroadcast",
+      "overlap_ns": 1980,
+      "frames": 1
+    },
+    {
+      "kind": "host",
+      "name": "HLE.scePthreadRwlockUnlock",
+      "overlap_ns": 1198,
+      "frames": 1
+    },
+    {
+      "kind": "host",
+      "name": "HLE.scePthreadGetthreadid",
+      "overlap_ns": 416,
+      "frames": 1
+    }
+  ],
+  "integrity": {
+    "chunks": 392,
+    "skipped": 0,
+    "truncated": true,
+    "diagnostics": [
+      "unbalanced span end on tid 30287",
+      "unbalanced span end on tid 30314",
+      "unbalanced span end on tid 30237",
+      "unbalanced span end on tid 30286",
+      "unbalanced span end on tid 30288",
+      "unbalanced span end on tid 30289",
+      "unbalanced span end on tid 30367",
+      "unbalanced span end on tid 30313",
+      "unbalanced span end on tid 30333",
+      "unbalanced span end on tid 30316",
+      "unbalanced span end on tid 30315",
+      "unbalanced span end on tid 30315",
+      "unbalanced span end on tid 30285",
+      "unbalanced span end on tid 30282",
+      "dropped gpu zone with unknown context",
+      "unbalanced span end on tid 30282",
+      "unbalanced span end on tid 30282",
+      "unbalanced span end on tid 30282",
+      "unbalanced span end on tid 30259",
+      "2 unclosed spans on tid 30237",
+      "1 unclosed spans on tid 30286",
+      "1 unclosed spans on tid 30287",
+      "1 unclosed spans on tid 30288",
+      "2 unclosed spans on tid 30257",
+      "1 unclosed spans on tid 30289",
+      "1 unclosed spans on tid 30367",
+      "1 unclosed spans on tid 30313",
+      "1 unclosed spans on tid 30333",
+      "2 unclosed spans on tid 30315",
+      "1 unclosed spans on tid 30285",
+      "4 unclosed spans on tid 30282",
+      "1 unclosed spans on tid 30259",
+      "1 unclosed spans on tid 30294",
+      "1 unclosed spans on tid 30291",
+      "1 unclosed spans on tid 30597"
+    ],
+    "orphan_host_ends": 18,
+    "incomplete_guest": 0,
+    "incomplete_host": 22
+  },
+  "limits": "Measured coverage only. Inclusive/nested tags and GPU zones are not additive. Host overlap is not causality or on-CPU time. Gaps reset owner pairing; incomplete spans excluded."
+}

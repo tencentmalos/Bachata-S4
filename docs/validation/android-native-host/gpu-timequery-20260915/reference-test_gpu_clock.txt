@@ -1,0 +1,17 @@
+Running main() from /Users/bytedance/workspace/emulations/ps4/shadps4/foundation/third_party/profiler_sdk/build/_deps/googletest-src/googletest/src/gtest_main.cc
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from GpuClock
+[ RUN      ] GpuClock.ValidBits48WrapsGpuTicksOntoCpuNsTimeline
+[       OK ] GpuClock.ValidBits48WrapsGpuTicksOntoCpuNsTimeline (0 ms)
+[ RUN      ] GpuClock.ValidBits64KeepsFullWidthDelta
+[       OK ] GpuClock.ValidBits64KeepsFullWidthDelta (0 ms)
+[ RUN      ] GpuClock.FloatingNsPerTickRoundsToNearestNanosecond
+[       OK ] GpuClock.FloatingNsPerTickRoundsToNearestNanosecond (0 ms)
+[ RUN      ] GpuClock.IncompleteGpuZoneIsDroppedWithDiagnostic
+[       OK ] GpuClock.IncompleteGpuZoneIsDroppedWithDiagnostic (0 ms)
+[----------] 4 tests from GpuClock (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 4 tests.

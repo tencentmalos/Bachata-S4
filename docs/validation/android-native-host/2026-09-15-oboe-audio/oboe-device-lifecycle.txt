@@ -1,0 +1,4 @@
+OBOE_DEVICE round=0 generation=2 api=2 perf=10 burst=960 size=1920 xruns=0 consumed_a=74176 consumed_b=74944 reconnects=1
+OBOE_DEVICE round=1 generation=2 api=2 perf=10 burst=960 size=1920 xruns=0 consumed_a=75840 consumed_b=75840 reconnects=1
+OBOE_DEVICE round=2 generation=2 api=2 perf=10 burst=960 size=1920 xruns=0 consumed_a=76096 consumed_b=76864 reconnects=1
+OBOE_DEVICE checks=1197 failures=0

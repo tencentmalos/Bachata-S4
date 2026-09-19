@@ -1,0 +1,42 @@
+[
+  {
+    "plt": "0x15c0870",
+    "export": "0xa3bf0",
+    "strings": [
+      {
+        "address": "0x122536",
+        "string": "EventInstance::stop"
+      }
+    ]
+  },
+  {
+    "plt": "0x15c08f0",
+    "export": "0xa4160",
+    "strings": [
+      {
+        "address": "0x1225b0",
+        "string": "EventInstance::release"
+      }
+    ]
+  },
+  {
+    "plt": "0x15c0ae0",
+    "export": "0xa4020",
+    "strings": [
+      {
+        "address": "0x122590",
+        "string": "EventInstance::getPlaybackState"
+      }
+    ]
+  },
+  {
+    "plt": "0x15c09b0",
+    "export": "0x9e9e0",
+    "strings": [
+      {
+        "address": "0x12202b",
+        "string": "EventDescription::getSampleLoadingState"
+      }
+    ]
+  }
+]

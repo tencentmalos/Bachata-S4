@@ -1,0 +1,23 @@
+{
+  "request": {
+    "method": "tools/call",
+    "params": {
+      "name": "capture_open",
+      "arguments": {
+        "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-tooling-20260916/tmnt-rooftop-writing-timeout.rdc"
+      }
+    }
+  },
+  "response": {
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"schemaVersion\":\"1.0\",\"ok\":true,\"operation\":\"capture_open\",\"session\":{\"captureId\":\"1c23f996-10dc-4373-af84-a3f73fe4b799\",\"captureRevision\":{\"value\":60}},\"data\":{\"path\":\"/Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-tooling-20260916/tmnt-rooftop-writing-timeout.rdc\",\"graphicsApi\":\"Vulkan\",\"rootActionCount\":496,\"resourceCount\":1385},\"capturePath\":\"/Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-tooling-20260916/tmnt-rooftop-writing-timeout.rdc\"}"
+        }
+      ]
+    },
+    "id": 90,
+    "jsonrpc": "2.0"
+  }
+}

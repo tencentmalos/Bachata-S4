@@ -94,7 +94,7 @@ void Event(Id generation, const char* kind, Id object, Id token, Id value) {
         Push(generation, 0, {Now(), Thread(), object, token, value, kind, "", false});
 }
 Scope::Scope(const char* name_, Id generation_, Id object_, Id related_, bool wait_)
-    : name{name_}, generation{generation_}, object{object_}, related{related_}, wait{wait_} {
+    : profiler_scope{name_}, name{name_}, generation{generation_}, object{object_}, related{related_}, wait{wait_} {
     if (!Enabled(generation))
         return;
     const auto time = Now();

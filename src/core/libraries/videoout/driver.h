@@ -14,6 +14,8 @@
 #include <span>
 #include <queue>
 
+namespace AmdGpu { struct Image; }
+
 namespace Vulkan {
 struct Frame;
 }
@@ -102,6 +104,12 @@ public:
 
     bool SubmitFlip(VideoOutPort* port, s32 index, s64 flip_arg, bool is_eop = false);
 
+    void SetVrCadence(std::function<void()> callback);
+    void SetVrActive(bool active);
+    bool SubmitVrFrame(VideoOutPort* port, s32 index, u64 sequence,
+                       const std::array<AmdGpu::Image, 4>& eyes, u32 image_count,
+                       std::function<void(bool)> complete);
+
 private:
     struct Request {
         u64 diagnostic_id{};
@@ -110,6 +118,7 @@ private:
         s64 flip_arg;
         s32 index;
         bool eop;
+        std::function<void(bool)> complete;
 
         operator bool() const noexcept {
             return frame != nullptr;
@@ -127,6 +136,9 @@ private:
     std::mutex lifecycle_mutex;
     std::mutex mutex;
     VideoOutPort main_port{};
+    std::mutex vr_cadence_mutex;
+    std::function<void()> vr_cadence;
+    bool vr_active{};
     std::jthread present_thread;
     std::queue<Request> requests;
 };

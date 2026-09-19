@@ -22,20 +22,22 @@ class GuestRwlockDomain final {
     };
     GuestCpu::GuestAddressSpace& space;
     std::function<u64()> allocate;
-    std::recursive_mutex* vm_mutex{};
+
     std::mutex mutex;
     std::condition_variable_any changed;
     std::map<u64, LockState> locks;
     std::map<u64, u32> attributes;
     size_t allocations{};
     bool Read(u64 slot, u64& value) {
-        return bool(space.Read(GuestCpu::GuestAddress{slot}, std::as_writable_bytes(std::span{&value, 1})));
+        return bool(space.ReadData(GuestCpu::GuestAddress{slot},
+                                   std::as_writable_bytes(std::span{&value, 1})));
     }
     template<class T> int Write(u64 slot, const T& value) {
-        // Allocation/publication holds this same gate. Release it before any wait.
-        std::unique_lock<std::recursive_mutex> vm;
-        if (vm_mutex) vm = std::unique_lock(*vm_mutex);
-        return space.Write(GuestCpu::GuestAddress{slot}, std::as_bytes(std::span{&value, 1})) ? 0 : POSIX_EFAULT;
+        // Retain only this output range; never hold VM metadata across the copy.
+
+        return space.WriteData(GuestCpu::GuestAddress{slot}, std::as_bytes(std::span{&value, 1}))
+                   ? 0
+                   : POSIX_EFAULT;
     }
     int Create(u64 slot, u32 type, bool attr, u64& address) {
         if (!space.ValidateRange({GuestCpu::GuestAddress{slot}, 8}, GuestCpu::GuestPermission::Write)) return POSIX_EFAULT;
@@ -48,9 +50,8 @@ class GuestRwlockDomain final {
         return 0;
     }
 public:
-    GuestRwlockDomain(GuestCpu::GuestAddressSpace& space, std::function<u64()> allocate,
-                      std::recursive_mutex* vm_mutex = nullptr)
-        : space(space), allocate(std::move(allocate)), vm_mutex(vm_mutex) {}
+    GuestRwlockDomain(GuestCpu::GuestAddressSpace& space, std::function<u64()> allocate)
+        : space(space), allocate(std::move(allocate)) {}
     // actions: init, destroy, get/set pshared, get/set kind.
     int Attribute(u64 slot, int action, u64 value = 0) {
         std::lock_guard guard(mutex);

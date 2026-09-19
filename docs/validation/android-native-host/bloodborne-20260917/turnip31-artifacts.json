@@ -1,0 +1,53 @@
+{
+  "apk": "872100535544782d69d1268db01d2dac5215e819b054f1bc7acc719668cd265c",
+  "host": "50acf7b888416ff1cb105319ecea9cca6924e4b63c0abc70c269d8b9578df3cd",
+  "pid": 1142,
+  "generation": 1,
+  "run_uuid": "d39662b1752504fd79d1bf85148dca4b",
+  "driver": "Turnip Mesa 26.0.0-devel git-5ac41be677",
+  "renderdoc_loaded": false,
+  "tracer_pid": 0,
+  "stage": "character_creation_name_provider_missing",
+  "artifacts": [
+    {
+      "path": "identity29.json",
+      "sha256": "445fb09c544809dab4d079eb0d7afe4cb1219383b0120ddd2b63bce834df4eea",
+      "size": 551
+    },
+    {
+      "path": "screen-turnip31e.png",
+      "sha256": "1b91579e3e1c5929a1ff40b14ee41a1a5a5dcd07b128ae001843d0bd3a19ab18",
+      "size": 887887
+    },
+    {
+      "path": "screen-turnip31f.png",
+      "sha256": "0b262ee61bf96ca54f84dade0a1fd69cbdf4f5e3d65d3ab2fdda61f5596f8376",
+      "size": 2973340
+    },
+    {
+      "path": "status-turnip31j.txt",
+      "sha256": "c8c343b19712b4f62d8e0791ad5903b3f3ce417853622081f96242486a69edcc",
+      "size": 800
+    },
+    {
+      "path": "ime31.log",
+      "sha256": "2406c21064d58021eb32a3be336c73ff7abbadaa96c3a09103c5118c485a6041",
+      "size": 18350
+    },
+    {
+      "path": "rdc-grey-receipt30b.txt",
+      "sha256": "b88e1cf0e1d5501e31e87c27bcc9bb43b4ee7b185ac5ceba106ac9575e4906ff",
+      "size": 518
+    },
+    {
+      "path": "threads30.txt",
+      "sha256": "f0d07994cd86ce5b48c919246f21ac656198092e1507ef0f26b4527d9880da13",
+      "size": 5553
+    },
+    {
+      "path": "status30-stuck.txt",
+      "sha256": "3b177a420ea4f016cffcb46990999e91e3bc03f9cdf3f25c99f16d2aaaffa46b",
+      "size": 889
+    }
+  ]
+}

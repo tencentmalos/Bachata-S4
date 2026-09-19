@@ -1,0 +1,119 @@
+{
+  "schema": "shadps4.guest-debugger.mixed-watch.v1",
+  "date": "2026-09-15",
+  "source": {
+    "main_head": "4da582b7b3a36d74403a4985c3c03f37e570bcb7",
+    "branch": "codex/android-fex-round2",
+    "dirty": true,
+    "files": {
+      "src/core/guest_cpu/api/context.h": "de6e479efad481123e8a475321557f08b5994429c4dbddbda9550d3b7a7b9fa6",
+      "src/core/guest_cpu/api/execution.h": "4f20eb51f71a193f8e4e8970e13d465c4596a85e66b28daf7dc1f32be43f0157",
+      "src/core/guest_cpu/api/execution.cpp": "4257206de96d0a0008f993f04b7d6cdec69859f98997bd73333eaef1042ce8a0",
+      "src/core/guest_cpu/fex/fex_context.cpp": "58dcb6cadca4917daaf05dc7c4013ead7ee582113287c857ab9e75c25d2d5497",
+      "src/core/guest_cpu/fex/fex_context.h": "565cc4ef141ec7bcb1a3f3d7ff2a7f6d2105fbafb54a97f5981e18c76332ed5b",
+      "src/core/guest_cpu/debug/target.h": "dfe316d4f251195bdad92402b68b9550b05ec5323846b6ae46320be8063e6737",
+      "src/core/guest_cpu/debug/rsp_server.h": "2d8ce1489e8317af76b8053ee156834cc2c2f4f39221ca245dcaeda35e1f45ef",
+      "src/core/guest_cpu/debug/rsp_server.cpp": "a5a685f22e0f2575241a83dea0f1bffd6406acc3d236c509a6ced650e5a885df",
+      "src/core/host_runtime/session_backend_fex.cpp": "fc0e33dfa162aedac4dd5bf086800164b769e1571bf67466343c33ad68e319d4",
+      "src/core/host_runtime/guest_runtime.cpp": "850b4e84225eedba38112b7df651a0802e450d5ca493a991816bbef1396e2924",
+      "cmake/fex/CMakeLists.txt": "360b8743e8537405e385446b595d3ef702f40b52ae41036d9f048f7c7d89ddde",
+      "tests/guest_cpu/guest_execution_tests.cpp": "09df1758818fc3a51362356b49e261a0104fa4b7472a22450a58bed0232b544d",
+      "tests/guest_cpu/fixtures/guest_fixtures.S": "b939b2fd907c97d8370253aedd9a1d019171d56e0bc7a9c52c3660b1c1dd355f",
+      "android/shadps4-app/app/src/androidTest/kotlin/com/shadps4/android/GuestDebuggerInstrumentedTest.kt": "c0e87e381b86cc73cffda3696e3575f5c5481b7346ca42ddf3c781e5af868058",
+      "src/core/guest_cpu/fex/memory_watch_pass.h": "d96b400264fa46ecb129e6b3a44334567ecafcff26f6b104623df5f12d13eea7",
+      "src/core/guest_cpu/hle/scope.cpp": "fec1aea8e78edec1aab82e61261798077b7dffe5c4be62851b838eeeeabffe97"
+    },
+    "fex_head": "385a0cc4d81cd456c8d5c26b4f09cb5a7d8d5842",
+    "fex_branch": "feature/malos/host-page-size",
+    "fex_dirty_files": {
+      "CodeEmitter/CodeEmitter/Emitter.h": "4bdcb10403d9a80a4dce57750b66966a8d008361ddcca000eaf4d011cccdb64a",
+      "FEXCore/Source/Interface/Core/JIT/MiscOps.cpp": "28c02eb48ecff7ca02dae95c75ba7521229f321b4dc21a339d544d66cb8bf935",
+      "FEXCore/Source/Interface/IR/IR.json": "05c2d850eb5822be33bb4aa3bbc22456aa545fcee74a5f720d76fb620c2a968f",
+      "FEXCore/Source/Interface/IR/PassManager.cpp": "81e2472b87a90d8521f5305ec3f50ca4a9769073c307c3daa3026eb1727a24fa",
+      "FEXCore/Source/Interface/IR/PassManager.h": "791c33735822af42b2d62ee4b3e36925d3215313bd528f403461e0b438f65b20",
+      "FEXCore/include/FEXCore/Core/CoreState.h": "45d813b2a3af770f9520e789a1ca4972d92b3ba06ce3993adf2da8149ebc44d6"
+    },
+    "fex_patch_sha256": "7661a4bd02abca33d297be367e12d3a0b53d33bd220e201772fa7a9421f8b4fa",
+    "publication": "main/FEX changes local; previous Foundation/Oboe/other dirty changes preserved"
+  },
+  "client": {
+    "dev_tools_head": "26251f8662a83d7be076e7a3183a588e34f040fb",
+    "publish_head": "b411cfd556f5a8bcfdad8dc1f746d024b8288949",
+    "pushed": false,
+    "installed": "/Users/bytedance/Library/Application Support/NativeDebugger/Mcp/versions/native_debugger_mcp-0.2.0-local.20260915.fex-mixed2-osx-arm64",
+    "executable_sha256": "c500bd81faf6a16212874672ba46d451dfd43faf8d268b8920cfa122407f3693",
+    "mcp_dll_sha256": "8d997631c6ebf79900764b533e793e074c6417336bafc32b856e4d4e7d24dd1a",
+    "service_dll_sha256": "0d1448181e72eea9f6da79cce7ec1830cb73207cf2908a80aa549ccb4c4b5209",
+    "tools": 88,
+    "wrappers": 11
+  },
+  "device": {
+    "serial": "9c2841a4",
+    "api": 33,
+    "page_size": 4096,
+    "apk_identity": "ordinary APK; stage final/apk-events.log",
+    "installed_apk_sha256": "37bbf8921ab65c4c1a1aed093045be4fe867df982f6c6c91e688847e719ea294",
+    "deployed_cli_sha256": "7d1d3fea9cc90e19a5f2b3fc607e1db109c5214d3fb4903a0a84ff9b452ca7f0"
+  },
+  "artifacts": {
+    "android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk": {
+      "sha256": "37bbf8921ab65c4c1a1aed093045be4fe867df982f6c6c91e688847e719ea294",
+      "bytes": 330548917,
+      "build_id": null
+    },
+    "android/shadps4-app/app/build/outputs/apk/androidTest/playstore/debug/app-playstore-debug-androidTest.apk": {
+      "sha256": "fa387cc08d4faa7e284296bd62ba6093b116d2aeedb118dd6c21fcd14c07aced",
+      "bytes": 3035448,
+      "build_id": null
+    },
+    "build/android-host-api33/native/libshadps4_host.so": {
+      "sha256": "fd2565938808272e72ba09b2d878c5239f7b5f3d89eaebd8b2bf6da091934a05",
+      "bytes": 460442728,
+      "build_id": "7edf2aecf2baaffda23f6a4a905abcf4945bdacf"
+    },
+    "build/v0-fex-test/guest_execution_tests": {
+      "sha256": "7d1d3fea9cc90e19a5f2b3fc607e1db109c5214d3fb4903a0a84ff9b452ca7f0",
+      "bytes": 41523960,
+      "build_id": "00cbe6d98b7d44740f590b3de04253fc09031ded"
+    },
+    "build/fexcore-android-api33/FEXCore/Source/libFEXCore.a": {
+      "sha256": "99e29f86ec897d952dc93ceef59b04ea79c4163836a230a0abe4d177436a241f",
+      "bytes": 56012196,
+      "build_id": null
+    },
+    "apk!/lib/arm64-v8a/libshadps4_host.so": {
+      "sha256": "fd2565938808272e72ba09b2d878c5239f7b5f3d89eaebd8b2bf6da091934a05",
+      "bytes": 460442728,
+      "build_id": "7edf2aecf2baaffda23f6a4a905abcf4945bdacf"
+    },
+    "apk!/lib/arm64-v8a/libshadps4_fex_session.so": {
+      "sha256": "b534f77bda80caab1ce4cdb2055b77b6b0f32477660d378a917d4f3c8df562f5",
+      "bytes": 35178968,
+      "build_id": "f1cdd44611304248e259fea4786f15e2aca197ec"
+    }
+  },
+  "results": {
+    "native": {
+      "checks": 77,
+      "failures": 0,
+      "log": "final/mixed-final-native.log"
+    },
+    "mcp_focused": {
+      "passed": 38,
+      "failed": 0,
+      "log": "final/mixed-final-mcp-tests.log"
+    },
+    "mcp_tool_descriptions": {
+      "passed": 15,
+      "failed": 0
+    },
+    "solution_build": "0 errors, 0 warnings",
+    "apk_enabled": "1 JUnit PASS; 3 same-PID generations, real production FEX read/write watch, mixed-stack transfer, unsupported-before-execution and recovery/Stop",
+    "apk_disabled": "1 JUnit PASS; no listener, Running and cancelled Stop",
+    "actual_mcp_watch": "REAL_FEX_WATCH_MCP_PASS; write/read/unsupported state recovery; ownershipReleased=true",
+    "actual_mcp_mixed": "REAL_FEX_MIXED_MCP_PASS; 3 invocation boundaries, 58 native frames; ownershipReleased=true",
+    "host_build": "HOST_LINK_PASS",
+    "scope": "Targeted only; no game zero-FPS/performance/playability or Swan acceptance"
+  },
+  "stages": "Files outside final retain earlier failures and intermediate evidence. Final source includes the later refusal protocol and native/HLE watch configuration fixes."
+}

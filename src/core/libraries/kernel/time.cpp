@@ -30,26 +30,34 @@ namespace Libraries::Kernel {
 
 static u64 initial_ptc;
 static std::unique_ptr<Common::NativeClock> clock;
+Common::NativeClock& ActiveClock() {
+    // Android production sessions intentionally do not run the desktop
+    // RegisterTime bootstrap. GPU workers still call a few shared kernel time
+    // helpers, so keep a process-local monotonic fallback instead of entering a
+    // null desktop clock singleton.
+    static Common::NativeClock fallback;
+    return clock ? *clock : fallback;
+}
 
 u64 PS4_SYSV_ABI sceKernelGetTscFrequency() {
-    return clock->GetTscFrequency();
+    return ActiveClock().GetTscFrequency();
 }
 
 u64 PS4_SYSV_ABI sceKernelGetProcessTime() {
     // TODO: this timer should support suspends, so initial ptc needs to be updated on wake up
-    return clock->GetTimeUS(initial_ptc);
+    return ActiveClock().GetTimeUS(initial_ptc);
 }
 
 u64 PS4_SYSV_ABI sceKernelGetProcessTimeCounter() {
-    return clock->GetUptime() - initial_ptc;
+    return ActiveClock().GetUptime() - initial_ptc;
 }
 
 u64 PS4_SYSV_ABI sceKernelGetProcessTimeCounterFrequency() {
-    return clock->GetTscFrequency();
+    return ActiveClock().GetTscFrequency();
 }
 
 u64 PS4_SYSV_ABI sceKernelReadTsc() {
-    return clock->GetUptime();
+    return ActiveClock().GetUptime();
 }
 
 static s32 posix_nanosleep_impl(const OrbisKernelTimespec* rqtp, OrbisKernelTimespec* rmtp,

@@ -1,0 +1,111 @@
+--------- beginning of main
+217516.837  7683  7683 I run-as  : type=1400 audit(0.0:190984): avc: denied { execute } for name="shad-oboe-probe-20260915" dev="dm-14" ino=90751 scontext=u:r:runas_app:s0:c190,c256,c512,c768 tcontext=u:object_r:shell_data_file:s0 tclass=file permissive=1 app=com.shadps4.android
+217516.837  7683  7683 I run-as  : type=1400 audit(0.0:190985): avc: denied { execute_no_trans } for path="/data/local/tmp/shad-oboe-probe-20260915" dev="dm-14" ino=90751 scontext=u:r:runas_app:s0:c190,c256,c512,c768 tcontext=u:object_r:shell_data_file:s0 tclass=file permissive=1 app=com.shadps4.android
+217516.837  7683  7683 I shad-oboe-probe: type=1400 audit(0.0:190986): avc: denied { search } for name="tests" dev="dm-14" ino=110 scontext=u:r:runas_app:s0:c190,c256,c512,c768 tcontext=u:object_r:shell_test_data_file:s0 tclass=dir permissive=1 app=com.shadps4.android
+217516.894  7683  7683 I OboeAudio: openStream() OUTPUT -------- OboeVersion1.8.0 --------
+217516.894  7683  7683 I OboeAudio: openStream() OUTPUT -------- OboeVersion1.8.0 --------
+217516.894  7683  7683 I OboeAudio: AudioStreamOpenSLES::open() chans=2, rate=0
+217516.896  7683  7683 D shad-oboe-probe-20260915: PlayerBase::PlayerBase()
+217516.899  7683  7683 D shad-oboe-probe-20260915: TrackPlayerBase::TrackPlayerBase()
+217516.899  7683  7683 I libOpenSLES: Emulating old channel mask behavior (ignoring positional mask 0x3, using default mask 0x3 based on channel count of 2)
+217518.122  7683  7683 D shad-oboe-probe-20260915: PlayerBase::stop() from IPlayer
+217518.122  7683  7683 D AudioTrack: stop(370): called with 58566 frames delivered
+217518.123  7683  7683 D shad-oboe-probe-20260915: PlayerBase::pause() from IPlayer
+217518.146  7683  7683 I OboeAudio: openStream() OUTPUT -------- OboeVersion1.8.0 --------
+217518.146  7683  7683 I OboeAudio: openStream() OUTPUT -------- OboeVersion1.8.0 --------
+217518.146  7683  7683 I AAudio  : AAudioStreamBuilder_openStream() called ----------------------------------------
+217518.146  7683  7683 I AudioStreamBuilder: rate   =      0, channels  = 2, channelMask = 0x3, format   = 1, sharing = SH, dir = OUTPUT
+217518.146  7683  7683 I AudioStreamBuilder: device =      0, sessionId = -1, perfMode = 12, callback: ON with frames = 0
+217518.146  7683  7683 I AudioStreamBuilder: usage  =     14, contentType = 2, inputPreset = 6, allowedCapturePolicy = 0
+217518.146  7683  7683 I AudioStreamBuilder: privacy sensitive = false, opPackageName = (null), attributionTag = (null)
+217518.146  7683  7683 D shad-oboe-probe-20260915: PlayerBase::PlayerBase()
+217518.169  7683  7683 D shad-oboe-probe-20260915: PlayerBase::PlayerBase()
+217518.169  7683  7683 D AudioStreamInternal_Client: ~AudioStreamInternal() 0xb400006ec23514b0 called
+217518.169  7683  7683 D AAudioStream: ~AudioStream(s#1) mPlayerBase strongCount = 1
+217518.169  7683  7683 D shad-oboe-probe-20260915: PlayerBase::~PlayerBase()
+217518.169  7683  7683 D AudioStreamTrack: open(), request notificationFrames = 0, frameCount = 480
+217518.179  7683  7683 D AudioStreamTrack: open() flags changed from 0x00000104 to 0x00000000
+217518.179  7683  7683 D AudioStreamTrack: open() perfMode changed from 12 to 10
+217518.179  7683  7683 D AAudioStream: setState(s#2) from 0 to 2
+217518.180  7683  7683 I AAudio  : AAudioStreamBuilder_openStream() returns 0 = AAUDIO_OK for s#2 ----------------
+217518.180  7683  7683 D AAudio  : AAudioStream_requestStart(s#2) called --------------
+217518.180  7683  7683 D AAudioStream: setState(s#2) from 2 to 3
+217518.183  7683  7683 D AAudio  : AAudioStream_requestStart(s#2) returned 0 ---------
+217518.187  7683  7687 D AudioStreamLegacy: onAudioDeviceUpdate(deviceId = 2)
+217518.188  7683  7706 D AAudioStream: setState(s#2) from 3 to 4
+217519.383  7683  7683 D AAudio  : AAudioStream_requestStop(s#2) called
+217519.383  7683  7683 D AAudioStream: setState(s#2) from 4 to 9
+217519.383  7683  7683 D AudioTrack: stop(371): called with 57600 frames delivered
+217519.384  7683  7683 D AAudioStream: setState(s#2) from 9 to 10
+217519.384  7683  7683 D AAudio  : AAudioStream_requestStop(s#2) called
+217519.405  7683  7683 D AAudio  : AAudioStream_close(s#2) called ---------------
+217519.406  7683  7683 D AAudioStream: setState(s#2) from 10 to 11
+217519.408  7683  7683 D AAudioStream: setState(s#2) from 11 to 12
+217519.408  7683  7683 D AAudioStream: ~AudioStream(s#2) mPlayerBase strongCount = 2
+217519.408  7683  7683 D AAudio  : AAudioStream_close(s#2) returned 0 ---------
+217519.408  7683  7683 I OboeAudio: openStream() OUTPUT -------- OboeVersion1.8.0 --------
+217519.408  7683  7683 I AAudio  : AAudioStreamBuilder_openStream() called ----------------------------------------
+217519.408  7683  7683 I AudioStreamBuilder: rate   =      0, channels  = 2, channelMask = 0x3, format   = 5, sharing = SH, dir = OUTPUT
+217519.408  7683  7683 I AudioStreamBuilder: device =      0, sessionId = -1, perfMode = 12, callback: ON with frames = 0
+217519.408  7683  7683 I AudioStreamBuilder: usage  =     14, contentType = 2, inputPreset = 6, allowedCapturePolicy = 0
+217519.408  7683  7683 I AudioStreamBuilder: privacy sensitive = false, opPackageName = (null), attributionTag = (null)
+217519.410  7683  7683 D shad-oboe-probe-20260915: PlayerBase::PlayerBase()
+217519.429  7683  7683 D shad-oboe-probe-20260915: PlayerBase::PlayerBase()
+217519.429  7683  7683 D AudioStreamInternal_Client: ~AudioStreamInternal() 0xb400006ec23514b0 called
+217519.429  7683  7683 D AAudioStream: ~AudioStream(s#3) mPlayerBase strongCount = 1
+217519.429  7683  7683 D shad-oboe-probe-20260915: PlayerBase::~PlayerBase()
+217519.429  7683  7683 D AudioStreamTrack: open(), request notificationFrames = -8, frameCount = 0
+217519.439  7683  7683 D AudioStreamTrack: open() flags changed from 0x00000104 to 0x00000000
+217519.439  7683  7683 D AudioStreamTrack: open() perfMode changed from 12 to 10
+217519.439  7683  7683 D AAudioStream: setState(s#4) from 0 to 2
+217519.440  7683  7683 I AAudio  : AAudioStreamBuilder_openStream() returns 0 = AAUDIO_OK for s#4 ----------------
+217519.440  7683  7683 D AAudio  : AAudioStream_requestStart(s#4) called --------------
+217519.440  7683  7683 D AAudioStream: setState(s#4) from 2 to 3
+217519.443  7683  7683 D AAudio  : AAudioStream_requestStart(s#4) returned 0 ---------
+217519.447  7683  7689 D AudioStreamLegacy: onAudioDeviceUpdate(deviceId = 2)
+217519.448  7683  7723 D AAudioStream: setState(s#4) from 3 to 4
+217520.643  7683  7683 D AAudio  : AAudioStream_requestStop(s#4) called
+217520.643  7683  7683 D AAudioStream: setState(s#4) from 4 to 9
+217520.643  7683  7683 D AudioTrack: stop(372): called with 59520 frames delivered
+217520.644  7683  7683 D AAudioStream: setState(s#4) from 9 to 10
+217520.644  7683  7683 D AAudio  : AAudioStream_requestStop(s#4) called
+217520.665  7683  7683 D AAudio  : AAudioStream_close(s#4) called ---------------
+217520.666  7683  7683 D AAudioStream: setState(s#4) from 10 to 11
+217520.667  7683  7683 D AAudioStream: setState(s#4) from 11 to 12
+217520.668  7683  7683 D AAudioStream: ~AudioStream(s#4) mPlayerBase strongCount = 2
+217520.668  7683  7683 D AAudio  : AAudioStream_close(s#4) returned 0 ---------
+217520.668  7683  7683 I OboeAudio: openStream() OUTPUT -------- OboeVersion1.8.0 --------
+217520.668  7683  7683 I AAudio  : AAudioStreamBuilder_openStream() called ----------------------------------------
+217520.668  7683  7683 I AudioStreamBuilder: rate   =      0, channels  = 2, channelMask = 0x3, format   = 5, sharing = EX, dir = OUTPUT
+217520.668  7683  7683 I AudioStreamBuilder: device =      0, sessionId = -1, perfMode = 12, callback: ON with frames = 0
+217520.668  7683  7683 I AudioStreamBuilder: usage  =     14, contentType = 2, inputPreset = 6, allowedCapturePolicy = 0
+217520.668  7683  7683 I AudioStreamBuilder: privacy sensitive = false, opPackageName = (null), attributionTag = (null)
+217520.670  7683  7683 D shad-oboe-probe-20260915: PlayerBase::PlayerBase()
+217520.706  7683  7683 D shad-oboe-probe-20260915: PlayerBase::PlayerBase()
+217520.706  7683  7683 D AudioStreamInternal_Client: ~AudioStreamInternal() 0xb400006ec23514b0 called
+217520.706  7683  7683 D AAudioStream: ~AudioStream(s#5) mPlayerBase strongCount = 1
+217520.706  7683  7683 D shad-oboe-probe-20260915: PlayerBase::~PlayerBase()
+217520.706  7683  7683 D AudioStreamTrack: open(), request notificationFrames = -8, frameCount = 0
+217520.715  7683  7683 D AudioStreamTrack: open() flags changed from 0x00000104 to 0x00000000
+217520.715  7683  7683 D AudioStreamTrack: open() perfMode changed from 12 to 10
+217520.715  7683  7683 D AAudioStream: setState(s#6) from 0 to 2
+217520.715  7683  7683 I AAudio  : AAudioStreamBuilder_openStream() returns 0 = AAUDIO_OK for s#6 ----------------
+217520.716  7683  7683 D AAudio  : AAudioStream_requestStart(s#6) called --------------
+217520.716  7683  7683 D AAudioStream: setState(s#6) from 2 to 3
+217520.718  7683  7683 D AAudio  : AAudioStream_requestStart(s#6) returned 0 ---------
+217520.727  7683  7689 D AudioStreamLegacy: onAudioDeviceUpdate(deviceId = 2)
+217520.728  7683  7738 D AAudioStream: setState(s#6) from 3 to 4
+217521.918  7683  7683 D AAudio  : AAudioStream_requestStop(s#6) called
+217521.918  7683  7683 D AAudioStream: setState(s#6) from 4 to 9
+217521.918  7683  7683 D AudioTrack: stop(373): called with 59520 frames delivered
+217521.919  7683  7683 D AAudioStream: setState(s#6) from 9 to 10
+217521.919  7683  7683 D AAudio  : AAudioStream_requestStop(s#6) called
+217521.941  7683  7683 D AAudio  : AAudioStream_close(s#6) called ---------------
+217521.941  7683  7683 D AAudioStream: setState(s#6) from 10 to 11
+217521.943  7683  7683 D AAudioStream: setState(s#6) from 11 to 12
+217521.943  7683  7683 D AAudioStream: ~AudioStream(s#6) mPlayerBase strongCount = 2
+217521.943  7683  7683 D AAudio  : AAudioStream_close(s#6) returned 0 ---------
+217521.944  7683  7683 I OboeAudio: ~AAudioLoader() dlclose(libaaudio.so) not called, OK
+217521.956  7683  7683 I BpBinder: onLastStrongRef automatically unlinking death recipients: <uncached descriptor>
+217521.956  7683  7683 I BpBinder: onLastStrongRef automatically unlinking death recipients: <uncached descriptor>
+217521.957  7683  7683 I BpBinder: onLastStrongRef automatically unlinking death recipients: <uncached descriptor>

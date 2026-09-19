@@ -1,0 +1,16 @@
+{
+  "root": "/Users/bytedance/workspace/spatial_mcp_publish",
+  "root_head": "ad32822a2cec40a9ea4cb3ddae72011aaa1e53ff",
+  "dev_tools_head": "1c6f8765d08f266a795ab233c4fccef7a43d628b",
+  "dirty": true,
+  "files": {
+    "dev_tools/mcp/ida/McpServer/Tools/GuestProfilingTools.cs": "80440ea4e6d2dee3f089274da9513b2df56538e2bb0452d41ab8e58aa7300dd5",
+    "dev_tools/mcp/ida/McpServer/Program.cs": "8c74386a702954bdcc9c23a229a6fbfa7dcfdf71c8344d913e7149693b030a0c",
+    "dev_tools/mcp/ida/McpServer/Ida.McpServer.csproj": "2b532ad740358f3784b93ba0ea6c64160a83b72c9ef0492ea09b3a0b58e40292",
+    "dev_tools/mcp/guest_profiling/profile_batch.py": "0c7b5bee963bec644f43178499c27097db9d30e3e1e3f85f99579e7a0e922db6",
+    "dev_tools/mcp/guest_profiling/prof_decoder.py": "9ca24a471481b47fef520f5c902b206a3e5c02e598048116715f00d636289897",
+    "dev_tools/mcp/ida/McpServer/skills/guest-auto-tag/SKILL.md": "e1194bd97b343dc46b0a240265794c54032377ad2c28e1b01093dc3fda31856e",
+    "dev_tools/mcp/ida/McpServer/skills/guest-auto-tag/references/contracts.md": "28efba92a157d3ea21f5248d97f727b7e00db3790d5e6b6f32dd9dc7b4ce603b",
+    "dev_tools/mcp/ida/McpServer/skills/reverse-study/SKILL.md": "24c3794efe24478dd9b1e0d96b116d20314fb9fe767ee73046c5f3fa26afb1de"
+  }
+}

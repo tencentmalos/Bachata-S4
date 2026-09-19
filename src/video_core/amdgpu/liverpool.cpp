@@ -270,7 +270,7 @@ Liverpool::Task Liverpool::ProcessCeUpdate(std::span<const u32> ccb) {
     FIBER_EXIT;
 }
 
-Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<const u32> ccb) {
+Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<const u32> ccb, u64 submission, VAddr source) {
     FIBER_ENTER(dcb_task_name);
 
     cblock.Reset();
@@ -284,7 +284,7 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
         ce_task = ProcessCeUpdate(ccb);
         RESUME_GFX(ce_task);
     }
-    const bool host_markers_enabled = rasterizer && EmulatorSettings.IsVkHostMarkersEnabled();
+    const bool host_markers_enabled = rasterizer && rasterizer->HostMarkersEnabled();
     const bool guest_markers_enabled = rasterizer && EmulatorSettings.IsVkGuestMarkersEnabled();
 
     const auto base_addr = reinterpret_cast<uintptr_t>(dcb.data());
@@ -292,6 +292,9 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
         ProcessCommands();
 
         const auto* header = reinterpret_cast<const PM4Header*>(dcb.data());
+        if (host_markers_enabled)
+            rasterizer->SetDiagnosticPacket(diagnostic_guest_flip + 1, submission, GfxQueueId,
+                source ? source + reinterpret_cast<VAddr>(header) - base_addr : 0);
         const u32 type = header->type;
 
         switch (type) {
@@ -877,6 +880,9 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
                 const u64* wait_addr = wait_reg_mem->Address<u64*>();
                 if (vo_port && vo_port->IsVoLabel(wait_addr) &&
                     num_submits == mapped_queues[GfxQueueId].submits.size()) {
+                    Core::Diagnostics::Handoff::Scope wait_scope{
+                        "PM4.WaitVideoOutLabel", diagnostics ? diagnostics->Generation() : 0,
+                        static_cast<u64>(wait_addr - vo_port->buffer_labels.data()) + 1, 0, true};
                     vo_port->WaitVoLabel([&] { return wait_reg_mem->Test(regs.reg_array); });
                     break;
                 }
@@ -888,7 +894,7 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
             case PM4ItOpcode::IndirectBuffer: {
                 const auto* indirect_buffer = reinterpret_cast<const PM4CmdIndirectBuffer*>(header);
                 auto task = ProcessGraphics(
-                    {indirect_buffer->Address<const u32>(), indirect_buffer->ib_size}, {});
+                    {indirect_buffer->Address<const u32>(), indirect_buffer->ib_size}, {}, submission, reinterpret_cast<VAddr>(indirect_buffer->Address<const u32>()));
                 RESUME_GFX(task);
 
                 while (!task.handle.done()) {
@@ -962,10 +968,10 @@ Liverpool::Task Liverpool::ProcessGraphics(std::span<const u32> dcb, std::span<c
 }
 
 template <bool is_indirect>
-Liverpool::Task Liverpool::ProcessCompute(std::span<const u32> acb, u32 vqid) {
+Liverpool::Task Liverpool::ProcessCompute(std::span<const u32> acb, u32 vqid, u64 submission, VAddr source) {
     FIBER_ENTER(acb_task_name[vqid]);
     auto& queue = asc_queues[{vqid}];
-    const bool host_markers_enabled = rasterizer && EmulatorSettings.IsVkHostMarkersEnabled();
+    const bool host_markers_enabled = rasterizer && rasterizer->HostMarkersEnabled();
 
     struct IndirectPatch {
         const PM4Header* header;
@@ -979,6 +985,12 @@ Liverpool::Task Liverpool::ProcessCompute(std::span<const u32> acb, u32 vqid) {
         ProcessCommands();
 
         auto* header = reinterpret_cast<const PM4Header*>(acb.data());
+        if (host_markers_enabled)
+            rasterizer->SetDiagnosticPacket(0, submission, vqid + 1,
+                // A split packet started in the previous ring span. Its original
+                // address is not retained; never identify it by the tail span.
+                source && queue.tmp_dwords == 0
+                    ? source + reinterpret_cast<VAddr>(header) - base_addr : 0);
         u32 next_dw_off = header->type3.NumWords() + 1;
 
         // If we have a buffered packet, use it.
@@ -1031,7 +1043,7 @@ Liverpool::Task Liverpool::ProcessCompute(std::span<const u32> acb, u32 vqid) {
         case PM4ItOpcode::IndirectBuffer: {
             const auto* indirect_buffer = reinterpret_cast<const PM4CmdIndirectBuffer*>(header);
             auto task = ProcessCompute<true>(
-                {indirect_buffer->Address<const u32>(), indirect_buffer->ib_size}, vqid);
+                {indirect_buffer->Address<const u32>(), indirect_buffer->ib_size}, vqid, submission, reinterpret_cast<VAddr>(indirect_buffer->Address<const u32>()));
             RESUME_ASC(task, vqid);
 
             while (!task.handle.done()) {
@@ -1274,8 +1286,8 @@ Liverpool::CmdBuffer Liverpool::CopyCmdBuffers(std::span<const u32> dcb, std::sp
     return std::make_pair(dcb, ccb);
 }
 
-Liverpool::Task Liverpool::ProcessOwnedGraphics(std::vector<u32> dcb, std::vector<u32> ccb) {
-    auto task = ProcessGraphics(dcb, ccb);
+Liverpool::Task Liverpool::ProcessOwnedGraphics(std::vector<u32> dcb, std::vector<u32> ccb, u64 submission, VAddr source) {
+    auto task = ProcessGraphics(dcb, ccb, submission, source);
     while (!task.handle.done() && !stopping) {
         task.handle.resume();
         if (!task.handle.done())
@@ -1285,18 +1297,19 @@ Liverpool::Task Liverpool::ProcessOwnedGraphics(std::vector<u32> dcb, std::vecto
         std::rethrow_exception(task.handle.promise().error);
 }
 
-void Liverpool::SubmitGfx(std::span<const u32> dcb, std::span<const u32> ccb) {
+void Liverpool::SubmitGfx(std::span<const u32> dcb, std::span<const u32> ccb, VAddr source) {
     auto& queue = mapped_queues[GfxQueueId];
+    const auto submission = Core::Diagnostics::Handoff::NextId();
 
     if (!owned_submissions && EmulatorSettings.IsCopyGpuBuffers()) {
         std::tie(dcb, ccb) = CopyCmdBuffers(dcb, ccb);
     }
 
     auto task = owned_submissions
-                    ? ProcessOwnedGraphics({dcb.begin(), dcb.end()}, {ccb.begin(), ccb.end()})
-                    : ProcessGraphics(dcb, ccb);
+                    ? ProcessOwnedGraphics({dcb.begin(), dcb.end()}, {ccb.begin(), ccb.end()}, submission, source)
+                    : ProcessGraphics(dcb, ccb, submission, source);
     const auto generation = diagnostics ? diagnostics->Generation() : 0;
-    task.handle.promise().diagnostic_id = Core::Diagnostics::Handoff::NextId();
+    task.handle.promise().diagnostic_id = submission;
     {
         std::scoped_lock lock{queue.m_access};
         SHAD_HANDOFF(generation, "queue_enqueue", GfxQueueId, task.handle.promise().diagnostic_id, dcb.size());
@@ -1309,8 +1322,8 @@ void Liverpool::SubmitGfx(std::span<const u32> dcb, std::span<const u32> ccb) {
     submit_cv.notify_one();
 }
 
-Liverpool::Task Liverpool::ProcessOwnedCompute(std::vector<u32> acb, u32 vqid) {
-    auto task = ProcessCompute(acb, vqid);
+Liverpool::Task Liverpool::ProcessOwnedCompute(std::vector<u32> acb, u32 vqid, u64 submission, VAddr source) {
+    auto task = ProcessCompute(acb, vqid, submission, source);
     while (!task.handle.done() && !stopping) {
         task.handle.resume();
         if (!task.handle.done())
@@ -1325,10 +1338,12 @@ void Liverpool::SubmitAsc(u32 gnm_vqid, std::span<const u32> acb) {
     auto& queue = mapped_queues[gnm_vqid];
 
     const auto vqid = gnm_vqid - 1;
-    auto task = owned_submissions ? ProcessOwnedCompute({acb.begin(), acb.end()}, vqid)
-                                  : ProcessCompute(acb, vqid);
+    const auto submission = Core::Diagnostics::Handoff::NextId();
+    const auto source = reinterpret_cast<VAddr>(acb.data());
+    auto task = owned_submissions ? ProcessOwnedCompute({acb.begin(), acb.end()}, vqid, submission, source)
+                                  : ProcessCompute(acb, vqid, submission, source);
     const auto generation = diagnostics ? diagnostics->Generation() : 0;
-    task.handle.promise().diagnostic_id = Core::Diagnostics::Handoff::NextId();
+    task.handle.promise().diagnostic_id = submission;
     {
         std::scoped_lock lock{queue.m_access};
         SHAD_HANDOFF(generation, "queue_enqueue", gnm_vqid, task.handle.promise().diagnostic_id, acb.size());

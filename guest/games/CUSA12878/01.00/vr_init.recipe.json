@@ -1,0 +1,391 @@
+{
+  "schema": "shadps4.guest-functions.recipe.v1",
+  "abi": "x86_64-sysv",
+  "id": "beatsaber_vr_init_observers_v2",
+  "title": "CUSA12878",
+  "module": "eboot.bin",
+  "module_sha256": "9ac1745407a97af986d5f6dfe246a7c0d695857f4049d7d717f896ed219778cf",
+  "sources": [
+    "vr_init_observers.cpp"
+  ],
+  "hooks": [
+    {
+      "name": "UnityVR_RegisterProviders",
+      "offset": 10220688,
+      "expected": "554889e54157415641554154534881ec",
+      "mode": "entry-observer-x86_64-avx",
+      "replacement": "patch_UnityVR_RegisterProviders",
+      "original": "original_UnityVR_RegisterProviders",
+      "observer": "observe_UnityVR_RegisterProviders",
+      "prototype": "opaque-machine-entry",
+      "evidence": "精确 SELF/ELF 对应；ET_DYN 分析副本仅修改 ELF e_type。study0 确认函数边界，入口后 16 字节内无索引跳入引用。名称来自 PSVR managed icall 注册字符串或设备注册/选择流程；未知 C ABI，使用保留机器状态的入口观察，不声明函数体重编译。"
+    },
+    {
+      "name": "UnityVR_SelectDevice",
+      "offset": 10221792,
+      "expected": "554889e54157415641554154534881ec",
+      "mode": "entry-observer-x86_64-avx",
+      "replacement": "patch_UnityVR_SelectDevice",
+      "original": "original_UnityVR_SelectDevice",
+      "observer": "observe_UnityVR_SelectDevice",
+      "prototype": "opaque-machine-entry",
+      "evidence": "精确 SELF/ELF 对应；ET_DYN 分析副本仅修改 ELF e_type。study0 确认函数边界，入口后 16 字节内无索引跳入引用。名称来自 PSVR managed icall 注册字符串或设备注册/选择流程；未知 C ABI，使用保留机器状态的入口观察，不声明函数体重编译。"
+    },
+    {
+      "name": "UnityVR_ReadDeviceNames",
+      "offset": 10228528,
+      "expected": "554889e54157415641554154534881ec",
+      "mode": "entry-observer-x86_64-avx",
+      "replacement": "patch_UnityVR_ReadDeviceNames",
+      "original": "original_UnityVR_ReadDeviceNames",
+      "observer": "observe_UnityVR_ReadDeviceNames",
+      "prototype": "opaque-machine-entry",
+      "evidence": "精确 SELF/ELF 对应；ET_DYN 分析副本仅修改 ELF e_type。study0 确认函数边界，入口后 16 字节内无索引跳入引用。名称来自 PSVR managed icall 注册字符串或设备注册/选择流程；未知 C ABI，使用保留机器状态的入口观察，不声明函数体重编译。"
+    },
+    {
+      "name": "UnityVR_InitializeSelectedDevice",
+      "offset": 10285248,
+      "expected": "554889e54157415641554154534881ec",
+      "mode": "entry-observer-x86_64-avx",
+      "replacement": "patch_UnityVR_InitializeSelectedDevice",
+      "original": "original_UnityVR_InitializeSelectedDevice",
+      "observer": "observe_UnityVR_InitializeSelectedDevice",
+      "prototype": "opaque-machine-entry",
+      "evidence": "精确 SELF/ELF 对应；ET_DYN 分析副本仅修改 ELF e_type。study0 确认函数边界，入口后 16 字节内无索引跳入引用。名称来自 PSVR managed icall 注册字符串或设备注册/选择流程；未知 C ABI，使用保留机器状态的入口观察，不声明函数体重编译。"
+    },
+    {
+      "name": "UnityPSVR_Initialize",
+      "offset": 14087824,
+      "expected": "554889e54157415641554154534883e4",
+      "mode": "entry-observer-x86_64-avx",
+      "replacement": "patch_UnityPSVR_Initialize",
+      "original": "original_UnityPSVR_Initialize",
+      "observer": "observe_UnityPSVR_Initialize",
+      "prototype": "opaque-machine-entry",
+      "evidence": "精确 SELF/ELF 对应；ET_DYN 分析副本仅修改 ELF e_type。study0 确认函数边界，入口后 16 字节内无索引跳入引用。名称来自 PSVR managed icall 注册字符串或设备注册/选择流程；未知 C ABI，使用保留机器状态的入口观察，不声明函数体重编译。"
+    },
+    {
+      "name": "UnityPSVR_RegisterManagedCalls",
+      "offset": 14114368,
+      "expected": "554889e5488d3d8ea75a00488d356ee7",
+      "mode": "entry-observer-x86_64-avx",
+      "replacement": "patch_UnityPSVR_RegisterManagedCalls",
+      "original": "original_UnityPSVR_RegisterManagedCalls",
+      "observer": "observe_UnityPSVR_RegisterManagedCalls",
+      "prototype": "opaque-machine-entry",
+      "evidence": "精确 SELF/ELF 对应；ET_DYN 分析副本仅修改 ELF e_type。study0 确认函数边界，入口后 16 字节内无索引跳入引用。名称来自 PSVR managed icall 注册字符串或设备注册/选择流程；未知 C ABI，使用保留机器状态的入口观察，不声明函数体重编译。"
+    },
+    {
+      "name": "UnityPSVR_GetHmdMount",
+      "offset": 14112096,
+      "expected": "554889e54156534883ec304c8b35762f",
+      "mode": "entry-observer-x86_64-avx",
+      "replacement": "patch_UnityPSVR_GetHmdMount",
+      "original": "original_UnityPSVR_GetHmdMount",
+      "observer": "observe_UnityPSVR_GetHmdMount",
+      "prototype": "opaque-machine-entry",
+      "evidence": "精确 SELF/ELF 对应；ET_DYN 分析副本仅修改 ELF e_type。study0 确认函数边界，入口后 16 字节内无索引跳入引用。名称来自 PSVR managed icall 注册字符串或设备注册/选择流程；未知 C ABI，使用保留机器状态的入口观察，不声明函数体重编译。"
+    },
+    {
+      "name": "UnityPSVR_GetOwnerUserId",
+      "offset": 14112256,
+      "expected": "554889e54156534883ec304c8b35d62e",
+      "mode": "entry-observer-x86_64-avx",
+      "replacement": "patch_UnityPSVR_GetOwnerUserId",
+      "original": "original_UnityPSVR_GetOwnerUserId",
+      "observer": "observe_UnityPSVR_GetOwnerUserId",
+      "prototype": "opaque-machine-entry",
+      "evidence": "精确 SELF/ELF 对应；ET_DYN 分析副本仅修改 ELF e_type。study0 确认函数边界，入口后 16 字节内无索引跳入引用。名称来自 PSVR managed icall 注册字符串或设备注册/选择流程；未知 C ABI，使用保留机器状态的入口观察，不声明函数体重编译。"
+    },
+    {
+      "name": "UnityPSVR_SetupOpenAsync",
+      "offset": 14111232,
+      "expected": "554889e541574156535031c04084f60f",
+      "mode": "entry-observer-x86_64-avx",
+      "replacement": "patch_UnityPSVR_SetupOpenAsync",
+      "original": "original_UnityPSVR_SetupOpenAsync",
+      "observer": "observe_UnityPSVR_SetupOpenAsync",
+      "prototype": "opaque-machine-entry",
+      "evidence": "精确 SELF/ELF 对应；ET_DYN 分析副本仅修改 ELF e_type。study0 确认函数边界，入口后 16 字节内无索引跳入引用。名称来自 PSVR managed icall 注册字符串或设备注册/选择流程；未知 C ABI，使用保留机器状态的入口观察，不声明函数体重编译。"
+    },
+    {
+      "name": "UnityPSVR_SetupUpdate",
+      "offset": 14111552,
+      "expected": "554889e5bfeb000000e842154d0085c0",
+      "mode": "entry-observer-x86_64-avx",
+      "replacement": "patch_UnityPSVR_SetupUpdate",
+      "original": "original_UnityPSVR_SetupUpdate",
+      "observer": "observe_UnityPSVR_SetupUpdate",
+      "prototype": "opaque-machine-entry",
+      "evidence": "精确 SELF/ELF 对应；ET_DYN 分析副本仅修改 ELF e_type。study0 确认函数边界，入口后 16 字节内无索引跳入引用。名称来自 PSVR managed icall 注册字符串或设备注册/选择流程；未知 C ABI，使用保留机器状态的入口观察，不声明函数体重编译。"
+    },
+    {
+      "name": "UnityPSVR_SetupGetResult",
+      "offset": 14111584,
+      "expected": "554889e54156534883e4e04883ec404c",
+      "mode": "entry-observer-x86_64-avx",
+      "replacement": "patch_UnityPSVR_SetupGetResult",
+      "original": "original_UnityPSVR_SetupGetResult",
+      "observer": "observe_UnityPSVR_SetupGetResult",
+      "prototype": "opaque-machine-entry",
+      "evidence": "精确 SELF/ELF 对应；ET_DYN 分析副本仅修改 ELF e_type。study0 确认函数边界，入口后 16 字节内无索引跳入引用。名称来自 PSVR managed icall 注册字符串或设备注册/选择流程；未知 C ABI，使用保留机器状态的入口观察，不声明函数体重编译。"
+    }
+  ],
+  "counters": [
+    {
+      "id": 1,
+      "name": "UnityVR_RegisterProviders_calls"
+    },
+    {
+      "id": 2,
+      "name": "UnityVR_SelectDevice_calls"
+    },
+    {
+      "id": 3,
+      "name": "UnityVR_ReadDeviceNames_calls"
+    },
+    {
+      "id": 4,
+      "name": "UnityVR_InitializeSelectedDevice_calls"
+    },
+    {
+      "id": 5,
+      "name": "UnityPSVR_Initialize_calls"
+    },
+    {
+      "id": 6,
+      "name": "UnityPSVR_RegisterManagedCalls_calls"
+    },
+    {
+      "id": 7,
+      "name": "UnityPSVR_GetHmdMount_calls"
+    },
+    {
+      "id": 8,
+      "name": "UnityPSVR_GetOwnerUserId_calls"
+    },
+    {
+      "id": 9,
+      "name": "UnityPSVR_SetupOpenAsync_calls"
+    },
+    {
+      "id": 10,
+      "name": "UnityPSVR_SetupUpdate_calls"
+    },
+    {
+      "id": 11,
+      "name": "UnityPSVR_SetupGetResult_calls"
+    }
+  ],
+  "logs": [
+    {
+      "id": 1,
+      "name": "UnityVR_RegisterProviders_calls"
+    },
+    {
+      "id": 2,
+      "name": "UnityVR_RegisterProviders_rdi"
+    },
+    {
+      "id": 3,
+      "name": "UnityVR_RegisterProviders_rsi"
+    },
+    {
+      "id": 4,
+      "name": "UnityVR_RegisterProviders_rdx"
+    },
+    {
+      "id": 5,
+      "name": "UnityVR_SelectDevice_calls"
+    },
+    {
+      "id": 6,
+      "name": "UnityVR_SelectDevice_rdi"
+    },
+    {
+      "id": 7,
+      "name": "UnityVR_SelectDevice_rsi"
+    },
+    {
+      "id": 8,
+      "name": "UnityVR_SelectDevice_rdx"
+    },
+    {
+      "id": 9,
+      "name": "UnityVR_ReadDeviceNames_calls"
+    },
+    {
+      "id": 10,
+      "name": "UnityVR_ReadDeviceNames_rdi"
+    },
+    {
+      "id": 11,
+      "name": "UnityVR_ReadDeviceNames_rsi"
+    },
+    {
+      "id": 12,
+      "name": "UnityVR_ReadDeviceNames_rdx"
+    },
+    {
+      "id": 13,
+      "name": "UnityVR_InitializeSelectedDevice_calls"
+    },
+    {
+      "id": 14,
+      "name": "UnityVR_InitializeSelectedDevice_rdi"
+    },
+    {
+      "id": 15,
+      "name": "UnityVR_InitializeSelectedDevice_rsi"
+    },
+    {
+      "id": 16,
+      "name": "UnityVR_InitializeSelectedDevice_rdx"
+    },
+    {
+      "id": 17,
+      "name": "UnityPSVR_Initialize_calls"
+    },
+    {
+      "id": 18,
+      "name": "UnityPSVR_Initialize_rdi"
+    },
+    {
+      "id": 19,
+      "name": "UnityPSVR_Initialize_rsi"
+    },
+    {
+      "id": 20,
+      "name": "UnityPSVR_Initialize_rdx"
+    },
+    {
+      "id": 21,
+      "name": "UnityPSVR_RegisterManagedCalls_calls"
+    },
+    {
+      "id": 22,
+      "name": "UnityPSVR_RegisterManagedCalls_rdi"
+    },
+    {
+      "id": 23,
+      "name": "UnityPSVR_RegisterManagedCalls_rsi"
+    },
+    {
+      "id": 24,
+      "name": "UnityPSVR_RegisterManagedCalls_rdx"
+    },
+    {
+      "id": 25,
+      "name": "UnityPSVR_GetHmdMount_calls"
+    },
+    {
+      "id": 26,
+      "name": "UnityPSVR_GetHmdMount_rdi"
+    },
+    {
+      "id": 27,
+      "name": "UnityPSVR_GetHmdMount_rsi"
+    },
+    {
+      "id": 28,
+      "name": "UnityPSVR_GetHmdMount_rdx"
+    },
+    {
+      "id": 29,
+      "name": "UnityPSVR_GetOwnerUserId_calls"
+    },
+    {
+      "id": 30,
+      "name": "UnityPSVR_GetOwnerUserId_rdi"
+    },
+    {
+      "id": 31,
+      "name": "UnityPSVR_GetOwnerUserId_rsi"
+    },
+    {
+      "id": 32,
+      "name": "UnityPSVR_GetOwnerUserId_rdx"
+    },
+    {
+      "id": 33,
+      "name": "UnityPSVR_SetupOpenAsync_calls"
+    },
+    {
+      "id": 34,
+      "name": "UnityPSVR_SetupOpenAsync_rdi"
+    },
+    {
+      "id": 35,
+      "name": "UnityPSVR_SetupOpenAsync_rsi"
+    },
+    {
+      "id": 36,
+      "name": "UnityPSVR_SetupOpenAsync_rdx"
+    },
+    {
+      "id": 37,
+      "name": "UnityPSVR_SetupUpdate_calls"
+    },
+    {
+      "id": 38,
+      "name": "UnityPSVR_SetupUpdate_rdi"
+    },
+    {
+      "id": 39,
+      "name": "UnityPSVR_SetupUpdate_rsi"
+    },
+    {
+      "id": 40,
+      "name": "UnityPSVR_SetupUpdate_rdx"
+    },
+    {
+      "id": 41,
+      "name": "UnityPSVR_SetupGetResult_calls"
+    },
+    {
+      "id": 42,
+      "name": "UnityPSVR_SetupGetResult_rdi"
+    },
+    {
+      "id": 43,
+      "name": "UnityPSVR_SetupGetResult_rsi"
+    },
+    {
+      "id": 44,
+      "name": "UnityPSVR_SetupGetResult_rdx"
+    },
+    {
+      "id": 45,
+      "name": "SelectedDeviceCount"
+    },
+    {
+      "id": 46,
+      "name": "SelectedName0Length"
+    },
+    {
+      "id": 47,
+      "name": "SelectedName0Word0"
+    },
+    {
+      "id": 48,
+      "name": "SelectedName0Word1"
+    },
+    {
+      "id": 49,
+      "name": "SelectedName1Length"
+    },
+    {
+      "id": 50,
+      "name": "SelectedName1Word0"
+    },
+    {
+      "id": 51,
+      "name": "SelectedName1Word1"
+    },
+    {
+      "id": 52,
+      "name": "ManagerFlags"
+    }
+  ],
+  "executable_sha256": "9ac1745407a97af986d5f6dfe246a7c0d695857f4049d7d717f896ed219778cf"
+}

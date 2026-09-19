@@ -44,7 +44,12 @@ int main() {
     const u64 slot = base, attr = base + 8, cond = base + 16;
     check("default init", domain.Init(slot, 0) == 0);
     check("guest ABI prefix flags", (read(read(slot) + 0x20) & 0xffffffff) == 1);
+    const u64 prefix = read(slot);
+    check("set adjacent ABI fields", write(prefix + 12, 0x1122334455667788ULL));
     check("lock owner", domain.Lock(slot, 101, false, {}) == 0);
+    check("owner/count publication preserves spin/yield fields",
+          read(prefix) == 101 && (read(prefix + 8) & 0xffffffff) == 1 &&
+              read(prefix + 12) == 0x1122334455667788ULL);
     check("recursive errorcheck", domain.Lock(slot, 101, false, {}) == POSIX_EDEADLK);
     check("foreign unlock", domain.Unlock(slot, 202) == POSIX_EPERM);
     check("busy trylock", domain.Lock(slot, 202, true, {}) == POSIX_EBUSY);
@@ -62,6 +67,9 @@ int main() {
     check("cancel lock result", waiting.get() == POSIX_EINTR);
     check("owner retained after cancellation", domain.IsOwned(slot, 101));
     check("unlock", domain.Unlock(slot, 101) == 0);
+    check("unlock clears ownership but preserves adjacent ABI fields",
+          read(prefix) == 0 && (read(prefix + 8) & 0xffffffff) == 0 &&
+              read(prefix + 12) == 0x1122334455667788ULL);
     check("destroy", domain.Destroy(slot) == 0);
     check("stale handle", domain.Lock(slot, 101, false, {}) == POSIX_EINVAL);
     check("attribute init", domain.AttributeInit(attr) == 0);

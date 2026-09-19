@@ -70,6 +70,13 @@ using AppHeapAPI = HeapAPI*;
 
 class Linker {
 public:
+    struct GuestImportBinding {
+        const Module* importer;
+        Loader::SymbolRecord symbol;
+        std::string provider;
+    };
+    const std::vector<GuestImportBinding>& GuestImportBindings() const { return guest_import_bindings; }
+
     explicit Linker();
     explicit Linker(MemoryManager& memory);
     ~Linker();
@@ -170,6 +177,7 @@ public:
     std::function<void(void*)> guest_tls_free;
 
 private:
+    std::vector<GuestImportBinding> guest_import_bindings;
     MemoryManager* memory;
     Libraries::Kernel::Thread main_thread;
     std::mutex mutex;

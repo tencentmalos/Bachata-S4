@@ -1,0 +1,14 @@
+{
+  "product": "reverse_study_mcp",
+  "version": "0.3.0-local.20260916.autotag6",
+  "channel": "local",
+  "assets": [
+    {
+      "rid": "osx-arm64",
+      "url": "file:///Users/bytedance/workspace/spatial_mcp_publish/_out/reverse-study-20260916/package6/reverse-study-mcp-0.3.0-osx-arm64.zip",
+      "fileName": "reverse-study-mcp-0.3.0-osx-arm64.zip",
+      "sha256": "e0985a4c9b89985ff3d06697ef2c438a78afb95e573364a42129f80efdab7e7c"
+    }
+  ],
+  "releaseNotes": "Guest auto-tag batch/plan, default study0 and reserved study1. Targeted local validation; no remote publication."
+}

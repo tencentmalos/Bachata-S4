@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright 2024 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <stdexcept>
 #include "common/assert.h"
 #include "common/div_ceil.h"
 #include "shader_recompiler/backend/spirv/spirv_emit_context.h"
@@ -78,6 +79,13 @@ EmitContext::EmitContext(const Profile& profile_, const RuntimeInfo& runtime_inf
     }
     String(fmt::format("{:#x}", info.pgm_hash));
 
+    if ((info.uses_buffer_int64_atomics &&
+         (!profile.support_int64 || !profile.supports_buffer_int64_atomics)) ||
+        (info.uses_shared_int64_atomics &&
+         (!profile.support_int64 || !profile.supports_shared_int64_atomics))) {
+        throw std::runtime_error("Shader requires unsupported 64-bit atomics; u32-pair arithmetic "
+                                 "cannot preserve atomicity");
+    }
     AddCapability(spv::Capability::Shader);
     DefineArithmeticTypes();
     DefineInterfaces();
@@ -101,7 +109,7 @@ Id EmitContext::Def(const IR::Value& value) {
     case IR::Type::U32:
         return ConstU32(value.U32());
     case IR::Type::U64:
-        return Constant(U64, value.U64());
+        return ConstU64(value.U64());
     case IR::Type::F32:
         return ConstF32(value.F32());
     case IR::Type::F64:
@@ -129,7 +137,6 @@ void EmitContext::DefineArithmeticTypes() {
     F32[1] = Name(TypeFloat(32), "f32_id");
     S32[1] = Name(TypeSInt(32), "i32_id");
     U32[1] = Name(TypeUInt(32), "u32_id");
-    U64 = Name(TypeUInt(64), "u64_id");
 
     for (u32 i = 2; i <= 4; i++) {
         if (info.uses_fp16) {
@@ -144,6 +151,8 @@ void EmitContext::DefineArithmeticTypes() {
         U1[i] = Name(TypeVector(U1[1], i), fmt::format("bvec{}_id", i));
     }
 
+    U64 = profile.support_int64 ? Name(TypeUInt(64), "u64_id") : U32[2];
+
     true_value = ConstantTrue(U1[1]);
     false_value = ConstantFalse(U1[1]);
     u8_one_value = Constant(U8, 1U);
@@ -152,8 +161,8 @@ void EmitContext::DefineArithmeticTypes() {
     u32_one_value = ConstU32(1U);
     u32_zero_value = ConstU32(0U);
     f32_zero_value = ConstF32(0.0f);
-    u64_one_value = Constant(U64, 1ULL);
-    u64_zero_value = Constant(U64, 0ULL);
+    u64_one_value = ConstU64(1);
+    u64_zero_value = ConstU64(0);
 
     pi_x2 = ConstF32(2.0f * float{std::numbers::pi});
 
@@ -550,16 +559,48 @@ void EmitContext::DefineInputs() {
 void EmitContext::DefineVertexBlock() {
     const std::array<Id, 8> zero{f32_zero_value, f32_zero_value, f32_zero_value, f32_zero_value,
                                  f32_zero_value, f32_zero_value, f32_zero_value, f32_zero_value};
-    output_position = DefineVariable(F32[4], spv::BuiltIn::Position, spv::StorageClass::Output);
     const bool needs_clip_distance_emulation = l_stage == LogicalStage::Vertex &&
                                                stage == Stage::Vertex &&
                                                profile.needs_clip_distance_emulation;
-    const auto has_clip_distance_outputs = info.stores.GetAny(IR::Attribute::ClipDistance);
-    if (has_clip_distance_outputs && !needs_clip_distance_emulation) {
-        const Id type{TypeArray(F32[1], ConstU32(8U))};
-        const Id initializer{ConstantComposite(type, zero)};
-        clip_distances = DefineVariable(type, spv::BuiltIn::ClipDistance, spv::StorageClass::Output,
-                                        initializer);
+    const auto& depth = runtime_info.depth_range;
+    const bool depth_clips = depth.enabled && (depth.clip_near || depth.clip_far);
+    if (depth_clips) {
+        ASSERT_MSG(!needs_clip_distance_emulation &&
+                       !info.stores.GetAny(IR::Attribute::CullDistance),
+                   "Depth range fallback cannot share emulated clip or cull-distance outputs");
+        u32 used = info.stores.flags[Info::AttributeFlags::Index(IR::Attribute::ClipDistance)];
+        for (u32 plane = 0; plane < 2; ++plane) {
+            if (!(plane == 0 ? depth.clip_near : depth.clip_far)) continue;
+            for (u32 slot = 0; slot < 8; ++slot) {
+                if ((used & (1U << slot)) == 0) {
+                    depth_clip_slots[plane] = slot;
+                    used |= 1U << slot;
+                    break;
+                }
+            }
+            ASSERT_MSG(depth_clip_slots[plane] < 8,
+                       "No free clip distance for viewport depth fallback");
+        }
+        AddCapability(spv::Capability::ClipDistance);
+    }
+    if (depth_clips) {
+        // Keep Position and ClipDistance in one gl_PerVertex block. The
+        // Qualcomm compiler drops clipping for separate builtin variables.
+        const Id clip_type = TypeArray(F32[1], ConstU32(8U));
+        const Id block_type = TypeStruct(F32[4], clip_type);
+        Decorate(block_type, spv::Decoration::Block);
+        MemberDecorate(block_type, 0U, spv::Decoration::BuiltIn, u32(spv::BuiltIn::Position));
+        MemberDecorate(block_type, 1U, spv::Decoration::BuiltIn, u32(spv::BuiltIn::ClipDistance));
+        depth_vertex_block = DefineVar(block_type, spv::StorageClass::Output);
+        interfaces.push_back(depth_vertex_block);
+    } else {
+        output_position = DefineVariable(F32[4], spv::BuiltIn::Position, spv::StorageClass::Output);
+        if (info.stores.GetAny(IR::Attribute::ClipDistance) && !needs_clip_distance_emulation) {
+            const Id type{TypeArray(F32[1], ConstU32(8U))};
+            const Id initializer{ConstantComposite(type, zero)};
+            clip_distances = DefineVariable(type, spv::BuiltIn::ClipDistance,
+                                            spv::StorageClass::Output, initializer);
+        }
     }
     if (info.stores.GetAny(IR::Attribute::CullDistance)) {
         const Id type{TypeArray(F32[1], ConstU32(8U))};
@@ -1157,9 +1198,8 @@ Id EmitContext::DefineUfloatM5ToFloat32(u32 mantissa_bits, const std::string_vie
 }
 
 Id EmitContext::DefineGetBdaPointer() {
-    const auto caching_pagebits{
-        Constant(U64, static_cast<u64>(VideoCore::BufferCache::CACHING_PAGEBITS))};
-    const auto caching_pagemask{Constant(U64, VideoCore::BufferCache::CACHING_PAGESIZE - 1)};
+    const auto caching_pagebits{ConstU32(VideoCore::BufferCache::CACHING_PAGEBITS)};
+    const auto caching_pagemask{ConstU64(VideoCore::BufferCache::CACHING_PAGESIZE - 1)};
 
     const auto func_type{TypeFunction(U64, U64)};
     const auto func{OpFunction(U64, spv::FunctionControlMask::MaskNone, func_type)};
@@ -1172,15 +1212,15 @@ Id EmitContext::DefineGetBdaPointer() {
     const auto merge_label{OpLabel()};
 
     // Get page BDA
-    const auto page{OpShiftRightLogical(U64, address, caching_pagebits)};
-    const auto page32{OpUConvert(U32[1], page)};
+    const auto page{ShiftU64(address, caching_pagebits, false)};
+    const auto page32{NarrowU64(page)};
     const auto& bda_buffer{buffers[bda_pagetable_index]};
     const auto [bda_buffer_id, bda_pointer_type] = bda_buffer.Alias(PointerType::U64);
     const auto bda_ptr{OpAccessChain(bda_pointer_type, bda_buffer_id, u32_zero_value, page32)};
     const auto bda{OpLoad(U64, bda_ptr)};
 
     // Check if page is GPU cached
-    const auto is_fault{OpIEqual(U1[1], bda, u64_zero_value)};
+    const auto is_fault{EqualU64(bda, u64_zero_value)};
     OpSelectionMerge(merge_label, spv::SelectionControlMask::MaskNone);
     OpBranchConditional(is_fault, fault_label, available_label);
 
@@ -1193,9 +1233,10 @@ Id EmitContext::DefineGetBdaPointer() {
     const auto page_mask{OpShiftLeftLogical(U32[1], u32_one_value, page_mod32)};
     const auto fault_ptr{
         OpAccessChain(fault_pointer_type, fault_buffer_id, u32_zero_value, page_div32)};
-    const auto fault_value{OpLoad(U32[1], fault_ptr)};
-    const auto fault_value_masked{OpBitwiseOr(U32[1], fault_value, page_mask)};
-    OpStore(fault_ptr, fault_value_masked);
+    // Different invocations can fault on different pages in the same bitmap word.
+    // A load/or/store loses concurrent bits, regardless of the Int64 representation.
+    OpAtomicOr(U32[1], fault_ptr, ConstU32(static_cast<u32>(spv::Scope::Device)), u32_zero_value,
+               page_mask);
 
     // Return null pointer
     const auto fallback_result{u64_zero_value};
@@ -1204,7 +1245,7 @@ Id EmitContext::DefineGetBdaPointer() {
     // Value is available, compute address
     AddLabel(available_label);
     const auto offset_in_bda{OpBitwiseAnd(U64, address, caching_pagemask)};
-    const auto addr{OpIAdd(U64, bda, offset_in_bda)};
+    const auto addr{AddU64(bda, offset_in_bda)};
     OpBranch(merge_label);
 
     // Merge
@@ -1225,12 +1266,9 @@ Id EmitContext::DefineReadConst(bool dynamic) {
     Name(func, dynamic ? "read_const_dynamic" : "read_const");
     AddLabel();
 
-    const auto base_lo{OpUConvert(U64, OpCompositeExtract(U32[1], base, 0))};
-    const auto base_hi{OpUConvert(U64, OpCompositeExtract(U32[1], base, 1))};
-    const auto base_shift{OpShiftLeftLogical(U64, base_hi, ConstU32(32U))};
-    const auto base_addr{OpBitwiseOr(U64, base_lo, base_shift)};
+    const auto base_addr{PackU64(base)};
     const auto offset_bytes{OpShiftLeftLogical(U32[1], offset, ConstU32(2U))};
-    const auto addr{OpIAdd(U64, base_addr, OpUConvert(U64, offset_bytes))};
+    const auto addr{AddU64(base_addr, WidenU32(offset_bytes))};
 
     const auto result = EmitDwordMemoryRead(addr, [&]() {
         if (dynamic) {

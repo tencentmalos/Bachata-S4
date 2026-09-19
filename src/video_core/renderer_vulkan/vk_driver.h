@@ -17,5 +17,8 @@ using DriverLease = std::shared_ptr<const Driver>;
 #if defined(__ANDROID__)
 DriverLease LoadAndroidTurnip(const std::string& hook_directory,
                               const std::string& driver_directory);
+// Explicit comparison mode. Never used as fallback after a custom-driver error.
+// Changing loader kind requires a fresh process (the Vulkan dispatcher is global).
+DriverLease LoadAndroidSystemDriver();
 #endif
 } // namespace Vulkan

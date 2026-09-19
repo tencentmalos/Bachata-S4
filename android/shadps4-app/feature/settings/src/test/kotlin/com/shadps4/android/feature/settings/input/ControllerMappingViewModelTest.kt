@@ -31,6 +31,7 @@ class ControllerMappingViewModelTest {
         val store = RuntimeProfileStore(temporaryFolder.root)
         val viewModel = ControllerMappingViewModel(store)
         viewModel.load(ProfileScope.Global)
+        viewModel.clear()
         val cross = PhysicalBinding(PhysicalBindingKind.BUTTON, 96)
         viewModel.capture("cross"); viewModel.accept(cross)
         viewModel.capture("circle"); viewModel.accept(cross)
@@ -101,6 +102,26 @@ class ControllerMappingViewModelTest {
         viewModel.load(ProfileScope.Global)
         viewModel.setDeadZone(0.25f)
         assertEquals(0.25f, viewModel.state.value.profiles[0].deadZone, 0.001f)
+    }
+
+    @Test
+    fun flippedCaptureAndPersistenceUseDisplayedControl() = runBlocking {
+        val store = RuntimeProfileStore(temporaryFolder.root)
+        val model = ControllerMappingViewModel(store)
+        model.load(ProfileScope.Global)
+        assertEquals(false, model.state.value.profiles[0].swapFaceButtons)
+        model.setSwapFaceButtons(true)
+        model.capture("cross")
+        model.accept(PhysicalBinding(PhysicalBindingKind.BUTTON, 97))
+        assertEquals("circle", model.state.value.conflict?.existing)
+        model.replaceConflict()
+        val loaded = store.load(ProfileScope.Global).controllerSlots[0]
+        assertTrue(loaded.swapFaceButtons)
+        assertEquals(97, loaded.bindingFor("cross")?.code)
+        assertNull(loaded.bindingFor("circle"))
+        model.autoMap()
+        assertTrue(model.state.value.profiles[0].swapFaceButtons)
+        assertEquals(96, model.state.value.profiles[0].bindingFor("cross")?.code)
     }
 
     @Test

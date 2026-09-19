@@ -31,7 +31,7 @@ public:
         std::function<void()> end;     // callback worker: detach and release its VM resources
         std::function<void(u64, size_t)> invalidate; // short guest output publication
     };
-    GuestAvPlayer(GuestCpu::GuestAddressSpace&, std::recursive_mutex&, std::function<Callbacks()>);
+    GuestAvPlayer(GuestCpu::GuestAddressSpace&, std::function<Callbacks()>);
     ~GuestAvPlayer();
     u64 Dispatch(std::string_view nid, const std::array<u64, 6>& args);
     void RequestStop();

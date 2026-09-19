@@ -1,0 +1,10 @@
+{
+  "files": {
+    "/Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk": "33bb02ab66867b13e5b29e5e1caeec66e1807b623d7f5b09356c0c3d64cfe4ea",
+    "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native/libshadps4_host.so": "e3a60e752d10f55629e7bbaa2681e2789cb4c318e6af018d822f12df370ed943",
+    "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-intercepts-20260916/package/patch.json": "7cafaa228271edca08425dac00c8035c7154cfd2d49c33266867bea0ab27aa7e",
+    "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-intercepts-20260916/package/patch.elf": "b06981b30ca08dbd9a0526e8603ebc65a292220396f37a29345d759fba9cac27",
+    "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-intercepts-20260916/status-start.txt": "f703a3d5a6fa0218bf79e25e3f23ee495165231231602bbe4a19befdf5a44903",
+    "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-intercepts-20260916/entry-device-final.log": "23e74948f606a1075805d36f481940aaa3a63846bc27a0aff3c23cc6bfff1d26"
+  }
+}

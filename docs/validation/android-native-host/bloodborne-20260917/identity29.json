@@ -1,0 +1,17 @@
+{
+  "device": "9c2841a4",
+  "build": "29",
+  "host_build_type": "RelWithDebInfo",
+  "fex_build_type": "Release",
+  "package_variant": "playstoreDebug",
+  "files": {
+    "build/android-host-api33/native/libshadps4_host.so": {
+      "size": 474943128,
+      "sha256": "50acf7b888416ff1cb105319ecea9cca6924e4b63c0abc70c269d8b9578df3cd"
+    },
+    "android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk": {
+      "size": 334227719,
+      "sha256": "872100535544782d69d1268db01d2dac5215e819b054f1bc7acc719668cd265c"
+    }
+  }
+}

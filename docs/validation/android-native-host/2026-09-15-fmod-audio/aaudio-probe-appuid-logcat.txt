@@ -1,0 +1,149 @@
+--------- beginning of main
+217051.329 32242 32242 I run-as  : type=1400 audit(0.0:190898): avc: denied { execute } for name="shad-aaudio-probe-20260915" dev="dm-14" ino=138987 scontext=u:r:runas_app:s0:c190,c256,c512,c768 tcontext=u:object_r:shell_data_file:s0 tclass=file permissive=1 app=com.shadps4.android
+217051.329 32242 32242 I run-as  : type=1400 audit(0.0:190899): avc: denied { execute_no_trans } for path="/data/local/tmp/shad-aaudio-probe-20260915" dev="dm-14" ino=138987 scontext=u:r:runas_app:s0:c190,c256,c512,c768 tcontext=u:object_r:shell_data_file:s0 tclass=file permissive=1 app=com.shadps4.android
+217051.329 32242 32242 I shad-aaudio-pro: type=1400 audit(0.0:190900): avc: denied { search } for name="tests" dev="dm-14" ino=110 scontext=u:r:runas_app:s0:c190,c256,c512,c768 tcontext=u:object_r:shell_test_data_file:s0 tclass=dir permissive=1 app=com.shadps4.android
+217051.383 32242 32242 I AAudio  : AAudioStreamBuilder_openStream() called ----------------------------------------
+217051.383 32242 32242 I AudioStreamBuilder: rate   =  48000, channels  = 8, channelMask = 0x800000ff, format   = 5, sharing = SH, dir = OUTPUT
+217051.383 32242 32242 I AudioStreamBuilder: device =      0, sessionId = -1, perfMode = 12, callback: OFF with frames = 0
+217051.383 32242 32242 I AudioStreamBuilder: usage  =     14, contentType = 0, inputPreset = 0, allowedCapturePolicy = 0
+217051.384 32242 32242 I AudioStreamBuilder: privacy sensitive = false, opPackageName = (null), attributionTag = (null)
+217051.385 32242 32242 D shad-aaudio-probe-20260915: PlayerBase::PlayerBase()
+217051.399 32242 32242 D shad-aaudio-probe-20260915: PlayerBase::PlayerBase()
+217051.399 32242 32242 D AudioStreamInternal_Client: ~AudioStreamInternal() 0xb400007d2302f680 called
+217051.399 32242 32242 D AAudioStream: ~AudioStream(s#1) mPlayerBase strongCount = 1
+217051.399 32242 32242 D shad-aaudio-probe-20260915: PlayerBase::~PlayerBase()
+217051.399 32242 32242 D AudioStreamTrack: open(), request notificationFrames = 0, frameCount = 2048
+217051.399 32242 32242 W AudioTrack: createTrack_l(0): AUDIO_OUTPUT_FLAG_FAST denied by client, not shared buffer and transfer = TRANSFER_SYNC
+217051.405 32242 32242 D AudioStreamTrack: open() flags changed from 0x00000104 to 0x00000000
+217051.406 32242 32242 D AudioStreamTrack: open() perfMode changed from 12 to 10
+217051.406 32242 32242 D AAudioStream: setState(s#2) from 0 to 2
+217051.406 32242 32242 I AAudio  : AAudioStreamBuilder_openStream() returns 0 = AAUDIO_OK for s#2 ----------------
+217051.406 32242 32242 D AAudio  : AAudioStream_requestStart(s#2) called --------------
+217051.406 32242 32242 D AAudioStream: setState(s#2) from 2 to 3
+217051.414 32242 32242 D AAudio  : AAudioStream_requestStart(s#2) returned 0 ---------
+217051.414 32242 32245 D AudioStreamLegacy: onAudioDeviceUpdate(deviceId = 2)
+217051.476 32242 32242 D AAudioStream: setState(s#2) from 3 to 4
+217052.617 32242 32242 D AAudio  : AAudioStream_requestStop(s#2) called
+217052.617 32242 32242 D AAudioStream: setState(s#2) from 4 to 9
+217052.617 32242 32242 D AudioTrack: stop(352): called with 61952 frames delivered
+217052.626 32242 32242 W libprocessgroup: JoinCgroup: controller schedtune is not found
+217052.630 32242 32242 D AAudio  : AAudioStream_close(s#2) called ---------------
+217052.631 32242 32242 D AAudioStream: setState(s#2) from 9 to 11
+217052.632 32242 32242 D AAudioStream: setState(s#2) from 11 to 12
+217052.632 32242 32242 D AAudioStream: ~AudioStream(s#2) mPlayerBase strongCount = 2
+217052.633 32242 32242 D AAudio  : AAudioStream_close(s#2) returned 0 ---------
+217052.633 32242 32242 I AAudio  : AAudioStreamBuilder_openStream() called ----------------------------------------
+217052.633 32242 32242 I AudioStreamBuilder: rate   =  48000, channels  = 2, channelMask = 0x80000003, format   = 5, sharing = SH, dir = OUTPUT
+217052.633 32242 32242 I AudioStreamBuilder: device =      0, sessionId = -1, perfMode = 12, callback: OFF with frames = 0
+217052.633 32242 32242 I AudioStreamBuilder: usage  =     14, contentType = 0, inputPreset = 0, allowedCapturePolicy = 0
+217052.633 32242 32242 I AudioStreamBuilder: privacy sensitive = false, opPackageName = (null), attributionTag = (null)
+217052.634 32242 32242 D shad-aaudio-probe-20260915: PlayerBase::PlayerBase()
+217052.653 32242 32242 D shad-aaudio-probe-20260915: PlayerBase::PlayerBase()
+217052.653 32242 32242 D AudioStreamInternal_Client: ~AudioStreamInternal() 0xb400007d2302f680 called
+217052.653 32242 32242 D AAudioStream: ~AudioStream(s#3) mPlayerBase strongCount = 1
+217052.653 32242 32242 D shad-aaudio-probe-20260915: PlayerBase::~PlayerBase()
+217052.653 32242 32242 D AudioStreamTrack: open(), request notificationFrames = 0, frameCount = 2048
+217052.653 32242 32242 W AudioTrack: createTrack_l(0): AUDIO_OUTPUT_FLAG_FAST denied by client, not shared buffer and transfer = TRANSFER_SYNC
+217052.662 32242 32242 D AudioStreamTrack: open() flags changed from 0x00000104 to 0x00000000
+217052.662 32242 32242 D AudioStreamTrack: open() perfMode changed from 12 to 10
+217052.662 32242 32242 D AAudioStream: setState(s#4) from 0 to 2
+217052.663 32242 32242 I AAudio  : AAudioStreamBuilder_openStream() returns 0 = AAUDIO_OK for s#4 ----------------
+217052.663 32242 32242 D AAudio  : AAudioStream_requestStart(s#4) called --------------
+217052.663 32242 32242 D AAudioStream: setState(s#4) from 2 to 3
+217052.703 32242 32245 D AudioStreamLegacy: onAudioDeviceUpdate(deviceId = 2)
+217052.704 32242 32242 D AAudio  : AAudioStream_requestStart(s#4) returned 0 ---------
+217052.704 32242 32242 D AAudioStream: setState(s#4) from 3 to 4
+217053.977 32242 32242 D AAudio  : AAudioStream_requestStop(s#4) called
+217053.977 32242 32242 D AAudioStream: setState(s#4) from 4 to 9
+217053.977 32242 32242 D AudioTrack: stop(353): called with 61952 frames delivered
+217053.978 32242 32242 D AAudio  : AAudioStream_close(s#4) called ---------------
+217053.978 32242 32242 D AAudioStream: setState(s#4) from 9 to 11
+217053.980 32242 32242 D AAudioStream: setState(s#4) from 11 to 12
+217053.980 32242 32242 D AAudioStream: ~AudioStream(s#4) mPlayerBase strongCount = 2
+217053.980 32242 32242 D AAudio  : AAudioStream_close(s#4) returned 0 ---------
+217053.981 32242 32242 I AAudio  : AAudioStreamBuilder_openStream() called ----------------------------------------
+217053.981 32242 32242 I AudioStreamBuilder: rate   =  48000, channels  = 8, channelMask = 0x800000ff, format   = 5, sharing = SH, dir = OUTPUT
+217053.981 32242 32242 I AudioStreamBuilder: device =      0, sessionId = -1, perfMode = 12, callback: ON with frames = 0
+217053.981 32242 32242 I AudioStreamBuilder: usage  =     14, contentType = 0, inputPreset = 0, allowedCapturePolicy = 0
+217053.981 32242 32242 I AudioStreamBuilder: privacy sensitive = false, opPackageName = (null), attributionTag = (null)
+217053.982 32242 32242 D shad-aaudio-probe-20260915: PlayerBase::PlayerBase()
+217054.000 32242 32242 D shad-aaudio-probe-20260915: PlayerBase::PlayerBase()
+217054.000 32242 32242 D AudioStreamInternal_Client: ~AudioStreamInternal() 0xb400007d2302f680 called
+217054.000 32242 32242 D AAudioStream: ~AudioStream(s#5) mPlayerBase strongCount = 1
+217054.000 32242 32242 D shad-aaudio-probe-20260915: PlayerBase::~PlayerBase()
+217054.001 32242 32242 D AudioStreamTrack: open(), request notificationFrames = 0, frameCount = 2048
+217054.016 32242 32242 D AudioStreamTrack: open() flags changed from 0x00000104 to 0x00000000
+217054.016 32242 32242 D AudioStreamTrack: open() perfMode changed from 12 to 10
+217054.016 32242 32242 D AAudioStream: setState(s#6) from 0 to 2
+217054.018 32242 32242 I AAudio  : AAudioStreamBuilder_openStream() returns 0 = AAUDIO_OK for s#6 ----------------
+217054.018 32242 32242 D AAudio  : AAudioStream_requestStart(s#6) called --------------
+217054.018 32242 32242 D AAudioStream: setState(s#6) from 2 to 3
+217054.024 32242 32242 D AAudio  : AAudioStream_requestStart(s#6) returned 0 ---------
+217054.024 32242 32247 D AudioStreamLegacy: onAudioDeviceUpdate(deviceId = 2)
+217054.055 32242 32281 D AAudioStream: setState(s#6) from 3 to 4
+217055.231 32242 32242 D AAudio  : AAudioStream_requestStop(s#6) called
+217055.231 32242 32242 D AAudioStream: setState(s#6) from 4 to 9
+217055.231 32242 32242 D AudioTrack: stop(354): called with 59526 frames delivered
+217055.232 32242 32242 D AAudio  : AAudioStream_close(s#6) called ---------------
+217055.233 32242 32242 D AAudioStream: setState(s#6) from 9 to 11
+217055.234 32242 32242 D AAudioStream: setState(s#6) from 11 to 12
+217055.234 32242 32242 D AAudioStream: ~AudioStream(s#6) mPlayerBase strongCount = 2
+217055.234 32242 32242 D AAudio  : AAudioStream_close(s#6) returned 0 ---------
+217055.235 32242 32242 I AAudio  : AAudioStreamBuilder_openStream() called ----------------------------------------
+217055.235 32242 32242 I AudioStreamBuilder: rate   =  48000, channels  = 2, channelMask = 0x80000003, format   = 5, sharing = SH, dir = OUTPUT
+217055.235 32242 32242 I AudioStreamBuilder: device =      0, sessionId = -1, perfMode = 12, callback: ON with frames = 0
+217055.235 32242 32242 I AudioStreamBuilder: usage  =     14, contentType = 0, inputPreset = 0, allowedCapturePolicy = 0
+217055.235 32242 32242 I AudioStreamBuilder: privacy sensitive = false, opPackageName = (null), attributionTag = (null)
+217055.236 32242 32242 D shad-aaudio-probe-20260915: PlayerBase::PlayerBase()
+217055.256 32242 32242 D shad-aaudio-probe-20260915: PlayerBase::PlayerBase()
+217055.256 32242 32242 D AudioStreamInternal_Client: ~AudioStreamInternal() 0xb400007d2302f680 called
+217055.256 32242 32242 D AAudioStream: ~AudioStream(s#7) mPlayerBase strongCount = 1
+217055.256 32242 32242 D shad-aaudio-probe-20260915: PlayerBase::~PlayerBase()
+217055.256 32242 32242 D AudioStreamTrack: open(), request notificationFrames = 0, frameCount = 2048
+217055.266 32242 32242 D AudioStreamTrack: open() flags changed from 0x00000104 to 0x00000000
+217055.266 32242 32242 D AudioStreamTrack: open() perfMode changed from 12 to 10
+217055.266 32242 32242 D AAudioStream: setState(s#8) from 0 to 2
+217055.267 32242 32242 I AAudio  : AAudioStreamBuilder_openStream() returns 0 = AAUDIO_OK for s#8 ----------------
+217055.267 32242 32242 D AAudio  : AAudioStream_requestStart(s#8) called --------------
+217055.267 32242 32242 D AAudioStream: setState(s#8) from 2 to 3
+217055.276 32242 32245 D AudioStreamLegacy: onAudioDeviceUpdate(deviceId = 2)
+217055.276 32242 32242 D AAudio  : AAudioStream_requestStart(s#8) returned 0 ---------
+217055.277 32242 32300 D AAudioStream: setState(s#8) from 3 to 4
+217056.480 32242 32242 D AAudio  : AAudioStream_requestStop(s#8) called
+217056.481 32242 32242 D AAudioStream: setState(s#8) from 4 to 9
+217056.481 32242 32242 D AudioTrack: stop(355): called with 60486 frames delivered
+217056.481 32242 32242 D AAudio  : AAudioStream_close(s#8) called ---------------
+217056.481 32242 32242 D AAudioStream: setState(s#8) from 9 to 11
+217056.483 32242 32242 D AAudioStream: setState(s#8) from 11 to 12
+217056.483 32242 32242 D AAudioStream: ~AudioStream(s#8) mPlayerBase strongCount = 2
+217056.483 32242 32242 D AAudio  : AAudioStream_close(s#8) returned 0 ---------
+217056.483 32242 32242 I AAudio  : AAudioStreamBuilder_openStream() called ----------------------------------------
+217056.483 32242 32242 I AudioStreamBuilder: rate   =  48000, channels  = 2, channelMask = 0x80000003, format   = 5, sharing = SH, dir = OUTPUT
+217056.483 32242 32242 I AudioStreamBuilder: device =      0, sessionId = -1, perfMode = 12, callback: ON with frames = 0
+217056.483 32242 32242 I AudioStreamBuilder: usage  =     14, contentType = 0, inputPreset = 0, allowedCapturePolicy = 0
+217056.483 32242 32242 I AudioStreamBuilder: privacy sensitive = false, opPackageName = (null), attributionTag = (null)
+217056.484 32242 32242 D shad-aaudio-probe-20260915: PlayerBase::PlayerBase()
+217056.506 32242 32242 D shad-aaudio-probe-20260915: PlayerBase::PlayerBase()
+217056.506 32242 32242 D AudioStreamInternal_Client: ~AudioStreamInternal() 0xb400007d2302f680 called
+217056.506 32242 32242 D AAudioStream: ~AudioStream(s#9) mPlayerBase strongCount = 1
+217056.506 32242 32242 D shad-aaudio-probe-20260915: PlayerBase::~PlayerBase()
+217056.506 32242 32242 D AudioStreamTrack: open(), request notificationFrames = 0, frameCount = 2048
+217056.518 32242 32242 D AudioStreamTrack: open() flags changed from 0x00000104 to 0x00000000
+217056.518 32242 32242 D AudioStreamTrack: open() perfMode changed from 12 to 10
+217056.518 32242 32242 D AAudioStream: setState(s#10) from 0 to 2
+217056.519 32242 32242 I AAudio  : AAudioStreamBuilder_openStream() returns 0 = AAUDIO_OK for s#10 ----------------
+217056.520 32242 32242 D AAudio  : AAudioStream_requestStart(s#10) called --------------
+217056.520 32242 32242 D AAudioStream: setState(s#10) from 2 to 3
+217056.522 32242 32242 D AAudio  : AAudioStream_requestStart(s#10) returned 0 ---------
+217056.530 32242 32245 D AudioStreamLegacy: onAudioDeviceUpdate(deviceId = 2)
+217056.530 32242 32318 D AAudioStream: setState(s#10) from 3 to 4
+217057.728 32242 32242 D AAudio  : AAudioStream_requestStop(s#10) called
+217057.728 32242 32242 D AAudioStream: setState(s#10) from 4 to 9
+217057.728 32242 32242 D AudioTrack: stop(356): called with 59520 frames delivered
+217057.729 32242 32242 D AAudio  : AAudioStream_close(s#10) called ---------------
+217057.729 32242 32242 D AAudioStream: setState(s#10) from 9 to 11
+217057.731 32242 32242 D AAudioStream: setState(s#10) from 11 to 12
+217057.731 32242 32242 D AAudioStream: ~AudioStream(s#10) mPlayerBase strongCount = 2
+217057.731 32242 32242 D AAudio  : AAudioStream_close(s#10) returned 0 ---------
+217057.752 32242 32242 I BpBinder: onLastStrongRef automatically unlinking death recipients: <uncached descriptor>
+217057.753 32242 32242 I BpBinder: onLastStrongRef automatically unlinking death recipients: <uncached descriptor>

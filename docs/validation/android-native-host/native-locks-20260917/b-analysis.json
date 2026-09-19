@@ -1,0 +1,1871 @@
+{
+  "events": 45025759,
+  "unmatched": 0,
+  "open_scopes": 54,
+  "main_tid": 6169,
+  "threads": {
+    "6163": "shadps4.android",
+    "6169": "shadps4.android",
+    "5965": "shadps4.android",
+    "6265": "shadPS4:Present",
+    "6267": "Guest-2",
+    "6268": "Guest-3",
+    "6269": "Guest-4",
+    "6270": "Guest-5",
+    "6271": "Guest-6",
+    "6272": "Guest-7",
+    "6273": "Guest-8",
+    "6274": "Guest-9",
+    "6275": "Guest-10",
+    "6276": "Guest-11",
+    "6278": "Guest-12",
+    "6226": "shadPS4:GpuComm",
+    "6227": "shadPS4:VkSubmi",
+    "6228": "shadPS4:GpuDone",
+    "6289": "Guest-13",
+    "6290": "Guest-14",
+    "6294": "Guest-1",
+    "6295": "Guest-15",
+    "6296": "Guest-16",
+    "6297": "Guest-17",
+    "6299": "Guest-18",
+    "6300": "Guest-19",
+    "6301": "Guest-20",
+    "6303": "Guest-21",
+    "6317": "Guest-22",
+    "6318": "Guest-23",
+    "6361": "Guest-24",
+    "6230": "shadPS4:GpuDone",
+    "6232": "shadPS4:GpuDone",
+    "6608": "Guest-25",
+    "6610": "Guest-26",
+    "6611": "Guest-27",
+    "6609": "shadPS4:AvContr",
+    "6614": "shadPS4:AvDemux",
+    "6612": "shadPS4:AvVideo",
+    "6613": "shadPS4:AvAudio",
+    "6648": "Guest-28",
+    "6649": "Guest-29",
+    "6650": "shadPS4:AvContr",
+    "6651": "Guest-30",
+    "6652": "Guest-31",
+    "6654": "shadPS4:AvDemux",
+    "6653": "shadPS4:AvVideo"
+  },
+  "first_present_ms": 17918.949739,
+  "bookmarks": [
+    {
+      "t": 410733433928417,
+      "tid": 6163,
+      "name": "ProfilerRing::Recording.StreamStart"
+    },
+    {
+      "t": 410733468000917,
+      "tid": 6169,
+      "name": "Session.Generation.1"
+    },
+    {
+      "t": 410733468067479,
+      "tid": 6169,
+      "name": "prepare: reserve guest VA"
+    },
+    {
+      "t": 410733468207011,
+      "tid": 6169,
+      "name": "prepare: create FEX context"
+    },
+    {
+      "t": 410733468772896,
+      "tid": 6169,
+      "name": "prepare: create production VM/Linker"
+    },
+    {
+      "t": 410733705236594,
+      "tid": 6169,
+      "name": "prepare: load/relocate modules"
+    },
+    {
+      "t": 410734174887479,
+      "tid": 6169,
+      "name": "prepare: ready"
+    },
+    {
+      "t": 410734174928000,
+      "tid": 6169,
+      "name": "run: enter production guest"
+    },
+    {
+      "t": 410734174932583,
+      "tid": 6169,
+      "name": "Startup.RunBegin"
+    },
+    {
+      "t": 410734202046021,
+      "tid": 6169,
+      "name": "Startup.GuestEntry"
+    },
+    {
+      "t": 410735382449250,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410735634689146,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410737803990813,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410738065098521,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410740223067792,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410740465525136,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410742609013261,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410742854629458,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410745026120344,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410745282620136,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410747742203104,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410748001771073,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410750153268000,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410750424848365,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410751335280031,
+      "tid": 6226,
+      "name": "Startup.FirstGuestPrepared"
+    },
+    {
+      "t": 410751386950656,
+      "tid": 6265,
+      "name": "Startup.FirstGuestPresent"
+    },
+    {
+      "t": 410752630078469,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410752882801490,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410755076133208,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410755339127688,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410757923567688,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410758180460396,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410760327297323,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410760586731333,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410762742147063,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410762992757740,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410765139035708,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410765399751021,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410768501002948,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410768765312063,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410770929635031,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410771182105761,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410773311543781,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410773554700969,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410775683712427,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410775944943729,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410778807943052,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410779070883000,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410781180240500,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410781442466698,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410783591752167,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410783852447323,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410785977061906,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410786238457844,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410789118795761,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410789365486229,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410791519913000,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410791768530604,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410793866100083,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410794124288729,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410796217619511,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410796480386854,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410799259766438,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410799521582479,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410801623810396,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410801881679250,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410803963165969,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410804217398000,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410806350449146,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410806613223156,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410809534458104,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410809781726646,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410811925845552,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410812196122740,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410814322477323,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410814579230813,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410816695883729,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410816957174198,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410820045906750,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410820293209563,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410822414914511,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410822666727896,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410824826012948,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410825075668938,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410827192173313,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410827446457740,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410830753225292,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410831005064198,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410833129063781,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410833378458000,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410835544330865,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410835804200708,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410837947999719,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410838208299511,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410841624374302,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410841871783938,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410843997880656,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410844258431906,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410846375874250,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410846632083104,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410848760928365,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410849023100031,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410852459961646,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410852719708625,
+      "tid": 5965,
+      "name": "Input.PublishButtons"
+    },
+    {
+      "t": 410853473711229,
+      "tid": 6163,
+      "name": "ProfilerRing::Recording.StreamStop"
+    }
+  ],
+  "main": [
+    {
+      "tid": 6169,
+      "name": "HLE.scePthreadMutexattrInit",
+      "count": 73,
+      "elapsed_ns": 52828750,
+      "max_ns": 11738646
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.scePthreadMutexInit",
+      "count": 74,
+      "elapsed_ns": 8887392,
+      "max_ns": 695208
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.scePthreadMutexattrDestroy",
+      "count": 71,
+      "elapsed_ns": 270990,
+      "max_ns": 34844
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.scePthreadMutexattrSettype",
+      "count": 67,
+      "elapsed_ns": 262240,
+      "max_ns": 29688
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 1669229,
+      "elapsed_ns": 4955355562,
+      "max_ns": 30851354
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.pthread_mutex_lock",
+      "count": 118148,
+      "elapsed_ns": 954416208,
+      "max_ns": 6458750
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.pthread_mutex_unlock",
+      "count": 118148,
+      "elapsed_ns": 417841160,
+      "max_ns": 3593333
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.pthread_cond_broadcast",
+      "count": 64,
+      "elapsed_ns": 84061,
+      "max_ns": 23229
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 1669229,
+      "elapsed_ns": 3423341959,
+      "max_ns": 25933698
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.pthread_mutexattr_init",
+      "count": 90,
+      "elapsed_ns": 68788804,
+      "max_ns": 24118125
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.pthread_mutex_init",
+      "count": 90,
+      "elapsed_ns": 28291146,
+      "max_ns": 18781510
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.pthread_mutexattr_destroy",
+      "count": 90,
+      "elapsed_ns": 108333,
+      "max_ns": 5834
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.pthread_mutexattr_settype",
+      "count": 11,
+      "elapsed_ns": 18126,
+      "max_ns": 3907
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.scePthreadMutexattrSetprotocol",
+      "count": 10,
+      "elapsed_ns": 5157,
+      "max_ns": 937
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.scePthreadCondInit",
+      "count": 10,
+      "elapsed_ns": 468959,
+      "max_ns": 107500
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.scePthreadCondBroadcast",
+      "count": 7588,
+      "elapsed_ns": 35627375,
+      "max_ns": 90469
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.scePthreadCondWait",
+      "count": 12833,
+      "elapsed_ns": 13518006665,
+      "max_ns": 139373385
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.pthread_cond_init",
+      "count": 3,
+      "elapsed_ns": 605052,
+      "max_ns": 324843
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.sceKernelRead",
+      "count": 7,
+      "elapsed_ns": 49948,
+      "max_ns": 11458
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.sceKernelPread",
+      "count": 1805,
+      "elapsed_ns": 39298436,
+      "max_ns": 175625
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.scePthreadMutexDestroy",
+      "count": 2,
+      "elapsed_ns": 87551,
+      "max_ns": 82708
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.pthread_cond_signal",
+      "count": 102,
+      "elapsed_ns": 260836,
+      "max_ns": 25313
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.sceKernelUsleep",
+      "count": 24545,
+      "elapsed_ns": 28981707912,
+      "max_ns": 12122135
+    },
+    {
+      "tid": 6169,
+      "name": "GNM.SubmissionGate",
+      "count": 2135,
+      "elapsed_ns": 19307443137,
+      "max_ns": 327263594
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.pthread_mutex_destroy",
+      "count": 2,
+      "elapsed_ns": 19115,
+      "max_ns": 9844
+    }
+  ],
+  "rows": [
+    {
+      "tid": 6169,
+      "name": "HLE.scePthreadMutexattrInit",
+      "count": 73,
+      "elapsed_ns": 52828750,
+      "max_ns": 11738646
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.scePthreadMutexInit",
+      "count": 74,
+      "elapsed_ns": 8887392,
+      "max_ns": 695208
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.scePthreadMutexattrDestroy",
+      "count": 71,
+      "elapsed_ns": 270990,
+      "max_ns": 34844
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.scePthreadMutexattrSettype",
+      "count": 67,
+      "elapsed_ns": 262240,
+      "max_ns": 29688
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 1669229,
+      "elapsed_ns": 4955355562,
+      "max_ns": 30851354
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.pthread_mutex_lock",
+      "count": 118148,
+      "elapsed_ns": 954416208,
+      "max_ns": 6458750
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.pthread_mutex_unlock",
+      "count": 118148,
+      "elapsed_ns": 417841160,
+      "max_ns": 3593333
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.pthread_cond_broadcast",
+      "count": 64,
+      "elapsed_ns": 84061,
+      "max_ns": 23229
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 1669229,
+      "elapsed_ns": 3423341959,
+      "max_ns": 25933698
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.pthread_mutexattr_init",
+      "count": 90,
+      "elapsed_ns": 68788804,
+      "max_ns": 24118125
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.pthread_mutex_init",
+      "count": 90,
+      "elapsed_ns": 28291146,
+      "max_ns": 18781510
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.pthread_mutexattr_destroy",
+      "count": 90,
+      "elapsed_ns": 108333,
+      "max_ns": 5834
+    },
+    {
+      "tid": 6268,
+      "name": "HLE.pthread_mutex_lock",
+      "count": 373265,
+      "elapsed_ns": 19120298543,
+      "max_ns": 17191302
+    },
+    {
+      "tid": 6268,
+      "name": "HLE.pthread_mutex_unlock",
+      "count": 373265,
+      "elapsed_ns": 953052923,
+      "max_ns": 2453698
+    },
+    {
+      "tid": 6269,
+      "name": "HLE.pthread_mutex_lock",
+      "count": 368931,
+      "elapsed_ns": 19333474888,
+      "max_ns": 175875364
+    },
+    {
+      "tid": 6269,
+      "name": "HLE.pthread_mutex_unlock",
+      "count": 368931,
+      "elapsed_ns": 936449488,
+      "max_ns": 3587969
+    },
+    {
+      "tid": 6270,
+      "name": "HLE.pthread_mutex_lock",
+      "count": 366722,
+      "elapsed_ns": 19374324052,
+      "max_ns": 181196719
+    },
+    {
+      "tid": 6270,
+      "name": "HLE.pthread_mutex_unlock",
+      "count": 366722,
+      "elapsed_ns": 931214884,
+      "max_ns": 2257605
+    },
+    {
+      "tid": 6271,
+      "name": "HLE.pthread_mutex_lock",
+      "count": 375371,
+      "elapsed_ns": 19337751251,
+      "max_ns": 179309740
+    },
+    {
+      "tid": 6271,
+      "name": "HLE.pthread_mutex_unlock",
+      "count": 375371,
+      "elapsed_ns": 970679026,
+      "max_ns": 20438021
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.pthread_mutexattr_settype",
+      "count": 11,
+      "elapsed_ns": 18126,
+      "max_ns": 3907
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.scePthreadMutexattrSetprotocol",
+      "count": 10,
+      "elapsed_ns": 5157,
+      "max_ns": 937
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.scePthreadCondInit",
+      "count": 10,
+      "elapsed_ns": 468959,
+      "max_ns": 107500
+    },
+    {
+      "tid": 6272,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 992575,
+      "elapsed_ns": 6526152243,
+      "max_ns": 6205156
+    },
+    {
+      "tid": 6272,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 992574,
+      "elapsed_ns": 3458491744,
+      "max_ns": 7465208
+    },
+    {
+      "tid": 6273,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 188314,
+      "elapsed_ns": 4172403848,
+      "max_ns": 3391980
+    },
+    {
+      "tid": 6273,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 188313,
+      "elapsed_ns": 925779029,
+      "max_ns": 4070313
+    },
+    {
+      "tid": 6274,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 2,
+      "elapsed_ns": 4895,
+      "max_ns": 3698
+    },
+    {
+      "tid": 6274,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 1,
+      "elapsed_ns": 1198,
+      "max_ns": 1198
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.scePthreadCondBroadcast",
+      "count": 7588,
+      "elapsed_ns": 35627375,
+      "max_ns": 90469
+    },
+    {
+      "tid": 6275,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 67857,
+      "elapsed_ns": 2400910970,
+      "max_ns": 4657031
+    },
+    {
+      "tid": 6276,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 9689,
+      "elapsed_ns": 363916476,
+      "max_ns": 1196771
+    },
+    {
+      "tid": 6273,
+      "name": "HLE.scePthreadCondWait",
+      "count": 7509,
+      "elapsed_ns": 70828764796,
+      "max_ns": 2958804010
+    },
+    {
+      "tid": 6272,
+      "name": "HLE.scePthreadCondWait",
+      "count": 29902,
+      "elapsed_ns": 72449012308,
+      "max_ns": 16146956979
+    },
+    {
+      "tid": 6273,
+      "name": "HLE.sceKernelPread",
+      "count": 16027,
+      "elapsed_ns": 386544381,
+      "max_ns": 18713489
+    },
+    {
+      "tid": 6273,
+      "name": "HLE.scePthreadCondBroadcast",
+      "count": 16026,
+      "elapsed_ns": 46551997,
+      "max_ns": 155000
+    },
+    {
+      "tid": 6272,
+      "name": "HLE.scePthreadCondBroadcast",
+      "count": 54777,
+      "elapsed_ns": 503624991,
+      "max_ns": 427969
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.scePthreadCondWait",
+      "count": 12833,
+      "elapsed_ns": 13518006665,
+      "max_ns": 139373385
+    },
+    {
+      "tid": 6275,
+      "name": "HLE.scePthreadCondWait",
+      "count": 32838,
+      "elapsed_ns": 101444333767,
+      "max_ns": 16147384844
+    },
+    {
+      "tid": 6275,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 67856,
+      "elapsed_ns": 517111464,
+      "max_ns": 2087240
+    },
+    {
+      "tid": 6276,
+      "name": "HLE.scePthreadCondWait",
+      "count": 5083,
+      "elapsed_ns": 81291556650,
+      "max_ns": 9805171771
+    },
+    {
+      "tid": 6276,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 9688,
+      "elapsed_ns": 69182981,
+      "max_ns": 748802
+    },
+    {
+      "tid": 6275,
+      "name": "HLE.scePthreadCondBroadcast",
+      "count": 32946,
+      "elapsed_ns": 221967251,
+      "max_ns": 272135
+    },
+    {
+      "tid": 6276,
+      "name": "HLE.scePthreadCondBroadcast",
+      "count": 4844,
+      "elapsed_ns": 14249169,
+      "max_ns": 66771
+    },
+    {
+      "tid": 6278,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 783736,
+      "elapsed_ns": 5808033562,
+      "max_ns": 24112604
+    },
+    {
+      "tid": 6278,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 783736,
+      "elapsed_ns": 2759710376,
+      "max_ns": 18724791
+    },
+    {
+      "tid": 6278,
+      "name": "HLE.scePthreadCondBroadcast",
+      "count": 130291,
+      "elapsed_ns": 386077762,
+      "max_ns": 449427
+    },
+    {
+      "tid": 6278,
+      "name": "HLE.scePthreadCondWait",
+      "count": 23924,
+      "elapsed_ns": 28242085205,
+      "max_ns": 145152656
+    },
+    {
+      "tid": 6267,
+      "name": "HLE.sceKernelUsleep",
+      "count": 1142,
+      "elapsed_ns": 117157540893,
+      "max_ns": 108564896
+    },
+    {
+      "tid": 6267,
+      "name": "GNM.SubmissionGate",
+      "count": 229,
+      "elapsed_ns": 305023955,
+      "max_ns": 304652917
+    },
+    {
+      "tid": 6278,
+      "name": "HLE.sceKernelPread",
+      "count": 14500,
+      "elapsed_ns": 441284367,
+      "max_ns": 30819114
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.pthread_cond_init",
+      "count": 3,
+      "elapsed_ns": 605052,
+      "max_ns": 324843
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.sceKernelRead",
+      "count": 7,
+      "elapsed_ns": 49948,
+      "max_ns": 11458
+    },
+    {
+      "tid": 6289,
+      "name": "HLE.pthread_mutex_lock",
+      "count": 24,
+      "elapsed_ns": 1628386,
+      "max_ns": 485156
+    },
+    {
+      "tid": 6289,
+      "name": "HLE.pthread_mutex_unlock",
+      "count": 23,
+      "elapsed_ns": 192243,
+      "max_ns": 47084
+    },
+    {
+      "tid": 6290,
+      "name": "HLE.pthread_mutex_lock",
+      "count": 2,
+      "elapsed_ns": 6510,
+      "max_ns": 3854
+    },
+    {
+      "tid": 6290,
+      "name": "HLE.pthread_mutex_unlock",
+      "count": 2,
+      "elapsed_ns": 2239,
+      "max_ns": 1458
+    },
+    {
+      "tid": 6295,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 194060,
+      "elapsed_ns": 1292788531,
+      "max_ns": 26296198
+    },
+    {
+      "tid": 6295,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 194060,
+      "elapsed_ns": 1182167550,
+      "max_ns": 25941615
+    },
+    {
+      "tid": 6295,
+      "name": "HLE.pthread_mutex_lock",
+      "count": 2,
+      "elapsed_ns": 3854,
+      "max_ns": 3073
+    },
+    {
+      "tid": 6295,
+      "name": "HLE.pthread_mutex_unlock",
+      "count": 2,
+      "elapsed_ns": 1458,
+      "max_ns": 937
+    },
+    {
+      "tid": 6295,
+      "name": "HLE.pthread_cond_broadcast",
+      "count": 1,
+      "elapsed_ns": 1406,
+      "max_ns": 1406
+    },
+    {
+      "tid": 6296,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 311426,
+      "elapsed_ns": 6208043497,
+      "max_ns": 24643490
+    },
+    {
+      "tid": 6296,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 311424,
+      "elapsed_ns": 4576656135,
+      "max_ns": 26004427
+    },
+    {
+      "tid": 6297,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 1,
+      "elapsed_ns": 3437,
+      "max_ns": 3437
+    },
+    {
+      "tid": 6297,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 1,
+      "elapsed_ns": 2396,
+      "max_ns": 2396
+    },
+    {
+      "tid": 6295,
+      "name": "HLE.sceKernelUsleep",
+      "count": 10710,
+      "elapsed_ns": 108076001702,
+      "max_ns": 21751614
+    },
+    {
+      "tid": 6299,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 311493,
+      "elapsed_ns": 5240939701,
+      "max_ns": 16130573
+    },
+    {
+      "tid": 6299,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 311493,
+      "elapsed_ns": 3832213065,
+      "max_ns": 6238386
+    },
+    {
+      "tid": 6300,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 1303,
+      "elapsed_ns": 114249325,
+      "max_ns": 50779740
+    },
+    {
+      "tid": 6300,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 1303,
+      "elapsed_ns": 5862585,
+      "max_ns": 94062
+    },
+    {
+      "tid": 6299,
+      "name": "HLE.sceKernelUsleep",
+      "count": 3,
+      "elapsed_ns": 15374219,
+      "max_ns": 5183750
+    },
+    {
+      "tid": 6301,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 321727,
+      "elapsed_ns": 1615823875,
+      "max_ns": 8355625
+    },
+    {
+      "tid": 6301,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 321727,
+      "elapsed_ns": 1261937949,
+      "max_ns": 3003646
+    },
+    {
+      "tid": 6299,
+      "name": "HLE.pthread_mutex_lock",
+      "count": 8,
+      "elapsed_ns": 196771,
+      "max_ns": 63282
+    },
+    {
+      "tid": 6299,
+      "name": "HLE.pthread_mutex_unlock",
+      "count": 8,
+      "elapsed_ns": 182447,
+      "max_ns": 114323
+    },
+    {
+      "tid": 6299,
+      "name": "HLE.pthread_cond_broadcast",
+      "count": 4,
+      "elapsed_ns": 16979,
+      "max_ns": 5312
+    },
+    {
+      "tid": 6303,
+      "name": "HLE.pthread_mutex_lock",
+      "count": 4,
+      "elapsed_ns": 48803,
+      "max_ns": 40990
+    },
+    {
+      "tid": 6303,
+      "name": "HLE.pthread_mutex_unlock",
+      "count": 4,
+      "elapsed_ns": 6510,
+      "max_ns": 1979
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.sceKernelPread",
+      "count": 1805,
+      "elapsed_ns": 39298436,
+      "max_ns": 175625
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.scePthreadMutexDestroy",
+      "count": 2,
+      "elapsed_ns": 87551,
+      "max_ns": 82708
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.pthread_cond_signal",
+      "count": 102,
+      "elapsed_ns": 260836,
+      "max_ns": 25313
+    },
+    {
+      "tid": 6289,
+      "name": "HLE.pthread_cond_wait",
+      "count": 11,
+      "elapsed_ns": 54456463646,
+      "max_ns": 25381428437
+    },
+    {
+      "tid": 6289,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 986,
+      "elapsed_ns": 18160047,
+      "max_ns": 564062
+    },
+    {
+      "tid": 6289,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 986,
+      "elapsed_ns": 4667857,
+      "max_ns": 345521
+    },
+    {
+      "tid": 6317,
+      "name": "HLE.pthread_mutex_lock",
+      "count": 2,
+      "elapsed_ns": 7813,
+      "max_ns": 4271
+    },
+    {
+      "tid": 6317,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 4,
+      "elapsed_ns": 266406,
+      "max_ns": 101614
+    },
+    {
+      "tid": 6317,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 4,
+      "elapsed_ns": 25625,
+      "max_ns": 13438
+    },
+    {
+      "tid": 6317,
+      "name": "HLE.pthread_mutex_unlock",
+      "count": 1,
+      "elapsed_ns": 13907,
+      "max_ns": 13907
+    },
+    {
+      "tid": 6318,
+      "name": "HLE.pthread_mutex_lock",
+      "count": 3452,
+      "elapsed_ns": 153055626,
+      "max_ns": 2117656
+    },
+    {
+      "tid": 6318,
+      "name": "HLE.pthread_mutex_unlock",
+      "count": 3452,
+      "elapsed_ns": 103051822,
+      "max_ns": 2535781
+    },
+    {
+      "tid": 6361,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 13282,
+      "elapsed_ns": 350071459,
+      "max_ns": 28248489
+    },
+    {
+      "tid": 6361,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 13282,
+      "elapsed_ns": 55194594,
+      "max_ns": 1372396
+    },
+    {
+      "tid": 6361,
+      "name": "HLE.sceKernelUsleep",
+      "count": 11072,
+      "elapsed_ns": 111789831010,
+      "max_ns": 22750000
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.sceKernelUsleep",
+      "count": 24545,
+      "elapsed_ns": 28981707912,
+      "max_ns": 12122135
+    },
+    {
+      "tid": 6301,
+      "name": "HLE.scePthreadCondBroadcast",
+      "count": 12114,
+      "elapsed_ns": 99581580,
+      "max_ns": 617448
+    },
+    {
+      "tid": 6301,
+      "name": "HLE.sceKernelPread",
+      "count": 6558,
+      "elapsed_ns": 110131854,
+      "max_ns": 675729
+    },
+    {
+      "tid": 6301,
+      "name": "HLE.scePthreadCondWait",
+      "count": 18580,
+      "elapsed_ns": 8556582028,
+      "max_ns": 12133073
+    },
+    {
+      "tid": 6301,
+      "name": "HLE.pthread_mutex_lock",
+      "count": 2,
+      "elapsed_ns": 4635,
+      "max_ns": 3489
+    },
+    {
+      "tid": 6301,
+      "name": "HLE.pthread_mutex_unlock",
+      "count": 2,
+      "elapsed_ns": 3125,
+      "max_ns": 1771
+    },
+    {
+      "tid": 6301,
+      "name": "HLE.pthread_cond_broadcast",
+      "count": 1,
+      "elapsed_ns": 1407,
+      "max_ns": 1407
+    },
+    {
+      "tid": 6272,
+      "name": "HLE.scePthreadCondTimedwait",
+      "count": 9,
+      "elapsed_ns": 4822397,
+      "max_ns": 1056146
+    },
+    {
+      "tid": 6169,
+      "name": "GNM.SubmissionGate",
+      "count": 2135,
+      "elapsed_ns": 19307443137,
+      "max_ns": 327263594
+    },
+    {
+      "tid": 6608,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 3157,
+      "elapsed_ns": 93674270,
+      "max_ns": 1980052
+    },
+    {
+      "tid": 6608,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 3157,
+      "elapsed_ns": 30181590,
+      "max_ns": 1075833
+    },
+    {
+      "tid": 6608,
+      "name": "HLE.scePthreadCondBroadcast",
+      "count": 226,
+      "elapsed_ns": 1724841,
+      "max_ns": 91979
+    },
+    {
+      "tid": 6608,
+      "name": "HLE.scePthreadCondWait",
+      "count": 682,
+      "elapsed_ns": 580885045,
+      "max_ns": 19180834
+    },
+    {
+      "tid": 6608,
+      "name": "HLE.sceKernelPread",
+      "count": 82,
+      "elapsed_ns": 3411194,
+      "max_ns": 331614
+    },
+    {
+      "tid": 6610,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 17,
+      "elapsed_ns": 293072,
+      "max_ns": 133646
+    },
+    {
+      "tid": 6610,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 17,
+      "elapsed_ns": 49376,
+      "max_ns": 16927
+    },
+    {
+      "tid": 6610,
+      "name": "HLE.sceKernelUsleep",
+      "count": 119,
+      "elapsed_ns": 134760881,
+      "max_ns": 2761458
+    },
+    {
+      "tid": 6611,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 80,
+      "elapsed_ns": 3398436,
+      "max_ns": 1425417
+    },
+    {
+      "tid": 6611,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 80,
+      "elapsed_ns": 1261781,
+      "max_ns": 271198
+    },
+    {
+      "tid": 6648,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 10824,
+      "elapsed_ns": 68410181,
+      "max_ns": 4455209
+    },
+    {
+      "tid": 6648,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 10824,
+      "elapsed_ns": 59924742,
+      "max_ns": 6168750
+    },
+    {
+      "tid": 6648,
+      "name": "HLE.scePthreadCondBroadcast",
+      "count": 192,
+      "elapsed_ns": 1396508,
+      "max_ns": 210573
+    },
+    {
+      "tid": 6648,
+      "name": "HLE.sceKernelPread",
+      "count": 81,
+      "elapsed_ns": 2833752,
+      "max_ns": 221614
+    },
+    {
+      "tid": 6648,
+      "name": "HLE.scePthreadCondWait",
+      "count": 246,
+      "elapsed_ns": 177191460,
+      "max_ns": 7344687
+    },
+    {
+      "tid": 6169,
+      "name": "HLE.pthread_mutex_destroy",
+      "count": 2,
+      "elapsed_ns": 19115,
+      "max_ns": 9844
+    },
+    {
+      "tid": 6649,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 1896,
+      "elapsed_ns": 52687923,
+      "max_ns": 3743021
+    },
+    {
+      "tid": 6649,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 1896,
+      "elapsed_ns": 15316503,
+      "max_ns": 1085886
+    },
+    {
+      "tid": 6649,
+      "name": "HLE.scePthreadCondBroadcast",
+      "count": 187,
+      "elapsed_ns": 1002869,
+      "max_ns": 232708
+    },
+    {
+      "tid": 6649,
+      "name": "HLE.scePthreadCondWait",
+      "count": 141,
+      "elapsed_ns": 107306622,
+      "max_ns": 10559583
+    },
+    {
+      "tid": 6651,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 17,
+      "elapsed_ns": 35519,
+      "max_ns": 15312
+    },
+    {
+      "tid": 6651,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 17,
+      "elapsed_ns": 17866,
+      "max_ns": 3334
+    },
+    {
+      "tid": 6651,
+      "name": "HLE.sceKernelUsleep",
+      "count": 121,
+      "elapsed_ns": 132294735,
+      "max_ns": 1457188
+    },
+    {
+      "tid": 6649,
+      "name": "HLE.sceKernelPread",
+      "count": 84,
+      "elapsed_ns": 2605367,
+      "max_ns": 184219
+    },
+    {
+      "tid": 6652,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 68,
+      "elapsed_ns": 1865465,
+      "max_ns": 145000
+    },
+    {
+      "tid": 6652,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 68,
+      "elapsed_ns": 884061,
+      "max_ns": 154635
+    },
+    {
+      "tid": 6361,
+      "name": "HLE.sceKernelPread",
+      "count": 65,
+      "elapsed_ns": 3784741,
+      "max_ns": 785312
+    },
+    {
+      "tid": 6361,
+      "name": "HLE.scePthreadCondWait",
+      "count": 377,
+      "elapsed_ns": 641083007,
+      "max_ns": 63930573
+    },
+    {
+      "tid": 6361,
+      "name": "HLE.scePthreadCondBroadcast",
+      "count": 147,
+      "elapsed_ns": 1277552,
+      "max_ns": 59479
+    },
+    {
+      "tid": 6318,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 161,
+      "elapsed_ns": 1751660,
+      "max_ns": 131511
+    },
+    {
+      "tid": 6318,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 161,
+      "elapsed_ns": 1706099,
+      "max_ns": 243750
+    },
+    {
+      "tid": 6268,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 3530,
+      "elapsed_ns": 14448237,
+      "max_ns": 429114
+    },
+    {
+      "tid": 6268,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 3530,
+      "elapsed_ns": 11643980,
+      "max_ns": 387395
+    },
+    {
+      "tid": 6270,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 3538,
+      "elapsed_ns": 13225397,
+      "max_ns": 237708
+    },
+    {
+      "tid": 6270,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 3538,
+      "elapsed_ns": 10963220,
+      "max_ns": 432552
+    },
+    {
+      "tid": 6269,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 3824,
+      "elapsed_ns": 12148084,
+      "max_ns": 186927
+    },
+    {
+      "tid": 6269,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 3824,
+      "elapsed_ns": 10068145,
+      "max_ns": 115729
+    },
+    {
+      "tid": 6271,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 3594,
+      "elapsed_ns": 13675280,
+      "max_ns": 327916
+    },
+    {
+      "tid": 6271,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 3594,
+      "elapsed_ns": 10601184,
+      "max_ns": 146302
+    },
+    {
+      "tid": 6300,
+      "name": "HLE.scePthreadCondBroadcast",
+      "count": 61,
+      "elapsed_ns": 293703,
+      "max_ns": 17292
+    },
+    {
+      "tid": 6300,
+      "name": "HLE.scePthreadCondWait",
+      "count": 72,
+      "elapsed_ns": 151013128,
+      "max_ns": 35572708
+    },
+    {
+      "tid": 6300,
+      "name": "HLE.sceKernelPread",
+      "count": 18,
+      "elapsed_ns": 662132,
+      "max_ns": 78282
+    },
+    {
+      "tid": 6300,
+      "name": "HLE.scePthreadMutexattrInit",
+      "count": 2,
+      "elapsed_ns": 193261146,
+      "max_ns": 175724428
+    },
+    {
+      "tid": 6300,
+      "name": "HLE.scePthreadMutexattrSettype",
+      "count": 2,
+      "elapsed_ns": 4272,
+      "max_ns": 2136
+    },
+    {
+      "tid": 6300,
+      "name": "HLE.scePthreadMutexInit",
+      "count": 2,
+      "elapsed_ns": 4017343,
+      "max_ns": 3320468
+    },
+    {
+      "tid": 6300,
+      "name": "HLE.scePthreadMutexattrDestroy",
+      "count": 2,
+      "elapsed_ns": 3804478,
+      "max_ns": 3802708
+    }
+  ],
+  "progress": [
+    {
+      "tid": 6226,
+      "name": "VideoOut.PreparedGuestFlips",
+      "first": 1,
+      "last": 1066,
+      "first_ns": 410751335279406,
+      "last_ns": 410853402821958
+    },
+    {
+      "tid": 6265,
+      "name": "VideoOut.PresentedGuestFrames",
+      "first": 1,
+      "last": 1065,
+      "first_ns": 410751386949927,
+      "last_ns": 410853462862063
+    }
+  ],
+  "diagnostics": [
+    "2 unclosed spans on tid 6169",
+    "3 unclosed spans on tid 6265",
+    "2 unclosed spans on tid 6267",
+    "2 unclosed spans on tid 6268",
+    "2 unclosed spans on tid 6269",
+    "2 unclosed spans on tid 6270",
+    "2 unclosed spans on tid 6271",
+    "2 unclosed spans on tid 6272",
+    "2 unclosed spans on tid 6273",
+    "2 unclosed spans on tid 6274",
+    "2 unclosed spans on tid 6275",
+    "2 unclosed spans on tid 6276",
+    "1 unclosed spans on tid 6226",
+    "1 unclosed spans on tid 6228",
+    "2 unclosed spans on tid 6289",
+    "2 unclosed spans on tid 6290",
+    "2 unclosed spans on tid 6295",
+    "1 unclosed spans on tid 6296",
+    "3 unclosed spans on tid 6297",
+    "2 unclosed spans on tid 6299",
+    "2 unclosed spans on tid 6300",
+    "2 unclosed spans on tid 6301",
+    "2 unclosed spans on tid 6303",
+    "2 unclosed spans on tid 6317",
+    "2 unclosed spans on tid 6318",
+    "2 unclosed spans on tid 6361",
+    "1 unclosed spans on tid 6230",
+    "2 unclosed spans on tid 6648"
+  ],
+  "source_path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/native-locks-20260917/b-prof/9c2841a4-5965-file-1789629735470530-1.prof",
+  "sha256": "96ad036ebd1f1625a89f9d5f85fc8d596a3b597190758e0c4bb18b15472d4783",
+  "process_id": 5965,
+  "sdk_revision": "0ef631cd7b0859aa0eea6beb0e8739bd43e75129",
+  "container_complete": true,
+  "truncated": false,
+  "chunks_skipped": 0,
+  "capture_complete": true,
+  "capture_error": "",
+  "decompressed_bytes": 1149696550,
+  "gpu_records": {
+    "context_defs": 0,
+    "zone_begins": 0,
+    "zone_ends": 0,
+    "times": 0,
+    "orphan_times": 0
+  },
+  "gpu_cpu_alignment": "unknown"
+}

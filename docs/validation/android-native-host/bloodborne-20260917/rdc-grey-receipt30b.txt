@@ -1,0 +1,18 @@
+SERVICE com.shadps4.android/.service.FexSessionService f92fd98 pid=22298 user=0
+  Client:
+    status: ok
+    request_id: 2
+    generation: 2
+    completed_frames: 1
+    cleanup_pending: true
+    coverage: guest_flip_interval
+    first_guest_flip: 1226
+    last_guest_flip: 1227
+    state: cancelling
+    requested_frames: 1
+    captures_before: 1
+    captures_after: 0
+    run_uuid: 4f62677995cf77353777e5eec66a06b3
+    capture_uuid: 4f62677995cf77353777e5eec66a06b3:2:2
+    failure_reason: capture_deadline_exceeded
+

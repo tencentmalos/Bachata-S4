@@ -4,12 +4,14 @@
 #pragma once
 
 #include <mutex>
+#include "common/gpu_timing.h"
 #include <span>
 #include <unordered_map>
 
 #include "video_core/renderer_vulkan/vk_platform.h"
 #include "video_core/renderer_vulkan/vk_gpu_reshape.h"
 #include "core/diagnostics/diagnostics_hub_registry.h"
+#include "video_core/renderer_vulkan/submission_worker.h"
 
 #define TRACY_VK_USE_SYMBOL_TABLE
 #include <tracy/TracyVulkan.hpp>
@@ -33,6 +35,14 @@ public:
 
     const auto& Diagnostics() const { return diagnostics; }
     u64 DiagnosticGeneration() const { return diagnostics ? diagnostics->Generation() : 0; }
+
+    const auto& GpuTiming() const { return gpu_timing; }
+    bool HasCalibratedTimestamps() const { return calibrated_timestamps_enabled; }
+
+    SubmissionWorker* Submissions() const { return submissions.get(); }
+    std::mutex& QueueMutex() const { return queue_mutex; }
+    void DrainSubmissions() const { if (submissions) submissions->Drain(); }
+    void CheckSubmissionHealth() const { if (submissions) submissions->CheckHealth(); }
 
     /// Returns a formatted string for the driver version
     std::string GetDriverVersionName();
@@ -498,6 +508,8 @@ private:
     vk::UniqueDevice device;
     GpuReshape::Adapter gpu_reshape; // SDK dies before device, explicit restore after renderer drain.
     PFN_vkGetDeviceProcAddr downstream_device_proc{};
+    std::shared_ptr<Common::Profiler::GpuTimingState> gpu_timing = std::make_shared<Common::Profiler::GpuTimingState>();
+    bool calibrated_timestamps_enabled{};
     vk::PhysicalDeviceProperties properties;
     vk::PhysicalDeviceMemoryProperties memory_properties;
     vk::PhysicalDeviceVulkan11Properties vk11_props;
@@ -519,6 +531,8 @@ private:
     VmaAllocator allocator{};
     vk::Queue present_queue;
     vk::Queue graphics_queue;
+    mutable std::mutex queue_mutex;
+    std::unique_ptr<SubmissionWorker> submissions;
     std::vector<vk::PhysicalDevice> physical_devices;
     std::vector<std::string> available_extensions;
     std::unordered_map<vk::Format, vk::FormatProperties3> format_properties;

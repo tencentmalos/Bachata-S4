@@ -68,6 +68,15 @@ if(V0_BUILD_PRODUCTION_RUNTIME)
     target_compile_definitions(production_runtime_runner PRIVATE ${SHADPS4_HOST_LOADER_DEFINITIONS})
     target_link_libraries(production_runtime_runner PRIVATE guest_cpu_fex production_host)
     target_link_options(production_runtime_runner PRIVATE -Wl,--no-undefined)
+    option(V0_BUILD_PATCH_TESTS "Build focused patch tests against the production host" OFF)
+    if(V0_BUILD_PATCH_TESTS)
+        add_executable(guest_patch_tests "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/guest_cpu/guest_patch_tests.cpp")
+        target_compile_features(guest_patch_tests PRIVATE cxx_std_23)
+        target_include_directories(guest_patch_tests PRIVATE ${SHADPS4_HOST_LOADER_INCLUDES})
+        target_compile_definitions(guest_patch_tests PRIVATE ${SHADPS4_HOST_LOADER_DEFINITIONS})
+        target_link_libraries(guest_patch_tests PRIVATE guest_cpu_fex production_host)
+        target_link_options(guest_patch_tests PRIVATE -Wl,--no-undefined)
+    endif()
 endif()
 
 if(V0_BUILD_TESTS)
@@ -115,17 +124,39 @@ if(V0_BUILD_TESTS)
 
     add_executable(guest_sysmodule_tests "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/host_runtime/guest_sysmodule_tests.cpp")
     target_link_libraries(guest_sysmodule_tests PRIVATE guest_cpu_api Threads::Threads)
+    add_executable(guest_reprojection_tests "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/host_runtime/guest_reprojection_tests.cpp")
+    target_link_libraries(guest_reprojection_tests PRIVATE guest_cpu_api Threads::Threads)
+    target_include_directories(guest_reprojection_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../externals/spdlog/include" "${CMAKE_CURRENT_SOURCE_DIR}/../../externals/fmt/include" "${CMAKE_CURRENT_SOURCE_DIR}/../../externals/magic_enum/include")
+    add_executable(guest_camera_tests "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/host_runtime/guest_camera_tests.cpp")
+    target_link_libraries(guest_camera_tests PRIVATE guest_cpu_api Threads::Threads)
     add_executable(guest_thread_attribute_tests
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/host_runtime/guest_thread_attribute_tests.cpp")
     target_link_libraries(guest_thread_attribute_tests PRIVATE guest_cpu_api Threads::Threads)
     add_executable(guest_rwlock_tests
-        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/host_runtime/guest_rwlock_tests.cpp")
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/host_runtime/guest_rwlock_tests.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../src/common/native_clock.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../src/common/rdtsc.cpp")
     target_link_libraries(guest_rwlock_tests PRIVATE guest_cpu_api Threads::Threads)
     add_executable(guest_services_tests
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/host_runtime/guest_services_tests.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/../../src/common/native_clock.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/../../src/common/rdtsc.cpp")
     target_link_libraries(guest_services_tests PRIVATE guest_cpu_api Threads::Threads)
+    add_executable(guest_vm_mutex_bench
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/host_runtime/guest_vm_mutex_bench.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../src/common/native_clock.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../src/common/rdtsc.cpp")
+    target_link_libraries(guest_vm_mutex_bench PRIVATE guest_cpu_api Threads::Threads)
+    add_executable(guest_condition_tests
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/host_runtime/guest_condition_tests.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../src/common/native_clock.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../src/common/rdtsc.cpp")
+    target_link_libraries(guest_condition_tests PRIVATE guest_cpu_api Threads::Threads)
+    add_executable(guest_native_mutex_tests
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/host_runtime/guest_native_mutex_tests.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../src/common/native_clock.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../src/common/rdtsc.cpp")
+    target_link_libraries(guest_native_mutex_tests PRIVATE guest_cpu_api Threads::Threads)
 
     # Native pad adapter contract. OrbisPadAdapter is the native consumer of Android
     # controller input; it reuses the real Libraries::Pad::OrbisPadData layout and
@@ -133,6 +164,7 @@ if(V0_BUILD_TESTS)
     # it builds and runs on the CI host and cross-compiles under the NDK.
     add_executable(orbis_pad_adapter_tests
         "${CMAKE_CURRENT_SOURCE_DIR}/../../src/core/host_runtime/orbis_pad_adapter.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../src/common/profiler.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/host_runtime/orbis_pad_adapter_tests.cpp")
     target_include_directories(orbis_pad_adapter_tests PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/../../src")
@@ -202,7 +234,8 @@ if(V0_ENABLE_FEX)
     get_filename_component(FEX_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../references/FEX" ABSOLUTE)
 
     add_library(guest_cpu_fex STATIC
-        "${CMAKE_CURRENT_SOURCE_DIR}/../../src/core/guest_cpu/fex/fex_context.cpp")
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../src/core/guest_cpu/fex/fex_context.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../src/core/guest_cpu/debug/rsp_server.cpp")
 
     # PRIVATE throughout: a consumer of the public API must not need any FEX include path, and
     # acceptance B05 checks that no FEX header is reachable from it.
@@ -249,6 +282,9 @@ if(V0_ENABLE_FEX)
 
     if(V0_BUILD_TESTS)
         # Link-and-init only; executes no guest code. Feeds P04/P05.
+        add_executable(fex_fatal_log_tests
+            "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/guest_cpu/fex_fatal_log_tests.cpp")
+        target_link_libraries(fex_fatal_log_tests PRIVATE guest_cpu_fex)
         add_executable(fexcore_bionic_smoke
             "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/fex_bionic/fexcore_bionic_smoke.cpp")
         target_link_libraries(fexcore_bionic_smoke PRIVATE guest_cpu_fex)
@@ -291,6 +327,28 @@ if(V0_ENABLE_FEX)
         # See the matching definition on guest_cpu_fex: exposes the test-only FexTestRunGate
         # declaration the test drives. Release consumers do not define this.
         target_compile_definitions(guest_execution_tests PRIVATE GUEST_CPU_TEST_HOOKS=1)
+
+        # Separate target: a real C/C++ compiler-to-FEX path for future guest
+        # function replacements. No Android or host C++ ABI in the payload.
+        set(V0_GUEST_CLANG "${CMAKE_C_COMPILER}" CACHE FILEPATH "Clang with x86-64 ELF backend and sibling ld.lld")
+        set(COMPILED_GUEST_DIR "${CMAKE_CURRENT_BINARY_DIR}/compiled-guest")
+        set(COMPILED_GUEST_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/guest_cpu/compiled_guest")
+        set(GUEST_PAYLOAD_BUILDER "${CMAKE_CURRENT_SOURCE_DIR}/../../scripts/android/build-guest-payload")
+        add_custom_command(OUTPUT "${COMPILED_GUEST_DIR}/guest_payload.h"
+            COMMAND "${Python3_EXECUTABLE}" "${GUEST_PAYLOAD_BUILDER}"
+                --clang "${V0_GUEST_CLANG}"
+                --source "${COMPILED_GUEST_SOURCE}/helpers.c"
+                --source "${COMPILED_GUEST_SOURCE}/entry.cpp"
+                --output "${COMPILED_GUEST_DIR}"
+            DEPENDS "${GUEST_PAYLOAD_BUILDER}" "${COMPILED_GUEST_SOURCE}/helpers.c"
+                "${COMPILED_GUEST_SOURCE}/entry.cpp" "${COMPILED_GUEST_SOURCE}/abi.h"
+                "${CMAKE_CURRENT_SOURCE_DIR}/../guest-code/payload.ld"
+            VERBATIM)
+        add_executable(compiled_guest_tests
+            "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/guest_cpu/compiled_guest_tests.cpp"
+            "${COMPILED_GUEST_DIR}/guest_payload.h")
+        target_include_directories(compiled_guest_tests PRIVATE "${COMPILED_GUEST_DIR}")
+        target_link_libraries(compiled_guest_tests PRIVATE guest_cpu_fex)
 
     endif()
 endif()

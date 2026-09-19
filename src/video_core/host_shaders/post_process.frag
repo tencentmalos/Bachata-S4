@@ -7,11 +7,16 @@ layout (location = 0) in vec2 uv;
 layout (location = 0) out vec4 color;
 
 layout (binding = 0) uniform sampler2D texSampler;
+layout (binding = 1) uniform sampler2D rightSampler;
+layout (binding = 2) uniform sampler2D overlayLeftSampler;
+layout (binding = 3) uniform sampler2D overlayRightSampler;
 
 layout (push_constant) uniform settings {
     float gamma;
-    bool hdr;
-    bool srgb_input;
+    uint hdr;
+    uint srgb_input;
+    uint sbs;
+    uint flip_y;
 } pp;
 
 const float cutoff = 0.0031308, a = 1.055, b = 0.055, d = 12.92;
@@ -34,11 +39,22 @@ vec3 degamma(vec3 rgb) {
 }
 
 void main() {
-    vec4 color_linear = texture(texSampler, uv);
-    if (pp.hdr) {
+    // Mode 1 mirrors a flat image. Modes 2/3 consume distinct guest eyes in
+    // the existing presentation pass, without PSVR warp or CPU readback.
+    vec2 sample_uv = uv;
+    if (pp.flip_y != 0u) sample_uv.y = 1.0 - sample_uv.y;
+    if (pp.sbs != 0u) sample_uv.x = fract(uv.x * 2.0);
+    vec4 color_linear = pp.sbs >= 2u && uv.x >= 0.5
+        ? texture(rightSampler, sample_uv) : texture(texSampler, sample_uv);
+    if (pp.sbs == 3u) {
+        vec4 overlay = uv.x >= 0.5 ? texture(overlayRightSampler, sample_uv)
+                                   : texture(overlayLeftSampler, sample_uv);
+        color_linear = vec4(overlay.rgb + color_linear.rgb * (1.0 - overlay.a), 1.0);
+    }
+    if (pp.hdr != 0u) {
         color = color_linear;
     } else {
-        if (pp.srgb_input) color_linear.rgb = degamma(color_linear.rgb);
+        if (pp.srgb_input != 0u) color_linear.rgb = degamma(color_linear.rgb);
         color = vec4(gamma(color_linear.rgb), color_linear.a);
     }
 }

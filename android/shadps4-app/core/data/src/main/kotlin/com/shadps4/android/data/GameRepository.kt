@@ -19,6 +19,11 @@ class GameRepository @Inject constructor(
 
     suspend fun getGame(id: String): Game? = gameDao.getById(id)?.toModel()
 
+    suspend fun getLastLaunchedGame(): Game? = gameDao.getAll()
+        .filter { it.lastLaunchedAtMs > 0L }
+        .maxWithOrNull(compareBy<GameEntity> { it.lastLaunchedAtMs }.thenBy { it.id })
+        ?.toModel()
+
     suspend fun addImportedGame(
         result: ContentImportResult,
         sourceUri: String,

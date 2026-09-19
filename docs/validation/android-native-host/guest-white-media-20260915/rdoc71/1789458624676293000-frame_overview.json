@@ -1,0 +1,15 @@
+{
+  "arguments": {},
+  "response": {
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"schemaVersion\":\"1.0\",\"session\":{\"captureId\":\"1057136b-e6b8-400a-b9ae-1c9e73be5b13\",\"captureRevision\":{\"value\":1}},\"data\":{\"rootActions\":42,\"events\":42,\"resources\":133,\"graphicsApi\":\"Vulkan\"}}"
+        }
+      ]
+    },
+    "id": 5,
+    "jsonrpc": "2.0"
+  }
+}

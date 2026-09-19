@@ -1,0 +1,80 @@
+{
+  "schema": "shadps4.guest-debugger.evidence.v1",
+  "date": "2026-09-15",
+  "device": {
+    "serial": "9c2841a4",
+    "api": 33,
+    "page_size": 4096
+  },
+  "source": {
+    "main_head": "4da582b7b3a36d74403a4985c3c03f37e570bcb7",
+    "branch": "codex/android-fex-round2",
+    "dirty": true,
+    "files": {
+      "src/core/guest_cpu/api/context.h": "8f96a5fa59c04f930328e9c47df939a5e781c8dff71a15e45696d714654cbdd3",
+      "src/core/guest_cpu/api/execution.h": "95c1b7312f62183e1b6987957eebb5b475d4f6d6878856ca47a1b934a9dac105",
+      "src/core/guest_cpu/api/execution.cpp": "0ed5b69d88794f7716f7a3cea10d12fd26ac138b972db5f3f5668d7a6a14f397",
+      "src/core/guest_cpu/fex/fex_context.cpp": "db2ab872ea778956a7ec5631d97ef656ebeccf09a83c75c5f2146458fb7c62f2",
+      "src/core/guest_cpu/fex/fex_context.h": "eadac23c585315a8aa1b05b391c87707788474a632a9332e535ea7c049fd1d91",
+      "src/core/guest_cpu/debug/target.h": "b27de0a4441676bcb32bd13cbe9406005bd9a600770f295c35fbd97fb4dc82f8",
+      "src/core/guest_cpu/debug/rsp_server.h": "2d8ce1489e8317af76b8053ee156834cc2c2f4f39221ca245dcaeda35e1f45ef",
+      "src/core/guest_cpu/debug/rsp_server.cpp": "0753f7d5515436b8f21dafe36557abc076e28e5ca363b142889782ec42965d2c",
+      "src/core/host_runtime/session_backend_fex.cpp": "fc0e33dfa162aedac4dd5bf086800164b769e1571bf67466343c33ad68e319d4",
+      "src/core/host_runtime/guest_runtime.cpp": "850b4e84225eedba38112b7df651a0802e450d5ca493a991816bbef1396e2924",
+      "cmake/fex/CMakeLists.txt": "360b8743e8537405e385446b595d3ef702f40b52ae41036d9f048f7c7d89ddde",
+      "tests/guest_cpu/guest_execution_tests.cpp": "0a47bfa532e9420247497e8299463f66d4c4a9d476ec0f7a4a11baf8f35f207d",
+      "tests/guest_cpu/fixtures/guest_fixtures.S": "778d6a57426ecde7fa6f80b964068cf6621b93b87587316e1278d557d36a755f",
+      "android/shadps4-app/app/src/androidTest/kotlin/com/shadps4/android/GuestDebuggerInstrumentedTest.kt": "59b550113a418efa3d37cef4c7f18394ae9ddd71a890096180edafc73e500375"
+    },
+    "fex_head": "385a0cc4d81cd456c8d5c26b4f09cb5a7d8d5842",
+    "fex_status": "",
+    "foundation_status": "previous dirty work preserved"
+  },
+  "client": {
+    "dev_tools_commit": "f63850729f07bf9ed40cef58f34d65347b8dc5f4",
+    "publish_commit": "4be28e3b90badc0f2bb7c2fa959ebfadcd9cc2aa",
+    "installed": "/Users/bytedance/Library/Application Support/NativeDebugger/Mcp/versions/native_debugger_mcp-0.2.0-local.20260915.fex-osx-arm64",
+    "installed_binary_sha256": "c500bd81faf6a16212874672ba46d451dfd43faf8d268b8920cfa122407f3693",
+    "mcp_dll_sha256": "c0535a65a2b36662a5954a860840696244de42f290a149e18329893c5963c5d3"
+  },
+  "artifacts": {
+    "build/v0-fex-test/guest_execution_tests": {
+      "bytes": 40589160,
+      "sha256": "3e9f1187572fd5647f81fb688ec292f5505b65489b36b044153914e9b74db9c2",
+      "build_id": "397771c6bc200dee43a4c5a9bd40cf32acbed84c"
+    },
+    "build/android-host-api33/native/libshadps4_host.so": {
+      "bytes": 460443056,
+      "sha256": "32543f919a5fdecade3afc947d1b0fff48472a781249e8572d2596e00b56ede6",
+      "build_id": "2961e78f5b8e97d0ddebf1a7a055592413f78710"
+    },
+    "apk": {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk",
+      "sha256": "b1e0c784ee40fd59bd8bc9dc826724bc0ae0c2f1144fa7283e5f1f1cd3cf5105"
+    },
+    "lib/arm64-v8a/libshadps4_fex_session.so": {
+      "bytes": 34582112,
+      "sha256": "9c7e44e90d0c7d56fef3dc37ba5236873ebd6a51f660b427d99069b542fc2554",
+      "build_id": "0ebf9865240bd6d2838316c648029483f49630f9"
+    },
+    "lib/arm64-v8a/libshadps4_host.so": {
+      "bytes": 460443056,
+      "sha256": "32543f919a5fdecade3afc947d1b0fff48472a781249e8572d2596e00b56ede6",
+      "build_id": "2961e78f5b8e97d0ddebf1a7a055592413f78710"
+    },
+    "instrumentation_apk": {
+      "sha256": "cb71e37b389b3acc8b0d272c892b2af146fa6ba10f56b6cf9e62f17e397eb0e7"
+    }
+  },
+  "results": {
+    "native_debugger_checks": 54,
+    "native_debugger_failures": 0,
+    "client_tests_pass": 32,
+    "solution_build": "pass; 0 warnings/errors",
+    "ordinary_apk_debugger": "1 JUnit pass; PID11544 UID10190; generations1,2,3",
+    "ordinary_apk_disabled": "1 JUnit pass; port absent; production Running and CANCELLED",
+    "new_mcp_real_fex": "pass; final native binary; cleanup ownershipReleased=true",
+    "full_regression": false,
+    "game_zero_fps_fix_accepted": false
+  }
+}

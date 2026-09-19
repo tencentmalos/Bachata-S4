@@ -1,0 +1,15 @@
+{
+  "arguments": {},
+  "response": {
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"closed\":true}"
+        }
+      ]
+    },
+    "id": 24,
+    "jsonrpc": "2.0"
+  }
+}

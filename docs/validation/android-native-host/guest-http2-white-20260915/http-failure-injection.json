@@ -1,0 +1,9 @@
+{
+  "scope": "temporary negative-return injection at package-baked sceHttp2WaitAsync zero stub; no network or auth success",
+  "original_sha256": "6122da7190de6b08d921b2c42c3ca9ed11dc4d11524f1139ff67aeceea5b204d",
+  "diagnostic_sha256": "d2c7a143f73827e7dcfbdc96a6216dddce90414865265efe01f2e055a6fa7f4d",
+  "self_offset": "0x15ce0b0",
+  "static_va": "0x15c05f0",
+  "before": "31c0c3af7700",
+  "after": "b863104380c3"
+}

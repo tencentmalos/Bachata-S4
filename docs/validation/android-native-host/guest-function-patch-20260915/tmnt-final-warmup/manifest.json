@@ -1,0 +1,596 @@
+{
+  "schema": "shadps4.warmup.v1",
+  "run_id": "d5b77042e8fa4bf092cc8cf5d1628b18",
+  "serial": "9c2841a4",
+  "display_id": "4630946441858561667",
+  "input_display": "0",
+  "status": "GAMEPLAY_REVIEWED",
+  "identity": [
+    32104,
+    2,
+    "75dc51c721f049b8d88f90e9595bf181"
+  ],
+  "frames": [
+    {
+      "image": "frame-0000.png",
+      "sha256": "b737d9386f796afdeea051ee026fb65bb21d41d7f762b99f9ed3c6f0532c88a8",
+      "elapsed": 2.0503459589672275,
+      "state": {
+        "identity": [
+          32104,
+          2,
+          "75dc51c721f049b8d88f90e9595bf181"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 0,
+        "flip_age_ns": null
+      }
+    },
+    {
+      "image": "frame-0001.png",
+      "sha256": "8bf3ab920764fddbfae8b1304fde418d5b5eb0be26eb68e5f82e0bdb63f17151",
+      "elapsed": 12.265669208951294,
+      "state": {
+        "identity": [
+          32104,
+          2,
+          "75dc51c721f049b8d88f90e9595bf181"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 0,
+        "flip_age_ns": null
+      }
+    },
+    {
+      "image": "frame-0002.png",
+      "sha256": "57aaaeeac7abb76a2431f6e791cab64df28d75072b6cdeb09a1e35cd777fea62",
+      "elapsed": 22.340119250002317,
+      "state": {
+        "identity": [
+          32104,
+          2,
+          "75dc51c721f049b8d88f90e9595bf181"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 87,
+        "flip_age_ns": 1881875
+      }
+    },
+    {
+      "image": "frame-0003.png",
+      "sha256": "feb1e2d9fd6096cd059d522769c34d17973c5aba4527ea4a763e6989b8c24cc1",
+      "elapsed": 33.07620087498799,
+      "state": {
+        "identity": [
+          32104,
+          2,
+          "75dc51c721f049b8d88f90e9595bf181"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 373,
+        "flip_age_ns": 5313827185
+      }
+    },
+    {
+      "image": "frame-0004.png",
+      "sha256": "b353cc2c34533426b0b118067ce66c94fc45123298eaa4e1c795fb53dac12a69",
+      "elapsed": 43.681585208978504,
+      "state": {
+        "identity": [
+          32104,
+          2,
+          "75dc51c721f049b8d88f90e9595bf181"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 373,
+        "flip_age_ns": 15918360098
+      }
+    },
+    {
+      "image": "frame-0005.png",
+      "sha256": "7ce57220c87ff248b65420de51b28c52eb987e32231b0472d96fafb43d8e23a5",
+      "elapsed": 54.12769616697915,
+      "state": {
+        "identity": [
+          32104,
+          2,
+          "75dc51c721f049b8d88f90e9595bf181"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 499,
+        "flip_age_ns": 5466741404
+      }
+    },
+    {
+      "image": "frame-0006.png",
+      "sha256": "b9b9b16d2237da22a21fa701c9c0629b72c91f1c348c2b8035bb3cf1a938d8e6",
+      "elapsed": 64.46767462498974,
+      "state": {
+        "identity": [
+          32104,
+          2,
+          "75dc51c721f049b8d88f90e9595bf181"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 502,
+        "flip_age_ns": 2609055989
+      }
+    },
+    {
+      "image": "frame-0007.png",
+      "sha256": "77dae8af8aa29acb924e80f2287a49c34bb5e6e57b7769f6952222d00315f92e",
+      "elapsed": 74.83966587495524,
+      "state": {
+        "identity": [
+          32104,
+          2,
+          "75dc51c721f049b8d88f90e9595bf181"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 502,
+        "flip_age_ns": 12981619058
+      }
+    },
+    {
+      "image": "frame-0008.png",
+      "sha256": "db56dd7d99259a270fa74c05be5f56cb13b95ea5ef0fdeb06aa399240a79e714",
+      "elapsed": 85.25898174999747,
+      "state": {
+        "identity": [
+          32104,
+          2,
+          "75dc51c721f049b8d88f90e9595bf181"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 502,
+        "flip_age_ns": 23397032022
+      }
+    },
+    {
+      "image": "frame-0009.png",
+      "sha256": "a5b2bc148cf8edebb32e3790fd6096427e3b411845aa195fdafe4894e043701a",
+      "elapsed": 96.16948774998309,
+      "state": {
+        "identity": [
+          32104,
+          2,
+          "75dc51c721f049b8d88f90e9595bf181"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 605,
+        "flip_age_ns": 42180520
+      }
+    },
+    {
+      "image": "frame-0010.png",
+      "sha256": "d3b4e03f967209266223f329c04043e1c5a6a08cc726d7e640e265a5532738ca",
+      "elapsed": 107.12651420896873,
+      "state": {
+        "identity": [
+          32104,
+          2,
+          "75dc51c721f049b8d88f90e9595bf181"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 748,
+        "flip_age_ns": 42956042
+      }
+    },
+    {
+      "image": "frame-0011.png",
+      "sha256": "e30e93fab9d0f5018e290c4e0ac8636e340770b29dd39ccb036026b9a234607e",
+      "elapsed": 118.20212158397771,
+      "state": {
+        "identity": [
+          32104,
+          2,
+          "75dc51c721f049b8d88f90e9595bf181"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 894,
+        "flip_age_ns": 39923281
+      }
+    },
+    {
+      "image": "frame-0012.png",
+      "sha256": "56c340893af37e5844bc48deec104a4b9886a589aa077003595d6c1eb400025a",
+      "elapsed": 129.12350062496262,
+      "state": {
+        "identity": [
+          32104,
+          2,
+          "75dc51c721f049b8d88f90e9595bf181"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 1037,
+        "flip_age_ns": 46656458
+      }
+    },
+    {
+      "image": "frame-0013.png",
+      "sha256": "4610be4daab9de96a68cc8ee2292cc80d064374b579a088b1fd64756e9222118",
+      "elapsed": 139.9992928339634,
+      "state": {
+        "identity": [
+          32104,
+          2,
+          "75dc51c721f049b8d88f90e9595bf181"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 1179,
+        "flip_age_ns": 63062343
+      }
+    },
+    {
+      "image": "frame-0014.png",
+      "sha256": "d9e3e0a8149100772624a66ec69e3a540d9f69058d9ed1c135f884d4d08a1289",
+      "elapsed": 150.7689012089977,
+      "state": {
+        "identity": [
+          32104,
+          2,
+          "75dc51c721f049b8d88f90e9595bf181"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 1318,
+        "flip_age_ns": 58581302
+      }
+    },
+    {
+      "image": "frame-0015.png",
+      "sha256": "cff9cf3e2a336e47a3282f1293f69a43be6d578f29e9823c4c76576432c57307",
+      "elapsed": 161.92843299999367,
+      "state": {
+        "identity": [
+          32104,
+          2,
+          "75dc51c721f049b8d88f90e9595bf181"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 1461,
+        "flip_age_ns": 37193125
+      }
+    },
+    {
+      "image": "frame-0016.png",
+      "sha256": "e045a824998cec66f08719b759d563c62e9346a3f8cc7b650696122047394561",
+      "elapsed": 173.66402637498686,
+      "state": {
+        "identity": [
+          32104,
+          2,
+          "75dc51c721f049b8d88f90e9595bf181"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 1616,
+        "flip_age_ns": 45705521
+      }
+    }
+  ],
+  "presses": [
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 2.403643083991483
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 4.87185962498188
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 7.329915624985006
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 9.750612624979112
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 12.647924249991775
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 15.069697583967354
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 17.474003624985926
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 19.859358624962624
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 22.688706291955896
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 25.112450333952438
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 27.500272124947514
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 29.926298709004186
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 33.4162291669636
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 35.84970662498381
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 38.26332091697259
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 40.66949149995344
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 44.01038533396786
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 46.45707520894939
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 48.862448667001445
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 51.267268541967496
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 54.46153483400121
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 56.85326454194728
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 59.31066058395663
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 61.665402374987025
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 64.77454824995948
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 67.13168266694993
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 69.5231707499479
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 71.91286112496164
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 75.19281749997754
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 77.6125201669638
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 79.99103695899248
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 82.41258345899405
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 85.63656124996487
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 88.07836579199648
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 90.48691429197788
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 92.92164829198737
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 96.5002930839546
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 98.92296408396214
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 101.35032274998957
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 103.79195804195479
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 107.48540233395761
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 109.9371589999646
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 112.3825082089752
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 114.83599095896352
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 118.52799608395435
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 120.95207658398431
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 123.39158858399605
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 125.8151537089725
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 129.45793774997583
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 131.86365604196908
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 134.2472083339817
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 136.66283358394867
+    },
+    {
+      "button": "stick-right",
+      "hold_ms": 250,
+      "elapsed": 142.47040937497513
+    },
+    {
+      "button": "stick-right",
+      "hold_ms": 250,
+      "elapsed": 144.94465845898958
+    },
+    {
+      "button": "stick-right",
+      "hold_ms": 250,
+      "elapsed": 147.40523249999387
+    },
+    {
+      "button": "stick-right",
+      "hold_ms": 250,
+      "elapsed": 151.1466623749584
+    },
+    {
+      "button": "stick-right",
+      "hold_ms": 250,
+      "elapsed": 153.58844379195943
+    },
+    {
+      "button": "stick-right",
+      "hold_ms": 250,
+      "elapsed": 156.047899666999
+    },
+    {
+      "button": "stick-right",
+      "hold_ms": 250,
+      "elapsed": 158.49634854198666
+    }
+  ],
+  "attaches_debugger": false,
+  "started_at": 1789482197.376506,
+  "process_stat": "32104 (shadps4.android) S 1693 1693 0 0 -1 1077936448 16243111 0 315542 0 72011 28341 0 0 10 -10 48 0 26567137 190345510912 190716 18446744073709551615 398532505600 398532510264 548926250944 0 0 0 4612 1 1073775864 0 0 0 17 1 0 0 0 0 0 398532513792 398532515104 398659461120 548926255373 548926255472 548926255472 548926259166 0",
+  "review": {
+    "run_id": "d5b77042e8fa4bf092cc8cf5d1628b18",
+    "scene_frame": 12,
+    "response_frame": 14,
+    "note": "已目视核对：frame12 为 Leonardo 屋顶 MOVE 教程；stick-right 输入后 frame14 角色沿屋顶右侧移动，镜头跟随且背景墙/栏杆位置明显变化。两帧均为实际游戏场景，未依据 FPS 单独判断。",
+    "method": "explicit_visual_review",
+    "reviewed_at": 1789482371.896011
+  },
+  "ended_at": 1789482373.114413
+}

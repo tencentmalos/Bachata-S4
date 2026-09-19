@@ -1,0 +1,4 @@
+SERVICE com.shadps4.android/.service.FexSessionService b31da3d pid=10213 user=0
+  Client:
+    {"status":"disabled_at_startup"}
+

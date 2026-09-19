@@ -1,0 +1,289 @@
+{
+  "before": {
+    "samples": 6393,
+    "period_s": 63.93,
+    "vm_stack_samples": 1379,
+    "vm_stack_pct": 21.57046769904583,
+    "vm_leaf_samples": 1005,
+    "vm_leaf_pct": 15.720319099014548,
+    "lookup_leaf_samples": 789,
+    "lookup_leaf_pct": 12.341623650868137,
+    "top_leaves": [
+      [
+        "Core::GuestCpu::GuestAddressSpace::ValidateRangeLocked(Core::GuestCpu::GuestRange, Core::GuestCpu::GuestPermission) const",
+        789
+      ],
+      [
+        "__aarch64_cas2_acq",
+        233
+      ],
+      [
+        "__kernel_clock_gettime",
+        233
+      ],
+      [
+        "pthread_mutex_unlock",
+        198
+      ],
+      [
+        "@plt",
+        183
+      ],
+      [
+        "Core::GuestCpu::GuestAddressSpace::Query(Core::GuestCpu::GuestAddress) const",
+        147
+      ],
+      [
+        "memcpy_opt",
+        138
+      ],
+      [
+        "pthread_mutex_lock",
+        126
+      ],
+      [
+        "syscall",
+        116
+      ],
+      [
+        "Core::GuestCpu::Fex::(anonymous namespace)::FexCpuContext::RunInternal(Core::GuestCpu::ThreadHandle, Core::GuestCpu::RunOptions const&, Core::GuestCpu::GuestCallArgs const*, Core::GuestCpu::GuestCodeAddress, Core::GuestCpu::GuestCallOptions const&, bool)",
+        91
+      ],
+      [
+        "__aarch64_swp2_rel",
+        76
+      ],
+      [
+        "_ZNSt6__ndk110__function6__funcIZZN4Core11HostRuntime23InstallGraphicsHandlersERNS_3mapINS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEENS_8functionIFNS2_8GuestCpu6ResultIvEERNSC_3Hle12HleCallFrameEEEENS_4lessISA_EENS8_INS_4pairIKSA_SJ_EEEEEERNS_3setISA_SL_NS8_ISA_EEEESV_RNSC_17GuestAddressSpaceENSB_IFRNS3_13GuestGraphicsEvEEEENK3$_1clIZZNS3_23InstallGraphicsHandlersESR_SV_SV_SX_S11_ENK3$_0clIXadL_ZN9Libraries9GnmDriver15sceGnmDrawIndexEPjjjmjjEEEEDaPKcmbEUlSZ_RKNS_5arrayImLm10EEEE_EEDaSA_jT_bEUlSH_E_NS8_IS1H_EESI_EclESH_",
+        64
+      ],
+      [
+        "profiler::sdk::detail::encode_span_end()",
+        59
+      ],
+      [
+        "[linker]tlsdesc_resolver_dynamic",
+        57
+      ],
+      [
+        "profiler::sdk::detail::encode_span_begin_dyn(char const*, unsigned short, unsigned long, profiler::sdk::TraceArg const*, unsigned char)",
+        47
+      ],
+      [
+        "Core::MemoryManager::IsValidMapping(unsigned long, unsigned long)",
+        45
+      ],
+      [
+        "NonPI::MutexLockWithTimeout(pthread_mutex_internal_t*, bool, timespec const*)",
+        43
+      ],
+      [
+        "Core::HostRuntime::GuestMutexDomain::Lock(unsigned long, unsigned long, bool, std::__ndk1::stop_token)",
+        43
+      ],
+      [
+        "__aarch64_ldadd8_acq_rel",
+        43
+      ],
+      [
+        "Core::GuestCpu::Fex::(anonymous namespace)::FexSyscallHandler::DispatchNative(FEXCore::Core::CpuStateFrame*, Core::GuestCpu::Fex::(anonymous namespace)::ThreadInterruptBinding*, bool)",
+        41
+      ],
+      [
+        "__aarch64_cas4_acq",
+        41
+      ],
+      [
+        "_ZNSt6__ndk110__function6__funcIZZN4Core11HostRuntime23InstallGraphicsHandlersERNS_3mapINS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEENS_8functionIFNS2_8GuestCpu6ResultIvEERNSC_3Hle12HleCallFrameEEEENS_4lessISA_EENS8_INS_4pairIKSA_SJ_EEEEEERNS_3setISA_SL_NS8_ISA_EEEESV_RNSC_17GuestAddressSpaceENSB_IFRNS3_13GuestGraphicsEvEEEENK3$_1clIZZNS3_23InstallGraphicsHandlersESR_SV_SV_SX_S11_ENK3$_0clIXadL_ZN9Libraries9GnmDriver20sceGnmSetPsShader350EPjjPKjEEEEDaPKcmbEUlSZ_RKNS_5arrayImLm10EEEE_EEDaSA_jT_bEUlSH_E_NS8_IS1J_EESI_EclESH_",
+        38
+      ],
+      [
+        "__aarch64_ldadd4_acq_rel",
+        38
+      ],
+      [
+        "scudo::Allocator<scudo::AndroidConfig, &scudo_malloc_postinit>::allocate(unsigned long, scudo::Chunk::Origin, unsigned long, bool)",
+        34
+      ],
+      [
+        "Core::GuestCpu::Fex::(anonymous namespace)::FexCpuContext::RunInternal(Core::GuestCpu::ThreadHandle, Core::GuestCpu::RunOptions const&, Core::GuestCpu::GuestCallArgs const*, Core::GuestCpu::GuestCodeAddress, Core::GuestCpu::GuestCallOptions const&, bool)::'lambda'()::operator()() const",
+        33
+      ]
+    ],
+    "threads": {
+      "Guest-16": 1768,
+      "Guest-1": 1377,
+      "Guest-18": 490,
+      "shadPS4:GpuComm": 568,
+      "Guest-4": 396,
+      "Guest-15": 192,
+      "Guest-3": 401,
+      "Guest-5": 396,
+      "Guest-6": 416,
+      "Guest-17": 37,
+      "Guest-24": 25,
+      "shadPS4:Present": 98,
+      "com.shadps4.android": 109,
+      "Guest-23": 24,
+      "DefaultExecutor": 16,
+      "binder:410_3": 14,
+      "AudioTrack": 15,
+      "Guest-21": 6,
+      "Guest-2": 7,
+      "Profile Saver": 1,
+      "binder:410_2": 15,
+      "Guest-20": 1,
+      "Guest-7": 4,
+      "binder:410_4": 3,
+      "Guest-14": 3,
+      "RenderThread": 4,
+      "Guest-19": 1,
+      "VsyncReceiver": 2,
+      "HeapTaskDaemon": 2,
+      "Guest-10": 2
+    }
+  },
+  "after": {
+    "samples": 5747,
+    "period_s": 57.47,
+    "vm_stack_samples": 536,
+    "vm_stack_pct": 9.326605185314078,
+    "vm_leaf_samples": 256,
+    "vm_leaf_pct": 4.454497998955977,
+    "lookup_leaf_samples": 163,
+    "lookup_leaf_pct": 2.836262397772751,
+    "top_leaves": [
+      [
+        "__kernel_clock_gettime",
+        265
+      ],
+      [
+        "__aarch64_cas2_acq",
+        213
+      ],
+      [
+        "pthread_mutex_unlock",
+        177
+      ],
+      [
+        "Core::GuestCpu::GuestAddressSpace::ValidateRangeLocked(Core::GuestCpu::GuestRange, Core::GuestCpu::GuestPermission) const",
+        163
+      ],
+      [
+        "@plt",
+        149
+      ],
+      [
+        "pthread_mutex_lock",
+        132
+      ],
+      [
+        "memcpy_opt",
+        132
+      ],
+      [
+        "__aarch64_swp2_rel",
+        88
+      ],
+      [
+        "Core::GuestCpu::Fex::(anonymous namespace)::FexCpuContext::RunInternal(Core::GuestCpu::ThreadHandle, Core::GuestCpu::RunOptions const&, Core::GuestCpu::GuestCallArgs const*, Core::GuestCpu::GuestCodeAddress, Core::GuestCpu::GuestCallOptions const&, bool)",
+        84
+      ],
+      [
+        "profiler::sdk::detail::encode_span_begin_dyn(char const*, unsigned short, unsigned long, profiler::sdk::TraceArg const*, unsigned char)",
+        82
+      ],
+      [
+        "profiler::sdk::detail::encode_span_end()",
+        75
+      ],
+      [
+        "syscall",
+        61
+      ],
+      [
+        "__aarch64_swp1_acq",
+        55
+      ],
+      [
+        "[linker]tlsdesc_resolver_dynamic",
+        49
+      ],
+      [
+        "_ZNSt6__ndk110__function6__funcIZZN4Core11HostRuntime23InstallGraphicsHandlersERNS_3mapINS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEENS_8functionIFNS2_8GuestCpu6ResultIvEERNSC_3Hle12HleCallFrameEEEENS_4lessISA_EENS8_INS_4pairIKSA_SJ_EEEEEERNS_3setISA_SL_NS8_ISA_EEEESV_RNSC_17GuestAddressSpaceENSB_IFRNS3_13GuestGraphicsEvEEEENK3$_1clIZZNS3_23InstallGraphicsHandlersESR_SV_SV_SX_S11_ENK3$_0clIXadL_ZN9Libraries9GnmDriver15sceGnmDrawIndexEPjjjmjjEEEEDaPKcmbEUlSZ_RKNS_5arrayImLm10EEEE_EEDaSA_jT_bEUlSH_E_NS8_IS1H_EESI_EclESH_",
+        48
+      ],
+      [
+        "Core::HostRuntime::GuestMutexDomain::Lock(unsigned long, unsigned long, bool, std::__ndk1::stop_token)",
+        45
+      ],
+      [
+        "Core::MemoryManager::IsValidMapping(unsigned long, unsigned long)",
+        42
+      ],
+      [
+        "Core::GuestCpu::Fex::(anonymous namespace)::FexSyscallHandler::DispatchNative(FEXCore::Core::CpuStateFrame*, Core::GuestCpu::Fex::(anonymous namespace)::ThreadInterruptBinding*, bool)",
+        34
+      ],
+      [
+        "Core::GuestCpu::GuestAddressSpace::Query(Core::GuestCpu::GuestAddress) const",
+        34
+      ],
+      [
+        "unknown[+6a70fa3308]",
+        33
+      ],
+      [
+        "Core::GuestCpu::Fex::(anonymous namespace)::FexCpuContext::RunInternal(Core::GuestCpu::ThreadHandle, Core::GuestCpu::RunOptions const&, Core::GuestCpu::GuestCallArgs const*, Core::GuestCpu::GuestCodeAddress, Core::GuestCpu::GuestCallOptions const&, bool)::'lambda'()::operator()() const",
+        31
+      ],
+      [
+        "__aarch64_ldadd4_acq_rel",
+        30
+      ],
+      [
+        "Core::HostRuntime::GuestMutexDomain::Unlock(unsigned long, unsigned long)",
+        30
+      ],
+      [
+        "Core::GuestCpu::Fex::(anonymous namespace)::FexCpuContext::CaptureSnapshot(Core::GuestCpu::ThreadHandle, Core::GuestCpu::Fex::(anonymous namespace)::FexCpuContext::ThreadEntry const&, Core::GuestCpu::SnapshotKind) const",
+        28
+      ],
+      [
+        "LZ4_compress_fast_extState",
+        28
+      ]
+    ],
+    "threads": {
+      "Guest-16": 2015,
+      "Guest-18": 347,
+      "shadPS4:GpuComm": 691,
+      "Guest-1": 870,
+      "Guest-6": 315,
+      "Guest-4": 318,
+      "Guest-15": 123,
+      "Guest-5": 318,
+      "Guest-3": 303,
+      "com.shadps4.android": 147,
+      "shadPS4:Present": 119,
+      "Guest-17": 35,
+      "Guest-24": 21,
+      "binder:25383_1": 14,
+      "DefaultExecutor": 18,
+      "AudioTrack": 17,
+      "Guest-23": 13,
+      "Guest-14": 7,
+      "Guest-21": 11,
+      "Guest-2": 5,
+      "RenderThread": 4,
+      "Guest-20": 2,
+      "Guest-28": 2,
+      "binder:25383_3": 18,
+      "binder:25383_5": 9,
+      "Guest-10": 1,
+      "Jit thread pool": 1,
+      "VsyncReceiver": 2,
+      "Guest-7": 1
+    }
+  }
+}

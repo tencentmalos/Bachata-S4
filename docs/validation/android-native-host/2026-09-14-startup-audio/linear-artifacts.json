@@ -1,0 +1,6 @@
+{
+  "apk_sha256": "e422efb89c7d6d2be70d204c299415a32637cedc17d686d867e491a04bcff276",
+  "host_sha256": "59e6311e962e0367dc9ac500faff4f264acfcd9136fbc6c1dc0a791f11d874b5",
+  "elf": "Displaying notes found in: .note.android.ident\n  Owner                Data size \tDescription\n  Android              0x00000084\tNT_ANDROID_TYPE_IDENT\n   description data: 21 00 00 00 72 32 39 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 31 34 32 30 36 38 36 35 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n\nDisplaying notes found in: .note.gnu.build-id\n  Owner                Data size \tDescription\n  GNU                  0x00000014\tNT_GNU_BUILD_ID (unique build ID bitstring)\n    Build ID: 34df24b653ee50f33cdf4aa9624205e0e0486613\n",
+  "changes": "audio queue + AvPlayer wait; original linear VM query"
+}

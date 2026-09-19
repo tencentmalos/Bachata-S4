@@ -32,6 +32,9 @@ struct VideoOutPort;
 namespace AmdGpu {
 
 struct Liverpool {
+    // PM4 owner only. Identifies intervals ending in an accepted VideoOut flip,
+    // not a CPU function invocation or a host present.
+    u64 diagnostic_guest_flip{};
     std::shared_ptr<Core::Diagnostics::DiagnosticsPublisher> diagnostics{Core::Diagnostics::DiagnosticsHub::Instance().Acquire()};
     static constexpr u32 GfxQueueId = 0u;
     static constexpr u32 NumGfxRings = 1u;     // actually 2, but HP is reserved by system software
@@ -91,7 +94,7 @@ public:
         return stopping.load();
     }
 
-    void SubmitGfx(std::span<const u32> dcb, std::span<const u32> ccb);
+    void SubmitGfx(std::span<const u32> dcb, std::span<const u32> ccb, VAddr source = 0);
     void SubmitAsc(u32 gnm_vqid, std::span<const u32> acb);
 
     void SubmitDone() noexcept {
@@ -226,13 +229,13 @@ private:
     };
 
     using CmdBuffer = std::pair<std::span<const u32>, std::span<const u32>>;
-    Task ProcessOwnedCompute(std::vector<u32> acb, u32 vqid);
+    Task ProcessOwnedCompute(std::vector<u32> acb, u32 vqid, u64 submission, VAddr source);
     CmdBuffer CopyCmdBuffers(std::span<const u32> dcb, std::span<const u32> ccb);
-    Task ProcessOwnedGraphics(std::vector<u32> dcb, std::vector<u32> ccb);
-    Task ProcessGraphics(std::span<const u32> dcb, std::span<const u32> ccb);
+    Task ProcessOwnedGraphics(std::vector<u32> dcb, std::vector<u32> ccb, u64 submission, VAddr source);
+    Task ProcessGraphics(std::span<const u32> dcb, std::span<const u32> ccb, u64 submission, VAddr source);
     Task ProcessCeUpdate(std::span<const u32> ccb);
     template <bool is_indirect = false>
-    Task ProcessCompute(std::span<const u32> acb, u32 vqid);
+    Task ProcessCompute(std::span<const u32> acb, u32 vqid, u64 submission, VAddr source);
 
     void ProcessCommands();
     void Process(std::stop_token stoken);

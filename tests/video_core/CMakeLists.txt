@@ -10,3 +10,7 @@ target_compile_features(swapchain_acquire_tests PRIVATE cxx_std_20)
 target_include_directories(swapchain_acquire_tests PRIVATE
     ../../src ../../externals/vulkan-headers/include)
 add_test(NAME swapchain_acquire_tests COMMAND swapchain_acquire_tests)
+add_executable(depth_range_tests depth_range_tests.cpp)
+target_compile_features(depth_range_tests PRIVATE cxx_std_20)
+target_include_directories(depth_range_tests PRIVATE ../../src)
+add_test(NAME depth_range_tests COMMAND depth_range_tests)

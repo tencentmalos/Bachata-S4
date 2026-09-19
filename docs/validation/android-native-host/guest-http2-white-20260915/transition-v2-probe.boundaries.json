@@ -1,0 +1,3906 @@
+[
+  {
+    "tool": "guest_debug.start_session",
+    "time": 1789462443.8156211,
+    "args": {
+      "emulator": "shadps4-fex",
+      "serial": "9c2841a4",
+      "port": 24681,
+      "remotePort": 24680,
+      "expectedArchitecture": "i386:x86-64",
+      "byteOrder": "little",
+      "stopOnAttach": false,
+      "stopLeaseMs": 10000,
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "dryRun": true
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {}
+  },
+  {
+    "tool": "guest_debug.start_session",
+    "time": 1789462444.091454,
+    "args": {
+      "emulator": "shadps4-fex",
+      "serial": "9c2841a4",
+      "port": 24681,
+      "remotePort": 24680,
+      "expectedArchitecture": "i386:x86-64",
+      "byteOrder": "little",
+      "stopOnAttach": false,
+      "stopLeaseMs": 10000,
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "dryRun": false
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "connected_unknown",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 0,
+      "stopReason": "",
+      "stoppedThreadId": "",
+      "latestEventCursor": 1,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.list_modules",
+    "time": 1789462444.138613,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e"
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [
+        {
+          "name": "eboot.bin",
+          "kind": "",
+          "buildId": "",
+          "moduleId": "",
+          "guestTextBase": "0x400000",
+          "guestLoadBase": "",
+          "mappedSize": 0,
+          "registryGeneration": 0,
+          "loadGeneration": 0,
+          "segments": []
+        },
+        {
+          "name": "libfmod.prx",
+          "kind": "",
+          "buildId": "",
+          "moduleId": "",
+          "guestTextBase": "0x100000000",
+          "guestLoadBase": "",
+          "mappedSize": 0,
+          "registryGeneration": 0,
+          "loadGeneration": 0,
+          "segments": []
+        },
+        {
+          "name": "libc.prx",
+          "kind": "",
+          "buildId": "",
+          "moduleId": "",
+          "guestTextBase": "0x100c50000",
+          "guestLoadBase": "",
+          "mappedSize": 0,
+          "registryGeneration": 0,
+          "loadGeneration": 0,
+          "segments": []
+        },
+        {
+          "name": "libSceFios2.prx",
+          "kind": "",
+          "buildId": "",
+          "moduleId": "",
+          "guestTextBase": "0x10157c000",
+          "guestLoadBase": "",
+          "mappedSize": 0,
+          "registryGeneration": 0,
+          "loadGeneration": 0,
+          "segments": []
+        },
+        {
+          "name": "libfmodstudio.prx",
+          "kind": "",
+          "buildId": "",
+          "moduleId": "",
+          "guestTextBase": "0x101f0c000",
+          "guestLoadBase": "",
+          "mappedSize": 0,
+          "registryGeneration": 0,
+          "loadGeneration": 0,
+          "segments": []
+        },
+        {
+          "name": "libSceNpEntitlementAccess.prx",
+          "kind": "",
+          "buildId": "",
+          "moduleId": "",
+          "guestTextBase": "0x102b10000",
+          "guestLoadBase": "",
+          "mappedSize": 0,
+          "registryGeneration": 0,
+          "loadGeneration": 0,
+          "segments": []
+        },
+        {
+          "name": "libSceNpCppWebApi.prx",
+          "kind": "",
+          "buildId": "",
+          "moduleId": "",
+          "guestTextBase": "0x103714000",
+          "guestLoadBase": "",
+          "mappedSize": 0,
+          "registryGeneration": 0,
+          "loadGeneration": 0,
+          "segments": []
+        }
+      ],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "connected_unknown",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 0,
+      "stopReason": "",
+      "stoppedThreadId": "",
+      "latestEventCursor": 1,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.control",
+    "time": 1789462444.1730812,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "action": "pause",
+      "waitForStopMs": 1500
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 2,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.manage_breakpoints",
+    "time": 1789462444.219361,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "operation": "add",
+      "stopEpoch": 1,
+      "type": "software",
+      "address": "0x1927c37",
+      "length": 1
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 2,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_a6746d8cb1104e0ea84e792ae3da969a",
+          "type": "software",
+          "address": "0x1927c37",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:54:04.217919+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.control",
+    "time": 1789462445.3157032,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "action": "continue",
+      "stopEpoch": 1,
+      "waitForStopMs": 1000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "running",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 3,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_a6746d8cb1104e0ea84e792ae3da969a",
+          "type": "software",
+          "address": "0x1927c37",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:54:04.217919+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.wait_for_event",
+    "time": 1789462455.341907,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "afterCursor": 3,
+      "timeoutMs": 10000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "running",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 3,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_a6746d8cb1104e0ea84e792ae3da969a",
+          "type": "software",
+          "address": "0x1927c37",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:54:04.217919+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.wait_for_event",
+    "time": 1789462465.3598552,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "afterCursor": 3,
+      "timeoutMs": 10000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "running",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 3,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_a6746d8cb1104e0ea84e792ae3da969a",
+          "type": "software",
+          "address": "0x1927c37",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:54:04.217919+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.wait_for_event",
+    "time": 1789462475.384972,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "afterCursor": 3,
+      "timeoutMs": 10000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "running",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 3,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_a6746d8cb1104e0ea84e792ae3da969a",
+          "type": "software",
+          "address": "0x1927c37",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:54:04.217919+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.wait_for_event",
+    "time": 1789462485.413325,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "afterCursor": 3,
+      "timeoutMs": 10000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "running",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 3,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_a6746d8cb1104e0ea84e792ae3da969a",
+          "type": "software",
+          "address": "0x1927c37",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:54:04.217919+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.wait_for_event",
+    "time": 1789462495.43412,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "afterCursor": 3,
+      "timeoutMs": 10000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "running",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 3,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_a6746d8cb1104e0ea84e792ae3da969a",
+          "type": "software",
+          "address": "0x1927c37",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:54:04.217919+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.wait_for_event",
+    "time": 1789462505.444334,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "afterCursor": 3,
+      "timeoutMs": 10000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "running",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 3,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_a6746d8cb1104e0ea84e792ae3da969a",
+          "type": "software",
+          "address": "0x1927c37",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:54:04.217919+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.wait_for_event",
+    "time": 1789462515.4746869,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "afterCursor": 3,
+      "timeoutMs": 10000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "running",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 3,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_a6746d8cb1104e0ea84e792ae3da969a",
+          "type": "software",
+          "address": "0x1927c37",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:54:04.217919+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.wait_for_event",
+    "time": 1789462525.494022,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "afterCursor": 3,
+      "timeoutMs": 10000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "running",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 3,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_a6746d8cb1104e0ea84e792ae3da969a",
+          "type": "software",
+          "address": "0x1927c37",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:54:04.217919+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.wait_for_event",
+    "time": 1789462535.516928,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "afterCursor": 3,
+      "timeoutMs": 10000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "running",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 3,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_a6746d8cb1104e0ea84e792ae3da969a",
+          "type": "software",
+          "address": "0x1927c37",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:54:04.217919+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.wait_for_event",
+    "time": 1789462542.250624,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "afterCursor": 3,
+      "timeoutMs": 10000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": [
+        {
+          "cursor": 4,
+          "kind": "stopped",
+          "sessionRevision": 6,
+          "stopEpoch": 2,
+          "reason": "swbreak",
+          "threadId": "1",
+          "rawPacket": "T05thread:1;10:377c920100000000;07:608b1f0010000000;swbreak:;",
+          "timestampUtc": "2026-09-15T08:55:42.242206+00:00"
+        }
+      ]
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 2,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 4,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_a6746d8cb1104e0ea84e792ae3da969a",
+          "type": "software",
+          "address": "0x1927c37",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:54:04.217919+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.read_registers",
+    "time": 1789462542.873955,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "stopEpoch": 2,
+      "threadId": "1",
+      "registerNames": [
+        "rip",
+        "rdi",
+        "rsi",
+        "rdx",
+        "rcx",
+        "rbx",
+        "rax",
+        "rsp",
+        "rbp",
+        "r12",
+        "r13",
+        "r14",
+        "r15"
+      ]
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [
+        {
+          "number": 16,
+          "name": "rip",
+          "bitSize": 64,
+          "rawHex": "377c920100000000",
+          "numericHex": "0x1927c37",
+          "available": true
+        },
+        {
+          "number": 5,
+          "name": "rdi",
+          "bitSize": 64,
+          "rawHex": "0029616502000000",
+          "numericHex": "0x265612900",
+          "available": true
+        },
+        {
+          "number": 4,
+          "name": "rsi",
+          "bitSize": 64,
+          "rawHex": "608b1f0010000000",
+          "numericHex": "0x10001f8b60",
+          "available": true
+        },
+        {
+          "number": 3,
+          "name": "rdx",
+          "bitSize": 64,
+          "rawHex": "0000000000000000",
+          "numericHex": "0x0",
+          "available": true
+        },
+        {
+          "number": 2,
+          "name": "rcx",
+          "bitSize": 64,
+          "rawHex": "a843130200000000",
+          "numericHex": "0x21343a8",
+          "available": true
+        },
+        {
+          "number": 1,
+          "name": "rbx",
+          "bitSize": 64,
+          "rawHex": "0029616502000000",
+          "numericHex": "0x265612900",
+          "available": true
+        },
+        {
+          "number": 0,
+          "name": "rax",
+          "bitSize": 64,
+          "rawHex": "62067b0000000000",
+          "numericHex": "0x7b0662",
+          "available": true
+        },
+        {
+          "number": 7,
+          "name": "rsp",
+          "bitSize": 64,
+          "rawHex": "608b1f0010000000",
+          "numericHex": "0x10001f8b60",
+          "available": true
+        },
+        {
+          "number": 6,
+          "name": "rbp",
+          "bitSize": 64,
+          "rawHex": "a08b1f0010000000",
+          "numericHex": "0x10001f8ba0",
+          "available": true
+        },
+        {
+          "number": 12,
+          "name": "r12",
+          "bitSize": 64,
+          "rawHex": "1000000000000000",
+          "numericHex": "0x10",
+          "available": true
+        },
+        {
+          "number": 13,
+          "name": "r13",
+          "bitSize": 64,
+          "rawHex": "2000000000000000",
+          "numericHex": "0x20",
+          "available": true
+        },
+        {
+          "number": 14,
+          "name": "r14",
+          "bitSize": 64,
+          "rawHex": "0000000010000000",
+          "numericHex": "0x1000000000",
+          "available": true
+        },
+        {
+          "number": 15,
+          "name": "r15",
+          "bitSize": 64,
+          "rawHex": "e097a53b02000000",
+          "numericHex": "0x23ba597e0",
+          "available": true
+        }
+      ],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 2,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 4,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_a6746d8cb1104e0ea84e792ae3da969a",
+          "type": "software",
+          "address": "0x1927c37",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:54:04.217919+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.manage_breakpoints",
+    "time": 1789462542.933084,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "operation": "remove",
+      "stopEpoch": 2,
+      "breakpointId": "gbp_a6746d8cb1104e0ea84e792ae3da969a"
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 2,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 4,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.manage_breakpoints",
+    "time": 1789462543.09218,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "operation": "add",
+      "stopEpoch": 2,
+      "type": "software",
+      "address": "0x8739b0",
+      "length": 1
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 2,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 4,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_12060d0a45154536a04166f14828c87d",
+          "type": "software",
+          "address": "0x8739b0",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:43.090686+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.manage_breakpoints",
+    "time": 1789462543.140616,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "operation": "add",
+      "stopEpoch": 2,
+      "type": "software",
+      "address": "0x1927c3c",
+      "length": 1
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 2,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 4,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_12060d0a45154536a04166f14828c87d",
+          "type": "software",
+          "address": "0x8739b0",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:43.090686+00:00"
+        },
+        {
+          "breakpointId": "gbp_5c8a38da2c6b48ffb5b81dff05dd5731",
+          "type": "software",
+          "address": "0x1927c3c",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:43.138781+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.control",
+    "time": 1789462543.2769039,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "action": "continue",
+      "stopEpoch": 2,
+      "waitForStopMs": 1000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 3,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 5,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_12060d0a45154536a04166f14828c87d",
+          "type": "software",
+          "address": "0x8739b0",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:43.090686+00:00"
+        },
+        {
+          "breakpointId": "gbp_5c8a38da2c6b48ffb5b81dff05dd5731",
+          "type": "software",
+          "address": "0x1927c3c",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:43.138781+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.read_registers",
+    "time": 1789462543.883592,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "stopEpoch": 3,
+      "threadId": "1",
+      "registerNames": [
+        "rip",
+        "rdi",
+        "rsi",
+        "rdx",
+        "rcx",
+        "rbx",
+        "rax",
+        "rsp",
+        "rbp",
+        "r12",
+        "r13",
+        "r14",
+        "r15"
+      ]
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [
+        {
+          "number": 16,
+          "name": "rip",
+          "bitSize": 64,
+          "rawHex": "b039870000000000",
+          "numericHex": "0x8739b0",
+          "available": true
+        },
+        {
+          "number": 5,
+          "name": "rdi",
+          "bitSize": 64,
+          "rawHex": "b80e5e6502000000",
+          "numericHex": "0x2655e0eb8",
+          "available": true
+        },
+        {
+          "number": 4,
+          "name": "rsi",
+          "bitSize": 64,
+          "rawHex": "d88a1f0010000000",
+          "numericHex": "0x10001f8ad8",
+          "available": true
+        },
+        {
+          "number": 3,
+          "name": "rdx",
+          "bitSize": 64,
+          "rawHex": "009e5e6502000000",
+          "numericHex": "0x2655e9e00",
+          "available": true
+        },
+        {
+          "number": 2,
+          "name": "rcx",
+          "bitSize": 64,
+          "rawHex": "b039870000000000",
+          "numericHex": "0x8739b0",
+          "available": true
+        },
+        {
+          "number": 1,
+          "name": "rbx",
+          "bitSize": 64,
+          "rawHex": "d88a1f0010000000",
+          "numericHex": "0x10001f8ad8",
+          "available": true
+        },
+        {
+          "number": 0,
+          "name": "rax",
+          "bitSize": 64,
+          "rawHex": "a0325e6502000000",
+          "numericHex": "0x2655e32a0",
+          "available": true
+        },
+        {
+          "number": 7,
+          "name": "rsp",
+          "bitSize": 64,
+          "rawHex": "888a1f0010000000",
+          "numericHex": "0x10001f8a88",
+          "available": true
+        },
+        {
+          "number": 6,
+          "name": "rbp",
+          "bitSize": 64,
+          "rawHex": "c08a1f0010000000",
+          "numericHex": "0x10001f8ac0",
+          "available": true
+        },
+        {
+          "number": 12,
+          "name": "r12",
+          "bitSize": 64,
+          "rawHex": "e826616502000000",
+          "numericHex": "0x2656126e8",
+          "available": true
+        },
+        {
+          "number": 13,
+          "name": "r13",
+          "bitSize": 64,
+          "rawHex": "0300000000000000",
+          "numericHex": "0x3",
+          "available": true
+        },
+        {
+          "number": 14,
+          "name": "r14",
+          "bitSize": 64,
+          "rawHex": "e026616502000000",
+          "numericHex": "0x2656126e0",
+          "available": true
+        },
+        {
+          "number": 15,
+          "name": "r15",
+          "bitSize": 64,
+          "rawHex": "6000000000000000",
+          "numericHex": "0x60",
+          "available": true
+        }
+      ],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 3,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 5,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_12060d0a45154536a04166f14828c87d",
+          "type": "software",
+          "address": "0x8739b0",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:43.090686+00:00"
+        },
+        {
+          "breakpointId": "gbp_5c8a38da2c6b48ffb5b81dff05dd5731",
+          "type": "software",
+          "address": "0x1927c3c",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:43.138781+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.manage_breakpoints",
+    "time": 1789462543.931913,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "operation": "remove",
+      "stopEpoch": 3,
+      "breakpointId": "gbp_12060d0a45154536a04166f14828c87d"
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 3,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 5,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_5c8a38da2c6b48ffb5b81dff05dd5731",
+          "type": "software",
+          "address": "0x1927c3c",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:43.138781+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.manage_breakpoints",
+    "time": 1789462544.23997,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "operation": "add",
+      "stopEpoch": 3,
+      "type": "software",
+      "address": "0x8739dc",
+      "length": 1
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 3,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 5,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_5c8a38da2c6b48ffb5b81dff05dd5731",
+          "type": "software",
+          "address": "0x1927c3c",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:43.138781+00:00"
+        },
+        {
+          "breakpointId": "gbp_11a6b301b0a040c694b5abf3eb1e56a4",
+          "type": "software",
+          "address": "0x8739dc",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:44.238729+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.control",
+    "time": 1789462544.380208,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "action": "continue",
+      "stopEpoch": 3,
+      "waitForStopMs": 1000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 4,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 6,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_5c8a38da2c6b48ffb5b81dff05dd5731",
+          "type": "software",
+          "address": "0x1927c3c",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:43.138781+00:00"
+        },
+        {
+          "breakpointId": "gbp_11a6b301b0a040c694b5abf3eb1e56a4",
+          "type": "software",
+          "address": "0x8739dc",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:44.238729+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.read_registers",
+    "time": 1789462544.999659,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "stopEpoch": 4,
+      "threadId": "1",
+      "registerNames": [
+        "rip",
+        "rdi",
+        "rsi",
+        "rdx",
+        "rcx",
+        "rbx",
+        "rax",
+        "rsp",
+        "rbp",
+        "r12",
+        "r13",
+        "r14",
+        "r15"
+      ]
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [
+        {
+          "number": 16,
+          "name": "rip",
+          "bitSize": 64,
+          "rawHex": "dc39870000000000",
+          "numericHex": "0x8739dc",
+          "available": true
+        },
+        {
+          "number": 5,
+          "name": "rdi",
+          "bitSize": 64,
+          "rawHex": "305f9d3b02000000",
+          "numericHex": "0x23b9d5f30",
+          "available": true
+        },
+        {
+          "number": 4,
+          "name": "rsi",
+          "bitSize": 64,
+          "rawHex": "509e5e6502000000",
+          "numericHex": "0x2655e9e50",
+          "available": true
+        },
+        {
+          "number": 3,
+          "name": "rdx",
+          "bitSize": 64,
+          "rawHex": "0000000000000000",
+          "numericHex": "0x0",
+          "available": true
+        },
+        {
+          "number": 2,
+          "name": "rcx",
+          "bitSize": 64,
+          "rawHex": "0000000000000000",
+          "numericHex": "0x0",
+          "available": true
+        },
+        {
+          "number": 1,
+          "name": "rbx",
+          "bitSize": 64,
+          "rawHex": "e026616502000000",
+          "numericHex": "0x2656126e0",
+          "available": true
+        },
+        {
+          "number": 0,
+          "name": "rax",
+          "bitSize": 64,
+          "rawHex": "105f9d3b02000000",
+          "numericHex": "0x23b9d5f10",
+          "available": true
+        },
+        {
+          "number": 7,
+          "name": "rsp",
+          "bitSize": 64,
+          "rawHex": "708a1f0010000000",
+          "numericHex": "0x10001f8a70",
+          "available": true
+        },
+        {
+          "number": 6,
+          "name": "rbp",
+          "bitSize": 64,
+          "rawHex": "808a1f0010000000",
+          "numericHex": "0x10001f8a80",
+          "available": true
+        },
+        {
+          "number": 12,
+          "name": "r12",
+          "bitSize": 64,
+          "rawHex": "e826616502000000",
+          "numericHex": "0x2656126e8",
+          "available": true
+        },
+        {
+          "number": 13,
+          "name": "r13",
+          "bitSize": 64,
+          "rawHex": "0300000000000000",
+          "numericHex": "0x3",
+          "available": true
+        },
+        {
+          "number": 14,
+          "name": "r14",
+          "bitSize": 64,
+          "rawHex": "e026616502000000",
+          "numericHex": "0x2656126e0",
+          "available": true
+        },
+        {
+          "number": 15,
+          "name": "r15",
+          "bitSize": 64,
+          "rawHex": "6000000000000000",
+          "numericHex": "0x60",
+          "available": true
+        }
+      ],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 4,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 6,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_5c8a38da2c6b48ffb5b81dff05dd5731",
+          "type": "software",
+          "address": "0x1927c3c",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:43.138781+00:00"
+        },
+        {
+          "breakpointId": "gbp_11a6b301b0a040c694b5abf3eb1e56a4",
+          "type": "software",
+          "address": "0x8739dc",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:44.238729+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.manage_breakpoints",
+    "time": 1789462545.047107,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "operation": "remove",
+      "stopEpoch": 4,
+      "breakpointId": "gbp_11a6b301b0a040c694b5abf3eb1e56a4"
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 4,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 6,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_5c8a38da2c6b48ffb5b81dff05dd5731",
+          "type": "software",
+          "address": "0x1927c3c",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:43.138781+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.manage_breakpoints",
+    "time": 1789462545.28283,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "operation": "add",
+      "stopEpoch": 4,
+      "type": "software",
+      "address": "0x190b7e0",
+      "length": 1
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 4,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 6,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_5c8a38da2c6b48ffb5b81dff05dd5731",
+          "type": "software",
+          "address": "0x1927c3c",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:43.138781+00:00"
+        },
+        {
+          "breakpointId": "gbp_e4da1d09c33540d5b9012ac5a824c923",
+          "type": "software",
+          "address": "0x190b7e0",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:45.282186+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.control",
+    "time": 1789462545.4236522,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "action": "continue",
+      "stopEpoch": 4,
+      "waitForStopMs": 1000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 5,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 7,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_5c8a38da2c6b48ffb5b81dff05dd5731",
+          "type": "software",
+          "address": "0x1927c3c",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:43.138781+00:00"
+        },
+        {
+          "breakpointId": "gbp_e4da1d09c33540d5b9012ac5a824c923",
+          "type": "software",
+          "address": "0x190b7e0",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:45.282186+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.read_registers",
+    "time": 1789462546.030764,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "stopEpoch": 5,
+      "threadId": "1",
+      "registerNames": [
+        "rip",
+        "rdi",
+        "rsi",
+        "rdx",
+        "rcx",
+        "rbx",
+        "rax",
+        "rsp",
+        "rbp",
+        "r12",
+        "r13",
+        "r14",
+        "r15"
+      ]
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [
+        {
+          "number": 16,
+          "name": "rip",
+          "bitSize": 64,
+          "rawHex": "e0b7900100000000",
+          "numericHex": "0x190b7e0",
+          "available": true
+        },
+        {
+          "number": 5,
+          "name": "rdi",
+          "bitSize": 64,
+          "rawHex": "e026616502000000",
+          "numericHex": "0x2656126e0",
+          "available": true
+        },
+        {
+          "number": 4,
+          "name": "rsi",
+          "bitSize": 64,
+          "rawHex": "105f9d3b02000000",
+          "numericHex": "0x23b9d5f10",
+          "available": true
+        },
+        {
+          "number": 3,
+          "name": "rdx",
+          "bitSize": 64,
+          "rawHex": "0000000000000000",
+          "numericHex": "0x0",
+          "available": true
+        },
+        {
+          "number": 2,
+          "name": "rcx",
+          "bitSize": 64,
+          "rawHex": "e0b7900100000000",
+          "numericHex": "0x190b7e0",
+          "available": true
+        },
+        {
+          "number": 1,
+          "name": "rbx",
+          "bitSize": 64,
+          "rawHex": "d88a1f0010000000",
+          "numericHex": "0x10001f8ad8",
+          "available": true
+        },
+        {
+          "number": 0,
+          "name": "rax",
+          "bitSize": 64,
+          "rawHex": "105f9d3b02000000",
+          "numericHex": "0x23b9d5f10",
+          "available": true
+        },
+        {
+          "number": 7,
+          "name": "rsp",
+          "bitSize": 64,
+          "rawHex": "888a1f0010000000",
+          "numericHex": "0x10001f8a88",
+          "available": true
+        },
+        {
+          "number": 6,
+          "name": "rbp",
+          "bitSize": 64,
+          "rawHex": "c08a1f0010000000",
+          "numericHex": "0x10001f8ac0",
+          "available": true
+        },
+        {
+          "number": 12,
+          "name": "r12",
+          "bitSize": 64,
+          "rawHex": "e826616502000000",
+          "numericHex": "0x2656126e8",
+          "available": true
+        },
+        {
+          "number": 13,
+          "name": "r13",
+          "bitSize": 64,
+          "rawHex": "0300000000000000",
+          "numericHex": "0x3",
+          "available": true
+        },
+        {
+          "number": 14,
+          "name": "r14",
+          "bitSize": 64,
+          "rawHex": "e026616502000000",
+          "numericHex": "0x2656126e0",
+          "available": true
+        },
+        {
+          "number": 15,
+          "name": "r15",
+          "bitSize": 64,
+          "rawHex": "6000000000000000",
+          "numericHex": "0x60",
+          "available": true
+        }
+      ],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 5,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 7,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_5c8a38da2c6b48ffb5b81dff05dd5731",
+          "type": "software",
+          "address": "0x1927c3c",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:43.138781+00:00"
+        },
+        {
+          "breakpointId": "gbp_e4da1d09c33540d5b9012ac5a824c923",
+          "type": "software",
+          "address": "0x190b7e0",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:45.282186+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.manage_breakpoints",
+    "time": 1789462546.091787,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "operation": "remove",
+      "stopEpoch": 5,
+      "breakpointId": "gbp_e4da1d09c33540d5b9012ac5a824c923"
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 5,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 7,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_5c8a38da2c6b48ffb5b81dff05dd5731",
+          "type": "software",
+          "address": "0x1927c3c",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:43.138781+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.read_stack",
+    "time": 1789462546.257834,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "stopEpoch": 5,
+      "threadId": "1"
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "mixedStack": {
+        "schemaVersion": 1,
+        "contextId": 1,
+        "threadId": 1,
+        "generation": 2,
+        "stopEpoch": 14,
+        "phase": "parked",
+        "limitation": "Bounded verified RBP links only; frameless/DWARF unwind is unavailable. Host PCs are historical boundary captures, not an asynchronous native stop. HLE memory may still change. No host boundary was captured before attachment.",
+        "frames": [
+          {
+            "kind": "guest",
+            "provenance": "safe-point",
+            "module": "eboot.bin",
+            "symbol": "",
+            "pc": "0x190b7e0",
+            "sp": "0x10001f8a88",
+            "fp": "0x10001f8ac0",
+            "invocation": 8,
+            "operation": 0
+          },
+          {
+            "kind": "guest",
+            "provenance": "verified-rbp-return-address",
+            "module": "eboot.bin",
+            "symbol": "",
+            "pc": "0x18f10c1",
+            "sp": "0x10001f8ad0",
+            "fp": "0x10001f8b10",
+            "invocation": 8,
+            "operation": 0
+          },
+          {
+            "kind": "guest",
+            "provenance": "verified-rbp-return-address",
+            "module": "eboot.bin",
+            "symbol": "",
+            "pc": "0x190c691",
+            "sp": "0x10001f8b20",
+            "fp": "0x10001f8b50",
+            "invocation": 8,
+            "operation": 0
+          },
+          {
+            "kind": "guest",
+            "provenance": "verified-rbp-return-address",
+            "module": "eboot.bin",
+            "symbol": "",
+            "pc": "0x1927c3c",
+            "sp": "0x10001f8b60",
+            "fp": "0x10001f8ba0",
+            "invocation": 8,
+            "operation": 0
+          },
+          {
+            "kind": "guest",
+            "provenance": "verified-rbp-return-address",
+            "module": "eboot.bin",
+            "symbol": "",
+            "pc": "0x4a0a04",
+            "sp": "0x10001f8bb0",
+            "fp": "0x100020bea0",
+            "invocation": 8,
+            "operation": 0
+          },
+          {
+            "kind": "guest",
+            "provenance": "verified-rbp-return-address",
+            "module": "eboot.bin",
+            "symbol": "",
+            "pc": "0x49e520",
+            "sp": "0x100020beb0",
+            "fp": "0x100020beb0",
+            "invocation": 8,
+            "operation": 0
+          },
+          {
+            "kind": "guest",
+            "provenance": "verified-rbp-return-address",
+            "module": "eboot.bin",
+            "symbol": "",
+            "pc": "0x7bc34a",
+            "sp": "0x100020bec0",
+            "fp": "0x100020bfb0",
+            "invocation": 8,
+            "operation": 0
+          },
+          {
+            "kind": "guest",
+            "provenance": "verified-rbp-return-address",
+            "module": "eboot.bin",
+            "symbol": "",
+            "pc": "0x4000bf",
+            "sp": "0x100020bfc0",
+            "fp": "0x100020bfe0",
+            "invocation": 8,
+            "operation": 0
+          }
+        ]
+      },
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 5,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 7,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_5c8a38da2c6b48ffb5b81dff05dd5731",
+          "type": "software",
+          "address": "0x1927c3c",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:43.138781+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.control",
+    "time": 1789462546.391619,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "action": "continue",
+      "stopEpoch": 5,
+      "waitForStopMs": 1000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 6,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 8,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_5c8a38da2c6b48ffb5b81dff05dd5731",
+          "type": "software",
+          "address": "0x1927c3c",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:43.138781+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.read_registers",
+    "time": 1789462547.0381582,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "stopEpoch": 6,
+      "threadId": "1",
+      "registerNames": [
+        "rip",
+        "rdi",
+        "rsi",
+        "rdx",
+        "rcx",
+        "rbx",
+        "rax",
+        "rsp",
+        "rbp",
+        "r12",
+        "r13",
+        "r14",
+        "r15"
+      ]
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [
+        {
+          "number": 16,
+          "name": "rip",
+          "bitSize": 64,
+          "rawHex": "3c7c920100000000",
+          "numericHex": "0x1927c3c",
+          "available": true
+        },
+        {
+          "number": 5,
+          "name": "rdi",
+          "bitSize": 64,
+          "rawHex": "405a5c6502000000",
+          "numericHex": "0x2655c5a40",
+          "available": true
+        },
+        {
+          "number": 4,
+          "name": "rsi",
+          "bitSize": 64,
+          "rawHex": "105f9d3b02000000",
+          "numericHex": "0x23b9d5f10",
+          "available": true
+        },
+        {
+          "number": 3,
+          "name": "rdx",
+          "bitSize": 64,
+          "rawHex": "0000000000000000",
+          "numericHex": "0x0",
+          "available": true
+        },
+        {
+          "number": 2,
+          "name": "rcx",
+          "bitSize": 64,
+          "rawHex": "0000000000000000",
+          "numericHex": "0x0",
+          "available": true
+        },
+        {
+          "number": 1,
+          "name": "rbx",
+          "bitSize": 64,
+          "rawHex": "0029616502000000",
+          "numericHex": "0x265612900",
+          "available": true
+        },
+        {
+          "number": 0,
+          "name": "rax",
+          "bitSize": 64,
+          "rawHex": "0000000000000000",
+          "numericHex": "0x0",
+          "available": true
+        },
+        {
+          "number": 7,
+          "name": "rsp",
+          "bitSize": 64,
+          "rawHex": "608b1f0010000000",
+          "numericHex": "0x10001f8b60",
+          "available": true
+        },
+        {
+          "number": 6,
+          "name": "rbp",
+          "bitSize": 64,
+          "rawHex": "a08b1f0010000000",
+          "numericHex": "0x10001f8ba0",
+          "available": true
+        },
+        {
+          "number": 12,
+          "name": "r12",
+          "bitSize": 64,
+          "rawHex": "1000000000000000",
+          "numericHex": "0x10",
+          "available": true
+        },
+        {
+          "number": 13,
+          "name": "r13",
+          "bitSize": 64,
+          "rawHex": "2000000000000000",
+          "numericHex": "0x20",
+          "available": true
+        },
+        {
+          "number": 14,
+          "name": "r14",
+          "bitSize": 64,
+          "rawHex": "0000000010000000",
+          "numericHex": "0x1000000000",
+          "available": true
+        },
+        {
+          "number": 15,
+          "name": "r15",
+          "bitSize": 64,
+          "rawHex": "e097a53b02000000",
+          "numericHex": "0x23ba597e0",
+          "available": true
+        }
+      ],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 6,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 8,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_5c8a38da2c6b48ffb5b81dff05dd5731",
+          "type": "software",
+          "address": "0x1927c3c",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:43.138781+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.manage_breakpoints",
+    "time": 1789462547.090539,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "operation": "remove",
+      "stopEpoch": 6,
+      "breakpointId": "gbp_5c8a38da2c6b48ffb5b81dff05dd5731"
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 6,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 8,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.manage_breakpoints",
+    "time": 1789462547.139511,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "operation": "add",
+      "stopEpoch": 6,
+      "type": "software",
+      "address": "0x1927c37",
+      "length": 1
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 6,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 8,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_d406389c1b7346519232984a9fc67ba8",
+          "type": "software",
+          "address": "0x1927c37",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:47.138618+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.control",
+    "time": 1789462548.2374358,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "action": "continue",
+      "stopEpoch": 6,
+      "waitForStopMs": 1000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "running",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 6,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 9,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_d406389c1b7346519232984a9fc67ba8",
+          "type": "software",
+          "address": "0x1927c37",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:47.138618+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.wait_for_event",
+    "time": 1789462553.546561,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "afterCursor": 9,
+      "timeoutMs": 10000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": [
+        {
+          "cursor": 10,
+          "kind": "stopped",
+          "sessionRevision": 22,
+          "stopEpoch": 7,
+          "reason": "swbreak",
+          "threadId": "1",
+          "rawPacket": "T05thread:1;10:377c920100000000;07:608b1f0010000000;swbreak:;",
+          "timestampUtc": "2026-09-15T08:55:53.544985+00:00"
+        }
+      ]
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 7,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 10,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_d406389c1b7346519232984a9fc67ba8",
+          "type": "software",
+          "address": "0x1927c37",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:47.138618+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.read_registers",
+    "time": 1789462554.150812,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "stopEpoch": 7,
+      "threadId": "1",
+      "registerNames": [
+        "rip",
+        "rdi",
+        "rsi",
+        "rdx",
+        "rcx",
+        "rbx",
+        "rax",
+        "rsp",
+        "rbp",
+        "r12",
+        "r13",
+        "r14",
+        "r15"
+      ]
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [
+        {
+          "number": 16,
+          "name": "rip",
+          "bitSize": 64,
+          "rawHex": "377c920100000000",
+          "numericHex": "0x1927c37",
+          "available": true
+        },
+        {
+          "number": 5,
+          "name": "rdi",
+          "bitSize": 64,
+          "rawHex": "0029616502000000",
+          "numericHex": "0x265612900",
+          "available": true
+        },
+        {
+          "number": 4,
+          "name": "rsi",
+          "bitSize": 64,
+          "rawHex": "608b1f0010000000",
+          "numericHex": "0x10001f8b60",
+          "available": true
+        },
+        {
+          "number": 3,
+          "name": "rdx",
+          "bitSize": 64,
+          "rawHex": "0000000000000000",
+          "numericHex": "0x0",
+          "available": true
+        },
+        {
+          "number": 2,
+          "name": "rcx",
+          "bitSize": 64,
+          "rawHex": "a843130200000000",
+          "numericHex": "0x21343a8",
+          "available": true
+        },
+        {
+          "number": 1,
+          "name": "rbx",
+          "bitSize": 64,
+          "rawHex": "0029616502000000",
+          "numericHex": "0x265612900",
+          "available": true
+        },
+        {
+          "number": 0,
+          "name": "rax",
+          "bitSize": 64,
+          "rawHex": "62067b0000000000",
+          "numericHex": "0x7b0662",
+          "available": true
+        },
+        {
+          "number": 7,
+          "name": "rsp",
+          "bitSize": 64,
+          "rawHex": "608b1f0010000000",
+          "numericHex": "0x10001f8b60",
+          "available": true
+        },
+        {
+          "number": 6,
+          "name": "rbp",
+          "bitSize": 64,
+          "rawHex": "a08b1f0010000000",
+          "numericHex": "0x10001f8ba0",
+          "available": true
+        },
+        {
+          "number": 12,
+          "name": "r12",
+          "bitSize": 64,
+          "rawHex": "1000000000000000",
+          "numericHex": "0x10",
+          "available": true
+        },
+        {
+          "number": 13,
+          "name": "r13",
+          "bitSize": 64,
+          "rawHex": "2000000000000000",
+          "numericHex": "0x20",
+          "available": true
+        },
+        {
+          "number": 14,
+          "name": "r14",
+          "bitSize": 64,
+          "rawHex": "0000000010000000",
+          "numericHex": "0x1000000000",
+          "available": true
+        },
+        {
+          "number": 15,
+          "name": "r15",
+          "bitSize": 64,
+          "rawHex": "e097a53b02000000",
+          "numericHex": "0x23ba597e0",
+          "available": true
+        }
+      ],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 7,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 10,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_d406389c1b7346519232984a9fc67ba8",
+          "type": "software",
+          "address": "0x1927c37",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:47.138618+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.manage_breakpoints",
+    "time": 1789462554.201715,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "operation": "remove",
+      "stopEpoch": 7,
+      "breakpointId": "gbp_d406389c1b7346519232984a9fc67ba8"
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 7,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 10,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.manage_breakpoints",
+    "time": 1789462554.334284,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "operation": "add",
+      "stopEpoch": 7,
+      "type": "software",
+      "address": "0x8739b0",
+      "length": 1
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 7,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 10,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_d8f29ea01f1045b5b90013e873253bbc",
+          "type": "software",
+          "address": "0x8739b0",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:54.333889+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.manage_breakpoints",
+    "time": 1789462554.378874,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "operation": "add",
+      "stopEpoch": 7,
+      "type": "software",
+      "address": "0x1927c3c",
+      "length": 1
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 7,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 10,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_d8f29ea01f1045b5b90013e873253bbc",
+          "type": "software",
+          "address": "0x8739b0",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:54.333889+00:00"
+        },
+        {
+          "breakpointId": "gbp_64dfd567f0154e86afe340a8786c2e03",
+          "type": "software",
+          "address": "0x1927c3c",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:54.377979+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.control",
+    "time": 1789462554.515396,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "action": "continue",
+      "stopEpoch": 7,
+      "waitForStopMs": 1000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 8,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 11,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_d8f29ea01f1045b5b90013e873253bbc",
+          "type": "software",
+          "address": "0x8739b0",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:54.333889+00:00"
+        },
+        {
+          "breakpointId": "gbp_64dfd567f0154e86afe340a8786c2e03",
+          "type": "software",
+          "address": "0x1927c3c",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:54.377979+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.read_registers",
+    "time": 1789462555.13492,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "stopEpoch": 8,
+      "threadId": "1",
+      "registerNames": [
+        "rip",
+        "rdi",
+        "rsi",
+        "rdx",
+        "rcx",
+        "rbx",
+        "rax",
+        "rsp",
+        "rbp",
+        "r12",
+        "r13",
+        "r14",
+        "r15"
+      ]
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [
+        {
+          "number": 16,
+          "name": "rip",
+          "bitSize": 64,
+          "rawHex": "b039870000000000",
+          "numericHex": "0x8739b0",
+          "available": true
+        },
+        {
+          "number": 5,
+          "name": "rdi",
+          "bitSize": 64,
+          "rawHex": "b80e5e6502000000",
+          "numericHex": "0x2655e0eb8",
+          "available": true
+        },
+        {
+          "number": 4,
+          "name": "rsi",
+          "bitSize": 64,
+          "rawHex": "d88a1f0010000000",
+          "numericHex": "0x10001f8ad8",
+          "available": true
+        },
+        {
+          "number": 3,
+          "name": "rdx",
+          "bitSize": 64,
+          "rawHex": "009e5e6502000000",
+          "numericHex": "0x2655e9e00",
+          "available": true
+        },
+        {
+          "number": 2,
+          "name": "rcx",
+          "bitSize": 64,
+          "rawHex": "b039870000000000",
+          "numericHex": "0x8739b0",
+          "available": true
+        },
+        {
+          "number": 1,
+          "name": "rbx",
+          "bitSize": 64,
+          "rawHex": "d88a1f0010000000",
+          "numericHex": "0x10001f8ad8",
+          "available": true
+        },
+        {
+          "number": 0,
+          "name": "rax",
+          "bitSize": 64,
+          "rawHex": "a0325e6502000000",
+          "numericHex": "0x2655e32a0",
+          "available": true
+        },
+        {
+          "number": 7,
+          "name": "rsp",
+          "bitSize": 64,
+          "rawHex": "888a1f0010000000",
+          "numericHex": "0x10001f8a88",
+          "available": true
+        },
+        {
+          "number": 6,
+          "name": "rbp",
+          "bitSize": 64,
+          "rawHex": "c08a1f0010000000",
+          "numericHex": "0x10001f8ac0",
+          "available": true
+        },
+        {
+          "number": 12,
+          "name": "r12",
+          "bitSize": 64,
+          "rawHex": "e826616502000000",
+          "numericHex": "0x2656126e8",
+          "available": true
+        },
+        {
+          "number": 13,
+          "name": "r13",
+          "bitSize": 64,
+          "rawHex": "0300000000000000",
+          "numericHex": "0x3",
+          "available": true
+        },
+        {
+          "number": 14,
+          "name": "r14",
+          "bitSize": 64,
+          "rawHex": "e026616502000000",
+          "numericHex": "0x2656126e0",
+          "available": true
+        },
+        {
+          "number": 15,
+          "name": "r15",
+          "bitSize": 64,
+          "rawHex": "6000000000000000",
+          "numericHex": "0x60",
+          "available": true
+        }
+      ],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 8,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 11,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_d8f29ea01f1045b5b90013e873253bbc",
+          "type": "software",
+          "address": "0x8739b0",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:54.333889+00:00"
+        },
+        {
+          "breakpointId": "gbp_64dfd567f0154e86afe340a8786c2e03",
+          "type": "software",
+          "address": "0x1927c3c",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:54.377979+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.manage_breakpoints",
+    "time": 1789462555.186647,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "operation": "remove",
+      "stopEpoch": 8,
+      "breakpointId": "gbp_d8f29ea01f1045b5b90013e873253bbc"
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 8,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 11,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_64dfd567f0154e86afe340a8786c2e03",
+          "type": "software",
+          "address": "0x1927c3c",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:54.377979+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.manage_breakpoints",
+    "time": 1789462555.491513,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "operation": "add",
+      "stopEpoch": 8,
+      "type": "software",
+      "address": "0x8739dc",
+      "length": 1
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 8,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 11,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_64dfd567f0154e86afe340a8786c2e03",
+          "type": "software",
+          "address": "0x1927c3c",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:54.377979+00:00"
+        },
+        {
+          "breakpointId": "gbp_ae3b63c990434a54ad88f534df2df37e",
+          "type": "software",
+          "address": "0x8739dc",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:55.490134+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.control",
+    "time": 1789462555.630514,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "action": "continue",
+      "stopEpoch": 8,
+      "waitForStopMs": 1000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 9,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 12,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_64dfd567f0154e86afe340a8786c2e03",
+          "type": "software",
+          "address": "0x1927c3c",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:54.377979+00:00"
+        },
+        {
+          "breakpointId": "gbp_ae3b63c990434a54ad88f534df2df37e",
+          "type": "software",
+          "address": "0x8739dc",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:55.490134+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.read_registers",
+    "time": 1789462556.2441669,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "stopEpoch": 9,
+      "threadId": "1",
+      "registerNames": [
+        "rip",
+        "rdi",
+        "rsi",
+        "rdx",
+        "rcx",
+        "rbx",
+        "rax",
+        "rsp",
+        "rbp",
+        "r12",
+        "r13",
+        "r14",
+        "r15"
+      ]
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [
+        {
+          "number": 16,
+          "name": "rip",
+          "bitSize": 64,
+          "rawHex": "dc39870000000000",
+          "numericHex": "0x8739dc",
+          "available": true
+        },
+        {
+          "number": 5,
+          "name": "rdi",
+          "bitSize": 64,
+          "rawHex": "b05f9d3b02000000",
+          "numericHex": "0x23b9d5fb0",
+          "available": true
+        },
+        {
+          "number": 4,
+          "name": "rsi",
+          "bitSize": 64,
+          "rawHex": "509e5e6502000000",
+          "numericHex": "0x2655e9e50",
+          "available": true
+        },
+        {
+          "number": 3,
+          "name": "rdx",
+          "bitSize": 64,
+          "rawHex": "0000000000000000",
+          "numericHex": "0x0",
+          "available": true
+        },
+        {
+          "number": 2,
+          "name": "rcx",
+          "bitSize": 64,
+          "rawHex": "0000000000000000",
+          "numericHex": "0x0",
+          "available": true
+        },
+        {
+          "number": 1,
+          "name": "rbx",
+          "bitSize": 64,
+          "rawHex": "e026616502000000",
+          "numericHex": "0x2656126e0",
+          "available": true
+        },
+        {
+          "number": 0,
+          "name": "rax",
+          "bitSize": 64,
+          "rawHex": "905f9d3b02000000",
+          "numericHex": "0x23b9d5f90",
+          "available": true
+        },
+        {
+          "number": 7,
+          "name": "rsp",
+          "bitSize": 64,
+          "rawHex": "708a1f0010000000",
+          "numericHex": "0x10001f8a70",
+          "available": true
+        },
+        {
+          "number": 6,
+          "name": "rbp",
+          "bitSize": 64,
+          "rawHex": "808a1f0010000000",
+          "numericHex": "0x10001f8a80",
+          "available": true
+        },
+        {
+          "number": 12,
+          "name": "r12",
+          "bitSize": 64,
+          "rawHex": "e826616502000000",
+          "numericHex": "0x2656126e8",
+          "available": true
+        },
+        {
+          "number": 13,
+          "name": "r13",
+          "bitSize": 64,
+          "rawHex": "0300000000000000",
+          "numericHex": "0x3",
+          "available": true
+        },
+        {
+          "number": 14,
+          "name": "r14",
+          "bitSize": 64,
+          "rawHex": "e026616502000000",
+          "numericHex": "0x2656126e0",
+          "available": true
+        },
+        {
+          "number": 15,
+          "name": "r15",
+          "bitSize": 64,
+          "rawHex": "6000000000000000",
+          "numericHex": "0x60",
+          "available": true
+        }
+      ],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 9,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 12,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_64dfd567f0154e86afe340a8786c2e03",
+          "type": "software",
+          "address": "0x1927c3c",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:54.377979+00:00"
+        },
+        {
+          "breakpointId": "gbp_ae3b63c990434a54ad88f534df2df37e",
+          "type": "software",
+          "address": "0x8739dc",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:55.490134+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.manage_breakpoints",
+    "time": 1789462556.294111,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "operation": "remove",
+      "stopEpoch": 9,
+      "breakpointId": "gbp_ae3b63c990434a54ad88f534df2df37e"
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 9,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 12,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_64dfd567f0154e86afe340a8786c2e03",
+          "type": "software",
+          "address": "0x1927c3c",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:54.377979+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.manage_breakpoints",
+    "time": 1789462556.5388749,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "operation": "add",
+      "stopEpoch": 9,
+      "type": "software",
+      "address": "0x190b7e0",
+      "length": 1
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 9,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 12,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_64dfd567f0154e86afe340a8786c2e03",
+          "type": "software",
+          "address": "0x1927c3c",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:54.377979+00:00"
+        },
+        {
+          "breakpointId": "gbp_9abf7c6a13204354849dd86748092b30",
+          "type": "software",
+          "address": "0x190b7e0",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:56.538505+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.control",
+    "time": 1789462556.6725278,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "action": "continue",
+      "stopEpoch": 9,
+      "waitForStopMs": 1000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 10,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 13,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_64dfd567f0154e86afe340a8786c2e03",
+          "type": "software",
+          "address": "0x1927c3c",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:54.377979+00:00"
+        },
+        {
+          "breakpointId": "gbp_9abf7c6a13204354849dd86748092b30",
+          "type": "software",
+          "address": "0x190b7e0",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:56.538505+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.read_registers",
+    "time": 1789462557.305367,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "stopEpoch": 10,
+      "threadId": "1",
+      "registerNames": [
+        "rip",
+        "rdi",
+        "rsi",
+        "rdx",
+        "rcx",
+        "rbx",
+        "rax",
+        "rsp",
+        "rbp",
+        "r12",
+        "r13",
+        "r14",
+        "r15"
+      ]
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [
+        {
+          "number": 16,
+          "name": "rip",
+          "bitSize": 64,
+          "rawHex": "e0b7900100000000",
+          "numericHex": "0x190b7e0",
+          "available": true
+        },
+        {
+          "number": 5,
+          "name": "rdi",
+          "bitSize": 64,
+          "rawHex": "e026616502000000",
+          "numericHex": "0x2656126e0",
+          "available": true
+        },
+        {
+          "number": 4,
+          "name": "rsi",
+          "bitSize": 64,
+          "rawHex": "905f9d3b02000000",
+          "numericHex": "0x23b9d5f90",
+          "available": true
+        },
+        {
+          "number": 3,
+          "name": "rdx",
+          "bitSize": 64,
+          "rawHex": "0000000000000000",
+          "numericHex": "0x0",
+          "available": true
+        },
+        {
+          "number": 2,
+          "name": "rcx",
+          "bitSize": 64,
+          "rawHex": "e0b7900100000000",
+          "numericHex": "0x190b7e0",
+          "available": true
+        },
+        {
+          "number": 1,
+          "name": "rbx",
+          "bitSize": 64,
+          "rawHex": "d88a1f0010000000",
+          "numericHex": "0x10001f8ad8",
+          "available": true
+        },
+        {
+          "number": 0,
+          "name": "rax",
+          "bitSize": 64,
+          "rawHex": "905f9d3b02000000",
+          "numericHex": "0x23b9d5f90",
+          "available": true
+        },
+        {
+          "number": 7,
+          "name": "rsp",
+          "bitSize": 64,
+          "rawHex": "888a1f0010000000",
+          "numericHex": "0x10001f8a88",
+          "available": true
+        },
+        {
+          "number": 6,
+          "name": "rbp",
+          "bitSize": 64,
+          "rawHex": "c08a1f0010000000",
+          "numericHex": "0x10001f8ac0",
+          "available": true
+        },
+        {
+          "number": 12,
+          "name": "r12",
+          "bitSize": 64,
+          "rawHex": "e826616502000000",
+          "numericHex": "0x2656126e8",
+          "available": true
+        },
+        {
+          "number": 13,
+          "name": "r13",
+          "bitSize": 64,
+          "rawHex": "0300000000000000",
+          "numericHex": "0x3",
+          "available": true
+        },
+        {
+          "number": 14,
+          "name": "r14",
+          "bitSize": 64,
+          "rawHex": "e026616502000000",
+          "numericHex": "0x2656126e0",
+          "available": true
+        },
+        {
+          "number": 15,
+          "name": "r15",
+          "bitSize": 64,
+          "rawHex": "6000000000000000",
+          "numericHex": "0x60",
+          "available": true
+        }
+      ],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 10,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 13,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_64dfd567f0154e86afe340a8786c2e03",
+          "type": "software",
+          "address": "0x1927c3c",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:54.377979+00:00"
+        },
+        {
+          "breakpointId": "gbp_9abf7c6a13204354849dd86748092b30",
+          "type": "software",
+          "address": "0x190b7e0",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:56.538505+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.manage_breakpoints",
+    "time": 1789462557.358976,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "operation": "remove",
+      "stopEpoch": 10,
+      "breakpointId": "gbp_9abf7c6a13204354849dd86748092b30"
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 10,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 13,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_64dfd567f0154e86afe340a8786c2e03",
+          "type": "software",
+          "address": "0x1927c3c",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:54.377979+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.read_stack",
+    "time": 1789462557.5183182,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "stopEpoch": 10,
+      "threadId": "1"
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "mixedStack": {
+        "schemaVersion": 1,
+        "contextId": 1,
+        "threadId": 1,
+        "generation": 2,
+        "stopEpoch": 19,
+        "phase": "parked",
+        "limitation": "Bounded verified RBP links only; frameless/DWARF unwind is unavailable. Host PCs are historical boundary captures, not an asynchronous native stop. HLE memory may still change. No host boundary was captured before attachment.",
+        "frames": [
+          {
+            "kind": "guest",
+            "provenance": "safe-point",
+            "module": "eboot.bin",
+            "symbol": "",
+            "pc": "0x190b7e0",
+            "sp": "0x10001f8a88",
+            "fp": "0x10001f8ac0",
+            "invocation": 8,
+            "operation": 0
+          },
+          {
+            "kind": "guest",
+            "provenance": "verified-rbp-return-address",
+            "module": "eboot.bin",
+            "symbol": "",
+            "pc": "0x18f10c1",
+            "sp": "0x10001f8ad0",
+            "fp": "0x10001f8b10",
+            "invocation": 8,
+            "operation": 0
+          },
+          {
+            "kind": "guest",
+            "provenance": "verified-rbp-return-address",
+            "module": "eboot.bin",
+            "symbol": "",
+            "pc": "0x190c691",
+            "sp": "0x10001f8b20",
+            "fp": "0x10001f8b50",
+            "invocation": 8,
+            "operation": 0
+          },
+          {
+            "kind": "guest",
+            "provenance": "verified-rbp-return-address",
+            "module": "eboot.bin",
+            "symbol": "",
+            "pc": "0x1927c3c",
+            "sp": "0x10001f8b60",
+            "fp": "0x10001f8ba0",
+            "invocation": 8,
+            "operation": 0
+          },
+          {
+            "kind": "guest",
+            "provenance": "verified-rbp-return-address",
+            "module": "eboot.bin",
+            "symbol": "",
+            "pc": "0x4a0a04",
+            "sp": "0x10001f8bb0",
+            "fp": "0x100020bea0",
+            "invocation": 8,
+            "operation": 0
+          },
+          {
+            "kind": "guest",
+            "provenance": "verified-rbp-return-address",
+            "module": "eboot.bin",
+            "symbol": "",
+            "pc": "0x49e520",
+            "sp": "0x100020beb0",
+            "fp": "0x100020beb0",
+            "invocation": 8,
+            "operation": 0
+          },
+          {
+            "kind": "guest",
+            "provenance": "verified-rbp-return-address",
+            "module": "eboot.bin",
+            "symbol": "",
+            "pc": "0x7bc34a",
+            "sp": "0x100020bec0",
+            "fp": "0x100020bfb0",
+            "invocation": 8,
+            "operation": 0
+          },
+          {
+            "kind": "guest",
+            "provenance": "verified-rbp-return-address",
+            "module": "eboot.bin",
+            "symbol": "",
+            "pc": "0x4000bf",
+            "sp": "0x100020bfc0",
+            "fp": "0x100020bfe0",
+            "invocation": 8,
+            "operation": 0
+          }
+        ]
+      },
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 10,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 13,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_64dfd567f0154e86afe340a8786c2e03",
+          "type": "software",
+          "address": "0x1927c3c",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:54.377979+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.control",
+    "time": 1789462557.6661482,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "action": "continue",
+      "stopEpoch": 10,
+      "waitForStopMs": 1000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 11,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 14,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_64dfd567f0154e86afe340a8786c2e03",
+          "type": "software",
+          "address": "0x1927c3c",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:54.377979+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.read_registers",
+    "time": 1789462558.2625651,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "stopEpoch": 11,
+      "threadId": "1",
+      "registerNames": [
+        "rip",
+        "rdi",
+        "rsi",
+        "rdx",
+        "rcx",
+        "rbx",
+        "rax",
+        "rsp",
+        "rbp",
+        "r12",
+        "r13",
+        "r14",
+        "r15"
+      ]
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [
+        {
+          "number": 16,
+          "name": "rip",
+          "bitSize": 64,
+          "rawHex": "3c7c920100000000",
+          "numericHex": "0x1927c3c",
+          "available": true
+        },
+        {
+          "number": 5,
+          "name": "rdi",
+          "bitSize": 64,
+          "rawHex": "806b5e6502000000",
+          "numericHex": "0x2655e6b80",
+          "available": true
+        },
+        {
+          "number": 4,
+          "name": "rsi",
+          "bitSize": 64,
+          "rawHex": "905f9d3b02000000",
+          "numericHex": "0x23b9d5f90",
+          "available": true
+        },
+        {
+          "number": 3,
+          "name": "rdx",
+          "bitSize": 64,
+          "rawHex": "0000000000000000",
+          "numericHex": "0x0",
+          "available": true
+        },
+        {
+          "number": 2,
+          "name": "rcx",
+          "bitSize": 64,
+          "rawHex": "0000000000000000",
+          "numericHex": "0x0",
+          "available": true
+        },
+        {
+          "number": 1,
+          "name": "rbx",
+          "bitSize": 64,
+          "rawHex": "0029616502000000",
+          "numericHex": "0x265612900",
+          "available": true
+        },
+        {
+          "number": 0,
+          "name": "rax",
+          "bitSize": 64,
+          "rawHex": "0000000000000000",
+          "numericHex": "0x0",
+          "available": true
+        },
+        {
+          "number": 7,
+          "name": "rsp",
+          "bitSize": 64,
+          "rawHex": "608b1f0010000000",
+          "numericHex": "0x10001f8b60",
+          "available": true
+        },
+        {
+          "number": 6,
+          "name": "rbp",
+          "bitSize": 64,
+          "rawHex": "a08b1f0010000000",
+          "numericHex": "0x10001f8ba0",
+          "available": true
+        },
+        {
+          "number": 12,
+          "name": "r12",
+          "bitSize": 64,
+          "rawHex": "1000000000000000",
+          "numericHex": "0x10",
+          "available": true
+        },
+        {
+          "number": 13,
+          "name": "r13",
+          "bitSize": 64,
+          "rawHex": "2000000000000000",
+          "numericHex": "0x20",
+          "available": true
+        },
+        {
+          "number": 14,
+          "name": "r14",
+          "bitSize": 64,
+          "rawHex": "0000000010000000",
+          "numericHex": "0x1000000000",
+          "available": true
+        },
+        {
+          "number": 15,
+          "name": "r15",
+          "bitSize": 64,
+          "rawHex": "e097a53b02000000",
+          "numericHex": "0x23ba597e0",
+          "available": true
+        }
+      ],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 11,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 14,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_64dfd567f0154e86afe340a8786c2e03",
+          "type": "software",
+          "address": "0x1927c3c",
+          "length": 1,
+          "createdUtc": "2026-09-15T08:55:54.377979+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.manage_breakpoints",
+    "time": 1789462558.310909,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "operation": "remove",
+      "stopEpoch": 11,
+      "breakpointId": "gbp_64dfd567f0154e86afe340a8786c2e03"
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 11,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 14,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.control",
+    "time": 1789462558.420695,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "action": "continue",
+      "stopEpoch": 11,
+      "waitForStopMs": 0
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "running",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 11,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 15,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.stop_session",
+    "time": 1789462558.499661,
+    "args": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e"
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": true,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_45af327500174fab89e57e02eee42c5e",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "cleaned",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 12,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 18,
+      "breakpoints": []
+    }
+  }
+]

@@ -1,0 +1,15 @@
+{
+  "apk_sha256": "b65fe36a09862a74f6a72d8df2612de61c37c31544e7936a817da8ae4575c7b1",
+  "host_sha256": "07fa05f4bea7869c2e4cad6f3c027267eae117ec89d58d202789c72671ce35b8",
+  "host_build_id": "ce4fea22a43b271abda06ee3f2fb8b479ae29082",
+  "jni_build_id": "bee19bd6272163000b14acf9d04683660ccf877f",
+  "changes": "audio queue + AvPlayer cancellable API wait + accepted-event drain + bounded error reasons; original linear VM query",
+  "source_head": "4da582b7b3a36d74403a4985c3c03f37e570bcb7",
+  "source_dirty": true,
+  "source_hashes": {
+    "src/core/host_runtime/guest_audio.cpp": "01626fa9dbff42fc3f0968112f0430a03a49b9ec626b928a17f8e1b78f8db0aa",
+    "src/core/host_runtime/guest_avplayer.cpp": "78f3e6aad7b3a2f8ec7ac58ea23fee547e86638e40bb6ebd617eb790ec7b78ed",
+    "src/core/guest_cpu/api/address_space.cpp": "7fec5e8b481321fb56d32d78edf468335072993bd499d7e5379aea9754530c1c",
+    "tests/host_runtime/guest_avplayer_tests.cpp": "4205e61dfc48e18f6df4b0b47997bc87ca34ac23c7270ca02d406f73034e1d78"
+  }
+}

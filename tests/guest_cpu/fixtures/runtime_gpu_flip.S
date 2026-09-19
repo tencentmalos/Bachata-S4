@@ -13,6 +13,41 @@ _start:
     call qword ptr [rip+got]
     cmp eax,1
     jne failed
+    // Legacy GNM entry points used by Bloodborne, through real FEX gates.
+    lea rdi,[rip+command]
+    mov esi,1024
+    call qword ptr [rip+got+88]
+    test eax,eax
+    jz failed
+    lea rdi,[rip+command]
+    mov esi,40
+    xor edx,edx // Desktop permits a null PS to disable the stage.
+    call qword ptr [rip+got+96]
+    test eax,eax
+    jne failed
+    cmp dword ptr [rip+command],0xc0027600
+    jne failed
+    lea rdi,[rip+command]
+    mov esi,40
+    xor edx,edx
+    call qword ptr [rip+got+104]
+    test eax,eax
+    jne failed
+    lea rdi,[rip+command]
+    mov esi,25
+    lea rdx,[rip+cs_regs]
+    call qword ptr [rip+got+112]
+    test eax,eax
+    jne failed
+    cmp dword ptr [rip+command+4],0x20c
+    jne failed
+    call qword ptr [rip+got+120]
+    mov rdx,0xff0000000
+    cmp rax,rdx
+    jne failed
+    call qword ptr [rip+got+128]
+    cmp eax,0x80d13fff // retail firmware has validation disabled
+    jne failed
     lea rdi,[rip+attr]
     mov esi,0x80000000
     mov edx,1
@@ -137,9 +172,10 @@ timeout: .long 2000000
 dcb_size: .long 256
 .balign 8
 dcb: .quad 0
+cs_regs: .long 0,0,0,0,1,1,1
 .balign 256
-command: .fill 256,1,0
+command: .fill 4096,1,0
 .org 0x8000
-got: .fill 11,8,0
+got: .fill 17,8,0
 .set fb0,_start+0xc000
 .set fb1,_start+0x10000

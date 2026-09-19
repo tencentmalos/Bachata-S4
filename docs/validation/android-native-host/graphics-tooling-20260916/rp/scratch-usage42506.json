@@ -1,0 +1,24 @@
+{
+  "request": {
+    "method": "tools/call",
+    "params": {
+      "name": "resource_usage",
+      "arguments": {
+        "resourceId": "42506",
+        "limit": 30
+      }
+    }
+  },
+  "response": {
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"schemaVersion\":\"1.0\",\"session\":{\"captureId\":\"62e37cfe-e982-457d-a670-35aa02b28c5f\",\"captureRevision\":{\"value\":53}},\"data\":{\"dataset\":\"resource_usage\",\"materialization\":\"ready\",\"rows\":{\"columns\":[{\"name\":\"resource_id\",\"declaredType\":\"TEXT\"},{\"name\":\"event_id\",\"declaredType\":\"INTEGER\"},{\"name\":\"usage\",\"declaredType\":\"TEXT\"},{\"name\":\"access\",\"declaredType\":\"TEXT\"},{\"name\":\"stage\",\"declaredType\":\"TEXT\"},{\"name\":\"view_resource_id\",\"declaredType\":\"TEXT\"}],\"rows\":[[\"42506\",\"145\",\"CS_RWResource\",\"read_write\",\"compute\",null],[\"42506\",\"146\",\"Barrier\",\"none\",\"synchronization\",null],[\"42506\",\"147\",\"CopySrc\",\"read\",\"transfer\",null],[\"42506\",\"148\",\"Barrier\",\"none\",\"synchronization\",null]],\"truncated\":false,\"executionMs\":0.0355},\"warnings\":[]}}"
+        }
+      ]
+    },
+    "id": 78,
+    "jsonrpc": "2.0"
+  }
+}

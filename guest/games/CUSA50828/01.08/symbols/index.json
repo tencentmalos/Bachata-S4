@@ -1,0 +1,54 @@
+{
+  "schema": "spatial.guest-symbol-index.v2",
+  "bundle_id": "tmnt-cusa50828-0108",
+  "revision": 6,
+  "targets": [
+    {
+      "target_id": "tmnt-0108-eboot",
+      "scope": "title-module",
+      "emulator_family": "ps4",
+      "emulator": "shadps4-fex",
+      "program_id": "CUSA50828",
+      "module_name": "eboot.bin",
+      "source_sha256": "cf14264107ef499c5fcaffc97386dcee25652c16d3975d1be27edc4e7e40ede5",
+      "compatible_runtime_sha256": [
+        "6122da7190de6b08d921b2c42c3ca9ed11dc4d11524f1139ff67aeceea5b204d"
+      ],
+      "compatible_build_ids": [],
+      "address_model": "module-relative",
+      "architecture": "i386:x86-64",
+      "byte_order": "little",
+      "toolchain_target": "x86_64-none-elf"
+    }
+  ],
+  "shards": [
+    {
+      "target_id": "tmnt-0108-eboot",
+      "path": "main-frame.symbols.json",
+      "sha256": "5f2307d0a5f72839556b03423fbd0116e538e4805d0f7a49346b11c8c85506f2"
+    },
+    {
+      "target_id": "tmnt-0108-eboot",
+      "path": "rooftop-recompiled.symbols.json",
+      "sha256": "7a598681a7e4ecb2f43564f452badd5afbaa258ed08c9539b95415f6db1143b6"
+    },
+    {
+      "target_id": "tmnt-0108-eboot",
+      "path": "frame-flow.symbols.json",
+      "sha256": "8496b2e38c69f730584cab2b4ccd686e751fa3faeeb1c6d73405129e652f4256"
+    },
+    {
+      "target_id": "tmnt-0108-eboot",
+      "path": "frame-waits.symbols.json",
+      "sha256": "ff90644bfb81a90e7af33dbb70ac16f0de9ef86d6bf43c2471286ee357b5daf4"
+    },
+    {
+      "target_id": "tmnt-0108-eboot",
+      "path": "loading-waits.symbols.json",
+      "sha256": "60d9d8d943140aa17b94807fb6fb7699eb6e6d06c88fb5dd1e97ede5b3f554ed"
+    }
+  ],
+  "annotations": {
+    "analysis": "Source is unmodified decrypted ELF. IDA analysis-only copy changes ELF e_type from 0xfe10 to ET_DYN; text unchanged. Runtime identity is the original SELF SHA; patch entry preimages checked separately. No guessed runtime address in symbols."
+  }
+}

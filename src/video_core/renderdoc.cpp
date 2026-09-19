@@ -158,7 +158,9 @@ public:
                 << "\"request_id\":\"" << r.request_id << "\",\n"
                 << "\"first_present\":\"" << r.first_present << "\",\n"
                 << "\"last_present\":\"" << r.last_present << "\",\n"
-                << "\"coverage\":\"host_present_interval\",\n"
+                << "\"first_guest_flip\":\"" << r.first_guest_flip << "\",\n"
+                << "\"last_guest_flip\":\"" << r.last_guest_flip << "\",\n"
+                << "\"coverage\":\"" << r.coverage << "\",\n"
                 << "\"guest_frame_equivalence\":\"unverified\",\n"
                 << "\"driver\":\"" << JsonEscape(target.driver_identity) << "\",\n"
                 << "\"size\":\"" << size << "\",\n"
@@ -186,6 +188,13 @@ void StopCaptureTarget(u64 generation) { GetCaptureCoordinator().RequestStop(gen
 void UnbindCaptureTarget(u64 generation) { GetCaptureCoordinator().Unbind(generation); }
 void NotifyPresentBoundary(u64 generation, u64 present_id) {
     GetCaptureCoordinator().OnFrameBoundary(generation, present_id, Core::Diagnostics::DiagnosticNowNs());
+}
+bool NeedsGuestCaptureBoundary(u64 generation) {
+    return GetCaptureCoordinator().NeedsGuestBoundary(generation);
+}
+void NotifyGuestFlipBoundary(u64 generation, u64 guest_flip_id) {
+    GetCaptureCoordinator().OnFrameBoundary(generation, guest_flip_id,
+        Core::Diagnostics::DiagnosticNowNs(), CaptureBoundary::GuestFlip);
 }
 // Desktop hotkeys and command requests share exactly one capture owner. The old
 // Liverpool drain callbacks no longer drive an independent Start/End machine.

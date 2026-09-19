@@ -17,6 +17,16 @@ namespace {
 constexpr auto DriverFile = "vulkan.ad07xx.so";
 constexpr auto DriverSha = "fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09";
 
+void SelectLoader(bool system) {
+    static std::mutex mutex;
+    static int selected = -1;
+    std::scoped_lock lock(mutex);
+    const int requested = system ? 1 : 0;
+    if (selected != -1 && selected != requested)
+        throw std::runtime_error("Changing Vulkan driver requires app restart");
+    selected = requested;
+}
+
 std::string Directory(const std::string& path) {
     if (!std::filesystem::path(path).is_absolute() || !std::filesystem::is_directory(path))
         throw std::runtime_error("Turnip requires an existing absolute directory: " + path);
@@ -42,18 +52,18 @@ void VerifyFile(const std::string& path) {
 template <typename T>
 T Entry(PFN_vkGetInstanceProcAddr entry, VkInstance instance, const char* name) {
     auto function = reinterpret_cast<T>(entry(instance, name));
-    if (!function) throw std::runtime_error(std::string("Turnip missing entry: ") + name);
+    if (!function) throw std::runtime_error(std::string("Vulkan loader missing entry: ") + name);
     return function;
 }
 
-std::string Identify(PFN_vkGetInstanceProcAddr entry) {
+std::string Identify(PFN_vkGetInstanceProcAddr entry, bool turnip) {
     const VkApplicationInfo app{VK_STRUCTURE_TYPE_APPLICATION_INFO, nullptr, "shadPS4", 1,
                                 "shadPS4", 1, VK_API_VERSION_1_3};
     const VkInstanceCreateInfo info{VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO, nullptr, 0, &app};
     VkInstance instance{};
     auto create = Entry<PFN_vkCreateInstance>(entry, nullptr, "vkCreateInstance");
     if (auto result = create(&info, nullptr, &instance); result != VK_SUCCESS)
-        throw std::runtime_error(fmt::format("Turnip vkCreateInstance failed: {}", int(result)));
+        throw std::runtime_error(fmt::format("Vulkan vkCreateInstance failed: {}", int(result)));
     struct Cleanup {
         VkInstance instance;
         PFN_vkDestroyInstance destroy;
@@ -62,12 +72,12 @@ std::string Identify(PFN_vkGetInstanceProcAddr entry) {
     auto enumerate = Entry<PFN_vkEnumeratePhysicalDevices>(entry, instance, "vkEnumeratePhysicalDevices");
     uint32_t count{};
     if (enumerate(instance, &count, nullptr) != VK_SUCCESS || count == 0)
-        throw std::runtime_error("Turnip exposes no physical device");
+        throw std::runtime_error("Vulkan loader exposes no physical device");
     std::vector<VkPhysicalDevice> devices(count);
     if (enumerate(instance, &count, devices.data()) != VK_SUCCESS)
-        throw std::runtime_error("Turnip physical-device enumeration failed");
+        throw std::runtime_error("Vulkan physical-device enumeration failed");
     if (count == 0)
-        throw std::runtime_error("Turnip physical device disappeared");
+        throw std::runtime_error("Vulkan physical device disappeared");
     devices.resize(count);
     auto properties = Entry<PFN_vkGetPhysicalDeviceProperties2>(entry, instance, "vkGetPhysicalDeviceProperties2");
     auto features = Entry<PFN_vkGetPhysicalDeviceFeatures>(entry, instance, "vkGetPhysicalDeviceFeatures");
@@ -80,13 +90,14 @@ std::string Identify(PFN_vkGetInstanceProcAddr entry) {
         VkPhysicalDeviceFeatures caps{};
         properties(device, &props);
         features(device, &caps);
-        if (driver.driverID != VK_DRIVER_ID_MESA_TURNIP || !caps.shaderInt64 ||
-            props.properties.apiVersion < VK_API_VERSION_1_3)
+        if (turnip && (driver.driverID != VK_DRIVER_ID_MESA_TURNIP || !caps.shaderInt64 ||
+            props.properties.apiVersion < VK_API_VERSION_1_3))
             throw std::runtime_error(fmt::format("Turnip profile rejected: driverID={} shaderInt64={} api={}",
                 int(driver.driverID), caps.shaderInt64, props.properties.apiVersion));
-        identity += fmt::format("device={} driver={} info={} shaderInt64=1 api={} sha256={} ",
+        identity += fmt::format("source={} device={} driver={} info={} shaderInt64={} api={} sha256={} ",
+            turnip ? "turnip" : "system",
             props.properties.deviceName, driver.driverName, driver.driverInfo,
-            props.properties.apiVersion, DriverSha);
+            caps.shaderInt64, props.properties.apiVersion, turnip ? DriverSha : "system-image");
     }
     return identity;
 }
@@ -99,6 +110,7 @@ DriverLease LoadAndroidTurnip(const std::string& hook_directory, const std::stri
     for (auto name : {"libhook_impl.so", "libmain_hook.so", "libfile_redirect_hook.so", "libgsl_alloc_hook.so"})
         if (!std::filesystem::is_regular_file(hooks + name))
             throw std::runtime_error(std::string("Missing adrenotools hook: ") + name);
+    SelectLoader(false);
 
     // adrenotools owns namespaces/HookImplParams for process lifetime and offers
     // no namespace teardown. Load at most once per process; do not leak one
@@ -124,11 +136,25 @@ DriverLease LoadAndroidTurnip(const std::string& hook_directory, const std::stri
         auto entry = reinterpret_cast<PFN_vkGetInstanceProcAddr>(dlsym(handle, "vkGetInstanceProcAddr"));
         if (!entry) throw std::runtime_error("Turnip loader has no vkGetInstanceProcAddr");
         // Deliberately keep handle mapped, matching the namespace/hook lifetime.
-        pinned = std::make_shared<Driver>(Driver{entry, Identify(entry)});
+        pinned = std::make_shared<Driver>(Driver{entry, Identify(entry, true)});
         return pinned;
     } catch (const std::exception& e) {
         failure = e.what();
         throw;
     }
+}
+
+DriverLease LoadAndroidSystemDriver() {
+    SelectLoader(true);
+    // Keep the system loader mapped for the process lifetime as well. This path
+    // does not call adrenotools or install any custom ICD redirection.
+    static const DriverLease system = [] {
+        void* handle = dlopen("libvulkan.so", RTLD_NOW | RTLD_LOCAL);
+        if (!handle) throw std::runtime_error("Cannot open Android system Vulkan loader");
+        auto entry = reinterpret_cast<PFN_vkGetInstanceProcAddr>(dlsym(handle, "vkGetInstanceProcAddr"));
+        if (!entry) throw std::runtime_error("System Vulkan loader has no vkGetInstanceProcAddr");
+        return std::make_shared<Driver>(Driver{entry, Identify(entry, false)});
+    }();
+    return system;
 }
 } // namespace Vulkan

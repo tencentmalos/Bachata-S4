@@ -546,7 +546,7 @@ void ImeUi::Draw() {
         const double nav_now = ImGui::GetTime();
         const bool cancel_shortcut_pressed =
             allow_osk_shortcuts &&
-            virtual_pad_input.Pressed(Libraries::Pad::OrbisPadButtonDataOffset::Circle);
+            virtual_pad_input.Pressed(ImeCancelButton());
         const ImVec2 mouse_delta = ImGui::GetIO().MouseDelta;
         const bool pointer_input = IsMouseClicked(ImGuiMouseButton_Left, false) ||
                                    IsMouseClicked(ImGuiMouseButton_Right, false) ||

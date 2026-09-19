@@ -1,0 +1,143 @@
+#!/usr/bin/env python3
+"""Session-bound FEX automatic probes and bounded profiler capture."""
+import argparse
+import hashlib
+import json
+from pathlib import Path
+import re
+import shlex
+import subprocess
+import sys
+import time
+APP='com.shadps4.android'; SERVICE=APP+'/.service.FexSessionService'
+REL='files/guest-auto-tag/active.json'; ABS='/data/user/0/'+APP+'/'+REL
+
+def sha(path):
+    with Path(path).open('rb') as f:return hashlib.file_digest(f,'sha256').hexdigest()
+def fields(text):
+    return dict(re.findall(r'^[ \t]*([\w_]+)[:=][ \t]*([^\r\n]*?)[ \t]*$',text,re.M))
+def doc(text):
+    for line in text.splitlines():
+        if line.strip().startswith('{'):return json.loads(line)
+    raise ValueError('missing structured auto tag status: '+text)
+def recipe_bindings(recipe, package_bytes, patch, profile, context):
+    package=json.loads(package_bytes)
+    if patch.get('enabled')!='1' or patch.get('failed')!='0' or patch.get('context')!=str(context):
+        raise ValueError('compiled guest SDK is not enabled in this context')
+    if hashlib.sha256(package_bytes).hexdigest()!=patch.get('sha256'):
+        raise ValueError('compiled guest package SHA differs from running Session')
+    for key in ('id','title','module','module_sha256','abi','counters'):
+        if recipe.get(key)!=package.get(key):raise ValueError('compiled guest recipe/package mismatch: '+key)
+    if package['module_sha256']!=profile['identity']['module_sha256'] or patch.get('package')!=package['id']:
+        raise ValueError('compiled guest package identity mismatch')
+    keys=('name','offset','expected')
+    if [[h[k] for k in keys] for h in recipe['hooks']]!=[[h[k] for k in keys] for h in package['hooks']]:
+        raise ValueError('compiled guest hook mapping differs from recipe')
+    return [dict(counter_prefix='GuestPatch.'+recipe['id']+'.'+h['name'],offset=h['offset'],name=h['name'],role='frame' if h['name']=='frame' else 'phase') for h in recipe['hooks']]
+def main():
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('serial');p.add_argument('action',choices=['deploy','clear','status','enable','disable','capture']);p.add_argument('profile_path',nargs='?',type=Path)
+    p.add_argument('--output',type=Path);p.add_argument('--seconds',type=int,default=15)
+    p.add_argument('--profile',type=Path);p.add_argument('--analysis',type=Path);p.add_argument('--imagebase',type=lambda s:int(s,0));p.add_argument('--recipe',type=Path)
+    p.add_argument('--compiled-only',action='store_true',help='Capture existing guest C/C++ phase counters without installing auto probes; requires --recipe and an unarmed Session')
+    a=p.parse_args()
+    def adb(*args,data=None):
+        return subprocess.run(['adb','-s',a.serial,*map(str,args)],input=data,stdout=subprocess.PIPE,stderr=subprocess.PIPE,check=True,timeout=45).stdout
+    def shell(*args,data=None):return adb('shell',shlex.join(map(str,args)),data=data).decode()
+    def cmd(*args):return shell('dumpsys','activity','service',SERVICE,*args)
+    def status():
+        value=doc(cmd('guest_auto_tag','status'))
+        if value.get('schema')!='spatial.guest-auto-tag.status.v1' and value.get('status')!='disabled_at_startup':raise ValueError(str(value))
+        return value
+    if a.action=='deploy':
+        if not a.profile_path:p.error('deploy requires profile path')
+        data=a.profile_path.read_bytes();j=json.loads(data)
+        if len(data)>1024*1024 or j.get('schema')!='spatial.guest-auto-tag.v1':raise ValueError('invalid profile')
+        shell('run-as',APP,'mkdir','-p','files/guest-auto-tag')
+        shell('run-as',APP,'sh','-c','cat > '+REL+'.tmp',data=data)
+        if shell('run-as',APP,'sha256sum',REL+'.tmp').split()[0]!=sha(a.profile_path):raise ValueError('device SHA mismatch')
+        shell('run-as',APP,'mv',REL+'.tmp',REL);shell('setprop','debug.shadps4.guest_auto_tag',ABS)
+        print(json.dumps(dict(ok=True,profile_sha256=sha(a.profile_path),action='next-session-install')));return
+    if a.profile_path:p.error('positional profile only valid for deploy')
+    if a.action=='clear':shell('setprop','debug.shadps4.guest_auto_tag','');print('Next-session profile cleared');return
+    if a.action=='status':print(json.dumps(status(),indent=2));return
+    if a.action in ('enable','disable'):
+        s=status()
+        if 'context' not in s:raise ValueError('No profile installed; deploy and start a new Session first')
+        r=doc(cmd('guest_auto_tag',a.action,str(s['context'])))
+        if 'error' in r:raise ValueError(str(r))
+        print(json.dumps(r,indent=2));return
+    if not a.output or not a.analysis or a.imagebase is None or (not a.compiled_only and not a.profile):p.error('capture requires --output --analysis --imagebase and --profile (or --compiled-only --recipe)')
+    if a.compiled_only and (not a.recipe or a.profile):p.error('--compiled-only requires --recipe and excludes --profile')
+    if not 1<=a.seconds<=60:p.error('capture seconds must be 1..60')
+    out=a.output.resolve();out.mkdir(parents=True,exist_ok=False)
+    before=cmd('debug_status');start=fields(before);state=status()
+    if a.compiled_only:
+        if state.get('status')!='disabled_at_startup':raise ValueError('compiled-only capture requires an unarmed auto-tag Session')
+        recipe=json.loads(a.recipe.read_text())
+        if recipe['abi']!='x86_64-sysv':raise ValueError('unsupported compiled adapter ABI')
+        profile=dict(architecture='x86_64',abi=recipe['abi'],endianness='little',pointer_bits=64,
+            identity=dict(emulator='shadps4',title=recipe['title'],module=recipe['module'],module_sha256=recipe['module_sha256']),
+            analysis=dict(module=recipe['module'],sha256=sha(a.analysis),imagebase=a.imagebase))
+        if recipe.get('analysis')!=profile['analysis']:raise ValueError('compiled-only capture requires exact recipe analysis SHA/module/imagebase')
+    else:
+        profile=json.loads(a.profile.read_text())
+        if state['profile_sha256']!=sha(a.profile) or not state['enabled'] or state['code_invalidations']:raise ValueError('active profile identity/recording mismatch')
+    if start.get('stage')!='Running':raise ValueError('guest is not Running')
+    patch_before=cmd('guest_patch','status') if a.recipe else None
+    if patch_before:(out/'patch-before.txt').write_text(patch_before)
+    context=int(fields(patch_before)['context']) if a.compiled_only else state['context']
+    if a.compiled_only and fields(patch_before).get('enabled')!='1':raise ValueError('compiled phase counters must be enabled')
+    pid=start['pid'];identity=(pid,start['generation'],start['run_uuid'])
+    def same_session():
+        text=cmd('debug_status');f=fields(text)
+        if (f.get('pid'),f.get('generation'),f.get('run_uuid'))!=identity:raise ValueError('Session changed during capture')
+        return text
+    trace_status=shell('cat','/proc/'+pid+'/status')
+    if re.search(r'^TracerPid:\s*[1-9]',trace_status,re.M):raise ValueError('native debugger attached; performance capture refused')
+    initial=fields(cmd('profiler_capture','status'))
+    if initial.get('capture_active')=='1':raise ValueError('another capture is active')
+    owned=fields(cmd('profiler_capture','file','128',str(a.seconds+5)))
+    if owned.get('capture_active')!='1':raise ValueError(str(owned))
+    (out/'session-before.txt').write_text(before);(out/'tag-before.json').write_text(json.dumps(state,indent=2))
+    try:
+        deadline=time.monotonic()+a.seconds
+        while time.monotonic()<deadline:time.sleep(min(1,max(0,deadline-time.monotonic())));same_session()
+    finally:
+        same_session();current=fields(cmd('profiler_capture','status'))
+        if current.get('capture_id')!=owned.get('capture_id'):raise ValueError('capture ownership changed')
+        cmd('profiler_capture','stop')
+    deadline=time.monotonic()+15
+    while True:
+        current=fields(cmd('profiler_capture','status'))
+        if current.get('capture_active')=='0':break
+        if time.monotonic()>deadline:raise ValueError('capture did not finalize')
+        time.sleep(.2)
+    if current.get('error') or current.get('capture_state')!='ready':raise ValueError(str(current))
+    after=same_session();end=status();(out/'session-after.txt').write_text(after);(out/'tag-after.json').write_text(json.dumps(end,indent=2))
+    if a.compiled_only:
+        if end!=state:raise ValueError('auto-tag state changed during compiled-only capture')
+    elif not end['enabled'] or end['code_invalidations'] or end['profile_sha256']!=state['profile_sha256']:raise ValueError('profile invalidated while capturing')
+    device_path=current['capture_path'];prefix='/data/user/0/'+APP+'/'
+    if not device_path.startswith(prefix):raise ValueError('unexpected capture path')
+    trace=out/'capture.prof';trace.write_bytes(adb('exec-out','run-as',APP,'cat',device_path[len(prefix):]))
+    actual=shell('run-as',APP,'sha256sum',device_path[len(prefix):]).split()[0]
+    if actual!=sha(trace):raise ValueError('capture pull SHA mismatch')
+    manifest={k:profile[k] for k in ('architecture','abi','endianness','pointer_bits','identity')}
+    manifest.update(schema='spatial.guest-profile.capture.v1',analysis=dict(module=profile['analysis']['module'],sha256=sha(a.analysis),imagebase=a.imagebase),
+        process=dict(pid=int(pid),session=start['run_uuid']+':'+start['generation'],context=context),trace=str(trace),trace_sha256=actual,
+        device=a.serial,instrumentation='compiled-phase-counters' if a.compiled_only else 'automatic-probes',
+        evidence={n:sha(out/n) for n in ('session-before.txt','session-after.txt','tag-before.json','tag-after.json')})
+    if manifest['analysis']!=profile['analysis']:raise ValueError('analysis identity mismatch')
+    if not a.compiled_only:manifest.update(profile=str(a.profile.resolve()),profile_sha256=state['profile_sha256'])
+    if a.recipe:
+        recipe=json.loads(a.recipe.read_text());patch_after=cmd('guest_patch','status');patch=fields(patch_after)
+        if any(patch.get(k)!=fields(patch_before).get(k) for k in ('context','sha256','switches','enabled','failed')):raise ValueError('compiled guest SDK changed during capture')
+        package_bytes=adb('exec-out','run-as',APP,'cat','files/guest-patches/active.json')
+        manifest['bindings']=recipe_bindings(recipe,package_bytes,patch,profile,context)
+        manifest['compiled_guest_package_sha256']=patch['sha256']
+        (out/'patch-after.txt').write_text(patch_after)
+        manifest['evidence'].update({n:sha(out/n) for n in ('patch-before.txt','patch-after.txt')})
+    path=out/'capture.json';path.write_text(json.dumps(manifest,indent=2)+'\n');print(json.dumps(dict(ok=True,manifest=str(path),sha256=sha(path))))
+if __name__=='__main__':
+    try:main()
+    except (OSError,ValueError,KeyError,subprocess.SubprocessError) as e:print('GUEST_AUTO_TAG_ERROR: '+str(e),file=sys.stderr);sys.exit(1)

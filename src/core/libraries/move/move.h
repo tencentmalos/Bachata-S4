@@ -43,5 +43,32 @@ struct OrbisMoveData {
     float temperature;
 };
 
+// The low four bits are the face-button portion used by the Android SBS
+// adapter.  These values follow the Move digital button ordering; the
+// adapter only exposes the four PS4 face buttons and leaves the remaining
+// device-specific bits clear.
+enum OrbisMoveFaceButton : u16 {
+    ORBIS_MOVE_BUTTON_TRIANGLE = 1u << 0,
+    ORBIS_MOVE_BUTTON_CIRCLE = 1u << 1,
+    ORBIS_MOVE_BUTTON_CROSS = 1u << 2,
+    ORBIS_MOVE_BUTTON_SQUARE = 1u << 3,
+};
+
+static_assert(sizeof(OrbisMoveDeviceInfo) == 0x10);
+static_assert(sizeof(OrbisMoveButtonData) == 0x04);
+static_assert(sizeof(OrbisMoveExtensionPortData) == 0x14);
+static_assert(sizeof(OrbisMoveData) == 0x40);
+
+s32 PS4_SYSV_ABI sceMoveInit();
+s32 PS4_SYSV_ABI sceMoveOpen(Libraries::UserService::OrbisUserServiceUserId user_id, s32 type,
+                             s32 index);
+s32 PS4_SYSV_ABI sceMoveGetDeviceInfo(s32 handle, OrbisMoveDeviceInfo* info);
+s32 PS4_SYSV_ABI sceMoveReadStateLatest(s32 handle, OrbisMoveData* data);
+s32 PS4_SYSV_ABI sceMoveReadStateRecent(s32 handle, s64 timestamp, OrbisMoveData* data,
+                                        s32* out_count);
+s32 PS4_SYSV_ABI sceMoveSetVibration(s32 handle, u8 intensity);
+s32 PS4_SYSV_ABI sceMoveSetLightSphere(s32 handle, u8 red, u8 green, u8 blue);
+s32 PS4_SYSV_ABI sceMoveTerm();
+
 void RegisterLib(Core::Loader::SymbolsResolver* sym);
 } // namespace Libraries::Move

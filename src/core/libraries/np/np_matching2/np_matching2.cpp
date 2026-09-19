@@ -219,9 +219,8 @@ int PS4_SYSV_ABI sceNpMatching2ContextStart(OrbisNpMatching2ContextId ctxId, u64
     }
     if (!EmulatorSettings.IsConnectedToNetwork() || !EmulatorSettings.IsShadNetEnabled()) {
         // error confirmed with a real console disconnected from the internet
-        constexpr int ORBIS_NET_ERROR_RESOLVER_ETIMEDOUT = 0x804101e2;
         LOG_ERROR(Lib_NpMatching2, "not connected to network");
-        return ORBIS_NET_ERROR_RESOLVER_ETIMEDOUT;
+        return OfflineContextStartResult;
     }
 
     const s32 rc = ContextManager::Instance().Start(ctxId);
@@ -255,6 +254,10 @@ int PS4_SYSV_ABI sceNpMatching2ContextStop(OrbisNpMatching2ContextId ctxId) {
 }
 
 int PS4_SYSV_ABI sceNpMatching2Initialize(OrbisNpMatching2InitializeParameter* param) {
+    return Initialize(param, true);
+}
+
+int Initialize(OrbisNpMatching2InitializeParameter* param, bool start_dispatcher) {
     LOG_INFO(Lib_NpMatching2, "called");
 
     if (IsInitialized()) {
@@ -273,7 +276,7 @@ int PS4_SYSV_ABI sceNpMatching2Initialize(OrbisNpMatching2InitializeParameter* p
         LOG_INFO(Lib_NpMatching2, "sslPoolSize={:#x}", param->sslPoolSize);
     }
 
-    InitEventDispatcher();
+    if (start_dispatcher) InitEventDispatcher();
 
     SetInitialized(true);
     g_state.initialized.store(true);

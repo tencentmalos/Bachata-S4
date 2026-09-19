@@ -35,10 +35,11 @@ inline u32 DispatchRtc(GuestCpu::GuestAddressSpace& space, GuestClock& clock, u3
     static_assert(sizeof(Date) == 16 && sizeof(Tick) == 8 && sizeof(time_t) == 8);
     constexpr u64 max_tick = 315537897599999999ULL; // 9999-12-31T23:59:59.999999
     auto read = [&](u64 addr, auto& value) {
-        return bool(space.Read(GuestAddress{addr}, std::as_writable_bytes(std::span{&value, 1})));
+        return bool(
+            space.ReadData(GuestAddress{addr}, std::as_writable_bytes(std::span{&value, 1})));
     };
     auto put = [&](u64 addr, const auto& value) -> u32 {
-        auto pin = space.AcquirePinnedSpan({GuestAddress{addr}, sizeof(value)}, true);
+        auto pin = space.AcquireDataSpan({GuestAddress{addr}, sizeof(value)}, true);
         if (!pin)
             return u32(ORBIS_RTC_ERROR_INVALID_POINTER);
         std::memcpy(pin.Value().WritableBytes().data(), &value, sizeof(value));
@@ -75,7 +76,7 @@ inline u32 DispatchRtc(GuestCpu::GuestAddressSpace& space, GuestClock& clock, u3
         if (const int status = FormatRtcText(tick, local ? 0 : s32(a[2]),
                                              nid == "eiuobaF-hK4" || nid == "AxHBk3eat04", text))
             return u32(status);
-        auto pin = space.AcquirePinnedSpan({GuestAddress{a[0]}, text.size() + 1}, true);
+        auto pin = space.AcquireDataSpan({GuestAddress{a[0]}, text.size() + 1}, true);
         if (!pin)
             return u32(ORBIS_RTC_ERROR_INVALID_POINTER);
         std::memcpy(pin.Value().WritableBytes().data(), text.c_str(), text.size() + 1);

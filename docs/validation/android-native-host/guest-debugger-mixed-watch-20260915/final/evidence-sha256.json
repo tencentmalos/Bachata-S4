@@ -1,0 +1,20 @@
+{
+  "apk-events.log": "8b823ccf62d7d2957afc00a0fabf9b211fcb589b40a16e44cc50e89f883f52c0",
+  "cleanup.json": "8fb116206e77ed13399f5efd5e19a74bd830dfc5814ab6933b0c3a1c641a5d32",
+  "mixed-final-apk-build2.log": "5ca6f0e95b65011e21b6215d1a9ee3901c3fecd89c1e5aa444aa45dd6dec2f75",
+  "mixed-final-apk.log": "ec5fd0773d437a93f6da3c62902306b9bf2901c69f7b326fe412faef2850087e",
+  "mixed-final-cli-build.log": "b3493e7ac382236f607e2c38704f371a7261ea5379f7f3576a004a966de14512",
+  "mixed-final-disabled.log": "33838335546ea42ca498a09d2fe885c4ead9e92a4061168f52b4e0855ae939e2",
+  "mixed-final-hle-mcp.log": "2d6fc3c75bdca6fbf5d318c50bb363a454ba516364640062a520582f25eb3fa2",
+  "mixed-final-hle-server.log": "17b12a50bd45d51e5b7f2c4ffab40744c756a446a74c342e3978f4f702eaf867",
+  "mixed-final-install.log": "010b3a3264d4f6486c97418b9cdad86741664309d39b080e6800666ea12c6bca",
+  "mixed-final-mcp-tests.log": "c49ff327f9e757aeee6b7314a3aa737a3e6c94eabc36b202c4e69675611a243f",
+  "mixed-final-native.log": "30c933946d6a4f559b5d338648b6703e6dfa685999cfbca79a5db186b4a6ed61",
+  "mixed-final-solution.log": "2040648ad75babcb932642c6622a10fa31f7f8d16a779f91f52c401e6cd4929b",
+  "mixed-final-watch-mcp.log": "cb59927b578adaa94e5eb246f38aee2830909b117e35737dd4c71a5f8db34d37",
+  "mixed-final-watch-server.log": "17b12a50bd45d51e5b7f2c4ffab40744c756a446a74c342e3978f4f702eaf867",
+  "mixed-final-wrapper-smoke.json": "61f4ab363d3ed2d96b45fd28399c550787ae116b202030827a71b882cfadf4ee",
+  "mixed-mcp-catalog.log": "adcda84f70b03686037ad6e9c79dca754f4295d94bb0877e92b45233eb651b85",
+  "mixed-mcp-mixed-evidence.json": "1931edbafacd4aa2dc6a4abec442f3bf25f5bde685eea4def6165dde8c7e250b",
+  "mixed-mcp-watch-evidence.json": "44318221a9a1c23e963ebcc75f2fe0d9583368770ae88a3dc3e9420110cbc6cb"
+}

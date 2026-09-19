@@ -218,8 +218,7 @@ s32 PS4_SYSV_ABI sceAudioOutInit() {
         audio = std::make_unique<OpenALAudioOut>();
     } else {
 #if defined(__ANDROID__)
-        // The Android host has no SDL audio device; use AAudio directly.
-        audio = std::make_unique<AAudioOut>();
+        audio = std::make_unique<OboeAudioOut>();
 #else
         audio = std::make_unique<SDLAudioOut>();
 #endif

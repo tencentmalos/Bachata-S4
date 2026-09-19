@@ -1,0 +1,49 @@
+{
+  "branch": "codex/android-fex-round2",
+  "head": "4da582b7b3a36d74403a4985c3c03f37e570bcb7",
+  "dirty": true,
+  "files": [
+    {
+      "path": "build/gpu-async-audit-20260915/gpu-reference.apk",
+      "sha256": "2ddba5ca2961f01c716cbdd2344428d096551d07f63a08bfb320f5fb81d7f4e7",
+      "bytes": 331054395,
+      "native_entries": {
+        "lib/arm64-v8a/libshadps4_host.so": "1f61458e1abd8269473a80c5422e554aa625a7d71f3e82e93254b7f6fa0bcdfe",
+        "lib/arm64-v8a/libshadps4_fex_session.so": "fab1301605136675a4da73e59aa3888441d94b18444a0fecbde9dbb2afd81cf6"
+      }
+    },
+    {
+      "path": "build/gpu-async-audit-20260915/system-driver.apk",
+      "sha256": "ce45625ea45276ce7048747a4d0976b2948870c397c73bdfd9f7d23b8c0c9959",
+      "bytes": 331048593,
+      "native_entries": {
+        "lib/arm64-v8a/libshadps4_host.so": "1ce02a3dec281b3bcae09ea4a9d3b6d521dea156c562e43d842c53db2c6a1839",
+        "lib/arm64-v8a/libshadps4_fex_session.so": "fab1301605136675a4da73e59aa3888441d94b18444a0fecbde9dbb2afd81cf6"
+      }
+    },
+    {
+      "path": "build/android-host-api33/native/libshadps4_host.so",
+      "sha256": "1f61458e1abd8269473a80c5422e554aa625a7d71f3e82e93254b7f6fa0bcdfe",
+      "bytes": 462082216,
+      "elf_notes": "Displaying notes found in: .note.android.ident\n  Owner                Data size \tDescription\n  Android              0x00000084\tNT_ANDROID_TYPE_IDENT\n   description data: 21 00 00 00 72 32 39 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 31 34 32 30 36 38 36 35 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n\nDisplaying notes found in: .note.gnu.build-id\n  Owner                Data size \tDescription\n  GNU                  0x00000014\tNT_GNU_BUILD_ID (unique build ID bitstring)\n    Build ID: 6e6b8a2ffd9880a2b576b28098eff70aa8f4f490"
+    },
+    {
+      "path": "build/android-host-api33/native/android_gpu_timing_probe",
+      "sha256": "62a999a851b9d0fbfff24f1b3e2466f2236ea0710218dca4a99b5567dbc9ff17",
+      "bytes": 3015936,
+      "elf_notes": "Displaying notes found in: .note.android.ident\n  Owner                Data size \tDescription\n  Android              0x00000084\tNT_ANDROID_TYPE_IDENT\n   description data: 21 00 00 00 72 32 39 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 31 34 32 30 36 38 36 35 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n\nDisplaying notes found in: .note.gnu.build-id\n  Owner                Data size \tDescription\n  GNU                  0x00000014\tNT_GNU_BUILD_ID (unique build ID bitstring)\n    Build ID: 46d0563817918c5d02408c4e9d8e051557853f02"
+    },
+    {
+      "path": "build/android-host-api33/native/gpu_async_tests",
+      "sha256": "d8b09028a9b4bec5f905bcd7d97dadd616386ce19862db6bc8e23c6e4ceb4226",
+      "bytes": 2296552,
+      "elf_notes": "Displaying notes found in: .note.android.ident\n  Owner                Data size \tDescription\n  Android              0x00000084\tNT_ANDROID_TYPE_IDENT\n   description data: 21 00 00 00 72 32 39 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 31 34 32 30 36 38 36 35 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n\nDisplaying notes found in: .note.gnu.build-id\n  Owner                Data size \tDescription\n  GNU                  0x00000014\tNT_GNU_BUILD_ID (unique build ID bitstring)\n    Build ID: 7abf137911889b7596455482a23c80d4877f4cd1"
+    },
+    {
+      "path": "build/android-host-api33/native/gpu_timing_tests",
+      "sha256": "d99bbb1e410eb204b5490eeea7607844efa0ec37d98fdb572ebf8e38546aed65",
+      "bytes": 228480,
+      "elf_notes": "Displaying notes found in: .note.android.ident\n  Owner                Data size \tDescription\n  Android              0x00000084\tNT_ANDROID_TYPE_IDENT\n   description data: 21 00 00 00 72 32 39 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 31 34 32 30 36 38 36 35 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n\nDisplaying notes found in: .note.gnu.build-id\n  Owner                Data size \tDescription\n  GNU                  0x00000014\tNT_GNU_BUILD_ID (unique build ID bitstring)\n    Build ID: 12394d665772563dbcb74e7269f8d84d7cd625d5"
+    }
+  ]
+}

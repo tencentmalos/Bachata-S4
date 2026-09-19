@@ -1,0 +1,206 @@
+{
+  "schema": "shadps4.warmup.v1",
+  "run_id": "55d2cb34f4be46efab96de4e205e5839",
+  "serial": "9c2841a4",
+  "display_id": "4630946441858561667",
+  "input_display": "0",
+  "status": "GAMEPLAY_REVIEWED",
+  "identity": [
+    31258,
+    1,
+    "58020b2c40b685b48089328e1d746bad"
+  ],
+  "frames": [
+    {
+      "image": "frame-0000.png",
+      "sha256": "653927c6bef2756730324a38ee7cfcac85ac13d2e22568ff3a2b984218934af7",
+      "elapsed": 1.2756346249952912,
+      "state": {
+        "identity": [
+          31258,
+          1,
+          "58020b2c40b685b48089328e1d746bad"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 8480,
+        "flip_age_ns": 57850990
+      }
+    },
+    {
+      "image": "frame-0001.png",
+      "sha256": "9223611e07834f9d6f725cc318df0f117da57d8d9909c33bbb559eebee2a4e87",
+      "elapsed": 12.807833665981889,
+      "state": {
+        "identity": [
+          31258,
+          1,
+          "58020b2c40b685b48089328e1d746bad"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 8630,
+        "flip_age_ns": 7963021
+      }
+    },
+    {
+      "image": "frame-0002.png",
+      "sha256": "04c463b2ff73eb8175e1f18a2809c64d7c43cd408580fb6b66d37bad7767b391",
+      "elapsed": 24.317401207983494,
+      "state": {
+        "identity": [
+          31258,
+          1,
+          "58020b2c40b685b48089328e1d746bad"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 8782,
+        "flip_age_ns": 49572864
+      }
+    },
+    {
+      "image": "frame-0003.png",
+      "sha256": "2f25730d062d01cc8ab898c79b59692df8f6f03c51b0aa4807531451b7ecda2c",
+      "elapsed": 35.942324374977034,
+      "state": {
+        "identity": [
+          31258,
+          1,
+          "58020b2c40b685b48089328e1d746bad"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 8936,
+        "flip_age_ns": 20293854
+      }
+    },
+    {
+      "image": "frame-0004.png",
+      "sha256": "8df0ce83904a73936ab5a4ba4929e89d9d361f8bab115a6b90c191fe895d0cad",
+      "elapsed": 47.51560724998126,
+      "state": {
+        "identity": [
+          31258,
+          1,
+          "58020b2c40b685b48089328e1d746bad"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 9088,
+        "flip_age_ns": 70726354
+      }
+    },
+    {
+      "image": "frame-0005.png",
+      "sha256": "8a615f1eef574617792ceeffa9ff9607ee93ad3413764efd3cffb1a23e225fc4",
+      "elapsed": 59.134590375004336,
+      "state": {
+        "identity": [
+          31258,
+          1,
+          "58020b2c40b685b48089328e1d746bad"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 9242,
+        "flip_age_ns": 76678125
+      }
+    },
+    {
+      "image": "frame-0006.png",
+      "sha256": "d07d7ded34eb773e9ec0e7b0c6888069470b8f31eb14aa5a7ae2d9a8a4197f12",
+      "elapsed": 70.76007220800966,
+      "state": {
+        "identity": [
+          31258,
+          1,
+          "58020b2c40b685b48089328e1d746bad"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 9396,
+        "flip_age_ns": 28538594
+      }
+    }
+  ],
+  "presses": [
+    {
+      "button": "stick-left",
+      "hold_ms": 2000,
+      "elapsed": 3.352420874987729
+    },
+    {
+      "button": "stick-left",
+      "hold_ms": 2000,
+      "elapsed": 8.583380291005597
+    },
+    {
+      "button": "stick-left",
+      "hold_ms": 2000,
+      "elapsed": 14.889861374977045
+    },
+    {
+      "button": "stick-left",
+      "hold_ms": 2000,
+      "elapsed": 20.026362415985204
+    },
+    {
+      "button": "stick-left",
+      "hold_ms": 2000,
+      "elapsed": 26.425184749998152
+    },
+    {
+      "button": "stick-left",
+      "hold_ms": 2000,
+      "elapsed": 31.617073000001255
+    },
+    {
+      "button": "stick-left",
+      "hold_ms": 2000,
+      "elapsed": 38.022530415968504
+    },
+    {
+      "button": "stick-left",
+      "hold_ms": 2000,
+      "elapsed": 43.270096332998946
+    },
+    {
+      "button": "stick-left",
+      "hold_ms": 2000,
+      "elapsed": 49.625387290958315
+    },
+    {
+      "button": "stick-left",
+      "hold_ms": 2000,
+      "elapsed": 54.779894207953475
+    },
+    {
+      "button": "stick-left",
+      "hold_ms": 2000,
+      "elapsed": 61.22228245798033
+    },
+    {
+      "button": "stick-left",
+      "hold_ms": 2000,
+      "elapsed": 66.4330931250006
+    },
+    {
+      "button": "stick-left",
+      "hold_ms": 2000,
+      "elapsed": 72.87567779095843
+    }
+  ],
+  "attaches_debugger": false,
+  "started_at": 1789539104.581316,
+  "process_stat": "31258 (shadps4.android) S 1693 1693 0 0 -1 1077936448 20797192 0 304373 0 92133 36021 0 0 10 -10 74 0 32244468 197637808128 712012 18446744073709551615 398532505600 398532510264 548926250944 0 0 0 4612 1 1073775864 0 0 0 17 0 0 0 0 0 0 398532513792 398532515104 398659461120 548926255373 548926255472 548926255472 548926259166 0",
+  "review": {
+    "run_id": "55d2cb34f4be46efab96de4e205e5839",
+    "scene_frame": 0,
+    "response_frame": 2,
+    "note": "Leonardo actual rooftop with ATTACK tutorial. Stick-left moves Leonardo and the camera from roof edge toward wall; persistent gameplay and increasing guest flips, same session.",
+    "method": "explicit_visual_review",
+    "reviewed_at": 1789539177.649601
+  },
+  "ended_at": 1789539180.519319
+}

@@ -1,0 +1,57 @@
+[
+  {
+    "wrapper": "azahar-clangd-lsp",
+    "toolCount": 29,
+    "status": "PASS"
+  },
+  {
+    "wrapper": "node_repl",
+    "toolCount": 4,
+    "status": "PASS"
+  },
+  {
+    "wrapper": "gpu-snapshot",
+    "toolCount": 6,
+    "status": "PASS"
+  },
+  {
+    "wrapper": "litep",
+    "toolCount": 75,
+    "status": "PASS"
+  },
+  {
+    "wrapper": "native-debugger",
+    "toolCount": 88,
+    "status": "PASS"
+  },
+  {
+    "wrapper": "ptracy",
+    "toolCount": 41,
+    "status": "PASS"
+  },
+  {
+    "wrapper": "renderdoc",
+    "toolCount": 105,
+    "status": "PASS"
+  },
+  {
+    "wrapper": "reverse_study",
+    "toolCount": 49,
+    "status": "PASS"
+  },
+  {
+    "wrapper": "scrcpy",
+    "toolCount": 11,
+    "status": "PASS"
+  },
+  {
+    "wrapper": "spatial-debug-tool",
+    "toolCount": 59,
+    "status": "PASS"
+  },
+  {
+    "wrapper": "webaccess",
+    "toolCount": 2,
+    "status": "PASS"
+  }
+]

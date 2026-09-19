@@ -1,0 +1,17 @@
+SERVICE com.shadps4.android/.service.FexSessionService f5ef7a7 pid=25383 user=0
+  Client:
+    schema=foundation.profiler-ring.v1
+    profiler_sdk_revision=107a620a64b0ac91f49e5de37ffc6d486ec42378
+    initialized=1
+    recording=1
+    recording_active=1
+    mode=ringbuffer
+    bytes_per_thread=1048576
+    frame_count=5942
+    generation=3
+    dump_state=idle
+    dump_id=0
+    dump_path=
+    dump_elapsed_ms=0
+    error=
+

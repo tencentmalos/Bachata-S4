@@ -1,0 +1,927 @@
+{
+  "schema": "shadps4.guest-functions.recipe.v1",
+  "abi": "x86_64-sysv",
+  "id": "frame_intercepts_67def519ee47",
+  "title": "CUSA50828",
+  "module": "eboot.bin",
+  "module_sha256": "6122da7190de6b08d921b2c42c3ca9ed11dc4d11524f1139ff67aeceea5b204d",
+  "executable_sha256": "6122da7190de6b08d921b2c42c3ca9ed11dc4d11524f1139ff67aeceea5b204d",
+  "sources": [
+    "../rooftop.cpp",
+    "../rooftop_recompiled.cpp",
+    "../frame_dispatch.cpp",
+    "Import_pthread_mutex_lock.cpp",
+    "Import_pthread_mutex_unlock.cpp",
+    "TMNT_UpdateColorBlendState.cpp",
+    "Import_clock_gettime.cpp",
+    "Import_time.cpp",
+    "TMNT_ExpireTimedRequestsAndPollProviders.cpp",
+    "TMNT_DispatchProviderCompletions.cpp",
+    "TMNT_BuildMappedStickInputEvent.cpp",
+    "TMNT_IsInputDeviceActive.cpp",
+    "TMNT_TestButtonNewPress.cpp",
+    "TMNT_TestButtonHeld.cpp",
+    "TMNT_TestButtonReleased.cpp",
+    "Import__Xtime_get_ticks.cpp",
+    "TMNT_AdvanceTimedInputEntries.cpp",
+    "Import_memset.cpp",
+    "Import_memmove.cpp",
+    "TMNT_ScheduleTimedCallbackRecord.cpp",
+    "TMNT_UpdateObjectStateChain.cpp",
+    "TMNT_PruneAndFinalizeObjectSubtree.cpp",
+    "Import_FmodStudioEventGetSampleLoadingState.cpp",
+    "Import_FmodStudioEventGetPlaybackState.cpp",
+    "TMNT_SortRecordsByFloatKey.cpp",
+    "TMNT_CollectExpiredResourceIds.cpp",
+    "TMNT_WaitForQueueFenceWhileHelping.cpp",
+    "TMNT_ProcessPhaseRecordBatches.cpp",
+    "TMNT_EnqueueJobBetweenSequenceMarkers.cpp",
+    "TMNT_DrainDeferredCallbackLists.cpp",
+    "TMNT_UpdateEnabledObjectSubtree.cpp",
+    "TMNT_AllocateFrameCommandNode.cpp",
+    "TMNT_EnqueueJobAfterSequenceMarker.cpp",
+    "Import_strcmp.cpp",
+    "Import_fmodf.cpp",
+    "Import_FmodChannelGroupGetParentGroup.cpp",
+    "Import_FmodSystemGetMasterChannelGroup.cpp",
+    "Import_FmodChannelControlSetPaused.cpp",
+    "Import_FmodChannelControlGetVolume.cpp",
+    "Import_FmodChannelControlSetVolume.cpp",
+    "Import_FmodChannelControlGetDspClock.cpp",
+    "TMNT_RefreshExpiredStateAndNotifyCallbacks.cpp",
+    "Import_malloc.cpp",
+    "Import_free.cpp",
+    "Import_FmodStudioEventStop.cpp",
+    "Import_FmodStudioEventRelease.cpp",
+    "TMNT_BuildMappedScalarInputEvent.cpp"
+  ],
+  "hooks": [
+    {
+      "name": "frame",
+      "offset": 648544,
+      "expected": "554889e54157415641554154534881ecc8320100488b053dccc9014889fb4883",
+      "replacement": "patch_frame",
+      "original": "original_frame",
+      "prototype": "shad_u64 original_frame(void* self)",
+      "evidence": "Frame coordinator: FMOD update at +0xa4412; BeginFrame at +0xa4e5d; restores stack then tail-jumps SubmitFrame at +0xa5273. Only RDI live at entry; indirect caller unresolved statically. IDA ET_DYN analysis copy has only ELF e_type changed; text bytes match original decrypted ELF. No indexed reference enters stolen prologue. Return is ABI-preserving RAX, not asserted engine semantics."
+    },
+    {
+      "name": "begin",
+      "offset": 22306016,
+      "expected": "554889e54157415641554154534883ec384c8b25c0547f004c8d3d91c5a20049",
+      "replacement": "patch_begin",
+      "original": "original_begin",
+      "prototype": "shad_u64 original_begin(void)",
+      "evidence": "Frame buffer label loop calls sceKernelWaitEqueue until value 2, then resets command buffers. No incoming arguments. IDA ET_DYN analysis copy has only ELF e_type changed; text bytes match original decrypted ELF. No indexed reference enters stolen prologue. Return is ABI-preserving RAX, not asserted engine semantics."
+    },
+    {
+      "name": "submit",
+      "offset": 22306592,
+      "expected": "554889e5415653e8547baffe8b1576aca0008b35604d8c00488d1d51c3a20048",
+      "replacement": "patch_submit",
+      "original": "original_submit",
+      "prototype": "shad_u64 original_submit(void)",
+      "evidence": "Submit/flip wrapper calls +0x19630 then retires resources and advances modulo-3 buffer index; no incoming arguments. IDA ET_DYN analysis copy has only ELF e_type changed; text bytes match original decrypted ELF. No indexed reference enters stolen prologue. Return is ABI-preserving RAX, not asserted engine semantics."
+    },
+    {
+      "name": "jobs",
+      "offset": 22615408,
+      "expected": "554889e54157415641554154534883ec284c8b2d309c7a004889fb498b450048",
+      "replacement": "patch_jobs",
+      "original": "original_jobs",
+      "prototype": "shad_u64 original_jobs(void* queue)",
+      "evidence": "Queue drain/barrier: RDI queue; enqueues completion job and waits on thread-local semaphore; may early-return for empty queue. IDA ET_DYN analysis copy has only ELF e_type changed; text bytes match original decrypted ELF. No indexed reference enters stolen prologue. Return is ABI-preserving RAX, not asserted engine semantics."
+    },
+    {
+      "name": "fmod",
+      "offset": 22809376,
+      "expected": "ff25e2ac7700",
+      "replacement": "patch_fmod",
+      "original": "original_fmod",
+      "prototype": "int original_fmod(void* self)",
+      "evidence": "PLT RIP-indirect jump to FMOD Studio System::update; NID H+G1XQRDyWk. RDI=this, EAX=FMOD_RESULT; exact public ABI. IDA ET_DYN analysis copy has only ELF e_type changed; text bytes match original decrypted ELF. No indexed reference enters stolen prologue. Return is ABI-preserving RAX, not asserted engine semantics."
+    },
+    {
+      "name": "write_label",
+      "offset": 176240,
+      "expected": "554889e5415741564155415453504189cf488b4f08488b47104589c64989d541",
+      "original": "original_write_label",
+      "replacement": "patch_write_label",
+      "prototype": "shad_u64 original_write_label(TmntCommandBuffer*, TmntU32, shad_u64, TmntU32, TmntU32)",
+      "evidence": "Instruction/ABI contract in rooftop-recompile.contract.json; exact x86-64 register and stack widths, memory offsets and callback AL semantics; original trampoline retained."
+    },
+    {
+      "name": "default_state",
+      "offset": 150624,
+      "expected": "554889e553504889fb488b7708488b7f104829fe48c1ee0281feff0000007722",
+      "original": "original_default_state",
+      "replacement": "patch_default_state",
+      "prototype": "shad_u64 original_default_state(TmntCommandBuffer*)",
+      "evidence": "Instruction/ABI contract in rooftop-recompile.contract.json; exact x86-64 register and stack widths, memory offsets and callback AL semantics; original trampoline retained."
+    },
+    {
+      "name": "submit_packets",
+      "offset": 103328,
+      "expected": "554889e54157415641554154534881ec880100004c8b35fd1dd2014189f74d89",
+      "original": "original_submit_packets",
+      "replacement": "patch_submit_packets",
+      "prototype": "shad_u64 original_submit_packets(shad_u64, TmntU32, TmntU32, TmntU32, shad_u64, TmntSubmitContext*)",
+      "evidence": "Instruction/ABI contract in rooftop-recompile.contract.json; exact x86-64 register and stack widths, memory offsets and callback AL semantics; original trampoline retained."
+    },
+    {
+      "name": "submit_label",
+      "offset": 103984,
+      "expected": "554889e5415741564155415453504d89c64189cf4189d4488b55108b4d18448b",
+      "original": "original_submit_label",
+      "replacement": "patch_submit_label",
+      "prototype": "shad_u64 original_submit_label(TmntSubmitContext*, TmntU32, TmntU32, TmntU32, shad_u64, TmntU32, shad_u64, TmntU32, TmntU32)",
+      "evidence": "Instruction/ABI contract in rooftop-recompile.contract.json; exact x86-64 register and stack widths, memory offsets and callback AL semantics; original trampoline retained."
+    },
+    {
+      "name": "frame_dispatch",
+      "offset": 22341264,
+      "expected": "554889e54157415653504c8b77184889fb4d85f6741c",
+      "replacement": "patch_frame_dispatch",
+      "original": "original_frame_dispatch",
+      "prototype": "shad_u64 original_frame_dispatch(void* object)",
+      "evidence": "Whole eboot+0x154e690..0x154e82c instruction body, RDI object, return zero-extended opposite queue offset. XMM0 input is dead before VXORPS. Indirect guest callbacks use original node/vtable; mode and static list bind shared guest storage."
+    },
+    {
+      "name": "Import_pthread_mutex_lock",
+      "offset": 22814400,
+      "expected": "ff2512a37700",
+      "replacement": "entry_Import_pthread_mutex_lock",
+      "original": "original_Import_pthread_mutex_lock",
+      "observer": "intercept_Import_pthread_mutex_lock",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "Import_pthread_mutex_unlock",
+      "offset": 22814288,
+      "expected": "ff254aa37700",
+      "replacement": "entry_Import_pthread_mutex_unlock",
+      "original": "original_Import_pthread_mutex_unlock",
+      "observer": "intercept_Import_pthread_mutex_unlock",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "TMNT_UpdateColorBlendState",
+      "offset": 3842928,
+      "expected": "554889e541574156534883ec38448b7f0cc5f828d04889fb4489f8c4c1796ec7",
+      "replacement": "entry_TMNT_UpdateColorBlendState",
+      "original": "original_TMNT_UpdateColorBlendState",
+      "observer": "intercept_TMNT_UpdateColorBlendState",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "Import_clock_gettime",
+      "offset": 22806480,
+      "expected": "ff258ab27700",
+      "replacement": "entry_Import_clock_gettime",
+      "original": "original_Import_clock_gettime",
+      "observer": "intercept_Import_clock_gettime",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "Import_time",
+      "offset": 22806464,
+      "expected": "ff2592b27700",
+      "replacement": "entry_Import_time",
+      "original": "original_Import_time",
+      "observer": "intercept_Import_time",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "TMNT_ExpireTimedRequestsAndPollProviders",
+      "offset": 21773216,
+      "expected": "554889e54157415641554154534883ec18488b05007687004889fb488b004889",
+      "replacement": "entry_TMNT_ExpireTimedRequestsAndPollProviders",
+      "original": "original_TMNT_ExpireTimedRequestsAndPollProviders",
+      "observer": "intercept_TMNT_ExpireTimedRequestsAndPollProviders",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "TMNT_DispatchProviderCompletions",
+      "offset": 21795760,
+      "expected": "554889e54157415641554154534883ec68488b05f01d8700488b00488945d083",
+      "replacement": "entry_TMNT_DispatchProviderCompletions",
+      "original": "original_TMNT_DispatchProviderCompletions",
+      "observer": "intercept_TMNT_DispatchProviderCompletions",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "TMNT_BuildMappedStickInputEvent",
+      "offset": 22251856,
+      "expected": "554889e54157415641554154534883ec184c8b25c8219d004d85e40f84c10400",
+      "replacement": "entry_TMNT_BuildMappedStickInputEvent",
+      "original": "original_TMNT_BuildMappedStickInputEvent",
+      "observer": "intercept_TMNT_BuildMappedStickInputEvent",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "TMNT_IsInputDeviceActive",
+      "offset": 22241824,
+      "expected": "554889e54156534989fe81fefe000000757f4c89f731f6e8e4ffffffb30184c0",
+      "replacement": "entry_TMNT_IsInputDeviceActive",
+      "original": "original_TMNT_IsInputDeviceActive",
+      "observer": "intercept_TMNT_IsInputDeviceActive",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "TMNT_TestButtonNewPress",
+      "offset": 22244256,
+      "expected": "554889e5415741565350488b1d7f3f9d004885db742e4189fe4080fefe753680",
+      "replacement": "entry_TMNT_TestButtonNewPress",
+      "original": "original_TMNT_TestButtonNewPress",
+      "observer": "intercept_TMNT_TestButtonNewPress",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "TMNT_TestButtonHeld",
+      "offset": 22244560,
+      "expected": "554889e5415741565350488b1d4f3e9d004885db742e4189fe4080fefe753680",
+      "replacement": "entry_TMNT_TestButtonHeld",
+      "original": "original_TMNT_TestButtonHeld",
+      "observer": "intercept_TMNT_TestButtonHeld",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "TMNT_TestButtonReleased",
+      "offset": 22244864,
+      "expected": "554889e5415741565350488b1d1f3d9d004885db742e4189fe4080fefe753680",
+      "replacement": "entry_TMNT_TestButtonReleased",
+      "original": "original_TMNT_TestButtonReleased",
+      "observer": "intercept_TMNT_TestButtonReleased",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "Import__Xtime_get_ticks",
+      "offset": 22807776,
+      "expected": "ff2502b07700",
+      "replacement": "entry_Import__Xtime_get_ticks",
+      "original": "original_Import__Xtime_get_ticks",
+      "observer": "intercept_Import__Xtime_get_ticks",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "TMNT_AdvanceTimedInputEntries",
+      "offset": 22256560,
+      "expected": "554889e5415741565350488b47184889fb488b384839c70f8450010000c5fa10",
+      "replacement": "entry_TMNT_AdvanceTimedInputEntries",
+      "original": "original_TMNT_AdvanceTimedInputEntries",
+      "observer": "intercept_TMNT_AdvanceTimedInputEntries",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "Import_memset",
+      "offset": 22814144,
+      "expected": "ff2592a37700",
+      "replacement": "entry_Import_memset",
+      "original": "original_Import_memset",
+      "observer": "intercept_Import_memset",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "Import_memmove",
+      "offset": 22816784,
+      "expected": "ff256a9e7700",
+      "replacement": "entry_Import_memmove",
+      "original": "original_Import_memmove",
+      "observer": "intercept_Import_memmove",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "TMNT_ScheduleTimedCallbackRecord",
+      "offset": 22071200,
+      "expected": "554889e54157415641554154534883ec18440fb7a720c000004981fcffff0000",
+      "replacement": "entry_TMNT_ScheduleTimedCallbackRecord",
+      "original": "original_TMNT_ScheduleTimedCallbackRecord",
+      "observer": "intercept_TMNT_ScheduleTimedCallbackRecord",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "TMNT_UpdateObjectStateChain",
+      "offset": 22070240,
+      "expected": "554889e5415741564154534883ec108b87a80000004889fbc5fa1145dca90000",
+      "replacement": "entry_TMNT_UpdateObjectStateChain",
+      "original": "original_TMNT_UpdateObjectStateChain",
+      "observer": "intercept_TMNT_UpdateObjectStateChain",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "TMNT_PruneAndFinalizeObjectSubtree",
+      "offset": 22074128,
+      "expected": "554889e5415741565350837f08004889fb74654531f6eb180f1f840000000000",
+      "replacement": "entry_TMNT_PruneAndFinalizeObjectSubtree",
+      "original": "original_TMNT_PruneAndFinalizeObjectSubtree",
+      "observer": "intercept_TMNT_PruneAndFinalizeObjectSubtree",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "Import_FmodStudioEventGetSampleLoadingState",
+      "offset": 22809008,
+      "expected": "ff259aad7700",
+      "replacement": "entry_Import_FmodStudioEventGetSampleLoadingState",
+      "original": "original_Import_FmodStudioEventGetSampleLoadingState",
+      "observer": "intercept_Import_FmodStudioEventGetSampleLoadingState",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "Import_FmodStudioEventGetPlaybackState",
+      "offset": 22809312,
+      "expected": "ff2502ad7700",
+      "replacement": "entry_Import_FmodStudioEventGetPlaybackState",
+      "original": "original_Import_FmodStudioEventGetPlaybackState",
+      "observer": "intercept_Import_FmodStudioEventGetPlaybackState",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "TMNT_SortRecordsByFloatKey",
+      "offset": 20705600,
+      "expected": "554889e54157415641554154534883ec38488b0560c097004989d74989f64889",
+      "replacement": "entry_TMNT_SortRecordsByFloatKey",
+      "original": "original_TMNT_SortRecordsByFloatKey",
+      "observer": "intercept_TMNT_SortRecordsByFloatKey",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "TMNT_CollectExpiredResourceIds",
+      "offset": 21517392,
+      "expected": "554889e54157415641554154534883ec284c8b2d4047a8004d85ed0f84d20100",
+      "replacement": "entry_TMNT_CollectExpiredResourceIds",
+      "original": "original_TMNT_CollectExpiredResourceIds",
+      "observer": "intercept_TMNT_CollectExpiredResourceIds",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "TMNT_WaitForQueueFenceWhileHelping",
+      "offset": 22618144,
+      "expected": "554889e54157415641554154534883ec18488b0d80917a00488b01488945d083",
+      "replacement": "entry_TMNT_WaitForQueueFenceWhileHelping",
+      "original": "original_TMNT_WaitForQueueFenceWhileHelping",
+      "observer": "intercept_TMNT_WaitForQueueFenceWhileHelping",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "TMNT_ProcessPhaseRecordBatches",
+      "offset": 21572000,
+      "expected": "837f08000f84a4020000554889e54157415641554154534883ec38ba01000000",
+      "replacement": "entry_TMNT_ProcessPhaseRecordBatches",
+      "original": "original_TMNT_ProcessPhaseRecordBatches",
+      "observer": "intercept_TMNT_ProcessPhaseRecordBatches",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "TMNT_EnqueueJobBetweenSequenceMarkers",
+      "offset": 22616544,
+      "expected": "554889e5415741564155415453504c8d6f784989fe4989d74989f44c89efe8bd",
+      "replacement": "entry_TMNT_EnqueueJobBetweenSequenceMarkers",
+      "original": "original_TMNT_EnqueueJobBetweenSequenceMarkers",
+      "observer": "intercept_TMNT_EnqueueJobBetweenSequenceMarkers",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "TMNT_DrainDeferredCallbackLists",
+      "offset": 21063104,
+      "expected": "554889e5415741565350488b1d5f32af004885db0f8419010000440fb6736048",
+      "replacement": "entry_TMNT_DrainDeferredCallbackLists",
+      "original": "original_TMNT_DrainDeferredCallbackLists",
+      "observer": "intercept_TMNT_DrainDeferredCallbackLists",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "TMNT_UpdateEnabledObjectSubtree",
+      "offset": 22070640,
+      "expected": "554889e553500fb687ac0000008b8fa8000000c5fa1145f448c1e0204809c8a9",
+      "replacement": "entry_TMNT_UpdateEnabledObjectSubtree",
+      "original": "original_TMNT_UpdateEnabledObjectSubtree",
+      "observer": "intercept_TMNT_UpdateEnabledObjectSubtree",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "TMNT_AllocateFrameCommandNode",
+      "offset": 22340480,
+      "expected": "554889e5415741564154534883ec30488b1d22ce7e00b964000000c5f857c048",
+      "replacement": "entry_TMNT_AllocateFrameCommandNode",
+      "original": "original_TMNT_AllocateFrameCommandNode",
+      "observer": "intercept_TMNT_AllocateFrameCommandNode",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "TMNT_EnqueueJobAfterSequenceMarker",
+      "offset": 22616208,
+      "expected": "554889e541574156415541545350488d5f784989fe4989d54989f44889dfe80d",
+      "replacement": "entry_TMNT_EnqueueJobAfterSequenceMarker",
+      "original": "original_TMNT_EnqueueJobAfterSequenceMarker",
+      "observer": "intercept_TMNT_EnqueueJobAfterSequenceMarker",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "Import_strcmp",
+      "offset": 22812448,
+      "expected": "ff25e2a67700",
+      "replacement": "entry_Import_strcmp",
+      "original": "original_Import_strcmp",
+      "observer": "intercept_Import_strcmp",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "Import_fmodf",
+      "offset": 22816768,
+      "expected": "ff25729e7700",
+      "replacement": "entry_Import_fmodf",
+      "original": "original_Import_fmodf",
+      "observer": "intercept_Import_fmodf",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "Import_FmodChannelGroupGetParentGroup",
+      "offset": 22808400,
+      "expected": "ff25caae7700",
+      "replacement": "entry_Import_FmodChannelGroupGetParentGroup",
+      "original": "original_Import_FmodChannelGroupGetParentGroup",
+      "observer": "intercept_Import_FmodChannelGroupGetParentGroup",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "Import_FmodSystemGetMasterChannelGroup",
+      "offset": 22808272,
+      "expected": "ff250aaf7700",
+      "replacement": "entry_Import_FmodSystemGetMasterChannelGroup",
+      "original": "original_Import_FmodSystemGetMasterChannelGroup",
+      "observer": "intercept_Import_FmodSystemGetMasterChannelGroup",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "Import_FmodChannelControlSetPaused",
+      "offset": 22808608,
+      "expected": "ff2562ae7700",
+      "replacement": "entry_Import_FmodChannelControlSetPaused",
+      "original": "original_Import_FmodChannelControlSetPaused",
+      "observer": "intercept_Import_FmodChannelControlSetPaused",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "Import_FmodChannelControlGetVolume",
+      "offset": 22808512,
+      "expected": "ff2592ae7700",
+      "replacement": "entry_Import_FmodChannelControlGetVolume",
+      "original": "original_Import_FmodChannelControlGetVolume",
+      "observer": "intercept_Import_FmodChannelControlGetVolume",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "Import_FmodChannelControlSetVolume",
+      "offset": 22808528,
+      "expected": "ff258aae7700",
+      "replacement": "entry_Import_FmodChannelControlSetVolume",
+      "original": "original_Import_FmodChannelControlSetVolume",
+      "observer": "intercept_Import_FmodChannelControlSetVolume",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "Import_FmodChannelControlGetDspClock",
+      "offset": 22808592,
+      "expected": "ff256aae7700",
+      "replacement": "entry_Import_FmodChannelControlGetDspClock",
+      "original": "original_Import_FmodChannelControlGetDspClock",
+      "observer": "intercept_Import_FmodChannelControlGetDspClock",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "TMNT_RefreshExpiredStateAndNotifyCallbacks",
+      "offset": 21755824,
+      "expected": "554889e54157415653504889fb31ffe8fc071000483b83980000000f86b20000",
+      "replacement": "entry_TMNT_RefreshExpiredStateAndNotifyCallbacks",
+      "original": "original_TMNT_RefreshExpiredStateAndNotifyCallbacks",
+      "observer": "intercept_TMNT_RefreshExpiredStateAndNotifyCallbacks",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "Import_malloc",
+      "offset": 22807104,
+      "expected": "ff2552b17700",
+      "replacement": "entry_Import_malloc",
+      "original": "original_Import_malloc",
+      "observer": "intercept_Import_malloc",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "Import_free",
+      "offset": 22806912,
+      "expected": "ff25b2b17700",
+      "replacement": "entry_Import_free",
+      "original": "original_Import_free",
+      "observer": "intercept_Import_free",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "Import_FmodStudioEventStop",
+      "offset": 22808688,
+      "expected": "ff253aae7700",
+      "replacement": "entry_Import_FmodStudioEventStop",
+      "original": "original_Import_FmodStudioEventStop",
+      "observer": "intercept_Import_FmodStudioEventStop",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "Import_FmodStudioEventRelease",
+      "offset": 22808816,
+      "expected": "ff25faad7700",
+      "replacement": "entry_Import_FmodStudioEventRelease",
+      "original": "original_Import_FmodStudioEventRelease",
+      "observer": "intercept_Import_FmodStudioEventRelease",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    },
+    {
+      "name": "TMNT_BuildMappedScalarInputEvent",
+      "offset": 22253136,
+      "expected": "554889e54157415641554154534883ec184c8b25c81c9d004d85e40f842c0400",
+      "replacement": "entry_TMNT_BuildMappedScalarInputEvent",
+      "original": "original_TMNT_BuildMappedScalarInputEvent",
+      "observer": "intercept_TMNT_BuildMappedScalarInputEvent",
+      "mode": "entry-observer-x86_64-avx",
+      "prototype": "opaque-machine-entry",
+      "evidence": "SHA-bound measured entry; complete instruction prefix; no indexed external entry into displaced prefix. x86-64 SysV/AVX register-preserving entry observer; original stack/return PC retained. No inferred C prototype or exit callback."
+    }
+  ],
+  "counters": [
+    {
+      "id": 1,
+      "name": "frame_begin_ns"
+    },
+    {
+      "id": 2,
+      "name": "frame_elapsed_ns"
+    },
+    {
+      "id": 3,
+      "name": "begin_begin_ns"
+    },
+    {
+      "id": 4,
+      "name": "begin_elapsed_ns"
+    },
+    {
+      "id": 5,
+      "name": "submit_begin_ns"
+    },
+    {
+      "id": 6,
+      "name": "submit_elapsed_ns"
+    },
+    {
+      "id": 7,
+      "name": "jobs_begin_ns"
+    },
+    {
+      "id": 8,
+      "name": "jobs_elapsed_ns"
+    },
+    {
+      "id": 9,
+      "name": "fmod_begin_ns"
+    },
+    {
+      "id": 10,
+      "name": "fmod_elapsed_ns"
+    },
+    {
+      "id": 11,
+      "name": "recompiled_write_label_calls"
+    },
+    {
+      "id": 12,
+      "name": "recompiled_default_state_calls"
+    },
+    {
+      "id": 13,
+      "name": "recompiled_submit_packets_calls"
+    },
+    {
+      "id": 14,
+      "name": "recompiled_submit_label_calls"
+    },
+    {
+      "id": 15,
+      "name": "recompiled_frame_dispatch_calls"
+    },
+    {
+      "id": 16,
+      "name": "Import_pthread_mutex_lock_entries"
+    },
+    {
+      "id": 17,
+      "name": "Import_pthread_mutex_unlock_entries"
+    },
+    {
+      "id": 18,
+      "name": "TMNT_UpdateColorBlendState_entries"
+    },
+    {
+      "id": 19,
+      "name": "Import_clock_gettime_entries"
+    },
+    {
+      "id": 20,
+      "name": "Import_time_entries"
+    },
+    {
+      "id": 21,
+      "name": "TMNT_ExpireTimedRequestsAndPollProviders_entries"
+    },
+    {
+      "id": 22,
+      "name": "TMNT_DispatchProviderCompletions_entries"
+    },
+    {
+      "id": 23,
+      "name": "TMNT_BuildMappedStickInputEvent_entries"
+    },
+    {
+      "id": 24,
+      "name": "TMNT_IsInputDeviceActive_entries"
+    },
+    {
+      "id": 25,
+      "name": "TMNT_TestButtonNewPress_entries"
+    },
+    {
+      "id": 26,
+      "name": "TMNT_TestButtonHeld_entries"
+    },
+    {
+      "id": 27,
+      "name": "TMNT_TestButtonReleased_entries"
+    },
+    {
+      "id": 28,
+      "name": "Import__Xtime_get_ticks_entries"
+    },
+    {
+      "id": 29,
+      "name": "TMNT_AdvanceTimedInputEntries_entries"
+    },
+    {
+      "id": 30,
+      "name": "Import_memset_entries"
+    },
+    {
+      "id": 31,
+      "name": "Import_memmove_entries"
+    },
+    {
+      "id": 32,
+      "name": "TMNT_ScheduleTimedCallbackRecord_entries"
+    },
+    {
+      "id": 33,
+      "name": "TMNT_UpdateObjectStateChain_entries"
+    },
+    {
+      "id": 34,
+      "name": "TMNT_PruneAndFinalizeObjectSubtree_entries"
+    },
+    {
+      "id": 35,
+      "name": "Import_FmodStudioEventGetSampleLoadingState_entries"
+    },
+    {
+      "id": 36,
+      "name": "Import_FmodStudioEventGetPlaybackState_entries"
+    },
+    {
+      "id": 37,
+      "name": "TMNT_SortRecordsByFloatKey_entries"
+    },
+    {
+      "id": 38,
+      "name": "TMNT_CollectExpiredResourceIds_entries"
+    },
+    {
+      "id": 39,
+      "name": "TMNT_WaitForQueueFenceWhileHelping_entries"
+    },
+    {
+      "id": 40,
+      "name": "TMNT_ProcessPhaseRecordBatches_entries"
+    },
+    {
+      "id": 41,
+      "name": "TMNT_EnqueueJobBetweenSequenceMarkers_entries"
+    },
+    {
+      "id": 42,
+      "name": "TMNT_DrainDeferredCallbackLists_entries"
+    },
+    {
+      "id": 43,
+      "name": "TMNT_UpdateEnabledObjectSubtree_entries"
+    },
+    {
+      "id": 44,
+      "name": "TMNT_AllocateFrameCommandNode_entries"
+    },
+    {
+      "id": 45,
+      "name": "TMNT_EnqueueJobAfterSequenceMarker_entries"
+    },
+    {
+      "id": 46,
+      "name": "Import_strcmp_entries"
+    },
+    {
+      "id": 47,
+      "name": "Import_fmodf_entries"
+    },
+    {
+      "id": 48,
+      "name": "Import_FmodChannelGroupGetParentGroup_entries"
+    },
+    {
+      "id": 49,
+      "name": "Import_FmodSystemGetMasterChannelGroup_entries"
+    },
+    {
+      "id": 50,
+      "name": "Import_FmodChannelControlSetPaused_entries"
+    },
+    {
+      "id": 51,
+      "name": "Import_FmodChannelControlGetVolume_entries"
+    },
+    {
+      "id": 52,
+      "name": "Import_FmodChannelControlSetVolume_entries"
+    },
+    {
+      "id": 53,
+      "name": "Import_FmodChannelControlGetDspClock_entries"
+    },
+    {
+      "id": 54,
+      "name": "TMNT_RefreshExpiredStateAndNotifyCallbacks_entries"
+    },
+    {
+      "id": 55,
+      "name": "Import_malloc_entries"
+    },
+    {
+      "id": 56,
+      "name": "Import_free_entries"
+    },
+    {
+      "id": 57,
+      "name": "Import_FmodStudioEventStop_entries"
+    },
+    {
+      "id": 58,
+      "name": "Import_FmodStudioEventRelease_entries"
+    },
+    {
+      "id": 59,
+      "name": "TMNT_BuildMappedScalarInputEvent_entries"
+    }
+  ],
+  "headers": [
+    "../rooftop_types.h"
+  ],
+  "bindings": [
+    {
+      "name": "guest_submit",
+      "kind": "function",
+      "offset": 252016,
+      "expected": "e91b405801",
+      "prototype": "shad_u64 guest_submit(TmntU32, const shad_u64*, const TmntU32*, const shad_u64*, const TmntU32*, TmntU32, TmntU32, TmntU32, shad_u64)",
+      "evidence": "Original callsite register/stack forwarding, checked in rooftop-recompile.contract.json; direct guest entry/PLT, not host pointer or service substitution."
+    },
+    {
+      "name": "guest_submit_device",
+      "kind": "function",
+      "offset": 252032,
+      "expected": "e91b405801",
+      "prototype": "shad_u64 guest_submit_device(shad_u64, TmntU32, const shad_u64*, const TmntU32*, const shad_u64*, const TmntU32*, TmntU32, TmntU32, TmntU32, shad_u64)",
+      "evidence": "Original callsite register/stack forwarding, checked in rooftop-recompile.contract.json; direct guest entry/PLT, not host pointer or service substitution."
+    },
+    {
+      "name": "guest_draw_init",
+      "kind": "function",
+      "offset": 22813184,
+      "expected": "ff2572a57700",
+      "prototype": "TmntU32 guest_draw_init(TmntU32*, TmntU32)",
+      "evidence": "Original callsite register/stack forwarding, checked in rooftop-recompile.contract.json; direct guest entry/PLT, not host pointer or service substitution."
+    },
+    {
+      "name": "frame_static_nodes",
+      "kind": "data",
+      "offset": 32556320,
+      "size": 8,
+      "alignment": 8,
+      "access": "r",
+      "type": "shad_u64",
+      "evidence": "RIP-relative list head at 0x154e6c2/0x154e735; reload after callbacks."
+    },
+    {
+      "name": "frame_queue_mode",
+      "kind": "data",
+      "offset": 32556340,
+      "size": 4,
+      "alignment": 4,
+      "access": "r",
+      "type": "TmntU32",
+      "evidence": "Original 32-bit comparison at 0x154e762 before locking queue."
+    }
+  ],
+  "analysis": {
+    "module": "eboot.bin",
+    "sha256": "504fc22628a2a7c563e593aab298b9273e2a80eaf8814a095ffb6f464152da99",
+    "imagebase": 0
+  },
+  "recompile_contract": "../frame-recompile.contract.json"
+}

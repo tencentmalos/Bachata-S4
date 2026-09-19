@@ -1,0 +1,1267 @@
+{
+  "pid": 410,
+  "events": 4877824,
+  "chunks": 500,
+  "skipped": 11,
+  "diagnostics": [
+    "invalid zero-sized chunk",
+    "invalid zero-sized chunk",
+    "invalid zero-sized chunk",
+    "invalid zero-sized chunk",
+    "invalid zero-sized chunk",
+    "invalid zero-sized chunk",
+    "invalid zero-sized chunk",
+    "invalid zero-sized chunk",
+    "invalid zero-sized chunk",
+    "invalid zero-sized chunk",
+    "invalid zero-sized chunk",
+    "unbalanced span end on tid 8285",
+    "unbalanced span end on tid 8308",
+    "unbalanced span end on tid 8310",
+    "unbalanced span end on tid 8311",
+    "unbalanced span end on tid 8348",
+    "unbalanced span end on tid 8584",
+    "unbalanced span end on tid 8350",
+    "unbalanced span end on tid 8350",
+    "1 unclosed spans on tid 8285",
+    "1 unclosed spans on tid 8309",
+    "1 unclosed spans on tid 8351",
+    "1 unclosed spans on tid 8308",
+    "1 unclosed spans on tid 8349",
+    "1 unclosed spans on tid 8311",
+    "1 unclosed spans on tid 8348",
+    "1 unclosed spans on tid 8584",
+    "1 unclosed spans on tid 8307",
+    "2 unclosed spans on tid 8300",
+    "1 unclosed spans on tid 8417",
+    "2 unclosed spans on tid 8350",
+    "1 unclosed spans on tid 8315",
+    "1 unclosed spans on tid 8312"
+  ],
+  "time_range": [
+    248510386178510,
+    248545401735020
+  ],
+  "duration_s": 35.01555651,
+  "game_frames": 444,
+  "frame_intervals": {
+    "count": 443,
+    "sum_s": 34.969221407,
+    "mean_ms": 78.9372943724605,
+    "p50_ms": 78.009427,
+    "p95_ms": 86.818125,
+    "max_ms": 95.739167
+  },
+  "spans": [
+    {
+      "tid": 8351,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 35694,
+      "sum_s": 2.461832623,
+      "mean_ms": 0.06897048868157113,
+      "p50_ms": 0.037813,
+      "p95_ms": 0.204323,
+      "max_ms": 7.212917
+    },
+    {
+      "tid": 8285,
+      "name": "GNM.SubmitDone",
+      "count": 444,
+      "sum_s": 0.016738114,
+      "mean_ms": 0.037698454954954955,
+      "p50_ms": 0.032239,
+      "p95_ms": 0.067396,
+      "max_ms": 0.12427
+    },
+    {
+      "tid": 8351,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 35694,
+      "sum_s": 2.650651821,
+      "mean_ms": 0.07426043091275844,
+      "p50_ms": 0.039739,
+      "p95_ms": 0.209948,
+      "max_ms": 5.160937
+    },
+    {
+      "tid": 8309,
+      "name": "HLE.pthread_mutex_lock",
+      "count": 163335,
+      "sum_s": 26.359576361,
+      "mean_ms": 0.16138351462332018,
+      "p50_ms": 0.00349,
+      "p95_ms": 0.691511,
+      "max_ms": 25.172448
+    },
+    {
+      "tid": 8309,
+      "name": "HLE.pthread_mutex_unlock",
+      "count": 163337,
+      "sum_s": 2.2859408,
+      "mean_ms": 0.013995241739471156,
+      "p50_ms": 0.003073,
+      "p95_ms": 0.056302,
+      "max_ms": 3.176458
+    },
+    {
+      "tid": 8309,
+      "name": "HLE.sem_wait",
+      "count": 4954,
+      "sum_s": 0.022676168,
+      "mean_ms": 0.0045773451756156635,
+      "p50_ms": 0.001718,
+      "p95_ms": 0.019896,
+      "max_ms": 0.958177
+    },
+    {
+      "tid": 8308,
+      "name": "HLE.pthread_mutex_unlock",
+      "count": 161764,
+      "sum_s": 2.228890653,
+      "mean_ms": 0.013778656889048243,
+      "p50_ms": 0.003073,
+      "p95_ms": 0.05573,
+      "max_ms": 2.251823
+    },
+    {
+      "tid": 8349,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 110062,
+      "sum_s": 6.269459736,
+      "mean_ms": 0.05696298210099762,
+      "p50_ms": 0.034948,
+      "p95_ms": 0.154896,
+      "max_ms": 11.115781
+    },
+    {
+      "tid": 8349,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 110063,
+      "sum_s": 6.026523994,
+      "mean_ms": 0.054755221954698674,
+      "p50_ms": 0.033229,
+      "p95_ms": 0.150885,
+      "max_ms": 5.571562
+    },
+    {
+      "tid": 8310,
+      "name": "HLE.pthread_mutex_lock",
+      "count": 162536,
+      "sum_s": 26.53825648,
+      "mean_ms": 0.1632761756164788,
+      "p50_ms": 0.00349,
+      "p95_ms": 0.697344,
+      "max_ms": 18.561406
+    },
+    {
+      "tid": 8310,
+      "name": "HLE.pthread_mutex_unlock",
+      "count": 162535,
+      "sum_s": 2.228762152,
+      "mean_ms": 0.0137125059341065,
+      "p50_ms": 0.003021,
+      "p95_ms": 0.054896,
+      "max_ms": 7.249115
+    },
+    {
+      "tid": 8308,
+      "name": "HLE.pthread_mutex_lock",
+      "count": 161763,
+      "sum_s": 26.438087504,
+      "mean_ms": 0.1634371735440119,
+      "p50_ms": 0.003541,
+      "p95_ms": 0.695937,
+      "max_ms": 23.531041
+    },
+    {
+      "tid": 8310,
+      "name": "HLE.sem_wait",
+      "count": 4899,
+      "sum_s": 0.022279408,
+      "mean_ms": 0.004547746070626658,
+      "p50_ms": 0.001719,
+      "p95_ms": 0.020885,
+      "max_ms": 0.137865
+    },
+    {
+      "tid": 8308,
+      "name": "HLE.sem_wait",
+      "count": 4822,
+      "sum_s": 0.023576412,
+      "mean_ms": 0.004889343011198673,
+      "p50_ms": 0.001719,
+      "p95_ms": 0.021354,
+      "max_ms": 0.799584
+    },
+    {
+      "tid": 8311,
+      "name": "HLE.pthread_mutex_unlock",
+      "count": 162531,
+      "sum_s": 2.236502472,
+      "mean_ms": 0.013760467061668237,
+      "p50_ms": 0.003021,
+      "p95_ms": 0.056198,
+      "max_ms": 2.214687
+    },
+    {
+      "tid": 8311,
+      "name": "HLE.pthread_mutex_lock",
+      "count": 162531,
+      "sum_s": 26.463523023,
+      "mean_ms": 0.16282138806135446,
+      "p50_ms": 0.003489,
+      "p95_ms": 0.689531,
+      "max_ms": 23.383386
+    },
+    {
+      "tid": 8351,
+      "name": "HLE.sceKernelGetProcessTimeCounter",
+      "count": 11304,
+      "sum_s": 0.014276003,
+      "mean_ms": 0.0012629160474168437,
+      "p50_ms": 0.001041,
+      "p95_ms": 0.001615,
+      "max_ms": 0.41474
+    },
+    {
+      "tid": 8351,
+      "name": "HLE.sceKernelClockGettime",
+      "count": 2826,
+      "sum_s": 0.136618394,
+      "mean_ms": 0.048343380750176926,
+      "p50_ms": 0.028229,
+      "p95_ms": 0.114063,
+      "max_ms": 2.579531
+    },
+    {
+      "tid": 8348,
+      "name": "HLE.sceKernelGetProcessTimeCounter",
+      "count": 5522,
+      "sum_s": 0.003389734,
+      "mean_ms": 0.0006138598333936979,
+      "p50_ms": 0.000573,
+      "p95_ms": 0.000938,
+      "max_ms": 0.016979
+    },
+    {
+      "tid": 8348,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 60082,
+      "sum_s": 1.612010393,
+      "mean_ms": 0.026830171981625114,
+      "p50_ms": 0.010157,
+      "p95_ms": 0.108333,
+      "max_ms": 2.66125
+    },
+    {
+      "tid": 8348,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 60082,
+      "sum_s": 1.562197796,
+      "mean_ms": 0.026001095103358744,
+      "p50_ms": 0.009739,
+      "p95_ms": 0.104948,
+      "max_ms": 9.241198
+    },
+    {
+      "tid": 8311,
+      "name": "HLE.sem_wait",
+      "count": 4883,
+      "sum_s": 0.021827508,
+      "mean_ms": 0.004470101986483719,
+      "p50_ms": 0.001771,
+      "p95_ms": 0.019792,
+      "max_ms": 0.33599
+    },
+    {
+      "tid": 8584,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 4404,
+      "sum_s": 0.220494916,
+      "mean_ms": 0.050066965485921884,
+      "p50_ms": 0.018333,
+      "p95_ms": 0.173542,
+      "max_ms": 9.387083
+    },
+    {
+      "tid": 8584,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 4404,
+      "sum_s": 0.155371079,
+      "mean_ms": 0.035279536557674844,
+      "p50_ms": 0.01401,
+      "p95_ms": 0.14349,
+      "max_ms": 0.944427
+    },
+    {
+      "tid": 8349,
+      "name": "HLE.sceKernelGetProcessTimeCounter",
+      "count": 5652,
+      "sum_s": 0.007640594,
+      "mean_ms": 0.0013518389950460015,
+      "p50_ms": 0.001042,
+      "p95_ms": 0.001875,
+      "max_ms": 0.940625
+    },
+    {
+      "tid": 8307,
+      "name": "HLE.gettimeofday",
+      "count": 341,
+      "sum_s": 0.022668227,
+      "mean_ms": 0.06647573900293255,
+      "p50_ms": 0.036823,
+      "p95_ms": 0.164948,
+      "max_ms": 1.731666
+    },
+    {
+      "tid": 8349,
+      "name": "HLE.sceKernelClockGettime",
+      "count": 2826,
+      "sum_s": 0.10503094,
+      "mean_ms": 0.03716593772116065,
+      "p50_ms": 0.025156,
+      "p95_ms": 0.091406,
+      "max_ms": 3.713698
+    },
+    {
+      "tid": 8306,
+      "name": "Present.AcquireImage",
+      "count": 2103,
+      "sum_s": 0.02996056,
+      "mean_ms": 0.014246581074655254,
+      "p50_ms": 0.012291,
+      "p95_ms": 0.024635,
+      "max_ms": 0.053177
+    },
+    {
+      "tid": 8300,
+      "name": "Vulkan.SubmitLock",
+      "count": 888,
+      "sum_s": 0.001281596,
+      "mean_ms": 0.0014432387387387387,
+      "p50_ms": 0.000364,
+      "p95_ms": 0.000729,
+      "max_ms": 0.189687
+    },
+    {
+      "tid": 8300,
+      "name": "Vulkan.Submit",
+      "count": 888,
+      "sum_s": 0.029087711,
+      "mean_ms": 0.0327564313063063,
+      "p50_ms": 0.029427,
+      "p95_ms": 0.046198,
+      "max_ms": 0.258229
+    },
+    {
+      "tid": 8306,
+      "name": "Vulkan.SubmitLock",
+      "count": 3762,
+      "sum_s": 0.001651499,
+      "mean_ms": 0.00043899494949494947,
+      "p50_ms": 0.000365,
+      "p95_ms": 0.000729,
+      "max_ms": 0.035469
+    },
+    {
+      "tid": 8285,
+      "name": "HLE.sceGnmSubmitAndFlipCommandBuffers",
+      "count": 444,
+      "sum_s": 2.981739275,
+      "mean_ms": 6.715628997747748,
+      "p50_ms": 4.169844,
+      "p95_ms": 21.760469,
+      "max_ms": 38.395104
+    },
+    {
+      "tid": 8306,
+      "name": "Vulkan.Submit",
+      "count": 3762,
+      "sum_s": 0.120149954,
+      "mean_ms": 0.03193778681552366,
+      "p50_ms": 0.028489,
+      "p95_ms": 0.069271,
+      "max_ms": 0.379635
+    },
+    {
+      "tid": 8300,
+      "name": "PM4.Resume",
+      "count": 887,
+      "sum_s": 33.911167803,
+      "mean_ms": 38.231305302142054,
+      "p50_ms": 0.048698,
+      "p95_ms": 79.088229,
+      "max_ms": 81.91375
+    },
+    {
+      "tid": 8285,
+      "name": "HLE.gettimeofday",
+      "count": 1776,
+      "sum_s": 0.033401125,
+      "mean_ms": 0.018806939752252252,
+      "p50_ms": 0.003281,
+      "p95_ms": 0.050989,
+      "max_ms": 7.01
+    },
+    {
+      "tid": 8285,
+      "name": "HLE.sceKernelUsleep",
+      "count": 444,
+      "sum_s": 0.001259838,
+      "mean_ms": 0.0028374729729729728,
+      "p50_ms": 0.002344,
+      "p95_ms": 0.00349,
+      "max_ms": 0.055052
+    },
+    {
+      "tid": 8285,
+      "name": "HLE.pthread_mutex_lock",
+      "count": 42277,
+      "sum_s": 1.077362705,
+      "mean_ms": 0.025483423729214468,
+      "p50_ms": 0.003698,
+      "p95_ms": 0.111406,
+      "max_ms": 3.356823
+    },
+    {
+      "tid": 8285,
+      "name": "HLE.pthread_mutex_unlock",
+      "count": 42277,
+      "sum_s": 0.73171582,
+      "mean_ms": 0.017307657118527803,
+      "p50_ms": 0.003334,
+      "p95_ms": 0.075886,
+      "max_ms": 3.388438
+    },
+    {
+      "tid": 8285,
+      "name": "HLE.sceSystemServiceGetStatus",
+      "count": 444,
+      "sum_s": 0.006075608,
+      "mean_ms": 0.013683801801801801,
+      "p50_ms": 0.003385,
+      "p95_ms": 0.050885,
+      "max_ms": 0.216823
+    },
+    {
+      "tid": 8285,
+      "name": "HLE.clock_gettime",
+      "count": 3107,
+      "sum_s": 0.037626506,
+      "mean_ms": 0.012110236884454458,
+      "p50_ms": 0.003229,
+      "p95_ms": 0.044948,
+      "max_ms": 0.962917
+    },
+    {
+      "tid": 8285,
+      "name": "HLE.sceNpCheckCallback",
+      "count": 444,
+      "sum_s": 0.002167188,
+      "mean_ms": 0.004881054054054054,
+      "p50_ms": 0.001927,
+      "p95_ms": 0.022084,
+      "max_ms": 0.107448
+    },
+    {
+      "tid": 8285,
+      "name": "HLE.sceUserServiceGetEvent",
+      "count": 444,
+      "sum_s": 0.002988071,
+      "mean_ms": 0.006729889639639639,
+      "p50_ms": 0.002188,
+      "p95_ms": 0.030521,
+      "max_ms": 0.101302
+    },
+    {
+      "tid": 8285,
+      "name": "HLE.scePadReadState",
+      "count": 444,
+      "sum_s": 0.006365463,
+      "mean_ms": 0.014336628378378378,
+      "p50_ms": 0.008281,
+      "p95_ms": 0.043229,
+      "max_ms": 0.152865
+    },
+    {
+      "tid": 8285,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 101332,
+      "sum_s": 1.683582011,
+      "mean_ms": 0.0166145147732207,
+      "p50_ms": 0.00276,
+      "p95_ms": 0.074948,
+      "max_ms": 6.916354
+    },
+    {
+      "tid": 8285,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 101332,
+      "sum_s": 1.495479907,
+      "mean_ms": 0.01475821958512612,
+      "p50_ms": 0.002552,
+      "p95_ms": 0.069636,
+      "max_ms": 2.291458
+    },
+    {
+      "tid": 8306,
+      "name": "Present.QueueLock",
+      "count": 2103,
+      "sum_s": 0.000985605,
+      "mean_ms": 0.0004686661911554921,
+      "p50_ms": 0.000417,
+      "p95_ms": 0.000729,
+      "max_ms": 0.027709
+    },
+    {
+      "tid": 8306,
+      "name": "Present.DriverCall",
+      "count": 2103,
+      "sum_s": 0.183633376,
+      "mean_ms": 0.08731972230147408,
+      "p50_ms": 0.056927,
+      "p95_ms": 0.220052,
+      "max_ms": 0.335313
+    },
+    {
+      "tid": 8306,
+      "name": "Present.Frame",
+      "count": 2103,
+      "sum_s": 4.841562155,
+      "mean_ms": 2.30221690679981,
+      "p50_ms": 1.650365,
+      "p95_ms": 2.099896,
+      "max_ms": 69.822135
+    },
+    {
+      "tid": 8306,
+      "name": "VideoOut.Flip",
+      "count": 444,
+      "sum_s": 0.747027705,
+      "mean_ms": 1.6824948310810812,
+      "p50_ms": 1.648646,
+      "p95_ms": 1.883906,
+      "max_ms": 8.690208
+    },
+    {
+      "tid": 8584,
+      "name": "HLE.sceKernelUsleep",
+      "count": 3336,
+      "sum_s": 33.889877998,
+      "mean_ms": 10.158836330335731,
+      "p50_ms": 10.069635,
+      "p95_ms": 10.129375,
+      "max_ms": 22.907292
+    },
+    {
+      "tid": 8417,
+      "name": "HLE.pthread_mutex_lock",
+      "count": 1035,
+      "sum_s": 0.089916613,
+      "mean_ms": 0.08687595458937197,
+      "p50_ms": 0.05198,
+      "p95_ms": 0.243385,
+      "max_ms": 2.612031
+    },
+    {
+      "tid": 8348,
+      "name": "HLE.sceKernelUsleep",
+      "count": 2760,
+      "sum_s": 27.999697315,
+      "mean_ms": 10.144817867753623,
+      "p50_ms": 10.068594,
+      "p95_ms": 10.110573,
+      "max_ms": 18.552917
+    },
+    {
+      "tid": 8417,
+      "name": "HLE.pthread_mutex_unlock",
+      "count": 1035,
+      "sum_s": 0.083078781,
+      "mean_ms": 0.0802693536231884,
+      "p50_ms": 0.045937,
+      "p95_ms": 0.243802,
+      "max_ms": 1.284895
+    },
+    {
+      "tid": 8417,
+      "name": "HLE.clock_gettime",
+      "count": 345,
+      "sum_s": 0.018926086,
+      "mean_ms": 0.05485822028985508,
+      "p50_ms": 0.031042,
+      "p95_ms": 0.16427,
+      "max_ms": 0.720364
+    },
+    {
+      "tid": 8350,
+      "name": "HLE.sceKernelSignalSema",
+      "count": 3281,
+      "sum_s": 0.069170579,
+      "mean_ms": 0.021082163669612925,
+      "p50_ms": 0.017292,
+      "p95_ms": 0.052396,
+      "max_ms": 0.446511
+    },
+    {
+      "tid": 8350,
+      "name": "Audio.QueueWait",
+      "count": 3280,
+      "sum_s": 34.584320219,
+      "mean_ms": 10.544000066768293,
+      "p50_ms": 19.133281,
+      "p95_ms": 20.460209,
+      "max_ms": 31.508646
+    },
+    {
+      "tid": 8350,
+      "name": "HLE.sceAudioOutOutputs",
+      "count": 3280,
+      "sum_s": 34.72527027,
+      "mean_ms": 10.586972643292683,
+      "p50_ms": 19.163542,
+      "p95_ms": 20.512969,
+      "max_ms": 31.547031
+    },
+    {
+      "tid": 8300,
+      "name": "Present.FreeFrameWait",
+      "count": 444,
+      "sum_s": 0.009386819,
+      "mean_ms": 0.021141484234234235,
+      "p50_ms": 0.019531,
+      "p95_ms": 0.034114,
+      "max_ms": 0.102239
+    },
+    {
+      "tid": 8300,
+      "name": "Present.FrameFenceWait",
+      "count": 444,
+      "sum_s": 0.010559792,
+      "mean_ms": 0.023783315315315315,
+      "p50_ms": 0.022813,
+      "p95_ms": 0.032031,
+      "max_ms": 0.063177
+    },
+    {
+      "tid": 8285,
+      "name": "HLE.sem_post",
+      "count": 7424,
+      "sum_s": 0.105127534,
+      "mean_ms": 0.014160497575431034,
+      "p50_ms": 0.011511,
+      "p95_ms": 0.032187,
+      "max_ms": 0.209948
+    },
+    {
+      "tid": 8308,
+      "name": "HLE.sem_post",
+      "count": 3545,
+      "sum_s": 0.051322002,
+      "mean_ms": 0.01447729252468265,
+      "p50_ms": 0.011823,
+      "p95_ms": 0.040573,
+      "max_ms": 0.280156
+    },
+    {
+      "tid": 8349,
+      "name": "HLE.sceKernelSignalSema",
+      "count": 1413,
+      "sum_s": 0.10195181,
+      "mean_ms": 0.07215273177636235,
+      "p50_ms": 0.062708,
+      "p95_ms": 0.124375,
+      "max_ms": 1.148281
+    },
+    {
+      "tid": 8351,
+      "name": "HLE.sceKernelWaitSema",
+      "count": 1413,
+      "sum_s": 22.423809126,
+      "mean_ms": 15.869645524416136,
+      "p50_ms": 13.745417,
+      "p95_ms": 36.894062,
+      "max_ms": 63.213177
+    },
+    {
+      "tid": 8351,
+      "name": "HLE.scePthreadGetthreadid",
+      "count": 1413,
+      "sum_s": 0.006882016,
+      "mean_ms": 0.004870499646142958,
+      "p50_ms": 0.003386,
+      "p95_ms": 0.00724,
+      "max_ms": 0.184479
+    },
+    {
+      "tid": 8285,
+      "name": "HLE.pthread_getspecific",
+      "count": 8598,
+      "sum_s": 0.005729885,
+      "mean_ms": 0.0006664206792277274,
+      "p50_ms": 0.000469,
+      "p95_ms": 0.001458,
+      "max_ms": 0.151562
+    },
+    {
+      "tid": 8285,
+      "name": "HLE.sem_wait",
+      "count": 1479,
+      "sum_s": 5.714486831,
+      "mean_ms": 3.8637503928329955,
+      "p50_ms": 2.686667,
+      "p95_ms": 10.585573,
+      "max_ms": 15.459375
+    },
+    {
+      "tid": 8285,
+      "name": "HLE.sceKernelClockGettime",
+      "count": 444,
+      "sum_s": 0.004595675,
+      "mean_ms": 0.01035061936936937,
+      "p50_ms": 0.003229,
+      "p95_ms": 0.037917,
+      "max_ms": 0.085104
+    },
+    {
+      "tid": 8310,
+      "name": "HLE.sem_post",
+      "count": 3525,
+      "sum_s": 0.051031483,
+      "mean_ms": 0.01447701645390071,
+      "p50_ms": 0.011667,
+      "p95_ms": 0.04,
+      "max_ms": 0.211719
+    },
+    {
+      "tid": 8310,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 2568,
+      "sum_s": 0.062666096,
+      "mean_ms": 0.02440268535825545,
+      "p50_ms": 0.005365,
+      "p95_ms": 0.097031,
+      "max_ms": 1.456302
+    },
+    {
+      "tid": 8310,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 2568,
+      "sum_s": 0.047271762,
+      "mean_ms": 0.018408007009345796,
+      "p50_ms": 0.003594,
+      "p95_ms": 0.078229,
+      "max_ms": 3.215677
+    },
+    {
+      "tid": 8285,
+      "name": "HLE.sceGnmDrawInitDefaultHardwareState350",
+      "count": 444,
+      "sum_s": 0.555467332,
+      "mean_ms": 1.2510525495495495,
+      "p50_ms": 1.246302,
+      "p95_ms": 1.896615,
+      "max_ms": 2.439636
+    },
+    {
+      "tid": 8285,
+      "name": "HLE.sceGnmInsertWaitFlipDone",
+      "count": 444,
+      "sum_s": 0.010211405,
+      "mean_ms": 0.022998659909909912,
+      "p50_ms": 0.017136,
+      "p95_ms": 0.056198,
+      "max_ms": 0.118802
+    },
+    {
+      "tid": 8285,
+      "name": "HLE.sceGnmSetCsShaderWithModifier",
+      "count": 444,
+      "sum_s": 0.011744359,
+      "mean_ms": 0.02645125900900901,
+      "p50_ms": 0.018646,
+      "p95_ms": 0.058073,
+      "max_ms": 0.558646
+    },
+    {
+      "tid": 8285,
+      "name": "HLE.sceGnmDispatchDirect",
+      "count": 15063,
+      "sum_s": 0.245194661,
+      "mean_ms": 0.0162779433711744,
+      "p50_ms": 0.01026,
+      "p95_ms": 0.047396,
+      "max_ms": 0.288958
+    },
+    {
+      "tid": 8349,
+      "name": "HLE.sceKernelWaitSema",
+      "count": 3310,
+      "sum_s": 2.125988239,
+      "mean_ms": 0.6422925193353475,
+      "p50_ms": 0.001355,
+      "p95_ms": 1.580313,
+      "max_ms": 29.598177
+    },
+    {
+      "tid": 8309,
+      "name": "HLE.sem_post",
+      "count": 3299,
+      "sum_s": 0.047195454,
+      "mean_ms": 0.014305987875113672,
+      "p50_ms": 0.011719,
+      "p95_ms": 0.040938,
+      "max_ms": 0.153021
+    },
+    {
+      "tid": 8285,
+      "name": "HLE.sceGnmInsertPushMarker",
+      "count": 3544,
+      "sum_s": 0.116747947,
+      "mean_ms": 0.032942422968397285,
+      "p50_ms": 0.024375,
+      "p95_ms": 0.089636,
+      "max_ms": 0.273125
+    },
+    {
+      "tid": 8285,
+      "name": "HLE.sceGnmSetPsShader350",
+      "count": 33477,
+      "sum_s": 0.589051178,
+      "mean_ms": 0.017595697882128027,
+      "p50_ms": 0.011614,
+      "p95_ms": 0.05,
+      "max_ms": 0.959375
+    },
+    {
+      "tid": 8285,
+      "name": "HLE.sceGnmSetEmbeddedVsShader",
+      "count": 3544,
+      "sum_s": 0.054780834,
+      "mean_ms": 0.015457345936794582,
+      "p50_ms": 0.009323,
+      "p95_ms": 0.044011,
+      "max_ms": 0.508906
+    },
+    {
+      "tid": 8285,
+      "name": "HLE.sceGnmDrawIndexAuto",
+      "count": 37578,
+      "sum_s": 0.565394094,
+      "mean_ms": 0.0150458804087498,
+      "p50_ms": 0.008958,
+      "p95_ms": 0.04526,
+      "max_ms": 1.100833
+    },
+    {
+      "tid": 8285,
+      "name": "HLE.sceGnmInsertPopMarker",
+      "count": 3544,
+      "sum_s": 0.050695401,
+      "mean_ms": 0.014304571388261852,
+      "p50_ms": 0.008177,
+      "p95_ms": 0.043125,
+      "max_ms": 0.171459
+    },
+    {
+      "tid": 8285,
+      "name": "HLE.sceGnmSetVsShader",
+      "count": 22845,
+      "sum_s": 0.441204101,
+      "mean_ms": 0.019312939417815717,
+      "p50_ms": 0.012917,
+      "p95_ms": 0.053958,
+      "max_ms": 0.577709
+    },
+    {
+      "tid": 8285,
+      "name": "HLE.sceGnmDrawIndex",
+      "count": 123646,
+      "sum_s": 1.864662566,
+      "mean_ms": 0.015080654174012909,
+      "p50_ms": 0.00875,
+      "p95_ms": 0.045677,
+      "max_ms": 1.500833
+    },
+    {
+      "tid": 8285,
+      "name": "HLE.sceGnmUpdateVsShader",
+      "count": 3197,
+      "sum_s": 0.061810079,
+      "mean_ms": 0.019333775101657805,
+      "p50_ms": 0.012709,
+      "p95_ms": 0.052291,
+      "max_ms": 0.153489
+    },
+    {
+      "tid": 8285,
+      "name": "HLE.sceGnmUpdatePsShader350",
+      "count": 11758,
+      "sum_s": 0.199589135,
+      "mean_ms": 0.016974752083687702,
+      "p50_ms": 0.010052,
+      "p95_ms": 0.04901,
+      "max_ms": 0.259479
+    },
+    {
+      "tid": 8285,
+      "name": "HLE.sceGnmSubmitDone",
+      "count": 443,
+      "sum_s": 0.022931349,
+      "mean_ms": 0.05176376749435666,
+      "p50_ms": 0.041719,
+      "p95_ms": 0.107031,
+      "max_ms": 0.242292
+    },
+    {
+      "tid": 8300,
+      "name": "VideoOut.Prepare",
+      "count": 443,
+      "sum_s": 29.462243182,
+      "mean_ms": 66.50619228442437,
+      "p50_ms": 66.474895,
+      "p95_ms": 68.596615,
+      "max_ms": 69.075208
+    },
+    {
+      "tid": 8307,
+      "name": "HLE.sceKernelUsleep",
+      "count": 340,
+      "sum_s": 34.864253091,
+      "mean_ms": 102.54192085588235,
+      "p50_ms": 102.517084,
+      "p95_ms": 102.633177,
+      "max_ms": 103.581041
+    },
+    {
+      "tid": 8311,
+      "name": "HLE.sem_post",
+      "count": 3261,
+      "sum_s": 0.048448888,
+      "mean_ms": 0.014857064704078504,
+      "p50_ms": 0.01224,
+      "p95_ms": 0.040105,
+      "max_ms": 0.455209
+    },
+    {
+      "tid": 8417,
+      "name": "HLE.usleep",
+      "count": 344,
+      "sum_s": 34.448612432,
+      "mean_ms": 100.14131520930232,
+      "p50_ms": 100.113854,
+      "p95_ms": 100.260782,
+      "max_ms": 102.661667
+    },
+    {
+      "tid": 8311,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 2664,
+      "sum_s": 0.063300842,
+      "mean_ms": 0.023761577327327327,
+      "p50_ms": 0.005729,
+      "p95_ms": 0.099063,
+      "max_ms": 2.213698
+    },
+    {
+      "tid": 8311,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 2664,
+      "sum_s": 0.055874694,
+      "mean_ms": 0.020973984234234234,
+      "p50_ms": 0.003958,
+      "p95_ms": 0.089479,
+      "max_ms": 1.296771
+    },
+    {
+      "tid": 8309,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 2904,
+      "sum_s": 0.060654037,
+      "mean_ms": 0.02088637637741047,
+      "p50_ms": 0.00526,
+      "p95_ms": 0.086094,
+      "max_ms": 0.814844
+    },
+    {
+      "tid": 8309,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 2904,
+      "sum_s": 0.049390869,
+      "mean_ms": 0.017007875,
+      "p50_ms": 0.003438,
+      "p95_ms": 0.073229,
+      "max_ms": 0.650156
+    },
+    {
+      "tid": 8308,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 2520,
+      "sum_s": 0.056209191,
+      "mean_ms": 0.022305234523809524,
+      "p50_ms": 0.005313,
+      "p95_ms": 0.090729,
+      "max_ms": 1.724375
+    },
+    {
+      "tid": 8308,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 2520,
+      "sum_s": 0.042669525,
+      "mean_ms": 0.016932351190476192,
+      "p50_ms": 0.00375,
+      "p95_ms": 0.072917,
+      "max_ms": 0.475782
+    },
+    {
+      "tid": 8348,
+      "name": "HLE.__error",
+      "count": 69,
+      "sum_s": 0.009711044,
+      "mean_ms": 0.14073976811594202,
+      "p50_ms": 0.001354,
+      "p95_ms": 0.002396,
+      "max_ms": 9.590365
+    },
+    {
+      "tid": 8584,
+      "name": "HLE.__tls_get_addr",
+      "count": 144,
+      "sum_s": 0.001761147,
+      "mean_ms": 0.0122301875,
+      "p50_ms": 0.009115,
+      "p95_ms": 0.029584,
+      "max_ms": 0.062084
+    },
+    {
+      "tid": 8584,
+      "name": "HLE.scePthreadRwlockRdlock",
+      "count": 36,
+      "sum_s": 0.000223067,
+      "mean_ms": 0.006196305555555556,
+      "p50_ms": 0.005105,
+      "p95_ms": 0.011198,
+      "max_ms": 0.030104
+    },
+    {
+      "tid": 8584,
+      "name": "HLE.scePthreadSelf",
+      "count": 2283,
+      "sum_s": 0.001126546,
+      "mean_ms": 0.0004934498466929478,
+      "p50_ms": 0.000313,
+      "p95_ms": 0.000833,
+      "max_ms": 0.156823
+    },
+    {
+      "tid": 8584,
+      "name": "HLE.scePthreadEqual",
+      "count": 1252,
+      "sum_s": 0.000266912,
+      "mean_ms": 0.0002131884984025559,
+      "p50_ms": 0.000157,
+      "p95_ms": 0.000416,
+      "max_ms": 0.002239
+    },
+    {
+      "tid": 8584,
+      "name": "HLE.scePthreadRwlockUnlock",
+      "count": 36,
+      "sum_s": 0.000140729,
+      "mean_ms": 0.003909138888888889,
+      "p50_ms": 0.003229,
+      "p95_ms": 0.005209,
+      "max_ms": 0.021094
+    },
+    {
+      "tid": 8584,
+      "name": "HLE.sceDiscMapIsRequestOnHDD",
+      "count": 36,
+      "sum_s": 0.00012239,
+      "mean_ms": 0.0033997222222222224,
+      "p50_ms": 0.002083,
+      "p95_ms": 0.012656,
+      "max_ms": 0.026407
+    },
+    {
+      "tid": 8584,
+      "name": "HLE.fJgP+wqifno",
+      "count": 36,
+      "sum_s": 0.000667031,
+      "mean_ms": 0.01852863888888889,
+      "p50_ms": 0.012917,
+      "p95_ms": 0.060208,
+      "max_ms": 0.065261
+    },
+    {
+      "tid": 8584,
+      "name": "HLE.sceKernelClockGettime",
+      "count": 108,
+      "sum_s": 0.00141412,
+      "mean_ms": 0.013093703703703705,
+      "p50_ms": 0.008386,
+      "p95_ms": 0.044791,
+      "max_ms": 0.06573
+    },
+    {
+      "tid": 8584,
+      "name": "HLE.sceKernelPread",
+      "count": 36,
+      "sum_s": 0.002778645,
+      "mean_ms": 0.07718458333333333,
+      "p50_ms": 0.082605,
+      "p95_ms": 0.106823,
+      "max_ms": 0.142708
+    },
+    {
+      "tid": 8584,
+      "name": "HLE.scePthreadCondBroadcast",
+      "count": 78,
+      "sum_s": 0.003194792,
+      "mean_ms": 0.040958871794871794,
+      "p50_ms": 0.021823,
+      "p95_ms": 0.166823,
+      "max_ms": 0.265729
+    },
+    {
+      "tid": 8315,
+      "name": "HLE.scePthreadSelf",
+      "count": 214,
+      "sum_s": 0.000154381,
+      "mean_ms": 0.0007214065420560747,
+      "p50_ms": 0.000521,
+      "p95_ms": 0.001771,
+      "max_ms": 0.0025
+    },
+    {
+      "tid": 8315,
+      "name": "HLE.scePthreadEqual",
+      "count": 142,
+      "sum_s": 4.3808e-05,
+      "mean_ms": 0.0003085070422535211,
+      "p50_ms": 0.000261,
+      "p95_ms": 0.000573,
+      "max_ms": 0.001041
+    },
+    {
+      "tid": 8315,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 72,
+      "sum_s": 0.003421724,
+      "mean_ms": 0.047523944444444445,
+      "p50_ms": 0.018802,
+      "p95_ms": 0.178334,
+      "max_ms": 0.347969
+    },
+    {
+      "tid": 8315,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 72,
+      "sum_s": 0.009883019,
+      "mean_ms": 0.1372641527777778,
+      "p50_ms": 0.049219,
+      "p95_ms": 0.425885,
+      "max_ms": 1.44099
+    },
+    {
+      "tid": 8315,
+      "name": "HLE.scePthreadCondBroadcast",
+      "count": 34,
+      "sum_s": 0.00184406,
+      "mean_ms": 0.054237058823529416,
+      "p50_ms": 0.023282,
+      "p95_ms": 0.209114,
+      "max_ms": 0.232448
+    },
+    {
+      "tid": 8312,
+      "name": "HLE.scePthreadMutexLock",
+      "count": 972,
+      "sum_s": 0.026202505,
+      "mean_ms": 0.02695730967078189,
+      "p50_ms": 0.007135,
+      "p95_ms": 0.123229,
+      "max_ms": 0.444896
+    },
+    {
+      "tid": 8312,
+      "name": "HLE.scePthreadSelf",
+      "count": 2016,
+      "sum_s": 0.000845478,
+      "mean_ms": 0.0004193839285714286,
+      "p50_ms": 0.000313,
+      "p95_ms": 0.000834,
+      "max_ms": 0.025729
+    },
+    {
+      "tid": 8312,
+      "name": "HLE.scePthreadEqual",
+      "count": 1044,
+      "sum_s": 0.000258343,
+      "mean_ms": 0.00024745498084291186,
+      "p50_ms": 0.000208,
+      "p95_ms": 0.000521,
+      "max_ms": 0.00125
+    },
+    {
+      "tid": 8312,
+      "name": "HLE.scePthreadMutexUnlock",
+      "count": 972,
+      "sum_s": 0.030364326,
+      "mean_ms": 0.031239018518518517,
+      "p50_ms": 0.006666,
+      "p95_ms": 0.136875,
+      "max_ms": 1.363385
+    },
+    {
+      "tid": 8312,
+      "name": "HLE.sceKernelClockGettime",
+      "count": 216,
+      "sum_s": 0.003267549,
+      "mean_ms": 0.015127541666666666,
+      "p50_ms": 0.004323,
+      "p95_ms": 0.052552,
+      "max_ms": 0.137864
+    },
+    {
+      "tid": 8312,
+      "name": "HLE.scePthreadCondBroadcast",
+      "count": 36,
+      "sum_s": 0.001466666,
+      "mean_ms": 0.04074072222222222,
+      "p50_ms": 0.016041,
+      "p95_ms": 0.120417,
+      "max_ms": 0.380261
+    },
+    {
+      "tid": 8584,
+      "name": "HLE.scePthreadCondWait",
+      "count": 35,
+      "sum_s": 0.131495934,
+      "mean_ms": 3.757026685714286,
+      "p50_ms": 3.746458,
+      "p95_ms": 5.638489,
+      "max_ms": 6.510677
+    },
+    {
+      "tid": 8315,
+      "name": "HLE.scePthreadCondWait",
+      "count": 35,
+      "sum_s": 33.688723381,
+      "mean_ms": 962.534953742857,
+      "p50_ms": 977.809114,
+      "p95_ms": 1197.449844,
+      "max_ms": 1224.316979
+    },
+    {
+      "tid": 8312,
+      "name": "HLE.scePthreadCondWait",
+      "count": 35,
+      "sum_s": 33.5676675,
+      "mean_ms": 959.0762142857143,
+      "p50_ms": 972.160105,
+      "p95_ms": 1198.019427,
+      "max_ms": 1219.094948
+    }
+  ]
+}

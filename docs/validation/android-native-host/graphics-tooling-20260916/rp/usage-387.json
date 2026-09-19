@@ -1,0 +1,24 @@
+{
+  "request": {
+    "method": "tools/call",
+    "params": {
+      "name": "resource_usage",
+      "arguments": {
+        "resourceId": "387",
+        "limit": 70
+      }
+    }
+  },
+  "response": {
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"schemaVersion\":\"1.0\",\"session\":{\"captureId\":\"3821db38-8f1f-484c-aae5-0e443670df56\",\"captureRevision\":{\"value\":58}},\"data\":{\"dataset\":\"resource_usage\",\"materialization\":\"ready\",\"rows\":{\"columns\":[{\"name\":\"resource_id\",\"declaredType\":\"TEXT\"},{\"name\":\"event_id\",\"declaredType\":\"INTEGER\"},{\"name\":\"usage\",\"declaredType\":\"TEXT\"},{\"name\":\"access\",\"declaredType\":\"TEXT\"},{\"name\":\"stage\",\"declaredType\":\"TEXT\"},{\"name\":\"view_resource_id\",\"declaredType\":\"TEXT\"}],\"rows\":[[\"387\",\"4558\",\"Barrier\",\"none\",\"synchronization\",null],[\"387\",\"4559\",\"CopyDst\",\"write\",\"transfer\",null],[\"387\",\"4561\",\"Barrier\",\"none\",\"synchronization\",null],[\"387\",\"4562\",\"Barrier\",\"none\",\"synchronization\",null],[\"387\",\"4570\",\"ColorTarget\",\"write\",\"output_merger\",\"1000000000000000545\"],[\"387\",\"4579\",\"ColorTarget\",\"write\",\"output_merger\",\"1000000000000000545\"],[\"387\",\"4588\",\"ColorTarget\",\"write\",\"output_merger\",\"1000000000000000545\"],[\"387\",\"4597\",\"ColorTarget\",\"write\",\"output_merger\",\"1000000000000000545\"],[\"387\",\"4606\",\"ColorTarget\",\"write\",\"output_merger\",\"1000000000000000545\"],[\"387\",\"4615\",\"ColorTarget\",\"write\",\"output_merger\",\"1000000000000000545\"],[\"387\",\"4624\",\"ColorTarget\",\"write\",\"output_merger\",\"1000000000000000545\"],[\"387\",\"4633\",\"ColorTarget\",\"write\",\"output_merger\",\"1000000000000000545\"],[\"387\",\"4642\",\"ColorTarget\",\"write\",\"output_merger\",\"1000000000000000545\"],[\"387\",\"4651\",\"ColorTarget\",\"write\",\"output_merger\",\"1000000000000000545\"],[\"387\",\"4660\",\"ColorTarget\",\"write\",\"output_merger\",\"1000000000000000545\"],[\"387\",\"4669\",\"ColorTarget\",\"write\",\"output_merger\",\"1000000000000000545\"],[\"387\",\"4678\",\"ColorTarget\",\"write\",\"output_merger\",\"1000000000000000545\"],[\"387\",\"4687\",\"ColorTarget\",\"write\",\"output_merger\",\"1000000000000000545\"],[\"387\",\"4696\",\"ColorTarget\",\"write\",\"output_merger\",\"1000000000000000545\"],[\"387\",\"4705\",\"ColorTarget\",\"write\",\"output_merger\",\"1000000000000000545\"],[\"387\",\"4709\",\"Barrier\",\"none\",\"synchronization\",null],[\"387\",\"4716\",\"PS_Resource\",\"read\",\"pixel\",null]],\"truncated\":false,\"executionMs\":0.053},\"warnings\":[]}}"
+        }
+      ]
+    },
+    "id": 86,
+    "jsonrpc": "2.0"
+  }
+}

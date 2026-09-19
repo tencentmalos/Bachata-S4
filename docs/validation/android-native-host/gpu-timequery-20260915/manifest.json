@@ -1,0 +1,34 @@
+{
+  "note": "Ignored build directory retains raw PROF and APKs; this archive contains hashes and bounded results. Source manifest records exact current dirty files, not a committed clean-tree identity. APK built before Foundation SDK revision string update; code metadata fix is included.",
+  "artifacts": {
+    "reference-coarse.prof": "21b1c9b263e886f04ec47c5d1436914dddc354001d7fe4f9f8b0f9b984b6b6d0",
+    "reference-detail.prof": "e532a3a2f22633dfdcf52164a0123a75ce21cc1e6135e7687e3f6ecd8afb8ad0",
+    "reference-restored.prof": "26f62a417947df789c8060228f905dccc3d8f94e12b3cdaac157f0cc180799d6",
+    "gpu-reference.apk": "2ddba5ca2961f01c716cbdd2344428d096551d07f63a08bfb320f5fb81d7f4e7",
+    "system-driver.apk": "ce45625ea45276ce7048747a4d0976b2948870c397c73bdfd9f7d23b8c0c9959"
+  },
+  "source_sha256": {
+    "src/common/gpu_timing.h": "632016a33caf19901d5ecfc491b33de657497dc2a19c4eb2424755266892b9f2",
+    "src/common/profiler.cpp": "6ed44c7c07d0a5f0c2076ba785d7f39f259bf15b6ccc5ccb140c1c37ef870a04",
+    "src/video_core/renderer_vulkan/vk_gpu_profiler.cpp": "bc6e77ba53cdf8bc46d19c4864eca85b1309236a6125d588a724df4f675a3ce6",
+    "src/video_core/renderer_vulkan/vk_gpu_profiler.h": "bd77154c3b65b01f4ffe53e47e89b02d11ba7f251105f72a9911ae1d8171bda8",
+    "src/video_core/renderer_vulkan/vk_master_semaphore.cpp": "42707ab39e71606d24e598902b5cd6c576be7dd2bf82d515741e80615298e1c9",
+    "src/video_core/renderer_vulkan/vk_master_semaphore.h": "f0d8e494bbca0aedfbac746f379a2bb813d155ae876461dc2b9dd37be99e7e74",
+    "src/video_core/renderer_vulkan/timeline_completion.h": "6016bb52d54b96e3c1d18952681f542ca5073cd700378e20d40ade976ae1aa58",
+    "src/video_core/renderer_vulkan/vk_presenter.cpp": "b15cd5a830c9f14259112f1557df261015cf3b1db4925471e8eb47cf9d0b3dbb",
+    "src/video_core/renderer_vulkan/vk_scheduler.cpp": "6dcac9a9c0b208760a75cb1a46c79510bada8824d33253752e9c5d8d99ce4531",
+    "src/video_core/renderer_vulkan/vk_scheduler.h": "d30bbb9abfcac528d1601211cb6ee50227d448e0a454d98524f0d5222be9d0b6",
+    "src/video_core/renderer_vulkan/vk_driver_android.cpp": "8f3697fca71b67693167482b6c8c604332c366ffd66001447de408e779a57611",
+    "src/video_core/renderer_vulkan/vk_driver.h": "cd77deb0d0c238e1fe6b3c0caa2f3a867014248d29738824a7f1ea5e6f781e43",
+    "src/video_core/renderer_vulkan/vk_instance.cpp": "c0ebbcaf832f528531be55658187eae60468af885bf8b1c7479d2d4fe5d9681f",
+    "src/video_core/renderer_vulkan/vk_platform.cpp": "5471d6ae135ffd7742e17a15beb967831f469e076d075c00c56ca6bf9b5b3a8f",
+    "src/core/platform.h": "cee0c190a9aba97edf7c17dc0377b8602df1dc2d78f28a0cf1aff2f70b7f7746",
+    "src/core/libraries/gnmdriver/gnmdriver.cpp": "9c75e43209c300316c55426c3140f990946ad9f40506f0d2b6d2235263a010d5",
+    "src/imgui/status_layer.cpp": "538bb6b15d977782b54afc6199416b78b0d9d541e218f16944448b353d82ece4",
+    "CMakeLists.txt": "40f1fe8e7643b92b8ae735e78e790a4fa6008fe70a830b75fcdb27b8a6dfdc13",
+    "android/shadps4-app/core/runtime/src/main/cpp/fex_session_jni.cpp": "eac2c3a39855c417e9b5f74257b0df9ae4eebc6f433baa7f0f7b141c12812094"
+  },
+  "sdk_commit": "368177d458109b0413142215a52dfe31567b81e4",
+  "foundation_branch_commit": "d41ade4b77f46a84962a6f9af515b9e174410d42",
+  "foundation_published_main": "e8fc0313374b2b723e2c11d80b4c92f09bd73d48"
+}

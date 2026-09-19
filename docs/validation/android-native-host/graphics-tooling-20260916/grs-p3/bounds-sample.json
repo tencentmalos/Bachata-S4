@@ -1,0 +1,156 @@
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"columns\":[\"descriptor_set\",\"descriptor_binding\",\"descriptor_type\",\"coordinate_x\",\"resource_width\",\"view_width\",\"source_line\"],\"rows\":[[{\"kind\":\"null\"},{\"kind\":\"null\"},{\"kind\":\"null\"},{\"kind\":\"integer\",\"value\":3456},{\"kind\":\"null\"},{\"kind\":\"null\"},{\"kind\":\"text\",\"value\":\"\"}],[{\"kind\":\"null\"},{\"kind\":\"null\"},{\"kind\":\"null\"},{\"kind\":\"integer\",\"value\":384},{\"kind\":\"null\"},{\"kind\":\"null\"},{\"kind\":\"text\",\"value\":\"\"}],[{\"kind\":\"null\"},{\"kind\":\"null\"},{\"kind\":\"null\"},{\"kind\":\"integer\",\"value\":3072},{\"kind\":\"null\"},{\"kind\":\"null\"},{\"kind\":\"text\",\"value\":\"\"}],[{\"kind\":\"null\"},{\"kind\":\"null\"},{\"kind\":\"null\"},{\"kind\":\"integer\",\"value\":768},{\"kind\":\"null\"},{\"kind\":\"null\"},{\"kind\":\"text\",\"value\":\"\"}],[{\"kind\":\"null\"},{\"kind\":\"null\"},{\"kind\":\"null\"},{\"kind\":\"integer\",\"value\":18432},{\"kind\":\"null\"},{\"kind\":\"null\"},{\"kind\":\"text\",\"value\":\"\"}]],\"truncated\":false,\"elapsedMilliseconds\":0,\"schemaRevision\":13,\"watermark\":\"raw_event:8\",\"coverage\":\"partialLive\",\"provenance\":\"direct\"}"
+      }
+    ],
+    "structuredContent": {
+      "columns": [
+        "descriptor_set",
+        "descriptor_binding",
+        "descriptor_type",
+        "coordinate_x",
+        "resource_width",
+        "view_width",
+        "source_line"
+      ],
+      "rows": [
+        [
+          {
+            "kind": "null"
+          },
+          {
+            "kind": "null"
+          },
+          {
+            "kind": "null"
+          },
+          {
+            "kind": "integer",
+            "value": 3456
+          },
+          {
+            "kind": "null"
+          },
+          {
+            "kind": "null"
+          },
+          {
+            "kind": "text",
+            "value": ""
+          }
+        ],
+        [
+          {
+            "kind": "null"
+          },
+          {
+            "kind": "null"
+          },
+          {
+            "kind": "null"
+          },
+          {
+            "kind": "integer",
+            "value": 384
+          },
+          {
+            "kind": "null"
+          },
+          {
+            "kind": "null"
+          },
+          {
+            "kind": "text",
+            "value": ""
+          }
+        ],
+        [
+          {
+            "kind": "null"
+          },
+          {
+            "kind": "null"
+          },
+          {
+            "kind": "null"
+          },
+          {
+            "kind": "integer",
+            "value": 3072
+          },
+          {
+            "kind": "null"
+          },
+          {
+            "kind": "null"
+          },
+          {
+            "kind": "text",
+            "value": ""
+          }
+        ],
+        [
+          {
+            "kind": "null"
+          },
+          {
+            "kind": "null"
+          },
+          {
+            "kind": "null"
+          },
+          {
+            "kind": "integer",
+            "value": 768
+          },
+          {
+            "kind": "null"
+          },
+          {
+            "kind": "null"
+          },
+          {
+            "kind": "text",
+            "value": ""
+          }
+        ],
+        [
+          {
+            "kind": "null"
+          },
+          {
+            "kind": "null"
+          },
+          {
+            "kind": "null"
+          },
+          {
+            "kind": "integer",
+            "value": 18432
+          },
+          {
+            "kind": "null"
+          },
+          {
+            "kind": "null"
+          },
+          {
+            "kind": "text",
+            "value": ""
+          }
+        ]
+      ],
+      "truncated": false,
+      "elapsedMilliseconds": 0,
+      "schemaRevision": 13,
+      "watermark": "raw_event:8",
+      "coverage": "partialLive",
+      "provenance": "direct"
+    }
+  },
+  "id": 5,
+  "jsonrpc": "2.0"
+}

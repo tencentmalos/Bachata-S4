@@ -1,0 +1,619 @@
+{
+  "trace_bounds_ns": [
+    333657199932000,
+    333659217846000
+  ],
+  "trace_header": "# tracer: nop\n#\n# entries-in-buffer/entries-written: 317494/317494   #P:8\n#\n#                                _-----=> irqs-off\n#                               /",
+  "blocked_reasons": {
+    "pid=10358 iowait=0 caller=do_madvise+0x100/0x2dc": 1,
+    "pid=10320 iowait=0 caller=prctl_set_vma+0xe0/0x1e0": 1,
+    "pid=10320 iowait=0 caller=0x0": 6,
+    "pid=10320 iowait=0 caller=0xffffff88a7bc3150": 2,
+    "pid=10320 iowait=0 caller=do_page_fault+0x4f4/0x6fc": 4,
+    "pid=10320 iowait=0 caller=0xffffff8044904000": 1,
+    "pid=10358 iowait=0 caller=do_page_fault+0x4f4/0x6fc": 1
+  },
+  "threads": [
+    {
+      "tid": 10284,
+      "name": "Guest-1",
+      "on_cpu_ms": 1045.827,
+      "off_cpu_ms": {
+        "S": 770.0979999999983,
+        "R": 178.60699999999767,
+        "R+": 2.616999999999996
+      },
+      "sleep_until_first_waker_ms": [
+        {
+          "tid": 10320,
+          "name": "shadPS4:GpuComm",
+          "ms": 248.231
+        },
+        {
+          "tid": 10361,
+          "name": "Guest-3",
+          "ms": 126.04400000000082
+        },
+        {
+          "tid": 10364,
+          "name": "Guest-6",
+          "ms": 96.97200000000045
+        },
+        {
+          "tid": 10363,
+          "name": "Guest-5",
+          "ms": 93.9440000000006
+        },
+        {
+          "tid": 10362,
+          "name": "Guest-4",
+          "ms": 84.9320000000003
+        },
+        {
+          "tid": 10388,
+          "name": "Guest-16",
+          "ms": 77.98200000000055
+        },
+        {
+          "tid": 10391,
+          "name": "Guest-18",
+          "ms": 35.69400000000005
+        },
+        {
+          "tid": 10387,
+          "name": "Guest-15",
+          "ms": 14.698999999999971
+        },
+        {
+          "tid": 10429,
+          "name": "Guest-24",
+          "ms": 2.4889999999999994
+        },
+        {
+          "tid": 10383,
+          "name": "Guest-14",
+          "ms": 2.3459999999999988
+        },
+        {
+          "tid": 10394,
+          "name": "Guest-21",
+          "ms": 2.0089999999999995
+        },
+        {
+          "tid": 10390,
+          "name": "Guest-17",
+          "ms": 1.3779999999999992
+        },
+        {
+          "tid": 10404,
+          "name": "Guest-23",
+          "ms": 1.0600000000000003
+        },
+        {
+          "tid": 10365,
+          "name": "Guest-7",
+          "ms": 0.9670000000000003
+        },
+        {
+          "tid": 10359,
+          "name": "Guest-2",
+          "ms": 0.9280000000000003
+        },
+        {
+          "tid": 10368,
+          "name": "Guest-10",
+          "ms": 0.049
+        }
+      ]
+    },
+    {
+      "tid": 10320,
+      "name": "shadPS4:GpuComm",
+      "on_cpu_ms": 738.639,
+      "off_cpu_ms": {
+        "R": 10.182999999999998,
+        "R+": 1.397,
+        "S": 1196.47,
+        "D": 0.097
+      },
+      "sleep_until_first_waker_ms": [
+        {
+          "tid": 10358,
+          "name": "shadPS4:Present",
+          "ms": 819.128
+        },
+        {
+          "tid": 10284,
+          "name": "<...>",
+          "ms": 376.5719999999998
+        },
+        {
+          "tid": 10361,
+          "name": "Guest-3",
+          "ms": 0.09100000000000003
+        },
+        {
+          "tid": 10363,
+          "name": "Guest-5",
+          "ms": 0.011
+        }
+      ]
+    },
+    {
+      "tid": 10322,
+      "name": "shadPS4:GpuDone",
+      "on_cpu_ms": 5.373,
+      "off_cpu_ms": {
+        "R": 0.8120000000000002,
+        "S": 2002.935,
+        "R+": 0.794
+      },
+      "sleep_until_first_waker_ms": [
+        {
+          "tid": 0,
+          "name": "<idle>",
+          "ms": 554.471
+        },
+        {
+          "tid": 10320,
+          "name": "shadPS4:GpuComm",
+          "ms": 402.533
+        },
+        {
+          "tid": 875,
+          "name": "<...>",
+          "ms": 341.916
+        },
+        {
+          "tid": 10391,
+          "name": "Guest-18",
+          "ms": 150.063
+        },
+        {
+          "tid": 1908,
+          "name": "adbd",
+          "ms": 96.21100000000001
+        },
+        {
+          "tid": 10363,
+          "name": "Guest-5",
+          "ms": 51.848
+        },
+        {
+          "tid": 10385,
+          "name": "AudioTrack",
+          "ms": 51.594
+        },
+        {
+          "tid": 4998,
+          "name": "logcat",
+          "ms": 51.498
+        },
+        {
+          "tid": 2287,
+          "name": "HwBinder:2285_1",
+          "ms": 51.022
+        },
+        {
+          "tid": 2341,
+          "name": "AudioOut_D",
+          "ms": 49.216
+        },
+        {
+          "tid": 10388,
+          "name": "Guest-16",
+          "ms": 49.123
+        },
+        {
+          "tid": 12766,
+          "name": "<...>",
+          "ms": 48.736
+        },
+        {
+          "tid": 5056,
+          "name": "Thread-2",
+          "ms": 48.555
+        },
+        {
+          "tid": 10284,
+          "name": "<...>",
+          "ms": 48.331
+        }
+      ]
+    },
+    {
+      "tid": 10324,
+      "name": "shadPS4:GpuDone",
+      "on_cpu_ms": 20.848,
+      "off_cpu_ms": {
+        "R": 2.66,
+        "S": 1981.5529999999992,
+        "R+": 3.721
+      },
+      "sleep_until_first_waker_ms": [
+        {
+          "tid": 0,
+          "name": "<idle>",
+          "ms": 702.769
+        },
+        {
+          "tid": 875,
+          "name": "<...>",
+          "ms": 498.9160000000003
+        },
+        {
+          "tid": 10358,
+          "name": "shadPS4:Present",
+          "ms": 190.38000000000014
+        },
+        {
+          "tid": 12793,
+          "name": "<...>",
+          "ms": 102.902
+        },
+        {
+          "tid": 10363,
+          "name": "Guest-5",
+          "ms": 99.174
+        },
+        {
+          "tid": 10284,
+          "name": "<...>",
+          "ms": 99.029
+        },
+        {
+          "tid": 10387,
+          "name": "Guest-15",
+          "ms": 53.206
+        },
+        {
+          "tid": 10361,
+          "name": "Guest-3",
+          "ms": 50.282
+        },
+        {
+          "tid": 10362,
+          "name": "Guest-4",
+          "ms": 50.176
+        },
+        {
+          "tid": 10364,
+          "name": "Guest-6",
+          "ms": 49.402
+        },
+        {
+          "tid": 2341,
+          "name": "AudioOut_D",
+          "ms": 49.178
+        }
+      ]
+    },
+    {
+      "tid": 10326,
+      "name": "shadPS4:GpuDone",
+      "on_cpu_ms": 19.612,
+      "off_cpu_ms": {
+        "S": 1982.8599999999992,
+        "R": 4.015,
+        "R+": 3.0189999999999997
+      },
+      "sleep_until_first_waker_ms": [
+        {
+          "tid": 0,
+          "name": "<idle>",
+          "ms": 614.5390000000001
+        },
+        {
+          "tid": 10358,
+          "name": "shadPS4:Present",
+          "ms": 581.316
+        },
+        {
+          "tid": 875,
+          "name": "<...>",
+          "ms": 298.749
+        },
+        {
+          "tid": 10284,
+          "name": "<...>",
+          "ms": 103.109
+        },
+        {
+          "tid": 10362,
+          "name": "Guest-4",
+          "ms": 101.00800000000001
+        },
+        {
+          "tid": 10387,
+          "name": "Guest-15",
+          "ms": 54.171
+        },
+        {
+          "tid": 10388,
+          "name": "Guest-16",
+          "ms": 51.023
+        },
+        {
+          "tid": 10361,
+          "name": "Guest-3",
+          "ms": 50.9
+        },
+        {
+          "tid": 10364,
+          "name": "Guest-6",
+          "ms": 50.012
+        },
+        {
+          "tid": 2341,
+          "name": "AudioOut_D",
+          "ms": 48.892
+        },
+        {
+          "tid": 10320,
+          "name": "shadPS4:GpuComm",
+          "ms": 0.892
+        }
+      ]
+    },
+    {
+      "tid": 10358,
+      "name": "shadPS4:Present",
+      "on_cpu_ms": 262.252,
+      "off_cpu_ms": {
+        "S": 1687.8729999999987,
+        "R": 8.034999999999997,
+        "R+": 2.0639999999999996,
+        "D": 0.128
+      },
+      "sleep_until_first_waker_ms": [
+        {
+          "tid": 867,
+          "name": "<...>",
+          "ms": 1431.541
+        },
+        {
+          "tid": 10361,
+          "name": "Guest-3",
+          "ms": 100.10499999999999
+        },
+        {
+          "tid": 0,
+          "name": "<idle>",
+          "ms": 100.07900000000001
+        },
+        {
+          "tid": 10213,
+          "name": "shadps4.android",
+          "ms": 50.064
+        },
+        {
+          "tid": 10320,
+          "name": "shadPS4:GpuComm",
+          "ms": 1.104
+        },
+        {
+          "tid": 11074,
+          "name": "binder:10213_5",
+          "ms": 0.103
+        },
+        {
+          "tid": 10252,
+          "name": "VsyncReceiver",
+          "ms": 0.016
+        }
+      ]
+    }
+  ],
+  "scope_scheduling": [
+    {
+      "tid": 10320,
+      "name": "Vulkan.SubmitLock",
+      "calls": 49,
+      "wall_ms": 744.912132,
+      "on_cpu_ms": 0.635132,
+      "off_cpu_ms": 744.277,
+      "overlap_other_queue_holder_ms": 743.518594,
+      "wakers": [
+        {
+          "tid": 10358,
+          "name": "shadPS4:Present",
+          "sleep_ms": 743.744
+        },
+        {
+          "tid": 10284,
+          "name": "<...>",
+          "sleep_ms": 0.0
+        },
+        {
+          "tid": 10363,
+          "name": "Guest-5",
+          "sleep_ms": 0.0
+        },
+        {
+          "tid": 10361,
+          "name": "Guest-3",
+          "sleep_ms": 0.0
+        }
+      ]
+    },
+    {
+      "tid": 10320,
+      "name": "Vulkan.Submit",
+      "calls": 50,
+      "wall_ms": 3.150207,
+      "on_cpu_ms": 3.150207,
+      "off_cpu_ms": 0.0,
+      "overlap_other_queue_holder_ms": 0.0,
+      "wakers": [
+        {
+          "tid": 10358,
+          "name": "shadPS4:Present",
+          "sleep_ms": 0.0
+        },
+        {
+          "tid": 10284,
+          "name": "<...>",
+          "sleep_ms": 0.0
+        },
+        {
+          "tid": 10363,
+          "name": "Guest-5",
+          "sleep_ms": 0.0
+        },
+        {
+          "tid": 10361,
+          "name": "Guest-3",
+          "sleep_ms": 0.0
+        }
+      ]
+    },
+    {
+      "tid": 10320,
+      "name": "Present.DriverCall",
+      "calls": 0,
+      "wall_ms": 0.0,
+      "on_cpu_ms": 0.0,
+      "off_cpu_ms": 0.0,
+      "overlap_other_queue_holder_ms": 0.0,
+      "wakers": []
+    },
+    {
+      "tid": 10358,
+      "name": "Vulkan.SubmitLock",
+      "calls": 520,
+      "wall_ms": 1.898196,
+      "on_cpu_ms": 1.792196,
+      "off_cpu_ms": 0.106,
+      "overlap_other_queue_holder_ms": 0.047812,
+      "wakers": [
+        {
+          "tid": 10320,
+          "name": "shadPS4:GpuComm",
+          "sleep_ms": 0.05
+        },
+        {
+          "tid": 867,
+          "name": "<...>",
+          "sleep_ms": 0.0
+        },
+        {
+          "tid": 11074,
+          "name": "binder:10213_5",
+          "sleep_ms": 0.0
+        },
+        {
+          "tid": 10361,
+          "name": "Guest-3",
+          "sleep_ms": 0.0
+        },
+        {
+          "tid": 0,
+          "name": "<idle>",
+          "sleep_ms": 0.0
+        },
+        {
+          "tid": 10252,
+          "name": "VsyncReceiver",
+          "sleep_ms": 0.0
+        },
+        {
+          "tid": 10213,
+          "name": "shadps4.android",
+          "sleep_ms": 0.0
+        }
+      ]
+    },
+    {
+      "tid": 10358,
+      "name": "Vulkan.Submit",
+      "calls": 520,
+      "wall_ms": 44.424046,
+      "on_cpu_ms": 42.878046,
+      "off_cpu_ms": 1.546,
+      "overlap_other_queue_holder_ms": 0.0,
+      "wakers": [
+        {
+          "tid": 867,
+          "name": "<...>",
+          "sleep_ms": 0.0
+        },
+        {
+          "tid": 10320,
+          "name": "shadPS4:GpuComm",
+          "sleep_ms": 0.0
+        },
+        {
+          "tid": 11074,
+          "name": "binder:10213_5",
+          "sleep_ms": 0.0
+        },
+        {
+          "tid": 10361,
+          "name": "Guest-3",
+          "sleep_ms": 0.0
+        },
+        {
+          "tid": 0,
+          "name": "<idle>",
+          "sleep_ms": 0.0
+        },
+        {
+          "tid": 10252,
+          "name": "VsyncReceiver",
+          "sleep_ms": 0.0
+        },
+        {
+          "tid": 10213,
+          "name": "shadps4.android",
+          "sleep_ms": 0.0
+        }
+      ]
+    },
+    {
+      "tid": 10358,
+      "name": "Present.DriverCall",
+      "calls": 271,
+      "wall_ms": 1217.195994,
+      "on_cpu_ms": 26.001994,
+      "off_cpu_ms": 1191.194,
+      "overlap_other_queue_holder_ms": 0.0,
+      "wakers": [
+        {
+          "tid": 867,
+          "name": "<...>",
+          "sleep_ms": 1190.1269999999997
+        },
+        {
+          "tid": 11074,
+          "name": "binder:10213_5",
+          "sleep_ms": 0.103
+        },
+        {
+          "tid": 10252,
+          "name": "VsyncReceiver",
+          "sleep_ms": 0.016
+        },
+        {
+          "tid": 10320,
+          "name": "shadPS4:GpuComm",
+          "sleep_ms": 0.0
+        },
+        {
+          "tid": 10361,
+          "name": "Guest-3",
+          "sleep_ms": 0.0
+        },
+        {
+          "tid": 0,
+          "name": "<idle>",
+          "sleep_ms": 0.0
+        },
+        {
+          "tid": 10213,
+          "name": "shadps4.android",
+          "sleep_ms": 0.0
+        }
+      ]
+    }
+  ]
+}

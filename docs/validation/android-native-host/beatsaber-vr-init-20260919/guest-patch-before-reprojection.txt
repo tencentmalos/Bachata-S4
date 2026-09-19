@@ -1,0 +1,141 @@
+SERVICE com.shadps4.android/.service.FexSessionService 3f81440 pid=13215 user=0
+  Client:
+    package: beatsaber_vr_preference_diagnostic_v3
+    sha256: 5f1174aa68b6c2a073c3360c69e964b8a6ba4d6e497f844416a49eca96d846de
+    installed: 1
+    enabled: 1
+    failed: 0
+    switches: 0
+    context: 1
+    hook: UnityVR_RegisterProviders entry=0xdbf490 original=0x2264010 replacement=0x22610c0 slot=0x2267000 stolen=6 enabled=1
+    instruction: 0xdbf490 -> 0x2264010
+    instruction: 0xdbf491 -> 0x2264011
+    instruction: 0xdbf494 -> 0x2264014
+    hook: UnityVR_SelectDevice entry=0xdbf8e0 original=0x2264210 replacement=0x2260820 slot=0x2267008 stolen=6 enabled=1
+    instruction: 0xdbf8e0 -> 0x2264210
+    instruction: 0xdbf8e1 -> 0x2264211
+    instruction: 0xdbf8e4 -> 0x2264214
+    hook: UnityVR_ReadDeviceNames entry=0xdc1330 original=0x2264410 replacement=0x2261290 slot=0x2267010 stolen=6 enabled=1
+    instruction: 0xdc1330 -> 0x2264410
+    instruction: 0xdc1331 -> 0x2264411
+    instruction: 0xdc1334 -> 0x2264414
+    hook: UnityVR_InitializeSelectedDevice entry=0xdcf0c0 original=0x2264610 replacement=0x2261460 slot=0x2267018 stolen=6 enabled=1
+    instruction: 0xdcf0c0 -> 0x2264610
+    instruction: 0xdcf0c1 -> 0x2264611
+    instruction: 0xdcf0c4 -> 0x2264614
+    hook: UnityPSVR_Initialize entry=0x116f690 original=0x2264810 replacement=0x2261630 slot=0x2267020 stolen=6 enabled=1
+    instruction: 0x116f690 -> 0x2264810
+    instruction: 0x116f691 -> 0x2264811
+    instruction: 0x116f694 -> 0x2264814
+    hook: UnityPSVR_RegisterManagedCalls entry=0x1175e40 original=0x2264a10 replacement=0x2261800 slot=0x2267028 stolen=11 enabled=1
+    instruction: 0x1175e40 -> 0x2264a10
+    instruction: 0x1175e41 -> 0x2264a11
+    instruction: 0x1175e44 -> 0x2264a14
+    hook: UnityPSVR_GetHmdMount entry=0x1175560 original=0x2264c10 replacement=0x22619d0 slot=0x2267030 stolen=6 enabled=1
+    instruction: 0x1175560 -> 0x2264c10
+    instruction: 0x1175561 -> 0x2264c11
+    instruction: 0x1175564 -> 0x2264c14
+    hook: UnityPSVR_GetOwnerUserId entry=0x1175600 original=0x2264e10 replacement=0x2261ba0 slot=0x2267038 stolen=6 enabled=1
+    instruction: 0x1175600 -> 0x2264e10
+    instruction: 0x1175601 -> 0x2264e11
+    instruction: 0x1175604 -> 0x2264e14
+    hook: UnityPSVR_SetupOpenAsync entry=0x1175200 original=0x2265010 replacement=0x2261d70 slot=0x2267040 stolen=6 enabled=1
+    instruction: 0x1175200 -> 0x2265010
+    instruction: 0x1175201 -> 0x2265011
+    instruction: 0x1175204 -> 0x2265014
+    hook: UnityPSVR_SetupUpdate entry=0x1175340 original=0x2265210 replacement=0x2261f40 slot=0x2267048 stolen=9 enabled=1
+    instruction: 0x1175340 -> 0x2265210
+    instruction: 0x1175341 -> 0x2265211
+    instruction: 0x1175344 -> 0x2265214
+    hook: UnityPSVR_SetupGetResult entry=0x1175360 original=0x2265410 replacement=0x2262110 slot=0x2267050 stolen=6 enabled=1
+    instruction: 0x1175360 -> 0x2265410
+    instruction: 0x1175361 -> 0x2265411
+    instruction: 0x1175364 -> 0x2265414
+    hook: HmdGetDeviceInformation entry=0x1646680 original=0x2265610 replacement=0x22609c0 slot=0x2267058 stolen=6 enabled=1
+    instruction: 0x1646680 -> 0x2265610
+    hook: HmdOpen entry=0x1646520 original=0x2265810 replacement=0x2260a20 slot=0x2267060 stolen=6 enabled=1
+    instruction: 0x1646520 -> 0x2265810
+    hook: CameraIsAttached entry=0x1646640 original=0x2265a10 replacement=0x2260a70 slot=0x2267068 stolen=6 enabled=1
+    instruction: 0x1646640 -> 0x2265a10
+    hook: ReprojectionInitialize entry=0x1646610 original=0x2265c10 replacement=0x2260aa0 slot=0x2267070 stolen=6 enabled=1
+    instruction: 0x1646610 -> 0x2265c10
+    hook: CameraGetFrameData entry=0x1646a30 original=0x2265e10 replacement=0x2260af0 slot=0x2267078 stolen=6 enabled=1
+    instruction: 0x1646a30 -> 0x2265e10
+    sdk_calls: 49
+    last_owner: 1:1:2:6
+    counter: 1 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityVR_RegisterProviders_calls samples=1 last=1
+    counter: 2 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityVR_SelectDevice_calls samples=0 last=0
+    counter: 3 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityVR_ReadDeviceNames_calls samples=3 last=3
+    counter: 4 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityVR_InitializeSelectedDevice_calls samples=1 last=1
+    counter: 5 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityPSVR_Initialize_calls samples=1 last=1
+    counter: 6 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityPSVR_RegisterManagedCalls_calls samples=1 last=1
+    counter: 7 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityPSVR_GetHmdMount_calls samples=0 last=0
+    counter: 8 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityPSVR_GetOwnerUserId_calls samples=0 last=0
+    counter: 9 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityPSVR_SetupOpenAsync_calls samples=0 last=0
+    counter: 10 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityPSVR_SetupUpdate_calls samples=0 last=0
+    counter: 11 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityPSVR_SetupGetResult_calls samples=0 last=0
+    log_tag: 1 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityVR_RegisterProviders_calls samples=1 last=1
+    log_tag: 2 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityVR_RegisterProviders_rdi samples=1 last=23886184
+    log_tag: 3 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityVR_RegisterProviders_rsi samples=1 last=62
+    log_tag: 4 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityVR_RegisterProviders_rdx samples=1 last=18955376
+    log_tag: 5 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityVR_SelectDevice_calls samples=0 last=0
+    log_tag: 6 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityVR_SelectDevice_rdi samples=0 last=0
+    log_tag: 7 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityVR_SelectDevice_rsi samples=0 last=0
+    log_tag: 8 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityVR_SelectDevice_rdx samples=0 last=0
+    log_tag: 9 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityVR_ReadDeviceNames_calls samples=3 last=3
+    log_tag: 10 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityVR_ReadDeviceNames_rdi samples=3 last=68721604464
+    log_tag: 11 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityVR_ReadDeviceNames_rsi samples=3 last=27
+    log_tag: 12 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityVR_ReadDeviceNames_rdx samples=3 last=2
+    log_tag: 13 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityVR_InitializeSelectedDevice_calls samples=1 last=1
+    log_tag: 14 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityVR_InitializeSelectedDevice_rdi samples=1 last=8871249888
+    log_tag: 15 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityVR_InitializeSelectedDevice_rsi samples=1 last=1
+    log_tag: 16 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityVR_InitializeSelectedDevice_rdx samples=1 last=0
+    log_tag: 17 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityPSVR_Initialize_calls samples=1 last=1
+    log_tag: 18 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityPSVR_Initialize_rdi samples=1 last=8871249904
+    log_tag: 19 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityPSVR_Initialize_rsi samples=1 last=1
+    log_tag: 20 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityPSVR_Initialize_rdx samples=1 last=0
+    log_tag: 21 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityPSVR_RegisterManagedCalls_calls samples=1 last=1
+    log_tag: 22 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityPSVR_RegisterManagedCalls_rdi samples=1 last=68721604496
+    log_tag: 23 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityPSVR_RegisterManagedCalls_rsi samples=1 last=8886737832
+    log_tag: 24 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityPSVR_RegisterManagedCalls_rdx samples=1 last=8886737808
+    log_tag: 25 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityPSVR_GetHmdMount_calls samples=0 last=0
+    log_tag: 26 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityPSVR_GetHmdMount_rdi samples=0 last=0
+    log_tag: 27 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityPSVR_GetHmdMount_rsi samples=0 last=0
+    log_tag: 28 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityPSVR_GetHmdMount_rdx samples=0 last=0
+    log_tag: 29 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityPSVR_GetOwnerUserId_calls samples=0 last=0
+    log_tag: 30 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityPSVR_GetOwnerUserId_rdi samples=0 last=0
+    log_tag: 31 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityPSVR_GetOwnerUserId_rsi samples=0 last=0
+    log_tag: 32 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityPSVR_GetOwnerUserId_rdx samples=0 last=0
+    log_tag: 33 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityPSVR_SetupOpenAsync_calls samples=0 last=0
+    log_tag: 34 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityPSVR_SetupOpenAsync_rdi samples=0 last=0
+    log_tag: 35 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityPSVR_SetupOpenAsync_rsi samples=0 last=0
+    log_tag: 36 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityPSVR_SetupOpenAsync_rdx samples=0 last=0
+    log_tag: 37 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityPSVR_SetupUpdate_calls samples=0 last=0
+    log_tag: 38 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityPSVR_SetupUpdate_rdi samples=0 last=0
+    log_tag: 39 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityPSVR_SetupUpdate_rsi samples=0 last=0
+    log_tag: 40 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityPSVR_SetupUpdate_rdx samples=0 last=0
+    log_tag: 41 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityPSVR_SetupGetResult_calls samples=0 last=0
+    log_tag: 42 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityPSVR_SetupGetResult_rdi samples=0 last=0
+    log_tag: 43 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityPSVR_SetupGetResult_rsi samples=0 last=0
+    log_tag: 44 GuestPatch.beatsaber_vr_preference_diagnostic_v3.UnityPSVR_SetupGetResult_rdx samples=0 last=0
+    log_tag: 45 GuestPatch.beatsaber_vr_preference_diagnostic_v3.SelectedDeviceCount samples=0 last=0
+    log_tag: 46 GuestPatch.beatsaber_vr_preference_diagnostic_v3.SelectedName0Length samples=0 last=0
+    log_tag: 47 GuestPatch.beatsaber_vr_preference_diagnostic_v3.SelectedName0Word0 samples=0 last=0
+    log_tag: 48 GuestPatch.beatsaber_vr_preference_diagnostic_v3.SelectedName0Word1 samples=0 last=0
+    log_tag: 49 GuestPatch.beatsaber_vr_preference_diagnostic_v3.SelectedName1Length samples=0 last=0
+    log_tag: 50 GuestPatch.beatsaber_vr_preference_diagnostic_v3.SelectedName1Word0 samples=0 last=0
+    log_tag: 51 GuestPatch.beatsaber_vr_preference_diagnostic_v3.SelectedName1Word1 samples=0 last=0
+    log_tag: 52 GuestPatch.beatsaber_vr_preference_diagnostic_v3.ManagerFlags samples=0 last=0
+    log_tag: 53 GuestPatch.beatsaber_vr_preference_diagnostic_v3.PreferenceApplied samples=2 last=1
+    log_tag: 54 GuestPatch.beatsaber_vr_preference_diagnostic_v3.PreferenceInitialize samples=2 last=1
+    log_tag: 55 GuestPatch.beatsaber_vr_preference_diagnostic_v3.PreferenceOriginalReturn samples=2 last=-43583964808128000
+    log_tag: 56 GuestPatch.beatsaber_vr_preference_diagnostic_v3.HmdInfoStatus samples=1 last=0
+    log_tag: 57 GuestPatch.beatsaber_vr_preference_diagnostic_v3.HmdInfoUser samples=1 last=1000
+    log_tag: 58 GuestPatch.beatsaber_vr_preference_diagnostic_v3.HmdInfoReturn samples=1 last=0
+    log_tag: 59 GuestPatch.beatsaber_vr_preference_diagnostic_v3.HmdOpenUser samples=1 last=1000
+    log_tag: 60 GuestPatch.beatsaber_vr_preference_diagnostic_v3.HmdOpenReturn samples=1 last=251658240
+    log_tag: 61 GuestPatch.beatsaber_vr_preference_diagnostic_v3.CameraAttachedReturn samples=1 last=1
+    log_tag: 62 GuestPatch.beatsaber_vr_preference_diagnostic_v3.ReprojectionInitializeMode samples=1 last=2
+    log_tag: 63 GuestPatch.beatsaber_vr_preference_diagnostic_v3.ReprojectionInitializeReturn samples=1 last=-2129592298
+    log_tag: 64 GuestPatch.beatsaber_vr_preference_diagnostic_v3.CameraGetFrameReturn samples=0 last=0
+

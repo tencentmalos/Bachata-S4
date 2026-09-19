@@ -1,0 +1,117 @@
+{
+  "sourceFormat": "prof",
+  "sessionId": null,
+  "timeSource": "gpu-time",
+  "cpuGpuAlignment": "unknown",
+  "frameAttribution": "unavailable_without_calibration",
+  "gpuRecords": {
+    "context_defs": 5,
+    "zone_begins": 7421,
+    "zone_ends": 7421,
+    "times": 15655,
+    "orphan_times": 813
+  },
+  "truncated": false,
+  "chunksSkipped": 0,
+  "diagnostics": [
+    "1 unclosed spans on tid 26247",
+    "2 unclosed spans on tid 26207",
+    "2 unclosed spans on tid 26209",
+    "3 unclosed spans on tid 26246",
+    "1 unclosed spans on tid 26210",
+    "1 unclosed spans on tid 26252",
+    "1 unclosed spans on tid 26255",
+    "1 unclosed spans on tid 26277",
+    "2 unclosed spans on tid 26279",
+    "1 unclosed spans on tid 26280",
+    "1 unclosed spans on tid 26305",
+    "1 unclosed spans on tid 26358",
+    "1 unclosed spans on tid 26212",
+    "1 unclosed spans on tid 26250",
+    "1 unclosed spans on tid 26248",
+    "1 unclosed spans on tid 26251",
+    "1 unclosed spans on tid 26249"
+  ],
+  "coverage": "Retained paired GPU timestamps. Nested zones are not additive; elapsed intervals may include GPU waits.",
+  "supported": true,
+  "eventsDecoded": true,
+  "zoneCount": 7421,
+  "contexts": [
+    {
+      "contextId": 2,
+      "name": "Queue 0 / present+redraw (estimated clock)"
+    },
+    {
+      "contextId": 1,
+      "name": "Queue 0 / guest+prepare (estimated clock)"
+    }
+  ],
+  "timeBase": "per-context GPU origin; not CPU trace-relative",
+  "zones": [
+    {
+      "contextId": 1,
+      "name": "GPU.DrawBatch",
+      "count": 193,
+      "totalMs": 6268.826097,
+      "meanMs": 32.48096423316062,
+      "minMs": 0.000468,
+      "maxMs": 68.042029
+    },
+    {
+      "contextId": 1,
+      "name": "GPU.GuestCommands",
+      "count": 193,
+      "totalMs": 6199.79031,
+      "meanMs": 32.12326585492228,
+      "minMs": 0.000156,
+      "maxMs": 67.307759
+    },
+    {
+      "contextId": 1,
+      "name": "GPU.GuestRenderPass",
+      "count": 6624,
+      "totalMs": 3500.431873,
+      "meanMs": 0.5284468407306764,
+      "minMs": 0.008177,
+      "maxMs": 5.764583
+    },
+    {
+      "contextId": 1,
+      "name": "GPU.HostPrepare",
+      "count": 97,
+      "totalMs": 69.781664,
+      "meanMs": 0.7193985979381444,
+      "minMs": 0.663385,
+      "maxMs": 0.826875
+    },
+    {
+      "contextId": 1,
+      "name": "GPU.PostProcess",
+      "count": 97,
+      "totalMs": 69.719267,
+      "meanMs": 0.7187553298969073,
+      "minMs": 0.662709,
+      "maxMs": 0.826198
+    },
+    {
+      "contextId": 2,
+      "name": "GPU.Present",
+      "count": 120,
+      "totalMs": 53.345416,
+      "meanMs": 0.44454513333333334,
+      "minMs": 0.420469,
+      "maxMs": 0.548125
+    },
+    {
+      "contextId": 1,
+      "name": "GPU.FSR",
+      "count": 97,
+      "totalMs": 0.015569,
+      "meanMs": 0.00016050515463917524,
+      "minMs": 0.000156,
+      "maxMs": 0.000209
+    }
+  ],
+  "totalGroups": 7,
+  "resultTruncated": false
+}

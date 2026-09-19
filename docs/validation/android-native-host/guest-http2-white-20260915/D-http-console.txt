@@ -1,0 +1,45 @@
+LAUNCHED 14071 {'scope': 'temporary negative-return injection at package-baked sceHttp2WaitAsync zero stub; no network or auth success', 'original_sha256': '6122da7190de6b08d921b2c42c3ca9ed11dc4d11524f1139ff67aeceea5b204d', 'diagnostic_sha256': 'd2c7a143f73827e7dcfbdc96a6216dddce90414865265efe01f2e055a6fa7f4d', 'self_offset': '0x15ce0b0', 'static_va': '0x15c05f0', 'before': '31c0c3af7700', 'after': 'b863104380c3'}
+OBSERVATION 90
+OBSERVATION 130
+OBSERVATION 180
+OBSERVATION 210
+OBSERVATION 220
+CIRCLE_PRESS_RELEASE
+OBSERVATION 250
+OBSERVATION 280
+OBSERVATION 310
+STOP EAQf7c#libSceNpTrophy#1#libSceNpTrophy#Function
+    UNSUPPORTED_IMPORT KI4dHLlTNl0#libSceNpAuth#1#libSceNpAuth#Function
+    UNSUPPORTED_IMPORT gjSyfzSsDcE#libSceNpAuth#1#libSceNpAuth#Function
+    UNSUPPORTED_IMPORT +o9816YQhqQ#libSceNpWebApi2#1#libSceNpWebApi2#Function
+    UNSUPPORTED_IMPORT sk54bi6FtYM#libSceNpWebApi2#1#libSceNpWebApi2#Function
+    UNSUPPORTED_IMPORT RujUxbr3haM#libSceJson2#1#libSceJson#Function
+    UNSUPPORTED_IMPORT cK6bYHf-Q5E#libSceJson2#1#libSceJson#Function
+    UNSUPPORTED_IMPORT i-XwZjw0OOY#libSceJson2#1#libSceJson#Function
+    UNSUPPORTED_IMPORT bEvXpcEk200#libSceNpWebApi2#1#libSceNpWebApi2#Function
+    UNSUPPORTED_IMPORT WSOuge5IsCg#libSceJson2#1#libSceJson#Function
+    UNSUPPORTED_IMPORT Eu95jmqn5Rw#libSceJson2#1#libSceJson#Function
+    UNSUPPORTED_IMPORT WVZBP4IyM+E#libSceJson2#1#libSceJson#Function
+    UNSUPPORTED_IMPORT PR5k1penBLM#libSceJson2#1#libSceJson#Function
+    UNSUPPORTED_IMPORT -hJRce8wn1U#libSceJson2#1#libSceJson#Function
+    UNSUPPORTED_IMPORT 9X9+cneTGUU#libSceNpWebApi2#1#libSceNpWebApi2#Function
+    UNSUPPORTED_IMPORT IXW-z8pggfg#libSceJson2#1#libSceJson#Function
+    UNSUPPORTED_IMPORT I2QC8PYhJWY#libSceJson2#1#libSceJson#Function
+    UNSUPPORTED_IMPORT NUeBrN7hzf0#libSceImeDialog#1#libSceImeDialog#Function
+    UNSUPPORTED_IMPORT x01jxu+vxlc#libSceImeDialog#1#libSceImeDialog#Function
+    UNSUPPORTED_IMPORT CRD+jSErEJQ#libSceImeDialog#1#libSceImeDialog#Function
+    UNSUPPORTED_IMPORT IADmD4tScBY#libSceImeDialog#1#libSceImeDialog#Function
+    UNSUPPORTED_IMPORT gyTyVn+bXMw#libSceImeDialog#1#libSceImeDialog#Function
+    UNSUPPORTED_IMPORT bcolXMmp6qQ#libSceAppContent
+    snapshot_ns: 245420550667418
+    guest_flip: 7152 (age_ns=390306250)
+    pm4_consumed: 8861350 (age_ns=390285729)
+    host_draw: 273464 (age_ns=404167396)
+    queue_submit: 34684 (age_ns=246394271)
+    gpu_retire: unavailable
+    host_present: 7152 (age_ns=348413281)
+    overlay_redraw: 13534 (age_ns=290495469)
+    guest_submission: 7152 (age_ns=405426667)
+
+
+ORIGINAL_RESTORED

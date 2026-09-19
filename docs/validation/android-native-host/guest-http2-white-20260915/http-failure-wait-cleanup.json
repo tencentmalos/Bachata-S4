@@ -1,0 +1,15 @@
+{
+  "succeeded": false,
+  "dryRun": false,
+  "events": [],
+  "threads": [],
+  "modules": [],
+  "registers": [],
+  "addressProofs": [],
+  "timedOut": false,
+  "ownershipReleased": false,
+  "alreadyCleaned": false,
+  "warnings": [],
+  "errorCode": "guest_session_not_found",
+  "errorMessage": "Unknown guest debug session: gdbg_f7459a74497d40658dd58de90989f2b7"
+}

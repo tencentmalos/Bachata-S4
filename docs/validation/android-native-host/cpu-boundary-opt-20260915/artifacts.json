@@ -1,0 +1,411 @@
+{
+  "schema": "shadps4.cpu-optimization-evidence.v1",
+  "serial": "9c2841a4",
+  "profile_identity": [
+    25383,
+    1,
+    "f88b351e80ff7e34439f4e0272f1ab71"
+  ],
+  "source_head": "4da582b7b3a36d74403a4985c3c03f37e570bcb7",
+  "dirty": true,
+  "artifacts": [
+    {
+      "source": "build/cpu-boundary-opt-20260915/analyze-cpu.py",
+      "bytes": 1683,
+      "sha256": "d5cabe911cf55e00aa660530bc4ce45dab47151e4fa10ca7a5cca196bc3cf396",
+      "archived": "analyze-cpu.py"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/analyze-gaps.py",
+      "bytes": 3445,
+      "sha256": "d7e0717b68ce790b69ce4ff68000b89151ca38c9ce40d46f5c3514436c39e605",
+      "archived": "analyze-gaps.py"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/apk-build.log",
+      "bytes": 20688,
+      "sha256": "3851d9c0d99cdc151d09a1c4e9053ccc090382f86e254c99acfa0a2b2984fb08",
+      "archived": "apk-build.log"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/artifact-identity.json",
+      "bytes": 525,
+      "sha256": "f9ecd262f95db96da0881242a67d0db10c77daef10e989ea95bce2e914a3b3a7",
+      "archived": "artifact-identity.json"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/baseline-build.log",
+      "bytes": 1008,
+      "sha256": "3a7e9f059b4c5f440cd493f215c1df73cb89dc690ab1b39abb46121a2fc0289b",
+      "archived": "baseline-build.log"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/before-bench-repeat.jsonl",
+      "bytes": 357,
+      "sha256": "af8c6714afd94e3f79608613b306c82c90cb7376460cdfe2c839f9209752972a",
+      "archived": "before-bench-repeat.jsonl"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/before-bench.jsonl",
+      "bytes": 357,
+      "sha256": "a2fab7dec70b8807db795c60c92c3c54bfdb3a62125e10d55b3c3a0b858ba61b",
+      "archived": "before-bench.jsonl"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/capture-finish.txt",
+      "bytes": 537,
+      "sha256": "0f8d541a376258678352b2e487367f38192c8e831754c7fdf15245f72ec9875d",
+      "archived": "capture-finish.txt"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/capture-start.txt",
+      "bytes": 533,
+      "sha256": "7e589e6b1de537b6cf4d2531f622b6c7d2424c38ed8090bd60420a7cd07c2e25",
+      "archived": "capture-start.txt"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/collect-gameplay.py",
+      "bytes": 2502,
+      "sha256": "12476f12a8ce284614fd7ecf6dd5ce08d9a0b28a48ce2ecbd78ab128853070d2",
+      "archived": "collect-gameplay.py"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/compiled_guest_tests.log",
+      "bytes": 967,
+      "sha256": "b27bf2a337e29ddd6e238c5a1bca8aeb656632a7507cc2887a9c15d6677d9005",
+      "archived": "compiled_guest_tests.log"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/cpu-analysis.log",
+      "bytes": 9170,
+      "sha256": "dc914e446418ca070984ae603b475ba50e1c06baab13031da54f5eab8299ffd9",
+      "archived": "cpu-analysis.log"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/cpu-comparison.json",
+      "bytes": 9169,
+      "sha256": "c585b8dac4cbf6fc98ee422a7afa90c3c6cec068f13a498d44bc565c202d9256",
+      "archived": "cpu-comparison.json"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/cpu-optimized.apk",
+      "bytes": 330649425,
+      "sha256": "b4c92212d8aa1ce07c60eb5bf8cf489edb798a0d0f1758ba78b54acc5dc18e8c"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/final-capture.txt",
+      "bytes": 537,
+      "sha256": "0f8d541a376258678352b2e487367f38192c8e831754c7fdf15245f72ec9875d",
+      "archived": "final-capture.txt"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/final-debug-properties.txt",
+      "bytes": 4,
+      "sha256": "52f96c26a39ed25108a6db43d6e11c6051eba8a498a5baab1891adfa7ac7c262",
+      "archived": "final-debug-properties.txt"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/final-gpu-reshape.txt",
+      "bytes": 847,
+      "sha256": "d3478f07844e31194c907114eaa2020839979ff756a0be12bd488d13c3ebab07",
+      "archived": "final-gpu-reshape.txt"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/final-process.txt",
+      "bytes": 1094,
+      "sha256": "5b8633a7c5d8df6aa7802d8a94c28f1fda7ca29c251484ab429efb457ec822a2",
+      "archived": "final-process.txt"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/final-ring.txt",
+      "bytes": 423,
+      "sha256": "1f128647de530ee5b359c96b896669d20e533e261f46865deed56105cbc87141",
+      "archived": "final-ring.txt"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/final-status.txt",
+      "bytes": 788,
+      "sha256": "3c5125db5fbf654e28e6107e335be0e171f274ed915f020a9174d293d45f7439",
+      "archived": "final-status.txt"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/gameplay-counters.json",
+      "bytes": 359,
+      "sha256": "16ea90035d4c9c0e6353f459f0435260f86c0819720d27acee72b6b2d77ec2ae",
+      "archived": "gameplay-counters.json"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/gpu-util.json",
+      "bytes": 2047,
+      "sha256": "39146cbfc68c502bac854bb1930a020199e57ab5fe7e22a33c1f9f673a357ea9",
+      "archived": "gpu-util.json"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/guest_condition_tests.log",
+      "bytes": 37,
+      "sha256": "ec2a90d12f7532f0c9dd0042f6e4c17b0356504b5a871668d96e17f0c8db47fb",
+      "archived": "guest_condition_tests.log"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/guest_cpu_contract_tests.log",
+      "bytes": 3790,
+      "sha256": "9cb90b82e7892d7e944c2242a51b47ad86869386ef0c453fc17ff50a7ce050e6",
+      "archived": "guest_cpu_contract_tests.log"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/guest_execution_tests-focused-debugger.log",
+      "bytes": 7060,
+      "sha256": "504c1110739c7c38870a330d37166f450408c90a1e3885240fbd438904f969c1",
+      "archived": "guest_execution_tests-focused-debugger.log"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/guest_execution_tests-focused-hle.log",
+      "bytes": 4199,
+      "sha256": "3b363cff94434ecc0ad6a6e4783540bcdbf82bd44e7f33763d5e668ed7f792e8",
+      "archived": "guest_execution_tests-focused-hle.log"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/guest_execution_tests-focused-publication.log",
+      "bytes": 779,
+      "sha256": "38c3002eda060ce4b276638958b1c38fc108b154f490db96e74d35c24293d493",
+      "archived": "guest_execution_tests-focused-publication.log"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/guest_services_tests.log",
+      "bytes": 2184,
+      "sha256": "54f5b3b85f4d6723dfbfd20144f44d95ded73d4cb669130af5953196b6ce5462",
+      "archived": "guest_services_tests.log"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/guest_vm_mutex_bench.log",
+      "bytes": 347,
+      "sha256": "1d66bc3d75cc08177a5144b28cd5da069b263c6723cc21051d2dfd7b4496f1bc",
+      "archived": "guest_vm_mutex_bench.log"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/host-build.log",
+      "bytes": 814,
+      "sha256": "12b8e91ff8b2cba27e0ce51b3158e5bbe0400467b3f2e1791314f7433c10e258",
+      "archived": "host-build.log"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/install.log",
+      "bytes": 36,
+      "sha256": "781a31c82430c97897af612ece5e0ca2205e301cb5ff121ce2660541ea5182c7",
+      "archived": "install.log"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/installed-apk-sha.txt",
+      "bytes": 157,
+      "sha256": "23084c3d38d8b8d92bb93969bf2aa2aeafd6b7d6b70e5c8c9d099d92aca27cd8",
+      "archived": "installed-apk-sha.txt"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/libshadps4_fex_session.so",
+      "bytes": 35223264,
+      "sha256": "247789dc7b7678b991c40d96b9327c1d51648df171c61560c4f302e863ed3128"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/libshadps4_host.so",
+      "bytes": 460869520,
+      "sha256": "ac7cb5dd6316cb3a63d1bdc96649e6902d6929e102acaed03262a41422eb5bfb"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/maps.txt",
+      "bytes": 479006,
+      "sha256": "3dfcb930d8b28644c5e802d00a1c353470a896f7423c6e551e5d22bb8c110aae",
+      "archived": "maps.txt"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/perf.data",
+      "bytes": 1321314,
+      "sha256": "d3e14b0cab3ce877bf1661d0fe1fa115f46fec977e044cbd71d44225e8ac6ca2"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/prof-analysis.log",
+      "bytes": 627,
+      "sha256": "8eced623657549612c8b533e8efb31d552ce79ea9e67794de7a753783142fb3d",
+      "archived": "prof-analysis.log"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/profile-after.txt",
+      "bytes": 788,
+      "sha256": "76c45ec87c7202d11446016f5810f9d23ef63e530be74f7a8f5e113a15abda70",
+      "archived": "profile-after.txt"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/profile-before.txt",
+      "bytes": 772,
+      "sha256": "e61733461afcdc7346f818ca5fa6cba9d815d7b93b323e16ca7f6545f224875d",
+      "archived": "profile-before.txt"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/samples.json",
+      "bytes": 10299103,
+      "sha256": "c6ab1ba0f8daa48bb74f24014075b5f706b5b41ae45472e5d580a7e9a2ac7e61"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/scene-gap-aware.json",
+      "bytes": 33339,
+      "sha256": "eefa01a816222a91fdb3e962863cd8dc2231dabdf737fecba858ec7f9dbf33b8",
+      "archived": "scene-gap-aware.json"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/scene.prof",
+      "bytes": 56953110,
+      "sha256": "6d13a08df474dfa0698c8857104758f89e6c736cf8e670e10ec9068c65a02bbe"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/simpleperf-record.log",
+      "bytes": 160,
+      "sha256": "286991a2a86096e669c081bab058a02cf0227d94ac2867801527a0303a81fb3b",
+      "archived": "simpleperf-record.log"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/source-hashes.json",
+      "bytes": 1008,
+      "sha256": "6301979acd7dcd386d929add9813dc187268811e44cd53855443f1661f8871bc",
+      "archived": "source-hashes.json"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/startup-status.txt",
+      "bytes": 783,
+      "sha256": "6965cb4d7b1da54298dd58d5c46fbf1b6502cdec8c2a84112b61973a167c668e",
+      "archived": "startup-status.txt"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/targeted-build.log",
+      "bytes": 3780,
+      "sha256": "892611106626f425af53a46f7663a2b3bc95315269ee4c7c04645f9a8a7d7b3b",
+      "archived": "targeted-build.log"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/targeted-results.json",
+      "bytes": 900,
+      "sha256": "c5be7e9a821e215de3cf48ae06a39ed379c5610973c1513bb5de61f77736c543",
+      "archived": "targeted-results.json"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/this-turn.patch",
+      "bytes": 13527,
+      "sha256": "f8e7be733d7922129ebbe29aa3b49c1518f2efdf97c2d377ba431f38c0e38278",
+      "archived": "this-turn.patch"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/warmup.log",
+      "bytes": 2181,
+      "sha256": "50bd4ba42c73b5dd00c75cb0a1685f9a31ea861bfe2b20af747c06b181c41f20",
+      "archived": "warmup.log"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/warmup/manifest.json",
+      "bytes": 17795,
+      "sha256": "ebd10595732be929cf9b8a267d69ecda7211a3f5428a05dcfed34879381e6557",
+      "archived": "warmup/manifest.json"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/warmup/review.json",
+      "bytes": 365,
+      "sha256": "00b09073ca5629138ef74ee7d369306480aef971fa2eb929f1de138478bda262",
+      "archived": "warmup/review.json"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/warmup/frame-0014.png",
+      "bytes": 2037553,
+      "sha256": "d41f0dcfd3babc5cdb8ee019fe5907b989258d5aa48533636e552e34e609072b",
+      "archived": "gameplay-before.png"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/warmup/frame-0019.png",
+      "bytes": 2115085,
+      "sha256": "19a047f280cb8fe77a932d69061c8cb2813fd86f3da00db60a19f8b7102a6536",
+      "archived": "gameplay-input-response.png"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/scene-after.png",
+      "bytes": 2062166,
+      "sha256": "77ff7ef0c339df71c7a6ebad20e3e722138c0340611f63d3db3ff3a02616bb39",
+      "archived": "profile-gameplay.png"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/before/src/core/guest_cpu/api/address_space.cpp",
+      "bytes": 67978,
+      "sha256": "7fec5e8b481321fb56d32d78edf468335072993bd499d7e5379aea9754530c1c"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/before/src/core/guest_cpu/api/address_space.h",
+      "bytes": 20487,
+      "sha256": "1857d79386c9625421329bdcdcb24eef23fc896ebfaf5494c84c1cefcbea72c1"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/before/src/core/guest_cpu/fex/fex_context.cpp",
+      "bytes": 170604,
+      "sha256": "1beaabd21144868cb606ddec428eb52d9321f5904170ab668133227434a19275"
+    },
+    {
+      "source": "build/cpu-boundary-opt-20260915/before/src/core/host_runtime/guest_mutex.h",
+      "bytes": 19546,
+      "sha256": "10927033bdafb0e8ee5d7e121f075e99fb79b3bef81a8bdb7897ed3e15be70c2"
+    },
+    {
+      "source": "src/common/debug.h",
+      "bytes": 2933,
+      "sha256": "74ce8daf286f5e5cc55bffccc6f51ca3a8f3ea2c8db958867560395c3db1623c"
+    },
+    {
+      "source": "src/common/profiler.h",
+      "bytes": 815,
+      "sha256": "8b811cdbe7f2b4b715b600fedf418a3ef49605e2093a4d89590f83fb7d3f1d7c"
+    },
+    {
+      "source": "src/imgui/status_layer.cpp",
+      "bytes": 4987,
+      "sha256": "814f6a4d0432a39448f42f59136d1b5bfd3842921a3fa56966e5f1547dd8ac14"
+    },
+    {
+      "source": "src/core/guest_cpu/api/address_space.cpp",
+      "bytes": 68615,
+      "sha256": "a21eed3e45a4b4b5d6f3c23752ca429e09902752ee2a071f30458602302a6211"
+    },
+    {
+      "source": "src/core/guest_cpu/api/address_space.h",
+      "bytes": 20887,
+      "sha256": "bf8a43aeb70e899fe551620ce8956fd01963310170e39f5f4c60dba663aa3316"
+    },
+    {
+      "source": "src/core/host_runtime/guest_mutex.h",
+      "bytes": 19876,
+      "sha256": "ff6bf8780ab2cae65e0d4cd8d2c84d42de3ce0e45bbb41d9d778355f4f443ed7"
+    },
+    {
+      "source": "src/core/guest_cpu/fex/fex_context.cpp",
+      "bytes": 171484,
+      "sha256": "784c83591a9d71cba3f6eaa45d7c512cc5eee8bb540052310b6f919c895703ea"
+    },
+    {
+      "source": "tests/guest_cpu/api_contract_tests.cpp",
+      "bytes": 96698,
+      "sha256": "3c1ff3756451f09e42953d0106f9b9de8b182d969f0f12ca2977e7adda606b6f"
+    },
+    {
+      "source": "tests/guest_cpu/guest_execution_tests.cpp",
+      "bytes": 248754,
+      "sha256": "5afc0946e0434655171afe01fc30519b8c221367bad7b4afc39a219fe90834c6"
+    },
+    {
+      "source": "tests/host_runtime/guest_services_tests.cpp",
+      "bytes": 11230,
+      "sha256": "7a634df81c320ac963f506b3541df94edf29f10c8614a58e5ad31590e73e4766"
+    },
+    {
+      "source": "tests/host_runtime/guest_vm_mutex_bench.cpp",
+      "bytes": 2722,
+      "sha256": "6d25dc85f58945d5ac1eb484c702ec74bdd6fba1f07da06942e1096b918d2ce2"
+    },
+    {
+      "source": "cmake/fex/CMakeLists.txt",
+      "bytes": 20492,
+      "sha256": "c45e83166b2f488360cc2e99ea8d966432776754d7697f342c7565f0d2374bb7"
+    }
+  ]
+}

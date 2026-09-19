@@ -1,0 +1,414 @@
+{
+  "source": "Android remote replay GPU Duration counter 1; not original runtime wall time",
+  "truncated": false,
+  "rows": 533,
+  "summary": {
+    "draw": {
+      "n": 13,
+      "sum_ms": 0.9518749767608643,
+      "max_ms": 0.5596354030036926
+    },
+    "guest_dispatch": {
+      "n": 34,
+      "sum_ms": 11.290676807682036,
+      "max_ms": 1.4423437147865295
+    },
+    "guest_draw": {
+      "n": 420,
+      "sum_ms": 10.060728921043395,
+      "max_ms": 1.2629166358337403
+    },
+    "host_detile": {
+      "n": 32,
+      "sum_ms": 11.492395552757262,
+      "max_ms": 1.0130728919334413
+    },
+    "copy": {
+      "n": 34,
+      "sum_ms": 6.476406091884613,
+      "max_ms": 0.8328124796676636
+    }
+  },
+  "top": [
+    {
+      "event_id": "736",
+      "counter_id": "1",
+      "value": 0.0014423437147865295,
+      "unit": "seconds",
+      "event": {
+        "event_id": "736",
+        "event_order": 234,
+        "parent_event_id": "730",
+        "depth": 1,
+        "name": "",
+        "kind": "dispatch",
+        "num_indices": 0,
+        "num_instances": 0,
+        "marker_path": "shadps4.pm4 gfx:0xb4000071601227a8:DispatchDirect generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386a9098/"
+      },
+      "ms": 1.4423437147865295,
+      "category": "guest_dispatch"
+    },
+    {
+      "event_id": "743",
+      "counter_id": "1",
+      "value": 0.0014417187148017883,
+      "unit": "seconds",
+      "event": {
+        "event_id": "743",
+        "event_order": 237,
+        "parent_event_id": "738",
+        "depth": 1,
+        "name": "",
+        "kind": "dispatch",
+        "num_indices": 0,
+        "num_instances": 0,
+        "marker_path": "shadps4.pm4 gfx:0xb400007160122920:DispatchDirect generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386a9210/"
+      },
+      "ms": 1.4417187148017883,
+      "category": "guest_dispatch"
+    },
+    {
+      "event_id": "4549",
+      "counter_id": "1",
+      "value": 0.0012629166358337403,
+      "unit": "seconds",
+      "event": {
+        "event_id": "4549",
+        "event_order": 1567,
+        "parent_event_id": "4538",
+        "depth": 1,
+        "name": "",
+        "kind": "draw",
+        "num_indices": 0,
+        "num_instances": 0,
+        "marker_path": "shadps4.pm4 gfx:0xb4000071601bf10c:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2387459fc/"
+      },
+      "ms": 1.2629166358337403,
+      "category": "guest_draw"
+    },
+    {
+      "event_id": "385",
+      "counter_id": "1",
+      "value": 0.0010130728919334412,
+      "unit": "seconds",
+      "event": {
+        "event_id": "385",
+        "event_order": 119,
+        "parent_event_id": "380",
+        "depth": 1,
+        "name": "",
+        "kind": "dispatch",
+        "num_indices": 0,
+        "num_instances": 0,
+        "marker_path": "shadps4.pm4 gfx:0xb400007160118790:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x23869f080/"
+      },
+      "ms": 1.0130728919334413,
+      "category": "host_detile"
+    },
+    {
+      "event_id": "787",
+      "counter_id": "1",
+      "value": 0.0008328124796676636,
+      "unit": "seconds",
+      "event": {
+        "event_id": "787",
+        "event_order": 255,
+        "parent_event_id": "780",
+        "depth": 1,
+        "name": "",
+        "kind": "copy",
+        "num_indices": 0,
+        "num_instances": 0,
+        "marker_path": "shadps4.pm4 gfx:0xb4000071601238f4:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386aa1e4/"
+      },
+      "ms": 0.8328124796676636,
+      "category": "copy"
+    },
+    {
+      "event_id": "796",
+      "counter_id": "1",
+      "value": 0.0007992708138198852,
+      "unit": "seconds",
+      "event": {
+        "event_id": "796",
+        "event_order": 257,
+        "parent_event_id": "780",
+        "depth": 1,
+        "name": "",
+        "kind": "copy",
+        "num_indices": 0,
+        "num_instances": 0,
+        "marker_path": "shadps4.pm4 gfx:0xb4000071601238f4:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386aa1e4/"
+      },
+      "ms": 0.7992708138198852,
+      "category": "copy"
+    },
+    {
+      "event_id": "821",
+      "counter_id": "1",
+      "value": 0.0007677603979225158,
+      "unit": "seconds",
+      "event": {
+        "event_id": "821",
+        "event_order": 262,
+        "parent_event_id": "780",
+        "depth": 1,
+        "name": "",
+        "kind": "dispatch",
+        "num_indices": 0,
+        "num_instances": 0,
+        "marker_path": "shadps4.pm4 gfx:0xb4000071601238f4:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386aa1e4/"
+      },
+      "ms": 0.7677603979225158,
+      "category": "host_detile"
+    },
+    {
+      "event_id": "785",
+      "counter_id": "1",
+      "value": 0.0007618228980674743,
+      "unit": "seconds",
+      "event": {
+        "event_id": "785",
+        "event_order": 254,
+        "parent_event_id": "780",
+        "depth": 1,
+        "name": "",
+        "kind": "dispatch",
+        "num_indices": 0,
+        "num_instances": 0,
+        "marker_path": "shadps4.pm4 gfx:0xb4000071601238f4:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386aa1e4/"
+      },
+      "ms": 0.7618228980674744,
+      "category": "host_detile"
+    },
+    {
+      "event_id": "794",
+      "counter_id": "1",
+      "value": 0.0007284895655479431,
+      "unit": "seconds",
+      "event": {
+        "event_id": "794",
+        "event_order": 256,
+        "parent_event_id": "780",
+        "depth": 1,
+        "name": "",
+        "kind": "dispatch",
+        "num_indices": 0,
+        "num_instances": 0,
+        "marker_path": "shadps4.pm4 gfx:0xb4000071601238f4:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386aa1e4/"
+      },
+      "ms": 0.7284895655479431,
+      "category": "host_detile"
+    },
+    {
+      "event_id": "4497",
+      "counter_id": "1",
+      "value": 0.0007270312322502136,
+      "unit": "seconds",
+      "event": {
+        "event_id": "4497",
+        "event_order": 1548,
+        "parent_event_id": "4492",
+        "depth": 1,
+        "name": "",
+        "kind": "dispatch",
+        "num_indices": 0,
+        "num_instances": 0,
+        "marker_path": "shadps4.pm4 gfx:0xb4000071601bde08:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2387446f8/"
+      },
+      "ms": 0.7270312322502136,
+      "category": "host_detile"
+    },
+    {
+      "event_id": "803",
+      "counter_id": "1",
+      "value": 0.000725833315612793,
+      "unit": "seconds",
+      "event": {
+        "event_id": "803",
+        "event_order": 258,
+        "parent_event_id": "780",
+        "depth": 1,
+        "name": "",
+        "kind": "dispatch",
+        "num_indices": 0,
+        "num_instances": 0,
+        "marker_path": "shadps4.pm4 gfx:0xb4000071601238f4:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386aa1e4/"
+      },
+      "ms": 0.725833315612793,
+      "category": "host_detile"
+    },
+    {
+      "event_id": "812",
+      "counter_id": "1",
+      "value": 0.0007256249822845459,
+      "unit": "seconds",
+      "event": {
+        "event_id": "812",
+        "event_order": 260,
+        "parent_event_id": "780",
+        "depth": 1,
+        "name": "",
+        "kind": "dispatch",
+        "num_indices": 0,
+        "num_instances": 0,
+        "marker_path": "shadps4.pm4 gfx:0xb4000071601238f4:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386aa1e4/"
+      },
+      "ms": 0.725624982284546,
+      "category": "host_detile"
+    },
+    {
+      "event_id": "4557",
+      "counter_id": "1",
+      "value": 0.0007252603989601136,
+      "unit": "seconds",
+      "event": {
+        "event_id": "4557",
+        "event_order": 1571,
+        "parent_event_id": "4551",
+        "depth": 1,
+        "name": "",
+        "kind": "dispatch",
+        "num_indices": 0,
+        "num_instances": 0,
+        "marker_path": "shadps4.pm4 gfx:0xb4000071601bf808:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2387460f8/"
+      },
+      "ms": 0.7252603989601135,
+      "category": "host_detile"
+    },
+    {
+      "event_id": "108",
+      "counter_id": "1",
+      "value": 0.0007247916489715576,
+      "unit": "seconds",
+      "event": {
+        "event_id": "108",
+        "event_order": 29,
+        "parent_event_id": "103",
+        "depth": 1,
+        "name": "",
+        "kind": "dispatch",
+        "num_indices": 0,
+        "num_instances": 0,
+        "marker_path": "shadps4.pm4 gfx:0xb400007160110838:DispatchDirect generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x238697128/"
+      },
+      "ms": 0.7247916489715576,
+      "category": "guest_dispatch"
+    },
+    {
+      "event_id": "3342",
+      "counter_id": "1",
+      "value": 0.0007247395656394958,
+      "unit": "seconds",
+      "event": {
+        "event_id": "3342",
+        "event_order": 1133,
+        "parent_event_id": "3337",
+        "depth": 1,
+        "name": "",
+        "kind": "dispatch",
+        "num_indices": 0,
+        "num_instances": 0,
+        "marker_path": "shadps4.pm4 gfx:0xb400007160188848:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x23870f138/"
+      },
+      "ms": 0.7247395656394958,
+      "category": "host_detile"
+    },
+    {
+      "event_id": "4524",
+      "counter_id": "1",
+      "value": 0.0007245833156433105,
+      "unit": "seconds",
+      "event": {
+        "event_id": "4524",
+        "event_order": 1558,
+        "parent_event_id": "4519",
+        "depth": 1,
+        "name": "",
+        "kind": "dispatch",
+        "num_indices": 0,
+        "num_instances": 0,
+        "marker_path": "shadps4.pm4 gfx:0xb4000071601be840:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x238745130/"
+      },
+      "ms": 0.7245833156433106,
+      "category": "host_detile"
+    },
+    {
+      "event_id": "3820",
+      "counter_id": "1",
+      "value": 0.0007245312323112487,
+      "unit": "seconds",
+      "event": {
+        "event_id": "3820",
+        "event_order": 1313,
+        "parent_event_id": "3815",
+        "depth": 1,
+        "name": "",
+        "kind": "dispatch",
+        "num_indices": 0,
+        "num_instances": 0,
+        "marker_path": "shadps4.pm4 gfx:0xb4000071601a6be0:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x23872d4d0/"
+      },
+      "ms": 0.7245312323112487,
+      "category": "host_detile"
+    },
+    {
+      "event_id": "4442",
+      "counter_id": "1",
+      "value": 0.0007245312323112487,
+      "unit": "seconds",
+      "event": {
+        "event_id": "4442",
+        "event_order": 1528,
+        "parent_event_id": "4437",
+        "depth": 1,
+        "name": "",
+        "kind": "dispatch",
+        "num_indices": 0,
+        "num_instances": 0,
+        "marker_path": "shadps4.pm4 gfx:0xb4000071601bca70:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x238743360/"
+      },
+      "ms": 0.7245312323112487,
+      "category": "host_detile"
+    },
+    {
+      "event_id": "4470",
+      "counter_id": "1",
+      "value": 0.0007244270656471252,
+      "unit": "seconds",
+      "event": {
+        "event_id": "4470",
+        "event_order": 1538,
+        "parent_event_id": "4465",
+        "depth": 1,
+        "name": "",
+        "kind": "dispatch",
+        "num_indices": 0,
+        "num_instances": 0,
+        "marker_path": "shadps4.pm4 gfx:0xb4000071601bd498:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x238743d88/"
+      },
+      "ms": 0.7244270656471252,
+      "category": "host_detile"
+    },
+    {
+      "event_id": "4517",
+      "counter_id": "1",
+      "value": 0.0007230728990135193,
+      "unit": "seconds",
+      "event": {
+        "event_id": "4517",
+        "event_order": 1555,
+        "parent_event_id": "4511",
+        "depth": 1,
+        "name": "",
+        "kind": "dispatch",
+        "num_indices": 0,
+        "num_instances": 0,
+        "marker_path": "shadps4.pm4 gfx:0xb4000071601be078:DispatchDirect generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x238744968/"
+      },
+      "ms": 0.7230728990135192,
+      "category": "guest_dispatch"
+    }
+  ]
+}

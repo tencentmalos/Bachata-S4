@@ -1,0 +1,2398 @@
+{
+  "schema": "spatial.guest-auto-tag.v1",
+  "architecture": "x86_64",
+  "pointer_bits": 64,
+  "endianness": "little",
+  "abi": "x86_64-sysv",
+  "identity": {
+    "emulator": "shadps4",
+    "title": "CUSA50828",
+    "module": "eboot.bin",
+    "module_sha256": "6122da7190de6b08d921b2c42c3ca9ed11dc4d11524f1139ff67aeceea5b204d"
+  },
+  "analysis": {
+    "sha256": "504fc22628a2a7c563e593aab298b9273e2a80eaf8814a095ffb6f464152da99",
+    "module": "eboot.bin",
+    "imagebase": 0
+  },
+  "depth": 2,
+  "max_probes": 0,
+  "backend_probe_capacity": 1024,
+  "selected_targets": [
+    {
+      "offset": 22306592,
+      "measured_inclusive_ns": 33169469259
+    },
+    {
+      "offset": 22615408,
+      "measured_inclusive_ns": 4019350654
+    },
+    {
+      "offset": 22306016,
+      "measured_inclusive_ns": 704206761
+    }
+  ],
+  "probes": [
+    {
+      "id": 1,
+      "name": "eboot.bin\u002B0x1545f27",
+      "kind": "call",
+      "begin": {
+        "offset": 22306599,
+        "expected": "e8547baffe"
+      },
+      "end": {
+        "offset": 22306604,
+        "expected": "8b1576aca000"
+      },
+      "function_offset": 22306592,
+      "function_name": "sub_1545F20",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 252544
+    },
+    {
+      "id": 2,
+      "name": "eboot.bin\u002B0x1545f69",
+      "kind": "call",
+      "begin": {
+        "offset": 22306665,
+        "expected": "e8c236adfe"
+      },
+      "end": {
+        "offset": 22306670,
+        "expected": "4883c420"
+      },
+      "function_offset": 22306592,
+      "function_name": "sub_1545F20",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 103984
+    },
+    {
+      "id": 3,
+      "name": "eboot.bin\u002B0x1545f89",
+      "kind": "call",
+      "begin": {
+        "offset": 22306697,
+        "expected": "e852a50700"
+      },
+      "end": {
+        "offset": 22306702,
+        "expected": "48b9cff753e3a59bc420"
+      },
+      "function_offset": 22306592,
+      "function_name": "sub_1545F20",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22807776
+    },
+    {
+      "id": 4,
+      "name": "eboot.bin\u002B0x1546031",
+      "kind": "call",
+      "begin": {
+        "offset": 22306865,
+        "expected": "ff1581c2a200"
+      },
+      "end": {
+        "offset": 22306871,
+        "expected": "8b056faba000"
+      },
+      "function_offset": 22306592,
+      "function_name": "sub_1545F20",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe"
+    },
+    {
+      "id": 5,
+      "name": "eboot.bin\u002B0x1545f20",
+      "kind": "count",
+      "begin": {
+        "offset": 22306592,
+        "expected": "55"
+      },
+      "function_offset": 22306592,
+      "function_name": "sub_1545F20",
+      "depth": 1,
+      "confidence": "static-function-entry"
+    },
+    {
+      "id": 6,
+      "name": "eboot.bin\u002B0x1591599",
+      "kind": "call",
+      "begin": {
+        "offset": 22615449,
+        "expected": "e822ef0200"
+      },
+      "end": {
+        "offset": 22615454,
+        "expected": "85c0"
+      },
+      "function_offset": 22615408,
+      "function_name": "sub_1591570",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22807744
+    },
+    {
+      "id": 7,
+      "name": "eboot.bin\u002B0x15915a7",
+      "kind": "call",
+      "begin": {
+        "offset": 22615463,
+        "expected": "e894ec0200"
+      },
+      "end": {
+        "offset": 22615468,
+        "expected": "4889c7"
+      },
+      "function_offset": 22615408,
+      "function_name": "sub_1591570",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22807104
+    },
+    {
+      "id": 8,
+      "name": "eboot.bin\u002B0x15915b6",
+      "kind": "call",
+      "begin": {
+        "offset": 22615478,
+        "expected": "e895ea0200"
+      },
+      "end": {
+        "offset": 22615483,
+        "expected": "8b3d5f0d9e00"
+      },
+      "function_offset": 22615408,
+      "function_name": "sub_1591570",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22806608
+    },
+    {
+      "id": 9,
+      "name": "eboot.bin\u002B0x15915c4",
+      "kind": "call",
+      "begin": {
+        "offset": 22615492,
+        "expected": "e807080300"
+      },
+      "end": {
+        "offset": 22615497,
+        "expected": "8b3d550d9e00"
+      },
+      "function_offset": 22615408,
+      "function_name": "sub_1591570",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22814160
+    },
+    {
+      "id": 10,
+      "name": "eboot.bin\u002B0x15915d4",
+      "kind": "call",
+      "begin": {
+        "offset": 22615508,
+        "expected": "e8f7070300"
+      },
+      "end": {
+        "offset": 22615513,
+        "expected": "8b3d410d9e00"
+      },
+      "function_offset": 22615408,
+      "function_name": "sub_1591570",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22814160
+    },
+    {
+      "id": 11,
+      "name": "eboot.bin\u002B0x15915df",
+      "kind": "call",
+      "begin": {
+        "offset": 22615519,
+        "expected": "e8dcee0200"
+      },
+      "end": {
+        "offset": 22615524,
+        "expected": "4c8d7378"
+      },
+      "function_offset": 22615408,
+      "function_name": "sub_1591570",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22807744
+    },
+    {
+      "id": 12,
+      "name": "eboot.bin\u002B0x15915f8",
+      "kind": "call",
+      "begin": {
+        "offset": 22615544,
+        "expected": "e8c3080300"
+      },
+      "end": {
+        "offset": 22615549,
+        "expected": "837b6000"
+      },
+      "function_offset": 22615408,
+      "function_name": "sub_1591570",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22814400
+    },
+    {
+      "id": 13,
+      "name": "eboot.bin\u002B0x159161c",
+      "kind": "call",
+      "begin": {
+        "offset": 22615580,
+        "expected": "e82ff7ffff"
+      },
+      "end": {
+        "offset": 22615585,
+        "expected": "4989c4"
+      },
+      "function_offset": 22615408,
+      "function_name": "sub_1591570",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22613328
+    },
+    {
+      "id": 14,
+      "name": "eboot.bin\u002B0x159164c",
+      "kind": "call",
+      "begin": {
+        "offset": 22615628,
+        "expected": "e86f080300"
+      },
+      "end": {
+        "offset": 22615633,
+        "expected": "488b4328"
+      },
+      "function_offset": 22615408,
+      "function_name": "sub_1591570",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22814400
+    },
+    {
+      "id": 15,
+      "name": "eboot.bin\u002B0x1591660",
+      "kind": "call",
+      "begin": {
+        "offset": 22615648,
+        "expected": "e8eb070300"
+      },
+      "end": {
+        "offset": 22615653,
+        "expected": "833b02"
+      },
+      "function_offset": 22615408,
+      "function_name": "sub_1591570",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22814288
+    },
+    {
+      "id": 16,
+      "name": "eboot.bin\u002B0x159168d",
+      "kind": "call",
+      "begin": {
+        "offset": 22615693,
+        "expected": "e80eea0200"
+      },
+      "end": {
+        "offset": 22615698,
+        "expected": "f041ff442420"
+      },
+      "function_offset": 22615408,
+      "function_name": "sub_1591570",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22806688
+    },
+    {
+      "id": 17,
+      "name": "eboot.bin\u002B0x159169f",
+      "kind": "call",
+      "begin": {
+        "offset": 22615711,
+        "expected": "e8acf6ffff"
+      },
+      "end": {
+        "offset": 22615716,
+        "expected": "4989c4"
+      },
+      "function_offset": 22615408,
+      "function_name": "sub_1591570",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22613328
+    },
+    {
+      "id": 18,
+      "name": "eboot.bin\u002B0x15916cf",
+      "kind": "call",
+      "begin": {
+        "offset": 22615759,
+        "expected": "e8ec070300"
+      },
+      "end": {
+        "offset": 22615764,
+        "expected": "488b4328"
+      },
+      "function_offset": 22615408,
+      "function_name": "sub_1591570",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22814400
+    },
+    {
+      "id": 19,
+      "name": "eboot.bin\u002B0x15916e3",
+      "kind": "call",
+      "begin": {
+        "offset": 22615779,
+        "expected": "e868070300"
+      },
+      "end": {
+        "offset": 22615784,
+        "expected": "833b02"
+      },
+      "function_offset": 22615408,
+      "function_name": "sub_1591570",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22814288
+    },
+    {
+      "id": 20,
+      "name": "eboot.bin\u002B0x159170e",
+      "kind": "call",
+      "begin": {
+        "offset": 22615822,
+        "expected": "e88de90200"
+      },
+      "end": {
+        "offset": 22615827,
+        "expected": "f041ff4720"
+      },
+      "function_offset": 22615408,
+      "function_name": "sub_1591570",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22806688
+    },
+    {
+      "id": 21,
+      "name": "eboot.bin\u002B0x159171b",
+      "kind": "call",
+      "begin": {
+        "offset": 22615835,
+        "expected": "e830070300"
+      },
+      "end": {
+        "offset": 22615840,
+        "expected": "8b3dfa0b9e00"
+      },
+      "function_offset": 22615408,
+      "function_name": "sub_1591570",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22814288
+    },
+    {
+      "id": 22,
+      "name": "eboot.bin\u002B0x1591726",
+      "kind": "call",
+      "begin": {
+        "offset": 22615846,
+        "expected": "e895ed0200"
+      },
+      "end": {
+        "offset": 22615851,
+        "expected": "4889c3"
+      },
+      "function_offset": 22615408,
+      "function_name": "sub_1591570",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22807744
+    },
+    {
+      "id": 23,
+      "name": "eboot.bin\u002B0x1591733",
+      "kind": "call",
+      "begin": {
+        "offset": 22615859,
+        "expected": "e848e90200"
+      },
+      "end": {
+        "offset": 22615864,
+        "expected": "83f8ff"
+      },
+      "function_offset": 22615408,
+      "function_name": "sub_1591570",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22806656
+    },
+    {
+      "id": 24,
+      "name": "eboot.bin\u002B0x159173d",
+      "kind": "call",
+      "begin": {
+        "offset": 22615869,
+        "expected": "e84ee90200"
+      },
+      "end": {
+        "offset": 22615874,
+        "expected": "833804"
+      },
+      "function_offset": 22615408,
+      "function_name": "sub_1591570",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22806672
+    },
+    {
+      "id": 25,
+      "name": "eboot.bin\u002B0x1591780",
+      "kind": "call",
+      "begin": {
+        "offset": 22615936,
+        "expected": "e81b060300"
+      },
+      "end": {
+        "offset": 22615941,
+        "expected": "0f0b"
+      },
+      "function_offset": 22615408,
+      "function_name": "sub_1591570",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22814112
+    },
+    {
+      "id": 26,
+      "name": "eboot.bin\u002B0x1591570",
+      "kind": "count",
+      "begin": {
+        "offset": 22615408,
+        "expected": "55"
+      },
+      "function_offset": 22615408,
+      "function_name": "sub_1591570",
+      "depth": 1,
+      "confidence": "static-function-entry"
+    },
+    {
+      "id": 27,
+      "name": "eboot.bin\u002B0x1545d35",
+      "kind": "call",
+      "begin": {
+        "offset": 22306101,
+        "expected": "e846b90700"
+      },
+      "end": {
+        "offset": 22306106,
+        "expected": "8b0568aea000"
+      },
+      "function_offset": 22306016,
+      "function_name": "sub_1545CE0",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22812288
+    },
+    {
+      "id": 28,
+      "name": "eboot.bin\u002B0x1545d62",
+      "kind": "call",
+      "begin": {
+        "offset": 22306146,
+        "expected": "e8e92fadfe"
+      },
+      "end": {
+        "offset": 22306151,
+        "expected": "8b053baea000"
+      },
+      "function_offset": 22306016,
+      "function_name": "sub_1545CE0",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 101712
+    },
+    {
+      "id": 29,
+      "name": "eboot.bin\u002B0x1545d77",
+      "kind": "call",
+      "begin": {
+        "offset": 22306167,
+        "expected": "e8e4eeadfe"
+      },
+      "end": {
+        "offset": 22306172,
+        "expected": "8b1526aea000"
+      },
+      "function_offset": 22306016,
+      "function_name": "sub_1545CE0",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 150624
+    },
+    {
+      "id": 30,
+      "name": "eboot.bin\u002B0x1545d92",
+      "kind": "call",
+      "begin": {
+        "offset": 22306194,
+        "expected": "e83951aefe"
+      },
+      "end": {
+        "offset": 22306199,
+        "expected": "488d7dac"
+      },
+      "function_offset": 22306016,
+      "function_name": "sub_1545CE0",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 175824
+    },
+    {
+      "id": 31,
+      "name": "eboot.bin\u002B0x1545d9b",
+      "kind": "call",
+      "begin": {
+        "offset": 22306203,
+        "expected": "e8c01daffe"
+      },
+      "end": {
+        "offset": 22306208,
+        "expected": "8b0502aea000"
+      },
+      "function_offset": 22306016,
+      "function_name": "sub_1545CE0",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 228192
+    },
+    {
+      "id": 32,
+      "name": "eboot.bin\u002B0x1545db3",
+      "kind": "call",
+      "begin": {
+        "offset": 22306227,
+        "expected": "e88834aefe"
+      },
+      "end": {
+        "offset": 22306232,
+        "expected": "8b05eaada000"
+      },
+      "function_offset": 22306016,
+      "function_name": "sub_1545CE0",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 168512
+    },
+    {
+      "id": 33,
+      "name": "eboot.bin\u002B0x1545de5",
+      "kind": "call",
+      "begin": {
+        "offset": 22306277,
+        "expected": "e816ebacfe"
+      },
+      "end": {
+        "offset": 22306282,
+        "expected": "8b05b8ada000"
+      },
+      "function_offset": 22306016,
+      "function_name": "sub_1545CE0",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 84224
+    },
+    {
+      "id": 34,
+      "name": "eboot.bin\u002B0x1545dff",
+      "kind": "call",
+      "begin": {
+        "offset": 22306303,
+        "expected": "e8bcf5adfe"
+      },
+      "end": {
+        "offset": 22306308,
+        "expected": "8b159eada000"
+      },
+      "function_offset": 22306016,
+      "function_name": "sub_1545CE0",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 152512
+    },
+    {
+      "id": 35,
+      "name": "eboot.bin\u002B0x1545e24",
+      "kind": "call",
+      "begin": {
+        "offset": 22306340,
+        "expected": "e8e7d5acfe"
+      },
+      "end": {
+        "offset": 22306345,
+        "expected": "8b1d79ada000"
+      },
+      "function_offset": 22306016,
+      "function_name": "sub_1545CE0",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 78864
+    },
+    {
+      "id": 36,
+      "name": "eboot.bin\u002B0x1545e4d",
+      "kind": "call",
+      "begin": {
+        "offset": 22306381,
+        "expected": "e8de2aaefe"
+      },
+      "end": {
+        "offset": 22306386,
+        "expected": "488d55b0"
+      },
+      "function_offset": 22306016,
+      "function_name": "sub_1545CE0",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 166192
+    },
+    {
+      "id": 37,
+      "name": "eboot.bin\u002B0x1545e71",
+      "kind": "call",
+      "begin": {
+        "offset": 22306417,
+        "expected": "e8caffadfe"
+      },
+      "end": {
+        "offset": 22306422,
+        "expected": "41b901000000"
+      },
+      "function_offset": 22306016,
+      "function_name": "sub_1545CE0",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 155200
+    },
+    {
+      "id": 38,
+      "name": "eboot.bin\u002B0x1545e93",
+      "kind": "call",
+      "begin": {
+        "offset": 22306451,
+        "expected": "e8f844aefe"
+      },
+      "end": {
+        "offset": 22306456,
+        "expected": "4883c410"
+      },
+      "function_offset": 22306016,
+      "function_name": "sub_1545CE0",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 172944
+    },
+    {
+      "id": 39,
+      "name": "eboot.bin\u002B0x1545eb2",
+      "kind": "call",
+      "begin": {
+        "offset": 22306482,
+        "expected": "e82947aefe"
+      },
+      "end": {
+        "offset": 22306487,
+        "expected": "8b05ebaca000"
+      },
+      "function_offset": 22306016,
+      "function_name": "sub_1545CE0",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 173536
+    },
+    {
+      "id": 40,
+      "name": "eboot.bin\u002B0x1545edb",
+      "kind": "call",
+      "begin": {
+        "offset": 22306523,
+        "expected": "e8309e0400"
+      },
+      "end": {
+        "offset": 22306528,
+        "expected": "8b05c2aca000"
+      },
+      "function_offset": 22306016,
+      "function_name": "sub_1545CE0",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22609168
+    },
+    {
+      "id": 41,
+      "name": "eboot.bin\u002B0x1545f10",
+      "kind": "call",
+      "begin": {
+        "offset": 22306576,
+        "expected": "e88bbe0700"
+      },
+      "end": {
+        "offset": 22306581,
+        "expected": "0f0b"
+      },
+      "function_offset": 22306016,
+      "function_name": "sub_1545CE0",
+      "depth": 1,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22814112
+    },
+    {
+      "id": 42,
+      "name": "eboot.bin\u002B0x1545ce0",
+      "kind": "count",
+      "begin": {
+        "offset": 22306016,
+        "expected": "55"
+      },
+      "function_offset": 22306016,
+      "function_name": "sub_1545CE0",
+      "depth": 1,
+      "confidence": "static-function-entry"
+    },
+    {
+      "id": 43,
+      "name": "eboot.bin\u002B0x3da80",
+      "kind": "count",
+      "begin": {
+        "offset": 252544,
+        "expected": "e93b3e5801"
+      },
+      "function_offset": 252544,
+      "function_name": "sub_3DA80",
+      "depth": 2,
+      "confidence": "static-function-entry"
+    },
+    {
+      "id": 44,
+      "name": "eboot.bin\u002B0x1965b",
+      "kind": "call",
+      "begin": {
+        "offset": 104027,
+        "expected": "e8101a0100"
+      },
+      "end": {
+        "offset": 104032,
+        "expected": "31ff"
+      },
+      "function_offset": 103984,
+      "function_name": "sub_19630",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 176240
+    },
+    {
+      "id": 45,
+      "name": "eboot.bin\u002B0x19630",
+      "kind": "count",
+      "begin": {
+        "offset": 103984,
+        "expected": "55"
+      },
+      "function_offset": 103984,
+      "function_name": "sub_19630",
+      "depth": 2,
+      "confidence": "static-function-entry"
+    },
+    {
+      "id": 46,
+      "name": "eboot.bin\u002B0x15c04e0",
+      "kind": "count",
+      "begin": {
+        "offset": 22807776,
+        "expected": "ff2502b07700"
+      },
+      "function_offset": 22807776,
+      "function_name": "sub_15C04E0",
+      "depth": 2,
+      "confidence": "static-function-entry"
+    },
+    {
+      "id": 47,
+      "name": "eboot.bin\u002B0x15c04c0",
+      "kind": "count",
+      "begin": {
+        "offset": 22807744,
+        "expected": "ff2512b07700"
+      },
+      "function_offset": 22807744,
+      "function_name": "sub_15C04C0",
+      "depth": 2,
+      "confidence": "static-function-entry"
+    },
+    {
+      "id": 48,
+      "name": "eboot.bin\u002B0x15c0240",
+      "kind": "count",
+      "begin": {
+        "offset": 22807104,
+        "expected": "ff2552b17700"
+      },
+      "function_offset": 22807104,
+      "function_name": "sub_15C0240",
+      "depth": 2,
+      "confidence": "static-function-entry"
+    },
+    {
+      "id": 49,
+      "name": "eboot.bin\u002B0x15c0050",
+      "kind": "count",
+      "begin": {
+        "offset": 22806608,
+        "expected": "ff254ab27700"
+      },
+      "function_offset": 22806608,
+      "function_name": "sub_15C0050",
+      "depth": 2,
+      "confidence": "static-function-entry"
+    },
+    {
+      "id": 50,
+      "name": "eboot.bin\u002B0x15c1dd0",
+      "kind": "count",
+      "begin": {
+        "offset": 22814160,
+        "expected": "ff258aa37700"
+      },
+      "function_offset": 22814160,
+      "function_name": "sub_15C1DD0",
+      "depth": 2,
+      "confidence": "static-function-entry"
+    },
+    {
+      "id": 51,
+      "name": "eboot.bin\u002B0x15c1ec0",
+      "kind": "count",
+      "begin": {
+        "offset": 22814400,
+        "expected": "ff2512a37700"
+      },
+      "function_offset": 22814400,
+      "function_name": "sub_15C1EC0",
+      "depth": 2,
+      "confidence": "static-function-entry"
+    },
+    {
+      "id": 52,
+      "name": "eboot.bin\u002B0x1590d73",
+      "kind": "call",
+      "begin": {
+        "offset": 22613363,
+        "expected": "e848110300"
+      },
+      "end": {
+        "offset": 22613368,
+        "expected": "4c8b23"
+      },
+      "function_offset": 22613328,
+      "function_name": "sub_1590D50",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22814400
+    },
+    {
+      "id": 53,
+      "name": "eboot.bin\u002B0x1590d8b",
+      "kind": "call",
+      "begin": {
+        "offset": 22613387,
+        "expected": "e8c0100300"
+      },
+      "end": {
+        "offset": 22613392,
+        "expected": "4d39ec"
+      },
+      "function_offset": 22613328,
+      "function_name": "sub_1590D50",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22814288
+    },
+    {
+      "id": 54,
+      "name": "eboot.bin\u002B0x1590da5",
+      "kind": "call",
+      "begin": {
+        "offset": 22613413,
+        "expected": "e816110300"
+      },
+      "end": {
+        "offset": 22613418,
+        "expected": "488b4308"
+      },
+      "function_offset": 22613328,
+      "function_name": "sub_1590D50",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22814400
+    },
+    {
+      "id": 55,
+      "name": "eboot.bin\u002B0x1590db9",
+      "kind": "call",
+      "begin": {
+        "offset": 22613433,
+        "expected": "e892100300"
+      },
+      "end": {
+        "offset": 22613438,
+        "expected": "ebb0"
+      },
+      "function_offset": 22613328,
+      "function_name": "sub_1590D50",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22814288
+    },
+    {
+      "id": 56,
+      "name": "eboot.bin\u002B0x1590dc7",
+      "kind": "call",
+      "begin": {
+        "offset": 22613447,
+        "expected": "e884100300"
+      },
+      "end": {
+        "offset": 22613452,
+        "expected": "448b7340"
+      },
+      "function_offset": 22613328,
+      "function_name": "sub_1590D50",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22814288
+    },
+    {
+      "id": 57,
+      "name": "eboot.bin\u002B0x1590dea",
+      "kind": "call",
+      "begin": {
+        "offset": 22613482,
+        "expected": "e861080300"
+      },
+      "end": {
+        "offset": 22613487,
+        "expected": "4c89ff"
+      },
+      "function_offset": 22613328,
+      "function_name": "sub_1590D50",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22812240
+    },
+    {
+      "id": 58,
+      "name": "eboot.bin\u002B0x1590df5",
+      "kind": "call",
+      "begin": {
+        "offset": 22613493,
+        "expected": "e8c6100300"
+      },
+      "end": {
+        "offset": 22613498,
+        "expected": "488b4308"
+      },
+      "function_offset": 22613328,
+      "function_name": "sub_1590D50",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22814400
+    },
+    {
+      "id": 59,
+      "name": "eboot.bin\u002B0x1590e09",
+      "kind": "call",
+      "begin": {
+        "offset": 22613513,
+        "expected": "e842100300"
+      },
+      "end": {
+        "offset": 22613518,
+        "expected": "41ffce"
+      },
+      "function_offset": 22613328,
+      "function_name": "sub_1590D50",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22814288
+    },
+    {
+      "id": 60,
+      "name": "eboot.bin\u002B0x1590e23",
+      "kind": "call",
+      "begin": {
+        "offset": 22613539,
+        "expected": "e898100300"
+      },
+      "end": {
+        "offset": 22613544,
+        "expected": "4c8b23"
+      },
+      "function_offset": 22613328,
+      "function_name": "sub_1590D50",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22814400
+    },
+    {
+      "id": 61,
+      "name": "eboot.bin\u002B0x1590e3b",
+      "kind": "call",
+      "begin": {
+        "offset": 22613563,
+        "expected": "e810100300"
+      },
+      "end": {
+        "offset": 22613568,
+        "expected": "4d39ec"
+      },
+      "function_offset": 22613328,
+      "function_name": "sub_1590D50",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22814288
+    },
+    {
+      "id": 62,
+      "name": "eboot.bin\u002B0x1590e51",
+      "kind": "call",
+      "begin": {
+        "offset": 22613585,
+        "expected": "e86a100300"
+      },
+      "end": {
+        "offset": 22613590,
+        "expected": "488b4308"
+      },
+      "function_offset": 22613328,
+      "function_name": "sub_1590D50",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22814400
+    },
+    {
+      "id": 63,
+      "name": "eboot.bin\u002B0x1590e65",
+      "kind": "call",
+      "begin": {
+        "offset": 22613605,
+        "expected": "e8e60f0300"
+      },
+      "end": {
+        "offset": 22613610,
+        "expected": "ebb4"
+      },
+      "function_offset": 22613328,
+      "function_name": "sub_1590D50",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22814288
+    },
+    {
+      "id": 64,
+      "name": "eboot.bin\u002B0x1590d50",
+      "kind": "count",
+      "begin": {
+        "offset": 22613328,
+        "expected": "55"
+      },
+      "function_offset": 22613328,
+      "function_name": "sub_1590D50",
+      "depth": 2,
+      "confidence": "static-function-entry"
+    },
+    {
+      "id": 65,
+      "name": "eboot.bin\u002B0x15c1e50",
+      "kind": "count",
+      "begin": {
+        "offset": 22814288,
+        "expected": "ff254aa37700"
+      },
+      "function_offset": 22814288,
+      "function_name": "sub_15C1E50",
+      "depth": 2,
+      "confidence": "static-function-entry"
+    },
+    {
+      "id": 66,
+      "name": "eboot.bin\u002B0x15c00a0",
+      "kind": "count",
+      "begin": {
+        "offset": 22806688,
+        "expected": "ff2522b27700"
+      },
+      "function_offset": 22806688,
+      "function_name": "sub_15C00A0",
+      "depth": 2,
+      "confidence": "static-function-entry"
+    },
+    {
+      "id": 67,
+      "name": "eboot.bin\u002B0x15c0080",
+      "kind": "count",
+      "begin": {
+        "offset": 22806656,
+        "expected": "ff2532b27700"
+      },
+      "function_offset": 22806656,
+      "function_name": "sub_15C0080",
+      "depth": 2,
+      "confidence": "static-function-entry"
+    },
+    {
+      "id": 68,
+      "name": "eboot.bin\u002B0x15c0090",
+      "kind": "count",
+      "begin": {
+        "offset": 22806672,
+        "expected": "ff252ab27700"
+      },
+      "function_offset": 22806672,
+      "function_name": "sub_15C0090",
+      "depth": 2,
+      "confidence": "static-function-entry"
+    },
+    {
+      "id": 69,
+      "name": "eboot.bin\u002B0x15c1da0",
+      "kind": "count",
+      "begin": {
+        "offset": 22814112,
+        "expected": "ff25a2a37700"
+      },
+      "function_offset": 22814112,
+      "function_name": "sub_15C1DA0",
+      "depth": 2,
+      "confidence": "static-function-entry"
+    },
+    {
+      "id": 70,
+      "name": "eboot.bin\u002B0x15c1680",
+      "kind": "count",
+      "begin": {
+        "offset": 22812288,
+        "expected": "ff2532a77700"
+      },
+      "function_offset": 22812288,
+      "function_name": "sub_15C1680",
+      "depth": 2,
+      "confidence": "static-function-entry"
+    },
+    {
+      "id": 71,
+      "name": "eboot.bin\u002B0x18d50",
+      "kind": "count",
+      "begin": {
+        "offset": 101712,
+        "expected": "488b07"
+      },
+      "function_offset": 101712,
+      "function_name": "sub_18D50",
+      "depth": 2,
+      "confidence": "static-function-entry"
+    },
+    {
+      "id": 72,
+      "name": "eboot.bin\u002B0x24c8c",
+      "kind": "call",
+      "begin": {
+        "offset": 150668,
+        "expected": "ff5318"
+      },
+      "end": {
+        "offset": 150671,
+        "expected": "84c0"
+      },
+      "function_offset": 150624,
+      "function_name": "sub_24C60",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe"
+    },
+    {
+      "id": 73,
+      "name": "eboot.bin\u002B0x24ca2",
+      "kind": "call",
+      "begin": {
+        "offset": 150690,
+        "expected": "e859cd5901"
+      },
+      "end": {
+        "offset": 150695,
+        "expected": "89c0"
+      },
+      "function_offset": 150624,
+      "function_name": "sub_24C60",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22813184
+    },
+    {
+      "id": 74,
+      "name": "eboot.bin\u002B0x24c60",
+      "kind": "count",
+      "begin": {
+        "offset": 150624,
+        "expected": "55"
+      },
+      "function_offset": 150624,
+      "function_name": "sub_24C60",
+      "depth": 2,
+      "confidence": "static-function-entry"
+    },
+    {
+      "id": 75,
+      "name": "eboot.bin\u002B0x2af03",
+      "kind": "call",
+      "begin": {
+        "offset": 175875,
+        "expected": "ff5318"
+      },
+      "end": {
+        "offset": 175878,
+        "expected": "84c0"
+      },
+      "function_offset": 175824,
+      "function_name": "sub_2AED0",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe"
+    },
+    {
+      "id": 76,
+      "name": "eboot.bin\u002B0x2af19",
+      "kind": "call",
+      "begin": {
+        "offset": 175897,
+        "expected": "e8726d5901"
+      },
+      "end": {
+        "offset": 175902,
+        "expected": "488343101c"
+      },
+      "function_offset": 175824,
+      "function_name": "sub_2AED0",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22813840
+    },
+    {
+      "id": 77,
+      "name": "eboot.bin\u002B0x2aed0",
+      "kind": "count",
+      "begin": {
+        "offset": 175824,
+        "expected": "55"
+      },
+      "function_offset": 175824,
+      "function_name": "sub_2AED0",
+      "depth": 2,
+      "confidence": "static-function-entry"
+    },
+    {
+      "id": 78,
+      "name": "eboot.bin\u002B0x37b60",
+      "kind": "count",
+      "begin": {
+        "offset": 228192,
+        "expected": "c7073f040000"
+      },
+      "function_offset": 228192,
+      "function_name": "sub_37B60",
+      "depth": 2,
+      "confidence": "static-function-entry"
+    },
+    {
+      "id": 79,
+      "name": "eboot.bin\u002B0x2926d",
+      "kind": "call",
+      "begin": {
+        "offset": 168557,
+        "expected": "ff5318"
+      },
+      "end": {
+        "offset": 168560,
+        "expected": "84c0"
+      },
+      "function_offset": 168512,
+      "function_name": "sub_29240",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe"
+    },
+    {
+      "id": 80,
+      "name": "eboot.bin\u002B0x29240",
+      "kind": "count",
+      "begin": {
+        "offset": 168512,
+        "expected": "55"
+      },
+      "function_offset": 168512,
+      "function_name": "sub_29240",
+      "depth": 2,
+      "confidence": "static-function-entry"
+    },
+    {
+      "id": 81,
+      "name": "eboot.bin\u002B0x149a8",
+      "kind": "call",
+      "begin": {
+        "offset": 84392,
+        "expected": "e803450100"
+      },
+      "end": {
+        "offset": 84397,
+        "expected": "4c8d75b0"
+      },
+      "function_offset": 84224,
+      "function_name": "sub_14900",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 167600
+    },
+    {
+      "id": 82,
+      "name": "eboot.bin\u002B0x149b4",
+      "kind": "call",
+      "begin": {
+        "offset": 84404,
+        "expected": "e8a7310200"
+      },
+      "end": {
+        "offset": 84409,
+        "expected": "4c89f7"
+      },
+      "function_offset": 84224,
+      "function_name": "sub_14900",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 228192
+    },
+    {
+      "id": 83,
+      "name": "eboot.bin\u002B0x149be",
+      "kind": "call",
+      "begin": {
+        "offset": 84414,
+        "expected": "e8ad310200"
+      },
+      "end": {
+        "offset": 84419,
+        "expected": "8b75b0"
+      },
+      "function_offset": 84224,
+      "function_name": "sub_14900",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 228208
+    },
+    {
+      "id": 84,
+      "name": "eboot.bin\u002B0x149c9",
+      "kind": "call",
+      "begin": {
+        "offset": 84425,
+        "expected": "e872480100"
+      },
+      "end": {
+        "offset": 84430,
+        "expected": "448b45ac"
+      },
+      "function_offset": 84224,
+      "function_name": "sub_14900",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 168512
+    },
+    {
+      "id": 85,
+      "name": "eboot.bin\u002B0x149dd",
+      "kind": "call",
+      "begin": {
+        "offset": 84445,
+        "expected": "e86e460100"
+      },
+      "end": {
+        "offset": 84450,
+        "expected": "c5fa1005c61e5b01"
+      },
+      "function_offset": 84224,
+      "function_name": "sub_14900",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 168016
+    },
+    {
+      "id": 86,
+      "name": "eboot.bin\u002B0x14a43",
+      "kind": "call",
+      "begin": {
+        "offset": 84547,
+        "expected": "e8e80f0100"
+      },
+      "end": {
+        "offset": 84552,
+        "expected": "c1e304"
+      },
+      "function_offset": 84224,
+      "function_name": "sub_14900",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 154160
+    },
+    {
+      "id": 87,
+      "name": "eboot.bin\u002B0x14adb",
+      "kind": "call",
+      "begin": {
+        "offset": 84699,
+        "expected": "e8d00f0100"
+      },
+      "end": {
+        "offset": 84704,
+        "expected": "488b05d166d201"
+      },
+      "function_offset": 84224,
+      "function_name": "sub_14900",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 154288
+    },
+    {
+      "id": 88,
+      "name": "eboot.bin\u002B0x14aff",
+      "kind": "call",
+      "begin": {
+        "offset": 84735,
+        "expected": "e89cd25a01"
+      },
+      "end": {
+        "offset": 84740,
+        "expected": "0f0b"
+      },
+      "function_offset": 84224,
+      "function_name": "sub_14900",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22814112
+    },
+    {
+      "id": 89,
+      "name": "eboot.bin\u002B0x14900",
+      "kind": "count",
+      "begin": {
+        "offset": 84224,
+        "expected": "55"
+      },
+      "function_offset": 84224,
+      "function_name": "sub_14900",
+      "depth": 2,
+      "confidence": "static-function-entry"
+    },
+    {
+      "id": 90,
+      "name": "eboot.bin\u002B0x253ed",
+      "kind": "call",
+      "begin": {
+        "offset": 152557,
+        "expected": "ff5318"
+      },
+      "end": {
+        "offset": 152560,
+        "expected": "84c0"
+      },
+      "function_offset": 152512,
+      "function_name": "sub_253C0",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe"
+    },
+    {
+      "id": 91,
+      "name": "eboot.bin\u002B0x253c0",
+      "kind": "count",
+      "begin": {
+        "offset": 152512,
+        "expected": "55"
+      },
+      "function_offset": 152512,
+      "function_name": "sub_253C0",
+      "depth": 2,
+      "confidence": "static-function-entry"
+    },
+    {
+      "id": 92,
+      "name": "eboot.bin\u002B0x13463",
+      "kind": "call",
+      "begin": {
+        "offset": 78947,
+        "expected": "e8a86e0200"
+      },
+      "end": {
+        "offset": 78952,
+        "expected": "85c0"
+      },
+      "function_offset": 78864,
+      "function_name": "sub_13410",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 238352
+    },
+    {
+      "id": 93,
+      "name": "eboot.bin\u002B0x134c0",
+      "kind": "call",
+      "begin": {
+        "offset": 79040,
+        "expected": "e80b6b0200"
+      },
+      "end": {
+        "offset": 79045,
+        "expected": "4c89ff"
+      },
+      "function_offset": 78864,
+      "function_name": "sub_13410",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 237520
+    },
+    {
+      "id": 94,
+      "name": "eboot.bin\u002B0x134ca",
+      "kind": "call",
+      "begin": {
+        "offset": 79050,
+        "expected": "e8316d0200"
+      },
+      "end": {
+        "offset": 79055,
+        "expected": "488d5590"
+      },
+      "function_offset": 78864,
+      "function_name": "sub_13410",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 238080
+    },
+    {
+      "id": 95,
+      "name": "eboot.bin\u002B0x134d9",
+      "kind": "call",
+      "begin": {
+        "offset": 79065,
+        "expected": "e8e2260100"
+      },
+      "end": {
+        "offset": 79070,
+        "expected": "498b0424"
+      },
+      "function_offset": 78864,
+      "function_name": "sub_13410",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 154560
+    },
+    {
+      "id": 96,
+      "name": "eboot.bin\u002B0x13518",
+      "kind": "call",
+      "begin": {
+        "offset": 79128,
+        "expected": "e883e85a01"
+      },
+      "end": {
+        "offset": 79133,
+        "expected": "0f0b"
+      },
+      "function_offset": 78864,
+      "function_name": "sub_13410",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22814112
+    },
+    {
+      "id": 97,
+      "name": "eboot.bin\u002B0x13410",
+      "kind": "count",
+      "begin": {
+        "offset": 78864,
+        "expected": "55"
+      },
+      "function_offset": 78864,
+      "function_name": "sub_13410",
+      "depth": 2,
+      "confidence": "static-function-entry"
+    },
+    {
+      "id": 98,
+      "name": "eboot.bin\u002B0x28980",
+      "kind": "call",
+      "begin": {
+        "offset": 166272,
+        "expected": "41ff5618"
+      },
+      "end": {
+        "offset": 166276,
+        "expected": "84c0"
+      },
+      "function_offset": 166192,
+      "function_name": "sub_28930",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe"
+    },
+    {
+      "id": 99,
+      "name": "eboot.bin\u002B0x28930",
+      "kind": "count",
+      "begin": {
+        "offset": 166192,
+        "expected": "55"
+      },
+      "function_offset": 166192,
+      "function_name": "sub_28930",
+      "depth": 2,
+      "confidence": "static-function-entry"
+    },
+    {
+      "id": 100,
+      "name": "eboot.bin\u002B0x25e79",
+      "kind": "call",
+      "begin": {
+        "offset": 155257,
+        "expected": "41ff5618"
+      },
+      "end": {
+        "offset": 155261,
+        "expected": "84c0"
+      },
+      "function_offset": 155200,
+      "function_name": "sub_25E40",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe"
+    },
+    {
+      "id": 101,
+      "name": "eboot.bin\u002B0x25e40",
+      "kind": "count",
+      "begin": {
+        "offset": 155200,
+        "expected": "55"
+      },
+      "function_offset": 155200,
+      "function_name": "sub_25E40",
+      "depth": 2,
+      "confidence": "static-function-entry"
+    },
+    {
+      "id": 102,
+      "name": "eboot.bin\u002B0x2a3d1",
+      "kind": "call",
+      "begin": {
+        "offset": 173009,
+        "expected": "41ff542418"
+      },
+      "end": {
+        "offset": 173014,
+        "expected": "84c0"
+      },
+      "function_offset": 172944,
+      "function_name": "sub_2A390",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe"
+    },
+    {
+      "id": 103,
+      "name": "eboot.bin\u002B0x2a390",
+      "kind": "count",
+      "begin": {
+        "offset": 172944,
+        "expected": "55"
+      },
+      "function_offset": 172944,
+      "function_name": "sub_2A390",
+      "depth": 2,
+      "confidence": "static-function-entry"
+    },
+    {
+      "id": 104,
+      "name": "eboot.bin\u002B0x2a61d",
+      "kind": "call",
+      "begin": {
+        "offset": 173597,
+        "expected": "ff5318"
+      },
+      "end": {
+        "offset": 173600,
+        "expected": "84c0"
+      },
+      "function_offset": 173536,
+      "function_name": "sub_2A5E0",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe"
+    },
+    {
+      "id": 105,
+      "name": "eboot.bin\u002B0x2a5e0",
+      "kind": "count",
+      "begin": {
+        "offset": 173536,
+        "expected": "55"
+      },
+      "function_offset": 173536,
+      "function_name": "sub_2A5E0",
+      "depth": 2,
+      "confidence": "static-function-entry"
+    },
+    {
+      "id": 106,
+      "name": "eboot.bin\u002B0x158fd4d",
+      "kind": "call",
+      "begin": {
+        "offset": 22609229,
+        "expected": "e8de8ba9fe"
+      },
+      "end": {
+        "offset": 22609234,
+        "expected": "4889df"
+      },
+      "function_offset": 22609168,
+      "function_name": "sub_158FD10",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 166192
+    },
+    {
+      "id": 107,
+      "name": "eboot.bin\u002B0x158fd60",
+      "kind": "call",
+      "begin": {
+        "offset": 22609248,
+        "expected": "e8db9faafe"
+      },
+      "end": {
+        "offset": 22609253,
+        "expected": "0fb6c8"
+      },
+      "function_offset": 22609168,
+      "function_name": "sub_158FD10",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 236864
+    },
+    {
+      "id": 108,
+      "name": "eboot.bin\u002B0x158fdac",
+      "kind": "call",
+      "begin": {
+        "offset": 22609324,
+        "expected": "e81fa2aafe"
+      },
+      "end": {
+        "offset": 22609329,
+        "expected": "89c0"
+      },
+      "function_offset": 22609168,
+      "function_name": "sub_158FD10",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 237520
+    },
+    {
+      "id": 109,
+      "name": "eboot.bin\u002B0x158fdbe",
+      "kind": "call",
+      "begin": {
+        "offset": 22609342,
+        "expected": "e87d9faafe"
+      },
+      "end": {
+        "offset": 22609347,
+        "expected": "488d7dc0"
+      },
+      "function_offset": 22609168,
+      "function_name": "sub_158FD10",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 236864
+    },
+    {
+      "id": 110,
+      "name": "eboot.bin\u002B0x158fdca",
+      "kind": "call",
+      "begin": {
+        "offset": 22609354,
+        "expected": "e86127a9fe"
+      },
+      "end": {
+        "offset": 22609359,
+        "expected": "458b6708"
+      },
+      "function_offset": 22609168,
+      "function_name": "sub_158FD10",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 140592
+    },
+    {
+      "id": 111,
+      "name": "eboot.bin\u002B0x158fe40",
+      "kind": "call",
+      "begin": {
+        "offset": 22609472,
+        "expected": "e8fb85a8fe"
+      },
+      "end": {
+        "offset": 22609477,
+        "expected": "488b7590"
+      },
+      "function_offset": 22609168,
+      "function_name": "sub_158FD10",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 99392
+    },
+    {
+      "id": 112,
+      "name": "eboot.bin\u002B0x158fe58",
+      "kind": "call",
+      "begin": {
+        "offset": 22609496,
+        "expected": "e87310a9fe"
+      },
+      "end": {
+        "offset": 22609501,
+        "expected": "4889df"
+      },
+      "function_offset": 22609168,
+      "function_name": "sub_158FD10",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 134864
+    },
+    {
+      "id": 113,
+      "name": "eboot.bin\u002B0x158fe65",
+      "kind": "call",
+      "begin": {
+        "offset": 22609509,
+        "expected": "e8b60fa9fe"
+      },
+      "end": {
+        "offset": 22609514,
+        "expected": "4c89ff"
+      },
+      "function_offset": 22609168,
+      "function_name": "sub_158FD10",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 134688
+    },
+    {
+      "id": 114,
+      "name": "eboot.bin\u002B0x158fe79",
+      "kind": "call",
+      "begin": {
+        "offset": 22609529,
+        "expected": "e8b288a8fe"
+      },
+      "end": {
+        "offset": 22609534,
+        "expected": "488b7580"
+      },
+      "function_offset": 22609168,
+      "function_name": "sub_158FD10",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 100144
+    },
+    {
+      "id": 115,
+      "name": "eboot.bin\u002B0x158fe91",
+      "kind": "call",
+      "begin": {
+        "offset": 22609553,
+        "expected": "e83a10a9fe"
+      },
+      "end": {
+        "offset": 22609558,
+        "expected": "4889df"
+      },
+      "function_offset": 22609168,
+      "function_name": "sub_158FD10",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 134864
+    },
+    {
+      "id": 116,
+      "name": "eboot.bin\u002B0x158fe9e",
+      "kind": "call",
+      "begin": {
+        "offset": 22609566,
+        "expected": "e87d0fa9fe"
+      },
+      "end": {
+        "offset": 22609571,
+        "expected": "4c89ff"
+      },
+      "function_offset": 22609168,
+      "function_name": "sub_158FD10",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 134688
+    },
+    {
+      "id": 117,
+      "name": "eboot.bin\u002B0x158feb2",
+      "kind": "call",
+      "begin": {
+        "offset": 22609586,
+        "expected": "e8b987a8fe"
+      },
+      "end": {
+        "offset": 22609591,
+        "expected": "4c89ef"
+      },
+      "function_offset": 22609168,
+      "function_name": "sub_158FD10",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 99952
+    },
+    {
+      "id": 118,
+      "name": "eboot.bin\u002B0x158fec4",
+      "kind": "call",
+      "begin": {
+        "offset": 22609604,
+        "expected": "e8678aa9fe"
+      },
+      "end": {
+        "offset": 22609609,
+        "expected": "442b7588"
+      },
+      "function_offset": 22609168,
+      "function_name": "sub_158FD10",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 166192
+    },
+    {
+      "id": 119,
+      "name": "eboot.bin\u002B0x158fee3",
+      "kind": "call",
+      "begin": {
+        "offset": 22609635,
+        "expected": "e8a811a9fe"
+      },
+      "end": {
+        "offset": 22609640,
+        "expected": "4c89ff"
+      },
+      "function_offset": 22609168,
+      "function_name": "sub_158FD10",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 135312
+    },
+    {
+      "id": 120,
+      "name": "eboot.bin\u002B0x158fef7",
+      "kind": "call",
+      "begin": {
+        "offset": 22609655,
+        "expected": "e8e485a8fe"
+      },
+      "end": {
+        "offset": 22609660,
+        "expected": "4183c43f"
+      },
+      "function_offset": 22609168,
+      "function_name": "sub_158FD10",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 99552
+    },
+    {
+      "id": 121,
+      "name": "eboot.bin\u002B0x158ff07",
+      "kind": "call",
+      "begin": {
+        "offset": 22609671,
+        "expected": "e8c467a8fe"
+      },
+      "end": {
+        "offset": 22609676,
+        "expected": "450fb68564af0000"
+      },
+      "function_offset": 22609168,
+      "function_name": "sub_158FD10",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 91856
+    },
+    {
+      "id": 122,
+      "name": "eboot.bin\u002B0x158ff24",
+      "kind": "call",
+      "begin": {
+        "offset": 22609700,
+        "expected": "e80772a9fe"
+      },
+      "end": {
+        "offset": 22609705,
+        "expected": "4c89ef"
+      },
+      "function_offset": 22609168,
+      "function_name": "sub_158FD10",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 160048
+    },
+    {
+      "id": 123,
+      "name": "eboot.bin\u002B0x158ff36",
+      "kind": "call",
+      "begin": {
+        "offset": 22609718,
+        "expected": "e8f589a9fe"
+      },
+      "end": {
+        "offset": 22609723,
+        "expected": "488d559c"
+      },
+      "function_offset": 22609168,
+      "function_name": "sub_158FD10",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 166192
+    },
+    {
+      "id": 124,
+      "name": "eboot.bin\u002B0x158ff5a",
+      "kind": "call",
+      "begin": {
+        "offset": 22609754,
+        "expected": "e8e15ea9fe"
+      },
+      "end": {
+        "offset": 22609759,
+        "expected": "4c89ef"
+      },
+      "function_offset": 22609168,
+      "function_name": "sub_158FD10",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 155200
+    },
+    {
+      "id": 125,
+      "name": "eboot.bin\u002B0x158ff6f",
+      "kind": "call",
+      "begin": {
+        "offset": 22609775,
+        "expected": "e83caea9fe"
+      },
+      "end": {
+        "offset": 22609780,
+        "expected": "4c89ef"
+      },
+      "function_offset": 22609168,
+      "function_name": "sub_158FD10",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 175536
+    },
+    {
+      "id": 126,
+      "name": "eboot.bin\u002B0x158ff8a",
+      "kind": "call",
+      "begin": {
+        "offset": 22609802,
+        "expected": "e851a6a9fe"
+      },
+      "end": {
+        "offset": 22609807,
+        "expected": "4c89ef"
+      },
+      "function_offset": 22609168,
+      "function_name": "sub_158FD10",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 173536
+    },
+    {
+      "id": 127,
+      "name": "eboot.bin\u002B0x158ff9e",
+      "kind": "call",
+      "begin": {
+        "offset": 22609822,
+        "expected": "e89daaa9fe"
+      },
+      "end": {
+        "offset": 22609827,
+        "expected": "488b050eb27a00"
+      },
+      "function_offset": 22609168,
+      "function_name": "sub_158FD10",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 174656
+    },
+    {
+      "id": 128,
+      "name": "eboot.bin\u002B0x159008b",
+      "kind": "call",
+      "begin": {
+        "offset": 22610059,
+        "expected": "e8f023a9fe"
+      },
+      "end": {
+        "offset": 22610064,
+        "expected": "89c0"
+      },
+      "function_offset": 22609168,
+      "function_name": "sub_158FD10",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 140416
+    },
+    {
+      "id": 129,
+      "name": "eboot.bin\u002B0x159031c",
+      "kind": "call",
+      "begin": {
+        "offset": 22610716,
+        "expected": "e8ff240300"
+      },
+      "end": {
+        "offset": 22610721,
+        "expected": "c5f97ec7"
+      },
+      "function_offset": 22609168,
+      "function_name": "sub_158FD10",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22816800
+    },
+    {
+      "id": 130,
+      "name": "eboot.bin\u002B0x1590606",
+      "kind": "call",
+      "begin": {
+        "offset": 22611462,
+        "expected": "e875030000"
+      },
+      "end": {
+        "offset": 22611467,
+        "expected": "4d89e2"
+      },
+      "function_offset": 22609168,
+      "function_name": "sub_158FD10",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22612352
+    },
+    {
+      "id": 131,
+      "name": "eboot.bin\u002B0x1590658",
+      "kind": "call",
+      "begin": {
+        "offset": 22611544,
+        "expected": "e823030000"
+      },
+      "end": {
+        "offset": 22611549,
+        "expected": "4d89e2"
+      },
+      "function_offset": 22609168,
+      "function_name": "sub_158FD10",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22612352
+    },
+    {
+      "id": 132,
+      "name": "eboot.bin\u002B0x15906f1",
+      "kind": "call",
+      "begin": {
+        "offset": 22611697,
+        "expected": "e85a1ea9fe"
+      },
+      "end": {
+        "offset": 22611702,
+        "expected": "83f801"
+      },
+      "function_offset": 22609168,
+      "function_name": "sub_158FD10",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 140624
+    },
+    {
+      "id": 133,
+      "name": "eboot.bin\u002B0x1590727",
+      "kind": "call",
+      "begin": {
+        "offset": 22611751,
+        "expected": "e874160300"
+      },
+      "end": {
+        "offset": 22611756,
+        "expected": "0f0b"
+      },
+      "function_offset": 22609168,
+      "function_name": "sub_158FD10",
+      "depth": 2,
+      "confidence": "static-callsite",
+      "prototype_status": "unknown-not-needed-for-probe",
+      "target_offset": 22814112
+    },
+    {
+      "id": 134,
+      "name": "eboot.bin\u002B0x158fd10",
+      "kind": "count",
+      "begin": {
+        "offset": 22609168,
+        "expected": "55"
+      },
+      "function_offset": 22609168,
+      "function_name": "sub_158FD10",
+      "depth": 2,
+      "confidence": "static-function-entry"
+    }
+  ],
+  "provenance": {
+    "backend": "study0",
+    "workspace_generation": "82352e5b15cdbb271a3b5d094a02b33a51610bc0ad221d717d3b21ecf37795d9",
+    "request_sha256": "a30517be9150a4929220c079f25ef4793ad963eb51420fcc1f47e01a7aee8c31",
+    "requires_explicit_next_iteration": true,
+    "coverage": "selected callsites; count-only entries are not durations",
+    "rejected": [],
+    "bounded": false,
+    "budget_policy": "all verified callsites within selected depth; capacity refusal without partial output"
+  }
+}

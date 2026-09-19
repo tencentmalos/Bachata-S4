@@ -1,0 +1,16 @@
+{
+  "ok": true,
+  "checks": [
+    "default study0",
+    "direct and indirect call/successor exact preimages",
+    "explicit architecture ABI",
+    "default two layers",
+    "explicit one-layer budget",
+    "specific function and one-probe override",
+    "71 probes with no default 64 truncation",
+    "study1 explicit refusal",
+    "unsupported mode refused",
+    "wrong binary SHA refused",
+    "guessed ABI refused"
+  ]
+}

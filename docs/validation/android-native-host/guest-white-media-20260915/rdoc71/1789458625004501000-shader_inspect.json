@@ -1,0 +1,18 @@
+{
+  "arguments": {
+    "eventId": "71",
+    "stage": "fragment"
+  },
+  "response": {
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"schemaVersion\":\"1.0\",\"session\":{\"captureId\":\"1057136b-e6b8-400a-b9ae-1c9e73be5b13\",\"captureRevision\":{\"value\":3},\"currentEventId\":\"71\"},\"data\":{\"dataset\":\"shader\",\"materialization\":\"ready\",\"rows\":{\"columns\":[{\"name\":\"event_id\",\"declaredType\":\"INTEGER\"},{\"name\":\"shader_id\",\"declaredType\":\"TEXT\"},{\"name\":\"pipeline_id\",\"declaredType\":\"TEXT\"},{\"name\":\"stage\",\"declaredType\":\"TEXT\"},{\"name\":\"entry_point\",\"declaredType\":\"TEXT\"},{\"name\":\"encoding\",\"declaredType\":\"TEXT\"},{\"name\":\"debuggable\",\"declaredType\":\"INTEGER\"},{\"name\":\"disassembly\",\"declaredType\":\"TEXT\"},{\"name\":\"reflection_json\",\"declaredType\":\"TEXT\"},{\"name\":\"disassembly_targets_json\",\"declaredType\":\"TEXT\"},{\"name\":\"entry_points_json\",\"declaredType\":\"TEXT\"}],\"rows\":[],\"truncated\":false,\"executionMs\":0.0233},\"warnings\":[]}}"
+        }
+      ]
+    },
+    "id": 10,
+    "jsonrpc": "2.0"
+  }
+}

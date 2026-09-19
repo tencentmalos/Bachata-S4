@@ -7,6 +7,7 @@
 #include <ranges>
 #include <span>
 #include "common/types.h"
+#include "video_core/amdgpu/depth_range.h"
 #include "shader_recompiler/frontend/tessellation.h"
 #include "video_core/amdgpu/pixel_format.h"
 #include "video_core/amdgpu/regs_shader.h"
@@ -231,6 +232,7 @@ struct ComputeRuntimeInfo {
  * It's also possible to store any other custom information that needs to be part of shader key.
  */
 struct RuntimeInfo {
+    AmdGpu::DepthRangeEmulation depth_range{};
     Stage stage;
     u32 num_user_data;
     u32 num_input_vgprs;
@@ -259,6 +261,7 @@ struct RuntimeInfo {
     }
 
     bool operator==(const RuntimeInfo& other) const noexcept {
+        if (depth_range != other.depth_range) return false;
         switch (stage) {
         case Stage::Fragment:
             return fs_info == other.fs_info;

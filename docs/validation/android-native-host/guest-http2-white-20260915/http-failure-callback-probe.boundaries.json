@@ -1,0 +1,1641 @@
+[
+  {
+    "tool": "guest_debug.start_session",
+    "time": 1789463573.322072,
+    "args": {
+      "emulator": "shadps4-fex",
+      "serial": "9c2841a4",
+      "port": 24681,
+      "remotePort": 24680,
+      "expectedArchitecture": "i386:x86-64",
+      "byteOrder": "little",
+      "stopOnAttach": false,
+      "stopLeaseMs": 10000,
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "dryRun": true
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {}
+  },
+  {
+    "tool": "guest_debug.start_session",
+    "time": 1789463573.594388,
+    "args": {
+      "emulator": "shadps4-fex",
+      "serial": "9c2841a4",
+      "port": 24681,
+      "remotePort": 24680,
+      "expectedArchitecture": "i386:x86-64",
+      "byteOrder": "little",
+      "stopOnAttach": false,
+      "stopLeaseMs": 10000,
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "dryRun": false
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "connected_unknown",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 0,
+      "stopReason": "",
+      "stoppedThreadId": "",
+      "latestEventCursor": 1,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.list_modules",
+    "time": 1789463573.6450372,
+    "args": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2"
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [
+        {
+          "name": "eboot.bin",
+          "kind": "",
+          "buildId": "",
+          "moduleId": "",
+          "guestTextBase": "0x400000",
+          "guestLoadBase": "",
+          "mappedSize": 0,
+          "registryGeneration": 0,
+          "loadGeneration": 0,
+          "segments": []
+        },
+        {
+          "name": "libfmod.prx",
+          "kind": "",
+          "buildId": "",
+          "moduleId": "",
+          "guestTextBase": "0x100000000",
+          "guestLoadBase": "",
+          "mappedSize": 0,
+          "registryGeneration": 0,
+          "loadGeneration": 0,
+          "segments": []
+        },
+        {
+          "name": "libc.prx",
+          "kind": "",
+          "buildId": "",
+          "moduleId": "",
+          "guestTextBase": "0x100c50000",
+          "guestLoadBase": "",
+          "mappedSize": 0,
+          "registryGeneration": 0,
+          "loadGeneration": 0,
+          "segments": []
+        },
+        {
+          "name": "libSceFios2.prx",
+          "kind": "",
+          "buildId": "",
+          "moduleId": "",
+          "guestTextBase": "0x10157c000",
+          "guestLoadBase": "",
+          "mappedSize": 0,
+          "registryGeneration": 0,
+          "loadGeneration": 0,
+          "segments": []
+        },
+        {
+          "name": "libfmodstudio.prx",
+          "kind": "",
+          "buildId": "",
+          "moduleId": "",
+          "guestTextBase": "0x101f0c000",
+          "guestLoadBase": "",
+          "mappedSize": 0,
+          "registryGeneration": 0,
+          "loadGeneration": 0,
+          "segments": []
+        },
+        {
+          "name": "libSceNpEntitlementAccess.prx",
+          "kind": "",
+          "buildId": "",
+          "moduleId": "",
+          "guestTextBase": "0x102b10000",
+          "guestLoadBase": "",
+          "mappedSize": 0,
+          "registryGeneration": 0,
+          "loadGeneration": 0,
+          "segments": []
+        },
+        {
+          "name": "libSceNpCppWebApi.prx",
+          "kind": "",
+          "buildId": "",
+          "moduleId": "",
+          "guestTextBase": "0x103714000",
+          "guestLoadBase": "",
+          "mappedSize": 0,
+          "registryGeneration": 0,
+          "loadGeneration": 0,
+          "segments": []
+        }
+      ],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "connected_unknown",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 0,
+      "stopReason": "",
+      "stoppedThreadId": "",
+      "latestEventCursor": 1,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.control",
+    "time": 1789463573.678736,
+    "args": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "action": "pause",
+      "waitForStopMs": 1500
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 2,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.manage_breakpoints",
+    "time": 1789463573.722249,
+    "args": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "operation": "add",
+      "stopEpoch": 1,
+      "type": "software",
+      "address": "0x18c119d",
+      "length": 1
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 2,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_b6c886e235d74719bb9db6fdd049193e",
+          "type": "software",
+          "address": "0x18c119d",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.721269+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.manage_breakpoints",
+    "time": 1789463573.7652411,
+    "args": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "operation": "add",
+      "stopEpoch": 1,
+      "type": "software",
+      "address": "0x54e220",
+      "length": 1
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 2,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_b6c886e235d74719bb9db6fdd049193e",
+          "type": "software",
+          "address": "0x18c119d",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.721269+00:00"
+        },
+        {
+          "breakpointId": "gbp_d4eac339ee17403e8685a3ae646210fc",
+          "type": "software",
+          "address": "0x54e220",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.764656+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.manage_breakpoints",
+    "time": 1789463573.810059,
+    "args": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "operation": "add",
+      "stopEpoch": 1,
+      "type": "software",
+      "address": "0x54e400",
+      "length": 1
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 2,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_b6c886e235d74719bb9db6fdd049193e",
+          "type": "software",
+          "address": "0x18c119d",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.721269+00:00"
+        },
+        {
+          "breakpointId": "gbp_d4eac339ee17403e8685a3ae646210fc",
+          "type": "software",
+          "address": "0x54e220",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.764656+00:00"
+        },
+        {
+          "breakpointId": "gbp_160366272efd49d3bc479f8d69b92614",
+          "type": "software",
+          "address": "0x54e400",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.809393+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.control",
+    "time": 1789463574.904504,
+    "args": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "action": "continue",
+      "stopEpoch": 1,
+      "waitForStopMs": 1000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "running",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 3,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_b6c886e235d74719bb9db6fdd049193e",
+          "type": "software",
+          "address": "0x18c119d",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.721269+00:00"
+        },
+        {
+          "breakpointId": "gbp_d4eac339ee17403e8685a3ae646210fc",
+          "type": "software",
+          "address": "0x54e220",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.764656+00:00"
+        },
+        {
+          "breakpointId": "gbp_160366272efd49d3bc479f8d69b92614",
+          "type": "software",
+          "address": "0x54e400",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.809393+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.wait_for_event",
+    "time": 1789463584.928468,
+    "args": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "afterCursor": 3,
+      "timeoutMs": 10000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "running",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 3,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_b6c886e235d74719bb9db6fdd049193e",
+          "type": "software",
+          "address": "0x18c119d",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.721269+00:00"
+        },
+        {
+          "breakpointId": "gbp_d4eac339ee17403e8685a3ae646210fc",
+          "type": "software",
+          "address": "0x54e220",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.764656+00:00"
+        },
+        {
+          "breakpointId": "gbp_160366272efd49d3bc479f8d69b92614",
+          "type": "software",
+          "address": "0x54e400",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.809393+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.wait_for_event",
+    "time": 1789463594.932299,
+    "args": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "afterCursor": 3,
+      "timeoutMs": 10000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "running",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 3,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_b6c886e235d74719bb9db6fdd049193e",
+          "type": "software",
+          "address": "0x18c119d",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.721269+00:00"
+        },
+        {
+          "breakpointId": "gbp_d4eac339ee17403e8685a3ae646210fc",
+          "type": "software",
+          "address": "0x54e220",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.764656+00:00"
+        },
+        {
+          "breakpointId": "gbp_160366272efd49d3bc479f8d69b92614",
+          "type": "software",
+          "address": "0x54e400",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.809393+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.wait_for_event",
+    "time": 1789463604.945024,
+    "args": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "afterCursor": 3,
+      "timeoutMs": 10000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "running",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 3,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_b6c886e235d74719bb9db6fdd049193e",
+          "type": "software",
+          "address": "0x18c119d",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.721269+00:00"
+        },
+        {
+          "breakpointId": "gbp_d4eac339ee17403e8685a3ae646210fc",
+          "type": "software",
+          "address": "0x54e220",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.764656+00:00"
+        },
+        {
+          "breakpointId": "gbp_160366272efd49d3bc479f8d69b92614",
+          "type": "software",
+          "address": "0x54e400",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.809393+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.wait_for_event",
+    "time": 1789463614.953779,
+    "args": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "afterCursor": 3,
+      "timeoutMs": 10000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "running",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 3,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_b6c886e235d74719bb9db6fdd049193e",
+          "type": "software",
+          "address": "0x18c119d",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.721269+00:00"
+        },
+        {
+          "breakpointId": "gbp_d4eac339ee17403e8685a3ae646210fc",
+          "type": "software",
+          "address": "0x54e220",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.764656+00:00"
+        },
+        {
+          "breakpointId": "gbp_160366272efd49d3bc479f8d69b92614",
+          "type": "software",
+          "address": "0x54e400",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.809393+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.wait_for_event",
+    "time": 1789463624.984759,
+    "args": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "afterCursor": 3,
+      "timeoutMs": 10000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "running",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 3,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_b6c886e235d74719bb9db6fdd049193e",
+          "type": "software",
+          "address": "0x18c119d",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.721269+00:00"
+        },
+        {
+          "breakpointId": "gbp_d4eac339ee17403e8685a3ae646210fc",
+          "type": "software",
+          "address": "0x54e220",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.764656+00:00"
+        },
+        {
+          "breakpointId": "gbp_160366272efd49d3bc479f8d69b92614",
+          "type": "software",
+          "address": "0x54e400",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.809393+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.wait_for_event",
+    "time": 1789463635.008051,
+    "args": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "afterCursor": 3,
+      "timeoutMs": 10000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "running",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 3,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_b6c886e235d74719bb9db6fdd049193e",
+          "type": "software",
+          "address": "0x18c119d",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.721269+00:00"
+        },
+        {
+          "breakpointId": "gbp_d4eac339ee17403e8685a3ae646210fc",
+          "type": "software",
+          "address": "0x54e220",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.764656+00:00"
+        },
+        {
+          "breakpointId": "gbp_160366272efd49d3bc479f8d69b92614",
+          "type": "software",
+          "address": "0x54e400",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.809393+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.wait_for_event",
+    "time": 1789463645.0185611,
+    "args": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "afterCursor": 3,
+      "timeoutMs": 10000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "running",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 3,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_b6c886e235d74719bb9db6fdd049193e",
+          "type": "software",
+          "address": "0x18c119d",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.721269+00:00"
+        },
+        {
+          "breakpointId": "gbp_d4eac339ee17403e8685a3ae646210fc",
+          "type": "software",
+          "address": "0x54e220",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.764656+00:00"
+        },
+        {
+          "breakpointId": "gbp_160366272efd49d3bc479f8d69b92614",
+          "type": "software",
+          "address": "0x54e400",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.809393+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.wait_for_event",
+    "time": 1789463655.04243,
+    "args": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "afterCursor": 3,
+      "timeoutMs": 10000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "running",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 3,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_b6c886e235d74719bb9db6fdd049193e",
+          "type": "software",
+          "address": "0x18c119d",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.721269+00:00"
+        },
+        {
+          "breakpointId": "gbp_d4eac339ee17403e8685a3ae646210fc",
+          "type": "software",
+          "address": "0x54e220",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.764656+00:00"
+        },
+        {
+          "breakpointId": "gbp_160366272efd49d3bc479f8d69b92614",
+          "type": "software",
+          "address": "0x54e400",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.809393+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.wait_for_event",
+    "time": 1789463665.0628428,
+    "args": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "afterCursor": 3,
+      "timeoutMs": 10000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "running",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 3,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_b6c886e235d74719bb9db6fdd049193e",
+          "type": "software",
+          "address": "0x18c119d",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.721269+00:00"
+        },
+        {
+          "breakpointId": "gbp_d4eac339ee17403e8685a3ae646210fc",
+          "type": "software",
+          "address": "0x54e220",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.764656+00:00"
+        },
+        {
+          "breakpointId": "gbp_160366272efd49d3bc479f8d69b92614",
+          "type": "software",
+          "address": "0x54e400",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.809393+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.wait_for_event",
+    "time": 1789463666.321707,
+    "args": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "afterCursor": 3,
+      "timeoutMs": 10000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": [
+        {
+          "cursor": 4,
+          "kind": "stopped",
+          "sessionRevision": 8,
+          "stopEpoch": 2,
+          "reason": "swbreak",
+          "threadId": "17",
+          "rawPacket": "T05thread:17;10:9d118c0100000000;07:503eee0110000000;swbreak:;",
+          "timestampUtc": "2026-09-15T09:14:26.293113+00:00"
+        }
+      ]
+    },
+    "session": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 2,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "17",
+      "latestEventCursor": 4,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_b6c886e235d74719bb9db6fdd049193e",
+          "type": "software",
+          "address": "0x18c119d",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.721269+00:00"
+        },
+        {
+          "breakpointId": "gbp_d4eac339ee17403e8685a3ae646210fc",
+          "type": "software",
+          "address": "0x54e220",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.764656+00:00"
+        },
+        {
+          "breakpointId": "gbp_160366272efd49d3bc479f8d69b92614",
+          "type": "software",
+          "address": "0x54e400",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.809393+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.read_registers",
+    "time": 1789463666.928055,
+    "args": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "stopEpoch": 2,
+      "threadId": "17",
+      "registerNames": [
+        "rip",
+        "rdi",
+        "rsi",
+        "rdx",
+        "rcx",
+        "rbx",
+        "rax",
+        "rsp",
+        "rbp",
+        "r12",
+        "r13",
+        "r14",
+        "r15"
+      ]
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [
+        {
+          "number": 16,
+          "name": "rip",
+          "bitSize": 64,
+          "rawHex": "9d118c0100000000",
+          "numericHex": "0x18c119d",
+          "available": true
+        },
+        {
+          "number": 5,
+          "name": "rdi",
+          "bitSize": 64,
+          "rawHex": "0000000000000000",
+          "numericHex": "0x0",
+          "available": true
+        },
+        {
+          "number": 4,
+          "name": "rsi",
+          "bitSize": 64,
+          "rawHex": "c03eee0110000000",
+          "numericHex": "0x1001ee3ec0",
+          "available": true
+        },
+        {
+          "number": 3,
+          "name": "rdx",
+          "bitSize": 64,
+          "rawHex": "083fee0110000000",
+          "numericHex": "0x1001ee3f08",
+          "available": true
+        },
+        {
+          "number": 2,
+          "name": "rcx",
+          "bitSize": 64,
+          "rawHex": "0000000000000000",
+          "numericHex": "0x0",
+          "available": true
+        },
+        {
+          "number": 1,
+          "name": "rbx",
+          "bitSize": 64,
+          "rawHex": "8094aa6602000000",
+          "numericHex": "0x266aa9480",
+          "available": true
+        },
+        {
+          "number": 0,
+          "name": "rax",
+          "bitSize": 64,
+          "rawHex": "6310438000000000",
+          "numericHex": "0x80431063",
+          "available": true
+        },
+        {
+          "number": 7,
+          "name": "rsp",
+          "bitSize": 64,
+          "rawHex": "503eee0110000000",
+          "numericHex": "0x1001ee3e50",
+          "available": true
+        },
+        {
+          "number": 6,
+          "name": "rbp",
+          "bitSize": 64,
+          "rawHex": "603fee0110000000",
+          "numericHex": "0x1001ee3f60",
+          "available": true
+        },
+        {
+          "number": 12,
+          "name": "r12",
+          "bitSize": 64,
+          "rawHex": "c018a73b02000000",
+          "numericHex": "0x23ba718c0",
+          "available": true
+        },
+        {
+          "number": 13,
+          "name": "r13",
+          "bitSize": 64,
+          "rawHex": "e01fa73b02000000",
+          "numericHex": "0x23ba71fe0",
+          "available": true
+        },
+        {
+          "number": 14,
+          "name": "r14",
+          "bitSize": 64,
+          "rawHex": "c03eee0110000000",
+          "numericHex": "0x1001ee3ec0",
+          "available": true
+        },
+        {
+          "number": 15,
+          "name": "r15",
+          "bitSize": 64,
+          "rawHex": "083fee0110000000",
+          "numericHex": "0x1001ee3f08",
+          "available": true
+        }
+      ],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 2,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "17",
+      "latestEventCursor": 4,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_b6c886e235d74719bb9db6fdd049193e",
+          "type": "software",
+          "address": "0x18c119d",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.721269+00:00"
+        },
+        {
+          "breakpointId": "gbp_d4eac339ee17403e8685a3ae646210fc",
+          "type": "software",
+          "address": "0x54e220",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.764656+00:00"
+        },
+        {
+          "breakpointId": "gbp_160366272efd49d3bc479f8d69b92614",
+          "type": "software",
+          "address": "0x54e400",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.809393+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.manage_breakpoints",
+    "time": 1789463666.978077,
+    "args": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "operation": "remove",
+      "stopEpoch": 2,
+      "breakpointId": "gbp_b6c886e235d74719bb9db6fdd049193e"
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 2,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "17",
+      "latestEventCursor": 4,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_d4eac339ee17403e8685a3ae646210fc",
+          "type": "software",
+          "address": "0x54e220",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.764656+00:00"
+        },
+        {
+          "breakpointId": "gbp_160366272efd49d3bc479f8d69b92614",
+          "type": "software",
+          "address": "0x54e400",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.809393+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.control",
+    "time": 1789463668.121672,
+    "args": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "action": "continue",
+      "stopEpoch": 2,
+      "waitForStopMs": 1000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "running",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 2,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "17",
+      "latestEventCursor": 5,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_d4eac339ee17403e8685a3ae646210fc",
+          "type": "software",
+          "address": "0x54e220",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.764656+00:00"
+        },
+        {
+          "breakpointId": "gbp_160366272efd49d3bc479f8d69b92614",
+          "type": "software",
+          "address": "0x54e400",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.809393+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.wait_for_event",
+    "time": 1789463678.137195,
+    "args": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "afterCursor": 5,
+      "timeoutMs": 10000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "running",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 2,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "17",
+      "latestEventCursor": 5,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_d4eac339ee17403e8685a3ae646210fc",
+          "type": "software",
+          "address": "0x54e220",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.764656+00:00"
+        },
+        {
+          "breakpointId": "gbp_160366272efd49d3bc479f8d69b92614",
+          "type": "software",
+          "address": "0x54e400",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.809393+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.wait_for_event",
+    "time": 1789463688.160952,
+    "args": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "afterCursor": 5,
+      "timeoutMs": 10000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "running",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 2,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "17",
+      "latestEventCursor": 5,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_d4eac339ee17403e8685a3ae646210fc",
+          "type": "software",
+          "address": "0x54e220",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.764656+00:00"
+        },
+        {
+          "breakpointId": "gbp_160366272efd49d3bc479f8d69b92614",
+          "type": "software",
+          "address": "0x54e400",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.809393+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.wait_for_event",
+    "time": 1789463698.1839092,
+    "args": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "afterCursor": 5,
+      "timeoutMs": 10000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "running",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 2,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "17",
+      "latestEventCursor": 5,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_d4eac339ee17403e8685a3ae646210fc",
+          "type": "software",
+          "address": "0x54e220",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.764656+00:00"
+        },
+        {
+          "breakpointId": "gbp_160366272efd49d3bc479f8d69b92614",
+          "type": "software",
+          "address": "0x54e400",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.809393+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.wait_for_event",
+    "time": 1789463708.205504,
+    "args": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "afterCursor": 5,
+      "timeoutMs": 10000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "running",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 2,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "17",
+      "latestEventCursor": 5,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_d4eac339ee17403e8685a3ae646210fc",
+          "type": "software",
+          "address": "0x54e220",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.764656+00:00"
+        },
+        {
+          "breakpointId": "gbp_160366272efd49d3bc479f8d69b92614",
+          "type": "software",
+          "address": "0x54e400",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.809393+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.wait_for_event",
+    "time": 1789463717.6315598,
+    "args": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "afterCursor": 5,
+      "timeoutMs": 10000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": [
+        {
+          "cursor": 6,
+          "kind": "disconnected",
+          "sessionRevision": 11,
+          "stopEpoch": 2,
+          "reason": "remote_eof",
+          "threadId": "",
+          "rawPacket": "",
+          "timestampUtc": "2026-09-15T09:15:17.610501+00:00"
+        },
+        {
+          "cursor": 7,
+          "kind": "ownership_released",
+          "sessionRevision": 12,
+          "stopEpoch": 2,
+          "reason": "rsp_connection_closed",
+          "threadId": "",
+          "rawPacket": "",
+          "timestampUtc": "2026-09-15T09:15:17.610718+00:00"
+        }
+      ]
+    },
+    "session": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "disconnected",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 2,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "17",
+      "latestEventCursor": 7,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_d4eac339ee17403e8685a3ae646210fc",
+          "type": "software",
+          "address": "0x54e220",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.764656+00:00"
+        },
+        {
+          "breakpointId": "gbp_160366272efd49d3bc479f8d69b92614",
+          "type": "software",
+          "address": "0x54e400",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.809393+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.wait_for_event",
+    "time": 1789463727.65358,
+    "args": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "afterCursor": 7,
+      "timeoutMs": 10000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "disconnected",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 2,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "17",
+      "latestEventCursor": 7,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_d4eac339ee17403e8685a3ae646210fc",
+          "type": "software",
+          "address": "0x54e220",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.764656+00:00"
+        },
+        {
+          "breakpointId": "gbp_160366272efd49d3bc479f8d69b92614",
+          "type": "software",
+          "address": "0x54e400",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.809393+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.wait_for_event",
+    "time": 1789463737.6758,
+    "args": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "afterCursor": 7,
+      "timeoutMs": 10000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "disconnected",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 2,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "17",
+      "latestEventCursor": 7,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_d4eac339ee17403e8685a3ae646210fc",
+          "type": "software",
+          "address": "0x54e220",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.764656+00:00"
+        },
+        {
+          "breakpointId": "gbp_160366272efd49d3bc479f8d69b92614",
+          "type": "software",
+          "address": "0x54e400",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.809393+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.wait_for_event",
+    "time": 1789463747.691058,
+    "args": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "afterCursor": 7,
+      "timeoutMs": 10000
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "disconnected",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 2,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "17",
+      "latestEventCursor": 7,
+      "breakpoints": [
+        {
+          "breakpointId": "gbp_d4eac339ee17403e8685a3ae646210fc",
+          "type": "software",
+          "address": "0x54e220",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.764656+00:00"
+        },
+        {
+          "breakpointId": "gbp_160366272efd49d3bc479f8d69b92614",
+          "type": "software",
+          "address": "0x54e400",
+          "length": 1,
+          "createdUtc": "2026-09-15T09:12:53.809393+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "guest_debug.stop_session",
+    "time": 1789463753.430379,
+    "args": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2"
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": true,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_3983cf98d14d419780b5b771894c88d2",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "cleaned",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 2,
+      "stopReason": "swbreak",
+      "stoppedThreadId": "17",
+      "latestEventCursor": 8,
+      "breakpoints": []
+    }
+  }
+]

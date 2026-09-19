@@ -1,0 +1,194 @@
+[
+  {
+    "event_id": "145",
+    "shader_id": "4408",
+    "pipeline_id": "4409",
+    "stage": "compute"
+  },
+  {
+    "event_id": "205",
+    "shader_id": "4408",
+    "pipeline_id": "4409",
+    "stage": "compute"
+  },
+  {
+    "event_id": "236",
+    "shader_id": "4408",
+    "pipeline_id": "4409",
+    "stage": "compute"
+  },
+  {
+    "event_id": "279",
+    "shader_id": "4408",
+    "pipeline_id": "4409",
+    "stage": "compute"
+  },
+  {
+    "event_id": "311",
+    "shader_id": "4408",
+    "pipeline_id": "4409",
+    "stage": "compute"
+  },
+  {
+    "event_id": "342",
+    "shader_id": "4408",
+    "pipeline_id": "4409",
+    "stage": "compute"
+  },
+  {
+    "event_id": "385",
+    "shader_id": "4408",
+    "pipeline_id": "4409",
+    "stage": "compute"
+  },
+  {
+    "event_id": "444",
+    "shader_id": "4408",
+    "pipeline_id": "4409",
+    "stage": "compute"
+  },
+  {
+    "event_id": "475",
+    "shader_id": "4408",
+    "pipeline_id": "4409",
+    "stage": "compute"
+  },
+  {
+    "event_id": "518",
+    "shader_id": "4408",
+    "pipeline_id": "4409",
+    "stage": "compute"
+  },
+  {
+    "event_id": "550",
+    "shader_id": "4408",
+    "pipeline_id": "4409",
+    "stage": "compute"
+  },
+  {
+    "event_id": "581",
+    "shader_id": "4408",
+    "pipeline_id": "4409",
+    "stage": "compute"
+  },
+  {
+    "event_id": "624",
+    "shader_id": "4408",
+    "pipeline_id": "4409",
+    "stage": "compute"
+  },
+  {
+    "event_id": "683",
+    "shader_id": "4408",
+    "pipeline_id": "4409",
+    "stage": "compute"
+  },
+  {
+    "event_id": "714",
+    "shader_id": "4408",
+    "pipeline_id": "4409",
+    "stage": "compute"
+  },
+  {
+    "event_id": "785",
+    "shader_id": "4314",
+    "pipeline_id": "4315",
+    "stage": "compute"
+  },
+  {
+    "event_id": "794",
+    "shader_id": "4314",
+    "pipeline_id": "4315",
+    "stage": "compute"
+  },
+  {
+    "event_id": "803",
+    "shader_id": "1368",
+    "pipeline_id": "1369",
+    "stage": "compute"
+  },
+  {
+    "event_id": "812",
+    "shader_id": "1368",
+    "pipeline_id": "1369",
+    "stage": "compute"
+  },
+  {
+    "event_id": "821",
+    "shader_id": "8831",
+    "pipeline_id": "8832",
+    "stage": "compute"
+  },
+  {
+    "event_id": "3342",
+    "shader_id": "1368",
+    "pipeline_id": "1369",
+    "stage": "compute"
+  },
+  {
+    "event_id": "3820",
+    "shader_id": "1368",
+    "pipeline_id": "1369",
+    "stage": "compute"
+  },
+  {
+    "event_id": "3916",
+    "shader_id": "4408",
+    "pipeline_id": "4409",
+    "stage": "compute"
+  },
+  {
+    "event_id": "3944",
+    "shader_id": "4408",
+    "pipeline_id": "4409",
+    "stage": "compute"
+  },
+  {
+    "event_id": "3971",
+    "shader_id": "4408",
+    "pipeline_id": "4409",
+    "stage": "compute"
+  },
+  {
+    "event_id": "4010",
+    "shader_id": "4408",
+    "pipeline_id": "4409",
+    "stage": "compute"
+  },
+  {
+    "event_id": "4080",
+    "shader_id": "1368",
+    "pipeline_id": "1369",
+    "stage": "compute"
+  },
+  {
+    "event_id": "4442",
+    "shader_id": "1368",
+    "pipeline_id": "1369",
+    "stage": "compute"
+  },
+  {
+    "event_id": "4470",
+    "shader_id": "1368",
+    "pipeline_id": "1369",
+    "stage": "compute"
+  },
+  {
+    "event_id": "4497",
+    "shader_id": "1368",
+    "pipeline_id": "1369",
+    "stage": "compute"
+  },
+  {
+    "event_id": "4524",
+    "shader_id": "1368",
+    "pipeline_id": "1369",
+    "stage": "compute"
+  },
+  {
+    "event_id": "4557",
+    "shader_id": "389",
+    "pipeline_id": "390",
+    "stage": "compute"
+  }
+]

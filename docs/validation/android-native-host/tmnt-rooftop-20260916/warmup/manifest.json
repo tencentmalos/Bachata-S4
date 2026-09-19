@@ -1,0 +1,634 @@
+{
+  "schema": "shadps4.warmup.v1",
+  "run_id": "6d4b03a83b064a378e27ec9967c7ee5a",
+  "serial": "9c2841a4",
+  "display_id": "4630946441858561667",
+  "input_display": "0",
+  "status": "GAMEPLAY_REVIEWED",
+  "identity": [
+    8463,
+    1,
+    "1c9aee872e67e28297d55a653dacd1b6"
+  ],
+  "frames": [
+    {
+      "image": "frame-0000.png",
+      "sha256": "6f2acde6971af303d5e101a7acaad48f4c779d49bdb0ba9b5faa3b31b979e861",
+      "elapsed": 1.8861130829900503,
+      "state": {
+        "identity": [
+          8463,
+          1,
+          "1c9aee872e67e28297d55a653dacd1b6"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 0,
+        "flip_age_ns": null
+      }
+    },
+    {
+      "image": "frame-0001.png",
+      "sha256": "46c2409705c390ae5064dda1629e227de70758c2f2e744ea12b5cc5c4e5be523",
+      "elapsed": 12.580629166972358,
+      "state": {
+        "identity": [
+          8463,
+          1,
+          "1c9aee872e67e28297d55a653dacd1b6"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 0,
+        "flip_age_ns": null
+      }
+    },
+    {
+      "image": "frame-0002.png",
+      "sha256": "579c50832c5be9389c9a0e116c8509cf65c16aec27212aaf01121b993831dcab",
+      "elapsed": 23.248090000008233,
+      "state": {
+        "identity": [
+          8463,
+          1,
+          "1c9aee872e67e28297d55a653dacd1b6"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 186,
+        "flip_age_ns": 12606875
+      }
+    },
+    {
+      "image": "frame-0003.png",
+      "sha256": "28d2c19a3fbb6176506c6fcaf0b77d31c8387e496f899d7036d8e13f1b49c1eb",
+      "elapsed": 34.43157800001791,
+      "state": {
+        "identity": [
+          8463,
+          1,
+          "1c9aee872e67e28297d55a653dacd1b6"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 392,
+        "flip_age_ns": 7133919008
+      }
+    },
+    {
+      "image": "frame-0004.png",
+      "sha256": "f2507b2f6fcebbc608bd261105340a65f9db354c81efbbae7adca4fad64c6eb6",
+      "elapsed": 45.00252595799975,
+      "state": {
+        "identity": [
+          8463,
+          1,
+          "1c9aee872e67e28297d55a653dacd1b6"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 408,
+        "flip_age_ns": 16401406
+      }
+    },
+    {
+      "image": "frame-0005.png",
+      "sha256": "6a7e4bd218d6d845808259e7dd27111a14ccaa2956dd313710eb4a517acfd18f",
+      "elapsed": 55.97943512501661,
+      "state": {
+        "identity": [
+          8463,
+          1,
+          "1c9aee872e67e28297d55a653dacd1b6"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 601,
+        "flip_age_ns": 7432196924
+      }
+    },
+    {
+      "image": "frame-0006.png",
+      "sha256": "f06398353cf4276a72d1cae8e3718b154667e994ea869da2156f6d14df597237",
+      "elapsed": 66.95681166701252,
+      "state": {
+        "identity": [
+          8463,
+          1,
+          "1c9aee872e67e28297d55a653dacd1b6"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 604,
+        "flip_age_ns": 5672799997
+      }
+    },
+    {
+      "image": "frame-0007.png",
+      "sha256": "882877dff6eb43daa61f1c2c10af39d70f81ce1c0171b6982596c3f046c11070",
+      "elapsed": 77.86959104199195,
+      "state": {
+        "identity": [
+          8463,
+          1,
+          "1c9aee872e67e28297d55a653dacd1b6"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 604,
+        "flip_age_ns": 16585988327
+      }
+    },
+    {
+      "image": "frame-0008.png",
+      "sha256": "2286420a24162cc46432332b7cdbe61665e12468cf6df7c9376aa414da33d0f1",
+      "elapsed": 89.22935087501537,
+      "state": {
+        "identity": [
+          8463,
+          1,
+          "1c9aee872e67e28297d55a653dacd1b6"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 636,
+        "flip_age_ns": 25209167
+      }
+    },
+    {
+      "image": "frame-0009.png",
+      "sha256": "d06b2cd82210a103606b9dec8d19da5775749efb01b506c979a0246db77293e8",
+      "elapsed": 100.5534033330041,
+      "state": {
+        "identity": [
+          8463,
+          1,
+          "1c9aee872e67e28297d55a653dacd1b6"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 782,
+        "flip_age_ns": 84341510
+      }
+    },
+    {
+      "image": "frame-0010.png",
+      "sha256": "dfb66dab9b5dbae23cbc72f316dc60ac1e9febee812eb934d8ef99b94789af0f",
+      "elapsed": 111.95189312502043,
+      "state": {
+        "identity": [
+          8463,
+          1,
+          "1c9aee872e67e28297d55a653dacd1b6"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 932,
+        "flip_age_ns": 8279167
+      }
+    },
+    {
+      "image": "frame-0011.png",
+      "sha256": "3b7a2fb962109f059b98f27f2664524e9921a8a63886e36d75c26dc10af57506",
+      "elapsed": 123.36239416699391,
+      "state": {
+        "identity": [
+          8463,
+          1,
+          "1c9aee872e67e28297d55a653dacd1b6"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 1082,
+        "flip_age_ns": 31386771
+      }
+    },
+    {
+      "image": "frame-0012.png",
+      "sha256": "cb7bde7e5088707ae7be1141bb16b2090560dc80be81789a791a5a55a0fa8cd5",
+      "elapsed": 134.70875929197064,
+      "state": {
+        "identity": [
+          8463,
+          1,
+          "1c9aee872e67e28297d55a653dacd1b6"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 1234,
+        "flip_age_ns": 42539167
+      }
+    },
+    {
+      "image": "frame-0013.png",
+      "sha256": "621b60a27bf032f2ec5cd71b15cd237e4aad98a35bca1c64a21ab028096e370a",
+      "elapsed": 146.04765820800094,
+      "state": {
+        "identity": [
+          8463,
+          1,
+          "1c9aee872e67e28297d55a653dacd1b6"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 1382,
+        "flip_age_ns": 25994427
+      }
+    },
+    {
+      "image": "frame-0014.png",
+      "sha256": "4cebacfd491d117f74dafa9073d50ed23061076047b1dd00021f2176751cedd8",
+      "elapsed": 157.5496308329748,
+      "state": {
+        "identity": [
+          8463,
+          1,
+          "1c9aee872e67e28297d55a653dacd1b6"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 1532,
+        "flip_age_ns": 10150625
+      }
+    },
+    {
+      "image": "frame-0015.png",
+      "sha256": "5e46c56da0a7c05f7f48ff448ff515683d797ec5a6a6fce2f868bdd11b98e88d",
+      "elapsed": 169.17406354198465,
+      "state": {
+        "identity": [
+          8463,
+          1,
+          "1c9aee872e67e28297d55a653dacd1b6"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 1681,
+        "flip_age_ns": 82801250
+      }
+    },
+    {
+      "image": "frame-0016.png",
+      "sha256": "91651147eae8599cc4049df31170da54c237970d4aaa689ab9b249b833f9b205",
+      "elapsed": 180.7297004169668,
+      "state": {
+        "identity": [
+          8463,
+          1,
+          "1c9aee872e67e28297d55a653dacd1b6"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 1834,
+        "flip_age_ns": 50688854
+      }
+    },
+    {
+      "image": "frame-0017.png",
+      "sha256": "e01e7d47de36a1a76b2a4ffb87eb5aa8a7a116b18fb73cc3107a9ed803317981",
+      "elapsed": 192.24529166700086,
+      "state": {
+        "identity": [
+          8463,
+          1,
+          "1c9aee872e67e28297d55a653dacd1b6"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 1990,
+        "flip_age_ns": 54753073
+      }
+    },
+    {
+      "image": "frame-0018.png",
+      "sha256": "c684165e0afe2951e487ce67de25d9cb2703c441d9af60a377436d70aa386566",
+      "elapsed": 203.79463449999457,
+      "state": {
+        "identity": [
+          8463,
+          1,
+          "1c9aee872e67e28297d55a653dacd1b6"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 2143,
+        "flip_age_ns": 58191875
+      }
+    },
+    {
+      "image": "frame-0019.png",
+      "sha256": "72c87da9c4420c481c3b9762217abd05b420c7eebf7f60d1b40ea274b585bc90",
+      "elapsed": 215.4865310000023,
+      "state": {
+        "identity": [
+          8463,
+          1,
+          "1c9aee872e67e28297d55a653dacd1b6"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 2293,
+        "flip_age_ns": 60789687
+      }
+    }
+  ],
+  "presses": [
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 2.249757750018034
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 5.679493292002007
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 9.103761292004492
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 12.93151395797031
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 16.374283667013515
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 19.780245916976128
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 23.590715207974426
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 26.96598699997412
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 30.37961299996823
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 34.757285416999366
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 38.170314832997974
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 41.563283291994594
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 45.35642166697653
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 48.74867020797683
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 52.16032395797083
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 56.34471575001953
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 59.79877537500579
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 63.17667675000848
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 67.28385579201858
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 70.66115283296676
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 74.07130979199428
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 78.2192297920119
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 81.66587274998892
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 85.08719291700982
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 89.58863641700009
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 92.95950958301546
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 96.37269804201787
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 100.90096175001236
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 104.32672679197276
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 107.74315229197964
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 112.3013043749961
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 115.70803308300674
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 119.11760133301141
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 123.71407599997474
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 127.14110050001182
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 130.51449154200964
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 135.06211412500124
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 138.45515179197537
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 141.8631719169789
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 146.37656354199862
+    },
+    {
+      "button": "stick-right",
+      "hold_ms": 250,
+      "elapsed": 149.8535628329846
+    },
+    {
+      "button": "stick-right",
+      "hold_ms": 250,
+      "elapsed": 153.32466862502042
+    },
+    {
+      "button": "stick-right",
+      "hold_ms": 250,
+      "elapsed": 157.9527319999761
+    },
+    {
+      "button": "stick-right",
+      "hold_ms": 250,
+      "elapsed": 161.45417041698238
+    },
+    {
+      "button": "stick-right",
+      "hold_ms": 250,
+      "elapsed": 164.89794416702352
+    },
+    {
+      "button": "stick-right",
+      "hold_ms": 250,
+      "elapsed": 169.55820749996928
+    },
+    {
+      "button": "stick-right",
+      "hold_ms": 250,
+      "elapsed": 172.96136833296623
+    },
+    {
+      "button": "stick-right",
+      "hold_ms": 250,
+      "elapsed": 176.40706529200543
+    },
+    {
+      "button": "stick-right",
+      "hold_ms": 250,
+      "elapsed": 181.08763804199407
+    },
+    {
+      "button": "stick-right",
+      "hold_ms": 250,
+      "elapsed": 184.4717720419867
+    },
+    {
+      "button": "stick-right",
+      "hold_ms": 250,
+      "elapsed": 187.9146977919736
+    },
+    {
+      "button": "stick-left",
+      "hold_ms": 250,
+      "elapsed": 192.57743908301927
+    },
+    {
+      "button": "stick-left",
+      "hold_ms": 250,
+      "elapsed": 196.0165974579868
+    },
+    {
+      "button": "stick-left",
+      "hold_ms": 250,
+      "elapsed": 199.4113903749967
+    },
+    {
+      "button": "stick-left",
+      "hold_ms": 250,
+      "elapsed": 204.20184766699094
+    },
+    {
+      "button": "stick-left",
+      "hold_ms": 250,
+      "elapsed": 207.62670029199217
+    },
+    {
+      "button": "stick-left",
+      "hold_ms": 250,
+      "elapsed": 211.03276579198427
+    }
+  ],
+  "attaches_debugger": false,
+  "started_at": 1789524015.979648,
+  "process_stat": "8463 (shadps4.android) S 1693 1693 0 0 -1 1077936448 98887 0 10917 0 306 42 0 0 10 -10 46 0 30785777 157751218176 117573 18446744073709551615 398532505600 398532510264 548926250944 0 0 0 4612 1 1073775864 0 0 0 17 0 0 0 0 0 0 398532513792 398532515104 398659461120 548926255373 548926255472 548926255472 548926259166 0",
+  "review": {
+    "run_id": "6d4b03a83b064a378e27ec9967c7ee5a",
+    "scene_frame": 11,
+    "response_frame": 17,
+    "note": "Exact PID8463/gen1: rooftop Leonardo scene; recorded stick-right movement changes character/camera position and tutorial MOVE progresses to ATTACK. Guest frames continue. Coarse guest entry patches active.",
+    "method": "explicit_visual_review",
+    "reviewed_at": 1789524230.9643898
+  },
+  "ended_at": 1789524231.461498
+}

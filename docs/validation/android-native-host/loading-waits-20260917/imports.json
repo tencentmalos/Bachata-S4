@@ -1,0 +1,56 @@
+{
+  "image_sha256": "cf14264107ef499c5fcaffc97386dcee25652c16d3975d1be27edc4e7e40ede5",
+  "imports": [
+    {
+      "plt": "0x15c02d0",
+      "got": "0x1d3b3e0",
+      "symbol": "k04jLXu3+Ic#R#Q",
+      "nid": "k04jLXu3+Ic",
+      "name": "sceLibcMspaceMallocStatsFast",
+      "provider": "libc.prx",
+      "export": "0x31470",
+      "export_size": 11,
+      "provider_sha256": "9a3a9a37bdfa4c626c712026031a834510d3a5bea0c3305d7ee0bfe594f3a52c"
+    },
+    {
+      "plt": "0x15c0370",
+      "got": "0x1d3b430",
+      "symbol": "OJjm-QOIHlI#R#Q",
+      "nid": "OJjm-QOIHlI",
+      "name": "sceLibcMspaceMalloc",
+      "provider": "libc.prx",
+      "export": "0x30fb0",
+      "export_size": 14,
+      "provider_sha256": "9a3a9a37bdfa4c626c712026031a834510d3a5bea0c3305d7ee0bfe594f3a52c"
+    },
+    {
+      "plt": "0x15c0380",
+      "got": "0x1d3b438",
+      "symbol": "Vla-Z+eXlxo#R#Q",
+      "nid": "Vla-Z+eXlxo",
+      "name": "sceLibcMspaceFree",
+      "provider": "libc.prx",
+      "export": "0x30fc0",
+      "export_size": 547,
+      "provider_sha256": "9a3a9a37bdfa4c626c712026031a834510d3a5bea0c3305d7ee0bfe594f3a52c"
+    },
+    {
+      "plt": "0x15c1570",
+      "got": "0x1d3bd30",
+      "symbol": "Bn2ZF4ZjeuQ#e#b",
+      "nid": "Bn2ZF4ZjeuQ",
+      "name": "sceFiosFHReadSync"
+    },
+    {
+      "plt": "0x15c08a0",
+      "got": "0x1d3b6c8",
+      "symbol": "L51FfEMZa4o#B#C",
+      "nid": "L51FfEMZa4o",
+      "name": null,
+      "provider": "libfmodstudio.prx",
+      "export": "0x96a30",
+      "export_size": 650,
+      "provider_sha256": "f47114d36e1cdb209ecbd798915426cb5a91c4b505c31ddc0c190b977db5f526"
+    }
+  ]
+}

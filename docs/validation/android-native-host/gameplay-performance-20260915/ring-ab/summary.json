@@ -1,0 +1,65 @@
+[
+  {
+    "label": "on1",
+    "before": {
+      "pid": 410,
+      "generation": 3,
+      "uuid": "340f0cac9b86fab7e1febe345b102801",
+      "ns": 249907865793675,
+      "flip": 5327,
+      "present": 5326
+    },
+    "after": {
+      "pid": 410,
+      "generation": 3,
+      "uuid": "340f0cac9b86fab7e1febe345b102801",
+      "ns": 249922915746794,
+      "flip": 5517,
+      "present": 5517
+    },
+    "seconds": 15.049953119,
+    "fps": 12.62462404352158
+  },
+  {
+    "label": "off",
+    "before": {
+      "pid": 410,
+      "generation": 3,
+      "uuid": "340f0cac9b86fab7e1febe345b102801",
+      "ns": 249925021705127,
+      "flip": 5544,
+      "present": 5543
+    },
+    "after": {
+      "pid": 410,
+      "generation": 3,
+      "uuid": "340f0cac9b86fab7e1febe345b102801",
+      "ns": 249940121708819,
+      "flip": 5735,
+      "present": 5735
+    },
+    "seconds": 15.100003692,
+    "fps": 12.64900352979331
+  },
+  {
+    "label": "on2",
+    "before": {
+      "pid": 410,
+      "generation": 3,
+      "uuid": "340f0cac9b86fab7e1febe345b102801",
+      "ns": 249942221072256,
+      "flip": 5762,
+      "present": 5762
+    },
+    "after": {
+      "pid": 410,
+      "generation": 3,
+      "uuid": "340f0cac9b86fab7e1febe345b102801",
+      "ns": 249957287758448,
+      "flip": 5954,
+      "present": 5954
+    },
+    "seconds": 15.066686192,
+    "fps": 12.743346317383763
+  }
+]

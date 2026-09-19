@@ -1,0 +1,41 @@
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"columns\":[\"coverage\",\"overflowed\",\"count\"],\"rows\":[[{\"kind\":\"text\",\"value\":\"android.vulkan.queue_submit\"},{\"kind\":\"integer\",\"value\":1},{\"kind\":\"integer\",\"value\":64}]],\"truncated\":false,\"elapsedMilliseconds\":0,\"schemaRevision\":13,\"watermark\":\"raw_event:8\",\"coverage\":\"partialLive\",\"provenance\":\"direct\"}"
+      }
+    ],
+    "structuredContent": {
+      "columns": [
+        "coverage",
+        "overflowed",
+        "count"
+      ],
+      "rows": [
+        [
+          {
+            "kind": "text",
+            "value": "android.vulkan.queue_submit"
+          },
+          {
+            "kind": "integer",
+            "value": 1
+          },
+          {
+            "kind": "integer",
+            "value": 64
+          }
+        ]
+      ],
+      "truncated": false,
+      "elapsedMilliseconds": 0,
+      "schemaRevision": 13,
+      "watermark": "raw_event:8",
+      "coverage": "partialLive",
+      "provenance": "direct"
+    }
+  },
+  "id": 3,
+  "jsonrpc": "2.0"
+}

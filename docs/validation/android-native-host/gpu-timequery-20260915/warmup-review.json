@@ -1,0 +1,8 @@
+{
+  "run_id": "834ee496bae442478f7590072f7d2dcd",
+  "scene_frame": 13,
+  "response_frame": 17,
+  "note": "同一 PID/generation/UUID：Leonardo 屋顶 MOVE；stick-right 后人物移动、镜头跟随并推进到 ATTACK。实际 GPU 时间曲线可见。",
+  "method": "explicit_visual_review",
+  "reviewed_at": 1789477725.0349178
+}

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "common/alignment.h"
+#include "common/profiler.h"
 #include "common/singleton.h"
 #include "common/thread.h"
 #include "core/file_sys/fs.h"
@@ -352,6 +353,7 @@ bool AvPlayerSource::Start() {
 }
 
 bool AvPlayerSource::Stop() {
+    Common::Profiler::Scope profile{"AvPlayer.StopJoin"};
     std::unique_lock lock(m_state_mutex);
 
     if (!HasRunningThreads()) {
@@ -647,6 +649,7 @@ void AvPlayerSource::DemuxerThread(std::stop_token stop) {
 }
 
 AvPlayerSource::AVFramePtr AvPlayerSource::ConvertVideoFrame(const AVFrame& frame) {
+    Common::Profiler::Scope profile{"AvPlayer.VideoConvert"};
     auto nv12_frame = AVFramePtr{av_frame_alloc(), &ReleaseAVFrame};
     nv12_frame->best_effort_timestamp = frame.best_effort_timestamp;
     nv12_frame->pts = frame.pts;
@@ -756,8 +759,10 @@ void AvPlayerSource::VideoDecoderThread(std::stop_token stop) {
         if (!packet && !m_is_eof)
             continue;
         const bool flushing = !packet;
-        auto res =
-            avcodec_send_packet(m_video_codec_context.get(), packet ? packet->get() : nullptr);
+        auto res = [&] {
+            Common::Profiler::Scope profile{"AvPlayer.VideoSendPacket"};
+            return avcodec_send_packet(m_video_codec_context.get(), packet ? packet->get() : nullptr);
+        }();
         if (res < 0 && res != AVERROR(EAGAIN)) {
             m_state.OnError();
             LOG_ERROR(Lib_AvPlayer, "Could not send packet to the video codec. Error = {}",
@@ -770,7 +775,10 @@ void AvPlayerSource::VideoDecoderThread(std::stop_token stop) {
                 break;
             }
             auto up_frame = AVFramePtr(av_frame_alloc(), &ReleaseAVFrame);
-            res = avcodec_receive_frame(m_video_codec_context.get(), up_frame.get());
+            res = [&] {
+                Common::Profiler::Scope profile{"AvPlayer.VideoReceiveFrame"};
+                return avcodec_receive_frame(m_video_codec_context.get(), up_frame.get());
+            }();
             if (res < 0) {
                 if (res == AVERROR_EOF) {
                     LOG_INFO(Lib_AvPlayer, "EOF reached in video decoder");
@@ -816,6 +824,7 @@ void AvPlayerSource::VideoDecoderThread(std::stop_token stop) {
 }
 
 AvPlayerSource::AVFramePtr AvPlayerSource::ConvertAudioFrame(const AVFrame& frame) {
+    Common::Profiler::Scope profile{"AvPlayer.AudioConvert"};
     auto pcm16_frame = AVFramePtr{av_frame_alloc(), &ReleaseAVFrame};
     pcm16_frame->best_effort_timestamp = frame.best_effort_timestamp;
     pcm16_frame->pts = frame.pts;
@@ -887,8 +896,10 @@ void AvPlayerSource::AudioDecoderThread(std::stop_token stop) {
         if (!packet && !m_is_eof)
             continue;
         const bool flushing = !packet;
-        auto res =
-            avcodec_send_packet(m_audio_codec_context.get(), packet ? packet->get() : nullptr);
+        auto res = [&] {
+            Common::Profiler::Scope profile{"AvPlayer.AudioSendPacket"};
+            return avcodec_send_packet(m_audio_codec_context.get(), packet ? packet->get() : nullptr);
+        }();
         if (res < 0 && res != AVERROR(EAGAIN)) {
             m_state.OnError();
             LOG_ERROR(Lib_AvPlayer, "Could not send packet to the audio codec. Error = {}",
@@ -902,7 +913,10 @@ void AvPlayerSource::AudioDecoderThread(std::stop_token stop) {
             }
 
             auto up_frame = AVFramePtr(av_frame_alloc(), &ReleaseAVFrame);
-            res = avcodec_receive_frame(m_audio_codec_context.get(), up_frame.get());
+            res = [&] {
+                Common::Profiler::Scope profile{"AvPlayer.AudioReceiveFrame"};
+                return avcodec_receive_frame(m_audio_codec_context.get(), up_frame.get());
+            }();
             if (res < 0) {
                 if (res == AVERROR_EOF) {
                     LOG_INFO(Lib_AvPlayer, "EOF reached in audio decoder");

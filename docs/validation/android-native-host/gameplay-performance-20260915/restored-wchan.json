@@ -1,0 +1,34 @@
+[
+  {
+    "time": 1789469128.6141179,
+    "raw": "14653 shadPS4:GpuComm adreno_drawctxt_wait\n14656 shadPS4:GpuSche futex_wait_queue_me\n14657 shadPS4:GpuSche futex_wait_queue_me\n14658 shadPS4:GpuSche futex_wait_queue_me\n"
+  },
+  {
+    "time": 1789469128.950476,
+    "raw": "14653 shadPS4:GpuComm 0\n14656 shadPS4:GpuSche futex_wait_queue_me\n14657 shadPS4:GpuSche futex_wait_queue_me\n14658 shadPS4:GpuSche futex_wait_queue_me\n"
+  },
+  {
+    "time": 1789469129.308199,
+    "raw": "14653 shadPS4:GpuComm adreno_drawctxt_wait\n14656 shadPS4:GpuSche futex_wait_queue_me\n14657 shadPS4:GpuSche futex_wait_queue_me\n14658 shadPS4:GpuSche futex_wait_queue_me\n"
+  },
+  {
+    "time": 1789469129.6643121,
+    "raw": "14653 shadPS4:GpuComm 0\n14656 shadPS4:GpuSche futex_wait_queue_me\n14657 shadPS4:GpuSche futex_wait_queue_me\n14658 shadPS4:GpuSche futex_wait_queue_me\n"
+  },
+  {
+    "time": 1789469130.0460842,
+    "raw": "14653 shadPS4:GpuComm adreno_drawctxt_wait\n14656 shadPS4:GpuSche futex_wait_queue_me\n14657 shadPS4:GpuSche futex_wait_queue_me\n14658 shadPS4:GpuSche futex_wait_queue_me\n"
+  },
+  {
+    "time": 1789469130.41975,
+    "raw": "14653 shadPS4:GpuComm adreno_drawctxt_wait\n14656 shadPS4:GpuSche futex_wait_queue_me\n14657 shadPS4:GpuSche futex_wait_queue_me\n14658 shadPS4:GpuSche futex_wait_queue_me\n"
+  },
+  {
+    "time": 1789469130.8051882,
+    "raw": "14653 shadPS4:GpuComm adreno_drawctxt_wait\n14656 shadPS4:GpuSche futex_wait_queue_me\n14657 shadPS4:GpuSche futex_wait_queue_me\n14658 shadPS4:GpuSche futex_wait_queue_me\n"
+  },
+  {
+    "time": 1789469131.161731,
+    "raw": "14653 shadPS4:GpuComm 0\n14656 shadPS4:GpuSche futex_wait_queue_me\n14657 shadPS4:GpuSche futex_wait_queue_me\n14658 shadPS4:GpuSche futex_wait_queue_me\n"
+  }
+]

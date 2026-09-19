@@ -1,0 +1,122 @@
+[
+  {
+    "tid": 24077,
+    "obj": 0,
+    "name": "Present.AcquireImage",
+    "n": 79,
+    "mean_ms": 0.07061186075949367,
+    "max_ms": 0.333281
+  },
+  {
+    "tid": 24051,
+    "obj": 1,
+    "name": "Vulkan.Submit",
+    "n": 158,
+    "mean_ms": 0.09365440506329113,
+    "max_ms": 0.305729
+  },
+  {
+    "tid": 24051,
+    "obj": 1,
+    "name": "Vulkan.SubmitLock",
+    "n": 157,
+    "mean_ms": 22.159761171974523,
+    "max_ms": 50.111666
+  },
+  {
+    "tid": 24051,
+    "obj": 2,
+    "name": "Vulkan.SubmitLock",
+    "n": 79,
+    "mean_ms": 0.0035040632911392407,
+    "max_ms": 0.050104
+  },
+  {
+    "tid": 24051,
+    "obj": 2,
+    "name": "Vulkan.Submit",
+    "n": 79,
+    "mean_ms": 0.16003891139240506,
+    "max_ms": 1.133646
+  },
+  {
+    "tid": 24077,
+    "obj": 0,
+    "name": "Present.QueueLock",
+    "n": 79,
+    "mean_ms": 0.004311050632911392,
+    "max_ms": 0.054583
+  },
+  {
+    "tid": 24049,
+    "obj": 0,
+    "name": "Present.FreeFrameWait",
+    "n": 78,
+    "mean_ms": 0.04139488461538462,
+    "max_ms": 0.105417
+  },
+  {
+    "tid": 24049,
+    "obj": 0,
+    "name": "Present.FrameFenceWait",
+    "n": 78,
+    "mean_ms": 0.013446243589743589,
+    "max_ms": 0.037865
+  },
+  {
+    "tid": 24049,
+    "obj": 0,
+    "name": "VideoOut.Prepare",
+    "n": 78,
+    "mean_ms": 1.1554006538461539,
+    "max_ms": 1.471614
+  },
+  {
+    "tid": 24049,
+    "obj": 0,
+    "name": "PM4.Resume",
+    "n": 155,
+    "mean_ms": 30.43949529032258,
+    "max_ms": 69.727604
+  },
+  {
+    "tid": 24052,
+    "obj": 1,
+    "name": "Vulkan.CompletionWait",
+    "n": 78,
+    "mean_ms": 63.71990514102564,
+    "max_ms": 66.729011
+  },
+  {
+    "tid": 24077,
+    "obj": 0,
+    "name": "Present.DriverCall",
+    "n": 78,
+    "mean_ms": 62.270421923076924,
+    "max_ms": 65.517083
+  },
+  {
+    "tid": 24077,
+    "obj": 0,
+    "name": "Present.Frame",
+    "n": 78,
+    "mean_ms": 63.671245371794875,
+    "max_ms": 66.827448
+  },
+  {
+    "tid": 24077,
+    "obj": 0,
+    "name": "VideoOut.Flip",
+    "n": 78,
+    "mean_ms": 63.721161153846154,
+    "max_ms": 66.87
+  },
+  {
+    "tid": 24054,
+    "obj": 2,
+    "name": "Vulkan.CompletionWait",
+    "n": 78,
+    "mean_ms": 63.715954102564105,
+    "max_ms": 66.730313
+  }
+]

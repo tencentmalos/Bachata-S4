@@ -22,6 +22,10 @@ object NativePad {
     external fun nativeRemoveDevice(token: Long,port: Int,epoch: Long)
     external fun nativeFocusLost(token: Long)
     external fun nativeDrainHaptics(token: Long): LongArray?
+    /** Enables Android SBS's virtual PSVR provider for the current guest. */
+    external fun nativeSetVrSbsEnabled(enabled: Boolean)
+    /** Passes monotonic Android gyro samples to the host HLE pose provider. */
+    external fun nativeUpdateVrGyro(x: Float, y: Float, z: Float, timestampNs: Long)
     // Diagnostics call the production HLE exports, not a parallel test implementation.
     external fun nativeOpenDefaultPad(): Int
     external fun nativeReadPad(handle: Int): LongArray?

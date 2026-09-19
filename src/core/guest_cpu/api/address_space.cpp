@@ -678,20 +678,39 @@ Status GuestAddressSpace::Protect(GuestRange range, GuestPermission permission) 
 
 Result<MappingInfo> GuestAddressSpace::Query(GuestAddress address) const {
     std::lock_guard guard{lock};
-    for (const auto& mapping : mappings) {
-        if (address.value >= mapping.range.base.value &&
-            address.value < mapping.range.base.value + mapping.range.size) {
-            MappingInfo info{};
-            info.range = mapping.range;
-            info.permission = mapping.permission;
-            info.reasons = mapping.reasons;
-            info.mapping_generation = mapping.generation;
-            info.host_owned = true;
-            return info;
-        }
+    if (const auto* found = FindContainingMappingLocked({address, 1})) {
+        MappingInfo info{};
+        info.range = found->range;
+        info.permission = found->permission;
+        info.reasons = found->reasons;
+        info.mapping_generation = found->generation;
+        info.host_owned = true;
+        return info;
     }
     return MakeError(ErrorCategory::InvalidArgument, "GuestAddressSpace::Query",
                      "address is not mapped");
+}
+
+const GuestAddressSpace::Mapping* GuestAddressSpace::FindContainingMappingLocked(
+    GuestRange range) const {
+    // Fold page bits so the production 16 KiB object allocations do not all
+    // collide on the low bits. This is a hint, not an address/permission cache.
+    const auto page = range.base.value >> 12;
+    auto& index = lookup_indices[(page ^ (page >> 6) ^ (page >> 12)) & 63];
+    const auto contains = [&](const Mapping& m) {
+        return range.base.value >= m.range.base.value &&
+               range.base.value - m.range.base.value < m.range.size &&
+               range.size <= m.range.size - (range.base.value - m.range.base.value);
+    };
+    if (index < mappings.size() && contains(mappings[index]))
+        return &mappings[index];
+    for (std::size_t i = 0; i < mappings.size(); ++i) {
+        if (contains(mappings[i])) {
+            index = i;
+            return &mappings[i];
+        }
+    }
+    return nullptr;
 }
 
 std::vector<MappingInfo> GuestAddressSpace::Mappings() const {
@@ -728,16 +747,13 @@ Status GuestAddressSpace::ValidateRangeLocked(GuestRange range, GuestPermission 
                          "base + size overflows");
     }
 
-    for (const auto& mapping : mappings) {
-        if (range.base.value >= mapping.range.base.value &&
-            range.base.value + range.size <= mapping.range.base.value + mapping.range.size) {
-            if (!HasPermission(mapping.permission, required)) {
-                return MakeError(ErrorCategory::PermissionDenied,
-                                 "GuestAddressSpace::ValidateRange",
-                                 "mapping lacks the requested permission");
-            }
-            return Ok();
+    if (const auto* mapping = FindContainingMappingLocked(range)) {
+        if (!HasPermission(mapping->permission, required)) {
+            return MakeError(ErrorCategory::PermissionDenied,
+                             "GuestAddressSpace::ValidateRange",
+                             "mapping lacks the requested permission");
         }
+        return Ok();
     }
     // Deliberately not merging adjacent mappings: a span crossing two separate
     // mappings is rejected, because their permissions can differ.
@@ -746,48 +762,165 @@ Status GuestAddressSpace::ValidateRangeLocked(GuestRange range, GuestPermission 
 }
 
 Status GuestAddressSpace::Read(GuestAddress from, std::span<std::byte> into) const {
-    const auto range = GuestRange::Checked(from, into.size());
-    if (!range) {
-        return range.GetError();
-    }
-    // Copy under the same lock that validated the range: releasing it first would let an Unmap or
-    // Protect land between the check and the memcpy (2026-09-08 review, R4).
-    std::lock_guard guard{lock};
-    if (auto status = ValidateRangeLocked(range.Value(), GuestPermission::Read); !status) {
-        return status;
-    }
-    std::memcpy(into.data(), HostPointer(from), into.size());
+    auto pin = const_cast<GuestAddressSpace*>(this)->AcquirePinnedSpan({from, into.size()}, false);
+    if (!pin)
+        return pin.GetError();
+    std::memcpy(into.data(), pin.Value().Bytes().data(), into.size());
     return Ok();
 }
 
 Status GuestAddressSpace::Write(GuestAddress to, std::span<const std::byte> from) {
-    const auto range = GuestRange::Checked(to, from.size());
-    if (!range) {
-        return range.GetError();
-    }
+    const GuestRange range{to, from.size()};
+    std::optional<PinnedSpan> pin;
     {
         std::lock_guard guard{lock};
-
-        // Same admission rule as AcquirePinnedSpan. Without it a transaction holding quiescence
-        // could still be undercut through the explicit write path, which would make the token mean
-        // "no pinned writers" rather than "no writers" -- and those are only the same if every
-        // writer happens to go through a pin.
-        //
-        // The transaction owner is not blocked by this: it publishes through PublishCode, which
-        // has its own epoch check and does not route here.
-        if (active_quiescence != 0 || sink_calls_in_flight != 0 || sink_draining) {
+        if (active_quiescence || sink_calls_in_flight || sink_draining ||
+            std::any_of(data_edits.begin(), data_edits.end(),
+                        [&](const auto& e) { return RangesOverlap(e.range, range); }))
             return MakeError(ErrorCategory::Busy, "GuestAddressSpace::Write",
-                             "a transaction or sink callback is active; ordinary writes are excluded");
-        }
-
-        if (auto status = ValidateRangeLocked(range.Value(), GuestPermission::Write); !status) {
+                             "mapping is retiring");
+        if (auto status = ValidateRangeLocked(range, GuestPermission::Write); !status)
             return status;
-        }
-        std::memcpy(HostPointer(to), from.data(), from.size());
+        const auto lease = next_lease_id++;
+        pins.push_back(Pin{lease, range, true});
+        pin = PinnedSpan{liveness, to, HostPointer(to), from.size(), true, lease};
     }
-    // Observers are notified with the lock released: a callback may re-enter the address space,
-    // and holding the lock across it would deadlock.
-    NotifyObservers(range.Value());
+    std::memcpy(pin->WritableBytes().data(), from.data(), from.size());
+    NotifyObservers(range);
+    return Ok();
+}
+
+Status GuestAddressSpace::CheckDataRequestsLocked(std::span<const DataRequest> requests) const {
+    for (const auto& r : requests) {
+        if (static_cast<unsigned>(r.permission) & ~3u)
+            return MakeError(ErrorCategory::InvalidArgument, "AcquireDataBatch",
+                             "not a data permission");
+        if (auto status = ValidateRangeLocked(r.range, r.permission); !status)
+            return status;
+        // Every expected segment must cover exactly the requested output. Never
+        // accept an incomplete identity list as proof of an async destination.
+        auto next = r.range.base.value;
+        for (const auto& id : r.identities) {
+            if (id.begin != next || id.end <= id.begin || id.end > r.range.End())
+                return MakeError(ErrorCategory::InvalidArgument, "AcquireDataBatch",
+                                 "invalid identity coverage");
+            for (auto address = id.begin; address < id.end;) {
+                const auto* m = FindContainingMappingLocked({GuestAddress{address}, 1});
+                if (!m || m->generation != id.generation)
+                    return MakeError(ErrorCategory::StaleEpoch, "AcquireDataBatch",
+                                     "destination mapping changed");
+                address = std::min(id.end, m->range.End());
+            }
+            next = id.end;
+        }
+        if (!r.identities.empty() && next != r.range.End())
+            return MakeError(ErrorCategory::InvalidArgument, "AcquireDataBatch",
+                             "incomplete identity coverage");
+    }
+    return Ok();
+}
+
+Status GuestAddressSpace::WaitDataAdmissionLocked(std::unique_lock<std::mutex>& guard,
+                                                  std::span<const DataRequest> requests,
+                                                  std::stop_token stop) {
+    const auto owner = std::this_thread::get_id();
+    const auto admitted = [&] {
+        if (sink_calls_in_flight || sink_draining)
+            return false;
+        if (!active_quiescence && data_edits.empty())
+            return true;
+        const bool own_pin =
+            std::any_of(pins.begin(), pins.end(), [&](const Pin& p) { return p.owner == owner; });
+        // An already admitted native operation can finish nested marshalling
+        // while drain waits for its pins. No new writer enters a minted token.
+        if (active_quiescence && !(quiescence_draining && own_pin)) {
+            const bool own_read =
+                owner == quiescence_owner &&
+                std::all_of(requests.begin(), requests.end(), [](const DataRequest& r) {
+                    return !HasPermission(r.permission, GuestPermission::Write);
+                });
+            if (!own_read)
+                return false;
+        }
+        for (const auto& edit : data_edits) {
+            if (!std::any_of(requests.begin(), requests.end(), [&](const DataRequest& r) {
+                    return RangesOverlap(r.range, edit.range);
+                }))
+                continue;
+            // Reentry can only extend a range already retained by this owner.
+            if (!std::any_of(pins.begin(), pins.end(), [&](const Pin& p) {
+                    return p.owner == owner && RangesOverlap(p.range, edit.range);
+                }))
+                return false;
+        }
+        return true;
+    };
+    if (stop.stop_requested())
+        return MakeError(ErrorCategory::WrongState, "AcquireDataBatch", "data access cancelled");
+    if (!admitted() && !leases_idle.wait_for(guard, stop, std::chrono::seconds(2), admitted))
+        return MakeError(stop.stop_requested() ? ErrorCategory::WrongState : ErrorCategory::Timeout,
+                         "AcquireDataBatch", "data access cancelled or retirement timed out");
+    if (stop.stop_requested())
+        return MakeError(ErrorCategory::WrongState, "AcquireDataBatch", "data access cancelled");
+    return CheckDataRequestsLocked(requests);
+}
+
+Result<std::vector<PinnedSpan>> GuestAddressSpace::AcquireDataBatch(
+    std::span<const DataRequest> requests, std::stop_token stop) {
+    std::vector<PinnedSpan> result;
+    result.reserve(requests.size());
+    std::unique_lock guard{lock};
+    if (auto status = WaitDataAdmissionLocked(guard, requests, stop); !status)
+        return status.GetError();
+    pins.reserve(pins.size() + requests.size());
+    for (const auto& r : requests) {
+        const auto lease = next_lease_id++;
+        const bool writable = HasPermission(r.permission, GuestPermission::Write);
+        pins.push_back(Pin{lease, r.range, writable});
+        result.push_back(PinnedSpan{liveness, r.range.base, HostPointer(r.range.base),
+                                    static_cast<std::size_t>(r.range.size), writable, lease});
+    }
+    return result;
+}
+
+Result<PinnedSpan> GuestAddressSpace::AcquireDataSpan(GuestRange range, bool writable,
+                                                      std::stop_token stop) {
+    const DataRequest request{range, writable ? GuestPermission::Read | GuestPermission::Write
+                                              : GuestPermission::Read};
+    std::unique_lock guard{lock};
+    if (auto status = WaitDataAdmissionLocked(guard, {&request, 1}, stop); !status)
+        return status.GetError();
+    const auto lease = next_lease_id++;
+    pins.push_back(Pin{lease, range, writable});
+    return PinnedSpan{
+        liveness, range.base, HostPointer(range.base), static_cast<std::size_t>(range.size),
+        writable, lease};
+}
+
+Status GuestAddressSpace::ReadData(GuestAddress from, std::span<std::byte> into,
+                                   std::stop_token stop) const {
+    auto pin =
+        const_cast<GuestAddressSpace*>(this)->AcquireDataSpan({from, into.size()}, false, stop);
+    if (!pin)
+        return pin.GetError();
+    std::memcpy(into.data(), pin.Value().Bytes().data(), into.size());
+    return Ok();
+}
+
+Status GuestAddressSpace::WriteData(GuestAddress to, std::span<const std::byte> from,
+                                    std::stop_token stop) {
+    const DataRequest request{{to, from.size()}, GuestPermission::Write};
+    std::optional<PinnedSpan> pin;
+    {
+        std::unique_lock guard{lock};
+        if (auto status = WaitDataAdmissionLocked(guard, {&request, 1}, stop); !status)
+            return status;
+        const auto lease = next_lease_id++;
+        pins.push_back(Pin{lease, request.range, true});
+        pin = PinnedSpan{liveness, to, HostPointer(to), from.size(), true, lease};
+    }
+    std::memcpy(pin->WritableBytes().data(), from.data(), from.size());
+    NotifyObservers(request.range);
     return Ok();
 }
 
@@ -802,7 +935,9 @@ Result<PinnedSpan> GuestAddressSpace::AcquirePinnedSpan(GuestRange range, bool w
 
     // Remap releases this lock while retiring old translations. Even a read pin must not enter
     // that interval: it would retain a pointer to the backing that MAP_FIXED is about to replace.
-    if (sink_calls_in_flight != 0 || sink_draining)
+    if (sink_calls_in_flight != 0 || sink_draining ||
+        std::any_of(data_edits.begin(), data_edits.end(),
+                    [&](const auto& e) { return RangesOverlap(e.range, range); }))
         return MakeError(ErrorCategory::Busy, "GuestAddressSpace::AcquirePinnedSpan",
                          "publication or remap is in flight or draining");
 
@@ -840,9 +975,11 @@ void GuestAddressSpace::ReleasePin(std::uint64_t lease_id) {
 
 Result<QuiescenceDrain> GuestAddressSpace::BeginDrain() {
     std::lock_guard guard{lock};
-    if (active_quiescence || sink_draining || sink_calls_in_flight)
+    if (active_quiescence || sink_draining || sink_calls_in_flight || !data_edits.empty())
         return MakeError(ErrorCategory::Busy, "BeginDrain", "another transaction is active");
     active_quiescence = next_quiescence_epoch++;
+    quiescence_owner = std::this_thread::get_id();
+    quiescence_draining = true;
     QuiescenceDrain drain;
     drain.reservation = QuiescenceToken{liveness, active_quiescence, 0};
     return drain;
@@ -860,6 +997,8 @@ Result<QuiescenceToken> GuestAddressSpace::FinishDrain(QuiescenceDrain& drain,
         return MakeError(ErrorCategory::Timeout, "FinishDrain", "owners or HLE pins have not drained");
     if (sink_draining || sink_calls_in_flight)
         return MakeError(ErrorCategory::Busy, "FinishDrain", "sink is draining");
+    quiescence_draining = false;
+    quiescence_owner = std::this_thread::get_id();
     drain.reservation.stopped_threads = stopped_threads;
     return std::move(drain.reservation);
 }
@@ -867,7 +1006,8 @@ Result<QuiescenceToken> GuestAddressSpace::FinishDrain(QuiescenceDrain& drain,
 Result<QuiescenceToken> GuestAddressSpace::Quiesce(std::uint64_t timeout_ns,
                                                    bool wait_for_leases) {
     std::unique_lock guard{lock};
-    if (active_quiescence != 0 || sink_draining || sink_calls_in_flight != 0) {
+    if (active_quiescence != 0 || sink_draining || sink_calls_in_flight != 0 ||
+        !data_edits.empty()) {
         return MakeError(ErrorCategory::Busy, "GuestAddressSpace::Quiesce",
                          "another transaction already holds quiescence");
     }
@@ -880,9 +1020,14 @@ Result<QuiescenceToken> GuestAddressSpace::Quiesce(std::uint64_t timeout_ns,
     // outstanding lease means genuinely running guest code, so report Busy and change nothing.
     const std::uint64_t epoch = next_quiescence_epoch++;
     active_quiescence = epoch;
+    quiescence_owner = std::this_thread::get_id();
+    quiescence_draining = false;
 
     if (execution_leases != 0 && !wait_for_leases) {
         active_quiescence = 0;
+        quiescence_draining = false;
+        quiescence_owner = {};
+        leases_idle.notify_all();
         return MakeError(ErrorCategory::Busy, "GuestAddressSpace::Quiesce",
                          "guest code is executing: " + std::to_string(execution_leases) +
                              " execution lease(s) outstanding");
@@ -894,6 +1039,9 @@ Result<QuiescenceToken> GuestAddressSpace::Quiesce(std::uint64_t timeout_ns,
                              [&] { return execution_leases == 0; });
         if (execution_leases != 0) {
             active_quiescence = 0;
+            quiescence_draining = false;
+            quiescence_owner = {};
+            leases_idle.notify_all();
             (void)deadline;
             return MakeError(ErrorCategory::Timeout, "GuestAddressSpace::Quiesce",
                              "guest code did not drain: " + std::to_string(execution_leases) +
@@ -905,6 +1053,9 @@ Result<QuiescenceToken> GuestAddressSpace::Quiesce(std::uint64_t timeout_ns,
     // transaction (API contract §7.2).
     if (!pins.empty()) {
         active_quiescence = 0;
+        quiescence_draining = false;
+        quiescence_owner = {};
+        leases_idle.notify_all();
         auto error = MakeError(ErrorCategory::Timeout, "GuestAddressSpace::Quiesce",
                                "HLE spans still pinned: " + std::to_string(pins.size()));
         error.system_error = static_cast<std::int64_t>(timeout_ns);
@@ -920,6 +1071,9 @@ void GuestAddressSpace::ReleaseQuiescence(std::uint64_t epoch) {
     std::lock_guard guard{lock};
     if (active_quiescence == epoch) {
         active_quiescence = 0;
+        quiescence_draining = false;
+        quiescence_owner = {};
+        leases_idle.notify_all();
         leases_idle.notify_all();
     }
 }
@@ -1348,9 +1502,280 @@ Result<MappingInfo> GuestAddressSpace::RemapUnderToken(const QuiescenceToken& to
     return info;
 }
 
+Status GuestAddressSpace::MapFreshData(GuestRange range, GuestPermission permission, int fd,
+                                      std::uint64_t offset) {
+    constexpr auto name = "GuestAddressSpace::MapFreshData";
+    if (!GuestRange::Checked(range.base, range.size) || !OwnsRange(range) ||
+        !IsHostPageAligned(range.base.value) || !IsHostPageAligned(range.size) ||
+        HasPermission(permission, GuestPermission::Execute) || (static_cast<unsigned>(permission) & ~3u) ||
+        fd < -1 || (fd == -1 && offset) || !IsHostPageAligned(offset) ||
+        offset > INT64_MAX || range.size > INT64_MAX - offset)
+        return MakeError(ErrorCategory::InvalidArgument, name, "invalid data mapping/backing");
+    std::lock_guard guard{lock};
+    if (active_quiescence || sink_draining || sink_calls_in_flight || !poisoned_ranges.empty())
+        return MakeError(ErrorCategory::Busy, name, "code transaction is active or poisoned");
+    for (const auto& m : mappings)
+        if (RangesOverlap(m.range, range))
+            return MakeError(ErrorCategory::InvalidArgument, name, "data mapping must be additive");
+    if (AnyPinOverlapsLocked(range) ||
+        std::any_of(data_edits.begin(), data_edits.end(),
+                    [&](const auto& e) { return RangesOverlap(e.range, range); }))
+        return MakeError(ErrorCategory::Busy, name, "data range is pinned or retiring");
+    // Allocate ledger capacity BEFORE mmap: failure must not leave untracked memory.
+    mappings.reserve(mappings.size() + 1);
+    const int flags = MAP_FIXED | (fd >= 0 ? MAP_SHARED : MAP_PRIVATE | MAP_ANONYMOUS);
+    if (SeamMmap(HostPointer(range.base), range.size, ToHostProtection(permission), flags,
+                 fd, offset) == MAP_FAILED) {
+        const int saved = errno;
+        auto error = MakeError(CategoriseMapFailure(saved), name, "additive mmap failed");
+        error.system_error = saved;
+        return error;
+    }
+    mappings.push_back({range, permission, ProtectionReason::GuestPermission, ++mapping_generation});
+    shared_backing_seen |= fd >= 0;
+    return Ok();
+}
+
+Status GuestAddressSpace::ProtectData(GuestRange range, GuestPermission permission) {
+    constexpr auto name = "GuestAddressSpace::ProtectData";
+    if (!GuestRange::Checked(range.base, range.size) || !OwnsRange(range) ||
+        !IsHostPageAligned(range.base.value) || !IsHostPageAligned(range.size) ||
+        (static_cast<unsigned>(permission) & ~3u))
+        return MakeError(ErrorCategory::InvalidArgument, name, "invalid data protection");
+    std::lock_guard guard{lock};
+    if (active_quiescence || sink_draining || sink_calls_in_flight || !poisoned_ranges.empty() ||
+        AnyPinOverlapsLocked(range) ||
+        std::any_of(data_edits.begin(), data_edits.end(),
+                    [&](const auto& e) { return RangesOverlap(e.range, range); }))
+        return MakeError(ErrorCategory::Busy, name, "range pinned or code transaction active");
+    std::vector<Mapping> updated;
+    updated.reserve(mappings.size() + 2);
+    std::uint64_t covered{};
+    for (auto m : mappings) {
+        if (!RangesOverlap(m.range, range)) { updated.push_back(m); continue; }
+        if (HasPermission(m.permission, GuestPermission::Execute))
+            return MakeError(ErrorCategory::InvalidArgument, name, "executable data requires token");
+        const auto begin = std::max(m.range.base.value, range.base.value);
+        const auto end = std::min(m.range.End(), range.End());
+        covered += end - begin;
+        if (m.range.base.value < begin) {
+            auto left = m; left.range.size = begin - m.range.base.value; updated.push_back(left);
+        }
+        auto middle = m; middle.range = {GuestAddress{begin}, end - begin};
+        middle.permission = permission; middle.generation = mapping_generation + 1;
+        updated.push_back(middle);
+        if (end < m.range.End()) {
+            auto right = m; right.range = {GuestAddress{end}, m.range.End() - end};
+            updated.push_back(right);
+        }
+    }
+    if (covered != range.size)
+        return MakeError(ErrorCategory::InvalidArgument, name, "protection crosses unmapped data");
+    if (SeamMprotect(HostPointer(range.base), range.size, ToHostProtection(permission)) != 0) {
+        const int saved = errno;
+        auto error = MakeError(CategoriseMapFailure(saved), name, "data mprotect failed");
+        error.system_error = saved;
+        return error;
+    }
+    mappings.swap(updated);
+    ++mapping_generation;
+    return Ok();
+}
+
+GuestAddressSpace::DataRetirement::~DataRetirement() {
+    if (id) {
+        if (auto live = owner.lock(); live && live->space)
+            live->space->ReleaseDataRetirement(id);
+    }
+}
+
+void GuestAddressSpace::ReleaseDataRetirement(std::uint64_t id) {
+    std::scoped_lock guard{lock};
+    std::erase_if(data_edits, [&](const auto& edit) { return edit.id == id; });
+    leases_idle.notify_all();
+}
+
+Result<std::unique_ptr<GuestAddressSpace::DataRetirement>> GuestAddressSpace::PrepareDataMapping(
+    std::span<const GuestRange> ranges, bool executable, std::stop_token stop) {
+    constexpr auto name = "GuestAddressSpace::PrepareDataMapping";
+    if (ranges.empty())
+        return MakeError(ErrorCategory::InvalidArgument, name, "empty retirement");
+    for (auto range : ranges) {
+        if (!GuestRange::Checked(range.base, range.size) || !IsHostPageAligned(range.base.value) ||
+            !IsHostPageAligned(range.size) || !OwnsRange(range))
+            return MakeError(ErrorCategory::InvalidArgument, name, "invalid retirement range");
+    }
+    auto overlaps = [&](GuestRange other) {
+        return std::any_of(ranges.begin(), ranges.end(),
+                           [&](auto range) { return RangesOverlap(other, range); });
+    };
+    // Declared before guard: failure/destruction removes admission only after
+    // the metadata mutex is released. Allocate before publishing any edit.
+    auto retirement = std::unique_ptr<DataRetirement>(new DataRetirement(liveness));
+    std::unique_lock guard{lock};
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+    auto idle = [&] {
+        return !active_quiescence && !sink_draining && !sink_calls_in_flight &&
+               std::none_of(data_edits.begin(), data_edits.end(),
+                            [&](const auto& edit) { return overlaps(edit.range); });
+    };
+    if (stop.stop_requested() || !leases_idle.wait_until(guard, stop, deadline, idle))
+        return MakeError(stop.stop_requested() ? ErrorCategory::WrongState : ErrorCategory::Timeout,
+                         name, "mapping preparation cancelled or timed out");
+    if (!poisoned_ranges.empty())
+        return MakeError(ErrorCategory::WrongState, name, "code generation requires recovery");
+    // Check the whole set before closing any range. A mixed data/code free
+    // must enter code publication without retaining its own data retirement.
+    if (executable || std::any_of(mappings.begin(), mappings.end(), [&](const Mapping& mapping) {
+            return overlaps(mapping.range) &&
+                   HasPermission(mapping.permission, GuestPermission::Execute);
+        }))
+        return MakeError(ErrorCategory::Unsupported, name,
+                         "executable mapping requires publication");
+    data_edits.reserve(data_edits.size() + ranges.size());
+    retirement->id = next_data_edit++;
+    for (auto range : ranges)
+        data_edits.push_back({retirement->id, range});
+    if (!leases_idle.wait_until(guard, stop, deadline,
+                                [&] {
+                                    return std::none_of(
+                                        pins.begin(), pins.end(),
+                                        [&](const auto& pin) { return overlaps(pin.range); });
+                                }) ||
+        stop.stop_requested())
+        return MakeError(stop.stop_requested() ? ErrorCategory::WrongState : ErrorCategory::Timeout,
+                         name, "overlapping data leases did not retire");
+    for (auto& edit : data_edits)
+        if (edit.id == retirement->id)
+            edit.prepared = true;
+    return retirement;
+}
+
+Status GuestAddressSpace::UpdateDataMapping(VmOperation operation, GuestRange range,
+                                            GuestPermission permission, int fd,
+                                            std::uint64_t offset, std::stop_token stop, bool shared) {
+    constexpr auto name = "GuestAddressSpace::UpdateDataMapping";
+    auto checked = GuestRange::Checked(range.base, range.size);
+    if (!checked || !IsHostPageAligned(range.base.value) || !IsHostPageAligned(range.size) ||
+        (operation != VmOperation::Map && operation != VmOperation::Protect &&
+         operation != VmOperation::Unmap) ||
+        fd < -1 || (fd == -1 && offset != 0) || !OwnsRange(range) || !IsHostPageAligned(offset) ||
+        offset > INT64_MAX || range.size > INT64_MAX - offset ||
+        (operation != VmOperation::Map && (fd != -1 || offset != 0)))
+        return MakeError(ErrorCategory::InvalidArgument, name, "invalid VM range/backing");
+    std::unique_lock guard{lock};
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+    auto owned_preparation = [&]() -> std::uint64_t {
+        for (const auto& edit : data_edits)
+            if (edit.prepared && edit.owner == std::this_thread::get_id() &&
+                edit.range.base.value <= range.base.value && range.End() <= edit.range.End())
+                return edit.id;
+        return 0;
+    };
+    auto idle = [&] {
+        const auto own = owned_preparation();
+        return !active_quiescence && !sink_draining && !sink_calls_in_flight &&
+               std::none_of(data_edits.begin(), data_edits.end(), [&](const auto& edit) {
+                   return edit.id != own && RangesOverlap(edit.range, range);
+               });
+    };
+    if (stop.stop_requested() || !leases_idle.wait_until(guard, stop, deadline, idle))
+        return MakeError(stop.stop_requested() ? ErrorCategory::WrongState : ErrorCategory::Timeout,
+                         name, "mapping admission cancelled or timed out");
+    if (!poisoned_ranges.empty())
+        return MakeError(ErrorCategory::WrongState, name, "code generation requires recovery");
+    if (HasPermission(permission, GuestPermission::Execute) ||
+        std::any_of(mappings.begin(), mappings.end(), [&](const Mapping& m) {
+            return RangesOverlap(m.range, range) &&
+                   HasPermission(m.permission, GuestPermission::Execute);
+        }))
+        return MakeError(ErrorCategory::Unsupported, name,
+                         "executable mapping requires publication");
+    if (static_cast<unsigned>(permission) & ~3u)
+        return MakeError(ErrorCategory::InvalidArgument, name, "invalid data permission");
+    const auto id = next_data_edit++;
+    data_edits.push_back({id, range});
+    struct Retiring {
+        GuestAddressSpace& space;
+        std::uint64_t id;
+        ~Retiring() {
+            std::erase_if(space.data_edits, [&](const auto& e) { return e.id == id; });
+            space.leases_idle.notify_all();
+        }
+    } retiring{*this, id}; // destroyed before guard, including exceptions
+    if (!leases_idle.wait_until(guard, stop, deadline,
+                                [&] { return !AnyPinOverlapsLocked(range); }))
+        return MakeError(stop.stop_requested() ? ErrorCategory::WrongState : ErrorCategory::Timeout,
+                         name, "overlapping data leases did not retire");
+
+    if (stop.stop_requested())
+        return MakeError(ErrorCategory::WrongState, name, "mapping edit cancelled before commit");
+
+    // Build the complete post-operation ledger before changing any host mapping.
+    // Allocation failure leaves the old ledger and backing intact.
+    std::vector<Mapping> updated;
+    updated.reserve(mappings.size() + 2);
+    std::uint64_t covered{};
+    for (auto m : mappings) {
+        if (!RangesOverlap(m.range, range)) {
+            updated.push_back(m);
+            continue;
+        }
+        const auto begin = std::max(m.range.base.value, range.base.value);
+        const auto end = std::min(m.range.End(), range.End());
+        covered += end - begin;
+        if (m.range.base.value < begin) {
+            auto left = m;
+            left.range.size = begin - left.range.base.value;
+            updated.push_back(left);
+        }
+        if (operation == VmOperation::Protect) {
+            auto middle = m;
+            middle.range = {GuestAddress{begin}, end - begin};
+            middle.permission = permission;
+            middle.generation = mapping_generation + 1;
+            updated.push_back(middle);
+        }
+        if (end < m.range.End()) {
+            auto right = m;
+            right.range = {GuestAddress{end}, m.range.End() - end};
+            updated.push_back(right);
+        }
+    }
+    if (operation == VmOperation::Protect && covered != range.size)
+        return MakeError(ErrorCategory::InvalidArgument, name,
+                         "protection crosses unmapped memory");
+    if (operation == VmOperation::Map)
+        updated.push_back(
+            Mapping{range, permission, ProtectionReason::GuestPermission, mapping_generation + 1});
+
+    bool success;
+    if (operation == VmOperation::Protect) {
+        success =
+            SeamMprotect(HostPointer(range.base), range.size, ToHostProtection(permission)) == 0;
+    } else {
+        const bool backed = operation == VmOperation::Map && fd >= 0;
+        const int flags = MAP_FIXED | (backed ? (shared ? MAP_SHARED : MAP_PRIVATE) : MAP_PRIVATE | MAP_ANONYMOUS);
+        const auto prot = operation == VmOperation::Unmap ? GuestPermission::None : permission;
+        success = SeamMmap(HostPointer(range.base), range.size, ToHostProtection(prot), flags,
+                           backed ? fd : -1, backed ? offset : 0) != MAP_FAILED;
+    }
+    if (!success) {
+        const int saved = errno;
+        auto error = MakeError(CategoriseMapFailure(saved), name,
+                               "data mapping syscall failed; previous mapping retained");
+        error.system_error = saved;
+        return error;
+    }
+    mappings.swap(updated);
+    shared_backing_seen |= operation == VmOperation::Map && fd >= 0;
+    ++mapping_generation;
+    return Ok();
+}
+
 Status GuestAddressSpace::UpdateVmUnderToken(const QuiescenceToken& token, VmOperation operation,
                                              GuestRange range, GuestPermission permission, int fd,
-                                             std::uint64_t offset) {
+                                             std::uint64_t offset, bool shared) {
     constexpr auto name = "GuestAddressSpace::UpdateVmUnderToken";
     auto checked = GuestRange::Checked(range.base, range.size);
     if (!checked || !IsHostPageAligned(range.base.value) || !IsHostPageAligned(range.size) ||
@@ -1427,7 +1852,7 @@ Status GuestAddressSpace::UpdateVmUnderToken(const QuiescenceToken& token, VmOpe
             SeamMprotect(HostPointer(range.base), range.size, ToHostProtection(permission)) == 0;
     } else {
         const bool backed = operation == VmOperation::Map && fd >= 0;
-        const int flags = MAP_FIXED | (backed ? MAP_SHARED : MAP_PRIVATE | MAP_ANONYMOUS);
+        const int flags = MAP_FIXED | (backed ? (shared ? MAP_SHARED : MAP_PRIVATE) : MAP_PRIVATE | MAP_ANONYMOUS);
         const auto prot = operation == VmOperation::Unmap ? GuestPermission::None : permission;
         success = SeamMmap(HostPointer(range.base), range.size, ToHostProtection(prot), flags,
                            backed ? fd : -1, backed ? offset : 0) != MAP_FAILED;
@@ -1470,7 +1895,8 @@ void GuestAddressSpace::PoisonCodeLocked(GuestRange range) {
 }
 
 Status GuestAddressSpace::CheckMappingMutationLocked(std::string_view operation) const {
-    if (active_quiescence != 0 || execution_leases != 0 || sink_calls_in_flight != 0 || sink_draining) {
+    if (active_quiescence != 0 || execution_leases != 0 || sink_calls_in_flight != 0 ||
+        sink_draining || !data_edits.empty()) {
         return MakeError(ErrorCategory::Busy, operation,
                          "mapping mutation requires an idle address space outside publication");
     }
@@ -1532,7 +1958,8 @@ void GuestAddressSpace::NotifyObservers(GuestRange range) {
 
 GuestAddressSpace::ResourceCounts GuestAddressSpace::Counts() const {
     std::lock_guard guard{lock};
-    return ResourceCounts{mappings.size(), aliases.size(), pins.size(), observers.size()};
+    return ResourceCounts{mappings.size(), aliases.size(), pins.size(), observers.size(),
+                          data_edits.size()};
 }
 
 } // namespace Core::GuestCpu

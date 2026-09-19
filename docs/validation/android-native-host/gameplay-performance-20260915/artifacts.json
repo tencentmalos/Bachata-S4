@@ -1,0 +1,362 @@
+{
+  "schema": "shadps4.gameplay-profile-evidence.v1",
+  "date": "2026-09-15",
+  "serial": "9c2841a4",
+  "pid": 410,
+  "profile_generation": 2,
+  "restored_generation": 3,
+  "run_uuid": "340f0cac9b86fab7e1febe345b102801",
+  "apk_sha256": "37330cd7d17903d8417e4be4f01b2de5cc820bdf1e10eaba6bda0b35af05fd8e",
+  "host_build_id": "0f5649b4d3b8f518aa568923e7908879b07c288a",
+  "jni_build_id": "717514731d098a4ff3b5fe782737434933366fad",
+  "source_head": "4da582b7b3a36d74403a4985c3c03f37e570bcb7",
+  "dirty": true,
+  "artifacts": [
+    {
+      "source": "build/gameplay-profile-20260915/before.txt",
+      "bytes": 788,
+      "sha256": "345b92f0c8f3eba337051a91d1465e08f9e847cdfdcf8b62f8a16df96f003010",
+      "archived": "before.txt"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/after.txt",
+      "bytes": 788,
+      "sha256": "ff26451bd3af45401228f30624c7c89135fa960e41666831ce10caee34d6c123",
+      "archived": "after.txt"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/capture-start.txt",
+      "bytes": 529,
+      "sha256": "9c554eee77aaa47f192ce58db8015438230196caf5d5dbe231588d2a7ba451f5",
+      "archived": "capture-start.txt"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/capture-finish.txt",
+      "bytes": 533,
+      "sha256": "9fd7bc72868f59f4ad7bc3d665079cebbf511d529d12d6d88df55aaf18d2b0a6",
+      "archived": "capture-finish.txt"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/cpu-groups.json",
+      "bytes": 3804,
+      "sha256": "332b3e7b472bd62f6c92dcd5c309d787a1ef5543713026493f6a8c5cf0cb0840",
+      "archived": "cpu-groups.json"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/simpleperf-record.log",
+      "bytes": 96,
+      "sha256": "2caa40911818d349990d874d01d879ce3ed6a556adbcdbecb3b19d422dd9eca7",
+      "archived": "simpleperf-record.log"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/simpleperf-user-record.log",
+      "bytes": 256,
+      "sha256": "0a150e6abf880b568343ec3c91702571918e287d9f292b04466ef3f70021d805",
+      "archived": "simpleperf-user-record.log"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/simpleperf-report.txt",
+      "bytes": 3345,
+      "sha256": "6d549c92cabd804f9d9af4eeb5c0efeee4b9e1bf5004ec09571e21de2c4771c3",
+      "archived": "simpleperf-report.txt"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/gpu-util.json",
+      "bytes": 1190,
+      "sha256": "3381704296395d424f6fee5b5b02a12dd75f8a6b671292a6552f633699c848e5",
+      "archived": "gpu-util.json"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/prof-summary.json",
+      "bytes": 28225,
+      "sha256": "58f2f8ff47c183e00e11ab037f2b305f470f853a08a1080e730aae4b7f3daa50",
+      "archived": "prof-summary.json"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/overlap-summary.json",
+      "bytes": 30101,
+      "sha256": "5dd41c1335eb2edad2e032100f44e99f53b743fe120583d211236f1b6aee74fd",
+      "archived": "overlap-summary.json"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/scene-gap-aware.json",
+      "bytes": 34802,
+      "sha256": "9fe90e680e525a1a53ccff407990aa7ed28e11603bb4e7fc7be4c9cf4f3ec1cb",
+      "archived": "scene-gap-aware.json"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/overlap-gap-aware.json",
+      "bytes": 34155,
+      "sha256": "26da7da2a72d63ce8507824ee86b2e75d16d9fb0b026232be80e957b9f5da624",
+      "archived": "overlap-gap-aware.json"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/analyze-gaps.py",
+      "bytes": 3445,
+      "sha256": "d7e0717b68ce790b69ce4ff68000b89151ca38c9ce40d46f5c3514436c39e605",
+      "archived": "analyze-gaps.py"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/analyze-scene.py",
+      "bytes": 1566,
+      "sha256": "3b3c4d06ec32ebfc6602cf960c3672fb7b56cdf51c74ee3d6fa20b2cb698f79d",
+      "archived": "analyze-scene.py"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/post-debug-filtered-logcat.txt",
+      "bytes": 1739,
+      "sha256": "c33fb122396a358e8551c4f5a97fc04867d265d692d0a430dccb384a7afe8e79",
+      "archived": "post-debug-filtered-logcat.txt"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/restored-wchan.json",
+      "bytes": 1764,
+      "sha256": "a37878448b328ec205cd616e3b1e8c6c9d52488a6eb8e4f61441faec3af3a09a",
+      "archived": "restored-wchan.json"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/final-status.txt",
+      "bytes": 785,
+      "sha256": "be60e3dff6633a56953eed79b4fc98fb271e422be81ce8bfa0e5c9217369e539",
+      "archived": "final-status.txt"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/final-process.txt",
+      "bytes": 1092,
+      "sha256": "b09c2299a4f71969f10b7d4943aa6df4b3555bdbf2ca8b4e83355b082dd5c09b",
+      "archived": "final-process.txt"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/final-ring.txt",
+      "bytes": 514,
+      "sha256": "c82a51678b5ddd7d53527d30d9d64e7123022e3008aa5c92dc5d644c462b6870",
+      "archived": "final-ring.txt"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/final-capture.txt",
+      "bytes": 533,
+      "sha256": "8ea8253cbd109f775d394dee07790c89ffc4e2ccbbd0403f02d1126d7f7e2d39",
+      "archived": "final-capture.txt"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/final-gpu-reshape.txt",
+      "bytes": 845,
+      "sha256": "152ab6e68e995031a0ff2b4f205c85c36e207d557e917fe9a8642f1ad3fb986e",
+      "archived": "final-gpu-reshape.txt"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/ring-ab/summary.json",
+      "bytes": 1371,
+      "sha256": "c7a8bf5d0e61fb54a99b782af9e2ffc6679c37ab091c5ea856fcc35a09ef8a8f",
+      "archived": "ring-ab/summary.json"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/ring-ab/on2-control.txt",
+      "bytes": 514,
+      "sha256": "40739b518ac0c326fe91904088855d4fe05c940f47ff47cec01544b221d9de15",
+      "archived": "ring-ab/on2-control.txt"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/ring-ab/on1-control.txt",
+      "bytes": 514,
+      "sha256": "c91adf1905e9b217b66baafdb18146d2a695b4efc57a5a3d3b96aa2ae0517ea9",
+      "archived": "ring-ab/on1-control.txt"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/ring-ab/restored.txt",
+      "bytes": 514,
+      "sha256": "c9cd33729b8a099250d34a5fb3d940a3e1a3cbadb5e5d758d29160bbcab9eb98",
+      "archived": "ring-ab/restored.txt"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/ring-ab/on2-after.txt",
+      "bytes": 784,
+      "sha256": "97f8b77740433641773bd7d4f3c955ee6656630e79e4656f733b609b38c246ee",
+      "archived": "ring-ab/on2-after.txt"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/ring-ab/on2-before.txt",
+      "bytes": 783,
+      "sha256": "2dabd4a2d1c3bf7ef38af35608b26d3ef8cec6e14697f9a8d0098ce184f1a74a",
+      "archived": "ring-ab/on2-before.txt"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/ring-ab/off-after.txt",
+      "bytes": 784,
+      "sha256": "4ecc6ffd946000c5a70e33d88339adc31d13f355f089f87c8918bd0f1f8c2eb6",
+      "archived": "ring-ab/off-after.txt"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/ring-ab/off-control.txt",
+      "bytes": 514,
+      "sha256": "05dd3b800e3c59b25e90528e075a1597fcdb2f2d9f2a8a99542f5431ba207330",
+      "archived": "ring-ab/off-control.txt"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/ring-ab/on1-before.txt",
+      "bytes": 780,
+      "sha256": "eadf9c594cab06c9dabe99d6caac4714b222380a627b487ed64275db58ddc07e",
+      "archived": "ring-ab/on1-before.txt"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/ring-ab/on1-after.txt",
+      "bytes": 784,
+      "sha256": "9959bd20c2ef22e667b2388910b1dc82ac2f78bd8f5b74fef74e9dc15710cafd",
+      "archived": "ring-ab/on1-after.txt"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/ring-ab/off-before.txt",
+      "bytes": 771,
+      "sha256": "3b0fb21c13fc08fb7642c0230429465da59616863fc2950a3fdef4fb56486d0f",
+      "archived": "ring-ab/off-before.txt"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/scene.prof",
+      "bytes": 50782814,
+      "sha256": "e5d88361026342b9a6f921e2d1ae45fbd4191d0fccbb3e45bf3a0e86d4da42e8"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/overlap.prof",
+      "bytes": 39870760,
+      "sha256": "7cfa10a879ea27111be0bc9cf8385cdbb8d8aa57d947447e7cb15a9a6f0e4a11"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/perf.data",
+      "bytes": 1694872,
+      "sha256": "f7aa45dc2340b12cc2f49717e0a41ffbb328fb9f70820e3f9acf3e5183469d58"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/samples.json",
+      "bytes": 17391561,
+      "sha256": "1c3e87483426d9eb7bd1f43d373a8a60eb2044a58bfff2d315e41bcec69e6507"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/maps.txt",
+      "bytes": 483614,
+      "sha256": "d15c31a14337cd58017a4ee12868238e0ecaf179598684a07e8ce6b0e599cd29"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/debugger-evidence/merged-journal.ndjson",
+      "bytes": 20317,
+      "sha256": "3a153641d30a837a3880c894289b074a59537d228b59339fb239eda2b8c089f8"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/debugger-evidence/session-manifest.json",
+      "bytes": 391,
+      "sha256": "4407b37ad78f892d6c393c50c6c196881f34a223e65d786ed255fae7f692b4c9"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/debugger-evidence/evidence-manifest.json",
+      "bytes": 2147,
+      "sha256": "1e1dbc22361e93d1208a1feb9bde2468e8a8302ca06fd1ce8c71c8caf9f9072b"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/debugger-evidence/journal/control-000.ndjson",
+      "bytes": 6609,
+      "sha256": "081c7bf95627d0a11a6331f54de326c30e51d261c236632534269ec805a01c89"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/debugger-evidence/journal/host-000.ndjson",
+      "bytes": 10467,
+      "sha256": "221c33770f447c92a9d4cdbea70a754264b7641269dd77288f1c6eb736720267"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/debugger-evidence/proofs/cleanup-target-1s.json",
+      "bytes": 521,
+      "sha256": "eb3375cc514473e5415d2534d37d32eee31bf9aa3ff7719033176494598590df"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/debugger-evidence/proofs/cleanup-target-pre-release.json",
+      "bytes": 531,
+      "sha256": "b9901f7e33de5a114e31f475d4337526204ef1efe1a62045d26c6159ea1ff6a5"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/debugger-evidence/proofs/cleanup-target-5s.json",
+      "bytes": 521,
+      "sha256": "3e1d706fed199a1241e536d4534d10ebdb5298e785562b9cd86218e4baf0d3d3"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/debugger-evidence/proofs/cleanup-target-immediate.json",
+      "bytes": 528,
+      "sha256": "f43dbc562172507f4c583b959aa2d7819b2213cad93c9ed1299f640fcdd9bfec"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/debugger-evidence/protocol/dap-000.ndjson",
+      "bytes": 8854,
+      "sha256": "13a03672022c173b3dfd9463d7ff42d73da2eada59c5d1ddd2130687ccfca61c"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/debugger-evidence/logs/device-lldb-gdb-server.log",
+      "bytes": 248217,
+      "sha256": "1395c7bef4490b6c24296738b3da886af924314cfcfab8a00345501157cdc037"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/debugger-evidence/logs/device-lldb-platform-stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "build/gameplay-profile-20260915/debugger-evidence/logs/device-lldb-platform.log",
+      "bytes": 19170,
+      "sha256": "83f5b1b434c684906f52a62d72cea5ec532aa42a7538bc56aaf4f5fc9335d3af"
+    },
+    {
+      "source": "build/menu-warmup-20260915/scene-run/manifest.json",
+      "bytes": 10660,
+      "sha256": "cceb18e50e643f8680a6e30367e7a5ef57a5eaa5d9701a57efe2a471cb514023",
+      "archived": "warmup/scene-run/manifest.json"
+    },
+    {
+      "source": "build/menu-warmup-20260915/movement-run/manifest.json",
+      "bytes": 10645,
+      "sha256": "e9bf81d1e923f33a15167aff5afc4eeec8a0fcd0a4dedebd683c13974d212e81",
+      "archived": "warmup/movement-run/manifest.json"
+    },
+    {
+      "source": "build/menu-warmup-20260915/movement-final/manifest.json",
+      "bytes": 10324,
+      "sha256": "05a249919617279fd111469444e99a2cefa57ceb4e138b1b684c267faf65232c",
+      "archived": "warmup/movement-final/manifest.json"
+    },
+    {
+      "source": "build/menu-warmup-20260915/restored-run/manifest.json",
+      "bytes": 59466,
+      "sha256": "1cd9fbac87d6e915d3d415deb993280f8e34fe85f5eb34049510ca503a07223e",
+      "archived": "warmup/restored-run/manifest.json"
+    },
+    {
+      "source": "build/menu-warmup-20260915/movement-final/frame-0000.png",
+      "bytes": 2079853,
+      "sha256": "3766e1b2460fd6daeacd7574498a60e25982476333cc0a1d75a75af0bc7dd2c0",
+      "archived": "scene-before.png"
+    },
+    {
+      "source": "build/menu-warmup-20260915/movement-final/frame-0010.png",
+      "bytes": 2094341,
+      "sha256": "6031e62efc1b96d19d669b21d08b7637ecda954f6714f63051feab614bd88700",
+      "archived": "scene-response.png"
+    },
+    {
+      "source": "build/menu-warmup-20260915/restored-run/frame-0105.png",
+      "bytes": 2064461,
+      "sha256": "6eeb0631c640a00258f4f53f7e7cd5efe8cf6ae658042376a10b0c8de2a07e8e",
+      "archived": "restored-gameplay.png"
+    },
+    {
+      "source": "build/menu-warmup-20260915/script-tests.txt",
+      "bytes": 278,
+      "sha256": "12e19f62f0729dea7e16dc5fe7c4c0dee488bcac4c361201e700b3bcaf70bad6",
+      "archived": "script-tests.txt"
+    },
+    {
+      "source": "scripts/android/warmup-game",
+      "bytes": 12012,
+      "sha256": "feb1580bec47cb22aaf7dd4dfea23b29fa8dd4f570a5844ca04b9faf41ff8b3b"
+    },
+    {
+      "source": "scripts/android/test-warmup-game.py",
+      "bytes": 4548,
+      "sha256": "aa6164f08d700532553f6e37d1a30a220cc27e85b22100b9ff9ef3e98bdc74dc"
+    }
+  ]
+}

@@ -1,0 +1,432 @@
+{
+  "source_sha256": "db4612967f9522cf22cdede1a79fb881d0059f22949f4f5f2754a50cd44bcade",
+  "start_ns": 171090000000000,
+  "end_ns": 171091000000000,
+  "selection": "interval starts in window; durations clipped at end; per-owner overlapping scopes are not CPU time",
+  "owners": {
+    "5994": {
+      "HLE.scePthreadMutexLock": [
+        2231,
+        144.08627300000018
+      ],
+      "HLE.scePthreadMutexUnlock": [
+        2229,
+        131.22533999999985
+      ],
+      "HLE.sceKernelGetProcessTimeCounter": [
+        186,
+        0.441556
+      ],
+      "HLE.sceKernelWaitSema": [
+        94,
+        193.14177799999996
+      ],
+      "HLE.sceKernelClockGettime": [
+        93,
+        4.754475999999999
+      ],
+      "HLE.sceKernelSignalSema": [
+        46,
+        2.5663560000000007
+      ]
+    },
+    "5942": {
+      "HLE.sceKernelClockGettime": [
+        1142,
+        10.485735999999992
+      ],
+      "HLE.scePthreadSelf": [
+        11133,
+        4.065346
+      ],
+      "HLE.scePthreadEqual": [
+        5795,
+        1.1838260000000285
+      ],
+      "HLE.scePthreadMutexUnlock": [
+        5339,
+        100.20966599999983
+      ],
+      "HLE.scePthreadMutexLock": [
+        5339,
+        166.80460599999958
+      ],
+      "HLE.scePthreadCondBroadcast": [
+        300,
+        6.934018000000005
+      ],
+      "HLE.scePthreadCondWait": [
+        155,
+        221.53098400000005
+      ],
+      "HLE.sceKernelGettimeofday": [
+        2,
+        0.006666999999999999
+      ],
+      "HLE.scePthreadCondTimedwait": [
+        1,
+        0.280677
+      ]
+    },
+    "6281": {
+      "HLE.scePthreadMutexLock": [
+        118,
+        4.9860880000000005
+      ],
+      "HLE.scePthreadMutexUnlock": [
+        118,
+        3.1215079999999995
+      ],
+      "HLE.sceKernelUsleep": [
+        96,
+        969.2102740000003
+      ],
+      "HLE.__tls_get_addr": [
+        4,
+        0.048175
+      ],
+      "HLE.scePthreadRwlockRdlock": [
+        1,
+        0.002136
+      ],
+      "HLE.scePthreadSelf": [
+        55,
+        0.025833000000000016
+      ],
+      "HLE.scePthreadEqual": [
+        34,
+        0.006510999999999998
+      ],
+      "HLE.scePthreadRwlockUnlock": [
+        1,
+        0.001927
+      ],
+      "HLE.sceDiscMapIsRequestOnHDD": [
+        1,
+        0.000781
+      ],
+      "HLE.fJgP+wqifno": [
+        1,
+        0.023698
+      ],
+      "HLE.sceKernelClockGettime": [
+        2,
+        0.031771
+      ],
+      "HLE.sceKernelPread": [
+        1,
+        0.042761
+      ],
+      "HLE.scePthreadCondWait": [
+        9,
+        7.844374000000001
+      ],
+      "HLE.scePthreadCondBroadcast": [
+        1,
+        0.000938
+      ]
+    },
+    "5993": {
+      "HLE.scePthreadMutexUnlock": [
+        1839,
+        31.70568600000004
+      ],
+      "HLE.scePthreadMutexLock": [
+        1838,
+        37.82775000000002
+      ],
+      "HLE.sceKernelGetProcessTimeCounter": [
+        167,
+        0.09031599999999997
+      ],
+      "HLE.sceKernelUsleep": [
+        84,
+        839.3828279999999
+      ],
+      "HLE.__error": [
+        2,
+        0.002291
+      ]
+    },
+    "5947": {
+      "HLE.scePthreadSelf": [
+        6737,
+        2.8791719999999756
+      ],
+      "HLE.scePthreadEqual": [
+        4088,
+        0.8647110000000072
+      ],
+      "HLE.scePthreadMutexUnlock": [
+        3326,
+        64.9975399999998
+      ],
+      "HLE.scePthreadMutexLock": [
+        3326,
+        124.44081300000005
+      ],
+      "HLE.scePthreadCondBroadcast": [
+        619,
+        9.955943000000016
+      ],
+      "HLE.__tls_get_addr": [
+        740,
+        7.325974
+      ],
+      "HLE.scePthreadRwlockRdlock": [
+        493,
+        1.4119670000000013
+      ],
+      "HLE.scePthreadRwlockUnlock": [
+        493,
+        1.6509330000000013
+      ],
+      "HLE.sceDiscMapIsRequestOnHDD": [
+        92,
+        0.49411099999999974
+      ],
+      "HLE.fJgP+wqifno": [
+        92,
+        1.2224460000000001
+      ],
+      "HLE.sceKernelClockGettime": [
+        166,
+        1.8225970000000005
+      ],
+      "HLE.sceKernelPread": [
+        73,
+        1.2957289999999997
+      ],
+      "HLE.scePthreadCondWait": [
+        150,
+        389.2737439999998
+      ]
+    },
+    "5998": {
+      "HLE.scePthreadSelf": [
+        4701,
+        1.857935999999986
+      ],
+      "HLE.scePthreadEqual": [
+        2700,
+        0.7099040000000045
+      ],
+      "HLE.scePthreadCondWait": [
+        309,
+        349.100728
+      ],
+      "HLE.scePthreadMutexUnlock": [
+        4019,
+        84.06914799999988
+      ],
+      "HLE.scePthreadMutexLock": [
+        4019,
+        141.51838300000003
+      ],
+      "HLE.scePthreadCondBroadcast": [
+        142,
+        3.4473970000000023
+      ],
+      "HLE.__tls_get_addr": [
+        332,
+        4.057862999999999
+      ],
+      "HLE.scePthreadRwlockRdlock": [
+        83,
+        0.4854150000000002
+      ],
+      "HLE.scePthreadRwlockUnlock": [
+        83,
+        0.2815629999999999
+      ],
+      "HLE.sceDiscMapIsRequestOnHDD": [
+        83,
+        0.3951009999999999
+      ],
+      "HLE.fJgP+wqifno": [
+        83,
+        1.4000029999999997
+      ],
+      "HLE.sceKernelClockGettime": [
+        190,
+        3.0377619999999985
+      ],
+      "HLE.sceKernelPread": [
+        77,
+        2.003587
+      ]
+    },
+    "5896": {
+      "HLE.scePthreadMutexLock": [
+        1408,
+        47.872800000000005
+      ],
+      "HLE.scePthreadMutexUnlock": [
+        1408,
+        42.24375199999998
+      ],
+      "HLE.sceKernelClockGettime": [
+        704,
+        8.780020999999989
+      ],
+      "HLE.sceKernelUsleep": [
+        704,
+        753.3933029999996
+      ]
+    },
+    "5996": {
+      "HLE.sceKernelGetProcessTimeCounter": [
+        372,
+        0.4600029999999989
+      ],
+      "HLE.sceKernelClockGettime": [
+        93,
+        5.233334000000002
+      ],
+      "HLE.scePthreadMutexLock": [
+        462,
+        44.244471999999995
+      ],
+      "HLE.scePthreadMutexUnlock": [
+        463,
+        37.51832800000003
+      ],
+      "HLE.sceKernelWaitSema": [
+        47,
+        786.671519
+      ],
+      "HLE.scePthreadGetthreadid": [
+        46,
+        0.16192000000000004
+      ]
+    },
+    "5995": {
+      "HLE.sceKernelSignalSema": [
+        93,
+        2.2154679999999995
+      ],
+      "HLE.sceAudioOutOutputs": [
+        93,
+        988.8509980000002
+      ]
+    },
+    "5945": {
+      "HLE.scePthreadSelf": [
+        1037,
+        0.5466109999999987
+      ],
+      "HLE.scePthreadEqual": [
+        689,
+        0.15907800000000033
+      ],
+      "HLE.scePthreadMutexUnlock": [
+        348,
+        8.593701000000003
+      ],
+      "HLE.scePthreadMutexLock": [
+        348,
+        37.97427800000001
+      ],
+      "HLE.scePthreadCondWait": [
+        173,
+        839.2144919999997
+      ],
+      "HLE.scePthreadCondBroadcast": [
+        168,
+        3.6356709999999985
+      ]
+    },
+    "5936": {
+      "HLE.gettimeofday": [
+        10,
+        0.730262
+      ],
+      "HLE.sceKernelUsleep": [
+        10,
+        976.0249070000001
+      ],
+      "HLE.sceGnmSubmitDone": [
+        3,
+        0.5406770000000001
+      ]
+    },
+    "5943": {
+      "HLE.scePthreadMutexLock": [
+        299,
+        23.09266000000002
+      ],
+      "HLE.scePthreadSelf": [
+        646,
+        0.2769650000000005
+      ],
+      "HLE.scePthreadEqual": [
+        347,
+        0.09457500000000026
+      ],
+      "HLE.scePthreadMutexUnlock": [
+        299,
+        7.322475999999992
+      ],
+      "HLE.sceKernelClockGettime": [
+        50,
+        0.9751540000000001
+      ],
+      "HLE.sceKernelPread": [
+        25,
+        0.7085930000000003
+      ],
+      "HLE.scePthreadCondBroadcast": [
+        25,
+        0.9260419999999999
+      ],
+      "HLE.scePthreadCondWait": [
+        23,
+        897.800375
+      ]
+    },
+    "6073": {
+      "HLE.pthread_mutex_lock": [
+        30,
+        2.7976499999999995
+      ],
+      "HLE.pthread_mutex_unlock": [
+        30,
+        1.735784
+      ],
+      "HLE.clock_gettime": [
+        10,
+        0.627135
+      ],
+      "HLE.usleep": [
+        10,
+        949.671317
+      ]
+    },
+    "5946": {
+      "HLE.scePthreadSelf": [
+        13,
+        0.009893999999999998
+      ],
+      "HLE.scePthreadEqual": [
+        9,
+        0.0024469999999999995
+      ],
+      "HLE.scePthreadCondWait": [
+        3,
+        838.7506380000001
+      ],
+      "HLE.scePthreadMutexUnlock": [
+        4,
+        0.031042
+      ],
+      "HLE.scePthreadMutexLock": [
+        4,
+        0.222291
+      ],
+      "HLE.scePthreadCondBroadcast": [
+        2,
+        0.002239
+      ]
+    }
+  }
+}

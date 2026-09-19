@@ -197,6 +197,9 @@ public:
 void BindSessionEqueues(SessionEqueues* queues);
 EqueueInternal* GetEqueue(OrbisKernelEqueue eq);
 u64 PS4_SYSV_ABI sceKernelGetEventData(const OrbisKernelEvent* ev);
+u64 PS4_SYSV_ABI sceKernelGetEventId(const OrbisKernelEvent* ev);
+int PS4_SYSV_ABI sceKernelGetEventFilter(const OrbisKernelEvent* ev);
+void* PS4_SYSV_ABI sceKernelGetEventUserData(const OrbisKernelEvent* ev);
 
 void RegisterEventQueue(Core::Loader::SymbolsResolver* sym);
 

@@ -49,6 +49,8 @@ std::string_view ToString(StopReason reason) noexcept {
     case StopReason::GuestFault: return "GuestFault";
     case StopReason::Unsupported: return "Unsupported";
     case StopReason::BackendFailure: return "BackendFailure";
+    case StopReason::Breakpoint: return "Breakpoint";
+    case StopReason::Watchpoint: return "Watchpoint";
     }
     return "Unknown";
 }
@@ -74,6 +76,7 @@ StopReason SelectPrimaryReason(StopReasonBits pending) noexcept {
         StopReason::Unsupported,
         StopReason::Cancelled,
         StopReason::PauseRequested,
+                             StopReason::Watchpoint, StopReason::Breakpoint,
         StopReason::StepComplete,
         StopReason::HleBoundary,
         StopReason::Returned,

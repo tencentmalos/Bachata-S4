@@ -1,0 +1,195 @@
+{
+  "profiles": [
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/fios-io-20260917/prof/9c2841a4-27747-file-1789632444858173-1.prof",
+      "bytes": 374865276,
+      "sha256": "78225d46ab5a8f7d20332c99219ee31ffe6b4fcce45221f4f218b274ab03a014",
+      "sidecar": {
+        "capture_complete": true,
+        "capture_error": "",
+        "capture_id": 1,
+        "gpu_cpu_alignment": "unknown",
+        "limitation": "Streaming overload is reported by skipped chunks; incomplete endpoints may occur at mode boundaries.",
+        "max_mib": 512,
+        "max_seconds": 120,
+        "mode": "file",
+        "non_frame_capture": true,
+        "process": "shadPS4",
+        "process_id": 27747,
+        "schema": "foundation.profiler-capture.v1",
+        "sdk_revision": "0ef631cd7b0859aa0eea6beb0e8739bd43e75129",
+        "streaming_backpressure_timeout_ns": 0,
+        "wire_layout": "PROF-v3-track-id",
+        "capture_identity": {
+          "serial": "9c2841a4",
+          "package": "com.shadps4.android",
+          "pid": "27747",
+          "capture_id": "1"
+        },
+        "sha256": "78225d46ab5a8f7d20332c99219ee31ffe6b4fcce45221f4f218b274ab03a014"
+      }
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/fios-io-20260917/prof-data/9c2841a4-4164-file-1789633461074408-1.prof",
+      "bytes": 370359083,
+      "sha256": "50259e78fba96d595993d9f185533717f5fe104cd0bb4c9388e5dd3a190c587e",
+      "sidecar": {
+        "capture_complete": true,
+        "capture_error": "",
+        "capture_id": 1,
+        "gpu_cpu_alignment": "unknown",
+        "limitation": "Streaming overload is reported by skipped chunks; incomplete endpoints may occur at mode boundaries.",
+        "max_mib": 512,
+        "max_seconds": 120,
+        "mode": "file",
+        "non_frame_capture": true,
+        "process": "shadPS4",
+        "process_id": 4164,
+        "schema": "foundation.profiler-capture.v1",
+        "sdk_revision": "0ef631cd7b0859aa0eea6beb0e8739bd43e75129",
+        "streaming_backpressure_timeout_ns": 0,
+        "wire_layout": "PROF-v3-track-id",
+        "capture_identity": {
+          "serial": "9c2841a4",
+          "package": "com.shadps4.android",
+          "pid": "4164",
+          "capture_id": "1"
+        },
+        "sha256": "50259e78fba96d595993d9f185533717f5fe104cd0bb4c9388e5dd3a190c587e"
+      }
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/fios-io-20260917/prof-final/9c2841a4-7161-file-1789633850298791-1.prof",
+      "bytes": 372754123,
+      "sha256": "825f08ee15e6aaf3211a88e7add5e616fca8f17e588aed359ebbd83ee4501952",
+      "sidecar": {
+        "capture_complete": true,
+        "capture_error": "",
+        "capture_id": 1,
+        "gpu_cpu_alignment": "unknown",
+        "limitation": "Streaming overload is reported by skipped chunks; incomplete endpoints may occur at mode boundaries.",
+        "max_mib": 512,
+        "max_seconds": 120,
+        "mode": "file",
+        "non_frame_capture": true,
+        "process": "shadPS4",
+        "process_id": 7161,
+        "schema": "foundation.profiler-capture.v1",
+        "sdk_revision": "0ef631cd7b0859aa0eea6beb0e8739bd43e75129",
+        "streaming_backpressure_timeout_ns": 0,
+        "wire_layout": "PROF-v3-track-id",
+        "capture_identity": {
+          "serial": "9c2841a4",
+          "package": "com.shadps4.android",
+          "pid": "7161",
+          "capture_id": "1"
+        },
+        "sha256": "825f08ee15e6aaf3211a88e7add5e616fca8f17e588aed359ebbd83ee4501952"
+      }
+    }
+  ],
+  "files": {
+    "source-manifest.json": {
+      "bytes": 1365,
+      "sha256": "7f335049483893e75714d718e07bad0f14f2519af3a45b859541f13c44aeadcc"
+    },
+    "analysis-summaries.json": {
+      "bytes": 33187,
+      "sha256": "24be778c5dc575b31eb75bbdec197d41d2401a2fdfd1f4abbe73c1346a00ff8e"
+    },
+    "release-stop-final.txt": {
+      "bytes": 5259,
+      "sha256": "769bf11fa212dbbb9d51154a943f5f84983d5bb339fbec4ef3ef6dd40ea81876"
+    },
+    "data-mapping-host-final.txt": {
+      "bytes": 41,
+      "sha256": "4a72323c9e290666da3c9176c838e815ac47edcbb2bfa69ff55bc2b9b5de0815"
+    },
+    "normal-state.txt": {
+      "bytes": 862,
+      "sha256": "4b63fdd3c82d9f49ee776a9a1c1ece646441662b11bb2abc2197b01ea3ac6884"
+    },
+    "release-warmup-manifest.json": {
+      "bytes": 10750,
+      "sha256": "67517fd0e6319223042d1208099852f50512662119fd9b65a40b87cd793a84b0"
+    },
+    "normal-rooftop.png": {
+      "bytes": 2437085,
+      "sha256": "b23841328ac6b97efc306b1e291548ab88c4eaaa4c6526b4c658f293606bccc4"
+    },
+    "final-warmup-manifest.json": {
+      "bytes": 12328,
+      "sha256": "b3fbb58d4c4461acc4dbef75f275b73cf055d705aafca23eea8a2d143a32eacc"
+    },
+    "final-artifacts.json": {
+      "bytes": 1424,
+      "sha256": "9a1d79a62090d12a97a0afdfdb68b3be74bb62441082135fc4ac3a3c869d6078"
+    },
+    "file-tests-release.txt": {
+      "bytes": 36,
+      "sha256": "533def75e11923c9df6566736b06ec2e4afa12bf2ce16461f13ac3eeda51c6d4"
+    },
+    "data-mapping-final.txt": {
+      "bytes": 41,
+      "sha256": "078f2b24343440c2f96f2099ff2e12d50ae7b2f9fa1ad4d46a93852b150b32b0"
+    },
+    "requests.tsv": {
+      "bytes": 24731,
+      "sha256": "56ea40d86003c5e3355fac4f6b9e0a74ecd6e2dbe6e51a3e92c66926f44e4ea5"
+    },
+    "data-artifacts.json": {
+      "bytes": 1516,
+      "sha256": "762d049b211d184f106fbfa0e413e766450f88eaf4840c615daeb2dc2ab941d1"
+    },
+    "data-stop-final.txt": {
+      "bytes": 5259,
+      "sha256": "448c6e80e9a6dc4c3dc73e9ff67b98faed154e0e3ea0db233856b25e3bf584f0"
+    },
+    "summarize.py": {
+      "bytes": 1952,
+      "sha256": "e2fbff94a7c3b773e6cdf28b9d7d6d182f6fc98b38083d505d8fd6f9e8dd9783"
+    },
+    "replay-final.txt": {
+      "bytes": 1819,
+      "sha256": "29f4d35d7196a90c157c53869d58b79c8ab581adb79b13026e72a71950b25c4f"
+    },
+    "vm-lock-inventory.json": {
+      "bytes": 10242,
+      "sha256": "64be00c92bfc0ff2005b5ceff68c9516c17273bf1fbbddd1bb1b0e9e2b8d66ad"
+    },
+    "data-mapping-tsan.txt": {
+      "bytes": 41,
+      "sha256": "4a72323c9e290666da3c9176c838e815ac47edcbb2bfa69ff55bc2b9b5de0815"
+    },
+    "requests.json": {
+      "bytes": 246284,
+      "sha256": "e3cc6e3145c918287ed75754f6f53911dd2bfdbeafdf72ba8836cdea143e721c"
+    },
+    "contract.txt": {
+      "bytes": 4084,
+      "sha256": "8eace7b75caa79fc7b46e64e66e9c1f480085d87fe83c3f7b961ea1a666c7186"
+    },
+    "final-properties.txt": {
+      "bytes": 4,
+      "sha256": "52f96c26a39ed25108a6db43d6e11c6051eba8a498a5baab1891adfa7ac7c262"
+    },
+    "normal-warmup-manifest.json": {
+      "bytes": 11047,
+      "sha256": "30fe9a5ffe0303197c51bbfc5b876a6e707d7491d30f67c5e5009a2fc74baefb"
+    },
+    "analyze.py": {
+      "bytes": 4195,
+      "sha256": "bef01ecce8fec3d81b0f6b3004833e14597c93affce40e31a03552bc4ee42f08"
+    },
+    "normal-process.txt": {
+      "bytes": 1092,
+      "sha256": "e9a130a1dd77bc9d33eb4ce569e22f97da55c19fcf0ea018a3554cbb8e36d1d9"
+    }
+  },
+  "limitations": [
+    "Source tree preexisting dirty; no commit/push.",
+    "Native run-as tests are separate from ordinary APK.",
+    "No loading/FPS/full-playability acceptance.",
+    "Scope boundary leftovers retained."
+  ]
+}

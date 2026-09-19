@@ -1,0 +1,58 @@
+{
+  "schema": "shadps4.validation-artifacts.v1",
+  "artifacts": [
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk",
+      "size": 332372083,
+      "sha256": "55b2ed90207969bd7f4c8ec0a6f1ff33efc24f4317fef35d85275157ad913b98"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native/libshadps4_host.so",
+      "size": 466902400,
+      "sha256": "1dbb7e47b737e94a26237b3cbd40b5d8bf08c0fec1a19d318010f670112343e2"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/guest-auto-tag-20260916/armed-capture-final/capture.prof",
+      "size": 34145327,
+      "sha256": "4755c237e4dbcd8eceb3d2d1dbcfaea1b310d53d2aca79c48d7bc4023663f611"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/guest-auto-tag-20260916/batch-live/capture-00.json",
+      "size": 3628333,
+      "sha256": "711e488eff4eda0df4458227f0298119aa1d33280edc8b6e2c5f0b595e56a77a"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/fexcore-android-api33/FEXCore/Source/libFEXCore.a",
+      "size": 56043422,
+      "sha256": "21e7e470f569f3d17ba0a5437ac7c98cf20c108f3e9347e0436c7d65580f7a6f"
+    }
+  ],
+  "source": {
+    "src/core/guest_cpu/api/probes.h": "db9a9db80396d38b1fb75ee47464acff76bde881f6d634376487284ef397a6cb",
+    "src/core/guest_cpu/api/context.h": "e90b6ecccc30d94931894e46f3983f5a7fd1756db89f27421eb7202a928c41b7",
+    "src/core/guest_cpu/fex/profile_pass.h": "5c93fa325223380ee7abb8f5cf769c791b9e85bdc635a26587ff9d0c74c8efbe",
+    "src/core/guest_cpu/fex/fex_context.cpp": "0f4f5945605989cf2f86baaac1aa9073eac1614a4b9f8017279e2680cd132004",
+    "src/core/host_runtime/guest_auto_tag.cpp": "750c67a70952cfd538b610e6c797a6250bb50c1711c841d93f74575404e26b43",
+    "src/core/host_runtime/guest_auto_tag.h": "f7d79ff4e5e20831eb936115ad5bd67b279e1acfcb96353fc2f5e1d577bdb761",
+    "src/core/host_runtime/guest_patch.cpp": "f35f06c44c925f70812d67fbc655769b748a6b5237999abfa79e60a94d372051",
+    "src/core/host_runtime/guest_patch.h": "8b69a7f3c08ea2ad9935f3974ceefe361888e06fedda58910ea955a01853f792",
+    "src/core/host_runtime/guest_runtime.cpp": "b8ce8fa025452f6797cc543dd9b4a28afc5d0bf8e9daeedf3c27949c709dbda7",
+    "src/core/diagnostics/diagnostics_commands.cpp": "a614a1d6c3c1709965fb3a0cd2a4cec1b0379d2691c0ec59432a7001ba871d6e",
+    "CMakeLists.txt": "224671e8947c1d208158808af5aba2e9a828ae997bf09e45ae8e88516abe3282",
+    "tests/guest_cpu/guest_patch_tests.cpp": "218cde07c283e12fa9bfe033b076a10149b29c4afa1e7f4df1661ba44603a0b4",
+    "scripts/android/guest-auto-tag": "82d64530d322ebc1a4788ad4128a2a1c59967091adfa57ea2622a1821c2888b5",
+    "scripts/android/test-guest-auto-tag.py": "e4c28c1e648b95e4b6d4dc4ec4f98aea36222da4711438f59eb51ae2304a035c",
+    "references/FEX/FEXCore/Source/Interface/IR/IR.json": "d5d8679ab8ddd4de7cdf827e4e9a992f94a5788b0d1cce4663f08faaa203b0d7",
+    "references/FEX/FEXCore/Source/Interface/Core/Core.cpp": "8fc7b822dfceb437b003ea21ff53916f159747f7aa9be3763c7ba2e69aae1e85",
+    "references/FEX/FEXCore/Source/Interface/Core/JIT/MiscOps.cpp": "f0452d60f053ce9202842e8b5fd7edddf268aaee7a1fc90a830ccb4e9c39129d",
+    "references/FEX/FEXCore/include/FEXCore/Core/CoreState.h": "32a2e7efd45b4cd8438373dc500b88215739a46396ed9f9c3811612c8ce56521"
+  },
+  "main_head": "4da582b7b3a36d74403a4985c3c03f37e570bcb7",
+  "fex_head": "385a0cc4d81cd456c8d5c26b4f09cb5a7d8d5842",
+  "dirty": true,
+  "notes": "Preserves prior dirty work. No published source pin; targeted checks only.",
+  "apk_native_entries": {
+    "lib/arm64-v8a/libshadps4_fex_session.so": "2a80d503a8e64b38adf71652a01df1bba200e1c9c85f756110cf627cd651a254",
+    "lib/arm64-v8a/libshadps4_host.so": "1dbb7e47b737e94a26237b3cbd40b5d8bf08c0fec1a19d318010f670112343e2"
+  }
+}

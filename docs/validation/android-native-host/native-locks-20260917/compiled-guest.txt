@@ -1,0 +1,17 @@
+compiled x86-64 image=416 entry=96 rebased_va=ff8010000
+[CG01] PASS C++ entry -> C function with 8 SysV arguments
+[CG02] PASS C++ writes through guest pointer and C SSE2 double result
+[CG03] PASS compiled function reused with new input
+[CG04] PASS guest atomic lock + RAII unlock
+[CG05] PASS uncontended mutex makes zero HLE calls
+BENCH mode=1 iterations=10000 elapsed_ns=400208 hle_calls=0
+[CG06] PASS same work with two HLE calls per iteration
+[CG07] PASS crossing control makes exactly 20000 HLE calls
+BENCH mode=2 iterations=10000 elapsed_ns=22244948 hle_calls=20000
+[CG08] PASS two real FEX owners preserve 100000 protected increments
+[CG09] PASS contended path reached host wait/wake
+[CG10] PASS slow path rejects a foreign word
+[CG11] PASS compiled mutex actually entered cancellable WaitingHle
+[CG12] PASS Stop cancels compiled guest's host slow wait
+[CG13] PASS fresh owner can execute compiled payload after cancellation
+COMPILED_GUEST checks=13 failures=0

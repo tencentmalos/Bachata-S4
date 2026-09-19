@@ -73,11 +73,11 @@ Id EmitBitCastF32U32(EmitContext& ctx, Id value) {
 }
 
 Id EmitPackUint2x32(EmitContext& ctx, Id value) {
-    return ctx.OpBitcast(ctx.U64, value);
+    return ctx.PackU64(value);
 }
 
 Id EmitUnpackUint2x32(EmitContext& ctx, Id value) {
-    return ctx.OpBitcast(ctx.U32[2], value);
+    return ctx.UnpackU64(value);
 }
 
 Id EmitPackDouble2x32(EmitContext& ctx, Id value) {

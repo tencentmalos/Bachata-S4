@@ -1,0 +1,652 @@
+{
+  "head": "4da582b7b3a36d74403a4985c3c03f37e570bcb7",
+  "branch": "codex/android-fex-round2",
+  "dirty": true,
+  "device": "9c2841a4",
+  "artifacts": {
+    "final-native.txt": {
+      "sha256": "8c639b2e9ffd38a21e197cd6d1624681a2f41d246799b8a094804848fb6caeb3",
+      "bytes": 41
+    },
+    "final-condition.txt": {
+      "sha256": "ada5f0b6f42ee41773de2b459aeaf398483c4a66ca0e87de7caa4d0987dc911a",
+      "bytes": 37
+    },
+    "final-condition-trace.txt": {
+      "sha256": "3a3b6f04b696f1f6aa65caf8254fe2fcbd81f6b0dc70ad7d97a58180464143d2",
+      "bytes": 37
+    },
+    "final-services.txt": {
+      "sha256": "54f5b3b85f4d6723dfbfd20144f44d95ded73d4cb669130af5953196b6ce5462",
+      "bytes": 2184
+    },
+    "final-rwlock.txt": {
+      "sha256": "2da9059776e857e434a294b6a8e003ccecf5631426e5ef663b5ac3d300c11663",
+      "bytes": 33
+    },
+    "tsan-final-native.txt": {
+      "sha256": "8c639b2e9ffd38a21e197cd6d1624681a2f41d246799b8a094804848fb6caeb3",
+      "bytes": 41
+    },
+    "tsan-fast-condition.txt": {
+      "sha256": "3a3b6f04b696f1f6aa65caf8254fe2fcbd81f6b0dc70ad7d97a58180464143d2",
+      "bytes": 37
+    },
+    "baseline-native-tests.txt": {
+      "sha256": "ce1dc7f793b80db041fd2d30f1059210cb1483155fc9b435496d37f29b19cf0f",
+      "bytes": 93
+    },
+    "final-bench-a1.txt": {
+      "sha256": "81fe542f2cd639090a8102c3c667f911d7da42ed61c0a64f924b2151e81b34ce",
+      "bytes": 190
+    },
+    "final-bench-b.txt": {
+      "sha256": "ba5bc4f21c132b709f3faee93ff02da115befc4bf7023515189b49b9df006763",
+      "bytes": 190
+    },
+    "final-bench-a2.txt": {
+      "sha256": "11f6427d790b23b0c9cf368b317426b4e2902b39bceb3fd1fce2ebea6ad06282",
+      "bytes": 190
+    },
+    "host-compare.txt": {
+      "sha256": "600ad4e1b04be8c55a0da7e1aec318a36365b2f57f65d0b85d3fc5e357c52820",
+      "bytes": 2020
+    },
+    "compiled-guest.txt": {
+      "sha256": "df9dbcb5bc92e748642eabe3c71cf0293db438cdef11cb84dbf28b09c6a535a5",
+      "bytes": 967
+    },
+    "a-analysis.json": {
+      "sha256": "e33a8cf239e8d39803ba8e6eb31d1e209afe9d230986511e900f7bbc157edeeb",
+      "bytes": 39260
+    },
+    "b-analysis.json": {
+      "sha256": "39ae4d75a9d8dd9cc51a6ef414c390329cf04b5870f641e4e344ccb91b3bd4b7",
+      "bytes": 39334
+    },
+    "artifacts-b.json": {
+      "sha256": "3b9779e31a3df7213fce590a1e4a4675ff06c3d8ac90d91d6d5f81817e96b5e2",
+      "bytes": 352
+    },
+    "b-stopped.txt": {
+      "sha256": "1a5a5a1b6fa7e4c2c2dba8bfd803b210940f3f549d5ebcf640f6373dd988e548",
+      "bytes": 5266
+    },
+    "a-exit-logcat.txt": {
+      "sha256": "c472ec52842a4ce37cf8e3bbe945955270d74355761f85e981febfc780f4f976",
+      "bytes": 997485
+    },
+    "a-cold-stop.png": {
+      "sha256": "2f94573ee9fac6332468eee3ab9f229bfab0b77218e213b12146a952e95ecb7c",
+      "bytes": 983146
+    },
+    "b-rooftop.png": {
+      "sha256": "aba017f46029481194ee10e47212a25c5fbd5d7829356c6ea50fdec7c85dac33",
+      "bytes": 2441776
+    },
+    "analyze.py": {
+      "sha256": "afc1ef3d02b0c4f6d61e37129354ff7f60cc51cde8fb50b486958da2f67974b0",
+      "bytes": 3228
+    },
+    "build-baseline.py": {
+      "sha256": "3f1ca12b1fc018eeb6e294121fc79de5dc4eff2abd70b56bf20bc24e217e28a4",
+      "bytes": 1260
+    },
+    "restored-status.txt": {
+      "sha256": "8b388d56d1b59308450ec550db426d47da32caebb191121e787ecb68002c314f",
+      "bytes": 855
+    },
+    "restored-final.png": {
+      "sha256": "c64308573a5a19bd04ecaa64cc67beae2396d0cd7b68f5a6a04b21266031eccd",
+      "bytes": 2446770
+    },
+    "final-cleanup.txt": {
+      "sha256": "ac6e576c093ba7bb0d1e5bb1ab6bba6f39e387a21980e69962b725f32a845d96",
+      "bytes": 59
+    }
+  },
+  "source_sha256": {
+    "src/core/host_runtime/guest_mutex.h": "29c3a8d9e0324d60f67cd0de95ad889666499fbc320849ff05123906bfa4eff2",
+    "tests/host_runtime/guest_native_mutex_tests.cpp": "837f4a0cb38d4e3ca7b3a31a1a71c835d926751010c72d6ca47f82f265758512",
+    "tests/host_runtime/guest_condition_tests.cpp": "66c1dd0bd74c0fc5af0bdb119e4328e9925e23d5e99a7148dafe725a565c8588",
+    "cmake/fex/CMakeLists.txt": "df5bd90408ff25d60b0aa66cfe6127717affc8f5c927d6346e80c55689df0ed3",
+    "src/core/host_runtime/guest_runtime.cpp": "8ed2f49970c0a93cf290aab95474f5c41ff159432db73d7c2f86a81fdb2bacbe",
+    "src/core/host_runtime/guest_storage.cpp": "73f5abc01d37a7fde5df87cc332aaf5906d3150a58a6b281f486566430664762",
+    "src/core/guest_cpu/api/address_space.cpp": "a21eed3e45a4b4b5d6f3c23752ca429e09902752ee2a071f30458602302a6211",
+    "src/core/guest_cpu/fex/fex_context.cpp": "67920144323cfcb687a74a1e674117ffdaede9330f991796e2cbe419efa87579",
+    "tests/guest_cpu/compiled_guest/entry.cpp": "17f74be3642a26169711016b751b6e0b2994235db2cbf3aa50aa71c897b1fdae",
+    "tests/guest_cpu/compiled_guest_tests.cpp": "b0edcdf82d067ce9a5f6c91ba36e466796aa34b03badb9f1f03e13c54eec90db"
+  },
+  "bench_ms": {
+    "HOST_BENCH/shared0/threads1": {
+      "samples": [
+        3.567,
+        3.4,
+        3.47,
+        3.288,
+        3.411
+      ],
+      "median": 3.411
+    },
+    "HOST_BENCH/shared0/threads4": {
+      "samples": [
+        12.464,
+        10.734,
+        11.695,
+        11.614,
+        13.198
+      ],
+      "median": 11.695
+    },
+    "HOST_BENCH/shared1/threads1": {
+      "samples": [
+        3.221,
+        3.23,
+        3.209,
+        1.414,
+        3.189
+      ],
+      "median": 3.209
+    },
+    "HOST_BENCH/shared1/threads4": {
+      "samples": [
+        11.94,
+        13.636,
+        16.127,
+        11.068,
+        10.664
+      ],
+      "median": 11.94
+    },
+    "BENCH/shared0/threads1": {
+      "samples": [
+        32.947,
+        21.948,
+        35.813,
+        37.164,
+        33.485
+      ],
+      "median": 33.485
+    },
+    "BENCH/shared0/threads4": {
+      "samples": [
+        150.674,
+        155.244,
+        169.723,
+        155.505,
+        153.678
+      ],
+      "median": 155.244
+    },
+    "BENCH/shared1/threads1": {
+      "samples": [
+        22.443,
+        24.275,
+        22.574,
+        21.342,
+        23.558
+      ],
+      "median": 22.574
+    },
+    "BENCH/shared1/threads4": {
+      "samples": [
+        481.887,
+        623.897,
+        683.904,
+        563.73,
+        546.995
+      ],
+      "median": 563.73
+    }
+  },
+  "profiles": {
+    "a": {
+      "process_id": 30873,
+      "main_tid": 30940,
+      "sha256": "8587554a61e98a0fdf2ce5cd4c0e7eb4dabf7909bed9e64463427f133d046abd",
+      "events": 44134395,
+      "first_present_ms": 19436.351511,
+      "main": [
+        {
+          "tid": 30940,
+          "name": "HLE.scePthreadMutexattrInit",
+          "count": 73,
+          "elapsed_ns": 44428437,
+          "max_ns": 12450573
+        },
+        {
+          "tid": 30940,
+          "name": "HLE.scePthreadMutexInit",
+          "count": 74,
+          "elapsed_ns": 8267191,
+          "max_ns": 579532
+        },
+        {
+          "tid": 30940,
+          "name": "HLE.scePthreadMutexattrDestroy",
+          "count": 71,
+          "elapsed_ns": 315413,
+          "max_ns": 28021
+        },
+        {
+          "tid": 30940,
+          "name": "HLE.scePthreadMutexattrSettype",
+          "count": 67,
+          "elapsed_ns": 311819,
+          "max_ns": 32552
+        },
+        {
+          "tid": 30940,
+          "name": "HLE.scePthreadMutexLock",
+          "count": 1657489,
+          "elapsed_ns": 6843854609,
+          "max_ns": 27741458
+        },
+        {
+          "tid": 30940,
+          "name": "HLE.pthread_mutex_lock",
+          "count": 109220,
+          "elapsed_ns": 1294904412,
+          "max_ns": 2927500
+        },
+        {
+          "tid": 30940,
+          "name": "HLE.pthread_mutex_unlock",
+          "count": 109220,
+          "elapsed_ns": 618974901,
+          "max_ns": 1781146
+        },
+        {
+          "tid": 30940,
+          "name": "HLE.pthread_cond_broadcast",
+          "count": 64,
+          "elapsed_ns": 69586,
+          "max_ns": 23490
+        },
+        {
+          "tid": 30940,
+          "name": "HLE.scePthreadMutexUnlock",
+          "count": 1657489,
+          "elapsed_ns": 5399521818,
+          "max_ns": 21927083
+        },
+        {
+          "tid": 30940,
+          "name": "HLE.pthread_mutexattr_init",
+          "count": 90,
+          "elapsed_ns": 130685053,
+          "max_ns": 78543073
+        },
+        {
+          "tid": 30940,
+          "name": "HLE.pthread_mutex_init",
+          "count": 90,
+          "elapsed_ns": 12748015,
+          "max_ns": 1163281
+        },
+        {
+          "tid": 30940,
+          "name": "HLE.pthread_mutexattr_destroy",
+          "count": 90,
+          "elapsed_ns": 213386,
+          "max_ns": 68490
+        },
+        {
+          "tid": 30940,
+          "name": "HLE.pthread_mutexattr_settype",
+          "count": 11,
+          "elapsed_ns": 26146,
+          "max_ns": 5677
+        },
+        {
+          "tid": 30940,
+          "name": "HLE.scePthreadMutexattrSetprotocol",
+          "count": 10,
+          "elapsed_ns": 5157,
+          "max_ns": 886
+        },
+        {
+          "tid": 30940,
+          "name": "HLE.scePthreadCondInit",
+          "count": 10,
+          "elapsed_ns": 504010,
+          "max_ns": 119114
+        },
+        {
+          "tid": 30940,
+          "name": "HLE.scePthreadCondBroadcast",
+          "count": 7523,
+          "elapsed_ns": 67714440,
+          "max_ns": 2001406
+        },
+        {
+          "tid": 30940,
+          "name": "HLE.scePthreadCondWait",
+          "count": 13028,
+          "elapsed_ns": 13865611138,
+          "max_ns": 146360781
+        },
+        {
+          "tid": 30940,
+          "name": "HLE.pthread_cond_init",
+          "count": 3,
+          "elapsed_ns": 1063073,
+          "max_ns": 603333
+        },
+        {
+          "tid": 30940,
+          "name": "HLE.sceKernelRead",
+          "count": 7,
+          "elapsed_ns": 48542,
+          "max_ns": 10833
+        },
+        {
+          "tid": 30940,
+          "name": "HLE.sceKernelPread",
+          "count": 1803,
+          "elapsed_ns": 39840529,
+          "max_ns": 323490
+        },
+        {
+          "tid": 30940,
+          "name": "HLE.scePthreadMutexDestroy",
+          "count": 2,
+          "elapsed_ns": 47500,
+          "max_ns": 31771
+        },
+        {
+          "tid": 30940,
+          "name": "HLE.pthread_cond_signal",
+          "count": 102,
+          "elapsed_ns": 754324,
+          "max_ns": 103854
+        },
+        {
+          "tid": 30940,
+          "name": "HLE.sceKernelUsleep",
+          "count": 24920,
+          "elapsed_ns": 28336372624,
+          "max_ns": 11896459
+        },
+        {
+          "tid": 30940,
+          "name": "GNM.SubmissionGate",
+          "count": 1877,
+          "elapsed_ns": 18975221616,
+          "max_ns": 327025886
+        },
+        {
+          "tid": 30940,
+          "name": "HLE.pthread_mutex_destroy",
+          "count": 2,
+          "elapsed_ns": 11406,
+          "max_ns": 6146
+        }
+      ],
+      "progress": [
+        {
+          "tid": 30960,
+          "name": "VideoOut.PreparedGuestFlips",
+          "first": 1,
+          "last": 937,
+          "first_ns": 410321735517227,
+          "last_ns": 410422280263112
+        },
+        {
+          "tid": 30997,
+          "name": "VideoOut.PresentedGuestFrames",
+          "first": 1,
+          "last": 936,
+          "first_ns": 410321784634519,
+          "last_ns": 410422345457071
+        }
+      ],
+      "unmatched": 0,
+      "open_scopes": 54,
+      "container_complete": true,
+      "truncated": false,
+      "chunks_skipped": 0,
+      "capture_complete": true,
+      "gpu_records": {
+        "context_defs": 0,
+        "zone_begins": 0,
+        "zone_ends": 0,
+        "times": 0,
+        "orphan_times": 0
+      }
+    },
+    "b": {
+      "process_id": 5965,
+      "main_tid": 6169,
+      "sha256": "96ad036ebd1f1625a89f9d5f85fc8d596a3b597190758e0c4bb18b15472d4783",
+      "events": 45025759,
+      "first_present_ms": 17918.949739,
+      "main": [
+        {
+          "tid": 6169,
+          "name": "HLE.scePthreadMutexattrInit",
+          "count": 73,
+          "elapsed_ns": 52828750,
+          "max_ns": 11738646
+        },
+        {
+          "tid": 6169,
+          "name": "HLE.scePthreadMutexInit",
+          "count": 74,
+          "elapsed_ns": 8887392,
+          "max_ns": 695208
+        },
+        {
+          "tid": 6169,
+          "name": "HLE.scePthreadMutexattrDestroy",
+          "count": 71,
+          "elapsed_ns": 270990,
+          "max_ns": 34844
+        },
+        {
+          "tid": 6169,
+          "name": "HLE.scePthreadMutexattrSettype",
+          "count": 67,
+          "elapsed_ns": 262240,
+          "max_ns": 29688
+        },
+        {
+          "tid": 6169,
+          "name": "HLE.scePthreadMutexLock",
+          "count": 1669229,
+          "elapsed_ns": 4955355562,
+          "max_ns": 30851354
+        },
+        {
+          "tid": 6169,
+          "name": "HLE.pthread_mutex_lock",
+          "count": 118148,
+          "elapsed_ns": 954416208,
+          "max_ns": 6458750
+        },
+        {
+          "tid": 6169,
+          "name": "HLE.pthread_mutex_unlock",
+          "count": 118148,
+          "elapsed_ns": 417841160,
+          "max_ns": 3593333
+        },
+        {
+          "tid": 6169,
+          "name": "HLE.pthread_cond_broadcast",
+          "count": 64,
+          "elapsed_ns": 84061,
+          "max_ns": 23229
+        },
+        {
+          "tid": 6169,
+          "name": "HLE.scePthreadMutexUnlock",
+          "count": 1669229,
+          "elapsed_ns": 3423341959,
+          "max_ns": 25933698
+        },
+        {
+          "tid": 6169,
+          "name": "HLE.pthread_mutexattr_init",
+          "count": 90,
+          "elapsed_ns": 68788804,
+          "max_ns": 24118125
+        },
+        {
+          "tid": 6169,
+          "name": "HLE.pthread_mutex_init",
+          "count": 90,
+          "elapsed_ns": 28291146,
+          "max_ns": 18781510
+        },
+        {
+          "tid": 6169,
+          "name": "HLE.pthread_mutexattr_destroy",
+          "count": 90,
+          "elapsed_ns": 108333,
+          "max_ns": 5834
+        },
+        {
+          "tid": 6169,
+          "name": "HLE.pthread_mutexattr_settype",
+          "count": 11,
+          "elapsed_ns": 18126,
+          "max_ns": 3907
+        },
+        {
+          "tid": 6169,
+          "name": "HLE.scePthreadMutexattrSetprotocol",
+          "count": 10,
+          "elapsed_ns": 5157,
+          "max_ns": 937
+        },
+        {
+          "tid": 6169,
+          "name": "HLE.scePthreadCondInit",
+          "count": 10,
+          "elapsed_ns": 468959,
+          "max_ns": 107500
+        },
+        {
+          "tid": 6169,
+          "name": "HLE.scePthreadCondBroadcast",
+          "count": 7588,
+          "elapsed_ns": 35627375,
+          "max_ns": 90469
+        },
+        {
+          "tid": 6169,
+          "name": "HLE.scePthreadCondWait",
+          "count": 12833,
+          "elapsed_ns": 13518006665,
+          "max_ns": 139373385
+        },
+        {
+          "tid": 6169,
+          "name": "HLE.pthread_cond_init",
+          "count": 3,
+          "elapsed_ns": 605052,
+          "max_ns": 324843
+        },
+        {
+          "tid": 6169,
+          "name": "HLE.sceKernelRead",
+          "count": 7,
+          "elapsed_ns": 49948,
+          "max_ns": 11458
+        },
+        {
+          "tid": 6169,
+          "name": "HLE.sceKernelPread",
+          "count": 1805,
+          "elapsed_ns": 39298436,
+          "max_ns": 175625
+        },
+        {
+          "tid": 6169,
+          "name": "HLE.scePthreadMutexDestroy",
+          "count": 2,
+          "elapsed_ns": 87551,
+          "max_ns": 82708
+        },
+        {
+          "tid": 6169,
+          "name": "HLE.pthread_cond_signal",
+          "count": 102,
+          "elapsed_ns": 260836,
+          "max_ns": 25313
+        },
+        {
+          "tid": 6169,
+          "name": "HLE.sceKernelUsleep",
+          "count": 24545,
+          "elapsed_ns": 28981707912,
+          "max_ns": 12122135
+        },
+        {
+          "tid": 6169,
+          "name": "GNM.SubmissionGate",
+          "count": 2135,
+          "elapsed_ns": 19307443137,
+          "max_ns": 327263594
+        },
+        {
+          "tid": 6169,
+          "name": "HLE.pthread_mutex_destroy",
+          "count": 2,
+          "elapsed_ns": 19115,
+          "max_ns": 9844
+        }
+      ],
+      "progress": [
+        {
+          "tid": 6226,
+          "name": "VideoOut.PreparedGuestFlips",
+          "first": 1,
+          "last": 1066,
+          "first_ns": 410751335279406,
+          "last_ns": 410853402821958
+        },
+        {
+          "tid": 6265,
+          "name": "VideoOut.PresentedGuestFrames",
+          "first": 1,
+          "last": 1065,
+          "first_ns": 410751386949927,
+          "last_ns": 410853462862063
+        }
+      ],
+      "unmatched": 0,
+      "open_scopes": 54,
+      "container_complete": true,
+      "truncated": false,
+      "chunks_skipped": 0,
+      "capture_complete": true,
+      "gpu_records": {
+        "context_defs": 0,
+        "zone_begins": 0,
+        "zone_ends": 0,
+        "times": 0,
+        "orphan_times": 0
+      }
+    }
+  },
+  "limits": [
+    "No FEX in native mutex benchmark",
+    "Raw prototype is not production pthread ABI",
+    "No matched-phase/gameplay speedup claim",
+    "Earlier baseline old-APK crash retained",
+    "No full regression or commit/push"
+  ],
+  "final_state": {
+    "pid": 5965,
+    "generation": 2,
+    "stage": "Running",
+    "visual": "rooftop MOVE, about 12 FPS",
+    "warmup_status": "TIMEOUT_UNVERIFIED",
+    "profile_sync": 0,
+    "profile_startup_seconds": 0,
+    "automatic_input": "finished",
+    "debugger": "TracerPid 0"
+  }
+}

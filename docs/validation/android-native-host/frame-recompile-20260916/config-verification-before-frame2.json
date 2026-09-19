@@ -1,0 +1,33 @@
+{
+  "custom_args_env_preserved": true,
+  "entries": {
+    "spatial-debug-tool": {
+      "version": "spatial_debug_tool_mcp-0.1.0-local.20260827.235844-osx-arm64",
+      "command_changed": false
+    },
+    "scrcpy": {
+      "version": "scrcpy_mcp-0.2.0-local.20260908.221714-osx-arm64",
+      "command_changed": false
+    },
+    "native-debugger": {
+      "version": "native_debugger_mcp-0.2.0-local.20260915.fex-mixed2-osx-arm64",
+      "command_changed": false
+    },
+    "gpu-snapshot": {
+      "version": "gpu_snapshot_mcp-0.1.0-local.20260827.235844-osx-arm64",
+      "command_changed": false
+    },
+    "ptracy": {
+      "version": "ptracy_mcp-0.1.0-beta.20260905.32584-osx-arm64",
+      "command_changed": false
+    },
+    "renderdoc": {
+      "version": "renderdoc_mcp-0.1.0-local.20260907.150004-osx-arm64",
+      "command_changed": false
+    },
+    "reverse_study": {
+      "version": "reverse_study_mcp-0.3.0-local.20260916.frame1-osx-arm64",
+      "command_changed": true
+    }
+  }
+}

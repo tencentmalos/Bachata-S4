@@ -95,6 +95,22 @@ public:
         return id;
     }
 
+    // Logical 64-bit integers are scalar on native devices and {lo, hi} otherwise.
+    // Keep address calculations here too: BDA does not require shaderInt64.
+    Id ConstU64(u64 value);
+    Id PackU64(Id pair);
+    Id UnpackU64(Id value);
+    Id WidenU32(Id value);
+    Id NarrowU64(Id value);
+    Id AddU64(Id a, Id b);
+    Id SubU64(Id a, Id b);
+    Id MulU64(Id a, Id b);
+    Id ShiftU64(Id value, Id shift, bool left, bool arithmetic = false);
+    Id EqualU64(Id a, Id b);
+    Id LessU64(Id a, Id b, bool is_signed = false);
+    Id FloatToU64(Id value, bool is_signed, bool fp64);
+    Id U64ToFloat(Id value, bool is_signed, bool fp64);
+
     [[nodiscard]] Id ConstU32(u32 value) {
         return Constant(U32[1], value);
     }
@@ -150,13 +166,14 @@ public:
         const Id merge_label = OpLabel();
 
         const Id addr = OpFunctionCall(U64, get_bda_pointer, address);
-        const Id is_available = OpINotEqual(U1[1], addr, u64_zero_value);
+        const Id is_available = OpLogicalNot(U1[1], EqualU64(addr, u64_zero_value));
         OpSelectionMerge(merge_label, spv::SelectionControlMask::MaskNone);
         OpBranchConditional(is_available, available_label, fallback_label);
 
         // Available
         AddLabel(available_label);
-        const Id addr_ptr = OpConvertUToPtr(physical_pointer_type_u32, addr);
+        const Id addr_ptr = profile.support_int64 ? OpConvertUToPtr(physical_pointer_type_u32, addr)
+                                                  : OpBitcast(physical_pointer_type_u32, addr);
         const Id result = OpLoad(U32[1], addr_ptr, spv::MemoryAccessMask::Aligned, 4u);
         OpBranch(merge_label);
 
@@ -245,6 +262,7 @@ public:
     boost::container::small_vector<Id, 16> interfaces;
 
     Id output_position{};
+    Id depth_vertex_block{};
     Id output_point_size{};
     Id output_layer{};
     Id output_viewport_index{};
@@ -260,6 +278,7 @@ public:
     Id sample_mask{};
     Id sample_index{};
     Id clip_distances{};
+    std::array<u32, 2> depth_clip_slots{8U, 8U};
     Id cull_distances{};
 
     Id patch_vertices{};

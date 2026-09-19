@@ -44,7 +44,7 @@ struct TestMemory : GuestMemoryBackend {
             throw std::runtime_error("map");
         return reinterpret_cast<void*>(a);
     }
-    void* MapFile(VAddr, u64, u64, u32, uintptr_t) override {
+    void* MapFile(VAddr, u64, u64, u32, uintptr_t, bool) override {
         throw std::runtime_error("unused");
     }
     void Unmap(VAddr a, u64 n) override {

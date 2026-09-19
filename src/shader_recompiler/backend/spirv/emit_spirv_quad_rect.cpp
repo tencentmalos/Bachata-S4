@@ -4,6 +4,8 @@
 #include <sirit/sirit.h>
 #include "shader_recompiler/backend/spirv/emit_spirv_quad_rect.h"
 #include "shader_recompiler/runtime_info.h"
+#include "shader_recompiler/info.h"
+#include "shader_recompiler/profile.h"
 
 namespace Shader::Backend::SPIRV {
 
@@ -12,8 +14,8 @@ using Sirit::Id;
 constexpr u32 SPIRV_VERSION_1_5 = 0x00010500;
 
 struct QuadRectListEmitter : public Sirit::Module {
-    explicit QuadRectListEmitter(const FragmentRuntimeInfo& fs_info_)
-        : Sirit::Module{SPIRV_VERSION_1_5}, fs_info{fs_info_} {
+    explicit QuadRectListEmitter(std::span<const u32> locations_, bool depth_clip_)
+        : Sirit::Module{SPIRV_VERSION_1_5}, locations{locations_.begin(), locations_.end()}, depth_clip{depth_clip_} {
         void_id = TypeVoid();
         bool_id = TypeBool();
         float_id = TypeFloat(32);
@@ -28,8 +30,9 @@ struct QuadRectListEmitter : public Sirit::Module {
         float_min_one = Constant(float_id, -1.0f);
         int_zero = Constant(int_id, 0);
 
-        const Id float_arr{TypeArray(float_id, Constant(uint_id, 1U))};
-        gl_per_vertex_type = TypeStruct(vec4_id, float_id, float_arr, float_arr);
+        const Id float_arr{TypeArray(float_id, Constant(uint_id, depth_clip ? 8U : 1U))};
+        gl_per_vertex_type = depth_clip ? TypeStruct(vec4_id, float_id, float_arr)
+                                        : TypeStruct(vec4_id, float_id, float_arr, float_arr);
         Decorate(gl_per_vertex_type, spv::Decoration::Block);
         MemberDecorate(gl_per_vertex_type, 0U, spv::Decoration::BuiltIn,
                        static_cast<u32>(spv::BuiltIn::Position));
@@ -37,8 +40,9 @@ struct QuadRectListEmitter : public Sirit::Module {
                        static_cast<u32>(spv::BuiltIn::PointSize));
         MemberDecorate(gl_per_vertex_type, 2U, spv::Decoration::BuiltIn,
                        static_cast<u32>(spv::BuiltIn::ClipDistance));
-        MemberDecorate(gl_per_vertex_type, 3U, spv::Decoration::BuiltIn,
-                       static_cast<u32>(spv::BuiltIn::CullDistance));
+        if (!depth_clip)
+            MemberDecorate(gl_per_vertex_type, 3U, spv::Decoration::BuiltIn,
+                           static_cast<u32>(spv::BuiltIn::CullDistance));
     }
 
     /// Emits tessellation control shader for interpolating the 4th vertex of rectange primitive
@@ -115,6 +119,24 @@ struct QuadRectListEmitter : public Sirit::Module {
         const Id position{OpSelect(vec4_id, invocation_3, pos3, OpLoad(vec4_id, in_ptr))};
         OpStore(OpAccessChain(output_vec4, gl_out, invocation_id, Int(0)), position);
 
+        if (depth_clip) {
+            const Id in_float = TypePointer(spv::StorageClass::Input, float_id);
+            const Id out_float = TypePointer(spv::StorageClass::Output, float_id);
+            for (int c = 0; c < 8; ++c) {
+                std::array<Id, 3> d;
+                for (int v = 0; v < 3; ++v)
+                    d[v] = OpLoad(float_id, OpAccessChain(in_float, gl_in, Int(v), Int(2), Int(c)));
+                const Id interpolated =
+                    OpFAdd(float_id, OpFMul(float_id, d[0], bary_coord[0]),
+                           OpFAdd(float_id, OpFMul(float_id, d[1], bary_coord[1]),
+                                  OpFMul(float_id, d[2], bary_coord[2])));
+                const Id original =
+                    OpLoad(float_id, OpAccessChain(in_float, gl_in, index, Int(2), Int(c)));
+                OpStore(OpAccessChain(out_float, gl_out, invocation_id, Int(2), Int(c)),
+                        OpSelect(float_id, invocation_3, interpolated, original));
+            }
+        }
+
         // Set attributes
         for (int i = 0; i < inputs.size(); i++) {
             // vec4 in_paramN3 = interpolate(bary_coord, in_paramN[0], in_paramN[1], in_paramN[2]);
@@ -160,6 +182,8 @@ struct QuadRectListEmitter : public Sirit::Module {
         // gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
         const Id in_position{OpLoad(vec4_id, OpAccessChain(input_vec4, gl_in, index, Int(0)))};
         OpStore(OpAccessChain(output_vec4, gl_out, invocation_id, Int(0)), in_position);
+        if (depth_clip)
+            CopyClipDistances(index, invocation_id, true);
 
         for (int i = 0; i < inputs.size(); i++) {
             // out_paramN[gl_InvocationID] = in_paramN[gl_InvocationID];
@@ -187,6 +211,8 @@ struct QuadRectListEmitter : public Sirit::Module {
         const Id output_vec4{TypePointer(spv::StorageClass::Output, vec4_id)};
         const Id position{OpLoad(vec4_id, OpAccessChain(input_vec4, gl_in, index, Int(0)))};
         OpStore(OpAccessChain(output_vec4, gl_per_vertex, Int(0)), position);
+        if (depth_clip)
+            CopyClipDistances(index, {}, false);
 
         // out_paramN = in_paramN[index];
         for (int i = 0; i < inputs.size(); i++) {
@@ -199,6 +225,18 @@ struct QuadRectListEmitter : public Sirit::Module {
     }
 
 private:
+    void CopyClipDistances(Id index, Id invocation, bool control) {
+        const Id in_float = TypePointer(spv::StorageClass::Input, float_id);
+        const Id out_float = TypePointer(spv::StorageClass::Output, float_id);
+        for (int c = 0; c < 8; ++c) {
+            const Id value =
+                OpLoad(float_id, OpAccessChain(in_float, gl_in, index, Int(2), Int(c)));
+            const Id dst = control ? OpAccessChain(out_float, gl_out, invocation, Int(2), Int(c))
+                                   : OpAccessChain(out_float, gl_per_vertex, Int(2), Int(c));
+            OpStore(dst, value);
+        }
+    }
+
     Id Int(s32 value) {
         return Constant(int_id, value);
     }
@@ -220,6 +258,8 @@ private:
     void DefineEntry(spv::ExecutionModel model) {
         AddCapability(spv::Capability::Shader);
         AddCapability(spv::Capability::Tessellation);
+        if (depth_clip)
+            AddCapability(spv::Capability::ClipDistance);
         const Id void_function{TypeFunction(void_id)};
         main = OpFunction(void_id, spv::FunctionControlMask::MaskNone, void_function);
         if (model == spv::ExecutionModel::TessellationControl) {
@@ -252,16 +292,12 @@ private:
         } else {
             gl_per_vertex = AddOutput(gl_per_vertex_type);
         }
-        outputs.reserve(fs_info.num_inputs);
-        for (int i = 0; i < fs_info.num_inputs; i++) {
-            const auto& input = fs_info.inputs[i];
-            if (input.IsDefault()) {
-                continue;
-            }
+        outputs.reserve(locations.size());
+        for (const u32 location : locations) {
             outputs.emplace_back(AddOutput(model == spv::ExecutionModel::TessellationControl
                                                ? TypeArray(vec4_id, Int(4))
                                                : vec4_id));
-            Decorate(outputs.back(), spv::Decoration::Location, input.param_index);
+            Decorate(outputs.back(), spv::Decoration::Location, location);
         }
     }
 
@@ -276,19 +312,16 @@ private:
         const Id gl_per_vertex_array{TypeArray(gl_per_vertex_type, Constant(uint_id, 32U))};
         gl_in = AddInput(gl_per_vertex_array);
         const Id float_arr{TypeArray(vec4_id, Int(32))};
-        inputs.reserve(fs_info.num_inputs);
-        for (int i = 0; i < fs_info.num_inputs; i++) {
-            const auto& input = fs_info.inputs[i];
-            if (input.IsDefault()) {
-                continue;
-            }
+        inputs.reserve(locations.size());
+        for (const u32 location : locations) {
             inputs.emplace_back(AddInput(float_arr));
-            Decorate(inputs.back(), spv::Decoration::Location, input.param_index);
+            Decorate(inputs.back(), spv::Decoration::Location, location);
         }
     }
 
 private:
-    FragmentRuntimeInfo fs_info;
+    std::vector<u32> locations;
+    bool depth_clip{};
     Id main;
     Id void_id;
     Id bool_id;
@@ -319,8 +352,21 @@ private:
     std::vector<Id> interfaces;
 };
 
-std::vector<u32> EmitAuxilaryTessShader(AuxShaderType type, const FragmentRuntimeInfo& fs_info) {
-    QuadRectListEmitter ctx{fs_info};
+std::vector<u32> AuxiliaryVaryingLocations(const Info& vertex, const Profile& profile) {
+    const bool clip = vertex.stage == Stage::Vertex && profile.needs_clip_distance_emulation &&
+                      vertex.stores.GetAny(IR::Attribute::ClipDistance);
+    std::vector<u32> locations;
+    if (clip) locations.push_back(0);
+    for (u32 param = 0; param < IR::NumParams; ++param) {
+        if (vertex.stores.GetAny(IR::Attribute::Param0 + param))
+            locations.push_back(param + (clip ? 1 : 0));
+    }
+    return locations;
+}
+
+std::vector<u32> EmitAuxilaryTessShader(AuxShaderType type, std::span<const u32> locations,
+                                        bool depth_clip_passthrough) {
+    QuadRectListEmitter ctx{locations, depth_clip_passthrough};
     switch (type) {
     case AuxShaderType::RectListTCS:
         ctx.EmitRectListTCS();

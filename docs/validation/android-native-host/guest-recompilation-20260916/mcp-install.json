@@ -1,0 +1,17 @@
+{
+  "current_pointer": "/Users/bytedance/Library/Application Support/ReverseStudy/Mcp/current.txt",
+  "dotnet_root": "",
+  "install_path": "/Users/bytedance/Library/Application Support/ReverseStudy/Mcp/versions/reverse_study_mcp-0.3.0-local.20260916.recompile2-osx-arm64",
+  "install_root": "/Users/bytedance/Library/Application Support/ReverseStudy/Mcp",
+  "product": "reverse_study_mcp",
+  "release_notes": "Guest recompilation bundle including exact SDK code/data references and isolated differential replay.",
+  "release_notes_file": "",
+  "release_notes_url": "",
+  "rid": "osx-arm64",
+  "skill_paths": [
+    "/Users/bytedance/Library/Application Support/ReverseStudy/Mcp/versions/reverse_study_mcp-0.3.0-local.20260916.recompile2-osx-arm64/skills/guest-auto-tag/SKILL.md",
+    "/Users/bytedance/Library/Application Support/ReverseStudy/Mcp/versions/reverse_study_mcp-0.3.0-local.20260916.recompile2-osx-arm64/skills/reverse-study/SKILL.md"
+  ],
+  "state_path": "/Users/bytedance/Library/Application Support/ReverseStudy/Mcp/reverse_study_mcp.state.json",
+  "version": "0.3.0-local.20260916.recompile2"
+}

@@ -72,33 +72,61 @@ inline constexpr ThreadAttrEntry ThreadAttrEntries[]{
 class GuestThreadAttributeDomain final {
     GuestCpu::GuestAddressSpace& space;
     std::function<u64()> allocate;
-    std::recursive_mutex* vm_mutex{};
+
     std::mutex mutex;
     std::map<u64, GuestThreadAttributes> objects;
     size_t allocations{};
     template <class T>
     bool Read(u64 address, T& value) {
-        return bool(space.Read(GuestCpu::GuestAddress{address},
-                               std::as_writable_bytes(std::span{&value, 1})));
+        return bool(space.ReadData(GuestCpu::GuestAddress{address},
+                                   std::as_writable_bytes(std::span{&value, 1})));
     }
     template <class T>
     int Write(u64 address, const T& value) {
-        return space.Write(GuestCpu::GuestAddress{address}, std::as_bytes(std::span{&value, 1}))
+        return space.WriteData(GuestCpu::GuestAddress{address}, std::as_bytes(std::span{&value, 1}))
                    ? 0
                    : POSIX_EFAULT;
     }
 
 public:
     static constexpr u64 MaxStack = 64ULL << 20;
-    GuestThreadAttributeDomain(GuestCpu::GuestAddressSpace& space, std::function<u64()> allocate,
-                               std::recursive_mutex* vm_mutex = nullptr)
-        : space(space), allocate(std::move(allocate)), vm_mutex(vm_mutex) {}
+    GuestThreadAttributeDomain(GuestCpu::GuestAddressSpace& space, std::function<u64()> allocate)
+        : space(space), allocate(std::move(allocate)) {}
     static bool ValidSize(u64 size) {
         return size >= 0x4000 && size <= MaxStack;
     }
     static bool ValidPriority(s32 policy, s32 priority) {
         return policy == 2 ? priority >= 0x300 && priority <= 0x3bf
                            : (policy == 1 || policy == 3) && priority >= 0x100 && priority <= 0x2ff;
+    }
+    // Shared by attributes and live-thread APIs. This is a guest CPU mask;
+    // desktop records it without imposing native CPU affinity.
+    static int ReadAffinity(GuestCpu::GuestAddressSpace& space, bool scalar,
+                            u64 a, u64 b, u64& mask) {
+        mask = a;
+        if (!scalar) {
+            if (!a || !b) { mask = 0; return 0; }
+            if (a < 8 || a > 128) return POSIX_EINVAL;
+            std::array<u8, 128> bytes{};
+            if (!space.ReadData(GuestCpu::GuestAddress{b},
+                                std::as_writable_bytes(std::span{bytes}).first(a)))
+                return POSIX_EFAULT;
+            std::memcpy(&mask, bytes.data(), 8);
+            if (std::any_of(bytes.begin() + 8, bytes.end(), [](u8 v) { return v; }))
+                return POSIX_EINVAL;
+        }
+        return !mask || (mask & ~u64{0xff}) ? POSIX_EINVAL : 0;
+    }
+    static int WriteAffinity(GuestCpu::GuestAddressSpace& space, bool scalar,
+                             u64 a, u64 b, u64 affinity) {
+        const u64 size = scalar ? 8 : a;
+        if (size < 8 || size > 128) return POSIX_EINVAL;
+        auto pin = space.AcquireDataSpan({GuestCpu::GuestAddress{scalar ? a : b}, size}, true);
+        if (!pin) return POSIX_EFAULT;
+        const u64 mask = affinity ? affinity : 0xff;
+        std::fill(pin.Value().WritableBytes().begin(), pin.Value().WritableBytes().end(), std::byte{});
+        std::memcpy(pin.Value().WritableBytes().data(), &mask, 8);
+        return 0;
     }
     int Snapshot(u64 slot, GuestThreadAttributes& out) {
         std::lock_guard lock(mutex);
@@ -129,8 +157,7 @@ public:
     int Invoke(const ThreadAttrEntry& entry, u64 slot, u64 a, u64 b) {
         std::lock_guard lock(mutex);
         // No guest wait/callback in an attribute operation; pins stay local.
-        std::unique_lock<std::recursive_mutex> vm;
-        if (vm_mutex) vm = std::unique_lock(*vm_mutex);
+
         u64 handle{};
         if (!Read(slot, handle))
             return POSIX_EFAULT;
@@ -145,7 +172,7 @@ public:
                 return POSIX_ENOMEM;
             const u64 address = allocate(); // VM transaction precedes output pin.
             ++allocations;
-            auto pin = space.AcquirePinnedSpan({GuestCpu::GuestAddress{slot}, 8}, true);
+            auto pin = space.AcquireDataSpan({GuestCpu::GuestAddress{slot}, 8}, true);
             if (!pin)
                 return POSIX_EFAULT;
             objects.emplace(address, GuestThreadAttributes{});
@@ -165,12 +192,15 @@ public:
             return POSIX_ENOTSUP; // No resume gate yet.
         if (entry.op == ThreadAttrOp::Stack) {
             if (entry.get) {
-                auto address = space.AcquirePinnedSpan({GuestCpu::GuestAddress{a}, 8}, true);
-                auto size = space.AcquirePinnedSpan({GuestCpu::GuestAddress{b}, 8}, true);
-                if (!address || !size)
+                using namespace GuestCpu;
+                const std::array<GuestAddressSpace::DataRequest, 2> requests{
+                    {{{GuestAddress{a}, 8}, GuestPermission::Write},
+                     {{GuestAddress{b}, 8}, GuestPermission::Write}}};
+                auto pinned = space.AcquireDataBatch(requests);
+                if (!pinned)
                     return POSIX_EFAULT;
-                std::memcpy(address.Value().WritableBytes().data(), &value.stack, 8);
-                std::memcpy(size.Value().WritableBytes().data(), &value.size, 8);
+                std::memcpy(pinned.Value()[0].WritableBytes().data(), &value.stack, 8);
+                std::memcpy(pinned.Value()[1].WritableBytes().data(), &value.size, 8);
             } else {
                 if (!a || a % 16 || !ValidSize(b) || a > UINT64_MAX - b)
                     return POSIX_EINVAL;
@@ -180,39 +210,11 @@ public:
             return 0;
         }
         if (entry.op == ThreadAttrOp::Affinity || entry.op == ThreadAttrOp::AffinityMask) {
-            if (entry.get) {
-                const u64 mask = value.affinity ? value.affinity : 0xff;
-                if (entry.op == ThreadAttrOp::AffinityMask)
-                    return Write(a, mask);
-                if (a < 8 || a > 128)
-                    return POSIX_EINVAL;
-                auto pin = space.AcquirePinnedSpan({GuestCpu::GuestAddress{b}, a}, true);
-                if (!pin)
-                    return POSIX_EFAULT;
-                std::fill(pin.Value().WritableBytes().begin(), pin.Value().WritableBytes().end(),
-                          std::byte{});
-                std::memcpy(pin.Value().WritableBytes().data(), &mask, 8);
-            } else {
-                u64 mask = a;
-                if (entry.op == ThreadAttrOp::Affinity) {
-                    if (!a || !b) {
-                        value.affinity = 0;
-                        return 0;
-                    }
-                    if (a < 8 || a > 128)
-                        return POSIX_EINVAL;
-                    std::array<u8, 128> bytes{};
-                    if (!space.Read(GuestCpu::GuestAddress{b},
-                                    std::as_writable_bytes(std::span{bytes}).first(a)))
-                        return POSIX_EFAULT;
-                    std::memcpy(&mask, bytes.data(), 8);
-                    if (std::any_of(bytes.begin() + 8, bytes.end(), [](u8 v) { return v; }))
-                        return POSIX_EINVAL;
-                }
-                if (!mask || (mask & ~u64{0xff}))
-                    return POSIX_EINVAL;
-                value.affinity = mask;
-            }
+            const bool scalar = entry.op == ThreadAttrOp::AffinityMask;
+            if (entry.get) return WriteAffinity(space, scalar, a, b, value.affinity);
+            u64 mask{};
+            if (int error = ReadAffinity(space, scalar, a, b, mask)) return error;
+            value.affinity = mask;
             return 0;
         }
         u64* wide{};

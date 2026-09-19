@@ -1,0 +1,18 @@
+--------- beginning of main
+09-15 18:06:36.106   410  8285 I ProductionModule: SysmoduleLoad id=0xa5 name=libSceAvPlayer result=0
+09-15 18:07:52.128   410   410 W Choreographer: Frame time is 0.036887 ms in the future!  Check that graphics HAL is generating vsync timestamps using the correct timebase.
+09-15 18:16:17.130   410   438 D shadps4.android: PlayerBase::~PlayerBase()
+09-15 18:28:50.195   410   410 I Choreographer: Skipped 905 frames!  The application may be doing too much work on its main thread.
+09-15 18:28:50.196   410  8343 W AudioTrack: restartIfDisabled(419): releaseBuffer() track 0xb400007944ce7c40 disabled due to previous underrun, restarting
+09-15 18:28:50.200   410  8285 I ProductionRuntime: run: guest returned to host
+09-15 18:28:50.200   410  8285 I ProductionRuntime: run: terminal outcome=BackendFailed detail=Timeout in Run continuation: publication admission remained busy
+09-15 18:28:50.206   410 13148 D AudioStreamLegacy: onAudioDeviceUpdate(deviceId = 2)
+09-15 18:28:50.217   410  8285 D AAudio  : AAudioStream_requestStop(s#4) called
+09-15 18:28:50.217   410  8285 D AAudioStream: setState(s#4) from 4 to 9
+09-15 18:28:50.217   410  8285 D AudioTrack: stop(419): called with 67286400 frames delivered
+09-15 18:28:50.217   410  8285 D AAudio  : AAudioStream_requestStop(s#4) called
+09-15 18:28:50.238   410  8285 D AAudio  : AAudioStream_close(s#4) called ---------------
+09-15 18:28:50.239   410  8285 D AAudioStream: setState(s#4) from 9 to 11
+09-15 18:28:50.239   410  8285 D AAudioStream: setState(s#4) from 11 to 12
+09-15 18:28:50.239   410  8285 D AAudioStream: ~AudioStream(s#4) mPlayerBase strongCount = 2
+09-15 18:28:50.239   410  8285 D AAudio  : AAudioStream_close(s#4) returned 0 ---------

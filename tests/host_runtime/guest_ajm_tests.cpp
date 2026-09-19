@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <cstdio>
 #include <fstream>
+#include <future>
 #include <thread>
 #include "core/guest_cpu/api/address_space.h"
 #include "core/host_runtime/guest_ajm.h"
@@ -31,8 +32,7 @@ int main(int argc, char** argv) {
     CHECK(space->Map({GuestAddress{base}, 0x3000}, rw));
     CHECK(space->Map({GuestAddress{base + 0x3000}, 0x1000}, rw));
     CHECK(space->Map({GuestAddress{base + 0x4000}, 0xfc000}, rw));
-    std::recursive_mutex vm;
-    GuestAjm ajm(*space, vm);
+    GuestAjm ajm(*space);
     auto call = [&](std::string_view nid, std::array<u64, 10> a = {}) {
         return ajm.Dispatch(nid, a);
     };
@@ -77,47 +77,47 @@ int main(int argc, char** argv) {
     CHECK(read.operator()<AjmSidebandResult>(output).result == 0);
     CHECK(wait(id) == u32(ORBIS_AJM_ERROR_INVALID_BATCH));
     CHECK(call("RbLbuKv8zho", {ctx, instance | 0x4000}) == u32(ORBIS_AJM_ERROR_INVALID_INSTANCE));
-    // Both queued cancellation and same-VA remap are deterministic: worker cannot
-    // publish while the submitting thread holds the VM gate. No settle sleeps.
-    {
-        std::lock_guard gate(vm);
+    // Close only this output range while its submitting owner retains the old
+    // bytes. The worker must wait without partial pins; no external VM gate.
+    auto delayed = [&](GuestRange held, GuestRange changed, bool replace, auto action) {
+        auto retained = space->AcquireDataSpan(held, true);
+        CHECK(retained);
+        std::stop_source stop;
+        auto edit = std::async(std::launch::async, [&] {
+            return space->UpdateDataMapping(GuestAddressSpace::VmOperation::Map, changed, rw, -1, 0,
+                                            stop.get_token());
+        });
+        const auto until = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+        while (!space->Counts().retiring_ranges && std::chrono::steady_clock::now() < until)
+            std::this_thread::yield();
+        if (!space->Counts().retiring_ranges)
+            std::_Exit(3);
         CHECK(start() == 0);
         id = read.operator()<u32>(idout);
+        action();
+        if (!replace)
+            stop.request_stop();
+        retained = MakeError(ErrorCategory::InvalidArgument, "test", "release");
+        const auto result = edit.get();
+        CHECK(replace ? bool(result) : !result);
+    };
+    delayed({GuestAddress{output}, 0x1000}, {GuestAddress{output}, 0x1000}, false, [&] {
         CHECK(call("RbLbuKv8zho", {ctx, instance}) == u32(ORBIS_AJM_ERROR_BUSY));
         CHECK(call("NVDXiUesSbA", {ctx + 1, id}) == u32(ORBIS_AJM_ERROR_INVALID_CONTEXT));
         CHECK(call("NVDXiUesSbA", {ctx, id}) == 0);
-    }
+    });
     CHECK(wait(id) == u32(ORBIS_AJM_ERROR_CANCELLED));
-    {
-        std::lock_guard gate(vm);
-        CHECK(start() == 0);
-        id = read.operator()<u32>(idout);
-        CHECK(space->Unmap({GuestAddress{output}, 0x1000}));
-        CHECK(space->Map({GuestAddress{output}, 0x1000}, rw));
-        write(output, u64(0xdeadbeefdeadbeef));
-    }
+    delayed({GuestAddress{output}, 0x1000}, {GuestAddress{output}, 0x1000}, true, [] {});
+    write(output, u64(0xdeadbeefdeadbeef));
     CHECK(wait(id) == u32(ORBIS_AJM_ERROR_INVALID_ADDRESS));
     CHECK(read.operator()<u64>(output) == 0xdeadbeefdeadbeef);
-    // Unrelated VM changes must not spuriously invalidate the destination identity.
-    {
-        std::lock_guard gate(vm);
-        CHECK(start() == 0);
-        id = read.operator()<u32>(idout);
-        CHECK(space->Map({GuestAddress{base + 0x200000}, 0x1000}, rw));
-    }
+    delayed({GuestAddress{output}, 0x1000}, {GuestAddress{output}, 0x1000}, false, [&] {
+        CHECK(space->MapFreshData({GuestAddress{base + 0x200000}, 0x1000}, rw));
+    });
     CHECK(wait(id) == 0);
-    // A split/remap in the middle of one original mapping must also be detected.
     CHECK(call("dmDybN--Fn8", {batch, instance, 1, 0, 0, base + 0x5000, 0x3000, 0}) == batch + 48);
-    {
-        std::lock_guard gate(vm);
-        CHECK(start() == 0);
-        id = read.operator()<u32>(idout);
-        auto token = space->Quiesce(0);
-        CHECK(token);
-        if (token)
-            CHECK(space->UpdateVmUnderToken(token.Value(), GuestAddressSpace::VmOperation::Map,
-                                            {GuestAddress{base + 0x6000}, 0x1000}, rw));
-    }
+    delayed({GuestAddress{base + 0x5000}, 0x3000}, {GuestAddress{base + 0x6000}, 0x1000}, true,
+            [] {});
     write(base + 0x6000, u64(0xabcabc));
     CHECK(wait(id) == u32(ORBIS_AJM_ERROR_INVALID_ADDRESS));
     CHECK(read.operator()<u64>(base + 0x6000) == 0xabcabc);

@@ -1,0 +1,34 @@
+{
+  "apk_sha256": "37330cd7d17903d8417e4be4f01b2de5cc820bdf1e10eaba6bda0b35af05fd8e",
+  "variant": "playstoreDebug",
+  "host_jni_configuration": "RelWithDebInfo",
+  "fex_configuration": "Release",
+  "libraries": {
+    "lib/arm64-v8a/libshadps4_host.so": {
+      "sha256": "716d910360e975d40dec578471a1e55e1ac230f215b1b81b358847eeb087f287",
+      "bytes": 460857368,
+      "build_id": "0f5649b4d3b8f518aa568923e7908879b07c288a"
+    },
+    "lib/arm64-v8a/libshadps4_fex_session.so": {
+      "sha256": "3f867e3565713fc54c96b571293b16638999264b2124b6e37568299b49a3d70a",
+      "bytes": 35207448,
+      "build_id": "717514731d098a4ff3b5fe782737434933366fad"
+    }
+  },
+  "source_head": "4da582b7b3a36d74403a4985c3c03f37e570bcb7",
+  "dirty": true,
+  "source_sha256": {
+    "src/core/host_runtime/guest_http2.h": "60d4c132d8f50b4fa9586556000c635e181e1625abf70d2d2d16c65f99d90ec6",
+    "src/core/host_runtime/guest_http2_compat.h": "b2b4e9741f5190f459e61f7378741221dc6aba2bb838addeca05436342279c34",
+    "src/core/host_runtime/guest_runtime.cpp": "40e07d85b163cb0de5dc6cf64037e33daa08d310e1dad15969f4c1da2e2b9eaf",
+    "src/core/host_runtime/session_backend_fex.cpp": "6450e1a7274d805b945d1ceeff7a69b603aa381c018a16015f522dced0b7129a",
+    "src/core/libraries/network/http2.cpp": "d012846262e75b82b733df278fa35e4f4844e5e340e920800f2f389eac1eb158",
+    "src/core/libraries/network/http2.h": "692f816eda740df4a7cac35018195abec84a027ca02390f196eadb9f6261b08a",
+    "src/core/libraries/network/http2_async_policy.h": "7605c90dc91b093882b73225ef02a71a3af0ea477d9ec682e850b9a8faa25002",
+    "tests/host_runtime/guest_http2_tests.cpp": "b3d926afa76bf622a0224eca85844ede18718c250ec3c0b8a9ac1706aac0ee6d",
+    "CMakeLists.txt": "539ef8f3632e2af76a2b7162c2ea086f75d8c70098460b6fd68bbef94d6020df"
+  },
+  "FEX_head": "385a0cc4d81cd456c8d5c26b4f09cb5a7d8d5842",
+  "FEX_dirty_diff_sha256": "7661a4bd02abca33d297be367e12d3a0b53d33bd220e201772fa7a9421f8b4fa",
+  "Foundation_head": "8a564bfe3b69b9ac41664f3a03e56a379c6f4ace"
+}

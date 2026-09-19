@@ -24,14 +24,10 @@ void PostProcessingPass::Create(const Instance& instance, const vk::Format surfa
         HostShaders::POST_PROCESS_FRAG,
     };
 
-    boost::container::static_vector<vk::DescriptorSetLayoutBinding, 2> bindings{
-        {
-            .binding = 0,
-            .descriptorType = vk::DescriptorType::eCombinedImageSampler,
-            .descriptorCount = 1,
-            .stageFlags = vk::ShaderStageFlagBits::eFragment,
-        },
-    };
+    std::array<vk::DescriptorSetLayoutBinding, 4> bindings{};
+    for (u32 i = 0; i < bindings.size(); ++i) bindings[i] = {
+        .binding = i, .descriptorType = vk::DescriptorType::eCombinedImageSampler,
+        .descriptorCount = 1, .stageFlags = vk::ShaderStageFlagBits::eFragment};
 
     const vk::DescriptorSetLayoutCreateInfo desc_layout_ci{
         .flags = instance.HostDescriptorFlags(),
@@ -190,7 +186,8 @@ void PostProcessingPass::Create(const Instance& instance, const vk::Format surfa
 }
 
 void PostProcessingPass::Render(Scheduler& scheduler, vk::ImageView input,
-                                vk::Extent2D input_size, Frame& frame, Settings settings) {
+                                vk::Extent2D input_size, Frame& frame, Settings settings,
+                                std::array<vk::ImageView, 3> stereo_views) {
     const auto cmdbuf = scheduler.CommandBuffer();
     if (EmulatorSettings.IsVkHostMarkersEnabled()) {
         cmdbuf.beginDebugUtilsLabelEXT(vk::DebugUtilsLabelEXT{
@@ -223,22 +220,16 @@ void PostProcessingPass::Render(Scheduler& scheduler, vk::ImageView input,
         .pColorAttachments = attachments.data(),
     };
 
-    vk::DescriptorImageInfo image_info{
-        .sampler = *sampler,
-        .imageView = input,
-        .imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal,
-    };
-
-    const std::array set_writes{
-        vk::WriteDescriptorSet{
-            .dstSet = VK_NULL_HANDLE,
-            .dstBinding = 0,
-            .dstArrayElement = 0,
-            .descriptorCount = 1,
-            .descriptorType = vk::DescriptorType::eCombinedImageSampler,
-            .pImageInfo = &image_info,
-        },
-    };
+    std::array<vk::DescriptorImageInfo, 4> image_infos{};
+    std::array<vk::WriteDescriptorSet, 4> set_writes{};
+    for (u32 i = 0; i < image_infos.size(); ++i) {
+        image_infos[i] = {.sampler = *sampler,
+            .imageView = i && stereo_views[i - 1] ? stereo_views[i - 1] : input,
+            .imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal};
+        set_writes[i] = {.dstSet = VK_NULL_HANDLE, .dstBinding = i,
+            .descriptorCount = 1, .descriptorType = vk::DescriptorType::eCombinedImageSampler,
+            .pImageInfo = &image_infos[i]};
+    }
 
     cmdbuf.bindPipeline(vk::PipelineBindPoint::eGraphics, *pipeline);
 

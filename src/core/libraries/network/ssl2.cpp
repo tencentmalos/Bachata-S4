@@ -1,3 +1,4 @@
+#include <atomic>
 // SPDX-FileCopyrightText: Copyright 2024 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -229,7 +230,7 @@ int PS4_SYSV_ABI sceSslGetSubjectName() {
 int PS4_SYSV_ABI sceSslInit(std::size_t poolSize) {
     LOG_ERROR(Lib_Ssl2, "(DUMMY) called poolSize = {}", poolSize);
     // return a value >1
-    static int id = 0;
+    static std::atomic<int> id{0};
     return ++id;
 }
 

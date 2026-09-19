@@ -1,0 +1,30 @@
+{
+  "apk_sha256": "2126d946e43e2c98c298549a9feb514791d27d03558e35f61452f2f56ba19cee",
+  "apk_variant": "playstoreDebug",
+  "native_configuration": "RelWithDebInfo -O2 -g -DNDEBUG",
+  "fex_configuration": "Release",
+  "native_entries": {
+    "lib/arm64-v8a/libGPUReshapeAndroid.so": "1242e1b8ea282f072aa983cc7b56ce5bff40a1b7665620d6edc85cec1195b24f",
+    "lib/arm64-v8a/libshadps4_host.so": "232c80bf15c16ac4fe83e58ad798d47286b88ee016f6c3d111ef8569a78c2f20"
+  },
+  ".": {
+    "head": "4da582b7b3a36d74403a4985c3c03f37e570bcb7",
+    "dirty": true
+  },
+  "foundation": {
+    "head": "bb52b260e683752b606257a32a38d3a991c85b06",
+    "dirty": true
+  },
+  "foundation/third_party/profiler_sdk": {
+    "head": "9325b819b01e6d3270e7e1328d7cf83ce24ae2f0",
+    "dirty": false
+  },
+  "/Users/bytedance/workspace/gpu_reshape/GPU-Reshape": {
+    "head": "0441175aa88b2f243495b56ab130b08b47280352",
+    "dirty": true
+  },
+  "/Users/bytedance/workspace/spatial_mcp_publish/dev_tools": {
+    "head": "8f6677515d9f41b773c3b08bd8208cb0563d0f53",
+    "dirty": true
+  }
+}

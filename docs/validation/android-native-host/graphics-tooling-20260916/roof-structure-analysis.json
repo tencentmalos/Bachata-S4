@@ -1,0 +1,815 @@
+{
+  "counts": {
+    "unattributed:draw": 13,
+    "pm4-descendant:dispatch": 66,
+    "pm4-descendant:draw": 420,
+    "pm4-descendant:copy": 34
+  },
+  "marker_action_counts": {
+    "DispatchDirect:dispatch": 34,
+    "DrawIndexAuto:draw": 82,
+    "DrawIndex2:dispatch": 12,
+    "DrawIndex2:copy": 13,
+    "DrawIndex2:draw": 338,
+    "DrawIndexAuto:dispatch": 20,
+    "DrawIndexAuto:copy": 21
+  },
+  "render_pass_count": 87,
+  "single_draw_passes": 47,
+  "draws_outside_rendering": [],
+  "pm4_marker_count": 454,
+  "load_modes": {
+    "vkCmdBeginRendering(Clear)": 4,
+    "vkCmdBeginRendering(C=Load, D=Clear)": 7,
+    "vkCmdBeginRendering(C=Load, D=Load)": 5,
+    "vkCmdBeginRendering(Load)": 24,
+    "vkCmdBeginRendering(C=Load, D=Clear, S=Load)": 1,
+    "vkCmdBeginRendering(C=Load, DS=Load)": 44,
+    "vkCmdBeginRendering(D=Load)": 2
+  },
+  "passes": [
+    {
+      "index": 0,
+      "begin": "30",
+      "end": "49",
+      "draw_count": 4,
+      "load": "vkCmdBeginRendering(Clear)",
+      "indices": 0,
+      "begin_marker": null
+    },
+    {
+      "index": 1,
+      "begin": "69",
+      "end": "88",
+      "draw_count": 4,
+      "load": "vkCmdBeginRendering(Clear)",
+      "indices": 0,
+      "begin_marker": null
+    },
+    {
+      "index": 2,
+      "begin": "136",
+      "end": "141",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(C=Load, D=Clear)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb400007160110e80:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x238697770"
+    },
+    {
+      "index": 3,
+      "begin": "161",
+      "end": "193",
+      "draw_count": 4,
+      "load": "vkCmdBeginRendering(C=Load, D=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb400007160111df0:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386986e0"
+    },
+    {
+      "index": 4,
+      "begin": "219",
+      "end": "224",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb4000071601147cc:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x23869b0bc"
+    },
+    {
+      "index": 5,
+      "begin": "248",
+      "end": "253",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb4000071601150d8:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x23869b9c8"
+    },
+    {
+      "index": 6,
+      "begin": "270",
+      "end": "275",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(C=Load, D=Clear)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb4000071601156c0:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x23869bfb0"
+    },
+    {
+      "index": 7,
+      "begin": "294",
+      "end": "299",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(C=Load, D=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb400007160115eb0:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x23869c7a0"
+    },
+    {
+      "index": 8,
+      "begin": "325",
+      "end": "330",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb40000716011692c:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x23869d21c"
+    },
+    {
+      "index": 9,
+      "begin": "354",
+      "end": "359",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb400007160117238:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x23869db28"
+    },
+    {
+      "index": 10,
+      "begin": "376",
+      "end": "381",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(C=Load, D=Clear)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb400007160117820:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x23869e110"
+    },
+    {
+      "index": 11,
+      "begin": "400",
+      "end": "432",
+      "draw_count": 4,
+      "load": "vkCmdBeginRendering(C=Load, D=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb400007160118790:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x23869f080"
+    },
+    {
+      "index": 12,
+      "begin": "458",
+      "end": "463",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb40000716011b16c:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386a1a5c"
+    },
+    {
+      "index": 13,
+      "begin": "487",
+      "end": "492",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb40000716011ba78:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386a2368"
+    },
+    {
+      "index": 14,
+      "begin": "509",
+      "end": "514",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(C=Load, D=Clear)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb40000716011c060:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386a2950"
+    },
+    {
+      "index": 15,
+      "begin": "533",
+      "end": "538",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(C=Load, D=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb40000716011c850:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386a3140"
+    },
+    {
+      "index": 16,
+      "begin": "564",
+      "end": "569",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb40000716011d2cc:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386a3bbc"
+    },
+    {
+      "index": 17,
+      "begin": "593",
+      "end": "598",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb40000716011dbd8:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386a44c8"
+    },
+    {
+      "index": 18,
+      "begin": "615",
+      "end": "620",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(C=Load, D=Clear)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb40000716011e1c0:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386a4ab0"
+    },
+    {
+      "index": 19,
+      "begin": "639",
+      "end": "671",
+      "draw_count": 4,
+      "load": "vkCmdBeginRendering(C=Load, D=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb40000716011f130:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386a5a20"
+    },
+    {
+      "index": 20,
+      "begin": "697",
+      "end": "702",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb400007160121b0c:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386a83fc"
+    },
+    {
+      "index": 21,
+      "begin": "726",
+      "end": "731",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb400007160122418:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386a8d08"
+    },
+    {
+      "index": 22,
+      "begin": "776",
+      "end": "781",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(C=Load, D=Clear, S=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb400007160123100:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386a99f0"
+    },
+    {
+      "index": 23,
+      "begin": "836",
+      "end": "1168",
+      "draw_count": 37,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb4000071601238f4:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386aa1e4"
+    },
+    {
+      "index": 24,
+      "begin": "1172",
+      "end": "1207",
+      "draw_count": 4,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb400007160131880:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386b8170"
+    },
+    {
+      "index": 25,
+      "begin": "1211",
+      "end": "1237",
+      "draw_count": 3,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb400007160132ff0:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386b98e0"
+    },
+    {
+      "index": 26,
+      "begin": "1241",
+      "end": "1690",
+      "draw_count": 50,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb400007160134184:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386baa74"
+    },
+    {
+      "index": 27,
+      "begin": "1694",
+      "end": "1765",
+      "draw_count": 8,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb40000716014667c:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386ccf6c"
+    },
+    {
+      "index": 28,
+      "begin": "1769",
+      "end": "1813",
+      "draw_count": 5,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb40000716014955c:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386cfe4c"
+    },
+    {
+      "index": 29,
+      "begin": "1817",
+      "end": "1852",
+      "draw_count": 4,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb40000716014b2a8:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386d1b98"
+    },
+    {
+      "index": 30,
+      "begin": "1856",
+      "end": "1927",
+      "draw_count": 8,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb40000716014ca18:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386d3308"
+    },
+    {
+      "index": 31,
+      "begin": "1931",
+      "end": "1957",
+      "draw_count": 3,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb40000716014f8f8:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386d61e8"
+    },
+    {
+      "index": 32,
+      "begin": "1961",
+      "end": "1969",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb400007160150a8c:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386d737c"
+    },
+    {
+      "index": 33,
+      "begin": "1973",
+      "end": "1999",
+      "draw_count": 3,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb400007160151068:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386d7958"
+    },
+    {
+      "index": 34,
+      "begin": "2003",
+      "end": "2083",
+      "draw_count": 9,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb4000071601521fc:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386d8aec"
+    },
+    {
+      "index": 35,
+      "begin": "2087",
+      "end": "2302",
+      "draw_count": 24,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb4000071601556b8:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386dbfa8"
+    },
+    {
+      "index": 36,
+      "begin": "2306",
+      "end": "2359",
+      "draw_count": 6,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb40000716015e428:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386e4d18"
+    },
+    {
+      "index": 37,
+      "begin": "2363",
+      "end": "2398",
+      "draw_count": 4,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb4000071601608b0:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386e71a0"
+    },
+    {
+      "index": 38,
+      "begin": "2402",
+      "end": "2410",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb400007160162020:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386e8910"
+    },
+    {
+      "index": 39,
+      "begin": "2414",
+      "end": "2422",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb4000071601625fc:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386e8eec"
+    },
+    {
+      "index": 40,
+      "begin": "2426",
+      "end": "2434",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb400007160162bd8:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386e94c8"
+    },
+    {
+      "index": 41,
+      "begin": "2438",
+      "end": "2446",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb4000071601631b4:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386e9aa4"
+    },
+    {
+      "index": 42,
+      "begin": "2450",
+      "end": "2467",
+      "draw_count": 2,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb400007160163790:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386ea080"
+    },
+    {
+      "index": 43,
+      "begin": "2471",
+      "end": "2488",
+      "draw_count": 2,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb400007160164348:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386eac38"
+    },
+    {
+      "index": 44,
+      "begin": "2492",
+      "end": "3033",
+      "draw_count": 60,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb400007160164f00:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386eb7f0"
+    },
+    {
+      "index": 45,
+      "begin": "3037",
+      "end": "3045",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb40000716017d070:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x238703960"
+    },
+    {
+      "index": 46,
+      "begin": "3049",
+      "end": "3066",
+      "draw_count": 2,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb40000716017d64c:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x238703f3c"
+    },
+    {
+      "index": 47,
+      "begin": "3070",
+      "end": "3078",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb40000716017e204:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x238704af4"
+    },
+    {
+      "index": 48,
+      "begin": "3082",
+      "end": "3117",
+      "draw_count": 4,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb40000716017e7e0:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2387050d0"
+    },
+    {
+      "index": 49,
+      "begin": "3121",
+      "end": "3129",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb40000716017ff50:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x238706840"
+    },
+    {
+      "index": 50,
+      "begin": "3133",
+      "end": "3141",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb40000716018052c:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x238706e1c"
+    },
+    {
+      "index": 51,
+      "begin": "3145",
+      "end": "3171",
+      "draw_count": 3,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb400007160180b08:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2387073f8"
+    },
+    {
+      "index": 52,
+      "begin": "3175",
+      "end": "3189",
+      "draw_count": 2,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb400007160181c9c:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x23870858c"
+    },
+    {
+      "index": 53,
+      "begin": "3197",
+      "end": "3202",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb400007160182b28:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x238709418"
+    },
+    {
+      "index": 54,
+      "begin": "3210",
+      "end": "3260",
+      "draw_count": 6,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb40000716018326c:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x238709b5c"
+    },
+    {
+      "index": 55,
+      "begin": "3268",
+      "end": "3276",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb400007160185700:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x23870bff0"
+    },
+    {
+      "index": 56,
+      "begin": "3280",
+      "end": "3330",
+      "draw_count": 6,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb400007160185e3c:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x23870c72c"
+    },
+    {
+      "index": 57,
+      "begin": "3354",
+      "end": "3359",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb400007160188848:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x23870f138"
+    },
+    {
+      "index": 58,
+      "begin": "3372",
+      "end": "3425",
+      "draw_count": 7,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb4000071601892ac:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x23870fb9c"
+    },
+    {
+      "index": 59,
+      "begin": "3431",
+      "end": "3468",
+      "draw_count": 5,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb40000716018cfac:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x23871389c"
+    },
+    {
+      "index": 60,
+      "begin": "3474",
+      "end": "3519",
+      "draw_count": 6,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb40000716018fb94:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x238716484"
+    },
+    {
+      "index": 61,
+      "begin": "3525",
+      "end": "3562",
+      "draw_count": 5,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb400007160192dc4:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2387196b4"
+    },
+    {
+      "index": 62,
+      "begin": "3568",
+      "end": "3629",
+      "draw_count": 8,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb400007160195b3c:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x23871c42c"
+    },
+    {
+      "index": 63,
+      "begin": "3635",
+      "end": "3775",
+      "draw_count": 17,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb40000716019a31c:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x238720c0c"
+    },
+    {
+      "index": 64,
+      "begin": "3776",
+      "end": "3808",
+      "draw_count": 4,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb4000071601a3f50:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x23872a840"
+    },
+    {
+      "index": 65,
+      "begin": "3832",
+      "end": "3837",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb4000071601a6be0:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x23872d4d0"
+    },
+    {
+      "index": 66,
+      "begin": "3852",
+      "end": "3857",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(C=Load, D=Clear)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb4000071601a71c8:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x23872dab8"
+    },
+    {
+      "index": 67,
+      "begin": "3866",
+      "end": "3871",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(D=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb4000071601a79b4:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x23872e2a4"
+    },
+    {
+      "index": 68,
+      "begin": "3885",
+      "end": "3890",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(C=Load, D=Clear)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb4000071601a7f98:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x23872e888"
+    },
+    {
+      "index": 69,
+      "begin": "3899",
+      "end": "3904",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(D=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb4000071601a87e4:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x23872f0d4"
+    },
+    {
+      "index": 70,
+      "begin": "3927",
+      "end": "3932",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb4000071601a9228:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x23872fb18"
+    },
+    {
+      "index": 71,
+      "begin": "3954",
+      "end": "3959",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb4000071601a9ca0:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x238730590"
+    },
+    {
+      "index": 72,
+      "begin": "3981",
+      "end": "3986",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb4000071601aa65c:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x238730f4c"
+    },
+    {
+      "index": 73,
+      "begin": "3994",
+      "end": "3999",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb4000071601aafa8:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x238731898"
+    },
+    {
+      "index": 74,
+      "begin": "4026",
+      "end": "4067",
+      "draw_count": 5,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb4000071601aba08:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2387322f8"
+    },
+    {
+      "index": 75,
+      "begin": "4094",
+      "end": "4099",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb4000071601adb58:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x238734448"
+    },
+    {
+      "index": 76,
+      "begin": "4108",
+      "end": "4116",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb4000071601ae3ac:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x238734c9c"
+    },
+    {
+      "index": 77,
+      "begin": "4123",
+      "end": "4282",
+      "draw_count": 18,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb4000071601aecb4:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2387355a4"
+    },
+    {
+      "index": 78,
+      "begin": "4291",
+      "end": "4430",
+      "draw_count": 16,
+      "load": "vkCmdBeginRendering(C=Load, DS=Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb4000071601b5a60:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x23873c350"
+    },
+    {
+      "index": 79,
+      "begin": "4453",
+      "end": "4458",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb4000071601bca70:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x238743360"
+    },
+    {
+      "index": 80,
+      "begin": "4480",
+      "end": "4485",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb4000071601bd498:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x238743d88"
+    },
+    {
+      "index": 81,
+      "begin": "4507",
+      "end": "4512",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb4000071601bde08:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2387446f8"
+    },
+    {
+      "index": 82,
+      "begin": "4534",
+      "end": "4540",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb4000071601be840:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x238745130"
+    },
+    {
+      "index": 83,
+      "begin": "4547",
+      "end": "4552",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb4000071601bf10c:DrawIndexAuto generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2387459fc"
+    },
+    {
+      "index": 84,
+      "begin": "4568",
+      "end": "4707",
+      "draw_count": 16,
+      "load": "vkCmdBeginRendering(Load)",
+      "indices": 0,
+      "begin_marker": "shadps4.pm4 gfx:0xb4000071601bf808:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2387460f8"
+    },
+    {
+      "index": 85,
+      "begin": "4715",
+      "end": "4717",
+      "draw_count": 1,
+      "load": "vkCmdBeginRendering(Clear)",
+      "indices": 0,
+      "begin_marker": null
+    },
+    {
+      "index": 86,
+      "begin": "4723",
+      "end": "4742",
+      "draw_count": 4,
+      "load": "vkCmdBeginRendering(Clear)",
+      "indices": 0,
+      "begin_marker": null
+    }
+  ]
+}

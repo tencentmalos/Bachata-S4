@@ -1,0 +1,367 @@
+[
+  {
+    "path": "src/core/host_runtime/guest_mutex.h",
+    "line": 62,
+    "code": "std::recursive_mutex* vm_mutex{};"
+  },
+  {
+    "path": "src/core/host_runtime/guest_mutex.h",
+    "line": 144,
+    "code": "if (vm_mutex) vm = std::unique_lock(*vm_mutex);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_mutex.h",
+    "line": 203,
+    "code": "std::recursive_mutex* vm_mutex = nullptr)"
+  },
+  {
+    "path": "src/core/host_runtime/guest_mutex.h",
+    "line": 204,
+    "code": ": space(space), allocate(std::move(allocate)), vm_mutex(vm_mutex) {}"
+  },
+  {
+    "path": "src/core/host_runtime/guest_ajm.cpp",
+    "line": 57,
+    "code": "std::recursive_mutex& vm;"
+  },
+  {
+    "path": "src/core/host_runtime/guest_ajm.cpp",
+    "line": 104,
+    "code": "Impl(GuestAddressSpace& space, std::recursive_mutex& vm)"
+  },
+  {
+    "path": "src/core/host_runtime/guest_ajm.cpp",
+    "line": 308,
+    "code": "std::lock_guard gate(vm);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_ajm.cpp",
+    "line": 373,
+    "code": "std::lock_guard gate(vm);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_ajm.cpp",
+    "line": 402,
+    "code": "std::lock_guard gate(vm);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_ajm.cpp",
+    "line": 485,
+    "code": "std::lock_guard gate(vm);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_ajm.cpp",
+    "line": 619,
+    "code": "GuestAjm::GuestAjm(GuestAddressSpace& space, std::recursive_mutex& vm)"
+  },
+  {
+    "path": "src/core/host_runtime/guest_thread_attributes.h",
+    "line": 75,
+    "code": "std::recursive_mutex* vm_mutex{};"
+  },
+  {
+    "path": "src/core/host_runtime/guest_thread_attributes.h",
+    "line": 94,
+    "code": "std::recursive_mutex* vm_mutex = nullptr)"
+  },
+  {
+    "path": "src/core/host_runtime/guest_thread_attributes.h",
+    "line": 95,
+    "code": ": space(space), allocate(std::move(allocate)), vm_mutex(vm_mutex) {}"
+  },
+  {
+    "path": "src/core/host_runtime/guest_thread_attributes.h",
+    "line": 133,
+    "code": "if (vm_mutex) vm = std::unique_lock(*vm_mutex);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_kernel_semaphore.h",
+    "line": 37,
+    "code": "std::recursive_mutex& vm;"
+  },
+  {
+    "path": "src/core/host_runtime/guest_kernel_semaphore.h",
+    "line": 84,
+    "code": "GuestKernelSemaphore(GuestCpu::GuestAddressSpace& space, std::recursive_mutex& vm)"
+  },
+  {
+    "path": "src/core/host_runtime/guest_kernel_semaphore.h",
+    "line": 104,
+    "code": "std::lock_guard gate(vm);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_kernel_semaphore.h",
+    "line": 149,
+    "code": "std::lock_guard gate(vm);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_kernel_semaphore.h",
+    "line": 162,
+    "code": "std::lock_guard gate(vm);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_audio.cpp",
+    "line": 31,
+    "code": "std::recursive_mutex& vm;"
+  },
+  {
+    "path": "src/core/host_runtime/guest_audio.cpp",
+    "line": 58,
+    "code": "Impl(GuestAddressSpace& space, std::recursive_mutex& vm, GuestClock& clock, Factory factory)"
+  },
+  {
+    "path": "src/core/host_runtime/guest_audio.cpp",
+    "line": 110,
+    "code": "std::lock_guard gate(vm);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_audio.cpp",
+    "line": 270,
+    "code": "std::lock_guard gate(vm);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_audio.cpp",
+    "line": 297,
+    "code": "std::lock_guard gate(vm);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_audio.cpp",
+    "line": 328,
+    "code": "std::lock_guard gate(vm);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_audio.cpp",
+    "line": 397,
+    "code": "std::lock_guard gate(vm);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_audio.cpp",
+    "line": 457,
+    "code": "GuestAudio::GuestAudio(GuestAddressSpace& space, std::recursive_mutex& vm, GuestClock& clock,"
+  },
+  {
+    "path": "src/core/host_runtime/guest_ajm.h",
+    "line": 23,
+    "code": "GuestAjm(GuestCpu::GuestAddressSpace& space, std::recursive_mutex& vm);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_rwlock.h",
+    "line": 25,
+    "code": "std::recursive_mutex* vm_mutex{};"
+  },
+  {
+    "path": "src/core/host_runtime/guest_rwlock.h",
+    "line": 37,
+    "code": "if (vm_mutex) vm = std::unique_lock(*vm_mutex);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_rwlock.h",
+    "line": 52,
+    "code": "std::recursive_mutex* vm_mutex = nullptr)"
+  },
+  {
+    "path": "src/core/host_runtime/guest_rwlock.h",
+    "line": 53,
+    "code": ": space(space), allocate(std::move(allocate)), vm_mutex(vm_mutex) {}"
+  },
+  {
+    "path": "src/core/host_runtime/guest_storage_hle.h",
+    "line": 103,
+    "code": "std::recursive_mutex* vm_gate = nullptr);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_avplayer.cpp",
+    "line": 47,
+    "code": "std::recursive_mutex& vm;"
+  },
+  {
+    "path": "src/core/host_runtime/guest_avplayer.cpp",
+    "line": 54,
+    "code": "Impl(GuestAddressSpace& space, std::recursive_mutex& vm, std::function<Callbacks()> factory)"
+  },
+  {
+    "path": "src/core/host_runtime/guest_avplayer.cpp",
+    "line": 66,
+    "code": "std::lock_guard lock(vm);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_avplayer.cpp",
+    "line": 319,
+    "code": "std::lock_guard vm(owner.vm);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_avplayer.cpp",
+    "line": 355,
+    "code": "std::lock_guard vm(owner.vm);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_avplayer.cpp",
+    "line": 485,
+    "code": "std::lock_guard vm(owner.vm);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_avplayer.cpp",
+    "line": 701,
+    "code": "GuestAvPlayer::GuestAvPlayer(GuestAddressSpace& space, std::recursive_mutex& vm,"
+  },
+  {
+    "path": "src/core/host_runtime/guest_storage_hle.cpp",
+    "line": 46,
+    "code": "std::recursive_mutex* vm_gate) {"
+  },
+  {
+    "path": "src/core/host_runtime/guest_storage_hle.cpp",
+    "line": 54,
+    "code": "if (vm_gate && !e.save) admission = std::unique_lock(*vm_gate);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_storage_hle.cpp",
+    "line": 403,
+    "code": "std::recursive_mutex* vm_gate) {"
+  },
+  {
+    "path": "src/core/host_runtime/guest_storage_hle.cpp",
+    "line": 409,
+    "code": "[&](int error) { deferred_errno = error; return UINT64_MAX; }, vm_gate);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_audio.h",
+    "line": 24,
+    "code": "GuestAudio(GuestCpu::GuestAddressSpace& space, std::recursive_mutex& vm, GuestClock& clock,"
+  },
+  {
+    "path": "src/core/host_runtime/guest_runtime.cpp",
+    "line": 355,
+    "code": "std::recursive_mutex vm_mutex;"
+  },
+  {
+    "path": "src/core/host_runtime/guest_runtime.cpp",
+    "line": 357,
+    "code": "unsigned data_mapping_depth{}; // accessed only under vm_mutex"
+  },
+  {
+    "path": "src/core/host_runtime/guest_runtime.cpp",
+    "line": 427,
+    "code": ": rt(rt), lock(rt.vm_mutex, std::defer_lock), outer(false), data_only(data_only) {"
+  },
+  {
+    "path": "src/core/host_runtime/guest_runtime.cpp",
+    "line": 735,
+    "code": "std::lock_guard vm(vm_mutex);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_runtime.cpp",
+    "line": 838,
+    "code": "std::scoped_lock vm(vm_mutex);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_runtime.cpp",
+    "line": 929,
+    "code": "std::scoped_lock vm(vm_mutex);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_runtime.cpp",
+    "line": 1348,
+    "code": "&vm_mutex);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_runtime.cpp",
+    "line": 1358,
+    "code": "}, &vm_mutex);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_runtime.cpp",
+    "line": 1383,
+    "code": "kernel_semaphores = std::make_unique<GuestKernelSemaphore>(space, vm_mutex);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_runtime.cpp",
+    "line": 1446,
+    "code": "}, &vm_mutex);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_runtime.cpp",
+    "line": 1483,
+    "code": "}, &vm_mutex);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_runtime.cpp",
+    "line": 1795,
+    "code": "std::lock_guard vm(vm_mutex);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_runtime.cpp",
+    "line": 1808,
+    "code": "std::lock_guard vm(vm_mutex);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_runtime.cpp",
+    "line": 1836,
+    "code": "std::lock_guard vm(vm_mutex);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_runtime.cpp",
+    "line": 1896,
+    "code": "std::lock_guard vm(vm_mutex);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_runtime.cpp",
+    "line": 2267,
+    "code": "std::lock_guard vm(vm_mutex);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_runtime.cpp",
+    "line": 2305,
+    "code": "std::lock_guard vm(vm_mutex); // bounded copy; no input wait/callback"
+  },
+  {
+    "path": "src/core/host_runtime/guest_runtime.cpp",
+    "line": 2316,
+    "code": "std::lock_guard vm(vm_mutex); // bounded marshalling; no NP callback/network"
+  },
+  {
+    "path": "src/core/host_runtime/guest_runtime.cpp",
+    "line": 2329,
+    "code": "std::lock_guard vm(vm_mutex); // serialize desktop's non-atomic dummy id"
+  },
+  {
+    "path": "src/core/host_runtime/guest_runtime.cpp",
+    "line": 2337,
+    "code": "std::lock_guard vm(vm_mutex); // short marshalling, no socket/wait/callback"
+  },
+  {
+    "path": "src/core/host_runtime/guest_runtime.cpp",
+    "line": 2381,
+    "code": "std::lock_guard vm(vm_mutex);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_runtime.cpp",
+    "line": 2401,
+    "code": "std::lock_guard vm(vm_mutex);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_runtime.cpp",
+    "line": 2411,
+    "code": "std::lock_guard vm(vm_mutex);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_runtime.cpp",
+    "line": 2422,
+    "code": "std::lock_guard vm(vm_mutex);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_runtime.cpp",
+    "line": 2849,
+    "code": "impl->audio = std::make_unique<GuestAudio>(impl->space, impl->vm_mutex, impl->clock);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_runtime.cpp",
+    "line": 2850,
+    "code": "impl->ajm = std::make_unique<GuestAjm>(impl->space, impl->vm_mutex);"
+  },
+  {
+    "path": "src/core/host_runtime/guest_runtime.cpp",
+    "line": 2851,
+    "code": "impl->avplayer = std::make_unique<GuestAvPlayer>(impl->space, impl->vm_mutex,"
+  }
+]

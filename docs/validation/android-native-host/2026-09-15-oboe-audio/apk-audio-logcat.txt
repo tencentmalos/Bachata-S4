@@ -1,0 +1,285 @@
+--------- beginning of main
+09-15 10:37:34.509 20098 20098 I Zygote  : seccomp disabled by setenforce 0
+09-15 10:37:34.513 20098 20098 I shadps4.android: Late-enabling -Xcheck:jni
+09-15 10:37:34.542 20098 20098 D CompatibilityChangeReporter: Compat change id reported: 171979766; UID 10190; state: ENABLED
+--------- beginning of system
+09-15 10:37:34.544 20098 20098 W ActivityThread: Package uses different ABI(s) than its instrumentation: package[com.shadps4.android]: arm64-v8a, null instrumentation[com.shadps4.android.test]: null, null
+09-15 10:37:34.547 20098 20098 W shadps4.android: ClassLoaderContext classpath size mismatch. expected=0, found=1 (PCL[] | PCL[/system/framework/android.test.runner.jar*2649186567])
+09-15 10:37:34.548 20098 20098 W shadps4.android: ClassLoaderContext classpath size mismatch. expected=0, found=2 (PCL[] | PCL[/system/framework/android.test.runner.jar*2649186567:/system/framework/android.test.mock.jar*4109917914])
+09-15 10:37:34.548 20098 20098 W ziparchive: Unable to open '/data/app/~~JshgEIp8iBY4FPKD6uisgg==/com.shadps4.android.test-IDHuQhTMARVyjR74PwFC5Q==/base.dm': No such file or directory
+09-15 10:37:34.548 20098 20098 W ziparchive: Unable to open '/data/app/~~JshgEIp8iBY4FPKD6uisgg==/com.shadps4.android.test-IDHuQhTMARVyjR74PwFC5Q==/base.dm': No such file or directory
+09-15 10:37:34.554 20098 20098 W ziparchive: Unable to open '/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.dm': No such file or directory
+09-15 10:37:34.554 20098 20098 W ziparchive: Unable to open '/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.dm': No such file or directory
+09-15 10:37:34.615 20098 20098 I Perf    : Connecting to perf service.
+09-15 10:37:34.617 20098 20098 V GraphicsEnvironment: ANGLE Developer option for 'com.shadps4.android' set to: 'default'
+09-15 10:37:34.617 20098 20098 V GraphicsEnvironment: ANGLE GameManagerService for com.shadps4.android: false
+09-15 10:37:34.617 20098 20098 V GraphicsEnvironment: Updatable production driver is not supported on the device.
+09-15 10:37:34.619 20098 20098 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+09-15 10:37:34.620 20098 20098 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+09-15 10:37:34.620 20098 20098 W shadps4.android: ClassLoaderContext shared library size mismatch. Expected=0, found=2 (PCL[] | PCL[]{PCL[/system/framework/android.test.base.jar*2876549756]#PCL[/system/framework/android.test.mock.jar*4109917914]})
+09-15 10:37:34.621 20098 20098 W shadps4.android: ClassLoaderContext shared library size mismatch. Expected=0, found=3 (PCL[] | PCL[]{PCL[/system/framework/android.test.base.jar*2876549756]#PCL[/system/framework/android.test.mock.jar*4109917914]#PCL[/system/framework/android.test.runner.jar*2649186567]{PCL[/system/framework/android.test.base.jar*2876549756]#PCL[/system/framework/android.test.mock.jar*4109917914]}};PCL[/system/framework/android.test.runner.jar*2649186567:/system/framework/android.test.mock.jar*4109917914:/system/framework/android.test.base.jar*2876549756:/data/app/~~JshgEIp8iBY4FPKD6uisgg==/com.shadps4.android.test-IDHuQhTMARVyjR74PwFC5Q==/base.apk*1257034081:/data/app/~~JshgEIp8iBY4FPKD6uisgg==/com.shadps4.android.test-IDHuQhTMARVyjR74PwFC5Q==/base.apk!classes2.dex*3361457324:/data/app/~~JshgEIp8iBY4FPKD6uisgg==/com.shadps4.android.test-IDHuQhTMARVyjR74PwFC5Q==/base.apk!classes3.dex*3845218867:/data/app/~~JshgEIp8iBY4FPKD6uisgg==/com.shadps4.android.test-IDHuQhTMARVyjR74PwFC5Q==/base.apk!classes4.dex*2432873336:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk*1359709725:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes2.dex*1476895446:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes3.dex*678598025:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes4.dex*3104463950:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes5.dex*4149513239:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes6.dex*2931647760:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes7.dex*3167019681:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes8.dex*4084451633:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes9.dex*782639143:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes10.dex*937941678:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes11.dex*1410508067:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes12.dex*525820058:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes13.dex*1380078314:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes14.dex*2272609626:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes15.dex*1049154876:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes16.dex*4245529574:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes17.dex*1003328379:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes18.dex*3926704168:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes19.dex*1976534003:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes20.dex*3068197185])
+09-15 10:37:34.621 20098 20098 W shadps4.android: ClassLoaderContext classpath size mismatch. expected=0, found=1 (PCL[] | PCL[/system/framework/android.test.runner.jar*2649186567]{PCL[/system/framework/android.test.base.jar*2876549756]#PCL[/system/framework/android.test.mock.jar*4109917914]#PCL[/system/framework/android.test.runner.jar*2649186567]{PCL[/system/framework/android.test.base.jar*2876549756]#PCL[/system/framework/android.test.mock.jar*4109917914]}};PCL[/system/framework/android.test.runner.jar*2649186567:/system/framework/android.test.mock.jar*4109917914:/system/framework/android.test.base.jar*2876549756:/data/app/~~JshgEIp8iBY4FPKD6uisgg==/com.shadps4.android.test-IDHuQhTMARVyjR74PwFC5Q==/base.apk*1257034081:/data/app/~~JshgEIp8iBY4FPKD6uisgg==/com.shadps4.android.test-IDHuQhTMARVyjR74PwFC5Q==/base.apk!classes2.dex*3361457324:/data/app/~~JshgEIp8iBY4FPKD6uisgg==/com.shadps4.android.test-IDHuQhTMARVyjR74PwFC5Q==/base.apk!classes3.dex*3845218867:/data/app/~~JshgEIp8iBY4FPKD6uisgg==/com.shadps4.android.test-IDHuQhTMARVyjR74PwFC5Q==/base.apk!classes4.dex*2432873336:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk*1359709725:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes2.dex*1476895446:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes3.dex*678598025:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes4.dex*3104463950:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes5.dex*4149513239:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes6.dex*2931647760:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes7.dex*3167019681:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes8.dex*4084451633:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes9.dex*782639143:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes10.dex*937941678:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes11.dex*1410508067:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes12.dex*525820058:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes13.dex*1380078314:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes14.dex*2272609626:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes15.dex*1049154876:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes16.dex*4245529574:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes17.dex*1003328379:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes18.dex*3926704168:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes19.dex*1976534003:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes20.dex*3068197185])
+09-15 10:37:34.621 20098 20098 W shadps4.android: ClassLoaderContext classpath size mismatch. expected=0, found=2 (PCL[] | PCL[/system/framework/android.test.runner.jar*2649186567:/system/framework/android.test.mock.jar*4109917914]{PCL[/system/framework/android.test.base.jar*2876549756]#PCL[/system/framework/android.test.mock.jar*4109917914]#PCL[/system/framework/android.test.runner.jar*2649186567]{PCL[/system/framework/android.test.base.jar*2876549756]#PCL[/system/framework/android.test.mock.jar*4109917914]}};PCL[/system/framework/android.test.runner.jar*2649186567:/system/framework/android.test.mock.jar*4109917914:/system/framework/android.test.base.jar*2876549756:/data/app/~~JshgEIp8iBY4FPKD6uisgg==/com.shadps4.android.test-IDHuQhTMARVyjR74PwFC5Q==/base.apk*1257034081:/data/app/~~JshgEIp8iBY4FPKD6uisgg==/com.shadps4.android.test-IDHuQhTMARVyjR74PwFC5Q==/base.apk!classes2.dex*3361457324:/data/app/~~JshgEIp8iBY4FPKD6uisgg==/com.shadps4.android.test-IDHuQhTMARVyjR74PwFC5Q==/base.apk!classes3.dex*3845218867:/data/app/~~JshgEIp8iBY4FPKD6uisgg==/com.shadps4.android.test-IDHuQhTMARVyjR74PwFC5Q==/base.apk!classes4.dex*2432873336:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk*1359709725:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes2.dex*1476895446:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes3.dex*678598025:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes4.dex*3104463950:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes5.dex*4149513239:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes6.dex*2931647760:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes7.dex*3167019681:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes8.dex*4084451633:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes9.dex*782639143:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes10.dex*937941678:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes11.dex*1410508067:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes12.dex*525820058:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes13.dex*1380078314:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes14.dex*2272609626:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes15.dex*1049154876:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes16.dex*4245529574:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes17.dex*1003328379:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes18.dex*3926704168:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes19.dex*1976534003:/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.apk!classes20.dex*3068197185])
+09-15 10:37:34.622 20098 20098 W ziparchive: Unable to open '/data/app/~~JshgEIp8iBY4FPKD6uisgg==/com.shadps4.android.test-IDHuQhTMARVyjR74PwFC5Q==/base.dm': No such file or directory
+09-15 10:37:34.622 20098 20098 W ziparchive: Unable to open '/data/app/~~JshgEIp8iBY4FPKD6uisgg==/com.shadps4.android.test-IDHuQhTMARVyjR74PwFC5Q==/base.dm': No such file or directory
+09-15 10:37:34.627 20098 20098 W ziparchive: Unable to open '/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.dm': No such file or directory
+09-15 10:37:34.627 20098 20098 W ziparchive: Unable to open '/data/app/~~ltOf2XJvmsngQ2qtUlaBRw==/com.shadps4.android-b0GDjrJZpRwXGZcKjlmW-w==/base.dm': No such file or directory
+09-15 10:37:34.684 20098 20098 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+09-15 10:37:34.685 20098 20098 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+09-15 10:37:34.685 20098 20098 I AndroidJUnitRunner: newApplication com.shadps4.android.App
+09-15 10:37:34.698 20098 20098 I AndroidJUnitRunner: onCreate Bundle[mParcelledData.dataSize=128]
+09-15 10:37:34.698 20098 20098 D AndroidJUnitRunner: Use the raw file system for managing file I/O.
+09-15 10:37:34.701 20098 20098 V TestEventClient: No service name argument was given (testDiscoveryService, testRunEventService or orchestratorService)
+09-15 10:37:34.701 20098 20119 D AndroidJUnitRunner: onStart is called.
+09-15 10:37:34.716 20098 20119 I TestRunner: run started: 1 tests
+09-15 10:37:34.717 20098 20119 I TestRunner: started: oboeConsumesGuestBuffersAndClosesAcrossRestarts(com.shadps4.android.AudioRuntimeInstrumentedTest)
+09-15 10:37:34.747 20098 20122 I ProductionRuntime: prepare: reserve guest VA
+09-15 10:37:34.747 20098 20122 I ProductionRuntime: prepare: create FEX context
+09-15 10:37:34.748 20098 20122 I ProductionRuntime: prepare: create production VM/Linker
+09-15 10:37:34.961 20098 20122 I ProductionRuntime: prepare: load/relocate modules
+09-15 10:37:34.963 20098 20122 I ProductionRuntime: prepare: ready
+09-15 10:37:34.963 20098 20122 I ProductionRuntime: run: enter production guest
+09-15 10:37:34.963 20098 20122 I ProductionHLE: enter op=1 rip=180000000d
+09-15 10:37:34.963 20098 20122 I ProductionHLE: leave op=1 rax=0
+09-15 10:37:34.963 20098 20122 I ProductionHLE: enter op=2 rip=180000400d
+09-15 10:37:34.964 20098 20122 I OboeAudio: openStream() OUTPUT -------- OboeVersion1.8.0 --------
+09-15 10:37:34.964 20098 20122 I OboeAudio: openStream() OUTPUT -------- OboeVersion1.8.0 --------
+09-15 10:37:34.964 20098 20122 I AAudio  : AAudioStreamBuilder_openStream() called ----------------------------------------
+09-15 10:37:34.964 20098 20122 I AudioStreamBuilder: rate   =      0, channels  = 2, channelMask = 0x3, format   = 5, sharing = SH, dir = OUTPUT
+09-15 10:37:34.964 20098 20122 I AudioStreamBuilder: device =      0, sessionId = -1, perfMode = 12, callback: ON with frames = 0
+09-15 10:37:34.964 20098 20122 I AudioStreamBuilder: usage  =     14, contentType = 2, inputPreset = 6, allowedCapturePolicy = 0
+09-15 10:37:34.964 20098 20122 I AudioStreamBuilder: privacy sensitive = false, opPackageName = (null), attributionTag = (null)
+09-15 10:37:34.966 20098 20122 D shadps4.android: PlayerBase::PlayerBase()
+09-15 10:37:34.976 20098 20122 D shadps4.android: PlayerBase::PlayerBase()
+09-15 10:37:34.977 20098 20122 D AudioStreamInternal_Client: ~AudioStreamInternal() 0xb400007964d002c0 called
+09-15 10:37:34.977 20098 20122 D AAudioStream: ~AudioStream(s#1) mPlayerBase strongCount = 1
+09-15 10:37:34.977 20098 20122 D shadps4.android: PlayerBase::~PlayerBase()
+09-15 10:37:34.977 20098 20122 D AudioStreamTrack: open(), request notificationFrames = -8, frameCount = 0
+09-15 10:37:34.985 20098 20122 D AudioStreamTrack: open() flags changed from 0x00000104 to 0x00000000
+09-15 10:37:34.985 20098 20122 D AudioStreamTrack: open() perfMode changed from 12 to 10
+09-15 10:37:34.985 20098 20122 D AAudioStream: setState(s#2) from 0 to 2
+09-15 10:37:34.985 20098 20122 I AAudio  : AAudioStreamBuilder_openStream() returns 0 = AAUDIO_OK for s#2 ----------------
+09-15 10:37:34.985 20098 20122 D AAudio  : AAudioStream_requestStart(s#2) called --------------
+09-15 10:37:34.985 20098 20122 D AAudioStream: setState(s#2) from 2 to 3
+09-15 10:37:34.988 20098 20122 D AAudio  : AAudioStream_requestStart(s#2) returned 0 ---------
+09-15 10:37:34.988 20098 20126 D AudioStreamLegacy: onAudioDeviceUpdate(deviceId = 2)
+09-15 10:37:34.988 20098 20122 I ProductionHLE: leave op=2 rax=20000001
+09-15 10:37:34.988 20098 20122 I ProductionHLE: enter op=4 rip=180000c00d
+09-15 10:37:34.988 20098 20122 I ProductionHLE: leave op=4 rax=0
+09-15 10:37:34.988 20098 20122 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:34.988 20098 20122 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:34.988 20098 20122 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:34.988 20098 20122 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:34.988 20098 20122 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:34.988 20098 20122 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:34.988 20098 20122 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:34.988 20098 20122 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:34.988 20098 20122 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:34.988 20098 20122 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:34.988 20098 20122 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:34.988 20098 20122 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:34.988 20098 20122 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:34.988 20098 20122 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:34.988 20098 20122 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:34.988 20098 20122 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:34.988 20098 20122 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.032 20098 20125 D AAudioStream: setState(s#2) from 3 to 4
+09-15 10:37:35.032 20098 20122 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.032 20098 20122 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.032 20098 20122 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.032 20098 20122 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.032 20098 20122 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.032 20098 20122 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.053 20098 20122 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.053 20098 20122 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.053 20098 20122 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.053 20098 20122 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.053 20098 20122 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.053 20098 20122 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.053 20098 20122 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.053 20098 20122 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.072 20098 20122 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.072 20098 20122 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.072 20098 20122 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.072 20098 20122 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.072 20098 20122 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.072 20098 20122 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.072 20098 20122 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.072 20098 20122 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.092 20098 20122 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.093 20098 20122 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.093 20098 20122 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.093 20098 20122 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.093 20098 20122 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.093 20098 20122 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.093 20098 20122 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.093 20098 20122 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.112 20098 20122 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.112 20098 20122 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.112 20098 20122 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.112 20098 20122 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.112 20098 20122 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.112 20098 20122 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.133 20098 20122 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.133 20098 20122 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.133 20098 20122 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.133 20098 20122 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.133 20098 20122 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.133 20098 20122 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.133 20098 20122 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.133 20098 20122 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.152 20098 20122 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.152 20098 20122 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.152 20098 20122 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.152 20098 20122 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.193 20098 20122 I ProductionHLE: leave op=3 rax=0
+09-15 10:37:35.193 20098 20122 I ProductionHLE: enter op=5 rip=180001000d
+09-15 10:37:35.193 20098 20122 I ProductionHLE: leave op=5 rax=0
+09-15 10:37:35.193 20098 20122 I ProductionHLE: enter op=6 rip=180001400d
+09-15 10:37:35.193 20098 20122 I ProductionHLE: leave op=6 rax=0
+09-15 10:37:35.193 20098 20122 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.194 20098 20122 I ProductionHLE: leave op=3 rax=80260004
+09-15 10:37:35.194 20098 20122 I ProductionHLE: enter op=7 rip=180001800d
+09-15 10:37:35.195 20098 20122 D AAudio  : AAudioStream_requestStop(s#2) called
+09-15 10:37:35.195 20098 20122 D AAudioStream: setState(s#2) from 4 to 9
+09-15 10:37:35.195 20098 20122 D AudioTrack: stop(380): called with 10560 frames delivered
+09-15 10:37:35.195 20098 20122 D AAudio  : AAudioStream_requestStop(s#2) called
+09-15 10:37:35.216 20098 20122 D AAudio  : AAudioStream_close(s#2) called ---------------
+09-15 10:37:35.216 20098 20122 D AAudioStream: setState(s#2) from 9 to 11
+09-15 10:37:35.217 20098 20122 D AAudioStream: setState(s#2) from 11 to 12
+09-15 10:37:35.218 20098 20122 D AAudioStream: ~AudioStream(s#2) mPlayerBase strongCount = 2
+09-15 10:37:35.218 20098 20122 D AAudio  : AAudioStream_close(s#2) returned 0 ---------
+09-15 10:37:35.218 20098 20122 I ProductionHLE: leave op=7 rax=0
+09-15 10:37:35.218 20098 20122 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.218 20098 20122 I ProductionHLE: leave op=3 rax=80260003
+09-15 10:37:35.218 20098 20122 I ProductionHLE: enter op=8 rip=180001c00d
+09-15 10:37:35.219 20098 20122 I ProductionHLE: leave op=8 rax=0
+09-15 10:37:35.219 20098 20122 I ProductionHLE: enter op=9 rip=180002000d
+09-15 10:37:35.219 20098 20122 I ProductionHLE: leave op=9 rax=0
+09-15 10:37:35.219 20098 20122 I ProductionHLE: enter op=10 rip=180002400d
+09-15 10:37:35.219 20098 20122 I ProductionHLE: leave op=10 rax=0
+09-15 10:37:35.219 20098 20122 I ProductionHLE: enter op=11 rip=180002800d
+09-15 10:37:35.220 20098 20122 I ProductionHLE: leave op=11 rax=8002003c
+09-15 10:37:35.220 20098 20122 I ProductionHLE: enter op=12 rip=180002c00d
+09-15 10:37:35.220 20098 20122 I ProductionHLE: leave op=12 rax=0
+09-15 10:37:35.220 20098 20122 I ProductionHLE: enter op=13 rip=180003000d
+09-15 10:37:35.220 20098 20122 I ProductionHLE: leave op=13 rax=0
+09-15 10:37:35.221 20098 20122 I ProductionRuntime: run: guest returned to host
+09-15 10:37:35.222 20098 20119 I AudioAcceptance: round=0 case=audio outcome=0 page_size=4096 pid=20098 uid=10190 guest return=51966
+09-15 10:37:35.222 20098 20119 I AudioAcceptance: production Linker/VM; owners=1 veneers=13 graphics=not-created modules=1
+09-15 10:37:35.225 20098 20128 I ProductionRuntime: prepare: reserve guest VA
+09-15 10:37:35.225 20098 20128 I ProductionRuntime: prepare: create FEX context
+09-15 10:37:35.226 20098 20128 I ProductionRuntime: prepare: create production VM/Linker
+09-15 10:37:35.432 20098 20128 I ProductionRuntime: prepare: load/relocate modules
+09-15 10:37:35.435 20098 20128 I ProductionRuntime: prepare: ready
+09-15 10:37:35.435 20098 20128 I ProductionRuntime: run: enter production guest
+09-15 10:37:35.436 20098 20128 I ProductionHLE: enter op=1 rip=180000000d
+09-15 10:37:35.436 20098 20128 I ProductionHLE: leave op=1 rax=0
+09-15 10:37:35.436 20098 20128 I ProductionHLE: enter op=2 rip=180000400d
+09-15 10:37:35.436 20098 20128 I OboeAudio: openStream() OUTPUT -------- OboeVersion1.8.0 --------
+09-15 10:37:35.436 20098 20128 I OboeAudio: openStream() OUTPUT -------- OboeVersion1.8.0 --------
+09-15 10:37:35.436 20098 20128 I AAudio  : AAudioStreamBuilder_openStream() called ----------------------------------------
+09-15 10:37:35.436 20098 20128 I AudioStreamBuilder: rate   =      0, channels  = 2, channelMask = 0x3, format   = 5, sharing = SH, dir = OUTPUT
+09-15 10:37:35.436 20098 20128 I AudioStreamBuilder: device =      0, sessionId = -1, perfMode = 12, callback: ON with frames = 0
+09-15 10:37:35.436 20098 20128 I AudioStreamBuilder: usage  =     14, contentType = 2, inputPreset = 6, allowedCapturePolicy = 0
+09-15 10:37:35.436 20098 20128 I AudioStreamBuilder: privacy sensitive = false, opPackageName = (null), attributionTag = (null)
+09-15 10:37:35.437 20098 20128 D shadps4.android: PlayerBase::PlayerBase()
+09-15 10:37:35.447 20098 20128 D shadps4.android: PlayerBase::PlayerBase()
+09-15 10:37:35.447 20098 20128 D AudioStreamInternal_Client: ~AudioStreamInternal() 0xb400007964d0add0 called
+09-15 10:37:35.447 20098 20128 D AAudioStream: ~AudioStream(s#3) mPlayerBase strongCount = 1
+09-15 10:37:35.447 20098 20128 D shadps4.android: PlayerBase::~PlayerBase()
+09-15 10:37:35.447 20098 20128 D AudioStreamTrack: open(), request notificationFrames = -8, frameCount = 0
+09-15 10:37:35.454 20098 20128 D AudioStreamTrack: open() flags changed from 0x00000104 to 0x00000000
+09-15 10:37:35.454 20098 20128 D AudioStreamTrack: open() perfMode changed from 12 to 10
+09-15 10:37:35.454 20098 20128 D AAudioStream: setState(s#4) from 0 to 2
+09-15 10:37:35.455 20098 20128 I AAudio  : AAudioStreamBuilder_openStream() returns 0 = AAUDIO_OK for s#4 ----------------
+09-15 10:37:35.455 20098 20128 D AAudio  : AAudioStream_requestStart(s#4) called --------------
+09-15 10:37:35.455 20098 20128 D AAudioStream: setState(s#4) from 2 to 3
+09-15 10:37:35.519 20098 20128 D AAudio  : AAudioStream_requestStart(s#4) returned 0 ---------
+09-15 10:37:35.520 20098 20128 I ProductionHLE: leave op=2 rax=20000002
+09-15 10:37:35.520 20098 20128 I ProductionHLE: enter op=4 rip=180000c00d
+09-15 10:37:35.520 20098 20128 I ProductionHLE: leave op=4 rax=0
+09-15 10:37:35.520 20098 20128 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.520 20098 20128 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.520 20098 20128 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.520 20098 20128 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.520 20098 20128 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.520 20098 20128 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.520 20098 20128 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.520 20098 20128 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.520 20098 20128 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.520 20098 20128 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.520 20098 20128 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.520 20098 20128 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.520 20098 20128 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.520 20098 20128 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.520 20098 20128 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.520 20098 20128 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.521 20098 20128 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.521 20098 20128 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.521 20098 20128 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.522 20098 20130 D AAudioStream: setState(s#4) from 3 to 4
+09-15 10:37:35.522 20098 20132 D AudioStreamLegacy: onAudioDeviceUpdate(deviceId = 2)
+09-15 10:37:35.523 20098 20128 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.523 20098 20128 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.523 20098 20128 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.523 20098 20128 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.523 20098 20128 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.523 20098 20128 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.525 20098 20128 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.525 20098 20128 I ProductionHLE: enter op=3 rip=180000800d
+09-15 10:37:35.525 20098 20128 I ProductionHLE: leave op=3 rax=200
+09-15 10:37:35.679 20098 20128 D AAudio  : AAudioStream_requestStop(s#4) called
+09-15 10:37:35.679 20098 20128 D AAudioStream: setState(s#4) from 4 to 9
+09-15 10:37:35.679 20098 20128 D AudioTrack: stop(381): called with 10560 frames delivered
+09-15 10:37:35.679 20098 20128 D AAudio  : AAudioStream_requestStop(s#4) called
+09-15 10:37:35.700 20098 20128 D AAudio  : AAudioStream_close(s#4) called ---------------
+09-15 10:37:35.701 20098 20128 D AAudioStream: setState(s#4) from 9 to 11
+09-15 10:37:35.702 20098 20128 D AAudioStream: setState(s#4) from 11 to 12
+09-15 10:37:35.702 20098 20128 D AAudioStream: ~AudioStream(s#4) mPlayerBase strongCount = 2
+09-15 10:37:35.702 20098 20128 D AAudio  : AAudioStream_close(s#4) returned 0 ---------
+09-15 10:37:35.705 20098 20128 I ProductionRuntime: run: guest returned to host
+09-15 10:37:35.710 20098 20119 I AudioAcceptance: round=1 case=audio outcome=0 page_size=4096 pid=20098 uid=10190 guest return=51966
+09-15 10:37:35.710 20098 20119 I AudioAcceptance: production Linker/VM; owners=1 veneers=13 graphics=not-created modules=1
+09-15 10:37:35.712 20098 20135 I ProductionRuntime: prepare: reserve guest VA
+09-15 10:37:35.712 20098 20135 I ProductionRuntime: prepare: create FEX context
+09-15 10:37:35.713 20098 20135 I ProductionRuntime: prepare: create production VM/Linker
+09-15 10:37:35.919 20098 20135 I ProductionRuntime: prepare: load/relocate modules
+09-15 10:37:35.925 20098 20135 I ProductionRuntime: prepare: ready
+09-15 10:37:35.925 20098 20135 I ProductionRuntime: run: enter production guest
+09-15 10:37:35.926 20098 20135 I OboeAudio: openStream() OUTPUT -------- OboeVersion1.8.0 --------
+09-15 10:37:35.927 20098 20135 I OboeAudio: openStream() OUTPUT -------- OboeVersion1.8.0 --------
+09-15 10:37:35.927 20098 20135 I AAudio  : AAudioStreamBuilder_openStream() called ----------------------------------------
+09-15 10:37:35.927 20098 20135 I AudioStreamBuilder: rate   =      0, channels  = 2, channelMask = 0x3, format   = 5, sharing = SH, dir = OUTPUT
+09-15 10:37:35.927 20098 20135 I AudioStreamBuilder: device =      0, sessionId = -1, perfMode = 12, callback: ON with frames = 0
+09-15 10:37:35.927 20098 20135 I AudioStreamBuilder: usage  =     14, contentType = 2, inputPreset = 6, allowedCapturePolicy = 0
+09-15 10:37:35.927 20098 20135 I AudioStreamBuilder: privacy sensitive = false, opPackageName = (null), attributionTag = (null)
+09-15 10:37:35.928 20098 20135 D shadps4.android: PlayerBase::PlayerBase()
+09-15 10:37:35.938 20098 20135 D shadps4.android: PlayerBase::PlayerBase()
+09-15 10:37:35.938 20098 20135 D AudioStreamInternal_Client: ~AudioStreamInternal() 0xb400007964d0cc00 called
+09-15 10:37:35.938 20098 20135 D AAudioStream: ~AudioStream(s#5) mPlayerBase strongCount = 1
+09-15 10:37:35.939 20098 20135 D shadps4.android: PlayerBase::~PlayerBase()
+09-15 10:37:35.939 20098 20135 D AudioStreamTrack: open(), request notificationFrames = -8, frameCount = 0
+09-15 10:37:35.947 20098 20135 D AudioStreamTrack: open() flags changed from 0x00000104 to 0x00000000
+09-15 10:37:35.947 20098 20135 D AudioStreamTrack: open() perfMode changed from 12 to 10
+09-15 10:37:35.947 20098 20135 D AAudioStream: setState(s#6) from 0 to 2
+09-15 10:37:35.948 20098 20135 I AAudio  : AAudioStreamBuilder_openStream() returns 0 = AAUDIO_OK for s#6 ----------------
+09-15 10:37:35.948 20098 20135 D AAudio  : AAudioStream_requestStart(s#6) called --------------
+09-15 10:37:35.948 20098 20135 D AAudioStream: setState(s#6) from 2 to 3
+09-15 10:37:36.017 20098 20137 D AAudioStream: setState(s#6) from 3 to 4
+09-15 10:37:36.018 20098 20135 D AAudio  : AAudioStream_requestStart(s#6) returned 0 ---------
+09-15 10:37:36.018 20098 20131 D AudioStreamLegacy: onAudioDeviceUpdate(deviceId = 2)
+09-15 10:37:36.202 20098 20135 D AAudio  : AAudioStream_requestStop(s#6) called
+09-15 10:37:36.202 20098 20135 D AAudioStream: setState(s#6) from 4 to 9
+09-15 10:37:36.202 20098 20135 D AudioTrack: stop(382): called with 10560 frames delivered
+09-15 10:37:36.203 20098 20135 D AAudio  : AAudioStream_requestStop(s#6) called
+09-15 10:37:36.224 20098 20135 D AAudio  : AAudioStream_close(s#6) called ---------------
+09-15 10:37:36.224 20098 20135 D AAudioStream: setState(s#6) from 9 to 11
+09-15 10:37:36.226 20098 20135 D AAudioStream: setState(s#6) from 11 to 12
+09-15 10:37:36.226 20098 20135 D AAudioStream: ~AudioStream(s#6) mPlayerBase strongCount = 2
+09-15 10:37:36.226 20098 20135 D AAudio  : AAudioStream_close(s#6) returned 0 ---------
+09-15 10:37:36.229 20098 20135 I ProductionRuntime: run: guest returned to host
+09-15 10:37:36.233 20098 20119 I AudioAcceptance: round=2 case=audio outcome=0 page_size=4096 pid=20098 uid=10190 guest return=51966
+09-15 10:37:36.233 20098 20119 I AudioAcceptance: production Linker/VM; owners=1 veneers=13 graphics=not-created modules=1
+09-15 10:37:36.243 20098 20119 I TestRunner: finished: oboeConsumesGuestBuffersAndClosesAcrossRestarts(com.shadps4.android.AudioRuntimeInstrumentedTest)
+09-15 10:37:36.246 20098 20119 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored

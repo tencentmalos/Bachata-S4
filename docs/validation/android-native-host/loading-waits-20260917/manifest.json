@@ -1,0 +1,96 @@
+{
+  "schema": "shadps4.loading-wait-evidence.v1",
+  "date": "2026-09-17",
+  "source_head": "4da582b7b3a36d74403a4985c3c03f37e570bcb7",
+  "dirty_source": true,
+  "build_type": "host RelWithDebInfo / APK playstoreDebug",
+  "device": {
+    "serial": "9c2841a4",
+    "pid": 14213,
+    "generation": 1,
+    "run_uuid": "9355c1a3e09c96e8f61191aed777c34b",
+    "driver": "Qualcomm system"
+  },
+  "apk": {
+    "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk",
+    "sha256": "7345216b9156e96124147c36484652872d71276c489462a59b5dbc4127d5a75e"
+  },
+  "apk_dsos": {
+    "lib/arm64-v8a/libshadps4_fex_session.so": "fa728c03571de480ddceab3184c4bb201be94a8858e81ec04b14b22bad4c0331",
+    "lib/arm64-v8a/libshadps4_host.so": "0296f0d76b51f7db8de25d4819399c22e2edd16db74d67e610086ce6531c0052"
+  },
+  "source_files": {
+    "src/core/host_runtime/guest_runtime.cpp": "8ed2f49970c0a93cf290aab95474f5c41ff159432db73d7c2f86a81fdb2bacbe",
+    "src/core/host_runtime/guest_mutex.h": "daeb9fb29bfe096172b2b82c2916299471a60bea4ceef8def7d9a28a721ff26f",
+    "tests/host_runtime/guest_condition_tests.cpp": "7c9aa94376e3e95d31efbc1d66255f64d21edb8ae54a6b468a741a33b5534b6d",
+    "guest/games/CUSA50828/01.08/symbols/index.json": "5c5647cefd197c5cc10613726b07b82ddbcad62fad6c2fe8f0117d3dcb74b87a",
+    "guest/games/CUSA50828/01.08/symbols/loading-waits.symbols.json": "60d9d8d943140aa17b94807fb6fb7699eb6e6d06c88fb5dd1e97ede5b3f554ed"
+  },
+  "capture": {
+    "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/loading-waits-20260917/sync.prof",
+    "size": 421307287,
+    "sha256": "db45839369b6fd31815d898b5199cf574d2622705e042e1ed578df0b9b932267",
+    "events": 50836295,
+    "skipped_chunks": 0,
+    "unmatched_scope_ends": 0,
+    "open_scopes": 55,
+    "open_condition_waits": 7
+  },
+  "tests": {
+    "condition_disabled": {
+      "passed": 67,
+      "failed": 0
+    },
+    "condition_enabled": {
+      "passed": 92,
+      "failed": 0
+    },
+    "test_artifact_sha256": "56bb9c90fe9da24323122c9abe905c66f3fd8488b70b999c4e0495847724e778",
+    "result_source": "Observed standalone Android execution in tool transcript; earlier missing-library failures are not passing runs.",
+    "symbols_prepare": {
+      "succeeded": true,
+      "dry_run": true,
+      "revision": 6,
+      "symbol_count": 66,
+      "shards": 5
+    }
+  },
+  "static_inputs": {
+    "build/graphics-toolkit-review/renderdoc/tmnt-font-check.elf": "cf14264107ef499c5fcaffc97386dcee25652c16d3975d1be27edc4e7e40ede5",
+    "build/sysmodule-review/libc-inspect.elf": "9a3a9a37bdfa4c626c712026031a834510d3a5bea0c3305d7ee0bfe594f3a52c",
+    "build/sysmodule-review/libSceFios2.elf": "3d964c22dc6212a8bf16759729ac49e9a656102a92ffaf4dec886425d45bc1e3",
+    "build/graphics-toolkit-review/libfmodstudio.prx.elf": "f47114d36e1cdb209ecbd798915426cb5a91c4b505c31ddc0c190b977db5f526"
+  },
+  "artifacts": {
+    "sync.prof.json": "f65b97b66029e6e4ac3d281311660a2aef5d0078012fdf1d777cd44ec6701523",
+    "summarize-sync.py": "411e3e73052ed84cac764f6091fdc1bfb4e8615d8634847fe8513ffd24422ac0",
+    "capture-status.txt": "26d2ac69b7a3186bdf3aa12d8f4b7e43d0085cefd048587634f3fcaab756a3a8",
+    "sync-device-sidecar.json": "f8472d62870fd082d53addf7ec4d988260f3bab1f9853fc2abe5f396b4e2503c",
+    "extract-sync.py": "f5bce6ff9581b083388938694b295469846240203fe25a2f385f97095f6a9ca3",
+    "sync-summary.json": "7892b56546acc143802aca5619c077302ba62ecbbd29a3f239278d8d938e628c",
+    "apk-build-final.log": "9680aae44b35d4ebda968bd1e471afc84a804f727256c1e8254b049ddffe4fde",
+    "import-evidence.py": "83012987758769c104cd8827654e612ca28c1e401d0d3988210d8c90089f4691",
+    "loading-wait-edges.json": "fc04ca815b7c2e3bb6cd41611ac542b70c860e95d5d8abf1d2d185bb9f04e0f3",
+    "cleanup-stopped.txt": "c1ed7424a5944b59671434e3bb30de2eb741b7d9554e92528fb55b32bb785dd0",
+    "imports.json": "12cd0fed1d551d51ec2cfa480b8a9ebd2d02aee1a45f4266f43bf1aedba98501",
+    "host-build-final2.log": "796f9eeb446255bfa52304f549101f6159b76099a967625eb9ac7800902fc81c",
+    "restored-status.txt": "9f02c60fd7dc04c6f2d6edff0c94c25ff7a6142aaae411fc4e5bb77a201f1f62",
+    "restored-capture.txt": "26d2ac69b7a3186bdf3aa12d8f4b7e43d0085cefd048587634f3fcaab756a3a8",
+    "restored-ring.txt": "62016243bf746524396387ad5802f1150d525662b9605c1c163b7cfee654a161",
+    "restored-final.png": "a992d2d9f30e88be230229fbdd0bdf16150435ee116b978e80dd05307018004e"
+  },
+  "installed_apk_sha256": "7345216b9156e96124147c36484652872d71276c489462a59b5dbc4127d5a75e",
+  "cleanup": {
+    "pid": 14213,
+    "generation": 2,
+    "stage": "Running",
+    "diagnostic_generation_stopped": true,
+    "profile_sync_property": "0",
+    "profile_startup_seconds_property": "0",
+    "automatic_input": false,
+    "tracer_pid": 0,
+    "visual": "Rooftop MOVE; no movement/attack acceptance",
+    "capture_active": false,
+    "ring": true
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "apk": "/Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk",
+  "sha256": "a2e98d7d076de4b79fc16bf160fe385e6c6f160f17d09b5b2208ba4857fc7092",
+  "build_type": "host/JNI RelWithDebInfo, FEXCore Release, playstoreDebug APK",
+  "sdk": "0ef631cd7b0859aa0eea6beb0e8739bd43e75129",
+  "main": "4da582b7b3a36d74403a4985c3c03f37e570bcb7+dirty",
+  "device": "9c2841a4 API33 4KiB",
+  "driver": "system Qualcomm",
+  "lib/arm64-v8a/libshadps4_host.so": "1765d3192c9db38f3e14920c3513e22820488ee2754f4a0ad10bd548b96baf96",
+  "lib/arm64-v8a/libshadps4_fex_session.so": "fa728c03571de480ddceab3184c4bb201be94a8858e81ec04b14b22bad4c0331"
+}

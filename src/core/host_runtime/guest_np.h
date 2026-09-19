@@ -7,14 +7,15 @@
 #include <string_view>
 #include "core/guest_cpu/api/address_space.h"
 #include "core/libraries/np/np_offline_identity.h"
+#include "core/host_runtime/guest_np_control.h"
 
 namespace Core::HostRuntime {
 inline constexpr std::string_view NpOfflineNids[]{
     "rbknaUjpqWo", "p-o74CnoNzY", "XDncXQIJUSk", "eQH7nWPcAgc", "e-ZuhGEoeC4",
     "oPO9U42YpgI", "VgYczPGB5ss", "F6E4ycq9Dbg", "Oad3rvY-NJQ", "a8R9-75u4iM",
-    "IPb1hd1wAGc", "3Zl8BePTh9Y", "JELHf4xPufo"};
+    "IPb1hd1wAGc", "3Zl8BePTh9Y", "JELHf4xPufo", "A2CQ3kgSopQ", "Ec63y59l9tw"};
 inline bool IsNpOfflineNid(std::string_view nid) {
-    return std::ranges::find(NpOfflineNids, nid) != std::end(NpOfflineNids);
+    return IsNpControlNid(nid) || std::ranges::find(NpOfflineNids, nid) != std::end(NpOfflineNids);
 }
 inline bool AdmitsNpOffline(std::string_view nid, std::string_view suffix, bool offline) {
     if (!offline || !IsNpOfflineNid(nid))
@@ -29,15 +30,38 @@ inline bool AdmitsNpOffline(std::string_view nid, std::string_view suffix, bool 
 // credentials or native NP clients/callbacks. Online is rejected by Bind().
 class GuestNpOffline {
 public:
+    GuestNpControl control;
     GuestNpOffline(s32 sdk, std::map<s32, bool> signup) : sdk(sdk), signup(std::move(signup)) {}
     u32 Dispatch(GuestCpu::GuestAddressSpace& space, std::string_view nid,
-                 const std::array<u64, 6>& a) const {
+                 const std::array<u64, 6>& a) {
+        if (IsNpControlNid(nid)) return control.Dispatch(space,nid,a);
         using namespace GuestCpu;
         using namespace Libraries::Np;
         using namespace Libraries::Np::NpManager;
         static_assert(sizeof(OrbisNpId) == 36 && sizeof(OrbisNpOnlineId) == 20 &&
                       sizeof(OrbisNpState) == 4 && sizeof(OrbisNpReachabilityState) == 4 &&
                       sizeof(OrbisNpGamePresenseStatus) == 4 && sizeof(bool) == 1);
+        if (nid == "A2CQ3kgSopQ") {
+            // Desktop validates this local policy; it does not start an NP request.
+            struct Restriction { u64 size; s8 age; u8 pad[3]; s32 count; u64 entries; } value{};
+            static_assert(sizeof(value) == sizeof(OrbisNpContentRestriction));
+            if (!space.ReadData(GuestAddress{a[0]}, std::as_writable_bytes(std::span{&value, 1})))
+                return u32(ORBIS_NP_ERROR_INVALID_ARGUMENT);
+            if (value.size != sizeof(value)) return u32(ORBIS_NP_ERROR_INVALID_SIZE);
+            if (value.age < 0 || value.count < 0 || value.count > 256)
+                return u32(ORBIS_NP_ERROR_INVALID_ARGUMENT);
+            if (value.count && !space.ValidateRange({GuestAddress{value.entries},
+                    u64(value.count) * sizeof(OrbisNpAgeRestriction)}, GuestPermission::Read))
+                return u32(ORBIS_NP_ERROR_INVALID_ARGUMENT);
+            return 0;
+        }
+        if (nid == "Ec63y59l9tw") {
+            // Never log or retain the guest title secret; desktop only checks inputs.
+            const std::array<GuestAddressSpace::DataRequest, 2> requests{
+                {{{GuestAddress{a[0]}, sizeof(OrbisNpTitleId)}, GuestPermission::Read},
+                 {{GuestAddress{a[1]}, sizeof(OrbisNpTitleSecret)}, GuestPermission::Read}}};
+            return space.AcquireDataBatch(requests) ? 0 : u32(ORBIS_NP_ERROR_INVALID_ARGUMENT);
+        }
         if (nid == "3Zl8BePTh9Y" || nid == "JELHf4xPufo")
             return 0; // Empty NP queue; registrations/producers are not admitted.
         if (!IsNpOfflineNid(nid))
@@ -51,7 +75,7 @@ public:
                                                                       : sizeof(u32);
         // Pin the full output even when offline leaves it unchanged. No host
         // native pointers escape, no partial writes on invalid/cross-page spans.
-        auto pin = space.AcquirePinnedSpan({GuestAddress{a[1]}, bytes}, true);
+        auto pin = space.AcquireDataSpan({GuestAddress{a[1]}, bytes}, true);
         if (!pin)
             return u32(ORBIS_NP_ERROR_INVALID_ARGUMENT);
         auto put = [&](const auto& value) {
@@ -60,7 +84,7 @@ public:
         OrbisNpOnlineId online{};
         if (nid == "F6E4ycq9Dbg" || nid == "a8R9-75u4iM" || nid == "IPb1hd1wAGc") {
             if (!a[0] ||
-                !space.Read(GuestAddress{a[0]}, std::as_writable_bytes(std::span{&online, 1})))
+                !space.ReadData(GuestAddress{a[0]}, std::as_writable_bytes(std::span{&online, 1})))
                 return u32(ORBIS_NP_ERROR_INVALID_ARGUMENT);
         }
         const s32 user = s32(a[0]);

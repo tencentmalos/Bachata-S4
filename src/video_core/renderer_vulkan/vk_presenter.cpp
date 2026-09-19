@@ -9,6 +9,7 @@
 #include "common/path_util.h"
 #include "common/singleton.h"
 #include "core/debug_state.h"
+#include "core/host_runtime/guest_vr_sensor.h"
 #include "core/devtools/layer.h"
 #include "core/emulator_settings.h"
 #include "core/libraries/system/systemservice.h"
@@ -23,6 +24,8 @@
 #include "video_core/renderdoc.h"
 #include "video_core/renderer_vulkan/vk_platform.h"
 #include "video_core/renderer_vulkan/vk_presenter.h"
+#include "shader_recompiler/resource.h"
+#include "video_core/buffer_cache/buffer_cache.h"
 #include "video_core/renderer_vulkan/vk_rasterizer.h"
 #include "video_core/texture_cache/image.h"
 
@@ -479,21 +482,23 @@ Presenter::Presenter(std::shared_ptr<Frontend::Window> window_, AmdGpu::Liverpoo
       liverpool{liverpool_},
       instance{*window, EmulatorSettings.GetGpuId(), EmulatorSettings.IsVkValidationEnabled(),
                EmulatorSettings.IsVkCrashDiagnosticEnabled(), std::move(driver)},
-      draw_scheduler{instance}, present_scheduler{instance}, flip_scheduler{instance},
+      draw_scheduler{instance}, present_scheduler{instance, GpuProfiler::Stage::Present},
+      flip_scheduler{instance, GpuProfiler::Stage::Flip},
       swapchain{instance, *window},
       rasterizer{std::make_unique<Rasterizer>(instance, draw_scheduler, liverpool)},
       texture_cache{rasterizer->GetTextureCache()} {
     const auto& diag = instance.Diagnostics();
-    status_layer = std::make_unique<ImGui::StatusLayer>(diag);
+    status_layer = std::make_unique<ImGui::StatusLayer>(diag, instance.GpuTiming());
     const u64 generation = diag ? diag->Generation() : 1;
     capture_binding.Bind(generation, static_cast<VkInstance>(instance.GetInstance()),
                          window->GetWindowInfo().render_surface, instance.GetDriverVersionName());
     const u32 num_images = swapchain.GetImageCount();
     const vk::Device device = instance.GetDevice();
 
-    // Create presentation frames.
-    present_frames.resize(num_images);
-    for (u32 i = 0; i < num_images; i++) {
+    // Keep one frame exclusively for overlay redraws, in addition to the
+    // in-flight pool. It must not also be acquired by the GPU producer.
+    present_frames.resize(num_images + 1);
+    for (u32 i = 0; i < present_frames.size(); i++) {
         Frame& frame = present_frames[i];
         frame.id = i;
         auto fence = Check<"create present done fence">(
@@ -503,6 +508,12 @@ Presenter::Presenter(std::shared_ptr<Frontend::Window> window_, AmdGpu::Liverpoo
     }
 
     fsr_settings.enable = EmulatorSettings.IsFsrEnabled();
+#if defined(__ANDROID__)
+    // Keep the first Android SBS path on the guest VideoOut image directly.
+    // FSR owns a separate storage-image chain and is enabled independently by
+    // desktop settings; bypass it until the SBS source/view path is verified.
+    fsr_settings.enable = false;
+#endif
     fsr_settings.use_rcas = EmulatorSettings.IsRcasEnabled();
     fsr_settings.rcas_attenuation =
         static_cast<float>(EmulatorSettings.GetRcasAttenuation() / 1000.f);
@@ -527,12 +538,24 @@ Presenter::~Presenter() {
     ImGui::Friends::Unregister();
     ImGui::Layer::RemoveLayer(Common::Singleton<Core::Devtools::Layer>::Instance());
 
-    draw_scheduler.Finish();
-    present_scheduler.Finish();
-    flip_scheduler.Finish();
-    Check(draw_scheduler.CommandBuffer().reset());
-    Check(present_scheduler.CommandBuffer().reset());
-    Check(flip_scheduler.CommandBuffer().reset());
+    try {
+        draw_scheduler.Finish();
+        present_scheduler.Finish();
+        flip_scheduler.Finish();
+        Check(draw_scheduler.CommandBuffer().reset());
+        Check(present_scheduler.CommandBuffer().reset());
+        Check(flip_scheduler.CommandBuffer().reset());
+    } catch (const std::exception& error) {
+        // A poisoned submission worker is reported to the Session owner. Do not
+        // throw again from its teardown. Drain any accepted host calls first;
+        // on failure the worker has already discarded its remaining captures.
+        LOG_ERROR(Render_Vulkan, "Renderer drain after submission failure: {}", error.what());
+        try { instance.DrainSubmissions(); } catch (const std::exception&) {}
+        std::scoped_lock queue_lock{instance.QueueMutex()};
+        const auto result = instance.GetDevice().waitIdle();
+        if (result != vk::Result::eSuccess)
+            LOG_ERROR(Render_Vulkan, "Device drain during failed teardown: {}", vk::to_string(result));
+    }
 
     const vk::Device device = instance.GetDevice();
     for (auto& frame : present_frames) {
@@ -615,6 +638,7 @@ void Presenter::RecreateFrame(Frame* frame, u32 width, u32 height) {
 }
 
 Frame* Presenter::PrepareLastFrame() {
+    Common::Profiler::Scope redraw_scope{"Present.PrepareLastFrame"};
     if (last_submit_frame == nullptr) {
         return nullptr;
     }
@@ -624,8 +648,11 @@ Frame* Presenter::PrepareLastFrame() {
     while (true) {
         if (swapchain.StopRequested())
             return nullptr;
-        vk::Result result =
-            instance.GetDevice().waitForFences(frame->present_done, false, 50'000'000);
+        vk::Result result;
+        {
+            Common::Profiler::Scope scope{"Present.RedrawFenceWait"};
+            result = instance.GetDevice().waitForFences(frame->present_done, false, 50'000'000);
+        }
         if (result == vk::Result::eSuccess) {
             break;
         }
@@ -674,9 +701,15 @@ Frame* Presenter::PrepareLastFrame() {
 static vk::Format GetFrameViewFormat(const Libraries::VideoOut::PixelFormat format) {
     switch (format) {
     case Libraries::VideoOut::PixelFormat::A8B8G8R8Srgb:
+        // Match the mutable image's native RGBA sRGB format.  A view with a
+        // different channel order can be created on desktop but Turnip may
+        // legally expose zero samples for that reinterpretation.
         return vk::Format::eR8G8B8A8Srgb;
     case Libraries::VideoOut::PixelFormat::A8R8G8B8Srgb:
-        return vk::Format::eB8G8R8A8Srgb;
+        // VideoOut images are allocated as the internal RGBA-compatible
+        // format in ImageInfo; avoid a B8 reinterpretation that Turnip may
+        // legally create but samples as zero.
+        return vk::Format::eR8G8B8A8Srgb;
     case Libraries::VideoOut::PixelFormat::A2R10G10B10:
     case Libraries::VideoOut::PixelFormat::A2R10G10B10Srgb:
     case Libraries::VideoOut::PixelFormat::A2R10G10B10Bt2020Pq:
@@ -688,12 +721,106 @@ static vk::Format GetFrameViewFormat(const Libraries::VideoOut::PixelFormat form
     return {};
 }
 
-Frame* Presenter::PrepareFrame(const Libraries::VideoOut::BufferAttributeGroup& attribute,
-                               VAddr cpu_address) {
-    auto desc = VideoCore::TextureCache::ImageDesc{attribute, cpu_address};
-    const auto image_id = texture_cache.FindImage(desc);
-    texture_cache.UpdateImage(image_id);
+Frame* Presenter::PrepareVrFrame(const std::array<AmdGpu::Image, 4>& eyes, u32 image_count,
+                                  std::function<void(bool)> complete) {
+    // Called only by the normal GPU command owner, after guest render completion.
+    // Texture-cache views preserve the guest array slice and swizzle. No warp
+    // shaders, intermediate eye copy or synchronous GPU/CPU readback are needed.
+    std::array<vk::ImageView, 4> views{};
+    vk::Extent2D eye_size{};
+    static std::atomic<u32> vr_samples{};
+    const u32 vr_sample = vr_samples.fetch_add(1, std::memory_order_relaxed);
+    if (vr_sample < 8) {
+        LOG_INFO(Render_Vulkan,
+                 "SBS VR eye sample={} count={} L={:#x} {}x{} pitch={} type={} fmt={}/{} R={:#x} {}x{} pitch={} type={} fmt={}/{}",
+                 vr_sample, image_count, eyes[0].base_address, eyes[0].width + 1,
+                 eyes[0].height + 1, eyes[0].Pitch(), static_cast<u32>(eyes[0].GetType()),
+                 eyes[0].data_format, eyes[0].num_format, eyes[1].base_address,
+                 eyes[1].width + 1, eyes[1].height + 1, eyes[1].Pitch(),
+                 static_cast<u32>(eyes[1].GetType()), eyes[1].data_format, eyes[1].num_format);
+    }
+    draw_scheduler.EndRendering();
+    draw_scheduler.GpuProfile().Prepare(draw_scheduler.CommandBuffer());
+    for (u32 i = 0; i < image_count; ++i) {
+        VideoCore::TextureCache::ImageDesc desc{eyes[i], Shader::ImageResource{}};
+        const auto id = texture_cache.FindImage(desc);
+        // HMD submissions reference render targets that the guest GPU has just
+        // written. Do not call UpdateImage here: that path may re-upload the
+        // stale CPU backing store and erase the live Unity frame before the
+        // direct SBS sample. The normal VideoOut path keeps its own CPU-dirty
+        // synchronization in PrepareFrame.
+        auto& image = texture_cache.GetImage(id);
+        if (vr_sample < 8) {
+            LOG_INFO(Render_Vulkan,
+                     "SBS VR texture i={} id={} guest={:#x}/{:#x} image={}x{} pitch={} flags={:#x} usage_rt={} usage_vo={}",
+                     i, id.index, image.info.guest_address, image.info.guest_size,
+                     image.info.size.width, image.info.size.height, image.info.pitch,
+                     static_cast<u32>(image.flags), static_cast<u32>(image.usage.render_target),
+                     static_cast<u32>(image.usage.vo_surface));
+        }
+        image.Transit(vk::ImageLayout::eShaderReadOnlyOptimal,
+                      vk::AccessFlagBits2::eShaderRead, {}, draw_scheduler.CommandBuffer());
+        views[i] = *texture_cache.FindTexture(id, desc).image_view;
+        if (!i) eye_size = {u32(eyes[i].width + 1), u32(eyes[i].height + 1)};
+    }
+    auto* frame = GetRenderFrame();
+    if (!frame) {
+        if (vr_sample < 8) LOG_ERROR(Render_Vulkan, "SBS VR no presentation frame");
+        complete(false);
+        return nullptr;
+    }
+    const vk::ImageMemoryBarrier2 barrier{
+        .srcStageMask = vk::PipelineStageFlagBits2::eAllCommands,
+        .srcAccessMask = vk::AccessFlagBits2::eMemoryRead,
+        .dstStageMask = vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+        .dstAccessMask = vk::AccessFlagBits2::eColorAttachmentWrite,
+        .oldLayout = vk::ImageLayout::eUndefined,
+        .newLayout = vk::ImageLayout::eColorAttachmentOptimal,
+        .image = frame->image,
+        .subresourceRange = {vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1}};
+    const auto cmdbuf = draw_scheduler.CommandBuffer();
+    cmdbuf.pipelineBarrier2(vk::DependencyInfo{
+        .imageMemoryBarrierCount = 1, .pImageMemoryBarriers = &barrier});
+    auto settings = pp_settings;
+    // First validate one direct eye without horizontal remapping. Once the
+    // source view is proven live, the SBS selector can be enabled without
+    // changing the texture admission or adding a copy/blit.
+    settings.sbs = 0;
+    settings.flip_y = 1;
+    settings.srgb_input = 0;
+    pp_pass.Render(draw_scheduler, views[0], eye_size, *frame, settings,
+                   {views[1], views[2], views[3]});
+    expected_ratio = 16.0f / 9.0f;
+    // The guest surface is already double-wide SBS; preserve its actual
+    // dimensions instead of advertising another horizontal doubling.
+    DebugState.game_resolution = {eye_size.width, eye_size.height};
+    DebugState.output_resolution = {frame->width, frame->height};
+    frame->ready_semaphore = draw_scheduler.GetMasterSemaphore()->Handle();
+    frame->ready_tick = draw_scheduler.CurrentTick();
+    draw_scheduler.DeferPriorityOperation([complete = std::move(complete)] { complete(true); });
+    draw_scheduler.GpuProfile().FrameEnd();
+    SubmitInfo submit_info{};
+    draw_scheduler.Flush(submit_info);
+    return frame;
+}
 
+Frame* Presenter::PrepareFrame(const Libraries::VideoOut::BufferAttributeGroup& attribute,
+                               VAddr cpu_address, u64 diagnostic_id) {
+    auto desc = VideoCore::TextureCache::ImageDesc{attribute, cpu_address};
+    const auto image_id = [&] {
+        Common::Profiler::Scope scope{"Prepare.FindImage"};
+        return texture_cache.FindImage(desc);
+    }();
+    {
+        Common::Profiler::Scope scope{"Prepare.UpdateImage"};
+        texture_cache.UpdateImage(image_id);
+    }
+
+    // Bounded Android SBS bring-up diagnostic: sample the guest VideoOut
+    // backing store after the CPU-to-image upload.  This distinguishes a
+    // genuinely black guest frame from a presenter/compositor that dropped a
+    // non-black eye image, without changing the render path or retaining a
+    // guest pointer.
     Frame* frame = GetRenderFrame();
     if (!frame)
         return nullptr;
@@ -717,7 +844,11 @@ Frame* Presenter::PrepareFrame(const Libraries::VideoOut::BufferAttributeGroup& 
         .subresourceRange{frame_subresources},
     };
 
-    draw_scheduler.EndRendering();
+    {
+        Common::Profiler::Scope scope{"Prepare.EndRendering"};
+        draw_scheduler.EndRendering();
+    }
+    draw_scheduler.GpuProfile().Prepare(draw_scheduler.CommandBuffer());
     const auto cmdbuf = draw_scheduler.CommandBuffer();
     cmdbuf.pipelineBarrier2(vk::DependencyInfo{
         .imageMemoryBarrierCount = 1,
@@ -730,7 +861,10 @@ Frame* Presenter::PrepareFrame(const Libraries::VideoOut::BufferAttributeGroup& 
     view_info.mapping.a = vk::ComponentSwizzle::eOne;
 
     auto& image = texture_cache.GetImage(image_id);
-    auto image_view = *image.FindView(view_info).image_view;
+    auto image_view = [&] {
+        Common::Profiler::Scope scope{"Prepare.FindView"};
+        return *image.FindView(view_info).image_view;
+    }();
     const vk::Extent2D image_size = {image.info.size.width, image.info.size.height};
     expected_ratio = static_cast<float>(image_size.width) / static_cast<float>(image_size.height);
 
@@ -753,18 +887,40 @@ Frame* Presenter::PrepareFrame(const Libraries::VideoOut::BufferAttributeGroup& 
                             readback);
     }
 
-    // Continue with host-side passes that draw the displayed (scaled) frame.
-    image.Transit(vk::ImageLayout::eShaderReadOnlyOptimal, vk::AccessFlagBits2::eShaderRead, {},
-                  cmdbuf);
+    // The ordinary VideoOut path stays single-image. SBS eye composition is
+    // owned by PrepareVrFrame; it must not read back or blit this image.
+    {
+        image.Transit(vk::ImageLayout::eShaderReadOnlyOptimal, vk::AccessFlagBits2::eShaderRead, {},
+                      cmdbuf);
 
-    image_view = fsr_pass.Render(draw_scheduler, image_view, image_size, {frame->width, frame->height},
-                                 fsr_settings, frame->is_hdr);
+        {
+            Common::Profiler::Scope scope{"Prepare.FSR"};
+            const auto zone = draw_scheduler.GpuProfile().Begin(cmdbuf, GpuProfiler::Stage::Fsr);
+            image_view = fsr_pass.Render(draw_scheduler, image_view, image_size,
+                                         {frame->width, frame->height}, fsr_settings, frame->is_hdr);
+            draw_scheduler.GpuProfile().End(cmdbuf, zone);
+        }
 
-    // Vulkan has no sRGB variant of the 10-bit format, so an A2R10G10B10Srgb buffer reaches
-    // the post process pass still sRGB encoded and has to be decoded there instead.
-    pp_settings.srgb_input =
-        attribute.attrib.pixel_format == Libraries::VideoOut::PixelFormat::A2R10G10B10Srgb;
-    pp_pass.Render(draw_scheduler, image_view, image_size, *frame, pp_settings);
+        // Vulkan has no sRGB variant of the 10-bit format, so an A2R10G10B10Srgb buffer reaches
+        // the post process pass still sRGB encoded and has to be decoded there instead.
+        pp_settings.srgb_input =
+            attribute.attrib.pixel_format == Libraries::VideoOut::PixelFormat::A2R10G10B10Srgb;
+        pp_settings.sbs = 0;
+        // Beat Saber writes the already-double-wide SBS surface with the
+        // guest's render-target origin. Vulkan's fullscreen sample must invert
+        // V once; ordinary non-SBS output keeps the default zero.
+#if defined(__ANDROID__)
+        pp_settings.flip_y = Core::HostRuntime::GuestVrSensor::Instance().Read().enabled ? 1 : 0;
+#else
+        pp_settings.flip_y = 0;
+#endif
+        {
+            Common::Profiler::Scope scope{"Prepare.PostProcess"};
+            const auto zone = draw_scheduler.GpuProfile().Begin(cmdbuf, GpuProfiler::Stage::PostProcess);
+            pp_pass.Render(draw_scheduler, image_view, image_size, *frame, pp_settings);
+            draw_scheduler.GpuProfile().End(cmdbuf, zone);
+        }
+    }
 
     DebugState.game_resolution = {image_size.width, image_size.height};
     DebugState.output_resolution = {frame->width, frame->height};
@@ -780,8 +936,21 @@ Frame* Presenter::PrepareFrame(const Libraries::VideoOut::BufferAttributeGroup& 
     // Flush frame creation commands.
     frame->ready_semaphore = draw_scheduler.GetMasterSemaphore()->Handle();
     frame->ready_tick = draw_scheduler.CurrentTick();
+    // Opt-in correlation only. Capture numeric identities, never a Frame or
+    // VideoOutPort pointer: a delayed diagnostic must not extend guest lifetime.
+    if (Core::Diagnostics::Handoff::Enabled(instance.DiagnosticGeneration())) {
+        const auto generation = instance.DiagnosticGeneration();
+        const auto tick = frame->ready_tick;
+        draw_scheduler.DeferPriorityOperation([generation, diagnostic_id, tick] {
+            SHAD_HANDOFF(generation, "vo_snapshot_ready", 0, diagnostic_id, tick);
+        });
+    }
     SubmitInfo info{};
-    draw_scheduler.Flush(info);
+    {
+        Common::Profiler::Scope scope{"Prepare.Flush"};
+        draw_scheduler.GpuProfile().FrameEnd();
+        draw_scheduler.Flush(info);
+    }
     return frame;
 }
 
@@ -864,12 +1033,19 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame) {
     Core::Diagnostics::Handoff::Scope present_scope{"Present.Frame", instance.DiagnosticGeneration()};
     if (!frame)
         return false;
-    // Free the frame for reuse
-    const auto free_frame = [&] {
+    // A displayed frame stays owned by this thread while DrawLastFrame can
+    // reuse its image/fence. Only its replacement releases it to the producer.
+    // Failed acquire/present returns the new frame and preserves the last image.
+    const auto free_frame = [&](bool presented = false) {
         if (!is_reusing_frame) {
-            last_submit_frame = frame;
             std::scoped_lock fl{free_mutex};
-            free_queue.push(frame);
+            if (presented) {
+                if (last_submit_frame)
+                    free_queue.push(last_submit_frame);
+                last_submit_frame = frame;
+            } else {
+                free_queue.push(frame);
+            }
             free_cv.notify_one();
         }
     };
@@ -913,6 +1089,7 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame) {
     const vk::ImageView swapchain_image_view = swapchain.ImageView();
 
     auto& scheduler = present_scheduler;
+    scheduler.GpuProfile().PresentKind(is_reusing_frame);
     const auto cmdbuf = scheduler.CommandBuffer();
     const u32 capture_with_overlays_count = VideoCore::ConsumeWithOverlaysScreenshotRequests();
     std::vector<ScreenshotReadback> pending_screenshots;
@@ -985,7 +1162,17 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame) {
                 auto game_width = frame->width;
                 auto game_height = frame->height;
 
-                if (splash_visible()) { // draw splash
+#if defined(__ANDROID__)
+                // The first SBS bring-up must expose the actual VideoOut
+                // frame.  Beat Saber keeps the generic shell splash flag set
+                // while its Unity scene is already submitting frames, which
+                // otherwise masks the SBS frame with an empty shell image.
+                const bool show_shell_splash =
+                    splash_visible() && !Core::HostRuntime::GuestVrSensor::Instance().Read().enabled;
+#else
+                const bool show_shell_splash = splash_visible();
+#endif
+                if (show_shell_splash) { // draw splash
                     if (!splash_img.has_value()) {
                         splash_img.emplace();
                         const auto& splash_data = Common::ElfInfo::Instance().GetSplashData();
@@ -1115,12 +1302,16 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame) {
     info.AddSignal(swapchain.GetPresentReadySemaphore());
     info.AddSignal(frame->present_done);
     scheduler.Flush(info);
+    // FIFO acceptance is not enough for a binary present wait: its signal and
+    // timeline dependencies must already have reached vkQueueSubmit. Wait here,
+    // outside the queue lock, never on the PM4/guest owner.
+    scheduler.WaitSubmitted();
 
     bool presented{};
     // Present to swapchain.
     bool reusable;
     {
-        std::unique_lock submit_lock{Scheduler::submit_mutex, std::defer_lock};
+        std::unique_lock submit_lock{instance.QueueMutex(), std::defer_lock};
         {
             Core::Diagnostics::Handoff::Scope scope{"Present.QueueLock", instance.DiagnosticGeneration(), 0, 0, true};
             submit_lock.lock();
@@ -1137,7 +1328,7 @@ bool Presenter::Present(Frame* frame, bool is_reusing_frame) {
         swapchain.Recreate(window->GetWidth(), window->GetHeight());
     }
 
-    free_frame();
+    free_frame(presented);
     if (!is_reusing_frame) {
         DebugState.IncFlipFrameNum();
     }
@@ -1158,6 +1349,7 @@ Frame* Presenter::GetRenderFrame() {
         // Take the frame from the queue
         frame = free_queue.front();
         free_queue.pop();
+        ASSERT_MSG(frame != last_submit_frame, "Presentation redraw frame acquired by producer");
     }
 
     const vk::Device device = instance.GetDevice();

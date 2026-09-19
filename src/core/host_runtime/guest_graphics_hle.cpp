@@ -27,14 +27,15 @@ T Must(Result<T> value) {
 template <class T>
 T Read(GuestAddressSpace& space, u64 address) {
     T value{};
-    auto status = space.Read(GuestAddress{address}, std::as_writable_bytes(std::span{&value, 1}));
+    auto status =
+        space.ReadData(GuestAddress{address}, std::as_writable_bytes(std::span{&value, 1}));
     if (!status)
         throw std::runtime_error("invalid graphics input address");
     return value;
 }
 template <class T>
 auto Output(GuestAddressSpace& space, u64 address) {
-    return Must(space.AcquirePinnedSpan({GuestAddress{address}, sizeof(T)}, true));
+    return Must(space.AcquireDataSpan({GuestAddress{address}, sizeof(T)}, true));
 }
 using Args = std::array<u64, 10>;
 // Explicit policies below convert every native pointer. No pointer inferred from
@@ -126,8 +127,8 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
                         return u32(-1);
                     std::vector<u32> registers(register_words);
                     if (register_words && a[2]) {
-                        auto result = space.Read(GuestAddress{a[2]},
-                                                 std::as_writable_bytes(std::span{registers}));
+                        auto result = space.ReadData(GuestAddress{a[2]},
+                                                     std::as_writable_bytes(std::span{registers}));
                         if (!result)
                             return u32(-1);
                     }
@@ -144,7 +145,7 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
                     }
 
                     // Validate the entire dword capacity and preserve unwritten padding.
-                    auto pin = space.AcquirePinnedSpan({GuestAddress{a[0]}, a[1] * 4}, true);
+                    auto pin = space.AcquireDataSpan({GuestAddress{a[0]}, a[1] * 4}, true);
                     if (!pin)
                         return u32(-1);
                     constexpr u32 guard = 0xa55a9187;
@@ -173,6 +174,7 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
     ENCODE("thbPcG7E7qk", sceGnmDrawIndexIndirectCountMulti);
     ENCODE("oYM+YzfCm2Y", sceGnmDrawIndexOffset);
     ENCODE("4v+otIIdjqg", sceGnmDrawIndirect);
+    ENCODE("0H2vBYbTLHI", sceGnmDrawInitDefaultHardwareState200);
     ENCODE("yb2cRhagD1I", sceGnmDrawInitDefaultHardwareState350);
     ENCODE("im2ZuItabu4", sceGnmDrawInitToDefaultContextState400);
     ENCODE("NfvOrNzy6sk", sceGnmInsertDingDongMarker);
@@ -184,7 +186,7 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
         auto* port = graphics.VideoOut().GetPort(a[2]);
         if (!port || !port->is_open || a[3] >= VideoOut::MaxDisplayBuffers || a[1] != 7)
             return u32(-1);
-        auto pin = Must(space.AcquirePinnedSpan({GuestAddress{a[0]}, a[1] * 4}, true));
+        auto pin = Must(space.AcquireDataSpan({GuestAddress{a[0]}, a[1] * 4}, true));
         return u32(GnmDriver::sceGnmInsertWaitFlipDone(
             reinterpret_cast<u32*>(pin.WritableBytes().data()), a[1], a[2], a[3]));
     });
@@ -193,11 +195,14 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
     ENCODE("+AFvOEXrKJk", sceGnmSetEmbeddedVsShader);
     ENCODE("cFCp0NX8wf0", sceGnmSetVgtControl);
     SHADER("Kx-h-nWQJ8A", sceGnmSetCsShaderWithModifier, 7);
+    SHADER("KXltnCwEJHQ", sceGnmSetCsShader, 7);
     SHADER("FUHG8sQ3R58", sceGnmSetEsShader, 4);
     SHADER("UJwNuMBcUAk", sceGnmSetGsShader, 7);
     SHADER("VJNjFtqiF5w", sceGnmSetHsShader, 7);
     SHADER("vckdzbQ46SI", sceGnmSetLsShader, 4);
     SHADER("5uFKckiJYRM", sceGnmSetPsShader350, 12);
+    SHADER("bQVd5YzCal0", sceGnmSetPsShader, 12);
+    SHADER("4MgRw-bVNQU", sceGnmUpdatePsShader, 12);
     SHADER("gAhCn6UiU4Y", sceGnmSetVsShader, 7);
     SHADER("nLM2i2+65hA", sceGnmUpdateGsShader, 7);
     SHADER("GNlx+y7xPdE", sceGnmUpdateHsShader, 7);
@@ -205,6 +210,34 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
     SHADER("V31V01UiScY", sceGnmUpdateVsShader, 7);
 #undef ENCODE
 #undef SHADER
+    // Match the desktop's retail/debug compatibility policy. These functions
+    // have no pointer arguments in that implementation; no guest pointers pass
+    // through this scalar adapter. Unsupported diagnostics retain their errors.
+#define DESKTOP_SCALAR(nid, fn) \
+    install(nid, 0, [](GuestGraphics&, const Args&) -> u64 { return GnmDriver::fn(); })
+    DESKTOP_SCALAR("aj3L-iaFmyk", sceGnmInsertSetColorMarker);
+    DESKTOP_SCALAR("26PM5Mzl8zc", sceGnmLogicalCuIndexToPhysicalCuIndex);
+    DESKTOP_SCALAR("iCO804ZgzdA", sceGnmValidateCommandBuffers);
+    DESKTOP_SCALAR("H7-fgvEutM0", sceGnmGetEqTimeStamp);
+    DESKTOP_SCALAR("qpGITzPE+Zc", sceGnmDebugHardwareStatus);
+    DESKTOP_SCALAR("gObODli-OH8", sceGnmRequestFlipAndSubmitDone);
+    DESKTOP_SCALAR("+xuDhxlWRPg", sceGnmSetupMipStatsReport);
+    DESKTOP_SCALAR("f85orjx7qts", sceGnmRequestMipStatsReportAndReset);
+    DESKTOP_SCALAR("HHo1BAljZO8", sceGnmDisableMipStatsReport);
+    DESKTOP_SCALAR("jtkqXpAOY6w", sceGnmSetGsRingSizes);
+    // The returned address is the desktop system-reserved guest VA, not a host
+    // allocation. Its session cache is reset by GnmDriver::InitializeSession.
+    DESKTOP_SCALAR("ln33zjBrfjk", sceGnmGetTheTessellationFactorRingBufferBaseAddress);
+    DESKTOP_SCALAR("d88anrgNoKY", sceGnmDriverTriggerCapture);
+    DESKTOP_SCALAR("jg33rEKLfVs", sceGnmIsUserPaEnabled);
+#undef DESKTOP_SCALAR
+    install("RU74kek-N0c", 2, [](GuestGraphics&, const Args& a) -> u64 {
+        return u32(GnmDriver::sceGnmLogicalCuMaskToPhysicalCuMask(a[0], a[1]));
+    });
+    install("iBt3Oe00Kvc", 0, [](GuestGraphics&, const Args&) -> u64 {
+        GnmDriver::sceGnmFlushGarlic();
+        return 0;
+    });
     install(
         "w3BY+tAEiQY", 5,
         [&](GuestGraphics& graphics, const Args& a) -> u64 {
@@ -280,6 +313,7 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
                     std::vector<std::vector<u32>> dcbs(count), ccbs(count);
                     std::vector<u32*> dp(count), cp(count);
                     std::vector<u32> ds(count), cs(count);
+                    std::vector<VAddr> source_addresses(count);
                     for (u32 i = 0; i < count; ++i) {
                         ds[i] = Read<u32>(space, a[2] + i * 4);
                         cs[i] = a[4] ? Read<u32>(space, a[4] + i * 4) : 0;
@@ -287,18 +321,20 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
                             return 0x80d11000u;
                         dcbs[i].resize(ds[i] / 4);
                         ccbs[i].resize(cs[i] / 4);
-                        auto r = space.Read(GuestAddress{Read<u64>(space, a[1] + i * 8)},
-                                            std::as_writable_bytes(std::span{dcbs[i]}));
+                        source_addresses[i] = Read<u64>(space, a[1] + i * 8);
+                        auto r = space.ReadData(GuestAddress{source_addresses[i]},
+                                                std::as_writable_bytes(std::span{dcbs[i]}));
                         if (!r)
                             return 0x80d11000u;
-                        if (cs[i] && !space.Read(GuestAddress{Read<u64>(space, a[3] + i * 8)},
-                                                 std::as_writable_bytes(std::span{ccbs[i]})))
+                        if (cs[i] && !space.ReadData(GuestAddress{Read<u64>(space, a[3] + i * 8)},
+                                                     std::as_writable_bytes(std::span{ccbs[i]})))
                             return 0x80d11000u;
                         dp[i] = dcbs[i].data();
                         cp[i] = ccbs[i].data();
                     }
                     // The processor takes owned command copies. Nested GPU addresses keep
                     // their guest VA; VM mutations drain GPU work before changing backing.
+                    GnmDriver::ScopedSubmitSources source_scope{source_addresses};
                     if (flip) {
                         if (ds.back() < 256 || dcbs.back()[dcbs.back().size() - 64] != 0xc03e1000)
                             return 0x80d11000u;
@@ -346,6 +382,50 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
     install("jpFjmgAC5AE", 1, [](GuestGraphics& graphics, const Args& a) -> u64 {
         return u32(graphics.DeleteEqueue(a[0]));
     });
+    // These getters consume a copied wire event, never a native queue pointer.
+    // User data is an opaque guest value and must not be dereferenced.
+    install("23CPPI1tyBY", 1, [&](GuestGraphics&, const Args& a) -> u64 {
+        const auto event = Read<Kernel::OrbisKernelEvent>(space, a[0]);
+        return u32(Kernel::sceKernelGetEventFilter(&event));
+    });
+    install("mJ7aghmgvfc", 1, [&](GuestGraphics&, const Args& a) -> u64 {
+        const auto event = Read<Kernel::OrbisKernelEvent>(space, a[0]);
+        return Kernel::sceKernelGetEventId(&event);
+    });
+    install("kwGyyjohI50", 1, [&](GuestGraphics&, const Args& a) -> u64 {
+        const auto event = Read<Kernel::OrbisKernelEvent>(space, a[0]);
+        return Kernel::sceKernelGetEventData(&event);
+    });
+    install("vz+pg2zdopI", 1, [&](GuestGraphics&, const Args& a) -> u64 {
+        const auto event = Read<Kernel::OrbisKernelEvent>(space, a[0]);
+        return reinterpret_cast<u64>(Kernel::sceKernelGetEventUserData(&event));
+    });
+    auto add_user_event = [&](const char* nid, u16 flags) {
+        install(nid, 2, [flags](GuestGraphics& graphics, const Args& a) -> u64 {
+            auto* queue = graphics.FindEqueue(a[0]);
+            if (!queue) return u32(ORBIS_KERNEL_ERROR_EBADF);
+            if (queue->EventExists(a[1], Kernel::OrbisKernelEvent::Filter::User))
+                return u32(ORBIS_KERNEL_ERROR_EEXIST);
+            Kernel::EqueueEvent event{};
+            event.event.ident = a[1];
+            event.event.filter = Kernel::OrbisKernelEvent::Filter::User;
+            event.event.flags = flags;
+            return queue->AddEvent(event) ? u32(0) : u32(ORBIS_KERNEL_ERROR_ENOMEM);
+        });
+    };
+    add_user_event("4R6-OvI2cEA", Kernel::OrbisKernelEvent::Flags::Add);
+    add_user_event("WDszmSbWuDk", Kernel::OrbisKernelEvent::Flags::Add | Kernel::OrbisKernelEvent::Flags::Clear);
+    install("F6e0kwo4cnk", 3, [](GuestGraphics& graphics, const Args& a) -> u64 {
+        auto* queue = graphics.FindEqueue(a[0]);
+        return queue && queue->TriggerEvent(a[1], Kernel::OrbisKernelEvent::Filter::User,
+                                            reinterpret_cast<void*>(a[2]))
+                   ? u32(0) : u32(ORBIS_KERNEL_ERROR_ENOENT);
+    });
+    install("LJDwdSNTnDg", 2, [](GuestGraphics& graphics, const Args& a) -> u64 {
+        auto* queue = graphics.FindEqueue(a[0]);
+        return queue && queue->RemoveEvent(a[1], Kernel::OrbisKernelEvent::Filter::User)
+                   ? u32(0) : u32(ORBIS_KERNEL_ERROR_ENOENT);
+    });
     install("fzyMKs9kim0", 5, [&](GuestGraphics& graphics, const Args& a) -> u64 {
         const s32 capacity = a[2];
         if (capacity <= 0 || capacity > 1024)
@@ -363,7 +443,7 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
             if (graphics.FindEqueue(a[0]) != queue)
                 return u32(ORBIS_KERNEL_ERROR_EBADF);
             {
-                auto events = Must(space.AcquirePinnedSpan(
+                auto events = Must(space.AcquireDataSpan(
                     {GuestAddress{a[1]}, u64(capacity) * sizeof(Kernel::OrbisKernelEvent)}, true));
                 auto result = Output<s32>(space, a[3]);
                 std::vector<Kernel::OrbisKernelEvent> local(capacity);
@@ -379,7 +459,8 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
             HleScope::Current()->WaitFor(std::chrono::milliseconds(1));
         }
     });
-    for (const auto* nid : {"D0OdFMjp46I", "jpFjmgAC5AE", "fzyMKs9kim0"})
+    for (const auto* nid : {"D0OdFMjp46I", "jpFjmgAC5AE", "fzyMKs9kim0",
+                            "23CPPI1tyBY", "mJ7aghmgvfc", "kwGyyjohI50", "vz+pg2zdopI"})
         gnm.erase(nid);
     install(
         "HXzjK9yI30k", 3,

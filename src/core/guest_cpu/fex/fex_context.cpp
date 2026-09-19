@@ -2,8 +2,12 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "core/guest_cpu/fex/entry_backedge_pass.h"
+#include "core/guest_cpu/fex/memory_watch_pass.h"
+#include "core/guest_cpu/fex/profile_pass.h"
+#include "Interface/Context/Context.h"
 #include "core/guest_cpu/fex/fex_context.h"
 #include "core/guest_cpu/api/access_fault.h"
+#include "core/guest_cpu/debug/rsp_server.h"
 #if defined(GUEST_CPU_TEST_HOOKS)
 #include "core/guest_cpu/fex/test_run_gate.h"
 #endif
@@ -29,7 +33,10 @@
 
 #include <sys/mman.h>
 #include <sys/syscall.h>
+#include <fcntl.h>
 #include <unistd.h>
+#include <unwind.h>
+#include <dlfcn.h>
 
 #if defined(__ANDROID__)
 #include <android/log.h>
@@ -50,6 +57,7 @@
 
 #include "Common/HostFeatures.h"
 #include "Interface/Core/CPUBackend.h"
+#include "Interface/Core/Frontend.h"
 #include "Utils/Allocator.h" // Pinned FEX private allocator initialization; no VA-stealing hooks.
 #include "core/guest_cpu/hle/call_adapter.h"
 #include "core/guest_cpu/hle/scope.h"
@@ -61,6 +69,28 @@ namespace {
 // not a once-ever latch: destroying the context must allow a rebuild, which
 // acceptance L01 exercises 100 times.
 std::atomic<bool> g_context_active{false};
+
+// Fixed storage, owner-only capture, never called from JIT or a signal handler.
+struct NativeBoundaryStack {
+    std::array<std::uint64_t, 24> pcs{};
+    std::size_t count{};
+};
+NativeBoundaryStack CaptureNativeBoundary() {
+    NativeBoundaryStack result;
+    _Unwind_Backtrace([](_Unwind_Context* frame, void* value) {
+        auto& out = *static_cast<NativeBoundaryStack*>(value);
+        const auto pc = _Unwind_GetIP(frame);
+        if (!pc || out.count == out.pcs.size()) return _URC_END_OF_STACK;
+        out.pcs[out.count++] = pc;
+        return _URC_NO_REASON;
+    }, &result);
+    return result;
+}
+struct HleDebugBoundary {
+    CpuSnapshot guest;
+    NativeBoundaryStack native;
+    const char* provenance{"hle-entry-capture"};
+};
 
 // --- register mapping --------------------------------------------------------
 // The public Gpr enum uses the x86-64 encoding order, which is also FEX's gregs
@@ -150,6 +180,13 @@ struct InterruptState final {
 };
 
 struct ThreadInterruptBinding final {
+    int fatal_log_fd{-1};
+    std::array<Debug::Watchpoint, 8> watches{};
+    std::size_t watch_count{};
+    std::optional<Debug::WatchHit> watch_hit;
+    std::uint64_t watch_rip{};
+    MemoryWatchCompileState* watch_compile{};
+    std::unique_ptr<ExecutionProbeOwner> profile_owner;
     FEXCore::Context::Context *fex{};
     FEXCore::Core::InternalThreadState *native{};
     std::uintptr_t fault_page{};
@@ -187,9 +224,37 @@ struct ThreadInterruptBinding final {
     // the guest environment is restored before the guest resumes (per-crossing host/guest FP).
     fenv_t owner_host_fenv{};
     bool owner_host_fenv_valid{false};
+    // Owned by this physical Run's shared_ptr and active-run lease. A nested
+    // InvokeGuest gets its own binding; never cache this across Run teardown.
+    std::atomic<bool>* syscall_fault_flag{};
 };
 static_assert(std::atomic<bool>::is_always_lock_free);
 thread_local ThreadInterruptBinding *t_binding = nullptr;
+
+// Called only by opt-in debug IR, on the executing guest owner. No locks,
+// allocation, VM access, guest calls, logging or FP operations are permitted.
+void ObserveGuestMemory(FEXCore::Core::CpuStateFrame*, std::uint64_t address,
+                        std::uint64_t bytes, std::uint64_t access) noexcept {
+    auto* b = t_binding;
+    if (!b || b->watch_hit || !bytes) return;
+    for (std::size_t i = 0; i < b->watch_count; ++i) {
+        const auto& w = b->watches[i];
+        if (!(access & static_cast<unsigned>(w.access))) continue;
+        const auto base = w.range.base.value;
+        if ((address <= base && base - address < bytes) ||
+            (address > base && address - base < w.range.size)) {
+            b->watch_hit = Debug::WatchHit{address, bytes, b->watch_rip, base, w.access};
+            return;
+        }
+    }
+}
+void ObserveGuestProfile(FEXCore::Core::CpuStateFrame*, std::uint64_t sp, std::uint64_t site) noexcept {
+    auto* b=t_binding;
+    if (!b || !b->profile_owner) return;
+    // JIT saves/restores guest FPCR/FPSR; native observer runs in host environment.
+    if (b->owner_host_fenv_valid) std::fesetenv(&b->owner_host_fenv);
+    b->profile_owner->Hit(site, sp);
+}
 struct sigaction g_previous_fault_action {};
 struct sigaction g_previous_bus_action {};
 std::mutex g_interrupt_install_lock;
@@ -280,7 +345,7 @@ void InterruptFaultHandler(int signal, siginfo_t *info, void *raw_context) {
         const auto pc = uc->uc_mcontext.pc;
         if (binding->fex->IsAddressInCodeBuffer(binding->native, pc)) {
             const int saved_errno = errno;
-            char message[192];
+            char message[2048];
             size_t length{};
             auto append = [&](const char* text) {
                 while (*text && length < sizeof(message))
@@ -289,7 +354,8 @@ void InterruptFaultHandler(int signal, siginfo_t *info, void *raw_context) {
             auto hex = [&](std::uint64_t value) {
                 append("0x");
                 for (int shift = 60; shift >= 0; shift -= 4)
-                    message[length++] = "0123456789abcdef"[(value >> shift) & 15];
+                    if (length < sizeof(message))
+                        message[length++] = "0123456789abcdef"[(value >> shift) & 15];
             };
             append("FEX JIT fault (block attribution only): block=");
             hex(binding->fex->GetGuestBlockEntry(binding->native));
@@ -297,8 +363,25 @@ void InterruptFaultHandler(int signal, siginfo_t *info, void *raw_context) {
             hex(reinterpret_cast<uintptr_t>(info->si_addr));
             append(" host_pc=");
             hex(pc);
+            append(" mapped_rip=");
+            // FEX's nearest RIP metadata entry (with its State.rip fallback),
+            // never a claim of a complete mid-instruction guest snapshot.
+            hex(binding->fex->RestoreRIPFromHostPC(binding->native, pc));
+            append(" tid="); hex(static_cast<uint64_t>(::gettid()));
+            append(" signal_code="); hex(static_cast<uint64_t>(info->si_code));
+            append(" instruction=");
+            hex(*reinterpret_cast<const uint32_t*>(pc));
+            append(" host_sp="); hex(uc->uc_mcontext.sp);
+            for (unsigned reg = 0; reg < 31; ++reg) {
+                append(" x");
+                if (reg >= 10) { const char tens[] = {char('0' + reg / 10), 0}; append(tens); }
+                const char digit[] = {char('0' + reg % 10), 0}; append(digit);
+                append("="); hex(uc->uc_mcontext.regs[reg]);
+            }
             append("\n");
             (void)::write(STDERR_FILENO, message, length);
+            if (binding->fatal_log_fd >= 0)
+                (void)::write(binding->fatal_log_fd, message, length);
             errno = saved_errno;
         }
     }
@@ -526,12 +609,15 @@ class FexSyscallHandler final : public FEXCore::HLE::SyscallHandler {
         }
 
         // Per-thread attribution first: a fault flag unique to this thread.
-        std::shared_ptr<std::atomic<bool>> fault_flag;
-        {
+        std::shared_ptr<std::atomic<bool>> fallback_flag;
+        auto* fault_flag = binding && binding->native->CurrentFrame == Frame
+                               ? binding->syscall_fault_flag : nullptr;
+        if (!fault_flag) {
             std::lock_guard guard{threads_lock_};
             auto it = syscall_fault_by_frame_.find(Frame);
             if (it != syscall_fault_by_frame_.end()) {
-                fault_flag = it->second.lock();
+                fallback_flag = it->second.flag.lock();
+                fault_flag = fallback_flag.get();
             }
         }
 
@@ -636,17 +722,21 @@ class FexSyscallHandler final : public FEXCore::HLE::SyscallHandler {
 
     Hle::HleCallRegistry& Registry() { return registry_; }
 
-    // Registers the per-thread syscall-fault flag for the duration of an ExecuteThread call. The
-    // weak_ptr entry is dropped when the owner unregisters, so a stale frame never faults the
-    // wrong thread and a destroyed thread's flag does not outlive it.
+    // CurrentFrame is const in FEX InternalThreadState. Register once per
+    // physical Run, not once per syscall continuation. Reentrant callbacks on
+    // that same owner retain the outer registration until both Runs retire.
     void RegisterThreadFrame(FEXCore::Core::CpuStateFrame* frame,
                              std::weak_ptr<std::atomic<bool>> flag) {
         std::lock_guard guard{threads_lock_};
-        syscall_fault_by_frame_[frame] = std::move(flag);
+        auto [it, inserted] = syscall_fault_by_frame_.try_emplace(frame);
+        if (inserted) it->second.flag = std::move(flag);
+        ++it->second.active_runs;
     }
     void UnregisterThreadFrame(FEXCore::Core::CpuStateFrame* frame) {
         std::lock_guard guard{threads_lock_};
-        syscall_fault_by_frame_.erase(frame);
+        auto it = syscall_fault_by_frame_.find(frame);
+        if (it != syscall_fault_by_frame_.end() && --it->second.active_runs == 0)
+            syscall_fault_by_frame_.erase(it);
     }
 
     [[nodiscard]] bool TakeUnknownThreadSyscall() {
@@ -731,8 +821,11 @@ class FexSyscallHandler final : public FEXCore::HLE::SyscallHandler {
     // Per-thread syscall-fault attribution (R2-H05). Keyed by the frame FEXCore passes to
     // HandleSyscall; weak so a thread that has exited never keeps the map entry alive.
     mutable std::mutex threads_lock_;
-    std::unordered_map<FEXCore::Core::CpuStateFrame*, std::weak_ptr<std::atomic<bool>>>
-        syscall_fault_by_frame_;
+    struct FrameRegistration {
+        std::weak_ptr<std::atomic<bool>> flag;
+        std::size_t active_runs{};
+    };
+    std::unordered_map<FEXCore::Core::CpuStateFrame*, FrameRegistration> syscall_fault_by_frame_;
     std::atomic<bool> unknown_thread_syscall_{false};
     std::atomic<ErrorCategory> last_hle_error_{ErrorCategory::None};
 
@@ -905,12 +998,13 @@ class FexTestRunGateImpl final : public FexTestRunGate {
 };
 #endif
 
-class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
+class FexCpuContext final : public CpuContext, public CodeInvalidationSink, public Debug::Target {
   public:
     explicit FexCpuContext(const CpuConfig &config, GuestAddressSpace &space)
         : config_(config), space_(space) {}
 
     ~FexCpuContext() override {
+        debug_server_.reset();
         // Unregister before anything else: once the backend is going away, the address space must
         // stop routing publications to it rather than calling into a destroyed object.
         space_.ClearCodeInvalidationSink(this);
@@ -928,7 +1022,20 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         }
         context_.reset();
         RestoreInterruptHandler();
+        if (fatal_log_fd_ >= 0) ::close(fatal_log_fd_);
         g_context_active.store(false, std::memory_order_release);
+    }
+
+    Status SetFatalLog(const char* path) {
+        std::lock_guard guard{lock_};
+        if (!threads_.empty())
+            return BackendError(ErrorCategory::Busy, "SetFatalLog", "guest owners already exist");
+        const int fd = ::open(path, O_WRONLY | O_CREAT | O_APPEND | O_CLOEXEC, 0600);
+        if (fd < 0)
+            return BackendError(ErrorCategory::BackendFailure, "SetFatalLog", "open failed", errno);
+        if (fatal_log_fd_ >= 0) ::close(fatal_log_fd_);
+        fatal_log_fd_ = fd;
+        return Ok();
     }
 
     [[nodiscard]] Result<void> Initialize() {
@@ -960,6 +1067,11 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         // bytes. That was the cause of guest fixtures having no architectural effect.
         FEXCore::Config::ReloadMetaLayer();
         FEXCore::Config::Set(FEXCore::Config::CONFIG_IS64BIT_MODE, "1");
+        // Orbis sceKernelReadTsc/GetTscFrequency expose the native counter.
+        // FEX's Linux default scales low-frequency counters (64x on AYN), which
+        // breaks callers mixing those APIs with guest RDTSC/RDTSCP. Keep both
+        // instructions and CPUID.15h in the same unscaled domain as the host.
+        FEXCore::Config::Set(FEXCore::Config::CONFIG_SMALLTSCSCALE, "0");
         // Core-only GDBSERVER enables the entry interrupt-page store, not a server.
         // Single basic blocks make its fault a restartable architectural boundary.
         FEXCore::Config::Set(FEXCore::Config::CONFIG_GDBSERVER, "1");
@@ -1063,6 +1175,12 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         if (auto registered = space_.SetCodeInvalidationSink(this); !registered) {
             return registered;
         }
+        if (config_.guest_debug_port) {
+            if (config_.guest_debug_wait) (void)Pause();
+            auto server = Debug::RspServer::Listen(*this, config_.guest_debug_port);
+            if (!server) return server.GetError();
+            debug_server_ = std::move(server).Value();
+        }
         return Result<void>{};
     }
 
@@ -1114,10 +1232,17 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         auto gdt = std::make_unique<std::array<FEXCore::Core::CPUState::gdt_segment, 32>>();
         InitializeSegments(state, *gdt);
 
+        auto watch_compile = std::make_unique<MemoryWatchCompileState>();
         auto *native = context_->CreateThread(&state);
+        if (native)
+            native->PassManager->PrependPass(fextl::make_unique<MemoryWatchPass>(*watch_compile), "ShadDebugMemory");
         if (native)
             native->PassManager->InsertPass(fextl::make_unique<EntryBackedgePass>(),
                                             "ShadGuestEntryPoll");
+        if (native && execution_probes_) {
+            native->PassManager->PrependPass(fextl::make_unique<ProfilePass>(execution_probes_), "ShadGuestProfile");
+            native->CurrentFrame->Pointers.GuestProfileProbe = reinterpret_cast<std::uint64_t>(&ObserveGuestProfile);
+        }
         if (native == nullptr) {
             return BackendError(ErrorCategory::OutOfMemory, "CreateThread",
                                 "FEXCore could not create a thread state");
@@ -1148,8 +1273,11 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         const std::uint64_t id = next_thread_id_++;
         ThreadEntry entry{};
         entry.native = native;
+        entry.watch_compile = std::move(watch_compile);
         entry.generation = NextContextId();
         entry.owner = std::this_thread::get_id();
+        entry.host_tid = ::syscall(SYS_gettid);
+        entry.debug_pause = debug_paused_;
         entry.guest_tid = init.guest_tid;
         entry.entry_rip = init.entry_rip.value;
         entry.gdt = std::move(gdt);
@@ -1172,7 +1300,8 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
     [[nodiscard]] Result<RunResult> RunInternal(ThreadHandle thread, const RunOptions& options,
                                                 const GuestCallArgs* call_args = nullptr,
                                                 GuestCodeAddress call_entry = {},
-                                                const GuestCallOptions& call_options = {}) {
+                                                const GuestCallOptions& call_options = {},
+                                                bool single_step = false) {
         struct HostErrno {
             int value = errno;
             ~HostErrno() {
@@ -1220,7 +1349,14 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
             return status.GetError();
 
         ThreadInterruptBinding binding{};
+        std::optional<StepInfo> step_info;
+        std::optional<StopReason> debug_stop;
         std::uint64_t invocation{};
+        // This physical Run frame and its host callers remain on the stack for
+        // the whole invocation. Cache only that entry template; native waits
+        // and nested callbacks still capture their own concrete boundaries.
+        NativeBoundaryStack hle_entry_template{};
+        std::uint64_t hle_entry_attachment{};
         std::shared_ptr<std::atomic<bool>> syscall_fault;
         {
             std::unique_lock guard{lock_};
@@ -1264,6 +1400,24 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
                 // an instruction; it cannot disappear in the entering-JIT window.
                 entry->current_invocation = ++entry->invocation_counter;
                 return FinishRunLocked(thread, *entry, entry->current_invocation, true);
+            }
+            if (single_step) {
+                // Use the same checked decoder as execution, under its execution
+                // lease. Never infer instruction length from the successor RIP:
+                // a branch may go backwards or to itself.
+                FEXCore::Frontend::Decoder decoder{entry->native};
+                const auto rip = entry->native->CurrentFrame->State.rip;
+                decoder.SetupDecodeInstructionsAtEntry(entry->native, rip, 1);
+                decoder.DecodeLoop(reinterpret_cast<const std::uint8_t*>(rip));
+                const auto* decoded = decoder.GetDecodedBlockInfo();
+                if (decoded->Blocks.empty() || decoded->TotalInstructionCount != 1 ||
+                    decoded->Blocks.front().BlockStatus !=
+                        FEXCore::Frontend::Decoder::DecodedBlockStatus::SUCCESS ||
+                    !DebugStepInstructionSupported(decoded->Blocks.front().DecodedInstructions[0]))
+                    return BackendError(ErrorCategory::Unsupported, "Step",
+                                        "instruction cannot be decoded safely");
+                step_info = StepInfo{rip, false,
+                    decoded->Blocks.front().DecodedInstructions[0].InstSize};
             }
             if (call_args) {
                 auto executable = space_.Query(GuestAddress{call_entry.value});
@@ -1326,13 +1480,25 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
             entry->running = true;
             entry->interrupt->receipt.reset();
             entry->interrupt->stopped_snapshot.reset();
+            if (execution_probes_)
+                binding.profile_owner = execution_probes_->Enter(context_id_, thread.id, thread.generation, invocation);
             binding.fex = context_.get();
+            binding.fatal_log_fd = fatal_log_fd_;
             binding.native = entry->native;
+            binding.watch_compile = entry->watch_compile.get();
             binding.fault_page =
                 reinterpret_cast<std::uintptr_t>(entry->native->InterruptFaultPage);
             binding.stop_spill = signal_delegator_->GetConfig().ThreadStopHandlerAddressSpillSRA;
             syscall_fault = entry->syscall_fault;
+            binding.syscall_fault_flag = syscall_fault.get();
         }
+        syscall_handler_->RegisterThreadFrame(binding.native->CurrentFrame, syscall_fault);
+        const auto unregister_frame = [this](void* frame) {
+            syscall_handler_->UnregisterThreadFrame(
+                static_cast<FEXCore::Core::CpuStateFrame*>(frame));
+        };
+        std::unique_ptr<void, decltype(unregister_frame)> registered_frame{
+            binding.native->CurrentFrame, unregister_frame};
 #if defined(GUEST_CPU_TEST_HOOKS)
         // Test-only deterministic owner delay. Running is set, the execution lease is held and every
         // coordinator/context/address-space lock has been released; we are not inside a signal handler
@@ -1461,6 +1627,104 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
             }
         };
         for (;;) {
+            bool debug_wait{};
+            if (debug_attached_.load(std::memory_order_relaxed)) {
+                std::lock_guard guard{lock_};
+                debug_wait = FindOwnedLocked(thread)->debug_pause;
+            }
+            if (debug_wait) {
+                call_stack.reset();
+                lease.Value() = ExecutionLease{};
+                std::unique_lock guard{lock_};
+                auto* e = FindOwnedLocked(thread);
+                e->running = false;
+                if (::mprotect(e->native->InterruptFaultPage, host_page_size_, PROT_READ | PROT_WRITE))
+                    return BackendError(ErrorCategory::BackendFailure, "debug pause", "restore poll page", errno);
+                e->debug_parked = true;
+                ++e->stop_epoch;
+                e->interrupt->stopped_snapshot = CaptureSnapshot(thread, *e, SnapshotKind::SafePoint);
+                stopped_changed_.notify_all();
+                while (e->debug_pause && !DebugExternalPendingLocked(thread, *e)) {
+                    if (e->debug_patch) {
+                        if (e->debug_patch_epoch == e->stop_epoch) {
+                            ApplyPatchToState(*e->debug_patch, e->native->CurrentFrame->State);
+                            ApplyXmmPatch(*e->debug_patch, e->native);
+                            ++e->stop_epoch;
+                            e->interrupt->stopped_snapshot = CaptureSnapshot(thread, *e, SnapshotKind::SafePoint);
+                        }
+                        e->debug_patch.reset();
+                        stopped_changed_.notify_all();
+                    }
+                    stopped_changed_.wait_for(guard, std::chrono::milliseconds(20));
+                }
+                e->debug_parked = false;
+                single_step = e->debug_step;
+                e->debug_step = false;
+                debug_stop.reset();
+                step_info.reset();
+                const bool pending = DebugExternalPendingLocked(thread, *e);
+                guard.unlock();
+                if (pending) { cooperative_stop = true; break; }
+                auto resumed = resume_continuation();
+                if (!resumed) return resumed.GetError();
+                if (!resumed.Value()) { cooperative_stop = true; break; }
+                if (single_step) {
+                    FEXCore::Frontend::Decoder decoder{binding.native};
+                    const auto rip = binding.native->CurrentFrame->State.rip;
+                    decoder.SetupDecodeInstructionsAtEntry(binding.native, rip, 1);
+                    decoder.DecodeLoop(reinterpret_cast<const std::uint8_t*>(rip));
+                    const auto* decoded = decoder.GetDecodedBlockInfo();
+                    if (decoded->Blocks.empty() || decoded->TotalInstructionCount != 1 ||
+                        decoded->Blocks.front().BlockStatus != FEXCore::Frontend::Decoder::DecodedBlockStatus::SUCCESS ||
+                        !DebugStepInstructionSupported(decoded->Blocks.front().DecodedInstructions[0])) {
+                        std::lock_guard failed{lock_};
+                        e = FindOwnedLocked(thread);
+                        e->debug_pause = true;
+                        e->debug_reason = StopReason::Unsupported;
+                        continue;
+                    }
+                    step_info = StepInfo{rip, false, decoded->Blocks.front().DecodedInstructions[0].InstSize};
+                }
+            }
+            bool watching{};
+            if (debug_attached_.load(std::memory_order_relaxed)) {
+                std::lock_guard guard{lock_};
+                watching = !debug_watches_.empty();
+                binding.watch_count = debug_watches_.size();
+                std::copy(debug_watches_.begin(), debug_watches_.end(), binding.watches.begin());
+            }
+            binding.watch_compile->enabled = watching;
+            binding.watch_compile->unsupported = false;
+            binding.watch_hit.reset();
+            if (watching) {
+                const auto rip = binding.native->CurrentFrame->State.rip;
+                binding.watch_rip = rip;
+                bool supported = true;
+                for (std::size_t i = 0; i < binding.watch_count; ++i) {
+                    auto mapping = space_.Query(binding.watches[i].range.base);
+                    const auto& range = binding.watches[i].range;
+                    supported &= mapping && mapping.Value().mapping_generation == binding.watches[i].mapping_generation &&
+                        range.size <= mapping.Value().range.size - (range.base.value - mapping.Value().range.base.value);
+                }
+                FEXCore::Frontend::Decoder decoder{binding.native};
+                decoder.SetupDecodeInstructionsAtEntry(binding.native, rip, 1);
+                decoder.DecodeLoop(reinterpret_cast<const std::uint8_t*>(rip));
+                const auto* decoded = decoder.GetDecodedBlockInfo();
+                supported &= !decoded->Blocks.empty() && decoded->TotalInstructionCount == 1 &&
+                    decoded->Blocks.front().BlockStatus == FEXCore::Frontend::Decoder::DecodedBlockStatus::SUCCESS &&
+                    DebugStepInstructionSupported(decoded->Blocks.front().DecodedInstructions[0]);
+                if (supported)
+                    static_cast<FEXCore::Context::ContextImpl*>(context_.get())->CompileSingleStep(binding.native->CurrentFrame, rip);
+                if (!supported || binding.watch_compile->unsupported) {
+                    std::lock_guard guard{lock_};
+                    FindOwnedLocked(thread)->debug_reason = StopReason::Unsupported;
+                    auto paused = DebugPauseLocked();
+                    if (!paused) return paused.GetError();
+                    continue;
+                }
+                step_info = StepInfo{rip, false, decoded->Blocks.front().DecodedInstructions[0].InstSize};
+            }
+            const bool instruction_step = single_step || watching;
             t_binding = &binding;
             binding.hle_pending = false;
             binding.interrupted.store(false, std::memory_order_release);
@@ -1477,7 +1741,6 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
             const std::uint64_t guest_fpcr = (((rounding & 1) << 1) | ((rounding & 2) >> 1)) << 22 |
                                              (static_cast<std::uint64_t>((mxcsr >> 15) & 1) << 24);
             asm volatile("msr fpcr, %0\n\tmsr fpsr, xzr" : : "r"(guest_fpcr) : "memory");
-            syscall_handler_->RegisterThreadFrame(binding.native->CurrentFrame, syscall_fault);
             // Install the production syscall-fault immediate-exit wrapper for this Run. Save the
             // JIT-installed obj/func so the wrapper can forward to the real handler, and restore
             // them after ExecuteThread. The wrapper runs on this owner thread and reads t_binding
@@ -1506,14 +1769,83 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
 #endif
         sys_ptrs->SyscallHandlerFunc =
             reinterpret_cast<std::uint64_t>(reinterpret_cast<void*>(&FexSyscallWrapper));
+        // FEX's TF and INT3 exits have already committed architectural state
+        // and reset the JIT stack. Its dedicated trap target may therefore use
+        // the dispatcher spill/return entry directly, without delivering a host
+        // SIGTRAP (which an attached host LLDB would otherwise steal).
+        const auto saved_trap = sys_ptrs->GuestSignal_SIGTRAP;
+        const auto saved_ill = sys_ptrs->GuestSignal_SIGILL;
+        const auto saved_segv = sys_ptrs->GuestSignal_SIGSEGV;
+        sys_ptrs->GuestSignal_SIGTRAP = binding.stop_spill;
+        sys_ptrs->GuestSignal_SIGILL = binding.stop_spill;
+        sys_ptrs->GuestSignal_SIGSEGV = binding.stop_spill;
+        auto& native_state = binding.native->CurrentFrame->State;
+        auto& tf = native_state.flags[FEXCore::X86State::RFLAG_TF_RAW_LOC];
+        const auto saved_tf = tf;
+        binding.native->CurrentFrame->SynchronousFaultData = {};
+        sys_ptrs->DebugMemoryAccess = watching ? reinterpret_cast<std::uint64_t>(&ObserveGuestMemory) : 0;
+        if (instruction_step) tf = 1; // blocked once, then trap before the next instruction
         context_->ExecuteThread(binding.native);
+        sys_ptrs->GuestSignal_SIGTRAP = saved_trap;
+        sys_ptrs->GuestSignal_SIGILL = saved_ill;
+        sys_ptrs->GuestSignal_SIGSEGV = saved_segv;
+        const auto trap = binding.native->CurrentFrame->SynchronousFaultData;
+        sys_ptrs->DebugMemoryAccess = 0;
+        binding.watch_compile->enabled = false;
+        if (instruction_step) tf = saved_tf; // never expose debugger TF to an HLE callback
+        if (trap.FaultToTopAndGeneratedException && trap.Signal == FEXCore::Core::FAULT_SIGTRAP) {
+            if (trap.TrapNo == FEXCore::X86State::X86_TRAPNO_DB && trap.si_code == 2) {
+                // TF is checked at a block entry, before any guest operation.
+                // This is an exact successor, unlike arbitrary async JIT stops.
+                native_state.rip = context_->GetGuestBlockEntry(binding.native);
+                debug_stop = StopReason::StepComplete;
+                if (step_info) step_info->instruction_retired = true;
+            } else {
+                debug_stop = StopReason::Breakpoint;
+            }
+        }
         sys_ptrs->SyscallHandlerFunc = saved_syscall_func;
         sys_ptrs->SyscallHandlerObj = saved_syscall_obj;
         ::fesetenv(&host_fp);
         errno = host_errno.value;
         t_binding = nullptr;
         if (!binding.hle_pending) {
-            syscall_handler_->UnregisterThreadFrame(binding.native->CurrentFrame);
+            if (watching && debug_stop == StopReason::StepComplete) {
+                std::lock_guard guard{lock_};
+                auto* e = FindOwnedLocked(thread);
+                if (binding.watch_hit) {
+                    e->watch_hit = binding.watch_hit;
+                    debug_stop = StopReason::Watchpoint;
+                } else if (!single_step && !e->debug_pause && !e->interrupt->pending) {
+                    debug_stop.reset();
+                    continue;
+                }
+            }
+            if (debug_attached_.load(std::memory_order_relaxed)) {
+                std::lock_guard guard{lock_};
+                auto* e = FindOwnedLocked(thread);
+                const bool interrupted = binding.interrupted.load(std::memory_order_acquire);
+                if (debug_attached_ && (debug_stop || (interrupted && e->debug_pause)) &&
+                    e->interrupt->pending == 0) {
+                    if (interrupted) {
+                        const auto flags = context_->ReconstructCompactedEFLAGS(
+                            e->native, true, binding.gprs.data(), binding.pstate);
+                        context_->SetFlagsFromCompactedEFLAGS(e->native, flags);
+                        e->native->CurrentFrame->State.rip = binding.guest_rip;
+                    }
+                    if (::mprotect(e->native->InterruptFaultPage, host_page_size_, PROT_READ | PROT_WRITE))
+                        return BackendError(ErrorCategory::BackendFailure, "debug pause", "restore poll page", errno);
+                    binding.interrupted.store(false, std::memory_order_release);
+                    if (debug_stop == StopReason::Breakpoint) {
+                        auto& rip = e->native->CurrentFrame->State.rip;
+                        if (rip && debug_breakpoints_.contains(rip - 1)) --rip;
+                    }
+                    e->debug_reason = debug_stop.value_or(StopReason::PauseRequested);
+                    auto paused = DebugPauseLocked();
+                    if (!paused) return paused.GetError();
+                    continue;
+                }
+            }
             bool park = false;
             if (config_.resume_internal_drains &&
                 binding.interrupted.load(std::memory_order_acquire)) {
@@ -1559,7 +1891,6 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         // Hold after the real syscall exit but before publishing the HLE boundary.
         // No coordinator lock is held; a test can make the drainer wait first.
         if (!test_hle_boundary_gate_->WaitAtEntry(context_id_, thread.id, invocation, 5000)) {
-            syscall_handler_->UnregisterThreadFrame(binding.native->CurrentFrame);
             std::lock_guard guard{lock_};
             auto* entry = FindOwnedLocked(thread);
             entry->interrupt->last_reason = StopReason::BackendFailure;
@@ -1595,12 +1926,38 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         lease.Value() = ExecutionLease{};
         std::optional<std::uint64_t> thread_exit;
         {
+            bool boundary_recorded{};
+            if (debug_attached_.load(std::memory_order_relaxed)) {
+                const auto attachment = debug_attachment_.load(std::memory_order_acquire);
+                if (hle_entry_attachment != attachment) {
+                    hle_entry_template = CaptureNativeBoundary();
+                    hle_entry_attachment = attachment;
+#if defined(GUEST_CPU_TEST_HOOKS)
+                    test_debug_native_captures_.fetch_add(1, std::memory_order_relaxed);
+#endif
+                }
+                std::lock_guard guard{lock_};
+                auto* owner = FindOwnedLocked(thread);
+                if (debug_attached_ && debug_attachment_ == attachment &&
+                    owner->debug_boundaries.size() < 8) {
+                    owner->debug_boundaries.push_back({*owner->interrupt->stopped_snapshot,
+                                                      hle_entry_template, "run-hle-entry-template"});
+                    boundary_recorded = true;
+                }
+            }
+            auto pop_boundary = [&](void*) {
+                if (!boundary_recorded) return;
+                std::lock_guard guard{lock_};
+                auto* owner = FindOwnedLocked(thread);
+                if (!owner->debug_boundaries.empty() && owner->debug_boundaries.back().guest.invocation_id == invocation)
+                    owner->debug_boundaries.pop_back();
+            };
+            std::unique_ptr<void, decltype(pop_boundary)> boundary_guard{reinterpret_cast<void*>(1), pop_boundary};
             Hle::HleScope scope{*this, thread, invocation, cancel};
             syscall_handler_->DispatchNative(binding.native->CurrentFrame, &binding, true);
             nested_stop = scope.FailedCallback();
             thread_exit = scope.ThreadExitResult();
         }
-        syscall_handler_->UnregisterThreadFrame(binding.native->CurrentFrame);
         ::fesetenv(&host_fp);
         if (binding.syscall_fault_pending.load(std::memory_order_acquire))
             break;
@@ -1616,6 +1973,24 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         // architectural RCX; start a fresh translation there, not in old JIT code.
         binding.native->CurrentFrame->State.rip =
             binding.native->CurrentFrame->State.gregs[FEXCore::X86State::REG_RCX];
+        if (single_step) {
+            // Treat a synchronous HLE syscall as one guest instruction. Native
+            // callbacks ran normally with their own guest state and no debug TF.
+            debug_stop = StopReason::StepComplete;
+            step_info->instruction_retired = true;
+            bool attached{};
+            {
+                std::lock_guard guard{lock_};
+                attached = debug_attached_;
+                if (attached) {
+                    FindOwnedLocked(thread)->debug_reason = StopReason::StepComplete;
+                    auto paused = DebugPauseLocked();
+                    if (!paused) return paused.GetError();
+                }
+            }
+            if (attached) continue;
+            break;
+        }
         auto resumed = resume_continuation();
         if (!resumed)
             return resumed.GetError();
@@ -1645,7 +2020,8 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
             context_->SetFlagsFromCompactedEFLAGS(entry->native, flags);
             entry->native->CurrentFrame->State.rip = binding.guest_rip;
         }
-        auto result = FinishRunLocked(thread, *entry, invocation, interrupted || cooperative_stop);
+        auto result = FinishRunLocked(thread, *entry, invocation, interrupted || cooperative_stop,
+                                      debug_stop, step_info);
         if (nested_stop && result &&
             (nested_stop->reason == StopReason::GuestFault ||
              nested_stop->reason == StopReason::BackendFailure)) {
@@ -1712,6 +2088,11 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         };
         std::unique_ptr<void, decltype(restore_caller)> continuation{reinterpret_cast<void*>(1),
                                                                      restore_caller};
+        if (nested) DebugCaptureBoundary(thread, "callback-entry-capture");
+        auto restore_boundary = [&](void*) {
+            if (nested) DebugCaptureBoundary(thread, "callback-return-capture");
+        };
+        std::unique_ptr<void, decltype(restore_boundary)> boundary_restore{reinterpret_cast<void*>(1), restore_boundary};
         auto run = RunInternal(thread, RunOptions{}, &args, entry, options);
         if (!run) {
             return run.GetError();
@@ -1730,17 +2111,10 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         return call;
     }
 
-    [[nodiscard]] Result<RunResult> Step(ThreadHandle thread, const StepOptions &) override {
-        std::lock_guard guard{lock_};
-        if (FindOwnedLocked(thread) == nullptr) {
-            return OwnershipError(thread, "Step");
-        }
-        // Single-instruction stepping needs a JIT block-length limit that this
-        // backend does not yet drive. Refusing before execution leaves guest
-        // state untouched, which T07 requires; returning a whole block as if it
-        // were one instruction would be worse than refusing.
-        return BackendError(ErrorCategory::Unsupported, "Step",
-                            "single-instruction step is not implemented by this backend yet");
+    [[nodiscard]] Result<RunResult> Step(ThreadHandle thread, const StepOptions &options) override {
+        RunOptions run{};
+        run.resume_after_epoch = options.resume_after_epoch;
+        return RunInternal(thread, run, nullptr, {}, {}, true);
     }
 
     [[nodiscard]] Result<CpuSnapshot> ReadRegisters(ThreadHandle thread) const override {
@@ -1818,6 +2192,355 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
     // --- asynchronous control ---------------------------------------------------------------
 
     [[nodiscard]] std::uint64_t ContextId() const noexcept override { return context_id_; }
+
+    std::vector<Debug::Thread> Threads() override {
+        std::lock_guard guard{lock_};
+        std::vector<Debug::Thread> result;
+        for (auto& [id, e] : threads_) {
+            const auto phase = e.debug_parked ? Debug::Phase::Parked :
+                e.running ? Debug::Phase::Guest : e.active_runs ? Debug::Phase::Hle : Debug::Phase::Ready;
+            result.push_back({{id, e.generation}, e.guest_tid, e.host_tid, phase,
+                              e.debug_reason, e.interrupt->stopped_snapshot, e.watch_hit});
+        }
+        std::sort(result.begin(), result.end(), [](auto& a, auto& b) { return a.handle.id < b.handle.id; });
+        return result;
+    }
+    Status InstallExecutionProbes(std::shared_ptr<ExecutionProbes> probes) override {
+        std::lock_guard guard{lock_};
+        if (next_thread_id_ != 1 || execution_probes_)
+            return BackendError(ErrorCategory::WrongState, "InstallExecutionProbes", "install once before owners");
+        if (!probes || probes->Sites().empty() || probes->Sites().size()>2048 ||
+            !std::is_sorted(probes->Sites().begin(), probes->Sites().end(),
+                [](auto a,auto b) { return a.pc < b.pc; }))
+            return BackendError(ErrorCategory::InvalidArgument, "InstallExecutionProbes", "invalid immutable site table");
+        execution_probes_=std::move(probes);
+        return Ok();
+    }
+    void SetDebugModules(std::vector<DebugModule> modules) override {
+        std::lock_guard guard{lock_};
+        debug_modules_ = std::move(modules);
+    }
+    std::vector<DebugModule> Modules() override {
+        std::lock_guard guard{lock_};
+        return debug_modules_;
+    }
+    void DebugCaptureBoundary(ThreadHandle thread, const char* provenance) {
+        if (!debug_attached_.load(std::memory_order_relaxed)) return;
+        auto native = CaptureNativeBoundary();
+#if defined(GUEST_CPU_TEST_HOOKS)
+                test_debug_native_captures_.fetch_add(1, std::memory_order_relaxed);
+#endif
+        std::lock_guard guard{lock_};
+        auto* owner = FindOwnedLocked(thread);
+        if (!debug_attached_ || !owner || owner->debug_boundaries.empty()) return;
+        owner->debug_boundaries.back().native = native;
+        owner->debug_boundaries.back().provenance = provenance;
+    }
+    void DebugNativeWait(ThreadHandle thread, bool entering) override {
+        DebugCaptureBoundary(thread, entering ? "wait-entry-capture" : "wait-return-capture");
+    }
+    Result<Debug::MixedStack> ReadMixedStack(std::uint64_t id) override {
+        std::lock_guard guard{lock_};
+        auto it = threads_.find(id);
+        if (!debug_attached_ || it == threads_.end())
+            return BackendError(ErrorCategory::InvalidHandle, "mixed stack", "no attached owner");
+        auto& e = it->second;
+        if (e.running || !e.interrupt->stopped_snapshot)
+            return BackendError(ErrorCategory::Busy, "mixed stack", "owner is in JIT");
+        const auto& current = *e.interrupt->stopped_snapshot;
+        Debug::MixedStack result{context_id_, id, e.generation, current.stop_epoch,
+            e.debug_parked ? "parked" : e.active_runs ? "hle" : "ready",
+            "Bounded verified RBP links only; frameless/DWARF unwind is unavailable. Host PCs are historical boundary captures, not an asynchronous native stop. HLE memory may still change."};
+        auto guest_frames = [&](const CpuSnapshot& snapshot, const char* provenance) {
+            if (result.frames.size() >= 96) return;
+            const auto& regs = snapshot.registers;
+            auto add = [&](std::uint64_t pc, std::uint64_t sp, std::uint64_t fp, const char* source) {
+                Debug::StackFrame frame{"guest", source, {}, {}, pc, sp, fp, snapshot.invocation_id};
+                for (const auto& module : debug_modules_)
+                    if (std::any_of(module.segments.begin(), module.segments.end(), [&](auto& range) {
+                        return pc >= range.base.value && pc - range.base.value < range.size;
+                    })) { frame.module = module.name; break; }
+                result.frames.push_back(std::move(frame));
+            };
+            add(regs.rip, regs.Get(Gpr::Rsp), regs.Get(Gpr::Rbp), provenance);
+            auto fp = regs.Get(Gpr::Rbp);
+            const auto sp = regs.Get(Gpr::Rsp);
+            for (unsigned n = 0; n < 12 && result.frames.size() < 96; ++n) {
+                if (!fp || (fp & 7) || fp < sp || fp - sp > 1024 * 1024 || fp > UINT64_MAX - 16) break;
+                std::array<std::uint64_t, 2> link;
+                if (!space_.Read(GuestAddress{fp}, std::as_writable_bytes(std::span{link}))) break;
+                if (!link[1]) break;
+                auto executable = space_.Query(GuestAddress{link[1] - 1});
+                if (!executable || !HasPermission(executable.Value().permission, GuestPermission::Execute)) break;
+                add(link[1], fp + 16, link[0], "verified-rbp-return-address");
+                if (link[0] <= fp) break;
+                fp = link[0];
+            }
+        };
+        guest_frames(current, current.kind == SnapshotKind::HleBoundary ? "saved-hle-continuation" :
+                              current.kind == SnapshotKind::SafePoint ? "safe-point" : "fault-snapshot");
+        for (auto b = e.debug_boundaries.rbegin(); b != e.debug_boundaries.rend() && result.frames.size() < 96; ++b) {
+            result.frames.push_back({"hle-boundary", b->provenance, {}, {}, b->guest.registers.rip,
+                b->guest.registers.Get(Gpr::Rsp), b->guest.registers.Get(Gpr::Rbp),
+                b->guest.invocation_id, b->guest.registers.Get(Gpr::Rax)});
+            for (std::size_t n = 0; n < b->native.count && result.frames.size() < 96; ++n) {
+                const auto pc = b->native.pcs[n];
+                Dl_info info{};
+                (void)::dladdr(reinterpret_cast<void*>(pc), &info);
+                result.frames.push_back({"host", b->provenance, info.dli_fname ? info.dli_fname : "",
+                    info.dli_sname ? info.dli_sname : "", pc, 0, 0, b->guest.invocation_id});
+            }
+            if (b->guest.invocation_id != current.invocation_id)
+                guest_frames(b->guest, "saved-outer-hle-continuation");
+        }
+        if (e.active_runs && e.debug_boundaries.empty())
+            result.limitation += " No host boundary was captured before attachment.";
+        return result;
+    }
+    Status Pause() override {
+        std::lock_guard guard{lock_};
+        if (!debug_attached_) ++debug_attachment_;
+        debug_attached_ = true;
+        return DebugPauseLocked();
+    }
+    Status Continue(std::uint64_t id, bool step) override {
+        std::lock_guard guard{lock_};
+        if (!debug_attached_ || std::any_of(threads_.begin(), threads_.end(),
+                                           [](auto& item) { return item.second.running; }))
+            return BackendError(ErrorCategory::Busy, "debug continue", "pause has not completed");
+        auto selected = threads_.find(id);
+        if (step && (selected == threads_.end() || !selected->second.debug_parked))
+            return BackendError(ErrorCategory::WrongState, "debug step", "selected owner is not parked");
+        if (id && selected == threads_.end())
+            return BackendError(ErrorCategory::InvalidHandle, "debug continue", "unknown thread");
+        // Do not automatically skip an inserted INT3: the debugger must remove
+        // it, step the original instruction and reinsert it. LLDB does this.
+        for (auto& [tid, e] : threads_) {
+            if (id && tid != id) continue;
+            e.debug_pause = false;
+            e.debug_step = step;
+            e.watch_hit.reset();
+            e.debug_reason = StopReason::PauseRequested;
+        }
+        if (!id) debug_paused_ = false;
+        stopped_changed_.notify_all();
+        return Ok();
+    }
+    Status WriteStoppedRegisters(ThreadHandle thread, const RegisterPatch& patch,
+                          std::uint64_t epoch) override {
+        std::unique_lock guard{lock_};
+        auto* e = Find(thread);
+        if (!e || !e->debug_parked || e->debug_patch)
+            return BackendError(ErrorCategory::WrongState, "debug registers", "owner not parked");
+        if (epoch != e->stop_epoch)
+            return BackendError(ErrorCategory::StaleEpoch, "debug registers", "stale stop");
+        if (HasAll(patch.fields, RegisterValidity::Rip)) {
+            auto mapping = space_.Query(GuestAddress{patch.values.rip});
+            if (!mapping || !HasPermission(mapping.Value().permission, GuestPermission::Execute))
+                return BackendError(ErrorCategory::PermissionDenied, "debug registers", "RIP is not executable");
+        }
+        if (HasAll(patch.fields, RegisterValidity::Rflags) && (patch.values.rflags & 0x100))
+            return BackendError(ErrorCategory::Unsupported, "debug registers", "use Step instead of guest TF");
+        constexpr auto writable_fields = RegisterValidity::Gpr | RegisterValidity::Rip |
+            RegisterValidity::Rflags | RegisterValidity::Xmm | RegisterValidity::Mxcsr | RegisterValidity::SegmentBases;
+        if (static_cast<std::uint32_t>(patch.fields) & ~static_cast<std::uint32_t>(writable_fields))
+            return BackendError(ErrorCategory::Unsupported, "debug registers", "requested state is unavailable");
+        if (HasAll(patch.fields, RegisterValidity::Mxcsr) && (patch.values.mxcsr & ~0xffffu))
+            return BackendError(ErrorCategory::InvalidArgument, "debug registers", "reserved MXCSR bits");
+        e->debug_patch = patch;
+        e->debug_patch_epoch = epoch;
+        stopped_changed_.notify_all();
+        const bool done = stopped_changed_.wait_for(guard, std::chrono::seconds(1), [&] {
+            e = Find(thread);
+            return !e || !e->debug_patch;
+        });
+        if (!done) {
+            e->debug_patch.reset(); // the owner cannot apply a timed-out command later
+            return BackendError(ErrorCategory::Timeout, "debug registers", "owner did not acknowledge");
+        }
+        if (!e || e->stop_epoch != epoch + 1)
+            return BackendError(ErrorCategory::StaleEpoch, "debug registers", "stop changed");
+        return Ok();
+    }
+    Status ReadMemory(GuestAddress address, std::span<std::byte> bytes) override {
+        if (bytes.empty() || bytes.size() > 4096)
+            return BackendError(ErrorCategory::InvalidArgument, "debug read", "size outside bound");
+        auto read = space_.Read(address, bytes);
+        if (!read) return read;
+        std::lock_guard guard{lock_};
+        for (auto& [va, bp] : debug_breakpoints_) {
+            if (va < address.value || va - address.value >= bytes.size()) continue;
+            auto mapping = space_.Query(GuestAddress{va});
+            if (mapping && mapping.Value().mapping_generation == bp.mapping &&
+                bytes[va - address.value] == std::byte{0xcc}) bytes[va - address.value] = bp.original;
+        }
+        return Ok();
+    }
+    Status WriteMemory(GuestAddress address, std::span<const std::byte> bytes) override {
+        auto mapping = space_.Query(address);
+        if (!mapping || !HasPermission(mapping.Value().permission, GuestPermission::Execute))
+            return BackendError(ErrorCategory::Unsupported, "debug write", "only executable code patches are supported");
+        {
+            std::lock_guard guard{lock_};
+            if (!DebugCodeOwnersStoppedLocked())
+                return BackendError(ErrorCategory::Busy, "debug write", "requires every guest owner paused");
+            for (const auto& [va, bp] : debug_breakpoints_)
+                if (va >= address.value && va - address.value < bytes.size())
+                    return BackendError(ErrorCategory::Busy, "debug write", "remove overlapping breakpoint first");
+        }
+        return DebugPublish(address, bytes);
+    }
+    Status Breakpoint(GuestAddress address, bool insert) override {
+        std::optional<DebugBreakpoint> previous;
+        {
+            std::lock_guard guard{lock_};
+            if (!DebugCodeOwnersStoppedLocked())
+                return BackendError(ErrorCategory::Busy, "debug breakpoint", "requires every guest owner paused");
+            auto found = debug_breakpoints_.find(address.value);
+            if (found != debug_breakpoints_.end()) previous = found->second;
+            if (insert && previous) return Ok();
+            if (!insert && !previous) return Ok();
+            if (insert && debug_breakpoints_.size() >= 128)
+                return BackendError(ErrorCategory::OutOfMemory, "debug breakpoint", "128 breakpoint limit");
+        }
+        auto mapping = space_.Query(address);
+        if (!mapping || !HasPermission(mapping.Value().permission, GuestPermission::Execute))
+            return BackendError(ErrorCategory::PermissionDenied, "debug breakpoint", "address is not executable");
+        std::byte byte{};
+        auto read = space_.Read(address, std::span{&byte, 1});
+        if (!read) return read;
+        if (previous && (mapping.Value().mapping_generation != previous->mapping || byte != std::byte{0xcc}))
+            return BackendError(ErrorCategory::StaleEpoch, "debug breakpoint", "mapping or code changed; refusing stale restore");
+        const auto replacement = insert ? std::byte{0xcc} : previous->original;
+        auto published = DebugPublish(address, std::span{&replacement, 1});
+        if (!published) return published;
+        auto current = space_.Query(address);
+        std::lock_guard guard{lock_};
+        if (insert) debug_breakpoints_[address.value] = {byte, current.Value().mapping_generation};
+        else debug_breakpoints_.erase(address.value);
+        return Ok();
+    }
+    Status SetWatchpoint(GuestRange range, Debug::WatchAccess access, bool insert) override {
+        std::lock_guard guard{lock_};
+        // Watchpoints do not patch code or touch host HLE memory. A waiting HLE
+        // owner is safe: every continuation snapshots the table before JIT entry.
+        if (!debug_attached_ || !debug_paused_ || std::any_of(threads_.begin(), threads_.end(),
+                [](auto& item) { return item.second.running; }))
+            return BackendError(ErrorCategory::Busy, "debug watchpoint", "guest pause has not completed");
+        if (!range.size || range.size > 8 || range.base.value > UINT64_MAX - range.size ||
+            static_cast<unsigned>(access) < 1 || static_cast<unsigned>(access) > 3)
+            return BackendError(ErrorCategory::InvalidArgument, "debug watchpoint", "invalid range or access");
+        auto found = std::find_if(debug_watches_.begin(), debug_watches_.end(), [&](auto& w) {
+            return w.range.base == range.base && w.range.size == range.size && w.access == access;
+        });
+        if (!insert) {
+            if (found != debug_watches_.end()) debug_watches_.erase(found);
+            return Ok();
+        }
+        if (found != debug_watches_.end()) return Ok();
+        if (debug_watches_.size() == 8)
+            return BackendError(ErrorCategory::OutOfMemory, "debug watchpoint", "8 range limit");
+        auto mapping = space_.Query(range.base);
+        if (!mapping || range.size > mapping.Value().range.size -
+                (range.base.value - mapping.Value().range.base.value))
+            return BackendError(ErrorCategory::PermissionDenied, "debug watchpoint", "range is not mapped");
+        debug_watches_.push_back({range, access, mapping.Value().mapping_generation});
+        return Ok();
+    }
+    Status Detach() override {
+        {
+            std::lock_guard guard{lock_};
+            if (std::any_of(threads_.begin(), threads_.end(),
+                            [](auto& item) { return item.second.running; }))
+                return BackendError(ErrorCategory::Busy, "debug detach", "pause has not completed");
+        }
+        // Breakpoints are real guest bytes: restore all under the same stopped
+        // ownership rules. Failure leaves owners stopped instead of resuming
+        // with an unowned INT3 or modifying a replacement mapping.
+        for (;;) {
+            std::uint64_t va{};
+            {
+                std::lock_guard guard{lock_};
+                if (debug_breakpoints_.empty()) break;
+                va = debug_breakpoints_.begin()->first;
+            }
+            auto removed = Breakpoint(GuestAddress{va}, false);
+            if (!removed) return removed;
+        }
+        std::lock_guard guard{lock_};
+        debug_attached_ = debug_paused_ = false;
+        debug_watches_.clear();
+        for (auto& [id, e] : threads_) {
+            e.debug_pause = e.debug_step = false;
+            e.debug_patch.reset();
+            e.watch_hit.reset();
+            e.debug_boundaries.clear();
+        }
+        stopped_changed_.notify_all();
+        return Ok();
+    }
+
+  private:
+    template<class Entry>
+    bool DebugExternalPendingLocked(ThreadHandle thread, const Entry& e) const {
+        if (!config_.resume_internal_drains) return e.interrupt->pending != 0;
+        return std::any_of(e.interrupt->requests.begin(), e.interrupt->requests.end(),
+            [&](auto& request) {
+                return std::none_of(drain_tickets_.begin(), drain_tickets_.end(),
+                    [&](auto& ticket) { return ticket.thread_id == thread.id &&
+                                              ticket.epoch == request.first; });
+            });
+    }
+    bool DebugCodeOwnersStoppedLocked() const {
+        return debug_paused_ && std::all_of(threads_.begin(), threads_.end(), [](auto& item) {
+            auto& e = item.second;
+            // A native HLE wait need not finish to patch guest code. Its JIT
+            // lease is released, and both callbacks and continuations check
+            // debug_pause before ExecuteThread. DebugPublish additionally
+            // acquires quiescence, rejecting any remaining lease or HLE pin.
+            // Reject a selectively resumed owner even while it is in HLE.
+            return e.debug_pause && !e.running;
+        });
+    }
+    Status DebugPauseLocked() {
+        debug_paused_ = true;
+        for (auto& [id, e] : threads_) {
+            e.debug_pause = true;
+            if (e.running && ::mprotect(e.native->InterruptFaultPage, host_page_size_, PROT_NONE))
+                return BackendError(ErrorCategory::BackendFailure, "debug pause", "arm poll page", errno);
+        }
+        stopped_changed_.notify_all();
+        return Ok();
+    }
+    Status DebugPublish(GuestAddress address, std::span<const std::byte> bytes) {
+        if (bytes.empty() || bytes.size() > 4096)
+            return BackendError(ErrorCategory::InvalidArgument, "debug publish", "size outside bound");
+        auto token = space_.Quiesce(0);
+        if (!token) return token.GetError();
+        auto mapping = space_.Query(address);
+        if (!mapping || address.value - mapping.Value().range.base.value > mapping.Value().range.size ||
+            bytes.size() > mapping.Value().range.size - (address.value - mapping.Value().range.base.value))
+            return BackendError(ErrorCategory::InvalidArgument, "debug publish", "one mapped range required");
+        const auto old = mapping.Value();
+        auto writable = space_.ReprotectUnderToken(token.Value(), old.range,
+                            GuestPermission::Read | GuestPermission::Write);
+        if (!writable) return writable;
+        auto published = space_.PublishCode(token.Value(), {address, bytes.size()}, bytes);
+        if (!published) return published; // space stays poisoned on failed invalidation
+        auto restored = space_.ReprotectUnderToken(token.Value(), old.range, old.permission);
+        if (!restored) return restored;
+        auto current = space_.Query(address);
+        std::lock_guard guard{lock_};
+        // Our reprotection changes the mapping epoch, but not its backing.
+        for (auto& [va, bp] : debug_breakpoints_)
+            if (bp.mapping == old.mapping_generation && va >= old.range.base.value &&
+                va - old.range.base.value < old.range.size)
+                bp.mapping = current.Value().mapping_generation;
+        return Ok();
+    }
+
+  public:
+
 
     // Backend-internal: install a typed native HLE function and get the guest operation number to
     // place in rax before the syscall. Exposed via the fex backend header, not the backend-free API.
@@ -1961,6 +2684,7 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         guard.unlock();
         if (wake)
             wake->request_stop(); // callbacks never run with the context lock held
+        stopped_changed_.notify_all();
         return ticket;
     }
 
@@ -2099,12 +2823,26 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
     }
 
   public:
+#if defined(GUEST_CPU_TEST_HOOKS)
+    FexDebugCounters DebugCounters() {
+        std::lock_guard guard{lock_};
+        FexDebugCounters out{0, test_debug_native_captures_.load()};
+        for (auto& [id, entry] : threads_) {
+            if (entry.running) return {};
+            out.memory_observers += entry.watch_compile->inserted;
+        }
+        return out;
+    }
+#endif
     [[nodiscard]] std::uint64_t ReturnGateAddress() const noexcept {
         return return_gate_.Address();
     }
 
   private:
     struct ThreadEntry final {
+        std::unique_ptr<MemoryWatchCompileState> watch_compile;
+        std::optional<Debug::WatchHit> watch_hit;
+        std::vector<HleDebugBoundary> debug_boundaries;
         FEXCore::Core::InternalThreadState *native{};
         std::uint64_t generation{};
         std::thread::id owner{};
@@ -2113,6 +2851,11 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         std::uint64_t invocation_counter{};
         std::uint64_t current_invocation{};
         std::uint64_t stop_epoch{1};
+        std::uint64_t host_tid{};
+        bool debug_pause{}, debug_parked{}, debug_step{};
+        std::optional<RegisterPatch> debug_patch;
+        std::uint64_t debug_patch_epoch{};
+        StopReason debug_reason{StopReason::PauseRequested};
         bool running{false};
         bool internally_parked{false};
         unsigned active_runs{};
@@ -2178,8 +2921,18 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
     }
 
     Result<RunResult> FinishRunLocked(ThreadHandle handle, ThreadEntry &entry,
-                                      std::uint64_t invocation, bool interrupted) {
-        auto result = BuildRunResultLocked(handle, entry, invocation, std::nullopt);
+                                      std::uint64_t invocation, bool interrupted,
+                                      std::optional<StopReason> debug_stop = {},
+                                      std::optional<StepInfo> step = {}) {
+        auto result = BuildRunResultLocked(handle, entry, invocation, step);
+        if (debug_stop && !entry.last_syscall_fault_event.present) {
+            auto& value = result.Value();
+            value.primary_reason = *debug_stop;
+            value.pending_reasons = BitOf(*debug_stop);
+            value.guest_pc = value.snapshot.registers.rip;
+            value.snapshot.kind = SnapshotKind::SafePoint;
+            value.fault.reset();
+        }
         if (interrupted) {
             const auto cancel = (1u << static_cast<unsigned>(InterruptReason::Cancel)) |
                                 (1u << static_cast<unsigned>(InterruptReason::Shutdown));
@@ -2268,6 +3021,13 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
         }
         return BackendError(ErrorCategory::WrongThread, operation,
                             "only the creating thread may drive this guest thread");
+    }
+
+    static bool DebugStepInstructionSupported(const FEXCore::X86Tables::DecodedInst& instruction) {
+        // TF is a private one-instruction execution mechanism. Instructions
+        // observing/replacing it must not expose it or discard their own TF update.
+        const std::string_view name{instruction.TableInfo->Name};
+        return name != "PUSHF" && name != "POPF" && name != "IRET";
     }
 
     void ApplyPatchToState(const RegisterPatch &patch, FEXCore::Core::CPUState &state) const {
@@ -2436,6 +3196,15 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
     const std::uint64_t context_id_{NextContextId()};
     std::uint64_t next_request_epoch_{0};
 
+    std::atomic<bool> debug_attached_{};
+    std::atomic<std::uint64_t> debug_attachment_{};
+    bool debug_paused_{};
+    struct DebugBreakpoint { std::byte original; std::uint64_t mapping; };
+    std::map<std::uint64_t, DebugBreakpoint> debug_breakpoints_;
+    std::vector<DebugModule> debug_modules_;
+    std::vector<Debug::Watchpoint> debug_watches_;
+    std::unique_ptr<Debug::RspServer> debug_server_;
+    std::shared_ptr<ExecutionProbes> execution_probes_;
     mutable std::mutex lock_;
     std::condition_variable stopped_changed_;
     std::unordered_map<std::uint64_t, ThreadEntry> threads_;
@@ -2453,6 +3222,7 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
     std::unique_ptr<FexTestRunGate> test_run_gate_{std::make_unique<FexTestRunGateImpl>()};
     std::unique_ptr<FexTestRunGate> test_hle_boundary_gate_{std::make_unique<FexTestRunGateImpl>()};
     std::atomic<std::uint64_t> test_hle_drain_waits_{};
+    std::atomic<std::uint64_t> test_debug_native_captures_{};
     std::unique_ptr<FexTestRunGate> test_continuation_gate_{std::make_unique<FexTestRunGateImpl>()};
     std::atomic<std::uint64_t> test_continuation_retries_{};
     // N3 probe syscall-point trace (test builds only); the immediate-exit wrapper itself is
@@ -2462,6 +3232,7 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink {
     FEXCore::HostFeatures host_features_{};
     ReturnGate return_gate_;
     std::uint64_t host_page_size_{};
+    int fatal_log_fd_{-1};
 };
 
 } // namespace
@@ -2475,9 +3246,9 @@ BackendCapabilities QueryFexCapabilities() {
     // feature without an execution and state-restore test would be a false
     // claim. C03 verifies that asking for it is refused.
     caps.features = GuestFeature::BaseInteger | GuestFeature::Sse2;
-    // Step is refused before execution until the block-limit path is driven, so
-    // no scope is claimed.
-    caps.step_scope = StepScope::None;
+    // Per-owner TF uses FEX's uncached one-instruction translation path.
+    caps.step_scope = StepScope::IntegerArithmetic | StepScope::Branch |
+                      StepScope::LoadStore | StepScope::Sse2;
     caps.host_page_size = FEXCore::Utils::HostPageSize();
     caps.max_guest_address = kGuestAddressPolicyLimit;
     return caps;
@@ -2519,12 +3290,23 @@ Result<std::unique_ptr<CpuContext>> CreateFexContext(const CpuConfig &config,
     return std::unique_ptr<CpuContext>{std::move(context)};
 }
 
+Debug::Target& FexDebugTarget(CpuContext& context) {
+    return *static_cast<FexCpuContext*>(&context);
+}
+
 void* FexHleRegistryPointer(CpuContext& context) {
     // Only FexCpuContext is constructed in this TU.
     return static_cast<FexCpuContext*>(&context)->HleRegistryPointer();
 }
 
+Status SetFexFatalLog(CpuContext& context, const char* path) {
+    return static_cast<FexCpuContext*>(&context)->SetFatalLog(path);
+}
+
 #if defined(GUEST_CPU_TEST_HOOKS)
+FexDebugCounters FexTestDebugCounters(CpuContext& context) {
+    return static_cast<FexCpuContext*>(&context)->DebugCounters();
+}
 void* FexTestRunGatePointer(CpuContext& context) {
     return static_cast<FexCpuContext*>(&context)->TestRunGatePointer();
 }

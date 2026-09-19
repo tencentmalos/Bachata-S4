@@ -1,0 +1,13 @@
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"sourceFormat\": \"prof\", \"sessionId\": \"prof:ceb7b8c377ad4a90a8d514aa4f9559a0\", \"timeSource\": \"gpu-time\", \"cpuGpuAlignment\": \"unknown\", \"frameAttribution\": \"unavailable_without_calibration\", \"gpuRecords\": {\"context_defs\": 18, \"zone_begins\": 489, \"zone_ends\": 489, \"times\": 978, \"orphan_times\": 0}, \"truncated\": false, \"chunksSkipped\": 0, \"diagnostics\": [], \"coverage\": \"Retained paired GPU timestamps. Nested zones are not additive; elapsed intervals may include GPU waits.\", \"supported\": true, \"eventsDecoded\": true, \"zoneCount\": 489, \"contexts\": [{\"contextId\": 1, \"name\": \"Queue 0 / present+redraw (estimated clock)\"}, {\"contextId\": 2, \"name\": \"Queue 0 / guest+prepare (estimated clock)\"}, {\"contextId\": 3, \"name\": \"Queue 0 / guest+prepare (estimated clock)\"}, {\"contextId\": 5, \"name\": \"Queue 0 / guest+prepare (estimated clock)\"}, {\"contextId\": 4, \"name\": \"Queue 0 / present+redraw (estimated clock)\"}, {\"contextId\": 6, \"name\": \"Queue 0 / guest+prepare (estimated clock)\"}, {\"contextId\": 7, \"name\": \"Queue 0 / present+redraw (estimated clock)\"}, {\"contextId\": 8, \"name\": \"Queue 0 / guest+prepare (estimated clock)\"}, {\"contextId\": 9, \"name\": \"Queue 0 / guest+prepare (estimated clock)\"}], \"timeBase\": \"per-context GPU origin; not CPU trace-relative\", \"zones\": [{\"contextId\": 9, \"name\": \"GPU.DrawBatch\", \"count\": 55, \"totalMs\": 0.326977, \"meanMs\": 0.005945036363636364, \"minMs\": 0.000781, \"maxMs\": 0.006458}, {\"contextId\": 3, \"name\": \"GPU.DrawBatch\", \"count\": 55, \"totalMs\": 0.32609499999999997, \"meanMs\": 0.005928999999999999, \"minMs\": 0.000833, \"maxMs\": 0.006459}, {\"contextId\": 6, \"name\": \"GPU.DrawBatch\", \"count\": 55, \"totalMs\": 0.32177, \"meanMs\": 0.005850363636363636, \"minMs\": 0.000833, \"maxMs\": 0.006459}, {\"contextId\": 9, \"name\": \"GPU.GuestCommands\", \"count\": 55, \"totalMs\": 0.296827, \"meanMs\": 0.005396854545454546, \"minMs\": 0.00026, \"maxMs\": 0.005886}], \"totalGroups\": 15, \"resultTruncated\": true}"
+      }
+    ],
+    "isError": false
+  }
+}

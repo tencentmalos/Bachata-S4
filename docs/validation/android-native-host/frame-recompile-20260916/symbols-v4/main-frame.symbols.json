@@ -1,0 +1,163 @@
+{
+  "schema": "spatial.guest-symbol-shard.v2",
+  "target_id": "tmnt-0108-eboot",
+  "domain": "main-frame",
+  "symbols": [
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x9e560",
+      "segment": "text",
+      "name": "TMNT_FrameCoordinator",
+      "kind": "function",
+      "mode": "x86-64",
+      "size": 28082,
+      "confidence": "correlated",
+      "prototype": {
+        "return_type": "uint64_t",
+        "return_location": "RAX (opaque preserved value; semantic return type unknown)",
+        "calling_convention": "x86_64-sysv",
+        "confidence": "correlated",
+        "evidence": [
+          "Frame coordinator: FMOD update at +0xa4412; BeginFrame at +0xa4e5d; restores stack then tail-jumps SubmitFrame at +0xa5273. Only RDI live at entry; indirect caller unresolved statically. IDA ET_DYN analysis copy has only ELF e_type changed; text bytes match original decrypted ELF. No indexed reference enters stolen prologue. Return is ABI-preserving RAX, not asserted engine semantics."
+        ],
+        "parameters": [
+          {
+            "name": "self",
+            "type": "void *",
+            "location": "RDI",
+            "confidence": "correlated",
+            "evidence": [
+              "Entry consumes this pointer before first call; no recovered aggregate layout."
+            ]
+          }
+        ]
+      },
+      "evidence": [
+        "Frame coordinator: FMOD update at +0xa4412; BeginFrame at +0xa4e5d; restores stack then tail-jumps SubmitFrame at +0xa5273. Only RDI live at entry; indirect caller unresolved statically. IDA ET_DYN analysis copy has only ELF e_type changed; text bytes match original decrypted ELF. No indexed reference enters stolen prologue. Return is ABI-preserving RAX, not asserted engine semantics.",
+        "2026-09-16 ordinary APK PID8463/gen1/context1; exact recipe 0e2c68f2. Rooftop movement/camera/MOVE-to-ATTACK verified, unattached 35s PROF: main TID9112, frame/begin/submit/FMOD each444 returns and jobs3625. Frame tail includes submit; 442 interior frames have ordered begin/submit and one FMOD call. See docs/validation/android-native-host/tmnt-rooftop-calibration-2026-09-16.md. Return semantics remain opaque except public FMOD_RESULT."
+      ],
+      "comment": "Reconstructed semantic label, not an original vendor symbol."
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x1545ce0",
+      "segment": "text",
+      "name": "TMNT_BeginFrameAcquireBuffer",
+      "kind": "function",
+      "mode": "x86-64",
+      "size": 567,
+      "confidence": "correlated",
+      "prototype": {
+        "return_type": "uint64_t",
+        "return_location": "RAX (opaque preserved value; semantic return type unknown)",
+        "calling_convention": "x86_64-sysv",
+        "confidence": "correlated",
+        "evidence": [
+          "Frame buffer label loop calls sceKernelWaitEqueue until value 2, then resets command buffers. No incoming arguments. IDA ET_DYN analysis copy has only ELF e_type changed; text bytes match original decrypted ELF. No indexed reference enters stolen prologue. Return is ABI-preserving RAX, not asserted engine semantics."
+        ],
+        "parameters": []
+      },
+      "evidence": [
+        "Frame buffer label loop calls sceKernelWaitEqueue until value 2, then resets command buffers. No incoming arguments. IDA ET_DYN analysis copy has only ELF e_type changed; text bytes match original decrypted ELF. No indexed reference enters stolen prologue. Return is ABI-preserving RAX, not asserted engine semantics.",
+        "2026-09-16 ordinary APK PID8463/gen1/context1; exact recipe 0e2c68f2. Rooftop movement/camera/MOVE-to-ATTACK verified, unattached 35s PROF: main TID9112, frame/begin/submit/FMOD each444 returns and jobs3625. Frame tail includes submit; 442 interior frames have ordered begin/submit and one FMOD call. See docs/validation/android-native-host/tmnt-rooftop-calibration-2026-09-16.md. Return semantics remain opaque except public FMOD_RESULT."
+      ],
+      "comment": "Reconstructed semantic label, not an original vendor symbol."
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x1545f20",
+      "segment": "text",
+      "name": "TMNT_SubmitFlipRotateBuffer",
+      "kind": "function",
+      "mode": "x86-64",
+      "size": 1159,
+      "confidence": "correlated",
+      "prototype": {
+        "return_type": "uint64_t",
+        "return_location": "RAX (opaque preserved value; semantic return type unknown)",
+        "calling_convention": "x86_64-sysv",
+        "confidence": "correlated",
+        "evidence": [
+          "Submit/flip wrapper calls +0x19630 then retires resources and advances modulo-3 buffer index; no incoming arguments. IDA ET_DYN analysis copy has only ELF e_type changed; text bytes match original decrypted ELF. No indexed reference enters stolen prologue. Return is ABI-preserving RAX, not asserted engine semantics."
+        ],
+        "parameters": []
+      },
+      "evidence": [
+        "Submit/flip wrapper calls +0x19630 then retires resources and advances modulo-3 buffer index; no incoming arguments. IDA ET_DYN analysis copy has only ELF e_type changed; text bytes match original decrypted ELF. No indexed reference enters stolen prologue. Return is ABI-preserving RAX, not asserted engine semantics.",
+        "2026-09-16 ordinary APK PID8463/gen1/context1; exact recipe 0e2c68f2. Rooftop movement/camera/MOVE-to-ATTACK verified, unattached 35s PROF: main TID9112, frame/begin/submit/FMOD each444 returns and jobs3625. Frame tail includes submit; 442 interior frames have ordered begin/submit and one FMOD call. See docs/validation/android-native-host/tmnt-rooftop-calibration-2026-09-16.md. Return semantics remain opaque except public FMOD_RESULT."
+      ],
+      "comment": "Reconstructed semantic label, not an original vendor symbol."
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x1591570",
+      "segment": "text",
+      "name": "TMNT_JobQueueDrainBarrier",
+      "kind": "function",
+      "mode": "x86-64",
+      "size": 535,
+      "confidence": "correlated",
+      "prototype": {
+        "return_type": "uint64_t",
+        "return_location": "RAX (opaque preserved value; semantic return type unknown)",
+        "calling_convention": "x86_64-sysv",
+        "confidence": "correlated",
+        "evidence": [
+          "Queue drain/barrier: RDI queue; enqueues completion job and waits on thread-local semaphore; may early-return for empty queue. IDA ET_DYN analysis copy has only ELF e_type changed; text bytes match original decrypted ELF. No indexed reference enters stolen prologue. Return is ABI-preserving RAX, not asserted engine semantics."
+        ],
+        "parameters": [
+          {
+            "name": "queue",
+            "type": "void *",
+            "location": "RDI",
+            "confidence": "correlated",
+            "evidence": [
+              "Entry consumes this pointer before first call; no recovered aggregate layout."
+            ]
+          }
+        ]
+      },
+      "evidence": [
+        "Queue drain/barrier: RDI queue; enqueues completion job and waits on thread-local semaphore; may early-return for empty queue. IDA ET_DYN analysis copy has only ELF e_type changed; text bytes match original decrypted ELF. No indexed reference enters stolen prologue. Return is ABI-preserving RAX, not asserted engine semantics.",
+        "2026-09-16 ordinary APK PID8463/gen1/context1; exact recipe 0e2c68f2. Rooftop movement/camera/MOVE-to-ATTACK verified, unattached 35s PROF: main TID9112, frame/begin/submit/FMOD each444 returns and jobs3625. Frame tail includes submit; 442 interior frames have ordered begin/submit and one FMOD call. See docs/validation/android-native-host/tmnt-rooftop-calibration-2026-09-16.md. Return semantics remain opaque except public FMOD_RESULT."
+      ],
+      "comment": "Reconstructed semantic label, not an original vendor symbol."
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x15c0b20",
+      "segment": "text",
+      "name": "TMNT_FmodStudioUpdatePlt",
+      "kind": "thunk",
+      "mode": "x86-64",
+      "size": 6,
+      "confidence": "correlated",
+      "prototype": {
+        "return_type": "int",
+        "return_location": "EAX",
+        "calling_convention": "x86_64-sysv",
+        "confidence": "correlated",
+        "evidence": [
+          "PLT RIP-indirect jump to FMOD Studio System::update; NID H+G1XQRDyWk. RDI=this, EAX=FMOD_RESULT; exact public ABI. IDA ET_DYN analysis copy has only ELF e_type changed; text bytes match original decrypted ELF. No indexed reference enters stolen prologue. Return is ABI-preserving RAX, not asserted engine semantics."
+        ],
+        "parameters": [
+          {
+            "name": "self",
+            "type": "void *",
+            "location": "RDI",
+            "confidence": "correlated",
+            "evidence": [
+              "Entry consumes this pointer before first call; no recovered aggregate layout."
+            ]
+          }
+        ]
+      },
+      "evidence": [
+        "PLT RIP-indirect jump to FMOD Studio System::update; NID H+G1XQRDyWk. RDI=this, EAX=FMOD_RESULT; exact public ABI. IDA ET_DYN analysis copy has only ELF e_type changed; text bytes match original decrypted ELF. No indexed reference enters stolen prologue. Return is ABI-preserving RAX, not asserted engine semantics.",
+        "2026-09-16 ordinary APK PID8463/gen1/context1; exact recipe 0e2c68f2. Rooftop movement/camera/MOVE-to-ATTACK verified, unattached 35s PROF: main TID9112, frame/begin/submit/FMOD each444 returns and jobs3625. Frame tail includes submit; 442 interior frames have ordered begin/submit and one FMOD call. See docs/validation/android-native-host/tmnt-rooftop-calibration-2026-09-16.md. Return semantics remain opaque except public FMOD_RESULT."
+      ],
+      "comment": "Reconstructed semantic label, not an original vendor symbol."
+    }
+  ],
+  "types": []
+}

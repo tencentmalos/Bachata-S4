@@ -1,0 +1,936 @@
+{
+  "sha256": "db45839369b6fd31815d898b5199cf574d2622705e042e1ed578df0b9b932267",
+  "events": 50836295,
+  "bad_pairs": {},
+  "open_waits": 7,
+  "owners": {
+    "14271": {
+      "OwnerHandle": 68721672128,
+      "OwnerThread": 1,
+      "OwnerGeneration": 2,
+      "OwnerEntry": 4194432
+    },
+    "14345": {
+      "OwnerHandle": 68724604864,
+      "OwnerThread": 2,
+      "OwnerGeneration": 3,
+      "OwnerEntry": 26803328
+    },
+    "14346": {
+      "OwnerHandle": 68726931392,
+      "OwnerThread": 3,
+      "OwnerGeneration": 4,
+      "OwnerEntry": 26811776
+    },
+    "14347": {
+      "OwnerHandle": 68729110464,
+      "OwnerThread": 4,
+      "OwnerGeneration": 5,
+      "OwnerEntry": 26811776
+    },
+    "14348": {
+      "OwnerHandle": 68731289536,
+      "OwnerThread": 5,
+      "OwnerGeneration": 6,
+      "OwnerEntry": 26811776
+    },
+    "14349": {
+      "OwnerHandle": 68733468608,
+      "OwnerThread": 6,
+      "OwnerGeneration": 7,
+      "OwnerEntry": 26811776
+    },
+    "14350": {
+      "OwnerHandle": 68734222272,
+      "OwnerThread": 7,
+      "OwnerGeneration": 8,
+      "OwnerEntry": 4317734672
+    },
+    "14351": {
+      "OwnerHandle": 68734451648,
+      "OwnerThread": 8,
+      "OwnerGeneration": 9,
+      "OwnerEntry": 4317734672
+    },
+    "14352": {
+      "OwnerHandle": 68734681024,
+      "OwnerThread": 9,
+      "OwnerGeneration": 10,
+      "OwnerEntry": 4317734672
+    },
+    "14353": {
+      "OwnerHandle": 68734910400,
+      "OwnerThread": 10,
+      "OwnerGeneration": 11,
+      "OwnerEntry": 4317734672
+    },
+    "14354": {
+      "OwnerHandle": 68735025088,
+      "OwnerThread": 11,
+      "OwnerGeneration": 12,
+      "OwnerEntry": 4317734672
+    },
+    "14356": {
+      "OwnerHandle": 68737204160,
+      "OwnerThread": 12,
+      "OwnerGeneration": 13,
+      "OwnerEntry": 26556992
+    },
+    "14368": {
+      "OwnerHandle": 68739481536,
+      "OwnerThread": 13,
+      "OwnerGeneration": 14,
+      "OwnerEntry": 26807344
+    },
+    "14370": {
+      "OwnerHandle": 68741906368,
+      "OwnerThread": 14,
+      "OwnerGeneration": 15,
+      "OwnerEntry": 26811776
+    },
+    "14376": {
+      "OwnerHandle": 68743708608,
+      "OwnerThread": 15,
+      "OwnerGeneration": 16,
+      "OwnerEntry": 4295911888
+    },
+    "14377": {
+      "OwnerHandle": 68743888832,
+      "OwnerThread": 16,
+      "OwnerGeneration": 17,
+      "OwnerEntry": 4295911888
+    },
+    "14378": {
+      "OwnerHandle": 68744003520,
+      "OwnerThread": 17,
+      "OwnerGeneration": 18,
+      "OwnerEntry": 4295911888
+    },
+    "14379": {
+      "OwnerHandle": 68744298432,
+      "OwnerThread": 18,
+      "OwnerGeneration": 19,
+      "OwnerEntry": 4327535456
+    },
+    "14380": {
+      "OwnerHandle": 68744593344,
+      "OwnerThread": 19,
+      "OwnerGeneration": 20,
+      "OwnerEntry": 4327535456
+    },
+    "14381": {
+      "OwnerHandle": 68744888256,
+      "OwnerThread": 20,
+      "OwnerGeneration": 21,
+      "OwnerEntry": 4327535456
+    },
+    "14383": {
+      "OwnerHandle": 68747149248,
+      "OwnerThread": 21,
+      "OwnerGeneration": 22,
+      "OwnerEntry": 26811776
+    },
+    "14403": {
+      "OwnerHandle": 68749574080,
+      "OwnerThread": 22,
+      "OwnerGeneration": 23,
+      "OwnerEntry": 26807344
+    },
+    "14404": {
+      "OwnerHandle": 68751916992,
+      "OwnerThread": 23,
+      "OwnerGeneration": 24,
+      "OwnerEntry": 26807344
+    },
+    "14443": {
+      "OwnerHandle": 68752244672,
+      "OwnerThread": 24,
+      "OwnerGeneration": 25,
+      "OwnerEntry": 4295911888
+    },
+    "14728": {
+      "OwnerHandle": 68753457088,
+      "OwnerThread": 25,
+      "OwnerGeneration": 26,
+      "OwnerEntry": 26411680
+    },
+    "14730": {
+      "OwnerHandle": 68754866112,
+      "OwnerThread": 26,
+      "OwnerGeneration": 27,
+      "OwnerEntry": 26410048
+    },
+    "14731": {
+      "OwnerHandle": 68755980224,
+      "OwnerThread": 27,
+      "OwnerGeneration": 28,
+      "OwnerEntry": 26411104
+    },
+    "14750": {
+      "OwnerHandle": 68756225984,
+      "OwnerThread": 28,
+      "OwnerGeneration": 29,
+      "OwnerEntry": 4295911888
+    },
+    "14751": {
+      "OwnerHandle": 68753489856,
+      "OwnerThread": 29,
+      "OwnerGeneration": 30,
+      "OwnerEntry": 26411680
+    },
+    "14753": {
+      "OwnerHandle": 68753571776,
+      "OwnerThread": 30,
+      "OwnerGeneration": 31,
+      "OwnerEntry": 26410048
+    },
+    "14754": {
+      "OwnerHandle": 68753620928,
+      "OwnerThread": 31,
+      "OwnerGeneration": 32,
+      "OwnerEntry": 26411104
+    }
+  },
+  "windows": {
+    "startup": {
+      "start_ns": 407574935775090,
+      "end_ns": 407596004867694,
+      "conditions": [
+        {
+          "condition": "0x1000dc4000",
+          "count": 11775,
+          "total_ms": 4231.199141999997,
+          "sleep_ms": 3854.3119310000034,
+          "reacquire_ms": 376.88721100000026,
+          "pre_notify_ms": 3611.3426620000164,
+          "post_notify_ms": 242.96926900000017,
+          "notified": 11775,
+          "unnotified": 0,
+          "max_ms": 21.800208
+        }
+      ],
+      "notifiers": [
+        {
+          "tid": 14350,
+          "caller": "0x1015b5dcc",
+          "parent0": "0x10159f4ff",
+          "parent1": "0x101596cb1",
+          "count": 3274,
+          "covered_wait_ms": 2955.053149999992
+        },
+        {
+          "tid": 14356,
+          "caller": "0x1015b5dcc",
+          "parent0": "0x10159f4ff",
+          "parent1": "0x101596cb1",
+          "count": 3922,
+          "covered_wait_ms": 855.6271429999974
+        },
+        {
+          "tid": 14356,
+          "caller": "0x1015b5dcc",
+          "parent0": "0x10159f4ff",
+          "parent1": "0x101582976",
+          "count": 3444,
+          "covered_wait_ms": 313.25285200000053
+        },
+        {
+          "tid": 14356,
+          "caller": "0x1015b5dcc",
+          "parent0": "0x10159f4ff",
+          "parent1": "0x101582af8",
+          "count": 1134,
+          "covered_wait_ms": 107.16073699999997
+        },
+        {
+          "tid": 14350,
+          "caller": "0x1015b5dcc",
+          "parent0": "0x10159f4ff",
+          "parent1": "0x101596caa",
+          "count": 1,
+          "covered_wait_ms": 0.10526
+        }
+      ]
+    },
+    "loading_observation": {
+      "start_ns": 407638259003504,
+      "end_ns": 407679828288019,
+      "conditions": [
+        {
+          "condition": "0x1000dc4000",
+          "count": 1017,
+          "total_ms": 9758.717245,
+          "sleep_ms": 9703.007452999997,
+          "reacquire_ms": 55.70979200000009,
+          "pre_notify_ms": 9675.515691999994,
+          "post_notify_ms": 27.49176099999996,
+          "notified": 1017,
+          "unnotified": 0,
+          "max_ms": 135.073333
+        }
+      ],
+      "notifiers": [
+        {
+          "tid": 14350,
+          "caller": "0x1015b5dcc",
+          "parent0": "0x10159f4ff",
+          "parent1": "0x101596cb1",
+          "count": 341,
+          "covered_wait_ms": 9562.492600000001
+        },
+        {
+          "tid": 14356,
+          "caller": "0x1015b5dcc",
+          "parent0": "0x10159f4ff",
+          "parent1": "0x101596cb1",
+          "count": 309,
+          "covered_wait_ms": 130.08203600000013
+        },
+        {
+          "tid": 14356,
+          "caller": "0x1015b5dcc",
+          "parent0": "0x10159f4ff",
+          "parent1": "0x101582976",
+          "count": 275,
+          "covered_wait_ms": 45.120374000000005
+        },
+        {
+          "tid": 14356,
+          "caller": "0x1015b5dcc",
+          "parent0": "0x10159f4ff",
+          "parent1": "0x101582af8",
+          "count": 82,
+          "covered_wait_ms": 12.880881
+        },
+        {
+          "tid": 14380,
+          "caller": "0x1015b5dcc",
+          "parent0": "0x10159f4ff",
+          "parent1": "0x101596cb1",
+          "count": 2,
+          "covered_wait_ms": 6.273593999999999
+        },
+        {
+          "tid": 14443,
+          "caller": "0x1015b5dcc",
+          "parent0": "0x10159f4ff",
+          "parent1": "0x101582af8",
+          "count": 5,
+          "covered_wait_ms": 1.31703
+        },
+        {
+          "tid": 14380,
+          "caller": "0x1015b5dcc",
+          "parent0": "0x10159f4ff",
+          "parent1": "0x101582af8",
+          "count": 1,
+          "covered_wait_ms": 0.418698
+        },
+        {
+          "tid": 14380,
+          "caller": "0x1015b5dcc",
+          "parent0": "0x10159f4ff",
+          "parent1": "0x101582883",
+          "count": 1,
+          "covered_wait_ms": 0.070261
+        },
+        {
+          "tid": 14750,
+          "caller": "0x1015b5dcc",
+          "parent0": "0x10159f4ff",
+          "parent1": "0x101582af8",
+          "count": 1,
+          "covered_wait_ms": 0.061771
+        }
+      ]
+    },
+    "whole": {
+      "start_ns": 0,
+      "end_ns": 9223372036854775807,
+      "conditions": [
+        {
+          "condition": "0x1000dc4000",
+          "count": 13119,
+          "total_ms": 15180.230590000014,
+          "sleep_ms": 14733.08561800002,
+          "reacquire_ms": 447.14497200000073,
+          "pre_notify_ms": 14456.335466,
+          "post_notify_ms": 276.75015199999973,
+          "notified": 13119,
+          "unnotified": 0,
+          "max_ms": 146.839011
+        }
+      ],
+      "notifiers": [
+        {
+          "tid": 14350,
+          "caller": "0x1015b5dcc",
+          "parent0": "0x10159f4ff",
+          "parent1": "0x101596cb1",
+          "count": 3728,
+          "covered_wait_ms": 13666.92527499999
+        },
+        {
+          "tid": 14356,
+          "caller": "0x1015b5dcc",
+          "parent0": "0x10159f4ff",
+          "parent1": "0x101596cb1",
+          "count": 4329,
+          "covered_wait_ms": 1013.9547979999971
+        },
+        {
+          "tid": 14356,
+          "caller": "0x1015b5dcc",
+          "parent0": "0x10159f4ff",
+          "parent1": "0x101582976",
+          "count": 3801,
+          "covered_wait_ms": 367.90764900000045
+        },
+        {
+          "tid": 14356,
+          "caller": "0x1015b5dcc",
+          "parent0": "0x10159f4ff",
+          "parent1": "0x101582af8",
+          "count": 1249,
+          "covered_wait_ms": 123.02432699999999
+        },
+        {
+          "tid": 14380,
+          "caller": "0x1015b5dcc",
+          "parent0": "0x10159f4ff",
+          "parent1": "0x101596cb1",
+          "count": 2,
+          "covered_wait_ms": 6.273593999999999
+        },
+        {
+          "tid": 14443,
+          "caller": "0x1015b5dcc",
+          "parent0": "0x10159f4ff",
+          "parent1": "0x101582af8",
+          "count": 6,
+          "covered_wait_ms": 1.4889569999999999
+        },
+        {
+          "tid": 14380,
+          "caller": "0x1015b5dcc",
+          "parent0": "0x10159f4ff",
+          "parent1": "0x101582af8",
+          "count": 1,
+          "covered_wait_ms": 0.418698
+        },
+        {
+          "tid": 14350,
+          "caller": "0x1015b5dcc",
+          "parent0": "0x10159f4ff",
+          "parent1": "0x101596caa",
+          "count": 1,
+          "covered_wait_ms": 0.10526
+        },
+        {
+          "tid": 14380,
+          "caller": "0x1015b5dcc",
+          "parent0": "0x10159f4ff",
+          "parent1": "0x101582883",
+          "count": 1,
+          "covered_wait_ms": 0.070261
+        },
+        {
+          "tid": 14750,
+          "caller": "0x1015b5dcc",
+          "parent0": "0x10159f4ff",
+          "parent1": "0x101582af8",
+          "count": 1,
+          "covered_wait_ms": 0.061771
+        }
+      ]
+    }
+  },
+  "main_hle_top": [
+    {
+      "tid": 14271,
+      "name": "HLE.sceKernelUsleep",
+      "count": 14501,
+      "elapsed_ns": 15605194900,
+      "self_ns": 15605194900,
+      "max_ns": 2035104,
+      "first_ns": 407605129025611,
+      "last_ns": 407623002689777,
+      "fields": {
+        "Thread": 1,
+        "ThreadGeneration": 2,
+        "Invocation": 8,
+        "Operation": 17,
+        "Arg0": 1000,
+        "Arg1": 68721537560,
+        "Arg2": 4299451528,
+        "Caller": 4327535407,
+        "Parent0": 4328487930,
+        "Parent1": 4328133803,
+        "Parent2": 4328216683,
+        "Parent3": 4328139939,
+        "Parent4": 8565675,
+        "Parent5": 9227170,
+        "Result": 0
+      }
+    },
+    {
+      "tid": 14271,
+      "name": "HLE.scePthreadCondWait",
+      "count": 2527,
+      "elapsed_ns": 11702542326,
+      "self_ns": 11702542326,
+      "max_ns": 146877396,
+      "first_ns": 407577144642173,
+      "last_ns": 407672518637330,
+      "fields": {
+        "Thread": 1,
+        "ThreadGeneration": 2,
+        "Invocation": 8,
+        "Operation": 465,
+        "Arg0": 4317966008,
+        "Arg1": 4317907896,
+        "Arg2": 1,
+        "Caller": 4317731988,
+        "Parent0": 4317638572,
+        "Parent1": 4317522712,
+        "Parent2": 4317543368,
+        "Parent3": 26563012,
+        "Parent4": 26563119,
+        "Parent5": 26542743,
+        "CondObject": 68733911040,
+        "MutexObject": 68733894656,
+        "WaitOwner": 68721672128,
+        "WaitResult": 0,
+        "CondPhase": 3,
+        "Result": 0
+      }
+    },
+    {
+      "tid": 14271,
+      "name": "HLE.sceKernelUsleep",
+      "count": 8082,
+      "elapsed_ns": 8795130428,
+      "self_ns": 8795130428,
+      "max_ns": 2503802,
+      "first_ns": 407661003341913,
+      "last_ns": 407671152111600,
+      "fields": {
+        "Thread": 1,
+        "ThreadGeneration": 2,
+        "Invocation": 8,
+        "Operation": 17,
+        "Arg0": 1000,
+        "Arg1": 68721541416,
+        "Arg2": 4299451528,
+        "Caller": 4327535407,
+        "Parent0": 4328487930,
+        "Parent1": 4328133803,
+        "Parent2": 4328216683,
+        "Parent3": 4328139939,
+        "Parent4": 8565675,
+        "Parent5": 8181790,
+        "Result": 0
+      }
+    },
+    {
+      "tid": 14271,
+      "name": "HLE.scePthreadCondWait",
+      "count": 10500,
+      "elapsed_ns": 3562451073,
+      "self_ns": 3562451073,
+      "max_ns": 15098906,
+      "first_ns": 407581770157590,
+      "last_ns": 407592102892850,
+      "fields": {
+        "Thread": 1,
+        "ThreadGeneration": 2,
+        "Invocation": 8,
+        "Operation": 465,
+        "Arg0": 4317966008,
+        "Arg1": 4317907896,
+        "Arg2": 32,
+        "Caller": 4317731988,
+        "Parent0": 4317638572,
+        "Parent1": 4317522712,
+        "Parent2": 4317543368,
+        "Parent3": 26563012,
+        "Parent4": 8580463,
+        "Parent5": 4295721464,
+        "CondObject": 68733911040,
+        "MutexObject": 68733894656,
+        "WaitOwner": 68721672128,
+        "WaitResult": 0,
+        "CondPhase": 3,
+        "Result": 0
+      }
+    },
+    {
+      "tid": 14271,
+      "name": "HLE.sceKernelUsleep",
+      "count": 2183,
+      "elapsed_ns": 2350303634,
+      "self_ns": 2350303634,
+      "max_ns": 1769270,
+      "first_ns": 407593200217902,
+      "last_ns": 407595839260559,
+      "fields": {
+        "Thread": 1,
+        "ThreadGeneration": 2,
+        "Invocation": 8,
+        "Operation": 17,
+        "Arg0": 1000,
+        "Arg1": 68721606040,
+        "Arg2": 4299451528,
+        "Caller": 4327535407,
+        "Parent0": 4328487930,
+        "Parent1": 4328133803,
+        "Parent2": 4328216683,
+        "Parent3": 4328139939,
+        "Parent4": 8565675,
+        "Parent5": 8592145,
+        "Result": 0
+      }
+    },
+    {
+      "tid": 14271,
+      "name": "HLE.sceKernelUsleep",
+      "count": 871,
+      "elapsed_ns": 153211959,
+      "self_ns": 153211959,
+      "max_ns": 1897135,
+      "first_ns": 407600255072955,
+      "last_ns": 407602253879621,
+      "fields": {
+        "Thread": 1,
+        "ThreadGeneration": 2,
+        "Invocation": 8,
+        "Operation": 17,
+        "Arg0": 100,
+        "Arg1": 0,
+        "Arg2": 26411104,
+        "Caller": 26407498,
+        "Parent0": 5549525,
+        "Parent1": 4853002,
+        "Parent2": 45580317,
+        "Parent3": 4842784,
+        "Parent4": 8110922,
+        "Parent5": 4194495,
+        "Result": 0
+      }
+    },
+    {
+      "tid": 14271,
+      "name": "HLE.sceKernelUsleep",
+      "count": 131,
+      "elapsed_ns": 141013327,
+      "self_ns": 141013327,
+      "max_ns": 1124948,
+      "first_ns": 407605089498632,
+      "last_ns": 407623064795663,
+      "fields": {
+        "Thread": 1,
+        "ThreadGeneration": 2,
+        "Invocation": 8,
+        "Operation": 17,
+        "Arg0": 1000,
+        "Arg1": 68721537560,
+        "Arg2": 4299451528,
+        "Caller": 4327535407,
+        "Parent0": 4328487877,
+        "Parent1": 4328133803,
+        "Parent2": 4328216683,
+        "Parent3": 4328139939,
+        "Parent4": 8565675,
+        "Parent5": 9227170,
+        "Result": 0
+      }
+    },
+    {
+      "tid": 14271,
+      "name": "HLE.sceKernelUsleep",
+      "count": 89,
+      "elapsed_ns": 95616201,
+      "self_ns": 95616201,
+      "max_ns": 1112865,
+      "first_ns": 407660976442277,
+      "last_ns": 407671189411444,
+      "fields": {
+        "Thread": 1,
+        "ThreadGeneration": 2,
+        "Invocation": 8,
+        "Operation": 17,
+        "Arg0": 1000,
+        "Arg1": 68721541416,
+        "Arg2": 4299451528,
+        "Caller": 4327535407,
+        "Parent0": 4328487877,
+        "Parent1": 4328133803,
+        "Parent2": 4328216683,
+        "Parent3": 4328139939,
+        "Parent4": 8565675,
+        "Parent5": 8181790,
+        "Result": 0
+      }
+    },
+    {
+      "tid": 14271,
+      "name": "HLE.sceKernelUsleep",
+      "count": 58,
+      "elapsed_ns": 62230573,
+      "self_ns": 62230573,
+      "max_ns": 1111458,
+      "first_ns": 407593177117694,
+      "last_ns": 407595882441236,
+      "fields": {
+        "Thread": 1,
+        "ThreadGeneration": 2,
+        "Invocation": 8,
+        "Operation": 17,
+        "Arg0": 1000,
+        "Arg1": 68721606040,
+        "Arg2": 4299451528,
+        "Caller": 4327535407,
+        "Parent0": 4328487877,
+        "Parent1": 4328133803,
+        "Parent2": 4328216683,
+        "Parent3": 4328139939,
+        "Parent4": 8565675,
+        "Parent5": 8592145,
+        "Result": 0
+      }
+    },
+    {
+      "tid": 14271,
+      "name": "HLE.scePthreadCondWait",
+      "count": 7,
+      "elapsed_ns": 62079531,
+      "self_ns": 62079531,
+      "max_ns": 58719635,
+      "first_ns": 407642974151913,
+      "last_ns": 407642977776809,
+      "fields": {
+        "Thread": 1,
+        "ThreadGeneration": 2,
+        "Invocation": 8,
+        "Operation": 465,
+        "Arg0": 4317966008,
+        "Arg1": 4317907896,
+        "Arg2": 8,
+        "Caller": 4317731988,
+        "Parent0": 4317638572,
+        "Parent1": 4317522712,
+        "Parent2": 4317543368,
+        "Parent3": 26563012,
+        "Parent4": 26542446,
+        "Parent5": 8044944,
+        "CondObject": 68733911040,
+        "MutexObject": 68733894656,
+        "WaitOwner": 68721672128,
+        "WaitResult": 0,
+        "CondPhase": 3,
+        "Result": 0
+      }
+    },
+    {
+      "tid": 14271,
+      "name": "HLE.scePthreadCondWait",
+      "count": 53,
+      "elapsed_ns": 26160210,
+      "self_ns": 26160210,
+      "max_ns": 5582447,
+      "first_ns": 407596036434100,
+      "last_ns": 407640173306652,
+      "fields": {
+        "Thread": 1,
+        "ThreadGeneration": 2,
+        "Invocation": 8,
+        "Operation": 465,
+        "Arg0": 4317966008,
+        "Arg1": 4317907896,
+        "Arg2": 2,
+        "Caller": 4317731988,
+        "Parent0": 4317638572,
+        "Parent1": 4317522712,
+        "Parent2": 4317543368,
+        "Parent3": 26563012,
+        "Parent4": 26542446,
+        "Parent5": 8583671,
+        "CondObject": 68733911040,
+        "MutexObject": 68733894656,
+        "WaitOwner": 68721672128,
+        "WaitResult": 0,
+        "CondPhase": 3,
+        "Result": 0
+      }
+    },
+    {
+      "tid": 14271,
+      "name": "HLE.scePthreadCondBroadcast",
+      "count": 1741,
+      "elapsed_ns": 20572008,
+      "self_ns": 20572008,
+      "max_ns": 160573,
+      "first_ns": 407581773072017,
+      "last_ns": 407592103434725,
+      "fields": {
+        "Thread": 1,
+        "ThreadGeneration": 2,
+        "Invocation": 8,
+        "Operation": 468,
+        "Arg0": 4317966008,
+        "Arg1": 68721672128,
+        "Arg2": 1,
+        "Caller": 4317732300,
+        "Parent0": 4317639935,
+        "Parent1": 4317522680,
+        "Parent2": 4317543368,
+        "Parent3": 26563012,
+        "Parent4": 8580463,
+        "Parent5": 4295721464,
+        "Result": 0
+      }
+    }
+  ],
+  "main_mutex_locators": [
+    {
+      "name": "HLE.scePthreadMutexLock",
+      "caller": "0x100c8069a",
+      "parent": "0x100c81479",
+      "object_slot": "0x238400398",
+      "samples": 173
+    },
+    {
+      "name": "HLE.scePthreadMutexUnlock",
+      "caller": "0x100c807da",
+      "parent": "0x100c81479",
+      "object_slot": "0x238400398",
+      "samples": 173
+    },
+    {
+      "name": "HLE.scePthreadMutexLock",
+      "caller": "0x100c78b91",
+      "parent": "0x100c80fbc",
+      "object_slot": "0x238400398",
+      "samples": 94
+    },
+    {
+      "name": "HLE.scePthreadMutexUnlock",
+      "caller": "0x100c79a58",
+      "parent": "0x100c80fbc",
+      "object_slot": "0x238400398",
+      "samples": 94
+    },
+    {
+      "name": "HLE.scePthreadMutexLock",
+      "caller": "0x100c7b60b",
+      "parent": "0x100c80fdc",
+      "object_slot": "0x238400398",
+      "samples": 59
+    },
+    {
+      "name": "HLE.scePthreadMutexUnlock",
+      "caller": "0x100c7c166",
+      "parent": "0x100c80fdc",
+      "object_slot": "0x238400398",
+      "samples": 59
+    },
+    {
+      "name": "HLE.scePthreadMutexLock",
+      "caller": "0x1000e6d7e",
+      "parent": "0x1000bc751",
+      "object_slot": "0x100448758",
+      "samples": 17
+    },
+    {
+      "name": "HLE.scePthreadMutexUnlock",
+      "caller": "0x1000e6d9e",
+      "parent": "0x1000bc979",
+      "object_slot": "0x100448758",
+      "samples": 17
+    },
+    {
+      "name": "HLE.scePthreadMutexUnlock",
+      "caller": "0x1000e6d9e",
+      "parent": "0x1000bcfd9",
+      "object_slot": "0x100448758",
+      "samples": 13
+    },
+    {
+      "name": "HLE.scePthreadMutexLock",
+      "caller": "0x1000e6d7e",
+      "parent": "0x1000bcf3b",
+      "object_slot": "0x100448758",
+      "samples": 13
+    },
+    {
+      "name": "HLE.scePthreadMutexLock",
+      "caller": "0x101f0f70e",
+      "parent": "0x101ff7330",
+      "object_slot": "0x25d14a6c0",
+      "samples": 7
+    },
+    {
+      "name": "HLE.scePthreadMutexUnlock",
+      "caller": "0x101f0f72e",
+      "parent": "0x101ff7700",
+      "object_slot": "0x25d14a6a0",
+      "samples": 7
+    },
+    {
+      "name": "HLE.scePthreadMutexLock",
+      "caller": "0x101f0f70e",
+      "parent": "0x101ff76c9",
+      "object_slot": "0x25d14a6a0",
+      "samples": 5
+    },
+    {
+      "name": "HLE.scePthreadMutexUnlock",
+      "caller": "0x101f0f72e",
+      "parent": "0x101ff7360",
+      "object_slot": "0x25d14a6c0",
+      "samples": 5
+    },
+    {
+      "name": "HLE.scePthreadMutexLock",
+      "caller": "0x1015b612e",
+      "parent": "0x1015af767",
+      "object_slot": "0x1015e0c60",
+      "samples": 4
+    },
+    {
+      "name": "HLE.pthread_mutex_lock",
+      "caller": "0x1990d78",
+      "parent": "0x1991b19",
+      "object_slot": "0x23b696cf0",
+      "samples": 4
+    },
+    {
+      "name": "HLE.scePthreadMutexLock",
+      "caller": "0x1015b612e",
+      "parent": "0x1015af2ad",
+      "object_slot": "0x1015e0558",
+      "samples": 3
+    },
+    {
+      "name": "HLE.scePthreadMutexUnlock",
+      "caller": "0x1015b6208",
+      "parent": "0x1015af40e",
+      "object_slot": "0x1015e0558",
+      "samples": 3
+    },
+    {
+      "name": "HLE.scePthreadMutexLock",
+      "caller": "0x100c8069a",
+      "parent": "0x100c81479",
+      "object_slot": "0x270800398",
+      "samples": 3
+    },
+    {
+      "name": "HLE.scePthreadMutexUnlock",
+      "caller": "0x100c807da",
+      "parent": "0x100c81479",
+      "object_slot": "0x270800398",
+      "samples": 3
+    }
+  ]
+}

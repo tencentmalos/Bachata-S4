@@ -138,6 +138,10 @@ Id TypeId(const EmitContext& ctx, IR::Type type) {
         return ctx.U32[1];
     case IR::Type::F32:
         return ctx.F32[1];
+    case IR::Type::U64:
+        return ctx.U64;
+    case IR::Type::U32x2:
+        return ctx.U32[2];
     default:
         UNREACHABLE_MSG("Phi node type {}", type);
     }
@@ -257,7 +261,9 @@ void SetupCapabilities(const Info& info, const Profile& profile, const RuntimeIn
     ctx.AddCapability(spv::Capability::ImageQuery);
     ctx.AddCapability(spv::Capability::Int8);
     ctx.AddCapability(spv::Capability::Int16);
-    ctx.AddCapability(spv::Capability::Int64);
+    if (profile.support_int64) {
+        ctx.AddCapability(spv::Capability::Int64);
+    }
     ctx.AddCapability(spv::Capability::StorageBuffer8BitAccess);
     ctx.AddCapability(spv::Capability::StorageBuffer16BitAccess);
     if (info.uses_fp16) {

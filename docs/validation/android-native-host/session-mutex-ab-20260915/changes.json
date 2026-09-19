@@ -1,0 +1,62 @@
+{
+  "normal_manifest_sha256": "4023cdd0212a62803e8a48f5daf8993f83e5fe7cfab46c104db600088cfcb96a",
+  "recorded_files": 1110,
+  "identical": 1099,
+  "changed": [
+    {
+      "path": "cmake/fex/CMakeLists.txt",
+      "normal_sha256": "08fd413d1afa5967cf266c9ae84528a423207d568f499342b5ed9f773f902620",
+      "current_sha256": "360b8743e8537405e385446b595d3ef702f40b52ae41036d9f048f7c7d89ddde"
+    },
+    {
+      "path": "src/core/guest_cpu/api/context.h",
+      "normal_sha256": "cf13016b5c6e8a1ffc0018ce57d40383e8336be78832f16e75130b3e08790457",
+      "current_sha256": "de6e479efad481123e8a475321557f08b5994429c4dbddbda9550d3b7a7b9fa6"
+    },
+    {
+      "path": "src/core/guest_cpu/api/execution.cpp",
+      "normal_sha256": "cca09415ac1c7c8f6fe24754e7cf963076ac2eea13d937e56002cea02b19fdad",
+      "current_sha256": "4257206de96d0a0008f993f04b7d6cdec69859f98997bd73333eaef1042ce8a0"
+    },
+    {
+      "path": "src/core/guest_cpu/api/execution.h",
+      "normal_sha256": "7e638af76087b09ac5b105f6033c7cb5e072884e921a38ac17d1716f6edc4623",
+      "current_sha256": "4f20eb51f71a193f8e4e8970e13d465c4596a85e66b28daf7dc1f32be43f0157"
+    },
+    {
+      "path": "src/core/guest_cpu/fex/fex_context.cpp",
+      "normal_sha256": "d20be99c44909e925ee4ea3c8072afc2477e9e1a2b43963b0d419a799ba23381",
+      "current_sha256": "1beaabd21144868cb606ddec428eb52d9321f5904170ab668133227434a19275"
+    },
+    {
+      "path": "src/core/guest_cpu/fex/fex_context.h",
+      "normal_sha256": "58e3a4d4689fc9f0e7fc41222620b47a9f502f40b70cd5733b7eaf54ff060c9d",
+      "current_sha256": "565cc4ef141ec7bcb1a3f3d7ff2a7f6d2105fbafb54a97f5981e18c76332ed5b"
+    },
+    {
+      "path": "src/core/guest_cpu/hle/scope.cpp",
+      "normal_sha256": "f84750467cf6970ac8604bebe23bc92d35ed3ac78a3910f560db0f266ed55f50",
+      "current_sha256": "fec1aea8e78edec1aab82e61261798077b7dffe5c4be62851b838eeeeabffe97"
+    },
+    {
+      "path": "src/core/host_runtime/guest_avplayer.cpp",
+      "normal_sha256": "78f3e6aad7b3a2f8ec7ac58ea23fee547e86638e40bb6ebd617eb790ec7b78ed",
+      "current_sha256": "5fe2d3d062a57b4301312e798ea7222872b24dc377491fe4cfb993d371a22dc9"
+    },
+    {
+      "path": "src/core/host_runtime/guest_runtime.cpp",
+      "normal_sha256": "11bcb1602089bc727161af04505434f99c308e8fa320291341583d63b8592474",
+      "current_sha256": "850b4e84225eedba38112b7df651a0802e450d5ca493a991816bbef1396e2924"
+    },
+    {
+      "path": "src/core/host_runtime/session_backend_fex.cpp",
+      "normal_sha256": "6a6f460128e1fe8c7d21e9523b1e2eca63884f7ac98d5b6219c9aae3b2175a5b",
+      "current_sha256": "fc0e33dfa162aedac4dd5bf086800164b769e1571bf67466343c33ad68e319d4"
+    },
+    {
+      "path": "tests/host_runtime/guest_avplayer_tests.cpp",
+      "normal_sha256": "4205e61dfc48e18f6df4b0b47997bc87ca34ac23c7270ca02d406f73034e1d78",
+      "current_sha256": "f9cfda00ace285f9e1580ddee9ec1f43f8c43f2bb2f48445a71e828298878d7a"
+    }
+  ]
+}

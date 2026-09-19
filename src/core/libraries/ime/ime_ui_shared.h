@@ -14,6 +14,32 @@
 
 namespace Libraries::Ime {
 
+// Android follows the app's Nintendo-style face-button profile (Circle is A/
+// confirm, Cross is B/cancel).  Desktop keeps the native PS4 convention.
+constexpr Libraries::Pad::OrbisPadButtonDataOffset ImeConfirmButton() {
+#ifdef __ANDROID__
+    return Libraries::Pad::OrbisPadButtonDataOffset::Circle;
+#else
+    return Libraries::Pad::OrbisPadButtonDataOffset::Cross;
+#endif
+}
+
+constexpr Libraries::Pad::OrbisPadButtonDataOffset ImeCancelButton() {
+#ifdef __ANDROID__
+    return Libraries::Pad::OrbisPadButtonDataOffset::Cross;
+#else
+    return Libraries::Pad::OrbisPadButtonDataOffset::Circle;
+#endif
+}
+
+constexpr ImGuiKey ImeConfirmImGuiKey() {
+#ifdef __ANDROID__
+    return ImGuiKey_GamepadFaceRight;
+#else
+    return ImGuiKey_GamepadFaceDown;
+#endif
+}
+
 struct VirtualPadSnapshot {
     u32 buttons = 0;
     ImVec2 left_stick{};

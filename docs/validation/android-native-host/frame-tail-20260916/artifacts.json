@@ -1,0 +1,89 @@
+{
+  "schema": "shadps4.frame-tail-investigation.v1",
+  "device": "9c2841a4",
+  "kernel": "5.15.123-android13-8-gafd857749d1f",
+  "production_changed": false,
+  "experiment": "Standalone direct Android HAL; only process-local ioctl substitution in B. No APK driver replacement or game-performance acceptance.",
+  "files": [
+    {
+      "path": "tests/video_core/android_turnip_timeline_probe.cpp",
+      "sha256": "6ef5b3f6325436835044c5b141b43ceab92b729d1db4b29a45218829bfeb611d",
+      "bytes": 13700
+    },
+    {
+      "path": "build/frame-tail-20260916/turnip_timeline_probe-final",
+      "sha256": "e7b0482d17444ff49ed9a23ef05ac40b238cd7440abf21ca6ddf165585e2331d",
+      "bytes": 165072
+    },
+    {
+      "path": "build/frame-tail-20260916/vulkan.ad07xx.so",
+      "sha256": "fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09",
+      "bytes": 17159433
+    },
+    {
+      "path": "build/frame-tail-20260916/turnip_timeline_probe.cpp",
+      "sha256": "303a8f1cc78ef1374e2328ce87d3a8459a25f0d75cbb0a4ec0b441e1c32989d6",
+      "bytes": 9568
+    },
+    {
+      "path": "build/frame-recompile-20260916/capture-v2/capture.json",
+      "sha256": "4191fad9db13f94cf86382ccd3fdac8f50518984fa889abbb2ae2eb5ec654006",
+      "bytes": 3371
+    },
+    {
+      "path": "build/frame-recompile-20260916/capture-v2/capture.prof",
+      "sha256": "73d743640278ffbf87f78ebdb697cd28b97e9e8c7226532de53cba6bc282d26d",
+      "bytes": 32061140
+    },
+    {
+      "path": "build/frame-intercepts-20260916/installed-mcp-frames/frame-workset.json",
+      "sha256": "b1eb230342a829a5f658b5ede3ce07de9d1aed4a9cf658b342a0e093d453f605",
+      "bytes": 368181400
+    },
+    {
+      "path": "docs/validation/android-native-host/frame-tail-20260916/final-B.log",
+      "sha256": "3b81252cd22780613a0a379d5ef67dd3b2c44543ab78bc8b7a9c6ccad9333f39",
+      "bytes": 2726
+    },
+    {
+      "path": "docs/validation/android-native-host/frame-tail-20260916/device-final.txt",
+      "sha256": "517c422df27b3a516081290ba907bbe0318bce6f5a9ab9564b5bdf6646e1abad",
+      "bytes": 469
+    },
+    {
+      "path": "docs/validation/android-native-host/frame-tail-20260916/driver-stack-symbols.txt",
+      "sha256": "7a9f2e40f97d369695dec1d653c0ea05d6fb87e3e3d70d75413af94a875c9841",
+      "bytes": 547
+    },
+    {
+      "path": "docs/validation/android-native-host/frame-tail-20260916/final-A2.log",
+      "sha256": "90f20a65b13338c375a74f320983758d5985bcde1c5a9d4dbaf61e225bdb3543",
+      "bytes": 1432
+    },
+    {
+      "path": "docs/validation/android-native-host/frame-tail-20260916/final-A1.log",
+      "sha256": "7304223e0c91f43e0e557d53cae74c0b3e81a85b1578483ecd2bcc1b4cc9177b",
+      "bytes": 1435
+    },
+    {
+      "path": "docs/validation/android-native-host/frame-tail-20260916/final-source-poll.log",
+      "sha256": "6f9fc6de16ca19f025b2056c6405542ac65d99c97c098088cd60890e6ffa71bd",
+      "bytes": 2723
+    },
+    {
+      "path": "docs/validation/android-native-host/frame-tail-20260916/analysis.json",
+      "sha256": "5f69dac14b6089dc72a09eb25273792e63423811851e057655d89770d979a464",
+      "bytes": 280501
+    },
+    {
+      "path": "docs/validation/android-native-host/frame-tail-20260916/analyze.py",
+      "sha256": "74e841315fba2cda03a7100fabcf6e3b651cfe78b1cd2808f76fce98aeafae07",
+      "bytes": 3678
+    },
+    {
+      "path": "docs/validation/android-native-host/frame-tail-20260916/final-source-original-stack.log",
+      "sha256": "2ad1dd2605dcee6c54b305bc156db1fbae99f7cf198e520f0430a250ed0867fb",
+      "bytes": 2916
+    }
+  ]
+}

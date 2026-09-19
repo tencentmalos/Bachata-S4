@@ -83,9 +83,11 @@ public:
     // object is generation-owned through Singleton::Binding, not process sticky.
     void InitializeGuestMetadata(std::filesystem::path folder, u32 sdk, std::string serial = {},
                                  std::string game_title = {}, std::string version = {},
-                                 u32 attributes = 0) {
+                                 u32 attributes = 0, u32 system_version = 0) {
         game_folder = std::move(folder);
         sdk_ver = sdk;
+        raw_firmware_ver = system_version;
+        firmware_ver = system_version & 0xFFF00000;
         game_serial = std::move(serial);
         title = std::move(game_title);
         app_ver = std::move(version);
@@ -165,6 +167,10 @@ public:
 
     [[nodiscard]] const std::vector<std::string>& GetNpCommIds() const {
         return npCommIds;
+    }
+
+    void SetTrophyIndexMap(std::map<s32,std::string> indices) {
+        trophy_index_map = std::move(indices);
     }
 
     void SetNpCommIds(std::vector<std::string> ids) {

@@ -1,0 +1,9 @@
+{
+  "same_count": true,
+  "stride16": true,
+  "all_results_zero": true,
+  "positive_durations": true,
+  "same_host_tid": true,
+  "counter_order": true,
+  "verdict": "PASS"
+}

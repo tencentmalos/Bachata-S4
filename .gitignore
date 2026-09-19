@@ -21,6 +21,9 @@ mono_crash.*
 
 # Build results
 [Dd]ebug/
+# The guest debugger transport is source, not a configuration build directory.
+!src/core/guest_cpu/debug/
+!src/core/guest_cpu/debug/**
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/

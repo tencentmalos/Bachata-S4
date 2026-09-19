@@ -1,0 +1,24 @@
+[PATCH001] PASS typed guest function and data binding
+[PATCH002] PASS guest storage remains shared across calls
+[PATCH003] PASS binding writes original VM storage
+[PATCH004] PASS direct guest bindings do not cross host SDK
+[PATCH005] PASS binding mappings are retained
+[PATCH006] PASS disable retains shared state and in-flight imports
+refused: function binding preimage mismatch: guest_helper
+[PATCH007] PASS binding bad preimage/range/alignment/permission/alias refused
+[PATCH008] PASS binding rejection precedes hook mutation
+refused: guest binding outside module
+[PATCH009] PASS binding bad preimage/range/alignment/permission/alias refused
+[PATCH010] PASS binding rejection precedes hook mutation
+refused: unaligned guest binding
+[PATCH011] PASS binding bad preimage/range/alignment/permission/alias refused
+[PATCH012] PASS binding rejection precedes hook mutation
+refused: PermissionDenied in GuestAddressSpace::ValidateRange: mapping lacks the requested permission
+[PATCH013] PASS binding bad preimage/range/alignment/permission/alias refused
+[PATCH014] PASS binding rejection precedes hook mutation
+refused: PermissionDenied in GuestAddressSpace::ValidateRange: mapping lacks the requested permission
+[PATCH015] PASS binding bad preimage/range/alignment/permission/alias refused
+[PATCH016] PASS binding rejection precedes hook mutation
+refused: guest binding overlaps hook; use original trampoline
+[PATCH017] PASS binding bad preimage/range/alignment/permission/alias refused
+[PATCH018] PASS binding rejection precedes hook mutation

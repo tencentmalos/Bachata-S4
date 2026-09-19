@@ -1,5 +1,11 @@
 # 用 LLDB 断 host，分析 FEX guest：可行性、操作路径与工程化建议
 
+> 2026-09-15 更新：已有[guest 混合栈与软件观察点实现](validation/android-native-host/guest-debugger-mixed-watch-2026-09-15.md)。guest RBP 链及历史 host 边界与任意 JIT/host 实时 unwind 必须区分；默认关闭路径没有观察 IR 或 native 栈采集。以下早期能力缺口以最新交付为准。
+
+> 当前已有[真正的 guest debugger 实现和验收](validation/android-native-host/guest-debugger-implementation-2026-09-15.md)，优先用它读取安全点、单步和断点。本文的 host LLDB 方法用于补充 native HLE 内部现场，不能把任意JIT块入口当作精确guest PC。
+
+> 当前实现与真机取证更新见[2026-09-15 guest debugger / 0 FPS审计](validation/android-native-host/guest-debugger-zero-fps-audit-2026-09-15.md)。下文保留2026-09-07研究基线；目前使用4 KiB设备及已实现的HleScope/安全点控制，不能把旧偏移或旧缺口直接套到当前产物。
+
 日期：2026-09-07。源码基线：`references/FEX` 提交 `50e6eee95ae95d3257672727a9302a30b4a60a9a`；目标为 Android 16 / ARM64 / 16 KiB page 的原生 shadPS4 + FEXCore。
 
 ## 1. 结论：适合作为第一条调试主线

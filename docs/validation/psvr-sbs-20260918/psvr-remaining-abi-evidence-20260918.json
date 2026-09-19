@@ -1,0 +1,102 @@
+{
+  "schema": 1,
+  "firmware": "11.00",
+  "modules": [
+    {
+      "module": "libSceHmd.sprx",
+      "source": "/Users/bytedance/game/ps4/firmware/11.00_sys_modules/libSceHmd.sprx",
+      "sha256": "c5005afcb8bddeaa6de23cd581eabe080087bb45b36c8a9dc89cf6af227f0e71",
+      "exports": [
+        {
+          "symbol": "8gH1aLgty5I#N#A",
+          "rva": "0x17a50",
+          "size": "0x17f"
+        },
+        {
+          "symbol": "gqAG7JYeE7A#N#A",
+          "rva": "0x186f0",
+          "size": "0x112"
+        },
+        {
+          "symbol": "8gH1aLgty5I#P#A",
+          "rva": "0x17a50",
+          "size": "0x17f"
+        }
+      ]
+    },
+    {
+      "module": "libSceVrTracker.sprx",
+      "source": "/Users/bytedance/game/ps4/firmware/11.00_sys_modules/libSceVrTracker.sprx",
+      "sha256": "3a8718d1fa72768d173bfc6d6211934b573c1cc94d3543124cc2e0bc8b050163",
+      "exports": [
+        {
+          "symbol": "zvyKP0Z3UvU#N#A",
+          "rva": "0xb080",
+          "size": "0x227"
+        }
+      ]
+    }
+  ],
+  "method": "PT_SCE_DYNLIBDATA + DT_SCE_STRTAB/SYMTAB；LLVM objdump PT_LOAD 机器码交叉核对，未使用被占用的 IDA 数据库",
+  "runtime_hits_proven": false,
+  "play_area": {
+    "size": "0x40",
+    "export_rva": "0xb080",
+    "copy_helper_rva": "0xb310",
+    "cache_rva": "0x188e64",
+    "reserved_byte_ranges_inclusive": [
+      [
+        "0x04",
+        "0x0f"
+      ],
+      [
+        "0x11",
+        "0x1f"
+      ],
+      [
+        "0x21",
+        "0x23"
+      ],
+      [
+        "0x2c",
+        "0x3f"
+      ]
+    ],
+    "order": [
+      "NOT_INIT",
+      "NULL / size != 0x40 / reserved 非零 -> ARGUMENT_INVALID",
+      "固件复制缓存并返回成功；HLE 当前无 provider，返回 NOT_SUPPORTED 且不写输出"
+    ],
+    "no_camera_firmware_return_observed": false
+  },
+  "multilayer": {
+    "export_rva": "0x17a50",
+    "copy_helper_rva": "0x17950",
+    "inner_validator_rva": "0x17bd0",
+    "layer_stride": "0xa8",
+    "submission_read_extent": "0x50",
+    "outer_reserved_check": "仅第 0 层 0x7c..0x9c，不能声称固件逐层检查此区间",
+    "arg3": "RCX 非空，复制到 kind<2 的内部 layer+0x80；尚不能确认完整 pointee 或称为 pose",
+    "arg4": "R8 传给内层；Beat Saber 调用后低 32 位 +1，序号语义候选",
+    "android_admission": "refused",
+    "unresolved": [
+      "纹理描述符及 GPU 资源所有权",
+      "RCX 记录完整布局",
+      "R8 的宽度和完整语义",
+      "presenter/SBS 生命周期"
+    ]
+  },
+  "beat_saber": {
+    "module": "eboot.elf",
+    "sha256": "71278f9c85ef93a9b2e8703299d6875020eb4d8f7b821bf98eb36ec73340592b",
+    "call_site": "0xd6b48b",
+    "observed_register_setup": {
+      "rdi": "rsp+0x280",
+      "esi": "分支可取 2",
+      "rdx": "rsp+0x180",
+      "rcx": "rsp+0x20",
+      "r8": "[rsp+0x18]",
+      "r9": "0"
+    }
+  }
+}

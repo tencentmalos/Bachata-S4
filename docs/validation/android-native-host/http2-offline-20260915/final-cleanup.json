@@ -1,0 +1,21 @@
+{
+  "recorded_utc": "2026-09-15T09:59:32.226591+00:00",
+  "serial": "9c2841a4",
+  "pid": 410,
+  "session_stage": "Stopped",
+  "reason": "user_stop",
+  "TracerPid": 0,
+  "original_SELF_sha256": "6122da7190de6b08d921b2c42c3ca9ed11dc4d11524f1139ff67aeceea5b204d",
+  "source_file_modified": false,
+  "debugger_attached": false,
+  "debug_properties": {
+    "debug.shadps4.guest_debug_port": "0",
+    "debug.shadps4.guest_debug_wait": "0"
+  },
+  "remaining_preexisting_forwards": [
+    "9c2841a4 tcp:48969 localabstract:renderdoc_49920",
+    "9c2841a4 tcp:48960 localabstract:renderdoc_48920",
+    "PB3110PGL6240001G tcp:48979 localabstract:renderdoc_49920",
+    "PB3110PGL6240001G tcp:48970 localabstract:renderdoc_48920"
+  ]
+}

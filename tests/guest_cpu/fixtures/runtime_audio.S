@@ -24,7 +24,7 @@ _start:
     call qword ptr [rip+got_volume]
     test eax,eax
     jne failed
-    mov r13d,4
+    mov r13d,32
 next_buffer:
     mov edi,[rip+handle]
     lea rsi,[rip+pcm]

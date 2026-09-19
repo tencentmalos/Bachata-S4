@@ -1,0 +1,25 @@
+{
+  "head": "4da582b7b3a36d74403a4985c3c03f37e570bcb7",
+  "branch": "codex/android-fex-round2",
+  "dirty": true,
+  "sources": {
+    "src/core/host_runtime/guest_patch.cpp": "d25151f2768a3a13d28adcfd77943f3ee5a8e52b32337b084e815393ed1f8152",
+    "src/core/host_runtime/guest_patch.h": "cab44433da81d5ddc28f5cc3c9f0b5f024ef54bb4f0093829f01bcc8328311f5",
+    "tools/guest-functions/build.py": "0ca88260035c9ca82339d9472283dee9f162272d170d51dcfef3e7f7844888f4",
+    "tools/guest-functions/recompile_contract.py": "780a454782cc7df79d5116ca482733db3d1f9cf0050cc083b5fc38cd3101ab16",
+    "guest/games/CUSA50828/01.08/rooftop_recompiled.cpp": "c19854447bd0fa5448e3c3180b4a1346036b28e2f98c32bd4f93acbf45b008d2",
+    "guest/games/CUSA50828/01.08/rooftop_types.h": "4b9a563af09da95358741ec19e8a6c026122473ac7aad61f29c3978b2629a1d5",
+    "guest/games/CUSA50828/01.08/rooftop_recompiled.recipe.json": "c87818ba3773840f11d924b04a717f1b8a3ee402887a66da26327d8b06822e1b",
+    "guest/games/CUSA50828/01.08/rooftop-recompile.contract.json": "0639170a37be887be9d123beef9ac471f7dcbe85c57954e2c2ac606fce96467e",
+    "scripts/android/guest-auto-tag": "3da57f62a7384afd35fe9aa87e02a2e6ed95ea4d9896e7be5a1c3e9911c27cdc",
+    "tests/guest_cpu/guest_patch_tests.cpp": "1d5e42e71e65c166f48b6ed1bffcbdda9d31c02889354d9d683065c3979e58a1",
+    "tests/guest_cpu/tmnt_recompile_tests.h": "257ea5b1e0390f0e914a75f63221928bfb318dd608de98f3a46769d60c0c42e2",
+    "tests/guest_cpu/patch/make_recompile_fixture.py": "7b8e11f5f90ea88fc1c2eac67e17a0cbe147131d7be5cc134cf2c69e81f47534",
+    "tests/guest_cpu/patch/recompile_probe.cpp": "a107acfaf34b11d1aaed515a9f71dad9d72edc33807c28d076e690eb12d3ae2b"
+  },
+  "spatial_sources": {
+    "mcp/ida/McpServer/Tools/GuestRecompileTools.cs": "7b5b25e60a46074f35cdcc17e2b988daf509d3e4acb9ca3eeb8decb3e71ae2ef",
+    "mcp/ida/McpServer/Program.cs": "0f9de260578a632f379a9b86a3f1a9e24eee63122f7376045c55206c1af5fab1",
+    "mcp/ida/McpServer/skills/guest-auto-tag/references/recompilation.md": "fa74481b42dd78cc3ca6ccbc90b5e7ed07f23d2340569dd789550fcc8550b946"
+  }
+}

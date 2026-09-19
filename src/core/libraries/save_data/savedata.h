@@ -4,6 +4,7 @@
 #pragma once
 
 #include <core/libraries/system/userservice.h>
+#include <filesystem>
 #include "common/cstring.h"
 #include "common/types.h"
 
@@ -49,6 +50,54 @@ struct OrbisSaveDataParam {
 
     void ToSFO(PSF& sfo) const;
 };
+
+enum class OrbisSaveDataSortKey : u32 {
+    DIRNAME = 0,
+    USER_PARAM = 1,
+    BLOCKS = 2,
+    MTIME = 3,
+    FREE_BLOCKS = 5,
+};
+
+enum class OrbisSaveDataSortOrder : u32 {
+    ASCENT = 0,
+    DESCENT = 1,
+};
+
+struct OrbisSaveDataDirNameSearchCond {
+    Libraries::UserService::OrbisUserServiceUserId userId;
+    int : 32;
+    const OrbisSaveDataTitleId* titleId;
+    const OrbisSaveDataDirName* dirName;
+    OrbisSaveDataSortKey key;
+    OrbisSaveDataSortOrder order;
+    std::array<u8, 32> _reserved;
+};
+
+struct OrbisSaveDataSearchInfo {
+    u64 blocks;
+    u64 freeBlocks;
+    std::array<u8, 32> _reserved;
+};
+
+struct OrbisSaveDataDirNameSearchResult {
+    u32 hitNum;
+    int : 32;
+    OrbisSaveDataDirName* dirNames;
+    u32 dirNamesNum;
+    // +1.7
+    u32 setNum;
+    // +1.7
+    OrbisSaveDataParam* params;
+    // +2.5
+    OrbisSaveDataSearchInfo* infos;
+    std::array<u8, 12> _reserved;
+    int : 32;
+};
+
+Error SearchSaveDirectories(const OrbisSaveDataDirNameSearchCond* cond,
+                            OrbisSaveDataDirNameSearchResult* result, std::string_view game_serial,
+                            u32 firmware, const std::filesystem::path& home);
 
 struct OrbisSaveDataBackup;
 struct OrbisSaveDataCheckBackupData;

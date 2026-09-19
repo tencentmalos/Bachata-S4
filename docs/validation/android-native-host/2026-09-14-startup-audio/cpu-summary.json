@@ -1,0 +1,599 @@
+{
+  "startup": {
+    "start_ns": 170965609821185,
+    "end_ns": 171043609821185,
+    "samples": 13453,
+    "cpu_s": 134.53,
+    "categories": [
+      [
+        "other",
+        43.3,
+        58.25
+      ],
+      [
+        "guest address space (incl lock)",
+        33.72,
+        45.37
+      ],
+      [
+        "guest mutex/cond (remaining)",
+        12.93,
+        17.39
+      ],
+      [
+        "other HLE",
+        7.37,
+        9.92
+      ],
+      [
+        "audio output",
+        1.92,
+        2.58
+      ],
+      [
+        "anonymous/JIT unresolved",
+        0.38,
+        0.51
+      ],
+      [
+        "Turnip",
+        0.31,
+        0.42
+      ],
+      [
+        "FEX compile",
+        0.05,
+        0.07
+      ],
+      [
+        "shader/pipeline",
+        0.01,
+        0.02
+      ]
+    ],
+    "threads": [
+      [
+        "('5994', 'Guest-16')",
+        26.77
+      ],
+      [
+        "('5896', 'Guest-1')",
+        14.29
+      ],
+      [
+        "('5942', 'Guest-7')",
+        14.21
+      ],
+      [
+        "('5947', 'Guest-12')",
+        13.34
+      ],
+      [
+        "('5996', 'Guest-18')",
+        11.6
+      ],
+      [
+        "('5911', 'com.shadps4.android')",
+        3.57
+      ],
+      [
+        "('5945', 'Guest-10')",
+        2.75
+      ],
+      [
+        "('5502', 'com.shadps4.android')",
+        2.4
+      ],
+      [
+        "('5943', 'Guest-8')",
+        2.34
+      ],
+      [
+        "('5991', 'Guest-1')",
+        1.58
+      ],
+      [
+        "('5998', 'Guest-20')",
+        1.48
+      ],
+      [
+        "('5993', 'Guest-15')",
+        1.3
+      ]
+    ],
+    "leaf": [
+      [
+        "*[kernel.kallsyms][+ffffffdd25645d8c]",
+        31.74
+      ],
+      [
+        "Core::GuestCpu::GuestAddressSpace::ValidateRangeLocked(Core::GuestCpu::GuestRange, Core::GuestCpu::GuestPermission) const",
+        8.44
+      ],
+      [
+        "__aarch64_cas2_acq",
+        3.25
+      ],
+      [
+        "*[kernel.kallsyms][+ffffffdd2458a494]",
+        2.93
+      ],
+      [
+        "Core::GuestCpu::GuestAddressSpace::Query(Core::GuestCpu::GuestAddress) const",
+        2.8
+      ],
+      [
+        "*[kernel.kallsyms][+ffffffdd244b6328]",
+        2.75
+      ],
+      [
+        "pthread_mutex_unlock",
+        2.39
+      ],
+      [
+        "__kernel_clock_gettime",
+        2.04
+      ],
+      [
+        "pthread_mutex_lock",
+        2.0
+      ],
+      [
+        "@plt",
+        1.9
+      ],
+      [
+        "syscall",
+        1.71
+      ],
+      [
+        "LZ4_compress_fast_extState",
+        1.0
+      ]
+    ]
+  },
+  "portal": {
+    "start_ns": 171045609821185,
+    "end_ns": 171075609821185,
+    "samples": 6211,
+    "cpu_s": 62.11,
+    "categories": [
+      [
+        "other",
+        40.78,
+        25.33
+      ],
+      [
+        "guest address space (incl lock)",
+        29.9,
+        18.57
+      ],
+      [
+        "guest mutex/cond (remaining)",
+        16.29,
+        10.12
+      ],
+      [
+        "other HLE",
+        8.1,
+        5.03
+      ],
+      [
+        "Turnip",
+        2.29,
+        1.42
+      ],
+      [
+        "audio output",
+        1.8,
+        1.12
+      ],
+      [
+        "shader/pipeline",
+        0.42,
+        0.26
+      ],
+      [
+        "anonymous/JIT unresolved",
+        0.4,
+        0.25
+      ],
+      [
+        "FEX compile",
+        0.02,
+        0.01
+      ]
+    ],
+    "threads": [
+      [
+        "('5994', 'Guest-16')",
+        19.47
+      ],
+      [
+        "('5896', 'Guest-1')",
+        11.64
+      ],
+      [
+        "('5947', 'Guest-12')",
+        11.16
+      ],
+      [
+        "('5942', 'Guest-7')",
+        7.86
+      ],
+      [
+        "('5938', 'Guest-3')",
+        5.84
+      ],
+      [
+        "('5941', 'Guest-6')",
+        5.8
+      ],
+      [
+        "('5996', 'Guest-18')",
+        5.62
+      ],
+      [
+        "('5940', 'Guest-5')",
+        5.51
+      ],
+      [
+        "('5939', 'Guest-4')",
+        5.41
+      ],
+      [
+        "('5993', 'Guest-15')",
+        3.64
+      ],
+      [
+        "('5935', 'shadPS4:Present')",
+        2.35
+      ],
+      [
+        "('5917', 'shadPS4:GpuComm')",
+        2.17
+      ]
+    ],
+    "leaf": [
+      [
+        "*[kernel.kallsyms][+ffffffdd25645d8c]",
+        32.88
+      ],
+      [
+        "Core::GuestCpu::GuestAddressSpace::ValidateRangeLocked(Core::GuestCpu::GuestRange, Core::GuestCpu::GuestPermission) const",
+        7.37
+      ],
+      [
+        "*[kernel.kallsyms][+ffffffdd2458a494]",
+        4.4
+      ],
+      [
+        "*[kernel.kallsyms][+ffffffdd244b6328]",
+        2.7
+      ],
+      [
+        "__aarch64_cas2_acq",
+        2.69
+      ],
+      [
+        "__kernel_clock_gettime",
+        2.58
+      ],
+      [
+        "memcpy_opt",
+        2.04
+      ],
+      [
+        "pthread_mutex_unlock",
+        2.04
+      ],
+      [
+        "Core::GuestCpu::GuestAddressSpace::Query(Core::GuestCpu::GuestAddress) const",
+        2.0
+      ],
+      [
+        "@plt",
+        1.92
+      ],
+      [
+        "syscall",
+        1.38
+      ],
+      [
+        "pthread_mutex_lock",
+        1.35
+      ]
+    ]
+  },
+  "loading": {
+    "start_ns": 171081609821185,
+    "end_ns": 171130609821185,
+    "samples": 8470,
+    "cpu_s": 84.7,
+    "categories": [
+      [
+        "other",
+        42.89,
+        36.33
+      ],
+      [
+        "guest address space (incl lock)",
+        33.16,
+        28.09
+      ],
+      [
+        "guest mutex/cond (remaining)",
+        13.44,
+        11.38
+      ],
+      [
+        "other HLE",
+        6.49,
+        5.5
+      ],
+      [
+        "Turnip",
+        2.35,
+        1.99
+      ],
+      [
+        "audio output",
+        1.22,
+        1.03
+      ],
+      [
+        "anonymous/JIT unresolved",
+        0.45,
+        0.38
+      ]
+    ],
+    "threads": [
+      [
+        "('5994', 'Guest-16')",
+        23.06
+      ],
+      [
+        "('5942', 'Guest-7')",
+        15.47
+      ],
+      [
+        "('5947', 'Guest-12')",
+        13.19
+      ],
+      [
+        "('5996', 'Guest-18')",
+        13.06
+      ],
+      [
+        "('5998', 'Guest-20')",
+        8.57
+      ],
+      [
+        "('5896', 'Guest-1')",
+        6.38
+      ],
+      [
+        "('5993', 'Guest-15')",
+        4.18
+      ],
+      [
+        "('5935', 'shadPS4:Present')",
+        3.13
+      ],
+      [
+        "('5945', 'Guest-10')",
+        2.76
+      ],
+      [
+        "('5911', 'com.shadps4.android')",
+        2.08
+      ],
+      [
+        "('5502', 'com.shadps4.android')",
+        1.65
+      ],
+      [
+        "('5943', 'Guest-8')",
+        1.57
+      ]
+    ],
+    "leaf": [
+      [
+        "*[kernel.kallsyms][+ffffffdd25645d8c]",
+        32.47
+      ],
+      [
+        "Core::GuestCpu::GuestAddressSpace::ValidateRangeLocked(Core::GuestCpu::GuestRange, Core::GuestCpu::GuestPermission) const",
+        8.72
+      ],
+      [
+        "*[kernel.kallsyms][+ffffffdd244b6328]",
+        3.03
+      ],
+      [
+        "__aarch64_cas2_acq",
+        2.89
+      ],
+      [
+        "*[kernel.kallsyms][+ffffffdd2458a494]",
+        2.73
+      ],
+      [
+        "Core::GuestCpu::GuestAddressSpace::Query(Core::GuestCpu::GuestAddress) const",
+        2.55
+      ],
+      [
+        "__kernel_clock_gettime",
+        2.54
+      ],
+      [
+        "pthread_mutex_unlock",
+        2.51
+      ],
+      [
+        "@plt",
+        2.07
+      ],
+      [
+        "pthread_mutex_lock",
+        1.61
+      ],
+      [
+        "syscall",
+        1.51
+      ],
+      [
+        "Core::GuestCpu::Fex::(anonymous namespace)::FexCpuContext::RunInternal(Core::GuestCpu::ThreadHandle, Core::GuestCpu::RunOptions const&, Core::GuestCpu::GuestCallArgs const*, Core::",
+        0.89
+      ]
+    ]
+  },
+  "after": {
+    "start_ns": 171138609821185,
+    "end_ns": 171153609821185,
+    "samples": 3103,
+    "cpu_s": 31.03,
+    "categories": [
+      [
+        "other",
+        39.77,
+        12.34
+      ],
+      [
+        "guest address space (incl lock)",
+        29.23,
+        9.07
+      ],
+      [
+        "guest mutex/cond (remaining)",
+        16.34,
+        5.07
+      ],
+      [
+        "other HLE",
+        10.12,
+        3.14
+      ],
+      [
+        "Turnip",
+        2.09,
+        0.65
+      ],
+      [
+        "audio output",
+        0.93,
+        0.29
+      ],
+      [
+        "shader/pipeline",
+        0.9,
+        0.28
+      ],
+      [
+        "anonymous/JIT unresolved",
+        0.61,
+        0.19
+      ]
+    ],
+    "threads": [
+      [
+        "('5994', 'Guest-16')",
+        19.69
+      ],
+      [
+        "('5896', 'Guest-1')",
+        12.21
+      ],
+      [
+        "('5947', 'Guest-12')",
+        11.38
+      ],
+      [
+        "('5942', 'Guest-7')",
+        8.35
+      ],
+      [
+        "('5940', 'Guest-5')",
+        6.77
+      ],
+      [
+        "('5939', 'Guest-4')",
+        5.9
+      ],
+      [
+        "('5938', 'Guest-3')",
+        5.67
+      ],
+      [
+        "('5996', 'Guest-18')",
+        5.64
+      ],
+      [
+        "('5941', 'Guest-6')",
+        5.48
+      ],
+      [
+        "('5993', 'Guest-15')",
+        3.87
+      ],
+      [
+        "('5917', 'shadPS4:GpuComm')",
+        2.45
+      ],
+      [
+        "('5935', 'shadPS4:Present')",
+        2.16
+      ]
+    ],
+    "leaf": [
+      [
+        "*[kernel.kallsyms][+ffffffdd25645d8c]",
+        33.13
+      ],
+      [
+        "Core::GuestCpu::GuestAddressSpace::ValidateRangeLocked(Core::GuestCpu::GuestRange, Core::GuestCpu::GuestPermission) const",
+        7.48
+      ],
+      [
+        "*[kernel.kallsyms][+ffffffdd2458a494]",
+        4.19
+      ],
+      [
+        "*[kernel.kallsyms][+ffffffdd244b6328]",
+        2.93
+      ],
+      [
+        "__aarch64_cas2_acq",
+        2.58
+      ],
+      [
+        "memcpy_opt",
+        2.45
+      ],
+      [
+        "__kernel_clock_gettime",
+        2.45
+      ],
+      [
+        "pthread_mutex_unlock",
+        2.09
+      ],
+      [
+        "@plt",
+        2.06
+      ],
+      [
+        "Core::GuestCpu::GuestAddressSpace::Query(Core::GuestCpu::GuestAddress) const",
+        1.74
+      ],
+      [
+        "syscall",
+        1.19
+      ],
+      [
+        "pthread_mutex_lock",
+        1.03
+      ]
+    ]
+  }
+}

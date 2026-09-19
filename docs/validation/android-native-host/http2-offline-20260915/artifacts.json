@@ -1,0 +1,114 @@
+{
+  "scope": "offline HTTP2 adapter, desktop async refusal, exact-content runtime import restoration; original game file unchanged",
+  "artifact_identity": {
+    "apk_sha256": "37330cd7d17903d8417e4be4f01b2de5cc820bdf1e10eaba6bda0b35af05fd8e",
+    "variant": "playstoreDebug",
+    "host_jni_configuration": "RelWithDebInfo",
+    "fex_configuration": "Release",
+    "libraries": {
+      "lib/arm64-v8a/libshadps4_host.so": {
+        "sha256": "716d910360e975d40dec578471a1e55e1ac230f215b1b81b358847eeb087f287",
+        "bytes": 460857368,
+        "build_id": "0f5649b4d3b8f518aa568923e7908879b07c288a"
+      },
+      "lib/arm64-v8a/libshadps4_fex_session.so": {
+        "sha256": "3f867e3565713fc54c96b571293b16638999264b2124b6e37568299b49a3d70a",
+        "bytes": 35207448,
+        "build_id": "717514731d098a4ff3b5fe782737434933366fad"
+      }
+    },
+    "source_head": "4da582b7b3a36d74403a4985c3c03f37e570bcb7",
+    "dirty": true,
+    "source_sha256": {
+      "src/core/host_runtime/guest_http2.h": "60d4c132d8f50b4fa9586556000c635e181e1625abf70d2d2d16c65f99d90ec6",
+      "src/core/host_runtime/guest_http2_compat.h": "b2b4e9741f5190f459e61f7378741221dc6aba2bb838addeca05436342279c34",
+      "src/core/host_runtime/guest_runtime.cpp": "40e07d85b163cb0de5dc6cf64037e33daa08d310e1dad15969f4c1da2e2b9eaf",
+      "src/core/host_runtime/session_backend_fex.cpp": "6450e1a7274d805b945d1ceeff7a69b603aa381c018a16015f522dced0b7129a",
+      "src/core/libraries/network/http2.cpp": "d012846262e75b82b733df278fa35e4f4844e5e340e920800f2f389eac1eb158",
+      "src/core/libraries/network/http2.h": "692f816eda740df4a7cac35018195abec84a027ca02390f196eadb9f6261b08a",
+      "src/core/libraries/network/http2_async_policy.h": "7605c90dc91b093882b73225ef02a71a3af0ea477d9ec682e850b9a8faa25002",
+      "tests/host_runtime/guest_http2_tests.cpp": "b3d926afa76bf622a0224eca85844ede18718c250ec3c0b8a9ac1706aac0ee6d",
+      "CMakeLists.txt": "539ef8f3632e2af76a2b7162c2ea086f75d8c70098460b6fd68bbef94d6020df"
+    },
+    "FEX_head": "385a0cc4d81cd456c8d5c26b4f09cb5a7d8d5842",
+    "FEX_dirty_diff_sha256": "7661a4bd02abca33d297be367e12d3a0b53d33bd220e201772fa7a9421f8b4fa",
+    "Foundation_head": "8a564bfe3b69b9ac41664f3a03e56a379c6f4ace"
+  },
+  "runtime2": {
+    "pid": 30890,
+    "serial": "9c2841a4",
+    "original_self_sha256": "6122da7190de6b08d921b2c42c3ca9ed11dc4d11524f1139ff67aeceea5b204d",
+    "file_modified": false,
+    "debugger_attached": false,
+    "APK_sha256": "cc419d8c44fa40c111345b87b475c6ad44f33d633f498382ac87156fdd47a239",
+    "start_wall": 1789465764.46101
+  },
+  "runtime_final": {
+    "pid": 410,
+    "serial": "9c2841a4",
+    "original_self_sha256": "6122da7190de6b08d921b2c42c3ca9ed11dc4d11524f1139ff67aeceea5b204d",
+    "file_modified": false,
+    "debugger_attached": false,
+    "APK_sha256": "37330cd7d17903d8417e4be4f01b2de5cc820bdf1e10eaba6bda0b35af05fd8e",
+    "start_wall": 1789466070.776394,
+    "outcome": "Stopped/user_stop; main menu at180 and220 seconds; no gameplay acceptance"
+  },
+  "targeted_native_tests": {
+    "checks": 240,
+    "failures": 0
+  },
+  "full_regression": false,
+  "gameplay_acceptance": false,
+  "Swan_used": false,
+  "archive_sha256": {
+    "attempt1-original-15.txt": "45d3083b8e5d12f9fd154b4c7d8f7890c23577d6b474f69e377d661522d26787",
+    "attempt1-original-early-logcat.txt": "c94e41515af2447618095598cc3fb4955c553c66baf7d374daf6ea0073b87ce3",
+    "attempt1-run-console.txt": "5cd3c71b1e624187fb662f444b9130772ed6123157763b948749e2d226fc4e15",
+    "attempt1-run-identity.json": "86286fd529c115b851e12ba67337ae8496807bbc8e3d30881e51fefe23d338f9",
+    "attempt2-http2-host-events.txt": "175a2039851416946be25a8ffd7879adf1715e38e996788e86a59873132c6560",
+    "attempt2-original-180.png": "bb8ac84921eaa440c214d69cf9c15fcbbff81e3cc44c043183aa126b6c6a2c46",
+    "attempt2-original-260.png": "f389a35f79de6ea6172e1c1c665ea00b7c19b7c9533893ea112d49c53cc08cec",
+    "attempt2-original-stop.txt": "9af80b60b38b8f5ab85841d0b3c178240cc1d6f3dba21c1c162236bc0ab58ac2",
+    "attempt2-run-console.txt": "e84ea88088fd015fd6cb1fa605b04b341d9af98f18da54682774cacbc0a18487",
+    "attempt2-run-identity.json": "82eb90a2df0c6982a7ecd0d42f120d6d0ca47c614955a00cf5075c5e66cc51a3",
+    "deployed-apk.json": "bcbbbe4453084d367f088f7b9d62bd286360fa83694e9fa24506aa0ba0387770",
+    "final-artifact-identity.json": "af3befe54920cd75cc37cde30e805314512d3579067cb9142b70ba805ae4cd57",
+    "final-cleanup.json": "66dbbdac0a8d009db5699ab3031f3e85be7252a0f44265a728ee27cb841e1135",
+    "host-build-final.log": "cd03700ae3a59e9a542619db6e38c8f6ddf633d19bd0ed75b5a0c32164b11876",
+    "http2-host-events.txt": "c7710c0a60486a18b197e0425209274d3db5f33ebdae18e17e6a6fbed6aed026",
+    "native-tests-final.txt": "11ce927acdca6801a47f7a18a5f518948f7c8fd2e0543da6d7487d9b1ec67bff",
+    "original-100.png": "851ee8a302fd5dac819cb470162101aaac0dd560594e623db88a92c8ed112d97",
+    "original-100.txt": "24916bf50412d7ffa3a24d2a86249aa8b37c79c0c5079c168eda9e9e238e792f",
+    "original-140.png": "0e983b4d4ce5f813f4f58df8639b47bb9debdfa8902ff72331dfb640231e089e",
+    "original-140.txt": "313c49b4d6f10fd73bff020b1a6f16ce8297f7605254d05c81a756d73ebccfd7",
+    "original-180.png": "1c8951462dd6db3246502c0f7e8f6710f1e2ebec4c1de2538adefa9934842f3b",
+    "original-180.txt": "e5a999a947a52847a3acf1d765a32ce08a027ec5d9fb26066dad68cd86ac545f",
+    "original-220.png": "9b948c1776bea24b20f1de34c47d6aa678ec594cfb7e85681fb30ccd95a31d4f",
+    "original-220.txt": "4163c74e3ecd29eedbdd0d57ea92ea3a44f7d97e2a2fb2ad2ed4c533e24e992a",
+    "original-stop.txt": "5e864e8d8a248c417c7b58a728c5b46e2de7bdd3eacec68e9fb2496e16797378",
+    "run-console.txt": "4c6d1cb4c5a4f6979c389dc7fb7db9d1e55df2307d7645f918fb989eaaafee82",
+    "run-identity.json": "162b33c4bb9a3fca3236e8c98dbe974d1a8cded9c91c886c18545d2f40afeefa",
+    "tests-build-final.log": "8da21c5b7d868bc80d2eed497c468f04bc658039fb8fd18a9333564654e7b214"
+  },
+  "final_cleanup": {
+    "recorded_utc": "2026-09-15T09:59:32.226591+00:00",
+    "serial": "9c2841a4",
+    "pid": 410,
+    "session_stage": "Stopped",
+    "reason": "user_stop",
+    "TracerPid": 0,
+    "original_SELF_sha256": "6122da7190de6b08d921b2c42c3ca9ed11dc4d11524f1139ff67aeceea5b204d",
+    "source_file_modified": false,
+    "debugger_attached": false,
+    "debug_properties": {
+      "debug.shadps4.guest_debug_port": "0",
+      "debug.shadps4.guest_debug_wait": "0"
+    },
+    "remaining_preexisting_forwards": [
+      "9c2841a4 tcp:48969 localabstract:renderdoc_49920",
+      "9c2841a4 tcp:48960 localabstract:renderdoc_48920",
+      "PB3110PGL6240001G tcp:48979 localabstract:renderdoc_49920",
+      "PB3110PGL6240001G tcp:48970 localabstract:renderdoc_48920"
+    ]
+  }
+}

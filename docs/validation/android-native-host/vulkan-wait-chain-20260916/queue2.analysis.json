@@ -1,0 +1,748 @@
+{
+  "pid": 8463,
+  "chunks": 172,
+  "skipped": 0,
+  "truncated": true,
+  "diagnostics": [
+    "unbalanced span end on tid 14049",
+    "unbalanced span end on tid 13992",
+    "unbalanced span end on tid 14047",
+    "unbalanced span end on tid 14048",
+    "unbalanced span end on tid 14050",
+    "unbalanced span end on tid 14123",
+    "unbalanced span end on tid 14078",
+    "unbalanced span end on tid 14081",
+    "unbalanced span end on tid 14094",
+    "unbalanced span end on tid 14080",
+    "unbalanced span end on tid 14080",
+    "unbalanced span end on tid 14045",
+    "unbalanced span end on tid 14014",
+    "unbalanced span end on tid 14018",
+    "unbalanced span end on tid 14043",
+    "dropped gpu zone with unknown context",
+    "unbalanced span end on tid 14043",
+    "unbalanced span end on tid 14043",
+    "unbalanced span end on tid 14054",
+    "unbalanced span end on tid 14051",
+    "1 unclosed spans on tid 14049",
+    "1 unclosed spans on tid 14047",
+    "1 unclosed spans on tid 14048",
+    "1 unclosed spans on tid 14050",
+    "1 unclosed spans on tid 14012",
+    "1 unclosed spans on tid 14123",
+    "1 unclosed spans on tid 14078",
+    "1 unclosed spans on tid 14081",
+    "1 unclosed spans on tid 14094",
+    "2 unclosed spans on tid 14080",
+    "1 unclosed spans on tid 14045",
+    "1 unclosed spans on tid 14043",
+    "1 unclosed spans on tid 14054",
+    "1 unclosed spans on tid 14051"
+  ],
+  "gaps": [],
+  "orphan_ends": {
+    "14049": 1,
+    "13992": 1,
+    "14047": 1,
+    "14048": 1,
+    "14050": 1,
+    "14123": 1,
+    "14078": 1,
+    "14081": 1,
+    "14094": 1,
+    "14080": 2,
+    "14045": 1,
+    "14014": 1,
+    "14018": 1,
+    "14043": 3,
+    "14054": 1,
+    "14051": 1
+  },
+  "counters": {
+    "GuestPatch.tmnt_rooftop_v1.submit_begin_ns": 106,
+    "GuestPatch.tmnt_rooftop_v1.submit_elapsed_ns": 106,
+    "GuestPatch.tmnt_rooftop_v1.frame_begin_ns": 106,
+    "GuestPatch.tmnt_rooftop_v1.frame_elapsed_ns": 106,
+    "GuestPatch.tmnt_rooftop_v1.jobs_begin_ns": 860,
+    "GuestPatch.tmnt_rooftop_v1.jobs_elapsed_ns": 860,
+    "GuestPatch.tmnt_rooftop_v1.fmod_begin_ns": 105,
+    "GuestPatch.tmnt_rooftop_v1.fmod_elapsed_ns": 105,
+    "GuestPatch.tmnt_rooftop_v1.begin_begin_ns": 105,
+    "GuestPatch.tmnt_rooftop_v1.begin_elapsed_ns": 105
+  },
+  "phases": [
+    {
+      "tid": 13992,
+      "name": "GuestPatch.tmnt_rooftop_v1.submit",
+      "n": 106,
+      "mean_ms": 43.91125098113208,
+      "p50_ms": 18.935208,
+      "p95_ms": 119.315313,
+      "max_ms": 126.423959,
+      "sum_s": 4.654592604,
+      "hle_union_ms_per_phase": 43.82543836792453,
+      "host_overlap": [
+        {
+          "name": "HLE.sceGnmSubmitAndFlipCommandBuffers",
+          "ms_per_phase": 43.76879770754717
+        },
+        {
+          "name": "GNM.SubmissionGate",
+          "ms_per_phase": 43.506926207547174
+        },
+        {
+          "name": "HLE.sceGnmSubmitDone",
+          "ms_per_phase": 0.04767446226415094
+        },
+        {
+          "name": "GNM.SubmitDone",
+          "ms_per_phase": 0.0383573962264151
+        },
+        {
+          "name": "HLE.gettimeofday",
+          "ms_per_phase": 0.008966198113207547
+        }
+      ]
+    },
+    {
+      "tid": 13992,
+      "name": "GuestPatch.tmnt_rooftop_v1.frame",
+      "n": 106,
+      "mean_ms": 74.70549428301887,
+      "p50_ms": 49.790104,
+      "p95_ms": 146.653073,
+      "max_ms": 153.064583,
+      "sum_s": 7.918782394,
+      "hle_union_ms_per_phase": 58.39201704716981,
+      "host_overlap": [
+        {
+          "name": "HLE.sceGnmSubmitAndFlipCommandBuffers",
+          "ms_per_phase": 43.76879770754717
+        },
+        {
+          "name": "GNM.SubmissionGate",
+          "ms_per_phase": 43.506926207547174
+        },
+        {
+          "name": "HLE.sem_wait",
+          "ms_per_phase": 5.343163858490565
+        },
+        {
+          "name": "HLE.sceGnmDrawIndex",
+          "ms_per_phase": 1.9694592547169811
+        },
+        {
+          "name": "HLE.pthread_mutex_lock",
+          "ms_per_phase": 1.1642073584905661
+        },
+        {
+          "name": "HLE.sceGnmDrawInitDefaultHardwareState350",
+          "ms_per_phase": 1.0776213679245281
+        },
+        {
+          "name": "HLE.scePthreadMutexLock",
+          "ms_per_phase": 0.754189320754717
+        },
+        {
+          "name": "HLE.sceGnmSetPsShader350",
+          "ms_per_phase": 0.6114386698113208
+        },
+        {
+          "name": "HLE.scePthreadMutexUnlock",
+          "ms_per_phase": 0.5965391886792453
+        },
+        {
+          "name": "HLE.sceGnmDrawIndexAuto",
+          "ms_per_phase": 0.5884255566037736
+        },
+        {
+          "name": "HLE.pthread_mutex_unlock",
+          "ms_per_phase": 0.5635683773584906
+        },
+        {
+          "name": "HLE.sceGnmSetVsShader",
+          "ms_per_phase": 0.5172724622641509
+        },
+        {
+          "name": "HLE.sem_post",
+          "ms_per_phase": 0.44911643396226414
+        },
+        {
+          "name": "HLE.sceGnmDispatchDirect",
+          "ms_per_phase": 0.25305604716981134
+        },
+        {
+          "name": "HLE.sceGnmUpdatePsShader350",
+          "ms_per_phase": 0.24566600943396225
+        },
+        {
+          "name": "HLE.sceGnmInsertPushMarker",
+          "ms_per_phase": 0.12809282075471698
+        }
+      ]
+    },
+    {
+      "tid": 13992,
+      "name": "GuestPatch.tmnt_rooftop_v1.jobs",
+      "n": 860,
+      "mean_ms": 0.8275156779069768,
+      "p50_ms": 0.123282,
+      "p95_ms": 3.356875,
+      "max_ms": 16.519167,
+      "sum_s": 0.711663483,
+      "hle_union_ms_per_phase": 0.7516307965116279,
+      "host_overlap": [
+        {
+          "name": "HLE.sem_wait",
+          "ms_per_phase": 0.6585760104651163
+        },
+        {
+          "name": "HLE.pthread_mutex_lock",
+          "ms_per_phase": 0.061015180232558135
+        },
+        {
+          "name": "HLE.pthread_mutex_unlock",
+          "ms_per_phase": 0.017332572093023257
+        },
+        {
+          "name": "HLE.sem_post",
+          "ms_per_phase": 0.012665203488372093
+        },
+        {
+          "name": "HLE.pthread_getspecific",
+          "ms_per_phase": 0.0020418302325581395
+        }
+      ]
+    },
+    {
+      "tid": 13992,
+      "name": "GuestPatch.tmnt_rooftop_v1.fmod",
+      "n": 105,
+      "mean_ms": 0.10181792380952381,
+      "p50_ms": 0.06901,
+      "p95_ms": 0.217656,
+      "max_ms": 0.84724,
+      "sum_s": 0.010690882,
+      "hle_union_ms_per_phase": 0.04325745714285714,
+      "host_overlap": [
+        {
+          "name": "HLE.scePthreadMutexUnlock",
+          "ms_per_phase": 0.0204212
+        },
+        {
+          "name": "HLE.scePthreadMutexLock",
+          "ms_per_phase": 0.01823107619047619
+        },
+        {
+          "name": "HLE.sceKernelClockGettime",
+          "ms_per_phase": 0.004605180952380952
+        }
+      ]
+    },
+    {
+      "tid": 13992,
+      "name": "GuestPatch.tmnt_rooftop_v1.begin",
+      "n": 105,
+      "mean_ms": 1.2687782666666667,
+      "p50_ms": 1.220833,
+      "p95_ms": 1.912709,
+      "max_ms": 2.727136,
+      "sum_s": 0.133221718,
+      "hle_union_ms_per_phase": 1.1217475714285714,
+      "host_overlap": [
+        {
+          "name": "HLE.sceGnmDrawInitDefaultHardwareState350",
+          "ms_per_phase": 1.0878844285714286
+        },
+        {
+          "name": "HLE.sceGnmSetCsShaderWithModifier",
+          "ms_per_phase": 0.013144409523809523
+        },
+        {
+          "name": "HLE.sceGnmInsertWaitFlipDone",
+          "ms_per_phase": 0.01168652380952381
+        },
+        {
+          "name": "HLE.sceGnmDispatchDirect",
+          "ms_per_phase": 0.009032209523809525
+        }
+      ]
+    }
+  ],
+  "gpu": {
+    "GPU.DrawBatch": {
+      "n": 57,
+      "mean_ms": 38.61629854385964,
+      "p50_ms": 63.234321,
+      "p95_ms": 67.006196,
+      "max_ms": 68.10177,
+      "sum_s": 2.201129017
+    },
+    "GPU.GuestCommands": {
+      "n": 57,
+      "mean_ms": 38.38188961403508,
+      "p50_ms": 62.847967,
+      "p95_ms": 66.616196,
+      "max_ms": 67.679374,
+      "sum_s": 2.187767708
+    },
+    "GPU.HostPrepare": {
+      "n": 34,
+      "mean_ms": 0.3907398823529412,
+      "p50_ms": 0.387916,
+      "p95_ms": 0.42073,
+      "max_ms": 0.423907,
+      "sum_s": 0.013285156
+    },
+    "GPU.FSR": {
+      "n": 34,
+      "mean_ms": 0.0005193235294117648,
+      "p50_ms": 0.000521,
+      "p95_ms": 0.000573,
+      "max_ms": 0.000573,
+      "sum_s": 1.7657e-05
+    },
+    "GPU.PostProcess": {
+      "n": 34,
+      "mean_ms": 0.38866726470588236,
+      "p50_ms": 0.385833,
+      "p95_ms": 0.41849,
+      "max_ms": 0.421667,
+      "sum_s": 0.013214687
+    }
+  },
+  "gpu_counters": {
+    "GPU.OverlayRedraw": {
+      "n": 368,
+      "mean_ms": 0.593430875,
+      "p50_ms": 0.577499,
+      "p95_ms": 0.699999,
+      "max_ms": 0.911822,
+      "sum_s": 0.218382562
+    },
+    "GPU.ClockAlignmentUncertaintyNs": {
+      "n": 1057,
+      "mean_ms": 5.01709619205298,
+      "p50_ms": 5.006589,
+      "p95_ms": 5.029583,
+      "max_ms": 5.029583,
+      "sum_s": 5.303070675
+    },
+    "GPU.DrawBatch": {
+      "n": 175,
+      "mean_ms": 39.090324165714286,
+      "p50_ms": 63.354894,
+      "p95_ms": 68.101769,
+      "max_ms": 71.358539,
+      "sum_s": 6.840806729
+    },
+    "GPU.GuestCommands": {
+      "n": 175,
+      "mean_ms": 38.85311061714285,
+      "p50_ms": 62.965415,
+      "p95_ms": 67.679373,
+      "max_ms": 70.929425,
+      "sum_s": 6.799294358
+    },
+    "GPU.HostPrepare": {
+      "n": 105,
+      "mean_ms": 0.3931180285714286,
+      "p50_ms": 0.388802,
+      "p95_ms": 0.422395,
+      "max_ms": 0.427395,
+      "sum_s": 0.041277393
+    },
+    "GPU.FSR": {
+      "n": 105,
+      "mean_ms": 0.0005160380952380952,
+      "p50_ms": 0.00052,
+      "p95_ms": 0.000572,
+      "max_ms": 0.000572,
+      "sum_s": 5.4184e-05
+    },
+    "GPU.PostProcess": {
+      "n": 105,
+      "mean_ms": 0.3910495333333333,
+      "p50_ms": 0.38677,
+      "p95_ms": 0.420156,
+      "max_ms": 0.425104,
+      "sum_s": 0.041060201
+    },
+    "GPU.BlankFlip": {
+      "n": 368,
+      "mean_ms": 0.0005144891304347826,
+      "p50_ms": 0.00052,
+      "p95_ms": 0.00052,
+      "max_ms": 0.000572,
+      "sum_s": 0.000189332
+    },
+    "GPU.Present": {
+      "n": 105,
+      "mean_ms": 0.580771819047619,
+      "p50_ms": 0.58151,
+      "p95_ms": 0.629479,
+      "max_ms": 0.654895,
+      "sum_s": 0.060981041
+    },
+    "GPU.GuestFrame": {
+      "n": 104,
+      "mean_ms": 64.73403640384615,
+      "p50_ms": 64.347602,
+      "p95_ms": 69.093227,
+      "max_ms": 70.929946,
+      "sum_s": 6.732339786
+    }
+  },
+  "cpu": [
+    {
+      "tid": 13992,
+      "name": "GNM.SubmissionGate",
+      "n": 212,
+      "mean_ms": 21.753463103773587,
+      "p50_ms": 0.000417,
+      "p95_ms": 117.162083,
+      "max_ms": 125.66875,
+      "sum_s": 4.611734178
+    },
+    {
+      "tid": 13992,
+      "name": "GNM.SubmitDone",
+      "n": 106,
+      "mean_ms": 0.0383573962264151,
+      "p50_ms": 0.031823,
+      "p95_ms": 0.072657,
+      "max_ms": 0.181719,
+      "sum_s": 0.004065884
+    },
+    {
+      "tid": 14012,
+      "name": "Vulkan.EndCommandBuffer",
+      "n": 175,
+      "mean_ms": 0.00176604,
+      "p50_ms": 0.000625,
+      "p95_ms": 0.005729,
+      "max_ms": 0.010677,
+      "sum_s": 0.000309057
+    },
+    {
+      "tid": 14012,
+      "name": "Vulkan.ImGuiUploads",
+      "n": 175,
+      "mean_ms": 0.0004500228571428572,
+      "p50_ms": 0.000365,
+      "p95_ms": 0.000937,
+      "max_ms": 0.001719,
+      "sum_s": 7.8754e-05
+    },
+    {
+      "tid": 14043,
+      "name": "Vulkan.ReshapeStatus",
+      "n": 841,
+      "mean_ms": 0.0005994209274673009,
+      "p50_ms": 0.000521,
+      "p95_ms": 0.001094,
+      "max_ms": 0.003282,
+      "sum_s": 0.000504113
+    },
+    {
+      "tid": 14043,
+      "name": "Vulkan.RefreshTimeline",
+      "n": 841,
+      "mean_ms": 0.00027825089179548155,
+      "p50_ms": 0.00026,
+      "p95_ms": 0.000573,
+      "max_ms": 0.001615,
+      "sum_s": 0.000234009
+    },
+    {
+      "tid": 14043,
+      "name": "Vulkan.GpuQueryCollect",
+      "n": 841,
+      "mean_ms": 0.0032985350772889417,
+      "p50_ms": 0.002969,
+      "p95_ms": 0.005312,
+      "max_ms": 0.054166,
+      "sum_s": 0.002774068
+    },
+    {
+      "tid": 14043,
+      "name": "Vulkan.NextCommandBuffer",
+      "n": 841,
+      "mean_ms": 0.01343302853745541,
+      "p50_ms": 0.011146,
+      "p95_ms": 0.021355,
+      "max_ms": 0.732917,
+      "sum_s": 0.011297177
+    },
+    {
+      "tid": 14043,
+      "name": "Vulkan.RetireOperations",
+      "n": 841,
+      "mean_ms": 0.0006586302021403092,
+      "p50_ms": 0.000625,
+      "p95_ms": 0.001093,
+      "max_ms": 0.002344,
+      "sum_s": 0.000553908
+    },
+    {
+      "tid": 14043,
+      "name": "Present.QueueLock",
+      "n": 473,
+      "mean_ms": 0.2710768921775899,
+      "p50_ms": 0.00125,
+      "p95_ms": 0.031407,
+      "max_ms": 63.727761,
+      "sum_s": 0.12821937
+    },
+    {
+      "tid": 14043,
+      "name": "Present.DriverCall",
+      "n": 473,
+      "mean_ms": 0.10960129598308667,
+      "p50_ms": 0.063958,
+      "p95_ms": 0.320834,
+      "max_ms": 0.489427,
+      "sum_s": 0.051841413
+    },
+    {
+      "tid": 14043,
+      "name": "Present.AcquireImage",
+      "n": 473,
+      "mean_ms": 0.017444507399577168,
+      "p50_ms": 0.015625,
+      "p95_ms": 0.026563,
+      "max_ms": 0.11276,
+      "sum_s": 0.008251252
+    },
+    {
+      "tid": 14012,
+      "name": "Vulkan.SubmitLock",
+      "n": 175,
+      "mean_ms": 16.59177712,
+      "p50_ms": 0.001875,
+      "p95_ms": 57.624427,
+      "max_ms": 64.835417,
+      "sum_s": 2.903560996
+    },
+    {
+      "tid": 14012,
+      "name": "Vulkan.Submit",
+      "n": 175,
+      "mean_ms": 17.24059941142857,
+      "p50_ms": 0.041614,
+      "p95_ms": 65.133333,
+      "max_ms": 68.204687,
+      "sum_s": 3.017104897
+    },
+    {
+      "tid": 14012,
+      "name": "Vulkan.ReshapeStatus",
+      "n": 175,
+      "mean_ms": 0.0007516971428571428,
+      "p50_ms": 0.000625,
+      "p95_ms": 0.001406,
+      "max_ms": 0.004636,
+      "sum_s": 0.000131547
+    },
+    {
+      "tid": 14012,
+      "name": "Vulkan.RefreshTimeline",
+      "n": 175,
+      "mean_ms": 0.0003681657142857143,
+      "p50_ms": 0.000261,
+      "p95_ms": 0.000782,
+      "max_ms": 0.002188,
+      "sum_s": 6.4429e-05
+    },
+    {
+      "tid": 14012,
+      "name": "Vulkan.GpuQueryCollect",
+      "n": 175,
+      "mean_ms": 0.004853302857142857,
+      "p50_ms": 0.004167,
+      "p95_ms": 0.009115,
+      "max_ms": 0.026719,
+      "sum_s": 0.000849328
+    },
+    {
+      "tid": 14012,
+      "name": "Vulkan.NextCommandBuffer",
+      "n": 175,
+      "mean_ms": 0.017664365714285715,
+      "p50_ms": 0.015469,
+      "p95_ms": 0.033802,
+      "max_ms": 0.058229,
+      "sum_s": 0.003091264
+    },
+    {
+      "tid": 14012,
+      "name": "Vulkan.RetireOperations",
+      "n": 175,
+      "mean_ms": 0.03411606285714286,
+      "p50_ms": 0.044791,
+      "p95_ms": 0.085521,
+      "max_ms": 0.127083,
+      "sum_s": 0.005970311
+    },
+    {
+      "tid": 14012,
+      "name": "Vulkan.SubmitExecution",
+      "n": 175,
+      "mean_ms": 33.91453246857143,
+      "p50_ms": 49.140885,
+      "p95_ms": 65.317031,
+      "max_ms": 68.519375,
+      "sum_s": 5.935043182
+    },
+    {
+      "tid": 14014,
+      "name": "Vulkan.CompletionWait",
+      "n": 175,
+      "mean_ms": 39.29289254285714,
+      "p50_ms": 63.825885,
+      "p95_ms": 68.627135,
+      "max_ms": 71.855364,
+      "sum_s": 6.876256195
+    },
+    {
+      "tid": 14016,
+      "name": "Vulkan.CompletionWait",
+      "n": 472,
+      "mean_ms": 3.696749565677966,
+      "p50_ms": 0.993958,
+      "p95_ms": 1.97651,
+      "max_ms": 70.493646,
+      "sum_s": 1.744865795
+    },
+    {
+      "tid": 14043,
+      "name": "Vulkan.EndCommandBuffer",
+      "n": 840,
+      "mean_ms": 0.001550604761904762,
+      "p50_ms": 0.00125,
+      "p95_ms": 0.002291,
+      "max_ms": 0.055834,
+      "sum_s": 0.001302508
+    },
+    {
+      "tid": 14043,
+      "name": "Vulkan.ImGuiUploads",
+      "n": 840,
+      "mean_ms": 0.00042455357142857144,
+      "p50_ms": 0.000365,
+      "p95_ms": 0.000782,
+      "max_ms": 0.001562,
+      "sum_s": 0.000356625
+    },
+    {
+      "tid": 14043,
+      "name": "Vulkan.SubmitLock",
+      "n": 840,
+      "mean_ms": 3.329572035714286,
+      "p50_ms": 0.002083,
+      "p95_ms": 49.503958,
+      "max_ms": 67.43,
+      "sum_s": 2.79684051
+    },
+    {
+      "tid": 14043,
+      "name": "Vulkan.Submit",
+      "n": 840,
+      "mean_ms": 4.066590602380952,
+      "p50_ms": 0.033802,
+      "p95_ms": 58.456407,
+      "max_ms": 70.274323,
+      "sum_s": 3.415936106
+    },
+    {
+      "tid": 14043,
+      "name": "Vulkan.SubmitExecution",
+      "n": 840,
+      "mean_ms": 7.436436070238095,
+      "p50_ms": 0.07349,
+      "p95_ms": 63.101563,
+      "max_ms": 117.419792,
+      "sum_s": 6.246606299
+    },
+    {
+      "tid": 14043,
+      "name": "Present.Frame",
+      "n": 472,
+      "mean_ms": 13.408401853813558,
+      "p50_ms": 0.949323,
+      "p95_ms": 65.899375,
+      "max_ms": 118.832604,
+      "sum_s": 6.328765675
+    },
+    {
+      "tid": 14043,
+      "name": "VideoOut.Flip",
+      "n": 105,
+      "mean_ms": 53.16472423809524,
+      "p50_ms": 61.232448,
+      "p95_ms": 71.076614,
+      "max_ms": 118.853282,
+      "sum_s": 5.582296045
+    },
+    {
+      "tid": 14043,
+      "name": "Present.RedrawFenceWait",
+      "n": 368,
+      "mean_ms": 0.8503763125,
+      "p50_ms": 0.894115,
+      "p95_ms": 1.142709,
+      "max_ms": 3.039375,
+      "sum_s": 0.312938483
+    },
+    {
+      "tid": 14043,
+      "name": "Present.PrepareLastFrame",
+      "n": 368,
+      "mean_ms": 2.139955399456522,
+      "p50_ms": 0.96099,
+      "p95_ms": 1.300677,
+      "max_ms": 65.655364,
+      "sum_s": 0.787503587
+    },
+    {
+      "tid": 14018,
+      "name": "Vulkan.CompletionWait",
+      "n": 368,
+      "mean_ms": 1.3365564239130434,
+      "p50_ms": 0.225417,
+      "p95_ms": 0.652657,
+      "max_ms": 69.465573,
+      "sum_s": 0.491852764
+    },
+    {
+      "tid": 14012,
+      "name": "Present.FreeFrameWait",
+      "n": 104,
+      "mean_ms": 0.02767683653846154,
+      "p50_ms": 0.024636,
+      "p95_ms": 0.053229,
+      "max_ms": 0.078489,
+      "sum_s": 0.002878391
+    },
+    {
+      "tid": 14012,
+      "name": "Present.FrameFenceWait",
+      "n": 104,
+      "mean_ms": 0.02744043269230769,
+      "p50_ms": 0.026875,
+      "p95_ms": 0.038646,
+      "max_ms": 0.057292,
+      "sum_s": 0.002853805
+    },
+    {
+      "tid": 14012,
+      "name": "VideoOut.Prepare",
+      "n": 104,
+      "mean_ms": 18.458605721153848,
+      "p50_ms": 0.173906,
+      "p95_ms": 58.571615,
+      "max_ms": 62.012083,
+      "sum_s": 1.919694995
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+decoded video=12 audio=90 callbacks=23 events=1 reads=11
+FAIL 290: call("ET4Gr-Uu07s", {he}) == 0
+FAIL 296: event_video
+FAIL 299: call("9y5v+fGN4Wk", {he}) == 0
+FAIL 303: pause_entered
+FAIL 305: call("w5moABNwnRY", {he}) == 0
+FAIL 307: close_events.wait_for(std::chrono::milliseconds(30)) == std::future_status::timeout
+FAIL 310: play_events == played + 1
+guest_avplayer_tests: 1130 checks, 7 failures

@@ -26,6 +26,10 @@ def source_identity():
     paths += [p for folder in ("src", "cmake", "tests/host_runtime")
               for p in (ROOT / folder).rglob("*")
               if p.is_file() and "__pycache__" not in p.parts and p.suffix != ".pyc"]
+    # Foundation audio may be an uncommitted child during local iteration;
+    # the parent's old gitlink alone cannot identify code compiled into host.
+    paths += [p for p in (ROOT / "foundation/modules/audio").rglob("*")
+              if p.is_file() and (p.suffix in (".h", ".cpp", ".cmake") or p.name == "CMakeLists.txt")]
     return {"files": {str(p.relative_to(ROOT)): sha(p) for p in sorted(set(paths))},
             "gitlinks": [line for line in capture(["git", "ls-files", "--stage"]).splitlines()
                          if line.startswith("160000 ")]}

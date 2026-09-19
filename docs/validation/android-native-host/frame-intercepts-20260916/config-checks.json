@@ -1,0 +1,26 @@
+{
+  "spatial-debug-tool": {
+    "configuration_preserved": true,
+    "command_exists": true
+  },
+  "scrcpy": {
+    "configuration_preserved": true,
+    "command_exists": true
+  },
+  "native-debugger": {
+    "configuration_preserved": true,
+    "command_exists": true
+  },
+  "gpu-snapshot": {
+    "configuration_preserved": true,
+    "command_exists": true
+  },
+  "ptracy": {
+    "configuration_preserved": true,
+    "command_exists": true
+  },
+  "renderdoc": {
+    "configuration_preserved": true,
+    "command_exists": true
+  }
+}

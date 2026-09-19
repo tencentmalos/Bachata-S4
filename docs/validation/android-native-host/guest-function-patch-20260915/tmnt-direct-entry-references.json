@@ -1,0 +1,20 @@
+{
+  "source": "build/audio-design-audit/fmodstudio-all.txt",
+  "branches": [
+    {
+      "target": "0x953e0",
+      "line": "91d30: e9 ab 36 00 00               \tjmp\t0x953e0 <PT_LOAD#0+0x953e0>",
+      "interior": false
+    },
+    {
+      "target": "0x95560",
+      "line": "91d40: e9 1b 38 00 00               \tjmp\t0x95560 <PT_LOAD#0+0x95560>",
+      "interior": false
+    },
+    {
+      "target": "0x95330",
+      "line": "91d50: e9 db 35 00 00               \tjmp\t0x95330 <PT_LOAD#0+0x95330>",
+      "interior": false
+    }
+  ]
+}

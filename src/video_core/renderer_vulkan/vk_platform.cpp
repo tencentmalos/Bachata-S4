@@ -301,7 +301,7 @@ vk::UniqueInstance CreateInstance(Frontend::WindowSystemType window_type, bool e
     PFN_vkGetInstanceProcAddr entry = driver ? driver->entry : nullptr;
 #if defined(__ANDROID__)
     if (!entry)
-        throw std::runtime_error("Android Vulkan requires an explicit verified Turnip lease");
+        throw std::runtime_error("Android Vulkan requires an explicit driver lease");
 #else
     if (!entry) {
         static vk::detail::DynamicLoader dl;

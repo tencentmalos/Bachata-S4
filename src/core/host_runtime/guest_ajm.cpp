@@ -54,7 +54,7 @@ bool IsAjmNid(std::string_view nid) {
 }
 struct GuestAjm::Impl {
     GuestAddressSpace& space;
-    std::recursive_mutex& vm;
+
     std::mutex mutex;
     std::condition_variable_any changed;
     bool stopping{};
@@ -69,10 +69,7 @@ struct GuestAjm::Impl {
     struct Output {
         u64 address{};
         std::vector<u8> bytes;
-        struct Identity {
-            u64 begin, end, generation;
-        };
-        std::vector<Identity> identities;
+        std::vector<GuestAddressSpace::MappingIdentity> identities;
     };
     struct Job {
         AjmJob job;
@@ -101,8 +98,8 @@ struct GuestAjm::Impl {
     u32 next_context{1}, next_batch{1};
     size_t resident{};
     std::jthread worker;
-    Impl(GuestAddressSpace& space, std::recursive_mutex& vm)
-        : space(space), vm(vm), worker([this](std::stop_token stop) { Work(stop); }) {}
+    Impl(GuestAddressSpace& space)
+        : space(space), worker([this](std::stop_token stop) { Work(stop); }) {}
     ~Impl() {
         Stop();
         worker.join();
@@ -124,14 +121,15 @@ struct GuestAjm::Impl {
         Need(Valid(address, bytes, GuestPermission::Read), ORBIS_AJM_ERROR_INVALID_ADDRESS);
         std::vector<u8> data(bytes);
         if (bytes)
-            Need(bool(space.Read(GuestAddress{address}, std::as_writable_bytes(std::span{data}))),
+            Need(bool(space.ReadData(GuestAddress{address},
+                                     std::as_writable_bytes(std::span{data}))),
                  ORBIS_AJM_ERROR_INVALID_ADDRESS);
         return data;
     }
     void Put(u64 address, std::span<const u8> bytes) {
         if (bytes.empty())
             return;
-        auto pin = space.AcquirePinnedSpan({GuestAddress{address}, bytes.size()}, true);
+        auto pin = space.AcquireDataSpan({GuestAddress{address}, bytes.size()}, true);
         Need(bool(pin), ORBIS_AJM_ERROR_INVALID_ADDRESS);
         std::memcpy(pin.Value().WritableBytes().data(), bytes.data(), bytes.size());
     }
@@ -144,15 +142,15 @@ struct GuestAjm::Impl {
              ORBIS_AJM_ERROR_BUFFER_TOO_BIG);
         Need(Valid(chunk.address, chunk.size, GuestPermission::Write),
              ORBIS_AJM_ERROR_INVALID_ADDRESS);
-        // Preserve bytes not written by a decoder (partial PCM or trailing sideband).
-        Output output{chunk.address, Read(chunk.address, chunk.size), {}};
-        for (u64 at = chunk.address, end = at + chunk.size; at < end;) {
-            auto mapping = space.Query(GuestAddress{at});
-            Need(bool(mapping), ORBIS_AJM_ERROR_INVALID_ADDRESS);
-            const u64 next = std::min(end, mapping.Value().range.End());
-            output.identities.push_back({at, next, mapping.Value().mapping_generation});
-            at = next;
-        }
+        // Capture preserved bytes and mapping identity under the same lease.
+        auto pin = space.AcquireDataSpan({GuestAddress{chunk.address}, chunk.size}, true);
+        Need(bool(pin), ORBIS_AJM_ERROR_INVALID_ADDRESS);
+        Output output{chunk.address, std::vector<u8>(chunk.size), {}};
+        std::memcpy(output.bytes.data(), pin.Value().Bytes().data(), chunk.size);
+        auto mapping = space.Query(GuestAddress{chunk.address});
+        Need(bool(mapping), ORBIS_AJM_ERROR_INVALID_ADDRESS);
+        output.identities.push_back(
+            {chunk.address, chunk.address + chunk.size, mapping.Value().mapping_generation});
         total += chunk.size;
         job.outputs.push_back(std::move(output));
         return job.outputs.back();
@@ -302,28 +300,18 @@ struct GuestAjm::Impl {
         batch->error = {};
     }
     void Publish(Batch& batch) {
-        // Short publication under the same gate as all production VM mutations.
-        // Check every mapping before acquiring all pins: no partial output on a
-        // stale/unmapped destination, including remap to the same VA.
-        std::lock_guard gate(vm);
         if (batch.cancel.stop_requested())
             throw Failure{ORBIS_AJM_ERROR_CANCELLED};
-        std::vector<PinnedSpan> pins;
+        std::vector<GuestAddressSpace::DataRequest> requests;
         for (auto& owned : batch.jobs)
-            for (auto& output : owned->outputs) {
-                for (auto [begin, end, generation] : output.identities) {
-                    for (u64 address = begin; address < end;) {
-                        auto current = space.Query(GuestAddress{address});
-                        Need(current && current.Value().mapping_generation == generation,
-                             ORBIS_AJM_ERROR_INVALID_ADDRESS);
-                        address = std::min(end, current.Value().range.End());
-                    }
-                }
-                auto pin = space.AcquirePinnedSpan(
-                    {GuestAddress{output.address}, output.bytes.size()}, true);
-                Need(bool(pin), ORBIS_AJM_ERROR_INVALID_ADDRESS);
-                pins.push_back(std::move(pin).Value());
-            }
+            for (auto& output : owned->outputs)
+                requests.push_back({{GuestAddress{output.address}, output.bytes.size()},
+                                    GuestPermission::Write,
+                                    output.identities});
+        auto pinned = space.AcquireDataBatch(requests, batch.cancel.get_token());
+        Need(bool(pinned), batch.cancel.stop_requested() ? ORBIS_AJM_ERROR_CANCELLED
+                                                         : ORBIS_AJM_ERROR_INVALID_ADDRESS);
+        auto& pins = pinned.Value();
         size_t i{};
         for (auto& owned : batch.jobs)
             for (auto& output : owned->outputs)
@@ -370,7 +358,7 @@ struct GuestAjm::Impl {
     }
     u64 Wait(const std::array<u64, 10>& a, std::stop_token stop) {
         {
-            std::lock_guard gate(vm);
+
             if (a[3] && !Valid(a[3], sizeof(BatchError), GuestPermission::Write))
                 return u32(ORBIS_AJM_ERROR_INVALID_ADDRESS);
         }
@@ -397,10 +385,7 @@ struct GuestAjm::Impl {
             batch->waiting = false;
             return u32(ORBIS_AJM_ERROR_IN_PROGRESS);
         }
-        // Keep the single waiter claim while reacquiring VM -> domain order.
-        lock.unlock();
-        std::lock_guard gate(vm);
-        lock.lock();
+        // The batch remains claimed by this waiter through its result copy.
         try {
             if (a[3])
                 Put(a[3], batch->error);
@@ -427,8 +412,14 @@ struct GuestAjm::Impl {
             std::vector<u8> data(size);
             const void* inner{};
             BatchJobInlineBuffer(data.data(), input.data(), input.size(), &inner);
-            Put(a[0], std::span<const u8>(data));
-            Put(a[3], a[0] + 8);
+            const std::array<GuestAddressSpace::DataRequest, 2> requests{
+                {{{GuestAddress{a[0]}, data.size()}, GuestPermission::Write},
+                 {{GuestAddress{a[3]}, 8}, GuestPermission::Write}}};
+            auto pinned = space.AcquireDataBatch(requests);
+            Need(bool(pinned), ORBIS_AJM_ERROR_INVALID_ADDRESS);
+            const u64 address = a[0] + 8;
+            std::memcpy(pinned.Value()[0].WritableBytes().data(), data.data(), data.size());
+            std::memcpy(pinned.Value()[1].WritableBytes().data(), &address, 8);
             return a[0] + size;
         }
         Need(a[1] <= 0xfffff, ORBIS_AJM_ERROR_INVALID_INSTANCE);
@@ -482,7 +473,7 @@ struct GuestAjm::Impl {
             return Wait(a, stop);
         const bool builder = nid == "dmDybN--Fn8" || nid == "stlghnic3Jc" || nid == "ElslOCpOIns" ||
                              nid == "7jdAXK+2fMo";
-        std::lock_guard gate(vm);
+
         std::lock_guard lock(mutex);
         if (stopping || stop.stop_requested())
             return builder ? 0 : u32(ORBIS_AJM_ERROR_CANCELLED);
@@ -616,8 +607,7 @@ struct GuestAjm::Impl {
         }
     }
 };
-GuestAjm::GuestAjm(GuestAddressSpace& space, std::recursive_mutex& vm)
-    : impl(std::make_unique<Impl>(space, vm)) {}
+GuestAjm::GuestAjm(GuestAddressSpace& space) : impl(std::make_unique<Impl>(space)) {}
 GuestAjm::~GuestAjm() = default;
 u64 GuestAjm::Dispatch(std::string_view nid, const std::array<u64, 10>& args,
                        std::stop_token cancel) {

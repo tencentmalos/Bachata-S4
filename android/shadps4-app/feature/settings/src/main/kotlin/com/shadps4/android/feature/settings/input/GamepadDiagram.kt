@@ -147,7 +147,7 @@ private fun DiagramZone(
     height: Int = 56,
     circular: Boolean = false,
 ) {
-    val binding: PhysicalBinding? = profile.bindings[control]
+    val binding: PhysicalBinding? = profile.bindingFor(control)
     val isCapturing = capturingControl == control
     val isFocused = focusedControl == control
     val shape = if (circular) CircleShape else RoundedCornerShape(10.dp)

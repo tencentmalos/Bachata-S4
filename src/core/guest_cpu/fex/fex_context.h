@@ -19,6 +19,7 @@
 #include <cstdint>
 
 #include "core/guest_cpu/api/context.h"
+#include "core/guest_cpu/debug/target.h"
 
 namespace Core::GuestCpu::Fex {
 
@@ -29,11 +30,17 @@ namespace Core::GuestCpu::Fex {
                                                                    GuestAddressSpace& space);
 
 [[nodiscard]] BackendCapabilities QueryFexCapabilities();
+// Valid only for this live context. The transport must stop before destruction.
+Debug::Target& FexDebugTarget(CpuContext& context);
 
 // Install a typed native HLE function on a FEX context and return the guest operation number. The
 // guest places that number in rax before the syscall gate; arguments follow the SysV callgate (r10
 // holding the 4th integer). Typed by the adapter layer so this header stays free of FEX types.
 void* FexHleRegistryPointer(CpuContext& context);
+
+// Configure before creating owners. The context owns the opened descriptor;
+// fatal JIT faults write bounded evidence without allocating or taking locks.
+Status SetFexFatalLog(CpuContext& context, const char* path);
 
 #if defined(GUEST_CPU_TEST_HOOKS)
 // Test-only deterministic Run-entry delay (G24). Compiled ONLY into test builds; release products
@@ -85,6 +92,8 @@ public:
                              std::uint64_t invocation, std::uint64_t timeout_ms) = 0;
 };
 
+struct FexDebugCounters { std::uint64_t memory_observers{}, native_captures{}; };
+FexDebugCounters FexTestDebugCounters(CpuContext& context);
 void* FexTestRunGatePointer(CpuContext& context);
 // Test-only hold between release observation and continuation admission.
 void* FexTestContinuationGatePointer(CpuContext& context);

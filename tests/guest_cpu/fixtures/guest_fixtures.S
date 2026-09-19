@@ -1,6 +1,36 @@
 .text
 .intel_syntax noprefix
 
+// Debugger path: instruction boundaries include memory, SSE, call/ret and a
+// breakpoint whose successor must remain unexecuted until Continue.
+.globl fixture_debugger
+.globl fixture_debugger_end
+fixture_debugger:
+    mov eax, 7                 // 0 -> 5
+    mov qword ptr [rdi], rax    // 5 -> 8
+    movq xmm0, rax             // 8 -> 13
+    paddq xmm0, xmm0           // 13 -> 17
+    call 1f                   // 17 -> 26
+    int3                      // 22 -> 23, rax still 8
+    add eax, 2                // 23 -> 26
+1:  inc eax                   // 26 -> 28
+    ret                       // 28 -> saved return address
+fixture_debugger_end:
+
+.globl fixture_debug_self
+.globl fixture_debug_self_end
+fixture_debug_self:
+1:  jmp 1b
+fixture_debug_self_end:
+
+.globl fixture_debug_flags
+.globl fixture_debug_flags_end
+fixture_debug_flags:
+    pushfq
+    popfq
+    iretq
+fixture_debug_flags_end:
+
 // Distinct results at the same guest VA expose stale shared/local translations.
 .globl fixture_constant_a
 .globl fixture_constant_a_end
@@ -371,6 +401,27 @@ fixture_invoke_hle_chain:
     ret
 fixture_invoke_hle_chain_end:
 
+// Repeated native calls within one live Run frame. RSI is a typed add-one veneer.
+.globl fixture_debug_hle_hot_loop
+.globl fixture_debug_hle_hot_loop_end
+fixture_debug_hle_hot_loop:
+    push rbx
+    push r12
+    sub rsp, 8
+    mov r12, rsi
+    mov ebx, 1000
+    xor edi, edi
+1:
+    call r12
+    mov rdi, rax
+    dec ebx
+    jnz 1b
+    add rsp, 8
+    pop r12
+    pop rbx
+    ret
+fixture_debug_hle_hot_loop_end:
+
 // Entire function is a conditional self-loop after warm-up. A native counter
 // proves thousands of real backedges before the coordinator requests a stop.
 .globl fixture_entry_backedge
@@ -383,3 +434,83 @@ fixture_entry_backedge:
     mov eax, 123
     ret
 fixture_entry_backedge_end:
+
+// Host Orbis TSC calls use CNTVCT directly. Both x86 timestamp instructions
+// must stay in that same domain; CPUID crystal frequency must agree as well.
+.globl fixture_clock_domain
+.globl fixture_clock_domain_end
+fixture_clock_domain:
+    rdtsc
+    shl rdx, 32
+    or rax, rdx
+    mov r8, rax
+    rdtscp
+    shl rdx, 32
+    or rax, rdx
+    mov r9, rax
+    mov eax, 0x15
+    xor ecx, ecx
+    cpuid
+    movabs r15, 0x1122334455667788
+    jmp r15
+fixture_clock_domain_end:
+
+// Observable scalar/same-value/atomic/vector accesses, with flags live across them.
+.globl fixture_debug_watch
+.globl fixture_debug_watch_end
+fixture_debug_watch:
+.Ldebug_watch:
+    mov eax, 7
+    stc
+    mov [rdi], rax
+    mov rcx, [rdi]
+    mov [rdi], rax
+    adc rcx, 0
+    lock add qword ptr [rdi], 1
+    movdqu xmm0, [rdi]
+    movdqu [rdi + 16], xmm0
+    push rax
+    pop rbx
+    int3
+    jmp .Ldebug_watch
+fixture_debug_watch_end:
+.globl fixture_debug_watch_bulk
+.globl fixture_debug_watch_bulk_end
+fixture_debug_watch_bulk:
+    rep movsb
+    int3
+fixture_debug_watch_bulk_end:
+
+.globl fixture_debug_frame_chain
+.globl fixture_debug_frame_chain_end
+fixture_debug_frame_chain:
+    push rbp
+    mov rbp, rsp
+    call .Ldebug_inner
+    leave
+    ret
+.Ldebug_inner:
+    push rbp
+    mov rbp, rsp
+    int3
+    leave
+    ret
+fixture_debug_frame_chain_end:
+
+.globl fixture_debug_watch_server
+.globl fixture_debug_watch_server_end
+fixture_debug_watch_server:
+.Lwatch_server:
+    mov eax, 7
+    mov [rdi], rax
+    mov rcx, [rdi]
+    movntdq [rdi], xmm0
+    jmp .Lwatch_server
+fixture_debug_watch_server_end:
+
+.globl fixture_debug_watch_nt
+.globl fixture_debug_watch_nt_end
+fixture_debug_watch_nt:
+    movntdq [rdi], xmm0
+    int3
+fixture_debug_watch_nt_end:

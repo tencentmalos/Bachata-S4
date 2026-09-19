@@ -9,9 +9,20 @@
 
 namespace Libraries::Hmd {
 
-s32 PS4_SYSV_ABI sceHmdReprojectionStartMultilayer() {
-    LOG_ERROR(Lib_Hmd, "(STUBBED) called");
-    return ORBIS_OK;
+s32 PS4_SYSV_ABI sceHmdReprojectionStartMultilayer(const void* layers, u32 layer_count,
+                                               const void* submission,
+                                               const void* shared_layer_data,
+                                               u64 opaque_arg4, const void* reserved) {
+    LOG_ERROR(Lib_Hmd, "(INCOMPLETE ABI) sceHmdReprojectionStartMultilayer requires a layer record");
+    (void)opaque_arg4;
+    if (shared_layer_data == nullptr || layers == nullptr || submission == nullptr)
+        return ORBIS_HMD_ERROR_PARAMETER_NULL;
+    if (reserved != nullptr ||
+        layer_count == 0 || layer_count > 3)
+        return ORBIS_HMD_ERROR_PARAMETER_INVALID;
+    // Layout recovery is incomplete and no GPU provider consumes these
+    // records. A valid outer shape must not imply a successful frame submit.
+    return ORBIS_HMD_ERROR_UNSUPPORTED_FEATURE;
 }
 
 s32 PS4_SYSV_ABI sceHmdReprojectionAddDisplayBuffer() {
@@ -49,9 +60,17 @@ s32 PS4_SYSV_ABI sceHmdReprojectionFinalizeCapture() {
     return ORBIS_OK;
 }
 
-s32 PS4_SYSV_ABI sceHmdReprojectionInitialize() {
+s32 PS4_SYSV_ABI sceHmdReprojectionInitialize(
+    const OrbisHmdReprojectionInitializeParam* param, u32 mode, const void* reserved) {
     LOG_ERROR(Lib_Hmd, "(STUBBED) called");
-    return ORBIS_OK;
+    // Firmware 11.00 checks all three ABI arguments before allocating its
+    // internal context.  Keep this check in the HLE boundary; the object is a
+    // guest pointer and must not be dereferenced by a host scalar adapter.
+    if (param == nullptr || reserved != nullptr || mode > 2 || param->opaque0 == 0 ||
+        param->opaque8 == 0 || param->selector20 > 6 || param->selector24 > 7 ||
+        param->reserved28 != 0 || param->reserved2c != 0 || param->reserved30 != 0)
+        return ORBIS_HMD_ERROR_PARAMETER_INVALID;
+    return ORBIS_HMD_ERROR_UNSUPPORTED_FEATURE;
 }
 
 s32 PS4_SYSV_ABI sceHmdReprojectionInitializeCapture() {
@@ -80,13 +99,18 @@ s32 PS4_SYSV_ABI sceHmdReprojectionSetCallback() {
     return ORBIS_OK;
 }
 
-s32 PS4_SYSV_ABI sceHmdReprojectionSetDisplayBuffers() {
-    LOG_ERROR(Lib_Hmd, "(STUBBED) called");
-    return ORBIS_OK;
+s32 PS4_SYSV_ABI sceHmdReprojectionSetDisplayBuffers(s32 video_handle, s32 buffer_index0,
+                                                      s32 buffer_index1, const void* reserved) {
+    LOG_ERROR(Lib_Hmd, "(INCOMPLETE ABI) sceHmdReprojectionSetDisplayBuffers requires buffer arguments");
+    (void)video_handle; (void)buffer_index0; (void)buffer_index1;
+    if (reserved != nullptr || buffer_index0 == buffer_index1)
+        return ORBIS_HMD_ERROR_PARAMETER_INVALID;
+    return ORBIS_HMD_ERROR_PARAMETER_INVALID;
 }
 
-s32 PS4_SYSV_ABI sceHmdReprojectionSetOutputMinColor() {
+s32 PS4_SYSV_ABI sceHmdReprojectionSetOutputMinColor(float red, float green, float blue) {
     LOG_ERROR(Lib_Hmd, "(STUBBED) called");
+    (void)red; (void)green; (void)blue;
     return ORBIS_OK;
 }
 
@@ -100,9 +124,10 @@ s32 PS4_SYSV_ABI sceHmdReprojectionSetUserEventStart() {
     return ORBIS_OK;
 }
 
-s32 PS4_SYSV_ABI sceHmdReprojectionStart() {
-    LOG_ERROR(Lib_Hmd, "(STUBBED) called");
-    return ORBIS_OK;
+s32 PS4_SYSV_ABI sceHmdReprojectionStart(const void* start_param) {
+    LOG_ERROR(Lib_Hmd, "(INCOMPLETE ABI) sceHmdReprojectionStart requires a start record");
+    (void)start_param;
+    return ORBIS_HMD_ERROR_PARAMETER_INVALID;
 }
 
 s32 PS4_SYSV_ABI sceHmdReprojectionStart2dVr() {

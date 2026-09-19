@@ -6,6 +6,7 @@
 #include "core/libraries/libs.h"
 #include "core/libraries/network/http.h"
 #include "core/libraries/network/http2.h"
+#include "core/libraries/network/http2_async_policy.h"
 
 #include <map>
 #include <mutex>
@@ -216,8 +217,8 @@ s32 PS4_SYSV_ABI sceHttp2ReadData(s32 req_id, void* data, u64 size) {
 }
 
 s32 PS4_SYSV_ABI sceHttp2ReadDataAsync() {
-    LOG_ERROR(Lib_Http2, "(STUBBED) called");
-    return ORBIS_OK;
+    LOG_ERROR(Lib_Http2, "Async read unavailable; no operation accepted");
+    return UnavailableAsyncResult();
 }
 
 s32 PS4_SYSV_ABI sceHttp2RedirectCacheFlush() {
@@ -240,8 +241,8 @@ s32 PS4_SYSV_ABI sceHttp2SendRequest(s32 req_id, const void* data, u64 size) {
 }
 
 s32 PS4_SYSV_ABI sceHttp2SendRequestAsync() {
-    LOG_ERROR(Lib_Http2, "(STUBBED) called");
-    return ORBIS_OK;
+    LOG_ERROR(Lib_Http2, "Async send unavailable; no operation accepted");
+    return UnavailableAsyncResult();
 }
 
 s32 PS4_SYSV_ABI sceHttp2SetAuthEnabled() {
@@ -379,8 +380,8 @@ s32 PS4_SYSV_ABI sceHttp2Term(s32 ctx_id) {
 }
 
 s32 PS4_SYSV_ABI sceHttp2WaitAsync() {
-    LOG_ERROR(Lib_Http2, "(STUBBED) called");
-    return ORBIS_OK;
+    LOG_ERROR(Lib_Http2, "Async completion unavailable; no fabricated event");
+    return UnavailableAsyncResult();
 }
 
 void RegisterLib(Core::Loader::SymbolsResolver* sym) {

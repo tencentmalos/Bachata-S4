@@ -1,0 +1,122 @@
+{
+  "schema": "spatial.guest-recompile.contract.v1",
+  "abi": "x86_64-sysv",
+  "identity": {
+    "title": "CUSA50828",
+    "module": "eboot.bin",
+    "module_sha256": "6122da7190de6b08d921b2c42c3ca9ed11dc4d11524f1139ff67aeceea5b204d",
+    "executable_sha256": "6122da7190de6b08d921b2c42c3ca9ed11dc4d11524f1139ff67aeceea5b204d"
+  },
+  "evidence": {
+    "path": "../../../../docs/validation/android-native-host/frame-recompile-20260916/recompile-evidence.json",
+    "sha256": "c6014257f22075baeb799b0043537f87260d7ace5700fd9d9d0a12fe35ae1c7b"
+  },
+  "source_sha256": {
+    "rooftop_recompiled.cpp": "c19854447bd0fa5448e3c3180b4a1346036b28e2f98c32bd4f93acbf45b008d2",
+    "rooftop_types.h": "4b9a563af09da95358741ec19e8a6c026122473ac7aad61f29c3978b2629a1d5",
+    "frame_dispatch.cpp": "11bb73f4ac9a1f6466ba3388152ca00b55166207877ae88ba85c7d865498c438"
+  },
+  "functions": [
+    {
+      "offset": 176240,
+      "replacement": "patch_write_label",
+      "prototype": "shad_u64 original_write_label(TmntCommandBuffer*, TmntU32, shad_u64, TmntU32, TmntU32)",
+      "effects": "TmntCommandBuffer fields 0/8/16/24/32; unsigned low32((end-cursor)>>2); success requires AL, failure retains full RAX. Writes exactly 28 bytes and advances 256, leaving padding unchanged.",
+      "dependencies": [
+        "typed grow callback at +0x2b0ad; guest function pointer in context+0x18, arguments context/u32 minimum/context+0x20"
+      ],
+      "valid_domain": "Original valid command-buffer object and writable capacity; grow callback preserves its original contract.",
+      "review": {
+        "abi": "reviewed",
+        "memory_layout": "reviewed",
+        "indirect_calls": "reviewed",
+        "integer_fp": "reviewed",
+        "relocations_unwind": "reviewed"
+      }
+    },
+    {
+      "offset": 150624,
+      "replacement": "patch_default_state",
+      "prototype": "shad_u64 original_default_state(TmntCommandBuffer*)",
+      "effects": "Capacity check and grow callback; draw-init returns u32 DWORD count, zero-extended then multiplied by 4; reload cursor after external call.",
+      "dependencies": [
+        "typed grow callback at +0x24c8c",
+        "guest_draw_init at eboot+0x15c1a00 remains a guest PLT call"
+      ],
+      "valid_domain": "Original valid command buffer/callback; unsigned wrap and low AL failure retained.",
+      "review": {
+        "abi": "reviewed",
+        "memory_layout": "reviewed",
+        "indirect_calls": "reviewed",
+        "integer_fp": "reviewed",
+        "relocations_unwind": "reviewed"
+      }
+    },
+    {
+      "offset": 103328,
+      "replacement": "patch_submit_packets",
+      "prototype": "shad_u64 original_submit_packets(shad_u64, TmntU32, TmntU32, TmntU32, shad_u64, TmntSubmitContext*)",
+      "effects": "Construct arrays of guest addresses and u32 byte sizes using exact field offsets and low32 modular arithmetic. Ordered single original submit call, with 9 or 10 parameters; no duplicate live GPU submission.",
+      "dependencies": [
+        "guest_submit eboot+0x3d870",
+        "guest_submit_device eboot+0x3d880",
+        "Original compiler canary GOT eboot+0x1d3b1b8 and failure +0x15c1da0 are not game data: compiler-owned stack protection is omitted in freestanding guest code with bounded local arrays; original fallback retains original guard."
+      ],
+      "valid_domain": "Count 0..15 tested. Count>=16 routes to original_submit_packets before output writes; malformed original inputs are not made safe by this recompile.",
+      "review": {
+        "abi": "reviewed",
+        "memory_layout": "reviewed",
+        "indirect_calls": "reviewed",
+        "integer_fp": "reviewed",
+        "relocations_unwind": "reviewed"
+      }
+    },
+    {
+      "offset": 103984,
+      "replacement": "patch_submit_label",
+      "prototype": "shad_u64 original_submit_label(TmntSubmitContext*, TmntU32, TmntU32, TmntU32, shad_u64, TmntU32, shad_u64, TmntU32, TmntU32)",
+      "effects": "Nine SysV arguments, including three stack slots. Ignore write-label result exactly as original, then submit packets; preserves final RAX.",
+      "dependencies": [
+        "patch_write_label replaces original call eboot+0x2b070",
+        "patch_submit_packets replaces original tail transfer eboot+0x193a0"
+      ],
+      "valid_domain": "Same domain as write_label and submit_packets; effect order is write-label/grow before submit even on grow failure.",
+      "review": {
+        "abi": "reviewed",
+        "memory_layout": "reviewed",
+        "indirect_calls": "reviewed",
+        "integer_fp": "reviewed",
+        "relocations_unwind": "reviewed"
+      }
+    },
+    {
+      "offset": 22341264,
+      "replacement": "patch_frame_dispatch",
+      "prototype": "shad_u64 original_frame_dispatch(void* object)",
+      "effects": "Object+24 head/+32 tail/+40 count are cleared with original 16-byte then 4-byte store order; vtable slots 32,40,56,48 are executed in original list order and reloaded after callbacks. Queue lock is guest LOCK CMPXCHG 0->100 and MOV release; mode2 skips current-bank merge, opposite bank merge retained. Returns zero-extended (~index&1)*32.",
+      "dependencies": [
+        "frame_static_nodes binds read-only pointer to original global head at eboot+0x1f0c520; callbacks may change value in original storage.",
+        "frame_queue_mode binds original u32 at eboot+0x1f0c534, read before acquiring object+48 queue.",
+        "Indirect virtual calls retain original guest node and reloaded vtable; normal SysV method void(void*). No host substitution or copied lists.",
+        "RDI only live input, XMM0 overwritten at original VXORPS before semantic use. Stack has no canary or exception landing pad; normal SysV caller-saved registers."
+      ],
+      "valid_domain": "Original valid acyclic node lists, live virtual methods and queue memory; callback mutation of vtable/next/head supported at original reload sites. Contended lock retains original spin protocol; no deadlock/performance improvement claimed. 16 isolated original-machine-code replay scenarios, full 64 KiB scratch and 4 KiB original globals compared with ordered effects.",
+      "review": {
+        "abi": "reviewed",
+        "memory_layout": "reviewed",
+        "indirect_calls": "reviewed",
+        "integer_fp": "reviewed",
+        "relocations_unwind": "reviewed"
+      }
+    }
+  ],
+  "validation": {
+    "method": "original machine-code differential replay in real FEX with isolated VM and recorded external effects",
+    "cases": 40,
+    "checks": 41,
+    "failures": 0,
+    "log": "../../../../docs/validation/android-native-host/guest-recompilation-20260916/replay-2.txt",
+    "log_sha256": "7e19186e0630b82e7d169be997c25b596e53167e46785954f25d059ab3218ab3",
+    "scope": "Return register, 64 KiB guest memory and ordered external calls; 0/15 history, capacity63/64/255/256, grow success/failure, high return bits, 32-bit overflow and nine/ten-argument calls. Not universal equivalence or actual GPU correctness."
+  }
+}

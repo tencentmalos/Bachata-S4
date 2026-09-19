@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include <cstdio>
+#include <cstdlib>
 #include "core/host_runtime/guest_sysmodule_hle.h"
 using namespace Core::HostRuntime;
 using namespace Core::GuestCpu;
@@ -35,9 +36,35 @@ int main() {
             return "missing";
         if (id == 0xe7)
             return "libSceJson2";
+        if (id == 0x8f) return "libSceMove";
+        if (id == 0xd4) return "libSceHmd";
+        if (id == 0xed) return "libSceVrTracker";
+        if (id == 0x8000001a) return "libSceCamera";
+        if (id == 0xeb) return "libSceHmdSetupDialog";
         return {};
     });
     modules.Publish("libSceDiscMap", 31);
+    // Late SBS availability must preserve real providers and API reference
+    // visibility, including the u32 Camera internal ID and unload/reload.
+    modules.Publish("libSceCamera", 99);
+    modules.PublishSbsVrProviders(false);
+    check("flat mode does not publish HMD", modules.Load(0xd4) == ORBIS_SYSMODULE_LOCK_FAILED);
+    modules.PublishSbsVrProviders(true);
+    for (u32 id : {0x8fu, 0xd4u, 0xedu, 0x8000001au, 0xebu}) {
+        check("SBS publication is not a load", modules.Handle(id) == ORBIS_SYSMODULE_NOT_LOADED);
+        s32 vr_handle = -1;
+        check("SBS family load", modules.Load(id) == 0 && modules.Handle(id, &vr_handle) == 0);
+        if (id == 0x8000001a)
+            check("guest Camera provider takes precedence", vr_handle == 99);
+        modules.PublishSbsVrProviders(true);
+        check("SBS repeated load", modules.Load(id) == 0);
+        check("SBS first release retains handle", modules.Unload(id) == 0 && modules.Handle(id) == 0);
+        check("SBS final release hides handle", modules.Unload(id) == 0 && modules.Handle(id) == ORBIS_SYSMODULE_NOT_LOADED);
+        s32 reloaded = -1;
+        check("SBS reload keeps provider identity", modules.Load(id) == 0 && modules.Handle(id, &reloaded) == 0 && reloaded == vr_handle);
+        check("SBS final cleanup", modules.Unload(id) == 0);
+    }
+    check("SBS leaves unrelated missing provider unavailable", modules.Load(0xab) == ORBIS_SYSMODULE_LOCK_FAILED);
     std::array<u64, 6> args{0xd7, 0, 0, 0, base, 0};
     auto load = [&] { return LoadInitializedSysmodule(modules, *space, args); };
     check("prepare sentinel", set(base, 123));

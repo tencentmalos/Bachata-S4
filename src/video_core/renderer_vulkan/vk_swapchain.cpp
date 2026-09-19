@@ -108,7 +108,8 @@ void Swapchain::Recreate(u32 width_, u32 height_) {
 void Swapchain::RebuildSurface() {
     vk::Device device = instance.GetDevice();
     const auto wait_result = [&] {
-        std::scoped_lock lock{Scheduler::submit_mutex};
+        instance.DrainSubmissions();
+        std::scoped_lock lock{instance.QueueMutex()};
         return device.waitIdle();
     }();
     if (wait_result != vk::Result::eSuccess) {
@@ -136,7 +137,8 @@ void Swapchain::SetHDR(bool hdr) {
     }
 
     auto result = [&] {
-        std::scoped_lock lock{Scheduler::submit_mutex};
+        instance.DrainSubmissions();
+        std::scoped_lock lock{instance.QueueMutex()};
         return instance.GetDevice().waitIdle();
     }();
     if (result != vk::Result::eSuccess) {
@@ -347,7 +349,8 @@ void Swapchain::Destroy() {
     vk::Device device = instance.GetDevice();
     // vkDeviceWaitIdle requires external synchronization of every device queue.
     const auto wait_result = [&] {
-        std::scoped_lock lock{Scheduler::submit_mutex};
+        instance.DrainSubmissions();
+        std::scoped_lock lock{instance.QueueMutex()};
         return device.waitIdle();
     }();
     if (wait_result != vk::Result::eSuccess) {

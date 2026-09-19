@@ -1,0 +1,432 @@
+{
+  "schema": "shadps4.guest-patch.counters.v1",
+  "process_id": 32104,
+  "sha256": "ed03b602dc13598b901ed900f57cb0f672a50e2b21d9cfa6dfbe010cbcd11011",
+  "events": 6608311,
+  "chunks_ok": 657,
+  "chunks_skipped": 0,
+  "truncated": true,
+  "diagnostics": [
+    "unbalanced span end on tid 3428",
+    "unbalanced span end on tid 3345",
+    "unbalanced span end on tid 3429",
+    "unbalanced span end on tid 3430",
+    "unbalanced span end on tid 3431",
+    "unbalanced span end on tid 3597",
+    "1 unclosed spans on tid 3345",
+    "1 unclosed spans on tid 3428",
+    "1 unclosed spans on tid 3429",
+    "1 unclosed spans on tid 3430",
+    "1 unclosed spans on tid 3431",
+    "2 unclosed spans on tid 3504",
+    "1 unclosed spans on tid 3500",
+    "1 unclosed spans on tid 3597",
+    "4 unclosed spans on tid 3420",
+    "1 unclosed spans on tid 3379",
+    "1 unclosed spans on tid 3556",
+    "1 unclosed spans on tid 3423",
+    "1 unclosed spans on tid 3436",
+    "1 unclosed spans on tid 3442"
+  ],
+  "counters": {
+    "GuestPatch.tmnt_fmod_studio_v1.update_calls": {
+      "samples": 24,
+      "mean": 1833,
+      "minimum": 1649,
+      "p95": 1985,
+      "maximum": 2017,
+      "host_tids": [
+        3345
+      ]
+    },
+    "GuestPatch.tmnt_fmod_studio_v1.update_ns": {
+      "samples": 24,
+      "mean": 85195.33333333333,
+      "minimum": 17239,
+      "p95": 163490,
+      "maximum": 197292,
+      "host_tids": [
+        3345
+      ]
+    },
+    "GuestPatch.tmnt_fmod_studio_v1.update_result": {
+      "samples": 24,
+      "mean": 0,
+      "minimum": 0,
+      "p95": 0,
+      "maximum": 0,
+      "host_tids": [
+        3345
+      ]
+    }
+  },
+  "observations": {
+    "GuestPatch.tmnt_fmod_studio_v1.update_calls": [
+      {
+        "timestamp_ns": 263366849689066,
+        "host_tid": 3345,
+        "value": 1649
+      },
+      {
+        "timestamp_ns": 263368055879014,
+        "host_tid": 3345,
+        "value": 1665
+      },
+      {
+        "timestamp_ns": 263369338895837,
+        "host_tid": 3345,
+        "value": 1681
+      },
+      {
+        "timestamp_ns": 263370494010420,
+        "host_tid": 3345,
+        "value": 1697
+      },
+      {
+        "timestamp_ns": 263371664838649,
+        "host_tid": 3345,
+        "value": 1713
+      },
+      {
+        "timestamp_ns": 263372947217399,
+        "host_tid": 3345,
+        "value": 1729
+      },
+      {
+        "timestamp_ns": 263374109655420,
+        "host_tid": 3345,
+        "value": 1745
+      },
+      {
+        "timestamp_ns": 263375289088649,
+        "host_tid": 3345,
+        "value": 1761
+      },
+      {
+        "timestamp_ns": 263376558138493,
+        "host_tid": 3345,
+        "value": 1777
+      },
+      {
+        "timestamp_ns": 263377726882660,
+        "host_tid": 3345,
+        "value": 1793
+      },
+      {
+        "timestamp_ns": 263378922007816,
+        "host_tid": 3345,
+        "value": 1809
+      },
+      {
+        "timestamp_ns": 263380191574691,
+        "host_tid": 3345,
+        "value": 1825
+      },
+      {
+        "timestamp_ns": 263381359277608,
+        "host_tid": 3345,
+        "value": 1841
+      },
+      {
+        "timestamp_ns": 263382546783181,
+        "host_tid": 3345,
+        "value": 1857
+      },
+      {
+        "timestamp_ns": 263383828859118,
+        "host_tid": 3345,
+        "value": 1873
+      },
+      {
+        "timestamp_ns": 263384999995889,
+        "host_tid": 3345,
+        "value": 1889
+      },
+      {
+        "timestamp_ns": 263386173475108,
+        "host_tid": 3345,
+        "value": 1905
+      },
+      {
+        "timestamp_ns": 263387413444691,
+        "host_tid": 3345,
+        "value": 1921
+      },
+      {
+        "timestamp_ns": 263388580991410,
+        "host_tid": 3345,
+        "value": 1937
+      },
+      {
+        "timestamp_ns": 263389858308806,
+        "host_tid": 3345,
+        "value": 1953
+      },
+      {
+        "timestamp_ns": 263391015122972,
+        "host_tid": 3345,
+        "value": 1969
+      },
+      {
+        "timestamp_ns": 263392186637504,
+        "host_tid": 3345,
+        "value": 1985
+      },
+      {
+        "timestamp_ns": 263393461028754,
+        "host_tid": 3345,
+        "value": 2001
+      },
+      {
+        "timestamp_ns": 263394623613962,
+        "host_tid": 3345,
+        "value": 2017
+      }
+    ],
+    "GuestPatch.tmnt_fmod_studio_v1.update_ns": [
+      {
+        "timestamp_ns": 263366849767191,
+        "host_tid": 3345,
+        "value": 46198
+      },
+      {
+        "timestamp_ns": 263368055899795,
+        "host_tid": 3345,
+        "value": 17239
+      },
+      {
+        "timestamp_ns": 263369339015993,
+        "host_tid": 3345,
+        "value": 64688
+      },
+      {
+        "timestamp_ns": 263370494138649,
+        "host_tid": 3345,
+        "value": 123646
+      },
+      {
+        "timestamp_ns": 263371664864327,
+        "host_tid": 3345,
+        "value": 21562
+      },
+      {
+        "timestamp_ns": 263372947244952,
+        "host_tid": 3345,
+        "value": 23177
+      },
+      {
+        "timestamp_ns": 263374109677243,
+        "host_tid": 3345,
+        "value": 18021
+      },
+      {
+        "timestamp_ns": 263375289297608,
+        "host_tid": 3345,
+        "value": 191250
+      },
+      {
+        "timestamp_ns": 263376558211618,
+        "host_tid": 3345,
+        "value": 66302
+      },
+      {
+        "timestamp_ns": 263377726994118,
+        "host_tid": 3345,
+        "value": 61198
+      },
+      {
+        "timestamp_ns": 263378922122608,
+        "host_tid": 3345,
+        "value": 98125
+      },
+      {
+        "timestamp_ns": 263380191662556,
+        "host_tid": 3345,
+        "value": 80625
+      },
+      {
+        "timestamp_ns": 263381359380941,
+        "host_tid": 3345,
+        "value": 96719
+      },
+      {
+        "timestamp_ns": 263382546809431,
+        "host_tid": 3345,
+        "value": 21511
+      },
+      {
+        "timestamp_ns": 263383828993233,
+        "host_tid": 3345,
+        "value": 125052
+      },
+      {
+        "timestamp_ns": 263385000160472,
+        "host_tid": 3345,
+        "value": 121563
+      },
+      {
+        "timestamp_ns": 263386173563337,
+        "host_tid": 3345,
+        "value": 83281
+      },
+      {
+        "timestamp_ns": 263387413601931,
+        "host_tid": 3345,
+        "value": 144531
+      },
+      {
+        "timestamp_ns": 263388581107452,
+        "host_tid": 3345,
+        "value": 102500
+      },
+      {
+        "timestamp_ns": 263389858383441,
+        "host_tid": 3345,
+        "value": 67552
+      },
+      {
+        "timestamp_ns": 263391015345837,
+        "host_tid": 3345,
+        "value": 197292
+      },
+      {
+        "timestamp_ns": 263392186665941,
+        "host_tid": 3345,
+        "value": 23802
+      },
+      {
+        "timestamp_ns": 263393461199379,
+        "host_tid": 3345,
+        "value": 163490
+      },
+      {
+        "timestamp_ns": 263394623715524,
+        "host_tid": 3345,
+        "value": 85364
+      }
+    ],
+    "GuestPatch.tmnt_fmod_studio_v1.update_result": [
+      {
+        "timestamp_ns": 263366849769483,
+        "host_tid": 3345,
+        "value": 0
+      },
+      {
+        "timestamp_ns": 263368055901514,
+        "host_tid": 3345,
+        "value": 0
+      },
+      {
+        "timestamp_ns": 263369339018910,
+        "host_tid": 3345,
+        "value": 0
+      },
+      {
+        "timestamp_ns": 263370494140472,
+        "host_tid": 3345,
+        "value": 0
+      },
+      {
+        "timestamp_ns": 263371664866410,
+        "host_tid": 3345,
+        "value": 0
+      },
+      {
+        "timestamp_ns": 263372947246514,
+        "host_tid": 3345,
+        "value": 0
+      },
+      {
+        "timestamp_ns": 263374109678858,
+        "host_tid": 3345,
+        "value": 0
+      },
+      {
+        "timestamp_ns": 263375289300004,
+        "host_tid": 3345,
+        "value": 0
+      },
+      {
+        "timestamp_ns": 263376558214066,
+        "host_tid": 3345,
+        "value": 0
+      },
+      {
+        "timestamp_ns": 263377726999066,
+        "host_tid": 3345,
+        "value": 0
+      },
+      {
+        "timestamp_ns": 263378922125889,
+        "host_tid": 3345,
+        "value": 0
+      },
+      {
+        "timestamp_ns": 263380191664483,
+        "host_tid": 3345,
+        "value": 0
+      },
+      {
+        "timestamp_ns": 263381359383233,
+        "host_tid": 3345,
+        "value": 0
+      },
+      {
+        "timestamp_ns": 263382546811306,
+        "host_tid": 3345,
+        "value": 0
+      },
+      {
+        "timestamp_ns": 263383828997452,
+        "host_tid": 3345,
+        "value": 0
+      },
+      {
+        "timestamp_ns": 263385000162816,
+        "host_tid": 3345,
+        "value": 0
+      },
+      {
+        "timestamp_ns": 263386173566410,
+        "host_tid": 3345,
+        "value": 0
+      },
+      {
+        "timestamp_ns": 263387413606514,
+        "host_tid": 3345,
+        "value": 0
+      },
+      {
+        "timestamp_ns": 263388581109535,
+        "host_tid": 3345,
+        "value": 0
+      },
+      {
+        "timestamp_ns": 263389858385420,
+        "host_tid": 3345,
+        "value": 0
+      },
+      {
+        "timestamp_ns": 263391015349327,
+        "host_tid": 3345,
+        "value": 0
+      },
+      {
+        "timestamp_ns": 263392186667868,
+        "host_tid": 3345,
+        "value": 0
+      },
+      {
+        "timestamp_ns": 263393461211358,
+        "host_tid": 3345,
+        "value": 0
+      },
+      {
+        "timestamp_ns": 263394623717660,
+        "host_tid": 3345,
+        "value": 0
+      }
+    ]
+  },
+  "limits": "Counter observations only; retain trace diagnostics. ns values include clock gateway/scheduling cost. No global lossless/profile causality claim."
+}

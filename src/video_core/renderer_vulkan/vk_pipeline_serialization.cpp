@@ -12,13 +12,13 @@
 
 namespace Serialization {
 /* You should increment versions below once corresponding serialization scheme is changed. */
-static constexpr u32 ShaderBinaryVersion = 4u;
+static constexpr u32 ShaderBinaryVersion = 7u; // preserve viewport depth transform and clip planes
 #ifdef ARCH_X86_64
-static constexpr u32 ShaderMetaVersion = 4u; // invalidate pre-alias-fix flattened layouts
+static constexpr u32 ShaderMetaVersion = 6u; // invalidate pre-alias-fix flattened layouts
 #else
-static constexpr u32 ShaderMetaVersion = 5u; // portable SRT plan; never native x86 bytes
+static constexpr u32 ShaderMetaVersion = 7u; // portable SRT plan; never native x86 bytes
 #endif
-static constexpr u32 PipelineKeyVersion = 3u;
+static constexpr u32 PipelineKeyVersion = 5u; // auxiliary interfaces follow current vertex exports
 } // namespace Serialization
 
 namespace Vulkan {

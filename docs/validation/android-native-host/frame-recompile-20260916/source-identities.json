@@ -1,0 +1,14 @@
+{
+  "main_head": "4da582b7b3a36d74403a4985c3c03f37e570bcb7",
+  "source_sha256": {
+    "src/core/host_runtime/guest_auto_tag.cpp": "d548111770c6d6c2d480aceb652875933c06d5c124e029a4e97c0b6ebdf210e2",
+    "tests/guest_cpu/guest_patch_tests.cpp": "e64022ddc07df0be9ca5447d98b133f4e7773697ed81f924b8202604632f6f6f",
+    "tests/guest_cpu/tmnt_frame_dispatch_tests.h": "2d4e7b02a3955574f2fcfa9d4e7fec5c526f37902cb1eaf7e29bd5f1f8a28bc7",
+    "guest/games/CUSA50828/01.08/frame_dispatch.cpp": "11bb73f4ac9a1f6466ba3388152ca00b55166207877ae88ba85c7d865498c438",
+    "guest/games/CUSA50828/01.08/frame_recompiled.recipe.json": "ddc155f54970ee99ed72f796aa0282ae19b40a295067c5c5faf670911af52bd5",
+    "guest/games/CUSA50828/01.08/frame-recompile.contract.json": "f528b64d59878c6da299d0dc3c6b7361bb84538a3944c7750762ae0bf068866f",
+    "guest/games/CUSA50828/01.08/symbols/index.json": "2a28b1b676834ad8c5f25e60c89a6bc507d3b09f9c5a062372313dc03b630989"
+  },
+  "mcp_head": "e41e01d429d372e87071c11e71ea91a87d3c2f96",
+  "mcp_install": "/Users/bytedance/Library/Application Support/ReverseStudy/Mcp/versions/reverse_study_mcp-0.3.0-local.20260916.frame2-osx-arm64"
+}

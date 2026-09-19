@@ -11,6 +11,7 @@
 #include "common/types.h"
 
 namespace VideoCore {
+enum class CaptureBoundary { HostPresent, GuestFlip };
 enum class CaptureRequestState : u32 {
     Idle, Armed, Starting, Capturing, Writing, Cancelling, Ready, Cancelled, Failed
 };
@@ -27,6 +28,8 @@ struct CaptureReceipt {
     CaptureRequestState state{CaptureRequestState::Idle};
     u32 requested_frames{}, completed_frames{}, num_captures_before{}, num_captures_after{};
     u64 first_present{}, last_present{}, capture_timestamp{}, file_size{};
+    u64 first_guest_flip{}, last_guest_flip{};
+    CaptureBoundary boundary{CaptureBoundary::HostPresent};
     bool cleanup_pending{};
     // A host present interval is not proof of an exact PS4 logical frame.
     std::string coverage{"host_present_interval"};
@@ -58,13 +61,19 @@ public:
     bool Bind(CaptureTarget target);
     void RequestStop(u64 generation);
     void Unbind(u64 generation); // Owner teardown only, after renderer workers drain.
-    CaptureReceipt Arm(u32 frames, u64 generation, std::string run_uuid, u64 now_ns);
+    CaptureReceipt Arm(u32 frames, u64 generation, std::string run_uuid, u64 now_ns,
+                       CaptureBoundary boundary = CaptureBoundary::HostPresent);
     CaptureReceipt Cancel(u64 request_id, u64 generation);
-    void OnFrameBoundary(u64 generation, u64 present_id, u64 now_ns);
+    void OnFrameBoundary(u64 generation, u64 present_id, u64 now_ns,
+                         CaptureBoundary boundary = CaptureBoundary::HostPresent);
+    bool NeedsGuestBoundary(u64 generation) const {
+        return generation && guest_boundary_generation_.load(std::memory_order_acquire) == generation;
+    }
     void Poll(u64 now_ns); // Also driven by the production watchdog, even without frames/status.
     CaptureReceipt Query(u64 now_ns = 0) const;
     CaptureReceipt Query(u64 request_id, u64 now_ns) const;
     void SetTimeoutNs(u64 timeout_ns);
+    void SetWriteTimeoutNs(u64 ns);
     u64 BoundGeneration() const;
 private:
     void PublishLocked();
@@ -80,11 +89,13 @@ private:
     std::vector<CaptureReceipt> history_;
     std::shared_ptr<const std::vector<CaptureReceipt>> published_;
     u64 next_request_{1}, deadline_{}, timeout_ns_{5'000'000'000ull};
+    u64 write_timeout_ns_{60'000'000'000ull};
     bool backend_active_{}, target_stopping_{};
     CaptureRequestState cleanup_terminal_{CaptureRequestState::Cancelled};
     std::mutex wake_mutex_;
     std::condition_variable wake_;
     std::atomic<bool> stopping_watchdog_{};
+    std::atomic<u64> guest_boundary_generation_{};
     std::thread watchdog_;
 };
 }

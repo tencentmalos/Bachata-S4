@@ -1,0 +1,36 @@
+[
+  {
+    "name": "guest_data_mapping_tests",
+    "args": [],
+    "exit_code": 0,
+    "expected_exit_code": 0
+  },
+  {
+    "name": "guest_memory_manager_concurrency_tests",
+    "args": [
+      "--legacy-admission"
+    ],
+    "exit_code": 1,
+    "expected_exit_code": 1
+  },
+  {
+    "name": "guest_memory_manager_concurrency_tests",
+    "args": [],
+    "exit_code": 0,
+    "expected_exit_code": 0
+  },
+  {
+    "name": "guest_ajm_tests",
+    "args": [
+      "/data/local/tmp/shadps4-vm-lock-removal-20260917/ajm-tone.mp3"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0
+  },
+  {
+    "name": "guest_native_mutex_tests",
+    "args": [],
+    "exit_code": 0,
+    "expected_exit_code": 0
+  }
+]

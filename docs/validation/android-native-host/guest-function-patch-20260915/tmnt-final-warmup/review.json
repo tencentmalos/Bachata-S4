@@ -1,0 +1,8 @@
+{
+  "run_id": "d5b77042e8fa4bf092cc8cf5d1628b18",
+  "scene_frame": 12,
+  "response_frame": 14,
+  "note": "已目视核对：frame12 为 Leonardo 屋顶 MOVE 教程；stick-right 输入后 frame14 角色沿屋顶右侧移动，镜头跟随且背景墙/栏杆位置明显变化。两帧均为实际游戏场景，未依据 FPS 单独判断。",
+  "method": "explicit_visual_review",
+  "reviewed_at": 1789482371.896011
+}

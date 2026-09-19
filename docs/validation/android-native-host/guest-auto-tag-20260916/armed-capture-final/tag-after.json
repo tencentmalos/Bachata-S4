@@ -1,0 +1,1092 @@
+{
+  "abandoned": 3,
+  "architecture": "x86_64",
+  "backend": "fex-ir",
+  "code_invalidations": 0,
+  "context": 33,
+  "enabled": true,
+  "ignored_ends": 500932,
+  "module": "eboot.bin",
+  "module_sha256": "6122da7190de6b08d921b2c42c3ca9ed11dc4d11524f1139ff67aeceea5b204d",
+  "overflow": 0,
+  "probes": [
+    {
+      "completed": 3978,
+      "elapsed_ns": 255894409,
+      "hits": 3978,
+      "id": 1,
+      "name": "eboot.bin+0x1545f27",
+      "offset": 22306599
+    },
+    {
+      "completed": 3975,
+      "elapsed_ns": 135739824141,
+      "hits": 3978,
+      "id": 2,
+      "name": "eboot.bin+0x1545f69",
+      "offset": 22306665
+    },
+    {
+      "completed": 3978,
+      "elapsed_ns": 110793281,
+      "hits": 3978,
+      "id": 3,
+      "name": "eboot.bin+0x1545f89",
+      "offset": 22306697
+    },
+    {
+      "completed": 67,
+      "elapsed_ns": 6981822,
+      "hits": 67,
+      "id": 4,
+      "name": "eboot.bin+0x1546031",
+      "offset": 22306865
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 3978,
+      "id": 5,
+      "name": "eboot.bin+0x1545f20",
+      "offset": 22306592
+    },
+    {
+      "completed": 31398,
+      "elapsed_ns": 304259550,
+      "hits": 31398,
+      "id": 6,
+      "name": "eboot.bin+0x1591599",
+      "offset": 22615449
+    },
+    {
+      "completed": 1,
+      "elapsed_ns": 50677,
+      "hits": 1,
+      "id": 7,
+      "name": "eboot.bin+0x15915a7",
+      "offset": 22615463
+    },
+    {
+      "completed": 1,
+      "elapsed_ns": 6225053,
+      "hits": 1,
+      "id": 8,
+      "name": "eboot.bin+0x15915b6",
+      "offset": 22615478
+    },
+    {
+      "completed": 1,
+      "elapsed_ns": 50417,
+      "hits": 1,
+      "id": 9,
+      "name": "eboot.bin+0x15915c4",
+      "offset": 22615492
+    },
+    {
+      "completed": 1,
+      "elapsed_ns": 13177,
+      "hits": 1,
+      "id": 10,
+      "name": "eboot.bin+0x15915d4",
+      "offset": 22615508
+    },
+    {
+      "completed": 31398,
+      "elapsed_ns": 235502785,
+      "hits": 31398,
+      "id": 11,
+      "name": "eboot.bin+0x15915df",
+      "offset": 22615519
+    },
+    {
+      "completed": 31398,
+      "elapsed_ns": 1734648815,
+      "hits": 31398,
+      "id": 12,
+      "name": "eboot.bin+0x15915f8",
+      "offset": 22615544
+    },
+    {
+      "completed": 12721,
+      "elapsed_ns": 440784941,
+      "hits": 12721,
+      "id": 13,
+      "name": "eboot.bin+0x159161c",
+      "offset": 22615580
+    },
+    {
+      "completed": 12721,
+      "elapsed_ns": 174086221,
+      "hits": 12721,
+      "id": 14,
+      "name": "eboot.bin+0x159164c",
+      "offset": 22615628
+    },
+    {
+      "completed": 12721,
+      "elapsed_ns": 137326388,
+      "hits": 12721,
+      "id": 15,
+      "name": "eboot.bin+0x1591660",
+      "offset": 22615648
+    },
+    {
+      "completed": 11565,
+      "elapsed_ns": 307100767,
+      "hits": 11565,
+      "id": 16,
+      "name": "eboot.bin+0x159168d",
+      "offset": 22615693
+    },
+    {
+      "completed": 12721,
+      "elapsed_ns": 344532357,
+      "hits": 12721,
+      "id": 17,
+      "name": "eboot.bin+0x159169f",
+      "offset": 22615711
+    },
+    {
+      "completed": 12721,
+      "elapsed_ns": 127563303,
+      "hits": 12721,
+      "id": 18,
+      "name": "eboot.bin+0x15916cf",
+      "offset": 22615759
+    },
+    {
+      "completed": 12721,
+      "elapsed_ns": 117289577,
+      "hits": 12721,
+      "id": 19,
+      "name": "eboot.bin+0x15916e3",
+      "offset": 22615779
+    },
+    {
+      "completed": 11514,
+      "elapsed_ns": 249442547,
+      "hits": 11514,
+      "id": 20,
+      "name": "eboot.bin+0x159170e",
+      "offset": 22615822
+    },
+    {
+      "completed": 12721,
+      "elapsed_ns": 273603741,
+      "hits": 12721,
+      "id": 21,
+      "name": "eboot.bin+0x159171b",
+      "offset": 22615835
+    },
+    {
+      "completed": 12721,
+      "elapsed_ns": 101354254,
+      "hits": 12721,
+      "id": 22,
+      "name": "eboot.bin+0x1591726",
+      "offset": 22615846
+    },
+    {
+      "completed": 12721,
+      "elapsed_ns": 23116505146,
+      "hits": 12721,
+      "id": 23,
+      "name": "eboot.bin+0x1591733",
+      "offset": 22615859
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 0,
+      "id": 24,
+      "name": "eboot.bin+0x159173d",
+      "offset": 22615869
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 0,
+      "id": 25,
+      "name": "eboot.bin+0x1591780",
+      "offset": 22615936
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 31398,
+      "id": 26,
+      "name": "eboot.bin+0x1591570",
+      "offset": 22615408
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 0,
+      "id": 27,
+      "name": "eboot.bin+0x1545d35",
+      "offset": 22306101
+    },
+    {
+      "completed": 3978,
+      "elapsed_ns": 10110941,
+      "hits": 3978,
+      "id": 28,
+      "name": "eboot.bin+0x1545d62",
+      "offset": 22306146
+    },
+    {
+      "completed": 3978,
+      "elapsed_ns": 4227855228,
+      "hits": 3978,
+      "id": 29,
+      "name": "eboot.bin+0x1545d77",
+      "offset": 22306167
+    },
+    {
+      "completed": 3978,
+      "elapsed_ns": 169700431,
+      "hits": 3978,
+      "id": 30,
+      "name": "eboot.bin+0x1545d92",
+      "offset": 22306194
+    },
+    {
+      "completed": 3978,
+      "elapsed_ns": 4087964,
+      "hits": 3978,
+      "id": 31,
+      "name": "eboot.bin+0x1545d9b",
+      "offset": 22306203
+    },
+    {
+      "completed": 3978,
+      "elapsed_ns": 3987344,
+      "hits": 3978,
+      "id": 32,
+      "name": "eboot.bin+0x1545db3",
+      "offset": 22306227
+    },
+    {
+      "completed": 3978,
+      "elapsed_ns": 42504823,
+      "hits": 3978,
+      "id": 33,
+      "name": "eboot.bin+0x1545de5",
+      "offset": 22306277
+    },
+    {
+      "completed": 3978,
+      "elapsed_ns": 4227066,
+      "hits": 3978,
+      "id": 34,
+      "name": "eboot.bin+0x1545dff",
+      "offset": 22306303
+    },
+    {
+      "completed": 3978,
+      "elapsed_ns": 63414640,
+      "hits": 3978,
+      "id": 35,
+      "name": "eboot.bin+0x1545e24",
+      "offset": 22306340
+    },
+    {
+      "completed": 3978,
+      "elapsed_ns": 5484179,
+      "hits": 3978,
+      "id": 36,
+      "name": "eboot.bin+0x1545e4d",
+      "offset": 22306381
+    },
+    {
+      "completed": 3978,
+      "elapsed_ns": 6312158,
+      "hits": 3978,
+      "id": 37,
+      "name": "eboot.bin+0x1545e71",
+      "offset": 22306417
+    },
+    {
+      "completed": 3978,
+      "elapsed_ns": 4164786,
+      "hits": 3978,
+      "id": 38,
+      "name": "eboot.bin+0x1545e93",
+      "offset": 22306451
+    },
+    {
+      "completed": 3978,
+      "elapsed_ns": 4472976,
+      "hits": 3978,
+      "id": 39,
+      "name": "eboot.bin+0x1545eb2",
+      "offset": 22306482
+    },
+    {
+      "completed": 3978,
+      "elapsed_ns": 442986300,
+      "hits": 3978,
+      "id": 40,
+      "name": "eboot.bin+0x1545edb",
+      "offset": 22306523
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 0,
+      "id": 41,
+      "name": "eboot.bin+0x1545f10",
+      "offset": 22306576
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 3978,
+      "id": 42,
+      "name": "eboot.bin+0x1545ce0",
+      "offset": 22306016
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 4210,
+      "id": 43,
+      "name": "eboot.bin+0x3da80",
+      "offset": 252544
+    },
+    {
+      "completed": 3978,
+      "elapsed_ns": 3091272,
+      "hits": 3978,
+      "id": 44,
+      "name": "eboot.bin+0x1965b",
+      "offset": 104027
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 3978,
+      "id": 45,
+      "name": "eboot.bin+0x19630",
+      "offset": 103984
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 19115,
+      "id": 46,
+      "name": "eboot.bin+0x15c04e0",
+      "offset": 22807776
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 84290,
+      "id": 47,
+      "name": "eboot.bin+0x15c04c0",
+      "offset": 22807744
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 618071,
+      "id": 48,
+      "name": "eboot.bin+0x15c0240",
+      "offset": 22807104
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 20,
+      "id": 49,
+      "name": "eboot.bin+0x15c0050",
+      "offset": 22806608
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 8490,
+      "id": 50,
+      "name": "eboot.bin+0x15c1dd0",
+      "offset": 22814160
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 9242115,
+      "id": 51,
+      "name": "eboot.bin+0x15c1ec0",
+      "offset": 22814400
+    },
+    {
+      "completed": 152012,
+      "elapsed_ns": 2471742654,
+      "hits": 152012,
+      "id": 52,
+      "name": "eboot.bin+0x1590d73",
+      "offset": 22613363
+    },
+    {
+      "completed": 152012,
+      "elapsed_ns": 1725289215,
+      "hits": 152012,
+      "id": 53,
+      "name": "eboot.bin+0x1590d8b",
+      "offset": 22613387
+    },
+    {
+      "completed": 1212,
+      "elapsed_ns": 19058832,
+      "hits": 1212,
+      "id": 54,
+      "name": "eboot.bin+0x1590da5",
+      "offset": 22613413
+    },
+    {
+      "completed": 1212,
+      "elapsed_ns": 13631416,
+      "hits": 1212,
+      "id": 55,
+      "name": "eboot.bin+0x1590db9",
+      "offset": 22613433
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 0,
+      "id": 56,
+      "name": "eboot.bin+0x1590dc7",
+      "offset": 22613447
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 0,
+      "id": 57,
+      "name": "eboot.bin+0x1590dea",
+      "offset": 22613482
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 0,
+      "id": 58,
+      "name": "eboot.bin+0x1590df5",
+      "offset": 22613493
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 0,
+      "id": 59,
+      "name": "eboot.bin+0x1590e09",
+      "offset": 22613513
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 0,
+      "id": 60,
+      "name": "eboot.bin+0x1590e23",
+      "offset": 22613539
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 0,
+      "id": 61,
+      "name": "eboot.bin+0x1590e3b",
+      "offset": 22613563
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 0,
+      "id": 62,
+      "name": "eboot.bin+0x1590e51",
+      "offset": 22613585
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 0,
+      "id": 63,
+      "name": "eboot.bin+0x1590e65",
+      "offset": 22613605
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 150800,
+      "id": 64,
+      "name": "eboot.bin+0x1590d50",
+      "offset": 22613328
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 9242117,
+      "id": 65,
+      "name": "eboot.bin+0x15c1e50",
+      "offset": 22814288
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 333395,
+      "id": 66,
+      "name": "eboot.bin+0x15c00a0",
+      "offset": 22806688
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 332615,
+      "id": 67,
+      "name": "eboot.bin+0x15c0080",
+      "offset": 22806656
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 0,
+      "id": 68,
+      "name": "eboot.bin+0x15c0090",
+      "offset": 22806672
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 0,
+      "id": 69,
+      "name": "eboot.bin+0x15c1da0",
+      "offset": 22814112
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 0,
+      "id": 70,
+      "name": "eboot.bin+0x15c1680",
+      "offset": 22812288
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 3978,
+      "id": 71,
+      "name": "eboot.bin+0x18d50",
+      "offset": 101712
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 0,
+      "id": 72,
+      "name": "eboot.bin+0x24c8c",
+      "offset": 150668
+    },
+    {
+      "completed": 3978,
+      "elapsed_ns": 4218862409,
+      "hits": 3978,
+      "id": 73,
+      "name": "eboot.bin+0x24ca2",
+      "offset": 150690
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 3978,
+      "id": 74,
+      "name": "eboot.bin+0x24c60",
+      "offset": 150624
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 0,
+      "id": 75,
+      "name": "eboot.bin+0x2af03",
+      "offset": 175875
+    },
+    {
+      "completed": 3978,
+      "elapsed_ns": 161104874,
+      "hits": 3978,
+      "id": 76,
+      "name": "eboot.bin+0x2af19",
+      "offset": 175897
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 3978,
+      "id": 77,
+      "name": "eboot.bin+0x2aed0",
+      "offset": 175824
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 540700,
+      "id": 78,
+      "name": "eboot.bin+0x37b60",
+      "offset": 228192
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 0,
+      "id": 79,
+      "name": "eboot.bin+0x2926d",
+      "offset": 168557
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 540700,
+      "id": 80,
+      "name": "eboot.bin+0x29240",
+      "offset": 168512
+    },
+    {
+      "completed": 146488,
+      "elapsed_ns": 41621127,
+      "hits": 146488,
+      "id": 81,
+      "name": "eboot.bin+0x149a8",
+      "offset": 84392
+    },
+    {
+      "completed": 146488,
+      "elapsed_ns": 33023515,
+      "hits": 146488,
+      "id": 82,
+      "name": "eboot.bin+0x149b4",
+      "offset": 84404
+    },
+    {
+      "completed": 146488,
+      "elapsed_ns": 25059979,
+      "hits": 146488,
+      "id": 83,
+      "name": "eboot.bin+0x149be",
+      "offset": 84414
+    },
+    {
+      "completed": 146488,
+      "elapsed_ns": 37695311,
+      "hits": 146488,
+      "id": 84,
+      "name": "eboot.bin+0x149c9",
+      "offset": 84425
+    },
+    {
+      "completed": 146488,
+      "elapsed_ns": 39825402,
+      "hits": 146488,
+      "id": 85,
+      "name": "eboot.bin+0x149dd",
+      "offset": 84445
+    },
+    {
+      "completed": 146488,
+      "elapsed_ns": 37582964,
+      "hits": 146488,
+      "id": 86,
+      "name": "eboot.bin+0x14a43",
+      "offset": 84547
+    },
+    {
+      "completed": 146488,
+      "elapsed_ns": 37613196,
+      "hits": 146488,
+      "id": 87,
+      "name": "eboot.bin+0x14adb",
+      "offset": 84699
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 0,
+      "id": 88,
+      "name": "eboot.bin+0x14aff",
+      "offset": 84735
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 146488,
+      "id": 89,
+      "name": "eboot.bin+0x14900",
+      "offset": 84224
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 0,
+      "id": 90,
+      "name": "eboot.bin+0x253ed",
+      "offset": 152557
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 1283952,
+      "id": 91,
+      "name": "eboot.bin+0x253c0",
+      "offset": 152512
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 0,
+      "id": 92,
+      "name": "eboot.bin+0x13463",
+      "offset": 78947
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 0,
+      "id": 93,
+      "name": "eboot.bin+0x134c0",
+      "offset": 79040
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 0,
+      "id": 94,
+      "name": "eboot.bin+0x134ca",
+      "offset": 79050
+    },
+    {
+      "completed": 469532,
+      "elapsed_ns": 534868346,
+      "hits": 469532,
+      "id": 95,
+      "name": "eboot.bin+0x134d9",
+      "offset": 79065
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 0,
+      "id": 96,
+      "name": "eboot.bin+0x13518",
+      "offset": 79128
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 2139512,
+      "id": 97,
+      "name": "eboot.bin+0x13410",
+      "offset": 78864
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 0,
+      "id": 98,
+      "name": "eboot.bin+0x28980",
+      "offset": 166272
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 3275169,
+      "id": 99,
+      "name": "eboot.bin+0x28930",
+      "offset": 166192
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 0,
+      "id": 100,
+      "name": "eboot.bin+0x25e79",
+      "offset": 155257
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 219082,
+      "id": 101,
+      "name": "eboot.bin+0x25e40",
+      "offset": 155200
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 0,
+      "id": 102,
+      "name": "eboot.bin+0x2a3d1",
+      "offset": 173009
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 109541,
+      "id": 103,
+      "name": "eboot.bin+0x2a390",
+      "offset": 172944
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 0,
+      "id": 104,
+      "name": "eboot.bin+0x2a61d",
+      "offset": 173597
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 219082,
+      "id": 105,
+      "name": "eboot.bin+0x2a5e0",
+      "offset": 173536
+    },
+    {
+      "completed": 109541,
+      "elapsed_ns": 31775354,
+      "hits": 109541,
+      "id": 106,
+      "name": "eboot.bin+0x158fd4d",
+      "offset": 22609229
+    },
+    {
+      "completed": 109541,
+      "elapsed_ns": 21826884,
+      "hits": 109541,
+      "id": 107,
+      "name": "eboot.bin+0x158fd60",
+      "offset": 22609248
+    },
+    {
+      "completed": 109541,
+      "elapsed_ns": 60930109,
+      "hits": 109541,
+      "id": 108,
+      "name": "eboot.bin+0x158fdac",
+      "offset": 22609324
+    },
+    {
+      "completed": 109541,
+      "elapsed_ns": 19654187,
+      "hits": 109541,
+      "id": 109,
+      "name": "eboot.bin+0x158fdbe",
+      "offset": 22609342
+    },
+    {
+      "completed": 109541,
+      "elapsed_ns": 20840290,
+      "hits": 109541,
+      "id": 110,
+      "name": "eboot.bin+0x158fdca",
+      "offset": 22609354
+    },
+    {
+      "completed": 109541,
+      "elapsed_ns": 23618648,
+      "hits": 109541,
+      "id": 111,
+      "name": "eboot.bin+0x158fe40",
+      "offset": 22609472
+    },
+    {
+      "completed": 109541,
+      "elapsed_ns": 39907574,
+      "hits": 109541,
+      "id": 112,
+      "name": "eboot.bin+0x158fe58",
+      "offset": 22609496
+    },
+    {
+      "completed": 109541,
+      "elapsed_ns": 20874939,
+      "hits": 109541,
+      "id": 113,
+      "name": "eboot.bin+0x158fe65",
+      "offset": 22609509
+    },
+    {
+      "completed": 109541,
+      "elapsed_ns": 55398815,
+      "hits": 109541,
+      "id": 114,
+      "name": "eboot.bin+0x158fe79",
+      "offset": 22609529
+    },
+    {
+      "completed": 109541,
+      "elapsed_ns": 22520124,
+      "hits": 109541,
+      "id": 115,
+      "name": "eboot.bin+0x158fe91",
+      "offset": 22609553
+    },
+    {
+      "completed": 109541,
+      "elapsed_ns": 17950252,
+      "hits": 109541,
+      "id": 116,
+      "name": "eboot.bin+0x158fe9e",
+      "offset": 22609566
+    },
+    {
+      "completed": 109541,
+      "elapsed_ns": 38447672,
+      "hits": 109541,
+      "id": 117,
+      "name": "eboot.bin+0x158feb2",
+      "offset": 22609586
+    },
+    {
+      "completed": 109541,
+      "elapsed_ns": 26048652,
+      "hits": 109541,
+      "id": 118,
+      "name": "eboot.bin+0x158fec4",
+      "offset": 22609604
+    },
+    {
+      "completed": 109541,
+      "elapsed_ns": 17722913,
+      "hits": 109541,
+      "id": 119,
+      "name": "eboot.bin+0x158fee3",
+      "offset": 22609635
+    },
+    {
+      "completed": 109541,
+      "elapsed_ns": 36944512,
+      "hits": 109541,
+      "id": 120,
+      "name": "eboot.bin+0x158fef7",
+      "offset": 22609655
+    },
+    {
+      "completed": 109541,
+      "elapsed_ns": 248581346,
+      "hits": 109541,
+      "id": 121,
+      "name": "eboot.bin+0x158ff07",
+      "offset": 22609671
+    },
+    {
+      "completed": 109541,
+      "elapsed_ns": 2199978762,
+      "hits": 109541,
+      "id": 122,
+      "name": "eboot.bin+0x158ff24",
+      "offset": 22609700
+    },
+    {
+      "completed": 109541,
+      "elapsed_ns": 30363959,
+      "hits": 109541,
+      "id": 123,
+      "name": "eboot.bin+0x158ff36",
+      "offset": 22609718
+    },
+    {
+      "completed": 109541,
+      "elapsed_ns": 29149203,
+      "hits": 109541,
+      "id": 124,
+      "name": "eboot.bin+0x158ff5a",
+      "offset": 22609754
+    },
+    {
+      "completed": 109541,
+      "elapsed_ns": 24746092,
+      "hits": 109541,
+      "id": 125,
+      "name": "eboot.bin+0x158ff6f",
+      "offset": 22609775
+    },
+    {
+      "completed": 109541,
+      "elapsed_ns": 29337925,
+      "hits": 109541,
+      "id": 126,
+      "name": "eboot.bin+0x158ff8a",
+      "offset": 22609802
+    },
+    {
+      "completed": 109541,
+      "elapsed_ns": 32715449,
+      "hits": 109541,
+      "id": 127,
+      "name": "eboot.bin+0x158ff9e",
+      "offset": 22609822
+    },
+    {
+      "completed": 341090,
+      "elapsed_ns": 48839703,
+      "hits": 341090,
+      "id": 128,
+      "name": "eboot.bin+0x159008b",
+      "offset": 22610059
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 0,
+      "id": 129,
+      "name": "eboot.bin+0x159031c",
+      "offset": 22610716
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 0,
+      "id": 130,
+      "name": "eboot.bin+0x1590606",
+      "offset": 22611462
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 0,
+      "id": 131,
+      "name": "eboot.bin+0x1590658",
+      "offset": 22611544
+    },
+    {
+      "completed": 106267,
+      "elapsed_ns": 25406809,
+      "hits": 106267,
+      "id": 132,
+      "name": "eboot.bin+0x15906f1",
+      "offset": 22611697
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 0,
+      "id": 133,
+      "name": "eboot.bin+0x1590727",
+      "offset": 22611751
+    },
+    {
+      "completed": 0,
+      "elapsed_ns": 0,
+      "hits": 109541,
+      "id": 134,
+      "name": "eboot.bin+0x158fd10",
+      "offset": 22609168
+    }
+  ],
+  "profile_sha256": "de60c85d15221fffb948e10d6394eb29e086649d7d754d56e78cb718a931fb08",
+  "remapped_sites": 3,
+  "rewrites_guest_memory": false,
+  "schema": "spatial.guest-auto-tag.status.v1",
+  "sites": 237,
+  "title": "CUSA50828"
+}

@@ -1,0 +1,29 @@
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"columns\":[\"coverage\",\"overflowed\",\"is_undefined\",\"is_out_of_bounds\",\"is_table_not_bound\",\"count\"],\"rows\":[],\"truncated\":false,\"elapsedMilliseconds\":0,\"schemaRevision\":13,\"watermark\":\"raw_event:8\",\"coverage\":\"partialLive\",\"provenance\":\"direct\"}"
+      }
+    ],
+    "structuredContent": {
+      "columns": [
+        "coverage",
+        "overflowed",
+        "is_undefined",
+        "is_out_of_bounds",
+        "is_table_not_bound",
+        "count"
+      ],
+      "rows": [],
+      "truncated": false,
+      "elapsedMilliseconds": 0,
+      "schemaRevision": 13,
+      "watermark": "raw_event:8",
+      "coverage": "partialLive",
+      "provenance": "direct"
+    }
+  },
+  "id": 4,
+  "jsonrpc": "2.0"
+}

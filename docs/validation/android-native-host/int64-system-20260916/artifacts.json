@@ -1,0 +1,30 @@
+{
+  "base": "4da582b7b3a36d74403a4985c3c03f37e570bcb7",
+  "branch": "codex/android-fex-round2",
+  "dirty_source": {
+    "src/shader_recompiler/backend/spirv/emit_spirv_integer.cpp": "c8cafe277c325639e29a956e0365370f30c37066e19bee26e9af1257cfa3bf1f",
+    "src/shader_recompiler/backend/spirv/spirv_int64.cpp": "f5f5f8756d98edda4e363e2af8b682bd9c0ac51711f5cb3db6631c4e1b825ea6",
+    "src/shader_recompiler/backend/spirv/emit_spirv_context_get_set.cpp": "a0249c1de4b89e8b3bbfb79f8f13f38431ad27f59f9d1ec481ef50c9d58f24fa",
+    "src/shader_recompiler/backend/spirv/spirv_emit_context.cpp": "21a658beafa66e47875619e0ab59cca59052e3e1611e3e977364df13f8c21554",
+    "src/shader_recompiler/backend/spirv/emit_spirv.cpp": "aae581bc87e02a5d2ec4f837240841711f9975be5e68718f4d30e755cb82cdff",
+    "src/shader_recompiler/backend/spirv/emit_spirv_undefined.cpp": "380bfa3d821197e38aaf028db75326a83d29fb2b73533cc0ca440b575eacb459",
+    "src/shader_recompiler/backend/spirv/emit_spirv_bitwise_conversion.cpp": "a810fca785361ff7f152249e392ef9d72ec001cb710109cf7e63e993a31ea588",
+    "src/shader_recompiler/backend/spirv/spirv_emit_context.h": "65218fd9dc55ffe5bebc9b67b1e60694b78b989e055b4d2c257151cb70a353db",
+    "src/shader_recompiler/backend/spirv/emit_spirv_convert.cpp": "d5d13a2711f0d160cc7da7b4a456f642c8cbb499f3327259b19241956332b6ce",
+    "src/video_core/host_shaders/fault_buffer_process.comp": "1992a47592997f898764481531dfb01e59773c4ba0bba4fd54a5e65c13760b23",
+    "src/video_core/renderer_vulkan/vk_instance.cpp": "26ac8e58b0adb02ca20f6688699ce400db95f79c32b3ad7a21f90685f117b273",
+    "src/video_core/renderer_vulkan/vk_pipeline_cache.cpp": "fcf30a9a954e851d05286b88f092e4812b2619f43922637abf6b3820c922f139",
+    "src/video_core/renderer_vulkan/vk_pipeline_serialization.cpp": "d2c8549c323d91c3b28858e5e7347a14a242ef07d8d598043ef7b16728466fcd",
+    "src/imgui/status_layer.cpp": "a4461d5b7950116c55b95fd0d39dc4e44323a9a01db0c1ae156b743fa794faf9",
+    "tests/video_core/android_shader_int64_probe.cpp": "7a1952c0d3b17a61b310f48c1b6fb011235ca3beac500c5197427df921dba0f7",
+    "CMakeLists.txt": "edb947f0fea9c5ee8603ea5fe35aaf5fc82f225c116c07781d27fb518ea35bc5"
+  },
+  "files": {
+    "android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk": "8ecd6059bd2e9f3ba848a207106fd92e23b854c444c72e8b8fd35f16a1e80cb0",
+    "build/android-host-api33/native/libshadps4_host.so": "5cae668644561c607d1ae7b76160a16131da4828b03eb1b38a8e84ce373ac5cb",
+    "build/android-host-api33/native/android_shader_int64_probe": "1b503bff0627e91d2e46f4a4271333786254fd86e0414bdc723378fa4a15059e"
+  },
+  "apk_entries": {
+    "lib/arm64-v8a/libshadps4_host.so": "5cae668644561c607d1ae7b76160a16131da4828b03eb1b38a8e84ce373ac5cb"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "src/common/profiler.h": "d7f4f8a22238127f5dfbc781ea8bbcbe5eb9325fd919855f4ddd6624007df4ae",
+  "src/common/profiler.cpp": "370b14702c577b509c3815a622200286f634c2bf03c933e2eb6ddd076a4b52dc",
+  "src/core/host_runtime/session_backend_fex.cpp": "138c2e5bb549eca31ebf63cddefd4cd9df85e90735d304e3d2f9bd8788ce8f1c",
+  "src/core/host_runtime/guest_runtime.cpp": "eb37e87c43cefbd0d97a329989cf90f4410402cab5246bf55fa05f0bf2c67759",
+  "src/core/libraries/videoout/driver.cpp": "686607ebaf84241c2f4d5d048e9ae97af763e4f1ecf7dc9bb0da77c305a5b2eb",
+  "foundation/basic/underlying/core/private/spatial/core/utils/ProfilerRing.cpp": "518ddf4178680a4efb2754f23dcfd745aa420ee0715e2625aca43ef9688b8f94",
+  "foundation/basic/underlying/core/public/spatial/core/utils/ProfilerRing.h": "d2b8dc32484ef2bb6fa78d633d50aeb9f03925629431abc6c55994878bbde783",
+  "foundation/tools/profiler-ring-smoke/phases.cpp": "adb623a2706ca0e22430e2463618041214c758fae7e99a914f4af300e61618e2"
+}

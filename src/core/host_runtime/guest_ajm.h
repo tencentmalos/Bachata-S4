@@ -20,7 +20,7 @@ bool IsAjmNid(std::string_view nid);
 // short output publication; no pin or VM gate spans decode or BatchWait.
 class GuestAjm {
 public:
-    GuestAjm(GuestCpu::GuestAddressSpace& space, std::recursive_mutex& vm);
+    GuestAjm(GuestCpu::GuestAddressSpace& space);
     ~GuestAjm();
     u64 Dispatch(std::string_view nid, const std::array<u64, 10>& args,
                  std::stop_token cancel = {});

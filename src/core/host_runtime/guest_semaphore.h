@@ -26,8 +26,8 @@ class GuestSemaphoreDomain final {
     size_t allocations{};
     std::optional<u64> Handle(u64 slot) {
         u64 handle{};
-        if (!space.Read(GuestCpu::GuestAddress{slot},
-                        std::as_writable_bytes(std::span{&handle, 1})))
+        if (!space.ReadData(GuestCpu::GuestAddress{slot},
+                            std::as_writable_bytes(std::span{&handle, 1})))
             return {};
         return handle;
     }
@@ -52,7 +52,7 @@ public:
             return POSIX_ENOMEM;
         const u64 handle = allocate(); // May quiesce VM: acquire output pin afterward.
         ++allocations;
-        auto output = space.AcquirePinnedSpan({GuestCpu::GuestAddress{slot}, 8}, true);
+        auto output = space.AcquireDataSpan({GuestCpu::GuestAddress{slot}, 8}, true);
         if (!output)
             return POSIX_EFAULT;
         objects.emplace(handle, Semaphore{value});
@@ -61,7 +61,7 @@ public:
     }
     int Destroy(u64 slot) {
         std::lock_guard lock(guard);
-        auto output = space.AcquirePinnedSpan({GuestCpu::GuestAddress{slot}, 8}, true);
+        auto output = space.AcquireDataSpan({GuestCpu::GuestAddress{slot}, 8}, true);
         if (!output)
             return POSIX_EFAULT;
         u64 handle{};
@@ -98,7 +98,7 @@ public:
         auto it = objects.find(*handle);
         if (it == objects.end())
             return POSIX_EINVAL;
-        auto output = space.AcquirePinnedSpan({GuestCpu::GuestAddress{address}, 4}, true);
+        auto output = space.AcquireDataSpan({GuestCpu::GuestAddress{address}, 4}, true);
         if (!output)
             return POSIX_EFAULT;
         std::memcpy(output.Value().WritableBytes().data(), &it->second.value, 4);

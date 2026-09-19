@@ -30,6 +30,7 @@
 #include <string>
 #include <sys/syscall.h>
 #include <thread>
+#include <set>
 #include <vector>
 
 #include <unistd.h>
@@ -889,6 +890,217 @@ void TestPinnedInvalidationRecovery(Harness &harness) {
 
 // --- contract checks that need no execution
 // -------------------------------------------------------
+void TestGuestDebugStep(Harness& harness) {
+    const auto* fixture = FindFixture("integer");
+    std::string error;
+    if (!fixture || !LoadFixture(harness, *fixture, error)) {
+        Check("DBG01", "load debugger fixture", false, error);
+        return;
+    }
+    ThreadInit init{};
+    init.entry_rip = GuestCodeAddress{harness.code_base};
+    init.initial_rsp = GuestAddress{harness.stack_top};
+    init.initial_state.fields = RegisterValidity::Gpr;
+    init.initial_state.gpr_mask = (1u << Index(Gpr::R8)) | (1u << Index(Gpr::R9));
+    init.initial_state.values.Set(Gpr::R8, 0x1000);
+    init.initial_state.values.Set(Gpr::R9, 0x234);
+    auto thread = harness.context->CreateThread(init);
+    if (!thread) { Check("DBG01", "create owner", false, Describe(thread.GetError())); return; }
+    const std::uint64_t offsets[]{3, 6, 9, 13};
+    for (int i = 0; i < 4; ++i) {
+        auto result = harness.context->Step(thread.Value(), {});
+        Check(("DBG01-" + std::to_string(i)).c_str(), "step retires exactly one architectural instruction",
+              result && result.Value().primary_reason == StopReason::StepComplete &&
+              result.Value().step && result.Value().step->instruction_retired &&
+              result.Value().snapshot.registers.rip == harness.code_base + offsets[i],
+              result ? std::string(ToString(result.Value().primary_reason)) + " rip=" +
+                  Hex(result.Value().snapshot.registers.rip) : Describe(result.GetError()));
+        if (!result || result.Value().primary_reason != StopReason::StepComplete) break;
+        Check(("DBG02-" + std::to_string(i)).c_str(), "debugger TF does not leak into guest flags",
+              !(result.Value().snapshot.registers.rflags & 0x100));
+    }
+    auto done = harness.context->Run(thread.Value(), {});
+    Check("DBG03", "continue after stepping preserves integer and flag state",
+          done && done.Value().primary_reason == StopReason::Returned &&
+          done.Value().snapshot.registers.Get(Gpr::R8) == 0x1234 &&
+          done.Value().snapshot.registers.Get(Gpr::R10) == 0x122f);
+    (void)harness.context->DestroyThread(thread.Value());
+
+    auto load = [&](const char* name) {
+        const auto* code = FindFixture(name);
+        if (!code || !LoadFixture(harness, *code, error)) {
+            Check("DBG-load", name, false, error);
+            return false;
+        }
+        init.initial_state.gpr_mask |= 1u << Index(Gpr::Rdi);
+        init.initial_state.values.Set(Gpr::Rdi, harness.data_base);
+        thread = harness.context->CreateThread(init);
+        return bool(thread);
+    };
+    if (!load("debugger")) return;
+    const std::uint64_t successors[]{5, 8, 13, 17, 26, 28, 22};
+    for (int i = 0; i < 7; ++i) {
+        auto r = harness.context->Step(thread.Value(), {});
+        Check(("DBG04-" + std::to_string(i)).c_str(), "memory/SSE/call/ret exact successor",
+              r && r.Value().primary_reason == StopReason::StepComplete &&
+              r.Value().snapshot.registers.rip == harness.code_base + successors[i],
+              r ? Hex(r.Value().snapshot.registers.rip - harness.code_base) : Describe(r.GetError()));
+        if (!r || r.Value().primary_reason != StopReason::StepComplete) break;
+        if (i == 3) Check("DBG05", "SSE result survives the step exit",
+                          r.Value().snapshot.registers.xmm[0].low == 14);
+    }
+    auto trap = harness.context->Run(thread.Value(), {});
+    Check("DBG06", "INT3 stops recoverably without executing its successor",
+          trap && trap.Value().primary_reason == StopReason::Breakpoint &&
+          trap.Value().snapshot.registers.rip == harness.code_base + 23 &&
+          trap.Value().snapshot.registers.Get(Gpr::Rax) == 8);
+    auto next = harness.context->Step(thread.Value(), {});
+    Check("DBG07", "step from INT3 successor resumes the same owner",
+          next && next.Value().primary_reason == StopReason::StepComplete &&
+          next.Value().snapshot.registers.Get(Gpr::Rax) == 10);
+    (void)harness.context->DestroyThread(thread.Value());
+
+    if (!load("debug_self")) return;
+    for (int i = 0; i < 16; ++i) {
+        auto r = harness.context->Step(thread.Value(), {});
+        Check(("DBG08-" + std::to_string(i)).c_str(), "self branch still retires one instruction",
+              r && r.Value().primary_reason == StopReason::StepComplete &&
+              r.Value().snapshot.registers.rip == harness.code_base &&
+              r.Value().step->instruction_length == 2);
+    }
+    auto ticket = harness.context->RequestInterrupt(thread.Value(), InterruptReason::Cancel);
+    auto cancelled = harness.context->Step(thread.Value(), {});
+    Check("DBG09", "pre-entry Cancel takes precedence over single step",
+          ticket && cancelled && cancelled.Value().primary_reason == StopReason::Cancelled &&
+          (!cancelled.Value().step || !cancelled.Value().step->instruction_retired));
+    (void)harness.context->DestroyThread(thread.Value());
+
+    // Step SYSCALL across the real native HLE boundary, then stop BEFORE the
+    // successor store. A callback never inherits the debugger-injected TF.
+    if (!load("syscall_writes_sentinel")) return;
+    auto* registry = static_cast<HleCallRegistry*>(Fex::FexHleRegistryPointer(*harness.context));
+    auto operation = registry->Register(&HleAddOne, "debug-add-one");
+    auto snapshot = harness.context->ReadRegisters(thread.Value());
+    RegisterPatch patch{};
+    patch.fields = RegisterValidity::Gpr;
+    patch.gpr_mask = (1u << Index(Gpr::Rax)) | (1u << Index(Gpr::Rdi));
+    patch.values.Set(Gpr::Rax, operation.Value());
+    patch.values.Set(Gpr::Rdi, 41);
+    auto written = harness.context->WriteRegisters(thread.Value(), patch, snapshot.Value().stop_epoch);
+    auto hle = harness.context->Step(thread.Value(), {});
+    Check("DBG10", "single step over real HLE syscall preserves its return",
+          written && hle && hle.Value().primary_reason == StopReason::StepComplete &&
+          hle.Value().snapshot.registers.rip == harness.code_base + 2 &&
+          hle.Value().snapshot.registers.Get(Gpr::Rax) == 42);
+    (void)harness.context->DestroyThread(thread.Value());
+}
+
+void TestGuestDebugFlags(Harness& h) {
+    std::string error;
+    if (!LoadFixture(h, *FindFixture("debug_flags"), error)) {
+        Check("DBG19", "load flags fixture", false, error); return;
+    }
+    for (unsigned offset : {0u, 1u, 2u}) {
+        ThreadInit init{};
+        init.entry_rip = GuestCodeAddress{h.code_base + offset};
+        init.initial_rsp = GuestAddress{h.stack_top};
+        auto t = h.context->CreateThread(init);
+        if (!t) { Check("DBG19", "create flags owner", false); continue; }
+        auto step = h.context->Step(t.Value(), {});
+        auto state = h.context->ReadRegisters(t.Value());
+        Check(("DBG19-" + std::to_string(offset)).c_str(), "TF-observing/changing instruction is refused before execution",
+              !step && step.GetError().category == ErrorCategory::Unsupported && state &&
+              state.Value().registers.rip == h.code_base + offset && state.Value().registers.Rsp() == h.stack_top);
+        (void)h.context->DestroyThread(t.Value());
+    }
+}
+
+void TestGuestDebugController(Harness& harness) {
+    std::string error;
+    if (!LoadFixture(harness, *FindFixture("debugger"), error)) {
+        Check("DBG11", "load controller fixture", false, error); return;
+    }
+    auto& debug = Fex::FexDebugTarget(*harness.context);
+    (void)debug.Pause();
+    std::promise<ThreadHandle> created;
+    std::optional<RunResult> finished;
+    std::thread owner{[&] {
+        ThreadInit init{};
+        init.entry_rip = GuestCodeAddress{harness.code_base};
+        init.initial_rsp = GuestAddress{harness.stack_top};
+        init.initial_state.fields = RegisterValidity::Gpr;
+        init.initial_state.gpr_mask = 1u << Index(Gpr::Rdi);
+        init.initial_state.values.Set(Gpr::Rdi, harness.data_base);
+        auto t = harness.context->CreateThread(init);
+        created.set_value(t ? t.Value() : ThreadHandle{});
+        if (!t) return;
+        auto run = harness.context->Run(t.Value(), {});
+        if (run) finished = run.Value();
+        (void)harness.context->DestroyThread(t.Value());
+    }};
+    const auto handle = created.get_future().get();
+    auto wait = [&](std::uint64_t epoch = 0) -> std::optional<Debug::Thread> {
+        const auto until = std::chrono::steady_clock::now() + std::chrono::seconds(3);
+        while (std::chrono::steady_clock::now() < until) {
+            for (auto t : debug.Threads())
+                if (t.handle == handle && t.phase == Debug::Phase::Parked && t.snapshot &&
+                    t.snapshot->stop_epoch > epoch) return t;
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+        return {};
+    };
+    auto initial = wait();
+    Check("DBG11", "external controller parks inside the live Run invocation", bool(initial));
+    if (initial) {
+        RegisterPatch patch{};
+        patch.fields = RegisterValidity::Gpr;
+        patch.gpr_mask = 1u << Index(Gpr::R9);
+        patch.values.Set(Gpr::R9, 0xfeed);
+        auto write = debug.WriteStoppedRegisters(handle, patch, initial->snapshot->stop_epoch);
+        auto stale = debug.WriteStoppedRegisters(handle, patch, initial->snapshot->stop_epoch);
+        Check("DBG12", "owner mailbox writes registers and refuses stale epoch",
+              write && !stale && stale.Category() == ErrorCategory::StaleEpoch);
+        auto bp = debug.Breakpoint(GuestAddress{harness.code_base + 5}, true);
+        std::byte shadow{};
+        auto read = debug.ReadMemory(GuestAddress{harness.code_base + 5}, std::span{&shadow, 1});
+        Check("DBG13", "software breakpoint has original-byte memory shadow",
+              bp && read && std::to_integer<unsigned char>(shadow) == FindFixture("debugger")->bytes[5]);
+        auto patched = wait();
+        auto epoch = patched ? patched->snapshot->stop_epoch : initial->snapshot->stop_epoch;
+        RegisterPatch bad_rip{};
+        bad_rip.fields = RegisterValidity::Rip;
+        auto rejected = debug.WriteStoppedRegisters(handle, bad_rip, epoch);
+        Check("DBG18", "debugger rejects nonexecutable RIP without consuming epoch",
+              !rejected && rejected.Category() == ErrorCategory::PermissionDenied);
+        const std::byte datum{0x42};
+        auto data_write = debug.WriteMemory(GuestAddress{harness.data_base}, std::span{&datum, 1});
+        Check("DBG18b", "data writes without GPU/memory observer integration are refused",
+              !data_write && data_write.Category() == ErrorCategory::Unsupported);
+        (void)debug.Continue(0, false);
+        auto hit = wait(epoch);
+        Check("DBG14", "warmed code hits inserted breakpoint at original guest RIP",
+              hit && hit->reason == StopReason::Breakpoint &&
+              hit->snapshot->registers.rip == harness.code_base + 5 &&
+              hit->snapshot->registers.Get(Gpr::R9) == 0xfeed,
+              hit ? Hex(hit->snapshot->registers.rip) : "timeout");
+        if (hit) {
+            auto remove = debug.Breakpoint(GuestAddress{harness.code_base + 5}, false);
+            (void)debug.Continue(handle.id, true);
+            auto next = wait(hit->snapshot->stop_epoch);
+            Check("DBG15", "remove/step executes original store in same invocation",
+                  remove && next && next->reason == StopReason::StepComplete &&
+                  next->snapshot->registers.rip == harness.code_base + 8 &&
+                  next->snapshot->invocation_id == initial->snapshot->invocation_id);
+        }
+    }
+    (void)harness.context->RequestInterrupt(handle, InterruptReason::Cancel);
+    owner.join();
+    Check("DBG16", "Cancel wakes parked debugger owner and releases Run",
+          finished && finished->primary_reason == StopReason::Cancelled);
+    auto detach = debug.Detach();
+    Check("DBG17", "detach restores breakpoint state", bool(detach));
+}
+
 void TestContracts(Harness &harness) {
     const auto caps = harness.context->Capabilities();
     Check("G06a", "capabilities declare base integer support",
@@ -930,8 +1142,9 @@ void TestContracts(Harness &harness) {
     }
 
     auto stepped = harness.context->Step(thread.Value(), StepOptions{});
-    Check("G06g", "Step is refused with Unsupported, not silently run as a block",
-          !stepped && stepped.Category() == ErrorCategory::Unsupported);
+    Check("G06g", "Step executes one instruction without running the return block",
+          stepped && stepped.Value().primary_reason == StopReason::StepComplete &&
+          stepped.Value().step && stepped.Value().step->instruction_retired);
 
     RegisterPatch patch{};
     patch.fields = RegisterValidity::Gpr;
@@ -3701,6 +3914,10 @@ std::uint64_t HleCallChain(std::uint64_t depth, std::uint64_t) {
     if (depth == 0) {
         if (hle_chain_mode == 1)
             scope->ExitThread(0xee);
+        if (hle_chain_mode == 3) {
+            hle_wait_entered.store(true, std::memory_order_release);
+            return scope->WaitFor(std::chrono::seconds(30)) ? 1 : 2;
+        }
         if (hle_chain_mode == 2)
             throw std::runtime_error("nested production-boundary exception");
         return 1;
@@ -3737,6 +3954,356 @@ std::uint64_t HleVmTransaction(std::uint64_t, std::uint64_t) {
     auto remap = hle_vm_space->RemapUnderToken(token.Value(), hle_vm_range,
                                                GuestPermission::Read | GuestPermission::Write);
     return remap ? 77 : 0xbad;
+}
+std::optional<Debug::Thread> AwaitDebugPark(Debug::Target& debug, ThreadHandle handle, std::uint64_t epoch = 0) {
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(3);
+    do {
+        for (auto t : debug.Threads())
+            if (t.handle == handle && t.phase == Debug::Phase::Parked && t.snapshot && t.snapshot->stop_epoch > epoch)
+                return t;
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    } while (std::chrono::steady_clock::now() < deadline);
+    return {};
+}
+void TestGuestWatchpoints(Harness& h) {
+    std::string detail;
+    if (!LoadFixture(h, *FindFixture("debug_watch"), detail)) std::_Exit(4);
+    auto& debug = Fex::FexDebugTarget(*h.context);
+    (void)debug.Pause();
+    TestOwner owner(h, h.data_base);
+    auto running = owner.Run();
+    auto stop = AwaitDebugPark(debug, owner.handle);
+    if (!stop) std::_Exit(4);
+    GuestRange range{GuestAddress{h.data_base}, 8};
+    Check("DW01", "reject zero/overflow watch ranges before arming",
+          !debug.SetWatchpoint({range.base, 0}, Debug::WatchAccess::Write, true) &&
+          !debug.SetWatchpoint({GuestAddress{UINT64_MAX - 2}, 8}, Debug::WatchAccess::Read, true));
+    auto armed = debug.SetWatchpoint(range, Debug::WatchAccess::Write, true);
+    (void)debug.Continue(0, false);
+    auto hit = AwaitDebugPark(debug, owner.handle, stop->snapshot->stop_epoch);
+    Check("DW02", "write watch records access instruction and architectural successor",
+          armed && hit && hit->reason == StopReason::Watchpoint && hit->watch_hit &&
+          hit->watch_hit->address == h.data_base && hit->watch_hit->bytes == 8 &&
+          hit->snapshot->registers.rip == hit->watch_hit->instruction_rip + 3,
+          hit ? std::string(ToString(hit->reason)) + " rip=" + Hex(hit->snapshot->registers.rip) : "timeout");
+    if (hit && hit->reason == StopReason::Watchpoint) {
+        (void)debug.SetWatchpoint(range, Debug::WatchAccess::Write, false);
+        (void)debug.SetWatchpoint(range, Debug::WatchAccess::Read, true);
+        (void)debug.Continue(0, false);
+        auto read = AwaitDebugPark(debug, owner.handle, hit->snapshot->stop_epoch);
+        Check("DW03", "read watch records unchanged bytes and preserves live carry flag",
+              read && read->watch_hit && read->watch_hit->access == Debug::WatchAccess::Read &&
+              read->snapshot->registers.Get(Gpr::Rcx) == 7 && (read->snapshot->registers.rflags & 1));
+        if (read) {
+            (void)debug.SetWatchpoint(range, Debug::WatchAccess::Read, false);
+            (void)debug.SetWatchpoint(range, Debug::WatchAccess::Write, true);
+            (void)debug.Continue(0, false);
+            auto same = AwaitDebugPark(debug, owner.handle, read->snapshot->stop_epoch);
+            Check("DW04", "same-value write triggers without value polling", same && same->watch_hit && same->watch_hit->instruction_rip == read->snapshot->registers.rip);
+            if (same) {
+                (void)debug.Continue(0, false);
+                auto atomic = AwaitDebugPark(debug, owner.handle, same->snapshot->stop_epoch);
+                Check("DW05", "atomic RMW triggers and observation preserves flags across instructions", atomic && atomic->watch_hit && atomic->snapshot->registers.Get(Gpr::Rcx) == 8);
+                if (atomic) {
+                    (void)debug.SetWatchpoint(range, Debug::WatchAccess::Write, false);
+                    GuestRange tail{GuestAddress{h.data_base + 15}, 1};
+                    (void)debug.SetWatchpoint(tail, Debug::WatchAccess::Read, true);
+                    (void)debug.Continue(0, false);
+                    auto vector = AwaitDebugPark(debug, owner.handle, atomic->snapshot->stop_epoch);
+                    Check("DW06", "vector access overlaps last watched byte", vector && vector->watch_hit && vector->watch_hit->bytes == 16 && vector->snapshot->registers.xmm[0].low == 8);
+                    if (vector) {
+                        (void)debug.SetWatchpoint(tail, Debug::WatchAccess::Read, false);
+                        (void)debug.SetWatchpoint({GuestAddress{h.data_base + 16}, 8}, Debug::WatchAccess::Write, true);
+                        (void)debug.Continue(0, false);
+                        auto vector_write = AwaitDebugPark(debug, owner.handle, vector->snapshot->stop_epoch);
+                        Check("DW07", "vector store preserves its source across observer callback", vector_write && vector_write->watch_hit && vector_write->snapshot->registers.xmm[0].low == 8);
+                        if (vector_write && vector_write->watch_hit) {
+                            (void)debug.SetWatchpoint({GuestAddress{h.data_base + 16}, 8}, Debug::WatchAccess::Write, false);
+                            GuestRange stack_range{GuestAddress{vector_write->snapshot->registers.Get(Gpr::Rsp) - 8}, 8};
+                            (void)debug.SetWatchpoint(stack_range, Debug::WatchAccess::Write, true);
+                            (void)debug.Continue(0, false);
+                            auto push = AwaitDebugPark(debug, owner.handle, vector_write->snapshot->stop_epoch);
+                            Check("DW10", "push watches the decremented guest stack address", push && push->watch_hit && push->watch_hit->address == stack_range.base.value);
+                            if (push) {
+                                (void)debug.SetWatchpoint(stack_range, Debug::WatchAccess::Write, false);
+                                (void)debug.SetWatchpoint(stack_range, Debug::WatchAccess::Read, true);
+                                (void)debug.Continue(0, false);
+                                auto pop = AwaitDebugPark(debug, owner.handle, push->snapshot->stop_epoch);
+                                Check("DW11", "pop observes the original stack slot and preserves its value", pop && pop->watch_hit && pop->snapshot->registers.Get(Gpr::Rbx) == 7);
+                                if (pop) {
+                                    (void)debug.SetWatchpoint(stack_range, Debug::WatchAccess::Read, false);
+                                    const auto before = Fex::FexTestDebugCounters(*h.context);
+                                    (void)debug.Continue(0, false);
+                                    auto trap = AwaitDebugPark(debug, owner.handle, pop->snapshot->stop_epoch);
+                                    const auto after = Fex::FexTestDebugCounters(*h.context);
+                                    Check("DW12", "last watch removal resumes cached execution without observation or inherited hits", trap && trap->reason == StopReason::Breakpoint && !trap->watch_hit && after.memory_observers == before.memory_observers);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    (void)h.context->RequestInterrupt(owner.handle, InterruptReason::Cancel);
+    auto result = Await(running);
+    Check("DW08", "Cancel drains watched owner", result && result.Value().primary_reason == StopReason::Cancelled);
+    Check("DW09", "detach removes every software watchpoint", bool(debug.Detach()));
+}
+void TestWatchDetachAndNegative(Harness& h) {
+    auto& debug = Fex::FexDebugTarget(*h.context);
+    std::string detail;
+    if (!LoadFixture(h, *FindFixture("entry_backedge"), detail)) std::_Exit(4);
+    const auto counter = PrepareProgress(h);
+    *reinterpret_cast<std::uint64_t*>(counter + 8) = 0;
+    {
+        (void)debug.Pause();
+        TestOwner owner(h, counter);
+        auto running = owner.Run();
+        auto first = AwaitDebugPark(debug, owner.handle);
+        if (!first) std::_Exit(4);
+        (void)debug.SetWatchpoint({GuestAddress{counter}, 8}, Debug::WatchAccess::Write, true);
+        (void)debug.Continue(0, false);
+        auto hit = AwaitDebugPark(debug, owner.handle, first->snapshot->stop_epoch);
+        if (!hit) std::_Exit(4);
+        const auto before = Fex::FexTestDebugCounters(*h.context);
+        auto detached = debug.Detach();
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+        while (Progress(counter) < 10000 && std::chrono::steady_clock::now() < deadline) std::this_thread::yield();
+        (void)debug.Pause();
+        auto parked = AwaitDebugPark(debug, owner.handle, hit->snapshot->stop_epoch);
+        const auto after = Fex::FexTestDebugCounters(*h.context);
+        Check("DW13", "detach restores full-speed loop with no remaining observers or TF stops", detached && parked && Progress(counter) >= 10000 && before.memory_observers == after.memory_observers && !parked->watch_hit);
+        (void)h.context->RequestInterrupt(owner.handle, InterruptReason::Cancel);
+        (void)Await(running);
+        (void)debug.Detach();
+    }
+    for (unsigned mode = 0; mode < 3; ++mode) {
+        const bool remap = mode == 1;
+        if (!LoadFixture(h, *FindFixture(remap ? "debug_watch" : mode == 2 ? "debug_watch_nt" : "debug_watch_bulk"), detail)) std::_Exit(4);
+        (void)debug.Pause();
+        TestOwner owner(h, h.data_base);
+        auto running = owner.Run();
+        auto first = AwaitDebugPark(debug, owner.handle);
+        if (!first) std::_Exit(4);
+        RegisterPatch patch{}; patch.fields = RegisterValidity::Gpr;
+        patch.gpr_mask = (1u << Index(Gpr::Rsi)) | (1u << Index(Gpr::Rcx));
+        patch.values.Set(Gpr::Rsi, h.data_base + 16); patch.values.Set(Gpr::Rcx, 4);
+        (void)debug.WriteStoppedRegisters(owner.handle, patch, first->snapshot->stop_epoch);
+        auto latest = AwaitDebugPark(debug, owner.handle);
+        (void)debug.SetWatchpoint({GuestAddress{h.data_base}, 8}, Debug::WatchAccess::Write, true);
+        std::uint32_t before = 0xaabbccdd;
+        (void)h.space->Write(GuestAddress{h.data_base}, std::as_bytes(std::span{&before, 1}));
+        if (remap) {
+            auto map = h.space->Query(GuestAddress{h.data_base});
+            auto token = h.space->Quiesce(0);
+            if (!map || !token || !h.space->RemapUnderToken(token.Value(), map.Value().range, GuestPermission::Read | GuestPermission::Write)) std::_Exit(4);
+        }
+        if (!h.space->Write(GuestAddress{h.data_base}, std::as_bytes(std::span{&before, 1}))) std::_Exit(4);
+        (void)debug.Continue(0, false);
+        auto failed = AwaitDebugPark(debug, owner.handle, latest->snapshot->stop_epoch);
+        std::uint32_t after{};
+        (void)h.space->Read(GuestAddress{h.data_base}, std::as_writable_bytes(std::span{&after, 1}));
+        Check(remap ? "DW15" : mode == 2 ? "DW16" : "DW14", remap ? "stale watch mapping stops before execution" : mode == 2 ? "unhandled non-temporal access is refused before mutation" : "unsupported bulk access stops before mutation",
+              failed && failed->reason == StopReason::Unsupported && failed->snapshot->registers.rip == h.code_base && before == after);
+        (void)h.context->RequestInterrupt(owner.handle, InterruptReason::Cancel);
+        (void)Await(running);
+        (void)debug.Detach();
+    }
+}
+void TestGuestMixedStack(Harness& h) {
+    std::string detail;
+    if (!LoadFixture(h, *FindFixture("invoke_hle_chain"), detail)) std::_Exit(4);
+    auto* registry = static_cast<HleCallRegistry*>(Fex::FexHleRegistryPointer(*h.context));
+    auto allocator = HleVeneerAllocator::Create(*h.space, {GuestAddress{h.space->ReservationBase().value + 0x130000}, HostPageSize()});
+    auto op = registry->Register(&HleCallChain, "debug_mixed_chain");
+    if (!allocator || !op) std::_Exit(4);
+    auto gate = allocator.Value().Allocate(op.Value());
+    if (!gate || !allocator.Value().Seal()) std::_Exit(4);
+    hle_chain_entry = GuestCodeAddress{h.code_base}; hle_chain_veneer = gate.Value().value;
+    auto& debug = Fex::FexDebugTarget(*h.context);
+    (void)debug.Pause();
+    TestOwner owner(h, 0);
+    GuestCallArgs args{}; args.count = 2; args.values[0] = 2; args.values[1] = hle_chain_veneer;
+    hle_chain_mode = 3; hle_wait_entered = false;
+    auto running = owner.Submit([&] { return h.context->InvokeGuest(owner.handle, hle_chain_entry, args, {}); });
+    auto initial = AwaitDebugPark(debug, owner.handle);
+    if (!initial) std::_Exit(4);
+    (void)debug.Continue(0, false);
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(3);
+    std::optional<Debug::MixedStack> stack;
+    do {
+        auto read = debug.ReadMixedStack(owner.handle.id);
+        if (read) stack = read.Value();
+        if (stack && std::any_of(stack->frames.begin(), stack->frames.end(), [](auto& f) { return f.provenance == "wait-entry-capture"; })) break;
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    } while (std::chrono::steady_clock::now() < deadline);
+    unsigned boundaries{}, hosts{}, callbacks{}, waits{};
+    std::set<std::uint64_t> invocations;
+    if (stack) for (const auto& f : stack->frames) {
+        if (f.kind == "hle-boundary") { ++boundaries; invocations.insert(f.invocation); }
+        if (f.kind == "host") ++hosts;
+        if (f.kind == "hle-boundary" && f.provenance == "callback-entry-capture") ++callbacks;
+        if (f.kind == "hle-boundary" && f.provenance == "wait-entry-capture") ++waits;
+    }
+    Check("DM01", "mixed stack retains two nested callbacks and cancellable native wait by invocation", stack && stack->phase == "hle" && stack->generation == owner.handle.generation && boundaries == 3 && invocations.size() == 3 && callbacks == 2 && waits == 1 && hosts > 3,
+          "boundaries=" + std::to_string(boundaries) + " callbacks=" + std::to_string(callbacks) + " waits=" + std::to_string(waits));
+    (void)debug.Pause();
+    const GuestAddress breakpoint{h.code_base};
+    std::byte original{};
+    (void)h.space->Read(breakpoint, std::span{&original, 1});
+    {
+        auto pin = h.space->AcquirePinnedSpan({GuestAddress{h.data_base}, 8}, false);
+        auto refused = debug.Breakpoint(breakpoint, true);
+        std::byte unchanged{};
+        (void)h.space->Read(breakpoint, std::span{&unchanged, 1});
+        Check("DM10", "waiting HLE does not bypass a live pin during code publication",
+              pin && !refused && unchanged == original);
+    }
+    (void)debug.Continue(owner.handle.id, false);
+    auto partial = debug.Breakpoint(breakpoint, true);
+    Check("DM11", "selectively resumed HLE owner refuses code patch", !partial && partial.Category() == ErrorCategory::Busy);
+    (void)debug.Pause();
+    auto inserted = debug.Breakpoint(breakpoint, true);
+    Check("DM12", "software breakpoint publishes while nested native HLE remains waiting", bool(inserted));
+    if (inserted) {
+        TestOwner probe(h, 0, 0x800);
+        auto probe_run = probe.Submit([&] { return h.context->InvokeGuest(probe.handle, hle_chain_entry, args, {}); });
+        auto parked = AwaitDebugPark(debug, probe.handle);
+        Check("DM13", "new invocation remains parked before patched guest code", parked && parked->reason == StopReason::PauseRequested);
+        (void)debug.Continue(0, false);
+        auto hit = parked ? AwaitDebugPark(debug, probe.handle, parked->snapshot->stop_epoch) : std::nullopt;
+        auto removed = debug.Breakpoint(breakpoint, false);
+        std::byte restored{};
+        (void)h.space->Read(breakpoint, std::span{&restored, 1});
+        Check("DM14", "breakpoint hits and restores with another owner still waiting in HLE",
+              hit && hit->reason == StopReason::Breakpoint && hit->snapshot->registers.rip == h.code_base && removed && restored == original);
+        (void)h.context->RequestInterrupt(probe.handle, InterruptReason::Cancel);
+        (void)Await(probe_run);
+    }
+    Check("DM02", "detach clears boundary ownership while native HLE is waiting", debug.Detach() && !debug.ReadMixedStack(owner.handle.id));
+    (void)h.context->RequestInterrupt(owner.handle, InterruptReason::Cancel);
+    auto cancelled = Await(running);
+    Check("DM03", "mixed-stack cancellation unwinds every callback", cancelled && cancelled.Value().reason == StopReason::Cancelled && h.space->Counts().live_pins == 0);
+    hle_chain_mode = 0;
+    TestOwner clean(h, 0, 0x800);
+    const auto before = Fex::FexTestDebugCounters(*h.context);
+    auto normal = clean.Submit([&] { return h.context->InvokeGuest(clean.handle, hle_chain_entry, args, {}); });
+    auto result = Await(normal);
+    const auto after = Fex::FexTestDebugCounters(*h.context);
+    Check("DM04", "unattached nested HLE performs zero native capture and zero memory observation", result && result.Value().reason == StopReason::Returned && result.Value().return_value == 231 && before.native_captures == after.native_captures && before.memory_observers == after.memory_observers);
+}
+void TestGuestDebugHotHle(Harness& h) {
+    std::string detail;
+    if (!LoadFixture(h, *FindFixture("debug_hle_hot_loop"), detail)) std::_Exit(4);
+    auto* registry = static_cast<HleCallRegistry*>(Fex::FexHleRegistryPointer(*h.context));
+    auto allocator = HleVeneerAllocator::Create(*h.space, {GuestAddress{h.space->ReservationBase().value + 0x140000}, HostPageSize()});
+    auto op = registry->Register(&HleAddOne, "debug_hot_add_one");
+    if (!allocator || !op) std::_Exit(4);
+    auto gate = allocator.Value().Allocate(op.Value());
+    if (!gate || !allocator.Value().Seal()) std::_Exit(4);
+    auto& debug = Fex::FexDebugTarget(*h.context);
+    TestOwner owner(h, 0);
+    GuestCallArgs args{}; args.count = 2; args.values[1] = gate.Value().value;
+    for (unsigned round = 0; round < 3; ++round) {
+        const bool attached = round < 2;
+        if (attached) (void)debug.Pause();
+        const auto before = Fex::FexTestDebugCounters(*h.context);
+        auto running = owner.Submit([&] { return h.context->InvokeGuest(owner.handle, GuestCodeAddress{h.code_base}, args, {}); });
+        if (attached) {
+            if (!AwaitDebugPark(debug, owner.handle)) std::_Exit(4);
+            (void)debug.Continue(0, false);
+        }
+        auto result = Await(running);
+        const auto after = Fex::FexTestDebugCounters(*h.context);
+        Check(("DM07-" + std::to_string(round)).c_str(),
+              "1000 HLE calls capture once per attached invocation; detach stays capture-free",
+              result && result.Value().reason == StopReason::Returned && result.Value().return_value == 1000 &&
+                  after.native_captures - before.native_captures == (attached ? 1u : 0u) &&
+                  after.memory_observers == before.memory_observers);
+        (void)debug.Detach();
+    }
+}
+void TestGuestFrameLinks(Harness& h) {
+    std::string detail;
+    if (!LoadFixture(h, *FindFixture("debug_frame_chain"), detail)) std::_Exit(4);
+    auto& debug = Fex::FexDebugTarget(*h.context);
+    (void)debug.Pause();
+    TestOwner owner(h, 0);
+    auto running = owner.Submit([&] { return h.context->InvokeGuest(owner.handle, GuestCodeAddress{h.code_base}, {}, {}); });
+    auto first = AwaitDebugPark(debug, owner.handle);
+    if (!first) std::_Exit(4);
+    (void)debug.Continue(0, false);
+    auto hit = AwaitDebugPark(debug, owner.handle, first->snapshot->stop_epoch);
+    auto stack = debug.ReadMixedStack(owner.handle.id);
+    Check("DM05", "RBP walker reports a checked guest caller at a parked leaf", hit && stack && std::any_of(stack.Value().frames.begin(), stack.Value().frames.end(), [](auto& f) { return f.provenance == "verified-rbp-return-address"; }));
+    if (hit) {
+        RegisterPatch patch{}; patch.fields = RegisterValidity::Gpr; patch.gpr_mask = 1u << Index(Gpr::Rbp); patch.values.Set(Gpr::Rbp, UINT64_MAX - 7);
+        (void)debug.WriteStoppedRegisters(owner.handle, patch, hit->snapshot->stop_epoch);
+        auto invalid = debug.ReadMixedStack(owner.handle.id);
+        Check("DM06", "invalid frame pointer truncates without speculative stack scanning", invalid && invalid.Value().frames.size() == 1);
+    }
+    (void)h.context->RequestInterrupt(owner.handle, InterruptReason::Cancel);
+    (void)Await(running);
+    (void)debug.Detach();
+}
+void TestGuestDebugHle(Harness& h) {
+    std::string detail;
+    if (!LoadFixture(h, *FindFixture("invoke_hle_chain"), detail)) {
+        Check("DBG20", "load HLE debugger fixture", false, detail); return;
+    }
+    auto* registry = static_cast<HleCallRegistry*>(Fex::FexHleRegistryPointer(*h.context));
+    auto allocator = HleVeneerAllocator::Create(*h.space,
+        {GuestAddress{h.space->ReservationBase().value + 0x120000}, HostPageSize()});
+    auto operation = registry->Register(&HleWaitCancellable, "debug_wait");
+    if (!allocator || !operation) { Check("DBG20", "allocate HLE gate", false); return; }
+    auto gate = allocator.Value().Allocate(operation.Value());
+    if (!gate || !allocator.Value().Seal()) { Check("DBG20", "seal HLE gate", false); return; }
+    auto& debug = Fex::FexDebugTarget(*h.context);
+    TestOwner first(h, 0);
+    GuestCallArgs args{}; args.count = 2; args.values[1] = gate.Value().value;
+    hle_wait_entered.store(false);
+    auto waiting = first.Submit([&] { return h.context->InvokeGuest(first.handle, GuestCodeAddress{h.code_base}, args, {}); });
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+    while (!hle_wait_entered.load() && std::chrono::steady_clock::now() < deadline) std::this_thread::yield();
+    auto paused = debug.Pause();
+    TestOwner second(h, 1, 0x800);
+    auto parked = second.Submit([&] { return h.context->InvokeGuest(second.handle, GuestCodeAddress{h.code_base}, args, {}); });
+    std::optional<Debug::Thread> hle, guest;
+    const auto park_deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+    do {
+        for (auto t : debug.Threads()) {
+            if (t.handle == first.handle) hle = t;
+            if (t.handle == second.handle) guest = t;
+        }
+        if (guest && guest->phase == Debug::Phase::Parked) break;
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    } while (std::chrono::steady_clock::now() < park_deadline);
+    Check("DBG20", "Pause preserves native HLE wait while parking sibling guest",
+          paused && hle_wait_entered.load() && hle && hle->phase == Debug::Phase::Hle &&
+          hle->snapshot && hle->snapshot->kind == SnapshotKind::HleBoundary &&
+          guest && guest->phase == Debug::Phase::Parked && guest->snapshot &&
+          guest->snapshot->kind == SnapshotKind::SafePoint);
+    auto watch = debug.SetWatchpoint({GuestAddress{h.data_base}, 8}, Debug::WatchAccess::Write, true);
+    auto unwatch = debug.SetWatchpoint({GuestAddress{h.data_base}, 8}, Debug::WatchAccess::Write, false);
+    Check("DW17", "watch configuration allows native HLE waits after guest pause", watch && unwatch);
+    RegisterPatch patch{}; patch.fields = RegisterValidity::Gpr; patch.gpr_mask = 1;
+    auto step = debug.Continue(first.handle.id, true);
+    auto write = debug.WriteStoppedRegisters(first.handle, patch, hle && hle->snapshot ? hle->snapshot->stop_epoch : 0);
+    Check("DBG21", "HLE snapshot remains read-only and cannot be single-stepped", !step && !write);
+    auto token = h.context->QuiesceContext(1'000'000'000);
+    Check("DBG22", "debug park and native HLE hold no execution lease across VM drain", bool(token));
+    if (token) token.Value() = QuiescenceToken{};
+    (void)h.context->RequestInterrupt(first.handle, InterruptReason::Cancel);
+    (void)h.context->RequestInterrupt(second.handle, InterruptReason::Cancel);
+    auto a = Await(waiting); auto b = Await(parked);
+    Check("DBG23", "Stop cancels both HLE wait and parked nested invocation",
+          a && b && a.Value().reason == StopReason::Cancelled && b.Value().reason == StopReason::Cancelled &&
+          h.space->Counts().live_pins == 0,
+          std::string("hle=") + (a ? std::string(ToString(a.Value().reason)) : Describe(a.GetError())) +
+          " parked=" + (b ? std::string(ToString(b.Value().reason)) : Describe(b.GetError())) +
+          " pins=" + std::to_string(h.space->Counts().live_pins));
+    Check("DBG24", "HLE debugger detach releases ownership", bool(debug.Detach()));
 }
 void TestHleRuntime(Harness& h) {
     std::string detail;
@@ -4105,15 +4672,46 @@ void TestHighAddressPolicy() {
 
 } // namespace
 
+void TestClockDomain(Harness& harness) {
+    const auto* fixture = FindFixture("clock_domain");
+    if (!fixture) { Check("G50", "clock fixture present", false); return; }
+    auto native_counter = [] {
+        uint64_t value{};
+        asm volatile("isb; mrs %0, cntvct_el0; isb" : "=r"(value) :: "memory");
+        return value;
+    };
+    uint64_t frequency{};
+    asm volatile("mrs %0, cntfrq_el0" : "=r"(frequency));
+    const auto before = native_counter();
+    const auto outcome = RunFixture(harness, *fixture, [](RegisterPatch&) {});
+    const auto after = native_counter();
+    if (!Require("G50", outcome, *fixture)) return;
+    const auto& regs = outcome.result.snapshot.registers;
+    Check("G50a", "RDTSC shares the host Orbis TSC domain",
+          regs.Get(Gpr::R8) >= before && regs.Get(Gpr::R8) <= after,
+          "host=[" + Hex(before) + "," + Hex(after) + "] guest=" + Hex(regs.Get(Gpr::R8)));
+    Check("G50b", "RDTSCP shares the host Orbis TSC domain",
+          regs.Get(Gpr::R9) >= before && regs.Get(Gpr::R9) <= after);
+    const auto denominator = regs.Get(Gpr::Rax);
+    Check("G50c", "CPUID TSC frequency equals host counter frequency",
+          denominator && regs.Get(Gpr::Rcx) * regs.Get(Gpr::Rbx) / denominator == frequency);
+}
+
 int main(int argc, char** argv) {
     const bool focused = argc == 2 && std::strcmp(argv[1], "--focused-publication") == 0;
-    if (argc > 1 && !focused) { std::fprintf(stderr, "unknown test selection\n"); return 2; }
+    const bool clock_only = argc == 2 && std::strcmp(argv[1], "--focused-clock") == 0;
+    const bool debug_mixed_server = argc == 2 && std::strcmp(argv[1], "--serve-debugger-mixed") == 0;
+    const bool debug_watch_server = argc == 2 && std::strcmp(argv[1], "--serve-debugger-watch") == 0;
+    const bool debug_server = debug_mixed_server || debug_watch_server || (argc == 2 && std::strcmp(argv[1], "--serve-debugger") == 0);
+    const bool debug_only = argc == 2 && std::strcmp(argv[1], "--focused-debugger") == 0;
+    const bool hle_only = argc == 2 && std::strcmp(argv[1], "--focused-hle") == 0;
+    if (argc > 1 && !focused && !clock_only && !debug_only && !debug_server && !hle_only) { std::fprintf(stderr, "unknown test selection\n"); return 2; }
     printf("guest execution through the public CPU API\n");
     printf("host page size: %ld\n", ::sysconf(_SC_PAGESIZE));
     printf("fixtures: %zu, generated from tests/guest_cpu/fixtures/guest_fixtures.S\n\n",
            std::size(Fixtures::kAll));
 
-    if (!focused) TestHighAddressPolicy(); // Reserve before FEX claims its process-wide allocator arena.
+    if (!focused && !clock_only && !debug_only && !debug_server && !hle_only) TestHighAddressPolicy(); // Reserve before FEX claims its process-wide allocator arena.
     Harness harness{};
 
     AddressSpaceConfig space_config{};
@@ -4152,7 +4750,10 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    auto context = CreateContext(CpuConfig{}, *harness.space);
+    CpuConfig config{};
+    if (debug_only || debug_server) config.resume_internal_drains = true;
+    if (debug_server) { config.guest_debug_port = 24680; config.guest_debug_wait = true; }
+    auto context = CreateContext(config, *harness.space);
     if (!context) {
         printf("FAILED: could not create the CPU context: %s\n",
                Describe(context.GetError()).c_str());
@@ -4171,12 +4772,90 @@ int main(int argc, char** argv) {
            harness.stack_top);
     printf("return gate at 0x%" PRIx64 "\n\n", harness.return_gate);
 
+    if (debug_server) {
+        std::string error;
+        if (!LoadFixture(harness, *FindFixture(debug_mixed_server ? "invoke_hle_chain" : debug_watch_server ? "debug_watch_server" : "spin_loop"), error)) return 1;
+        std::optional<HleVeneerAllocator> debug_allocator;
+        GuestCallArgs debug_args{};
+        if (debug_mixed_server) {
+            auto* registry = static_cast<HleCallRegistry*>(Fex::FexHleRegistryPointer(*harness.context));
+            auto op = registry->Register(&HleCallChain, "debug_mixed_server");
+            auto slab = HleVeneerAllocator::Create(*harness.space, {GuestAddress{base + 0x120000}, HostPageSize()});
+            if (!op || !slab) return 1;
+            debug_allocator.emplace(std::move(slab).Value());
+            auto gate = debug_allocator->Allocate(op.Value());
+            if (!gate || !debug_allocator->Seal()) return 1;
+            hle_chain_entry = GuestCodeAddress{harness.code_base}; hle_chain_veneer = gate.Value().value;
+            hle_chain_mode = 3;
+            debug_args.count = 2; debug_args.values[0] = 2; debug_args.values[1] = hle_chain_veneer;
+        }
+        ThreadInit init{};
+        init.initial_state.fields = RegisterValidity::Gpr;
+        init.initial_state.gpr_mask = 1u << Index(Gpr::Rdi);
+        init.initial_state.values.Set(Gpr::Rdi, harness.data_base);
+        init.entry_rip = GuestCodeAddress{harness.code_base};
+        init.initial_rsp = GuestAddress{harness.stack_top};
+        auto thread = harness.context->CreateThread(init);
+        if (!thread) return 1;
+        std::jthread deadline{[&](std::stop_token stop) {
+            for (int i=0;i<(debug_mixed_server || debug_watch_server ? 250 : 1200) && !stop.stop_requested();++i)
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            if (!stop.stop_requested()) (void)harness.context->RequestInterrupt(thread.Value(), InterruptReason::Cancel);
+        }};
+        printf("GUEST_RSP_READY port=24680 thread=%llu code=%s data=%s\n",
+               static_cast<unsigned long long>(thread.Value().id), Hex(harness.code_base).c_str(), Hex(harness.data_base).c_str());
+        fflush(stdout);
+        StopReason reason{};
+        if (debug_mixed_server) {
+            auto run = harness.context->InvokeGuest(thread.Value(), hle_chain_entry, debug_args, {});
+            reason = run ? run.Value().reason : StopReason::BackendFailure;
+        } else {
+            auto run = harness.context->Run(thread.Value(), {});
+            reason = run ? run.Value().primary_reason : StopReason::BackendFailure;
+        }
+        deadline.request_stop(); deadline.join();
+        (void)harness.context->DestroyThread(thread.Value());
+        printf("GUEST_RSP_EXIT %s\n", ToString(reason).data());
+        return reason == StopReason::Cancelled ? 0 : 1;
+    }
+    if (debug_only) {
+        TestGuestDebugStep(harness);
+        TestGuestDebugFlags(harness);
+        TestGuestDebugController(harness);
+        TestGuestDebugHle(harness);
+        TestGuestWatchpoints(harness);
+        TestWatchDetachAndNegative(harness);
+        TestGuestMixedStack(harness);
+        TestGuestDebugHotHle(harness);
+        TestGuestFrameLinks(harness);
+        printf("FOCUSED_DEBUGGER checks=%d failures=%d\n", g_checks, g_failures);
+        return g_failures ? 1 : 0;
+    }
+    if (hle_only) {
+        TestFaultAttribution(harness);
+        TestRealHleGate(harness);
+        TestInvokeGuest(harness);
+        TestInvokeGuestWithHle(harness);
+        TestVeneerGuestCall(harness);
+        TestHleRuntime(harness);
+        TestHleBufferPinning(harness);
+        TestImmediateSyscallExit(harness);
+        TestConcurrentSyscallFaultIsolation(harness);
+        printf("FOCUSED_HLE checks=%d failures=%d\n", g_checks, g_failures);
+        return g_failures ? 1 : 0;
+    }
+    if (clock_only) {
+        TestClockDomain(harness);
+        printf("FOCUSED_CLOCK checks=%d failures=%d\n", g_checks, g_failures);
+        return g_failures ? 1 : 0;
+    }
     if (focused) {
         TestHleBoundaryDrainWake(harness);
         TestContinuationAdmissionRace(harness);
         printf("FOCUSED_PUBLICATION checks=%d failures=%d\n", g_checks, g_failures);
         return g_failures ? 1 : 0;
     }
+    TestClockDomain(harness);
     TestIntegerArithmetic(harness);
     TestBranches(harness);
     TestLoadStore(harness);

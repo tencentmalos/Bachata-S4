@@ -9,6 +9,7 @@
 #include "common/debug.h"
 #include "common/elf_info.h"
 #include "common/logging/log.h"
+#include "common/profiler.h"
 #include "common/slot_vector.h"
 #include "core/address_space.h"
 #include "core/debug_state.h"
@@ -209,6 +210,8 @@ static void ResetSubmissionLock(Platform::InterruptId irq) {
 }
 
 static void WaitGpuIdle() {
+    // Submission-batch admission, not vkDeviceWaitIdle or display completion.
+    Common::Profiler::Scope scope{"GNM.SubmissionGate"};
     HLE_TRACE;
     std::unique_lock lock{m_submission};
     cv_lock.wait(lock, [] { return stopping || submission_lock == 0; });
@@ -2310,6 +2313,28 @@ int PS4_SYSV_ABI sceGnmSubmitCommandBuffersForWorkload(u32 workload, u32 count,
     HLE_TRACE;
     LOG_DEBUG(Lib_GnmDriver, "called");
 
+    // Beat Saber currently reaches the first GNM epoch on Android but does
+    // not produce a guest flip.  Keep a bounded command-buffer census at this
+    // boundary so a missing PM4 draw can be distinguished from a presenter
+    // failure without dumping guest memory indefinitely.  This is diagnostic
+    // only; the submitted spans and their ownership remain unchanged.
+    static std::atomic<u32> submit_census{0};
+    const u32 census_id = submit_census.fetch_add(1, std::memory_order_relaxed);
+    if (census_id < 32) {
+        LOG_INFO(Lib_GnmDriver, "submit census={} workload={} count={} dcb={} ccb={}",
+                 census_id, workload, count,
+                 dcb_sizes_in_bytes ? dcb_sizes_in_bytes[0] : 0,
+                 ccb_sizes_in_bytes ? ccb_sizes_in_bytes[0] : 0);
+        if (dcb_gpu_addrs && dcb_sizes_in_bytes && count && dcb_gpu_addrs[0] &&
+            dcb_sizes_in_bytes[0] >= sizeof(u32)) {
+            const auto words = std::min<u32>(dcb_sizes_in_bytes[0] / sizeof(u32), 16);
+            std::string first_words;
+            for (u32 i = 0; i < words; ++i)
+                first_words += fmt::format(" {:#x}", dcb_gpu_addrs[0][i]);
+            LOG_INFO(Lib_GnmDriver, "submit census={} dcb_head={}", census_id, first_words);
+        }
+    }
+
     if (!dcb_gpu_addrs || !dcb_sizes_in_bytes) {
         LOG_ERROR(Lib_GnmDriver, "dcbGpuAddrs and dcbSizesInBytes must not be NULL");
         return 0x80d11000;
@@ -2404,7 +2429,7 @@ int PS4_SYSV_ABI sceGnmSubmitCommandBuffersForWorkload(u32 workload, u32 count,
                 .base_addr = reinterpret_cast<uintptr_t>(ccb),
             });
         }
-        liverpool->SubmitGfx(dcb_span, ccb_span);
+        liverpool->SubmitGfx(dcb_span, ccb_span, ScopedSubmitSources::Get(cbpair));
     }
 
     return ORBIS_OK;
@@ -2418,6 +2443,10 @@ s32 PS4_SYSV_ABI sceGnmSubmitCommandBuffers(u32 count, const u32* dcb_gpu_addrs[
 }
 
 int PS4_SYSV_ABI sceGnmSubmitDone() {
+    // A guest submission epoch, including warmup iterations with no flip.
+    // This is deliberately not a displayed-frame/FPS marker.
+    Common::Profiler::Frame();
+    Common::Profiler::Scope profile{"GNM.SubmitDone"};
     HLE_TRACE;
     LOG_DEBUG(Lib_GnmDriver, "called");
     WaitGpuIdle();

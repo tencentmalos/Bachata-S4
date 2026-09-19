@@ -1,0 +1,52 @@
+--------- beginning of main
+09-15 17:43:50.302 27036 27036 I Zygote  : seccomp disabled by setenforce 0
+09-15 17:43:50.306 27036 27036 I shadps4.android: Late-enabling -Xcheck:jni
+09-15 17:43:50.337 27036 27036 D CompatibilityChangeReporter: Compat change id reported: 171979766; UID 10190; state: ENABLED
+09-15 17:43:50.340 27036 27036 W ziparchive: Unable to open '/data/app/~~dt9CSYkHq7aUK2-9E7G3ng==/com.shadps4.android-S0TkF6cAcAq1itm4z6-F7g==/base.dm': No such file or directory
+09-15 17:43:50.340 27036 27036 W ziparchive: Unable to open '/data/app/~~dt9CSYkHq7aUK2-9E7G3ng==/com.shadps4.android-S0TkF6cAcAq1itm4z6-F7g==/base.dm': No such file or directory
+09-15 17:43:50.399 27036 27036 I Perf    : Connecting to perf service.
+09-15 17:43:50.401 27036 27036 V GraphicsEnvironment: ANGLE Developer option for 'com.shadps4.android' set to: 'default'
+09-15 17:43:50.401 27036 27036 V GraphicsEnvironment: ANGLE GameManagerService for com.shadps4.android: false
+09-15 17:43:50.401 27036 27036 V GraphicsEnvironment: Updatable production driver is not supported on the device.
+09-15 17:43:50.402 27036 27036 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+09-15 17:43:50.402 27036 27036 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+09-15 17:43:50.423 27036 27036 I ActivityThread: performLaunchActivity com.shadps4.android displayId 0
+09-15 17:43:50.424 27036 27036 I ActivityThread: getDefaultLauncherPackage pkn com.android.launcher3
+09-15 17:43:50.454 27036 27036 I ActivityThread: performResumeActivity com.shadps4.android displayId 0
+09-15 17:43:50.454 27036 27036 I ActivityThread: getDefaultLauncherPackage pkn com.android.launcher3
+09-15 17:43:50.456 27036 27036 D CompatibilityChangeReporter: Compat change id reported: 237531167; UID 10190; state: DISABLED
+09-15 17:43:50.663 27036 27060 I AdrenoGLES-0: QUALCOMM build                   : 69e13475cb, I1df7ad3aa9
+09-15 17:43:50.663 27036 27060 I AdrenoGLES-0: Build Date                       : 12/27/23
+09-15 17:43:50.663 27036 27060 I AdrenoGLES-0: OpenGL ES Shader Compiler Version: E031.41.03.47
+09-15 17:43:50.663 27036 27060 I AdrenoGLES-0: Local Branch                     : 
+09-15 17:43:50.663 27036 27060 I AdrenoGLES-0: Remote Branch                    : refs/tags/AU_LINUX_ANDROID_LA.VENDOR.13.2.0.11.00.00.855.759
+09-15 17:43:50.663 27036 27060 I AdrenoGLES-0: Remote Branch                    : NONE
+09-15 17:43:50.663 27036 27060 I AdrenoGLES-0: Reconstruct Branch               : NOTHING
+09-15 17:43:50.663 27036 27060 I AdrenoGLES-0: Build Config                     : S P 14.1.4 AArch64
+09-15 17:43:50.663 27036 27060 I AdrenoGLES-0: Driver Path                      : /vendor/lib64/egl/libGLESv2_adreno.so
+09-15 17:43:50.663 27036 27060 I AdrenoGLES-0: Driver Version                   : 0676.53
+09-15 17:43:50.666 27036 27060 I AdrenoGLES-0: PFP: 0x01740168, ME: 0x00000000
+09-15 17:43:50.669 27036 27060 I AdrenoUtils: <ReadGpuID:407>: Reading chip ID through GSL
+09-15 17:43:50.673 27036 27060 E OpenGLRenderer: Unable to match the desired swap behavior.
+09-15 17:43:50.742 27036 27036 I InsetsSourceConsumer: setControl gSourceControl control InsetsSourceControl: {type=ITYPE_IME, mSurfacePosition=Point(0, 55), mInsetsHint=Insets{left=0, top=0, right=0, bottom=111}}
+09-15 17:43:50.744 27036 27036 I OpenLastGame: Launch requested: CUSA50828
+09-15 17:43:50.750 27036 27036 W OnBackInvokedCallback: OnBackInvokedCallback is not enabled for the application.
+09-15 17:43:50.750 27036 27036 W OnBackInvokedCallback: Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+09-15 17:43:50.890 27036 27089 I ProductionRuntime: prepare: reserve guest VA
+09-15 17:43:50.890 27036 27089 I ProductionRuntime: prepare: create FEX context
+09-15 17:43:50.890 27036 27089 I ProductionRuntime: prepare: create production VM/Linker
+09-15 17:43:50.894 27036 27036 I FexSessionService: native: page_size=4096 pid=27036 uid=10190 gen=1
+09-15 17:43:51.171 27036 27089 I hook_impl: hook_android_load_sphal_library: filename: vulkan.adreno.so
+09-15 17:43:51.171 27036 27089 I hook_impl: hook_android_dlopen_ext: filename: vulkan.adreno.so
+09-15 17:43:51.172 27036 27089 I hook_impl: hook_android_dlopen_ext: loading custom driver: /data/data/com.shadps4.android/files/native-drivers/fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09/vulkan.ad07xx.so
+09-15 17:43:51.173 27036 27089 D vulkan  : searching for layers in '/data/app/~~dt9CSYkHq7aUK2-9E7G3ng==/com.shadps4.android-S0TkF6cAcAq1itm4z6-F7g==/lib/arm64'
+09-15 17:43:51.173 27036 27089 D vulkan  : searching for layers in '/data/app/~~dt9CSYkHq7aUK2-9E7G3ng==/com.shadps4.android-S0TkF6cAcAq1itm4z6-F7g==/base.apk!/lib/arm64-v8a'
+09-15 17:43:51.175 27036 27089 W MESA    : Gralloc doesn't support lock_ycbcr (video buffers won't be supported)
+09-15 17:43:51.175 27036 27089 I MESA    : Using fallback gralloc implementation
+09-15 17:43:51.175 27036 27089 I ProductionRuntime: prepare: load/relocate modules
+09-15 17:43:51.496 27036 27049 I shadps4.android: Compiler allocated 4413KB to compile void android.view.ViewRootImpl.performTraversals()
+09-15 17:43:55.891 27036 27154 D ProfileInstaller: Installing profile for com.shadps4.android
+09-15 17:44:17.535 27036 27049 I shadps4.android: Compiler allocated 6136KB to compile void com.shadps4.android.feature.session.SessionScreenKt$SessionScreen$8.invoke(androidx.compose.foundation.layout.BoxWithConstraintsScope, androidx.compose.runtime.Composer, int)
+09-15 17:44:19.991 27036 27036 I shadps4.android: type=1400 audit(0.0:204467): avc: denied { read } for name="gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-15 17:44:19.991 27036 27036 I shadps4.android: type=1400 audit(0.0:204468): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-15 17:44:19.991 27036 27036 I shadps4.android: type=1400 audit(0.0:204469): avc: denied { getattr } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1

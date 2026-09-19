@@ -1,0 +1,4 @@
+{
+  "corrects": "review note for frames 14 and 18",
+  "note": "Frames 14/18 prove rooftop character movement and camera response. Frame 18 still shows MOVE, not the training dialogue; the submitted dialogue phrase was inaccurate. Gameplay/input verdict uses the actual visible movement only."
+}

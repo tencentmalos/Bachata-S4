@@ -1,0 +1,8 @@
+{
+  "run_id": "4fc550c0e82445cd8dd170bd9bddf5aa",
+  "scene_frame": 9,
+  "response_frame": 15,
+  "note": "Turnip with session-latched lower_int64=1 reaches rooftop. Stick input changes character/camera and MOVE to ATTACK; roof edges and Leonardo lack the block corruption seen on system driver. This is a visual check, not pixel-identical or performance acceptance.",
+  "method": "explicit_visual_review",
+  "reviewed_at": 1789552126.0759418
+}

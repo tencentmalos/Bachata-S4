@@ -1,0 +1,263 @@
+[
+  {
+    "static_va": "0x15c04e0",
+    "runtime_va": "0x19c04e0",
+    "got": "0x1d3b4e8",
+    "nid": "Cj+Fw5q1tUo",
+    "name": "_Xtime_get_ticks",
+    "bytes": "ff2502b07700",
+    "constant_zero": false
+  },
+  {
+    "static_va": "0x15c04f0",
+    "runtime_va": "0x19c04f0",
+    "got": "0x1d3b4f0",
+    "nid": "Vo5V8KAwCmk",
+    "name": "sceSystemServiceHideSplashScreen",
+    "bytes": "ff25faaf7700",
+    "constant_zero": false
+  },
+  {
+    "static_va": "0x15c0500",
+    "runtime_va": "0x19c0500",
+    "got": "0x1d3b4f8",
+    "nid": "WslcK1FQcGI",
+    "name": "sceKernelIsNeoMode",
+    "bytes": "ff25f2af7700",
+    "constant_zero": false
+  },
+  {
+    "static_va": "0x15c0510",
+    "runtime_va": "0x19c0510",
+    "got": "0x1d3b500",
+    "nid": "j3YMu1MVNNo",
+    "name": "sceUserServiceInitialize",
+    "bytes": "ff25eaaf7700",
+    "constant_zero": false
+  },
+  {
+    "static_va": "0x15c0520",
+    "runtime_va": "0x19c0520",
+    "got": "0x1d3b508",
+    "nid": "QI-x0SL8jhw",
+    "name": "acosf",
+    "bytes": "ff25e2af7700",
+    "constant_zero": false
+  },
+  {
+    "static_va": "0x15c0530",
+    "runtime_va": "0x19c0530",
+    "got": "0x1d3b510",
+    "nid": "weDug8QD-lE",
+    "name": "atanf",
+    "bytes": "ff25daaf7700",
+    "constant_zero": false
+  },
+  {
+    "static_va": "0x15c0540",
+    "runtime_va": "0x19c0540",
+    "got": "0x1d3b518",
+    "nid": "-HIO4VT87v8",
+    "name": "sceHttp2SetConnectTimeOut",
+    "bytes": "31c0c3af7700",
+    "constant_zero": true
+  },
+  {
+    "static_va": "0x15c0550",
+    "runtime_va": "0x19c0550",
+    "got": "0x1d3b520",
+    "nid": "hdpVEUDFW3s",
+    "name": "sceSslInit",
+    "bytes": "ff25caaf7700",
+    "constant_zero": false
+  },
+  {
+    "static_va": "0x15c0560",
+    "runtime_va": "0x19c0560",
+    "got": "0x1d3b528",
+    "nid": "izvHhqgDt44",
+    "name": "sceHttp2SetRecvTimeOut",
+    "bytes": "31c0c3af7700",
+    "constant_zero": true
+  },
+  {
+    "static_va": "0x15c0570",
+    "runtime_va": "0x19c0570",
+    "got": "0x1d3b530",
+    "nid": "9XYJwCf3lEA",
+    "name": "sceHttp2GetStatusCode",
+    "bytes": "31c0c3af7700",
+    "constant_zero": true
+  },
+  {
+    "static_va": "0x15c0580",
+    "runtime_va": "0x19c0580",
+    "got": "0x1d3b538",
+    "nid": "mmyOCxQMVYQ",
+    "name": "sceHttp2CreateRequestWithURL",
+    "bytes": "31c0c3af7700",
+    "constant_zero": true
+  },
+  {
+    "static_va": "0x15c0590",
+    "runtime_va": "0x19c0590",
+    "got": "0x1d3b540",
+    "nid": "A+NVAFu4eCg",
+    "name": "sceHttp2SendRequestAsync",
+    "bytes": "31c0c3af7700",
+    "constant_zero": true
+  },
+  {
+    "static_va": "0x15c05a0",
+    "runtime_va": "0x19c05a0",
+    "got": "0x1d3b548",
+    "nid": "ACjtE27aErY",
+    "name": "sceHttp2SetResolveTimeOut",
+    "bytes": "31c0c3af7700",
+    "constant_zero": true
+  },
+  {
+    "static_va": "0x15c05b0",
+    "runtime_va": "0x19c05b0",
+    "got": "0x1d3b550",
+    "nid": "b9AvoIaOuHI",
+    "name": "sceHttp2SetAutoRedirect",
+    "bytes": "31c0c3af7700",
+    "constant_zero": true
+  },
+  {
+    "static_va": "0x15c05c0",
+    "runtime_va": "0x19c05c0",
+    "got": "0x1d3b558",
+    "nid": "nrPfOE8TQu0",
+    "name": "sceHttp2AddRequestHeader",
+    "bytes": "31c0c3af7700",
+    "constant_zero": true
+  },
+  {
+    "static_va": "0x15c05d0",
+    "runtime_va": "0x19c05d0",
+    "got": "0x1d3b560",
+    "nid": "FSAFOzi0FpM",
+    "name": "sceHttp2SetRequestContentLength",
+    "bytes": "31c0c3af7700",
+    "constant_zero": true
+  },
+  {
+    "static_va": "0x15c05e0",
+    "runtime_va": "0x19c05e0",
+    "got": "0x1d3b568",
+    "nid": "bGN-6zbo7ms",
+    "name": "sceHttp2ReadDataAsync",
+    "bytes": "31c0c3af7700",
+    "constant_zero": true
+  },
+  {
+    "static_va": "0x15c05f0",
+    "runtime_va": "0x19c05f0",
+    "got": "0x1d3b570",
+    "nid": "MOp-AUhdfi8",
+    "name": "sceHttp2WaitAsync",
+    "bytes": "31c0c3af7700",
+    "constant_zero": true
+  },
+  {
+    "static_va": "0x15c0600",
+    "runtime_va": "0x19c0600",
+    "got": "0x1d3b578",
+    "nid": "uRosf8GQbHQ",
+    "name": "sceHttp2SetInflateGZIPEnabled",
+    "bytes": "31c0c3af7700",
+    "constant_zero": true
+  },
+  {
+    "static_va": "0x15c0610",
+    "runtime_va": "0x19c0610",
+    "got": "0x1d3b580",
+    "nid": "+wCt7fCijgk",
+    "name": "sceHttp2CreateTemplate",
+    "bytes": "31c0c3af7700",
+    "constant_zero": true
+  },
+  {
+    "static_va": "0x15c0620",
+    "runtime_va": "0x19c0620",
+    "got": "0x1d3b588",
+    "nid": "3JCe3lCbQ8A",
+    "name": "sceHttp2Init",
+    "bytes": "31c0c3af7700",
+    "constant_zero": true
+  },
+  {
+    "static_va": "0x15c0630",
+    "runtime_va": "0x19c0630",
+    "got": "0x1d3b590",
+    "nid": "0K1yQ6Lv-Yc",
+    "name": "sceSslTerm",
+    "bytes": "ff255aaf7700",
+    "constant_zero": false
+  },
+  {
+    "static_va": "0x15c0640",
+    "runtime_va": "0x19c0640",
+    "got": "0x1d3b598",
+    "nid": "pDom5-078DA",
+    "name": "sceHttp2DeleteTemplate",
+    "bytes": "31c0c3af7700",
+    "constant_zero": true
+  },
+  {
+    "static_va": "0x15c0650",
+    "runtime_va": "0x19c0650",
+    "got": "0x1d3b5a0",
+    "nid": "YiBUtz-pGkc",
+    "name": "sceHttp2Term",
+    "bytes": "31c0c3af7700",
+    "constant_zero": true
+  },
+  {
+    "static_va": "0x15c0660",
+    "runtime_va": "0x19c0660",
+    "got": "0x1d3b5a8",
+    "nid": "c8D9qIjo8EY",
+    "name": "sceHttp2DeleteRequest",
+    "bytes": "31c0c3af7700",
+    "constant_zero": true
+  },
+  {
+    "static_va": "0x15c0670",
+    "runtime_va": "0x19c0670",
+    "got": "0x1d3b5b0",
+    "nid": "VYMxTcBqSE0",
+    "name": "sceHttp2SetTimeOut",
+    "bytes": "31c0c3af7700",
+    "constant_zero": true
+  },
+  {
+    "static_va": "0x15c0680",
+    "runtime_va": "0x19c0680",
+    "got": "0x1d3b5b8",
+    "nid": "XPtW45xiLHk",
+    "name": "sceHttp2SetSendTimeOut",
+    "bytes": "31c0c3af7700",
+    "constant_zero": true
+  },
+  {
+    "static_va": "0x15c0690",
+    "runtime_va": "0x19c0690",
+    "got": "0x1d3b5c0",
+    "nid": "n8hMLe31OPA",
+    "name": "sceHttp2SetConnectionWaitTimeOut",
+    "bytes": "31c0c3af7700",
+    "constant_zero": true
+  },
+  {
+    "static_va": "0x15c06a0",
+    "runtime_va": "0x19c06a0",
+    "got": "0x1d3b5c8",
+    "nid": "IZ-qjhRqvjk",
+    "name": "sceHttp2AbortRequest",
+    "bytes": "31c0c3af7700",
+    "constant_zero": true
+  }
+]

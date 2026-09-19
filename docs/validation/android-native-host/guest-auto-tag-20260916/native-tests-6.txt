@@ -1,0 +1,59 @@
+[PATCH001] PASS unarmed FEX baseline
+refused: auto tag backend requires x86_64 SysV/little/64
+[PATCH002] PASS architecture
+refused: auto tag module identity mismatch
+[PATCH003] PASS sha
+refused: auto tag instruction preimage mismatch
+[PATCH004] PASS preimage
+refused: auto tag instruction preimage mismatch
+[PATCH005] PASS successor
+refused: duplicate/zero probe ID
+[PATCH006] PASS duplicate
+refused: duplicate/zero probe ID
+[PATCH007] PASS zero
+refused: auto tag offset outside module
+[PATCH008] PASS overflow
+[PATCH009] PASS probe installation is immutable
+[PATCH010] PASS ring enabled for paired evidence
+[PATCH011] PASS auto probes preserve stack integer ABI
+[PATCH012] PASS auto probes preserve SIMD and sret
+[PATCH013] PASS relocated CALL interval
+[PATCH014] PASS relocated CALL interval
+[PATCH015] PASS relocated CALL interval
+[PATCH016] PASS relocated CALL interval
+[PATCH017] PASS relocated CALL interval
+[PATCH018] PASS relocated CALL interval
+[PATCH019] PASS relocated CALL interval
+[PATCH020] PASS relocated CALL interval
+[PATCH021] PASS relocated CALL interval
+[PATCH022] PASS relocated CALL interval
+[PATCH023] PASS relocated CALL interval
+[PATCH024] PASS relocated CALL interval
+[PATCH025] PASS relocated CALL interval
+[PATCH026] PASS relocated CALL interval
+[PATCH027] PASS relocated CALL interval
+[PATCH028] PASS relocated CALL interval
+[PATCH029] PASS relocated CALL interval
+[PATCH030] PASS relocated CALL interval
+[PATCH031] PASS relocated CALL interval
+[PATCH032] PASS relocated CALL interval
+[PATCH033] PASS four original sites followed into trampolines
+[PATCH034] PASS all exact-SP pairs completed
+[PATCH035] PASS disabled probes preserve cached original path
+[PATCH036] PASS disabled probes emit no observations
+[PATCH037] PASS re-enable cached translation
+[PATCH038] PASS recursive owner stack pairs correctly
+[PATCH039] PASS skipped call successor is ignored
+[PATCH040] PASS toggle never completes stale span
+[PATCH041] PASS owner retirement discards pending span
+refused: cannot remap a published auto tag table
+[PATCH042] PASS published probe relocation cannot mutate
+[PATCH043] PASS auto profile follows disabled C++ patch original
+[PATCH044] PASS auto profile follows re-enabled C++ patch
+[PATCH045] PASS patch toggle preserves probe identity
+[PATCH046] PASS code publication still executes changed guest semantics
+[PATCH047] PASS stale profile auto-disables on translation
+refused: auto tag code identity changed; restart with a fresh profile
+[PATCH048] PASS stale code cannot be rearmed
+{"abandoned":3,"architecture":"x86_64","backend":"fex-ir","code_invalidations":1,"context":3,"enabled":false,"ignored_ends":2,"module":"target.elf","module_sha256":"266475fcfecd4b16011703a56601ce9b70e23881ecd124381dfcb2e829392708","overflow":0,"probes":[{"completed":0,"elapsed_ns":0,"hits":1,"id":1,"name":"sum8","offset":0},{"completed":25,"elapsed_ns":79893,"hits":28,"id":2,"name":"call","offset":48},{"completed":0,"elapsed_ns":0,"hits":1,"id":3,"name":"float","offset":96},{"completed":0,"elapsed_ns":0,"hits":1,"id":4,"name":"sret","offset":112}],"profile_sha256":"b72b93a06d98956af8e6141de7c641e352179d6ee02d1a9863c046d42a1d4ef0","remapped_sites":4,"rewrites_guest_memory":false,"schema":"spatial.guest-auto-tag.status.v1","sites":5,"title":"SHAD_PATCH_TEST"}
+AUTO_TAG checks=48 failures=0

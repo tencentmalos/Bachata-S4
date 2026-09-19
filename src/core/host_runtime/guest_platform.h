@@ -29,6 +29,27 @@ public:
         if (!providers.emplace(std::move(name), handle).second)
             throw std::logic_error("duplicate sysmodule provider");
     }
+    // A virtual provider can become available after the session object is
+    // constructed (Android enables SBS input when the Activity owns the
+    // session).  This keeps that late publication idempotent while retaining
+    // Publish's duplicate-provider check for ordinary initialization.
+    bool PublishIfAbsent(std::string name, s32 handle) {
+        std::lock_guard lock(mutex);
+        return providers.emplace(std::move(name), handle).second;
+    }
+    // Publish the already-installed checked SBS HLE surface as one family.
+    // This grants module references, not every import in the vendor library.
+    // Library Initialize/Open/Close and unsupported entries keep their own checks.
+    // A real guest provider, published during module startup, takes precedence.
+    void PublishSbsVrProviders(bool enabled) {
+        if (!enabled)
+            return;
+        std::lock_guard lock(mutex);
+        s32 handle = 0x10000014;
+        for (const char* name : {"libSceMove", "libSceHmd", "libSceVrTracker",
+                                 "libSceCamera", "libSceHmdSetupDialog"})
+            providers.emplace(name, handle++);
+    }
     void AllowDesktopJson2Compatibility() {
         std::lock_guard lock(mutex);
         compatibility.emplace("libSceJson2", 0x10000100);
@@ -138,6 +159,20 @@ public:
         for (const auto& user : users)
             if (id >= 0 && user.id == id) {
                 out = user.name;
+                return 0;
+            }
+        return ORBIS_USER_SERVICE_ERROR_NOT_LOGGED_IN;
+    }
+    s32 UserColor(s32 id, Libraries::UserService::OrbisUserServiceUserColor& out) const {
+        std::lock_guard lock(mutex);
+        if (!initialized)
+            return ORBIS_USER_SERVICE_ERROR_NOT_INITIALIZED;
+        for (const auto& user : users)
+            if (id >= 0 && user.id == id) {
+                // The copied local profile does not carry desktop account
+                // presentation state. Keep the documented first palette
+                // value stable instead of reading host-global UserManagement.
+                out = Libraries::UserService::OrbisUserServiceUserColor::Blue;
                 return 0;
             }
         return ORBIS_USER_SERVICE_ERROR_NOT_LOGGED_IN;

@@ -21,8 +21,7 @@ class GuestAudio {
 public:
     using Factory = std::function<std::unique_ptr<Libraries::AudioOut::PortBackend>(
         Libraries::AudioOut::PortOut&)>;
-    GuestAudio(GuestCpu::GuestAddressSpace& space, std::recursive_mutex& vm, GuestClock& clock,
-               Factory factory = {});
+    GuestAudio(GuestCpu::GuestAddressSpace& space, GuestClock& clock, Factory factory = {});
     ~GuestAudio();
     u64 Dispatch(std::string_view nid, const std::array<u64, 6>& args, std::stop_token stop = {});
     void RequestStop();

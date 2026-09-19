@@ -1,0 +1,93 @@
+{
+  "head": "4da582b7b3a36d74403a4985c3c03f37e570bcb7",
+  "branch": "codex/android-fex-round2",
+  "source_dirty": true,
+  "source_sha256": {
+    "src/core/guest_cpu/fex/fex_context.cpp": "1beaabd21144868cb606ddec428eb52d9321f5904170ab668133227434a19275",
+    "src/core/host_runtime/guest_avplayer.cpp": "5fe2d3d062a57b4301312e798ea7222872b24dc377491fe4cfb993d371a22dc9",
+    "tests/guest_cpu/guest_execution_tests.cpp": "782e886ec08cd9572bae42a041e35db7ebe755b58129c963baf3b844364e3ae1",
+    "tests/guest_cpu/fixtures/guest_fixtures.S": "15fc2a8a7c53b6ddf470825f4e1776f13993cf4e47e863b2b55f53507c750ba4",
+    "tests/host_runtime/guest_avplayer_tests.cpp": "f9cfda00ace285f9e1580ddee9ec1f43f8c43f2bb2f48445a71e828298878d7a",
+    "scripts/android/open-last-game": "fc290d6b044c9d70ea9500111dc47bccb008ca0a90818ab84840de873d94ea9e",
+    "android/shadps4-app/feature/library/src/main/kotlin/com/shadps4/android/feature/library/LibraryScreen.kt": "e9eca40b9d9a68ba3e42acc5448f7c081471d0c2e9459c7111fc6fc77f772673",
+    "android/shadps4-app/app/src/main/kotlin/com/shadps4/android/BachataNavHost.kt": "a2c6dcca2fc60328f51a9804f536366867d8b9aa65253bb72bf1cfdd3b274d14",
+    "android/shadps4-app/app/src/main/kotlin/com/shadps4/android/MainActivity.kt": "9a929cf5341e675dfad5a5df486191e9c68211bd1ba192710860368977c63694",
+    "android/shadps4-app/app/src/main/kotlin/com/shadps4/android/service/FexSessionService.kt": "9731663ccfe6c23ed72c4e1e1a7fa819e39dde43f6dffd66646dd83a138c420a",
+    "android/shadps4-app/core/data/src/main/kotlin/com/shadps4/android/data/GameRepository.kt": "4cbeff75c6741d8f2d46aea5fdda03abb8b2f10b2713a096143e373f217f99ec"
+  },
+  "apk": {
+    "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk",
+    "sha256": "445e1ec401a0396a48a872df2dfc3317f7b520a806e2d42e5b512d35cdb2ee2f",
+    "libraries": {
+      "lib/arm64-v8a/libshadps4_host.so": {
+        "sha256": "b93c07e5aae6ffc5baef471f9a4a848b9c61a18b9c8b3169cb8372e8e3df8d0f",
+        "build_id": "2eec5bef06e96b575066d66af1912851d7a30c97"
+      },
+      "lib/arm64-v8a/libshadps4_fex_session.so": {
+        "sha256": "9ff921d773d907646247b2eca352c5c633bb34027fcd1130f582d5ea75306934",
+        "build_id": "5f839d1b4e64c1fc30a5002f3ecca9503f9410f1"
+      }
+    }
+  },
+  "device": {
+    "serial": "9c2841a4",
+    "model": "AYN Thor",
+    "api": 33,
+    "page_size": 4096,
+    "pid": 32710,
+    "start_time_ticks": 24226362,
+    "session_generation": 1,
+    "run_uuid": "243f84c1c10fca43e8b7e63bcb8ef526"
+  },
+  "rdc": {
+    "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/guest-zero-fps-20260915/white.rdc",
+    "sha256": "3041cda2b857bb4437b3aaa6260fd25c504f8633cae4475c2f7b3a16c5b939dc",
+    "bytes": 800518817,
+    "pid": 19992,
+    "run_uuid": "eaae93047ebad1936e6da3f4ac7d78b2",
+    "final_output_equivalence": "unverified"
+  },
+  "evidence_sha256": {
+    "media-state-before-reinstall.png": "7280cd244969476e54278a19717b497b1a5c6864618c6ca254f8fbc1387f8ec3",
+    "video-done-breakpoint-fixed.json": "bfd77af13df66cc3c0e9ab60002807b5ba369f261c3b3509ef0dce45dd8a857d",
+    "debug-hle-stop-status.txt": "7bd7f9d1b2ec8b296ce3eb386eace66eca534322ae625d4eff0d52200c57aab1",
+    "white.rdc.json": "5b344a34c351f3dc6ed5f22143ed6be3382569fe210c2654dee7a604bb05d38e",
+    "video-done-probe.json": "60eac1bac2ff167913c485d0a2046bb8cd0f50f499431e867a23b1d4c83aef47",
+    "media-ready-tests.txt": "6b4b0f1ad9fa200fb3b51bd0478fa905f0def09ed9c288c265916d26d9b82e81",
+    "media-state-tests.txt": "054616655bd05c711eeeab3c14665a031ddc61df10dc3986b95bd7d73b028037",
+    "media-state-stop-status.txt": "326b71e263c25629a42302bc6c0eb765ad4e7ce2250bdb4ff73b826855d0279b",
+    "debug-hle-breakpoint-tests.txt": "504c1110739c7c38870a330d37166f450408c90a1e3885240fbd438904f969c1",
+    "media-lifecycle-excerpt.txt": "9fdabb3ee02ac675cb5956266f13f8191c6c93e2fe37918c1835a03c247c8a9d",
+    "video-done-caller.json": "252043ac39dcf58a5469a591d2573e5932ffc574fdfea6f6822064f2ffc717f3",
+    "video-done-dispatch.json": "32cebb057bbe87b0b45e83a36b9444645b5ddda3ba91cade0f53536ee92c0324",
+    "rdoc71/1789458662995500000-shader_inspect.json": "23e3e45e0d9f9b370b6410d2ceef73cfe7ddc3f7d85ee5c77f3fd51387fc86bd",
+    "rdoc71/1789458712827643000-capture_open.json": "c7b85721fb6b246e45e5c5afcd00cfcc357ae6711df5839d8653dc59ae514be7",
+    "rdoc71/1789456706480238000-review_texture.json": "7c8dc0f3ce2eb92e3fd0ae0fbb5b9063a2bc2ca6c69c728f70d9bc6e4cbdfc84",
+    "rdoc71/1789458662762085000-capture_open.json": "a0c4fbcb414ca69cad9a6c4798bd07f8303f17edcd711889ae53cd196e8d7a4b",
+    "rdoc71/1789458713351335000-review_texture.json": "94ee363ff9f795ddcf9ce79332513610b55be3ebdb890e3c8742b4c46adbf0d0",
+    "rdoc71/1789456642949010000-review_texture.json": "4129fd7f78634dd50b6e085bb5d1fba335c3ed085ab3254024c9d9a439042648",
+    "rdoc71/1789458713357438000-resource_usage.json": "34f66cc1d5a7a89486365766ec9b53f923b6894d46c71ea196204c530017c508",
+    "rdoc71/1789458624919008000-pipeline_outputs.json": "08b426b6b18310d5f54d0ca9f02765d5cf8a23871a9c9597dbc058bdface0b66",
+    "rdoc71/1789456707229035000-review_texture.json": "be115a24bcd74609303a779a5e641ac98178e263dfec64d3909fb180b151a75b",
+    "rdoc71/1789458625007187000-shader_inspect.json": "1817f02390b77e8a8a065d2023178be7c1d571ba4ec4ed18da5960f59439d2af",
+    "rdoc71/1789456707605377000-review_texture.json": "73d5c12c53f1f7c177ef728a0e8d41762d42b461ed40667bcb9cf91f44328b28",
+    "rdoc71/1789458663009429000-resource_get.json": "1d5a1ed9c342faebafe3e4a3aa7f25dd2c791a28c5678b47b75e455754e15049",
+    "rdoc71/1789458663008538000-resource_get.json": "1176bdb3784b9618cd47788c9b6b6d9d6314407ddc917338181b75f8b022476d",
+    "rdoc71/1789458713327917000-resource_usage.json": "8e2883b57a0d232bfc0c911796b4a2336666f92169701c08372c642489f4c59e",
+    "rdoc71/1789458624670094000-capture_open.json": "6cfacf62325d7f380341fd5495c7d5340d57fb9d420294d4692d9a2b6ac562b7",
+    "rdoc71/1789458624676293000-frame_overview.json": "8abdc670a1e6c02639be7d0f161423e0d74731505e217eb84fc88d13357feb75",
+    "rdoc71/1789456656666717000-review_texture.json": "1a607e03344d32726bc8b1c103e10d0060c2d136d7a1c4b1c23d1500e68f62e3",
+    "rdoc71/1789458625003163000-pipeline_bindings.json": "1ae7e19f21fd14c027f8a4704f2631d088c2139d471719011eb724415e84d4da",
+    "rdoc71/1789458610912914000-capture_status.json": "6f0f5739b950afcd5943d23e4123ef74ad01057e9b1b282fe1c0a9c25af72ab9",
+    "rdoc71/1789458625268924000-capture_close.json": "8ee9a2482a105b443c62e7431db738a7a25ca8f139d893db60a1db5880be44c2",
+    "rdoc71/1789458663297460000-capture_close.json": "f247e0a53981e799f2aa2be6bc39e988d7c1ab16a6d519f5bc6a4fc0bbd10a58",
+    "rdoc71/1789458624681294000-schema_describe.json": "64b4c3d362375d25055b6c2eb6525b00d1be293713a1e4fdf55ec3fb11d610e8",
+    "rdoc71/1789458625004501000-shader_inspect.json": "6bbae8b539de1f2f2673b2ebe2930d1085e4168ec05ba756ad1566f534d2431c",
+    "rdoc71/1789458713626703000-capture_close.json": "296daaf2a41b262740fced328565a5f0c3efbf3c937ec930cf9cb5ac7f721f12",
+    "rdoc71/1789456707997472000-review_texture.json": "aa35de2544386a808182fe90ca5a3bc0dc28de911ae1612d112523d161268fd2",
+    "rdoc71/1789456706864116000-review_texture.json": "898740d0484af46d80d2e705b1e03e31abcd58e4c6d2b7adaa36250233f5cafe",
+    "rdoc71/1789458663006281000-pipeline_bindings.json": "759e68c01ee8862ff9974f52e7b943d131d4f7bf58c6c8d49ca97c5e440806c1",
+    "rdoc71/1789458713313461000-review_texture.json": "ce481d4587c9f87da37a8003c1eea780d7c986af7246c08797bfe9b1d67cc91d",
+    "rdoc71/1789458625001327000-pipeline_vertex_input.json": "9139a26cdcc0189882770f0795d54e06fdc0dba0908fc7c6ea8a96550b673cc0"
+  }
+}

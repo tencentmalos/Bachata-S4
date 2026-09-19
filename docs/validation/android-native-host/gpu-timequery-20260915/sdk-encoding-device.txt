@@ -1,0 +1,24 @@
+Running main() from /Users/bytedance/workspace/emulations/ps4/shadps4/foundation/third_party/profiler_sdk/build/_deps/googletest-src/googletest/src/gtest_main.cc
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from EncodingPerf
+[ RUN      ] EncodingPerf.HotCounterEncodingAveragesUnder50Ns
+BENCH internal.encode_counter median_ns_per_event=4.27
+[       OK ] EncodingPerf.HotCounterEncodingAveragesUnder50Ns (1 ms)
+[ RUN      ] EncodingPerf.PublicApiMedianNsPerEvent
+BENCH public.span_begin median_ns_per_event=5.00
+BENCH public.span_end median_ns_per_event=2.79
+BENCH public.counter median_ns_per_event=3.70
+BENCH public.mem_alloc.tagged median_ns_per_event=3.05
+BENCH public.mem_free median_ns_per_event=3.54
+BENCH public.frame_mark median_ns_per_event=4.30
+BENCH public.span_begin_dyn.one_i64_arg median_ns_per_event=6.33
+BENCH public.bookmark median_ns_per_event=3.46
+BENCH public.region_begin median_ns_per_event=2.89
+BENCH public.region_end median_ns_per_event=3.54
+[       OK ] EncodingPerf.PublicApiMedianNsPerEvent (7 ms)
+[----------] 2 tests from EncodingPerf (9 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (9 ms total)
+[  PASSED  ] 2 tests.

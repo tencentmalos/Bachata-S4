@@ -1,0 +1,1 @@
+GUEST_CAMERA checks=71 failures=0

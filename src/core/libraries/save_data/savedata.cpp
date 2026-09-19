@@ -78,19 +78,6 @@ enum class OrbisSaveDataParamType : u32 {
     MTIME = 5,
 };
 
-enum class OrbisSaveDataSortKey : u32 {
-    DIRNAME = 0,
-    USER_PARAM = 1,
-    BLOCKS = 2,
-    MTIME = 3,
-    FREE_BLOCKS = 5,
-};
-
-enum class OrbisSaveDataSortOrder : u32 {
-    ASCENT = 0,
-    DESCENT = 1,
-};
-
 struct OrbisSaveDataFingerprint {
     CString<OrbisSaveDataFingerprintDataSize> data;
     std::array<u8, 15> _pad;
@@ -261,37 +248,6 @@ struct OrbisSaveDataTransferringMount {
     const OrbisSaveDataDirName* dirName;
     const OrbisSaveDataFingerprint* fingerprint;
     std::array<u8, 32> _reserved;
-};
-
-struct OrbisSaveDataDirNameSearchCond {
-    Libraries::UserService::OrbisUserServiceUserId userId;
-    int : 32;
-    const OrbisSaveDataTitleId* titleId;
-    const OrbisSaveDataDirName* dirName;
-    OrbisSaveDataSortKey key;
-    OrbisSaveDataSortOrder order;
-    std::array<u8, 32> _reserved;
-};
-
-struct OrbisSaveDataSearchInfo {
-    u64 blocks;
-    u64 freeBlocks;
-    std::array<u8, 32> _reserved;
-};
-
-struct OrbisSaveDataDirNameSearchResult {
-    u32 hitNum;
-    int : 32;
-    OrbisSaveDataDirName* dirNames;
-    u32 dirNamesNum;
-    // +1.7
-    u32 setNum;
-    // +1.7
-    OrbisSaveDataParam* params;
-    // +2.5
-    OrbisSaveDataSearchInfo* infos;
-    std::array<u8, 12> _reserved;
-    int : 32;
 };
 
 struct OrbisSaveDataEventParam { // dummy structure
@@ -776,12 +732,9 @@ int PS4_SYSV_ABI sceSaveDataDeleteUser() {
     return ORBIS_OK;
 }
 
-Error PS4_SYSV_ABI sceSaveDataDirNameSearch(const OrbisSaveDataDirNameSearchCond* cond,
-                                            OrbisSaveDataDirNameSearchResult* result) {
-    if (!g_initialized) {
-        LOG_INFO(Lib_SaveData, "called without initialize");
-        return setNotInitializedError();
-    }
+Error SearchSaveDirectories(const OrbisSaveDataDirNameSearchCond* cond,
+                            OrbisSaveDataDirNameSearchResult* result, std::string_view game_serial,
+                            u32 fw, const fs::path& home) {
     if (cond == nullptr || result == nullptr || cond->key > OrbisSaveDataSortKey::FREE_BLOCKS ||
         cond->order > OrbisSaveDataSortOrder::DESCENT) {
         LOG_INFO(Lib_SaveData, "called with invalid parameter");
@@ -789,13 +742,13 @@ Error PS4_SYSV_ABI sceSaveDataDirNameSearch(const OrbisSaveDataDirNameSearchCond
     }
     LOG_DEBUG(Lib_SaveData, "called");
     const std::string_view title_id{cond->titleId == nullptr
-                                        ? std::string_view{g_game_serial}
+                                        ? std::string_view{game_serial}
                                         : std::string_view{cond->titleId->data}};
-    const auto save_path = SaveInstance::MakeTitleSavePath(cond->userId, title_id);
+    const auto save_path = home / std::to_string(cond->userId) / "savedata" / title_id;
 
     if (!fs::exists(save_path)) {
         result->hitNum = 0;
-        if (g_fw_ver >= ElfInfo::FW_170) {
+        if (fw >= ElfInfo::FW_170) {
             result->setNum = 0;
         }
         return Error::OK;
@@ -806,7 +759,7 @@ Error PS4_SYSV_ABI sceSaveDataDirNameSearch(const OrbisSaveDataDirNameSearchCond
     for (const auto& path : fs::directory_iterator{save_path}) {
         auto dir_name = path.path().filename().string();
         // skip non-directories, sce_* and directories without param.sfo
-        if (fs::is_directory(path) && !dir_name.starts_with("sce_") &&
+        if (fs::is_directory(path.symlink_status()) && !dir_name.starts_with("sce_") &&
             fs::exists(SaveInstance::GetParamSFOPath(path))) {
             dir_list.push_back(dir_name);
         }
@@ -826,19 +779,19 @@ Error PS4_SYSV_ABI sceSaveDataDirNameSearch(const OrbisSaveDataDirNameSearchCond
     std::unordered_map<std::string, OrbisSaveDataBlocks> map_free_size;
 
     for (const auto& dir_name : dir_list) {
-        const auto dir_path = SaveInstance::MakeDirSavePath(cond->userId, title_id, dir_name);
+        const auto dir_path = save_path / dir_name;
         const auto sfo_path = SaveInstance::GetParamSFOPath(dir_path);
         PSF sfo;
         if (!sfo.Open(sfo_path)) {
             LOG_ERROR(Lib_SaveData, "Failed to read SFO: {}", fmt::UTF(sfo_path.u8string()));
-            ASSERT_MSG(false, "Failed to read SFO");
+            return Error::BROKEN;
         }
 
         size_t size = Common::FS::GetDirectorySize(dir_path);
         size_t total = SaveInstance::GetMaxBlockFromSFO(sfo);
 
         map_dir_sfo.emplace(dir_name, std::move(sfo));
-        map_free_size.emplace(dir_name, total - size / OrbisSaveDataBlockSize);
+        map_free_size.emplace(dir_name, total > size / OrbisSaveDataBlockSize ? total - size / OrbisSaveDataBlockSize : 0);
         map_max_blocks.emplace(dir_name, total);
     }
 
@@ -869,7 +822,7 @@ Error PS4_SYSV_ABI sceSaveDataDirNameSearch(const OrbisSaveDataDirNameSearchCond
     }
 
     size_t max_count = std::min(static_cast<size_t>(result->dirNamesNum), dir_list.size());
-    if (g_fw_ver >= ElfInfo::FW_170) {
+    if (fw >= ElfInfo::FW_170) {
         result->hitNum = dir_list.size();
         result->setNum = max_count;
     } else {
@@ -880,13 +833,13 @@ Error PS4_SYSV_ABI sceSaveDataDirNameSearch(const OrbisSaveDataDirNameSearchCond
         auto& name_data = result->dirNames[i].data;
         name_data.FromString(dir_list[i]);
 
-        if (g_fw_ver >= ElfInfo::FW_170 && result->params != nullptr) {
+        if (fw >= ElfInfo::FW_170 && result->params != nullptr) {
             auto& sfo = map_dir_sfo.at(dir_list[i]);
             auto& param_data = result->params[i];
             param_data.FromSFO(sfo);
         }
 
-        if (g_fw_ver >= ElfInfo::FW_250 && result->infos != nullptr) {
+        if (fw >= ElfInfo::FW_250 && result->infos != nullptr) {
             auto& info = result->infos[i];
             info.blocks = map_max_blocks.at(dir_list[i]);
             info.freeBlocks = map_free_size.at(dir_list[i]);
@@ -894,6 +847,12 @@ Error PS4_SYSV_ABI sceSaveDataDirNameSearch(const OrbisSaveDataDirNameSearchCond
     }
 
     return Error::OK;
+}
+
+Error PS4_SYSV_ABI sceSaveDataDirNameSearch(const OrbisSaveDataDirNameSearchCond* cond,
+                                          OrbisSaveDataDirNameSearchResult* result) {
+    if (!g_initialized) return setNotInitializedError();
+    return SearchSaveDirectories(cond, result, g_game_serial, g_fw_ver, EmulatorSettings.GetHomeDir());
 }
 
 int PS4_SYSV_ABI sceSaveDataDirNameSearchInternal() {

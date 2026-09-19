@@ -1,0 +1,8 @@
+{
+  "run_id": "acf968b6313445cfb3939aed955d0b47",
+  "scene_frame": 11,
+  "response_frame": 14,
+  "note": "最终 APK fbe32126 / host49c9d7c6：frame11 屋顶左侧 MOVE，实际 stick-right 输入后 frame14 已移动到右侧栏杆，镜头跟随、教程切为 ATTACK，guest flip905→1304。实时审核，不以 overlay 重绘代替游戏响应。",
+  "method": "explicit_visual_review",
+  "reviewed_at": 1789638269.245882
+}

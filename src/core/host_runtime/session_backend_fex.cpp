@@ -9,6 +9,7 @@
 #include <atomic>
 #include <chrono>
 #include <cstdint>
+#include <cstdlib>
 #include <memory>
 #include <mutex>
 #include <unordered_map>
@@ -16,6 +17,7 @@
 #include <vector>
 #if defined(__ANDROID__)
 #include <android/log.h>
+#include <sys/system_properties.h>
 #endif
 #include <unistd.h>
 
@@ -34,6 +36,8 @@
 #if defined(SHADPS4_TYPED_HLE_HOST)
 #include "core/guest_cpu/fex/fex_context.h"
 #include "core/host_runtime/guest_runtime.h"
+#include "common/path_util.h"
+#include "common/profiler.h"
 #endif
 
 namespace Core::HostRuntime {
@@ -43,6 +47,9 @@ using namespace Core::GuestCpu;
 namespace {
 
 void RuntimeStage(const char* stage) {
+#if defined(SHADPS4_TYPED_HLE_HOST)
+    Common::Profiler::Bookmark(stage);
+#endif
 #if defined(__ANDROID__)
     __android_log_print(ANDROID_LOG_INFO, "ProductionRuntime", "%s", stage);
 #endif
@@ -101,6 +108,10 @@ struct FexSessionRuntime final : SessionRuntime {
 
 Result<std::shared_ptr<SessionRuntime>> FexSessionBackend::Prepare(
     const SessionParams& params) try {
+#if defined(SHADPS4_TYPED_HLE_HOST)
+    Common::Profiler::Bookmark(("Session.Generation." + std::to_string(params.generation)).c_str());
+    Common::Profiler::Phase prepare_phase{"Startup.Prepare"};
+#endif
     auto rt = std::make_shared<FexSessionRuntime>();
 
     AddressSpaceConfig cfg{};
@@ -130,10 +141,31 @@ Result<std::shared_ptr<SessionRuntime>> FexSessionBackend::Prepare(
         RuntimeStage("prepare: create FEX context");
         CpuConfig cpu_config;
         cpu_config.resume_internal_drains = true;
+#if defined(__ANDROID__)
+        // Shell-set debug property, read once for this Session generation.
+        // No listener on ordinary startup and no public-network binding.
+        char debug_port[PROP_VALUE_MAX]{};
+        if (__system_property_get("debug.shadps4.guest_debug_port", debug_port) > 0) {
+            char* end{};
+            const auto port = std::strtoul(debug_port, &end, 10);
+            if (end != debug_port && !*end && port >= 1024 && port <= 65535)
+                cpu_config.guest_debug_port = static_cast<std::uint16_t>(port);
+        }
+        char debug_wait[PROP_VALUE_MAX]{};
+        __system_property_get("debug.shadps4.guest_debug_wait", debug_wait);
+        cpu_config.guest_debug_wait = debug_wait[0] == '1' && debug_wait[1] == 0;
+#endif
         auto context = CreateContext(cpu_config, *rt->space);
         if (!context)
             return context.GetError();
         rt->context = std::move(context).Value();
+        // Android discards stderr. Keep fatal-only FEX evidence with process /
+        // generation identity; ordinary execution emits nothing here.
+        const auto fatal_log = Common::FS::GetUserPath(Common::FS::PathType::LogDir) /
+            ("fex-fault-" + std::to_string(::getpid()) + "-" +
+             std::to_string(params.generation) + ".txt");
+        if (!Fex::SetFexFatalLog(*rt->context, fatal_log.c_str()))
+            RuntimeStage("warning: FEX fatal diagnostic file unavailable");
         auto* registry =
             static_cast<Hle::HleCallRegistry*>(Fex::FexHleRegistryPointer(*rt->context));
         RuntimeStage("prepare: create production VM/Linker");
@@ -213,9 +245,11 @@ Result<std::shared_ptr<SessionRuntime>> FexSessionBackend::Prepare(
 
     return std::shared_ptr<SessionRuntime>(std::move(rt));
 } catch (const std::bad_alloc&) {
+    RuntimeStage("prepare: failed: production runtime allocation failed");
     return MakeError(ErrorCategory::OutOfMemory, "FexSessionBackend::Prepare",
                      "production runtime allocation failed");
 } catch (const std::exception& error) {
+    RuntimeStage((std::string{"prepare: failed: "} + std::string{error.what()}.substr(0, 1024)).c_str());
     return MakeError(ErrorCategory::BackendFailure, "FexSessionBackend::Prepare", error.what());
 }
 
@@ -255,6 +289,12 @@ RunReport FexSessionBackend::Run(SessionRuntime& runtime) {
                 report.error_category = static_cast<std::uint32_t>(fault->syscall_category);
             }
         }
+        // The Service releases the runtime immediately after a terminal result.
+        // Keep the bounded reason in logcat before teardown removes the RSP
+        // endpoint; a disconnected debugger must not guess why the guest ended.
+        RuntimeStage((std::string{"run: terminal outcome="} + ToString(report.outcome) +
+                      (run ? " reason=" + std::string{ToString(run.Value().reason)} : "") +
+                      " detail=" + report.detail.substr(0, 1024)).c_str());
         report.detail += "\n" + rt.production->Diagnostics();
         return report;
     }

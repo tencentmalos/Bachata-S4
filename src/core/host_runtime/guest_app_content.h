@@ -4,6 +4,7 @@
 #include <cstring>
 #include <functional>
 #include <map>
+#include <mutex>
 #include "core/file_format/psf.h"
 #include "core/file_sys/fs.h"
 #include "core/guest_cpu/api/address_space.h"
@@ -14,7 +15,7 @@
 namespace Core::HostRuntime {
 inline constexpr std::string_view AppContentNids[]{"R9lA82OraNs", "99b82IKXpH4", "xnd8BJzAxmk",
                                                    "m47juOmH0VE", "XTWR0UXvcgs", "VANhIWcqYak",
-                                                   "buYbeLOGWmA", "SaKib2Ug0yI"};
+                                                   "buYbeLOGWmA", "SaKib2Ug0yI", "Gl6w5i0JokY"};
 inline bool IsAppContentNid(std::string_view nid) {
     return std::find(std::begin(AppContentNids), std::end(AppContentNids), nid) !=
            std::end(AppContentNids);
@@ -35,14 +36,15 @@ public:
     }
     u32 Dispatch(GuestCpu::GuestAddressSpace& space, std::string_view nid,
                  const std::array<u64, 6>& a, GuestStorage* storage = nullptr) {
+        std::lock_guard state_lock(mutex);
         using namespace GuestCpu;
         using namespace Libraries::AppContent;
         auto read = [&](u64 addr, auto& value) {
             return bool(
-                space.Read(GuestAddress{addr}, std::as_writable_bytes(std::span{&value, 1})));
+                space.ReadData(GuestAddress{addr}, std::as_writable_bytes(std::span{&value, 1})));
         };
         auto output = [&](u64 addr, u64 size) {
-            return space.AcquirePinnedSpan({GuestAddress{addr}, size}, true);
+            return space.AcquireDataSpan({GuestAddress{addr}, size}, true);
         };
         if (nid == "R9lA82OraNs") {
             if (initialized)
@@ -99,6 +101,33 @@ public:
             std::memcpy(pin.Value().WritableBytes().data(), &value, 4);
             return 0;
         }
+        if (nid == "Gl6w5i0JokY") {
+            // Download-data capacity is a local filesystem query. Keep the
+            // mount-point and output pointer guest-safe, then report the
+            // actual host filesystem capacity in KiB. An unresolved guest
+            // mount remains NOT_FOUND; do not turn an unavailable download
+            // provider into an invented online success.
+            if (!a[1])
+                return u32(ORBIS_APP_CONTENT_ERROR_PARAMETER);
+            OrbisAppContentMountPoint point{};
+            if (a[0] && (!read(a[0], point) ||
+                         !std::memchr(point.data, 0, sizeof(point.data))))
+                return u32(ORBIS_APP_CONTENT_ERROR_PARAMETER);
+            const std::string_view guest_point = a[0] ? std::string_view(point.data) : "/app0";
+            const auto host_path = mounts.GetHostPath(guest_point);
+            if (host_path.empty())
+                return u32(ORBIS_APP_CONTENT_ERROR_NOT_FOUND);
+            std::error_code error;
+            const auto capacity = std::filesystem::space(host_path, error);
+            if (error)
+                return u32(ORBIS_APP_CONTENT_ERROR_BUSY);
+            auto pin = output(a[1], sizeof(u64));
+            if (!pin)
+                return u32(ORBIS_APP_CONTENT_ERROR_PARAMETER);
+            const u64 available_kib = capacity.available / 1024;
+            std::memcpy(pin.Value().WritableBytes().data(), &available_kib, sizeof(available_kib));
+            return 0;
+        }
         if (!initialized)
             return u32(ORBIS_APP_CONTENT_ERROR_BUSY);
         if (nid == "buYbeLOGWmA" || nid == "SaKib2Ug0yI") {
@@ -146,19 +175,17 @@ public:
                 return 0;
             }
             const u32 size = std::min<size_t>(count, entries.size());
-            std::optional<PinnedSpan> list, hit;
-            if (size) {
-                auto pin = output(a[1], size * sizeof(OrbisAppContentAddcontInfo));
-                if (!pin)
-                    return u32(ORBIS_APP_CONTENT_ERROR_PARAMETER);
-                list = std::move(pin).Value();
-            }
-            if (a[3]) {
-                auto pin = output(a[3], 4);
-                if (!pin)
-                    return u32(ORBIS_APP_CONTENT_ERROR_PARAMETER);
-                hit = std::move(pin).Value();
-            }
+            std::vector<GuestAddressSpace::DataRequest> requests;
+            if (size)
+                requests.push_back({{GuestAddress{a[1]}, size * sizeof(OrbisAppContentAddcontInfo)},
+                                    GuestPermission::Write});
+            if (a[3])
+                requests.push_back({{GuestAddress{a[3]}, 4}, GuestPermission::Write});
+            auto pinned = space.AcquireDataBatch(requests);
+            if (!pinned)
+                return u32(ORBIS_APP_CONTENT_ERROR_PARAMETER);
+            auto* list = size ? &pinned.Value()[0] : nullptr;
+            auto* hit = a[3] ? &pinned.Value()[size ? 1 : 0] : nullptr;
             for (u32 i = 0; i < size; ++i)
                 std::memcpy(list->WritableBytes().data() + i * sizeof(OrbisAppContentAddcontInfo),
                             &entries[i].info, sizeof(OrbisAppContentAddcontInfo));
@@ -218,5 +245,6 @@ private:
     std::map<std::string, std::filesystem::path> mounted;
     std::function<bool()> notify;
     bool initialized{};
+    std::mutex mutex;
 };
 } // namespace Core::HostRuntime

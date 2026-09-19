@@ -1,0 +1,123 @@
+{
+  "arguments": {
+    "request": {
+      "eventId": "71",
+      "resourceId": "601",
+      "mip": 0,
+      "slice": 0,
+      "sample": 0
+    },
+    "options": {
+      "maxEdge": 384,
+      "diagnosticExposureStops": 0
+    }
+  },
+  "response": {
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"schemaVersion\":\"1.0\",\"materialization\":\"ready\",\"evidenceScope\":\"decoded_PNG_only_not_capture_or_presentation_validation\",\"source\":{\"kind\":\"active_replay_texture\",\"capturePath\":\"/Users/bytedance/workspace/emulations/ps4/shadps4/build/guest-zero-fps-20260915/white.rdc\",\"session\":{\"captureId\":\"59aa5387-52c3-465a-b957-6e811249a896\",\"captureRevision\":{\"value\":13},\"currentEventId\":\"71\"},\"data\":{\"materialization\":\"ready\",\"resourceId\":\"601\",\"eventId\":\"71\",\"format\":\"png\",\"mip\":0,\"slice\":0,\"sample\":0,\"artifactPath\":\"/Users/bytedance/Library/Application Support/renderdoc-mcp/artifacts/59aa5387-52c3-465a-b957-6e811249a896/textures/event-71-resource-601-mip-0-slice-0-99b6c09a0bd84ce7b42ef8b77c623449.png\",\"bytes\":86579,\"sha256\":\"276d5e0378e0c40e04b33102372fcc7357abc5bbc06932eed4d2770acf5956bf\",\"replayMode\":\"active_replay_controller\",\"displayInterpretation\":\"native_texture_export_defaults; PNG may clamp/quantize HDR; application LUT/tone mapping and presentation are unverified\",\"finalOutputEquivalence\":\"unverified\",\"reviewTool\":\"review_texture or review_image\"},\"texture\":{\"resourceId\":\"601\",\"width\":1920,\"height\":1080,\"depth\":1,\"mipCount\":1,\"arraySize\":1,\"sampleCount\":1,\"byteSize\":8294400,\"creationFlags\":11,\"formatType\":0,\"componentCount\":4,\"componentByteWidth\":1,\"componentType\":9,\"formatFlags\":0},\"sampleInterpretation\":\"explicit_sample\",\"attachmentSubresource\":\"explicit_request_not_inferred_from_pipeline_attachment\"},\"sourceSha256\":\"276d5e0378e0c40e04b33102372fcc7357abc5bbc06932eed4d2770acf5956bf\",\"sourceWidth\":1920,\"sourceHeight\":1080,\"crop\":{\"x\":0,\"y\":0,\"width\":1920,\"height\":1080},\"statistics\":{\"domain\":\"8-bit PNG crop before resize; RGB ignores alpha; dark=max(RGB)\\u003C=12/255; saturated=max(RGB)==1 (not proof of clipping); code values are not physical luminance\",\"meanRgbCodeValue\":0.9999866589258907,\"darkPixelRatio\":0,\"saturatedCodePixelRatio\":0.9999937307098765,\"nonOpaquePixelRatio\":0},\"finalOutputEquivalence\":\"unverified\",\"displayTransform\":\"application_LUT_tone_mapping_color_space_and_compositor_unverified\",\"imageContentCount\":1,\"views\":[{\"label\":\"exported_rgb\",\"transform\":\"PNG RGB code values unchanged; alpha forced opaque; nearest-neighbor crop/resize\",\"diagnosticOnly\":false,\"width\":384,\"height\":216,\"sha256\":\"c5f489eee9b13e6804bf9974e5e753863c69ce0e22bd7f55ee707e1ae6e52022\"}],\"warnings\":[\"Inspect the attached image blocks before visual conclusions. If the client omits them, visual evidence is unavailable; text/base64/path is not seeing the image.\",\"exported_rgb preserves PNG RGB code values only; alpha is forced opaque and resizing can hide small defects. Embedded ICC/gamma metadata is not applied. Use a crop for pixel detail.\",\"Dark code values do not prove a missing LUT. Diagnostic exposure is an aid on already exported 8-bit values; it cannot recover clipped HDR or implement the application\\u0027s LUT/tone mapping.\",\"A texture, Guest output, swapchain candidate, diff, or heatmap is not automatically equivalent to final displayed output. Trace resource_usage, pipeline_bindings, shader_inspect, and cbuffer_get through downstream post-processing/present/compositor first.\",\"Compare A/B using matching selectors, crops and identical transforms. Keep diagnostic views separate from source evidence; do not use independently normalized images to claim equality.\",\"ready describes PNG decoding only. Preserve declared source materialization and unknown color/alpha/transfer metadata; an image does not upgrade pending or failed capture evidence.\"]}"
+        },
+        {
+          "type": "text",
+          "text": "Image exported_rgb: PNG RGB code values unchanged; alpha forced opaque; nearest-neighbor crop/resize; sha256=c5f489eee9b13e6804bf9974e5e753863c69ce0e22bd7f55ee707e1ae6e52022"
+        },
+        {
+          "type": "image",
+          "data": "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",
+          "mimeType": "image/png"
+        }
+      ],
+      "structuredContent": {
+        "schemaVersion": "1.0",
+        "materialization": "ready",
+        "evidenceScope": "decoded_PNG_only_not_capture_or_presentation_validation",
+        "source": {
+          "kind": "active_replay_texture",
+          "capturePath": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/guest-zero-fps-20260915/white.rdc",
+          "session": {
+            "captureId": "59aa5387-52c3-465a-b957-6e811249a896",
+            "captureRevision": {
+              "value": 13
+            },
+            "currentEventId": "71"
+          },
+          "data": {
+            "materialization": "ready",
+            "resourceId": "601",
+            "eventId": "71",
+            "format": "png",
+            "mip": 0,
+            "slice": 0,
+            "sample": 0,
+            "artifactPath": "/Users/bytedance/Library/Application Support/renderdoc-mcp/artifacts/59aa5387-52c3-465a-b957-6e811249a896/textures/event-71-resource-601-mip-0-slice-0-99b6c09a0bd84ce7b42ef8b77c623449.png",
+            "bytes": 86579,
+            "sha256": "276d5e0378e0c40e04b33102372fcc7357abc5bbc06932eed4d2770acf5956bf",
+            "replayMode": "active_replay_controller",
+            "displayInterpretation": "native_texture_export_defaults; PNG may clamp/quantize HDR; application LUT/tone mapping and presentation are unverified",
+            "finalOutputEquivalence": "unverified",
+            "reviewTool": "review_texture or review_image"
+          },
+          "texture": {
+            "resourceId": "601",
+            "width": 1920,
+            "height": 1080,
+            "depth": 1,
+            "mipCount": 1,
+            "arraySize": 1,
+            "sampleCount": 1,
+            "byteSize": 8294400,
+            "creationFlags": 11,
+            "formatType": 0,
+            "componentCount": 4,
+            "componentByteWidth": 1,
+            "componentType": 9,
+            "formatFlags": 0
+          },
+          "sampleInterpretation": "explicit_sample",
+          "attachmentSubresource": "explicit_request_not_inferred_from_pipeline_attachment"
+        },
+        "sourceSha256": "276d5e0378e0c40e04b33102372fcc7357abc5bbc06932eed4d2770acf5956bf",
+        "sourceWidth": 1920,
+        "sourceHeight": 1080,
+        "crop": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "statistics": {
+          "domain": "8-bit PNG crop before resize; RGB ignores alpha; dark=max(RGB)<=12/255; saturated=max(RGB)==1 (not proof of clipping); code values are not physical luminance",
+          "meanRgbCodeValue": 0.9999866589258907,
+          "darkPixelRatio": 0,
+          "saturatedCodePixelRatio": 0.9999937307098765,
+          "nonOpaquePixelRatio": 0
+        },
+        "finalOutputEquivalence": "unverified",
+        "displayTransform": "application_LUT_tone_mapping_color_space_and_compositor_unverified",
+        "imageContentCount": 1,
+        "views": [
+          {
+            "label": "exported_rgb",
+            "transform": "PNG RGB code values unchanged; alpha forced opaque; nearest-neighbor crop/resize",
+            "diagnosticOnly": false,
+            "width": 384,
+            "height": 216,
+            "sha256": "c5f489eee9b13e6804bf9974e5e753863c69ce0e22bd7f55ee707e1ae6e52022"
+          }
+        ],
+        "warnings": [
+          "Inspect the attached image blocks before visual conclusions. If the client omits them, visual evidence is unavailable; text/base64/path is not seeing the image.",
+          "exported_rgb preserves PNG RGB code values only; alpha is forced opaque and resizing can hide small defects. Embedded ICC/gamma metadata is not applied. Use a crop for pixel detail.",
+          "Dark code values do not prove a missing LUT. Diagnostic exposure is an aid on already exported 8-bit values; it cannot recover clipped HDR or implement the application's LUT/tone mapping.",
+          "A texture, Guest output, swapchain candidate, diff, or heatmap is not automatically equivalent to final displayed output. Trace resource_usage, pipeline_bindings, shader_inspect, and cbuffer_get through downstream post-processing/present/compositor first.",
+          "Compare A/B using matching selectors, crops and identical transforms. Keep diagnostic views separate from source evidence; do not use independently normalized images to claim equality.",
+          "ready describes PNG decoding only. Preserve declared source materialization and unknown color/alpha/transfer metadata; an image does not upgrade pending or failed capture evidence."
+        ]
+      }
+    },
+    "id": 32,
+    "jsonrpc": "2.0"
+  }
+}

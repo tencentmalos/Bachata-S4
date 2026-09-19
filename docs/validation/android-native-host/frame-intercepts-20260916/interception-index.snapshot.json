@@ -1,0 +1,1608 @@
+{
+  "schema": "spatial.guest-interception-index.v1",
+  "identity": {
+    "emulator": "shadps4",
+    "title": "CUSA50828",
+    "module": "eboot.bin",
+    "module_sha256": "6122da7190de6b08d921b2c42c3ca9ed11dc4d11524f1139ff67aeceea5b204d"
+  },
+  "analysis": {
+    "module": "eboot.bin",
+    "sha256": "504fc22628a2a7c563e593aab298b9273e2a80eaf8814a095ffb6f464152da99",
+    "imagebase": 0
+  },
+  "architecture": "x86_64",
+  "abi": "x86_64-sysv",
+  "workset_sha256": "67def519ee477b66d69b24af793e0f1ff320844e5ed9a57f84a7027f746cfe5e",
+  "evidence_sha256": "78c4ba20a899aa6b118a206abbcf7f47083f834c9a8ee2706238076dff3e1b83",
+  "semantic_index_sha256": "2a28b1b676834ad8c5f25e60c89a6bc507d3b09f9c5a062372313dc03b630989",
+  "recipe": "frame_intercepts.recipe.json",
+  "functions": [
+    {
+      "offset": 648544,
+      "name": "TMNT_FrameCoordinator",
+      "naming_confidence": null,
+      "body_status": "see-existing-reviewed-source",
+      "runtime_status": "hit",
+      "mode": "existing-cpp",
+      "source": "../rooftop.cpp",
+      "replacement": "patch_frame",
+      "original": "original_frame",
+      "source_sha256": "939c775906c7872f737735192244876eddbd5005c3a225cdfbc470a9b077fb84",
+      "counter_ids": [
+        1,
+        2,
+        15
+      ],
+      "hook_name": "frame",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 1,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.frame_begin_ns",
+          "samples": 429,
+          "last": 325380624122176
+        },
+        {
+          "id": 2,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.frame_elapsed_ns",
+          "samples": 429,
+          "last": 10915990
+        },
+        {
+          "id": 15,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.recompiled_frame_dispatch_calls",
+          "samples": 1,
+          "last": 256
+        }
+      ]
+    },
+    {
+      "offset": 22814400,
+      "name": "Import_pthread_mutex_lock",
+      "naming_confidence": "proved",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "Import_pthread_mutex_lock.cpp",
+      "observer": "intercept_Import_pthread_mutex_lock",
+      "replacement": "entry_Import_pthread_mutex_lock",
+      "original": "original_Import_pthread_mutex_lock",
+      "counter_id": 16,
+      "counter_name": "Import_pthread_mutex_lock_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "7a1f6fb7ea6f936d397e0db83ceb20ab72ae567106e3e0cb50fd0670bb7184f7",
+      "counter_ids": [
+        16
+      ],
+      "hook_name": "Import_pthread_mutex_lock",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 16,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.Import_pthread_mutex_lock_entries",
+          "samples": 63,
+          "last": 253952
+        }
+      ]
+    },
+    {
+      "offset": 22814288,
+      "name": "Import_pthread_mutex_unlock",
+      "naming_confidence": "proved",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "Import_pthread_mutex_unlock.cpp",
+      "observer": "intercept_Import_pthread_mutex_unlock",
+      "replacement": "entry_Import_pthread_mutex_unlock",
+      "original": "original_Import_pthread_mutex_unlock",
+      "counter_id": 17,
+      "counter_name": "Import_pthread_mutex_unlock_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "68804ae5388d41d3e19de09eeea9029eac55e146cddf0e9301a0e0224c1844d1",
+      "counter_ids": [
+        17
+      ],
+      "hook_name": "Import_pthread_mutex_unlock",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 17,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.Import_pthread_mutex_unlock_entries",
+          "samples": 63,
+          "last": 253952
+        }
+      ]
+    },
+    {
+      "offset": 3842928,
+      "name": "TMNT_UpdateColorBlendState",
+      "naming_confidence": "candidate",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "TMNT_UpdateColorBlendState.cpp",
+      "observer": "intercept_TMNT_UpdateColorBlendState",
+      "replacement": "entry_TMNT_UpdateColorBlendState",
+      "original": "original_TMNT_UpdateColorBlendState",
+      "counter_id": 18,
+      "counter_name": "TMNT_UpdateColorBlendState_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "781086768b307932d04eedb03370edd33d2ad959a94cdf6d63670f0640c970d6",
+      "counter_ids": [
+        18
+      ],
+      "hook_name": "TMNT_UpdateColorBlendState",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 18,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.TMNT_UpdateColorBlendState_entries",
+          "samples": 1,
+          "last": 1
+        }
+      ]
+    },
+    {
+      "offset": 22806480,
+      "name": "Import_clock_gettime",
+      "naming_confidence": "proved",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "Import_clock_gettime.cpp",
+      "observer": "intercept_Import_clock_gettime",
+      "replacement": "entry_Import_clock_gettime",
+      "original": "original_Import_clock_gettime",
+      "counter_id": 19,
+      "counter_name": "Import_clock_gettime_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "ba74e8d0fdc00273569cc7d2cc918fcf72203b1b771497378b71ad6a961fb353",
+      "counter_ids": [
+        19
+      ],
+      "hook_name": "Import_clock_gettime",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 19,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.Import_clock_gettime_entries",
+          "samples": 1,
+          "last": 1
+        }
+      ]
+    },
+    {
+      "offset": 22806464,
+      "name": "Import_time",
+      "naming_confidence": "proved",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "Import_time.cpp",
+      "observer": "intercept_Import_time",
+      "replacement": "entry_Import_time",
+      "original": "original_Import_time",
+      "counter_id": 20,
+      "counter_name": "Import_time_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "6fbe6ddff3fd5a679efeb936fd506c4109aeae0c14168f8c1c7be936e5b4ba19",
+      "counter_ids": [
+        20
+      ],
+      "hook_name": "Import_time",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 20,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.Import_time_entries",
+          "samples": 1,
+          "last": 1
+        }
+      ]
+    },
+    {
+      "offset": 21773216,
+      "name": "TMNT_ExpireTimedRequestsAndPollProviders",
+      "naming_confidence": "correlated",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "TMNT_ExpireTimedRequestsAndPollProviders.cpp",
+      "observer": "intercept_TMNT_ExpireTimedRequestsAndPollProviders",
+      "replacement": "entry_TMNT_ExpireTimedRequestsAndPollProviders",
+      "original": "original_TMNT_ExpireTimedRequestsAndPollProviders",
+      "counter_id": 21,
+      "counter_name": "TMNT_ExpireTimedRequestsAndPollProviders_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "85c3644e5b866956d2fcc59cfa72ee301bc7fd2abd363e68594d90af02ecad32",
+      "counter_ids": [
+        21
+      ],
+      "hook_name": "TMNT_ExpireTimedRequestsAndPollProviders",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 21,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.TMNT_ExpireTimedRequestsAndPollProviders_entries",
+          "samples": 1,
+          "last": 1
+        }
+      ]
+    },
+    {
+      "offset": 21795760,
+      "name": "TMNT_DispatchProviderCompletions",
+      "naming_confidence": "correlated",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "TMNT_DispatchProviderCompletions.cpp",
+      "observer": "intercept_TMNT_DispatchProviderCompletions",
+      "replacement": "entry_TMNT_DispatchProviderCompletions",
+      "original": "original_TMNT_DispatchProviderCompletions",
+      "counter_id": 22,
+      "counter_name": "TMNT_DispatchProviderCompletions_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "ec821b166f75c0ca3e7013ee4ac374f904dd78ba54a272e947f9959b766a5832",
+      "counter_ids": [
+        22
+      ],
+      "hook_name": "TMNT_DispatchProviderCompletions",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 22,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.TMNT_DispatchProviderCompletions_entries",
+          "samples": 1,
+          "last": 1
+        }
+      ]
+    },
+    {
+      "offset": 22251856,
+      "name": "TMNT_BuildMappedStickInputEvent",
+      "naming_confidence": "correlated",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "TMNT_BuildMappedStickInputEvent.cpp",
+      "observer": "intercept_TMNT_BuildMappedStickInputEvent",
+      "replacement": "entry_TMNT_BuildMappedStickInputEvent",
+      "original": "original_TMNT_BuildMappedStickInputEvent",
+      "counter_id": 23,
+      "counter_name": "TMNT_BuildMappedStickInputEvent_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "f95451f9714fd9494f36a8588f7f23b82f0c24a3a5d47ead7d2cc773f7aaec71",
+      "counter_ids": [
+        23
+      ],
+      "hook_name": "TMNT_BuildMappedStickInputEvent",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 23,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.TMNT_BuildMappedStickInputEvent_entries",
+          "samples": 6,
+          "last": 20480
+        }
+      ]
+    },
+    {
+      "offset": 22241824,
+      "name": "TMNT_IsInputDeviceActive",
+      "naming_confidence": "correlated",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "TMNT_IsInputDeviceActive.cpp",
+      "observer": "intercept_TMNT_IsInputDeviceActive",
+      "replacement": "entry_TMNT_IsInputDeviceActive",
+      "original": "original_TMNT_IsInputDeviceActive",
+      "counter_id": 24,
+      "counter_name": "TMNT_IsInputDeviceActive_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "09f4dde925b65545ee2cd11344935befecd4ff7ebaa65cf07345b0e8a3394b24",
+      "counter_ids": [
+        24
+      ],
+      "hook_name": "TMNT_IsInputDeviceActive",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 24,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.TMNT_IsInputDeviceActive_entries",
+          "samples": 62,
+          "last": 249856
+        }
+      ]
+    },
+    {
+      "offset": 22244256,
+      "name": "TMNT_TestButtonNewPress",
+      "naming_confidence": "candidate",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "TMNT_TestButtonNewPress.cpp",
+      "observer": "intercept_TMNT_TestButtonNewPress",
+      "replacement": "entry_TMNT_TestButtonNewPress",
+      "original": "original_TMNT_TestButtonNewPress",
+      "counter_id": 25,
+      "counter_name": "TMNT_TestButtonNewPress_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "dcac54a67e7f545370e438cc043854e717fae6ebe82fa21ec3eb80e08c0acb6a",
+      "counter_ids": [
+        25
+      ],
+      "hook_name": "TMNT_TestButtonNewPress",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 25,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.TMNT_TestButtonNewPress_entries",
+          "samples": 2,
+          "last": 4096
+        }
+      ]
+    },
+    {
+      "offset": 22244560,
+      "name": "TMNT_TestButtonHeld",
+      "naming_confidence": "candidate",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "TMNT_TestButtonHeld.cpp",
+      "observer": "intercept_TMNT_TestButtonHeld",
+      "replacement": "entry_TMNT_TestButtonHeld",
+      "original": "original_TMNT_TestButtonHeld",
+      "counter_id": 26,
+      "counter_name": "TMNT_TestButtonHeld_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "cc58bfc11d55d3cae41234452320087d6d21565921ae3d0b751a19959ad15210",
+      "counter_ids": [
+        26
+      ],
+      "hook_name": "TMNT_TestButtonHeld",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 26,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.TMNT_TestButtonHeld_entries",
+          "samples": 2,
+          "last": 4096
+        }
+      ]
+    },
+    {
+      "offset": 22244864,
+      "name": "TMNT_TestButtonReleased",
+      "naming_confidence": "candidate",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "TMNT_TestButtonReleased.cpp",
+      "observer": "intercept_TMNT_TestButtonReleased",
+      "replacement": "entry_TMNT_TestButtonReleased",
+      "original": "original_TMNT_TestButtonReleased",
+      "counter_id": 27,
+      "counter_name": "TMNT_TestButtonReleased_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "b0043916ab498b57a3c3b1332976e07e9c58f3cc800573f1ff3cef1fe0f9dcd7",
+      "counter_ids": [
+        27
+      ],
+      "hook_name": "TMNT_TestButtonReleased",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 27,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.TMNT_TestButtonReleased_entries",
+          "samples": 2,
+          "last": 4096
+        }
+      ]
+    },
+    {
+      "offset": 22807776,
+      "name": "Import__Xtime_get_ticks",
+      "naming_confidence": "proved",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "Import__Xtime_get_ticks.cpp",
+      "observer": "intercept_Import__Xtime_get_ticks",
+      "replacement": "entry_Import__Xtime_get_ticks",
+      "original": "original_Import__Xtime_get_ticks",
+      "counter_id": 28,
+      "counter_name": "Import__Xtime_get_ticks_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "f0cf468f26d9c9a58cc5ffec132a740431651689078dd9c6f94db04c4944ca8f",
+      "counter_ids": [
+        28
+      ],
+      "hook_name": "Import__Xtime_get_ticks",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 28,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.Import__Xtime_get_ticks_entries",
+          "samples": 1,
+          "last": 1
+        }
+      ]
+    },
+    {
+      "offset": 22256560,
+      "name": "TMNT_AdvanceTimedInputEntries",
+      "naming_confidence": "correlated",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "TMNT_AdvanceTimedInputEntries.cpp",
+      "observer": "intercept_TMNT_AdvanceTimedInputEntries",
+      "replacement": "entry_TMNT_AdvanceTimedInputEntries",
+      "original": "original_TMNT_AdvanceTimedInputEntries",
+      "counter_id": 29,
+      "counter_name": "TMNT_AdvanceTimedInputEntries_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "dc4000a4b4f45033239cd3689aa0dfa864dc112da69f5e74da12c3a28f469e0f",
+      "counter_ids": [
+        29
+      ],
+      "hook_name": "TMNT_AdvanceTimedInputEntries",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 29,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.TMNT_AdvanceTimedInputEntries_entries",
+          "samples": 1,
+          "last": 1
+        }
+      ]
+    },
+    {
+      "offset": 22814144,
+      "name": "Import_memset",
+      "naming_confidence": "proved",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "Import_memset.cpp",
+      "observer": "intercept_Import_memset",
+      "replacement": "entry_Import_memset",
+      "original": "original_Import_memset",
+      "counter_id": 30,
+      "counter_name": "Import_memset_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "caad506d2607bf47dbb96c5b77ca0a390d1f48b2914a3fa98771be69a278bc07",
+      "counter_ids": [
+        30
+      ],
+      "hook_name": "Import_memset",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 30,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.Import_memset_entries",
+          "samples": 7,
+          "last": 24576
+        }
+      ]
+    },
+    {
+      "offset": 22816784,
+      "name": "Import_memmove",
+      "naming_confidence": "proved",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "Import_memmove.cpp",
+      "observer": "intercept_Import_memmove",
+      "replacement": "entry_Import_memmove",
+      "original": "original_Import_memmove",
+      "counter_id": 31,
+      "counter_name": "Import_memmove_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "5206b99236c331175c2468538fd2520a35dae200c4b796de97270c4e2ee4e7fa",
+      "counter_ids": [
+        31
+      ],
+      "hook_name": "Import_memmove",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 31,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.Import_memmove_entries",
+          "samples": 2,
+          "last": 4096
+        }
+      ]
+    },
+    {
+      "offset": 22071200,
+      "name": "TMNT_ScheduleTimedCallbackRecord",
+      "naming_confidence": "correlated",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "TMNT_ScheduleTimedCallbackRecord.cpp",
+      "observer": "intercept_TMNT_ScheduleTimedCallbackRecord",
+      "replacement": "entry_TMNT_ScheduleTimedCallbackRecord",
+      "original": "original_TMNT_ScheduleTimedCallbackRecord",
+      "counter_id": 32,
+      "counter_name": "TMNT_ScheduleTimedCallbackRecord_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "2e743d22d941c7768bf98bf65c78bab8ff2652997eb70040463bd19b00b8bc0b",
+      "counter_ids": [
+        32
+      ],
+      "hook_name": "TMNT_ScheduleTimedCallbackRecord",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 32,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.TMNT_ScheduleTimedCallbackRecord_entries",
+          "samples": 1,
+          "last": 1
+        }
+      ]
+    },
+    {
+      "offset": 22070240,
+      "name": "TMNT_UpdateObjectStateChain",
+      "naming_confidence": "correlated",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "TMNT_UpdateObjectStateChain.cpp",
+      "observer": "intercept_TMNT_UpdateObjectStateChain",
+      "replacement": "entry_TMNT_UpdateObjectStateChain",
+      "original": "original_TMNT_UpdateObjectStateChain",
+      "counter_id": 33,
+      "counter_name": "TMNT_UpdateObjectStateChain_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "b297dc7742f6d03cfbfa02ca49902cf528ba6528d9bbee505e0cbc677360227f",
+      "counter_ids": [
+        33
+      ],
+      "hook_name": "TMNT_UpdateObjectStateChain",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 33,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.TMNT_UpdateObjectStateChain_entries",
+          "samples": 3,
+          "last": 8192
+        }
+      ]
+    },
+    {
+      "offset": 22074128,
+      "name": "TMNT_PruneAndFinalizeObjectSubtree",
+      "naming_confidence": "correlated",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "TMNT_PruneAndFinalizeObjectSubtree.cpp",
+      "observer": "intercept_TMNT_PruneAndFinalizeObjectSubtree",
+      "replacement": "entry_TMNT_PruneAndFinalizeObjectSubtree",
+      "original": "original_TMNT_PruneAndFinalizeObjectSubtree",
+      "counter_id": 34,
+      "counter_name": "TMNT_PruneAndFinalizeObjectSubtree_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "e68d936c797b0e71567ad3b29d9180fd2e749b1faeb85a2849e84cb340b97696",
+      "counter_ids": [
+        34
+      ],
+      "hook_name": "TMNT_PruneAndFinalizeObjectSubtree",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 34,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.TMNT_PruneAndFinalizeObjectSubtree_entries",
+          "samples": 1,
+          "last": 1
+        }
+      ]
+    },
+    {
+      "offset": 22809008,
+      "name": "Import_FmodStudioEventGetSampleLoadingState",
+      "naming_confidence": "proved",
+      "body_status": "original",
+      "runtime_status": "installed-not-hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "Import_FmodStudioEventGetSampleLoadingState.cpp",
+      "observer": "intercept_Import_FmodStudioEventGetSampleLoadingState",
+      "replacement": "entry_Import_FmodStudioEventGetSampleLoadingState",
+      "original": "original_Import_FmodStudioEventGetSampleLoadingState",
+      "counter_id": 35,
+      "counter_name": "Import_FmodStudioEventGetSampleLoadingState_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "d65ab0356231b04b2c4bdc47500c70b2200f3ad098ae728135e2163cf7b8b246",
+      "counter_ids": [
+        35
+      ],
+      "hook_name": "Import_FmodStudioEventGetSampleLoadingState",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 35,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.Import_FmodStudioEventGetSampleLoadingState_entries",
+          "samples": 0,
+          "last": 0
+        }
+      ]
+    },
+    {
+      "offset": 22809312,
+      "name": "Import_FmodStudioEventGetPlaybackState",
+      "naming_confidence": "proved",
+      "body_status": "original",
+      "runtime_status": "installed-not-hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "Import_FmodStudioEventGetPlaybackState.cpp",
+      "observer": "intercept_Import_FmodStudioEventGetPlaybackState",
+      "replacement": "entry_Import_FmodStudioEventGetPlaybackState",
+      "original": "original_Import_FmodStudioEventGetPlaybackState",
+      "counter_id": 36,
+      "counter_name": "Import_FmodStudioEventGetPlaybackState_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "126290314cffa5ae225fb8f431ec50c2523fe01c0efe8f2eca1e6f3f693c7365",
+      "counter_ids": [
+        36
+      ],
+      "hook_name": "Import_FmodStudioEventGetPlaybackState",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 36,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.Import_FmodStudioEventGetPlaybackState_entries",
+          "samples": 0,
+          "last": 0
+        }
+      ]
+    },
+    {
+      "offset": 20705600,
+      "name": "TMNT_SortRecordsByFloatKey",
+      "naming_confidence": "candidate",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "TMNT_SortRecordsByFloatKey.cpp",
+      "observer": "intercept_TMNT_SortRecordsByFloatKey",
+      "replacement": "entry_TMNT_SortRecordsByFloatKey",
+      "original": "original_TMNT_SortRecordsByFloatKey",
+      "counter_id": 37,
+      "counter_name": "TMNT_SortRecordsByFloatKey_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "8f6a6279b60b24ca441d5b07321f2d0e54b62b9cf3e620bb95c9e7b63060f4d6",
+      "counter_ids": [
+        37
+      ],
+      "hook_name": "TMNT_SortRecordsByFloatKey",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 37,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.TMNT_SortRecordsByFloatKey_entries",
+          "samples": 1,
+          "last": 1
+        }
+      ]
+    },
+    {
+      "offset": 21517392,
+      "name": "TMNT_CollectExpiredResourceIds",
+      "naming_confidence": "candidate",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "TMNT_CollectExpiredResourceIds.cpp",
+      "observer": "intercept_TMNT_CollectExpiredResourceIds",
+      "replacement": "entry_TMNT_CollectExpiredResourceIds",
+      "original": "original_TMNT_CollectExpiredResourceIds",
+      "counter_id": 38,
+      "counter_name": "TMNT_CollectExpiredResourceIds_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "854b01947057af8235831be46de3a583582dc3f1a0884c0dcb151413251c9b87",
+      "counter_ids": [
+        38
+      ],
+      "hook_name": "TMNT_CollectExpiredResourceIds",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 38,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.TMNT_CollectExpiredResourceIds_entries",
+          "samples": 1,
+          "last": 1
+        }
+      ]
+    },
+    {
+      "offset": 22618144,
+      "name": "TMNT_WaitForQueueFenceWhileHelping",
+      "naming_confidence": "correlated",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "TMNT_WaitForQueueFenceWhileHelping.cpp",
+      "observer": "intercept_TMNT_WaitForQueueFenceWhileHelping",
+      "replacement": "entry_TMNT_WaitForQueueFenceWhileHelping",
+      "original": "original_TMNT_WaitForQueueFenceWhileHelping",
+      "counter_id": 39,
+      "counter_name": "TMNT_WaitForQueueFenceWhileHelping_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "124d73fa2b72fd30f185e1f1484f0bcb6517a0709a4cc2a64f48045ec88edbd8",
+      "counter_ids": [
+        39
+      ],
+      "hook_name": "TMNT_WaitForQueueFenceWhileHelping",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 39,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.TMNT_WaitForQueueFenceWhileHelping_entries",
+          "samples": 1,
+          "last": 1
+        }
+      ]
+    },
+    {
+      "offset": 21572000,
+      "name": "TMNT_ProcessPhaseRecordBatches",
+      "naming_confidence": "correlated",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "TMNT_ProcessPhaseRecordBatches.cpp",
+      "observer": "intercept_TMNT_ProcessPhaseRecordBatches",
+      "replacement": "entry_TMNT_ProcessPhaseRecordBatches",
+      "original": "original_TMNT_ProcessPhaseRecordBatches",
+      "counter_id": 40,
+      "counter_name": "TMNT_ProcessPhaseRecordBatches_entries",
+      "displaced_prefix_bytes": 10,
+      "source_sha256": "5229753340a52e072db7e6f5424439ba11b31c325e7a747f782c31e7189e662a",
+      "counter_ids": [
+        40
+      ],
+      "hook_name": "TMNT_ProcessPhaseRecordBatches",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 40,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.TMNT_ProcessPhaseRecordBatches_entries",
+          "samples": 1,
+          "last": 1
+        }
+      ]
+    },
+    {
+      "offset": 22616544,
+      "name": "TMNT_EnqueueJobBetweenSequenceMarkers",
+      "naming_confidence": "correlated",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "TMNT_EnqueueJobBetweenSequenceMarkers.cpp",
+      "observer": "intercept_TMNT_EnqueueJobBetweenSequenceMarkers",
+      "replacement": "entry_TMNT_EnqueueJobBetweenSequenceMarkers",
+      "original": "original_TMNT_EnqueueJobBetweenSequenceMarkers",
+      "counter_id": 41,
+      "counter_name": "TMNT_EnqueueJobBetweenSequenceMarkers_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "e98282ed2b9dae3ab071ae7e903d5a63edd17077a023dc0c95ca5e00810a675c",
+      "counter_ids": [
+        41
+      ],
+      "hook_name": "TMNT_EnqueueJobBetweenSequenceMarkers",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 41,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.TMNT_EnqueueJobBetweenSequenceMarkers_entries",
+          "samples": 1,
+          "last": 1
+        }
+      ]
+    },
+    {
+      "offset": 21063104,
+      "name": "TMNT_DrainDeferredCallbackLists",
+      "naming_confidence": "correlated",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "TMNT_DrainDeferredCallbackLists.cpp",
+      "observer": "intercept_TMNT_DrainDeferredCallbackLists",
+      "replacement": "entry_TMNT_DrainDeferredCallbackLists",
+      "original": "original_TMNT_DrainDeferredCallbackLists",
+      "counter_id": 42,
+      "counter_name": "TMNT_DrainDeferredCallbackLists_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "b4e143df55d0a9bd0d499e7a35629584bda8840ee384fe772f9b89e3b53fd8f5",
+      "counter_ids": [
+        42
+      ],
+      "hook_name": "TMNT_DrainDeferredCallbackLists",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 42,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.TMNT_DrainDeferredCallbackLists_entries",
+          "samples": 1,
+          "last": 1
+        }
+      ]
+    },
+    {
+      "offset": 22615408,
+      "name": "TMNT_JobQueueDrainBarrier",
+      "naming_confidence": "correlated",
+      "body_status": "see-existing-reviewed-source",
+      "runtime_status": "hit",
+      "mode": "existing-cpp",
+      "source": "../rooftop.cpp",
+      "replacement": "patch_jobs",
+      "original": "original_jobs",
+      "source_sha256": "939c775906c7872f737735192244876eddbd5005c3a225cdfbc470a9b077fb84",
+      "counter_ids": [
+        7,
+        8
+      ],
+      "hook_name": "jobs",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 7,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.jobs_begin_ns",
+          "samples": 3003,
+          "last": 325380631759624
+        },
+        {
+          "id": 8,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.jobs_elapsed_ns",
+          "samples": 3003,
+          "last": 57656
+        }
+      ]
+    },
+    {
+      "offset": 22070640,
+      "name": "TMNT_UpdateEnabledObjectSubtree",
+      "naming_confidence": "correlated",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "TMNT_UpdateEnabledObjectSubtree.cpp",
+      "observer": "intercept_TMNT_UpdateEnabledObjectSubtree",
+      "replacement": "entry_TMNT_UpdateEnabledObjectSubtree",
+      "original": "original_TMNT_UpdateEnabledObjectSubtree",
+      "counter_id": 43,
+      "counter_name": "TMNT_UpdateEnabledObjectSubtree_entries",
+      "displaced_prefix_bytes": 5,
+      "source_sha256": "444f787e989cd7c6a01c594a49aaf71589b67f48c8f5f3b83d0f84fbe07397ec",
+      "counter_ids": [
+        43
+      ],
+      "hook_name": "TMNT_UpdateEnabledObjectSubtree",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 43,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.TMNT_UpdateEnabledObjectSubtree_entries",
+          "samples": 3,
+          "last": 8192
+        }
+      ]
+    },
+    {
+      "offset": 22340480,
+      "name": "TMNT_AllocateFrameCommandNode",
+      "naming_confidence": "correlated",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "TMNT_AllocateFrameCommandNode.cpp",
+      "observer": "intercept_TMNT_AllocateFrameCommandNode",
+      "replacement": "entry_TMNT_AllocateFrameCommandNode",
+      "original": "original_TMNT_AllocateFrameCommandNode",
+      "counter_id": 44,
+      "counter_name": "TMNT_AllocateFrameCommandNode_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "192841bfc0afa61a1a4e4f747b5dd935e4d62b1ab6f75e2dd12785b74460604d",
+      "counter_ids": [
+        44
+      ],
+      "hook_name": "TMNT_AllocateFrameCommandNode",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 44,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.TMNT_AllocateFrameCommandNode_entries",
+          "samples": 1,
+          "last": 1
+        }
+      ]
+    },
+    {
+      "offset": 22616208,
+      "name": "TMNT_EnqueueJobAfterSequenceMarker",
+      "naming_confidence": "correlated",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "TMNT_EnqueueJobAfterSequenceMarker.cpp",
+      "observer": "intercept_TMNT_EnqueueJobAfterSequenceMarker",
+      "replacement": "entry_TMNT_EnqueueJobAfterSequenceMarker",
+      "original": "original_TMNT_EnqueueJobAfterSequenceMarker",
+      "counter_id": 45,
+      "counter_name": "TMNT_EnqueueJobAfterSequenceMarker_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "3d969c38e8dc789ece1d3d6995f40898602794099f62adb3d02ce53e13bf6184",
+      "counter_ids": [
+        45
+      ],
+      "hook_name": "TMNT_EnqueueJobAfterSequenceMarker",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 45,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.TMNT_EnqueueJobAfterSequenceMarker_entries",
+          "samples": 1,
+          "last": 1
+        }
+      ]
+    },
+    {
+      "offset": 22812448,
+      "name": "Import_strcmp",
+      "naming_confidence": "proved",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "Import_strcmp.cpp",
+      "observer": "intercept_Import_strcmp",
+      "replacement": "entry_Import_strcmp",
+      "original": "original_Import_strcmp",
+      "counter_id": 46,
+      "counter_name": "Import_strcmp_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "070681dc971a09f38497491e43113c6c84998a0597df55acf1ee471020b7c443",
+      "counter_ids": [
+        46
+      ],
+      "hook_name": "Import_strcmp",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 46,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.Import_strcmp_entries",
+          "samples": 10,
+          "last": 36864
+        }
+      ]
+    },
+    {
+      "offset": 22816768,
+      "name": "Import_fmodf",
+      "naming_confidence": "proved",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "Import_fmodf.cpp",
+      "observer": "intercept_Import_fmodf",
+      "replacement": "entry_Import_fmodf",
+      "original": "original_Import_fmodf",
+      "counter_id": 47,
+      "counter_name": "Import_fmodf_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "b84eb9073e5e849be61a113a26c14a9d2c090844201b7a52332305e8c318a53b",
+      "counter_ids": [
+        47
+      ],
+      "hook_name": "Import_fmodf",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 47,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.Import_fmodf_entries",
+          "samples": 1,
+          "last": 1
+        }
+      ]
+    },
+    {
+      "offset": 22809376,
+      "name": "TMNT_FmodStudioUpdatePlt",
+      "naming_confidence": "correlated",
+      "body_status": "see-existing-reviewed-source",
+      "runtime_status": "hit",
+      "mode": "existing-cpp",
+      "source": "../rooftop.cpp",
+      "replacement": "patch_fmod",
+      "original": "original_fmod",
+      "source_sha256": "939c775906c7872f737735192244876eddbd5005c3a225cdfbc470a9b077fb84",
+      "counter_ids": [
+        9,
+        10
+      ],
+      "hook_name": "fmod",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 9,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.fmod_begin_ns",
+          "samples": 429,
+          "last": 325380627967801
+        },
+        {
+          "id": 10,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.fmod_elapsed_ns",
+          "samples": 429,
+          "last": 325469
+        }
+      ]
+    },
+    {
+      "offset": 22808400,
+      "name": "Import_FmodChannelGroupGetParentGroup",
+      "naming_confidence": "proved",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "Import_FmodChannelGroupGetParentGroup.cpp",
+      "observer": "intercept_Import_FmodChannelGroupGetParentGroup",
+      "replacement": "entry_Import_FmodChannelGroupGetParentGroup",
+      "original": "original_Import_FmodChannelGroupGetParentGroup",
+      "counter_id": 48,
+      "counter_name": "Import_FmodChannelGroupGetParentGroup_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "ec0103ae334b5c4c47e72ec0ab595ee11120b7553c49388d9e07463139c3fa9e",
+      "counter_ids": [
+        48
+      ],
+      "hook_name": "Import_FmodChannelGroupGetParentGroup",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 48,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.Import_FmodChannelGroupGetParentGroup_entries",
+          "samples": 1,
+          "last": 1
+        }
+      ]
+    },
+    {
+      "offset": 22808272,
+      "name": "Import_FmodSystemGetMasterChannelGroup",
+      "naming_confidence": "proved",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "Import_FmodSystemGetMasterChannelGroup.cpp",
+      "observer": "intercept_Import_FmodSystemGetMasterChannelGroup",
+      "replacement": "entry_Import_FmodSystemGetMasterChannelGroup",
+      "original": "original_Import_FmodSystemGetMasterChannelGroup",
+      "counter_id": 49,
+      "counter_name": "Import_FmodSystemGetMasterChannelGroup_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "409d6c7d6afbe68679178daac01d2e01dc6f06ba65981999bc4ad2c8d67f49ae",
+      "counter_ids": [
+        49
+      ],
+      "hook_name": "Import_FmodSystemGetMasterChannelGroup",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 49,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.Import_FmodSystemGetMasterChannelGroup_entries",
+          "samples": 1,
+          "last": 1
+        }
+      ]
+    },
+    {
+      "offset": 22808608,
+      "name": "Import_FmodChannelControlSetPaused",
+      "naming_confidence": "proved",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "Import_FmodChannelControlSetPaused.cpp",
+      "observer": "intercept_Import_FmodChannelControlSetPaused",
+      "replacement": "entry_Import_FmodChannelControlSetPaused",
+      "original": "original_Import_FmodChannelControlSetPaused",
+      "counter_id": 50,
+      "counter_name": "Import_FmodChannelControlSetPaused_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "e4278291e65c6908d494a60f54ec979a6a569cd0924815133c284f11a07bc15b",
+      "counter_ids": [
+        50
+      ],
+      "hook_name": "Import_FmodChannelControlSetPaused",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 50,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.Import_FmodChannelControlSetPaused_entries",
+          "samples": 1,
+          "last": 1
+        }
+      ]
+    },
+    {
+      "offset": 22808512,
+      "name": "Import_FmodChannelControlGetVolume",
+      "naming_confidence": "proved",
+      "body_status": "original",
+      "runtime_status": "installed-not-hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "Import_FmodChannelControlGetVolume.cpp",
+      "observer": "intercept_Import_FmodChannelControlGetVolume",
+      "replacement": "entry_Import_FmodChannelControlGetVolume",
+      "original": "original_Import_FmodChannelControlGetVolume",
+      "counter_id": 51,
+      "counter_name": "Import_FmodChannelControlGetVolume_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "44ee6526ba57cae44849d50b2a920d23dd2a9f639e1e32022d7d314ce2b4a23c",
+      "counter_ids": [
+        51
+      ],
+      "hook_name": "Import_FmodChannelControlGetVolume",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 51,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.Import_FmodChannelControlGetVolume_entries",
+          "samples": 0,
+          "last": 0
+        }
+      ]
+    },
+    {
+      "offset": 22808528,
+      "name": "Import_FmodChannelControlSetVolume",
+      "naming_confidence": "proved",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "Import_FmodChannelControlSetVolume.cpp",
+      "observer": "intercept_Import_FmodChannelControlSetVolume",
+      "replacement": "entry_Import_FmodChannelControlSetVolume",
+      "original": "original_Import_FmodChannelControlSetVolume",
+      "counter_id": 52,
+      "counter_name": "Import_FmodChannelControlSetVolume_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "88b7fd93a0f36841dbc6f50b8f2462a802996d6c3a66af70a6b483d54b57296a",
+      "counter_ids": [
+        52
+      ],
+      "hook_name": "Import_FmodChannelControlSetVolume",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 52,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.Import_FmodChannelControlSetVolume_entries",
+          "samples": 1,
+          "last": 1
+        }
+      ]
+    },
+    {
+      "offset": 22808592,
+      "name": "Import_FmodChannelControlGetDspClock",
+      "naming_confidence": "proved",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "Import_FmodChannelControlGetDspClock.cpp",
+      "observer": "intercept_Import_FmodChannelControlGetDspClock",
+      "replacement": "entry_Import_FmodChannelControlGetDspClock",
+      "original": "original_Import_FmodChannelControlGetDspClock",
+      "counter_id": 53,
+      "counter_name": "Import_FmodChannelControlGetDspClock_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "4729d29bccdf1d7ef61049701a02c22ec71e37db6b49151b079d9df605426be4",
+      "counter_ids": [
+        53
+      ],
+      "hook_name": "Import_FmodChannelControlGetDspClock",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 53,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.Import_FmodChannelControlGetDspClock_entries",
+          "samples": 1,
+          "last": 1
+        }
+      ]
+    },
+    {
+      "offset": 22306016,
+      "name": "TMNT_BeginFrameAcquireBuffer",
+      "naming_confidence": "correlated",
+      "body_status": "see-existing-reviewed-source",
+      "runtime_status": "hit",
+      "mode": "existing-cpp",
+      "source": "../rooftop.cpp",
+      "replacement": "patch_begin",
+      "original": "original_begin",
+      "source_sha256": "939c775906c7872f737735192244876eddbd5005c3a225cdfbc470a9b077fb84",
+      "counter_ids": [
+        3,
+        4
+      ],
+      "hook_name": "begin",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 3,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.begin_begin_ns",
+          "samples": 431,
+          "last": 325380628637228
+        },
+        {
+          "id": 4,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.begin_elapsed_ns",
+          "samples": 431,
+          "last": 932188
+        }
+      ]
+    },
+    {
+      "offset": 22341264,
+      "name": "TMNT_DispatchFrameListsAndRecycleBlocks",
+      "naming_confidence": "correlated",
+      "body_status": "see-existing-reviewed-source",
+      "runtime_status": "hit",
+      "mode": "existing-cpp",
+      "source": "../frame_dispatch.cpp",
+      "replacement": "patch_frame_dispatch",
+      "original": "original_frame_dispatch",
+      "source_sha256": "11bb73f4ac9a1f6466ba3388152ca00b55166207877ae88ba85c7d865498c438",
+      "counter_ids": [
+        15
+      ],
+      "hook_name": "frame_dispatch",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 15,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.recompiled_frame_dispatch_calls",
+          "samples": 1,
+          "last": 256
+        }
+      ]
+    },
+    {
+      "offset": 22306592,
+      "name": "TMNT_SubmitFlipRotateBuffer",
+      "naming_confidence": "correlated",
+      "body_status": "see-existing-reviewed-source",
+      "runtime_status": "hit",
+      "mode": "existing-cpp",
+      "source": "../rooftop.cpp",
+      "replacement": "patch_submit",
+      "original": "original_submit",
+      "source_sha256": "939c775906c7872f737735192244876eddbd5005c3a225cdfbc470a9b077fb84",
+      "counter_ids": [
+        5,
+        6,
+        13,
+        14
+      ],
+      "hook_name": "submit",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 5,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.submit_begin_ns",
+          "samples": 431,
+          "last": 325380632078061
+        },
+        {
+          "id": 6,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.submit_elapsed_ns",
+          "samples": 431,
+          "last": 2945261
+        },
+        {
+          "id": 13,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.recompiled_submit_packets_calls",
+          "samples": 1,
+          "last": 256
+        },
+        {
+          "id": 14,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.recompiled_submit_label_calls",
+          "samples": 1,
+          "last": 256
+        }
+      ]
+    },
+    {
+      "offset": 21755824,
+      "name": "TMNT_RefreshExpiredStateAndNotifyCallbacks",
+      "naming_confidence": "candidate",
+      "body_status": "original",
+      "runtime_status": "installed-not-hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "TMNT_RefreshExpiredStateAndNotifyCallbacks.cpp",
+      "observer": "intercept_TMNT_RefreshExpiredStateAndNotifyCallbacks",
+      "replacement": "entry_TMNT_RefreshExpiredStateAndNotifyCallbacks",
+      "original": "original_TMNT_RefreshExpiredStateAndNotifyCallbacks",
+      "counter_id": 54,
+      "counter_name": "TMNT_RefreshExpiredStateAndNotifyCallbacks_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "7f059749045ee95fae5ab7d22d6a5671aaf311f03d31aa37d8001080072a53fb",
+      "counter_ids": [
+        54
+      ],
+      "hook_name": "TMNT_RefreshExpiredStateAndNotifyCallbacks",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 54,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.TMNT_RefreshExpiredStateAndNotifyCallbacks_entries",
+          "samples": 0,
+          "last": 0
+        }
+      ]
+    },
+    {
+      "offset": 22807104,
+      "name": "Import_malloc",
+      "naming_confidence": "proved",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "Import_malloc.cpp",
+      "observer": "intercept_Import_malloc",
+      "replacement": "entry_Import_malloc",
+      "original": "original_Import_malloc",
+      "counter_id": 55,
+      "counter_name": "Import_malloc_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "25e2de7f393469cece76c3972c20fcd8d21cc8e7bce98d30674521adf06a1f27",
+      "counter_ids": [
+        55
+      ],
+      "hook_name": "Import_malloc",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 55,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.Import_malloc_entries",
+          "samples": 27,
+          "last": 106496
+        }
+      ]
+    },
+    {
+      "offset": 22806912,
+      "name": "Import_free",
+      "naming_confidence": "proved",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "Import_free.cpp",
+      "observer": "intercept_Import_free",
+      "replacement": "entry_Import_free",
+      "original": "original_Import_free",
+      "counter_id": 56,
+      "counter_name": "Import_free_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "12195a6df928df208596827fb32c6e629a959495c9b830c21e2a5f3ad86624fb",
+      "counter_ids": [
+        56
+      ],
+      "hook_name": "Import_free",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 56,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.Import_free_entries",
+          "samples": 13,
+          "last": 49152
+        }
+      ]
+    },
+    {
+      "offset": 22808688,
+      "name": "Import_FmodStudioEventStop",
+      "naming_confidence": "proved",
+      "body_status": "original",
+      "runtime_status": "installed-not-hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "Import_FmodStudioEventStop.cpp",
+      "observer": "intercept_Import_FmodStudioEventStop",
+      "replacement": "entry_Import_FmodStudioEventStop",
+      "original": "original_Import_FmodStudioEventStop",
+      "counter_id": 57,
+      "counter_name": "Import_FmodStudioEventStop_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "8d01836078997cbd1da15cd8a3ed1593cc0b6a7629bd43396149c8200c8a2106",
+      "counter_ids": [
+        57
+      ],
+      "hook_name": "Import_FmodStudioEventStop",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 57,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.Import_FmodStudioEventStop_entries",
+          "samples": 0,
+          "last": 0
+        }
+      ]
+    },
+    {
+      "offset": 22808816,
+      "name": "Import_FmodStudioEventRelease",
+      "naming_confidence": "proved",
+      "body_status": "original",
+      "runtime_status": "installed-not-hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "Import_FmodStudioEventRelease.cpp",
+      "observer": "intercept_Import_FmodStudioEventRelease",
+      "replacement": "entry_Import_FmodStudioEventRelease",
+      "original": "original_Import_FmodStudioEventRelease",
+      "counter_id": 58,
+      "counter_name": "Import_FmodStudioEventRelease_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "45a3aa151341768534085eba838b588e8eb0fe2dc7e4aee86493d7c14fd842f4",
+      "counter_ids": [
+        58
+      ],
+      "hook_name": "Import_FmodStudioEventRelease",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 58,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.Import_FmodStudioEventRelease_entries",
+          "samples": 0,
+          "last": 0
+        }
+      ]
+    },
+    {
+      "offset": 22253136,
+      "name": "TMNT_BuildMappedScalarInputEvent",
+      "naming_confidence": "correlated",
+      "body_status": "original",
+      "runtime_status": "hit",
+      "mode": "entry-observer-x86_64-avx",
+      "source": "TMNT_BuildMappedScalarInputEvent.cpp",
+      "observer": "intercept_TMNT_BuildMappedScalarInputEvent",
+      "replacement": "entry_TMNT_BuildMappedScalarInputEvent",
+      "original": "original_TMNT_BuildMappedScalarInputEvent",
+      "counter_id": 59,
+      "counter_name": "TMNT_BuildMappedScalarInputEvent_entries",
+      "displaced_prefix_bytes": 6,
+      "source_sha256": "ef96f53c9b8cb037bada0294115c20b0a990f10bb4b0f2ec246cd7da72b6c930",
+      "counter_ids": [
+        59
+      ],
+      "hook_name": "TMNT_BuildMappedScalarInputEvent",
+      "runtime_enabled": true,
+      "runtime_counters": [
+        {
+          "id": 59,
+          "name": "GuestPatch.frame_intercepts_67def519ee47.TMNT_BuildMappedScalarInputEvent_entries",
+          "samples": 11,
+          "last": 40960
+        }
+      ]
+    }
+  ],
+  "unresolved_indirect_calls": [
+    {
+      "callsite": 649080,
+      "calls": 200
+    },
+    {
+      "callsite": 649189,
+      "calls": 200
+    },
+    {
+      "callsite": 654084,
+      "calls": 200
+    },
+    {
+      "callsite": 654540,
+      "calls": 200
+    },
+    {
+      "callsite": 654597,
+      "calls": 200
+    },
+    {
+      "callsite": 654820,
+      "calls": 200
+    },
+    {
+      "callsite": 654846,
+      "calls": 200
+    },
+    {
+      "callsite": 654885,
+      "calls": 200
+    },
+    {
+      "callsite": 655614,
+      "calls": 16
+    },
+    {
+      "callsite": 656206,
+      "calls": 5
+    },
+    {
+      "callsite": 657922,
+      "calls": 4001
+    },
+    {
+      "callsite": 658695,
+      "calls": 3
+    },
+    {
+      "callsite": 658745,
+      "calls": 3
+    },
+    {
+      "callsite": 666163,
+      "calls": 200
+    },
+    {
+      "callsite": 666207,
+      "calls": 200
+    },
+    {
+      "callsite": 666251,
+      "calls": 200
+    },
+    {
+      "callsite": 666320,
+      "calls": 200
+    },
+    {
+      "callsite": 666347,
+      "calls": 200
+    },
+    {
+      "callsite": 675394,
+      "calls": 200
+    },
+    {
+      "callsite": 675478,
+      "calls": 1200
+    },
+    {
+      "callsite": 675595,
+      "calls": 400
+    },
+    {
+      "callsite": 675622,
+      "calls": 400
+    },
+    {
+      "callsite": 675974,
+      "calls": 1200
+    }
+  ],
+  "limits": "Entry observation is not a recompiled body or an exit interception. Unresolved indirect targets require measured target resolution. All new runtime hits are unverified until deployment.",
+  "recipe_sha256": "7895eefeefbc26caeacff8061d15e6d211d71e7f5bbfa9faa63cc3aa01d6568d",
+  "runtime_evidence": {
+    "status_sha256": "f703a3d5a6fa0218bf79e25e3f23ee495165231231602bbe4a19befdf5a44903",
+    "build_sha256": "a3bc42205cfee0d773114bfe98f24a6980fb8dc4c903e0f393dbde04566663e6",
+    "package_sha256": "7cafaa228271edca08425dac00c8035c7154cfd2d49c33266867bea0ab27aa7e",
+    "context": 1,
+    "last_owner": "1:1:2:8",
+    "limits": "A positive counter proves observed entry/phase completion in this context, not full body equivalence or playability. Counters are sampled; last is a lower bound on entry calls."
+  }
+}

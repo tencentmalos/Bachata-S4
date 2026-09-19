@@ -1,0 +1,147 @@
+{
+  "pid": 17372,
+  "events": 4661541,
+  "truncated": true,
+  "diagnostics": [
+    "unbalanced span end on tid 17426",
+    "unbalanced span end on tid 17484",
+    "unbalanced span end on tid 17482",
+    "unbalanced span end on tid 17483",
+    "unbalanced span end on tid 17508",
+    "unbalanced span end on tid 17568",
+    "unbalanced span end on tid 17511",
+    "unbalanced span end on tid 17510",
+    "unbalanced span end on tid 17510",
+    "unbalanced span end on tid 17481",
+    "unbalanced span end on tid 17479",
+    "dropped gpu zone with unknown context",
+    "unbalanced span end on tid 17479",
+    "unbalanced span end on tid 17479",
+    "unbalanced span end on tid 17479",
+    "unbalanced span end on tid 17447",
+    "unbalanced span end on tid 17527",
+    "2 unclosed spans on tid 17426",
+    "1 unclosed spans on tid 17485",
+    "1 unclosed spans on tid 17484",
+    "1 unclosed spans on tid 17482",
+    "2 unclosed spans on tid 17445",
+    "1 unclosed spans on tid 17483",
+    "1 unclosed spans on tid 17508",
+    "1 unclosed spans on tid 17568",
+    "1 unclosed spans on tid 17511",
+    "2 unclosed spans on tid 17510",
+    "1 unclosed spans on tid 17481",
+    "4 unclosed spans on tid 17479",
+    "1 unclosed spans on tid 17447",
+    "1 unclosed spans on tid 17449",
+    "1 unclosed spans on tid 17527",
+    "1 unclosed spans on tid 17490",
+    "1 unclosed spans on tid 17486",
+    "1 unclosed spans on tid 17866",
+    "1 unclosed spans on tid 17487",
+    "1 unclosed spans on tid 17491",
+    "1 unclosed spans on tid 17512"
+  ],
+  "gpu_contexts": {
+    "Queue 0 / guest+prepare (estimated clock)": 2396
+  },
+  "gpu_zones": {
+    "GPU.GuestCommands": {
+      "n": 317,
+      "mean_ms": 39.012789902208205,
+      "p95_ms": 67.996821,
+      "max_ms": 71.824112
+    },
+    "GPU.DrawBatch": {
+      "n": 317,
+      "mean_ms": 39.24164915772871,
+      "p95_ms": 68.373904,
+      "max_ms": 72.228383
+    },
+    "GPU.FSR": {
+      "n": 188,
+      "mean_ms": 0.000512813829787234,
+      "p95_ms": 0.000521,
+      "max_ms": 0.000573
+    },
+    "GPU.PostProcess": {
+      "n": 188,
+      "mean_ms": 0.38159880319148937,
+      "p95_ms": 0.392031,
+      "max_ms": 0.558281
+    },
+    "GPU.HostPrepare": {
+      "n": 188,
+      "mean_ms": 0.38364889361702126,
+      "p95_ms": 0.394063,
+      "max_ms": 0.560312
+    }
+  },
+  "counters": {
+    "GPU.OverlayRedraw": {
+      "n": 932,
+      "mean_ms": 0.5891826094420601,
+      "p95_ms": 0.733697,
+      "max_ms": 0.877916
+    },
+    "GPU.ClockAlignmentUncertaintyNs": {
+      "n": 3321,
+      "mean_ms": 8.340573,
+      "p95_ms": 8.340573,
+      "max_ms": 8.340573
+    },
+    "GPU.DrawBatch": {
+      "n": 435,
+      "mean_ms": 39.24916856321839,
+      "p95_ms": 68.311769,
+      "max_ms": 72.746664
+    },
+    "GPU.GuestCommands": {
+      "n": 435,
+      "mean_ms": 39.01939893333333,
+      "p95_ms": 67.930519,
+      "max_ms": 72.334477
+    },
+    "GPU.HostPrepare": {
+      "n": 259,
+      "mean_ms": 0.38366256756756756,
+      "p95_ms": 0.405416,
+      "max_ms": 0.560312
+    },
+    "GPU.FSR": {
+      "n": 259,
+      "mean_ms": 0.0005141776061776063,
+      "p95_ms": 0.00052,
+      "max_ms": 0.000572
+    },
+    "GPU.PostProcess": {
+      "n": 259,
+      "mean_ms": 0.381608833976834,
+      "p95_ms": 0.403177,
+      "max_ms": 0.558281
+    },
+    "GPU.BlankFlip": {
+      "n": 932,
+      "mean_ms": 0.0005121330472103005,
+      "p95_ms": 0.00052,
+      "max_ms": 0.000572
+    },
+    "GPU.Present": {
+      "n": 259,
+      "mean_ms": 0.589717305019305,
+      "p95_ms": 0.668802,
+      "max_ms": 0.870781
+    },
+    "GPU.GuestFrame": {
+      "n": 258,
+      "mean_ms": 65.52696658139536,
+      "p95_ms": 68.587706,
+      "max_ms": 72.334998
+    }
+  },
+  "gpu_bad": [],
+  "gpu_open": 0,
+  "gpu_outside_cpu_range_1s": 0,
+  "chunks_ok": 464,
+  "chunks_skipped": 0
+}

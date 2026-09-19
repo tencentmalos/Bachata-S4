@@ -1,0 +1,12 @@
+{
+  "checks": 6,
+  "failures": 0,
+  "bundle": {
+    "ok": true,
+    "evidencePath": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/guest-recompile-20260916/recompile-tool-final/bundle/recompile-evidence.json",
+    "sha256": "7436fe9706dabac158213def38f56ad64948bef98f4b43965af1c15de0f3cfb0",
+    "functionCount": 7,
+    "deployable": false,
+    "next": "Review the evidence into an ABI/dependency/effects contract, implement guest C/C++, bind exact same-module functions/data, then compare return values, memory writes and ordered external calls against original machine code in isolated FEX replay."
+  }
+}

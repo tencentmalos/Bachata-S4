@@ -1,0 +1,43 @@
+{
+  "apk": "android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk",
+  "apk_sha256": "20768a095b5b6464181e202bb82c83f016a746dfa54c6d8511e5d8063b03f3b9",
+  "libraries": {
+    "libshadps4_host.so": {
+      "sha256": "85c71bc06f0fa944ed51432887de9d19a4e30837961a5a56f59b2ff1ec048780",
+      "size": 468875256
+    },
+    "libshadps4_fex_session.so": {
+      "sha256": "5ec510b1366e4bd7bb296a192a3b954b5e593ea208b11db0050ab465525f4ff0",
+      "size": 35393568
+    }
+  },
+  "source_head": "4da582b7",
+  "source_state": "pre-existing dirty work plus this-turn-manifest.json; not committed",
+  "build_type": {
+    "host": "RelWithDebInfo",
+    "jni": "RelWithDebInfo",
+    "fex": "Release",
+    "apk": "playstoreDebug"
+  },
+  "device": {
+    "serial": "9c2841a4",
+    "android_api": 33,
+    "page_bytes": 4096,
+    "host_arch": "arm64",
+    "guest_arch": "x86_64",
+    "driver": "Qualcomm system Adreno 740"
+  },
+  "runtime": {
+    "pid": 21722,
+    "generation": 1,
+    "uuid": "cd67d4b909d60220fe607cf2acce478e",
+    "terminal": "Stopped/user_stop",
+    "tracer_pid": 0
+  },
+  "trace": {
+    "local_path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/vm-lock-removal-20260917/capture/9c2841a4-21722-file-1789636434824160-1.prof",
+    "sha256": "a55975df9c6bf5a0cff8002a8078b0031a371471ec6f14eaece50a26a4ff7f20",
+    "size": 359757408
+  },
+  "scope": "targeted validation; no full regression or FEX/Foundation changes this turn"
+}

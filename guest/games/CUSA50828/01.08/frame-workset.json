@@ -1,0 +1,411 @@
+{
+  "schema": "shadps4.guest-frame-source-ledger.v1",
+  "symbol_index_sha256": "2a28b1b676834ad8c5f25e60c89a6bc507d3b09f9c5a062372313dc03b630989",
+  "capture_sha256": "4191fad9db13f94cf86382ccd3fdac8f50518984fa889abbb2ae2eb5ec654006",
+  "package_sha256": "882c3181b0b20eaa165fb337884e9335d88b699e75c37adcf502f3fb1a88eb02",
+  "functions": [
+    {
+      "name": "TMNT_FrameCoordinator",
+      "module_offset": "0x9e560",
+      "confidence": "correlated",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/TMNT_FrameCoordinator.decompiled.c",
+      "source_status": "original-body-with-timing-wrapper",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "Import_pthread_mutex_lock",
+      "module_offset": "0x15c1ec0",
+      "confidence": "proved",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/Import_pthread_mutex_lock.decompiled.c",
+      "source_status": "original-import-binding",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "Import_pthread_mutex_unlock",
+      "module_offset": "0x15c1e50",
+      "confidence": "proved",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/Import_pthread_mutex_unlock.decompiled.c",
+      "source_status": "original-import-binding",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "TMNT_UpdateColorBlendState",
+      "module_offset": "0x3aa370",
+      "confidence": "candidate",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/TMNT_UpdateColorBlendState.decompiled.c",
+      "source_status": "inferred-not-compiled",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "Import_clock_gettime",
+      "module_offset": "0x15bffd0",
+      "confidence": "proved",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/Import_clock_gettime.decompiled.c",
+      "source_status": "original-import-binding",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "Import_time",
+      "module_offset": "0x15bffc0",
+      "confidence": "proved",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/Import_time.decompiled.c",
+      "source_status": "original-import-binding",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "TMNT_ExpireTimedRequestsAndPollProviders",
+      "module_offset": "0x14c3ba0",
+      "confidence": "correlated",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/TMNT_ExpireTimedRequestsAndPollProviders.decompiled.c",
+      "source_status": "inferred-not-compiled",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "TMNT_DispatchProviderCompletions",
+      "module_offset": "0x14c93b0",
+      "confidence": "correlated",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/TMNT_DispatchProviderCompletions.decompiled.c",
+      "source_status": "inferred-not-compiled",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "TMNT_BuildMappedStickInputEvent",
+      "module_offset": "0x1538950",
+      "confidence": "correlated",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/TMNT_BuildMappedStickInputEvent.decompiled.c",
+      "source_status": "inferred-not-compiled",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "TMNT_IsInputDeviceActive",
+      "module_offset": "0x1536220",
+      "confidence": "correlated",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/TMNT_IsInputDeviceActive.decompiled.c",
+      "source_status": "inferred-not-compiled",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "TMNT_TestButtonNewPress",
+      "module_offset": "0x1536ba0",
+      "confidence": "candidate",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/TMNT_TestButtonNewPress.decompiled.c",
+      "source_status": "inferred-not-compiled",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "TMNT_TestButtonHeld",
+      "module_offset": "0x1536cd0",
+      "confidence": "candidate",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/TMNT_TestButtonHeld.decompiled.c",
+      "source_status": "inferred-not-compiled",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "TMNT_TestButtonReleased",
+      "module_offset": "0x1536e00",
+      "confidence": "candidate",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/TMNT_TestButtonReleased.decompiled.c",
+      "source_status": "inferred-not-compiled",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "Import__Xtime_get_ticks",
+      "module_offset": "0x15c04e0",
+      "confidence": "proved",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/Import__Xtime_get_ticks.decompiled.c",
+      "source_status": "original-import-binding",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "TMNT_AdvanceTimedInputEntries",
+      "module_offset": "0x1539bb0",
+      "confidence": "correlated",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/TMNT_AdvanceTimedInputEntries.decompiled.c",
+      "source_status": "inferred-not-compiled",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "Import_memset",
+      "module_offset": "0x15c1dc0",
+      "confidence": "proved",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/Import_memset.decompiled.c",
+      "source_status": "original-import-binding",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "Import_memmove",
+      "module_offset": "0x15c2810",
+      "confidence": "proved",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/Import_memmove.decompiled.c",
+      "source_status": "original-import-binding",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "TMNT_ScheduleTimedCallbackRecord",
+      "module_offset": "0x150c7a0",
+      "confidence": "correlated",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/TMNT_ScheduleTimedCallbackRecord.decompiled.c",
+      "source_status": "inferred-not-compiled",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "TMNT_UpdateObjectStateChain",
+      "module_offset": "0x150c3e0",
+      "confidence": "correlated",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/TMNT_UpdateObjectStateChain.decompiled.c",
+      "source_status": "inferred-not-compiled",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "TMNT_PruneAndFinalizeObjectSubtree",
+      "module_offset": "0x150d310",
+      "confidence": "correlated",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/TMNT_PruneAndFinalizeObjectSubtree.decompiled.c",
+      "source_status": "inferred-not-compiled",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "Import_FmodStudioEventGetSampleLoadingState",
+      "module_offset": "0x15c09b0",
+      "confidence": "proved",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/Import_FmodStudioEventGetSampleLoadingState.decompiled.c",
+      "source_status": "original-import-binding",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "Import_FmodStudioEventGetPlaybackState",
+      "module_offset": "0x15c0ae0",
+      "confidence": "proved",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/Import_FmodStudioEventGetPlaybackState.decompiled.c",
+      "source_status": "original-import-binding",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "TMNT_SortRecordsByFloatKey",
+      "module_offset": "0x13bf140",
+      "confidence": "candidate",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/TMNT_SortRecordsByFloatKey.decompiled.c",
+      "source_status": "inferred-not-compiled",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "TMNT_CollectExpiredResourceIds",
+      "module_offset": "0x1485450",
+      "confidence": "candidate",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/TMNT_CollectExpiredResourceIds.decompiled.c",
+      "source_status": "inferred-not-compiled",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "TMNT_WaitForQueueFenceWhileHelping",
+      "module_offset": "0x1592020",
+      "confidence": "correlated",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/TMNT_WaitForQueueFenceWhileHelping.decompiled.c",
+      "source_status": "inferred-not-compiled",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "TMNT_ProcessPhaseRecordBatches",
+      "module_offset": "0x14929a0",
+      "confidence": "correlated",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/TMNT_ProcessPhaseRecordBatches.decompiled.c",
+      "source_status": "inferred-not-compiled",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "TMNT_EnqueueJobBetweenSequenceMarkers",
+      "module_offset": "0x15919e0",
+      "confidence": "correlated",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/TMNT_EnqueueJobBetweenSequenceMarkers.decompiled.c",
+      "source_status": "inferred-not-compiled",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "TMNT_DrainDeferredCallbackLists",
+      "module_offset": "0x14165c0",
+      "confidence": "correlated",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/TMNT_DrainDeferredCallbackLists.decompiled.c",
+      "source_status": "inferred-not-compiled",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "TMNT_JobQueueDrainBarrier",
+      "module_offset": "0x1591570",
+      "confidence": "correlated",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/TMNT_JobQueueDrainBarrier.decompiled.c",
+      "source_status": "original-body-with-timing-wrapper",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "TMNT_UpdateEnabledObjectSubtree",
+      "module_offset": "0x150c570",
+      "confidence": "correlated",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/TMNT_UpdateEnabledObjectSubtree.decompiled.c",
+      "source_status": "inferred-not-compiled",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "TMNT_AllocateFrameCommandNode",
+      "module_offset": "0x154e380",
+      "confidence": "correlated",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/TMNT_AllocateFrameCommandNode.decompiled.c",
+      "source_status": "inferred-not-compiled",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "TMNT_EnqueueJobAfterSequenceMarker",
+      "module_offset": "0x1591890",
+      "confidence": "correlated",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/TMNT_EnqueueJobAfterSequenceMarker.decompiled.c",
+      "source_status": "inferred-not-compiled",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "Import_strcmp",
+      "module_offset": "0x15c1720",
+      "confidence": "proved",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/Import_strcmp.decompiled.c",
+      "source_status": "original-import-binding",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "Import_fmodf",
+      "module_offset": "0x15c2800",
+      "confidence": "proved",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/Import_fmodf.decompiled.c",
+      "source_status": "original-import-binding",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "TMNT_FmodStudioUpdatePlt",
+      "module_offset": "0x15c0b20",
+      "confidence": "correlated",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/TMNT_FmodStudioUpdatePlt.decompiled.c",
+      "source_status": "original-body-with-timing-wrapper",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "Import_FmodChannelGroupGetParentGroup",
+      "module_offset": "0x15c0750",
+      "confidence": "proved",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/Import_FmodChannelGroupGetParentGroup.decompiled.c",
+      "source_status": "original-import-binding",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "Import_FmodSystemGetMasterChannelGroup",
+      "module_offset": "0x15c06d0",
+      "confidence": "proved",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/Import_FmodSystemGetMasterChannelGroup.decompiled.c",
+      "source_status": "original-import-binding",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "Import_FmodChannelControlSetPaused",
+      "module_offset": "0x15c0820",
+      "confidence": "proved",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/Import_FmodChannelControlSetPaused.decompiled.c",
+      "source_status": "original-import-binding",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "Import_FmodChannelControlGetVolume",
+      "module_offset": "0x15c07c0",
+      "confidence": "proved",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/Import_FmodChannelControlGetVolume.decompiled.c",
+      "source_status": "original-import-binding",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "Import_FmodChannelControlSetVolume",
+      "module_offset": "0x15c07d0",
+      "confidence": "proved",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/Import_FmodChannelControlSetVolume.decompiled.c",
+      "source_status": "original-import-binding",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "Import_FmodChannelControlGetDspClock",
+      "module_offset": "0x15c0810",
+      "confidence": "proved",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/Import_FmodChannelControlGetDspClock.decompiled.c",
+      "source_status": "original-import-binding",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "TMNT_BeginFrameAcquireBuffer",
+      "module_offset": "0x1545ce0",
+      "confidence": "correlated",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/TMNT_BeginFrameAcquireBuffer.decompiled.c",
+      "source_status": "original-body-with-timing-wrapper",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "TMNT_DispatchFrameListsAndRecycleBlocks",
+      "module_offset": "0x154e690",
+      "confidence": "correlated",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/TMNT_DispatchFrameListsAndRecycleBlocks.decompiled.c",
+      "source_status": "scene-verified-replacement",
+      "reconstructed_symbol_index": "symbols/index.json",
+      "replacement": "patch_frame_dispatch",
+      "source": "frame_dispatch.cpp"
+    },
+    {
+      "name": "TMNT_SubmitFlipRotateBuffer",
+      "module_offset": "0x1545f20",
+      "confidence": "correlated",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/TMNT_SubmitFlipRotateBuffer.decompiled.c",
+      "source_status": "original-body-with-timing-wrapper",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "TMNT_RefreshExpiredStateAndNotifyCallbacks",
+      "module_offset": "0x14bf7b0",
+      "confidence": "candidate",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/TMNT_RefreshExpiredStateAndNotifyCallbacks.decompiled.c",
+      "source_status": "inferred-not-compiled",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "Import_malloc",
+      "module_offset": "0x15c0240",
+      "confidence": "proved",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/Import_malloc.decompiled.c",
+      "source_status": "original-import-binding",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "Import_free",
+      "module_offset": "0x15c0180",
+      "confidence": "proved",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/Import_free.decompiled.c",
+      "source_status": "original-import-binding",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "Import_FmodStudioEventStop",
+      "module_offset": "0x15c0870",
+      "confidence": "proved",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/Import_FmodStudioEventStop.decompiled.c",
+      "source_status": "original-import-binding",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "Import_FmodStudioEventRelease",
+      "module_offset": "0x15c08f0",
+      "confidence": "proved",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/Import_FmodStudioEventRelease.decompiled.c",
+      "source_status": "original-import-binding",
+      "reconstructed_symbol_index": "symbols/index.json"
+    },
+    {
+      "name": "TMNT_BuildMappedScalarInputEvent",
+      "module_offset": "0x1538e50",
+      "confidence": "correlated",
+      "analysis_source": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-source/TMNT_BuildMappedScalarInputEvent.decompiled.c",
+      "source_status": "inferred-not-compiled",
+      "reconstructed_symbol_index": "symbols/index.json"
+    }
+  ],
+  "limits": "Manual evidence ledger, not automatic proof. Candidate names remain candidates. Complete frame coordinator is NOT recompiled. See frame-flow report for durations; these include host waits and children."
+}

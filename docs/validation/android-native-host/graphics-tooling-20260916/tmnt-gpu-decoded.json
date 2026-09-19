@@ -1,0 +1,48 @@
+{
+  "session_name": "lite-dump",
+  "process_name": "shadPS4",
+  "process_id": 25941,
+  "main_thread_id": 26247,
+  "clock_source": "ArmCntvct",
+  "clock_tick0": 6591979138044,
+  "clock_ns0": 340327499248088,
+  "clock_numer": 1000000000,
+  "clock_denom": 19200000,
+  "chunks_ok": 39,
+  "chunks_skipped": 0,
+  "truncated": false,
+  "gpu_records": {
+    "context_defs": 5,
+    "zone_begins": 7421,
+    "zone_ends": 7421,
+    "times": 15655,
+    "orphan_times": 813
+  },
+  "diagnostics": [
+    "1 unclosed spans on tid 26247",
+    "2 unclosed spans on tid 26207",
+    "2 unclosed spans on tid 26209",
+    "3 unclosed spans on tid 26246",
+    "1 unclosed spans on tid 26210",
+    "1 unclosed spans on tid 26252",
+    "1 unclosed spans on tid 26255",
+    "1 unclosed spans on tid 26277",
+    "2 unclosed spans on tid 26279",
+    "1 unclosed spans on tid 26280",
+    "1 unclosed spans on tid 26305",
+    "1 unclosed spans on tid 26358",
+    "1 unclosed spans on tid 26212",
+    "1 unclosed spans on tid 26250",
+    "1 unclosed spans on tid 26248",
+    "1 unclosed spans on tid 26251",
+    "1 unclosed spans on tid 26249"
+  ],
+  "event_counts": {
+    "GpuZoneBegin": 7421,
+    "GpuZoneEnd": 7421,
+    "Counter": 17180,
+    "SpanBegin": 174774,
+    "SpanEnd": 174752,
+    "FrameMark": 13
+  }
+}

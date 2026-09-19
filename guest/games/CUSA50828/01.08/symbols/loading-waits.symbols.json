@@ -1,0 +1,173 @@
+{
+  "schema": "spatial.guest-symbol-shard.v2",
+  "target_id": "tmnt-0108-eboot",
+  "domain": "loading-waits",
+  "symbols": [
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x15c02d0",
+      "segment": "text",
+      "name": "Import_sceLibcMspaceMallocStatsFast",
+      "kind": "thunk",
+      "mode": "x86-64",
+      "confidence": "proved",
+      "evidence": [
+        "Exact eboot PLT/GOT relocation 0x15c02d0 / 0x1d3b3e0 / NID k04jLXu3+Ic."
+      ],
+      "comment": "See docs/validation/android-native-host/loading-wait-chain-2026-09-17.md. Semantic reconstruction only; no replacement installed by this investigation.",
+      "size": 6
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x15c0370",
+      "segment": "text",
+      "name": "Import_sceLibcMspaceMalloc",
+      "kind": "thunk",
+      "mode": "x86-64",
+      "confidence": "proved",
+      "evidence": [
+        "Exact eboot PLT/GOT relocation 0x15c0370 / 0x1d3b430 / NID OJjm-QOIHlI."
+      ],
+      "comment": "See docs/validation/android-native-host/loading-wait-chain-2026-09-17.md. Semantic reconstruction only; no replacement installed by this investigation.",
+      "size": 6
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x15c0380",
+      "segment": "text",
+      "name": "Import_sceLibcMspaceFree",
+      "kind": "thunk",
+      "mode": "x86-64",
+      "confidence": "proved",
+      "evidence": [
+        "Exact eboot PLT/GOT relocation 0x15c0380 / 0x1d3b438 / NID Vla-Z+eXlxo."
+      ],
+      "comment": "See docs/validation/android-native-host/loading-wait-chain-2026-09-17.md. Semantic reconstruction only; no replacement installed by this investigation.",
+      "size": 6
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x15c1570",
+      "segment": "text",
+      "name": "Import_sceFiosFHReadSync",
+      "kind": "thunk",
+      "mode": "x86-64",
+      "confidence": "proved",
+      "evidence": [
+        "Exact eboot PLT/GOT relocation 0x15c1570 / 0x1d3bd30 / NID Bn2ZF4ZjeuQ."
+      ],
+      "comment": "See docs/validation/android-native-host/loading-wait-chain-2026-09-17.md. Semantic reconstruction only; no replacement installed by this investigation.",
+      "size": 6
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x15c08a0",
+      "segment": "text",
+      "name": "Import_FmodStudioSystemLoadBankFile",
+      "kind": "thunk",
+      "mode": "x86-64",
+      "confidence": "proved",
+      "evidence": [
+        "Exact eboot PLT/GOT relocation 0x15c08a0 / 0x1d3b6c8 / NID L51FfEMZa4o. Exact provider export +0x96a30 references System::loadBankFile string; captured caller chain enters its blocking flush path."
+      ],
+      "comment": "See docs/validation/android-native-host/loading-wait-chain-2026-09-17.md. Semantic reconstruction only; no replacement installed by this investigation.",
+      "size": 6
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0xc6310",
+      "segment": "text",
+      "name": "TMNT_HeapAllocateAndDiscardStats",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "correlated",
+      "evidence": [
+        "Exact instruction dataflow: RDI becomes allocator size in RSI; returned pointer saved in RBX across discarded stats query and returned in RAX.",
+        "Stats header is fixed 0x10028; stack output and stats result are not consumed. Heap handle comes from module+0x1e16ac8."
+      ],
+      "comment": "See docs/validation/android-native-host/loading-wait-chain-2026-09-17.md. Semantic reconstruction only; no replacement installed by this investigation.",
+      "size": 110,
+      "prototype": {
+        "return_type": "void *",
+        "return_location": "RAX",
+        "calling_convention": "x86_64-sysv",
+        "confidence": "correlated",
+        "evidence": [
+          "Exact instruction dataflow: RDI becomes allocator size in RSI; returned pointer saved in RBX across discarded stats query and returned in RAX."
+        ],
+        "parameters": [
+          {
+            "name": "size",
+            "type": "uint64_t",
+            "location": "RDI",
+            "confidence": "correlated",
+            "evidence": [
+              "Exact instruction dataflow: RDI becomes allocator size in RSI; returned pointer saved in RBX across discarded stats query and returned in RAX."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0xc6380",
+      "segment": "text",
+      "name": "TMNT_HeapFreeAndDiscardStats",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "correlated",
+      "evidence": [
+        "Exact instruction dataflow: RDI becomes free pointer in RSI, shared mspace handle from +0x1e16ac8; then stats query output and result are discarded. Void return is inferred from usage; machine RAX is not a stable API result."
+      ],
+      "comment": "See docs/validation/android-native-host/loading-wait-chain-2026-09-17.md. Semantic reconstruction only; no replacement installed by this investigation.",
+      "size": 100,
+      "prototype": {
+        "return_type": "void",
+        "return_location": "unspecified",
+        "calling_convention": "x86_64-sysv",
+        "confidence": "correlated",
+        "evidence": [
+          "Exact instruction dataflow: RDI becomes free pointer in RSI, shared mspace handle from +0x1e16ac8; then stats query output and result are discarded. Void return is inferred from usage; machine RAX is not a stable API result."
+        ],
+        "parameters": [
+          {
+            "name": "pointer",
+            "type": "void *",
+            "location": "RDI",
+            "confidence": "correlated",
+            "evidence": [
+              "Exact instruction dataflow: RDI becomes free pointer in RSI, shared mspace handle from +0x1e16ac8; then stats query output and result are discarded. Void return is inferred from usage; machine RAX is not a stable API result."
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x15551b0",
+      "segment": "text",
+      "name": "TMNT_FiosReadSync",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "correlated",
+      "evidence": [
+        "Exact wrapper calls NID Bn2ZF4ZjeuQ/sceFiosFHReadSync at +0x15c1570. Checked HLE caller chains in PID14213/gen1 include runtime 0x19551c4 inside this wrapper. Prototype and full object layout remain unqualified."
+      ],
+      "comment": "See docs/validation/android-native-host/loading-wait-chain-2026-09-17.md. Semantic reconstruction only; no replacement installed by this investigation."
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x42b280",
+      "segment": "text",
+      "name": "TMNT_LoadBankAndTrackHandle",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "correlated",
+      "evidence": [
+        "study0 decompilation (179 lines, not truncated) tracks bank name/hash, reference count and returned bank handle; callsite +0x42b3a6 reaches the exact loadBankFile provider. Captured guest chain connects this function to blocking FMOD flush sleep. No complete prototype assertion."
+      ],
+      "comment": "See docs/validation/android-native-host/loading-wait-chain-2026-09-17.md. Semantic reconstruction only; no replacement installed by this investigation."
+    }
+  ],
+  "types": []
+}

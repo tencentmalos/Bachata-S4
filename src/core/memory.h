@@ -23,6 +23,10 @@ namespace Core::Devtools::Widget {
 class MemoryMapViewer;
 }
 
+namespace Core::HostRuntime {
+class GuestRuntime;
+}
+
 namespace Core {
 
 constexpr u64 DEFAULT_MAPPING_BASE = 0x200000000;
@@ -38,6 +42,18 @@ enum class MemoryProt : u32 {
     GpuReadWrite = 48,
 };
 DECLARE_ENUM_FLAG_OPERATORS(MemoryProt)
+
+// Test individual permission bits. CpuReadWrite/GpuReadWrite are composite
+// masks: testing them with True() accidentally grants write to read-only pages.
+constexpr MemoryPermission ToMemoryPermission(MemoryProt prot) {
+    MemoryPermission result{};
+    if (True(prot & MemoryProt::CpuRead)) result |= MemoryPermission::Read;
+    if (True(prot & MemoryProt::CpuWrite)) result |= MemoryPermission::ReadWrite;
+    if (True(prot & MemoryProt::CpuExec)) result |= MemoryPermission::Execute;
+    if (True(prot & MemoryProt::GpuRead)) result |= MemoryPermission::Read;
+    if (True(prot & MemoryProt::GpuWrite)) result |= MemoryPermission::Write;
+    return result;
+}
 
 enum class MemoryMapFlags : u32 {
     NoFlags = 0,
@@ -151,6 +167,12 @@ struct VirtualMemoryArea {
 
         return true;
     }
+};
+
+// Caller retains ownership of the native handle until MapFile returns.
+struct NativeFileMapping {
+    uintptr_t handle;
+    bool writable;
 };
 
 class MemoryManager {
@@ -267,7 +289,8 @@ public:
                   bool validate_dmem = false, PAddr phys_addr = -1, u64 alignment = 0);
 
     s32 MapFile(void** out_addr, VAddr virtual_addr, u64 size, MemoryProt prot,
-                MemoryMapFlags flags, s32 fd, s64 phys_addr);
+                MemoryMapFlags flags, s32 fd, s64 phys_addr,
+                const NativeFileMapping* native_file = nullptr);
 
     s32 PoolDecommit(VAddr virtual_addr, u64 size);
 
@@ -294,7 +317,7 @@ public:
 
     s32 SetDirectMemoryType(VAddr addr, u64 size, s32 memory_type);
 
-    void NameVirtualRange(VAddr virtual_addr, u64 size, std::string_view name);
+    s32 NameVirtualRange(VAddr virtual_addr, u64 size, std::string_view name);
 
     s32 GetMemoryPoolStats(::Libraries::Kernel::OrbisKernelMemoryPoolBlockStats* stats);
 
@@ -347,7 +370,13 @@ private:
     PhysMap fmem_map;
     VMAMap vma_map;
     Common::SharedFirstMutex mutex{};
-    std::mutex unmap_mutex{};
+    friend class HostRuntime::GuestRuntime;
+    // Linker/patch publication participates in mapping-writer ordering only.
+    // This capability must never be passed to data marshalling/HLE domains.
+    [[nodiscard]] std::unique_lock<std::recursive_mutex> SerializeGuestCodePublication() {
+        return std::unique_lock{unmap_mutex};
+    }
+    std::recursive_mutex unmap_mutex{};
     u64 total_direct_size{};
     u64 total_flexible_size{};
     u64 flexible_usage{};

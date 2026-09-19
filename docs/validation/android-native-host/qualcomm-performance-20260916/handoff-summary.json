@@ -1,0 +1,130 @@
+[
+  {
+    "tid": 10322,
+    "name": "Vulkan.CompletionWait",
+    "count": 109,
+    "avg_ms": 37.352963449541285,
+    "p95_ms": 66.318958,
+    "max_ms": 71.041198
+  },
+  {
+    "tid": 10320,
+    "name": "Vulkan.Submit",
+    "count": 126,
+    "avg_ms": 0.07100192857142856,
+    "p95_ms": 0.129323,
+    "max_ms": 0.236823
+  },
+  {
+    "tid": 10324,
+    "name": "Vulkan.CompletionWait",
+    "count": 603,
+    "avg_ms": 7.421757706467662,
+    "p95_ms": 63.666615,
+    "max_ms": 71.047083
+  },
+  {
+    "tid": 10320,
+    "name": "Vulkan.SubmitLock",
+    "count": 125,
+    "avg_ms": 15.523141216,
+    "p95_ms": 53.731928,
+    "max_ms": 63.446875
+  },
+  {
+    "tid": 10358,
+    "name": "Vulkan.SubmitLock",
+    "count": 1148,
+    "avg_ms": 0.0038996350174216026,
+    "p95_ms": 0.005625,
+    "max_ms": 0.112708
+  },
+  {
+    "tid": 10358,
+    "name": "Vulkan.Submit",
+    "count": 1148,
+    "avg_ms": 0.08925014024390245,
+    "p95_ms": 0.159688,
+    "max_ms": 0.396354
+  },
+  {
+    "tid": 10358,
+    "name": "Present.AcquireImage",
+    "count": 606,
+    "avg_ms": 0.03770259075907591,
+    "p95_ms": 0.073021,
+    "max_ms": 0.137917
+  },
+  {
+    "tid": 10358,
+    "name": "Present.QueueLock",
+    "count": 606,
+    "avg_ms": 0.003336874587458746,
+    "p95_ms": 0.004166,
+    "max_ms": 0.10599
+  },
+  {
+    "tid": 10358,
+    "name": "Present.DriverCall",
+    "count": 605,
+    "avg_ms": 5.498039238016529,
+    "p95_ms": 62.073385,
+    "max_ms": 70.193854
+  },
+  {
+    "tid": 10358,
+    "name": "Present.Frame",
+    "count": 605,
+    "avg_ms": 6.230347547107438,
+    "p95_ms": 62.807291,
+    "max_ms": 70.770053
+  },
+  {
+    "tid": 10320,
+    "name": "PM4.Resume",
+    "count": 127,
+    "avg_ms": 24.008904976377952,
+    "p95_ms": 67.214011,
+    "max_ms": 102.965104
+  },
+  {
+    "tid": 10320,
+    "name": "Present.FreeFrameWait",
+    "count": 63,
+    "avg_ms": 0.03919060317460317,
+    "p95_ms": 0.057604,
+    "max_ms": 0.15599
+  },
+  {
+    "tid": 10320,
+    "name": "Present.FrameFenceWait",
+    "count": 63,
+    "avg_ms": 0.014137587301587302,
+    "p95_ms": 0.018802,
+    "max_ms": 0.033281
+  },
+  {
+    "tid": 10326,
+    "name": "Vulkan.CompletionWait",
+    "count": 540,
+    "avg_ms": 6.536622614814815,
+    "p95_ms": 63.260938,
+    "max_ms": 71.54875
+  },
+  {
+    "tid": 10358,
+    "name": "VideoOut.Flip",
+    "count": 63,
+    "avg_ms": 52.58964366666667,
+    "p95_ms": 65.350156,
+    "max_ms": 70.786094
+  },
+  {
+    "tid": 10320,
+    "name": "VideoOut.Prepare",
+    "count": 63,
+    "avg_ms": 18.456456698412698,
+    "p95_ms": 46.95026,
+    "max_ms": 49.381927
+  }
+]

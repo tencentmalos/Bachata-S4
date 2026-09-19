@@ -31,11 +31,11 @@ hub = ["src/core/diagnostics/diagnostics_hub.cpp"]
 registry = hub + ["src/core/diagnostics/diagnostics_hub_registry.cpp"]
 capture = ["src/video_core/renderdoc_capture.cpp"]
 commands = registry + capture + ["src/core/diagnostics/diagnostics_commands.cpp", "src/core/diagnostics/pipeline_handoff.cpp",
-    "foundation/modules/debugbus/src/DebugCommandRegistry.cpp"]
+    "foundation/modules/debugbus/src/DebugCommandRegistry.cpp", "src/common/profiler.cpp"]
 tests = {
     "frame_history": [],
     "gpu_reshape_config": [],
-    "pipeline_handoff": ["src/core/diagnostics/pipeline_handoff.cpp"],
+    "pipeline_handoff": ["src/core/diagnostics/pipeline_handoff.cpp", "src/common/profiler.cpp"],
     "trace_identity": [], "diagnostics_hub": hub,
     "diagnostics_hub_registry": registry, "renderdoc_capture": capture,
     "diagnostics_commands": commands + [str(stub)],

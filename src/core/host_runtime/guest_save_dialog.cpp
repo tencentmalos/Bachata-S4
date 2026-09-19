@@ -12,7 +12,7 @@ namespace CD = Libraries::CommonDialog;
 namespace {
 template <class T>
 bool Read(GuestAddressSpace& space, u64 addr, T& out) {
-    return bool(space.Read(GuestAddress{addr}, std::as_writable_bytes(std::span{&out, 1})));
+    return bool(space.ReadData(GuestAddress{addr}, std::as_writable_bytes(std::span{&out, 1})));
 }
 template <class T>
 u64 Address(T* pointer) {
@@ -156,20 +156,20 @@ u64 GuestSaveDialog::Invoke(std::string_view nid, GuestAddressSpace& space,
         OrbisSaveDataDialogResult out{};
         if (!Read(space, a[0], out))
             return err(CD::Error::ARG_NULL);
-        auto pin = space.AcquirePinnedSpan({GuestAddress{a[0]}, sizeof(out)}, true);
+        auto pin = space.AcquireDataSpan({GuestAddress{a[0]}, sizeof(out)}, true);
         if (!pin)
             return err(CD::Error::ARG_NULL);
         std::optional<PinnedSpan> dir, param;
         if (out.dirName) {
-            auto p = space.AcquirePinnedSpan(
+            auto p = space.AcquireDataSpan(
                 {GuestAddress{Address(out.dirName)}, sizeof(*out.dirName)}, true);
             if (!p)
                 return err(CD::Error::PARAM_INVALID);
             dir = std::move(p).Value();
         }
         if (out.param) {
-            auto p = space.AcquirePinnedSpan({GuestAddress{Address(out.param)}, sizeof(*out.param)},
-                                             true);
+            auto p =
+                space.AcquireDataSpan({GuestAddress{Address(out.param)}, sizeof(*out.param)}, true);
             if (!p)
                 return err(CD::Error::PARAM_INVALID);
             param = std::move(p).Value();

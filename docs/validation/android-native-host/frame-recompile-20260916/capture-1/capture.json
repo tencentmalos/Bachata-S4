@@ -1,0 +1,94 @@
+{
+  "architecture": "x86_64",
+  "abi": "x86_64-sysv",
+  "endianness": "little",
+  "pointer_bits": 64,
+  "identity": {
+    "emulator": "shadps4",
+    "title": "CUSA50828",
+    "module": "eboot.bin",
+    "module_sha256": "6122da7190de6b08d921b2c42c3ca9ed11dc4d11524f1139ff67aeceea5b204d"
+  },
+  "schema": "spatial.guest-profile.capture.v1",
+  "analysis": {
+    "module": "eboot.bin",
+    "sha256": "504fc22628a2a7c563e593aab298b9273e2a80eaf8814a095ffb6f464152da99",
+    "imagebase": 0
+  },
+  "process": {
+    "pid": 31258,
+    "session": "58020b2c40b685b48089328e1d746bad:1",
+    "context": 1
+  },
+  "trace": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/capture-1/capture.prof",
+  "trace_sha256": "a51dcffe121bb9b78e20ec7d7b3f1a614a20b981603931d64a756b5beb26f003",
+  "device": "9c2841a4",
+  "instrumentation": "automatic-probes",
+  "evidence": {
+    "session-before.txt": "8ef4c632c92e16356f9032b0fc54ac78391a8a8372d10a49062d0b7ed2e2da56",
+    "session-after.txt": "e11bbd6dad21c647b6182d4d007569198b76e0add403984924cf25a7a21bb898",
+    "tag-before.json": "587548a61e0a1759d4b1f0f027d44c18481eb5b4e1a176c91bdb358c05878522",
+    "tag-after.json": "bc537646215ab3b2e84bfe7d3fd5d898efd15788af0026d0c26250db4f9153cf",
+    "patch-before.txt": "af6180ca7b60b76e5929de7ba98c8134f319166983a9638c8625c127efaa6208",
+    "patch-after.txt": "92cd93ed385dbc4d30df74b2fbdf5b988901e101d079a906238dcfff2c57e3f7"
+  },
+  "profile": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/frame-profile/auto-tag.json",
+  "profile_sha256": "270c8a83e7d37a320cace14225fdd381a3a619b4a4397cfdf9f94a225667ce50",
+  "bindings": [
+    {
+      "counter_prefix": "GuestPatch.tmnt_rooftop_recompiled_v1.frame",
+      "offset": 648544,
+      "name": "frame",
+      "role": "frame"
+    },
+    {
+      "counter_prefix": "GuestPatch.tmnt_rooftop_recompiled_v1.begin",
+      "offset": 22306016,
+      "name": "begin",
+      "role": "phase"
+    },
+    {
+      "counter_prefix": "GuestPatch.tmnt_rooftop_recompiled_v1.submit",
+      "offset": 22306592,
+      "name": "submit",
+      "role": "phase"
+    },
+    {
+      "counter_prefix": "GuestPatch.tmnt_rooftop_recompiled_v1.jobs",
+      "offset": 22615408,
+      "name": "jobs",
+      "role": "phase"
+    },
+    {
+      "counter_prefix": "GuestPatch.tmnt_rooftop_recompiled_v1.fmod",
+      "offset": 22809376,
+      "name": "fmod",
+      "role": "phase"
+    },
+    {
+      "counter_prefix": "GuestPatch.tmnt_rooftop_recompiled_v1.write_label",
+      "offset": 176240,
+      "name": "write_label",
+      "role": "phase"
+    },
+    {
+      "counter_prefix": "GuestPatch.tmnt_rooftop_recompiled_v1.default_state",
+      "offset": 150624,
+      "name": "default_state",
+      "role": "phase"
+    },
+    {
+      "counter_prefix": "GuestPatch.tmnt_rooftop_recompiled_v1.submit_packets",
+      "offset": 103328,
+      "name": "submit_packets",
+      "role": "phase"
+    },
+    {
+      "counter_prefix": "GuestPatch.tmnt_rooftop_recompiled_v1.submit_label",
+      "offset": 103984,
+      "name": "submit_label",
+      "role": "phase"
+    }
+  ],
+  "compiled_guest_package_sha256": "562938ee08dc04889944550320325ea4d53e79cb2fe3745c4415e81288b1119a"
+}

@@ -3,6 +3,9 @@
 
 #include <algorithm>
 #include <utility>
+#include <fstream>
+#include <nlohmann/json.hpp>
+#include "common/path_util.h"
 #include <boost/container/small_vector.hpp>
 
 #include "common/assert.h"
@@ -194,8 +197,11 @@ GraphicsPipeline::GraphicsPipeline(
     } else if (is_rect_list || is_quad_list) {
         const auto type = is_quad_list ? AuxShaderType::QuadListTCS : AuxShaderType::RectListTCS;
         if (!preloading) {
-            const auto& fs_info = runtime_infos[u32(Shader::LogicalStage::Fragment)].fs_info;
-            sdata.tcs = Shader::Backend::SPIRV::EmitAuxilaryTessShader(type, fs_info);
+            const auto locations = Shader::Backend::SPIRV::AuxiliaryVaryingLocations(
+                *infos[u32(Shader::LogicalStage::Vertex)], profile);
+            sdata.tcs = Shader::Backend::SPIRV::EmitAuxilaryTessShader(type, locations,
+                key.emulate_depth_range && (runtime_infos[u32(Shader::LogicalStage::Vertex)].depth_range.clip_near ||
+                                           runtime_infos[u32(Shader::LogicalStage::Vertex)].depth_range.clip_far));
         }
         shader_stages.emplace_back(vk::PipelineShaderStageCreateInfo{
             .stage = vk::ShaderStageFlagBits::eTessellationControl,
@@ -212,9 +218,12 @@ GraphicsPipeline::GraphicsPipeline(
         });
     } else if (is_rect_list || is_quad_list) {
         if (!preloading) {
-            const auto& fs_info = runtime_infos[u32(Shader::LogicalStage::Fragment)].fs_info;
+            const auto locations = Shader::Backend::SPIRV::AuxiliaryVaryingLocations(
+                *infos[u32(Shader::LogicalStage::Vertex)], profile);
             sdata.tes = Shader::Backend::SPIRV::EmitAuxilaryTessShader(
-                AuxShaderType::PassthroughTES, fs_info);
+                AuxShaderType::PassthroughTES, locations,
+                key.emulate_depth_range && (runtime_infos[u32(Shader::LogicalStage::Vertex)].depth_range.clip_near ||
+                                           runtime_infos[u32(Shader::LogicalStage::Vertex)].depth_range.clip_far));
         }
         shader_stages.emplace_back(vk::PipelineShaderStageCreateInfo{
             .stage = vk::ShaderStageFlagBits::eTessellationEvaluation,
@@ -417,6 +426,29 @@ GraphicsPipeline::GraphicsPipeline(
 
     auto [pipeline_result, pipe] =
         device.createGraphicsPipelineUnique(pipeline_cache, pipeline_info);
+    if (pipeline_result != vk::Result::eSuccess) {
+        // Failure-only diagnostics: no per-draw file I/O or extra synchronization.
+        nlohmann::json data={{"pipeline",debug_str},{"result",vk::to_string(pipeline_result)}};
+        data["stages"]=nlohmann::json::array();
+        for (u32 stage=0;stage<infos.size();++stage) {
+            if (!infos[stage]) continue;
+            nlohmann::json params=nlohmann::json::array();
+            for (u32 i=0;i<Shader::IR::NumParams;++i) {
+                const auto attr=Shader::IR::Attribute::Param0+i;
+                params.push_back({{"param",i},{"load",infos[stage]->loads.GetAny(attr)},
+                                  {"store",infos[stage]->stores.GetAny(attr)}});
+            }
+            data["stages"].push_back({{"stage",stage},{"hash",infos[stage]->pgm_hash},
+                {"key",key.stage_hashes[stage]},{"params",std::move(params)}});
+        }
+        const auto& fs=runtime_infos[u32(Shader::LogicalStage::Fragment)].fs_info;
+        data["fs_inputs"]=nlohmann::json::array();
+        for (u32 i=0;i<fs.num_inputs;++i) data["fs_inputs"].push_back({{"param",i},
+            {"location",fs.inputs[i].param_index},{"default",fs.inputs[i].IsDefault()}});
+        data["clip_distance_emulation"]=fs.clip_distance_emulation;
+        std::ofstream out(Common::FS::GetUserPath(Common::FS::PathType::LogDir)/"failed-graphics-pipeline.json");
+        out<<data.dump(2);out.close();
+    }
     ASSERT_MSG(pipeline_result == vk::Result::eSuccess, "Failed to create graphics pipeline: {}",
                vk::to_string(pipeline_result));
     pipeline = std::move(pipe);

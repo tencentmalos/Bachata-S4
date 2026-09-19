@@ -235,8 +235,12 @@ void UploadTextureData::Upload() {
         .commandBufferCount = 1,
         .pCommandBuffers = &command_buffer,
     };
-    CheckVkErr(v.queue.submit({submit_info}));
-    CheckVkErr(v.queue.waitIdle());
+    {
+        std::unique_lock<std::mutex> lock;
+        if (v.queue_mutex) lock = std::unique_lock{*v.queue_mutex};
+        CheckVkErr(v.queue.submit({submit_info}));
+        CheckVkErr(v.queue.waitIdle());
+    }
 
     v.device.destroyBuffer(upload_buffer, v.allocator);
     v.device.freeMemory(upload_buffer_memory, v.allocator);
@@ -252,7 +256,14 @@ void UploadTextureData::Destroy() {
     VkData* bd = GetBackendData();
     const InitInfo& v = bd->init_info;
 
-    CheckVkErr(v.device.waitIdle());
+    // Idle must cover previously accepted host batches too. Drain outside the
+    // queue lock, which the submission worker itself needs in order to finish.
+    if (v.drain_submissions) v.drain_submissions();
+    {
+        std::unique_lock<std::mutex> lock;
+        if (v.queue_mutex) lock = std::unique_lock{*v.queue_mutex};
+        CheckVkErr(v.device.waitIdle());
+    }
     RemoveTexture(im_texture);
     im_texture = nullptr;
 
@@ -709,7 +720,12 @@ static bool CreateFontsTexture() {
 
     // Destroy existing texture (if any)
     if (bd->font_view || bd->font_image || bd->font_memory || bd->font_texture) {
-        CheckVkErr(v.queue.waitIdle());
+        if (v.drain_submissions) v.drain_submissions();
+        {
+            std::unique_lock<std::mutex> lock;
+            if (v.queue_mutex) lock = std::unique_lock{*v.queue_mutex};
+            CheckVkErr(v.queue.waitIdle());
+        }
         DestroyFontsTexture();
     }
 
@@ -880,9 +896,12 @@ static bool CreateFontsTexture() {
     end_info.commandBufferCount = 1;
     end_info.pCommandBuffers = &bd->font_command_buffer;
     CheckVkErr(bd->font_command_buffer.end());
-    CheckVkErr(v.queue.submit({end_info}));
-
-    CheckVkErr(v.queue.waitIdle());
+    {
+        std::unique_lock<std::mutex> lock;
+        if (v.queue_mutex) lock = std::unique_lock{*v.queue_mutex};
+        CheckVkErr(v.queue.submit({end_info}));
+        CheckVkErr(v.queue.waitIdle());
+    }
 
     v.device.destroyBuffer(upload_buffer, v.allocator);
     v.device.freeMemory(upload_buffer_memory, v.allocator);

@@ -1,0 +1,433 @@
+{
+  "schema": "shadps4.warmup.v1",
+  "run_id": "8e132adadd7d4c97a9d2eacb8ad66132",
+  "serial": "9c2841a4",
+  "display_id": "4630946441858561667",
+  "input_display": "0",
+  "status": "STOPPED_UNVERIFIED",
+  "identity": [
+    410,
+    2,
+    "340f0cac9b86fab7e1febe345b102801"
+  ],
+  "frames": [
+    {
+      "image": "frame-0000.png",
+      "sha256": "1b443f1abaf9b0e4d26abeaa26010bc31eac5810a88e1da83819ce532a20546f",
+      "elapsed": 1.1566035829891916,
+      "state": {
+        "identity": [
+          410,
+          2,
+          "340f0cac9b86fab7e1febe345b102801"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 7285,
+        "flip_age_ns": 11822032
+      }
+    },
+    {
+      "image": "frame-0001.png",
+      "sha256": "57b2fdd27bf42698f5561b8a2aed86f569677e3e3436e5c027c5ee8ba9680e1e",
+      "elapsed": 7.0082889579935,
+      "state": {
+        "identity": [
+          410,
+          2,
+          "340f0cac9b86fab7e1febe345b102801"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 7357,
+        "flip_age_ns": 14053802
+      }
+    },
+    {
+      "image": "frame-0002.png",
+      "sha256": "d1b8e9b6afe9d9089477921272256b8bd12aab57d90c28e8cf7ea30e90cf9064",
+      "elapsed": 12.851463666011114,
+      "state": {
+        "identity": [
+          410,
+          2,
+          "340f0cac9b86fab7e1febe345b102801"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 7429,
+        "flip_age_ns": 35471562
+      }
+    },
+    {
+      "image": "frame-0003.png",
+      "sha256": "8b3ba3e328e6ed2d4719139bef907552e4eb36efb2fca19d0a720a97c4a9fe71",
+      "elapsed": 18.718243790994165,
+      "state": {
+        "identity": [
+          410,
+          2,
+          "340f0cac9b86fab7e1febe345b102801"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 7501,
+        "flip_age_ns": 13738177
+      }
+    },
+    {
+      "image": "frame-0004.png",
+      "sha256": "5401d3ac480d083aaaac7f2d77e187aeaa748dd1e7465bf05337e757c843e49a",
+      "elapsed": 24.567147291003494,
+      "state": {
+        "identity": [
+          410,
+          2,
+          "340f0cac9b86fab7e1febe345b102801"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 7574,
+        "flip_age_ns": 14269531
+      }
+    },
+    {
+      "image": "frame-0005.png",
+      "sha256": "7d8701cf0a7f60d237831d1b1584468d3e6e88e58dc68c530f74a7873f7a5566",
+      "elapsed": 31.11230604100274,
+      "state": {
+        "identity": [
+          410,
+          2,
+          "340f0cac9b86fab7e1febe345b102801"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 7655,
+        "flip_age_ns": 27900990
+      }
+    },
+    {
+      "image": "frame-0006.png",
+      "sha256": "f9164a76015a97831a726c7446e30de6d76dd24d0aca50f73f20e44aa21c7723",
+      "elapsed": 36.94464729100582,
+      "state": {
+        "identity": [
+          410,
+          2,
+          "340f0cac9b86fab7e1febe345b102801"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 7726,
+        "flip_age_ns": 19261771
+      }
+    },
+    {
+      "image": "frame-0007.png",
+      "sha256": "793f0a3913d8d4bdf666d44a9430e5d6bd1756e86dc2a325cacaef3a157092e1",
+      "elapsed": 42.80051420800737,
+      "state": {
+        "identity": [
+          410,
+          2,
+          "340f0cac9b86fab7e1febe345b102801"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 7798,
+        "flip_age_ns": 46155572
+      }
+    },
+    {
+      "image": "frame-0008.png",
+      "sha256": "08bb54f110343b90d2b67ea2a7ae3ece6b9cabe25c49328a5fb6e1ff9a36e3a9",
+      "elapsed": 48.629546665993985,
+      "state": {
+        "identity": [
+          410,
+          2,
+          "340f0cac9b86fab7e1febe345b102801"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 7870,
+        "flip_age_ns": 40872709
+      }
+    },
+    {
+      "image": "frame-0009.png",
+      "sha256": "cab71e17eb6dc7a741c937408d74d0796bba89a9240ae964b05da43cf99079a9",
+      "elapsed": 54.553860915999394,
+      "state": {
+        "identity": [
+          410,
+          2,
+          "340f0cac9b86fab7e1febe345b102801"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 7943,
+        "flip_age_ns": 37642604
+      }
+    },
+    {
+      "image": "frame-0010.png",
+      "sha256": "c51dd68f25bfa7d0b8753ce054a7b7dbb4f07fc5a6da40cfbd473d30e33d0eda",
+      "elapsed": 60.463749957998516,
+      "state": {
+        "identity": [
+          410,
+          2,
+          "340f0cac9b86fab7e1febe345b102801"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 8016,
+        "flip_age_ns": 59349270
+      }
+    },
+    {
+      "image": "frame-0011.png",
+      "sha256": "6fb0c803b819c27ec3f04b4ea396aa86076ac653734cfc8762317b687bb69c2e",
+      "elapsed": 66.33548199999495,
+      "state": {
+        "identity": [
+          410,
+          2,
+          "340f0cac9b86fab7e1febe345b102801"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 8088,
+        "flip_age_ns": 75934635
+      }
+    },
+    {
+      "image": "frame-0012.png",
+      "sha256": "c2019c52b4c2bd475bf69cee177ae67fe85de262ea34b29ec34ef3130f397a32",
+      "elapsed": 71.9097042909998,
+      "state": {
+        "identity": [
+          410,
+          2,
+          "340f0cac9b86fab7e1febe345b102801"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 8158,
+        "flip_age_ns": 44671250
+      }
+    },
+    {
+      "image": "frame-0013.png",
+      "sha256": "d43becba75549bae636537dc608b586fb512a8ce8b1a89038b3bbdf6164a7628",
+      "elapsed": 77.16921070800163,
+      "state": {
+        "identity": [
+          410,
+          2,
+          "340f0cac9b86fab7e1febe345b102801"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 8225,
+        "flip_age_ns": 31130365
+      }
+    },
+    {
+      "image": "frame-0014.png",
+      "sha256": "b6f321f4b7522f267c1d8e12f7a98b2c252909949b0b54153a72da30653fc37b",
+      "elapsed": 82.40466450000531,
+      "state": {
+        "identity": [
+          410,
+          2,
+          "340f0cac9b86fab7e1febe345b102801"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 8291,
+        "flip_age_ns": 15915364
+      }
+    },
+    {
+      "image": "frame-0015.png",
+      "sha256": "7d26076da465a4c562b1ba3ff678bebaed309ed5cce727f90a184ce36df88e32",
+      "elapsed": 87.66721258300822,
+      "state": {
+        "identity": [
+          410,
+          2,
+          "340f0cac9b86fab7e1febe345b102801"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 8357,
+        "flip_age_ns": 33418697
+      }
+    },
+    {
+      "image": "frame-0016.png",
+      "sha256": "4fa490385172d452499648c455b1102d26a424fce5b2565f5e9743849400d781",
+      "elapsed": 92.91706237499602,
+      "state": {
+        "identity": [
+          410,
+          2,
+          "340f0cac9b86fab7e1febe345b102801"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 8423,
+        "flip_age_ns": 9315730
+      }
+    },
+    {
+      "image": "frame-0017.png",
+      "sha256": "10ddb778b8176d311b24ee6c83e6f96c6db5d29ca4a559b146892b8a223c3e41",
+      "elapsed": 98.1509354999871,
+      "state": {
+        "identity": [
+          410,
+          2,
+          "340f0cac9b86fab7e1febe345b102801"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 8488,
+        "flip_age_ns": 49471302
+      }
+    },
+    {
+      "image": "frame-0018.png",
+      "sha256": "dbf78f67e7498bfee325914a699ca224c672ee747dc11f9fa67f2bb8153eca6b",
+      "elapsed": 103.43869212499703,
+      "state": {
+        "identity": [
+          410,
+          2,
+          "340f0cac9b86fab7e1febe345b102801"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 8554,
+        "flip_age_ns": 50623750
+      }
+    },
+    {
+      "image": "frame-0019.png",
+      "sha256": "b059f033e916cf4db8a36519049ea5824b496bdcf5adf81b71b5005ae8425b49",
+      "elapsed": 109.44359499998973,
+      "state": {
+        "identity": [
+          410,
+          2,
+          "340f0cac9b86fab7e1febe345b102801"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 8628,
+        "flip_age_ns": 36040312
+      }
+    }
+  ],
+  "presses": [
+    {
+      "button": "circle",
+      "elapsed": 1.4874239999917336
+    },
+    {
+      "button": "circle",
+      "elapsed": 3.854620166006498
+    },
+    {
+      "button": "circle",
+      "elapsed": 7.331793958001072
+    },
+    {
+      "button": "circle",
+      "elapsed": 9.69186466600513
+    },
+    {
+      "button": "circle",
+      "elapsed": 13.166237333003664
+    },
+    {
+      "button": "circle",
+      "elapsed": 15.540278375003254
+    },
+    {
+      "button": "circle",
+      "elapsed": 19.034798625012627
+    },
+    {
+      "button": "circle",
+      "elapsed": 21.404301208007382
+    },
+    {
+      "button": "circle",
+      "elapsed": 24.88794670801144
+    },
+    {
+      "button": "circle",
+      "elapsed": 27.27213104101247
+    },
+    {
+      "button": "circle",
+      "elapsed": 31.420330624998314
+    },
+    {
+      "button": "circle",
+      "elapsed": 33.77348308300134
+    },
+    {
+      "button": "circle",
+      "elapsed": 37.28924120799638
+    },
+    {
+      "button": "circle",
+      "elapsed": 39.66427624999778
+    },
+    {
+      "button": "circle",
+      "elapsed": 43.101374290999956
+    },
+    {
+      "button": "circle",
+      "elapsed": 45.45931279100478
+    },
+    {
+      "button": "circle",
+      "elapsed": 48.97468787498656
+    },
+    {
+      "button": "circle",
+      "elapsed": 51.34557879099157
+    },
+    {
+      "button": "circle",
+      "elapsed": 54.86821229101042
+    },
+    {
+      "button": "circle",
+      "elapsed": 57.22205704098451
+    },
+    {
+      "button": "circle",
+      "elapsed": 60.768454415985616
+    },
+    {
+      "button": "circle",
+      "elapsed": 63.138725333003094
+    },
+    {
+      "button": "circle",
+      "elapsed": 66.66904941599932
+    }
+  ],
+  "debugger_attached": false,
+  "started_at": 1789467163.4435048,
+  "process_stat": "410 (shadps4.android) S 1693 1693 0 0 -1 1077936448 17146915 0 439519 0 92389 74902 0 0 10 -10 72 0 25006464 201405386752 705837 18446744073709551615 398532505600 398532510264 548926250944 0 0 0 4612 1 1073775864 0 0 0 17 6 0 0 0 0 0 398532513792 398532515104 398659461120 548926255373 548926255472 548926255472 548926259166 0",
+  "ended_at": 1789467272.8921118
+}

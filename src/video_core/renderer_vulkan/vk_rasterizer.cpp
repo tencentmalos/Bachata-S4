@@ -1,13 +1,17 @@
 // SPDX-FileCopyrightText: Copyright 2024-2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <atomic>
+
 #include "common/debug.h"
+#include "video_core/renderdoc.h"
 #include "core/debug_state.h"
 #include "core/diagnostics/diagnostics_hub_registry.h"
 #include "core/emulator_settings.h"
 #include "core/memory.h"
 #include "shader_recompiler/runtime_info.h"
 #include "video_core/amdgpu/liverpool.h"
+#include "video_core/amdgpu/depth_range.h"
 #include "video_core/renderer_vulkan/liverpool_to_vk.h"
 #include "video_core/renderer_vulkan/vk_instance.h"
 #include "video_core/renderer_vulkan/vk_rasterizer.h"
@@ -205,6 +209,19 @@ void Rasterizer::Draw(bool is_indexed, u32 index_offset) {
     }
 
     PrepareRenderState(pipeline);
+#if defined(__ANDROID__)
+    static std::atomic<u32> sbs_draw_samples{};
+    const u32 draw_sample = sbs_draw_samples.fetch_add(1, std::memory_order_relaxed);
+    if (draw_sample < 48 || (draw_sample % 240) == 0) {
+        LOG_INFO(Render_Vulkan,
+                 "SBS draw sample={} indexed={} indices={} mrt0={:#x} mrt1={:#x} mrt2={:#x} depth={:#x}",
+                 draw_sample, is_indexed, liverpool->regs.num_indices,
+                 liverpool->regs.color_buffers[0].Address(),
+                 liverpool->regs.color_buffers[1].Address(),
+                 liverpool->regs.color_buffers[2].Address(),
+                 liverpool->regs.depth_buffer.DepthAddress());
+    }
+#endif
     if (!BindResources(pipeline)) {
         return;
     }
@@ -225,6 +242,16 @@ void Rasterizer::Draw(bool is_indexed, u32 index_offset) {
 
     const auto cmdbuf = scheduler.CommandBuffer();
     cmdbuf.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline->Handle());
+    // Qualcomm 512.676 loses cached dynamic depth state across graphics pipeline binds.
+    if (instance.GetDriverID() == vk::DriverId::eQualcommProprietary) {
+        const auto& dynamic = scheduler.GetDynamicState();
+        cmdbuf.setDepthTestEnable(dynamic.depth_test_enabled);
+        cmdbuf.setDepthWriteEnable(dynamic.depth_write_enabled);
+        if (dynamic.depth_test_enabled) {
+            cmdbuf.setDepthCompareOp(dynamic.depth_compare_op);
+        }
+    }
+
 
     if (is_indexed) {
         cmdbuf.drawIndexed(regs.num_indices, regs.num_instances.NumInstances(), 0,
@@ -295,6 +322,16 @@ void Rasterizer::DrawIndirect(bool is_indexed, VAddr arg_address, u32 offset, u3
 
     const auto cmdbuf = scheduler.CommandBuffer();
     cmdbuf.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline->Handle());
+    // Qualcomm 512.676 loses cached dynamic depth state across graphics pipeline binds.
+    if (instance.GetDriverID() == vk::DriverId::eQualcommProprietary) {
+        const auto& dynamic = scheduler.GetDynamicState();
+        cmdbuf.setDepthTestEnable(dynamic.depth_test_enabled);
+        cmdbuf.setDepthWriteEnable(dynamic.depth_write_enabled);
+        if (dynamic.depth_test_enabled) {
+            cmdbuf.setDepthCompareOp(dynamic.depth_compare_op);
+        }
+    }
+
 
     if (is_indexed) {
         ASSERT(sizeof(VkDrawIndexedIndirectCommand) == stride);
@@ -1197,10 +1234,11 @@ void Rasterizer::UpdateViewportScissorState() const {
                   "PA_SU_SC_MODE_CNTL.VTX_WINDOW_OFFSET_ENABLE support is not yet implemented.");
     }
 
+    const auto depth_range = AmdGpu::BuildDepthRangeEmulation(
+        regs, instance.IsDepthRangeUnrestrictedSupported());
     const auto& vp_ctl = regs.viewport_control;
     for (u32 i = 0; i < AmdGpu::NUM_VIEWPORTS; i++) {
         const auto& vp = regs.viewports[i];
-        const auto& vp_d = regs.viewport_depths[i];
         if (vp.xscale == 0) {
             continue;
         }
@@ -1222,10 +1260,10 @@ void Rasterizer::UpdateViewportScissorState() const {
             viewport.maxDepth = zoffset + zscale;
         }
 
-        if (!instance.IsDepthRangeUnrestrictedSupported()) {
-            // Unrestricted depth range not supported by device. Restrict to valid range.
-            viewport.minDepth = std::max(viewport.minDepth, 0.f);
-            viewport.maxDepth = std::min(viewport.maxDepth, 1.f);
+        if (depth_range.enabled) {
+            const auto& transform = depth_range.viewports[viewports.size()];
+            viewport.minDepth = transform.min_depth;
+            viewport.maxDepth = transform.max_depth;
         }
 
         if (regs.IsClipDisabled()) {
@@ -1425,46 +1463,53 @@ void Rasterizer::UpdateColorBlendingState(const GraphicsPipeline* pipeline) cons
     dynamic_state.SetAttachmentFeedbackLoopEnabled(attachment_feedback_loop);
 }
 
+bool Rasterizer::HostMarkersEnabled() const {
+    return EmulatorSettings.IsVkHostMarkersEnabled() || VideoCore::IsRenderDocLoaded() ||
+           instance.GpuReshapeAdapter().IsActive();
+}
+
 void Rasterizer::ScopeMarkerBegin(const std::string_view& str, bool from_guest) {
     if ((from_guest && !EmulatorSettings.IsVkGuestMarkersEnabled()) ||
-        (!from_guest && !EmulatorSettings.IsVkHostMarkersEnabled())) {
+        (!from_guest && !HostMarkersEnabled())) {
         return;
     }
-    const auto cmdbuf = scheduler.CommandBuffer();
-    cmdbuf.beginDebugUtilsLabelEXT(vk::DebugUtilsLabelEXT{
-        .pLabelName = str.data(),
-    });
+    const auto label = !from_guest && diagnostic_packet.submission ? fmt::format(
+        "shadps4.pm4 {} generation={} guest_flip_id={} submission_id={} queue_id={} packet_va={}",
+        str, instance.DiagnosticGeneration(), diagnostic_packet.frame ? std::to_string(diagnostic_packet.frame) : "unknown",
+        diagnostic_packet.submission, diagnostic_packet.queue, diagnostic_packet.packet ? fmt::format("{:#x}", diagnostic_packet.packet) : "unknown") : std::string(str);
+    scheduler.BeginMarker(label);
 }
 
 void Rasterizer::ScopeMarkerEnd(bool from_guest) {
     if ((from_guest && !EmulatorSettings.IsVkGuestMarkersEnabled()) ||
-        (!from_guest && !EmulatorSettings.IsVkHostMarkersEnabled())) {
+        (!from_guest && !HostMarkersEnabled())) {
         return;
     }
-    const auto cmdbuf = scheduler.CommandBuffer();
-    cmdbuf.endDebugUtilsLabelEXT();
+    scheduler.EndMarker();
 }
 
 void Rasterizer::ScopedMarkerInsert(const std::string_view& str, bool from_guest) {
     if ((from_guest && !EmulatorSettings.IsVkGuestMarkersEnabled()) ||
-        (!from_guest && !EmulatorSettings.IsVkHostMarkersEnabled())) {
+        (!from_guest && !HostMarkersEnabled())) {
         return;
     }
     const auto cmdbuf = scheduler.CommandBuffer();
-    cmdbuf.insertDebugUtilsLabelEXT(vk::DebugUtilsLabelEXT{
-        .pLabelName = str.data(),
-    });
+    if (!VULKAN_HPP_DEFAULT_DISPATCHER.vkCmdInsertDebugUtilsLabelEXT) return;
+    const std::string label(str);
+    cmdbuf.insertDebugUtilsLabelEXT(vk::DebugUtilsLabelEXT{.pLabelName = label.c_str()});
 }
 
 void Rasterizer::ScopedMarkerInsertColor(const std::string_view& str, const u32 color,
                                          bool from_guest) {
     if ((from_guest && !EmulatorSettings.IsVkGuestMarkersEnabled()) ||
-        (!from_guest && !EmulatorSettings.IsVkHostMarkersEnabled())) {
+        (!from_guest && !HostMarkersEnabled())) {
         return;
     }
     const auto cmdbuf = scheduler.CommandBuffer();
+    if (!VULKAN_HPP_DEFAULT_DISPATCHER.vkCmdInsertDebugUtilsLabelEXT) return;
+    const std::string label(str);
     cmdbuf.insertDebugUtilsLabelEXT(vk::DebugUtilsLabelEXT{
-        .pLabelName = str.data(),
+        .pLabelName = label.c_str(),
         .color = std::array<f32, 4>(
             {(f32)((color >> 16) & 0xff) / 255.0f, (f32)((color >> 8) & 0xff) / 255.0f,
              (f32)(color & 0xff) / 255.0f, (f32)((color >> 24) & 0xff) / 255.0f})});

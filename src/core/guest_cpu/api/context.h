@@ -17,6 +17,7 @@
 #include "core/guest_cpu/api/address_space.h"
 #include "core/guest_cpu/api/execution.h"
 #include "core/guest_cpu/api/registers.h"
+#include "core/guest_cpu/api/probes.h"
 #include "core/guest_cpu/api/result.h"
 
 namespace Core::GuestCpu {
@@ -91,6 +92,9 @@ struct CpuConfig final {
     // Production owner remains in its host Run frame across coordinator-owned
     // pauses. Explicit user Pause/Cancel retains the normal returned receipt.
     bool resume_internal_drains{false};
+    // Explicit opt-in loopback guest RSP; zero creates no listener or worker.
+    std::uint16_t guest_debug_port{};
+    bool guest_debug_wait{};
 };
 
 // Initial architectural state for a guest thread. Deliberately not a host
@@ -121,6 +125,12 @@ struct ThreadHandle final {
     }
 };
 
+struct DebugModule final {
+    std::string name;
+    std::uint64_t load_base{};
+    std::vector<GuestRange> segments;
+};
+
 // Owns the backend, its code cache and its association with one address space.
 //
 // V0 permits one live context per process (API contract §2). A second
@@ -135,6 +145,11 @@ public:
     CpuContext& operator=(const CpuContext&) = delete;
 
     [[nodiscard]] virtual BackendCapabilities Capabilities() const = 0;
+    // Loader-owned guest addresses, never host ELF/module pointers.
+    virtual void SetDebugModules(std::vector<DebugModule>) {}
+    virtual Status InstallExecutionProbes(std::shared_ptr<ExecutionProbes>) {
+        return MakeError(ErrorCategory::Unsupported, "InstallExecutionProbes", "backend has no probe emitter");
+    }
 
     // Owner-thread operations. The thread that calls CreateThread becomes that
     // guest thread's owner and is the only thread permitted to Run, Step or
@@ -177,6 +192,10 @@ public:
     [[nodiscard]] virtual Result<void> WriteRegisters(ThreadHandle thread,
                                                       const RegisterPatch& patch,
                                                       std::uint64_t stop_epoch) = 0;
+
+    // Owner-only diagnostic checkpoint. Backends must keep this a no-op when
+    // unattached; captured host PCs describe this boundary, not a live unwind.
+    virtual void DebugNativeWait(ThreadHandle, bool entering) {}
 
     [[nodiscard]] virtual std::size_t LiveThreadCount() const = 0;
 

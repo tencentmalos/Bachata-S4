@@ -1,0 +1,60 @@
+187: 173559.718 21732 21907 I ProductionModule: LoadStartModule existing path=/app0/modules/libfmod.prx handle=1
+188: 173559.718 21732 21907 I ProductionModule: LoadStartModule existing path=/app0/modules/libfmodstudio.prx handle=4
+189: 173559.753 21732 21907 I AAudio  : AAudioStreamBuilder_openStream() called ----------------------------------------
+190: 173559.753 21732 21907 I AudioStreamBuilder: rate   =  48000, channels  = 8, channelMask = 0x800000ff, format   = 5, sharing = SH, dir = OUTPUT
+191: 173559.753 21732 21907 I AudioStreamBuilder: device =      0, sessionId = -1, perfMode = 12, callback: OFF with frames = 0
+192: 173559.753 21732 21907 I AudioStreamBuilder: usage  =     14, contentType = 0, inputPreset = 0, allowedCapturePolicy = 0
+193: 173559.753 21732 21907 I AudioStreamBuilder: privacy sensitive = false, opPackageName = (null), attributionTag = (null)
+194: 173559.754 21732 21907 D shadps4.android: PlayerBase::PlayerBase()
+195: 173559.771 21732 21907 D shadps4.android: PlayerBase::PlayerBase()
+196: 173559.771 21732 21907 D AudioStreamInternal_Client: ~AudioStreamInternal() 0xb400007964d642b0 called
+197: 173559.771 21732 21907 D AAudioStream: ~AudioStream(s#1) mPlayerBase strongCount = 1
+198: 173559.771 21732 21907 D shadps4.android: PlayerBase::~PlayerBase()
+199: 173559.771 21732 21907 D AudioStreamTrack: open(), request notificationFrames = 0, frameCount = 2048
+200: 173559.771 21732 21907 W AudioTrack: createTrack_l(0): AUDIO_OUTPUT_FLAG_FAST denied by client, not shared buffer and transfer = TRANSFER_SYNC
+201: 173559.778 21732 21907 D AudioStreamTrack: open() flags changed from 0x00000104 to 0x00000000
+202: 173559.778 21732 21907 D AudioStreamTrack: open() perfMode changed from 12 to 10
+203: 173559.778 21732 21907 D AAudioStream: setState(s#2) from 0 to 2
+204: 173559.779 21732 21907 I AAudio  : AAudioStreamBuilder_openStream() returns 0 = AAUDIO_OK for s#2 ----------------
+205: 173559.779 21732 21907 D AAudio  : AAudioStream_requestStart(s#2) called --------------
+206: 173559.779 21732 21907 D AAudioStream: setState(s#2) from 2 to 3
+207: 173559.787 21732 21907 D AAudio  : AAudioStream_requestStart(s#2) returned 0 ---------
+208: 173559.787 21732 21749 D AudioStreamLegacy: onAudioDeviceUpdate(deviceId = 2)
+209: 173559.866 21732 21993 D AAudioStream: setState(s#2) from 3 to 4
+222: 173641.384 21732 23185 I AudioStreamBuilder: rate   =  48000, channels  = 2, channelMask = 0x80000003, format   = 5, sharing = SH, dir = OUTPUT
+223: 173641.384 21732 23185 I AudioStreamBuilder: device =      0, sessionId = -1, perfMode = 12, callback: OFF with frames = 0
+224: 173641.384 21732 23185 I AudioStreamBuilder: usage  =     14, contentType = 0, inputPreset = 0, allowedCapturePolicy = 0
+225: 173641.384 21732 23185 I AudioStreamBuilder: privacy sensitive = false, opPackageName = (null), attributionTag = (null)
+226: 173641.384 21732 23185 D shadps4.android: PlayerBase::PlayerBase()
+227: 173641.399 21732 23185 D shadps4.android: PlayerBase::PlayerBase()
+228: 173641.399 21732 23185 D AudioStreamInternal_Client: ~AudioStreamInternal() 0xb400007964d656d0 called
+229: 173641.399 21732 23185 D AAudioStream: ~AudioStream(s#3) mPlayerBase strongCount = 1
+230: 173641.399 21732 23185 D shadps4.android: PlayerBase::~PlayerBase()
+231: 173641.399 21732 23185 D AudioStreamTrack: open(), request notificationFrames = 0, frameCount = 4096
+232: 173641.399 21732 23185 W AudioTrack: createTrack_l(550): AUDIO_OUTPUT_FLAG_FAST denied by client, not shared buffer and transfer = TRANSFER_SYNC
+233: 173641.405 21732 23185 D AudioStreamTrack: open() flags changed from 0x00000104 to 0x00000000
+234: 173641.405 21732 23185 D AudioStreamTrack: open() perfMode changed from 12 to 10
+235: 173641.405 21732 23185 D AAudioStream: setState(s#4) from 0 to 2
+236: 173641.405 21732 23185 I AAudio  : AAudioStreamBuilder_openStream() returns 0 = AAUDIO_OK for s#4 ----------------
+237: 173641.405 21732 23185 D AAudio  : AAudioStream_requestStart(s#4) called --------------
+238: 173641.405 21732 23185 D AAudioStream: setState(s#4) from 2 to 3
+239: 173641.431 21732 21749 D AudioStreamLegacy: onAudioDeviceUpdate(deviceId = 2)
+240: 173641.431 21732 23185 D AAudio  : AAudioStream_requestStart(s#4) returned 0 ---------
+254: 173649.090 21732 23229 I AudioStreamBuilder: rate   =  48000, channels  = 2, channelMask = 0x80000003, format   = 5, sharing = SH, dir = OUTPUT
+255: 173649.090 21732 23229 I AudioStreamBuilder: device =      0, sessionId = -1, perfMode = 12, callback: OFF with frames = 0
+256: 173649.090 21732 23229 I AudioStreamBuilder: usage  =     14, contentType = 0, inputPreset = 0, allowedCapturePolicy = 0
+257: 173649.090 21732 23229 I AudioStreamBuilder: privacy sensitive = false, opPackageName = (null), attributionTag = (null)
+258: 173649.090 21732 23229 D shadps4.android: PlayerBase::PlayerBase()
+259: 173649.099 21732 23229 D shadps4.android: PlayerBase::PlayerBase()
+260: 173649.099 21732 23229 D AudioStreamInternal_Client: ~AudioStreamInternal() 0xb400007964d6a750 called
+261: 173649.099 21732 23229 D AAudioStream: ~AudioStream(s#5) mPlayerBase strongCount = 1
+262: 173649.099 21732 23229 D shadps4.android: PlayerBase::~PlayerBase()
+263: 173649.099 21732 23229 D AudioStreamTrack: open(), request notificationFrames = 0, frameCount = 4096
+264: 173649.099 21732 23229 W AudioTrack: createTrack_l(1024): AUDIO_OUTPUT_FLAG_FAST denied by client, not shared buffer and transfer = TRANSFER_SYNC
+265: 173649.111 21732 23229 D AudioStreamTrack: open() flags changed from 0x00000104 to 0x00000000
+266: 173649.111 21732 23229 D AudioStreamTrack: open() perfMode changed from 12 to 10
+267: 173649.111 21732 23229 D AAudioStream: setState(s#6) from 0 to 2
+268: 173649.112 21732 23229 I AAudio  : AAudioStreamBuilder_openStream() returns 0 = AAUDIO_OK for s#6 ----------------
+269: 173649.112 21732 23229 D AAudio  : AAudioStream_requestStart(s#6) called --------------
+270: 173649.112 21732 23229 D AAudioStream: setState(s#6) from 2 to 3
+271: 173649.114 21732 23229 D AAudio  : AAudioStream_requestStart(s#6) returned 0 ---------

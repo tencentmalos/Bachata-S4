@@ -1,0 +1,17 @@
+{
+  "arguments": {
+    "eventId": "71"
+  },
+  "response": {
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"schemaVersion\":\"1.0\",\"session\":{\"captureId\":\"1057136b-e6b8-400a-b9ae-1c9e73be5b13\",\"captureRevision\":{\"value\":3},\"currentEventId\":\"71\"},\"data\":{\"dataset\":\"vertex_input\",\"materialization\":\"ready\",\"rows\":{\"columns\":[{\"name\":\"event_id\",\"declaredType\":\"INTEGER\"},{\"name\":\"location\",\"declaredType\":\"INTEGER\"},{\"name\":\"semantic\",\"declaredType\":\"TEXT\"},{\"name\":\"format\",\"declaredType\":\"TEXT\"},{\"name\":\"buffer_slot\",\"declaredType\":\"INTEGER\"},{\"name\":\"offset\",\"declaredType\":\"INTEGER\"},{\"name\":\"stride\",\"declaredType\":\"INTEGER\"},{\"name\":\"per_instance\",\"declaredType\":\"INTEGER\"}],\"rows\":[[\"71\",0,null,\"type=0;component=1;count=3;width=4;flags=0x0000\",0,0,24,0],[\"71\",1,null,\"type=0;component=2;count=4;width=1;flags=0x0000\",1,0,24,0],[\"71\",2,null,\"type=0;component=1;count=2;width=4;flags=0x0000\",2,0,24,0]],\"truncated\":false,\"executionMs\":0.0572},\"warnings\":[]}}"
+        }
+      ]
+    },
+    "id": 8,
+    "jsonrpc": "2.0"
+  }
+}

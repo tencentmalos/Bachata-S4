@@ -2,6 +2,9 @@
 #include <cstdio>
 #include <cstring>
 #include <fstream>
+#include <future>
+#include <barrier>
+#include <condition_variable>
 #include <set>
 #include "common/path_util.h"
 #include "core/file_sys/fs.h"
@@ -13,6 +16,20 @@
 using namespace Core::HostRuntime;
 using namespace Core::GuestCpu;
 static unsigned checks{}, failures{};
+static std::mutex io_test_mutex;
+static std::condition_variable io_test_changed;
+static int delayed_fd{-1};
+static bool io_entered{}, io_release{};
+static GuestStorage::IoEvent::Kind delayed_kind = GuestStorage::IoEvent::BeforeRead;
+static void DelayRead(const GuestStorage::IoEvent& e) {
+    if (e.kind != delayed_kind) return;
+    std::unique_lock lock(io_test_mutex);
+    if ((delayed_fd >= 0 && e.fd != delayed_fd) || io_entered) return;
+    io_entered = true;
+    io_test_changed.notify_all();
+    if (!io_test_changed.wait_for(lock, std::chrono::seconds(8), [] { return io_release; }))
+        std::_Exit(3);
+}
 #define CHECK(x)                                                                                   \
     do {                                                                                           \
         ++checks;                                                                                  \
@@ -54,6 +71,26 @@ int main(int argc, char** argv) {
         CHECK(storage.Positioned(fd.value, buffers, INT64_MAX, false).error == EOVERFLOW);
         CHECK(storage.Positioned(fd.value, buffers, 0, true).error == EBADF);
         CHECK(storage.Truncate(fd.value, 1).error == EBADF);
+        {
+            delayed_kind = GuestStorage::IoEvent::Opened;
+            delayed_fd = -1; io_entered = io_release = false;
+            storage.SetIoObserver(DelayRead);
+            auto slow = std::async(std::launch::async, [&] { return storage.Open("/app0/asset", 0, 0); });
+            {
+                std::unique_lock lock(io_test_mutex);
+                CHECK(io_test_changed.wait_for(lock, std::chrono::seconds(3), [] { return io_entered; }));
+            }
+            auto concurrent = std::async(std::launch::async, [&] { return storage.Open("/app0/asset", 0, 0); });
+            CHECK(concurrent.wait_for(std::chrono::milliseconds(500)) == std::future_status::ready);
+            { std::lock_guard lock(io_test_mutex); io_release = true; }
+            io_test_changed.notify_all();
+            const auto a = slow.get(), b = concurrent.get();
+            CHECK(!a.error && !b.error && a.value != b.value);
+            CHECK(storage.Close(a.value).value == 0 && storage.Close(b.value).value == 0);
+            storage.SetIoObserver(nullptr);
+            delayed_kind = GuestStorage::IoEvent::BeforeRead;
+            io_entered = io_release = false;
+        }
         CHECK(storage.Fstat(fd.value, st).value == 0 && st.st_size == 8);
         CHECK(storage.Close(fd.value).value == 0);
         CHECK(storage.Fstat(fd.value, st).error == EBADF);
@@ -84,6 +121,97 @@ int main(int argc, char** argv) {
         const u64 base = space->ReservationBase().value;
         CHECK(space->Map({GuestAddress{base}, 0x4000},
                          GuestPermission::Read | GuestPermission::Write));
+        // A delayed read retains its backing and native fd, not either global
+        // gate. A second pread of this very descriptor can proceed concurrently.
+        {
+            storage.SetIoObserver(DelayRead);
+            delayed_fd = fd.value;
+            auto blocked = std::async(std::launch::async, [&] {
+                return DispatchStorage(storage, *space, {"concurrent", StorageOp::Pread, false},
+                                       {u64(fd.value), base + 64, 3, 0},
+                                       [](int) { return UINT64_MAX; });
+            });
+            {
+                std::unique_lock lock(io_test_mutex);
+                CHECK(io_test_changed.wait_for(lock, std::chrono::seconds(3), [] { return io_entered; }));
+            }
+            auto independent = std::async(std::launch::async, [&] {
+                std::array<u8, 3> out{};
+                const GuestStorage::Buffer b{out.data(), out.size()};
+                return storage.Positioned(fd.value, std::span{&b, 1}, 0, false).value == 3;
+            });
+            CHECK(independent.wait_for(std::chrono::milliseconds(500)) == std::future_status::ready);
+            CHECK(!space->Unmap({GuestAddress{base}, 0x4000})); // admitted output pin remains
+            auto closing = std::async(std::launch::async, [&] { return storage.Close(fd.value); });
+            const bool close_ready = closing.wait_for(std::chrono::milliseconds(500)) == std::future_status::ready;
+            CHECK(close_ready);
+            if (close_ready) CHECK(closing.get().value == 0);
+            // An in-flight lease continues to prevent save unmount after Close.
+            auto unmounting = std::async(std::launch::async, [&] { return storage.Unmount("/savedata0"); });
+            CHECK(unmounting.wait_for(std::chrono::milliseconds(500)) == std::future_status::ready);
+            std::promise<void> draining;
+            auto drain = std::async(std::launch::async, [&] {
+                auto started = space->BeginDrain();
+                draining.set_value();
+                if (!started)
+                    return false;
+                return bool(space->FinishDrain(started.Value(), 3'000'000'000, 0));
+            });
+            draining.get_future().wait();
+            {
+                std::lock_guard lock(io_test_mutex); io_release = true;
+            }
+            io_test_changed.notify_all();
+            CHECK(independent.get());
+            if (!close_ready) CHECK(closing.get().value == 0);
+            CHECK(unmounting.get() == GuestStorage::Error::BUSY);
+            CHECK(blocked.get() == 3);
+            CHECK(drain.get()); // I/O can retire pins without reacquiring VM gate
+            CHECK(storage.Read(fd.value, {}).error == EBADF);
+            storage.SetIoObserver(nullptr);
+            fd = storage.Open("/savedata0/data", 2, 0600);
+            CHECK(!fd.error);
+        }
+        {
+            GuestStorage::MountResult second{};
+            CHECK(storage.Mount(1000, "", "parallel", 96, 34, second) == GuestStorage::Error::OK);
+            auto a = storage.Open("/savedata0/slow-write", 0x202, 0600);
+            auto b = storage.Open("/savedata1/left", 0x202, 0600);
+            auto c = storage.Open("/savedata1/right", 0x202, 0600);
+            CHECK(!a.error && !b.error && !c.error);
+            delayed_kind = GuestStorage::IoEvent::BeforeWrite;
+            delayed_fd = a.value; io_entered = io_release = false;
+            storage.SetIoObserver(DelayRead);
+            auto slow = std::async(std::launch::async, [&] { return storage.Write(a.value, initial); });
+            {
+                std::unique_lock lock(io_test_mutex);
+                CHECK(io_test_changed.wait_for(lock, std::chrono::seconds(3), [] { return io_entered; }));
+            }
+            auto other_volume = std::async(std::launch::async, [&] { return storage.Write(b.value, initial); });
+            CHECK(other_volume.wait_for(std::chrono::milliseconds(500)) == std::future_status::ready);
+            auto other_read = std::async(std::launch::async, [&] {
+                std::array<u8, 2> out{};
+                GuestStorage::Buffer part{out.data(), out.size()};
+                return storage.Positioned(fd.value, std::span{&part, 1}, 0, false);
+            });
+            CHECK(other_read.wait_for(std::chrono::milliseconds(500)) == std::future_status::ready);
+            { std::lock_guard lock(io_test_mutex); io_release = true; }
+            io_test_changed.notify_all();
+            CHECK(slow.get().value == 4 && other_volume.get().value == 4 && other_read.get().value == 2);
+            storage.SetIoObserver(nullptr);
+            std::vector<u8> large(2 * 1024 * 1024, 0x5a);
+            CHECK(storage.Seek(b.value, 0, 0).value == 0);
+            std::barrier start(3);
+            auto left = std::async(std::launch::async, [&] { start.arrive_and_wait(); return storage.Write(b.value, large); });
+            auto right = std::async(std::launch::async, [&] { start.arrive_and_wait(); return storage.Write(c.value, large); });
+            start.arrive_and_wait();
+            const auto l = left.get(), r = right.get();
+            CHECK((l.value == large.size() && r.error == ENOSPC) ||
+                  (r.value == large.size() && l.error == ENOSPC));
+            CHECK(storage.Close(a.value).value == 0 && storage.Close(b.value).value == 0 && storage.Close(c.value).value == 0);
+            CHECK(storage.Unlink("/savedata0/slow-write").value == 0);
+            CHECK(storage.Unmount("/savedata1") == GuestStorage::Error::OK);
+        }
         int posix_error{};
         auto call = [&](StorageOp op, const std::array<u64, 6>& args, bool posix = false) {
             return DispatchStorage(storage, *space, {"test", op, false, posix}, args, [&](int e) {
@@ -91,6 +219,11 @@ int main(int argc, char** argv) {
                 return UINT64_MAX;
             });
         };
+        CHECK(DispatchStorage(storage, *space, {"errno-retirement", StorageOp::Pread, false, true},
+            {999999, base + 128, 4, 0}, [&](int error) {
+                CHECK(error == POSIX_EBADF && space->Counts().live_pins == 0);
+                return UINT64_MAX;
+            }) == UINT64_MAX);
         // Real TMNT opens the save root as a directory before enabling writes.
         CHECK(storage.Open("/savedata0/data", 0x20000, 0).error == ENOTDIR);
         CHECK(storage.Open("/savedata0/", 0x20002, 0).error == EISDIR);

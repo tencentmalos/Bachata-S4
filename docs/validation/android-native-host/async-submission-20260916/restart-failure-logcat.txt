@@ -1,0 +1,379 @@
+--------- beginning of main
+09-16 18:37:08.240 23969 23969 I Zygote  : seccomp disabled by setenforce 0
+09-16 18:37:08.244 23969 23969 I shadps4.android: Late-enabling -Xcheck:jni
+09-16 18:37:08.273 23969 23969 D CompatibilityChangeReporter: Compat change id reported: 171979766; UID 10190; state: ENABLED
+09-16 18:37:08.276 23969 23969 W ziparchive: Unable to open '/data/app/~~d-VO9e1PXMaKsJTwJdWycg==/com.shadps4.android-Qnv-2oeePRWh-LKBUm_lxQ==/base.dm': No such file or directory
+09-16 18:37:08.276 23969 23969 W ziparchive: Unable to open '/data/app/~~d-VO9e1PXMaKsJTwJdWycg==/com.shadps4.android-Qnv-2oeePRWh-LKBUm_lxQ==/base.dm': No such file or directory
+09-16 18:37:08.335 23969 23969 I Perf    : Connecting to perf service.
+09-16 18:37:08.336 23969 23969 V GraphicsEnvironment: ANGLE Developer option for 'com.shadps4.android' set to: 'default'
+09-16 18:37:08.337 23969 23969 V GraphicsEnvironment: ANGLE GameManagerService for com.shadps4.android: false
+09-16 18:37:08.337 23969 23969 V GraphicsEnvironment: Updatable production driver is not supported on the device.
+09-16 18:37:08.337 23969 23969 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+09-16 18:37:08.338 23969 23969 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+09-16 18:37:08.359 23969 23969 I ActivityThread: performLaunchActivity com.shadps4.android displayId 0
+09-16 18:37:08.360 23969 23969 I ActivityThread: getDefaultLauncherPackage pkn com.android.launcher3
+09-16 18:37:08.391 23969 23969 I ActivityThread: performResumeActivity com.shadps4.android displayId 0
+09-16 18:37:08.391 23969 23969 I ActivityThread: getDefaultLauncherPackage pkn com.android.launcher3
+09-16 18:37:08.393 23969 23969 D CompatibilityChangeReporter: Compat change id reported: 237531167; UID 10190; state: DISABLED
+09-16 18:37:08.601 23969 23993 I AdrenoGLES-0: QUALCOMM build                   : 69e13475cb, I1df7ad3aa9
+09-16 18:37:08.601 23969 23993 I AdrenoGLES-0: Build Date                       : 12/27/23
+09-16 18:37:08.601 23969 23993 I AdrenoGLES-0: OpenGL ES Shader Compiler Version: E031.41.03.47
+09-16 18:37:08.601 23969 23993 I AdrenoGLES-0: Local Branch                     : 
+09-16 18:37:08.601 23969 23993 I AdrenoGLES-0: Remote Branch                    : refs/tags/AU_LINUX_ANDROID_LA.VENDOR.13.2.0.11.00.00.855.759
+09-16 18:37:08.601 23969 23993 I AdrenoGLES-0: Remote Branch                    : NONE
+09-16 18:37:08.601 23969 23993 I AdrenoGLES-0: Reconstruct Branch               : NOTHING
+09-16 18:37:08.601 23969 23993 I AdrenoGLES-0: Build Config                     : S P 14.1.4 AArch64
+09-16 18:37:08.601 23969 23993 I AdrenoGLES-0: Driver Path                      : /vendor/lib64/egl/libGLESv2_adreno.so
+09-16 18:37:08.601 23969 23993 I AdrenoGLES-0: Driver Version                   : 0676.53
+09-16 18:37:08.603 23969 23993 I AdrenoGLES-0: PFP: 0x01740168, ME: 0x00000000
+09-16 18:37:08.607 23969 23993 I AdrenoUtils: <ReadGpuID:407>: Reading chip ID through GSL
+09-16 18:37:08.611 23969 23993 E OpenGLRenderer: Unable to match the desired swap behavior.
+09-16 18:37:08.680 23969 23969 I OpenLastGame: Launch requested: CUSA50828
+09-16 18:37:08.685 23969 23969 W OnBackInvokedCallback: OnBackInvokedCallback is not enabled for the application.
+09-16 18:37:08.685 23969 23969 W OnBackInvokedCallback: Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+09-16 18:37:08.689 23969 23969 I InsetsSourceConsumer: setControl gSourceControl control InsetsSourceControl: {type=ITYPE_IME, mSurfacePosition=Point(0, 55), mInsetsHint=Insets{left=0, top=0, right=0, bottom=111}}
+09-16 18:37:08.821 23969 24026 I ProductionRuntime: prepare: reserve guest VA
+09-16 18:37:08.821 23969 24026 I ProductionRuntime: prepare: create FEX context
+09-16 18:37:08.821 23969 24026 I ProductionRuntime: prepare: create production VM/Linker
+09-16 18:37:08.826 23969 23969 I FexSessionService: native: page_size=4096 pid=23969 uid=10190 gen=1
+09-16 18:37:09.045 23969 24026 D vulkan  : searching for layers in '/data/app/~~d-VO9e1PXMaKsJTwJdWycg==/com.shadps4.android-Qnv-2oeePRWh-LKBUm_lxQ==/lib/arm64'
+09-16 18:37:09.046 23969 24026 D vulkan  : searching for layers in '/data/app/~~d-VO9e1PXMaKsJTwJdWycg==/com.shadps4.android-Qnv-2oeePRWh-LKBUm_lxQ==/base.apk!/lib/arm64-v8a'
+09-16 18:37:09.051 23969 24026 I AdrenoVK-0: ===== BEGIN DUMP OF OVERRIDDEN SETTINGS =====
+09-16 18:37:09.052 23969 24026 I AdrenoVK-0: ===== END DUMP OF OVERRIDDEN SETTINGS =====
+09-16 18:37:09.052 23969 24026 I AdrenoVK-0: QUALCOMM build          : 69e13475cb, I1df7ad3aa9
+09-16 18:37:09.052 23969 24026 I AdrenoVK-0: Build Date              : 12/27/23
+09-16 18:37:09.052 23969 24026 I AdrenoVK-0: Shader Compiler Version : E031.41.03.47
+09-16 18:37:09.052 23969 24026 I AdrenoVK-0: Local Branch            : 
+09-16 18:37:09.052 23969 24026 I AdrenoVK-0: Remote Branch           : refs/tags/AU_LINUX_ANDROID_LA.VENDOR.13.2.0.11.00.00.855.759
+09-16 18:37:09.052 23969 24026 I AdrenoVK-0: Remote Branch           : NONE
+09-16 18:37:09.052 23969 24026 I AdrenoVK-0: Reconstruct Branch      : NOTHING
+09-16 18:37:09.052 23969 24026 I AdrenoVK-0: Build Config            : S P 14.1.4 AArch64
+09-16 18:37:09.052 23969 24026 I AdrenoVK-0: Driver Path             : /vendor/lib64/hw/vulkan.adreno.so
+09-16 18:37:09.052 23969 24026 I AdrenoVK-0: Driver Version          : 0676.53
+09-16 18:37:09.053 23969 24026 I AdrenoVK-0: PFP                     : 0x01740168
+09-16 18:37:09.053 23969 24026 I AdrenoVK-0: ME                      : 0x00000000
+09-16 18:37:09.053 23969 24026 I AdrenoVK-0: Application Name    : shadPS4
+09-16 18:37:09.053 23969 24026 I AdrenoVK-0: Application Version : 0x00000001
+09-16 18:37:09.053 23969 24026 I AdrenoVK-0: Engine Name         : shadPS4
+09-16 18:37:09.053 23969 24026 I AdrenoVK-0: Engine Version      : 0x00000001
+09-16 18:37:09.053 23969 24026 I AdrenoVK-0: Api Version         : 0x00403000
+09-16 18:37:09.053 23969 24026 I FexSession: Selected Vulkan driver: source=system device=Adreno (TM) 740 driver=Qualcomm Technologies Inc. Adreno Vulkan Driver info=Driver Build: 69e13475cb, I1df7ad3aa9, 1703680572
+09-16 18:37:09.053 23969 24026 I FexSession: Date: 12/27/23
+09-16 18:37:09.053 23969 24026 I FexSession: Compiler Version: E031.41.03.47
+09-16 18:37:09.053 23969 24026 I FexSession: Driver Branch: 
+09-16 18:37:09.053 23969 24026 I FexSession:  shaderInt64=0 api=4206720 sha256=system-image 
+09-16 18:37:09.053 23969 24026 I ProductionRuntime: prepare: load/relocate modules
+09-16 18:37:09.407 23969 23981 I shadps4.android: Compiler allocated 4413KB to compile void android.view.ViewRootImpl.performTraversals()
+09-16 18:37:09.525 23969 24026 I ProductionRuntime: prepare: ready
+09-16 18:37:09.525 23969 24026 I ProductionRuntime: run: enter production guest
+09-16 18:37:09.525 23969 24026 I ProductionHLE: enter op=469 rip=180075000d
+09-16 18:37:09.525 23969 24026 I ProductionHLE: leave op=469 rax=2200000
+09-16 18:37:09.526 23969 24026 I ProductionHLE: enter op=478 rip=180077400d
+09-16 18:37:09.526 23969 24026 I ProductionHLE: leave op=478 rax=0
+09-16 18:37:09.526 23969 24026 I ProductionHLE: enter op=469 rip=180075000d
+09-16 18:37:09.526 23969 24026 I ProductionHLE: leave op=469 rax=2200000
+09-16 18:37:09.526 23969 24026 I ProductionHLE: enter op=482 rip=180078400d
+09-16 18:37:09.529 23969 24026 I ProductionHLE: leave op=482 rax=0
+09-16 18:37:09.529 23969 24026 I ProductionHLE: enter op=11 rip=180002800d
+09-16 18:37:09.529 23969 24026 I ProductionHLE: leave op=11 rax=1f0000000
+09-16 18:37:09.529 23969 24026 I ProductionHLE: enter op=10 rip=180002400d
+09-16 18:37:09.529 23969 24026 I ProductionHLE: leave op=10 rax=0
+09-16 18:37:09.529 23969 24026 I ProductionHLE: enter op=8 rip=180001c00d
+09-16 18:37:09.529 23969 24026 I ProductionHLE: leave op=8 rax=0
+09-16 18:37:09.529 23969 24026 I ProductionHLE: enter op=486 rip=180079400d
+09-16 18:37:09.529 23969 24026 I ProductionHLE: leave op=486 rax=0
+09-16 18:37:09.530 23969 24026 I ProductionHLE: enter op=94 rip=180017400d
+09-16 18:37:09.530 23969 24026 I ProductionHLE: leave op=94 rax=0
+09-16 18:37:09.530 23969 24026 I ProductionHLE: enter op=92 rip=180016c00d
+09-16 18:37:09.530 23969 24026 I ProductionHLE: leave op=92 rax=0
+09-16 18:37:09.530 23969 24026 I ProductionHLE: enter op=403 rip=180064800d
+09-16 18:37:09.530 23969 24026 I ProductionHLE: leave op=403 rax=0
+09-16 18:37:09.530 23969 24026 I ProductionHLE: enter op=449 rip=180070000d
+09-16 18:37:09.530 23969 24026 I ProductionHLE: leave op=449 rax=0
+09-16 18:37:09.530 23969 24026 I ProductionHLE: enter op=450 rip=180070400d
+09-16 18:37:09.530 23969 24026 I ProductionHLE: leave op=450 rax=0
+09-16 18:37:09.531 23969 24026 I ProductionHLE: enter op=451 rip=180070800d
+09-16 18:37:09.531 23969 24026 I ProductionHLE: leave op=451 rax=0
+09-16 18:37:09.531 23969 24026 I ProductionHLE: enter op=469 rip=180075000d
+09-16 18:37:09.531 23969 24026 I ProductionHLE: leave op=469 rax=2200000
+09-16 18:37:09.531 23969 24026 I ProductionHLE: enter op=478 rip=180077400d
+09-16 18:37:09.531 23969 24026 I ProductionHLE: leave op=478 rax=0
+09-16 18:37:09.531 23969 24026 I ProductionHLE: enter op=469 rip=180075000d
+09-16 18:37:09.531 23969 24026 I ProductionHLE: leave op=469 rax=2200000
+09-16 18:37:09.531 23969 24026 I ProductionHLE: enter op=482 rip=180078400d
+09-16 18:37:09.531 23969 24026 I ProductionHLE: leave op=482 rax=0
+09-16 18:37:09.531 23969 24026 I ProductionHLE: enter op=11 rip=180002800d
+09-16 18:37:09.531 23969 24026 I ProductionHLE: leave op=11 rax=1f0000000
+09-16 18:37:09.531 23969 24026 I ProductionHLE: enter op=10 rip=180002400d
+09-16 18:37:09.531 23969 24026 I ProductionHLE: leave op=10 rax=0
+09-16 18:37:09.531 23969 24026 I ProductionHLE: enter op=8 rip=180001c00d
+09-16 18:37:09.531 23969 24026 I ProductionHLE: leave op=8 rax=0
+09-16 18:37:09.531 23969 24026 I ProductionHLE: enter op=486 rip=180079400d
+09-16 18:37:09.531 23969 24026 I ProductionHLE: leave op=486 rax=0
+09-16 18:37:09.532 23969 24026 I ProductionHLE: enter op=94 rip=180017400d
+09-16 18:37:09.532 23969 24026 I ProductionHLE: leave op=94 rax=0
+09-16 18:37:09.532 23969 24026 I ProductionHLE: enter op=92 rip=180016c00d
+09-16 18:37:09.532 23969 24026 I ProductionHLE: leave op=92 rax=0
+09-16 18:37:09.532 23969 24026 I ProductionHLE: enter op=403 rip=180064800d
+09-16 18:37:09.532 23969 24026 I ProductionHLE: leave op=403 rax=0
+09-16 18:37:09.533 23969 24026 I ProductionHLE: enter op=92 rip=180016c00d
+09-16 18:37:09.533 23969 24026 I ProductionHLE: leave op=92 rax=0
+09-16 18:37:09.533 23969 24026 I ProductionHLE: enter op=469 rip=180075000d
+09-16 18:37:09.533 23969 24026 I ProductionHLE: leave op=469 rax=2200000
+09-16 18:37:09.533 23969 24026 I ProductionHLE: enter op=469 rip=180075000d
+09-16 18:37:09.533 23969 24026 I ProductionHLE: leave op=469 rax=2200000
+09-16 18:37:09.533 23969 24026 I ProductionHLE: enter op=469 rip=180075000d
+09-16 18:37:09.533 23969 24026 I ProductionHLE: leave op=469 rax=2200000
+09-16 18:37:09.534 23969 24026 I ProductionHLE: enter op=94 rip=180017400d
+09-16 18:37:09.534 23969 24026 I ProductionHLE: leave op=94 rax=0
+09-16 18:37:09.534 23969 24026 I ProductionHLE: enter op=402 rip=180064400d
+09-16 18:37:09.534 23969 24026 I ProductionHLE: leave op=402 rax=0
+09-16 18:37:09.534 23969 24026 I ProductionHLE: enter op=92 rip=180016c00d
+09-16 18:37:09.534 23969 24026 I ProductionHLE: leave op=92 rax=0
+09-16 18:37:09.534 23969 24026 I ProductionHLE: enter op=403 rip=180064800d
+09-16 18:37:09.534 23969 24026 I ProductionHLE: leave op=403 rax=0
+09-16 18:37:09.534 23969 24026 I ProductionHLE: enter op=94 rip=180017400d
+09-16 18:37:09.534 23969 24026 I ProductionHLE: leave op=94 rax=0
+09-16 18:37:09.534 23969 24026 I ProductionHLE: enter op=402 rip=180064400d
+09-16 18:37:09.534 23969 24026 I ProductionHLE: leave op=402 rax=0
+09-16 18:37:09.535 23969 24026 I ProductionHLE: enter op=92 rip=180016c00d
+09-16 18:37:09.535 23969 24026 I ProductionHLE: leave op=92 rax=0
+09-16 18:37:09.535 23969 24026 I ProductionHLE: enter op=403 rip=180064800d
+09-16 18:37:09.535 23969 24026 I ProductionHLE: leave op=403 rax=0
+09-16 18:37:09.535 23969 24026 I ProductionHLE: enter op=94 rip=180017400d
+09-16 18:37:09.535 23969 24026 I ProductionHLE: leave op=94 rax=0
+09-16 18:37:09.535 23969 24026 I ProductionHLE: enter op=402 rip=180064400d
+09-16 18:37:09.535 23969 24026 I ProductionHLE: leave op=402 rax=0
+09-16 18:37:09.535 23969 24026 I ProductionHLE: enter op=92 rip=180016c00d
+09-16 18:37:09.535 23969 24026 I ProductionHLE: leave op=92 rax=0
+09-16 18:37:09.535 23969 24026 I ProductionHLE: enter op=403 rip=180064800d
+09-16 18:37:09.535 23969 24026 I ProductionHLE: leave op=403 rax=0
+09-16 18:37:09.536 23969 24026 I ProductionHLE: enter op=94 rip=180017400d
+09-16 18:37:09.536 23969 24026 I ProductionHLE: leave op=94 rax=0
+09-16 18:37:09.536 23969 24026 I ProductionHLE: enter op=402 rip=180064400d
+09-16 18:37:09.536 23969 24026 I ProductionHLE: leave op=402 rax=0
+09-16 18:37:09.536 23969 24026 I ProductionHLE: enter op=92 rip=180016c00d
+09-16 18:37:09.536 23969 24026 I ProductionHLE: leave op=92 rax=0
+09-16 18:37:09.536 23969 24026 I ProductionHLE: enter op=403 rip=180064800d
+09-16 18:37:09.536 23969 24026 I ProductionHLE: leave op=403 rax=0
+09-16 18:37:09.537 23969 24026 I ProductionHLE: enter op=94 rip=180017400d
+09-16 18:37:09.537 23969 24026 I ProductionHLE: leave op=94 rax=0
+09-16 18:37:09.537 23969 24026 I ProductionHLE: enter op=402 rip=180064400d
+09-16 18:37:09.537 23969 24026 I ProductionHLE: leave op=402 rax=0
+09-16 18:37:09.537 23969 24026 I ProductionHLE: enter op=92 rip=180016c00d
+09-16 18:37:09.537 23969 24026 I ProductionHLE: leave op=92 rax=0
+09-16 18:37:09.537 23969 24026 I ProductionHLE: enter op=403 rip=180064800d
+09-16 18:37:09.537 23969 24026 I ProductionHLE: leave op=403 rax=0
+09-16 18:37:09.537 23969 24026 I ProductionHLE: enter op=94 rip=180017400d
+09-16 18:37:09.538 23969 24026 I ProductionHLE: leave op=94 rax=0
+09-16 18:37:09.538 23969 24026 I ProductionHLE: enter op=402 rip=180064400d
+09-16 18:37:09.538 23969 24026 I ProductionHLE: leave op=402 rax=0
+09-16 18:37:09.538 23969 24026 I ProductionHLE: enter op=92 rip=180016c00d
+09-16 18:37:09.538 23969 24026 I ProductionHLE: leave op=92 rax=0
+09-16 18:37:09.538 23969 24026 I ProductionHLE: enter op=403 rip=180064800d
+09-16 18:37:09.538 23969 24026 I ProductionHLE: leave op=403 rax=0
+09-16 18:37:09.538 23969 24026 I ProductionHLE: enter op=94 rip=180017400d
+09-16 18:37:09.538 23969 24026 I ProductionHLE: leave op=94 rax=0
+09-16 18:37:09.538 23969 24026 I ProductionHLE: enter op=402 rip=180064400d
+09-16 18:37:09.538 23969 24026 I ProductionHLE: leave op=402 rax=0
+09-16 18:37:09.538 23969 24026 I ProductionHLE: enter op=92 rip=180016c00d
+09-16 18:37:09.538 23969 24026 I ProductionHLE: leave op=92 rax=0
+09-16 18:37:09.538 23969 24026 I ProductionHLE: enter op=403 rip=180064800d
+09-16 18:37:09.538 23969 24026 I ProductionHLE: leave op=403 rax=0
+09-16 18:37:09.539 23969 24026 I ProductionHLE: enter op=94 rip=180017400d
+09-16 18:37:09.539 23969 24026 I ProductionHLE: leave op=94 rax=0
+09-16 18:37:09.539 23969 24026 I ProductionHLE: enter op=402 rip=180064400d
+09-16 18:37:09.539 23969 24026 I ProductionHLE: leave op=402 rax=0
+09-16 18:37:09.539 23969 24026 I ProductionHLE: enter op=92 rip=180016c00d
+09-16 18:37:09.539 23969 24026 I ProductionHLE: leave op=92 rax=0
+09-16 18:37:09.539 23969 24026 I ProductionHLE: enter op=403 rip=180064800d
+09-16 18:37:09.539 23969 24026 I ProductionHLE: leave op=403 rax=0
+09-16 18:37:09.540 23969 24026 I ProductionHLE: enter op=94 rip=180017400d
+09-16 18:37:09.540 23969 24026 I ProductionHLE: leave op=94 rax=0
+09-16 18:37:09.540 23969 24026 I ProductionHLE: enter op=402 rip=180064400d
+09-16 18:37:09.540 23969 24026 I ProductionHLE: leave op=402 rax=0
+09-16 18:37:09.540 23969 24026 I ProductionHLE: enter op=92 rip=180016c00d
+09-16 18:37:09.540 23969 24026 I ProductionHLE: leave op=92 rax=0
+09-16 18:37:09.991 23969 24026 I ProductionModule: SysmoduleLoad id=0xa0 name=libSceSaveDataDialog result=0
+09-16 18:37:09.991 23969 24026 I ProductionModule: SysmoduleLoad id=0xa4 name=libSceMsgDialog result=0x805a10ff
+09-16 18:37:09.997 23969 24026 I AdrenoVK-0: QUALCOMM build          : 69e13475cb, I1df7ad3aa9
+09-16 18:37:09.997 23969 24026 I AdrenoVK-0: Build Date              : 12/27/23
+09-16 18:37:09.997 23969 24026 I AdrenoVK-0: Shader Compiler Version : E031.41.03.47
+09-16 18:37:09.997 23969 24026 I AdrenoVK-0: Local Branch            : 
+09-16 18:37:09.997 23969 24026 I AdrenoVK-0: Remote Branch           : refs/tags/AU_LINUX_ANDROID_LA.VENDOR.13.2.0.11.00.00.855.759
+09-16 18:37:09.997 23969 24026 I AdrenoVK-0: Remote Branch           : NONE
+09-16 18:37:09.997 23969 24026 I AdrenoVK-0: Reconstruct Branch      : NOTHING
+09-16 18:37:09.997 23969 24026 I AdrenoVK-0: Build Config            : S P 14.1.4 AArch64
+09-16 18:37:09.997 23969 24026 I AdrenoVK-0: Driver Path             : /vendor/lib64/hw/vulkan.adreno.so
+09-16 18:37:09.997 23969 24026 I AdrenoVK-0: Driver Version          : 0676.53
+09-16 18:37:09.997 23969 24026 I AdrenoVK-0: PFP                     : 0x01740168
+09-16 18:37:09.997 23969 24026 I AdrenoVK-0: ME                      : 0x00000000
+09-16 18:37:09.997 23969 24026 I AdrenoVK-0: Application Name    : shadPS4
+09-16 18:37:09.997 23969 24026 I AdrenoVK-0: Application Version : 0x00400000
+09-16 18:37:09.997 23969 24026 I AdrenoVK-0: Engine Name         : shadPS4 Vulkan
+09-16 18:37:09.997 23969 24026 I AdrenoVK-0: Engine Version      : 0x00400000
+09-16 18:37:09.997 23969 24026 I AdrenoVK-0: Api Version         : 0x00403000
+09-16 18:37:09.997 23969 24026 I AdrenoVK-0: Unknown struct with type 0x3ba1bb58 provided to vkGetPhysicalDeviceFeatures2
+09-16 18:37:09.997 23969 24026 I AdrenoVK-0: Unknown struct with type 0x3b9ef468 provided to vkGetPhysicalDeviceFeatures2
+09-16 18:37:09.997 23969 24026 I AdrenoVK-0: Unknown struct with type 0x3b9fea80 provided to vkGetPhysicalDeviceFeatures2
+09-16 18:37:09.997 23969 24026 I AdrenoVK-0: Unknown struct with type 0x3ba0c928 provided to vkGetPhysicalDeviceFeatures2
+09-16 18:37:10.703 23969 23969 I shadps4.android: type=1400 audit(0.0:237557): avc: denied { read } for name="gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:37:10.703 23969 23969 I shadps4.android: type=1400 audit(0.0:237558): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:37:10.703 23969 23969 I shadps4.android: type=1400 audit(0.0:237559): avc: denied { getattr } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:37:10.756 23969 24026 I ProductionModule: SysmoduleLoad id=0xb4 name=libSceAppContent result=0
+09-16 18:37:10.857 23969 23969 I shadps4.android: Waiting for a blocking GC NativeAlloc
+09-16 18:37:10.875 23969 23969 I shadps4.android: WaitForGcToComplete blocked NativeAlloc on NativeAlloc for 18.486ms
+09-16 18:37:11.657 23969 24026 I ProductionModule: SysmoduleLoad id=0x96 name=libSceImeDialog result=0x805a10ff
+09-16 18:37:11.727 23969 24026 I ProductionModule: LoadStartModule existing path=/app0/modules/libfmod.prx handle=1
+09-16 18:37:11.728 23969 24026 I ProductionModule: LoadStartModule existing path=/app0/modules/libfmodstudio.prx handle=4
+09-16 18:37:11.756 23969 24026 I OboeAudio: openStream() OUTPUT -------- OboeVersion1.8.0 --------
+09-16 18:37:11.756 23969 24026 I OboeAudio: openStream() OUTPUT -------- OboeVersion1.8.0 --------
+09-16 18:37:11.756 23969 24026 I AAudio  : AAudioStreamBuilder_openStream() called ----------------------------------------
+09-16 18:37:11.756 23969 24026 I AudioStreamBuilder: rate   =      0, channels  = 2, channelMask = 0x3, format   = 5, sharing = SH, dir = OUTPUT
+09-16 18:37:11.756 23969 24026 I AudioStreamBuilder: device =      0, sessionId = -1, perfMode = 12, callback: ON with frames = 0
+09-16 18:37:11.756 23969 24026 I AudioStreamBuilder: usage  =     14, contentType = 2, inputPreset = 6, allowedCapturePolicy = 0
+09-16 18:37:11.756 23969 24026 I AudioStreamBuilder: privacy sensitive = false, opPackageName = (null), attributionTag = (null)
+09-16 18:37:11.757 23969 24026 D shadps4.android: PlayerBase::PlayerBase()
+09-16 18:37:11.771 23969 24026 D shadps4.android: PlayerBase::PlayerBase()
+09-16 18:37:11.771 23969 24026 D AudioStreamInternal_Client: ~AudioStreamInternal() 0xb400007964d3dce0 called
+09-16 18:37:11.771 23969 24026 D AAudioStream: ~AudioStream(s#1) mPlayerBase strongCount = 1
+09-16 18:37:11.771 23969 24026 D shadps4.android: PlayerBase::~PlayerBase()
+09-16 18:37:11.771 23969 24026 D AudioStreamTrack: open(), request notificationFrames = -8, frameCount = 0
+09-16 18:37:11.778 23969 24026 D AudioStreamTrack: open() flags changed from 0x00000104 to 0x00000000
+09-16 18:37:11.778 23969 24026 D AudioStreamTrack: open() perfMode changed from 12 to 10
+09-16 18:37:11.778 23969 24026 D AAudioStream: setState(s#2) from 0 to 2
+09-16 18:37:11.778 23969 24026 I AAudio  : AAudioStreamBuilder_openStream() returns 0 = AAUDIO_OK for s#2 ----------------
+09-16 18:37:11.778 23969 24026 D AAudio  : AAudioStream_requestStart(s#2) called --------------
+09-16 18:37:11.778 23969 24026 D AAudioStream: setState(s#2) from 2 to 3
+09-16 18:37:11.784 23969 24026 D AAudio  : AAudioStream_requestStart(s#2) returned 0 ---------
+09-16 18:37:11.784 23969 23987 D AudioStreamLegacy: onAudioDeviceUpdate(deviceId = 2)
+09-16 18:37:11.832 23969 24107 D AAudioStream: setState(s#2) from 3 to 4
+09-16 18:37:12.714 23969 24026 I ProductionModule: LoadStartModule existing path=/app0/sce_module/libSceNpEntitlementAccess.prx handle=5
+09-16 18:37:12.714 23969 24026 I ProductionModule: SysmoduleLoad id=0xb4 name=libSceAppContent result=0
+09-16 18:37:12.731 23969 24026 I ProductionModule: SysmoduleLoad id=0x9d name=libSceNpAuth result=0x805a10ff
+09-16 18:37:12.732 23969 24026 I ProductionModule: SysmoduleLoad id=0xe7 name=libSceJson2 result=0
+09-16 18:37:14.394 23969 24148 D ProfileInstaller: Installing profile for com.shadps4.android
+09-16 18:37:24.314 23969 23981 I shadps4.android: Compiler allocated 6136KB to compile void com.shadps4.android.feature.session.SessionScreenKt$SessionScreen$8.invoke(androidx.compose.foundation.layout.BoxWithConstraintsScope, androidx.compose.runtime.Composer, int)
+09-16 18:37:28.811 23969 23969 I shadps4.android: type=1400 audit(0.0:237577): avc: denied { read } for name="gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:37:28.811 23969 23969 I shadps4.android: type=1400 audit(0.0:237578): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:37:28.811 23969 23969 I shadps4.android: type=1400 audit(0.0:237579): avc: denied { getattr } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:37:32.533 23969 24026 I ProductionModule: SysmoduleLoad id=0xa5 name=libSceAvPlayer result=0
+09-16 18:39:00.271 23969 23969 I shadps4.android: type=1400 audit(0.0:237600): avc: denied { read } for name="gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:39:00.271 23969 23969 I shadps4.android: type=1400 audit(0.0:237601): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:39:00.271 23969 23969 I shadps4.android: type=1400 audit(0.0:237602): avc: denied { getattr } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:39:15.879 23969 23969 I shadps4.android: type=1400 audit(0.0:237610): avc: denied { read } for name="gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:39:15.879 23969 23969 I shadps4.android: type=1400 audit(0.0:237611): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:39:15.879 23969 23969 I shadps4.android: type=1400 audit(0.0:237612): avc: denied { getattr } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:39:34.183 23969 23969 I shadps4.android: type=1400 audit(0.0:237624): avc: denied { read } for name="gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:39:34.183 23969 23969 I shadps4.android: type=1400 audit(0.0:237625): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:39:34.183 23969 23969 I shadps4.android: type=1400 audit(0.0:237626): avc: denied { getattr } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:40:15.543 23969 23969 I shadps4.android: type=1400 audit(0.0:237649): avc: denied { read } for name="gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:40:15.543 23969 23969 I shadps4.android: type=1400 audit(0.0:237650): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:40:15.543 23969 23969 I shadps4.android: type=1400 audit(0.0:237651): avc: denied { getattr } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:40:21.253 23969 23969 W Choreographer: Frame time is 0.027216 ms in the future!  Check that graphics HAL is generating vsync timestamps using the correct timebase.
+09-16 18:40:32.151 23969 23969 I shadps4.android: type=1400 audit(0.0:237655): avc: denied { read } for name="gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:40:32.151 23969 23969 I shadps4.android: type=1400 audit(0.0:237656): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:40:32.151 23969 23969 I shadps4.android: type=1400 audit(0.0:237657): avc: denied { getattr } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:41:15.439 23969 23969 I shadps4.android: type=1400 audit(0.0:237674): avc: denied { read } for name="gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:41:15.439 23969 23969 I shadps4.android: type=1400 audit(0.0:237675): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:41:15.439 23969 23969 I shadps4.android: type=1400 audit(0.0:237676): avc: denied { getattr } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:41:26.999 23969 23969 I shadps4.android: type=1400 audit(0.0:237689): avc: denied { read } for name="gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:41:26.999 23969 23969 I shadps4.android: type=1400 audit(0.0:237690): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:41:26.999 23969 23969 I shadps4.android: type=1400 audit(0.0:237691): avc: denied { getattr } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:41:27.507 23969 23969 I shadps4.android: type=1400 audit(0.0:237692): avc: denied { read } for name="gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:41:27.507 23969 23969 I shadps4.android: type=1400 audit(0.0:237693): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:41:27.507 23969 23969 I shadps4.android: type=1400 audit(0.0:237694): avc: denied { getattr } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:41:29.023 23969 23969 I shadps4.android: type=1400 audit(0.0:237695): avc: denied { read } for name="gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:41:29.023 23969 23969 I shadps4.android: type=1400 audit(0.0:237696): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:41:29.023 23969 23969 I shadps4.android: type=1400 audit(0.0:237697): avc: denied { getattr } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:41:46.639 23969 23969 I shadps4.android: type=1400 audit(0.0:237717): avc: denied { read } for name="gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:41:46.639 23969 23969 I shadps4.android: type=1400 audit(0.0:237718): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:41:46.639 23969 23969 I shadps4.android: type=1400 audit(0.0:237719): avc: denied { getattr } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:41:48.036 23969 24026 I ProductionRuntime: run: guest returned to host
+09-16 18:41:48.036 23969 24026 I ProductionRuntime: run: terminal outcome=Cancelled reason=Cancelled detail=guest return=0
+09-16 18:41:48.100 23969 24026 D AAudio  : AAudioStream_requestStop(s#2) called
+09-16 18:41:48.100 23969 24026 D AAudioStream: setState(s#2) from 4 to 9
+09-16 18:41:48.100 23969 24026 D AudioTrack: stop(446): called with 13264320 frames delivered
+09-16 18:41:48.101 23969 24026 D AAudio  : AAudioStream_requestStop(s#2) called
+09-16 18:41:48.123 23969 24026 D AAudio  : AAudioStream_close(s#2) called ---------------
+09-16 18:41:48.123 23969 24026 D AAudioStream: setState(s#2) from 9 to 11
+09-16 18:41:48.124 23969 24026 D AAudioStream: setState(s#2) from 11 to 12
+09-16 18:41:48.124 23969 24026 D AAudioStream: ~AudioStream(s#2) mPlayerBase strongCount = 2
+09-16 18:41:48.124 23969 24026 D AAudio  : AAudioStream_close(s#2) returned 0 ---------
+09-16 18:43:16.178 23969 23969 I ActivityThread: performResumeActivity com.shadps4.android displayId 0
+09-16 18:43:16.179 23969 23969 I ActivityThread: getDefaultLauncherPackage pkn com.android.launcher3
+09-16 18:43:16.199 23969 23969 I OpenLastGame: Launch requested: CUSA50828
+09-16 18:43:16.311 23969 26598 I ProductionRuntime: prepare: reserve guest VA
+09-16 18:43:16.311 23969 26598 I ProductionRuntime: prepare: create FEX context
+09-16 18:43:16.311 23969 26598 I ProductionRuntime: prepare: create production VM/Linker
+09-16 18:43:16.313 23969 23969 I FexSessionService: native: page_size=4096 pid=23969 uid=10190 gen=2
+09-16 18:43:16.516 23969 26598 I FexSession: Selected Vulkan driver: source=system device=Adreno (TM) 740 driver=Qualcomm Technologies Inc. Adreno Vulkan Driver info=Driver Build: 69e13475cb, I1df7ad3aa9, 1703680572
+09-16 18:43:16.516 23969 26598 I FexSession: Date: 12/27/23
+09-16 18:43:16.516 23969 26598 I FexSession: Compiler Version: E031.41.03.47
+09-16 18:43:16.516 23969 26598 I FexSession: Driver Branch: 
+09-16 18:43:16.516 23969 26598 I FexSession:  shaderInt64=0 api=4206720 sha256=system-image 
+09-16 18:43:16.516 23969 26598 I ProductionRuntime: prepare: load/relocate modules
+09-16 18:43:16.967 23969 26598 I ProductionRuntime: prepare: ready
+09-16 18:43:16.967 23969 26598 I ProductionRuntime: run: enter production guest
+09-16 18:43:17.459 23969 26598 I ProductionModule: SysmoduleLoad id=0xa0 name=libSceSaveDataDialog result=0
+09-16 18:43:17.459 23969 26598 I ProductionModule: SysmoduleLoad id=0xa4 name=libSceMsgDialog result=0x805a10ff
+09-16 18:43:17.469 23969 26598 I AdrenoVK-0: QUALCOMM build          : 69e13475cb, I1df7ad3aa9
+09-16 18:43:17.469 23969 26598 I AdrenoVK-0: Build Date              : 12/27/23
+09-16 18:43:17.469 23969 26598 I AdrenoVK-0: Shader Compiler Version : E031.41.03.47
+09-16 18:43:17.469 23969 26598 I AdrenoVK-0: Local Branch            : 
+09-16 18:43:17.469 23969 26598 I AdrenoVK-0: Remote Branch           : refs/tags/AU_LINUX_ANDROID_LA.VENDOR.13.2.0.11.00.00.855.759
+09-16 18:43:17.469 23969 26598 I AdrenoVK-0: Remote Branch           : NONE
+09-16 18:43:17.469 23969 26598 I AdrenoVK-0: Reconstruct Branch      : NOTHING
+09-16 18:43:17.469 23969 26598 I AdrenoVK-0: Build Config            : S P 14.1.4 AArch64
+09-16 18:43:17.469 23969 26598 I AdrenoVK-0: Driver Path             : /vendor/lib64/hw/vulkan.adreno.so
+09-16 18:43:17.469 23969 26598 I AdrenoVK-0: Driver Version          : 0676.53
+09-16 18:43:17.469 23969 26598 I AdrenoVK-0: PFP                     : 0x01740168
+09-16 18:43:17.469 23969 26598 I AdrenoVK-0: ME                      : 0x00000000
+09-16 18:43:17.469 23969 26598 I AdrenoVK-0: Application Name    : shadPS4
+09-16 18:43:17.469 23969 26598 I AdrenoVK-0: Application Version : 0x00400000
+09-16 18:43:17.469 23969 26598 I AdrenoVK-0: Engine Name         : shadPS4 Vulkan
+09-16 18:43:17.469 23969 26598 I AdrenoVK-0: Engine Version      : 0x00400000
+09-16 18:43:17.469 23969 26598 I AdrenoVK-0: Api Version         : 0x00403000
+09-16 18:43:17.469 23969 26598 I AdrenoVK-0: Unknown struct with type 0x3ba1bb58 provided to vkGetPhysicalDeviceFeatures2
+09-16 18:43:17.469 23969 26598 I AdrenoVK-0: Unknown struct with type 0x3b9ef468 provided to vkGetPhysicalDeviceFeatures2
+09-16 18:43:17.469 23969 26598 I AdrenoVK-0: Unknown struct with type 0x3b9fea80 provided to vkGetPhysicalDeviceFeatures2
+09-16 18:43:17.469 23969 26598 I AdrenoVK-0: Unknown struct with type 0x3ba0c928 provided to vkGetPhysicalDeviceFeatures2
+09-16 18:43:18.173 23969 26598 I ProductionModule: SysmoduleLoad id=0xb4 name=libSceAppContent result=0
+09-16 18:43:19.214 23969 26598 I ProductionModule: SysmoduleLoad id=0x96 name=libSceImeDialog result=0x805a10ff
+09-16 18:43:19.283 23969 26598 I ProductionModule: LoadStartModule existing path=/app0/modules/libfmod.prx handle=1
+09-16 18:43:19.283 23969 26598 I ProductionModule: LoadStartModule existing path=/app0/modules/libfmodstudio.prx handle=4
+09-16 18:43:19.318 23969 26598 I OboeAudio: openStream() OUTPUT -------- OboeVersion1.8.0 --------
+09-16 18:43:19.318 23969 26598 I OboeAudio: openStream() OUTPUT -------- OboeVersion1.8.0 --------
+09-16 18:43:19.318 23969 26598 I AAudio  : AAudioStreamBuilder_openStream() called ----------------------------------------
+09-16 18:43:19.318 23969 26598 I AudioStreamBuilder: rate   =      0, channels  = 2, channelMask = 0x3, format   = 5, sharing = SH, dir = OUTPUT
+09-16 18:43:19.318 23969 26598 I AudioStreamBuilder: device =      0, sessionId = -1, perfMode = 12, callback: ON with frames = 0
+09-16 18:43:19.318 23969 26598 I AudioStreamBuilder: usage  =     14, contentType = 2, inputPreset = 6, allowedCapturePolicy = 0
+09-16 18:43:19.318 23969 26598 I AudioStreamBuilder: privacy sensitive = false, opPackageName = (null), attributionTag = (null)
+09-16 18:43:19.318 23969 26598 D shadps4.android: PlayerBase::PlayerBase()
+09-16 18:43:19.332 23969 26598 D shadps4.android: PlayerBase::PlayerBase()
+09-16 18:43:19.332 23969 26598 D AudioStreamInternal_Client: ~AudioStreamInternal() 0xb400007964dd2db0 called
+09-16 18:43:19.332 23969 26598 D AAudioStream: ~AudioStream(s#3) mPlayerBase strongCount = 1
+09-16 18:43:19.332 23969 26598 D shadps4.android: PlayerBase::~PlayerBase()
+09-16 18:43:19.332 23969 26598 D AudioStreamTrack: open(), request notificationFrames = -8, frameCount = 0
+09-16 18:43:19.340 23969 26598 D AudioStreamTrack: open() flags changed from 0x00000104 to 0x00000000
+09-16 18:43:19.340 23969 26598 D AudioStreamTrack: open() perfMode changed from 12 to 10
+09-16 18:43:19.340 23969 26598 D AAudioStream: setState(s#4) from 0 to 2
+09-16 18:43:19.341 23969 26598 I AAudio  : AAudioStreamBuilder_openStream() returns 0 = AAUDIO_OK for s#4 ----------------
+09-16 18:43:19.341 23969 26598 D AAudio  : AAudioStream_requestStart(s#4) called --------------
+09-16 18:43:19.341 23969 26598 D AAudioStream: setState(s#4) from 2 to 3
+09-16 18:43:19.349 23969 26598 D AAudio  : AAudioStream_requestStart(s#4) returned 0 ---------
+09-16 18:43:19.350 23969 23990 D AudioStreamLegacy: onAudioDeviceUpdate(deviceId = 2)
+09-16 18:43:19.396 23969 26631 D AAudioStream: setState(s#4) from 3 to 4
+09-16 18:43:19.743 23969 23969 I shadps4.android: type=1400 audit(0.0:237745): avc: denied { read } for name="gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:43:19.743 23969 23969 I shadps4.android: type=1400 audit(0.0:237746): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:43:19.743 23969 23969 I shadps4.android: type=1400 audit(0.0:237747): avc: denied { getattr } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1 app=com.shadps4.android
+09-16 18:43:19.762 23969 23969 I shadps4.android: Waiting for a blocking GC NativeAlloc
+09-16 18:43:19.777 23969 23982 W shadps4.android: Cleared Reference was only reachable from finalizer (only reported once)
+09-16 18:43:19.780 23969 23969 I shadps4.android: WaitForGcToComplete blocked NativeAlloc on NativeAlloc for 17.767ms
+09-16 18:43:20.294 23969 26598 I ProductionModule: LoadStartModule existing path=/app0/sce_module/libSceNpEntitlementAccess.prx handle=5
+09-16 18:43:20.294 23969 26598 I ProductionModule: SysmoduleLoad id=0xb4 name=libSceAppContent result=0
+09-16 18:43:20.306 23969 26598 I ProductionModule: SysmoduleLoad id=0x9d name=libSceNpAuth result=0x805a10ff
+09-16 18:43:20.306 23969 26598 I ProductionModule: SysmoduleLoad id=0xe7 name=libSceJson2 result=0
+09-16 18:43:40.425 23969 26598 I ProductionModule: SysmoduleLoad id=0xa5 name=libSceAvPlayer result=0
+--------- beginning of crash
+09-16 18:43:54.827 23969 26598 F libc    : Fatal signal 11 (SIGSEGV), code 2 (SEGV_ACCERR), fault addr 0xa65601a70 in tid 26598 (Guest-1), pid 23969 (shadps4.android)

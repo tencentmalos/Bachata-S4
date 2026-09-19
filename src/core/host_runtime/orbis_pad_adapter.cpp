@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "core/host_runtime/orbis_pad_adapter.h"
+#include "common/profiler.h"
 #include "core/libraries/pad/pad_errors.h"
+#include "imgui/renderer/imgui_core.h"
 #include <algorithm>
 #include <chrono>
 #include <cmath>
@@ -109,6 +111,10 @@ void OrbisPadAdapter::Publish(int port) {
                                 u16(std::lround(std::clamp(p.touch.touch_y, 0.f, 1.f) * 949)), 1};
     }
     d.connectedCount = p.data.connectedCount + (d.connected && !p.data.connected ? 1 : 0);
+    if (d.buttons != p.data.buttons) {
+        Common::Profiler::Counter("Input.HostButtons", u32(d.buttons));
+        Common::Profiler::Bookmark("Input.PublishButtons");
+    }
     d.timestamp = std::max(Now(), p.data.timestamp + 1);
     p.data = d;
     if (p.history.size() == ORBIS_PAD_MAX_DATA_NUM)
@@ -336,15 +342,41 @@ int OrbisPadAdapter::Read(int handle, OrbisPadData *out, int count, bool latest)
     auto *p = FindHandle(handle);
     if (!p)
         return ORBIS_PAD_ERROR_INVALID_HANDLE;
+    const auto trace_sample = [](const OrbisPadData& data) {
+        // Sample age is time since publication, not input-to-photon latency.
+        Common::Profiler::Counter("Input.GuestButtons", u32(data.buttons));
+        if (Common::Profiler::Enabled()) {
+            const auto now = Now();
+            Common::Profiler::Counter("Input.SampleAgeUs", now >= data.timestamp ? now - data.timestamp : 0);
+        }
+    };
+    const auto mask_for_guest = [](OrbisPadData& data) {
+        if (!ImGui::Core::IsGamepadInputCaptured()) {
+            return;
+        }
+        const bool connected = data.connected;
+        const u8 connected_count = data.connectedCount;
+        const u64 timestamp = data.timestamp;
+        data = Neutral();
+        data.connected = connected;
+        data.connectedCount = connected_count;
+        data.timestamp = timestamp;
+        data.buttons = OrbisPadButtonDataOffset::Intercepted;
+    };
     if (latest || p->history.empty()) {
         *out = p->data;
+        mask_for_guest(*out);
+        trace_sample(*out);
         return 1;
     }
     int n = 0;
     while (n < count && !p->history.empty()) {
         out[n++] = p->history.front();
         p->history.pop_front();
+        mask_for_guest(out[n - 1]);
     }
+    trace_sample(out[n - 1]);
+    Common::Profiler::Counter("Input.HistoryRemaining", p->history.size());
     return n;
 }
 int OrbisPadAdapter::Information(int handle, OrbisPadControllerInformation *out) const {

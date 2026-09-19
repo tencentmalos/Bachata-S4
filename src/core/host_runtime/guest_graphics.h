@@ -18,6 +18,12 @@ class EqueueInternal;
 namespace Libraries::VideoOut {
 class VideoOutDriver;
 }
+namespace Core::HostRuntime {
+class GuestVrSession;
+struct ReprojectionFrame;
+}
+
+namespace Core::GuestCpu { class GuestAddressSpace; }
 
 namespace Core::Diagnostics { class DiagnosticsPublisher; }
 
@@ -43,6 +49,10 @@ public:
     std::shared_ptr<Diagnostics::DiagnosticsPublisher> DiagnosticsPublisher() const;
     std::recursive_mutex& SubmissionMutex();
     Libraries::VideoOut::VideoOutDriver& VideoOut();
+    GuestVrSession& VrSession();
+    s32 ValidateVrDisplay(s32 video, s32 first, s32 second);
+    s32 SubmitVrFrame(GuestCpu::GuestAddressSpace& space, const ReprojectionFrame& frame,
+                      std::function<void(bool)> complete);
 private:
     struct Impl;
     std::unique_ptr<Impl> impl;

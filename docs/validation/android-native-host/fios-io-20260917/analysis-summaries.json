@@ -1,0 +1,1323 @@
+{
+  "analysis.json": {
+    "source_path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/fios-io-20260917/prof/9c2841a4-27747-file-1789632444858173-1.prof",
+    "sha256": "78225d46ab5a8f7d20332c99219ee31ffe6b4fcce45221f4f218b274ab03a014",
+    "process_id": 27747,
+    "sdk_revision": "0ef631cd7b0859aa0eea6beb0e8739bd43e75129",
+    "events": 46379075,
+    "unmatched": 0,
+    "open_scopes": 54,
+    "first_present_ms": 17918.241719,
+    "capture_complete": true,
+    "container_complete": true,
+    "truncated": false,
+    "chunks_skipped": 0,
+    "reads": {
+      "count": 39129,
+      "bytes": 704967456,
+      "errors": 0,
+      "PrepareNs": {
+        "total_ns": 26450308,
+        "p50_ns": 625,
+        "p95_ns": 1042,
+        "max_ns": 58333
+      },
+      "SyscallNs": {
+        "total_ns": 353912016,
+        "p50_ns": 7552,
+        "p95_ns": 17448,
+        "max_ns": 424948
+      }
+    },
+    "vm": {},
+    "long_gaps": [],
+    "main": [
+      {
+        "tid": 27829,
+        "name": "HLE.scePthreadMutexattrInit",
+        "count": 73,
+        "elapsed_ns": 49268645,
+        "max_ns": 17250782
+      },
+      {
+        "tid": 27829,
+        "name": "HLE.scePthreadMutexInit",
+        "count": 74,
+        "elapsed_ns": 16184634,
+        "max_ns": 3763125
+      },
+      {
+        "tid": 27829,
+        "name": "HLE.scePthreadMutexattrDestroy",
+        "count": 71,
+        "elapsed_ns": 228435,
+        "max_ns": 19688
+      },
+      {
+        "tid": 27829,
+        "name": "HLE.scePthreadMutexattrSettype",
+        "count": 67,
+        "elapsed_ns": 176464,
+        "max_ns": 12812
+      },
+      {
+        "tid": 27829,
+        "name": "HLE.scePthreadMutexLock",
+        "count": 1691232,
+        "elapsed_ns": 4921615135,
+        "max_ns": 9069166
+      },
+      {
+        "tid": 27829,
+        "name": "HLE.pthread_mutex_lock",
+        "count": 117177,
+        "elapsed_ns": 866121288,
+        "max_ns": 2801563
+      },
+      {
+        "tid": 27829,
+        "name": "HLE.pthread_mutex_unlock",
+        "count": 117177,
+        "elapsed_ns": 401055975,
+        "max_ns": 2259635
+      },
+      {
+        "tid": 27829,
+        "name": "HLE.pthread_cond_broadcast",
+        "count": 64,
+        "elapsed_ns": 131983,
+        "max_ns": 30468
+      },
+      {
+        "tid": 27829,
+        "name": "HLE.scePthreadMutexUnlock",
+        "count": 1691232,
+        "elapsed_ns": 3378480142,
+        "max_ns": 2925000
+      },
+      {
+        "tid": 27829,
+        "name": "HLE.pthread_mutexattr_init",
+        "count": 90,
+        "elapsed_ns": 83987764,
+        "max_ns": 27891146
+      },
+      {
+        "tid": 27829,
+        "name": "HLE.pthread_mutex_init",
+        "count": 90,
+        "elapsed_ns": 34370470,
+        "max_ns": 23655313
+      },
+      {
+        "tid": 27829,
+        "name": "HLE.pthread_mutexattr_destroy",
+        "count": 90,
+        "elapsed_ns": 106462,
+        "max_ns": 7761
+      },
+      {
+        "tid": 27829,
+        "name": "HLE.pthread_mutexattr_settype",
+        "count": 11,
+        "elapsed_ns": 22186,
+        "max_ns": 3698
+      },
+      {
+        "tid": 27829,
+        "name": "Storage.VmAdmissionWait",
+        "count": 1882,
+        "elapsed_ns": 1356175,
+        "max_ns": 86927
+      },
+      {
+        "tid": 27829,
+        "name": "Storage.Marshal",
+        "count": 1882,
+        "elapsed_ns": 39756129,
+        "max_ns": 20109270
+      },
+      {
+        "tid": 27829,
+        "name": "Storage.NativeOperation",
+        "count": 1875,
+        "elapsed_ns": 27642272,
+        "max_ns": 191354
+      },
+      {
+        "tid": 27829,
+        "name": "HLE.scePthreadMutexattrSetprotocol",
+        "count": 10,
+        "elapsed_ns": 5419,
+        "max_ns": 1042
+      },
+      {
+        "tid": 27829,
+        "name": "HLE.scePthreadCondInit",
+        "count": 10,
+        "elapsed_ns": 495729,
+        "max_ns": 109740
+      },
+      {
+        "tid": 27829,
+        "name": "HLE.scePthreadCondBroadcast",
+        "count": 7601,
+        "elapsed_ns": 35664077,
+        "max_ns": 85833
+      },
+      {
+        "tid": 27829,
+        "name": "HLE.scePthreadCondWait",
+        "count": 13196,
+        "elapsed_ns": 13589554447,
+        "max_ns": 142355104
+      },
+      {
+        "tid": 27829,
+        "name": "HLE.pthread_cond_init",
+        "count": 3,
+        "elapsed_ns": 698594,
+        "max_ns": 414271
+      },
+      {
+        "tid": 27829,
+        "name": "HLE.sceKernelRead",
+        "count": 7,
+        "elapsed_ns": 72864,
+        "max_ns": 19583
+      },
+      {
+        "tid": 27829,
+        "name": "HLE.sceKernelPread",
+        "count": 1802,
+        "elapsed_ns": 38122818,
+        "max_ns": 107813
+      },
+      {
+        "tid": 27829,
+        "name": "HLE.scePthreadMutexDestroy",
+        "count": 2,
+        "elapsed_ns": 18178,
+        "max_ns": 15000
+      },
+      {
+        "tid": 27829,
+        "name": "HLE.pthread_cond_signal",
+        "count": 102,
+        "elapsed_ns": 393221,
+        "max_ns": 22187
+      },
+      {
+        "tid": 27829,
+        "name": "HLE.sceKernelUsleep",
+        "count": 24799,
+        "elapsed_ns": 28166165283,
+        "max_ns": 11733906
+      },
+      {
+        "tid": 27829,
+        "name": "GNM.SubmissionGate",
+        "count": 2009,
+        "elapsed_ns": 18222396722,
+        "max_ns": 362196302
+      },
+      {
+        "tid": 27829,
+        "name": "HLE.pthread_mutex_destroy",
+        "count": 2,
+        "elapsed_ns": 15104,
+        "max_ns": 7708
+      }
+    ]
+  },
+  "data-analysis.json": {
+    "source_path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/fios-io-20260917/prof-data/9c2841a4-4164-file-1789633461074408-1.prof",
+    "sha256": "50259e78fba96d595993d9f185533717f5fe104cd0bb4c9388e5dd3a190c587e",
+    "process_id": 4164,
+    "sdk_revision": "0ef631cd7b0859aa0eea6beb0e8739bd43e75129",
+    "events": 45838065,
+    "unmatched": 0,
+    "open_scopes": 56,
+    "first_present_ms": 17720.477292,
+    "capture_complete": true,
+    "container_complete": true,
+    "truncated": false,
+    "chunks_skipped": 0,
+    "reads": {
+      "count": 39136,
+      "bytes": 705730764,
+      "errors": 0,
+      "PrepareNs": {
+        "total_ns": 21398819,
+        "p50_ns": 469.0,
+        "p95_ns": 834,
+        "max_ns": 248178
+      },
+      "SyscallNs": {
+        "total_ns": 352006003,
+        "p50_ns": 7448.0,
+        "p95_ns": 17552,
+        "max_ns": 522135
+      }
+    },
+    "vm": {
+      "VM.AllocatePhysical": {
+        "count": 3,
+        "total_ns": 33854,
+        "max_ns": 14635,
+        "last_s": 1.181216042
+      },
+      "VM.DrainGraphicsSubmissions": {
+        "count": 4,
+        "total_ns": 12344,
+        "max_ns": 4115,
+        "last_s": 24.925266458
+      },
+      "VM.FullCodeRetirement": {
+        "count": 1240,
+        "total_ns": 92218097,
+        "max_ns": 33943854,
+        "last_s": 24.940083594
+      },
+      "VM.MapFreshData": {
+        "count": 459,
+        "total_ns": 4665366,
+        "max_ns": 66563,
+        "last_s": 88.500904479
+      },
+      "VM.MetadataGateWait": {
+        "count": 1032,
+        "total_ns": 1028702,
+        "max_ns": 355886,
+        "last_s": 88.50088026
+      },
+      "VM.ProtectData": {
+        "count": 31,
+        "total_ns": 437444,
+        "max_ns": 34114,
+        "last_s": 22.43414651
+      },
+      "VM.QuiesceAllOwners": {
+        "count": 10,
+        "total_ns": 581197,
+        "max_ns": 354740,
+        "last_s": 24.9252625
+      }
+    },
+    "long_gaps": [
+      {
+        "name": "VideoOut.PreparedGuestFlips",
+        "start_s": 56.921061354,
+        "end_s": 82.78848151,
+        "elapsed_ns": 25867420156,
+        "before": 576,
+        "after": 577,
+        "io_reads": 12590,
+        "io_bytes": 287053433,
+        "io_syscall_ns": 134529254,
+        "vm": []
+      },
+      {
+        "name": "VideoOut.PreparedGuestFlips",
+        "start_s": 24.833482187,
+        "end_s": 41.43217125,
+        "elapsed_ns": 16598689063,
+        "before": 350,
+        "after": 351,
+        "io_reads": 8936,
+        "io_bytes": 117999024,
+        "io_syscall_ns": 64992633,
+        "vm": [
+          {
+            "tid": 4645,
+            "name": "VM.MetadataGateWait",
+            "begin_ns": 414483999276058,
+            "end_ns": 414483999276319,
+            "elapsed_ns": 261
+          },
+          {
+            "tid": 4645,
+            "name": "VM.QuiesceAllOwners",
+            "begin_ns": 414483999276840,
+            "end_ns": 414483999353298,
+            "elapsed_ns": 76458
+          },
+          {
+            "tid": 4645,
+            "name": "VM.DrainGraphicsSubmissions",
+            "begin_ns": 414483999353610,
+            "end_ns": 414483999357256,
+            "elapsed_ns": 3646
+          },
+          {
+            "tid": 4645,
+            "name": "VM.FullCodeRetirement",
+            "begin_ns": 414483999376058,
+            "end_ns": 414484014052360,
+            "elapsed_ns": 14676302
+          },
+          {
+            "tid": 4645,
+            "name": "VM.FullCodeRetirement",
+            "begin_ns": 414484014071371,
+            "end_ns": 414484014120694,
+            "elapsed_ns": 49323
+          },
+          {
+            "tid": 4645,
+            "name": "VM.FullCodeRetirement",
+            "begin_ns": 414484014125798,
+            "end_ns": 414484014148975,
+            "elapsed_ns": 23177
+          },
+          {
+            "tid": 4645,
+            "name": "VM.FullCodeRetirement",
+            "begin_ns": 414484014151267,
+            "end_ns": 414484014174392,
+            "elapsed_ns": 23125
+          },
+          {
+            "tid": 4237,
+            "name": "VM.MetadataGateWait",
+            "begin_ns": 414500212477985,
+            "end_ns": 414500212478350,
+            "elapsed_ns": 365
+          },
+          {
+            "tid": 4237,
+            "name": "VM.MapFreshData",
+            "begin_ns": 414500212518923,
+            "end_ns": 414500212543402,
+            "elapsed_ns": 24479
+          },
+          {
+            "tid": 4237,
+            "name": "VM.MetadataGateWait",
+            "begin_ns": 414500212656215,
+            "end_ns": 414500212682465,
+            "elapsed_ns": 26250
+          },
+          {
+            "tid": 4237,
+            "name": "VM.MapFreshData",
+            "begin_ns": 414500212689131,
+            "end_ns": 414500212703558,
+            "elapsed_ns": 14427
+          }
+        ]
+      },
+      {
+        "name": "VideoOut.PreparedGuestFlips",
+        "start_s": 45.387063125,
+        "end_s": 56.244075937,
+        "elapsed_ns": 10857012812,
+        "before": 573,
+        "after": 574,
+        "io_reads": 5055,
+        "io_bytes": 54128554,
+        "io_syscall_ns": 37400057,
+        "vm": []
+      },
+      {
+        "name": "VideoOut.PresentedGuestFrames",
+        "start_s": 56.934373281,
+        "end_s": 82.804199792,
+        "elapsed_ns": 25869826511,
+        "before": 576,
+        "after": 577,
+        "io_reads": 12588,
+        "io_bytes": 287050864,
+        "io_syscall_ns": 134517847,
+        "vm": []
+      },
+      {
+        "name": "VideoOut.PresentedGuestFrames",
+        "start_s": 24.849030573,
+        "end_s": 41.433179896,
+        "elapsed_ns": 16584149323,
+        "before": 350,
+        "after": 351,
+        "io_reads": 8930,
+        "io_bytes": 117810563,
+        "io_syscall_ns": 64923051,
+        "vm": [
+          {
+            "tid": 4645,
+            "name": "VM.MetadataGateWait",
+            "begin_ns": 414483999276058,
+            "end_ns": 414483999276319,
+            "elapsed_ns": 261
+          },
+          {
+            "tid": 4645,
+            "name": "VM.QuiesceAllOwners",
+            "begin_ns": 414483999276840,
+            "end_ns": 414483999353298,
+            "elapsed_ns": 76458
+          },
+          {
+            "tid": 4645,
+            "name": "VM.DrainGraphicsSubmissions",
+            "begin_ns": 414483999353610,
+            "end_ns": 414483999357256,
+            "elapsed_ns": 3646
+          },
+          {
+            "tid": 4645,
+            "name": "VM.FullCodeRetirement",
+            "begin_ns": 414483999376058,
+            "end_ns": 414484014052360,
+            "elapsed_ns": 14676302
+          },
+          {
+            "tid": 4645,
+            "name": "VM.FullCodeRetirement",
+            "begin_ns": 414484014071371,
+            "end_ns": 414484014120694,
+            "elapsed_ns": 49323
+          },
+          {
+            "tid": 4645,
+            "name": "VM.FullCodeRetirement",
+            "begin_ns": 414484014125798,
+            "end_ns": 414484014148975,
+            "elapsed_ns": 23177
+          },
+          {
+            "tid": 4645,
+            "name": "VM.FullCodeRetirement",
+            "begin_ns": 414484014151267,
+            "end_ns": 414484014174392,
+            "elapsed_ns": 23125
+          },
+          {
+            "tid": 4237,
+            "name": "VM.MetadataGateWait",
+            "begin_ns": 414500212477985,
+            "end_ns": 414500212478350,
+            "elapsed_ns": 365
+          },
+          {
+            "tid": 4237,
+            "name": "VM.MapFreshData",
+            "begin_ns": 414500212518923,
+            "end_ns": 414500212543402,
+            "elapsed_ns": 24479
+          },
+          {
+            "tid": 4237,
+            "name": "VM.MetadataGateWait",
+            "begin_ns": 414500212656215,
+            "end_ns": 414500212682465,
+            "elapsed_ns": 26250
+          },
+          {
+            "tid": 4237,
+            "name": "VM.MapFreshData",
+            "begin_ns": 414500212689131,
+            "end_ns": 414500212703558,
+            "elapsed_ns": 14427
+          }
+        ]
+      },
+      {
+        "name": "VideoOut.PresentedGuestFrames",
+        "start_s": 45.399763542,
+        "end_s": 56.250295833,
+        "elapsed_ns": 10850532291,
+        "before": 573,
+        "after": 574,
+        "io_reads": 5059,
+        "io_bytes": 54142993,
+        "io_syscall_ns": 37392399,
+        "vm": []
+      }
+    ],
+    "main": [
+      {
+        "tid": 4237,
+        "name": "VM.MetadataGateWait",
+        "count": 1021,
+        "elapsed_ns": 989898,
+        "max_ns": 355886
+      },
+      {
+        "tid": 4237,
+        "name": "VM.QuiesceAllOwners",
+        "count": 6,
+        "elapsed_ns": 66041,
+        "max_ns": 47708
+      },
+      {
+        "tid": 4237,
+        "name": "VM.FullCodeRetirement",
+        "count": 1230,
+        "elapsed_ns": 32288306,
+        "max_ns": 15140312
+      },
+      {
+        "tid": 4237,
+        "name": "VM.MapFreshData",
+        "count": 450,
+        "elapsed_ns": 4489170,
+        "max_ns": 66563
+      },
+      {
+        "tid": 4237,
+        "name": "VM.ProtectData",
+        "count": 29,
+        "elapsed_ns": 397653,
+        "max_ns": 34114
+      },
+      {
+        "tid": 4237,
+        "name": "VM.AllocatePhysical",
+        "count": 3,
+        "elapsed_ns": 33854,
+        "max_ns": 14635
+      },
+      {
+        "tid": 4237,
+        "name": "HLE.scePthreadMutexattrInit",
+        "count": 73,
+        "elapsed_ns": 2318278,
+        "max_ns": 142187
+      },
+      {
+        "tid": 4237,
+        "name": "HLE.scePthreadMutexInit",
+        "count": 74,
+        "elapsed_ns": 1752445,
+        "max_ns": 97813
+      },
+      {
+        "tid": 4237,
+        "name": "HLE.scePthreadMutexattrDestroy",
+        "count": 71,
+        "elapsed_ns": 169219,
+        "max_ns": 27708
+      },
+      {
+        "tid": 4237,
+        "name": "HLE.scePthreadMutexattrSettype",
+        "count": 67,
+        "elapsed_ns": 200674,
+        "max_ns": 34219
+      },
+      {
+        "tid": 4237,
+        "name": "HLE.scePthreadMutexLock",
+        "count": 1682743,
+        "elapsed_ns": 4673043465,
+        "max_ns": 12024687
+      },
+      {
+        "tid": 4237,
+        "name": "HLE.pthread_mutex_lock",
+        "count": 115378,
+        "elapsed_ns": 828925303,
+        "max_ns": 1501407
+      },
+      {
+        "tid": 4237,
+        "name": "HLE.pthread_mutex_unlock",
+        "count": 115378,
+        "elapsed_ns": 371781613,
+        "max_ns": 2438438
+      },
+      {
+        "tid": 4237,
+        "name": "HLE.pthread_cond_broadcast",
+        "count": 64,
+        "elapsed_ns": 111568,
+        "max_ns": 44062
+      },
+      {
+        "tid": 4237,
+        "name": "HLE.scePthreadMutexUnlock",
+        "count": 1682743,
+        "elapsed_ns": 3273114354,
+        "max_ns": 6745469
+      },
+      {
+        "tid": 4237,
+        "name": "HLE.pthread_mutexattr_init",
+        "count": 90,
+        "elapsed_ns": 2568076,
+        "max_ns": 182031
+      },
+      {
+        "tid": 4237,
+        "name": "HLE.pthread_mutex_init",
+        "count": 90,
+        "elapsed_ns": 2461296,
+        "max_ns": 400313
+      },
+      {
+        "tid": 4237,
+        "name": "HLE.pthread_mutexattr_destroy",
+        "count": 90,
+        "elapsed_ns": 148435,
+        "max_ns": 40625
+      },
+      {
+        "tid": 4237,
+        "name": "HLE.pthread_mutexattr_settype",
+        "count": 11,
+        "elapsed_ns": 30417,
+        "max_ns": 8281
+      },
+      {
+        "tid": 4237,
+        "name": "Storage.VmAdmissionWait",
+        "count": 1893,
+        "elapsed_ns": 1564870,
+        "max_ns": 73229
+      },
+      {
+        "tid": 4237,
+        "name": "Storage.Marshal",
+        "count": 1893,
+        "elapsed_ns": 59585250,
+        "max_ns": 31592552
+      },
+      {
+        "tid": 4237,
+        "name": "Storage.NativeOperation",
+        "count": 1886,
+        "elapsed_ns": 27052659,
+        "max_ns": 161614
+      },
+      {
+        "tid": 4237,
+        "name": "HLE.scePthreadMutexattrSetprotocol",
+        "count": 10,
+        "elapsed_ns": 3595,
+        "max_ns": 885
+      },
+      {
+        "tid": 4237,
+        "name": "HLE.scePthreadCondInit",
+        "count": 10,
+        "elapsed_ns": 111822,
+        "max_ns": 22760
+      },
+      {
+        "tid": 4237,
+        "name": "HLE.scePthreadCondBroadcast",
+        "count": 7619,
+        "elapsed_ns": 36860017,
+        "max_ns": 163334
+      },
+      {
+        "tid": 4237,
+        "name": "HLE.scePthreadCondWait",
+        "count": 13112,
+        "elapsed_ns": 13175326151,
+        "max_ns": 139358698
+      },
+      {
+        "tid": 4237,
+        "name": "HLE.pthread_cond_init",
+        "count": 3,
+        "elapsed_ns": 82553,
+        "max_ns": 32500
+      },
+      {
+        "tid": 4237,
+        "name": "HLE.sceKernelRead",
+        "count": 7,
+        "elapsed_ns": 93594,
+        "max_ns": 30989
+      },
+      {
+        "tid": 4237,
+        "name": "HLE.sceKernelPread",
+        "count": 1811,
+        "elapsed_ns": 38045495,
+        "max_ns": 196979
+      },
+      {
+        "tid": 4237,
+        "name": "HLE.scePthreadMutexDestroy",
+        "count": 2,
+        "elapsed_ns": 7552,
+        "max_ns": 5260
+      },
+      {
+        "tid": 4237,
+        "name": "HLE.pthread_cond_signal",
+        "count": 102,
+        "elapsed_ns": 266564,
+        "max_ns": 27656
+      },
+      {
+        "tid": 4237,
+        "name": "HLE.sceKernelUsleep",
+        "count": 23263,
+        "elapsed_ns": 27175512391,
+        "max_ns": 11875208
+      },
+      {
+        "tid": 4237,
+        "name": "GNM.SubmissionGate",
+        "count": 2010,
+        "elapsed_ns": 22882867378,
+        "max_ns": 376566094
+      },
+      {
+        "tid": 4237,
+        "name": "HLE.pthread_mutex_destroy",
+        "count": 2,
+        "elapsed_ns": 16563,
+        "max_ns": 8438
+      }
+    ]
+  },
+  "final-analysis.json": {
+    "source_path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/fios-io-20260917/prof-final/9c2841a4-7161-file-1789633850298791-1.prof",
+    "sha256": "825f08ee15e6aaf3211a88e7add5e616fca8f17e588aed359ebbd83ee4501952",
+    "process_id": 7161,
+    "sdk_revision": "0ef631cd7b0859aa0eea6beb0e8739bd43e75129",
+    "events": 46095825,
+    "unmatched": 0,
+    "open_scopes": 52,
+    "first_present_ms": 17454.327968,
+    "capture_complete": true,
+    "container_complete": true,
+    "truncated": false,
+    "chunks_skipped": 0,
+    "reads": {
+      "count": 39151,
+      "bytes": 707157220,
+      "errors": 0,
+      "PrepareNs": {
+        "total_ns": 26230586,
+        "p50_ns": 573,
+        "p95_ns": 1094,
+        "max_ns": 185417
+      },
+      "SyscallNs": {
+        "total_ns": 352241592,
+        "p50_ns": 7395,
+        "p95_ns": 17813,
+        "max_ns": 364532
+      }
+    },
+    "vm": {
+      "VM.AllocatePhysical": {
+        "count": 3,
+        "total_ns": 37344,
+        "max_ns": 16146,
+        "last_s": 1.197240312
+      },
+      "VM.DrainGraphicsSubmissions": {
+        "count": 2,
+        "total_ns": 5780,
+        "max_ns": 3072,
+        "last_s": 25.058681666
+      },
+      "VM.FullCodeRetirement": {
+        "count": 1236,
+        "total_ns": 93158778,
+        "max_ns": 51104063,
+        "last_s": 25.070550989
+      },
+      "VM.MapFreshData": {
+        "count": 463,
+        "total_ns": 4527760,
+        "max_ns": 57448,
+        "last_s": 87.869237343
+      },
+      "VM.MetadataGateWait": {
+        "count": 1032,
+        "total_ns": 296298,
+        "max_ns": 43177,
+        "last_s": 87.869219062
+      },
+      "VM.ProtectData": {
+        "count": 31,
+        "total_ns": 422969,
+        "max_ns": 77552,
+        "last_s": 22.517448802
+      },
+      "VM.QuiesceAllOwners": {
+        "count": 5,
+        "total_ns": 149688,
+        "max_ns": 76875,
+        "last_s": 25.058678489
+      }
+    },
+    "long_gaps": [
+      {
+        "name": "VideoOut.PreparedGuestFlips",
+        "start_s": 56.988045625,
+        "end_s": 82.190388697,
+        "elapsed_ns": 25202343072,
+        "before": 656,
+        "after": 657,
+        "io_reads": 12373,
+        "io_bytes": 284482749,
+        "io_syscall_ns": 132018044,
+        "vm": []
+      },
+      {
+        "name": "VideoOut.PreparedGuestFlips",
+        "start_s": 24.965456197,
+        "end_s": 41.201462552,
+        "elapsed_ns": 16236006355,
+        "before": 380,
+        "after": 381,
+        "io_reads": 9036,
+        "io_bytes": 118866652,
+        "io_syscall_ns": 65204483,
+        "vm": [
+          {
+            "tid": 7640,
+            "name": "VM.MetadataGateWait",
+            "begin_ns": 414873355383201,
+            "end_ns": 414873355390024,
+            "elapsed_ns": 6823
+          },
+          {
+            "tid": 7640,
+            "name": "VM.QuiesceAllOwners",
+            "begin_ns": 414873355390805,
+            "end_ns": 414873355406274,
+            "elapsed_ns": 15469
+          },
+          {
+            "tid": 7640,
+            "name": "VM.DrainGraphicsSubmissions",
+            "begin_ns": 414873355406743,
+            "end_ns": 414873355409451,
+            "elapsed_ns": 2708
+          },
+          {
+            "tid": 7640,
+            "name": "VM.FullCodeRetirement",
+            "begin_ns": 414873355424451,
+            "end_ns": 414873367132264,
+            "elapsed_ns": 11707813
+          },
+          {
+            "tid": 7640,
+            "name": "VM.FullCodeRetirement",
+            "begin_ns": 414873367149399,
+            "end_ns": 414873367207889,
+            "elapsed_ns": 58490
+          },
+          {
+            "tid": 7640,
+            "name": "VM.FullCodeRetirement",
+            "begin_ns": 414873367212055,
+            "end_ns": 414873367247368,
+            "elapsed_ns": 35313
+          },
+          {
+            "tid": 7640,
+            "name": "VM.FullCodeRetirement",
+            "begin_ns": 414873367249920,
+            "end_ns": 414873367278774,
+            "elapsed_ns": 28854
+          },
+          {
+            "tid": 7225,
+            "name": "VM.MetadataGateWait",
+            "begin_ns": 414889200948982,
+            "end_ns": 414889200949139,
+            "elapsed_ns": 157
+          },
+          {
+            "tid": 7225,
+            "name": "VM.MapFreshData",
+            "begin_ns": 414889200989868,
+            "end_ns": 414889201015805,
+            "elapsed_ns": 25937
+          },
+          {
+            "tid": 7225,
+            "name": "VM.MetadataGateWait",
+            "begin_ns": 414889201114451,
+            "end_ns": 414889201114607,
+            "elapsed_ns": 156
+          },
+          {
+            "tid": 7225,
+            "name": "VM.MapFreshData",
+            "begin_ns": 414889201119295,
+            "end_ns": 414889201138982,
+            "elapsed_ns": 19687
+          }
+        ]
+      },
+      {
+        "name": "VideoOut.PreparedGuestFlips",
+        "start_s": 46.003947604,
+        "end_s": 56.340482031,
+        "elapsed_ns": 10336534427,
+        "before": 653,
+        "after": 654,
+        "io_reads": 5085,
+        "io_bytes": 54856439,
+        "io_syscall_ns": 37554903,
+        "vm": []
+      },
+      {
+        "name": "VideoOut.PresentedGuestFrames",
+        "start_s": 57.001039531,
+        "end_s": 82.204183906,
+        "elapsed_ns": 25203144375,
+        "before": 656,
+        "after": 657,
+        "io_reads": 12372,
+        "io_bytes": 284482694,
+        "io_syscall_ns": 132000388,
+        "vm": []
+      },
+      {
+        "name": "VideoOut.PresentedGuestFrames",
+        "start_s": 24.982626458,
+        "end_s": 41.217238489,
+        "elapsed_ns": 16234612031,
+        "before": 380,
+        "after": 381,
+        "io_reads": 9038,
+        "io_bytes": 118868731,
+        "io_syscall_ns": 65236202,
+        "vm": [
+          {
+            "tid": 7640,
+            "name": "VM.MetadataGateWait",
+            "begin_ns": 414873355383201,
+            "end_ns": 414873355390024,
+            "elapsed_ns": 6823
+          },
+          {
+            "tid": 7640,
+            "name": "VM.QuiesceAllOwners",
+            "begin_ns": 414873355390805,
+            "end_ns": 414873355406274,
+            "elapsed_ns": 15469
+          },
+          {
+            "tid": 7640,
+            "name": "VM.DrainGraphicsSubmissions",
+            "begin_ns": 414873355406743,
+            "end_ns": 414873355409451,
+            "elapsed_ns": 2708
+          },
+          {
+            "tid": 7640,
+            "name": "VM.FullCodeRetirement",
+            "begin_ns": 414873355424451,
+            "end_ns": 414873367132264,
+            "elapsed_ns": 11707813
+          },
+          {
+            "tid": 7640,
+            "name": "VM.FullCodeRetirement",
+            "begin_ns": 414873367149399,
+            "end_ns": 414873367207889,
+            "elapsed_ns": 58490
+          },
+          {
+            "tid": 7640,
+            "name": "VM.FullCodeRetirement",
+            "begin_ns": 414873367212055,
+            "end_ns": 414873367247368,
+            "elapsed_ns": 35313
+          },
+          {
+            "tid": 7640,
+            "name": "VM.FullCodeRetirement",
+            "begin_ns": 414873367249920,
+            "end_ns": 414873367278774,
+            "elapsed_ns": 28854
+          },
+          {
+            "tid": 7225,
+            "name": "VM.MetadataGateWait",
+            "begin_ns": 414889200948982,
+            "end_ns": 414889200949139,
+            "elapsed_ns": 157
+          },
+          {
+            "tid": 7225,
+            "name": "VM.MapFreshData",
+            "begin_ns": 414889200989868,
+            "end_ns": 414889201015805,
+            "elapsed_ns": 25937
+          },
+          {
+            "tid": 7225,
+            "name": "VM.MetadataGateWait",
+            "begin_ns": 414889201114451,
+            "end_ns": 414889201114607,
+            "elapsed_ns": 156
+          },
+          {
+            "tid": 7225,
+            "name": "VM.MapFreshData",
+            "begin_ns": 414889201119295,
+            "end_ns": 414889201138982,
+            "elapsed_ns": 19687
+          }
+        ]
+      },
+      {
+        "name": "VideoOut.PresentedGuestFrames",
+        "start_s": 46.016830989,
+        "end_s": 56.350705,
+        "elapsed_ns": 10333874011,
+        "before": 653,
+        "after": 654,
+        "io_reads": 5090,
+        "io_bytes": 54927157,
+        "io_syscall_ns": 37590528,
+        "vm": []
+      }
+    ],
+    "main": [
+      {
+        "tid": 7225,
+        "name": "VM.MetadataGateWait",
+        "count": 1021,
+        "elapsed_ns": 286246,
+        "max_ns": 43177
+      },
+      {
+        "tid": 7225,
+        "name": "VM.QuiesceAllOwners",
+        "count": 3,
+        "elapsed_ns": 57344,
+        "max_ns": 45157
+      },
+      {
+        "tid": 7225,
+        "name": "VM.FullCodeRetirement",
+        "count": 1228,
+        "elapsed_ns": 30165391,
+        "max_ns": 15811823
+      },
+      {
+        "tid": 7225,
+        "name": "VM.MapFreshData",
+        "count": 452,
+        "elapsed_ns": 4355157,
+        "max_ns": 57448
+      },
+      {
+        "tid": 7225,
+        "name": "VM.ProtectData",
+        "count": 29,
+        "elapsed_ns": 388177,
+        "max_ns": 77552
+      },
+      {
+        "tid": 7225,
+        "name": "VM.AllocatePhysical",
+        "count": 3,
+        "elapsed_ns": 37344,
+        "max_ns": 16146
+      },
+      {
+        "tid": 7225,
+        "name": "HLE.scePthreadMutexattrInit",
+        "count": 73,
+        "elapsed_ns": 2558017,
+        "max_ns": 100833
+      },
+      {
+        "tid": 7225,
+        "name": "HLE.scePthreadMutexInit",
+        "count": 74,
+        "elapsed_ns": 1954686,
+        "max_ns": 131250
+      },
+      {
+        "tid": 7225,
+        "name": "HLE.scePthreadMutexattrDestroy",
+        "count": 71,
+        "elapsed_ns": 192082,
+        "max_ns": 34583
+      },
+      {
+        "tid": 7225,
+        "name": "HLE.scePthreadMutexattrSettype",
+        "count": 67,
+        "elapsed_ns": 185208,
+        "max_ns": 42813
+      },
+      {
+        "tid": 7225,
+        "name": "HLE.scePthreadMutexLock",
+        "count": 1679331,
+        "elapsed_ns": 4577269561,
+        "max_ns": 12374635
+      },
+      {
+        "tid": 7225,
+        "name": "HLE.pthread_mutex_lock",
+        "count": 122101,
+        "elapsed_ns": 925976742,
+        "max_ns": 3310261
+      },
+      {
+        "tid": 7225,
+        "name": "HLE.pthread_mutex_unlock",
+        "count": 122101,
+        "elapsed_ns": 427475540,
+        "max_ns": 1461771
+      },
+      {
+        "tid": 7225,
+        "name": "HLE.pthread_cond_broadcast",
+        "count": 64,
+        "elapsed_ns": 124065,
+        "max_ns": 31146
+      },
+      {
+        "tid": 7225,
+        "name": "HLE.scePthreadMutexUnlock",
+        "count": 1679331,
+        "elapsed_ns": 3195364714,
+        "max_ns": 5873333
+      },
+      {
+        "tid": 7225,
+        "name": "HLE.pthread_mutexattr_init",
+        "count": 90,
+        "elapsed_ns": 2355308,
+        "max_ns": 114895
+      },
+      {
+        "tid": 7225,
+        "name": "HLE.pthread_mutex_init",
+        "count": 90,
+        "elapsed_ns": 1743128,
+        "max_ns": 86875
+      },
+      {
+        "tid": 7225,
+        "name": "HLE.pthread_mutexattr_destroy",
+        "count": 90,
+        "elapsed_ns": 471719,
+        "max_ns": 244375
+      },
+      {
+        "tid": 7225,
+        "name": "HLE.pthread_mutexattr_settype",
+        "count": 11,
+        "elapsed_ns": 28489,
+        "max_ns": 15260
+      },
+      {
+        "tid": 7225,
+        "name": "Storage.VmAdmissionWait",
+        "count": 1869,
+        "elapsed_ns": 1466767,
+        "max_ns": 109323
+      },
+      {
+        "tid": 7225,
+        "name": "Storage.Marshal",
+        "count": 1869,
+        "elapsed_ns": 40210683,
+        "max_ns": 22792500
+      },
+      {
+        "tid": 7225,
+        "name": "Storage.NativeOperation",
+        "count": 1862,
+        "elapsed_ns": 26901705,
+        "max_ns": 172083
+      },
+      {
+        "tid": 7225,
+        "name": "HLE.scePthreadMutexattrSetprotocol",
+        "count": 10,
+        "elapsed_ns": 4059,
+        "max_ns": 1042
+      },
+      {
+        "tid": 7225,
+        "name": "HLE.scePthreadCondInit",
+        "count": 10,
+        "elapsed_ns": 92811,
+        "max_ns": 22136
+      },
+      {
+        "tid": 7225,
+        "name": "HLE.scePthreadCondBroadcast",
+        "count": 7592,
+        "elapsed_ns": 36660545,
+        "max_ns": 68698
+      },
+      {
+        "tid": 7225,
+        "name": "HLE.scePthreadCondWait",
+        "count": 12687,
+        "elapsed_ns": 12844980892,
+        "max_ns": 143226250
+      },
+      {
+        "tid": 7225,
+        "name": "HLE.pthread_cond_init",
+        "count": 3,
+        "elapsed_ns": 82917,
+        "max_ns": 33282
+      },
+      {
+        "tid": 7225,
+        "name": "HLE.sceKernelRead",
+        "count": 7,
+        "elapsed_ns": 66614,
+        "max_ns": 17604
+      },
+      {
+        "tid": 7225,
+        "name": "HLE.sceKernelPread",
+        "count": 1786,
+        "elapsed_ns": 37208357,
+        "max_ns": 132500
+      },
+      {
+        "tid": 7225,
+        "name": "HLE.scePthreadMutexDestroy",
+        "count": 2,
+        "elapsed_ns": 12865,
+        "max_ns": 9271
+      },
+      {
+        "tid": 7225,
+        "name": "HLE.pthread_cond_signal",
+        "count": 102,
+        "elapsed_ns": 259272,
+        "max_ns": 19532
+      },
+      {
+        "tid": 7225,
+        "name": "HLE.sceKernelUsleep",
+        "count": 23187,
+        "elapsed_ns": 27175138081,
+        "max_ns": 11518386
+      },
+      {
+        "tid": 7225,
+        "name": "GNM.SubmissionGate",
+        "count": 2194,
+        "elapsed_ns": 21533984630,
+        "max_ns": 350826407
+      },
+      {
+        "tid": 7225,
+        "name": "HLE.pthread_mutex_destroy",
+        "count": 2,
+        "elapsed_ns": 16511,
+        "max_ns": 8282
+      }
+    ]
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "abi": "x86_64-sysv",
+  "counters": [
+    {
+      "id": 1,
+      "name": "update_ns"
+    },
+    {
+      "id": 2,
+      "name": "flush_commands_ns"
+    },
+    {
+      "id": 3,
+      "name": "flush_samples_ns"
+    },
+    {
+      "id": 4,
+      "name": "update_calls"
+    },
+    {
+      "id": 5,
+      "name": "update_result"
+    },
+    {
+      "id": 6,
+      "name": "flush_commands_result"
+    },
+    {
+      "id": 7,
+      "name": "flush_samples_result"
+    }
+  ],
+  "elf_sha256": "fba2c271b3423d77909447644fd831b76fc4e95f11ba5500e748f77720bb763f",
+  "executable_sha256": "6122da7190de6b08d921b2c42c3ca9ed11dc4d11524f1139ff67aeceea5b204d",
+  "exports": {
+    "patch_flush_commands": 128,
+    "patch_flush_samples": 208,
+    "patch_update": 0
+  },
+  "hooks": [
+    {
+      "evidence": "Public C++ export _ZN4FMOD6Studio6System6updateEv / NID H+G1XQRDyWk, libfmodstudio+0x95330. SysV this=RDI, FMOD_RESULT=EAX; audited entry push rbp; mov rbp,rsp; push r14 (6 bytes), no interior entry. docs/validation/android-native-host/2026-09-15-fmod-audio/fmod-nid-matches.json",
+      "expected": "554889e54156534881ec100100004c8b350b421700488db5e0feffff4889fb49",
+      "name": "studio_update",
+      "offset": 611120,
+      "original": "original_update",
+      "prototype": "int original_update(void* self)",
+      "replacement": "patch_update"
+    },
+    {
+      "evidence": "Public C++ export _ZN4FMOD6Studio6System13flushCommandsEv / NID ERN4ES-D2x8, +0x953e0. SysV this=RDI/result EAX; same 6-byte frame prologue. Both shared helper calls remain guest. See dated FMOD audit.",
+      "expected": "554889e54156534881ec100100004c8b355b4117004889fb498b06488945e8e8",
+      "name": "studio_flush_commands",
+      "offset": 611296,
+      "original": "original_flush_commands",
+      "prototype": "int original_flush_commands(void* self)",
+      "replacement": "patch_flush_commands"
+    },
+    {
+      "evidence": "Public C++ export _ZN4FMOD6Studio6System18flushSampleLoadingEv / NID qpxa4b3tmjs, +0x95560. SysV this=RDI/result EAX; push rbp; mov rbp,rsp; push r15 (6 bytes), no interior entry. See dated FMOD audit.",
+      "expected": "554889e541574156534881ec180100004c8b3dd93f1700488db5d8feffff4889",
+      "name": "studio_flush_samples",
+      "offset": 611680,
+      "original": "original_flush_samples",
+      "prototype": "int original_flush_samples(void* self)",
+      "replacement": "patch_flush_samples"
+    }
+  ],
+  "id": "tmnt_fmod_studio_v1",
+  "imports": [
+    {
+      "name": "shad_sdk_query",
+      "slot": 1464
+    },
+    {
+      "name": "shad_sdk_clock_ns",
+      "slot": 1472
+    },
+    {
+      "name": "shad_sdk_counter",
+      "slot": 1480
+    },
+    {
+      "name": "original_update",
+      "slot": 1488
+    },
+    {
+      "name": "original_flush_commands",
+      "slot": 1496
+    },
+    {
+      "name": "original_flush_samples",
+      "slot": 1504
+    }
+  ],
+  "module": "libfmodstudio.prx",
+  "module_sha256": "2b4e4ef16cbe65cc936f4df92655bd913fc4520aa03936a990c9133742c464c0",
+  "rebase64": [],
+  "schema": "shadps4.guest-functions.v1",
+  "sdk_version": 1,
+  "segments": [
+    {
+      "executable": true,
+      "hex": "be01000000f0480fc135f20f000048ffc689f083e00f83f8010f8571050000554889e54156534889fbbf04000000e84d050000e8380500004989c64889dfe84d05000089c3e8260500004c29f0bf010000004889c6e8260500004863dbbf050000004889dee81605000089d85b415e5dc36666666666662e0f1f840000000000554889e54156534889fbe8e10400004989c64889dfe80605000089c3e8cf0400004c29f0bf020000004889c6e8cf0400004863dbbf060000004889dee8bf04000089d85b415e5dc30f1f840000000000554889e54156534889fbe8910400004989c64889dfe8c604000089c3e87f0400004c29f0bf030000004889c6e87f0400004863dbbf070000004889dee86f04000089d85b415e5dc3cccccccccccccccc554889e54889f84885d20f84fb0000004883fa040f93c14889c74829f74883ff20400f93c74084f9750431c9eb784883fa20730431c9eb414889d14883e1e031ff6666666666662e0f1f8400000000000f10043e0f104c3e100f1104380f114c38104883c7204839f975e54839ca0f8497000000f6c21c742d4889cf4889d14883e1fc666666662e0f1f840000000000448b043e448904384883c7044839f975ef4839ca74654989d04889cf4983e003741f4889cf66662e0f1f840000000000440fb60c3e44880c3848ffc749ffc875ef4829d14883f9fc7731660f1f4400000fb60c3e880c380fb64c3e01884c38010fb64c3e02884c38020fb64c3e03884c38034883c7044839fa75d55dc30f1f004889f84889f94829f173244885d20f842d0200004883fa04400f92c74883f9200f92c14008f9743231c9e9ab0000004885d20f84090200004883fa040f93c14889f74829c74883ff10400f93c74084f975124889d7e96e0100004883fa20731531c9eb454883fa100f83d200000031c9e9100100004889d14883e1e031ff66900f10043e0f104c3e100f1104380f114c38104883c7204839f975e54839ca0f849d010000f6c21c74314889cf4889d14883e1fc666666662e0f1f840000000000448b043e448904384883c7044839f975ef4839ca0f84670100004989d04889cf4983e003741b4889cf0f1f8000000000440fb60c3e44880c3848ffc749ffc875ef4829d14883f9fc0f873301000066900fb60c3e880c380fb64c3e01884c38010fb64c3e02884c38020fb64c3e03884c38034883c7044839fa75d5e9010100004889d14883e1f0488d3c104883c7f04c8d04164983c0f04989c949f7d94531d2430f100410420f1104174983c2f04d39d175ed4839ca0f84c5000000f6c20c0f84bd000000554889e5534989d04983e0fc89d783e7034c8d0c104983c1fc48f7d94c8d14164983c2fc4d89c349f7db90418b1c0a41891c094883c1fc4939cb75ef4c39c25b5d7479488d57ff4989f84983e003742a66662e0f1f840000000000488d4fff440fb64c3eff44884c38ff4889cf49ffc875e94883fa03730beb424889f94883fa0372394889ca0f1f4400000fb67c0eff40887c08ff0fb67c0efe40887c08fe0fb67c0efd40887c08fd0fb67c0efc40887c08fc4883c2fc4889d175cfc383e20fe908feffff660f1f440000554889e54889f84885d20f849d0000004883fa03770731c9e984000000400fb6fe4883fa20730431c9eb454889d14883e1e0660f6ec7660f60c0f20f70c000660f70c0004531c0660f1f840000000000f3420f7f0400f3420f7f4400104983c0204c39c175ea4839ca7442f6c21c74314989c84889d14883e1fc660f6ec7660f60c0f20f70c000660f1f84000000000066420f7e04004983c0044c39c175f1eb074088340848ffc14839ca75f45dc390554889e54885d2741d31c90f1f4400000fb6040f440fb6040e4438c0750c48ffc14839ca75ea31c05dc34429c05dc3ccff2552000000662e0f1f840000000000ff254a000000662e0f1f840000000000ff2542000000662e0f1f840000000000ff253a000000662e0f1f840000000000ff2532000000662e0f1f840000000000ff252a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "offset": 0,
+      "sha256": "4b088d942c6dba95db9fd0b876aa40e7754fe595a7dcc4dd724dd77bb3e7b515",
+      "size": 4096
+    },
+    {
+      "executable": false,
+      "hex": "",
+      "offset": 4096,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 4096
+    }
+  ],
+  "title": "CUSA50828"
+}

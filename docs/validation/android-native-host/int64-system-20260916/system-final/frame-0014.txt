@@ -1,0 +1,23 @@
+SERVICE com.shadps4.android/.service.FexSessionService b31da3d pid=10213 user=0
+  Client:
+    session: active
+    generation: 1
+    pid: 10213
+    phase: 3
+    run_uuid: 26e9c15d50b45de8cdc5c875729cbb82
+    stage: Running
+    driver: source=system device=Adreno (TM) 740 driver=Qualcomm Technologies Inc. Adreno Vulkan Driver info=Driver Build: 69e13475cb, I1df7ad3aa9, 1703680572
+    Date: 12/27/23
+    Compiler Version: E031.41.03.47
+    Driver Branch: 
+     shaderInt64=0 api=4206720 sha256=system-image 
+    snapshot_ns: 333305748968320
+    guest_flip: 1385 (age_ns=54809428)
+    pm4_consumed: 12987140 (age_ns=31914532)
+    host_draw: 429688 (age_ns=31914896)
+    queue_submit: 14865 (age_ns=53426771)
+    gpu_retire: unavailable
+    host_present: 1384 (age_ns=54994584)
+    overlay_redraw: 6634 (age_ns=53575625)
+    guest_submission: 1386 (age_ns=52724323)
+

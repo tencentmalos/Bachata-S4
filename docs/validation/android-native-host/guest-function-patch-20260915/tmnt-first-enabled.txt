@@ -1,0 +1,31 @@
+SERVICE com.shadps4.android/.service.FexSessionService 88b4b32 pid=28584 user=0
+  Client:
+    package: tmnt_fmod_studio_v1
+    sha256: c1404bd962b34a6f93a1cc8f62b17605afee7111e37f50f1d866d5aaa0ff9572
+    installed: 1
+    enabled: 1
+    failed: 0
+    switches: 2
+    context: 1
+    hook: studio_update entry=0x101fa1330 original=0x104538010 replacement=0x104534000 slot=0x104539000 stolen=6
+    instruction: 0x101fa1330 -> 0x104538010
+    instruction: 0x101fa1331 -> 0x104538011
+    instruction: 0x101fa1334 -> 0x104538014
+    hook: studio_flush_commands entry=0x101fa13e0 original=0x104538210 replacement=0x104534070 slot=0x104539008 stolen=6
+    instruction: 0x101fa13e0 -> 0x104538210
+    instruction: 0x101fa13e1 -> 0x104538211
+    instruction: 0x101fa13e4 -> 0x104538214
+    hook: studio_flush_samples entry=0x101fa1560 original=0x104538410 replacement=0x1045340c0 slot=0x104539010 stolen=6
+    instruction: 0x101fa1560 -> 0x104538410
+    instruction: 0x101fa1561 -> 0x104538411
+    instruction: 0x101fa1564 -> 0x104538414
+    sdk_calls: 880
+    last_owner: 1:1:2:8
+    counter: 1 GuestPatch.tmnt_fmod_studio_v1.update_ns samples=176 last=91563
+    counter: 2 GuestPatch.tmnt_fmod_studio_v1.flush_commands_ns samples=0 last=0
+    counter: 3 GuestPatch.tmnt_fmod_studio_v1.flush_samples_ns samples=0 last=0
+    counter: 4 GuestPatch.tmnt_fmod_studio_v1.update_calls samples=176 last=2801
+    counter: 5 GuestPatch.tmnt_fmod_studio_v1.update_result samples=176 last=0
+    counter: 6 GuestPatch.tmnt_fmod_studio_v1.flush_commands_result samples=0 last=0
+    counter: 7 GuestPatch.tmnt_fmod_studio_v1.flush_samples_result samples=0 last=0
+

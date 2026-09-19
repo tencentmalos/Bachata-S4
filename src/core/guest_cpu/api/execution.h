@@ -32,6 +32,8 @@ enum class StopReason : std::uint32_t {
     GuestFault,
     Unsupported,
     BackendFailure,
+    Breakpoint,
+    Watchpoint,
 };
 
 [[nodiscard]] std::string_view ToString(StopReason reason) noexcept;
@@ -48,6 +50,8 @@ enum class StopReasonBits : std::uint32_t {
     GuestFault = 1u << static_cast<std::uint32_t>(StopReason::GuestFault),
     Unsupported = 1u << static_cast<std::uint32_t>(StopReason::Unsupported),
     BackendFailure = 1u << static_cast<std::uint32_t>(StopReason::BackendFailure),
+    Breakpoint = 1u << static_cast<std::uint32_t>(StopReason::Breakpoint),
+    Watchpoint = 1u << static_cast<std::uint32_t>(StopReason::Watchpoint),
 };
 
 [[nodiscard]] constexpr StopReasonBits operator|(StopReasonBits a, StopReasonBits b) noexcept {

@@ -1,0 +1,8 @@
+{
+  "run_id": "2bcf90acf5d0492394f1bf9be08635dc",
+  "scene_frame": 11,
+  "response_frame": 32,
+  "note": "System driver session 5709/gen1: Leonardo rooftop is visible; real stick-right input moves character/camera and changes MOVE to ATTACK. Roof geometry/pixels show visible block artifacts; this confirms progression only, not correct rendering.",
+  "method": "explicit_visual_review",
+  "reviewed_at": 1789551807.050775
+}

@@ -1,0 +1,69 @@
+{
+  "schema": "shadps4.warmup.v1",
+  "run_id": "45403ac19b784373a2ea2442e2ecc7f3",
+  "serial": "9c2841a4",
+  "display_id": "4630946441858561667",
+  "input_display": "0",
+  "status": "ERROR_UNVERIFIED",
+  "identity": [
+    8776,
+    1,
+    "25ce3891a5c3a1ec27a4eed0b91c7f1f"
+  ],
+  "frames": [
+    {
+      "image": "frame-0000.png",
+      "sha256": "1a4da36206c24d142cd281e5e22743913186dc9191caed5b3ff0ce49acd21079",
+      "elapsed": 0.4638542089960538,
+      "state": {
+        "identity": [
+          8776,
+          1,
+          "25ce3891a5c3a1ec27a4eed0b91c7f1f"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 458,
+        "flip_age_ns": 12545364
+      }
+    },
+    {
+      "image": "frame-0001.png",
+      "sha256": "402698b0a528aafde70fe4f1bc9f6cd68fdd4af0150bbe34de1097bf096153db",
+      "elapsed": 17.631370999966748,
+      "state": {
+        "identity": [
+          8776,
+          1,
+          "25ce3891a5c3a1ec27a4eed0b91c7f1f"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 840,
+        "flip_age_ns": 10348800413
+      }
+    }
+  ],
+  "presses": [
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 0.8121507919859141
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 9.186483833997045
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 17.96412199997576
+    }
+  ],
+  "attaches_debugger": false,
+  "started_at": 1789544385.363204,
+  "process_stat": "8776 (shadps4.android) S 1693 1693 0 0 -1 1077936448 695154 0 77376 0 3931 2464 0 0 10 -10 78 0 32835383 197216378880 415493 18446744073709551615 398532505600 398532510264 548926250944 0 0 0 4612 1 1073775864 0 0 0 17 4 0 0 0 0 0 398532513792 398532515104 398659461120 548926255373 548926255472 548926255472 548926259166 0",
+  "error": "Missing Session field: guest_flip",
+  "ended_at": 1789544411.4139268
+}

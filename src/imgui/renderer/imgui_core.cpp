@@ -20,6 +20,7 @@
 #include "frontend/window.h"
 #include "imgui/imgui_layer.h"
 #include "imgui_core.h"
+#include "core/diagnostics/overlay_control.h"
 #ifndef __ANDROID__
 #include "imgui_impl_sdl3.h"
 #endif
@@ -140,6 +141,8 @@ void Initialize(const ::Vulkan::Instance& instance, const Frontend::Window& wind
         .device = instance.GetDevice(),
         .queue_family = instance.GetPresentQueueFamilyIndex(),
         .queue = instance.GetPresentQueue(),
+        .queue_mutex = &instance.QueueMutex(),
+        .drain_submissions = [&instance] { instance.DrainSubmissions(); },
         .image_count = image_count,
         .min_allocation_size = 1024 * 1024,
         .pipeline_rendering_create_info{
@@ -350,7 +353,8 @@ void Render(const vk::CommandBuffer& cmdbuf, const vk::ImageView& image_view,
 }
 
 bool MustKeepDrawing() {
-    return std::ranges::any_of(layers, [](Layer* layer) { return layer->ShouldKeepDrawing(); }) ||
+    return ::Core::Diagnostics::status_overlay_enabled.load(std::memory_order_relaxed) ||
+           std::ranges::any_of(layers, [](Layer* layer) { return layer->ShouldKeepDrawing(); }) ||
            change_layers.size() > 1;
 }
 

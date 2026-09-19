@@ -29,7 +29,9 @@ bool HleScope::WaitFor(std::chrono::nanoseconds duration) const {
     std::mutex mutex;
     std::condition_variable_any changed;
     std::unique_lock lock(mutex);
+    context_.DebugNativeWait(thread_, true);
     changed.wait_for(lock, cancel_, duration, [] { return false; });
+    context_.DebugNativeWait(thread_, false);
     return !cancel_.stop_requested();
 }
 Result<GuestCallResult> HleScope::InvokeGuest(GuestCodeAddress entry, const GuestCallArgs& args,

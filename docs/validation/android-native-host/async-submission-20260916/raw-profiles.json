@@ -1,0 +1,10 @@
+{
+  "build/async-submission-20260916/final-coarse/9c2841a4-23969-file-1789555231203116-1.prof": {
+    "bytes": 50190532,
+    "sha256": "7b2e4585496e3c1481926685d23d53ae9a823a077da01b2c01b6fc5642c16ae3"
+  },
+  "build/async-submission-20260916/coarse/9c2841a4-18977-file-1789554667944838-1.prof": {
+    "bytes": 44776280,
+    "sha256": "bfb8dce05f980854ef27ff612b5c0b555c7b7b8995c89483086eebe594631504"
+  }
+}

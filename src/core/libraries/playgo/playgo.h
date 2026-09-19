@@ -12,6 +12,9 @@ class SymbolsResolver;
 
 namespace Libraries::PlayGo {
 constexpr int shadMagic = 0x53484144;
+// Shared implementation after the caller validates the scratch-buffer pointer.
+// Desktop does not consume or retain that scratch buffer.
+s32 Initialize(u32 buffer_size);
 
 s32 PS4_SYSV_ABI sceDbgPlayGoRequestNextChunk();
 s32 PS4_SYSV_ABI sceDbgPlayGoSnapshot();

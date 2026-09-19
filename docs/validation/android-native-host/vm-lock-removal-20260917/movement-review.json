@@ -1,0 +1,8 @@
+{
+  "run_id": "0cc723a38ea040c7a333ad940bc4fdd1",
+  "scene_frame": 0,
+  "response_frame": 2,
+  "note": "同一 PID 21722 / generation 1 的屋顶 ATTACK 教程，stick-right 实际触摸后 Leonardo 从左侧屋顶角落移动到 EXIT 右侧，镜头同时跟随，guest flip 2962 到 3143。",
+  "method": "explicit_visual_review",
+  "reviewed_at": 1789636760.30221
+}

@@ -1,0 +1,10 @@
+{
+  "tool": "guest_debug.symbols_prepare",
+  "dryRun": true,
+  "succeeded": true,
+  "indexSha256": "6259793b07b0a36c46496db62db5519d9dde94f4b89a5c134ee5e30027862e25",
+  "symbols": 9,
+  "typedSymbols": 9,
+  "types": 2,
+  "gdbElfGenerated": false
+}

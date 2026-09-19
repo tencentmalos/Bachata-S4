@@ -23,6 +23,20 @@ function(shadps4_add_foundation)
     add_library(shadps4::foundation ALIAS shadps4_foundation)
     target_link_libraries(shadps4_foundation INTERFACE spatial::foundation_debugbus)
     if(ANDROID)
+        # Oboe stays an independently pinned dependency. Foundation consumes
+        # its target, without vendoring another copy.
+        if(NOT TARGET oboe)
+            set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
+            add_subdirectory("${foundation_root}/../externals/oboe"
+                             "${CMAKE_CURRENT_BINARY_DIR}/externals/oboe" EXCLUDE_FROM_ALL)
+        endif()
+        add_subdirectory("${foundation_root}/modules/audio"
+                         "${CMAKE_CURRENT_BINARY_DIR}/foundation/audio" EXCLUDE_FROM_ALL)
+        target_link_libraries(shadps4_foundation INTERFACE spatial::foundation_audio)
         target_link_libraries(shadps4_foundation INTERFACE spatial::foundation_debugbus_dumpsys)
+        add_subdirectory("${foundation_root}/modules/profiler_ring"
+                         "${CMAKE_CURRENT_BINARY_DIR}/foundation/profiler_ring" EXCLUDE_FROM_ALL)
+        target_link_libraries(shadps4_foundation INTERFACE spatial::foundation_profiler_ring)
+        target_compile_definitions(shadps4_foundation INTERFACE SHADPS4_PROFILER_RING=1)
     endif()
 endfunction()

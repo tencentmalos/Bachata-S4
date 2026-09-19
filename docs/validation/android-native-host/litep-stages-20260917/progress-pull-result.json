@@ -1,0 +1,10 @@
+{
+  "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/loading-profile-20260917/progress-capture-analysis/capture/9c2841a4-8165-file-1789621830521399-1.prof",
+  "sha256": "56f5bed444b738cb886945fb866674c4e67474c77040f621c70c8a835c9a4cd5",
+  "identity": {
+    "serial": "9c2841a4",
+    "package": "com.shadps4.android",
+    "pid": "8165",
+    "capture_id": "1"
+  }
+}

@@ -1,0 +1,22 @@
+wait_timestamp_safe(int, unsigned int, unsigned int, unsigned long)
+ld-temp.o:0
+kgsl_syncobj_wait(tu_device*, kgsl_syncobj*, unsigned long)
+ld-temp.o:0
+vk_sync_timeline_get_value
+ld-temp.o:0
+wait_timestamp_safe(int, unsigned int, unsigned int, unsigned long)
+ld-temp.o:0
+kgsl_syncobj_wait(tu_device*, kgsl_syncobj*, unsigned long)
+ld-temp.o:0
+vk_sync_timeline_gc_locked
+ld-temp.o:0
+vk_sync_signal_unwrap
+ld-temp.o:0
+vk_queue_submit_final
+ld-temp.o:0
+vk_device_flush
+ld-temp.o:0
+vk_common_QueueSubmit2
+ld-temp.o:0
+vk_common_QueueSubmit
+ld-temp.o:0

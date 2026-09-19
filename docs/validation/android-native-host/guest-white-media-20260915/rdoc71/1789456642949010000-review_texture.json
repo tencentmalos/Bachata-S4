@@ -1,0 +1,28 @@
+{
+  "arguments": {
+    "request": {
+      "eventId": "31",
+      "resourceId": "601",
+      "mip": 0,
+      "slice": 0,
+      "sample": 0
+    },
+    "options": {
+      "maxEdge": 384,
+      "diagnosticExposureStops": 0
+    }
+  },
+  "response": {
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "An error occurred invoking 'review_texture'."
+        }
+      ],
+      "isError": true
+    },
+    "id": 25,
+    "jsonrpc": "2.0"
+  }
+}

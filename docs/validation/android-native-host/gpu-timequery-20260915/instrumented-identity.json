@@ -1,0 +1,26 @@
+{
+  "head": "4da582b7b3a36d74403a4985c3c03f37e570bcb7",
+  "files": [
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/android-host-api33/native/libshadps4_host.so",
+      "sha256": "1a1fc683b72a74543ded2176935c5c1b7634f444199aadb64f979c51117f36bf",
+      "notes": "Displaying notes found in: .note.android.ident\n  Owner                Data size \tDescription\n  Android              0x00000084\tNT_ANDROID_TYPE_IDENT\n   description data: 21 00 00 00 72 32 39 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 31 34 32 30 36 38 36 35 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n\nDisplaying notes found in: .note.gnu.build-id\n  Owner                Data size \tDescription\n  GNU                  0x00000014\tNT_GNU_BUILD_ID (unique build ID bitstring)\n    Build ID: 13d59c38473d28976b0fac309e9ce7f26c732498\n"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/gpu-async-audit-20260915/instrumented.apk",
+      "sha256": "b4cd23f38ec3e4d1b07a51381d54d0700d102ed5e1d2845473d9f75cd4f37eb9"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/src/video_core/renderer_vulkan/vk_presenter.cpp",
+      "sha256": "429cecccaeef565172c260131a01e8562608620afc90dbfa265a7e996ae6ca0d"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/src/video_core/renderer_vulkan/vk_scheduler.cpp",
+      "sha256": "41a1349d02be2a1643297bcb0ae6da964afca16b2ba443c9555b7013663c5752"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/src/core/libraries/gnmdriver/gnmdriver.cpp",
+      "sha256": "9c75e43209c300316c55426c3140f990946ad9f40506f0d2b6d2235263a010d5"
+    }
+  ]
+}

@@ -1,0 +1,234 @@
+#!/usr/bin/env python3
+"""Bounded real-touch warmup. A menu or advancing FPS never implies gameplay.
+
+An observer can change control.txt between circle/cross/none/left/right/stop,
+or stick-left/stick-right for actual gameplay movement verification.
+Confirm only after reviewing scene + input-response screenshots from this run.
+No guest patches, saved-game edits, debugger, or production polling are installed.
+"""
+import argparse
+import hashlib
+import json
+from pathlib import Path
+import re
+import struct
+import subprocess
+import sys
+import time
+import uuid
+
+PACKAGE = "com.shadps4.android"
+SERVICE = PACKAGE + "/.service.FexSessionService"
+# Default 1920x1080 touch layout. Coordinates scale with the captured display.
+BUTTONS = {"circle": (1820 / 1920, 690 / 1080),
+           "cross": (1700 / 1920, 810 / 1080),
+           "left": (110 / 1920, 690 / 1080),
+           "right": (330 / 1920, 690 / 1080), "none": None}
+BUTTONS.update({"stick-left": (310 / 1920, 880 / 1080),
+                "stick-right": (510 / 1920, 880 / 1080)})
+
+
+def write_json(path, value):
+    temporary = path.with_suffix(path.suffix + ".tmp")
+    temporary.write_text(json.dumps(value, indent=2, ensure_ascii=False) + "\n")
+    temporary.replace(path)
+
+
+def read_json(path):
+    return json.loads(path.read_text())
+
+
+def session_state(text):
+    def field(name):
+        match = re.search(r"^\s*" + name + r":\s*(.+)$", text, re.M)
+        if not match:
+            raise ValueError("Missing Session field: " + name)
+        return match.group(1).strip()
+    flip = re.match(r"(\d+) \((?:age_ns=(\d+)|never)\)", field("guest_flip"))
+    if not flip:
+        raise ValueError("Invalid guest_flip counter")
+    return {"identity": [int(field("pid")), int(field("generation")), field("run_uuid")],
+            "stage": field("stage"), "active": field("session") == "active",
+            "guest_flip": int(flip[1]), "flip_age_ns": int(flip[2]) if flip[2] else None}
+
+
+def validate_review(review, manifest):
+    if not isinstance(review, dict):
+        raise ValueError("Review must be a JSON object")
+    note = review.get("note")
+    if review.get("run_id") != manifest["run_id"] or not isinstance(note, str) or not note.strip():
+        raise ValueError("Review requires this run_id and a visual/input response description")
+    frames = manifest["frames"]
+    a, b = review["scene_frame"], review["response_frame"]
+    if type(a) is not int or type(b) is not int or not (0 <= a < b < len(frames)):
+        raise ValueError("Review requires two ordered scene/response frames")
+    before, after = frames[a], frames[b]
+    if any(f["state"]["identity"] != manifest["identity"] for f in (before, after)):
+        raise ValueError("Review cannot cross Session identity")
+    if after["state"]["guest_flip"] <= before["state"]["guest_flip"]:
+        raise ValueError("No new guest frame after the response")
+    if not any(before["elapsed"] < p["elapsed"] < after["elapsed"]
+               for p in manifest["presses"]):
+        raise ValueError("No recorded real touch between scene and response")
+    return after
+
+
+def run(args):
+    args.out.mkdir(parents=True, exist_ok=False)
+    adb = ["adb", "-s", args.serial]
+    def command(*parts):
+        return subprocess.check_output(adb + list(parts), timeout=15)
+    def state():
+        raw = command("shell", "dumpsys", "activity", "service", SERVICE).decode()
+        return raw, session_state(raw)
+    manifest = {"schema": "shadps4.warmup.v1", "run_id": uuid.uuid4().hex,
+                "serial": args.serial, "display_id": args.display_id,
+                "input_display": args.input_display, "status": "RUNNING_UNVERIFIED",
+                "identity": None, "frames": [], "presses": [], "attaches_debugger": False,
+                "started_at": time.time()}
+    control = args.out / "control.txt"
+    control.write_text(args.button + "\n")
+    start = time.monotonic()
+    code = 2
+    try:
+        if args.open_last_game:
+            command("shell", "am", "start", "-W", "-n", PACKAGE + "/.MainActivity",
+                    "-f", "0x24000000", "--ez", "open_last_game", "true")
+        next_frame = 0.0
+        while time.monotonic() - start < args.seconds:
+            try:
+                raw, current = state()
+            except ValueError:
+                if manifest["identity"] is None and time.monotonic() - start < 30:
+                    time.sleep(.25)
+                    continue
+                raise
+            if not current["active"] or current["stage"] != "Running":
+                if manifest["identity"] is None and time.monotonic() - start < 30:
+                    time.sleep(.25)
+                    continue
+                raise ValueError("Session is not Running: " + current["stage"])
+            if manifest["identity"] is None:
+                manifest["identity"] = current["identity"]
+                manifest["process_stat"] = command("shell", "run-as", PACKAGE, "cat",
+                    f"/proc/{current['identity'][0]}/stat").decode().strip()
+            if current["identity"] != manifest["identity"]:
+                raise ValueError("Session identity changed; no input sent to replacement")
+            elapsed = time.monotonic() - start
+            if elapsed >= next_frame:
+                png = command("exec-out", "screencap", "-p", "-d", args.display_id)
+                if png[:8] != b"\x89PNG\r\n\x1a\n":
+                    raise ValueError("screencap did not return a PNG")
+                width, height = struct.unpack_from(">II", png, 16)
+                if width < height:
+                    raise ValueError("Default touch layout requires landscape; refusing wrong coordinates")
+                _, after_capture = state()
+                if after_capture["identity"] != manifest["identity"] or not after_capture["active"]:
+                    raise ValueError("Session changed during capture")
+                index = len(manifest["frames"])
+                image_name = f"frame-{index:04}.png"
+                (args.out / image_name).write_bytes(png)
+                (args.out / f"frame-{index:04}.txt").write_text(raw)
+                frame = {"image": image_name, "sha256": hashlib.sha256(png).hexdigest(),
+                         "elapsed": time.monotonic() - start, "state": after_capture}
+                manifest["frames"].append(frame)
+                write_json(args.out / "manifest.json", manifest)
+                print(f"frame={index} elapsed={elapsed:.1f}s guest_flip={current['guest_flip']} "
+                      f"image={args.out / image_name}", flush=True)
+                next_frame = elapsed + args.capture_interval
+            review_path = args.out / "review.json"
+            if review_path.exists():
+                review = read_json(review_path)
+                validate_review(review, manifest)
+                # Allow time to inspect images, but reject old evidence. This is
+                # still an explicit visual review, not an automatic scene classifier.
+                reviewed = manifest["frames"][review["response_frame"]]
+                if time.monotonic() - start - reviewed["elapsed"] > 60:
+                    raise ValueError("Review is stale; inspect a recent response frame")
+                if current["flip_age_ns"] is None or current["flip_age_ns"] > 3_000_000_000:
+                    raise ValueError("Guest currently has no recent frame")
+                for index in (review["scene_frame"], review["response_frame"]):
+                    f = manifest["frames"][index]
+                    if hashlib.sha256((args.out / f["image"]).read_bytes()).hexdigest() != f["sha256"]:
+                        raise ValueError("Reviewed evidence changed")
+                manifest.update(status="GAMEPLAY_REVIEWED", review=review)
+                code = 0
+                break
+            button = control.read_text().strip()
+            if button == "stop":
+                manifest["status"] = "STOPPED_UNVERIFIED"
+                break
+            if button not in BUTTONS:
+                raise ValueError("Unknown control button: " + button)
+            if BUTTONS[button] is not None:
+                x, y = BUTTONS[button]
+                x, y = str(round(x * width)), str(round(y * height))
+                x0, y0 = (str(round(410 / 1920 * width)), str(round(880 / 1080 * height))) \
+                    if button.startswith("stick-") else (x, y)
+                # Android's bounded swipe emits DOWN and UP, including while guest stalls.
+                command("shell", "input", "-d", args.input_display, "swipe",
+                        x0, y0, x, y, str(args.hold_ms))
+                manifest["presses"].append({"button": button, "hold_ms": args.hold_ms,
+                                          "elapsed": time.monotonic() - start})
+            time.sleep(args.interval)
+        else:
+            manifest["status"] = "TIMEOUT_UNVERIFIED"
+    except KeyboardInterrupt:
+        manifest["status"] = "INTERRUPTED_UNVERIFIED"
+        code = 130
+    except (ValueError, OSError, subprocess.SubprocessError, KeyError) as error:
+        manifest.update(status="ERROR_UNVERIFIED", error=str(error))
+        code = 1
+    finally:
+        manifest["ended_at"] = time.time()
+        write_json(args.out / "manifest.json", manifest)
+        print(manifest["status"], flush=True)
+    return code
+
+
+def main():
+    if len(sys.argv) > 1 and sys.argv[1] == "review":
+        parser = argparse.ArgumentParser(description="Record an explicit human/AI visual review; "
+            "the running warmup independently checks identity, input, freshness and progress.")
+        parser.add_argument("--out", type=Path, required=True)
+        parser.add_argument("--scene-frame", type=int, required=True)
+        parser.add_argument("--response-frame", type=int, required=True)
+        parser.add_argument("--note", required=True,
+                            help="Describe actual gameplay and the observed response to input")
+        args = parser.parse_args(sys.argv[2:])
+        manifest = read_json(args.out / "manifest.json")
+        if manifest["status"] != "RUNNING_UNVERIFIED":
+            parser.error("Review requires a live warmup; do not promote a completed/failed run")
+        review = {"run_id": manifest["run_id"], "scene_frame": args.scene_frame,
+                  "response_frame": args.response_frame, "note": args.note,
+                  "method": "explicit_visual_review", "reviewed_at": time.time()}
+        try:
+            validate_review(review, manifest)
+        except (ValueError, KeyError) as error:
+            parser.error(str(error))
+        control = args.out / "control.tmp"
+        control.write_text("none\n")
+        control.replace(args.out / "control.txt")
+        write_json(args.out / "review.json", review)
+        print("Review submitted; wait for the running warmup's final status/exit code")
+        return 0
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("serial", help="Explicit device; never selects the first attached device")
+    parser.add_argument("--out", type=Path, required=True, help="New evidence directory")
+    parser.add_argument("--display-id", required=True, help="Physical display for screencap")
+    parser.add_argument("--input-display", default="0", help="Matching logical display for touch")
+    parser.add_argument("--open-last-game", action="store_true")
+    parser.add_argument("--button", choices=BUTTONS, default="circle")
+    parser.add_argument("--seconds", type=float, default=600)
+    parser.add_argument("--interval", type=float, default=2)
+    parser.add_argument("--capture-interval", type=float, default=5)
+    parser.add_argument("--hold-ms", type=int, default=250)
+    args = parser.parse_args()
+    if not (1 <= args.seconds <= 1800 and .5 <= args.interval <= 30 and
+            1 <= args.capture_interval <= 30 and 50 <= args.hold_ms <= 2000):
+        parser.error("Invalid bounded timing parameters")
+    return run(args)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,35 @@
+{
+  "source_head": "4da582b7b3a36d74403a4985c3c03f37e570bcb7",
+  "state": "dirty worktree; patches retained",
+  "device": "9c2841a4 AYN Thor API33 4KiB",
+  "profile_sdk": "107a620a64b0ac91f49e5de37ffc6d486ec42378",
+  "baseline": {
+    "apk_sha256": "2aea43daec55f32879bc46c754556d33a7913728f538ceeb828a3ae48dc50a3a",
+    "libshadps4_host.so": {
+      "sha256": "44fe1f4ea675cecd2618f9b160ed670b54b77167b6c6a3de1705818f3836c798",
+      "build_id": "586a1f934e353b7f10d9876a6b8ea63078eb8163"
+    },
+    "libshadps4_fex_session.so": {
+      "sha256": "a26a3c8c3555da8096e05cf6da388c57d2eda666221b6129cfc6b07fa05333eb",
+      "build_id": "bee19bd6272163000b14acf9d04683660ccf877f"
+    }
+  },
+  "optimized": {
+    "apk_sha256": "5a6217c8841e4d1a5735438010727c8284a3323e1f2c338ccaaa1890c3f416ee",
+    "libshadps4_host.so": {
+      "sha256": "8814ef913f320cd38dc35507decebd0eb2cf92c3a0aa890c0986bf790938886e",
+      "build_id": "eaf04444d20c820ec68ddbfb924ae2cec71fdd0c"
+    },
+    "libshadps4_fex_session.so": {
+      "sha256": "a26a3c8c3555da8096e05cf6da388c57d2eda666221b6129cfc6b07fa05333eb",
+      "build_id": "bee19bd6272163000b14acf9d04683660ccf877f"
+    }
+  },
+  "sources": {
+    "src/common/profiler.cpp": "0e3e3f33d7420462901f5f9409c9ce40a9bc50d5d85ee2bde6bfd214d91ad554",
+    "src/core/host_runtime/guest_audio.cpp": "01626fa9dbff42fc3f0968112f0430a03a49b9ec626b928a17f8e1b78f8db0aa",
+    "src/core/guest_cpu/api/address_space.cpp": "ca88fa1769c09e8d6f1f743bee284ff0c8c5eb4633e0988bdc6de6a098383d4f",
+    "src/core/host_runtime/guest_runtime.cpp": "11bcb1602089bc727161af04505434f99c308e8fa320291341583d63b8592474",
+    "src/core/guest_cpu/fex/fex_context.cpp": "d20be99c44909e925ee4ea3c8072afc2477e9e1a2b43963b0d419a799ba23381"
+  }
+}

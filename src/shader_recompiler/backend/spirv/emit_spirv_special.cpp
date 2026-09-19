@@ -9,6 +9,14 @@
 namespace Shader::Backend::SPIRV {
 
 void EmitPrologue(EmitContext& ctx) {
+    if (ctx.depth_vertex_block.value != 0) {
+        ctx.output_position =
+            ctx.OpAccessChain(ctx.TypePointer(spv::StorageClass::Output, ctx.F32[4]),
+                              ctx.depth_vertex_block, ctx.ConstU32(0U));
+        ctx.clip_distances = ctx.OpAccessChain(
+            ctx.TypePointer(spv::StorageClass::Output, ctx.TypeArray(ctx.F32[1], ctx.ConstU32(8U))),
+            ctx.depth_vertex_block, ctx.ConstU32(1U));
+    }
     if (ctx.stage == Stage::Fragment) {
         ctx.DefineAmdPerVertexAttribs();
     }
@@ -66,7 +74,52 @@ void ConvertPositionToClipSpace(EmitContext& ctx) {
     ctx.OpStore(ctx.output_position, vector);
 }
 
+// Bake only the depth affine transform into the final pre-rasterization
+// position. Clip distances still see the original homogeneous coordinates.
+void ConvertViewportDepth(EmitContext& ctx) {
+    const auto& depth = ctx.runtime_info.depth_range;
+    const Id type = ctx.F32[1];
+    const Id position = ctx.OpLoad(ctx.F32[4], ctx.output_position);
+    const Id z = ctx.OpCompositeExtract(type, position, 2U);
+    const Id w = ctx.OpCompositeExtract(type, position, 3U);
+    if (depth.clip_near || depth.clip_far) {
+        const Id ptr = ctx.TypePointer(spv::StorageClass::Output, type);
+        for (u32 i = 0; i < 8; ++i) {
+            if (!ctx.info.stores.Get(IR::Attribute::ClipDistance, i))
+                ctx.OpStore(ctx.OpAccessChain(ptr, ctx.clip_distances, ctx.ConstU32(i)),
+                            ctx.Constant(type, 0.f));
+        }
+        if (depth.clip_near) {
+            const Id near = depth.negative_one_to_one ? ctx.OpFAdd(type, z, w) : z;
+            ctx.OpStore(
+                ctx.OpAccessChain(ptr, ctx.clip_distances, ctx.ConstU32(ctx.depth_clip_slots[0])),
+                near);
+        }
+        if (depth.clip_far) {
+            ctx.OpStore(
+                ctx.OpAccessChain(ptr, ctx.clip_distances, ctx.ConstU32(ctx.depth_clip_slots[1])),
+                ctx.OpFSub(type, w, z));
+        }
+    }
+    Id scale = ctx.Constant(type, depth.viewports[0].scale);
+    Id offset = ctx.Constant(type, depth.viewports[0].offset);
+    if (ctx.info.stores.GetAny(IR::Attribute::ViewportIndex)) {
+        const Id index = ctx.OpLoad(ctx.U32[1], ctx.output_viewport_index);
+        for (u32 i = 1; i < AmdGpu::NUM_VIEWPORTS; ++i) {
+            const Id match = ctx.OpIEqual(ctx.U1[1], index, ctx.ConstU32(i));
+            scale = ctx.OpSelect(type, match, ctx.Constant(type, depth.viewports[i].scale), scale);
+            offset =
+                ctx.OpSelect(type, match, ctx.Constant(type, depth.viewports[i].offset), offset);
+        }
+    }
+    const Id mapped = ctx.OpFAdd(type, ctx.OpFMul(type, z, scale), ctx.OpFMul(type, w, offset));
+    ctx.OpStore(ctx.output_position, ctx.OpCompositeInsert(ctx.F32[4], mapped, position, 2U));
+}
+
 void EmitEpilogue(EmitContext& ctx) {
+    if (ctx.stage == Stage::Vertex && ctx.runtime_info.depth_range.enabled) {
+        ConvertViewportDepth(ctx);
+    }
     if (ctx.stage == Stage::Vertex && ctx.runtime_info.vs_info.emulate_depth_negative_one_to_one) {
         ConvertDepthMode(ctx);
     }
@@ -91,7 +144,15 @@ void EmitDiscardCond(EmitContext& ctx, Id condition) {
 }
 
 void EmitEmitVertex(EmitContext& ctx) {
-    ctx.OpEmitVertex();
+    if (ctx.runtime_info.depth_range.enabled) {
+        const Id position = ctx.OpLoad(ctx.F32[4], ctx.output_position);
+        ConvertViewportDepth(ctx);
+        ctx.OpEmitVertex();
+        // Subsequent guest emissions must not transform an already remapped Z.
+        ctx.OpStore(ctx.output_position, position);
+    } else {
+        ctx.OpEmitVertex();
+    }
 }
 
 void EmitEmitPrimitive(EmitContext& ctx) {

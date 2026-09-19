@@ -1737,6 +1737,65 @@ void TestSegmentedReservations() {
 }
 
 int main() {
+    RunCase("M33", "unordered mappings and VM replacement preserve checked lookup", [] {
+        const auto page = HostPageSize();
+        auto space = MakeSpace(page * 260);
+        const auto base = space->ReservationBase().value;
+        const auto rw = GuestPermission::Read | GuestPermission::Write;
+        for (unsigned i = 0; i < 128; ++i) {
+            const auto slot = (i * 53) % 128;
+            Check(bool(space->Map({GuestAddress{base + slot * page * 2}, page}, rw)),
+                  "nonmonotonic map failed");
+        }
+        for (unsigned i = 0; i < 128; ++i) {
+            const auto address = base + i * page * 2;
+            auto q = space->Query(GuestAddress{address + page - 1});
+            Check(q && q.Value().range.base.value == address, "lookup chose another mapping");
+            Check(!space->Query(GuestAddress{address + page}), "gap reported mapped");
+            Check(!space->ValidateRange({GuestAddress{address + page - 1}, 2}, rw),
+                  "range crossing a gap admitted");
+        }
+        const auto original_order = space->Mappings();
+        Check(original_order[1].range.base.value == base + 53 * page * 2,
+              "lookup must not reorder externally visible mapping records");
+        const GuestRange last{{base + 254 * page}, page};
+        const auto old = space->Query(last.base);
+        // Warm one mapping, erase a predecessor, and change its permissions.
+        // A cached vector slot must not become a cached permission or pointer.
+        Check(bool(space->ValidateRange(last, rw)), "warm last mapping");
+        Check(bool(space->Unmap({{base}, page})), "erase preceding mapping");
+        Check(bool(space->Protect(last, GuestPermission::Read)), "reprotect cached mapping");
+        auto updated = space->Query(last.base);
+        Check(updated && old && updated.Value().range.base == last.base &&
+                  updated.Value().mapping_generation > old.Value().mapping_generation,
+              "cache must return current identity after erase/protect");
+        Check(!space->ValidateRange(last, GuestPermission::Write), "no stale cached write permission");
+        Check(bool(space->Unmap(last)), "remove cached mapping");
+        Check(!space->Query(last.base), "cached last index is out of bounds after removal");
+        Check(bool(space->Map(last, rw)), "same-VA remap");
+        Check(bool(space->ValidateRange(last, rw)), "old negative lookup must not hide remap");
+        auto token = space->Quiesce(1);
+        Check(bool(token), "quiesce failed");
+        if (!token) return;
+        using Op = GuestAddressSpace::VmOperation;
+        // Replace/split several existing maps and holes, then change permission
+        // in its middle. Queries must see the new generation immediately.
+        const GuestRange replacement{GuestAddress{base + page * 4}, page * 8};
+        Check(bool(space->UpdateVmUnderToken(token.Value(), Op::Map, replacement, rw)),
+              "replace failed");
+        const GuestRange middle{GuestAddress{base + page * 7}, page};
+        Check(bool(space->UpdateVmUnderToken(token.Value(), Op::Protect, middle, GuestPermission::Read)),
+              "split protection failed");
+        Check(bool(space->ValidateRange(middle, GuestPermission::Read)) &&
+              !space->ValidateRange(middle, GuestPermission::Write), "stale permission after split");
+        Check(bool(space->UpdateVmUnderToken(token.Value(), Op::Unmap, middle, GuestPermission::None)),
+              "unmap failed");
+        Check(!space->Query(middle.base), "stale mapping after unmap");
+        auto left = space->Query(GuestAddress{middle.base.value - 1});
+        auto right = space->Query(GuestAddress{middle.End()});
+        Check(left && right && left.Value().range.End() == middle.base.value &&
+              right.Value().range.base == GuestAddress{middle.End()}, "split neighbors lost");
+    });
     RunCase("M32", "segmented reservation preserves host hole", TestSegmentedReservations);
     std::printf("shadPS4 guest CPU API contract tests\n");
     std::printf("host page size: %llu bytes\n",

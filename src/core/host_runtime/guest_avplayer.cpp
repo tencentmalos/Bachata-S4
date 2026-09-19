@@ -5,8 +5,10 @@
 #include <deque>
 #include <future>
 #include <map>
+#include <optional>
 #include <thread>
 #include "common/logging/log.h"
+#include "common/profiler.h"
 #include "core/guest_cpu/api/address_space.h"
 #include "core/host_runtime/guest_avplayer.h"
 #include "core/libraries/avplayer/avplayer_error.h"
@@ -18,10 +20,12 @@ using namespace Libraries::AvPlayer;
 namespace {
 struct Failure {
     s32 code;
+    const char* reason = "invalid parameter";
 };
-void Need(bool ok, s32 code = ORBIS_AVPLAYER_ERROR_INVALID_PARAMS) {
+void Need(bool ok, s32 code = ORBIS_AVPLAYER_ERROR_INVALID_PARAMS,
+          const char* reason = "invalid parameter") {
     if (!ok)
-        throw Failure{code};
+        throw Failure{code, reason};
 }
 constexpr size_t MaxBuffer = 64 << 20, MaxResident = 256 << 20;
 thread_local void* callback_player{};
@@ -40,27 +44,28 @@ bool IsAvPlayerNid(std::string_view nid) {
 }
 struct GuestAvPlayer::Impl {
     GuestAddressSpace& space;
-    std::recursive_mutex& vm;
+
     std::function<Callbacks()> make_callbacks;
     std::mutex mutex;
     bool stopping{};
     u64 next_id{1};
     struct Player;
     std::map<u64, std::shared_ptr<Player>> players;
-    Impl(GuestAddressSpace& space, std::recursive_mutex& vm, std::function<Callbacks()> factory)
-        : space(space), vm(vm), make_callbacks(std::move(factory)) {}
+    Impl(GuestAddressSpace& space, std::function<Callbacks()> factory)
+        : space(space), make_callbacks(std::move(factory)) {}
     bool Valid(u64 at, size_t n, GuestPermission perm) {
         return at && n && bool(space.ValidateRange({GuestAddress{at}, n}, perm));
     }
     template <class T>
     T Read(u64 at) {
         T out{};
-        Need(bool(space.Read(GuestAddress{at}, std::as_writable_bytes(std::span{&out, 1}))));
+        Need(bool(space.ReadData(GuestAddress{at}, std::as_writable_bytes(std::span{&out, 1}))));
         return out;
     }
     void Put(u64 at, const void* p, size_t n) {
-        std::lock_guard lock(vm);
-        Need(bool(space.Write(GuestAddress{at}, std::span{static_cast<const std::byte*>(p), n})));
+
+        Need(bool(
+            space.WriteData(GuestAddress{at}, std::span{static_cast<const std::byte*>(p), n})));
     }
     template <class T>
     void Put(u64 at, const T& value) {
@@ -108,7 +113,7 @@ struct GuestAvPlayer::Impl {
         Callbacks callbacks;
         AvPlayerInitData guest{};
         std::array<char, 4> language{};
-        std::recursive_mutex api;
+        std::recursive_timed_mutex api;
         std::mutex queue_mutex, buffers_mutex;
         std::condition_variable changed;
         std::deque<std::packaged_task<u64()>> queue;
@@ -116,6 +121,9 @@ struct GuestAvPlayer::Impl {
         bool ready{};
         std::exception_ptr startup_error;
         u64 scratch{};
+        u64 handle{}; // immutable after publication; lifecycle diagnostics only
+        std::optional<bool> queried_active; // API mutex protects query diagnostics
+        u64 video_frames{}, audio_frames{};
         size_t scratch_used{}; // callback worker only; nested event -> file calls preserve payload
         struct Scratch {
             Player& player;
@@ -247,6 +255,7 @@ struct GuestAvPlayer::Impl {
             changed.notify_all();
         }
         u64 OnWorker(std::function<u64()> job) {
+            Common::Profiler::Scope profile{"AvPlayer.CallbackQueueWait"};
             Need(!stopped, ORBIS_AVPLAYER_ERROR_OPERATION_FAILED);
             if (callback_player == this)
                 return job();
@@ -261,6 +270,7 @@ struct GuestAvPlayer::Impl {
             return result.get();
         }
         u64 Invoke(u64 pc, std::initializer_list<u64> args, bool is_event = false) {
+            Common::Profiler::Scope profile{is_event ? "AvPlayer.GuestEvent" : "AvPlayer.GuestCallback"};
             Need(pc && !stopped, ORBIS_AVPLAYER_ERROR_OPERATION_FAILED);
             const bool previous = event_callback;
             event_callback = is_event;
@@ -307,7 +317,7 @@ struct GuestAvPlayer::Impl {
                             {reinterpret_cast<u64>(m.object_ptr), align, size});
                     });
                     Need(b.guest && !(b.guest & (align - 1)));
-                    std::lock_guard vm(owner.vm);
+
                     b.identity = owner.Identify(b.guest, size);
                     std::lock_guard lock(buffers_mutex);
                     buffers.emplace(host, std::move(b));
@@ -343,7 +353,7 @@ struct GuestAvPlayer::Impl {
             try {
                 // Never free a replacement mapping that only reuses the old VA.
                 {
-                    std::lock_guard vm(owner.vm);
+
                     owner.Check(b.identity);
                 }
                 OnWorker([&] {
@@ -410,7 +420,7 @@ struct GuestAvPlayer::Impl {
                         return u64(u32(got));
                     Need(u32(got) <= size);
                     if (got)
-                        Need(bool(self.owner.space.Read(
+                        Need(bool(self.owner.space.ReadData(
                             GuestAddress{slot.address},
                             std::span{reinterpret_cast<std::byte*>(data), size_t(got)})));
                     return u64(got);
@@ -428,9 +438,17 @@ struct GuestAvPlayer::Impl {
             // Do not park the native controller under its event/source locks on a
             // guest callback that may itself select streams or start playback.
             std::packaged_task<u64()> task([&self, kind, source, payload, value] {
-                if (self.closing || self.stopped)
+                // Close rejects new events at enqueue and drains this queue
+                // before destroying native state. Already accepted events must
+                // still run: dropping a queued StateStop can strand the guest
+                // waiting for completion after a movie has already ended.
+                // Global Stop alone cancels pending callbacks.
+                if (self.stopped)
                     return u64{};
                 event_callback = true;
+                LOG_INFO(Lib_AvPlayer, "Guest event begin player={} event={:#x} callback={:#x}",
+                         self.handle, u32(kind),
+                         reinterpret_cast<u64>(self.guest.event_replacement.event_callback));
                 try {
                     Scratch slot(self, sizeof(value));
                     if (payload)
@@ -441,9 +459,13 @@ struct GuestAvPlayer::Impl {
                          u32(source), payload ? slot.address : 0},
                         true);
                     event_callback = false;
+                    LOG_INFO(Lib_AvPlayer, "Guest event returned player={} event={:#x}",
+                             self.handle, u32(kind));
                     return result;
                 } catch (...) {
                     event_callback = false;
+                    LOG_WARNING(Lib_AvPlayer, "Guest event failed player={} event={:#x}",
+                                self.handle, u32(kind));
                     throw;
                 }
             });
@@ -461,7 +483,7 @@ struct GuestAvPlayer::Impl {
         }
         template <class T>
         void Publish(T& frame, u64 output) {
-            std::lock_guard vm(owner.vm);
+
             Need(owner.Valid(output, sizeof(T), GuestPermission::Write));
             std::lock_guard lock(buffers_mutex);
             auto it = buffers.find(frame.p_data);
@@ -530,7 +552,10 @@ struct GuestAvPlayer::Impl {
                 std::lock_guard lock(mutex);
                 Need(!stopping && players.size() < 8);
                 id = next_id++; // no native pointer and no same-session handle reuse
+                p->handle = id;
                 players.emplace(id, p);
+                LOG_INFO(Lib_AvPlayer, "Guest player opened id={} event_callback={:#x}",
+                         id, reinterpret_cast<u64>(data.event_replacement.event_callback));
             }
             if (nid == "aS66RI0gGgo")
                 return id;
@@ -547,7 +572,8 @@ struct GuestAvPlayer::Impl {
         {
             std::lock_guard lock(mutex);
             auto it = players.find(a[0]);
-            Need(!stopping && it != players.end());
+            Need(!stopping && it != players.end(), ORBIS_AVPLAYER_ERROR_INVALID_PARAMS,
+                 "unknown or stopped player");
             p = it->second;
         }
         if (callback_player == p.get()) {
@@ -555,7 +581,21 @@ struct GuestAvPlayer::Impl {
             Need(event_callback && nid != "NkJwDzKmIlw" && nid != "ZC17w3vB5Lo",
                  ORBIS_AVPLAYER_ERROR_OPERATION_FAILED);
         }
-        std::unique_lock lock(p->api, std::try_to_lock);
+        std::unique_lock lock(p->api, std::defer_lock);
+        if (callback_player == p.get()) {
+            // A native API may be waiting for this callback worker. Blocking
+            // here would form an API -> callback -> API cycle.
+            lock.try_lock();
+        } else {
+            // Desktop queries wait for source ownership; contention is not EOF
+            // or an operation failure. In particular IsActive must not return
+            // false merely because the audio owner is publishing a frame.
+            // Never retain a VM gate/pin here, and allow session Stop to cancel
+            // a waiter even if the current API is waiting for guest callbacks.
+            Common::Profiler::Scope profile{"AvPlayer.ApiWait"};
+            while (!p->closing && !p->stopped &&
+                   !lock.try_lock_for(std::chrono::milliseconds(1))) {}
+        }
         Need(lock.owns_lock() && !p->closing && !p->stopped, ORBIS_AVPLAYER_ERROR_OPERATION_FAILED);
         if (nid == "NkJwDzKmIlw") {
             p->closing = true;
@@ -563,7 +603,10 @@ struct GuestAvPlayer::Impl {
                 std::lock_guard table(mutex);
                 players.erase(a[0]);
             }
-            return p->Close() ? 0 : u32(ORBIS_AVPLAYER_ERROR_OPERATION_FAILED);
+            LOG_INFO(Lib_AvPlayer, "Guest Close begin player={}", p->handle);
+            const bool closed = p->Close();
+            LOG_INFO(Lib_AvPlayer, "Guest Close completed player={} orderly={}", p->handle, closed);
+            return closed ? 0 : u32(ORBIS_AVPLAYER_ERROR_OPERATION_FAILED);
             // Workers joined even if another rejected caller retains a shared handle.
         }
         auto& player = *p->native;
@@ -579,8 +622,9 @@ struct GuestAvPlayer::Impl {
                 const auto d = Read<AvPlayerSourceDetails>(a[2]);
                 Need(d.uri.length && d.uri.length < 4096);
                 path.resize(d.uri.length);
-                Need(bool(space.Read(GuestAddress{reinterpret_cast<u64>(d.uri.name)},
-                                     std::as_writable_bytes(std::span{path.data(), path.size()}))));
+                Need(bool(
+                    space.ReadData(GuestAddress{reinterpret_cast<u64>(d.uri.name)},
+                                   std::as_writable_bytes(std::span{path.data(), path.size()}))));
                 if (path.back() == '\0')
                     path.pop_back();
                 Need(path.find('\0') == std::string::npos);
@@ -596,7 +640,8 @@ struct GuestAvPlayer::Impl {
         if (nid == "hdTyRzCXQeQ")
             return u32(player.GetStreamCount());
         if (nid == "d8FcbzfAdQw") {
-            Need(Valid(a[2], sizeof(AvPlayerStreamInfo), GuestPermission::Write));
+            Need(Valid(a[2], sizeof(AvPlayerStreamInfo), GuestPermission::Write),
+                 ORBIS_AVPLAYER_ERROR_INVALID_PARAMS, "stream-info output mapping");
             AvPlayerStreamInfo info{};
             const s32 rc = player.GetStreamInfo(u32(a[1]), info);
             if (!rc)
@@ -613,8 +658,16 @@ struct GuestAvPlayer::Impl {
             return u32(player.Pause());
         if (nid == "w5moABNwnRY")
             return u32(player.Resume());
-        if (nid == "UbQoYawOsfY")
-            return player.IsActive();
+        if (nid == "UbQoYawOsfY") {
+            const bool active = player.IsActive();
+            if (!p->queried_active || *p->queried_active != active) {
+                LOG_INFO(Lib_AvPlayer,
+                         "Guest IsActive player={} active={} video_frames={} audio_frames={} time_ms={}",
+                         p->handle, active, p->video_frames, p->audio_frames, player.CurrentTime());
+                p->queried_active = active;
+            }
+            return active;
+        }
         if (nid == "wwM99gjFf1Y")
             return player.CurrentTime();
         if (nid == "OVths0xGfho")
@@ -629,6 +682,7 @@ struct GuestAvPlayer::Impl {
             if (!player.GetVideoData(frame))
                 return 0;
             p->Publish(frame, a[1]);
+            ++p->video_frames;
             return 1;
         }
         if (nid == "o3+RWnHViSg" || nid == "Wnp1OVcrZgk") {
@@ -639,14 +693,15 @@ struct GuestAvPlayer::Impl {
             if (!ok)
                 return 0;
             p->Publish(frame, a[1]);
+            if (nid == "Wnp1OVcrZgk") ++p->audio_frames;
+            else ++p->video_frames;
             return 1;
         }
         return u32(ORBIS_AVPLAYER_ERROR_NOT_SUPPORTED);
     }
 };
-GuestAvPlayer::GuestAvPlayer(GuestAddressSpace& space, std::recursive_mutex& vm,
-                             std::function<Callbacks()> factory)
-    : impl(std::make_unique<Impl>(space, vm, std::move(factory))) {}
+GuestAvPlayer::GuestAvPlayer(GuestAddressSpace& space, std::function<Callbacks()> factory)
+    : impl(std::make_unique<Impl>(space, std::move(factory))) {}
 GuestAvPlayer::~GuestAvPlayer() = default;
 void GuestAvPlayer::RequestStop() {
     impl->Stop();
@@ -655,18 +710,24 @@ u64 GuestAvPlayer::Dispatch(std::string_view nid, const std::array<u64, 6>& args
     try {
         return impl->Dispatch(nid, args);
     } catch (...) {
-        if (nid == "aS66RI0gGgo" || nid == "UbQoYawOsfY" || nid == "Wnp1OVcrZgk" ||
-            nid == "o3+RWnHViSg" || nid == "JdksQu8pNdQ")
-            return 0;
+        const bool zero_on_failure = nid == "aS66RI0gGgo" || nid == "UbQoYawOsfY" ||
+                                    nid == "Wnp1OVcrZgk" || nid == "o3+RWnHViSg" ||
+                                    nid == "JdksQu8pNdQ";
         try {
             throw;
         } catch (const Failure& e) {
-            LOG_WARNING(Lib_AvPlayer, "Guest AvPlayer {} rejected: {:#x}", nid, u32(e.code));
-            return u32(e.code);
+            // Failed boolean queries must remain observable, without flooding
+            // the log when a guest polls the same invalid handle every frame.
+            static std::atomic_uint reported{};
+            if (reported.fetch_add(1, std::memory_order_relaxed) < 32)
+                LOG_WARNING(Lib_AvPlayer,
+                            "Guest AvPlayer {} rejected: {:#x} {} args={:#x},{:#x},{:#x}",
+                            nid, u32(e.code), e.reason, args[0], args[1], args[2]);
+            return zero_on_failure ? 0 : u32(e.code);
         } catch (const std::bad_alloc&) {
-            return u32(ORBIS_AVPLAYER_ERROR_NO_MEMORY);
+            return zero_on_failure ? 0 : u32(ORBIS_AVPLAYER_ERROR_NO_MEMORY);
         } catch (...) {
-            return u32(ORBIS_AVPLAYER_ERROR_OPERATION_FAILED);
+            return zero_on_failure ? 0 : u32(ORBIS_AVPLAYER_ERROR_OPERATION_FAILED);
         }
     }
 }

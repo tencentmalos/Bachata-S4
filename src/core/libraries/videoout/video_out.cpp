@@ -417,16 +417,9 @@ s32 PS4_SYSV_ABI sceVideoOutAdjustColor(s32 handle, const SceVideoOutColorSettin
     return ORBIS_OK;
 }
 
-struct Mode {
-    u32 size;
-    u8 encoding;
-    u8 range;
-    u8 colorimetry;
-    u8 depth;
-    u64 refresh_rate;
-    u64 resolution;
-    u8 reserved[8];
-};
+void PS4_SYSV_ABI sceVideoOutConfigureOptionsInitialize_(void* options, u32 size) {
+    std::memset(options, 0, size);
+}
 
 void PS4_SYSV_ABI sceVideoOutModeSetAny_(Mode* mode, u32 size) {
     std::memset(mode, 0xff, size);
@@ -516,6 +509,7 @@ void RegisterLib(Core::Loader::SymbolsResolver* sym) {
     LIB_FUNCTION("-Ozn0F1AFRg", "libSceVideoOut", 1, "libSceVideoOut", sceVideoOutDeleteFlipEvent);
     LIB_FUNCTION("oNOQn3knW6s", "libSceVideoOut", 1, "libSceVideoOut",
                  sceVideoOutDeleteVblankEvent);
+    LIB_FUNCTION("ktP9j1fN-zE", "libSceVideoOut", 1, "libSceVideoOut", sceVideoOutConfigureOptionsInitialize_);
     LIB_FUNCTION("pjkDsgxli6c", "libSceVideoOut", 1, "libSceVideoOut", sceVideoOutModeSetAny_);
     LIB_FUNCTION("N1bEoJ4SRw4", "libSceVideoOut", 1, "libSceVideoOut",
                  sceVideoOutConfigureOutputMode_);

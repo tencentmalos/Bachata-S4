@@ -945,6 +945,11 @@ int PS4_SYSV_ABI sceNpTrophyRegisterContext(OrbisNpTrophyContext context,
 
 int PS4_SYSV_ABI sceNpTrophyUnlockTrophy(OrbisNpTrophyContext context, OrbisNpTrophyHandle handle,
                                          OrbisNpTrophyId trophyId, OrbisNpTrophyId* platinumId) {
+    return UnlockTrophy(context, handle, trophyId, platinumId, true);
+}
+
+int UnlockTrophy(OrbisNpTrophyContext context, OrbisNpTrophyHandle handle,
+                 OrbisNpTrophyId trophyId, OrbisNpTrophyId* platinumId, bool notifications) {
     LOG_INFO(Lib_NpTrophy, "Unlocking trophy id {}", trophyId);
 
     if (context == ORBIS_NP_TROPHY_INVALID_CONTEXT)
@@ -1110,8 +1115,8 @@ int PS4_SYSV_ABI sceNpTrophyUnlockTrophy(OrbisNpTrophyContext context, OrbisNpTr
     }
 
     // Queue UI notifications (only once, using the primary XML's strings).
-    AddTrophyToQueue(trophy_icon_path, trophy_name, trophy_type);
-    if (unlock_platinum) {
+    if (notifications) AddTrophyToQueue(trophy_icon_path, trophy_name, trophy_type);
+    if (notifications && unlock_platinum) {
         std::thread plat_popup_thread{[=]() {
             std::this_thread::sleep_for(std::chrono::milliseconds(
                 (s32)EmulatorSettings.GetTrophyNotificationDuration() * 1000 + 250));

@@ -1,0 +1,11 @@
+[PATCH001] PASS ordinary VM Read still refuses split mappings
+[PATCH002] PASS cross-page preimage survives entry patch mapping split
+[PATCH003] PASS fresh profile can read split RX instruction
+[PATCH004] PASS cross-page probe preserves actual FEX instruction
+[PATCH005] PASS cross-page probe actually hit
+refused: auto tag instruction not fully readable/executable
+[PATCH006] PASS second mapping execute loss rejects profile
+[PATCH007] PASS second mapping identity change invalidates cached probe
+refused: auto tag code identity changed; restart with a fresh profile
+[PATCH008] PASS invalidated split probe cannot rearm
+AUTO_PAGE checks=8 failures=0

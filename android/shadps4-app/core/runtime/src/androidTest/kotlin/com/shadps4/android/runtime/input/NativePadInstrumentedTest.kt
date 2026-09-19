@@ -91,18 +91,64 @@ class NativePadInstrumentedTest {
         }
         assumeTrue("requires enumerated Android controller",device!=null)
         val generation=7101L
-        main { NativePadBridge.begin(context,generation); NativePadBridge.setFocused(true) }
+        main { NativePadBridge.configureProfiles(emptyList()); NativePadBridge.begin(context,generation); NativePadBridge.setFocused(true) }
         try {
             val h=NativePad.nativeOpenDefaultPad(); assertTrue(h>0)
             val now=android.os.SystemClock.uptimeMillis()
             val down=KeyEvent(now,now,KeyEvent.ACTION_DOWN,KeyEvent.KEYCODE_BUTTON_A,0,0,device!!.id,0,0,InputDevice.SOURCE_GAMEPAD)
             main { assertTrue(NativePadBridge.dispatchKeyEvent(down)) }
-            assertTrue(assertNotNull(NativePad.nativeReadPad(h))[1] and Ps4Button.CROSS != 0L)
+            assertTrue(assertNotNull(NativePad.nativeReadPad(h))[1] and Ps4Button.CIRCLE != 0L)
             main { NativePadBridge.setFocused(false) }
             assertEquals(0L,assertNotNull(NativePad.nativeReadPad(h))[1])
             main { NativePadBridge.setFocused(true) }
             assertEquals(0L,assertNotNull(NativePad.nativeReadPad(h))[1])
         } finally { main { NativePadBridge.end(generation) } }
+    }
+    @Test fun faceFlipUsesProductionSourceAndRetiresHeldState() {
+        val device = InputDevice.getDeviceIds().toList().mapNotNull { InputDevice.getDevice(it) }.firstOrNull {
+            !it.isVirtual && !it.name.startsWith("uinput-") &&
+                (it.sources and InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD
+        }
+        assumeTrue("requires enumerated Android controller", device != null)
+        val generation = 7201L
+        main {
+            NativePadBridge.configureProfiles(emptyList())
+            NativePadBridge.setFocused(true)
+            NativePadBridge.begin(context, generation)
+        }
+        fun key(code: Int, pressed: Boolean) = main {
+            val now = android.os.SystemClock.uptimeMillis()
+            assertTrue(NativePadBridge.dispatchKeyEvent(KeyEvent(now, now,
+                if (pressed) KeyEvent.ACTION_DOWN else KeyEvent.ACTION_UP,
+                code, 0, 0, device!!.id, 0, 0, InputDevice.SOURCE_GAMEPAD)))
+        }
+        try {
+            val handle = NativePad.nativeOpenDefaultPad()
+            assertTrue(handle > 0)
+            val codes = listOf(96, 97, 99, 100)
+            for (flip in listOf(false, true)) {
+                main { NativePadBridge.configureProfiles(listOf(ControllerProfile.standard().copy(swapFaceButtons = flip))) }
+                val expected = if (flip) listOf(Ps4Button.CROSS, Ps4Button.CIRCLE, Ps4Button.SQUARE, Ps4Button.TRIANGLE)
+                    else listOf(Ps4Button.CIRCLE, Ps4Button.CROSS, Ps4Button.TRIANGLE, Ps4Button.SQUARE)
+                for ((code, button) in codes.zip(expected)) {
+                    key(code, true)
+                    assertEquals(button, assertNotNull(NativePad.nativeReadPad(handle))[1])
+                    key(code, false)
+                    assertEquals(0L, assertNotNull(NativePad.nativeReadPad(handle))[1])
+                }
+            }
+            key(96, true)
+            NativePad.submit(NativePadBridge.currentToken(), 0, ControllerSnapshot.normalized(buttons = Ps4Button.SQUARE))
+            main { NativePadBridge.configureProfiles(emptyList()) }
+            // Physical held Cross retired; the independent touchscreen Square survives.
+            assertEquals(Ps4Button.SQUARE, assertNotNull(NativePad.nativeReadPad(handle))[1])
+            key(96, false)
+            assertEquals(Ps4Button.SQUARE, assertNotNull(NativePad.nativeReadPad(handle))[1])
+            NativePad.submit(NativePadBridge.currentToken(), 0, ControllerSnapshot.Neutral)
+            assertEquals(0L, assertNotNull(NativePad.nativeReadPad(handle))[1])
+        } finally {
+            main { NativePadBridge.end(generation); NativePadBridge.configureProfiles(emptyList()) }
+        }
     }
     @Test fun oldObserverCannotEndNewBridge() {
         main {

@@ -1,0 +1,345 @@
+{
+  "schema": "spatial.guest-profile.analysis.v1",
+  "identity": {
+    "emulator": "shadps4",
+    "title": "CUSA50828",
+    "module": "eboot.bin",
+    "module_sha256": "6122da7190de6b08d921b2c42c3ca9ed11dc4d11524f1139ff67aeceea5b204d"
+  },
+  "process": {
+    "pid": 9049,
+    "session": "03e1f411c395a97ec45807149847628f:1",
+    "context": 1
+  },
+  "architecture": "x86_64",
+  "trace_sha256": "b5a66613c11404a04f7660003986877d1289a6f00d1f10db2c8d2d2d2d348a76",
+  "manifest_sha256": "ebca3eb5b8b5bf42761917e6682633031937b23e616d085e40d2575ba176ba44",
+  "frames": {
+    "count": 194,
+    "mean_ms": 78.62341442268041,
+    "p50_ms": 51.71698,
+    "p95_ms": 152.698073,
+    "max_ms": 174.189114
+  },
+  "long_frame_count": 161,
+  "attribution": [
+    {
+      "kind": "guest",
+      "name": "frame",
+      "overlap_ns": 14265593439,
+      "offset": 648544,
+      "frames": 161
+    },
+    {
+      "kind": "guest",
+      "name": "submit",
+      "overlap_ns": 9026173019,
+      "offset": 22306592,
+      "frames": 161
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceGnmSubmitAndFlipCommandBuffers",
+      "overlap_ns": 9002072656,
+      "frames": 161
+    },
+    {
+      "kind": "host",
+      "name": "GNM.SubmissionGate",
+      "overlap_ns": 8946205313,
+      "frames": 161
+    },
+    {
+      "kind": "gpu",
+      "name": "GPU.DrawBatch",
+      "overlap_ns": 7918787667,
+      "frames": 101
+    },
+    {
+      "kind": "gpu",
+      "name": "GPU.GuestCommands",
+      "overlap_ns": 7878932255,
+      "frames": 101
+    },
+    {
+      "kind": "guest",
+      "name": "jobs",
+      "overlap_ns": 1148919583,
+      "offset": 22615408,
+      "frames": 160
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sem_wait",
+      "overlap_ns": 935044627,
+      "frames": 160
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceGnmDrawIndex",
+      "overlap_ns": 332577626,
+      "frames": 160
+    },
+    {
+      "kind": "gpu",
+      "name": "GPU.OverlayRedraw",
+      "overlap_ns": 297764642,
+      "frames": 114
+    },
+    {
+      "kind": "guest",
+      "name": "begin",
+      "overlap_ns": 216012448,
+      "offset": 22306016,
+      "frames": 160
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceGnmDrawInitDefaultHardwareState350",
+      "overlap_ns": 178402660,
+      "frames": 160
+    },
+    {
+      "kind": "host",
+      "name": "HLE.pthread_mutex_lock",
+      "overlap_ns": 175400939,
+      "frames": 160
+    },
+    {
+      "kind": "host",
+      "name": "HLE.scePthreadMutexLock",
+      "overlap_ns": 134666979,
+      "frames": 160
+    },
+    {
+      "kind": "host",
+      "name": "HLE.scePthreadMutexUnlock",
+      "overlap_ns": 102521614,
+      "frames": 160
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceGnmSetPsShader350",
+      "overlap_ns": 98511993,
+      "frames": 160
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceGnmDrawIndexAuto",
+      "overlap_ns": 94474654,
+      "frames": 160
+    },
+    {
+      "kind": "gpu",
+      "name": "GPU.Present",
+      "overlap_ns": 90818888,
+      "frames": 101
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceGnmSetVsShader",
+      "overlap_ns": 87831330,
+      "frames": 160
+    },
+    {
+      "kind": "host",
+      "name": "HLE.pthread_mutex_unlock",
+      "overlap_ns": 83316776,
+      "frames": 160
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sem_post",
+      "overlap_ns": 73666424,
+      "frames": 160
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceGnmDispatchDirect",
+      "overlap_ns": 41100446,
+      "frames": 160
+    },
+    {
+      "kind": "gpu",
+      "name": "GPU.HostPrepare",
+      "overlap_ns": 39635263,
+      "frames": 61
+    },
+    {
+      "kind": "gpu",
+      "name": "GPU.PostProcess",
+      "overlap_ns": 39426513,
+      "frames": 61
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceGnmUpdatePsShader350",
+      "overlap_ns": 35528658,
+      "frames": 160
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceGnmInsertPushMarker",
+      "overlap_ns": 20281842,
+      "frames": 160
+    },
+    {
+      "kind": "guest",
+      "name": "fmod",
+      "overlap_ns": 15444593,
+      "offset": 22809376,
+      "frames": 160
+    },
+    {
+      "kind": "host",
+      "name": "HLE.clock_gettime",
+      "overlap_ns": 10713971,
+      "frames": 160
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceGnmSetEmbeddedVsShader",
+      "overlap_ns": 10044308,
+      "frames": 160
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceGnmInsertPopMarker",
+      "overlap_ns": 9876009,
+      "frames": 160
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceGnmUpdateVsShader",
+      "overlap_ns": 9781672,
+      "frames": 160
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceGnmSubmitDone",
+      "overlap_ns": 7473548,
+      "frames": 160
+    },
+    {
+      "kind": "host",
+      "name": "GNM.SubmitDone",
+      "overlap_ns": 5839994,
+      "frames": 161
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceGnmSetCsShaderWithModifier",
+      "overlap_ns": 2440157,
+      "frames": 160
+    },
+    {
+      "kind": "host",
+      "name": "HLE.pthread_getspecific",
+      "overlap_ns": 2139576,
+      "frames": 160
+    },
+    {
+      "kind": "host",
+      "name": "HLE.gettimeofday",
+      "overlap_ns": 2026810,
+      "frames": 161
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceGnmInsertWaitFlipDone",
+      "overlap_ns": 1960107,
+      "frames": 160
+    },
+    {
+      "kind": "host",
+      "name": "HLE.scePadReadState",
+      "overlap_ns": 1690615,
+      "frames": 160
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceKernelClockGettime",
+      "overlap_ns": 942451,
+      "frames": 160
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceSystemServiceGetStatus",
+      "overlap_ns": 861828,
+      "frames": 160
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceNpCheckCallback",
+      "overlap_ns": 574998,
+      "frames": 160
+    },
+    {
+      "kind": "host",
+      "name": "HLE.sceUserServiceGetEvent",
+      "overlap_ns": 333235,
+      "frames": 160
+    },
+    {
+      "kind": "gpu",
+      "name": "GPU.BlankFlip",
+      "overlap_ns": 250731,
+      "frames": 104
+    },
+    {
+      "kind": "gpu",
+      "name": "GPU.FSR",
+      "overlap_ns": 52236,
+      "frames": 61
+    }
+  ],
+  "integrity": {
+    "chunks": 324,
+    "skipped": 0,
+    "truncated": true,
+    "diagnostics": [
+      "unbalanced span end on tid 9104",
+      "unbalanced span end on tid 9199",
+      "unbalanced span end on tid 9171",
+      "unbalanced span end on tid 9248",
+      "unbalanced span end on tid 9172",
+      "unbalanced span end on tid 9174",
+      "unbalanced span end on tid 9196",
+      "unbalanced span end on tid 9173",
+      "unbalanced span end on tid 9198",
+      "unbalanced span end on tid 9198",
+      "unbalanced span end on tid 9131",
+      "unbalanced span end on tid 9131",
+      "unbalanced span end on tid 9131",
+      "unbalanced span end on tid 9131",
+      "unbalanced span end on tid 9131",
+      "unbalanced span end on tid 9133",
+      "unbalanced span end on tid 9169",
+      "unbalanced span end on tid 9169",
+      "unbalanced span end on tid 9169",
+      "unbalanced span end on tid 9169",
+      "unbalanced span end on tid 9216",
+      "unbalanced span end on tid 9170",
+      "unbalanced span end on tid 9178",
+      "unbalanced span end on tid 9175",
+      "2 unclosed spans on tid 9104",
+      "1 unclosed spans on tid 9197",
+      "1 unclosed spans on tid 9248",
+      "1 unclosed spans on tid 9172",
+      "1 unclosed spans on tid 9174",
+      "1 unclosed spans on tid 9196",
+      "1 unclosed spans on tid 9173",
+      "2 unclosed spans on tid 9198",
+      "2 unclosed spans on tid 9131",
+      "1 unclosed spans on tid 9133",
+      "4 unclosed spans on tid 9169",
+      "1 unclosed spans on tid 9216",
+      "1 unclosed spans on tid 9170",
+      "1 unclosed spans on tid 9178",
+      "1 unclosed spans on tid 9175"
+    ],
+    "orphan_host_ends": 24,
+    "incomplete_guest": 0,
+    "incomplete_host": 21
+  }
+}

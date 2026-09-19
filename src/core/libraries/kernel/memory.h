@@ -18,6 +18,9 @@ constexpr u64 ORBIS_KERNEL_FLEXIBLE_MEMORY_SIZE = 512_MB;
 namespace Core::Loader {
 class SymbolsResolver;
 }
+namespace Core {
+struct NativeFileMapping;
+}
 
 namespace Libraries::Kernel {
 
@@ -175,6 +178,12 @@ s32 PS4_SYSV_ABI sceKernelBatchMap2(OrbisKernelBatchMapEntry* entries, s32 numEn
                                     s32* numEntriesOut, s32 flags);
 
 s32 PS4_SYSV_ABI sceKernelSetVirtualRangeName(const void* addr, u64 len, const char* name);
+
+// Shared mapping implementation without desktop thread-local errno. The host
+// adapter must translate guest file handles before admitting file mappings.
+s32 MapVirtualMemory(void* addr, u64 len, s32 prot, s32 flags, s32 fd, s64 offset,
+                     void** result, const Core::NativeFileMapping* native_file = nullptr);
+s32 PS4_SYSV_ABI sceKernelMlock(void* addr, u64 len);
 
 s32 PS4_SYSV_ABI sceKernelMemoryPoolExpand(u64 searchStart, u64 searchEnd, u64 len, u64 alignment,
                                            u64* physAddrOut);

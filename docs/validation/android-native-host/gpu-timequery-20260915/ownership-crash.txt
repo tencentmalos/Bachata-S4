@@ -1,0 +1,193 @@
+--------- beginning of crash
+09-14 08:31:37.538 26090 26090 F DEBUG   : Timestamp: 2026-09-14 08:31:37.299044651+0800
+09-14 08:31:37.538 26090 26090 F DEBUG   : Process uptime: 23s
+09-14 08:31:37.538 26090 26090 F DEBUG   : Cmdline: info.cemu.cemu
+09-14 08:31:37.538 26090 26090 F DEBUG   : pid: 25848, tid: 26018, name: LatteThread  >>> info.cemu.cemu <<<
+09-14 08:31:37.538 26090 26090 F DEBUG   : uid: 10114
+09-14 08:31:37.538 26090 26090 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+09-14 08:31:37.538 26090 26090 F DEBUG   : pac_enabled_keys: 000000000000000f (PR_PAC_APIAKEY, PR_PAC_APIBKEY, PR_PAC_APDAKEY, PR_PAC_APDBKEY)
+09-14 08:31:37.538 26090 26090 F DEBUG   : signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+09-14 08:31:37.538 26090 26090 F DEBUG   : Abort message: 'terminating due to uncaught exception of type std::runtime_error: failed to submit command buffer. Error -4'
+09-14 08:31:37.538 26090 26090 F DEBUG   :     x0  0000000000000000  x1  00000000000065a2  x2  0000000000000006  x3  0000007634b09ce0
+09-14 08:31:37.538 26090 26090 F DEBUG   :     x4  646277641f736766  x5  646277641f736766  x6  646277641f736766  x7  7f7f7f7f7f7f7f7f
+09-14 08:31:37.538 26090 26090 F DEBUG   :     x8  00000000000000f0  x9  0000007b42f5fb28  x10 0000000000000001  x11 0000007b42f9f84c
+09-14 08:31:37.538 26090 26090 F DEBUG   :     x12 0000007b52b30020  x13 000000007fffffff  x14 000000000362e4dc  x15 00000244a7c5fc87
+09-14 08:31:37.538 26090 26090 F DEBUG   :     x16 0000007b43007d68  x17 0000007b42fe34e0  x18 0000007633ffc000  x19 00000000000064f8
+09-14 08:31:37.538 26090 26090 F DEBUG   :     x20 00000000000065a2  x21 00000000ffffffff  x22 0000007634b09e10  x23 0000007634b09e50
+09-14 08:31:37.538 26090 26090 F DEBUG   :     x24 0000007634b09f00  x25 00000077aee2f298  x26 b4000079f4d727d0  x27 0000007634b0a040
+09-14 08:31:37.538 26090 26090 F DEBUG   :     x28 b4000079f4d74718  x29 0000007634b09d60
+09-14 08:31:37.538 26090 26090 F DEBUG   :     lr  0000007b42f90788  sp  0000007634b09cc0  pc  0000007b42f907b4  pst 0000000000001000
+09-14 08:31:37.538 26090 26090 F DEBUG   : backtrace:
+09-14 08:31:37.538 26090 26090 F DEBUG   :       #00 pc 00000000000527b4  /apex/com.android.runtime/lib64/bionic/libc.so (abort+168) (BuildId: bf5f1ce73f89cca7d6a062eb7877e86a)
+09-14 08:31:37.538 26090 26090 F DEBUG   :       #01 pc 0000000000127aac  /data/app/~~3zy4L1moN00EkeiClYzp7A==/info.cemu.cemu-tJ7WA3bF1nxNMTxmQLzLzA==/lib/arm64/libGPUReshapeAndroid.so (BuildId: 46c6492ff2f3bd37d03530fc3940b95e7628e7a8)
+09-14 08:31:37.538 26090 26090 F DEBUG   :       #02 pc 00000000001274b8  /data/app/~~3zy4L1moN00EkeiClYzp7A==/info.cemu.cemu-tJ7WA3bF1nxNMTxmQLzLzA==/lib/arm64/libGPUReshapeAndroid.so (BuildId: 46c6492ff2f3bd37d03530fc3940b95e7628e7a8)
+09-14 08:31:37.538 26090 26090 F DEBUG   :       #03 pc 0000000000127378  /data/app/~~3zy4L1moN00EkeiClYzp7A==/info.cemu.cemu-tJ7WA3bF1nxNMTxmQLzLzA==/lib/arm64/libGPUReshapeAndroid.so (BuildId: 46c6492ff2f3bd37d03530fc3940b95e7628e7a8)
+09-14 08:31:37.538 26090 26090 F DEBUG   :       #04 pc 0000000000141bac  /data/app/~~3zy4L1moN00EkeiClYzp7A==/info.cemu.cemu-tJ7WA3bF1nxNMTxmQLzLzA==/lib/arm64/libGPUReshapeAndroid.so (BuildId: 46c6492ff2f3bd37d03530fc3940b95e7628e7a8)
+09-14 08:31:37.538 26090 26090 F DEBUG   :       #05 pc 0000000000141b88  /data/app/~~3zy4L1moN00EkeiClYzp7A==/info.cemu.cemu-tJ7WA3bF1nxNMTxmQLzLzA==/lib/arm64/libGPUReshapeAndroid.so (__cxa_throw+88) (BuildId: 46c6492ff2f3bd37d03530fc3940b95e7628e7a8)
+09-14 08:31:37.538 26090 26090 F DEBUG   :       #06 pc 0000000000951554  /data/app/~~3zy4L1moN00EkeiClYzp7A==/info.cemu.cemu-tJ7WA3bF1nxNMTxmQLzLzA==/lib/arm64/libCemuAndroid.so (VulkanRenderer::UnrecoverableError(char const*) const+136) (BuildId: 78e4580a18a0dd824c05f4ee4ca5175a3d86296d)
+09-14 08:31:37.538 26090 26090 F DEBUG   :       #07 pc 000000000094f184  /data/app/~~3zy4L1moN00EkeiClYzp7A==/info.cemu.cemu-tJ7WA3bF1nxNMTxmQLzLzA==/lib/arm64/libCemuAndroid.so (VulkanRenderer::SubmitCommandBuffer(LatteVulkanSubmitReason, VkSemaphore_T*, VkSemaphore_T*)+2888) (BuildId: 78e4580a18a0dd824c05f4ee4ca5175a3d86296d)
+09-14 08:31:37.538 26090 26090 F DEBUG   :       #08 pc 0000000000952c98  /data/app/~~3zy4L1moN00EkeiClYzp7A==/info.cemu.cemu-tJ7WA3bF1nxNMTxmQLzLzA==/lib/arm64/libCemuAndroid.so (VulkanRenderer::AcquireNextSwapchainImage(bool)+276) (BuildId: 78e4580a18a0dd824c05f4ee4ca5175a3d86296d)
+09-14 08:31:37.538 26090 26090 F DEBUG   :       #09 pc 0000000000956d48  /data/app/~~3zy4L1moN00EkeiClYzp7A==/info.cemu.cemu-tJ7WA3bF1nxNMTxmQLzLzA==/lib/arm64/libCemuAndroid.so (VulkanRenderer::DrawBackbufferQuad(LatteTextureView*, RendererOutputShader*, bool, int, int, int, int, bool, bool)+88) (BuildId: 78e4580a18a0dd824c05f4ee4ca5175a3d86296d)
+09-14 08:31:37.538 26090 26090 F DEBUG   :       #10 pc 0000000000d4f99c  /data/app/~~3zy4L1moN00EkeiClYzp7A==/info.cemu.cemu-tJ7WA3bF1nxNMTxmQLzLzA==/lib/arm64/libCemuAndroid.so (LatteRenderTarget_copyToBackbuffer(LatteTextureView*, bool)+580) (BuildId: 78e4580a18a0dd824c05f4ee4ca5175a3d86296d)
+09-14 08:31:37.538 26090 26090 F DEBUG   :       #11 pc 0000000000d65c64  /data/app/~~3zy4L1moN00EkeiClYzp7A==/info.cemu.cemu-tJ7WA3bF1nxNMTxmQLzLzA==/lib/arm64/libCemuAndroid.so (LatteCP_itHLECopyColorBufferToScanBuffer(betype<unsigned int>*, unsigned int)+184) (BuildId: 78e4580a18a0dd824c05f4ee4ca5175a3d86296d)
+09-14 08:31:37.538 26090 26090 F DEBUG   :       #12 pc 0000000000d619a0  /data/app/~~3zy4L1moN00EkeiClYzp7A==/info.cemu.cemu-tJ7WA3bF1nxNMTxmQLzLzA==/lib/arm64/libCemuAndroid.so (LatteCP_processCommandBuffer(DrawPassContext&)+476) (BuildId: 78e4580a18a0dd824c05f4ee4ca5175a3d86296d)
+09-14 08:31:37.538 26090 26090 F DEBUG   :       #13 pc 0000000000d616d8  /data/app/~~3zy4L1moN00EkeiClYzp7A==/info.cemu.cemu-tJ7WA3bF1nxNMTxmQLzLzA==/lib/arm64/libCemuAndroid.so (LatteCP_itIndirectBufferDepr(betype<unsigned int>*, unsigned int)+332) (BuildId: 78e4580a18a0dd824c05f4ee4ca5175a3d86296d)
+09-14 08:31:37.538 26090 26090 F DEBUG   :       #14 pc 0000000000d680c4  /data/app/~~3zy4L1moN00EkeiClYzp7A==/info.cemu.cemu-tJ7WA3bF1nxNMTxmQLzLzA==/lib/arm64/libCemuAndroid.so (LatteCP_ProcessRingbuffer()+2136) (BuildId: 78e4580a18a0dd824c05f4ee4ca5175a3d86296d)
+09-14 08:31:37.538 26090 26090 F DEBUG   :       #15 pc 0000000000d1d81c  /data/app/~~3zy4L1moN00EkeiClYzp7A==/info.cemu.cemu-tJ7WA3bF1nxNMTxmQLzLzA==/lib/arm64/libCemuAndroid.so (Latte_ThreadEntry()+892) (BuildId: 78e4580a18a0dd824c05f4ee4ca5175a3d86296d)
+09-14 08:31:37.538 26090 26090 F DEBUG   :       #16 pc 0000000000ce4e34  /data/app/~~3zy4L1moN00EkeiClYzp7A==/info.cemu.cemu-tJ7WA3bF1nxNMTxmQLzLzA==/lib/arm64/libCemuAndroid.so (BuildId: 78e4580a18a0dd824c05f4ee4ca5175a3d86296d)
+09-14 08:31:37.538 26090 26090 F DEBUG   :       #17 pc 00000000000ba650  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*)+208) (BuildId: bf5f1ce73f89cca7d6a062eb7877e86a)
+09-14 08:31:37.538 26090 26090 F DEBUG   :       #18 pc 0000000000053ffc  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+68) (BuildId: bf5f1ce73f89cca7d6a062eb7877e86a)
+09-14 08:40:22.251 29738 30273 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 30273 (LatteThread), pid 29738 (Cemu Main)
+09-14 08:40:22.570 30336 30336 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+09-14 08:40:22.571 30336 30336 F DEBUG   : Build fingerprint: 'qti/kalama/kalama:13/TKQ1.231222.001/eng.Thor.20260206.163241:user/release-keys'
+09-14 08:40:22.571 30336 30336 F DEBUG   : Revision: '0'
+09-14 08:40:22.571 30336 30336 F DEBUG   : ABI: 'arm64'
+09-14 08:40:22.571 30336 30336 F DEBUG   : Timestamp: 2026-09-14 08:40:22.396243930+0800
+09-14 08:40:22.571 30336 30336 F DEBUG   : Process uptime: 42s
+09-14 08:40:22.571 30336 30336 F DEBUG   : Cmdline: info.cemu.cemu
+09-14 08:40:22.571 30336 30336 F DEBUG   : pid: 29738, tid: 30273, name: LatteThread  >>> info.cemu.cemu <<<
+09-14 08:40:22.571 30336 30336 F DEBUG   : uid: 10114
+09-14 08:40:22.571 30336 30336 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+09-14 08:40:22.571 30336 30336 F DEBUG   : pac_enabled_keys: 000000000000000f (PR_PAC_APIAKEY, PR_PAC_APIBKEY, PR_PAC_APDAKEY, PR_PAC_APDBKEY)
+09-14 08:40:22.571 30336 30336 F DEBUG   : signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+09-14 08:40:22.571 30336 30336 F DEBUG   : Abort message: 'terminating due to uncaught exception of type std::runtime_error: failed to submit command buffer. Error -4'
+09-14 08:40:22.571 30336 30336 F DEBUG   :     x0  0000000000000000  x1  0000000000007641  x2  0000000000000006  x3  000000762ce66ce0
+09-14 08:40:22.571 30336 30336 F DEBUG   :     x4  646277641f736766  x5  646277641f736766  x6  646277641f736766  x7  7f7f7f7f7f7f7f7f
+09-14 08:40:22.571 30336 30336 F DEBUG   :     x8  00000000000000f0  x9  0000007b42f5fb28  x10 0000000000000001  x11 0000007b42f9f84c
+09-14 08:40:22.571 30336 30336 F DEBUG   :     x12 0000007b52b30020  x13 000000007fffffff  x14 000000000366c43e  x15 0000024700b3ca10
+09-14 08:40:22.571 30336 30336 F DEBUG   :     x16 0000007b43007d68  x17 0000007b42fe34e0  x18 000000762c278000  x19 000000000000742a
+09-14 08:40:22.571 30336 30336 F DEBUG   :     x20 0000000000007641  x21 00000000ffffffff  x22 000000762ce66e10  x23 000000762ce66e50
+09-14 08:40:22.571 30336 30336 F DEBUG   :     x24 000000762ce66f00  x25 00000077aa5334a8  x26 b4000079f4cd95b0  x27 000000762ce67040
+09-14 08:40:22.571 30336 30336 F DEBUG   :     x28 b4000079f4cdb500  x29 000000762ce66d60
+09-14 08:40:22.571 30336 30336 F DEBUG   :     lr  0000007b42f90788  sp  000000762ce66cc0  pc  0000007b42f907b4  pst 0000000000001000
+09-14 08:40:22.571 30336 30336 F DEBUG   : backtrace:
+09-14 08:40:22.571 30336 30336 F DEBUG   :       #00 pc 00000000000527b4  /apex/com.android.runtime/lib64/bionic/libc.so (abort+168) (BuildId: bf5f1ce73f89cca7d6a062eb7877e86a)
+09-14 08:40:22.571 30336 30336 F DEBUG   :       #01 pc 00000000001283a8  /data/app/~~yqyFxFdizFmXpi7SdpiPTg==/info.cemu.cemu-Zm7bMdMA6nUmKrHUnE4mBg==/lib/arm64/libGPUReshapeAndroid.so (BuildId: 7df3476794428f64987c46e456cba70513516722)
+09-14 08:40:22.571 30336 30336 F DEBUG   :       #02 pc 0000000000127db4  /data/app/~~yqyFxFdizFmXpi7SdpiPTg==/info.cemu.cemu-Zm7bMdMA6nUmKrHUnE4mBg==/lib/arm64/libGPUReshapeAndroid.so (BuildId: 7df3476794428f64987c46e456cba70513516722)
+09-14 08:40:22.571 30336 30336 F DEBUG   :       #03 pc 0000000000127c74  /data/app/~~yqyFxFdizFmXpi7SdpiPTg==/info.cemu.cemu-Zm7bMdMA6nUmKrHUnE4mBg==/lib/arm64/libGPUReshapeAndroid.so (BuildId: 7df3476794428f64987c46e456cba70513516722)
+09-14 08:40:22.571 30336 30336 F DEBUG   :       #04 pc 00000000001424a8  /data/app/~~yqyFxFdizFmXpi7SdpiPTg==/info.cemu.cemu-Zm7bMdMA6nUmKrHUnE4mBg==/lib/arm64/libGPUReshapeAndroid.so (BuildId: 7df3476794428f64987c46e456cba70513516722)
+09-14 08:40:22.571 30336 30336 F DEBUG   :       #05 pc 0000000000142484  /data/app/~~yqyFxFdizFmXpi7SdpiPTg==/info.cemu.cemu-Zm7bMdMA6nUmKrHUnE4mBg==/lib/arm64/libGPUReshapeAndroid.so (__cxa_throw+88) (BuildId: 7df3476794428f64987c46e456cba70513516722)
+09-14 08:40:22.571 30336 30336 F DEBUG   :       #06 pc 0000000000952c74  /data/app/~~yqyFxFdizFmXpi7SdpiPTg==/info.cemu.cemu-Zm7bMdMA6nUmKrHUnE4mBg==/lib/arm64/libCemuAndroid.so (VulkanRenderer::UnrecoverableError(char const*) const+136) (BuildId: a11a67f54bd31ae7e07882009af62c6483c44409)
+09-14 08:40:22.571 30336 30336 F DEBUG   :       #07 pc 0000000000950840  /data/app/~~yqyFxFdizFmXpi7SdpiPTg==/info.cemu.cemu-Zm7bMdMA6nUmKrHUnE4mBg==/lib/arm64/libCemuAndroid.so (VulkanRenderer::SubmitCommandBuffer(LatteVulkanSubmitReason, VkSemaphore_T*, VkSemaphore_T*)+2888) (BuildId: a11a67f54bd31ae7e07882009af62c6483c44409)
+09-14 08:40:22.571 30336 30336 F DEBUG   :       #08 pc 00000000009543c0  /data/app/~~yqyFxFdizFmXpi7SdpiPTg==/info.cemu.cemu-Zm7bMdMA6nUmKrHUnE4mBg==/lib/arm64/libCemuAndroid.so (VulkanRenderer::AcquireNextSwapchainImage(bool)+276) (BuildId: a11a67f54bd31ae7e07882009af62c6483c44409)
+09-14 08:40:22.571 30336 30336 F DEBUG   :       #09 pc 0000000000958470  /data/app/~~yqyFxFdizFmXpi7SdpiPTg==/info.cemu.cemu-Zm7bMdMA6nUmKrHUnE4mBg==/lib/arm64/libCemuAndroid.so (VulkanRenderer::DrawBackbufferQuad(LatteTextureView*, RendererOutputShader*, bool, int, int, int, int, bool, bool)+88) (BuildId: a11a67f54bd31ae7e07882009af62c6483c44409)
+09-14 08:40:22.571 30336 30336 F DEBUG   :       #10 pc 0000000000d52ad0  /data/app/~~yqyFxFdizFmXpi7SdpiPTg==/info.cemu.cemu-Zm7bMdMA6nUmKrHUnE4mBg==/lib/arm64/libCemuAndroid.so (LatteRenderTarget_copyToBackbuffer(LatteTextureView*, bool)+580) (BuildId: a11a67f54bd31ae7e07882009af62c6483c44409)
+09-14 08:40:22.571 30336 30336 F DEBUG   :       #11 pc 0000000000d68d98  /data/app/~~yqyFxFdizFmXpi7SdpiPTg==/info.cemu.cemu-Zm7bMdMA6nUmKrHUnE4mBg==/lib/arm64/libCemuAndroid.so (LatteCP_itHLECopyColorBufferToScanBuffer(betype<unsigned int>*, unsigned int)+184) (BuildId: a11a67f54bd31ae7e07882009af62c6483c44409)
+09-14 08:40:22.571 30336 30336 F DEBUG   :       #12 pc 0000000000d64ad4  /data/app/~~yqyFxFdizFmXpi7SdpiPTg==/info.cemu.cemu-Zm7bMdMA6nUmKrHUnE4mBg==/lib/arm64/libCemuAndroid.so (LatteCP_processCommandBuffer(DrawPassContext&)+476) (BuildId: a11a67f54bd31ae7e07882009af62c6483c44409)
+09-14 08:40:22.571 30336 30336 F DEBUG   :       #13 pc 0000000000d6480c  /data/app/~~yqyFxFdizFmXpi7SdpiPTg==/info.cemu.cemu-Zm7bMdMA6nUmKrHUnE4mBg==/lib/arm64/libCemuAndroid.so (LatteCP_itIndirectBufferDepr(betype<unsigned int>*, unsigned int)+332) (BuildId: a11a67f54bd31ae7e07882009af62c6483c44409)
+09-14 08:40:22.571 30336 30336 F DEBUG   :       #14 pc 0000000000d6b1f8  /data/app/~~yqyFxFdizFmXpi7SdpiPTg==/info.cemu.cemu-Zm7bMdMA6nUmKrHUnE4mBg==/lib/arm64/libCemuAndroid.so (LatteCP_ProcessRingbuffer()+2136) (BuildId: a11a67f54bd31ae7e07882009af62c6483c44409)
+09-14 08:40:22.571 30336 30336 F DEBUG   :       #15 pc 0000000000d20950  /data/app/~~yqyFxFdizFmXpi7SdpiPTg==/info.cemu.cemu-Zm7bMdMA6nUmKrHUnE4mBg==/lib/arm64/libCemuAndroid.so (Latte_ThreadEntry()+892) (BuildId: a11a67f54bd31ae7e07882009af62c6483c44409)
+09-14 08:40:22.571 30336 30336 F DEBUG   :       #16 pc 0000000000ce7f68  /data/app/~~yqyFxFdizFmXpi7SdpiPTg==/info.cemu.cemu-Zm7bMdMA6nUmKrHUnE4mBg==/lib/arm64/libCemuAndroid.so (BuildId: a11a67f54bd31ae7e07882009af62c6483c44409)
+09-14 08:40:22.571 30336 30336 F DEBUG   :       #17 pc 00000000000ba650  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*)+208) (BuildId: bf5f1ce73f89cca7d6a062eb7877e86a)
+09-14 08:40:22.571 30336 30336 F DEBUG   :       #18 pc 0000000000053ffc  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+68) (BuildId: bf5f1ce73f89cca7d6a062eb7877e86a)
+09-14 13:20:28.740 24880 24880 E AndroidRuntime: FATAL EXCEPTION: main
+09-14 13:20:28.740 24880 24880 E AndroidRuntime: Process: info.cemu.cemu, PID: 24880
+09-14 13:20:28.740 24880 24880 E AndroidRuntime: java.lang.RuntimeException: Unable to create application info.cemu.cemu.CemuApplication: android.app.BackgroundServiceStartNotAllowedException: Not allowed to start service Intent { cmp=info.cemu.cemu/.utils.DebugDumpService }: app is in background uid UidRecord{2596d3d u0a114 CEM  idle change:idle|cached|procstate procs:0 seq(908190,908190)}
+09-14 13:20:28.740 24880 24880 E AndroidRuntime: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:7060)
+09-14 13:20:28.740 24880 24880 E AndroidRuntime: 	at android.app.ActivityThread.-$$Nest$mhandleBindApplication(Unknown Source:0)
+09-14 13:20:28.740 24880 24880 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2141)
+09-14 13:20:28.740 24880 24880 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+09-14 13:20:28.740 24880 24880 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:201)
+09-14 13:20:28.740 24880 24880 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:288)
+09-14 13:20:28.740 24880 24880 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:8195)
+09-14 13:20:28.740 24880 24880 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+09-14 13:20:28.740 24880 24880 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:548)
+09-14 13:20:28.740 24880 24880 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:942)
+09-14 13:20:28.740 24880 24880 E AndroidRuntime: Caused by: android.app.BackgroundServiceStartNotAllowedException: Not allowed to start service Intent { cmp=info.cemu.cemu/.utils.DebugDumpService }: app is in background uid UidRecord{2596d3d u0a114 CEM  idle change:idle|cached|procstate procs:0 seq(908190,908190)}
+09-14 13:20:28.740 24880 24880 E AndroidRuntime: 	at android.app.ContextImpl.startServiceCommon(ContextImpl.java:1908)
+09-14 13:20:28.740 24880 24880 E AndroidRuntime: 	at android.app.ContextImpl.startService(ContextImpl.java:1864)
+09-14 13:20:28.740 24880 24880 E AndroidRuntime: 	at android.content.ContextWrapper.startService(ContextWrapper.java:817)
+09-14 13:20:28.740 24880 24880 E AndroidRuntime: 	at info.cemu.cemu.utils.DebugDumpService$Companion.start(DebugDumpService.kt:73)
+09-14 13:20:28.740 24880 24880 E AndroidRuntime: 	at info.cemu.cemu.CemuApplication.onCreate(CemuApplication.kt:56)
+09-14 13:20:28.740 24880 24880 E AndroidRuntime: 	at android.app.Instrumentation.callApplicationOnCreate(Instrumentation.java:1278)
+09-14 13:20:28.740 24880 24880 E AndroidRuntime: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:7055)
+09-14 13:20:28.740 24880 24880 E AndroidRuntime: 	... 9 more
+09-14 13:42:51.667  1770  1770 E AndroidRuntime: FATAL EXCEPTION: main
+09-14 13:42:51.667  1770  1770 E AndroidRuntime: Process: info.cemu.cemu, PID: 1770
+09-14 13:42:51.667  1770  1770 E AndroidRuntime: java.lang.RuntimeException: Unable to create application info.cemu.cemu.CemuApplication: android.app.BackgroundServiceStartNotAllowedException: Not allowed to start service Intent { cmp=info.cemu.cemu/.utils.DebugDumpService }: app is in background uid UidRecord{f923985 u0a114 CEM  idle change:procadj procs:0 seq(943165,943145)}
+09-14 13:42:51.667  1770  1770 E AndroidRuntime: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:7060)
+09-14 13:42:51.667  1770  1770 E AndroidRuntime: 	at android.app.ActivityThread.-$$Nest$mhandleBindApplication(Unknown Source:0)
+09-14 13:42:51.667  1770  1770 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2141)
+09-14 13:42:51.667  1770  1770 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+09-14 13:42:51.667  1770  1770 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:201)
+09-14 13:42:51.667  1770  1770 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:288)
+09-14 13:42:51.667  1770  1770 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:8195)
+09-14 13:42:51.667  1770  1770 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+09-14 13:42:51.667  1770  1770 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:548)
+09-14 13:42:51.667  1770  1770 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:942)
+09-14 13:42:51.667  1770  1770 E AndroidRuntime: Caused by: android.app.BackgroundServiceStartNotAllowedException: Not allowed to start service Intent { cmp=info.cemu.cemu/.utils.DebugDumpService }: app is in background uid UidRecord{f923985 u0a114 CEM  idle change:procadj procs:0 seq(943165,943145)}
+09-14 13:42:51.667  1770  1770 E AndroidRuntime: 	at android.app.ContextImpl.startServiceCommon(ContextImpl.java:1908)
+09-14 13:42:51.667  1770  1770 E AndroidRuntime: 	at android.app.ContextImpl.startService(ContextImpl.java:1864)
+09-14 13:42:51.667  1770  1770 E AndroidRuntime: 	at android.content.ContextWrapper.startService(ContextWrapper.java:817)
+09-14 13:42:51.667  1770  1770 E AndroidRuntime: 	at info.cemu.cemu.utils.DebugDumpService$Companion.start(DebugDumpService.kt:73)
+09-14 13:42:51.667  1770  1770 E AndroidRuntime: 	at info.cemu.cemu.CemuApplication.onCreate(CemuApplication.kt:56)
+09-14 13:42:51.667  1770  1770 E AndroidRuntime: 	at android.app.Instrumentation.callApplicationOnCreate(Instrumentation.java:1278)
+09-14 13:42:51.667  1770  1770 E AndroidRuntime: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:7055)
+09-14 13:42:51.667  1770  1770 E AndroidRuntime: 	... 9 more
+09-14 16:06:16.207  4826  4928 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 4928 (shadPS4:Present), pid 4826 (shadps4.android)
+09-14 16:06:16.569  5712  5712 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+09-14 16:06:16.569  5712  5712 F DEBUG   : Build fingerprint: 'qti/kalama/kalama:13/TKQ1.231222.001/eng.Thor.20260206.163241:user/release-keys'
+09-14 16:06:16.569  5712  5712 F DEBUG   : Revision: '0'
+09-14 16:06:16.569  5712  5712 F DEBUG   : ABI: 'arm64'
+09-14 16:06:16.569  5712  5712 F DEBUG   : Timestamp: 2026-09-14 16:06:16.372014810+0800
+09-14 16:06:16.569  5712  5712 F DEBUG   : Process uptime: 110s
+09-14 16:06:16.569  5712  5712 F DEBUG   : Cmdline: com.shadps4.android
+09-14 16:06:16.569  5712  5712 F DEBUG   : pid: 4826, tid: 4928, name: shadPS4:Present  >>> com.shadps4.android <<<
+09-14 16:06:16.569  5712  5712 F DEBUG   : uid: 10190
+09-14 16:06:16.569  5712  5712 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+09-14 16:06:16.569  5712  5712 F DEBUG   : pac_enabled_keys: 000000000000000f (PR_PAC_APIAKEY, PR_PAC_APIBKEY, PR_PAC_APDAKEY, PR_PAC_APDBKEY)
+09-14 16:06:16.569  5712  5712 F DEBUG   : signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+09-14 16:06:16.569  5712  5712 F DEBUG   : Abort message: 'Host assertion failed; see native backtrace'
+09-14 16:06:16.569  5712  5712 F DEBUG   :     x0  0000000000000000  x1  0000000000001340  x2  0000000000000006  x3  0000007388db3d20
+09-14 16:06:16.569  5712  5712 F DEBUG   :     x4  756873606d1f6464  x5  756873606d1f6464  x6  756873606d1f6464  x7  7f7f7f7f7f7f7f7f
+09-14 16:06:16.569  5712  5712 F DEBUG   :     x8  00000000000000f0  x9  0000007b42f5fb28  x10 0000000000000001  x11 0000007b42f9f84c
+09-14 16:06:16.569  5712  5712 F DEBUG   :     x12 0000007388db2bd0  x13 000000000000002c  x14 0000007388db3f60  x15 000002be9a2c4c43
+09-14 16:06:16.569  5712  5712 F DEBUG   :     x16 0000007b43007d68  x17 0000007b42fe34e0  x18 0000007387e44000  x19 00000000000012da
+09-14 16:06:16.569  5712  5712 F DEBUG   :     x20 0000000000001340  x21 00000000ffffffff  x22 0000000000000000  x23 0000007388db4448
+09-14 16:06:16.569  5712  5712 F DEBUG   :     x24 0000007831e16000  x25 b400007904d089d0  x26 0000000000000000  x27 0000007388db5000
+09-14 16:06:16.569  5712  5712 F DEBUG   :     x28 b4000079c4d11560  x29 0000007388db3da0
+09-14 16:06:16.569  5712  5712 F DEBUG   :     lr  0000007b42f90788  sp  0000007388db3d00  pc  0000007b42f907b4  pst 0000000000001000
+09-14 16:06:16.569  5712  5712 F DEBUG   : backtrace:
+09-14 16:06:16.569  5712  5712 F DEBUG   :       #00 pc 00000000000527b4  /apex/com.android.runtime/lib64/bionic/libc.so (abort+168) (BuildId: bf5f1ce73f89cca7d6a062eb7877e86a)
+09-14 16:06:16.569  5712  5712 F DEBUG   :       #01 pc 00000000006182f4  /apex/com.android.art/lib64/libart.so (art::Runtime::Abort(char const*)+120) (BuildId: 3fdfb8b8ec5407af450c28a00ba584a8)
+09-14 16:06:16.569  5712  5712 F DEBUG   :       #02 pc 0000000000017114  /system/lib64/libbase.so (android::base::SetAborter(std::__1::function<void (char const*)>&&)::$_3::__invoke(char const*)+84) (BuildId: ef369bfbad96b532c6d8e0b144a68b96)
+09-14 16:06:16.569  5712  5712 F DEBUG   :       #03 pc 0000000000006f60  /system/lib64/liblog.so (__android_log_assert+312) (BuildId: a7d65e6f6782b4b13384777bd315ba53)
+09-14 16:06:16.569  5712  5712 F DEBUG   :       #04 pc 00000000028c10f4  /data/app/~~BsOBBTD3lOStmG40AfKj-Q==/com.shadps4.android-wFq2AQSVjzGo6ymnwW4XQA==/lib/arm64/libshadps4_host.so (assert_fail_impl()+28) (BuildId: 9753d1a17a68a4d66f7a5f5afc2f20d70b472ab6)
+09-14 16:06:16.569  5712  5712 F DEBUG   :       #05 pc 00000000033acce4  /data/app/~~BsOBBTD3lOStmG40AfKj-Q==/com.shadps4.android-wFq2AQSVjzGo6ymnwW4XQA==/lib/arm64/libshadps4_host.so (Vulkan::Swapchain::Create(unsigned int, unsigned int)+1880) (BuildId: 9753d1a17a68a4d66f7a5f5afc2f20d70b472ab6)
+09-14 16:06:16.569  5712  5712 F DEBUG   :       #06 pc 00000000033b071c  /data/app/~~BsOBBTD3lOStmG40AfKj-Q==/com.shadps4.android-wFq2AQSVjzGo6ymnwW4XQA==/lib/arm64/libshadps4_host.so (Vulkan::Swapchain::Recreate(unsigned int, unsigned int)+432) (BuildId: 9753d1a17a68a4d66f7a5f5afc2f20d70b472ab6)
+09-14 16:06:16.569  5712  5712 F DEBUG   :       #07 pc 0000000003390d88  /data/app/~~BsOBBTD3lOStmG40AfKj-Q==/com.shadps4.android-wFq2AQSVjzGo6ymnwW4XQA==/lib/arm64/libshadps4_host.so (Vulkan::Presenter::Present(Vulkan::Frame*, bool)+280) (BuildId: 9753d1a17a68a4d66f7a5f5afc2f20d70b472ab6)
+09-14 16:06:16.569  5712  5712 F DEBUG   :       #08 pc 0000000002f2d91c  /data/app/~~BsOBBTD3lOStmG40AfKj-Q==/com.shadps4.android-wFq2AQSVjzGo6ymnwW4XQA==/lib/arm64/libshadps4_host.so (Libraries::VideoOut::VideoOutDriver::Flip(Libraries::VideoOut::VideoOutDriver::Request const&)+132) (BuildId: 9753d1a17a68a4d66f7a5f5afc2f20d70b472ab6)
+09-14 16:06:16.569  5712  5712 F DEBUG   :       #09 pc 0000000002f2e608  /data/app/~~BsOBBTD3lOStmG40AfKj-Q==/com.shadps4.android-wFq2AQSVjzGo6ymnwW4XQA==/lib/arm64/libshadps4_host.so (Libraries::VideoOut::VideoOutDriver::PresentThread(std::__ndk1::stop_token)+608) (BuildId: 9753d1a17a68a4d66f7a5f5afc2f20d70b472ab6)
+09-14 16:06:16.569  5712  5712 F DEBUG   :       #10 pc 0000000002f2ea20  /data/app/~~BsOBBTD3lOStmG40AfKj-Q==/com.shadps4.android-wFq2AQSVjzGo6ymnwW4XQA==/lib/arm64/libshadps4_host.so (void* std::__ndk1::__thread_proxy[abi:ne210000]<std::__ndk1::tuple<std::__ndk1::unique_ptr<std::__ndk1::__thread_struct, std::__ndk1::default_delete<std::__ndk1::__thread_struct> >, Libraries::VideoOut::VideoOutDriver::VideoOutDriver(unsigned int, unsigned int, std::__ndk1::function<unsigned long ()>, std::__ndk1::function<unsigned long ()>, unsigned long*, std::__ndk1::function<void (std::exception_ptr)>)::$_0, std::__ndk1::stop_token> >(void*)+100) (BuildId: 9753d1a17a68a4d66f7a5f5afc2f20d70b472ab6)
+09-14 16:06:16.569  5712  5712 F DEBUG   :       #11 pc 00000000000ba650  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*)+208) (BuildId: bf5f1ce73f89cca7d6a062eb7877e86a)
+09-14 16:06:16.569  5712  5712 F DEBUG   :       #12 pc 0000000000053ffc  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+68) (BuildId: bf5f1ce73f89cca7d6a062eb7877e86a)
+09-14 20:49:36.343  8263  8263 F linker  : CANNOT LINK EXECUTABLE "./guest_audio_tests": library "libGPUReshapeAndroid.so" not found: needed by /data/local/tmp/shad-audio-profile/libshadps4_host.so in namespace (default)
+09-15 11:28:39.403 32482 32482 F linker  : CANNOT LINK EXECUTABLE "/data/local/tmp/shad-guest-debug-tests": library "libc++_shared.so" not found: needed by main executable
+09-15 15:13:46.952 24360 24360 F linker  : CANNOT LINK EXECUTABLE "/data/local/tmp/shadps4-avplayer-1789456421101686000/guest_avplayer_tests": library "libGPUReshapeAndroid.so" not found: needed by /data/local/tmp/shadps4-avplayer-1789456421101686000/libshadps4_host.so in namespace (default)
+09-15 17:44:19.512 27494 27494 F linker  : CANNOT LINK EXECUTABLE "/data/local/tmp/shad-http2-offline/guest_http2_tests": library "libc++_shared.so" not found: needed by main executable
+09-15 17:44:50.009 28061 28061 F linker  : CANNOT LINK EXECUTABLE "/data/local/tmp/shad-http2-offline/guest_http2_tests": library "libGPUReshapeAndroid.so" not found: needed by /data/local/tmp/shad-http2-offline/libshadps4_host.so in namespace (default)
+09-15 18:28:50.196 13026 13031 F libc    : FORTIFY: pthread_mutex_lock called on a destroyed mutex (0xb4000072ebfe2aa0)
+09-15 20:22:40.071  1461  1521 F libc    : Fatal signal 11 (SIGSEGV), code 2 (SEGV_ACCERR), fault addr 0xa656015b0 in tid 1521 (Guest-1), pid 1461 (shadps4.android)
+09-15 20:22:40.501  2203  2203 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+09-15 20:22:40.501  2203  2203 F DEBUG   : Build fingerprint: 'qti/kalama/kalama:13/TKQ1.231222.001/eng.Thor.20260206.163241:user/release-keys'
+09-15 20:22:40.501  2203  2203 F DEBUG   : Revision: '0'
+09-15 20:22:40.501  2203  2203 F DEBUG   : ABI: 'arm64'
+09-15 20:22:40.501  2203  2203 F DEBUG   : Timestamp: 2026-09-15 20:22:40.224858743+0800
+09-15 20:22:40.501  2203  2203 F DEBUG   : Process uptime: 29s
+09-15 20:22:40.501  2203  2203 F DEBUG   : Cmdline: com.shadps4.android
+09-15 20:22:40.501  2203  2203 F DEBUG   : pid: 1461, tid: 1521, name: Guest-1  >>> com.shadps4.android <<<
+09-15 20:22:40.501  2203  2203 F DEBUG   : uid: 10190
+09-15 20:22:40.501  2203  2203 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+09-15 20:22:40.501  2203  2203 F DEBUG   : pac_enabled_keys: 000000000000000f (PR_PAC_APIAKEY, PR_PAC_APIBKEY, PR_PAC_APDAKEY, PR_PAC_APDBKEY)
+09-15 20:22:40.501  2203  2203 F DEBUG   : signal 11 (SIGSEGV), code 2 (SEGV_ACCERR), fault addr 0x0000000a656015b0
+09-15 20:22:40.501  2203  2203 F DEBUG   :     x0  0000006abda9b3f0  x1  0000000000000000  x2  0000006eb0160080  x3  0000006eb01600a0
+09-15 20:22:40.501  2203  2203 F DEBUG   :     x4  00000002656015c0  x5  00000000fffffffe  x6  00000002655beb60  x7  000000023b696b20
+09-15 20:22:40.501  2203  2203 F DEBUG   :     x8  00000010001f8570  x9  00000010001f8680  x10 0000000000000001  x11 0000000238400398
+09-15 20:22:40.501  2203  2203 F DEBUG   :     x12 0000000000000240  x13 ff00fffffffffff8  x14 00000018001a800f  x15 0000000000000202
+09-15 20:22:40.501  2203  2203 F DEBUG   :     x16 000000000000002f  x17 0000001000000000  x18 0000000000000000  x19 00000000ffffffff
+09-15 20:22:40.501  2203  2203 F DEBUG   :     x20 0000000a656015b0  x21 0000000000000000  x22 000000779c843fb0  x23 0000007b3fb423bc
+09-15 20:22:40.501  2203  2203 F DEBUG   :     x24 0000007792a8c850  x25 000000742a963fe0  x26 0000000000000209  x27 00000000fffffdf7
+09-15 20:22:40.501  2203  2203 F DEBUG   :     x28 0000007440004140  x29 00000000000000af
+09-15 20:22:40.501  2203  2203 F DEBUG   :     lr  0000007b3fb42158  sp  000000779c840670  pc  0000006abda9b410  pst 0000000000001000
+09-15 20:22:40.501  2203  2203 F DEBUG   : backtrace:
+09-15 20:22:40.501  2203  2203 F DEBUG   :       #00 pc 000000000024c410  [anon:FEXMemJIT]

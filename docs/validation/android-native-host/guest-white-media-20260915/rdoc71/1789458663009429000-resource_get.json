@@ -1,0 +1,17 @@
+{
+  "arguments": {
+    "resourceId": "1658"
+  },
+  "response": {
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"schemaVersion\":\"1.0\",\"session\":{\"captureId\":\"0eaea486-2758-4adc-8245-6a2d34a08d18\",\"captureRevision\":{\"value\":5}},\"data\":{\"columns\":[{\"name\":\"resource_id\",\"declaredType\":\"TEXT\"},{\"name\":\"type\",\"declaredType\":\"TEXT\"},{\"name\":\"name\",\"declaredType\":\"TEXT\"},{\"name\":\"byte_size\",\"declaredType\":\"INTEGER\"}],\"rows\":[[\"1658\",\"Texture\",\"Image 4x4x1 Thin2DThin R8G8B8A8Unorm 0x273000000:0x8000 L:1 M:1 S:1\",64]],\"truncated\":false,\"executionMs\":0.0276}}"
+        }
+      ]
+    },
+    "id": 17,
+    "jsonrpc": "2.0"
+  }
+}

@@ -1,0 +1,338 @@
+[
+  {
+    "tool": "guest_debug.start_session",
+    "time": 1789462774.794404,
+    "args": {
+      "emulator": "shadps4-fex",
+      "serial": "9c2841a4",
+      "port": 24681,
+      "remotePort": 24680,
+      "expectedArchitecture": "i386:x86-64",
+      "byteOrder": "little",
+      "stopOnAttach": false,
+      "dryRun": false,
+      "stopLeaseMs": 10000,
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_23fe267ab2084f8ca278ceed96f4e892",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "connected_unknown",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 0,
+      "stopReason": "",
+      "stoppedThreadId": "",
+      "latestEventCursor": 1,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.control",
+    "time": 1789462774.834684,
+    "args": {
+      "sessionId": "gdbg_23fe267ab2084f8ca278ceed96f4e892",
+      "action": "pause",
+      "waitForStopMs": 1500
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_23fe267ab2084f8ca278ceed96f4e892",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 2,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.list_threads",
+    "time": 1789462775.068825,
+    "args": {
+      "sessionId": "gdbg_23fe267ab2084f8ca278ceed96f4e892"
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [
+        {
+          "id": "1",
+          "name": "guest-stopped guest=1 host=6711 gen=2 snapshot=SafePoint epoch=26 invocation=8",
+          "core": "",
+          "state": "Runnable",
+          "stepEligible": true
+        },
+        {
+          "id": "2",
+          "name": "guest-stopped guest=2 host=6728 gen=3 snapshot=SafePoint epoch=17 invocation=1",
+          "core": "",
+          "state": "Runnable",
+          "stepEligible": true
+        },
+        {
+          "id": "3",
+          "name": "hle-boundary-read-only guest=3 host=6729 gen=4 snapshot=HleBoundary epoch=5 invocation=1 hle-op=277",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        },
+        {
+          "id": "4",
+          "name": "hle-boundary-read-only guest=4 host=6730 gen=5 snapshot=HleBoundary epoch=7 invocation=1 hle-op=277",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        },
+        {
+          "id": "5",
+          "name": "hle-boundary-read-only guest=5 host=6731 gen=6 snapshot=HleBoundary epoch=7 invocation=1 hle-op=277",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        },
+        {
+          "id": "6",
+          "name": "hle-boundary-read-only guest=6 host=6732 gen=7 snapshot=HleBoundary epoch=6 invocation=1 hle-op=277",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        },
+        {
+          "id": "7",
+          "name": "hle-boundary-read-only guest=7 host=6733 gen=8 snapshot=HleBoundary epoch=7 invocation=1 hle-op=465",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        },
+        {
+          "id": "8",
+          "name": "hle-boundary-read-only guest=8 host=6734 gen=9 snapshot=HleBoundary epoch=1 invocation=1 hle-op=465",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        },
+        {
+          "id": "9",
+          "name": "hle-boundary-read-only guest=9 host=6735 gen=10 snapshot=HleBoundary epoch=1 invocation=1 hle-op=465",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        },
+        {
+          "id": "a",
+          "name": "hle-boundary-read-only guest=10 host=6736 gen=11 snapshot=HleBoundary epoch=1 invocation=1 hle-op=465",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        },
+        {
+          "id": "b",
+          "name": "hle-boundary-read-only guest=11 host=6737 gen=12 snapshot=HleBoundary epoch=1 invocation=1 hle-op=465",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        },
+        {
+          "id": "d",
+          "name": "hle-boundary-read-only guest=13 host=6739 gen=14 snapshot=HleBoundary epoch=1 invocation=1 hle-op=265",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        },
+        {
+          "id": "e",
+          "name": "hle-boundary-read-only guest=14 host=6740 gen=15 snapshot=HleBoundary epoch=1 invocation=1 hle-op=5",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        },
+        {
+          "id": "f",
+          "name": "guest-stopped guest=15 host=6743 gen=16 snapshot=SafePoint epoch=19 invocation=1",
+          "core": "",
+          "state": "Runnable",
+          "stepEligible": true
+        },
+        {
+          "id": "10",
+          "name": "hle-boundary-read-only guest=16 host=6744 gen=17 snapshot=HleBoundary epoch=18 invocation=1 hle-op=408",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        },
+        {
+          "id": "11",
+          "name": "guest-stopped guest=17 host=6745 gen=18 snapshot=SafePoint epoch=20 invocation=1",
+          "core": "",
+          "state": "Runnable",
+          "stepEligible": true
+        },
+        {
+          "id": "12",
+          "name": "hle-boundary-read-only guest=18 host=6746 gen=19 snapshot=HleBoundary epoch=4 invocation=1 hle-op=408",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        },
+        {
+          "id": "13",
+          "name": "hle-boundary-read-only guest=19 host=6747 gen=20 snapshot=HleBoundary epoch=1 invocation=1 hle-op=408",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        },
+        {
+          "id": "14",
+          "name": "hle-boundary-read-only guest=20 host=6748 gen=21 snapshot=HleBoundary epoch=1 invocation=1 hle-op=408",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        },
+        {
+          "id": "15",
+          "name": "hle-boundary-read-only guest=21 host=6749 gen=22 snapshot=HleBoundary epoch=1 invocation=1 hle-op=5",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        },
+        {
+          "id": "16",
+          "name": "hle-boundary-read-only guest=22 host=6761 gen=23 snapshot=HleBoundary epoch=1 invocation=1 hle-op=265",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        },
+        {
+          "id": "17",
+          "name": "guest-stopped guest=23 host=6763 gen=24 snapshot=SafePoint epoch=18 invocation=1",
+          "core": "",
+          "state": "Runnable",
+          "stepEligible": true
+        },
+        {
+          "id": "18",
+          "name": "guest-stopped guest=24 host=6927 gen=25 snapshot=SafePoint epoch=20 invocation=1",
+          "core": "",
+          "state": "Runnable",
+          "stepEligible": true
+        },
+        {
+          "id": "1c",
+          "name": "hle-boundary-read-only guest=28 host=7781 gen=29 snapshot=HleBoundary epoch=1 invocation=1 hle-op=408",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        },
+        {
+          "id": "1d",
+          "name": "ready guest=29 host=7782 gen=30 snapshot=SafePoint epoch=192 invocation=191",
+          "core": "",
+          "state": "Waiting",
+          "stepEligible": false
+        }
+      ],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_23fe267ab2084f8ca278ceed96f4e892",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 2,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.control",
+    "time": 1789462775.175571,
+    "args": {
+      "sessionId": "gdbg_23fe267ab2084f8ca278ceed96f4e892",
+      "action": "continue",
+      "stopEpoch": 1,
+      "waitForStopMs": 0
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_23fe267ab2084f8ca278ceed96f4e892",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "running",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 3,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.stop_session",
+    "time": 1789462775.2440379,
+    "args": {
+      "sessionId": "gdbg_23fe267ab2084f8ca278ceed96f4e892"
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": true,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_23fe267ab2084f8ca278ceed96f4e892",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "cleaned",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 2,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 6,
+      "breakpoints": []
+    }
+  }
+]

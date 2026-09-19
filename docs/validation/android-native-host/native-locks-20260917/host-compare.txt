@@ -1,0 +1,45 @@
+ROUND 0
+HOST_BENCH shared=0 threads=1 pairs=20000 ms=3.567
+HOST_BENCH shared=0 threads=4 pairs=80000 ms=12.464
+HOST_BENCH shared=1 threads=1 pairs=20000 ms=3.221
+HOST_BENCH shared=1 threads=4 pairs=80000 ms=11.940
+BENCH shared=0 threads=1 pairs=20000 ms=32.947
+BENCH shared=0 threads=4 pairs=80000 ms=150.674
+BENCH shared=1 threads=1 pairs=20000 ms=22.443
+BENCH shared=1 threads=4 pairs=80000 ms=481.887
+ROUND 1
+BENCH shared=0 threads=1 pairs=20000 ms=21.948
+BENCH shared=0 threads=4 pairs=80000 ms=155.244
+BENCH shared=1 threads=1 pairs=20000 ms=24.275
+BENCH shared=1 threads=4 pairs=80000 ms=623.897
+HOST_BENCH shared=0 threads=1 pairs=20000 ms=3.400
+HOST_BENCH shared=0 threads=4 pairs=80000 ms=10.734
+HOST_BENCH shared=1 threads=1 pairs=20000 ms=3.230
+HOST_BENCH shared=1 threads=4 pairs=80000 ms=13.636
+ROUND 2
+HOST_BENCH shared=0 threads=1 pairs=20000 ms=3.470
+HOST_BENCH shared=0 threads=4 pairs=80000 ms=11.695
+HOST_BENCH shared=1 threads=1 pairs=20000 ms=3.209
+HOST_BENCH shared=1 threads=4 pairs=80000 ms=16.127
+BENCH shared=0 threads=1 pairs=20000 ms=35.813
+BENCH shared=0 threads=4 pairs=80000 ms=169.723
+BENCH shared=1 threads=1 pairs=20000 ms=22.574
+BENCH shared=1 threads=4 pairs=80000 ms=683.904
+ROUND 3
+BENCH shared=0 threads=1 pairs=20000 ms=37.164
+BENCH shared=0 threads=4 pairs=80000 ms=155.505
+BENCH shared=1 threads=1 pairs=20000 ms=21.342
+BENCH shared=1 threads=4 pairs=80000 ms=563.730
+HOST_BENCH shared=0 threads=1 pairs=20000 ms=3.288
+HOST_BENCH shared=0 threads=4 pairs=80000 ms=11.614
+HOST_BENCH shared=1 threads=1 pairs=20000 ms=1.414
+HOST_BENCH shared=1 threads=4 pairs=80000 ms=11.068
+ROUND 4
+HOST_BENCH shared=0 threads=1 pairs=20000 ms=3.411
+HOST_BENCH shared=0 threads=4 pairs=80000 ms=13.198
+HOST_BENCH shared=1 threads=1 pairs=20000 ms=3.189
+HOST_BENCH shared=1 threads=4 pairs=80000 ms=10.664
+BENCH shared=0 threads=1 pairs=20000 ms=33.485
+BENCH shared=0 threads=4 pairs=80000 ms=153.678
+BENCH shared=1 threads=1 pairs=20000 ms=23.558
+BENCH shared=1 threads=4 pairs=80000 ms=546.995

@@ -37,12 +37,24 @@ data class ControllerProfile(
     val triggerThreshold: Float = 0.5f,
     val vibrationEnabled: Boolean = true,
     val motionEnabled: Boolean = false,
+    /** Swap the configured face pairs; off preserves A=Circle, B=Cross, X=Triangle, Y=Square defaults. */
+    val swapFaceButtons: Boolean = false,
 ) {
     init {
         require(deadZone.isFinite() && deadZone in 0f..1f) { "Dead zone must be 0..1" }
         require(triggerThreshold.isFinite() && triggerThreshold in 0f..1f) { "Trigger threshold must be 0..1" }
         require(bindings.keys.all { it in LOGICAL_CONTROLS }) { "Unknown logical controller binding" }
     }
+
+    fun bindingKey(control: String): String = if (swapFaceButtons) when (control) {
+        "cross" -> "circle"
+        "circle" -> "cross"
+        "square" -> "triangle"
+        "triangle" -> "square"
+        else -> control
+    } else control
+
+    fun bindingFor(control: String): PhysicalBinding? = bindings[bindingKey(control)]
 
     companion object {
         val LOGICAL_CONTROLS = setOf(
@@ -57,8 +69,8 @@ data class ControllerProfile(
                 "left_x" to PhysicalBinding(PhysicalBindingKind.AXIS, 0), "left_y" to PhysicalBinding(PhysicalBindingKind.AXIS, 1),
                 "right_x" to PhysicalBinding(PhysicalBindingKind.AXIS, 11), "right_y" to PhysicalBinding(PhysicalBindingKind.AXIS, 14),
                 "left_trigger" to PhysicalBinding(PhysicalBindingKind.AXIS, 17), "right_trigger" to PhysicalBinding(PhysicalBindingKind.AXIS, 18),
-                "cross" to PhysicalBinding(PhysicalBindingKind.BUTTON, 96), "circle" to PhysicalBinding(PhysicalBindingKind.BUTTON, 97),
-                "square" to PhysicalBinding(PhysicalBindingKind.BUTTON, 99), "triangle" to PhysicalBinding(PhysicalBindingKind.BUTTON, 100),
+                "cross" to PhysicalBinding(PhysicalBindingKind.BUTTON, 97), "circle" to PhysicalBinding(PhysicalBindingKind.BUTTON, 96),
+                "square" to PhysicalBinding(PhysicalBindingKind.BUTTON, 100), "triangle" to PhysicalBinding(PhysicalBindingKind.BUTTON, 99),
                 "l1" to PhysicalBinding(PhysicalBindingKind.BUTTON, 102), "r1" to PhysicalBinding(PhysicalBindingKind.BUTTON, 103),
                 "l2" to PhysicalBinding(PhysicalBindingKind.BUTTON, 104), "r2" to PhysicalBinding(PhysicalBindingKind.BUTTON, 105),
                 "l3" to PhysicalBinding(PhysicalBindingKind.BUTTON, 106), "r3" to PhysicalBinding(PhysicalBindingKind.BUTTON, 107),
@@ -76,8 +88,8 @@ data class ControllerProfile(
                 "left_x" to PhysicalBinding(PhysicalBindingKind.AXIS, 0), "left_y" to PhysicalBinding(PhysicalBindingKind.AXIS, 1),
                 "right_x" to PhysicalBinding(PhysicalBindingKind.AXIS, 11), "right_y" to PhysicalBinding(PhysicalBindingKind.AXIS, 14),
                 "left_trigger" to PhysicalBinding(PhysicalBindingKind.AXIS, 17), "right_trigger" to PhysicalBinding(PhysicalBindingKind.AXIS, 18),
-                "cross" to PhysicalBinding(PhysicalBindingKind.BUTTON, 96), "circle" to PhysicalBinding(PhysicalBindingKind.BUTTON, 97),
-                "square" to PhysicalBinding(PhysicalBindingKind.BUTTON, 99), "triangle" to PhysicalBinding(PhysicalBindingKind.BUTTON, 100),
+                "cross" to PhysicalBinding(PhysicalBindingKind.BUTTON, 97), "circle" to PhysicalBinding(PhysicalBindingKind.BUTTON, 96),
+                "square" to PhysicalBinding(PhysicalBindingKind.BUTTON, 100), "triangle" to PhysicalBinding(PhysicalBindingKind.BUTTON, 99),
                 "l1" to PhysicalBinding(PhysicalBindingKind.BUTTON, 102), "r1" to PhysicalBinding(PhysicalBindingKind.BUTTON, 103),
                 "l2" to PhysicalBinding(PhysicalBindingKind.BUTTON, 104), "r2" to PhysicalBinding(PhysicalBindingKind.BUTTON, 105),
                 "l3" to PhysicalBinding(PhysicalBindingKind.BUTTON, 106), "r3" to PhysicalBinding(PhysicalBindingKind.BUTTON, 107),

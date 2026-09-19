@@ -1,0 +1,247 @@
+SERVICE com.shadps4.android/.service.FexSessionService 76519f0 pid=8776 user=0
+  Client:
+    package: frame_intercepts_67def519ee47
+    sha256: 7cafaa228271edca08425dac00c8035c7154cfd2d49c33266867bea0ab27aa7e
+    installed: 1
+    enabled: 1
+    failed: 0
+    switches: 0
+    context: 1
+    binding: guest_submit kind=function address=0x43d870 size=5 access=rx
+    binding: guest_submit_device kind=function address=0x43d880 size=5 access=rx
+    binding: guest_draw_init kind=function address=0x19c1a00 size=6 access=rx
+    binding: frame_static_nodes kind=data address=0x230c520 size=8 access=r
+    binding: frame_queue_mode kind=data address=0x230c534 size=4 access=r
+    hook: frame entry=0x49e560 original=0x2b80010 replacement=0x2b78000 slot=0x2b87000 stolen=6 enabled=1
+    instruction: 0x49e560 -> 0x2b80010
+    instruction: 0x49e561 -> 0x2b80011
+    instruction: 0x49e564 -> 0x2b80014
+    hook: begin entry=0x1945ce0 original=0x2b80210 replacement=0x2b78060 slot=0x2b87008 stolen=6 enabled=1
+    instruction: 0x1945ce0 -> 0x2b80210
+    instruction: 0x1945ce1 -> 0x2b80211
+    instruction: 0x1945ce4 -> 0x2b80214
+    hook: submit entry=0x1945f20 original=0x2b80410 replacement=0x2b780b0 slot=0x2b87010 stolen=6 enabled=1
+    instruction: 0x1945f20 -> 0x2b80410
+    instruction: 0x1945f21 -> 0x2b80411
+    instruction: 0x1945f24 -> 0x2b80414
+    hook: jobs entry=0x1991570 original=0x2b80610 replacement=0x2b78100 slot=0x2b87018 stolen=6 enabled=1
+    instruction: 0x1991570 -> 0x2b80610
+    instruction: 0x1991571 -> 0x2b80611
+    instruction: 0x1991574 -> 0x2b80614
+    hook: fmod entry=0x19c0b20 original=0x2b80810 replacement=0x2b78160 slot=0x2b87020 stolen=6 enabled=1
+    instruction: 0x19c0b20 -> 0x2b80810
+    hook: write_label entry=0x42b070 original=0x2b80a10 replacement=0x2b781c0 slot=0x2b87028 stolen=6 enabled=1
+    instruction: 0x42b070 -> 0x2b80a10
+    instruction: 0x42b071 -> 0x2b80a11
+    instruction: 0x42b074 -> 0x2b80a14
+    hook: default_state entry=0x424c60 original=0x2b80c10 replacement=0x2b78280 slot=0x2b87030 stolen=5 enabled=1
+    instruction: 0x424c60 -> 0x2b80c10
+    instruction: 0x424c61 -> 0x2b80c11
+    instruction: 0x424c64 -> 0x2b80c14
+    hook: submit_packets entry=0x4193a0 original=0x2b80e10 replacement=0x2b78300 slot=0x2b87038 stolen=6 enabled=1
+instruction: 0x4193a0 -> 0x2b80e10
+    instruction: 0x4193a1 -> 0x2b80e11
+    instruction: 0x4193a4 -> 0x2b80e14
+    hook: submit_label entry=0x419630 original=0x2b81010 replacement=0x2b784d0 slot=0x2b87040 stolen=6 enabled=1
+    instruction: 0x419630 -> 0x2b81010
+    instruction: 0x419631 -> 0x2b81011
+    instruction: 0x419634 -> 0x2b81014
+    hook: frame_dispatch entry=0x194e690 original=0x2b81210 replacement=0x2b785d0 slot=0x2b87048 stolen=6 enabled=1
+    instruction: 0x194e690 -> 0x2b81210
+    instruction: 0x194e691 -> 0x2b81211
+    instruction: 0x194e694 -> 0x2b81214
+    hook: Import_pthread_mutex_lock entry=0x19c1ec0 original=0x2b81410 replacement=0x2b79a70 slot=0x2b87050 stolen=6 enabled=1
+    instruction: 0x19c1ec0 -> 0x2b81410
+    hook: Import_pthread_mutex_unlock entry=0x19c1e50 original=0x2b81610 replacement=0x2b79c40 slot=0x2b87058 stolen=6 enabled=1
+    instruction: 0x19c1e50 -> 0x2b81610
+    hook: TMNT_UpdateColorBlendState entry=0x7aa370 original=0x2b81810 replacement=0x2b79e10 slot=0x2b87060 stolen=6 enabled=1
+    instruction: 0x7aa370 -> 0x2b81810
+    instruction: 0x7aa371 -> 0x2b81811
+    instruction: 0x7aa374 -> 0x2b81814
+    hook: Import_clock_gettime entry=0x19bffd0 original=0x2b81a10 replacement=0x2b79fe0 slot=0x2b87068 stolen=6 enabled=1
+    instruction: 0x19bffd0 -> 0x2b81a10
+    hook: Import_time entry=0x19bffc0 original=0x2b81c10 replacement=0x2b7a1b0 slot=0x2b87070 stolen=6 enabled=1
+    instruction: 0x19bffc0 -> 0x2b81c10
+    hook: TMNT_ExpireTimedRequestsAndPollProviders entry=0x18c3ba0 original=0x2b81e10 replacement=0x2b7a380 slot=0x2b87078 stolen=6 enabled=1
+    instruction: 0x18c3ba0 -> 0x2b81e10
+    instruction: 0x18c3ba1 -> 0x2b81e11
+    instruction: 0x18c3ba4 -> 0x2b81e14
+    hook: TMNT_DispatchProviderCompletions entry=0x18c93b0 original=0x2b82010 replacement=0x2b7a550 slot=0x2b87080 stolen=6 enabled=1
+    instruction: 0x18c93b0 -> 0x2b82010
+    instruction: 0x18c93b1 -> 0x2b82011
+    instruction: 0x18c93b4 -> 0x2b82014
+    hook: TMNT_BuildMappedStickInputEvent entry=0x1938950 original=0x2b82210 replacement=0x2b7a720 slot=0x2b87088 stolen=6 enabled=1
+    instruction: 0x1938950 -> 0x2b82210
+    instruction: 0x1938951 -> 0x2b82211
+    instruction: 0x1938954 -> 0x2b82214
+    hook: TMNT_IsInputDeviceActive entry=0x1936220 original=0x2b82410 replacement=0x2b7a8f0 slot=0x2b87090 stolen=6 enabled=1
+    instruction: 0x1936220 -> 0x2b82410
+    instruction: 0x1936221 -> 0x2b82411
+    instruction: 0x1936224 -> 0x2b82414
+    hook: TMNT_TestButtonNewPress entry=0x1936ba0 original=0x2b82610 replacement=0x2b7aac0 slot=0x2b87098 stolen=6 enabled=1
+    instruction: 0x1936ba0 -> 0x2b82610
+    instruction: 0x1936ba1 -> 0x2b82611
+    instruction: 0x1936ba4 -> 0x2b82614
+    hook: TMNT_TestButtonHeld entry=0x1936cd0 original=0x2b82810 replacement=0x2b7ac90 slot=0x2b870a0 stolen=6 enabled=1
+    instruction: 0x1936cd0 -> 0x2b82810
+    instruction: 0x1936cd1 -> 0x2b82811
+    instruction: 0x1936cd4 -> 0x2b82814
+    hook: TMNT_TestButtonReleased entry=0x1936e00 original=0x2b82a10 replacement=0x2b7ae60 slot=0x2b870a8 stolen=6 enabled=1
+    instruction: 0x1936e00 -> 0x2b82a10
+    instruction: 0x1936e01 -> 0x2b82a11
+    instruction: 0x1936e04 -> 0x2b82a14
+    hook: Import__Xtime_get_ticks entry=0x19c04e0 original=0x2b82c10 replacement=0x2b7b030 slot=0x2b870b0 stolen=6 enabled=1
+    instruction: 0x19c04e0 -> 0x2b82c10
+    hook: TMNT_AdvanceTimedInputEntries entry=0x1939bb0 original=0x2b82e10 replacement=0x2b7b200 slot=0x2b870b8 stolen=6 enabled=1
+    instruction: 0x1939bb0 -> 0x2b82e10
+    instruction: 0x1939bb1 -> 0x2b82e11
+    instruction: 0x1939bb4 -> 0x2b82e14
+    hook: Import_memset entry=0x19c1dc0 original=0x2b83010 replacement=0x2b7b3d0 slot=0x2b870c0 stolen=6 enabled=1
+    instruction: 0x19c1dc0 -> 0x2b83010
+    hook: Import_memmove entry=0x19c2810 original=0x2b83210 replacement=0x2b7b5a0 slot=0x2b870c8 stolen=6 enabled=1
+    instruction: 0x19c2810 -> 0x2b83210
+    hook: TMNT_ScheduleTimedCallbackRecord entry=0x190c7a0 original=0x2b83410 replacement=0x2b7b770 slot=0x2b870d0 stolen=6 enabled=1
+    instruction: 0x190c7a0 -> 0x2b83410
+    instruction: 0x190c7a1 -> 0x2b83411
+    instruction: 0x190c7a4 -> 0x2b83414
+    hook: TMNT_UpdateObjectStateChain entry=0x190c3e0 original=0x2b83610 replacement=0x2b7b940 slot=0x2b870d8 stolen=6 enabled=1
+    instruction: 0x190c3e0 -> 0x2b83610
+    instruction: 0x190c3e1 -> 0x2b83611
+    instruction: 0x190c3e4 -> 0x2b83614
+    hook: TMNT_PruneAndFinalizeObjectSubtree entry=0x190d310 original=0x2b83810 replacement=0x2b7bb10 slot=0x2b870e0 stolen=6 enabled=1
+    instruction: 0x190d310 -> 0x2b83810
+    instruction: 0x190d311 -> 0x2b83811
+    instruction: 0x190d314 -> 0x2b83814
+    hook: Import_FmodStudioEventGetSampleLoadingState entry=0x19c09b0 original=0x2b83a10 replacement=0x2b7bce0 slot=0x2b870e8 stolen=6 enabled=1
+    instruction: 0x19c09b0 -> 0x2b83a10
+    hook: Import_FmodStudioEventGetPlaybackState entry=0x19c0ae0 original=0x2b83c10 replacement=0x2b7beb0 slot=0x2b870f0 stolen=6 enabled=1
+    instruction: 0x19c0ae0 -> 0x2b83c10
+    hook: TMNT_SortRecordsByFloatKey entry=0x17bf140 original=0x2b83e10 replacement=0x2b7c080 slot=0x2b870f8 stolen=6 enabled=1
+    instruction: 0x17bf140 -> 0x2b83e10
+    instruction: 0x17bf141 -> 0x2b83e11
+    instruction: 0x17bf144 -> 0x2b83e14
+    hook: TMNT_CollectExpiredResourceIds entry=0x1885450 original=0x2b84010 replacement=0x2b7c250 slot=0x2b87100 stolen=6 enabled=1
+    instruction: 0x1885450 -> 0x2b84010
+    instruction: 0x1885451 -> 0x2b84011
+    instruction: 0x1885454 -> 0x2b84014
+    hook: TMNT_WaitForQueueFenceWhileHelping entry=0x1992020 original=0x2b84210 replacement=0x2b7c420 slot=0x2b87108 stolen=6 enabled=1
+    instruction: 0x1992020 -> 0x2b84210
+    instruction: 0x1992021 -> 0x2b84211
+    instruction: 0x1992024 -> 0x2b84214
+    hook: TMNT_ProcessPhaseRecordBatches entry=0x18929a0 original=0x2b84410 replacement=0x2b7c5f0 slot=0x2b87110 stolen=10 enabled=1
+    instruction: 0x18929a0 -> 0x2b84410
+    instruction: 0x18929a4 -> 0x2b84414
+    hook: TMNT_EnqueueJobBetweenSequenceMarkers entry=0x19919e0 original=0x2b84610 replacement=0x2b7c7c0 slot=0x2b87118 stolen=6 enabled=1
+    instruction: 0x19919e0 -> 0x2b84610
+    instruction: 0x19919e1 -> 0x2b84611
+    instruction: 0x19919e4 -> 0x2b84614
+    hook: TMNT_DrainDeferredCallbackLists entry=0x18165c0 original=0x2b84810 replacement=0x2b7c990 slot=0x2b87120 stolen=6 enabled=1
+    instruction: 0x18165c0 -> 0x2b84810
+    instruction: 0x18165c1 -> 0x2b84811
+    instruction: 0x18165c4 -> 0x2b84814
+    hook: TMNT_UpdateEnabledObjectSubtree entry=0x190c570 original=0x2b84a10 replacement=0x2b7cb60 slot=0x2b87128 stolen=5 enabled=1
+    instruction: 0x190c570 -> 0x2b84a10
+    instruction: 0x190c571 -> 0x2b84a11
+    instruction: 0x190c574 -> 0x2b84a14
+    hook: TMNT_AllocateFrameCommandNode entry=0x194e380 original=0x2b84c10 replacement=0x2b7cd30 slot=0x2b87130 stolen=6 enabled=1
+    instruction: 0x194e380 -> 0x2b84c10
+    instruction: 0x194e381 -> 0x2b84c11
+    instruction: 0x194e384 -> 0x2b84c14
+    hook: TMNT_EnqueueJobAfterSequenceMarker entry=0x1991890 original=0x2b84e10 replacement=0x2b7cf00 slot=0x2b87138 stolen=6 enabled=1
+    instruction: 0x1991890 -> 0x2b84e10
+    instruction: 0x1991891 -> 0x2b84e11
+    instruction: 0x1991894 -> 0x2b84e14
+    hook: Import_strcmp entry=0x19c1720 original=0x2b85010 replacement=0x2b7d0d0 slot=0x2b87140 stolen=6 enabled=1
+    instruction: 0x19c1720 -> 0x2b85010
+    hook: Import_fmodf entry=0x19c2800 original=0x2b85210 replacement=0x2b7d2a0 slot=0x2b87148 stolen=6 enabled=1
+    instruction: 0x19c2800 -> 0x2b85210
+    hook: Import_FmodChannelGroupGetParentGroup entry=0x19c0750 original=0x2b85410 replacement=0x2b7d470 slot=0x2b87150 stolen=6 enabled=1
+    instruction: 0x19c0750 -> 0x2b85410
+    hook: Import_FmodSystemGetMasterChannelGroup entry=0x19c06d0 original=0x2b85610 replacement=0x2b7d640 slot=0x2b87158 stolen=6 enabled=1
+    instruction: 0x19c06d0 -> 0x2b85610
+    hook: Import_FmodChannelControlSetPaused entry=0x19c0820 original=0x2b85810 replacement=0x2b7d810 slot=0x2b87160 stolen=6 enabled=1
+    instruction: 0x19c0820 -> 0x2b85810
+    hook: Import_FmodChannelControlGetVolume entry=0x19c07c0 original=0x2b85a10 replacement=0x2b7d9e0 slot=0x2b87168 stolen=6 enabled=1
+    instruction: 0x19c07c0 -> 0x2b85a10
+    hook: Import_FmodChannelControlSetVolume entry=0x19c07d0 original=0x2b85c10 replacement=0x2b7dbb0 slot=0x2b87170 stolen=6 enabled=1
+    instruction: 0x19c07d0 -> 0x2b85c10
+    hook: Import_FmodChannelControlGetDspClock entry=0x19c0810 original=0x2b85e10 replacement=0x2b7dd80 slot=0x2b87178 stolen=6 enabled=1
+    instruction: 0x19c0810 -> 0x2b85e10
+    hook: TMNT_RefreshExpiredStateAndNotifyCallbacks entry=0x18bf7b0 original=0x2b86010 replacement=0x2b7df50 slot=0x2b87180 stolen=6 enabled=1
+    instruction: 0x18bf7b0 -> 0x2b86010
+    instruction: 0x18bf7b1 -> 0x2b86011
+    instruction: 0x18bf7b4 -> 0x2b86014
+    hook: Import_malloc entry=0x19c0240 original=0x2b86210 replacement=0x2b7e120 slot=0x2b87188 stolen=6 enabled=1
+    instruction: 0x19c0240 -> 0x2b86210
+    hook: Import_free entry=0x19c0180 original=0x2b86410 replacement=0x2b7e2f0 slot=0x2b87190 stolen=6 enabled=1
+    instruction: 0x19c0180 -> 0x2b86410
+    hook: Import_FmodStudioEventStop entry=0x19c0870 original=0x2b86610 replacement=0x2b7e4c0 slot=0x2b87198 stolen=6 enabled=1
+    instruction: 0x19c0870 -> 0x2b86610
+    hook: Import_FmodStudioEventRelease entry=0x19c08f0 original=0x2b86810 replacement=0x2b7e690 slot=0x2b871a0 stolen=6 enabled=1
+    instruction: 0x19c08f0 -> 0x2b86810
+    hook: TMNT_BuildMappedScalarInputEvent entry=0x1938e50 original=0x2b86a10 replacement=0x2b7e860 slot=0x2b871a8 stolen=6 enabled=1
+    instruction: 0x1938e50 -> 0x2b86a10
+    instruction: 0x1938e51 -> 0x2b86a11
+    instruction: 0x1938e54 -> 0x2b86a14
+    sdk_calls: 19198
+    last_owner: 1:1:2:8
+    counter: 1 GuestPatch.frame_intercepts_67def519ee47.frame_begin_ns samples=429 last=325380624122176
+    counter: 2 GuestPatch.frame_intercepts_67def519ee47.frame_elapsed_ns samples=429 last=10915990
+    counter: 3 GuestPatch.frame_intercepts_67def519ee47.begin_begin_ns samples=431 last=325380628637228
+    counter: 4 GuestPatch.frame_intercepts_67def519ee47.begin_elapsed_ns samples=431 last=932188
+    counter: 5 GuestPatch.frame_intercepts_67def519ee47.submit_begin_ns samples=431 last=325380632078061
+    counter: 6 GuestPatch.frame_intercepts_67def519ee47.submit_elapsed_ns samples=431 last=2945261
+    counter: 7 GuestPatch.frame_intercepts_67def519ee47.jobs_begin_ns samples=3003 last=325380631759624
+    counter: 8 GuestPatch.frame_intercepts_67def519ee47.jobs_elapsed_ns samples=3003 last=57656
+    counter: 9 GuestPatch.frame_intercepts_67def519ee47.fmod_begin_ns samples=429 last=325380627967801
+    counter: 10 GuestPatch.frame_intercepts_67def519ee47.fmod_elapsed_ns samples=429 last=325469
+    counter: 11 GuestPatch.frame_intercepts_67def519ee47.recompiled_write_label_calls samples=1 last=256
+    counter: 12 GuestPatch.frame_intercepts_67def519ee47.recompiled_default_state_calls samples=1 last=256
+    counter: 13 GuestPatch.frame_intercepts_67def519ee47.recompiled_submit_packets_calls samples=1 last=256
+    counter: 14 GuestPatch.frame_intercepts_67def519ee47.recompiled_submit_label_calls samples=1 last=256
+    counter: 15 GuestPatch.frame_intercepts_67def519ee47.recompiled_frame_dispatch_calls samples=1 last=256
+    counter: 16 GuestPatch.frame_intercepts_67def519ee47.Import_pthread_mutex_lock_entries samples=63 last=253952
+    counter: 17 GuestPatch.frame_intercepts_67def519ee47.Import_pthread_mutex_unlock_entries samples=63 last=253952
+    counter: 18 GuestPatch.frame_intercepts_67def519ee47.TMNT_UpdateColorBlendState_entries samples=1 last=1
+    counter: 19 GuestPatch.frame_intercepts_67def519ee47.Import_clock_gettime_entries samples=1 last=1
+    counter: 20 GuestPatch.frame_intercepts_67def519ee47.Import_time_entries samples=1 last=1
+    counter: 21 GuestPatch.frame_intercepts_67def519ee47.TMNT_ExpireTimedRequestsAndPollProviders_entries samples=1 last=1
+    counter: 22 GuestPatch.frame_intercepts_67def519ee47.TMNT_DispatchProviderCompletions_entries samples=1 last=1
+    counter: 23 GuestPatch.frame_intercepts_67def519ee47.TMNT_BuildMappedStickInputEvent_entries samples=6 last=20480
+    counter: 24 GuestPatch.frame_intercepts_67def519ee47.TMNT_IsInputDeviceActive_entries samples=62 last=249856
+    counter: 25 GuestPatch.frame_intercepts_67def519ee47.TMNT_TestButtonNewPress_entries samples=2 last=4096
+    counter: 26 GuestPatch.frame_intercepts_67def519ee47.TMNT_TestButtonHeld_entries samples=2 last=4096
+    counter: 27 GuestPatch.frame_intercepts_67def519ee47.TMNT_TestButtonReleased_entries samples=2 last=4096
+    counter: 28 GuestPatch.frame_intercepts_67def519ee47.Import__Xtime_get_ticks_entries samples=1 last=1
+    counter: 29 GuestPatch.frame_intercepts_67def519ee47.TMNT_AdvanceTimedInputEntries_entries samples=1 last=1
+counter: 30 GuestPatch.frame_intercepts_67def519ee47.Import_memset_entries samples=7 last=24576
+    counter: 31 GuestPatch.frame_intercepts_67def519ee47.Import_memmove_entries samples=2 last=4096
+    counter: 32 GuestPatch.frame_intercepts_67def519ee47.TMNT_ScheduleTimedCallbackRecord_entries samples=1 last=1
+    counter: 33 GuestPatch.frame_intercepts_67def519ee47.TMNT_UpdateObjectStateChain_entries samples=3 last=8192
+    counter: 34 GuestPatch.frame_intercepts_67def519ee47.TMNT_PruneAndFinalizeObjectSubtree_entries samples=1 last=1
+    counter: 35 GuestPatch.frame_intercepts_67def519ee47.Import_FmodStudioEventGetSampleLoadingState_entries samples=0 last=0
+    counter: 36 GuestPatch.frame_intercepts_67def519ee47.Import_FmodStudioEventGetPlaybackState_entries samples=0 last=0
+    counter: 37 GuestPatch.frame_intercepts_67def519ee47.TMNT_SortRecordsByFloatKey_entries samples=1 last=1
+    counter: 38 GuestPatch.frame_intercepts_67def519ee47.TMNT_CollectExpiredResourceIds_entries samples=1 last=1
+    counter: 39 GuestPatch.frame_intercepts_67def519ee47.TMNT_WaitForQueueFenceWhileHelping_entries samples=1 last=1
+    counter: 40 GuestPatch.frame_intercepts_67def519ee47.TMNT_ProcessPhaseRecordBatches_entries samples=1 last=1
+    counter: 41 GuestPatch.frame_intercepts_67def519ee47.TMNT_EnqueueJobBetweenSequenceMarkers_entries samples=1 last=1
+    counter: 42 GuestPatch.frame_intercepts_67def519ee47.TMNT_DrainDeferredCallbackLists_entries samples=1 last=1
+    counter: 43 GuestPatch.frame_intercepts_67def519ee47.TMNT_UpdateEnabledObjectSubtree_entries samples=3 last=8192
+    counter: 44 GuestPatch.frame_intercepts_67def519ee47.TMNT_AllocateFrameCommandNode_entries samples=1 last=1
+    counter: 45 GuestPatch.frame_intercepts_67def519ee47.TMNT_EnqueueJobAfterSequenceMarker_entries samples=1 last=1
+    counter: 46 GuestPatch.frame_intercepts_67def519ee47.Import_strcmp_entries samples=10 last=36864
+    counter: 47 GuestPatch.frame_intercepts_67def519ee47.Import_fmodf_entries samples=1 last=1
+    counter: 48 GuestPatch.frame_intercepts_67def519ee47.Import_FmodChannelGroupGetParentGroup_entries samples=1 last=1
+    counter: 49 GuestPatch.frame_intercepts_67def519ee47.Import_FmodSystemGetMasterChannelGroup_entries samples=1 last=1
+    counter: 50 GuestPatch.frame_intercepts_67def519ee47.Import_FmodChannelControlSetPaused_entries samples=1 last=1
+    counter: 51 GuestPatch.frame_intercepts_67def519ee47.Import_FmodChannelControlGetVolume_entries samples=0 last=0
+    counter: 52 GuestPatch.frame_intercepts_67def519ee47.Import_FmodChannelControlSetVolume_entries samples=1 last=1
+    counter: 53 GuestPatch.frame_intercepts_67def519ee47.Import_FmodChannelControlGetDspClock_entries samples=1 last=1
+    counter: 54 GuestPatch.frame_intercepts_67def519ee47.TMNT_RefreshExpiredStateAndNotifyCallbacks_entries samples=0 last=0
+    counter: 55 GuestPatch.frame_intercepts_67def519ee47.Import_malloc_entries samples=27 last=106496
+    counter: 56 GuestPatch.frame_intercepts_67def519ee47.Import_free_entries samples=13 last=49152
+    counter: 57 GuestPatch.frame_intercepts_67def519ee47.Import_FmodStudioEventStop_entries samples=0 last=0
+    counter: 58 GuestPatch.frame_intercepts_67def519ee47.Import_FmodStudioEventRelease_entries samples=0 last=0
+    counter: 59 GuestPatch.frame_intercepts_67def519ee47.TMNT_BuildMappedScalarInputEvent_entries samples=11 last=40960
+

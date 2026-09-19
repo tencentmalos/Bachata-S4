@@ -1,0 +1,94 @@
+guest execution through the public CPU API
+host page size: 4096
+fixtures: 37, generated from tests/guest_cpu/fixtures/guest_fixtures.S
+
+guest reservation base: 0xff8000000
+code at 0xff8010000, stack top 0xff8023ff0
+return gate at 0x1fc0000000
+
+[DBG01-0] step retires exactly one architectural instruction         PASS -- StepComplete rip=0xff8010003
+[DBG02-0] debugger TF does not leak into guest flags                 PASS
+[DBG01-1] step retires exactly one architectural instruction         PASS -- StepComplete rip=0xff8010006
+[DBG02-1] debugger TF does not leak into guest flags                 PASS
+[DBG01-2] step retires exactly one architectural instruction         PASS -- StepComplete rip=0xff8010009
+[DBG02-2] debugger TF does not leak into guest flags                 PASS
+[DBG01-3] step retires exactly one architectural instruction         PASS -- StepComplete rip=0xff801000d
+[DBG02-3] debugger TF does not leak into guest flags                 PASS
+[DBG03 ] continue after stepping preserves integer and flag state   PASS
+[DBG04-0] memory/SSE/call/ret exact successor                        PASS -- 0x5
+[DBG04-1] memory/SSE/call/ret exact successor                        PASS -- 0x8
+[DBG04-2] memory/SSE/call/ret exact successor                        PASS -- 0xd
+[DBG04-3] memory/SSE/call/ret exact successor                        PASS -- 0x11
+[DBG05 ] SSE result survives the step exit                          PASS
+[DBG04-4] memory/SSE/call/ret exact successor                        PASS -- 0x1a
+[DBG04-5] memory/SSE/call/ret exact successor                        PASS -- 0x1c
+[DBG04-6] memory/SSE/call/ret exact successor                        PASS -- 0x16
+[DBG06 ] INT3 stops recoverably without executing its successor     PASS
+[DBG07 ] step from INT3 successor resumes the same owner            PASS
+[DBG08-0] self branch still retires one instruction                  PASS
+[DBG08-1] self branch still retires one instruction                  PASS
+[DBG08-2] self branch still retires one instruction                  PASS
+[DBG08-3] self branch still retires one instruction                  PASS
+[DBG08-4] self branch still retires one instruction                  PASS
+[DBG08-5] self branch still retires one instruction                  PASS
+[DBG08-6] self branch still retires one instruction                  PASS
+[DBG08-7] self branch still retires one instruction                  PASS
+[DBG08-8] self branch still retires one instruction                  PASS
+[DBG08-9] self branch still retires one instruction                  PASS
+[DBG08-10] self branch still retires one instruction                  PASS
+[DBG08-11] self branch still retires one instruction                  PASS
+[DBG08-12] self branch still retires one instruction                  PASS
+[DBG08-13] self branch still retires one instruction                  PASS
+[DBG08-14] self branch still retires one instruction                  PASS
+[DBG08-15] self branch still retires one instruction                  PASS
+[DBG09 ] pre-entry Cancel takes precedence over single step         PASS
+[DBG10 ] single step over real HLE syscall preserves its return     PASS
+[DBG19-0] TF-observing/changing instruction is refused before execution PASS
+[DBG19-1] TF-observing/changing instruction is refused before execution PASS
+[DBG19-2] TF-observing/changing instruction is refused before execution PASS
+[DBG11 ] external controller parks inside the live Run invocation   PASS
+[DBG12 ] owner mailbox writes registers and refuses stale epoch     PASS
+[DBG13 ] software breakpoint has original-byte memory shadow        PASS
+[DBG18 ] debugger rejects nonexecutable RIP without consuming epoch PASS
+[DBG18b] data writes without GPU/memory observer integration are refused PASS
+[DBG14 ] warmed code hits inserted breakpoint at original guest RIP PASS -- 0xff8010005
+[DBG15 ] remove/step executes original store in same invocation     PASS
+[DBG16 ] Cancel wakes parked debugger owner and releases Run        PASS
+[DBG17 ] detach restores breakpoint state                           PASS
+[DBG20 ] Pause preserves native HLE wait while parking sibling guest PASS
+[DW17  ] watch configuration allows native HLE waits after guest pause PASS
+[DBG21 ] HLE snapshot remains read-only and cannot be single-stepped PASS
+[DBG22 ] debug park and native HLE hold no execution lease across VM drain PASS
+[DBG23 ] Stop cancels both HLE wait and parked nested invocation    PASS -- hle=Cancelled parked=Cancelled pins=0
+[DBG24 ] HLE debugger detach releases ownership                     PASS
+[DW01  ] reject zero/overflow watch ranges before arming            PASS
+[DW02  ] write watch records access instruction and architectural successor PASS -- Watchpoint rip=0xff8010009
+[DW03  ] read watch records unchanged bytes and preserves live carry flag PASS
+[DW04  ] same-value write triggers without value polling            PASS
+[DW05  ] atomic RMW triggers and observation preserves flags across instructions PASS
+[DW06  ] vector access overlaps last watched byte                   PASS
+[DW07  ] vector store preserves its source across observer callback PASS
+[DW10  ] push watches the decremented guest stack address           PASS
+[DW11  ] pop observes the original stack slot and preserves its value PASS
+[DW12  ] last watch removal resumes cached execution without observation or inherited hits PASS
+[DW08  ] Cancel drains watched owner                                PASS
+[DW09  ] detach removes every software watchpoint                   PASS
+[DW13  ] detach restores full-speed loop with no remaining observers or TF stops PASS
+[DW14  ] unsupported bulk access stops before mutation              PASS
+[DW15  ] stale watch mapping stops before execution                 PASS
+[DW16  ] unhandled non-temporal access is refused before mutation   PASS
+[DM01  ] mixed stack retains two nested callbacks and cancellable native wait by invocation PASS -- boundaries=3 callbacks=2 waits=1
+[DM10  ] waiting HLE does not bypass a live pin during code publication PASS
+[DM11  ] selectively resumed HLE owner refuses code patch           PASS
+[DM12  ] software breakpoint publishes while nested native HLE remains waiting PASS
+[DM13  ] new invocation remains parked before patched guest code    PASS
+[DM14  ] breakpoint hits and restores with another owner still waiting in HLE PASS
+[DM02  ] detach clears boundary ownership while native HLE is waiting PASS
+[DM03  ] mixed-stack cancellation unwinds every callback            PASS
+[DM04  ] unattached nested HLE performs zero native capture and zero memory observation PASS
+[DM07-0] 1000 HLE calls capture once per attached invocation; detach stays capture-free PASS
+[DM07-1] 1000 HLE calls capture once per attached invocation; detach stays capture-free PASS
+[DM07-2] 1000 HLE calls capture once per attached invocation; detach stays capture-free PASS
+[DM05  ] RBP walker reports a checked guest caller at a parked leaf PASS
+[DM06  ] invalid frame pointer truncates without speculative stack scanning PASS
+FOCUSED_DEBUGGER checks=85 failures=0

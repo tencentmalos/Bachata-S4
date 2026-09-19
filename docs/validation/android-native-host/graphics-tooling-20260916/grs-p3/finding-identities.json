@@ -1,0 +1,236 @@
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"columns\":[\"shader_guid\",\"sguid\",\"is_texture\",\"is_write\",\"token\",\"token_type\",\"token_puid\",\"coordinate_x\"],\"rows\":[[{\"kind\":\"integer\",\"value\":1},{\"kind\":\"integer\",\"value\":1},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":3456}],[{\"kind\":\"integer\",\"value\":1},{\"kind\":\"integer\",\"value\":1},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":384}],[{\"kind\":\"integer\",\"value\":1},{\"kind\":\"integer\",\"value\":1},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":3072}],[{\"kind\":\"integer\",\"value\":1},{\"kind\":\"integer\",\"value\":1},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":768}],[{\"kind\":\"integer\",\"value\":1},{\"kind\":\"integer\",\"value\":1},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":18432}],[{\"kind\":\"integer\",\"value\":1},{\"kind\":\"integer\",\"value\":1},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":2688}]],\"truncated\":false,\"elapsedMilliseconds\":0,\"schemaRevision\":13,\"watermark\":\"raw_event:8\",\"coverage\":\"partialLive\",\"provenance\":\"direct\"}"
+      }
+    ],
+    "structuredContent": {
+      "columns": [
+        "shader_guid",
+        "sguid",
+        "is_texture",
+        "is_write",
+        "token",
+        "token_type",
+        "token_puid",
+        "coordinate_x"
+      ],
+      "rows": [
+        [
+          {
+            "kind": "integer",
+            "value": 1
+          },
+          {
+            "kind": "integer",
+            "value": 1
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 3456
+          }
+        ],
+        [
+          {
+            "kind": "integer",
+            "value": 1
+          },
+          {
+            "kind": "integer",
+            "value": 1
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 384
+          }
+        ],
+        [
+          {
+            "kind": "integer",
+            "value": 1
+          },
+          {
+            "kind": "integer",
+            "value": 1
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 3072
+          }
+        ],
+        [
+          {
+            "kind": "integer",
+            "value": 1
+          },
+          {
+            "kind": "integer",
+            "value": 1
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 768
+          }
+        ],
+        [
+          {
+            "kind": "integer",
+            "value": 1
+          },
+          {
+            "kind": "integer",
+            "value": 1
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 18432
+          }
+        ],
+        [
+          {
+            "kind": "integer",
+            "value": 1
+          },
+          {
+            "kind": "integer",
+            "value": 1
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 2688
+          }
+        ]
+      ],
+      "truncated": false,
+      "elapsedMilliseconds": 0,
+      "schemaRevision": 13,
+      "watermark": "raw_event:8",
+      "coverage": "partialLive",
+      "provenance": "direct"
+    }
+  },
+  "id": 7,
+  "jsonrpc": "2.0"
+}

@@ -1,0 +1,506 @@
+{
+  "5996": {
+    "GuestPoll.Operation": [
+      {
+        "value": "0x188",
+        "count": 2
+      }
+    ],
+    "GuestPoll.Caller": [
+      {
+        "value": "0x1000e692a",
+        "count": 2
+      }
+    ],
+    "GuestPoll.Arg0": [
+      {
+        "value": "0x4",
+        "count": 2
+      }
+    ],
+    "GuestPoll.Rbp": [
+      {
+        "value": "0x100179f950",
+        "count": 2
+      }
+    ],
+    "GuestPoll.R14": [
+      {
+        "value": "0x1000000000",
+        "count": 2
+      }
+    ],
+    "GuestPoll.Parent": [
+      {
+        "value": "0x1000fa1c3",
+        "count": 2
+      }
+    ],
+    "GuestPoll.Grandparent": [
+      {
+        "value": "0x100100d16",
+        "count": 2
+      }
+    ]
+  },
+  "5994": {
+    "GuestPoll.Operation": [
+      {
+        "value": "0x188",
+        "count": 2
+      }
+    ],
+    "GuestPoll.Caller": [
+      {
+        "value": "0x101f0f2ba",
+        "count": 2
+      }
+    ],
+    "GuestPoll.Arg0": [
+      {
+        "value": "0x4",
+        "count": 2
+      }
+    ],
+    "GuestPoll.Rbp": [
+      {
+        "value": "0x100173bd00",
+        "count": 2
+      }
+    ],
+    "GuestPoll.R14": [
+      {
+        "value": "0x1000000000",
+        "count": 2
+      }
+    ],
+    "GuestPoll.Parent": [
+      {
+        "value": "0x101ff6ec1",
+        "count": 2
+      }
+    ],
+    "GuestPoll.Grandparent": [
+      {
+        "value": "0x1000dccd2",
+        "count": 2
+      }
+    ]
+  },
+  "5947": {
+    "GuestPoll.Operation": [
+      {
+        "value": "0x188",
+        "count": 3
+      }
+    ],
+    "GuestPoll.Caller": [
+      {
+        "value": "0x1015b47c5",
+        "count": 3
+      }
+    ],
+    "GuestPoll.Arg0": [
+      {
+        "value": "0x4",
+        "count": 3
+      }
+    ],
+    "GuestPoll.Rbp": [
+      {
+        "value": "0x10010db500",
+        "count": 2
+      },
+      {
+        "value": "0x10010db580",
+        "count": 1
+      }
+    ],
+    "GuestPoll.R14": [
+      {
+        "value": "0x14770",
+        "count": 1
+      },
+      {
+        "value": "0x26050",
+        "count": 1
+      },
+      {
+        "value": "0xca30",
+        "count": 1
+      }
+    ],
+    "GuestPoll.Parent": [
+      {
+        "value": "0x1015b0397",
+        "count": 2
+      },
+      {
+        "value": "0x1015b0455",
+        "count": 1
+      }
+    ],
+    "GuestPoll.Grandparent": [
+      {
+        "value": "0x1015af828",
+        "count": 3
+      }
+    ]
+  },
+  "5942": {
+    "GuestPoll.Operation": [
+      {
+        "value": "0x188",
+        "count": 18
+      }
+    ],
+    "GuestPoll.Caller": [
+      {
+        "value": "0x1015b47c5",
+        "count": 18
+      }
+    ],
+    "GuestPoll.Arg0": [
+      {
+        "value": "0x4",
+        "count": 18
+      }
+    ],
+    "GuestPoll.Rbp": [
+      {
+        "value": "0x1000e03ed0",
+        "count": 18
+      }
+    ],
+    "GuestPoll.R14": [
+      {
+        "value": "0x146d0",
+        "count": 1
+      },
+      {
+        "value": "0x16800",
+        "count": 1
+      },
+      {
+        "value": "0x18d60",
+        "count": 1
+      },
+      {
+        "value": "0x1b1b0",
+        "count": 1
+      },
+      {
+        "value": "0x1d430",
+        "count": 1
+      },
+      {
+        "value": "0x1fb00",
+        "count": 1
+      },
+      {
+        "value": "0x21c10",
+        "count": 1
+      },
+      {
+        "value": "0x241f0",
+        "count": 1
+      }
+    ],
+    "GuestPoll.Parent": [
+      {
+        "value": "0x1015b0397",
+        "count": 10
+      },
+      {
+        "value": "0x1015b0455",
+        "count": 8
+      }
+    ],
+    "GuestPoll.Grandparent": [
+      {
+        "value": "0x1015b3313",
+        "count": 18
+      }
+    ]
+  },
+  "5896": {
+    "GuestPoll.Operation": [
+      {
+        "value": "0x188",
+        "count": 22
+      }
+    ],
+    "GuestPoll.Caller": [
+      {
+        "value": "0x101f0f2ba",
+        "count": 22
+      }
+    ],
+    "GuestPoll.Arg0": [
+      {
+        "value": "0x4",
+        "count": 22
+      }
+    ],
+    "GuestPoll.Rbp": [
+      {
+        "value": "0x10001f7480",
+        "count": 22
+      }
+    ],
+    "GuestPoll.R14": [
+      {
+        "value": "0x1000000000",
+        "count": 22
+      }
+    ],
+    "GuestPoll.Parent": [
+      {
+        "value": "0x101ff73a6",
+        "count": 22
+      }
+    ],
+    "GuestPoll.Grandparent": [
+      {
+        "value": "0x101ff7c02",
+        "count": 22
+      }
+    ]
+  },
+  "5943": {
+    "GuestPoll.Operation": [
+      {
+        "value": "0x188",
+        "count": 1
+      }
+    ],
+    "GuestPoll.Caller": [
+      {
+        "value": "0x1015b47c5",
+        "count": 1
+      }
+    ],
+    "GuestPoll.Arg0": [
+      {
+        "value": "0x4",
+        "count": 1
+      }
+    ],
+    "GuestPoll.Rbp": [
+      {
+        "value": "0x1000e3bed0",
+        "count": 1
+      }
+    ],
+    "GuestPoll.R14": [
+      {
+        "value": "0x1c250",
+        "count": 1
+      }
+    ],
+    "GuestPoll.Parent": [
+      {
+        "value": "0x1015b0397",
+        "count": 1
+      }
+    ],
+    "GuestPoll.Grandparent": [
+      {
+        "value": "0x1015b3313",
+        "count": 1
+      }
+    ]
+  },
+  "5998": {
+    "GuestPoll.Operation": [
+      {
+        "value": "0x188",
+        "count": 3
+      }
+    ],
+    "GuestPoll.Caller": [
+      {
+        "value": "0x1015b47c5",
+        "count": 3
+      }
+    ],
+    "GuestPoll.Arg0": [
+      {
+        "value": "0x4",
+        "count": 3
+      }
+    ],
+    "GuestPoll.Rbp": [
+      {
+        "value": "0x100182f650",
+        "count": 1
+      },
+      {
+        "value": "0x100182f6b0",
+        "count": 1
+      },
+      {
+        "value": "0x100182f5d0",
+        "count": 1
+      }
+    ],
+    "GuestPoll.R14": [
+      {
+        "value": "0x1e910",
+        "count": 1
+      },
+      {
+        "value": "0x2320",
+        "count": 1
+      },
+      {
+        "value": "0xf2a0",
+        "count": 1
+      }
+    ],
+    "GuestPoll.Parent": [
+      {
+        "value": "0x1015b0397",
+        "count": 3
+      }
+    ],
+    "GuestPoll.Grandparent": [
+      {
+        "value": "0x1015af828",
+        "count": 3
+      }
+    ]
+  },
+  "6281": {
+    "GuestPoll.Operation": [
+      {
+        "value": "0x11",
+        "count": 1
+      }
+    ],
+    "GuestPoll.Caller": [
+      {
+        "value": "0x1000e699f",
+        "count": 1
+      }
+    ],
+    "GuestPoll.Arg0": [
+      {
+        "value": "0x2710",
+        "count": 1
+      }
+    ],
+    "GuestPoll.Rbp": [
+      {
+        "value": "0x1001f33fa0",
+        "count": 1
+      }
+    ],
+    "GuestPoll.R14": [
+      {
+        "value": "0x25d195d58",
+        "count": 1
+      }
+    ],
+    "GuestPoll.Parent": [
+      {
+        "value": "0x1000e2c87",
+        "count": 1
+      }
+    ],
+    "GuestPoll.Grandparent": [
+      {
+        "value": "0x1000e6a0f",
+        "count": 1
+      }
+    ]
+  },
+  "6073": {
+    "GuestPoll.Operation": [
+      {
+        "value": "0x1",
+        "count": 1
+      }
+    ],
+    "GuestPoll.Caller": [
+      {
+        "value": "0x18c915d",
+        "count": 1
+      }
+    ],
+    "GuestPoll.Arg0": [
+      {
+        "value": "0x4",
+        "count": 1
+      }
+    ],
+    "GuestPoll.Rbp": [
+      {
+        "value": "0x1001ee3e40",
+        "count": 1
+      }
+    ],
+    "GuestPoll.R14": [
+      {
+        "value": "0x2653f3568",
+        "count": 1
+      }
+    ],
+    "GuestPoll.Parent": [
+      {
+        "value": "0x18c0f19",
+        "count": 1
+      }
+    ],
+    "GuestPoll.Grandparent": [
+      {
+        "value": "0x18c3806",
+        "count": 1
+      }
+    ]
+  },
+  "5993": {
+    "GuestPoll.Operation": [
+      {
+        "value": "0x11",
+        "count": 1
+      }
+    ],
+    "GuestPoll.Caller": [
+      {
+        "value": "0x1000e699f",
+        "count": 1
+      }
+    ],
+    "GuestPoll.Arg0": [
+      {
+        "value": "0x2710",
+        "count": 1
+      }
+    ],
+    "GuestPoll.Rbp": [
+      {
+        "value": "0x100170ffa0",
+        "count": 1
+      }
+    ],
+    "GuestPoll.R14": [
+      {
+        "value": "0x25cfe1608",
+        "count": 1
+      }
+    ],
+    "GuestPoll.Parent": [
+      {
+        "value": "0x1000e2c87",
+        "count": 1
+      }
+    ],
+    "GuestPoll.Grandparent": [
+      {
+        "value": "0x1000e6a0f",
+        "count": 1
+      }
+    ]
+  }
+}

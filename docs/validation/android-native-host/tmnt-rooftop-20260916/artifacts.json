@@ -1,0 +1,92 @@
+{
+  "source_head": "4da582b7b3a36d74403a4985c3c03f37e570bcb7",
+  "source_dirty": true,
+  "device": "9c2841a4",
+  "phase_identity": [
+    8463,
+    1,
+    "1c9aee872e67e28297d55a653dacd1b6"
+  ],
+  "context": 1,
+  "host_tid_main": 9112,
+  "artifacts": {
+    "android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk": {
+      "sha256": "9c28a1b90e383835a38ef852bd09bc87c2729f5107e06e66ea091bc05f83d2b0",
+      "size": 331721278
+    },
+    "android/shadps4-app/core/runtime/build/outputs/apk/androidTest/debug/runtime-debug-androidTest.apk": {
+      "sha256": "693a7128264acebc3d259ed9719ecc01fd65e9bc6942f9d90f090e09bd39dd86",
+      "size": 90549044
+    },
+    "build/guest-patch/tmnt-rooftop/patch.json": {
+      "sha256": "0e2c68f224a7b2581d6b13758f1b8996064e715c8589eb3a04b586a8b8ea3e35",
+      "size": 8473
+    },
+    "build/rooftop-profile-20260916/scene.prof": {
+      "sha256": "4ca8673758992e3bf03bcc49dfb8d4013fe244d2f80bbc8bf4cf99f9e0e6ee3b",
+      "size": 58327387
+    },
+    "build/rooftop-profile-20260916/perf.data": {
+      "sha256": "ee9c5691f9d949f0a30daa9b1761edd0f9d43b5403c06e93d7ac8a0ef852fce0",
+      "size": 1804425
+    },
+    "build/rooftop-profile-20260916/phases/scene.prof": {
+      "sha256": "487c450611500d791cac962082653d4560ed71a507b7ec133c3c608ad83c4878",
+      "size": 60167113
+    },
+    "build/rooftop-profile-20260916/phases/perf.data": {
+      "sha256": "da594a9596e41b4ab2e777f019c46b62a14c6c964719c735903abf23b3bc20fd",
+      "size": 1257100
+    },
+    "build/rooftop-profile-20260916/tmnt-eboot.elf": {
+      "sha256": "cf14264107ef499c5fcaffc97386dcee25652c16d3975d1be27edc4e7e40ede5",
+      "size": 31306433
+    },
+    "build/rooftop-profile-20260916/tmnt-analysis-etdyn.elf": {
+      "sha256": "504fc22628a2a7c563e593aab298b9273e2a80eaf8814a095ffb6f464152da99",
+      "size": 31306433
+    },
+    "lib/arm64-v8a/libshadps4_host.so": {
+      "sha256": "62f2d92ae4ee518c38f4013dbdd07490d3bd437ffdfddd0bf985bf8b621a4ee4",
+      "size": 464424384
+    },
+    "lib/arm64-v8a/libshadps4_fex_session.so": {
+      "sha256": "3f72fee3f0c03bba7d3d98545acdaf60ebc8bf2ecb864ffa8f843637e26e6536",
+      "size": 35231536
+    }
+  },
+  "source_files": {
+    "android/shadps4-app/feature/settings/src/main/kotlin/com/shadps4/android/feature/settings/input/ControllerMappingViewModel.kt": "617c47c33d930893eb070891ca8ca8eb37a4d67281057191e94d6921fb0dae4b",
+    "android/shadps4-app/feature/settings/src/main/kotlin/com/shadps4/android/feature/settings/input/ControllerMappingScreen.kt": "2f793e61f710885fcb561f0c2244c1ea19aa4ee24ddd590376d1f81b10d9aa0e",
+    "android/shadps4-app/feature/settings/src/test/kotlin/com/shadps4/android/feature/settings/input/ControllerMappingViewModelTest.kt": "d28998ac1583af99075228647d418e558555be59465a0c349b34c84c71b54607",
+    "android/shadps4-app/core/runtime/src/main/kotlin/com/shadps4/android/runtime/input/NativeButtonMapping.kt": "f8efa9bdcbc6076b802794c041151d177bfe58cf60dd2ad8129280e66a98f925",
+    "android/shadps4-app/core/runtime/src/test/kotlin/com/shadps4/android/runtime/input/NativeButtonMappingTest.kt": "5850df5cf3fbb7f0e7dd153f692b96404ad933ba31b5be94ad1ecfa2552bbeae",
+    "android/shadps4-app/core/runtime/src/main/kotlin/com/shadps4/android/runtime/input/ControllerProfile.kt": "1168d0ceaf139034a512f2bddfab5a9a23d9a674ae4b57e6080023273a288aa4",
+    "android/shadps4-app/core/runtime/src/main/kotlin/com/shadps4/android/runtime/input/NativePadBridge.kt": "90b72255e9476dc8b801bbc2eee3009ddd0e54bf36d7253ab61b21cd09e75792",
+    "android/shadps4-app/core/runtime/src/androidTest/kotlin/com/shadps4/android/runtime/input/NativePadInstrumentedTest.kt": "766073f03711988b49b61e55b9cd3020b8c0fe6dcaf023b43e9300f3ac1b1806",
+    "android/shadps4-app/core/runtime/src/main/kotlin/com/shadps4/android/runtime/input/ControllerBindingResolver.kt": "113c92f7e371608bd72955ffd8a93179e90035a85a26c7125d042a4c07ae6c61",
+    "guest/games/CUSA50828/01.08/rooftop.recipe.json": "6c6b3f497c4ce193a0153820b64fbd7ef36d07874a68859203c66865df1f4032",
+    "guest/games/CUSA50828/01.08/rooftop.cpp": "939c775906c7872f737735192244876eddbd5005c3a225cdfbc470a9b077fb84",
+    "guest/games/CUSA50828/01.08/symbols/main-frame.symbols.json": "5f2307d0a5f72839556b03423fbd0116e538e4805d0f7a49346b11c8c85506f2",
+    "guest/games/CUSA50828/01.08/symbols/index.json": "a6ebeafcd2db87c84cc8dcbf940543548c905c81e037ec6360998eae48e582cc",
+    "android/shadps4-app/feature/session/src/main/kotlin/com/shadps4/android/feature/session/SessionScreen.kt": "0f5a6e12d9b31dadbdc702478fe5a4d5a445c2ac7fea9a57748aee217c8fcc37",
+    "android/shadps4-app/feature/settings/src/main/kotlin/com/shadps4/android/feature/settings/input/GamepadDiagram.kt": "f132b7dcc5be444ed09f9f57da9f5f79ab0bb81ad3eddd32073a1573fa3ca342"
+  },
+  "symbols_validation": {
+    "succeeded": true,
+    "schema": "spatial.guest-symbol-index.v2",
+    "index_sha256": "a6ebeafcd2db87c84cc8dcbf940543548c905c81e037ec6360998eae48e582cc",
+    "symbols": 5,
+    "typed_symbols": 5,
+    "dry_run": true,
+    "live_binding_tested": false
+  },
+  "cleanup": {
+    "stopped_normally": true,
+    "debug_port": 0,
+    "TracerPid": 0,
+    "capture_active": false,
+    "automatic_input_active": false,
+    "ida_workspace_closed": true
+  }
+}

@@ -1,0 +1,42 @@
+[
+  {
+    "test": "guest_vm_mutex_bench",
+    "exit": 0,
+    "log": "guest_vm_mutex_bench.log"
+  },
+  {
+    "test": "guest_services_tests",
+    "exit": 0,
+    "log": "guest_services_tests.log"
+  },
+  {
+    "test": "guest_condition_tests",
+    "exit": 0,
+    "log": "guest_condition_tests.log"
+  },
+  {
+    "test": "guest_cpu_contract_tests",
+    "exit": 0,
+    "log": "guest_cpu_contract_tests.log"
+  },
+  {
+    "test": "guest_execution_tests-focused-hle",
+    "exit": 0,
+    "log": "guest_execution_tests-focused-hle.log"
+  },
+  {
+    "test": "guest_execution_tests-focused-publication",
+    "exit": 0,
+    "log": "guest_execution_tests-focused-publication.log"
+  },
+  {
+    "test": "guest_execution_tests-focused-debugger",
+    "exit": 0,
+    "log": "guest_execution_tests-focused-debugger.log"
+  },
+  {
+    "test": "compiled_guest_tests",
+    "exit": 0,
+    "log": "compiled_guest_tests.log"
+  }
+]

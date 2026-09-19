@@ -41,6 +41,27 @@ int main() {
     CHECK(call("dgJBaeJnGpo", {base, 4096, 0}) == error(ORBIS_NET_ENOTINIT));
     CHECK(call("Nlev7Lg8k3A") == 0);
     CHECK(call("Nlev7Lg8k3A") == 0);
+    CHECK(call("SF47kB2MNTo", {base,1}) == error(ORBIS_NET_EINVAL));
+    CHECK(call("SF47kB2MNTo", {1,0}) == error(ORBIS_NET_EFAULT));
+    const auto epoll=call("SF47kB2MNTo",{base,0}); CHECK(epoll==0x20000);
+    write(base+256,u64{0xfeed});
+    CHECK(call("drjIbDbA7UQ",{epoll,base+256,1,u32(-1)})==0);
+    CHECK(read.operator()<u64>(base+256)==0xfeed);
+    CHECK(call("drjIbDbA7UQ",{epoll,base+256,UINT64_MAX,0})==error(ORBIS_NET_EINVAL));
+    CHECK(call("drjIbDbA7UQ",{epoll,1,1,0})==error(ORBIS_NET_EFAULT));
+    CHECK(call("ZVw46bsasAk",{epoll,1,1,base+256})==error(ORBIS_NET_EBADF));
+    CHECK(call("ZVw46bsasAk",{epoll,2,1,0})==error(ORBIS_NET_ENOENT));
+    CHECK(call("w21YgGGNtBk",{epoll})==0);
+    CHECK(call("cTGkc6-TBlI")==error(ORBIS_NET_EBUSY));
+    CHECK(call("Inp1lfL+Jdw",{epoll})==0);
+    CHECK(call("Inp1lfL+Jdw",{epoll})==error(ORBIS_NET_EBADF));
+    CHECK(call("drjIbDbA7UQ",{epoll,base+256,1,0})==error(ORBIS_NET_EBADF));
+    CHECK(call("Q4qBuN-c0ZM", {base, 2, 1, 0}) == error(ORBIS_NET_ENETDOWN));
+    CHECK(read.operator()<s32>(base + 128) == ORBIS_NET_ENETDOWN);
+    CHECK(call("Q4qBuN-c0ZM", {1, 2, 1, 0}) == error(ORBIS_NET_EFAULT));
+    CHECK(call("45ggEzakPJQ", {1}) == error(ORBIS_NET_EBADF));
+    CHECK(call("9wO9XrMsNhc", {1, base, 128}) == error(ORBIS_NET_EBADF));
+    CHECK(read.operator()<u32>(base) == 0x6c6f6f70); // no fabricated received bytes
     CHECK(call("dgJBaeJnGpo", {1, 4096, 0}) == error(ORBIS_NET_EFAULT));
     CHECK(call("dgJBaeJnGpo", {base, 0, 0}) == error(ORBIS_NET_EINVAL));
     CHECK(call("dgJBaeJnGpo", {base, 32 << 20, 0}) == error(ORBIS_NET_ENOMEM));

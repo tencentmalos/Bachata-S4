@@ -1,0 +1,17 @@
+{
+  "arguments": {
+    "eventId": "71"
+  },
+  "response": {
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"schemaVersion\":\"1.0\",\"session\":{\"captureId\":\"1057136b-e6b8-400a-b9ae-1c9e73be5b13\",\"captureRevision\":{\"value\":2},\"currentEventId\":\"71\"},\"data\":{\"eventId\":\"71\",\"graphicsApi\":\"Vulkan\",\"viewportX\":0,\"viewportY\":0,\"viewportWidth\":0,\"viewportHeight\":0,\"colorTargets\":[\"601\"]}}"
+        }
+      ]
+    },
+    "id": 7,
+    "jsonrpc": "2.0"
+  }
+}

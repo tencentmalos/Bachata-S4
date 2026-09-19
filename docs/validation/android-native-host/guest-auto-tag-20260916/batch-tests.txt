@@ -1,0 +1,20 @@
+test_auto_at_sdk_frame_offset_does_not_create_another_frame (test_batch.Pairing.test_auto_at_sdk_frame_offset_does_not_create_another_frame) ... ok
+test_corrupt_chunk_is_not_silently_skipped (test_batch.Pairing.test_corrupt_chunk_is_not_silently_skipped) ... ok
+test_duplicate_capture_cannot_double_weights (test_batch.Pairing.test_duplicate_capture_cannot_double_weights) ... ok
+test_epoch_and_invocation_do_not_cross (test_batch.Pairing.test_epoch_and_invocation_do_not_cross) ... ok
+test_gap_other_thread_keeps_valid_pairs (test_batch.Pairing.test_gap_other_thread_keeps_valid_pairs) ... ok
+test_gap_refuses_pair (test_batch.Pairing.test_gap_refuses_pair) ... ok
+test_large_outer_interval_not_skipped (test_batch.Pairing.test_large_outer_interval_not_skipped) ... ok
+test_lz4_declared_length_is_a_bound (test_batch.Pairing.test_lz4_declared_length_is_a_bound) ... ok
+test_negative_or_future_clock (test_batch.Pairing.test_negative_or_future_clock) ... ok
+test_nested_union_not_sum (test_batch.Pairing.test_nested_union_not_sum) ... ok
+test_next_iteration_is_bounded_and_skips_already_measured_frame (test_batch.Pairing.test_next_iteration_is_bounded_and_skips_already_measured_frame) ... ok
+test_overlap_independent_of_guest_architecture (test_batch.Pairing.test_overlap_independent_of_guest_architecture) ... ok
+test_recording_boundary_does_not_pair (test_batch.Pairing.test_recording_boundary_does_not_pair) ... ok
+test_separate_owners (test_batch.Pairing.test_separate_owners) ... ok
+test_wrong_context_is_not_symbolized (test_batch.Pairing.test_wrong_context_is_not_symbolized) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.009s
+
+OK

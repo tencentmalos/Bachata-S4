@@ -1,0 +1,5 @@
+SERVICE com.shadps4.android/.service.FexSessionService 6481817 pid=32104 user=0
+  Client:
+    status: invalid_arguments
+    detail: enable|disable requires current context ID
+

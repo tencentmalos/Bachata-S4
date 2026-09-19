@@ -2,9 +2,12 @@
 #pragma once
 
 #include <algorithm>
+#include <atomic>
 #include <condition_variable>
+#include <cstring>
 #include <functional>
 #include <map>
+#include <memory>
 #include <mutex>
 #include <optional>
 #include <stop_token>
@@ -18,6 +21,23 @@ namespace Core::HostRuntime {
 // prefix flags at +0x20, so the published handle addresses a guest allocation,
 // never a native mutex, std::string, pthread pointer or an unmapped integer.
 class GuestMutexDomain final {
+public:
+    // Optional diagnostic observer, installed before owners start. Called under
+    // the owning object guard: it must not reenter, block or inspect guest memory.
+    // Different objects may report concurrently.
+    enum class CondTraceKind { Enqueued, Notified, Resumed, Reacquired };
+    struct CondTraceEvent {
+        CondTraceKind kind;
+        u64 condition, mutex, owner;
+        int result;
+    };
+    using CondObserver = void (*)(const CondTraceEvent&) noexcept;
+    void SetCondObserver(CondObserver observer) { cond_observer = observer; }
+private:
+    CondObserver cond_observer{};
+    void TraceCond(CondTraceKind kind, u64 condition, u64 mutex, u64 owner, int result = 0) const {
+        if (cond_observer) cond_observer({kind, condition, mutex, owner, result});
+    }
     struct Prefix {
         u64 owner{};
         u32 count{}, spins{}, yields{}, protocol{};
@@ -28,38 +48,71 @@ class GuestMutexDomain final {
     struct Mutex {
         u64 address{}, owner{};
         u32 depth{}, type{1}, waiters{}, protocol{};
+        bool retired{};
+        Mutex* directory_next{}; // immutable after release publication
+        // std::mutex / condition_variable directly use Bionic pthread primitives
+        // on Android. Never hold this physical-thread lock across guest execution.
+        std::mutex guard;
+        std::condition_variable changed;
     };
     struct AttributeState {
         u32 type{1}, protocol{}, ceiling{};
     };
     GuestCpu::GuestAddressSpace& space;
     std::function<u64()> allocate;
-    std::recursive_mutex* vm_mutex{};
+
     std::mutex guard;
-    std::condition_variable_any changed;
-    std::map<u64, Mutex> mutexes;
+    std::map<u64, Mutex*> mutexes;
+    // Retain published identities until owners join at Session teardown. Bucket
+    // chains are immutable; lookup never takes the registry lock and has no
+    // fixed population ceiling. Retired addresses cannot acquire a new object.
+    std::vector<std::unique_ptr<Mutex>> mutex_storage;
+    static constexpr size_t DirectorySize = 8192;
+    std::array<std::atomic<Mutex*>, DirectorySize> mutex_directory{};
+    static size_t DirectoryHash(u64 address) {
+        auto key = address >> 6;
+        key ^= key >> 30;
+        key *= 0xbf58476d1ce4e5b9ULL;
+        key ^= key >> 27;
+        return key & (DirectorySize - 1);
+    }
+    Mutex* LookupMutex(u64 address) const {
+        auto* state = mutex_directory[DirectoryHash(address)].load(std::memory_order_acquire);
+        for (; state; state = state->directory_next)
+            if (state->address == address) return state;
+        return nullptr;
+    }
+    void PublishMutex(Mutex* state) {
+        // Creation is serialized, readers only traverse fully initialized nodes.
+        auto& bucket = mutex_directory[DirectoryHash(state->address)];
+        state->directory_next = bucket.load(std::memory_order_relaxed);
+        bucket.store(state, std::memory_order_release);
+    }
     std::map<u64, AttributeState> attributes;
     struct Waiter {
         u64 owner{};
+        u64 mutex{};
         bool notified{};
         bool reacquiring{};
+        std::condition_variable changed;
     };
     struct Cond {
         std::vector<Waiter*> waiters;
         u32 clock{};
+        bool retired{};
+        std::mutex guard;
     };
-    std::map<u64, Cond> conditions;
+    std::map<u64, std::shared_ptr<Cond>> conditions;
     std::map<u64, u32> condition_attributes;
     GuestClock clock;
-    size_t allocations{};
     int CondCreate(u64 slot, u32 clock_id = 0) {
         if (!Writable(slot, 8))
             return POSIX_EFAULT;
-        if (allocations >= 4096)
-            return POSIX_ENOMEM;
         const u64 addr = allocate();
-        ++allocations;
-        conditions.emplace(addr, Cond{.clock = clock_id});
+        if (!addr) return POSIX_ENOMEM;
+        auto state = std::make_shared<Cond>();
+        state->clock = clock_id;
+        conditions.emplace(addr, std::move(state));
         Write(slot, addr);
         return 0;
     }
@@ -67,20 +120,27 @@ class GuestMutexDomain final {
     template <class T>
     T Read(u64 addr) {
         T value{};
-        auto s =
-            space.Read(GuestCpu::GuestAddress{addr}, std::as_writable_bytes(std::span{&value, 1}));
+        auto s = space.ReadData(GuestCpu::GuestAddress{addr},
+                                std::as_writable_bytes(std::span{&value, 1}));
         if (!s)
             throw std::runtime_error(GuestCpu::Describe(s.GetError()));
         return value;
     }
     template <class T>
     void Write(u64 addr, const T& value) {
-        // Allocation/publication holds this same gate. Release it before any wait.
-        std::unique_lock<std::recursive_mutex> vm;
-        if (vm_mutex) vm = std::unique_lock(*vm_mutex);
-        auto s = space.Write(GuestCpu::GuestAddress{addr}, std::as_bytes(std::span{&value, 1}));
+        // Retain only this output range; never hold VM metadata across the copy.
+
+        auto s = space.WriteData(GuestCpu::GuestAddress{addr}, std::as_bytes(std::span{&value, 1}));
         if (!s)
             throw std::runtime_error(GuestCpu::Describe(s.GetError()));
+    }
+    void WriteOwnership(u64 address, u64 owner, u32 depth) {
+        // One checked 12-byte write. Preserve libc's
+        // spin/yield/protocol/flags fields; only the first 12 ABI bytes change.
+        std::array<std::byte, 12> bytes;
+        std::memcpy(bytes.data(), &owner, sizeof(owner));
+        std::memcpy(bytes.data() + sizeof(owner), &depth, sizeof(depth));
+        Write(address, bytes);
     }
     bool Writable(u64 addr, u64 size) {
         return bool(space.ValidateRange({GuestCpu::GuestAddress{addr}, size},
@@ -89,32 +149,51 @@ class GuestMutexDomain final {
     int Create(u64 slot, u32 type, u32 protocol = 0) {
         if (!Writable(slot, sizeof(u64)))
             return POSIX_EFAULT;
-        if (allocations >= 4096)
-            return POSIX_ENOMEM;
         const u64 addr = allocate();
-        ++allocations; // Includes destroyed objects: bound generation memory use.
+        if (!addr) return POSIX_ENOMEM;
         Prefix prefix{};
         prefix.flags = type;
         prefix.protocol = protocol;
         Write(addr, prefix);
-        mutexes.emplace(addr, Mutex{.address = addr, .type = type, .protocol = protocol});
+        auto state = std::make_unique<Mutex>();
+        state->address = addr;
+        state->type = type;
+        state->protocol = protocol;
+        auto* published = state.get();
+        mutex_storage.push_back(std::move(state));
+        mutexes.emplace(addr, published);
+        PublishMutex(published);
         Write(slot, addr);
         return 0;
     }
 
+    Mutex* FindMutex(u64 slot, bool initialize, int& error) {
+        // Always reread the checked guest slot. Only immutable native state
+        // identity is indexed, never guest mapping permissions or slot contents.
+        u64 addr = Read<u64>(slot);
+        if (initialize && addr < 2) {
+            std::lock_guard registry(guard);
+            addr = Read<u64>(slot);
+            if (addr < 2) {
+                if ((error = Create(slot, addr == 1 ? 4 : 1))) return nullptr;
+                addr = Read<u64>(slot);
+            }
+        }
+        auto* state = LookupMutex(addr);
+        if (!state) error = POSIX_EINVAL;
+        return state;
+    }
+
 public:
-    GuestMutexDomain(GuestCpu::GuestAddressSpace& space, std::function<u64()> allocate,
-                      std::recursive_mutex* vm_mutex = nullptr)
-        : space(space), allocate(std::move(allocate)), vm_mutex(vm_mutex) {}
+    GuestMutexDomain(GuestCpu::GuestAddressSpace& space, std::function<u64()> allocate)
+        : space(space), allocate(std::move(allocate)) {}
 
     int AttributeInit(u64 slot) {
         std::lock_guard lock(guard);
         if (!Writable(slot, 8))
             return POSIX_EFAULT;
-        if (allocations >= 4096)
-            return POSIX_ENOMEM;
         const u64 addr = allocate();
-        ++allocations;
+        if (!addr) return POSIX_ENOMEM;
         Write(addr, AttributeState{});
         attributes.emplace(addr, AttributeState{});
         Write(slot, addr);
@@ -204,78 +283,83 @@ public:
         return it == attributes.end() ? -1 : int(it->second.type);
     }
     int Lock(u64 slot, u64 owner, bool try_only, std::stop_token cancel) {
-        std::unique_lock lock(guard);
-        u64 addr = Read<u64>(slot);
-        if (addr < 2) {
-            if (int e = Create(slot, addr == 1 ? 4 : 1))
-                return e;
-            addr = Read<u64>(slot);
-        }
-        auto it = mutexes.find(addr);
-        if (it == mutexes.end())
-            return POSIX_EINVAL;
-        auto& m = it->second;
+        int error{};
+        auto state = FindMutex(slot, true, error);
+        if (!state) return error;
+        auto& m = *state;
+        // The callback is destroyed AFTER lock unlocks. It takes the same mutex
+        // as the predicate, preventing the check-to-sleep lost-wake window.
+        auto wake = [&m] {
+            std::lock_guard guard(m.guard);
+            m.changed.notify_all();
+        };
+        std::optional<std::stop_callback<decltype(wake)>> on_stop;
+        std::unique_lock lock(m.guard);
+        if (m.retired) return POSIX_EINVAL;
         if (m.owner == owner) {
             if (m.type == 2) {
-                if (m.depth == UINT32_MAX)
-                    return POSIX_EAGAIN;
-                Write(addr + 8, m.depth + 1);
+                if (m.depth == UINT32_MAX) return POSIX_EAGAIN;
+                Write(m.address + 8, m.depth + 1);
                 ++m.depth;
                 return 0;
             }
-            if (try_only)
-                return POSIX_EBUSY;
-            if (m.type != 3)
-                return POSIX_EDEADLK;
+            if (try_only) return POSIX_EBUSY;
+            if (m.type != 3) return POSIX_EDEADLK;
         }
-        if (m.owner && try_only)
-            return POSIX_EBUSY;
+        if (m.owner && try_only) return POSIX_EBUSY;
         ++m.waiters;
         struct Waiting {
-            Mutex& mutex;
+            Mutex& m;
             ~Waiting() {
-                --mutex.waiters;
+                --m.waiters;
+                // If a selected waiter cancels or fails publication, pass the
+                // available lock to another waiter rather than strand it.
+                if (!m.owner && m.waiters) m.changed.notify_one();
             }
         } waiting{m};
-        const bool ready = changed.wait(lock, cancel, [&] { return m.owner == 0; });
-        if (!ready || cancel.stop_requested())
-            return POSIX_EINTR;
-        Write(addr, owner);
-        Write(addr + 8, u32{1});
+        if (m.owner) {
+            if (cancel.stop_possible()) {
+                // Registration can synchronously invoke wake for a pre-cancelled
+                // token. Drop the object lock first; waiter count pins lifetime.
+                lock.unlock();
+                on_stop.emplace(cancel, wake);
+                lock.lock();
+            }
+            m.changed.wait(lock, [&] { return !m.owner || cancel.stop_requested(); });
+        }
+        if (cancel.stop_requested()) return POSIX_EINTR;
+        WriteOwnership(m.address, owner, 1);
         m.owner = owner;
         m.depth = 1;
         return 0;
     }
     int Unlock(u64 slot, u64 owner) {
-        std::lock_guard lock(guard);
-        auto it = mutexes.find(Read<u64>(slot));
-        if (it == mutexes.end())
-            return POSIX_EINVAL;
-        auto& m = it->second;
-        if (m.owner != owner)
-            return POSIX_EPERM;
-        Write(m.address + 8, m.depth - 1);
-        if (m.depth == 1)
-            Write(m.address, u64{0});
+        int error{};
+        auto state = FindMutex(slot, false, error);
+        if (!state) return error;
+        auto& m = *state;
+        std::lock_guard lock(m.guard);
+        if (m.retired) return POSIX_EINVAL;
+        if (m.owner != owner) return POSIX_EPERM;
+        WriteOwnership(m.address, m.depth == 1 ? 0 : owner, m.depth - 1);
         if (--m.depth == 0) {
             m.owner = 0;
-            changed.notify_all();
+            if (m.waiters) m.changed.notify_one();
         }
         return 0;
     }
     int Destroy(u64 slot) {
-        std::lock_guard lock(guard);
+        std::lock_guard registry(guard);
         const auto addr = Read<u64>(slot);
-        if (addr < 2)
-            return 0;
+        if (addr < 2) return 0;
         auto it = mutexes.find(addr);
-        if (it == mutexes.end())
-            return POSIX_EINVAL;
-        if (it->second.owner || it->second.waiters)
-            return POSIX_EBUSY;
-        if (!Writable(slot, 8))
-            return POSIX_EFAULT;
+        if (it == mutexes.end()) return POSIX_EINVAL;
+        auto state = it->second;
+        std::lock_guard lock(state->guard);
+        if (state->owner || state->waiters) return POSIX_EBUSY;
+        if (!Writable(slot, 8)) return POSIX_EFAULT;
         Write(slot, u64{2});
+        state->retired = true;
         mutexes.erase(it);
         return 0;
     }
@@ -291,10 +375,8 @@ public:
                 return POSIX_EFAULT;
             if (condition_attributes.contains(address))
                 return POSIX_EBUSY;
-            if (allocations >= 4096)
-                return POSIX_ENOMEM;
             const u64 created = allocate();
-            ++allocations;
+            if (!created) return POSIX_ENOMEM;
             condition_attributes.emplace(created, 0);
             Write(slot, created);
             return 0;
@@ -345,48 +427,51 @@ public:
         return CondCreate(slot, clock_id);
     }
     int CondNotify(u64 slot, bool broadcast, u64 target_owner = 0) {
-        std::lock_guard lock(guard);
-        if (!space.ValidateRange({GuestCpu::GuestAddress{slot}, 8},
-                                 GuestCpu::GuestPermission::Read))
-            return POSIX_EFAULT;
-        auto addr = Read<u64>(slot);
-        if (!addr) {
-            if (int e = CondCreate(slot))
-                return e;
+        std::shared_ptr<Cond> state;
+        u64 addr{};
+        {
+            std::lock_guard registry(guard);
+            if (!space.ValidateRange({GuestCpu::GuestAddress{slot}, 8},
+                                     GuestCpu::GuestPermission::Read)) return POSIX_EFAULT;
             addr = Read<u64>(slot);
+            if (!addr) {
+                if (int e = CondCreate(slot)) return e;
+                addr = Read<u64>(slot);
+            }
+            const auto it = conditions.find(addr);
+            if (it == conditions.end()) return POSIX_EINVAL;
+            state = it->second;
         }
-        auto it = conditions.find(addr);
-        if (it == conditions.end())
-            return POSIX_EINVAL;
+        std::lock_guard lock(state->guard);
+        if (state->retired) return POSIX_EINVAL;
         bool notified = false;
-        for (auto* waiter : it->second.waiters) {
+        for (auto* waiter : state->waiters) {
             if (waiter->notified || waiter->reacquiring ||
-                (target_owner && waiter->owner != target_owner))
-                continue;
+                (target_owner && waiter->owner != target_owner)) continue;
             waiter->notified = true;
+            TraceCond(CondTraceKind::Notified, addr, waiter->mutex, waiter->owner);
+            // Each waiter has its own native condition. A targeted signal must
+            // neither wake every owner nor accidentally wake an unselected one.
+            waiter->changed.notify_one();
             notified = true;
-            if (!broadcast)
-                break;
+            if (!broadcast) break;
         }
-        changed.notify_all();
-        return target_owner && !notified ? POSIX_EPERM : 0; // desktop returns 1 if not waiting
+        return target_owner && !notified ? POSIX_EPERM : 0;
     }
     int CondDestroy(u64 slot) {
-        std::lock_guard lock(guard);
+        std::lock_guard registry(guard);
         if (!space.ValidateRange({GuestCpu::GuestAddress{slot}, 8},
-                                 GuestCpu::GuestPermission::Read))
-            return POSIX_EFAULT;
+                                 GuestCpu::GuestPermission::Read)) return POSIX_EFAULT;
         const auto addr = Read<u64>(slot);
-        if (!addr)
-            return 0;
+        if (!addr) return 0;
         auto it = conditions.find(addr);
-        if (it == conditions.end())
-            return POSIX_EINVAL;
-        if (!it->second.waiters.empty())
-            return POSIX_EBUSY;
-        if (!Writable(slot, 8))
-            return POSIX_EFAULT;
+        if (it == conditions.end()) return POSIX_EINVAL;
+        auto state = it->second;
+        std::lock_guard lock(state->guard);
+        if (!state->waiters.empty()) return POSIX_EBUSY;
+        if (!Writable(slot, 8)) return POSIX_EFAULT;
         Write(slot, u64{1});
+        state->retired = true;
         conditions.erase(it);
         return 0;
     }
@@ -396,111 +481,140 @@ public:
     };
     int CondWait(u64 slot, u64 mutex_slot, u64 owner, std::stop_token cancel,
                  const CondDeadline& limit = {}) {
-        std::unique_lock lock(guard);
-        if (!space.ValidateRange({GuestCpu::GuestAddress{slot}, 8},
-                                 GuestCpu::GuestPermission::Read) ||
-            !space.ValidateRange({GuestCpu::GuestAddress{mutex_slot}, 8},
-                                 GuestCpu::GuestPermission::Read))
-            return POSIX_EFAULT;
-        auto addr = Read<u64>(slot);
-        if (!addr) {
-            if (int e = CondCreate(slot))
-                return e;
+        std::shared_ptr<Cond> condition;
+        Mutex* state{};
+        u64 addr{};
+        {
+            std::lock_guard registry(guard);
+            if (!space.ValidateRange({GuestCpu::GuestAddress{slot}, 8},
+                                     GuestCpu::GuestPermission::Read) ||
+                !space.ValidateRange({GuestCpu::GuestAddress{mutex_slot}, 8},
+                                     GuestCpu::GuestPermission::Read)) return POSIX_EFAULT;
             addr = Read<u64>(slot);
-        }
-        auto c = conditions.find(addr);
-        auto m = mutexes.find(Read<u64>(mutex_slot));
-        if (c == conditions.end() || m == mutexes.end())
-            return POSIX_EINVAL;
-        auto& mutex = m->second;
-        if (mutex.owner != owner)
-            return POSIX_EPERM;
-        Waiter waiter{.owner = owner};
-        c->second.waiters.push_back(&waiter);
-        ++mutex.waiters;
-        struct Waiting {
-            Cond& cond;
-            Waiter* waiter;
-            Mutex& mutex;
-            ~Waiting() {
-                std::erase(cond.waiters, waiter);
-                --mutex.waiters;
+            if (!addr) {
+                if (int e = CondCreate(slot)) return e;
+                addr = Read<u64>(slot);
             }
-        } waiting{c->second, &waiter, mutex};
-        const auto depth = mutex.depth;
-        // Enqueue and release atomically with respect to signal/broadcast/lock.
-        Write(mutex.address, u64{0});
-        Write(mutex.address + 8, u32{0});
-        mutex.owner = 0;
-        mutex.depth = 0;
-        changed.notify_all();
+            auto c = conditions.find(addr);
+            auto m = mutexes.find(Read<u64>(mutex_slot));
+            if (c == conditions.end() || m == mutexes.end()) return POSIX_EINVAL;
+            condition = c->second;
+            state = m->second;
+        }
+        auto& c = *condition;
+        auto& m = *state;
+        Waiter waiter{.owner = owner, .mutex = m.address};
+        // Construct before taking either guard; destruction follows queue
+        // removal and guard release, and precedes destruction of the waiter.
+        std::stop_callback on_stop(cancel, [&] {
+            {
+                std::lock_guard lock(c.guard);
+                waiter.changed.notify_one();
+            }
+            {
+                std::lock_guard lock(m.guard);
+                m.changed.notify_all();
+            }
+        });
+        std::unique_lock cond_lock(c.guard, std::defer_lock);
+        std::unique_lock mutex_lock(m.guard, std::defer_lock);
+        std::lock(cond_lock, mutex_lock);
+        if (c.retired || m.retired) return POSIX_EINVAL;
+        if (m.owner != owner) return POSIX_EPERM;
+        c.waiters.push_back(&waiter);
+        ++m.waiters;
+        struct Waiting {
+            Cond& c;
+            Mutex& m;
+            Waiter& waiter;
+            std::unique_lock<std::mutex>& cond_lock;
+            std::unique_lock<std::mutex>& mutex_lock;
+            ~Waiting() {
+                if (cond_lock.owns_lock()) cond_lock.unlock();
+                if (mutex_lock.owns_lock()) mutex_lock.unlock();
+                std::scoped_lock lock(c.guard, m.guard);
+                std::erase(c.waiters, &waiter);
+                --m.waiters;
+                if (!m.owner && m.waiters) m.changed.notify_one();
+            }
+        } waiting{c, m, waiter, cond_lock, mutex_lock};
+        const auto depth = m.depth;
+        // Enqueue and guest unlock are atomic with respect to notification and
+        // acquisition. Neither the registry nor a VM pin survives the wait.
+        WriteOwnership(m.address, 0, 0);
+        m.owner = 0;
+        m.depth = 0;
+        m.changed.notify_one();
+        mutex_lock.unlock();
+        TraceCond(CondTraceKind::Enqueued, addr, m.address, owner);
+        const auto ready = [&] { return waiter.notified || cancel.stop_requested(); };
         int result{};
         if (limit.relative_us) {
             const auto now = std::chrono::steady_clock::now();
             const auto available = std::chrono::duration_cast<std::chrono::microseconds>(
-                                       std::chrono::steady_clock::time_point::max() - now)
-                                       .count();
+                                       std::chrono::steady_clock::time_point::max() - now).count();
             const auto deadline = *limit.relative_us > u64(available)
                                       ? std::chrono::steady_clock::time_point::max()
                                       : now + std::chrono::microseconds(*limit.relative_us);
-            if (!changed.wait_until(lock, cancel, deadline, [&] { return waiter.notified; }))
-                result = POSIX_ETIMEDOUT;
+            if (!waiter.changed.wait_until(cond_lock, deadline, ready)) result = POSIX_ETIMEDOUT;
         } else if (limit.absolute) {
-            while (!waiter.notified && !cancel.stop_requested()) {
+            while (!ready()) {
                 Libraries::Kernel::OrbisKernelTimespec current{};
                 std::chrono::nanoseconds now{};
-                result = clock.Read(c->second.clock, current, false);
-                if (result)
-                    break;
-                if (!GuestClock::Duration(current, now)) {
-                    result = POSIX_EINVAL;
-                    break;
-                }
-                if (now >= *limit.absolute) {
-                    result = POSIX_ETIMEDOUT;
-                    break;
-                }
-                // Re-read the selected clock to honor realtime adjustments and
-                // virtual/profiling CPU time rather than treating them as monotonic.
-                changed.wait_for(lock, cancel,
-                                 std::min(*limit.absolute - now,
-                                          std::chrono::nanoseconds(std::chrono::milliseconds(20))),
-                                 [&] { return waiter.notified; });
+                result = clock.Read(c.clock, current, false);
+                if (result) break;
+                if (!GuestClock::Duration(current, now)) { result = POSIX_EINVAL; break; }
+                if (now >= *limit.absolute) { result = POSIX_ETIMEDOUT; break; }
+                // Recheck non-monotonic/virtual clocks as before.
+                waiter.changed.wait_for(cond_lock,
+                    std::min(*limit.absolute - now,
+                             std::chrono::nanoseconds(std::chrono::milliseconds(20))), ready);
             }
         } else {
-            changed.wait(lock, cancel, [&] { return waiter.notified; });
+            waiter.changed.wait(cond_lock, ready);
         }
-        // Retain the condition's waiter until reacquisition finishes. Otherwise
-        // CondDestroy can erase the Cond while Waiting still refers to it.
+        TraceCond(CondTraceKind::Resumed, addr, m.address, owner,
+                  cancel.stop_requested() ? POSIX_EINTR : result);
         waiter.reacquiring = true;
-        // A generation Stop is terminal, not a guest pthread_cancel request.
-        // It must not deadlock reacquiring a mutex whose owner is also stopped.
-        bool acquired = changed.wait(lock, cancel, [&] { return mutex.owner == 0; });
-        if (acquired) {
-            Write(mutex.address, owner);
-            Write(mutex.address + 8, depth);
-            mutex.owner = owner;
-            mutex.depth = depth;
+        cond_lock.unlock();
+        mutex_lock.lock();
+        // Session cancellation is terminal and must not wait for a stopped owner.
+        m.changed.wait(mutex_lock, [&] { return !m.owner || cancel.stop_requested(); });
+        if (!m.owner) {
+            WriteOwnership(m.address, owner, depth);
+            m.owner = owner;
+            m.depth = depth;
         }
+        TraceCond(CondTraceKind::Reacquired, addr, m.address, owner,
+                  cancel.stop_requested() ? POSIX_EINTR : result);
         return cancel.stop_requested() ? POSIX_EINTR : result;
     }
     size_t PendingWaits(u64 slot) {
-        std::lock_guard lock(guard);
-        auto it = mutexes.find(Read<u64>(slot));
-        return it == mutexes.end() ? 0 : it->second.waiters;
+        int error{};
+        auto state = FindMutex(slot, false, error);
+        if (!state) return 0;
+        std::lock_guard lock(state->guard);
+        return state->retired ? 0 : state->waiters;
     }
     size_t PendingReacquires(u64 slot) {
-        std::lock_guard lock(guard);
-        auto it = conditions.find(Read<u64>(slot));
-        if (it == conditions.end())
-            return 0;
-        return std::count_if(it->second.waiters.begin(), it->second.waiters.end(),
+        std::shared_ptr<Cond> state;
+        {
+            std::lock_guard registry(guard);
+            auto it = conditions.find(Read<u64>(slot));
+            if (it == conditions.end()) return 0;
+            state = it->second;
+        }
+        std::lock_guard lock(state->guard);
+        return std::count_if(state->waiters.begin(), state->waiters.end(),
                              [](auto* waiter) { return waiter->reacquiring; });
     }
     int IsOwned(u64 slot, u64 owner) {
-        std::lock_guard lock(guard);
-        auto it = mutexes.find(Read<u64>(slot));
-        return it != mutexes.end() && it->second.owner == owner;
+        int error{};
+        auto state = FindMutex(slot, false, error);
+        if (!state) return 0;
+        std::lock_guard lock(state->guard);
+        return !state->retired && state->owner == owner;
     }
+
 };
 } // namespace Core::HostRuntime

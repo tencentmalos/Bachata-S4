@@ -1,0 +1,40 @@
+SERVICE com.shadps4.android/.service.FexSessionService 2e73273 pid=27493 user=0
+  Client:
+    package: tmnt_rooftop_v1
+    sha256: 0e2c68f224a7b2581d6b13758f1b8996064e715c8589eb3a04b586a8b8ea3e35
+    installed: 1
+    enabled: 1
+    failed: 0
+    switches: 0
+    context: 33
+    hook: frame entry=0x49e560 original=0x2b7c010 replacement=0x2b78000 slot=0x2b7d000 stolen=6
+    instruction: 0x49e560 -> 0x2b7c010
+    instruction: 0x49e561 -> 0x2b7c011
+    instruction: 0x49e564 -> 0x2b7c014
+    hook: begin entry=0x1945ce0 original=0x2b7c210 replacement=0x2b78060 slot=0x2b7d008 stolen=6
+    instruction: 0x1945ce0 -> 0x2b7c210
+    instruction: 0x1945ce1 -> 0x2b7c211
+    instruction: 0x1945ce4 -> 0x2b7c214
+    hook: submit entry=0x1945f20 original=0x2b7c410 replacement=0x2b780b0 slot=0x2b7d010 stolen=6
+    instruction: 0x1945f20 -> 0x2b7c410
+    instruction: 0x1945f21 -> 0x2b7c411
+    instruction: 0x1945f24 -> 0x2b7c414
+    hook: jobs entry=0x1991570 original=0x2b7c610 replacement=0x2b78100 slot=0x2b7d018 stolen=6
+    instruction: 0x1991570 -> 0x2b7c610
+    instruction: 0x1991571 -> 0x2b7c611
+    instruction: 0x1991574 -> 0x2b7c614
+    hook: fmod entry=0x19c0b20 original=0x2b7c810 replacement=0x2b78160 slot=0x2b7d020 stolen=6
+    instruction: 0x19c0b20 -> 0x2b7c810
+    sdk_calls: 254126
+    last_owner: 33:1:34:8
+    counter: 1 GuestPatch.tmnt_rooftop_v1.frame_begin_ns samples=5314 last=311614358814302
+    counter: 2 GuestPatch.tmnt_rooftop_v1.frame_elapsed_ns samples=5314 last=141755886
+    counter: 3 GuestPatch.tmnt_rooftop_v1.begin_begin_ns samples=5317 last=311614505854719
+    counter: 4 GuestPatch.tmnt_rooftop_v1.begin_elapsed_ns samples=5317 last=896406
+    counter: 5 GuestPatch.tmnt_rooftop_v1.submit_begin_ns samples=5316 last=311614385001750
+    counter: 6 GuestPatch.tmnt_rooftop_v1.submit_elapsed_ns samples=5316 last=115560886
+    counter: 7 GuestPatch.tmnt_rooftop_v1.jobs_begin_ns samples=42269 last=311614505838782
+    counter: 8 GuestPatch.tmnt_rooftop_v1.jobs_elapsed_ns samples=42269 last=11093
+    counter: 9 GuestPatch.tmnt_rooftop_v1.fmod_begin_ns samples=5315 last=311614505774563
+    counter: 10 GuestPatch.tmnt_rooftop_v1.fmod_elapsed_ns samples=5315 last=22344
+

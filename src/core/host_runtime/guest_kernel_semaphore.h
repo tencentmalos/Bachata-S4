@@ -11,6 +11,9 @@
 #include <mutex>
 #include <stop_token>
 #include <string>
+#if defined(__ANDROID__)
+#include <android/log.h>
+#endif
 #include "common/types.h"
 #include "core/guest_cpu/api/address_space.h"
 #include "core/libraries/kernel/orbis_error.h"
@@ -34,11 +37,35 @@ class GuestKernelSemaphore {
         std::list<std::shared_ptr<Waiter>> waiters;
     };
     GuestCpu::GuestAddressSpace& space;
-    std::recursive_mutex& vm;
+
     mutable std::mutex mutex;
     std::condition_variable_any changed;
     std::map<u32, std::shared_ptr<Semaphore>> objects;
     static inline std::atomic<u32> next_id{1};
+    bool foreground_admitted{};
+    static void Trace(std::string_view nid, u32 id, const Semaphore& sem, s32 requested,
+                      s32 result) {
+#if defined(__ANDROID__)
+        static std::atomic<u32> count{};
+        if (nid == "188x57JYp0g" && sem.name != "SuspendSemaphore" &&
+            sem.name != "ResumeSemaphore")
+            return;
+        const u32 index = count.fetch_add(1, std::memory_order_relaxed);
+        if (index < 256) {
+            __android_log_print(ANDROID_LOG_INFO, "GuestKernelSema",
+                                "trace=%u nid=%.*s id=%u name=%s value=%d initial=%d max=%d requested=%d result=%d waiters=%zu",
+                                index, static_cast<int>(nid.size()), nid.data(), id,
+                                sem.name.c_str(), sem.value, sem.initial, sem.maximum, requested,
+                                result, sem.waiters.size());
+        }
+#else
+        (void)nid;
+        (void)id;
+        (void)sem;
+        (void)requested;
+        (void)result;
+#endif
+    }
     static void Need(bool ok, int error) {
         if (!ok)
             throw Failure{error};
@@ -51,14 +78,14 @@ class GuestKernelSemaphore {
     template <class T>
     T Read(u64 address) {
         T value{};
-        Need(address && bool(space.Read(GuestCpu::GuestAddress{address},
-                                        std::as_writable_bytes(std::span{&value, 1}))),
+        Need(address && bool(space.ReadData(GuestCpu::GuestAddress{address},
+                                            std::as_writable_bytes(std::span{&value, 1}))),
              ORBIS_KERNEL_ERROR_EFAULT);
         return value;
     }
     template <class T>
     void Put(u64 address, const T& value) {
-        auto pin = space.AcquirePinnedSpan({GuestCpu::GuestAddress{address}, sizeof(T)}, true);
+        auto pin = space.AcquireDataSpan({GuestCpu::GuestAddress{address}, sizeof(T)}, true);
         Need(bool(pin), ORBIS_KERNEL_ERROR_EFAULT);
         std::memcpy(pin.Value().WritableBytes().data(), &value, sizeof(T));
     }
@@ -81,8 +108,17 @@ class GuestKernelSemaphore {
     }
 
 public:
-    GuestKernelSemaphore(GuestCpu::GuestAddressSpace& space, std::recursive_mutex& vm)
-        : space(space), vm(vm) {}
+    GuestKernelSemaphore(GuestCpu::GuestAddressSpace& space) : space(space) {}
+    // Android rendered sessions have already passed the app's foreground/
+    // Surface admission before guest startup. Unity's named SuspendSemaphore
+    // and ResumeSemaphore are created with count zero and are otherwise
+    // released by the platform's suspend/resume notifications; carry the
+    // initial foreground/resume edge into the guest domain.
+    // Desktop remains unchanged because it never enables this flag.
+    void AdmitForeground() {
+        std::lock_guard lock(mutex);
+        foreground_admitted = true;
+    }
     u32 Waiting(u32 id) const {
         std::lock_guard lock(mutex);
         auto it = objects.find(id);
@@ -96,14 +132,12 @@ public:
                 const bool poll = nid == "12wOHk8ywb0";
                 const s32 need = a[1];
                 u32 timeout{};
-                struct Part {
-                    u64 begin, end, generation;
-                };
-                std::vector<Part> identities;
+                std::vector<GuestAddressSpace::MappingIdentity> identities;
                 if (!poll && a[2]) {
-                    std::lock_guard gate(vm);
-                    Need(Writable(a[2], 4), ORBIS_KERNEL_ERROR_EFAULT);
-                    timeout = Read<u32>(a[2]);
+
+                    auto pin = space.AcquireDataSpan({GuestAddress{a[2]}, 4}, true, stop);
+                    Need(bool(pin), ORBIS_KERNEL_ERROR_EFAULT);
+                    std::memcpy(&timeout, pin.Value().Bytes().data(), 4);
                     for (u64 at = a[2], end = at + 4; at < end;) {
                         auto mapping = space.Query(GuestAddress{at});
                         Need(bool(mapping), ORBIS_KERNEL_ERROR_EFAULT);
@@ -113,12 +147,24 @@ public:
                     }
                 }
                 std::unique_lock lock(mutex);
-                auto sem = Find(u32(a[0]));
+                const u32 id = u32(a[0]);
+                auto sem = Find(id);
                 Need(need > 0 && need <= sem->maximum, ORBIS_KERNEL_ERROR_EINVAL);
+                if (foreground_admitted &&
+                    (sem->name == "SuspendSemaphore" || sem->name == "ResumeSemaphore") &&
+                    sem->value < need) {
+                    // Until the Android lifecycle bridge gains a matching
+                    // background/revoke callback, an admitted foreground is
+                    // a level, not a one-shot edge. Do not affect any other
+                    // guest semaphore or desktop behavior.
+                    sem->value = need;
+                }
+                Trace(nid, id, *sem, need, sem->value);
                 if (stop.stop_requested())
                     return u32(ORBIS_KERNEL_ERROR_EINTR);
                 if (sem->value >= need) {
                     sem->value -= need;
+                    Trace(nid, id, *sem, need, 0);
                     return 0;
                 }
                 if (poll)
@@ -140,26 +186,24 @@ public:
                 s32 result = waiter->done            ? waiter->result
                              : stop.stop_requested() ? ORBIS_KERNEL_ERROR_EINTR
                                                      : ORBIS_KERNEL_ERROR_ETIMEDOUT;
+                Trace(nid, id, *sem, need, result);
                 lock.unlock();
                 if (a[2]) {
                     const s64 remaining = std::chrono::duration_cast<std::chrono::microseconds>(
                                               deadline - Clock::now())
                                               .count();
                     const u32 left = !result ? std::clamp<s64>(remaining, 0, timeout) : 0;
-                    std::lock_guard gate(vm);
-                    for (auto [begin, end, generation] : identities)
-                        for (u64 at = begin; at < end;) {
-                            auto mapping = space.Query(GuestAddress{at});
-                            Need(mapping && mapping.Value().mapping_generation == generation,
-                                 ORBIS_KERNEL_ERROR_EFAULT);
-                            at = std::min(end, mapping.Value().range.End());
-                        }
-                    Put(a[2], left);
+
+                    const GuestAddressSpace::DataRequest request{
+                        {GuestAddress{a[2]}, 4}, GuestPermission::Write, identities};
+                    auto pinned = space.AcquireDataBatch({&request, 1});
+                    Need(bool(pinned), ORBIS_KERNEL_ERROR_EFAULT);
+                    std::memcpy(pinned.Value()[0].WritableBytes().data(), &left, 4);
                 }
                 return u32(result);
             }
-            // Only short operations below; VM -> domain order, no wait/callback.
-            std::lock_guard gate(vm);
+            // Only this semaphore domain is synchronized below; no wait/callback.
+
             std::lock_guard lock(mutex);
             if (nid == "188x57JYp0g") {
                 Need(a[1] && u32(a[2]) <= 2 && s32(a[3]) >= 0 && s32(a[4]) > 0 &&
@@ -181,9 +225,14 @@ public:
                 sem->maximum = s32(a[4]);
                 sem->fifo = u32(a[2]) == 1;
                 sem->name = std::move(name);
+                if (foreground_admitted &&
+                    (sem->name == "SuspendSemaphore" || sem->name == "ResumeSemaphore") &&
+                    sem->value == 0)
+                    sem->value = sem->initial = 1;
                 const u32 id = next_id.fetch_add(1);
                 Need(id && id < INT32_MAX, ORBIS_KERNEL_ERROR_ENOMEM);
                 objects.emplace(id, sem);
+                Trace(nid, id, *sem, 0, 0);
                 try {
                     Put(a[0], id);
                 } catch (...) {
@@ -199,6 +248,7 @@ public:
                 sem->value += count;
                 Wake(*sem);
                 changed.notify_all();
+                Trace(nid, u32(a[0]), *sem, count, 0);
                 return 0;
             }
             if (nid == "4DM06U2BNEY") {

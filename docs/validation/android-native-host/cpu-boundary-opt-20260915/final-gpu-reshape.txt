@@ -1,0 +1,22 @@
+SERVICE com.shadps4.android/.service.FexSessionService f5ef7a7 pid=25383 user=0
+  Client:
+    schema=shadps4.gpu-reshape.v1
+    adapter_compiled=true
+    generation=1
+    driver=device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+    sampled_status=true
+    requested=false
+    buffer_lifetime=not_annotated
+    reason=not_requested
+    command_observation_active=false
+    resource_bounds_active=false
+    shader_replacement_active=false
+    shader_hash_allowlist_valid=1
+    descriptor_safe_guard=implicit_when_replaced
+    shader_hash_allowlist=0
+    indirect_hooks=0
+    graphics_stores_enabled=0
+    descriptor_registrations=0
+    descriptor_registration_failures=0
+    snapshot_ns=253623875416112
+

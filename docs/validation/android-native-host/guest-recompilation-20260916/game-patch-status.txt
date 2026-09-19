@@ -1,0 +1,63 @@
+SERVICE com.shadps4.android/.service.FexSessionService 5bdd3ef pid=9049 user=0
+  Client:
+    package: tmnt_rooftop_recompiled_v1
+    sha256: 562938ee08dc04889944550320325ea4d53e79cb2fe3745c4415e81288b1119a
+    installed: 1
+    enabled: 1
+    failed: 0
+    switches: 0
+    context: 1
+    binding: guest_submit kind=function address=0x43d870 size=5 access=rx
+    binding: guest_submit_device kind=function address=0x43d880 size=5 access=rx
+    binding: guest_draw_init kind=function address=0x19c1a00 size=6 access=rx
+    hook: frame entry=0x49e560 original=0x2b7c010 replacement=0x2b78000 slot=0x2b7e000 stolen=6
+    instruction: 0x49e560 -> 0x2b7c010
+    instruction: 0x49e561 -> 0x2b7c011
+    instruction: 0x49e564 -> 0x2b7c014
+    hook: begin entry=0x1945ce0 original=0x2b7c210 replacement=0x2b78060 slot=0x2b7e008 stolen=6
+    instruction: 0x1945ce0 -> 0x2b7c210
+    instruction: 0x1945ce1 -> 0x2b7c211
+    instruction: 0x1945ce4 -> 0x2b7c214
+    hook: submit entry=0x1945f20 original=0x2b7c410 replacement=0x2b780b0 slot=0x2b7e010 stolen=6
+    instruction: 0x1945f20 -> 0x2b7c410
+    instruction: 0x1945f21 -> 0x2b7c411
+    instruction: 0x1945f24 -> 0x2b7c414
+    hook: jobs entry=0x1991570 original=0x2b7c610 replacement=0x2b78100 slot=0x2b7e018 stolen=6
+    instruction: 0x1991570 -> 0x2b7c610
+    instruction: 0x1991571 -> 0x2b7c611
+    instruction: 0x1991574 -> 0x2b7c614
+    hook: fmod entry=0x19c0b20 original=0x2b7c810 replacement=0x2b78160 slot=0x2b7e020 stolen=6
+    instruction: 0x19c0b20 -> 0x2b7c810
+    hook: write_label entry=0x42b070 original=0x2b7ca10 replacement=0x2b781c0 slot=0x2b7e028 stolen=6
+    instruction: 0x42b070 -> 0x2b7ca10
+    instruction: 0x42b071 -> 0x2b7ca11
+    instruction: 0x42b074 -> 0x2b7ca14
+    hook: default_state entry=0x424c60 original=0x2b7cc10 replacement=0x2b78280 slot=0x2b7e030 stolen=5
+    instruction: 0x424c60 -> 0x2b7cc10
+    instruction: 0x424c61 -> 0x2b7cc11
+    instruction: 0x424c64 -> 0x2b7cc14
+    hook: submit_packets entry=0x4193a0 original=0x2b7ce10 replacement=0x2b78300 slot=0x2b7e038 stolen=6
+    instruction: 0x4193a0 -> 0x2b7ce10
+    instruction: 0x4193a1 -> 0x2b7ce11
+    instruction: 0x4193a4 -> 0x2b7ce14
+    hook: submit_label entry=0x419630 original=0x2b7d010 replacement=0x2b784d0 slot=0x2b7e040 stolen=6
+    instruction: 0x419630 -> 0x2b7d010
+    instruction: 0x419631 -> 0x2b7d011
+    instruction: 0x419634 -> 0x2b7d014
+    sdk_calls: 90185
+    last_owner: 1:1:2:8
+    counter: 1 GuestPatch.tmnt_rooftop_recompiled_v1.frame_begin_ns samples=1976 last=314158436893124
+    counter: 2 GuestPatch.tmnt_rooftop_recompiled_v1.frame_elapsed_ns samples=1976 last=50465312
+    counter: 3 GuestPatch.tmnt_rooftop_recompiled_v1.begin_begin_ns samples=1978 last=314158445503436
+    counter: 4 GuestPatch.tmnt_rooftop_recompiled_v1.begin_elapsed_ns samples=1978 last=1190677
+    counter: 5 GuestPatch.tmnt_rooftop_recompiled_v1.submit_begin_ns samples=1978 last=314158463392655
+    counter: 6 GuestPatch.tmnt_rooftop_recompiled_v1.submit_elapsed_ns samples=1978 last=23958802
+    counter: 7 GuestPatch.tmnt_rooftop_recompiled_v1.jobs_begin_ns samples=14631 last=314158453342603
+    counter: 8 GuestPatch.tmnt_rooftop_recompiled_v1.jobs_elapsed_ns samples=14631 last=10833
+    counter: 9 GuestPatch.tmnt_rooftop_recompiled_v1.fmod_begin_ns samples=1976 last=314158445228801
+    counter: 10 GuestPatch.tmnt_rooftop_recompiled_v1.fmod_elapsed_ns samples=1976 last=148646
+    counter: 11 GuestPatch.tmnt_rooftop_recompiled_v1.recompiled_write_label_calls samples=7 last=1792
+    counter: 12 GuestPatch.tmnt_rooftop_recompiled_v1.recompiled_default_state_calls samples=7 last=1792
+    counter: 13 GuestPatch.tmnt_rooftop_recompiled_v1.recompiled_submit_packets_calls samples=7 last=1792
+    counter: 14 GuestPatch.tmnt_rooftop_recompiled_v1.recompiled_submit_label_calls samples=7 last=1792
+

@@ -1,0 +1,6 @@
+{
+  "lib/arm64-v8a/libshadps4_host.so": {
+    "A_sha256": "b93c07e5aae6ffc5baef471f9a4a848b9c61a18b9c8b3169cb8372e8e3df8d0f",
+    "B_sha256": "d06cb254e683f8a92c7788b40d2b8b12f2602167083c428d051e188c14fabc8e"
+  }
+}

@@ -1,0 +1,133 @@
+[
+  {
+    "tool": "guest_debug.start_session",
+    "time": 1789463176.752191,
+    "args": {
+      "emulator": "shadps4-fex",
+      "serial": "9c2841a4",
+      "port": 24681,
+      "remotePort": 24680,
+      "expectedArchitecture": "i386:x86-64",
+      "byteOrder": "little",
+      "stopOnAttach": false,
+      "dryRun": false,
+      "stopLeaseMs": 10000,
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_41c61a3d46f041529f297d085dd69a9f",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "connected_unknown",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 0,
+      "stopReason": "",
+      "stoppedThreadId": "",
+      "latestEventCursor": 1,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.control",
+    "time": 1789463176.7864661,
+    "args": {
+      "sessionId": "gdbg_41c61a3d46f041529f297d085dd69a9f",
+      "action": "pause",
+      "waitForStopMs": 1500
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_41c61a3d46f041529f297d085dd69a9f",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 2,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.control",
+    "time": 1789463176.98405,
+    "args": {
+      "sessionId": "gdbg_41c61a3d46f041529f297d085dd69a9f",
+      "action": "continue",
+      "stopEpoch": 1,
+      "waitForStopMs": 0
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_41c61a3d46f041529f297d085dd69a9f",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "running",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 3,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.stop_session",
+    "time": 1789463177.048003,
+    "args": {
+      "sessionId": "gdbg_41c61a3d46f041529f297d085dd69a9f"
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": true,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_41c61a3d46f041529f297d085dd69a9f",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "cleaned",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 2,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 6,
+      "breakpoints": []
+    }
+  }
+]

@@ -1,0 +1,82 @@
+[
+  {
+    "name": "FMOD_Studio_System_FlushCommands",
+    "nid": "NDXFL8vNsPs",
+    "match": [
+      "libfmodstudio",
+      "0x91d30"
+    ]
+  },
+  {
+    "name": "FMOD_Studio_System_FlushSampleLoading",
+    "nid": "1GaAjv5-PQ4",
+    "match": [
+      "libfmodstudio",
+      "0x91d40"
+    ]
+  },
+  {
+    "name": "FMOD_Studio_System_Update",
+    "nid": "ioiSYMjFkFU",
+    "match": [
+      "libfmodstudio",
+      "0x91d50"
+    ]
+  },
+  {
+    "name": "FMOD_System_Update",
+    "nid": "xONakomDU9c",
+    "match": [
+      "libfmod",
+      "0x21f00"
+    ]
+  },
+  {
+    "name": "_ZN4FMOD6Studio6System13flushCommandsEv",
+    "nid": "ERN4ES-D2x8",
+    "match": [
+      "libfmodstudio",
+      "0x953e0"
+    ]
+  },
+  {
+    "name": "_ZN4FMOD6Studio6System18flushSampleLoadingEv",
+    "nid": "qpxa4b3tmjs",
+    "match": [
+      "libfmodstudio",
+      "0x95560"
+    ]
+  },
+  {
+    "name": "_ZN4FMOD6Studio6System6updateEv",
+    "nid": "H+G1XQRDyWk",
+    "match": [
+      "libfmodstudio",
+      "0x95330"
+    ]
+  },
+  {
+    "name": "_ZN4FMOD6System6updateEv",
+    "nid": "pYmA7rh9jeY",
+    "match": [
+      "libfmod",
+      "0xd6f10"
+    ]
+  },
+  {
+    "name": "FMOD_System_GetVersion",
+    "nid": "Jr6Vs3yth3s",
+    "match": [
+      "libfmod",
+      "0x22060"
+    ]
+  },
+  {
+    "name": "_ZN4FMOD6System10getVersionEPj",
+    "nid": "S9bYVNGDosY",
+    "match": [
+      "libfmod",
+      "0xd83d0"
+    ]
+  }
+]

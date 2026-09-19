@@ -47,5 +47,11 @@ s32 PS4_SYSV_ABI sceHttp2SetPreSendCallback(s32 template_id, OrbisHttp2PreSendCa
 s32 PS4_SYSV_ABI sceHttp2SetRequestContentLength(s32 req_id, u64 content_length);
 s32 PS4_SYSV_ABI sceHttp2Term(s32 ctx_id);
 
+// Async event ABI is not implemented yet. These entry points reject before
+// accepting work and never write an unverified guest output layout.
+s32 PS4_SYSV_ABI sceHttp2ReadDataAsync();
+s32 PS4_SYSV_ABI sceHttp2SendRequestAsync();
+s32 PS4_SYSV_ABI sceHttp2WaitAsync();
+
 void RegisterLib(Core::Loader::SymbolsResolver* sym);
 } // namespace Libraries::Http2

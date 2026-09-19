@@ -18,13 +18,13 @@ class ControllerBindingResolver {
 
     fun snapshot(profile: ControllerProfile, values: Map<PhysicalBinding, Float>): ControllerSnapshot {
         fun value(control: String): Float {
-            val binding = profile.bindings[control]
+            val binding = profile.bindingFor(control)
             val raw = binding?.let { values[it] } ?: 0f
             val dead = if (control.endsWith("_x") || control.endsWith("_y")) raw.takeUnless { abs(it) < profile.deadZone } ?: 0f else raw
             return if (control in profile.invertAxes) -dead else dead
         }
         fun buttonActive(control: String): Boolean {
-            val binding = profile.bindings[control] ?: return false
+            val binding = profile.bindingFor(control) ?: return false
             val v = values[binding] ?: 0f
             return when (binding.direction) {
                 AxisDirection.NEGATIVE -> v <= -BUTTON_THRESHOLD

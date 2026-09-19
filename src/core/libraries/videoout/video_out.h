@@ -140,6 +140,23 @@ s32 PS4_SYSV_ABI sceVideoOutGetEventData(const Kernel::OrbisKernelEvent* ev, s64
 s32 PS4_SYSV_ABI sceVideoOutColorSettingsSetGamma(SceVideoOutColorSettings* settings, float gamma);
 s32 PS4_SYSV_ABI sceVideoOutAdjustColor(s32 handle, const SceVideoOutColorSettings* settings);
 
+struct Mode {
+    u32 size;
+    u8 encoding;
+    u8 range;
+    u8 colorimetry;
+    u8 depth;
+    u64 refresh_rate;
+    u64 resolution;
+    u8 reserved[8];
+};
+
+static_assert(sizeof(Mode) == 32);
+void PS4_SYSV_ABI sceVideoOutConfigureOptionsInitialize_(void* options, u32 size);
+void PS4_SYSV_ABI sceVideoOutModeSetAny_(Mode* mode, u32 size);
+s32 PS4_SYSV_ABI sceVideoOutConfigureOutputMode_(s32 handle, u32 reserved, const Mode* mode,
+                                               const void* options, u32 size_mode, u32 size_options);
+
 // Internal system functions
 s32 sceVideoOutSubmitEopFlip(s32 handle, u32 buf_id, u32 mode, s64 flip_arg, void** unk);
 

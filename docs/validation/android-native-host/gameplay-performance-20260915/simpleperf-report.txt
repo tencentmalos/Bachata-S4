@@ -1,0 +1,18 @@
+Cmdline: /system/bin/simpleperf record -p 410 -e cpu-clock:u -f 100 --call-graph fp --duration 45 -o files/gameplay-20260915-perf.data
+Arch: arm64
+Event: cpu-clock:u (type 1, config 0)
+Samples: 6393
+Event count: 63930000000
+
+Overhead  Command          Shared Object                                                                                                   Symbol
+3.28%     Guest-16         /data/app/~~eILjapN37kCQrm7ZKegRjw==/com.shadps4.android-29uJi1QXFu8rB4r-baQ_iQ==/lib/arm64/libshadps4_host.so  Core::GuestCpu::GuestAddressSpace::ValidateRangeLocked(Core::GuestCpu::GuestRange, Core::GuestCpu::GuestPermission) const
+1.52%     Guest-1          /data/app/~~eILjapN37kCQrm7ZKegRjw==/com.shadps4.android-29uJi1QXFu8rB4r-baQ_iQ==/lib/arm64/libshadps4_host.so  Core::GuestCpu::GuestAddressSpace::ValidateRangeLocked(Core::GuestCpu::GuestRange, Core::GuestCpu::GuestPermission) const
+1.47%     Guest-4          /data/app/~~eILjapN37kCQrm7ZKegRjw==/com.shadps4.android-29uJi1QXFu8rB4r-baQ_iQ==/lib/arm64/libshadps4_host.so  Core::GuestCpu::GuestAddressSpace::ValidateRangeLocked(Core::GuestCpu::GuestRange, Core::GuestCpu::GuestPermission) const
+1.39%     Guest-6          /data/app/~~eILjapN37kCQrm7ZKegRjw==/com.shadps4.android-29uJi1QXFu8rB4r-baQ_iQ==/lib/arm64/libshadps4_host.so  Core::GuestCpu::GuestAddressSpace::ValidateRangeLocked(Core::GuestCpu::GuestRange, Core::GuestCpu::GuestPermission) const
+1.38%     Guest-18         /data/app/~~eILjapN37kCQrm7ZKegRjw==/com.shadps4.android-29uJi1QXFu8rB4r-baQ_iQ==/lib/arm64/libshadps4_host.so  Core::GuestCpu::GuestAddressSpace::ValidateRangeLocked(Core::GuestCpu::GuestRange, Core::GuestCpu::GuestPermission) const
+1.30%     shadPS4:GpuComm  [vdso]                                                                                                          __kernel_clock_gettime
+1.25%     Guest-3          /data/app/~~eILjapN37kCQrm7ZKegRjw==/com.shadps4.android-29uJi1QXFu8rB4r-baQ_iQ==/lib/arm64/libshadps4_host.so  Core::GuestCpu::GuestAddressSpace::ValidateRangeLocked(Core::GuestCpu::GuestRange, Core::GuestCpu::GuestPermission) const
+1.22%     Guest-1          /apex/com.android.runtime/lib64/bionic/libc.so                                                                  memcpy_opt
+1.22%     Guest-5          /data/app/~~eILjapN37kCQrm7ZKegRjw==/com.shadps4.android-29uJi1QXFu8rB4r-baQ_iQ==/lib/arm64/libshadps4_host.so  Core::GuestCpu::GuestAddressSpace::ValidateRangeLocked(Core::GuestCpu::GuestRange, Core::GuestCpu::GuestPermission) const
+1.08%     Guest-1          /apex/com.android.runtime/lib64/bionic/libc.so                                                                  __aarch64_cas2_acq
+1.00%     Guest-1          /data/app/~~eILjapN37kCQrm7ZKegRjw==/com.shadps4.android-29uJi1QXFu8rB4r-baQ_iQ==/lib/arm64/libshadps4_host.so  _ZNSt6__ndk110__function6__funcIZZN4Core11HostRuntime23InstallGraphicsHandlersERNS_3mapINS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEENS_8functionIFNS2_8GuestCpu6ResultIvEERNSC_3Hle12HleCallFrameEEEENS_4lessISA_EENS8_INS_4pairIKSA_SJ_EEEEEERNS_3setISA_SL_NS8_ISA_EEEESV_RNSC_17GuestAddressSpaceENSB_IFRNS3_13GuestGraphicsEvEEEENK3$_1clIZZNS3_23InstallGraphicsHandlersESR_SV_SV_SX_S11_ENK3$_0clIXadL_ZN9Libraries9GnmDriver15sceGnmDrawIndexEPjjjmjjEEEEDaPKcmbEUlSZ_RKNS_5arrayImLm10EEEE_EEDaSA_jT_bEUlSH_E_NS8_IS1H_EESI_EclESH_

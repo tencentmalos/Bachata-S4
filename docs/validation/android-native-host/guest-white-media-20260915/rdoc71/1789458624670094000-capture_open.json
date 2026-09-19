@@ -1,0 +1,17 @@
+{
+  "arguments": {
+    "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/guest-zero-fps-20260915/white.rdc"
+  },
+  "response": {
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"schemaVersion\":\"1.0\",\"ok\":true,\"operation\":\"capture_open\",\"session\":{\"captureId\":\"1057136b-e6b8-400a-b9ae-1c9e73be5b13\",\"captureRevision\":{\"value\":1}},\"data\":{\"path\":\"/Users/bytedance/workspace/emulations/ps4/shadps4/build/guest-zero-fps-20260915/white.rdc\",\"graphicsApi\":\"Vulkan\",\"rootActionCount\":42,\"resourceCount\":133},\"capturePath\":\"/Users/bytedance/workspace/emulations/ps4/shadps4/build/guest-zero-fps-20260915/white.rdc\"}"
+        }
+      ]
+    },
+    "id": 4,
+    "jsonrpc": "2.0"
+  }
+}

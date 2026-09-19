@@ -1,0 +1,44 @@
+refused: invalid x86 instruction
+[PATCH001] PASS reject partial instruction
+refused: call/pop PC discovery is unsupported
+[PATCH002] PASS reject PC discovery
+refused: unsupported PC/control-sensitive trampoline instruction
+[PATCH003] PASS reject LOOP
+refused: RIP-relative target outside rel32 range
+[PATCH004] PASS reject RIP range overflow
+refused: branch enters middle of stolen instruction
+[PATCH005] PASS reject branch into instruction
+[PATCH006] PASS internal branch maps to relocated boundary
+refused: unsupported patch format/ABI/SDK
+[PATCH007] PASS SDK version mismatch rejected
+refused: payload segment SHA mismatch
+[PATCH008] PASS payload digest mismatch rejected
+refused: unknown host/guest import
+[PATCH009] PASS unknown host import rejected
+refused: invalid import slot
+[PATCH010] PASS overlapping slots rejected
+refused: export outside RX
+[PATCH011] PASS invalid export rejected
+refused: title/module SHA256 identity mismatch
+[PATCH012] PASS wrong module identity never patches
+refused: entry preimage mismatch: sret
+[PATCH013] PASS last hook mismatch refuses whole package
+[PATCH014] PASS original baseline
+[PATCH015] PASS 8 integer/stack arguments and original trampoline
+[PATCH016] PASS RIP memory / initialized data / C helper
+[PATCH017] PASS relative call / ASM helper
+[PATCH018] PASS conditional taken
+[PATCH019] PASS conditional not taken
+[PATCH020] PASS FP and hidden struct-return through public hooks
+[PATCH021] PASS BSS initialized / shared atomic state
+[PATCH022] PASS guest originals made zero HLE crossings
+[PATCH023] PASS versioned SDK clock / counter / RAII / refusal
+[PATCH024] PASS counter carries owner provenance
+[PATCH025] PASS disabled dispatch executes original
+[PATCH026] PASS re-enabled cached owners execute replacement
+refused: uninstall requires all guest handles destroyed
+[PATCH027] PASS uninstall refuses live continuations
+refused: InvalidArgument in GuestAddressSpace::UpdateVmUnderToken: an invalid quiescence token cannot authorise this operation
+[PATCH028] PASS foreign/default token cannot toggle
+[PATCH029] FAIL patch not installed/healthy
+PATCH_SUMMARY checks=29 failures=1

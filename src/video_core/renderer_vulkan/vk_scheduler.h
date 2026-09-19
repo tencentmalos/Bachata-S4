@@ -7,8 +7,11 @@
 #include <mutex>
 #include <thread>
 #include <queue>
+#include <string>
+#include <vector>
 
 #include "common/unique_function.h"
+#include "video_core/renderer_vulkan/vk_gpu_profiler.h"
 #include "video_core/amdgpu/regs_color.h"
 #include "video_core/amdgpu/regs_primitive.h"
 #include "video_core/renderer_vulkan/vk_master_semaphore.h"
@@ -350,7 +353,8 @@ struct DynamicState {
 
 class Scheduler {
 public:
-    explicit Scheduler(const Instance& instance);
+    explicit Scheduler(const Instance& instance, GpuProfiler::Stage stage = GpuProfiler::Stage::DrawBatch);
+    GpuProfiler& GpuProfile() { return gpu_profiler; }
     ~Scheduler();
 
     /// Sends the current execution context to the GPU
@@ -363,6 +367,10 @@ public:
 
     /// Sends the current execution context to the GPU and waits for it to complete.
     void Finish();
+
+    // The present binary semaphore must have an actual submitted signal before
+    // vkQueuePresentKHR. This waits for host submission only, not GPU completion.
+    void WaitSubmitted();
 
     /// Waits for the given tick to trigger on the GPU.
     void Wait(u64 tick);
@@ -390,6 +398,11 @@ public:
     vk::CommandBuffer CommandBuffer() const {
         return current_cmdbuf;
     }
+
+    // Logical scopes can cross Flush; each physical command buffer still gets
+    // balanced labels. Only diagnostic callers allocate names.
+    void BeginMarker(std::string name);
+    void EndMarker();
 
     /// Returns the current command buffer tick.
     [[nodiscard]] u64 CurrentTick() const noexcept {
@@ -432,8 +445,6 @@ public:
         priority_pending_ops_cv.notify_one();
     }
 
-    static std::mutex submit_mutex;
-
 private:
     void AllocateWorkerCommandBuffers();
 
@@ -445,9 +456,12 @@ private:
     const Instance& instance;
     MasterSemaphore master_semaphore;
     CommandPool command_pool;
+    GpuProfiler gpu_profiler;
     std::unique_ptr<DescriptorHeap> diagnostic_descriptors;
     DynamicState dynamic_state;
     vk::CommandBuffer current_cmdbuf;
+    std::vector<std::string> marker_stack;
+    uint64_t last_submission{};
     std::condition_variable_any event_cv;
     struct PendingOp {
         Common::UniqueFunction<void> callback;
@@ -462,6 +476,7 @@ private:
     std::jthread priority_pending_ops_thread;
     RenderState render_state;
     bool is_rendering = false;
+    uint32_t gpu_render_zone = GpuProfiler::Invalid;
     tracy::VkCtxScope* profiler_scope{};
 };
 

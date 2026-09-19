@@ -5,6 +5,9 @@ import android.content.Intent
 import android.os.IBinder
 import android.util.Log
 import com.shadps4.android.data.GameInstallVerifier
+import com.shadps4.android.data.GameRepository
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import java.io.File
 import com.shadps4.android.model.RuntimeErrorCode
 import com.shadps4.android.runtime.diagnostics.ProcessTerminationInfo
@@ -32,7 +35,9 @@ import com.shadps4.android.runtime.session.RuntimeSurface
  * late observer from an old session cannot clobber a new one ([ManagedSession.updateIfCurrent]), and
  * a guest fault is surfaced as Failed, never as a clean exit.
  */
+@AndroidEntryPoint
 class FexSessionService : Service() {
+    @Inject lateinit var gameRepository: GameRepository
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private var startJob: Job? = null
@@ -138,6 +143,17 @@ class FexSessionService : Service() {
                 false
             }
             if (!admitted) handleStop()
+            if (admitted && relativePath != null) {
+                serviceScope.launch {
+                    try {
+                        gameRepository.updateLastLaunched(gameId)
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Could not record launch history", e)
+                    }
+                }
+            }
             surfaceJob?.cancel()
             boundSurface?.takeIf { admitted }?.let { owned ->
                 surfaceJob = serviceScope.launch {

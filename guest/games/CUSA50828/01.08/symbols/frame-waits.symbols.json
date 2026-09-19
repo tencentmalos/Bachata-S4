@@ -1,0 +1,50 @@
+{
+  "schema": "spatial.guest-symbol-shard.v2",
+  "target_id": "tmnt-0108-eboot",
+  "domain": "frame-waits",
+  "symbols": [
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x15c04c0",
+      "segment": "text",
+      "name": "Import_pthread_getspecific",
+      "kind": "thunk",
+      "mode": "x86-64",
+      "size": 6,
+      "confidence": "proved",
+      "evidence": [
+        "Exact eboot PLT/GOT relocation NID 0-KXaS70xy4 identifies pthread_getspecific. Observed inside measured frame begin/job/submit paths; timing includes host waits, not pure CPU."
+      ],
+      "comment": "Standard-library import name; no replacement or performance claim."
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x15c00a0",
+      "segment": "text",
+      "name": "Import_sem_post",
+      "kind": "thunk",
+      "mode": "x86-64",
+      "size": 6,
+      "confidence": "proved",
+      "evidence": [
+        "Exact eboot PLT/GOT relocation NID IKP8typ0QUk identifies sem_post. Observed inside measured frame begin/job/submit paths; timing includes host waits, not pure CPU."
+      ],
+      "comment": "Standard-library import name; no replacement or performance claim."
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x15c0080",
+      "segment": "text",
+      "name": "Import_sem_wait",
+      "kind": "thunk",
+      "mode": "x86-64",
+      "size": 6,
+      "confidence": "proved",
+      "evidence": [
+        "Exact eboot PLT/GOT relocation NID YCV5dGGBcCo identifies sem_wait. Observed inside measured frame begin/job/submit paths; timing includes host waits, not pure CPU."
+      ],
+      "comment": "Standard-library import name; no replacement or performance claim."
+    }
+  ],
+  "types": []
+}

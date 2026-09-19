@@ -51,6 +51,10 @@ public:
     void DispatchIndirect(VAddr address, u32 offset, u32 size);
 
     void ScopeMarkerBegin(const std::string_view& str, bool from_guest = false);
+    bool HostMarkersEnabled() const;
+    void SetDiagnosticPacket(u64 frame, u64 submission, u32 queue, VAddr packet) {
+        diagnostic_packet = {frame, submission, packet, queue};
+    }
     void ScopeMarkerEnd(bool from_guest = false);
     void ScopedMarkerInsert(const std::string_view& str, bool from_guest = false);
     void ScopedMarkerInsertColor(const std::string_view& str, const u32 color,
@@ -120,6 +124,7 @@ private:
     friend class VideoCore::BufferCache;
 
     const Instance& instance;
+    struct DiagnosticPacket { u64 frame{}, submission{}; VAddr packet{}; u32 queue{}; } diagnostic_packet;
     Scheduler& scheduler;
     VideoCore::PageManager page_manager;
     VideoCore::BufferCache buffer_cache;

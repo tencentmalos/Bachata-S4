@@ -1,5 +1,11 @@
 # FEXCore / shadPS4 guest debugger：源码核查与可落地方案
 
+> 2026-09-15 更新：已有[guest 混合栈与软件观察点实现](validation/android-native-host/guest-debugger-mixed-watch-2026-09-15.md)。guest RBP 链及历史 host 边界与任意 JIT/host 实时 unwind 必须区分；默认关闭路径没有观察 IR 或 native 栈采集。以下早期能力缺口以最新交付为准。
+
+> 最新实现在[2026-09-15 debugger 交付](validation/android-native-host/guest-debugger-implementation-2026-09-15.md)：已接真实单步、软件断点、RSP及独立MCP实机链路。本文保留早期源码研究，不能继续作为当前未实现列表。
+
+> 历史设计。当前4 KiB设备、固定FEX `385a0cc4`与主仓实现请先读[2026-09-15 guest debugger / 0 FPS审计](validation/android-native-host/guest-debugger-zero-fps-audit-2026-09-15.md)。Run/停止/安全点/HLE嵌套已有实现，完整Step/RSP仍缺失；不要把本文早期规划当作当前全部未实现。
+
 日期：2026-09-07。目标：Android 16、ARM64、16 KiB host page；原生 shadPS4 HLE/GPU + FEXCore 执行 PS4 x86-64 guest。
 
 核查版本：本仓 `references/FEX`，提交 `50e6eee95ae95d3257672727a9302a30b4a60a9a`。本文是源码与协议审计，**未运行 FEX gdbstub、未完成 Android 调试器实现，也未验证 GDB/IDA 客户端联调**。下面分别标注现有事实、设计建议与待验证条件。

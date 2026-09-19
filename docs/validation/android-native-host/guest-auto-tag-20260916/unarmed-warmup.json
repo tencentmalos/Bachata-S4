@@ -1,0 +1,16 @@
+{
+  "run_id": "1f9af833f19f42beaec92bf77d323efb",
+  "identity": [
+    27493,
+    1,
+    "f8c0e2ef097990597e550538cf2f2887"
+  ],
+  "status": "GAMEPLAY_REVIEWED",
+  "review": {
+    "run_id": "1f9af833f19f42beaec92bf77d323efb",
+    "scene_frame": 4,
+    "response_frame": 10,
+    "note": "Actual Leonardo rooftop; recorded stick-right moves player and camera, tutorial advances MOVE to ATTACK. Reviewed physical-display screenshots from this Session."
+  },
+  "attaches_debugger": false
+}

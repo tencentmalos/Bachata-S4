@@ -1,0 +1,9 @@
+{
+  "installed_apk_sha256": "2126d946e43e2c98c298549a9feb514791d27d03558e35f61452f2f56ba19cee",
+  "built_apk_sha256": "7c2f47cedce18cf3527794fce3157a7bd6a846dbe797ca1d203b7acdc4a6b6d2",
+  "built_apk_installed": false,
+  "installed_variant": "playstoreDebug",
+  "host_and_jni": "RelWithDebInfo -O2 -g -DNDEBUG",
+  "fex": "Release",
+  "post_capture_change": "compute split-packet source marked unknown; rebuilt and submission330/0, not installed"
+}

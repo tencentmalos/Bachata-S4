@@ -1,0 +1,21 @@
+{
+  "request": {
+    "method": "tools/call",
+    "params": {
+      "name": "capture_close",
+      "arguments": {}
+    }
+  },
+  "response": {
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"closed\":true}"
+        }
+      ]
+    },
+    "id": 93,
+    "jsonrpc": "2.0"
+  }
+}

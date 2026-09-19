@@ -1,0 +1,18 @@
+{
+  "arguments": {
+    "resourceId": "3794",
+    "limit": 25
+  },
+  "response": {
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"schemaVersion\":\"1.0\",\"session\":{\"captureId\":\"0564c182-0695-44a1-92d9-46b688015166\",\"captureRevision\":{\"value\":8},\"currentEventId\":\"71\"},\"data\":{\"dataset\":\"resource_usage\",\"materialization\":\"ready\",\"rows\":{\"columns\":[{\"name\":\"resource_id\",\"declaredType\":\"TEXT\"},{\"name\":\"event_id\",\"declaredType\":\"INTEGER\"},{\"name\":\"usage\",\"declaredType\":\"TEXT\"},{\"name\":\"access\",\"declaredType\":\"TEXT\"},{\"name\":\"stage\",\"declaredType\":\"TEXT\"},{\"name\":\"view_resource_id\",\"declaredType\":\"TEXT\"}],\"rows\":[[\"3794\",\"71\",\"PS_Resource\",\"read\",\"pixel\",null]],\"truncated\":false,\"executionMs\":0.0244},\"warnings\":[]}}"
+        }
+      ]
+    },
+    "id": 21,
+    "jsonrpc": "2.0"
+  }
+}

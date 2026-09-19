@@ -57,7 +57,7 @@ Id EmitIAdd32(EmitContext& ctx, IR::Inst* inst, Id a, Id b) {
 }
 
 Id EmitIAdd64(EmitContext& ctx, Id a, Id b) {
-    return ctx.OpIAdd(ctx.U64, a, b);
+    return ctx.AddU64(a, b);
 }
 
 Id EmitIAddCarry32(EmitContext& ctx, Id a, Id b) {
@@ -69,7 +69,7 @@ Id EmitISub32(EmitContext& ctx, Id a, Id b) {
 }
 
 Id EmitISub64(EmitContext& ctx, Id a, Id b) {
-    return ctx.OpISub(ctx.U64, a, b);
+    return ctx.SubU64(a, b);
 }
 
 Id EmitSMulHi(EmitContext& ctx, Id a, Id b) {
@@ -90,7 +90,7 @@ Id EmitIMul32(EmitContext& ctx, Id a, Id b) {
 }
 
 Id EmitIMul64(EmitContext& ctx, Id a, Id b) {
-    return ctx.OpIMul(ctx.U64, a, b);
+    return ctx.MulU64(a, b);
 }
 
 Id EmitSDiv32(EmitContext& ctx, Id a, Id b) {
@@ -114,7 +114,7 @@ Id EmitINeg32(EmitContext& ctx, Id value) {
 }
 
 Id EmitINeg64(EmitContext& ctx, Id value) {
-    return ctx.OpSNegate(ctx.U64, value);
+    return ctx.SubU64(ctx.u64_zero_value, value);
 }
 
 Id EmitIAbs32(EmitContext& ctx, Id value) {
@@ -126,7 +126,7 @@ Id EmitShiftLeftLogical32(EmitContext& ctx, Id base, Id shift) {
 }
 
 Id EmitShiftLeftLogical64(EmitContext& ctx, Id base, Id shift) {
-    return ctx.OpShiftLeftLogical(ctx.U64, base, shift);
+    return ctx.ShiftU64(base, shift, true);
 }
 
 Id EmitShiftRightLogical32(EmitContext& ctx, Id base, Id shift) {
@@ -134,7 +134,7 @@ Id EmitShiftRightLogical32(EmitContext& ctx, Id base, Id shift) {
 }
 
 Id EmitShiftRightLogical64(EmitContext& ctx, Id base, Id shift) {
-    return ctx.OpShiftRightLogical(ctx.U64, base, shift);
+    return ctx.ShiftU64(base, shift, false);
 }
 
 Id EmitShiftRightArithmetic32(EmitContext& ctx, Id base, Id shift) {
@@ -142,7 +142,7 @@ Id EmitShiftRightArithmetic32(EmitContext& ctx, Id base, Id shift) {
 }
 
 Id EmitShiftRightArithmetic64(EmitContext& ctx, Id base, Id shift) {
-    return ctx.OpShiftRightArithmetic(ctx.U64, base, shift);
+    return ctx.ShiftU64(base, shift, false, true);
 }
 
 Id EmitBitwiseAnd32(EmitContext& ctx, IR::Inst* inst, Id a, Id b) {
@@ -209,7 +209,7 @@ Id EmitBitCount32(EmitContext& ctx, Id value) {
 Id EmitBitCount64(EmitContext& ctx, Id value) {
     // Vulkan restricts some bitwise operations to 32-bit only, so decompose into
     // two 32-bit values and add the result.
-    const Id unpacked{ctx.OpBitcast(ctx.U32[2], value)};
+    const Id unpacked{ctx.UnpackU64(value)};
     const Id lo{ctx.OpCompositeExtract(ctx.U32[1], unpacked, 0U)};
     const Id hi{ctx.OpCompositeExtract(ctx.U32[1], unpacked, 1U)};
     const Id lo_count{ctx.OpBitCount(ctx.U32[1], lo)};
@@ -232,7 +232,7 @@ Id EmitFindUMsb32(EmitContext& ctx, Id value) {
 Id EmitFindUMsb64(EmitContext& ctx, Id value) {
     // Vulkan restricts some bitwise operations to 32-bit only, so decompose into
     // two 32-bit values and select the correct result.
-    const Id unpacked{ctx.OpBitcast(ctx.U32[2], value)};
+    const Id unpacked{ctx.UnpackU64(value)};
     const Id hi{ctx.OpCompositeExtract(ctx.U32[1], unpacked, 1U)};
     const Id lo{ctx.OpCompositeExtract(ctx.U32[1], unpacked, 0U)};
     const Id hi_msb{ctx.OpFindUMsb(ctx.U32[1], hi)};
@@ -250,13 +250,14 @@ Id EmitFindILsb32(EmitContext& ctx, Id value) {
 Id EmitFindILsb64(EmitContext& ctx, Id value) {
     // Vulkan restricts some bitwise operations to 32-bit only, so decompose into
     // two 32-bit values and select the correct result.
-    const Id unpacked{ctx.OpBitcast(ctx.U32[2], value)};
+    const Id unpacked{ctx.UnpackU64(value)};
     const Id lo{ctx.OpCompositeExtract(ctx.U32[1], unpacked, 0U)};
     const Id hi{ctx.OpCompositeExtract(ctx.U32[1], unpacked, 1U)};
     const Id lo_lsb{ctx.OpFindILsb(ctx.U32[1], lo)};
     const Id hi_lsb{ctx.OpFindILsb(ctx.U32[1], hi)};
     const Id found_lo{ctx.OpINotEqual(ctx.U1[1], lo_lsb, ctx.ConstU32(u32(-1)))};
-    return ctx.OpSelect(ctx.U32[1], found_lo, lo_lsb, hi_lsb);
+    return ctx.OpSelect(ctx.U32[1], found_lo, lo_lsb,
+                        ctx.OpBitwiseOr(ctx.U32[1], hi_lsb, ctx.ConstU32(32U)));
 }
 
 Id EmitSMin32(EmitContext& ctx, Id a, Id b) {
@@ -352,7 +353,7 @@ Id EmitSLessThan32(EmitContext& ctx, Id lhs, Id rhs) {
 }
 
 Id EmitSLessThan64(EmitContext& ctx, Id lhs, Id rhs) {
-    return ctx.OpSLessThan(ctx.U1[1], lhs, rhs);
+    return ctx.LessU64(lhs, rhs, true);
 }
 
 Id EmitULessThan32(EmitContext& ctx, Id lhs, Id rhs) {
@@ -360,7 +361,7 @@ Id EmitULessThan32(EmitContext& ctx, Id lhs, Id rhs) {
 }
 
 Id EmitULessThan64(EmitContext& ctx, Id lhs, Id rhs) {
-    return ctx.OpULessThan(ctx.U1[1], lhs, rhs);
+    return ctx.LessU64(lhs, rhs);
 }
 
 Id EmitIEqual32(EmitContext& ctx, Id lhs, Id rhs) {
@@ -368,7 +369,7 @@ Id EmitIEqual32(EmitContext& ctx, Id lhs, Id rhs) {
 }
 
 Id EmitIEqual64(EmitContext& ctx, Id lhs, Id rhs) {
-    return ctx.OpIEqual(ctx.U1[1], lhs, rhs);
+    return ctx.EqualU64(lhs, rhs);
 }
 
 Id EmitSLessThanEqual32(EmitContext& ctx, Id lhs, Id rhs) {
@@ -376,7 +377,7 @@ Id EmitSLessThanEqual32(EmitContext& ctx, Id lhs, Id rhs) {
 }
 
 Id EmitSLessThanEqual64(EmitContext& ctx, Id lhs, Id rhs) {
-    return ctx.OpSLessThanEqual(ctx.U1[1], lhs, rhs);
+    return ctx.OpLogicalNot(ctx.U1[1], ctx.LessU64(rhs, lhs, true));
 }
 
 Id EmitULessThanEqual32(EmitContext& ctx, Id lhs, Id rhs) {
@@ -384,7 +385,7 @@ Id EmitULessThanEqual32(EmitContext& ctx, Id lhs, Id rhs) {
 }
 
 Id EmitULessThanEqual64(EmitContext& ctx, Id lhs, Id rhs) {
-    return ctx.OpULessThanEqual(ctx.U1[1], lhs, rhs);
+    return ctx.OpLogicalNot(ctx.U1[1], ctx.LessU64(rhs, lhs));
 }
 
 Id EmitSGreaterThan32(EmitContext& ctx, Id lhs, Id rhs) {
@@ -392,7 +393,7 @@ Id EmitSGreaterThan32(EmitContext& ctx, Id lhs, Id rhs) {
 }
 
 Id EmitSGreaterThan64(EmitContext& ctx, Id lhs, Id rhs) {
-    return ctx.OpSGreaterThan(ctx.U1[1], lhs, rhs);
+    return ctx.LessU64(rhs, lhs, true);
 }
 
 Id EmitUGreaterThan32(EmitContext& ctx, Id lhs, Id rhs) {
@@ -400,7 +401,7 @@ Id EmitUGreaterThan32(EmitContext& ctx, Id lhs, Id rhs) {
 }
 
 Id EmitUGreaterThan64(EmitContext& ctx, Id lhs, Id rhs) {
-    return ctx.OpUGreaterThan(ctx.U1[1], lhs, rhs);
+    return ctx.LessU64(rhs, lhs);
 }
 
 Id EmitINotEqual32(EmitContext& ctx, Id lhs, Id rhs) {
@@ -408,7 +409,7 @@ Id EmitINotEqual32(EmitContext& ctx, Id lhs, Id rhs) {
 }
 
 Id EmitINotEqual64(EmitContext& ctx, Id lhs, Id rhs) {
-    return ctx.OpINotEqual(ctx.U1[1], lhs, rhs);
+    return ctx.OpLogicalNot(ctx.U1[1], ctx.EqualU64(lhs, rhs));
 }
 
 Id EmitSGreaterThanEqual32(EmitContext& ctx, Id lhs, Id rhs) {
@@ -416,7 +417,7 @@ Id EmitSGreaterThanEqual32(EmitContext& ctx, Id lhs, Id rhs) {
 }
 
 Id EmitSGreaterThanEqual64(EmitContext& ctx, Id lhs, Id rhs) {
-    return ctx.OpSGreaterThanEqual(ctx.U1[1], lhs, rhs);
+    return ctx.OpLogicalNot(ctx.U1[1], ctx.LessU64(lhs, rhs, true));
 }
 
 Id EmitUGreaterThanEqual32(EmitContext& ctx, Id lhs, Id rhs) {
@@ -424,7 +425,7 @@ Id EmitUGreaterThanEqual32(EmitContext& ctx, Id lhs, Id rhs) {
 }
 
 Id EmitUGreaterThanEqual64(EmitContext& ctx, Id lhs, Id rhs) {
-    return ctx.OpUGreaterThanEqual(ctx.U1[1], lhs, rhs);
+    return ctx.OpLogicalNot(ctx.U1[1], ctx.LessU64(lhs, rhs));
 }
 
 } // namespace Shader::Backend::SPIRV

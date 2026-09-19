@@ -1,0 +1,139 @@
+{
+  "arguments": {
+    "request": {
+      "eventId": "71",
+      "resourceId": "3794",
+      "mip": 0,
+      "slice": 0,
+      "sample": 0
+    },
+    "options": {
+      "maxEdge": 768
+    }
+  },
+  "response": {
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"schemaVersion\":\"1.0\",\"materialization\":\"ready\",\"evidenceScope\":\"decoded_PNG_only_not_capture_or_presentation_validation\",\"source\":{\"kind\":\"active_replay_texture\",\"capturePath\":\"/Users/bytedance/workspace/emulations/ps4/shadps4/build/guest-zero-fps-20260915/white.rdc\",\"session\":{\"captureId\":\"0564c182-0695-44a1-92d9-46b688015166\",\"captureRevision\":{\"value\":7},\"currentEventId\":\"71\"},\"data\":{\"materialization\":\"ready\",\"resourceId\":\"3794\",\"eventId\":\"71\",\"format\":\"png\",\"mip\":0,\"slice\":0,\"sample\":0,\"artifactPath\":\"/Users/bytedance/Library/Application Support/renderdoc-mcp/artifacts/0564c182-0695-44a1-92d9-46b688015166/textures/event-71-resource-3794-mip-0-slice-0-9763cb7885d44715b40b70fe1abd0393.png\",\"bytes\":86566,\"sha256\":\"0ae08a876d48c01471ab9e687535f3a08e5f1b0009a29dc945e7db38c1514c0a\",\"replayMode\":\"active_replay_controller\",\"displayInterpretation\":\"native_texture_export_defaults; PNG may clamp/quantize HDR; application LUT/tone mapping and presentation are unverified\",\"finalOutputEquivalence\":\"unverified\",\"reviewTool\":\"review_texture or review_image\"},\"texture\":{\"resourceId\":\"3794\",\"width\":1920,\"height\":1080,\"depth\":1,\"mipCount\":1,\"arraySize\":1,\"sampleCount\":1,\"byteSize\":8294400,\"creationFlags\":11,\"formatType\":0,\"componentCount\":4,\"componentByteWidth\":1,\"componentType\":2,\"formatFlags\":0},\"sampleInterpretation\":\"explicit_sample\",\"attachmentSubresource\":\"explicit_request_not_inferred_from_pipeline_attachment\"},\"sourceSha256\":\"0ae08a876d48c01471ab9e687535f3a08e5f1b0009a29dc945e7db38c1514c0a\",\"sourceWidth\":1920,\"sourceHeight\":1080,\"crop\":{\"x\":0,\"y\":0,\"width\":1920,\"height\":1080},\"statistics\":{\"domain\":\"8-bit PNG crop before resize; RGB ignores alpha; dark=max(RGB)\\u003C=12/255; saturated=max(RGB)==1 (not proof of clipping); code values are not physical luminance\",\"meanRgbCodeValue\":0.9999866368620217,\"darkPixelRatio\":0,\"saturatedCodePixelRatio\":0.9999937307098765,\"nonOpaquePixelRatio\":0},\"finalOutputEquivalence\":\"unverified\",\"displayTransform\":\"application_LUT_tone_mapping_color_space_and_compositor_unverified\",\"imageContentCount\":2,\"views\":[{\"label\":\"exported_rgb\",\"transform\":\"PNG RGB code values unchanged; alpha forced opaque; nearest-neighbor crop/resize\",\"diagnosticOnly\":false,\"width\":768,\"height\":432,\"sha256\":\"a06d0bd7c21c1ee8fd79de727892638b2fc156f4f330f4d9a4c54b37a560af24\"},{\"label\":\"diagnostic_exposure\",\"transform\":\"clamp(PNG_RGB * 2^3, 0, 255); alpha forced opaque; NOT scene-linear exposure, LUT, tone mapping, or final output\",\"diagnosticOnly\":true,\"width\":768,\"height\":432,\"sha256\":\"3a005cd4a3d543deb067e773c3acae84953894e974f4d7f060ede7170a2720c8\"}],\"warnings\":[\"Inspect the attached image blocks before visual conclusions. If the client omits them, visual evidence is unavailable; text/base64/path is not seeing the image.\",\"exported_rgb preserves PNG RGB code values only; alpha is forced opaque and resizing can hide small defects. Embedded ICC/gamma metadata is not applied. Use a crop for pixel detail.\",\"Dark code values do not prove a missing LUT. Diagnostic exposure is an aid on already exported 8-bit values; it cannot recover clipped HDR or implement the application\\u0027s LUT/tone mapping.\",\"A texture, Guest output, swapchain candidate, diff, or heatmap is not automatically equivalent to final displayed output. Trace resource_usage, pipeline_bindings, shader_inspect, and cbuffer_get through downstream post-processing/present/compositor first.\",\"Compare A/B using matching selectors, crops and identical transforms. Keep diagnostic views separate from source evidence; do not use independently normalized images to claim equality.\",\"ready describes PNG decoding only. Preserve declared source materialization and unknown color/alpha/transfer metadata; an image does not upgrade pending or failed capture evidence.\"]}"
+        },
+        {
+          "type": "text",
+          "text": "Image exported_rgb: PNG RGB code values unchanged; alpha forced opaque; nearest-neighbor crop/resize; sha256=a06d0bd7c21c1ee8fd79de727892638b2fc156f4f330f4d9a4c54b37a560af24"
+        },
+        {
+          "type": "image",
+          "data": "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",
+          "mimeType": "image/png"
+        },
+        {
+          "type": "text",
+          "text": "Image diagnostic_exposure: clamp(PNG_RGB * 2^3, 0, 255); alpha forced opaque; NOT scene-linear exposure, LUT, tone mapping, or final output; sha256=3a005cd4a3d543deb067e773c3acae84953894e974f4d7f060ede7170a2720c8"
+        },
+        {
+          "type": "image",
+          "data": "iVBORw0KGgoAAAANSUhEUgAAAwAAAAGwCAYAAAAe1ALSAAAHdElEQVR42u3XMQ0AAAzDsPIn3dKYNBtCvqQAAMAbkQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAABgAAADAAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAwAAABgAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAADAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAIABAAAADAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAMAAAAAABgAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAADAAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAABgAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAwAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAADAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAABgAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAABgAAADAAAAAgAGQAAAADAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAABgAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAABgAAADAAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAwAAABgAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAMAAAAAABgAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAADAAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAABgAAAAwAAAAgAEAAAAMAAAAYAAAAICLBq3b7pWMnYnQAAAAAElFTkSuQmCC",
+          "mimeType": "image/png"
+        }
+      ],
+      "structuredContent": {
+        "schemaVersion": "1.0",
+        "materialization": "ready",
+        "evidenceScope": "decoded_PNG_only_not_capture_or_presentation_validation",
+        "source": {
+          "kind": "active_replay_texture",
+          "capturePath": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/guest-zero-fps-20260915/white.rdc",
+          "session": {
+            "captureId": "0564c182-0695-44a1-92d9-46b688015166",
+            "captureRevision": {
+              "value": 7
+            },
+            "currentEventId": "71"
+          },
+          "data": {
+            "materialization": "ready",
+            "resourceId": "3794",
+            "eventId": "71",
+            "format": "png",
+            "mip": 0,
+            "slice": 0,
+            "sample": 0,
+            "artifactPath": "/Users/bytedance/Library/Application Support/renderdoc-mcp/artifacts/0564c182-0695-44a1-92d9-46b688015166/textures/event-71-resource-3794-mip-0-slice-0-9763cb7885d44715b40b70fe1abd0393.png",
+            "bytes": 86566,
+            "sha256": "0ae08a876d48c01471ab9e687535f3a08e5f1b0009a29dc945e7db38c1514c0a",
+            "replayMode": "active_replay_controller",
+            "displayInterpretation": "native_texture_export_defaults; PNG may clamp/quantize HDR; application LUT/tone mapping and presentation are unverified",
+            "finalOutputEquivalence": "unverified",
+            "reviewTool": "review_texture or review_image"
+          },
+          "texture": {
+            "resourceId": "3794",
+            "width": 1920,
+            "height": 1080,
+            "depth": 1,
+            "mipCount": 1,
+            "arraySize": 1,
+            "sampleCount": 1,
+            "byteSize": 8294400,
+            "creationFlags": 11,
+            "formatType": 0,
+            "componentCount": 4,
+            "componentByteWidth": 1,
+            "componentType": 2,
+            "formatFlags": 0
+          },
+          "sampleInterpretation": "explicit_sample",
+          "attachmentSubresource": "explicit_request_not_inferred_from_pipeline_attachment"
+        },
+        "sourceSha256": "0ae08a876d48c01471ab9e687535f3a08e5f1b0009a29dc945e7db38c1514c0a",
+        "sourceWidth": 1920,
+        "sourceHeight": 1080,
+        "crop": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "statistics": {
+          "domain": "8-bit PNG crop before resize; RGB ignores alpha; dark=max(RGB)<=12/255; saturated=max(RGB)==1 (not proof of clipping); code values are not physical luminance",
+          "meanRgbCodeValue": 0.9999866368620217,
+          "darkPixelRatio": 0,
+          "saturatedCodePixelRatio": 0.9999937307098765,
+          "nonOpaquePixelRatio": 0
+        },
+        "finalOutputEquivalence": "unverified",
+        "displayTransform": "application_LUT_tone_mapping_color_space_and_compositor_unverified",
+        "imageContentCount": 2,
+        "views": [
+          {
+            "label": "exported_rgb",
+            "transform": "PNG RGB code values unchanged; alpha forced opaque; nearest-neighbor crop/resize",
+            "diagnosticOnly": false,
+            "width": 768,
+            "height": 432,
+            "sha256": "a06d0bd7c21c1ee8fd79de727892638b2fc156f4f330f4d9a4c54b37a560af24"
+          },
+          {
+            "label": "diagnostic_exposure",
+            "transform": "clamp(PNG_RGB * 2^3, 0, 255); alpha forced opaque; NOT scene-linear exposure, LUT, tone mapping, or final output",
+            "diagnosticOnly": true,
+            "width": 768,
+            "height": 432,
+            "sha256": "3a005cd4a3d543deb067e773c3acae84953894e974f4d7f060ede7170a2720c8"
+          }
+        ],
+        "warnings": [
+          "Inspect the attached image blocks before visual conclusions. If the client omits them, visual evidence is unavailable; text/base64/path is not seeing the image.",
+          "exported_rgb preserves PNG RGB code values only; alpha is forced opaque and resizing can hide small defects. Embedded ICC/gamma metadata is not applied. Use a crop for pixel detail.",
+          "Dark code values do not prove a missing LUT. Diagnostic exposure is an aid on already exported 8-bit values; it cannot recover clipped HDR or implement the application's LUT/tone mapping.",
+          "A texture, Guest output, swapchain candidate, diff, or heatmap is not automatically equivalent to final displayed output. Trace resource_usage, pipeline_bindings, shader_inspect, and cbuffer_get through downstream post-processing/present/compositor first.",
+          "Compare A/B using matching selectors, crops and identical transforms. Keep diagnostic views separate from source evidence; do not use independently normalized images to claim equality.",
+          "ready describes PNG decoding only. Preserve declared source materialization and unknown color/alpha/transfer metadata; an image does not upgrade pending or failed capture evidence."
+        ]
+      }
+    },
+    "id": 20,
+    "jsonrpc": "2.0"
+  }
+}

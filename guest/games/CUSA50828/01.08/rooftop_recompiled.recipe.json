@@ -1,0 +1,189 @@
+{
+  "schema": "shadps4.guest-functions.recipe.v1",
+  "abi": "x86_64-sysv",
+  "id": "tmnt_rooftop_recompiled_v1",
+  "title": "CUSA50828",
+  "module": "eboot.bin",
+  "module_sha256": "6122da7190de6b08d921b2c42c3ca9ed11dc4d11524f1139ff67aeceea5b204d",
+  "executable_sha256": "6122da7190de6b08d921b2c42c3ca9ed11dc4d11524f1139ff67aeceea5b204d",
+  "sources": [
+    "rooftop.cpp",
+    "rooftop_recompiled.cpp"
+  ],
+  "hooks": [
+    {
+      "name": "frame",
+      "offset": 648544,
+      "expected": "554889e54157415641554154534881ecc8320100488b053dccc9014889fb4883",
+      "replacement": "patch_frame",
+      "original": "original_frame",
+      "prototype": "shad_u64 original_frame(void* self)",
+      "evidence": "Frame coordinator: FMOD update at +0xa4412; BeginFrame at +0xa4e5d; restores stack then tail-jumps SubmitFrame at +0xa5273. Only RDI live at entry; indirect caller unresolved statically. IDA ET_DYN analysis copy has only ELF e_type changed; text bytes match original decrypted ELF. No indexed reference enters stolen prologue. Return is ABI-preserving RAX, not asserted engine semantics."
+    },
+    {
+      "name": "begin",
+      "offset": 22306016,
+      "expected": "554889e54157415641554154534883ec384c8b25c0547f004c8d3d91c5a20049",
+      "replacement": "patch_begin",
+      "original": "original_begin",
+      "prototype": "shad_u64 original_begin(void)",
+      "evidence": "Frame buffer label loop calls sceKernelWaitEqueue until value 2, then resets command buffers. No incoming arguments. IDA ET_DYN analysis copy has only ELF e_type changed; text bytes match original decrypted ELF. No indexed reference enters stolen prologue. Return is ABI-preserving RAX, not asserted engine semantics."
+    },
+    {
+      "name": "submit",
+      "offset": 22306592,
+      "expected": "554889e5415653e8547baffe8b1576aca0008b35604d8c00488d1d51c3a20048",
+      "replacement": "patch_submit",
+      "original": "original_submit",
+      "prototype": "shad_u64 original_submit(void)",
+      "evidence": "Submit/flip wrapper calls +0x19630 then retires resources and advances modulo-3 buffer index; no incoming arguments. IDA ET_DYN analysis copy has only ELF e_type changed; text bytes match original decrypted ELF. No indexed reference enters stolen prologue. Return is ABI-preserving RAX, not asserted engine semantics."
+    },
+    {
+      "name": "jobs",
+      "offset": 22615408,
+      "expected": "554889e54157415641554154534883ec284c8b2d309c7a004889fb498b450048",
+      "replacement": "patch_jobs",
+      "original": "original_jobs",
+      "prototype": "shad_u64 original_jobs(void* queue)",
+      "evidence": "Queue drain/barrier: RDI queue; enqueues completion job and waits on thread-local semaphore; may early-return for empty queue. IDA ET_DYN analysis copy has only ELF e_type changed; text bytes match original decrypted ELF. No indexed reference enters stolen prologue. Return is ABI-preserving RAX, not asserted engine semantics."
+    },
+    {
+      "name": "fmod",
+      "offset": 22809376,
+      "expected": "ff25e2ac7700",
+      "replacement": "patch_fmod",
+      "original": "original_fmod",
+      "prototype": "int original_fmod(void* self)",
+      "evidence": "PLT RIP-indirect jump to FMOD Studio System::update; NID H+G1XQRDyWk. RDI=this, EAX=FMOD_RESULT; exact public ABI. IDA ET_DYN analysis copy has only ELF e_type changed; text bytes match original decrypted ELF. No indexed reference enters stolen prologue. Return is ABI-preserving RAX, not asserted engine semantics."
+    },
+    {
+      "name": "write_label",
+      "offset": 176240,
+      "expected": "554889e5415741564155415453504189cf488b4f08488b47104589c64989d541",
+      "original": "original_write_label",
+      "replacement": "patch_write_label",
+      "prototype": "shad_u64 original_write_label(TmntCommandBuffer*, TmntU32, shad_u64, TmntU32, TmntU32)",
+      "evidence": "Instruction/ABI contract in rooftop-recompile.contract.json; exact x86-64 register and stack widths, memory offsets and callback AL semantics; original trampoline retained."
+    },
+    {
+      "name": "default_state",
+      "offset": 150624,
+      "expected": "554889e553504889fb488b7708488b7f104829fe48c1ee0281feff0000007722",
+      "original": "original_default_state",
+      "replacement": "patch_default_state",
+      "prototype": "shad_u64 original_default_state(TmntCommandBuffer*)",
+      "evidence": "Instruction/ABI contract in rooftop-recompile.contract.json; exact x86-64 register and stack widths, memory offsets and callback AL semantics; original trampoline retained."
+    },
+    {
+      "name": "submit_packets",
+      "offset": 103328,
+      "expected": "554889e54157415641554154534881ec880100004c8b35fd1dd2014189f74d89",
+      "original": "original_submit_packets",
+      "replacement": "patch_submit_packets",
+      "prototype": "shad_u64 original_submit_packets(shad_u64, TmntU32, TmntU32, TmntU32, shad_u64, TmntSubmitContext*)",
+      "evidence": "Instruction/ABI contract in rooftop-recompile.contract.json; exact x86-64 register and stack widths, memory offsets and callback AL semantics; original trampoline retained."
+    },
+    {
+      "name": "submit_label",
+      "offset": 103984,
+      "expected": "554889e5415741564155415453504d89c64189cf4189d4488b55108b4d18448b",
+      "original": "original_submit_label",
+      "replacement": "patch_submit_label",
+      "prototype": "shad_u64 original_submit_label(TmntSubmitContext*, TmntU32, TmntU32, TmntU32, shad_u64, TmntU32, shad_u64, TmntU32, TmntU32)",
+      "evidence": "Instruction/ABI contract in rooftop-recompile.contract.json; exact x86-64 register and stack widths, memory offsets and callback AL semantics; original trampoline retained."
+    }
+  ],
+  "counters": [
+    {
+      "id": 1,
+      "name": "frame_begin_ns"
+    },
+    {
+      "id": 2,
+      "name": "frame_elapsed_ns"
+    },
+    {
+      "id": 3,
+      "name": "begin_begin_ns"
+    },
+    {
+      "id": 4,
+      "name": "begin_elapsed_ns"
+    },
+    {
+      "id": 5,
+      "name": "submit_begin_ns"
+    },
+    {
+      "id": 6,
+      "name": "submit_elapsed_ns"
+    },
+    {
+      "id": 7,
+      "name": "jobs_begin_ns"
+    },
+    {
+      "id": 8,
+      "name": "jobs_elapsed_ns"
+    },
+    {
+      "id": 9,
+      "name": "fmod_begin_ns"
+    },
+    {
+      "id": 10,
+      "name": "fmod_elapsed_ns"
+    },
+    {
+      "id": 11,
+      "name": "recompiled_write_label_calls"
+    },
+    {
+      "id": 12,
+      "name": "recompiled_default_state_calls"
+    },
+    {
+      "id": 13,
+      "name": "recompiled_submit_packets_calls"
+    },
+    {
+      "id": 14,
+      "name": "recompiled_submit_label_calls"
+    }
+  ],
+  "headers": [
+    "rooftop_types.h"
+  ],
+  "bindings": [
+    {
+      "name": "guest_submit",
+      "kind": "function",
+      "offset": 252016,
+      "expected": "e91b405801",
+      "prototype": "shad_u64 guest_submit(TmntU32, const shad_u64*, const TmntU32*, const shad_u64*, const TmntU32*, TmntU32, TmntU32, TmntU32, shad_u64)",
+      "evidence": "Original callsite register/stack forwarding, checked in rooftop-recompile.contract.json; direct guest entry/PLT, not host pointer or service substitution."
+    },
+    {
+      "name": "guest_submit_device",
+      "kind": "function",
+      "offset": 252032,
+      "expected": "e91b405801",
+      "prototype": "shad_u64 guest_submit_device(shad_u64, TmntU32, const shad_u64*, const TmntU32*, const shad_u64*, const TmntU32*, TmntU32, TmntU32, TmntU32, shad_u64)",
+      "evidence": "Original callsite register/stack forwarding, checked in rooftop-recompile.contract.json; direct guest entry/PLT, not host pointer or service substitution."
+    },
+    {
+      "name": "guest_draw_init",
+      "kind": "function",
+      "offset": 22813184,
+      "expected": "ff2572a57700",
+      "prototype": "TmntU32 guest_draw_init(TmntU32*, TmntU32)",
+      "evidence": "Original callsite register/stack forwarding, checked in rooftop-recompile.contract.json; direct guest entry/PLT, not host pointer or service substitution."
+    }
+  ],
+  "recompile_contract": "rooftop-recompile.contract.json",
+  "analysis": {
+    "module": "eboot.bin",
+    "sha256": "504fc22628a2a7c563e593aab298b9273e2a80eaf8814a095ffb6f464152da99",
+    "imagebase": 0
+  }
+}

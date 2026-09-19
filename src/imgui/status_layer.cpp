@@ -49,7 +49,10 @@ void StatusLayer::Draw(uint64_t now, unsigned width, unsigned height) {
             minimum = i ? std::min(minimum, values[i]) : values[i];
             maximum = std::max(maximum, values[i]);
         }
-        if (count) Text("Frame %.2f ms  |  avg %.2f", values[count - 1], sum / count);
+        const auto last_present = game_presents.LastPresentNs();
+        if (last_present && now >= last_present && now - last_present >= 1000000000)
+            TextColored({1.f, .65f, .25f, 1.f}, "No new game frame for %.1f s", (now - last_present) / 1e9);
+        if (count) Text("Last frame %.2f ms  |  avg %.2f", values[count - 1], sum / count);
         else TextDisabled("Frame time: waiting for presents");
         const float axis = std::max(33.334f, maximum * 1.05f);
         const ImVec2 size{GetContentRegionAvail().x, std::clamp(height * .095f, 65.f, 110.f)};
@@ -71,11 +74,35 @@ void StatusLayer::Draw(uint64_t now, unsigned width, unsigned height) {
             IM_COL32(74, 215, 178, 255), ImDrawFlags_None, 1.7f);
         TextDisabled("Min %.1f / Max %.1f ms | 16.7 / 33.3 guides", minimum, maximum);
         Separator();
-        Text("CPU  FEX x86-64    GPU  Vulkan / Turnip");
+        const char* driver_label = snapshot.driver_identity.find("source=system") != std::string::npos
+                                       ? "System" : snapshot.driver_identity.find("source=turnip") != std::string::npos
+                                       ? "Turnip" : "Unknown";
+        Text("CPU  FEX x86-64    GPU  Vulkan / %s", driver_label);
         Text("Surface %u x %u    Generation %llu", width, height,
              static_cast<unsigned long long>(snapshot.generation));
         Text("All presents %.1f/s    Draw/dispatch %.0f/s", all_presents.Fps(now), draws_per_second);
-        TextDisabled("GPU time unavailable | Host frame intervals");
+        if (!Common::Profiler::GpuTimingEnabled()) TextDisabled("GPU timing off | gpu_timing start");
+        else if (gpu) {
+            const auto timing = gpu->Read();
+            using Stage = Common::Profiler::GpuStage;
+            const auto& guest = timing.stages[size_t(Stage::GuestFrame)];
+            if (!timing.supported) TextDisabled("GPU timestamps unavailable");
+            else if (!guest.count || now < guest.observed_ns || now - guest.observed_ns > 1000000000)
+                TextDisabled("GPU: awaiting completed guest frame (stale/partial)");
+            else {
+                Text("GPU guest %.2f ms | prepare %.2f ms", guest.last_ms, timing.stages[size_t(Stage::Prepare)].last_ms);
+                Text("GPU present %.2f / redraw %.2f ms", timing.stages[size_t(Stage::Present)].last_ms, timing.stages[size_t(Stage::Redraw)].last_ms);
+                std::array<float, 120> history{};
+                const auto n = std::min<uint64_t>(timing.guest_history_count, history.size());
+                for (uint64_t i = 0; i < n; ++i) history[i] = timing.guest_history[(timing.guest_history_count - n + i) % history.size()];
+                PlotLines("##gpu_times", history.data(), int(n), 0, "GPU guest elapsed ms", 0.f,
+                    std::max(33.334f, *std::max_element(history.begin(), history.end()) * 1.05f), {GetContentRegionAvail().x, 58});
+            }
+            TextDisabled("GPU queries: pending %u / dropped %llu / errors %llu", timing.pending,
+                (unsigned long long)(timing.dropped_batches + timing.dropped_zones), (unsigned long long)timing.errors);
+            if (timing.estimated_alignment) TextDisabled("CPU/GPU alignment estimated +/- %.2f ms", timing.calibration_deviation_ns / 1e6);
+            else if (!timing.calibrated) TextDisabled("Duration only; clock alignment pending");
+        }
         SetWindowFontScale(1.f);
     }
     End();

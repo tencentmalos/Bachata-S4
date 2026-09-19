@@ -1,0 +1,49 @@
+{
+  "schema": "shadps4.guest-functions.recipe.v1",
+  "abi": "x86_64-sysv",
+  "title": "CUSA50828",
+  "module": "eboot.bin",
+  "module_sha256": "6122da7190de6b08d921b2c42c3ca9ed11dc4d11524f1139ff67aeceea5b204d",
+  "executable_sha256": "6122da7190de6b08d921b2c42c3ca9ed11dc4d11524f1139ff67aeceea5b204d",
+  "id": "tmnt_heap_stats_v1",
+  "sources": [
+    "heap_stats.cpp"
+  ],
+  "hooks": [
+    {
+      "name": "TMNT_DiscardUnusedHeapStats",
+      "offset": 22807248,
+      "expected": "ff250ab17700",
+      "replacement": "patch_heap_stats_fast",
+      "original": "original_heap_stats_fast",
+      "prototype": "int original_heap_stats_fast(void* heap, void* output)",
+      "evidence": "Exact NID k04jLXu3+Ic, sceLibcMspaceMallocStatsFast: RDI heap / RSI versioned 40-byte output / EAX status. Original six-byte RIP-indirect PLT jump preserves caller return PC through trampoline. Only original callers returning to c6362 / c63cd discard stack output and status; real malloc/free execute first. Full decoded evidence and validity boundary in heap-stats.contract.md."
+    }
+  ],
+  "bindings": [
+    {
+      "name": "tmnt_mspace_slot",
+      "kind": "data",
+      "offset": 31550152,
+      "size": 8,
+      "alignment": 8,
+      "access": "r",
+      "type": "shad_u64",
+      "evidence": "Original guest mspace handle reloaded by both wrappers before malloc/free and stats; shared original storage, never copied."
+    }
+  ],
+  "counters": [
+    {
+      "id": 50,
+      "name": "heap_allocation_unused_stats_queries"
+    },
+    {
+      "id": 51,
+      "name": "heap_release_unused_stats_queries"
+    },
+    {
+      "id": 52,
+      "name": "heap_public_stats_forwarded"
+    }
+  ]
+}

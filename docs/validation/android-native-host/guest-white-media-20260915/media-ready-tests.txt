@@ -1,0 +1,2 @@
+decoded video=12 audio=90 callbacks=23 events=1 reads=11
+guest_avplayer_tests: 1207 checks, 0 failures

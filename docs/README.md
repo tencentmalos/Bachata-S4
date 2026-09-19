@@ -1,4 +1,21 @@
+**2026-09-17：[FIOS I/O / 新数据映射去串行化验证](validation/android-native-host/fios-io-global-locks-2026-09-17.md)、[移除 Runtime VM 总锁的设计](guest-memory-concurrency.md)。** 已拆文件执行锁与新增数据映射的全局停机/译码清空；VM总锁尚未完全删除。最终25.2秒停帧期间后台仍读取284MB且无VM事务，不能声称loading已修复。
+
+- [Runtime VM 总锁删除与普通 APK 验证（2026-09-17）](validation/android-native-host/vm-lock-removal-2026-09-17.md)：HLE 总锁已移除，范围引用/批量 pin、代码 publication 分离；loading 停帧仍未解决。
+
+**2026-09-16 当前：[Foundation main同步与GPU ring/RenderDoc/GRS交付](validation/android-native-host/graphics-tooling-foundation-2026-09-16.md)、[已有屋顶帧分析](validation/android-native-host/existing-rooftop-gpu-analysis-2026-09-16.md)、[已落地的异步提交](validation/android-native-host/async-submission-2026-09-16.md)。** 用户要求停止新增抓帧；使用既有RDC/PROF。主要guest命令同一command buffer，32次host detile已逐一识别，不能称32次CPU等待。回放detile/copy约11.49/6.48ms；不同运行的GPU未覆盖28.27ms仍不能归因barrier。工具及实际限制见报告；旧“没有GPU query/没有异步提交”记录已被取代。
+
+**2026-09-16：已实现 [Qualcomm shaderInt64=0 降级](validation/android-native-host/shader-int64-system-driver-2026-09-16.md)，并完成 [系统驱动屋顶性能与 Citron 提交架构对照](validation/android-native-host/qualcomm-performance-2026-09-16.md)。** GPU约61.8ms；PresentThread已存在，阻塞经共用VkQueue锁传给同步Flush和GNM gate。画面错误留给后续RenderDoc/GPU Reshape；没有异步架构修复或30FPS验收。
+
+- [Guest auto tag → 语义标定 → C/C++ 拦截完整工作流](guest-frame-interception-workflow.md)
+- [帧尾等待与 Turnip 零超时轮询实证](validation/android-native-host/frame-tail-wait-2026-09-16.md)
+- [Guest auto tag and iterative long-frame analysis](guest-auto-tag.md)
 # Android / FEX 开发资料索引
+
+- **待实施：[Android FEX 持久化代码缓存 / AOT Cache spec](specs/android-fex-aot-code-cache.md)**：先接运行时 DiskCache，再评估 FEXOfflineCompiler；包含 cache identity、guest patch/SMC 失效、Android app-private 存储和 TMNT 真机 A/B 判据。
+
+- [TMNT rooftop calibration and Android face-button flip (2026-09-16)](validation/android-native-host/tmnt-rooftop-calibration-2026-09-16.md)
+
+**2026-09-15：FEX guest 函数 patch 已实现。** [使用/编写指南](guest-function-patches.md)、[TMNT 标定与真实 FEX/APK 证据](validation/android-native-host/guest-function-patch-2026-09-15.md)。C/C++/ASM、typed original trampoline、跨游戏 SDK、启动安装/运行中切换；FEX41/0、builder7/7、普通APK三轮，最终TMNT屋顶输入通过。下文按各日期保留历史状态，不应据旧记录重做已完成内容。
 
 **2026-09-14调试工具复核：[30e3b21f 进展与问题](validation/android-native-host/graphics-toolkit-progress-review-2026-09-14.md)。** §3.1部分完成、§3.2未闭环；native173/0之外12个反例复现。先修实际抓帧/控制/计数，再续原整包；未修改生产实现。
 
@@ -99,3 +116,9 @@ Foundation 最小构建入口已接入；反射/网络闭包与 Android 16 运�
 Beat Saber 的 PS4/PSVR 兼容性是独立后续目标。先验证非 VR guest 的执行、显示、输入、音频和生命周期，再推进 tracking、双眼呈现及 VR 时序。
 
 - [2026-09-13：guest 图形提交／存档直接集成、设备回归与 TMNT 真实边界](validation/android-native-host/graphics-storage-integration-2026-09-13.md)
+
+- [Guest 选择性重编译](guest-selective-recompilation.md)：TMNT 实际 C/C++、guest 函数/数据绑定、原机器码差分与 study0 证据流程。
+
+- [实测帧调用、语义名称与主函数 C/C++ 重编译](validation/android-native-host/frame-recompilation-2026-09-16.md)
+
+- [TMNT 可见函数到 C/C++ 拦截](validation/android-native-host/frame-interception-2026-09-16.md)：源码链接、生成器、按函数启停与实际命中证据。

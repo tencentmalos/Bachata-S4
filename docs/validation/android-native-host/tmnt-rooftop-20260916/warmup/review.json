@@ -1,0 +1,8 @@
+{
+  "run_id": "6d4b03a83b064a378e27ec9967c7ee5a",
+  "scene_frame": 11,
+  "response_frame": 17,
+  "note": "Exact PID8463/gen1: rooftop Leonardo scene; recorded stick-right movement changes character/camera position and tutorial MOVE progresses to ATTACK. Guest frames continue. Coarse guest entry patches active.",
+  "method": "explicit_visual_review",
+  "reviewed_at": 1789524230.9643898
+}

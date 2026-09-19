@@ -91,3 +91,64 @@ scripts/android/run-v0-tests --build-dir build/v0-host \
 
 `build-v0` 与 `collect-v0-evidence` 还没有。前者需要 APK 构建，
 后者需要有设备证据可收集。两者都在 FEX 阻断解除之后才有意义。
+
+## 快速启动上次游戏（普通 APK）
+
+`scripts/android/open-last-game SERIAL --open_last_game` 会启动或唤起
+`MainActivity`，并通过现有 Library → Session 路径启动最近一次接入成功的游戏。
+等价命令：
+
+```bash
+adb -s SERIAL shell am start -W -n com.shadps4.android/.MainActivity \
+  -f 0x24000000 --ez open_last_game true
+```
+
+Activity 已运行时也可用
+`adb -s SERIAL shell dumpsys activity com.shadps4.android/.MainActivity --open_last_game`。
+该 dumpsys 返回的是排队回执，实际结果见 `adb logcat -s OpenLastGame` 和 Session
+`debug_status`；`am start` 成功也不等于游戏启动成功。无历史、内容已移除或已有活动
+Session 时不会新建游戏。历史来自应用数据库，不接受外部任意文件路径，不绕过
+安装校验、Turnip、Surface、输入或 Session generation 生命周期。
+
+## 实际游戏场景 warmup
+
+`warmup-game` 使用普通 Android 触屏输入，默认反复按圈，每 5 秒保存实际显示器截图、
+Session identity 和 guest flip。**主菜单、片头、loading 或 FPS 非零都不算完成。**
+它不挂调试器、不修改游戏、不向生产 runtime 添加后台循环，结束后只停止自动输入。
+
+```bash
+scripts/android/warmup-game 9c2841a4 --open-last-game \
+  --display-id 4630946441858561667 --input-display 0 \
+  --out build/tmnt-warmup --button circle --seconds 600
+```
+
+显式指定 serial、物理截图 display-id 和对应的逻辑输入 display；不自动挑设备。
+坐标基于当前默认触屏布局并按截图分辨率缩放，自定义布局不适用。输出目录必须是新目录。
+当前 TMNT/默认桌面配置为 **叉键确认、圈键取消**，不是输入断链；可直接用 `--button cross`
+完成 PLAY/教程确认。运行时可原子替换 `control.txt` 内容为 `circle`、`cross`、`none`、
+`left`/`right`（方向键）、`stick-left`/`stick-right`（左摇杆）或 `stop`。摇杆验证建议
+`--hold-ms 1000`。不要在游戏场景出现后继续无目的地重复确认键。
+
+人工或 AI 观察实际关卡和角色输入响应后，引用这次运行的两张截图编号：
+
+```bash
+scripts/android/warmup-game review --out build/tmnt-warmup \
+  --scene-frame 20 --response-frame 23 \
+  --note '已检查屋顶教程场景；左摇杆使角色移动，MOVE 提示推进到 ATTACK'
+```
+
+`review` 是显式目视复核声明，不是 OCR/自动场景识别；编号和说明必须对应真实证据。
+运行中的工具还会检查同一 PID/generation/UUID、两图之间确有输入、guest flip 前进、
+截图 SHA 未改变、响应图在 60 秒内且当前没有持续停帧，才返回 `GAMEPLAY_REVIEWED`/退出码 0。
+不要只看 `review` 提交命令的退出码；应等运行进程的最终结果。
+超时/手动停止仍为未验收（退出码 2），设备/会话/证据错误为 1，Ctrl-C 为 130。
+`manifest.json` 保留所有状态和输入记录。单独的脚本检查：
+`python3 scripts/android/test-warmup-game.py`。
+
+## Automatic guest profiling
+
+`guest-auto-tag` deploys identity-bound startup profiles, controls recording, and
+captures bounded PROF files with Session manifests. See
+[the iterative workflow](../../docs/guest-auto-tag.md). The public analysis MCP is
+`reverse_study`, default backend `study0`; default depth is two, with no 64-probe
+truncation. Deeper exploration requires an explicit next iteration.

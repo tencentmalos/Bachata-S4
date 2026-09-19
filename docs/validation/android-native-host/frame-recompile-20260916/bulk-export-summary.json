@@ -1,0 +1,9 @@
+{
+  "functions": 50,
+  "root_instructions": 5840,
+  "cfg": 1278,
+  "locals": 1296,
+  "pseudocode_bytes": 191941,
+  "early_ir": 10688,
+  "final_ir": 3501
+}

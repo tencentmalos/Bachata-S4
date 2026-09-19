@@ -1,0 +1,24 @@
+SERVICE com.shadps4.android/.service.FexSessionService faf16ae pid=7315 user=0
+  Client:
+    status: ok
+    request_id: 1
+    generation: 1
+    completed_frames: 1
+    cleanup_pending: false
+    coverage: guest_flip_interval
+    first_guest_flip: 13507
+    last_guest_flip: 13508
+    state: ready
+    requested_frames: 1
+    captures_before: 0
+    captures_after: 1
+    run_uuid: ae55df790741fe1ce0a4a42ce674bd57
+    capture_uuid: ae55df790741fe1ce0a4a42ce674bd57:1:1
+    file: /data/data/com.shadps4.android/files/host/captures/ae55df790741fe1ce0a4a42ce674bd57_1_1_capture.rdc
+    timestamp: 1789560884
+    file_size: 618663592
+    sha256: 9ea641e2cdf82da907e6d1e21ff7a7cf2fa1c6a11a2c28253f2826eb79ab23cc
+    sidecar: /data/data/com.shadps4.android/files/host/captures/ae55df790741fe1ce0a4a42ce674bd57_1_1_capture.rdc.json
+    first_present: 0
+    last_present: 0
+

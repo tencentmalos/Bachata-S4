@@ -120,6 +120,9 @@ struct OrbisNpTrophyGroupDetails {
     char description[ORBIS_NP_TROPHY_GROUP_DESCR_MAX_SIZE];
 };
 
+// Shared data operation; native popup scheduling is an optional host concern.
+int UnlockTrophy(OrbisNpTrophyContext context, OrbisNpTrophyHandle handle,
+                 OrbisNpTrophyId trophyId, OrbisNpTrophyId* platinumId, bool notifications);
 int PS4_SYSV_ABI sceNpTrophyAbortHandle(OrbisNpTrophyHandle handle);
 int PS4_SYSV_ABI sceNpTrophyCaptureScreenshot();
 int PS4_SYSV_ABI sceNpTrophyConfigGetTrophyDetails();

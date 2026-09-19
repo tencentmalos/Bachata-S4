@@ -1,0 +1,2 @@
+[PATCH001] FAIL Unsupported in GuestAddressSpace::Protect: this implementation cannot split a mapping; Protect must cover the whole mapping, and nothing was modified
+PATCH_SUMMARY checks=1 failures=1

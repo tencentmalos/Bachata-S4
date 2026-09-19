@@ -1,0 +1,18 @@
+[PATCH001] PASS frame replay original image SHA
+[PATCH002] PASS frame body original vs C++: return/full memory/callback order
+[PATCH003] PASS frame body original vs C++: return/full memory/callback order
+[PATCH004] PASS frame body original vs C++: return/full memory/callback order
+[PATCH005] PASS frame body original vs C++: return/full memory/callback order
+[PATCH006] PASS frame body original vs C++: return/full memory/callback order
+[PATCH007] PASS frame body original vs C++: return/full memory/callback order
+[PATCH008] PASS frame body original vs C++: return/full memory/callback order
+[PATCH009] PASS frame body original vs C++: return/full memory/callback order
+[PATCH010] PASS frame body original vs C++: return/full memory/callback order
+[PATCH011] PASS frame body original vs C++: return/full memory/callback order
+[PATCH012] PASS frame body original vs C++: return/full memory/callback order
+[PATCH013] PASS frame body original vs C++: return/full memory/callback order
+[PATCH014] PASS frame body original vs C++: return/full memory/callback order
+[PATCH015] PASS frame body original vs C++: return/full memory/callback order
+[PATCH016] PASS frame body original vs C++: return/full memory/callback order
+[PATCH017] PASS frame body original vs C++: return/full memory/callback order
+FRAME_DISPATCH checks=17 failures=0

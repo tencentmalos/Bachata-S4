@@ -1,0 +1,116 @@
+[
+  {
+    "path": "src/core/host_runtime/guest_audio.cpp",
+    "normal_sha256": "85d0a0c81adaba31dd5a20f2415a91a7778fa553d317665a55d70ae3c02c79af",
+    "current_sha256": "85d0a0c81adaba31dd5a20f2415a91a7778fa553d317665a55d70ae3c02c79af",
+    "same": true
+  },
+  {
+    "path": "src/core/libraries/audio/audioout.cpp",
+    "normal_sha256": "1de766fecd5d98d0a905b52febefd503c95eca18061caf4d12b372c790940ff5",
+    "current_sha256": "1de766fecd5d98d0a905b52febefd503c95eca18061caf4d12b372c790940ff5",
+    "same": true
+  },
+  {
+    "path": "src/core/libraries/audio/audioout_backend.h",
+    "normal_sha256": "160771774fbb40743d1b79dca51ae4523a6c40b977e9dccd946873a214131a63",
+    "current_sha256": "160771774fbb40743d1b79dca51ae4523a6c40b977e9dccd946873a214131a63",
+    "same": true
+  },
+  {
+    "path": "src/core/libraries/audio/audioout_transfer.h",
+    "normal_sha256": "9af40397a7c378a0f85a177823a668574fcfb28e90e24499f76aa6cf9219114d",
+    "current_sha256": "9af40397a7c378a0f85a177823a668574fcfb28e90e24499f76aa6cf9219114d",
+    "same": true
+  },
+  {
+    "path": "src/core/libraries/audio/oboe_audio_out.cpp",
+    "normal_sha256": "1b566d99dd0ff1fce77de0ac17430f23341741192b4626c623085c5331e434a4",
+    "current_sha256": "1b566d99dd0ff1fce77de0ac17430f23341741192b4626c623085c5331e434a4",
+    "same": true
+  },
+  {
+    "path": "tests/host_runtime/guest_audio_tests.cpp",
+    "normal_sha256": "376c651247afe20fc1a89dfe253720a272d4960630423b69ca33cdd66de88d5a",
+    "current_sha256": "376c651247afe20fc1a89dfe253720a272d4960630423b69ca33cdd66de88d5a",
+    "same": true
+  },
+  {
+    "path": "tests/guest_cpu/fixtures/runtime_audio.S",
+    "normal_sha256": "d23dd6359b19e308fc0ab90527deccaa01e3f3955aadc9b2657feb4b8cade8f7",
+    "current_sha256": "d23dd6359b19e308fc0ab90527deccaa01e3f3955aadc9b2657feb4b8cade8f7",
+    "same": true
+  },
+  {
+    "path": "CMakeLists.txt",
+    "normal_sha256": "865a0618298a31007af9de46a33b0c252fb2401b339eb2f944d18a5863483770",
+    "current_sha256": "865a0618298a31007af9de46a33b0c252fb2401b339eb2f944d18a5863483770",
+    "same": true
+  },
+  {
+    "path": "cmake/SpatialFoundation.cmake",
+    "normal_sha256": "eb24420f5c76f8fa86f14baba2917ce5d70967a805115e051a918cbdb4a43f42",
+    "current_sha256": "eb24420f5c76f8fa86f14baba2917ce5d70967a805115e051a918cbdb4a43f42",
+    "same": true
+  },
+  {
+    "path": "scripts/android/build-host-android",
+    "normal_sha256": "cc5e3994ff4c15c811f65cc30f7d603a5588fe34ea72b440e499fc9e36a722ea",
+    "current_sha256": "cc5e3994ff4c15c811f65cc30f7d603a5588fe34ea72b440e499fc9e36a722ea",
+    "same": true
+  },
+  {
+    "path": "foundation/modules/CMakeLists.txt",
+    "normal_sha256": "7b2b921a1d9ad6e1d6ec91e9b28f0837817123cc2fe3a492bc2d57ea8f51881f",
+    "current_sha256": "7b2b921a1d9ad6e1d6ec91e9b28f0837817123cc2fe3a492bc2d57ea8f51881f",
+    "same": true
+  },
+  {
+    "path": "foundation/modules/audio/CMakeLists.txt",
+    "normal_sha256": "7842ff0b16618378ca3222d3748a6a1a1cbe12e1660e4f367f426a46c07684c7",
+    "current_sha256": "7842ff0b16618378ca3222d3748a6a1a1cbe12e1660e4f367f426a46c07684c7",
+    "same": true
+  },
+  {
+    "path": "foundation/modules/audio/README.md",
+    "normal_sha256": "45059ecd3365e13d27c6c97115bdd0cbb107e3ed8a9d55d4f07a4af44d9b23cf",
+    "current_sha256": "45059ecd3365e13d27c6c97115bdd0cbb107e3ed8a9d55d4f07a4af44d9b23cf",
+    "same": true
+  },
+  {
+    "path": "foundation/modules/audio/tests/callback_mixer_tests.cpp",
+    "normal_sha256": "f474fc9647ee0688e51550404070677bf5e9f2a66cbc95d799b9a9ee2facb842",
+    "current_sha256": "f474fc9647ee0688e51550404070677bf5e9f2a66cbc95d799b9a9ee2facb842",
+    "same": true
+  },
+  {
+    "path": "foundation/modules/audio/tests/oboe_output_tests.cpp",
+    "normal_sha256": "5dc08f7ea04982c8c3840ccf7c60765410e7a56cdda25201739215e78b6cbcfb",
+    "current_sha256": "5dc08f7ea04982c8c3840ccf7c60765410e7a56cdda25201739215e78b6cbcfb",
+    "same": true
+  },
+  {
+    "path": "foundation/modules/audio/src/oboe_output.cpp",
+    "normal_sha256": "11149f1fd3ec8a3adf7d59e22f43658c69930ad532c6d7af1750326e582e343c",
+    "current_sha256": "11149f1fd3ec8a3adf7d59e22f43658c69930ad532c6d7af1750326e582e343c",
+    "same": true
+  },
+  {
+    "path": "foundation/modules/audio/src/callback_mixer.cpp",
+    "normal_sha256": "e1da7be260d9721d0a7611200e9f5e1bdb7724f3a0341d34f4ba9a14e8c64df0",
+    "current_sha256": "e1da7be260d9721d0a7611200e9f5e1bdb7724f3a0341d34f4ba9a14e8c64df0",
+    "same": true
+  },
+  {
+    "path": "foundation/modules/audio/include/foundation/audio/oboe_output.h",
+    "normal_sha256": "15173ac3fac2661c29e42bf12a34755d9311a3068428e2aeeeb1cdd0de923cff",
+    "current_sha256": "15173ac3fac2661c29e42bf12a34755d9311a3068428e2aeeeb1cdd0de923cff",
+    "same": true
+  },
+  {
+    "path": "foundation/modules/audio/include/foundation/audio/callback_mixer.h",
+    "normal_sha256": "9eb690d590bf926de694706590048e9a4c7f96a2ba07fbbe7496fa7801fadf10",
+    "current_sha256": "9eb690d590bf926de694706590048e9a4c7f96a2ba07fbbe7496fa7801fadf10",
+    "same": true
+  }
+]

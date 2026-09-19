@@ -115,8 +115,13 @@ int main() {
 
     // --- still-pending commands never fake success ---
     {
-        for (const char* name : {"profiler_ring", "profiler_capture",
-                                 "performance_capture", "guest_command_trace",
+        CHECK(Has(registry.Handle("profiler_ring"), "profiler_ring_not_built"));
+        CHECK(Has(registry.Handle("profiler_capture"), "profiler_ring_not_built"));
+        for (const auto* arg : {"file 0", "file 1025", "file 1 0", "file 1 3601",
+                                "file -1", "file 1x", "file 1 1 extra", "status extra",
+                                "stop extra", "invalid"})
+            CHECK(Has(registry.Handle(std::string("profiler_capture ") + arg), "invalid_arguments"));
+        for (const char* name : {"performance_capture", "guest_command_trace",
                                  "gpu_command_trace", "guest_screenshot"}) {
             const std::string r = registry.Handle(name);
             CHECK(Has(r, "status: not-implemented"));

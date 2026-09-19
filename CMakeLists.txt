@@ -334,10 +334,9 @@ set(AUDIO_LIB src/core/libraries/audio/audioin.cpp
               src/core/libraries/audio3d/audio3d_error.h
 )
 
-# AAudio output backend: the default AudioOut sink on Android (blocking write, no
-# data callback). Android-only; audioout.cpp selects it behind __ANDROID__.
+# Oboe callback output: shared host stereo endpoint, Android only.
 if (ANDROID)
-    list(APPEND AUDIO_LIB src/core/libraries/audio/aaudio_audio_out.cpp)
+    list(APPEND AUDIO_LIB src/core/libraries/audio/oboe_audio_out.cpp)
     # Android does not link SDL: drop the SDL audio backends and use the no-mic
     # NullAudioIn fallback (audioin.cpp selects it behind __ANDROID__).
     list(REMOVE_ITEM AUDIO_LIB
@@ -798,7 +797,9 @@ set(DEV_TOOLS src/core/devtools/layer.cpp
               src/core/devtools/widget/text_editor.h
 )
 
-set(COMMON src/common/logging/classes.h
+set(COMMON src/common/profiler.cpp
+           src/common/guest_patch_log.cpp
+           src/common/logging/classes.h
            src/common/logging/formatter.h
            src/common/logging/log.cpp
            src/common/logging/log.h
@@ -921,6 +922,7 @@ set(CORE src/core/aerolib/stubs.cpp
          src/core/file_format/playgo_chunk.cpp
          src/core/file_format/playgo_chunk.h
          src/core/file_format/trp.cpp
+                src/core/file_format/trophy_support.cpp
          src/core/file_format/trp.h
          src/core/file_format/npbind.cpp
          src/core/file_format/npbind.h
@@ -1030,6 +1032,7 @@ set(SHADER_RECOMPILER src/shader_recompiler/profile.h
                       src/shader_recompiler/backend/spirv/emit_spirv_image.cpp
                       src/shader_recompiler/backend/spirv/emit_spirv_instructions.h
                       src/shader_recompiler/backend/spirv/emit_spirv_integer.cpp
+    src/shader_recompiler/backend/spirv/spirv_int64.cpp
                       src/shader_recompiler/backend/spirv/emit_spirv_logical.cpp
                       src/shader_recompiler/backend/spirv/emit_spirv_quad_rect.cpp
                       src/shader_recompiler/backend/spirv/emit_spirv_quad_rect.h
@@ -1175,6 +1178,7 @@ set(VIDEO_CORE src/video_core/amdgpu/cb_db_extent.h
                src/video_core/renderer_vulkan/vk_rasterizer.h
                src/video_core/renderer_vulkan/vk_resource_pool.cpp
                src/video_core/renderer_vulkan/vk_resource_pool.h
+               src/video_core/renderer_vulkan/vk_gpu_profiler.cpp
                src/video_core/renderer_vulkan/vk_scheduler.cpp
                src/video_core/renderer_vulkan/vk_scheduler.h
                src/video_core/renderer_vulkan/vk_shader_hle.cpp
@@ -1443,7 +1447,7 @@ if (ANDROID)
         target_link_libraries(shadps4 PRIVATE adrenotools)
         target_sources(shadps4 PRIVATE src/video_core/renderer_vulkan/vk_driver_android.cpp)
     endif()
-    target_link_libraries(shadps4 PRIVATE log android aaudio)
+    target_link_libraries(shadps4 PRIVATE log android)
 endif()
 
 target_compile_definitions(shadps4 PRIVATE IMGUI_USER_CONFIG="imgui/imgui_config.h")
@@ -1616,14 +1620,20 @@ if(BUILD_HOST_CORE)
     add_subdirectory(foundation/modules/input foundation/input EXCLUDE_FROM_ALL)
     target_sources(shadps4 PRIVATE src/core/host_runtime/orbis_pad_adapter.cpp
         src/core/host_runtime/guest_save_dialog.cpp
+        src/core/host_runtime/guest_ime_dialog.cpp
         src/core/host_runtime/guest_storage.cpp
         src/core/host_runtime/guest_storage_hle.cpp
         src/core/host_runtime/guest_runtime.cpp
+        src/core/host_runtime/guest_auto_tag.cpp
+        src/core/host_runtime/guest_patch.cpp
+        src/core/host_runtime/guest_patch_relocator.cpp
         src/core/host_runtime/guest_audio.cpp
         src/core/host_runtime/guest_avplayer.cpp
         src/core/host_runtime/guest_ajm.cpp
         src/core/host_runtime/guest_graphics.cpp
         src/core/host_runtime/guest_graphics_hle.cpp
+        src/core/host_runtime/guest_vr_session.cpp
+        src/core/host_runtime/guest_vr_sensor.cpp
         src/core/diagnostics/diagnostics_commands.cpp
         src/core/diagnostics/diagnostics_service.cpp)
     target_link_libraries(shadps4 PRIVATE spatial::foundation_input)
@@ -1650,7 +1660,10 @@ if(BUILD_HOST_CORE)
     add_library(shadps4_host SHARED $<TARGET_OBJECTS:shadps4>)
     target_link_libraries(shadps4_host PRIVATE shadps4_host_dependencies)
     add_dependencies(shadps4_host host_shaders ImGui_Resources)
-    target_link_options(shadps4_host PRIVATE -Wl,--build-id=sha1 -Wl,--no-undefined
+    # linkernsbypass declares data pointers named like Android linker functions.
+    # Exporting them interposes libvndksupport calls onto non-executable .bss.
+    target_link_options(shadps4_host PRIVATE -Wl,--exclude-libs,liblinkernsbypass.a
+        -Wl,--build-id=sha1 -Wl,--no-undefined
         "-Wl,-Map,${CMAKE_CURRENT_BINARY_DIR}/shadps4_host.map")
     # The APK and load audit consume the real host DSO and the exact header
     # environment of this target, without duplicating host source/archive lists.
@@ -1658,8 +1671,43 @@ if(BUILD_HOST_CORE)
         CONTENT "set(SHADPS4_HOST_GPU_RESHAPE_LIBRARY [==[${SHADPS4_GPU_RESHAPE_LIBRARY}]==])\nset(SHADPS4_HOST_ADRENOTOOLS_HOOKS [==[$<TARGET_FILE:hook_impl>;$<TARGET_FILE:main_hook>;$<TARGET_FILE:file_redirect_hook>;$<TARGET_FILE:gsl_alloc_hook>]==])\nset(SHADPS4_HOST_PROVIDES_GUEST_CPU_API TRUE)\nset(SHADPS4_HOST_LOADER_LIBRARY [==[$<TARGET_FILE:shadps4_host>]==])\nset(SHADPS4_HOST_LOADER_INCLUDES [==[$<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>]==])\nset(SHADPS4_HOST_LOADER_DEFINITIONS [==[$<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>]==])\nset(SHADPS4_HOST_LOADER_ABI [==[${ANDROID_ABI}]==])\nset(SHADPS4_HOST_LOADER_API [==[${ANDROID_PLATFORM_LEVEL}]==])\nset(SHADPS4_HOST_LOADER_STL [==[${ANDROID_STL}]==])\n")
     option(HOST_BUILD_PROBES "Build auxiliary native host linkage/contract probes" OFF)
     if(HOST_BUILD_PROBES)
+        add_executable(submission_worker_tests tests/host_runtime/submission_worker_tests.cpp)
+        target_include_directories(submission_worker_tests PRIVATE src)
+        add_executable(android_submission_probe tests/video_core/android_submission_probe.cpp)
+        target_link_libraries(android_submission_probe PRIVATE shadps4_host spdlog::spdlog)
+        target_include_directories(android_submission_probe PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(android_submission_probe PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(gpu_timing_tests tests/host_runtime/gpu_timing_tests.cpp)
+        target_link_libraries(gpu_timing_tests PRIVATE shadps4_host)
+        target_include_directories(gpu_timing_tests PRIVATE src)
+        add_executable(android_gpu_timing_probe tests/video_core/android_gpu_timing_probe.cpp)
+        target_link_libraries(android_gpu_timing_probe PRIVATE shadps4_host spdlog::spdlog)
+        target_include_directories(android_gpu_timing_probe PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(android_gpu_timing_probe PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(android_auxiliary_interface_probe tests/video_core/android_auxiliary_interface_probe.cpp)
+        target_link_libraries(android_auxiliary_interface_probe PRIVATE shadps4_host spdlog::spdlog)
+        target_include_directories(android_auxiliary_interface_probe PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(android_auxiliary_interface_probe PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(android_depth_range_probe tests/video_core/android_depth_range_probe.cpp)
+        target_link_libraries(android_depth_range_probe PRIVATE shadps4_host spdlog::spdlog)
+        target_include_directories(android_depth_range_probe PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(android_depth_range_probe PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(android_shader_int64_probe tests/video_core/android_shader_int64_probe.cpp)
+        target_link_libraries(android_shader_int64_probe PRIVATE shadps4_host spdlog::spdlog)
+        target_include_directories(android_shader_int64_probe PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(android_shader_int64_probe PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(gpu_async_tests tests/host_runtime/gpu_async_tests.cpp)
+        target_link_libraries(gpu_async_tests PRIVATE shadps4_host spdlog::spdlog)
+        target_include_directories(gpu_async_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(gpu_async_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         add_executable(host_dlopen_smoke tests/host_runtime/host_dlopen_smoke.cpp)
         target_link_libraries(host_dlopen_smoke PRIVATE dl)
+        foreach(probe guest_native_mutex_tests guest_rwlock_tests)
+            add_executable(${probe} tests/host_runtime/${probe}.cpp)
+            target_link_libraries(${probe} PRIVATE shadps4_host)
+            target_include_directories(${probe} PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+            target_compile_definitions(${probe} PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        endforeach()
         add_executable(guest_kernel_semaphore_tests tests/host_runtime/guest_kernel_semaphore_tests.cpp)
         target_link_libraries(guest_kernel_semaphore_tests PRIVATE shadps4_host)
         target_include_directories(guest_kernel_semaphore_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
@@ -1672,6 +1720,17 @@ if(BUILD_HOST_CORE)
         target_link_libraries(guest_graphics_admission_tests PRIVATE shadps4_host)
         target_include_directories(guest_graphics_admission_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
         target_compile_definitions(guest_graphics_admission_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(guest_vr_session_tests tests/host_runtime/guest_vr_session_tests.cpp
+            src/core/host_runtime/guest_vr_session.cpp)
+        target_include_directories(guest_vr_session_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(guest_vr_session_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(guest_vr_abi_tests tests/host_runtime/guest_vr_abi_tests.cpp)
+        target_include_directories(guest_vr_abi_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(guest_vr_abi_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(guest_vr_sensor_tests tests/host_runtime/guest_vr_sensor_tests.cpp
+            src/core/host_runtime/guest_vr_sensor.cpp)
+        target_include_directories(guest_vr_sensor_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(guest_vr_sensor_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         add_executable(srt_tests tests/host_runtime/srt_tests.cpp)
         target_link_libraries(srt_tests PRIVATE shadps4_host spdlog::spdlog)
         target_include_directories(srt_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
@@ -1696,6 +1755,30 @@ if(BUILD_HOST_CORE)
         target_link_libraries(guest_np_tests PRIVATE shadps4_host)
         target_include_directories(guest_np_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
         target_compile_definitions(guest_np_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(guest_trophy_tests tests/host_runtime/guest_trophy_tests.cpp)
+        target_link_libraries(guest_trophy_tests PRIVATE shadps4_host)
+        target_include_directories(guest_trophy_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(guest_trophy_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(guest_matching2_tests tests/host_runtime/guest_matching2_tests.cpp)
+        target_link_libraries(guest_matching2_tests PRIVATE shadps4_host)
+        target_include_directories(guest_matching2_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(guest_matching2_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(guest_save_services_tests tests/host_runtime/guest_save_services_tests.cpp)
+        target_link_libraries(guest_save_services_tests PRIVATE shadps4_host)
+        target_include_directories(guest_save_services_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(guest_save_services_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(guest_playgo_tests tests/host_runtime/guest_playgo_tests.cpp)
+        target_link_libraries(guest_playgo_tests PRIVATE shadps4_host)
+        target_include_directories(guest_playgo_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(guest_playgo_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(guest_http_tests tests/host_runtime/guest_http_tests.cpp)
+        target_link_libraries(guest_http_tests PRIVATE shadps4_host)
+        target_include_directories(guest_http_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(guest_http_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(guest_http2_tests tests/host_runtime/guest_http2_tests.cpp)
+        target_link_libraries(guest_http2_tests PRIVATE shadps4_host)
+        target_include_directories(guest_http2_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(guest_http2_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         add_executable(guest_network_tests tests/host_runtime/guest_network_tests.cpp)
         target_link_libraries(guest_network_tests PRIVATE shadps4_host)
         target_include_directories(guest_network_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
@@ -1708,6 +1791,18 @@ if(BUILD_HOST_CORE)
         target_link_libraries(guest_file_io_tests PRIVATE shadps4_host)
         target_include_directories(guest_file_io_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
         target_compile_definitions(guest_file_io_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(guest_data_mapping_tests tests/host_runtime/guest_data_mapping_tests.cpp)
+        target_link_libraries(guest_data_mapping_tests PRIVATE shadps4_host)
+        target_include_directories(guest_data_mapping_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(guest_data_mapping_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(guest_memory_manager_concurrency_tests tests/host_runtime/guest_memory_manager_concurrency_tests.cpp)
+        target_link_libraries(guest_memory_manager_concurrency_tests PRIVATE shadps4_host)
+        target_include_directories(guest_memory_manager_concurrency_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(guest_memory_manager_concurrency_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(fios_io_bench tests/host_runtime/fios_io_bench.cpp)
+        target_link_libraries(fios_io_bench PRIVATE shadps4_host)
+        target_include_directories(fios_io_bench PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(fios_io_bench PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         # Header-only diagnostics identity vocabulary (spec §4.1); needs only
         # common/types.h, so it does not link the host DSO.
         add_executable(trace_identity_tests tests/host_runtime/trace_identity_tests.cpp)

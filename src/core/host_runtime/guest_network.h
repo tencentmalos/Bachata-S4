@@ -14,13 +14,18 @@
 #include "core/libraries/network/net_ctl_codes.h"
 #include "core/libraries/network/net_error.h"
 #include "core/libraries/network/netctl.h"
+#include "core/libraries/network/net.h"
 
 namespace Core::HostRuntime {
 inline constexpr std::string_view NetNids[]{
+    "SF47kB2MNTo", "ZVw46bsasAk", "Inp1lfL+Jdw", "drjIbDbA7UQ", "w21YgGGNtBk",
     "Nlev7Lg8k3A", "cTGkc6-TBlI", "dgJBaeJnGpo", "K7RlrTkI-mw", "HQOwnfMGipQ",
     "9T2pDF2Ryqg", "3CHi1K1wsCQ", "iWQWrwiSt8A", "pQGpHYopAIY", "tOrRi-v3AOM",
     "Rbvt+5Y2iEw", "9vA2aW+CHuA", "8Kcp5d-q1Uo", "Xn2TA2QhxHc", "C4UgDHHPvdw",
-    "kJlYH5uMAWI", "J5i3hiLJMPk", "Nd91WaWmG2w", "AzqoBha7js4"};
+    "kJlYH5uMAWI", "J5i3hiLJMPk", "Nd91WaWmG2w", "AzqoBha7js4",
+    "Q4qBuN-c0ZM", "45ggEzakPJQ", "OXXX4mUk3uk", "bErx49PgxyY", "kOj1HiAGE54",
+    "9wO9XrMsNhc", "beRjXBn-z+o", "PIWqhn9oSxc", "2mKX2Spso7I", "TSM6whtekok",
+    "gvD1greCu0A", "hoOAofhhRvE", "304ooNZxWDY", "xphrZusl78E", "zJGf8xjFnQE"};
 inline constexpr std::string_view NetCtlNids[]{"gky0+oaNM4k", "Z4wwCFiBELQ", "uBPlr0lbuiI",
                                                "obuxdTiwkF8", "JO4yuTuMoKI", "0cBgduPRR+M",
                                                "UJ+Z7Q+4ck0", "Rqm2OnZMCz0", "iQw3iQPhvUQ"};
@@ -37,6 +42,9 @@ inline bool IsNetCtlNid(std::string_view nid) {
 class GuestNetwork {
 public:
     explicit GuestNetwork(bool online_requested) : online_requested(online_requested) {}
+    ~GuestNetwork() {
+        for (const auto& [id, native] : epolls) Libraries::Net::sceNetEpollDestroy(native);
+    }
     struct Callback {
         u64 function{}, argument{}, revision{};
         size_t id{};
@@ -72,11 +80,11 @@ public:
         using namespace GuestCpu;
         using namespace Libraries::NetCtl;
         auto read = [&](u64 address, auto& value) {
-            return bool(
-                space.Read(GuestAddress{address}, std::as_writable_bytes(std::span{&value, 1})));
+            return bool(space.ReadData(GuestAddress{address},
+                                       std::as_writable_bytes(std::span{&value, 1})));
         };
         auto put = [&](u64 address, const auto& value) {
-            auto pin = space.AcquirePinnedSpan({GuestAddress{address}, sizeof(value)}, true);
+            auto pin = space.AcquireDataSpan({GuestAddress{address}, sizeof(value)}, true);
             if (!pin)
                 return false;
             std::memcpy(pin.Value().WritableBytes().data(), &value, sizeof(value));
@@ -121,8 +129,8 @@ public:
             const size_t bytes = family == AF_INET ? 4 : 16;
             std::array<u8, 16> address{};
             if (ntop) {
-                if (!space.Read(GuestAddress{a[1]},
-                                std::as_writable_bytes(std::span{address}).first(bytes)))
+                if (!space.ReadData(GuestAddress{a[1]},
+                                    std::as_writable_bytes(std::span{address}).first(bytes)))
                     return fail(ORBIS_NET_EFAULT);
                 std::array<char, INET6_ADDRSTRLEN> text{};
                 if (!::inet_ntop(family, address.data(), text.data(), text.size()))
@@ -130,7 +138,7 @@ public:
                 const size_t length = std::strlen(text.data()) + 1;
                 if (u32(a[3]) < length)
                     return fail(ORBIS_NET_ENOSPC);
-                auto pin = space.AcquirePinnedSpan({GuestAddress{a[2]}, length}, true);
+                auto pin = space.AcquireDataSpan({GuestAddress{a[2]}, length}, true);
                 if (!pin)
                     return fail(ORBIS_NET_EFAULT);
                 std::memcpy(pin.Value().WritableBytes().data(), text.data(), length);
@@ -139,7 +147,7 @@ public:
             const auto text = string(a[1], INET6_ADDRSTRLEN);
             if (!text)
                 return fail(ORBIS_NET_EFAULT);
-            auto pin = space.AcquirePinnedSpan({GuestAddress{a[2]}, bytes}, true);
+            auto pin = space.AcquireDataSpan({GuestAddress{a[2]}, bytes}, true);
             if (!pin)
                 return fail(ORBIS_NET_EFAULT);
             const int result = ::inet_pton(family, text->c_str(), address.data());
@@ -148,6 +156,60 @@ public:
             return u64(result); // invalid text is 0, not a fabricated address
         }
         std::lock_guard lock(mutex);
+        if (nid == "SF47kB2MNTo") {
+            if (!initialized) return failure(ORBIS_NET_ENOTINIT);
+            if (u32(a[1])) return failure(ORBIS_NET_EINVAL);
+            auto name = a[0] ? string(a[0], 64) : std::optional<std::string>{"anon"};
+            if (!name) return failure(ORBIS_NET_EFAULT);
+            if (epolls.size() >= 64 || next_epoll == INT32_MAX) return failure(ORBIS_NET_ENOMEM);
+            const s32 native = Libraries::Net::sceNetEpollCreate(name->c_str(), 0);
+            if (native < 0) return failure(native & 0xffff);
+            const s32 id = next_epoll++;
+            epolls.emplace(id, native);
+            return id;
+        }
+        if (nid == "ZVw46bsasAk" || nid == "Inp1lfL+Jdw" || nid == "drjIbDbA7UQ" || nid == "w21YgGGNtBk") {
+            if (!initialized) return failure(ORBIS_NET_ENOTINIT);
+            const auto it=epolls.find(s32(a[0]));
+            if (it==epolls.end()) return failure(ORBIS_NET_EBADF);
+            if (nid == "Inp1lfL+Jdw") {
+                const auto rc=Libraries::Net::sceNetEpollDestroy(it->second);
+                if (rc < 0) return failure(rc & 0xffff);
+                epolls.erase(it); return 0;
+            }
+            if (nid == "w21YgGGNtBk") return Libraries::Net::sceNetEpollAbort(); // desktop compatibility no-op
+            if (nid == "ZVw46bsasAk") {
+                // No successful socket/async resolver exists in this offline domain.
+                // Never let a guest id alias a desktop file descriptor by coincidence.
+                if (u32(a[1]) < 1 || u32(a[1]) > 3) return failure(ORBIS_NET_EINVAL);
+                if (u32(a[1]) != 2 && !a[3]) return failure(ORBIS_NET_EINVAL);
+                return failure(u32(a[1]) == 1 ? ORBIS_NET_EBADF : ORBIS_NET_ENOENT);
+            }
+            if (s32(a[2]) <= 0 || a[2] > 65536) return failure(ORBIS_NET_EINVAL);
+            if (!space.ValidateRange({GuestAddress{a[1]},a[2]*sizeof(Libraries::Net::OrbisNetEpollEvent)},GuestPermission::Write))
+                return failure(ORBIS_NET_EFAULT);
+            // Desktop skips the native wait for an empty epoll, regardless of
+            // timeout. No output event is generated and no guest pin is held.
+            Libraries::Net::OrbisNetEpollEvent event{};
+            const auto rc=Libraries::Net::sceNetEpollWait(it->second,&event,1,s32(a[3]));
+            return rc < 0 ? failure(rc & 0xffff) : u64(rc);
+        }
+        if (nid == "Q4qBuN-c0ZM") {
+            if (!initialized) return failure(ORBIS_NET_ENOTINIT);
+            if (a[0] && !string(a[0], 33)) return failure(ORBIS_NET_EFAULT);
+            // This offline provider has no network transport. Return a real
+            // socket-creation failure; never invent a successful descriptor.
+            return failure(ORBIS_NET_ENETDOWN);
+        }
+        if (nid == "45ggEzakPJQ" || nid == "OXXX4mUk3uk" || nid == "bErx49PgxyY" ||
+            nid == "kOj1HiAGE54" || nid == "9wO9XrMsNhc" || nid == "beRjXBn-z+o" ||
+            nid == "PIWqhn9oSxc" || nid == "2mKX2Spso7I" || nid == "TSM6whtekok" ||
+            nid == "gvD1greCu0A" || nid == "hoOAofhhRvE" || nid == "304ooNZxWDY" ||
+            nid == "xphrZusl78E" || nid == "zJGf8xjFnQE") {
+            // No socket could be created in this Session. As in sys_net, reject
+            // the descriptor before accessing any caller payload/output pointer.
+            return failure(initialized ? ORBIS_NET_EBADF : ORBIS_NET_ENOTINIT);
+        }
         if (nid == "Nlev7Lg8k3A") {
             if (online_requested)
                 return failure(ORBIS_NET_ENETDOWN);
@@ -157,7 +219,7 @@ public:
         if (nid == "cTGkc6-TBlI") {
             if (!initialized)
                 return failure(ORBIS_NET_ENOTINIT);
-            if (!pools.empty() || !resolvers.empty() || ctl_initialized)
+            if (!pools.empty() || !resolvers.empty() || !epolls.empty() || ctl_initialized)
                 return failure(ORBIS_NET_EBUSY);
             initialized = false;
             return 0;
@@ -284,7 +346,7 @@ public:
         if (nid == "UJ+Z7Q+4ck0") {
             if (!space.ValidateRange({GuestAddress{a[0]}, 1}, GuestPermission::Execute))
                 return u32(ORBIS_NET_CTL_ERROR_INVALID_ADDR);
-            auto pin = space.AcquirePinnedSpan({GuestAddress{a[2]}, 4}, true);
+            auto pin = space.AcquireDataSpan({GuestAddress{a[2]}, 4}, true);
             if (!pin)
                 return u32(ORBIS_NET_CTL_ERROR_INVALID_ADDR);
             for (size_t i = 0; i < callbacks.size(); ++i) {
@@ -318,6 +380,8 @@ private:
         u32 status;
     };
     std::map<s32, Resolver> resolvers;
+    std::map<s32, s32> epolls;
+    s32 next_epoll{0x20000};
     s32 next_resolver{0x10000};
     size_t pool_bytes{};
     s32 next_pool{1};

@@ -1,0 +1,55 @@
+[
+  {
+    "wrapper": "azahar-clangd-lsp",
+    "count": 29,
+    "tools": [
+      "lsp_goto_definition",
+      "lsp_goto_type_definition",
+      "lsp_find_references",
+      "lsp_find_implementations",
+      "lsp_hover",
+      "lsp_signature_help",
+      "lsp_document_symbols",
+      "lsp_workspace_symbols",
+      "lsp_file_exports",
+      "lsp_file_imports",
+      "lsp_related_files",
+      "lsp_diagnostics",
+      "lsp_workspace_diagnostics",
+      "lsp_completions",
+      "lsp_rename",
+      "lsp_code_actions",
+      "lsp_call_hierarchy",
+      "lsp_type_hierarchy",
+      "lsp_format_document",
+      "lsp_smart_search",
+      "lsp_find_symbol",
+      "lsp_server_status",
+      "lsp_start_server",
+      "lsp_stop_server",
+      "lsp_document_highlights",
+      "lsp_inlay_hints",
+      "lsp_selection_range",
+      "lsp_folding_ranges",
+      "lsp_index_files"
+    ]
+  },
+  {
+    "wrapper": "webaccess",
+    "count": 2,
+    "tools": [
+      "you-search",
+      "you-discover"
+    ]
+  },
+  {
+    "wrapper": "node_repl",
+    "count": 4,
+    "tools": [
+      "js",
+      "js_add_node_module_dir",
+      "js_reset",
+      "turn_ended"
+    ]
+  }
+]

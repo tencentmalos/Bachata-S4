@@ -1,0 +1,17 @@
+{
+  "arguments": {
+    "eventId": "71"
+  },
+  "response": {
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"schemaVersion\":\"1.0\",\"session\":{\"captureId\":\"1057136b-e6b8-400a-b9ae-1c9e73be5b13\",\"captureRevision\":{\"value\":3},\"currentEventId\":\"71\"},\"data\":{\"dataset\":\"shader_binding\",\"materialization\":\"ready\",\"rows\":{\"columns\":[{\"name\":\"event_id\",\"declaredType\":\"INTEGER\"},{\"name\":\"stage\",\"declaredType\":\"TEXT\"},{\"name\":\"kind\",\"declaredType\":\"TEXT\"},{\"name\":\"space\",\"declaredType\":\"INTEGER\"},{\"name\":\"binding\",\"declaredType\":\"INTEGER\"},{\"name\":\"array_index\",\"declaredType\":\"INTEGER\"},{\"name\":\"resource_id\",\"declaredType\":\"TEXT\"},{\"name\":\"view_format\",\"declaredType\":\"TEXT\"}],\"rows\":[[\"71\",\"pixel\",\"read_only_image\",0,0,0,\"3794\",\"type=0;component=2;count=4;width=1;flags=0x0000\"],[\"71\",\"pixel\",\"read_only_image\",0,1,0,\"1658\",\"type=0;component=2;count=4;width=1;flags=0x0000\"],[\"71\",\"pixel\",\"sampler\",0,2,0,\"1667\",\"type=0;component=0;count=0;width=0;flags=0x0000\"],[\"71\",\"pixel\",\"sampler\",0,3,0,\"1668\",\"type=0;component=0;count=0;width=0;flags=0x0000\"],[\"71\",\"vertex\",\"read_write_buffer\",0,4,0,\"277\",\"type=0;component=0;count=0;width=0;flags=0x0000\"],[\"71\",\"vertex\",\"read_write_buffer\",0,5,0,\"277\",\"type=0;component=0;count=0;width=0;flags=0x0000\"],[\"71\",\"vertex\",\"read_write_buffer\",0,6,0,null,\"type=0;component=0;count=0;width=0;flags=0x0000\"]],\"truncated\":false,\"executionMs\":0.0645},\"warnings\":[]}}"
+        }
+      ]
+    },
+    "id": 9,
+    "jsonrpc": "2.0"
+  }
+}

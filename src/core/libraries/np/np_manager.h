@@ -121,5 +121,31 @@ s32 PS4_SYSV_ABI sceNpGetAccountLanguageA(s32 req_id,
 s32 PS4_SYSV_ABI
 sceNpGetParentalControlInfoA(s32 req_id, Libraries::UserService::OrbisUserServiceUserId user_id,
                              s8* age, OrbisNpParentalControlInfo* info);
+using OrbisNpGamePresenceCallback = PS4_SYSV_ABI void (*)(const OrbisNpOnlineId*, void*);
+using OrbisNpPlusEventCallback = PS4_SYSV_ABI void (*)(Libraries::UserService::OrbisUserServiceUserId, s32, void*);
+s32 PS4_SYSV_ABI sceNpCheckCallback();
+s32 PS4_SYSV_ABI sceNpCreateRequest();
+s32 PS4_SYSV_ABI sceNpCreateAsyncRequest(const OrbisNpCreateAsyncRequestParameter* param);
+s32 PS4_SYSV_ABI sceNpCheckNpAvailability(s32 req_id, OrbisNpOnlineId* online_id);
+s32 PS4_SYSV_ABI sceNpCheckNpReachability(s32 req_id,
+                                          Libraries::UserService::OrbisUserServiceUserId user_id);
+s32 PS4_SYSV_ABI sceNpCheckPlus(s32 req_id, const OrbisNpCheckPlusParameter* param,
+                                OrbisNpCheckPlusResult* result);
+s32 PS4_SYSV_ABI sceNpGetParentalControlInfo(s32 req_id, OrbisNpOnlineId* online_id, s8* age,
+                                             OrbisNpParentalControlInfo* info);
+s32 PS4_SYSV_ABI sceNpGetAccountLanguage(s32 req_id, OrbisNpOnlineId* online_id,
+                                         OrbisNpLanguageCode* language);
+s32 PS4_SYSV_ABI sceNpAbortRequest(s32 req_id);
+s32 PS4_SYSV_ABI sceNpSetTimeout(s32 req_id, s32 resolve_retry, u32 resolve_timeout,
+                                 u32 conn_timeout, u32 send_timeout, u32 recv_timeout);
+s32 PS4_SYSV_ABI sceNpWaitAsync(s32 req_id, s32* result);
+s32 PS4_SYSV_ABI sceNpPollAsync(s32 req_id, s32* result);
+s32 PS4_SYSV_ABI sceNpDeleteRequest(s32 req_id);
+s32 PS4_SYSV_ABI sceNpRegisterStateCallback(OrbisNpStateCallback callback, void* userdata);
+s32 PS4_SYSV_ABI sceNpUnregisterStateCallback();
+s32 PS4_SYSV_ABI sceNpRegisterPlusEventCallback(OrbisNpPlusEventCallback callback, void* userdata);
+s32 PS4_SYSV_ABI sceNpUnregisterPlusEventCallback();
+void PS4_SYSV_ABI sceNpRegisterGamePresenceCallback(OrbisNpGamePresenceCallback callback,
+                                                    void* userdata);
 void RegisterLib(Core::Loader::SymbolsResolver* sym);
 } // namespace Libraries::Np::NpManager

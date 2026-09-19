@@ -1,0 +1,49 @@
+{
+  "head": "4da582b7b3a36d74403a4985c3c03f37e570bcb7",
+  "apk_sha256": "7fbf33124432a2920a01c16046833818334699873ac1b13a12d0244a15ee362c",
+  "packaged": [
+    {
+      "name": "libshadps4_host.so",
+      "sha256": "75a9d0d92678415b0dbfbded81393f039f5ea5cff29dec204145564e1e203fc7",
+      "build_id": "f18641a3bb9540c5b536989b6f096086bab37399"
+    }
+  ],
+  "source": [
+    {
+      "path": "CMakeLists.txt",
+      "sha256": "2678162b38f266c1025bafdd5d28370c1df7d5fa4b02b98bc34ec789536d8a8a"
+    },
+    {
+      "path": "src/core/platform.h",
+      "sha256": "cee0c190a9aba97edf7c17dc0377b8602df1dc2d78f28a0cf1aff2f70b7f7746"
+    },
+    {
+      "path": "src/core/libraries/gnmdriver/gnmdriver.cpp",
+      "sha256": "9c75e43209c300316c55426c3140f990946ad9f40506f0d2b6d2235263a010d5"
+    },
+    {
+      "path": "src/video_core/renderer_vulkan/vk_scheduler.cpp",
+      "sha256": "d05ebb554d6930b2d8ae7abf450004285ade40ba622054e3496b07e9e7c88140"
+    },
+    {
+      "path": "src/video_core/renderer_vulkan/vk_presenter.cpp",
+      "sha256": "429cecccaeef565172c260131a01e8562608620afc90dbfa265a7e996ae6ca0d"
+    },
+    {
+      "path": "src/video_core/renderer_vulkan/vk_master_semaphore.cpp",
+      "sha256": "42707ab39e71606d24e598902b5cd6c576be7dd2bf82d515741e80615298e1c9"
+    },
+    {
+      "path": "src/video_core/renderer_vulkan/vk_master_semaphore.h",
+      "sha256": "f0d8e494bbca0aedfbac746f379a2bb813d155ae876461dc2b9dd37be99e7e74"
+    },
+    {
+      "path": "src/video_core/renderer_vulkan/timeline_completion.h",
+      "sha256": "6016bb52d54b96e3c1d18952681f542ca5073cd700378e20d40ade976ae1aa58"
+    },
+    {
+      "path": "tests/host_runtime/gpu_async_tests.cpp",
+      "sha256": "58cbb55d61ce91b677e529ecd4d118dcf42e146682660ab78c1e0cfbbea00ef0"
+    }
+  ]
+}

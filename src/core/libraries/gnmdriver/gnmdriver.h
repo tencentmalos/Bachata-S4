@@ -13,6 +13,18 @@ class SymbolsResolver;
 }
 
 namespace Libraries::GnmDriver {
+// Host HLE owns PM4 copies. Preserve their source guest addresses through the
+// synchronous GNM enqueue without treating a vector's host address as guest VA.
+class ScopedSubmitSources {
+public:
+    explicit ScopedSubmitSources(std::span<const VAddr> sources) : previous(current) { current = sources; }
+    ~ScopedSubmitSources() { current = previous; }
+    ScopedSubmitSources(const ScopedSubmitSources&) = delete;
+    static VAddr Get(size_t index) { return index < current.size() ? current[index] : 0; }
+private:
+    std::span<const VAddr> previous;
+    inline static thread_local std::span<const VAddr> current{};
+};
 void InitializeSession();
 std::span<const u32> GetEmbeddedShader(u32 index);
 void BindEmbeddedShaders(std::array<u64, 3> addresses);

@@ -1,0 +1,247 @@
+[
+  {
+    "tool": "guest_debug.start_session",
+    "time": 1789463282.16,
+    "args": {
+      "emulator": "shadps4-fex",
+      "serial": "9c2841a4",
+      "port": 24681,
+      "remotePort": 24680,
+      "expectedArchitecture": "i386:x86-64",
+      "byteOrder": "little",
+      "stopOnAttach": false,
+      "dryRun": false,
+      "stopLeaseMs": 10000,
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_a8c4cb262fda46aa9796653104e6d1b8",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "connected_unknown",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 0,
+      "stopReason": "",
+      "stoppedThreadId": "",
+      "latestEventCursor": 1,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.control",
+    "time": 1789463282.1937332,
+    "args": {
+      "sessionId": "gdbg_a8c4cb262fda46aa9796653104e6d1b8",
+      "action": "pause",
+      "waitForStopMs": 1500
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_a8c4cb262fda46aa9796653104e6d1b8",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 2,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.read_memory",
+    "time": 1789463282.240116,
+    "args": {
+      "sessionId": "gdbg_a8c4cb262fda46aa9796653104e6d1b8",
+      "stopEpoch": 1,
+      "address": "0x19c05f0",
+      "length": 16
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": [],
+      "memory": {
+        "address": "0x19c05f0",
+        "length": 16,
+        "hex": "31c0c3af7700cccccccccccccccccccc",
+        "dataBase64": "McDDr3cAzMzMzMzMzMzMzA=="
+      }
+    },
+    "session": {
+      "sessionId": "gdbg_a8c4cb262fda46aa9796653104e6d1b8",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 2,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.read_memory",
+    "time": 1789463282.283123,
+    "args": {
+      "sessionId": "gdbg_a8c4cb262fda46aa9796653104e6d1b8",
+      "stopEpoch": 1,
+      "address": "0x19c0570",
+      "length": 16
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": [],
+      "memory": {
+        "address": "0x19c0570",
+        "length": 16,
+        "hex": "31c0c3af7700cccccccccccccccccccc",
+        "dataBase64": "McDDr3cAzMzMzMzMzMzMzA=="
+      }
+    },
+    "session": {
+      "sessionId": "gdbg_a8c4cb262fda46aa9796653104e6d1b8",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 2,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.read_memory",
+    "time": 1789463282.327151,
+    "args": {
+      "sessionId": "gdbg_a8c4cb262fda46aa9796653104e6d1b8",
+      "stopEpoch": 1,
+      "address": "0x19c06a0",
+      "length": 16
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": [],
+      "memory": {
+        "address": "0x19c06a0",
+        "length": 16,
+        "hex": "31c0c3af7700cccccccccccccccccccc",
+        "dataBase64": "McDDr3cAzMzMzMzMzMzMzA=="
+      }
+    },
+    "session": {
+      "sessionId": "gdbg_a8c4cb262fda46aa9796653104e6d1b8",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "stopped",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 2,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.control",
+    "time": 1789463282.4817421,
+    "args": {
+      "sessionId": "gdbg_a8c4cb262fda46aa9796653104e6d1b8",
+      "action": "continue",
+      "stopEpoch": 1,
+      "waitForStopMs": 0
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": false,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_a8c4cb262fda46aa9796653104e6d1b8",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "running",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 1,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 3,
+      "breakpoints": []
+    }
+  },
+  {
+    "tool": "guest_debug.stop_session",
+    "time": 1789463282.5529048,
+    "args": {
+      "sessionId": "gdbg_a8c4cb262fda46aa9796653104e6d1b8"
+    },
+    "result": {
+      "succeeded": true,
+      "errorCode": "",
+      "errorMessage": "",
+      "ownershipReleased": true,
+      "registers": [],
+      "threads": [],
+      "modules": [],
+      "events": []
+    },
+    "session": {
+      "sessionId": "gdbg_a8c4cb262fda46aa9796653104e6d1b8",
+      "hostPid": 6657,
+      "hostStartTimeTicks": 24643732,
+      "state": "cleaned",
+      "architecture": "i386:x86-64",
+      "stopEpoch": 2,
+      "stopReason": "signal_05",
+      "stoppedThreadId": "1",
+      "latestEventCursor": 6,
+      "breakpoints": []
+    }
+  }
+]

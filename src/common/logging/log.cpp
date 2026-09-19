@@ -30,6 +30,8 @@ bool g_should_append = false;
 
 static std::shared_ptr<spdlog_stdout> g_console_sink;
 static std::shared_ptr<LogFileSink> g_shad_file_sink;
+static std::shared_ptr<LogFileSink> g_guest_patch_file_sink;
+static std::shared_ptr<spdlog::logger> g_guest_patch_logger;
 
 std::unordered_map<std::string_view, std::shared_ptr<spdlog::logger>> ALL_LOGGERS{
     {Class::Common, nullptr},
@@ -213,6 +215,17 @@ void Setup(std::string_view shadps4_filename) {
         EmulatorSettings.GetLogSizeLimit());
     g_shad_file_sink->set_pattern("%^%v%$");
 
+    // Guest instrumentation is intentionally managed by the same logger
+    // lifecycle, but uses a private sink/file. This keeps high-volume patch
+    // probes out of the main log and console while retaining the normal
+    // shadPS4 path, flush, and shutdown semantics.
+    g_guest_patch_file_sink = std::make_shared<LogFileSink>(
+        (GetUserPath(Common::FS::PathType::LogDir) / "guest-patch.log").string(), false);
+    g_guest_patch_file_sink->set_pattern("%^%v%$");
+    g_guest_patch_logger = std::make_shared<spdlog::logger>("GuestPatch", g_guest_patch_file_sink);
+    g_guest_patch_logger->set_level(spdlog::level::trace);
+    g_guest_patch_logger->flush_on(spdlog::level::info);
+
     UpdateSinks();
 }
 
@@ -232,6 +245,8 @@ void Shutdown() {
     }
 
     g_shad_file_sink.reset();
+    g_guest_patch_logger.reset();
+    g_guest_patch_file_sink.reset();
     g_console_sink.reset();
 }
 
@@ -240,8 +255,23 @@ void Flush() {
         g_shad_file_sink->flush();
     }
 
+    if (g_guest_patch_file_sink != nullptr) {
+        g_guest_patch_file_sink->flush();
+    }
+
     if (g_console_sink != nullptr) {
         g_console_sink->flush();
+    }
+}
+
+void WriteGuestPatch(std::string_view message) noexcept {
+    try {
+        if (g_guest_patch_logger != nullptr &&
+            g_guest_patch_logger->should_log(spdlog::level::info)) {
+            g_guest_patch_logger->log(spdlog::level::info, "{}", message);
+        }
+    } catch (...) {
+        // Diagnostics must never affect guest execution or HLE return values.
     }
 }
 

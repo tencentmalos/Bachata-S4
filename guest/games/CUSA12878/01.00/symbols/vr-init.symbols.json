@@ -1,0 +1,161 @@
+{
+  "schema": "spatial.guest-symbol-shard.v2",
+  "target_id": "beatsaber-0100-eboot",
+  "domain": "vr-initialization",
+  "symbols": [
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x9bf490",
+      "segment": "text",
+      "name": "UnityVR_RegisterProviders",
+      "kind": "function",
+      "mode": "x86-64",
+      "size": 563,
+      "confidence": "correlated",
+      "evidence": [
+        "精确 SELF/ELF 对应；ET_DYN 分析副本仅修改 ELF e_type。study0 确认函数边界，入口后 16 字节内无索引跳入引用。名称来自 PSVR managed icall 注册字符串或设备注册/选择流程；未知 C ABI，使用保留机器状态的入口观察，不声明函数体重编译。",
+        "2026-09-19 study0 反编译和注册表字符串；运行命中与每个具体 package SHA 独立归档，符号名不是厂商调试符号。"
+      ]
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x9bf8e0",
+      "segment": "text",
+      "name": "UnityVR_SelectDevice",
+      "kind": "function",
+      "mode": "x86-64",
+      "size": 2432,
+      "confidence": "correlated",
+      "evidence": [
+        "精确 SELF/ELF 对应；ET_DYN 分析副本仅修改 ELF e_type。study0 确认函数边界，入口后 16 字节内无索引跳入引用。名称来自 PSVR managed icall 注册字符串或设备注册/选择流程；未知 C ABI，使用保留机器状态的入口观察，不声明函数体重编译。",
+        "2026-09-19 study0 反编译和注册表字符串；运行命中与每个具体 package SHA 独立归档，符号名不是厂商调试符号。"
+      ]
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x9c1330",
+      "segment": "text",
+      "name": "UnityVR_ReadDeviceNames",
+      "kind": "function",
+      "mode": "x86-64",
+      "size": 1168,
+      "confidence": "correlated",
+      "evidence": [
+        "精确 SELF/ELF 对应；ET_DYN 分析副本仅修改 ELF e_type。study0 确认函数边界，入口后 16 字节内无索引跳入引用。名称来自 PSVR managed icall 注册字符串或设备注册/选择流程；未知 C ABI，使用保留机器状态的入口观察，不声明函数体重编译。",
+        "2026-09-19 study0 反编译和注册表字符串；运行命中与每个具体 package SHA 独立归档，符号名不是厂商调试符号。"
+      ]
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x9cf0c0",
+      "segment": "text",
+      "name": "UnityVR_InitializeSelectedDevice",
+      "kind": "function",
+      "mode": "x86-64",
+      "size": 1856,
+      "confidence": "correlated",
+      "evidence": [
+        "精确 SELF/ELF 对应；ET_DYN 分析副本仅修改 ELF e_type。study0 确认函数边界，入口后 16 字节内无索引跳入引用。名称来自 PSVR managed icall 注册字符串或设备注册/选择流程；未知 C ABI，使用保留机器状态的入口观察，不声明函数体重编译。",
+        "2026-09-19 study0 反编译和注册表字符串；运行命中与每个具体 package SHA 独立归档，符号名不是厂商调试符号。"
+      ]
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0xd6f690",
+      "segment": "text",
+      "name": "UnityPSVR_Initialize",
+      "kind": "function",
+      "mode": "x86-64",
+      "size": 5680,
+      "confidence": "correlated",
+      "evidence": [
+        "精确 SELF/ELF 对应；ET_DYN 分析副本仅修改 ELF e_type。study0 确认函数边界，入口后 16 字节内无索引跳入引用。名称来自 PSVR managed icall 注册字符串或设备注册/选择流程；未知 C ABI，使用保留机器状态的入口观察，不声明函数体重编译。",
+        "2026-09-19 study0 反编译和注册表字符串；运行命中与每个具体 package SHA 独立归档，符号名不是厂商调试符号。"
+      ]
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0xd75e40",
+      "segment": "text",
+      "name": "UnityPSVR_RegisterManagedCalls",
+      "kind": "function",
+      "mode": "x86-64",
+      "size": 1388,
+      "confidence": "correlated",
+      "evidence": [
+        "精确 SELF/ELF 对应；ET_DYN 分析副本仅修改 ELF e_type。study0 确认函数边界，入口后 16 字节内无索引跳入引用。名称来自 PSVR managed icall 注册字符串或设备注册/选择流程；未知 C ABI，使用保留机器状态的入口观察，不声明函数体重编译。",
+        "2026-09-19 study0 反编译和注册表字符串；运行命中与每个具体 package SHA 独立归档，符号名不是厂商调试符号。"
+      ]
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0xd75560",
+      "segment": "text",
+      "name": "UnityPSVR_GetHmdMount",
+      "kind": "function",
+      "mode": "x86-64",
+      "size": 155,
+      "confidence": "correlated",
+      "evidence": [
+        "精确 SELF/ELF 对应；ET_DYN 分析副本仅修改 ELF e_type。study0 确认函数边界，入口后 16 字节内无索引跳入引用。名称来自 PSVR managed icall 注册字符串或设备注册/选择流程；未知 C ABI，使用保留机器状态的入口观察，不声明函数体重编译。",
+        "2026-09-19 study0 反编译和注册表字符串；运行命中与每个具体 package SHA 独立归档，符号名不是厂商调试符号。"
+      ]
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0xd75600",
+      "segment": "text",
+      "name": "UnityPSVR_GetOwnerUserId",
+      "kind": "function",
+      "mode": "x86-64",
+      "size": 144,
+      "confidence": "correlated",
+      "evidence": [
+        "精确 SELF/ELF 对应；ET_DYN 分析副本仅修改 ELF e_type。study0 确认函数边界，入口后 16 字节内无索引跳入引用。名称来自 PSVR managed icall 注册字符串或设备注册/选择流程；未知 C ABI，使用保留机器状态的入口观察，不声明函数体重编译。",
+        "2026-09-19 study0 反编译和注册表字符串；运行命中与每个具体 package SHA 独立归档，符号名不是厂商调试符号。"
+      ]
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0xd75200",
+      "segment": "text",
+      "name": "UnityPSVR_SetupOpenAsync",
+      "kind": "function",
+      "mode": "x86-64",
+      "size": 203,
+      "confidence": "correlated",
+      "evidence": [
+        "精确 SELF/ELF 对应；ET_DYN 分析副本仅修改 ELF e_type。study0 确认函数边界，入口后 16 字节内无索引跳入引用。名称来自 PSVR managed icall 注册字符串或设备注册/选择流程；未知 C ABI，使用保留机器状态的入口观察，不声明函数体重编译。",
+        "2026-09-19 study0 反编译和注册表字符串；运行命中与每个具体 package SHA 独立归档，符号名不是厂商调试符号。"
+      ]
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0xd75340",
+      "segment": "text",
+      "name": "UnityPSVR_SetupUpdate",
+      "kind": "function",
+      "mode": "x86-64",
+      "size": 26,
+      "confidence": "correlated",
+      "evidence": [
+        "精确 SELF/ELF 对应；ET_DYN 分析副本仅修改 ELF e_type。study0 确认函数边界，入口后 16 字节内无索引跳入引用。名称来自 PSVR managed icall 注册字符串或设备注册/选择流程；未知 C ABI，使用保留机器状态的入口观察，不声明函数体重编译。",
+        "2026-09-19 study0 反编译和注册表字符串；运行命中与每个具体 package SHA 独立归档，符号名不是厂商调试符号。"
+      ]
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0xd75360",
+      "segment": "text",
+      "name": "UnityPSVR_SetupGetResult",
+      "kind": "function",
+      "mode": "x86-64",
+      "size": 112,
+      "confidence": "correlated",
+      "evidence": [
+        "精确 SELF/ELF 对应；ET_DYN 分析副本仅修改 ELF e_type。study0 确认函数边界，入口后 16 字节内无索引跳入引用。名称来自 PSVR managed icall 注册字符串或设备注册/选择流程；未知 C ABI，使用保留机器状态的入口观察，不声明函数体重编译。",
+        "2026-09-19 study0 反编译和注册表字符串；运行命中与每个具体 package SHA 独立归档，符号名不是厂商调试符号。"
+      ]
+    }
+  ]
+}

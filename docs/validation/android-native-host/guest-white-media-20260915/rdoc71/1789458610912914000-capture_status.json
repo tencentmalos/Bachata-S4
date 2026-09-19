@@ -1,0 +1,15 @@
+{
+  "arguments": {},
+  "response": {
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"isOpen\":false,\"activeReplacements\":[],\"activeMutations\":[]}"
+        }
+      ]
+    },
+    "id": 3,
+    "jsonrpc": "2.0"
+  }
+}

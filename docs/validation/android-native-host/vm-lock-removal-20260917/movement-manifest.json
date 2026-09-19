@@ -1,0 +1,265 @@
+{
+  "schema": "shadps4.warmup.v1",
+  "run_id": "0cc723a38ea040c7a333ad940bc4fdd1",
+  "serial": "9c2841a4",
+  "display_id": "4630946441858561667",
+  "input_display": "0",
+  "status": "GAMEPLAY_REVIEWED",
+  "identity": [
+    21722,
+    1,
+    "cd67d4b909d60220fe607cf2acce478e"
+  ],
+  "frames": [
+    {
+      "image": "frame-0000.png",
+      "sha256": "583de0f78a6e7a670c99420d2400f33ba2f73e9044a1c79b3d3460ea9b47e59e",
+      "elapsed": 2.2928793749888428,
+      "state": {
+        "identity": [
+          21722,
+          1,
+          "cd67d4b909d60220fe607cf2acce478e"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 2987,
+        "flip_age_ns": 1890937
+      }
+    },
+    {
+      "image": "frame-0001.png",
+      "sha256": "446827fc528862907aafb7b216ead71089ec513187b5d7abdcea7fff8d268bec",
+      "elapsed": 9.623965375008993,
+      "state": {
+        "identity": [
+          21722,
+          1,
+          "cd67d4b909d60220fe607cf2acce478e"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 3079,
+        "flip_age_ns": 42530729
+      }
+    },
+    {
+      "image": "frame-0002.png",
+      "sha256": "fc1c62c6879e3950b3c1f4d404050cd1c1ea676b64d0e2a3218982f8ff4d7df5",
+      "elapsed": 17.193341584003065,
+      "state": {
+        "identity": [
+          21722,
+          1,
+          "cd67d4b909d60220fe607cf2acce478e"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 3171,
+        "flip_age_ns": 30067396
+      }
+    },
+    {
+      "image": "frame-0003.png",
+      "sha256": "e54d89b07ef334bd0c852e3677183589a7c7498ad6ceb23c2c4928521beb5845",
+      "elapsed": 22.265078167023603,
+      "state": {
+        "identity": [
+          21722,
+          1,
+          "cd67d4b909d60220fe607cf2acce478e"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 3229,
+        "flip_age_ns": 68776771
+      }
+    },
+    {
+      "image": "frame-0004.png",
+      "sha256": "9156dcfa59560582d75b96b8b1785d59e6e3eda79427f950d5d6d30783290b74",
+      "elapsed": 27.314896167023107,
+      "state": {
+        "identity": [
+          21722,
+          1,
+          "cd67d4b909d60220fe607cf2acce478e"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 3288,
+        "flip_age_ns": 62990364
+      }
+    },
+    {
+      "image": "frame-0005.png",
+      "sha256": "920f653da7a05e789656f0acea9f9111bae6b5665ee153921e901e4059047cf6",
+      "elapsed": 32.411802541988436,
+      "state": {
+        "identity": [
+          21722,
+          1,
+          "cd67d4b909d60220fe607cf2acce478e"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 3347,
+        "flip_age_ns": 13798906
+      }
+    },
+    {
+      "image": "frame-0006.png",
+      "sha256": "1a04f9b6ebdf67b07b00cac643d68be18c1ec2e872288ad2bddbfece2b8e9b85",
+      "elapsed": 37.67730787501205,
+      "state": {
+        "identity": [
+          21722,
+          1,
+          "cd67d4b909d60220fe607cf2acce478e"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 3408,
+        "flip_age_ns": 8086198
+      }
+    },
+    {
+      "image": "frame-0007.png",
+      "sha256": "ccfefc21a3de8f85b76f7611d687db1ab006ed236f002174a70cddb8775cf6a9",
+      "elapsed": 43.085113458975684,
+      "state": {
+        "identity": [
+          21722,
+          1,
+          "cd67d4b909d60220fe607cf2acce478e"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 3471,
+        "flip_age_ns": 68066354
+      }
+    },
+    {
+      "image": "frame-0008.png",
+      "sha256": "6db9e213b0c4b8d46253ed20b6e3a56554a1a72606b6008e801cab341a008988",
+      "elapsed": 48.366618416970596,
+      "state": {
+        "identity": [
+          21722,
+          1,
+          "cd67d4b909d60220fe607cf2acce478e"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 3533,
+        "flip_age_ns": 2774323
+      }
+    },
+    {
+      "image": "frame-0009.png",
+      "sha256": "b4aa0ae6df89402e90daaa01d37040f071d50858c2df1c1b93900503375c6aa4",
+      "elapsed": 53.64129362499807,
+      "state": {
+        "identity": [
+          21722,
+          1,
+          "cd67d4b909d60220fe607cf2acce478e"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 3595,
+        "flip_age_ns": 31429948
+      }
+    },
+    {
+      "image": "frame-0010.png",
+      "sha256": "787c2544cf512676c08eb54200465e3f9104ca5efd876ee965a6a9ffb98e66b7",
+      "elapsed": 58.873001499974634,
+      "state": {
+        "identity": [
+          21722,
+          1,
+          "cd67d4b909d60220fe607cf2acce478e"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 3656,
+        "flip_age_ns": 45581667
+      }
+    }
+  ],
+  "presses": [
+    {
+      "button": "stick-right",
+      "hold_ms": 250,
+      "elapsed": 2.6569018340087496
+    },
+    {
+      "button": "stick-right",
+      "hold_ms": 250,
+      "elapsed": 5.124268291983753
+    },
+    {
+      "button": "stick-right",
+      "hold_ms": 250,
+      "elapsed": 10.015136083995458
+    },
+    {
+      "button": "stick-right",
+      "hold_ms": 250,
+      "elapsed": 12.51362062501721
+    },
+    {
+      "button": "stick-right",
+      "hold_ms": 250,
+      "elapsed": 17.566306125023402
+    },
+    {
+      "button": "stick-right",
+      "hold_ms": 250,
+      "elapsed": 22.67946633399697
+    },
+    {
+      "button": "stick-right",
+      "hold_ms": 250,
+      "elapsed": 27.708400917006657
+    },
+    {
+      "button": "stick-right",
+      "hold_ms": 250,
+      "elapsed": 32.81533283396857
+    },
+    {
+      "button": "stick-right",
+      "hold_ms": 250,
+      "elapsed": 38.09737670898903
+    },
+    {
+      "button": "stick-right",
+      "hold_ms": 250,
+      "elapsed": 43.47088008397259
+    },
+    {
+      "button": "stick-right",
+      "hold_ms": 250,
+      "elapsed": 48.831329167005606
+    },
+    {
+      "button": "stick-right",
+      "hold_ms": 250,
+      "elapsed": 53.987205041979905
+    }
+  ],
+  "attaches_debugger": false,
+  "started_at": 1789636705.652011,
+  "process_stat": "21722 (shadps4.android) S 1693 1693 0 0 -1 1077936448 928841 0 304880 0 46197 18208 0 0 10 -10 73 0 42043361 199831646208 710003 18446744073709551615 398532505600 398532510264 548926250944 0 0 0 4612 1 1073775864 0 0 0 17 4 0 0 0 0 0 398532513792 398532515104 398659461120 548926255373 548926255472 548926255472 548926259166 0",
+  "review": {
+    "run_id": "0cc723a38ea040c7a333ad940bc4fdd1",
+    "scene_frame": 0,
+    "response_frame": 2,
+    "note": "同一 PID 21722 / generation 1 的屋顶 ATTACK 教程，stick-right 实际触摸后 Leonardo 从左侧屋顶角落移动到 EXIT 右侧，镜头同时跟随，guest flip 2962 到 3143。",
+    "method": "explicit_visual_review",
+    "reviewed_at": 1789636760.30221
+  },
+  "ended_at": 1789636764.530157
+}

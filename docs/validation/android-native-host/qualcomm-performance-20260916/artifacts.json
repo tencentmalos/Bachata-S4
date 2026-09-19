@@ -1,0 +1,254 @@
+{
+  "schema": "shadps4.qualcomm-performance.v1",
+  "pid": 10213,
+  "generation": 1,
+  "uuid": "26e9c15d50b45de8cdc5c875729cbb82",
+  "driver": "system/Qualcomm Adreno740/69e13475cb",
+  "sdk_revision": "368177d458109b0413142215a52dfe31567b81e4",
+  "artifacts": {
+    "build/qualcomm-performance-20260916/overlay-aba.py": {
+      "bytes": 1319,
+      "sha256": "dea0d17fa61c8d4c7227c03d6ac5a761c46fb00cf136e0801e1d3b2ae248e70d"
+    },
+    "build/qualcomm-performance-20260916/analyze-prof.py": {
+      "bytes": 4171,
+      "sha256": "84bf16fe35551ea4637329a12ccd8eab203a87fbb4d5594aa46af9c188f7199b"
+    },
+    "build/qualcomm-performance-20260916/coarse-analysis.log": {
+      "bytes": 10240,
+      "sha256": "c4cd314317c099e69f816f1dd6f6ef65dfdf49042455128aefd6d2e008acd03b"
+    },
+    "build/qualcomm-performance-20260916/handoff.json": {
+      "bytes": 1133342,
+      "sha256": "67ddead30c63f2552ce97546499aded5becae4f9ca7e9c5732d1610ee3c68474"
+    },
+    "build/qualcomm-performance-20260916/gpu-final.txt": {
+      "bytes": 1692,
+      "sha256": "00371b65cc1332eaf9b2be2fb084c536bff8ad556dbb55a024419092ff0cd586"
+    },
+    "build/qualcomm-performance-20260916/simpleperf-record.log": {
+      "bytes": 160,
+      "sha256": "c3258d69e225c3c14c348cc6b5e15c4dfe727aa96c8b666c1c522def82c0d7f4"
+    },
+    "build/qualcomm-performance-20260916/ring-final.txt": {
+      "bytes": 424,
+      "sha256": "6f23d52be556fc3e4ec157afc442d3068b8644b888c87116ae8a70a6cbb34a73"
+    },
+    "build/qualcomm-performance-20260916/handoff-summary.json": {
+      "bytes": 2560,
+      "sha256": "cfd143cd8564f37f4d437d326e3f0f25743f7097ffdec0e0fcd346e6cd1a21fb"
+    },
+    "build/qualcomm-performance-20260916/analyze-waits.py": {
+      "bytes": 4006,
+      "sha256": "9ec60601c925ee18ac6174824073a72c599f19dc2b055f1f537cff48ae43f773"
+    },
+    "build/qualcomm-performance-20260916/overlay-aba.json": {
+      "bytes": 1805,
+      "sha256": "8b1e455de105fba6796699f6ff2806d095894e5e720ec1f323c0cf767c6e9564"
+    },
+    "build/qualcomm-performance-20260916/sched-target-intervals.json": {
+      "bytes": 3150676,
+      "sha256": "03dc1892c9bdcd0928fa629210d0dcbe07d6c5f1f6a7486f9f860e76e6038f73"
+    },
+    "build/qualcomm-performance-20260916/gpu-detail-done.txt": {
+      "bytes": 1700,
+      "sha256": "695c213063106fb6e4bed99a4b844f340e9afef6aadac1ec166faf734b1209da"
+    },
+    "build/qualcomm-performance-20260916/frame-breakdown.py": {
+      "bytes": 1422,
+      "sha256": "74502445445501fc5f65f61a69c81e42ba298cf04ef76eea4e3f0a303e3a8c7d"
+    },
+    "build/qualcomm-performance-20260916/timing-0-before.txt": {
+      "bytes": 871,
+      "sha256": "a97740c5f54413a13a2246baaab84d605481e9e34970887b8f3577a1c469ce0f"
+    },
+    "build/qualcomm-performance-20260916/thread-names.txt": {
+      "bytes": 1557,
+      "sha256": "1b78376d4f2107f7c83d1c2e122ea2a204bacbc4004f0378b9cec36ba55d78b5"
+    },
+    "build/qualcomm-performance-20260916/timing-2-after.txt": {
+      "bytes": 860,
+      "sha256": "30d9734486011854f64d14cd728f6202ba43d241fc584f971089cb361f8eecd6"
+    },
+    "build/qualcomm-performance-20260916/handoff-dump.txt": {
+      "bytes": 1012953,
+      "sha256": "2fa5e421dcc12d3e1bcf7578cf3e036501aeb3c3cbb66c2aa5710c7526baff82"
+    },
+    "build/qualcomm-performance-20260916/session-final.txt": {
+      "bytes": 869,
+      "sha256": "18ce75c55e17c731fb5c56c0af62de472926119013a5e0ec8fa504b43fc9be58"
+    },
+    "build/qualcomm-performance-20260916/overlay-1-before.txt": {
+      "bytes": 864,
+      "sha256": "a6815ecde9c1cfae686e87a27636432c391e698853bf2a270fa0a7a42676d44e"
+    },
+    "build/qualcomm-performance-20260916/overlay-2-after.txt": {
+      "bytes": 866,
+      "sha256": "e0049bdcdd19cacae966aac57640dc073fb6cc2a4d986471383e777d16b77f7a"
+    },
+    "build/qualcomm-performance-20260916/sched.txt": {
+      "bytes": 48460200,
+      "sha256": "f16934cfe5e89dd320cbd9fd8445f72412898a0bd102768359b7196f80daf245"
+    },
+    "build/qualcomm-performance-20260916/final-screen.png": {
+      "bytes": 2064213,
+      "sha256": "394665eb87b86bb889dfb2bc041aac0d07868864f1d74ef6ee65c9ecb6e90c06"
+    },
+    "build/qualcomm-performance-20260916/simpleperf-symbols.txt": {
+      "bytes": 107447,
+      "sha256": "8018c12d8b97fbf075b1d89ccf32dd2c3eaf06a47b2c7087dffa8f9cba6dd606"
+    },
+    "build/qualcomm-performance-20260916/capture-final.txt": {
+      "bytes": 537,
+      "sha256": "483c0928e6c7012b7beff9896aca4beb960f74147ca38966b99bee9df49613bf"
+    },
+    "build/qualcomm-performance-20260916/timing-aba.json": {
+      "bytes": 1826,
+      "sha256": "85096bbd8eeb2dc16e47717a8c85af637ace50eb92fd1ea02b1a96d7db99208b"
+    },
+    "build/qualcomm-performance-20260916/timing-aba.py": {
+      "bytes": 1325,
+      "sha256": "e14c55bafdc9f591ea305cb4f91d5750d5a93e8e0972f31f80857b7b41963f40"
+    },
+    "build/qualcomm-performance-20260916/simpleperf-report.txt": {
+      "bytes": 492440,
+      "sha256": "78d86cf7d6910c03b263ae9140eac395504b901332664980a2b44169baf4a6c9"
+    },
+    "build/qualcomm-performance-20260916/timing-2-before.txt": {
+      "bytes": 865,
+      "sha256": "be5ae06bc5ce1f56e7366e83784fcb224fc61c6f2105ce79487151e375d05c4f"
+    },
+    "build/qualcomm-performance-20260916/detail-capture-status.txt": {
+      "bytes": 537,
+      "sha256": "483c0928e6c7012b7beff9896aca4beb960f74147ca38966b99bee9df49613bf"
+    },
+    "build/qualcomm-performance-20260916/threads.txt": {
+      "bytes": 1958,
+      "sha256": "b1adbc95398c5240d69ceeedeedbbc91185b2b455a222214f49ccf1d7f42be6a"
+    },
+    "build/qualcomm-performance-20260916/handoff-start.txt": {
+      "bytes": 183,
+      "sha256": "ae5dd6c0294691362e2c88b4b7976e8ba048d3b11e5e7215229277eacd45a2bc"
+    },
+    "build/qualcomm-performance-20260916/tracefs-cleanup.txt": {
+      "bytes": 58,
+      "sha256": "f3276a29cc541a35dc8135711e111a89d0f13d5628d5cc5edbc0bf3a5c0d9ab4"
+    },
+    "build/qualcomm-performance-20260916/timing-aba.log": {
+      "bytes": 8083,
+      "sha256": "c2ba1be29b8951a54461943e2de0c3e28d2ac42bd657bcd7cd51bfbe60164a45"
+    },
+    "build/qualcomm-performance-20260916/timing-1-after.txt": {
+      "bytes": 871,
+      "sha256": "4764b6e761896eaf0ab5033e581a902ef6db9cc9543bf96f7ae77499b3039fd1"
+    },
+    "build/qualcomm-performance-20260916/gpu-util.json": {
+      "bytes": 1531,
+      "sha256": "3af6759c24c044bf451f6c1eb5d41740b8812eebf6153e6b91c5763fbd4cd143"
+    },
+    "build/qualcomm-performance-20260916/overlay-1-after.txt": {
+      "bytes": 869,
+      "sha256": "46f724131d7eef2678d651f4cc0a21b0daa0bebff332496fd4d81dd42d9433a4"
+    },
+    "build/qualcomm-performance-20260916/timing-1-before.txt": {
+      "bytes": 871,
+      "sha256": "e4df0bdf3d92f0b12037c475145af647b4b89a267e1e7fcb7089a34e5d5ac281"
+    },
+    "build/qualcomm-performance-20260916/guest-auto-tag.txt": {
+      "bytes": 128,
+      "sha256": "5af6fd328701c86afe9e89fa3a1b55f6485b8e252a5c08d1edd769e6e4d5a192"
+    },
+    "build/qualcomm-performance-20260916/overlay-aba.log": {
+      "bytes": 2024,
+      "sha256": "05fb3b2c0501f4b267a05dd074859e4bb860831e15ca937936f1ef6cfb5447f9"
+    },
+    "build/qualcomm-performance-20260916/representative-wait.json": {
+      "bytes": 549,
+      "sha256": "be145ed433f35261b3bd7ef26249097482d11ee6fd0364bdbded6f00deb2ad51"
+    },
+    "build/qualcomm-performance-20260916/overlay-2-before.txt": {
+      "bytes": 866,
+      "sha256": "1697cffa1ea88ca483be0693a459bac0c0553f70c12debd4cf737c9e9cc2a879"
+    },
+    "build/qualcomm-performance-20260916/session-before.txt": {
+      "bytes": 858,
+      "sha256": "71b18e3d5421d2f7edb2d248269deeb6ba361d418a0a1fb6a00543aa54f25dc1"
+    },
+    "build/qualcomm-performance-20260916/timing-0-after.txt": {
+      "bytes": 868,
+      "sha256": "5342732c818c94929aeb044dea806ba603d1331d44a52b76a3372adf342021ef"
+    },
+    "build/qualcomm-performance-20260916/scheduling-analysis.log": {
+      "bytes": 13146,
+      "sha256": "6d92c6cd6eba6ecd01337217fc943ad3d72fdb9cfa92364efb3724e4b4fff307"
+    },
+    "build/qualcomm-performance-20260916/overlay-0-after.txt": {
+      "bytes": 862,
+      "sha256": "a5cc9bc87fdecb890c751b5354357c7816058c587a3c83ab0ed923bc3c2492fd"
+    },
+    "build/qualcomm-performance-20260916/detail-analysis.log": {
+      "bytes": 10016,
+      "sha256": "4133652373f5abc1602da41f7c8085e6df0e10df7f2194691405020e434fc316"
+    },
+    "build/qualcomm-performance-20260916/perf.data": {
+      "bytes": 1491825,
+      "sha256": "001fe0e5b1dadbd4f4716071f4ee5011212dfb7d1cce67b3b7668609ca7920a9"
+    },
+    "build/qualcomm-performance-20260916/guest-patches.txt": {
+      "bytes": 4407,
+      "sha256": "c60f2d559c0caf8a5e84e0edb59fb7fd4f0dd2c91eb4abd2341515ed77590cb6"
+    },
+    "build/qualcomm-performance-20260916/scheduling-analysis.json": {
+      "bytes": 13145,
+      "sha256": "85cc08a1dfb5b7567a6b695646222354e35ab7e7786e15e188e6f2db3b9a7d48"
+    },
+    "build/qualcomm-performance-20260916/overlay-0-before.txt": {
+      "bytes": 862,
+      "sha256": "f69ff6526f7b4a0b07f36a2e7a042006629746f104fb67239a276e2a09b4dd22"
+    },
+    "build/qualcomm-performance-20260916/detail/pass-gaps.json": {
+      "bytes": 1085559,
+      "sha256": "3b99afcb80472ab70c456bf479b26d299805d829466c7506032df131c4ec2964"
+    },
+    "build/qualcomm-performance-20260916/detail/pass-distribution.json": {
+      "bytes": 299935,
+      "sha256": "d6c0880aff040a78580f60ee2bb83894061084c8303c486e6a8b3762b8c7a4ad"
+    },
+    "build/qualcomm-performance-20260916/detail/9c2841a4-10213-file-1789552630906754-2.prof.json": {
+      "bytes": 732,
+      "sha256": "d50490bdd4508a4c35f057a2d6e0cf1789e79f5f089c9bc892f1b8101192664a"
+    },
+    "build/qualcomm-performance-20260916/detail/9c2841a4-10213-file-1789552630906754-2.prof": {
+      "bytes": 36131161,
+      "sha256": "15daea6582dd05dd4aea455985b40de6e197acd909433e682d88e9eb55c5887a"
+    },
+    "build/qualcomm-performance-20260916/detail/9c2841a4-10213-file-1789552630906754-2.analysis.json": {
+      "bytes": 46402,
+      "sha256": "b439572dc39ed1f7705eafe005b8ae50af207c3e12f47338964d4b173fb02702"
+    },
+    "build/qualcomm-performance-20260916/detail/9c2841a4-10213-file-1789552630906754-2.intervals.json": {
+      "bytes": 779911,
+      "sha256": "c427d35b89c161d995898d9844f93ae4139683600f7e505265e238e33dbe2ae6"
+    },
+    "build/qualcomm-performance-20260916/coarse/9c2841a4-10213-file-1789552581764446-1.prof.json": {
+      "bytes": 732,
+      "sha256": "d202b076199d300fb36b1df1fe5883c864f8e1df1de16cee9d349c0a33a0ed7f"
+    },
+    "build/qualcomm-performance-20260916/coarse/9c2841a4-10213-file-1789552581764446-1.intervals.json": {
+      "bytes": 320333,
+      "sha256": "28874276539e28b7a748e76cd9b8f0c9e15e7e3a62d7fdf2def99436281bd4a7"
+    },
+    "build/qualcomm-performance-20260916/coarse/9c2841a4-10213-file-1789552581764446-1.analysis.json": {
+      "bytes": 46801,
+      "sha256": "6db85506ad2dace9380627d511aef82ab05786c2fd2f5ed8d5b8cf1d18d4eb1c"
+    },
+    "build/qualcomm-performance-20260916/coarse/9c2841a4-10213-file-1789552581764446-1.prof": {
+      "bytes": 45471066,
+      "sha256": "0c03cd01189dbb445d984df4e25d78e6eb1ef9489a751d084f6a23d9da25f218"
+    },
+    "build/qualcomm-performance-20260916/coarse/frame-breakdown.json": {
+      "bytes": 122749,
+      "sha256": "0ebbd402f5043603fb9f55f9f30daaa8580da864fe2b99946371a491a8c2e3c8"
+    }
+  }
+}

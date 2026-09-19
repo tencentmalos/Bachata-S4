@@ -1,0 +1,16 @@
+SERVICE com.shadps4.android/.service.FexSessionService 2e73273 pid=27493 user=0
+  Client:
+    schema=foundation.profiler-capture.v1
+    profiler_sdk_revision=368177d458109b0413142215a52dfe31567b81e4
+    process_id=27493
+    capture_id=2
+    capture_active=0
+    capture_mode=file
+    capture_state=ready
+    capture_path=/data/user/0/com.shadps4.android/files/host/log/profiler/file-1789530609240705-2.prof
+    capture_bytes=34145327
+    capture_port=0
+    capture_host=127.0.0.1
+    stream_protocol=raw-prof-v3-stop-line-v1
+    error=
+

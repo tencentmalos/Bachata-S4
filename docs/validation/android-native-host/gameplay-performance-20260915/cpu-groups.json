@@ -1,0 +1,184 @@
+{
+  "samples": 6393,
+  "exclusive_stack_groups": {
+    "Mutex/cond remaining": 332,
+    "Other/JIT/unresolved": 2123,
+    "VM/address-space": 1379,
+    "GPU host": 671,
+    "FEX host adapter": 1106,
+    "Other HLE": 502,
+    "Graphics HLE": 217,
+    "FEXCore": 63
+  },
+  "per_thread": {
+    "8349": {
+      "Mutex/cond remaining": 86,
+      "Other/JIT/unresolved": 941,
+      "VM/address-space": 356,
+      "Other HLE": 88,
+      "FEX host adapter": 289,
+      "FEXCore": 8
+    },
+    "8285": {
+      "Other/JIT/unresolved": 480,
+      "FEX host adapter": 218,
+      "VM/address-space": 219,
+      "Graphics HLE": 217,
+      "FEXCore": 16,
+      "Other HLE": 142,
+      "Mutex/cond remaining": 23
+    },
+    "8351": {
+      "VM/address-space": 132,
+      "Other/JIT/unresolved": 131,
+      "Other HLE": 51,
+      "FEX host adapter": 120,
+      "Mutex/cond remaining": 49,
+      "FEXCore": 7
+    },
+    "8300": {
+      "GPU host": 564,
+      "VM/address-space": 4
+    },
+    "8309": {
+      "VM/address-space": 145,
+      "FEX host adapter": 111,
+      "Mutex/cond remaining": 39,
+      "Other/JIT/unresolved": 54,
+      "FEXCore": 8,
+      "Other HLE": 38,
+      "GPU host": 1
+    },
+    "8348": {
+      "Other/JIT/unresolved": 62,
+      "VM/address-space": 59,
+      "FEX host adapter": 36,
+      "Other HLE": 18,
+      "FEXCore": 3,
+      "Mutex/cond remaining": 14
+    },
+    "8308": {
+      "Other HLE": 47,
+      "VM/address-space": 145,
+      "FEX host adapter": 100,
+      "Other/JIT/unresolved": 59,
+      "FEXCore": 6,
+      "Mutex/cond remaining": 40,
+      "GPU host": 4
+    },
+    "8310": {
+      "VM/address-space": 160,
+      "FEX host adapter": 111,
+      "Other HLE": 24,
+      "Other/JIT/unresolved": 63,
+      "Mutex/cond remaining": 32,
+      "FEXCore": 4,
+      "GPU host": 2
+    },
+    "8311": {
+      "FEX host adapter": 102,
+      "Other/JIT/unresolved": 83,
+      "VM/address-space": 134,
+      "Mutex/cond remaining": 46,
+      "Other HLE": 40,
+      "FEXCore": 7,
+      "GPU host": 4
+    },
+    "8350": {
+      "Other HLE": 29,
+      "FEX host adapter": 2,
+      "Other/JIT/unresolved": 2,
+      "FEXCore": 1,
+      "VM/address-space": 3
+    },
+    "8584": {
+      "FEX host adapter": 8,
+      "Other HLE": 6,
+      "VM/address-space": 10,
+      "Other/JIT/unresolved": 1
+    },
+    "8306": {
+      "GPU host": 95,
+      "Other/JIT/unresolved": 3
+    },
+    "410": {
+      "Other/JIT/unresolved": 106
+    },
+    "11449": {
+      "Other/JIT/unresolved": 3
+    },
+    "8417": {
+      "Other HLE": 6,
+      "Mutex/cond remaining": 3,
+      "FEX host adapter": 7,
+      "VM/address-space": 7,
+      "FEXCore": 1
+    },
+    "8284": {
+      "Other/JIT/unresolved": 16
+    },
+    "438": {
+      "Other/JIT/unresolved": 14
+    },
+    "8343": {
+      "Other/JIT/unresolved": 15
+    },
+    "8344": {
+      "Other/JIT/unresolved": 5
+    },
+    "8355": {
+      "Other HLE": 6
+    },
+    "8307": {
+      "Other/JIT/unresolved": 1,
+      "FEXCore": 2,
+      "VM/address-space": 2,
+      "Other HLE": 2
+    },
+    "439": {
+      "Other/JIT/unresolved": 1
+    },
+    "435": {
+      "Other/JIT/unresolved": 15
+    },
+    "8353": {
+      "Other HLE": 1
+    },
+    "8312": {
+      "FEX host adapter": 2,
+      "VM/address-space": 2
+    },
+    "494": {
+      "GPU host": 1,
+      "Other/JIT/unresolved": 1
+    },
+    "463": {
+      "Other/JIT/unresolved": 1
+    },
+    "8341": {
+      "Other HLE": 3
+    },
+    "11269": {
+      "Other/JIT/unresolved": 55
+    },
+    "441": {
+      "Other/JIT/unresolved": 4
+    },
+    "8352": {
+      "Other HLE": 1
+    },
+    "447": {
+      "Other/JIT/unresolved": 2
+    },
+    "429": {
+      "Other/JIT/unresolved": 2
+    },
+    "8315": {
+      "VM/address-space": 1,
+      "Other/JIT/unresolved": 1
+    },
+    "448": {
+      "Other/JIT/unresolved": 2
+    }
+  }
+}

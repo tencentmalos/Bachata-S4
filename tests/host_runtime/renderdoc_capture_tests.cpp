@@ -35,6 +35,51 @@ struct Backend : IRenderDocBackend {
 };
 CaptureTarget Target(u64 gen = 10) { return {gen, reinterpret_cast<void*>(1), nullptr, "test", "test-driver"}; }
 int main() {
+    for (bool expire_write : {false, true}) {
+        Backend b; CaptureCoordinator c{b}; c.Bind(Target());
+        c.SetTimeoutNs(10); c.SetWriteTimeoutNs(100);
+        c.Arm(1, 10, "slow-file", 0, CaptureBoundary::GuestFlip);
+        c.OnFrameBoundary(10, 1, 1, CaptureBoundary::GuestFlip);
+        std::promise<void> entered, release;
+        b.end_entered = &entered; b.release_end = release.get_future().share();
+        auto render = std::async(std::launch::async, [&] {
+            c.OnFrameBoundary(10, 2, 2, CaptureBoundary::GuestFlip);
+        });
+        entered.get_future().wait();
+        c.Poll(20);
+        CHECK(c.Query().state == CaptureRequestState::Writing);
+        if (expire_write) c.Poll(103);
+        release.set_value(); render.get();
+        CHECK(c.Query().state == (expire_write ? CaptureRequestState::Failed : CaptureRequestState::Ready));
+        CHECK(!c.Query().cleanup_pending && !b.active);
+    }
+    {
+        Backend b; CaptureCoordinator c{b};
+        CHECK(c.Bind(Target()));
+        auto r = c.Arm(2, 10, "guest-run", 0, CaptureBoundary::GuestFlip);
+        CHECK(r.coverage == "guest_flip_interval" && c.NeedsGuestBoundary(10));
+        CHECK(!c.NeedsGuestBoundary(11));
+        c.OnFrameBoundary(10, 100, 1); // Present must not consume a guest request.
+        CHECK(b.starts == 0);
+        c.OnFrameBoundary(10, 9, 2, CaptureBoundary::GuestFlip);
+        CHECK(b.starts == 1 && b.ends == 0);
+        c.OnFrameBoundary(10, 1000, 3);
+        c.OnFrameBoundary(10, 9, 4, CaptureBoundary::GuestFlip);
+        CHECK(c.Query().completed_frames == 0);
+        c.OnFrameBoundary(10, 10, 5, CaptureBoundary::GuestFlip);
+        CHECK(c.Query().completed_frames == 1 && b.ends == 0);
+        c.OnFrameBoundary(10, 11, 6, CaptureBoundary::GuestFlip);
+        r = c.Query();
+        CHECK(r.state == CaptureRequestState::Ready && b.ends == 1);
+        CHECK(r.first_guest_flip == 9 && r.last_guest_flip == 11);
+        CHECK(r.first_present == 0 && r.last_present == 0 && !c.NeedsGuestBoundary(10));
+        c.Arm(1, 10, "guest-run", 7, CaptureBoundary::GuestFlip);
+        c.OnFrameBoundary(10, 12, 8, CaptureBoundary::GuestFlip);
+        c.OnFrameBoundary(10, 14, 9, CaptureBoundary::GuestFlip);
+        CHECK(c.Query().state == CaptureRequestState::Failed);
+        CHECK(c.Query().failure_reason == "guest_flip_boundary_gap");
+        CHECK(!c.NeedsGuestBoundary(10));
+    }
     {
         Backend b; CaptureCoordinator c{b};
         CHECK(c.Arm(1, 10, "run", 0).command_status == "no_matching_renderer");

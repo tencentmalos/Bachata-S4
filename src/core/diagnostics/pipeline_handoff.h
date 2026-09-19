@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include "common/profiler.h"
 
 namespace Core::Diagnostics {
 struct DiagnosticsSnapshot;
@@ -31,6 +32,7 @@ public:
     Scope& operator=(const Scope&) = delete;
 
 private:
+    Common::Profiler::Scope profiler_scope;
     const char* name;
     Id generation{}, capture{}, token{}, object{}, related{};
     bool wait{};

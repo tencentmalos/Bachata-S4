@@ -7,7 +7,9 @@
 #include <jni.h>
 
 #include "common/path_util.h"
+#include "common/profiler.h"
 #include "common/logging/log.h"
+#include <cmath>
 #include <mutex>
 #include "core/user_settings.h"
 #include <cstdint>
@@ -16,6 +18,7 @@
 #include <android/log.h>
 
 #include "core/host_runtime/orbis_pad_adapter.h"
+#include "core/host_runtime/guest_vr_sensor.h"
 
 namespace {
 
@@ -26,6 +29,25 @@ using namespace spatial::input;
 using namespace Libraries::Pad;
 
 constexpr const char *kTag = "OrbisPad";
+
+void PublishMoveInput(int port) {
+    if (port != 0)
+        return;
+    Libraries::Pad::OrbisPadData data{};
+    if (GlobalPadAdapter().ReadState(port, &data)) {
+        const auto axis = [](std::uint8_t value) {
+            return (static_cast<float>(value) - 128.0f) / 127.0f;
+        };
+        Core::HostRuntime::GuestVrSensor::Instance().UpdateMoveInput(
+            static_cast<std::uint64_t>(data.buttons), axis(data.leftStick.x), axis(data.leftStick.y),
+            axis(data.rightStick.x), axis(data.rightStick.y),
+            data.analogButtons.l2 / 255.0f, data.analogButtons.r2 / 255.0f,
+            static_cast<std::uint64_t>(data.timestamp));
+    } else {
+        Core::HostRuntime::GuestVrSensor::Instance().UpdateMoveInput(0, 0.0f, 0.0f, 0.0f,
+                                                                       0.0f, 0.0f, 0.0f);
+    }
+}
 
 jint ResultOrdinal(PadResult r) {
     return static_cast<jint>(r);
@@ -78,8 +100,9 @@ extern "C" JNIEXPORT jint JNICALL Java_com_shadps4_android_runtime_input_NativeP
         snap.touch_down = touch_down == JNI_TRUE;
         snap.touch_x = touch_x;
         snap.touch_y = touch_y;
-        return ResultOrdinal(
-            GlobalPadAdapter().Submit(static_cast<std::uint64_t>(token), port, snap));
+        const auto result = GlobalPadAdapter().Submit(static_cast<std::uint64_t>(token), port, snap);
+        PublishMoveInput(port);
+        return ResultOrdinal(result);
     } catch (...) {
         __android_log_print(ANDROID_LOG_ERROR, kTag, "submit threw");
         return static_cast<jint>(PadResult::Rejected);
@@ -169,6 +192,7 @@ Java_com_shadps4_android_runtime_input_NativePad_nativeInitializeHost(JNIEnv *en
         env->ReleaseStringUTFChars(path, chars);
         chars = nullptr;
         Common::FS::InitializeAndroidUserPaths(value);
+        Common::Profiler::Initialize();
         static std::once_flag logging;
         std::call_once(logging, [] { Common::Log::Setup("android-host.log"); });
         return JNI_TRUE;
@@ -240,7 +264,9 @@ extern "C" JNIEXPORT jint JNICALL Java_com_shadps4_android_runtime_input_NativeP
                 return 3;
             p.events.push_back(e);
         }
-        return ResultOrdinal(GlobalPadAdapter().SubmitPacket(token, port, p));
+        const auto result = GlobalPadAdapter().SubmitPacket(token, port, p);
+        PublishMoveInput(port);
+        return ResultOrdinal(result);
     } catch (...) {
         return 3;
     }
@@ -278,6 +304,30 @@ Java_com_shadps4_android_runtime_input_NativePad_nativeDrainHaptics(JNIEnv *env,
         return out;
     } catch (...) {
         return nullptr;
+    }
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_shadps4_android_runtime_input_NativePad_nativeSetVrSbsEnabled(JNIEnv *, jclass,
+                                                                       jboolean enabled) {
+    __android_log_print(ANDROID_LOG_INFO, kTag, "vrSbs enabled=%d", enabled == JNI_TRUE ? 1 : 0);
+    try {
+        Core::HostRuntime::GuestVrSensor::Instance().SetSbsEnabled(enabled == JNI_TRUE);
+    } catch (...) {
+        __android_log_print(ANDROID_LOG_ERROR, kTag, "setVrSbsEnabled threw");
+    }
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_shadps4_android_runtime_input_NativePad_nativeUpdateVrGyro(JNIEnv *, jclass, jfloat x,
+                                                                    jfloat y, jfloat z,
+                                                                    jlong timestamp_ns) {
+    try {
+        if (std::isfinite(x) && std::isfinite(y) && std::isfinite(z) && timestamp_ns >= 0)
+            Core::HostRuntime::GuestVrSensor::Instance().UpdateGyro(
+                x, y, z, static_cast<std::uint64_t>(timestamp_ns));
+    } catch (...) {
+        __android_log_print(ANDROID_LOG_ERROR, kTag, "updateVrGyro threw");
     }
 }
 // Diagnostics invoke real HLE exports; no substitute pad implementation.

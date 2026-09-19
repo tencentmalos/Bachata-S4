@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <cstddef>
+
 #include "common/types.h"
 #include "core/libraries/camera/camera.h"
 
@@ -11,6 +13,7 @@ class SymbolsResolver;
 }
 
 namespace Libraries::VrTracker {
+
 
 static constexpr s32 ORBIS_VR_TRACKER_MAX_LED_NUM = 16;
 static constexpr u32 ORBIS_VR_TRACKER_MEMORY_ALIGNMENT = 0x10000;
@@ -341,18 +344,50 @@ struct OrbisVrTrackerResultData {
                                [ORBIS_VR_TRACKER_MAX_LED_NUM];
 };
 
+// These sizes are part of the guest ABI, not host convenience layouts.  The
+// 11.00 exports directly establish the 0x40-byte query records, 0x80-byte
+// init record and 0x38-byte result request.  The 0x5f0-byte result record is
+// the current reconstructed union/LED layout and still needs a live output
+// snapshot. Keep the asserts here so a later Android/ARM64 bridge cannot
+// silently change padding.
+static_assert(sizeof(OrbisVrTrackerCalibrationSettings) == 0x20);
+static_assert(sizeof(OrbisVrTrackerQueryMemoryParam) == 0x40);
+static_assert(sizeof(OrbisVrTrackerQueryMemoryResult) == 0x40);
+static_assert(sizeof(OrbisVrTrackerInitParam) == 0x80);
+static_assert(sizeof(OrbisVrTrackerGpuWaitParam) == 0x20);
+static_assert(sizeof(OrbisVrTrackerGetResultParam) == 0x38);
+static_assert(sizeof(OrbisVrTrackerPoseData) == 0x40);
+static_assert(offsetof(OrbisVrTrackerResultData, hmd_info) == 0x80);
+static_assert(offsetof(OrbisVrTrackerResultData, user_frame_number) == 0x1c0);
+static_assert(offsetof(OrbisVrTrackerResultData, timestamp) == 0x10);
+static_assert(offsetof(OrbisVrTrackerResultData, status) == 0x34);
+static_assert(offsetof(OrbisVrTrackerResultData, led) == 0x1f0);
+static_assert(sizeof(OrbisVrTrackerResultData) == 0x5f0);
+
 struct OrbisVrTrackerPlayAreaWarningInfo {
     u32 size;
     u32 reserved0[3];
-    bool is_out_of_play_area;
+    u8 is_out_of_play_area;
     u8 reserved1[3];
     u32 reserved2[3];
-    bool is_distance_data_valid;
+    u8 is_distance_data_valid;
     u8 reserved3[3];
     float distance_from_vertical_boundary;
     float distance_from_horizontal_boundary;
     u32 reserved4[5];
 };
+
+// Firmware 11.00 exposes this as a fixed 0x40-byte value record.  The
+// flags are byte fields with explicit padding; keep raw guest bytes out of C++
+// bool object representations. Do not pass a guest pointer
+// to the desktop implementation because its provider is process-global.
+static_assert(offsetof(OrbisVrTrackerPlayAreaWarningInfo, is_out_of_play_area) == 0x10);
+static_assert(offsetof(OrbisVrTrackerPlayAreaWarningInfo, is_distance_data_valid) == 0x20);
+static_assert(offsetof(OrbisVrTrackerPlayAreaWarningInfo, distance_from_vertical_boundary) ==
+              0x24);
+static_assert(offsetof(OrbisVrTrackerPlayAreaWarningInfo, distance_from_horizontal_boundary) ==
+              0x28);
+static_assert(sizeof(OrbisVrTrackerPlayAreaWarningInfo) == 0x40);
 
 s32 PS4_SYSV_ABI sceVrTrackerQueryMemory(const OrbisVrTrackerQueryMemoryParam* param,
                                          OrbisVrTrackerQueryMemoryResult* result);

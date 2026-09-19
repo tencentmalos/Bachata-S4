@@ -1,0 +1,4656 @@
+{
+  "schema": "spatial.guest-recompile.evidence.v1",
+  "backend": "study0",
+  "generation": "5275ecd90ee9eb8d186ef7bff81167414074e291738fc86d859c20e3259c9778",
+  "request": {
+    "identity": {
+      "emulator": "shadps4",
+      "title": "CUSA50828",
+      "module": "eboot.bin",
+      "module_sha256": "6122da7190de6b08d921b2c42c3ca9ed11dc4d11524f1139ff67aeceea5b204d"
+    },
+    "architecture": "x86_64",
+    "abi": "x86_64-sysv",
+    "endianness": "little",
+    "pointer_bits": 64,
+    "analysis": {
+      "module": "eboot.bin",
+      "sha256": "504fc22628a2a7c563e593aab298b9273e2a80eaf8814a095ffb6f464152da99",
+      "imagebase": 0
+    },
+    "schema": "spatial.guest-auto-tag.request.v1",
+    "backend": "study0",
+    "targets": [
+      {
+        "offset": 103984,
+        "measured_inclusive_ns": 8752464525
+      },
+      {
+        "offset": 22806656,
+        "measured_inclusive_ns": 878257135
+      },
+      {
+        "offset": 150624,
+        "measured_inclusive_ns": 185275470
+      }
+    ],
+    "max_probes": 0,
+    "depth": 2,
+    "capture_evidence": [
+      {
+        "manifest_sha256": "f597514158228d2ace6545e1144e5c4b22eafea62a676ec1b3675c0e962d876d",
+        "trace_sha256": "4755c237e4dbcd8eceb3d2d1dbcfaea1b310d53d2aca79c48d7bc4023663f611"
+      }
+    ]
+  },
+  "request_sha256": "8534eabe2ed3750acaf8b5b67ea2e8da82825b4307cc661b43f755c02f339831",
+  "analysis_processor": "metapc",
+  "functions": [
+    {
+      "offset": 103984,
+      "info": {
+        "ok": true,
+        "module": "eboot.bin",
+        "buildId": "",
+        "name": "sub_19630",
+        "moduleOffset": "0x19630",
+        "endOffset": "0x19684",
+        "size": 84,
+        "isThunk": false,
+        "thunkTargetOffset": null,
+        "boundsApproximate": false,
+        "realCallerCount": 1,
+        "totalXrefCount": 1,
+        "calleeCount": 2
+      },
+      "bytes": {
+        "ok": true,
+        "module": "eboot.bin",
+        "moduleOffset": "0x19630",
+        "buildId": "",
+        "requested": 84,
+        "returned": 84,
+        "hex": "554889e5415741564155415453504d89c64189cf4189d4488b55108b4d18448b45204189f54489ce4889fbe8101a010031ff4489ee4489e24489f94d89f04989d94883c4085b415c415d415e415f5de91cfdffff",
+        "firstWord": "0xe5894855"
+      },
+      "prototype": {
+        "ok": true,
+        "ea": "0x19630",
+        "name": "sub_19630",
+        "available": true,
+        "inferred": true,
+        "typeSource": "guess_tinfo",
+        "definitive": false,
+        "declaration": "__int64 __fastcall(int, int, int, int, int, int, __int64, int, int)",
+        "returnType": "__int64",
+        "callingConvention": 112,
+        "swiftCallingConvention": false,
+        "swiftAsync": false,
+        "swiftThrows": false,
+        "parameters": [
+          {
+            "name": "",
+            "type": "int",
+            "location": "edi",
+            "swiftSelf": false
+          },
+          {
+            "name": "",
+            "type": "int",
+            "location": "esi",
+            "swiftSelf": false
+          },
+          {
+            "name": "",
+            "type": "int",
+            "location": "edx",
+            "swiftSelf": false
+          },
+          {
+            "name": "",
+            "type": "int",
+            "location": "ecx",
+            "swiftSelf": false
+          },
+          {
+            "name": "",
+            "type": "int",
+            "location": "r8d",
+            "swiftSelf": false
+          },
+          {
+            "name": "",
+            "type": "int",
+            "location": "r9d",
+            "swiftSelf": false
+          },
+          {
+            "name": "",
+            "type": "__int64",
+            "location": "",
+            "swiftSelf": false
+          },
+          {
+            "name": "",
+            "type": "int",
+            "location": "",
+            "swiftSelf": false
+          },
+          {
+            "name": "",
+            "type": "int",
+            "location": "",
+            "swiftSelf": false
+          }
+        ],
+        "comment": "",
+        "workspaceId": "tmnt-recompile-bundle",
+        "generation": "5275ecd90ee9eb8d186ef7bff81167414074e291738fc86d859c20e3259c9778",
+        "module": "eboot.bin",
+        "imagebase": "0x0"
+      },
+      "pseudocode": {
+        "ok": true,
+        "module": "eboot.bin",
+        "function": "sub_19630",
+        "functionOffset": "0x19630",
+        "buildId": "",
+        "text": "__int64 __fastcall sub_19630(\n        __int64 a1,\n        unsigned int a2,\n        unsigned int a3,\n        unsigned int a4,\n        __int64 a5,\n        unsigned int a6,\n        __int64 a7,\n        unsigned int a8,\n        unsigned int a9)\n{\n  sub_2B070(a1, a2: a6, a3: a7, a4: a8, a5: a9);\n  return sub_193A0(a1: 0, a2, a3, a4, a5, a6: a1);\n}",
+        "lineCount": 14,
+        "truncated": false,
+        "generation": "5275ecd90ee9eb8d186ef7bff81167414074e291738fc86d859c20e3259c9778",
+        "refreshed": false,
+        "hint": null
+      },
+      "cfg": {
+        "ok": true,
+        "items": [
+          {
+            "id": 0,
+            "start": "0x19630",
+            "end": "0x19684",
+            "successors": [
+              1
+            ]
+          },
+          {
+            "id": 1,
+            "start": "0x193a0",
+            "end": "0x193a0",
+            "successors": []
+          }
+        ],
+        "nextOffset": null,
+        "totalScannedDomain": 2,
+        "workspaceId": "tmnt-recompile-bundle",
+        "generation": "5275ecd90ee9eb8d186ef7bff81167414074e291738fc86d859c20e3259c9778",
+        "module": "eboot.bin",
+        "imagebase": "0x0"
+      },
+      "nativeReferences": [
+        {
+          "from": "0x19630",
+          "to": "0x19631",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "sub_19630",
+          "toName": ""
+        },
+        {
+          "from": "0x19631",
+          "to": "0x19634",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x19634",
+          "to": "0x19636",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x19636",
+          "to": "0x19638",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x19638",
+          "to": "0x1963a",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x1963a",
+          "to": "0x1963c",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x1963c",
+          "to": "0x1963d",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x1963d",
+          "to": "0x1963e",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x1963e",
+          "to": "0x19641",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x19641",
+          "to": "0x19644",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x19644",
+          "to": "0x19647",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x19647",
+          "to": "0x1964b",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x1964b",
+          "to": "0x1964e",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x1964e",
+          "to": "0x19652",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x19652",
+          "to": "0x19655",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x19655",
+          "to": "0x19658",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x19658",
+          "to": "0x1965b",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x1965b",
+          "to": "0x19660",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x1965b",
+          "to": "0x2b070",
+          "type": 17,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": "sub_2B070"
+        },
+        {
+          "from": "0x19660",
+          "to": "0x19662",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x19662",
+          "to": "0x19665",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x19665",
+          "to": "0x19668",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x19668",
+          "to": "0x1966b",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x1966b",
+          "to": "0x1966e",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x1966e",
+          "to": "0x19671",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x19671",
+          "to": "0x19675",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x19675",
+          "to": "0x19676",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x19676",
+          "to": "0x19678",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x19678",
+          "to": "0x1967a",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x1967a",
+          "to": "0x1967c",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x1967c",
+          "to": "0x1967e",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x1967e",
+          "to": "0x1967f",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x1967f",
+          "to": "0x193a0",
+          "type": 19,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": "sub_193A0"
+        }
+      ],
+      "instructions": {
+        "columns": [
+          "rva",
+          "size",
+          "mnem",
+          "text"
+        ],
+        "rows": [
+          [
+            103984,
+            1,
+            "push",
+            "push    rbp"
+          ],
+          [
+            103985,
+            3,
+            "mov",
+            "mov     rbp, rsp"
+          ],
+          [
+            103988,
+            2,
+            "push",
+            "push    r15"
+          ],
+          [
+            103990,
+            2,
+            "push",
+            "push    r14"
+          ],
+          [
+            103992,
+            2,
+            "push",
+            "push    r13"
+          ],
+          [
+            103994,
+            2,
+            "push",
+            "push    r12"
+          ],
+          [
+            103996,
+            1,
+            "push",
+            "push    rbx"
+          ],
+          [
+            103997,
+            1,
+            "push",
+            "push    rax"
+          ],
+          [
+            103998,
+            3,
+            "mov",
+            "mov     r14, r8"
+          ],
+          [
+            104001,
+            3,
+            "mov",
+            "mov     r15d, ecx"
+          ],
+          [
+            104004,
+            3,
+            "mov",
+            "mov     r12d, edx"
+          ],
+          [
+            104007,
+            4,
+            "mov",
+            "mov     rdx, [rbp\u002Barg_0]"
+          ],
+          [
+            104011,
+            3,
+            "mov",
+            "mov     ecx, [rbp\u002Barg_8]"
+          ],
+          [
+            104014,
+            4,
+            "mov",
+            "mov     r8d, [rbp\u002Barg_10]"
+          ],
+          [
+            104018,
+            3,
+            "mov",
+            "mov     r13d, esi"
+          ],
+          [
+            104021,
+            3,
+            "mov",
+            "mov     esi, r9d"
+          ],
+          [
+            104024,
+            3,
+            "mov",
+            "mov     rbx, rdi"
+          ],
+          [
+            104027,
+            5,
+            "call",
+            "call    sub_2B070"
+          ],
+          [
+            104032,
+            2,
+            "xor",
+            "xor     edi, edi"
+          ],
+          [
+            104034,
+            3,
+            "mov",
+            "mov     esi, r13d"
+          ],
+          [
+            104037,
+            3,
+            "mov",
+            "mov     edx, r12d"
+          ],
+          [
+            104040,
+            3,
+            "mov",
+            "mov     ecx, r15d"
+          ],
+          [
+            104043,
+            3,
+            "mov",
+            "mov     r8, r14"
+          ],
+          [
+            104046,
+            3,
+            "mov",
+            "mov     r9, rbx"
+          ],
+          [
+            104049,
+            4,
+            "add",
+            "add     rsp, 8"
+          ],
+          [
+            104053,
+            1,
+            "pop",
+            "pop     rbx"
+          ],
+          [
+            104054,
+            2,
+            "pop",
+            "pop     r12"
+          ],
+          [
+            104056,
+            2,
+            "pop",
+            "pop     r13"
+          ],
+          [
+            104058,
+            2,
+            "pop",
+            "pop     r14"
+          ],
+          [
+            104060,
+            2,
+            "pop",
+            "pop     r15"
+          ],
+          [
+            104062,
+            1,
+            "pop",
+            "pop     rbp"
+          ],
+          [
+            104063,
+            5,
+            "jmp",
+            "jmp     sub_193A0"
+          ]
+        ],
+        "truncated": false,
+        "limit": 1000
+      },
+      "outgoingReferences": {
+        "columns": [
+          "from_rva",
+          "to_module_id",
+          "to_rva",
+          "kind",
+          "is_flow",
+          "from_mnem"
+        ],
+        "rows": [
+          [
+            104027,
+            1,
+            176240,
+            "call",
+            0,
+            "call"
+          ],
+          [
+            104063,
+            1,
+            103328,
+            "jump",
+            0,
+            "jmp"
+          ]
+        ],
+        "truncated": false,
+        "limit": 1000
+      },
+      "interiorEntries": {
+        "columns": [
+          "from_rva",
+          "to_rva",
+          "kind",
+          "from_func_rva"
+        ],
+        "rows": [],
+        "truncated": false,
+        "limit": 1000
+      },
+      "review": {
+        "abi": "unreviewed",
+        "memoryLayout": "unreviewed",
+        "indirectTargets": "unreviewed",
+        "effectsAndOrdering": "unreviewed",
+        "fpIntegerSemantics": "unreviewed",
+        "relocationsTlsUnwind": "unreviewed"
+      }
+    },
+    {
+      "offset": 103328,
+      "info": {
+        "ok": true,
+        "module": "eboot.bin",
+        "buildId": "",
+        "name": "sub_193A0",
+        "moduleOffset": "0x193a0",
+        "endOffset": "0x1952b",
+        "size": 395,
+        "isThunk": false,
+        "thunkTargetOffset": null,
+        "boundsApproximate": false,
+        "realCallerCount": 1,
+        "totalXrefCount": 8,
+        "calleeCount": 3
+      },
+      "bytes": {
+        "ok": true,
+        "module": "eboot.bin",
+        "moduleOffset": "0x193a0",
+        "buildId": "",
+        "requested": 395,
+        "returned": 395,
+        "hex": "554889e54157415641554154534881ec880100004c8b35fd1dd2014189f74d89c44189cb4189d2498b06488945d0418bb1c40100004d8ba9900000004d8b81980000004885f6747e498b01488d1cb50000000031c9eb2a660f1f840000000000418b9489cc00000048c1e202490351404889944dd0feffff4883c1044839cb7440418b9489c8000000c1e20289940d90feffff418b9489c4000000488d14904889944d50ffffff418b9489d0000000c1e20285d289940d50feffff75a331d2ebaf4889f0eb0231c0418b49104c89acc550ffffff31d24429e983e1fc898c8590feffff418b49504429c183e1fc490f45d0ffc64885ff898c8550feffff488994c5d0feffff742b488d9550ffffff488d8d90feffff4c8d85d0feffff4c8d8d50feffff4154415341524157e8b0430200eb334883ec084c8d8d50ffffff89f7488d9590feffff488d8dd0feffff4c8d8550feffff4c89ce4589f9415441534152e86b4302004883c420498b0e483b4dd075124881c4880100005b415c415d415e415f5dc3e877885a010f0b",
+        "firstWord": "0xe5894855"
+      },
+      "prototype": {
+        "ok": true,
+        "ea": "0x193a0",
+        "name": "sub_193A0",
+        "available": true,
+        "inferred": true,
+        "typeSource": "hexrays_inferred",
+        "definitive": false,
+        "declaration": "__int64 __fastcall(_QWORD, _QWORD, _QWORD, _QWORD, _QWORD, _QWORD)",
+        "returnType": "__int64",
+        "callingConvention": 112,
+        "swiftCallingConvention": false,
+        "swiftAsync": false,
+        "swiftThrows": false,
+        "parameters": [
+          {
+            "name": "",
+            "type": "_QWORD",
+            "location": "rdi",
+            "swiftSelf": false
+          },
+          {
+            "name": "",
+            "type": "_QWORD",
+            "location": "rsi",
+            "swiftSelf": false
+          },
+          {
+            "name": "",
+            "type": "_QWORD",
+            "location": "rdx",
+            "swiftSelf": false
+          },
+          {
+            "name": "",
+            "type": "_QWORD",
+            "location": "rcx",
+            "swiftSelf": false
+          },
+          {
+            "name": "",
+            "type": "_QWORD",
+            "location": "r8",
+            "swiftSelf": false
+          },
+          {
+            "name": "",
+            "type": "_QWORD",
+            "location": "r9",
+            "swiftSelf": false
+          }
+        ],
+        "comment": "",
+        "workspaceId": "tmnt-recompile-bundle",
+        "generation": "5275ecd90ee9eb8d186ef7bff81167414074e291738fc86d859c20e3259c9778",
+        "module": "eboot.bin",
+        "imagebase": "0x0"
+      },
+      "pseudocode": {
+        "ok": true,
+        "module": "eboot.bin",
+        "function": "sub_193A0",
+        "functionOffset": "0x193a0",
+        "buildId": "",
+        "text": "__int64 __fastcall sub_193A0(__int64 a1, unsigned int a2, unsigned int a3, unsigned int a4, __int64 a5, __int64 *a6)\n{\n  __int64 v6; // r15\n  __int64 v8; // r11\n  __int64 v9; // r10\n  __int64 v10; // rsi\n  __int64 v11; // r13\n  __int64 v12; // r8\n  __int64 v13; // rax\n  unsigned __int64 v14; // rcx\n  __int64 v15; // rdx\n  int v16; // edx\n  __int64 v17; // rax\n  int v18; // ecx\n  __int64 v19; // rdx\n  __int64 v20; // rsi\n  __int64 result; // rax\n  _DWORD v22[16]; // [rsp\u002B0h] [rbp-1B0h] BYREF\n  _DWORD v23[16]; // [rsp\u002B40h] [rbp-170h] BYREF\n  _QWORD v24[16]; // [rsp\u002B80h] [rbp-130h] BYREF\n  _QWORD v25[16]; // [rsp\u002B100h] [rbp-B0h] BYREF\n  __int64 v26; // [rsp\u002B180h] [rbp-30h]\n\n  v6 = a2;\n  v8 = a4;\n  v9 = a3;\n  v26 = 0x6365786562696C2FLL;\n  v10 = *((unsigned int *)a6 \u002B 113);\n  v11 = a6[18];\n  v12 = a6[19];\n  if ( *((_DWORD *)a6 \u002B 113) != 0 )\n  {\n    v13 = *a6;\n    v14 = 0;\n    do\n    {\n      v23[v14 / 4] = 4 * LODWORD(a6[v14 / 2 \u002B 25]);\n      v25[v14 / 4] = v13 \u002B 4LL * HIDWORD(a6[v14 / 2 \u002B 24]);\n      v16 = 4 * LODWORD(a6[v14 / 2 \u002B 26]);\n      v22[v14 / 4] = v16;\n      if ( v16 != 0 )\n        v15 = a6[8] \u002B 4LL * HIDWORD(a6[v14 / 2 \u002B 25]);\n      else\n        v15 = 0;\n      v24[v14 / 4] = v15;\n      v14 \u002B= 4LL;\n    }\n    while ( 4 * v10 != v14 );\n    v17 = v10;\n  }\n  else\n  {\n    v17 = 0;\n  }\n  v18 = *((_DWORD *)a6 \u002B 4);\n  v25[v17] = v11;\n  v19 = 0;\n  v23[v17] = (v18 - v11) \u0026 0xFFFFFFFC;\n  if ( ((*((_DWORD *)a6 \u002B 20) - (_DWORD)v12) \u0026 0xFFFFFFFC) != 0 )\n    v19 = v12;\n  v20 = (unsigned int)(v10 \u002B 1);\n  v22[v17] = (*((_DWORD *)a6 \u002B 20) - v12) \u0026 0xFFFFFFFC;\n  v24[v17] = v19;\n  if ( a1 != 0 )\n    result = sub_3D880(a1, a2: v20, a3: v25, a4: v23, a5: v24, a6: v22, a7: v6, a8: v9, a9: v8, a10: a5);\n  else\n    result = sub_3D870(\n               a1: (unsigned int)v20,\n               a2: v25,\n               a3: v23,\n               a4: v24,\n               a5: v22,\n               a6: (unsigned int)v6,\n               a7: v9,\n               a8: v8,\n               a9: a5);\n  if ( v26 != 0x6365786562696C2FLL )\n  {\n    sub_15C1DA0();\n    BUG();\n  }\n  return result;\n}",
+        "lineCount": 83,
+        "truncated": false,
+        "generation": "5275ecd90ee9eb8d186ef7bff81167414074e291738fc86d859c20e3259c9778",
+        "refreshed": false,
+        "hint": null
+      },
+      "cfg": {
+        "ok": true,
+        "items": [
+          {
+            "id": 0,
+            "start": "0x193a0",
+            "end": "0x193e8",
+            "successors": [
+              1,
+              7
+            ]
+          },
+          {
+            "id": 1,
+            "start": "0x193e8",
+            "end": "0x193f7",
+            "successors": [
+              4
+            ]
+          },
+          {
+            "id": 2,
+            "start": "0x19400",
+            "end": "0x19410",
+            "successors": [
+              3
+            ]
+          },
+          {
+            "id": 3,
+            "start": "0x19410",
+            "end": "0x19421",
+            "successors": [
+              4,
+              6
+            ]
+          },
+          {
+            "id": 4,
+            "start": "0x19421",
+            "end": "0x1945d",
+            "successors": [
+              2,
+              5
+            ]
+          },
+          {
+            "id": 5,
+            "start": "0x1945d",
+            "end": "0x19461",
+            "successors": [
+              3
+            ]
+          },
+          {
+            "id": 6,
+            "start": "0x19461",
+            "end": "0x19466",
+            "successors": [
+              8
+            ]
+          },
+          {
+            "id": 7,
+            "start": "0x19466",
+            "end": "0x19468",
+            "successors": [
+              8
+            ]
+          },
+          {
+            "id": 8,
+            "start": "0x19468",
+            "end": "0x194a7",
+            "successors": [
+              9,
+              10
+            ]
+          },
+          {
+            "id": 9,
+            "start": "0x194a7",
+            "end": "0x194d2",
+            "successors": [
+              11
+            ]
+          },
+          {
+            "id": 10,
+            "start": "0x194d2",
+            "end": "0x19505",
+            "successors": [
+              11
+            ]
+          },
+          {
+            "id": 11,
+            "start": "0x19505",
+            "end": "0x19512",
+            "successors": [
+              12,
+              13
+            ]
+          },
+          {
+            "id": 12,
+            "start": "0x19512",
+            "end": "0x19524",
+            "successors": []
+          },
+          {
+            "id": 13,
+            "start": "0x19524",
+            "end": "0x1952b",
+            "successors": []
+          }
+        ],
+        "nextOffset": null,
+        "totalScannedDomain": 14,
+        "workspaceId": "tmnt-recompile-bundle",
+        "generation": "5275ecd90ee9eb8d186ef7bff81167414074e291738fc86d859c20e3259c9778",
+        "module": "eboot.bin",
+        "imagebase": "0x0"
+      },
+      "nativeReferences": [
+        {
+          "from": "0x193a0",
+          "to": "0x193a1",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "sub_193A0",
+          "toName": ""
+        },
+        {
+          "from": "0x193a1",
+          "to": "0x193a4",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x193a4",
+          "to": "0x193a6",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x193a6",
+          "to": "0x193a8",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x193a8",
+          "to": "0x193aa",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x193aa",
+          "to": "0x193ac",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x193ac",
+          "to": "0x193ad",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x193ad",
+          "to": "0x193b4",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x193b4",
+          "to": "0x193bb",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x193b4",
+          "to": "0x1d3b1b8",
+          "type": 3,
+          "isCode": false,
+          "isUser": false,
+          "fromName": "",
+          "toName": "qword_1D3B1B8"
+        },
+        {
+          "from": "0x193bb",
+          "to": "0x193be",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x193be",
+          "to": "0x193c1",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x193c1",
+          "to": "0x193c4",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x193c4",
+          "to": "0x193c7",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x193c7",
+          "to": "0x193ca",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x193ca",
+          "to": "0x193ce",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x193ce",
+          "to": "0x193d5",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x193d5",
+          "to": "0x193dc",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x193dc",
+          "to": "0x193e3",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x193e3",
+          "to": "0x193e6",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x193e6",
+          "to": "0x193e8",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x193e6",
+          "to": "0x19466",
+          "type": 19,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": "loc_19466"
+        },
+        {
+          "from": "0x193e8",
+          "to": "0x193eb",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x193eb",
+          "to": "0x193f3",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x193f3",
+          "to": "0x193f5",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x193f5",
+          "to": "0x19421",
+          "type": 19,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": "loc_19421"
+        },
+        {
+          "from": "0x19400",
+          "to": "0x19408",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "loc_19400",
+          "toName": ""
+        },
+        {
+          "from": "0x19408",
+          "to": "0x1940c",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x1940c",
+          "to": "0x19410",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": "loc_19410"
+        },
+        {
+          "from": "0x19410",
+          "to": "0x19418",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "loc_19410",
+          "toName": ""
+        },
+        {
+          "from": "0x19418",
+          "to": "0x1941c",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x1941c",
+          "to": "0x1941f",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x1941f",
+          "to": "0x19421",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": "loc_19421"
+        },
+        {
+          "from": "0x1941f",
+          "to": "0x19461",
+          "type": 19,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": "loc_19461"
+        },
+        {
+          "from": "0x19421",
+          "to": "0x19429",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "loc_19421",
+          "toName": ""
+        },
+        {
+          "from": "0x19429",
+          "to": "0x1942c",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x1942c",
+          "to": "0x19433",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x19433",
+          "to": "0x1943b",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x1943b",
+          "to": "0x1943f",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x1943f",
+          "to": "0x19447",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x19447",
+          "to": "0x1944f",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x1944f",
+          "to": "0x19452",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x19452",
+          "to": "0x19454",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x19454",
+          "to": "0x1945b",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x1945b",
+          "to": "0x1945d",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x1945b",
+          "to": "0x19400",
+          "type": 19,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": "loc_19400"
+        },
+        {
+          "from": "0x1945d",
+          "to": "0x1945f",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x1945f",
+          "to": "0x19410",
+          "type": 19,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": "loc_19410"
+        },
+        {
+          "from": "0x19461",
+          "to": "0x19464",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "loc_19461",
+          "toName": ""
+        },
+        {
+          "from": "0x19464",
+          "to": "0x19468",
+          "type": 19,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": "loc_19468"
+        },
+        {
+          "from": "0x19466",
+          "to": "0x19468",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "loc_19466",
+          "toName": "loc_19468"
+        },
+        {
+          "from": "0x19468",
+          "to": "0x1946c",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "loc_19468",
+          "toName": ""
+        },
+        {
+          "from": "0x1946c",
+          "to": "0x19474",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x19474",
+          "to": "0x19476",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x19476",
+          "to": "0x19479",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x19479",
+          "to": "0x1947c",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x1947c",
+          "to": "0x19483",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x19483",
+          "to": "0x19487",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x19487",
+          "to": "0x1948a",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x1948a",
+          "to": "0x1948d",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x1948d",
+          "to": "0x19491",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x19491",
+          "to": "0x19493",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x19493",
+          "to": "0x19496",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x19496",
+          "to": "0x1949d",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x1949d",
+          "to": "0x194a5",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x194a5",
+          "to": "0x194a7",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x194a5",
+          "to": "0x194d2",
+          "type": 19,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": "loc_194D2"
+        },
+        {
+          "from": "0x194a7",
+          "to": "0x194ae",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x194ae",
+          "to": "0x194b5",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x194b5",
+          "to": "0x194bc",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x194bc",
+          "to": "0x194c3",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x194c3",
+          "to": "0x194c5",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x194c5",
+          "to": "0x194c7",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x194c7",
+          "to": "0x194c9",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x194c9",
+          "to": "0x194cb",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x194cb",
+          "to": "0x194d0",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x194cb",
+          "to": "0x3d880",
+          "type": 17,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": "sub_3D880"
+        },
+        {
+          "from": "0x194d0",
+          "to": "0x19505",
+          "type": 19,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": "loc_19505"
+        },
+        {
+          "from": "0x194d2",
+          "to": "0x194d6",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "loc_194D2",
+          "toName": ""
+        },
+        {
+          "from": "0x194d6",
+          "to": "0x194dd",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x194dd",
+          "to": "0x194df",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x194df",
+          "to": "0x194e6",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x194e6",
+          "to": "0x194ed",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x194ed",
+          "to": "0x194f4",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x194f4",
+          "to": "0x194f7",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x194f7",
+          "to": "0x194fa",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x194fa",
+          "to": "0x194fc",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x194fc",
+          "to": "0x194fe",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x194fe",
+          "to": "0x19500",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x19500",
+          "to": "0x19505",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": "loc_19505"
+        },
+        {
+          "from": "0x19500",
+          "to": "0x3d870",
+          "type": 17,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": "sub_3D870"
+        },
+        {
+          "from": "0x19505",
+          "to": "0x19509",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "loc_19505",
+          "toName": ""
+        },
+        {
+          "from": "0x19509",
+          "to": "0x1950c",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x1950c",
+          "to": "0x19510",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x19510",
+          "to": "0x19512",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x19510",
+          "to": "0x19524",
+          "type": 19,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": "loc_19524"
+        },
+        {
+          "from": "0x19512",
+          "to": "0x19519",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x19519",
+          "to": "0x1951a",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x1951a",
+          "to": "0x1951c",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x1951c",
+          "to": "0x1951e",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x1951e",
+          "to": "0x19520",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x19520",
+          "to": "0x19522",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x19522",
+          "to": "0x19523",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x19524",
+          "to": "0x19529",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "loc_19524",
+          "toName": ""
+        },
+        {
+          "from": "0x19524",
+          "to": "0x15c1da0",
+          "type": 17,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "loc_19524",
+          "toName": "sub_15C1DA0"
+        }
+      ],
+      "instructions": {
+        "columns": [
+          "rva",
+          "size",
+          "mnem",
+          "text"
+        ],
+        "rows": [
+          [
+            103328,
+            1,
+            "push",
+            "push    rbp"
+          ],
+          [
+            103329,
+            3,
+            "mov",
+            "mov     rbp, rsp"
+          ],
+          [
+            103332,
+            2,
+            "push",
+            "push    r15"
+          ],
+          [
+            103334,
+            2,
+            "push",
+            "push    r14"
+          ],
+          [
+            103336,
+            2,
+            "push",
+            "push    r13"
+          ],
+          [
+            103338,
+            2,
+            "push",
+            "push    r12"
+          ],
+          [
+            103340,
+            1,
+            "push",
+            "push    rbx"
+          ],
+          [
+            103341,
+            7,
+            "sub",
+            "sub     rsp, 188h"
+          ],
+          [
+            103348,
+            7,
+            "mov",
+            "mov     r14, cs:qword_1D3B1B8"
+          ],
+          [
+            103355,
+            3,
+            "mov",
+            "mov     r15d, esi"
+          ],
+          [
+            103358,
+            3,
+            "mov",
+            "mov     r12, r8"
+          ],
+          [
+            103361,
+            3,
+            "mov",
+            "mov     r11d, ecx"
+          ],
+          [
+            103364,
+            3,
+            "mov",
+            "mov     r10d, edx"
+          ],
+          [
+            103367,
+            3,
+            "mov",
+            "mov     rax, [r14]"
+          ],
+          [
+            103370,
+            4,
+            "mov",
+            "mov     [rbp\u002Bvar_30], rax"
+          ],
+          [
+            103374,
+            7,
+            "mov",
+            "mov     esi, [r9\u002B1C4h]"
+          ],
+          [
+            103381,
+            7,
+            "mov",
+            "mov     r13, [r9\u002B90h]"
+          ],
+          [
+            103388,
+            7,
+            "mov",
+            "mov     r8, [r9\u002B98h]"
+          ],
+          [
+            103395,
+            3,
+            "test",
+            "test    rsi, rsi"
+          ],
+          [
+            103398,
+            2,
+            "jz",
+            "jz      short loc_19466"
+          ],
+          [
+            103400,
+            3,
+            "mov",
+            "mov     rax, [r9]"
+          ],
+          [
+            103403,
+            8,
+            "lea",
+            "lea     rbx, ds:0[rsi*4]"
+          ],
+          [
+            103411,
+            2,
+            "xor",
+            "xor     ecx, ecx"
+          ],
+          [
+            103413,
+            2,
+            "jmp",
+            "jmp     short loc_19421"
+          ],
+          [
+            103415,
+            9,
+            "align",
+            "align 20h"
+          ],
+          [
+            103424,
+            8,
+            "mov",
+            "mov     edx, [r9\u002Brcx*4\u002B0CCh]"
+          ],
+          [
+            103432,
+            4,
+            "shl",
+            "shl     rdx, 2"
+          ],
+          [
+            103436,
+            4,
+            "add",
+            "add     rdx, [r9\u002B40h]"
+          ],
+          [
+            103440,
+            8,
+            "mov",
+            "mov     [rbp\u002Brcx*2\u002Bvar_130], rdx"
+          ],
+          [
+            103448,
+            4,
+            "add",
+            "add     rcx, 4"
+          ],
+          [
+            103452,
+            3,
+            "cmp",
+            "cmp     rbx, rcx"
+          ],
+          [
+            103455,
+            2,
+            "jz",
+            "jz      short loc_19461"
+          ],
+          [
+            103457,
+            8,
+            "mov",
+            "mov     edx, [r9\u002Brcx*4\u002B0C8h]"
+          ],
+          [
+            103465,
+            3,
+            "shl",
+            "shl     edx, 2"
+          ],
+          [
+            103468,
+            7,
+            "mov",
+            "mov     [rbp\u002Brcx\u002Bvar_170], edx"
+          ],
+          [
+            103475,
+            8,
+            "mov",
+            "mov     edx, [r9\u002Brcx*4\u002B0C4h]"
+          ],
+          [
+            103483,
+            4,
+            "lea",
+            "lea     rdx, [rax\u002Brdx*4]"
+          ],
+          [
+            103487,
+            8,
+            "mov",
+            "mov     [rbp\u002Brcx*2\u002Bvar_B0], rdx"
+          ],
+          [
+            103495,
+            8,
+            "mov",
+            "mov     edx, [r9\u002Brcx*4\u002B0D0h]"
+          ],
+          [
+            103503,
+            3,
+            "shl",
+            "shl     edx, 2"
+          ],
+          [
+            103506,
+            2,
+            "test",
+            "test    edx, edx"
+          ],
+          [
+            103508,
+            7,
+            "mov",
+            "mov     [rbp\u002Brcx\u002Bvar_1B0], edx"
+          ],
+          [
+            103515,
+            2,
+            "jnz",
+            "jnz     short loc_19400"
+          ],
+          [
+            103517,
+            2,
+            "xor",
+            "xor     edx, edx"
+          ],
+          [
+            103519,
+            2,
+            "jmp",
+            "jmp     short loc_19410"
+          ],
+          [
+            103521,
+            3,
+            "mov",
+            "mov     rax, rsi"
+          ],
+          [
+            103524,
+            2,
+            "jmp",
+            "jmp     short loc_19468"
+          ],
+          [
+            103526,
+            2,
+            "xor",
+            "xor     eax, eax"
+          ],
+          [
+            103528,
+            4,
+            "mov",
+            "mov     ecx, [r9\u002B10h]"
+          ],
+          [
+            103532,
+            8,
+            "mov",
+            "mov     [rbp\u002Brax*8\u002Bvar_B0], r13"
+          ],
+          [
+            103540,
+            2,
+            "xor",
+            "xor     edx, edx"
+          ],
+          [
+            103542,
+            3,
+            "sub",
+            "sub     ecx, r13d"
+          ],
+          [
+            103545,
+            3,
+            "and",
+            "and     ecx, 0FFFFFFFCh"
+          ],
+          [
+            103548,
+            7,
+            "mov",
+            "mov     [rbp\u002Brax*4\u002Bvar_170], ecx"
+          ],
+          [
+            103555,
+            4,
+            "mov",
+            "mov     ecx, [r9\u002B50h]"
+          ],
+          [
+            103559,
+            3,
+            "sub",
+            "sub     ecx, r8d"
+          ],
+          [
+            103562,
+            3,
+            "and",
+            "and     ecx, 0FFFFFFFCh"
+          ],
+          [
+            103565,
+            4,
+            "cmovnz",
+            "cmovnz  rdx, r8"
+          ],
+          [
+            103569,
+            2,
+            "inc",
+            "inc     esi"
+          ],
+          [
+            103571,
+            3,
+            "test",
+            "test    rdi, rdi"
+          ],
+          [
+            103574,
+            7,
+            "mov",
+            "mov     [rbp\u002Brax*4\u002Bvar_1B0], ecx"
+          ],
+          [
+            103581,
+            8,
+            "mov",
+            "mov     [rbp\u002Brax*8\u002Bvar_130], rdx"
+          ],
+          [
+            103589,
+            2,
+            "jz",
+            "jz      short loc_194D2"
+          ],
+          [
+            103591,
+            7,
+            "lea",
+            "lea     rdx, [rbp\u002Bvar_B0]"
+          ],
+          [
+            103598,
+            7,
+            "lea",
+            "lea     rcx, [rbp\u002Bvar_170]"
+          ],
+          [
+            103605,
+            7,
+            "lea",
+            "lea     r8, [rbp\u002Bvar_130]"
+          ],
+          [
+            103612,
+            7,
+            "lea",
+            "lea     r9, [rbp\u002Bvar_1B0]"
+          ],
+          [
+            103619,
+            2,
+            "push",
+            "push    r12"
+          ],
+          [
+            103621,
+            2,
+            "push",
+            "push    r11"
+          ],
+          [
+            103623,
+            2,
+            "push",
+            "push    r10"
+          ],
+          [
+            103625,
+            2,
+            "push",
+            "push    r15"
+          ],
+          [
+            103627,
+            5,
+            "call",
+            "call    sub_3D880"
+          ],
+          [
+            103632,
+            2,
+            "jmp",
+            "jmp     short loc_19505"
+          ],
+          [
+            103634,
+            4,
+            "sub",
+            "sub     rsp, 8"
+          ],
+          [
+            103638,
+            7,
+            "lea",
+            "lea     r9, [rbp\u002Bvar_B0]"
+          ],
+          [
+            103645,
+            2,
+            "mov",
+            "mov     edi, esi"
+          ],
+          [
+            103647,
+            7,
+            "lea",
+            "lea     rdx, [rbp\u002Bvar_170]"
+          ],
+          [
+            103654,
+            7,
+            "lea",
+            "lea     rcx, [rbp\u002Bvar_130]"
+          ],
+          [
+            103661,
+            7,
+            "lea",
+            "lea     r8, [rbp\u002Bvar_1B0]"
+          ],
+          [
+            103668,
+            3,
+            "mov",
+            "mov     rsi, r9"
+          ],
+          [
+            103671,
+            3,
+            "mov",
+            "mov     r9d, r15d"
+          ],
+          [
+            103674,
+            2,
+            "push",
+            "push    r12"
+          ],
+          [
+            103676,
+            2,
+            "push",
+            "push    r11"
+          ],
+          [
+            103678,
+            2,
+            "push",
+            "push    r10"
+          ],
+          [
+            103680,
+            5,
+            "call",
+            "call    sub_3D870"
+          ],
+          [
+            103685,
+            4,
+            "add",
+            "add     rsp, 20h"
+          ],
+          [
+            103689,
+            3,
+            "mov",
+            "mov     rcx, [r14]"
+          ],
+          [
+            103692,
+            4,
+            "cmp",
+            "cmp     rcx, [rbp\u002Bvar_30]"
+          ],
+          [
+            103696,
+            2,
+            "jnz",
+            "jnz     short loc_19524"
+          ],
+          [
+            103698,
+            7,
+            "add",
+            "add     rsp, 188h"
+          ],
+          [
+            103705,
+            1,
+            "pop",
+            "pop     rbx"
+          ],
+          [
+            103706,
+            2,
+            "pop",
+            "pop     r12"
+          ],
+          [
+            103708,
+            2,
+            "pop",
+            "pop     r13"
+          ],
+          [
+            103710,
+            2,
+            "pop",
+            "pop     r14"
+          ],
+          [
+            103712,
+            2,
+            "pop",
+            "pop     r15"
+          ],
+          [
+            103714,
+            1,
+            "pop",
+            "pop     rbp"
+          ],
+          [
+            103715,
+            1,
+            "retn",
+            "retn"
+          ],
+          [
+            103716,
+            5,
+            "call",
+            "call    sub_15C1DA0"
+          ],
+          [
+            103721,
+            2,
+            "ud2",
+            "ud2"
+          ]
+        ],
+        "truncated": false,
+        "limit": 1000
+      },
+      "outgoingReferences": {
+        "columns": [
+          "from_rva",
+          "to_module_id",
+          "to_rva",
+          "kind",
+          "is_flow",
+          "from_mnem"
+        ],
+        "rows": [
+          [
+            103627,
+            1,
+            252032,
+            "call",
+            0,
+            "call"
+          ],
+          [
+            103680,
+            1,
+            252016,
+            "call",
+            0,
+            "call"
+          ],
+          [
+            103716,
+            1,
+            22814112,
+            "call",
+            0,
+            "call"
+          ]
+        ],
+        "truncated": false,
+        "limit": 1000
+      },
+      "interiorEntries": {
+        "columns": [
+          "from_rva",
+          "to_rva",
+          "kind",
+          "from_func_rva"
+        ],
+        "rows": [],
+        "truncated": false,
+        "limit": 1000
+      },
+      "review": {
+        "abi": "unreviewed",
+        "memoryLayout": "unreviewed",
+        "indirectTargets": "unreviewed",
+        "effectsAndOrdering": "unreviewed",
+        "fpIntegerSemantics": "unreviewed",
+        "relocationsTlsUnwind": "unreviewed"
+      }
+    },
+    {
+      "offset": 176240,
+      "info": {
+        "ok": true,
+        "module": "eboot.bin",
+        "buildId": "",
+        "name": "sub_2B070",
+        "moduleOffset": "0x2b070",
+        "endOffset": "0x2b0f6",
+        "size": 134,
+        "isThunk": false,
+        "thunkTargetOffset": null,
+        "boundsApproximate": false,
+        "realCallerCount": 1,
+        "totalXrefCount": 2,
+        "calleeCount": 0
+      },
+      "bytes": {
+        "ok": true,
+        "module": "eboot.bin",
+        "moduleOffset": "0x2b070",
+        "buildId": "",
+        "requested": 134,
+        "returned": 134,
+        "hex": "554889e5415741564155415453504189cf488b4f08488b47104589c64989d54189f44889fb4829c148c1e90283f93f7717488b53204889dfbe40000000ff531884c07433488b431048b900103ec0810775684889084489680849c1ed204489680c448978104489601444897018480500010000488943104883c4085b415c415d415e415f5dc3",
+        "firstWord": "0xe5894855"
+      },
+      "prototype": {
+        "ok": true,
+        "ea": "0x2b070",
+        "name": "sub_2B070",
+        "available": true,
+        "inferred": true,
+        "typeSource": "hexrays_inferred",
+        "definitive": false,
+        "declaration": "__int64 __fastcall(_QWORD, _QWORD, _QWORD, _QWORD, _QWORD)",
+        "returnType": "__int64",
+        "callingConvention": 112,
+        "swiftCallingConvention": false,
+        "swiftAsync": false,
+        "swiftThrows": false,
+        "parameters": [
+          {
+            "name": "",
+            "type": "_QWORD",
+            "location": "rdi",
+            "swiftSelf": false
+          },
+          {
+            "name": "",
+            "type": "_QWORD",
+            "location": "rsi",
+            "swiftSelf": false
+          },
+          {
+            "name": "",
+            "type": "_QWORD",
+            "location": "rdx",
+            "swiftSelf": false
+          },
+          {
+            "name": "",
+            "type": "_QWORD",
+            "location": "rcx",
+            "swiftSelf": false
+          },
+          {
+            "name": "",
+            "type": "_QWORD",
+            "location": "r8",
+            "swiftSelf": false
+          }
+        ],
+        "comment": "",
+        "workspaceId": "tmnt-recompile-bundle",
+        "generation": "5275ecd90ee9eb8d186ef7bff81167414074e291738fc86d859c20e3259c9778",
+        "module": "eboot.bin",
+        "imagebase": "0x0"
+      },
+      "pseudocode": {
+        "ok": true,
+        "module": "eboot.bin",
+        "function": "sub_2B070",
+        "functionOffset": "0x2b070",
+        "buildId": "",
+        "text": "__int64 __fastcall sub_2B070(__int64 a1, int a2, __int64 a3, int a4, int a5)\n{\n  __int64 v6; // rax\n  __int64 result; // rax\n\n  v6 = *(_QWORD *)(a1 \u002B 16);\n  if ( (unsigned int)((unsigned __int64)(*(_QWORD *)(a1 \u002B 8) - v6) \u003E\u003E 2) \u003C= 0x3F )\n  {\n    result = (*(__int64 (__fastcall **)(__int64, __int64, _QWORD))(a1 \u002B 24))(a1, a2: 64, a3: *(_QWORD *)(a1 \u002B 32));\n    if ( (_BYTE)result == 0 )\n      return result;\n    v6 = *(_QWORD *)(a1 \u002B 16);\n  }\n  *(_QWORD *)v6 = 0x68750781C03E1000LL;\n  *(_QWORD *)(v6 \u002B 8) = a3;\n  *(_DWORD *)(v6 \u002B 16) = a4;\n  *(_DWORD *)(v6 \u002B 20) = a2;\n  *(_DWORD *)(v6 \u002B 24) = a5;\n  result = v6 \u002B 256;\n  *(_QWORD *)(a1 \u002B 16) = result;\n  return result;\n}",
+        "lineCount": 22,
+        "truncated": false,
+        "generation": "5275ecd90ee9eb8d186ef7bff81167414074e291738fc86d859c20e3259c9778",
+        "refreshed": false,
+        "hint": null
+      },
+      "cfg": {
+        "ok": true,
+        "items": [
+          {
+            "id": 0,
+            "start": "0x2b070",
+            "end": "0x2b0a1",
+            "successors": [
+              1,
+              3
+            ]
+          },
+          {
+            "id": 1,
+            "start": "0x2b0a1",
+            "end": "0x2b0b4",
+            "successors": [
+              2,
+              4
+            ]
+          },
+          {
+            "id": 2,
+            "start": "0x2b0b4",
+            "end": "0x2b0b8",
+            "successors": [
+              3
+            ]
+          },
+          {
+            "id": 3,
+            "start": "0x2b0b8",
+            "end": "0x2b0e7",
+            "successors": [
+              4
+            ]
+          },
+          {
+            "id": 4,
+            "start": "0x2b0e7",
+            "end": "0x2b0f6",
+            "successors": []
+          }
+        ],
+        "nextOffset": null,
+        "totalScannedDomain": 5,
+        "workspaceId": "tmnt-recompile-bundle",
+        "generation": "5275ecd90ee9eb8d186ef7bff81167414074e291738fc86d859c20e3259c9778",
+        "module": "eboot.bin",
+        "imagebase": "0x0"
+      },
+      "nativeReferences": [
+        {
+          "from": "0x2b070",
+          "to": "0x2b071",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "sub_2B070",
+          "toName": ""
+        },
+        {
+          "from": "0x2b071",
+          "to": "0x2b074",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b074",
+          "to": "0x2b076",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b076",
+          "to": "0x2b078",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b078",
+          "to": "0x2b07a",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b07a",
+          "to": "0x2b07c",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b07c",
+          "to": "0x2b07d",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b07d",
+          "to": "0x2b07e",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b07e",
+          "to": "0x2b081",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b081",
+          "to": "0x2b085",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b085",
+          "to": "0x2b089",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b089",
+          "to": "0x2b08c",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b08c",
+          "to": "0x2b08f",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b08f",
+          "to": "0x2b092",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b092",
+          "to": "0x2b095",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b095",
+          "to": "0x2b098",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b098",
+          "to": "0x2b09c",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b09c",
+          "to": "0x2b09f",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b09f",
+          "to": "0x2b0a1",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b09f",
+          "to": "0x2b0b8",
+          "type": 19,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": "loc_2B0B8"
+        },
+        {
+          "from": "0x2b0a1",
+          "to": "0x2b0a5",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b0a5",
+          "to": "0x2b0a8",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b0a8",
+          "to": "0x2b0ad",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b0ad",
+          "to": "0x2b0b0",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b0b0",
+          "to": "0x2b0b2",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b0b2",
+          "to": "0x2b0b4",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b0b2",
+          "to": "0x2b0e7",
+          "type": 19,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": "loc_2B0E7"
+        },
+        {
+          "from": "0x2b0b4",
+          "to": "0x2b0b8",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": "loc_2B0B8"
+        },
+        {
+          "from": "0x2b0b8",
+          "to": "0x2b0c2",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "loc_2B0B8",
+          "toName": ""
+        },
+        {
+          "from": "0x2b0c2",
+          "to": "0x2b0c5",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b0c5",
+          "to": "0x2b0c9",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b0c9",
+          "to": "0x2b0cd",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b0cd",
+          "to": "0x2b0d1",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b0d1",
+          "to": "0x2b0d5",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b0d5",
+          "to": "0x2b0d9",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b0d9",
+          "to": "0x2b0dd",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b0dd",
+          "to": "0x2b0e3",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b0e3",
+          "to": "0x2b0e7",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": "loc_2B0E7"
+        },
+        {
+          "from": "0x2b0e7",
+          "to": "0x2b0eb",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "loc_2B0E7",
+          "toName": ""
+        },
+        {
+          "from": "0x2b0eb",
+          "to": "0x2b0ec",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b0ec",
+          "to": "0x2b0ee",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b0ee",
+          "to": "0x2b0f0",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b0f0",
+          "to": "0x2b0f2",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b0f2",
+          "to": "0x2b0f4",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x2b0f4",
+          "to": "0x2b0f5",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        }
+      ],
+      "instructions": {
+        "columns": [
+          "rva",
+          "size",
+          "mnem",
+          "text"
+        ],
+        "rows": [
+          [
+            176240,
+            1,
+            "push",
+            "push    rbp"
+          ],
+          [
+            176241,
+            3,
+            "mov",
+            "mov     rbp, rsp"
+          ],
+          [
+            176244,
+            2,
+            "push",
+            "push    r15"
+          ],
+          [
+            176246,
+            2,
+            "push",
+            "push    r14"
+          ],
+          [
+            176248,
+            2,
+            "push",
+            "push    r13"
+          ],
+          [
+            176250,
+            2,
+            "push",
+            "push    r12"
+          ],
+          [
+            176252,
+            1,
+            "push",
+            "push    rbx"
+          ],
+          [
+            176253,
+            1,
+            "push",
+            "push    rax"
+          ],
+          [
+            176254,
+            3,
+            "mov",
+            "mov     r15d, ecx"
+          ],
+          [
+            176257,
+            4,
+            "mov",
+            "mov     rcx, [rdi\u002B8]"
+          ],
+          [
+            176261,
+            4,
+            "mov",
+            "mov     rax, [rdi\u002B10h]"
+          ],
+          [
+            176265,
+            3,
+            "mov",
+            "mov     r14d, r8d"
+          ],
+          [
+            176268,
+            3,
+            "mov",
+            "mov     r13, rdx"
+          ],
+          [
+            176271,
+            3,
+            "mov",
+            "mov     r12d, esi"
+          ],
+          [
+            176274,
+            3,
+            "mov",
+            "mov     rbx, rdi"
+          ],
+          [
+            176277,
+            3,
+            "sub",
+            "sub     rcx, rax"
+          ],
+          [
+            176280,
+            4,
+            "shr",
+            "shr     rcx, 2"
+          ],
+          [
+            176284,
+            3,
+            "cmp",
+            "cmp     ecx, 3Fh ; \u0027?\u0027"
+          ],
+          [
+            176287,
+            2,
+            "ja",
+            "ja      short loc_2B0B8"
+          ],
+          [
+            176289,
+            4,
+            "mov",
+            "mov     rdx, [rbx\u002B20h]"
+          ],
+          [
+            176293,
+            3,
+            "mov",
+            "mov     rdi, rbx"
+          ],
+          [
+            176296,
+            5,
+            "mov",
+            "mov     esi, 40h ; \u0027@\u0027"
+          ],
+          [
+            176301,
+            3,
+            "call",
+            "call    qword ptr [rbx\u002B18h]"
+          ],
+          [
+            176304,
+            2,
+            "test",
+            "test    al, al"
+          ],
+          [
+            176306,
+            2,
+            "jz",
+            "jz      short loc_2B0E7"
+          ],
+          [
+            176308,
+            4,
+            "mov",
+            "mov     rax, [rbx\u002B10h]"
+          ],
+          [
+            176312,
+            10,
+            "mov",
+            "mov     rcx, 68750781C03E1000h"
+          ],
+          [
+            176322,
+            3,
+            "mov",
+            "mov     [rax], rcx"
+          ],
+          [
+            176325,
+            4,
+            "mov",
+            "mov     [rax\u002B8], r13d"
+          ],
+          [
+            176329,
+            4,
+            "shr",
+            "shr     r13, 20h"
+          ],
+          [
+            176333,
+            4,
+            "mov",
+            "mov     [rax\u002B0Ch], r13d"
+          ],
+          [
+            176337,
+            4,
+            "mov",
+            "mov     [rax\u002B10h], r15d"
+          ],
+          [
+            176341,
+            4,
+            "mov",
+            "mov     [rax\u002B14h], r12d"
+          ],
+          [
+            176345,
+            4,
+            "mov",
+            "mov     [rax\u002B18h], r14d"
+          ],
+          [
+            176349,
+            6,
+            "add",
+            "add     rax, 100h"
+          ],
+          [
+            176355,
+            4,
+            "mov",
+            "mov     [rbx\u002B10h], rax"
+          ],
+          [
+            176359,
+            4,
+            "add",
+            "add     rsp, 8"
+          ],
+          [
+            176363,
+            1,
+            "pop",
+            "pop     rbx"
+          ],
+          [
+            176364,
+            2,
+            "pop",
+            "pop     r12"
+          ],
+          [
+            176366,
+            2,
+            "pop",
+            "pop     r13"
+          ],
+          [
+            176368,
+            2,
+            "pop",
+            "pop     r14"
+          ],
+          [
+            176370,
+            2,
+            "pop",
+            "pop     r15"
+          ],
+          [
+            176372,
+            1,
+            "pop",
+            "pop     rbp"
+          ],
+          [
+            176373,
+            1,
+            "retn",
+            "retn"
+          ]
+        ],
+        "truncated": false,
+        "limit": 1000
+      },
+      "outgoingReferences": {
+        "columns": [
+          "from_rva",
+          "to_module_id",
+          "to_rva",
+          "kind",
+          "is_flow",
+          "from_mnem"
+        ],
+        "rows": [],
+        "truncated": false,
+        "limit": 1000
+      },
+      "interiorEntries": {
+        "columns": [
+          "from_rva",
+          "to_rva",
+          "kind",
+          "from_func_rva"
+        ],
+        "rows": [],
+        "truncated": false,
+        "limit": 1000
+      },
+      "review": {
+        "abi": "unreviewed",
+        "memoryLayout": "unreviewed",
+        "indirectTargets": "unreviewed",
+        "effectsAndOrdering": "unreviewed",
+        "fpIntegerSemantics": "unreviewed",
+        "relocationsTlsUnwind": "unreviewed"
+      }
+    },
+    {
+      "offset": 150624,
+      "info": {
+        "ok": true,
+        "module": "eboot.bin",
+        "buildId": "",
+        "name": "sub_24C60",
+        "moduleOffset": "0x24c60",
+        "endOffset": "0x24cb8",
+        "size": 88,
+        "isThunk": false,
+        "thunkTargetOffset": null,
+        "boundsApproximate": false,
+        "realCallerCount": 1,
+        "totalXrefCount": 1,
+        "calleeCount": 1
+      },
+      "bytes": {
+        "ok": true,
+        "module": "eboot.bin",
+        "moduleOffset": "0x24c60",
+        "buildId": "",
+        "requested": 88,
+        "returned": 88,
+        "hex": "554889e553504889fb488b7708488b7f104829fe48c1ee0281feff0000007722488b53204889dfbe00010000ff531884c0741e488b7308488b7b104829fe48c1ee02e859cd590189c048c1e002480143104883c4085b5dc3",
+        "firstWord": "0xe5894855"
+      },
+      "prototype": {
+        "ok": true,
+        "ea": "0x24c60",
+        "name": "sub_24C60",
+        "available": true,
+        "inferred": true,
+        "typeSource": "guess_tinfo",
+        "definitive": false,
+        "declaration": "__int64 __fastcall()",
+        "returnType": "__int64",
+        "callingConvention": 112,
+        "swiftCallingConvention": false,
+        "swiftAsync": false,
+        "swiftThrows": false,
+        "parameters": [],
+        "comment": "",
+        "workspaceId": "tmnt-recompile-bundle",
+        "generation": "5275ecd90ee9eb8d186ef7bff81167414074e291738fc86d859c20e3259c9778",
+        "module": "eboot.bin",
+        "imagebase": "0x0"
+      },
+      "pseudocode": {
+        "ok": true,
+        "module": "eboot.bin",
+        "function": "sub_24C60",
+        "functionOffset": "0x24c60",
+        "buildId": "",
+        "text": "__int64 __fastcall sub_24C60(__int64 a1)\n{\n  __int64 v2; // rsi\n  __int64 v3; // rdi\n  __int64 result; // rax\n\n  v2 = *(_QWORD *)(a1 \u002B 8);\n  v3 = *(_QWORD *)(a1 \u002B 16);\n  if ( (unsigned int)((unsigned __int64)(v2 - v3) \u003E\u003E 2) \u003C= 0xFF )\n  {\n    result = (*(__int64 (__fastcall **)(__int64, __int64, _QWORD))(a1 \u002B 24))(a1, a2: 256, a3: *(_QWORD *)(a1 \u002B 32));\n    if ( (_BYTE)result == 0 )\n      return result;\n    v3 = *(_QWORD *)(a1 \u002B 16);\n  }\n  result = 4LL * (unsigned int)sub_15C1A00(a1: v3);\n  *(_QWORD *)(a1 \u002B 16) \u002B= result;\n  return result;\n}",
+        "lineCount": 19,
+        "truncated": false,
+        "generation": "5275ecd90ee9eb8d186ef7bff81167414074e291738fc86d859c20e3259c9778",
+        "refreshed": false,
+        "hint": null
+      },
+      "cfg": {
+        "ok": true,
+        "items": [
+          {
+            "id": 0,
+            "start": "0x24c60",
+            "end": "0x24c80",
+            "successors": [
+              1,
+              3
+            ]
+          },
+          {
+            "id": 1,
+            "start": "0x24c80",
+            "end": "0x24c93",
+            "successors": [
+              2,
+              4
+            ]
+          },
+          {
+            "id": 2,
+            "start": "0x24c93",
+            "end": "0x24ca2",
+            "successors": [
+              3
+            ]
+          },
+          {
+            "id": 3,
+            "start": "0x24ca2",
+            "end": "0x24cb1",
+            "successors": [
+              4
+            ]
+          },
+          {
+            "id": 4,
+            "start": "0x24cb1",
+            "end": "0x24cb8",
+            "successors": []
+          }
+        ],
+        "nextOffset": null,
+        "totalScannedDomain": 5,
+        "workspaceId": "tmnt-recompile-bundle",
+        "generation": "5275ecd90ee9eb8d186ef7bff81167414074e291738fc86d859c20e3259c9778",
+        "module": "eboot.bin",
+        "imagebase": "0x0"
+      },
+      "nativeReferences": [
+        {
+          "from": "0x24c60",
+          "to": "0x24c61",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "sub_24C60",
+          "toName": ""
+        },
+        {
+          "from": "0x24c61",
+          "to": "0x24c64",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x24c64",
+          "to": "0x24c65",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x24c65",
+          "to": "0x24c66",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x24c66",
+          "to": "0x24c69",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x24c69",
+          "to": "0x24c6d",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x24c6d",
+          "to": "0x24c71",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x24c71",
+          "to": "0x24c74",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x24c74",
+          "to": "0x24c78",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x24c78",
+          "to": "0x24c7e",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x24c7e",
+          "to": "0x24c80",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x24c7e",
+          "to": "0x24ca2",
+          "type": 19,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": "loc_24CA2"
+        },
+        {
+          "from": "0x24c80",
+          "to": "0x24c84",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x24c84",
+          "to": "0x24c87",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x24c87",
+          "to": "0x24c8c",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x24c8c",
+          "to": "0x24c8f",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x24c8f",
+          "to": "0x24c91",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x24c91",
+          "to": "0x24c93",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x24c91",
+          "to": "0x24cb1",
+          "type": 19,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": "loc_24CB1"
+        },
+        {
+          "from": "0x24c93",
+          "to": "0x24c97",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x24c97",
+          "to": "0x24c9b",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x24c9b",
+          "to": "0x24c9e",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x24c9e",
+          "to": "0x24ca2",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": "loc_24CA2"
+        },
+        {
+          "from": "0x24ca2",
+          "to": "0x24ca7",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "loc_24CA2",
+          "toName": ""
+        },
+        {
+          "from": "0x24ca2",
+          "to": "0x15c1a00",
+          "type": 17,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "loc_24CA2",
+          "toName": "sub_15C1A00"
+        },
+        {
+          "from": "0x24ca7",
+          "to": "0x24ca9",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x24ca9",
+          "to": "0x24cad",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x24cad",
+          "to": "0x24cb1",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": "loc_24CB1"
+        },
+        {
+          "from": "0x24cb1",
+          "to": "0x24cb5",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "loc_24CB1",
+          "toName": ""
+        },
+        {
+          "from": "0x24cb5",
+          "to": "0x24cb6",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        },
+        {
+          "from": "0x24cb6",
+          "to": "0x24cb7",
+          "type": 21,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "",
+          "toName": ""
+        }
+      ],
+      "instructions": {
+        "columns": [
+          "rva",
+          "size",
+          "mnem",
+          "text"
+        ],
+        "rows": [
+          [
+            150624,
+            1,
+            "push",
+            "push    rbp"
+          ],
+          [
+            150625,
+            3,
+            "mov",
+            "mov     rbp, rsp"
+          ],
+          [
+            150628,
+            1,
+            "push",
+            "push    rbx"
+          ],
+          [
+            150629,
+            1,
+            "push",
+            "push    rax"
+          ],
+          [
+            150630,
+            3,
+            "mov",
+            "mov     rbx, rdi"
+          ],
+          [
+            150633,
+            4,
+            "mov",
+            "mov     rsi, [rdi\u002B8]"
+          ],
+          [
+            150637,
+            4,
+            "mov",
+            "mov     rdi, [rdi\u002B10h]"
+          ],
+          [
+            150641,
+            3,
+            "sub",
+            "sub     rsi, rdi"
+          ],
+          [
+            150644,
+            4,
+            "shr",
+            "shr     rsi, 2"
+          ],
+          [
+            150648,
+            6,
+            "cmp",
+            "cmp     esi, 0FFh"
+          ],
+          [
+            150654,
+            2,
+            "ja",
+            "ja      short loc_24CA2"
+          ],
+          [
+            150656,
+            4,
+            "mov",
+            "mov     rdx, [rbx\u002B20h]"
+          ],
+          [
+            150660,
+            3,
+            "mov",
+            "mov     rdi, rbx"
+          ],
+          [
+            150663,
+            5,
+            "mov",
+            "mov     esi, 100h"
+          ],
+          [
+            150668,
+            3,
+            "call",
+            "call    qword ptr [rbx\u002B18h]"
+          ],
+          [
+            150671,
+            2,
+            "test",
+            "test    al, al"
+          ],
+          [
+            150673,
+            2,
+            "jz",
+            "jz      short loc_24CB1"
+          ],
+          [
+            150675,
+            4,
+            "mov",
+            "mov     rsi, [rbx\u002B8]"
+          ],
+          [
+            150679,
+            4,
+            "mov",
+            "mov     rdi, [rbx\u002B10h]"
+          ],
+          [
+            150683,
+            3,
+            "sub",
+            "sub     rsi, rdi"
+          ],
+          [
+            150686,
+            4,
+            "shr",
+            "shr     rsi, 2"
+          ],
+          [
+            150690,
+            5,
+            "call",
+            "call    sub_15C1A00"
+          ],
+          [
+            150695,
+            2,
+            "mov",
+            "mov     eax, eax"
+          ],
+          [
+            150697,
+            4,
+            "shl",
+            "shl     rax, 2"
+          ],
+          [
+            150701,
+            4,
+            "add",
+            "add     [rbx\u002B10h], rax"
+          ],
+          [
+            150705,
+            4,
+            "add",
+            "add     rsp, 8"
+          ],
+          [
+            150709,
+            1,
+            "pop",
+            "pop     rbx"
+          ],
+          [
+            150710,
+            1,
+            "pop",
+            "pop     rbp"
+          ],
+          [
+            150711,
+            1,
+            "retn",
+            "retn"
+          ]
+        ],
+        "truncated": false,
+        "limit": 1000
+      },
+      "outgoingReferences": {
+        "columns": [
+          "from_rva",
+          "to_module_id",
+          "to_rva",
+          "kind",
+          "is_flow",
+          "from_mnem"
+        ],
+        "rows": [
+          [
+            150690,
+            1,
+            22813184,
+            "call",
+            0,
+            "call"
+          ]
+        ],
+        "truncated": false,
+        "limit": 1000
+      },
+      "interiorEntries": {
+        "columns": [
+          "from_rva",
+          "to_rva",
+          "kind",
+          "from_func_rva"
+        ],
+        "rows": [],
+        "truncated": false,
+        "limit": 1000
+      },
+      "review": {
+        "abi": "unreviewed",
+        "memoryLayout": "unreviewed",
+        "indirectTargets": "unreviewed",
+        "effectsAndOrdering": "unreviewed",
+        "fpIntegerSemantics": "unreviewed",
+        "relocationsTlsUnwind": "unreviewed"
+      }
+    },
+    {
+      "offset": 252016,
+      "info": {
+        "ok": true,
+        "module": "eboot.bin",
+        "buildId": "",
+        "name": "sub_3D870",
+        "moduleOffset": "0x3d870",
+        "endOffset": "0x3d875",
+        "size": 5,
+        "isThunk": true,
+        "thunkTargetOffset": "0x15c1890",
+        "boundsApproximate": false,
+        "realCallerCount": 1,
+        "totalXrefCount": 1,
+        "calleeCount": 1
+      },
+      "bytes": {
+        "ok": true,
+        "module": "eboot.bin",
+        "moduleOffset": "0x3d870",
+        "buildId": "",
+        "requested": 5,
+        "returned": 5,
+        "hex": "e91b405801",
+        "firstWord": "0x58401be9"
+      },
+      "prototype": {
+        "ok": true,
+        "ea": "0x3d870",
+        "name": "sub_3D870",
+        "available": true,
+        "inferred": true,
+        "typeSource": "hexrays_inferred",
+        "definitive": false,
+        "declaration": "__int64 __fastcall(_QWORD, _QWORD, _QWORD, _QWORD, _QWORD, _QWORD, _QWORD, _QWORD, _QWORD)",
+        "returnType": "__int64",
+        "callingConvention": 112,
+        "swiftCallingConvention": false,
+        "swiftAsync": false,
+        "swiftThrows": false,
+        "parameters": [
+          {
+            "name": "",
+            "type": "_QWORD",
+            "location": "rdi",
+            "swiftSelf": false
+          },
+          {
+            "name": "",
+            "type": "_QWORD",
+            "location": "rsi",
+            "swiftSelf": false
+          },
+          {
+            "name": "",
+            "type": "_QWORD",
+            "location": "rdx",
+            "swiftSelf": false
+          },
+          {
+            "name": "",
+            "type": "_QWORD",
+            "location": "rcx",
+            "swiftSelf": false
+          },
+          {
+            "name": "",
+            "type": "_QWORD",
+            "location": "r8",
+            "swiftSelf": false
+          },
+          {
+            "name": "",
+            "type": "_QWORD",
+            "location": "r9",
+            "swiftSelf": false
+          },
+          {
+            "name": "",
+            "type": "_QWORD",
+            "location": "",
+            "swiftSelf": false
+          },
+          {
+            "name": "",
+            "type": "_QWORD",
+            "location": "",
+            "swiftSelf": false
+          },
+          {
+            "name": "",
+            "type": "_QWORD",
+            "location": "",
+            "swiftSelf": false
+          }
+        ],
+        "comment": "",
+        "workspaceId": "tmnt-recompile-bundle",
+        "generation": "5275ecd90ee9eb8d186ef7bff81167414074e291738fc86d859c20e3259c9778",
+        "module": "eboot.bin",
+        "imagebase": "0x0"
+      },
+      "pseudocode": {
+        "ok": true,
+        "module": "eboot.bin",
+        "function": "sub_3D870",
+        "functionOffset": "0x3d870",
+        "buildId": "",
+        "text": "// attributes: thunk\n__int64 __fastcall sub_3D870(\n        __int64 a1,\n        __int64 a2,\n        __int64 a3,\n        __int64 a4,\n        __int64 a5,\n        __int64 a6,\n        __int64 a7,\n        __int64 a8,\n        __int64 a9)\n{\n  return sub_15C1890(a1, a2, a3, a4, a5, a6, a7, a8, a9);\n}",
+        "lineCount": 14,
+        "truncated": false,
+        "generation": "5275ecd90ee9eb8d186ef7bff81167414074e291738fc86d859c20e3259c9778",
+        "refreshed": false,
+        "hint": null
+      },
+      "cfg": {
+        "ok": true,
+        "items": [
+          {
+            "id": 0,
+            "start": "0x3d870",
+            "end": "0x3d875",
+            "successors": [
+              1
+            ]
+          },
+          {
+            "id": 1,
+            "start": "0x15c1890",
+            "end": "0x15c1890",
+            "successors": []
+          }
+        ],
+        "nextOffset": null,
+        "totalScannedDomain": 2,
+        "workspaceId": "tmnt-recompile-bundle",
+        "generation": "5275ecd90ee9eb8d186ef7bff81167414074e291738fc86d859c20e3259c9778",
+        "module": "eboot.bin",
+        "imagebase": "0x0"
+      },
+      "nativeReferences": [
+        {
+          "from": "0x3d870",
+          "to": "0x15c1890",
+          "type": 19,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "sub_3D870",
+          "toName": "sub_15C1890"
+        }
+      ],
+      "instructions": {
+        "columns": [
+          "rva",
+          "size",
+          "mnem",
+          "text"
+        ],
+        "rows": [
+          [
+            252016,
+            5,
+            "jmp",
+            "jmp     sub_15C1890"
+          ]
+        ],
+        "truncated": false,
+        "limit": 1000
+      },
+      "outgoingReferences": {
+        "columns": [
+          "from_rva",
+          "to_module_id",
+          "to_rva",
+          "kind",
+          "is_flow",
+          "from_mnem"
+        ],
+        "rows": [
+          [
+            252016,
+            1,
+            22812816,
+            "jump",
+            0,
+            "jmp"
+          ]
+        ],
+        "truncated": false,
+        "limit": 1000
+      },
+      "interiorEntries": {
+        "columns": [
+          "from_rva",
+          "to_rva",
+          "kind",
+          "from_func_rva"
+        ],
+        "rows": [],
+        "truncated": false,
+        "limit": 1000
+      },
+      "review": {
+        "abi": "unreviewed",
+        "memoryLayout": "unreviewed",
+        "indirectTargets": "unreviewed",
+        "effectsAndOrdering": "unreviewed",
+        "fpIntegerSemantics": "unreviewed",
+        "relocationsTlsUnwind": "unreviewed"
+      }
+    },
+    {
+      "offset": 252032,
+      "info": {
+        "ok": true,
+        "module": "eboot.bin",
+        "buildId": "",
+        "name": "sub_3D880",
+        "moduleOffset": "0x3d880",
+        "endOffset": "0x3d885",
+        "size": 5,
+        "isThunk": true,
+        "thunkTargetOffset": "0x15c18a0",
+        "boundsApproximate": false,
+        "realCallerCount": 1,
+        "totalXrefCount": 1,
+        "calleeCount": 1
+      },
+      "bytes": {
+        "ok": true,
+        "module": "eboot.bin",
+        "moduleOffset": "0x3d880",
+        "buildId": "",
+        "requested": 5,
+        "returned": 5,
+        "hex": "e91b405801",
+        "firstWord": "0x58401be9"
+      },
+      "prototype": {
+        "ok": true,
+        "ea": "0x3d880",
+        "name": "sub_3D880",
+        "available": true,
+        "inferred": true,
+        "typeSource": "hexrays_inferred",
+        "definitive": false,
+        "declaration": "__int64 __fastcall(_QWORD, _QWORD, _QWORD, _QWORD, _QWORD, _QWORD, _QWORD, _QWORD, _QWORD, _QWORD)",
+        "returnType": "__int64",
+        "callingConvention": 112,
+        "swiftCallingConvention": false,
+        "swiftAsync": false,
+        "swiftThrows": false,
+        "parameters": [
+          {
+            "name": "",
+            "type": "_QWORD",
+            "location": "rdi",
+            "swiftSelf": false
+          },
+          {
+            "name": "",
+            "type": "_QWORD",
+            "location": "rsi",
+            "swiftSelf": false
+          },
+          {
+            "name": "",
+            "type": "_QWORD",
+            "location": "rdx",
+            "swiftSelf": false
+          },
+          {
+            "name": "",
+            "type": "_QWORD",
+            "location": "rcx",
+            "swiftSelf": false
+          },
+          {
+            "name": "",
+            "type": "_QWORD",
+            "location": "r8",
+            "swiftSelf": false
+          },
+          {
+            "name": "",
+            "type": "_QWORD",
+            "location": "r9",
+            "swiftSelf": false
+          },
+          {
+            "name": "",
+            "type": "_QWORD",
+            "location": "",
+            "swiftSelf": false
+          },
+          {
+            "name": "",
+            "type": "_QWORD",
+            "location": "",
+            "swiftSelf": false
+          },
+          {
+            "name": "",
+            "type": "_QWORD",
+            "location": "",
+            "swiftSelf": false
+          },
+          {
+            "name": "",
+            "type": "_QWORD",
+            "location": "",
+            "swiftSelf": false
+          }
+        ],
+        "comment": "",
+        "workspaceId": "tmnt-recompile-bundle",
+        "generation": "5275ecd90ee9eb8d186ef7bff81167414074e291738fc86d859c20e3259c9778",
+        "module": "eboot.bin",
+        "imagebase": "0x0"
+      },
+      "pseudocode": {
+        "ok": true,
+        "module": "eboot.bin",
+        "function": "sub_3D880",
+        "functionOffset": "0x3d880",
+        "buildId": "",
+        "text": "// attributes: thunk\n__int64 __fastcall sub_3D880(\n        __int64 a1,\n        __int64 a2,\n        __int64 a3,\n        __int64 a4,\n        __int64 a5,\n        __int64 a6,\n        __int64 a7,\n        __int64 a8,\n        __int64 a9,\n        __int64 a10)\n{\n  return sub_15C18A0(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10);\n}",
+        "lineCount": 15,
+        "truncated": false,
+        "generation": "5275ecd90ee9eb8d186ef7bff81167414074e291738fc86d859c20e3259c9778",
+        "refreshed": false,
+        "hint": null
+      },
+      "cfg": {
+        "ok": true,
+        "items": [
+          {
+            "id": 0,
+            "start": "0x3d880",
+            "end": "0x3d885",
+            "successors": [
+              1
+            ]
+          },
+          {
+            "id": 1,
+            "start": "0x15c18a0",
+            "end": "0x15c18a0",
+            "successors": []
+          }
+        ],
+        "nextOffset": null,
+        "totalScannedDomain": 2,
+        "workspaceId": "tmnt-recompile-bundle",
+        "generation": "5275ecd90ee9eb8d186ef7bff81167414074e291738fc86d859c20e3259c9778",
+        "module": "eboot.bin",
+        "imagebase": "0x0"
+      },
+      "nativeReferences": [
+        {
+          "from": "0x3d880",
+          "to": "0x15c18a0",
+          "type": 19,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "sub_3D880",
+          "toName": "sub_15C18A0"
+        }
+      ],
+      "instructions": {
+        "columns": [
+          "rva",
+          "size",
+          "mnem",
+          "text"
+        ],
+        "rows": [
+          [
+            252032,
+            5,
+            "jmp",
+            "jmp     sub_15C18A0"
+          ]
+        ],
+        "truncated": false,
+        "limit": 1000
+      },
+      "outgoingReferences": {
+        "columns": [
+          "from_rva",
+          "to_module_id",
+          "to_rva",
+          "kind",
+          "is_flow",
+          "from_mnem"
+        ],
+        "rows": [
+          [
+            252032,
+            1,
+            22812832,
+            "jump",
+            0,
+            "jmp"
+          ]
+        ],
+        "truncated": false,
+        "limit": 1000
+      },
+      "interiorEntries": {
+        "columns": [
+          "from_rva",
+          "to_rva",
+          "kind",
+          "from_func_rva"
+        ],
+        "rows": [],
+        "truncated": false,
+        "limit": 1000
+      },
+      "review": {
+        "abi": "unreviewed",
+        "memoryLayout": "unreviewed",
+        "indirectTargets": "unreviewed",
+        "effectsAndOrdering": "unreviewed",
+        "fpIntegerSemantics": "unreviewed",
+        "relocationsTlsUnwind": "unreviewed"
+      }
+    },
+    {
+      "offset": 22813184,
+      "info": {
+        "ok": true,
+        "module": "eboot.bin",
+        "buildId": "",
+        "name": "sub_15C1A00",
+        "moduleOffset": "0x15c1a00",
+        "endOffset": "0x15c1a06",
+        "size": 6,
+        "isThunk": false,
+        "thunkTargetOffset": null,
+        "boundsApproximate": false,
+        "realCallerCount": 2,
+        "totalXrefCount": 3,
+        "calleeCount": 1
+      },
+      "bytes": {
+        "ok": true,
+        "module": "eboot.bin",
+        "moduleOffset": "0x15c1a00",
+        "buildId": "",
+        "requested": 6,
+        "returned": 6,
+        "hex": "ff2572a57700",
+        "firstWord": "0xa57225ff"
+      },
+      "prototype": {
+        "ok": true,
+        "ea": "0x15c1a00",
+        "name": "sub_15C1A00",
+        "available": true,
+        "inferred": true,
+        "typeSource": "hexrays_inferred",
+        "definitive": false,
+        "declaration": "__int64 __fastcall(_QWORD)",
+        "returnType": "__int64",
+        "callingConvention": 112,
+        "swiftCallingConvention": false,
+        "swiftAsync": false,
+        "swiftThrows": false,
+        "parameters": [
+          {
+            "name": "",
+            "type": "_QWORD",
+            "location": "rdi",
+            "swiftSelf": false
+          }
+        ],
+        "comment": "",
+        "workspaceId": "tmnt-recompile-bundle",
+        "generation": "5275ecd90ee9eb8d186ef7bff81167414074e291738fc86d859c20e3259c9778",
+        "module": "eboot.bin",
+        "imagebase": "0x0"
+      },
+      "pseudocode": {
+        "ok": true,
+        "module": "eboot.bin",
+        "function": "sub_15C1A00",
+        "functionOffset": "0x15c1a00",
+        "buildId": "",
+        "text": "// attributes: thunk\nvoid __fastcall __noreturn sub_15C1A00()\n{\n  while ( 1 )\n    ;\n}",
+        "lineCount": 6,
+        "truncated": false,
+        "generation": "5275ecd90ee9eb8d186ef7bff81167414074e291738fc86d859c20e3259c9778",
+        "refreshed": false,
+        "hint": null
+      },
+      "cfg": {
+        "ok": true,
+        "items": [
+          {
+            "id": 0,
+            "start": "0x15c1a00",
+            "end": "0x15c1a06",
+            "successors": [
+              0
+            ]
+          }
+        ],
+        "nextOffset": null,
+        "totalScannedDomain": 1,
+        "workspaceId": "tmnt-recompile-bundle",
+        "generation": "5275ecd90ee9eb8d186ef7bff81167414074e291738fc86d859c20e3259c9778",
+        "module": "eboot.bin",
+        "imagebase": "0x0"
+      },
+      "nativeReferences": [
+        {
+          "from": "0x15c1a00",
+          "to": "0x15c1a00",
+          "type": 19,
+          "isCode": true,
+          "isUser": false,
+          "fromName": "sub_15C1A00",
+          "toName": "sub_15C1A00"
+        },
+        {
+          "from": "0x15c1a00",
+          "to": "0x1d3bf78",
+          "type": 3,
+          "isCode": false,
+          "isUser": false,
+          "fromName": "sub_15C1A00",
+          "toName": "off_1D3BF78"
+        }
+      ],
+      "instructions": {
+        "columns": [
+          "rva",
+          "size",
+          "mnem",
+          "text"
+        ],
+        "rows": [
+          [
+            22813184,
+            6,
+            "jmp",
+            "jmp     cs:off_1D3BF78"
+          ]
+        ],
+        "truncated": false,
+        "limit": 1000
+      },
+      "outgoingReferences": {
+        "columns": [
+          "from_rva",
+          "to_module_id",
+          "to_rva",
+          "kind",
+          "is_flow",
+          "from_mnem"
+        ],
+        "rows": [
+          [
+            22813184,
+            1,
+            22813184,
+            "jump",
+            0,
+            "jmp"
+          ]
+        ],
+        "truncated": false,
+        "limit": 1000
+      },
+      "interiorEntries": {
+        "columns": [
+          "from_rva",
+          "to_rva",
+          "kind",
+          "from_func_rva"
+        ],
+        "rows": [],
+        "truncated": false,
+        "limit": 1000
+      },
+      "review": {
+        "abi": "unreviewed",
+        "memoryLayout": "unreviewed",
+        "indirectTargets": "unreviewed",
+        "effectsAndOrdering": "unreviewed",
+        "fpIntegerSemantics": "unreviewed",
+        "relocationsTlsUnwind": "unreviewed"
+      }
+    }
+  ],
+  "deployable": false,
+  "limits": "Decompiler types/constants are hypotheses. Review every call/tail transfer, memory access, relocation, TLS, exception and FP/integer rule. Dynamic indirect targets are not recovered by static xrefs. Test effectful functions in isolated replay, never execute both against live game state."
+}

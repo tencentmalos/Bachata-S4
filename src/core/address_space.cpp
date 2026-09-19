@@ -844,9 +844,9 @@ void* AddressSpace::Map(VAddr virtual_addr, u64 size, PAddr phys_addr, bool is_e
     return impl->Map(virtual_addr, phys_addr, size, prot);
 }
 
-void* AddressSpace::MapFile(VAddr virtual_addr, u64 size, u64 offset, u32 prot, uintptr_t fd) {
+void* AddressSpace::MapFile(VAddr virtual_addr, u64 size, u64 offset, u32 prot, uintptr_t fd, bool shared) {
     if (guest)
-        return guest->MapFile(virtual_addr, size, offset, prot, fd);
+        return guest->MapFile(virtual_addr, size, offset, prot, fd, shared);
 #ifdef _WIN32
     return impl->Map(virtual_addr, offset, size,
                      ToWindowsProt(std::bit_cast<Core::MemoryProt>(prot)), fd);

@@ -1,0 +1,14 @@
+--------- beginning of main
+I/GuestPatchAcceptance(27172): round=0 generation=1 outcome=6 page_size=4096 pid=27172 uid=10190 BackendFailure in FexSessionBackend::Prepare: entry must be immutable RX
+I/GuestPatchAcceptance(28461): round=0 generation=1 outcome=0 page_size=4096 pid=28461 uid=10190 guest return=51966
+I/GuestPatchAcceptance(28461): production Linker/VM; owners=1 veneers=9 graphics=not-created modules=1
+I/GuestPatchAcceptance(28461): round=1 generation=2 outcome=0 page_size=4096 pid=28461 uid=10190 guest return=51966
+I/GuestPatchAcceptance(28461): production Linker/VM; owners=1 veneers=9 graphics=not-created modules=1
+I/GuestPatchAcceptance(28461): round=2 generation=3 outcome=0 page_size=4096 pid=28461 uid=10190 guest return=51966
+I/GuestPatchAcceptance(28461): production Linker/VM; owners=1 veneers=9 graphics=not-created modules=1
+I/GuestPatchAcceptance(31985): round=0 generation=1 outcome=0 page_size=4096 pid=31985 uid=10190 guest return=51966
+I/GuestPatchAcceptance(31985): production Linker/VM; owners=1 veneers=9 graphics=not-created modules=1
+I/GuestPatchAcceptance(31985): round=1 generation=2 outcome=0 page_size=4096 pid=31985 uid=10190 guest return=51966
+I/GuestPatchAcceptance(31985): production Linker/VM; owners=1 veneers=9 graphics=not-created modules=1
+I/GuestPatchAcceptance(31985): round=2 generation=3 outcome=0 page_size=4096 pid=31985 uid=10190 guest return=51966
+I/GuestPatchAcceptance(31985): production Linker/VM; owners=1 veneers=9 graphics=not-created modules=1

@@ -1,0 +1,56 @@
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"columns\":[\"completed\",\"reason\",\"collector_dropped\",\"prmt_misses\",\"prmt_drops\",\"shader_fallbacks\"],\"rows\":[[{\"kind\":\"integer\",\"value\":1},{\"kind\":\"text\",\"value\":\"complete\"},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0},{\"kind\":\"integer\",\"value\":0}]],\"truncated\":false,\"elapsedMilliseconds\":5,\"schemaRevision\":13,\"watermark\":\"raw_event:8\",\"coverage\":\"partialLive\",\"provenance\":\"direct\"}"
+      }
+    ],
+    "structuredContent": {
+      "columns": [
+        "completed",
+        "reason",
+        "collector_dropped",
+        "prmt_misses",
+        "prmt_drops",
+        "shader_fallbacks"
+      ],
+      "rows": [
+        [
+          {
+            "kind": "integer",
+            "value": 1
+          },
+          {
+            "kind": "text",
+            "value": "complete"
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          },
+          {
+            "kind": "integer",
+            "value": 0
+          }
+        ]
+      ],
+      "truncated": false,
+      "elapsedMilliseconds": 5,
+      "schemaRevision": 13,
+      "watermark": "raw_event:8",
+      "coverage": "partialLive",
+      "provenance": "direct"
+    }
+  },
+  "id": 2,
+  "jsonrpc": "2.0"
+}

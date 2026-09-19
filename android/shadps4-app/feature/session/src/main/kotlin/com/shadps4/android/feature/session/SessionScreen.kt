@@ -62,7 +62,6 @@ import androidx.compose.ui.text.font.FontWeight
 import com.shadps4.android.designsystem.theme.BachataPalette
 import com.shadps4.android.runtime.input.ControllerSnapshot
 import com.shadps4.android.runtime.input.Ps4Button
-import com.shadps4.android.runtime.input.GamepadInputManager
 import kotlinx.coroutines.delay
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.ui.platform.LocalDensity
@@ -83,12 +82,11 @@ fun SessionScreen(
     val dependencies = remember { EntryPointAccessors.fromApplication(context.applicationContext, TouchLayoutDependencies::class.java) }
     var touchLayout by remember { mutableStateOf(TouchLayout()) }
     val state by viewModel.state.collectAsState()
-    val frames by viewModel.frameTelemetry.collectAsState()
     val device by viewModel.deviceTelemetry.collectAsState()
     val diagnosticState by diagnosticViewModel.uiState.collectAsState()
 
     var faded by remember { mutableStateOf(false) }
-    var showFps by remember { mutableStateOf(true) }
+    var showMemory by remember { mutableStateOf(true) }
     var showStopOverlay by remember { mutableStateOf(false) }
     var showSessionStopReport by remember { mutableStateOf(false) }
     var notificationMessage by remember { mutableStateOf<String?>(null) }
@@ -111,6 +109,9 @@ fun SessionScreen(
         val global = dependencies.runtimeProfileStore().load(ProfileScope.Global)
         val game = dependencies.runtimeProfileStore().load(ProfileScope.Game(gameId))
         touchLayout = dependencies.touchLayoutRepository().load(game.touchLayoutId ?: global.touchLayoutId)
+        com.shadps4.android.runtime.input.NativePadBridge.configureProfiles(
+            game.controllerSlots.ifEmpty { global.controllerSlots },
+        )
         viewModel.launch(gameId)
     }
 
@@ -188,16 +189,17 @@ fun SessionScreen(
                 }
                 if (showStopOverlay) {
                     publishController(ControllerSnapshot.Neutral)
-                } else if (!GamepadInputManager.hasPhysicalController) {
+                } else {
+                    // Host InputHub merges touch and physical sources independently.
                     publishController(snapshot)
                 }
             }
         )
 
-        if (showFps) {
+        if (showMemory) {
             Text(
-                text = "FPS %.1f (%.1f ms)  RAM %d/%d MB".format(
-                    frames.fps, frames.frameTimeMs, device.ramUsedMb, device.ramTotalMb,
+                text = "RAM %d/%d MB".format(
+                    device.ramUsedMb, device.ramTotalMb,
                 ),
                 color = Color.White,
                 modifier = Modifier
@@ -347,25 +349,25 @@ fun SessionScreen(
                         }
                     }
 
-                    // Overlay Settings (Show FPS overlay switch)
+                    // Memory overlay (FPS is shown by the native StatusLayer)
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.padding(bottom = 24.dp)
                     ) {
                         Text(
-                            text = "Show FPS telemetry",
+                            text = "Show memory usage",
                             color = BachataPalette.Secondary,
                             style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
                             modifier = Modifier.padding(end = 16.dp)
                         )
                         Button(
-                            onClick = { showFps = !showFps },
+                            onClick = { showMemory = !showMemory },
                             colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                                containerColor = if (showFps) BachataPalette.Accent else BachataPalette.RaisedSurface,
-                                contentColor = if (showFps) BachataPalette.OnAccent else BachataPalette.Primary
+                                containerColor = if (showMemory) BachataPalette.Accent else BachataPalette.RaisedSurface,
+                                contentColor = if (showMemory) BachataPalette.OnAccent else BachataPalette.Primary
                             )
                         ) {
-                            Text(if (showFps) "Show" else "Hide")
+                            Text(if (showMemory) "Show" else "Hide")
                         }
                     }
 

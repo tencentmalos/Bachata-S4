@@ -1,0 +1,69 @@
+{
+  "architecture": "x86_64",
+  "abi": "x86_64-sysv",
+  "endianness": "little",
+  "pointer_bits": 64,
+  "identity": {
+    "emulator": "shadps4",
+    "title": "CUSA50828",
+    "module": "eboot.bin",
+    "module_sha256": "6122da7190de6b08d921b2c42c3ca9ed11dc4d11524f1139ff67aeceea5b204d"
+  },
+  "schema": "spatial.guest-profile.capture.v1",
+  "analysis": {
+    "module": "eboot.bin",
+    "sha256": "504fc22628a2a7c563e593aab298b9273e2a80eaf8814a095ffb6f464152da99",
+    "imagebase": 0
+  },
+  "process": {
+    "pid": 27493,
+    "session": "f8c0e2ef097990597e550538cf2f2887:2",
+    "context": 33
+  },
+  "trace": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/guest-auto-tag-20260916/armed-capture-final/capture.prof",
+  "trace_sha256": "4755c237e4dbcd8eceb3d2d1dbcfaea1b310d53d2aca79c48d7bc4023663f611",
+  "profile": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/guest-auto-tag-20260916/generated-profile-v4/auto-tag.json",
+  "profile_sha256": "de60c85d15221fffb948e10d6394eb29e086649d7d754d56e78cb718a931fb08",
+  "device": "9c2841a4",
+  "evidence": {
+    "session-before.txt": "d8a6c0ec43bd67e01393a812239e06da5f4775da5100eccef1efe6ad8ff217df",
+    "session-after.txt": "5b003d44ca112407875b8828ce51a905c250d32d3471ba47f711a4e4c2ddcfc0",
+    "tag-before.json": "eded963c2a93666e968308cf98bec08ad18a25e7fca52db184e6041323531ad3",
+    "tag-after.json": "c7e1c4f4d448f73cf2578ef37d2398734003f21b30bbfaf35d2a96084f64c73f",
+    "patch-before.txt": "dbf72e7ad53688fb969e589bdb34986f0eef3f2fc7367fe313d69de688f0d708",
+    "patch-after.txt": "c12a11d0051a23a049b2707a935dd41d3a8674259baece7585e6b8cd2a63d0c2"
+  },
+  "bindings": [
+    {
+      "counter_prefix": "GuestPatch.tmnt_rooftop_v1.frame",
+      "offset": 648544,
+      "name": "frame",
+      "role": "frame"
+    },
+    {
+      "counter_prefix": "GuestPatch.tmnt_rooftop_v1.begin",
+      "offset": 22306016,
+      "name": "begin",
+      "role": "phase"
+    },
+    {
+      "counter_prefix": "GuestPatch.tmnt_rooftop_v1.submit",
+      "offset": 22306592,
+      "name": "submit",
+      "role": "phase"
+    },
+    {
+      "counter_prefix": "GuestPatch.tmnt_rooftop_v1.jobs",
+      "offset": 22615408,
+      "name": "jobs",
+      "role": "phase"
+    },
+    {
+      "counter_prefix": "GuestPatch.tmnt_rooftop_v1.fmod",
+      "offset": 22809376,
+      "name": "fmod",
+      "role": "phase"
+    }
+  ],
+  "compiled_guest_package_sha256": "0e2c68f224a7b2581d6b13758f1b8996064e715c8589eb3a04b586a8b8ea3e35"
+}

@@ -32,7 +32,7 @@ class ControllerMappingViewModel @Inject constructor(private val store: RuntimeP
     fun load(scope: ProfileScope) {
         viewModelScope.launch {
             val stored = store.load(scope).controllerSlots
-            mutableState.value = mutableState.value.copy(scope = scope, profiles = List(4) { stored.getOrNull(it) ?: ControllerProfile() })
+            mutableState.value = mutableState.value.copy(scope = scope, profiles = List(4) { stored.getOrNull(it) ?: ControllerProfile.standard() })
         }
     }
 
@@ -55,7 +55,7 @@ class ControllerMappingViewModel @Inject constructor(private val store: RuntimeP
     fun accept(binding: PhysicalBinding) {
         val target = mutableState.value.captureQueue.firstOrNull() ?: return
         val profile = current()
-        val existing = profile.bindings.entries.firstOrNull { it.value == binding && it.key != target }?.key
+        val existing = ControllerProfile.LOGICAL_CONTROLS.firstOrNull { it != target && profile.bindingFor(it) == binding }
         if (existing != null) {
             mutableState.value = mutableState.value.copy(conflict = BindingConflict(target, existing, binding))
         } else applyBinding(target, binding, null)
@@ -74,7 +74,7 @@ class ControllerMappingViewModel @Inject constructor(private val store: RuntimeP
     fun cancelConflict() { mutableState.value = mutableState.value.copy(conflict = null) }
     fun autoMap(device: ControllerDeviceKey? = current().device, useHatDpad: Boolean = false) {
         val std = if (useHatDpad) ControllerProfile.standardWithHatDpad(device) else ControllerProfile.standard(device)
-        replaceCurrent(std); save()
+        replaceCurrent(std.copy(swapFaceButtons = current().swapFaceButtons)); save()
     }
     fun clear() { replaceCurrent(ControllerProfile(device = current().device)); save() }
     fun setDevice(device: ControllerDeviceKey) { replaceCurrent(current().copy(device = device)); save() }
@@ -85,6 +85,7 @@ class ControllerMappingViewModel @Inject constructor(private val store: RuntimeP
         replaceCurrent(current().copy(invertAxes = axes)); save()
     }
     fun setVibration(enabled: Boolean) { replaceCurrent(current().copy(vibrationEnabled = enabled)); save() }
+    fun setSwapFaceButtons(enabled: Boolean) { replaceCurrent(current().copy(swapFaceButtons = enabled)); save() }
     fun setMotion(enabled: Boolean) { replaceCurrent(current().copy(motionEnabled = enabled)); save() }
 
     fun inherit() {
@@ -92,7 +93,11 @@ class ControllerMappingViewModel @Inject constructor(private val store: RuntimeP
     }
 
     private fun applyBinding(target: String, binding: PhysicalBinding, remove: String?) {
-        val bindings = current().bindings.toMutableMap().apply { if (remove != null) remove(remove); put(target, binding) }
+        val profile = current()
+        val bindings = profile.bindings.toMutableMap().apply {
+            if (remove != null) remove(profile.bindingKey(remove))
+            put(profile.bindingKey(target), binding)
+        }
         replaceCurrent(current().copy(bindings = bindings))
         val next = mutableState.value.captureQueue.drop(1)
         mutableState.value = mutableState.value.copy(captureQueue = next, conflict = null)

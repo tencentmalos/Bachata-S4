@@ -1,0 +1,15 @@
+{
+  "schema": "shadps4.warmup.v1",
+  "run_id": "74ac153c528b425998908b748ecdc715",
+  "serial": "9c2841a4",
+  "display_id": "4630946441858561667",
+  "input_display": "0",
+  "status": "ERROR_UNVERIFIED",
+  "identity": null,
+  "frames": [],
+  "presses": [],
+  "attaches_debugger": false,
+  "started_at": 1789542165.057663,
+  "error": "Missing Session field: guest_flip",
+  "ended_at": 1789542195.2984478
+}

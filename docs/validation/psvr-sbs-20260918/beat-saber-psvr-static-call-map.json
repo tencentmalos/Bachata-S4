@@ -1,0 +1,313 @@
+{
+  "schema": 2,
+  "title_id": "CUSA12878",
+  "title_version": "1.00",
+  "source": "/Users/bytedance/game/ps4/CUSA12878/本体/Beat.Saber_CUSA12878_v1.00_[5.50]_OPOISSO893.pkg",
+  "decrypted_eboot_sha256": "71278f9c85ef93a9b2e8703299d6875020eb4d8f7b821bf98eb36ec73340592b",
+  "static_import_symbol_count": 704,
+  "plt_call_site_count": 26982,
+  "families": {
+    "hmd_init": {
+      "sceHmdInitialize315": {
+        "call_sites": [
+          "0xd6fc90",
+          "0xd70536",
+          "0xd755ae",
+          "0xd7564e"
+        ],
+        "count": 4
+      },
+      "sceHmdInitialize": {
+        "call_sites": [],
+        "count": 0
+      },
+      "sceHmdOpen": {
+        "call_sites": [
+          "0xd6b6c7",
+          "0xd70588"
+        ],
+        "count": 2
+      },
+      "sceHmdGetDeviceInformation": {
+        "call_sites": [
+          "0xd6b69f",
+          "0xd6b723",
+          "0xd70554",
+          "0xd755c2",
+          "0xd75662"
+        ],
+        "count": 5
+      },
+      "sceHmdGetDeviceInformationByHandle": {
+        "call_sites": [
+          "0xd6b65a"
+        ],
+        "count": 1
+      },
+      "sceHmdGetFieldOfView": {
+        "call_sites": [
+          "0xd70b26"
+        ],
+        "count": 1
+      },
+      "sceHmdClose": {
+        "call_sites": [
+          "0xd6b684",
+          "0xd6bf59"
+        ],
+        "count": 2
+      },
+      "sceHmdTerminate": {
+        "call_sites": [
+          "0xd6bff2"
+        ],
+        "count": 1
+      }
+    },
+    "hmd_reprojection": {
+      "sceHmdReprojectionInitialize": {
+        "call_sites": [
+          "0xd70ba0"
+        ],
+        "count": 1
+      },
+      "sceHmdReprojectionStartMultilayer": {
+        "call_sites": [
+          "0xd6b48b"
+        ],
+        "count": 1
+      },
+      "sceHmdReprojectionSetDisplayBuffers": {
+        "call_sites": [
+          "0xd70333",
+          "0xd756f7"
+        ],
+        "count": 2
+      },
+      "sceHmdReprojectionSetUserEventStart": {
+        "call_sites": [
+          "0xd70480"
+        ],
+        "count": 1
+      },
+      "sceHmdReprojectionSetUserEventEnd": {
+        "call_sites": [
+          "0xd704c3"
+        ],
+        "count": 1
+      },
+      "sceHmdReprojectionClearUserEventStart": {
+        "call_sites": [
+          "0xd6bfa6"
+        ],
+        "count": 1
+      },
+      "sceHmdReprojectionStop": {
+        "call_sites": [
+          "0xd6c195"
+        ],
+        "count": 1
+      },
+      "sceHmdReprojectionFinalize": {
+        "call_sites": [
+          "0xd6c19f"
+        ],
+        "count": 1
+      },
+      "sceHmdReprojectionUnsetDisplayBuffers": {
+        "call_sites": [
+          "0xd6c19a"
+        ],
+        "count": 1
+      }
+    },
+    "tracker": {
+      "sceVrTrackerInit": {
+        "call_sites": [
+          "0xd70819"
+        ],
+        "count": 1
+      },
+      "sceVrTrackerRegisterDevice": {
+        "call_sites": [
+          "0xd6b6e7",
+          "0xd6ff4f",
+          "0xd7084c",
+          "0xd709e9",
+          "0xd7498f"
+        ],
+        "count": 5
+      },
+      "sceVrTrackerGpuSubmit": {
+        "call_sites": [
+          "0xd6ad98"
+        ],
+        "count": 1
+      },
+      "sceVrTrackerGpuWaitAndCpuProcess": {
+        "call_sites": [
+          "0xd6adf9"
+        ],
+        "count": 1
+      },
+      "sceVrTrackerGetTime": {
+        "call_sites": [
+          "0xd6b09f",
+          "0xd6e16b"
+        ],
+        "count": 2
+      },
+      "sceVrTrackerGetResult": {
+        "call_sites": [
+          "0xd6e22f",
+          "0xd6e76a"
+        ],
+        "count": 2
+      },
+      "sceVrTrackerResetOrientationRelative": {
+        "call_sites": [],
+        "count": 0
+      },
+      "sceVrTrackerUnregisterDevice": {
+        "call_sites": [
+          "0xd74b0d"
+        ],
+        "count": 1
+      },
+      "sceVrTrackerTerm": {
+        "call_sites": [
+          "0xd6c00f"
+        ],
+        "count": 1
+      }
+    },
+    "camera": {
+      "sceCameraOpen": {
+        "call_sites": [
+          "0xd7064c"
+        ],
+        "count": 1
+      },
+      "sceCameraStart": {
+        "call_sites": [
+          "0xd70722"
+        ],
+        "count": 1
+      },
+      "sceCameraGetFrameData": {
+        "call_sites": [
+          "0xd6acbf"
+        ],
+        "count": 1
+      },
+      "sceCameraIsValidFrameData": {
+        "call_sites": [
+          "0xd75940"
+        ],
+        "count": 1
+      },
+      "sceCameraClose": {
+        "call_sites": [
+          "0xd6bf81"
+        ],
+        "count": 1
+      }
+    },
+    "videoout": {
+      "sceVideoOutConfigureOutputMode_": {
+        "call_sites": [
+          "0xd68163",
+          "0xd75830",
+          "0xe13856"
+        ],
+        "count": 3
+      },
+      "sceVideoOutRegisterBuffers": {
+        "call_sites": [
+          "0xda6019",
+          "0xe13be2"
+        ],
+        "count": 2
+      },
+      "sceVideoOutSubmitFlip": {
+        "call_sites": [
+          "0xe123c3",
+          "0xe12430",
+          "0xe1342d"
+        ],
+        "count": 3
+      },
+      "sceVideoOutSetFlipRate": {
+        "call_sites": [
+          "0xdf4eb1",
+          "0xe133f3"
+        ],
+        "count": 2
+      },
+      "sceVideoOutUnregisterBuffers": {
+        "call_sites": [
+          "0xe12400",
+          "0xe12466",
+          "0xe1249c",
+          "0xe134ad",
+          "0xe134f5"
+        ],
+        "count": 5
+      }
+    },
+    "gnm_flip": {
+      "sceGnmSubmitAndFlipCommandBuffers": {
+        "call_sites": [
+          "0xe03f1c"
+        ],
+        "count": 1
+      },
+      "sceGnmSubmitAndFlipCommandBuffersForWorkload": {
+        "call_sites": [
+          "0xe03edf"
+        ],
+        "count": 1
+      }
+    },
+    "move": {
+      "sceMoveInit": {
+        "call_sites": [
+          "0x52f959"
+        ],
+        "count": 1
+      },
+      "sceMoveOpen": {
+        "call_sites": [
+          "0xdaa861",
+          "0xdaa8d5"
+        ],
+        "count": 2
+      },
+      "sceMoveReadStateRecent": {
+        "call_sites": [
+          "0xdad0fb",
+          "0xdad5ea"
+        ],
+        "count": 2
+      },
+      "sceMoveSetVibration": {
+        "call_sites": [
+          "0xd65057"
+        ],
+        "count": 1
+      },
+      "sceMoveTerm": {
+        "call_sites": [
+          "0x50ff83"
+        ],
+        "count": 1
+      }
+    }
+  },
+  "notes": [
+    "调用站点只统计 x86-64 call→PLT，未把 PLT 自身的 jmp 当作游戏调用。",
+    "以解密后的 eboot ELF 做静态导入/PLT 调用盘点；不是运行时命中证据。",
+    "本体 PKG 的实际模块清单另由 firmware/sysmodule 和 PKG 元数据核对；DLC/Update 需另行盘点。",
+    "sceVideoOutRegisterStereoBuffers 未出现在该版本 eboot 的静态导入中；立体输出入口优先追 sceHmdReprojectionSetDisplayBuffers + GNM/VideoOut flip。"
+  ]
+}

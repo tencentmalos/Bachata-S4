@@ -1,0 +1,32 @@
+09-16 17:37:33.085  4954  5312 F libc    : Fatal signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x4 in tid 5312 (shadPS4:AvAudio), pid 4954 (shadps4.android)
+09-16 17:37:33.155  5333  5333 E DEBUG   : failed to readlink /proc/5312/fd/167: No such file or directory
+09-16 17:37:33.530  5333  5333 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+09-16 17:37:33.530  5333  5333 F DEBUG   : Build fingerprint: 'qti/kalama/kalama:13/TKQ1.231222.001/eng.Thor.20260206.163241:user/release-keys'
+09-16 17:37:33.530  5333  5333 F DEBUG   : Revision: '0'
+09-16 17:37:33.530  5333  5333 F DEBUG   : ABI: 'arm64'
+09-16 17:37:33.530  5333  5333 F DEBUG   : Timestamp: 2026-09-16 17:37:33.218700918+0800
+09-16 17:37:33.530  5333  5333 F DEBUG   : Process uptime: 31s
+09-16 17:37:33.530  5333  5333 F DEBUG   : Cmdline: com.shadps4.android
+09-16 17:37:33.530  5333  5333 F DEBUG   : pid: 4954, tid: 5312, name: shadPS4:AvAudio  >>> com.shadps4.android <<<
+09-16 17:37:33.530  5333  5333 F DEBUG   : uid: 10190
+09-16 17:37:33.530  5333  5333 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+09-16 17:37:33.530  5333  5333 F DEBUG   : pac_enabled_keys: 000000000000000f (PR_PAC_APIAKEY, PR_PAC_APIBKEY, PR_PAC_APDAKEY, PR_PAC_APDBKEY)
+09-16 17:37:33.530  5333  5333 F DEBUG   : signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x0000000000000004
+09-16 17:37:33.530  5333  5333 F DEBUG   : Cause: null pointer dereference
+09-16 17:37:33.530  5333  5333 F DEBUG   :     x0  b400007914d87dd0  x1  b400007914d87dd0  x2  000000000000000a  x3  0000000000000010
+09-16 17:37:33.530  5333  5333 F DEBUG   :     x4  0000000000000000  x5  0000000000800000  x6  b400006a85cf8fc7  x7  656365526f696475
+09-16 17:37:33.530  5333  5333 F DEBUG   :     x8  0000000000000007  x9  92d90fdd2074a8b5  x10 0000000000000000  x11 000000000000dfc8
+09-16 17:37:33.530  5333  5333 F DEBUG   :     x12 000000000000dfc7  x13 0000000094cee3a0  x14 b400007a44e15778  x15 0000000094cee3a0
+09-16 17:37:33.530  5333  5333 F DEBUG   :     x16 00000077895bcca0  x17 0000007b42f8c540  x18 0000006a87528000  x19 b400007914d87dd0
+09-16 17:37:33.530  5333  5333 F DEBUG   :     x20 0000000000000000  x21 0000000000000000  x22 0000000000000004  x23 0000000000000000
+09-16 17:37:33.530  5333  5333 F DEBUG   :     x24 b400007954d1d6b0  x25 0000000000000001  x26 b4000078a50616e0  x27 00000077878456b8
+09-16 17:37:33.530  5333  5333 F DEBUG   :     x28 b400007914d87dd0  x29 0000006a894e9b60
+09-16 17:37:33.530  5333  5333 F DEBUG   :     lr  0000007788526a10  sp  0000006a894e9950  pc  0000007788cb0394  pst 0000000020001000
+09-16 17:37:33.530  5333  5333 F DEBUG   : backtrace:
+09-16 17:37:33.530  5333  5333 F DEBUG   :       #00 pc 0000000003eaf394  /data/app/~~rhgoQfOPwTa4cClnKyT65g==/com.shadps4.android-xTnmVp0WR7RKQVD1pNLung==/lib/arm64/libshadps4_host.so (av_frame_unref+44) (BuildId: f66add5fab62ad48d515818cc9485cd91ac6a4c7)
+09-16 17:37:33.530  5333  5333 F DEBUG   :       #01 pc 0000000003725a0c  /data/app/~~rhgoQfOPwTa4cClnKyT65g==/com.shadps4.android-xTnmVp0WR7RKQVD1pNLung==/lib/arm64/libshadps4_host.so (avcodec_receive_frame+20) (BuildId: f66add5fab62ad48d515818cc9485cd91ac6a4c7)
+09-16 17:37:33.530  5333  5333 F DEBUG   :       #02 pc 0000000002a4001c  /data/app/~~rhgoQfOPwTa4cClnKyT65g==/com.shadps4.android-xTnmVp0WR7RKQVD1pNLung==/lib/arm64/libshadps4_host.so (Libraries::AvPlayer::AvPlayerSource::AudioDecoderThread(std::__ndk1::stop_token)+2328) (BuildId: f66add5fab62ad48d515818cc9485cd91ac6a4c7)
+09-16 17:37:33.530  5333  5333 F DEBUG   :       #03 pc 0000000002a42b6c  /data/app/~~rhgoQfOPwTa4cClnKyT65g==/com.shadps4.android-xTnmVp0WR7RKQVD1pNLung==/lib/arm64/libshadps4_host.so (std::__ndk1::__function::__func<Libraries::AvPlayer::AvPlayerSource::Start()::$_1, std::__ndk1::allocator<Libraries::AvPlayer::AvPlayerSource::Start()::$_1>, void (std::__ndk1::stop_token)>::operator()(std::__ndk1::stop_token&&)+72) (BuildId: f66add5fab62ad48d515818cc9485cd91ac6a4c7)
+09-16 17:37:33.530  5333  5333 F DEBUG   :       #04 pc 0000000002a41588  /data/app/~~rhgoQfOPwTa4cClnKyT65g==/com.shadps4.android-xTnmVp0WR7RKQVD1pNLung==/lib/arm64/libshadps4_host.so (void* std::__ndk1::__thread_proxy[abi:ne210000]<std::__ndk1::tuple<std::__ndk1::unique_ptr<std::__ndk1::__thread_struct, std::__ndk1::default_delete<std::__ndk1::__thread_struct> >, std::__ndk1::function<void (std::__ndk1::stop_token)>, std::__ndk1::stop_token> >(void*)+92) (BuildId: f66add5fab62ad48d515818cc9485cd91ac6a4c7)
+09-16 17:37:33.530  5333  5333 F DEBUG   :       #05 pc 00000000000ba650  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*)+208) (BuildId: bf5f1ce73f89cca7d6a062eb7877e86a)
+09-16 17:37:33.530  5333  5333 F DEBUG   :       #06 pc 0000000000053ffc  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+68) (BuildId: bf5f1ce73f89cca7d6a062eb7877e86a)

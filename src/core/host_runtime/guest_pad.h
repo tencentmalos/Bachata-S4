@@ -12,6 +12,7 @@ static_assert(sizeof(Libraries::Pad::OrbisPadData) == 120);
 static_assert(offsetof(Libraries::Pad::OrbisPadData, timestamp) == 80);
 inline constexpr std::string_view PadNids[]{
     "hv1luiJrqQM", "xk0AcarP3V4", "WFIiSfXGUq8", "u1GRHp+oWoY", "6ncge5+l5Qs",
+    "AcslpN1jHR8", "IHPqcbc0zCA",
     "q1cHNfGycLI", "YndgXqQVV7c", "gjP9-KQzoUk", "hGbf2QTBmqc", "yFVnOdGxvZY",
     "RR4novUEENY", "DscD1i9HX1w", "rIZnR6eSpvk", "clVvL4ZDntw", "r44mAxdSG+U",
     "vDLMoJLde8I"};
@@ -40,8 +41,47 @@ public:
         if (!token)
             return ORBIS_PAD_ERROR_NOT_INITIALIZED;
         auto read = [&](u64 address, auto& out) {
-            return bool(space.Read(GuestAddress{address}, std::as_writable_bytes(std::span{&out, 1})));
+            return bool(
+                space.ReadData(GuestAddress{address}, std::as_writable_bytes(std::span{&out, 1})));
         };
+        if (nid == "AcslpN1jHR8") {
+            if (!space.ValidateRange(
+                    {GuestAddress{a[1]}, sizeof(OrbisPadDeviceClassExtendedInformation)},
+                    GuestPermission::Write))
+                return ORBIS_PAD_ERROR_INVALID_ARG;
+            // Android exposes the session's virtual pad as a standard
+            // controller. The desktop implementation reads global controller
+            // state, so publish only the ABI-safe class record here.
+            OrbisPadDeviceClassExtendedInformation info{};
+            info.deviceClass = OrbisPadDeviceClass::Standard;
+            if (!space.WriteData(GuestAddress{a[1]},
+                                 std::as_bytes(std::span{&info, size_t(1)})))
+                return ORBIS_PAD_ERROR_INVALID_ARG;
+            return 0;
+        }
+        if (nid == "IHPqcbc0zCA") {
+            // Beat Saber probes this parser while bringing up the virtual
+            // controller.  Android only exposes the standard pad class; keep
+            // the desktop ABI contract (validated input/output records) and
+            // report that no special-class payload is available.
+            OrbisPadControllerInformation info{};
+            const int info_result = pad.Information(s32(a[0]), &info);
+            if (info_result)
+                return info_result;
+            if (a[1] && !space.ValidateRange({GuestAddress{a[1]}, sizeof(OrbisPadData)},
+                                              GuestPermission::Read))
+                return ORBIS_PAD_ERROR_INVALID_ARG;
+            if (!a[2] || !space.ValidateRange({GuestAddress{a[2]}, sizeof(OrbisPadDeviceClassData)},
+                                               GuestPermission::Write))
+                return ORBIS_PAD_ERROR_INVALID_ARG;
+            OrbisPadDeviceClassData value{};
+            value.deviceClass = OrbisPadDeviceClass::Standard;
+            value.bDataValid = false;
+            if (!space.WriteData(GuestAddress{a[2]},
+                                 std::as_bytes(std::span{&value, size_t(1)})))
+                return ORBIS_PAD_ERROR_INVALID_ARG;
+            return 0;
+        }
         if (nid == "xk0AcarP3V4" || nid == "WFIiSfXGUq8") {
             const s32 user = a[0];
             if (user < 0 || user == Libraries::UserService::ORBIS_USER_SERVICE_USER_ID_SYSTEM)
@@ -68,7 +108,8 @@ public:
             if (count < 1 || count > ORBIS_PAD_MAX_DATA_NUM)
                 return ORBIS_PAD_ERROR_INVALID_ARG;
             // Pin the entire advertised output before consuming history.
-            auto pin = space.AcquirePinnedSpan({GuestAddress{a[1]}, sizeof(OrbisPadData) * size_t(count)}, true);
+            auto pin = space.AcquireDataSpan(
+                {GuestAddress{a[1]}, sizeof(OrbisPadData) * size_t(count)}, true);
             if (!pin) return ORBIS_PAD_ERROR_INVALID_ARG;
             std::array<OrbisPadData, ORBIS_PAD_MAX_DATA_NUM> data{};
             const int result = pad.Read(s32(a[0]), data.data(), count, latest);
@@ -79,7 +120,7 @@ public:
         if (nid == "gjP9-KQzoUk" || nid == "hGbf2QTBmqc") {
             const bool extended = nid == "hGbf2QTBmqc";
             const size_t size = extended ? sizeof(OrbisPadExtendedControllerInformation) : sizeof(OrbisPadControllerInformation);
-            auto pin = space.AcquirePinnedSpan({GuestAddress{a[1]}, size}, true);
+            auto pin = space.AcquireDataSpan({GuestAddress{a[1]}, size}, true);
             if (!pin) return ORBIS_PAD_ERROR_INVALID_ARG;
             OrbisPadExtendedControllerInformation value{};
             const int result = pad.Information(s32(a[0]), &value.base);

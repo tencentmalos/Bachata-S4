@@ -3,12 +3,14 @@
 
 #include "common/assert.h"
 #include "common/debug.h"
+#include "common/profiler.h"
 #include "common/thread.h"
 #include "core/diagnostics/pipeline_handoff.h"
 #include "core/debug_state.h"
 #include "core/emulator_settings.h"
 #include "core/libraries/kernel/time.h"
 #include "core/libraries/videoout/driver.h"
+#include "core/libraries/videoout/redraw_pacer.h"
 #include "core/libraries/videoout/videoout_error.h"
 #include "imgui/renderer/imgui_core.h"
 #include "video_core/amdgpu/liverpool.h"
@@ -273,6 +275,8 @@ int VideoOutDriver::ChangeBufferAttribute(VideoOutPort* port, s32 attributeIndex
 
 void VideoOutDriver::Flip(const Request& req) {
     SHAD_HANDOFF(presenter->CaptureGeneration(), "present_dequeue", 0, req.diagnostic_id);
+    SHAD_HANDOFF(presenter->CaptureGeneration(), "vo_flip_buffer", req.index + 1,
+                 req.diagnostic_id, req.port->prev_index + 1);
     Core::Diagnostics::Handoff::Scope scope{"VideoOut.Flip", presenter->CaptureGeneration(), 0, req.diagnostic_id};
     std::unique_lock lifecycle_lock(lifecycle_mutex);
     // Update HDR status before presenting.
@@ -284,6 +288,8 @@ void VideoOutDriver::Flip(const Request& req) {
     const auto generation = presenter->CaptureGeneration();
     if (presented) {
         present_id = ++guest_presents;
+        Common::Profiler::Counter("VideoOut.PresentedGuestFrames", present_id);
+        if (present_id == 1) Common::Profiler::Bookmark("Startup.FirstGuestPresent");
         SHAD_HANDOFF(presenter->CaptureGeneration(), "host_present", 0, req.diagnostic_id, present_id);
         if (const auto& diag = presenter->Diagnostics())
             diag->Advance(Core::Diagnostics::AdvanceSignal::HostPresent, Core::Diagnostics::DiagnosticNowNs());
@@ -324,6 +330,8 @@ void VideoOutDriver::Flip(const Request& req) {
 
     // Reset prev flip label
     if (port->prev_index != -1) {
+        SHAD_HANDOFF(generation, "vo_label_release", port->prev_index + 1,
+                     req.diagnostic_id, req.index + 1);
         port->buffer_labels[port->prev_index] = 0;
         port->SignalVoLabel();
     }
@@ -332,6 +340,8 @@ void VideoOutDriver::Flip(const Request& req) {
     lifecycle_lock.unlock();
     // EndCapture may write a large file. Hold no VideoOut/VM/queue mutex while
     // advancing capture; its immutable control snapshot remains independently readable.
+    if (req.complete)
+        req.complete(presented);
     if (presented) VideoCore::NotifyPresentBoundary(generation, present_id);
 }
 
@@ -378,10 +388,95 @@ bool VideoOutDriver::SubmitFlip(VideoOutPort* port, s32 index, s64 flip_arg,
     return true;
 }
 
+void VideoOutDriver::SetVrCadence(std::function<void()> callback) {
+    std::lock_guard lock(vr_cadence_mutex);
+    vr_cadence = std::move(callback);
+}
+
+void VideoOutDriver::SetVrActive(bool active) {
+    std::lock_guard lock(vr_cadence_mutex);
+    vr_active = active;
+}
+
+bool VideoOutDriver::SubmitVrFrame(VideoOutPort* port, s32 index, u64 sequence,
+                                   const std::array<AmdGpu::Image, 4>& eyes, u32 image_count,
+                                   std::function<void(bool)> complete) {
+    {
+        std::lock_guard lock(port->port_mutex);
+        if (!port->is_open || port->stopping || index < 0 || index >= MaxDisplayBuffers ||
+            port->buffer_slots[index].group_index < 0 || port->flip_status.flip_pending_num >= 2)
+            return false;
+        ++port->flip_status.flip_pending_num;
+        port->flip_status.submit_tsc = read_tsc();
+    }
+    liverpool->SendCommand([this, port, index, sequence, eyes, image_count,
+                            complete = std::move(complete)]() mutable {
+        if (port->stopping) { complete(false); return; }
+        // Beat Saber submits PSVR eye metadata while Unity renders the
+        // visible double-wide image into the registered VideoOut buffer. The
+        // HMD submission owns cadence and completion, but presenting its
+        // separate eye targets would produce a black surface on this title.
+        // Reuse the already-rendered VideoOut image directly; no readback,
+        // intermediate eye copy or blit is introduced.
+        const auto& buffer = port->buffer_slots[index];
+        if (buffer.group_index < 0) {
+            complete(false);
+            return;
+        }
+        const auto& group = port->groups[buffer.group_index];
+        const auto diagnostic_id = Core::Diagnostics::Handoff::NextId();
+        auto* frame = presenter->PrepareFrame(group, buffer.address_left, diagnostic_id);
+        (void)eyes;
+        (void)image_count;
+        if (!frame) {
+            complete(false);
+            return;
+        }
+        {
+            std::lock_guard lock(mutex);
+            requests.push({.diagnostic_id = diagnostic_id, .frame = frame, .port = port,
+                           .flip_arg = s64(sequence), .index = index, .eop = false,
+                           .complete = std::move(complete)});
+        }
+        ++liverpool->diagnostic_guest_flip;
+        if (const auto& diag = presenter->Diagnostics())
+            diag->Advance(Core::Diagnostics::AdvanceSignal::GuestFlip, Core::Diagnostics::DiagnosticNowNs());
+        Common::Profiler::Counter("VR.PassthroughFrames", liverpool->diagnostic_guest_flip);
+    });
+    return true;
+}
+
 void VideoOutDriver::SubmitFlipInternal(VideoOutPort* port, s32 index, s64 flip_arg, bool is_eop) {
     Core::Diagnostics::Handoff::Scope scope{"VideoOut.Prepare", presenter->CaptureGeneration()};
     if (port->stopping)
         return;
+    bool vr_active_now{};
+    {
+        std::lock_guard lock{vr_cadence_mutex};
+        vr_active_now = vr_active;
+    }
+    if (vr_active_now && !is_eop) {
+        // HMD direct submissions own presentation while reprojection is active.
+        // Complete the ordinary flip bookkeeping without creating a frame or
+        // placing a competing request in the shared presentation queue.
+        {
+            std::unique_lock lock{port->port_mutex};
+            auto& status = port->flip_status;
+            status.count++;
+            status.process_time = process_time();
+            status.tsc = read_tsc();
+            status.flip_arg = flip_arg;
+            status.current_buffer = index;
+            --status.flip_pending_num;
+        }
+        if (port->prev_index != -1) {
+            port->buffer_labels[port->prev_index] = 0;
+            port->SignalVoLabel();
+        }
+        port->prev_index = index;
+        return;
+    }
+    const auto diagnostic_id = Core::Diagnostics::Handoff::NextId();
     Vulkan::Frame* frame;
     if (index == -1) {
         frame = presenter->PrepareBlankFrame(false);
@@ -389,14 +484,16 @@ void VideoOutDriver::SubmitFlipInternal(VideoOutPort* port, s32 index, s64 flip_
         const auto& buffer = port->buffer_slots[index];
         ASSERT_MSG(buffer.group_index >= 0, "Trying to flip an unregistered buffer!");
         const auto& group = port->groups[buffer.group_index];
-        frame = presenter->PrepareFrame(group, buffer.address_left);
+        frame = presenter->PrepareFrame(group, buffer.address_left, diagnostic_id);
     }
 
     if (!frame)
         return;
-    std::scoped_lock lock{mutex};
-    const auto diagnostic_id = Core::Diagnostics::Handoff::NextId();
+    SHAD_HANDOFF(presenter->CaptureGeneration(), "vo_snapshot_queued", index + 1,
+                 diagnostic_id, frame->ready_tick);
     SHAD_HANDOFF(presenter->CaptureGeneration(), "present_enqueue", 0, diagnostic_id);
+    {
+    std::scoped_lock lock{mutex};
     requests.push({
         .diagnostic_id = diagnostic_id,
         .frame = frame,
@@ -405,6 +502,20 @@ void VideoOutDriver::SubmitFlipInternal(VideoOutPort* port, s32 index, s64 flip_
         .index = index,
         .eop = is_eop,
     });
+    }
+    if (index >= 0) {
+        const auto guest_flip = ++liverpool->diagnostic_guest_flip;
+        Common::Profiler::Counter("VideoOut.PreparedGuestFlips", guest_flip);
+        if (guest_flip == 1) Common::Profiler::Bookmark("Startup.FirstGuestPrepared");
+        const auto generation = presenter->CaptureGeneration();
+        if (VideoCore::NeedsGuestCaptureBoundary(generation)) {
+            // Capture only: recording has sealed this frame; EndCapture must
+            // not precede its asynchronous vkQueueSubmit. No VideoOut lock or
+            // queue mutex is held, and ordinary playback never takes this drain.
+            presenter->DrainSubmissions();
+            VideoCore::NotifyGuestFlipBoundary(generation, guest_flip);
+        }
+    }
 }
 
 void VideoOutDriver::PresentThread(std::stop_token token) {
@@ -415,6 +526,9 @@ void VideoOutDriver::PresentThread(std::stop_token token) {
     Common::SetCurrentThreadRealtime(vblank_period);
 
     Common::AccurateTimer timer{vblank_period};
+#ifdef __ANDROID__
+    RedrawPacer redraw_pacer{vblank_period};
+#endif
 
     const auto receive_request = [this] -> Request {
         std::scoped_lock lk{mutex};
@@ -430,6 +544,9 @@ void VideoOutDriver::PresentThread(std::stop_token token) {
         timer.Start();
 
         if (DebugState.IsGuestThreadsPaused()) {
+#ifdef __ANDROID__
+            if (redraw_pacer.TryAcquire(RedrawPacer::Clock::now(), timer.GetTotalWait()))
+#endif
             DrawLastFrame();
             timer.End();
             continue;
@@ -440,7 +557,11 @@ void VideoOutDriver::PresentThread(std::stop_token token) {
         if (vblank_status.count % (main_port.flip_rate + 1) == 0) {
             const auto request = receive_request();
             if (!request) {
+#ifdef __ANDROID__
+                if (redraw_pacer.TryAcquire(RedrawPacer::Clock::now(), timer.GetTotalWait())) {
+#else
                 if (timer.GetTotalWait().count() < 0) { // Dont draw too fast
+#endif
                     if (!main_port.is_open) {
                         DrawBlankFrame();
                     } else if (ImGui::Core::MustKeepDrawing()) {
@@ -477,6 +598,9 @@ void VideoOutDriver::PresentThread(std::stop_token token) {
             main_port.vblank_cv.notify_all();
         }
 
+        std::function<void()> cadence;
+        { std::lock_guard lock(vr_cadence_mutex); cadence = vr_cadence; }
+        if (cadence) cadence();
         timer.End();
     }
 }

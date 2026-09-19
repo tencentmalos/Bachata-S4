@@ -205,3 +205,7 @@
 	path = externals/libadrenotools
 	url = git@github.com:tencentmalos/libadrenotools.git
 	branch = codex/shadps4-bionic
+[submodule "externals/oboe"]
+	path = externals/oboe
+	url = https://github.com/tencentmalos/oboe.git
+	branch = codex/shadps4-audio

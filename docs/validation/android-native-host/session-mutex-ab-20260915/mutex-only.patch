@@ -1,0 +1,111 @@
+diff --git a/src/core/host_runtime/guest_mutex.h b/src/core/host_runtime/guest_mutex.h
+index 7c362908..5b02f8bb 100644
+--- a/src/core/host_runtime/guest_mutex.h
++++ b/src/core/host_runtime/guest_mutex.h
+@@ -5,6 +5,7 @@
+ #include <condition_variable>
+ #include <functional>
+ #include <map>
++#include <memory>
+ #include <mutex>
+ #include <optional>
+ #include <stop_token>
+@@ -28,6 +29,10 @@ class GuestMutexDomain final {
+     struct Mutex {
+         u64 address{}, owner{};
+         u32 depth{}, type{1}, waiters{}, protocol{};
++        // Desktop blocks on this mutex's own native lock. Unrelated guest
++        // locks/conditions must not wake for every unlock in the process.
++        std::unique_ptr<std::condition_variable_any> changed =
++            std::make_unique<std::condition_variable_any>();
+     };
+     struct AttributeState {
+         u32 type{1}, protocol{}, ceiling{};
+@@ -36,7 +41,6 @@ class GuestMutexDomain final {
+     std::function<u64()> allocate;
+     std::recursive_mutex* vm_mutex{};
+     std::mutex guard;
+-    std::condition_variable_any changed;
+     std::map<u64, Mutex> mutexes;
+     std::map<u64, AttributeState> attributes;
+     struct Waiter {
+@@ -47,6 +51,8 @@ class GuestMutexDomain final {
+     struct Cond {
+         std::vector<Waiter*> waiters;
+         u32 clock{};
++        std::unique_ptr<std::condition_variable_any> changed =
++            std::make_unique<std::condition_variable_any>();
+     };
+     std::map<u64, Cond> conditions;
+     std::map<u64, u32> condition_attributes;
+@@ -237,7 +243,7 @@ public:
+                 --mutex.waiters;
+             }
+         } waiting{m};
+-        const bool ready = changed.wait(lock, cancel, [&] { return m.owner == 0; });
++        const bool ready = !m.owner || m.changed->wait(lock, cancel, [&] { return m.owner == 0; });
+         if (!ready || cancel.stop_requested())
+             return POSIX_EINTR;
+         Write(addr, owner);
+@@ -259,7 +265,8 @@ public:
+             Write(m.address, u64{0});
+         if (--m.depth == 0) {
+             m.owner = 0;
+-            changed.notify_all();
++            if (m.waiters)
++                m.changed->notify_all();
+         }
+         return 0;
+     }
+@@ -368,7 +375,8 @@ public:
+             if (!broadcast)
+                 break;
+         }
+-        changed.notify_all();
++        if (notified)
++            it->second.changed->notify_all();
+         return target_owner && !notified ? POSIX_EPERM : 0; // desktop returns 1 if not waiting
+     }
+     int CondDestroy(u64 slot) {
+@@ -433,7 +441,7 @@ public:
+         Write(mutex.address + 8, u32{0});
+         mutex.owner = 0;
+         mutex.depth = 0;
+-        changed.notify_all();
++        mutex.changed->notify_all();
+         int result{};
+         if (limit.relative_us) {
+             const auto now = std::chrono::steady_clock::now();
+@@ -443,7 +451,7 @@ public:
+             const auto deadline = *limit.relative_us > u64(available)
+                                       ? std::chrono::steady_clock::time_point::max()
+                                       : now + std::chrono::microseconds(*limit.relative_us);
+-            if (!changed.wait_until(lock, cancel, deadline, [&] { return waiter.notified; }))
++            if (!c->second.changed->wait_until(lock, cancel, deadline, [&] { return waiter.notified; }))
+                 result = POSIX_ETIMEDOUT;
+         } else if (limit.absolute) {
+             while (!waiter.notified && !cancel.stop_requested()) {
+@@ -462,20 +470,20 @@ public:
+                 }
+                 // Re-read the selected clock to honor realtime adjustments and
+                 // virtual/profiling CPU time rather than treating them as monotonic.
+-                changed.wait_for(lock, cancel,
++                c->second.changed->wait_for(lock, cancel,
+                                  std::min(*limit.absolute - now,
+                                           std::chrono::nanoseconds(std::chrono::milliseconds(20))),
+                                  [&] { return waiter.notified; });
+             }
+         } else {
+-            changed.wait(lock, cancel, [&] { return waiter.notified; });
++            c->second.changed->wait(lock, cancel, [&] { return waiter.notified; });
+         }
+         // Retain the condition's waiter until reacquisition finishes. Otherwise
+         // CondDestroy can erase the Cond while Waiting still refers to it.
+         waiter.reacquiring = true;
+         // A generation Stop is terminal, not a guest pthread_cancel request.
+         // It must not deadlock reacquiring a mutex whose owner is also stopped.
+-        bool acquired = changed.wait(lock, cancel, [&] { return mutex.owner == 0; });
++        bool acquired = mutex.changed->wait(lock, cancel, [&] { return mutex.owner == 0; });
+         if (acquired) {
+             Write(mutex.address, owner);
+             Write(mutex.address + 8, depth);

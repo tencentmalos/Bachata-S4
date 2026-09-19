@@ -1,0 +1,233 @@
+{
+  "scope": "source comparison and bounded native silence probes, not game or ordinary APK acceptance",
+  "date": "2026-09-15",
+  "sources": {
+    "shadps4": {
+      "root": "/Users/bytedance/workspace/emulations/ps4/shadps4",
+      "head": "4da582b7b3a36d74403a4985c3c03f37e570bcb7",
+      "files": {
+        "src/core/host_runtime/guest_audio.cpp": {
+          "sha256": "01626fa9dbff42fc3f0968112f0430a03a49b9ec626b928a17f8e1b78f8db0aa",
+          "bytes": 16295
+        },
+        "src/core/libraries/audio/aaudio_audio_out.cpp": {
+          "sha256": "c679cba3c661a3e76d75883a4f601214afaf674104a7f01b140e4cbf35e077ec",
+          "bytes": 6921
+        },
+        "src/core/libraries/audio/audioout_transfer.h": {
+          "sha256": "0b1db6c45b313f897be1c65f7d178fc80855b165e5380ef974a87664411e5473",
+          "bytes": 2816
+        },
+        "src/core/libraries/audio/audioout.cpp": {
+          "sha256": "8ec03ce8dfca11cc6448c5ddb2af8546145b21483aa1342254dd71dd3caccc76",
+          "bytes": 41472
+        },
+        "src/core/libraries/audio/sdl_audio_out.cpp": {
+          "sha256": "162717c8391e671f17eb01c15278ec2faac7e3772e9cd7f4027d903a0eafecbb",
+          "bytes": 22620
+        },
+        "src/core/host_runtime/guest_avplayer.cpp": {
+          "sha256": "78f3e6aad7b3a2f8ec7ac58ea23fee547e86638e40bb6ebd617eb790ec7b78ed",
+          "bytes": 30582
+        },
+        "src/core/host_runtime/guest_runtime.cpp": {
+          "sha256": "11bcb1602089bc727161af04505434f99c308e8fa320291341583d63b8592474",
+          "bytes": 143768
+        },
+        "src/core/host_runtime/guest_mutex.h": {
+          "sha256": "10927033bdafb0e8ee5d7e121f075e99fb79b3bef81a8bdb7897ed3e15be70c2",
+          "bytes": 19546
+        },
+        "src/core/guest_cpu/fex/fex_context.cpp": {
+          "sha256": "d20be99c44909e925ee4ea3c8072afc2477e9e1a2b43963b0d419a799ba23381",
+          "bytes": 131734
+        }
+      }
+    },
+    "citron": {
+      "root": "/Users/bytedance/workspace/emulations/switch/citron",
+      "head": "6a86baf4b6521ca3ee5b2f5e2a0ca6a8e6007cc0",
+      "files": {
+        "src/audio_core/sink/oboe_sink.cpp": {
+          "sha256": "675af380039ba6badce581cb6b22e9475b21e92a6b2a3424083980b366af3ab9",
+          "bytes": 7528
+        },
+        "src/audio_core/sink/sink_stream.cpp": {
+          "sha256": "d5b36b7ff1e15a6a7bef883e1ec09cfdc2fe881cf557960e84e987e06ba74056",
+          "bytes": 12148
+        },
+        "src/audio_core/sink/sink_stream.h": {
+          "sha256": "6a50199e50f042fad90ef8fcb1dd9cc9e0a655317338b06065b2d96ab9e63090",
+          "bytes": 7379
+        },
+        "src/audio_core/device/device_session.cpp": {
+          "sha256": "602beb76be119d108a80a0035dc4cc638c97cf3931f379e0fbef376915ea5efc",
+          "bytes": 4351
+        },
+        "src/audio_core/out/audio_out_system.cpp": {
+          "sha256": "e889655af16825a60d1eeafae9286481e9839c7c0b5e73e45c719cea913ccbc9",
+          "bytes": 5706
+        },
+        "src/audio_core/adsp/apps/audio_renderer/audio_renderer.cpp": {
+          "sha256": "2ad9f3832298918462ff01aa29686f35a67cb2e1d7e0503c9c741caf1e2bf8da",
+          "bytes": 8416
+        }
+      }
+    },
+    "azahar": {
+      "root": "/Users/bytedance/workspace/emulations/3ds/azahar",
+      "head": "254bff35e0d8ced97e6cc73f7a59be045798c60c",
+      "files": {
+        "src/audio_core/cubeb_sink.cpp": {
+          "sha256": "a22b7fc8c33df6bd15fbf91875dc31f8db593d713e10b90f1970d07878d4090c",
+          "bytes": 6887
+        },
+        "src/audio_core/dsp_interface.cpp": {
+          "sha256": "905b89362cda438e740e69787cbe13846b371701b30dac898b1af4b92d245020",
+          "bytes": 5532
+        },
+        "src/audio_core/dsp_interface.h": {
+          "sha256": "5132f21be85286fc9b136322e3eaa1f8aa05dcba6ec0f842fb97831da0427c64",
+          "bytes": 4414
+        },
+        "src/audio_core/time_stretch.cpp": {
+          "sha256": "b47fb3103515d080abedbdf606ce604e158ea9bf04944e43b1240bbd269d3b9d",
+          "bytes": 4774
+        },
+        "src/audio_core/hle/hle.cpp": {
+          "sha256": "2904c03347889ebce77e9556e109887dd688063a8384995e09f6720dbdc9292e",
+          "bytes": 19171
+        },
+        "src/audio_core/audio_types.h": {
+          "sha256": "ff845deb7c023470a1734f1e380b1ee009a0883ebd1e382592fa9b5646259bd9",
+          "bytes": 1071
+        }
+      }
+    },
+    "oboe": {
+      "root": "/Users/bytedance/workspace/emulations/switch/citron/externals/oboe",
+      "head": "987538b6ec4cb9e699b117a890e686de7a9302fa",
+      "status": "",
+      "remote": "origin\tgit@github.com:tencentmalos/oboe.git (fetch)\norigin\tgit@github.com:tencentmalos/oboe.git (push)"
+    },
+    "cubeb": {
+      "root": "/Users/bytedance/workspace/emulations/3ds/azahar/externals/cubeb",
+      "head": "18502c3b8ed41b01a6ff3af03a5c034009de81a1",
+      "status": "",
+      "remote": "origin\thttps://github.com/mozilla/cubeb (fetch)\norigin\thttps://github.com/mozilla/cubeb (push)"
+    },
+    "libfmod": {
+      "local_file": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/libfmod.prx.elf",
+      "sha256": "699c67b4f1825f54caf4d6b9283c96ef0b464de5d8c2975f994f568a2058470d",
+      "bytes": 1712800
+    },
+    "libfmodstudio": {
+      "local_file": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/graphics-toolkit-review/libfmodstudio.prx.elf",
+      "sha256": "f47114d36e1cdb209ecbd798915426cb5a91c4b505c31ddc0c190b977db5f526",
+      "bytes": 1645821
+    },
+    "aaudio_probe": {
+      "local_file": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/audio-design-audit/aaudio_probe",
+      "sha256": "78cbe829eb465f210dcb0ff0035e99aa3f51f03d4f718908176bd5c416227947",
+      "bytes": 2805616
+    },
+    "aaudio_probe_v2": {
+      "local_file": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/audio-design-audit/aaudio_probe_v2",
+      "sha256": "f9b6e59232d54ecd53e8a04924c5ce2f3cb655cab607291a5255b035a6d38bb7",
+      "bytes": 2806000
+    },
+    "aaudio_probe_v3": {
+      "local_file": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/audio-design-audit/aaudio_probe_v3",
+      "sha256": "7566e6c864db92489755329c59dfa14bc92153c294f784e5c12ae6667d8a81c5",
+      "bytes": 2803368
+    },
+    "oboe_probe": {
+      "local_file": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/audio-design-audit/oboe_probe",
+      "sha256": "30589b76bf89852cf0ab4bac4290646fad08b12679b4c0de7ff1479f8cee1140",
+      "bytes": 8262960
+    }
+  },
+  "evidence": {
+    "oboe_probe.cpp": {
+      "sha256": "0af295668f62a1a1e72687da2314f5d2f47864250155df83698c457f07bf8f3f",
+      "bytes": 3184
+    },
+    "aaudio_probe.cpp": {
+      "sha256": "15caea000ecd843209eaf2b972a96103fc7094d1ff2e642eaf669aa9e21b00e1",
+      "bytes": 4979
+    },
+    "aaudio-probe-v2-appuid.jsonl": {
+      "sha256": "975a4fc3fcf34aba6c870d614a9207e1d60df631ddda3bfdf1c17394a32e8126",
+      "bytes": 4076
+    },
+    "aaudio-probe-v2-logcat.txt": {
+      "sha256": "50d7802925e66a03d5f63dbc280e9b0535fd16787c993964283b14e1cbc2a852",
+      "bytes": 23926
+    },
+    "aaudio-probe-v3-appuid.jsonl": {
+      "sha256": "f2c5ddb6cf64e05f0df137b58c7481f76d750cc652007771f5010707db5f46c1",
+      "bytes": 1847
+    },
+    "session-after-probes.txt": {
+      "sha256": "15e3017a0abfa08721601263b03e573b7f289c6ed0dc60be2337282bfd6f8c04",
+      "bytes": 5213
+    },
+    "loading-window.json": {
+      "sha256": "3a54467db1ca316b29da9162eabdb7be9dd2c1f3269aab951213ce58d421acae",
+      "bytes": 8541
+    },
+    "aaudio-probe-appuid-logcat.txt": {
+      "sha256": "59c51c739f06c76596d885f36386be6b122b9701e4189846097eae092130ef45",
+      "bytes": 13927
+    },
+    "oboe-probe-logcat.txt": {
+      "sha256": "09ac04f6d097a4fc54649b04295ad23ac858e65dfc8e04a35504f824b483e59f",
+      "bytes": 10336
+    },
+    "aaudio-probe-appuid.jsonl": {
+      "sha256": "5b143a76352590c55415adbb56eada8fb59fecc3f1a550566da94ab28028e4d0",
+      "bytes": 2305
+    },
+    "aaudio-probe-v3-logcat.txt": {
+      "sha256": "24a41a0673ae11ee1b26eb1cb27274686ea5398a9fecb768843780efc5561f11",
+      "bytes": 11067
+    },
+    "production-aaudio-excerpt.txt": {
+      "sha256": "fd6f35b0a626b8b0f61bca5eea445059e69251fdc7699e22d5d48973452dafd0",
+      "bytes": 6072
+    },
+    "aaudio_probe_v2.cpp": {
+      "sha256": "084d8e176bea663cea76fd64dcd66ab2778bbbe36647e9bed2f802e591bfd1dd",
+      "bytes": 4652
+    },
+    "aaudio_probe_v1.cpp": {
+      "sha256": "207a3346c4c9c8af038080b8edda53afb361a9bd4fb6642f84dfec2b7a650356",
+      "bytes": 4565
+    },
+    "fmod-nid-matches.json": {
+      "sha256": "30b5ab2641bbfe830d0196b07d0e8c1ba30f48f108fb5401fa9ec0c6bc6aec9b",
+      "bytes": 1391
+    },
+    "loading-poll-counters.json": {
+      "sha256": "0b6a43967cf0f24c1ba30883faff6b965b0e9b638355dd4963cad469cac734a5",
+      "bytes": 8073
+    },
+    "oboe-probe-appuid.jsonl": {
+      "sha256": "40bebc4800f12bf76e64e243610c07fad976183ac5d66922b9e6c54e478f3997",
+      "bytes": 1474
+    },
+    "README.md": {
+      "sha256": "3fcd1f786ef90beb92070521c4a608a83f77bf6594d08cc3b29b75e6fcc6f9eb",
+      "bytes": 6158
+    }
+  },
+  "remote_availability": "not verified; local checkout IDs are not promises of published pins",
+  "device": {
+    "serial": "9c2841a4",
+    "model": "AYN Thor",
+    "api": 33,
+    "page_size": 4096,
+    "probe_uid": 10190,
+    "selinux": "runas_app; observed permissive=1 execution denials; not ordinary APK context"
+  }
+}

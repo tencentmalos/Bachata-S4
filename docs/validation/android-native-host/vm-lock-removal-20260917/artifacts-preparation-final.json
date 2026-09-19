@@ -1,0 +1,34 @@
+{
+  "apk": "android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk",
+  "apk_sha256": "fbe32126d1ef23cd11cc7083cd2c245c54e5d8315f510542a7f96eb41d78342c",
+  "libraries": {
+    "libshadps4_host.so": {
+      "sha256": "49c9d7c6a19b86e8f2eaceae94198b02234c8519a59c62e251d9146b0cbc1df1",
+      "size": 469086616
+    },
+    "libshadps4_fex_session.so": {
+      "sha256": "cef0fdecf68675feb673d30981a162610902f786886bd9fe8f944a5909cc1a5e",
+      "size": 35393568
+    }
+  },
+  "source_head": "4da582b7",
+  "source_state": "dirty, this-turn-manifest.json",
+  "build_type": {
+    "host": "RelWithDebInfo",
+    "jni": "RelWithDebInfo",
+    "fex": "Release",
+    "apk": "playstoreDebug"
+  },
+  "runtime": {
+    "pid": 10690,
+    "generation": 1,
+    "uuid": "8d98a6ab657f727f82cac3fcee8b5070",
+    "gameplay": "GAMEPLAY_REVIEWED",
+    "terminal": "Stopped/user_stop",
+    "driver": "Qualcomm system Adreno740",
+    "tracer_pid": 0,
+    "ring_on": true,
+    "capture_active": false,
+    "automatic_input": false
+  }
+}

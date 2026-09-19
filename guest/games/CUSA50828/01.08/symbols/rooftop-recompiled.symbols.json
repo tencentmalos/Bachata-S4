@@ -1,0 +1,376 @@
+{
+  "schema": "spatial.guest-symbol-shard.v2",
+  "target_id": "tmnt-0108-eboot",
+  "domain": "rooftop-recompiled",
+  "types": [
+    {
+      "name": "TmntCommandBuffer",
+      "kind": "struct",
+      "size": 40,
+      "confidence": "correlated",
+      "c_declaration": "typedef struct TmntCommandBuffer { uint64_t begin; uint64_t end; uint64_t cursor; uint64_t (*grow)(struct TmntCommandBuffer *, uint32_t, uint64_t); uint64_t grow_context; } TmntCommandBuffer;",
+      "evidence": [
+        "Exact eboot source SHA and instruction bytes in rooftop-recompile.contract.json; original machine-code differential replay 40 cases in FEX compares full RAX, 64 KiB memory and ordered external calls. APK PID9049/gen1 executes all four replacements on rooftop; actual input advances MOVE to ATTACK. Names are reconstructed, not vendor symbols."
+      ],
+      "fields": [
+        {
+          "name": "begin",
+          "offset": "0x0",
+          "type": "uint64_t",
+          "confidence": "correlated",
+          "evidence": [
+            "Access width and offsets verified in eboot+0x2b070 and +0x24c60; grow success is AL, failure preserves RAX."
+          ]
+        },
+        {
+          "name": "end",
+          "offset": "0x8",
+          "type": "uint64_t",
+          "confidence": "correlated",
+          "evidence": [
+            "Access width and offsets verified in eboot+0x2b070 and +0x24c60; grow success is AL, failure preserves RAX."
+          ]
+        },
+        {
+          "name": "cursor",
+          "offset": "0x10",
+          "type": "uint64_t",
+          "confidence": "correlated",
+          "evidence": [
+            "Access width and offsets verified in eboot+0x2b070 and +0x24c60; grow success is AL, failure preserves RAX."
+          ]
+        },
+        {
+          "name": "grow",
+          "offset": "0x18",
+          "type": "uint64_t (*)(struct TmntCommandBuffer *, uint32_t, uint64_t)",
+          "confidence": "correlated",
+          "evidence": [
+            "Access width and offsets verified in eboot+0x2b070 and +0x24c60; grow success is AL, failure preserves RAX."
+          ]
+        },
+        {
+          "name": "grow_context",
+          "offset": "0x20",
+          "type": "uint64_t",
+          "confidence": "correlated",
+          "evidence": [
+            "Access width and offsets verified in eboot+0x2b070 and +0x24c60; grow success is AL, failure preserves RAX."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "TmntSubmitContext",
+      "kind": "struct",
+      "size": 456,
+      "confidence": "correlated",
+      "c_declaration": "typedef struct TmntSubmitContext { uint8_t storage[456]; } TmntSubmitContext;",
+      "evidence": [
+        "Minimum accessed extent, not complete engine object. Individual byte offsets are read with memcpy in rooftop_recompiled.cpp; opaque padding remains unlabelled."
+      ],
+      "fields": [
+        {
+          "name": "storage",
+          "offset": "0x0",
+          "type": "uint8_t[456]",
+          "confidence": "correlated",
+          "evidence": [
+            "Last accessed field is u32 prior-buffer count at +0x1c4."
+          ]
+        }
+      ]
+    }
+  ],
+  "symbols": [
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x2b070",
+      "segment": "text",
+      "name": "TMNT_WriteLabelCommand",
+      "kind": "function",
+      "mode": "x86-64",
+      "size": 134,
+      "confidence": "correlated",
+      "prototype": {
+        "return_type": "uint64_t",
+        "return_location": "RAX: preserved full register; field/AL operations follow explicit instruction contract",
+        "calling_convention": "x86_64-sysv",
+        "confidence": "correlated",
+        "evidence": [
+          "Exact eboot source SHA and instruction bytes in rooftop-recompile.contract.json; original machine-code differential replay 40 cases in FEX compares full RAX, 64 KiB memory and ordered external calls. APK PID9049/gen1 executes all four replacements on rooftop; actual input advances MOVE to ATTACK. Names are reconstructed, not vendor symbols."
+        ],
+        "parameters": [
+          {
+            "name": "command",
+            "type": "TmntCommandBuffer *",
+            "location": "RDI",
+            "confidence": "correlated",
+            "evidence": [
+              "Original callsite and function instruction contract; register/stack width retained by compiled implementation and differential replay."
+            ]
+          },
+          {
+            "name": "event",
+            "type": "uint32_t",
+            "location": "RSI (low 32 bits)",
+            "confidence": "correlated",
+            "evidence": [
+              "Original callsite and function instruction contract; register/stack width retained by compiled implementation and differential replay."
+            ]
+          },
+          {
+            "name": "label",
+            "type": "uint64_t",
+            "location": "RDX",
+            "confidence": "correlated",
+            "evidence": [
+              "Original callsite and function instruction contract; register/stack width retained by compiled implementation and differential replay."
+            ]
+          },
+          {
+            "name": "value",
+            "type": "uint32_t",
+            "location": "RCX (low 32 bits)",
+            "confidence": "correlated",
+            "evidence": [
+              "Original callsite and function instruction contract; register/stack width retained by compiled implementation and differential replay."
+            ]
+          },
+          {
+            "name": "flags",
+            "type": "uint32_t",
+            "location": "R8 (low 32 bits)",
+            "confidence": "correlated",
+            "evidence": [
+              "Original callsite and function instruction contract; register/stack width retained by compiled implementation and differential replay."
+            ]
+          }
+        ]
+      },
+      "evidence": [
+        "Exact eboot source SHA and instruction bytes in rooftop-recompile.contract.json; original machine-code differential replay 40 cases in FEX compares full RAX, 64 KiB memory and ordered external calls. APK PID9049/gen1 executes all four replacements on rooftop; actual input advances MOVE to ATTACK. Names are reconstructed, not vendor symbols."
+      ],
+      "comment": "TmntCommandBuffer fields 0/8/16/24/32; unsigned low32((end-cursor)>>2); success requires AL, failure retains full RAX. Writes exactly 28 bytes and advances 256, leaving padding unchanged. Valid domain: Original valid command-buffer object and writable capacity; grow callback preserves its original contract."
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x24c60",
+      "segment": "text",
+      "name": "TMNT_WriteDefaultHardwareState",
+      "kind": "function",
+      "mode": "x86-64",
+      "size": 88,
+      "confidence": "correlated",
+      "prototype": {
+        "return_type": "uint64_t",
+        "return_location": "RAX: preserved full register; field/AL operations follow explicit instruction contract",
+        "calling_convention": "x86_64-sysv",
+        "confidence": "correlated",
+        "evidence": [
+          "Exact eboot source SHA and instruction bytes in rooftop-recompile.contract.json; original machine-code differential replay 40 cases in FEX compares full RAX, 64 KiB memory and ordered external calls. APK PID9049/gen1 executes all four replacements on rooftop; actual input advances MOVE to ATTACK. Names are reconstructed, not vendor symbols."
+        ],
+        "parameters": [
+          {
+            "name": "command",
+            "type": "TmntCommandBuffer *",
+            "location": "RDI",
+            "confidence": "correlated",
+            "evidence": [
+              "Original callsite and function instruction contract; register/stack width retained by compiled implementation and differential replay."
+            ]
+          }
+        ]
+      },
+      "evidence": [
+        "Exact eboot source SHA and instruction bytes in rooftop-recompile.contract.json; original machine-code differential replay 40 cases in FEX compares full RAX, 64 KiB memory and ordered external calls. APK PID9049/gen1 executes all four replacements on rooftop; actual input advances MOVE to ATTACK. Names are reconstructed, not vendor symbols."
+      ],
+      "comment": "Capacity check and grow callback; draw-init returns u32 DWORD count, zero-extended then multiplied by 4; reload cursor after external call. Valid domain: Original valid command buffer/callback; unsigned wrap and low AL failure retained."
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x193a0",
+      "segment": "text",
+      "name": "TMNT_BuildAndSubmitCommandArrays",
+      "kind": "function",
+      "mode": "x86-64",
+      "size": 395,
+      "confidence": "correlated",
+      "prototype": {
+        "return_type": "uint64_t",
+        "return_location": "RAX: preserved full register; field/AL operations follow explicit instruction contract",
+        "calling_convention": "x86_64-sysv",
+        "confidence": "correlated",
+        "evidence": [
+          "Exact eboot source SHA and instruction bytes in rooftop-recompile.contract.json; original machine-code differential replay 40 cases in FEX compares full RAX, 64 KiB memory and ordered external calls. APK PID9049/gen1 executes all four replacements on rooftop; actual input advances MOVE to ATTACK. Names are reconstructed, not vendor symbols."
+        ],
+        "parameters": [
+          {
+            "name": "device",
+            "type": "uint64_t",
+            "location": "RDI",
+            "confidence": "correlated",
+            "evidence": [
+              "Original callsite and function instruction contract; register/stack width retained by compiled implementation and differential replay."
+            ]
+          },
+          {
+            "name": "video",
+            "type": "uint32_t",
+            "location": "RSI (low 32 bits)",
+            "confidence": "correlated",
+            "evidence": [
+              "Original callsite and function instruction contract; register/stack width retained by compiled implementation and differential replay."
+            ]
+          },
+          {
+            "name": "buffer",
+            "type": "uint32_t",
+            "location": "RDX (low 32 bits)",
+            "confidence": "correlated",
+            "evidence": [
+              "Original callsite and function instruction contract; register/stack width retained by compiled implementation and differential replay."
+            ]
+          },
+          {
+            "name": "mode",
+            "type": "uint32_t",
+            "location": "RCX (low 32 bits)",
+            "confidence": "correlated",
+            "evidence": [
+              "Original callsite and function instruction contract; register/stack width retained by compiled implementation and differential replay."
+            ]
+          },
+          {
+            "name": "flip_arg",
+            "type": "uint64_t",
+            "location": "R8",
+            "confidence": "correlated",
+            "evidence": [
+              "Original callsite and function instruction contract; register/stack width retained by compiled implementation and differential replay."
+            ]
+          },
+          {
+            "name": "context",
+            "type": "TmntSubmitContext *",
+            "location": "R9",
+            "confidence": "correlated",
+            "evidence": [
+              "Original callsite and function instruction contract; register/stack width retained by compiled implementation and differential replay."
+            ]
+          }
+        ]
+      },
+      "evidence": [
+        "Exact eboot source SHA and instruction bytes in rooftop-recompile.contract.json; original machine-code differential replay 40 cases in FEX compares full RAX, 64 KiB memory and ordered external calls. APK PID9049/gen1 executes all four replacements on rooftop; actual input advances MOVE to ATTACK. Names are reconstructed, not vendor symbols."
+      ],
+      "comment": "Construct arrays of guest addresses and u32 byte sizes using exact field offsets and low32 modular arithmetic. Ordered single original submit call, with 9 or 10 parameters; no duplicate live GPU submission. Valid domain: Count 0..15 tested. Count>=16 routes to original_submit_packets before output writes; malformed original inputs are not made safe by this recompile."
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x19630",
+      "segment": "text",
+      "name": "TMNT_WriteLabelAndSubmitFlip",
+      "kind": "function",
+      "mode": "x86-64",
+      "size": 84,
+      "confidence": "correlated",
+      "prototype": {
+        "return_type": "uint64_t",
+        "return_location": "RAX: preserved full register; field/AL operations follow explicit instruction contract",
+        "calling_convention": "x86_64-sysv",
+        "confidence": "correlated",
+        "evidence": [
+          "Exact eboot source SHA and instruction bytes in rooftop-recompile.contract.json; original machine-code differential replay 40 cases in FEX compares full RAX, 64 KiB memory and ordered external calls. APK PID9049/gen1 executes all four replacements on rooftop; actual input advances MOVE to ATTACK. Names are reconstructed, not vendor symbols."
+        ],
+        "parameters": [
+          {
+            "name": "context",
+            "type": "TmntSubmitContext *",
+            "location": "RDI",
+            "confidence": "correlated",
+            "evidence": [
+              "Original callsite and function instruction contract; register/stack width retained by compiled implementation and differential replay."
+            ]
+          },
+          {
+            "name": "video",
+            "type": "uint32_t",
+            "location": "RSI (low 32 bits)",
+            "confidence": "correlated",
+            "evidence": [
+              "Original callsite and function instruction contract; register/stack width retained by compiled implementation and differential replay."
+            ]
+          },
+          {
+            "name": "buffer",
+            "type": "uint32_t",
+            "location": "RDX (low 32 bits)",
+            "confidence": "correlated",
+            "evidence": [
+              "Original callsite and function instruction contract; register/stack width retained by compiled implementation and differential replay."
+            ]
+          },
+          {
+            "name": "mode",
+            "type": "uint32_t",
+            "location": "RCX (low 32 bits)",
+            "confidence": "correlated",
+            "evidence": [
+              "Original callsite and function instruction contract; register/stack width retained by compiled implementation and differential replay."
+            ]
+          },
+          {
+            "name": "flip_arg",
+            "type": "uint64_t",
+            "location": "R8",
+            "confidence": "correlated",
+            "evidence": [
+              "Original callsite and function instruction contract; register/stack width retained by compiled implementation and differential replay."
+            ]
+          },
+          {
+            "name": "event",
+            "type": "uint32_t",
+            "location": "R9 (low 32 bits)",
+            "confidence": "correlated",
+            "evidence": [
+              "Original callsite and function instruction contract; register/stack width retained by compiled implementation and differential replay."
+            ]
+          },
+          {
+            "name": "label",
+            "type": "uint64_t",
+            "location": "[entry RSP+8]",
+            "confidence": "correlated",
+            "evidence": [
+              "Original callsite and function instruction contract; register/stack width retained by compiled implementation and differential replay."
+            ]
+          },
+          {
+            "name": "value",
+            "type": "uint32_t",
+            "location": "[entry RSP+16] (low 32 bits)",
+            "confidence": "correlated",
+            "evidence": [
+              "Original callsite and function instruction contract; register/stack width retained by compiled implementation and differential replay."
+            ]
+          },
+          {
+            "name": "flags",
+            "type": "uint32_t",
+            "location": "[entry RSP+24] (low 32 bits)",
+            "confidence": "correlated",
+            "evidence": [
+              "Original callsite and function instruction contract; register/stack width retained by compiled implementation and differential replay."
+            ]
+          }
+        ]
+      },
+      "evidence": [
+        "Exact eboot source SHA and instruction bytes in rooftop-recompile.contract.json; original machine-code differential replay 40 cases in FEX compares full RAX, 64 KiB memory and ordered external calls. APK PID9049/gen1 executes all four replacements on rooftop; actual input advances MOVE to ATTACK. Names are reconstructed, not vendor symbols."
+      ],
+      "comment": "Nine SysV arguments, including three stack slots. Ignore write-label result exactly as original, then submit packets; preserves final RAX. Valid domain: Same domain as write_label and submit_packets; effect order is write-label/grow before submit even on grow failure."
+    }
+  ]
+}

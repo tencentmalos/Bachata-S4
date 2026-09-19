@@ -1,0 +1,15 @@
+{
+  "apk_sha256": "b4c92212d8aa1ce07c60eb5bf8cf489edb798a0d0f1758ba78b54acc5dc18e8c",
+  "host_jni": "RelWithDebInfo",
+  "fexcore": "Release",
+  "libs": {
+    "libshadps4_host.so": {
+      "sha256": "ac7cb5dd6316cb3a63d1bdc96649e6902d6929e102acaed03262a41422eb5bfb",
+      "build_id": "641421e85e780093f005b8a15a23e5f9ffbe621d"
+    },
+    "libshadps4_fex_session.so": {
+      "sha256": "247789dc7b7678b991c40d96b9327c1d51648df171c61560c4f302e863ed3128",
+      "build_id": "4e5c8288145dc85b4f8ea2a44dfd63eed49329a9"
+    }
+  }
+}

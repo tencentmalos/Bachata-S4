@@ -84,6 +84,10 @@ public:
         return tile_manager;
     }
 
+    BufferCache& GetBufferCache() noexcept {
+        return buffer_cache;
+    }
+
     /// Invalidates any image in the logical page range.
     void InvalidateMemory(VAddr addr, size_t size);
 
@@ -119,6 +123,11 @@ public:
         TouchImage(image);
         RefreshImage(image);
     }
+
+    // Android SBS bring-up diagnostic.  Forces one GPU image readback so the
+    // presenter can distinguish a black guest render target from a bad host
+    // composition without changing the normal frame path.
+    void ReadbackImageForDiagnostics(ImageId image_id);
 
     /// Resolves overlap between existing cache image and pending merged image
     [[nodiscard]] std::tuple<ImageId, int, int> ResolveOverlap(const ImageInfo& info,

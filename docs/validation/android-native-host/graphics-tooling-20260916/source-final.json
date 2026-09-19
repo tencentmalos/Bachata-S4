@@ -1,0 +1,20 @@
+{
+  "src/video_core/renderdoc_capture.cpp": "36b16a0ca0b1360cddab7e5ef5b94ff0b61964cd4996d4ae2dd9e7ae2e97c1fa",
+  "src/video_core/renderdoc_capture.h": "5b7aea443710167925bdefaaea5f67aad005bdb31e170cdb7b4add71c07b9010",
+  "src/video_core/renderdoc.cpp": "ff2a09a3057ef9ad5c9b8f01595e270817b8f856b52130c7c3b1c7bafcfaa788",
+  "src/video_core/renderdoc.h": "be1362963f8b0aad88c1f1927996c265c9aa9dc85dc87895c747d4a5949285e6",
+  "src/core/diagnostics/diagnostics_commands.cpp": "3f2b94cb4277049ba5d50eaa359a20f5ed557d4e6a88b48f9b0782339b02ae42",
+  "src/core/libraries/videoout/driver.cpp": "bdaa84e0acbb88e78a5f74275081466b31ff5ee67887343d3d3c7d02f33ed4c1",
+  "src/core/libraries/gnmdriver/gnmdriver.cpp": "90a80222e71662841184fac1f5bb7307e8482156dc28ac3863cbf1d415730fb6",
+  "src/core/libraries/gnmdriver/gnmdriver.h": "8acc9f4bd217fd934d35dce46d690804e00b0b433f3082115c22a1e29cc6db9d",
+  "src/core/host_runtime/guest_graphics_hle.cpp": "c57f85a47e071256f82e270471d99f5dd60e84793a2ad0f72fe6e82624215553",
+  "src/video_core/amdgpu/liverpool.cpp": "1fbbe2704abaf6929550a9a644cf3f268f4dd63df28e98800ed2909248fa6670",
+  "src/video_core/amdgpu/liverpool.h": "0ac0241773ae4758e5841daaa1687487a01863dd71d1176444ec5d36dd64cb63",
+  "src/video_core/renderer_vulkan/vk_rasterizer.cpp": "adadea2f729dc4923ceab2a6ed58043843f9874437b578574be38588f3e00d30",
+  "src/video_core/renderer_vulkan/vk_rasterizer.h": "a1fa1fe9bb08d2d4398548cb886367ddcaafe8a355880f4ec7f13d6c83b735a5",
+  "src/video_core/renderer_vulkan/vk_scheduler.cpp": "13485a19536e83663d3deb3e883bb441e419f36fee626ea574b9e4900d4ac502",
+  "src/video_core/renderer_vulkan/vk_scheduler.h": "4119832612e18c84289da5d96e8fde37f3f79d76d7ce287bb000e673b573205b",
+  "tests/video_core/android_submission_probe.cpp": "e1a48c6ec0e3e358d1a46fbd69654e061a325c0e2915f8a14b08845bae272a21",
+  "tests/video_core/android_shader_int64_probe.cpp": "3a17c9a151537b258a99f996b2eb3771b9b01538c329ba5e95e312cedf63816b",
+  "tests/host_runtime/renderdoc_capture_tests.cpp": "5d4a1128c07c909f45f72d3eb2cb20cc496d9e85b095c754153c49858299d84a"
+}

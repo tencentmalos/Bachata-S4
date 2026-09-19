@@ -1,0 +1,435 @@
+[
+  {
+    "variant": "original",
+    "source_log": "variants.log",
+    "session": {
+      "captureId": "e7a829de-c686-4a31-8761-078f811def9c",
+      "captureRevision": {
+        "value": 44
+      },
+      "currentEventId": "307"
+    },
+    "data": {
+      "materialization": "ready",
+      "resourceId": "333",
+      "eventId": "307",
+      "x": 960,
+      "y": 500,
+      "mip": 0,
+      "slice": 0,
+      "sample": 0,
+      "width": 1920,
+      "height": 1080,
+      "componentType": "unorm_srgb",
+      "channels": [
+        "R",
+        "G",
+        "B",
+        "A"
+      ],
+      "values": [
+        "0",
+        "0",
+        "0",
+        "1"
+      ],
+      "rawBits": [
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x3f800000"
+      ],
+      "replayMode": "active_replay_controller",
+      "warnings": []
+    }
+  },
+  {
+    "variant": "controls",
+    "source_log": "variants.log",
+    "session": {
+      "captureId": "e7a829de-c686-4a31-8761-078f811def9c",
+      "captureRevision": {
+        "value": 48
+      },
+      "currentEventId": "307"
+    },
+    "data": {
+      "materialization": "ready",
+      "resourceId": "333",
+      "eventId": "307",
+      "x": 960,
+      "y": 500,
+      "mip": 0,
+      "slice": 0,
+      "sample": 0,
+      "width": 1920,
+      "height": 1080,
+      "componentType": "unorm_srgb",
+      "channels": [
+        "R",
+        "G",
+        "B",
+        "A"
+      ],
+      "values": [
+        "1",
+        "1",
+        "1",
+        "1"
+      ],
+      "rawBits": [
+        "0x3f800000",
+        "0x3f800000",
+        "0x3f800000",
+        "0x3f800000"
+      ],
+      "replayMode": "active_replay_controller",
+      "warnings": []
+    }
+  },
+  {
+    "variant": "vector_store",
+    "source_log": "variants.log",
+    "session": {
+      "captureId": "e7a829de-c686-4a31-8761-078f811def9c",
+      "captureRevision": {
+        "value": 52
+      },
+      "currentEventId": "307"
+    },
+    "data": {
+      "materialization": "ready",
+      "resourceId": "333",
+      "eventId": "307",
+      "x": 960,
+      "y": 500,
+      "mip": 0,
+      "slice": 0,
+      "sample": 0,
+      "width": 1920,
+      "height": 1080,
+      "componentType": "unorm_srgb",
+      "channels": [
+        "R",
+        "G",
+        "B",
+        "A"
+      ],
+      "values": [
+        "0",
+        "0",
+        "0",
+        "1"
+      ],
+      "rawBits": [
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x3f800000"
+      ],
+      "replayMode": "active_replay_controller",
+      "warnings": []
+    }
+  },
+  {
+    "variant": "signed_coords",
+    "source_log": "variants.log",
+    "session": {
+      "captureId": "e7a829de-c686-4a31-8761-078f811def9c",
+      "captureRevision": {
+        "value": 56
+      },
+      "currentEventId": "307"
+    },
+    "data": {
+      "materialization": "ready",
+      "resourceId": "333",
+      "eventId": "307",
+      "x": 960,
+      "y": 500,
+      "mip": 0,
+      "slice": 0,
+      "sample": 0,
+      "width": 1920,
+      "height": 1080,
+      "componentType": "unorm_srgb",
+      "channels": [
+        "R",
+        "G",
+        "B",
+        "A"
+      ],
+      "values": [
+        "0",
+        "0",
+        "0",
+        "1"
+      ],
+      "rawBits": [
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x3f800000"
+      ],
+      "replayMode": "active_replay_controller",
+      "warnings": []
+    }
+  },
+  {
+    "variant": "no_none",
+    "source_log": "variants.log",
+    "session": {
+      "captureId": "e7a829de-c686-4a31-8761-078f811def9c",
+      "captureRevision": {
+        "value": 60
+      },
+      "currentEventId": "307"
+    },
+    "data": {
+      "materialization": "ready",
+      "resourceId": "333",
+      "eventId": "307",
+      "x": 960,
+      "y": 500,
+      "mip": 0,
+      "slice": 0,
+      "sample": 0,
+      "width": 1920,
+      "height": 1080,
+      "componentType": "unorm_srgb",
+      "channels": [
+        "R",
+        "G",
+        "B",
+        "A"
+      ],
+      "values": [
+        "0",
+        "0",
+        "0",
+        "1"
+      ],
+      "rawBits": [
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x3f800000"
+      ],
+      "replayMode": "active_replay_controller",
+      "warnings": []
+    }
+  },
+  {
+    "variant": "no_ftz",
+    "source_log": "float-modes.log",
+    "session": {
+      "captureId": "d2f3e862-8b62-45ca-9325-f85acec15978",
+      "captureRevision": {
+        "value": 65
+      },
+      "currentEventId": "307"
+    },
+    "data": {
+      "materialization": "ready",
+      "resourceId": "333",
+      "eventId": "307",
+      "x": 960,
+      "y": 500,
+      "mip": 0,
+      "slice": 0,
+      "sample": 0,
+      "width": 1920,
+      "height": 1080,
+      "componentType": "unorm_srgb",
+      "channels": [
+        "R",
+        "G",
+        "B",
+        "A"
+      ],
+      "values": [
+        "1",
+        "1",
+        "1",
+        "1"
+      ],
+      "rawBits": [
+        "0x3f800000",
+        "0x3f800000",
+        "0x3f800000",
+        "0x3f800000"
+      ],
+      "replayMode": "active_replay_controller",
+      "warnings": []
+    }
+  },
+  {
+    "variant": "no_ftz",
+    "source_log": "float-modes.log",
+    "session": {
+      "captureId": "d2f3e862-8b62-45ca-9325-f85acec15978",
+      "captureRevision": {
+        "value": 65
+      },
+      "currentEventId": "307"
+    },
+    "data": {
+      "materialization": "ready",
+      "resourceId": "333",
+      "eventId": "307",
+      "format": "png",
+      "mip": 0,
+      "slice": 0,
+      "sample": 4294967295,
+      "artifactPath": "/Users/bytedance/Library/Application Support/renderdoc-mcp/artifacts/d2f3e862-8b62-45ca-9325-f85acec15978/textures/event-307-resource-333-mip-0-slice-0-fd917e3b710c43a8af249e7ddcf78bcb.png",
+      "bytes": 2356281,
+      "sha256": "7c1759cf486d8a592abf7c2139453cae43699ffacd58ea206f32c1bf51435aeb",
+      "replayMode": "active_replay_controller",
+      "displayInterpretation": "native_texture_export_defaults; PNG may clamp/quantize HDR; application LUT/tone mapping and presentation are unverified",
+      "finalOutputEquivalence": "unverified",
+      "reviewTool": "review_texture or review_image"
+    }
+  },
+  {
+    "variant": "no_preserve",
+    "source_log": "float-modes.log",
+    "session": {
+      "captureId": "d2f3e862-8b62-45ca-9325-f85acec15978",
+      "captureRevision": {
+        "value": 69
+      },
+      "currentEventId": "307"
+    },
+    "data": {
+      "materialization": "ready",
+      "resourceId": "333",
+      "eventId": "307",
+      "x": 960,
+      "y": 500,
+      "mip": 0,
+      "slice": 0,
+      "sample": 0,
+      "width": 1920,
+      "height": 1080,
+      "componentType": "unorm_srgb",
+      "channels": [
+        "R",
+        "G",
+        "B",
+        "A"
+      ],
+      "values": [
+        "0",
+        "0",
+        "0",
+        "1"
+      ],
+      "rawBits": [
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x3f800000"
+      ],
+      "replayMode": "active_replay_controller",
+      "warnings": []
+    }
+  },
+  {
+    "variant": "no_preserve",
+    "source_log": "float-modes.log",
+    "session": {
+      "captureId": "d2f3e862-8b62-45ca-9325-f85acec15978",
+      "captureRevision": {
+        "value": 69
+      },
+      "currentEventId": "307"
+    },
+    "data": {
+      "materialization": "ready",
+      "resourceId": "333",
+      "eventId": "307",
+      "format": "png",
+      "mip": 0,
+      "slice": 0,
+      "sample": 4294967295,
+      "artifactPath": "/Users/bytedance/Library/Application Support/renderdoc-mcp/artifacts/d2f3e862-8b62-45ca-9325-f85acec15978/textures/event-307-resource-333-mip-0-slice-0-13bac419466342f79a99ec61eda86b04.png",
+      "bytes": 82420,
+      "sha256": "e320cebac9889dbcf22003cd5435c75b522b3a3f6a16b0db8a052fe3d6e471c6",
+      "replayMode": "active_replay_controller",
+      "displayInterpretation": "native_texture_export_defaults; PNG may clamp/quantize HDR; application LUT/tone mapping and presentation are unverified",
+      "finalOutputEquivalence": "unverified",
+      "reviewTool": "review_texture or review_image"
+    }
+  },
+  {
+    "variant": "original",
+    "source_log": "float-modes.log",
+    "session": {
+      "captureId": "d2f3e862-8b62-45ca-9325-f85acec15978",
+      "captureRevision": {
+        "value": 73
+      },
+      "currentEventId": "307"
+    },
+    "data": {
+      "materialization": "ready",
+      "resourceId": "333",
+      "eventId": "307",
+      "x": 960,
+      "y": 500,
+      "mip": 0,
+      "slice": 0,
+      "sample": 0,
+      "width": 1920,
+      "height": 1080,
+      "componentType": "unorm_srgb",
+      "channels": [
+        "R",
+        "G",
+        "B",
+        "A"
+      ],
+      "values": [
+        "0",
+        "0",
+        "0",
+        "1"
+      ],
+      "rawBits": [
+        "0x00000000",
+        "0x00000000",
+        "0x00000000",
+        "0x3f800000"
+      ],
+      "replayMode": "active_replay_controller",
+      "warnings": []
+    }
+  },
+  {
+    "variant": "original",
+    "source_log": "float-modes.log",
+    "session": {
+      "captureId": "d2f3e862-8b62-45ca-9325-f85acec15978",
+      "captureRevision": {
+        "value": 73
+      },
+      "currentEventId": "307"
+    },
+    "data": {
+      "materialization": "ready",
+      "resourceId": "333",
+      "eventId": "307",
+      "format": "png",
+      "mip": 0,
+      "slice": 0,
+      "sample": 4294967295,
+      "artifactPath": "/Users/bytedance/Library/Application Support/renderdoc-mcp/artifacts/d2f3e862-8b62-45ca-9325-f85acec15978/textures/event-307-resource-333-mip-0-slice-0-9d0f0b19e5394cbeb35fa104ca495f0a.png",
+      "bytes": 82420,
+      "sha256": "e320cebac9889dbcf22003cd5435c75b522b3a3f6a16b0db8a052fe3d6e471c6",
+      "replayMode": "active_replay_controller",
+      "displayInterpretation": "native_texture_export_defaults; PNG may clamp/quantize HDR; application LUT/tone mapping and presentation are unverified",
+      "finalOutputEquivalence": "unverified",
+      "reviewTool": "review_texture or review_image"
+    }
+  }
+]

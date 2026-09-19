@@ -1,0 +1,458 @@
+{
+  "process_id": 28584,
+  "sha256": "f3d7376eb5e377de75d0d2d5f1a2592b2c2ada0aeef504a14239b44315f84134",
+  "events": 6559772,
+  "truncated": true,
+  "chunks_ok": 653,
+  "chunks_skipped": 0,
+  "diagnostics": [
+    "unbalanced span end on tid 28702",
+    "unbalanced span end on tid 28638",
+    "unbalanced span end on tid 28703",
+    "unbalanced span end on tid 28788",
+    "unbalanced span end on tid 28705",
+    "unbalanced span end on tid 28737",
+    "unbalanced span end on tid 28742",
+    "unbalanced span end on tid 28740",
+    "unbalanced span end on tid 28740",
+    "unbalanced span end on tid 28700",
+    "dropped gpu zone with unknown context",
+    "unbalanced span end on tid 28700",
+    "unbalanced span end on tid 28700",
+    "unbalanced span end on tid 28700",
+    "unbalanced span end on tid 28666",
+    "unbalanced span end on tid 28757",
+    "2 unclosed spans on tid 28638",
+    "1 unclosed spans on tid 28704",
+    "1 unclosed spans on tid 28702",
+    "2 unclosed spans on tid 28664",
+    "1 unclosed spans on tid 28703",
+    "1 unclosed spans on tid 28739",
+    "1 unclosed spans on tid 28788",
+    "1 unclosed spans on tid 28705",
+    "1 unclosed spans on tid 28737",
+    "1 unclosed spans on tid 28742",
+    "2 unclosed spans on tid 28740",
+    "1 unclosed spans on tid 28701",
+    "4 unclosed spans on tid 28700",
+    "1 unclosed spans on tid 28666",
+    "1 unclosed spans on tid 28757",
+    "1 unclosed spans on tid 28706",
+    "1 unclosed spans on tid 28709"
+  ],
+  "counters": {
+    "GuestPatch.tmnt_fmod_studio_v1.update_calls": {
+      "n": 25,
+      "mean": 3233,
+      "min": 3041,
+      "max": 3425,
+      "p95": 3393,
+      "host_tids": [
+        28638
+      ]
+    },
+    "GuestPatch.tmnt_fmod_studio_v1.update_result": {
+      "n": 25,
+      "mean": 0,
+      "min": 0,
+      "max": 0,
+      "p95": 0,
+      "host_tids": [
+        28638
+      ]
+    },
+    "GuestPatch.tmnt_fmod_studio_v1.update_ns": {
+      "n": 25,
+      "mean": 144214.52,
+      "min": 22344,
+      "max": 858178,
+      "p95": 268594,
+      "host_tids": [
+        28638
+      ]
+    }
+  },
+  "raw_counters": {
+    "GuestPatch.tmnt_fmod_studio_v1.update_calls": [
+      {
+        "ns": 262294725768024,
+        "tid": 28638,
+        "value": 3041
+      },
+      {
+        "ns": 262295886862608,
+        "tid": 28638,
+        "value": 3057
+      },
+      {
+        "ns": 262297050931878,
+        "tid": 28638,
+        "value": 3073
+      },
+      {
+        "ns": 262298312945264,
+        "tid": 28638,
+        "value": 3089
+      },
+      {
+        "ns": 262299467630108,
+        "tid": 28638,
+        "value": 3105
+      },
+      {
+        "ns": 262300644015733,
+        "tid": 28638,
+        "value": 3121
+      },
+      {
+        "ns": 262301889316931,
+        "tid": 28638,
+        "value": 3137
+      },
+      {
+        "ns": 262303034059431,
+        "tid": 28638,
+        "value": 3153
+      },
+      {
+        "ns": 262304190180837,
+        "tid": 28638,
+        "value": 3169
+      },
+      {
+        "ns": 262305447813649,
+        "tid": 28638,
+        "value": 3185
+      },
+      {
+        "ns": 262306585622347,
+        "tid": 28638,
+        "value": 3201
+      },
+      {
+        "ns": 262307738105368,
+        "tid": 28638,
+        "value": 3217
+      },
+      {
+        "ns": 262309021011878,
+        "tid": 28638,
+        "value": 3233
+      },
+      {
+        "ns": 262310163032764,
+        "tid": 28638,
+        "value": 3249
+      },
+      {
+        "ns": 262311317123753,
+        "tid": 28638,
+        "value": 3265
+      },
+      {
+        "ns": 262312561577972,
+        "tid": 28638,
+        "value": 3281
+      },
+      {
+        "ns": 262313730225733,
+        "tid": 28638,
+        "value": 3297
+      },
+      {
+        "ns": 262314982814066,
+        "tid": 28638,
+        "value": 3313
+      },
+      {
+        "ns": 262316126507868,
+        "tid": 28638,
+        "value": 3329
+      },
+      {
+        "ns": 262317284761097,
+        "tid": 28638,
+        "value": 3345
+      },
+      {
+        "ns": 262318548262660,
+        "tid": 28638,
+        "value": 3361
+      },
+      {
+        "ns": 262319698744847,
+        "tid": 28638,
+        "value": 3377
+      },
+      {
+        "ns": 262320876802764,
+        "tid": 28638,
+        "value": 3393
+      },
+      {
+        "ns": 262322126298493,
+        "tid": 28638,
+        "value": 3409
+      },
+      {
+        "ns": 262323255737451,
+        "tid": 28638,
+        "value": 3425
+      }
+    ],
+    "GuestPatch.tmnt_fmod_studio_v1.update_result": [
+      {
+        "ns": 262294725800264,
+        "tid": 28638,
+        "value": 0
+      },
+      {
+        "ns": 262295886949170,
+        "tid": 28638,
+        "value": 0
+      },
+      {
+        "ns": 262297051106149,
+        "tid": 28638,
+        "value": 0
+      },
+      {
+        "ns": 262298312988649,
+        "tid": 28638,
+        "value": 0
+      },
+      {
+        "ns": 262299467753806,
+        "tid": 28638,
+        "value": 0
+      },
+      {
+        "ns": 262300644153962,
+        "tid": 28638,
+        "value": 0
+      },
+      {
+        "ns": 262301889499587,
+        "tid": 28638,
+        "value": 0
+      },
+      {
+        "ns": 262303034223910,
+        "tid": 28638,
+        "value": 0
+      },
+      {
+        "ns": 262304190300472,
+        "tid": 28638,
+        "value": 0
+      },
+      {
+        "ns": 262305448047087,
+        "tid": 28638,
+        "value": 0
+      },
+      {
+        "ns": 262306585681462,
+        "tid": 28638,
+        "value": 0
+      },
+      {
+        "ns": 262307738192139,
+        "tid": 28638,
+        "value": 0
+      },
+      {
+        "ns": 262309021871826,
+        "tid": 28638,
+        "value": 0
+      },
+      {
+        "ns": 262310163156358,
+        "tid": 28638,
+        "value": 0
+      },
+      {
+        "ns": 262311317261983,
+        "tid": 28638,
+        "value": 0
+      },
+      {
+        "ns": 262312561611358,
+        "tid": 28638,
+        "value": 0
+      },
+      {
+        "ns": 262313730504899,
+        "tid": 28638,
+        "value": 0
+      },
+      {
+        "ns": 262314982842660,
+        "tid": 28638,
+        "value": 0
+      },
+      {
+        "ns": 262316126603753,
+        "tid": 28638,
+        "value": 0
+      },
+      {
+        "ns": 262317284836618,
+        "tid": 28638,
+        "value": 0
+      },
+      {
+        "ns": 262318548575316,
+        "tid": 28638,
+        "value": 0
+      },
+      {
+        "ns": 262319698846826,
+        "tid": 28638,
+        "value": 0
+      },
+      {
+        "ns": 262320876826410,
+        "tid": 28638,
+        "value": 0
+      },
+      {
+        "ns": 262322126323806,
+        "tid": 28638,
+        "value": 0
+      },
+      {
+        "ns": 262323255768962,
+        "tid": 28638,
+        "value": 0
+      }
+    ],
+    "GuestPatch.tmnt_fmod_studio_v1.update_ns": [
+      {
+        "ns": 262294725807087,
+        "tid": 28638,
+        "value": 32604
+      },
+      {
+        "ns": 262295886952035,
+        "tid": 28638,
+        "value": 77604
+      },
+      {
+        "ns": 262297051109691,
+        "tid": 28638,
+        "value": 172969
+      },
+      {
+        "ns": 262298312991514,
+        "tid": 28638,
+        "value": 33073
+      },
+      {
+        "ns": 262299467765316,
+        "tid": 28638,
+        "value": 109687
+      },
+      {
+        "ns": 262300644162660,
+        "tid": 28638,
+        "value": 136562
+      },
+      {
+        "ns": 262301889503024,
+        "tid": 28638,
+        "value": 141302
+      },
+      {
+        "ns": 262303034269222,
+        "tid": 28638,
+        "value": 204063
+      },
+      {
+        "ns": 262304190327035,
+        "tid": 28638,
+        "value": 118854
+      },
+      {
+        "ns": 262305448050733,
+        "tid": 28638,
+        "value": 231771
+      },
+      {
+        "ns": 262306585686358,
+        "tid": 28638,
+        "value": 57448
+      },
+      {
+        "ns": 262307738195264,
+        "tid": 28638,
+        "value": 85625
+      },
+      {
+        "ns": 262309021874691,
+        "tid": 28638,
+        "value": 858178
+      },
+      {
+        "ns": 262310163201774,
+        "tid": 28638,
+        "value": 159583
+      },
+      {
+        "ns": 262311317265993,
+        "tid": 28638,
+        "value": 135781
+      },
+      {
+        "ns": 262312561614170,
+        "tid": 28638,
+        "value": 28229
+      },
+      {
+        "ns": 262313730508389,
+        "tid": 28638,
+        "value": 268594
+      },
+      {
+        "ns": 262314982845681,
+        "tid": 28638,
+        "value": 27292
+      },
+      {
+        "ns": 262316126609535,
+        "tid": 28638,
+        "value": 94270
+      },
+      {
+        "ns": 262317284902451,
+        "tid": 28638,
+        "value": 115781
+      },
+      {
+        "ns": 262318548578701,
+        "tid": 28638,
+        "value": 310885
+      },
+      {
+        "ns": 262319698881358,
+        "tid": 28638,
+        "value": 100156
+      },
+      {
+        "ns": 262320876829118,
+        "tid": 28638,
+        "value": 22344
+      },
+      {
+        "ns": 262322126326306,
+        "tid": 28638,
+        "value": 23854
+      },
+      {
+        "ns": 262323255810160,
+        "tid": 28638,
+        "value": 58854
+      }
+    ]
+  }
+}

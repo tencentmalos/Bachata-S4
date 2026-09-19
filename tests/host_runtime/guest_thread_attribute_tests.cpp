@@ -68,6 +68,20 @@ int main() {
           snapshot.guard == 0x8000 && snapshot.detached == 1 && snapshot.priority == 800 &&
           snapshot.inherit == 0);
     check(invoke(ThreadAttrOp::Affinity, false, base, 16, base + 144) == POSIX_EINVAL);
+    // The same checked helpers serve affinity changes on live runtime owners.
+    check(invoke(ThreadAttrOp::AffinityMask, false, base, 0x40) == 0);
+    check(invoke(ThreadAttrOp::AffinityMask, true, base, base + 192) == 0);
+    u64 affinity{};
+    check(bool(space->ReadData(GuestAddress{base + 192}, std::as_writable_bytes(std::span{&affinity, 1}))) && affinity == 0x40);
+    check(invoke(ThreadAttrOp::AffinityMask, false, base, 0x100) == POSIX_EINVAL);
+    check(domain.Snapshot(base, snapshot) == 0 && snapshot.affinity == 0x40);
+    check(invoke(ThreadAttrOp::Affinity, true, base, 129, base + 192) == POSIX_EINVAL);
+    check(invoke(ThreadAttrOp::Affinity, true, base, 8, 0) == POSIX_EFAULT);
+    check(invoke(ThreadAttrOp::Affinity, false, base, 8, 1) == POSIX_EFAULT);
+    check(domain.Snapshot(base, snapshot) == 0 && snapshot.affinity == 0x40);
+    check(invoke(ThreadAttrOp::Affinity, false, base, 0, 0) == 0);
+    check(invoke(ThreadAttrOp::AffinityMask, true, base, base + 192) == 0);
+    check(bool(space->ReadData(GuestAddress{base + 192}, std::as_writable_bytes(std::span{&affinity, 1}))) && affinity == 0xff);
     check(invoke(ThreadAttrOp::Stack, true, base, base + 160, 1) == POSIX_EFAULT);
     put(base + 160, u64{0xaabb});
     check(invoke(ThreadAttrOp::Stack, true, base, base + 160, 1) == POSIX_EFAULT);

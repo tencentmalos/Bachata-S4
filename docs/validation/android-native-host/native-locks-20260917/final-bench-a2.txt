@@ -1,0 +1,4 @@
+BENCH shared=0 threads=1 pairs=20000 ms=11.079
+BENCH shared=0 threads=4 pairs=80000 ms=164.114
+BENCH shared=1 threads=1 pairs=20000 ms=21.358
+BENCH shared=1 threads=4 pairs=80000 ms=790.852

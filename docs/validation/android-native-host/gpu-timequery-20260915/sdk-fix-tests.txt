@@ -1,0 +1,9 @@
+Test project /Users/bytedance/workspace/emulations/ps4/shadps4/foundation/third_party/profiler_sdk/build
+    Start 58: test_gpu_wire
+1/2 Test #58: test_gpu_wire ....................   Passed    0.92 sec
+    Start 60: test_gpu_clock
+2/2 Test #60: test_gpu_clock ...................   Passed    0.32 sec
+
+100% tests passed out of 2
+
+Total Test time (real) =   1.25 sec

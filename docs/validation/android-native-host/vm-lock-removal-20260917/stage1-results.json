@@ -1,0 +1,34 @@
+[
+  [
+    "guest_data_mapping_tests",
+    0
+  ],
+  [
+    "guest_file_io_tests",
+    0
+  ],
+  [
+    "guest_audio_tests",
+    0
+  ],
+  [
+    "guest_ajm_tests",
+    1
+  ],
+  [
+    "guest_avplayer_tests",
+    0
+  ],
+  [
+    "guest_kernel_semaphore_tests",
+    0
+  ],
+  [
+    "guest_rwlock_tests",
+    0
+  ],
+  [
+    "guest_condition_tests",
+    0
+  ]
+]

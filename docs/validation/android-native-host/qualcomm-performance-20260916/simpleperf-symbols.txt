@@ -1,0 +1,1728 @@
+Cmdline: /system/bin/simpleperf record -p 10213 -e cpu-clock:u -f 100 --call-graph fp --duration 30 -o files/qualcomm-20260916-perf.data
+Arch: arm64
+Event: cpu-clock:u (type 1, config 0)
+Samples: 5820
+Event count: 58200000000
+
+Overhead  Symbol
+5.41%     __aarch64_cas2_acq
+4.52%     __kernel_clock_gettime
+3.09%     Core::GuestCpu::GuestAddressSpace::ValidateRangeLocked(Core::GuestCpu::GuestRange, Core::GuestCpu::GuestPermission) const
+3.04%     @plt
+3.01%     pthread_mutex_unlock
+2.29%     memcpy_opt
+2.29%     pthread_mutex_lock
+2.10%     __aarch64_swp2_rel
+1.67%     Core::GuestCpu::Fex::(anonymous namespace)::FexCpuContext::RunInternal(Core::GuestCpu::ThreadHandle, Core::GuestCpu::RunOptions const&, Core::GuestCpu::GuestCallArgs const*, Core::GuestCpu::GuestCodeAddress, Core::GuestCpu::GuestCallOptions const&, bool)
+1.44%     _ZNSt6__ndk110__function6__funcIZZN4Core11HostRuntime23InstallGraphicsHandlersERNS_3mapINS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEENS_8functionIFNS2_8GuestCpu6ResultIvEERNSC_3Hle12HleCallFrameEEEENS_4lessISA_EENS8_INS_4pairIKSA_SJ_EEEEEERNS_3setISA_SL_NS8_ISA_EEEESV_RNSC_17GuestAddressSpaceENSB_IFRNS3_13GuestGraphicsEvEEEENK3$_1clIZZNS3_23InstallGraphicsHandlersESR_SV_SV_SX_S11_ENK3$_0clIXadL_ZN9Libraries9GnmDriver15sceGnmDrawIndexEPjjjmjjEEEEDaPKcmbEUlSZ_RKNS_5arrayImLm10EEEE_EEDaSA_jT_bEUlSH_E_NS8_IS1H_EESI_EclESH_
+1.31%     __aarch64_cas4_acq
+1.08%     Core::HostRuntime::GuestMutexDomain::Lock(unsigned long, unsigned long, bool, std::__ndk1::stop_token)
+1.07%     Core::MemoryManager::IsValidMapping(unsigned long, unsigned long)
+1.07%     syscall
+0.86%     profiler::sdk::detail::encode_span_begin_dyn(char const*, unsigned short, unsigned long, profiler::sdk::TraceArg const*, unsigned char)
+0.81%     !!!0000!d96d9ec5e29c21949f3f32f251c2b5!69e13475cb!
+0.77%     memset
+0.76%     [linker]tlsdesc_resolver_dynamic
+0.74%     Core::GuestCpu::Fex::(anonymous namespace)::FexCpuContext::RunInternal(Core::GuestCpu::ThreadHandle, Core::GuestCpu::RunOptions const&, Core::GuestCpu::GuestCallArgs const*, Core::GuestCpu::GuestCodeAddress, Core::GuestCpu::GuestCallOptions const&, bool)::'lambda'()::operator()() const
+0.72%     profiler::sdk::detail::encode_span_end()
+0.65%     __aarch64_ldadd4_acq_rel
+0.62%     __aarch64_ldadd4_rel
+0.60%     __aarch64_swp1_acq
+0.55%     !!!0000!daea2ea21aa5908c29cc1c3495dcef!69e13475cb!
+0.55%     Core::MemoryManager::TryReadSrtMemory(unsigned long, void*, unsigned long)
+0.55%     __aarch64_swp2_acq
+0.55%     scudo::Allocator<scudo::AndroidConfig, &scudo_malloc_postinit>::deallocate(void*, scudo::Chunk::Origin, unsigned long, unsigned long)
+0.53%     Core::GuestCpu::GuestAddressSpace::Query(Core::GuestCpu::GuestAddress) const
+0.53%     __aarch64_ldadd8_acq_rel
+0.52%     Core::GuestCpu::Fex::(anonymous namespace)::FexSyscallHandler::DispatchNative(FEXCore::Core::CpuStateFrame*, Core::GuestCpu::Fex::(anonymous namespace)::ThreadInterruptBinding*, bool)
+0.50%     Core::HostRuntime::GuestMutexDomain::Unlock(unsigned long, unsigned long)
+0.50%     __aarch64_ldadd4_relax
+0.50%     __futex_wait_ex(void volatile*, bool, int, bool, timespec const*)
+0.50%     profiler::sdk::detail::TlsBuffer::ensure(unsigned int, profiler::sdk::detail::TraceStatus)
+0.46%     scudo::Allocator<scudo::AndroidConfig, &scudo_malloc_postinit>::allocate(unsigned long, scudo::Chunk::Origin, unsigned long, bool)
+0.45%     Core::HostRuntime::GuestRuntime::Impl::Current()
+0.41%     Core::GuestCpu::Fex::(anonymous namespace)::FexCpuContext::CaptureSnapshot(Core::GuestCpu::ThreadHandle, Core::GuestCpu::Fex::(anonymous namespace)::FexCpuContext::ThreadEntry const&, Core::GuestCpu::SnapshotKind) const
+0.41%     _ZNSt6__ndk110__function6__funcIZZN4Core11HostRuntime23InstallGraphicsHandlersERNS_3mapINS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEENS_8functionIFNS2_8GuestCpu6ResultIvEERNSC_3Hle12HleCallFrameEEEENS_4lessISA_EENS8_INS_4pairIKSA_SJ_EEEEEERNS_3setISA_SL_NS8_ISA_EEEESV_RNSC_17GuestAddressSpaceENSB_IFRNS3_13GuestGraphicsEvEEEENK3$_1clIZZNS3_23InstallGraphicsHandlersESR_SV_SV_SX_S11_ENK3$_0clIXadL_ZN9Libraries9GnmDriver19sceGnmDrawIndexAutoEPjjjjEEEEDaPKcmbEUlSZ_RKNS_5arrayImLm10EEEE_EEDaSA_jT_bEUlSH_E_NS8_IS1H_EESI_EclESH_
+0.41%     scudo::Allocator<scudo::AndroidConfig, &scudo_malloc_postinit>::quarantineOrDeallocateChunk(scudo::Options, void*, scudo::Chunk::UnpackedHeader*, unsigned long)
+0.38%     NonPI::MutexLockWithTimeout(pthread_mutex_internal_t*, bool, timespec const*)
+0.38%     VideoCore::TextureCache::FindImage(VideoCore::TextureCache::ImageDesc&, bool)
+0.36%     FEXCore::Context::ContextImpl::CompileBlock(FEXCore::Core::CpuStateFrame*, unsigned long, unsigned long)
+0.34%     FEXCore::Context::ContextImpl::ReconstructXMMRegisters(FEXCore::Core::InternalThreadState const*, unsigned __int128*, unsigned __int128*)
+0.33%     Core::HostRuntime::(anonymous namespace)::FunctionAdapter::Invoke(Core::GuestCpu::Hle::HleCallFrame&) const
+0.33%     unknown[+6a2fdc99e8]
+0.31%     __aarch64_ldadd8_relax
+0.29%     __aarch64_cas4_acq_rel
+0.27%     FEXCore::LookupCache::FindBlock(FEXCore::Core::InternalThreadState*, unsigned long)
+0.27%     bionic_trace_end()
+0.27%     std::__ndk1::mutex::unlock()
+0.27%     unknown[+6a2fe2c9a8]
+0.26%     _ZNSt6__ndk110__function6__funcIZZN4Core11HostRuntime23InstallGraphicsHandlersERNS_3mapINS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEENS_8functionIFNS2_8GuestCpu6ResultIvEERNSC_3Hle12HleCallFrameEEEENS_4lessISA_EENS8_INS_4pairIKSA_SJ_EEEEEERNS_3setISA_SL_NS8_ISA_EEEESV_RNSC_17GuestAddressSpaceENSB_IFRNS3_13GuestGraphicsEvEEEENK3$_1clIZZNS3_23InstallGraphicsHandlersESR_SV_SV_SX_S11_ENK3$_0clIXadL_ZN9Libraries9GnmDriver20sceGnmSetPsShader350EPjjPKjEEEEDaPKcmbEUlSZ_RKNS_5arrayImLm10EEEE_EEDaSA_jT_bEUlSH_E_NS8_IS1J_EESI_EclESH_
+0.24%     !!!0000!c117052f4489a5aa1af911a4368a9b!69e13475cb!
+0.24%     fesetenv
+0.24%     std::__ndk1::unique_ptr<void, Core::GuestCpu::Fex::(anonymous namespace)::FexCpuContext::RunInternal(Core::GuestCpu::ThreadHandle, Core::GuestCpu::RunOptions const&, Core::GuestCpu::GuestCallArgs const*, Core::GuestCpu::GuestCodeAddress, Core::GuestCpu::GuestCallOptions const&, bool)::'lambda1'(void*)>::~unique_ptr[abi:ne210000]()
+0.22%     !!!0000!b94ffe1ddf8438c8095b70c12f6236!69e13475cb!
+0.22%     Core::GuestCpu::ExecutionLease::~ExecutionLease()
+0.22%     clock_gettime
+0.22%     scudo::HybridMutex::unlock()
+0.22%     scudo::SizeClassAllocatorLocalCache<scudo::SizeClassAllocator64<scudo::AndroidConfig>>::refill(scudo::SizeClassAllocatorLocalCache<scudo::SizeClassAllocator64<scudo::AndroidConfig>>::PerClass*, unsigned long)
+0.22%     unknown[+6a2fdc75a0]
+0.21%     !!!0000!65bb4f16e1c4caf7a56f18c58bd23d!69e13475cb!
+0.21%     FEXCore::Context::ContextImpl::ExecuteThread(FEXCore::Core::InternalThreadState*)
+0.21%     std::__ndk1::mutex::lock()
+0.21%     unknown[+6a2fe0eb00]
+0.19%     !!!0000!59e591c160170d4597963c154b88bc!69e13475cb!
+0.19%     Core::GuestCpu::GuestAddressSpace::AcquireExecutionLease()
+0.19%     Core::GuestCpu::GuestAddressSpace::OwnsRange(Core::GuestCpu::GuestRange) const
+0.19%     ImDrawList::AddPolyline(ImVec2 const*, int, unsigned int, float, int)
+0.19%     VideoCore::Image::FindView(VideoCore::ImageViewInfo const&, bool)
+0.19%     _ZNSt6__ndk110__function6__funcIZZN4Core11HostRuntime23InstallGraphicsHandlersERNS_3mapINS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEENS_8functionIFNS2_8GuestCpu6ResultIvEERNSC_3Hle12HleCallFrameEEEENS_4lessISA_EENS8_INS_4pairIKSA_SJ_EEEEEERNS_3setISA_SL_NS8_ISA_EEEESV_RNSC_17GuestAddressSpaceENSB_IFRNS3_13GuestGraphicsEvEEEENK3$_1clIZZNS3_23InstallGraphicsHandlersESR_SV_SV_SX_S11_ENK3$_0clIXadL_ZN9Libraries9GnmDriver17sceGnmSetVsShaderEPjjPKjjEEEEDaPKcmbEUlSZ_RKNS_5arrayImLm10EEEE_EEDaSA_jT_bEUlSH_E_NS8_IS1J_EESI_EclESH_
+0.19%     __strlen_aarch64
+0.19%     profiler::sdk::is_tracing_enabled()
+0.19%     pthread_cond_broadcast
+0.19%     unsigned long VideoCore::StreamBuffer::Copy<unsigned long>(unsigned long, unsigned long, unsigned long)
+0.17%     !!!0000!2537cf78b99c7faacbe9e8ee1781e9!69e13475cb!
+0.17%     Core::GuestCpu::GuestRange::Checked(Core::GuestCpu::GuestAddress, unsigned long)
+0.17%     ScopedTrace::ScopedTrace(char const*)
+0.17%     __aarch64_cas8_relax
+0.17%     unknown[+6a2fe0eb0c]
+0.15%     !!!0000!0964412298f54481475bf89d4ab944!69e13475cb!
+0.15%     Core::GuestCpu::GuestAddressSpace::Write(Core::GuestCpu::GuestAddress, std::__ndk1::span<std::byte const, 18446744073709551615ul>)
+0.15%     Core::MemoryManager::CopySparseMemory(unsigned long, unsigned char*, unsigned long)
+0.15%     FEXCore::Utils::WritePriorityMutex::Mutex::lock_shared()
+0.15%     FexSyscallWrapper
+0.15%     Shader::StageSpecialization::operator==(Shader::StageSpecialization const&) const
+0.15%     qglinternal::vkCmdBindVertexBuffers(VkCommandBuffer_T*, unsigned int, unsigned int, VkBuffer_T* const*, unsigned long const*)
+0.15%     std::__ndk1::__function::__func<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers()::$_44, std::__ndk1::allocator<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers()::$_44>, int (std::__ndk1::array<unsigned long, 6ul> const&)>::operator()(std::__ndk1::array<unsigned long, 6ul> const&)
+0.15%     unknown[+6a2fe0ea64]
+0.14%     !!!0000!260addb415166054346467f72a0679!69e13475cb!
+0.14%     Core::GuestCpu::Hle::HleScope::HleScope(Core::GuestCpu::CpuContext&, Core::GuestCpu::ThreadHandle, unsigned long, std::__ndk1::stop_token)
+0.14%     NterpGetShorty
+0.14%     scudo::HybridMutex::tryLock()
+0.14%     spatial::ProfilerRing::Generation()
+0.14%     std::__ndk1::__function::__func<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers()::$_0::operator()(std::initializer_list<char const*>, std::__ndk1::function<unsigned long (std::__ndk1::array<unsigned long, 6ul> const&)>) const::'lambda'(Core::GuestCpu::Hle::HleCallFrame&), std::__ndk1::allocator<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers()::$_0::operator()(std::initializer_list<char const*>, std::__ndk1::function<unsigned long (std::__ndk1::array<unsigned long, 6ul> const&)>) const::'lambda'(Core::GuestCpu::Hle::HleCallFrame&)>, Core::GuestCpu::Result<void> (Core::GuestCpu::Hle::HleCallFrame&)>::operator()(Core::GuestCpu::Hle::HleCallFrame&)
+0.14%     std::__ndk1::__shared_mutex_base::lock_shared()
+0.14%     std::__ndk1::chrono::steady_clock::now()
+0.14%     unknown[+6a2fe0ea0c]
+0.14%     unknown[+6a2fe0ea94]
+0.14%     unknown[+6a2fe0ead0]
+0.14%     unknown[+6a2fe2c770]
+0.14%     void std::__ndk1::vector<Core::GuestCpu::MemoryObserver*, std::__ndk1::allocator<Core::GuestCpu::MemoryObserver*>>::__assign_with_size[abi:ne210000]<Core::GuestCpu::MemoryObserver**, Core::GuestCpu::MemoryObserver**>(Core::GuestCpu::MemoryObserver**, Core::GuestCpu::MemoryObserver**, long)
+0.12%     AmdGpu::Liverpool::ProcessGraphics(std::__ndk1::span<unsigned int const, 18446744073709551615ul>, std::__ndk1::span<unsigned int const, 18446744073709551615ul>) (.resume)
+0.12%     AmdGpu::SearchBinaryInfo(unsigned int const*)
+0.12%     Core::GuestCpu::Fex::(anonymous namespace)::FexSyscallHandler::HandleSyscall(FEXCore::Core::CpuStateFrame*)
+0.12%     Core::GuestCpu::GuestAddressSpace::NotifyObservers(Core::GuestCpu::GuestRange)
+0.12%     Core::GuestCpu::GuestAddressSpace::Read(Core::GuestCpu::GuestAddress, std::__ndk1::span<std::byte, 18446744073709551615ul>) const
+0.12%     Core::GuestCpu::Hle::RegisteredHleCallAdapter::Invoke(Core::GuestCpu::Hle::HleCallFrame&) const
+0.12%     ExecuteNterpImpl
+0.12%     FEXCore::Context::ContextImpl::ReconstructCompactedEFLAGS(FEXCore::Core::InternalThreadState*, bool, unsigned long const*, unsigned long)
+0.12%     _ZNSt6__ndk110__function6__funcIZZN4Core11HostRuntime23InstallGraphicsHandlersERNS_3mapINS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEENS_8functionIFNS2_8GuestCpu6ResultIvEERNSC_3Hle12HleCallFrameEEEENS_4lessISA_EENS8_INS_4pairIKSA_SJ_EEEEEERNS_3setISA_SL_NS8_ISA_EEEESV_RNSC_17GuestAddressSpaceENSB_IFRNS3_13GuestGraphicsEvEEEENK3$_1clIZZNS3_23InstallGraphicsHandlersESR_SV_SV_SX_S11_ENK3$_0clIXadL_ZN9Libraries9GnmDriver20sceGnmDispatchDirectEPjjjjjjEEEEDaPKcmbEUlSZ_RKNS_5arrayImLm10EEEE_EEDaSA_jT_bEUlSH_E_NS8_IS1H_EESI_EclESH_
+0.12%     _ZNSt6__ndk110__function6__funcIZZN4Core11HostRuntime23InstallGraphicsHandlersERNS_3mapINS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEENS_8functionIFNS2_8GuestCpu6ResultIvEERNSC_3Hle12HleCallFrameEEEENS_4lessISA_EENS8_INS_4pairIKSA_SJ_EEEEEERNS_3setISA_SL_NS8_ISA_EEEESV_RNSC_17GuestAddressSpaceENSB_IFRNS3_13GuestGraphicsEvEEEENK3$_1clIZZNS3_23InstallGraphicsHandlersESR_SV_SV_SX_S11_ENK3$_0clIXadL_ZN9Libraries9GnmDriver23sceGnmUpdatePsShader350EPjjPKjEEEEDaPKcmbEUlSZ_RKNS_5arrayImLm10EEEE_EEDaSA_jT_bEUlSH_E_NS8_IS1J_EESI_EclESH_
+0.12%     __aarch64_swp4_rel
+0.12%     spatial::LiteTrace::begin(char const*, unsigned long)
+0.12%     spatial::ProfilerRing::Enabled()
+0.12%     std::__ndk1::_IfImpl<borrowed_range<T>>::_Select<decltype(std::__ndk1::ranges::__cpo::begin(std::declval<T&>())), std::__ndk1::ranges::dangling> std::__ndk1::ranges::__find::operator()[abi:ne210000]<boost::container::small_vector<VideoCore::ImageViewInfo, 4ul, void, void> const&, VideoCore::ImageViewInfo, std::__ndk1::identity>(T&&, T0 const&, T1) const
+0.12%     trace_begin_internal(char const*)
+0.12%     unknown[+6a2fdca8f4]
+0.12%     unknown[+6a2fdcfc5c]
+0.10%     Core::GuestCpu::ExecutionLease::operator=(Core::GuestCpu::ExecutionLease&&)
+0.10%     Core::GuestCpu::Hle::HleScope::~HleScope()
+0.10%     ImFont::RenderText(ImDrawList*, float, ImVec2 const&, unsigned int, ImVec4 const&, char const*, char const*, float, int)
+0.10%     Shader::Gcn::GcnDecodeContext::decodeInstruction(Shader::Gcn::GcnCodeSlice&)
+0.10%     VideoCore::BufferCache::FindBuffer(unsigned long, unsigned int)
+0.10%     VideoCore::ImageInfo::UpdateSize()
+0.10%     std::__ndk1::__function::__func<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers()::$_17::operator()(char const*, char const*, std::__ndk1::function<int (std::__ndk1::array<unsigned long, 6ul> const&)>) const::'lambda'(auto const&), std::__ndk1::allocator<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers()::$_17::operator()(char const*, char const*, std::__ndk1::function<int (std::__ndk1::array<unsigned long, 6ul> const&)>) const::'lambda'(auto const&)>, unsigned long (std::__ndk1::array<unsigned long, 6ul> const&)>::operator()(std::__ndk1::array<unsigned long, 6ul> const&)
+0.10%     std::__ndk1::condition_variable::notify_all()
+0.10%     unknown[+6a2fe0ea5c]
+0.10%     unknown[+6a2fe0ea74]
+0.10%     unknown[+6a2fe0eaa4]
+0.09%     !!!0000!67406828fa6995537c4310912d3d72!69e13475cb!
+0.09%     !!!0000!86ef3fc5ae2725190cff5b6b2018c9!69e13475cb!
+0.09%     !!!0000!8d728ae2d4087ff5667ded39962458!69e13475cb!
+0.09%     !!!0000!a07a3bc07cfc68c84eeabf1c568aaa!69e13475cb!
+0.09%     AmdGpu::Image Shader::ImageResource::GetSharp<Shader::Info>(Shader::Info const&) const
+0.09%     Common::Profiler::Scope::~Scope()
+0.09%     ScopedTrace::~ScopedTrace()
+0.09%     VideoCore::Image::GetBarriers(vk::ImageLayout, vk::Flags<vk::AccessFlagBits2>, vk::Flags<vk::PipelineStageFlagBits2>, std::__ndk1::optional<VideoCore::SubresourceRange>)
+0.09%     VideoCore::ImageSizeMacroTiled(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, AmdGpu::TileMode, unsigned int, bool)
+0.09%     __system_property_serial
+0.09%     bool std::__ndk1::condition_variable_any::wait[abi:ne210000]<std::__ndk1::unique_lock<std::__ndk1::mutex>, Core::HostRuntime::GuestKernelSemaphore::Dispatch(std::__ndk1::basic_string_view<char, std::__ndk1::char_traits<char>>, std::__ndk1::array<unsigned long, 6ul> const&, int, std::__ndk1::stop_token)::'lambda0'()>(std::__ndk1::unique_lock<std::__ndk1::mutex>&, std::__ndk1::stop_token, Core::HostRuntime::GuestKernelSemaphore::Dispatch(std::__ndk1::basic_string_view<char, std::__ndk1::char_traits<char>>, std::__ndk1::array<unsigned long, 6ul> const&, int, std::__ndk1::stop_token)::'lambda0'())
+0.09%     pthread_self
+0.09%     std::__ndk1::__shared_mutex_base::unlock_shared()
+0.09%     unknown[+6a2fdca91c]
+0.09%     unknown[+6a2fdcfc24]
+0.09%     unknown[+6a2fe0e9d8]
+0.09%     unknown[+6a2fe0ea40]
+0.09%     unknown[+6a2fe0ea4c]
+0.09%     unknown[+6a2fe2c508]
+0.09%     unknown[+7b3bb9e000]
+0.09%     void Core::HostRuntime::GuestMutexDomain::Write<std::__ndk1::array<std::byte, 12ul>>(unsigned long, std::__ndk1::array<std::byte, 12ul> const&)
+0.09%     void Shader::PortableSrt::Run<bool (*)(unsigned long, void*, unsigned long)>(std::__ndk1::span<unsigned int const, 18446744073709551615ul>, std::__ndk1::span<unsigned int, 18446744073709551615ul>, bool (*)(unsigned long, void*, unsigned long)) const
+0.07%     !!!0000!2355a184bcac0072bd9fd400dcfd70!69e13475cb!
+0.07%     !!!0000!339912d0cbfb8b36cd27d7fdb4bee2!69e13475cb!
+0.07%     !!!0000!a120ef209d5178a4423deb015222c1!69e13475cb!
+0.07%     Common::Profiler::Scope::Scope(char const*)
+0.07%     ImGui::NewFrame()
+0.07%     ImGui::StatusLayer::Draw(unsigned long, unsigned int, unsigned int)
+0.07%     Shader::Gcn::InstructionFormat(Shader::Gcn::InstEncoding, unsigned int)
+0.07%     Shader::PortableSrt::Compute(unsigned int, std::__ndk1::span<unsigned int const, 18446744073709551615ul>, std::__ndk1::span<Shader::PortableSrt::Memo, 18446744073709551615ul>, unsigned int) const
+0.07%     VideoCore::BufferCache::BindVertexBuffers(Vulkan::GraphicsPipeline const&, boost::container::small_vector<vk::BufferMemoryBarrier2, 16ul, void, void>&)
+0.07%     VideoCore::ImageInfo::ImageInfo(AmdGpu::Image const&, Shader::ImageResource const&)
+0.07%     _ZNSt6__ndk110__function6__funcIZZN4Core11HostRuntime23InstallGraphicsHandlersERNS_3mapINS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEENS_8functionIFNS2_8GuestCpu6ResultIvEERNSC_3Hle12HleCallFrameEEEENS_4lessISA_EENS8_INS_4pairIKSA_SJ_EEEEEERNS_3setISA_SL_NS8_ISA_EEEESV_RNSC_17GuestAddressSpaceENSB_IFRNS3_13GuestGraphicsEvEEEENK3$_1clIZZNS3_23InstallGraphicsHandlersESR_SV_SV_SX_S11_ENK3$_0clIXadL_ZN9Libraries9GnmDriver20sceGnmUpdateVsShaderEPjjPKjjEEEEDaPKcmbEUlSZ_RKNS_5arrayImLm10EEEE_EEDaSA_jT_bEUlSH_E_NS8_IS1J_EESI_EclESH_
+0.07%     _ZNSt6__ndk110__function6__funcIZZN4Core11HostRuntime23InstallGraphicsHandlersERNS_3mapINS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEENS_8functionIFNS2_8GuestCpu6ResultIvEERNSC_3Hle12HleCallFrameEEEENS_4lessISA_EENS8_INS_4pairIKSA_SJ_EEEEEERNS_3setISA_SL_NS8_ISA_EEEESV_RNSC_17GuestAddressSpaceENSB_IFRNS3_13GuestGraphicsEvEEEENK3$_1clIZZNS3_23InstallGraphicsHandlersESR_SV_SV_SX_S11_ENK3$_0clIXadL_ZN9Libraries9GnmDriver37sceGnmDrawInitDefaultHardwareState350EPjjEEEEDaPKcmbEUlSZ_RKNS_5arrayImLm10EEEE_EEDaSA_jT_bEUlSH_E_NS8_IS1H_EESI_EclESH_
+0.07%     __errno
+0.07%     android::Looper::pollInner(int)
+0.07%     atrace_get_enabled_tags
+0.07%     bool std::__ndk1::__atomic_unique_lock<unsigned int, 2u>::__lock_impl[abi:ne210000]<std::__ndk1::__atomic_unique_lock<unsigned int, 2u>::__lock[abi:ne210000]()::'lambda'(unsigned int) const&, std::__ndk1::__atomic_unique_lock<unsigned int, 2u>::__set_locked_bit[abi:ne210000]::'lambda'(unsigned int) const&>(std::__ndk1::__atomic_unique_lock<unsigned int, 2u>::__lock[abi:ne210000]()::'lambda'(unsigned int) const&, std::__ndk1::__atomic_unique_lock<unsigned int, 2u>::__set_locked_bit[abi:ne210000]::'lambda'(unsigned int) const&, std::__ndk1::memory_order)
+0.07%     free
+0.07%     memcmp
+0.07%     std::__ndk1::__function::__func<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers()::$_46, std::__ndk1::allocator<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers()::$_46>, int (std::__ndk1::array<unsigned long, 6ul> const&)>::operator()(std::__ndk1::array<unsigned long, 6ul> const&)
+0.07%     unknown[+6a2fc2d9e8]
+0.07%     unknown[+6a2fce93e8]
+0.07%     unknown[+6a2fcfabc4]
+0.07%     unknown[+6a2fdc53e8]
+0.07%     unknown[+6a2fdc9168]
+0.07%     unknown[+6a2fe0e9fc]
+0.07%     unknown[+6a2fe0eae4]
+0.07%     unknown[+6a2fe0eb20]
+0.07%     unknown[+6a2fe0eb28]
+0.07%     unknown[+6a2fe2c754]
+0.07%     unknown[+6a2fe2c9b0]
+0.07%     unknown[+6a2fe2c9c8]
+0.07%     unsigned long Core::HostRuntime::GuestMutexDomain::Read<unsigned long>(unsigned long)
+0.07%     void scudo::releaseFreeMemoryToOS<scudo::SizeClassAllocatorLocalCache<scudo::SizeClassAllocator64<scudo::AndroidConfig>>::TransferBatch, scudo::ReleaseRecorder, scudo::SizeClassAllocator64<scudo::AndroidConfig>::releaseToOSMaybe(scudo::SizeClassAllocator64<scudo::AndroidConfig>::RegionInfo*, unsigned long, bool)::'lambda'(unsigned int), scudo::SizeClassAllocator64<scudo::AndroidConfig>::releaseToOSMaybe(scudo::SizeClassAllocator64<scudo::AndroidConfig>::RegionInfo*, unsigned long, bool)::'lambda'(unsigned long)>(scudo::IntrusiveList<scudo::SizeClassAllocatorLocalCache<scudo::SizeClassAllocator64<scudo::AndroidConfig>>::TransferBatch> const&, unsigned long, unsigned long, unsigned long, scudo::ReleaseRecorder*, scudo::SizeClassAllocator64<scudo::AndroidConfig>::releaseToOSMaybe(scudo::SizeClassAllocator64<scudo::AndroidConfig>::RegionInfo*, unsigned long, bool)::'lambda'(unsigned int), scudo::SizeClassAllocator64<scudo::AndroidConfig>::releaseToOSMaybe(scudo::SizeClassAllocator64<scudo::AndroidConfig>::RegionInfo*, unsigned long, bool)::'lambda'(unsigned long))
+0.05%     !!!0000!29ace6fe96216dcfbbe73828801572!69e13475cb!
+0.05%     !!!0000!42d2364c7710344e8f20f85194c7fe!69e13475cb!
+0.05%     !!!0000!535d7a944372be4f574870d2b144dd!69e13475cb!
+0.05%     !!!0000!57bc0c31fd2e8aed9ee5412ad100be!69e13475cb!
+0.05%     !!!0000!5cce5be7ea95c9fe3925c8cfe9d65e!69e13475cb!
+0.05%     !!!0000!646db326635d32b91340e838d66fb6!69e13475cb!
+0.05%     !!!0000!75c0859c3a27cca4e4dcaff3626873!69e13475cb!
+0.05%     !!!0000!851f544f42276bcd55dbf5ff01b743!69e13475cb!
+0.05%     !!!0000!aeb60a318fb9692a37e5454154f043!69e13475cb!
+0.05%     !!!0000!b2172cf3d22f2807f0fe833841f66f!69e13475cb!
+0.05%     !!!0000!bf3cea88401a5c160367dcbba5c3fc!69e13475cb!
+0.05%     !!!0000!c7ad0e39d9f5e50b7ff2592ceb8eb7!69e13475cb!
+0.05%     Core::GuestCpu::Fex::(anonymous namespace)::FexSyscallHandler::PreCompile()
+0.05%     Core::GuestCpu::GuestAddressSpace::MappingGeneration() const
+0.05%     Core::GuestCpu::GuestAddressSpace::WaitForQuiescenceRelease(unsigned long)
+0.05%     Shader::Gcn::GcnDecodeContext::decodeLiteralConstant(Shader::Gcn::InstEncoding, Shader::Gcn::GcnCodeSlice&)
+0.05%     Shader::Gcn::GcnDecodeContext::updateInstructionMeta(Shader::Gcn::InstEncoding)
+0.05%     Shader::StageSpecialization::StageSpecialization(Shader::Info const&, Shader::RuntimeInfo, Shader::Profile const&, Shader::Backend::Bindings)
+0.05%     Shader::VertexRuntimeInfo::operator==(Shader::VertexRuntimeInfo const&) const
+0.05%     VideoCore::GetMacroTileExtents(AmdGpu::TileMode, unsigned int, unsigned int, bool)
+0.05%     VideoCore::StreamBuffer::Map(unsigned long, unsigned long, bool)
+0.05%     VideoCore::TextureCache::UpdateImage(Common::SlotId)
+0.05%     VmaBlockMetadata_TLSF::Alloc(VmaAllocationRequest const&, VmaSuballocationType, void*)
+0.05%     Vulkan::Rasterizer::BindResources(Vulkan::Pipeline const*)
+0.05%     Vulkan::Rasterizer::BindTextures(Shader::Info const&, Shader::Backend::Bindings&)
+0.05%     Vulkan::Rasterizer::Draw(bool, unsigned int)
+0.05%     Vulkan::Rasterizer::PrepareRenderState(Vulkan::GraphicsPipeline const*)
+0.05%     Vulkan::Rasterizer::UpdateViewportScissorState() const
+0.05%     _ZNSt6__ndk110__function6__funcIZZN4Core11HostRuntime23InstallGraphicsHandlersERNS_3mapINS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEENS_8functionIFNS2_8GuestCpu6ResultIvEERNSC_3Hle12HleCallFrameEEEENS_4lessISA_EENS8_INS_4pairIKSA_SJ_EEEEEERNS_3setISA_SL_NS8_ISA_EEEESV_RNSC_17GuestAddressSpaceENSB_IFRNS3_13GuestGraphicsEvEEEENK3$_1clIZZNS3_23InstallGraphicsHandlersESR_SV_SV_SX_S11_ENK3$_0clIXadL_ZN9Libraries9GnmDriver22sceGnmInsertPushMarkerEPjjPKcEEEEDaS1A_mbEUlSZ_RKNS_5arrayImLm10EEEE_EEDaSA_jT_bEUlSH_E_NS8_IS1H_EESI_EclESH_
+0.05%     art::gc::Heap::IsValidObjectAddress(void const*) const
+0.05%     bool std::__ndk1::condition_variable_any::wait[abi:ne210000]<std::__ndk1::unique_lock<std::__ndk1::mutex>, Core::HostRuntime::GuestMutexDomain::Lock(unsigned long, unsigned long, bool, std::__ndk1::stop_token)::'lambda'()>(std::__ndk1::unique_lock<std::__ndk1::mutex>&, std::__ndk1::stop_token, Core::HostRuntime::GuestMutexDomain::Lock(unsigned long, unsigned long, bool, std::__ndk1::stop_token)::'lambda'())
+0.05%     bool std::__ndk1::condition_variable_any::wait[abi:ne210000]<std::__ndk1::unique_lock<std::__ndk1::mutex>, Core::HostRuntime::GuestSemaphoreDomain::Wait(unsigned long, bool, std::__ndk1::stop_token, std::__ndk1::optional<std::__ndk1::chrono::time_point<std::__ndk1::chrono::steady_clock, std::__ndk1::chrono::duration<long long, std::__ndk1::ratio<1l, 1000000000l>>>>)::'lambda'()>(std::__ndk1::unique_lock<std::__ndk1::mutex>&, std::__ndk1::stop_token, Core::HostRuntime::GuestSemaphoreDomain::Wait(unsigned long, bool, std::__ndk1::stop_token, std::__ndk1::optional<std::__ndk1::chrono::time_point<std::__ndk1::chrono::steady_clock, std::__ndk1::chrono::duration<long long, std::__ndk1::ratio<1l, 1000000000l>>>>)::'lambda'())
+0.05%     decltype(auto) std::__ndk1::__variant_detail::__visitation::__base::__dispatcher<0ul>::__dispatch[abi:ne210000]<std::__ndk1::__variant_detail::__dtor<std::__ndk1::__variant_detail::__traits<Core::GuestCpu::ExecutionLease, Core::GuestCpu::Error>, (std::__ndk1::__variant_detail::_Trait)1>::__destroy[abi:ne210000]()::'lambda'(auto&)&&, std::__ndk1::__variant_detail::__base<(std::__ndk1::__variant_detail::_Trait)1, Core::GuestCpu::ExecutionLease, Core::GuestCpu::Error>&>(auto, std::__ndk1::__variant_detail::__base<(std::__ndk1::__variant_detail::_Trait)1, Core::GuestCpu::ExecutionLease, Core::GuestCpu::Error>&)
+0.05%     malloc
+0.05%     operator new(unsigned long)
+0.05%     profiler::sdk::span_begin_dyn_args(char const*, profiler::sdk::TraceArg const*, unsigned char, unsigned long)
+0.05%     pthread_cond_wait
+0.05%     qglinternal::vkCmdBindIndexBuffer(VkCommandBuffer_T*, VkBuffer_T*, unsigned long, VkIndexType)
+0.05%     qglinternal::vkCmdPushDescriptorSetKHR(VkCommandBuffer_T*, VkPipelineBindPoint, VkPipelineLayout_T*, unsigned int, unsigned int, VkWriteDescriptorSet const*)
+0.05%     scudo::SizeClassAllocatorLocalCache<scudo::SizeClassAllocator64<scudo::AndroidConfig>>::drain(scudo::SizeClassAllocatorLocalCache<scudo::SizeClassAllocator64<scudo::AndroidConfig>>::PerClass*, unsigned long)
+0.05%     std::__ndk1::__cxx_atomic_notify_all(void const volatile*)
+0.05%     std::__ndk1::__wrap_iter<std::__ndk1::pair<unsigned long, FEXCore::GuestToHostMap::BlockEntry>*> ankerl::unordered_dense::v4_8_1::detail::table<unsigned long, FEXCore::GuestToHostMap::BlockEntry, std::__ndk1::hash<unsigned long>, std::__ndk1::equal_to<unsigned long>, fextl::FEXAlloc<std::__ndk1::pair<unsigned long, FEXCore::GuestToHostMap::BlockEntry>>, ankerl::unordered_dense::v4_8_1::bucket_type::standard, ankerl::unordered_dense::v4_8_1::detail::default_container_t, false>::do_find<unsigned long>(unsigned long const&)
+0.05%     unknown[+6a2fb8be8c]
+0.05%     unknown[+6a2fb8c270]
+0.05%     unknown[+6a2fbda720]
+0.05%     unknown[+6a2fc9ece8]
+0.05%     unknown[+6a2fd39cdc]
+0.05%     unknown[+6a2fd64f38]
+0.05%     unknown[+6a2fd76b98]
+0.05%     unknown[+6a2fd9c570]
+0.05%     unknown[+6a2fdc5478]
+0.05%     unknown[+6a2fdc54b0]
+0.05%     unknown[+6a2fdc54d0]
+0.05%     unknown[+6a2fdc82f4]
+0.05%     unknown[+6a2fdc99d4]
+0.05%     unknown[+6a2fdc99f4]
+0.05%     unknown[+6a2fdc9a40]
+0.05%     unknown[+6a2fdc9a64]
+0.05%     unknown[+6a2fdca904]
+0.05%     unknown[+6a2fdca940]
+0.05%     unknown[+6a2fdcd3d0]
+0.05%     unknown[+6a2fdcfc40]
+0.05%     unknown[+6a2fdd0630]
+0.05%     unknown[+6a2fe0e990]
+0.05%     unknown[+6a2fe0e9ac]
+0.05%     unknown[+6a2fe0e9e4]
+0.05%     unknown[+6a2fe0ea04]
+0.05%     unknown[+6a2fe0ea20]
+0.05%     unknown[+6a2fe0ea80]
+0.05%     unknown[+6a2fe0eac0]
+0.05%     unknown[+6a2fe1a234]
+0.05%     void Shader::StageSpecialization::ForEachSharp<boost::container::small_vector<Shader::BufferSpecialization, 16ul, void, void>, boost::container::static_vector<Shader::BufferResource, 40ul, void> const, Shader::StageSpecialization::StageSpecialization(Shader::Info const&, Shader::RuntimeInfo, Shader::Profile const&, Shader::Backend::Bindings)::'lambda0'(auto&, auto const&, AmdGpu::Buffer)>(unsigned int&, auto&, auto&, Shader::StageSpecialization::StageSpecialization(Shader::Info const&, Shader::RuntimeInfo, Shader::Profile const&, Shader::Backend::Bindings)::'lambda0'(auto&, auto const&, AmdGpu::Buffer)&&)
+0.05%     void Vulkan::GraphicsPipeline::GetVertexInputs<vk::VertexInputAttributeDescription2EXT, vk::VertexInputBindingDescription2EXT>(boost::container::static_vector<vk::VertexInputAttributeDescription2EXT, 32ul, void>&, boost::container::static_vector<vk::VertexInputBindingDescription2EXT, 32ul, void>&, boost::container::static_vector<vk::VertexInputBindingDivisorDescription, 32ul, void>&, boost::container::static_vector<AmdGpu::Buffer, 32ul, void>&, unsigned int, unsigned int) const
+0.05%     void fmt::v12::detail::parse_format_string<char, fmt::v12::detail::format_handler<char>>(fmt::v12::basic_string_view<char>, fmt::v12::detail::format_handler<char>&&)
+0.03%     !!!0000!199a180b072a17dcba2b0f0edcecc0!69e13475cb!
+0.03%     !!!0000!271e7a1e72a9919c9e01c1548d6a39!69e13475cb!
+0.03%     !!!0000!399547f7aa42abc191d83cded05350!69e13475cb!
+0.03%     !!!0000!3f55a677ebbf50e91904ef3d48285d!69e13475cb!
+0.03%     !!!0000!40a6a42cd694167bc6d3b97c8aee39!69e13475cb!
+0.03%     !!!0000!439dd85301c57e2f30cfdb7e2f791f!69e13475cb!
+0.03%     !!!0000!475f18195e7dc4867a166580dd0950!69e13475cb!
+0.03%     !!!0000!4d72fd7f8aa5c859b6ea230867c479!69e13475cb!
+0.03%     !!!0000!648e0a628e524b5be057f8df0c9495!69e13475cb!
+0.03%     !!!0000!69d92616a4f6f9d79ae8cc45b6fc97!69e13475cb!
+0.03%     !!!0000!6cec99b80149cd56fb54017001567e!69e13475cb!
+0.03%     !!!0000!7582cbce6eb4ba4a49dff7925dcb81!69e13475cb!
+0.03%     !!!0000!8c7fe1453857a6bb624c011206a1ad!69e13475cb!
+0.03%     !!!0000!abe65b7bf4177f577d3f949f9ef26e!69e13475cb!
+0.03%     !!!0000!ae8bd3a7cb17eebd977f1dcc85ad0d!69e13475cb!
+0.03%     !!!0000!aeb79da91ad94f6a2e63e651869a6b!69e13475cb!
+0.03%     !!!0000!d11f9a3b92d176fa29d0fe6b6afb1b!69e13475cb!
+0.03%     AmdGpu::Buffer Shader::BufferResource::GetSharp<Shader::Info>(Shader::Info const&) const
+0.03%     AmdGpu::Liverpool::SubmitGfx(std::__ndk1::span<unsigned int const, 18446744073709551615ul>, std::__ndk1::span<unsigned int const, 18446744073709551615ul>)
+0.03%     Common::Singleton<Core::MemoryManager>::Instance()
+0.03%     Core::GuestCpu::ExecutionLease::ExecutionLease(Core::GuestCpu::ExecutionLease&&)
+0.03%     Core::GuestCpu::Fex::(anonymous namespace)::FexSignalDelegator::GetThunkCallbackRET() const
+0.03%     Core::GuestCpu::GuestAddressSpace::AcquirePinnedSpan(Core::GuestCpu::GuestRange, bool)
+0.03%     Core::GuestCpu::GuestAddressSpace::CodeGeneration() const
+0.03%     Core::HostRuntime::GuestKernelSemaphore::Dispatch(std::__ndk1::basic_string_view<char, std::__ndk1::char_traits<char>>, std::__ndk1::array<unsigned long, 6ul> const&, int, std::__ndk1::stop_token)
+0.03%     Core::HostRuntime::GuestRuntime::Impl::Graphics()
+0.03%     FEXCore::LookupCache::CacheBlockMapping(unsigned long, FEXCore::GuestToHostMap::BlockEntry const&, bool, FEXCore::LookupCacheBaseLockToken const&)
+0.03%     ImFontCalcTextSizeEx(ImFont*, float, float, float, char const*, char const*, char const*, char const**, ImVec2*, int)
+0.03%     ImGui::DockNodeUpdate(ImGuiDockNode*)
+0.03%     ImGui::End()
+0.03%     Libraries::AudioOut::PrepareAudioStereo(Libraries::AudioOut::AudioFormatInfo const&, unsigned int, void const*, std::__ndk1::array<int, 8ul> const&, float, std::__ndk1::span<float, 18446744073709551615ul>)
+0.03%     NterpCommonInvokeInstance
+0.03%     Shader::Gcn::GcnDecodeContext::decodeDataParallelPrimitive(Shader::Gcn::InstEncoding, Shader::Gcn::GcnCodeSlice&)
+0.03%     Shader::Gcn::ParseFetchShader(Shader::Info const&)
+0.03%     VideoCore::BufferCache::ObtainBuffer(unsigned long, unsigned int, bool, bool, Common::SlotId)
+0.03%     VideoCore::StreamBuffer::Commit()
+0.03%     VideoCore::TextureCache::TrackImage(Common::SlotId)
+0.03%     Vulkan::DynamicState::Commit(Vulkan::Instance const&, vk::CommandBuffer const&)
+0.03%     Vulkan::MasterSemaphore::Wait(unsigned long, std::__ndk1::stop_token)
+0.03%     Vulkan::Rasterizer::BindBuffers(Shader::Info const&, Shader::Backend::Bindings&, Shader::PushData&)
+0.03%     Vulkan::Rasterizer::UpdateDepthStencilState() const
+0.03%     Vulkan::Rasterizer::UpdatePrimitiveState(bool) const
+0.03%     Vulkan::Scheduler::EndRendering()
+0.03%     XXH3_hashLong_64b_default
+0.03%     __log2_finite
+0.03%     __set_errno_internal
+0.03%     android.os.Handler.handleCallback
+0.03%     android.os.MessageQueue.next
+0.03%     android::BufferQueueProducer::queueBuffer(int, android::IGraphicBufferProducer::QueueBufferInput const&, android::IGraphicBufferProducer::QueueBufferOutput*)
+0.03%     android::TransactionCompletedListener::onTransactionCompleted(android::ListenerStats)
+0.03%     art::gc::space::ContinuousSpace::Contains(art::mirror::Object const*) const
+0.03%     art_jni_trampoline
+0.03%     auto Shader::StageSpecialization::StageSpecialization(Shader::Info const&, Shader::RuntimeInfo, Shader::Profile const&, Shader::Backend::Bindings)::'lambda'(auto&, auto const&, AmdGpu::Image)::operator()<Shader::ImageSpecialization, Shader::ImageResource>(auto&, auto const&, AmdGpu::Image) const
+0.03%     bool Shader::SharpFetch<AmdGpu::Image>::Fetch<8u>(unsigned int const*, AmdGpu::Image*) const
+0.03%     bool std::__ndk1::__atomic_unique_lock<unsigned int, 2u>::__lock_impl[abi:ne210000]<std::__ndk1::__stop_state::__add_callback[abi:ne210000](std::__ndk1::__stop_callback_base*)::'lambda'(unsigned int) const&, std::__ndk1::__atomic_unique_lock<unsigned int, 2u>::__set_locked_bit[abi:ne210000]::'lambda'(unsigned int) const&>(std::__ndk1::__stop_state::__add_callback[abi:ne210000](std::__ndk1::__stop_callback_base*)::'lambda'(unsigned int) const&, std::__ndk1::__atomic_unique_lock<unsigned int, 2u>::__set_locked_bit[abi:ne210000]::'lambda'(unsigned int) const&, std::__ndk1::memory_order)
+0.03%     bool std::__ndk1::__cxx_atomic_compare_exchange_weak[abi:ne210000]<unsigned int>(std::__ndk1::__cxx_atomic_base_impl<unsigned int>*, unsigned int*, unsigned int, std::__ndk1::memory_order, std::__ndk1::memory_order)
+0.03%     decltype(auto) std::__ndk1::__variant_detail::__visitation::__base::__dispatcher<0ul>::__dispatch[abi:ne210000]<std::__ndk1::__variant_detail::__dtor<std::__ndk1::__variant_detail::__traits<Core::GuestCpu::GuestRange, Core::GuestCpu::Error>, (std::__ndk1::__variant_detail::_Trait)1>::__destroy[abi:ne210000]()::'lambda'(auto&)&&, std::__ndk1::__variant_detail::__base<(std::__ndk1::__variant_detail::_Trait)1, Core::GuestCpu::GuestRange, Core::GuestCpu::Error>&>(auto, std::__ndk1::__variant_detail::__base<(std::__ndk1::__variant_detail::_Trait)1, Core::GuestCpu::GuestRange, Core::GuestCpu::Error>&)
+0.03%     int art::__sigprocmask<sigset_t>(int, sigset_t const*, sigset_t*, int (*)(int, sigset_t const*, sigset_t*))
+0.03%     java.lang.AbstractStringBuilder.append
+0.03%     java.util.Arrays.copyOf
+0.03%     kotlinx.coroutines.CancellableContinuationImpl.resumeImpl$kotlinx_coroutines_core
+0.03%     kotlinx.coroutines.DispatchedTaskKt.dispatch
+0.03%     profiler::sdk::detail::encode_counter(char const*, long)
+0.03%     profiler::sdk::span_end()
+0.03%     qglinternal::vkCmdBindPipeline(VkCommandBuffer_T*, VkPipelineBindPoint, VkPipeline_T*)
+0.03%     qglinternal::vkCmdDrawIndexed(VkCommandBuffer_T*, unsigned int, unsigned int, unsigned int, int, unsigned int)
+0.03%     qglinternal::vkCmdSetVertexInputEXT(VkCommandBuffer_T*, unsigned int, VkVertexInputBindingDescription2EXT const*, unsigned int, VkVertexInputAttributeDescription2EXT const*)
+0.03%     std::__ndk1::__function::__func<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers()::$_167, std::__ndk1::allocator<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers()::$_167>, Core::HostRuntime::GuestGraphics& ()>::operator()()
+0.03%     std::__ndk1::__function::__func<Vulkan::MasterSemaphore::MasterSemaphore(Vulkan::Instance const&)::$_0, std::__ndk1::allocator<Vulkan::MasterSemaphore::MasterSemaphore(Vulkan::Instance const&)::$_0>, bool (unsigned long, std::__ndk1::stop_token)>::operator()(unsigned long&&, std::__ndk1::stop_token&&)
+0.03%     std::__ndk1::__stop_state::__remove_callback[abi:ne210000](std::__ndk1::__stop_callback_base*)
+0.03%     std::__ndk1::pair<std::__ndk1::__tree_iterator<std::__ndk1::__value_type<unsigned long, ankerl::unordered_dense::v4_8_1::detail::table<unsigned long, void, std::__ndk1::hash<unsigned long>, std::__ndk1::equal_to<unsigned long>, fextl::FEXAlloc<unsigned long>, ankerl::unordered_dense::v4_8_1::bucket_type::standard, ankerl::unordered_dense::v4_8_1::detail::default_container_t, false>>, std::__ndk1::__tree_node<std::__ndk1::__value_type<unsigned long, ankerl::unordered_dense::v4_8_1::detail::table<unsigned long, void, std::__ndk1::hash<unsigned long>, std::__ndk1::equal_to<unsigned long>, fextl::FEXAlloc<unsigned long>, ankerl::unordered_dense::v4_8_1::bucket_type::standard, ankerl::unordered_dense::v4_8_1::detail::default_container_t, false>>, void*>*, long>, bool> std::__ndk1::__tree<std::__ndk1::__value_type<unsigned long, ankerl::unordered_dense::v4_8_1::detail::table<unsigned long, void, std::__ndk1::hash<unsigned long>, std::__ndk1::equal_to<unsigned long>, fextl::FEXAlloc<unsigned long>, ankerl::unordered_dense::v4_8_1::bucket_type::standard, ankerl::unordered_dense::v4_8_1::detail::default_container_t, false>>, std::__ndk1::__map_value_compare<unsigned long, std::__ndk1::__value_type<unsigned long, ankerl::unordered_dense::v4_8_1::detail::table<unsigned long, void, std::__ndk1::hash<unsigned long>, std::__ndk1::equal_to<unsigned long>, fextl::FEXAlloc<unsigned long>, ankerl::unordered_dense::v4_8_1::bucket_type::standard, ankerl::unordered_dense::v4_8_1::detail::default_container_t, false>>, std::__ndk1::less<unsigned long>, true>, fextl::FEXAlloc<std::__ndk1::__value_type<unsigned long, ankerl::unordered_dense::v4_8_1::detail::table<unsigned long, void, std::__ndk1::hash<unsigned long>, std::__ndk1::equal_to<unsigned long>, fextl::FEXAlloc<unsigned long>, ankerl::unordered_dense::v4_8_1::bucket_type::standard, ankerl::unordered_dense::v4_8_1::detail::default_container_t, false>>>>::__emplace_unique_key_args<unsigned long, std::__ndk1::piecewise_construct_t const&, std::__ndk1::tuple<unsigned long&&>, std::__ndk1::tuple<>>(unsigned long const&, std::__ndk1::piecewise_construct_t const&, std::__ndk1::tuple<unsigned long&&>&&, std::__ndk1::tuple<>&&)
+0.03%     std::__ndk1::pair<tsl::detail_robin_hash::robin_hash<std::__ndk1::pair<Vulkan::GraphicsPipelineKey, std::__ndk1::unique_ptr<Vulkan::GraphicsPipeline, std::__ndk1::default_delete<Vulkan::GraphicsPipeline>>>, tsl::robin_map<Vulkan::GraphicsPipelineKey, std::__ndk1::unique_ptr<Vulkan::GraphicsPipeline, std::__ndk1::default_delete<Vulkan::GraphicsPipeline>>, std::__ndk1::hash<Vulkan::GraphicsPipelineKey>, std::__ndk1::equal_to<Vulkan::GraphicsPipelineKey>, std::__ndk1::allocator<std::__ndk1::pair<Vulkan::GraphicsPipelineKey, std::__ndk1::unique_ptr<Vulkan::GraphicsPipeline, std::__ndk1::default_delete<Vulkan::GraphicsPipeline>>>>, false, tsl::rh::power_of_two_growth_policy<2ul>>::KeySelect, tsl::robin_map<Vulkan::GraphicsPipelineKey, std::__ndk1::unique_ptr<Vulkan::GraphicsPipeline, std::__ndk1::default_delete<Vulkan::GraphicsPipeline>>, std::__ndk1::hash<Vulkan::GraphicsPipelineKey>, std::__ndk1::equal_to<Vulkan::GraphicsPipelineKey>, std::__ndk1::allocator<std::__ndk1::pair<Vulkan::GraphicsPipelineKey, std::__ndk1::unique_ptr<Vulkan::GraphicsPipeline, std::__ndk1::default_delete<Vulkan::GraphicsPipeline>>>>, false, tsl::rh::power_of_two_growth_policy<2ul>>::ValueSelect, std::__ndk1::hash<Vulkan::GraphicsPipelineKey>, std::__ndk1::equal_to<Vulkan::GraphicsPipelineKey>, std::__ndk1::allocator<std::__ndk1::pair<Vulkan::GraphicsPipelineKey, std::__ndk1::unique_ptr<Vulkan::GraphicsPipeline, std::__ndk1::default_delete<Vulkan::GraphicsPipeline>>>>, false, tsl::rh::power_of_two_growth_policy<2ul>>::robin_iterator<false>, bool> tsl::detail_robin_hash::robin_hash<std::__ndk1::pair<Vulkan::GraphicsPipelineKey, std::__ndk1::unique_ptr<Vulkan::GraphicsPipeline, std::__ndk1::default_delete<Vulkan::GraphicsPipeline>>>, tsl::robin_map<Vulkan::GraphicsPipelineKey, std::__ndk1::unique_ptr<Vulkan::GraphicsPipeline, std::__ndk1::default_delete<Vulkan::GraphicsPipeline>>, std::__ndk1::hash<Vulkan::GraphicsPipelineKey>, std::__ndk1::equal_to<Vulkan::GraphicsPipelineKey>, std::__ndk1::allocator<std::__ndk1::pair<Vulkan::GraphicsPipelineKey, std::__ndk1::unique_ptr<Vulkan::GraphicsPipeline, std::__ndk1::default_delete<Vulkan::GraphicsPipeline>>>>, false, tsl::rh::power_of_two_growth_policy<2ul>>::KeySelect, tsl::robin_map<Vulkan::GraphicsPipelineKey, std::__ndk1::unique_ptr<Vulkan::GraphicsPipeline, std::__ndk1::default_delete<Vulkan::GraphicsPipeline>>, std::__ndk1::hash<Vulkan::GraphicsPipelineKey>, std::__ndk1::equal_to<Vulkan::GraphicsPipelineKey>, std::__ndk1::allocator<std::__ndk1::pair<Vulkan::GraphicsPipelineKey, std::__ndk1::unique_ptr<Vulkan::GraphicsPipeline, std::__ndk1::default_delete<Vulkan::GraphicsPipeline>>>>, false, tsl::rh::power_of_two_growth_policy<2ul>>::ValueSelect, std::__ndk1::hash<Vulkan::GraphicsPipelineKey>, std::__ndk1::equal_to<Vulkan::GraphicsPipelineKey>, std::__ndk1::allocator<std::__ndk1::pair<Vulkan::GraphicsPipelineKey, std::__ndk1::unique_ptr<Vulkan::GraphicsPipeline, std::__ndk1::default_delete<Vulkan::GraphicsPipeline>>>>, false, tsl::rh::power_of_two_growth_policy<2ul>>::insert_impl<Vulkan::GraphicsPipelineKey, std::__ndk1::piecewise_construct_t const&, std::__ndk1::tuple<Vulkan::GraphicsPipelineKey const&>, std::__ndk1::tuple<>>(Vulkan::GraphicsPipelineKey const&, std::__ndk1::piecewise_construct_t const&, std::__ndk1::tuple<Vulkan::GraphicsPipelineKey const&>&&, std::__ndk1::tuple<>&&)
+0.03%     std::__ndk1::vector<unsigned int, std::__ndk1::allocator<unsigned int>>::assign(unsigned long, unsigned int const&)
+0.03%     unknown[+6a2fb8a094]
+0.03%     unknown[+6a2fb8b654]
+0.03%     unknown[+6a2fb8b980]
+0.03%     unknown[+6a2fb8bb80]
+0.03%     unknown[+6a2fb8c254]
+0.03%     unknown[+6a2fb8c258]
+0.03%     unknown[+6a2fb96780]
+0.03%     unknown[+6a2fb96cb4]
+0.03%     unknown[+6a2fb97074]
+0.03%     unknown[+6a2fb976c4]
+0.03%     unknown[+6a2fbaa790]
+0.03%     unknown[+6a2fbcbecc]
+0.03%     unknown[+6a2fc4bae0]
+0.03%     unknown[+6a2fc4df70]
+0.03%     unknown[+6a2fc56c1c]
+0.03%     unknown[+6a2fc570c4]
+0.03%     unknown[+6a2fc570d8]
+0.03%     unknown[+6a2fc5863c]
+0.03%     unknown[+6a2fc61338]
+0.03%     unknown[+6a2fc83a24]
+0.03%     unknown[+6a2fca1e24]
+0.03%     unknown[+6a2fca4200]
+0.03%     unknown[+6a2fceead0]
+0.03%     unknown[+6a2fcfabd4]
+0.03%     unknown[+6a2fd29134]
+0.03%     unknown[+6a2fd2f6c8]
+0.03%     unknown[+6a2fd34d08]
+0.03%     unknown[+6a2fd3f164]
+0.03%     unknown[+6a2fd4c484]
+0.03%     unknown[+6a2fd53274]
+0.03%     unknown[+6a2fd69bec]
+0.03%     unknown[+6a2fd72b74]
+0.03%     unknown[+6a2fd73984]
+0.03%     unknown[+6a2fd9c52c]
+0.03%     unknown[+6a2fd9c54c]
+0.03%     unknown[+6a2fd9c590]
+0.03%     unknown[+6a2fdc0c7c]
+0.03%     unknown[+6a2fdc0ce4]
+0.03%     unknown[+6a2fdc0ce8]
+0.03%     unknown[+6a2fdc55a8]
+0.03%     unknown[+6a2fdc754c]
+0.03%     unknown[+6a2fdc7578]
+0.03%     unknown[+6a2fdc75b4]
+0.03%     unknown[+6a2fdc8230]
+0.03%     unknown[+6a2fdc8240]
+0.03%     unknown[+6a2fdc8244]
+0.03%     unknown[+6a2fdc9174]
+0.03%     unknown[+6a2fdc91a4]
+0.03%     unknown[+6a2fdc99ac]
+0.03%     unknown[+6a2fdc9a38]
+0.03%     unknown[+6a2fdca8fc]
+0.03%     unknown[+6a2fdcd154]
+0.03%     unknown[+6a2fdcd1fc]
+0.03%     unknown[+6a2fdcd368]
+0.03%     unknown[+6a2fdcd3e4]
+0.03%     unknown[+6a2fdce158]
+0.03%     unknown[+6a2fdce15c]
+0.03%     unknown[+6a2fdce758]
+0.03%     unknown[+6a2fdd0628]
+0.03%     unknown[+6a2fde76e0]
+0.03%     unknown[+6a2fdef2b4]
+0.03%     unknown[+6a2fdefce0]
+0.03%     unknown[+6a2fdf091c]
+0.03%     unknown[+6a2fdf0fe4]
+0.03%     unknown[+6a2fdf26d0]
+0.03%     unknown[+6a2fdf42fc]
+0.03%     unknown[+6a2fdf5054]
+0.03%     unknown[+6a2fdf8584]
+0.03%     unknown[+6a2fdffe68]
+0.03%     unknown[+6a2fe00a0c]
+0.03%     unknown[+6a2fe017a8]
+0.03%     unknown[+6a2fe0370c]
+0.03%     unknown[+6a2fe044e8]
+0.03%     unknown[+6a2fe044f0]
+0.03%     unknown[+6a2fe04da8]
+0.03%     unknown[+6a2fe08f38]
+0.03%     unknown[+6a2fe09840]
+0.03%     unknown[+6a2fe09b08]
+0.03%     unknown[+6a2fe0acb8]
+0.03%     unknown[+6a2fe0e9b4]
+0.03%     unknown[+6a2fe0e9c4]
+0.03%     unknown[+6a2fe0e9cc]
+0.03%     unknown[+6a2fe0ea14]
+0.03%     unknown[+6a2fe0ea88]
+0.03%     unknown[+6a2fe0eab8]
+0.03%     unknown[+6a2fe0eb1c]
+0.03%     unknown[+6a2fe0eb30]
+0.03%     unknown[+6a2fe0eb34]
+0.03%     unknown[+6a2fe0eb40]
+0.03%     unknown[+6a2fe19320]
+0.03%     unknown[+6a2fe2a624]
+0.03%     unknown[+6a2fe2a824]
+0.03%     unknown[+6a2fe2c3d8]
+0.03%     unknown[+6a2fe2c748]
+0.03%     unknown[+6a2fe2c758]
+0.03%     unknown[+6a2fe3148c]
+0.03%     unknown[+6a2fe57b94]
+0.03%     unknown[+6a2fe64f50]
+0.03%     unknown[+6a2fe79b14]
+0.03%     unknown[+6a2fe83594]
+0.03%     unknown[+6a2fe8903c]
+0.03%     unknown[+7b3bb9e080]
+0.03%     void Common::LockRange<Common::SpinLock*>(Common::SpinLock*, Common::SpinLock*)
+0.02%     !!!0000!00c75d855ef530f042d7a6901ef85d!69e13475cb!
+0.02%     !!!0000!00cf3e6602ffcd831b369f87a213e1!69e13475cb!
+0.02%     !!!0000!02ed8f8dd62acec3b673075ea90057!69e13475cb!
+0.02%     !!!0000!095b8794d77e9393ee7195c541213d!69e13475cb!
+0.02%     !!!0000!0de91a6011837fc32e0b379ed0bc17!69e13475cb!
+0.02%     !!!0000!1182d2503cba770aec88014c4e9c86!69e13475cb!
+0.02%     !!!0000!130498deb975313a51dc960e4ec31d!69e13475cb!
+0.02%     !!!0000!16a255e8c130fbc8d0540b4d81b38d!69e13475cb!
+0.02%     !!!0000!1e4d7f370bb9ced85ac4bf277627a4!69e13475cb!
+0.02%     !!!0000!278fb05c33760e67d2116e5acdc0a0!69e13475cb!
+0.02%     !!!0000!33579afa7621775f4d8d45a37af988!69e13475cb!
+0.02%     !!!0000!34e0622678b649bb08142a419a0db0!69e13475cb!
+0.02%     !!!0000!36aed065db0a6254654b9a01a208fb!69e13475cb!
+0.02%     !!!0000!438896c72c5ec36c448611d7a4eed6!69e13475cb!
+0.02%     !!!0000!46f3d8a80ad4b4daab9921f3457bb7!69e13475cb!
+0.02%     !!!0000!4af3f2f2f7c43e22cb1bd41112f8d9!69e13475cb!
+0.02%     !!!0000!51cc0fe4656968f2f1113585a82ccf!69e13475cb!
+0.02%     !!!0000!59e90c54c68aa8aed893a69df83d34!69e13475cb!
+0.02%     !!!0000!5aa85b8826f05f1bee61b085f83513!69e13475cb!
+0.02%     !!!0000!60fd16099f7c30a5da31c17dd593cb!69e13475cb!
+0.02%     !!!0000!6974214815283a64b04f46d0d32fec!69e13475cb!
+0.02%     !!!0000!6a59edb2d6e4ac956ef4c608fd9c2c!69e13475cb!
+0.02%     !!!0000!6aa424778da830cca53178573ebbbe!69e13475cb!
+0.02%     !!!0000!7697ec82ed508d19785b6ef224e2f5!69e13475cb!
+0.02%     !!!0000!7ea5089baa5aaa9300caf5ddd7bebc!69e13475cb!
+0.02%     !!!0000!8099e1718c17ef6e57d380a6049ebb!69e13475cb!
+0.02%     !!!0000!856200424c5d04e6e82fc0754ffec1!69e13475cb!
+0.02%     !!!0000!8631150d3c6823975a13cc113be112!69e13475cb!
+0.02%     !!!0000!86a87bdf50304d9dc61e88f9a2e3ee!69e13475cb!
+0.02%     !!!0000!8763b096322e99d9e1d31befc57f85!69e13475cb!
+0.02%     !!!0000!89b57cc083d176d4976a96ccdbdade!69e13475cb!
+0.02%     !!!0000!89cfef946c3f110747b359e64ac5b4!69e13475cb!
+0.02%     !!!0000!93c53ef5a6c041bb2723e5776ce526!69e13475cb!
+0.02%     !!!0000!9af3ac6414fa9d2d7aec77135c0051!69e13475cb!
+0.02%     !!!0000!9d2340256df89912f04e05d7f782e6!69e13475cb!
+0.02%     !!!0000!a0ef21d6f366b27ad3ef2fd829f1f8!69e13475cb!
+0.02%     !!!0000!a81ead8c3ccb2859e7a47ba650fd5c!69e13475cb!
+0.02%     !!!0000!a95b0893001f488539933b664a464b!69e13475cb!
+0.02%     !!!0000!b1d271e658f7f3006dd0217f21a116!69e13475cb!
+0.02%     !!!0000!b6d644e922ce2de49011e635fc93ef!69e13475cb!
+0.02%     !!!0000!be477a72a9f5e52f97cf89b2ce9094!69e13475cb!
+0.02%     !!!0000!be68b3e30f54f133dab5e0a9e8974b!69e13475cb!
+0.02%     !!!0000!c92e997b4885b9a1079a59165f279a!69e13475cb!
+0.02%     !!!0000!d0fab0394b67703ccc529a07ac52c7!69e13475cb!
+0.02%     !!!0000!d6c71fc41060f009498cb880e9fa51!69e13475cb!
+0.02%     !!!0000!d7e6e4010fab6c21701f0e0a21d670!69e13475cb!
+0.02%     !!!0000!de97f8279eb621e60cfe80b3c69fa7!69e13475cb!
+0.02%     !!!0000!e852dd12936a893844186a81c53d8b!69e13475cb!
+0.02%     !!!0000!ee8849fd8d35e21b6f269b64c3c3c0!69e13475cb!
+0.02%     !!!0000!f29c702e83e1ff0960bb4066d06322!69e13475cb!
+0.02%     !!!0000!f3604d7d552965f9fae16b4984870a!69e13475cb!
+0.02%     !!!0000!f82bbe53268c24e3e7107ea427a2ab!69e13475cb!
+0.02%     !!!0000!f88cec9acf4c7cf2ecad6d24c99544!69e13475cb!
+0.02%     !!!0000!fb305a34d53f770000335fbc28d64d!69e13475cb!
+0.02%     AmdGpu::ColorBuffer::Swizzle() const
+0.02%     CalcWindowAutoFitSize(ImGuiWindow*, ImVec2 const&, int)
+0.02%     Common::BitArray<1024ul>::FirstRange() const
+0.02%     Common::BitArray<1024ul>::begin() const
+0.02%     Common::Detail::IncrementRecursiveLock(void*, Common::Detail::RecursiveLockType)
+0.02%     Core::GuestCpu::PinnedSpan::Release()
+0.02%     Core::GuestCpu::PinnedSpan::~PinnedSpan()
+0.02%     Core::GuestPatch::Manager::Impl::Service::Invoke(Core::GuestCpu::Hle::HleCallFrame&) const
+0.02%     Core::HostRuntime::AcquireGraphicsAdmission(Core::GuestCpu::GuestAddressSpace&, std::__ndk1::stop_token, std::__ndk1::chrono::time_point<std::__ndk1::chrono::steady_clock, std::__ndk1::chrono::duration<long long, std::__ndk1::ratio<1l, 1000000000l>>>, std::__ndk1::function<void ()> const&)
+0.02%     Core::HostRuntime::GuestAudio::Impl::Output(std::__ndk1::basic_string_view<char, std::__ndk1::char_traits<char>>, std::__ndk1::array<unsigned long, 6ul> const&, std::__ndk1::stop_token)
+0.02%     Core::HostRuntime::GuestAudio::Impl::Output(std::__ndk1::basic_string_view<char, std::__ndk1::char_traits<char>>, std::__ndk1::array<unsigned long, 6ul> const&, std::__ndk1::stop_token)::'lambda'()::operator()() const
+0.02%     Core::HostRuntime::GuestGraphics::CheckHealth()
+0.02%     Core::HostRuntime::GuestSemaphoreDomain::Post(unsigned long)
+0.02%     Core::HostRuntime::OrbisPadAdapter::DrainHaptics(unsigned long)
+0.02%     EmulatorSettingsImpl::GetInstance()
+0.02%     Foundation::Audio::CallbackMixer::Render(std::__ndk1::span<float, 18446744073709551615ul>)
+0.02%     GpuReshape::Adapter::PublishStatus(bool) const
+0.02%     ImDrawList::AddConvexPolyFilled(ImVec2 const*, int, unsigned int)
+0.02%     ImDrawList::AddLine(ImVec2 const&, ImVec2 const&, unsigned int, float)
+0.02%     ImDrawList::_ResetForNewFrame()
+0.02%     ImGui::BeginDocked(ImGuiWindow*, bool*)
+0.02%     ImGui::Core::NewFrame(bool)
+0.02%     ImGui::Core::Render(vk::CommandBuffer const&, vk::ImageView const&, vk::Extent2D const&)
+0.02%     ImGui::Core::TextureManager::Submit()
+0.02%     ImGui::EndFrame()
+0.02%     ImGui::ItemSize(ImVec2 const&, float)
+0.02%     ImGui::PopStyleVar(int)
+0.02%     ImGui::RenderTextWrapped(ImVec2, char const*, char const*, float)
+0.02%     Libraries::GnmDriver::sceGnmDrawIndex(unsigned int*, unsigned int, unsigned int, unsigned long, unsigned int, unsigned int)
+0.02%     Libraries::GnmDriver::sceGnmDrawIndexAuto(unsigned int*, unsigned int, unsigned int, unsigned int)
+0.02%     Libraries::GnmDriver::sceGnmSetPsShader350(unsigned int*, unsigned int, unsigned int const*)
+0.02%     Libraries::GnmDriver::sceGnmSetVsShader(unsigned int*, unsigned int, unsigned int const*, unsigned int)
+0.02%     Libraries::VideoOut::VideoOutDriver::SubmitFlipInternal(Libraries::VideoOut::VideoOutPort*, int, long, bool)
+0.02%     NterpGetMethod
+0.02%     NterpGetStaticField
+0.02%     Shader::Gcn::GcnDecodeContext::decodeInstruction32(Shader::Gcn::InstEncoding, Shader::Gcn::GcnCodeSlice&)
+0.02%     Shader::Info::RefreshFlatBuf()
+0.02%     Shader::PushData::AddOffset(unsigned int, unsigned int)
+0.02%     Shader::ReadSrtGuestMemory(unsigned long, void*, unsigned long)
+0.02%     VideoCore::BufferCache::BindIndexBuffer(unsigned int, boost::container::small_vector<vk::BufferMemoryBarrier2, 16ul, void, void>&)
+0.02%     VideoCore::Image::SetBackingSamples(unsigned int, bool)
+0.02%     VideoCore::ImageViewInfo::ImageViewInfo(AmdGpu::Image const&, Shader::ImageResource const&)
+0.02%     VideoCore::PageManager::Impl::Protect(unsigned long, unsigned long, Core::MemoryPermission)
+0.02%     VideoCore::TextureCache::FindDepthTarget(Common::SlotId, VideoCore::TextureCache::ImageDesc const&)
+0.02%     VideoCore::TextureCache::FindTexture(Common::SlotId, VideoCore::TextureCache::ImageDesc const&)
+0.02%     VideoCore::TextureCache::GarbageCollectSamplers()
+0.02%     VideoCore::TextureCache::TouchImage(VideoCore::Image const&)
+0.02%     VmaAllocator_T::AllocateMemory(VkMemoryRequirements const&, bool, bool, VkBuffer_T*, VkImage_T*, VmaBufferImageUsage, VmaAllocationCreateInfo const&, VmaSuballocationType, unsigned long, VmaAllocation_T**)
+0.02%     VmaAllocator_T::AllocateMemoryOfType(VmaPool_T*, unsigned long, unsigned long, bool, VkBuffer_T*, VkImage_T*, VmaBufferImageUsage, VmaAllocationCreateInfo const&, unsigned int, VmaSuballocationType, VmaDedicatedAllocationList&, VmaBlockVector&, unsigned long, VmaAllocation_T**)
+0.02%     VmaBlockMetadata_TLSF::CreateAllocationRequest(unsigned long, unsigned long, bool, VmaSuballocationType, unsigned int, VmaAllocationRequest*)
+0.02%     VmaBlockMetadata_TLSF::Free(VmaAllocHandle_T*)
+0.02%     VmaBufferImageUsage::VmaBufferImageUsage(VkBufferCreateInfo const&, bool)
+0.02%     Vulkan::LiverpoolToVK::ComponentSwizzle(AmdGpu::CompSwizzle)
+0.02%     Vulkan::Pipeline::BindResources(std::__ndk1::vector<vk::WriteDescriptorSet, std::__ndk1::allocator<vk::WriteDescriptorSet>>&, boost::container::small_vector<vk::BufferMemoryBarrier2, 16ul, void, void> const&, Shader::PushData const&) const
+0.02%     Vulkan::PipelineCache::GetProgram(Shader::Stage, Shader::LogicalStage, Shader::ShaderParams const&, Shader::Backend::Bindings&)
+0.02%     Vulkan::Presenter::PrepareLastFrame()
+0.02%     Vulkan::Presenter::Present(Vulkan::Frame*, bool)
+0.02%     Vulkan::Rasterizer::InvalidateMemory(unsigned long, unsigned long)
+0.02%     Vulkan::Rasterizer::UpdateDynamicState(Vulkan::GraphicsPipeline const*, bool) const
+0.02%     Vulkan::ResourcePool::CommitResource()
+0.02%     Vulkan::Scheduler::Flush(Vulkan::SubmitInfo&)
+0.02%     Vulkan::Scheduler::PopPendingOperations()
+0.02%     XXH3_64bits
+0.02%     _ZNSt6__ndk110__function6__funcIZZN4Core11HostRuntime23InstallGraphicsHandlersERNS_3mapINS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEENS_8functionIFNS2_8GuestCpu6ResultIvEERNSC_3Hle12HleCallFrameEEEENS_4lessISA_EENS8_INS_4pairIKSA_SJ_EEEEEERNS_3setISA_SL_NS8_ISA_EEEESV_RNSC_17GuestAddressSpaceENSB_IFRNS3_13GuestGraphicsEvEEEENK3$_1clIZZNS3_23InstallGraphicsHandlersESR_SV_SV_SX_S11_ENK3$_0clIXadL_ZN9Libraries9GnmDriver21sceGnmInsertPopMarkerEPjjEEEEDaPKcmbEUlSZ_RKNS_5arrayImLm10EEEE_EEDaSA_jT_bEUlSH_E_NS8_IS1H_EESI_EclESH_
+0.02%     _ZNSt6__ndk110__function6__funcIZZN4Core11HostRuntime23InstallGraphicsHandlersERNS_3mapINS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEENS_8functionIFNS2_8GuestCpu6ResultIvEERNSC_3Hle12HleCallFrameEEEENS_4lessISA_EENS8_INS_4pairIKSA_SJ_EEEEEERNS_3setISA_SL_NS8_ISA_EEEESV_RNSC_17GuestAddressSpaceENSB_IFRNS3_13GuestGraphicsEvEEEENK3$_1clIZZNS3_23InstallGraphicsHandlersESR_SV_SV_SX_S11_ENK3$_0clIXadL_ZN9Libraries9GnmDriver25sceGnmSetEmbeddedVsShaderEPjjjjEEEEDaPKcmbEUlSZ_RKNS_5arrayImLm10EEEE_EEDaSA_jT_bEUlSH_E_NS8_IS1H_EESI_EclESH_
+0.02%     __aarch64_swp4_acq
+0.02%     __dtoa
+0.02%     __ioctl
+0.02%     __vfprintf
+0.02%     aaudio::AudioStreamInternalPlay::getDirection() const
+0.02%     aaudio::AudioStreamLegacy::onMoreData(android::AudioTrack::Buffer const&)
+0.02%     android.os.Handler.postDelayed
+0.02%     android.os.MessageQueue.enqueueMessage
+0.02%     android.os.Parcel.obtain
+0.02%     android.os.ThreadLocalWorkSource.getToken
+0.02%     android.os.Trace.traceEnd
+0.02%     android.view.Choreographer.postCallbackDelayedInternal
+0.02%     android.view.Choreographer.recycleCallbackLocked
+0.02%     android.view.Choreographer.scheduleVsyncLocked
+0.02%     android::AudioTrack::processAudioBuffer()
+0.02%     android::AudioTrack::releaseBuffer(android::AudioTrack::Buffer const*)
+0.02%     android::BLASTBufferQueue::acquireNextBufferLocked(std::__1::optional<android::SurfaceComposerClient::Transaction*>)
+0.02%     android::BufferQueueProducer::waitForFreeSlotThenRelock(android::BufferQueueProducer::FreeSlotCaller, std::__1::unique_lock<std::__1::mutex>&, int*) const
+0.02%     android::DisplayEventDispatcher::processPendingEvents(long*, android::PhysicalDisplayId*, unsigned int*, android::gui::VsyncEventData*)
+0.02%     android::Fence::dup() const
+0.02%     android::Fence::merge(char const*, android::sp<android::Fence> const&, android::sp<android::Fence> const&)
+0.02%     android::IPCThreadState::flushCommands()
+0.02%     android::Looper::pollOnce(int, int*, int*, void**)
+0.02%     android::Parcel::errorCheck() const
+0.02%     android::Parcel::flattenBinder(android::sp<android::IBinder> const&)
+0.02%     android::Parcel::read(void*, unsigned long) const
+0.02%     android::Parcel::readParcelable(android::Parcelable*) const
+0.02%     android::RefBase::decStrong(void const*) const
+0.02%     android::SurfaceComposerClient::Transaction::addTransactionCallback(std::__1::function<void (void*, long, android::sp<android::Fence> const&, std::__1::vector<android::SurfaceControlStats, std::__1::allocator<android::SurfaceControlStats>> const&)>, void*, android::CallbackId::Type)
+0.02%     android::VectorImpl::_shrink(unsigned long, unsigned long)
+0.02%     android::VectorImpl::editItemLocation(unsigned long)
+0.02%     android::findMatchingStat(std::__1::vector<android::SurfaceControlStats, std::__1::allocator<android::SurfaceControlStats>> const&, android::sp<android::SurfaceControl> const&)
+0.02%     android::sp<android::AudioTrackClientProxy>::operator=(android::sp<android::AudioTrackClientProxy> const&)
+0.02%     android::sp<android::IMemory>::operator=(android::sp<android::IMemory> const&)
+0.02%     android::uirenderer::WorkQueue::process()
+0.02%     android::uirenderer::skiapipeline::SkiaPipeline::pinImages(std::__1::vector<SkImage*, std::__1::allocator<SkImage*>>&)
+0.02%     android::updateVsyncCounter(long, long) (.cfi)
+0.02%     android_fdsan_close_with_tag
+0.02%     androidx.compose.runtime.ComposerImpl.recomposeToGroupEnd
+0.02%     androidx.compose.runtime.CompositionImpl.invalidateChecked
+0.02%     androidx.compose.ui.node.LayoutNode.getMeasurePending$ui_release
+0.02%     androidx.compose.ui.platform.AndroidComposeView.recalculateWindowPosition
+0.02%     androidx.emoji2.text.MetadataRepo$Node.get
+0.02%     art::(anonymous namespace)::CheckJNI::CallMethodV(char const*, _JNIEnv*, _jobject*, _jclass*, _jmethodID*, std::__va_list, art::Primitive::Type, art::InvokeType)
+0.02%     art::(anonymous namespace)::CheckJNI::NewPrimitiveArray(char const*, _JNIEnv*, int, art::Primitive::Type)
+0.02%     art::(anonymous namespace)::CheckMethodArguments(art::JavaVMExt*, art::ArtMethod*, unsigned int*)
+0.02%     art::(anonymous namespace)::ScopedCheck::CheckPossibleHeapValue(art::ScopedObjectAccess&, char, art::(anonymous namespace)::JniValueType)
+0.02%     art::ArtMethod* art::ClassLinker::ResolveMethod<(art::ClassLinker::ResolveMode)0>(unsigned int, art::Handle<art::mirror::DexCache>, art::Handle<art::mirror::ClassLoader>, art::ArtMethod*, art::InvokeType)
+0.02%     art::ArtMethod* art::ClassLinker::ResolveMethod<(art::ClassLinker::ResolveMode)1>(art::Thread*, unsigned int, art::ArtMethod*, art::InvokeType)
+0.02%     art::ArtMethod::ResolveReturnType()
+0.02%     art::ClassLinker::FindArrayClass(art::Thread*, art::ObjPtr<art::mirror::Class>)
+0.02%     art::ComputeModifiedUtf8Hash(char const*)
+0.02%     art::IndirectReferenceTable::Add(art::IRTSegmentState, art::ObjPtr<art::mirror::Object>, std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>*)
+0.02%     art::JNI<true>::GetArrayLength(_JNIEnv*, _jarray*)
+0.02%     art::JNI<true>::NewLongArray(_JNIEnv*, int)
+0.02%     art::JNI<true>::NewObjectArray(_JNIEnv*, int, _jclass*, _jobject*)
+0.02%     art::JNI<true>::SetLongArrayRegion(_JNIEnv*, _jlongArray*, int, int, long const*)
+0.02%     art::JniTransitionReferenceVisitor<true>::VisitFrame()
+0.02%     art::ProfileCompilationInfo::DexFileData::ReadClasses(art::ProfileCompilationInfo::SafeBuffer&, art::dchecked_vector<unsigned short, std::__1::allocator<unsigned short>> const&, std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>*)
+0.02%     art::RuntimeCallbacks::MonitorContendedLocking(art::Monitor*)
+0.02%     art::SignalChain::Handler(int, siginfo*, void*)
+0.02%     art::Thread::DecodeJObject(_jobject*) const
+0.02%     art::mirror::Class::FindClassMethod(art::ObjPtr<art::mirror::DexCache>, unsigned int, art::PointerSize)
+0.02%     art::mirror::Class::FindInstanceField(art::ObjPtr<art::mirror::DexCache>, unsigned int)
+0.02%     art::mirror::Class::GetMethodIdOffset(art::ArtMethod*, art::PointerSize)
+0.02%     art_quick_imt_conflict_trampoline
+0.02%     auto Shader::StageSpecialization::StageSpecialization(Shader::Info const&, Shader::RuntimeInfo, Shader::Profile const&, Shader::Backend::Bindings)::'lambda0'(auto&, auto const&, AmdGpu::Buffer)::operator()<Shader::BufferSpecialization, Shader::BufferResource>(auto&, auto const&, AmdGpu::Buffer) const
+0.02%     bool std::__ndk1::condition_variable_any::wait_until[abi:ne210000]<std::__ndk1::unique_lock<std::__ndk1::mutex>, std::__ndk1::chrono::steady_clock, std::__ndk1::chrono::duration<long long, std::__ndk1::ratio<1l, 1000000000l>>, Core::HostRuntime::GuestAudio::Impl::Output(std::__ndk1::basic_string_view<char, std::__ndk1::char_traits<char>>, std::__ndk1::array<unsigned long, 6ul> const&, std::__ndk1::stop_token)::'lambda'()>(std::__ndk1::unique_lock<std::__ndk1::mutex>&, std::__ndk1::stop_token, std::__ndk1::chrono::time_point<std::__ndk1::chrono::steady_clock, std::__ndk1::chrono::duration<long long, std::__ndk1::ratio<1l, 1000000000l>>> const&, Core::HostRuntime::GuestAudio::Impl::Output(std::__ndk1::basic_string_view<char, std::__ndk1::char_traits<char>>, std::__ndk1::array<unsigned long, 6ul> const&, std::__ndk1::stop_token)::'lambda'())
+0.02%     calloc
+0.02%     char Core::HostRuntime::(anonymous namespace)::Read<char>(Core::GuestCpu::GuestAddressSpace&, unsigned long)
+0.02%     com.android.icu.charset.NativeConverter.translateCodingErrorAction
+0.02%     com.qualcomm.qti.QXPerformance.ScrollOptimizer.setVsyncTime
+0.02%     com.shadps4.android.runtime.input.NativePadBridge$Connection.access$getClosed$p
+0.02%     decltype(auto) std::__ndk1::__variant_detail::__visitation::__base::__dispatcher<0ul>::__dispatch[abi:ne210000]<std::__ndk1::__variant_detail::__dtor<std::__ndk1::__variant_detail::__traits<Core::GuestCpu::MappingInfo, Core::GuestCpu::Error>, (std::__ndk1::__variant_detail::_Trait)1>::__destroy[abi:ne210000]()::'lambda'(auto&)&&, std::__ndk1::__variant_detail::__base<(std::__ndk1::__variant_detail::_Trait)1, Core::GuestCpu::MappingInfo, Core::GuestCpu::Error>&>(auto, std::__ndk1::__variant_detail::__base<(std::__ndk1::__variant_detail::_Trait)1, Core::GuestCpu::MappingInfo, Core::GuestCpu::Error>&)
+0.02%     decltype(auto) std::__ndk1::__variant_detail::__visitation::__base::__dispatcher<0ul>::__dispatch[abi:ne210000]<std::__ndk1::__variant_detail::__dtor<std::__ndk1::__variant_detail::__traits<bool, Core::GuestCpu::Error>, (std::__ndk1::__variant_detail::_Trait)1>::__destroy[abi:ne210000]()::'lambda'(auto&)&&, std::__ndk1::__variant_detail::__base<(std::__ndk1::__variant_detail::_Trait)1, bool, Core::GuestCpu::Error>&>(auto, std::__ndk1::__variant_detail::__base<(std::__ndk1::__variant_detail::_Trait)1, bool, Core::GuestCpu::Error>&)
+0.02%     fmt::v12::basic_appender<char> fmt::v12::detail::write<char, fmt::v12::basic_appender<char>, unsigned int, 0>(fmt::v12::basic_appender<char>, unsigned int)
+0.02%     gettid
+0.02%     gsl_aux_command
+0.02%     gsl_command_readtimestamp
+0.02%     ioctl
+0.02%     ioctl_kgsl_multiple_wait_timelines
+0.02%     java.lang.AbstractStringBuilder.ensureCapacityInternal
+0.02%     java.lang.String.getChars
+0.02%     java.lang.ThreadLocal$ThreadLocalMap.-$$Nest$mset
+0.02%     java.lang.ThreadLocal$ThreadLocalMap.getEntry
+0.02%     java.lang.ThreadLocal.set
+0.02%     java.util.AbstractCollection.<init>
+0.02%     java.util.ArrayList$Itr.<init>
+0.02%     java.util.ArrayList$Itr.hasNext
+0.02%     java.util.ArrayList.<init>
+0.02%     java.util.ArrayList.ensureCapacityInternal
+0.02%     java.util.ArrayList.size
+0.02%     java.util.LinkedHashMap.newNode
+0.02%     java.util.concurrent.atomic.AtomicReferenceFieldUpdater$AtomicReferenceFieldUpdaterImpl.compareAndSet
+0.02%     kotlin.collections.CollectionsKt___CollectionsKt.windowed
+0.02%     kotlin.collections.EmptyList.size
+0.02%     kotlin.coroutines.intrinsics.IntrinsicsKt__IntrinsicsJvmKt.intercepted
+0.02%     kotlin.coroutines.jvm.internal.ContinuationImpl.getContext
+0.02%     kotlinx.coroutines.CancellableContinuationImpl.installParentHandle
+0.02%     kotlinx.coroutines.CancellableContinuationImpl.trySuspend
+0.02%     kotlinx.coroutines.channels.BufferedChannel.tryResumeReceiver
+0.02%     non-virtual thunk to android::BnTransactionCompletedListener::onTransact(unsigned int, android::Parcel const&, android::Parcel*, unsigned int)
+0.02%     nterp_op_goto_16
+0.02%     nterp_op_if_lez
+0.02%     nterp_op_invoke_super
+0.02%     nterp_op_long_to_int
+0.02%     profiler::sdk::detail::encode_gpu_zone_begin(unsigned char, unsigned int, unsigned long, char const*)
+0.02%     pthread_cond_signal
+0.02%     qglinternal::vkBeginCommandBuffer(VkCommandBuffer_T*, VkCommandBufferBeginInfo const*)
+0.02%     qglinternal::vkCmdDraw(VkCommandBuffer_T*, unsigned int, unsigned int, unsigned int, unsigned int)
+0.02%     qglinternal::vkCmdPipelineBarrier2(VkCommandBuffer_T*, VkDependencyInfo const*)
+0.02%     qglinternal::vkWaitForFences(VkDevice_T*, unsigned int, VkFence_T* const*, unsigned int, unsigned long)
+0.02%     scudo::getMonotonicTime()
+0.02%     scudo_calloc
+0.02%     scudo_free
+0.02%     scudo_malloc
+0.02%     sigdelset64
+0.02%     sigismember
+0.02%     std::__1::__deque_base<std::__1::function<void ()>, std::__1::allocator<std::__1::function<void ()>>>::clear()
+0.02%     std::__1::__function::__func<std::__1::__bind<void (&)(android::wp<android::BLASTBufferQueue>, android::ReleaseCallbackId const&, android::sp<android::Fence> const&, std::__1::optional<unsigned int>), android::wp<android::BLASTBufferQueue>, std::__1::placeholders::__ph<1> const&, std::__1::placeholders::__ph<2> const&, std::__1::placeholders::__ph<3> const&>, std::__1::allocator<std::__1::__bind<void (&)(android::wp<android::BLASTBufferQueue>, android::ReleaseCallbackId const&, android::sp<android::Fence> const&, std::__1::optional<unsigned int>), android::wp<android::BLASTBufferQueue>, std::__1::placeholders::__ph<1> const&, std::__1::placeholders::__ph<2> const&, std::__1::placeholders::__ph<3> const&>>, void (android::ReleaseCallbackId const&, android::sp<android::Fence> const&, std::__1::optional<unsigned int>)>::__clone() const
+0.02%     std::__1::__hash_table<android::sp<android::SurfaceControl>, android::SurfaceComposerClient::SCHash, std::__1::equal_to<android::sp<android::SurfaceControl>>, std::__1::allocator<android::sp<android::SurfaceControl>>>::rehash(unsigned long)
+0.02%     std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>::basic_string(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>> const&)
+0.02%     std::__1::deque<std::__1::function<void ()>, std::__1::allocator<std::__1::function<void ()>>>::__add_back_capacity()
+0.02%     std::__1::pair<std::__1::__hash_iterator<std::__1::__hash_node<android::sp<android::SurfaceControl>, void*>*>, bool> std::__1::__hash_table<android::sp<android::SurfaceControl>, android::SurfaceComposerClient::SCHash, std::__1::equal_to<android::sp<android::SurfaceControl>>, std::__1::allocator<android::sp<android::SurfaceControl>>>::__emplace_unique_key_args<android::sp<android::SurfaceControl>, android::sp<android::SurfaceControl> const&>(android::sp<android::SurfaceControl> const&, android::sp<android::SurfaceControl> const&)
+0.02%     std::__ndk1::__function::__func<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers()::$_17::operator()(char const*, char const*, std::__ndk1::function<int (std::__ndk1::array<unsigned long, 6ul> const&)>) const::'lambda0'(auto const&), std::__ndk1::allocator<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers()::$_17::operator()(char const*, char const*, std::__ndk1::function<int (std::__ndk1::array<unsigned long, 6ul> const&)>) const::'lambda0'(auto const&)>, unsigned long (std::__ndk1::array<unsigned long, 6ul> const&)>::operator()(std::__ndk1::array<unsigned long, 6ul> const&)
+0.02%     std::__ndk1::pair<tsl::detail_robin_hash::robin_hash<std::__ndk1::pair<unsigned long, std::__ndk1::unique_ptr<Vulkan::Program, std::__ndk1::default_delete<Vulkan::Program>>>, tsl::robin_map<unsigned long, std::__ndk1::unique_ptr<Vulkan::Program, std::__ndk1::default_delete<Vulkan::Program>>, std::__ndk1::hash<unsigned long>, std::__ndk1::equal_to<unsigned long>, std::__ndk1::allocator<std::__ndk1::pair<unsigned long, std::__ndk1::unique_ptr<Vulkan::Program, std::__ndk1::default_delete<Vulkan::Program>>>>, false, tsl::rh::power_of_two_growth_policy<2ul>>::KeySelect, tsl::robin_map<unsigned long, std::__ndk1::unique_ptr<Vulkan::Program, std::__ndk1::default_delete<Vulkan::Program>>, std::__ndk1::hash<unsigned long>, std::__ndk1::equal_to<unsigned long>, std::__ndk1::allocator<std::__ndk1::pair<unsigned long, std::__ndk1::unique_ptr<Vulkan::Program, std::__ndk1::default_delete<Vulkan::Program>>>>, false, tsl::rh::power_of_two_growth_policy<2ul>>::ValueSelect, std::__ndk1::hash<unsigned long>, std::__ndk1::equal_to<unsigned long>, std::__ndk1::allocator<std::__ndk1::pair<unsigned long, std::__ndk1::unique_ptr<Vulkan::Program, std::__ndk1::default_delete<Vulkan::Program>>>>, false, tsl::rh::power_of_two_growth_policy<2ul>>::robin_iterator<false>, bool> tsl::detail_robin_hash::robin_hash<std::__ndk1::pair<unsigned long, std::__ndk1::unique_ptr<Vulkan::Program, std::__ndk1::default_delete<Vulkan::Program>>>, tsl::robin_map<unsigned long, std::__ndk1::unique_ptr<Vulkan::Program, std::__ndk1::default_delete<Vulkan::Program>>, std::__ndk1::hash<unsigned long>, std::__ndk1::equal_to<unsigned long>, std::__ndk1::allocator<std::__ndk1::pair<unsigned long, std::__ndk1::unique_ptr<Vulkan::Program, std::__ndk1::default_delete<Vulkan::Program>>>>, false, tsl::rh::power_of_two_growth_policy<2ul>>::KeySelect, tsl::robin_map<unsigned long, std::__ndk1::unique_ptr<Vulkan::Program, std::__ndk1::default_delete<Vulkan::Program>>, std::__ndk1::hash<unsigned long>, std::__ndk1::equal_to<unsigned long>, std::__ndk1::allocator<std::__ndk1::pair<unsigned long, std::__ndk1::unique_ptr<Vulkan::Program, std::__ndk1::default_delete<Vulkan::Program>>>>, false, tsl::rh::power_of_two_growth_policy<2ul>>::ValueSelect, std::__ndk1::hash<unsigned long>, std::__ndk1::equal_to<unsigned long>, std::__ndk1::allocator<std::__ndk1::pair<unsigned long, std::__ndk1::unique_ptr<Vulkan::Program, std::__ndk1::default_delete<Vulkan::Program>>>>, false, tsl::rh::power_of_two_growth_policy<2ul>>::insert_impl<unsigned long, std::__ndk1::piecewise_construct_t const&, std::__ndk1::tuple<unsigned long const&>, std::__ndk1::tuple<>>(unsigned long const&, std::__ndk1::piecewise_construct_t const&, std::__ndk1::tuple<unsigned long const&>&&, std::__ndk1::tuple<>&&)
+0.02%     std::__ndk1::recursive_mutex::lock()
+0.02%     std::__ndk1::stop_callback<bool std::__ndk1::condition_variable_any::wait[abi:ne210000]<std::__ndk1::unique_lock<std::__ndk1::mutex>, Core::HostRuntime::GuestMutexDomain::Lock(unsigned long, unsigned long, bool, std::__ndk1::stop_token)::'lambda'()>(std::__ndk1::unique_lock<std::__ndk1::mutex>&, std::__ndk1::stop_token, Core::HostRuntime::GuestMutexDomain::Lock(unsigned long, unsigned long, bool, std::__ndk1::stop_token)::'lambda'())::'lambda'()>::stop_callback[abi:ne210000]<std::__ndk1::__intrusive_shared_ptr<std::__ndk1::__stop_state> const&, bool std::__ndk1::condition_variable_any::wait[abi:ne210000]<std::__ndk1::unique_lock<std::__ndk1::mutex>, Core::HostRuntime::GuestMutexDomain::Lock(unsigned long, unsigned long, bool, std::__ndk1::stop_token)::'lambda'()>(std::__ndk1::unique_lock<std::__ndk1::mutex>&, std::__ndk1::stop_token, Core::HostRuntime::GuestMutexDomain::Lock(unsigned long, unsigned long, bool, std::__ndk1::stop_token)::'lambda'())::'lambda'()>(std::__ndk1::__private_constructor_tag, std::__ndk1::unique_lock<std::__ndk1::mutex>&&, Core::HostRuntime::GuestMutexDomain::Lock(unsigned long, unsigned long, bool, std::__ndk1::stop_token)::'lambda'()&&)
+0.02%     unknown[+6a2fb86ba0]
+0.02%     unknown[+6a2fb87bbc]
+0.02%     unknown[+6a2fb87d80]
+0.02%     unknown[+6a2fb88020]
+0.02%     unknown[+6a2fb881e4]
+0.02%     unknown[+6a2fb888bc]
+0.02%     unknown[+6a2fb89b04]
+0.02%     unknown[+6a2fb8a738]
+0.02%     unknown[+6a2fb8abac]
+0.02%     unknown[+6a2fb8abb0]
+0.02%     unknown[+6a2fb8abcc]
+0.02%     unknown[+6a2fb8b0f4]
+0.02%     unknown[+6a2fb8b130]
+0.02%     unknown[+6a2fb8b3a4]
+0.02%     unknown[+6a2fb8b3bc]
+0.02%     unknown[+6a2fb8b3d0]
+0.02%     unknown[+6a2fb8b4c0]
+0.02%     unknown[+6a2fb8b4e0]
+0.02%     unknown[+6a2fb8b4f4]
+0.02%     unknown[+6a2fb8b534]
+0.02%     unknown[+6a2fb8b580]
+0.02%     unknown[+6a2fb8b860]
+0.02%     unknown[+6a2fb8b954]
+0.02%     unknown[+6a2fb8b968]
+0.02%     unknown[+6a2fb8b9d4]
+0.02%     unknown[+6a2fb8b9e8]
+0.02%     unknown[+6a2fb8b9f4]
+0.02%     unknown[+6a2fb8ba00]
+0.02%     unknown[+6a2fb8bea0]
+0.02%     unknown[+6a2fb8c010]
+0.02%     unknown[+6a2fb8c244]
+0.02%     unknown[+6a2fb8c24c]
+0.02%     unknown[+6a2fb8dad0]
+0.02%     unknown[+6a2fb91294]
+0.02%     unknown[+6a2fb93b6c]
+0.02%     unknown[+6a2fb96884]
+0.02%     unknown[+6a2fb96a08]
+0.02%     unknown[+6a2fb96e04]
+0.02%     unknown[+6a2fb97084]
+0.02%     unknown[+6a2fb973b4]
+0.02%     unknown[+6a2fb97490]
+0.02%     unknown[+6a2fb974b8]
+0.02%     unknown[+6a2fb974e8]
+0.02%     unknown[+6a2fb974ec]
+0.02%     unknown[+6a2fb97520]
+0.02%     unknown[+6a2fb9752c]
+0.02%     unknown[+6a2fb976c0]
+0.02%     unknown[+6a2fb976d8]
+0.02%     unknown[+6a2fb97914]
+0.02%     unknown[+6a2fb98f14]
+0.02%     unknown[+6a2fb9e4e0]
+0.02%     unknown[+6a2fba1a3c]
+0.02%     unknown[+6a2fba1a60]
+0.02%     unknown[+6a2fba3d5c]
+0.02%     unknown[+6a2fba4144]
+0.02%     unknown[+6a2fba5258]
+0.02%     unknown[+6a2fba6884]
+0.02%     unknown[+6a2fba7c00]
+0.02%     unknown[+6a2fbaa854]
+0.02%     unknown[+6a2fbaa9dc]
+0.02%     unknown[+6a2fbb09b0]
+0.02%     unknown[+6a2fbb0af8]
+0.02%     unknown[+6a2fbb2b80]
+0.02%     unknown[+6a2fbb60f4]
+0.02%     unknown[+6a2fbb6b1c]
+0.02%     unknown[+6a2fbb70a4]
+0.02%     unknown[+6a2fbbc3e4]
+0.02%     unknown[+6a2fbbd664]
+0.02%     unknown[+6a2fbbe064]
+0.02%     unknown[+6a2fbbe54c]
+0.02%     unknown[+6a2fbc0524]
+0.02%     unknown[+6a2fbc0ba4]
+0.02%     unknown[+6a2fbc1e64]
+0.02%     unknown[+6a2fbc44d0]
+0.02%     unknown[+6a2fbc5c54]
+0.02%     unknown[+6a2fbc5c7c]
+0.02%     unknown[+6a2fbc7e50]
+0.02%     unknown[+6a2fbca9f8]
+0.02%     unknown[+6a2fbcdbcc]
+0.02%     unknown[+6a2fbcf6bc]
+0.02%     unknown[+6a2fbcf7f8]
+0.02%     unknown[+6a2fbd2350]
+0.02%     unknown[+6a2fbd699c]
+0.02%     unknown[+6a2fbd82f4]
+0.02%     unknown[+6a2fbd9740]
+0.02%     unknown[+6a2fbe1b80]
+0.02%     unknown[+6a2fbe3990]
+0.02%     unknown[+6a2fbe4d74]
+0.02%     unknown[+6a2fbe4e18]
+0.02%     unknown[+6a2fbe4ec4]
+0.02%     unknown[+6a2fbe8240]
+0.02%     unknown[+6a2fbe8a84]
+0.02%     unknown[+6a2fbe959c]
+0.02%     unknown[+6a2fbe9644]
+0.02%     unknown[+6a2fbe9914]
+0.02%     unknown[+6a2fbeb654]
+0.02%     unknown[+6a2fbeb7d4]
+0.02%     unknown[+6a2fbec864]
+0.02%     unknown[+6a2fbee118]
+0.02%     unknown[+6a2fbef444]
+0.02%     unknown[+6a2fbf01b4]
+0.02%     unknown[+6a2fbf3b28]
+0.02%     unknown[+6a2fbfa4a4]
+0.02%     unknown[+6a2fbfbba4]
+0.02%     unknown[+6a2fbfcaa8]
+0.02%     unknown[+6a2fc06394]
+0.02%     unknown[+6a2fc0b844]
+0.02%     unknown[+6a2fc0ddc0]
+0.02%     unknown[+6a2fc0fe08]
+0.02%     unknown[+6a2fc10144]
+0.02%     unknown[+6a2fc10284]
+0.02%     unknown[+6a2fc10650]
+0.02%     unknown[+6a2fc136f0]
+0.02%     unknown[+6a2fc15f94]
+0.02%     unknown[+6a2fc16bf4]
+0.02%     unknown[+6a2fc18e28]
+0.02%     unknown[+6a2fc1b200]
+0.02%     unknown[+6a2fc1fe74]
+0.02%     unknown[+6a2fc2a74c]
+0.02%     unknown[+6a2fc2a900]
+0.02%     unknown[+6a2fc2b074]
+0.02%     unknown[+6a2fc2beac]
+0.02%     unknown[+6a2fc2d914]
+0.02%     unknown[+6a2fc35d84]
+0.02%     unknown[+6a2fc3c244]
+0.02%     unknown[+6a2fc3ce48]
+0.02%     unknown[+6a2fc3d9b8]
+0.02%     unknown[+6a2fc42580]
+0.02%     unknown[+6a2fc4b140]
+0.02%     unknown[+6a2fc4bab4]
+0.02%     unknown[+6a2fc507cc]
+0.02%     unknown[+6a2fc53670]
+0.02%     unknown[+6a2fc53b04]
+0.02%     unknown[+6a2fc54530]
+0.02%     unknown[+6a2fc54724]
+0.02%     unknown[+6a2fc55e44]
+0.02%     unknown[+6a2fc55f18]
+0.02%     unknown[+6a2fc56648]
+0.02%     unknown[+6a2fc567d0]
+0.02%     unknown[+6a2fc56820]
+0.02%     unknown[+6a2fc56ae4]
+0.02%     unknown[+6a2fc56e04]
+0.02%     unknown[+6a2fc573c4]
+0.02%     unknown[+6a2fc57664]
+0.02%     unknown[+6a2fc579f4]
+0.02%     unknown[+6a2fc57d44]
+0.02%     unknown[+6a2fc57d80]
+0.02%     unknown[+6a2fc57ea4]
+0.02%     unknown[+6a2fc58168]
+0.02%     unknown[+6a2fc58634]
+0.02%     unknown[+6a2fc5d6a4]
+0.02%     unknown[+6a2fc5f784]
+0.02%     unknown[+6a2fc5fad4]
+0.02%     unknown[+6a2fc604d4]
+0.02%     unknown[+6a2fc61280]
+0.02%     unknown[+6a2fc6128c]
+0.02%     unknown[+6a2fc61324]
+0.02%     unknown[+6a2fc624b8]
+0.02%     unknown[+6a2fc63394]
+0.02%     unknown[+6a2fc68db8]
+0.02%     unknown[+6a2fc70e00]
+0.02%     unknown[+6a2fc71064]
+0.02%     unknown[+6a2fc71120]
+0.02%     unknown[+6a2fc76120]
+0.02%     unknown[+6a2fc76e44]
+0.02%     unknown[+6a2fc7f780]
+0.02%     unknown[+6a2fc815ec]
+0.02%     unknown[+6a2fc81600]
+0.02%     unknown[+6a2fc83064]
+0.02%     unknown[+6a2fc83cac]
+0.02%     unknown[+6a2fc83d30]
+0.02%     unknown[+6a2fc84000]
+0.02%     unknown[+6a2fc8415c]
+0.02%     unknown[+6a2fc84234]
+0.02%     unknown[+6a2fc84690]
+0.02%     unknown[+6a2fc87000]
+0.02%     unknown[+6a2fc877a8]
+0.02%     unknown[+6a2fc87d00]
+0.02%     unknown[+6a2fc88174]
+0.02%     unknown[+6a2fc92b34]
+0.02%     unknown[+6a2fc93ae4]
+0.02%     unknown[+6a2fc94920]
+0.02%     unknown[+6a2fc9a4e4]
+0.02%     unknown[+6a2fc9a880]
+0.02%     unknown[+6a2fc9c304]
+0.02%     unknown[+6a2fc9d748]
+0.02%     unknown[+6a2fc9ecc0]
+0.02%     unknown[+6a2fc9f720]
+0.02%     unknown[+6a2fca04a4]
+0.02%     unknown[+6a2fca1e90]
+0.02%     unknown[+6a2fca2f34]
+0.02%     unknown[+6a2fca4cc8]
+0.02%     unknown[+6a2fca5b64]
+0.02%     unknown[+6a2fca7054]
+0.02%     unknown[+6a2fca7514]
+0.02%     unknown[+6a2fca7c98]
+0.02%     unknown[+6a2fca8b8c]
+0.02%     unknown[+6a2fca9878]
+0.02%     unknown[+6a2fcac980]
+0.02%     unknown[+6a2fcacf94]
+0.02%     unknown[+6a2fcae544]
+0.02%     unknown[+6a2fcb25d4]
+0.02%     unknown[+6a2fcb25f4]
+0.02%     unknown[+6a2fcb7884]
+0.02%     unknown[+6a2fcb8830]
+0.02%     unknown[+6a2fcbcdd4]
+0.02%     unknown[+6a2fcbe480]
+0.02%     unknown[+6a2fcbe994]
+0.02%     unknown[+6a2fcc4264]
+0.02%     unknown[+6a2fcc4400]
+0.02%     unknown[+6a2fcc5334]
+0.02%     unknown[+6a2fcc73a8]
+0.02%     unknown[+6a2fcc7df4]
+0.02%     unknown[+6a2fcca9c0]
+0.02%     unknown[+6a2fccac24]
+0.02%     unknown[+6a2fccb2f4]
+0.02%     unknown[+6a2fcd0024]
+0.02%     unknown[+6a2fcd309c]
+0.02%     unknown[+6a2fcd8f00]
+0.02%     unknown[+6a2fcde434]
+0.02%     unknown[+6a2fce16bc]
+0.02%     unknown[+6a2fce279c]
+0.02%     unknown[+6a2fce32c0]
+0.02%     unknown[+6a2fce4154]
+0.02%     unknown[+6a2fce5ab4]
+0.02%     unknown[+6a2fce7040]
+0.02%     unknown[+6a2fce924c]
+0.02%     unknown[+6a2fced940]
+0.02%     unknown[+6a2fcf0680]
+0.02%     unknown[+6a2fcf3b68]
+0.02%     unknown[+6a2fcf4290]
+0.02%     unknown[+6a2fcf5248]
+0.02%     unknown[+6a2fcf6640]
+0.02%     unknown[+6a2fcf7980]
+0.02%     unknown[+6a2fcf9ffc]
+0.02%     unknown[+6a2fcfa00c]
+0.02%     unknown[+6a2fcfa014]
+0.02%     unknown[+6a2fcfa01c]
+0.02%     unknown[+6a2fcfa404]
+0.02%     unknown[+6a2fcfb1dc]
+0.02%     unknown[+6a2fcfb624]
+0.02%     unknown[+6a2fcfbc14]
+0.02%     unknown[+6a2fcfbe84]
+0.02%     unknown[+6a2fcfbfd8]
+0.02%     unknown[+6a2fcfd4c4]
+0.02%     unknown[+6a2fd00a04]
+0.02%     unknown[+6a2fd04d80]
+0.02%     unknown[+6a2fd05258]
+0.02%     unknown[+6a2fd05740]
+0.02%     unknown[+6a2fd0bebc]
+0.02%     unknown[+6a2fd0d744]
+0.02%     unknown[+6a2fd11ac4]
+0.02%     unknown[+6a2fd12584]
+0.02%     unknown[+6a2fd129c0]
+0.02%     unknown[+6a2fd134d0]
+0.02%     unknown[+6a2fd13674]
+0.02%     unknown[+6a2fd139d4]
+0.02%     unknown[+6a2fd176f4]
+0.02%     unknown[+6a2fd1d3ac]
+0.02%     unknown[+6a2fd1ed80]
+0.02%     unknown[+6a2fd1f2e4]
+0.02%     unknown[+6a2fd1f434]
+0.02%     unknown[+6a2fd21338]
+0.02%     unknown[+6a2fd21e04]
+0.02%     unknown[+6a2fd23624]
+0.02%     unknown[+6a2fd240bc]
+0.02%     unknown[+6a2fd24118]
+0.02%     unknown[+6a2fd24ea8]
+0.02%     unknown[+6a2fd27404]
+0.02%     unknown[+6a2fd27a44]
+0.02%     unknown[+6a2fd27b00]
+0.02%     unknown[+6a2fd27ef4]
+0.02%     unknown[+6a2fd284d4]
+0.02%     unknown[+6a2fd28500]
+0.02%     unknown[+6a2fd286c4]
+0.02%     unknown[+6a2fd28b64]
+0.02%     unknown[+6a2fd28b80]
+0.02%     unknown[+6a2fd29114]
+0.02%     unknown[+6a2fd29160]
+0.02%     unknown[+6a2fd29264]
+0.02%     unknown[+6a2fd29304]
+0.02%     unknown[+6a2fd29894]
+0.02%     unknown[+6a2fd2a97c]
+0.02%     unknown[+6a2fd2af9c]
+0.02%     unknown[+6a2fd2b2b8]
+0.02%     unknown[+6a2fd2b988]
+0.02%     unknown[+6a2fd2b9a8]
+0.02%     unknown[+6a2fd2b9c8]
+0.02%     unknown[+6a2fd2c438]
+0.02%     unknown[+6a2fd2c918]
+0.02%     unknown[+6a2fd2d350]
+0.02%     unknown[+6a2fd2d374]
+0.02%     unknown[+6a2fd2e9ac]
+0.02%     unknown[+6a2fd2f5f8]
+0.02%     unknown[+6a2fd2f6ac]
+0.02%     unknown[+6a2fd2fc64]
+0.02%     unknown[+6a2fd2fcc0]
+0.02%     unknown[+6a2fd317d4]
+0.02%     unknown[+6a2fd31fa4]
+0.02%     unknown[+6a2fd32940]
+0.02%     unknown[+6a2fd3362c]
+0.02%     unknown[+6a2fd354f4]
+0.02%     unknown[+6a2fd36154]
+0.02%     unknown[+6a2fd372f4]
+0.02%     unknown[+6a2fd37400]
+0.02%     unknown[+6a2fd38654]
+0.02%     unknown[+6a2fd38ad8]
+0.02%     unknown[+6a2fd38f24]
+0.02%     unknown[+6a2fd39cb0]
+0.02%     unknown[+6a2fd39edc]
+0.02%     unknown[+6a2fd3a0b8]
+0.02%     unknown[+6a2fd3a0ec]
+0.02%     unknown[+6a2fd3a144]
+0.02%     unknown[+6a2fd3be88]
+0.02%     unknown[+6a2fd3c084]
+0.02%     unknown[+6a2fd3c090]
+0.02%     unknown[+6a2fd3c174]
+0.02%     unknown[+6a2fd3c340]
+0.02%     unknown[+6a2fd3c374]
+0.02%     unknown[+6a2fd3c7ec]
+0.02%     unknown[+6a2fd3c84c]
+0.02%     unknown[+6a2fd3c85c]
+0.02%     unknown[+6a2fd3cbc0]
+0.02%     unknown[+6a2fd3e864]
+0.02%     unknown[+6a2fd3ea84]
+0.02%     unknown[+6a2fd3eda0]
+0.02%     unknown[+6a2fd3f180]
+0.02%     unknown[+6a2fd3f1a8]
+0.02%     unknown[+6a2fd3f544]
+0.02%     unknown[+6a2fd3f9c0]
+0.02%     unknown[+6a2fd4092c]
+0.02%     unknown[+6a2fd410d4]
+0.02%     unknown[+6a2fd416c4]
+0.02%     unknown[+6a2fd46024]
+0.02%     unknown[+6a2fd4638c]
+0.02%     unknown[+6a2fd46c48]
+0.02%     unknown[+6a2fd49354]
+0.02%     unknown[+6a2fd49b28]
+0.02%     unknown[+6a2fd4b7dc]
+0.02%     unknown[+6a2fd4bb68]
+0.02%     unknown[+6a2fd4be64]
+0.02%     unknown[+6a2fd4c334]
+0.02%     unknown[+6a2fd4d7fc]
+0.02%     unknown[+6a2fd4e0b4]
+0.02%     unknown[+6a2fd4e0fc]
+0.02%     unknown[+6a2fd4e194]
+0.02%     unknown[+6a2fd503b4]
+0.02%     unknown[+6a2fd51264]
+0.02%     unknown[+6a2fd51324]
+0.02%     unknown[+6a2fd51d08]
+0.02%     unknown[+6a2fd52034]
+0.02%     unknown[+6a2fd52058]
+0.02%     unknown[+6a2fd52064]
+0.02%     unknown[+6a2fd52688]
+0.02%     unknown[+6a2fd52f94]
+0.02%     unknown[+6a2fd52fa4]
+0.02%     unknown[+6a2fd53b88]
+0.02%     unknown[+6a2fd53dac]
+0.02%     unknown[+6a2fd54264]
+0.02%     unknown[+6a2fd54280]
+0.02%     unknown[+6a2fd54e54]
+0.02%     unknown[+6a2fd55244]
+0.02%     unknown[+6a2fd55264]
+0.02%     unknown[+6a2fd55c14]
+0.02%     unknown[+6a2fd56ba4]
+0.02%     unknown[+6a2fd58c40]
+0.02%     unknown[+6a2fd59604]
+0.02%     unknown[+6a2fd5a874]
+0.02%     unknown[+6a2fd5c754]
+0.02%     unknown[+6a2fd5c828]
+0.02%     unknown[+6a2fd5d830]
+0.02%     unknown[+6a2fd602e4]
+0.02%     unknown[+6a2fd60be4]
+0.02%     unknown[+6a2fd60dd4]
+0.02%     unknown[+6a2fd63d98]
+0.02%     unknown[+6a2fd63ec0]
+0.02%     unknown[+6a2fd63ec4]
+0.02%     unknown[+6a2fd63f54]
+0.02%     unknown[+6a2fd65374]
+0.02%     unknown[+6a2fd67000]
+0.02%     unknown[+6a2fd67984]
+0.02%     unknown[+6a2fd679b0]
+0.02%     unknown[+6a2fd68000]
+0.02%     unknown[+6a2fd69fa4]
+0.02%     unknown[+6a2fd6ac50]
+0.02%     unknown[+6a2fd6ba84]
+0.02%     unknown[+6a2fd6bcd4]
+0.02%     unknown[+6a2fd6bd04]
+0.02%     unknown[+6a2fd6d944]
+0.02%     unknown[+6a2fd6ed1c]
+0.02%     unknown[+6a2fd70ac4]
+0.02%     unknown[+6a2fd716d4]
+0.02%     unknown[+6a2fd722a4]
+0.02%     unknown[+6a2fd725d0]
+0.02%     unknown[+6a2fd7267c]
+0.02%     unknown[+6a2fd7275c]
+0.02%     unknown[+6a2fd729f8]
+0.02%     unknown[+6a2fd72afc]
+0.02%     unknown[+6a2fd73580]
+0.02%     unknown[+6a2fd73a38]
+0.02%     unknown[+6a2fd73d58]
+0.02%     unknown[+6a2fd74e24]
+0.02%     unknown[+6a2fd758e4]
+0.02%     unknown[+6a2fd76574]
+0.02%     unknown[+6a2fd76ff8]
+0.02%     unknown[+6a2fd77460]
+0.02%     unknown[+6a2fd777d4]
+0.02%     unknown[+6a2fd79574]
+0.02%     unknown[+6a2fd7b4c0]
+0.02%     unknown[+6a2fd7b500]
+0.02%     unknown[+6a2fd7c59c]
+0.02%     unknown[+6a2fd7e540]
+0.02%     unknown[+6a2fd7e5c0]
+0.02%     unknown[+6a2fd7f408]
+0.02%     unknown[+6a2fd7fdec]
+0.02%     unknown[+6a2fd80ae8]
+0.02%     unknown[+6a2fd824f0]
+0.02%     unknown[+6a2fd85cc4]
+0.02%     unknown[+6a2fd864e4]
+0.02%     unknown[+6a2fd87124]
+0.02%     unknown[+6a2fd8bac4]
+0.02%     unknown[+6a2fd8c908]
+0.02%     unknown[+6a2fd8fcc4]
+0.02%     unknown[+6a2fd94208]
+0.02%     unknown[+6a2fd9464c]
+0.02%     unknown[+6a2fd95ba4]
+0.02%     unknown[+6a2fd95bb8]
+0.02%     unknown[+6a2fd96960]
+0.02%     unknown[+6a2fd99684]
+0.02%     unknown[+6a2fd9af94]
+0.02%     unknown[+6a2fd9b054]
+0.02%     unknown[+6a2fd9b83c]
+0.02%     unknown[+6a2fd9bc80]
+0.02%     unknown[+6a2fd9c510]
+0.02%     unknown[+6a2fd9c524]
+0.02%     unknown[+6a2fd9c53c]
+0.02%     unknown[+6a2fd9c544]
+0.02%     unknown[+6a2fd9df88]
+0.02%     unknown[+6a2fd9e240]
+0.02%     unknown[+6a2fd9e640]
+0.02%     unknown[+6a2fd9e770]
+0.02%     unknown[+6a2fd9ee64]
+0.02%     unknown[+6a2fd9fd18]
+0.02%     unknown[+6a2fda02b8]
+0.02%     unknown[+6a2fda0658]
+0.02%     unknown[+6a2fda0944]
+0.02%     unknown[+6a2fda15c4]
+0.02%     unknown[+6a2fda1da4]
+0.02%     unknown[+6a2fda26cc]
+0.02%     unknown[+6a2fda2840]
+0.02%     unknown[+6a2fda2a80]
+0.02%     unknown[+6a2fda7898]
+0.02%     unknown[+6a2fda9564]
+0.02%     unknown[+6a2fdab128]
+0.02%     unknown[+6a2fdab158]
+0.02%     unknown[+6a2fdab16c]
+0.02%     unknown[+6a2fdab178]
+0.02%     unknown[+6a2fdace34]
+0.02%     unknown[+6a2fdada28]
+0.02%     unknown[+6a2fdafe84]
+0.02%     unknown[+6a2fdb3160]
+0.02%     unknown[+6a2fdb6ae4]
+0.02%     unknown[+6a2fdb8084]
+0.02%     unknown[+6a2fdba020]
+0.02%     unknown[+6a2fdbc18c]
+0.02%     unknown[+6a2fdbc364]
+0.02%     unknown[+6a2fdbf264]
+0.02%     unknown[+6a2fdbf7f4]
+0.02%     unknown[+6a2fdc0224]
+0.02%     unknown[+6a2fdc0240]
+0.02%     unknown[+6a2fdc0250]
+0.02%     unknown[+6a2fdc0254]
+0.02%     unknown[+6a2fdc0c48]
+0.02%     unknown[+6a2fdc0c64]
+0.02%     unknown[+6a2fdc0c9c]
+0.02%     unknown[+6a2fdc0ca4]
+0.02%     unknown[+6a2fdc0cf4]
+0.02%     unknown[+6a2fdc0d00]
+0.02%     unknown[+6a2fdc1be4]
+0.02%     unknown[+6a2fdc1f4c]
+0.02%     unknown[+6a2fdc2648]
+0.02%     unknown[+6a2fdc45c8]
+0.02%     unknown[+6a2fdc4a44]
+0.02%     unknown[+6a2fdc5434]
+0.02%     unknown[+6a2fdc54dc]
+0.02%     unknown[+6a2fdc5550]
+0.02%     unknown[+6a2fdc5558]
+0.02%     unknown[+6a2fdc5570]
+0.02%     unknown[+6a2fdc557c]
+0.02%     unknown[+6a2fdc55a4]
+0.02%     unknown[+6a2fdc5a64]
+0.02%     unknown[+6a2fdc683c]
+0.02%     unknown[+6a2fdc6850]
+0.02%     unknown[+6a2fdc7544]
+0.02%     unknown[+6a2fdc7560]
+0.02%     unknown[+6a2fdc7570]
+0.02%     unknown[+6a2fdc7584]
+0.02%     unknown[+6a2fdc758c]
+0.02%     unknown[+6a2fdc759c]
+0.02%     unknown[+6a2fdc82f0]
+0.02%     unknown[+6a2fdc914c]
+0.02%     unknown[+6a2fdc9158]
+0.02%     unknown[+6a2fdc9160]
+0.02%     unknown[+6a2fdc917c]
+0.02%     unknown[+6a2fdc918c]
+0.02%     unknown[+6a2fdc9198]
+0.02%     unknown[+6a2fdc919c]
+0.02%     unknown[+6a2fdc99b8]
+0.02%     unknown[+6a2fdc99e0]
+0.02%     unknown[+6a2fdc99fc]
+0.02%     unknown[+6a2fdc9a58]
+0.02%     unknown[+6a2fdc9a6c]
+0.02%     unknown[+6a2fdca8bc]
+0.02%     unknown[+6a2fdca8c8]
+0.02%     unknown[+6a2fdca8d4]
+0.02%     unknown[+6a2fdca8e0]
+0.02%     unknown[+6a2fdca8e8]
+0.02%     unknown[+6a2fdca948]
+0.02%     unknown[+6a2fdca954]
+0.02%     unknown[+6a2fdcbf70]
+0.02%     unknown[+6a2fdcc2b4]
+0.02%     unknown[+6a2fdcd134]
+0.02%     unknown[+6a2fdcd17c]
+0.02%     unknown[+6a2fdcd188]
+0.02%     unknown[+6a2fdcd190]
+0.02%     unknown[+6a2fdcd19c]
+0.02%     unknown[+6a2fdcd1ac]
+0.02%     unknown[+6a2fdcd1c8]
+0.02%     unknown[+6a2fdcd204]
+0.02%     unknown[+6a2fdcd23c]
+0.02%     unknown[+6a2fdcd250]
+0.02%     unknown[+6a2fdcd264]
+0.02%     unknown[+6a2fdcd288]
+0.02%     unknown[+6a2fdcd2b8]
+0.02%     unknown[+6a2fdcd2d0]
+0.02%     unknown[+6a2fdcd31c]
+0.02%     unknown[+6a2fdcd330]
+0.02%     unknown[+6a2fdcd338]
+0.02%     unknown[+6a2fdcd344]
+0.02%     unknown[+6a2fdcd370]
+0.02%     unknown[+6a2fdcd3ac]
+0.02%     unknown[+6a2fdcd3d4]
+0.02%     unknown[+6a2fdcd3dc]
+0.02%     unknown[+6a2fdcd3ec]
+0.02%     unknown[+6a2fdcd4e4]
+0.02%     unknown[+6a2fdcd53c]
+0.02%     unknown[+6a2fdcd54c]
+0.02%     unknown[+6a2fdcd638]
+0.02%     unknown[+6a2fdcdbc4]
+0.02%     unknown[+6a2fdcdbd4]
+0.02%     unknown[+6a2fdce174]
+0.02%     unknown[+6a2fdce474]
+0.02%     unknown[+6a2fdce738]
+0.02%     unknown[+6a2fdce744]
+0.02%     unknown[+6a2fdce748]
+0.02%     unknown[+6a2fdce754]
+0.02%     unknown[+6a2fdcfc04]
+0.02%     unknown[+6a2fdcfc28]
+0.02%     unknown[+6a2fdcfc34]
+0.02%     unknown[+6a2fdcfc44]
+0.02%     unknown[+6a2fdd0120]
+0.02%     unknown[+6a2fdd012c]
+0.02%     unknown[+6a2fdd02fc]
+0.02%     unknown[+6a2fdd04d0]
+0.02%     unknown[+6a2fdd0634]
+0.02%     unknown[+6a2fdd0b0c]
+0.02%     unknown[+6a2fdd0b20]
+0.02%     unknown[+6a2fdd0fc0]
+0.02%     unknown[+6a2fdd2f84]
+0.02%     unknown[+6a2fdd8f24]
+0.02%     unknown[+6a2fdd9598]
+0.02%     unknown[+6a2fdda800]
+0.02%     unknown[+6a2fddb704]
+0.02%     unknown[+6a2fddba08]
+0.02%     unknown[+6a2fddc60c]
+0.02%     unknown[+6a2fddd23c]
+0.02%     unknown[+6a2fddd284]
+0.02%     unknown[+6a2fddd2bc]
+0.02%     unknown[+6a2fddd480]
+0.02%     unknown[+6a2fddd978]
+0.02%     unknown[+6a2fddea88]
+0.02%     unknown[+6a2fddf33c]
+0.02%     unknown[+6a2fddfa20]
+0.02%     unknown[+6a2fddfa78]
+0.02%     unknown[+6a2fddfb90]
+0.02%     unknown[+6a2fddfbd4]
+0.02%     unknown[+6a2fddfc24]
+0.02%     unknown[+6a2fddfc94]
+0.02%     unknown[+6a2fddfda8]
+0.02%     unknown[+6a2fddfe10]
+0.02%     unknown[+6a2fddfe48]
+0.02%     unknown[+6a2fddfec4]
+0.02%     unknown[+6a2fde0aa4]
+0.02%     unknown[+6a2fde1aa4]
+0.02%     unknown[+6a2fde1f04]
+0.02%     unknown[+6a2fde2c0c]
+0.02%     unknown[+6a2fde3764]
+0.02%     unknown[+6a2fde37c0]
+0.02%     unknown[+6a2fde4434]
+0.02%     unknown[+6a2fde4824]
+0.02%     unknown[+6a2fde4a90]
+0.02%     unknown[+6a2fde5850]
+0.02%     unknown[+6a2fde5d34]
+0.02%     unknown[+6a2fde61b8]
+0.02%     unknown[+6a2fde6bc4]
+0.02%     unknown[+6a2fde716c]
+0.02%     unknown[+6a2fde75f0]
+0.02%     unknown[+6a2fde78d4]
+0.02%     unknown[+6a2fde7e34]
+0.02%     unknown[+6a2fde8228]
+0.02%     unknown[+6a2fde84d4]
+0.02%     unknown[+6a2fde9e30]
+0.02%     unknown[+6a2fdea1b4]
+0.02%     unknown[+6a2fdeac6c]
+0.02%     unknown[+6a2fdeb418]
+0.02%     unknown[+6a2fdeb4d0]
+0.02%     unknown[+6a2fdeb700]
+0.02%     unknown[+6a2fdeb9d4]
+0.02%     unknown[+6a2fdec4b8]
+0.02%     unknown[+6a2fdec8e4]
+0.02%     unknown[+6a2fded5cc]
+0.02%     unknown[+6a2fded798]
+0.02%     unknown[+6a2fdeeb04]
+0.02%     unknown[+6a2fdeee74]
+0.02%     unknown[+6a2fdef2ec]
+0.02%     unknown[+6a2fdef540]
+0.02%     unknown[+6a2fdef6f8]
+0.02%     unknown[+6a2fdef938]
+0.02%     unknown[+6a2fdefc34]
+0.02%     unknown[+6a2fdefcb4]
+0.02%     unknown[+6a2fdefccc]
+0.02%     unknown[+6a2fdefcd0]
+0.02%     unknown[+6a2fdf0024]
+0.02%     unknown[+6a2fdf0854]
+0.02%     unknown[+6a2fdf0914]
+0.02%     unknown[+6a2fdf0930]
+0.02%     unknown[+6a2fdf0abc]
+0.02%     unknown[+6a2fdf0d3c]
+0.02%     unknown[+6a2fdf0ffc]
+0.02%     unknown[+6a2fdf1154]
+0.02%     unknown[+6a2fdf115c]
+0.02%     unknown[+6a2fdf1164]
+0.02%     unknown[+6a2fdf1fc0]
+0.02%     unknown[+6a2fdf2144]
+0.02%     unknown[+6a2fdf248c]
+0.02%     unknown[+6a2fdf267c]
+0.02%     unknown[+6a2fdf30b4]
+0.02%     unknown[+6a2fdf3924]
+0.02%     unknown[+6a2fdf47c4]
+0.02%     unknown[+6a2fdf4a34]
+0.02%     unknown[+6a2fdf4d18]
+0.02%     unknown[+6a2fdf4e30]
+0.02%     unknown[+6a2fdf5058]
+0.02%     unknown[+6a2fdf5070]
+0.02%     unknown[+6a2fdf52ec]
+0.02%     unknown[+6a2fdf6734]
+0.02%     unknown[+6a2fdf69a4]
+0.02%     unknown[+6a2fdf6ab8]
+0.02%     unknown[+6a2fdf6b58]
+0.02%     unknown[+6a2fdf6c80]
+0.02%     unknown[+6a2fdf80f4]
+0.02%     unknown[+6a2fdf81cc]
+0.02%     unknown[+6a2fdf835c]
+0.02%     unknown[+6a2fdf8514]
+0.02%     unknown[+6a2fdf8c40]
+0.02%     unknown[+6a2fdf8e40]
+0.02%     unknown[+6a2fdf8f78]
+0.02%     unknown[+6a2fdf92d8]
+0.02%     unknown[+6a2fdf94a4]
+0.02%     unknown[+6a2fdf9728]
+0.02%     unknown[+6a2fdf9c9c]
+0.02%     unknown[+6a2fdf9e20]
+0.02%     unknown[+6a2fdfa1bc]
+0.02%     unknown[+6a2fdfa3cc]
+0.02%     unknown[+6a2fdfa49c]
+0.02%     unknown[+6a2fdfa770]
+0.02%     unknown[+6a2fdfa77c]
+0.02%     unknown[+6a2fdfaec4]
+0.02%     unknown[+6a2fdfaee0]
+0.02%     unknown[+6a2fdfb044]
+0.02%     unknown[+6a2fdfb04c]
+0.02%     unknown[+6a2fdfb1c8]
+0.02%     unknown[+6a2fdfb3b4]
+0.02%     unknown[+6a2fdfb3dc]
+0.02%     unknown[+6a2fdfb478]
+0.02%     unknown[+6a2fdfb480]
+0.02%     unknown[+6a2fdfb780]
+0.02%     unknown[+6a2fdfb868]
+0.02%     unknown[+6a2fdfb86c]
+0.02%     unknown[+6a2fdfb9d4]
+0.02%     unknown[+6a2fdfbb6c]
+0.02%     unknown[+6a2fdfbb8c]
+0.02%     unknown[+6a2fdfbc24]
+0.02%     unknown[+6a2fdfbdf4]
+0.02%     unknown[+6a2fdfbff4]
+0.02%     unknown[+6a2fdfc000]
+0.02%     unknown[+6a2fdfc3fc]
+0.02%     unknown[+6a2fdfc52c]
+0.02%     unknown[+6a2fdfda6c]
+0.02%     unknown[+6a2fdfda8c]
+0.02%     unknown[+6a2fdfda98]
+0.02%     unknown[+6a2fdfdab0]
+0.02%     unknown[+6a2fdfdab4]
+0.02%     unknown[+6a2fdfe170]
+0.02%     unknown[+6a2fdfe6ac]
+0.02%     unknown[+6a2fdfeb48]
+0.02%     unknown[+6a2fdff0e0]
+0.02%     unknown[+6a2fdff200]
+0.02%     unknown[+6a2fdffdc8]
+0.02%     unknown[+6a2fdffde8]
+0.02%     unknown[+6a2fe004cc]
+0.02%     unknown[+6a2fe0056c]
+0.02%     unknown[+6a2fe00758]
+0.02%     unknown[+6a2fe00a00]
+0.02%     unknown[+6a2fe011c4]
+0.02%     unknown[+6a2fe0120c]
+0.02%     unknown[+6a2fe01480]
+0.02%     unknown[+6a2fe02164]
+0.02%     unknown[+6a2fe023f4]
+0.02%     unknown[+6a2fe02ac4]
+0.02%     unknown[+6a2fe02e0c]
+0.02%     unknown[+6a2fe02e1c]
+0.02%     unknown[+6a2fe02e2c]
+0.02%     unknown[+6a2fe02e4c]
+0.02%     unknown[+6a2fe02ea4]
+0.02%     unknown[+6a2fe0310c]
+0.02%     unknown[+6a2fe0333c]
+0.02%     unknown[+6a2fe03340]
+0.02%     unknown[+6a2fe03358]
+0.02%     unknown[+6a2fe0336c]
+0.02%     unknown[+6a2fe03718]
+0.02%     unknown[+6a2fe0387c]
+0.02%     unknown[+6a2fe03aec]
+0.02%     unknown[+6a2fe03b54]
+0.02%     unknown[+6a2fe044fc]
+0.02%     unknown[+6a2fe045d4]
+0.02%     unknown[+6a2fe045f0]
+0.02%     unknown[+6a2fe047fc]
+0.02%     unknown[+6a2fe049cc]
+0.02%     unknown[+6a2fe04a18]
+0.02%     unknown[+6a2fe04a30]
+0.02%     unknown[+6a2fe04b88]
+0.02%     unknown[+6a2fe05064]
+0.02%     unknown[+6a2fe0506c]
+0.02%     unknown[+6a2fe08824]
+0.02%     unknown[+6a2fe08e74]
+0.02%     unknown[+6a2fe09270]
+0.02%     unknown[+6a2fe09694]
+0.02%     unknown[+6a2fe09a80]
+0.02%     unknown[+6a2fe09cf4]
+0.02%     unknown[+6a2fe09f58]
+0.02%     unknown[+6a2fe0a1ac]
+0.02%     unknown[+6a2fe0a268]
+0.02%     unknown[+6a2fe0a5d4]
+0.02%     unknown[+6a2fe0a744]
+0.02%     unknown[+6a2fe0a7ac]
+0.02%     unknown[+6a2fe0aa40]
+0.02%     unknown[+6a2fe0abe0]
+0.02%     unknown[+6a2fe0ac84]
+0.02%     unknown[+6a2fe0b444]
+0.02%     unknown[+6a2fe0c104]
+0.02%     unknown[+6a2fe0d4ac]
+0.02%     unknown[+6a2fe0d954]
+0.02%     unknown[+6a2fe0e2e4]
+0.02%     unknown[+6a2fe0e8c4]
+0.02%     unknown[+6a2fe0e98c]
+0.02%     unknown[+6a2fe0e99c]
+0.02%     unknown[+6a2fe0e9a4]
+0.02%     unknown[+6a2fe0ea00]
+0.02%     unknown[+6a2fe0ea2c]
+0.02%     unknown[+6a2fe0ea6c]
+0.02%     unknown[+6a2fe0ea9c]
+0.02%     unknown[+6a2fe0eac8]
+0.02%     unknown[+6a2fe0eaec]
+0.02%     unknown[+6a2fe0eaf4]
+0.02%     unknown[+6a2fe0eb10]
+0.02%     unknown[+6a2fe0eb24]
+0.02%     unknown[+6a2fe0f024]
+0.02%     unknown[+6a2fe102d4]
+0.02%     unknown[+6a2fe12f04]
+0.02%     unknown[+6a2fe1385c]
+0.02%     unknown[+6a2fe143b4]
+0.02%     unknown[+6a2fe14484]
+0.02%     unknown[+6a2fe168a0]
+0.02%     unknown[+6a2fe1708c]
+0.02%     unknown[+6a2fe170c0]
+0.02%     unknown[+6a2fe17860]
+0.02%     unknown[+6a2fe17864]
+0.02%     unknown[+6a2fe17880]
+0.02%     unknown[+6a2fe17884]
+0.02%     unknown[+6a2fe181d4]
+0.02%     unknown[+6a2fe18ca0]
+0.02%     unknown[+6a2fe18cac]
+0.02%     unknown[+6a2fe18ff4]
+0.02%     unknown[+6a2fe19018]
+0.02%     unknown[+6a2fe19428]
+0.02%     unknown[+6a2fe19db8]
+0.02%     unknown[+6a2fe1a0a8]
+0.02%     unknown[+6a2fe1a2f4]
+0.02%     unknown[+6a2fe1a5ac]
+0.02%     unknown[+6a2fe1a628]
+0.02%     unknown[+6a2fe1a62c]
+0.02%     unknown[+6a2fe1a814]
+0.02%     unknown[+6a2fe1a82c]
+0.02%     unknown[+6a2fe1a994]
+0.02%     unknown[+6a2fe1ac54]
+0.02%     unknown[+6a2fe1b574]
+0.02%     unknown[+6a2fe1bad4]
+0.02%     unknown[+6a2fe1bc84]
+0.02%     unknown[+6a2fe1d804]
+0.02%     unknown[+6a2fe1e134]
+0.02%     unknown[+6a2fe1e420]
+0.02%     unknown[+6a2fe1ea54]
+0.02%     unknown[+6a2fe1f300]
+0.02%     unknown[+6a2fe20794]
+0.02%     unknown[+6a2fe21fe0]
+0.02%     unknown[+6a2fe22184]
+0.02%     unknown[+6a2fe223c0]
+0.02%     unknown[+6a2fe22aa8]
+0.02%     unknown[+6a2fe241b4]
+0.02%     unknown[+6a2fe24a94]
+0.02%     unknown[+6a2fe24f90]
+0.02%     unknown[+6a2fe26420]
+0.02%     unknown[+6a2fe271e8]
+0.02%     unknown[+6a2fe27d78]
+0.02%     unknown[+6a2fe29e04]
+0.02%     unknown[+6a2fe2a5b4]
+0.02%     unknown[+6a2fe2a5cc]
+0.02%     unknown[+6a2fe2a5fc]
+0.02%     unknown[+6a2fe2a664]
+0.02%     unknown[+6a2fe2a6d8]
+0.02%     unknown[+6a2fe2a748]
+0.02%     unknown[+6a2fe2a7ec]
+0.02%     unknown[+6a2fe2a83c]
+0.02%     unknown[+6a2fe2a884]
+0.02%     unknown[+6a2fe2a8e4]
+0.02%     unknown[+6a2fe2a904]
+0.02%     unknown[+6a2fe2b780]
+0.02%     unknown[+6a2fe2bc44]
+0.02%     unknown[+6a2fe2c4fc]
+0.02%     unknown[+6a2fe2c5ac]
+0.02%     unknown[+6a2fe2c5b0]
+0.02%     unknown[+6a2fe2c99c]
+0.02%     unknown[+6a2fe2c9a0]
+0.02%     unknown[+6a2fe2c9b8]
+0.02%     unknown[+6a2fe2d254]
+0.02%     unknown[+6a2fe2fa40]
+0.02%     unknown[+6a2fe31440]
+0.02%     unknown[+6a2fe3144c]
+0.02%     unknown[+6a2fe31464]
+0.02%     unknown[+6a2fe3147c]
+0.02%     unknown[+6a2fe31484]
+0.02%     unknown[+6a2fe336ec]
+0.02%     unknown[+6a2fe340d4]
+0.02%     unknown[+6a2fe3970c]
+0.02%     unknown[+6a2fe3a0b0]
+0.02%     unknown[+6a2fe3ac44]
+0.02%     unknown[+6a2fe3b750]
+0.02%     unknown[+6a2fe3b7a8]
+0.02%     unknown[+6a2fe3bc28]
+0.02%     unknown[+6a2fe3bfc0]
+0.02%     unknown[+6a2fe3db70]
+0.02%     unknown[+6a2fe3f044]
+0.02%     unknown[+6a2fe4004c]
+0.02%     unknown[+6a2fe41208]
+0.02%     unknown[+6a2fe41350]
+0.02%     unknown[+6a2fe413f8]
+0.02%     unknown[+6a2fe41bc4]
+0.02%     unknown[+6a2fe43114]
+0.02%     unknown[+6a2fe44dc0]
+0.02%     unknown[+6a2fe44fe8]
+0.02%     unknown[+6a2fe47880]
+0.02%     unknown[+6a2fe49bd4]
+0.02%     unknown[+6a2fe49c68]
+0.02%     unknown[+6a2fe4c838]
+0.02%     unknown[+6a2fe4da00]
+0.02%     unknown[+6a2fe4de10]
+0.02%     unknown[+6a2fe4e118]
+0.02%     unknown[+6a2fe4e124]
+0.02%     unknown[+6a2fe4e4e8]
+0.02%     unknown[+6a2fe4e6d4]
+0.02%     unknown[+6a2fe4eed4]
+0.02%     unknown[+6a2fe4ef00]
+0.02%     unknown[+6a2fe4f070]
+0.02%     unknown[+6a2fe4f258]
+0.02%     unknown[+6a2fe4f6fc]
+0.02%     unknown[+6a2fe4f888]
+0.02%     unknown[+6a2fe4fa0c]
+0.02%     unknown[+6a2fe50094]
+0.02%     unknown[+6a2fe50af4]
+0.02%     unknown[+6a2fe53f98]
+0.02%     unknown[+6a2fe548ac]
+0.02%     unknown[+6a2fe550a4]
+0.02%     unknown[+6a2fe55254]
+0.02%     unknown[+6a2fe567a8]
+0.02%     unknown[+6a2fe56844]
+0.02%     unknown[+6a2fe56a84]
+0.02%     unknown[+6a2fe57b5c]
+0.02%     unknown[+6a2fe57b7c]
+0.02%     unknown[+6a2fe585e4]
+0.02%     unknown[+6a2fe591d4]
+0.02%     unknown[+6a2fe59aa8]
+0.02%     unknown[+6a2fe5abb4]
+0.02%     unknown[+6a2fe5adc0]
+0.02%     unknown[+6a2fe5c06c]
+0.02%     unknown[+6a2fe5c0e8]
+0.02%     unknown[+6a2fe5c1b0]
+0.02%     unknown[+6a2fe5c1fc]
+0.02%     unknown[+6a2fe5f3ec]
+0.02%     unknown[+6a2fe60974]
+0.02%     unknown[+6a2fe60a64]
+0.02%     unknown[+6a2fe61a1c]
+0.02%     unknown[+6a2fe61a74]
+0.02%     unknown[+6a2fe62050]
+0.02%     unknown[+6a2fe62484]
+0.02%     unknown[+6a2fe64e48]
+0.02%     unknown[+6a2fe64e58]
+0.02%     unknown[+6a2fe64f40]
+0.02%     unknown[+6a2fe64f6c]
+0.02%     unknown[+6a2fe66fa4]
+0.02%     unknown[+6a2fe67634]
+0.02%     unknown[+6a2fe699a4]
+0.02%     unknown[+6a2fe69f14]
+0.02%     unknown[+6a2fe6aeb4]
+0.02%     unknown[+6a2fe6cf78]
+0.02%     unknown[+6a2fe6d3dc]
+0.02%     unknown[+6a2fe6d740]
+0.02%     unknown[+6a2fe6db94]
+0.02%     unknown[+6a2fe6e5a4]
+0.02%     unknown[+6a2fe6ed50]
+0.02%     unknown[+6a2fe73f04]
+0.02%     unknown[+6a2fe74170]
+0.02%     unknown[+6a2fe75bf0]
+0.02%     unknown[+6a2fe75e24]
+0.02%     unknown[+6a2fe767f4]
+0.02%     unknown[+6a2fe78824]
+0.02%     unknown[+6a2fe78d2c]
+0.02%     unknown[+6a2fe79b00]
+0.02%     unknown[+6a2fe79b28]
+0.02%     unknown[+6a2fe7ca30]
+0.02%     unknown[+6a2fe7ca38]
+0.02%     unknown[+6a2fe7ca6c]
+0.02%     unknown[+6a2fe7d1d0]
+0.02%     unknown[+6a2fe7d268]
+0.02%     unknown[+6a2fe7e0e0]
+0.02%     unknown[+6a2fe7f988]
+0.02%     unknown[+6a2fe80900]
+0.02%     unknown[+6a2fe81b14]
+0.02%     unknown[+6a2fe81d94]
+0.02%     unknown[+6a2fe8359c]
+0.02%     unknown[+6a2fe86884]
+0.02%     unknown[+6a2fe8689c]
+0.02%     unknown[+6a2fe86934]
+0.02%     unknown[+6a2fe86974]
+0.02%     unknown[+6a2fe8698c]
+0.02%     unknown[+6a2fe86a40]
+0.02%     unknown[+6a2fe86a54]
+0.02%     unknown[+6a2fe86a68]
+0.02%     unknown[+6a2fe86ac4]
+0.02%     unknown[+6a2fe86ad8]
+0.02%     unknown[+6a2fe86af8]
+0.02%     unknown[+6a2fe86b7c]
+0.02%     unknown[+6a2fe86be4]
+0.02%     unknown[+6a2fe86c10]
+0.02%     unknown[+6a2fe88b24]
+0.02%     unknown[+6a2fe88ff8]
+0.02%     unknown[+6a2fe89050]
+0.02%     unknown[+6a2fe8933c]
+0.02%     unknown[+6a2fe89354]
+0.02%     unknown[+6a2fe89360]
+0.02%     unknown[+6a2fe893b0]
+0.02%     unknown[+6a2fe8da14]
+0.02%     unknown[+6a2fe8e0e0]
+0.02%     unknown[+6a2fe8ee00]
+0.02%     unknown[+6a2fe8f4c0]
+0.02%     unknown[+6a2fe91c24]
+0.02%     unknown[+6a2fe932e4]
+0.02%     unknown[+6a2fe93384]
+0.02%     unknown[+6a2fe937b4]
+0.02%     unknown[+6a2fea5004]
+0.02%     unknown[+6a2fea50c4]
+0.02%     unknown[+6a2febf0d0]
+0.02%     unknown[+6a2fed98e4]
+0.02%     unknown[+6a2feda67c]
+0.02%     unknown[+6a2fedab80]
+0.02%     unknown[+6a2fedb5b4]
+0.02%     unknown[+6a2fedc1f0]
+0.02%     unknown[+6a2fedc2f4]
+0.02%     unknown[+6a2fedd134]
+0.02%     unknown[+6a2fedf0e4]
+0.02%     unknown[+6a2fedf744]
+0.02%     unknown[+6a2fedfb80]
+0.02%     unknown[+6a2fedfc14]
+0.02%     unknown[+6a2fee02ec]
+0.02%     unknown[+6a2fee3828]
+0.02%     unknown[+6a2fee3c94]
+0.02%     unknown[+6a2fee46dc]
+0.02%     unknown[+6a2fee4934]
+0.02%     unknown[+6a2fee86c4]
+0.02%     unknown[+6a2feeaaf8]
+0.02%     unknown[+6a2feeb764]
+0.02%     unknown[+6a2feed924]
+0.02%     unknown[+6a2fef1fb4]
+0.02%     unknown[+6a2fef8824]
+0.02%     unknown[+6a2fef9df4]
+0.02%     unknown[+6a2fefa1c4]
+0.02%     unknown[+6a2ff004bc]
+0.02%     unknown[+6a2ff004e8]
+0.02%     unknown[+6a2ff2fe18]
+0.02%     unknown[+6a2ffe3834]
+0.02%     unknown[+6a2ffe7218]
+0.02%     unknown[+6a3009c6c8]
+0.02%     unknown[+6a3009c6e0]
+0.02%     unknown[+6a300b1888]
+0.02%     unknown[+6a30100d58]
+0.02%     unknown[+6a30128f08]
+0.02%     unknown[+6a30128f24]
+0.02%     unknown[+7b3bb9e00c]
+0.02%     unknown[+7b3bb9e020]
+0.02%     unknown[+7b3bb9e040]
+0.02%     unknown[+7b3bb9e054]
+0.02%     unknown[+7b3bb9e074]
+0.02%     unknown[+7b3bb9e0d8]
+0.02%     unknown[+7b3bb9e0dc]
+0.02%     unknown[+7b3bb9e1ec]
+0.02%     unknown[+7b3bb9e1f4]
+0.02%     unknown[+7b3bb9e200]
+0.02%     unknown[+7b3bb9e204]
+0.02%     unknown[+7b3bb9e218]
+0.02%     unknown[+7b3bb9e248]
+0.02%     unknown[+7b3bb9e25c]
+0.02%     unknown[+7b3bb9e268]
+0.02%     void Shader::StageSpecialization::ForEachSharp<boost::container::small_vector<Shader::ImageSpecialization, 16ul, void, void>, boost::container::static_vector<Shader::ImageResource, 64ul, void> const, Shader::StageSpecialization::StageSpecialization(Shader::Info const&, Shader::RuntimeInfo, Shader::Profile const&, Shader::Backend::Bindings)::'lambda'(auto&, auto const&, AmdGpu::Image)>(unsigned int&, auto&, auto&, Shader::StageSpecialization::StageSpecialization(Shader::Info const&, Shader::RuntimeInfo, Shader::Profile const&, Shader::Backend::Bindings)::'lambda'(auto&, auto const&, AmdGpu::Image)&&)
+0.02%     void Shader::StageSpecialization::ForEachSharp<boost::container::small_vector<Shader::VsAttribSpecialization, 32ul, void, void>, std::__ndk1::vector<Shader::Gcn::VertexAttribute, std::__ndk1::allocator<Shader::Gcn::VertexAttribute>>, Shader::StageSpecialization::StageSpecialization(Shader::Info const&, Shader::RuntimeInfo, Shader::Profile const&, Shader::Backend::Bindings)::'lambda'(auto&, auto const&, AmdGpu::Buffer)>(auto&, auto&, Shader::StageSpecialization::StageSpecialization(Shader::Info const&, Shader::RuntimeInfo, Shader::Profile const&, Shader::Backend::Bindings)::'lambda'(auto&, auto const&, AmdGpu::Buffer)&&)
+0.02%     void VideoCore::MemoryTracker::ForEachUploadRange<VideoCore::BufferCache::SynchronizeBuffer(VideoCore::Buffer&, unsigned long, unsigned int, bool, bool)::$_0, VideoCore::BufferCache::SynchronizeBuffer(VideoCore::Buffer&, unsigned long, unsigned int, bool, bool)::$_1>(unsigned long, unsigned long, bool, VideoCore::BufferCache::SynchronizeBuffer(VideoCore::Buffer&, unsigned long, unsigned int, bool, bool)::$_0&&, VideoCore::BufferCache::SynchronizeBuffer(VideoCore::Buffer&, unsigned long, unsigned int, bool, bool)::$_1&&)::'lambda'(VideoCore::RegionManager*, unsigned long, unsigned long)::operator()(VideoCore::RegionManager*, unsigned long, unsigned long) const
+0.02%     void VideoCore::RegionManager::UpdateProtection<true, false>()
+0.02%     void art::Monitor::Lock<(art::LockReason)1>(art::Thread*)
+0.02%     void std::__1::vector<android::JankData, std::__1::allocator<android::JankData>>::__push_back_slow_path<android::JankData const&>(android::JankData const&)
+0.02%     vulkan::driver::QueuePresentKHR(VkQueue_T*, VkPresentInfoKHR const*)

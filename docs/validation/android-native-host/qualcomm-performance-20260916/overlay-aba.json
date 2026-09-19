@@ -1,0 +1,89 @@
+[
+  {
+    "mode": "show",
+    "before": {
+      "identity": [
+        "10213",
+        "1",
+        "26e9c15d50b45de8cdc5c875729cbb82"
+      ],
+      "ns": 333777437286108,
+      "flip": 8235,
+      "queue": 72748,
+      "overlay": 32210
+    },
+    "after": {
+      "identity": [
+        "10213",
+        "1",
+        "26e9c15d50b45de8cdc5c875729cbb82"
+      ],
+      "ns": 333797492700580,
+      "flip": 8515,
+      "queue": 75883,
+      "overlay": 33639
+    },
+    "seconds": 20.055414472,
+    "fps": 13.961317049364245,
+    "submits_per_s": 156.31688910627466,
+    "redraws_per_s": 71.25257879836252
+  },
+  {
+    "mode": "hide",
+    "before": {
+      "identity": [
+        "10213",
+        "1",
+        "26e9c15d50b45de8cdc5c875729cbb82"
+      ],
+      "ns": 333800601825631,
+      "flip": 8560,
+      "queue": 76020,
+      "overlay": 33641
+    },
+    "after": {
+      "identity": [
+        "10213",
+        "1",
+        "26e9c15d50b45de8cdc5c875729cbb82"
+      ],
+      "ns": 333820668626040,
+      "flip": 8857,
+      "queue": 76909,
+      "overlay": 33641
+    },
+    "seconds": 20.066800409,
+    "fps": 14.800565807531276,
+    "submits_per_s": 44.302030312778804,
+    "redraws_per_s": 0.0
+  },
+  {
+    "mode": "show",
+    "before": {
+      "identity": [
+        "10213",
+        "1",
+        "26e9c15d50b45de8cdc5c875729cbb82"
+      ],
+      "ns": 333823788157966,
+      "flip": 8901,
+      "queue": 77302,
+      "overlay": 33816
+    },
+    "after": {
+      "identity": [
+        "10213",
+        "1",
+        "26e9c15d50b45de8cdc5c875729cbb82"
+      ],
+      "ns": 333843858871187,
+      "flip": 9177,
+      "queue": 79984,
+      "overlay": 35027
+    },
+    "seconds": 20.070713221,
+    "fps": 13.7513797821206,
+    "submits_per_s": 133.62753831756322,
+    "redraws_per_s": 60.336669986043646
+  }
+]

@@ -1,0 +1,1088 @@
+--- before/CMakeLists.txt
++++ after/CMakeLists.txt
+@@ -1666,6 +1666,12 @@
+         CONTENT "set(SHADPS4_HOST_GPU_RESHAPE_LIBRARY [==[${SHADPS4_GPU_RESHAPE_LIBRARY}]==])\nset(SHADPS4_HOST_ADRENOTOOLS_HOOKS [==[$<TARGET_FILE:hook_impl>;$<TARGET_FILE:main_hook>;$<TARGET_FILE:file_redirect_hook>;$<TARGET_FILE:gsl_alloc_hook>]==])\nset(SHADPS4_HOST_PROVIDES_GUEST_CPU_API TRUE)\nset(SHADPS4_HOST_LOADER_LIBRARY [==[$<TARGET_FILE:shadps4_host>]==])\nset(SHADPS4_HOST_LOADER_INCLUDES [==[$<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>]==])\nset(SHADPS4_HOST_LOADER_DEFINITIONS [==[$<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>]==])\nset(SHADPS4_HOST_LOADER_ABI [==[${ANDROID_ABI}]==])\nset(SHADPS4_HOST_LOADER_API [==[${ANDROID_PLATFORM_LEVEL}]==])\nset(SHADPS4_HOST_LOADER_STL [==[${ANDROID_STL}]==])\n")
+     option(HOST_BUILD_PROBES "Build auxiliary native host linkage/contract probes" OFF)
+     if(HOST_BUILD_PROBES)
++        add_executable(submission_worker_tests tests/host_runtime/submission_worker_tests.cpp)
++        target_include_directories(submission_worker_tests PRIVATE src)
++        add_executable(android_submission_probe tests/video_core/android_submission_probe.cpp)
++        target_link_libraries(android_submission_probe PRIVATE shadps4_host spdlog::spdlog)
++        target_include_directories(android_submission_probe PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
++        target_compile_definitions(android_submission_probe PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+         add_executable(gpu_timing_tests tests/host_runtime/gpu_timing_tests.cpp)
+         target_link_libraries(gpu_timing_tests PRIVATE shadps4_host)
+         target_include_directories(gpu_timing_tests PRIVATE src)
+--- before/src/video_core/renderer_vulkan/vk_swapchain.cpp
++++ after/src/video_core/renderer_vulkan/vk_swapchain.cpp
+@@ -108,7 +108,8 @@
+ void Swapchain::RebuildSurface() {
+     vk::Device device = instance.GetDevice();
+     const auto wait_result = [&] {
+-        std::scoped_lock lock{Scheduler::submit_mutex};
++        instance.DrainSubmissions();
++        std::scoped_lock lock{instance.QueueMutex()};
+         return device.waitIdle();
+     }();
+     if (wait_result != vk::Result::eSuccess) {
+@@ -136,7 +137,8 @@
+     }
+ 
+     auto result = [&] {
+-        std::scoped_lock lock{Scheduler::submit_mutex};
++        instance.DrainSubmissions();
++        std::scoped_lock lock{instance.QueueMutex()};
+         return instance.GetDevice().waitIdle();
+     }();
+     if (result != vk::Result::eSuccess) {
+@@ -347,7 +349,8 @@
+     vk::Device device = instance.GetDevice();
+     // vkDeviceWaitIdle requires external synchronization of every device queue.
+     const auto wait_result = [&] {
+-        std::scoped_lock lock{Scheduler::submit_mutex};
++        instance.DrainSubmissions();
++        std::scoped_lock lock{instance.QueueMutex()};
+         return device.waitIdle();
+     }();
+     if (wait_result != vk::Result::eSuccess) {
+--- before/src/video_core/renderer_vulkan/vk_scheduler.h
++++ after/src/video_core/renderer_vulkan/vk_scheduler.h
+@@ -366,6 +366,10 @@
+     /// Sends the current execution context to the GPU and waits for it to complete.
+     void Finish();
+ 
++    // The present binary semaphore must have an actual submitted signal before
++    // vkQueuePresentKHR. This waits for host submission only, not GPU completion.
++    void WaitSubmitted();
++
+     /// Waits for the given tick to trigger on the GPU.
+     void Wait(u64 tick);
+ 
+@@ -433,8 +437,6 @@
+         }
+         priority_pending_ops_cv.notify_one();
+     }
+-
+-    static std::mutex submit_mutex;
+ 
+ private:
+     void AllocateWorkerCommandBuffers();
+@@ -451,6 +453,7 @@
+     std::unique_ptr<DescriptorHeap> diagnostic_descriptors;
+     DynamicState dynamic_state;
+     vk::CommandBuffer current_cmdbuf;
++    uint64_t last_submission{};
+     std::condition_variable_any event_cv;
+     struct PendingOp {
+         Common::UniqueFunction<void> callback;
+--- before/src/video_core/renderer_vulkan/vk_instance.h
++++ after/src/video_core/renderer_vulkan/vk_instance.h
+@@ -11,6 +11,7 @@
+ #include "video_core/renderer_vulkan/vk_platform.h"
+ #include "video_core/renderer_vulkan/vk_gpu_reshape.h"
+ #include "core/diagnostics/diagnostics_hub_registry.h"
++#include "video_core/renderer_vulkan/submission_worker.h"
+ 
+ #define TRACY_VK_USE_SYMBOL_TABLE
+ #include <tracy/TracyVulkan.hpp>
+@@ -37,6 +38,11 @@
+ 
+     const auto& GpuTiming() const { return gpu_timing; }
+     bool HasCalibratedTimestamps() const { return calibrated_timestamps_enabled; }
++
++    SubmissionWorker* Submissions() const { return submissions.get(); }
++    std::mutex& QueueMutex() const { return queue_mutex; }
++    void DrainSubmissions() const { if (submissions) submissions->Drain(); }
++    void CheckSubmissionHealth() const { if (submissions) submissions->CheckHealth(); }
+ 
+     /// Returns a formatted string for the driver version
+     std::string GetDriverVersionName();
+@@ -525,6 +531,8 @@
+     VmaAllocator allocator{};
+     vk::Queue present_queue;
+     vk::Queue graphics_queue;
++    mutable std::mutex queue_mutex;
++    std::unique_ptr<SubmissionWorker> submissions;
+     std::vector<vk::PhysicalDevice> physical_devices;
+     std::vector<std::string> available_extensions;
+     std::unordered_map<vk::Format, vk::FormatProperties3> format_properties;
+--- before/src/video_core/renderer_vulkan/vk_gpu_profiler.h
++++ after/src/video_core/renderer_vulkan/vk_gpu_profiler.h
+@@ -3,6 +3,7 @@
+ #include <array>
+ #include "common/gpu_timing.h"
+ #include "video_core/renderer_vulkan/vk_common.h"
++#include "video_core/renderer_vulkan/submission_worker.h"
+ 
+ namespace Vulkan {
+ class Instance;
+@@ -22,6 +23,7 @@
+     void EndBatch(vk::CommandBuffer cmd);
+     void Submitting();
+     void Submitted(uint64_t tick);
++    void Queued(uint64_t tick, std::shared_ptr<SubmissionReceipt> receipt);
+     void Collect(uint64_t completed);
+ private:
+     struct Zone { Stage stage{}; bool ended{}; };
+@@ -29,6 +31,7 @@
+         uint64_t tick{}, generation{}, submit_before_ns{};
+         uint32_t count{}, partial_retries{};
+         bool used{}, submitted{}, frame_end{};
++        std::shared_ptr<SubmissionReceipt> receipt;
+         std::array<Zone, ZonesPerBatch> zones;
+     };
+     bool Initialize();
+--- before/src/video_core/renderer_vulkan/vk_presenter.h
++++ after/src/video_core/renderer_vulkan/vk_presenter.h
+@@ -63,6 +63,8 @@
+     }
+ 
+     const auto& Diagnostics() const { return instance.Diagnostics(); }
++    void CheckSubmissionHealth() const { instance.CheckSubmissionHealth(); }
++    void DrainSubmissions() const { instance.DrainSubmissions(); }
+     u64 CaptureGeneration() const { return capture_binding.Generation(); }
+ 
+     HostPasses::PostProcessingPass::Settings& GetPPSettingsRef() {
+--- before/src/video_core/renderer_vulkan/vk_presenter.cpp
++++ after/src/video_core/renderer_vulkan/vk_presenter.cpp
+@@ -529,12 +529,24 @@
+     ImGui::Friends::Unregister();
+     ImGui::Layer::RemoveLayer(Common::Singleton<Core::Devtools::Layer>::Instance());
+ 
+-    draw_scheduler.Finish();
+-    present_scheduler.Finish();
+-    flip_scheduler.Finish();
+-    Check(draw_scheduler.CommandBuffer().reset());
+-    Check(present_scheduler.CommandBuffer().reset());
+-    Check(flip_scheduler.CommandBuffer().reset());
++    try {
++        draw_scheduler.Finish();
++        present_scheduler.Finish();
++        flip_scheduler.Finish();
++        Check(draw_scheduler.CommandBuffer().reset());
++        Check(present_scheduler.CommandBuffer().reset());
++        Check(flip_scheduler.CommandBuffer().reset());
++    } catch (const std::exception& error) {
++        // A poisoned submission worker is reported to the Session owner. Do not
++        // throw again from its teardown. Drain any accepted host calls first;
++        // on failure the worker has already discarded its remaining captures.
++        LOG_ERROR(Render_Vulkan, "Renderer drain after submission failure: {}", error.what());
++        try { instance.DrainSubmissions(); } catch (const std::exception&) {}
++        std::scoped_lock queue_lock{instance.QueueMutex()};
++        const auto result = instance.GetDevice().waitIdle();
++        if (result != vk::Result::eSuccess)
++            LOG_ERROR(Render_Vulkan, "Device drain during failed teardown: {}", vk::to_string(result));
++    }
+ 
+     const vk::Device device = instance.GetDevice();
+     for (auto& frame : present_frames) {
+@@ -1156,12 +1168,16 @@
+     info.AddSignal(swapchain.GetPresentReadySemaphore());
+     info.AddSignal(frame->present_done);
+     scheduler.Flush(info);
++    // FIFO acceptance is not enough for a binary present wait: its signal and
++    // timeline dependencies must already have reached vkQueueSubmit. Wait here,
++    // outside the queue lock, never on the PM4/guest owner.
++    scheduler.WaitSubmitted();
+ 
+     bool presented{};
+     // Present to swapchain.
+     bool reusable;
+     {
+-        std::unique_lock submit_lock{Scheduler::submit_mutex, std::defer_lock};
++        std::unique_lock submit_lock{instance.QueueMutex(), std::defer_lock};
+         {
+             Core::Diagnostics::Handoff::Scope scope{"Present.QueueLock", instance.DiagnosticGeneration(), 0, 0, true};
+             submit_lock.lock();
+--- before/src/video_core/renderer_vulkan/vk_instance.cpp
++++ after/src/video_core/renderer_vulkan/vk_instance.cpp
+@@ -8,6 +8,10 @@
+ #include "common/assert.h"
+ #include "common/debug.h"
+ #include "common/types.h"
++#include "common/thread.h"
++#ifdef __ANDROID__
++#include <sys/system_properties.h>
++#endif
+ #include "frontend/window.h"
+ #include "imgui/renderer/imgui_core.h"
+ #include "video_core/renderer_vulkan/liverpool_to_vk.h"
+@@ -191,9 +195,22 @@
+     CollectPhysicalMemoryInfo();
+     CollectImageFormatInfo();
+     CollectToolingInfo();
++#ifdef __ANDROID__
++    char async_mode[PROP_VALUE_MAX]{};
++    __system_property_get("debug.shadps4.async_submit", async_mode);
++    if (std::string_view(async_mode) != "0") {
++        submissions = std::make_unique<SubmissionWorker>(16, [] {
++            Common::SetCurrentThreadName("shadPS4:VkSubmit");
++        });
++    }
++    LOG_INFO(Render_Vulkan, "Vulkan submission worker: {} (capacity=16, GPU budget=8/scheduler)",
++             submissions ? "enabled" : "synchronous diagnostic override");
++#endif
+ }
+ 
+ Instance::~Instance() {
++    // Scheduler owners have drained before allocator, GUI and driver teardown.
++    submissions.reset();
+     if (device)
+         ImGui::Core::Shutdown(GetDevice());
+     if (allocator)
+--- before/src/video_core/renderer_vulkan/vk_gpu_profiler.cpp
++++ after/src/video_core/renderer_vulkan/vk_gpu_profiler.cpp
+@@ -143,6 +143,13 @@
+     auto& b = batches[current]; b.tick = tick; b.submitted = true;
+     std::lock_guard lock{stats->mutex}; ++stats->snapshot.pending;
+ }
++void GpuProfiler::Queued(uint64_t tick, std::shared_ptr<SubmissionReceipt> receipt) {
++    if (current == Invalid) return;
++    auto& b = batches[current];
++    b.tick = tick;
++    b.receipt = std::move(receipt);
++    std::lock_guard lock{stats->mutex}; ++stats->snapshot.pending;
++}
+ void GpuProfiler::Collect(uint64_t completed) {
+     if (!pool || disabled) return;
+     Scope scope{"Vulkan.GpuQueryCollect"};
+@@ -150,7 +157,14 @@
+     for (uint32_t budget = 0; budget < BatchCount; ++budget) {
+         uint32_t index = Invalid;
+         for (uint32_t i = 0; i < BatchCount; ++i) {
+-            const auto& b = batches[i];
++            auto& b = batches[i];
++            if (b.receipt && !b.submitted &&
++                b.receipt->submitted.load(std::memory_order_acquire)) {
++                // Worker owns only the receipt. Query leases/context stay on
++                // the recording owner, including across capture generations.
++                b.submit_before_ns = b.receipt->started_ns;
++                b.submitted = true;
++            }
+             if (b.used && b.submitted && b.tick <= completed &&
+                 (index == Invalid || b.tick < batches[index].tick)) index = i;
+         }
+--- before/src/video_core/renderer_vulkan/vk_scheduler.cpp
++++ after/src/video_core/renderer_vulkan/vk_scheduler.cpp
+@@ -10,8 +10,6 @@
+ #include "video_core/renderer_vulkan/vk_scheduler.h"
+ 
+ namespace Vulkan {
+-
+-std::mutex Scheduler::submit_mutex;
+ 
+ Scheduler::Scheduler(const Instance& instance, GpuProfiler::Stage stage)
+     : instance{instance}, master_semaphore{instance}, command_pool{instance, &master_semaphore}, gpu_profiler{instance, stage} {
+@@ -43,6 +41,12 @@
+ }
+ 
+ Scheduler::~Scheduler() {
++    try { WaitSubmitted(); }
++    catch (const std::exception& e) {
++        // The worker has discarded unexecuted jobs before publishing failure.
++        // Never throw from teardown; the owner already observes the same error.
++        LOG_ERROR(Render_Vulkan, "Submission worker teardown: {}", e.what());
++    }
+     priority_pending_ops_thread.request_stop();
+     priority_pending_ops_cv.notify_all();
+     if (priority_pending_ops_thread.joinable()) priority_pending_ops_thread.join();
+@@ -132,7 +136,8 @@
+ }
+ 
+ void Scheduler::Flush(SubmitInfo& info) {
+-    // When flushing, we only send data to the driver; no waiting is necessary.
++    // Android transfers an ended command buffer to a bounded device FIFO. Only
++    // explicit GPU/resource waits and queue capacity cause producer backpressure.
+     SubmitExecution(info);
+ }
+ 
+@@ -147,7 +152,15 @@
+     SubmitInfo info{};
+     SubmitExecution(info);
+     Wait(presubmit_tick);
++    WaitSubmitted();
+     gpu_profiler.Collect(master_semaphore.KnownGpuTick());
++}
++
++void Scheduler::WaitSubmitted() {
++    if (auto* worker = instance.Submissions()) {
++        Common::Profiler::Scope scope{"Vulkan.WaitSubmitted"};
++        worker->Wait(last_submission);
++    }
+ }
+ 
+ void Scheduler::Wait(u64 tick) {
+@@ -202,6 +215,13 @@
+ void Scheduler::SubmitExecution(SubmitInfo& info) {
+     Common::Profiler::Scope execution_scope{"Vulkan.SubmitExecution"};
+     const auto generation = instance.DiagnosticGeneration();
++    instance.CheckSubmissionHealth();
++    if (instance.Submissions() && CurrentTick() > 8) {
++        // Also bound work already accepted by Vulkan, not just the host FIFO.
++        // Tick reservation alone must never make a command buffer reusable.
++        Common::Profiler::Scope scope{"Vulkan.InflightBudget"};
++        master_semaphore.Wait(CurrentTick() - 8);
++    }
+     const u64 signal_value = master_semaphore.NextTick();
+ 
+ #if TRACY_GPU_ENABLED
+@@ -222,52 +242,67 @@
+     const vk::Semaphore timeline = master_semaphore.Handle();
+     info.AddSignal(timeline, signal_value);
+ 
+-    const vk::TimelineSemaphoreSubmitInfo timeline_si = {
+-        .waitSemaphoreValueCount = info.num_wait_semas,
+-        .pWaitSemaphoreValues = info.wait_ticks.data(),
+-        .signalSemaphoreValueCount = info.num_signal_semas,
+-        .pSignalSemaphoreValues = info.signal_ticks.data(),
+-    };
+-
+-    const vk::SubmitInfo submit_info = {
+-        .pNext = &timeline_si,
+-        .waitSemaphoreCount = info.num_wait_semas,
+-        .pWaitSemaphores = info.wait_semas.data(),
+-        .pWaitDstStageMask = info.wait_stages.data(),
+-        .commandBufferCount = 1U,
+-        .pCommandBuffers = &current_cmdbuf,
+-        .signalSemaphoreCount = info.num_signal_semas,
+-        .pSignalSemaphores = info.signal_semas.data(),
+-    };
+-
+     {
+         Common::Profiler::Scope scope{"Vulkan.ImGuiUploads"};
+         ImGui::Core::TextureManager::Submit();
+     }
+-    vk::Result submit_result;
+-    {
+-        std::unique_lock lock{submit_mutex, std::defer_lock};
++    // No pointers to the caller's SubmitInfo, current_cmdbuf, or stack arrays
++    // escape. The scheduler owns the command pool and drains before destruction.
++    auto submit = [instance_ptr = &instance, master = &master_semaphore, generation,
++                   signal_value, buffer = current_cmdbuf, packet = info]
++                  (SubmissionReceipt& receipt) {
++        Common::Profiler::Scope execution{"Vulkan.WorkerSubmit"};
++        const vk::TimelineSemaphoreSubmitInfo timeline_si{
++            .waitSemaphoreValueCount = packet.num_wait_semas,
++            .pWaitSemaphoreValues = packet.wait_ticks.data(),
++            .signalSemaphoreValueCount = packet.num_signal_semas,
++            .pSignalSemaphoreValues = packet.signal_ticks.data(),
++        };
++        const vk::SubmitInfo submit_info{
++            .pNext = &timeline_si,
++            .waitSemaphoreCount = packet.num_wait_semas,
++            .pWaitSemaphores = packet.wait_semas.data(),
++            .pWaitDstStageMask = packet.wait_stages.data(),
++            .commandBufferCount = 1,
++            .pCommandBuffers = &buffer,
++            .signalSemaphoreCount = packet.num_signal_semas,
++            .pSignalSemaphores = packet.signal_semas.data(),
++        };
++        vk::Result result;
+         {
+-            Core::Diagnostics::Handoff::Scope scope{"Vulkan.SubmitLock", generation,
+-                master_semaphore.DiagnosticId(), signal_value, true};
+-            lock.lock();
+-        }
+-        Core::Diagnostics::Handoff::Scope scope{"Vulkan.Submit", generation,
+-            master_semaphore.DiagnosticId(), signal_value};
+-        gpu_profiler.Submitting();
+-        submit_result = instance.GetGraphicsQueue().submit(submit_info, info.fence);
+-        SHAD_HANDOFF(generation, "vk_submit", master_semaphore.DiagnosticId(), signal_value,
+-                     static_cast<u64>(submit_result));
+-    } // Queue external synchronization does not include pool waits or callbacks.
+-    Check(submit_result);
+-    if (submit_result == vk::Result::eSuccess) {
+-        master_semaphore.Submitted(signal_value);
+-        gpu_profiler.Submitted(signal_value);
+-        if (const auto& diag = instance.Diagnostics()) {
++            std::unique_lock lock{instance_ptr->QueueMutex(), std::defer_lock};
++            {
++                Core::Diagnostics::Handoff::Scope scope{"Vulkan.SubmitLock", generation,
++                    master->DiagnosticId(), signal_value, true};
++                lock.lock();
++            }
++            Core::Diagnostics::Handoff::Scope scope{"Vulkan.Submit", generation,
++                master->DiagnosticId(), signal_value};
++            receipt.started_ns = Core::Diagnostics::DiagnosticNowNs();
++            result = instance_ptr->GetGraphicsQueue().submit(submit_info, packet.fence);
++            SHAD_HANDOFF(generation, "vk_submit", master->DiagnosticId(), signal_value,
++                         static_cast<u64>(result));
++        }
++        Check(result);
++        master->Submitted(signal_value);
++        if (const auto& diag = instance_ptr->Diagnostics()) {
+             diag->MarkAvailable(Core::Diagnostics::AdvanceSignal::QueueSubmit, true);
+             diag->Advance(Core::Diagnostics::AdvanceSignal::QueueSubmit,
+                           Core::Diagnostics::DiagnosticNowNs());
+         }
++    };
++    if (auto* worker = instance.Submissions()) {
++        Common::Profiler::Scope scope{"Vulkan.EnqueueSubmission"};
++        auto receipt = worker->Enqueue(std::move(submit));
++        last_submission = receipt->serial;
++        SHAD_HANDOFF(generation, "submit_accepted", master_semaphore.DiagnosticId(),
++                     signal_value, last_submission);
++        gpu_profiler.Queued(signal_value, std::move(receipt));
++    } else {
++        SubmissionReceipt receipt;
++        gpu_profiler.Submitting();
++        submit(receipt);
++        gpu_profiler.Submitted(signal_value);
+     }
+ 
+     {
+--- before/src/video_core/renderer_vulkan/vk_master_semaphore.cpp
++++ after/src/video_core/renderer_vulkan/vk_master_semaphore.cpp
+@@ -57,6 +57,7 @@
+ MasterSemaphore::~MasterSemaphore() = default;
+ 
+ void MasterSemaphore::Refresh() {
++    instance.CheckSubmissionHealth();
+ #ifdef __ANDROID__
+     completion->CheckHealth();
+ #else
+@@ -111,6 +112,7 @@
+         diagnostic_id, tick, true};
+     while (true) {
+         if (stop.stop_requested()) return false;
++        instance.CheckSubmissionHealth();
+         const auto result = instance.GetDevice().waitSemaphores(&wait_info, WAIT_TIMEOUT);
+         if (result == vk::Result::eSuccess) break;
+         if (result != vk::Result::eTimeout)
+--- before/src/video_core/amdgpu/liverpool.cpp
++++ after/src/video_core/amdgpu/liverpool.cpp
+@@ -877,6 +877,7 @@
+                 const u64* wait_addr = wait_reg_mem->Address<u64*>();
+                 if (vo_port && vo_port->IsVoLabel(wait_addr) &&
+                     num_submits == mapped_queues[GfxQueueId].submits.size()) {
++                    Common::Profiler::Scope wait_scope{"PM4.WaitVideoOutLabel"};
+                     vo_port->WaitVoLabel([&] { return wait_reg_mem->Test(regs.reg_array); });
+                     break;
+                 }
+--- before/src/imgui/renderer/imgui_core.cpp
++++ after/src/imgui/renderer/imgui_core.cpp
+@@ -141,6 +141,8 @@
+         .device = instance.GetDevice(),
+         .queue_family = instance.GetPresentQueueFamilyIndex(),
+         .queue = instance.GetPresentQueue(),
++        .queue_mutex = &instance.QueueMutex(),
++        .drain_submissions = [&instance] { instance.DrainSubmissions(); },
+         .image_count = image_count,
+         .min_allocation_size = 1024 * 1024,
+         .pipeline_rendering_create_info{
+--- before/src/imgui/renderer/imgui_impl_vulkan.cpp
++++ after/src/imgui/renderer/imgui_impl_vulkan.cpp
+@@ -235,8 +235,12 @@
+         .commandBufferCount = 1,
+         .pCommandBuffers = &command_buffer,
+     };
+-    CheckVkErr(v.queue.submit({submit_info}));
+-    CheckVkErr(v.queue.waitIdle());
++    {
++        std::unique_lock<std::mutex> lock;
++        if (v.queue_mutex) lock = std::unique_lock{*v.queue_mutex};
++        CheckVkErr(v.queue.submit({submit_info}));
++        CheckVkErr(v.queue.waitIdle());
++    }
+ 
+     v.device.destroyBuffer(upload_buffer, v.allocator);
+     v.device.freeMemory(upload_buffer_memory, v.allocator);
+@@ -252,7 +256,14 @@
+     VkData* bd = GetBackendData();
+     const InitInfo& v = bd->init_info;
+ 
+-    CheckVkErr(v.device.waitIdle());
++    // Idle must cover previously accepted host batches too. Drain outside the
++    // queue lock, which the submission worker itself needs in order to finish.
++    if (v.drain_submissions) v.drain_submissions();
++    {
++        std::unique_lock<std::mutex> lock;
++        if (v.queue_mutex) lock = std::unique_lock{*v.queue_mutex};
++        CheckVkErr(v.device.waitIdle());
++    }
+     RemoveTexture(im_texture);
+     im_texture = nullptr;
+ 
+@@ -709,7 +720,12 @@
+ 
+     // Destroy existing texture (if any)
+     if (bd->font_view || bd->font_image || bd->font_memory || bd->font_texture) {
+-        CheckVkErr(v.queue.waitIdle());
++        if (v.drain_submissions) v.drain_submissions();
++        {
++            std::unique_lock<std::mutex> lock;
++            if (v.queue_mutex) lock = std::unique_lock{*v.queue_mutex};
++            CheckVkErr(v.queue.waitIdle());
++        }
+         DestroyFontsTexture();
+     }
+ 
+@@ -880,9 +896,12 @@
+     end_info.commandBufferCount = 1;
+     end_info.pCommandBuffers = &bd->font_command_buffer;
+     CheckVkErr(bd->font_command_buffer.end());
+-    CheckVkErr(v.queue.submit({end_info}));
+-
+-    CheckVkErr(v.queue.waitIdle());
++    {
++        std::unique_lock<std::mutex> lock;
++        if (v.queue_mutex) lock = std::unique_lock{*v.queue_mutex};
++        CheckVkErr(v.queue.submit({end_info}));
++        CheckVkErr(v.queue.waitIdle());
++    }
+ 
+     v.device.destroyBuffer(upload_buffer, v.allocator);
+     v.device.freeMemory(upload_buffer_memory, v.allocator);
+--- before/src/imgui/renderer/imgui_impl_vulkan.h
++++ after/src/imgui/renderer/imgui_impl_vulkan.h
+@@ -5,7 +5,10 @@
+ 
+ #pragma once
+ 
++#include <mutex>
++
+ #include "common/types.h"
++#include <functional>
+ #include "video_core/renderer_vulkan/vk_common.h"
+ 
+ struct ImDrawData;
+@@ -24,6 +27,8 @@
+     vk::Device device;
+     uint32_t queue_family;
+     vk::Queue queue;
++    std::mutex* queue_mutex{};
++    std::function<void()> drain_submissions;
+     uint32_t image_count;               // >= 2
+     vk::DeviceSize min_allocation_size; // Minimum allocation size
+     vk::PipelineCache pipeline_cache;
+--- before/src/core/host_runtime/guest_graphics.cpp
++++ after/src/core/host_runtime/guest_graphics.cpp
+@@ -128,6 +128,7 @@
+     impl->Stop();
+ }
+ void GuestGraphics::CheckHealth() {
++    if (presenter) presenter->CheckSubmissionHealth();
+     std::scoped_lock lock(impl->fault_mutex);
+     if (impl->fault)
+         std::rethrow_exception(impl->fault);
+@@ -136,10 +137,15 @@
+     CheckHealth();
+     const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+     while (!liverpool->IsGpuIdle()) {
++        CheckHealth();
+         if (liverpool->StopRequested() || std::chrono::steady_clock::now() >= deadline)
+             throw std::runtime_error("GPU drain cancelled or timed out");
+         std::this_thread::sleep_for(std::chrono::milliseconds(1));
+     }
++    // VM publication / unregister used to observe actual queue submission once
++    // Liverpool drained. Keep that boundary after moving submission to a worker.
++    // This is not the per-frame GNM admission gate or a GPU-completion wait.
++    if (presenter) presenter->DrainSubmissions();
+ }
+ std::recursive_mutex& GuestGraphics::SubmissionMutex() {
+     return impl->submission_mutex;
+--- before/src/core/libraries/videoout/driver.cpp
++++ after/src/core/libraries/videoout/driver.cpp
+@@ -9,6 +9,7 @@
+ #include "core/emulator_settings.h"
+ #include "core/libraries/kernel/time.h"
+ #include "core/libraries/videoout/driver.h"
++#include "core/libraries/videoout/redraw_pacer.h"
+ #include "core/libraries/videoout/videoout_error.h"
+ #include "imgui/renderer/imgui_core.h"
+ #include "video_core/amdgpu/liverpool.h"
+@@ -415,6 +416,9 @@
+     Common::SetCurrentThreadRealtime(vblank_period);
+ 
+     Common::AccurateTimer timer{vblank_period};
++#ifdef __ANDROID__
++    RedrawPacer redraw_pacer{vblank_period};
++#endif
+ 
+     const auto receive_request = [this] -> Request {
+         std::scoped_lock lk{mutex};
+@@ -430,6 +434,9 @@
+         timer.Start();
+ 
+         if (DebugState.IsGuestThreadsPaused()) {
++#ifdef __ANDROID__
++            if (redraw_pacer.TryAcquire(RedrawPacer::Clock::now(), timer.GetTotalWait()))
++#endif
+             DrawLastFrame();
+             timer.End();
+             continue;
+@@ -440,7 +447,11 @@
+         if (vblank_status.count % (main_port.flip_rate + 1) == 0) {
+             const auto request = receive_request();
+             if (!request) {
++#ifdef __ANDROID__
++                if (redraw_pacer.TryAcquire(RedrawPacer::Clock::now(), timer.GetTotalWait())) {
++#else
+                 if (timer.GetTotalWait().count() < 0) { // Dont draw too fast
++#endif
+                     if (!main_port.is_open) {
+                         DrawBlankFrame();
+                     } else if (ImGui::Core::MustKeepDrawing()) {
+--- before/tests/host_runtime/gpu_async_tests.cpp
++++ after/tests/host_runtime/gpu_async_tests.cpp
+@@ -5,6 +5,7 @@
+ #include <semaphore>
+ #include <stdexcept>
+ #include "core/platform.h"
++#include "core/libraries/videoout/redraw_pacer.h"
+ #include "video_core/renderer_vulkan/timeline_completion.h"
+ 
+ using namespace std::chrono_literals;
+@@ -20,6 +21,23 @@
+ }
+ 
+ int main() {
++    {
++        using Libraries::VideoOut::RedrawPacer;
++        RedrawPacer redraw(16ms);
++        auto now = RedrawPacer::Clock::time_point{1s};
++        CHECK(redraw.TryAcquire(now, 0ms));
++        // A 128 ms driver stall creates seven overdue vblanks. Catch-up must
++        // advance those clocks without issuing seven more old-frame presents.
++        now += 128ms;
++        unsigned redraws{};
++        for (int debt = 112; debt >= 0; debt -= 16)
++            redraws += redraw.TryAcquire(now, -std::chrono::milliseconds(debt));
++        CHECK(redraws == 1);
++        CHECK(!redraw.TryAcquire(now + 1ms, 0ms));
++        CHECK(redraw.TryAcquire(now + 16ms, -1ms));
++        CHECK(!redraw.TryAcquire(now + 1s, -64ms));
++        CHECK(redraw.TryAcquire(now + 1s, 0ms));
++    }
+     // Registering frame N+1 must not wait for frame N's slow GPU callback.
+     Platform::IrqController irq;
+     std::promise<void> entered;
+--- before/src/video_core/renderer_vulkan/submission_worker.h
++++ after/src/video_core/renderer_vulkan/submission_worker.h
+@@ -0,0 +1,124 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++#pragma once
++
++#include <atomic>
++#include <condition_variable>
++#include <cstdint>
++#include <deque>
++#include <exception>
++#include <functional>
++#include <memory>
++#include <mutex>
++#include <stdexcept>
++#include <thread>
++
++namespace Vulkan {
++
++// A receipt means host submission, never GPU completion. Only the worker writes
++// started_ns; the consumer reads it after the release/acquire submitted flag.
++struct SubmissionReceipt {
++    uint64_t serial{};
++    uint64_t started_ns{};
++    std::atomic<bool> submitted{};
++};
++
++// One FIFO per VkDevice/queue. The capacity includes the executing job. Jobs own
++// their parameter storage; GPU object lifetime stays with timeline retirement.
++// Close wakes blocked producers and drains accepted jobs. A driver failure
++// poisons admission, discards unexecuted jobs and wakes all host waiters.
++class SubmissionWorker {
++public:
++    using Job = std::function<void(SubmissionReceipt&)>;
++    explicit SubmissionWorker(size_t capacity, std::function<void()> initialize = {})
++        : capacity(capacity) {
++        if (!capacity) throw std::invalid_argument("zero submission capacity");
++        worker = std::thread([this, initialize = std::move(initialize)] {
++            try {
++                if (initialize) initialize();
++                Run();
++            } catch (...) {
++                std::scoped_lock lock(mutex);
++                jobs.clear();
++                error = std::current_exception();
++                failed.store(true, std::memory_order_release);
++                cv.notify_all();
++            }
++        });
++    }
++    ~SubmissionWorker() {
++        Close();
++        worker.join(); // No referenced Vulkan object may die before this returns.
++    }
++    SubmissionWorker(const SubmissionWorker&) = delete;
++    SubmissionWorker& operator=(const SubmissionWorker&) = delete;
++
++    std::shared_ptr<SubmissionReceipt> Enqueue(Job job) {
++        auto receipt = std::make_shared<SubmissionReceipt>();
++        std::unique_lock lock(mutex);
++        cv.wait(lock, [&] { return error || closed || accepted - finished < capacity; });
++        ThrowIfFailed();
++        if (closed) throw std::runtime_error("Vulkan submission worker closed");
++        receipt->serial = accepted + 1;
++        jobs.push_back({receipt, std::move(job)});
++        accepted = receipt->serial;
++        lock.unlock();
++        cv.notify_all();
++        return receipt;
++    }
++
++    void Wait(uint64_t serial) const {
++        std::unique_lock lock(mutex);
++        if (serial > accepted) throw std::invalid_argument("unaccepted submission serial");
++        cv.wait(lock, [&] { return error || finished >= serial; });
++        ThrowIfFailed();
++    }
++    void Drain() const {
++        uint64_t serial;
++        { std::scoped_lock lock(mutex); serial = accepted; }
++        Wait(serial);
++    }
++    void CheckHealth() const {
++        if (failed.load(std::memory_order_acquire)) {
++            std::scoped_lock lock(mutex);
++            ThrowIfFailed();
++        }
++    }
++    void Close() {
++        { std::scoped_lock lock(mutex); closed = true; }
++        cv.notify_all();
++    }
++
++private:
++    struct Work { std::shared_ptr<SubmissionReceipt> receipt; Job job; };
++    void ThrowIfFailed() const { if (error) std::rethrow_exception(error); }
++    void Run() {
++        for (;;) {
++            Work work;
++            {
++                std::unique_lock lock(mutex);
++                cv.wait(lock, [&] { return closed || !jobs.empty(); });
++                if (jobs.empty()) return;
++                work = std::move(jobs.front());
++                jobs.pop_front();
++            }
++            work.job(*work.receipt); // Never hold the mailbox mutex in a driver call.
++            work.job = {}; // Release captured ownership before publishing completion.
++            work.receipt->submitted.store(true, std::memory_order_release);
++            {
++                std::scoped_lock lock(mutex);
++                finished = work.receipt->serial;
++            }
++            cv.notify_all();
++        }
++    }
++    const size_t capacity;
++    mutable std::mutex mutex;
++    mutable std::condition_variable cv;
++    std::deque<Work> jobs;
++    uint64_t accepted{}, finished{};
++    bool closed{};
++    std::exception_ptr error;
++    std::atomic<bool> failed{};
++    std::thread worker;
++};
++} // namespace Vulkan
+--- before/src/core/libraries/videoout/redraw_pacer.h
++++ after/src/core/libraries/videoout/redraw_pacer.h
+@@ -0,0 +1,21 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++#pragma once
++#include <chrono>
++
++namespace Libraries::VideoOut {
++// Optional UI redraws must not amplify vblank catch-up after a slow present.
++// Guest flips, vblank events and buffer-label retirement are not rate limited.
++class RedrawPacer {
++public:
++    using Clock = std::chrono::steady_clock;
++    explicit RedrawPacer(std::chrono::nanoseconds period) : period(period) {}
++    bool TryAcquire(Clock::time_point now, std::chrono::nanoseconds time_credit) {
++        if (time_credit < -period || now < next) return false;
++        next = now + period;
++        return true;
++    }
++private:
++    const std::chrono::nanoseconds period;
++    Clock::time_point next{};
++};
++} // namespace Libraries::VideoOut
+--- before/tests/host_runtime/submission_worker_tests.cpp
++++ after/tests/host_runtime/submission_worker_tests.cpp
+@@ -0,0 +1,124 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++#include "video_core/renderer_vulkan/submission_worker.h"
++#include <chrono>
++#include <cstdio>
++#include <future>
++#include <semaphore>
++#include <vector>
++
++using namespace std::chrono_literals;
++using Vulkan::SubmissionWorker;
++static unsigned checks{}, failures{};
++#define CHECK(x) do { ++checks; if (!(x)) { ++failures; std::printf("FAIL %d: %s\n", __LINE__, #x); } } while (0)
++
++int main() {
++    // A present-like driver call can hold the Vulkan queue lock. Producers must
++    // still transfer their OWNED batch without falsely reporting submission.
++    {
++        SubmissionWorker worker(2);
++        std::binary_semaphore entered{0}, release{0};
++        std::atomic<unsigned> calls{}, gpu_completed{};
++        std::vector<unsigned> observed;
++        unsigned stack_value = 17;
++        auto first = worker.Enqueue([&, value = stack_value](auto& receipt) {
++            entered.release(); release.acquire();
++            observed.push_back(value); ++calls;
++            receipt.started_ns = 123;
++        });
++        CHECK(entered.try_acquire_for(2s));
++        stack_value = 99;
++        auto second = worker.Enqueue([&, value = stack_value](auto&) {
++            observed.push_back(value); ++calls;
++        });
++        stack_value = 999;
++        CHECK(!first->submitted.load() && !second->submitted.load());
++        auto third = std::async(std::launch::async, [&] {
++            return worker.Enqueue([&](auto&) { observed.push_back(101); ++calls; });
++        });
++        CHECK(third.wait_for(30ms) == std::future_status::timeout); // bounded, includes active
++        auto waiter = std::async(std::launch::async, [&] { worker.Wait(second->serial); });
++        CHECK(waiter.wait_for(30ms) == std::future_status::timeout);
++        release.release();
++        CHECK(third.wait_for(2s) == std::future_status::ready);
++        auto last = third.get(); worker.Wait(last->serial); waiter.get();
++        CHECK(first->submitted.load() && second->submitted.load() && last->submitted.load());
++        CHECK(first->started_ns == 123);
++        CHECK((observed == std::vector<unsigned>{17, 99, 101}));
++        CHECK(calls.load() == 3 && gpu_completed.load() == 0); // never conflate with GPU completion
++    }
++    // Close wakes capacity waiters, but preserves all already accepted work.
++    {
++        SubmissionWorker worker(1);
++        std::binary_semaphore entered{0}, release{0};
++        auto receipt = worker.Enqueue([&](auto&) { entered.release(); release.acquire(); });
++        CHECK(entered.try_acquire_for(2s));
++        auto blocked = std::async(std::launch::async, [&] {
++            try { worker.Enqueue([](auto&) {}); return false; }
++            catch (const std::runtime_error&) { return true; }
++        });
++        CHECK(blocked.wait_for(30ms) == std::future_status::timeout);
++        worker.Close();
++        CHECK(blocked.wait_for(2s) == std::future_status::ready && blocked.get());
++        CHECK(!receipt->submitted.load());
++        release.release(); worker.Drain();
++        CHECK(receipt->submitted.load());
++    }
++    // Device loss cancels queued jobs and wakes waits/admission. Captures must
++    // be destroyed before a scheduler is allowed to tear down its Vulkan objects.
++    {
++        SubmissionWorker worker(2);
++        std::binary_semaphore entered{0}, release{0};
++        auto first = worker.Enqueue([&](auto&) {
++            entered.release(); release.acquire(); throw std::runtime_error("device lost");
++        });
++        CHECK(entered.try_acquire_for(2s));
++        std::atomic<unsigned> unexpected{};
++        auto lease = std::make_shared<int>(1);
++        std::weak_ptr<int> weak = lease;
++        auto cancelled = worker.Enqueue([&, lease](auto&) { ++unexpected; });
++        lease.reset();
++        auto waiting = std::async(std::launch::async, [&] {
++            try { worker.Wait(cancelled->serial); return false; }
++            catch (const std::runtime_error&) { return true; }
++        });
++        auto blocked = std::async(std::launch::async, [&] {
++            try { worker.Enqueue([](auto&) {}); return false; }
++            catch (const std::runtime_error&) { return true; }
++        });
++        CHECK(waiting.wait_for(30ms) == std::future_status::timeout);
++        CHECK(blocked.wait_for(30ms) == std::future_status::timeout);
++        release.release();
++        CHECK(waiting.wait_for(2s) == std::future_status::ready && waiting.get());
++        CHECK(blocked.wait_for(2s) == std::future_status::ready && blocked.get());
++        CHECK(!first->submitted.load() && !cancelled->submitted.load() && unexpected.load() == 0);
++        CHECK(weak.expired());
++        try { worker.CheckHealth(); CHECK(false); }
++        catch (const std::runtime_error& e) { CHECK(std::string_view(e.what()) == "device lost"); }
++    }
++    // Multiple scheduler owners must execute in one device FIFO, with no lost
++    // batches, concurrent backend calls, or accepted-vs-completed confusion.
++    {
++        SubmissionWorker worker(8);
++        std::vector<uint64_t> serials;
++        std::atomic<int> active{}, overlap{};
++        auto produce = [&] {
++            for (unsigned i = 0; i < 300; ++i) worker.Enqueue([&](auto& receipt) {
++                if (active.fetch_add(1)) ++overlap;
++                serials.push_back(receipt.serial);
++                active.fetch_sub(1);
++            });
++        };
++        std::thread a(produce), b(produce), c(produce);
++        a.join(); b.join(); c.join(); worker.Drain();
++        CHECK(serials.size() == 900 && overlap.load() == 0);
++        bool ordered = true;
++        for (size_t i = 0; i < serials.size(); ++i) ordered &= serials[i] == i + 1;
++        CHECK(ordered);
++        try { worker.Wait(901); CHECK(false); }
++        catch (const std::invalid_argument&) { CHECK(true); }
++    }
++    try { SubmissionWorker invalid(0); CHECK(false); }
++    catch (const std::invalid_argument&) { CHECK(true); }
++    std::printf("SUBMISSION_WORKER checks=%u failures=%u\n", checks, failures);
++    return failures ? 1 : 0;
++}
+--- before/tests/video_core/android_submission_probe.cpp
++++ after/tests/video_core/android_submission_probe.cpp
+@@ -0,0 +1,148 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++// Production Scheduler/SubmissionWorker/TimelineCompletion on the real Android
++// system driver. An injected queue owner models slow present without a Surface.
++#include "common/logging/log.h"
++#include "common/path_util.h"
++#include "common/profiler.h"
++#include "frontend/window.h"
++#include "video_core/renderer_vulkan/vk_instance.h"
++#include "video_core/renderer_vulkan/vk_scheduler.h"
++#include <chrono>
++#include <cstdio>
++#include <future>
++#include <vk_mem_alloc.h>
++
++using namespace std::chrono_literals;
++struct ProbeWindow : Frontend::Window {
++    s32 GetWidth() const override { return 64; }
++    s32 GetHeight() const override { return 64; }
++    Frontend::WindowSystemInfo GetWindowInfo() const override { return {}; }
++    bool RequestKeyboard() override { return false; }
++    void ReleaseKeyboard() override {}
++};
++static unsigned checks{}, failures{};
++#define CHECK(x) do { ++checks; if (!(x)) { ++failures; std::printf("FAIL %d: %s\n", __LINE__, #x); } } while (0)
++struct Buffer {
++    VmaAllocator allocator{};
++    VkBuffer buffer{};
++    VmaAllocation allocation{};
++    uint32_t* data{};
++    explicit Buffer(Vulkan::Instance& instance) : allocator(instance.GetAllocator()) {
++        VkBufferCreateInfo info{VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
++        info.size = 8192;
++        info.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
++        VmaAllocationCreateInfo ai{};
++        ai.usage = VMA_MEMORY_USAGE_AUTO;
++        ai.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
++        ai.requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
++        VmaAllocationInfo allocated{};
++        Vulkan::Check(vk::Result(vmaCreateBuffer(allocator, &info, &ai, &buffer, &allocation, &allocated)));
++        data = static_cast<uint32_t*>(allocated.pMappedData);
++    }
++    ~Buffer() { vmaDestroyBuffer(allocator, buffer, allocation); }
++};
++
++int main(int argc, char** argv) {
++    if (argc != 2) return 2;
++    Common::FS::InitializeAndroidUserPaths(argv[1]);
++    Common::Log::Setup("submission-probe");
++    Common::Profiler::Initialize();
++    Common::Profiler::Control({"start"});
++    // Lite activates on the first real source frame. This probe owns that
++    // source; production uses the guest frame mark instead.
++    Common::Profiler::Frame();
++    CHECK(Common::Profiler::Enabled());
++    auto driver = Vulkan::LoadAndroidSystemDriver();
++    ProbeWindow window;
++    for (unsigned generation = 0; generation < 3; ++generation) {
++        Vulkan::Instance instance(window, 0, false, false, driver);
++        CHECK(instance.Submissions() != nullptr);
++        if (!instance.Submissions()) return 2;
++        Buffer buffer(instance);
++        Vulkan::Scheduler draw(instance), present(instance, Vulkan::GpuProfiler::Stage::Present);
++        const auto device = instance.GetDevice();
++        const auto signal = Vulkan::Check(device.createSemaphoreUnique({}));
++        const auto fence = Vulkan::Check(device.createFenceUnique({}));
++        Common::Profiler::GpuTimingControl({"start"});
++        // Allocate a query lease after toggling on.
++        draw.Flush(); present.Flush();
++        draw.WaitSubmitted(); present.WaitSubmitted();
++        const auto draw_tick = draw.CurrentTick();
++        const auto present_tick = present.CurrentTick();
++        draw.CommandBuffer().fillBuffer(buffer.buffer, 0, 4096, 0x12340000 + generation);
++        Vulkan::SubmitInfo a{};
++        Vulkan::SubmitInfo b{};
++        b.AddWait(draw.GetMasterSemaphore()->Handle(), draw_tick);
++        b.AddSignal(*signal);
++        b.AddSignal(*fence);
++        present.CommandBuffer().copyBuffer(buffer.buffer, buffer.buffer,
++                                          vk::BufferCopy{0, 4096, 4096});
++        std::unique_lock queue_owner(instance.QueueMutex());
++        auto produce = std::async(std::launch::async, [&] {
++            draw.Flush(a);
++            present.Flush(b);
++        });
++        const bool accepted_while_present_blocked = produce.wait_for(200ms) == std::future_status::ready;
++        CHECK(accepted_while_present_blocked);
++        if (!accepted_while_present_blocked) queue_owner.unlock();
++        produce.get();
++        if (accepted_while_present_blocked) {
++            CHECK(!draw.GetMasterSemaphore()->IsFree(draw_tick));
++            CHECK(!present.GetMasterSemaphore()->IsFree(present_tick));
++            CHECK(device.getFenceStatus(*fence) == vk::Result::eNotReady);
++            // Destroy caller-owned submit arrays before the worker can read them.
++            a = {}; b = {};
++            queue_owner.unlock();
++        }
++        present.WaitSubmitted();
++        // Match present's requirement: the binary signal has actually been
++        // submitted before its consumer. The consumer need not wait for the GPU.
++        Vulkan::SubmitInfo consume{};
++        consume.AddWait(*signal);
++        present.Flush(consume);
++        present.Finish(); draw.Finish();
++        CHECK(device.getFenceStatus(*fence) == vk::Result::eSuccess);
++        CHECK(draw.GetMasterSemaphore()->IsFree(draw_tick));
++        CHECK(present.GetMasterSemaphore()->IsFree(present_tick));
++        bool correct = true;
++        for (unsigned i = 1024; i < 2048; ++i) correct &= buffer.data[i] == 0x12340000 + generation;
++        CHECK(correct);
++
++        // Exercise tick-protected pool/query reuse and bounded GPU backpressure.
++        // Every recorded fill is followed by real completion before CPU readback.
++        for (unsigned i = 0; i < 96; ++i) {
++            draw.CommandBuffer().fillBuffer(buffer.buffer, (i % 256) * 4, 4, 0xabc00000 + i);
++            draw.GpuProfile().FrameEnd();
++            draw.Flush();
++            if (i == 30) Common::Profiler::GpuTimingControl({"stop"});
++            if (i == 40) Common::Profiler::GpuTimingControl({"start"});
++        }
++        draw.Finish(); present.Finish();
++        for (unsigned i = 0; i < 96; ++i) CHECK(buffer.data[i] == 0xabc00000 + i);
++        const auto stats = instance.GpuTiming()->Read();
++        CHECK(stats.supported && stats.errors == 0);
++        CHECK(stats.pending == 0);
++        CHECK(stats.retired_batches > 32);
++        Common::Profiler::GpuTimingControl({"stop"});
++        std::printf("generation=%u retired=%llu errors=%llu pending=%llu\n", generation,
++                    (unsigned long long)stats.retired_batches, (unsigned long long)stats.errors,
++                    (unsigned long long)stats.pending);
++        if (generation == 1) {
++            // Inject a backend exception, not real device loss. Both host and
++            // GPU waiters must observe it without waiting for an unsignalled
++            // tick; the following generation must still create and execute.
++            auto failed = instance.Submissions()->Enqueue([](auto&) {
++                throw std::runtime_error("injected submit failure");
++            });
++            try { instance.Submissions()->Wait(failed->serial); CHECK(false); }
++            catch (const std::runtime_error&) { CHECK(true); }
++            const auto start = std::chrono::steady_clock::now();
++            try { draw.GetMasterSemaphore()->Wait(draw.CurrentTick()); CHECK(false); }
++            catch (const std::runtime_error&) { CHECK(true); }
++            CHECK(std::chrono::steady_clock::now() - start < 200ms);
++            CHECK(!failed->submitted.load());
++        }
++    }
++    std::printf("SUBMISSION_DEVICE checks=%u failures=%u\n", checks, failures);
++    return failures ? 1 : 0;
++}

@@ -1,0 +1,16 @@
+{
+  "run_id": "30abdc62fffb43d0873a656ced91ce04",
+  "identity": [
+    27493,
+    2,
+    "f8c0e2ef097990597e550538cf2f2887"
+  ],
+  "status": "GAMEPLAY_REVIEWED",
+  "review": {
+    "run_id": "30abdc62fffb43d0873a656ced91ce04",
+    "scene_frame": 7,
+    "response_frame": 11,
+    "note": "With 134 automatic probes and existing C++ guest patch both installed, real rooftop movement and camera response progress MOVE to ATTACK; screenshots visually reviewed."
+  },
+  "attaches_debugger": false
+}

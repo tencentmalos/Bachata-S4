@@ -2,10 +2,14 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <ranges>
+#ifdef __ANDROID__
+#include <sys/system_properties.h>
+#endif
 
 #include "common/hash.h"
 #include "common/io_file.h"
 #include "common/path_util.h"
+#include "common/profiler.h"
 #include "core/debug_state.h"
 #include "core/emulator_settings.h"
 #include "shader_recompiler/backend/spirv/emit_spirv.h"
@@ -100,6 +104,20 @@ const Shader::RuntimeInfo& PipelineCache::BuildRuntimeInfo(Stage stage, LogicalS
         info.fp_round_mode16_64 = program.settings.fp_round_mode64;
     };
     info.Initialize(stage);
+    if (stage == Stage::Vertex || stage == Stage::Geometry) {
+        info.depth_range = AmdGpu::BuildDepthRangeEmulation(
+            regs, instance.IsDepthRangeUnrestrictedSupported());
+        if (info.depth_range.enabled) {
+            ASSERT_MSG(instance.IsDepthClipEnableSupported() &&
+                           instance.IsShaderClipDistanceSupported(),
+                       "Depth range emulation requires independent depth clipping and clip distances");
+            for (const auto& vp : info.depth_range.viewports) {
+                ASSERT_MSG(std::isfinite(vp.scale) && std::isfinite(vp.offset) &&
+                               vp.min_depth >= 0.f && vp.max_depth <= 1.f,
+                           "Guest depth clamp bounds outside the supported [0,1] range");
+            }
+        }
+    }
     switch (stage) {
     case Stage::Local: {
         BuildCommon(regs.ls_program);
@@ -136,7 +154,7 @@ const Shader::RuntimeInfo& PipelineCache::BuildRuntimeInfo(Stage stage, LogicalS
         info.vs_info.step_rate_1 = regs.vgt_instance_step_rate_1;
         info.vs_info.num_outputs = MapOutputs(info.vs_info.outputs, regs.vs_output_control);
         info.vs_info.emulate_depth_negative_one_to_one =
-            !instance.IsDepthClipControlSupported() &&
+            !info.depth_range.enabled && !instance.IsDepthClipControlSupported() &&
             regs.clipper_control.clip_space == AmdGpu::ClipSpace::MinusWToW;
         info.vs_info.tess_emulated_primitive =
             regs.primitive_type == AmdGpu::PrimitiveType::RectList ||
@@ -257,7 +275,31 @@ PipelineCache::PipelineCache(const Instance& instance_, Scheduler& scheduler_,
                              AmdGpu::Liverpool* liverpool_)
     : instance{instance_}, scheduler{scheduler_}, liverpool{liverpool_},
       desc_heap{instance, scheduler.GetMasterSemaphore(), DescriptorHeapSizes} {
+    bool lower_int64 = !instance.IsShaderInt64Supported();
+#ifdef __ANDROID__
+    // Session-latched diagnostic override for same-driver native/lowered A/B.
+    // It can disable a capability, never enable one the device does not expose.
+    char lower_property[PROP_VALUE_MAX]{};
+    if (__system_property_get("debug.shadps4.lower_int64", lower_property) > 0 &&
+        std::string_view(lower_property) == "1") {
+        lower_int64 = true;
+    }
+#endif
+    LOG_INFO(Render_Vulkan, "Guest shader Int64: {}", lower_int64 ? "u32-pair" : "native");
     const auto& vk12_props = instance.GetVk12Properties();
+    // Qualcomm's proprietary compiler advertises FP32 FTZ but miscompiles the
+    // Bloodborne gamma lookup shader with DenormFlushToZero 32. Exact-RDC
+    // replacement restores the image by removing that mode alone; changing
+    // SignedZeroInfNanPreserve, coordinates or output stores does not. Citron
+    // disables float controls on this driver too. Keep the other controls and
+    // Turnip's native FTZ path, and let the existing profile comparison reject
+    // cached shaders generated with the broken mode.
+    const bool broken_fp32_denorm_flush =
+        instance.GetDriverID() == vk::DriverId::eQualcommProprietary;
+    if (broken_fp32_denorm_flush) {
+        LOG_WARNING(Render_Vulkan,
+                    "Disabling broken Qualcomm FP32 DenormFlushToZero execution mode");
+    }
     profile = Shader::Profile{
         .max_viewport_width = instance.GetMaxViewportWidth(),
         .max_viewport_height = instance.GetMaxViewportHeight(),
@@ -266,7 +308,7 @@ PipelineCache::PipelineCache(const Instance& instance_, Scheduler& scheduler_,
         .subgroup_size = instance.SubgroupSize(),
         .support_int8 = instance.IsShaderInt8Supported(),
         .support_int16 = instance.IsShaderInt16Supported(),
-        .support_int64 = instance.IsShaderInt64Supported(),
+        .support_int64 = !lower_int64,
         .support_float16 = instance.IsShaderFloat16Supported(),
         .support_float64 = instance.IsShaderFloat64Supported(),
         .supports_denorm_behavior_independence =
@@ -277,7 +319,8 @@ PipelineCache::PipelineCache(const Instance& instance_, Scheduler& scheduler_,
         .support_fp16_denorm_flush = bool(vk12_props.shaderDenormFlushToZeroFloat16),
         .support_fp16_round_to_zero = bool(vk12_props.shaderRoundingModeRTZFloat16),
         .support_fp32_denorm_preserve = bool(vk12_props.shaderDenormPreserveFloat32),
-        .support_fp32_denorm_flush = bool(vk12_props.shaderDenormFlushToZeroFloat32),
+        .support_fp32_denorm_flush =
+            bool(vk12_props.shaderDenormFlushToZeroFloat32) && !broken_fp32_denorm_flush,
         .support_fp32_round_to_zero = bool(vk12_props.shaderRoundingModeRTZFloat32),
         .support_fp64_denorm_preserve = bool(vk12_props.shaderDenormPreserveFloat64),
         .support_fp64_denorm_flush = bool(vk12_props.shaderDenormFlushToZeroFloat64),
@@ -389,6 +432,14 @@ bool PipelineCache::RefreshGraphicsKey() {
     key.depth_clamp_enable = !regs.depth_render_override.disable_viewport_clamp;
     key.depth_clip_enable = regs.clipper_control.ZclipEnable();
     key.clip_space = regs.clipper_control.clip_space;
+    key.emulate_depth_range = AmdGpu::BuildDepthRangeEmulation(
+        regs, instance.IsDepthRangeUnrestrictedSupported()).enabled;
+    if (key.emulate_depth_range) {
+        // Near/far clip planes use the ORIGINAL position in the final vertex
+        // stage. Hardware clipping of the remapped position would be incorrect.
+        key.depth_clip_enable = false;
+        key.clip_space = AmdGpu::ClipSpace::ZeroToW;
+    }
     key.provoking_vtx_last = regs.polygon_control.provoking_vtx_last;
     key.prim_type = regs.primitive_type;
     key.polygon_mode = regs.polygon_control.PolyMode();
@@ -511,6 +562,9 @@ bool PipelineCache::RefreshGraphicsStages() {
     infos.fill(nullptr);
     modules.fill(nullptr);
 
+    // Depth-only draws still use current PS control state for sample/clip policy.
+    // A missing PS must never inherit the previous pipeline's runtime state.
+    BuildRuntimeInfo(Stage::Fragment, LogicalStage::Fragment);
     bind_stage(Stage::Fragment, LogicalStage::Fragment);
 
     const auto* fs_info = infos[static_cast<u32>(LogicalStage::Fragment)];
@@ -610,6 +664,7 @@ bool PipelineCache::RefreshComputeKey() {
 vk::ShaderModule PipelineCache::CompileModule(Shader::Info& info, Shader::RuntimeInfo& runtime_info,
                                               const std::span<const u32>& code, size_t perm_idx,
                                               Shader::Backend::Bindings& binding) {
+    Common::Profiler::Scope profile_scope{"GPU.CompileGuestShader"};
     LOG_INFO(Render_Vulkan, "Compiling {} shader {:#x} {}", info.stage, info.pgm_hash,
              perm_idx != 0 ? "(permutation)" : "");
     DumpShader(code, info.pgm_hash, info.stage, perm_idx, "bin");

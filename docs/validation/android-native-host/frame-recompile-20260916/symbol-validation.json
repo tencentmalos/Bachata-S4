@@ -1,0 +1,39 @@
+{
+  "succeeded": true,
+  "dryRun": true,
+  "symbolBundle": {
+    "schema": "spatial.guest-symbol-index.v2",
+    "indexPath": "/Users/bytedance/workspace/emulations/ps4/shadps4/guest/games/CUSA50828/01.08/symbols/index.json",
+    "indexSha256": "2a28b1b676834ad8c5f25e60c89a6bc507d3b09f9c5a062372313dc03b630989",
+    "bundleId": "tmnt-cusa50828-0108",
+    "revision": 5,
+    "targetId": "tmnt-0108-eboot",
+    "scope": "title-module",
+    "emulator": "shadps4-fex",
+    "programId": "CUSA50828",
+    "processName": "",
+    "moduleName": "eboot.bin",
+    "sourceSha256": "cf14264107ef499c5fcaffc97386dcee25652c16d3975d1be27edc4e7e40ede5",
+    "runtimeIdentity": "6122da7190de6b08d921b2c42c3ca9ed11dc4d11524f1139ff67aeceea5b204d",
+    "addressModel": "module-relative",
+    "architecture": "i386:x86-64",
+    "byteOrder": "little",
+    "toolchainTarget": "x86_64-none-elf",
+    "shardCount": 4,
+    "symbolCount": 57,
+    "typedSymbolCount": 9,
+    "transferredSymbolCount": 0,
+    "typeCount": 2
+  },
+  "symbolArtifacts": {
+    "outputDirectory": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/frame-recompile-20260916/symbol-validation-final",
+    "toolchainTarget": "x86_64-none-elf",
+    "gdbElfRequested": false,
+    "gdbElfGenerated": false,
+    "artifacts": []
+  },
+  "symbolBindings": [],
+  "resolvedSymbols": [],
+  "errorCode": "",
+  "errorMessage": ""
+}

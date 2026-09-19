@@ -1,0 +1,18 @@
+{
+  "counts": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"columns\":[{\"name\":\"kind\",\"declaredType\":\"TEXT\"},{\"name\":\"count\",\"declaredType\":\"INTEGER\"}],\"rows\":[[\"copy\",34],[\"dispatch\",66],[\"draw\",433],[\"marker\",908],[\"other\",190],[\"present\",4]],\"truncated\":false,\"executionMs\":1.0562}"
+      }
+    ]
+  },
+  "tags": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"columns\":[{\"name\":\"event_id\",\"declaredType\":\"TEXT\"},{\"name\":\"name\",\"declaredType\":\"TEXT\"}],\"rows\":[[\"1002\",\"shadps4.pm4 gfx:0xb40000716012aa84:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386b1374\"],[\"1011\",\"shadps4.pm4 gfx:0xb40000716012b060:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386b1950\"],[\"1020\",\"shadps4.pm4 gfx:0xb40000716012b63c:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386b1f2c\"],[\"1029\",\"shadps4.pm4 gfx:0xb40000716012bd84:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386b2674\"],[\"103\",\"shadps4.pm4 gfx:0xb400007160110838:DispatchDirect generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x238697128\"],[\"1038\",\"shadps4.pm4 gfx:0xb40000716012c4c8:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386b2db8\"],[\"1047\",\"shadps4.pm4 gfx:0xb40000716012caa4:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386b3394\"],[\"1056\",\"shadps4.pm4 gfx:0xb40000716012d158:DrawIndex2 generation=1 guest_flip_id=1480 submission_id=4442 queue_id=0 packet_va=0x2386b3a48\"]],\"truncated\":false,\"executionMs\":3.6921}"
+      }
+    ]
+  }
+}

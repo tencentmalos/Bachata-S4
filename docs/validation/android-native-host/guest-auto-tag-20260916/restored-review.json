@@ -1,0 +1,18 @@
+{
+  "kind": "supplemental-visual-review",
+  "session_generation": 3,
+  "pid": 27493,
+  "auto_tag": "disabled_at_startup",
+  "automatic_input": "stopped",
+  "note": "Actual restored rooftop, recorded right-stick movement changes player/camera and advances MOVE through dialogue to ATTACK. The two restore helper runs timed out without an in-loop review; those manifests remain TIMEOUT_UNVERIFIED and are not rewritten to PASS.",
+  "images": [
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/guest-auto-tag-20260916/device/restored-before.png",
+      "sha256": "8bed0e23e2c8a90c298a82d4648436afdc260ad87fd94708e7e6f34e514854dd"
+    },
+    {
+      "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/guest-auto-tag-20260916/restored-movement/frame-0015.png",
+      "sha256": "9069cd4e549b6609e847fdbdf330084eed79c13335b5044ee5a22d344f5147e1"
+    }
+  ]
+}

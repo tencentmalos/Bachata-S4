@@ -4,6 +4,8 @@
 #pragma once
 
 #include <memory>
+#include <span>
+#include <utility>
 #include <boost/icl/separate_interval_set.hpp>
 #include "common/arch.h"
 #include "common/enum.h"
@@ -26,11 +28,21 @@ DECLARE_ENUM_FLAG_OPERATORS(MemoryPermission)
 class GuestMemoryBackend {
 public:
     virtual ~GuestMemoryBackend() = default;
+    using MappingRange = std::pair<VAddr, u64>;
+    struct MappingPreparation {
+        virtual ~MappingPreparation() = default;
+    };
+    // Wait for overlapping native references before taking the interval-table
+    // mutex. The returned scope closes admission until the VMA commit finishes.
+    virtual std::unique_ptr<MappingPreparation> PrepareMapping(std::span<const MappingRange> ranges,
+                                                               bool executable) {
+        return {};
+    }
     virtual u8* BackingBase() const = 0;
     virtual boost::icl::interval_set<VAddr> UsableRegions() const = 0;
     virtual bool OwnsRange(VAddr address, u64 size) const = 0;
     virtual void* Map(VAddr address, u64 size, PAddr physical, bool executable) = 0;
-    virtual void* MapFile(VAddr address, u64 size, u64 offset, u32 prot, uintptr_t fd) = 0;
+    virtual void* MapFile(VAddr address, u64 size, u64 offset, u32 prot, uintptr_t fd, bool shared = true) = 0;
     virtual void Unmap(VAddr address, u64 size) = 0;
     virtual void Protect(VAddr address, u64 size, MemoryPermission permission) = 0;
     virtual void ProtectGpu(VAddr address, u64 size, MemoryPermission permission) {
@@ -46,6 +58,15 @@ public:
  */
 class AddressSpace {
 public:
+    std::unique_ptr<GuestMemoryBackend::MappingPreparation> PrepareMapping(
+        std::span<const GuestMemoryBackend::MappingRange> ranges, bool executable = false) {
+        return guest ? guest->PrepareMapping(ranges, executable) : nullptr;
+    }
+    std::unique_ptr<GuestMemoryBackend::MappingPreparation> PrepareMapping(
+        VAddr address, u64 size, bool executable = false) {
+        const GuestMemoryBackend::MappingRange range{address, size};
+        return PrepareMapping(std::span{&range, 1}, executable);
+    }
     void ProtectGpu(VAddr address, u64 size, MemoryPermission permission) {
         if (guest)
             guest->ProtectGpu(address, size, permission);
@@ -109,7 +130,7 @@ public:
     void* Map(VAddr virtual_addr, u64 size, PAddr phys_addr = -1, bool exec = false);
 
     /// Memory maps a specified file descriptor.
-    void* MapFile(VAddr virtual_addr, u64 size, u64 offset, u32 prot, uintptr_t fd);
+    void* MapFile(VAddr virtual_addr, u64 size, u64 offset, u32 prot, uintptr_t fd, bool shared = true);
 
     /// Unmaps specified virtual memory area.
     void Unmap(VAddr virtual_addr, u64 size);

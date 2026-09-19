@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <array>
 #include "common/types.h"
 #include "video_core/renderer_vulkan/vk_common.h"
 namespace Vulkan { class Instance; class Scheduler; }
@@ -19,12 +20,17 @@ public:
         float gamma = 1.0f;
         u32 hdr = 0;
         u32 srgb_input = 0;
+        // SBS layout selector. In the current Beat Saber guest the submitted
+        // eye surface is already binocular, so this remains zero for VR.
+        u32 sbs = 0;
+        u32 flip_y = 0;
     };
 
     void Create(const Instance& instance, vk::Format surface_format);
 
     void Render(Scheduler& scheduler, vk::ImageView input, vk::Extent2D input_size,
-                Frame& output, Settings settings);
+                Frame& output, Settings settings,
+                std::array<vk::ImageView, 3> stereo_views = {});
 
 private:
     vk::UniquePipeline pipeline{};

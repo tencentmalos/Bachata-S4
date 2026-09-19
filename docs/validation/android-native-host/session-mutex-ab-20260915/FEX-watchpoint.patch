@@ -1,0 +1,117 @@
+diff --git a/CodeEmitter/CodeEmitter/Emitter.h b/CodeEmitter/CodeEmitter/Emitter.h
+index 001adcbaf..207890dfd 100644
+--- a/CodeEmitter/CodeEmitter/Emitter.h
++++ b/CodeEmitter/CodeEmitter/Emitter.h
+@@ -361,6 +361,7 @@ enum class SystemRegister : uint32_t {
+   RNDRRS = GenSystemReg<0b11, 0b011, 0b0010, 0b0100, 0b001>,
+   NZCV = GenSystemReg<0b11, 0b011, 0b0100, 0b0010, 0b000>,
+   FPCR = GenSystemReg<0b11, 0b011, 0b0100, 0b0100, 0b000>,
++  FPSR = GenSystemReg<0b11, 0b011, 0b0100, 0b0100, 0b001>,
+   TPIDRRO_EL0 = GenSystemReg<0b11, 0b011, 0b1101, 0b0000, 0b011>,
+   CNTFRQ_EL0 = GenSystemReg<0b11, 0b011, 0b1110, 0b0000, 0b000>,
+   CNTVCT_EL0 = GenSystemReg<0b11, 0b011, 0b1110, 0b0000, 0b010>,
+diff --git a/FEXCore/Source/Interface/Core/JIT/MiscOps.cpp b/FEXCore/Source/Interface/Core/JIT/MiscOps.cpp
+index 6c2b3499a..516923a04 100644
+--- a/FEXCore/Source/Interface/Core/JIT/MiscOps.cpp
++++ b/FEXCore/Source/Interface/Core/JIT/MiscOps.cpp
+@@ -229,6 +229,40 @@ DEF_OP(PrintMsg) {
+   PopDynamicRegs();
+ }
+ 
++DEF_OP(DebugMemoryAccess) {
++  const auto Op = IROp->C<IR::IROp_DebugMemoryAccess>();
++  PushDynamicRegs(TMP1);
++  SpillStaticRegs(TMP1);
++  // The callback must not change guest NZCV, FPCR or FPSR. Dynamic vector/GPR
++  // values (including the memory operation's result) are preserved above.
++  sub(ARMEmitter::Size::i64Bit, ARMEmitter::Reg::rsp, ARMEmitter::Reg::rsp, 32);
++  mrs(TMP1, ARMEmitter::SystemRegister::NZCV);
++  str(TMP1, ARMEmitter::Reg::rsp, 0);
++  mrs(TMP1, ARMEmitter::SystemRegister::FPCR);
++  str(TMP1, ARMEmitter::Reg::rsp, 8);
++  mrs(TMP1, ARMEmitter::SystemRegister::FPSR);
++  str(TMP1, ARMEmitter::Reg::rsp, 16);
++  mov(ARMEmitter::Size::i64Bit, ARMEmitter::Reg::r1, GetReg(Op->Address));
++  mov(ARMEmitter::Size::i64Bit, ARMEmitter::Reg::r0, STATE);
++  LoadConstant(ARMEmitter::Size::i64Bit, ARMEmitter::Reg::r2, Op->Bytes);
++  LoadConstant(ARMEmitter::Size::i64Bit, ARMEmitter::Reg::r3, Op->Access);
++  ldr(ARMEmitter::XReg::x4, STATE, offsetof(FEXCore::Core::CpuStateFrame, Pointers.DebugMemoryAccess));
++  if (!CTX->Config.DisableVixlIndirectCalls) [[unlikely]] {
++    GenerateIndirectRuntimeCall<void, uint64_t, uint64_t, uint64_t, uint64_t>(ARMEmitter::Reg::r4);
++  } else {
++    blr(ARMEmitter::Reg::r4);
++  }
++  ldr(TMP1, ARMEmitter::Reg::rsp, 0);
++  msr(ARMEmitter::SystemRegister::NZCV, TMP1);
++  ldr(TMP1, ARMEmitter::Reg::rsp, 8);
++  msr(ARMEmitter::SystemRegister::FPCR, TMP1);
++  ldr(TMP1, ARMEmitter::Reg::rsp, 16);
++  msr(ARMEmitter::SystemRegister::FPSR, TMP1);
++  add(ARMEmitter::Size::i64Bit, ARMEmitter::Reg::rsp, ARMEmitter::Reg::rsp, 32);
++  FillStaticRegs();
++  PopDynamicRegs();
++}
++
+ DEF_OP(ProcessorID) {
+   if (CTX->HostFeatures.SupportsCPUIndexInTPIDRRO) {
+     mrs(GetReg(Node), ARMEmitter::SystemRegister::TPIDRRO_EL0);
+diff --git a/FEXCore/Source/Interface/IR/IR.json b/FEXCore/Source/Interface/IR/IR.json
+index 5f5b8257d..79ea46b0c 100644
+--- a/FEXCore/Source/Interface/IR/IR.json
++++ b/FEXCore/Source/Interface/IR/IR.json
+@@ -241,6 +241,10 @@
+         "Desc": ["Debug operation that prints an SSA value to the console",
+                  "May only print 64bits of the value"]
+       },
++      "DebugMemoryAccess GPR:$Address, u64:$Bytes, u64:$Access": {
++        "HasSideEffects": true,
++        "Desc": ["Embedder opt-in memory access observation; preserves JIT registers and host flags."]
++      },
+       "PrintMsg c_str:$Value": {
+         "HasSideEffects": true,
+         "Desc": ["Debug operation that prints an string to the console.",
+diff --git a/FEXCore/Source/Interface/IR/PassManager.cpp b/FEXCore/Source/Interface/IR/PassManager.cpp
+index 5d3bcec8b..0da030802 100644
+--- a/FEXCore/Source/Interface/IR/PassManager.cpp
++++ b/FEXCore/Source/Interface/IR/PassManager.cpp
+@@ -90,6 +90,12 @@ Pass* PassManager::InsertPass(fextl::unique_ptr<Pass> Pass, const fextl::string&
+   return PassPtr;
+ }
+ 
++Pass* PassManager::PrependPass(fextl::unique_ptr<Pass> Pass, const fextl::string& Name) {
++  auto* PassPtr = InsertAt(Passes.begin(), std::move(Pass))->get();
++  AttemptNameMapping(Name, PassPtr);
++  return PassPtr;
++}
++
+ PassManager::PassArrayType::iterator PassManager::InsertAt(PassArrayType::iterator pos, fextl::unique_ptr<Pass> Pass) {
+   Pass->RegisterPassManager(this);
+   return Passes.insert(pos, std::move(Pass));
+diff --git a/FEXCore/Source/Interface/IR/PassManager.h b/FEXCore/Source/Interface/IR/PassManager.h
+index 2f01a3869..7fb148434 100644
+--- a/FEXCore/Source/Interface/IR/PassManager.h
++++ b/FEXCore/Source/Interface/IR/PassManager.h
+@@ -50,6 +50,8 @@ public:
+   // Inserts a new pass into the manager, optionally also assigning a name to it
+   // for use in the lookup functions,
+   Pass* InsertPass(fextl::unique_ptr<Pass> Pass, const fextl::string& Name = "");
++  // Embedder instrumentation must run before optimizations/register allocation.
++  Pass* PrependPass(fextl::unique_ptr<Pass> Pass, const fextl::string& Name = "");
+ 
+   // Whether or not a pass with the given name is within the manager.
+   bool HasPass(const fextl::string& Name) const {
+diff --git a/FEXCore/include/FEXCore/Core/CoreState.h b/FEXCore/include/FEXCore/Core/CoreState.h
+index 7c64dd83c..e944ae0a0 100644
+--- a/FEXCore/include/FEXCore/Core/CoreState.h
++++ b/FEXCore/include/FEXCore/Core/CoreState.h
+@@ -340,6 +340,10 @@ struct JITPointers {
+   uint64_t PrintValue {};
+   uint64_t PrintVectorValue {};
+   uint64_t PrintMsgValue {};
++  // Optional embedder debug IR callback. No calls are emitted unless the
++  // embedder inserts DebugMemoryAccess operations into a debug translation.
++  // void(CpuStateFrame*, uint64_t address, uint64_t bytes, uint64_t access_mask).
++  uint64_t DebugMemoryAccess {};
+   uint64_t ThreadRemoveCodeEntryFromJIT {};
+   uint64_t CPUIDObj {};
+   uint64_t CPUIDFunction {};

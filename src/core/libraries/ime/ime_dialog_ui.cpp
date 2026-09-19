@@ -726,6 +726,18 @@ void ImeDialogUi::Draw() {
     const float max_x = viewport_offset.x + std::max(0.0f, viewport_size.x - window_size.x);
     const float min_y = viewport_offset.y;
     const float max_y = viewport_offset.y + std::max(0.0f, viewport_size.y - window_size.y);
+#ifdef __ANDROID__
+    // Some retail titles pass the legacy (0, 0, top-left) position even
+    // though the system IME panel is a centered modal.  Keep explicit game
+    // positions/alignment intact, but make that legacy default usable on the
+    // Android/XR surface.
+    if (has_layout && layout.posx == 0.0f && layout.posy == 0.0f &&
+        layout.horizontal_alignment == OrbisImeHorizontalAlignment::Left &&
+        layout.vertical_alignment == OrbisImeVerticalAlignment::Top) {
+        base_x = viewport_offset.x + (viewport_size.x - window_size.x) * 0.5f;
+        base_y = viewport_offset.y + (viewport_size.y - window_size.y) * 0.5f;
+    }
+#endif
     base_x = std::clamp(base_x, min_x, max_x);
     base_y = std::clamp(base_y, min_y, max_y);
     const ImVec2 layout_anchor{base_x, base_y};
@@ -869,7 +881,7 @@ void ImeDialogUi::Draw() {
         const double nav_now = ImGui::GetTime();
         const bool cancel_shortcut_pressed =
             allow_osk_shortcuts &&
-            virtual_pad_input.Pressed(Libraries::Pad::OrbisPadButtonDataOffset::Circle);
+            virtual_pad_input.Pressed(Libraries::Ime::ImeCancelButton());
         const ImVec2 mouse_delta = ImGui::GetIO().MouseDelta;
         const bool pointer_input = IsMouseClicked(ImGuiMouseButton_Left, false) ||
                                    IsMouseClicked(ImGuiMouseButton_Right, false) ||

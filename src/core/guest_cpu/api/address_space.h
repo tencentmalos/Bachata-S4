@@ -11,13 +11,16 @@
 
 #pragma once
 
+#include <array>
 #include <condition_variable>
 #include <cstddef>
 #include <memory>
 #include <mutex>
 #include <optional>
 #include <span>
+#include <stop_token>
 #include <string_view>
+#include <thread>
 #include <vector>
 
 #include "core/guest_cpu/api/memory.h"
@@ -192,6 +195,27 @@ public:
     // Lease a host view for the duration of an HLE call.
     [[nodiscard]] Result<PinnedSpan> AcquirePinnedSpan(GuestRange range, bool writable);
 
+    struct MappingIdentity {
+        std::uint64_t begin{}, end{}, generation{};
+    };
+    struct DataRequest {
+        GuestRange range;
+        GuestPermission permission{GuestPermission::Read};
+        std::span<const MappingIdentity> identities{};
+    };
+    // Ordinary native data access. Admission is atomic for the WHOLE batch;
+    // no caller-supplied gate, and no metadata lock spans the returned views.
+    // Mapping retirement waits only for overlapping views. Transient retirement
+    // or code publication is waited out without retaining a partial batch.
+    [[nodiscard]] Result<std::vector<PinnedSpan>> AcquireDataBatch(
+        std::span<const DataRequest> requests, std::stop_token stop = {});
+    [[nodiscard]] Result<PinnedSpan> AcquireDataSpan(GuestRange range, bool writable,
+                                                     std::stop_token stop = {});
+    [[nodiscard]] Status ReadData(GuestAddress from, std::span<std::byte> into,
+                                  std::stop_token stop = {}) const;
+    [[nodiscard]] Status WriteData(GuestAddress to, std::span<const std::byte> from,
+                                   std::stop_token stop = {});
+
     // --- transactions ------------------------------------------------------
 
     // Reserves an already-idle address space for publication. This V0 subset
@@ -250,14 +274,49 @@ public:
                                                       GuestRange range,
                                                       GuestPermission permission);
 
+    // Closes only these ranges to new data references. Acquire before the
+    // embedder's interval-table lock; keep alive through its ledger commit.
+    // Completion is physical-thread owned; moving the handle does not move
+    // permission to commit. Destruction may occur on any thread.
+    class DataRetirement final {
+    public:
+        ~DataRetirement();
+        DataRetirement(const DataRetirement&) = delete;
+        DataRetirement& operator=(const DataRetirement&) = delete;
+
+    private:
+        friend class GuestAddressSpace;
+        explicit DataRetirement(std::weak_ptr<AddressSpaceLiveness> owner) : owner(owner) {}
+        std::weak_ptr<AddressSpaceLiveness> owner;
+        std::uint64_t id{};
+    };
+    [[nodiscard]] Result<std::unique_ptr<DataRetirement>> PrepareDataMapping(
+        std::span<const GuestRange> ranges, bool executable = false, std::stop_token stop = {});
+
     enum class VmOperation { Map, Protect, Unmap };
+    // Existing NON-executable data can be changed without stopping execution.
+    // Caller owns guest data lifetime; the API drains only overlapping HLE
+    // leases. Unsupported means executable pages require code publication.
+    [[nodiscard]] Status UpdateDataMapping(VmOperation operation, GuestRange range,
+                                           GuestPermission permission, int fd = -1,
+                                           std::uint64_t offset = 0, std::stop_token stop = {},
+                                           bool shared = true);
+    // Add non-executable storage at an UNMAPPED VA while unrelated guest code
+    // and HLE pins remain live. Does not replace backing, stop owners or retire
+    // translations. Executable publication/remapping uses the token API below.
+    [[nodiscard]] Status MapFreshData(GuestRange range, GuestPermission permission,
+                                      int fd = -1, std::uint64_t offset = 0);
+    // Permission changes of non-executable data only; excludes overlapping pins.
+    // The embedder owns the data's publication/lifetime (e.g. a new stack guard).
+    [[nodiscard]] Status ProtectData(GuestRange range, GuestPermission permission);
     // Production VM operation, with page-aligned splitting across old mappings.
-    // Map replaces backing inside the owned reservation; fd >= 0 means MAP_SHARED.
+    // Map replaces backing inside the owned reservation; fd >= 0 uses shared backing unless shared=false (file COW).
     // Every translation is retired first, including executable backing aliases.
     // A syscall failure poisons the space: callers must abort the generation.
     [[nodiscard]] Status UpdateVmUnderToken(const QuiescenceToken& token, VmOperation operation,
                                             GuestRange range, GuestPermission permission,
-                                            int fd = -1, std::uint64_t offset = 0);
+                                            int fd = -1, std::uint64_t offset = 0,
+                                            bool shared = true);
 
     // Registers the backend that owns translated code. One at a time: a second
     // registration is refused rather than silently replacing the first, since
@@ -308,6 +367,7 @@ public:
         std::size_t aliases{};
         std::size_t live_pins{};
         std::size_t observers{};
+        std::size_t retiring_ranges{};
     };
     [[nodiscard]] ResourceCounts Counts() const;
 
@@ -329,6 +389,10 @@ private:
     // so under one lock hold rather than revalidating stale state.
     [[nodiscard]] Status ValidateRangeLocked(GuestRange range, GuestPermission required) const;
     [[nodiscard]] bool AnyPinOverlapsLocked(GuestRange range) const;
+    [[nodiscard]] Status WaitDataAdmissionLocked(std::unique_lock<std::mutex>& guard,
+                                                 std::span<const DataRequest> requests,
+                                                 std::stop_token stop);
+    [[nodiscard]] Status CheckDataRequestsLocked(std::span<const DataRequest> requests) const;
 
     // Requires `lock`. Shared by every token-consuming entry point so provenance, liveness and
     // epoch are checked the same way in each; having them check independently is how one of them
@@ -358,6 +422,10 @@ private:
         ProtectionReason reasons{ProtectionReason::GuestPermission};
         std::uint64_t generation{};
     };
+    // Requires lock. Cache only a vector index, never permissions, pointers or
+    // negative results. Recheck the current record on every hit: erase/split/
+    // replace may change what the index means, without requiring invalidation.
+    [[nodiscard]] const Mapping* FindContainingMappingLocked(GuestRange range) const;
     struct Alias final {
         GuestRange primary{};
         GuestAddress alias_base{};
@@ -366,7 +434,15 @@ private:
         std::uint64_t lease_id{};
         GuestRange range{};
         bool writable{};
+        std::thread::id owner{std::this_thread::get_id()};
     };
+    struct DataEdit {
+        std::uint64_t id;
+        GuestRange range;
+        std::thread::id owner{std::this_thread::get_id()};
+        bool prepared{};
+    };
+    void ReleaseDataRetirement(std::uint64_t id);
 
     mutable std::mutex lock;
     void* reservation_host{};
@@ -377,15 +453,20 @@ private:
     SmcMode smc_mode{SmcMode::ExplicitPublication};
 
     std::vector<Mapping> mappings;
+    mutable std::array<std::size_t, 64> lookup_indices{};
     bool shared_backing_seen{};
     std::vector<Alias> aliases;
     std::vector<Pin> pins;
+    std::vector<DataEdit> data_edits;
+    std::uint64_t next_data_edit{1};
     std::vector<MemoryObserver*> observers;
 
     std::uint64_t mapping_generation{1};
     std::uint64_t code_generation{1};
     std::uint64_t next_quiescence_epoch{1};
     std::uint64_t active_quiescence{};
+    std::thread::id quiescence_owner{};
+    bool quiescence_draining{};
     std::uint64_t next_lease_id{1};
     CodeInvalidationSink* code_sink{};
     // Number of DiscardTranslations calls on the current or draining registration.
@@ -407,7 +488,7 @@ private:
     std::vector<GuestRange> poisoned_ranges;
     bool sink_draining{};
     std::condition_variable sink_idle;
-    std::condition_variable leases_idle;
+    std::condition_variable_any leases_idle;
     // Handed to tokens and pins as a weak reference so they can tell whether
     // this object still exists when they are released.
     std::shared_ptr<AddressSpaceLiveness> liveness;

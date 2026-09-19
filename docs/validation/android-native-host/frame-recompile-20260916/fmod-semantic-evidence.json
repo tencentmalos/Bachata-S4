@@ -1,0 +1,62 @@
+[
+  {
+    "plt": "0x15c0750",
+    "export": "0x2dde0",
+    "strings": [
+      {
+        "address": "0x1180ff",
+        "string": "ChannelGroup::getParentGroup"
+      }
+    ]
+  },
+  {
+    "plt": "0x15c06d0",
+    "export": "0xd9860",
+    "strings": [
+      {
+        "address": "0x1409cf",
+        "string": "System::getMasterChannelGroup"
+      }
+    ]
+  },
+  {
+    "plt": "0x15c0820",
+    "export": "0x25880",
+    "strings": [
+      {
+        "address": "0x1177df",
+        "string": "ChannelControl::setPaused"
+      }
+    ]
+  },
+  {
+    "plt": "0x15c07c0",
+    "export": "0x25b30",
+    "strings": [
+      {
+        "address": "0x11782d",
+        "string": "ChannelControl::getVolume"
+      }
+    ]
+  },
+  {
+    "plt": "0x15c07d0",
+    "export": "0x25a40",
+    "strings": [
+      {
+        "address": "0x117813",
+        "string": "ChannelControl::setVolume"
+      }
+    ]
+  },
+  {
+    "plt": "0x15c0810",
+    "export": "0x273a0",
+    "strings": [
+      {
+        "address": "0x117a85",
+        "string": "ChannelControl::getDSPClock"
+      }
+    ]
+  }
+]

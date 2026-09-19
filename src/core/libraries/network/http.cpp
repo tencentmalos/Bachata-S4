@@ -2479,7 +2479,8 @@ int PS4_SYSV_ABI sceHttpReadData(s32 reqId, void* data, u64 size) {
         LOG_DEBUG(Lib_Http, "Invalid reqId={}", reqId);
         return ORBIS_HTTP_ERROR_INVALID_ID;
     }
-    auto& req = *it->second;
+    auto request = it->second; // Retained across wait/unlock and concurrent Delete/Term.
+    auto& req = *request;
     int wr = WaitForResponseReady(req, lock);
     if (wr != ORBIS_OK) {
         if (wr == ORBIS_HTTP_ERROR_EAGAIN) {
@@ -2690,7 +2691,8 @@ int PS4_SYSV_ABI sceHttpGetAllResponseHeaders(int reqId, char** header, u64* hea
         LOG_DEBUG(Lib_Http, "Invalid reqId={}", reqId);
         return ORBIS_HTTP_ERROR_INVALID_ID;
     }
-    auto& req = *it->second;
+    auto request = it->second; // Retained across wait/unlock and concurrent Delete/Term.
+    auto& req = *request;
     int wr = WaitForResponseReady(req, lock);
     if (wr != ORBIS_OK) {
         if (wr == ORBIS_HTTP_ERROR_EAGAIN) {
@@ -2729,7 +2731,8 @@ int PS4_SYSV_ABI sceHttpGetResponseContentLength(int reqId, int* result, u64* co
         LOG_DEBUG(Lib_Http, "Invalid reqId={}", reqId);
         return ORBIS_HTTP_ERROR_INVALID_ID;
     }
-    auto& req = *it->second;
+    auto request = it->second; // Retained across wait/unlock and concurrent Delete/Term.
+    auto& req = *request;
     int wr = WaitForResponseReady(req, lock);
     if (wr == ORBIS_HTTP_ERROR_EAGAIN) {
         LOG_DEBUG(Lib_Http, "reqId={}: response not yet ready, returning BEFORE_SEND", reqId);
@@ -2762,7 +2765,8 @@ int PS4_SYSV_ABI sceHttpGetStatusCode(int reqId, int* statusCode) {
         LOG_DEBUG(Lib_Http, "Invalid reqId={}", reqId);
         return ORBIS_HTTP_ERROR_INVALID_ID;
     }
-    auto& req = *it->second;
+    auto request = it->second; // Retained across wait/unlock and concurrent Delete/Term.
+    auto& req = *request;
     int wr = WaitForResponseReady(req, lock);
     if (wr == ORBIS_HTTP_ERROR_EAGAIN) {
         LOG_DEBUG(Lib_Http, "reqId={}: response not yet ready, returning EAGAIN", reqId);

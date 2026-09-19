@@ -1794,8 +1794,8 @@ void DrawImeKeyboardGrid(const ImeKbGridLayout& layout, const ImeKbDrawParams& p
         }
     }
 
-    const bool imgui_activate_selected_once = ImGui::IsKeyPressed(ImGuiKey_GamepadFaceDown, false);
-    const bool imgui_activate_selected_repeat = ImGui::IsKeyPressed(ImGuiKey_GamepadFaceDown, true);
+    const bool imgui_activate_selected_once = ImGui::IsKeyPressed(ImeConfirmImGuiKey(), false);
+    const bool imgui_activate_selected_repeat = ImGui::IsKeyPressed(ImeConfirmImGuiKey(), true);
 
     const auto activate_key = [&](const RenderedKey& render_key, bool trigger_press_pulse) {
         if (!render_key.key || !render_key.selectable) {

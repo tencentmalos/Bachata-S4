@@ -40,6 +40,9 @@ void BindCaptureTarget(u64 generation, void* instance, void* window, std::string
 void StopCaptureTarget(u64 generation);
 void UnbindCaptureTarget(u64 generation);
 void NotifyPresentBoundary(u64 generation, u64 present_id);
+bool NeedsGuestCaptureBoundary(u64 generation);
+// The PM4 owner drains accepted host submissions before calling this boundary.
+void NotifyGuestFlipBoundary(u64 generation, u64 guest_flip_id);
 class CaptureBinding final {
 public:
     CaptureBinding() = default;

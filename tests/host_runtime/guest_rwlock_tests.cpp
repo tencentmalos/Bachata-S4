@@ -54,8 +54,10 @@ int main() {
     check(domain.Unlock(base,1)==0); check(domain.Destroy(base)==0);
     check(domain.Lock(base+16,1,false,false,{})==0); // lazy static initialization
     check(domain.Unlock(base+16,1)==0); check(domain.Destroy(base+16)==0);
-    std::recursive_mutex publication;
-    GuestMutexDomain mutexes(*space,[&]{allocated+=64;return allocated;}, &publication);
+    GuestMutexDomain mutexes(*space, [&] {
+        allocated += 64;
+        return allocated;
+    });
     check(mutexes.AttributeInit(base+24)==0);
     check(mutexes.AttributePolicy(base+24,0,false,false)==0);
     check(mutexes.AttributePolicy(base+24,1,false,false)==0);
@@ -80,13 +82,14 @@ int main() {
     check(mutexes.Attribute(base+24,0,0)==0);
     // Coordinator owns VM publication while an independent HLE owner tries to
     // write a mutex prefix. It must wait, then write once, with no guest pin.
-    std::unique_lock vm(publication);
-    auto token=space->Quiesce(0); if(!token) return 4;
+    auto token = space->Quiesce(0);
+    if (!token)
+        return 4;
     std::promise<void> entering;
     auto locking=std::async(std::launch::async,[&]{entering.set_value();return mutexes.Lock(base+32,1,false,{});});
     entering.get_future().get();
     check(locking.wait_for(std::chrono::milliseconds(50))!=std::future_status::ready && space->Counts().live_pins==0);
-    token.Value()=QuiescenceToken{}; vm.unlock();
+    token.Value() = QuiescenceToken{};
     if(locking.wait_for(std::chrono::seconds(2))!=std::future_status::ready)std::_Exit(4);
     check(locking.get()==0);
     check(mutexes.Lock(base+32,2,true,{})==POSIX_EBUSY);

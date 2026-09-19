@@ -1,0 +1,34 @@
+{
+  "schema": "spatial.guest-symbol-index.v2",
+  "bundle_id": "beatsaber-cusa12878-0100",
+  "revision": 1,
+  "targets": [
+    {
+      "target_id": "beatsaber-0100-eboot",
+      "scope": "title-module",
+      "emulator_family": "ps4",
+      "emulator": "shadps4-fex",
+      "program_id": "CUSA12878",
+      "module_name": "eboot.bin",
+      "source_sha256": "71278f9c85ef93a9b2e8703299d6875020eb4d8f7b821bf98eb36ec73340592b",
+      "compatible_runtime_sha256": [
+        "9ac1745407a97af986d5f6dfe246a7c0d695857f4049d7d717f896ed219778cf"
+      ],
+      "compatible_build_ids": [],
+      "address_model": "module-relative",
+      "architecture": "i386:x86-64",
+      "byte_order": "little",
+      "toolchain_target": "x86_64-none-elf"
+    }
+  ],
+  "shards": [
+    {
+      "target_id": "beatsaber-0100-eboot",
+      "path": "vr-init.symbols.json",
+      "sha256": "4f81aac3be6da377450c43bbc43d6ac4b6079725c74693e99412a9807cee055d"
+    }
+  ],
+  "annotations": {
+    "analysis": "ET_DYN 分析副本 a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a 只修改 ELF e_type 两字节，逐字节验证其余内容一致。runtime 使用原始 SELF 哈希，模块加载基址 0x400000。"
+  }
+}

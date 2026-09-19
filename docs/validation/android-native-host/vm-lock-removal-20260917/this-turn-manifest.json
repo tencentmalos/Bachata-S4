@@ -1,0 +1,212 @@
+[
+  {
+    "path": "CMakeLists.txt",
+    "before_sha256": "23d89804525d069ab87431345ecbf41f1b5ad98ab1a39f12a09e2b7ea0ffb337",
+    "after_sha256": "7fb606c029e71d7786ff295e1173d431bde71af2b2a84782668c3a144bf66464"
+  },
+  {
+    "path": "src/core/memory.cpp",
+    "before_sha256": "a4a6263e4adf937712a338fa92db94725fee7794d30dd4679f9b312608301bf4",
+    "after_sha256": "ce2bdeee32131926f94631c5934739e09fb445d08b2252a367f9f043ec5a63a3"
+  },
+  {
+    "path": "src/core/address_space.h",
+    "before_sha256": "1309c989d08f69a3154dea9933c2b13c7d0c9baa18fb844e2018e3e28ed0ff9c",
+    "after_sha256": "af48f2f03f1a208e59beff9f2643e3a71f8794ea31ba1757e3b14737ff8138d4"
+  },
+  {
+    "path": "src/core/memory.h",
+    "before_sha256": "2201f13a787f7605070dc564e313a7b9ae337ae9541802cebccd132a7df9fe8b",
+    "after_sha256": "ca004e40cba13e8a461475cd8d10b90391a61c5d0ccbdad7e39e1d5de446284f"
+  },
+  {
+    "path": "src/core/host_runtime/guest_save_dialog.cpp",
+    "before_sha256": "b423b619c235efed70f0ea6e81400015e43c8400af4aadf3271600fa87eb268c",
+    "after_sha256": "24e1a848ae32e4fb66f4abfeba699ab7daf7fafc571c399e3a57adbc700fea14"
+  },
+  {
+    "path": "src/core/host_runtime/guest_http2.h",
+    "before_sha256": "60d4c132d8f50b4fa9586556000c635e181e1625abf70d2d2d16c65f99d90ec6",
+    "after_sha256": "97a5ebebe0ffdb582827edc91d07d0711a0827c3859a9551e5faeaaf7f3008f6"
+  },
+  {
+    "path": "src/core/host_runtime/guest_semaphore.h",
+    "before_sha256": "e7ec4ede39c1d41175ef8b63cbeeb1bb24969b995726080fe6695de6780474d6",
+    "after_sha256": "c449bb4a053f43baf5464798dfe0c96d0815ef5d48cf2f9eab07a95a24786e31"
+  },
+  {
+    "path": "src/core/host_runtime/guest_rtc.h",
+    "before_sha256": "2acd18ae3aec04ab1ecfbbc26f1dffe183231c74ee60e9cdc8d09d373814c8e8",
+    "after_sha256": "9e2a44c034623720005e9cc0198140dbf3d23dce6fee75706d36226358a2046a"
+  },
+  {
+    "path": "src/core/host_runtime/guest_mutex.h",
+    "before_sha256": "29c3a8d9e0324d60f67cd0de95ad889666499fbc320849ff05123906bfa4eff2",
+    "after_sha256": "eaa4d891584b8316884ff2b2bbb4eac6a31bf9c559aa65a1ecda9a25c9d76b73"
+  },
+  {
+    "path": "src/core/host_runtime/guest_ajm.cpp",
+    "before_sha256": "06d25b15fb0d006b170812f0c5f90b55a3fda961db1ef6d2c2451ff8d4eadae2",
+    "after_sha256": "95482c623068503fa9bc15ac0780115c4a939124abaf771abf0a39c9d3cbe2db"
+  },
+  {
+    "path": "src/core/host_runtime/guest_thread_attributes.h",
+    "before_sha256": "4e08e3f855ab50c4c6ed72d637c42b3b5873f9f3b1d44e058abe926e4e060972",
+    "after_sha256": "24bb59e4e808268fd4f31c9d31bfadcb8f4e1c446a077b058a20e55a00b9cf19"
+  },
+  {
+    "path": "src/core/host_runtime/guest_np.h",
+    "before_sha256": "1d48b03d459d640a081e4768773b2f2ba71c6a7dd4cddc1a12c6e73cf21feb0f",
+    "after_sha256": "a2c9c3e1d4c651bce30b12a9ae11aa63ff4ace75863db24d2bc5f806ba604d7e"
+  },
+  {
+    "path": "src/core/host_runtime/guest_kernel_semaphore.h",
+    "before_sha256": "6ff64b1a7e28d720272e5d341c5830d79ac23b62dbec5b49452c2233ba91cc18",
+    "after_sha256": "a11bc372cd35d3beeb41ef2e3ea6974c9d15ac8140bf952e90ec7c2aed2f7047"
+  },
+  {
+    "path": "src/core/host_runtime/guest_audio.cpp",
+    "before_sha256": "85d0a0c81adaba31dd5a20f2415a91a7778fa553d317665a55d70ae3c02c79af",
+    "after_sha256": "552afd2cad4a2c0ab6edde30955726d5a70f6715389210263d998449ca21701f"
+  },
+  {
+    "path": "src/core/host_runtime/guest_network.h",
+    "before_sha256": "ed988ff3a3fb82bc403607176ea8f88f4de8ad2c8e396baa1db09533fdc82a45",
+    "after_sha256": "d81cc6f11fb184d232b76090bc771629e07667c80b26eda674941630e680bb73"
+  },
+  {
+    "path": "src/core/host_runtime/guest_sysmodule_hle.h",
+    "before_sha256": "3524552dc998d4116a90f3a58b8138e07cf518c9b9c13df4143fc6613563321c",
+    "after_sha256": "ee372bdc0f08e335db1c06929bdb27484375eaa03a9adbfb28fcf328c105e735"
+  },
+  {
+    "path": "src/core/host_runtime/guest_pad.h",
+    "before_sha256": "e9d08ebfe26a9ff3e3e6411c712b5bdb8f5dec137bd9906beb0b716fc394b8f1",
+    "after_sha256": "ee5e732c55d83f7ea399c9f20b91d7f3fde95450a27ea2b58a8b2e3ee378582c"
+  },
+  {
+    "path": "src/core/host_runtime/guest_ajm.h",
+    "before_sha256": "d50eaff623869e1e28c3ea7a870509d3624b6a350248e5112746bb4c06c9bd85",
+    "after_sha256": "3aa6afbfcad8d3bee2f9d3f2da569a201b4c39c50cda4f36da31d5dc4dde9827"
+  },
+  {
+    "path": "src/core/host_runtime/guest_rwlock.h",
+    "before_sha256": "486ce27d03ead3f8ce0540f0cf30ed16fe54b227b145b192f5e66dac7c1f13d7",
+    "after_sha256": "a4daa423bd146d59a0812f2931efdcef8dbf6895f3a8269910c9083dda65bdae"
+  },
+  {
+    "path": "src/core/host_runtime/guest_graphics_hle.cpp",
+    "before_sha256": "c57f85a47e071256f82e270471d99f5dd60e84793a2ad0f72fe6e82624215553",
+    "after_sha256": "8d38f9191089f98908749a530e824fdc1bf031edcac713b0e8f8652545157e40"
+  },
+  {
+    "path": "src/core/host_runtime/guest_storage_hle.h",
+    "before_sha256": "77438912ff4d71d46660362666d197472353e4c0ac9fc34835fa2a6def6c9012",
+    "after_sha256": "3a271490b350cb030036cd85190f12a26e5781da4a2a69a85b133545a2fd159d"
+  },
+  {
+    "path": "src/core/host_runtime/guest_app_content.h",
+    "before_sha256": "19183fdd5bbbef0697b5723a19bc1935b87ae41f2c1af1bef49968149b4ede65",
+    "after_sha256": "a2bde14ac26c2d9203cc51df3955cff3337a70578ca4ee1144e45355eda6ab9e"
+  },
+  {
+    "path": "src/core/host_runtime/guest_avplayer.cpp",
+    "before_sha256": "5fe2d3d062a57b4301312e798ea7222872b24dc377491fe4cfb993d371a22dc9",
+    "after_sha256": "c1e99d0666002328bdc7403ea51779951fec2a838cff2e3f3c5c3430367c520f"
+  },
+  {
+    "path": "src/core/host_runtime/guest_storage_hle.cpp",
+    "before_sha256": "99175a1d0673a26efda47ecaccd232a7d33d4ed627311e322be0b0ea7a8db9bd",
+    "after_sha256": "3cf9e4cf54355d9235ec4ba0eba0269f3ee1aea8b41306e48ee911b554197084"
+  },
+  {
+    "path": "src/core/host_runtime/guest_avplayer.h",
+    "before_sha256": "0fbaf6c36aa7ac5493dc4b9d9aa059ffa44282725a33f89740c2993239fd5c7d",
+    "after_sha256": "3a2cba201ba1a607d3dd1a8e8375a5a6d9438c717bb2a1bd2db3cfa0b3cda234"
+  },
+  {
+    "path": "src/core/host_runtime/guest_audio.h",
+    "before_sha256": "788ab7e6c3b6ceb002a77615f4017a67d2114154c9f529fd2d02dac18e9d9648",
+    "after_sha256": "ed1cf84710b3c0f4094c28c032c7e71317b97dfb9164154277357dbdaeebe619"
+  },
+  {
+    "path": "src/core/host_runtime/guest_runtime.cpp",
+    "before_sha256": "6efc67e013f2fe1d90b7a68be23ab3be68d8a3879608fa2409e36ae1f90582fa",
+    "after_sha256": "5a34164383d8ca3a8601f9ffd637e0042c471a4600cb01b9bb62608acd5c394c"
+  },
+  {
+    "path": "src/core/guest_cpu/api/address_space.h",
+    "before_sha256": "8c771800e5dc70db6d1d7092fc29bb5ee36e9b5cd07914926debf811d1643e5f",
+    "after_sha256": "04c7d84bf9dcc0e06b0fd0c5f71fc42f62eac1b67499716e68fd832bd5d60d33"
+  },
+  {
+    "path": "src/core/guest_cpu/api/address_space.cpp",
+    "before_sha256": "276c02edc7486c3aedef413dd1afe67103fff71fc181be1e1bebf1e27eac3ebd",
+    "after_sha256": "6ea814c10681109fa25f5faf8dd7dc1b10dcadf5e716d8e9a6107ce3c6d90e41"
+  },
+  {
+    "path": "src/core/libraries/network/ssl2.cpp",
+    "before_sha256": "c43d27114ce2f2d849b506775749f508afecb3624b3ad25c6b698456ebb6f974",
+    "after_sha256": "d7938027ca9405b9bdab430dffd25e2a7b9d7f337d16dc7bd852132246874460"
+  },
+  {
+    "path": "tests/host_runtime/guest_file_io_tests.cpp",
+    "before_sha256": "c5bfb74b63bcee890ecb1ebc7b74c35483f86900eb4e2f646f2ddfff2eaad4d8",
+    "after_sha256": "ed2bf645e0003d799d6c2ae832ebfe0ccbf63e0fc9374140aab13bea779238a3"
+  },
+  {
+    "path": "tests/host_runtime/guest_ajm_tests.cpp",
+    "before_sha256": "762bb219d9e77b016aaed0241b916498fd9d33cbe04c5e7351c8ef8c0351fcd4",
+    "after_sha256": "4b82e60bcd1ebb62f565a9fb852ae8ed0b26c641b9e6a3c62ac2cf30462f0336"
+  },
+  {
+    "path": "tests/host_runtime/guest_avplayer_tests.cpp",
+    "before_sha256": "f9cfda00ace285f9e1580ddee9ec1f43f8c43f2bb2f48445a71e828298878d7a",
+    "after_sha256": "a946633a98fd8aaf7d19a02ca1101216979d2c7029fce8bd8586249d01c89200"
+  },
+  {
+    "path": "tests/host_runtime/guest_native_mutex_tests.cpp",
+    "before_sha256": "837f4a0cb38d4e3ca7b3a31a1a71c835d926751010c72d6ca47f82f265758512",
+    "after_sha256": "8549ee034cf9a4b30982d78a33f1d4d2da41cc8f992efacf8da76a3e1947ed7f"
+  },
+  {
+    "path": "tests/host_runtime/guest_kernel_semaphore_tests.cpp",
+    "before_sha256": "bbf217b891001c4935e06d123efac7ad7a3a001d7934dba40f9deae4f2ec6bb8",
+    "after_sha256": "b5b53806fa7bb07ccb08368d575380c2465d26b5432628ae7451ef4aa87ece12"
+  },
+  {
+    "path": "tests/host_runtime/guest_audio_tests.cpp",
+    "before_sha256": "376c651247afe20fc1a89dfe253720a272d4960630423b69ca33cdd66de88d5a",
+    "after_sha256": "c5f1322716b4c5bc1a3d4c5f5e9d5c55d50ac99930dca87c7326b42d65932aed"
+  },
+  {
+    "path": "tests/host_runtime/guest_data_mapping_tests.cpp",
+    "before_sha256": "a5cb1833cdc04acb4bd70baaa8d16902ff5de279a67a380c337ecad5837c4223",
+    "after_sha256": "f4c74f86eb0ba44b2cffbfcdbd53e53226bfe11f27863ac6497238096cfe51a6"
+  },
+  {
+    "path": "tests/host_runtime/guest_sysmodule_tests.cpp",
+    "before_sha256": "2e20b354e35fe07696cc4893d37d18c5f2fb5dc89fb12a679aecb41135158636",
+    "after_sha256": "7d21b9ba120902357cfb6dbd24e15ef6831773ef26aa29aec90b6ee1a04afbd8"
+  },
+  {
+    "path": "tests/host_runtime/guest_vm_mutex_bench.cpp",
+    "before_sha256": "6d25dc85f58945d5ac1eb484c702ec74bdd6fba1f07da06942e1096b918d2ce2",
+    "after_sha256": "6eb0029d314b53832303d2b49441bec0c3f80db81a61d0ee675ec9130362cae8"
+  },
+  {
+    "path": "tests/host_runtime/guest_rwlock_tests.cpp",
+    "before_sha256": "9849c77ca733a711e6bced7c88a81ed8ff3ea120f582d8b4a2761e79513ceea8",
+    "after_sha256": "70069ca02efb5a2a7de54f9c420caf1ade76e7cc1f27fcc58303075d576fdbfa"
+  },
+  {
+    "path": "tests/host_runtime/fios_io_bench.cpp",
+    "before_sha256": "4afdf556c7b43941da51e7d570016c26c359be3a6ee65375d820b76033506e12",
+    "after_sha256": "6bdb21fa07e84a7b09264df8a0caed17ba436e9581b30653b34ab04044a33d03"
+  },
+  {
+    "path": "tests/host_runtime/guest_memory_manager_concurrency_tests.cpp",
+    "before_sha256": null,
+    "after_sha256": "f431ccdc6a9237853123c908f7545dcb0b4635162745b802fac15acf22e55cf5"
+  }
+]

@@ -1,6 +1,10 @@
 package com.shadps4.android.runtime.input
 
 import android.content.Context
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.os.Handler
 import android.os.Looper
 import android.view.KeyEvent
@@ -18,6 +22,16 @@ object NativePadBridge {
     private val main = Handler(Looper.getMainLooper())
     @Volatile private var current: Connection? = null
     private var windowFocused = true
+    private var profiles = List(NativePad.MAX_PORTS) { ControllerProfile.standard() }
+
+    fun configureProfiles(value: List<ControllerProfile>) {
+        onMain()
+        require(value.size <= NativePad.MAX_PORTS)
+        val next = List(NativePad.MAX_PORTS) { value.getOrNull(it) ?: ControllerProfile.standard() }
+        if (next == profiles) return
+        profiles = next
+        current?.reloadButtonMappings()
+    }
     private fun onMain() = check(Looper.myLooper() == main.looper)
 
     fun begin(context: Context, generation: Long): Long {
@@ -52,7 +66,7 @@ object NativePadBridge {
         }
     }
 
-    private class Binding(val port: Int,val nativeEpoch: Long,val device: DeviceIdentity)
+    private class Binding(val port: Int,val nativeEpoch: Long,val device: DeviceIdentity, val buttons: NativeButtonMapping)
     private class Connection(context: Context,val generation: Long,val token: Long) : InputSink, HapticFeedbackSource {
         val bindings = LinkedHashMap<DeviceIdentity,Binding>()
         private val sustained = LinkedHashMap<DeviceIdentity,HapticCommand>()
@@ -61,6 +75,17 @@ object NativePadBridge {
         var uiCaptured = false
         var stopping = false
         private var focused = true
+        private val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as? SensorManager
+        private val gyro = sensorManager?.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
+        private val gyroListener = object : SensorEventListener {
+            override fun onSensorChanged(event: SensorEvent) {
+                if (closed || !focused || event.sensor.type != Sensor.TYPE_GYROSCOPE) return
+                val values = event.values
+                if (values.size < 3) return
+                NativePad.nativeUpdateVrGyro(values[0], values[1], values[2], event.timestamp)
+            }
+            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) = Unit
+        }
         // Direct executor is safe here: every source method and device-listener
         // callback runs on the same supplied main looper.
         private val source = AndroidInputSource(context,Executor { it.run() },this)
@@ -77,9 +102,11 @@ object NativePadBridge {
             }
         }
         fun start() {
+            NativePad.nativeSetVrSbsEnabled(true)
             NativePad.nativeSetConnected(token,0,true)
             ManagedSession.attachControllerSlotSink(overlay)
             source.start(main)
+            gyro?.let { sensorManager?.registerListener(gyroListener, it, SensorManager.SENSOR_DELAY_GAME, main) }
             main.post(tick)
         }
         fun close() {
@@ -87,10 +114,12 @@ object NativePadBridge {
             closed = true
             ManagedSession.detachControllerSlotSink(overlay)
             source.stop()
+            sensorManager?.unregisterListener(gyroListener)
             bindings.clear(); sustained.clear()
             main.removeCallbacks(tick)
             actuator.close()
             NativePad.nativeEndSession(token)
+            NativePad.nativeSetVrSbsEnabled(false)
         }
         fun setFocused(value: Boolean) {
             if (value && stopping) return
@@ -98,6 +127,7 @@ object NativePadBridge {
             focused = value
             if (!value) {
                 source.stop() // unregister exact epochs; queued old packets cannot reconnect
+                sensorManager?.unregisterListener(gyroListener)
                 bindings.clear(); sustained.clear()
                 NativePad.nativeFocusLost(token)
                 NativePad.nativeSetConnected(token,0,false)
@@ -105,20 +135,33 @@ object NativePadBridge {
             } else {
                 NativePad.nativeSetConnected(token,0,true)
                 source.start(main)
+                gyro?.let { sensorManager?.registerListener(gyroListener, it, SensorManager.SENSOR_DELAY_GAME, main) }
             }
+        }
+        fun reloadButtonMappings() {
+            if (closed || !focused) return
+            // Retire held buttons and exact source epochs before changing destinations.
+            // Overlay owns independent state and is deliberately not reset here.
+            source.stop()
+            source.start(main)
         }
         fun dispatchKey(e: KeyEvent) = !closed && focused && source.dispatchKeyEvent(e)
         fun dispatchMotion(e: MotionEvent) = !closed && focused && source.dispatchGenericMotionEvent(e)
         override fun onDeviceAvailable(device: DeviceIdentity,capabilities: DeviceCapabilities) {
             if (closed || !focused) return
-            val port = (0 until NativePad.MAX_PORTS).firstOrNull { p -> bindings.values.none { it.port == p } } ?: return
+            val androidDevice = android.view.InputDevice.getDevice(device.backendId.toInt())
+            val port = (0 until NativePad.MAX_PORTS).firstOrNull { p ->
+                val selected = profiles[p].device
+                bindings.values.none { it.port == p } && (selected == null ||
+                    (selected.descriptor == device.profileKey && androidDevice != null &&
+                     selected.vendorId == androidDevice.vendorId && selected.productId == androidDevice.productId))
+            } ?: return
             val axes = capabilities.axes.flatMap { listOf(it.axis.ordinal.toFloat(),it.rawMin,it.rawMax,it.rawFlat) }.toFloatArray()
             val epoch = NativePad.nativeRegisterDevice(token,port,device.backendId,axes,capabilities.hasRumble)
             if (epoch == 0L) return
             val nativeDevice = device.copy(connectionEpoch = epoch)
-            bindings[device] = Binding(port,epoch,nativeDevice)
+            bindings[device] = Binding(port,epoch,nativeDevice,NativeButtonMapping(profiles[port]))
             actuator.register(nativeDevice)
-            if (port == 0) NativePad.submit(token,0,ControllerSnapshot.Neutral)
         }
         override fun onInputPacket(packet: InputPacket) {
             val b = bindings[packet.device] ?: return
@@ -127,7 +170,7 @@ object NativePadBridge {
                 actuator.remove(b.device); sustained.remove(b.device); bindings.remove(packet.device); return
             }
             if (closed || !focused || packet.protocolVersion != INPUT_PROTOCOL_VERSION) return
-            val events = packet.events
+            val events = packet.events.flatMap(b.buttons::map)
             if (events.any { it.kind == InputEvent.Kind.SensorSample }) return // not claimed by this adapter
             val keys = events.flatMap { listOf(it.kind.ordinal,it.button?.ordinal ?: it.axis?.ordinal ?: -1) }.toIntArray()
             val values = events.map { if (it.kind == InputEvent.Kind.ButtonState) if (it.pressed) 1f else 0f else it.rawValue }.toFloatArray()

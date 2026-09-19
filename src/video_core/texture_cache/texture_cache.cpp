@@ -68,6 +68,10 @@ void TextureCache::ProcessDownloadImages() {
     download_images.clear();
 }
 
+void TextureCache::ReadbackImageForDiagnostics(ImageId image_id) {
+    DownloadImageMemory(image_id, true);
+}
+
 void TextureCache::DownloadImageMemory(ImageId image_id, bool sync) {
     Image& image = slot_images[image_id];
     if (False(image.flags & ImageFlagBits::GpuModified)) {

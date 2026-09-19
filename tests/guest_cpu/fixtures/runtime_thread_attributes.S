@@ -149,6 +149,177 @@ clock_bad:
     test eax,eax
     jne failed
 #endif
+    // Live owner lookup and SCE/POSIX affinity ABI, using actual FEX gates.
+    // Repeated static initialization must not exhaust a lifetime allocation quota.
+    mov r14d,5000
+mutex_churn:
+    mov qword ptr [rip+mutex_slot],0
+    lea rdi,[rip+mutex_slot]
+    call qword ptr [rip+got_mutex_lock]
+    test eax,eax
+    jne failed
+    lea rdi,[rip+mutex_slot]
+    call qword ptr [rip+got_mutex_unlock]
+    test eax,eax
+    jne failed
+    lea rdi,[rip+mutex_slot]
+    call qword ptr [rip+got_mutex_destroy]
+    test eax,eax
+    jne failed
+    dec r14d
+    jnz mutex_churn
+    call qword ptr [rip+got_self]
+    mov r13,rax
+    mov rdi,r13
+    mov esi,0x40
+    call qword ptr [rip+got_set_affinity]
+    test eax,eax
+    jne failed
+    mov rdi,r13
+    lea rsi,[rip+affinity_mask]
+    call qword ptr [rip+got_get_affinity]
+    test eax,eax
+    jne failed
+    cmp qword ptr [rip+affinity_mask],0x40
+    jne failed
+    mov rdi,r13
+    mov esi,0x100
+    call qword ptr [rip+got_set_affinity]
+    cmp eax,0x80020016
+    jne failed
+    mov rdi,r13
+    xor esi,esi
+    call qword ptr [rip+got_get_affinity]
+    cmp eax,0x8002000e
+    jne failed
+    mov edi,1
+    mov esi,1
+    call qword ptr [rip+got_set_affinity]
+    cmp eax,0x80020003
+    jne failed
+    mov rdi,r13
+    mov esi,8
+    lea rdx,[rip+affinity_mask]
+    call qword ptr [rip+got_posix_get_affinity]
+    test eax,eax
+    jne failed
+    cmp qword ptr [rip+affinity_mask],0x40
+    jne failed
+    mov rdi,r13
+    mov esi,701
+    call qword ptr [rip+got_set_prio]
+    test eax,eax
+    jne failed
+    mov rdi,r13
+    lea rsi,[rip+affinity_mask]
+    call qword ptr [rip+got_get_prio]
+    test eax,eax
+    jne failed
+    cmp dword ptr [rip+affinity_mask],701
+    jne failed
+    mov rdi,r13
+    mov esi,700
+    call qword ptr [rip+got_set_prio]
+    test eax,eax
+    jne failed
+    mov rdi,r13
+    lea rsi,[rip+name]
+    call qword ptr [rip+got_rename]
+    test eax,eax
+    jne failed
+    mov rdi,r13
+    lea rsi,[rip+name_output]
+    call qword ptr [rip+got_getname]
+    test eax,eax
+    jne failed
+    cmp dword ptr [rip+name_output],0x72747441
+    jne failed
+    mov edi,1
+    lea rsi,[rip+affinity_mask]
+    call qword ptr [rip+got_get_prio]
+    cmp eax,0x80020003
+    jne failed
+    mov rdi,r13
+    mov esi,1
+    call qword ptr [rip+got_get_prio]
+    cmp eax,0x8002000e
+    jne failed
+    // Non-named flexible memory and 72-byte query use the production desktop VM.
+    mov qword ptr [rip+allocated],0
+    lea rdi,[rip+allocated]
+    mov esi,0x4000
+    mov edx,3
+    xor ecx,ecx
+    call qword ptr [rip+got_flexible]
+    test eax,eax
+    jne failed
+    mov rax,[rip+allocated]
+    mov [rip+batch_entry],rax
+    lea rdi,[rip+batch_entry]
+    mov esi,1
+    lea rdx,[rip+batch_count]
+    call qword ptr [rip+got_batch]
+    test eax,eax
+    jne failed
+    cmp dword ptr [rip+batch_count],1
+    jne failed
+    mov rdi,[rip+allocated]
+    xor esi,esi
+    lea rdx,[rip+virtual_info]
+    mov ecx,72
+    call qword ptr [rip+got_virtual_query]
+    test eax,eax
+    jne failed
+    // All eight combinations of optional QueryMemoryProtection outputs.
+    // Bloodborne's renderer passes null start/end and asks only for prot.
+    xor r14d,r14d
+query_optional:
+    xor esi,esi
+    test r14d,1
+    jz query_no_start
+    lea rsi,[rip+query_start]
+query_no_start:
+    xor edx,edx
+    test r14d,2
+    jz query_no_end
+    lea rdx,[rip+query_end]
+query_no_end:
+    xor ecx,ecx
+    test r14d,4
+    jz query_no_prot
+    lea rcx,[rip+query_prot]
+query_no_prot:
+    mov rdi,[rip+allocated]
+    call qword ptr [rip+got_query_protection]
+    test eax,eax
+    jne failed
+    inc r14d
+    cmp r14d,8
+    jne query_optional
+    mov rax,[rip+allocated]
+    cmp [rip+query_start],rax
+    jne failed
+    add rax,0x4000
+    cmp [rip+query_end],rax
+    jne failed
+    cmp dword ptr [rip+query_prot],1
+    jne failed
+    // Invalid supplied output must reject the batch before modifying others.
+    mov dword ptr [rip+query_prot],0x1234
+    mov rdi,[rip+allocated]
+    mov esi,1
+    xor edx,edx
+    lea rcx,[rip+query_prot]
+    call qword ptr [rip+got_query_protection]
+    cmp eax,0x8002000e
+    jne failed
+    cmp dword ptr [rip+query_prot],0x1234
+    jne failed
+    mov rdi,[rip+allocated]
+    mov esi,0x4000
+    call qword ptr [rip+got_unmap]
+    test eax,eax
+    jne failed
     lea rdi,[rip+attr]
     call qword ptr [rip+got_init]
     test eax,eax
@@ -355,6 +526,17 @@ name:.asciz "AttributeStack"
 clock_count:.quad 0
 clock_done:.quad 0
 clock_output:.quad 0,0
+affinity_mask:.quad 0
+name_output:.zero 32
+virtual_info:.zero 72
+query_start:.quad 0
+query_end:.quad 0
+query_prot:.quad 0
+batch_entry:.quad 0,0,0x4000
+.byte 1,0
+.short 0
+.long 2
+batch_count:.long 0
 .org 0x8000
 got_init:.quad 0
 got_size:.quad 0
@@ -392,3 +574,15 @@ got_rw_unlock:.quad 0
 got_rw_destroy:.quad 0
 got_clock:.quad 0
 got_unmap:.quad 0
+got_set_affinity:.quad 0
+got_get_affinity:.quad 0
+got_posix_get_affinity:.quad 0
+
+got_get_prio:.quad 0
+got_set_prio:.quad 0
+got_rename:.quad 0
+got_getname:.quad 0
+got_flexible:.quad 0
+got_virtual_query:.quad 0
+got_batch:.quad 0
+got_query_protection:.quad 0

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include <algorithm>
 #include <cerrno>
+#include <chrono>
 #include <cstring>
 #include <cstdlib>
 #include <limits>
@@ -11,6 +12,7 @@
 #include <sys/uio.h>
 #include <unistd.h>
 #include "common/path_util.h"
+#include "common/elf_info.h"
 #include "common/scope_exit.h"
 #include "core/file_sys/fs.h"
 #include "core/file_sys/directories/normal_directory.h"
@@ -83,9 +85,8 @@ GuestStorage::GuestStorage(FileSys::MntPoints& m, fs::path h, std::string t, int
 }
 GuestStorage::~GuestStorage() {
     for (auto& device : stdio) device->fsync();
-    for (auto [id, file] : files)
-        ::close(file.host);
     files.clear();
+    file_leases.clear();
     if (const int error = UnmountTemporaryLocked())
         LOG_ERROR(Lib_AppContent, "Session temporary retirement failed: {}", error);
     for (auto& slot : slots)
@@ -100,7 +101,7 @@ GuestStorage::~GuestStorage() {
         }
 }
 int GuestStorage::MountTemporary(u32 option, std::array<char, 16>& point) {
-    std::lock_guard lock(mutex);
+    std::lock_guard lock(namespace_mutex);
     if (option > 1)
         return EINVAL;
     if (!temporary_root.empty() || mounts.GetMountSnapshot("/temp0"))
@@ -133,7 +134,7 @@ int GuestStorage::MountTemporary(u32 option, std::array<char, 16>& point) {
     }
 }
 int GuestStorage::TemporarySpace(std::string_view point, u64& available_kib) {
-    std::lock_guard lock(mutex);
+    std::lock_guard lock(namespace_mutex);
     if (point != "/temp0")
         return EINVAL;
     const auto mount = mounts.GetMountSnapshot("/temp0");
@@ -149,9 +150,7 @@ int GuestStorage::TemporarySpace(std::string_view point, u64& available_kib) {
 int GuestStorage::UnmountTemporaryLocked() {
     if (temporary_root.empty())
         return 0;
-    for (const auto& [id, file] : files)
-        if (file.slot == -2)
-            return EBUSY;
+    if (HasFileLease(-2)) return EBUSY;
     mounts.UnmountOwned(temporary_root, "/temp0");
     std::error_code error;
     fs::remove_all(temporary_root, error);
@@ -161,11 +160,11 @@ int GuestStorage::UnmountTemporaryLocked() {
     return 0;
 }
 int GuestStorage::UnmountTemporary() {
-    std::lock_guard lock(mutex);
+    std::lock_guard lock(namespace_mutex);
     return UnmountTemporaryLocked();
 }
 GuestStorage::Error GuestStorage::Initialize() {
-    std::lock_guard lock(mutex);
+    std::lock_guard lock(namespace_mutex);
     try {
         SafeDirectory(home, fs::path(std::to_string(user)) / "savedata" / title);
     } catch (const fs::filesystem_error& e) {
@@ -175,12 +174,13 @@ GuestStorage::Error GuestStorage::Initialize() {
     return Error::OK;
 }
 GuestStorage::Error GuestStorage::Terminate() {
-    std::lock_guard lock(mutex);
+    std::lock_guard lock(namespace_mutex);
     if (!initialized)
         return Error::NOT_INITIALIZED;
     if (std::any_of(slots.begin(), slots.end(), [](const auto& s) { return bool(s); }))
         return Error::BUSY;
     initialized = false;
+    save_memory.reset();
     return Error::OK;
 }
 u64 GuestStorage::Used(const fs::path& root) {
@@ -203,7 +203,7 @@ u64 GuestStorage::Used(const fs::path& root) {
 }
 GuestStorage::Error GuestStorage::Mount(int uid, std::string_view tid, std::string_view dir,
                                         u64 blocks, u32 mode, MountResult& result) {
-    std::lock_guard lock(mutex);
+    std::lock_guard lock(namespace_mutex);
     result = {};
     if (!initialized)
         return Error::NOT_INITIALIZED;
@@ -255,6 +255,10 @@ GuestStorage::Error GuestStorage::Mount(int uid, std::string_view tid, std::stri
         std::copy(instance->GetMountPoint().begin(), instance->GetMountPoint().end(),
                   result.point.begin());
         result.status = !existed && (mode & 32) ? 1 : 0;
+        auto quota = std::make_shared<Quota>();
+        quota->root = instance->GetSavePath();
+        quota->capacity = u64(instance->GetMaxBlocks()) * 32768;
+        quotas[slot] = std::move(quota);
         slots[slot] = std::move(instance);
         return Error::OK;
     } catch (const fs::filesystem_error& e) {
@@ -274,9 +278,7 @@ GuestStorage::Save* GuestStorage::Find(std::string_view point) {
 GuestStorage::Error GuestStorage::UnmountLocked(std::string_view point) {
     for (int i = 0; i < 16; ++i)
         if (slots[i] && slots[i]->GetMountPoint() == point) {
-            for (const auto& [id, f] : files)
-                if (f.slot == i)
-                    return Error::BUSY;
+            if (HasFileLease(i)) return Error::BUSY;
             try {
                 if (!slots[i]->IsReadOnly()) {
                     for (const auto& e :
@@ -287,6 +289,7 @@ GuestStorage::Error GuestStorage::UnmountLocked(std::string_view point) {
                 }
                 slots[i]->Umount();
                 slots[i].reset();
+                quotas[i].reset();
                 return Error::OK;
             } catch (const fs::filesystem_error& e) {
                 return Failure(e);
@@ -295,18 +298,21 @@ GuestStorage::Error GuestStorage::UnmountLocked(std::string_view point) {
     return Error::NOT_MOUNTED;
 }
 GuestStorage::Error GuestStorage::Unmount(std::string_view point) {
-    std::lock_guard lock(mutex);
+    std::lock_guard lock(namespace_mutex);
     if (!initialized)
         return Error::NOT_INITIALIZED;
     return UnmountLocked(point);
 }
 GuestStorage::Error GuestStorage::Info(std::string_view point, MountInfo& result) {
-    std::lock_guard lock(mutex);
+    std::lock_guard lock(namespace_mutex);
     if (!initialized)
         return Error::NOT_INITIALIZED;
     auto* s = Find(point);
     if (!s)
         return Error::NOT_MOUNTED;
+    std::unique_lock<std::mutex> quota;
+    for (size_t i = 0; i < slots.size(); ++i)
+        if (slots[i].get() == s) { quota = std::unique_lock(quotas[i]->mutex); break; }
     try {
         result = {};
         result.blocks = s->GetMaxBlocks();
@@ -319,7 +325,7 @@ GuestStorage::Error GuestStorage::Info(std::string_view point, MountInfo& result
 }
 GuestStorage::Error GuestStorage::GetParam(std::string_view point, u32 type, std::span<u8> out,
                                            u64& size) {
-    std::lock_guard lock(mutex);
+    std::lock_guard lock(namespace_mutex);
     if (!initialized)
         return Error::NOT_INITIALIZED;
     auto* s = Find(point);
@@ -363,12 +369,15 @@ GuestStorage::Error GuestStorage::GetParam(std::string_view point, u32 type, std
 }
 GuestStorage::Error GuestStorage::SetParam(std::string_view point, u32 type,
                                            std::span<const u8> in) {
-    std::lock_guard lock(mutex);
+    std::lock_guard lock(namespace_mutex);
     if (!initialized)
         return Error::NOT_INITIALIZED;
     auto* s = Find(point);
     if (!s)
         return Error::NOT_MOUNTED;
+    std::unique_lock<std::mutex> quota;
+    for (size_t i = 0; i < slots.size(); ++i)
+        if (slots[i].get() == s) { quota = std::unique_lock(quotas[i]->mutex); break; }
     if (s->IsReadOnly())
         return Error::BAD_MOUNTED;
     OrbisSaveDataParam param{};
@@ -513,8 +522,62 @@ GuestStorage::Parent GuestStorage::Resolve(std::string_view path, bool write, bo
         tail.remove_prefix(next + 1);
     }
 }
+GuestStorage::Error GuestStorage::SetupMemory(int uid, u64 size,
+    const Libraries::SaveData::OrbisSaveDataParam* param) {
+    std::lock_guard lock(namespace_mutex);
+    const auto status = CheckIdentity(uid, title, "sce_sdmemory");
+    if (status != Error::OK) return status;
+    if (!size || size > 64 * 1024 * 1024) return Error::PARAMETER;
+    try {
+        SafeDirectory(home, fs::path(std::to_string(user)) / "savedata" / title / "sce_sdmemory/sce_sys");
+        if (!save_memory) save_memory = std::make_unique<Libraries::SaveData::SaveMemory::Store>(false, home);
+        const auto existed = save_memory->SetupSaveMemory(user, 0, title, size);
+        if (!existed) { save_memory->SaveSFO(0); save_memory->SetIcon(0); }
+        if (param) { param->ToSFO(save_memory->GetParamSFO(0)); save_memory->SaveSFO(0); }
+        return Error::OK;
+    } catch (const fs::filesystem_error& e) { return Failure(e); }
+}
+GuestStorage::Error GuestStorage::Memory(int uid, std::span<u8> bytes, s64 offset, bool write) {
+    std::shared_lock lock(namespace_mutex);
+    if (!initialized) return Error::NOT_INITIALIZED;
+    if (uid != user) return Error::INVALID_LOGIN_USER;
+    if (!save_memory || !save_memory->IsSaveMemoryInitialized(0)) return Error::MEMORY_NOT_READY;
+    const auto size = save_memory->MemorySize(0);
+    if (offset < 0 || u64(offset) > size || bytes.size() > size - u64(offset)) return Error::PARAMETER;
+    try {
+        if (write) save_memory->WriteMemory(0, bytes.data(), bytes.size(), offset);
+        else save_memory->ReadMemory(0, bytes.data(), bytes.size(), offset);
+        return Error::OK;
+    } catch (const fs::filesystem_error& e) { return Failure(e); }
+}
+GuestStorage::Error GuestStorage::SaveIcon(std::string_view point, std::span<const u8> bytes) {
+    std::lock_guard lock(namespace_mutex);
+    if (!initialized) return Error::NOT_INITIALIZED;
+    auto* save = Find(point);
+    if (!save) return Error::NOT_MOUNTED;
+    if (save->IsReadOnly()) return Error::BAD_MOUNTED;
+    try {
+        Common::FS::IOFile file(save->GetIconPath(), Common::FS::FileAccessMode::Create);
+        if (!file.IsOpen() || file.WriteRaw<u8>(bytes.data(), bytes.size()) != bytes.size()) return Error::INTERNAL;
+        return Error::OK;
+    } catch (const fs::filesystem_error& e) { return Failure(e); }
+}
+GuestStorage::Error GuestStorage::Search(const Libraries::SaveData::OrbisSaveDataDirNameSearchCond& c,
+    Libraries::SaveData::OrbisSaveDataDirNameSearchResult& r) {
+    std::shared_lock lock(namespace_mutex);
+    if (!initialized) return Error::NOT_INITIALIZED;
+    if (c.userId != user) return Error::INVALID_LOGIN_USER;
+    if (c.titleId && std::string_view(c.titleId->data) != title) return Error::PARAMETER;
+    try { return Libraries::SaveData::SearchSaveDirectories(&c, &r, title, Common::ElfInfo::Instance().FirmwareVer(), home); }
+    catch (const fs::filesystem_error& e) { return Failure(e); }
+}
 GuestStorage::IoResult GuestStorage::Open(std::string_view path, u32 flags, u32 mode) {
-    std::lock_guard lock(mutex);
+    std::unique_lock mutation(namespace_mutex, std::defer_lock);
+    std::shared_lock read_only(namespace_mutex, std::defer_lock);
+    // Zero flags and O_DIRECTORY are the regular read-only FIOS paths. Other
+    // modes may create/truncate and retain exclusive namespace admission.
+    if (flags & ~u32{0x20000}) mutation.lock();
+    else read_only.lock();
     constexpr u32 allowed = 3 | 4 | 8 | 0x80 | 0x200 | 0x400 | 0x800 | 0x1000 |
                             0x10000 | 0x20000;
     if ((flags & ~allowed) || (flags & 3) == 3)
@@ -595,42 +658,93 @@ GuestStorage::IoResult GuestStorage::Open(std::string_view path, u32 flags, u32 
                 });
         } catch (const std::system_error& e) { return {-1, e.code().value()}; }
     }
-    int id = next_fd++;
-    files.emplace(id, File{fd, p.slot, write, bool(flags & 8), std::move(directory)});
+    auto file = std::make_shared<File>(fd, p.slot, write, bool(flags & 8),
+                                       std::move(directory), std::string(path));
     owned = true;
+    if (p.slot >= 0) file->quota = quotas[p.slot];
+    int id;
+    {
+        std::lock_guard registry(files_mutex);
+        id = next_fd++;
+        files.emplace(id, file);
+        std::erase_if(file_leases, [](const auto& f) { return f.second.expired(); });
+        file_leases.emplace_back(p.slot, file);
+    }
+    if (io_observer) io_observer({IoEvent::Opened, id, file->path, 0});
     return {id, 0};
 }
+GuestStorage::File::~File() { if (host >= 0) ::close(host); }
+std::shared_ptr<GuestStorage::File> GuestStorage::AcquireFile(int fd) {
+    std::lock_guard lock(files_mutex);
+    const auto it = files.find(fd);
+    return it == files.end() ? nullptr : it->second;
+}
+bool GuestStorage::HasFileLease(int slot) {
+    std::lock_guard registry(files_mutex);
+    return std::any_of(file_leases.begin(), file_leases.end(), [slot](const auto& lease) {
+        return lease.first == slot && !lease.second.expired();
+    });
+}
+GuestStorage::MappingFile GuestStorage::AcquireMappingFile(int fd) {
+    auto file = AcquireFile(fd);
+    if (!file) return {{}, -1, false, EBADF};
+    if (file->directory) return {{}, -1, false, ENODEV};
+    const int flags = ::fcntl(file->host, F_GETFL);
+    if (flags < 0) return {{}, -1, false, errno};
+    if ((flags & O_ACCMODE) == O_WRONLY) return {{}, -1, false, EACCES};
+    return {file, file->host, file->writable, 0};
+}
+namespace {
+u64 IoNow() {
+    return std::chrono::duration_cast<std::chrono::nanoseconds>(
+        std::chrono::steady_clock::now().time_since_epoch()).count();
+}
+}
 GuestStorage::IoResult GuestStorage::Close(int fd) {
-    std::lock_guard lock(mutex);
-    if (fd >= 0 && fd < 3) return {-1, EPERM}; // Same reserved handles as desktop.
-    auto it = files.find(fd);
-    if (it == files.end())
-        return {-1, EBADF};
-    int host = it->second.host;
-    files.erase(it);
-    int r = ::close(host);
-    return {r, r < 0 ? errno : 0};
+    // Removing the guest handle prevents new operations. An already admitted
+    // operation retains the native fd until its last lease is released, so fd
+    // reuse cannot redirect an in-flight read to a different file.
+    std::shared_ptr<File> retired;
+    {
+        std::lock_guard lock(files_mutex);
+        if (fd >= 0 && fd < 3) return {-1, EPERM};
+        auto it = files.find(fd);
+        if (it == files.end()) return {-1, EBADF};
+        retired = std::move(it->second);
+        files.erase(it);
+    }
+    return {0, 0};
 }
 GuestStorage::IoResult GuestStorage::Read(int fd, std::span<u8> data) {
-    std::lock_guard lock(mutex);
-    auto it = files.find(fd);
-    if (it == files.end())
-        return {-1, EBADF};
-    if (it->second.directory) {
-        try { return {it->second.directory->read(data.data(), data.size()), 0}; }
+    const auto begin = io_observer ? IoNow() : 0;
+    auto file = AcquireFile(fd);
+    if (!file) return {-1, EBADF};
+    std::lock_guard cursor(file->cursor);
+    if (cancelled) return {-1, EINTR};
+    if (file->directory) {
+        try { return {file->directory->read(data.data(), data.size()), 0}; }
         catch (const std::system_error& e) { return {-1, e.code().value()}; }
     }
-    auto r = ::read(it->second.host, data.data(), data.size());
-    return {r, r < 0 ? errno : 0};
+    const s64 offset = io_observer ? ::lseek(file->host, 0, SEEK_CUR) : 0;
+    if (io_observer) io_observer({IoEvent::BeforeRead, fd, file->path, offset, data.size()});
+    const auto syscall = io_observer ? IoNow() : 0;
+    auto r = ::read(file->host, data.data(), data.size());
+    const int error = r < 0 ? errno : 0;
+    if (io_observer) io_observer({IoEvent::ReadDone, fd, file->path, offset, data.size(),
+                                  begin, syscall, IoNow(), {r, error}});
+    return {r, error};
 }
 GuestStorage::IoResult GuestStorage::Write(int fd, std::span<const u8> data) {
-    std::lock_guard lock(mutex);
-    if (fd >= 0 && fd < 3)
+    if (fd >= 0 && fd < 3) {
+        std::lock_guard output(stdio_mutex[fd]);
         return {data.empty() ? 0 : stdio[fd]->write(data.data(), data.size()), 0};
-    auto it = files.find(fd);
-    if (it == files.end() || !it->second.writable)
-        return {-1, EBADF};
-    auto& f = it->second;
+    }
+    auto file = AcquireFile(fd);
+    if (!file || !file->writable) return {-1, EBADF};
+    std::lock_guard cursor(file->cursor);
+    std::unique_lock<std::mutex> quota;
+    if (file->quota) quota = std::unique_lock(file->quota->mutex);
+    auto& f = *file;
     struct stat st {};
     if (::fstat(f.host, &st))
         return {-1, errno};
@@ -644,17 +758,18 @@ GuestStorage::IoResult GuestStorage::Write(int fd, std::span<const u8> data) {
         if (int error = CheckGrowth(f, st.st_size, end))
             return {-1, error};
     }
+    if (io_observer) io_observer({IoEvent::BeforeWrite, fd, f.path, offset, data.size()});
     auto r = ::write(f.host, data.data(), data.size());
     return {r, r < 0 ? errno : 0};
 }
 // The same quota admission applies to ordinary writes, positioned writes and
-// truncation. Hold the session descriptor mutex across admission and mutation.
+// truncation. Admission and mutation share only this save volume's quota lock.
 int GuestStorage::CheckGrowth(const File& file, u64 old_size, u64 end) {
-    if (file.slot < 0 || end <= old_size)
+    if (!file.quota || end <= old_size)
         return 0;
     try {
-        const auto used = Used(slots[file.slot]->GetSavePath());
-        const u64 cap = u64(slots[file.slot]->GetMaxBlocks()) * 32768;
+        const auto used = Used(file.quota->root);
+        const u64 cap = file.quota->capacity;
         if (end > cap || end - old_size > cap - std::min(cap, used))
             return ENOSPC;
     } catch (const fs::filesystem_error&) {
@@ -687,7 +802,7 @@ static_assert(offsetof(Libraries::Kernel::OrbisKernelStat, st_size) == 72);
 } // namespace
 GuestStorage::IoResult GuestStorage::Stat(std::string_view path,
                                           Libraries::Kernel::OrbisKernelStat& out) {
-    std::lock_guard lock(mutex);
+    std::shared_lock lock(namespace_mutex);
     auto p = Resolve(path, false, true);
     if (p.error)
         return {-1, p.error};
@@ -703,29 +818,33 @@ GuestStorage::IoResult GuestStorage::Stat(std::string_view path,
     return {0, 0};
 }
 GuestStorage::IoResult GuestStorage::Fstat(int fd, Libraries::Kernel::OrbisKernelStat& out) {
-    std::lock_guard lock(mutex);
-    auto it = files.find(fd);
-    if (it == files.end())
-        return {-1, EBADF};
-    if (it->second.directory) {
+    auto file = AcquireFile(fd);
+    if (!file) return {-1, EBADF};
+    std::lock_guard cursor(file->cursor);
+    if (file->directory) {
         out = {};
-        return {it->second.directory->fstat(&out), 0};
+        return {file->directory->fstat(&out), 0};
     }
     struct stat native {};
-    if (::fstat(it->second.host, &native))
+    if (::fstat(file->host, &native))
         return {-1, errno};
     GuestStat(native, out);
     return {0, 0};
 }
 GuestStorage::IoResult GuestStorage::Positioned(int fd, std::span<const Buffer> buffers, s64 offset,
                                                 bool write) {
-    std::lock_guard lock(mutex);
+    const auto begin = io_observer ? IoNow() : 0;
     if (offset < 0 || buffers.size() > 1024)
         return {-1, EINVAL};
-    auto it = files.find(fd);
-    if (it == files.end() || (write && !it->second.writable))
-        return {-1, EBADF};
-    auto& file = it->second;
+    auto lease = AcquireFile(fd);
+    if (!lease || (write && !lease->writable)) return {-1, EBADF};
+    auto& file = *lease;
+    // Regular positioned reads do not use/update the shared cursor or flags.
+    // Directories emulate positioned reads by seek/read/restore and need it.
+    std::unique_lock cursor(file.cursor, std::defer_lock);
+    if (write || file.directory) cursor.lock();
+    std::unique_lock<std::mutex> quota;
+    if (write && file.quota) quota = std::unique_lock(file.quota->mutex);
     std::vector<iovec> vectors;
     u64 total{};
     for (const auto& buffer : buffers) {
@@ -757,89 +876,99 @@ GuestStorage::IoResult GuestStorage::Positioned(int fd, std::span<const Buffer> 
         }
     }
     // Linux pwritev otherwise honors O_APPEND, unlike the positioned API. The
-    // descriptor is private and every operation holds mutex, including Close.
+    // descriptor is private; writes/seek share its cursor guard. Read leases
+    // retain its lifetime; preadv ignores both the cursor and O_APPEND.
     int flags = 0;
     if (write && file.append) {
         flags = ::fcntl(file.host, F_GETFL);
         if (flags < 0 || ::fcntl(file.host, F_SETFL, flags & ~O_APPEND))
             return {-1, errno};
     }
+    if (!write && io_observer) io_observer({IoEvent::BeforeRead, fd, file.path, offset, total});
+    const auto syscall = !write && io_observer ? IoNow() : 0;
     const auto result = write ? ::pwritev(file.host, vectors.data(), vectors.size(), offset)
                               : ::preadv(file.host, vectors.data(), vectors.size(), offset);
     const int error = result < 0 ? errno : 0;
+    if (!write && io_observer) io_observer({IoEvent::ReadDone, fd, file.path, offset, total,
+                                           begin, syscall, IoNow(), {result, error}});
     if (write && file.append && ::fcntl(file.host, F_SETFL, flags))
         return {-1, errno};
     return {result, error};
 }
 GuestStorage::IoResult GuestStorage::Truncate(int fd, s64 length) {
-    std::lock_guard lock(mutex);
     if (length < 0)
         return {-1, EINVAL};
-    auto it = files.find(fd);
-    if (it == files.end() || !it->second.writable)
-        return {-1, EBADF};
+    auto file = AcquireFile(fd);
+    if (!file || !file->writable) return {-1, EBADF};
+    std::lock_guard cursor(file->cursor);
+    std::unique_lock<std::mutex> quota;
+    if (file->quota) quota = std::unique_lock(file->quota->mutex);
     struct stat native {};
-    if (::fstat(it->second.host, &native))
+    if (::fstat(file->host, &native))
         return {-1, errno};
-    if (int error = CheckGrowth(it->second, native.st_size, length))
+    if (int error = CheckGrowth(*file, native.st_size, length))
         return {-1, error};
-    const int result = ::ftruncate(it->second.host, length);
+    const int result = ::ftruncate(file->host, length);
     return {result, result < 0 ? errno : 0};
 }
 GuestStorage::IoResult GuestStorage::Seek(int fd, s64 offset, int whence) {
-    std::lock_guard lock(mutex);
-    auto it = files.find(fd);
-    if (it == files.end())
-        return {-1, EBADF};
+    auto file = AcquireFile(fd);
+    if (!file) return {-1, EBADF};
+    std::lock_guard cursor(file->cursor);
     if (whence < 0 || whence > 2)
         return {-1, EINVAL};
-    if (it->second.directory) {
-        const auto result = it->second.directory->lseek(offset, whence);
+    if (file->directory) {
+        const auto result = file->directory->lseek(offset, whence);
         return {result, result < 0 ? EINVAL : 0};
     }
-    auto r = ::lseek(it->second.host, offset, whence);
+    auto r = ::lseek(file->host, offset, whence);
     return {r, r < 0 ? errno : 0};
 }
 GuestStorage::IoResult GuestStorage::Sync(int fd) {
-    std::lock_guard lock(mutex);
-    if (fd >= 0 && fd < 3) return {stdio[fd]->fsync(), 0};
-    auto it = files.find(fd);
-    if (it == files.end())
-        return {-1, EBADF};
-    auto r = ::fsync(it->second.host);
+    if (fd >= 0 && fd < 3) {
+        std::lock_guard output(stdio_mutex[fd]); return {stdio[fd]->fsync(), 0};
+    }
+    auto file = AcquireFile(fd);
+    if (!file) return {-1, EBADF};
+    std::lock_guard cursor(file->cursor);
+    auto r = ::fsync(file->host);
     return {r, r < 0 ? errno : 0};
 }
 GuestStorage::IoResult GuestStorage::GetDents(int fd, std::span<u8> bytes, s64* base) {
-    std::lock_guard lock(mutex);
-    const auto it = files.find(fd);
-    if (it == files.end()) return {-1, EBADF};
-    if (!it->second.directory || bytes.size() < 512) return {-1, EINVAL};
+    auto file = AcquireFile(fd);
+    if (!file) return {-1, EBADF};
+    std::lock_guard cursor(file->cursor);
+    if (!file->directory || bytes.size() < 512) return {-1, EINVAL};
     if (cancelled) return {-1, EINTR};
-    try { return {it->second.directory->getdents(bytes.data(), bytes.size(), base), 0}; }
+    try { return {file->directory->getdents(bytes.data(), bytes.size(), base), 0}; }
     catch (const std::system_error& e) { return {-1, e.code().value()}; }
 }
 GuestStorage::IoResult GuestStorage::Mkdir(std::string_view path, u32 mode) {
-    std::lock_guard lock(mutex);
+    std::lock_guard lock(namespace_mutex);
     auto p = Resolve(path, true, true);
     if (p.error)
         return {-1, p.error};
+    std::unique_lock<std::mutex> quota;
+    if (p.slot >= 0) quota = std::unique_lock(quotas[p.slot]->mutex);
     auto r = ::mkdirat(p.fd, p.leaf.c_str(), mode & 0777);
     int e = errno;
     ::close(p.fd);
     return {r, r < 0 ? e : 0};
 }
 GuestStorage::IoResult GuestStorage::Unlink(std::string_view path) {
-    std::lock_guard lock(mutex);
+    std::lock_guard lock(namespace_mutex);
     auto p = Resolve(path, true);
     if (p.error)
         return {-1, p.error};
+    std::unique_lock<std::mutex> quota;
+    if (p.slot >= 0) quota = std::unique_lock(quotas[p.slot]->mutex);
     auto r = ::unlinkat(p.fd, p.leaf.c_str(), 0);
     int e = errno;
     ::close(p.fd);
     return {r, r < 0 ? e : 0};
 }
 GuestStorage::IoResult GuestStorage::Rename(std::string_view from, std::string_view to) {
-    std::lock_guard lock(mutex);
+    std::lock_guard lock(namespace_mutex);
     auto a = Resolve(from, true);
     if (a.error)
         return {-1, a.error};
@@ -849,6 +978,8 @@ GuestStorage::IoResult GuestStorage::Rename(std::string_view from, std::string_v
         return {-1, b.error};
     }
     int r = -1, e = EXDEV;
+    std::unique_lock<std::mutex> quota;
+    if (a.slot >= 0) quota = std::unique_lock(quotas[a.slot]->mutex);
     if (a.slot == b.slot) {
         r = ::renameat(a.fd, a.leaf.c_str(), b.fd, b.leaf.c_str());
         e = errno;
@@ -938,7 +1069,7 @@ void GuestStorage::CopyTree(const fs::path& from, const fs::path& to) {
     SyncPath(to);
 }
 GuestStorage::Error GuestStorage::UnmountBackup(std::string_view point) {
-    std::lock_guard lock(mutex);
+    std::lock_guard lock(namespace_mutex);
     if (!initialized)
         return Error::NOT_INITIALIZED;
     auto* save = Find(point);
@@ -974,7 +1105,7 @@ GuestStorage::Error GuestStorage::UnmountBackup(std::string_view point) {
 GuestStorage::Error GuestStorage::CheckBackup(int uid, std::string_view tid,
                                               std::string_view directory, OrbisSaveDataParam& param,
                                               std::vector<u8>& icon) {
-    std::lock_guard lock(mutex);
+    std::lock_guard lock(namespace_mutex);
     auto status = CheckIdentity(uid, tid, directory);
     if (status != Error::OK)
         return status;
@@ -1004,7 +1135,7 @@ GuestStorage::Error GuestStorage::CheckBackup(int uid, std::string_view tid,
 }
 GuestStorage::Error GuestStorage::RestoreBackup(int uid, std::string_view tid,
                                                 std::string_view directory) {
-    std::lock_guard lock(mutex);
+    std::lock_guard lock(namespace_mutex);
     auto status = CheckIdentity(uid, tid, directory);
     if (status != Error::OK)
         return status;
@@ -1034,7 +1165,7 @@ GuestStorage::Error GuestStorage::RestoreBackup(int uid, std::string_view tid,
 }
 GuestStorage::Error GuestStorage::Delete(int uid, std::string_view tid,
                                          std::string_view directory) {
-    std::lock_guard lock(mutex);
+    std::lock_guard lock(namespace_mutex);
     auto status = CheckIdentity(uid, tid, directory);
     if (status != Error::OK)
         return status;
@@ -1054,7 +1185,7 @@ GuestStorage::Error GuestStorage::Delete(int uid, std::string_view tid,
     }
 }
 GuestStorage::Error GuestStorage::GetEvent(Event& event) {
-    std::lock_guard lock(mutex);
+    std::lock_guard lock(namespace_mutex);
     if (!initialized)
         return Error::NOT_INITIALIZED;
     if (events.empty())
