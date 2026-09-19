@@ -10,8 +10,11 @@
 #include <mutex>
 #include <type_traits>
 #include <vector>
+#include <boost/container/small_vector.hpp>
 
+#include "common/alignment.h"
 #include "common/debug.h"
+#include "common/scope_exit.h"
 #include "common/types.h"
 #include "core/emulator_settings.h"
 #include "video_core/buffer_cache/region_manager.h"
@@ -96,28 +99,71 @@ public:
             });
     }
 
-    /// Call 'func' for each CPU modified range and unmark those pages as CPU modified
-    void ForEachUploadRange(VAddr query_cpu_range, u64 query_size, bool is_written, auto&& func,
-                            auto&& on_upload) {
+    // Reserve staging outside ALL tracking locks, then recheck CPU dirtiness.
+    // copy_range may only copy to that reservation; allocation, GPU commands,
+    // waits and retirement callbacks belong in prepare or after this returns.
+    // A racing CPU writer can require one larger reservation. Reserve the full
+    // page-aligned query on that retry, bounding preparation to two calls.
+    u64 SnapshotForUpload(VAddr query_cpu_range, u64 query_size, bool is_written, auto&& prepare,
+                          auto&& copy_range) {
+        struct Slice {
+            RegionManager* manager;
+            u64 offset;
+            size_t size;
+            RegionBits original_cpu;
+        };
+        boost::container::small_vector<Slice, 4> slices;
+        // Allocation/publication precedes locking; preparation can re-enter the
+        // renderer, so this transaction's scratch must remain local.
         IteratePages<true>(query_cpu_range, query_size,
-                           [&func, is_written](RegionManager* manager, u64 offset, size_t size) {
-                               manager->lock.lock();
-                               manager->template ForEachModifiedRange<Type::CPU, true>(
-                                   manager->GetCpuAddr() + offset, size, func);
-                               if (!is_written) {
-                                   manager->lock.unlock();
-                               }
+                           [&](RegionManager* manager, u64 offset, size_t size) {
+                               slices.push_back({manager, offset, size, {}});
                            });
-        on_upload();
-        if (!is_written) {
-            return;
+        const u64 max_bytes = Common::AlignUp(
+            (query_cpu_range & (TRACKER_BYTES_PER_PAGE - 1)) + query_size, TRACKER_BYTES_PER_PAGE);
+        u64 capacity = 0;
+        for (;;) {
+            u64 required = 0;
+            {
+                size_t locked = 0;
+                bool modified = false;
+                bool completed = false;
+                SCOPE_EXIT {
+                    for (size_t i = locked; i > 0; --i) {
+                        auto& slice = slices[i - 1];
+                        if (modified && !completed) {
+                            slice.manager->RestoreCpuTracking(slice.original_cpu);
+                        }
+                        slice.manager->lock.unlock();
+                    }
+                };
+                for (auto& slice : slices) {
+                    slice.manager->lock.lock();
+                    ++locked;
+                    slice.original_cpu = slice.manager->template GetRegionBits<Type::CPU>();
+                    slice.manager->template ForEachModifiedRange<Type::CPU, false>(
+                        slice.manager->GetCpuAddr() + slice.offset, slice.size,
+                        [&](u64, u64 bytes) { required += bytes; });
+                }
+                if (required <= capacity) {
+                    modified = true;
+                    for (auto& slice : slices) {
+                        slice.manager->template ForEachModifiedRange<Type::CPU, true>(
+                            slice.manager->GetCpuAddr() + slice.offset, slice.size, copy_range);
+                    }
+                    if (is_written) {
+                        for (auto& slice : slices) {
+                            slice.manager->template ChangeRegionState<Type::GPU, true>(
+                                slice.manager->GetCpuAddr() + slice.offset, slice.size);
+                        }
+                    }
+                    completed = true;
+                    return required;
+                }
+            }
+            capacity = capacity == 0 ? required : max_bytes;
+            prepare(capacity);
         }
-        IteratePages<false>(query_cpu_range, query_size,
-                            [&func, is_written](RegionManager* manager, u64 offset, size_t size) {
-                                manager->template ChangeRegionState<Type::GPU, true>(
-                                    manager->GetCpuAddr() + offset, size);
-                                manager->lock.unlock();
-                            });
     }
 
     /// Call 'func' for each GPU modified range and unmark those pages as GPU modified

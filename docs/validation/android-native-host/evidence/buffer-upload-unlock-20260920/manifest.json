@@ -1,0 +1,118 @@
+{
+  "raw_local_directory": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/buffer-upload-unlock-20260920",
+  "files": {
+    "final-tests.txt": {
+      "bytes": 562,
+      "sha256": "3f0fc0a4cc0bf8ba4d4c5d3162b6d1df1df9e424d04bb8eae7d1ae0f313ac0f2",
+      "archive": "final-tests.txt.gz",
+      "archive_sha256": "b8fc6b67f330617f96d7d7e470147084868e75c5ee14760ee411351584740624"
+    },
+    "host-build.txt": {
+      "bytes": 916,
+      "sha256": "4ddf929c52cca0fe3fa0e8262d5fb2fb07d87ff39c8c178c1e328a8d1132b86f",
+      "archive": "host-build.txt.gz",
+      "archive_sha256": "9d69fb1354b16bd4670700343f4f6d1d78568286409cac5242f530c7ce2a8c9e"
+    },
+    "apk-build.txt": {
+      "bytes": 21294,
+      "sha256": "4f891c6bcb7b13f824d23ac94ad7571317e0b727c228d3535fafb8fd5f6d5dea",
+      "archive": "apk-build.txt.gz",
+      "archive_sha256": "3cc244cab28e40a646a5de45b42335731262f10796c5d8f2686dc7d9a39bfd12"
+    },
+    "runtime-1.txt": {
+      "bytes": 777,
+      "sha256": "0362859c9d217453bde650386dd8145a3f2cb4f4d3b6f441bf18c71b31af9eb3",
+      "archive": "runtime-1.txt.gz",
+      "archive_sha256": "cb52dee4f589e02a7a15ad884b05b7fe3ed4adc72d25ad8cab4be3492619c682"
+    },
+    "runtime-2.txt": {
+      "bytes": 791,
+      "sha256": "581b10426318824f8998ec46770fb0c0744e00ce1b74bb5002ca4f7f30256663",
+      "archive": "runtime-2.txt.gz",
+      "archive_sha256": "c4d51d5acf16728a3f0552ec0ad7fc0a42d9bfee1660da42db122c509392a8e1"
+    },
+    "unlocked-record.txt": {
+      "bytes": 256,
+      "sha256": "f31c431bf24cac382695f9e8061f48fe4549dca83b2c82acadbf574470361ce2",
+      "archive": "unlocked-record.txt.gz",
+      "archive_sha256": "6c92dbc8924225751073e988d2b11099b768674f5f75f08088b8824267f0060b"
+    },
+    "unlocked-report.txt": {
+      "bytes": 77270,
+      "sha256": "07274276dc0bddd73912d1ad56b2961fa365b8961c4c666598115bfbdf52bd5e",
+      "archive": "unlocked-report.txt.gz",
+      "archive_sha256": "1cfc09be7471ed582f86fac1a79a039a16baf70e35217c4f3d8e35ddcb358a30"
+    },
+    "unlocked-aggregate.txt": {
+      "bytes": 465131,
+      "sha256": "4b2b65d8a5c1862b731087a0dd669fc84b30a1cbc443314b68a83c34810ba0b2",
+      "archive": "unlocked-aggregate.txt.gz",
+      "archive_sha256": "eb6a6ebafc05fe1f75078f4a9468f89445b5c2a161a4ddeffa6dd187f873d61c"
+    },
+    "unlocked-callgraph.txt": {
+      "bytes": 1359546,
+      "sha256": "f312a473b5042ad0e2f837c0d956db0c878d80f7c178a17a80d2324f0f5e54b3",
+      "archive": "unlocked-callgraph.txt.gz",
+      "archive_sha256": "7d6c107ae2b5f60d0843ac20a4a8269439a3d4d6c3893e295e2d48c83be9e080"
+    },
+    "runtime-final.txt": {
+      "bytes": 5181,
+      "sha256": "3011b449184c3ed36301a9b967b87fa9e0ab0d0d87459713c4b8fd76506bcd39",
+      "archive": "runtime-final.txt.gz",
+      "archive_sha256": "d09213859c01a4d52d14ed4cf8647f60739b9cffb576adb733bbd2b922aa179a"
+    },
+    "process-final.txt": {
+      "bytes": 1092,
+      "sha256": "e15776896de6f4af85f39d51e5370dfca1618ad18f0411644e4e960fa8906b7d",
+      "archive": "process-final.txt.gz",
+      "archive_sha256": "0cd391256311351b1173705764c16c252c02a86ca772ab901c68930c11c20f5b"
+    },
+    "stop-first-attempt.txt": {
+      "bytes": 802,
+      "sha256": "b5aec51a70f464b5dfe22e825e06bf507598b3d0ba50fb3a1ac4ae94cfdc37e7",
+      "archive": "stop-first-attempt.txt.gz",
+      "archive_sha256": "ec79e10dcb3841eff70d973b57d9f5a3fc98860bb2543ab6ef3623b0aedb6a92"
+    },
+    "identity.json": {
+      "bytes": 475,
+      "sha256": "bd306605760d2beb8cffd50a94d5a3a086b32a940f598990035b4b548b84fa0d",
+      "archive": "identity.json"
+    },
+    "delivery.json": {
+      "bytes": 759,
+      "sha256": "af796a97238c2826955ac2d11f09ed797c20512e0b3eac77da5ed1149f7c13e8",
+      "archive": "delivery.json"
+    },
+    "unlocked-status.json": {
+      "bytes": 1693,
+      "sha256": "a830aa656e4e5ab4ec9afed6413e581c6008c03d4cca9e44bf855bfad1a3e1be",
+      "archive": "unlocked-status.json"
+    },
+    "runtime-3.png": {
+      "bytes": 1880895,
+      "sha256": "f056cfd1637ceddb858eb0bca72f89463d82aba663d68d9f2f37c4fad6fb3485",
+      "archive": "runtime-3.png"
+    },
+    "runtime-move.png": {
+      "bytes": 1893188,
+      "sha256": "1ed9a5d20f16b4060e9798434f9836942b574e58b24f940b23e2e0d1499e3dfb",
+      "archive": "runtime-move.png"
+    }
+  },
+  "excluded_sample": {
+    "path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/buffer-upload-unlock-20260920/unlocked.data",
+    "bytes": 1532309,
+    "sha256": "fa7020e37f4ac58a323dc62195bb1807b7f49bb89f59129c198ae424cd56a46b"
+  },
+  "source_sha256": {
+    "scripts/android/test-buffer-tracking-locks": "2e5a641c0a82c1ee2d7382bf5708750a288c1d4ce6f70f028b1002ade3aacc39",
+    "src/video_core/buffer_cache/buffer.cpp": "7bb6cb64d912805a2f2a1f9416551d9116f19ddb4523d3e8e007084d4b769419",
+    "src/video_core/buffer_cache/buffer.h": "be1924a79a959e23267397b605ba568e3b2290de5c1c2aca6dc590f9bf8ba06f",
+    "src/video_core/buffer_cache/buffer_cache.cpp": "161d32e0306773f692df82b24bdda319a183d71ca39a3c1409eed94f2022df48",
+    "src/video_core/buffer_cache/buffer_cache.h": "f4aed6b15f00057a9a3cfbdb8dea13c229bcf4ea6e32f3a2abaf057ab8d0f477",
+    "src/video_core/buffer_cache/memory_tracker.h": "2a557612735e636f6efb7ebe9f76c3ed2d0d67f0b8829d4fb212a0a224c22edb",
+    "src/video_core/buffer_cache/region_manager.h": "c2a82dd825947fbbbce28cdb7fbb521ef88f180713eb7f5d0b912a023d7e1180",
+    "tests/common/memory_tracker_concurrency_tests.cpp": "dcc378b585614ef6f050159f11901c555c896f6a78afd578ebc80ad9fd62acd0"
+  },
+  "source_note": "APK 构建后仅调整 buffer_cache.cpp 两处换行缩进；生产逻辑未变。"
+}

@@ -208,6 +208,17 @@ std::pair<u8*, u64> StreamBuffer::Map(u64 size, u64 alignment, bool allow_wait) 
     return {mapped_data.data() + offset, offset};
 }
 
+void StreamBuffer::Commit(u64 used_size) {
+    if (!is_coherent && usage == MemoryUsage::Stream) {
+        used_size = Common::AlignUp(used_size, instance->NonCoherentAtomSize());
+    }
+    ASSERT(used_size <= mapped_size);
+    mapped_size = used_size;
+    if (mapped_size != 0) {
+        Commit();
+    }
+}
+
 void StreamBuffer::Commit() {
     if (!is_coherent) {
         if (usage == MemoryUsage::Download) {

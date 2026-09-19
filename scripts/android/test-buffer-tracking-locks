@@ -26,7 +26,7 @@ def main():
         "-std=c++23", "-O2", "-pthread", "-static-libstdc++", "-DNDEBUG",
         "-DFMT_HEADER_ONLY", "-DSPDLOG_FMT_EXTERNAL",
     ]
-    includes = ["src", "externals/json/include", "externals/fmt/include",
+    includes = ["src", "externals/ext-boost", "externals/json/include", "externals/fmt/include",
                 "externals/spdlog/include", "externals/tracy/public"]
     flags += ["-I" + str(root / path) for path in includes]
     adb = ["adb", "-s", args.serial]

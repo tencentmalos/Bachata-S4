@@ -94,9 +94,8 @@ void BufferCache::AppendMemoryDiagnostics(std::ostream& out) {
 }
 
 void BufferCache::InvalidateMemory(VAddr device_addr, u64 size) {
-    if (!IsRegionRegistered(device_addr, size)) {
-        return;
-    }
+    // A faulting CPU must not read the renderer-owned buffer_ranges tree.
+    // Published tracker regions are stable; absent/unwatched pages are no-ops.
     memory_tracker->InvalidateRegion(
         device_addr, size, [this, device_addr, size] { ReadMemory(device_addr, size, true); });
 }
@@ -468,11 +467,6 @@ std::pair<Buffer*, u32> BufferCache::ObtainBufferForImage(VAddr gpu_addr, u32 si
     return {&staging_buffer, offset};
 }
 
-bool BufferCache::IsRegionRegistered(VAddr addr, size_t size) {
-    // Check if we are missing some edge case here
-    return buffer_ranges.Intersects(addr, size);
-}
-
 bool BufferCache::IsRegionCpuModified(VAddr addr, size_t size) {
     return memory_tracker->IsRegionCpuModified(addr, size);
 }
@@ -694,15 +688,46 @@ bool BufferCache::SynchronizeBuffer(Buffer& buffer, VAddr device_addr, u32 size,
                                     bool is_texel_buffer) {
     boost::container::small_vector<vk::BufferCopy, 4> copies;
     size_t total_size_bytes = 0;
-    VAddr buffer_start = buffer.CpuAddr();
+    const VAddr buffer_start = buffer.CpuAddr();
     vk::Buffer src_buffer = VK_NULL_HANDLE;
-    memory_tracker->ForEachUploadRange(
+    std::unique_ptr<Buffer> temporary;
+    u8* staging = nullptr;
+    u64 staging_offset = 0;
+    const auto uploaded_bytes = memory_tracker->SnapshotForUpload(
         device_addr, size, is_written,
-        [&](u64 device_addr_out, u64 range_size) {
-            copies.emplace_back(total_size_bytes, device_addr_out - buffer_start, range_size);
-            total_size_bytes += range_size;
+        [&](u64 capacity) {
+            // All tracking locks are released here, including on a capacity retry.
+            // Reserve copy metadata too: the snapshot callback must not allocate.
+            copies.reserve(capacity / TRACKER_BYTES_PER_PAGE);
+            temporary.reset();
+            const auto mapped = staging_buffer.Map(capacity);
+            staging = mapped.first;
+            staging_offset = mapped.second;
+            if (!staging) {
+                temporary = std::make_unique<Buffer>(instance, scheduler, MemoryUsage::Upload, 0,
+                                                     vk::BufferUsageFlagBits::eTransferSrc, capacity);
+                staging = temporary->mapped_data.data();
+            }
         },
-        [&] { src_buffer = UploadCopies(buffer, copies, total_size_bytes); });
+        [&](u64 device_addr_out, u64 range_size) {
+            memory->CopySparseMemory(device_addr_out, staging + total_size_bytes, range_size);
+            copies.emplace_back(staging_offset + total_size_bytes, device_addr_out - buffer_start,
+                                range_size);
+            total_size_bytes += range_size;
+        });
+
+    // Vulkan publication/retirement never runs under a tracking lock.
+    if (uploaded_bytes != 0) {
+        if (temporary) {
+            src_buffer = temporary->Handle();
+            vmaFlushAllocation(instance.GetAllocator(), temporary->buffer.allocation, 0,
+                               uploaded_bytes);
+            scheduler.DeferOperation([buffer = std::move(temporary)] {});
+        } else {
+            staging_buffer.Commit(uploaded_bytes);
+            src_buffer = staging_buffer.Handle();
+        }
+    }
 
     if (src_buffer) {
         scheduler.EndRendering();
@@ -744,39 +769,6 @@ bool BufferCache::SynchronizeBuffer(Buffer& buffer, VAddr device_addr, u32 size,
         return SynchronizeBufferFromImage(buffer, device_addr, size);
     }
     return false;
-}
-
-vk::Buffer BufferCache::UploadCopies(Buffer& buffer, std::span<vk::BufferCopy> copies,
-                                     size_t total_size_bytes) {
-    if (copies.empty()) {
-        return VK_NULL_HANDLE;
-    }
-    const auto [staging, offset] = staging_buffer.Map(total_size_bytes);
-    if (staging) {
-        for (auto& copy : copies) {
-            u8* const src_pointer = staging + copy.srcOffset;
-            const VAddr device_addr = buffer.CpuAddr() + copy.dstOffset;
-            memory->CopySparseMemory(device_addr, src_pointer, copy.size);
-            // Apply the staging offset
-            copy.srcOffset += offset;
-        }
-        staging_buffer.Commit();
-        return staging_buffer.Handle();
-    } else {
-        // For large one time transfers use a temporary host buffer.
-        auto temp_buffer =
-            std::make_unique<Buffer>(instance, scheduler, MemoryUsage::Upload, 0,
-                                     vk::BufferUsageFlagBits::eTransferSrc, total_size_bytes);
-        const vk::Buffer src_buffer = temp_buffer->Handle();
-        u8* const staging = temp_buffer->mapped_data.data();
-        for (const auto& copy : copies) {
-            u8* const src_pointer = staging + copy.srcOffset;
-            const VAddr device_addr = buffer.CpuAddr() + copy.dstOffset;
-            memory->CopySparseMemory(device_addr, src_pointer, copy.size);
-        }
-        scheduler.DeferOperation([buffer = std::move(temp_buffer)]() mutable { buffer.reset(); });
-        return src_buffer;
-    }
 }
 
 bool BufferCache::SynchronizeBufferFromImage(Buffer& buffer, VAddr device_addr, u32 size) {

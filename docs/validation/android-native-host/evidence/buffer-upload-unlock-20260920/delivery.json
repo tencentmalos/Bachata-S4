@@ -1,0 +1,27 @@
+{
+  "shadps4": {
+    "head": "f8d264e527ec589c418699d0a4f67b80641bff8b",
+    "branch": "feature/malos/hle_vr",
+    "upstream_delta": "0\t0"
+  },
+  "foundation": {
+    "head": "39a8b9412b27d52d68fcf420f0431432beaac575",
+    "branch": "codex/shadps4-internal-scale",
+    "upstream_delta": "0\t0"
+  },
+  "profiler_sdk": {
+    "head": "e00321ea40c4c608aff74a787200bc59493eea19",
+    "branch": "codex/shadps4-stage-profiler",
+    "upstream_delta": "0\t0"
+  },
+  "dev_tools": {
+    "head": "01e8233bc3c60518985bccdd76b62777828197f9",
+    "branch": "codex/litep-profiler",
+    "upstream_delta": "0\t0"
+  },
+  "analysis_engine": {
+    "head": "4f5a316aaaf2dc226ff37db58239ae26b117e03f",
+    "branch": "codex/litep-analysis-engine",
+    "upstream_delta": "0\t0"
+  }
+}

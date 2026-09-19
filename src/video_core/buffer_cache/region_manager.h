@@ -24,8 +24,7 @@
 namespace VideoCore {
 
 #if defined(__ANDROID__)
-// Uploads can wait for staging retirement while holding a region. Faulting
-// guest writers must sleep rather than spin on Bionic's adaptive-mutex fallback.
+// Faulting guest writers sleep while another thread snapshots/tracks this region.
 using LockType = Common::FutexMutex;
 #elif defined(PTHREAD_ADAPTIVE_MUTEX_INITIALIZER_NP)
 using LockType = Common::AdaptiveMutex;
@@ -60,6 +59,13 @@ public:
 
     VAddr GetCpuAddr() const {
         return cpu_addr;
+    }
+
+    // Roll back an aborted snapshot while the region is still exclusively held.
+    // GPU ownership is published only after every copy in the transaction succeeds.
+    void RestoreCpuTracking(const RegionBits& original) {
+        cpu = original;
+        UpdateProtection<false, false>();
     }
 
     static constexpr size_t SanitizeAddress(size_t address) {
