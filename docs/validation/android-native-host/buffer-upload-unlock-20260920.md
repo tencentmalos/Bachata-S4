@@ -2,6 +2,8 @@
 
 日期：2026-09-20。分支：`feature/malos/hle_vr`。承接 [Azahar/Citron 对照](buffer-cache-concurrency-comparison-20260920.md)；旧工作先在 `f8d264e5` 提交、推送，再创建新分支实施本轮改造。跨仓交付见 [交付记录](git-delivery-20260920.md)。
 
+> 补充：同版本真正进入诊所后的 Litep/KGSL 联合分析已完成，见 [场景卡点报告](buffer-upload-litep-20260920.md)。不能用本页 native 采样代替该分析。
+
 ## 本轮结果
 
 `StreamBuffer::Map` 的 staging 分配、容量背压和 GPU 退役等待，已移出全部 `RegionManager` 脏页锁。CPU 缺页入口不再遍历 renderer 正在修改的 `buffer_ranges`。原有 CPU/GPU 数据所有权、必要的上传复制和 GPU 完成约束继续保留。
