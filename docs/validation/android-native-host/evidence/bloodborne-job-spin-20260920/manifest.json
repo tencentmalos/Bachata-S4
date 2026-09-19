@@ -1,0 +1,210 @@
+{
+  "schema": "shadps4.validation-evidence.v1",
+  "basis": "Exact runtime capture and static original ELF; no production optimization this batch",
+  "files": [
+    {
+      "source": "build/validation/bloodborne-longwait-20260920/job-summary.json",
+      "sha256": "5f5393354b18917b3bdc7e3aeee2c845e93dd8f34b44d9669e1dc61e4ddac15a",
+      "bytes": 78651,
+      "archived": "job-summary.json.gz"
+    },
+    {
+      "source": "build/validation/bloodborne-longwait-20260920/long-task-waits.json",
+      "sha256": "162a8cd5a9a86fd8b23621bfff555c70ce44b2447129c87c929dd665081dcee3",
+      "bytes": 42219,
+      "archived": "long-task-waits.json.gz"
+    },
+    {
+      "source": "build/validation/bloodborne-longwait-20260920/spin-budget-evidence.json",
+      "sha256": "b437adcce55683d0da0d08694964842a76778a55580dbc34314a095a120a3a55",
+      "bytes": 503,
+      "archived": "spin-budget-evidence.json.gz"
+    },
+    {
+      "source": "build/validation/bloodborne-longwait-20260920/probe-ab.json",
+      "sha256": "8a70f54c77e18a40ad56dd58ca1c51315ccedbd1ad15e828783797b05ef70cbc",
+      "bytes": 5791,
+      "archived": "probe-ab.json.gz"
+    },
+    {
+      "source": "build/validation/bloodborne-longwait-20260920/probe-status-delta.json",
+      "sha256": "d9f39d2aefb176c6544a9ab19d5366662eb512053fbb61d3d20e3f061654c306",
+      "bytes": 30624,
+      "archived": "probe-status-delta.json.gz"
+    },
+    {
+      "source": "build/validation/bloodborne-longwait-20260920/scene-off-status.json",
+      "sha256": "e06366b1489099081b15507d9de06485c0ce6f8ba38ed7856486f5f3b35132f3",
+      "bytes": 1711,
+      "archived": "scene-off-status.json.gz"
+    },
+    {
+      "source": "build/validation/bloodborne-longwait-20260920/scene-off-report.txt",
+      "sha256": "4a69e3253e7f7b90ba6eea8c2d5c28ce60eaa4b3aedcd432a8a7e1235014c428",
+      "bytes": 54184,
+      "archived": "scene-off-report.txt.gz"
+    },
+    {
+      "source": "build/validation/bloodborne-longwait-20260920/guest-tool-tests.txt",
+      "sha256": "c5fbb8b211d73b44ad3efbc87fec032af46006dd99b851d326647eadad64209d",
+      "bytes": 4246,
+      "archived": "guest-tool-tests.txt.gz"
+    },
+    {
+      "source": "build/validation/bloodborne-longwait-20260920/final-status.txt",
+      "sha256": "7781931e69e06bae8eef97590c49ad506dc5143b344cd6f3768b1c585850e876",
+      "bytes": 5193,
+      "archived": "final-status.txt.gz"
+    },
+    {
+      "source": "build/validation/bloodborne-longwait-20260920/final-capture.txt",
+      "sha256": "8f073630313843dd105a0a527af6496a18b5b9adc6112663f556ae6d0214e9f3",
+      "bytes": 537,
+      "archived": "final-capture.txt.gz"
+    },
+    {
+      "source": "build/validation/bloodborne-longwait-20260920/final-ring.txt",
+      "sha256": "fabbb571d87a38a4480c094170cf9019ac4b7164158fb1535e6f25b0f9bd43a5",
+      "bytes": 424,
+      "archived": "final-ring.txt.gz"
+    },
+    {
+      "source": "build/validation/bloodborne-longwait-20260920/kgsl-jobs/capture.json",
+      "sha256": "7b12925c61b401c82fade668484d687dcafbb1e365486a786e92095bea3fbab1",
+      "bytes": 3898,
+      "archived": "kgsl-jobs--capture.json.gz"
+    },
+    {
+      "source": "build/validation/bloodborne-longwait-20260920/kgsl-jobs/anchor-start.txt",
+      "sha256": "2933a2aee021226a740ba25aade5d06df77a16bd0b709e950d18ced3f0cdcd61",
+      "bytes": 107,
+      "archived": "kgsl-jobs--anchor-start.txt.gz"
+    },
+    {
+      "source": "build/validation/bloodborne-longwait-20260920/kgsl-jobs/anchor-end.txt",
+      "sha256": "d64f2e18dc2d828eda29877c0c5f82064538a6a4fe2676adce1bdeef30632651",
+      "bytes": 105,
+      "archived": "kgsl-jobs--anchor-end.txt.gz"
+    },
+    {
+      "source": "build/validation/bloodborne-longwait-20260920/aligned-analysis/index-status.json",
+      "sha256": "384916f04cb877639c0037fb4af30bacdce919b34728fd9d837beb518749e53d",
+      "bytes": 3796,
+      "archived": "aligned-analysis--index-status.json.gz"
+    },
+    {
+      "source": "build/validation/bloodborne-longwait-20260920/aligned-analysis/cpu-gpu.json",
+      "sha256": "0a6bab1b041d137ac7dffbb9bfb3d3ca03811d38a0ae2097d4ed3b77cd125224",
+      "bytes": 90849,
+      "archived": "aligned-analysis--cpu-gpu.json.gz"
+    },
+    {
+      "source": "build/validation/bloodborne-longwait-20260920/aligned-analysis/async.json",
+      "sha256": "6f3d2c28c65b16290c1c4cf81ab1ec4ffc21dc815fdf76f74c0e2694202cbe2f",
+      "bytes": 16200,
+      "archived": "aligned-analysis--async.json.gz"
+    },
+    {
+      "source": "build/validation/bloodborne-longwait-20260920/aligned-analysis/frame-22349.json",
+      "sha256": "d2ee6bc381ecc13bb210b34554aa74cd68d326d8a9b864ffd9d61ff263bc141e",
+      "bytes": 139085,
+      "archived": "aligned-analysis--frame-22349.json.gz"
+    },
+    {
+      "source": "build/validation/bloodborne-longwait-20260920/probe-analysis-workers/batch.json",
+      "sha256": "874557a597c680ceab7a19f469a2230cca50ae984700e62e13cd32496957ae3f",
+      "bytes": 621,
+      "archived": "probe-analysis-workers--batch.json.gz"
+    },
+    {
+      "source": "build/validation/bloodborne-longwait-20260920/probe-analysis-workers/next-probes.request.json",
+      "sha256": "69f56b0c4e7deb77676509969db8a849d543194fa02eb889dee466fa44aa0442",
+      "bytes": 1027,
+      "archived": "probe-analysis-workers--next-probes.request.json.gz"
+    },
+    {
+      "source": "build/validation/bloodborne-longwait-20260920/capture/capture.json",
+      "sha256": "9cf31007d5a08a2fb06ce34c08bc3a4112fb7d0ea32e7053718b67cb9dd117d4",
+      "bytes": 1487,
+      "archived": "capture--capture.json.gz"
+    },
+    {
+      "source": "build/validation/bloodborne-longwait-20260920/capture/capture.prof",
+      "sha256": "4ee111141ebf5ddd7255be205c508f13a798d9881e375727d372496b0bd6293b",
+      "bytes": 31865079,
+      "archived": false
+    },
+    {
+      "source": "build/validation/bloodborne-longwait-20260920/kgsl-jobs/kgsl_trace.txt.gz",
+      "sha256": "360c0abe487f1309bbcaf321415fb8a7deed25cef5305dbe633f178bcf84df00",
+      "bytes": 87383253,
+      "archived": false
+    },
+    {
+      "source": "build/validation/bloodborne-longwait-20260920/scene-off.data",
+      "sha256": "f12a863e76fecf3c3e0b4b5f0130b46888ce67dfb990b213816da39e0ec5470c",
+      "bytes": 1993238,
+      "archived": false
+    },
+    {
+      "source": "build/validation/bloodborne-longwait-20260920/probes-v3/auto-tag.json",
+      "sha256": "f9f61fc96e255b7c02ec3aff8e7e01323436cdded13f8a6a66f836dcb2634e8a",
+      "bytes": 127520,
+      "archived": false
+    },
+    {
+      "source": "build/validation/bloodborne-longwait-20260920/wrapper-smoke.json",
+      "sha256": "7b69765288b6988625d7ecab1a78e9d4e9ff2c75086d830bd2a6e1dc044bce55",
+      "bytes": 1674,
+      "archived": "wrapper-smoke.json.gz"
+    },
+    {
+      "source": "build/validation/bloodborne-longwait-20260920/codex-integration.json",
+      "sha256": "7bc06c70959b640664f7a3eec1a704459ee7d2f17218b849a57ff7adedf67655",
+      "bytes": 400,
+      "archived": "codex-integration.json.gz"
+    },
+    {
+      "source": "build/validation/bloodborne-longwait-20260920/installed-batch-response.json",
+      "sha256": "2be6278b7e1d1c3163d8d7e1d71b1ef1c590135014ee8f81b4fe7f5c2b4756f8",
+      "bytes": 669,
+      "archived": "installed-batch-response.json.gz"
+    },
+    {
+      "source": "build/validation/bloodborne-longwait-20260920/installed-batch/batch.json",
+      "sha256": "fed3f6a41b4d838c0c68779b0d1ea46d4d8f13f1cbed858d32b4829948c957f4",
+      "bytes": 607,
+      "archived": "installed-batch--batch.json.gz"
+    },
+    {
+      "source": "build/validation/bloodborne-longwait-20260920/installed-batch/next-probes.request.json",
+      "sha256": "1b13dd77513d5c53bda7c1364055b7cfa1e6ca6c3d8aca12fb582c1d3a4dc659",
+      "bytes": 1239,
+      "archived": "installed-batch--next-probes.request.json.gz"
+    },
+    {
+      "source": "build/validation/bloodborne-longwait-20260920/join-jobs.py",
+      "sha256": "c472f677bf7aa8a9b47a1fdddb4931eb7f7885bc17e709d20b4cf0b9bb966ca6",
+      "bytes": 4414,
+      "archived": "join-jobs.py.gz"
+    },
+    {
+      "source": "build/validation/bloodborne-longwait-20260920/spin-budget.py",
+      "sha256": "c1986efd6b810d1f18978a5c09e283976a98b881138106f932fe0593d274282c",
+      "bytes": 1709,
+      "archived": "spin-budget.py.gz"
+    },
+    {
+      "source": "build/validation/bloodborne-longwait-20260920/final-proc-status.txt",
+      "sha256": "f1b4520250585a4471f4ec1a09f825654b73f6a3ce2b4799b7b0b30afd9733d2",
+      "bytes": 1096,
+      "archived": "final-proc-status.txt.gz"
+    },
+    {
+      "source": "build/validation/bloodborne-longwait-20260920/scene-response.png",
+      "sha256": "0a94fa6bbd7cd5f75b7ded1e623db225148e4555839ca90a4da01d62598be4b6",
+      "bytes": 1877482,
+      "archived": "scene-visible.png"
+    }
+  ]
+}

@@ -93,7 +93,257 @@
         "构造与D0同类任务，member pointer=0xe9 表示虚表偏移0xe8；不能用同一worker名称归因任务。"
       ],
       "comment": "详见 docs/validation/android-native-host/bloodborne-buffer-tracking-locks-20260919.md；仅语义标定，ABI/函数范围未完整证明，不可直接替换执行。"
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x2037b80",
+      "segment": "text",
+      "name": "Bloodborne_DLAdaptiveMutex_Initialize",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "构造 mutex+8 的有符号 TSC 自旋预算；负参数取200000。+0x203281f 在 CSEzWork 队列内联构造时直接写200000。"
+      ],
+      "comment": "参见 docs/validation/android-native-host/bloodborne-job-spin-20260920.md；重建语义，不是厂商符号，未作为guest替换部署。"
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x2037cb0",
+      "segment": "text",
+      "name": "Bloodborne_DLAdaptiveMutex_Lock",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "correlated",
+      "evidence": [
+        "原始 RELA：最终队列 mutex vtable+0x53a1990 的 +0x18 指向本函数。RDTSC deadline、低40位owner/高24位waiter CAS、超时 WaitSema；+0x20336f3 实际取锁15,973次。551次进入semaphore前中位10.427751ms，与19.2MHz下200000ticks吻合。"
+      ],
+      "comment": "参见 docs/validation/android-native-host/bloodborne-job-spin-20260920.md；重建语义，不是厂商符号，未作为guest替换部署。"
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x2037da0",
+      "segment": "text",
+      "name": "Bloodborne_DLAdaptiveMutex_TryLock",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "原始 RELA +0x53a19b0；同owner/waiter布局，单轮CAS重试，返回0或-2，不进入semaphore。未单独动态计时。"
+      ],
+      "comment": "参见 docs/validation/android-native-host/bloodborne-job-spin-20260920.md；重建语义，不是厂商符号，未作为guest替换部署。"
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x2037e30",
+      "segment": "text",
+      "name": "Bloodborne_DLAdaptiveMutex_Unlock",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "correlated",
+      "evidence": [
+        "原始 RELA：最终队列 mutex vtable+0x28；无waiter清owner，有waiter减计数并写40位哨兵，再SignalSema(1)。队列释放调用点+0x203373f。"
+      ],
+      "comment": "参见 docs/validation/android-native-host/bloodborne-job-spin-20260920.md；重建语义，不是厂商符号，未作为guest替换部署。"
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x207cb10",
+      "segment": "text",
+      "name": "Bloodborne_FindOwningAllocatorForTask",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "correlated",
+      "evidence": [
+        "静态TLS范围快查，否则在全局DLReadWriteLock下查分配器范围表。实际+0x2033827调用12503次，1409.30ms elapsed，含533.03ms CPU；不是全为算法CPU。"
+      ],
+      "comment": "参见 docs/validation/android-native-host/bloodborne-job-spin-20260920.md；重建语义，不是厂商符号，未作为guest替换部署。"
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x1a656e0",
+      "segment": "text",
+      "name": "Bloodborne_EnqueueCharacterVirtualTask108",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "correlated",
+      "evidence": [
+        "构造48字节成员任务，member pointer=0x109；该次运行entry161742次，与+0x18c0030 entry一致。相同次数不替代逐对象关联。"
+      ],
+      "comment": "参见 docs/validation/android-native-host/bloodborne-job-spin-20260920.md；重建语义，不是厂商符号，未作为guest替换部署。"
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x1a66390",
+      "segment": "text",
+      "name": "Bloodborne_ExecuteCharacterMemberTask",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "correlated",
+      "evidence": [
+        "成员任务execute：this+0x18、member指针+0x20、adjustment+0x28；低位1表示虚表偏移。entry176450次。"
+      ],
+      "comment": "参见 docs/validation/android-native-host/bloodborne-job-spin-20260920.md；重建语义，不是厂商符号，未作为guest替换部署。"
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x18c0030",
+      "segment": "text",
+      "name": "Bloodborne_CharacterVirtual108Dispatch",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "correlated",
+      "evidence": [
+        "原始RELA定位候选vtable槽108，静态读取this后跳转虚表+0x150；entry161742次。实际+0x150目标的对象身份尚未读取，不把候选18ca2a0/18e6b20当已证实。"
+      ],
+      "comment": "参见 docs/validation/android-native-host/bloodborne-job-spin-20260920.md；重建语义，不是厂商符号，未作为guest替换部署。"
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x1a657f0",
+      "segment": "text",
+      "name": "Bloodborne_EnqueueTargetBankMemberTask",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "correlated",
+      "evidence": [
+        "静态48字节任务指向TargetBank单例和+0x12a4680；该目标entry919次。旧探针标签EnqueuePhaseSetup保留以维持采集SHA。"
+      ],
+      "comment": "参见 docs/validation/android-native-host/bloodborne-job-spin-20260920.md；重建语义，不是厂商符号，未作为guest替换部署。"
     }
   ],
-  "types": []
+  "types": [
+    {
+      "name": "BloodborneDLAdaptiveMutex",
+      "kind": "struct",
+      "size": 32,
+      "confidence": "correlated",
+      "c_declaration": "typedef struct BloodborneDLAdaptiveMutex { uint64_t vtable; int32_t spin_ticks; uint32_t unknown_0c; uint64_t semaphore; uint64_t owner_waiters; } BloodborneDLAdaptiveMutex;",
+      "evidence": [
+        "原始机器码和RELA布局校验；实例地址不写入符号。字段布局不是并发替换等价性证明。"
+      ],
+      "fields": [
+        {
+          "name": "vtable",
+          "offset": "0x0",
+          "type": "uint64_t",
+          "confidence": "correlated",
+          "evidence": [
+            "构造0x2037b86；队列最终替换为0x53a1990，Lock/Unlock仍继承同一入口。"
+          ]
+        },
+        {
+          "name": "spin_ticks",
+          "offset": "0x8",
+          "type": "int32_t",
+          "confidence": "correlated",
+          "evidence": [
+            "Lock+0x2037d03使用movslq；队列+0x203281f写200000。"
+          ]
+        },
+        {
+          "name": "unknown_0c",
+          "offset": "0xc",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "布局占位，语义未知，不据此做写入。"
+          ]
+        },
+        {
+          "name": "semaphore",
+          "offset": "0x10",
+          "type": "uint64_t",
+          "confidence": "correlated",
+          "evidence": [
+            "Lock+0x2037d68读取，WaitSema(1,null)；Unlock+0x2037e96读取后SignalSema(1)。"
+          ]
+        },
+        {
+          "name": "owner_waiters",
+          "offset": "0x18",
+          "type": "uint64_t",
+          "confidence": "correlated",
+          "evidence": [
+            "锁定CAS；低40位线程owner，高24位waiter；Unlock有waiter时以低40位全1哨兵交接。"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "BloodborneCharacterMemberTask",
+      "kind": "struct",
+      "size": 48,
+      "confidence": "correlated",
+      "c_declaration": "typedef struct BloodborneCharacterMemberTask { uint64_t vtable; uint64_t group; uint32_t retirement_mode; uint32_t unknown_14; uint64_t object; uint64_t member_pointer; int64_t this_adjustment; } BloodborneCharacterMemberTask;",
+      "evidence": [
+        "48字节分配和成员函数表示来自原始ELF；计时只观察执行，没有修改任务内容。"
+      ],
+      "fields": [
+        {
+          "name": "vtable",
+          "offset": "0x0",
+          "type": "uint64_t",
+          "confidence": "correlated",
+          "evidence": [
+            "成员任务构造+0x1a656e0和execute+0x1a66390；task执行槽+0x10。"
+          ]
+        },
+        {
+          "name": "group",
+          "offset": "0x8",
+          "type": "uint64_t",
+          "confidence": "correlated",
+          "evidence": [
+            "构造保存组指针，executor在回调后减少group+0x30。"
+          ]
+        },
+        {
+          "name": "retirement_mode",
+          "offset": "0x10",
+          "type": "uint32_t",
+          "confidence": "correlated",
+          "evidence": [
+            "executor+0x20337be读取低32位，控制删除/引用释放路径。"
+          ]
+        },
+        {
+          "name": "unknown_14",
+          "offset": "0x14",
+          "type": "uint32_t",
+          "confidence": "candidate",
+          "evidence": [
+            "占位，未推断语义。"
+          ]
+        },
+        {
+          "name": "object",
+          "offset": "0x18",
+          "type": "uint64_t",
+          "confidence": "correlated",
+          "evidence": [
+            "execute加载this。"
+          ]
+        },
+        {
+          "name": "member_pointer",
+          "offset": "0x20",
+          "type": "uint64_t",
+          "confidence": "correlated",
+          "evidence": [
+            "0x109表示虚表偏移0x108；低位0为直接成员目标。"
+          ]
+        },
+        {
+          "name": "this_adjustment",
+          "offset": "0x28",
+          "type": "int64_t",
+          "confidence": "correlated",
+          "evidence": [
+            "execute在调度前加到this，当前构造写0。"
+          ]
+        }
+      ]
+    }
+  ]
 }

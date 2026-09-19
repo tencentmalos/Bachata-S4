@@ -1,7 +1,7 @@
 {
   "schema": "spatial.guest-symbol-index.v2",
   "bundle_id": "bloodborne-cusa03023-0100",
-  "revision": 1,
+  "revision": 2,
   "targets": [
     {
       "target_id": "bloodborne-0100-eboot",
@@ -25,7 +25,7 @@
     {
       "target_id": "bloodborne-0100-eboot",
       "path": "cpu-job-waits.symbols.json",
-      "sha256": "1fae46fa4951611c848d045704780b848454c61a672ac3c6cba49260820551b0"
+      "sha256": "fea464c7ea690674e32c6bac4a40a05fbe4e7d109c4d08e9b94ea8385eb76f4c"
     }
   ],
   "annotations": {
