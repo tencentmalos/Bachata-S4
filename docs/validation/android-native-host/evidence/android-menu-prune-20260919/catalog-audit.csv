@@ -1,0 +1,207 @@
+来源,ID,旧菜单分类,处理,核对结果
+shadps4,audio.audio_backend,Audio,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,audio.openal_main_output_device,Audio,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,audio.openal_mic_device,Audio,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,audio.openal_padSpk_output_device,Audio,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,audio.sdl_main_output_device,Audio,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,audio.sdl_mic_device,Audio,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,audio.sdl_padSpk_output_device,Audio,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,debug.config_version,Debug,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,debug.debug_dump,Debug,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,debug.shader_collect,Debug,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,general.addon_install_dir,General,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,general.big_picture_scale,General,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,general.connected_to_network,General,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,general.console_language,General,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,general.dev_kit_mode,General,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,general.discord_rpc_enabled,General,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,general.enable_upnp,General,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,general.extra_dmem_in_mbytes,General,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,general.font_dir,General,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,general.home_dir,General,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,general.install_dirs,General,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,general.neo_mode,General,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,general.shad_net_enabled,General,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,general.shadnet_server,General,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,general.show_fps_counter,General,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,general.show_splash,General,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,general.signaling_addr,General,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,general.signaling_port,General,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,general.sys_modules_dir,General,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,general.trophy_notification_duration,General,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,general.trophy_notification_side,General,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,general.trophy_popup_disabled,General,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,general.volume_slider,General,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,gpu.copy_gpu_buffers,GPU,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,gpu.direct_memory_access_enabled,GPU,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,gpu.dump_shaders,GPU,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,gpu.shading_quality,GPU,保留,FexSessionService 显式解析并调用原生 setter
+shadps4,gpu.internal_scale,GPU,保留,FexSessionService 显式解析并调用原生 setter
+shadps4,gpu.fsr_enabled,GPU,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,gpu.full_screen,GPU,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,gpu.full_screen_mode,GPU,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,gpu.hdr_allowed,GPU,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,gpu.internal_screen_height,GPU,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,gpu.internal_screen_width,GPU,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,gpu.null_gpu,GPU,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,gpu.patch_shaders,GPU,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,gpu.present_mode,GPU,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,gpu.rcas_attenuation,GPU,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,gpu.rcas_enabled,GPU,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,gpu.readback_linear_images_enabled,GPU,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,gpu.readbacks_mode,GPU,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,gpu.vblank_frequency,GPU,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,gpu.window_height,GPU,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,gpu.window_width,GPU,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,input.background_controller_input,Input,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,input.camera_id,Input,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,input.cursor_hide_timeout,Input,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,input.cursor_state,Input,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,input.default_controller_id,Input,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,input.ime_accessibility_enabled,Input,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,input.ime_url_mail_short_panel,Input,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,input.is_circle_enter,Input,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,input.motion_controls_enabled,Input,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,input.special_pad_class,Input,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,input.usb_device_backend,Input,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,input.use_mice_as_mice,Input,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,input.use_special_pad,Input,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,input.use_unified_input_config,Input,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,log.append,Log,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,log.enable,Log,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,log.filter,Log,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,log.max_skip_duration,Log,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,log.separate,Log,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,log.size_limit,Log,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,log.skip_duplicate,Log,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,log.sync,Log,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,log.type,Log,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,vulkan.gpu_id,Vulkan,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,vulkan.pipeline_cache_archived,Vulkan,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,vulkan.pipeline_cache_enabled,Vulkan,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,vulkan.renderdoc_enabled,Vulkan,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,vulkan.vkcrash_diagnostic_enabled,Vulkan,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,vulkan.vkguest_markers,Vulkan,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,vulkan.vkhost_markers,Vulkan,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,vulkan.vkvalidation_core_enabled,Vulkan,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,vulkan.vkvalidation_enabled,Vulkan,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,vulkan.vkvalidation_gpu_enabled,Vulkan,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+shadps4,vulkan.vkvalidation_sync_enabled,Vulkan,移除菜单,当前 Android 启动链未消费该 profile.values 项；桌面存在同名实现不等于 Android 设置生效
+box64,box64.args,Arguments,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.inprocessgpu,Arguments,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.insert_args,Arguments,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.nosandbox,Arguments,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.aes,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.arch,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.avx,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.bash,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.cputype,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.crashhandler,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_bleeding_edge,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_div0,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_interp_signal,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_tbb,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_x87double,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.exit,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.fix_64bit_inodes,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.force_ld_preload,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.ignoreint3,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.jvm,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.libcef,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.malloc_hack,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.maxcpu,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.nopersona32bits,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.norcfiles,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.path,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.pclmulqdq,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.profile,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.python3,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.rcfile,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.rdtsc_inv,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.reserve_high,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.sdl2_jguid,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.shaext,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.sse_flushto0,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.sse42,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.steam_vulkan,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.sync_rounding,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.unity,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.unityplayer,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.x11glx,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.x11sync,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.x11threads,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.x87_no80bits,Compatibility,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dlsym_error,Debugging,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dump,Debugging,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_dump,Debugging,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_dump_range,Debugging,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_gdbjit,Debugging,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_log,Debugging,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_missing,Debugging,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_nohostext,Debugging,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_perfmap,Debugging,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_test,Debugging,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_test_nodump,Debugging,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_test_nodup,Debugging,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_trace,Debugging,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.jitgdb,Debugging,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.load_addr,Debugging,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.log,Debugging,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.nobanner,Debugging,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.nodynarec,Debugging,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.nodynarec_delay,Debugging,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.nosigill,Debugging,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.nosigsegv,Debugging,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.rolling_log,Debugging,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.showbt,Debugging,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.showsegv,Debugging,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.trace,Debugging,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.trace_color,Debugging,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.trace_emm,Debugging,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.trace_file,Debugging,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.trace_init,Debugging,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.trace_start,Debugging,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.trace_xmm,Debugging,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.env,Environment,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.env_1_5,Environment,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_purge,Fragile or Legacy,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_purge_age,Fragile or Legacy,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_wait,Fragile or Legacy,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_weakbarrier,Fragile or Legacy,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.addlibs,Libraries,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.allowmissinglibs,Libraries,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.emulated_libs,Libraries,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.ld_library_path,Libraries,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.ld_preload,Libraries,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.libgl,Libraries,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.nogtk,Libraries,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.nopulse,Libraries,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.novulkan,Libraries,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.novulkanoverlay,Libraries,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.prefer_emulated,Libraries,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.prefer_wrapped,Libraries,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.wrap_egl,Libraries,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynacache,Performance,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynacache_compress,Performance,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynacache_folder,Performance,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynacache_limit,Performance,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynacache_min,Performance,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec,Performance,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_aligned_atomics,Performance,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_bigblock,Performance,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_callret,Performance,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_df,Performance,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_dirty,Performance,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_fastnan,Performance,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_fastround,Performance,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_forward,Performance,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_nativeflags,Performance,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_noarch,Performance,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_nohotpage,Performance,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_pause,Performance,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_safeflags,Performance,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_sep,Performance,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_strongmem,Performance,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.dynarec_volatile_metadata,Performance,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.mmap32,Performance,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端
+box64,box64.rdtsc_1ghz,Performance,移除菜单,当前启动固定使用 FEXCore，无 Box64 执行后端

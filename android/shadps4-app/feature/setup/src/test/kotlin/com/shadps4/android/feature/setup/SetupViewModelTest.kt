@@ -15,10 +15,7 @@ class SetupViewModelTest {
 
     @Test
     fun anyDeviceReportsDetectedSocAndGpuWithoutBlocking() {
-        val context = object : ContextWrapper(null) {
-            override fun getFilesDir(): File = temporaryFolder.root
-        }
-        val viewModel = SetupViewModel(downloadRuntime = true, context = context)
+        val viewModel = SetupViewModel()
 
         viewModel.updateDeviceProfile(DeviceProfile(soc = "SM8150", gpu = "Adreno 640", supported = true))
 
@@ -26,8 +23,8 @@ class SetupViewModelTest {
         assertEquals("SM8150", state.deviceProfile.soc)
         assertEquals("Adreno 640", state.deviceProfile.gpu)
         assertTrue(state.deviceProfile.supported)
-        // Runtime still required before continue.
-        assertFalse(state.canEnterLibrary)
+        // The native FEX runtime is built into the APK.
+        assertTrue(state.canEnterLibrary)
     }
 
     @Test

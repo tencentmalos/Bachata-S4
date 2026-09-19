@@ -1,0 +1,18 @@
+SERVICE com.shadps4.android/.service.FexSessionService d35abc7 pid=4717 user=0
+  Client:
+    cache_epoch=1 request_id=8 completed_id=8 pending=false
+    status=sampled sample_ns=603691024405538 scale_percent=50
+    vma_block_bytes=2618540032 vma_allocation_bytes=2156376064 vma_unused_block_bytes=462163968 blocks=171 allocations=788
+    images=attachment/uncompressed/native count=1 backings=1 allocation_bytes=8294400 guest_layout_bytes=8355840
+    images=attachment/uncompressed/scaled count=82 backings=82 allocation_bytes=41525248 guest_layout_bytes=163020800
+    images=sampled/ASTC/scaled count=2 backings=2 allocation_bytes=90112 guest_layout_bytes=262144
+    images=sampled/BC/native count=3 backings=3 allocation_bytes=12288 guest_layout_bytes=218112
+    images=sampled/BC/scaled count=346 backings=346 allocation_bytes=60502016 guest_layout_bytes=205978624
+    images=sampled/uncompressed/native count=5 backings=5 allocation_bytes=24576 guest_layout_bytes=167424
+    images=sampled/uncompressed/scaled count=35 backings=35 allocation_bytes=5763072 guest_layout_bytes=23216896
+    cached_image_allocation_bytes=116211712
+    scale_upload_image_bytes=220512256 scale_upload_created_bytes=263607570432 scale_upload_created_count=80380
+    notes=guest_layout_bytes_is_not_resident_RAM; VMA_includes_buffers_and_pending_resources; cached_images_include_pending_cache_deletion; host_snapshot_is_not_GPU_idle
+    guest_buffer_count=161 guest_buffer_allocation_bytes=202620928
+    utility_buffer_allocation_bytes=1308688384
+    staging_requested_bytes=536870912 stream_requested_bytes=67108864 download_requested_bytes=33554432 device_requested_bytes=134217728 bda_page_table_requested_bytes=536870912

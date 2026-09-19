@@ -2,10 +2,10 @@ package com.shadps4.android.feature.settings
 
 import com.shadps4.android.data.RuntimeProfileStore
 import com.shadps4.android.runtime.settings.ProfileScope
+import com.shadps4.android.runtime.settings.ConsoleLanguage
 import com.shadps4.android.runtime.settings.InternalScale
 import com.shadps4.android.runtime.settings.RuntimeProfile
 import com.shadps4.android.runtime.settings.RuntimeSettingCatalog
-import com.shadps4.android.runtime.settings.RuntimeGuestBackend
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -41,63 +41,63 @@ class SettingsViewModelTest {
     private fun viewModel() = SettingsViewModel(RuntimeProfileStore(temporaryFolder.root))
 
     @Test
-    fun exposesEveryCatalogEntryAndFiltersByNativeKey() {
-        val viewModel = viewModel()
-        assertEquals(RuntimeSettingCatalog.loadFromResources().shadPs4, viewModel.state.value.settings)
-        viewModel.search("BOX64_LOG")
-        assertTrue(viewModel.state.value.settings.isEmpty())
-        viewModel.selectRuntime(SettingsRuntime.BOX64)
-        assertEquals(listOf("BOX64_LOG"), viewModel.state.value.settings.map { it.nativeKey })
-    }
-
-    @Test
-    fun diagnosticExportHasRevisionsButNoAbsoluteGamePaths() {
-        val viewModel = viewModel()
-        viewModel.setDiagnostics("runtime-abc123", "vk-uuid", listOf("CUSA00002", "CUSA00001"))
-        val export = viewModel.diagnosticExport()
-        assertTrue(export.contains("runtimeRevision=runtime-abc123"))
-        assertTrue(export.contains("vulkanUuid=vk-uuid"))
-        assertTrue(export.contains("gameIds=CUSA00001,CUSA00002"))
-        assertFalse(export.contains("/"))
-    }
-
-    @Test
-    fun selectedCategoryFiltersTheActiveRuntimeWithoutChangingScope() {
-        val viewModel = viewModel()
-
-        viewModel.selectCategory("Audio")
-
-        assertTrue(viewModel.state.value.settings.isNotEmpty())
-        assertTrue(viewModel.state.value.settings.all { it.category == "Audio" })
-        assertEquals(ProfileScope.Global, viewModel.state.value.scope)
-    }
-
-    @Test
-    fun setsGlobalGuestBackend() = runTest(dispatcher) {
+    fun languageEditorFeedsNamedSelectionToNativeAndInheritsGlobal() = runTest(dispatcher) {
         val store = RuntimeProfileStore(temporaryFolder.root)
-        val viewModel = SettingsViewModel(store)
+        store.update(ProfileScope.Global) { it.copy(values = mapOf(ConsoleLanguage.ID to JsonPrimitive("繁體中文"))) }
+        val model = SettingsViewModel(store)
+        val scope = ProfileScope.Game("CUSA03023")
+        model.selectScope(scope)
         advanceUntilIdle()
-
-        viewModel.setGuestBackend(RuntimeGuestBackend.BOX64)
+        val spec = model.state.value.settings.single { it.id == ConsoleLanguage.ID }
+        assertEquals(JsonPrimitive("繁體中文"), model.state.value.effectiveValue(spec))
+        model.setText(spec, "简体中文")
         advanceUntilIdle()
-
-        assertEquals(RuntimeGuestBackend.BOX64, store.load(ProfileScope.Global).guestBackend)
+        assertEquals(11, ConsoleLanguage.resolve(store.load(ProfileScope.Global), store.load(scope)))
+        assertEquals(JsonPrimitive("简体中文"), model.state.value.effectiveValue(spec))
+        model.setValue(spec, null)
+        advanceUntilIdle()
+        assertEquals(10, ConsoleLanguage.resolve(store.load(ProfileScope.Global), store.load(scope)))
+        assertEquals(JsonPrimitive("繁體中文"), store.load(ProfileScope.Global).values[ConsoleLanguage.ID])
     }
 
     @Test
-    fun clearingGameGuestBackendRestoresInheritance() = runTest(dispatcher) {
+    fun rejectsLegacySettingsAndInvalidChoicesWithoutLosingStoredData() = runTest(dispatcher) {
         val store = RuntimeProfileStore(temporaryFolder.root)
-        val viewModel = SettingsViewModel(store)
-        val scope = ProfileScope.Game("CUSA00900")
-        viewModel.selectScope(scope)
+        val legacy = RuntimeSettingCatalog.loadFromResources().shadPs4.single { it.id == "gpu.direct_memory_access_enabled" }
+        store.update(ProfileScope.Global) { it.copy(values = mapOf(legacy.id to JsonPrimitive(true))) }
+        val model = SettingsViewModel(store)
         advanceUntilIdle()
-        viewModel.setGuestBackend(RuntimeGuestBackend.BOX64)
+        assertFalse(model.state.value.settings.any { it.id == legacy.id })
+        model.setValue(legacy, JsonPrimitive(false))
         advanceUntilIdle()
+        assertEquals(JsonPrimitive(true), store.load(ProfileScope.Global).values[legacy.id])
+        val scale = model.state.value.settings.single { it.id == InternalScale.ID }
+        model.setText(scale, "0.2")
+        advanceUntilIdle()
+        assertEquals(null, store.load(ProfileScope.Global).values[scale.id])
+        model.setText(scale, "0.75")
+        advanceUntilIdle()
+        assertEquals(JsonPrimitive(true), store.load(ProfileScope.Global).values[legacy.id])
+    }
 
-        viewModel.setGuestBackend(null)
+    @Test
+    fun gameEditorShowsActualInheritedValueAndUpdatesAfterReset() = runTest(dispatcher) {
+        val store = RuntimeProfileStore(temporaryFolder.root)
+        store.update(ProfileScope.Global) { it.copy(values = mapOf(InternalScale.ID to JsonPrimitive("0.75"))) }
+        val model = SettingsViewModel(store)
+        model.selectScope(ProfileScope.Game("CUSA50828"))
         advanceUntilIdle()
-
-        assertEquals(null, store.load(scope).guestBackend)
+        val spec = model.state.value.settings.single { it.id == InternalScale.ID }
+        assertEquals(JsonPrimitive("0.75"), model.state.value.effectiveValue(spec))
+        model.setText(spec, "1.0")
+        advanceUntilIdle()
+        assertEquals(JsonPrimitive("1.0"), model.state.value.effectiveValue(spec))
+        model.setValue(spec, null)
+        advanceUntilIdle()
+        assertEquals(JsonPrimitive("0.75"), model.state.value.effectiveValue(spec))
+        store.update(ProfileScope.Global) { it.copy(values = it.values + (InternalScale.ID to JsonPrimitive("0.5"))) }
+        advanceUntilIdle()
+        assertEquals(JsonPrimitive("0.5"), model.state.value.effectiveValue(spec))
     }
 
     @Test
@@ -105,7 +105,6 @@ class SettingsViewModelTest {
         val store = RuntimeProfileStore(temporaryFolder.root)
         val viewModel = SettingsViewModel(store)
         advanceUntilIdle()
-        viewModel.selectCategory("GPU")
         val spec = viewModel.state.value.settings.single { it.id == InternalScale.ID }
         assertEquals(listOf("0.5", "0.75", "1.0"), spec.choices)
         assertEquals(JsonPrimitive("0.5"), spec.defaultValue)

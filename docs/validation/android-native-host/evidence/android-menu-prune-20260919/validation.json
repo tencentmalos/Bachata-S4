@@ -1,0 +1,84 @@
+{
+  "date": "2026-09-19",
+  "device_ui_validation": "NOT_RUN: preserve active TMNT session; installation question pending",
+  "tests": {
+    "feature/settings": [
+      {
+        "name": "com.shadps4.android.feature.settings.SettingsViewModelTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.shadps4.android.feature.settings.input.ControllerMappingViewModelTest",
+        "tests": "9",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ],
+    "core/runtime": [
+      {
+        "name": "com.shadps4.android.runtime.input.NativeButtonMappingTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.shadps4.android.runtime.settings.GuestShadingQualityTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.shadps4.android.runtime.settings.InternalScaleTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.shadps4.android.runtime.settings.RuntimeProfileResolverTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.shadps4.android.runtime.settings.RuntimeSettingCatalogTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.shadps4.android.runtime.settings.ShadPs4JsonCodecTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ],
+    "feature/setup": [
+      {
+        "name": "com.shadps4.android.feature.setup.SetupViewModelTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ]
+  },
+  "apk": {
+    "path": "android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk",
+    "sha256": "f36961fa094cc3f08ad67632415c54302eff5d426926ac8947b5b812dc47c9cd",
+    "size": 335709283
+  },
+  "build": {
+    "playstore": "assemblePlaystoreDebug PASS",
+    "fdroid": "compileFdroidDebugKotlin PASS (not packaged)"
+  }
+}

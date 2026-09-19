@@ -23,6 +23,7 @@
 #include "core/diagnostics/diagnostics_hub_registry.h"
 #include "video_core/renderdoc.h"
 #include "video_core/gpu_reshape_status.h"
+#include "video_core/memory_diagnostics.h"
 #include "video_core/renderdoc_capture.h"
 
 namespace Core::Diagnostics {
@@ -151,6 +152,13 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
             if (!args.empty() && (args.size() != 1 || args[0] != "status")) return BadArguments();
             return std::string("internal_scale_percent=") +
                 std::to_string(EmulatorSettings.GetInternalScalePercent()) + " restart_required=true\n";
+        });
+
+    registry.Register("gpu_memory", "GPU allocation snapshot: request | status (no GPU waits)",
+        [](const std::vector<std::string>& args) {
+            if (args.size() > 1 || (!args.empty() && args[0] != "request" && args[0] != "status"))
+                return BadArguments();
+            return VideoCore::MemoryDiagnostics::Read(args.empty() || args[0] == "request");
         });
 
     registry.Register("shading_quality", "Transient guest shading quality: low | medium | high | status (FDM stays off)",

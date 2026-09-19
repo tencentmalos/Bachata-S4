@@ -10,16 +10,7 @@ class NativeButtonMapping(profile: ControllerProfile) {
     private val targets: Map<Button, List<Button>> = buildMap {
         for ((control, target) in LOGICAL_BUTTONS) {
             val binding = profile.bindingFor(control) ?: continue
-            val source = when (binding.kind) {
-                PhysicalBindingKind.BUTTON -> KEY_BUTTONS[binding.code]
-                PhysicalBindingKind.AXIS -> when {
-                    binding.code == 15 && binding.direction == AxisDirection.NEGATIVE -> Button.DpadLeft
-                    binding.code == 15 && binding.direction == AxisDirection.POSITIVE -> Button.DpadRight
-                    binding.code == 16 && binding.direction == AxisDirection.NEGATIVE -> Button.DpadUp
-                    binding.code == 16 && binding.direction == AxisDirection.POSITIVE -> Button.DpadDown
-                    else -> null // General analog remapping remains with the axis policy.
-                }
-            } ?: continue
+            val source = sourceButton(binding) ?: continue
             put(source, get(source).orEmpty() + target)
         }
     }
@@ -29,6 +20,20 @@ class NativeButtonMapping(profile: ControllerProfile) {
         else targets[event.button].orEmpty().map { event.copy(button = it) }
 
     companion object {
+        /** This adapter maps digital buttons and D-pad hats; analog axes pass through. */
+        val supportedControls: Set<String> get() = LOGICAL_BUTTONS.keys
+        fun supports(binding: PhysicalBinding): Boolean = sourceButton(binding) != null
+        private fun sourceButton(binding: PhysicalBinding): Button? = when (binding.kind) {
+            PhysicalBindingKind.BUTTON -> KEY_BUTTONS[binding.code]
+            PhysicalBindingKind.AXIS -> when {
+                binding.code == 15 && binding.direction == AxisDirection.NEGATIVE -> Button.DpadLeft
+                binding.code == 15 && binding.direction == AxisDirection.POSITIVE -> Button.DpadRight
+                binding.code == 16 && binding.direction == AxisDirection.NEGATIVE -> Button.DpadUp
+                binding.code == 16 && binding.direction == AxisDirection.POSITIVE -> Button.DpadDown
+                else -> null
+            }
+        }
+
         private val KEY_BUTTONS = mapOf(
             96 to Button.South, 97 to Button.East, 99 to Button.West, 100 to Button.North,
             19 to Button.DpadUp, 20 to Button.DpadDown, 21 to Button.DpadLeft, 22 to Button.DpadRight,

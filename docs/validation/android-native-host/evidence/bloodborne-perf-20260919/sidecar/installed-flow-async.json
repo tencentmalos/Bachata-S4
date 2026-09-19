@@ -1,0 +1,321 @@
+{
+  "supported": true,
+  "rows": [
+    {
+      "flow_id": "20813",
+      "status": "matched",
+      "posts": [
+        {
+          "event_id": 1715250,
+          "tid": 21217,
+          "name": "Vulkan.PostSubmission",
+          "ts_ns": 611027102396827,
+          "thread_sequence": 14907,
+          "parent_sequence": 14900
+        }
+      ],
+      "targets": [
+        {
+          "event_id": 1738717,
+          "tid": 21199,
+          "name": "Vulkan.WorkerSubmit",
+          "ts_ns": 611027183035525,
+          "thread_sequence": 3433,
+          "parent_sequence": 0,
+          "end_ns": 611027186353181
+        }
+      ],
+      "queue_latency_ns": 80638698
+    },
+    {
+      "flow_id": "20896",
+      "status": "matched",
+      "posts": [
+        {
+          "event_id": 1944560,
+          "tid": 21217,
+          "name": "Vulkan.PostSubmission",
+          "ts_ns": 611028319521566,
+          "thread_sequence": 17127,
+          "parent_sequence": 17120
+        }
+      ],
+      "targets": [
+        {
+          "event_id": 1958648,
+          "tid": 21199,
+          "name": "Vulkan.WorkerSubmit",
+          "ts_ns": 611028397599900,
+          "thread_sequence": 3931,
+          "parent_sequence": 0,
+          "end_ns": 611028398756775
+        }
+      ],
+      "queue_latency_ns": 78078334
+    },
+    {
+      "flow_id": "20314",
+      "status": "matched",
+      "posts": [
+        {
+          "event_id": 228545,
+          "tid": 21217,
+          "name": "Vulkan.PostSubmission",
+          "ts_ns": 611020289029900,
+          "thread_sequence": 1811,
+          "parent_sequence": 1804
+        }
+      ],
+      "targets": [
+        {
+          "event_id": 245323,
+          "tid": 21199,
+          "name": "Vulkan.WorkerSubmit",
+          "ts_ns": 611020366647816,
+          "thread_sequence": 439,
+          "parent_sequence": 0,
+          "end_ns": 611020366804952
+        }
+      ],
+      "queue_latency_ns": 77617916
+    },
+    {
+      "flow_id": "20473",
+      "status": "matched",
+      "posts": [
+        {
+          "event_id": 722842,
+          "tid": 21217,
+          "name": "Vulkan.PostSubmission",
+          "ts_ns": 611022519129223,
+          "thread_sequence": 5923,
+          "parent_sequence": 5916
+        }
+      ],
+      "targets": [
+        {
+          "event_id": 741905,
+          "tid": 21199,
+          "name": "Vulkan.WorkerSubmit",
+          "ts_ns": 611022594682712,
+          "thread_sequence": 1393,
+          "parent_sequence": 0,
+          "end_ns": 611022595506723
+        }
+      ],
+      "queue_latency_ns": 75553489
+    },
+    {
+      "flow_id": "20243",
+      "status": "matched",
+      "posts": [
+        {
+          "event_id": 1796,
+          "tid": 21217,
+          "name": "Vulkan.PostSubmission",
+          "ts_ns": 611019285666410,
+          "thread_sequence": 12,
+          "parent_sequence": 5
+        }
+      ],
+      "targets": [
+        {
+          "event_id": 27063,
+          "tid": 21199,
+          "name": "Vulkan.WorkerSubmit",
+          "ts_ns": 611019360285004,
+          "thread_sequence": 13,
+          "parent_sequence": 0,
+          "end_ns": 611019361294952
+        }
+      ],
+      "queue_latency_ns": 74618594
+    },
+    {
+      "flow_id": "20696",
+      "status": "matched",
+      "posts": [
+        {
+          "event_id": 1393819,
+          "tid": 21217,
+          "name": "Vulkan.PostSubmission",
+          "ts_ns": 611025535731358,
+          "thread_sequence": 11775,
+          "parent_sequence": 11768
+        }
+      ],
+      "targets": [
+        {
+          "event_id": 1410459,
+          "tid": 21199,
+          "name": "Vulkan.WorkerSubmit",
+          "ts_ns": 611025610154952,
+          "thread_sequence": 2731,
+          "parent_sequence": 0,
+          "end_ns": 611025611792816
+        }
+      ],
+      "queue_latency_ns": 74423594
+    },
+    {
+      "flow_id": "20505",
+      "status": "matched",
+      "posts": [
+        {
+          "event_id": 816942,
+          "tid": 21217,
+          "name": "Vulkan.PostSubmission",
+          "ts_ns": 611022935678962,
+          "thread_sequence": 6762,
+          "parent_sequence": 6755
+        }
+      ],
+      "targets": [
+        {
+          "event_id": 840674,
+          "tid": 21199,
+          "name": "Vulkan.WorkerSubmit",
+          "ts_ns": 611023009777556,
+          "thread_sequence": 1585,
+          "parent_sequence": 0,
+          "end_ns": 611023010905004
+        }
+      ],
+      "queue_latency_ns": 74098594
+    },
+    {
+      "flow_id": "20576",
+      "status": "matched",
+      "posts": [
+        {
+          "event_id": 1038627,
+          "tid": 21217,
+          "name": "Vulkan.PostSubmission",
+          "ts_ns": 611023926131462,
+          "thread_sequence": 8607,
+          "parent_sequence": 8600
+        }
+      ],
+      "targets": [
+        {
+          "event_id": 1060390,
+          "tid": 21199,
+          "name": "Vulkan.WorkerSubmit",
+          "ts_ns": 611023999045681,
+          "thread_sequence": 2011,
+          "parent_sequence": 0,
+          "end_ns": 611023999213493
+        }
+      ],
+      "queue_latency_ns": 72914219
+    }
+  ],
+  "total": 721,
+  "next_offset": 8,
+  "order": "queue_latency",
+  "status_counts": {
+    "matched": 721
+  },
+  "queue_latency": {
+    "count": 721,
+    "mean_ms": 4.131494955617198,
+    "p50_ms": 0.038645,
+    "p90_ms": 0.673854,
+    "p99_ms": 72.78290639999997,
+    "max_ms": 80.638698
+  },
+  "interpretation": "Validated SDK capture-local ID edges; queue latency includes producer admission, scheduling and mailbox delay. Execution remains the original zone, not an extra duration. Missing/duplicate/lost endpoints are retained without inferred edges.",
+  "integrity": {
+    "session_name": "default",
+    "process_name": "shadPS4",
+    "process_id": 20429,
+    "main_thread_id": 21195,
+    "clock_source": "ArmCntvct",
+    "clock_tick0": 11785498795279,
+    "clock_ns0": 610823314626098,
+    "clock_numer": 1000000000,
+    "clock_denom": 19200000,
+    "chunks_ok": 210,
+    "chunks_skipped": 0,
+    "truncated": true,
+    "gpu_records": {
+      "context_defs": 5,
+      "zone_begins": 474,
+      "zone_ends": 474,
+      "times": 948,
+      "orphan_times": 0
+    },
+    "diagnostics": [
+      "unbalanced span end on tid 21163",
+      "unbalanced span end on tid 21195",
+      "unbalanced span end on tid 21196",
+      "unbalanced span end on tid 21237",
+      "unbalanced span end on tid 21238",
+      "unbalanced span end on tid 21239",
+      "unbalanced span end on tid 21202",
+      "unbalanced span end on tid 21710",
+      "unbalanced span end on tid 21711",
+      "unbalanced span end on tid 21712",
+      "unbalanced span end on tid 21707",
+      "unbalanced span end on tid 21708",
+      "unbalanced span end on tid 21709",
+      "unbalanced span end on tid 21171",
+      "unbalanced span end on tid 21885",
+      "unbalanced span end on tid 21271",
+      "unbalanced span end on tid 21172",
+      "unbalanced span end on tid 21193",
+      "unbalanced span end on tid 21193",
+      "unbalanced span end on tid 21191",
+      "unbalanced span end on tid 21253",
+      "unbalanced span end on tid 21270",
+      "unbalanced span end on tid 21188",
+      "unbalanced span end on tid 21184",
+      "unbalanced span end on tid 21183",
+      "unbalanced span end on tid 21182",
+      "unbalanced span end on tid 21221",
+      "unbalanced span end on tid 21218",
+      "unbalanced span end on tid 21219",
+      "unbalanced span end on tid 21222",
+      "unbalanced span end on tid 21220",
+      "1 unclosed spans on tid 21195",
+      "1 unclosed spans on tid 21194",
+      "1 unclosed spans on tid 21237",
+      "1 unclosed spans on tid 21238",
+      "1 unclosed spans on tid 21239",
+      "1 unclosed spans on tid 21240",
+      "1 unclosed spans on tid 21241",
+      "1 unclosed spans on tid 21196",
+      "1 unclosed spans on tid 21171",
+      "1 unclosed spans on tid 21885",
+      "1 unclosed spans on tid 21271",
+      "1 unclosed spans on tid 21172",
+      "2 unclosed spans on tid 21217",
+      "2 unclosed spans on tid 21193",
+      "1 unclosed spans on tid 21191",
+      "1 unclosed spans on tid 21253",
+      "1 unclosed spans on tid 21270",
+      "1 unclosed spans on tid 21268",
+      "1 unclosed spans on tid 21188",
+      "1 unclosed spans on tid 21184",
+      "1 unclosed spans on tid 21183",
+      "1 unclosed spans on tid 21182",
+      "1 unclosed spans on tid 21719",
+      "1 unclosed spans on tid 21720",
+      "1 unclosed spans on tid 21715",
+      "1 unclosed spans on tid 21716",
+      "1 unclosed spans on tid 21717",
+      "1 unclosed spans on tid 21718",
+      "1 unclosed spans on tid 21245",
+      "1 unclosed spans on tid 21246",
+      "1 unclosed spans on tid 21247",
+      "1 unclosed spans on tid 21248",
+      "1 unclosed spans on tid 21249",
+      "1 unclosed spans on tid 21221",
+      "1 unclosed spans on tid 21219",
+      "1 unclosed spans on tid 21222",
+      "1 unclosed spans on tid 21220",
+      "1 unclosed spans on tid 21218",
+      "1 unclosed spans on tid 21244"
+    ]
+  }
+}

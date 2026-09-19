@@ -1,0 +1,5 @@
+{
+  "lib/arm64-v8a/libshadps4_fex_session.so": "20ccbae630a233a492eb01c1e74a4ef1afe6b3ed6ab3cb5a91e1dad20a0530bf",
+  "lib/arm64-v8a/libshadps4_host.so": "9a39859b36cd0fe19a1dcfb65428cd1188deec2ff25799ca8439450f7bb598c8",
+  "apk": "12990b6f20356357974e8c1c277683c8b149815bd060fcfe021fea0daecf9fdb"
+}

@@ -74,4 +74,6 @@ Foundation 基于与 origin/main 相同的 `17dd6854` 建立 `codex/shadps4-inte
 
 ## 当前边界
 
+后续已完成 [内存占用核对](internal-scale-memory-20260919.md)：图像实际缩小，但全尺寸上传临时图像与 VMA 池内保留基本抵消节省；同场景总 PSS 未见下降。该后续诊断未混入 bd5e776f 原提交。
+
 仅对本轮涉及的配置、GPU 图像/shader/压缩链和 TMNT 做定向验证。未覆盖所有 PS4 游戏、所有 shader 指令组合、所有深度/MSAA/alias 组合，未做完整回归、长期稳定性或 Swan/VR 验收。缩放节省的是可缩放资源的渲染/采样/分配开销，CPU/FEX、guest 同步和不可缩放 pass 仍可能限制 FPS；不能由尺寸平方直接推算整帧加速比。

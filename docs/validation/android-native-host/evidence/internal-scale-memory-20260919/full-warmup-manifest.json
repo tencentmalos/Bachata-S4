@@ -1,0 +1,342 @@
+{
+  "schema": "shadps4.warmup.v1",
+  "run_id": "7cb552350b4f4c39856c699abf4978f9",
+  "serial": "9c2841a4",
+  "display_id": "4630946441858561667",
+  "input_display": "0",
+  "status": "STOPPED_UNVERIFIED",
+  "identity": [
+    1593,
+    1,
+    "51f9276361a33959ba14c241982467eb"
+  ],
+  "frames": [
+    {
+      "image": "frame-0000.png",
+      "sha256": "ab8f25f4833cf11cba17f9e703bd234f6e907b4bce046ec9dfd94c008fed20f9",
+      "elapsed": 2.7228903750656173,
+      "state": {
+        "identity": [
+          1593,
+          1,
+          "51f9276361a33959ba14c241982467eb"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 0,
+        "flip_age_ns": null
+      }
+    },
+    {
+      "image": "frame-0001.png",
+      "sha256": "6cc64e369be51e69d5e5f52f1067565b6a9a3685bd94f97a99a2451d1b7b993a",
+      "elapsed": 10.461556792026386,
+      "state": {
+        "identity": [
+          1593,
+          1,
+          "51f9276361a33959ba14c241982467eb"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 0,
+        "flip_age_ns": null
+      }
+    },
+    {
+      "image": "frame-0002.png",
+      "sha256": "5767260ed564d1425c1fd92b6fdeb42161898c4db33d46d69e0d0b6dd6cb68ce",
+      "elapsed": 18.308308416977525,
+      "state": {
+        "identity": [
+          1593,
+          1,
+          "51f9276361a33959ba14c241982467eb"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 136,
+        "flip_age_ns": 9636771
+      }
+    },
+    {
+      "image": "frame-0003.png",
+      "sha256": "4a3815a968f4aafb04834fe91faa9e401510cde051be16a5ccc1d2b65ed67e5e",
+      "elapsed": 26.80097650003154,
+      "state": {
+        "identity": [
+          1593,
+          1,
+          "51f9276361a33959ba14c241982467eb"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 444,
+        "flip_age_ns": 2941299582
+      }
+    },
+    {
+      "image": "frame-0004.png",
+      "sha256": "f7d19dec17ed8c20d56c5e1e83e19c111a453292e735372052ad5a0653aa40bc",
+      "elapsed": 32.75332487502601,
+      "state": {
+        "identity": [
+          1593,
+          1,
+          "51f9276361a33959ba14c241982467eb"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 444,
+        "flip_age_ns": 8895437341
+      }
+    },
+    {
+      "image": "frame-0005.png",
+      "sha256": "405d3622be8c0f70fa0fcb2d92832463df791c3520da77838daddf1107786794",
+      "elapsed": 41.071164958993904,
+      "state": {
+        "identity": [
+          1593,
+          1,
+          "51f9276361a33959ba14c241982467eb"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 469,
+        "flip_age_ns": 5613841039
+      }
+    },
+    {
+      "image": "frame-0006.png",
+      "sha256": "1cd3d3b940e38dfb1b2f01fc1917d0833aa067f02cff14406ebbeab5754a18e0",
+      "elapsed": 49.306443999987096,
+      "state": {
+        "identity": [
+          1593,
+          1,
+          "51f9276361a33959ba14c241982467eb"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 472,
+        "flip_age_ns": 3947223957
+      }
+    },
+    {
+      "image": "frame-0007.png",
+      "sha256": "0916e19cdd5d5f89dee10bcc516a5e0f2febd52d674e3c620ae4458a1a2d995e",
+      "elapsed": 57.486747250077315,
+      "state": {
+        "identity": [
+          1593,
+          1,
+          "51f9276361a33959ba14c241982467eb"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 472,
+        "flip_age_ns": 12134446610
+      }
+    },
+    {
+      "image": "frame-0008.png",
+      "sha256": "bb177bb17de187f4033ce8045e39158e29c52a3915d6cf0637d554283a9697c0",
+      "elapsed": 66.11504370905459,
+      "state": {
+        "identity": [
+          1593,
+          1,
+          "51f9276361a33959ba14c241982467eb"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 576,
+        "flip_age_ns": 33074583
+      }
+    },
+    {
+      "image": "frame-0009.png",
+      "sha256": "a59def783045d51141fe3f08af24134203639190d58b00a5fda273d62316e18d",
+      "elapsed": 72.14645104203373,
+      "state": {
+        "identity": [
+          1593,
+          1,
+          "51f9276361a33959ba14c241982467eb"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 677,
+        "flip_age_ns": 45136250
+      }
+    },
+    {
+      "image": "frame-0010.png",
+      "sha256": "423f3c1fa6e25cb2d679b2a794c2f05d328a4e7bb0f3574d0616ebbd27c0d573",
+      "elapsed": 80.58048412506469,
+      "state": {
+        "identity": [
+          1593,
+          1,
+          "51f9276361a33959ba14c241982467eb"
+        ],
+        "stage": "Running",
+        "active": true,
+        "guest_flip": 818,
+        "flip_age_ns": 17662187
+      }
+    }
+  ],
+  "presses": [
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 3.0791024999925867
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 5.54045283398591
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 7.97721066698432
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 10.81857708399184
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 13.274390666978434
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 15.73187187500298
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 18.62566220900044
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 21.10070083406754
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 23.622815667069517
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 27.1644211250823
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 29.636362208984792
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 33.13048712501768
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 35.60730154206976
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 38.07848650007509
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 41.43860208406113
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 43.90926654206123
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 46.37175000004936
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 49.67531720898114
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 52.13649483397603
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 54.60990220902022
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 57.831021292018704
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 60.250694249989465
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 62.71542304207105
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 66.49050095898565
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 68.98029254202265
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 72.49038758408278
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 74.96346045902465
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 77.43941108405124
+    },
+    {
+      "button": "cross",
+      "hold_ms": 250,
+      "elapsed": 80.96626629203092
+    }
+  ],
+  "attaches_debugger": false,
+  "started_at": 1789822153.198556,
+  "process_stat": "1593 (shadps4.android) S 29156 29156 0 0 -1 1077936448 136989 0 10788 0 198 45 0 0 10 -10 49 0 60615970 157396992000 169677 18446744073709551615 422816567296 422816571960 548692649840 0 0 0 4612 1 1073775864 0 0 0 17 2 0 0 0 0 0 422816575488 422816576800 423595585536 548692652301 548692652400 548692652400 548692656094 0",
+  "ended_at": 1789822236.24189
+}

@@ -1,0 +1,36 @@
+duration_s 19.76534073 scopes 449
+{'tid': '12278', 'name': 'HLE.sceKernelUsleep', 'exclusive_ms': 19639.86771, 'count': 294, 'mean': 66.80227112244899, 'p50': 66.764687, 'p95': 66.945885, 'max': 68.765156, 'total': 19639.86771}
+{'tid': '12276', 'name': 'HLE.sceKernelUsleep', 'exclusive_ms': 19538.11703, 'count': 589, 'mean': 33.17167577249575, 'p50': 33.100156, 'p95': 33.464687, 'max': 36.057604, 'total': 19538.11703}
+{'tid': '12274', 'name': 'HLE.scePthreadCondWait', 'exclusive_ms': 19524.366563, 'count': 57, 'mean': 342.53274671929825, 'p50': 333.213802, 'p95': 423.808958, 'max': 472.62875, 'total': 19524.366563}
+{'tid': '12272', 'name': 'HLE.scePthreadCondWait', 'exclusive_ms': 19517.392083, 'count': 57, 'mean': 342.41038742105263, 'p50': 332.995469, 'p95': 420.409479, 'max': 472.638854, 'total': 19517.392083}
+{'tid': '12271', 'name': 'HLE.scePthreadCondWait', 'exclusive_ms': 19515.617916, 'count': 57, 'mean': 342.3792616842105, 'p50': 331.900312, 'p95': 420.763333, 'max': 472.701875, 'total': 19515.617916}
+{'tid': '12273', 'name': 'HLE.scePthreadCondWait', 'exclusive_ms': 19513.674115, 'count': 57, 'mean': 342.3451599122807, 'p50': 333.075156, 'p95': 419.441771, 'max': 472.550468, 'total': 19513.674115}
+{'tid': '12270', 'name': 'HLE.scePthreadCondWait', 'exclusive_ms': 19511.567083, 'count': 57, 'mean': 342.3081944385965, 'p50': 333.096407, 'p95': 419.616197, 'max': 472.701771, 'total': 19511.567083}
+{'tid': '12402', 'name': 'HLE.scePthreadCondWait', 'exclusive_ms': 19490.400677, 'count': 115, 'mean': 169.4817450173913, 'p50': 6.68099, 'p95': 400.742605, 'max': 469.582864, 'total': 19490.400677}
+{'tid': '12404', 'name': 'HLE.scePthreadCondWait', 'exclusive_ms': 19487.042292, 'count': 115, 'mean': 169.45254166956522, 'p50': 9.230729, 'p95': 399.739167, 'max': 469.351042, 'total': 19487.042292}
+{'tid': '12405', 'name': 'HLE.scePthreadCondWait', 'exclusive_ms': 19482.88594, 'count': 115, 'mean': 169.41639947826087, 'p50': 6.511354, 'p95': 400.491771, 'max': 469.584062, 'total': 19482.88594}
+{'tid': '12403', 'name': 'HLE.scePthreadCondWait', 'exclusive_ms': 19480.42459, 'count': 115, 'mean': 169.3949964347826, 'p50': 6.865208, 'p95': 400.368333, 'max': 469.713542, 'total': 19480.42459}
+{'tid': '12407', 'name': 'HLE.scePthreadCondWait', 'exclusive_ms': 19479.925886, 'count': 115, 'mean': 169.3906598782609, 'p50': 6.852656, 'p95': 400.07625, 'max': 469.418229, 'total': 19479.925886}
+{'tid': '12406', 'name': 'HLE.scePthreadCondWait', 'exclusive_ms': 19478.661352, 'count': 115, 'mean': 169.3796639304348, 'p50': 7.339219, 'p95': 400.272552, 'max': 469.62401, 'total': 19478.661352}
+{'tid': '12205', 'name': 'HLE.sceKernelUsleep', 'exclusive_ms': 19392.886674, 'count': 1199, 'mean': 16.17421740950792, 'p50': 16.098802, 'p95': 16.45625, 'max': 23.253646, 'total': 19392.886674}
+{'tid': '12388', 'name': 'HLE.sceKernelUsleep', 'exclusive_ms': 19137.898079, 'count': 1884, 'mean': 10.158119999469214, 'p50': 10.094635, 'p95': 10.36375, 'max': 19.512969, 'total': 19137.898079}
+{'tid': '12224', 'name': 'HLE.sceAudioOutOutput', 'exclusive_ms': 103.21299, 'count': 3704, 'mean': 5.1518138039956805, 'p50': 0.019479, 'p95': 20.227968, 'max': 30.024532, 'total': 19082.31833}
+{'tid': '12214', 'name': 'HLE.scePthreadCondWait', 'exclusive_ms': 19051.83417, 'count': 227, 'mean': 83.92878488986784, 'p50': 42.912761, 'p95': 287.389531, 'max': 362.440677, 'total': 19051.83417}
+{'tid': '12215', 'name': 'HLE.scePthreadCondWait', 'exclusive_ms': 19044.833643, 'count': 178, 'mean': 106.99344743258428, 'p50': 77.294479, 'p95': 302.955313, 'max': 360.520781, 'total': 19044.833643}
+{'tid': '12213', 'name': 'HLE.scePthreadCondWait', 'exclusive_ms': 19044.641871, 'count': 166, 'mean': 114.72675825903615, 'p50': 83.737604, 'p95': 305.596562, 'max': 350.484271, 'total': 19044.641871}
+{'tid': '12264', 'name': 'HLE.sceKernelWaitSema', 'exclusive_ms': 19013.302508, 'count': 704, 'mean': 27.00753197159091, 'p50': 1.288958, 'p95': 217.284375, 'max': 341.937344, 'total': 19013.302508}
+{'tid': '12265', 'name': 'HLE.sceKernelWaitSema', 'exclusive_ms': 18991.64245, 'count': 682, 'mean': 27.84698306451613, 'p50': 1.331875, 'p95': 217.859584, 'max': 341.76724, 'total': 18991.64245}
+{'tid': '12224', 'name': 'Audio.QueueWait', 'exclusive_ms': 18979.10534, 'count': 3704, 'mean': 5.1239485259179265, 'p50': 0.000468, 'p95': 20.196979, 'max': 29.989635, 'total': 18979.10534}
+{'tid': '12266', 'name': 'HLE.sceKernelWaitSema', 'exclusive_ms': 18977.166626, 'count': 676, 'mean': 28.072731695266274, 'p50': 1.38875, 'p95': 218.813229, 'max': 341.961979, 'total': 18977.166626}
+{'tid': '12267', 'name': 'HLE.sceKernelWaitSema', 'exclusive_ms': 18970.858824, 'count': 692, 'mean': 27.41453587283237, 'p50': 1.299896, 'p95': 217.66, 'max': 342.066042, 'total': 18970.858824}
+{'tid': '12268', 'name': 'HLE.sceKernelWaitSema', 'exclusive_ms': 18926.667962, 'count': 656, 'mean': 28.85162799085366, 'p50': 1.303802, 'p95': 219.379115, 'max': 342.099635, 'total': 18926.667962}
+{'tid': '12206', 'name': 'HLE.sceKernelUsleep', 'exclusive_ms': 18796.831768, 'count': 1123, 'mean': 16.738051440783615, 'p50': 16.693906, 'p95': 16.890989, 'max': 20.205834, 'total': 18796.831768}
+{'tid': '12280', 'name': 'HLE.sceKernelUsleep', 'exclusive_ms': 18470.977497, 'count': 2179, 'mean': 8.476813904084443, 'p50': 8.406042, 'p95': 8.473177, 'max': 17.438125, 'total': 18470.977497}
+{'tid': '12225', 'name': 'HLE.sceKernelUsleep', 'exclusive_ms': 18310.536551, 'count': 1802, 'mean': 10.161230050499444, 'p50': 10.072813, 'p95': 10.13625, 'max': 23.231407, 'total': 18310.536551}
+{'tid': '12219', 'name': 'HLE.sceKernelUsleep', 'exclusive_ms': 17813.753939, 'count': 532, 'mean': 33.484499885338344, 'p50': 33.406197, 'p95': 33.526615, 'max': 42.764896, 'total': 17813.753939}
+{'tid': '12227', 'name': 'HLE.scePthreadCondWait', 'exclusive_ms': 17216.030469, 'count': 57, 'mean': 302.0356222631579, 'p50': 298.633177, 'p95': 381.287656, 'max': 401.566146, 'total': 17216.030469}
+{'tid': '12223', 'name': 'HLE.sceKernelWaitSema', 'exclusive_ms': 17188.948435, 'count': 3704, 'mean': 4.640644825863931, 'p50': 0.001562, 'p95': 19.20375, 'max': 30.01526, 'total': 17188.948435}
+{'tid': '12395', 'name': 'HLE.scePthreadCondWait', 'exclusive_ms': 17127.607547, 'count': 230, 'mean': 74.46785890000001, 'p50': 3.989739, 'p95': 320.513334, 'max': 380.599896, 'total': 17127.607547}
+VideoOut.PreparedGuestFlips {'count': 58, 'mean': 4589.5, 'p50': 4590.0, 'p95': 4615.0, 'max': 4618.0, 'total': 266191.0} 2.91036583819082 {'count': 57, 'mean': 343.59941519298246, 'p50': 338.62323, 'p95': 423.953698, 'max': 437.920104, 'total': 19585.166666}
+VideoOut.PresentedGuestFrames {'count': 58, 'mean': 4589.5, 'p50': 4590.0, 'p95': 4615.0, 'max': 4618.0, 'total': 266191.0} 2.910126425308472 {'count': 57, 'mean': 343.6276827368421, 'p50': 337.157292, 'p95': 424.466562, 'max': 435.439532, 'total': 19586.777916}
+GPU.GuestFrame {'count': 55, 'mean': 79643400.94545455, 'p50': 79862185.0, 'p95': 81472706.0, 'max': 81744268.0, 'total': 4380387052.0} None None

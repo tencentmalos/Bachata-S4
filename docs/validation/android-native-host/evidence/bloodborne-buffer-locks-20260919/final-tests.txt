@@ -1,0 +1,4 @@
+/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/bloodborne-cpu-jobs-20260919/final-tests/futex_mutex_tests: 1 file pushed, 0 skipped. 365.0 MB/s (2722520 bytes in 0.007s)
+/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/bloodborne-cpu-jobs-20260919/final-tests/memory_tracker_concurrency_tests: 1 file pushed, 0 skipped. 434.0 MB/s (2773688 bytes in 0.006s)
+checks=14 failures=0 increment_pairs=160000 spin_wait_cpu_ms=244.420 futex_wait_cpu_ms=0.213
+checks=18 failures=0 region_bytes=262144 directory_object_bytes=2097256

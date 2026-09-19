@@ -3,41 +3,33 @@ package com.shadps4.android
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.shadps4.android.data.RuntimeProfileStore
 import com.shadps4.android.data.GameRepository
 import com.shadps4.android.data.GameInstallVerifier
 import com.shadps4.android.runtime.session.ManagedSession
 import com.shadps4.android.runtime.session.ManagedSessionState
-import com.shadps4.android.feature.drivers.DriverManagerBackend
-import com.shadps4.android.feature.drivers.DriverManagerScreen
 import com.shadps4.android.feature.library.LibraryScreen
 import com.shadps4.android.feature.settings.SettingsScreen
 import com.shadps4.android.feature.setup.SetupScreen
 import com.shadps4.android.feature.session.SessionScreen
-import com.shadps4.android.runtime.settings.ProfileScope
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 object BachataRoutes {
     const val Setup = "setup"
-    const val SetupDrivers = "setup/drivers"
     const val Library = "library"
     const val Game = "game/{id}"
     const val Session = "session/{id}"
     const val Settings = "settings"
     const val GameSettings = "settings/game/{id}"
-    const val Drivers = "drivers"
     fun gameSettings(id: String) = "settings/game/$id"
 }
 
@@ -45,22 +37,18 @@ object BachataRoutes {
 @InstallIn(SingletonComponent::class)
 interface BachataNavEntryPoint {
     fun gameRepository(): GameRepository
-    fun driverBackend(): DriverManagerBackend
-    fun profileStore(): RuntimeProfileStore
 }
 
 @Composable
 fun BachataNavHost(startDestination: String = BachataRoutes.Setup, openLastGameRequest: Int = 0) {
     val navController = rememberNavController()
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
     val graph = remember {
         EntryPointAccessors.fromApplication(
             context.applicationContext,
             BachataNavEntryPoint::class.java,
         )
     }
-    val showDriverSelection = BuildConfig.SHOW_DRIVER_SELECTION
 
     LaunchedEffect(openLastGameRequest) {
         if (openLastGameRequest == 0) return@LaunchedEffect
@@ -118,30 +106,7 @@ fun BachataNavHost(startDestination: String = BachataRoutes.Setup, openLastGameR
 
     NavHost(navController = navController, startDestination = startDestination) {
         composable(BachataRoutes.Setup) {
-            SetupScreen(
-                onContinue = {
-                    if (showDriverSelection) {
-                        navController.navigate(BachataRoutes.SetupDrivers)
-                    } else {
-                        scope.launch {
-                            withContext(Dispatchers.IO) {
-                                val driverId = graph.driverBackend().autoSelectDriverId()
-                                    ?: error("Play build must auto-select bundled Turnip")
-                                graph.profileStore().update(ProfileScope.Global) {
-                                    it.copy(driverId = driverId)
-                                }
-                            }
-                            goToLibraryClearingSetup()
-                        }
-                    }
-                },
-            )
-        }
-        composable(BachataRoutes.SetupDrivers) {
-            DriverManagerScreen(
-                onBack = { navController.popBackStack() },
-                onContinue = { goToLibraryClearingSetup() },
-            )
+            SetupScreen(onContinue = { goToLibraryClearingSetup() })
         }
         composable(BachataRoutes.Library) {
             LibraryScreen(
@@ -153,21 +118,12 @@ fun BachataNavHost(startDestination: String = BachataRoutes.Setup, openLastGameR
         composable(BachataRoutes.Settings) {
             SettingsScreen(
                 onBack = { navController.popBackStack() },
-                onOpenDrivers = { navController.navigate(BachataRoutes.Drivers) },
-                // Always show Drivers in Settings (Play: bundled status; F-Droid: full manager).
-                // Setup/session driver pick remains gated by SHOW_DRIVER_SELECTION.
-                showDriversTab = true,
             )
-        }
-        composable(BachataRoutes.Drivers) {
-            DriverManagerScreen(onBack = { navController.popBackStack() })
         }
         composable(BachataRoutes.GameSettings) { entry ->
             SettingsScreen(
                 initialGameId = requireNotNull(entry.arguments?.getString("id")),
                 onBack = { navController.popBackStack() },
-                onOpenDrivers = { navController.navigate(BachataRoutes.Drivers) },
-                showDriversTab = true,
             )
         }
         composable(BachataRoutes.Game) {
@@ -180,8 +136,6 @@ fun BachataNavHost(startDestination: String = BachataRoutes.Setup, openLastGameR
         composable(BachataRoutes.Session) { entry ->
             SessionScreen(
                 gameId = requireNotNull(entry.arguments?.getString("id")),
-                onOpenDrivers = { navController.navigate(BachataRoutes.Drivers) },
-                showDriverActions = showDriverSelection,
                 onExit = { navController.popBackStack() },
             )
         }

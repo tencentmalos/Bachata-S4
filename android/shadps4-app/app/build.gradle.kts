@@ -115,14 +115,10 @@ android {
     productFlavors {
         create("playstore") {
             dimension = "distribution"
-            buildConfigField("Boolean", "DOWNLOAD_RUNTIME", "false")
             // Play: bundled Turnip only — skip driver picker in setup/settings.
-            buildConfigField("Boolean", "SHOW_DRIVER_SELECTION", "false")
         }
         create("fdroid") {
             dimension = "distribution"
-            buildConfigField("Boolean", "DOWNLOAD_RUNTIME", "false")
-            buildConfigField("Boolean", "SHOW_DRIVER_SELECTION", "true")
         }
     }
     androidResources {

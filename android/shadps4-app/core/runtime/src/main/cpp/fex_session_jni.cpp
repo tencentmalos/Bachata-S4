@@ -477,3 +477,11 @@ Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetInternalScale
     try { EmulatorSettings.SetInternalScalePercent(static_cast<u32>(percent)); }
     catch (...) { /* Never unwind across JNI. */ }
 }
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetConsoleLanguage(
+    JNIEnv*, jclass, jint language) {
+    if (language < 0 || language > 30) return;
+    try { EmulatorSettings.SetConsoleLanguage(language); }
+    catch (...) { /* Never unwind across JNI. */ }
+}

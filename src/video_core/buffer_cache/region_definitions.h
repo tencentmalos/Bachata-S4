@@ -11,7 +11,13 @@ namespace VideoCore {
 constexpr u64 TRACKER_PAGE_BITS = 12; // 4K pages
 constexpr u64 TRACKER_BYTES_PER_PAGE = 1ULL << TRACKER_PAGE_BITS;
 
-constexpr u64 TRACKER_HIGHER_PAGE_BITS = 22; // each region is 4MB
+#if defined(__ANDROID__)
+// One bitmap word (64 guest pages) per lock. A GPU upload must not stop CPU
+// writers throughout an otherwise unrelated 4 MiB guest heap region.
+constexpr u64 TRACKER_HIGHER_PAGE_BITS = 18; // 256 KiB
+#else
+constexpr u64 TRACKER_HIGHER_PAGE_BITS = 22; // 4 MiB
+#endif
 constexpr u64 TRACKER_HIGHER_PAGE_SIZE = 1ULL << TRACKER_HIGHER_PAGE_BITS;
 constexpr u64 TRACKER_HIGHER_PAGE_MASK = TRACKER_HIGHER_PAGE_SIZE - 1ULL;
 constexpr u64 NUM_PAGES_PER_REGION = TRACKER_HIGHER_PAGE_SIZE / TRACKER_BYTES_PER_PAGE;

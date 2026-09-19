@@ -1,0 +1,70 @@
+[
+  {
+    "identity": [
+      "4717",
+      "1",
+      "5bfca760ff9aa1d2c0475c9139419e95"
+    ],
+    "scale_percent": 50,
+    "pss_kib": 4540525,
+    "rss_kib": 4670292,
+    "system_memavailable_used_kib": 7852616,
+    "vma_block_bytes": 2618540032,
+    "vma_allocation_bytes": 2156376064,
+    "vma_unused_block_bytes": 462163968,
+    "cached_image_allocation_bytes": 116211712,
+    "guest_buffer_allocation_bytes": 202620928,
+    "utility_buffer_allocation_bytes": 1308688384
+  },
+  {
+    "identity": [
+      "4717",
+      "1",
+      "5bfca760ff9aa1d2c0475c9139419e95"
+    ],
+    "scale_percent": 50,
+    "pss_kib": 4536953,
+    "rss_kib": 4666736,
+    "system_memavailable_used_kib": 7861036,
+    "vma_block_bytes": 2618540032,
+    "vma_allocation_bytes": 2156376064,
+    "vma_unused_block_bytes": 462163968,
+    "cached_image_allocation_bytes": 116211712,
+    "guest_buffer_allocation_bytes": 202620928,
+    "utility_buffer_allocation_bytes": 1308688384
+  },
+  {
+    "identity": [
+      "4717",
+      "1",
+      "5bfca760ff9aa1d2c0475c9139419e95"
+    ],
+    "scale_percent": 50,
+    "pss_kib": 4540849,
+    "rss_kib": 4670640,
+    "system_memavailable_used_kib": 7852272,
+    "vma_block_bytes": 2618540032,
+    "vma_allocation_bytes": 2156376064,
+    "vma_unused_block_bytes": 462163968,
+    "cached_image_allocation_bytes": 116211712,
+    "guest_buffer_allocation_bytes": 202620928,
+    "utility_buffer_allocation_bytes": 1308688384
+  },
+  {
+    "identity": [
+      "4717",
+      "1",
+      "5bfca760ff9aa1d2c0475c9139419e95"
+    ],
+    "scale_percent": 50,
+    "pss_kib": 4537197,
+    "rss_kib": 4667004,
+    "system_memavailable_used_kib": 7854872,
+    "vma_block_bytes": 2618540032,
+    "vma_allocation_bytes": 2156376064,
+    "vma_unused_block_bytes": 462163968,
+    "cached_image_allocation_bytes": 116211712,
+    "guest_buffer_allocation_bytes": 202620928,
+    "utility_buffer_allocation_bytes": 1308688384
+  }
+]

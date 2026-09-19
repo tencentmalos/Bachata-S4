@@ -269,10 +269,11 @@ void Scheduler::SubmitExecution(SubmitInfo& info) {
     }
     // No pointers to the caller's SubmitInfo, current_cmdbuf, or stack arrays
     // escape. The scheduler owns the command pool and drains before destruction.
-    auto submit = [instance_ptr = &instance, master = &master_semaphore, generation,
+    const auto flow = Common::Profiler::Post("Vulkan.PostSubmission");
+    auto submit = [instance_ptr = &instance, master = &master_semaphore, generation, flow,
                    signal_value, buffer = current_cmdbuf, packet = info]
                   (SubmissionReceipt& receipt) {
-        Common::Profiler::Scope execution{"Vulkan.WorkerSubmit"};
+        Common::Profiler::Scope execution{"Vulkan.WorkerSubmit", flow};
         const vk::TimelineSemaphoreSubmitInfo timeline_si{
             .waitSemaphoreValueCount = packet.num_wait_semas,
             .pWaitSemaphoreValues = packet.wait_ticks.data(),

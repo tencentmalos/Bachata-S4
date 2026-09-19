@@ -5,10 +5,13 @@
 #include <vector>
 
 namespace Common::Profiler {
+struct FlowToken { uint64_t id{}, generation{}; };
+FlowToken Post(const char* name) noexcept;
 // Stable across the host SDK boundary; Foundation owns the only ring implementation.
 class Scope {
 public:
     explicit Scope(const char* name) noexcept;
+    Scope(const char* name, FlowToken flow) noexcept;
     ~Scope();
     Scope(const Scope&) = delete;
     Scope& operator=(const Scope&) = delete;

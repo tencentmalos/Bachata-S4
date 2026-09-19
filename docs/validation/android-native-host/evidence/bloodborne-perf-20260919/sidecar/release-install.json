@@ -1,0 +1,18 @@
+{
+  "current_pointer": "/Users/bytedance/Library/Application Support/Litep/Mcp/current.txt",
+  "dotnet_root": "",
+  "install_path": "/Users/bytedance/Library/Application Support/Litep/Mcp/versions/litep_mcp-0.2.0-local.20260919.bottleneck3-osx-arm64",
+  "install_root": "/Users/bytedance/Library/Application Support/Litep/Mcp",
+  "product": "litep_mcp",
+  "release_notes": "SDK async flow\u3001\u5b8c\u6574\u5e27\u8d21\u732e\u4e0e\u90bb\u5e27\u5dee\u5f02\u3001\u751f\u4ea7\u8005\u7b49\u5f85\u94fe\u53ca KGSL/sched sidecar\uff1b\u6309\u5f02\u6b65\u6392\u961f\u8017\u65f6\u6392\u5e8f\u3002",
+  "release_notes_file": "",
+  "release_notes_url": "",
+  "rid": "osx-arm64",
+  "skill_paths": [
+    "/Users/bytedance/Library/Application Support/Litep/Mcp/versions/litep_mcp-0.2.0-local.20260919.bottleneck3-osx-arm64/skills/archify/SKILL.md",
+    "/Users/bytedance/Library/Application Support/Litep/Mcp/versions/litep_mcp-0.2.0-local.20260919.bottleneck3-osx-arm64/skills/litep/SKILL.md",
+    "/Users/bytedance/Library/Application Support/Litep/Mcp/versions/litep_mcp-0.2.0-local.20260919.bottleneck3-osx-arm64/skills/uml-sequence-time/SKILL.md"
+  ],
+  "state_path": "/Users/bytedance/Library/Application Support/Litep/Mcp/litep_mcp.state.json",
+  "version": "0.2.0-local.20260919.bottleneck3"
+}

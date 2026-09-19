@@ -32,8 +32,6 @@ fun SetupScreen(
     val state by viewModel.state.collectAsState()
     SetupContent(
         state = state,
-        downloadRuntimeEnabled = viewModel.downloadRuntime,
-        onDownload = viewModel::downloadRuntime,
         onContinue = onContinue,
     )
 }
@@ -41,8 +39,6 @@ fun SetupScreen(
 @Composable
 fun SetupContent(
     state: SetupUiState,
-    downloadRuntimeEnabled: Boolean,
-    onDownload: () -> Unit,
     onContinue: () -> Unit,
 ) {
     val readinessText = when (state.readiness) {
@@ -92,15 +88,6 @@ fun SetupContent(
                     Text(readinessText, color = BachataPalette.Primary, style = MaterialTheme.typography.titleMedium)
                     Text("SoC: ${state.deviceProfile.soc}  •  GPU: ${state.deviceProfile.gpu}", color = BachataPalette.Secondary)
                     Text(state.legalNotice, color = Color(0xFFFFDDB5))
-                }
-            }
-            if (downloadRuntimeEnabled && !state.runtimeInstalled) {
-                BachataPrimaryButton(
-                    onClick = onDownload,
-                    enabled = !state.isDownloading,
-                    modifier = Modifier.padding(top = 16.dp),
-                ) {
-                    Text(if (state.isDownloading) "Downloading…" else "Download emulation assets")
                 }
             }
         }

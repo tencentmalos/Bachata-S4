@@ -1,0 +1,474 @@
+[
+  {
+    "tid": "12227",
+    "name": "HLE.sceGnmSubmitDone",
+    "start_ms": -0.003229,
+    "end_ms": 0.010938,
+    "clipped_ms": 0.010938,
+    "full_ms": 0.014167
+  },
+  {
+    "tid": "12227",
+    "name": "GNM.SubmitDone",
+    "start_ms": 0.002188,
+    "end_ms": 0.010365,
+    "clipped_ms": 0.008177,
+    "full_ms": 0.008177
+  },
+  {
+    "tid": "12227",
+    "name": "GNM.SubmissionGate",
+    "start_ms": 0.009688,
+    "end_ms": 0.009844,
+    "clipped_ms": 0.000156,
+    "full_ms": 0.000156
+  },
+  {
+    "tid": "12227",
+    "name": "HLE.scePthreadCondWait",
+    "start_ms": 0.430261,
+    "end_ms": 298.864115,
+    "clipped_ms": 298.433854,
+    "full_ms": 298.433854
+  },
+  {
+    "tid": "12194",
+    "name": "HLE.sceKernelWaitSema",
+    "start_ms": 0.975886,
+    "end_ms": 2.807865,
+    "clipped_ms": 1.831979,
+    "full_ms": 1.831979
+  },
+  {
+    "tid": "12230",
+    "name": "Vulkan.WorkerSubmit",
+    "start_ms": 2.668021,
+    "end_ms": 82.953334,
+    "clipped_ms": 80.285313,
+    "full_ms": 80.285313
+  },
+  {
+    "tid": "12230",
+    "name": "Vulkan.Submit",
+    "start_ms": 2.669271,
+    "end_ms": 82.94849,
+    "clipped_ms": 80.279219,
+    "full_ms": 80.279219
+  },
+  {
+    "tid": "12246",
+    "name": "VideoOut.Flip",
+    "start_ms": 2.675156,
+    "end_ms": 83.990104,
+    "clipped_ms": 81.314948,
+    "full_ms": 81.314948
+  },
+  {
+    "tid": "12246",
+    "name": "Present.Frame",
+    "start_ms": 2.676302,
+    "end_ms": 83.983281,
+    "clipped_ms": 81.306979,
+    "full_ms": 81.306979
+  },
+  {
+    "tid": "12246",
+    "name": "Vulkan.WaitSubmitted",
+    "start_ms": 3.419063,
+    "end_ms": 83.754531,
+    "clipped_ms": 80.335468,
+    "full_ms": 80.335468
+  },
+  {
+    "tid": "12194",
+    "name": "HLE.scePthreadCondWait",
+    "start_ms": 9.664948,
+    "end_ms": 44.011615,
+    "clipped_ms": 34.346667,
+    "full_ms": 34.346667
+  },
+  {
+    "tid": "12246",
+    "name": "Present.Frame",
+    "start_ms": 119.413177,
+    "end_ms": 120.463386,
+    "clipped_ms": 1.050209,
+    "full_ms": 1.050209
+  },
+  {
+    "tid": "12246",
+    "name": "Present.Frame",
+    "start_ms": 152.749167,
+    "end_ms": 153.926667,
+    "clipped_ms": 1.1775,
+    "full_ms": 1.1775
+  },
+  {
+    "tid": "12246",
+    "name": "Present.Frame",
+    "start_ms": 202.731667,
+    "end_ms": 203.995104,
+    "clipped_ms": 1.263437,
+    "full_ms": 1.263437
+  },
+  {
+    "tid": "12279",
+    "name": "HLE.scePthreadMutexLock",
+    "start_ms": 210.868594,
+    "end_ms": 214.643229,
+    "clipped_ms": 3.774635,
+    "full_ms": 3.774635
+  },
+  {
+    "tid": "12246",
+    "name": "Present.Frame",
+    "start_ms": 236.086042,
+    "end_ms": 250.302552,
+    "clipped_ms": 14.21651,
+    "full_ms": 14.21651
+  },
+  {
+    "tid": "12246",
+    "name": "Present.Frame",
+    "start_ms": 269.427709,
+    "end_ms": 270.548386,
+    "clipped_ms": 1.120677,
+    "full_ms": 1.120677
+  },
+  {
+    "tid": "12227",
+    "name": "HLE.sceGnmSubmitCommandBuffers",
+    "start_ms": 299.366563,
+    "end_ms": 299.496094,
+    "clipped_ms": 0.129531,
+    "full_ms": 0.129531
+  },
+  {
+    "tid": "12227",
+    "name": "GNM.SubmissionGate",
+    "start_ms": 299.439844,
+    "end_ms": 299.440313,
+    "clipped_ms": 0.000469,
+    "full_ms": 0.000469
+  },
+  {
+    "tid": "12227",
+    "name": "HLE.sceGnmSubmitCommandBuffers",
+    "start_ms": 299.954219,
+    "end_ms": 300.015052,
+    "clipped_ms": 0.060833,
+    "full_ms": 0.060833
+  },
+  {
+    "tid": "12227",
+    "name": "GNM.SubmissionGate",
+    "start_ms": 299.994271,
+    "end_ms": 299.994584,
+    "clipped_ms": 0.000313,
+    "full_ms": 0.000313
+  },
+  {
+    "tid": "12227",
+    "name": "HLE.sceGnmSubmitCommandBuffers",
+    "start_ms": 300.864115,
+    "end_ms": 301.469063,
+    "clipped_ms": 0.604948,
+    "full_ms": 0.604948
+  },
+  {
+    "tid": "12227",
+    "name": "GNM.SubmissionGate",
+    "start_ms": 301.173854,
+    "end_ms": 301.174167,
+    "clipped_ms": 0.000313,
+    "full_ms": 0.000313
+  },
+  {
+    "tid": "12227",
+    "name": "HLE.sceGnmSubmitCommandBuffers",
+    "start_ms": 301.591823,
+    "end_ms": 301.625313,
+    "clipped_ms": 0.03349,
+    "full_ms": 0.03349
+  },
+  {
+    "tid": "12227",
+    "name": "GNM.SubmissionGate",
+    "start_ms": 301.620729,
+    "end_ms": 301.62099,
+    "clipped_ms": 0.000261,
+    "full_ms": 0.000261
+  },
+  {
+    "tid": "12227",
+    "name": "HLE.sceGnmSubmitCommandBuffers",
+    "start_ms": 301.994479,
+    "end_ms": 302.230781,
+    "clipped_ms": 0.236302,
+    "full_ms": 0.236302
+  },
+  {
+    "tid": "12227",
+    "name": "GNM.SubmissionGate",
+    "start_ms": 302.110313,
+    "end_ms": 302.110625,
+    "clipped_ms": 0.000312,
+    "full_ms": 0.000312
+  },
+  {
+    "tid": "12227",
+    "name": "HLE.sceGnmSubmitCommandBuffers",
+    "start_ms": 302.415886,
+    "end_ms": 302.43599,
+    "clipped_ms": 0.020104,
+    "full_ms": 0.020104
+  },
+  {
+    "tid": "12227",
+    "name": "GNM.SubmissionGate",
+    "start_ms": 302.433334,
+    "end_ms": 302.433542,
+    "clipped_ms": 0.000208,
+    "full_ms": 0.000208
+  },
+  {
+    "tid": "12228",
+    "name": "PM4.Resume",
+    "start_ms": 302.592344,
+    "end_ms": 304.041146,
+    "clipped_ms": 1.448802,
+    "full_ms": 1.448802
+  },
+  {
+    "tid": "12246",
+    "name": "Present.Frame",
+    "start_ms": 302.76224,
+    "end_ms": 303.837344,
+    "clipped_ms": 1.075104,
+    "full_ms": 1.075104
+  },
+  {
+    "tid": "12228",
+    "name": "PM4.Resume",
+    "start_ms": 307.840261,
+    "end_ms": 310.027084,
+    "clipped_ms": 2.186823,
+    "full_ms": 2.186823
+  },
+  {
+    "tid": "12228",
+    "name": "PM4.Resume",
+    "start_ms": 310.028646,
+    "end_ms": 311.44849,
+    "clipped_ms": 1.419844,
+    "full_ms": 1.419844
+  },
+  {
+    "tid": "12228",
+    "name": "PM4.Resume",
+    "start_ms": 311.450417,
+    "end_ms": 313.027292,
+    "clipped_ms": 1.576875,
+    "full_ms": 1.576875
+  },
+  {
+    "tid": "12228",
+    "name": "PM4.Resume",
+    "start_ms": 313.029115,
+    "end_ms": 315.545834,
+    "clipped_ms": 2.516719,
+    "full_ms": 2.516719
+  },
+  {
+    "tid": "12228",
+    "name": "PM4.Resume",
+    "start_ms": 315.547604,
+    "end_ms": 317.897813,
+    "clipped_ms": 2.350209,
+    "full_ms": 2.350209
+  },
+  {
+    "tid": "12228",
+    "name": "PM4.Resume",
+    "start_ms": 317.899167,
+    "end_ms": 319.622969,
+    "clipped_ms": 1.723802,
+    "full_ms": 1.723802
+  },
+  {
+    "tid": "12228",
+    "name": "PM4.Resume",
+    "start_ms": 319.624531,
+    "end_ms": 321.25724,
+    "clipped_ms": 1.632709,
+    "full_ms": 1.632709
+  },
+  {
+    "tid": "12227",
+    "name": "HLE.sceGnmSubmitCommandBuffers",
+    "start_ms": 319.648229,
+    "end_ms": 319.733281,
+    "clipped_ms": 0.085052,
+    "full_ms": 0.085052
+  },
+  {
+    "tid": "12227",
+    "name": "GNM.SubmissionGate",
+    "start_ms": 319.685209,
+    "end_ms": 319.685469,
+    "clipped_ms": 0.00026,
+    "full_ms": 0.00026
+  },
+  {
+    "tid": "12246",
+    "name": "Present.Frame",
+    "start_ms": 319.991146,
+    "end_ms": 320.995625,
+    "clipped_ms": 1.004479,
+    "full_ms": 1.004479
+  },
+  {
+    "tid": "12228",
+    "name": "PM4.Resume",
+    "start_ms": 321.259688,
+    "end_ms": 322.621667,
+    "clipped_ms": 1.361979,
+    "full_ms": 1.361979
+  },
+  {
+    "tid": "12227",
+    "name": "HLE.sceGnmSubmitCommandBuffers",
+    "start_ms": 322.155,
+    "end_ms": 322.185469,
+    "clipped_ms": 0.030469,
+    "full_ms": 0.030469
+  },
+  {
+    "tid": "12227",
+    "name": "GNM.SubmissionGate",
+    "start_ms": 322.180625,
+    "end_ms": 322.181094,
+    "clipped_ms": 0.000469,
+    "full_ms": 0.000469
+  },
+  {
+    "tid": "12227",
+    "name": "HLE.sceGnmSubmitCommandBuffers",
+    "start_ms": 322.459844,
+    "end_ms": 322.534844,
+    "clipped_ms": 0.075,
+    "full_ms": 0.075
+  },
+  {
+    "tid": "12227",
+    "name": "GNM.SubmissionGate",
+    "start_ms": 322.529011,
+    "end_ms": 322.529271,
+    "clipped_ms": 0.00026,
+    "full_ms": 0.00026
+  },
+  {
+    "tid": "12228",
+    "name": "PM4.Resume",
+    "start_ms": 322.623698,
+    "end_ms": 325.260781,
+    "clipped_ms": 2.637083,
+    "full_ms": 2.637083
+  },
+  {
+    "tid": "12227",
+    "name": "HLE.sceGnmSubmitCommandBuffers",
+    "start_ms": 323.02599,
+    "end_ms": 323.050469,
+    "clipped_ms": 0.024479,
+    "full_ms": 0.024479
+  },
+  {
+    "tid": "12227",
+    "name": "GNM.SubmissionGate",
+    "start_ms": 323.046823,
+    "end_ms": 323.047031,
+    "clipped_ms": 0.000208,
+    "full_ms": 0.000208
+  },
+  {
+    "tid": "12228",
+    "name": "PM4.Resume",
+    "start_ms": 325.262396,
+    "end_ms": 326.601563,
+    "clipped_ms": 1.339167,
+    "full_ms": 1.339167
+  },
+  {
+    "tid": "12228",
+    "name": "PM4.Resume",
+    "start_ms": 326.603698,
+    "end_ms": 328.544323,
+    "clipped_ms": 1.940625,
+    "full_ms": 1.940625
+  },
+  {
+    "tid": "12228",
+    "name": "PM4.Resume",
+    "start_ms": 328.545469,
+    "end_ms": 330.647656,
+    "clipped_ms": 2.102187,
+    "full_ms": 2.102187
+  },
+  {
+    "tid": "12194",
+    "name": "HLE.scePthreadCondWait",
+    "start_ms": 328.68125,
+    "end_ms": 330.736823,
+    "clipped_ms": 2.055573,
+    "full_ms": 2.055573
+  },
+  {
+    "tid": "12228",
+    "name": "PM4.Resume",
+    "start_ms": 332.140781,
+    "end_ms": 334.957552,
+    "clipped_ms": 1.394219,
+    "full_ms": 2.816771
+  },
+  {
+    "tid": "12227",
+    "name": "HLE.sceGnmSubmitCommandBuffers",
+    "start_ms": 332.615625,
+    "end_ms": 332.653334,
+    "clipped_ms": 0.037709,
+    "full_ms": 0.037709
+  },
+  {
+    "tid": "12227",
+    "name": "GNM.SubmissionGate",
+    "start_ms": 332.647552,
+    "end_ms": 332.647813,
+    "clipped_ms": 0.000261,
+    "full_ms": 0.000261
+  },
+  {
+    "tid": "12227",
+    "name": "HLE.sceGnmSubmitAndFlipCommandBuffers",
+    "start_ms": 333.450521,
+    "end_ms": 333.492604,
+    "clipped_ms": 0.042083,
+    "full_ms": 0.042083
+  },
+  {
+    "tid": "12227",
+    "name": "GNM.SubmissionGate",
+    "start_ms": 333.487865,
+    "end_ms": 333.488073,
+    "clipped_ms": 0.000208,
+    "full_ms": 0.000208
+  },
+  {
+    "tid": "12227",
+    "name": "HLE.sceGnmSubmitDone",
+    "start_ms": 333.531927,
+    "end_ms": 333.545729,
+    "clipped_ms": 0.003073,
+    "full_ms": 0.013802
+  }
+]

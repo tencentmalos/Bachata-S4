@@ -1,0 +1,3 @@
+SERVICE com.shadps4.android/.service.FexSessionService 7a38a52 pid=31726 user=0
+  Client:
+    status=unavailable (no renderer)

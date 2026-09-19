@@ -6,6 +6,7 @@
 #include "common/div_ceil.h"
 #include "core/emulator_settings.h"
 #include "video_core/texture_cache/internal_scale.h"
+#include "video_core/memory_diagnostics.h"
 #include "video_core/texture_cache/texture_cache.h"
 #include "video_core/renderer_vulkan/liverpool_to_vk.h"
 #include "video_core/renderer_vulkan/vk_instance.h"
@@ -517,7 +518,13 @@ void Image::Upload(std::span<const vk::BufferImageCopy> copies, vk::Buffer buffe
     }
     // Upload/resample only when guest memory changed. The full-size staging image
     // retires after this submission; it is not a second persistent backing.
-    auto temporary = std::make_shared<BackingImage>();
+    struct UploadImage : BackingImage {
+        u64 allocation_bytes{};
+        ~UploadImage() {
+            MemoryDiagnostics::upload_image_bytes.fetch_sub(allocation_bytes, std::memory_order_relaxed);
+        }
+    };
+    auto temporary = std::make_shared<UploadImage>();
     temporary->num_samples = 1;
     temporary->image = UniqueImage{instance->GetDevice(), instance->GetAllocator()};
     auto ci = backing->image.image_ci;
@@ -525,6 +532,12 @@ void Image::Upload(std::span<const vk::BufferImageCopy> copies, vk::Buffer buffe
     ci.mipLevels = info.resources.levels;
     if (astc_encoded) ci.format = instance->GetSupportedFormat(info.pixel_format, format_features);
     temporary->image.Create(ci);
+    VmaAllocationInfo temporary_info{};
+    vmaGetAllocationInfo(instance->GetAllocator(), temporary->image.allocation, &temporary_info);
+    temporary->allocation_bytes = temporary_info.size;
+    MemoryDiagnostics::upload_image_bytes.fetch_add(temporary_info.size, std::memory_order_relaxed);
+    MemoryDiagnostics::upload_image_created_bytes.fetch_add(temporary_info.size, std::memory_order_relaxed);
+    MemoryDiagnostics::upload_image_created_count.fetch_add(1, std::memory_order_relaxed);
     auto* scaled = backing;
     backing = temporary.get();
     UploadRegions(copies, buffer, offset);

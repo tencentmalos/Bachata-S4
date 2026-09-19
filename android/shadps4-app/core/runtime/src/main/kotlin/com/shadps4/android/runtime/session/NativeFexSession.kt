@@ -22,6 +22,7 @@ object NativeFexSession {
 
     external fun nativeSetGuestShadingQuality(quality: Int)
     external fun nativeSetInternalScalePercent(percent: Int)
+    external fun nativeSetConsoleLanguage(language: Int)
 
     external fun nativeIdentity(): String
 

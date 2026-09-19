@@ -1,0 +1,3 @@
+simpleperf I cmd_record.cpp:729] Recorded for 9.93842 seconds. Start post processing.
+simpleperf W dso.cpp:448] /vendor/lib64/egl/eglSubDriverAndroid.so doesn't contain symbol table
+simpleperf I cmd_record.cpp:809] Samples recorded: 4619. Samples lost: 0.

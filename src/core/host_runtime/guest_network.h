@@ -3,6 +3,9 @@
 #include <algorithm>
 #include <array>
 #include <bit>
+#include <chrono>
+#include <condition_variable>
+#include <memory>
 #include <cstring>
 #include <map>
 #include <mutex>
@@ -42,8 +45,15 @@ inline bool IsNetCtlNid(std::string_view nid) {
 class GuestNetwork {
 public:
     explicit GuestNetwork(bool online_requested) : online_requested(online_requested) {}
-    ~GuestNetwork() {
-        for (const auto& [id, native] : epolls) Libraries::Net::sceNetEpollDestroy(native);
+    ~GuestNetwork() { RequestStop(); }
+    void RequestStop() {
+        std::lock_guard lock(mutex);
+        stopping = true;
+        for (const auto& [id, epoll] : epolls) {
+            std::lock_guard epoll_lock(epoll->mutex);
+            epoll->stopped = true;
+            epoll->changed.notify_all();
+        }
     }
     struct Callback {
         u64 function{}, argument{}, revision{};
@@ -155,44 +165,72 @@ public:
                 std::memcpy(pin.Value().WritableBytes().data(), address.data(), bytes);
             return u64(result); // invalid text is 0, not a fabricated address
         }
+        // Offline epolls own no host sockets. Preserve timeout and cancellation
+        // semantics without entering desktop epoll/logging on every guest poll.
+        if (nid == "drjIbDbA7UQ") {
+            std::shared_ptr<OfflineEpoll> epoll;
+            std::unique_lock domain_lock(mutex);
+            if (!initialized) return failure(ORBIS_NET_ENOTINIT);
+            const auto it = epolls.find(s32(a[0]));
+            if (it == epolls.end()) return failure(ORBIS_NET_EBADF);
+            epoll = it->second;
+            domain_lock.unlock();
+            if (s32(a[2]) <= 0 || a[2] > 65536) return failure(ORBIS_NET_EINVAL);
+            if (!space.ValidateRange({GuestAddress{a[1]}, a[2] * sizeof(Libraries::Net::OrbisNetEpollEvent)},
+                                     GuestPermission::Write))
+                return failure(ORBIS_NET_EFAULT);
+            // No output buffer pin and no domain/VM lock survives the wait.
+            std::unique_lock wait_lock(epoll->mutex);
+            const auto epoch = epoll->abort_epoch;
+            const auto interrupted = [&] {
+                return epoll->destroyed || epoll->stopped || epoll->abort_epoch != epoch;
+            };
+            const s32 timeout_us = s32(a[3]);
+            if (timeout_us < 0) epoll->changed.wait(wait_lock, interrupted);
+            else if (timeout_us > 0)
+                epoll->changed.wait_for(wait_lock, std::chrono::microseconds(timeout_us), interrupted);
+            const int error = epoll->destroyed ? ORBIS_NET_EBADF :
+                              interrupted() ? ORBIS_NET_ECANCELED : 0;
+            wait_lock.unlock();
+            return error ? failure(error) : 0; // timeout, no invented readiness
+        }
         std::lock_guard lock(mutex);
         if (nid == "SF47kB2MNTo") {
             if (!initialized) return failure(ORBIS_NET_ENOTINIT);
+            if (stopping) return failure(ORBIS_NET_ECANCELED);
             if (u32(a[1])) return failure(ORBIS_NET_EINVAL);
             auto name = a[0] ? string(a[0], 64) : std::optional<std::string>{"anon"};
             if (!name) return failure(ORBIS_NET_EFAULT);
             if (epolls.size() >= 64 || next_epoll == INT32_MAX) return failure(ORBIS_NET_ENOMEM);
-            const s32 native = Libraries::Net::sceNetEpollCreate(name->c_str(), 0);
-            if (native < 0) return failure(native & 0xffff);
             const s32 id = next_epoll++;
-            epolls.emplace(id, native);
+            epolls.emplace(id, std::make_shared<OfflineEpoll>());
             return id;
         }
-        if (nid == "ZVw46bsasAk" || nid == "Inp1lfL+Jdw" || nid == "drjIbDbA7UQ" || nid == "w21YgGGNtBk") {
+        if (nid == "ZVw46bsasAk" || nid == "Inp1lfL+Jdw" || nid == "w21YgGGNtBk") {
             if (!initialized) return failure(ORBIS_NET_ENOTINIT);
-            const auto it=epolls.find(s32(a[0]));
-            if (it==epolls.end()) return failure(ORBIS_NET_EBADF);
+            const auto it = epolls.find(s32(a[0]));
+            if (it == epolls.end()) return failure(ORBIS_NET_EBADF);
+            const auto epoll = it->second;
             if (nid == "Inp1lfL+Jdw") {
-                const auto rc=Libraries::Net::sceNetEpollDestroy(it->second);
-                if (rc < 0) return failure(rc & 0xffff);
-                epolls.erase(it); return 0;
+                {
+                    std::lock_guard epoll_lock(epoll->mutex);
+                    epoll->destroyed = true;
+                    epoll->changed.notify_all();
+                }
+                epolls.erase(it);
+                return 0;
             }
-            if (nid == "w21YgGGNtBk") return Libraries::Net::sceNetEpollAbort(); // desktop compatibility no-op
-            if (nid == "ZVw46bsasAk") {
-                // No successful socket/async resolver exists in this offline domain.
-                // Never let a guest id alias a desktop file descriptor by coincidence.
-                if (u32(a[1]) < 1 || u32(a[1]) > 3) return failure(ORBIS_NET_EINVAL);
-                if (u32(a[1]) != 2 && !a[3]) return failure(ORBIS_NET_EINVAL);
-                return failure(u32(a[1]) == 1 ? ORBIS_NET_EBADF : ORBIS_NET_ENOENT);
+            if (nid == "w21YgGGNtBk") {
+                std::lock_guard epoll_lock(epoll->mutex);
+                ++epoll->abort_epoch;
+                epoll->changed.notify_all();
+                return 0;
             }
-            if (s32(a[2]) <= 0 || a[2] > 65536) return failure(ORBIS_NET_EINVAL);
-            if (!space.ValidateRange({GuestAddress{a[1]},a[2]*sizeof(Libraries::Net::OrbisNetEpollEvent)},GuestPermission::Write))
-                return failure(ORBIS_NET_EFAULT);
-            // Desktop skips the native wait for an empty epoll, regardless of
-            // timeout. No output event is generated and no guest pin is held.
-            Libraries::Net::OrbisNetEpollEvent event{};
-            const auto rc=Libraries::Net::sceNetEpollWait(it->second,&event,1,s32(a[3]));
-            return rc < 0 ? failure(rc & 0xffff) : u64(rc);
+            // No successful socket/async resolver exists in this offline domain.
+            // Never let a guest id alias a desktop file descriptor by coincidence.
+            if (u32(a[1]) < 1 || u32(a[1]) > 3) return failure(ORBIS_NET_EINVAL);
+            if (u32(a[1]) != 2 && !a[3]) return failure(ORBIS_NET_EINVAL);
+            return failure(u32(a[1]) == 1 ? ORBIS_NET_EBADF : ORBIS_NET_ENOENT);
         }
         if (nid == "Q4qBuN-c0ZM") {
             if (!initialized) return failure(ORBIS_NET_ENOTINIT);
@@ -373,14 +411,20 @@ public:
 
 private:
     std::mutex mutex;
-    bool online_requested{}, initialized{}, ctl_initialized{}, dispatching{};
+    bool online_requested{}, initialized{}, ctl_initialized{}, dispatching{}, stopping{};
     std::map<s32, std::vector<u8>> pools;
     struct Resolver {
         s32 pool;
         u32 status;
     };
     std::map<s32, Resolver> resolvers;
-    std::map<s32, s32> epolls;
+    struct OfflineEpoll {
+        std::mutex mutex;
+        std::condition_variable changed;
+        u64 abort_epoch{};
+        bool destroyed{}, stopped{};
+    };
+    std::map<s32, std::shared_ptr<OfflineEpoll>> epolls;
     s32 next_epoll{0x20000};
     s32 next_resolver{0x10000};
     size_t pool_bytes{};

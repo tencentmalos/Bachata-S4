@@ -1,0 +1,45 @@
+{
+  "schema": "shadps4.bloodborne-sidecar-evidence.v1",
+  "apk_sha256": "a507ca927a8c151a70f07b98705a811f30932d35c53bdd2890e137adfd272c97",
+  "binaries": {
+    "lib/arm64-v8a/libshadps4_fex_session.so": "3f7cedcc395f917e9f0ec66a0012ef660dd56cd5d1f684edb44b0cb05ea35c57",
+    "lib/arm64-v8a/libshadps4_host.so": "33f1e89afc1a9b1efac83bd4ec8492b7725016b832c457fb6b545b3180e89706"
+  },
+  "raw_root": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/bloodborne-perf-20260919",
+  "files": {
+    "sidecar/engine-self-test-final.txt": "0885813452f97df1729e942cdee4401932879fdf42e564e0b5ec87941bf7fbfe",
+    "sidecar/engine-tests.txt": "b0e036122518f9e1e8c2cda87c888bc53ab5bb8dd2ba06853ff5036f4c9569b4",
+    "sidecar/final-device-status.txt": "8056a155ad4235f0f0ddca594d83b1399efa8e79dc0b774f87c954354ccfa9ac",
+    "sidecar/flow-20429-1.kgsl.json": "a69136cc7c9b76f8709d7c18ce76da315c04519e5abdd6eb259642d38290bb91",
+    "sidecar/flow-capture-scene.png": "ea6a945afe75ccae023f1b32a676d677cbc1476fa7c1f8679023055fdbefd76c",
+    "sidecar/flow-device-after.txt": "684ed958cc097428a17c9eeda14123712ee7dfed3e408d52da349e36eeabfec2",
+    "sidecar/flow-device-before.txt": "36bc62067e83c9c615d1e3f73db8360b4a566e71dd17dc12807dee9ad7703be8",
+    "sidecar/flow-gpu-timing.txt": "b4927744f07f9fe8b07e23202e6c6e06feed0e5b01652beec458341a5ffcd166",
+    "sidecar/flow-index-status.json": "184a928e0874d8f7ca2b1b5943d28735b87b39bc92d1a46c0cb0fba3919d5635",
+    "sidecar/flow-sidecar-status.json": "ee66d57ca38f685415cadb1f7bb0fe375c324aa147120ff6225be9bb51c4e2ee",
+    "sidecar/installed-cpu-gpu.json": "808f0ae93a59b3b664895851c93ea6bf6383833b3ed3db71484c994b95f5d16e",
+    "sidecar/installed-flow-async.json": "4988cebd1d9eda314d0583d94b46673c1a5363c14f6af12aa35c7cd7d51b8ee8",
+    "sidecar/installed-flow-smoke.txt": "9f2195d162535fc63a40de144821c9a990e299f1c44b329b4c7b4691056451c2",
+    "sidecar/installed-frame-2884.json": "52ffd412bcaa8c984416e4664e31c03933464280e8f75f78a1a700827ec5a1f0",
+    "sidecar/installed-version.json": "e77fd74d549b2bcd6e34d46e2de8515424e320e4ac5cce361d6ee34be901fb97",
+    "sidecar/kgsl-anchor-end.txt": "d8d06e6dc270f1bad7b60e5887779005f33067dcbae73bca5623686cc4057d12",
+    "sidecar/kgsl-anchor-start.txt": "fe26d54ad5d60ac50ab4721fee9c44034ade89d6bb3f9e5e3e21a8a221f40e7a",
+    "sidecar/kgsl-capture.json": "c98e7db5f99a82c6270c8a2888af674ada0ac86c9860dc7146eee997a0609659",
+    "sidecar/kgsl-cleanup.json": "0dcfb94478b9eaba32ae9db8f9860ec45d00ce79ad04ed7122b13f5179d80941",
+    "sidecar/kgsl-per-cpu-stats.txt": "4fa135fd505750e721f529dfd7a8dfe734eaecb413a61998ba698228a18b1606",
+    "sidecar/litep-tests-final.txt": "60930a34bc3fdf6f3fe1c46a54bf905b4938e35d902730f9dc5a7381e17af260",
+    "sidecar/release-codex-mcp-list.txt": "363a17896ba279d6530ef8c6c07168c1f3578392787d89540cc3008df8a635fa",
+    "sidecar/release-install.json": "c76ad41bcdff76081a8135104f31b300a70816b2f148888b50a57407193a771d",
+    "sidecar/release-manifest.json": "c2f019d3cd6f8897a2b3cb0a8cf40586938fd71b2aaa8c7f65a46fc6cfe94a18",
+    "sidecar/release-wrapper-smoke.txt": "447aa2f23b0257a90cc91604587ae07ab8042ac1c51d33870a840d6945da96cb",
+    "sidecar/sdk-verification-summary.json": "99871360e6df49edcea964f7019eff18198a2edc04e735c4fa14c55412bb440d",
+    "sidecar/sync-slowest-frame.json": "91736e924bf9da8662cf6ef2080db64ed57565c2defe76ce21f4ece2b41d31f6"
+  },
+  "limits": [
+    "GNM markers are submission epochs",
+    "GPU query clock uncalibrated",
+    "PROF scope boundaries incomplete",
+    "No matched-scene speedup claim",
+    "10/11 wrapper smoke; external webaccess fetch failed"
+  ]
+}

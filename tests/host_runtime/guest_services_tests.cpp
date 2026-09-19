@@ -182,6 +182,11 @@ int main() {
     s32 value = -1;
     check("system language uses session SDK",
           first.Param(S::OrbisSystemServiceParamId::Lang, value) == 0 && value == 0x1e);
+    for (const s32 language : {10, 11}) {
+        GuestPlatform chinese({}, 0x01000000, language, false);
+        check("Chinese console language reaches guest unchanged",
+              chinese.Param(S::OrbisSystemServiceParamId::Lang, value) == 0 && value == language);
+    }
     check("UTC timezone matches guest clock",
           first.Param(S::OrbisSystemServiceParamId::TimeZone, value) == 0 && value == 0);
     value = 17;

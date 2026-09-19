@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <algorithm>
+#include <ostream>
 #include <magic_enum/magic_enum.hpp>
 #include "common/alignment.h"
 #include "common/debug.h"
@@ -14,6 +15,8 @@
 #include "video_core/renderer_vulkan/vk_instance.h"
 #include "video_core/renderer_vulkan/vk_scheduler.h"
 #include "video_core/texture_cache/texture_cache.h"
+
+#include <vk_mem_alloc.h>
 
 namespace VideoCore {
 
@@ -66,6 +69,29 @@ BufferCache::BufferCache(const Vulkan::Instance& instance_, Vulkan::Scheduler& s
 }
 
 BufferCache::~BufferCache() = default;
+
+void BufferCache::AppendMemoryDiagnostics(std::ostream& out) {
+    const auto allocation_size = [&](const Buffer& buffer) -> u64 {
+        if (!buffer.buffer.allocation) return 0;
+        VmaAllocationInfo info{};
+        vmaGetAllocationInfo(instance.GetAllocator(), buffer.buffer.allocation, &info);
+        return info.size;
+    };
+    u64 count{}, cache_bytes{};
+    for (const auto& buffer : slot_buffers) {
+        ++count;
+        cache_bytes += allocation_size(buffer);
+    }
+    out << "guest_buffer_count=" << count << " guest_buffer_allocation_bytes=" << cache_bytes << "\n";
+    out << "utility_buffer_allocation_bytes=" << allocation_size(staging_buffer) + allocation_size(stream_buffer) +
+        allocation_size(download_buffer) + allocation_size(device_buffer) + allocation_size(gds_buffer) +
+        allocation_size(bda_pagetable_buffer) << "\n";
+    out << "staging_requested_bytes=" << staging_buffer.SizeBytes()
+        << " stream_requested_bytes=" << stream_buffer.SizeBytes()
+        << " download_requested_bytes=" << download_buffer.SizeBytes()
+        << " device_requested_bytes=" << device_buffer.SizeBytes()
+        << " bda_page_table_requested_bytes=" << bda_pagetable_buffer.SizeBytes() << "\n";
+}
 
 void BufferCache::InvalidateMemory(VAddr device_addr, u64 size) {
     if (!IsRegionRegistered(device_addr, size)) {

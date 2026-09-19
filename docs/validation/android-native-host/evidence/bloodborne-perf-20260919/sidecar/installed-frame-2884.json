@@ -1,0 +1,3778 @@
+{
+  "schema": "litep.frame-contributions.v1",
+  "frame": {
+    "sdk_frame": 2884,
+    "tid": 21195,
+    "start_ns": 611027259444587,
+    "end_ns": 611027545614066,
+    "duration_ms": 286.169479
+  },
+  "reference_frames": [
+    {
+      "sdk_frame": 2883,
+      "tid": 21195,
+      "start_ns": 611027099708650,
+      "end_ns": 611027259444587,
+      "duration_ms": 159.735937
+    },
+    {
+      "sdk_frame": 2882,
+      "tid": 21195,
+      "start_ns": 611026830373389,
+      "end_ns": 611027099708650,
+      "duration_ms": 269.335261
+    },
+    {
+      "sdk_frame": 2881,
+      "tid": 21195,
+      "start_ns": 611026597072504,
+      "end_ns": 611026830373389,
+      "duration_ms": 233.300885
+    },
+    {
+      "sdk_frame": 2885,
+      "tid": 21195,
+      "start_ns": 611027545614066,
+      "end_ns": 611027714560264,
+      "duration_ms": 168.946198
+    },
+    {
+      "sdk_frame": 2886,
+      "tid": 21195,
+      "start_ns": 611027714560264,
+      "end_ns": 611028025924795,
+      "duration_ms": 311.364531
+    },
+    {
+      "sdk_frame": 2887,
+      "tid": 21195,
+      "start_ns": 611028025924795,
+      "end_ns": 611028301287816,
+      "duration_ms": 275.363021
+    }
+  ],
+  "reference_duration_median_ms": 251.318073,
+  "frame_owner_contributions": [
+    {
+      "tid": 21195,
+      "name": "HLE.scePthreadCondWait",
+      "source": "",
+      "exclusive_elapsed_ms": 239.864063,
+      "reference_median_ms": 214.87341149999997,
+      "excess_ms": 24.990651500000013,
+      "occurrence_count": 1,
+      "largest_segments": [
+        {
+          "tid": 21195,
+          "name": "HLE.scePthreadCondWait",
+          "source": "",
+          "scope_id": 1758135,
+          "start_ns": 611027259512087,
+          "end_ns": 611027499376150,
+          "scope_start_ns": 611027259512087,
+          "scope_end_ns": 611027499376150,
+          "clipped": false,
+          "duration_ms": 239.864063
+        }
+      ],
+      "scheduler": {
+        "on_cpu_ms": 0.041063,
+        "sleep_ms": 239.802,
+        "runnable_ms": 0.021,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      }
+    },
+    {
+      "tid": 21195,
+      "name": "[uninstrumented or incomplete scope]",
+      "source": null,
+      "exclusive_elapsed_ms": 35.574445000000004,
+      "reference_median_ms": 20.951120000000017,
+      "excess_ms": 14.623324999999987,
+      "occurrence_count": 0,
+      "largest_segments": [
+        {
+          "tid": 21195,
+          "name": "[uninstrumented or incomplete scope]",
+          "source": null,
+          "scope_id": null,
+          "start_ns": 611027533662816,
+          "end_ns": 611027543911879,
+          "scope_start_ns": null,
+          "scope_end_ns": null,
+          "clipped": false,
+          "duration_ms": 10.249063
+        },
+        {
+          "tid": 21195,
+          "name": "[uninstrumented or incomplete scope]",
+          "source": null,
+          "scope_id": null,
+          "start_ns": 611027523006879,
+          "end_ns": 611027523683077,
+          "scope_start_ns": null,
+          "scope_end_ns": null,
+          "clipped": false,
+          "duration_ms": 0.676198
+        },
+        {
+          "tid": 21195,
+          "name": "[uninstrumented or incomplete scope]",
+          "source": null,
+          "scope_id": null,
+          "start_ns": 611027517829014,
+          "end_ns": 611027518296931,
+          "scope_start_ns": null,
+          "scope_end_ns": null,
+          "clipped": false,
+          "duration_ms": 0.467917
+        }
+      ],
+      "scheduler": {
+        "on_cpu_ms": 18.340445,
+        "sleep_ms": 3.057,
+        "runnable_ms": 14.177,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 8.326672684688674e-17
+      }
+    },
+    {
+      "tid": 21195,
+      "name": "HLE.sceGnmSetPsShader",
+      "source": "",
+      "exclusive_elapsed_ms": 1.339324,
+      "reference_median_ms": 0.8385920000000002,
+      "excess_ms": 0.5007319999999997,
+      "occurrence_count": 86,
+      "largest_segments": [
+        {
+          "tid": 21195,
+          "name": "HLE.sceGnmSetPsShader",
+          "source": "",
+          "scope_id": 1805323,
+          "start_ns": 611027529962348,
+          "end_ns": 611027530115889,
+          "scope_start_ns": 611027529962348,
+          "scope_end_ns": 611027530115889,
+          "clipped": false,
+          "duration_ms": 0.153541
+        },
+        {
+          "tid": 21195,
+          "name": "HLE.sceGnmSetPsShader",
+          "source": "",
+          "scope_id": 1805057,
+          "start_ns": 611027529261150,
+          "end_ns": 611027529406098,
+          "scope_start_ns": 611027529261150,
+          "scope_end_ns": 611027529406098,
+          "clipped": false,
+          "duration_ms": 0.144948
+        },
+        {
+          "tid": 21195,
+          "name": "HLE.sceGnmSetPsShader",
+          "source": "",
+          "scope_id": 1800667,
+          "start_ns": 611027515866983,
+          "end_ns": 611027515966358,
+          "scope_start_ns": 611027515866983,
+          "scope_end_ns": 611027515966358,
+          "clipped": false,
+          "duration_ms": 0.099375
+        }
+      ],
+      "scheduler": {
+        "on_cpu_ms": 0.958324,
+        "sleep_ms": 0.034,
+        "runnable_ms": 0.347,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 4.163336342344337e-17
+      }
+    },
+    {
+      "tid": 21195,
+      "name": "HLE.pthread_mutex_lock",
+      "source": "",
+      "exclusive_elapsed_ms": 0.8002139999999999,
+      "reference_median_ms": 0.3048195,
+      "excess_ms": 0.49539449999999985,
+      "occurrence_count": 252,
+      "largest_segments": [
+        {
+          "tid": 21195,
+          "name": "HLE.pthread_mutex_lock",
+          "source": "",
+          "scope_id": 1804467,
+          "start_ns": 611027527173702,
+          "end_ns": 611027527246358,
+          "scope_start_ns": 611027527173702,
+          "scope_end_ns": 611027527246358,
+          "clipped": false,
+          "duration_ms": 0.072656
+        },
+        {
+          "tid": 21195,
+          "name": "HLE.pthread_mutex_lock",
+          "source": "",
+          "scope_id": 1803543,
+          "start_ns": 611027523842816,
+          "end_ns": 611027523905889,
+          "scope_start_ns": 611027523842816,
+          "scope_end_ns": 611027523905889,
+          "clipped": false,
+          "duration_ms": 0.063073
+        },
+        {
+          "tid": 21195,
+          "name": "HLE.pthread_mutex_lock",
+          "source": "",
+          "scope_id": 1806394,
+          "start_ns": 611027544238441,
+          "end_ns": 611027544289275,
+          "scope_start_ns": 611027544238441,
+          "scope_end_ns": 611027544289275,
+          "clipped": false,
+          "duration_ms": 0.050834
+        }
+      ],
+      "scheduler": {
+        "on_cpu_ms": 0.632214,
+        "sleep_ms": 0.02,
+        "runnable_ms": 0.148,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      }
+    },
+    {
+      "tid": 21195,
+      "name": "HLE.pthread_mutex_unlock",
+      "source": "",
+      "exclusive_elapsed_ms": 0.7771380000000001,
+      "reference_median_ms": 0.3223964999999998,
+      "excess_ms": 0.4547415000000003,
+      "occurrence_count": 252,
+      "largest_segments": [
+        {
+          "tid": 21195,
+          "name": "HLE.pthread_mutex_unlock",
+          "source": "",
+          "scope_id": 1804076,
+          "start_ns": 611027525975004,
+          "end_ns": 611027526070056,
+          "scope_start_ns": 611027525975004,
+          "scope_end_ns": 611027526070056,
+          "clipped": false,
+          "duration_ms": 0.095052
+        },
+        {
+          "tid": 21195,
+          "name": "HLE.pthread_mutex_unlock",
+          "source": "",
+          "scope_id": 1803417,
+          "start_ns": 611027522814327,
+          "end_ns": 611027522904275,
+          "scope_start_ns": 611027522814327,
+          "scope_end_ns": 611027522904275,
+          "clipped": false,
+          "duration_ms": 0.089948
+        },
+        {
+          "tid": 21195,
+          "name": "HLE.pthread_mutex_unlock",
+          "source": "",
+          "scope_id": 1803793,
+          "start_ns": 611027524622452,
+          "end_ns": 611027524679483,
+          "scope_start_ns": 611027524622452,
+          "scope_end_ns": 611027524679483,
+          "clipped": false,
+          "duration_ms": 0.057031
+        }
+      ],
+      "scheduler": {
+        "on_cpu_ms": 0.508138,
+        "sleep_ms": 0.102,
+        "runnable_ms": 0.167,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 3.469446951953614e-18
+      }
+    },
+    {
+      "tid": 21195,
+      "name": "HLE.scePthreadMutexUnlock",
+      "source": "",
+      "exclusive_elapsed_ms": 0.7501599999999998,
+      "reference_median_ms": 0.6803680000000002,
+      "excess_ms": 0.06979199999999963,
+      "occurrence_count": 189,
+      "largest_segments": [
+        {
+          "tid": 21195,
+          "name": "HLE.scePthreadMutexUnlock",
+          "source": "",
+          "scope_id": 1796117,
+          "start_ns": 611027502498181,
+          "end_ns": 611027502546775,
+          "scope_start_ns": 611027502498181,
+          "scope_end_ns": 611027502546775,
+          "clipped": false,
+          "duration_ms": 0.048594
+        },
+        {
+          "tid": 21195,
+          "name": "HLE.scePthreadMutexUnlock",
+          "source": "",
+          "scope_id": 1797671,
+          "start_ns": 611027505662139,
+          "end_ns": 611027505699795,
+          "scope_start_ns": 611027505662139,
+          "scope_end_ns": 611027505699795,
+          "clipped": false,
+          "duration_ms": 0.037656
+        },
+        {
+          "tid": 21195,
+          "name": "HLE.scePthreadMutexUnlock",
+          "source": "",
+          "scope_id": 1799444,
+          "start_ns": 611027511616931,
+          "end_ns": 611027511652452,
+          "scope_start_ns": 611027511616931,
+          "scope_end_ns": 611027511652452,
+          "clipped": false,
+          "duration_ms": 0.035521
+        }
+      ],
+      "scheduler": {
+        "on_cpu_ms": 0.65116,
+        "sleep_ms": 0.012,
+        "runnable_ms": 0.087,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 3.469446951953614e-18
+      }
+    },
+    {
+      "tid": 21195,
+      "name": "HLE.sceGnmInsertPopMarker",
+      "source": "",
+      "exclusive_elapsed_ms": 0.376616,
+      "reference_median_ms": 0.31994800000000007,
+      "excess_ms": 0.05666799999999994,
+      "occurrence_count": 43,
+      "largest_segments": [
+        {
+          "tid": 21195,
+          "name": "HLE.sceGnmInsertPopMarker",
+          "source": "",
+          "scope_id": 1797354,
+          "start_ns": 611027505037452,
+          "end_ns": 611027505122504,
+          "scope_start_ns": 611027505037452,
+          "scope_end_ns": 611027505122504,
+          "clipped": false,
+          "duration_ms": 0.085052
+        },
+        {
+          "tid": 21195,
+          "name": "HLE.sceGnmInsertPopMarker",
+          "source": "",
+          "scope_id": 1800665,
+          "start_ns": 611027515815889,
+          "end_ns": 611027515858545,
+          "scope_start_ns": 611027515815889,
+          "scope_end_ns": 611027515858545,
+          "clipped": false,
+          "duration_ms": 0.042656
+        },
+        {
+          "tid": 21195,
+          "name": "HLE.sceGnmInsertPopMarker",
+          "source": "",
+          "scope_id": 1800420,
+          "start_ns": 611027514460212,
+          "end_ns": 611027514477348,
+          "scope_start_ns": 611027514460212,
+          "scope_end_ns": 611027514477348,
+          "clipped": false,
+          "duration_ms": 0.017136
+        }
+      ],
+      "scheduler": {
+        "on_cpu_ms": 0.34161600000000003,
+        "sleep_ms": 0.016,
+        "runnable_ms": 0.019,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      }
+    },
+    {
+      "tid": 21195,
+      "name": "HLE.sceGnmSetVsShader",
+      "source": "",
+      "exclusive_elapsed_ms": 1.1830290000000003,
+      "reference_median_ms": 1.1401049999999995,
+      "excess_ms": 0.04292400000000085,
+      "occurrence_count": 96,
+      "largest_segments": [
+        {
+          "tid": 21195,
+          "name": "HLE.sceGnmSetVsShader",
+          "source": "",
+          "scope_id": 1800406,
+          "start_ns": 611027514131827,
+          "end_ns": 611027514217452,
+          "scope_start_ns": 611027514131827,
+          "scope_end_ns": 611027514217452,
+          "clipped": false,
+          "duration_ms": 0.085625
+        },
+        {
+          "tid": 21195,
+          "name": "HLE.sceGnmSetVsShader",
+          "source": "",
+          "scope_id": 1805363,
+          "start_ns": 611027530473858,
+          "end_ns": 611027530530889,
+          "scope_start_ns": 611027530473858,
+          "scope_end_ns": 611027530530889,
+          "clipped": false,
+          "duration_ms": 0.057031
+        },
+        {
+          "tid": 21195,
+          "name": "HLE.sceGnmSetVsShader",
+          "source": "",
+          "scope_id": 1805371,
+          "start_ns": 611027530703806,
+          "end_ns": 611027530756410,
+          "scope_start_ns": 611027530703806,
+          "scope_end_ns": 611027530756410,
+          "clipped": false,
+          "duration_ms": 0.052604
+        }
+      ],
+      "scheduler": {
+        "on_cpu_ms": 1.083029,
+        "sleep_ms": 0.012,
+        "runnable_ms": 0.088,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      }
+    },
+    {
+      "tid": 21195,
+      "name": "HLE.scePthreadMutexInit",
+      "source": "",
+      "exclusive_elapsed_ms": 0.049115,
+      "reference_median_ms": 0.0346615,
+      "excess_ms": 0.014453500000000001,
+      "occurrence_count": 2,
+      "largest_segments": [
+        {
+          "tid": 21195,
+          "name": "HLE.scePthreadMutexInit",
+          "source": "",
+          "scope_id": 1796093,
+          "start_ns": 611027502208233,
+          "end_ns": 611027502251775,
+          "scope_start_ns": 611027502208233,
+          "scope_end_ns": 611027502251775,
+          "clipped": false,
+          "duration_ms": 0.043542
+        },
+        {
+          "tid": 21195,
+          "name": "HLE.scePthreadMutexInit",
+          "source": "",
+          "scope_id": 1796697,
+          "start_ns": 611027503494691,
+          "end_ns": 611027503500264,
+          "scope_start_ns": 611027503494691,
+          "scope_end_ns": 611027503500264,
+          "clipped": false,
+          "duration_ms": 0.005573
+        }
+      ],
+      "scheduler": {
+        "on_cpu_ms": 0.049115,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      }
+    },
+    {
+      "tid": 21195,
+      "name": "HLE.sceGnmInsertPushMarker",
+      "source": "",
+      "exclusive_elapsed_ms": 1.252086,
+      "reference_median_ms": 1.241462,
+      "excess_ms": 0.010623999999999967,
+      "occurrence_count": 43,
+      "largest_segments": [
+        {
+          "tid": 21195,
+          "name": "HLE.sceGnmInsertPushMarker",
+          "source": "",
+          "scope_id": 1799267,
+          "start_ns": 611027510604848,
+          "end_ns": 611027510688181,
+          "scope_start_ns": 611027510604848,
+          "scope_end_ns": 611027510688181,
+          "clipped": false,
+          "duration_ms": 0.083333
+        },
+        {
+          "tid": 21195,
+          "name": "HLE.sceGnmInsertPushMarker",
+          "source": "",
+          "scope_id": 1800126,
+          "start_ns": 611027513280837,
+          "end_ns": 611027513361931,
+          "scope_start_ns": 611027513280837,
+          "scope_end_ns": 611027513361931,
+          "clipped": false,
+          "duration_ms": 0.081094
+        },
+        {
+          "tid": 21195,
+          "name": "HLE.sceGnmInsertPushMarker",
+          "source": "",
+          "scope_id": 1797699,
+          "start_ns": 611027506131150,
+          "end_ns": 611027506211618,
+          "scope_start_ns": 611027506131150,
+          "scope_end_ns": 611027506211618,
+          "clipped": false,
+          "duration_ms": 0.080468
+        }
+      ],
+      "scheduler": {
+        "on_cpu_ms": 1.001086,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.251,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 1.3877787807814457e-17
+      }
+    }
+  ],
+  "owner_and_explicit_producer_contributions": [
+    {
+      "tid": 21163,
+      "name": "[uninstrumented or incomplete scope]",
+      "source": null,
+      "exclusive_elapsed_ms": 170.69596699999968,
+      "reference_median_ms": 144.1546970000003,
+      "excess_ms": 26.541269999999372,
+      "occurrence_count": 0,
+      "largest_segments": [
+        {
+          "tid": 21163,
+          "name": "[uninstrumented or incomplete scope]",
+          "source": null,
+          "scope_id": null,
+          "start_ns": 611027359699900,
+          "end_ns": 611027380437764,
+          "scope_start_ns": null,
+          "scope_end_ns": null,
+          "clipped": false,
+          "duration_ms": 20.737864
+        },
+        {
+          "tid": 21163,
+          "name": "[uninstrumented or incomplete scope]",
+          "source": null,
+          "scope_id": null,
+          "start_ns": 611027428203181,
+          "end_ns": 611027444086098,
+          "scope_start_ns": null,
+          "scope_end_ns": null,
+          "clipped": false,
+          "duration_ms": 15.882917
+        },
+        {
+          "tid": 21163,
+          "name": "[uninstrumented or incomplete scope]",
+          "source": null,
+          "scope_id": null,
+          "start_ns": 611027444173441,
+          "end_ns": 611027460016931,
+          "scope_start_ns": null,
+          "scope_end_ns": null,
+          "clipped": false,
+          "duration_ms": 15.84349
+        }
+      ],
+      "scheduler": {
+        "on_cpu_ms": 121.10896699999999,
+        "sleep_ms": 17.694,
+        "runnable_ms": 31.893,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 9.8879238130678e-16
+      }
+    },
+    {
+      "tid": 21195,
+      "name": "HLE.scePthreadCondWait",
+      "source": "",
+      "exclusive_elapsed_ms": 239.864063,
+      "reference_median_ms": 214.87341149999997,
+      "excess_ms": 24.990651500000013,
+      "occurrence_count": 1,
+      "largest_segments": [
+        {
+          "tid": 21195,
+          "name": "HLE.scePthreadCondWait",
+          "source": "",
+          "scope_id": 1758135,
+          "start_ns": 611027259512087,
+          "end_ns": 611027499376150,
+          "scope_start_ns": 611027259512087,
+          "scope_end_ns": 611027499376150,
+          "clipped": false,
+          "duration_ms": 239.864063
+        }
+      ],
+      "scheduler": {
+        "on_cpu_ms": 0.041063,
+        "sleep_ms": 239.802,
+        "runnable_ms": 0.021,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      }
+    },
+    {
+      "tid": 21195,
+      "name": "[uninstrumented or incomplete scope]",
+      "source": null,
+      "exclusive_elapsed_ms": 35.574445000000004,
+      "reference_median_ms": 20.951120000000017,
+      "excess_ms": 14.623324999999987,
+      "occurrence_count": 0,
+      "largest_segments": [
+        {
+          "tid": 21195,
+          "name": "[uninstrumented or incomplete scope]",
+          "source": null,
+          "scope_id": null,
+          "start_ns": 611027533662816,
+          "end_ns": 611027543911879,
+          "scope_start_ns": null,
+          "scope_end_ns": null,
+          "clipped": false,
+          "duration_ms": 10.249063
+        },
+        {
+          "tid": 21195,
+          "name": "[uninstrumented or incomplete scope]",
+          "source": null,
+          "scope_id": null,
+          "start_ns": 611027523006879,
+          "end_ns": 611027523683077,
+          "scope_start_ns": null,
+          "scope_end_ns": null,
+          "clipped": false,
+          "duration_ms": 0.676198
+        },
+        {
+          "tid": 21195,
+          "name": "[uninstrumented or incomplete scope]",
+          "source": null,
+          "scope_id": null,
+          "start_ns": 611027517829014,
+          "end_ns": 611027518296931,
+          "scope_start_ns": null,
+          "scope_end_ns": null,
+          "clipped": false,
+          "duration_ms": 0.467917
+        }
+      ],
+      "scheduler": {
+        "on_cpu_ms": 18.340445,
+        "sleep_ms": 3.057,
+        "runnable_ms": 14.177,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 8.326672684688674e-17
+      }
+    },
+    {
+      "tid": 21163,
+      "name": "HLE.scePthreadCondWait",
+      "source": "",
+      "exclusive_elapsed_ms": 75.91255199999999,
+      "reference_median_ms": 63.302786999999995,
+      "excess_ms": 12.609764999999996,
+      "occurrence_count": 5,
+      "largest_segments": [
+        {
+          "tid": 21163,
+          "name": "HLE.scePthreadCondWait",
+          "source": "",
+          "scope_id": 1758390,
+          "start_ns": 611027261210368,
+          "end_ns": 611027322280889,
+          "scope_start_ns": 611027261210368,
+          "scope_end_ns": 611027322280889,
+          "clipped": false,
+          "duration_ms": 61.070521
+        },
+        {
+          "tid": 21163,
+          "name": "HLE.scePthreadCondWait",
+          "source": "",
+          "scope_id": 1805898,
+          "start_ns": 611027533026827,
+          "end_ns": 611027545614066,
+          "scope_start_ns": 611027533026827,
+          "scope_end_ns": 611027579765212,
+          "clipped": true,
+          "duration_ms": 12.587239
+        },
+        {
+          "tid": 21163,
+          "name": "HLE.scePthreadCondWait",
+          "source": "",
+          "scope_id": 1800638,
+          "start_ns": 611027515639587,
+          "end_ns": 611027516714014,
+          "scope_start_ns": 611027515639587,
+          "scope_end_ns": 611027516714014,
+          "clipped": false,
+          "duration_ms": 1.074427
+        }
+      ],
+      "scheduler": {
+        "on_cpu_ms": 0.251367,
+        "sleep_ms": 75.480185,
+        "runnable_ms": 0.181,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      }
+    },
+    {
+      "tid": 21163,
+      "name": "HLE.sceKernelWaitSema",
+      "source": "",
+      "exclusive_elapsed_ms": 9.920311999999997,
+      "reference_median_ms": 5.874376,
+      "excess_ms": 4.0459359999999975,
+      "occurrence_count": 32,
+      "largest_segments": [
+        {
+          "tid": 21163,
+          "name": "HLE.sceKernelWaitSema",
+          "source": "",
+          "scope_id": 1802761,
+          "start_ns": 611027519895264,
+          "end_ns": 611027524241358,
+          "scope_start_ns": 611027519895264,
+          "scope_end_ns": 611027524241358,
+          "clipped": false,
+          "duration_ms": 4.346094
+        },
+        {
+          "tid": 21163,
+          "name": "HLE.sceKernelWaitSema",
+          "source": "",
+          "scope_id": 1770622,
+          "start_ns": 611027344836045,
+          "end_ns": 611027345906566,
+          "scope_start_ns": 611027344836045,
+          "scope_end_ns": 611027345906566,
+          "clipped": false,
+          "duration_ms": 1.070521
+        },
+        {
+          "tid": 21163,
+          "name": "HLE.sceKernelWaitSema",
+          "source": "",
+          "scope_id": 1804350,
+          "start_ns": 611027526954431,
+          "end_ns": 611027527675368,
+          "scope_start_ns": 611027526954431,
+          "scope_end_ns": 611027527675368,
+          "clipped": false,
+          "duration_ms": 0.720937
+        }
+      ],
+      "scheduler": {
+        "on_cpu_ms": 0.424018,
+        "sleep_ms": 9.001,
+        "runnable_ms": 0.495294,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 1.5265566588595902e-16
+      }
+    },
+    {
+      "tid": 21163,
+      "name": "HLE.sceKernelSignalSema",
+      "source": "",
+      "exclusive_elapsed_ms": 4.857601000000002,
+      "reference_median_ms": 3.6928674999999993,
+      "excess_ms": 1.1647335000000023,
+      "occurrence_count": 40,
+      "largest_segments": [
+        {
+          "tid": 21163,
+          "name": "HLE.sceKernelSignalSema",
+          "source": "",
+          "scope_id": 1804040,
+          "start_ns": 611027526050837,
+          "end_ns": 611027526607868,
+          "scope_start_ns": 611027526050837,
+          "scope_end_ns": 611027526607868,
+          "clipped": false,
+          "duration_ms": 0.557031
+        },
+        {
+          "tid": 21163,
+          "name": "HLE.sceKernelSignalSema",
+          "source": "",
+          "scope_id": 1799130,
+          "start_ns": 611027510545577,
+          "end_ns": 611027511016775,
+          "scope_start_ns": 611027510545577,
+          "scope_end_ns": 611027511016775,
+          "clipped": false,
+          "duration_ms": 0.471198
+        },
+        {
+          "tid": 21163,
+          "name": "HLE.sceKernelSignalSema",
+          "source": "",
+          "scope_id": 1799324,
+          "start_ns": 611027511019431,
+          "end_ns": 611027511406775,
+          "scope_start_ns": 611027511019431,
+          "scope_end_ns": 611027511406775,
+          "clipped": false,
+          "duration_ms": 0.387344
+        }
+      ],
+      "scheduler": {
+        "on_cpu_ms": 2.649601,
+        "sleep_ms": 2.092,
+        "runnable_ms": 0.116,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 6.938893903907228e-17
+      }
+    },
+    {
+      "tid": 21195,
+      "name": "HLE.sceGnmSetPsShader",
+      "source": "",
+      "exclusive_elapsed_ms": 1.339324,
+      "reference_median_ms": 0.8385920000000002,
+      "excess_ms": 0.5007319999999997,
+      "occurrence_count": 86,
+      "largest_segments": [
+        {
+          "tid": 21195,
+          "name": "HLE.sceGnmSetPsShader",
+          "source": "",
+          "scope_id": 1805323,
+          "start_ns": 611027529962348,
+          "end_ns": 611027530115889,
+          "scope_start_ns": 611027529962348,
+          "scope_end_ns": 611027530115889,
+          "clipped": false,
+          "duration_ms": 0.153541
+        },
+        {
+          "tid": 21195,
+          "name": "HLE.sceGnmSetPsShader",
+          "source": "",
+          "scope_id": 1805057,
+          "start_ns": 611027529261150,
+          "end_ns": 611027529406098,
+          "scope_start_ns": 611027529261150,
+          "scope_end_ns": 611027529406098,
+          "clipped": false,
+          "duration_ms": 0.144948
+        },
+        {
+          "tid": 21195,
+          "name": "HLE.sceGnmSetPsShader",
+          "source": "",
+          "scope_id": 1800667,
+          "start_ns": 611027515866983,
+          "end_ns": 611027515966358,
+          "scope_start_ns": 611027515866983,
+          "scope_end_ns": 611027515966358,
+          "clipped": false,
+          "duration_ms": 0.099375
+        }
+      ],
+      "scheduler": {
+        "on_cpu_ms": 0.958324,
+        "sleep_ms": 0.034,
+        "runnable_ms": 0.347,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 4.163336342344337e-17
+      }
+    },
+    {
+      "tid": 21195,
+      "name": "HLE.pthread_mutex_lock",
+      "source": "",
+      "exclusive_elapsed_ms": 0.8002139999999999,
+      "reference_median_ms": 0.3048195,
+      "excess_ms": 0.49539449999999985,
+      "occurrence_count": 252,
+      "largest_segments": [
+        {
+          "tid": 21195,
+          "name": "HLE.pthread_mutex_lock",
+          "source": "",
+          "scope_id": 1804467,
+          "start_ns": 611027527173702,
+          "end_ns": 611027527246358,
+          "scope_start_ns": 611027527173702,
+          "scope_end_ns": 611027527246358,
+          "clipped": false,
+          "duration_ms": 0.072656
+        },
+        {
+          "tid": 21195,
+          "name": "HLE.pthread_mutex_lock",
+          "source": "",
+          "scope_id": 1803543,
+          "start_ns": 611027523842816,
+          "end_ns": 611027523905889,
+          "scope_start_ns": 611027523842816,
+          "scope_end_ns": 611027523905889,
+          "clipped": false,
+          "duration_ms": 0.063073
+        },
+        {
+          "tid": 21195,
+          "name": "HLE.pthread_mutex_lock",
+          "source": "",
+          "scope_id": 1806394,
+          "start_ns": 611027544238441,
+          "end_ns": 611027544289275,
+          "scope_start_ns": 611027544238441,
+          "scope_end_ns": 611027544289275,
+          "clipped": false,
+          "duration_ms": 0.050834
+        }
+      ],
+      "scheduler": {
+        "on_cpu_ms": 0.632214,
+        "sleep_ms": 0.02,
+        "runnable_ms": 0.148,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      }
+    },
+    {
+      "tid": 21195,
+      "name": "HLE.pthread_mutex_unlock",
+      "source": "",
+      "exclusive_elapsed_ms": 0.7771380000000001,
+      "reference_median_ms": 0.3223964999999998,
+      "excess_ms": 0.4547415000000003,
+      "occurrence_count": 252,
+      "largest_segments": [
+        {
+          "tid": 21195,
+          "name": "HLE.pthread_mutex_unlock",
+          "source": "",
+          "scope_id": 1804076,
+          "start_ns": 611027525975004,
+          "end_ns": 611027526070056,
+          "scope_start_ns": 611027525975004,
+          "scope_end_ns": 611027526070056,
+          "clipped": false,
+          "duration_ms": 0.095052
+        },
+        {
+          "tid": 21195,
+          "name": "HLE.pthread_mutex_unlock",
+          "source": "",
+          "scope_id": 1803417,
+          "start_ns": 611027522814327,
+          "end_ns": 611027522904275,
+          "scope_start_ns": 611027522814327,
+          "scope_end_ns": 611027522904275,
+          "clipped": false,
+          "duration_ms": 0.089948
+        },
+        {
+          "tid": 21195,
+          "name": "HLE.pthread_mutex_unlock",
+          "source": "",
+          "scope_id": 1803793,
+          "start_ns": 611027524622452,
+          "end_ns": 611027524679483,
+          "scope_start_ns": 611027524622452,
+          "scope_end_ns": 611027524679483,
+          "clipped": false,
+          "duration_ms": 0.057031
+        }
+      ],
+      "scheduler": {
+        "on_cpu_ms": 0.508138,
+        "sleep_ms": 0.102,
+        "runnable_ms": 0.167,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 3.469446951953614e-18
+      }
+    },
+    {
+      "tid": 21163,
+      "name": "HLE.pthread_cond_broadcast",
+      "source": "",
+      "exclusive_elapsed_ms": 1.6965639999999997,
+      "reference_median_ms": 1.5264824999999997,
+      "excess_ms": 0.1700815,
+      "occurrence_count": 55,
+      "largest_segments": [
+        {
+          "tid": 21163,
+          "name": "HLE.pthread_cond_broadcast",
+          "source": "",
+          "scope_id": 1805290,
+          "start_ns": 611027530138910,
+          "end_ns": 611027530248962,
+          "scope_start_ns": 611027530138910,
+          "scope_end_ns": 611027530248962,
+          "clipped": false,
+          "duration_ms": 0.110052
+        },
+        {
+          "tid": 21163,
+          "name": "HLE.pthread_cond_broadcast",
+          "source": "",
+          "scope_id": 1772921,
+          "start_ns": 611027351807712,
+          "end_ns": 611027351879795,
+          "scope_start_ns": 611027351807712,
+          "scope_end_ns": 611027351879795,
+          "clipped": false,
+          "duration_ms": 0.072083
+        },
+        {
+          "tid": 21163,
+          "name": "HLE.pthread_cond_broadcast",
+          "source": "",
+          "scope_id": 1765627,
+          "start_ns": 611027330546931,
+          "end_ns": 611027330606410,
+          "scope_start_ns": 611027330546931,
+          "scope_end_ns": 611027330606410,
+          "clipped": false,
+          "duration_ms": 0.059479
+        }
+      ],
+      "scheduler": {
+        "on_cpu_ms": 1.470564,
+        "sleep_ms": 0.05,
+        "runnable_ms": 0.176,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 6.938893903907228e-18
+      }
+    }
+  ],
+  "other_lane_observations": [
+    {
+      "tid": 21217,
+      "name": "[uninstrumented or incomplete scope]",
+      "source": null,
+      "exclusive_elapsed_ms": 218.676513,
+      "reference_median_ms": 167.773777,
+      "excess_ms": 50.902736000000004,
+      "occurrence_count": 0,
+      "largest_segments": [
+        {
+          "tid": 21217,
+          "name": "[uninstrumented or incomplete scope]",
+          "source": null,
+          "scope_id": null,
+          "start_ns": 611027385992712,
+          "end_ns": 611027418364066,
+          "scope_start_ns": null,
+          "scope_end_ns": null,
+          "clipped": false,
+          "duration_ms": 32.371354
+        },
+        {
+          "tid": 21217,
+          "name": "[uninstrumented or incomplete scope]",
+          "source": null,
+          "scope_id": null,
+          "start_ns": 611027419820733,
+          "end_ns": 611027451708910,
+          "scope_start_ns": null,
+          "scope_end_ns": null,
+          "clipped": false,
+          "duration_ms": 31.888177
+        },
+        {
+          "tid": 21217,
+          "name": "[uninstrumented or incomplete scope]",
+          "source": null,
+          "scope_id": null,
+          "start_ns": 611027487305993,
+          "end_ns": 611027518379743,
+          "scope_start_ns": null,
+          "scope_end_ns": null,
+          "clipped": false,
+          "duration_ms": 31.07375
+        }
+      ],
+      "scheduler": {
+        "on_cpu_ms": 0.221034,
+        "sleep_ms": 218.384479,
+        "runnable_ms": 0.07100000000000001,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      }
+    },
+    {
+      "tid": 21199,
+      "name": "[uninstrumented or incomplete scope]",
+      "source": null,
+      "exclusive_elapsed_ms": 221.91369899999998,
+      "reference_median_ms": 178.45239600000002,
+      "excess_ms": 43.46130299999996,
+      "occurrence_count": 0,
+      "largest_segments": [
+        {
+          "tid": 21199,
+          "name": "[uninstrumented or incomplete scope]",
+          "source": null,
+          "scope_id": null,
+          "start_ns": 611027385898858,
+          "end_ns": 611027418439014,
+          "scope_start_ns": null,
+          "scope_end_ns": null,
+          "clipped": false,
+          "duration_ms": 32.540156
+        },
+        {
+          "tid": 21199,
+          "name": "[uninstrumented or incomplete scope]",
+          "source": null,
+          "scope_id": null,
+          "start_ns": 611027419576358,
+          "end_ns": 611027451919327,
+          "scope_start_ns": null,
+          "scope_end_ns": null,
+          "clipped": false,
+          "duration_ms": 32.342969
+        },
+        {
+          "tid": 21199,
+          "name": "[uninstrumented or incomplete scope]",
+          "source": null,
+          "scope_id": null,
+          "start_ns": 611027487043389,
+          "end_ns": 611027518492504,
+          "scope_start_ns": null,
+          "scope_end_ns": null,
+          "clipped": false,
+          "duration_ms": 31.449115
+        }
+      ],
+      "scheduler": {
+        "on_cpu_ms": 0.53222,
+        "sleep_ms": 220.346479,
+        "runnable_ms": 1.035,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 1.61259894326804e-14
+      }
+    },
+    {
+      "tid": 21200,
+      "name": "[uninstrumented or incomplete scope]",
+      "source": null,
+      "exclusive_elapsed_ms": 223.571874,
+      "reference_median_ms": 181.435547,
+      "excess_ms": 42.136326999999994,
+      "occurrence_count": 0,
+      "largest_segments": [
+        {
+          "tid": 21200,
+          "name": "[uninstrumented or incomplete scope]",
+          "source": null,
+          "scope_id": null,
+          "start_ns": 611027337255264,
+          "end_ns": 611027545614066,
+          "scope_start_ns": null,
+          "scope_end_ns": null,
+          "clipped": false,
+          "duration_ms": 208.358802
+        },
+        {
+          "tid": 21200,
+          "name": "[uninstrumented or incomplete scope]",
+          "source": null,
+          "scope_id": null,
+          "start_ns": 611027259444587,
+          "end_ns": 611027274613441,
+          "scope_start_ns": null,
+          "scope_end_ns": null,
+          "clipped": false,
+          "duration_ms": 15.168854
+        },
+        {
+          "tid": 21200,
+          "name": "[uninstrumented or incomplete scope]",
+          "source": null,
+          "scope_id": null,
+          "start_ns": 611027335924275,
+          "end_ns": 611027335968493,
+          "scope_start_ns": null,
+          "scope_end_ns": null,
+          "clipped": false,
+          "duration_ms": 0.044218
+        }
+      ],
+      "scheduler": {
+        "on_cpu_ms": 0.045395,
+        "sleep_ms": 223.493479,
+        "runnable_ms": 0.033,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      }
+    },
+    {
+      "tid": 21184,
+      "name": "HLE.scePthreadCondWait",
+      "source": "",
+      "exclusive_elapsed_ms": 283.490209,
+      "reference_median_ms": 242.84354150000001,
+      "excess_ms": 40.64666749999998,
+      "occurrence_count": 4,
+      "largest_segments": [
+        {
+          "tid": 21184,
+          "name": "HLE.scePthreadCondWait",
+          "source": "",
+          "scope_id": 1766353,
+          "start_ns": 611027332226775,
+          "end_ns": 611027508646254,
+          "scope_start_ns": 611027332226775,
+          "scope_end_ns": 611027508646254,
+          "clipped": false,
+          "duration_ms": 176.419479
+        },
+        {
+          "tid": 21184,
+          "name": "HLE.scePthreadCondWait",
+          "source": "",
+          "scope_id": 1753362,
+          "start_ns": 611027259444587,
+          "end_ns": 611027330386775,
+          "scope_start_ns": 611027245314795,
+          "scope_end_ns": 611027330386775,
+          "clipped": true,
+          "duration_ms": 70.942188
+        },
+        {
+          "tid": 21184,
+          "name": "HLE.scePthreadCondWait",
+          "source": "",
+          "scope_id": 1798821,
+          "start_ns": 611027509624795,
+          "end_ns": 611027545614066,
+          "scope_start_ns": 611027509624795,
+          "scope_end_ns": 611027586626931,
+          "clipped": true,
+          "duration_ms": 35.989271
+        }
+      ],
+      "scheduler": {
+        "on_cpu_ms": 0.14873,
+        "sleep_ms": 283.315479,
+        "runnable_ms": 0.026,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      }
+    },
+    {
+      "tid": 21238,
+      "name": "HLE.sceKernelWaitSema",
+      "source": "",
+      "exclusive_elapsed_ms": 281.143226,
+      "reference_median_ms": 243.57788949999997,
+      "excess_ms": 37.56533650000006,
+      "occurrence_count": 14,
+      "largest_segments": [
+        {
+          "tid": 21238,
+          "name": "HLE.sceKernelWaitSema",
+          "source": "",
+          "scope_id": 1772152,
+          "start_ns": 611027349392608,
+          "end_ns": 611027511392035,
+          "scope_start_ns": 611027349392608,
+          "scope_end_ns": 611027511392035,
+          "clipped": false,
+          "duration_ms": 161.999427
+        },
+        {
+          "tid": 21238,
+          "name": "HLE.sceKernelWaitSema",
+          "source": "",
+          "scope_id": 1757923,
+          "start_ns": 611027259444587,
+          "end_ns": 611027339156045,
+          "scope_start_ns": 611027259050056,
+          "scope_end_ns": 611027339156045,
+          "clipped": true,
+          "duration_ms": 79.711458
+        },
+        {
+          "tid": 21238,
+          "name": "HLE.sceKernelWaitSema",
+          "source": "",
+          "scope_id": 1804845,
+          "start_ns": 611027527782139,
+          "end_ns": 611027545614066,
+          "scope_start_ns": 611027527782139,
+          "scope_end_ns": 611027595995525,
+          "clipped": true,
+          "duration_ms": 17.831927
+        }
+      ],
+      "scheduler": {
+        "on_cpu_ms": 1.679747,
+        "sleep_ms": 277.810479,
+        "runnable_ms": 1.653,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      }
+    },
+    {
+      "tid": 21712,
+      "name": "[uninstrumented or incomplete scope]",
+      "source": null,
+      "exclusive_elapsed_ms": 81.43505999999992,
+      "reference_median_ms": 44.282477,
+      "excess_ms": 37.15258299999992,
+      "occurrence_count": 0,
+      "largest_segments": [
+        {
+          "tid": 21712,
+          "name": "[uninstrumented or incomplete scope]",
+          "source": null,
+          "scope_id": null,
+          "start_ns": 611027533367087,
+          "end_ns": 611027544188077,
+          "scope_start_ns": null,
+          "scope_end_ns": null,
+          "clipped": false,
+          "duration_ms": 10.82099
+        },
+        {
+          "tid": 21712,
+          "name": "[uninstrumented or incomplete scope]",
+          "source": null,
+          "scope_id": null,
+          "start_ns": 611027300495733,
+          "end_ns": 611027310996045,
+          "scope_start_ns": null,
+          "scope_end_ns": null,
+          "clipped": false,
+          "duration_ms": 10.500312
+        },
+        {
+          "tid": 21712,
+          "name": "[uninstrumented or incomplete scope]",
+          "source": null,
+          "scope_id": null,
+          "start_ns": 611027311597973,
+          "end_ns": 611027322043910,
+          "scope_start_ns": null,
+          "scope_end_ns": null,
+          "clipped": false,
+          "duration_ms": 10.445937
+        }
+      ],
+      "scheduler": {
+        "on_cpu_ms": 42.388875,
+        "sleep_ms": 12.776,
+        "runnable_ms": 26.270185,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 5.551115123125783e-17
+      }
+    },
+    {
+      "tid": 21241,
+      "name": "HLE.sceKernelWaitSema",
+      "source": "",
+      "exclusive_elapsed_ms": 277.74432299999995,
+      "reference_median_ms": 240.8172405,
+      "excess_ms": 36.927082499999955,
+      "occurrence_count": 14,
+      "largest_segments": [
+        {
+          "tid": 21241,
+          "name": "HLE.sceKernelWaitSema",
+          "source": "",
+          "scope_id": 1772192,
+          "start_ns": 611027349592295,
+          "end_ns": 611027510579275,
+          "scope_start_ns": 611027349592295,
+          "scope_end_ns": 611027510579275,
+          "clipped": false,
+          "duration_ms": 160.98698
+        },
+        {
+          "tid": 21241,
+          "name": "HLE.sceKernelWaitSema",
+          "source": "",
+          "scope_id": 1758162,
+          "start_ns": 611027259444587,
+          "end_ns": 611027338666462,
+          "scope_start_ns": 611027259292243,
+          "scope_end_ns": 611027338666462,
+          "clipped": true,
+          "duration_ms": 79.221875
+        },
+        {
+          "tid": 21241,
+          "name": "HLE.sceKernelWaitSema",
+          "source": "",
+          "scope_id": 1804849,
+          "start_ns": 611027527739379,
+          "end_ns": 611027545614066,
+          "scope_start_ns": 611027527739379,
+          "scope_end_ns": 611027595471514,
+          "clipped": true,
+          "duration_ms": 17.874687
+        }
+      ],
+      "scheduler": {
+        "on_cpu_ms": 1.571844,
+        "sleep_ms": 272.171479,
+        "runnable_ms": 4.001,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 3.774758283725532e-15
+      }
+    },
+    {
+      "tid": 21240,
+      "name": "HLE.sceKernelWaitSema",
+      "source": "",
+      "exclusive_elapsed_ms": 279.01010400000007,
+      "reference_median_ms": 242.16359549999999,
+      "excess_ms": 36.846508500000084,
+      "occurrence_count": 13,
+      "largest_segments": [
+        {
+          "tid": 21240,
+          "name": "HLE.sceKernelWaitSema",
+          "source": "",
+          "scope_id": 1772184,
+          "start_ns": 611027349267191,
+          "end_ns": 611027511560316,
+          "scope_start_ns": 611027349267191,
+          "scope_end_ns": 611027511560316,
+          "clipped": false,
+          "duration_ms": 162.293125
+        },
+        {
+          "tid": 21240,
+          "name": "HLE.sceKernelWaitSema",
+          "source": "",
+          "scope_id": 1758157,
+          "start_ns": 611027259584327,
+          "end_ns": 611027339016358,
+          "scope_start_ns": 611027259584327,
+          "scope_end_ns": 611027339016358,
+          "clipped": false,
+          "duration_ms": 79.432031
+        },
+        {
+          "tid": 21240,
+          "name": "HLE.sceKernelWaitSema",
+          "source": "",
+          "scope_id": 1804847,
+          "start_ns": 611027527662973,
+          "end_ns": 611027545614066,
+          "scope_start_ns": 611027527662973,
+          "scope_end_ns": 611027595502660,
+          "clipped": true,
+          "duration_ms": 17.951093
+        }
+      ],
+      "scheduler": {
+        "on_cpu_ms": 1.6159189999999999,
+        "sleep_ms": 275.215185,
+        "runnable_ms": 2.179,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      }
+    },
+    {
+      "tid": 21202,
+      "name": "[uninstrumented or incomplete scope]",
+      "source": null,
+      "exclusive_elapsed_ms": 277.771354,
+      "reference_median_ms": 241.661381,
+      "excess_ms": 36.10997299999997,
+      "occurrence_count": 0,
+      "largest_segments": [
+        {
+          "tid": 21202,
+          "name": "[uninstrumented or incomplete scope]",
+          "source": null,
+          "scope_id": null,
+          "start_ns": 611027259444587,
+          "end_ns": 611027337414014,
+          "scope_start_ns": null,
+          "scope_end_ns": null,
+          "clipped": false,
+          "duration_ms": 77.969427
+        },
+        {
+          "tid": 21202,
+          "name": "[uninstrumented or incomplete scope]",
+          "source": null,
+          "scope_id": null,
+          "start_ns": 611027420530316,
+          "end_ns": 611027453791358,
+          "scope_start_ns": null,
+          "scope_end_ns": null,
+          "clipped": false,
+          "duration_ms": 33.261042
+        },
+        {
+          "tid": 21202,
+          "name": "[uninstrumented or incomplete scope]",
+          "source": null,
+          "scope_id": null,
+          "start_ns": 611027488050993,
+          "end_ns": 611027520837816,
+          "scope_start_ns": null,
+          "scope_end_ns": null,
+          "clipped": false,
+          "duration_ms": 32.786823
+        }
+      ],
+      "scheduler": {
+        "on_cpu_ms": 0.236875,
+        "sleep_ms": 252.795294,
+        "runnable_ms": 0.604,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 24.135185
+      }
+    },
+    {
+      "tid": 21716,
+      "name": "HLE.scePthreadCondWait",
+      "source": "",
+      "exclusive_elapsed_ms": 285.810052,
+      "reference_median_ms": 249.7473705,
+      "excess_ms": 36.0626815,
+      "occurrence_count": 3,
+      "largest_segments": [
+        {
+          "tid": 21716,
+          "name": "HLE.scePthreadCondWait",
+          "source": "",
+          "scope_id": 1772521,
+          "start_ns": 611027350595837,
+          "end_ns": 611027545614066,
+          "scope_start_ns": 611027350595837,
+          "scope_end_ns": 611027602258025,
+          "clipped": true,
+          "duration_ms": 195.018229
+        },
+        {
+          "tid": 21716,
+          "name": "HLE.scePthreadCondWait",
+          "source": "",
+          "scope_id": 1728699,
+          "start_ns": 611027259444587,
+          "end_ns": 611027346876045,
+          "scope_start_ns": 611027149577295,
+          "scope_end_ns": 611027346876045,
+          "clipped": true,
+          "duration_ms": 87.431458
+        },
+        {
+          "tid": 21716,
+          "name": "HLE.scePthreadCondWait",
+          "source": "",
+          "scope_id": 1771412,
+          "start_ns": 611027346998285,
+          "end_ns": 611027350358650,
+          "scope_start_ns": 611027346998285,
+          "scope_end_ns": 611027350358650,
+          "clipped": false,
+          "duration_ms": 3.360365
+        }
+      ],
+      "scheduler": {
+        "on_cpu_ms": 0.085573,
+        "sleep_ms": 285.71547899999996,
+        "runnable_ms": 0.009000000000000001,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 1.4210854715202004e-14
+      }
+    }
+  ],
+  "owner_largest_segments": [
+    {
+      "tid": 21195,
+      "name": "HLE.scePthreadCondWait",
+      "source": "",
+      "scope_id": 1758135,
+      "start_ns": 611027259512087,
+      "end_ns": 611027499376150,
+      "scope_start_ns": 611027259512087,
+      "scope_end_ns": 611027499376150,
+      "clipped": false,
+      "duration_ms": 239.864063
+    },
+    {
+      "tid": 21195,
+      "name": "[uninstrumented or incomplete scope]",
+      "source": null,
+      "scope_id": null,
+      "start_ns": 611027533662816,
+      "end_ns": 611027543911879,
+      "scope_start_ns": null,
+      "scope_end_ns": null,
+      "clipped": false,
+      "duration_ms": 10.249063
+    },
+    {
+      "tid": 21195,
+      "name": "HLE.sceGnmDrawInitDefaultHardwareState200",
+      "source": "",
+      "scope_id": 1802646,
+      "start_ns": 611027518859223,
+      "end_ns": 611027519574170,
+      "scope_start_ns": 611027518859223,
+      "scope_end_ns": 611027519574170,
+      "clipped": false,
+      "duration_ms": 0.714947
+    },
+    {
+      "tid": 21195,
+      "name": "[uninstrumented or incomplete scope]",
+      "source": null,
+      "scope_id": null,
+      "start_ns": 611027523006879,
+      "end_ns": 611027523683077,
+      "scope_start_ns": null,
+      "scope_end_ns": null,
+      "clipped": false,
+      "duration_ms": 0.676198
+    },
+    {
+      "tid": 21195,
+      "name": "HLE.sceGnmDrawInitDefaultHardwareState200",
+      "source": "",
+      "scope_id": 1795779,
+      "start_ns": 611027501298598,
+      "end_ns": 611027501966254,
+      "scope_start_ns": 611027501298598,
+      "scope_end_ns": 611027501966254,
+      "clipped": false,
+      "duration_ms": 0.667656
+    },
+    {
+      "tid": 21195,
+      "name": "[uninstrumented or incomplete scope]",
+      "source": null,
+      "scope_id": null,
+      "start_ns": 611027517829014,
+      "end_ns": 611027518296931,
+      "scope_start_ns": null,
+      "scope_end_ns": null,
+      "clipped": false,
+      "duration_ms": 0.467917
+    },
+    {
+      "tid": 21195,
+      "name": "[uninstrumented or incomplete scope]",
+      "source": null,
+      "scope_id": null,
+      "start_ns": 611027532202764,
+      "end_ns": 611027532628129,
+      "scope_start_ns": null,
+      "scope_end_ns": null,
+      "clipped": false,
+      "duration_ms": 0.425365
+    },
+    {
+      "tid": 21195,
+      "name": "[uninstrumented or incomplete scope]",
+      "source": null,
+      "scope_id": null,
+      "start_ns": 611027514758598,
+      "end_ns": 611027515150368,
+      "scope_start_ns": null,
+      "scope_end_ns": null,
+      "clipped": false,
+      "duration_ms": 0.39177
+    },
+    {
+      "tid": 21195,
+      "name": "[uninstrumented or incomplete scope]",
+      "source": null,
+      "scope_id": null,
+      "start_ns": 611027524268077,
+      "end_ns": 611027524600264,
+      "scope_start_ns": null,
+      "scope_end_ns": null,
+      "clipped": false,
+      "duration_ms": 0.332187
+    },
+    {
+      "tid": 21195,
+      "name": "[uninstrumented or incomplete scope]",
+      "source": null,
+      "scope_id": null,
+      "start_ns": 611027515998598,
+      "end_ns": 611027516295733,
+      "scope_start_ns": null,
+      "scope_end_ns": null,
+      "clipped": false,
+      "duration_ms": 0.297135
+    }
+  ],
+  "per_lane_partition_ms": {
+    "21163": 286.16947899999957,
+    "21171": 286.169479,
+    "21172": 286.16947899999997,
+    "21182": 286.16947899999997,
+    "21183": 286.169479,
+    "21184": 286.16947899999997,
+    "21188": 286.169479,
+    "21191": 286.1694790000001,
+    "21193": 286.16947899999997,
+    "21194": 286.16947899999997,
+    "21195": 286.16947899999997,
+    "21196": 286.16947899999997,
+    "21199": 286.16947899999997,
+    "21200": 286.169479,
+    "21202": 286.16947899999997,
+    "21204": 286.16947899999997,
+    "21217": 286.16947899999997,
+    "21218": 286.1694790000001,
+    "21219": 286.1694790000002,
+    "21220": 286.16947899999997,
+    "21221": 286.16947899999997,
+    "21222": 286.169479,
+    "21237": 286.16947899999997,
+    "21238": 286.169479,
+    "21239": 286.16947899999997,
+    "21240": 286.1694790000001,
+    "21241": 286.16947899999997,
+    "21245": 286.16947899999997,
+    "21246": 286.16947899999997,
+    "21247": 286.16947899999997,
+    "21248": 286.169479,
+    "21249": 286.16947899999997,
+    "21253": 286.169479,
+    "21268": 286.169479,
+    "21270": 286.169479,
+    "21271": 286.1694790000001,
+    "21707": 286.169479,
+    "21708": 286.16947899999997,
+    "21709": 286.16947899999997,
+    "21710": 286.16947899999997,
+    "21711": 286.1694790000001,
+    "21712": 286.1694789999999,
+    "21715": 286.169479,
+    "21716": 286.16947899999997,
+    "21717": 286.16947899999997,
+    "21718": 286.169479,
+    "21719": 286.16947899999997,
+    "21720": 286.169479,
+    "21885": 286.169479
+  },
+  "owner_wait_dependencies": [
+    {
+      "waiter_tid": 21195,
+      "notifier_tid": 21163,
+      "condition": "68724575232",
+      "mutex": "68724574976",
+      "wait_start_ns": 611027259525681,
+      "wait_end_ns": 611027499372816,
+      "window_overlap_ms": 239.847135,
+      "before_notify_ms": 239.787083,
+      "notify_to_resume_ms": 0.055156,
+      "reacquire_ms": 0.004896,
+      "clipped": false,
+      "wait_caller": {
+        "Thread": 19,
+        "ThreadGeneration": 20,
+        "Invocation": 1,
+        "Operation": 460,
+        "Arg0": 9263783704,
+        "Arg1": 9263783696,
+        "Arg2": 4294967295,
+        "Arg3": 103083327503,
+        "Caller": 38294205,
+        "Parent0": 38272472,
+        "Parent1": 39549852,
+        "Parent2": 44283734
+      },
+      "notify_caller": {
+        "Thread": 1,
+        "ThreadGeneration": 2,
+        "Invocation": 4,
+        "Operation": 18,
+        "Arg0": 9263783704,
+        "Arg1": 1,
+        "Arg2": 7,
+        "Arg3": 5,
+        "Caller": 38272108,
+        "Parent0": 39430735,
+        "Parent1": 35224168,
+        "Parent2": 21223176,
+        "Parent3": 21222801,
+        "Parent4": 21395529,
+        "Parent5": 21225935
+      },
+      "producer_scheduler_during_wait": {
+        "on_cpu_ms": 124.065883,
+        "sleep_ms": 85.1642,
+        "runnable_ms": 30.557,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      }
+    }
+  ],
+  "producer_wait_dependencies": [
+    {
+      "waiter_tid": 21163,
+      "notifier_tid": 21712,
+      "condition": "68737090048",
+      "mutex": "68737089792",
+      "wait_start_ns": 611027261220837,
+      "wait_end_ns": 611027322276150,
+      "window_overlap_ms": 61.055313,
+      "before_notify_ms": 61.016406,
+      "notify_to_resume_ms": 0.035573,
+      "reacquire_ms": 0.003334,
+      "clipped": false,
+      "wait_caller": {
+        "Thread": 1,
+        "ThreadGeneration": 2,
+        "Invocation": 4,
+        "Operation": 460,
+        "Arg0": 13040063152,
+        "Arg1": 13040063144,
+        "Arg2": 4294967295,
+        "Arg3": 103083327503,
+        "Caller": 38294205,
+        "Parent0": 38272472,
+        "Parent1": 30508741,
+        "Parent2": 30502788,
+        "Parent3": 30654225,
+        "Parent4": 30641042,
+        "Parent5": 30761086
+      },
+      "notify_caller": {
+        "Thread": 56,
+        "ThreadGeneration": 57,
+        "Invocation": 1,
+        "Operation": 18,
+        "Arg0": 13040063152,
+        "Arg1": 1,
+        "Arg2": 7,
+        "Arg3": 5,
+        "Caller": 38272108,
+        "Parent0": 37959548,
+        "Parent1": 37966873,
+        "Parent2": 44283734
+      },
+      "producer_scheduler_during_wait": {
+        "on_cpu_ms": 36.653406,
+        "sleep_ms": 1.232,
+        "runnable_ms": 23.131,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 7.105427357601002e-15
+      }
+    },
+    {
+      "waiter_tid": 21163,
+      "notifier_tid": 21712,
+      "condition": "68737097728",
+      "mutex": "68737097472",
+      "wait_start_ns": 611027533123962,
+      "wait_end_ns": 611027579763233,
+      "window_overlap_ms": 12.490104,
+      "before_notify_ms": 12.490104,
+      "notify_to_resume_ms": 0.0,
+      "reacquire_ms": 0.0,
+      "clipped": true,
+      "wait_caller": {
+        "Thread": 1,
+        "ThreadGeneration": 2,
+        "Invocation": 4,
+        "Operation": 460,
+        "Arg0": 13040074736,
+        "Arg1": 13040074728,
+        "Arg2": 4294967295,
+        "Arg3": 103083327503,
+        "Caller": 38294205,
+        "Parent0": 38272472,
+        "Parent1": 30508741,
+        "Parent2": 30502788,
+        "Parent3": 30654225,
+        "Parent4": 30641042,
+        "Parent5": 30761086
+      },
+      "notify_caller": {
+        "Thread": 56,
+        "ThreadGeneration": 57,
+        "Invocation": 1,
+        "Operation": 18,
+        "Arg0": 13040074736,
+        "Arg1": 1,
+        "Arg2": 7,
+        "Arg3": 5,
+        "Caller": 38272108,
+        "Parent0": 37959548,
+        "Parent1": 37966873,
+        "Parent2": 44283734
+      },
+      "producer_scheduler_during_wait": {
+        "on_cpu_ms": 0.293,
+        "sleep_ms": 10.502919,
+        "runnable_ms": 1.694185,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      }
+    },
+    {
+      "waiter_tid": 21163,
+      "notifier_tid": 21707,
+      "condition": "68737096960",
+      "mutex": "68737096704",
+      "wait_start_ns": 611027515722348,
+      "wait_end_ns": 611027516713233,
+      "window_overlap_ms": 0.990885,
+      "before_notify_ms": 0.949375,
+      "notify_to_resume_ms": 0.026145,
+      "reacquire_ms": 0.015365,
+      "clipped": false,
+      "wait_caller": {
+        "Thread": 1,
+        "ThreadGeneration": 2,
+        "Invocation": 4,
+        "Operation": 460,
+        "Arg0": 13040063152,
+        "Arg1": 13040063144,
+        "Arg2": 4294967295,
+        "Arg3": 103083327503,
+        "Caller": 38294205,
+        "Parent0": 38272472,
+        "Parent1": 30507789,
+        "Parent2": 30502788,
+        "Parent3": 30654225,
+        "Parent4": 30641042,
+        "Parent5": 30761086
+      },
+      "notify_caller": {
+        "Thread": 51,
+        "ThreadGeneration": 52,
+        "Invocation": 1,
+        "Operation": 18,
+        "Arg0": 13040063152,
+        "Arg1": 1,
+        "Arg2": 7,
+        "Arg3": 5,
+        "Caller": 38272108,
+        "Parent0": 37959548,
+        "Parent1": 37966873,
+        "Parent2": 44283734
+      },
+      "producer_scheduler_during_wait": {
+        "on_cpu_ms": 0.509842,
+        "sleep_ms": 0.369533,
+        "runnable_ms": 0.07,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      }
+    },
+    {
+      "waiter_tid": 21163,
+      "notifier_tid": 21708,
+      "condition": "68737090816",
+      "mutex": "68737090560",
+      "wait_start_ns": 611027324764795,
+      "wait_end_ns": 611027325378858,
+      "window_overlap_ms": 0.614063,
+      "before_notify_ms": 0.486875,
+      "notify_to_resume_ms": 0.07448,
+      "reacquire_ms": 0.052708,
+      "clipped": false,
+      "wait_caller": {
+        "Thread": 1,
+        "ThreadGeneration": 2,
+        "Invocation": 4,
+        "Operation": 460,
+        "Arg0": 13040063152,
+        "Arg1": 13040063144,
+        "Arg2": 4294967295,
+        "Arg3": 103083327503,
+        "Caller": 38294205,
+        "Parent0": 38272472,
+        "Parent1": 30509069,
+        "Parent2": 30502788,
+        "Parent3": 30654225,
+        "Parent4": 30641042,
+        "Parent5": 30761086
+      },
+      "notify_caller": {
+        "Thread": 52,
+        "ThreadGeneration": 53,
+        "Invocation": 1,
+        "Operation": 18,
+        "Arg0": 13040063152,
+        "Arg1": 1,
+        "Arg2": 7,
+        "Arg3": 5,
+        "Caller": 38272108,
+        "Parent0": 37959548,
+        "Parent1": 37966873,
+        "Parent2": 44283734
+      },
+      "producer_scheduler_during_wait": {
+        "on_cpu_ms": 0.185789,
+        "sleep_ms": 0.216,
+        "runnable_ms": 0.085086,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      }
+    },
+    {
+      "waiter_tid": 21163,
+      "notifier_tid": 21247,
+      "condition": "68726420480",
+      "mutex": "68726420224",
+      "wait_start_ns": 611027352946514,
+      "wait_end_ns": 611027353475160,
+      "window_overlap_ms": 0.528646,
+      "before_notify_ms": 0.290834,
+      "notify_to_resume_ms": 0.021041,
+      "reacquire_ms": 0.216771,
+      "clipped": false,
+      "wait_caller": {
+        "Thread": 1,
+        "ThreadGeneration": 2,
+        "Invocation": 4,
+        "Operation": 460,
+        "Arg0": 13037170480,
+        "Arg1": 13037170472,
+        "Arg2": 4294967295,
+        "Arg3": 103083327503,
+        "Caller": 38294205,
+        "Parent0": 38272472,
+        "Parent1": 35909483,
+        "Parent2": 29335736,
+        "Parent3": 21223176,
+        "Parent4": 21222801,
+        "Parent5": 21395529
+      },
+      "notify_caller": {
+        "Thread": 39,
+        "ThreadGeneration": 40,
+        "Invocation": 1,
+        "Operation": 18,
+        "Arg0": 13037170480,
+        "Arg1": 1,
+        "Arg2": 7,
+        "Arg3": 5,
+        "Caller": 38272108,
+        "Parent0": 35911293,
+        "Parent1": 44283734
+      },
+      "producer_scheduler_during_wait": {
+        "on_cpu_ms": 0.196834,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.094,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      }
+    }
+  ],
+  "other_wait_dependencies": [
+    {
+      "waiter_tid": 21720,
+      "notifier_tid": 21163,
+      "condition": "68732273408",
+      "mutex": "68732273152",
+      "wait_start_ns": 611027350195993,
+      "wait_end_ns": 611027601717452,
+      "window_overlap_ms": 195.418073,
+      "before_notify_ms": 195.418073,
+      "notify_to_resume_ms": 0.0,
+      "reacquire_ms": 0.0,
+      "clipped": true,
+      "wait_caller": {
+        "Thread": 63,
+        "ThreadGeneration": 64,
+        "Invocation": 1,
+        "Operation": 460,
+        "Arg0": 13037447728,
+        "Arg1": 13037447720,
+        "Arg2": 4294967295,
+        "Arg3": 103083327503,
+        "Caller": 38294205,
+        "Parent0": 38272472,
+        "Parent1": 38327253,
+        "Parent2": 37966843,
+        "Parent3": 44283734
+      },
+      "notify_caller": {
+        "Thread": 1,
+        "ThreadGeneration": 2,
+        "Invocation": 4,
+        "Operation": 18,
+        "Arg0": 13037447728,
+        "Arg1": 1,
+        "Arg2": 7,
+        "Arg3": 5,
+        "Caller": 38272108,
+        "Parent0": 38324905,
+        "Parent1": 37959180,
+        "Parent2": 35886304,
+        "Parent3": 21223176,
+        "Parent4": 21222801,
+        "Parent5": 21395529
+      },
+      "producer_scheduler_during_wait": {
+        "on_cpu_ms": 122.079,
+        "sleep_ms": 39.999073,
+        "runnable_ms": 33.34,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      }
+    },
+    {
+      "waiter_tid": 21719,
+      "notifier_tid": 21163,
+      "condition": "68730895872",
+      "mutex": "68730895616",
+      "wait_start_ns": 611027350271983,
+      "wait_end_ns": 611027601768077,
+      "window_overlap_ms": 195.342083,
+      "before_notify_ms": 195.342083,
+      "notify_to_resume_ms": 0.0,
+      "reacquire_ms": 0.0,
+      "clipped": true,
+      "wait_caller": {
+        "Thread": 62,
+        "ThreadGeneration": 63,
+        "Invocation": 1,
+        "Operation": 460,
+        "Arg0": 13037416048,
+        "Arg1": 13037416040,
+        "Arg2": 4294967295,
+        "Arg3": 103083327503,
+        "Caller": 38294205,
+        "Parent0": 38272472,
+        "Parent1": 38327253,
+        "Parent2": 37966843,
+        "Parent3": 44283734
+      },
+      "notify_caller": {
+        "Thread": 1,
+        "ThreadGeneration": 2,
+        "Invocation": 4,
+        "Operation": 18,
+        "Arg0": 13037416048,
+        "Arg1": 1,
+        "Arg2": 7,
+        "Arg3": 5,
+        "Caller": 38272108,
+        "Parent0": 38324905,
+        "Parent1": 37959180,
+        "Parent2": 35886304,
+        "Parent3": 21223176,
+        "Parent4": 21222801,
+        "Parent5": 21395529
+      },
+      "producer_scheduler_during_wait": {
+        "on_cpu_ms": 122.047898,
+        "sleep_ms": 39.963185,
+        "runnable_ms": 33.331,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      }
+    },
+    {
+      "waiter_tid": 21717,
+      "notifier_tid": 21163,
+      "condition": "68730893312",
+      "mutex": "68730893056",
+      "wait_start_ns": 611027350564066,
+      "wait_end_ns": 611027601968233,
+      "window_overlap_ms": 195.05,
+      "before_notify_ms": 195.05,
+      "notify_to_resume_ms": 0.0,
+      "reacquire_ms": 0.0,
+      "clipped": true,
+      "wait_caller": {
+        "Thread": 60,
+        "ThreadGeneration": 61,
+        "Invocation": 1,
+        "Operation": 460,
+        "Arg0": 13037415280,
+        "Arg1": 13037415272,
+        "Arg2": 4294967295,
+        "Arg3": 103083327503,
+        "Caller": 38294205,
+        "Parent0": 38272472,
+        "Parent1": 38327253,
+        "Parent2": 37966843,
+        "Parent3": 44283734
+      },
+      "notify_caller": {
+        "Thread": 1,
+        "ThreadGeneration": 2,
+        "Invocation": 4,
+        "Operation": 18,
+        "Arg0": 13037415280,
+        "Arg1": 1,
+        "Arg2": 7,
+        "Arg3": 5,
+        "Caller": 38272108,
+        "Parent0": 38324905,
+        "Parent1": 37959180,
+        "Parent2": 35886304,
+        "Parent3": 21223176,
+        "Parent4": 21222801,
+        "Parent5": 21395529
+      },
+      "producer_scheduler_during_wait": {
+        "on_cpu_ms": 121.897,
+        "sleep_ms": 39.892185,
+        "runnable_ms": 33.260815,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      }
+    },
+    {
+      "waiter_tid": 21716,
+      "notifier_tid": 21163,
+      "condition": "68730892032",
+      "mutex": "68730891776",
+      "wait_start_ns": 611027350628025,
+      "wait_end_ns": 611027602255473,
+      "window_overlap_ms": 194.986041,
+      "before_notify_ms": 194.986041,
+      "notify_to_resume_ms": 0.0,
+      "reacquire_ms": 0.0,
+      "clipped": true,
+      "wait_caller": {
+        "Thread": 59,
+        "ThreadGeneration": 60,
+        "Invocation": 1,
+        "Operation": 460,
+        "Arg0": 13037414896,
+        "Arg1": 13037414888,
+        "Arg2": 4294967295,
+        "Arg3": 103083327503,
+        "Caller": 38294205,
+        "Parent0": 38272472,
+        "Parent1": 38327253,
+        "Parent2": 37966843,
+        "Parent3": 44283734
+      },
+      "notify_caller": {
+        "Thread": 1,
+        "ThreadGeneration": 2,
+        "Invocation": 4,
+        "Operation": 18,
+        "Arg0": 13037414896,
+        "Arg1": 1,
+        "Arg2": 7,
+        "Arg3": 5,
+        "Caller": 38272108,
+        "Parent0": 38324905,
+        "Parent1": 37959180,
+        "Parent2": 35886304,
+        "Parent3": 21223176,
+        "Parent4": 21222801,
+        "Parent5": 21395529
+      },
+      "producer_scheduler_during_wait": {
+        "on_cpu_ms": 121.877,
+        "sleep_ms": 39.883185,
+        "runnable_ms": 33.225856,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      }
+    },
+    {
+      "waiter_tid": 21718,
+      "notifier_tid": 21163,
+      "condition": "68730894592",
+      "mutex": "68730894336",
+      "wait_start_ns": 611027350738389,
+      "wait_end_ns": 611027601945681,
+      "window_overlap_ms": 194.875677,
+      "before_notify_ms": 194.875677,
+      "notify_to_resume_ms": 0.0,
+      "reacquire_ms": 0.0,
+      "clipped": true,
+      "wait_caller": {
+        "Thread": 61,
+        "ThreadGeneration": 62,
+        "Invocation": 1,
+        "Operation": 460,
+        "Arg0": 13037415664,
+        "Arg1": 13037415656,
+        "Arg2": 4294967295,
+        "Arg3": 103083327503,
+        "Caller": 38294205,
+        "Parent0": 38272472,
+        "Parent1": 38327253,
+        "Parent2": 37966843,
+        "Parent3": 44283734
+      },
+      "notify_caller": {
+        "Thread": 1,
+        "ThreadGeneration": 2,
+        "Invocation": 4,
+        "Operation": 18,
+        "Arg0": 13037415664,
+        "Arg1": 1,
+        "Arg2": 7,
+        "Arg3": 5,
+        "Caller": 38272108,
+        "Parent0": 38324905,
+        "Parent1": 37959180,
+        "Parent2": 35886304,
+        "Parent3": 21223176,
+        "Parent4": 21222801,
+        "Parent5": 21395529
+      },
+      "producer_scheduler_during_wait": {
+        "on_cpu_ms": 121.828492,
+        "sleep_ms": 39.840185,
+        "runnable_ms": 33.207,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      }
+    },
+    {
+      "waiter_tid": 21715,
+      "notifier_tid": 21163,
+      "condition": "68730890752",
+      "mutex": "68730890496",
+      "wait_start_ns": 611027351125212,
+      "wait_end_ns": 611027602444431,
+      "window_overlap_ms": 194.488854,
+      "before_notify_ms": 194.488854,
+      "notify_to_resume_ms": 0.0,
+      "reacquire_ms": 0.0,
+      "clipped": true,
+      "wait_caller": {
+        "Thread": 58,
+        "ThreadGeneration": 59,
+        "Invocation": 1,
+        "Operation": 460,
+        "Arg0": 13037414512,
+        "Arg1": 13037414504,
+        "Arg2": 4294967295,
+        "Arg3": 103083327503,
+        "Caller": 38294205,
+        "Parent0": 38272472,
+        "Parent1": 38327253,
+        "Parent2": 37966843,
+        "Parent3": 44283734
+      },
+      "notify_caller": {
+        "Thread": 1,
+        "ThreadGeneration": 2,
+        "Invocation": 4,
+        "Operation": 18,
+        "Arg0": 13037414512,
+        "Arg1": 1,
+        "Arg2": 7,
+        "Arg3": 5,
+        "Caller": 38272108,
+        "Parent0": 38324905,
+        "Parent1": 37959180,
+        "Parent2": 35886304,
+        "Parent3": 21223176,
+        "Parent4": 21222801,
+        "Parent5": 21395529
+      },
+      "producer_scheduler_during_wait": {
+        "on_cpu_ms": 121.603669,
+        "sleep_ms": 39.790185,
+        "runnable_ms": 33.095,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      }
+    },
+    {
+      "waiter_tid": 21248,
+      "notifier_tid": 21163,
+      "condition": "68727783680",
+      "mutex": "68727783424",
+      "wait_start_ns": 611027351937243,
+      "wait_end_ns": 611027619910004,
+      "window_overlap_ms": 193.676823,
+      "before_notify_ms": 193.676823,
+      "notify_to_resume_ms": 0.0,
+      "reacquire_ms": 0.0,
+      "clipped": true,
+      "wait_caller": {
+        "Thread": 40,
+        "ThreadGeneration": 41,
+        "Invocation": 1,
+        "Operation": 460,
+        "Arg0": 13037170896,
+        "Arg1": 13037170888,
+        "Arg2": 4294967295,
+        "Arg3": 103083327503,
+        "Caller": 38294205,
+        "Parent0": 38272472,
+        "Parent1": 38327253,
+        "Parent2": 35911243,
+        "Parent3": 44283734
+      },
+      "notify_caller": {
+        "Thread": 1,
+        "ThreadGeneration": 2,
+        "Invocation": 4,
+        "Operation": 18,
+        "Arg0": 13037170896,
+        "Arg1": 1,
+        "Arg2": 7,
+        "Arg3": 5,
+        "Caller": 38272108,
+        "Parent0": 38324905,
+        "Parent1": 35909083,
+        "Parent2": 21223176,
+        "Parent3": 21222801,
+        "Parent4": 21395529,
+        "Parent5": 21225935
+      },
+      "producer_scheduler_during_wait": {
+        "on_cpu_ms": 121.197,
+        "sleep_ms": 39.639185,
+        "runnable_ms": 32.840638,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      }
+    },
+    {
+      "waiter_tid": 21245,
+      "notifier_tid": 21163,
+      "condition": "68726417664",
+      "mutex": "68726417408",
+      "wait_start_ns": 611027352687973,
+      "wait_end_ns": 611027617893077,
+      "window_overlap_ms": 192.926093,
+      "before_notify_ms": 192.926093,
+      "notify_to_resume_ms": 0.0,
+      "reacquire_ms": 0.0,
+      "clipped": true,
+      "wait_caller": {
+        "Thread": 37,
+        "ThreadGeneration": 38,
+        "Invocation": 1,
+        "Operation": 460,
+        "Arg0": 13037170032,
+        "Arg1": 13037170024,
+        "Arg2": 4294967295,
+        "Arg3": 103083327503,
+        "Caller": 38294205,
+        "Parent0": 38272472,
+        "Parent1": 38327253,
+        "Parent2": 35911243,
+        "Parent3": 44283734
+      },
+      "notify_caller": {
+        "Thread": 1,
+        "ThreadGeneration": 2,
+        "Invocation": 4,
+        "Operation": 18,
+        "Arg0": 13037170032,
+        "Arg1": 1,
+        "Arg2": 7,
+        "Arg3": 5,
+        "Caller": 38272108,
+        "Parent0": 38324905,
+        "Parent1": 35909083,
+        "Parent2": 21223176,
+        "Parent3": 21222801,
+        "Parent4": 21395529,
+        "Parent5": 21225935
+      },
+      "producer_scheduler_during_wait": {
+        "on_cpu_ms": 120.932,
+        "sleep_ms": 39.298093,
+        "runnable_ms": 32.696,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      }
+    },
+    {
+      "waiter_tid": 21246,
+      "notifier_tid": 21163,
+      "condition": "68726419712",
+      "mutex": "68726419456",
+      "wait_start_ns": 611027353320837,
+      "wait_end_ns": 611027613188806,
+      "window_overlap_ms": 192.293229,
+      "before_notify_ms": 192.293229,
+      "notify_to_resume_ms": 0.0,
+      "reacquire_ms": 0.0,
+      "clipped": true,
+      "wait_caller": {
+        "Thread": 38,
+        "ThreadGeneration": 39,
+        "Invocation": 1,
+        "Operation": 460,
+        "Arg0": 13037170320,
+        "Arg1": 13037170312,
+        "Arg2": 4294967295,
+        "Arg3": 103083327503,
+        "Caller": 38294205,
+        "Parent0": 38272472,
+        "Parent1": 38327253,
+        "Parent2": 35911243,
+        "Parent3": 44283734
+      },
+      "notify_caller": {
+        "Thread": 1,
+        "ThreadGeneration": 2,
+        "Invocation": 4,
+        "Operation": 18,
+        "Arg0": 13037170320,
+        "Arg1": 1,
+        "Arg2": 7,
+        "Arg3": 5,
+        "Caller": 38272108,
+        "Parent0": 38324905,
+        "Parent1": 35909083,
+        "Parent2": 21223176,
+        "Parent3": 21222801,
+        "Parent4": 21395529,
+        "Parent5": 21225935
+      },
+      "producer_scheduler_during_wait": {
+        "on_cpu_ms": 120.832,
+        "sleep_ms": 38.789229,
+        "runnable_ms": 32.672,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      }
+    },
+    {
+      "waiter_tid": 21249,
+      "notifier_tid": 21163,
+      "condition": "68727785728",
+      "mutex": "68727785472",
+      "wait_start_ns": 611027353933962,
+      "wait_end_ns": 611027608191827,
+      "window_overlap_ms": 191.680104,
+      "before_notify_ms": 191.680104,
+      "notify_to_resume_ms": 0.0,
+      "reacquire_ms": 0.0,
+      "clipped": true,
+      "wait_caller": {
+        "Thread": 41,
+        "ThreadGeneration": 42,
+        "Invocation": 1,
+        "Operation": 460,
+        "Arg0": 13037171184,
+        "Arg1": 13037171176,
+        "Arg2": 4294967295,
+        "Arg3": 103083327503,
+        "Caller": 38294205,
+        "Parent0": 38272472,
+        "Parent1": 38327253,
+        "Parent2": 35911243,
+        "Parent3": 44283734
+      },
+      "notify_caller": {
+        "Thread": 1,
+        "ThreadGeneration": 2,
+        "Invocation": 4,
+        "Operation": 18,
+        "Arg0": 13037171184,
+        "Arg1": 1,
+        "Arg2": 7,
+        "Arg3": 5,
+        "Caller": 38272108,
+        "Parent0": 38324905,
+        "Parent1": 35909083,
+        "Parent2": 21223176,
+        "Parent3": 21222801,
+        "Parent4": 21395529,
+        "Parent5": 21225935
+      },
+      "producer_scheduler_during_wait": {
+        "on_cpu_ms": 120.669919,
+        "sleep_ms": 38.404185,
+        "runnable_ms": 32.606,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      }
+    }
+  ],
+  "wait_diagnostics": {
+    "phase_without_enqueue": 63
+  },
+  "async_flows": {
+    "supported": true,
+    "rows": [
+      {
+        "flow_id": "20822",
+        "status": "matched",
+        "posts": [
+          {
+            "event_id": 1759756,
+            "tid": 21217,
+            "name": "Vulkan.PostSubmission",
+            "ts_ns": 611027285898389,
+            "thread_sequence": 15123,
+            "parent_sequence": 15116
+          }
+        ],
+        "targets": [
+          {
+            "event_id": 1768101,
+            "tid": 21199,
+            "name": "Vulkan.WorkerSubmit",
+            "ts_ns": 611027335979327,
+            "thread_sequence": 3487,
+            "parent_sequence": 0,
+            "end_ns": 611027337391618
+          }
+        ],
+        "queue_latency_ns": 50080938,
+        "queue_overlap_ms": 50.080938,
+        "execution_overlap_ms": 1.412291
+      },
+      {
+        "flow_id": "20838",
+        "status": "matched",
+        "posts": [
+          {
+            "event_id": 1802820,
+            "tid": 21217,
+            "name": "Vulkan.PostSubmission",
+            "ts_ns": 611027519580316,
+            "thread_sequence": 15605,
+            "parent_sequence": 15598
+          }
+        ],
+        "targets": [
+          {
+            "event_id": 1802843,
+            "tid": 21199,
+            "name": "Vulkan.WorkerSubmit",
+            "ts_ns": 611027520223493,
+            "thread_sequence": 3583,
+            "parent_sequence": 0,
+            "end_ns": 611027520368285
+          }
+        ],
+        "queue_latency_ns": 643177,
+        "queue_overlap_ms": 0.643177,
+        "execution_overlap_ms": 0.144792
+      },
+      {
+        "flow_id": "20821",
+        "status": "matched",
+        "posts": [
+          {
+            "event_id": 1759011,
+            "tid": 21196,
+            "name": "Vulkan.PostSubmission",
+            "ts_ns": 611027274603702,
+            "thread_sequence": 7931,
+            "parent_sequence": 7924
+          }
+        ],
+        "targets": [
+          {
+            "event_id": 1759031,
+            "tid": 21199,
+            "name": "Vulkan.WorkerSubmit",
+            "ts_ns": 611027274756045,
+            "thread_sequence": 3481,
+            "parent_sequence": 0,
+            "end_ns": 611027335952295
+          }
+        ],
+        "queue_latency_ns": 152343,
+        "queue_overlap_ms": 0.152343,
+        "execution_overlap_ms": 61.19625
+      },
+      {
+        "flow_id": "20831",
+        "status": "matched",
+        "posts": [
+          {
+            "event_id": 1788334,
+            "tid": 21217,
+            "name": "Vulkan.PostSubmission",
+            "ts_ns": 611027451776514,
+            "thread_sequence": 15398,
+            "parent_sequence": 15391
+          }
+        ],
+        "targets": [
+          {
+            "event_id": 1788356,
+            "tid": 21199,
+            "name": "Vulkan.WorkerSubmit",
+            "ts_ns": 611027451919327,
+            "thread_sequence": 3541,
+            "parent_sequence": 0,
+            "end_ns": 611027452081618
+          }
+        ],
+        "queue_latency_ns": 142813,
+        "queue_overlap_ms": 0.142813,
+        "execution_overlap_ms": 0.162291
+      },
+      {
+        "flow_id": "20830",
+        "status": "matched",
+        "posts": [
+          {
+            "event_id": 1787255,
+            "tid": 21217,
+            "name": "Vulkan.PostSubmission",
+            "ts_ns": 611027419382868,
+            "thread_sequence": 15365,
+            "parent_sequence": 15358
+          }
+        ],
+        "targets": [
+          {
+            "event_id": 1787280,
+            "tid": 21199,
+            "name": "Vulkan.WorkerSubmit",
+            "ts_ns": 611027419464170,
+            "thread_sequence": 3535,
+            "parent_sequence": 0,
+            "end_ns": 611027419576358
+          }
+        ],
+        "queue_latency_ns": 81302,
+        "queue_overlap_ms": 0.081302,
+        "execution_overlap_ms": 0.112188
+      },
+      {
+        "flow_id": "20827",
+        "status": "matched",
+        "posts": [
+          {
+            "event_id": 1778286,
+            "tid": 21217,
+            "name": "Vulkan.PostSubmission",
+            "ts_ns": 611027385078598,
+            "thread_sequence": 15278,
+            "parent_sequence": 15271
+          }
+        ],
+        "targets": [
+          {
+            "event_id": 1778334,
+            "tid": 21199,
+            "name": "Vulkan.WorkerSubmit",
+            "ts_ns": 611027385146931,
+            "thread_sequence": 3517,
+            "parent_sequence": 0,
+            "end_ns": 611027385264275
+          }
+        ],
+        "queue_latency_ns": 68333,
+        "queue_overlap_ms": 0.068333,
+        "execution_overlap_ms": 0.117344
+      },
+      {
+        "flow_id": "20835",
+        "status": "matched",
+        "posts": [
+          {
+            "event_id": 1790900,
+            "tid": 21217,
+            "name": "Vulkan.PostSubmission",
+            "ts_ns": 611027485099900,
+            "thread_sequence": 15518,
+            "parent_sequence": 15511
+          }
+        ],
+        "targets": [
+          {
+            "event_id": 1791141,
+            "tid": 21199,
+            "name": "Vulkan.WorkerSubmit",
+            "ts_ns": 611027485157556,
+            "thread_sequence": 3565,
+            "parent_sequence": 0,
+            "end_ns": 611027485246827
+          }
+        ],
+        "queue_latency_ns": 57656,
+        "queue_overlap_ms": 0.057656,
+        "execution_overlap_ms": 0.089271
+      },
+      {
+        "flow_id": "20834",
+        "status": "matched",
+        "posts": [
+          {
+            "event_id": 1789860,
+            "tid": 21217,
+            "name": "Vulkan.PostSubmission",
+            "ts_ns": 611027470376098,
+            "thread_sequence": 15485,
+            "parent_sequence": 15478
+          }
+        ],
+        "targets": [
+          {
+            "event_id": 1789885,
+            "tid": 21199,
+            "name": "Vulkan.WorkerSubmit",
+            "ts_ns": 611027470419691,
+            "thread_sequence": 3559,
+            "parent_sequence": 0,
+            "end_ns": 611027470519327
+          }
+        ],
+        "queue_latency_ns": 43593,
+        "queue_overlap_ms": 0.043593,
+        "execution_overlap_ms": 0.099636
+      },
+      {
+        "flow_id": "20832",
+        "status": "matched",
+        "posts": [
+          {
+            "event_id": 1788419,
+            "tid": 21217,
+            "name": "Vulkan.PostSubmission",
+            "ts_ns": 611027453624900,
+            "thread_sequence": 15425,
+            "parent_sequence": 15418
+          }
+        ],
+        "targets": [
+          {
+            "event_id": 1788438,
+            "tid": 21199,
+            "name": "Vulkan.WorkerSubmit",
+            "ts_ns": 611027453664795,
+            "thread_sequence": 3547,
+            "parent_sequence": 0,
+            "end_ns": 611027453774066
+          }
+        ],
+        "queue_latency_ns": 39895,
+        "queue_overlap_ms": 0.039895,
+        "execution_overlap_ms": 0.109271
+      },
+      {
+        "flow_id": "20833",
+        "status": "matched",
+        "posts": [
+          {
+            "event_id": 1789823,
+            "tid": 21217,
+            "name": "Vulkan.PostSubmission",
+            "ts_ns": 611027468446358,
+            "thread_sequence": 15458,
+            "parent_sequence": 15451
+          }
+        ],
+        "targets": [
+          {
+            "event_id": 1789845,
+            "tid": 21199,
+            "name": "Vulkan.WorkerSubmit",
+            "ts_ns": 611027468485785,
+            "thread_sequence": 3553,
+            "parent_sequence": 0,
+            "end_ns": 611027468574275
+          }
+        ],
+        "queue_latency_ns": 39427,
+        "queue_overlap_ms": 0.039427,
+        "execution_overlap_ms": 0.08849
+      }
+    ],
+    "total": 19,
+    "next_offset": 10,
+    "order": "queue_latency",
+    "status_counts": {
+      "matched": 19
+    },
+    "queue_latency": {
+      "count": 19,
+      "mean_ms": 2.7137033684210525,
+      "p50_ms": 0.039427,
+      "p90_ms": 0.2505097999999996,
+      "p99_ms": 41.18214102000001,
+      "max_ms": 50.080938
+    },
+    "interpretation": "Validated SDK capture-local ID edges; queue latency includes producer admission, scheduling and mailbox delay. Execution remains the original zone, not an extra duration. Missing/duplicate/lost endpoints are retained without inferred edges."
+  },
+  "interpretation": "Exact adjacent source markers define a half-open frame. ShadPS4 GNM marks are submission epochs, not presentation completion. Exclusive segments partition each lane, including uncovered gaps; parallel lanes, wait edges and async queue latency are NOT additive frame contributions. Reference medians describe nearby same-capture observations, not a matched-scene performance experiment. Producer work during an explicit wait is measured but is not automatically all prerequisite work. Missing boundary scopes stay unattributed; GPU query clocks require their own calibration.",
+  "cpu_gpu": {
+    "start_ns": 611027259444587,
+    "end_ns": 611027545614066,
+    "elapsed_ms": 286.169479,
+    "clock_uncertainty_ns": 1134,
+    "scheduling_complete": true,
+    "capture_overrun": 0,
+    "capture_dropped": 0,
+    "safe_start_ns": 611009568004881,
+    "safe_end_ns": 611027582841881,
+    "cpu_threads": [
+      {
+        "tid": 21163,
+        "name": "Guest-1",
+        "on_cpu_ms": 140.403,
+        "sleep_ms": 109.074185,
+        "runnable_ms": 36.692294,
+        "unknown_offcpu_ms": 0.0,
+        "unobserved_ms": 0.0,
+        "hle_on_cpu_ms": 19.294033,
+        "non_hle_on_cpu_ms": 121.108967,
+        "on_cpu_by_cpu_ms": {
+          "0": 0.731,
+          "1": 0.483,
+          "2": 0.153,
+          "3": 4.803,
+          "4": 16.835,
+          "5": 30.232,
+          "6": 11.12,
+          "7": 76.046
+        }
+      },
+      {
+        "tid": 21221,
+        "name": "Guest-23",
+        "on_cpu_ms": 100.146,
+        "sleep_ms": 157.528479,
+        "runnable_ms": 28.495,
+        "unknown_offcpu_ms": 0.0,
+        "unobserved_ms": 0.0,
+        "hle_on_cpu_ms": 7.158222,
+        "non_hle_on_cpu_ms": 92.987778,
+        "on_cpu_by_cpu_ms": {
+          "0": 0.752,
+          "1": 0.22,
+          "2": 0.096,
+          "3": 36.318,
+          "4": 5.092,
+          "5": 48.084,
+          "6": 5.988,
+          "7": 3.596
+        }
+      },
+      {
+        "tid": 21218,
+        "name": "Guest-20",
+        "on_cpu_ms": 91.308,
+        "sleep_ms": 151.565479,
+        "runnable_ms": 43.296,
+        "unknown_offcpu_ms": 0.0,
+        "unobserved_ms": 0.0,
+        "hle_on_cpu_ms": 7.051579,
+        "non_hle_on_cpu_ms": 84.256421,
+        "on_cpu_by_cpu_ms": {
+          "0": 0.883,
+          "1": 0.035,
+          "2": 0.125,
+          "3": 38.624,
+          "4": 5.472,
+          "5": 19.596,
+          "6": 23.348,
+          "7": 3.225
+        }
+      },
+      {
+        "tid": 21219,
+        "name": "Guest-21",
+        "on_cpu_ms": 86.015,
+        "sleep_ms": 151.885479,
+        "runnable_ms": 48.269,
+        "unknown_offcpu_ms": 0.0,
+        "unobserved_ms": 0.0,
+        "hle_on_cpu_ms": 7.316933,
+        "non_hle_on_cpu_ms": 78.698067,
+        "on_cpu_by_cpu_ms": {
+          "0": 0.367,
+          "1": 0.018,
+          "2": 0.041,
+          "3": 7.841,
+          "4": 21.234,
+          "5": 5.512,
+          "6": 49.478,
+          "7": 1.524
+        }
+      },
+      {
+        "tid": 21222,
+        "name": "Guest-24",
+        "on_cpu_ms": 82.958,
+        "sleep_ms": 187.000479,
+        "runnable_ms": 16.211,
+        "unknown_offcpu_ms": 0.0,
+        "unobserved_ms": 0.0,
+        "hle_on_cpu_ms": 7.227498,
+        "non_hle_on_cpu_ms": 75.730502,
+        "on_cpu_by_cpu_ms": {
+          "0": 0.869,
+          "1": 0.417,
+          "2": 0.098,
+          "3": 4.599,
+          "4": 48.581,
+          "5": 7.625,
+          "6": 18.391,
+          "7": 2.378
+        }
+      },
+      {
+        "tid": 21220,
+        "name": "Guest-22",
+        "on_cpu_ms": 72.254,
+        "sleep_ms": 161.348479,
+        "runnable_ms": 52.567,
+        "unknown_offcpu_ms": 0.0,
+        "unobserved_ms": 0.0,
+        "hle_on_cpu_ms": 6.277054,
+        "non_hle_on_cpu_ms": 65.976946,
+        "on_cpu_by_cpu_ms": {
+          "0": 0.417,
+          "1": 0.046,
+          "2": 0.067,
+          "3": 18.845,
+          "4": 24.118,
+          "5": 4.115,
+          "6": 4.134,
+          "7": 20.512
+        }
+      },
+      {
+        "tid": 21709,
+        "name": "Guest-53",
+        "on_cpu_ms": 66.117,
+        "sleep_ms": 208.014294,
+        "runnable_ms": 12.038185,
+        "unknown_offcpu_ms": 0.0,
+        "unobserved_ms": 0.0,
+        "hle_on_cpu_ms": 1.778097,
+        "non_hle_on_cpu_ms": 64.338903,
+        "on_cpu_by_cpu_ms": {
+          "0": 0.157,
+          "1": 0.228,
+          "2": 0.41,
+          "3": 29.804,
+          "4": 29.634,
+          "5": 3.107,
+          "6": 1.985,
+          "7": 0.792
+        }
+      },
+      {
+        "tid": 21707,
+        "name": "Guest-51",
+        "on_cpu_ms": 62.297185,
+        "sleep_ms": 212.636294,
+        "runnable_ms": 11.236,
+        "unknown_offcpu_ms": 0.0,
+        "unobserved_ms": 0.0,
+        "hle_on_cpu_ms": 1.926158,
+        "non_hle_on_cpu_ms": 60.371027,
+        "on_cpu_by_cpu_ms": {
+          "0": 0.387,
+          "1": 0.312,
+          "2": 0.018,
+          "3": 2.342185,
+          "4": 5.356,
+          "5": 8.46,
+          "6": 45.188,
+          "7": 0.234
+        }
+      },
+      {
+        "tid": 21710,
+        "name": "Guest-54",
+        "on_cpu_ms": 60.022,
+        "sleep_ms": 206.733479,
+        "runnable_ms": 19.414,
+        "unknown_offcpu_ms": 0.0,
+        "unobserved_ms": 0.0,
+        "hle_on_cpu_ms": 1.619258,
+        "non_hle_on_cpu_ms": 58.402742,
+        "on_cpu_by_cpu_ms": {
+          "0": 0.122,
+          "1": 0.255,
+          "2": 0.182,
+          "3": 1.338,
+          "4": 1.197,
+          "5": 2.068,
+          "6": 8.254,
+          "7": 46.606
+        }
+      },
+      {
+        "tid": 21711,
+        "name": "Guest-55",
+        "on_cpu_ms": 55.866185,
+        "sleep_ms": 216.147294,
+        "runnable_ms": 14.156,
+        "unknown_offcpu_ms": 0.0,
+        "unobserved_ms": 0.0,
+        "hle_on_cpu_ms": 1.958716,
+        "non_hle_on_cpu_ms": 53.907469,
+        "on_cpu_by_cpu_ms": {
+          "0": 1.302,
+          "1": 2.97,
+          "2": 0.0,
+          "3": 2.64,
+          "4": 7.623,
+          "5": 38.034,
+          "6": 1.288,
+          "7": 2.009185
+        }
+      },
+      {
+        "tid": 21708,
+        "name": "Guest-52",
+        "on_cpu_ms": 53.479185,
+        "sleep_ms": 218.662294,
+        "runnable_ms": 14.028,
+        "unknown_offcpu_ms": 0.0,
+        "unobserved_ms": 0.0,
+        "hle_on_cpu_ms": 1.77601,
+        "non_hle_on_cpu_ms": 51.703175,
+        "on_cpu_by_cpu_ms": {
+          "0": 0.082,
+          "1": 0.409,
+          "2": 0.27,
+          "3": 22.181,
+          "4": 5.422,
+          "5": 12.261,
+          "6": 11.977185,
+          "7": 0.877
+        }
+      },
+      {
+        "tid": 21712,
+        "name": "Guest-56",
+        "on_cpu_ms": 44.539,
+        "sleep_ms": 214.328294,
+        "runnable_ms": 27.302185,
+        "unknown_offcpu_ms": 0.0,
+        "unobserved_ms": 0.0,
+        "hle_on_cpu_ms": 2.150125,
+        "non_hle_on_cpu_ms": 42.388875,
+        "on_cpu_by_cpu_ms": {
+          "0": 0.219,
+          "1": 0.457,
+          "2": 0.041,
+          "3": 17.738,
+          "4": 1.1,
+          "5": 0.679,
+          "6": 5.563,
+          "7": 18.742
+        }
+      },
+      {
+        "tid": 21196,
+        "name": "shadPS4:GpuComm",
+        "on_cpu_ms": 44.049479,
+        "sleep_ms": 240.249,
+        "runnable_ms": 1.871,
+        "unknown_offcpu_ms": 0.0,
+        "unobserved_ms": 0.0,
+        "hle_on_cpu_ms": 0.0,
+        "non_hle_on_cpu_ms": 44.049479,
+        "on_cpu_by_cpu_ms": {
+          "0": 0.557185,
+          "1": 0.0,
+          "2": 0.0,
+          "3": 0.0,
+          "4": 37.131294,
+          "5": 0.0,
+          "6": 0.0,
+          "7": 6.361
+        }
+      },
+      {
+        "tid": 21191,
+        "name": "Guest-16",
+        "on_cpu_ms": 42.409185,
+        "sleep_ms": 239.652294,
+        "runnable_ms": 4.108,
+        "unknown_offcpu_ms": 0.0,
+        "unobserved_ms": 0.0,
+        "hle_on_cpu_ms": 3.108687,
+        "non_hle_on_cpu_ms": 39.300498,
+        "on_cpu_by_cpu_ms": {
+          "0": 13.204,
+          "1": 5.61,
+          "2": 1.222,
+          "3": 4.084,
+          "4": 3.538,
+          "5": 6.565185,
+          "6": 6.449,
+          "7": 1.737
+        }
+      },
+      {
+        "tid": 21195,
+        "name": "Guest-19",
+        "on_cpu_ms": 27.458479,
+        "sleep_ms": 243.148,
+        "runnable_ms": 15.563,
+        "unknown_offcpu_ms": 0.0,
+        "unobserved_ms": 0.0,
+        "hle_on_cpu_ms": 9.118034,
+        "non_hle_on_cpu_ms": 18.340445,
+        "on_cpu_by_cpu_ms": {
+          "0": 0.091,
+          "1": 0.079,
+          "2": 0.138,
+          "3": 6.556,
+          "4": 1.143185,
+          "5": 5.968,
+          "6": 12.24,
+          "7": 1.243294
+        }
+      },
+      {
+        "tid": 21194,
+        "name": "Guest-18",
+        "on_cpu_ms": 13.0,
+        "sleep_ms": 269.740294,
+        "runnable_ms": 3.429185,
+        "unknown_offcpu_ms": 0.0,
+        "unobserved_ms": 0.0,
+        "hle_on_cpu_ms": 2.953041,
+        "non_hle_on_cpu_ms": 10.046959,
+        "on_cpu_by_cpu_ms": {
+          "0": 0.933,
+          "1": 1.805,
+          "2": 1.342,
+          "3": 2.905,
+          "4": 1.323,
+          "5": 1.909,
+          "6": 2.694,
+          "7": 0.089
+        }
+      },
+      {
+        "tid": 21217,
+        "name": "shadPS4:Present",
+        "on_cpu_ms": 12.683,
+        "sleep_ms": 272.676479,
+        "runnable_ms": 0.81,
+        "unknown_offcpu_ms": 0.0,
+        "unobserved_ms": 0.0,
+        "hle_on_cpu_ms": 0.0,
+        "non_hle_on_cpu_ms": 12.683,
+        "on_cpu_by_cpu_ms": {
+          "0": 2.718,
+          "1": 0.067,
+          "2": 1.807,
+          "3": 1.983,
+          "4": 1.264,
+          "5": 1.484,
+          "6": 2.446,
+          "7": 0.914
+        }
+      },
+      {
+        "tid": 21271,
+        "name": "Guest-46",
+        "on_cpu_ms": 11.871,
+        "sleep_ms": 270.154479,
+        "runnable_ms": 4.144,
+        "unknown_offcpu_ms": 0.0,
+        "unobserved_ms": 0.0,
+        "hle_on_cpu_ms": 4.840438,
+        "non_hle_on_cpu_ms": 7.030562,
+        "on_cpu_by_cpu_ms": {
+          "0": 2.294,
+          "1": 5.233,
+          "2": 1.236,
+          "3": 0.425,
+          "4": 1.037,
+          "5": 0.62,
+          "6": 1.026,
+          "7": 0.0
+        }
+      },
+      {
+        "tid": 21188,
+        "name": "Guest-15",
+        "on_cpu_ms": 10.855,
+        "sleep_ms": 265.302479,
+        "runnable_ms": 10.012,
+        "unknown_offcpu_ms": 0.0,
+        "unobserved_ms": 0.0,
+        "hle_on_cpu_ms": 3.253429,
+        "non_hle_on_cpu_ms": 7.601571,
+        "on_cpu_by_cpu_ms": {
+          "0": 1.374,
+          "1": 1.844,
+          "2": 0.0,
+          "3": 2.005,
+          "4": 2.274,
+          "5": 1.129,
+          "6": 1.872,
+          "7": 0.357
+        }
+      },
+      {
+        "tid": 20429,
+        "name": "shadps4.android",
+        "on_cpu_ms": 8.607,
+        "sleep_ms": 273.861479,
+        "runnable_ms": 3.701,
+        "unknown_offcpu_ms": 0.0,
+        "unobserved_ms": 0.0,
+        "hle_on_cpu_ms": 0.0,
+        "non_hle_on_cpu_ms": 8.607,
+        "on_cpu_by_cpu_ms": {
+          "0": 1.408,
+          "1": 1.845,
+          "2": 4.9,
+          "3": 0.164,
+          "4": 0.082,
+          "5": 0.114,
+          "6": 0.094,
+          "7": 0.0
+        }
+      }
+    ],
+    "thread_count": 75,
+    "kgsl_contexts": [
+      7,
+      17
+    ],
+    "kgsl_waits": [
+      {
+        "start": 611027274625000,
+        "tid": 21200,
+        "cpu": 0,
+        "context": 17,
+        "timestamp": 20901,
+        "timeout": 0,
+        "end": 611027335872000,
+        "result": 0,
+        "retired_timestamp": 20901,
+        "start_ns": 611027274625881,
+        "end_ns": 611027335872881,
+        "duration_ms": 61.247,
+        "on_cpu_ms": 0.039
+      },
+      {
+        "start": 611027335980000,
+        "tid": 21200,
+        "cpu": 2,
+        "context": 17,
+        "timestamp": 20902,
+        "timeout": 0,
+        "end": 611027337225000,
+        "result": 0,
+        "retired_timestamp": 20902,
+        "start_ns": 611027335980881,
+        "end_ns": 611027337225881,
+        "duration_ms": 1.245,
+        "on_cpu_ms": 0.025
+      },
+      {
+        "start": 611027337422000,
+        "tid": 21202,
+        "cpu": 1,
+        "context": 17,
+        "timestamp": 20903,
+        "timeout": 0,
+        "end": 611027338550000,
+        "result": 0,
+        "retired_timestamp": 20903,
+        "start_ns": 611027337422881,
+        "end_ns": 611027338550881,
+        "duration_ms": 1.128,
+        "on_cpu_ms": 0.022
+      },
+      {
+        "start": 611027487067000,
+        "tid": 21202,
+        "cpu": 2,
+        "context": 17,
+        "timestamp": 20917,
+        "timeout": 0,
+        "end": 611027488038000,
+        "result": 0,
+        "retired_timestamp": 20917,
+        "start_ns": 611027487067881,
+        "end_ns": 611027488038881,
+        "duration_ms": 0.971,
+        "on_cpu_ms": 0.022
+      },
+      {
+        "start": 611027470541000,
+        "tid": 21202,
+        "cpu": 0,
+        "context": 17,
+        "timestamp": 20915,
+        "timeout": 0,
+        "end": 611027471502000,
+        "result": 0,
+        "retired_timestamp": 20915,
+        "start_ns": 611027470541881,
+        "end_ns": 611027471502881,
+        "duration_ms": 0.961,
+        "on_cpu_ms": 0.017
+      },
+      {
+        "start": 611027369355000,
+        "tid": 21202,
+        "cpu": 0,
+        "context": 17,
+        "timestamp": 20907,
+        "timeout": 0,
+        "end": 611027370288000,
+        "result": 0,
+        "retired_timestamp": 20907,
+        "start_ns": 611027369355881,
+        "end_ns": 611027370288881,
+        "duration_ms": 0.933,
+        "on_cpu_ms": 0.022
+      },
+      {
+        "start": 611027385922000,
+        "tid": 21202,
+        "cpu": 2,
+        "context": 17,
+        "timestamp": 20909,
+        "timeout": 0,
+        "end": 611027386846000,
+        "result": 0,
+        "retired_timestamp": 20909,
+        "start_ns": 611027385922881,
+        "end_ns": 611027386846881,
+        "duration_ms": 0.924,
+        "on_cpu_ms": 0.017
+      },
+      {
+        "start": 611027419605000,
+        "tid": 21202,
+        "cpu": 1,
+        "context": 17,
+        "timestamp": 20911,
+        "timeout": 0,
+        "end": 611027420516000,
+        "result": 0,
+        "retired_timestamp": 20911,
+        "start_ns": 611027419605881,
+        "end_ns": 611027420516881,
+        "duration_ms": 0.911,
+        "on_cpu_ms": 0.017
+      },
+      {
+        "start": 611027339475000,
+        "tid": 21202,
+        "cpu": 1,
+        "context": 17,
+        "timestamp": 20905,
+        "timeout": 0,
+        "end": 611027340370000,
+        "result": 0,
+        "retired_timestamp": 20905,
+        "start_ns": 611027339475881,
+        "end_ns": 611027340370881,
+        "duration_ms": 0.895,
+        "on_cpu_ms": 0.028
+      },
+      {
+        "start": 611027337642000,
+        "tid": 21217,
+        "cpu": 3,
+        "context": 17,
+        "timestamp": 20903,
+        "timeout": 50,
+        "end": 611027338535000,
+        "result": 0,
+        "retired_timestamp": 20903,
+        "start_ns": 611027337642881,
+        "end_ns": 611027338535881,
+        "duration_ms": 0.893,
+        "on_cpu_ms": 0.021
+      },
+      {
+        "start": 611027453798000,
+        "tid": 21202,
+        "cpu": 1,
+        "context": 17,
+        "timestamp": 20913,
+        "timeout": 0,
+        "end": 611027454685000,
+        "result": 0,
+        "retired_timestamp": 20913,
+        "start_ns": 611027453798881,
+        "end_ns": 611027454685881,
+        "duration_ms": 0.887,
+        "on_cpu_ms": 0.015
+      },
+      {
+        "start": 611027520850000,
+        "tid": 21202,
+        "cpu": 0,
+        "context": 17,
+        "timestamp": 20919,
+        "timeout": 0,
+        "end": 611027521451000,
+        "result": 0,
+        "retired_timestamp": 20919,
+        "start_ns": 611027520850881,
+        "end_ns": 611027521451881,
+        "duration_ms": 0.601,
+        "on_cpu_ms": 0.027
+      },
+      {
+        "start": 611027485289000,
+        "tid": 21204,
+        "cpu": 0,
+        "context": 17,
+        "timestamp": 20916,
+        "timeout": 0,
+        "end": 611027485635000,
+        "result": 0,
+        "retired_timestamp": 20916,
+        "start_ns": 611027485289881,
+        "end_ns": 611027485635881,
+        "duration_ms": 0.346,
+        "on_cpu_ms": 0.018
+      },
+      {
+        "start": 611027518771000,
+        "tid": 21204,
+        "cpu": 2,
+        "context": 17,
+        "timestamp": 20918,
+        "timeout": 0,
+        "end": 611027519112000,
+        "result": 0,
+        "retired_timestamp": 20918,
+        "start_ns": 611027518771881,
+        "end_ns": 611027519112881,
+        "duration_ms": 0.341,
+        "on_cpu_ms": 0.019
+      },
+      {
+        "start": 611027468595000,
+        "tid": 21204,
+        "cpu": 2,
+        "context": 17,
+        "timestamp": 20914,
+        "timeout": 0,
+        "end": 611027468929000,
+        "result": 0,
+        "retired_timestamp": 20914,
+        "start_ns": 611027468595881,
+        "end_ns": 611027468929881,
+        "duration_ms": 0.334,
+        "on_cpu_ms": 0.016
+      },
+      {
+        "start": 611027368507000,
+        "tid": 21204,
+        "cpu": 1,
+        "context": 17,
+        "timestamp": 20906,
+        "timeout": 0,
+        "end": 611027368836000,
+        "result": 0,
+        "retired_timestamp": 20906,
+        "start_ns": 611027368507881,
+        "end_ns": 611027368836881,
+        "duration_ms": 0.329,
+        "on_cpu_ms": 0.015
+      },
+      {
+        "start": 611027385291000,
+        "tid": 21204,
+        "cpu": 2,
+        "context": 17,
+        "timestamp": 20908,
+        "timeout": 0,
+        "end": 611027385620000,
+        "result": 0,
+        "retired_timestamp": 20908,
+        "start_ns": 611027385291881,
+        "end_ns": 611027385620881,
+        "duration_ms": 0.329,
+        "on_cpu_ms": 0.018
+      },
+      {
+        "start": 611027418567000,
+        "tid": 21204,
+        "cpu": 2,
+        "context": 17,
+        "timestamp": 20910,
+        "timeout": 0,
+        "end": 611027418886000,
+        "result": 0,
+        "retired_timestamp": 20910,
+        "start_ns": 611027418567881,
+        "end_ns": 611027418886881,
+        "duration_ms": 0.319,
+        "on_cpu_ms": 0.022
+      },
+      {
+        "start": 611027452113000,
+        "tid": 21204,
+        "cpu": 2,
+        "context": 17,
+        "timestamp": 20912,
+        "timeout": 0,
+        "end": 611027452317000,
+        "result": 0,
+        "retired_timestamp": 20912,
+        "start_ns": 611027452113881,
+        "end_ns": 611027452317881,
+        "duration_ms": 0.204,
+        "on_cpu_ms": 0.077
+      },
+      {
+        "start": 611027518397000,
+        "tid": 21217,
+        "cpu": 3,
+        "context": 17,
+        "timestamp": 20917,
+        "timeout": 50,
+        "end": 611027518442000,
+        "result": 0,
+        "retired_timestamp": 20917,
+        "start_ns": 611027518397881,
+        "end_ns": 611027518442881,
+        "duration_ms": 0.045,
+        "on_cpu_ms": 0.045
+      }
+    ],
+    "kgsl_wait_count": 28,
+    "kgsl_submit_to_retire": {
+      "count": 19,
+      "mean_ms": 3.828684210526316,
+      "p50_ms": 0.887,
+      "p90_ms": 1.0112,
+      "p99_ms": 50.39498000000002,
+      "max_ms": 61.229
+    },
+    "kgsl_complete_batch_count": 19,
+    "kgsl_batch_latency_union_ms": 72.745,
+    "diagnostics": {
+      "zero_timestamp_batch_observation": 1381
+    },
+    "interpretation": "sched_switch measures on-CPU; sched_wakeup separates sleep from runnable. Non-HLE on-CPU includes guest JIT/FEX and uninstrumented host work, not a guest function identity. KGSL submit-to-retire includes queue/fence/completion reporting latency, not GPU busy. Overwritten prefixes and incomplete endpoints are excluded; independent GPU query clocks are not aligned by this sidecar."
+  },
+  "prof_sha256": "3cee9701c35be2350647c42e655421f9739c77d48035388cf0ce9afe9e008698",
+  "prof_integrity": {
+    "session_name": "default",
+    "process_name": "shadPS4",
+    "process_id": 20429,
+    "main_thread_id": 21195,
+    "clock_source": "ArmCntvct",
+    "clock_tick0": 11785498795279,
+    "clock_ns0": 610823314626098,
+    "clock_numer": 1000000000,
+    "clock_denom": 19200000,
+    "chunks_ok": 210,
+    "chunks_skipped": 0,
+    "truncated": true,
+    "gpu_records": {
+      "context_defs": 5,
+      "zone_begins": 474,
+      "zone_ends": 474,
+      "times": 948,
+      "orphan_times": 0
+    },
+    "diagnostics": [
+      "unbalanced span end on tid 21163",
+      "unbalanced span end on tid 21195",
+      "unbalanced span end on tid 21196",
+      "unbalanced span end on tid 21237",
+      "unbalanced span end on tid 21238",
+      "unbalanced span end on tid 21239",
+      "unbalanced span end on tid 21202",
+      "unbalanced span end on tid 21710",
+      "unbalanced span end on tid 21711",
+      "unbalanced span end on tid 21712",
+      "unbalanced span end on tid 21707",
+      "unbalanced span end on tid 21708",
+      "unbalanced span end on tid 21709",
+      "unbalanced span end on tid 21171",
+      "unbalanced span end on tid 21885",
+      "unbalanced span end on tid 21271",
+      "unbalanced span end on tid 21172",
+      "unbalanced span end on tid 21193",
+      "unbalanced span end on tid 21193",
+      "unbalanced span end on tid 21191",
+      "unbalanced span end on tid 21253",
+      "unbalanced span end on tid 21270",
+      "unbalanced span end on tid 21188",
+      "unbalanced span end on tid 21184",
+      "unbalanced span end on tid 21183",
+      "unbalanced span end on tid 21182",
+      "unbalanced span end on tid 21221",
+      "unbalanced span end on tid 21218",
+      "unbalanced span end on tid 21219",
+      "unbalanced span end on tid 21222",
+      "unbalanced span end on tid 21220",
+      "1 unclosed spans on tid 21195",
+      "1 unclosed spans on tid 21194",
+      "1 unclosed spans on tid 21237",
+      "1 unclosed spans on tid 21238",
+      "1 unclosed spans on tid 21239",
+      "1 unclosed spans on tid 21240",
+      "1 unclosed spans on tid 21241",
+      "1 unclosed spans on tid 21196",
+      "1 unclosed spans on tid 21171",
+      "1 unclosed spans on tid 21885",
+      "1 unclosed spans on tid 21271",
+      "1 unclosed spans on tid 21172",
+      "2 unclosed spans on tid 21217",
+      "2 unclosed spans on tid 21193",
+      "1 unclosed spans on tid 21191",
+      "1 unclosed spans on tid 21253",
+      "1 unclosed spans on tid 21270",
+      "1 unclosed spans on tid 21268",
+      "1 unclosed spans on tid 21188",
+      "1 unclosed spans on tid 21184",
+      "1 unclosed spans on tid 21183",
+      "1 unclosed spans on tid 21182",
+      "1 unclosed spans on tid 21719",
+      "1 unclosed spans on tid 21720",
+      "1 unclosed spans on tid 21715",
+      "1 unclosed spans on tid 21716",
+      "1 unclosed spans on tid 21717",
+      "1 unclosed spans on tid 21718",
+      "1 unclosed spans on tid 21245",
+      "1 unclosed spans on tid 21246",
+      "1 unclosed spans on tid 21247",
+      "1 unclosed spans on tid 21248",
+      "1 unclosed spans on tid 21249",
+      "1 unclosed spans on tid 21221",
+      "1 unclosed spans on tid 21219",
+      "1 unclosed spans on tid 21222",
+      "1 unclosed spans on tid 21220",
+      "1 unclosed spans on tid 21218",
+      "1 unclosed spans on tid 21244"
+    ]
+  }
+}

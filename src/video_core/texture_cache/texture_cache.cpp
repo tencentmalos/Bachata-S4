@@ -2,6 +2,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <xxhash.h>
+#include <chrono>
+#include <map>
+#include <sstream>
 
 #include "common/assert.h"
 #include "common/debug.h"
@@ -11,12 +14,15 @@
 #include "core/memory.h"
 #include "video_core/buffer_cache/buffer_cache.h"
 #include "video_core/page_manager.h"
+#include "video_core/memory_diagnostics.h"
 #include "video_core/renderer_vulkan/vk_instance.h"
 #include "video_core/renderer_vulkan/liverpool_to_vk.h"
 #include "video_core/renderer_vulkan/vk_scheduler.h"
 #include "video_core/texture_cache/host_compatibility.h"
 #include "video_core/texture_cache/texture_cache.h"
 #include "video_core/texture_cache/tile_manager.h"
+
+#include <vk_mem_alloc.h>
 
 namespace VideoCore {
 
@@ -30,6 +36,8 @@ TextureCache::TextureCache(const Vulkan::Instance& instance_, Vulkan::Scheduler&
       buffer_cache{buffer_cache_}, tracker{tracker_}, blit_helper{instance, scheduler},
       tile_manager{instance, scheduler, buffer_cache.GetUtilityBuffer(MemoryUsage::Stream)},
       readback_linear_images{EmulatorSettings.IsReadbackLinearImagesEnabled()} {
+
+    memory_diagnostics_epoch = MemoryDiagnostics::Begin();
 
     u32 max_samplers = instance.GetMaxSamplerAllocationCount();
     trigger_gc_samplers = max_samplers * 3 / 4;
@@ -59,7 +67,66 @@ TextureCache::TextureCache(const Vulkan::Instance& instance_, Vulkan::Scheduler&
     trigger_gc_memory = static_cast<u64>((device_local_memory - mem_threshold) / 2);
 }
 
-TextureCache::~TextureCache() = default;
+TextureCache::~TextureCache() {
+    MemoryDiagnostics::End(memory_diagnostics_epoch);
+}
+
+void TextureCache::PublishMemoryDiagnostics() {
+    const auto request = MemoryDiagnostics::requested.load(std::memory_order_acquire);
+    if (request == MemoryDiagnostics::completed.load(std::memory_order_acquire)) return;
+    std::ostringstream out;
+    out << "status=sampled sample_ns=" << std::chrono::duration_cast<std::chrono::nanoseconds>(
+        std::chrono::steady_clock::now().time_since_epoch()).count()
+        << " scale_percent=" << EmulatorSettings.GetInternalScalePercent() << "\n";
+    VmaBudget budgets[VK_MAX_MEMORY_HEAPS]{};
+    vmaGetHeapBudgets(instance.GetAllocator(), budgets);
+    u64 blocks{}, allocated{}, block_count{}, allocation_count{};
+    for (u32 i = 0; i < instance.GetMemoryProperties().memoryHeapCount; ++i) {
+        blocks += budgets[i].statistics.blockBytes;
+        allocated += budgets[i].statistics.allocationBytes;
+        block_count += budgets[i].statistics.blockCount;
+        allocation_count += budgets[i].statistics.allocationCount;
+    }
+    out << "vma_block_bytes=" << blocks << " vma_allocation_bytes=" << allocated
+        << " vma_unused_block_bytes=" << blocks - allocated
+        << " blocks=" << block_count << " allocations=" << allocation_count << "\n";
+    struct Group { u64 images{}, backings{}, allocation_bytes{}, guest_layout_bytes{}; };
+    std::map<std::string, Group> groups;
+    {
+        std::scoped_lock lock{mutex};
+        for (auto& image : slot_images) {
+            if (!image.backing) continue;
+            const std::string kind = image.usage.render_target || image.usage.depth_target || image.usage.vo_surface
+                ? "attachment" : image.usage.storage ? "storage" : "sampled";
+            const std::string format = image.IsAstcEncoded() ? "ASTC" : image.info.props.is_block ? "BC" : "uncompressed";
+            auto& group = groups[kind + "/" + format + (image.IsScaled() ? "/scaled" : "/native")];
+            ++group.images;
+            group.guest_layout_bytes += image.info.guest_size;
+            for (auto& backing : image.backing_images) {
+                if (!backing.image.allocation) continue;
+                VmaAllocationInfo info{};
+                vmaGetAllocationInfo(instance.GetAllocator(), backing.image.allocation, &info);
+                group.allocation_bytes += info.size;
+                ++group.backings;
+            }
+        }
+    }
+    u64 image_bytes{};
+    for (const auto& [key, group] : groups) {
+        image_bytes += group.allocation_bytes;
+        out << "images=" << key << " count=" << group.images << " backings=" << group.backings
+            << " allocation_bytes=" << group.allocation_bytes
+            << " guest_layout_bytes=" << group.guest_layout_bytes << "\n";
+    }
+    out << "cached_image_allocation_bytes=" << image_bytes
+        << "\nscale_upload_image_bytes=" << MemoryDiagnostics::upload_image_bytes.load(std::memory_order_relaxed)
+        << " scale_upload_created_bytes=" << MemoryDiagnostics::upload_image_created_bytes.load(std::memory_order_relaxed)
+        << " scale_upload_created_count=" << MemoryDiagnostics::upload_image_created_count.load(std::memory_order_relaxed)
+        << "\nnotes=guest_layout_bytes_is_not_resident_RAM; VMA_includes_buffers_and_pending_resources;"
+           " cached_images_include_pending_cache_deletion; host_snapshot_is_not_GPU_idle\n";
+    buffer_cache.AppendMemoryDiagnostics(out);
+    MemoryDiagnostics::Publish(memory_diagnostics_epoch, request, out.str());
+}
 
 void TextureCache::ProcessDownloadImages() {
     std::unique_lock lk{download_images_mutex};
@@ -1074,6 +1141,7 @@ void TextureCache::GarbageCollectSamplers() {
 }
 
 void TextureCache::RunGarbageCollector() {
+    PublishMemoryDiagnostics();
     SCOPE_EXIT {
         ++gc_tick;
     };

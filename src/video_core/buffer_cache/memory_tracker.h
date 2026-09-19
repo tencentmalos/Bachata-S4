@@ -4,7 +4,9 @@
 #pragma once
 
 #include <algorithm>
+#include <atomic>
 #include <deque>
+#include <memory>
 #include <mutex>
 #include <type_traits>
 #include <vector>
@@ -21,6 +23,12 @@ public:
     static constexpr size_t MAX_CPU_PAGE_BITS = 40;
     static constexpr size_t NUM_HIGH_PAGES = 1ULL << (MAX_CPU_PAGE_BITS - TRACKER_HIGHER_PAGE_BITS);
     static constexpr size_t MANAGER_POOL_SIZE = 32;
+    // Keep the top directory at 2 MiB even with finer Android locking. Leaf
+    // directories are allocated only by the renderer and live until teardown.
+    static constexpr size_t DIRECTORY_PAGE_BITS = 22;
+    static constexpr size_t REGIONS_PER_DIRECTORY =
+        1ULL << (DIRECTORY_PAGE_BITS - TRACKER_HIGHER_PAGE_BITS);
+    static constexpr size_t NUM_DIRECTORIES = 1ULL << (MAX_CPU_PAGE_BITS - DIRECTORY_PAGE_BITS);
 
 public:
     explicit MemoryTracker(PageManager& tracker_) : tracker{&tracker_} {}
@@ -30,6 +38,7 @@ public:
     bool IsRegionCpuModified(VAddr query_cpu_addr, u64 query_size) noexcept {
         return IteratePages<true>(
             query_cpu_addr, query_size, [](RegionManager* manager, u64 offset, size_t size) {
+                std::scoped_lock lk{manager->lock};
                 return manager->template IsRegionModified<Type::CPU>(offset, size);
             });
     }
@@ -38,6 +47,7 @@ public:
     bool IsRegionGpuModified(VAddr query_cpu_addr, u64 query_size) noexcept {
         return IteratePages<false>(
             query_cpu_addr, query_size, [](RegionManager* manager, u64 offset, size_t size) {
+                std::scoped_lock lk{manager->lock};
                 return manager->template IsRegionModified<Type::GPU>(offset, size);
             });
     }
@@ -140,7 +150,7 @@ private:
         while (remaining_size > 0) {
             const std::size_t copy_amount{
                 std::min<std::size_t>(TRACKER_HIGHER_PAGE_SIZE - page_offset, remaining_size)};
-            auto* manager{top_tier[page_index]};
+            auto* manager{FindRegion(page_index)};
             if (manager) {
                 if constexpr (BOOL_BREAK) {
                     if (func(manager, page_offset, copy_amount)) {
@@ -151,7 +161,7 @@ private:
                 }
             } else if constexpr (create_region_on_fail) {
                 CreateRegion(page_index);
-                manager = top_tier[page_index];
+                manager = FindRegion(page_index);
                 if constexpr (BOOL_BREAK) {
                     if (func(manager, page_offset, copy_amount)) {
                         return true;
@@ -167,27 +177,49 @@ private:
         return false;
     }
 
+    struct RegionDirectory {
+        std::array<std::atomic<RegionManager*>, REGIONS_PER_DIRECTORY> regions{};
+    };
+
+    RegionManager* FindRegion(std::size_t page_index) const {
+        auto* directory =
+            top_tier[page_index / REGIONS_PER_DIRECTORY].load(std::memory_order_acquire);
+        return directory ? directory->regions[page_index % REGIONS_PER_DIRECTORY].load(
+                               std::memory_order_acquire)
+                         : nullptr;
+    }
+
+    // Renderer-owned allocation; fault handlers only perform acquire lookups.
     void CreateRegion(std::size_t page_index) {
         const VAddr base_cpu_addr = page_index << TRACKER_HIGHER_PAGE_BITS;
         if (free_managers.empty()) {
             manager_pool.emplace_back();
             auto& last_pool = manager_pool.back();
             for (size_t i = 0; i < MANAGER_POOL_SIZE; i++) {
-                std::construct_at(&last_pool[i], tracker, 0);
+                last_pool[i].Initialize(tracker, 0);
                 free_managers.push_back(&last_pool[i]);
             }
         }
-        // Each manager tracks a 4_MB virtual address space.
+        // Each manager owns only its address region's dirty/protection state.
         auto* new_manager = free_managers.back();
         new_manager->SetCpuAddress(base_cpu_addr);
         free_managers.pop_back();
-        top_tier[page_index] = new_manager;
+        const auto directory_index = page_index / REGIONS_PER_DIRECTORY;
+        auto* directory = top_tier[directory_index].load(std::memory_order_acquire);
+        if (!directory) {
+            directories.emplace_back(std::make_unique<RegionDirectory>());
+            directory = directories.back().get();
+            top_tier[directory_index].store(directory, std::memory_order_release);
+        }
+        directory->regions[page_index % REGIONS_PER_DIRECTORY].store(new_manager,
+                                                                     std::memory_order_release);
     }
 
     PageManager* tracker;
     std::deque<std::array<RegionManager, MANAGER_POOL_SIZE>> manager_pool;
     std::vector<RegionManager*> free_managers;
-    std::array<RegionManager*, NUM_HIGH_PAGES> top_tier{};
+    std::vector<std::unique_ptr<RegionDirectory>> directories;
+    std::array<std::atomic<RegionDirectory*>, NUM_DIRECTORIES> top_tier{};
 };
 
 } // namespace VideoCore

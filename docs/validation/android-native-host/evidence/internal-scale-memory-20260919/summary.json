@@ -1,0 +1,90 @@
+{
+  "half-a": {
+    "identity": [
+      "31726",
+      "1",
+      "013318beeccc06649e51e3b6ca989bb1"
+    ],
+    "last_mib": {
+      "pss_kib": 4425.822,
+      "rss_kib": 4552.145,
+      "vma_block_bytes": 2497.312,
+      "vma_allocation_bytes": 2058.348,
+      "vma_unused_block_bytes": 438.965,
+      "cached_image_allocation_bytes": 112.617,
+      "guest_buffer_allocation_bytes": 193.312,
+      "utility_buffer_allocation_bytes": 1248.062,
+      "system_memavailable_used_kib": 7748.914
+    },
+    "pss_mib_range": [
+      4425.822,
+      4445.202
+    ]
+  },
+  "full": {
+    "identity": [
+      "1593",
+      "1",
+      "51f9276361a33959ba14c241982467eb"
+    ],
+    "last_mib": {
+      "pss_kib": 4421.912,
+      "rss_kib": 4539.047,
+      "vma_block_bytes": 2495.531,
+      "vma_allocation_bytes": 2122.842,
+      "vma_unused_block_bytes": 372.689,
+      "cached_image_allocation_bytes": 386.852,
+      "guest_buffer_allocation_bytes": 191.531,
+      "utility_buffer_allocation_bytes": 1248.062,
+      "system_memavailable_used_kib": 7728.414
+    },
+    "pss_mib_range": [
+      4411.285,
+      4425.808
+    ]
+  },
+  "half-b": {
+    "identity": [
+      "4717",
+      "1",
+      "5bfca760ff9aa1d2c0475c9139419e95"
+    ],
+    "last_mib": {
+      "pss_kib": 4415.464,
+      "rss_kib": 4541.977,
+      "system_memavailable_used_kib": 7644.738,
+      "vma_block_bytes": 2497.234,
+      "vma_allocation_bytes": 2056.48,
+      "vma_unused_block_bytes": 440.754,
+      "cached_image_allocation_bytes": 110.828,
+      "guest_buffer_allocation_bytes": 193.234,
+      "utility_buffer_allocation_bytes": 1248.062
+    },
+    "pss_mib_range": [
+      4415.464,
+      4436.883
+    ]
+  },
+  "half-b-settled": {
+    "identity": [
+      "4717",
+      "1",
+      "5bfca760ff9aa1d2c0475c9139419e95"
+    ],
+    "last_mib": {
+      "pss_kib": 4430.856,
+      "rss_kib": 4557.621,
+      "system_memavailable_used_kib": 7670.773,
+      "vma_block_bytes": 2497.234,
+      "vma_allocation_bytes": 2056.48,
+      "vma_unused_block_bytes": 440.754,
+      "cached_image_allocation_bytes": 110.828,
+      "guest_buffer_allocation_bytes": 193.234,
+      "utility_buffer_allocation_bytes": 1248.062
+    },
+    "pss_mib_range": [
+      4430.618,
+      4434.423
+    ]
+  }
+}

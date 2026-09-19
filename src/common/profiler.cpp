@@ -4,6 +4,7 @@
 #include <mutex>
 #include <chrono>
 #include <thread>
+#include <atomic>
 #if defined(__ANDROID__)
 #include <sys/system_properties.h>
 #endif
@@ -25,6 +26,26 @@ Scope::Scope(const char* name) noexcept {
 Scope::~Scope() {
 #ifdef SHADPS4_PROFILER_RING
     if (active && generation == spatial::ProfilerRing::Generation()) spatial::LiteTrace::end();
+#endif
+}
+FlowToken Post(const char* name) noexcept {
+#ifdef SHADPS4_PROFILER_RING
+    if (Enabled()) {
+        static std::atomic<uint64_t> next{1};
+        FlowToken flow{next.fetch_add(1, std::memory_order_relaxed), spatial::ProfilerRing::Generation()};
+        spatial::LiteTrace::post(name, flow.id);
+        return flow;
+    }
+#endif
+    return {};
+}
+Scope::Scope(const char* name, FlowToken flow) noexcept {
+#ifdef SHADPS4_PROFILER_RING
+    if (Enabled()) {
+        generation = spatial::ProfilerRing::Generation();
+        spatial::LiteTrace::beginFlow(name, generation == flow.generation ? flow.id : 0);
+        active = true;
+    }
 #endif
 }
 Phase::Phase(const char* name) noexcept {

@@ -1,0 +1,99 @@
+{
+  "schema": "spatial.guest-symbol-shard.v2",
+  "target_id": "bloodborne-0100-eboot",
+  "domain": "cpu-job-waits",
+  "symbols": [
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x20336c0",
+      "segment": "text",
+      "name": "CSEzWork_ExecuteQueuedTaskAndSignalCompletion",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "correlated",
+      "evidence": [
+        "静态：队列锁在 task vtable+0x10 执行前释放；任务 group+0x30 原子减计数，最后任务通知 group+0x10。PID20429/gen1 的 Guest-56 通知链实际经过返回点 +0x203377c。"
+      ],
+      "comment": "详见 docs/validation/android-native-host/bloodborne-buffer-tracking-locks-20260919.md；仅语义标定，ABI/函数范围未完整证明，不可直接替换执行。"
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x20353b0",
+      "segment": "text",
+      "name": "CSEzWork_HavokInitializedWorkerLoop",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "correlated",
+      "evidence": [
+        "静态：消息类型1反复调用 +0x20336c0；类型0初始化 CSEzWorkHkThreadMemory，类型2清理退出。Guest-56 实际父返回点 +0x2035419；不能据 Hk 初始化认定全部任务都是物理计算。"
+      ],
+      "comment": "详见 docs/validation/android-native-host/bloodborne-buffer-tracking-locks-20260919.md；仅语义标定，ABI/函数范围未完整证明，不可直接替换执行。"
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x19177f0",
+      "segment": "text",
+      "name": "Bloodborne_CoordinateCharacterBehaviorAndWorkerPhases",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "correlated",
+      "evidence": [
+        "原始 .eh_frame_hdr 给出函数起点，机器码与静态字符串 WorldChrManDbg/SprjHkBehManager/SprjCloth/SprjBehavior 对应；实际长等待父返回点 +0x19186c5。具体各阶段含义尚未逐调用计时。"
+      ],
+      "comment": "详见 docs/validation/android-native-host/bloodborne-buffer-tracking-locks-20260919.md；仅语义标定，ABI/函数范围未完整证明，不可直接替换执行。"
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x1915760",
+      "segment": "text",
+      "name": "Bloodborne_CharacterUpdateCoordinator",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "candidate",
+      "evidence": [
+        "EH 起点和机器码检查；调用 +0x19177f0，实际等待祖先返回点 +0x1916f84。此名仅候选，不是厂商符号或整函数语义证明。"
+      ],
+      "comment": "详见 docs/validation/android-native-host/bloodborne-buffer-tracking-locks-20260919.md；仅语义标定，ABI/函数范围未完整证明，不可直接替换执行。"
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x1a659d0",
+      "segment": "text",
+      "name": "Bloodborne_EnqueueWorldAiMemberTask",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "correlated",
+      "evidence": [
+        "构造48字节任务：对象来自 SprjWorldAiManager 单例；member callback=+0x12dcbd0，this-adjustment=0；vtable=+0x5335b00，经原始 SCE RELA 解析其 execute 槽为 +0x1a66150。此任务最终耗时未单独证明。"
+      ],
+      "comment": "详见 docs/validation/android-native-host/bloodborne-buffer-tracking-locks-20260919.md；仅语义标定，ABI/函数范围未完整证明，不可直接替换执行。"
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x1a65290",
+      "segment": "text",
+      "name": "Bloodborne_EnqueueCharacterVirtualTaskD0",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "correlated",
+      "evidence": [
+        "构造48字节任务；this来自RSI，member pointer=0xd1 表示虚表偏移0xd0，this-adjustment=0；SCE RELA 的 vtable+0x5335b60 execute 槽为 +0x1a66390。"
+      ],
+      "comment": "详见 docs/validation/android-native-host/bloodborne-buffer-tracking-locks-20260919.md；仅语义标定，ABI/函数范围未完整证明，不可直接替换执行。"
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0x1a65430",
+      "segment": "text",
+      "name": "Bloodborne_EnqueueCharacterVirtualTaskE8",
+      "kind": "function",
+      "mode": "x86-64",
+      "confidence": "correlated",
+      "evidence": [
+        "构造与D0同类任务，member pointer=0xe9 表示虚表偏移0xe8；不能用同一worker名称归因任务。"
+      ],
+      "comment": "详见 docs/validation/android-native-host/bloodborne-buffer-tracking-locks-20260919.md；仅语义标定，ABI/函数范围未完整证明，不可直接替换执行。"
+    }
+  ],
+  "types": []
+}

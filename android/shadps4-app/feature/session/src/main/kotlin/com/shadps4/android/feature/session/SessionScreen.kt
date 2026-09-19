@@ -69,9 +69,6 @@ import androidx.compose.ui.platform.LocalDensity
 @Composable
 fun SessionScreen(
     gameId: String,
-    onOpenDrivers: () -> Unit = {},
-    /** Play builds omit Turnip recovery UI (driver is fixed to the bundled package). */
-    showDriverActions: Boolean = true,
     /** Stops the game and returns to the library, keeping the app alive. */
     onExit: () -> Unit = {},
     viewModel: SessionViewModel = hiltViewModel(),
@@ -198,7 +195,7 @@ fun SessionScreen(
 
         if (showMemory) {
             Text(
-                text = "RAM %d/%d MB".format(
+                text = "System RAM %d/%d MB".format(
                     device.ramUsedMb, device.ramTotalMb,
                 ),
                 color = Color.White,
@@ -209,18 +206,6 @@ fun SessionScreen(
                     .background(Color.Black.copy(alpha = 0.65f))
                     .padding(horizontal = 14.dp, vertical = 8.dp),
             )
-        }
-
-        if (
-            showDriverActions &&
-            (state as? ManagedSessionState.Failed)?.detail?.contains("not installed") == true
-        ) {
-            Column(
-                modifier = Modifier.align(androidx.compose.ui.Alignment.BottomEnd).padding(12.dp),
-                horizontalAlignment = androidx.compose.ui.Alignment.End,
-            ) {
-                Button(onClick = onOpenDrivers) { Text("Open Turnip drivers") }
-            }
         }
 
         // Notification pill sliding down from top, staying 5s, vanishing moving down
@@ -355,7 +340,7 @@ fun SessionScreen(
                         modifier = Modifier.padding(bottom = 24.dp)
                     ) {
                         Text(
-                            text = "Show memory usage",
+                            text = "Show system memory usage",
                             color = BachataPalette.Secondary,
                             style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
                             modifier = Modifier.padding(end = 16.dp)

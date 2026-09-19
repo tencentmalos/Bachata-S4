@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+"""Run Android futex and production MemoryTracker concurrency regressions."""
+
+import argparse
+import os
+import subprocess
+from pathlib import Path
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--ndk", type=Path, default=os.environ.get("ANDROID_NDK_HOME"))
+    parser.add_argument("--serial", required=True)
+    parser.add_argument("--out", type=Path, required=True)
+    args = parser.parse_args()
+    if not args.ndk:
+        parser.error("--ndk or ANDROID_NDK_HOME is required")
+
+    root = Path(__file__).resolve().parents[2]
+    output = args.out.resolve()
+    output.mkdir(parents=True, exist_ok=True)
+    compilers = list(args.ndk.glob("toolchains/llvm/prebuilt/*/bin/aarch64-linux-android33-clang++"))
+    if len(compilers) != 1:
+        parser.error("expected one Android arm64 API 33 compiler in the selected NDK")
+    flags = [
+        "-std=c++23", "-O2", "-pthread", "-static-libstdc++", "-DNDEBUG",
+        "-DFMT_HEADER_ONLY", "-DSPDLOG_FMT_EXTERNAL",
+    ]
+    includes = ["src", "externals/json/include", "externals/fmt/include",
+                "externals/spdlog/include", "externals/tracy/public"]
+    flags += ["-I" + str(root / path) for path in includes]
+    adb = ["adb", "-s", args.serial]
+
+    for name, extra in [
+        ("futex_mutex_tests", ["src/common/spin_lock.cpp"]),
+        ("memory_tracker_concurrency_tests", []),
+    ]:
+        binary = output / name
+        subprocess.run([
+            str(compilers[0]), *flags, str(root / "tests/common" / f"{name}.cpp"),
+            *[str(root / path) for path in extra], "-o", str(binary),
+        ], check=True, timeout=90)
+        remote = "/data/local/tmp/shad-" + name
+        subprocess.run([*adb, "push", str(binary), remote], check=True, timeout=30)
+        result = subprocess.run([*adb, "shell", remote], text=True, capture_output=True, timeout=30)
+        (output / (name + ".txt")).write_text(result.stdout + result.stderr)
+        print(result.stdout + result.stderr, end="", flush=True)
+        result.check_returncode()
+
+
+if __name__ == "__main__":
+    main()

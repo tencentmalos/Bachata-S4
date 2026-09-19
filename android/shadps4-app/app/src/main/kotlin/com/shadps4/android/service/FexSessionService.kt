@@ -88,6 +88,17 @@ class FexSessionService : Service() {
                 Log.e(TAG,"Host paths failed to initialize")
                 return@launch
             }
+            val consoleLanguage = runCatching {
+                com.shadps4.android.runtime.settings.ConsoleLanguage.resolve(
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Global),
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Game(gameId)),
+                )
+            }.getOrElse {
+                Log.w(TAG, "Invalid console language profile, using English", it)
+                com.shadps4.android.runtime.settings.ConsoleLanguage.DEFAULT_LANGUAGE
+            }
+            NativeFexSession.nativeSetConsoleLanguage(consoleLanguage)
+            Log.i(TAG, "Guest console language=$consoleLanguage")
             val shadingQuality = runCatching {
                 com.shadps4.android.runtime.settings.GuestShadingQuality.resolve(
                     runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Global),

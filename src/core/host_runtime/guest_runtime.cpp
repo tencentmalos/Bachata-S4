@@ -216,6 +216,7 @@ struct FunctionAdapter final : HleCallAdapter {
             Common::Profiler::Counter("GuestSync.Arg0", frame.registers.Get(Gpr::Rdi));
             Common::Profiler::Counter("GuestSync.Arg1", frame.registers.Get(Gpr::Rsi));
             Common::Profiler::Counter("GuestSync.Arg2", frame.registers.Get(Gpr::Rdx));
+            Common::Profiler::Counter("GuestSync.Arg3", frame.registers.Get(Gpr::Rcx));
             u64 caller{};
             if (frame.space &&
                 frame.space->ReadData(GuestAddress{frame.registers.Get(Gpr::Rsp)},
@@ -1199,6 +1200,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
             avplayer->RequestStop();
         if (audio) audio->RequestStop();
         if (ajm) ajm->RequestStop();
+        if (network) network->RequestStop();
         if (storage)
             storage->Cancel();
         if (save_dialog)
@@ -1444,6 +1446,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
             function.profile_name.find("mutex_lock") != std::string::npos ||
             function.profile_name.find("mutex_unlock") != std::string::npos;
         function.profile_sync = profile_sync && (function.profile_sync_mutex ||
+            function.profile_name == "HLE.sceNetEpollWait" ||
             function.profile_name.find("PthreadCond") != std::string::npos ||
             function.profile_name.find("pthread_cond") != std::string::npos ||
             function.profile_name.find("Usleep") != std::string::npos ||
@@ -3969,6 +3972,8 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
     impl->platform = std::make_unique<GuestPlatform>(std::move(users), sdk,
                                                      EmulatorSettings.GetConsoleLanguage(),
                                                      EmulatorSettings.IsCircleEnter());
+    LOG_INFO(Lib_SystemService, "Guest console language={} (session snapshot)",
+             EmulatorSettings.GetConsoleLanguage());
     impl->pad = std::make_unique<GuestPad>(GlobalPadAdapter(), *impl->platform);
     impl->sysmodules.Publish("libScePad", 0x1000000d);
     impl->audio = std::make_unique<GuestAudio>(impl->space, impl->clock);

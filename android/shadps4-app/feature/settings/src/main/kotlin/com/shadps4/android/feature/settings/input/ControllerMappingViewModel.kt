@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shadps4.android.data.RuntimeProfileStore
 import com.shadps4.android.runtime.input.ControllerDeviceKey
+import com.shadps4.android.runtime.input.NativeButtonMapping
 import com.shadps4.android.runtime.input.ControllerProfile
 import com.shadps4.android.runtime.input.GamepadInputManager
 import com.shadps4.android.runtime.input.PhysicalBinding
@@ -31,19 +32,21 @@ class ControllerMappingViewModel @Inject constructor(private val store: RuntimeP
 
     fun load(scope: ProfileScope) {
         viewModelScope.launch {
-            val stored = store.load(scope).controllerSlots
+            val local = store.load(scope).controllerSlots
+            val stored = if (scope is ProfileScope.Game && local.isEmpty())
+                store.load(ProfileScope.Global).controllerSlots else local
             mutableState.value = mutableState.value.copy(scope = scope, profiles = List(4) { stored.getOrNull(it) ?: ControllerProfile.standard() })
         }
     }
 
     fun selectSlot(slot: Int) { require(slot in 0..3); mutableState.value = mutableState.value.copy(slot = slot, conflict = null) }
     fun capture(control: String) {
-        require(control in ControllerProfile.LOGICAL_CONTROLS)
+        require(control in NativeButtonMapping.supportedControls)
         mutableState.value = mutableState.value.copy(captureQueue = listOf(control))
         startCapture()
     }
     fun captureSequential() {
-        mutableState.value = mutableState.value.copy(captureQueue = ControllerProfile.LOGICAL_CONTROLS.toList().sorted())
+        mutableState.value = mutableState.value.copy(captureQueue = NativeButtonMapping.supportedControls.toList().sorted())
         startCapture()
     }
 
@@ -54,6 +57,11 @@ class ControllerMappingViewModel @Inject constructor(private val store: RuntimeP
 
     fun accept(binding: PhysicalBinding) {
         val target = mutableState.value.captureQueue.firstOrNull() ?: return
+        if (!NativeButtonMapping.supports(binding)) {
+            mutableState.value = mutableState.value.copy(error = "Use a controller button or D-pad direction")
+            return
+        }
+        mutableState.value = mutableState.value.copy(error = null)
         val profile = current()
         val existing = ControllerProfile.LOGICAL_CONTROLS.firstOrNull { it != target && profile.bindingFor(it) == binding }
         if (existing != null) {
@@ -78,18 +86,14 @@ class ControllerMappingViewModel @Inject constructor(private val store: RuntimeP
     }
     fun clear() { replaceCurrent(ControllerProfile(device = current().device)); save() }
     fun setDevice(device: ControllerDeviceKey) { replaceCurrent(current().copy(device = device)); save() }
-    fun setDeadZone(value: Float) { replaceCurrent(current().copy(deadZone = value)); save() }
-    fun setTriggerThreshold(value: Float) { replaceCurrent(current().copy(triggerThreshold = value)); save() }
-    fun setInvert(control: String, inverted: Boolean) {
-        val axes = current().invertAxes.toMutableSet().apply { if (inverted) add(control) else remove(control) }
-        replaceCurrent(current().copy(invertAxes = axes)); save()
-    }
-    fun setVibration(enabled: Boolean) { replaceCurrent(current().copy(vibrationEnabled = enabled)); save() }
     fun setSwapFaceButtons(enabled: Boolean) { replaceCurrent(current().copy(swapFaceButtons = enabled)); save() }
-    fun setMotion(enabled: Boolean) { replaceCurrent(current().copy(motionEnabled = enabled)); save() }
 
     fun inherit() {
-        viewModelScope.launch { store.update(mutableState.value.scope) { it.copy(controllerSlots = emptyList()) } }
+        val scope = mutableState.value.scope
+        viewModelScope.launch {
+            store.update(scope) { it.copy(controllerSlots = emptyList()) }
+            load(scope)
+        }
     }
 
     private fun applyBinding(target: String, binding: PhysicalBinding, remove: String?) {

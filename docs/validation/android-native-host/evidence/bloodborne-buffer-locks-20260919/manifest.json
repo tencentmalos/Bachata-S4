@@ -1,0 +1,190 @@
+{
+  "schema": "shadps4.buffer-tracking-evidence.v1",
+  "scope": "Android region-lock repair; no matched-scene FPS claim",
+  "archived": [
+    {
+      "path": "docs/validation/android-native-host/evidence/bloodborne-buffer-locks-20260919/baseline-unarmed.json",
+      "bytes": 1683,
+      "sha256": "1e01251167b845d2f607b0af4a0b96441f4eb6ea3d53699ae058edede0c998e1"
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/bloodborne-buffer-locks-20260919/baseline-stop.txt",
+      "bytes": 5189,
+      "sha256": "8a3189ed8510eb10d14d49e956374b9307b6ee0b6c81f70fd1905d162e3a1f2f"
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/bloodborne-buffer-locks-20260919/futex-stop.txt",
+      "bytes": 5185,
+      "sha256": "ed39999634bf3c947ad0500543cca5bdfde6372e1037aefaf1629f52885e1dda"
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/bloodborne-buffer-locks-20260919/futex-build-identity.json",
+      "bytes": 298,
+      "sha256": "a4aae59d39a08cc57eefae58a66375071481bc353d7d3ff84de5120d12ba1662"
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/bloodborne-buffer-locks-20260919/sharded-build-identity.json",
+      "bytes": 298,
+      "sha256": "5efae7a26dba2812db0434fc91f00dfbadb9163d04494e30bcbf874a45147136"
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/bloodborne-buffer-locks-20260919/futex-only-clean-status.json",
+      "bytes": 1715,
+      "sha256": "094db39a984772d71397856960a5900150674c7939daa8a205a05350c81532f4"
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/bloodborne-buffer-locks-20260919/sharded-final-status.json",
+      "bytes": 1712,
+      "sha256": "616b46dfab71bc2e47e581020cd260a08900ce684c4298a90cba84ff2130ae6e"
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/bloodborne-buffer-locks-20260919/sharded-post-input-status.json",
+      "bytes": 1713,
+      "sha256": "f182372b9228b9fad9d9513732d0fadababbf7fc0b439b93b0e60fb9373ab13e"
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/bloodborne-buffer-locks-20260919/sharded-before-stop.txt",
+      "bytes": 804,
+      "sha256": "1fa22e073f7a2b88a6788eeee1e3e3ec687e713d2ed12be9e96eed85cbc0fb62"
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/bloodborne-buffer-locks-20260919/sharded-stop.txt",
+      "bytes": 5195,
+      "sha256": "d476539629fc431b221b325bc3a35447bc6e4547fb43be3004e1a397087c9a0d"
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/bloodborne-buffer-locks-20260919/final-tests.txt",
+      "bytes": 560,
+      "sha256": "e2ae60d0fb29672b9f00b4d11de97d0fe0e101e95c02f933aa6478b65b7d1e16"
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/bloodborne-buffer-locks-20260919/formatted-tests.txt",
+      "bytes": 568,
+      "sha256": "672a6485ac669ef1febd0ce18bffc868ca6342d164aadabc8e51c8daf12838a2"
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/bloodborne-buffer-locks-20260919/memory-tracker-counterexample.txt",
+      "bytes": 177,
+      "sha256": "8e71bd740175c105381a6bcb628aabdff0346dd06ddd294550b0e43b15fa8390"
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/bloodborne-buffer-locks-20260919/sharded-final-record.txt",
+      "bytes": 256,
+      "sha256": "7a987ea771ef8bc12b2bcb3f83e274cea259b36927c6f985efd05bab0a6b023f"
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/bloodborne-buffer-locks-20260919/futex-only-clean-record.txt",
+      "bytes": 256,
+      "sha256": "a0ce3de0d2424b5428715726b078add59da4da528aa80ed30aa82ffa07549d1c"
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/bloodborne-buffer-locks-20260919/sharded-post-input-record.txt",
+      "bytes": 256,
+      "sha256": "337d3fcb56c06e262d19379bab5cee1253bfc7d1b416e71c4a139e340aebd691"
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/bloodborne-buffer-locks-20260919/baseline-symbols.txt.gz",
+      "bytes": 15512,
+      "sha256": "4bf0bc7203b2a3f2f7284d904fd751eba7e372c2aeb64a49aeb41ee6f4d10346",
+      "uncompressed_sha256": "4fa494ec7c415d516f99c85361eda1a9155156e5268688ecc8139954ac33df44"
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/bloodborne-buffer-locks-20260919/native-cpu-callgraph.txt.gz",
+      "bytes": 10885,
+      "sha256": "a41e5d676812064f87e4eb5e1ea4ac6e6e11d6be8b1c12a43f20857bb0cc15fe",
+      "uncompressed_sha256": "aab30e7be77cf8fde76bc6b194598f0cabb77fd8331f0bcddf6f7f4431c1efd9"
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/bloodborne-buffer-locks-20260919/futex-only-clean-callgraph.txt.gz",
+      "bytes": 91846,
+      "sha256": "966b183267d4bef11ffcf368e2ff0edfbc6d9452a3cce2a773d1a63380233aed",
+      "uncompressed_sha256": "dc1b3e5b46a2e7e303f2e80fe6a1868a93b4f251f46b618926add2d1b613cfef"
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/bloodborne-buffer-locks-20260919/sharded-symbols.txt.gz",
+      "bytes": 20930,
+      "sha256": "75caa6bc5b716316f340568305f6f3a1d8aad73ae3d7fc4a19c4590f5c23a456",
+      "uncompressed_sha256": "3cc9f85fe7d5a326b6c6285aabe309660b81cde32bb987dbcbe8e503d24b3932"
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/bloodborne-buffer-locks-20260919/sharded-final-callgraph.txt.gz",
+      "bytes": 95039,
+      "sha256": "a3532e82308a39de169b412f37e1eac20458a737f3ab471153d74460f18fe6b2",
+      "uncompressed_sha256": "8d7e2d7f4a518584daf8e31150f5ddcc88a7199f4bf969034e064537f0949038"
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/bloodborne-buffer-locks-20260919/sharded-post-input-symbols.txt.gz",
+      "bytes": 23287,
+      "sha256": "1ad053ff4569199d710452f27b5c2031e20434ab30e84d0845ef889a1d70e22d",
+      "uncompressed_sha256": "96af0f0e2973cc21422285a2a81329e651b417afe90df539cadd97ef731345d2"
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/bloodborne-buffer-locks-20260919/sharded-post-input-callgraph.txt.gz",
+      "bytes": 99085,
+      "sha256": "eb4e008c62aa0c0d43e9cddaf6a8c7a43702c50ef885fdee562f7453680cada5",
+      "uncompressed_sha256": "ae5dadbba8977a54508164c8e5b0419d4a0c22f522e813a92ed9aeb7a828b22d"
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/bloodborne-buffer-locks-20260919/reference-sources.json",
+      "bytes": 2120,
+      "sha256": "9e85e3dcbd1cc657459433468776ff7f20507872989f8b6747044dead208ee96"
+    }
+  ],
+  "local_only": [
+    {
+      "path": "build/validation/bloodborne-cpu-jobs-20260919/native-cpu-baseline.data",
+      "bytes": 1966538,
+      "sha256": "3ce817b910801be4b71eaea0a15da35de7870d2a271c8c13909cb78d26a475a7"
+    },
+    {
+      "path": "build/validation/bloodborne-cpu-jobs-20260919/futex-only-clean.data",
+      "bytes": 1640522,
+      "sha256": "ee0dfd360700d097bf728a081cac42539c41f70d3527a3321b70ccda783204b8"
+    },
+    {
+      "path": "build/validation/bloodborne-cpu-jobs-20260919/sharded-final.data",
+      "bytes": 1705419,
+      "sha256": "7051973b68a7c2e8c4ef64908296e675cfefb99feb2bcbae281bb7ea8074924d"
+    },
+    {
+      "path": "build/validation/bloodborne-cpu-jobs-20260919/sharded-post-input.data",
+      "bytes": 1266961,
+      "sha256": "06c9f8885762de2db59fe98257dc86dfb23f106057c17524be541be89b81d568"
+    },
+    {
+      "path": "build/validation/bloodborne-cpu-jobs-20260919/baseline.apk",
+      "bytes": 335750631,
+      "sha256": "a507ca927a8c151a70f07b98705a811f30932d35c53bdd2890e137adfd272c97"
+    },
+    {
+      "path": "build/validation/bloodborne-cpu-jobs-20260919/futex-only.apk",
+      "bytes": 335752186,
+      "sha256": "77b2deb70841958271bcc7a6063d9b0474cabf6fd3c9c51c221f30f21d41b179"
+    },
+    {
+      "path": "build/validation/bloodborne-cpu-jobs-20260919/sharded-room.png",
+      "bytes": 1263724,
+      "sha256": "e42c92171cc1125b9ad900907d0c6a6a67979ecf955239125e793782dc7ff018"
+    },
+    {
+      "path": "build/validation/bloodborne-cpu-jobs-20260919/sharded-post-input.png",
+      "bytes": 1246379,
+      "sha256": "2861a6fa1b70150be41c85bad10560223e3078bc1eea6261645ac778dec1f43b"
+    },
+    {
+      "path": "build/validation/bloodborne-cpu-jobs-20260919/sharded-stop-ui.png",
+      "bytes": 533512,
+      "sha256": "c9fdea5bfd1f86281c36230c609ef285f7dfb54fe436ab82043bff8eb63d5bbe"
+    },
+    {
+      "path": "build/validation/bloodborne-cpu-jobs-20260919/analysis-image.json",
+      "bytes": 492,
+      "sha256": "ffdca4cf5e2b436706c6310b71dce0d8bcc2708e70c9c1e1a770329d38601950"
+    },
+    {
+      "path": "build/validation/bloodborne-cpu-jobs-20260919/analysis-symbols.json",
+      "bytes": 678,
+      "sha256": "d6ee600d38f14cf0accf402f470697142c32c4d5fed054d8b6a0836a2bbd7426"
+    }
+  ]
+}

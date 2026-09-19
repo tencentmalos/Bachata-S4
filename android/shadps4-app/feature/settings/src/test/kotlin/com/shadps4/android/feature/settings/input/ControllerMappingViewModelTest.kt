@@ -96,12 +96,18 @@ class ControllerMappingViewModelTest {
     }
 
     @Test
-    fun setDeadZonePersists() = runBlocking {
+    fun captureRejectsUnsupportedAnalogBindings() = runBlocking {
         val store = RuntimeProfileStore(temporaryFolder.root)
-        val viewModel = ControllerMappingViewModel(store)
-        viewModel.load(ProfileScope.Global)
-        viewModel.setDeadZone(0.25f)
-        assertEquals(0.25f, viewModel.state.value.profiles[0].deadZone, 0.001f)
+        val model = ControllerMappingViewModel(store)
+        model.load(ProfileScope.Global)
+        model.capture("cross")
+        model.accept(PhysicalBinding(PhysicalBindingKind.AXIS, 0, AxisDirection.POSITIVE))
+        assertEquals(listOf("cross"), model.state.value.captureQueue)
+        assertNotNull(model.state.value.error)
+        assertTrue(store.load(ProfileScope.Global).controllerSlots.isEmpty())
+        model.cancelCapture()
+        model.captureSequential()
+        assertTrue(model.state.value.captureQueue.none { it.startsWith("left_") || it.startsWith("right_") })
     }
 
     @Test

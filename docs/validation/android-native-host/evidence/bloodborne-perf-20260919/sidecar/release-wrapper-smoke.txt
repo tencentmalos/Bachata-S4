@@ -1,0 +1,11 @@
+{"name": "spatial-debug-tool", "ok": true, "tool_count": 59}
+{"name": "scrcpy", "ok": true, "tool_count": 11}
+{"name": "gpu-snapshot", "ok": true, "tool_count": 6}
+{"name": "renderdoc", "ok": true, "tool_count": 105}
+{"name": "native-debugger", "ok": true, "tool_count": 88}
+{"name": "ptracy", "ok": true, "tool_count": 41}
+{"name": "litep", "ok": true, "tool_count": 86}
+{"name": "reverse_study", "ok": true, "tool_count": 51}
+{"name": "azahar-clangd-lsp", "ok": true, "tool_count": 29}
+{"name": "webaccess", "ok": false, "error": "server exited before response", "stderr": "HTTP error: TypeError: fetch failed\n"}
+{"name": "node_repl", "ok": true, "tool_count": 4}

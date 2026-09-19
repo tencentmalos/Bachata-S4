@@ -1,0 +1,34 @@
+{
+  "schema": "spatial.guest-symbol-index.v2",
+  "bundle_id": "bloodborne-cusa03023-0100",
+  "revision": 1,
+  "targets": [
+    {
+      "target_id": "bloodborne-0100-eboot",
+      "scope": "title-module",
+      "emulator_family": "ps4",
+      "emulator": "shadps4-fex",
+      "program_id": "CUSA03023",
+      "module_name": "eboot.bin",
+      "source_sha256": "cc2826ae36b4df515d4b2f4ff9cb18a24057165d95cc51c3413ff98adf704209",
+      "compatible_runtime_sha256": [
+        "6764938b23539d29c936bca9880fc4a774e7b0099ce31c7e8c4b0f8bd0befb80"
+      ],
+      "compatible_build_ids": [],
+      "address_model": "module-relative",
+      "architecture": "i386:x86-64",
+      "byte_order": "little",
+      "toolchain_target": "x86_64-none-elf"
+    }
+  ],
+  "shards": [
+    {
+      "target_id": "bloodborne-0100-eboot",
+      "path": "cpu-job-waits.symbols.json",
+      "sha256": "1fae46fa4951611c848d045704780b848454c61a672ac3c6cba49260820551b0"
+    }
+  ],
+  "annotations": {
+    "analysis": "原始解密 ELF 与设备 SELF 分别绑定。分析副本仅补节表、ET_EXEC 和经 EH 校验的符号，LOAD 代码不变。runtime load base 0x400000 不写入符号偏移。"
+  }
+}

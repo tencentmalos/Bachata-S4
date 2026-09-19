@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include <cstdio>
+#include <chrono>
+#include <future>
+#include <thread>
 #include "core/host_runtime/guest_network.h"
 using namespace Core::HostRuntime;
 using namespace Core::GuestCpu;
@@ -45,7 +48,28 @@ int main() {
     CHECK(call("SF47kB2MNTo", {1,0}) == error(ORBIS_NET_EFAULT));
     const auto epoll=call("SF47kB2MNTo",{base,0}); CHECK(epoll==0x20000);
     write(base+256,u64{0xfeed});
-    CHECK(call("drjIbDbA7UQ",{epoll,base+256,1,u32(-1)})==0);
+    CHECK(call("drjIbDbA7UQ",{epoll,base+256,1,0})==0);
+    using namespace std::chrono_literals;
+    const auto before = std::chrono::steady_clock::now();
+    CHECK(call("drjIbDbA7UQ", {epoll, base+256, 1, 33000}) == 0);
+    CHECK(std::chrono::steady_clock::now() - before >= 30ms);
+    auto wait = std::async(std::launch::async, [&] {
+        return net.Dispatch(*space, "drjIbDbA7UQ", {epoll, base+256, 1, u32(-1)}, base+144);
+    });
+    // Repeated aborts cover a worker that has not entered the wait yet.
+    for (int i = 0; i < 100 && wait.wait_for(1ms) != std::future_status::ready; ++i)
+        CHECK(call("w21YgGGNtBk", {epoll}) == 0);
+    if (wait.wait_for(1ms) != std::future_status::ready) net.RequestStop();
+    CHECK(wait.get() == error(ORBIS_NET_ECANCELED));
+    CHECK(call("drjIbDbA7UQ", {epoll, base+256, 1, 0}) == 0); // abort is not permanent
+    const auto doomed = call("SF47kB2MNTo", {base, 0});
+    auto destroyed_wait = std::async(std::launch::async, [&] {
+        return net.Dispatch(*space, "drjIbDbA7UQ", {doomed, base+256, 1, u32(-1)}, base+144);
+    });
+    // Destroy must also be safe before waiter lookup/registration.
+    CHECK(call("Inp1lfL+Jdw", {doomed}) == 0);
+    CHECK(destroyed_wait.wait_for(1s) == std::future_status::ready);
+    CHECK(destroyed_wait.get() == error(ORBIS_NET_EBADF));
     CHECK(read.operator()<u64>(base+256)==0xfeed);
     CHECK(call("drjIbDbA7UQ",{epoll,base+256,UINT64_MAX,0})==error(ORBIS_NET_EINVAL));
     CHECK(call("drjIbDbA7UQ",{epoll,1,1,0})==error(ORBIS_NET_EFAULT));
@@ -171,6 +195,18 @@ int main() {
         GuestNetwork next(false);
         CHECK(next.Dispatch(*space, "Nlev7Lg8k3A", {}, base + 132) == 0);
         CHECK(next.Dispatch(*space, "dgJBaeJnGpo", {base, 4096, 0}, base + 132) == 1);
+    }
+    {
+        GuestNetwork stopping(false);
+        CHECK(stopping.Dispatch(*space, "Nlev7Lg8k3A", {}, base+128) == 0);
+        const auto id = stopping.Dispatch(*space, "SF47kB2MNTo", {0,0}, base+128);
+        auto parked = std::async(std::launch::async, [&] {
+            return stopping.Dispatch(*space, "drjIbDbA7UQ", {id, base+256, 1, u32(-1)}, base+144);
+        });
+        stopping.RequestStop();
+        CHECK(parked.wait_for(1s) == std::future_status::ready);
+        CHECK(parked.get() == error(ORBIS_NET_ECANCELED));
+        CHECK(stopping.Dispatch(*space, "SF47kB2MNTo", {0,0}, base+128) == error(ORBIS_NET_ECANCELED));
     }
     std::printf("GUEST_NETWORK checks=%u failures=%u\n", checks, failures);
     return failures ? 1 : 0;

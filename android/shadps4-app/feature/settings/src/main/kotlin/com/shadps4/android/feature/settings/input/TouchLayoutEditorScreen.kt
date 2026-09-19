@@ -63,7 +63,8 @@ class TouchLayoutEditorViewModel @Inject constructor(
 
     fun load(scope: ProfileScope) {
         viewModelScope.launch {
-            val id = profiles.load(scope).touchLayoutId
+            val localId = profiles.load(scope).touchLayoutId
+            val id = localId ?: if (scope is ProfileScope.Game) profiles.load(ProfileScope.Global).touchLayoutId else null
             val base = layouts.load(id)
             val editId = when (scope) { ProfileScope.Global -> "global"; is ProfileScope.Game -> "game-${scope.gameId}" }
             mutableState.value = TouchLayoutEditorUiState(scope, base.copy(id = editId, name = "Custom $editId"))
@@ -82,7 +83,6 @@ class TouchLayoutEditorViewModel @Inject constructor(
     fun front() { update(TouchLayoutRenderer.bringToFront(mutableState.value.layout, mutableState.value.selected)) }
     fun opacity(value: Float) { update(mutableState.value.layout.copy(opacity = value.coerceIn(0.05f, 1f))) }
     fun scale(value: Float) { update(mutableState.value.layout.copy(scale = value.coerceIn(0.5f, 2f))) }
-    fun vibration(value: Boolean) { update(mutableState.value.layout.copy(vibrationEnabled = value)) }
     fun analogCentering(value: Boolean) { update(mutableState.value.layout.copy(analogCentering = value)) }
     fun reset() { update(TouchLayout(id = mutableState.value.layout.id, name = mutableState.value.layout.name)) }
     fun save() {
@@ -93,7 +93,11 @@ class TouchLayoutEditorViewModel @Inject constructor(
         }
     }
     fun inherit() {
-        viewModelScope.launch { profiles.update(mutableState.value.scope) { it.copy(touchLayoutId = null) } }
+        val scope = mutableState.value.scope
+        viewModelScope.launch {
+            profiles.update(scope) { it.copy(touchLayoutId = null) }
+            load(scope)
+        }
     }
     private fun update(layout: TouchLayout) { mutableState.value = mutableState.value.copy(layout = layout, saved = false) }
 }
@@ -196,7 +200,7 @@ fun TouchLayoutEditorScreen(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Text(
-                            text = "Global Preferences",
+                            text = "Layout Preferences",
                             style = MaterialTheme.typography.titleMedium,
                             color = BachataPalette.Primary,
                             fontWeight = FontWeight.Bold
@@ -207,16 +211,7 @@ fun TouchLayoutEditorScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("Vibration Feedback", color = BachataPalette.Primary, style = MaterialTheme.typography.bodyMedium)
-                            Switch(state.layout.vibrationEnabled, viewModel::vibration)
-                        }
-                        
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("Auto-Center Analog Sticks", color = BachataPalette.Primary, style = MaterialTheme.typography.bodyMedium)
+                            Text("Fixed Stick Centers", color = BachataPalette.Primary, style = MaterialTheme.typography.bodyMedium)
                             Switch(state.layout.analogCentering, viewModel::analogCentering)
                         }
 
@@ -269,8 +264,8 @@ fun TouchLayoutEditorScreen(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Spacer(modifier = Modifier.weight(1f))
-            TextButton(onClick = viewModel::inherit) {
-                Text("Inherit Global")
+            if (scope is ProfileScope.Game) {
+                TextButton(onClick = viewModel::inherit) { Text("Use global layout") }
             }
             BachataPrimaryButton(onClick = viewModel::reset) {
                 Text("Reset")

@@ -1,0 +1,58 @@
+{
+  "/Users/bytedance/workspace/emulations/3ds/azahar": {
+    "head": "254bff35e0d8ced97e6cc73f7a59be045798c60c",
+    "files": [
+      {
+        "path": "src/video_core/gpu.cpp",
+        "sha256": "38be0f8eca019a8a7dea47f5e5db88e9600e2fcbd5279dc682e287e127cb443b"
+      },
+      {
+        "path": "src/video_core/gpu_thread.cpp",
+        "sha256": "0344afbdb35f6d182f49847667fa04627db944eb8a2d61395cf17f6e36b682e8"
+      },
+      {
+        "path": "src/video_core/renderer_vulkan/vk_rasterizer.cpp",
+        "sha256": "91d3dd98708c576754928fabb8361e885726a7288bdd877bff561ab63992ff04"
+      },
+      {
+        "path": "src/video_core/renderer_vulkan/vk_stream_buffer.cpp",
+        "sha256": "dc85d352432f3da4381392428309faa61f602e9d079e55298658e47afa91d23a"
+      },
+      {
+        "path": "src/video_core/rasterizer_cache/rasterizer_cache.h",
+        "sha256": "494eb1a59154e390240f7e06c82707a20a91279bd3cf45970959b726bc19bd2c"
+      }
+    ],
+    "status": ""
+  },
+  "/Users/bytedance/workspace/emulations/switch/citron": {
+    "head": "3da08ee52defc5003d23683b0c233b0dac88722f",
+    "files": [
+      {
+        "path": "src/video_core/buffer_cache/memory_tracker_base.h",
+        "sha256": "46985ef0d4df73042863845c0f6f37d16fda69370cacc689f40b8cb73ea10ab4"
+      },
+      {
+        "path": "src/video_core/buffer_cache/buffer_cache.h",
+        "sha256": "acc66225c6d8497d683a669c8a257e68b54cb9222e7f85857e71dd67ec8efcaf"
+      },
+      {
+        "path": "src/video_core/buffer_cache/buffer_cache_base.h",
+        "sha256": "bf786ed7c1941efbd5ef98b27b4ea98a2634241a6249005200550162c47b4323"
+      },
+      {
+        "path": "src/video_core/renderer_vulkan/vk_rasterizer.cpp",
+        "sha256": "4932420982d412af6b10317da2893e00dec6dc46131160224f7fb4b4f72a3f3a"
+      },
+      {
+        "path": "src/video_core/renderer_vulkan/vk_staging_buffer_pool.cpp",
+        "sha256": "87b662e4dcea6f8d31cced3d43a4289bfeb928d7b98c0c867d19fe69e5579462"
+      },
+      {
+        "path": "src/core/memory.cpp",
+        "sha256": "88b0cf7010f6c624759ad234165598085d2d65d1b9b0b87e9ec6b10e76b22817"
+      }
+    ],
+    "status": ""
+  }
+}

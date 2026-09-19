@@ -271,6 +271,8 @@ public:
     }
 
 private:
+    void PublishMemoryDiagnostics();
+    unsigned long long memory_diagnostics_epoch{};
     /// Iterate over all page indices in a range
     template <typename Func>
     static void ForEachPage(PAddr addr, size_t size, Func&& func) {

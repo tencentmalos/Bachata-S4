@@ -1,0 +1,14 @@
+{
+  "report": "/Users/bytedance/workspace/spatial_mcp_publish/dev_tools/mcp/litep/sdk/build/verification/20260919T144847Z-f50d2129/report.json",
+  "sha256": "abdf34cf373f419c8271f1b08dd65d34441d5f9bd774011610f1e81f486b19bb",
+  "status": "passed",
+  "source_changed_during_run": false,
+  "scopes": {
+    "specs": "passed",
+    "harness": "passed",
+    "python": "passed",
+    "host": "passed",
+    "perf": "passed",
+    "android": "passed"
+  }
+}

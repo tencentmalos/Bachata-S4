@@ -1,0 +1,58 @@
+Applications Memory Usage (in Kilobytes):
+Uptime: 603694811 Realtime: 606696629
+
+** MEMINFO in pid 4717 [com.shadps4.android] **
+                   Pss  Private  Private     Swap      Rss     Heap     Heap     Heap
+                 Total    Dirty    Clean    Dirty    Total     Size    Alloc     Free
+                ------   ------   ------   ------   ------   ------   ------   ------
+  Native Heap   557838   557764        0        0   561176  1374500  1295761    39093
+  Dalvik Heap     4434     4200        0        0    13252    29700     5124    24576
+ Dalvik Other     6452     4788        0        4    10412
+        Stack     2044     2044        0        0     2056
+       Ashmem       52        0        0      136      432
+      Gfx dev   596892   596892        0        0   596896
+    Other dev       24        0       20        0      408
+     .so mmap    62359     4812    50668        0   116796
+    .jar mmap     2946        0      116        0    39204
+    .apk mmap    27561        0    27324        0    28612
+    .ttf mmap      423        0      100        0     1248
+    .dex mmap       33        4       12        0      656
+    .oat mmap      201        0       80        0     2460
+    .art mmap     6459     6048       64        0    19896
+   Other mmap  1113708  1105432     6748        0  1116836
+   EGL mtrack    81840    81840        0        0    81840
+    GL mtrack  1952732  1952732        0        0  1952732
+      Unknown   121199   121188        0        0   122092
+        TOTAL  4537197  4437744    85132      140  4667004  1404200  1300885    63669
+
+ App Summary
+                       Pss(KB)                        Rss(KB)
+                        ------                         ------
+           Java Heap:    10312                          33148
+         Native Heap:   557764                         561176
+                Code:    83116                         192296
+               Stack:     2044                           2056
+            Graphics:  2631464                        2631468
+       Private Other:  1238176
+              System:    14321
+             Unknown:                                 1246860
+
+           TOTAL PSS:  4537197            TOTAL RSS:  4667004      TOTAL SWAP (KB):      140
+
+ Objects
+               Views:       13         ViewRootImpl:        1
+         AppContexts:        6           Activities:        1
+              Assets:       12        AssetManagers:        0
+       Local Binders:       20        Proxy Binders:       38
+       Parcel memory:        6         Parcel count:       28
+    Death Recipients:        1      OpenSSL Sockets:        0
+            WebViews:        0
+
+ SQL
+         MEMORY_USED:      108
+  PAGECACHE_OVERFLOW:       41          MALLOC_SIZE:       46
+
+ DATABASES
+      pgsz     dbsz   Lookaside(b)          cache  Dbname
+         4       32             51         4/77/5  /data/user/0/com.shadps4.android/databases/bachata.db
+         4        8                         0/0/0    (attached) temp

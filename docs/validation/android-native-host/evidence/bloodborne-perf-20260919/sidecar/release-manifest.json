@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "product": "litep_mcp",
+  "version": "0.2.0-local.20260919.bottleneck3",
+  "commit": "8f6677515d9f41b773c3b08bd8208cb0563d0f53",
+  "releaseNotes": "SDK async flow、完整帧贡献与邻帧差异、生产者等待链及 KGSL/sched sidecar；按异步排队耗时排序。",
+  "assets": [
+    {
+      "rid": "osx-arm64",
+      "url": "/Users/bytedance/workspace/spatial_mcp_publish/artifacts/litep-bottleneck3/litep-mcp-0.2.0-local.20260919.bottleneck3-osx-arm64.zip",
+      "fileName": "litep-mcp-0.2.0-local.20260919.bottleneck3-osx-arm64.zip",
+      "sha256": "d67d8ea8620b84c5d5c84cf452fa221c8275f829fc6e757ce8a62513c5d5f250"
+    }
+  ]
+}

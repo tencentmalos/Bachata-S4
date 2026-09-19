@@ -1,0 +1,70 @@
+[
+  {
+    "identity": [
+      "1593",
+      "1",
+      "51f9276361a33959ba14c241982467eb"
+    ],
+    "scale_percent": 100,
+    "pss_kib": 4532027,
+    "rss_kib": 4651708,
+    "vma_block_bytes": 2615640064,
+    "vma_allocation_bytes": 2209648640,
+    "vma_unused_block_bytes": 405991424,
+    "cached_image_allocation_bytes": 392896512,
+    "guest_buffer_allocation_bytes": 199720960,
+    "utility_buffer_allocation_bytes": 1308688384,
+    "system_memavailable_used_kib": 7903832
+  },
+  {
+    "identity": [
+      "1593",
+      "1",
+      "51f9276361a33959ba14c241982467eb"
+    ],
+    "scale_percent": 100,
+    "pss_kib": 4517156,
+    "rss_kib": 4636848,
+    "vma_block_bytes": 2615640064,
+    "vma_allocation_bytes": 2209648640,
+    "vma_unused_block_bytes": 405991424,
+    "cached_image_allocation_bytes": 392896512,
+    "guest_buffer_allocation_bytes": 199720960,
+    "utility_buffer_allocation_bytes": 1308688384,
+    "system_memavailable_used_kib": 7896644
+  },
+  {
+    "identity": [
+      "1593",
+      "1",
+      "51f9276361a33959ba14c241982467eb"
+    ],
+    "scale_percent": 100,
+    "pss_kib": 4522850,
+    "rss_kib": 4642792,
+    "vma_block_bytes": 2616754176,
+    "vma_allocation_bytes": 2223509504,
+    "vma_unused_block_bytes": 393244672,
+    "cached_image_allocation_bytes": 405643264,
+    "guest_buffer_allocation_bytes": 200835072,
+    "utility_buffer_allocation_bytes": 1308688384,
+    "system_memavailable_used_kib": 7905056
+  },
+  {
+    "identity": [
+      "1593",
+      "1",
+      "51f9276361a33959ba14c241982467eb"
+    ],
+    "scale_percent": 100,
+    "pss_kib": 4528038,
+    "rss_kib": 4647984,
+    "vma_block_bytes": 2616754176,
+    "vma_allocation_bytes": 2225960960,
+    "vma_unused_block_bytes": 390793216,
+    "cached_image_allocation_bytes": 405643264,
+    "guest_buffer_allocation_bytes": 200835072,
+    "utility_buffer_allocation_bytes": 1308688384,
+    "system_memavailable_used_kib": 7913896
+  }
+]

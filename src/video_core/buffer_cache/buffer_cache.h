@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <iosfwd>
+
 #include <boost/container/small_vector.hpp>
 #include "common/lru_cache.h"
 #include "common/slot_vector.h"
@@ -34,6 +36,8 @@ class PageManager;
 
 class BufferCache {
 public:
+    // Renderer thread only; no queue synchronization or cross-thread cache reads.
+    void AppendMemoryDiagnostics(std::ostream& out);
     static constexpr u32 CACHING_PAGEBITS = 14;
     static constexpr u64 CACHING_PAGESIZE = u64{1} << CACHING_PAGEBITS;
     static constexpr u64 DEVICE_PAGESIZE = 16_KB;

@@ -20,6 +20,10 @@ data class RuntimeSettingCatalog(
             return specs
         }
 
+        /** Only settings consumed by the native Android launch path belong in this catalog.
+         * The old desktop/Box64 resources are retained for legacy profile decoding only. */
+        fun loadAndroidSettings(): List<RuntimeSettingSpec> = loadResource("/runtime-settings/android.json")
+
         fun loadFromResources(): RuntimeSettingCatalog = RuntimeSettingCatalog(
             shadPs4 = loadResource("/runtime-settings/shadps4.json"),
             box64 = loadResource("/runtime-settings/box64.json"),

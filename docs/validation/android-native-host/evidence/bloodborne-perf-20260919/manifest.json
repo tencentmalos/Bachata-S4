@@ -1,0 +1,35 @@
+{
+  "baseline": {
+    "pid": 12119,
+    "generation": 1,
+    "run_uuid": "4033c9e667c119a051f861da9ea6b4ec",
+    "title_id": "CUSA03023",
+    "scale_percent": 50,
+    "shading_quality": "High/1x1",
+    "FDM": false,
+    "driver_sha256": "fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09",
+    "prof_path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/bloodborne-perf-20260919/coarse/9c2841a4-12119-file-1789825232462317-1.prof",
+    "prof_sha256": "9cb9a2b56c91799adf0a05d70ede15cf68fc93e6333d881de8733a3593910450",
+    "index_path": "/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/bloodborne-perf-20260919/index/9ad4efa7d4c24a408f61b75f26662e69.litep.sqlite"
+  },
+  "evidence": {
+    "analysis-summary.txt": "f05fae3fcdfa316f39ada4f89d27cffeeb55d76b7c3eb30493b0a15d7caaf493",
+    "installed-apk-sha.txt": "5da7758950f586b319632a3308ef84c550d884363947d20cf138c0391c8970b4",
+    "representative-stage.json": "7185c01e73883fcd1ff7cc5c328ae07bfb476ef529e38357a1e17ee3b3a720b4",
+    "after.png": "91ce60c8d23d9d2c1b568432bfd8667fbdead816386af5860975c5b48d2dea4d",
+    "long-intervals.json": "bfd8ca759f81263827ef2070cc5e1c9934d59377e94124853b17d5275c80aa82",
+    "scope-summary.json": "4ecdfa14f984b4545fa78c2e3b971d1cc23a94c4818e87ca5f1140a9f5ed6a99",
+    "network-poll-sequence.json": "d43c6d2ff7f4c28d886a65af2cb9ff0b7519791ac42998b7a70ce91159e43566",
+    "initial.png": "d7e7eec14b1dca480f7e52954ccb8e5ae9de3ae1a87c1b791113ae816748fa7f",
+    "original-gpu-timing.txt": "ce799a73ded7ed1a63272b82154bae742b91a7397f5df467def8d1f25ff619f0",
+    "representative-intervals.json": "98d83cfcc4382107db4f82b32adc542cf9b8baa419d7c8ac7e959812fd0d0e5b",
+    "index-metadata.json": "6e1bf3efba0b0a0103511ec00edf382de700419bae321d68b4ed8ee181ae00fc",
+    "counter-summary.json": "721d2a0973e995d080316591c70790e8a5c6d559065a98a1577168b7bede8abb",
+    "baseline-state.txt": "19f475749a1de90962716959eff937d8b5ec463e8a3371a51e26610e2899af0c",
+    "final-capture-status.txt": "f4a5245d54a546605da7cef8ec16c1169a44660988921709e23b12c17540d33d",
+    "analyze-index.py": "782f5d53b7204093ccba57aba5a66946300d553f3ac16c859490cf1e001b272d",
+    "restored-gpu-timing.txt": "3a082ffb2d82695aacc047573fece85baccba82b08ca2ff4b6fa08ef12103f02",
+    "preinstall-state.txt": "45d3083b8e5d12f9fd154b4c7d8f7890c23577d6b474f69e377d661522d26787",
+    "host-log-tail.txt": "11f45acdc498b9ba76d72a9ae4f9365c3bfe596635fdc5018c76b993916740fb"
+  }
+}

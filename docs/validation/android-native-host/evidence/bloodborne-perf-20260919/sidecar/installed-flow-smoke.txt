@@ -1,0 +1,4 @@
+matched 721 longest_queue_ms 80.638698
+load_seconds 9.275877624982968 {'sidecar_id': 'bdcb9c84492a4e1f8b468c248df3bdea', 'prof_sha256': '3cee9701c35be2350647c42e655421f9739c77d48035388cf0ce9afe9e008698', 'trace_sha256': '3080439fa418c6585fa494a1355540d91f556ee17f391302065975260a2ead2c', 'safe_start_ns': 611009568004881, 'safe_end_ns': 611027582841881, 'clock_uncertainty_ns': 1134, 'overrun': 0, 'dropped': 0, 'diagnostics': {'zero_timestamp_batch_observation': 1381}}
+frame_seconds 5.308594000060111 frame {'sdk_frame': 2884, 'tid': 21195, 'start_ns': 611027259444587, 'end_ns': 611027545614066, 'duration_ms': 286.169479} producer_waits 5
+combined_seconds_done 8312.917763

@@ -1,0 +1,5 @@
+# Captured command output and CSV evidence retain their original bytes/hashes.
+docs/validation/android-native-host/evidence/android-menu-prune-20260919/** -whitespace
+docs/validation/android-native-host/evidence/bloodborne-buffer-locks-20260919/** -whitespace
+docs/validation/android-native-host/evidence/bloodborne-perf-20260919/** -whitespace
+docs/validation/android-native-host/evidence/internal-scale-memory-20260919/** -whitespace

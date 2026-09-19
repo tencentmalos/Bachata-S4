@@ -1,0 +1,1 @@
+Ptracy MCP self-test passed (42 tools).

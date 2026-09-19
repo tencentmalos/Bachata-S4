@@ -1,0 +1,31 @@
+SERVICE com.shadps4.android/.service.FexSessionService a895f09 pid=12119 user=0
+  Client:
+    gpu_timing: off
+    detailed: 0
+    requested: 0
+    ring_enabled: 1
+    coverage: device elapsed intervals (may include GPU semaphore/memory waits); excludes host API time; nested zones are not additive
+    generation: 1
+    supported: 0
+    calibrated: 0
+    estimated_alignment: 0
+    calibration_deviation_ns: 0
+    timestamp_valid_bits: 0
+    timestamp_period_ns: 0
+    retired_batches: 0
+    pending: 0
+    dropped_batches: 0
+    dropped_zones: 0
+    discarded: 0
+    errors: 0
+    GPU.DrawBatch: count=0 last_ms=0 total_ms=0 max_ms=0 observed_ns=0
+    GPU.GuestCommands: count=0 last_ms=0 total_ms=0 max_ms=0 observed_ns=0
+    GPU.HostPrepare: count=0 last_ms=0 total_ms=0 max_ms=0 observed_ns=0
+    GPU.FSR: count=0 last_ms=0 total_ms=0 max_ms=0 observed_ns=0
+    GPU.PostProcess: count=0 last_ms=0 total_ms=0 max_ms=0 observed_ns=0
+    GPU.Present: count=0 last_ms=0 total_ms=0 max_ms=0 observed_ns=0
+    GPU.OverlayRedraw: count=0 last_ms=0 total_ms=0 max_ms=0 observed_ns=0
+    GPU.BlankFlip: count=0 last_ms=0 total_ms=0 max_ms=0 observed_ns=0
+    GPU.GuestFrame: count=0 last_ms=0 total_ms=0 max_ms=0 observed_ns=0
+    GPU.GuestRenderPass: count=0 last_ms=0 total_ms=0 max_ms=0 observed_ns=0
+

@@ -13,6 +13,9 @@
 // Bionic is Unix but does not provide the GNU adaptive-mutex initializer.
 // Keep the fallback declaration available on every platform.
 #include "common/spin_lock.h"
+#if defined(__ANDROID__)
+#include "common/futex_mutex.h"
+#endif
 #include "common/debug.h"
 #include "common/types.h"
 #include "video_core/buffer_cache/region_definitions.h"
@@ -20,26 +23,36 @@
 
 namespace VideoCore {
 
-#ifdef PTHREAD_ADAPTIVE_MUTEX_INITIALIZER_NP
+#if defined(__ANDROID__)
+// Uploads can wait for staging retirement while holding a region. Faulting
+// guest writers must sleep rather than spin on Bionic's adaptive-mutex fallback.
+using LockType = Common::FutexMutex;
+#elif defined(PTHREAD_ADAPTIVE_MUTEX_INITIALIZER_NP)
 using LockType = Common::AdaptiveMutex;
 #else
 using LockType = Common::SpinLock;
 #endif
 
 /**
- * Allows tracking CPU and GPU modification of pages in a contigious 16MB virtual address region.
+ * Tracks CPU/GPU modification in one TRACKER_HIGHER_PAGE_SIZE address region.
  * Information is stored in bitsets for spacial locality and fast update of single pages.
  */
 class RegionManager {
 public:
-    explicit RegionManager(PageManager* tracker_, VAddr cpu_addr_)
-        : tracker{tracker_}, cpu_addr{cpu_addr_} {
+    explicit RegionManager(PageManager* tracker_, VAddr cpu_addr_) {
+        Initialize(tracker_, cpu_addr_);
+    }
+    explicit RegionManager() = default;
+
+    // Called once before publishing a pooled manager to faulting threads.
+    void Initialize(PageManager* tracker_, VAddr cpu_addr_) {
+        tracker = tracker_;
+        cpu_addr = cpu_addr_;
         cpu.Fill();
         gpu.Clear();
         writeable.Fill();
         readable.Fill();
     }
-    explicit RegionManager() = default;
 
     void SetCpuAddress(VAddr new_cpu_addr) {
         cpu_addr = new_cpu_addr;
