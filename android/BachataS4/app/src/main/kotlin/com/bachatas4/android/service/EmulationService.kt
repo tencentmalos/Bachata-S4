@@ -676,6 +676,14 @@ class EmulationService : Service() {
         const val ACCEPT_POLL_MILLIS = 250L
         const val MAX_ERROR_LOG_LINES = 20
         const val MAX_LOG_SESSIONS = 10
-        const val EMULATED_LIBRARIES = "libSDL2-2.0.so.0:libudev.so.1:libuuid.so.1"
+        // Emulate the X11 client stack rather than letting BOX64_PREFER_WRAPPED
+        // substitute the Android host copies. The wrapped bionic libX11 cannot
+        // reach the embedded X server's Linux abstract socket, so SDL reports
+        // "x11 not available"; the runtime bundle ships glibc x86-64 builds of
+        // these under lib/x86_64-linux-gnu that speak the same protocol the
+        // server implements.
+        const val EMULATED_LIBRARIES =
+            "libSDL2-2.0.so.0:libudev.so.1:libuuid.so.1:" +
+                "libX11.so.6:libX11-xcb.so.1:libxcb.so.1:libXau.so.6:libXdmcp.so.6:libXext.so.6"
     }
 }

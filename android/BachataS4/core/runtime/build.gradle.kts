@@ -6,7 +6,7 @@ plugins {
 android {
     namespace = "com.bachatas4.android.runtime"
     compileSdk = 37
-    ndkVersion = "30.0.14904198"
+    ndkVersion = "29.0.14206865"
     defaultConfig {
         minSdk = 31
         ndk { abiFilters += "arm64-v8a" }
