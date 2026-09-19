@@ -1,3 +1,4 @@
+#include "core/emulator_settings.h"
 #include "core/diagnostics/overlay_control.h"
 // SPDX-FileCopyrightText: Copyright 2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
@@ -144,6 +145,26 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
 
     registry.Register("gpu_reshape_status", "Sampled GPU Reshape status (no SDK/GPU waits)",
         [](const std::vector<std::string>&) { return GpuReshape::StatusSnapshot(); });
+
+    registry.Register("internal_scale", "Configured physical image scale (restart required to change)",
+        [](const std::vector<std::string>& args) {
+            if (!args.empty() && (args.size() != 1 || args[0] != "status")) return BadArguments();
+            return std::string("internal_scale_percent=") +
+                std::to_string(EmulatorSettings.GetInternalScalePercent()) + " restart_required=true\n";
+        });
+
+    registry.Register("shading_quality", "Transient guest shading quality: low | medium | high | status (FDM stays off)",
+        [](const std::vector<std::string>& args) {
+            if (args.size() > 1) return BadArguments();
+            const auto sub = args.empty() ? "status" : args[0];
+            if (sub == "low") EmulatorSettings.SetGuestShadingQuality(0);
+            else if (sub == "medium") EmulatorSettings.SetGuestShadingQuality(1);
+            else if (sub == "high") EmulatorSettings.SetGuestShadingQuality(2);
+            else if (sub != "status") return BadArguments();
+            return std::string("guest_shading_quality=") +
+                   std::to_string(EmulatorSettings.GetGuestShadingQuality()) +
+                   " FDM=off (requested quality; per-pipeline fallback may apply)\n";
+        });
 
     registry.Register("gpu_timing", "Litep device timestamp queries: start (coarse) | detail (render passes) | stop | status",
         [](const auto& args) { return Common::Profiler::GpuTimingControl(args); });

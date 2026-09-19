@@ -12,6 +12,7 @@
 #include "video_core/buffer_cache/buffer_cache.h"
 #include "video_core/page_manager.h"
 #include "video_core/renderer_vulkan/vk_instance.h"
+#include "video_core/renderer_vulkan/liverpool_to_vk.h"
 #include "video_core/renderer_vulkan/vk_scheduler.h"
 #include "video_core/texture_cache/host_compatibility.h"
 #include "video_core/texture_cache/texture_cache.h"
@@ -231,7 +232,7 @@ ImageId TextureCache::ResolveDepthOverlap(const ImageInfo& requested_info, Bindi
         auto new_info = requested_info;
         new_info.resources = std::max(requested_info.resources, cache_image.info.resources);
         const auto new_image_id =
-            slot_images.insert(instance, scheduler, blit_helper, slot_image_views, new_info);
+            slot_images.insert(instance, scheduler, blit_helper, slot_image_views, new_info, this);
         RegisterImage(new_image_id);
 
         // Inherit image usage
@@ -252,6 +253,7 @@ ImageId TextureCache::ResolveDepthOverlap(const ImageInfo& requested_info, Bindi
         } else if (cache_image.info.num_samples == 1 && new_info.props.is_depth &&
                    new_info.num_samples > 1) {
             // Perform a rendering pass to transfer the channels of source as samples in dest.
+            cache_image.ForceNative("multisample reinterpretation");
             cache_image.Transit(vk::ImageLayout::eShaderReadOnlyOptimal,
                                 vk::AccessFlagBits2::eShaderRead, {});
             new_image.Transit(vk::ImageLayout::eDepthAttachmentOptimal,
@@ -497,7 +499,7 @@ std::tuple<ImageId, int, int> TextureCache::ResolveOverlap(const ImageInfo& imag
 
 ImageId TextureCache::ExpandImage(const ImageInfo& info, ImageId image_id) {
     const auto new_image_id =
-        slot_images.insert(instance, scheduler, blit_helper, slot_image_views, info);
+        slot_images.insert(instance, scheduler, blit_helper, slot_image_views, info, this);
     RegisterImage(new_image_id);
 
     auto& src_image = slot_images[image_id];
@@ -583,11 +585,14 @@ ImageId TextureCache::FindImage(ImageDesc& desc, bool exact_fmt) {
     }
     // Create and register a new image
     if (!image_id) {
-        image_id = slot_images.insert(instance, scheduler, blit_helper, slot_image_views, info);
+        image_id = slot_images.insert(instance, scheduler, blit_helper, slot_image_views, info, this);
         RegisterImage(image_id);
     }
 
     Image& image = slot_images[image_id];
+    if (desc.type == BindingType::Storage) {
+        image.ForceNative("storage or format alias");
+    }
     image.tick_accessed_last = scheduler.CurrentTick();
     TouchImage(image);
 
@@ -701,7 +706,7 @@ ImageView& TextureCache::FindDepthTarget(ImageId image_id, const ImageDesc& desc
             info.guest_size = desc.info.stencil_size;
             info.size = desc.info.size;
             stencil_id =
-                slot_images.insert(instance, scheduler, blit_helper, slot_image_views, info);
+                slot_images.insert(instance, scheduler, blit_helper, slot_image_views, info, this);
             RegisterImage(stencil_id);
         }
         Image& stencil_image = slot_images[stencil_id];

@@ -434,6 +434,10 @@ struct GPUSettings {
     Setting<bool> fsr_enabled{false};
     Setting<bool> rcas_enabled{true};
     Setting<int> rcas_attenuation{250};
+    // Guest pipeline shading quality: 0 = 1/4 (2x2),
+    // 1 = 1/2 (2x1), 2 = 1/1 (full rate). Legacy key retained; does not enable FDM.
+    Setting<u32> fdm_quality{2};
+    Setting<u32> internal_scale_percent{100};
     // TODO add overrides
     std::vector<OverrideItem> GetOverrideableFields() const {
         return std::vector<OverrideItem>{
@@ -448,6 +452,8 @@ struct GPUSettings {
             make_override<GPUSettings>("fsr_enabled", &GPUSettings::fsr_enabled),
             make_override<GPUSettings>("rcas_enabled", &GPUSettings::rcas_enabled),
             make_override<GPUSettings>("rcas_attenuation", &GPUSettings::rcas_attenuation),
+            make_override<GPUSettings>("fdm_quality", &GPUSettings::fdm_quality),
+            make_override<GPUSettings>("internal_scale_percent", &GPUSettings::internal_scale_percent),
             make_override<GPUSettings>("dump_shaders", &GPUSettings::dump_shaders),
             make_override<GPUSettings>("patch_shaders", &GPUSettings::patch_shaders),
             make_override<GPUSettings>("readbacks_mode", &GPUSettings::readbacks_mode),
@@ -464,7 +470,8 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(GPUSettings, window_width, window_height, int
                                    readbacks_mode, readback_linear_images_enabled,
                                    direct_memory_access_enabled, dump_shaders, patch_shaders,
                                    vblank_frequency, full_screen, full_screen_mode, present_mode,
-                                   hdr_allowed, fsr_enabled, rcas_enabled, rcas_attenuation)
+                                   hdr_allowed, fsr_enabled, rcas_enabled, rcas_attenuation,
+                                   fdm_quality, internal_scale_percent)
 // -------------------------------
 // Vulkan settings
 // -------------------------------
@@ -562,6 +569,8 @@ public:
     void SetAddonInstallDir(const std::filesystem::path& dir);
 
 private:
+    std::atomic<u32> m_guest_shading_quality{3};
+    std::atomic<u32> m_internal_scale_percent{0};
     GeneralSettings m_general{};
     LogSettings m_log{};
     DebugSettings m_debug{};
@@ -739,6 +748,30 @@ public:
     SETTING_FORWARD_BOOL(m_gpu, FsrEnabled, fsr_enabled)
     SETTING_FORWARD_BOOL(m_gpu, RcasEnabled, rcas_enabled)
     SETTING_FORWARD(m_gpu, RcasAttenuation, rcas_attenuation)
+    SETTING_FORWARD(m_gpu, FdmQuality, fdm_quality)
+    SETTING_FORWARD(m_gpu, ConfiguredInternalScalePercent, internal_scale_percent)
+
+    // Android profiles and diagnostic changes cross the UI/render thread boundary.
+    // This override is transient; the profile store remains the persistence owner.
+    // Set before constructing the renderer; changing a live session is unsupported.
+    u32 GetInternalScalePercent() const {
+        const u32 override = m_internal_scale_percent.load(std::memory_order_relaxed);
+        const u32 value = override ? override : GetConfiguredInternalScalePercent();
+        return value == 50 || value == 75 ? value : 100;
+    }
+    void SetInternalScalePercent(u32 value) {
+        m_internal_scale_percent.store(value == 50 || value == 75 ? value : 100,
+                                       std::memory_order_relaxed);
+    }
+
+    u32 GetGuestShadingQuality() const {
+        const u32 value = m_guest_shading_quality.load(std::memory_order_relaxed);
+        return value <= 2 ? value : GetFdmQuality();
+    }
+    void SetGuestShadingQuality(u32 quality) {
+        m_guest_shading_quality.store(quality <= 2 ? quality : 2, std::memory_order_relaxed);
+    }
+
     SETTING_FORWARD(m_gpu, ReadbacksMode, readbacks_mode)
     SETTING_FORWARD_BOOL(m_gpu, ReadbackLinearImagesEnabled, readback_linear_images_enabled)
     SETTING_FORWARD_BOOL(m_gpu, DirectMemoryAccessEnabled, direct_memory_access_enabled)

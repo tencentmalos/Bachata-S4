@@ -1,0 +1,30 @@
+SERVICE com.shadps4.android/.service.FexSessionService 7d76d3b pid=6302 user=0
+  Client:
+    gpu_timing: enabled
+    detailed: 0
+    requested: 1
+    ring_enabled: 1
+    coverage: device elapsed intervals (may include GPU semaphore/memory waits); excludes host API time; nested zones are not additive
+    generation: 1
+    supported: 1
+    calibrated: 0
+    estimated_alignment: 1
+    calibration_deviation_ns: 8289063
+    timestamp_valid_bits: 48
+    timestamp_period_ns: 52.0833
+    retired_batches: 8521
+    pending: 5
+    dropped_batches: 0
+    dropped_zones: 0
+    discarded: 0
+    errors: 0
+    GPU.DrawBatch: count=5051 last_ms=0.0015625 total_ms=160997 max_ms=122.592 observed_ns=595790537873708
+    GPU.GuestCommands: count=5051 last_ms=0.000520833 total_ms=160026 max_ms=122.097 observed_ns=595790537873708
+    GPU.HostPrepare: count=2525 last_ms=0.378073 total_ms=963.926 max_ms=0.510104 observed_ns=595790537871937
+    GPU.FSR: count=2525 last_ms=0.000520833 total_ms=1.29167 max_ms=0.000572917 observed_ns=595790537871937
+    GPU.PostProcess: count=2525 last_ms=0.37599 total_ms=958.757 max_ms=0.508073 observed_ns=595790537871937
+    GPU.Present: count=2525 last_ms=0.565052 total_ms=1524.55 max_ms=0.851146 observed_ns=595790530769281
+    GPU.OverlayRedraw: count=473 last_ms=0.560052 total_ms=345.566 max_ms=0.937396 observed_ns=595790553852770
+    GPU.BlankFlip: count=472 last_ms=0.000520833 total_ms=0.335104 max_ms=0.000885417 observed_ns=595790530056885
+    GPU.GuestFrame: count=2524 last_ms=71.0394 total_ms=159912 max_ms=122.098 observed_ns=595790537871937
+    GPU.GuestRenderPass: count=0 last_ms=0 total_ms=0 max_ms=0 observed_ns=0

@@ -2,7 +2,11 @@ package com.shadps4.android.feature.settings
 
 import com.shadps4.android.data.RuntimeProfileStore
 import com.shadps4.android.runtime.settings.ProfileScope
+import com.shadps4.android.runtime.settings.InternalScale
+import com.shadps4.android.runtime.settings.RuntimeProfile
+import com.shadps4.android.runtime.settings.RuntimeSettingCatalog
 import com.shadps4.android.runtime.settings.RuntimeGuestBackend
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -39,7 +43,7 @@ class SettingsViewModelTest {
     @Test
     fun exposesEveryCatalogEntryAndFiltersByNativeKey() {
         val viewModel = viewModel()
-        assertEquals(86, viewModel.state.value.settings.size)
+        assertEquals(RuntimeSettingCatalog.loadFromResources().shadPs4, viewModel.state.value.settings)
         viewModel.search("BOX64_LOG")
         assertTrue(viewModel.state.value.settings.isEmpty())
         viewModel.selectRuntime(SettingsRuntime.BOX64)
@@ -94,5 +98,41 @@ class SettingsViewModelTest {
         advanceUntilIdle()
 
         assertEquals(null, store.load(scope).guestBackend)
+    }
+
+    @Test
+    fun internalScaleIsEditableInGpuSettingsAndPersistsAcrossScopes() = runTest(dispatcher) {
+        val store = RuntimeProfileStore(temporaryFolder.root)
+        val viewModel = SettingsViewModel(store)
+        advanceUntilIdle()
+        viewModel.selectCategory("GPU")
+        val spec = viewModel.state.value.settings.single { it.id == InternalScale.ID }
+        assertEquals(listOf("0.5", "0.75", "1.0"), spec.choices)
+        assertEquals(JsonPrimitive("0.5"), spec.defaultValue)
+        assertTrue(spec.restartRequired)
+        assertEquals(null, spec.readOnlyReason)
+
+        for ((choice, percent) in listOf("0.5" to 50, "0.75" to 75, "1.0" to 100)) {
+            viewModel.setText(spec, choice)
+            advanceUntilIdle()
+            val global = store.load(ProfileScope.Global)
+            assertEquals(JsonPrimitive(choice), global.values[spec.id])
+            assertEquals(percent, InternalScale.resolve(global, RuntimeProfile()))
+        }
+        val gameScope = ProfileScope.Game("CUSA50828")
+        viewModel.selectScope(gameScope)
+        advanceUntilIdle()
+        viewModel.setText(spec, "0.75")
+        advanceUntilIdle()
+        assertEquals(75, InternalScale.resolve(store.load(ProfileScope.Global), store.load(gameScope)))
+        viewModel.setValue(spec, null)
+        advanceUntilIdle()
+        assertEquals(100, InternalScale.resolve(store.load(ProfileScope.Global), store.load(gameScope)))
+
+        viewModel.selectScope(ProfileScope.Global)
+        advanceUntilIdle()
+        viewModel.setValue(spec, null)
+        advanceUntilIdle()
+        assertEquals(50, InternalScale.resolve(store.load(ProfileScope.Global), store.load(gameScope)))
     }
 }

@@ -24,6 +24,7 @@
 // because it holds no raw runtime pointer and performs no join itself.
 
 #include <jni.h>
+#include "core/emulator_settings.h"
 
 #include <atomic>
 #include <cstdio>
@@ -461,4 +462,18 @@ Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSaveDialogRespon
   } catch (...) {
     return false;
   }
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetGuestShadingQuality(
+    JNIEnv*, jclass, jint quality) {
+    try { EmulatorSettings.SetGuestShadingQuality(static_cast<u32>(quality)); }
+    catch (...) { /* Never unwind across JNI. The default remains full rate. */ }
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetInternalScalePercent(
+    JNIEnv*, jclass, jint percent) {
+    try { EmulatorSettings.SetInternalScalePercent(static_cast<u32>(percent)); }
+    catch (...) { /* Never unwind across JNI. */ }
 }

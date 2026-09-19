@@ -156,9 +156,33 @@ void CollectShaderInfoPass(IR::Program& program, const Profile& profile) {
     for (IR::Block* const block : program.post_order_blocks) {
         for (IR::Inst& inst : block->Instructions()) {
             Visit(info, inst);
+            // Preserve operations whose exact original texel/LOD semantics cannot
+            // be represented by merely changing the sampled image extent.
+            std::optional<u32> offset_arg;
+            bool exact_lod = false;
+            switch (inst.GetOpcode()) {
+            case IR::Opcode::ImageSampleImplicitLod:
+            case IR::Opcode::ImageSampleExplicitLod: offset_arg = 3; break;
+            case IR::Opcode::ImageSampleDrefImplicitLod:
+            case IR::Opcode::ImageSampleDrefExplicitLod:
+            case IR::Opcode::ImageGradient: offset_arg = 4; break;
+            case IR::Opcode::ImageGather:
+            case IR::Opcode::ImageGatherDref: offset_arg = 2; break;
+            case IR::Opcode::ImageQueryLod: exact_lod = true; break;
+            default: break;
+            }
+            if (exact_lod || (offset_arg && !inst.Arg(*offset_arg).IsEmpty())) {
+                info.images[inst.Arg(0).U32() & 0xffff].requires_native_scale = true;
+            }
+
         }
     }
 
+    if (profile.internal_scale && !info.images.empty() && !info.has_readconst) {
+        // Original T# dimensions must remain visible even when the host image shrinks.
+        info.buffers.push_back({.used_types = IR::Type::U32, .buffer_type = BufferType::Flatbuf});
+        info.has_readconst = true;
+    }
     if (!EmulatorSettings.IsDirectMemoryAccessEnabled()) {
         info.uses_dma = false;
         info.readconst_types = Info::ReadConstType::None;

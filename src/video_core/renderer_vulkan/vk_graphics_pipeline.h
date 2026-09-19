@@ -102,6 +102,10 @@ public:
         return key;
     }
 
+    // Re-emit after every guest pipeline bind, including indirect draws and
+    // transitions from host helper pipelines with static 1x1 state.
+    void ApplyFragmentShadingRate(vk::CommandBuffer cmd, u32 quality) const;
+
     /// Gets the attributes and bindings for vertex inputs.
     template <typename Attribute, typename Binding>
     void GetVertexInputs(VertexInputs<Attribute>& attributes, VertexInputs<Binding>& bindings,
@@ -113,6 +117,8 @@ private:
     void BuildDescSetLayout(bool preloading);
 
 private:
+    vk::SampleCountFlagBits raster_samples{vk::SampleCountFlagBits::e1};
+    bool requires_full_fragment_rate{};
     GraphicsPipelineKey key;
     std::optional<const Shader::Gcn::FetchShaderData> fetch_shader{};
 };

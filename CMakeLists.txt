@@ -799,6 +799,7 @@ set(DEV_TOOLS src/core/devtools/layer.cpp
 
 set(COMMON src/common/profiler.cpp
            src/common/guest_patch_log.cpp
+           src/common/foundation_foveation_log.cpp
            src/common/logging/classes.h
            src/common/logging/formatter.h
            src/common/logging/log.cpp
@@ -1688,6 +1689,14 @@ if(BUILD_HOST_CORE)
         target_link_libraries(android_auxiliary_interface_probe PRIVATE shadps4_host spdlog::spdlog)
         target_include_directories(android_auxiliary_interface_probe PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
         target_compile_definitions(android_auxiliary_interface_probe PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(android_internal_scale_probe tests/video_core/android_internal_scale_probe.cpp)
+        target_link_libraries(android_internal_scale_probe PRIVATE shadps4_host spdlog::spdlog)
+        target_include_directories(android_internal_scale_probe PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(android_internal_scale_probe PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(android_fragment_shading_rate_probe tests/video_core/android_fragment_shading_rate_probe.cpp)
+        target_link_libraries(android_fragment_shading_rate_probe PRIVATE shadps4_host spdlog::spdlog)
+        target_include_directories(android_fragment_shading_rate_probe PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(android_fragment_shading_rate_probe PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         add_executable(android_depth_range_probe tests/video_core/android_depth_range_probe.cpp)
         target_link_libraries(android_depth_range_probe PRIVATE shadps4_host spdlog::spdlog)
         target_include_directories(android_depth_range_probe PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)

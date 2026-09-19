@@ -196,7 +196,7 @@
 [submodule "foundation"]
 	path = foundation
 	url = https://github.com/tencentmalos/foundation.git
-	branch = codex/shadps4-android-fex-v0
+	branch = codex/shadps4-internal-scale
 [submodule "externals/ffmpeg"]
 	path = externals/ffmpeg
 	url = git@github.com:tencentmalos/FFmpeg.git

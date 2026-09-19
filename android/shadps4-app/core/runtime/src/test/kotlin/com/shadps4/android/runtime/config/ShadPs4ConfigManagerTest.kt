@@ -107,4 +107,17 @@ class ShadPs4ConfigManagerTest {
             .getValue("Audio").jsonObject.getValue("audio_backend").jsonPrimitive.int
         assertTrue(audioBackend == 1)
     }
+    @Test
+    fun writesExplicitNativeScalePercentages() {
+        val root = temporaryFolder.newFolder("scale").toPath()
+        val spec = com.shadps4.android.runtime.settings.RuntimeSettingCatalog.loadFromResources()
+            .shadPs4.single { it.id == "gpu.internal_scale" }
+        val profile = RuntimeProfileResolver(listOf(spec)).resolve(
+            RuntimeProfile(values = mapOf(spec.id to JsonPrimitive("0.75"))), null)
+        ShadPs4ConfigManager.write(root, profile)
+        val value = Json.parseToJsonElement(root.resolve(".local/share/shadPS4/config.json").readText())
+            .jsonObject.getValue("GPU").jsonObject.getValue("internal_scale_percent").jsonPrimitive.int
+        assertTrue(value == 75)
+    }
+
 }

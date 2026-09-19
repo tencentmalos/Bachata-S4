@@ -20,6 +20,9 @@ object NativeFexSession {
     external fun nativeSaveDialogSnapshot(generation: Long): String?
     external fun nativeSaveDialogRespond(generation: Long, request: Long, action: Int, selection: Int): Boolean
 
+    external fun nativeSetGuestShadingQuality(quality: Int)
+    external fun nativeSetInternalScalePercent(percent: Int)
+
     external fun nativeIdentity(): String
 
     /**

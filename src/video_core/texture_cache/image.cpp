@@ -3,6 +3,10 @@
 
 #include <ranges>
 #include "common/assert.h"
+#include "common/div_ceil.h"
+#include "core/emulator_settings.h"
+#include "video_core/texture_cache/internal_scale.h"
+#include "video_core/texture_cache/texture_cache.h"
 #include "video_core/renderer_vulkan/liverpool_to_vk.h"
 #include "video_core/renderer_vulkan/vk_instance.h"
 #include "video_core/renderer_vulkan/vk_scheduler.h"
@@ -43,6 +47,23 @@ static vk::ImageUsageFlags ImageUsageFlags(const Vulkan::Instance* instance,
     }
 
     return usage;
+}
+
+static bool AstcLdrSource(vk::Format format) {
+    switch (format) {
+    case vk::Format::eBc1RgbUnormBlock: case vk::Format::eBc1RgbSrgbBlock:
+    case vk::Format::eBc1RgbaUnormBlock: case vk::Format::eBc1RgbaSrgbBlock:
+    case vk::Format::eBc2UnormBlock: case vk::Format::eBc2SrgbBlock:
+    case vk::Format::eBc3UnormBlock: case vk::Format::eBc3SrgbBlock:
+    case vk::Format::eBc4UnormBlock: case vk::Format::eBc5UnormBlock:
+    case vk::Format::eBc7UnormBlock: case vk::Format::eBc7SrgbBlock: return true;
+    default: return false; // Signed channels and HDR must not be silently clamped to LDR.
+    }
+}
+static bool IsSrgbBlock(vk::Format format) {
+    return format == vk::Format::eBc1RgbSrgbBlock || format == vk::Format::eBc1RgbaSrgbBlock ||
+           format == vk::Format::eBc2SrgbBlock || format == vk::Format::eBc3SrgbBlock ||
+           format == vk::Format::eBc7SrgbBlock || format == vk::Format::eAstc4x4SrgbBlock || format == vk::Format::eAstc6x6SrgbBlock;
 }
 
 static vk::ImageType ConvertImageType(AmdGpu::ImageType type) noexcept {
@@ -120,9 +141,9 @@ void UniqueImage::Create(const vk::ImageCreateInfo& image_ci) {
 
 Image::Image(const Vulkan::Instance& instance_, Vulkan::Scheduler& scheduler_,
              BlitHelper& blit_helper_, Common::SlotVector<ImageView>& slot_image_views_,
-             const ImageInfo& info_)
+             const ImageInfo& info_, TextureCache* owner_)
     : instance{&instance_}, scheduler{&scheduler_}, blit_helper{&blit_helper_},
-      slot_image_views{&slot_image_views_}, info{info_} {
+      slot_image_views{&slot_image_views_}, info{info_}, owner{owner_} {
     if (info.pixel_format == vk::Format::eUndefined) {
         return;
     }
@@ -171,7 +192,7 @@ Image::Image(const Vulkan::Instance& instance_, Vulkan::Scheduler& scheduler_,
                             ? image_format_properties.value.imageFormatProperties.sampleCounts
                             : vk::SampleCountFlagBits::e1;
 
-    const vk::ImageCreateInfo image_ci = {
+    vk::ImageCreateInfo image_ci = {
         .flags = flags,
         .imageType = ConvertImageType(info.type),
         .format = supported_format,
@@ -188,10 +209,54 @@ Image::Image(const Vulkan::Instance& instance_, Vulkan::Scheduler& scheduler_,
         .initialLayout = vk::ImageLayout::eUndefined,
     };
 
+    const auto scale = InternalScale::FromPercent(EmulatorSettings.GetInternalScalePercent());
+    // BC1/BC4 have eight-byte blocks: 4x4 ASTC at 0.75 would grow their storage.
+    const auto astc_format = info.num_bits == 64
+        ? (IsSrgbBlock(supported_format) ? vk::Format::eAstc6x6SrgbBlock : vk::Format::eAstc6x6UnormBlock)
+        : (IsSrgbBlock(supported_format) ? vk::Format::eAstc4x4SrgbBlock : vk::Format::eAstc4x4UnormBlock);
+    // Integer, volume, tiny LUT and multisampled resources keep their exact data layout.
+    // Format capability checks also exclude integer formats from filtered resampling.
+    const bool eligible = scale.quarters < 4 && image_ci.imageType == vk::ImageType::e2D &&
+        info.num_samples == 1 && info.size.width >= 16 && info.size.height >= 16;
+    const auto blit_features = vk::FormatFeatureFlagBits2::eBlitSrc |
+                               vk::FormatFeatureFlagBits2::eBlitDst;
+    if (eligible && !info.props.is_block && instance->IsFormatSupported(supported_format, blit_features) &&
+        (info.props.is_depth || instance->IsFormatSupported(supported_format, vk::FormatFeatureFlagBits2::eSampledImageFilterLinear))) {
+        scale_quarters = scale.quarters;
+        image_ci.extent.width = scale.Size(info.size.width);
+        image_ci.extent.height = scale.Size(info.size.height);
+        image_ci.mipLevels = scale.Levels(info.size.width, info.size.height, info.resources.levels);
+    } else if (eligible && info.props.is_block && scale.quarters == 2 &&
+               info.resources.levels > 1) {
+        scale_quarters = 2;
+        mip_skip = 1;
+        image_ci.extent.width = std::max(info.size.width >> 1, 1u);
+        image_ci.extent.height = std::max(info.size.height >> 1, 1u);
+        image_ci.mipLevels--;
+    } else if (eligible && AstcLdrSource(supported_format) &&
+        instance->IsFormatSupported(supported_format, vk::FormatFeatureFlagBits2::eSampledImageFilterLinear) &&
+        instance->IsFormatSupported(astc_format,
+            vk::FormatFeatureFlagBits2::eSampledImage | vk::FormatFeatureFlagBits2::eTransferDst)) {
+        scale_quarters = scale.quarters;
+        astc_encoded = true;
+        image_ci.format = astc_format;
+        image_ci.extent.width = scale.Size(info.size.width);
+        image_ci.extent.height = scale.Size(info.size.height);
+        image_ci.mipLevels = scale.Levels(info.size.width, info.size.height, info.resources.levels);
+    }
+
     backing = &backing_images.emplace_back();
     backing->num_samples = info.num_samples;
     backing->image = UniqueImage{instance->GetDevice(), instance->GetAllocator()};
     backing->image.Create(image_ci);
+    if (IsScaled()) {
+        static std::atomic<u32> reports{};
+        if (reports.fetch_add(1, std::memory_order_relaxed) < 64)
+            LOG_INFO(Render_Vulkan, "Internal scale allocation: {}x{} {} -> {}x{} {} levels {} -> {} mode {}",
+                info.size.width, info.size.height, vk::to_string(info.pixel_format),
+                image_ci.extent.width, image_ci.extent.height, vk::to_string(image_ci.format),
+                info.resources.levels, image_ci.mipLevels, mip_skip ? "mip-drop" : astc_encoded ? "ASTC" : "resample");
+    }
 
     Vulkan::SetObjectName(instance->GetDevice(), GetImage(),
                           "Image {}x{}x{} {} {} {:#x}:{:#x} L:{} M:{} S:{}", info.size.width,
@@ -201,6 +266,86 @@ Image::Image(const Vulkan::Instance& instance_, Vulkan::Scheduler& scheduler_,
 }
 
 Image::~Image() = default;
+
+
+void Image::BlitBacking(BackingImage& source, BackingImage& dest,
+                        std::span<const vk::BufferImageCopy> uploaded) {
+    auto* saved = backing;
+    backing = &source;
+    Transit(vk::ImageLayout::eTransferSrcOptimal, vk::AccessFlagBits2::eTransferRead, {});
+    backing = &dest;
+    Transit(vk::ImageLayout::eTransferDstOptimal, vk::AccessFlagBits2::eTransferWrite, {});
+    const auto& src = source.image.image_ci;
+    const auto& dst = dest.image.image_ci;
+    std::vector<vk::ImageBlit> regions;
+    for (u32 mip = 0; mip < dst.mipLevels; ++mip) {
+        const u32 src_mip = std::min(mip, src.mipLevels - 1);
+        if (!uploaded.empty() && std::ranges::none_of(uploaded, [=](const auto& copy) {
+                return copy.imageSubresource.mipLevel == src_mip;
+            })) continue;
+        for (const auto aspect : {vk::ImageAspectFlagBits::eColor, vk::ImageAspectFlagBits::eDepth,
+                                  vk::ImageAspectFlagBits::eStencil}) {
+            if (!(aspect_mask & aspect)) continue;
+            // CPU depth uploads do not contain a stencil plane.
+            if (!uploaded.empty() && aspect == vk::ImageAspectFlagBits::eStencil) continue;
+            regions.push_back(vk::ImageBlit{
+                .srcSubresource = {aspect, src_mip, 0, src.arrayLayers},
+                .srcOffsets = std::array{vk::Offset3D{}, vk::Offset3D{
+                    s32(std::max(src.extent.width >> src_mip, 1u)),
+                    s32(std::max(src.extent.height >> src_mip, 1u)), 1}},
+                .dstSubresource = {aspect, mip, 0, dst.arrayLayers},
+                .dstOffsets = std::array{vk::Offset3D{}, vk::Offset3D{
+                    s32(std::max(dst.extent.width >> mip, 1u)),
+                    s32(std::max(dst.extent.height >> mip, 1u)), 1}},
+            });
+        }
+    }
+    if (!regions.empty()) {
+        scheduler->CommandBuffer().blitImage(source.image, vk::ImageLayout::eTransferSrcOptimal,
+            dest.image, vk::ImageLayout::eTransferDstOptimal, regions,
+            info.props.is_depth ? vk::Filter::eNearest : vk::Filter::eLinear);
+    }
+    Transit(vk::ImageLayout::eGeneral, vk::AccessFlagBits2::eShaderRead, {});
+    backing = saved;
+}
+
+void Image::ForceNative(const char* reason) {
+    if (!IsScaled()) return;
+    scheduler->EndRendering();
+    LOG_DEBUG(Render_Vulkan, "Internal scale: promote {}x{} {} to native ({})",
+              info.size.width, info.size.height, vk::to_string(info.pixel_format), reason);
+    auto ci = backing->image.image_ci;
+    ci.extent = vk::Extent3D{info.size.width, info.size.height, info.size.depth};
+    ci.mipLevels = info.resources.levels;
+    const bool reload_compressed = mip_skip != 0 || astc_encoded;
+    if (astc_encoded) ci.format = instance->GetSupportedFormat(info.pixel_format, format_features);
+    auto* source = backing;
+    auto retired = std::make_shared<std::deque<BackingImage>>(std::move(backing_images));
+    backing_images.clear();
+    backing = &backing_images.emplace_back();
+    backing->num_samples = source->num_samples;
+    backing->image = UniqueImage{instance->GetDevice(), instance->GetAllocator()};
+    backing->image.Create(ci);
+    scale_quarters = 4;
+    mip_skip = 0;
+    astc_encoded = false;
+    if (!reload_compressed && source->state.layout != vk::ImageLayout::eUndefined) {
+        BlitBacking(*source, *backing);
+    }
+    auto* views = slot_image_views;
+    scheduler->DeferOperation([retired, views] {
+        for (auto& image : *retired) {
+            for (auto id : image.image_view_ids) views->erase(id);
+        }
+    });
+    if (reload_compressed) {
+        // Mip-dropping is only used for read-only compressed uploads. Reconstitute
+        // all original blocks from guest memory before any byte alias or storage use.
+        ASSERT(owner && False(flags & ImageFlagBits::GpuModified));
+        flags |= ImageFlagBits::CpuDirty;
+        owner->RefreshImage(*this);
+    }
+}
 
 ImageView& Image::FindView(const ImageViewInfo& view_info, bool ensure_guest_samples) {
     if (ensure_guest_samples && backing->num_samples > 1 != info.num_samples > 1) {
@@ -221,18 +366,20 @@ ImageView& Image::FindView(const ImageViewInfo& view_info, bool ensure_guest_sam
 Image::Barriers Image::GetBarriers(vk::ImageLayout dst_layout, vk::AccessFlags2 dst_mask,
                                    vk::PipelineStageFlags2 dst_stage,
                                    std::optional<SubresourceRange> subres_range) {
+    if (subres_range) subres_range = HostRange(*subres_range);
+    const SubresourceExtent host_resources{backing->image.image_ci.mipLevels, info.resources.layers};
     auto& last_state = backing->state;
     auto& subresource_states = backing->subresource_states;
 
     const bool needs_partial_transition =
         subres_range &&
-        (subres_range->base != SubresourceBase{} || subres_range->extent != info.resources);
+        (subres_range->base != SubresourceBase{} || subres_range->extent != host_resources);
     const bool partially_transited = !subresource_states.empty();
 
     Barriers barriers;
     if (needs_partial_transition || partially_transited) {
         if (!partially_transited) {
-            subresource_states.resize(info.resources.levels * info.resources.layers);
+            subresource_states.resize(host_resources.levels * host_resources.layers);
             std::fill(subresource_states.begin(), subresource_states.end(), last_state);
         }
 
@@ -243,18 +390,18 @@ Image::Barriers Image::GetBarriers(vk::ImageLayout dst_layout, vk::AccessFlags2 
             needs_partial_transition
                 ? std::ranges::views::iota(subres_range->base.level,
                                            subres_range->base.level + subres_range->extent.levels)
-                : std::views::iota(0u, info.resources.levels);
+                : std::views::iota(0u, host_resources.levels);
         const auto layers =
             needs_partial_transition
                 ? std::ranges::views::iota(subres_range->base.layer,
                                            subres_range->base.layer + subres_range->extent.layers)
-                : std::views::iota(0u, info.resources.layers);
+                : std::views::iota(0u, host_resources.layers);
 
         for (u32 mip : mips) {
             for (u32 layer : layers) {
                 // NOTE: these loops may produce a lot of small barriers.
                 // If this becomes a problem, we can optimize it by merging adjacent barriers.
-                const auto subres_idx = mip * info.resources.layers + layer;
+                const auto subres_idx = mip * host_resources.layers + layer;
                 ASSERT(subres_idx < subresource_states.size());
                 auto& state = subresource_states[subres_idx];
 
@@ -352,7 +499,55 @@ void Image::Transit(vk::ImageLayout dst_layout, vk::AccessFlags2 dst_mask,
     });
 }
 
-void Image::Upload(std::span<const vk::BufferImageCopy> upload_copies, vk::Buffer buffer,
+void Image::Upload(std::span<const vk::BufferImageCopy> copies, vk::Buffer buffer, u64 offset) {
+    if (!IsScaled()) {
+        UploadRegions(copies, buffer, offset);
+        return;
+    }
+    if (mip_skip) {
+        std::vector<vk::BufferImageCopy> mapped;
+        for (auto copy : copies) {
+            if (copy.imageSubresource.mipLevel < mip_skip) continue;
+            copy.imageSubresource.mipLevel -= mip_skip;
+            mapped.push_back(copy);
+        }
+        if (!mapped.empty()) UploadRegions(mapped, buffer, offset);
+        flags &= ~ImageFlagBits::Dirty;
+        return;
+    }
+    // Upload/resample only when guest memory changed. The full-size staging image
+    // retires after this submission; it is not a second persistent backing.
+    auto temporary = std::make_shared<BackingImage>();
+    temporary->num_samples = 1;
+    temporary->image = UniqueImage{instance->GetDevice(), instance->GetAllocator()};
+    auto ci = backing->image.image_ci;
+    ci.extent = vk::Extent3D{info.size.width, info.size.height, info.size.depth};
+    ci.mipLevels = info.resources.levels;
+    if (astc_encoded) ci.format = instance->GetSupportedFormat(info.pixel_format, format_features);
+    temporary->image.Create(ci);
+    auto* scaled = backing;
+    backing = temporary.get();
+    UploadRegions(copies, buffer, offset);
+    if (astc_encoded) {
+        Transit(vk::ImageLayout::eShaderReadOnlyOptimal, vk::AccessFlagBits2::eShaderRead, {});
+        backing = scaled;
+        Transit(vk::ImageLayout::eTransferDstOptimal, vk::AccessFlagBits2::eTransferWrite, {});
+        for (const auto& copy : copies) {
+            const u32 mip = copy.imageSubresource.mipLevel;
+            if (mip >= backing->image.image_ci.mipLevels) continue;
+            const auto extent = HostExtent(mip);
+            blit_helper->EncodeAstc(temporary->image, ci.format, mip, backing->image, mip,
+                extent.width, extent.height, info.resources.layers, IsSrgbBlock(ci.format), info.num_bits == 64 ? 6 : 4);
+        }
+        Transit(vk::ImageLayout::eGeneral, vk::AccessFlagBits2::eShaderRead, {});
+    } else {
+        backing = scaled;
+        BlitBacking(*temporary, *scaled, copies);
+    }
+    scheduler->DeferOperation([temporary] {});
+}
+
+void Image::UploadRegions(std::span<const vk::BufferImageCopy> upload_copies, vk::Buffer buffer,
                    u64 offset) {
     SetBackingSamples(info.num_samples, false);
     scheduler->EndRendering();
@@ -400,6 +595,7 @@ void Image::Upload(std::span<const vk::BufferImageCopy> upload_copies, vk::Buffe
 
 void Image::Download(std::span<const vk::BufferImageCopy> download_copies, vk::Buffer buffer,
                      u64 offset, u64 download_size) {
+    ForceNative("guest readback");
     SetBackingSamples(info.num_samples);
     scheduler->EndRendering();
 
@@ -489,9 +685,16 @@ static std::pair<u32, u32> SanitizeCopyLayers(const ImageInfo& src_info, const I
 }
 
 void Image::CopyImage(Image& src_image) {
+    if ((IsScaled() || src_image.IsScaled()) &&
+        (mip_skip || src_image.mip_skip || astc_encoded || src_image.astc_encoded || scale_quarters != src_image.scale_quarters ||
+         info.size != src_image.info.size || info.num_bits != src_image.info.num_bits ||
+         info.props.is_block != src_image.info.props.is_block)) {
+        ForceNative("image alias");
+        src_image.ForceNative("image alias");
+    }
     const auto& src_info = src_image.info;
 
-    const u32 num_mips = std::min(src_info.resources.levels, info.resources.levels);
+    const u32 num_mips = std::min(src_image.backing->image.image_ci.mipLevels, backing->image.image_ci.mipLevels);
 
     // Format mismatch warning (safe but useful)
     if (src_info.pixel_format != info.pixel_format) {
@@ -501,8 +704,8 @@ void Image::CopyImage(Image& src_image) {
                   vk::to_string(src_info.pixel_format), vk::to_string(info.pixel_format));
     }
 
-    const u32 base_width = src_info.size.width;
-    const u32 base_height = src_info.size.height;
+    const u32 base_width = src_image.HostExtent().width;
+    const u32 base_height = src_image.HostExtent().height;
     const u32 base_depth =
         info.type == AmdGpu::ImageType::Color3D ? info.size.depth : src_info.size.depth;
 
@@ -590,8 +793,14 @@ void Image::CopyImage(Image& src_image) {
             vk::AccessFlagBits2::eShaderRead | vk::AccessFlagBits2::eTransferRead, {});
 }
 void Image::CopyImageWithBuffer(Image& src_image, vk::Buffer buffer, u64 offset) {
+    if (mip_skip || src_image.mip_skip || astc_encoded || src_image.astc_encoded || scale_quarters != src_image.scale_quarters ||
+        info.size != src_image.info.size || info.num_bits != src_image.info.num_bits ||
+        info.props.is_block != src_image.info.props.is_block) {
+        ForceNative("byte reinterpretation");
+        src_image.ForceNative("byte reinterpretation");
+    }
     const auto& src_info = src_image.info;
-    const u32 num_mips = std::min(src_info.resources.levels, info.resources.levels);
+    const u32 num_mips = std::min(src_image.backing->image.image_ci.mipLevels, backing->image.image_ci.mipLevels);
     const u32 num_layers = std::min(src_info.resources.layers, info.resources.layers);
     ASSERT(src_info.resources.layers == info.resources.layers || num_mips == 1);
 
@@ -599,13 +808,14 @@ void Image::CopyImageWithBuffer(Image& src_image, vk::Buffer buffer, u64 offset)
     src_image.SetBackingSamples(src_info.num_samples);
 
     boost::container::small_vector<vk::BufferImageCopy, 8> buffer_copies;
+    u64 mip_offset = offset;
     for (u32 mip = 0; mip < num_mips; ++mip) {
-        const auto mip_w = std::max(src_info.size.width >> mip, 1u);
-        const auto mip_h = std::max(src_info.size.height >> mip, 1u);
+        const auto mip_w = src_image.HostExtent(mip).width;
+        const auto mip_h = src_image.HostExtent(mip).height;
         const auto mip_d = std::max(src_info.size.depth >> mip, 1u);
 
         buffer_copies.emplace_back(vk::BufferImageCopy{
-            .bufferOffset = offset,
+            .bufferOffset = mip_offset,
             .bufferRowLength = 0,
             .bufferImageHeight = 0,
             .imageSubresource{
@@ -617,6 +827,12 @@ void Image::CopyImageWithBuffer(Image& src_image, vk::Buffer buffer, u64 offset)
             .imageOffset = {0, 0, 0},
             .imageExtent = {mip_w, mip_h, mip_d},
         });
+        // Each mip needs its own byte range. Reusing the base offset overwrites
+        // all earlier levels before the subsequent buffer-to-image copies.
+        const u32 block = src_info.props.is_block ? 4 : 1;
+        const u64 mip_bytes = u64(Common::DivCeil(mip_w, block)) *
+            Common::DivCeil(mip_h, block) * mip_d * num_layers * (src_info.num_bits / 8);
+        mip_offset = Common::AlignUp(mip_offset + mip_bytes, u64(16));
     }
 
     const vk::BufferMemoryBarrier2 pre_copy_barrier = {
@@ -670,6 +886,8 @@ void Image::CopyImageWithBuffer(Image& src_image, vk::Buffer buffer, u64 offset)
 }
 
 void Image::CopyMip(Image& src_image, u32 mip, u32 slice) {
+    ForceNative("mip alias");
+    src_image.ForceNative("mip alias");
     const auto& src_info = src_image.info;
 
     const auto dst_dim = info.props.is_block ? 2 : 0;
@@ -716,6 +934,10 @@ void Image::CopyMip(Image& src_image, u32 mip, u32 slice) {
 
 void Image::Resolve(Image& src_image, const VideoCore::SubresourceRange& mrt0_range,
                     const VideoCore::SubresourceRange& mrt1_range) {
+    if (scale_quarters != src_image.scale_quarters || info.size != src_image.info.size) {
+        ForceNative("resolve mismatch");
+        src_image.ForceNative("resolve mismatch");
+    }
     SetBackingSamples(1, false);
     scheduler->EndRendering();
 
@@ -740,7 +962,7 @@ void Image::Resolve(Image& src_image, const VideoCore::SubresourceRange& mrt0_ra
                 .layerCount = dst_layers,
             },
             .dstOffset = {0, 0, 0},
-            .extent = {info.size.width, info.size.height, 1},
+            .extent = HostExtent(),
         };
         scheduler->CommandBuffer().copyImage(src_image.GetImage(),
                                              vk::ImageLayout::eTransferSrcOptimal, GetImage(),
@@ -761,7 +983,7 @@ void Image::Resolve(Image& src_image, const VideoCore::SubresourceRange& mrt0_ra
                 .layerCount = dst_layers,
             },
             .dstOffset = {0, 0, 0},
-            .extent = {info.size.width, info.size.height, 1},
+            .extent = HostExtent(),
         };
         scheduler->CommandBuffer().resolveImage(src_image.GetImage(),
                                                 vk::ImageLayout::eTransferSrcOptimal, GetImage(),
@@ -772,7 +994,8 @@ void Image::Resolve(Image& src_image, const VideoCore::SubresourceRange& mrt0_ra
     flags &= ~VideoCore::ImageFlagBits::Dirty;
 }
 
-void Image::Clear(const vk::ClearValue& clear_value, const VideoCore::SubresourceRange& range) {
+void Image::Clear(const vk::ClearValue& clear_value, const VideoCore::SubresourceRange& guest_range) {
+    const auto range = HostRange(guest_range);
     const vk::ImageSubresourceRange vk_range = {
         .aspectMask = vk::ImageAspectFlagBits::eColor,
         .baseMipLevel = range.base.level,
@@ -788,6 +1011,7 @@ void Image::Clear(const vk::ClearValue& clear_value, const VideoCore::Subresourc
 }
 
 void Image::SetBackingSamples(u32 num_samples, bool copy_backing) {
+    if (num_samples > 1) ForceNative("multisample backing");
     if (!backing || backing->num_samples == num_samples) {
         return;
     }

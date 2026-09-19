@@ -1,0 +1,9 @@
+{
+  "note": "生成的 SPIR-V 留在本地 build/validation/internal-scale-20260919/shader-artifacts；源码及检查日志在本目录。",
+  "sha256": {
+    "internal-scale-0.spv": "ffa462665e62222fb60e1271bb3c5af96046e9803508ef22dc9bd86a83d17aae",
+    "internal-scale-1.spv": "4e91c060e516e60a5cf1fa0e10d06884ae01461085fe46a459f91dbd1f3a07ba",
+    "internal-scale-2.spv": "461e20438cddaebf5a4e0b7bf3c0a680b29eee81bd2661ca6b3c268bfc1704bd",
+    "astc-ldr.spv": "9f2414d075502bb933951fb1908e67d86e64cfe0463a89d67f3988a10d7bcc80"
+  }
+}

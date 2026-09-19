@@ -10,8 +10,10 @@
 
 #include "video_core/renderer_vulkan/vk_platform.h"
 #include "video_core/renderer_vulkan/vk_gpu_reshape.h"
+#include "video_core/renderer_vulkan/vk_fragment_shading_rate.h"
 #include "core/diagnostics/diagnostics_hub_registry.h"
 #include "video_core/renderer_vulkan/submission_worker.h"
+#include "spatial/foveation/vulkan/FragmentDensityMap.h"
 
 #define TRACY_VK_USE_SYMBOL_TABLE
 #include <tracy/TracyVulkan.hpp>
@@ -147,6 +149,35 @@ public:
 
     bool IsMaintenance8Supported() const {
         return maintenance_8;
+    }
+
+    /// Reserved for VR; deliberately disabled in the current renderer.
+    bool IsFdmSupported() const {
+        return fdm_enabled;
+    }
+    bool IsFdmDynamicSupported() const {
+        return fdm_enabled && fdm_capabilities.fragment_density_map_dynamic;
+    }
+
+    /// True when guest graphics pipelines may select a coarse fragment rate
+    /// with VK_KHR_fragment_shading_rate. This is independent of FDM and is
+    /// the low-overhead path for dynamic rendering targets.
+    bool IsPipelineFragmentShadingRateSupported() const {
+        return fragment_shading_rate_enabled &&
+               fragment_shading_rate_features.pipelineFragmentShadingRate;
+    }
+
+    const FragmentShadingRates& GetFragmentShadingRates() const {
+        return fragment_shading_rates;
+    }
+
+    const vk::PhysicalDeviceFragmentShadingRatePropertiesKHR&
+    FragmentShadingRateProperties() const {
+        return fragment_shading_rate_properties;
+    }
+
+    const spatial::foveation::vulkan::Capabilities& FdmCapabilities() const {
+        return fdm_capabilities;
     }
 
     /// Returns true if VK_EXT_attachment_feedback_loop_layout is supported
@@ -525,6 +556,8 @@ private:
         workgroup_memory_explicit_layout_features;
     vk::PhysicalDeviceImage2DViewOf3DFeaturesEXT image_2d_view_of_3d_features;
     vk::PhysicalDevicePrimitiveTopologyListRestartFeaturesEXT list_restart_features;
+    vk::PhysicalDeviceFragmentShadingRateFeaturesKHR fragment_shading_rate_features;
+    vk::PhysicalDeviceFragmentShadingRatePropertiesKHR fragment_shading_rate_properties;
     vk::DriverIdKHR driver_id;
     vk::UniqueDebugUtilsMessengerEXT debug_callback{};
     std::string vendor_name;
@@ -564,6 +597,10 @@ private:
     bool attachment_feedback_loop{};
     bool image_2d_view_of_3d{};
     bool image_view_min_lod{};
+    bool fragment_shading_rate_enabled{};
+    FragmentShadingRates fragment_shading_rates{};
+    bool fdm_enabled{};
+    spatial::foveation::vulkan::Capabilities fdm_capabilities{};
     bool supports_memory_budget{};
     bool supports_block_texel_view{};
     u64 total_memory_budget{};

@@ -1,0 +1,78 @@
+[
+  {
+    "label": "high-a",
+    "quality": "high",
+    "seconds": 20.127066659,
+    "guest_fps": 14.209720911919995,
+    "present_fps": 14.259405250772861,
+    "draws_per_flip": 401.5699300699301,
+    "gpu_ms": {
+      "DrawBatch": 33.66783216783217,
+      "GuestCommands": 33.47552447552447,
+      "HostPrepare": 0.38072727272727286,
+      "FSR": 0.0005117132867132867,
+      "PostProcess": 0.37868181818181856,
+      "Present": 0.6016083916083914,
+      "OverlayRedraw": 0.5618571428571418,
+      "BlankFlip": 0.0005133928571428561,
+      "GuestFrame": 66.95104895104895
+    }
+  },
+  {
+    "label": "low",
+    "quality": "low",
+    "seconds": 20.141006451,
+    "guest_fps": 14.795685643862367,
+    "present_fps": 14.795685643862367,
+    "draws_per_flip": 447.18791946308727,
+    "gpu_ms": {
+      "DrawBatch": 32.25795644891122,
+      "GuestCommands": 32.06532663316583,
+      "HostPrepare": 0.38069565217391294,
+      "FSR": 0.0005107357859531777,
+      "PostProcess": 0.3786488294314381,
+      "Present": 0.5967558528428096,
+      "OverlayRedraw": 0.5638620689655164,
+      "BlankFlip": 0.0005010689655172419,
+      "GuestFrame": 64.02341137123746
+    }
+  },
+  {
+    "label": "medium",
+    "quality": "medium",
+    "seconds": 20.129751555,
+    "guest_fps": 14.00911477866474,
+    "present_fps": 14.00911477866474,
+    "draws_per_flip": 447.8014184397163,
+    "gpu_ms": {
+      "DrawBatch": 34.519572953736656,
+      "GuestCommands": 34.329181494661924,
+      "HostPrepare": 0.3804768683274017,
+      "FSR": 0.0005119217081850527,
+      "PostProcess": 0.378409252669039,
+      "Present": 0.5946975088967976,
+      "OverlayRedraw": 0.5690000000000006,
+      "BlankFlip": 0.0005171428571428549,
+      "GuestFrame": 68.65836298932385
+    }
+  },
+  {
+    "label": "high-b",
+    "quality": "high",
+    "seconds": 20.145290305,
+    "guest_fps": 13.452275737755867,
+    "present_fps": 13.452275737755867,
+    "draws_per_flip": 447.7527675276753,
+    "gpu_ms": {
+      "DrawBatch": 35.55616942909761,
+      "GuestCommands": 35.36279926335175,
+      "HostPrepare": 0.38591911764705894,
+      "FSR": 0.0005135661764705886,
+      "PostProcess": 0.3838970588235297,
+      "Present": 0.6102941176470589,
+      "OverlayRedraw": 0.5667142857142876,
+      "BlankFlip": 0.0005078214285714279,
+      "GuestFrame": 70.59558823529412
+    }
+  }
+]

@@ -30,13 +30,18 @@ public:
 
     void Render(Scheduler& scheduler, vk::ImageView input, vk::Extent2D input_size,
                 Frame& output, Settings settings,
-                std::array<vk::ImageView, 3> stereo_views = {});
+                std::array<vk::ImageView, 3> stereo_views = {},
+                vk::ImageView fdm_view = {});
 
 private:
+    vk::Device device{};
     vk::UniquePipeline pipeline{};
+    vk::UniquePipeline fdm_pipeline{};
     vk::UniquePipelineLayout pipeline_layout{};
     vk::UniqueDescriptorSetLayout desc_set_layout{};
     vk::UniqueSampler sampler{};
+    vk::UniqueRenderPass fdm_render_pass{};
+    bool fdm_dynamic{};
 };
 
 } // namespace Vulkan::HostPasses

@@ -11,6 +11,8 @@
 #include "video_core/renderer_vulkan/vk_pipeline_cache.h"
 #include "video_core/texture_cache/texture_cache.h"
 
+class EmulatorSettingsImpl;
+
 namespace AmdGpu {
 struct Liverpool;
 }
@@ -124,6 +126,7 @@ private:
     friend class VideoCore::BufferCache;
 
     const Instance& instance;
+    const std::shared_ptr<EmulatorSettingsImpl> shading_settings;
     struct DiagnosticPacket { u64 frame{}, submission{}; VAddr packet{}; u32 queue{}; } diagnostic_packet;
     Scheduler& scheduler;
     VideoCore::PageManager page_manager;
@@ -146,6 +149,7 @@ private:
     Pipeline::DescriptorWrites set_writes;
     Pipeline::BufferBarriers buffer_barriers;
     Shader::PushData push_data;
+    u32 render_scale_quarters = 4;
 
     using BufferBindingInfo = std::tuple<VideoCore::BufferId, AmdGpu::Buffer, u64>;
     boost::container::static_vector<BufferBindingInfo, Shader::NUM_BUFFERS> buffer_bindings;

@@ -38,6 +38,7 @@ import com.shadps4.android.runtime.session.RuntimeSurface
 @AndroidEntryPoint
 class FexSessionService : Service() {
     @Inject lateinit var gameRepository: GameRepository
+    @Inject lateinit var runtimeProfiles: com.shadps4.android.data.RuntimeProfileStore
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private var startJob: Job? = null
@@ -87,6 +88,28 @@ class FexSessionService : Service() {
                 Log.e(TAG,"Host paths failed to initialize")
                 return@launch
             }
+            val shadingQuality = runCatching {
+                com.shadps4.android.runtime.settings.GuestShadingQuality.resolve(
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Global),
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Game(gameId)),
+                )
+            }.getOrElse {
+                Log.w(TAG, "Invalid shading profile, using high quality", it)
+                2
+            }
+            val internalScale = runCatching {
+                com.shadps4.android.runtime.settings.InternalScale.resolve(
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Global),
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Game(gameId)),
+                )
+            }.getOrElse {
+                Log.w(TAG, "Invalid internal scale profile, using default 0.5", it)
+                com.shadps4.android.runtime.settings.InternalScale.DEFAULT_PERCENT
+            }
+            NativeFexSession.nativeSetInternalScalePercent(internalScale)
+            Log.i(TAG, "Guest internal scale=$internalScale percent")
+            NativeFexSession.nativeSetGuestShadingQuality(shadingQuality)
+            Log.i(TAG, "Guest shading quality=$shadingQuality; FDM disabled")
             val relativePath = intent.getStringExtra(ManagedSession.EXTRA_GAME_PATH)
             val generation = if (relativePath != null) {
                 val executable = runCatching {

@@ -79,10 +79,11 @@ public:
 };
 
 class BlitHelper;
+class TextureCache;
 
 struct Image {
     Image(const Vulkan::Instance& instance, Vulkan::Scheduler& scheduler, BlitHelper& blit_helper,
-          Common::SlotVector<ImageView>& slot_image_views, const ImageInfo& info);
+          Common::SlotVector<ImageView>& slot_image_views, const ImageInfo& info, TextureCache* owner = nullptr);
     ~Image();
 
     Image(const Image&) = delete;
@@ -142,6 +143,35 @@ struct Image {
 
     void SetBackingSamples(u32 num_samples, bool copy_backing = true);
 
+    // One-way promotion for data/storage/byte aliases and CPU readback. Replaced
+    // images and views retire through the scheduler, never deviceWaitIdle.
+    void ForceNative(const char* reason);
+    bool IsAstcEncoded() const { return astc_encoded; }
+    bool IsScaled() const { return scale_quarters != 4; }
+    u32 ScaleQuarters() const { return scale_quarters; }
+    u32 DroppedMips() const { return mip_skip; }
+    u32 HostMip(u32 mip) const {
+        return std::min(mip > mip_skip ? mip - mip_skip : 0u,
+                        backing->image.image_ci.mipLevels - 1);
+    }
+    vk::Extent3D HostExtent(u32 guest_mip = 0) const {
+        const auto extent = backing->image.image_ci.extent;
+        const u32 mip = HostMip(guest_mip);
+        return {std::max(extent.width >> mip, 1u), std::max(extent.height >> mip, 1u),
+                std::max(extent.depth >> mip, 1u)};
+    }
+    u32 ShaderScaleCode(u32 base_mip) const {
+        if (!IsScaled() || (mip_skip && base_mip >= mip_skip)) return 0;
+        return mip_skip ? 1 : scale_quarters == 2 ? 2 : 3;
+    }
+    SubresourceRange HostRange(SubresourceRange range) const {
+        const u32 last = HostMip(range.base.level + range.extent.levels - 1);
+        range.base.level = HostMip(range.base.level);
+        range.extent.levels = last - range.base.level + 1;
+        return range;
+    }
+
+
 public:
     const Vulkan::Instance* instance;
     Vulkan::Scheduler* scheduler;
@@ -196,6 +226,13 @@ public:
     } binding{};
 
 private:
+    void UploadRegions(std::span<const vk::BufferImageCopy> copies, vk::Buffer buffer, u64 offset);
+    void BlitBacking(BackingImage& source, BackingImage& dest,
+                     std::span<const vk::BufferImageCopy> uploaded = {});
+    TextureCache* owner{};
+    u32 scale_quarters = 4;
+    u32 mip_skip = 0;
+    bool astc_encoded = false;
     static Common::IncrementalIdProvider<u64> global_image_uid;
 };
 

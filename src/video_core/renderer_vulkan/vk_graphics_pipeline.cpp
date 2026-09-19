@@ -131,6 +131,19 @@ GraphicsPipeline::GraphicsPipeline(
         };
     }
 
+    raster_samples = sdata.multisampling.rasterizationSamples;
+    const auto* fragment = infos[u32(Shader::LogicalStage::Fragment)];
+    // Coarse shading must not reduce guest-visible memory writes/atomics or
+    // per-sample evaluation. Read-only storage resources remain eligible.
+    requires_full_fragment_rate = sdata.multisampling.sampleShadingEnable || !fragment;
+    if (fragment) {
+        requires_full_fragment_rate |= std::ranges::any_of(
+            fragment->buffers, [](const auto& resource) { return resource.is_written; });
+        requires_full_fragment_rate |= std::ranges::any_of(
+            fragment->images,
+            [](const auto& resource) { return resource.is_written || resource.is_atomic; });
+    }
+
     const vk::PipelineViewportDepthClipControlCreateInfoEXT clip_control = {
         .negativeOneToOne = key.clip_space == AmdGpu::ClipSpace::MinusWToW,
     };
@@ -162,6 +175,9 @@ GraphicsPipeline::GraphicsPipeline(
         dynamic_states.push_back(vk::DynamicState::eVertexInputEXT);
     } else if (!sdata.vertex_bindings.empty()) {
         dynamic_states.push_back(vk::DynamicState::eVertexInputBindingStride);
+    }
+    if (instance.IsPipelineFragmentShadingRateSupported()) {
+        dynamic_states.push_back(vk::DynamicState::eFragmentShadingRateKHR);
     }
 
     const vk::PipelineDynamicStateCreateInfo dynamic_info = {
@@ -453,6 +469,27 @@ GraphicsPipeline::GraphicsPipeline(
                vk::to_string(pipeline_result));
     pipeline = std::move(pipe);
     SetObjectName(device, *pipeline, "Graphics Pipeline {}", debug_str);
+}
+
+void GraphicsPipeline::ApplyFragmentShadingRate(vk::CommandBuffer cmd, u32 quality) const {
+    if (!instance.IsPipelineFragmentShadingRateSupported()) {
+        return;
+    }
+    const auto size = instance.GetFragmentShadingRates().Select(
+        quality, raster_samples, requires_full_fragment_rate);
+    SetGuestFragmentShadingRate(cmd, size);
+    // Bounded diagnostics: one record per requested/effective pair per render
+    // thread, not one per draw or pipeline. Unsupported qualities use full rate.
+    static thread_local u32 reported{};
+    const u32 effective = size.width == 1 ? 2 : (size.height == 1 ? 1 : 0);
+    const u32 bit = 1U << (std::min(quality, 2U) * 3 + effective);
+    if (!(reported & bit)) {
+        reported |= bit;
+        LOG_INFO(Render_Vulkan,
+                 "Guest shading rate: quality={} effective={}x{} samples={} full_rate_required={} FDM=off",
+                 quality, size.width, size.height, static_cast<u32>(raster_samples),
+                 requires_full_fragment_rate);
+    }
 }
 
 GraphicsPipeline::~GraphicsPipeline() = default;

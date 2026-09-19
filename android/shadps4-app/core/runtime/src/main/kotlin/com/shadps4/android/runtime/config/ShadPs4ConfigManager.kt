@@ -70,11 +70,11 @@ object ShadPs4ConfigManager {
             .sortedBy { it.spec.nativeKey }
             .forEach { setting ->
                 val value = requireNotNull(setting.value)
-                val nativeValue = if (setting.spec.nativeEnumOrdinal) {
+                val nativeValue = if (setting.spec.nativeEnumOrdinal || setting.spec.nativeEnumValues.isNotEmpty()) {
                     val choice = (value as? JsonPrimitive)?.content
                     val ordinal = setting.spec.choices.indexOf(choice)
                     require(ordinal >= 0) { "Invalid enum value for ${setting.spec.id}" }
-                    JsonPrimitive(ordinal)
+                    JsonPrimitive(setting.spec.nativeEnumValues.getOrNull(ordinal) ?: ordinal)
                 } else {
                     value
                 }

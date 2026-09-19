@@ -637,6 +637,86 @@ void Presenter::RecreateFrame(Frame* frame, u32 width, u32 height) {
     frame->is_hdr = swapchain.GetHDR();
 }
 
+void Presenter::EnsureFdm(u32 width, u32 height) {
+    if (!instance.IsFdmSupported() || width == 0 || height == 0) {
+        fdm_ready = false;
+        return;
+    }
+
+    const u32 quality = std::min(EmulatorSettings.GetFdmQuality(), 2U);
+    if (fdm_ready && fdm_width == width && fdm_height == height &&
+        fdm_quality == quality) {
+        return;
+    }
+
+    const auto& caps = instance.FdmCapabilities();
+    fdm_desc = spatial::foveation::ResolveFdmDesc(
+        width, height, caps.MinTexel(), caps.MaxTexel(), 32);
+    if (!fdm_desc.IsValid()) {
+        LOG_WARNING(Render_Vulkan, "FDM map descriptor is invalid for {}x{}", width, height);
+        return;
+    }
+
+    const auto binding = spatial::foveation::vulkan::VulkanBinding{
+        .instance = static_cast<VkInstance>(instance.GetInstance()),
+        .physical_device = static_cast<VkPhysicalDevice>(instance.GetPhysicalDevice()),
+        .device = static_cast<VkDevice>(instance.GetDevice()),
+        .vk_get_instance_proc_addr = VULKAN_HPP_DEFAULT_DISPATCHER.vkGetInstanceProcAddr,
+        .vk_get_device_proc_addr = VULKAN_HPP_DEFAULT_DISPATCHER.vkGetDeviceProcAddr,
+        .queue_submit_mutex = &instance.QueueMutex(),
+    };
+    const bool recreate_ring = !fdm_ring.IsCreated() || fdm_width != width ||
+                               fdm_height != height;
+    if (recreate_ring) {
+        fdm_ring.Destroy();
+        if (!fdm_ring.Create(binding, fdm_desc, static_cast<u32>(present_frames.size()))) {
+            LOG_WARNING(Render_Vulkan, "FDM ring creation failed for {}x{}", width, height);
+            return;
+        }
+    }
+
+    const uint8_t rate = quality == 0 ? 4 : (quality == 1 ? 2 : 1);
+    const spatial::foveation::Profile profile{
+        .inner_x = 1.0f,
+        .inner_y = 1.0f,
+        .outer_x = 1.0f,
+        .outer_y = 1.0f,
+        .mid_rate = rate,
+        .outer_rate = rate,
+    };
+    fdm_map.resize(spatial::foveation::FragmentDensityMapByteSize(fdm_desc));
+    fdm_map_hash = spatial::foveation::BuildFragmentDensityMap(
+        fdm_desc, profile, std::span<const spatial::foveation::EyeRegion>{}, fdm_map);
+    if (fdm_map_hash == 0) {
+        LOG_WARNING(Render_Vulkan, "FDM map generation failed for {}x{}", width, height);
+        fdm_map.clear();
+        fdm_ready = false;
+        return;
+    }
+
+    fdm_width = width;
+    fdm_height = height;
+    fdm_quality = quality;
+    fdm_ready = true;
+    LOG_INFO(Render_Vulkan, "FDM global quality={} rate={} target={}x{} map={}x{} texel={}",
+             quality, rate, width, height, fdm_desc.width, fdm_desc.height, fdm_desc.texel);
+}
+
+vk::ImageView Presenter::RecordFdmUpload(Scheduler& scheduler, const Frame& frame) {
+    EnsureFdm(frame.width, frame.height);
+    if (!fdm_ready || frame.id >= fdm_ring.ImageCount()) {
+        return {};
+    }
+    const auto result = fdm_ring.RecordUpload(
+        static_cast<VkCommandBuffer>(scheduler.CommandBuffer()), frame.id, fdm_map,
+        fdm_map_hash);
+    if (result == spatial::foveation::vulkan::UploadResult::Failed) {
+        LOG_WARNING(Render_Vulkan, "FDM map upload failed for frame {}", frame.id);
+        return {};
+    }
+    return fdm_ring.ImageView(frame.id);
+}
+
 Frame* Presenter::PrepareLastFrame() {
     Common::Profiler::Scope redraw_scope{"Present.PrepareLastFrame"};
     if (last_submit_frame == nullptr) {
@@ -786,8 +866,15 @@ Frame* Presenter::PrepareVrFrame(const std::array<AmdGpu::Image, 4>& eyes, u32 i
     // source view is proven live, the SBS selector can be enabled without
     // changing the texture admission or adding a copy/blit.
     settings.sbs = 0;
-    settings.flip_y = 1;
+    // The source eye is already in the Android presentation orientation.  A
+    // second origin conversion here turns the SBS image upside down; keep the
+    // VR path aligned with the ordinary VideoOut path and let the swapchain
+    // own the surface transform.
+    settings.flip_y = 0;
     settings.srgb_input = 0;
+    // Keep the guest-to-host composition at the existing single post-process
+    // draw. Coarse shading is injected in guest Scheduler::BeginRendering;
+    // applying FDM here would only reduce host post-processing work.
     pp_pass.Render(draw_scheduler, views[0], eye_size, *frame, settings,
                    {views[1], views[2], views[3]});
     expected_ratio = 16.0f / 9.0f;
@@ -865,7 +952,7 @@ Frame* Presenter::PrepareFrame(const Libraries::VideoOut::BufferAttributeGroup& 
         Common::Profiler::Scope scope{"Prepare.FindView"};
         return *image.FindView(view_info).image_view;
     }();
-    const vk::Extent2D image_size = {image.info.size.width, image.info.size.height};
+    const vk::Extent2D image_size = {image.HostExtent().width, image.HostExtent().height};
     expected_ratio = static_cast<float>(image_size.width) / static_cast<float>(image_size.height);
 
     const u32 capture_game_only_count = VideoCore::ConsumeGameOnlyScreenshotRequests();
@@ -906,18 +993,17 @@ Frame* Presenter::PrepareFrame(const Libraries::VideoOut::BufferAttributeGroup& 
         pp_settings.srgb_input =
             attribute.attrib.pixel_format == Libraries::VideoOut::PixelFormat::A2R10G10B10Srgb;
         pp_settings.sbs = 0;
-        // Beat Saber writes the already-double-wide SBS surface with the
-        // guest's render-target origin. Vulkan's fullscreen sample must invert
-        // V once; ordinary non-SBS output keeps the default zero.
-#if defined(__ANDROID__)
-        pp_settings.flip_y = Core::HostRuntime::GuestVrSensor::Instance().Read().enabled ? 1 : 0;
-#else
+        // FDM changes fragment density only. It must not depend on the VR
+        // sensor state or apply another texture-origin conversion to ordinary
+        // VideoOut frames.
         pp_settings.flip_y = 0;
-#endif
         {
             Common::Profiler::Scope scope{"Prepare.PostProcess"};
             const auto zone = draw_scheduler.GpuProfile().Begin(cmdbuf, GpuProfiler::Stage::PostProcess);
-            pp_pass.Render(draw_scheduler, image_view, image_size, *frame, pp_settings);
+            // Do not attach FDM to the final presenter pass. It cannot reduce
+            // guest rendering cost and would add a map upload plus a separate
+            // render-pass variant on devices without dynamic FDM.
+            pp_pass.Render(draw_scheduler, image_view, image_size, *frame, pp_settings, {});
             draw_scheduler.GpuProfile().End(cmdbuf, zone);
         }
     }

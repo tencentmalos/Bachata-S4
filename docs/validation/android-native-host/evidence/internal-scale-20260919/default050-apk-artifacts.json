@@ -1,0 +1,40 @@
+{
+  "apk_sha256": "ee81b6e0c996b249562c1fe89d3935be0cce1e8066d7ff1aaff6e32fc95cde79",
+  "installed": false,
+  "tests": [
+    {
+      "name": "com.shadps4.android.runtime.config.ShadPs4ConfigManagerTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "com.shadps4.android.runtime.settings.InternalScaleTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "com.shadps4.android.runtime.settings.RuntimeSettingCatalogTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "com.shadps4.android.runtime.settings.ShadPs4JsonCodecTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "com.shadps4.android.feature.settings.SettingsViewModelTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0"
+    }
+  ],
+  "packaged_libraries": {
+    "lib/arm64-v8a/libshadps4_fex_session.so": "fe1a34de0eb42efd148df78790dc1f37332d5b1aba88835476bfdeef7b77d5bd",
+    "lib/arm64-v8a/libshadps4_host.so": "7895d4cdf264d5091526b3ec3aa80e7a20344da6cc85261a663bae362d9ccc26"
+  }
+}

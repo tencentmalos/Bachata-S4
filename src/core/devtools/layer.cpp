@@ -124,6 +124,25 @@ void L::DrawMenuBar() {
 
                 ImGui::EndMenu();
             }
+            if (BeginMenu("Shading Quality")) {
+                u32 quality = EmulatorSettings.GetGuestShadingQuality();
+                if (MenuItem("Low (1/4)", nullptr, quality == 0)) {
+                    EmulatorSettings.SetFdmQuality(0);
+                    EmulatorSettings.SetGuestShadingQuality(0);
+                    EmulatorSettings.Save();
+                }
+                if (MenuItem("Medium (1/2)", nullptr, quality == 1)) {
+                    EmulatorSettings.SetFdmQuality(1);
+                    EmulatorSettings.SetGuestShadingQuality(1);
+                    EmulatorSettings.Save();
+                }
+                if (MenuItem("High (1/1)", nullptr, quality >= 2)) {
+                    EmulatorSettings.SetFdmQuality(2);
+                    EmulatorSettings.SetGuestShadingQuality(2);
+                    EmulatorSettings.Save();
+                }
+                ImGui::EndMenu();
+            }
             ImGui::EndMenu();
         }
         if (BeginMenu("Debug")) {

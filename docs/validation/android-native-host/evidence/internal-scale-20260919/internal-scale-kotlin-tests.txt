@@ -1,0 +1,59 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.13/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build
+> Task :foundation-input-android:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :foundation-input-android:preBuild UP-TO-DATE
+> Task :foundation-input-android:preDebugBuild UP-TO-DATE
+> Task :foundation-input-android:generateDebugResValues UP-TO-DATE
+> Task :foundation-input-android:generateDebugResources UP-TO-DATE
+> Task :foundation-input-android:packageDebugResources UP-TO-DATE
+> Task :foundation-input-android:processDebugNavigationResources UP-TO-DATE
+> Task :foundation-input-android:parseDebugLocalResources UP-TO-DATE
+> Task :foundation-input-android:generateDebugRFile UP-TO-DATE
+> Task :foundation-input-android:compileDebugKotlin UP-TO-DATE
+> Task :foundation-input-android:javaPreCompileDebug UP-TO-DATE
+> Task :foundation-input-android:compileDebugJavaWithJavac NO-SOURCE
+> Task :foundation-input-android:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :foundation-input-android:processDebugJavaRes UP-TO-DATE
+> Task :core:model:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:model:preBuild UP-TO-DATE
+> Task :core:model:preDebugBuild UP-TO-DATE
+> Task :core:model:generateDebugResValues UP-TO-DATE
+> Task :core:model:generateDebugResources UP-TO-DATE
+> Task :core:model:packageDebugResources UP-TO-DATE
+> Task :core:model:processDebugNavigationResources UP-TO-DATE
+> Task :core:model:parseDebugLocalResources UP-TO-DATE
+> Task :core:model:generateDebugRFile UP-TO-DATE
+> Task :core:model:compileDebugKotlin UP-TO-DATE
+> Task :core:model:javaPreCompileDebug UP-TO-DATE
+> Task :core:model:compileDebugJavaWithJavac NO-SOURCE
+> Task :core:model:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :core:model:processDebugJavaRes UP-TO-DATE
+> Task :foundation-input-android:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :core:model:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :core:runtime:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:runtime:packageGpuReshape
+> Task :core:runtime:packageNativeHooks
+> Task :core:runtime:preBuild
+> Task :core:runtime:preDebugBuild
+> Task :core:runtime:generateDebugResValues UP-TO-DATE
+> Task :core:runtime:generateDebugResources UP-TO-DATE
+> Task :core:runtime:packageDebugResources UP-TO-DATE
+> Task :core:runtime:processDebugNavigationResources UP-TO-DATE
+> Task :core:runtime:parseDebugLocalResources UP-TO-DATE
+> Task :core:runtime:generateDebugRFile UP-TO-DATE
+> Task :core:runtime:javaPreCompileDebug UP-TO-DATE
+> Task :core:runtime:preDebugUnitTestBuild
+> Task :core:runtime:generateDebugUnitTestStubRFile UP-TO-DATE
+> Task :core:runtime:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :core:runtime:compileDebugKotlin
+> Task :core:runtime:compileDebugJavaWithJavac NO-SOURCE
+> Task :core:runtime:processDebugJavaRes
+> Task :core:runtime:bundleLibRuntimeToJarDebug
+> Task :core:runtime:bundleLibCompileToJarDebug
+> Task :core:runtime:compileDebugUnitTestKotlin
+> Task :core:runtime:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :core:runtime:processDebugUnitTestJavaRes UP-TO-DATE
+> Task :core:runtime:testDebugUnitTest
+
+BUILD SUCCESSFUL in 16s
+40 actionable tasks: 8 executed, 32 up-to-date

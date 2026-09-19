@@ -119,6 +119,7 @@ struct ImageResource {
     bool is_array{};
     bool is_written{};
     bool is_r128{};
+    bool requires_native_scale{}; // Exact texel offsets / LOD query semantics.
     u8 constant_mip_index{};
     MipStorageFallbackMode mip_fallback_mode{};
     SharpFetchPostOp post_op{};
@@ -213,18 +214,33 @@ struct PushData {
     static constexpr u32 UdRegsIndex = 4;
     static constexpr u32 BufOffsetIndex = UdRegsIndex + NUM_USER_DATA_REGS / 4;
 
+    static constexpr u32 ImageScaleIndex = BufOffsetIndex + 3;
+    static constexpr u32 MaxScaledBinding = 31;
+
     float xoffset;
     float yoffset;
     float xscale;
     float yscale;
     std::array<u32, NUM_USER_DATA_REGS> ud_regs;
     std::array<u8, NUM_BUFFERS> buf_offsets;
+    // Two bits per unified image binding; top two bits describe render scale.
+    // 0=native, 1=drop mip0, 2=resample half, 3=resample three quarters.
+    std::array<u32, 2> image_scales{};
+
+    void SetImageScale(u32 binding, u32 code) {
+        if (binding < MaxScaledBinding)
+            image_scales[binding / 16] |= code << ((binding % 16) * 2);
+    }
+    void SetRenderScale(u32 quarters) {
+        image_scales[1] |= (quarters == 2 ? 2u : quarters == 3 ? 3u : 0u) << 30;
+    }
 
     void AddOffset(u32 binding, u32 offset) {
         ASSERT(offset < 256 && binding < buf_offsets.size());
         buf_offsets[binding] = offset;
     }
 };
+static_assert(offsetof(PushData, image_scales) == 120);
 static_assert(sizeof(PushData) <= 128,
               "PushData size is greater than minimum size guaranteed by Vulkan spec");
 

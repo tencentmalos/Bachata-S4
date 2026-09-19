@@ -12,11 +12,11 @@
 
 namespace Serialization {
 /* You should increment versions below once corresponding serialization scheme is changed. */
-static constexpr u32 ShaderBinaryVersion = 7u; // preserve viewport depth transform and clip planes
+static constexpr u32 ShaderBinaryVersion = 8u; // internal-scale push data and shader profile
 #ifdef ARCH_X86_64
-static constexpr u32 ShaderMetaVersion = 6u; // invalidate pre-alias-fix flattened layouts
+static constexpr u32 ShaderMetaVersion = 8u; // invalidate pre-alias-fix flattened layouts
 #else
-static constexpr u32 ShaderMetaVersion = 7u; // portable SRT plan; never native x86 bytes
+static constexpr u32 ShaderMetaVersion = 9u; // portable SRT plan; never native x86 bytes
 #endif
 static constexpr u32 PipelineKeyVersion = 5u; // auxiliary interfaces follow current vertex exports
 } // namespace Serialization

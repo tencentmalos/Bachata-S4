@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <atomic>
+#include <cmath>
 
 #include "common/debug.h"
 #include "video_core/renderdoc.h"
@@ -39,7 +40,8 @@ static Shader::PushData MakeUserData(const AmdGpu::Regs& regs) {
 
 Rasterizer::Rasterizer(const Instance& instance_, Scheduler& scheduler_,
                        AmdGpu::Liverpool* liverpool_)
-    : instance{instance_}, scheduler{scheduler_}, page_manager{this},
+    : instance{instance_}, shading_settings{EmulatorSettingsImpl::GetInstance()},
+      scheduler{scheduler_}, page_manager{this},
       buffer_cache{instance, scheduler, liverpool_, texture_cache, page_manager},
       texture_cache{instance, scheduler, liverpool_, buffer_cache, page_manager},
       liverpool{liverpool_}, memory{Core::Memory::Instance()},
@@ -242,6 +244,7 @@ void Rasterizer::Draw(bool is_indexed, u32 index_offset) {
 
     const auto cmdbuf = scheduler.CommandBuffer();
     cmdbuf.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline->Handle());
+    pipeline->ApplyFragmentShadingRate(cmdbuf, shading_settings->GetGuestShadingQuality());
     // Qualcomm 512.676 loses cached dynamic depth state across graphics pipeline binds.
     if (instance.GetDriverID() == vk::DriverId::eQualcommProprietary) {
         const auto& dynamic = scheduler.GetDynamicState();
@@ -322,6 +325,7 @@ void Rasterizer::DrawIndirect(bool is_indexed, VAddr arg_address, u32 offset, u3
 
     const auto cmdbuf = scheduler.CommandBuffer();
     cmdbuf.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline->Handle());
+    pipeline->ApplyFragmentShadingRate(cmdbuf, shading_settings->GetGuestShadingQuality());
     // Qualcomm 512.676 loses cached dynamic depth state across graphics pipeline binds.
     if (instance.GetDriverID() == vk::DriverId::eQualcommProprietary) {
         const auto& dynamic = scheduler.GetDynamicState();
@@ -464,10 +468,66 @@ bool Rasterizer::BindResources(const Pipeline* pipeline) {
     image_infos.clear();
 
     bool uses_dma = false;
+    render_scale_quarters = 4;
+    if (shading_settings->GetInternalScalePercent() != 100) {
+        // Resolve unsafe uses before producing any descriptor. This includes uses
+        // in a later shader stage of the same draw, not only the first binding.
+        u32 descriptor = 0;
+        bool fragment_side_effects = false;
+        for (const auto* stage : pipeline->GetStages()) {
+            if (!stage) continue;
+            descriptor += stage->buffers.size();
+            if (stage->l_stage == Shader::LogicalStage::Fragment) {
+                fragment_side_effects |= std::ranges::any_of(stage->buffers,
+                    [](const auto& buffer) { return buffer.is_written && !buffer.IsSpecial(); });
+                fragment_side_effects |= std::ranges::any_of(stage->images,
+                    [](const auto& image) { return image.is_written; });
+            }
+            for (const auto& resource : stage->images) {
+                const auto sharp = resource.GetSharp(*stage);
+                const bool unsafe = resource.is_written || resource.is_atomic || resource.requires_native_scale ||
+                    resource.post_op == Shader::SharpFetchPostOp::ConvertCubeTo2DArray ||
+                    descriptor >= Shader::PushData::MaxScaledBinding ||
+                    AmdGpu::IsInteger(sharp.GetNumberFmt());
+                if (unsafe && sharp.Address() &&
+                    sharp.GetDataFmt() != AmdGpu::DataFormat::FormatInvalid &&
+                    memory->IsValidGpuMapping(sharp.Address(), 0)) {
+                    VideoCore::TextureCache::ImageDesc desc{sharp, resource};
+                    auto id = texture_cache.FindImage(desc);
+                    texture_cache.GetImage(id).ForceNative("exact shader data access");
+                }
+                descriptor += resource.NumBindings(*stage);
+            }
+            descriptor += stage->samplers.size();
+        }
+        if (!pipeline->IsCompute()) {
+            const auto* graphics = static_cast<const GraphicsPipeline*>(pipeline);
+            const auto count = std::bit_width(graphics->GetGraphicsKey().mrt_mask);
+            bool native_pass = fragment_side_effects;
+            for (u32 i = 0; i < count; ++i)
+                native_pass |= graphics->GetGraphicsKey().color_samples[i] > 1;
+            bool has_attachment = false;
+            const auto inspect = [&](const auto& target) {
+                if (!target.first) return;
+                has_attachment = true;
+                native_pass |= !texture_cache.GetImage(target.first).IsScaled();
+            };
+            for (u32 i = 0; i < count; ++i) inspect(cb_descs[i]);
+            inspect(db_desc);
+            if (native_pass) {
+                for (u32 i = 0; i < count; ++i)
+                    if (cb_descs[i].first) texture_cache.GetImage(cb_descs[i].first).ForceNative("mixed attachment pass");
+                if (db_desc.first) texture_cache.GetImage(db_desc.first).ForceNative("mixed attachment pass");
+            } else if (has_attachment) {
+                render_scale_quarters = shading_settings->GetInternalScalePercent() == 50 ? 2 : 3;
+            }
+        }
+    }
 
     // Bind resource buffers and textures.
     Shader::Backend::Bindings binding{};
     push_data = MakeUserData(liverpool->regs);
+    push_data.SetRenderScale(render_scale_quarters);
     for (const auto* stage : pipeline->GetStages()) {
         if (!stage) {
             continue;
@@ -882,7 +942,12 @@ void Rasterizer::BindTextures(const Shader::Info& stage, Shader::Backend::Bindin
     u32 image_info_idx = first_image_idx;
     u32 image_binding_idx = 0;
     for (u32 array_size : image_descriptor_array_sizes) {
-        const auto& [_, desc] = image_bindings[image_binding_idx];
+        const auto& [bound_image_id, desc] = image_bindings[image_binding_idx];
+        if (bound_image_id) {
+            const auto& image = texture_cache.GetImage(bound_image_id);
+            push_data.SetImageScale(binding.unified,
+                image.ShaderScaleCode(desc.view_info.range.base.level));
+        }
         const bool is_storage = desc.type == VideoCore::TextureCache::BindingType::Storage;
         auto& set_write = set_writes[set_write_index++];
         set_write.dstSet = VK_NULL_HANDLE;
@@ -957,8 +1022,8 @@ RenderState Rasterizer::BeginRendering(const GraphicsPipeline* pipeline) {
                            desc.view_info.range);
         }
 
-        state.width = std::min<u32>(state.width, std::max(image->info.size.width >> mip, 1u));
-        state.height = std::min<u32>(state.height, std::max(image->info.size.height >> mip, 1u));
+        state.width = std::min<u32>(state.width, image->HostExtent(mip).width);
+        state.height = std::min<u32>(state.height, image->HostExtent(mip).height);
         state.num_layers = std::min<u32>(state.num_layers, image_view.info.range.extent.layers);
 
         const auto clear_value =
@@ -1006,8 +1071,8 @@ RenderState Rasterizer::BeginRendering(const GraphicsPipeline* pipeline) {
                           vk::AccessFlagBits2::eDepthStencilAttachmentRead,
                       desc.view_info.range);
 
-        state.width = std::min<u32>(state.width, image.info.size.width);
-        state.height = std::min<u32>(state.height, image.info.size.height);
+        state.width = std::min<u32>(state.width, image.HostExtent().width);
+        state.height = std::min<u32>(state.height, image.HostExtent().height);
         state.num_layers = std::min<u32>(state.num_layers, image_view.info.range.extent.layers);
 
         auto& attachment = state.depth_stencil_attachment;
@@ -1066,6 +1131,10 @@ void Rasterizer::DepthStencilCopy(bool is_depth, bool is_stencil) {
     auto& read_image = texture_cache.GetImage(texture_cache.FindImage(read_desc));
     auto& write_image = texture_cache.GetImage(texture_cache.FindImage(write_desc));
 
+    if (read_image.ScaleQuarters() != write_image.ScaleQuarters()) {
+        read_image.ForceNative("depth copy mismatch");
+        write_image.ForceNative("depth copy mismatch");
+    }
     VideoCore::SubresourceRange sub_range;
     sub_range.base.layer = liverpool->regs.depth_view.slice_start;
     sub_range.extent.layers = liverpool->regs.depth_view.NumSlices() - sub_range.base.layer;
@@ -1105,7 +1174,7 @@ void Rasterizer::DepthStencilCopy(bool is_depth, bool is_stencil) {
                 .layerCount = sub_range.extent.layers,
             },
         .dstOffset = {0, 0, 0},
-        .extent = {write_image.info.size.width, write_image.info.size.height, 1},
+        .extent = write_image.HostExtent(),
     };
     scheduler.CommandBuffer().copyImage(read_image.GetImage(), vk::ImageLayout::eTransferSrcOptimal,
                                         write_image.GetImage(),
@@ -1286,6 +1355,11 @@ void Rasterizer::UpdateViewportScissorState() const {
             viewport.height = yscale * 2.0f;
         }
 
+        const float scale = float(render_scale_quarters) / 4.f;
+        viewport.x *= scale;
+        viewport.y *= scale;
+        viewport.width *= scale;
+        viewport.height *= scale;
         viewports.push_back(viewport);
 
         auto vp_scsr = scsr;
@@ -1299,9 +1373,13 @@ void Rasterizer::UpdateViewportScissorState() const {
             vp_scsr.bottom_right_y = std::min(AmdGpu::Scissor::Clamp(vp_scsr.bottom_right_y),
                                               regs.viewport_scissors[i].bottom_right_y);
         }
+        const s32 left = std::max(0, s32(std::floor(vp_scsr.top_left_x * scale)));
+        const s32 top = std::max(0, s32(std::floor(vp_scsr.top_left_y * scale)));
+        const s32 right = s32(std::ceil((vp_scsr.top_left_x + vp_scsr.GetWidth()) * scale));
+        const s32 bottom = s32(std::ceil((vp_scsr.top_left_y + vp_scsr.GetHeight()) * scale));
         scissors.push_back({
-            .offset = {vp_scsr.top_left_x, vp_scsr.top_left_y},
-            .extent = {vp_scsr.GetWidth(), vp_scsr.GetHeight()},
+            .offset = {left, top},
+            .extent = {u32(std::max(0, right - left)), u32(std::max(0, bottom - top))},
         });
     }
 

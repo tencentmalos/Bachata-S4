@@ -8,6 +8,54 @@
 
 namespace Shader::Backend::SPIRV {
 
+namespace {
+
+bool SupportsScale(const EmitContext& ctx, u32 handle) {
+    const auto& texture = ctx.images[handle & 0xffff];
+    return ctx.profile.internal_scale && !texture.is_storage &&
+        texture.scale_binding < PushData::MaxScaledBinding &&
+        (texture.view_type == AmdGpu::ImageType::Color2D ||
+         texture.view_type == AmdGpu::ImageType::Color2DArray);
+}
+
+Id SharpWord(EmitContext& ctx, u32 handle, u32 word) {
+    const auto& fetch = ctx.info.images[handle & 0xffff].sharp_fetch;
+    if ((fetch.load_mask & (1u << word)) && fetch.offsets[word] != UNKNOWN_LOCATION)
+        return ctx.EmitFlatbufferLoad(ctx.ConstU32(u32(fetch.offsets[word])));
+    return ctx.ConstU32(fetch.immediates[word]);
+}
+
+Id GuestDimensions(EmitContext& ctx, u32 handle, Id lod) {
+    const Id sizes = SharpWord(ctx, handle, 2);
+    const Id levels = SharpWord(ctx, handle, 3);
+    const Id base = ctx.OpBitFieldUExtract(ctx.U32[1], levels, ctx.ConstU32(12u), ctx.ConstU32(4u));
+    const Id level = ctx.OpUMin(ctx.U32[1],
+        ctx.OpIAdd(ctx.U32[1], base, lod), ctx.ConstU32(31u));
+    const auto dimension = [&](u32 shift) {
+        const Id size = ctx.OpIAdd(ctx.U32[1], ctx.ConstU32(1u),
+            ctx.OpBitFieldUExtract(ctx.U32[1], sizes, ctx.ConstU32(shift), ctx.ConstU32(14u)));
+        return ctx.OpUMax(ctx.U32[1], ctx.ConstU32(1u),
+                         ctx.OpShiftRightLogical(ctx.U32[1], size, level));
+    };
+    return ctx.OpCompositeConstruct(ctx.U32[2], dimension(0), dimension(14));
+}
+
+Id PhysicalLod(EmitContext& ctx, u32 handle, Id lod, bool floating) {
+    if (!SupportsScale(ctx, handle)) return lod;
+    const Id code = ctx.ImageScaleCode(ctx.images[handle & 0xffff].scale_binding);
+    const Id dropped = ctx.OpIEqual(ctx.U1[1], code, ctx.ConstU32(1u));
+    if (floating) {
+        return ctx.OpSelect(ctx.F32[1], dropped,
+            ctx.OpFMax(ctx.F32[1], ctx.OpFSub(ctx.F32[1], lod, ctx.ConstF32(1.f)),
+                       ctx.f32_zero_value), lod);
+    }
+    return ctx.OpSelect(ctx.U32[1], dropped,
+        ctx.OpISub(ctx.U32[1], ctx.OpUMax(ctx.U32[1], lod, ctx.ConstU32(1u)),
+                   ctx.ConstU32(1u)), lod);
+}
+
+} // namespace
+
 struct ImageOperands {
     void Add(spv::ImageOperandsMask new_mask, Id value) {
         if (!Sirit::ValidId(value)) {
@@ -103,7 +151,7 @@ Id EmitImageSampleExplicitLod(EmitContext& ctx, IR::Inst* inst, u32 handle, Id c
     const Id sampler = ctx.OpLoad(ctx.sampler_type, ctx.samplers[handle >> 16]);
     const Id sampled_image = ctx.OpSampledImage(texture.sampled_type, image, sampler);
     ImageOperands operands;
-    operands.Add(spv::ImageOperandsMask::Lod, lod);
+    operands.Add(spv::ImageOperandsMask::Lod, PhysicalLod(ctx, handle, lod, true));
     operands.AddOffset(ctx, offset);
     const Id sample = ctx.OpImageSampleExplicitLod(result_type, sampled_image, coords,
                                                    operands.mask, operands.operands);
@@ -135,7 +183,7 @@ Id EmitImageSampleDrefExplicitLod(EmitContext& ctx, IR::Inst* inst, u32 handle, 
     const Id sampler = ctx.OpLoad(ctx.sampler_type, ctx.samplers[handle >> 16]);
     const Id sampled_image = ctx.OpSampledImage(texture.sampled_type, image, sampler);
     ImageOperands operands;
-    operands.Add(spv::ImageOperandsMask::Lod, lod);
+    operands.Add(spv::ImageOperandsMask::Lod, PhysicalLod(ctx, handle, lod, true));
     operands.AddOffset(ctx, offset);
     const Id sample = ctx.OpImageSampleDrefExplicitLod(result_type, sampled_image, coords, dref,
                                                        operands.mask, operands.operands);
@@ -181,9 +229,17 @@ Id EmitImageQueryDimensions(EmitContext& ctx, IR::Inst* inst, u32 handle, Id lod
     const auto mips{[&] { return has_mips ? ctx.OpImageQueryLevels(ctx.U32[1], image) : zero; }};
     const bool uses_lod{texture.view_type != AmdGpu::ImageType::Color2DMsaa && !texture.is_storage};
     const auto query{[&](Id type) {
-        return uses_lod ? ctx.OpImageQuerySizeLod(type, image, lod)
+        Id physical_lod = lod;
+        if (uses_lod && SupportsScale(ctx, handle)) {
+            const Id clamped = ctx.OpUMin(ctx.U32[1], PhysicalLod(ctx, handle, lod, false),
+                ctx.OpISub(ctx.U32[1], ctx.OpImageQueryLevels(ctx.U32[1], image), ctx.ConstU32(1u)));
+            physical_lod = ctx.OpSelect(ctx.U32[1],
+                ctx.OpINotEqual(ctx.U1[1], ctx.ImageScaleCode(texture.scale_binding), zero), clamped, lod);
+        }
+        return uses_lod ? ctx.OpImageQuerySizeLod(type, image, physical_lod)
                         : ctx.OpImageQuerySize(type, image);
     }};
+    const Id original = [&]() -> Id {
     switch (texture.view_type) {
     case AmdGpu::ImageType::Color1D:
         return ctx.OpCompositeConstruct(ctx.U32[4], query(ctx.U32[1]), zero, zero, mips());
@@ -197,6 +253,19 @@ Id EmitImageQueryDimensions(EmitContext& ctx, IR::Inst* inst, u32 handle, Id lod
     default:
         UNREACHABLE_MSG("SPIR-V Instruction");
     }
+    }();
+    if (!SupportsScale(ctx, handle)) return original;
+    const Id sizes = GuestDimensions(ctx, handle, lod);
+    const Id levels = SharpWord(ctx, handle, 3);
+    const Id base = ctx.OpBitFieldUExtract(ctx.U32[1], levels, ctx.ConstU32(12u), ctx.ConstU32(4u));
+    const Id last = ctx.OpBitFieldUExtract(ctx.U32[1], levels, ctx.ConstU32(16u), ctx.ConstU32(4u));
+    const Id count = has_mips ? ctx.OpIAdd(ctx.U32[1], ctx.ConstU32(1u),
+        ctx.OpISub(ctx.U32[1], ctx.OpUMax(ctx.U32[1], last, base), base)) : zero;
+    const Id logical = ctx.OpCompositeConstruct(ctx.U32[4], sizes,
+        ctx.OpCompositeExtract(ctx.U32[1], original, 2), count);
+    const Id scaled = ctx.OpINotEqual(ctx.U1[1], ctx.ImageScaleCode(texture.scale_binding), zero);
+    return ctx.OpSelect(ctx.U32[4], ctx.OpCompositeConstruct(ctx.TypeVector(ctx.U1[1], 4), scaled, scaled, scaled, scaled),
+                        logical, original);
 }
 
 Id EmitImageQueryLod(EmitContext& ctx, IR::Inst* inst, u32 handle, Id coords) {
@@ -230,6 +299,32 @@ Id EmitImageRead(EmitContext& ctx, IR::Inst* inst, u32 handle, Id coords, Id lod
     Id texel;
     if (!texture.is_storage) {
         const Id image = ctx.OpLoad(texture.image_type, texture.id);
+        if (SupportsScale(ctx, handle)) {
+            const Id code = ctx.ImageScaleCode(texture.scale_binding);
+            const Id scaled = ctx.OpINotEqual(ctx.U1[1], code, ctx.u32_zero_value);
+            const Id logical_lod = Sirit::ValidId(lod) ? lod : ctx.u32_zero_value;
+            const Id host_lod = ctx.OpUMin(ctx.U32[1], PhysicalLod(ctx, handle, logical_lod, false),
+                ctx.OpISub(ctx.U32[1], ctx.OpImageQueryLevels(ctx.U32[1], image), ctx.ConstU32(1u)));
+            const Id guest_size = GuestDimensions(ctx, handle, logical_lod);
+            const bool array = texture.view_type == AmdGpu::ImageType::Color2DArray;
+            const Id host_size = ctx.OpImageQuerySizeLod(array ? ctx.U32[3] : ctx.U32[2], image, host_lod);
+            const auto coordinate = [&](u32 component) {
+                const Id original = ctx.OpCompositeExtract(ctx.U32[1], coords, component);
+                const Id guest = ctx.OpConvertUToF(ctx.F32[1],
+                    ctx.OpCompositeExtract(ctx.U32[1], guest_size, component));
+                const Id host = ctx.OpConvertUToF(ctx.F32[1],
+                    ctx.OpCompositeExtract(ctx.U32[1], host_size, component));
+                const Id value = ctx.OpConvertSToF(ctx.F32[1], ctx.OpBitcast(ctx.S32[1], original));
+                const Id mapped = ctx.OpConvertFToS(ctx.S32[1], ctx.OpFloor(ctx.F32[1],
+                    ctx.OpFMul(ctx.F32[1], ctx.OpFAdd(ctx.F32[1], value, ctx.ConstF32(0.5f)),
+                               ctx.OpFDiv(ctx.F32[1], host, guest))));
+                return ctx.OpSelect(ctx.U32[1], scaled, ctx.OpBitcast(ctx.U32[1], mapped), original);
+            };
+            coords = array ? ctx.OpCompositeConstruct(ctx.U32[3], coordinate(0), coordinate(1),
+                                ctx.OpCompositeExtract(ctx.U32[1], coords, 2))
+                           : ctx.OpCompositeConstruct(ctx.U32[2], coordinate(0), coordinate(1));
+            lod = ctx.OpSelect(ctx.U32[1], scaled, host_lod, logical_lod);
+        }
         if (texture.view_type == AmdGpu::ImageType::Color2DMsaa) {
             // GCN hardware wraps out-of-range MSAA sample indices
             if (Sirit::ValidId(ms)) {

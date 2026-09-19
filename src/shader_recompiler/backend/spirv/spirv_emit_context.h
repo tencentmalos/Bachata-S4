@@ -197,6 +197,18 @@ public:
         return OpAccessChain(result_type, shared_mem, index);
     }
 
+    Id ImageScaleCode(u32 binding) {
+        if (!profile.internal_scale || binding >= PushData::MaxScaledBinding)
+            return u32_zero_value;
+        return ScaleCodeAt(binding);
+    }
+    Id ScaleCodeAt(u32 index) {
+        const Id pointer = OpAccessChain(TypePointer(spv::StorageClass::PushConstant, U32[1]),
+            push_data_block, ConstU32(PushData::ImageScaleIndex), ConstU32(index / 16));
+        return OpBitFieldUExtract(U32[1], OpLoad(U32[1], pointer),
+                                  ConstU32((index % 16) * 2), ConstU32(2u));
+    }
+
     Id EmitFlatbufferLoad(Id flatbuf_offset) {
         const auto& flatbuf_buffer{buffers[flatbuf_index]};
         ASSERT(flatbuf_buffer.binding >= 0 && flatbuf_buffer.buffer_type == BufferType::Flatbuf);
@@ -320,6 +332,7 @@ public:
         bool is_integer = false;
         bool is_storage = false;
         MipStorageFallbackMode mip_fallback_mode{};
+        u32 scale_binding{};
     };
 
     enum class PointerType : u32 {

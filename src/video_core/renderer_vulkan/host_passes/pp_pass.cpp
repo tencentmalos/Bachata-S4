@@ -18,7 +18,8 @@
 namespace Vulkan::HostPasses {
 
 void PostProcessingPass::Create(const Instance& instance, const vk::Format surface_format) {
-    const auto device = instance.GetDevice();
+    device = instance.GetDevice();
+    fdm_dynamic = instance.IsFdmDynamicSupported();
     static const std::array pp_shaders{
         HostShaders::FS_TRI_VERT,
         HostShaders::POST_PROCESS_FRAG,
@@ -82,6 +83,51 @@ void PostProcessingPass::Create(const Instance& instance, const vk::Format surfa
         .colorAttachmentCount = pp_color_formats.size(),
         .pColorAttachmentFormats = pp_color_formats.data(),
     };
+
+    // Turnip currently exposes VK_EXT_fragment_density_map but may leave
+    // fragmentDensityMapDynamic disabled. Build the traditional render-pass
+    // variant once so the same map still works without a second image/blit.
+    if (instance.IsFdmSupported() && !fdm_dynamic) {
+        const auto fdm_attachment = spatial::foveation::vulkan::MakeRenderPassFdmAttachment(1);
+        const std::array attachment_descriptions{
+            vk::AttachmentDescription2{
+                .format = surface_format,
+                .samples = vk::SampleCountFlagBits::e1,
+                .loadOp = vk::AttachmentLoadOp::eClear,
+                .storeOp = vk::AttachmentStoreOp::eStore,
+                .stencilLoadOp = vk::AttachmentLoadOp::eDontCare,
+                .stencilStoreOp = vk::AttachmentStoreOp::eDontCare,
+                .initialLayout = vk::ImageLayout::eColorAttachmentOptimal,
+                .finalLayout = vk::ImageLayout::eColorAttachmentOptimal,
+            },
+            fdm_attachment.description,
+        };
+        const vk::AttachmentReference2 color_reference{
+            .attachment = 0,
+            .layout = vk::ImageLayout::eColorAttachmentOptimal,
+        };
+        const vk::SubpassDescription2 subpass{
+            .pipelineBindPoint = vk::PipelineBindPoint::eGraphics,
+            .colorAttachmentCount = 1,
+            .pColorAttachments = &color_reference,
+        };
+        const auto dependency = spatial::foveation::vulkan::MakeFdmExternalDependency();
+        const vk::RenderPassCreateInfo2 render_pass_info{
+            .pNext = &fdm_attachment.create_info,
+            .attachmentCount = attachment_descriptions.size(),
+            .pAttachments = attachment_descriptions.data(),
+            .subpassCount = 1,
+            .pSubpasses = &subpass,
+            .dependencyCount = 1,
+            .pDependencies = &dependency,
+        };
+        fdm_render_pass = Check<"create FDM post process render pass">
+            (device.createRenderPass2Unique(render_pass_info));
+    }
+
+    const vk::PipelineCreateFlags pipeline_flags = fdm_dynamic
+        ? vk::PipelineCreateFlagBits::eRenderingFragmentDensityMapAttachmentEXT
+        : vk::PipelineCreateFlags{};
 
     const vk::PipelineVertexInputStateCreateInfo vertex_input_info{
         .vertexBindingDescriptionCount = 0u,
@@ -154,6 +200,7 @@ void PostProcessingPass::Create(const Instance& instance, const vk::Format surfa
     };
 
     const vk::GraphicsPipelineCreateInfo pipeline_info{
+        .flags = pipeline_flags,
         .pNext = &pipeline_rendering_ci,
         .stageCount = shaders_ci.size(),
         .pStages = shaders_ci.data(),
@@ -169,6 +216,18 @@ void PostProcessingPass::Create(const Instance& instance, const vk::Format surfa
 
     pipeline = Check<"create post process pipeline">(device.createGraphicsPipelineUnique(
         /*pipeline_cache*/ {}, pipeline_info));
+
+    if (fdm_render_pass) {
+        auto fdm_pipeline_info = pipeline_info;
+        // The legacy render-pass pipeline does not use the dynamic-rendering
+        // fragment-density pipeline flag. The attachment is declared by the
+        // render-pass pNext chain above instead.
+        fdm_pipeline_info.flags = {};
+        fdm_pipeline_info.pNext = nullptr;
+        fdm_pipeline_info.renderPass = *fdm_render_pass;
+        fdm_pipeline = Check<"create FDM post process pipeline">(
+            device.createGraphicsPipelineUnique(/*pipeline_cache*/ {}, fdm_pipeline_info));
+    }
 
     // Once pipeline is compiled, we don't need the shader module anymore
     device.destroyShaderModule(vs_module);
@@ -187,7 +246,8 @@ void PostProcessingPass::Create(const Instance& instance, const vk::Format surfa
 
 void PostProcessingPass::Render(Scheduler& scheduler, vk::ImageView input,
                                 vk::Extent2D input_size, Frame& frame, Settings settings,
-                                std::array<vk::ImageView, 3> stereo_views) {
+                                std::array<vk::ImageView, 3> stereo_views,
+                                vk::ImageView fdm_view) {
     const auto cmdbuf = scheduler.CommandBuffer();
     if (EmulatorSettings.IsVkHostMarkersEnabled()) {
         cmdbuf.beginDebugUtilsLabelEXT(vk::DebugUtilsLabelEXT{
@@ -208,17 +268,7 @@ void PostProcessingPass::Render(Scheduler& scheduler, vk::ImageView input,
             .storeOp = vk::AttachmentStoreOp::eStore,
         },
     }};
-    const vk::RenderingInfo rendering_info{
-        .renderArea{
-            .extent{
-                .width = frame.width,
-                .height = frame.height,
-            },
-        },
-        .layerCount = 1,
-        .colorAttachmentCount = attachments.size(),
-        .pColorAttachments = attachments.data(),
-    };
+    const bool use_render_pass_fdm = fdm_view && fdm_render_pass && fdm_pipeline;
 
     std::array<vk::DescriptorImageInfo, 4> image_infos{};
     std::array<vk::WriteDescriptorSet, 4> set_writes{};
@@ -231,7 +281,8 @@ void PostProcessingPass::Render(Scheduler& scheduler, vk::ImageView input,
             .pImageInfo = &image_infos[i]};
     }
 
-    cmdbuf.bindPipeline(vk::PipelineBindPoint::eGraphics, *pipeline);
+    cmdbuf.bindPipeline(vk::PipelineBindPoint::eGraphics,
+                        use_render_pass_fdm ? *fdm_pipeline : *pipeline);
 
     const std::array viewports = {
         vk::Viewport{
@@ -254,9 +305,50 @@ void PostProcessingPass::Render(Scheduler& scheduler, vk::ImageView input,
     cmdbuf.pushConstants(*pipeline_layout, vk::ShaderStageFlagBits::eFragment, 0, sizeof(Settings),
                          &settings);
 
-    cmdbuf.beginRendering(rendering_info);
-    cmdbuf.draw(3, 1, 0, 0);
-    cmdbuf.endRendering();
+    if (use_render_pass_fdm) {
+        const std::array framebuffer_attachments{frame.image_view, fdm_view};
+        const vk::FramebufferCreateInfo framebuffer_info{
+            .renderPass = *fdm_render_pass,
+            .attachmentCount = framebuffer_attachments.size(),
+            .pAttachments = framebuffer_attachments.data(),
+            .width = frame.width,
+            .height = frame.height,
+            .layers = 1,
+        };
+        const auto framebuffer = Check<"create FDM post process framebuffer">
+            (device.createFramebuffer(framebuffer_info));
+        const auto device_handle = device;
+        scheduler.DeferOperation([device_handle, framebuffer] {
+            device_handle.destroyFramebuffer(framebuffer);
+        });
+        const vk::ClearValue clear_value{
+            .color = vk::ClearColorValue{std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}}};
+        const vk::RenderPassBeginInfo begin_info{
+            .renderPass = *fdm_render_pass,
+            .framebuffer = framebuffer,
+            .renderArea = {.extent = {frame.width, frame.height}},
+            .clearValueCount = 1,
+            .pClearValues = &clear_value,
+        };
+        cmdbuf.beginRenderPass(begin_info, vk::SubpassContents::eInline);
+        cmdbuf.draw(3, 1, 0, 0);
+        cmdbuf.endRenderPass();
+    } else {
+        const vk::RenderingFragmentDensityMapAttachmentInfoEXT fdm_attachment{
+            .imageView = fdm_view,
+            .imageLayout = vk::ImageLayout::eFragmentDensityMapOptimalEXT,
+        };
+        const vk::RenderingInfo rendering_info{
+            .pNext = (fdm_view && fdm_dynamic) ? &fdm_attachment : nullptr,
+            .renderArea{.extent{.width = frame.width, .height = frame.height}},
+            .layerCount = 1,
+            .colorAttachmentCount = attachments.size(),
+            .pColorAttachments = attachments.data(),
+        };
+        cmdbuf.beginRendering(rendering_info);
+        cmdbuf.draw(3, 1, 0, 0);
+        cmdbuf.endRendering();
+    }
 
     const auto post_barrier = vk::ImageMemoryBarrier2{
         .srcStageMask = vk::PipelineStageFlagBits2::eColorAttachmentOutput,

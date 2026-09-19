@@ -17,12 +17,17 @@ data class RuntimeSettingSpec(
     val maximum: Double? = null,
     val choices: List<String> = emptyList(),
     val nativeEnumOrdinal: Boolean = false,
+    val nativeEnumValues: List<Int> = emptyList(),
     val scope: SettingScope = SettingScope.GLOBAL_AND_GAME,
     val restartRequired: Boolean = true,
     val risk: SettingRisk = SettingRisk.NORMAL,
     val readOnlyReason: String? = null,
 ) {
     init {
+        require(nativeEnumValues.isEmpty() || (kind == SettingKind.ENUM && !nativeEnumOrdinal &&
+            nativeEnumValues.size == choices.size && nativeEnumValues.distinct().size == choices.size)) {
+            "Explicit native enum values must uniquely match choices"
+        }
         require(!nativeEnumOrdinal || kind == SettingKind.ENUM) {
             "Native enum ordinal storage requires an enum setting"
         }

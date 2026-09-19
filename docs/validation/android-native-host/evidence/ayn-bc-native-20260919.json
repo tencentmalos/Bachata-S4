@@ -1,0 +1,169 @@
+{
+  "schema": "shadps4.bc-source-audit.v1",
+  "date": "2026-09-19",
+  "device_serial": "9c2841a4",
+  "device_model": "AYN Thor",
+  "mesa_revision": "5ac41be6777ce7106645d83c08a3f65b54e43d16",
+  "mesa_source_repository": "/Users/bytedance/workspace/bug_reports/references/mesa_freedreno_gallium",
+  "source_provenance": "git show of driver-reported upstream revision; downstream binary patches not audited",
+  "system_query": "adb -s 9c2841a4 shell cmd gpu vkjson",
+  "system_query_sha256": "7b4cd08411d066377f6f951003c3c8ea77c316c8ba190302ed07b91210eba8e5",
+  "system_gpu": "Adreno (TM) 740",
+  "system_driver": {
+    "conformanceVersion": {
+      "major": 1.0,
+      "minor": 3.0,
+      "patch": 0.0,
+      "subminor": 1.0
+    },
+    "driverID": 8.0,
+    "driverInfo": "Driver Build: 69e13475cb, I1df7ad3aa9, 1703680572\nDate: 12/27/23\nCompiler Version: E031.41.03.47\nDriver Branch: \n",
+    "driverName": "Qualcomm Technologies Inc. Adreno Vulkan Driver"
+  },
+  "system_features": {
+    "textureCompressionASTC_LDR": true,
+    "textureCompressionBC": true,
+    "textureCompressionETC2": true
+  },
+  "system_bc_formats": [
+    {
+      "vk_format": 131,
+      "optimal_tiling_features": 128001,
+      "sampled": true,
+      "transfer_src": true,
+      "transfer_dst": true,
+      "linear_filter": true
+    },
+    {
+      "vk_format": 132,
+      "optimal_tiling_features": 128001,
+      "sampled": true,
+      "transfer_src": true,
+      "transfer_dst": true,
+      "linear_filter": true
+    },
+    {
+      "vk_format": 133,
+      "optimal_tiling_features": 128001,
+      "sampled": true,
+      "transfer_src": true,
+      "transfer_dst": true,
+      "linear_filter": true
+    },
+    {
+      "vk_format": 134,
+      "optimal_tiling_features": 128001,
+      "sampled": true,
+      "transfer_src": true,
+      "transfer_dst": true,
+      "linear_filter": true
+    },
+    {
+      "vk_format": 135,
+      "optimal_tiling_features": 128001,
+      "sampled": true,
+      "transfer_src": true,
+      "transfer_dst": true,
+      "linear_filter": true
+    },
+    {
+      "vk_format": 136,
+      "optimal_tiling_features": 128001,
+      "sampled": true,
+      "transfer_src": true,
+      "transfer_dst": true,
+      "linear_filter": true
+    },
+    {
+      "vk_format": 137,
+      "optimal_tiling_features": 128001,
+      "sampled": true,
+      "transfer_src": true,
+      "transfer_dst": true,
+      "linear_filter": true
+    },
+    {
+      "vk_format": 138,
+      "optimal_tiling_features": 128001,
+      "sampled": true,
+      "transfer_src": true,
+      "transfer_dst": true,
+      "linear_filter": true
+    },
+    {
+      "vk_format": 139,
+      "optimal_tiling_features": 128001,
+      "sampled": true,
+      "transfer_src": true,
+      "transfer_dst": true,
+      "linear_filter": true
+    },
+    {
+      "vk_format": 140,
+      "optimal_tiling_features": 128001,
+      "sampled": true,
+      "transfer_src": true,
+      "transfer_dst": true,
+      "linear_filter": true
+    },
+    {
+      "vk_format": 141,
+      "optimal_tiling_features": 128001,
+      "sampled": true,
+      "transfer_src": true,
+      "transfer_dst": true,
+      "linear_filter": true
+    },
+    {
+      "vk_format": 142,
+      "optimal_tiling_features": 128001,
+      "sampled": true,
+      "transfer_src": true,
+      "transfer_dst": true,
+      "linear_filter": true
+    },
+    {
+      "vk_format": 143,
+      "optimal_tiling_features": 128001,
+      "sampled": true,
+      "transfer_src": true,
+      "transfer_dst": true,
+      "linear_filter": true
+    },
+    {
+      "vk_format": 144,
+      "optimal_tiling_features": 128001,
+      "sampled": true,
+      "transfer_src": true,
+      "transfer_dst": true,
+      "linear_filter": true
+    },
+    {
+      "vk_format": 145,
+      "optimal_tiling_features": 128001,
+      "sampled": true,
+      "transfer_src": true,
+      "transfer_dst": true,
+      "linear_filter": true
+    },
+    {
+      "vk_format": 146,
+      "optimal_tiling_features": 128001,
+      "sampled": true,
+      "transfer_src": true,
+      "transfer_dst": true,
+      "linear_filter": true
+    }
+  ],
+  "source_sha256": {
+    "src/freedreno/fdl/fd6_format_table.c": "62a8a4f45b2f94f53a9676168fbd0856488e25a24fe2788e3ba989b2f10104b5",
+    "src/freedreno/fdl/fd6_view.cc": "eeae6dffe0f0002482910563a62803d09944083a71df62ab4db40f73a0940a7b",
+    "src/freedreno/registers/adreno/a6xx_descriptors.xml": "2e246ee9fa9d838d996851f84174a5075480181ba31edd8a05cea4eeff961d01",
+    "src/freedreno/registers/adreno/a6xx_enums.xml": "86cffcf645578c7b0b79b89f0bcc2c688b6a11aa6a42834795c1d926136635de",
+    "src/freedreno/vulkan/tu_clear_blit.cc": "1ca1251e973d78ac3001f388084865c04a76a3d29cf17f5421a17cdff56d3e41",
+    "src/freedreno/vulkan/tu_device.cc": "05855640e5a4946bd720449978d85c6ed595a5a6dad8ab36106651a4504325a7",
+    "src/freedreno/vulkan/tu_formats.cc": "0aa7a2e9d6a98097514c4989f066faa023e43ee044aab39a7ef4df211801a571",
+    "src/freedreno/vulkan/tu_image.cc": "98301d89e31c04dc2b391ee14104fa3543ebb1514b4dd8cc6bc6bb3fd7c849cc",
+    "src/vulkan/util/vk_format.c": "11621c7f22af3e7bfdd9b10ac39f3078a19188c3ebeb51d487e430dc8d788885"
+  }
+}

@@ -2,14 +2,16 @@
 
 这些目录均以 **Git submodule / gitlink（mode 160000）**加入主仓；不是复制进主仓历史的源码目录，也不会自动加入当前 CMake 构建。
 
+2026-09-19：按用户要求保存全部未提交源码。FEX 与 Bachata-S4 已先推送各自分支，再更新下表/gitlink；详见 [本轮交付记录](../docs/validation/android-native-host/git-delivery-20260919.md)。下面 2026-09-07 叙述为历史上下文。
+
 ## 固定版本与用途
 
 | 路径 | 精确提交与来源 | 用途 |
 |---|---|---|
 | `Bachata-S4-android` | [67dbf4e5b54b0467bf8a93de3de0a557a71f9f43](https://github.com/zFitness/Bachata-S4/tree/67dbf4e5b54b0467bf8a93de3de0a557a71f9f43) | 本次选定的 Android 前端、session、输入、打包与配套历史核心 |
 | `shadps4-arm64` | [be6bc2e9c60799e071dd2fafa6216e8d80ec619c](https://github.com/zenithblue-oss/shadps4-arm64/tree/be6bc2e9c60799e071dd2fafa6216e8d80ec619c) | ARM64/FEX guest/HLE/线程回调移植参考；没有 Android Gradle 工程 |
-| `FEX` | [50e6eee95ae95d3257672727a9302a30b4a60a9a](https://github.com/FEX-Emu/FEX/tree/50e6eee95ae95d3257672727a9302a30b4a60a9a) | 上游 FEXCore、JIT、调试和 16 KiB 源码审计 |
-| `Bachata-S4` | [e170f8005970ae416e0f39997d82b4fcc57214fe](https://github.com/tencentmalos/Bachata-S4/tree/e170f8005970ae416e0f39997d82b4fcc57214fe) | 既有 SG8275 bring-up 分支；upstream 是 The412Banner/Bachata-S4 |
+| `FEX` | [3f1f30a060b633980ed8e7674eb8d8997457edad](https://github.com/tencentmalos/FEX/tree/3f1f30a060b633980ed8e7674eb8d8997457edad) | 当前 Android FEX 依赖，含已有 opt-in 调试/执行探针与 FXRSTOR TOP 修复；原始上游审计基线仍为 50e6eee95 |
+| `Bachata-S4` | [16e850602a9b9e87c936f885a757001b1886228e](https://github.com/tencentmalos/Bachata-S4/tree/16e850602a9b9e87c936f885a757001b1886228e) | 既有 SG8275 bring-up 分支；2026-09-19 保存原有 X11/NDK 修改，本轮未重跑该工程 |
 | `dynarmic-citron` | [a593d9262388e3216985b982e400f19ef9ce9749](https://github.com/tencentmalos/dynarmic/tree/a593d9262388e3216985b982e400f19ef9ce9749) | citron 所用 Dynarmic 的源码计量/API 对照 |
 | `dynarmic-azahar` | [96a803e921ba19bde0fbb315264971fd268fb2ed](https://github.com/tencentmalos/dynarmic/tree/96a803e921ba19bde0fbb315264971fd268fb2ed) | azahar 所用 Dynarmic 的源码计量/API 对照 |
 | `ps4-pkg-tools` | [45baedaa29b8da42b3c6fe912800d2fa4119834b](https://github.com/xXJSONDeruloXx/ps4-pkg-tools/tree/45baedaa29b8da42b3c6fe912800d2fa4119834b) | 既有 PS4 内容格式/导入参考 |

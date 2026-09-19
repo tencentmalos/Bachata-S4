@@ -4,6 +4,7 @@
 // Status groups and graph appearance adapted from Citron status_layer.cpp.
 #include "imgui/status_layer.h"
 #include "core/diagnostics/overlay_control.h"
+#include "core/emulator_settings.h"
 #include <imgui.h>
 #include <algorithm>
 #include <array>
@@ -78,7 +79,9 @@ void StatusLayer::Draw(uint64_t now, unsigned width, unsigned height) {
                                        ? "System" : snapshot.driver_identity.find("source=turnip") != std::string::npos
                                        ? "Turnip" : "Unknown";
         Text("CPU  FEX x86-64    GPU  Vulkan / %s", driver_label);
-        Text("Surface %u x %u    Generation %llu", width, height,
+        const auto internal_scale = EmulatorSettings.GetInternalScalePercent();
+        const char* scale_label = internal_scale == 50 ? "0.5" : internal_scale == 75 ? "0.75" : "1.0";
+        Text("Surface %u x %u (x%s)    Generation %llu", width, height, scale_label,
              static_cast<unsigned long long>(snapshot.generation));
         Text("All presents %.1f/s    Draw/dispatch %.0f/s", all_presents.Fps(now), draws_per_second);
         if (!Common::Profiler::GpuTimingEnabled()) TextDisabled("GPU timing off | gpu_timing start");

@@ -64,8 +64,9 @@ object ShadPs4JsonCodec {
             sectionSpecs.forEach { spec ->
                 val key = spec.nativeKey.substringAfter('.')
                 sectionElement[key]?.let { nativeValue ->
-                    values[spec.id] = if (spec.nativeEnumOrdinal) {
-                        val ordinal = (nativeValue as? JsonPrimitive)?.intOrNull
+                    values[spec.id] = if (spec.nativeEnumOrdinal || spec.nativeEnumValues.isNotEmpty()) {
+                        val number = (nativeValue as? JsonPrimitive)?.intOrNull
+                        val ordinal = if (spec.nativeEnumValues.isEmpty()) number else spec.nativeEnumValues.indexOf(number)
                         require(ordinal != null && ordinal in spec.choices.indices) {
                             "Invalid native enum ordinal for ${spec.id}"
                         }

@@ -1,0 +1,8 @@
+{
+  "run_id": "fe793576682f47deb71617357d4cb7f7",
+  "scene_frame": 15,
+  "response_frame": 17,
+  "note": "最终 APK，0.75 internal scale / 1x1 shading / Turnip。屋顶 MOVE 场景方向正常；触屏左摇杆向右后角色与镜头实际移动，触发 Leonardo 对话，文字与场景可辨认。未将该短程验证当作完整游戏回归。",
+  "method": "explicit_visual_review",
+  "reviewed_at": 1789819186.450193
+}

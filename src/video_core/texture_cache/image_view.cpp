@@ -98,13 +98,20 @@ ImageView::ImageView(const Vulkan::Instance& instance, const ImageViewInfo& info
     }
     vk::ImageViewMinLodCreateInfoEXT min_lod_ci{};
     if (info.min_lod != 0 && instance.IsImageViewMinLodSupported()) {
-        const float last_level =
-            static_cast<float>(info.range.base.level + info.range.extent.levels - 1);
-        min_lod_ci.minLod = std::min(static_cast<float>(info.min_lod) / 256.f, last_level);
+        const float last_level = float(image.HostMip(info.range.base.level + info.range.extent.levels - 1));
+        min_lod_ci.minLod = std::clamp(float(info.min_lod) / 256.f - float(image.DroppedMips()),
+                                       0.f, last_level);
         usage_ci.pNext = &min_lod_ci;
     }
     // When sampling D32/D16 texture from shader, the T# specifies R32/R16 format so adjust it.
     vk::Format format = info.format;
+    if (image.IsAstcEncoded()) {
+        const bool srgb = format == vk::Format::eBc1RgbSrgbBlock || format == vk::Format::eBc1RgbaSrgbBlock ||
+            format == vk::Format::eBc2SrgbBlock || format == vk::Format::eBc3SrgbBlock || format == vk::Format::eBc7SrgbBlock;
+        format = image.info.num_bits == 64
+            ? (srgb ? vk::Format::eAstc6x6SrgbBlock : vk::Format::eAstc6x6UnormBlock)
+            : (srgb ? vk::Format::eAstc4x4SrgbBlock : vk::Format::eAstc4x4UnormBlock);
+    }
     vk::ImageAspectFlags aspect = image.aspect_mask;
     if (image.aspect_mask & vk::ImageAspectFlagBits::eDepth &&
         Vulkan::LiverpoolToVK::IsFormatDepthCompatible(format)) {
@@ -117,6 +124,7 @@ ImageView::ImageView(const Vulkan::Instance& instance, const ImageViewInfo& info
         aspect = vk::ImageAspectFlagBits::eStencil;
     }
 
+    const auto host_range = image.HostRange(info.range);
     const vk::ImageViewCreateInfo image_view_ci = {
         .pNext = &usage_ci,
         .image = image.GetImage(),
@@ -125,8 +133,8 @@ ImageView::ImageView(const Vulkan::Instance& instance, const ImageViewInfo& info
         .components = info.mapping,
         .subresourceRange{
             .aspectMask = aspect,
-            .baseMipLevel = info.range.base.level,
-            .levelCount = info.range.extent.levels,
+            .baseMipLevel = host_range.base.level,
+            .levelCount = host_range.extent.levels,
             .baseArrayLayer = info.range.base.layer,
             .layerCount = info.range.extent.layers,
         },

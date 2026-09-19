@@ -254,7 +254,9 @@ bool Instance::CreateDevice() {
                           vk::PhysicalDevicePrimitiveTopologyListRestartFeaturesEXT,
                           vk::PhysicalDeviceShaderAtomicFloat2FeaturesEXT,
                           vk::PhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR,
-                          vk::PhysicalDeviceImage2DViewOf3DFeaturesEXT>();
+                          vk::PhysicalDeviceImage2DViewOf3DFeaturesEXT,
+                          vk::PhysicalDeviceFragmentDensityMapFeaturesEXT,
+                          vk::PhysicalDeviceFragmentShadingRateFeaturesKHR>();
     features = feature_chain.get().features;
     LOG_INFO(Render_Vulkan, "Shader Int64 path: {}",
              features.shaderInt64 ? "native" : "u32 pair lowering (including BDA)");
@@ -262,16 +264,71 @@ bool Instance::CreateDevice() {
     const vk::StructureChain properties_chain = physical_device.getProperties2<
         vk::PhysicalDeviceProperties2, vk::PhysicalDeviceVulkan11Properties,
         vk::PhysicalDeviceVulkan12Properties, vk::PhysicalDeviceVulkan13Properties,
-        vk::PhysicalDevicePushDescriptorPropertiesKHR>();
+        vk::PhysicalDevicePushDescriptorPropertiesKHR,
+        vk::PhysicalDeviceFragmentShadingRatePropertiesKHR>();
     vk11_props = properties_chain.get<vk::PhysicalDeviceVulkan11Properties>();
     vk12_props = properties_chain.get<vk::PhysicalDeviceVulkan12Properties>();
     vk13_props = properties_chain.get<vk::PhysicalDeviceVulkan13Properties>();
     push_descriptor_props = properties_chain.get<vk::PhysicalDevicePushDescriptorPropertiesKHR>();
+    fragment_shading_rate_properties =
+        properties_chain.get<vk::PhysicalDeviceFragmentShadingRatePropertiesKHR>();
     LOG_INFO(Render_Vulkan, "Physical device subgroup size {}", vk11_props.subgroupSize);
 
     if (available_extensions.empty()) {
         LOG_CRITICAL(Render_Vulkan, "No extensions supported by device.");
         return false;
+    }
+
+    fdm_capabilities = spatial::foveation::vulkan::ProbeCapabilities(
+        physical_device, VULKAN_HPP_DEFAULT_DISPATCHER);
+    // Reserved for future VR rendering. Do not enable FDM on this device:
+    // Vulkan forbids fragmentDensityMap together with pipelineFragmentShadingRate.
+    fdm_enabled = false;
+    LOG_INFO(Render_Vulkan, "FDM disabled (reserved for VR)");
+    LOG_INFO(Render_Vulkan,
+             "FDM: extension={} map={} dynamic={} non_subsampled={} texel={}..{}",
+             fdm_capabilities.extension_available, fdm_capabilities.fragment_density_map,
+             fdm_capabilities.fragment_density_map_dynamic,
+             fdm_capabilities.non_subsampled_images, fdm_capabilities.MinTexel(),
+             fdm_capabilities.MaxTexel());
+
+    fragment_shading_rate_features =
+        feature_chain.get<vk::PhysicalDeviceFragmentShadingRateFeaturesKHR>();
+    fragment_shading_rate_enabled = std::ranges::any_of(
+        available_extensions, [](const std::string& name) {
+            return name == VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME;
+        });
+    LOG_INFO(Render_Vulkan,
+             "Fragment shading rate: extension={} pipeline={} primitive={} attachment={} "
+             "maxFragmentSize={}x{} depthStencilWrites={}",
+             fragment_shading_rate_enabled,
+             fragment_shading_rate_features.pipelineFragmentShadingRate,
+             fragment_shading_rate_features.primitiveFragmentShadingRate,
+             fragment_shading_rate_features.attachmentFragmentShadingRate,
+             fragment_shading_rate_properties.maxFragmentSize.width,
+             fragment_shading_rate_properties.maxFragmentSize.height,
+             fragment_shading_rate_properties.fragmentShadingRateWithShaderDepthStencilWrites);
+    if (fragment_shading_rate_enabled &&
+        fragment_shading_rate_features.pipelineFragmentShadingRate) {
+        u32 rate_count = 0;
+        if (physical_device.getFragmentShadingRatesKHR(&rate_count, nullptr) == vk::Result::eSuccess &&
+            rate_count != 0) {
+            std::vector<vk::PhysicalDeviceFragmentShadingRateKHR> rates(rate_count);
+            if (physical_device.getFragmentShadingRatesKHR(&rate_count, rates.data()) ==
+                vk::Result::eSuccess) {
+                for (const auto& rate : rates) {
+                    LOG_INFO(Render_Vulkan, "Fragment shading rate option={}x{} samples={:#x}",
+                             rate.fragmentSize.width, rate.fragmentSize.height,
+                             static_cast<u32>(rate.sampleCounts));
+                    if (rate.fragmentSize == vk::Extent2D{2, 1}) {
+                        fragment_shading_rates.half_samples |= rate.sampleCounts;
+                    }
+                    if (rate.fragmentSize == vk::Extent2D{2, 2}) {
+                        fragment_shading_rates.quarter_samples |= rate.sampleCounts;
+                    }
+                }
+            }
+        }
     }
 
     boost::container::static_vector<const char*, 32> enabled_extensions;
@@ -396,6 +453,16 @@ bool Instance::CreateDevice() {
                  image_2d_view_of_3d_features.sampler2DViewOf3D);
     }
     image_view_min_lod = add_extension(VK_EXT_IMAGE_VIEW_MIN_LOD_EXTENSION_NAME);
+    if (fragment_shading_rate_enabled) {
+        fragment_shading_rate_enabled =
+            add_extension(VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME) &&
+            fragment_shading_rate_features.pipelineFragmentShadingRate;
+    }
+    if (fdm_enabled) {
+        if (!add_extension(VK_EXT_FRAGMENT_DENSITY_MAP_EXTENSION_NAME)) {
+            fdm_enabled = false;
+        }
+    }
     supports_memory_budget = add_extension(VK_EXT_MEMORY_BUDGET_EXTENSION_NAME);
     const bool calibrated_timestamps =
 #if defined(SHADPS4_PROFILER_RING)
@@ -460,6 +527,8 @@ bool Instance::CreateDevice() {
                 .wideLines = features.wideLines,
                 .multiViewport = features.multiViewport,
                 .samplerAnisotropy = features.samplerAnisotropy,
+                .textureCompressionASTC_LDR = features.textureCompressionASTC_LDR,
+                .textureCompressionBC = features.textureCompressionBC,
                 .vertexPipelineStoresAndAtomics = features.vertexPipelineStoresAndAtomics,
                 .fragmentStoresAndAtomics = features.fragmentStoresAndAtomics,
                 .shaderImageGatherExtended = features.shaderImageGatherExtended,
@@ -567,6 +636,20 @@ bool Instance::CreateDevice() {
         vk::PhysicalDeviceImageViewMinLodFeaturesEXT{
             .minLod = true,
         },
+        vk::PhysicalDeviceFragmentDensityMapFeaturesEXT{
+            .fragmentDensityMap = fdm_enabled ? VK_TRUE : VK_FALSE,
+            .fragmentDensityMapDynamic =
+                fdm_enabled && fdm_capabilities.fragment_density_map_dynamic ? VK_TRUE : VK_FALSE,
+            .fragmentDensityMapNonSubsampledImages =
+                fdm_enabled && fdm_capabilities.non_subsampled_images ? VK_TRUE : VK_FALSE,
+        },
+        vk::PhysicalDeviceFragmentShadingRateFeaturesKHR{
+            .pipelineFragmentShadingRate =
+                fragment_shading_rate_enabled &&
+                    fragment_shading_rate_features.pipelineFragmentShadingRate,
+            .primitiveFragmentShadingRate = VK_FALSE,
+            .attachmentFragmentShadingRate = VK_FALSE,
+        },
     };
 
     if (!custom_border_color) {
@@ -611,6 +694,12 @@ bool Instance::CreateDevice() {
     }
     if (!image_view_min_lod) {
         device_chain.unlink<vk::PhysicalDeviceImageViewMinLodFeaturesEXT>();
+    }
+    if (!fdm_enabled) {
+        device_chain.unlink<vk::PhysicalDeviceFragmentDensityMapFeaturesEXT>();
+    }
+    if (!fragment_shading_rate_enabled) {
+        device_chain.unlink<vk::PhysicalDeviceFragmentShadingRateFeaturesKHR>();
     }
 
     gpu_reshape.ConfigureDeviceFeatures(
@@ -782,6 +871,47 @@ void Instance::CollectImageFormatInfo() {
     supports_block_texel_view = block_texel_view_props.result == vk::Result::eSuccess;
     LOG_INFO(Render_Vulkan, "Block Texel View support: {}",
              supports_block_texel_view ? "Yes" : "No");
+
+    // Keep the Vulkan feature bits beside the per-format probe. The latter
+    // answers whether the exact image usages are available; these bits are the
+    // implementation-wide contract for BC/ASTC compressed sampling.
+    const auto device_features = physical_device.getFeatures2();
+    LOG_INFO(Render_Vulkan, "Compressed texture features: BC={} ASTC_LDR={}",
+             bool(device_features.features.textureCompressionBC),
+             bool(device_features.features.textureCompressionASTC_LDR));
+
+    // Keep the mobile compressed-format decision explicit. PS4 texture descriptors
+    // arrive as BC1..BC7, while most Android GPUs expose ASTC instead of BC. The
+    // texture cache must not silently claim a BC fallback when the device has no
+    // sampled-image support for the format.
+    constexpr std::array compressed_formats{
+        vk::Format::eBc1RgbaUnormBlock, vk::Format::eBc2UnormBlock,
+        vk::Format::eBc3UnormBlock,    vk::Format::eBc4UnormBlock,
+        vk::Format::eBc5UnormBlock,    vk::Format::eBc6HUfloatBlock,
+        vk::Format::eBc7UnormBlock,    vk::Format::eAstc4x4UnormBlock,
+        vk::Format::eAstc6x6UnormBlock, vk::Format::eAstc8x8UnormBlock,
+    };
+    for (const auto format : compressed_formats) {
+        // This probe deliberately queries the physical device directly. The
+        // normal format cache only contains formats used by the guest surface
+        // table, which does not include ASTC.
+        const auto features = physical_device.getFormatProperties2(format).formatProperties;
+        LOG_INFO(Render_Vulkan, "Compressed format {}: sampled={} transfer_src={} transfer_dst={}",
+                 vk::to_string(format),
+                 bool(features.optimalTilingFeatures & vk::FormatFeatureFlagBits::eSampledImage),
+                 bool(features.optimalTilingFeatures & vk::FormatFeatureFlagBits::eTransferSrc),
+                 bool(features.optimalTilingFeatures & vk::FormatFeatureFlagBits::eTransferDst));
+    }
+
+    // ASTC is a host-only transcode format, absent from the guest format table.
+    for (const auto format : {vk::Format::eAstc4x4UnormBlock, vk::Format::eAstc4x4SrgbBlock,
+                             vk::Format::eAstc6x6UnormBlock, vk::Format::eAstc6x6SrgbBlock}) {
+        vk::FormatProperties3 properties;
+        vk::FormatProperties2 query{.pNext = &properties};
+        physical_device.getFormatProperties2(format, &query);
+        properties.pNext = nullptr;
+        format_properties.insert_or_assign(format, properties);
+    }
 
     // Check and log format support details.
     for (const auto& format : LiverpoolToVK::SurfaceFormats()) {

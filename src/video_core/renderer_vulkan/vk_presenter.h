@@ -124,6 +124,12 @@ public:
 private:
     Frame* GetRenderFrame();
 
+    // Rebuilds the small FDM ring only when the output extent changes or the
+    // user switches the global quality mode. The map itself is uniform: low
+    // is 2x2 shading (1/4), medium is 2x1 (1/2), high is 1x1.
+    void EnsureFdm(u32 width, u32 height);
+    vk::ImageView RecordFdmUpload(Scheduler& scheduler, const Frame& frame);
+
     void RecreateFrame(Frame* frame, u32 width, u32 height);
 
     void SetExpectedGameSize(s32 width, s32 height);
@@ -136,6 +142,14 @@ private:
     std::function<bool()> splash_visible;
     std::shared_ptr<Frontend::Window> window;
     Instance instance;
+    spatial::foveation::vulkan::FragmentDensityImageRing fdm_ring;
+    spatial::foveation::FragmentDensityMapDesc fdm_desc{};
+    std::vector<u8> fdm_map;
+    u64 fdm_map_hash{};
+    u32 fdm_width{};
+    u32 fdm_height{};
+    u32 fdm_quality{0xffffffffU};
+    bool fdm_ready{};
     VideoCore::CaptureBinding capture_binding;
     std::unique_ptr<ImGui::StatusLayer> status_layer;
     HostPasses::FsrPass fsr_pass;

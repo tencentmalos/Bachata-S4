@@ -6,6 +6,8 @@
 #include "video_core/renderer_vulkan/vk_shader_util.h"
 #include "video_core/texture_cache/blit_helper.h"
 #include "video_core/texture_cache/image.h"
+#include "video_core/buffer_cache/buffer.h"
+#include "spatial/texture_codec/AstcEncoder.h"
 
 #include "video_core/host_shaders/color_to_ms_depth_frag.h"
 #include "video_core/host_shaders/fs_tri_vert.h"
@@ -42,6 +44,60 @@ BlitHelper::~BlitHelper() {
     device.destroy(color_to_ms_depth_frag);
     device.destroy(src_msaa_copy_frag);
     device.destroy(src_non_msaa_copy_frag);
+}
+
+void BlitHelper::EncodeAstc(vk::Image source, vk::Format source_format, u32 source_mip,
+                            vk::Image dest, u32 dest_mip, u32 width, u32 height, u32 layers,
+                            bool srgb, u32 block_dim) {
+    using namespace spatial::texture_codec;
+    if (!astc_encoder) {
+        auto encoder = std::make_unique<VulkanAstcEncoder>();
+        const auto shader = Vulkan::Compile(AstcLdrShader(), vk::ShaderStageFlagBits::eCompute,
+                                            instance.GetDevice());
+        const auto result = encoder->Initialize(instance.GetDevice(),
+            VULKAN_HPP_DEFAULT_DISPATCHER.vkGetDeviceProcAddr, shader,
+            bool(instance.HostDescriptorFlags() & vk::DescriptorSetLayoutCreateFlagBits::ePushDescriptorKHR));
+        instance.GetDevice().destroyShaderModule(shader);
+        ASSERT_MSG(result == VK_SUCCESS, "ASTC encoder initialization failed: {}", int(result));
+        astc_encoder = std::move(encoder);
+    }
+    const AstcRequest request{width, height, layers, u32(srgb), block_dim};
+    ASSERT(request.Valid());
+    auto blocks = std::make_shared<Buffer>(instance, scheduler, MemoryUsage::DeviceLocal, 0,
+        vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferSrc, request.Bytes());
+    const vk::ImageViewUsageCreateInfo usage{.usage = vk::ImageUsageFlagBits::eSampled};
+    const auto [result, view] = instance.GetDevice().createImageView({
+        .pNext = &usage, .image = source, .viewType = vk::ImageViewType::e2DArray,
+        .format = source_format,
+        .subresourceRange = {vk::ImageAspectFlagBits::eColor, source_mip, 1, 0, layers},
+    });
+    ASSERT(result == vk::Result::eSuccess);
+    const vk::DescriptorImageInfo input{astc_encoder->Sampler(), view, vk::ImageLayout::eShaderReadOnlyOptimal};
+    const vk::DescriptorBufferInfo output{blocks->Handle(), 0, request.Bytes()};
+    const std::array writes{
+        vk::WriteDescriptorSet{.dstBinding = 0, .descriptorCount = 1,
+            .descriptorType = vk::DescriptorType::eCombinedImageSampler, .pImageInfo = &input},
+        vk::WriteDescriptorSet{.dstBinding = 1, .descriptorCount = 1,
+            .descriptorType = vk::DescriptorType::eStorageBuffer, .pBufferInfo = &output},
+    };
+    scheduler.BindHostDescriptors(vk::PipelineBindPoint::eCompute, astc_encoder->PipelineLayout(),
+                                   astc_encoder->DescriptorLayout(), writes);
+    const auto cmd = scheduler.CommandBuffer();
+    ASSERT(astc_encoder->Record(cmd, VK_NULL_HANDLE, request));
+    const vk::BufferMemoryBarrier2 barrier{
+        .srcStageMask = vk::PipelineStageFlagBits2::eComputeShader,
+        .srcAccessMask = vk::AccessFlagBits2::eShaderWrite,
+        .dstStageMask = vk::PipelineStageFlagBits2::eCopy,
+        .dstAccessMask = vk::AccessFlagBits2::eTransferRead,
+        .buffer = blocks->Handle(), .size = request.Bytes(),
+    };
+    cmd.pipelineBarrier2(vk::DependencyInfo{.bufferMemoryBarrierCount = 1, .pBufferMemoryBarriers = &barrier});
+    const vk::BufferImageCopy copy{
+        .imageSubresource = {vk::ImageAspectFlagBits::eColor, dest_mip, 0, layers},
+        .imageExtent = {width, height, 1},
+    };
+    cmd.copyBufferToImage(blocks->Handle(), dest, vk::ImageLayout::eTransferDstOptimal, copy);
+    scheduler.DeferOperation([blocks, device = instance.GetDevice(), view] { device.destroyImageView(view); });
 }
 
 void BlitHelper::ReinterpretColorAsMsDepth(u32 width, u32 height, u32 num_samples,
