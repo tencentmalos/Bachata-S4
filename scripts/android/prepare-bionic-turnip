@@ -48,15 +48,17 @@ def main():
 
 
 def atomic_write(path, data):
+    # Close the temporary file before renaming: Windows refuses to replace or
+    # unlink a file that still has an open handle.
     with tempfile.NamedTemporaryFile(dir=path.parent, delete=False) as output:
         temp = Path(output.name)
-        try:
-            output.write(data)
-            output.flush()
-            temp.chmod(0o644)
-            temp.replace(path)
-        finally:
-            temp.unlink(missing_ok=True)
+        output.write(data)
+        output.flush()
+    try:
+        temp.chmod(0o644)
+        temp.replace(path)
+    finally:
+        temp.unlink(missing_ok=True)
 
 
 if __name__ == "__main__":

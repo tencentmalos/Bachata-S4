@@ -58,6 +58,9 @@ Operation Classify(std::string_view raw) {
         if (c != '_')
             key += c >= 'A' && c <= 'Z' ? char(c - 'A' + 'a') : char(c);
     const Binding bindings[] = {
+        // Guest fast-path primitives (guest/runtime/sync): only contended paths reach these.
+        {"shadsyncwait", Operation::AddrWait},
+        {"shadsyncwake", Operation::AddrWake},
         {"mutexinit", Operation::MutexInit},
         {"mutexinitformono", Operation::MutexInit},
         {"mutexdestroy", Operation::MutexDestroy},
@@ -159,11 +162,14 @@ unsigned PhaseMask(Operation op) noexcept {
     case Operation::EventWait:
     case Operation::EventPoll:
         return 0b00110;
+    case Operation::AddrWait:
+        return 0b00110;
     case Operation::RwUnlock:
     case Operation::SemPost:
     case Operation::SemaCreate:
     case Operation::SemaDelete:
     case Operation::SemaSignal:
+    case Operation::AddrWake:
     case Operation::SemaCancel:
     case Operation::SemaOpen:
     case Operation::SemaClose:
@@ -284,6 +290,7 @@ std::string Session::Status() const {
         << ",\"detail\":" << (s.detail ? "true" : "false") << ",\"shards\":" << s.shards
         << ",\"untracked_calls\":" << s.untracked_calls
         << ",\"emission_failures\":" << s.emission_failures
+        << ",\"fast_path\":\"" << FastPathStatus() << '"'
         << ",\"semantics\":\"session cumulative; rolling snapshot; completed inclusive elapsed "
            "includes waits, not CPU or critical path; start/stop does not reset; in-flight calls "
            "finish in their original sample\""
@@ -489,6 +496,18 @@ void Phase::Finish(Phase& phase) noexcept {
 void SetControl(const std::shared_ptr<Session>& session) {
     std::lock_guard lock(control_mutex);
     control = session;
+}
+namespace {
+std::mutex fast_path_mutex;
+std::string fast_path_status{"not_installed"};
+} // namespace
+void SetFastPathStatus(std::string status) {
+    std::lock_guard lock(fast_path_mutex);
+    fast_path_status = std::move(status);
+}
+std::string FastPathStatus() {
+    std::lock_guard lock(fast_path_mutex);
+    return fast_path_status;
 }
 std::string Command(const std::vector<std::string>& args) {
     std::shared_ptr<Session> s;

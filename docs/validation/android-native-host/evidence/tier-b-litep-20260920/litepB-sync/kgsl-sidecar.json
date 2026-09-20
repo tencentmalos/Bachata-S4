@@ -1,0 +1,11 @@
+{
+ "schema": "litep.kgsl.sidecar.v1",
+ "prof": {
+  "sha256": "94315184d4d0b0b8234e6410f5c5562fe66584a1b51435254407413017a9523b",
+  "pid": 719,
+  "boot_id": "8bb14501-5800-4b9b-a9ab-7173603812f7",
+  "process_start_ticks": "67675565"
+ },
+ "capture": "kgsl-capture/capture.json",
+ "capture_sha256": "b602bd244f27ecb55c1d1f438aec0c3e69934fe6cee2301c60b822d81cf89e63"
+}

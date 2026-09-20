@@ -1,5 +1,7 @@
 # V0 子仓归属与开发分支
 
+2026-09-20增量：`externals/ffmpeg` 推进到 owned `tencentmalos/FFmpeg` 分支 `codex/windows-host-build` 的 `88b5e6b852`（基于 `e17ba6e2`，仅增加 Windows 主机上的 Android configure/归档/安装适配，Linux/macOS 路径不变）；子仓已先 push，主仓随后更新 gitlink。证据见 [Tier A 报告](validation/android-native-host/fex-sync-tier-a-20260920.md) 的 Windows 构建段落。
+
 2026-09-13增量：Foundation继续复用owned `codex/shadps4-android-fex-v0`，`5388ef45313d6c32cb5f4bb5b07f1246ee381370`已先push，主仓随后更新gitlink；[输入/Runtime修复](validation/android-native-host/runtime-input-review-2026-09-13.md)给出证据。FEX385a0cc4、FFmpeg、其他reference pins未随本轮变更，无关`references/Bachata-S4`本地修改保留。以下旧pin按其记录时间解释。
 
 检查日期：2026-09-07。先检查 GitHub fork 网络、提交可达性及远端 ref，再开始依赖改动。

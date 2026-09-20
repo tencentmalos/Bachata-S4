@@ -1,0 +1,39 @@
+##### 01-tsc-scaled-b2: PROF window 6.270s
+kgsl_pwrstats samples in window=292: busy/total = 3432262/6274552 = 54.7% GPU busy (driver power stats; units are GPU clock/us ticks, ratio only)
+kgsl_gpubusy samples=6 busy/elapsed=54.4%
+retired batches in window=639; sum(retire-start) ticks=65219717 -> at 19.2MHz = 3.397s = 54.2% of window (batch-exec sum, overlapping batches possible)
+per-batch exec ms: p50=0.489 p90=0.793 p99=70.204 max=77.706
+retired per ctx: {3: 228, 14: 397, 11: 2, 7: 12}
+inflight at submit (depth histogram): {1: 493, 2: 73, 3: 68, 4: 7}
+GPU freq time share: {401000: '6%', 475000: '9%', 550000: '43%', 615000: '19%', 680000: '24%'}
+  long batch ctx=14 ts=10971 exec=77.71ms inflight_at_retire=0
+  long batch ctx=14 ts=10858 exec=77.47ms inflight_at_retire=0
+  long batch ctx=14 ts=10849 exec=75.82ms inflight_at_retire=0
+  long batch ctx=14 ts=10963 exec=74.49ms inflight_at_retire=0
+  long batch ctx=14 ts=11063 exec=70.53ms inflight_at_retire=0
+##### 02-pre-tsc-job-spin: PROF window 12.222s
+kgsl_pwrstats samples in window=561: busy/total = 5601981/12228580 = 45.8% GPU busy (driver power stats; units are GPU clock/us ticks, ratio only)
+kgsl_gpubusy samples=12 busy/elapsed=45.4%
+retired batches in window=1283; sum(retire-start) ticks=106767411 -> at 19.2MHz = 5.561s = 45.5% of window (batch-exec sum, overlapping batches possible)
+per-batch exec ms: p50=0.493 p90=0.688 p99=85.521 max=96.704
+retired per ctx: {3: 482, 21: 784, 7: 14, 11: 3}
+inflight at submit (depth histogram): {1: 1080, 2: 104, 3: 91, 4: 8}
+GPU freq time share: {475000: '2%', 550000: '13%', 615000: '47%', 680000: '38%'}
+  long batch ctx=21 ts=38561 exec=96.70ms inflight_at_retire=0
+  long batch ctx=21 ts=37980 exec=93.58ms inflight_at_retire=0
+  long batch ctx=21 ts=38113 exec=88.30ms inflight_at_retire=0
+  long batch ctx=21 ts=38364 exec=88.02ms inflight_at_retire=0
+  long batch ctx=21 ts=38572 exec=88.01ms inflight_at_retire=0
+##### 03-buffer-upload-waits: PROF window 9.976s
+kgsl_pwrstats samples in window=491: busy/total = 4209675/9983596 = 42.2% GPU busy (driver power stats; units are GPU clock/us ticks, ratio only)
+kgsl_gpubusy samples=9 busy/elapsed=41.6%
+retired batches in window=1118; sum(retire-start) ticks=80108716 -> at 19.2MHz = 4.172s = 41.8% of window (batch-exec sum, overlapping batches possible)
+per-batch exec ms: p50=0.506 p90=0.705 p99=89.201 max=105.212
+retired per ctx: {3: 456, 17: 647, 7: 13, 11: 2}
+inflight at submit (depth histogram): {1: 929, 2: 103, 3: 63, 4: 21, 5: 2}
+GPU freq time share: {401000: '3%', 475000: '8%', 550000: '21%', 615000: '40%', 680000: '28%'}
+  long batch ctx=17 ts=31044 exec=105.21ms inflight_at_retire=0
+  long batch ctx=17 ts=30811 exec=105.16ms inflight_at_retire=0
+  long batch ctx=17 ts=31294 exec=96.85ms inflight_at_retire=0
+  long batch ctx=17 ts=30796 exec=96.60ms inflight_at_retire=0
+  long batch ctx=17 ts=30892 exec=95.93ms inflight_at_retire=0

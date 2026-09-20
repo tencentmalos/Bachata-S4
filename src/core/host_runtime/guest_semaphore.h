@@ -7,6 +7,7 @@
 #include <cstring>
 #include <functional>
 #include <map>
+#include <memory>
 #include <mutex>
 #include <optional>
 #include <stop_token>
@@ -24,7 +25,9 @@ class GuestSemaphoreDomain final {
     GuestCpu::GuestAddressSpace& space;
     std::function<u64()> allocate;
     std::mutex guard;
-    std::map<u64, Semaphore> objects;
+    // Shared ownership lets Post notify after releasing the domain guard even
+    // if Destroy erased the object meanwhile.
+    std::map<u64, std::shared_ptr<Semaphore>> objects;
     size_t allocations{};
     std::optional<u64> Handle(u64 slot) {
         u64 handle{};
@@ -57,7 +60,7 @@ public:
         auto output = space.AcquireDataSpan({GuestCpu::GuestAddress{slot}, 8}, true);
         if (!output)
             return POSIX_EFAULT;
-        objects.try_emplace(handle).first->second.value = value;
+        objects.emplace(handle, std::make_shared<Semaphore>()).first->second->value = value;
         std::memcpy(output.Value().WritableBytes().data(), &handle, sizeof(handle));
         return 0;
     }
@@ -71,7 +74,7 @@ public:
         auto it = objects.find(handle);
         if (it == objects.end())
             return POSIX_EINVAL;
-        if (it->second.waiters)
+        if (it->second->waiters)
             return POSIX_EBUSY;
         objects.erase(it);
         handle = 0;
@@ -79,19 +82,27 @@ public:
         return 0;
     }
     int Post(u64 slot) {
-        SyncMetrics::Phase guard_phase{SyncMetrics::Stage::Guard};
-        std::lock_guard lock(guard);
-        guard_phase.End();
-        auto handle = Handle(slot);
-        if (!handle)
-            return POSIX_EFAULT;
-        auto it = objects.find(*handle);
-        if (it == objects.end())
-            return POSIX_EINVAL;
-        if (it->second.value == MaxValue)
-            return POSIX_EOVERFLOW;
-        ++it->second.value;
-        it->second.changed.notify_one();
+        std::shared_ptr<Semaphore> wake;
+        {
+            SyncMetrics::Phase guard_phase{SyncMetrics::Stage::Guard};
+            std::lock_guard lock(guard);
+            guard_phase.End();
+            auto handle = Handle(slot);
+            if (!handle)
+                return POSIX_EFAULT;
+            auto it = objects.find(*handle);
+            if (it == objects.end())
+                return POSIX_EINVAL;
+            if (it->second->value == MaxValue)
+                return POSIX_EOVERFLOW;
+            ++it->second->value;
+            if (it->second->waiters)
+                wake = it->second;
+        }
+        // The waiter re-checks `value` under the domain guard; notifying after
+        // releasing it avoids a second block on that guard.
+        if (wake)
+            wake->changed.notify_one();
         return 0;
     }
     int GetValue(u64 slot, u64 address) {
@@ -105,7 +116,7 @@ public:
         auto output = space.AcquireDataSpan({GuestCpu::GuestAddress{address}, 4}, true);
         if (!output)
             return POSIX_EFAULT;
-        std::memcpy(output.Value().WritableBytes().data(), &it->second.value, 4);
+        std::memcpy(output.Value().WritableBytes().data(), &it->second->value, 4);
         return 0;
     }
     u32 Pending(u64 slot) {
@@ -113,7 +124,7 @@ public:
         auto handle = Handle(slot);
         if (!handle) return 0;
         auto it = objects.find(*handle);
-        return it == objects.end() ? 0 : it->second.waiters;
+        return it == objects.end() ? 0 : it->second->waiters;
     }
     int Wait(u64 slot, bool try_only, std::stop_token cancel,
              std::optional<std::chrono::steady_clock::time_point> deadline = {}) {
@@ -126,7 +137,7 @@ public:
         auto it = objects.find(*handle);
         if (it == objects.end())
             return POSIX_EINVAL;
-        auto& sem = it->second;
+        auto& sem = *it->second;
         if (cancel.stop_requested())
             return POSIX_EINTR;
         if (sem.value) {

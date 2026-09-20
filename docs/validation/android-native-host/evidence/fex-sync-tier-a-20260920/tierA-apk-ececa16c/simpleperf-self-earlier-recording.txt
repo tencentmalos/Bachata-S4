@@ -1,0 +1,83 @@
+# simpleperf record -e cpu-clock -f 999 --call-graph fp -p <pid> --duration 8 (root), APK ececa16c, clinic
+Cmdline: /data/local/tmp/sync-review/simpleperf record -e cpu-clock -f 999 --call-graph fp -p 28881 --duration 8 -o tierA-perf.data
+Arch: arm64
+Event: cpu-clock (type 1, config 0)
+Samples: 25199
+Event count: 25224224199
+
+Overhead  Sample  Shared Object
+29.78%    7505    [kernel.kallsyms]
+29.45%    7420    unknown
+15.24%    3840    /data/app/~~bNax86RnlxSkGaj9imIm4Q==/com.shadps4.android-BTu2C_ShQnshgktNqVcVIA==/lib/arm64/libshadps4_host.so
+11.74%    2959    /apex/com.android.runtime/lib64/bionic/libc.so
+4.94%     1245    /data/app/~~bNax86RnlxSkGaj9imIm4Q==/com.shadps4.android-BTu2C_ShQnshgktNqVcVIA==/lib/arm64/libshadps4_fex_session.so
+2.94%     742     [vdso]
+1.56%     392     /data/app/~~bNax86RnlxSkGaj9imIm4Q==/com.shadps4.android-BTu2C_ShQnshgktNqVcVIA==/lib/arm64/libc++_shared.so
+1.10%     278     /data/data/com.shadps4.android/files/native-drivers/fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09/vulkan.ad07xx.so
+0.99%     249     /apex/com.android.art/lib64/libart.so
+
+## kernel symbols
+Overhead  Sample  Symbol
+63.26%    4748    _raw_spin_unlock_irqrestore
+6.20%     465     el0_svc_common.llvm.17765349948017032585
+3.52%     264     finish_task_switch
+2.52%     189     futex_wake
+1.49%     112     _raw_spin_lock
+1.09%     82      queue_lock
+0.84%     63      __flush_tlb_range
+0.80%     60      __arm64_sys_futex
+0.79%     59      do_futex
+0.71%     53      local_daif_restore
+0.68%     51      get_futex_key
+0.60%     45      _raw_spin_unlock_irq
+0.55%     41      arch_counter_get_cntvct
+
+## libc symbols
+2.71% 682 /apex/com.android.runtime/lib64/bionic/libc.so __aarch64_cas2_acq
+1.66% 419 /apex/com.android.runtime/lib64/bionic/libc.so pthread_mutex_unlock
+1.17% 294 /apex/com.android.runtime/lib64/bionic/libc.so memcpy_opt
+1.15% 291 /apex/com.android.runtime/lib64/bionic/libc.so pthread_mutex_lock
+1.06% 268 /apex/com.android.runtime/lib64/bionic/libc.so __aarch64_swp2_rel
+0.67% 170 /apex/com.android.runtime/lib64/bionic/libc.so syscall
+0.42% 106 /apex/com.android.runtime/lib64/bionic/libc.so __aarch64_cas4_acq
+0.25% 63 /apex/com.android.runtime/lib64/bionic/libc.so __aarch64_swp2_acq
+0.22% 55 /apex/com.android.runtime/lib64/bionic/libc.so __futex_wait_ex(void volatile*, bool, int, bool, timespec const*)
+0.19% 49 /apex/com.android.runtime/lib64/bionic/libc.so NonPI::MutexLockWithTimeout(pthread_mutex_internal_t*, bool, timespec const*)
+0.17% 43 /apex/com.android.runtime/lib64/bionic/libc.so __strlen_aarch64
+0.17% 43 /apex/com.android.runtime/lib64/bionic/libc.so scudo::Allocator<scudo::AndroidConfig, &scudo_malloc_postinit>::allocate(unsigned long, scudo::Chunk::Origin, unsigned long, bool)
+
+## host symbols
+Overhead  Sample  Symbol
+7.97%     306     @plt
+6.98%     268     Core::GuestCpu::GuestAddressSpace::ValidateRangeLocked(Core::GuestCpu::GuestRange, Core::GuestCpu::GuestPermission) const
+4.92%     189     Core::HostRuntime::GuestMutexDomain::FindMutex(unsigned long, bool, int&)
+3.83%     147     profiler::sdk::detail::encode_span_begin_dyn(char const*, unsigned short, unsigned long, profiler::sdk::TraceArg const*, unsigned char)
+3.72%     143     Core::MemoryManager::IsValidMapping(unsigned long, unsigned long)
+3.70%     142     profiler::sdk::detail::encode_span_end()
+3.33%     128     _ZNSt6__ndk110__function6__funcIZZN4Core11HostRuntime23InstallGraphicsHandlersERNS_3mapINS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEENS_8functionIFNS2_8GuestCpu6ResultIv
+3.18%     122     Core::GuestCpu::GuestAddressSpace::Query(Core::GuestCpu::GuestAddress) const
+1.95%     75      profiler::sdk::detail::TlsBuffer::ensure(unsigned int, profiler::sdk::detail::TraceStatus)
+1.90%     73      Core::HostRuntime::(anonymous namespace)::FunctionAdapter::Invoke(Core::GuestCpu::Hle::HleCallFrame&) const
+1.80%     69      Core::HostRuntime::GuestMutexDomain::Unlock(unsigned long, unsigned long)
+1.64%     63      _ZNSt6__ndk110__function6__funcIZZN4Core11HostRuntime23InstallGraphicsHandlersERNS_3mapINS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEENS_8functionIFNS2_8GuestCpu6ResultIv
+1.51%     58      Core::MemoryManager::TryReadSrtMemory(unsigned long, void*, unsigned long)
+1.43%     55      Core::GuestCpu::Hle::RegisteredHleCallAdapter::Invoke(Core::GuestCpu::Hle::HleCallFrame&) const
+1.35%     52      VideoCore::TextureCache::FindImage(VideoCore::TextureCache::ImageDesc&, bool)
+1.28%     49      std::__ndk1::vector<Core::GuestCpu::GuestAddressSpace::Pin, std::__ndk1::allocator<Core::GuestCpu::GuestAddressSpace::Pin>>::push_back[abi:ne210000](Core::GuestCpu::GuestAddressSpace
+1.12%     43      Libraries::AudioOut::PrepareAudioStereo(Libraries::AudioOut::AudioFormatInfo const&, unsigned int, void const*, std::__ndk1::array<int, 8ul> const&, float, std::__ndk1::span<float, 1
+1.02%     39      _ZNSt6__ndk110__function6__funcIZZN4Core11HostRuntime23InstallGraphicsHandlersERNS_3mapINS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEENS_8functionIFNS2_8GuestCpu6ResultIv
+0.91%     35      Core::GuestCpu::Hle::HleScope::HleScope(Core::GuestCpu::CpuContext&, Core::GuestCpu::ThreadHandle, unsigned long, std::__ndk1::stop_token)
+0.91%     35      __aarch64_ldadd4_acq_rel
+0.86%     33      __aarch64_ldadd8_acq_rel
+0.83%     32      __aarch64_ldadd4_relax
+0.81%     31      std::__ndk1::__function::__func<Core::HostRuntime::GuestRuntime::Impl::InstallHandlers()::$_0::operator()(std::initializer_list<char const*>, std::__ndk1::function<unsigned long (std
+0.76%     29      spatial::ProfilerRing::Enabled()
+0.73%     28      Core::GuestCpu::GuestAddressSpace::CheckDataRequestsLocked(std::__ndk1::span<Core::GuestCpu::GuestAddressSpace::DataRequest const, 18446744073709551615ul>) const
+0.70%     27      Core::HostRuntime::GuestMutexDomain::Lock(unsigned long, unsigned long, bool, std::__ndk1::stop_token)
+0.70%     27      __aarch64_cas4_acq
+0.68%     26      profiler::sdk::is_tracing_enabled()
+0.60%     23      Core::HostRuntime::GuestKernelSemaphore::Dispatch(std::__ndk1::basic_string_view<char, std::__ndk1::char_traits<char>>, std::__ndk1::array<unsigned long, 6ul> const&, int, std::__ndk
+0.57%     22      Core::GuestCpu::GuestAddressSpace::AcquireExecutionLease()
+0.57%     22      Core::GuestCpu::PinnedSpan::Release()
+0.57%     22      Core::MemoryManager::CopySparseMemory(unsigned long, unsigned char*, unsigned long)
+0.55%     21      Core::GuestCpu::GuestAddressSpace::WriteData(Core::GuestCpu::GuestAddress, std::__ndk1::span<std::byte const, 18446744073709551615ul>, std::__ndk1::stop_token)

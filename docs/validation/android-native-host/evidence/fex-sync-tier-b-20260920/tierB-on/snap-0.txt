@@ -1,0 +1,6 @@
+    generation: 3
+    pid: 9558
+    stage: Running
+    snapshot_ns: 666123497996774
+    guest_flip: 3221 (age_ns=92420938)
+    host_present: 3221 (age_ns=11234479)

@@ -1641,6 +1641,25 @@ if(BUILD_HOST_CORE)
         src/core/diagnostics/diagnostics_commands.cpp
         src/core/diagnostics/diagnostics_service.cpp)
     target_link_libraries(shadps4 PRIVATE spatial::foundation_input)
+    # App-shipped guest synchronization fast path: a freestanding x86-64 payload
+    # compiled by the NDK clang's x86 backend and embedded into the host DSO
+    # (guest/runtime/sync, src/core/host_runtime/guest_sync_abi.h).
+    find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    set(GUEST_SYNC_PAYLOAD_DIR "${CMAKE_CURRENT_BINARY_DIR}/guest-sync-payload")
+    add_custom_command(OUTPUT "${GUEST_SYNC_PAYLOAD_DIR}/guest_sync_payload.h"
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/android/build-guest-payload"
+            --clang "${CMAKE_C_COMPILER}"
+            --source "${CMAKE_CURRENT_SOURCE_DIR}/guest/runtime/sync/mutex.c"
+            --output "${GUEST_SYNC_PAYLOAD_DIR}" --header guest_sync_payload.h
+            --entry shad_pthread_mutex_lock --namespace GuestSyncPayload --symbols
+        DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/scripts/android/build-guest-payload"
+            "${CMAKE_CURRENT_SOURCE_DIR}/guest/runtime/sync/mutex.c"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/core/host_runtime/guest_sync_abi.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/cmake/guest-code/payload.ld"
+        VERBATIM)
+    add_custom_target(guest_sync_payload DEPENDS "${GUEST_SYNC_PAYLOAD_DIR}/guest_sync_payload.h")
+    add_dependencies(shadps4 guest_sync_payload)
+    target_include_directories(shadps4 PRIVATE "${GUEST_SYNC_PAYLOAD_DIR}")
     # Optional independent SDK checkout, matching Cemu's source SDK integration.
     set(SHADPS4_GPU_RESHAPE_SDK_ROOT "" CACHE PATH "GPU Reshape source SDK root (Android debug tooling)")
     set(SHADPS4_GPU_RESHAPE_LIBRARY "")

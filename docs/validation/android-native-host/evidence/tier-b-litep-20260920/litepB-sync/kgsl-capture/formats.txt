@@ -1,0 +1,514 @@
+[kgsl:kgsl_context_create]
+name: kgsl_context_create
+ID: 1665
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:__data_loc char[] device_name;	offset:8;	size:4;	signed:0;
+	field:unsigned int id;	offset:12;	size:4;	signed:0;
+	field:unsigned int flags;	offset:16;	size:4;	signed:0;
+	field:unsigned int priority;	offset:20;	size:4;	signed:0;
+	field:unsigned int type;	offset:24;	size:4;	signed:0;
+
+print fmt: "d_name=%s ctx=%u flags=%s priority=%u type=%s", __get_str(device_name), REC->id, REC->flags ? __print_flags(REC->flags, "|", { 0x00000002, "NO_GMEM_ALLOC" }, { 0x00000010, "PREAMBLE" }, { 0x00000020, "TRASH_STATE" }, { 0x00000008, "CTX_SWITCH" }, { 0x00000040, "PER_CONTEXT_TS" }, { 0x00000080, "USER_TS" }, { 0x00000200, "NO_FT" }, { 0x10000000, "INVALIDATE_ON_FAULT" }, { 0x00000800, "PWR" }, { 0x00000001, "SAVE_GMEM" }, { 0x00010000, "IFH_NOP" }, { 0x00020000, "SECURE" }, { 0x20000000, "LPAC" }, { 0x00040000, "NO_SNAPSHOT" }) : "None", REC->priority, kgsl_context_type(REC->type)
+[kgsl:kgsl_context_destroy]
+name: kgsl_context_destroy
+ID: 1667
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:__data_loc char[] device_name;	offset:8;	size:4;	signed:0;
+	field:unsigned int id;	offset:12;	size:4;	signed:0;
+
+print fmt: "d_name=%s ctx=%u", __get_str(device_name), REC->id
+[kgsl:kgsl_context_detach]
+name: kgsl_context_detach
+ID: 1666
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:__data_loc char[] device_name;	offset:8;	size:4;	signed:0;
+	field:unsigned int id;	offset:12;	size:4;	signed:0;
+
+print fmt: "d_name=%s ctx=%u", __get_str(device_name), REC->id
+[kgsl:kgsl_issueibcmds]
+name: kgsl_issueibcmds
+ID: 1638
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:__data_loc char[] device_name;	offset:8;	size:4;	signed:0;
+	field:unsigned int drawctxt_id;	offset:12;	size:4;	signed:0;
+	field:unsigned int numibs;	offset:16;	size:4;	signed:0;
+	field:unsigned int timestamp;	offset:20;	size:4;	signed:0;
+	field:unsigned int flags;	offset:24;	size:4;	signed:0;
+	field:int result;	offset:28;	size:4;	signed:1;
+	field:unsigned int drawctxt_type;	offset:32;	size:4;	signed:0;
+
+print fmt: "d_name=%s ctx=%u ib=0x0 numibs=%u ts=%u flags=%s result=%d type=%s", __get_str(device_name), REC->drawctxt_id, REC->numibs, REC->timestamp, REC->flags ? __print_flags(REC->flags, "|", { 0x00000002, "MARKER" }, { 0x00000008, "CTX_SWITCH" }, { 0x00000400, "SYNC" }, { 0x00000100, "EOF" }, { 0x00000800, "PWR_CONSTRAINT" }, { 0x00000004, "IB_LIST" }) : "None", REC->result, kgsl_context_type(REC->drawctxt_type)
+[kgsl:adreno_cmdbatch_queued]
+name: adreno_cmdbatch_queued
+ID: 1703
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:unsigned int id;	offset:8;	size:4;	signed:0;
+	field:unsigned int timestamp;	offset:12;	size:4;	signed:0;
+	field:unsigned int queued;	offset:16;	size:4;	signed:0;
+	field:unsigned int flags;	offset:20;	size:4;	signed:0;
+	field:unsigned int prio;	offset:24;	size:4;	signed:0;
+
+print fmt: "ctx=%u ctx_prio=%u ts=%u queued=%u flags=%s", REC->id, REC->prio, REC->timestamp, REC->queued, REC->flags ? __print_flags(REC->flags, "|", { 0x00000002, "MARKER" }, { 0x00000008, "CTX_SWITCH" }, { 0x00000400, "SYNC" }, { 0x00000100, "EOF" }, { 0x00000800, "PWR_CONSTRAINT" }, { 0x00000004, "IB_LIST" }) : "none"
+[kgsl:adreno_cmdbatch_ready]
+name: adreno_cmdbatch_ready
+ID: 1709
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:unsigned int id;	offset:8;	size:4;	signed:0;
+	field:int prio;	offset:12;	size:4;	signed:1;
+	field:unsigned int timestamp;	offset:16;	size:4;	signed:0;
+	field:unsigned int requeue_cnt;	offset:20;	size:4;	signed:0;
+
+print fmt: "ctx=%u ctx_prio=%d ts=%u requeue_cnt=%u", REC->id, REC->prio, REC->timestamp, REC->requeue_cnt
+[kgsl:adreno_cmdbatch_submitted]
+name: adreno_cmdbatch_submitted
+ID: 1704
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:unsigned int id;	offset:8;	size:4;	signed:0;
+	field:unsigned int timestamp;	offset:12;	size:4;	signed:0;
+	field:int inflight;	offset:16;	size:4;	signed:1;
+	field:unsigned int flags;	offset:20;	size:4;	signed:0;
+	field:uint64_t ticks;	offset:24;	size:8;	signed:0;
+	field:unsigned long secs;	offset:32;	size:8;	signed:0;
+	field:unsigned long usecs;	offset:40;	size:8;	signed:0;
+	field:int prio;	offset:48;	size:4;	signed:1;
+	field:int rb_id;	offset:52;	size:4;	signed:1;
+	field:unsigned int rptr;	offset:56;	size:4;	signed:0;
+	field:unsigned int wptr;	offset:60;	size:4;	signed:0;
+	field:int q_inflight;	offset:64;	size:4;	signed:1;
+	field:int dispatch_queue;	offset:68;	size:4;	signed:1;
+
+print fmt: "ctx=%u ctx_prio=%d ts=%u inflight=%d flags=%s ticks=%lld time=%lu.%0lu rb_id=%d r/w=%x/%x, q_inflight=%d dq_id=%d", REC->id, REC->prio, REC->timestamp, REC->inflight, REC->flags ? __print_flags(REC->flags, "|", { 0x00000002, "MARKER" }, { 0x00000008, "CTX_SWITCH" }, { 0x00000400, "SYNC" }, { 0x00000100, "EOF" }, { 0x00000800, "PWR_CONSTRAINT" }, { 0x00000004, "IB_LIST" }) : "none", REC->ticks, REC->secs, REC->usecs, REC->rb_id, REC->rptr, REC->wptr, REC->q_inflight, REC->dispatch_queue
+[kgsl:adreno_cmdbatch_done]
+name: adreno_cmdbatch_done
+ID: 1710
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:unsigned int id;	offset:8;	size:4;	signed:0;
+	field:unsigned int prio;	offset:12;	size:4;	signed:0;
+	field:unsigned int timestamp;	offset:16;	size:4;	signed:0;
+
+print fmt: "ctx=%u ctx_prio=%u ts=%u", REC->id, REC->prio, REC->timestamp
+[kgsl:adreno_cmdbatch_retired]
+name: adreno_cmdbatch_retired
+ID: 1705
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:unsigned int id;	offset:8;	size:4;	signed:0;
+	field:unsigned int timestamp;	offset:12;	size:4;	signed:0;
+	field:int inflight;	offset:16;	size:4;	signed:1;
+	field:unsigned int recovery;	offset:20;	size:4;	signed:0;
+	field:unsigned int flags;	offset:24;	size:4;	signed:0;
+	field:uint64_t start;	offset:32;	size:8;	signed:0;
+	field:uint64_t retire;	offset:40;	size:8;	signed:0;
+	field:int prio;	offset:48;	size:4;	signed:1;
+	field:int rb_id;	offset:52;	size:4;	signed:1;
+	field:unsigned int rptr;	offset:56;	size:4;	signed:0;
+	field:unsigned int wptr;	offset:60;	size:4;	signed:0;
+	field:int q_inflight;	offset:64;	size:4;	signed:1;
+	field:unsigned long fault_recovery;	offset:72;	size:8;	signed:0;
+	field:unsigned int dispatch_queue;	offset:80;	size:4;	signed:0;
+	field:uint64_t submitted_to_rb;	offset:88;	size:8;	signed:0;
+	field:uint64_t retired_on_gmu;	offset:96;	size:8;	signed:0;
+	field:uint64_t active;	offset:104;	size:8;	signed:0;
+
+print fmt: "ctx=%u ctx_prio=%d ts=%u inflight=%d recovery=%s flags=%s start=%llu retire=%llu rb_id=%d, r/w=%x/%x, q_inflight=%d, dq_id=%u, submitted_to_rb=%llu retired_on_gmu=%llu active=%llu", REC->id, REC->prio, REC->timestamp, REC->inflight, REC->recovery ? __print_flags(REC->fault_recovery, "|", { ((((1UL))) << (KGSL_FT_OFF)), "off" }, { ((((1UL))) << (KGSL_FT_REPLAY)), "replay" }, { ((((1UL))) << (KGSL_FT_SKIPIB)), "skipib" }, { ((((1UL))) << (KGSL_FT_SKIPFRAME)), "skipframe" }, { ((((1UL))) << (KGSL_FT_DISABLE)), "disable" }, { ((((1UL))) << (KGSL_FT_TEMP_DISABLE)), "temp" }, { ((((1UL))) << (KGSL_FT_THROTTLE)), "throttle"}, { ((((1UL))) << (KGSL_FT_SKIPCMD)), "skipcmd" }) : "none", REC->flags ? __print_flags(REC->flags, "|", { 0x00000002, "MARKER" }, { 0x00000008, "CTX_SWITCH" }, { 0x00000400, "SYNC" }, { 0x00000100, "EOF" }, { 0x00000800, "PWR_CONSTRAINT" }, { 0x00000004, "IB_LIST" }) : "none", REC->start, REC->retire, REC->rb_id, REC->rptr, REC->wptr, REC->q_inflight, REC->dispatch_queue, REC->submitted_to_rb, REC->retired_on_gmu, REC->active
+[kgsl:adreno_cmdbatch_sync]
+name: adreno_cmdbatch_sync
+ID: 1708
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:unsigned int id;	offset:8;	size:4;	signed:0;
+	field:unsigned int timestamp;	offset:12;	size:4;	signed:0;
+	field:uint64_t ticks;	offset:16;	size:8;	signed:0;
+	field:int prio;	offset:24;	size:4;	signed:1;
+
+print fmt: "ctx=%u ctx_prio=%d ts=%u ticks=%lld", REC->id, REC->prio, REC->timestamp, REC->ticks
+[kgsl:adreno_cmdbatch_fault]
+name: adreno_cmdbatch_fault
+ID: 1711
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:unsigned int id;	offset:8;	size:4;	signed:0;
+	field:unsigned int timestamp;	offset:12;	size:4;	signed:0;
+	field:unsigned int fault;	offset:16;	size:4;	signed:0;
+
+print fmt: "ctx=%u ts=%u type=%s", REC->id, REC->timestamp, __print_symbolic(REC->fault, { 0, "none" }, { ((((1UL))) << (0)), "soft" }, { ((((1UL))) << (1)), "hard" }, { ((((1UL))) << (2)), "timeout" })
+[kgsl:adreno_cmdbatch_recovery]
+name: adreno_cmdbatch_recovery
+ID: 1712
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:unsigned int id;	offset:8;	size:4;	signed:0;
+	field:unsigned int timestamp;	offset:12;	size:4;	signed:0;
+	field:unsigned int action;	offset:16;	size:4;	signed:0;
+
+print fmt: "ctx=%u ts=%u action=%s", REC->id, REC->timestamp, __print_symbolic(REC->action, { ((((1UL))) << (KGSL_FT_OFF)), "off" }, { ((((1UL))) << (KGSL_FT_REPLAY)), "replay" }, { ((((1UL))) << (KGSL_FT_SKIPIB)), "skipib" }, { ((((1UL))) << (KGSL_FT_SKIPFRAME)), "skipframe" }, { ((((1UL))) << (KGSL_FT_DISABLE)), "disable" }, { ((((1UL))) << (KGSL_FT_TEMP_DISABLE)), "temp" }, { ((((1UL))) << (KGSL_FT_THROTTLE)), "throttle"}, { ((((1UL))) << (KGSL_FT_SKIPCMD)), "skipcmd" })
+[kgsl:adreno_drawctxt_switch]
+name: adreno_drawctxt_switch
+ID: 1719
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:int rb_level;	offset:8;	size:4;	signed:1;
+	field:unsigned int oldctx;	offset:12;	size:4;	signed:0;
+	field:unsigned int newctx;	offset:16;	size:4;	signed:0;
+	field:unsigned int flags;	offset:20;	size:4;	signed:0;
+
+print fmt: "rb level=%d oldctx=%u newctx=%u", REC->rb_level, REC->oldctx, REC->newctx
+[kgsl:adreno_preempt_trigger]
+name: adreno_preempt_trigger
+ID: 1730
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:unsigned int cur;	offset:8;	size:4;	signed:0;
+	field:unsigned int next;	offset:12;	size:4;	signed:0;
+	field:unsigned int cntl;	offset:16;	size:4;	signed:0;
+
+print fmt: "trigger from id=%d to id=%d cntl=%x", REC->cur, REC->next, REC->cntl
+[kgsl:adreno_preempt_done]
+name: adreno_preempt_done
+ID: 1731
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:unsigned int cur;	offset:8;	size:4;	signed:0;
+	field:unsigned int next;	offset:12;	size:4;	signed:0;
+	field:unsigned int level;	offset:16;	size:4;	signed:0;
+
+print fmt: "done switch to id=%d from id=%d level=%x", REC->next, REC->cur, REC->level
+[kgsl:kgsl_waittimestamp_entry]
+name: kgsl_waittimestamp_entry
+ID: 1640
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:__data_loc char[] device_name;	offset:8;	size:4;	signed:0;
+	field:unsigned int context_id;	offset:12;	size:4;	signed:0;
+	field:unsigned int curr_ts;	offset:16;	size:4;	signed:0;
+	field:unsigned int wait_ts;	offset:20;	size:4;	signed:0;
+	field:unsigned int timeout;	offset:24;	size:4;	signed:0;
+
+print fmt: "d_name=%s ctx=%u curr_ts=%u ts=%u timeout=%u", __get_str(device_name), REC->context_id, REC->curr_ts, REC->wait_ts, REC->timeout
+[kgsl:kgsl_waittimestamp_exit]
+name: kgsl_waittimestamp_exit
+ID: 1641
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:__data_loc char[] device_name;	offset:8;	size:4;	signed:0;
+	field:unsigned int curr_ts;	offset:12;	size:4;	signed:0;
+	field:int result;	offset:16;	size:4;	signed:1;
+
+print fmt: "d_name=%s curr_ts=%u result=%d", __get_str(device_name), REC->curr_ts, REC->result
+[kgsl:adreno_drawctxt_wait_start]
+name: adreno_drawctxt_wait_start
+ID: 1717
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:unsigned int rb_id;	offset:8;	size:4;	signed:0;
+	field:unsigned int ctx_id;	offset:12;	size:4;	signed:0;
+	field:unsigned int ts;	offset:16;	size:4;	signed:0;
+
+print fmt: "rb=%u ctx=%u ts=%u", REC->rb_id, REC->ctx_id, REC->ts
+[kgsl:adreno_drawctxt_wait_done]
+name: adreno_drawctxt_wait_done
+ID: 1718
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:unsigned int rb_id;	offset:8;	size:4;	signed:0;
+	field:unsigned int ctx_id;	offset:12;	size:4;	signed:0;
+	field:unsigned int ts;	offset:16;	size:4;	signed:0;
+	field:int status;	offset:20;	size:4;	signed:1;
+
+print fmt: "rb=%u ctx=%u ts=%u status=%d", REC->rb_id, REC->ctx_id, REC->ts, REC->status
+[kgsl:adreno_gpu_fault]
+name: adreno_gpu_fault
+ID: 1720
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:unsigned int ctx;	offset:8;	size:4;	signed:0;
+	field:unsigned int ts;	offset:12;	size:4;	signed:0;
+	field:unsigned int status;	offset:16;	size:4;	signed:0;
+	field:unsigned int rptr;	offset:20;	size:4;	signed:0;
+	field:unsigned int wptr;	offset:24;	size:4;	signed:0;
+	field:unsigned int ib1base;	offset:28;	size:4;	signed:0;
+	field:unsigned int ib1size;	offset:32;	size:4;	signed:0;
+	field:unsigned int ib2base;	offset:36;	size:4;	signed:0;
+	field:unsigned int ib2size;	offset:40;	size:4;	signed:0;
+	field:int rb_id;	offset:44;	size:4;	signed:1;
+
+print fmt: "ctx=%d ts=%d rb_id=%d status=%X RB=%X/%X IB1=%X/%X IB2=%X/%X", REC->ctx, REC->ts, REC->rb_id, REC->status, REC->wptr, REC->rptr, REC->ib1base, REC->ib1size, REC->ib2base, REC->ib2size
+[kgsl:kgsl_mmu_pagefault]
+name: kgsl_mmu_pagefault
+ID: 1670
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:__data_loc char[] device_name;	offset:8;	size:4;	signed:0;
+	field:unsigned long page;	offset:16;	size:8;	signed:0;
+	field:unsigned int pt;	offset:24;	size:4;	signed:0;
+	field:__data_loc char[] name;	offset:28;	size:4;	signed:0;
+	field:__data_loc char[] op;	offset:32;	size:4;	signed:0;
+
+print fmt: "d_name=%s page=0x%lx pt=%u op=%s name=%s", __get_str(device_name), REC->page, REC->pt, __get_str(op), __get_str(name)
+[kgsl:kgsl_gpubusy]
+name: kgsl_gpubusy
+ID: 1650
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:__data_loc char[] device_name;	offset:8;	size:4;	signed:0;
+	field:unsigned int busy;	offset:12;	size:4;	signed:0;
+	field:unsigned int elapsed;	offset:16;	size:4;	signed:0;
+
+print fmt: "d_name=%s busy=%u elapsed=%d", __get_str(device_name), REC->busy, REC->elapsed
+[kgsl:kgsl_pwrlevel]
+name: kgsl_pwrlevel
+ID: 1647
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:__data_loc char[] device_name;	offset:8;	size:4;	signed:0;
+	field:unsigned int pwrlevel;	offset:12;	size:4;	signed:0;
+	field:unsigned int freq;	offset:16;	size:4;	signed:0;
+	field:unsigned int prev_pwrlevel;	offset:20;	size:4;	signed:0;
+	field:unsigned int prev_freq;	offset:24;	size:4;	signed:0;
+
+print fmt: "d_name=%s pwrlevel=%d freq=%d prev_pwrlevel=%d prev_freq=%d", __get_str(device_name), REC->pwrlevel, REC->freq, REC->prev_pwrlevel, REC->prev_freq
+[kgsl:gpu_frequency]
+name: gpu_frequency
+ID: 1648
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:unsigned int gpu_freq;	offset:8;	size:4;	signed:0;
+	field:unsigned int gpu_id;	offset:12;	size:4;	signed:0;
+
+print fmt: "gpu_freq=%luKhz gpu_id=%lu", (unsigned long)REC->gpu_freq, (unsigned long)REC->gpu_id
+[kgsl:kgsl_pwrstats]
+name: kgsl_pwrstats
+ID: 1651
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:__data_loc char[] device_name;	offset:8;	size:4;	signed:0;
+	field:s64 total_time;	offset:16;	size:8;	signed:1;
+	field:u64 busy_time;	offset:24;	size:8;	signed:0;
+	field:u64 ram_time;	offset:32;	size:8;	signed:0;
+	field:u64 ram_wait;	offset:40;	size:8;	signed:0;
+	field:u32 context_count;	offset:48;	size:4;	signed:0;
+
+print fmt: "d_name=%s total=%lld busy=%lld ram_time=%lld ram_wait=%lld context_count=%u", __get_str(device_name), REC->total_time, REC->busy_time, REC->ram_time, REC->ram_wait, REC->context_count
+[kgsl:syncpoint_fence]
+name: syncpoint_fence
+ID: 1678
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:__data_loc char[] fence_name;	offset:8;	size:4;	signed:0;
+	field:unsigned int syncobj_context_id;	offset:12;	size:4;	signed:0;
+
+print fmt: "ctx=%u fence=%s", REC->syncobj_context_id, __get_str(fence_name)
+[kgsl:syncpoint_fence_expire]
+name: syncpoint_fence_expire
+ID: 1679
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:__data_loc char[] fence_name;	offset:8;	size:4;	signed:0;
+	field:unsigned int syncobj_context_id;	offset:12;	size:4;	signed:0;
+
+print fmt: "ctx=%u fence=%s", REC->syncobj_context_id, __get_str(fence_name)
+[kgsl:syncpoint_timestamp]
+name: syncpoint_timestamp
+ID: 1676
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:unsigned int syncobj_context_id;	offset:8;	size:4;	signed:0;
+	field:unsigned int context_id;	offset:12;	size:4;	signed:0;
+	field:unsigned int timestamp;	offset:16;	size:4;	signed:0;
+
+print fmt: "ctx=%u sync ctx=%u ts=%u", REC->syncobj_context_id, REC->context_id, REC->timestamp
+[kgsl:syncpoint_timestamp_expire]
+name: syncpoint_timestamp_expire
+ID: 1677
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:unsigned int syncobj_context_id;	offset:8;	size:4;	signed:0;
+	field:unsigned int context_id;	offset:12;	size:4;	signed:0;
+	field:unsigned int timestamp;	offset:16;	size:4;	signed:0;
+
+print fmt: "ctx=%u sync ctx=%u ts=%u", REC->syncobj_context_id, REC->context_id, REC->timestamp
+[sched:sched_switch]
+name: sched_switch
+ID: 96
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:char prev_comm[16];	offset:8;	size:16;	signed:0;
+	field:pid_t prev_pid;	offset:24;	size:4;	signed:1;
+	field:int prev_prio;	offset:28;	size:4;	signed:1;
+	field:long prev_state;	offset:32;	size:8;	signed:1;
+	field:char next_comm[16];	offset:40;	size:16;	signed:0;
+	field:pid_t next_pid;	offset:56;	size:4;	signed:1;
+	field:int next_prio;	offset:60;	size:4;	signed:1;
+
+print fmt: "prev_comm=%s prev_pid=%d prev_prio=%d prev_state=%s%s ==> next_comm=%s next_pid=%d next_prio=%d", REC->prev_comm, REC->prev_pid, REC->prev_prio, (REC->prev_state & ((((0x0000 | 0x0001 | 0x0002 | 0x0004 | 0x0008 | 0x0010 | 0x0020 | 0x0040) + 1) << 1) - 1)) ? __print_flags(REC->prev_state & ((((0x0000 | 0x0001 | 0x0002 | 0x0004 | 0x0008 | 0x0010 | 0x0020 | 0x0040) + 1) << 1) - 1), "|", { 0x0001, "S" }, { 0x0002, "D" }, { 0x0004, "T" }, { 0x0008, "t" }, { 0x0010, "X" }, { 0x0020, "Z" }, { 0x0040, "P" }, { 0x0080, "I" }) : "R", REC->prev_state & (((0x0000 | 0x0001 | 0x0002 | 0x0004 | 0x0008 | 0x0010 | 0x0020 | 0x0040) + 1) << 1) ? "+" : "", REC->next_comm, REC->next_pid, REC->next_prio
+[sched:sched_waking]
+name: sched_waking
+ID: 93
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:char comm[16];	offset:8;	size:16;	signed:0;
+	field:pid_t pid;	offset:24;	size:4;	signed:1;
+	field:int prio;	offset:28;	size:4;	signed:1;
+	field:int target_cpu;	offset:32;	size:4;	signed:1;
+
+print fmt: "comm=%s pid=%d prio=%d target_cpu=%03d", REC->comm, REC->pid, REC->prio, REC->target_cpu
+[sched:sched_wakeup]
+name: sched_wakeup
+ID: 94
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:char comm[16];	offset:8;	size:16;	signed:0;
+	field:pid_t pid;	offset:24;	size:4;	signed:1;
+	field:int prio;	offset:28;	size:4;	signed:1;
+	field:int target_cpu;	offset:32;	size:4;	signed:1;
+
+print fmt: "comm=%s pid=%d prio=%d target_cpu=%03d", REC->comm, REC->pid, REC->prio, REC->target_cpu
+[power:cpu_frequency]
+name: cpu_frequency
+ID: 181
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:u32 state;	offset:8;	size:4;	signed:0;
+	field:u32 cpu_id;	offset:12;	size:4;	signed:0;
+
+print fmt: "state=%lu cpu_id=%lu", (unsigned long)REC->state, (unsigned long)REC->cpu_id

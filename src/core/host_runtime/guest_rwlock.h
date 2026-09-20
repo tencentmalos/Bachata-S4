@@ -5,6 +5,7 @@
 #include <condition_variable>
 #include <functional>
 #include <map>
+#include <memory>
 #include <mutex>
 #include <optional>
 #include <stop_token>
@@ -26,7 +27,8 @@ class GuestRwlockDomain final {
     std::function<u64()> allocate;
 
     std::mutex mutex;
-    std::map<u64, LockState> locks;
+    // Shared ownership lets Unlock notify after releasing the domain mutex.
+    std::map<u64, std::shared_ptr<LockState>> locks;
     std::map<u64, u32> attributes;
     size_t allocations{};
     bool Read(u64 slot, u64& value) {
@@ -47,7 +49,7 @@ class GuestRwlockDomain final {
         ++allocations;
         if (int error = Write(slot, address)) return error;
         if (attr) attributes.emplace(address, type);
-        else locks.try_emplace(address).first->second.type = type;
+        else locks.emplace(address, std::make_shared<LockState>()).first->second->type = type;
         return 0;
     }
 public:
@@ -89,7 +91,7 @@ public:
         if (!address) return 0;
         auto it = locks.find(address);
         if (it == locks.end()) return POSIX_EINVAL;
-        if (it->second.writer || !it->second.readers.empty() || it->second.waiters) return POSIX_EBUSY;
+        if (it->second->writer || !it->second->readers.empty() || it->second->waiters) return POSIX_EBUSY;
         if (int e = Write(slot, u64{1})) return e;
         locks.erase(it); return 0;
     }
@@ -105,7 +107,7 @@ public:
         }
         auto it = locks.find(address);
         if (it == locks.end()) return POSIX_EINVAL;
-        auto& state = it->second;
+        auto& state = *it->second;
         const bool reader = state.readers.contains(owner);
         if (state.writer == owner || (reader && (write || state.type == 2)))
             return try_only ? POSIX_EBUSY : POSIX_EDEADLK;
@@ -119,7 +121,11 @@ public:
             if (write) ++state.writers;
             struct Waiting {
                 LockState& state; bool write; std::condition_variable_any& changed;
-                ~Waiting() { --state.waiters; if (write) --state.writers; changed.notify_all(); }
+                ~Waiting() {
+                    --state.waiters;
+                    // Only a departing writer changes another waiter's admission.
+                    if (write) { --state.writers; if (state.waiters) changed.notify_all(); }
+                }
             } waiting{state, write, state.changed};
             SyncMetrics::Phase park_phase{SyncMetrics::Stage::Park};
             const bool acquired = deadline ? state.changed.wait_until(guard, cancel, *deadline, ready)
@@ -138,28 +144,35 @@ public:
         return 0;
     }
     int Unlock(u64 slot, u64 owner) {
-        SyncMetrics::Phase guard_phase{SyncMetrics::Stage::Guard};
-        std::lock_guard guard(mutex);
-        guard_phase.End();
-        u64 address{};
-        if (!Read(slot, address)) return POSIX_EFAULT;
-        auto it = locks.find(address);
-        if (it == locks.end()) return POSIX_EINVAL;
-        auto& state = it->second;
-        if (state.writer == owner) state.writer = 0;
-        else {
-            auto read = state.readers.find(owner);
-            if (read == state.readers.end()) return POSIX_EPERM;
-            if (--read->second == 0) state.readers.erase(read);
+        std::shared_ptr<LockState> wake;
+        {
+            SyncMetrics::Phase guard_phase{SyncMetrics::Stage::Guard};
+            std::lock_guard guard(mutex);
+            guard_phase.End();
+            u64 address{};
+            if (!Read(slot, address)) return POSIX_EFAULT;
+            auto it = locks.find(address);
+            if (it == locks.end()) return POSIX_EINVAL;
+            auto& state = *it->second;
+            if (state.writer == owner) state.writer = 0;
+            else {
+                auto read = state.readers.find(owner);
+                if (read == state.readers.end()) return POSIX_EPERM;
+                if (--read->second == 0) state.readers.erase(read);
+            }
+            if (state.waiters) wake = it->second;
         }
-        state.changed.notify_all(); return 0;
+        // Waiters re-check admission under the domain mutex; notify after
+        // releasing it so they do not immediately block on it again.
+        if (wake) wake->changed.notify_all();
+        return 0;
     }
     u32 Pending(u64 slot) {
         std::lock_guard guard(mutex);
         u64 address{};
         if (!Read(slot, address)) return 0;
         auto it = locks.find(address);
-        return it == locks.end() ? 0 : it->second.waiters;
+        return it == locks.end() ? 0 : it->second->waiters;
     }
 };
 } // namespace Core::HostRuntime

@@ -1,0 +1,87 @@
+{
+  "schema": 1,
+  "branch": "feature/malos/fex_sync_performance",
+  "base": "1db95bff",
+  "device": {
+    "serial": "9c2841a4",
+    "model": "AYN Thor",
+    "android": 13,
+    "api": 33,
+    "page": 4096,
+    "turnip": "5ac41be677",
+    "internal_scale": 0.5,
+    "profiler_ring": "ON"
+  },
+  "apks": {
+    "baseline": {
+      "apk": "3ba6e584a137dd0f60c36c7bdfb6f7beb67ea6157b5353b2d621b6c29067de8a",
+      "host": "914dd36f"
+    },
+    "tierA": {
+      "apk": "ececa16ccadbe247",
+      "host": "c6d2d1292e7fe484",
+      "cert_sha256": "ce9d5b4d6524b793e48e00658f4d6c9d2ccfa1b1059dbb1fb34244c68cd1f8eb"
+    },
+    "tierA2": {
+      "apk": "e5d7bce9e3501174",
+      "host": "37fc2f531777cc76"
+    }
+  },
+  "notes": [
+    "FPS windows: baseline metrics ON 20s x2 (~9.2); tierA metrics OFF 10s x3 (8.79/8.67/8.75); tierA2 different camera view, not comparable (6.09/6.09/6.15).",
+    "Raw sched_trace.txt.gz and simpleperf data stay in local scratch; SHA in raw.sha256 files."
+  ],
+  "files": {
+    "baseline-apk-3ba6e584/baseline-A.json": "db7be1b790eddf21ce7612cc3f15aeb0eac851e9e0b31a2d26bbea5980ce8527",
+    "baseline-apk-3ba6e584/baseline-B.json": "ac885bb2ad215f1f5ba0a26a0ada99a194a434c5fc725348001fc920c5ca0092",
+    "baseline-apk-3ba6e584/baseline-C.json": "b3465333fcc72242cdfdd3dfe0c7c4a43581d71a355edac5c6d421b6de9d3787",
+    "baseline-apk-3ba6e584/baseline-detail-start.json": "66c86ce0913e1b75ac823d10fba2e14424a9c5367245beb00caf0d0450cb5705",
+    "baseline-apk-3ba6e584/baseline-start.json": "e53170bc770a07740a1dd014fb550c2173c310774a187a9e007f37031fa97aae",
+    "baseline-apk-3ba6e584/baseline-stop.json": "99ac722f2ac74722a319c61965181650e32b7a8dfa3c381d783492310c114a2e",
+    "baseline-apk-3ba6e584/baseline-timeline.txt": "e960fd7c0a697dafc32437821db67bd5242b2f4312671da3deff1b60f16e86ea",
+    "baseline-apk-3ba6e584/per-cpu-stats.txt": "7b5d5eadafaacb5ba67f5f3928de585c7fe15107b32398834af293a487efc9eb",
+    "baseline-apk-3ba6e584/process-after.txt": "3511f1196d98ad9cb658c8256e9f51580fa56cfe831d5de62a7c9e0e5092e098",
+    "baseline-apk-3ba6e584/process-before.txt": "e99eebacd88f50770f22357cd02d4b8cd182869f0512f5c3a0f4b571af1a265f",
+    "baseline-apk-3ba6e584/sched-wake-analysis.txt": "60fd9ece9dcf6e2f9a6311cc1bcf55cd767fb5dee97ebf6c820a598c7e4a2145",
+    "baseline-apk-3ba6e584/sched_trace.sha256": "d08b3190d8f96161286e75af2fa5a836cacfc9e97be9d73f05b2cb1f2014435a",
+    "baseline-apk-3ba6e584/sync-summary.txt": "364ce73646764c668edde8b7a1e0e1374099e9814d54d7549aaa51edc2933c5b",
+    "baseline-apk-3ba6e584/thread-names.txt": "9a27c0b50a1f38dbb234d113adda5109aec8144e9634678253b224484e008cb7",
+    "baseline-scene.png": "2adc27fcf3be1f8d42cd3ab1d6f27d35e6cf1a0e68394c4b14937ae1ec9c1399",
+    "compare_sync.py": "d266e59e4ad364cb38d9c7b5b3a01164db72129d2e5dd1d0f3db97f661471e2a",
+    "measure.sh": "9fe0a736d91a4c66042b3d3bb1282acd06cab8bd74b7bb4519be8157fe320ba3",
+    "sched-capture.sh": "5a552852f66e01bb036ced22b4c927b2941e0ef8d31e5f17daea8af56e601731",
+    "sched_wake_analysis.py": "989c76cfe8c1bddc76c70a9b075355c226ccd491158098ab83bb33b77bfdcee4",
+    "sync-compare-baseline-tierA-tierA2.txt": "3b47915814d24bc7bf92aa4bb1e14364a142cecfcc8be25360a3103cefaa9d1c",
+    "tierA-apk-ececa16c/fps.txt": "024b78e649017ceeaf683e5b603bb8ba26621359c617b6fda0ca77eecd45cb44",
+    "tierA-apk-ececa16c/identity.txt": "923d7e3676e7ce0e2aae3f29543083679ed862f854d6f85ff3c2b9a7489c0ff6",
+    "tierA-apk-ececa16c/large-files-earlier-recording.sha256": "8666b26aceff6ec9a16e1b4b976bd34d7ac1525fa5e03a71687efbe3c66b7e3d",
+    "tierA-apk-ececa16c/large-files.sha256": "37d2a088718a7ec38df6ac7db9b3322701b8a69ca3e85cc49a698ce6db710d77",
+    "tierA-apk-ececa16c/per-cpu-stats.txt": "87b77b150e7b624d8d17e27fd3182dee3851057685598227dae118101595f737",
+    "tierA-apk-ececa16c/process-after.txt": "12d34f4903d08cdc238bcb9b3495237e8c23c72afe94f81ff8e3e35f3682f5ac",
+    "tierA-apk-ececa16c/process-before.txt": "1692b71540fbdeb88c8f1589122d95ca0320a25cfacd44949190dd7c73bfc8a9",
+    "tierA-apk-ececa16c/sched-wake-analysis.txt": "9f82fc72da740f7ea748b11833f7e9868c9ff3c8ce6771bafbddf4586cd9e9ff",
+    "tierA-apk-ececa16c/simpleperf-callee-pthread_mutex_lock.txt.gz": "1434ae68ce76be0b34f057985766a9ef96f86dbe112cb9b531be68f4127523bc",
+    "tierA-apk-ececa16c/simpleperf-callee-syscall.txt.gz": "9cb4aae85e71c507a94041be74ca137fded91a891a9cda77074e193214bb9558",
+    "tierA-apk-ececa16c/simpleperf-lock-callers.txt": "a0ee5c0d002c99a5e02fe1f30f37f280c1f246fd2552ea0df7fbb1cb167b467b",
+    "tierA-apk-ececa16c/simpleperf-self-earlier-recording.txt": "9e5c19aac15164932d91b1ba382f1fb81312f83c954222aef075139096e30591",
+    "tierA-apk-ececa16c/simpleperf-self.txt": "9ccc2e5510826ea97164a4cdf2dde730ead9afbb04768cdd4674fcdc93a43568",
+    "tierA-apk-ececa16c/sync-A.json": "ec66631463f1df799ee38c555181e8cb45120013759e904e9414a7af25e4d8a8",
+    "tierA-apk-ececa16c/sync-B.json": "72258874cde7d963a5302a5238491da9c48dd77f158d4264824620c6553d6d91",
+    "tierA-apk-ececa16c/sync-C.json": "cc7fc632083754285fe28ff0f8c582d48ddfe399e3c40f9099999be36165a464",
+    "tierA-apk-ececa16c/sync-detail-start.json": "2f5db5be6dcf97561b8d115e6a642c7db7d4c6160102516879aec16cb5311a0a",
+    "tierA-apk-ececa16c/sync-start.json": "519ccf10590077cc681b1e5a89a2e87a41f6fd3db668ef73d88a4e06730fa3c1",
+    "tierA-apk-ececa16c/sync-stop.json": "dbfed23de8897b583383c9202977819ca333cd85e67946352b39aee560adcfa1",
+    "tierA-apk-ececa16c/thread-names.txt": "b31260862e37897b54c2f943b436701af3ad572714d152ad86ac742caa67d368",
+    "tierA-scene.png": "03202ce69b5a6e214bc8672212a12b47b36db834817cffb49d3679e29e49040f",
+    "tierA2-apk-e5d7bce9/fps.txt": "cf5e7a2a077132660ab73468a55d08d6f28f017e5aec177112aedd73e1b028df",
+    "tierA2-apk-e5d7bce9/identity.txt": "31472d88a5495313c38ee0a18a0f86a189ef4dcf559809e3d5e7da2d1ce4c675",
+    "tierA2-apk-e5d7bce9/per-cpu-stats.txt": "61306b112d1e6f84480dd5e05b262fe08173d8707cbe156f76f817391eb9b81e",
+    "tierA2-apk-e5d7bce9/raw.sha256": "8b7dc1d91ab8c8053991129aabf1864804e5dff02802e28e54991118bd652816",
+    "tierA2-apk-e5d7bce9/sched-wake-analysis.txt": "b6b248a5eb847f972e744cc0c0846af3f4c3ceb50c8c91a1fb15e59004405ddd",
+    "tierA2-apk-e5d7bce9/sync-A.json": "67eeead7f863b074cd2503b002203f4135ed428e993c5fc6d0832025f879d6bc",
+    "tierA2-apk-e5d7bce9/sync-B.json": "4a1a5e8ed5ea2f4090b2fdf24b8b5187c85f6035acd8815615b1602be7e18efb",
+    "tierA2-apk-e5d7bce9/sync-C.json": "3c28ebe37041c0718b299ef26eaba1005e491285a4d330dd799fe16af7764f9f",
+    "tierA2-apk-e5d7bce9/thread-names.txt": "e4c468832888577941d6a7b4882c9d04ebe7a417ecf9da0cd64981633e037c70",
+    "tierA2-scene.png": "8809c4b9bb5b6b605e1141fe5f1f927c3b15ab99b2086e368797acac644a773b"
+  }
+}

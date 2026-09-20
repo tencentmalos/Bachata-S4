@@ -59,7 +59,8 @@ def main():
     platforms = json.loads((ndk / "meta/platforms.json").read_text())
     if not max(33, platforms["min"]) <= a.api <= platforms["max"]:
         p.error(f"native API must be 33..{platforms['max']}; no implicit fallback")
-    compilers = list(ndk.glob("toolchains/llvm/prebuilt/*/bin/clang"))
+    exe = ".exe" if sys.platform == "win32" else ""
+    compilers = list(ndk.glob(f"toolchains/llvm/prebuilt/*/bin/clang{exe}"))
     if len(compilers) != 1:
         p.error("NDK compiler missing or ambiguous")
     compiler = compilers[0]
@@ -115,7 +116,7 @@ def main():
              "-DCMAKE_BUILD_TYPE=Release"], "tools-configure")
         run(["cmake", "--build", host_tools, "--target", "protoc", "shadps4_font_embed",
              "-j", a.jobs], "tools-build")
-        protoc, font = host_tools / "protobuf/protoc", host_tools / "shadps4_font_embed"
+        protoc, font = host_tools / f"protobuf/protoc{exe}", host_tools / f"shadps4_font_embed{exe}"
         result["tools"] = {"protoc_version": capture([str(protoc), "--version"]),
                            "protoc_sha256": sha(protoc), "font_sha256": sha(font)}
         run(["cmake", "-S", ROOT, "-B", native, "-G", "Ninja",
@@ -130,7 +131,7 @@ def main():
         run(["cmake", "--build", native, "--target", "shadps4_host", "host_library_smoke", "host_dlopen_smoke",
              "-j", a.jobs], "host-build")
         library = native / "libshadps4_host.so"
-        run([compiler.parent / "llvm-readelf", "-h", "-d", "-n", "--version-info", library], "elf")
+        run([compiler.parent / f"llvm-readelf{exe}", "-h", "-d", "-n", "--version-info", library], "elf")
         elf = (run_dir / "elf.log").read_text()
         if "AArch64" not in elf or "GLIBC_" in elf or "ld-linux" in elf or "libc++_shared.so" not in elf:
             raise RuntimeError("host is not a shared-STL ARM64 bionic artifact")

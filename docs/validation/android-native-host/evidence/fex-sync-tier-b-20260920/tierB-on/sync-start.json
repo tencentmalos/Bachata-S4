@@ -1,0 +1,4 @@
+SERVICE com.shadps4.android/.service.FexSessionService b3b9d0b pid=9558 user=0
+  Client:
+    {"schema":1,"session":3,"context":120,"timestamp_ns":666155669606761,"enabled":true,"detail":false,"shards":0,"untracked_calls":0,"emission_failures":0,"fast_path":"installed","semantics":"session cumulative; rolling snapshot; completed inclusive elapsed includes waits, not CPU or critical path; start/stop does not reset; in-flight calls finish in their original sample","histogram_upper_ns":[1000,10000,100000,1000000,16000000,null],"operations":[]}
+

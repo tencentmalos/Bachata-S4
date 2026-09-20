@@ -12,6 +12,7 @@
 #include <mutex>
 #include <stop_token>
 #include <string>
+#include <vector>
 #if defined(__ANDROID__)
 #include <android/log.h>
 #endif
@@ -28,9 +29,12 @@ class GuestKernelSemaphore {
     };
     struct Waiter {
         Waiter(s32 need, s32 priority) : need(need), priority(priority) {}
-        // Wake only the waiter selected by Wake/cancel/delete. A domain-wide
-        // CV broadcasts every signal to unrelated guest semaphores.
-        std::condition_variable_any changed;
+        // Each waiter parks on its own mutex/condition. The domain mutex only
+        // orders selection; the wakeup itself is issued after the domain mutex
+        // is released, so the woken thread never contends with the signaller
+        // for the domain lock (no "hurry up and wait" second futex round trip).
+        std::mutex park;
+        std::condition_variable_any parked;
         s32 need, priority;
         bool done{};
         s32 result{};
@@ -41,6 +45,7 @@ class GuestKernelSemaphore {
         std::string name;
         std::list<std::shared_ptr<Waiter>> waiters;
     };
+    using Wakes = std::vector<std::shared_ptr<Waiter>>;
     GuestCpu::GuestAddressSpace& space;
 
     mutable std::mutex mutex;
@@ -51,6 +56,10 @@ class GuestKernelSemaphore {
                       s32 result) {
 #if defined(__ANDROID__)
         static std::atomic<u32> count{};
+        // Only the startup sample is logged. Once exhausted, avoid a shared
+        // atomic RMW on every semaphore operation.
+        if (count.load(std::memory_order_relaxed) >= 256)
+            return;
         if (nid == "188x57JYp0g" && sem.name != "SuspendSemaphore" &&
             sem.name != "ResumeSemaphore")
             return;
@@ -97,7 +106,18 @@ class GuestKernelSemaphore {
         return address && bool(space.ValidateRange({GuestCpu::GuestAddress{address}, size},
                                                    GuestCpu::GuestPermission::Write));
     }
-    static void Wake(Semaphore& sem) {
+    // Marks the waiter complete under its own park lock (the waiter reads
+    // `done` under that lock) and defers the notification to after the domain
+    // mutex is released. Requires the domain mutex.
+    static void Complete(const std::shared_ptr<Waiter>& waiter, s32 result, Wakes& wakes) {
+        {
+            std::lock_guard park(waiter->park);
+            waiter->done = true;
+            waiter->result = result;
+        }
+        wakes.push_back(waiter);
+    }
+    static void Wake(Semaphore& sem, Wakes& wakes) {
         for (auto it = sem.waiters.begin(); it != sem.waiters.end();) {
             auto& waiter = *it;
             if (waiter->need > sem.value) {
@@ -105,12 +125,22 @@ class GuestKernelSemaphore {
                 continue;
             } // same satisfiable-waiter scan as desktop
             sem.value -= waiter->need;
-            waiter->done = true;
-            waiter->result = 0;
-            waiter->changed.notify_one();
+            Complete(waiter, 0, wakes);
             it = sem.waiters.erase(it);
         }
     }
+    // Releases the domain mutex (if still held) and only then notifies the
+    // selected waiters. Runs on every exit path, including Failure throws.
+    struct DeferredWakes {
+        std::unique_lock<std::mutex>& lock;
+        Wakes wakes;
+        ~DeferredWakes() {
+            if (lock.owns_lock())
+                lock.unlock();
+            for (auto& waiter : wakes)
+                waiter->parked.notify_one();
+        }
+    };
 
 public:
     GuestKernelSemaphore(GuestCpu::GuestAddressSpace& space) : space(space) {}
@@ -185,14 +215,31 @@ public:
                         sem->waiters, [&](const auto& item) { return item->priority > priority; });
                 sem->waiters.insert(at, waiter);
                 const auto deadline = Clock::now() + std::chrono::microseconds(timeout);
-                SyncMetrics::Phase park_phase{SyncMetrics::Stage::Park};
-                if (a[2])
-                    waiter->changed.wait_until(lock, stop, deadline, [&] { return waiter->done; });
-                else
-                    waiter->changed.wait(lock, stop, [&] { return waiter->done; });
-                park_phase.End();
+                // Park on the waiter's own lock. Signal/Cancel/Delete mark
+                // `done` under that lock and notify after releasing the domain
+                // mutex, so the wakeup never contends with the signaller here.
+                lock.unlock();
+                {
+                    SyncMetrics::Phase park_phase{SyncMetrics::Stage::Park};
+                    std::unique_lock park(waiter->park);
+                    const auto ready = [&] { return waiter->done; };
+                    if (a[2])
+                        waiter->parked.wait_until(park, stop, deadline, ready);
+                    else
+                        waiter->parked.wait(park, stop, ready);
+                }
+                lock.lock();
+                // A selection that raced with our timeout/cancel already
+                // consumed tokens for us; it must not be reported as a failure.
                 sem->waiters.remove(waiter);
-                s32 result = waiter->done            ? waiter->result
+                bool done{};
+                s32 completion{};
+                {
+                    std::lock_guard park(waiter->park);
+                    done = waiter->done;
+                    completion = waiter->result;
+                }
+                s32 result = done                    ? completion
                              : stop.stop_requested() ? ORBIS_KERNEL_ERROR_EINTR
                                                      : ORBIS_KERNEL_ERROR_ETIMEDOUT;
                 Trace(nid, id, *sem, need, result);
@@ -212,10 +259,13 @@ public:
                 return u32(result);
             }
             // Only this semaphore domain is synchronized below; no wait/callback.
+            // Selected waiters are notified by `deferred` after the domain mutex
+            // is released.
 
             SyncMetrics::Phase guard_phase{SyncMetrics::Stage::Guard};
-            std::lock_guard lock(mutex);
+            std::unique_lock lock(mutex);
             guard_phase.End();
+            DeferredWakes deferred{lock};
             if (nid == "188x57JYp0g") {
                 Need(a[1] && u32(a[2]) <= 2 && s32(a[3]) >= 0 && s32(a[4]) > 0 &&
                          s32(a[3]) <= s32(a[4]) && !a[5],
@@ -257,7 +307,7 @@ public:
                 const s32 count = a[1];
                 Need(count > 0 && count <= sem->maximum - sem->value, ORBIS_KERNEL_ERROR_EINVAL);
                 sem->value += count;
-                Wake(*sem);
+                Wake(*sem, deferred.wakes);
                 Trace(nid, u32(a[0]), *sem, count, 0);
                 return 0;
             }
@@ -266,21 +316,15 @@ public:
                 Need(count <= sem->maximum, ORBIS_KERNEL_ERROR_EINVAL);
                 if (a[2])
                     Put(a[2], s32(sem->waiters.size()));
-                for (auto& waiter : sem->waiters) {
-                    waiter->done = true;
-                    waiter->result = ORBIS_KERNEL_ERROR_ECANCELED;
-                    waiter->changed.notify_one();
-                }
+                for (auto& waiter : sem->waiters)
+                    Complete(waiter, ORBIS_KERNEL_ERROR_ECANCELED, deferred.wakes);
                 sem->waiters.clear();
                 sem->value = count < 0 ? sem->initial : count;
                 return 0;
             }
             if (nid == "R1Jvn8bSCW8") {
-                for (auto& waiter : sem->waiters) {
-                    waiter->done = true;
-                    waiter->result = ORBIS_KERNEL_ERROR_EACCES;
-                    waiter->changed.notify_one();
-                }
+                for (auto& waiter : sem->waiters)
+                    Complete(waiter, ORBIS_KERNEL_ERROR_EACCES, deferred.wakes);
                 sem->waiters.clear();
                 objects.erase(u32(a[0]));
                 return 0;

@@ -1566,7 +1566,10 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
         const auto resume_continuation = [&]() -> Result<bool> {
             const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
             for (;;) {
-                {
+                // Without internal drains nothing runs between this check and
+                // the admission block below, which re-checks `pending` under
+                // the same lock; skip the separate acquisition on that hot path.
+                if (config_.resume_internal_drains) {
                     std::lock_guard guard{lock_};
                     auto* entry = FindOwnedLocked(thread);
                     const auto cancel_mask =

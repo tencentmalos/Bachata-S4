@@ -15,6 +15,7 @@
 #include <condition_variable>
 #include <cstddef>
 #include <memory>
+#include <atomic>
 #include <mutex>
 #include <optional>
 #include <span>
@@ -389,7 +390,24 @@ private:
     // so under one lock hold rather than revalidating stale state.
     [[nodiscard]] Status ValidateRangeLocked(GuestRange range, GuestPermission required) const;
     [[nodiscard]] bool AnyPinOverlapsLocked(GuestRange range) const;
-    [[nodiscard]] Status WaitDataAdmissionLocked(std::unique_lock<std::mutex>& guard,
+    // Every unlock republishes the execution gate (see RefreshExecutionGateLocked):
+    // a fast-path lease acquisition may only bypass the lock while nothing that
+    // reads `execution_leases` under the lock is in progress.
+    class GateMutex {
+    public:
+        explicit GateMutex(const GuestAddressSpace& owner) : owner_(owner) {}
+        void lock() { mutex_.lock(); }
+        bool try_lock() { return mutex_.try_lock(); }
+        void unlock() {
+            owner_.RefreshExecutionGateLocked();
+            mutex_.unlock();
+        }
+    private:
+        std::mutex mutex_;
+        const GuestAddressSpace& owner_;
+    };
+    friend class GateMutex;
+    [[nodiscard]] Status WaitDataAdmissionLocked(std::unique_lock<GateMutex>& guard,
                                                  std::span<const DataRequest> requests,
                                                  std::stop_token stop);
     [[nodiscard]] Status CheckDataRequestsLocked(std::span<const DataRequest> requests) const;
@@ -406,13 +424,13 @@ private:
 
     // Requires `lock` via `guard`, which is unlocked around the callback and re-locked before
     // return. Counts the call so ClearCodeInvalidationSink can drain it.
-    [[nodiscard]] Status CallSinkUnlocked(std::unique_lock<std::mutex>& guard, GuestRange range,
+    [[nodiscard]] Status CallSinkUnlocked(std::unique_lock<GateMutex>& guard, GuestRange range,
                                           InvalidationReason reason, bool& committed);
 
     // Requires `lock`. Clears only the failed intervals fully covered by this repair.
     void ClearPoisonIfRepairedLocked(GuestRange repaired);
     void PoisonCodeLocked(GuestRange range);
-    [[nodiscard]] Status RetireBeforeMutationLocked(std::unique_lock<std::mutex>& guard,
+    [[nodiscard]] Status RetireBeforeMutationLocked(std::unique_lock<GateMutex>& guard,
                                                     GuestRange range);
     [[nodiscard]] Status CheckMappingMutationLocked(std::string_view operation) const;
 
@@ -444,7 +462,7 @@ private:
     };
     void ReleaseDataRetirement(std::uint64_t id);
 
-    mutable std::mutex lock;
+    mutable GateMutex lock{*this};
     void* reservation_host{};
     std::vector<GuestRange> reservations;
     GuestAddress reservation_base{};
@@ -461,8 +479,9 @@ private:
     std::uint64_t next_data_edit{1};
     std::vector<MemoryObserver*> observers;
 
-    std::uint64_t mapping_generation{1};
-    std::uint64_t code_generation{1};
+    // Bumped only under `lock`; read lock-free by snapshot/identity code.
+    std::atomic<std::uint64_t> mapping_generation{1};
+    std::atomic<std::uint64_t> code_generation{1};
     std::uint64_t next_quiescence_epoch{1};
     std::uint64_t active_quiescence{};
     std::thread::id quiescence_owner{};
@@ -479,7 +498,21 @@ private:
     std::uint64_t sink_generation{1};
     // Outstanding execution leases. A transaction cannot start while any is
     // held, and no new one may be taken while a transaction is active.
-    std::size_t execution_leases{};
+    // Lock-free fast path: a lease is taken with a plain increment while the
+    // execution gate is open, and re-validated against the gate afterwards.
+    // Every lock hold that reads this count closes the gate first, so a
+    // concurrent fast acquisition either lands before that read (and is
+    // counted) or observes the closed gate and backs off to the locked path.
+    std::atomic<std::size_t> execution_leases{};
+    // True while a quiescence/drain/sink/poison state exists or a mapping
+    // mutation holds the lock; recomputed on every unlock.
+    mutable std::atomic<bool> execution_gate_closed{};
+    void RefreshExecutionGateLocked() const noexcept {
+        execution_gate_closed.store(active_quiescence != 0 || sink_draining ||
+                                        sink_calls_in_flight != 0 || !poisoned_ranges.empty(),
+                                    std::memory_order_seq_cst);
+    }
+    void DropExecutionLease();
     // Set when a publication modified bytes but could not discard the matching
     // translations. Blocks execution leases and execute permission until a
     // publication or invalidation over the poisoned range succeeds; reporting
@@ -487,8 +520,24 @@ private:
     // that no longer exist.
     std::vector<GuestRange> poisoned_ranges;
     bool sink_draining{};
-    std::condition_variable sink_idle;
+    std::condition_variable_any sink_idle;
+    // Waits are always under `lock`; the counter lets the hot release paths
+    // (pin release, execution lease release) skip notify_all, which otherwise
+    // takes the condition's internal mutex on every checked read/write.
     std::condition_variable_any leases_idle;
+    // Atomic so the lock-free lease release can decide whether a locked
+    // notification is required (Dekker-style pairing with the waiter's
+    // increment-then-check under the lock; both sides are seq_cst).
+    std::atomic<unsigned> leases_idle_waiters{};
+    struct IdleWaiter {
+        std::atomic<unsigned>& count;
+        explicit IdleWaiter(std::atomic<unsigned>& c) : count(c) { count.fetch_add(1); }
+        ~IdleWaiter() { count.fetch_sub(1); }
+    };
+    void NotifyLeasesIdleLocked() {
+        if (leases_idle_waiters.load() != 0)
+            leases_idle.notify_all();
+    }
     // Handed to tokens and pins as a weak reference so they can tell whether
     // this object still exists when they are released.
     std::shared_ptr<AddressSpaceLiveness> liveness;

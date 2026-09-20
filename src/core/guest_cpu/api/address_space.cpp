@@ -463,13 +463,14 @@ bool GuestAddressSpace::OwnsRange(GuestRange range) const {
 }
 
 std::uint64_t GuestAddressSpace::MappingGeneration() const {
-    std::lock_guard guard{lock};
-    return mapping_generation;
+    // Lock-free: the value is a monotonic tag published under the lock. A
+    // reader that needs the tag to be consistent with other state must still
+    // take the lock; every such reader in this file does.
+    return mapping_generation.load(std::memory_order_acquire);
 }
 
 std::uint64_t GuestAddressSpace::CodeGeneration() const {
-    std::lock_guard guard{lock};
-    return code_generation;
+    return code_generation.load(std::memory_order_acquire);
 }
 
 std::byte* GuestAddressSpace::HostPointer(GuestAddress address) const {
@@ -535,7 +536,7 @@ Result<MappingInfo> GuestAddressSpace::Map(GuestRange range, GuestPermission per
     return info;
 }
 
-Status GuestAddressSpace::RetireBeforeMutationLocked(std::unique_lock<std::mutex>& guard,
+Status GuestAddressSpace::RetireBeforeMutationLocked(std::unique_lock<GateMutex>& guard,
                                                     GuestRange range) {
     bool committed = false;
     auto status = CallSinkUnlocked(guard, range, InvalidationReason::Unmap, committed);
@@ -820,7 +821,7 @@ Status GuestAddressSpace::CheckDataRequestsLocked(std::span<const DataRequest> r
     return Ok();
 }
 
-Status GuestAddressSpace::WaitDataAdmissionLocked(std::unique_lock<std::mutex>& guard,
+Status GuestAddressSpace::WaitDataAdmissionLocked(std::unique_lock<GateMutex>& guard,
                                                   std::span<const DataRequest> requests,
                                                   std::stop_token stop) {
     const auto owner = std::this_thread::get_id();
@@ -857,6 +858,7 @@ Status GuestAddressSpace::WaitDataAdmissionLocked(std::unique_lock<std::mutex>& 
     };
     if (stop.stop_requested())
         return MakeError(ErrorCategory::WrongState, "AcquireDataBatch", "data access cancelled");
+    IdleWaiter waiting{leases_idle_waiters};
     if (!admitted() && !leases_idle.wait_for(guard, stop, std::chrono::seconds(2), admitted))
         return MakeError(stop.stop_requested() ? ErrorCategory::WrongState : ErrorCategory::Timeout,
                          "AcquireDataBatch", "data access cancelled or retirement timed out");
@@ -910,17 +912,39 @@ Status GuestAddressSpace::ReadData(GuestAddress from, std::span<std::byte> into,
 Status GuestAddressSpace::WriteData(GuestAddress to, std::span<const std::byte> from,
                                     std::stop_token stop) {
     const DataRequest request{{to, from.size()}, GuestPermission::Write};
-    std::optional<PinnedSpan> pin;
+    std::uint64_t lease{};
+    std::byte* host{};
     {
         std::unique_lock guard{lock};
         if (auto status = WaitDataAdmissionLocked(guard, {&request, 1}, stop); !status)
             return status;
-        const auto lease = next_lease_id++;
+        lease = next_lease_id++;
         pins.push_back(Pin{lease, request.range, true});
-        pin = PinnedSpan{liveness, to, HostPointer(to), from.size(), true, lease};
+        host = HostPointer(to);
     }
-    std::memcpy(pin->WritableBytes().data(), from.data(), from.size());
-    NotifyObservers(request.range);
+    // The copy runs outside the lock (a watched page may fault into the page
+    // manager), exactly as the pinned path does.
+    std::memcpy(host, from.data(), from.size());
+    // Release the lease and snapshot observers under one lock hold instead of
+    // two: this is the hot path for every checked scalar publication (mutex
+    // owner/depth, errno, timeout write-back), and each extra round trip on
+    // the address-space lock is a contention point across all guest threads.
+    std::vector<MemoryObserver*> snapshot;
+    {
+        std::lock_guard guard{lock};
+        std::erase_if(pins, [&](const Pin& pin) { return pin.lease_id == lease; });
+        NotifyLeasesIdleLocked();
+        if (!observers.empty())
+            snapshot = observers;
+    }
+    if (!snapshot.empty()) {
+        GuestRange widened{};
+        widened.base = GuestAddress{AlignDownToHostPage(request.range.base.value)};
+        const std::uint64_t end = AlignUpToHostPage(request.range.base.value + request.range.size);
+        widened.size = end > widened.base.value ? end - widened.base.value : request.range.size;
+        for (auto* observer : snapshot)
+            observer->OnGuestWrite(widened);
+    }
     return Ok();
 }
 
@@ -970,7 +994,7 @@ bool GuestAddressSpace::AnyPinOverlapsLocked(GuestRange range) const {
 void GuestAddressSpace::ReleasePin(std::uint64_t lease_id) {
     std::lock_guard guard{lock};
     std::erase_if(pins, [&](const Pin& pin) { return pin.lease_id == lease_id; });
-    leases_idle.notify_all();
+    NotifyLeasesIdleLocked();
 }
 
 Result<QuiescenceDrain> GuestAddressSpace::BeginDrain() {
@@ -980,6 +1004,7 @@ Result<QuiescenceDrain> GuestAddressSpace::BeginDrain() {
     active_quiescence = next_quiescence_epoch++;
     quiescence_owner = std::this_thread::get_id();
     quiescence_draining = true;
+    RefreshExecutionGateLocked();
     QuiescenceDrain drain;
     drain.reservation = QuiescenceToken{liveness, active_quiescence, 0};
     return drain;
@@ -991,6 +1016,7 @@ Result<QuiescenceToken> GuestAddressSpace::FinishDrain(QuiescenceDrain& drain,
     std::unique_lock guard{lock};
     if (auto status = CheckTokenLocked(drain.reservation, "FinishDrain"); !status)
         return status.GetError();
+    IdleWaiter waiting{leases_idle_waiters};
     if (!leases_idle.wait_for(guard, std::chrono::nanoseconds(timeout_ns), [&] {
             return execution_leases == 0 && pins.empty();
         }))
@@ -1022,6 +1048,7 @@ Result<QuiescenceToken> GuestAddressSpace::Quiesce(std::uint64_t timeout_ns,
     active_quiescence = epoch;
     quiescence_owner = std::this_thread::get_id();
     quiescence_draining = false;
+    RefreshExecutionGateLocked(); // close the gate before counting leases
 
     if (execution_leases != 0 && !wait_for_leases) {
         active_quiescence = 0;
@@ -1035,6 +1062,7 @@ Result<QuiescenceToken> GuestAddressSpace::Quiesce(std::uint64_t timeout_ns,
     if (wait_for_leases) {
         const auto deadline =
             std::chrono::steady_clock::now() + std::chrono::nanoseconds(timeout_ns);
+        IdleWaiter waiting{leases_idle_waiters};
         leases_idle.wait_for(guard, std::chrono::nanoseconds(timeout_ns),
                              [&] { return execution_leases == 0; });
         if (execution_leases != 0) {
@@ -1079,7 +1107,13 @@ void GuestAddressSpace::ReleaseQuiescence(std::uint64_t epoch) {
 }
 
 Status GuestAddressSpace::WaitForQuiescenceRelease(std::uint64_t timeout_ns) {
+    // Hot path of every HLE return: no transaction means nothing to wait for.
+    // A transaction that begins right after this check is handled by the
+    // lease admission that follows (it re-checks under the lock).
+    if (!execution_gate_closed.load(std::memory_order_seq_cst))
+        return Ok();
     std::unique_lock guard{lock};
+    IdleWaiter waiting{leases_idle_waiters};
     if (!leases_idle.wait_for(guard, std::chrono::nanoseconds(timeout_ns),
                               [&] { return active_quiescence == 0; }))
         return MakeError(ErrorCategory::Timeout, "WaitForQuiescenceRelease",
@@ -1145,6 +1179,7 @@ void GuestAddressSpace::ClearCodeInvalidationSink(CodeInvalidationSink* sink) {
     code_sink = nullptr;
     ++sink_generation;
     sink_draining = true;
+    RefreshExecutionGateLocked();
     sink_idle.wait(guard, [&] { return sink_calls_in_flight == 0; });
     sink_draining = false;
     sink_idle.notify_all();
@@ -1161,6 +1196,14 @@ bool GuestAddressSpace::IsQuiescent() const {
 }
 
 Result<ExecutionLease> GuestAddressSpace::AcquireExecutionLease() {
+    if (!execution_gate_closed.load(std::memory_order_seq_cst)) {
+        execution_leases.fetch_add(1, std::memory_order_seq_cst);
+        if (!execution_gate_closed.load(std::memory_order_seq_cst))
+            return ExecutionLease{this};
+        // A transaction closed the gate between the two checks; hand the
+        // decision to the locked path, which sees the transaction's state.
+        DropExecutionLease();
+    }
     std::lock_guard guard{lock};
     if (!poisoned_ranges.empty()) {
         // A failed publication left bytes that no longer match the backend's translation of them.
@@ -1172,21 +1215,30 @@ Result<ExecutionLease> GuestAddressSpace::AcquireExecutionLease() {
         return MakeError(ErrorCategory::Busy, "GuestAddressSpace::AcquireExecutionLease",
                          "a publication transaction holds this address space");
     }
-    ++execution_leases;
+    execution_leases.fetch_add(1, std::memory_order_seq_cst);
     return ExecutionLease{this};
 }
 
-void GuestAddressSpace::ReleaseExecutionLease() {
-    {
-        std::lock_guard guard{lock};
-        if (execution_leases > 0) {
-            --execution_leases;
-        }
-        if (execution_leases != 0) {
+void GuestAddressSpace::DropExecutionLease() {
+    std::size_t before = execution_leases.load(std::memory_order_seq_cst);
+    do {
+        if (before == 0)
             return;
-        }
-    }
-    leases_idle.notify_all();
+    } while (!execution_leases.compare_exchange_weak(before, before - 1,
+                                                     std::memory_order_seq_cst));
+    if (before != 1)
+        return;
+    // Last lease gone. A drainer registers as a waiter under the lock before
+    // it reads the count, so if it is waiting we observe its registration here
+    // (seq_cst on both sides); notify under the lock so it cannot miss us.
+    if (leases_idle_waiters.load(std::memory_order_seq_cst) == 0)
+        return;
+    std::lock_guard guard{lock};
+    NotifyLeasesIdleLocked();
+}
+
+void GuestAddressSpace::ReleaseExecutionLease() {
+    DropExecutionLease();
 }
 
 // Requires lock. Used when a publication cannot complete its backend half.
@@ -1221,7 +1273,7 @@ void GuestAddressSpace::RevokeExecuteLocked(GuestRange range) {
 //
 // `committed` is false when the registration changed while the callback ran: the sink that answered
 // is no longer the one that owns translated code, so its answer cannot authorise anything.
-Status GuestAddressSpace::CallSinkUnlocked(std::unique_lock<std::mutex>& guard, GuestRange range,
+Status GuestAddressSpace::CallSinkUnlocked(std::unique_lock<GateMutex>& guard, GuestRange range,
                                            InvalidationReason reason, bool& committed) {
     // Direct/file mappings may alias at different offsets. Until an indexed
     // backing graph is needed, explicit publication conservatively retires all
@@ -1240,7 +1292,7 @@ Status GuestAddressSpace::CallSinkUnlocked(std::unique_lock<std::mutex>& guard, 
 
     const std::uint64_t generation_at_entry = sink_generation;
     ++sink_calls_in_flight;
-    guard.unlock();
+    guard.unlock(); // republishes the gate: an in-flight sink keeps it closed
 
     // Unlocked: the lock order is context -> space, because the backend reads CodeGeneration()
     // under its own lock to build a snapshot. Calling a sink from under `lock` would invert it.
@@ -1619,6 +1671,7 @@ Result<std::unique_ptr<GuestAddressSpace::DataRetirement>> GuestAddressSpace::Pr
                std::none_of(data_edits.begin(), data_edits.end(),
                             [&](const auto& edit) { return overlaps(edit.range); });
     };
+    IdleWaiter waiting{leases_idle_waiters};
     if (stop.stop_requested() || !leases_idle.wait_until(guard, stop, deadline, idle))
         return MakeError(stop.stop_requested() ? ErrorCategory::WrongState : ErrorCategory::Timeout,
                          name, "mapping preparation cancelled or timed out");
@@ -1636,6 +1689,7 @@ Result<std::unique_ptr<GuestAddressSpace::DataRetirement>> GuestAddressSpace::Pr
     retirement->id = next_data_edit++;
     for (auto range : ranges)
         data_edits.push_back({retirement->id, range});
+    IdleWaiter waiting_edit{leases_idle_waiters};
     if (!leases_idle.wait_until(guard, stop, deadline,
                                 [&] {
                                     return std::none_of(
@@ -1679,6 +1733,7 @@ Status GuestAddressSpace::UpdateDataMapping(VmOperation operation, GuestRange ra
                    return edit.id != own && RangesOverlap(edit.range, range);
                });
     };
+    IdleWaiter waiting{leases_idle_waiters};
     if (stop.stop_requested() || !leases_idle.wait_until(guard, stop, deadline, idle))
         return MakeError(stop.stop_requested() ? ErrorCategory::WrongState : ErrorCategory::Timeout,
                          name, "mapping admission cancelled or timed out");
@@ -1703,6 +1758,7 @@ Status GuestAddressSpace::UpdateDataMapping(VmOperation operation, GuestRange ra
             space.leases_idle.notify_all();
         }
     } retiring{*this, id}; // destroyed before guard, including exceptions
+    IdleWaiter waiting_retire{leases_idle_waiters};
     if (!leases_idle.wait_until(guard, stop, deadline,
                                 [&] { return !AnyPinOverlapsLocked(range); }))
         return MakeError(stop.stop_requested() ? ErrorCategory::WrongState : ErrorCategory::Timeout,
@@ -1892,9 +1948,14 @@ void GuestAddressSpace::PoisonCodeLocked(GuestRange range) {
         })) {
         poisoned_ranges.push_back(range);
     }
+    RefreshExecutionGateLocked();
 }
 
 Status GuestAddressSpace::CheckMappingMutationLocked(std::string_view operation) const {
+    // The mutation that follows runs under the lock and relies on no lease
+    // existing; close the gate so a concurrent fast-path acquisition backs off
+    // to the locked path (which blocks until the mutation releases the lock).
+    execution_gate_closed.store(true, std::memory_order_seq_cst);
     if (active_quiescence != 0 || execution_leases != 0 || sink_calls_in_flight != 0 ||
         sink_draining || !data_edits.empty()) {
         return MakeError(ErrorCategory::Busy, operation,
