@@ -15,6 +15,8 @@
 #include "video_core/texture_cache/image.h"
 #include "video_core/texture_cache/internal_scale.h"
 #include "video_core/texture_cache/blit_helper.h"
+#include "resource_policy_gpu_checks.h"
+#include "texture_cache_gpu_checks.h"
 using namespace Shader;
 using namespace Shader::Backend::SPIRV;
 struct Window : Frontend::Window {
@@ -75,7 +77,11 @@ std::vector<u32> ComputeShader(const AmdGpu::Image& sharp, u32 mip) {
     return c.Assemble();
 }
 int main(int argc, char** argv) {
-    if (argc != 3) return 2;
+    if (argc != 3 && argc != 4) return 2;
+    if (argc == 4) {
+        EmulatorSettings.SetInternalScalePercent(50);
+        EmulatorSettings.SetTextureQuality(2);
+    }
     Common::FS::InitializeAndroidUserPaths(argv[2]);
     Common::Log::Setup("internal-scale-probe");
     Window window;
@@ -83,6 +89,7 @@ int main(int argc, char** argv) {
         : Vulkan::LoadAndroidTurnip(argv[1], argv[2]);
     Vulkan::Instance instance(window, 0, false, false, driver);
     Vulkan::Scheduler scheduler(instance);
+    if (argc == 4) return TextureCacheGpuChecks(instance, scheduler, argv[2]);
     VideoCore::BlitHelper blit(instance, scheduler);
     Common::SlotVector<VideoCore::ImageView> views;
     const auto device = instance.GetDevice();
@@ -218,10 +225,14 @@ int main(int argc, char** argv) {
                 : (srgb ? vk::Format::eAstc4x4SrgbBlock : vk::Format::eAstc4x4UnormBlock);
             info.props.is_block = true; info.num_bits = 128;
         }
-        VideoCore::Image image(instance, scheduler, blit, views, info);
+        const VideoCore::ScalePolicySnapshot probe_policy{
+            encoder_gradient ? 8u : scale.eighths, VideoCore::TextureQuality::High, true};
+        VideoCore::Image image(instance, scheduler, blit, views, info, nullptr,
+            VideoCore::ScaleUse::Texture, probe_policy);
         std::unique_ptr<VideoCore::Image> copy_source;
         if (!compressed) {
-            copy_source = std::make_unique<VideoCore::Image>(instance, scheduler, blit, views, info);
+            copy_source = std::make_unique<VideoCore::Image>(instance, scheduler, blit, views, info, nullptr,
+                VideoCore::ScaleUse::Texture, probe_policy);
             copy_source->Upload(copies, *upload.buffer, 0);
             image.CopyImageWithBuffer(*copy_source, *upload.buffer, 0);
         } else if (source_image) {
@@ -318,6 +329,8 @@ int main(int argc, char** argv) {
         printf("SCALE %g case%u: host %ux%u, guest %ux%u; cumulative %u checks / %u failures\n",
             percent, compressed, scale.Size(W), scale.Size(H),W,H,checks,failures);
     }
+    printf("LEGACY_SCALE_DEVICE %u checks / %u failures\n", checks, failures);
+    ResourcePolicyGpuChecks(instance, scheduler, blit, views, check);
     EmulatorSettings.SetInternalScalePercent(100);
     scheduler.Finish();
     printf("INTERNAL_SCALE_DEVICE %u checks / %u failures\n", checks, failures);

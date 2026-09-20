@@ -1,0 +1,5 @@
+SERVICE com.shadps4.android/.service.FexSessionService 7f16ae5 pid=14725 user=0
+  Client:
+    cache_epoch=1 request_id=0 completed_id=0 pending=false
+    status=awaiting-renderer-sample
+

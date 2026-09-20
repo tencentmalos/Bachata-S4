@@ -4,6 +4,7 @@
 #include <atomic>
 #include <mutex>
 #include <string>
+#include "video_core/texture_cache/scale_policy.h"
 
 namespace VideoCore::MemoryDiagnostics {
 // Readers only request/copy a snapshot. The renderer owns all Vulkan/cache access.
@@ -13,20 +14,30 @@ inline std::mutex mutex;
 inline unsigned long long epoch{};
 inline bool active{};
 inline std::string snapshot;
+inline ScalePolicySnapshot scale_policy;
 // Allocation events only, never sampled per draw. These count upload source images
 // until their scheduler-owned objects are destroyed, including GPU retirement.
 inline std::atomic<unsigned long long> upload_image_bytes{};
 inline std::atomic<unsigned long long> upload_image_created_bytes{};
 inline std::atomic<unsigned long long> upload_image_created_count{};
 
-inline unsigned long long Begin() {
+inline unsigned long long Begin(ScalePolicySnapshot policy = {}) {
     std::scoped_lock lock{mutex};
     ++epoch;
     active = true;
+    scale_policy = policy;
     requested.store(0);
     completed.store(0);
     snapshot.clear();
     return epoch;
+}
+
+inline std::string PolicyStatus() {
+    std::scoped_lock lock{mutex};
+    if (!active) return "status=unavailable (no renderer)\n";
+    return "render_scale_percent=" + std::to_string(scale_policy.render_eighths * 12.5f) +
+        " texture_quality=" + std::string(TextureQualityName(scale_policy.texture)) +
+        " legacy=" + (scale_policy.legacy ? "true" : "false") + " restart_required=true\n";
 }
 
 inline void End(unsigned long long owner) {

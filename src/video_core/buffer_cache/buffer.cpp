@@ -10,6 +10,7 @@
 #include "video_core/renderer_vulkan/vk_scheduler.h"
 
 #include <vk_mem_alloc.h>
+#include "video_core/vma_diagnostics.h"
 
 namespace VideoCore {
 
@@ -64,7 +65,7 @@ UniqueBuffer::UniqueBuffer(vk::Device device_, VmaAllocator allocator_)
 
 UniqueBuffer::~UniqueBuffer() {
     if (buffer) {
-        vmaDestroyBuffer(allocator, buffer, allocation);
+        VideoCore::VmaDiagnostics::DestroyBuffer(allocator, buffer, allocation);
     }
 }
 
@@ -84,8 +85,8 @@ void UniqueBuffer::Create(const vk::BufferCreateInfo& buffer_ci, MemoryUsage usa
 
     const VkBufferCreateInfo buffer_ci_unsafe = static_cast<VkBufferCreateInfo>(buffer_ci);
     VkBuffer unsafe_buffer{};
-    VkResult result = vmaCreateBuffer(allocator, &buffer_ci_unsafe, &alloc_ci, &unsafe_buffer,
-                                      &allocation, out_alloc_info);
+    VkResult result = VideoCore::VmaDiagnostics::CreateBuffer(allocator, &buffer_ci_unsafe, &alloc_ci, &unsafe_buffer,
+                                      &allocation, out_alloc_info, "buffer/" + std::string(BufferTypeName(usage)));
     ASSERT_MSG(result == VK_SUCCESS, "Failed allocating buffer with error {}",
                vk::to_string(vk::Result{result}));
     buffer = vk::Buffer{unsafe_buffer};
@@ -111,6 +112,7 @@ Buffer::Buffer(const Vulkan::Instance& instance_, Vulkan::Scheduler& scheduler_,
     };
     VmaAllocationInfo alloc_info{};
     buffer.Create(buffer_ci, usage, &alloc_info);
+    if (cpu_addr) VmaDiagnostics::Tag(instance->GetAllocator(), buffer.allocation, "buffer/guest-cache");
 
     const auto device = instance->GetDevice();
     Vulkan::SetObjectName(device, Handle(), "Buffer {:#x}:{:#x}", cpu_addr, size_bytes);

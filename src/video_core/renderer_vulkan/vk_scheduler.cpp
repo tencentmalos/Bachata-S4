@@ -68,9 +68,9 @@ void Scheduler::BindHostDescriptors(vk::PipelineBindPoint point, vk::PipelineLay
     current_cmdbuf.bindDescriptorSets(point, layout, 0, set, {});
 }
 
-void Scheduler::BeginRendering(const RenderState& new_state) {
+bool Scheduler::BeginRendering(const RenderState& new_state) {
     if (is_rendering && render_state == new_state) {
-        return;
+        return false;
     }
     EndRendering();
     is_rendering = true;
@@ -123,6 +123,7 @@ void Scheduler::BeginRendering(const RenderState& new_state) {
     if (Common::Profiler::GpuTimingDetailed())
         gpu_render_zone = gpu_profiler.Begin(current_cmdbuf, GpuProfiler::Stage::RenderPass);
     current_cmdbuf.beginRendering(rendering_info);
+    return true;
 }
 
 void Scheduler::EndRendering() {

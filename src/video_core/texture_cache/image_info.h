@@ -57,6 +57,8 @@ struct ImageInfo {
 
     bool IsCompatible(const ImageInfo& info) const;
     void UpdateSize();
+    /// Upload-only layout of the retained tail; the guest descriptor is unchanged.
+    ImageInfo RetainedMipChain(u32 first_mip) const;
 
     struct {
         VAddr cmask_addr;

@@ -1,0 +1,544 @@
+{
+  "schema": 1,
+  "date": "2026-09-20",
+  "scope": "Confirmed Bloodborne TextureCache self-deadlock repair and bounded resource-policy follow-up; full resource spec remains incomplete",
+  "base_commit": "5fdf9682c62b75b7930810fb7e2ef17f860fdfee",
+  "branch": "feature/malos/stream_texture_support",
+  "committed": false,
+  "build": {
+    "lib/arm64-v8a/libshadps4_fex_session.so": "105c3d53be9ac3b30a594db9b2c5beb2b7b4b5806f94b5194e75b7221e9a5907",
+    "lib/arm64-v8a/libshadps4_host.so": "c07bdea3bce54413e8dbbb30bcfbb6cc0ad1083a99b6427296bda7bf4902dbe8",
+    "apk": "6d89758bab35a9dc40b257893636e8f8a7ff33fc7e0280defd33100b191ea24f",
+    "local_host": "c07bdea3bce54413e8dbbb30bcfbb6cc0ad1083a99b6427296bda7bf4902dbe8"
+  },
+  "build_run": "1789893002357315000",
+  "tests": {
+    "qualcomm_full": [
+      13327401,
+      0
+    ],
+    "turnip_full": [
+      13327401,
+      0
+    ],
+    "qualcomm_cache": [
+      20,
+      0
+    ],
+    "turnip_cache": [
+      20,
+      0
+    ],
+    "cpu_policy": [
+      34,
+      0
+    ],
+    "retained_failures": [
+      "cache-system1: fixture null Rasterizer crash",
+      "cache-system2: 20 checks, 1 extent-roundtrip failure"
+    ]
+  },
+  "device": {
+    "serial": "PB3110PGL6240001G",
+    "pid": 16849,
+    "generation": 1,
+    "run_uuid": "d1006e9e63a2a963711b3ae2da7c3e08",
+    "render": 0.5,
+    "texture": "medium",
+    "driver": "Mesa26.3.0-devel86ca472f",
+    "end": "Stopped/user_stop/guest return=0",
+    "stop_elapsed_seconds": 1.7707428749417886,
+    "tracer_pid": 0,
+    "global_settings_preserved": true
+  },
+  "evidence": [
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-after-move-input.txt",
+      "sha256": "315c819b1ec242cc418be9cd5ba5f7d5320031137d9d4d8d21ad4c964b38de34",
+      "bytes": 318
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-after-move.txt",
+      "sha256": "3f6929b87deeaed72c1083b559a594b88793bb9d19a435fd137ec552a96ebb69",
+      "bytes": 795
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-before-move.txt",
+      "sha256": "5893c928fe94e9c24dc52719ce215f5a28ba4dca3b6e00f4f80be4b145946053",
+      "bytes": 788
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-fix-final-running.txt",
+      "sha256": "6f4e7cf611021a2896e408a52997f85d5d8827939c1edfa0c9ac8f3976cfa956",
+      "bytes": 784
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-fix-log-tail.txt",
+      "sha256": "473bab95a1094717ea22ad30ff0ecc415c0e16135636a82d9e56638203bae233",
+      "bytes": 5088
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-fix-memory1.txt",
+      "sha256": "962179f5513a57e8a6ea8656d8b02d764d159422b9926b4e0ce781eab3bfe997",
+      "bytes": 12070
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-fix-memory2.txt",
+      "sha256": "cf94c75e431e6f8a9b5ed2d945086dca284872a6153bfa80f2b92766b3b0f34e",
+      "bytes": 12069
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-fix-memory3.txt",
+      "sha256": "e4a6697da5a547b0492bb9ac229284e4e65665dfa12001f71ab39256008eb2e3",
+      "bytes": 34073
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-fix-memory4.txt",
+      "sha256": "82ffa10e44460a8bbd2328ccadec0017d3b1dda4561649373095fc1c5b13a759",
+      "bytes": 35306
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-fix-memory5.txt",
+      "sha256": "c4cb7a49742a9b69446ef7c7412a5995e6ea4eb49695a16afb1227225f08c911",
+      "bytes": 35272
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-fix-proc.txt",
+      "sha256": "92fb10b5e9e5da81da4d1c17a654c60623176b8ee3f0e799a200371e83007c9b",
+      "bytes": 1120
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-fix-progress0.txt",
+      "sha256": "71a8709d3da0e1eab5f4c247595fcd577da6a94aa3b7176374b75afa3131b22d",
+      "bytes": 789
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-fix-progress1.txt",
+      "sha256": "f06b22bea01dc29751803fb5ef33833e4e5fe1a8b1b0dabdb41271fbf55e713c",
+      "bytes": 797
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-fix-progress2.txt",
+      "sha256": "38fba19f4741d6ad1e0d47dc64ab32df0d864a33d3f6824e7618496e9ced66b0",
+      "bytes": 789
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-fix-start.txt",
+      "sha256": "45d3083b8e5d12f9fd154b4c7d8f7890c23577d6b474f69e377d661522d26787",
+      "bytes": 83
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-fix-start2.txt",
+      "sha256": "45d3083b8e5d12f9fd154b4c7d8f7890c23577d6b474f69e377d661522d26787",
+      "bytes": 83
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-fix-start3.txt",
+      "sha256": "45d3083b8e5d12f9fd154b4c7d8f7890c23577d6b474f69e377d661522d26787",
+      "bytes": 83
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-fix-start4.txt",
+      "sha256": "ab6d8fd68447616b36974b85416b9823730a1161aafdd23a849eb85a109aa1f1",
+      "bytes": 780
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-fix-status1.txt",
+      "sha256": "03f29ba33f60f2411776abae417aada9c6b99f99c496f2b9768861d57fa5ec44",
+      "bytes": 784
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-fix-status2.txt",
+      "sha256": "80f056efa27824e653be7e86bd9f6c3e8c7c67a401de61b950fab3dd7bdaf0dc",
+      "bytes": 802
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-fix-status3.txt",
+      "sha256": "ee686c35cddd80ae4a69b21d029bb168e23e22daad6fce5b0af092c1d7a6e54f",
+      "bytes": 789
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-fix-status4.txt",
+      "sha256": "ceef6397fb19df440ce8ee2fbd57b129e5fc5e83eab62e7607b00073ab914f19",
+      "bytes": 800
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-fix-status5.txt",
+      "sha256": "833e330572ebba586c66347366d9fca3d59abbff11d00d4d1fcb7947b73fbe03",
+      "bytes": 789
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-fixed-final-proc.txt",
+      "sha256": "463130fddca02ab6606d338bd9e9f941c0f4934e152c939884fa373f2ddb5e35",
+      "bytes": 1118
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-fixed-final.txt",
+      "sha256": "b39f3baef2ceb3af16edf6030619d2d78ad48440d62e11c75aa798add055b90f",
+      "bytes": 5192
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-hang-memory.txt",
+      "sha256": "6650a05fbf057f1f71ef59882fa1cba91c4ffce17af7e0c3bced7f266c7a802e",
+      "bytes": 187
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-hang-proc.txt",
+      "sha256": "8ef556f04fbb07f2788f5bf96cdeaab4022b3f06ad3979882bfa008335cb8dd2",
+      "bytes": 11319
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-hang-status1.txt",
+      "sha256": "9cf2ce1029074f4880e7f6f432ac5151f3d26e9202658ff631dddc308dc4bafe",
+      "bytes": 808
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-hang-status2.txt",
+      "sha256": "c54b1da0cd20ad87bbe0e8ecc2b63ab9c4480db6b8acea159945749520d6c524",
+      "bytes": 810
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-hang-threads.txt",
+      "sha256": "f807ee70dc8007362b9d98aa88c92d4688fb9459b9d1bd30712948acf325de51",
+      "bytes": 7433
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-memory-request3.txt",
+      "sha256": "f7ba6079e46156b142cfba7602ad606f03fdcc960360e923d90d183c3f33f7b6",
+      "bytes": 34072
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-memory-request4.txt",
+      "sha256": "e3f3711e5d69c0fe150342a170d2facc16d9b4834a073be9c01a5e61b1d758f7",
+      "bytes": 35305
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-move2-input.txt",
+      "sha256": "099ee0d5e0c3df6a7ab39c7191e74850e5e5626993eb7cd76817f7aa90a82a5a",
+      "bytes": 318
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-stop-fixed-0.txt",
+      "sha256": "9e63ea777f380489dd7495fad52241b513c41b128712d70d1fefdfb43f6799ba",
+      "bytes": 824
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-stop-fixed-1.txt",
+      "sha256": "7a7e4ab4ccc3a11071cff2a2007506ca44acf2e9253b4b212aac46aab4f837ff",
+      "bytes": 831
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-stop-fixed-2.txt",
+      "sha256": "9665312a3eb0c7e12402463470610464518f9ca8a04b0526be2dffd8d444376f",
+      "bytes": 837
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-stop-fixed-3.txt",
+      "sha256": "0ee83ebfe18e0713c72fc63f5330b601a25a22170e749ffaf5d26c643802a7bb",
+      "bytes": 5185
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-stop-request.txt",
+      "sha256": "0b395356ac5cee0df1b099b47e3637ce85a45319f369f771f2867c6e257655ee",
+      "bytes": 841
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/bloodborne-stop-result.txt",
+      "sha256": "a90c6bc26edce95389d2dcf7bd8e1dc979281e192903496009452e02cb8de54b",
+      "bytes": 847
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/cache-system1-crash.txt",
+      "sha256": "19f9aa8062d54622568d3a08c1b781aa9afeb5e6cd54aa7cdacff479fac77b91",
+      "bytes": 12523
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/displays.txt",
+      "sha256": "9fa7acbfd9e32faf5a8d53faad86760a86e5165e87e66225e498b66efa9d11dd",
+      "bytes": 39957
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/input-final.txt",
+      "sha256": "f1a29c51a0b6051c152a2f9e080c2ca6d9d2d978c9a9d570b14744647fdfb754",
+      "bytes": 608
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/installed-apk-sha.txt",
+      "sha256": "583a10bb3d5210d23cb7d092add1fad5476ebf1b358e276bb2c9b1fe2f0465c3",
+      "bytes": 157
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/layers.txt",
+      "sha256": "009c5d967427c5695668e4ddbc45914efb09c6642cb56aa7018ddc59fa590701",
+      "bytes": 6580
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/profiler-final.txt",
+      "sha256": "07ba14226faf92c11f1d27942f5a8068805fff75eae379b77f6391017ed6a4a6",
+      "bytes": 444
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/renderdoc-final.txt",
+      "sha256": "712208213bcc0c3fb1f01d4263bffc875822500c44f51afccc8dfcd2cfa2c291",
+      "bytes": 156
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/cache-system1.log",
+      "sha256": "64794a4e5d00276c2f1f9f0475d9ebafabbe18e6bcef1cd57933d3925eec79d7",
+      "bytes": 19637
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/cache-system2.log",
+      "sha256": "88b51e0689741c22b91fde6b70f0b7ecb2dcf39edef440e6d4bc3f08d6b666c8",
+      "bytes": 20552
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/cache-system3.log",
+      "sha256": "92a0f68792e96849039efcc91982ec35165ac8b3b01896107f1c72189333afab",
+      "bytes": 20673
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/cache-turnip3.log",
+      "sha256": "2f970686d88b0e2096eccb07466b01425805da1b0e2ffecfa2185e8d1f0535d6",
+      "bytes": 19917
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/full-system.log",
+      "sha256": "0ab4cffef0f9bc62a8f3a16d8f269cb3ab8917571b0297ad429e83cbca8dac53",
+      "bytes": 46309
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/full-turnip.log",
+      "sha256": "f6fc175ba61a15d9146778673d56c92d5d6276a572f32b0024b594d369b71dd0",
+      "bytes": 45398
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/install-fix.log",
+      "sha256": "781a31c82430c97897af612ece5e0ca2205e301cb5ff121ce2660541ea5182c7",
+      "bytes": 36
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/fix-artifacts.json",
+      "sha256": "179138591381aa660748fdb45a724cf04d64cfadbc3b1f1d489de2ed3aa366cb",
+      "bytes": 383
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/global-after.json",
+      "sha256": "7ab5f46b0b85c6dbd825d01c2255991bafd55979fb4f3d122d0f9c72bed34302",
+      "bytes": 340
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/global-before.json",
+      "sha256": "7ab5f46b0b85c6dbd825d01c2255991bafd55979fb4f3d122d0f9c72bed34302",
+      "bytes": 340
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/stop-window.xml",
+      "sha256": "4c864047d2c28191f2d1738070134e27dc5b66a37c6465aa45bcc513d4803a1c",
+      "bytes": 9056
+    },
+    {
+      "path": "docs/validation/android-native-host/evidence/resource-policy-remaining-20260920/scale-policy-final.txt",
+      "sha256": "7ab16fe9126d3f5888a89ddf7811c8f3116ed888a9a5abd603ff97229c94ee0f",
+      "bytes": 36
+    }
+  ],
+  "local_artifacts": [
+    {
+      "path": "build/validation/resource-policy-remaining-20260920/app-hang.apk",
+      "sha256": "9d6504bf67ed161cf13b0fdfb09e3a0c3982d7e4834566aa08308bc7a79b0fa3",
+      "bytes": 336294732,
+      "archived_in_git": false
+    },
+    {
+      "path": "build/validation/resource-policy-remaining-20260920/bloodborne-after-options.png",
+      "sha256": "3e372e1a175d82889c05d8cb26914a326deca9fd3994017db4a8122181cf3ca9",
+      "bytes": 2008053,
+      "archived_in_git": false
+    },
+    {
+      "path": "build/validation/resource-policy-remaining-20260920/bloodborne-app1.png",
+      "sha256": "b454c698712d7612e3f805171a6e4f52a54ec332394357d929277cd57a28b3a0",
+      "bytes": 200650,
+      "archived_in_git": false
+    },
+    {
+      "path": "build/validation/resource-policy-remaining-20260920/bloodborne-fix-launch.png",
+      "sha256": "128e6f3b2d4a382feca211a27779e2fd0927ed166b56231ed5b183bae0d1a958",
+      "bytes": 1814026,
+      "archived_in_git": false
+    },
+    {
+      "path": "build/validation/resource-policy-remaining-20260920/bloodborne-move-complete.jpg",
+      "sha256": "d859a09b04f8ee394f93fac5bf9e5fc716b90e52e583af826b39206868a05a42",
+      "bytes": 1864090,
+      "archived_in_git": false
+    },
+    {
+      "path": "build/validation/resource-policy-remaining-20260920/bloodborne-move.png",
+      "sha256": "f64ee85d141e69e291997fc9197fc6445ab5efdc6f76bc68750465122e49112d",
+      "bytes": 744448,
+      "archived_in_git": false
+    },
+    {
+      "path": "build/validation/resource-policy-remaining-20260920/bloodborne-move2-complete.jpg",
+      "sha256": "ccbcc0eba40b69994e63d47548d520d6cef67094e76aafb0905226e9daf7adcc",
+      "bytes": 1862887,
+      "archived_in_git": false
+    },
+    {
+      "path": "build/validation/resource-policy-remaining-20260920/bloodborne-move2.png",
+      "sha256": "ccbcc0eba40b69994e63d47548d520d6cef67094e76aafb0905226e9daf7adcc",
+      "bytes": 1862887,
+      "archived_in_git": false
+    },
+    {
+      "path": "build/validation/resource-policy-remaining-20260920/bloodborne-scene1.png",
+      "sha256": "aa904e100c89a65f7c73bd9569da7a93edd4b33fca3f3421506748edacafe304",
+      "bytes": 1284096,
+      "archived_in_git": false
+    },
+    {
+      "path": "build/validation/resource-policy-remaining-20260920/bloodborne-scene2.png",
+      "sha256": "23042e9c780715b1416fd254165ee495c664f8d1b255392ef04996479b61f26e",
+      "bytes": 2031634,
+      "archived_in_git": false
+    },
+    {
+      "path": "build/validation/resource-policy-remaining-20260920/bloodborne-title.png",
+      "sha256": "52ba6021414439827124ab2b19d53a5f5eebd2a737724f8781471188217b2778",
+      "bytes": 1991779,
+      "archived_in_git": false
+    },
+    {
+      "path": "build/validation/resource-policy-remaining-20260920/debug-hang-final/evidence-manifest.json",
+      "sha256": "e5084479609bf0569b5ae6aa2d8701eadd40db04f3c21858d042918112796d31",
+      "bytes": 2154,
+      "archived_in_git": false
+    },
+    {
+      "path": "build/validation/resource-policy-remaining-20260920/debug-hang-final/journal/control-000.ndjson",
+      "sha256": "cf920c16e5bffcf7136321f95f4694d52e90596d09aad2884242499720df5379",
+      "bytes": 10966,
+      "archived_in_git": false
+    },
+    {
+      "path": "build/validation/resource-policy-remaining-20260920/debug-hang-final/journal/host-000.ndjson",
+      "sha256": "fb8a9057f9391950f46d6da490336948cbd711a08bbbabaea489c14ec57be883",
+      "bytes": 723248,
+      "archived_in_git": false
+    },
+    {
+      "path": "build/validation/resource-policy-remaining-20260920/debug-hang-final/logs/device-lldb-gdb-server.log",
+      "sha256": "c15b326d4b0354f4edb125be8c3f8cb99b3492915f7d302b035467a89167ee9e",
+      "bytes": 3328164,
+      "archived_in_git": false
+    },
+    {
+      "path": "build/validation/resource-policy-remaining-20260920/debug-hang-final/logs/device-lldb-platform-stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "archived_in_git": false
+    },
+    {
+      "path": "build/validation/resource-policy-remaining-20260920/debug-hang-final/logs/device-lldb-platform.log",
+      "sha256": "3efbea1de5073cb1be335dd25bf5e5ac948478aae2320b2800a586b89f6b5dff",
+      "bytes": 29457,
+      "archived_in_git": false
+    },
+    {
+      "path": "build/validation/resource-policy-remaining-20260920/debug-hang-final/merged-journal.ndjson",
+      "sha256": "be78ca20f9c20d6182b567fd0fa6b972708ed76c258a4d32aea3d86405a4745c",
+      "bytes": 871453,
+      "archived_in_git": false
+    },
+    {
+      "path": "build/validation/resource-policy-remaining-20260920/debug-hang-final/proofs/cleanup-target-1s.json",
+      "sha256": "6a833bf2f1bc58043436bfb3b2e8991c7397e3c3be41307d33a4bab42817cf38",
+      "bytes": 523,
+      "archived_in_git": false
+    },
+    {
+      "path": "build/validation/resource-policy-remaining-20260920/debug-hang-final/proofs/cleanup-target-5s.json",
+      "sha256": "78300d30c9f0b40992c218b5f8986f37856c17de774cba24270ded4357571f66",
+      "bytes": 523,
+      "archived_in_git": false
+    },
+    {
+      "path": "build/validation/resource-policy-remaining-20260920/debug-hang-final/proofs/cleanup-target-immediate.json",
+      "sha256": "b4c4a8e773d27376d4ce837dc28fc58b953ed890c0567fde98d2f28b775ba6a2",
+      "bytes": 530,
+      "archived_in_git": false
+    },
+    {
+      "path": "build/validation/resource-policy-remaining-20260920/debug-hang-final/proofs/cleanup-target-pre-release.json",
+      "sha256": "73f4832bc227ba4301fb8a82a564c6262eaf4f8da1df64e72590291320446dc2",
+      "bytes": 534,
+      "archived_in_git": false
+    },
+    {
+      "path": "build/validation/resource-policy-remaining-20260920/debug-hang-final/protocol/dap-000.ndjson",
+      "sha256": "7a852296ab0adc5e2841a8812c9fd7c2a9b8539d34c301a8332ac8d034ebf263",
+      "bytes": 1000489,
+      "archived_in_git": false
+    },
+    {
+      "path": "build/validation/resource-policy-remaining-20260920/debug-hang-final/session-manifest.json",
+      "sha256": "51360fcfb91e5ed684e39e6ada7e8f5740f02f9c1eef884bb90e8311106b384d",
+      "bytes": 395,
+      "archived_in_git": false
+    },
+    {
+      "path": "build/validation/resource-policy-remaining-20260920/libshadps4_host-hang.so",
+      "sha256": "e4414acad6568e1d7e288c6db5de8bd44dcfeb6874c7e5f234df8af87dfa1ac4",
+      "bytes": 483478840,
+      "archived_in_git": false
+    }
+  ],
+  "sources": [
+    {
+      "path": "src/video_core/texture_cache/texture_cache.cpp",
+      "sha256": "d7e67007af9a006550818719e656f4f5ae6de77f030fcee29f7e802a0594ea8e"
+    },
+    {
+      "path": "src/video_core/texture_cache/texture_cache.h",
+      "sha256": "41ed6110eab885c3e3a68b98a66f25acdb6713c84fe39c77ab68f9b3c72be8e1"
+    },
+    {
+      "path": "src/video_core/texture_cache/image.cpp",
+      "sha256": "bfc69d42e3ecf669eae3f4ce4a625874a24d199b916815911671b294f665a69e"
+    },
+    {
+      "path": "src/video_core/texture_cache/image.h",
+      "sha256": "9774706dd7ebd39c233fe3f81d1165b0a363e83df720709c2d33c45989e68170"
+    },
+    {
+      "path": "src/video_core/texture_cache/scale_policy.h",
+      "sha256": "b7c7687cccabccf5706b9277db51ecc5b986d0d012bfbbf6b7faad7eef1cd7e4"
+    },
+    {
+      "path": "src/video_core/renderer_vulkan/vk_rasterizer.cpp",
+      "sha256": "9d695daede4d5f4476211498b74ddd1b3c4041649bcfbf6158ba783aae3ca3be"
+    },
+    {
+      "path": "src/video_core/renderer_vulkan/vk_rasterizer.h",
+      "sha256": "9e01ee602e6f75eed95027553f6955080b1c3cefb2f3941a444b2ed37693c508"
+    },
+    {
+      "path": "src/video_core/renderer_vulkan/vk_scheduler.cpp",
+      "sha256": "488c551a7cf3576cd00caeac338ccb100991430c71fe04c6b386935b4120bff8"
+    },
+    {
+      "path": "src/video_core/renderer_vulkan/vk_scheduler.h",
+      "sha256": "e945c6ce0bc729ab573e105376234c19f87b2a6895e51fe5d6d68402bd0688d1"
+    },
+    {
+      "path": "tests/video_core/android_internal_scale_probe.cpp",
+      "sha256": "31e4be520cf9f61e4d227deea1f86a078542b59643a55bb6874c589d9a37d955"
+    },
+    {
+      "path": "tests/video_core/texture_cache_gpu_checks.h",
+      "sha256": "1cece15eb5cb630c213d7c2324ebbf70bcdb01ca6f1b7fe9fc039fe7d0f78e93"
+    }
+  ]
+}

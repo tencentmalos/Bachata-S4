@@ -1,0 +1,4 @@
+SERVICE com.shadps4.android/.service.FexSessionService 7d7ad5a pid=10156 user=0
+  Client:
+    render_scale_percent=50.000000 texture_quality=low legacy=false restart_required=true
+

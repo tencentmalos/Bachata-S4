@@ -1,0 +1,45 @@
+[Lib.Http] <Debug> (Guest-1) http.cpp:2023 sceHttpWaitRequest: called eh=0x4, nbev=0xb400007480ecb320, maxevents=128, timeout=0
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbMeta, event_index = CacheFlush
+Skipped 1 duplicate messages..
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvDbMeta, event_index = CacheFlush
+Skipped 1 duplicate messages..
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbMeta, event_index = CacheFlush
+Skipped 3 duplicate messages..
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvDbMeta, event_index = CacheFlush
+Skipped 1 duplicate messages..
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_rasterizer.cpp:225 Draw: SBS draw sample=227040 indexed=false indices=4 mrt0=0x273ae8000 mrt1=0x2742e0000 mrt2=0x26f090000 depth=0x24f3f0000
+[Lib.Http] <Debug> (Guest-1) http.cpp:2023 sceHttpWaitRequest: called eh=0x2, nbev=0xb400007480ecb320, maxevents=128, timeout=0
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_rasterizer.cpp:225 Draw: SBS draw sample=227280 indexed=false indices=4 mrt0=0x273ae8000 mrt1=0x2742e0000 mrt2=0x26f090000 depth=0x24f3f0000
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_rasterizer.cpp:225 Draw: SBS draw sample=227520 indexed=false indices=4 mrt0=0x273ae8000 mrt1=0x2742e0000 mrt2=0x26f090000 depth=0x24f3f0000
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvDbMeta, event_index = CacheFlush
+Skipped 7 duplicate messages..
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_rasterizer.cpp:225 Draw: SBS draw sample=227760 indexed=true indices=3 mrt0=0x260670000 mrt1=0x0 mrt2=0x0 depth=0x25fbd8000
+[Lib.GnmDriver] <Debug> (Guest-19) gnmdriver.cpp:2292 sceGnmSubmitAndFlipCommandBuffersForWorkload: called [buf = 0]
+[Lib.GnmDriver] <Debug> (Guest-19) gnmdriver.cpp:2314 sceGnmSubmitCommandBuffersForWorkload: called
+[Lib.GnmDriver] <Debug> (Guest-19) gnmdriver.cpp:2451 sceGnmSubmitDone: called
+[Lib.GnmDriver] <Debug> (Guest-19) gnmdriver.cpp:2314 sceGnmSubmitCommandBuffersForWorkload: called
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvDbMeta, event_index = CacheFlush
+[Render.Vulkan] <Debug> (shadPS4:GpuComm) vk_presenter.cpp:1434 GetRenderFrame: Got render frame, remaining 5
+[Lib.GnmDriver] <Debug> (Guest-19) gnmdriver.cpp:2314 sceGnmSubmitCommandBuffersForWorkload: called
+Skipped 1 duplicate messages..
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvDbMeta, event_index = CacheFlush
+Skipped 2 duplicate messages..
+[Lib.GnmDriver] <Debug> (Guest-19) gnmdriver.cpp:2314 sceGnmSubmitCommandBuffersForWorkload: called
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvDbMeta, event_index = CacheFlush
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_rasterizer.cpp:225 Draw: SBS draw sample=228000 indexed=true indices=4986 mrt0=0x255080000 mrt1=0x0 mrt2=0x0 depth=0x2d26e0000
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_rasterizer.cpp:225 Draw: SBS draw sample=228240 indexed=true indices=1761 mrt0=0x2d2790000 mrt1=0x0 mrt2=0x0 depth=0x2d2760000
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvDbMeta, event_index = CacheFlush
+Skipped 1 duplicate messages..
+[Lib.GnmDriver] <Debug> (Guest-19) gnmdriver.cpp:2314 sceGnmSubmitCommandBuffersForWorkload: called
+Skipped 1 duplicate messages..
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_rasterizer.cpp:225 Draw: SBS draw sample=228480 indexed=false indices=4 mrt0=0x2d27f0000 mrt1=0x0 mrt2=0x0 depth=0x2d2760000
+[Lib.GnmDriver] <Debug> (Guest-19) gnmdriver.cpp:2314 sceGnmSubmitCommandBuffersForWorkload: called
+Skipped 1 duplicate messages..
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbPixelData, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvDbMeta, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbPixelData, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvDbMeta, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbPixelData, event_index = CacheFlush
+Skipped 3 duplicate messages..
+[Lib.Http] <Debug> (Guest-1) http.cpp:2023 sceHttpWaitRequest: called eh=0x4, nbev=0xb400007480ecb320, maxevents=128, timeout=0
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: 

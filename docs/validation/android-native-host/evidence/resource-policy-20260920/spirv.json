@@ -1,0 +1,17 @@
+[
+  {
+    "file": "build/validation/resource-policy-20260920/internal-scale-0.spv",
+    "exit_code": 0,
+    "output": ""
+  },
+  {
+    "file": "build/validation/resource-policy-20260920/internal-scale-1.spv",
+    "exit_code": 0,
+    "output": ""
+  },
+  {
+    "file": "build/validation/resource-policy-20260920/internal-scale-2.spv",
+    "exit_code": 0,
+    "output": ""
+  }
+]

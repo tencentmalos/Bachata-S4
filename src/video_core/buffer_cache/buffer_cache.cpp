@@ -17,11 +17,11 @@
 #include "video_core/texture_cache/texture_cache.h"
 
 #include <vk_mem_alloc.h>
+#include "video_core/vma_diagnostics.h"
 
 namespace VideoCore {
 
 static constexpr size_t DataShareBufferSize = 64_KB;
-static constexpr size_t StagingBufferSize = 512_MB;
 static constexpr size_t DownloadBufferSize = 32_MB;
 static constexpr size_t UboStreamBufferSize = 64_MB;
 static constexpr size_t DeviceBufferSize = 128_MB;
@@ -32,13 +32,18 @@ BufferCache::BufferCache(const Vulkan::Instance& instance_, Vulkan::Scheduler& s
     : instance{instance_}, scheduler{scheduler_}, liverpool{liverpool_},
       memory{Core::Memory::Instance()}, texture_cache{texture_cache_},
       fault_manager{instance, scheduler, *this, CACHING_PAGEBITS, CACHING_NUMPAGES},
-      staging_buffer{instance, scheduler, MemoryUsage::Upload, StagingBufferSize},
+      staging_buffer{instance, scheduler, MemoryUsage::Upload, instance.MemoryPolicy().staging_bytes},
       stream_buffer{instance, scheduler, MemoryUsage::Stream, UboStreamBufferSize},
       download_buffer{instance, scheduler, MemoryUsage::Download, DownloadBufferSize},
       device_buffer{instance, scheduler, MemoryUsage::DeviceLocal, DeviceBufferSize},
       gds_buffer{instance, scheduler, MemoryUsage::Stream, 0, AllFlags, DataShareBufferSize},
       bda_pagetable_buffer{instance, scheduler, MemoryUsage::DeviceLocal,
                            0,        AllFlags,  BDA_PAGETABLE_SIZE} {
+    for (const auto& [buffer, category] : std::initializer_list<std::pair<const Buffer*, const char*>>{
+        {&staging_buffer, "buffer/staging-pool"}, {&stream_buffer, "buffer/stream-pool"},
+        {&download_buffer, "buffer/download-pool"}, {&device_buffer, "buffer/device-pool"},
+        {&gds_buffer, "buffer/gds"}, {&bda_pagetable_buffer, "buffer/bda-page-table"}})
+        VmaDiagnostics::Tag(instance.GetAllocator(), buffer->buffer.allocation, category);
     Vulkan::SetObjectName(instance.GetDevice(), gds_buffer.Handle(), "GDS Buffer");
     Vulkan::SetObjectName(instance.GetDevice(), bda_pagetable_buffer.Handle(),
                           "BDA Page Table Buffer");
@@ -462,6 +467,19 @@ std::pair<Buffer*, u32> BufferCache::ObtainBufferForImage(VAddr gpu_addr, u32 si
     }
     // In all other cases, just do a CPU copy to the staging buffer.
     const auto [data, offset] = staging_buffer.Map(size, instance.StorageMinAlignment());
+    if (!data) {
+        // A single image may exceed the smaller quality-dependent ring. Keep
+        // the complete request valid without permanently growing that ring.
+        auto temporary = std::make_unique<Buffer>(instance, scheduler, MemoryUsage::Upload, 0,
+            vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eStorageBuffer, size);
+        memory->CopySparseMemory(gpu_addr, temporary->mapped_data.data(), size);
+        vmaFlushAllocation(instance.GetAllocator(), temporary->buffer.allocation, 0, size);
+        auto* result = temporary.get();
+        VmaDiagnostics::Tag(instance.GetAllocator(), temporary->buffer.allocation,
+                            "buffer/upload-oversize", true);
+        scheduler.DeferOperation([buffer = std::move(temporary)] {});
+        return {result, 0};
+    }
     memory->CopySparseMemory(gpu_addr, data, size);
     staging_buffer.Commit();
     return {&staging_buffer, offset};
@@ -722,6 +740,7 @@ bool BufferCache::SynchronizeBuffer(Buffer& buffer, VAddr device_addr, u32 size,
             src_buffer = temporary->Handle();
             vmaFlushAllocation(instance.GetAllocator(), temporary->buffer.allocation, 0,
                                uploaded_bytes);
+            VmaDiagnostics::Tag(instance.GetAllocator(), temporary->buffer.allocation, "buffer/upload-temporary", true);
             scheduler.DeferOperation([buffer = std::move(temporary)] {});
         } else {
             staging_buffer.Commit(uploaded_bytes);
@@ -841,7 +860,7 @@ void BufferCache::WriteDataBuffer(Buffer& buffer, VAddr address, const void* val
         .size = num_bytes,
     };
     vk::Buffer src_buffer = staging_buffer.Handle();
-    if (num_bytes < StagingBufferSize) {
+    if (num_bytes <= staging_buffer.SizeBytes()) {
         const auto [staging, offset] = staging_buffer.Map(num_bytes);
         std::memcpy(staging, value, num_bytes);
         copy.srcOffset = offset;
@@ -855,6 +874,8 @@ void BufferCache::WriteDataBuffer(Buffer& buffer, VAddr address, const void* val
         src_buffer = temp_buffer.Handle();
         u8* const staging = temp_buffer.mapped_data.data();
         std::memcpy(staging, value, num_bytes);
+        vmaFlushAllocation(instance.GetAllocator(), temp_buffer.buffer.allocation, 0, num_bytes);
+        VmaDiagnostics::Tag(instance.GetAllocator(), temp_buffer.buffer.allocation, "buffer/upload-temporary", true);
         scheduler.DeferOperation([buffer = std::move(temp_buffer)]() mutable {});
     }
     scheduler.EndRendering();
@@ -923,6 +944,7 @@ void BufferCache::TouchBuffer(const Buffer& buffer) {
 void BufferCache::DeleteBuffer(BufferId buffer_id) {
     Buffer& buffer = slot_buffers[buffer_id];
     Unregister(buffer_id);
+    VmaDiagnostics::Tag(instance.GetAllocator(), slot_buffers[buffer_id].buffer.allocation, nullptr, true);
     scheduler.DeferOperation([this, buffer_id] { slot_buffers.erase(buffer_id); });
     buffer.is_deleted = true;
 }

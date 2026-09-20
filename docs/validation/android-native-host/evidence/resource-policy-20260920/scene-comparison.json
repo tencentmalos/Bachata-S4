@@ -1,0 +1,62 @@
+[
+  {
+    "file": "tmnt-high-fixed-scene-memory1.txt",
+    "sample_ns": 109094838456403,
+    "vma_consistent": 1,
+    "vma_reserved_bytes": 2948382720,
+    "vma_live_allocation_bytes": 2664329216,
+    "vma_free_block_bytes": 284053504,
+    "cached_image_allocation_bytes": 293285888,
+    "process_Pss_bytes": 2967168000,
+    "process_SwapPss_bytes": 482304,
+    "vma_reconciliation_delta": 0,
+    "vma_reserved_reconciliation_delta": 0,
+    "attachment_passes": 332800,
+    "scaled_attachment_passes": 331083
+  },
+  {
+    "file": "tmnt-high-fixed-scene-memory2.txt",
+    "sample_ns": 109139382754355,
+    "vma_consistent": 1,
+    "vma_reserved_bytes": 2948382720,
+    "vma_live_allocation_bytes": 2664329216,
+    "vma_free_block_bytes": 284053504,
+    "cached_image_allocation_bytes": 293285888,
+    "process_Pss_bytes": 2425981952,
+    "process_SwapPss_bytes": 403470336,
+    "vma_reconciliation_delta": 0,
+    "vma_reserved_reconciliation_delta": 0,
+    "attachment_passes": 625542,
+    "scaled_attachment_passes": 619649
+  },
+  {
+    "file": "tmnt-low-scene-memory1.txt",
+    "sample_ns": 109501050608071,
+    "vma_consistent": 1,
+    "vma_reserved_bytes": 2956820480,
+    "vma_live_allocation_bytes": 2528919552,
+    "vma_free_block_bytes": 427900928,
+    "cached_image_allocation_bytes": 149438464,
+    "process_Pss_bytes": 2048580608,
+    "process_SwapPss_bytes": 441859072,
+    "vma_reconciliation_delta": 0,
+    "vma_reserved_reconciliation_delta": 0,
+    "attachment_passes": 507989,
+    "scaled_attachment_passes": 503290
+  },
+  {
+    "file": "tmnt-low-scene-memory2.txt",
+    "sample_ns": 109548118212637,
+    "vma_consistent": 1,
+    "vma_reserved_bytes": 2956820480,
+    "vma_live_allocation_bytes": 2528919552,
+    "vma_free_block_bytes": 427900928,
+    "cached_image_allocation_bytes": 149438464,
+    "process_Pss_bytes": 2053466112,
+    "process_SwapPss_bytes": 440204288,
+    "vma_reconciliation_delta": 0,
+    "vma_reserved_reconciliation_delta": 0,
+    "attachment_passes": 847087,
+    "scaled_attachment_passes": 837534
+  }
+]

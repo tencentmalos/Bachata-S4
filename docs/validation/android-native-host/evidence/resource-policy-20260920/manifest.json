@@ -1,0 +1,496 @@
+{
+  "schema": 1,
+  "date": "2026-09-20",
+  "scope": "Resource scale policy and VMA diagnostics / HostMemoryPolicy; bounded validation, not full resource-spec acceptance",
+  "git": {
+    "base_commit": "5fdf9682c62b75b7930810fb7e2ef17f860fdfee",
+    "branch": "feature/malos/stream_texture_support",
+    "current_changes_committed": false
+  },
+  "build": {
+    "run": "1789889759494997000",
+    "apk": {
+      "path": "android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk",
+      "sha256": "9d6504bf67ed161cf13b0fdfb09e3a0c3982d7e4834566aa08308bc7a79b0fa3"
+    },
+    "libraries": {
+      "lib/arm64-v8a/libshadps4_fex_session.so": "5c82b2082e090626a64b17930c8d40b97ad977834c60c1fc67bf865bb4ad107c",
+      "lib/arm64-v8a/libshadps4_host.so": "e4414acad6568e1d7e288c6db5de8bd44dcfeb6874c7e5f234df8af87dfa1ac4"
+    },
+    "installed_on_swan": true,
+    "source_note": "Production source matches final build; probe-only corrected peak-monotonicity criterion and documentation were finalized afterward."
+  },
+  "tests": {
+    "qualcomm": {
+      "checks": 13327401,
+      "failures": 0
+    },
+    "turnip": {
+      "checks": 13327401,
+      "failures": 0
+    },
+    "cpu_policy": {
+      "checks": 34,
+      "failures": 0
+    },
+    "settings": {
+      "core/runtime": {
+        "tests": 112,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "feature/settings": {
+        "tests": 13,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "spirv": {
+      "checks": 3,
+      "failures": 0,
+      "note": "Carried forward; no shader code change in HostMemoryPolicy phase"
+    },
+    "preserved_failures": [
+      "initial-apk-assertion.txt",
+      "gpu-memory-policy-system.log"
+    ]
+  },
+  "final_device_run": {
+    "serial": "PB3110PGL6240001G",
+    "model": "PicoB3110",
+    "boot_id": "cc95bb12-7568-4789-9e8b-08d136ef33a0",
+    "pid": 10156,
+    "generation": 1,
+    "session_uuid": "754c886999510be501ec3c6394248ed6",
+    "driver": "Turnip Mesa 26.3.0-devel 86ca472f",
+    "driver_sha256": "ea4853bf58cdee3d49369706249090899cb4ebb17b8f0ca23685918912f0b6a1",
+    "render_scale": 0.5,
+    "texture_quality": "Low",
+    "scene": "TMNT rooftop; actual movement to ATTACK tutorial prompt",
+    "termination": "Stopped/user_stop, guest return 0",
+    "tracer_pid": 0
+  },
+  "cleanup": {
+    "temporary_game_overrides": [],
+    "legacy_property": "",
+    "global_config_original_sha256": "d07d3aaa6c931f0f1308893f13d68047f28f80631d89917ff5dc7c417787a222",
+    "global_config_restored_sha256": "d07d3aaa6c931f0f1308893f13d68047f28f80631d89917ff5dc7c417787a222",
+    "global_config_byte_identical": true,
+    "render_scale": 0.5,
+    "texture_quality": "High (default, absent persisted field)",
+    "driver": "turnip-mainline",
+    "active_game": false,
+    "gpu_memory_status": "unavailable (no renderer)",
+    "input_connected": false,
+    "input_buttons": 0,
+    "input_native_token": 0
+  },
+  "limits": [
+    "VMA allocation/reservation is not independently measured total Host CPU or physical resident memory; do not sum VMA and PSS.",
+    "Preferred block size is not a cap; lower idle retention does not guarantee lower burst peaks.",
+    "Low staging is 384 MiB smaller; no matched whole-game RAM or FPS gain established.",
+    "Original resource-spec scaled-pass coverage gate is not passed: legacy 99.7623%, new High 98.5735%, with protected small RTs.",
+    "Bloodborne, real streaming/partial dirty, DRS/history, complete shader combinations and matched performance/quality acceptance remain outstanding.",
+    "No full game regression; real-game oversized single-image fallback was not triggered."
+  ],
+  "files": [
+    {
+      "path": "apk-final-sha256.txt",
+      "bytes": 265,
+      "sha256": "0ab82045968e888a310afc33827a91c25d4a86970295e33a7de895e0a1ceb2af"
+    },
+    {
+      "path": "device-boot-id.txt",
+      "bytes": 37,
+      "sha256": "764a9cf612659cc398021e3b5c08e834b2425247e0e8e84927f8a6168da0e31f"
+    },
+    {
+      "path": "final-game-overrides.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "final-input-status.txt",
+      "bytes": 608,
+      "sha256": "9da4cfe358326fba7af175e6b5f4379311b95953b4422e727b23278b1229ba75"
+    },
+    {
+      "path": "final-legacy-property.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "path": "final-memory-status.txt",
+      "bytes": 128,
+      "sha256": "779f4da8af5066536d42881ff5105d98b618225db419a0c66fc596fbdcce05cd"
+    },
+    {
+      "path": "gpu-final-both.log",
+      "bytes": 86164,
+      "sha256": "96f2a45e6d6da938b2a61087025e7d84cffb457aac4889ec9fcbcb8a0cd81380"
+    },
+    {
+      "path": "gpu-memory-policy-system-final.log",
+      "bytes": 44519,
+      "sha256": "ea55c2b70f1354bb0fe8ed8d129c7a5d4266adc375f227286047a0a2046bb1f9"
+    },
+    {
+      "path": "gpu-memory-policy-system.log",
+      "bytes": 44573,
+      "sha256": "6f320ab012df989b4b8b2fff54eb363cd0e073f655286cadf9ea2170842874af"
+    },
+    {
+      "path": "gpu-memory-policy-turnip-final.log",
+      "bytes": 43588,
+      "sha256": "c90ecd73b0b651dd3851d39f3057332e071b7554dd92665eeca8489a5ec7141d"
+    },
+    {
+      "path": "initial-apk-assertion.txt",
+      "bytes": 6397,
+      "sha256": "34c2d6412ada9fdf5ca301511af074c21de9425272eb18eed645edd74756fb92"
+    },
+    {
+      "path": "memory-policy-apk-libraries.json",
+      "bytes": 222,
+      "sha256": "199d95d7403af930398803a7510ca7a39425bba441c9e2f99c3ddf6486a6ac3b"
+    },
+    {
+      "path": "memory-policy-sha256.txt",
+      "bytes": 265,
+      "sha256": "4c733b1baf4acf98e65a43f9313b64cd2bea7cb5746d65ed9e4bdcab634d8a39"
+    },
+    {
+      "path": "scale-policy-tests-final.txt",
+      "bytes": 36,
+      "sha256": "7ab16fe9126d3f5888a89ddf7811c8f3116ed888a9a5abd603ff97229c94ee0f"
+    },
+    {
+      "path": "scale-policy-tests.txt",
+      "bytes": 36,
+      "sha256": "5c02069f5ee142cd173072381f19b54d4495ab2a2e106bdc3684fef9f41b0f3d"
+    },
+    {
+      "path": "scene-comparison.json",
+      "bytes": 2046,
+      "sha256": "fbbc93731548c36f66b10037a957484537320fa727d926526f8810321585c3d9"
+    },
+    {
+      "path": "settings-test-results.json",
+      "bytes": 198,
+      "sha256": "b9c7f6aba72bf53500741c239954bb33f39c051f4a2dd81bc86783d88c31b5f5"
+    },
+    {
+      "path": "spirv.json",
+      "bytes": 374,
+      "sha256": "0a696e3e7ad04b219a455bdb53cbb93edbcb9b7dc53de66dc0664fba70655366"
+    },
+    {
+      "path": "tmnt-high-fixed-scene-memory1.txt",
+      "bytes": 13876,
+      "sha256": "24884d30dfd0bad7a879fcb0b8890606f7eceb53387d9d7e713be6f2050f68cd"
+    },
+    {
+      "path": "tmnt-high-fixed-scene-memory2.txt",
+      "bytes": 13876,
+      "sha256": "d6d1580e6a1235870ca6bb005ff39b4fc4711271cd04e2c09290ab1668b5c56a"
+    },
+    {
+      "path": "tmnt-high-fixed-stop-final.txt",
+      "bytes": 554,
+      "sha256": "cb104807a2c70d500ef470d662702e210416b3e669bd455b3d8396850ee77952"
+    },
+    {
+      "path": "tmnt-legacy-policy.txt",
+      "bytes": 180,
+      "sha256": "8bfbef6c0662149894159284f0fd2b415fb2902eb1111b8479110cfc3d44a982"
+    },
+    {
+      "path": "tmnt-legacy-scene-memory1.txt",
+      "bytes": 12323,
+      "sha256": "a26d74656c73f30869f916f5eb91bb94b396ad73e3d346603097b055bd2c1415"
+    },
+    {
+      "path": "tmnt-legacy-scene-memory2.txt",
+      "bytes": 12326,
+      "sha256": "e5f79e4f2a80fd02774f0f226d8d4fd1174ce503b6d2e84315e8c5f9649a79f7"
+    },
+    {
+      "path": "tmnt-legacy-stop-final.txt",
+      "bytes": 543,
+      "sha256": "837d76a79e81d107cb173e7f077e4c769c8ddaa482f21ab2d4555ba817e8ffdb"
+    },
+    {
+      "path": "tmnt-low-scene-memory1.txt",
+      "bytes": 13863,
+      "sha256": "4f7877d4c0429843bf477b9c711917e4e7089aeed5dafb627d0ea07226e45e44"
+    },
+    {
+      "path": "tmnt-low-scene-memory2.txt",
+      "bytes": 13869,
+      "sha256": "d16afd1e3a42f41c1a96fc735f604ad30b8bd982840f6e5446d55fb38e23b856"
+    },
+    {
+      "path": "tmnt-low-stop-final.txt",
+      "bytes": 552,
+      "sha256": "e157769606bb60fee29eb83a852852997259d2d760f85dcbf280b619540b39db"
+    },
+    {
+      "path": "tmnt-medium-scene-memory1.txt",
+      "bytes": 14831,
+      "sha256": "43d97175b2b61cba0d0c47a9120e30b28a62f9486611111b731446b6a6716898"
+    },
+    {
+      "path": "tmnt-medium-stop-final.txt",
+      "bytes": 552,
+      "sha256": "fda609b77d351c8bd0887dee28ee3d3a2f6d827588a107ff4f1dbfe07f9a30a5"
+    },
+    {
+      "path": "tmnt-policy-low-input-after-move.txt",
+      "bytes": 317,
+      "sha256": "60a67e8250f5005a451a73e560b57be016fa27e78e1365f8c6e7b9322fc9da90"
+    },
+    {
+      "path": "tmnt-policy-low-policy.txt",
+      "bytes": 181,
+      "sha256": "50da4e04be5014e516f095f1046fda1cd837a096f19d5517fc1a5d09968c6a28"
+    },
+    {
+      "path": "tmnt-policy-low-scene-memory1.txt",
+      "bytes": 14369,
+      "sha256": "1d21b909b0cb5eb548f33e7572419f5f511a82b0d6a25bb3f720a75ef73e9c3f"
+    },
+    {
+      "path": "tmnt-policy-low-scene-memory2.txt",
+      "bytes": 14374,
+      "sha256": "56fe7e332a63346da46aca0cf923975cae0074408cc6733beffac8d768d37230"
+    },
+    {
+      "path": "tmnt-policy-low-scene-status1.txt",
+      "bytes": 790,
+      "sha256": "8c0f2b47abc45b810dec20ca3bde34b19023849d0188e8d911e85cf3030fd696"
+    },
+    {
+      "path": "tmnt-policy-low-scene-status2.txt",
+      "bytes": 798,
+      "sha256": "22f056b795e885e3c7eee782b07f28e1df8d052eab8e01c28ef2a895953e2238"
+    },
+    {
+      "path": "tmnt-policy-low-start-memory.txt",
+      "bytes": 10093,
+      "sha256": "c2e9a69f642803aeb541a3884fc5b97609492911390bab95f545f00cfdb56213"
+    },
+    {
+      "path": "tmnt-policy-low-stop-final.txt",
+      "bytes": 545,
+      "sha256": "0908add348e809ae46c90d09ac126d399217e35c8574b812d46ac6a8de4d3ca4"
+    },
+    {
+      "path": "tmnt-policy-low-tracer.txt",
+      "bytes": 55,
+      "sha256": "dcbf90a74a606ddce7cdbd2e78666c7d6db2eccb55c698a53ed2ab0d3c2c81ac"
+    }
+  ],
+  "sources": [
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 98009,
+      "sha256": "2d9a359562bda830bf1e1a49999abc783dd0a46a2b93258c96dd3619626a9730"
+    },
+    {
+      "path": "android/shadps4-app/app/src/main/kotlin/com/shadps4/android/service/FexSessionService.kt",
+      "bytes": 20180,
+      "sha256": "b882cb5464c87ea21b027a0057bafe9eb6223e8b2c3a88ffce7e09cd9251eb74"
+    },
+    {
+      "path": "android/shadps4-app/core/runtime/src/main/cpp/fex_session_jni.cpp",
+      "bytes": 21499,
+      "sha256": "295d1226485e039bc70c1fe830a80da9fc4d3db71dfdf0daaeb9994d2440c565"
+    },
+    {
+      "path": "android/shadps4-app/core/runtime/src/main/kotlin/com/shadps4/android/runtime/session/NativeFexSession.kt",
+      "bytes": 5131,
+      "sha256": "6ac9d42d307cc826d584bbcf0440b60285449e36ad304ceae847fd66dbbd026b"
+    },
+    {
+      "path": "android/shadps4-app/core/runtime/src/main/kotlin/com/shadps4/android/runtime/settings/TextureQuality.kt",
+      "bytes": 621,
+      "sha256": "affc9f52775c85beb2c1bdc2a0444092182ce9dab1d38728a160600e5237000e"
+    },
+    {
+      "path": "android/shadps4-app/core/runtime/src/main/resources/runtime-settings/android.json",
+      "bytes": 3240,
+      "sha256": "21788b98638a11cde2699793d5f65b75bf59eea50784c876d9a59d2d53e7d290"
+    },
+    {
+      "path": "android/shadps4-app/core/runtime/src/main/resources/runtime-settings/shadps4.json",
+      "bytes": 40018,
+      "sha256": "dc303d877301928e5279d3ce6a560903febab771591f1697406dc9f019b29092"
+    },
+    {
+      "path": "android/shadps4-app/core/runtime/src/test/kotlin/com/shadps4/android/runtime/settings/TextureQualityTest.kt",
+      "bytes": 2114,
+      "sha256": "f1404b05b59fc66d5cd0ca8d92118d4982abc66b1f6653c28b5bc2784a85ad77"
+    },
+    {
+      "path": "src/core/diagnostics/diagnostics_commands.cpp",
+      "bytes": 14409,
+      "sha256": "f4528187ce6398140d7bcfe1b34f006b696004d2c29ba2cfe72f94a63d9a8499"
+    },
+    {
+      "path": "src/core/emulator_settings.cpp",
+      "bytes": 31356,
+      "sha256": "948d7aab0c9e64f5e32607443b89782863ee466710bfbfd8fa963c3adfdefd9c"
+    },
+    {
+      "path": "src/core/emulator_settings.h",
+      "bytes": 40391,
+      "sha256": "97e7348d9493b4d82e88fe8a5c694a824ebb7802944e4961272b511ef519ba44"
+    },
+    {
+      "path": "src/imgui/status_layer.cpp",
+      "bytes": 7495,
+      "sha256": "dc1dc6c98b769a11994bcd599cf11f2e13194611f15e27f97e83fd78a04044e4"
+    },
+    {
+      "path": "src/imgui/status_layer.h",
+      "bytes": 1404,
+      "sha256": "4e75b3b75135c6daf13e2369e4f94c267172528898132f20a8dc0f11a0009fd1"
+    },
+    {
+      "path": "src/video_core/buffer_cache/buffer.cpp",
+      "bytes": 10033,
+      "sha256": "67f4449eb614a0fa80c416558ddee84491109b1ebcaa274b13f9201d0562050a"
+    },
+    {
+      "path": "src/video_core/buffer_cache/buffer.h",
+      "bytes": 7354,
+      "sha256": "02ca9c5293c5146da48e11823fe7d0f866b0e75ce89adfc5b8a22f203ca91590"
+    },
+    {
+      "path": "src/video_core/buffer_cache/buffer_cache.cpp",
+      "bytes": 42293,
+      "sha256": "7d14aaf75d154eb173fe1d3160492cc04df224952379303c248138246945c788"
+    },
+    {
+      "path": "src/video_core/host_memory_policy.h",
+      "bytes": 980,
+      "sha256": "05ae54aaf29782d6de4a2708d98edc4a37f886460c0298fe7015fa57aa96a290"
+    },
+    {
+      "path": "src/video_core/memory_diagnostics.h",
+      "bytes": 2594,
+      "sha256": "ddf7632b365a356a4bcf97163ae7633ce27f700defdfe780bcf5cf287762c49b"
+    },
+    {
+      "path": "src/video_core/renderer_vulkan/vk_instance.cpp",
+      "bytes": 50060,
+      "sha256": "ade453ef4311800bddd18358798a7217a4722bcd4e54595def30e1f026157e27"
+    },
+    {
+      "path": "src/video_core/renderer_vulkan/vk_instance.h",
+      "bytes": 22061,
+      "sha256": "9af98d7f2754b3eebda349ae95e4bde9ab2db7bb815a0f7883179fdddfa8040b"
+    },
+    {
+      "path": "src/video_core/renderer_vulkan/vk_pipeline_cache.cpp",
+      "bytes": 38435,
+      "sha256": "633d6eac73835239d6d5596e8270d3ab9563cbd8996ce416cd9defb762147a5d"
+    },
+    {
+      "path": "src/video_core/renderer_vulkan/vk_pipeline_serialization.cpp",
+      "bytes": 16401,
+      "sha256": "f35ced3d12261701adef091c2e83eb7b9960a2c380cb00be3488ab0656e51faa"
+    },
+    {
+      "path": "src/video_core/renderer_vulkan/vk_presenter.cpp",
+      "bytes": 63933,
+      "sha256": "8c6eb934ec0044a3f02a01f36c83859e942cc2cf1a8037ad2731ad409bfb10de"
+    },
+    {
+      "path": "src/video_core/renderer_vulkan/vk_rasterizer.cpp",
+      "bytes": 72502,
+      "sha256": "fbf43babcdc7905954ee633041af4781b9227045f6b3bc9f07f9ab09f0aefffd"
+    },
+    {
+      "path": "src/video_core/texture_cache/image.cpp",
+      "bytes": 59212,
+      "sha256": "b7bbef8d570a8fd7900453882ca175f66a75556ec3be5e208b5ed185100a9dd4"
+    },
+    {
+      "path": "src/video_core/texture_cache/image.h",
+      "bytes": 9412,
+      "sha256": "3cdda145e692ce32f53b6c9b252a299e890208a7666b046bc886d52ca2fbf42b"
+    },
+    {
+      "path": "src/video_core/texture_cache/image_info.cpp",
+      "bytes": 12848,
+      "sha256": "379932b4521d606a0ffe52da35f418eb0aeb079f056845707434bdff4d7d0fe7"
+    },
+    {
+      "path": "src/video_core/texture_cache/image_info.h",
+      "bytes": 2835,
+      "sha256": "1cfc1e9964bd13946ae71d38dcba59a1bc3474a8e98db9908b15ad25e5835d80"
+    },
+    {
+      "path": "src/video_core/texture_cache/scale_policy.h",
+      "bytes": 5343,
+      "sha256": "c757ce8e8773fa70414521f4ce8350b1cf7776a109e5ba8cb4190418df76e476"
+    },
+    {
+      "path": "src/video_core/texture_cache/texture_cache.cpp",
+      "bytes": 55455,
+      "sha256": "ddace13ae47938e83db48c548e747be0a8821958a0e49ba5b9fea8d7ddb56e1b"
+    },
+    {
+      "path": "src/video_core/texture_cache/texture_cache.h",
+      "bytes": 13436,
+      "sha256": "b98ec04ddd1155622d2e68ad2be68d12832d53453c2ce16d13814d5298554311"
+    },
+    {
+      "path": "src/video_core/texture_cache/tile_manager.cpp",
+      "bytes": 13493,
+      "sha256": "eb0e9735223afa86d13f27f714c1541a27f7f08c96b6ac00555e4e2599301cb4"
+    },
+    {
+      "path": "src/video_core/vma_diagnostics.cpp",
+      "bytes": 14805,
+      "sha256": "fe178b443cb60ad34b3dcafd031573720f7b998801adb965fead58efcb2e657b"
+    },
+    {
+      "path": "src/video_core/vma_diagnostics.h",
+      "bytes": 1660,
+      "sha256": "b82248d9922eb1892c02b342bb3ba5d124ac19d7fd325fe8f9611c35d1282b00"
+    },
+    {
+      "path": "tests/video_core/android_internal_scale_probe.cpp",
+      "bytes": 21219,
+      "sha256": "cd0edd3cf1afe80df3df2ba1dfd2ad636c08ecf89a370202a0dedc86f3626730"
+    },
+    {
+      "path": "tests/video_core/resource_policy_gpu_checks.h",
+      "bytes": 21440,
+      "sha256": "752a42a2650b2e8e8e512c8c1a4330ab9da74997a98ec3066139f52845057203"
+    },
+    {
+      "path": "tests/video_core/scale_policy_tests.cpp",
+      "bytes": 4128,
+      "sha256": "c1c6ea4b1f4463e2c787235100c6779f4b5c589a5868d0a54c74e3bcf17be77e"
+    }
+  ],
+  "local_visual_evidence": [
+    {
+      "path": "build/validation/resource-policy-20260920/tmnt-policy-low-roof.jpeg",
+      "bytes": 1688245,
+      "sha256": "d4b0b3eec81abf1b01678b211220ae0de5595343ee1aec76dcba46ec70900118",
+      "included_in_evidence": false
+    },
+    {
+      "path": "build/validation/resource-policy-20260920/tmnt-policy-low-move.png",
+      "bytes": 1703323,
+      "sha256": "f95abf3d7cbe46f791fd2d9a38d5f6bc2110917c362c43950b9231ad2cbe8623",
+      "included_in_evidence": false
+    }
+  ]
+}

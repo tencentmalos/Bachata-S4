@@ -1,0 +1,268 @@
+SERVICE com.shadps4.android/.service.FexSessionService 6ffa5b3 pid=16849 user=0
+  Client:
+    cache_epoch=1 request_id=4 completed_id=4 pending=false
+    status=sampled sample_ns=114194658060760 render_scale_percent=50 texture_quality=medium legacy=0 attachment_counter_version=2 attachment_draws=1912701 scaled_attachment_draws=100281 attachment_passes=459207 scaled_attachment_passes=45354 plan_entries=1765 budget_native=0
+    idle_asset_evictions=144 idle_asset_retired_allocation_bytes=16556032
+    attachment_group_overflow_draws=1021653
+    native_fallback=none transitions=0
+    native_fallback=size-protect transitions=0
+    native_fallback=semantic-native transitions=1
+    native_fallback=unknown-usage transitions=0
+    native_fallback=alias transitions=11
+    native_fallback=insufficient-mips transitions=0
+    native_fallback=mixed-pass transitions=55
+    native_fallback=readback transitions=6
+    native_fallback=copy-inherit transitions=0
+    native_fallback=update-cost transitions=0
+    native_fallback=budget transitions=0
+    native_fallback=legacy transitions=0
+    native_fallback=streaming transitions=0
+    attachment_group fragment=0 logical=1x1 reasons=16 scaled=0 attachments=1 depth=1 draws=5 passes=5
+    attachment_group fragment=0 logical=1x1 reasons=66 scaled=0 attachments=1 depth=1 draws=2 passes=2
+    attachment_group fragment=0 logical=32x32 reasons=66 scaled=0 attachments=1 depth=1 draws=7908 passes=7908
+    attachment_group fragment=0 logical=64x64 reasons=66 scaled=0 attachments=1 depth=1 draws=10644 passes=10644
+    attachment_group fragment=0 logical=256x256 reasons=1 scaled=1 attachments=1 depth=1 draws=122 passes=122
+    attachment_group fragment=0 logical=1920x1080 reasons=1 scaled=1 attachments=1 depth=1 draws=1 passes=1
+    attachment_group fragment=0 logical=1920x1080 reasons=128 scaled=0 attachments=1 depth=1 draws=1290 passes=1290
+    attachment_group fragment=28201864 logical=960x540 reasons=1 scaled=1 attachments=1 depth=0 draws=1291 passes=1291
+    attachment_group fragment=34679089 logical=588x221 reasons=1 scaled=1 attachments=1 depth=0 draws=162 passes=162
+    attachment_group fragment=34679089 logical=1176x441 reasons=1 scaled=1 attachments=1 depth=0 draws=323 passes=323
+    attachment_group fragment=47026075 logical=1920x1080 reasons=192 scaled=0 attachments=3 depth=1 draws=4616 passes=0
+    attachment_group fragment=62040615 logical=1176x441 reasons=1 scaled=1 attachments=1 depth=0 draws=161 passes=161
+    attachment_group fragment=114244726 logical=64x64 reasons=66 scaled=0 attachments=2 depth=1 draws=60 passes=13
+    attachment_group fragment=114244726 logical=256x256 reasons=1 scaled=1 attachments=2 depth=1 draws=184 passes=67
+    attachment_group fragment=131103987 logical=1920x1080 reasons=192 scaled=0 attachments=3 depth=1 draws=3905 passes=1
+    attachment_group fragment=250937415 logical=1920x1080 reasons=192 scaled=0 attachments=3 depth=1 draws=10752 passes=30
+    attachment_group fragment=258080039 logical=32x32 reasons=66 scaled=0 attachments=1 depth=0 draws=7908 passes=7908
+    attachment_group fragment=258080039 logical=64x64 reasons=66 scaled=0 attachments=1 depth=0 draws=10644 passes=10644
+    attachment_group fragment=258080039 logical=256x256 reasons=1 scaled=1 attachments=1 depth=0 draws=120 passes=120
+    attachment_group fragment=269499742 logical=1176x441 reasons=1 scaled=1 attachments=1 depth=0 draws=161 passes=161
+    attachment_group fragment=277746108 logical=4096x4096 reasons=4 scaled=0 attachments=1 depth=1 draws=5400 passes=2428
+    attachment_group fragment=306724205 logical=64x64 reasons=66 scaled=0 attachments=2 depth=1 draws=19081 passes=380
+    attachment_group fragment=306724205 logical=256x256 reasons=1 scaled=1 attachments=2 depth=1 draws=1098 passes=662
+    attachment_group fragment=345256703 logical=1920x1080 reasons=192 scaled=0 attachments=3 depth=1 draws=953 passes=1
+    attachment_group fragment=409823701 logical=1920x1080 reasons=192 scaled=0 attachments=3 depth=1 draws=28306 passes=120
+    attachment_group fragment=450903413 logical=32x32 reasons=66 scaled=0 attachments=2 depth=1 draws=43428 passes=8568
+    attachment_group fragment=450903413 logical=64x64 reasons=66 scaled=0 attachments=2 depth=1 draws=55287 passes=9193
+    attachment_group fragment=450903413 logical=256x256 reasons=1 scaled=1 attachments=2 depth=1 draws=797 passes=78
+    attachment_group fragment=526731049 logical=64x64 reasons=66 scaled=0 attachments=2 depth=1 draws=18481 passes=2089
+    attachment_group fragment=526731049 logical=256x256 reasons=1 scaled=1 attachments=2 depth=1 draws=126 passes=77
+    attachment_group fragment=582178803 logical=1920x1080 reasons=192 scaled=0 attachments=3 depth=1 draws=1670 passes=0
+    attachment_group fragment=643460397 logical=588x221 reasons=4 scaled=0 attachments=1 depth=0 draws=1 passes=1
+    attachment_group fragment=643460397 logical=1176x441 reasons=1 scaled=1 attachments=1 depth=0 draws=166 passes=166
+    attachment_group fragment=688522283 logical=1920x1080 reasons=1 scaled=1 attachments=1 depth=0 draws=161 passes=161
+    attachment_group fragment=702572648 logical=1920x1080 reasons=1 scaled=1 attachments=1 depth=0 draws=161 passes=161
+    attachment_group fragment=702572648 logical=1920x1080 reasons=4 scaled=0 attachments=1 depth=0 draws=3 passes=3
+    attachment_group fragment=766924117 logical=1920x1080 reasons=192 scaled=0 attachments=2 depth=1 draws=164 passes=164
+    attachment_group fragment=783071619 logical=1920x1080 reasons=192 scaled=0 attachments=2 depth=1 draws=1291 passes=1291
+    attachment_group fragment=822430028 logical=1920x1080 reasons=192 scaled=0 attachments=3 depth=1 draws=9437 passes=1
+    attachment_group fragment=853833608 logical=1920x1080 reasons=192 scaled=0 attachments=2 depth=1 draws=1291 passes=1291
+    attachment_group fragment=922842359 logical=1920x1080 reasons=192 scaled=0 attachments=3 depth=1 draws=50749 passes=444
+    attachment_group fragment=953572146 logical=1920x1080 reasons=1 scaled=1 attachments=1 depth=0 draws=3477 passes=3477
+    attachment_group fragment=1072294244 logical=1920x1080 reasons=1 scaled=1 attachments=2 depth=0 draws=1 passes=1
+    attachment_group fragment=1072294244 logical=1920x1080 reasons=64 scaled=0 attachments=2 depth=0 draws=1290 passes=1290
+    attachment_group fragment=1196359971 logical=588x221 reasons=1 scaled=1 attachments=1 depth=0 draws=486 passes=486
+    attachment_group fragment=1196359971 logical=1176x441 reasons=1 scaled=1 attachments=1 depth=0 draws=969 passes=969
+    attachment_group fragment=1212112321 logical=588x221 reasons=1 scaled=1 attachments=1 depth=0 draws=486 passes=486
+    attachment_group fragment=1212112321 logical=588x221 reasons=4 scaled=0 attachments=1 depth=0 draws=1450 passes=1450
+    attachment_group fragment=1212112321 logical=1176x441 reasons=1 scaled=1 attachments=1 depth=0 draws=969 passes=969
+    attachment_group fragment=1266052962 logical=294x111 reasons=4 scaled=0 attachments=1 depth=0 draws=483 passes=483
+    attachment_group fragment=1266052962 logical=588x221 reasons=1 scaled=1 attachments=1 depth=0 draws=162 passes=162
+    attachment_group fragment=1266052962 logical=960x540 reasons=4 scaled=0 attachments=1 depth=0 draws=1123 passes=1123
+    attachment_group fragment=1339611904 logical=1920x1080 reasons=1 scaled=1 attachments=1 depth=1 draws=6 passes=3
+    attachment_group fragment=1339611904 logical=1920x1080 reasons=128 scaled=0 attachments=1 depth=1 draws=10862 passes=5431
+    attachment_group fragment=1348386238 logical=1920x1080 reasons=192 scaled=0 attachments=3 depth=1 draws=456 passes=0
+    attachment_group fragment=1501346764 logical=1176x441 reasons=1 scaled=1 attachments=1 depth=0 draws=162 passes=162
+    attachment_group fragment=1543695096 logical=1920x1080 reasons=64 scaled=0 attachments=1 depth=0 draws=659 passes=659
+    attachment_group fragment=1567707354 logical=1920x1080 reasons=192 scaled=0 attachments=3 depth=1 draws=1590 passes=218
+    attachment_group fragment=1574978150 logical=1920x1080 reasons=192 scaled=0 attachments=3 depth=1 draws=1454 passes=0
+    attachment_group fragment=1581618932 logical=1920x1080 reasons=1 scaled=1 attachments=1 depth=0 draws=2125 passes=5
+    attachment_group fragment=1581618932 logical=1920x1080 reasons=64 scaled=0 attachments=1 depth=0 draws=7032 passes=394
+    attachment_group fragment=1583863910 logical=1920x1080 reasons=1 scaled=1 attachments=1 depth=0 draws=1 passes=1
+    attachment_group fragment=1583863910 logical=1920x1080 reasons=64 scaled=0 attachments=1 depth=0 draws=149 passes=149
+    attachment_group fragment=1611630256 logical=1920x1080 reasons=192 scaled=0 attachments=3 depth=1 draws=25913 passes=562
+    attachment_group fragment=1663089444 logical=512x512 reasons=1 scaled=1 attachments=1 depth=0 draws=6 passes=4
+    attachment_group fragment=1799552137 logical=1920x1080 reasons=192 scaled=0 attachments=3 depth=1 draws=12900 passes=758
+    attachment_group fragment=1909024152 logical=1920x1080 reasons=192 scaled=0 attachments=2 depth=1 draws=46858 passes=11411
+    attachment_group fragment=2093137988 logical=1920x1080 reasons=192 scaled=0 attachments=3 depth=1 draws=83605 passes=806
+    attachment_group fragment=2094960223 logical=4096x4096 reasons=4 scaled=0 attachments=1 depth=1 draws=3031 passes=2024
+    attachment_group fragment=2105555488 logical=64x64 reasons=66 scaled=0 attachments=2 depth=1 draws=260 passes=2
+    attachment_group fragment=2105555488 logical=256x256 reasons=1 scaled=1 attachments=2 depth=1 draws=544 passes=8
+    attachment_group fragment=2253406607 logical=1920x1080 reasons=1 scaled=1 attachments=1 depth=0 draws=1 passes=1
+    attachment_group fragment=2253406607 logical=1920x1080 reasons=64 scaled=0 attachments=1 depth=0 draws=1290 passes=1290
+    attachment_group fragment=2285980886 logical=1176x441 reasons=1 scaled=1 attachments=1 depth=0 draws=162 passes=162
+    attachment_group fragment=2305716802 logical=1920x1080 reasons=192 scaled=0 attachments=3 depth=1 draws=3223 passes=0
+    attachment_group fragment=2314858046 logical=1920x1080 reasons=192 scaled=0 attachments=3 depth=1 draws=1397 passes=0
+    attachment_group fragment=2350102916 logical=1920x1080 reasons=192 scaled=0 attachments=2 depth=1 draws=1291 passes=1291
+    attachment_group fragment=2371061721 logical=1920x1080 reasons=192 scaled=0 attachments=3 depth=1 draws=1676 passes=15
+    attachment_group fragment=2393226905 logical=1920x1080 reasons=192 scaled=0 attachments=3 depth=1 draws=3747 passes=0
+    attachment_group fragment=2396155185 logical=1920x1080 reasons=1 scaled=1 attachments=1 depth=0 draws=17 passes=1
+    attachment_group fragment=2458201843 logical=4096x4096 reasons=4 scaled=0 attachments=1 depth=1 draws=2892 passes=15
+    attachment_group fragment=2553795016 logical=1920x1080 reasons=1 scaled=1 attachments=1 depth=1 draws=2184 passes=2184
+    attachment_group fragment=2553795016 logical=1920x1080 reasons=128 scaled=0 attachments=1 depth=1 draws=15385 passes=15385
+    attachment_group fragment=2632467537 logical=4096x4096 reasons=4 scaled=0 attachments=1 depth=1 draws=15377 passes=5094
+    attachment_group fragment=2662531605 logical=1920x1080 reasons=192 scaled=0 attachments=2 depth=1 draws=1291 passes=1291
+    attachment_group fragment=2677994087 logical=1920x1080 reasons=192 scaled=0 attachments=3 depth=1 draws=3101 passes=0
+    attachment_group fragment=2699595606 logical=4096x4096 reasons=4 scaled=0 attachments=1 depth=1 draws=35167 passes=17951
+    attachment_group fragment=2718994270 logical=4096x4096 reasons=4 scaled=0 attachments=1 depth=1 draws=17754 passes=9243
+    attachment_group fragment=2720825201 logical=1920x1080 reasons=192 scaled=0 attachments=3 depth=1 draws=69558 passes=1744
+    attachment_group fragment=2727462040 logical=1920x1080 reasons=192 scaled=0 attachments=2 depth=1 draws=2582 passes=1440
+    attachment_group fragment=2885231696 logical=960x540 reasons=1 scaled=1 attachments=1 depth=0 draws=2580 passes=2580
+    attachment_group fragment=2887418765 logical=1920x1080 reasons=1 scaled=1 attachments=1 depth=0 draws=2799 passes=2150
+    attachment_group fragment=2887418765 logical=1920x1080 reasons=64 scaled=0 attachments=1 depth=0 draws=175 passes=0
+    attachment_group fragment=3046853710 logical=1920x1080 reasons=192 scaled=0 attachments=3 depth=1 draws=501 passes=0
+    attachment_group fragment=3084809433 logical=1920x1080 reasons=1 scaled=1 attachments=1 depth=0 draws=3500 passes=0
+    attachment_group fragment=3084809433 logical=1920x1080 reasons=64 scaled=0 attachments=1 depth=0 draws=422 passes=164
+    attachment_group fragment=3132990285 logical=1920x1080 reasons=1 scaled=1 attachments=1 depth=0 draws=6941 passes=7
+    attachment_group fragment=3132990285 logical=1920x1080 reasons=1 scaled=1 attachments=2 depth=1 draws=3 passes=3
+    attachment_group fragment=3132990285 logical=1920x1080 reasons=64 scaled=0 attachments=1 depth=0 draws=9850 passes=2781
+    attachment_group fragment=3132990285 logical=1920x1080 reasons=192 scaled=0 attachments=2 depth=1 draws=3993 passes=3993
+    attachment_group fragment=3135587662 logical=1920x1080 reasons=192 scaled=0 attachments=3 depth=1 draws=76053 passes=0
+    attachment_group fragment=3208021015 logical=1920x1080 reasons=1 scaled=1 attachments=1 depth=0 draws=162 passes=2
+    attachment_group fragment=3208021015 logical=1920x1080 reasons=4 scaled=0 attachments=1 depth=0 draws=1129 passes=1
+    attachment_group fragment=3287283336 logical=1920x1080 reasons=4 scaled=0 attachments=1 depth=0 draws=1 passes=1
+    attachment_group fragment=3418138076 logical=960x540 reasons=1 scaled=1 attachments=1 depth=0 draws=1291 passes=1291
+    attachment_group fragment=3435087014 logical=1920x1080 reasons=4 scaled=0 attachments=1 depth=0 draws=1291 passes=1291
+    attachment_group fragment=3483987369 logical=1920x1080 reasons=1 scaled=1 attachments=1 depth=0 draws=2266 passes=3
+    attachment_group fragment=3483987369 logical=1920x1080 reasons=64 scaled=0 attachments=1 depth=0 draws=4979 passes=26
+    attachment_group fragment=3483987369 logical=1920x1080 reasons=192 scaled=0 attachments=2 depth=1 draws=124 passes=124
+    attachment_group fragment=3526148049 logical=1920x1080 reasons=192 scaled=0 attachments=3 depth=1 draws=7304 passes=1
+    attachment_group fragment=3553147681 logical=960x540 reasons=1 scaled=1 attachments=1 depth=0 draws=1289 passes=1289
+    attachment_group fragment=3613385471 logical=1920x1080 reasons=192 scaled=0 attachments=3 depth=1 draws=4050 passes=0
+    attachment_group fragment=3642910393 logical=1920x1080 reasons=192 scaled=0 attachments=3 depth=1 draws=1291 passes=1291
+    attachment_group fragment=3731291789 logical=1920x1080 reasons=1 scaled=1 attachments=1 depth=1 draws=20 passes=20
+    attachment_group fragment=3755302331 logical=294x111 reasons=4 scaled=0 attachments=1 depth=0 draws=1 passes=1
+    attachment_group fragment=3755302331 logical=588x221 reasons=4 scaled=0 attachments=1 depth=0 draws=1 passes=1
+    attachment_group fragment=3892651724 logical=1176x441 reasons=1 scaled=1 attachments=1 depth=0 draws=328 passes=328
+    attachment_group fragment=3894472349 logical=480x270 reasons=1 scaled=1 attachments=1 depth=1 draws=1291 passes=1291
+    attachment_group fragment=3894472349 logical=960x540 reasons=1 scaled=1 attachments=1 depth=1 draws=1291 passes=1291
+    attachment_group fragment=3915663299 logical=1920x1080 reasons=192 scaled=0 attachments=3 depth=1 draws=64568 passes=1733
+    attachment_group fragment=4065531687 logical=1920x1080 reasons=192 scaled=0 attachments=3 depth=1 draws=2023 passes=0
+    attachment_group fragment=4116071390 logical=1920x1080 reasons=1 scaled=1 attachments=1 depth=0 draws=1 passes=1
+    attachment_group fragment=4116071390 logical=1920x1080 reasons=64 scaled=0 attachments=1 depth=0 draws=1290 passes=1290
+    attachment_group fragment=4162164429 logical=1920x1080 reasons=192 scaled=0 attachments=3 depth=1 draws=1514 passes=383
+    attachment_group fragment=4226270390 logical=1920x1080 reasons=4 scaled=0 attachments=1 depth=0 draws=1291 passes=1291
+    attachment_group fragment=4233280094 logical=1920x1080 reasons=1 scaled=1 attachments=1 depth=0 draws=35 passes=0
+    attachment_group fragment=4287637312 logical=588x221 reasons=1 scaled=1 attachments=1 depth=0 draws=162 passes=162
+    attachment_group fragment=4287637312 logical=1176x441 reasons=1 scaled=1 attachments=1 depth=0 draws=324 passes=324
+    vma_policy=medium preferred_block_bytes=134217728 compact_allocations=1 staging_policy_bytes=268435456 idle_asset_submits=600 idle_evictions_per_sweep=4
+    vma_consistent=1 ledger_version=167313 vma_reserved_bytes=3174187008 vma_live_allocation_bytes=2724007936 vma_free_block_bytes=450179072 vma_block_count=668 vma_allocation_count=2119 vma_free_range_count=493 vma_largest_free_range=33554432
+    vma_reserved_peak_bytes=3662381056 vma_blocks_peak=820 vma_reserved_reconciliation_delta=0 tracked_live_bytes=2724007936 tracked_peak_bytes=3569705600 tracked_created_bytes=74500005248 tracked_freed_bytes=71775997312 tracked_created_count=27996 tracked_freed_count=25877 vma_reconciliation_delta=0
+    tracked_retiring_bytes=55738368 tracked_retiring_count=13 tracked_retiring_peak_bytes=1356867072 tracked_nonretiring_bytes=2668269568
+    device_memory_created_bytes=9526804480 device_memory_freed_bytes=6352617472 device_memory_create_count=4195 device_memory_free_count=3527
+    vma_heap=0 flags=1 capacity_bytes=12111052800 reserved_bytes=3174187008 allocation_bytes=2724007936 driver_usage_bytes=3516870656 driver_budget_bytes=4631560192 budget_source=VK_EXT_memory_budget
+    vma_group=buffer/DeviceLocal/type0/flags7 allocation_bytes=8388608 buffer_requested_bytes=8388608 count=1 peak_bytes=679477248 retiring_peak_bytes=0 retiring_bytes=0 retiring_count=0
+    vma_group=buffer/Download/type1/flags15 allocation_bytes=65536 buffer_requested_bytes=65536 count=1 peak_bytes=33619968 retiring_peak_bytes=0 retiring_bytes=0 retiring_count=0
+    vma_group=buffer/Stream/type0/flags7 allocation_bytes=0 buffer_requested_bytes=0 count=0 peak_bytes=67174400 retiring_peak_bytes=0 retiring_bytes=0 retiring_count=0
+    vma_group=buffer/Upload/type0/flags7 allocation_bytes=0 buffer_requested_bytes=0 count=0 peak_bytes=268435456 retiring_peak_bytes=0 retiring_bytes=0 retiring_count=0
+    vma_group=buffer/bda-page-table/type0/flags7 allocation_bytes=536870912 buffer_requested_bytes=536870912 count=1 peak_bytes=536870912 retiring_peak_bytes=0 retiring_bytes=0 retiring_count=0
+    vma_group=buffer/device-pool/type0/flags7 allocation_bytes=134217728 buffer_requested_bytes=134217728 count=1 peak_bytes=134217728 retiring_peak_bytes=0 retiring_bytes=0 retiring_count=0
+    vma_group=buffer/download-pool/type1/flags15 allocation_bytes=33554432 buffer_requested_bytes=33554432 count=1 peak_bytes=33554432 retiring_peak_bytes=0 retiring_bytes=0 retiring_count=0
+    vma_group=buffer/gds/type0/flags7 allocation_bytes=65536 buffer_requested_bytes=65536 count=1 peak_bytes=65536 retiring_peak_bytes=0 retiring_bytes=0 retiring_count=0
+    vma_group=buffer/guest-cache/type0/flags7 allocation_bytes=723238912 buffer_requested_bytes=723238912 count=651 peak_bytes=1614086144 retiring_peak_bytes=1078296576 retiring_bytes=0 retiring_count=0
+    vma_group=buffer/staging-pool/type0/flags7 allocation_bytes=268435456 buffer_requested_bytes=268435456 count=1 peak_bytes=268435456 retiring_peak_bytes=0 retiring_bytes=0 retiring_count=0
+    vma_group=buffer/stream-pool/type0/flags7 allocation_bytes=67108864 buffer_requested_bytes=67108864 count=1 peak_bytes=67108864 retiring_peak_bytes=0 retiring_bytes=0 retiring_count=0
+    vma_group=image/asset/type0/flags7 allocation_bytes=144433152 buffer_requested_bytes=0 count=778 peak_bytes=159399936 retiring_peak_bytes=41779200 retiring_bytes=0 retiring_count=0
+    vma_group=image/native-required/type0/flags7 allocation_bytes=645648384 buffer_requested_bytes=0 count=588 peak_bytes=748498944 retiring_peak_bytes=102850560 retiring_bytes=0 retiring_count=0
+    vma_group=image/present/type0/flags7 allocation_bytes=66846720 buffer_requested_bytes=0 count=8 peak_bytes=66846720 retiring_peak_bytes=0 retiring_bytes=0 retiring_count=0
+    vma_group=image/render/type0/flags7 allocation_bytes=39395328 buffer_requested_bytes=0 count=73 peak_bytes=73740288 retiring_peak_bytes=34344960 retiring_bytes=0 retiring_count=0
+    vma_group=image/type0/flags7 allocation_bytes=0 buffer_requested_bytes=0 count=0 peak_bytes=68583424 retiring_peak_bytes=0 retiring_bytes=0 retiring_count=0
+    vma_group=image/unknown/type0/flags7 allocation_bytes=0 buffer_requested_bytes=0 count=0 peak_bytes=1572864 retiring_peak_bytes=0 retiring_bytes=0 retiring_count=0
+    vma_group=image/upload-source/type0/flags7 allocation_bytes=0 buffer_requested_bytes=0 count=0 peak_bytes=118747136 retiring_peak_bytes=118747136 retiring_bytes=0 retiring_count=0
+    vma_group=scratch/detile-tile/type0/flags7 allocation_bytes=55738368 buffer_requested_bytes=55738368 count=13 peak_bytes=322062848 retiring_peak_bytes=322062848 retiring_bytes=55738368 retiring_count=13
+    vma_largest_rank=1 category=buffer/bda-page-table allocation_bytes=536870912 buffer_requested_bytes=536870912 memory_type=0 properties=7 retiring=0
+    vma_largest_rank=2 category=buffer/staging-pool allocation_bytes=268435456 buffer_requested_bytes=268435456 memory_type=0 properties=7 retiring=0
+    vma_largest_rank=3 category=buffer/guest-cache allocation_bytes=140410880 buffer_requested_bytes=140410880 memory_type=0 properties=7 retiring=0
+    vma_largest_rank=4 category=buffer/device-pool allocation_bytes=134217728 buffer_requested_bytes=134217728 memory_type=0 properties=7 retiring=0
+    vma_largest_rank=5 category=buffer/guest-cache allocation_bytes=85262336 buffer_requested_bytes=85262336 memory_type=0 properties=7 retiring=0
+    vma_largest_rank=6 category=image/native-required allocation_bytes=68583424 buffer_requested_bytes=0 memory_type=0 properties=7 retiring=0
+    vma_largest_rank=7 category=buffer/stream-pool allocation_bytes=67108864 buffer_requested_bytes=67108864 memory_type=0 properties=7 retiring=0
+    vma_largest_rank=8 category=buffer/guest-cache allocation_bytes=57524224 buffer_requested_bytes=57524224 memory_type=0 properties=7 retiring=0
+    vma_largest_rank=9 category=buffer/guest-cache allocation_bytes=45744128 buffer_requested_bytes=45744128 memory_type=0 properties=7 retiring=0
+    vma_largest_rank=10 category=buffer/download-pool allocation_bytes=33554432 buffer_requested_bytes=33554432 memory_type=1 properties=15 retiring=0
+    vma_largest_rank=11 category=buffer/guest-cache allocation_bytes=19267584 buffer_requested_bytes=19267584 memory_type=0 properties=7 retiring=0
+    vma_largest_rank=12 category=buffer/guest-cache allocation_bytes=17481728 buffer_requested_bytes=17481728 memory_type=0 properties=7 retiring=0
+    vma_largest_rank=13 category=image/native-required allocation_bytes=16711680 buffer_requested_bytes=0 memory_type=0 properties=7 retiring=0
+    vma_largest_rank=14 category=image/native-required allocation_bytes=16711680 buffer_requested_bytes=0 memory_type=0 properties=7 retiring=0
+    vma_largest_rank=15 category=image/native-required allocation_bytes=16711680 buffer_requested_bytes=0 memory_type=0 properties=7 retiring=0
+    vma_largest_rank=16 category=scratch/detile-tile allocation_bytes=16711680 buffer_requested_bytes=16711680 memory_type=0 properties=7 retiring=1
+    process_Rss_bytes=1315549184
+    process_Pss_bytes=1057970176
+    process_Shared_Clean_bytes=150425600
+    process_Shared_Dirty_bytes=231149568
+    process_Private_Clean_bytes=119029760
+    process_Private_Dirty_bytes=814944256
+    process_SwapPss_bytes=947347456
+    memory_sample_elapsed_us=81403
+    memory_scope=VMA_allocations_only; process_RSS_PSS_include_guest_and_CPU_memory; driver_heap_usage_is_VMA_adjusted_estimate; non_VMA_ImGui_swapchain_driver_internal_allocations_excluded; UMA_flags_overlap; do_not_sum_VMA_and_PSS; image_requested_size_is_driver_defined; retiring_is_subset_of_allocation_bytes; group_peaks_are_not_additive; no_GPU_wait
+    resource=render/none address=9886007296 generation=1 logical=1920x1080 physical=960x540 drop=0 content_version=1160 plan_version=1 upscaled_readback=0 uploads=1
+    resource=render/none address=9894363136 generation=2 logical=1920x1080 physical=960x540 drop=0 content_version=1160 plan_version=1 upscaled_readback=0 uploads=1
+    resource=render/none address=9902718976 generation=3 logical=1920x1080 physical=960x540 drop=0 content_version=1160 plan_version=1 upscaled_readback=0 uploads=1
+    resource=native-required/semantic-native address=12107911168 generation=4 logical=1025x1 physical=1025x1 drop=0 content_version=10604 plan_version=2 upscaled_readback=0 uploads=1
+    resource=native-required/semantic-native address=12108141312 generation=5 logical=16x16 physical=16x16 drop=0 content_version=2 plan_version=2 upscaled_readback=0 uploads=1
+    resource=native-required/semantic-native address=12108145408 generation=6 logical=1x1 physical=1x1 drop=0 content_version=2 plan_version=2 upscaled_readback=0 uploads=1
+    resource=native-required/semantic-native address=12108145664 generation=7 logical=1x1 physical=1x1 drop=0 content_version=2 plan_version=2 upscaled_readback=0 uploads=1
+    resource=native-required/mixed-pass address=9911107584 generation=46 logical=1920x1080 physical=1920x1080 drop=0 content_version=50570 plan_version=4 upscaled_readback=0 uploads=1
+    resource=native-required/readback address=9919463424 generation=47 logical=1920x1080 physical=1920x1080 drop=0 content_version=1117532 plan_version=3 upscaled_readback=1 uploads=1
+    resource=asset/none address=12305129984 generation=1765 logical=256x256 physical=192x192 drop=0 content_version=1 plan_version=1 upscaled_readback=0 uploads=1
+    resource=asset/insufficient-mips address=13215080704 generation=49 logical=1024x1024 physical=1024x1024 drop=0 content_version=10 plan_version=1 upscaled_readback=0 uploads=10
+    resource=asset/size-protect address=10048966656 generation=1595 logical=2x1 physical=2x1 drop=0 content_version=1 plan_version=1 upscaled_readback=0 uploads=1
+    resource=asset/size-protect address=10048977920 generation=1592 logical=16x1 physical=16x1 drop=0 content_version=1 plan_version=1 upscaled_readback=0 uploads=1
+    resource=native-required/streaming address=10048964864 generation=1591 logical=32x1 physical=32x1 drop=0 content_version=1 plan_version=2 upscaled_readback=0 uploads=1
+    resource=asset/size-protect address=10048966144 generation=1594 logical=4x1 physical=4x1 drop=0 content_version=1 plan_version=1 upscaled_readback=0 uploads=1
+    resource=native-required/streaming address=10048978688 generation=1593 logical=8x1 physical=8x1 drop=0 content_version=1 plan_version=2 upscaled_readback=0 uploads=1
+    resource=asset/insufficient-mips address=10289676288 generation=65 logical=2048x2048 physical=2048x2048 drop=0 content_version=1 plan_version=1 upscaled_readback=0 uploads=1
+    resource=native-required/mixed-pass address=12110266368 generation=71 logical=1x1 physical=1x1 drop=0 content_version=2 plan_version=3 upscaled_readback=0 uploads=1
+    resource=native-required/mixed-pass address=10522394624 generation=89 logical=1920x1080 physical=1920x1080 drop=0 content_version=398115 plan_version=4 upscaled_readback=0 uploads=1
+    resource=native-required/mixed-pass address=10547494912 generation=88 logical=1920x1080 physical=1920x1080 drop=0 content_version=398115 plan_version=4 upscaled_readback=0 uploads=1
+    resource=native-required/alias address=12110331904 generation=77 logical=1x1 physical=1x1 drop=0 content_version=1 plan_version=3 upscaled_readback=0 uploads=0
+    resource=native-required/readback address=10436018176 generation=78 logical=1920x1080 physical=1920x1080 drop=0 content_version=400548 plan_version=3 upscaled_readback=1 uploads=1
+    resource=native-required/readback address=10444406784 generation=79 logical=1920x1080 physical=1920x1080 drop=0 content_version=400548 plan_version=3 upscaled_readback=1 uploads=1
+    resource=render/none address=10587996160 generation=80 logical=960x540 physical=480x270 drop=0 content_version=1292 plan_version=1 upscaled_readback=0 uploads=1
+    resource=asset/insufficient-mips address=10368122880 generation=81 logical=1920x1080 physical=1920x1080 drop=0 content_version=1291 plan_version=1 upscaled_readback=0 uploads=1291
+    resource=native-required/streaming address=10048975616 generation=1590 logical=64x1 physical=64x1 drop=0 content_version=1 plan_version=2 upscaled_readback=0 uploads=1
+    resource=native-required/streaming address=10049190912 generation=1589 logical=2x2 physical=2x2 drop=0 content_version=1 plan_version=2 upscaled_readback=0 uploads=1
+    resource=asset/none address=12719131904 generation=1399 logical=512x512 physical=384x384 drop=0 content_version=1 plan_version=1 upscaled_readback=0 uploads=1
+    resource=asset/size-protect address=10049188608 generation=1586 logical=16x16 physical=16x16 drop=0 content_version=1 plan_version=1 upscaled_readback=0 uploads=1
+    resource=asset/none address=12835250432 generation=1582 logical=128x128 physical=96x96 drop=0 content_version=1 plan_version=1 upscaled_readback=0 uploads=1
+    resource=asset/none address=12835263744 generation=1581 logical=256x256 physical=192x192 drop=0 content_version=1 plan_version=1 upscaled_readback=0 uploads=1
+    resource=asset/insufficient-mips address=12159586304 generation=1746 logical=1024x256 physical=1024x256 drop=0 content_version=1 plan_version=1 upscaled_readback=0 uploads=1
+    resource=native-required/copy-inherit address=10048937216 generation=136 logical=256x1 physical=256x1 drop=0 content_version=3 plan_version=2 upscaled_readback=0 uploads=1
+    resource=render/copy-inherit address=10012262400 generation=1371 logical=512x512 physical=256x256 drop=0 content_version=17043 plan_version=483 upscaled_readback=0 uploads=1
+    resource=native-required/alias address=10018095104 generation=1366 logical=256x256 physical=256x256 drop=0 content_version=62602 plan_version=3 upscaled_readback=0 uploads=482
+    resource=native-required/alias address=12121079808 generation=1370 logical=128x128 physical=128x128 drop=0 content_version=51648 plan_version=3 upscaled_readback=0 uploads=482
+    resource=asset/size-protect address=12305492480 generation=1762 logical=128x64 physical=128x64 drop=0 content_version=1 plan_version=1 upscaled_readback=0 uploads=1
+    resource=native-required/copy-inherit address=10505682944 generation=290 logical=1920x1080 physical=1920x1080 drop=0 content_version=2 plan_version=2 upscaled_readback=0 uploads=1
+    resource=asset/size-protect address=12523952384 generation=316 logical=64x256 physical=64x256 drop=0 content_version=1 plan_version=1 upscaled_readback=0 uploads=1
+    resource=asset/size-protect address=12524009728 generation=317 logical=128x64 physical=128x64 drop=0 content_version=1 plan_version=1 upscaled_readback=0 uploads=1
+    resource=asset/size-protect address=12524352768 generation=318 logical=128x64 physical=128x64 drop=0 content_version=1 plan_version=1 upscaled_readback=0 uploads=1
+    resource=native-required/semantic-native address=12378784256 generation=360 logical=128x128 physical=128x128 drop=0 content_version=1 plan_version=2 upscaled_readback=0 uploads=1
+    resource=native-required/semantic-native address=12378358272 generation=394 logical=128x128 physical=128x128 drop=0 content_version=1 plan_version=2 upscaled_readback=0 uploads=1
+    resource=asset/insufficient-mips address=12158799872 generation=945 logical=1024x512 physical=1024x512 drop=0 content_version=1 plan_version=1 upscaled_readback=0 uploads=1
+    resource=asset/insufficient-mips address=12159324160 generation=946 logical=512x512 physical=512x512 drop=0 content_version=1 plan_version=1 upscaled_readback=0 uploads=1
+    resource=native-required/readback address=10679812096 generation=953 logical=960x540 physical=960x540 drop=0 content_version=4593 plan_version=3 upscaled_readback=1 uploads=657
+    resource=native-required/alias address=9941417984 generation=1054 logical=1920x1080 physical=1920x1080 drop=0 content_version=1773 plan_version=3 upscaled_readback=0 uploads=1
+    resource=asset/insufficient-mips address=10266122496 generation=1166 logical=256x256 physical=256x256 drop=0 content_version=3 plan_version=1 upscaled_readback=0 uploads=3
+    resource=native-required/copy-inherit address=10265772032 generation=1181 logical=256x256 physical=256x256 drop=0 content_version=21 plan_version=2 upscaled_readback=0 uploads=1
+    resource=native-required/copy-inherit address=10049110784 generation=1199 logical=256x1 physical=256x1 drop=0 content_version=3 plan_version=2 upscaled_readback=0 uploads=1
+    images=asset/insufficient-mips/BC/native count=4 backings=4 allocation_bytes=5111808 guest_layout_bytes=5111808
+    images=asset/insufficient-mips/uncompressed/native count=3 backings=3 allocation_bytes=9666560 guest_layout_bytes=10747904
+    images=asset/none/ASTC/scaled count=643 backings=643 allocation_bytes=124440576 guest_layout_bytes=178512896
+    images=asset/size-protect/BC/native count=103 backings=103 allocation_bytes=2846720 guest_layout_bytes=806400
+    images=asset/size-protect/uncompressed/native count=25 backings=25 allocation_bytes=2367488 guest_layout_bytes=1128704
+    images=native-required/alias/uncompressed/native count=5 backings=5 allocation_bytes=10846208 guest_layout_bytes=11108352
+    images=native-required/copy-inherit/uncompressed/native count=7 backings=7 allocation_bytes=8884224 guest_layout_bytes=8768512
+    images=native-required/mixed-pass/uncompressed/native count=53 backings=53 allocation_bytes=153104384 guest_layout_bytes=154468352
+    images=native-required/readback/uncompressed/native count=5 backings=5 allocation_bytes=31625216 guest_layout_bytes=30867456
+    images=native-required/semantic-native/BC/native count=2 backings=2 allocation_bytes=1114112 guest_layout_bytes=425984
+    images=native-required/semantic-native/uncompressed/native count=506 backings=506 allocation_bytes=439971840 guest_layout_bytes=476923648
+    images=native-required/streaming/uncompressed/native count=10 backings=10 allocation_bytes=102400 guest_layout_bytes=71168
+    images=render/copy-inherit/uncompressed/scaled count=1 backings=1 allocation_bytes=262144 guest_layout_bytes=1048576
+    images=render/none/uncompressed/scaled count=72 backings=72 allocation_bytes=39133184 guest_layout_bytes=157351936
+    cached_image_allocation_bytes=829476864
+    scale_upload_image_bytes=0 scale_upload_created_bytes=641773568 scale_upload_created_count=840
+    notes=guest_layout_bytes_is_not_resident_RAM; VMA_includes_buffers_and_pending_resources; cached_images_include_pending_cache_deletion; host_snapshot_is_not_GPU_idle
+    guest_buffer_count=651 guest_buffer_allocation_bytes=723238912
+    utility_buffer_allocation_bytes=1040252928
+    staging_requested_bytes=268435456 stream_requested_bytes=67108864 download_requested_bytes=33554432 device_requested_bytes=134217728 bda_page_table_requested_bytes=536870912
+

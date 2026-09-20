@@ -50,6 +50,7 @@
 #include <imgui.h>
 #include <stb_image_write.h>
 #include <vk_mem_alloc.h>
+#include "video_core/vma_diagnostics.h"
 
 namespace Vulkan {
 
@@ -488,7 +489,7 @@ Presenter::Presenter(std::shared_ptr<Frontend::Window> window_, AmdGpu::Liverpoo
       rasterizer{std::make_unique<Rasterizer>(instance, draw_scheduler, liverpool)},
       texture_cache{rasterizer->GetTextureCache()} {
     const auto& diag = instance.Diagnostics();
-    status_layer = std::make_unique<ImGui::StatusLayer>(diag, instance.GpuTiming());
+    status_layer = std::make_unique<ImGui::StatusLayer>(diag, instance.GpuTiming(), instance.ScalePolicy());
     const u64 generation = diag ? diag->Generation() : 1;
     capture_binding.Bind(generation, static_cast<VkInstance>(instance.GetInstance()),
                          window->GetWindowInfo().render_surface, instance.GetDriverVersionName());
@@ -559,7 +560,7 @@ Presenter::~Presenter() {
 
     const vk::Device device = instance.GetDevice();
     for (auto& frame : present_frames) {
-        vmaDestroyImage(instance.GetAllocator(), frame.image, frame.allocation);
+        VideoCore::VmaDiagnostics::DestroyImage(instance.GetAllocator(), frame.image, frame.allocation);
         device.destroyImageView(frame.image_view);
         device.destroyFence(frame.present_done);
     }
@@ -578,7 +579,7 @@ void Presenter::RecreateFrame(Frame* frame, u32 width, u32 height) {
         device.destroyImageView(frame->image_view);
     }
     if (frame->image) {
-        vmaDestroyImage(instance.GetAllocator(), frame->image, frame->allocation);
+        VideoCore::VmaDiagnostics::DestroyImage(instance.GetAllocator(), frame->image, frame->allocation);
     }
 
     const vk::Format format = swapchain.GetSurfaceFormat().format;
@@ -606,8 +607,8 @@ void Presenter::RecreateFrame(Frame* frame, u32 width, u32 height) {
     VkImage unsafe_image{};
     VkImageCreateInfo unsafe_image_info = static_cast<VkImageCreateInfo>(image_info);
 
-    VkResult result = vmaCreateImage(instance.GetAllocator(), &unsafe_image_info, &alloc_info,
-                                     &unsafe_image, &frame->allocation, nullptr);
+    VkResult result = VideoCore::VmaDiagnostics::CreateImage(instance.GetAllocator(), &unsafe_image_info, &alloc_info,
+                                     &unsafe_image, &frame->allocation, nullptr, "image/present");
     if (result != VK_SUCCESS) [[unlikely]] {
         LOG_CRITICAL(Render_Vulkan, "Failed allocating texture with error {}",
                      vk::to_string(vk::Result{result}));

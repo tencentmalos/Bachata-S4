@@ -379,7 +379,8 @@ public:
     void PopPendingOperations();
 
     /// Starts a new rendering scope with provided state.
-    void BeginRendering(const RenderState& new_state);
+    /// Returns true only when a new Vulkan rendering scope was started.
+    bool BeginRendering(const RenderState& new_state);
 
     /// Ends current rendering scope.
     void EndRendering();

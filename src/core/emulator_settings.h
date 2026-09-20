@@ -438,6 +438,7 @@ struct GPUSettings {
     // 1 = 1/2 (2x1), 2 = 1/1 (full rate). Legacy key retained; does not enable FDM.
     Setting<u32> fdm_quality{2};
     Setting<float> internal_scale_percent{100.f};
+    Setting<std::string> texture_quality{"high"};
     // TODO add overrides
     std::vector<OverrideItem> GetOverrideableFields() const {
         return std::vector<OverrideItem>{
@@ -454,6 +455,7 @@ struct GPUSettings {
             make_override<GPUSettings>("rcas_attenuation", &GPUSettings::rcas_attenuation),
             make_override<GPUSettings>("fdm_quality", &GPUSettings::fdm_quality),
             make_override<GPUSettings>("internal_scale_percent", &GPUSettings::internal_scale_percent),
+            make_override<GPUSettings>("texture_quality", &GPUSettings::texture_quality),
             make_override<GPUSettings>("dump_shaders", &GPUSettings::dump_shaders),
             make_override<GPUSettings>("patch_shaders", &GPUSettings::patch_shaders),
             make_override<GPUSettings>("readbacks_mode", &GPUSettings::readbacks_mode),
@@ -471,7 +473,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(GPUSettings, window_width, window_height, int
                                    direct_memory_access_enabled, dump_shaders, patch_shaders,
                                    vblank_frequency, full_screen, full_screen_mode, present_mode,
                                    hdr_allowed, fsr_enabled, rcas_enabled, rcas_attenuation,
-                                   fdm_quality, internal_scale_percent)
+                                   fdm_quality, internal_scale_percent, texture_quality)
 // -------------------------------
 // Vulkan settings
 // -------------------------------
@@ -571,6 +573,7 @@ public:
 private:
     std::atomic<u32> m_guest_shading_quality{3};
     std::atomic<float> m_internal_scale_percent{0.f};
+    std::atomic<u32> m_texture_quality{3};
     GeneralSettings m_general{};
     LogSettings m_log{};
     DebugSettings m_debug{};
@@ -762,6 +765,17 @@ public:
     void SetInternalScalePercent(float value) {
         m_internal_scale_percent.store(value == 25 || value == 37.5f || value == 50 || value == 75 ? value : 100.f,
                                        std::memory_order_relaxed);
+    }
+
+    SETTING_FORWARD(m_gpu, ConfiguredTextureQuality, texture_quality)
+    u32 GetTextureQuality() const {
+        const auto value = m_texture_quality.load(std::memory_order_relaxed);
+        if (value <= 2) return value;
+        const auto configured = GetConfiguredTextureQuality();
+        return configured == "medium" ? 1 : configured == "low" ? 2 : 0;
+    }
+    void SetTextureQuality(u32 value) {
+        m_texture_quality.store(value <= 2 ? value : 0, std::memory_order_relaxed);
     }
 
     u32 GetGuestShadingQuality() const {

@@ -153,8 +153,7 @@ void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& regist
     registry.Register("internal_scale", "Configured physical image scale (restart required to change)",
         [](const std::vector<std::string>& args) {
             if (!args.empty() && (args.size() != 1 || args[0] != "status")) return BadArguments();
-            return std::string("internal_scale_percent=") +
-                std::to_string(EmulatorSettings.GetInternalScalePercent()) + " restart_required=true\n";
+            return VideoCore::MemoryDiagnostics::PolicyStatus();
         });
 
     registry.Register("gpu_memory", "GPU allocation snapshot: request | status (no GPU waits)",

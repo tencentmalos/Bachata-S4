@@ -110,6 +110,7 @@ private:
                      Shader::PushData& push_data);
     void BindTextures(const Shader::Info& stage, Shader::Backend::Bindings& binding);
     bool BindResources(const Pipeline* pipeline);
+    void RecordAttachmentDraw(const GraphicsPipeline* pipeline, bool began_rendering);
 
     void ResetBindings() {
         for (auto& image_id : bound_images) {

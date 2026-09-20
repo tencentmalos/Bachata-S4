@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright 2024 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include "core/emulator_settings.h"
 #include <boost/container/static_vector.hpp>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
@@ -19,6 +20,7 @@
 #include "video_core/renderer_vulkan/vk_platform.h"
 
 #include <vk_mem_alloc.h>
+#include "video_core/vma_diagnostics.h"
 
 namespace Vulkan {
 
@@ -104,8 +106,20 @@ static std::unique_lock<std::mutex> AcquireDispatcher() {
 #endif
 }
 
+static VideoCore::ScalePolicySnapshot CaptureScalePolicy() {
+    const char* legacy = std::getenv("SHADPS4_LEGACY_RESOURCE_SCALE");
+    bool legacy_enabled = legacy && std::string_view(legacy) == "1";
+#ifdef __ANDROID__
+    char value[PROP_VALUE_MAX]{};
+    __system_property_get("debug.shadps4.legacy_resource_scale", value);
+    legacy_enabled |= std::string_view(value) == "1";
+#endif
+    return {VideoCore::InternalScale::FromPercent(EmulatorSettings.GetInternalScalePercent()).eighths,
+            static_cast<VideoCore::TextureQuality>(EmulatorSettings.GetTextureQuality()), legacy_enabled};
+}
+
 Instance::Instance(bool enable_validation, bool enable_crash_diagnostic, DriverLease driver_)
-    : dispatcher_lease{AcquireDispatcher()}, driver{std::move(driver_)},
+    : scale_policy{CaptureScalePolicy()}, dispatcher_lease{AcquireDispatcher()}, driver{std::move(driver_)},
       instance{CreateInstance(Frontend::WindowSystemType::Headless, enable_validation,
                               enable_crash_diagnostic, driver)},
       physical_devices{EnumeratePhysicalDevices(instance)} {}
@@ -113,7 +127,7 @@ Instance::Instance(bool enable_validation, bool enable_crash_diagnostic, DriverL
 Instance::Instance(Frontend::Window& window, s32 physical_device_index,
                    bool enable_validation /*= false*/, bool enable_crash_diagnostic /*= false*/,
                    DriverLease driver_)
-    : dispatcher_lease{AcquireDispatcher()}, driver{std::move(driver_)},
+    : scale_policy{CaptureScalePolicy()}, dispatcher_lease{AcquireDispatcher()}, driver{std::move(driver_)},
       instance{CreateInstance(window.GetWindowInfo().type, enable_validation,
                               enable_crash_diagnostic, driver)},
       physical_devices{EnumeratePhysicalDevices(instance)} {
@@ -213,8 +227,10 @@ Instance::~Instance() {
     submissions.reset();
     if (device)
         ImGui::Core::Shutdown(GetDevice());
-    if (allocator)
+    if (allocator) {
         vmaDestroyAllocator(allocator);
+        VideoCore::VmaDiagnostics::End(allocator);
+    }
     if (gpu_reshape.IsActive()) {
         // Children have drained before Instance destruction. Keep the downstream
         // resolver/driver live while the SDK retires its collector and objects.
@@ -775,7 +791,8 @@ void Instance::CreateAllocator() {
     };
 
     const VmaAllocatorCreateInfo allocator_info = {
-        .flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT,
+        .flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT |
+                 (supports_memory_budget ? VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT : 0u),
         .physicalDevice = physical_device,
         .device = *device,
         .pVulkanFunctions = &functions,
@@ -783,7 +800,8 @@ void Instance::CreateAllocator() {
         .vulkanApiVersion = TargetVulkanApiVersion,
     };
 
-    const VkResult result = vmaCreateAllocator(&allocator_info, &allocator);
+    const VkResult result = VideoCore::VmaDiagnostics::CreateAllocator(
+        allocator_info, MemoryPolicy(), &allocator);
     if (result != VK_SUCCESS) {
         UNREACHABLE_MSG("Failed to initialize VMA with error {}",
                         vk::to_string(vk::Result{result}));

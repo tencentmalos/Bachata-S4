@@ -47,13 +47,7 @@ class TextureCache {
     using PageTable = MultiLevelPageTable<Traits>;
 
 public:
-    enum class BindingType : u32 {
-        Texture,
-        Storage,
-        RenderTarget,
-        DepthTarget,
-        VideoOut,
-    };
+    using BindingType = ScaleUse;
 
     struct ImageDesc {
         ImageInfo info;
@@ -141,6 +135,11 @@ public:
 
     /// Creates a new image with provided image info and copies subresources from image_id
     [[nodiscard]] ImageId ExpandImage(const ImageInfo& info, ImageId image_id);
+
+    std::shared_ptr<ResourceScalePlan> AcquireScalePlan(const ImageInfo& info, ScaleUse use);
+    void RecordAttachmentDraw(std::span<const ImageId> attachments, u64 fragment_hash,
+                              bool scaled, bool began_rendering);
+    void RecordNativeFallback(ScaleReason reason) { ++native_fallbacks[u32(reason)]; }
 
     /// Reuploads image contents.
     void RefreshImage(Image& image);
@@ -329,6 +328,7 @@ private:
     }
 
     void GarbageCollectImages();
+    void GarbageCollectIdleAssets();
     void GarbageCollectSamplers();
 
 private:
@@ -339,6 +339,15 @@ private:
     PageManager& tracker;
     BlitHelper blit_helper;
     TileManager tile_manager;
+    ScalePlanTable scale_plans;
+    u64 attachment_draws{}, scaled_attachment_draws{};
+    u64 attachment_passes{}, scaled_attachment_passes{};
+    std::array<u64, u32(ScaleReason::Count)> native_fallbacks{};
+    struct AttachmentCounts { u64 draws{}, passes{}; };
+    // Bounded aggregate by shader, dimensions, reason mask, scale and attachment count.
+    std::map<std::array<u64, 7>, AttachmentCounts> attachment_groups;
+    u64 attachment_group_overflow{};
+    u64 idle_asset_evictions{}, idle_asset_retired_bytes{};
     Common::SlotVector<Image> slot_images;
     Common::SlotVector<ImageView> slot_image_views;
     tsl::robin_map<u64, Sampler> samplers;

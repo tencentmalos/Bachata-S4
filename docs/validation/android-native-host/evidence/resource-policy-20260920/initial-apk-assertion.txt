@@ -1,0 +1,39 @@
+--------- beginning of crash
+09-19 21:07:29.170 29004  3413 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 3413 (shadPS4:GpuComm), pid 29004 (shadps4.android)
+09-19 21:07:30.090  5319  5319 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+09-19 21:07:30.090  5319  5319 F DEBUG   : Build fingerprint: 'Pico/swan/swan:16/BQ2A.260122.002-BP2A.250705.008/105:user/test-keys'
+09-19 21:07:30.090  5319  5319 F DEBUG   : Revision: '0'
+09-19 21:07:30.090  5319  5319 F DEBUG   : ABI: 'arm64'
+09-19 21:07:30.090  5319  5319 F DEBUG   : Timestamp: 2026-09-19 21:07:29.336402836+0800
+09-19 21:07:30.090  5319  5319 F DEBUG   : Process uptime: 2735s
+09-19 21:07:30.090  5319  5319 F DEBUG   : Cmdline: com.shadps4.android
+09-19 21:07:30.090  5319  5319 F DEBUG   : pid: 29004, tid: 3413, name: shadPS4:GpuComm  >>> com.shadps4.android <<<
+09-19 21:07:30.090  5319  5319 F DEBUG   : uid: 10153
+09-19 21:07:30.090  5319  5319 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+09-19 21:07:30.090  5319  5319 F DEBUG   : pac_enabled_keys: 000000000000000f (PR_PAC_APIAKEY, PR_PAC_APIBKEY, PR_PAC_APDAKEY, PR_PAC_APDBKEY)
+09-19 21:07:30.090  5319  5319 F DEBUG   : signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+09-19 21:07:30.090  5319  5319 F DEBUG   : Abort message: 'Host assertion failed; see native backtrace'
+09-19 21:07:30.090  5319  5319 F DEBUG   :     x0  0000000000000000  x1  0000000000000d55  x2  0000000000000006  x3  0000007257321440
+09-19 21:07:30.090  5319  5319 F DEBUG   :     x4  7373612074736f48  x5  7373612074736f48  x6  7373612074736f48  x7  66206e6f69747265
+09-19 21:07:30.090  5319  5319 F DEBUG   :     x8  00000000000000f0  x9  dd050287fb6ca8a1  x10 000000ff00000020  x11 0000000058da0e22
+09-19 21:07:30.090  5319  5319 F DEBUG   :     x12 0000000000030003  x13 0065636172746b63  x14 000001e5a5330f4c  x15 0000000034155555
+09-19 21:07:30.090  5319  5319 F DEBUG   :     x16 000000767eaf4160  x17 000000767eadb780  x18 0000006e6283c000  x19 000000000000714c
+09-19 21:07:30.090  5319  5319 F DEBUG   :     x20 0000000000000d55  x21 00000000ffffffff  x22 b400007654ce51b0  x23 0000000000000001
+09-19 21:07:30.090  5319  5319 F DEBUG   :     x24 b400007590ec25d0  x25 00000073b3e0f0b8  x26 00000073b3e0e000  x27 b4000074510fd780
+09-19 21:07:30.090  5319  5319 F DEBUG   :     x28 0000000000000000  x29 00000072573214c0
+09-19 21:07:30.090  5319  5319 F DEBUG   :     lr  000000767ea76268  sp  0000007257321440  pc  000000767ea7628c  pst 0000000000001000
+09-19 21:07:30.090  5319  5319 F DEBUG   : 13 total frames
+09-19 21:07:30.090  5319  5319 F DEBUG   : backtrace:
+09-19 21:07:30.090  5319  5319 F DEBUG   :       #00 pc 000000000007128c  /apex/com.android.runtime/lib64/bionic/libc.so (abort+160) (BuildId: 005aa6e5f3389a8290aec9c2aa9b307a)
+09-19 21:07:30.090  5319  5319 F DEBUG   :       #01 pc 000000000087c4dc  /apex/com.android.art/lib64/libart.so (art::Runtime::Abort(char const*)+1644) (BuildId: 155d01630bed47abbfda9d2a5a7544e1)
+09-19 21:07:30.090  5319  5319 F DEBUG   :       #02 pc 00000000000163c4  /apex/com.android.art/lib64/libbase.so (android::base::SetAborter(std::__1::function<void (char const*)>&&)::$_0::__invoke(char const*)+84) (BuildId: fcf623561b5d69b94f54b7524dee7223)
+09-19 21:07:30.090  5319  5319 F DEBUG   :       #03 pc 000000000000a3d8  /system/lib64/liblog.so (__android_log_assert+324) (BuildId: 3afc14ce13f456b7857207223eb137ac)
+09-19 21:07:30.090  5319  5319 F DEBUG   :       #04 pc 0000000002976c6c  /data/app/~~5-1Bb3o2_TRx5Z5SSlbNyg==/com.shadps4.android-61yidMGlF3qoPqq1kdi6lA==/lib/arm64/libshadps4_host.so (assert_fail_impl()+28) (BuildId: 75a3e36d9b91429b2d6404011c4efca3ce73e18d)
+09-19 21:07:30.090  5319  5319 F DEBUG   :       #05 pc 000000000346f1f8  /data/app/~~5-1Bb3o2_TRx5Z5SSlbNyg==/com.shadps4.android-61yidMGlF3qoPqq1kdi6lA==/lib/arm64/libshadps4_host.so (Vulkan::Rasterizer::BeginRendering(Vulkan::GraphicsPipeline const*)+2572) (BuildId: 75a3e36d9b91429b2d6404011c4efca3ce73e18d)
+09-19 21:07:30.091  5319  5319 F DEBUG   :       #06 pc 000000000346db68  /data/app/~~5-1Bb3o2_TRx5Z5SSlbNyg==/com.shadps4.android-61yidMGlF3qoPqq1kdi6lA==/lib/arm64/libshadps4_host.so (Vulkan::Rasterizer::Draw(bool, unsigned int)+696) (BuildId: 75a3e36d9b91429b2d6404011c4efca3ce73e18d)
+09-19 21:07:30.091  5319  5319 F DEBUG   :       #07 pc 00000000033cf5a4  /data/app/~~5-1Bb3o2_TRx5Z5SSlbNyg==/com.shadps4.android-61yidMGlF3qoPqq1kdi6lA==/lib/arm64/libshadps4_host.so (AmdGpu::Liverpool::ProcessGraphics(std::__ndk1::span<unsigned int const, 18446744073709551615ul>, std::__ndk1::span<unsigned int const, 18446744073709551615ul>, unsigned long, unsigned long) (.resume)+8188) (BuildId: 75a3e36d9b91429b2d6404011c4efca3ce73e18d)
+09-19 21:07:30.091  5319  5319 F DEBUG   :       #08 pc 00000000033d11cc  /data/app/~~5-1Bb3o2_TRx5Z5SSlbNyg==/com.shadps4.android-61yidMGlF3qoPqq1kdi6lA==/lib/arm64/libshadps4_host.so (AmdGpu::Liverpool::ProcessOwnedGraphics(std::__ndk1::vector<unsigned int, std::__ndk1::allocator<unsigned int>>, std::__ndk1::vector<unsigned int, std::__ndk1::allocator<unsigned int>>, unsigned long, unsigned long) (.resume)+156) (BuildId: 75a3e36d9b91429b2d6404011c4efca3ce73e18d)
+09-19 21:07:30.091  5319  5319 F DEBUG   :       #09 pc 00000000033c8a34  /data/app/~~5-1Bb3o2_TRx5Z5SSlbNyg==/com.shadps4.android-61yidMGlF3qoPqq1kdi6lA==/lib/arm64/libshadps4_host.so (AmdGpu::Liverpool::Process(std::__ndk1::stop_token)+1060) (BuildId: 75a3e36d9b91429b2d6404011c4efca3ce73e18d)
+09-19 21:07:30.091  5319  5319 F DEBUG   :       #10 pc 00000000033cb7b0  /data/app/~~5-1Bb3o2_TRx5Z5SSlbNyg==/com.shadps4.android-61yidMGlF3qoPqq1kdi6lA==/lib/arm64/libshadps4_host.so (void* std::__ndk1::__thread_proxy[abi:ne210000]<std::__ndk1::tuple<std::__ndk1::unique_ptr<std::__ndk1::__thread_struct, std::__ndk1::default_delete<std::__ndk1::__thread_struct>>, AmdGpu::Liverpool::Liverpool()::$_0, std::__ndk1::stop_token>>(void*)+100) (BuildId: 75a3e36d9b91429b2d6404011c4efca3ce73e18d)
+09-19 21:07:30.091  5319  5319 F DEBUG   :       #11 pc 0000000000082950  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*)+184) (BuildId: 005aa6e5f3389a8290aec9c2aa9b307a)
+09-19 21:07:30.091  5319  5319 F DEBUG   :       #12 pc 0000000000074b98  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+68) (BuildId: 005aa6e5f3389a8290aec9c2aa9b307a)

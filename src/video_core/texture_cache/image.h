@@ -8,6 +8,7 @@
 #include "common/types.h"
 #include "video_core/renderer_vulkan/vk_common.h"
 #include "video_core/texture_cache/image_info.h"
+#include "video_core/texture_cache/scale_policy.h"
 #include "video_core/texture_cache/image_view.h"
 
 #include <deque>
@@ -83,7 +84,8 @@ class TextureCache;
 
 struct Image {
     Image(const Vulkan::Instance& instance, Vulkan::Scheduler& scheduler, BlitHelper& blit_helper,
-          Common::SlotVector<ImageView>& slot_image_views, const ImageInfo& info, TextureCache* owner = nullptr);
+          Common::SlotVector<ImageView>& slot_image_views, const ImageInfo& info, TextureCache* owner = nullptr,
+          ScaleUse use = ScaleUse::Unknown, std::optional<ScalePolicySnapshot> probe_policy = {});
     ~Image();
 
     Image(const Image&) = delete;
@@ -129,7 +131,7 @@ struct Image {
                          std::optional<SubresourceRange> subres_range);
     void Transit(vk::ImageLayout dst_layout, vk::AccessFlags2 dst_mask,
                  std::optional<SubresourceRange> range, vk::CommandBuffer cmdbuf = {});
-    void Upload(std::span<const vk::BufferImageCopy> upload_copies, vk::Buffer buffer, u64 offset);
+    void Upload(std::span<const vk::BufferImageCopy> upload_copies, vk::Buffer buffer, u64 offset, u64 buffer_size = 0);
     void Download(std::span<const vk::BufferImageCopy> download_copies, vk::Buffer buffer,
                   u64 offset, u64 download_size);
 
@@ -146,6 +148,22 @@ struct Image {
     // One-way promotion for data/storage/byte aliases and CPU readback. Replaced
     // images and views retire through the scheduler, never deviceWaitIdle.
     void ForceNative(const char* reason);
+    // An extent transition retires this backing after an internal readback.
+    // Keep its temporary native promotion separate from the persistent plan:
+    // revisiting the old extent must retain its previous safety decisions,
+    // without treating the cache's transfer as a new guest CPU-readback use.
+    void DetachScalePlanForRetirement() {
+        scale_plan = std::make_shared<ResourceScalePlan>(*scale_plan);
+    }
+    void ObserveUsage(ScaleUse use);
+    bool InheritCopyPlan(Image& source);
+    const ResourceScalePlan& ScalePlan() const { return *scale_plan; }
+    void MarkSampled() { scale_plan->sampled = true; }
+    void MarkGpuWrite(bool storage = false) {
+        scale_plan->origin = storage ? ScaleOrigin::Compute : ScaleOrigin::Render;
+        ++scale_plan->content_version;
+    }
+    void CheckUploadBudget();
     bool IsAstcEncoded() const { return astc_encoded; }
     bool IsScaled() const { return scale_eighths != 8; }
     u32 ScaleEighths() const { return scale_eighths; }
@@ -227,10 +245,14 @@ public:
     } binding{};
 
 private:
-    void UploadRegions(std::span<const vk::BufferImageCopy> copies, vk::Buffer buffer, u64 offset);
+    void UploadRegions(std::span<const vk::BufferImageCopy> copies, vk::Buffer buffer, u64 offset, u64 buffer_size);
     void BlitBacking(BackingImage& source, BackingImage& dest,
                      std::span<const vk::BufferImageCopy> uploaded = {});
+    void ReallocateScale(u32 eighths);
+    void PublishScalePlan();
     TextureCache* owner{};
+    ScalePolicySnapshot policy;
+    std::shared_ptr<ResourceScalePlan> scale_plan;
     u32 scale_eighths = 8;
     u32 mip_skip = 0;
     bool astc_encoded = false;

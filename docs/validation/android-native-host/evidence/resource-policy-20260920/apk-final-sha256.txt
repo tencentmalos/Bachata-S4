@@ -1,0 +1,2 @@
+dd4d050ad012f12b0c3596e87458e5d2cb6e6457fcfea7b5c4294029706d770c  android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk
+baecd6799c8e62c9640584773ae36ddce89b1268e369a97560a2d3333781c07b  build/android-host-api33/native/libshadps4_host.so

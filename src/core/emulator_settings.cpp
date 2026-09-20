@@ -644,6 +644,7 @@ bool EmulatorSettingsImpl::TransferSettings() {
         setFromToml(s.rcas_attenuation, gpu, "rcasAttenuation");
         setFromToml(s.fdm_quality, gpu, "fdmQuality");
         setFromToml(s.internal_scale_percent, gpu, "internalScalePercent");
+        setFromToml(s.texture_quality, gpu, "textureQuality");
     }
 
     if (og_data.contains("Vulkan")) {

@@ -4,6 +4,8 @@
 #pragma once
 
 #include <mutex>
+#include "video_core/texture_cache/scale_policy.h"
+#include "video_core/host_memory_policy.h"
 #include "common/gpu_timing.h"
 #include <span>
 #include <unordered_map>
@@ -34,6 +36,9 @@ public:
                       bool enable_validation = false, bool enable_crash_diagnostic = false,
                       DriverLease driver = {});
     ~Instance();
+
+    const auto& ScalePolicy() const { return scale_policy; }
+    auto MemoryPolicy() const { return VideoCore::HostMemoryPolicy::For(scale_policy); }
 
     const auto& Diagnostics() const { return diagnostics; }
     u64 DiagnosticGeneration() const { return diagnostics ? diagnostics->Generation() : 0; }
@@ -531,6 +536,7 @@ private:
     [[nodiscard]] vk::FormatFeatureFlags2 GetFormatFeatureFlags(vk::Format format) const;
 
 private:
+    const VideoCore::ScalePolicySnapshot scale_policy;
     std::unique_lock<std::mutex> dispatcher_lease;
     std::shared_ptr<Core::Diagnostics::DiagnosticsPublisher> diagnostics{Core::Diagnostics::DiagnosticsHub::Instance().Acquire()};
     DriverLease driver; // Destroyed after every Vulkan child and the instance.

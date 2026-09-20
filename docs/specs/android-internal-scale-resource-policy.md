@@ -1,8 +1,8 @@
 # Internal Scale 改良 spec v2：Render Scale / Texture Quality 分离、小贴图保护与动态尺寸
 
-日期：2026-09-20。状态：**推荐方案，尚未实施**。本文件取代 v1 草稿 `internal-scale-resource-policy-20260920.md`。跨机器（macOS / Windows）路径差异见 §2 的 Citron 表。
+日期：2026-09-20。状态：**实施中；独立策略与 VMA 统计已接通，设备验收与剩余边界见[实施记录](../validation/android-native-host/resource-policy-vma-20260920.md)**。本文件取代 v1 草稿 `internal-scale-resource-policy-20260920.md`。跨机器（macOS / Windows）路径差异见 §2 的 Citron 表。
 
-本轮交付为源码评估和设计，不代表新增 GPU、游戏画质、内存或性能验收。审计基线为 `1db95bffd5e5c6ba509694aad191ea115532582d`；当前五档低倍率实现、既有单向 native 回退与异步退休协议继续作为起点。
+以下设计与源码核对保留原评估时点，不用后续结果改写历史；新增 GPU、游戏画质、内存及性能验收以实施记录为准。当前死锁修复、GPU 回归与血源实景，以及未完成项详见[剩余项实施](../validation/android-native-host/resource-policy-remaining-20260920.md)。审计基线为 `1db95bffd5e5c6ba509694aad191ea115532582d`；当前五档低倍率实现、既有单向 native 回退与异步退休协议继续作为起点。
 
 ## 0. 实施者必须遵守的执行约束
 
@@ -256,6 +256,12 @@ Texture Quality 切换与 guest dirty 是不同事件。内容未变、只是 RT
 存储估计按每 mip 压缩块：`ceil(W/block_w) * ceil(H/block_h) * block_bytes * layers`；再分别记录 Vulkan allocation、VMA block 与进程 PSS。直接丢 mip 只有在上游 detile/staging 也跳过被丢级时才减少对应上传工作（现有 `Upload` 已过滤 `mip < mip_skip` 的拷贝；需确认 detile/staging 侧同样跳过）。
 
 可选重采样/ASTC 路径进入推荐 preset 前，要求有界 scratch、明确在途峰值、格式/颜色空间/alpha 验证和创建速率统计（现有 `MemoryDiagnostics::upload_image_*` 计数）。复用满足命令顺序与跨队列依赖；资源退役仍要求 GPU 完成和 host submit 返回；不加 device/queue idle 压低内存数字。池用尽时走有预算的原生路径/既有可取消背压。
+
+### 8.1 Host GPU 内存档位（用户追加，2026-09-20）
+
+Texture Quality 同时选择 session HostMemoryPolicy：高/中/低 VMA 首选块为256/128/64MiB，staging ring为512/256/128MiB；中/低用MIN_MEMORY分配与有界闲置上传资产回收。参数重启生效，legacy对照保留高档内存行为；不根据每帧波动重建allocator。大于ring的单次上传使用有生命周期的临时buffer；GPU和host submit双完成后实际释放，不为降预留强制GPU idle。BDA等固定工作资源单独列账。
+
+诊断增加当前策略、首选block、staging容量、闲置回收次数、请求退休字节、实际VkDeviceMemory归还量、在途退休合计/峰值。VMA首选块不是总内存上限，部分空闲块不等于可立即归还的系统RAM。此追加项的实测及参数边界见[实施记录](../validation/android-native-host/resource-policy-vma-20260920.md)。
 
 ## 9. 推荐实施范围、文件入口、顺序与回归门
 

@@ -79,10 +79,11 @@ void StatusLayer::Draw(uint64_t now, unsigned width, unsigned height) {
                                        ? "System" : snapshot.driver_identity.find("source=turnip") != std::string::npos
                                        ? "Turnip" : "Unknown";
         Text("CPU  FEX x86-64    GPU  Vulkan / %s", driver_label);
-        const auto internal_scale = EmulatorSettings.GetInternalScalePercent();
+        const auto internal_scale = scale_policy.render_eighths * 12.5f;
         const char* scale_label = internal_scale == 25 ? "0.25" : internal_scale == 37.5f ? "0.375" : internal_scale == 50 ? "0.5" : internal_scale == 75 ? "0.75" : "1.0";
         Text("Surface %u x %u (x%s)    Generation %llu", width, height, scale_label,
              static_cast<unsigned long long>(snapshot.generation));
+        Text("Texture %s%s", VideoCore::TextureQualityName(scale_policy.texture).data(), scale_policy.legacy ? " (legacy)" : "");
         Text("All presents %.1f/s    Draw/dispatch %.0f/s", all_presents.Fps(now), draws_per_second);
         if (!Common::Profiler::GpuTimingEnabled()) TextDisabled("GPU timing off | gpu_timing start");
         else if (gpu) {

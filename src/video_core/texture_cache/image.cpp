@@ -15,6 +15,7 @@
 #include "video_core/texture_cache/image.h"
 
 #include <vk_mem_alloc.h>
+#include "video_core/vma_diagnostics.h"
 
 namespace VideoCore {
 
@@ -107,13 +108,13 @@ static vk::FormatFeatureFlags2 FormatFeatureFlags(const vk::ImageUsageFlags usag
 
 UniqueImage::~UniqueImage() {
     if (image) {
-        vmaDestroyImage(allocator, image, allocation);
+        VideoCore::VmaDiagnostics::DestroyImage(allocator, image, allocation);
     }
 }
 
 void UniqueImage::Destroy() {
     if (image) {
-        vmaDestroyImage(allocator, image, allocation);
+        VideoCore::VmaDiagnostics::DestroyImage(allocator, image, allocation);
         image = vk::Image{};
         allocation = {};
     }
@@ -133,7 +134,7 @@ void UniqueImage::Create(const vk::ImageCreateInfo& image_ci) {
 
     const VkImageCreateInfo image_ci_unsafe = static_cast<VkImageCreateInfo>(image_ci);
     VkImage unsafe_image{};
-    VkResult result = vmaCreateImage(allocator, &image_ci_unsafe, &alloc_info, &unsafe_image,
+    VkResult result = VideoCore::VmaDiagnostics::CreateImage(allocator, &image_ci_unsafe, &alloc_info, &unsafe_image,
                                      &allocation, nullptr);
     ASSERT_MSG(result == VK_SUCCESS, "Failed allocating image with error {}",
                vk::to_string(vk::Result{result}));
@@ -142,9 +143,12 @@ void UniqueImage::Create(const vk::ImageCreateInfo& image_ci) {
 
 Image::Image(const Vulkan::Instance& instance_, Vulkan::Scheduler& scheduler_,
              BlitHelper& blit_helper_, Common::SlotVector<ImageView>& slot_image_views_,
-             const ImageInfo& info_, TextureCache* owner_)
+             const ImageInfo& info_, TextureCache* owner_, ScaleUse use,
+             std::optional<ScalePolicySnapshot> probe_policy)
     : instance{&instance_}, scheduler{&scheduler_}, blit_helper{&blit_helper_},
-      slot_image_views{&slot_image_views_}, info{info_}, owner{owner_} {
+      slot_image_views{&slot_image_views_}, info{info_}, owner{owner_},
+      policy{probe_policy.value_or(instance_.ScalePolicy())},
+      scale_plan{owner_ && info_.pixel_format != vk::Format::eUndefined ? owner_->AcquireScalePlan(info_, use) : std::make_shared<ResourceScalePlan>()} {
     if (info.pixel_format == vk::Format::eUndefined) {
         return;
     }
@@ -210,7 +214,36 @@ Image::Image(const Vulkan::Instance& instance_, Vulkan::Scheduler& scheduler_,
         .initialLayout = vk::ImageLayout::eUndefined,
     };
 
-    const auto scale = InternalScale::FromPercent(EmulatorSettings.GetInternalScalePercent());
+    const bool render = use == ScaleUse::RenderTarget || use == ScaleUse::DepthTarget || use == ScaleUse::VideoOut;
+    scale_plan->history |= 1u << u32(use);
+    if (scale_plan->domain != ScaleDomain::NativeRequired) {
+        if (render) {
+            scale_plan->domain = ScaleDomain::Render;
+            scale_plan->render_transition = true;
+            scale_plan->reason = ScaleReason::None;
+        } else if (use == ScaleUse::Texture && scale_plan->domain == ScaleDomain::Unknown) {
+            scale_plan->domain = ScaleDomain::Asset;
+            scale_plan->reason = ScaleReason::None;
+        } else if (use == ScaleUse::Storage) scale_plan->RequireNative(ScaleReason::SemanticNative);
+    }
+    u32 selected = 8;
+    bool direct_drop = false;
+    if (scale_plan->domain != ScaleDomain::NativeRequired) {
+        if (policy.legacy) {
+            selected = policy.render_eighths;
+            scale_plan->reason = ScaleReason::Legacy;
+        } else if (scale_plan->domain == ScaleDomain::Render) {
+            if (std::min(info.size.width, info.size.height) > 64) selected = policy.render_eighths;
+            else scale_plan->reason = ScaleReason::SizeProtect;
+        } else if (scale_plan->domain == ScaleDomain::Asset) {
+            if (info.props.is_depth) scale_plan->RequireNative(ScaleReason::SemanticNative);
+            else if (std::min(info.size.width, info.size.height) < 128) scale_plan->reason = ScaleReason::SizeProtect;
+            else if (info.resources.levels < 2) scale_plan->reason = ScaleReason::InsufficientMips;
+            else if (policy.texture == TextureQuality::Medium) selected = 6;
+            else if (policy.texture == TextureQuality::Low) { selected = 4; direct_drop = true; }
+        }
+    }
+    const InternalScale scale{selected};
     // BC1/BC4 have eight-byte blocks: 4x4 ASTC at 0.75 would grow their storage.
     const auto astc_format = info.num_bits == 64
         ? (IsSrgbBlock(supported_format) ? vk::Format::eAstc6x6SrgbBlock : vk::Format::eAstc6x6UnormBlock)
@@ -221,20 +254,27 @@ Image::Image(const Vulkan::Instance& instance_, Vulkan::Scheduler& scheduler_,
         info.num_samples == 1 && info.size.width >= 16 && info.size.height >= 16;
     const auto blit_features = vk::FormatFeatureFlagBits2::eBlitSrc |
                                vk::FormatFeatureFlagBits2::eBlitDst;
-    if (eligible && !info.props.is_block && instance->IsFormatSupported(supported_format, blit_features) &&
+    if (eligible && direct_drop &&
+        instance->IsFormatSupported(supported_format, vk::FormatFeatureFlagBits2::eSampledImageFilterLinear)) {
+        scale_eighths = 4;
+        mip_skip = 1;
+        image_ci.extent.width = std::max(info.size.width >> 1, 1u);
+        image_ci.extent.height = std::max(info.size.height >> 1, 1u);
+        image_ci.mipLevels -= 1;
+    } else if (eligible && !direct_drop && !info.props.is_block && instance->IsFormatSupported(supported_format, blit_features) &&
         (info.props.is_depth || instance->IsFormatSupported(supported_format, vk::FormatFeatureFlagBits2::eSampledImageFilterLinear))) {
         scale_eighths = scale.eighths;
         image_ci.extent.width = scale.Size(info.size.width);
         image_ci.extent.height = scale.Size(info.size.height);
         image_ci.mipLevels = scale.Levels(info.size.width, info.size.height, info.resources.levels);
-    } else if (eligible && info.props.is_block && scale.MipDrop() &&
+    } else if (eligible && policy.legacy && info.props.is_block && scale.MipDrop() &&
                info.resources.levels > scale.MipDrop()) {
         scale_eighths = scale.eighths;
         mip_skip = scale.MipDrop();
         image_ci.extent.width = std::max(info.size.width >> mip_skip, 1u);
         image_ci.extent.height = std::max(info.size.height >> mip_skip, 1u);
         image_ci.mipLevels -= mip_skip;
-    } else if (eligible && AstcLdrSource(supported_format) &&
+    } else if (eligible && !direct_drop && !render && AstcLdrSource(supported_format) &&
         instance->IsFormatSupported(supported_format, vk::FormatFeatureFlagBits2::eSampledImageFilterLinear) &&
         instance->IsFormatSupported(astc_format,
             vk::FormatFeatureFlagBits2::eSampledImage | vk::FormatFeatureFlagBits2::eTransferDst)) {
@@ -250,6 +290,8 @@ Image::Image(const Vulkan::Instance& instance_, Vulkan::Scheduler& scheduler_,
     backing->num_samples = info.num_samples;
     backing->image = UniqueImage{instance->GetDevice(), instance->GetAllocator()};
     backing->image.Create(image_ci);
+    if (selected < 8 && !IsScaled()) scale_plan->RequireNative(ScaleReason::SemanticNative);
+    PublishScalePlan();
     if (IsScaled()) {
         static std::atomic<u32> reports{};
         if (reports.fetch_add(1, std::memory_order_relaxed) < 64)
@@ -310,15 +352,25 @@ void Image::BlitBacking(BackingImage& source, BackingImage& dest,
     backing = saved;
 }
 
-void Image::ForceNative(const char* reason) {
-    if (!IsScaled()) return;
+void Image::PublishScalePlan() {
+    scale_plan->eighths = scale_eighths;
+    scale_plan->drop = mip_skip;
+    scale_plan->physical_width = backing->image.image_ci.extent.width;
+    scale_plan->physical_height = backing->image.image_ci.extent.height;
+    scale_plan->physical_format = u32(backing->image.image_ci.format);
+    ++scale_plan->plan_version;
+    const auto category = "image/" + std::string(ScaleDomainName(scale_plan->domain));
+    VmaDiagnostics::Tag(instance->GetAllocator(), backing->image.allocation, category.c_str());
+}
+
+void Image::ReallocateScale(u32 eighths) {
+    if (eighths == scale_eighths && !mip_skip && !astc_encoded) return;
     scheduler->EndRendering();
-    LOG_DEBUG(Render_Vulkan, "Internal scale: promote {}x{} {} to native ({})",
-              info.size.width, info.size.height, vk::to_string(info.pixel_format), reason);
     auto ci = backing->image.image_ci;
-    ci.extent = vk::Extent3D{info.size.width, info.size.height, info.size.depth};
-    ci.mipLevels = info.resources.levels;
-    const bool reload_compressed = mip_skip != 0 || astc_encoded;
+    const InternalScale scale{eighths};
+    ci.extent = vk::Extent3D{scale.Size(info.size.width), scale.Size(info.size.height), info.size.depth};
+    ci.mipLevels = scale.Levels(info.size.width, info.size.height, info.resources.levels);
+    const bool reload = mip_skip != 0 || astc_encoded;
     if (astc_encoded) ci.format = instance->GetSupportedFormat(info.pixel_format, format_features);
     auto* source = backing;
     auto retired = std::make_shared<std::deque<BackingImage>>(std::move(backing_images));
@@ -327,10 +379,10 @@ void Image::ForceNative(const char* reason) {
     backing->num_samples = source->num_samples;
     backing->image = UniqueImage{instance->GetDevice(), instance->GetAllocator()};
     backing->image.Create(ci);
-    scale_eighths = 8;
+    scale_eighths = eighths;
     mip_skip = 0;
     astc_encoded = false;
-    if (!reload_compressed && source->state.layout != vk::ImageLayout::eUndefined) {
+    if (!reload && source->state.layout != vk::ImageLayout::eUndefined) {
         BlitBacking(*source, *backing);
     }
     auto* views = slot_image_views;
@@ -339,13 +391,85 @@ void Image::ForceNative(const char* reason) {
             for (auto id : image.image_view_ids) views->erase(id);
         }
     });
-    if (reload_compressed) {
-        // Mip-dropping is only used for read-only compressed uploads. Reconstitute
-        // all original blocks from guest memory before any byte alias or storage use.
+    for (auto& image : *retired) VmaDiagnostics::Tag(instance->GetAllocator(), image.image.allocation, nullptr, true);
+    PublishScalePlan();
+    if (reload) {
+        // Asset mip/codec conversion cannot contain GPU-produced data. Restore
+        // from the current guest/buffer contents before publishing a render use.
         ASSERT(owner && False(flags & ImageFlagBits::GpuModified));
         flags |= ImageFlagBits::CpuDirty;
         owner->RefreshImage(*this);
     }
+    // This retains the cache ImageId. Every subsequent FindView reads the new
+    // backing; needs_rebind is reserved for overlap replacement of the ImageId.
+    // In particular, depth attachment publication requires that flag to be clear.
+}
+
+void Image::ForceNative(const char* reason) {
+    const std::string_view why{reason};
+    const auto code = why.find("streaming") != why.npos ? ScaleReason::Streaming :
+        why.find("readback") != why.npos ? ScaleReason::Readback :
+        why.find("mixed") != why.npos ? ScaleReason::MixedPass :
+        why.find("cost") != why.npos ? ScaleReason::UpdateCost :
+        why.find("budget") != why.npos ? ScaleReason::Budget :
+        why.find("alias") != why.npos || why.find("mismatch") != why.npos || why.find("reinterpretation") != why.npos
+            ? ScaleReason::Alias : ScaleReason::SemanticNative;
+    if (code == ScaleReason::Readback && IsScaled()) scale_plan->upscaled_readback = true;
+    const bool changed = scale_plan->domain != ScaleDomain::NativeRequired;
+    if (changed) {
+        scale_plan->RequireNative(code);
+        if (owner) owner->RecordNativeFallback(code);
+    }
+    if (IsScaled()) ReallocateScale(8);
+    else if (changed) PublishScalePlan();
+}
+
+void Image::ObserveUsage(ScaleUse use) {
+    scale_plan->history |= 1u << u32(use);
+    if (use == ScaleUse::Storage) { ForceNative("storage"); return; }
+    const bool render = use == ScaleUse::RenderTarget || use == ScaleUse::DepthTarget || use == ScaleUse::VideoOut;
+    if (!render || scale_plan->domain == ScaleDomain::NativeRequired || scale_plan->render_transition) return;
+    scale_plan->render_transition = true;
+    scale_plan->domain = ScaleDomain::Render;
+    scale_plan->reason = policy.legacy ? ScaleReason::Legacy : ScaleReason::None;
+    const u32 eighths = policy.render_eighths;
+    const auto format = instance->GetSupportedFormat(info.pixel_format, format_features);
+    if (info.num_samples != 1 || info.props.is_block ||
+        ConvertImageType(info.type) != vk::ImageType::e2D ||
+        !instance->IsFormatSupported(format, vk::FormatFeatureFlagBits2::eBlitSrc | vk::FormatFeatureFlagBits2::eBlitDst) ||
+        (!info.props.is_depth && !instance->IsFormatSupported(format, vk::FormatFeatureFlagBits2::eSampledImageFilterLinear))) {
+        ForceNative("attachment format"); return;
+    }
+    if (!policy.legacy && std::min(info.size.width, info.size.height) <= 64) {
+        scale_plan->reason = ScaleReason::SizeProtect;
+        return;
+    }
+    // Dirty CPU data is uploaded by UpdateImage before the attachment is used;
+    // clean GPU data is copied from the existing backing, never stale RAM.
+    ReallocateScale(eighths);
+}
+
+bool Image::InheritCopyPlan(Image& source) {
+    scale_plan->history |= 1u << 8;
+    source.scale_plan->history |= 1u << 7;
+    const bool replan = scale_eighths != source.scale_eighths;
+    if (scale_plan->domain == ScaleDomain::NativeRequired ||
+        (replan && (scale_plan->sampled ||
+         (scale_plan->origin != ScaleOrigin::Unknown && scale_plan->origin != ScaleOrigin::Copy))) ||
+        source.mip_skip || source.astc_encoded || mip_skip || astc_encoded ||
+        info.size != source.info.size || info.num_bits != source.info.num_bits ||
+        info.props.is_block != source.info.props.is_block || info.type != source.info.type ||
+        info.resources.layers != source.info.resources.layers) return false;
+    if (source.IsScaled() && info.props.is_block) return false;
+    ReallocateScale(source.scale_eighths);
+    scale_plan->domain = source.scale_plan->domain;
+    scale_plan->origin = ScaleOrigin::Copy;
+    scale_plan->source_generation = source.scale_plan->mapping_generation;
+    scale_plan->render_transition = source.scale_plan->render_transition;
+    scale_plan->reason = ScaleReason::CopyInherit;
+    ++scale_plan->content_version;
+    PublishScalePlan();
+    return true;
 }
 
 ImageView& Image::FindView(const ImageViewInfo& view_info, bool ensure_guest_samples) {
@@ -500,9 +624,28 @@ void Image::Transit(vk::ImageLayout dst_layout, vk::AccessFlags2 dst_mask,
     });
 }
 
-void Image::Upload(std::span<const vk::BufferImageCopy> copies, vk::Buffer buffer, u64 offset) {
+void Image::CheckUploadBudget() {
+    if (!owner || policy.legacy || !IsScaled() || mip_skip ||
+        scale_plan->domain != ScaleDomain::Asset) return;
+    // A bounded per-identity conversion budget prevents perpetually dirty assets
+    // from allocating a native upload image and encoding on every refresh.
+    if (scale_plan->domain == ScaleDomain::Asset &&
+        (scale_plan->uploads >= 8 || scale_plan->upload_bytes >= 64ull * 1024 * 1024)) {
+        ForceNative("update cost");
+    } else if (u64(info.guest_size) > 64ull * 1024 * 1024 ||
+        MemoryDiagnostics::upload_image_bytes.load(std::memory_order_relaxed) + info.guest_size > 256ull * 1024 * 1024) {
+        ForceNative("upload budget");
+    }
+}
+
+void Image::Upload(std::span<const vk::BufferImageCopy> copies, vk::Buffer buffer, u64 offset, u64 buffer_size) {
+    if (!buffer_size) buffer_size = info.guest_size;
+    ++scale_plan->content_version;
+    ++scale_plan->uploads;
+    scale_plan->upload_bytes += buffer_size;
+    if (scale_plan->domain == ScaleDomain::Asset) scale_plan->origin = ScaleOrigin::Upload;
     if (!IsScaled()) {
-        UploadRegions(copies, buffer, offset);
+        UploadRegions(copies, buffer, offset, buffer_size);
         return;
     }
     if (mip_skip) {
@@ -512,7 +655,7 @@ void Image::Upload(std::span<const vk::BufferImageCopy> copies, vk::Buffer buffe
             copy.imageSubresource.mipLevel -= mip_skip;
             mapped.push_back(copy);
         }
-        if (!mapped.empty()) UploadRegions(mapped, buffer, offset);
+        if (!mapped.empty()) UploadRegions(mapped, buffer, offset, buffer_size);
         flags &= ~ImageFlagBits::Dirty;
         return;
     }
@@ -532,6 +675,7 @@ void Image::Upload(std::span<const vk::BufferImageCopy> copies, vk::Buffer buffe
     ci.mipLevels = info.resources.levels;
     if (astc_encoded) ci.format = instance->GetSupportedFormat(info.pixel_format, format_features);
     temporary->image.Create(ci);
+    VmaDiagnostics::Tag(instance->GetAllocator(), temporary->image.allocation, "image/upload-source", true);
     VmaAllocationInfo temporary_info{};
     vmaGetAllocationInfo(instance->GetAllocator(), temporary->image.allocation, &temporary_info);
     temporary->allocation_bytes = temporary_info.size;
@@ -540,7 +684,7 @@ void Image::Upload(std::span<const vk::BufferImageCopy> copies, vk::Buffer buffe
     MemoryDiagnostics::upload_image_created_count.fetch_add(1, std::memory_order_relaxed);
     auto* scaled = backing;
     backing = temporary.get();
-    UploadRegions(copies, buffer, offset);
+    UploadRegions(copies, buffer, offset, buffer_size);
     if (astc_encoded) {
         Transit(vk::ImageLayout::eShaderReadOnlyOptimal, vk::AccessFlagBits2::eShaderRead, {});
         backing = scaled;
@@ -561,7 +705,7 @@ void Image::Upload(std::span<const vk::BufferImageCopy> copies, vk::Buffer buffe
 }
 
 void Image::UploadRegions(std::span<const vk::BufferImageCopy> upload_copies, vk::Buffer buffer,
-                   u64 offset) {
+                   u64 offset, u64 buffer_size) {
     SetBackingSamples(info.num_samples, false);
     scheduler->EndRendering();
 
@@ -572,7 +716,7 @@ void Image::UploadRegions(std::span<const vk::BufferImageCopy> upload_copies, vk
         .dstAccessMask = vk::AccessFlagBits2::eTransferRead,
         .buffer = buffer,
         .offset = offset,
-        .size = info.guest_size,
+        .size = buffer_size,
     };
     const vk::BufferMemoryBarrier2 post_barrier{
         .srcStageMask = vk::PipelineStageFlagBits2::eTransfer,
@@ -581,7 +725,7 @@ void Image::UploadRegions(std::span<const vk::BufferImageCopy> upload_copies, vk
         .dstAccessMask = vk::AccessFlagBits2::eMemoryRead | vk::AccessFlagBits2::eMemoryWrite,
         .buffer = buffer,
         .offset = offset,
-        .size = info.guest_size,
+        .size = buffer_size,
     };
     const auto image_barriers =
         GetBarriers(vk::ImageLayout::eTransferDstOptimal, vk::AccessFlagBits2::eTransferWrite,
@@ -698,6 +842,10 @@ static std::pair<u32, u32> SanitizeCopyLayers(const ImageInfo& src_info, const I
 }
 
 void Image::CopyImage(Image& src_image) {
+    if (!InheritCopyPlan(src_image)) {
+        ForceNative("copy alias");
+        src_image.ForceNative("copy alias");
+    }
     if ((IsScaled() || src_image.IsScaled()) &&
         (mip_skip || src_image.mip_skip || astc_encoded || src_image.astc_encoded || scale_eighths != src_image.scale_eighths ||
          info.size != src_image.info.size || info.num_bits != src_image.info.num_bits ||
@@ -806,6 +954,10 @@ void Image::CopyImage(Image& src_image) {
             vk::AccessFlagBits2::eShaderRead | vk::AccessFlagBits2::eTransferRead, {});
 }
 void Image::CopyImageWithBuffer(Image& src_image, vk::Buffer buffer, u64 offset) {
+    if (!InheritCopyPlan(src_image)) {
+        ForceNative("copy alias");
+        src_image.ForceNative("copy alias");
+    }
     if (mip_skip || src_image.mip_skip || astc_encoded || src_image.astc_encoded || scale_eighths != src_image.scale_eighths ||
         info.size != src_image.info.size || info.num_bits != src_image.info.num_bits ||
         info.props.is_block != src_image.info.props.is_block) {
@@ -947,6 +1099,10 @@ void Image::CopyMip(Image& src_image, u32 mip, u32 slice) {
 
 void Image::Resolve(Image& src_image, const VideoCore::SubresourceRange& mrt0_range,
                     const VideoCore::SubresourceRange& mrt1_range) {
+    if (!InheritCopyPlan(src_image)) {
+        ForceNative("resolve alias");
+        src_image.ForceNative("resolve alias");
+    }
     if (scale_eighths != src_image.scale_eighths || info.size != src_image.info.size) {
         ForceNative("resolve mismatch");
         src_image.ForceNative("resolve mismatch");

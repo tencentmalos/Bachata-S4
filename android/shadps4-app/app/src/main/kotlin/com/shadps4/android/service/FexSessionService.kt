@@ -122,6 +122,17 @@ class FexSessionService : Service() {
                 Log.w(TAG, "Invalid internal scale profile, using default 0.5", it)
                 com.shadps4.android.runtime.settings.InternalScale.DEFAULT_PERCENT
             }
+            val textureQuality = runCatching {
+                com.shadps4.android.runtime.settings.TextureQuality.resolve(
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Global),
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Game(gameId)),
+                )
+            }.getOrElse {
+                Log.w(TAG, "Invalid texture profile, using high quality", it)
+                com.shadps4.android.runtime.settings.TextureQuality.DEFAULT
+            }
+            NativeFexSession.nativeSetTextureQuality(textureQuality)
+            Log.i(TAG, "Guest texture quality=$textureQuality")
             NativeFexSession.nativeSetInternalScalePercent(internalScale)
             Log.i(TAG, "Guest internal scale=$internalScale percent")
             NativeFexSession.nativeSetGuestShadingQuality(shadingQuality)

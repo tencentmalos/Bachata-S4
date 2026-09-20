@@ -183,6 +183,14 @@ public:
     /// Commits only the consumed prefix of a reservation rechecked after Map.
     void Commit(u64 used_size);
 
+    /// Host-owned command parameters do not need guest address-space lookup.
+    u64 CopyHost(const void* src, size_t size, size_t alignment = 0) {
+        const auto [data, offset] = Map(size, alignment);
+        std::memcpy(data, src, size);
+        Commit();
+        return offset;
+    }
+
     /// Maps and commits a memory region with user provided data
     u64 Copy(auto src, size_t size, size_t alignment = 0) {
         const auto [data, offset] = Map(size, alignment);

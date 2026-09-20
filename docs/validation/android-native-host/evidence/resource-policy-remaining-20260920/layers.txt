@@ -1,0 +1,87 @@
+RequestedLayerState{[BBQ] PXRSurfaceControlPingPongBuffer#35#36 parentId=35}
+RequestedLayerState{PXRSurfaceControlPingPongBuffer#35 z=2147483647}
+RequestedLayerState{WindowedMagnification:0:31#3 parentId=11}
+RequestedLayerState{Leaf:0:1#4 parentId=3}
+RequestedLayerState{DefaultTaskDisplayArea#5 parentId=3 z=1}
+RequestedLayerState{Leaf:3:12#6 parentId=3 z=2}
+RequestedLayerState{ImePlaceholder:13:14#7 parentId=3 z=3}
+RequestedLayerState{ImeContainer#8 parentId=7}
+RequestedLayerState{Leaf:15:31#9 parentId=3 z=4}
+RequestedLayerState{Leaf:32:36#10 parentId=11 z=1}
+RequestedLayerState{Display 0 name="内置屏幕"#11}
+RequestedLayerState{Display Overlays#12 parentId=11 z=2147483647}
+RequestedLayerState{Input Overlays#13 parentId=11 z=2147483646}
+RequestedLayerState{Accessibility Overlays#14 parentId=11 z=2147483645}
+RequestedLayerState{ActivityRecord{23289408 u0 com.picoxr.launcher/.MainActivity t27}#252 parentId=251}
+RequestedLayerState{Task=0#16 parentId=5 z=2}
+RequestedLayerState{Task=27#251 parentId=250}
+RequestedLayerState{Task=26#250 parentId=5}
+RequestedLayerState{Surface(name=2eb4ba8 InputMethod)/@0x2312e66 - animation-leash of insets_animation#4413 parentId=4058}
+RequestedLayerState{[BBQ] PXRSurfaceControlProtectedDepth#33#34 parentId=33}
+RequestedLayerState{PXRSurfaceControlProtectedDepth#33 z=2147483646}
+RequestedLayerState{PXRSurfaceControl#23 z=2147483646}
+RequestedLayerState{[BBQ] PXRSurfaceControl#23#24 parentId=23}
+RequestedLayerState{PXRSurfaceControlProtected#25 z=2147483645}
+RequestedLayerState{[BBQ] PXRSurfaceControlProtected#25#26 parentId=25}
+RequestedLayerState{PXRSurfaceControlFullscreen#27 z=2147483646}
+RequestedLayerState{[BBQ] PXRSurfaceControlFullscreen#27#28 parentId=27}
+RequestedLayerState{PXRSurfaceControlProtectedFullscreen#29 z=2147483646}
+RequestedLayerState{[BBQ] PXRSurfaceControlProtectedFullscreen#29#30 parentId=29}
+RequestedLayerState{PXRSurfaceControlDepth#31 z=2147483646}
+RequestedLayerState{[BBQ] PXRSurfaceControlDepth#31#32 parentId=31}
+RequestedLayerState{c478bd4 com.picoxr.launcher/com.picoxr.launcher.MainActivity#253 parentId=252}
+RequestedLayerState{d03ebe ActivityRecordInputSink com.picoxr.launcher/.MainActivity#255 parentId=252 z=-2147483648}
+RequestedLayerState{com.picoxr.launcher/com.picoxr.launcher.MainActivity#1224 parentId=253}
+RequestedLayerState{Task=30#282 parentId=5 z=1}
+RequestedLayerState{ActivityRecord{65900175 u0 com.picoxr.systemui/.dock.DockActivity t29}#277 parentId=276}
+RequestedLayerState{[BBQ] Sprite#3959#3960 parentId=3959}
+RequestedLayerState{Sprite#3959 z=351000}
+RequestedLayerState{Task=29#276 parentId=275}
+RequestedLayerState{com.picoxr.systemui/com.picoxr.systemui.platform.MainActivity#4383}
+RequestedLayerState{com.picoxr.systemui/com.picoxr.systemui.dock.DockActivity#1227 parentId=286}
+RequestedLayerState{5c66adf com.picoxr.systemui/com.picoxr.systemui.platform.MainActivity#287 parentId=284}
+RequestedLayerState{edf183d com.picoxr.systemui/com.picoxr.systemui.dock.DockActivity#286 parentId=277}
+RequestedLayerState{d9f08a5 ActivityRecordInputSink com.picoxr.systemui/.platform.MainActivity#285 parentId=284 z=-2147483648}
+RequestedLayerState{ActivityRecord{241338012 u0 com.picoxr.systemui/.platform.MainActivity t31}#284 parentId=283}
+RequestedLayerState{Task=31#283 parentId=282}
+RequestedLayerState{#4240 parentId=4239}
+RequestedLayerState{c530409 com.picoxr.systemui#4239 parentId=4238}
+RequestedLayerState{Task=28#275 parentId=5 z=3}
+RequestedLayerState{f2f751c ActivityRecordInputSink com.picoxr.systemui/.dock.DockActivity#278 parentId=277 z=-2147483648}
+RequestedLayerState{#4225 parentId=4224}
+RequestedLayerState{WindowToken{4adab2b type=2011 android.os.Binder@d2fa77a}#4058 parentId=8}
+RequestedLayerState{WindowToken{626a99d type=2996 android.os.BinderProxy@fe0b074}#4232 parentId=6 z=6}
+RequestedLayerState{#4231 parentId=4230}
+RequestedLayerState{WindowToken{66d8110 type=2996 android.os.BinderProxy@fb541d3}#4238 parentId=6 z=7}
+RequestedLayerState{#4234 parentId=4233}
+RequestedLayerState{2eb4ba8 InputMethod#4244 parentId=4413}
+RequestedLayerState{#4228 parentId=4227}
+RequestedLayerState{a769275 com.picoxr.systemui#4227 parentId=4226}
+RequestedLayerState{c6f9814 com.picoxr.systemui#4224 parentId=4223}
+RequestedLayerState{767086b com.picoxr.systemui#4230 parentId=4229}
+RequestedLayerState{WindowToken{c2b31ba type=2996 android.os.BinderProxy@b9202e5}#4229 parentId=6 z=5}
+RequestedLayerState{WindowToken{23dd5ac type=2996 android.os.BinderProxy@34dd75f}#4226 parentId=6 z=4}
+RequestedLayerState{2923e12 com.picoxr.systemui#4233 parentId=4232}
+RequestedLayerState{WindowToken{d049320 type=2996 android.os.BinderProxy@4741223}#4214 parentId=6}
+RequestedLayerState{57dae9e com.picoxr.systemui#4215 parentId=4214}
+RequestedLayerState{#4216 parentId=4215}
+RequestedLayerState{WindowToken{892f24d type=2996 android.os.BinderProxy@282ede4}#4217 parentId=6 z=1}
+RequestedLayerState{f2d102 com.picoxr.systemui#4218 parentId=4217}
+RequestedLayerState{#4219 parentId=4218}
+RequestedLayerState{WindowToken{70c157c type=2996 android.os.BinderProxy@a90f46f}#4220 parentId=6 z=2}
+RequestedLayerState{8991e05 com.picoxr.systemui#4221 parentId=4220}
+RequestedLayerState{#4222 parentId=4221}
+RequestedLayerState{WindowToken{38d0267 type=2996 android.os.BinderProxy@2bd2626}#4223 parentId=6 z=3}
+RequestedLayerState{Task=186#4403 parentId=5 z=4}
+RequestedLayerState{Task=187#4404 parentId=4403}
+RequestedLayerState{ActivityRecord{186458063 u0 com.shadps4.android/.MainActivity t187}#4405 parentId=4404}
+RequestedLayerState{WindowToken{d9d1189 type=2996 android.os.BinderProxy@4895490}#4406 parentId=6 z=8}
+RequestedLayerState{2e658e com.picoxr.systemui#4407 parentId=4406}
+RequestedLayerState{#4408 parentId=4407}
+RequestedLayerState{431cd5c ActivityRecordInputSink com.shadps4.android/.MainActivity#4409 parentId=4405 z=-2147483648}
+RequestedLayerState{com.shadps4.android/com.shadps4.android.MainActivity#4412 parentId=4411}
+RequestedLayerState{7897baa com.shadps4.android/com.shadps4.android.MainActivity#4411 parentId=4405}
+RequestedLayerState{Bounds for - com.shadps4.android/com.shadps4.android.MainActivity#4416 parentId=4412}
+RequestedLayerState{dded83 SurfaceView[com.shadps4.android/com.shadps4.android.MainActivity]#4417 parentId=4416 relativeParentId=4412 z=-2}
+RequestedLayerState{dded83 SurfaceView[com.shadps4.android/com.shadps4.android.MainActivity](BLAST)#4418 parentId=4417}
+RequestedLayerState{Background for dded83 SurfaceView[com.shadps4.android/com.shadps4.android.MainActivity]#4419 parentId=4417 relativeParentId=4412 z=-2147483648}

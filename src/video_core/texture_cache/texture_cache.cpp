@@ -23,6 +23,7 @@
 #include "video_core/texture_cache/tile_manager.h"
 
 #include <vk_mem_alloc.h>
+#include "video_core/vma_diagnostics.h"
 
 namespace VideoCore {
 
@@ -37,7 +38,7 @@ TextureCache::TextureCache(const Vulkan::Instance& instance_, Vulkan::Scheduler&
       tile_manager{instance, scheduler, buffer_cache.GetUtilityBuffer(MemoryUsage::Stream)},
       readback_linear_images{EmulatorSettings.IsReadbackLinearImagesEnabled()} {
 
-    memory_diagnostics_epoch = MemoryDiagnostics::Begin();
+    memory_diagnostics_epoch = MemoryDiagnostics::Begin(instance.ScalePolicy());
 
     u32 max_samplers = instance.GetMaxSamplerAllocationCount();
     trigger_gc_samplers = max_samplers * 3 / 4;
@@ -67,8 +68,42 @@ TextureCache::TextureCache(const Vulkan::Instance& instance_, Vulkan::Scheduler&
     trigger_gc_memory = static_cast<u64>((device_local_memory - mem_threshold) / 2);
 }
 
+std::shared_ptr<ResourceScalePlan> TextureCache::AcquireScalePlan(const ImageInfo& info, ScaleUse use) {
+    return scale_plans.Acquire({info.guest_address, info.guest_size, u64(info.pixel_format),
+        u64(info.type), info.size.width, info.size.height, info.size.depth, info.pitch,
+        info.resources.levels, info.resources.layers, info.num_samples,
+        u64(info.tile_mode) | (u64(info.bank_swizzle) << 32) | (u64(info.alt_tile) << 40)}, use);
+}
+
 TextureCache::~TextureCache() {
     MemoryDiagnostics::End(memory_diagnostics_epoch);
+}
+
+void TextureCache::RecordAttachmentDraw(std::span<const ImageId> attachments, u64 fragment_hash,
+                                        bool scaled, bool began_rendering) {
+    if (attachments.empty()) return;
+    ++attachment_draws;
+    scaled_attachment_draws += scaled;
+    attachment_passes += began_rendering;
+    scaled_attachment_passes += began_rendering && scaled;
+    u32 reasons{}, width{}, height{}, depth{};
+    for (const auto id : attachments) {
+        const auto& image = slot_images[id];
+        const auto& plan = image.ScalePlan();
+        reasons |= plan.native_reason_mask | (1u << u32(plan.reason));
+        width = std::max(width, image.info.size.width);
+        height = std::max(height, image.info.size.height);
+        depth |= image.info.props.is_depth;
+    }
+    const std::array<u64, 7> key{fragment_hash, width, height, reasons, u64(scaled),
+                               attachments.size(), depth};
+    auto it = attachment_groups.find(key);
+    if (it == attachment_groups.end()) {
+        if (attachment_groups.size() == 128) { ++attachment_group_overflow; return; }
+        it = attachment_groups.emplace(key, AttachmentCounts{}).first;
+    }
+    ++it->second.draws;
+    it->second.passes += began_rendering;
 }
 
 void TextureCache::PublishMemoryDiagnostics() {
@@ -77,29 +112,43 @@ void TextureCache::PublishMemoryDiagnostics() {
     std::ostringstream out;
     out << "status=sampled sample_ns=" << std::chrono::duration_cast<std::chrono::nanoseconds>(
         std::chrono::steady_clock::now().time_since_epoch()).count()
-        << " scale_percent=" << EmulatorSettings.GetInternalScalePercent() << "\n";
-    VmaBudget budgets[VK_MAX_MEMORY_HEAPS]{};
-    vmaGetHeapBudgets(instance.GetAllocator(), budgets);
-    u64 blocks{}, allocated{}, block_count{}, allocation_count{};
-    for (u32 i = 0; i < instance.GetMemoryProperties().memoryHeapCount; ++i) {
-        blocks += budgets[i].statistics.blockBytes;
-        allocated += budgets[i].statistics.allocationBytes;
-        block_count += budgets[i].statistics.blockCount;
-        allocation_count += budgets[i].statistics.allocationCount;
-    }
-    out << "vma_block_bytes=" << blocks << " vma_allocation_bytes=" << allocated
-        << " vma_unused_block_bytes=" << blocks - allocated
-        << " blocks=" << block_count << " allocations=" << allocation_count << "\n";
+        << " render_scale_percent=" << instance.ScalePolicy().render_eighths * 12.5f
+        << " texture_quality=" << TextureQualityName(instance.ScalePolicy().texture)
+        << " legacy=" << instance.ScalePolicy().legacy
+        << " attachment_counter_version=2 attachment_draws=" << attachment_draws
+        << " scaled_attachment_draws=" << scaled_attachment_draws
+        << " attachment_passes=" << attachment_passes << " scaled_attachment_passes=" << scaled_attachment_passes
+        << " plan_entries=" << scale_plans.Size() << " budget_native=" << scale_plans.BudgetNative() << "\n";
+    out << "idle_asset_evictions=" << idle_asset_evictions
+        << " idle_asset_retired_allocation_bytes=" << idle_asset_retired_bytes << '\n';
+    out << "attachment_group_overflow_draws=" << attachment_group_overflow << '\n';
+    for (u32 i = 0; i < u32(ScaleReason::Count); ++i)
+        out << "native_fallback=" << ScaleReasonName(ScaleReason(i)) << " transitions="
+            << native_fallbacks[i] << '\n';
+    for (const auto& [key, counts] : attachment_groups)
+        out << "attachment_group fragment=" << key[0] << " logical=" << key[1] << 'x' << key[2]
+            << " reasons=" << key[3] << " scaled=" << key[4] << " attachments=" << key[5]
+            << " depth=" << key[6] << " draws=" << counts.draws << " passes=" << counts.passes << '\n';
+    VmaDiagnostics::Append(instance.GetAllocator(), instance.GetMemoryProperties(), instance.CanReportMemoryUsage(), out);
     struct Group { u64 images{}, backings{}, allocation_bytes{}, guest_layout_bytes{}; };
     std::map<std::string, Group> groups;
     {
         std::scoped_lock lock{mutex};
         for (auto& image : slot_images) {
             if (!image.backing) continue;
-            const std::string kind = image.usage.render_target || image.usage.depth_target || image.usage.vo_surface
-                ? "attachment" : image.usage.storage ? "storage" : "sampled";
+            const std::string kind = std::string(ScaleDomainName(image.ScalePlan().domain)) + "/" +
+                std::string(ScaleReasonName(image.ScalePlan().reason));
             const std::string format = image.IsAstcEncoded() ? "ASTC" : image.info.props.is_block ? "BC" : "uncompressed";
             auto& group = groups[kind + "/" + format + (image.IsScaled() ? "/scaled" : "/native")];
+            if (group.images < 4) {
+                const auto& plan = image.ScalePlan();
+                const auto extent = image.HostExtent();
+                out << "resource=" << kind << " address=" << image.info.guest_address
+                    << " generation=" << plan.mapping_generation << " logical=" << image.info.size.width << 'x' << image.info.size.height
+                    << " physical=" << extent.width << 'x' << extent.height << " drop=" << image.DroppedMips()
+                    << " content_version=" << plan.content_version << " plan_version=" << plan.plan_version
+                    << " upscaled_readback=" << plan.upscaled_readback << " uploads=" << plan.uploads << "\n";
+            }
             ++group.images;
             group.guest_layout_bytes += image.info.guest_size;
             for (auto& backing : image.backing_images) {
@@ -145,43 +194,55 @@ void TextureCache::DownloadImageMemory(ImageId image_id, bool sync) {
     if (False(image.flags & ImageFlagBits::GpuModified)) {
         return;
     }
+    image.ForceNative("readback");
     auto& download_buffer = buffer_cache.GetUtilityBuffer(MemoryUsage::Download);
-    const u32 download_size = image.info.pitch * image.info.size.height * image.info.size.depth *
-                              image.info.resources.layers * (image.info.num_bits / 8);
-    ASSERT(download_size <= image.info.guest_size);
-    const auto [download, offset] = download_buffer.Map(download_size);
-    download_buffer.Commit();
-    const vk::BufferImageCopy image_download = {
-        .bufferOffset = offset,
-        .bufferRowLength = image.info.pitch,
-        .bufferImageHeight = image.info.size.height,
-        .imageSubresource =
-            {
-                .aspectMask = image.info.props.is_depth ? vk::ImageAspectFlagBits::eDepth
-                                                        : vk::ImageAspectFlagBits::eColor,
-                .mipLevel = 0,
-                .baseArrayLayer = 0,
-                .layerCount = image.info.resources.layers,
-            },
-        .imageOffset = {0, 0, 0},
-        .imageExtent = {image.info.size.width, image.info.size.height, image.info.size.depth},
+    const u32 download_size = image.info.guest_size;
+    auto [download, offset] = download_buffer.Map(download_size);
+    std::shared_ptr<Buffer> oversized;
+    Buffer* target = &download_buffer;
+    if (!download) {
+        oversized = std::make_shared<Buffer>(instance, scheduler, MemoryUsage::Download, 0,
+            vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eStorageBuffer,
+            download_size);
+        target = oversized.get();
+        download = target->mapped_data.data();
+        VmaDiagnostics::Tag(instance.GetAllocator(), target->buffer.allocation,
+                            "buffer/image-readback-oversize", true);
+    } else {
+        download_buffer.Commit();
+    }
+    std::vector<vk::BufferImageCopy> copies;
+    for (u32 mip = 0; mip < image.info.resources.levels; ++mip) {
+        const auto& part = image.info.mips_layout[mip];
+        copies.push_back({.bufferOffset = part.offset, .bufferRowLength = part.pitch,
+            .bufferImageHeight = part.height,
+            .imageSubresource = {image.aspect_mask & ~vk::ImageAspectFlagBits::eStencil,
+                mip, 0, image.info.resources.layers},
+            .imageExtent = {std::max(image.info.size.width >> mip, 1u),
+                std::max(image.info.size.height >> mip, 1u),
+                image.info.props.is_volume ? std::max(image.info.size.depth >> mip, 1u) : 1u}});
+    }
+    // Preserve the guest layout, including tiled surfaces and retained mip history.
+    // A plain VkImageToBuffer copy would write linear pixels into tiled guest RAM.
+    tile_manager.TileImage(image, copies, target->Handle(), offset, download_size);
+    const vk::MemoryBarrier2 host_barrier{
+        .srcStageMask = vk::PipelineStageFlagBits2::eAllCommands,
+        .srcAccessMask = vk::AccessFlagBits2::eMemoryWrite,
+        .dstStageMask = vk::PipelineStageFlagBits2::eHost,
+        .dstAccessMask = vk::AccessFlagBits2::eHostRead};
+    scheduler.CommandBuffer().pipelineBarrier2(vk::DependencyInfo{
+        .memoryBarrierCount = 1, .pMemoryBarriers = &host_barrier});
+    auto copy_back = [allocator = instance.GetAllocator(), allocation = target->buffer.allocation,
+                      device_addr = image.info.guest_address, download, offset, download_size,
+                      oversized] {
+        vmaInvalidateAllocation(allocator, allocation, offset, download_size);
+        Core::Memory::Instance()->TryWriteBacking(std::bit_cast<u8*>(device_addr), download, download_size);
     };
-    scheduler.EndRendering();
-    const auto cmdbuf = scheduler.CommandBuffer();
-    image.Transit(vk::ImageLayout::eTransferSrcOptimal, vk::AccessFlagBits2::eTransferRead, {});
-    cmdbuf.copyImageToBuffer(image.GetImage(), vk::ImageLayout::eTransferSrcOptimal,
-                             download_buffer.Handle(), image_download);
-
     if (sync) {
         scheduler.Finish();
-        Core::Memory::Instance()->TryWriteBacking(std::bit_cast<u8*>(image.info.guest_address),
-                                                  download, download_size);
+        copy_back();
     } else {
-        scheduler.DeferPriorityOperation(
-            [this, device_addr = image.info.guest_address, download, download_size] {
-                Core::Memory::Instance()->TryWriteBacking(std::bit_cast<u8*>(device_addr), download,
-                                                          download_size);
-            });
+        scheduler.DeferPriorityOperation(std::move(copy_back));
     }
 }
 
@@ -242,6 +303,7 @@ void TextureCache::InvalidateMemoryFromGPU(VAddr address, size_t max_size) {
 void TextureCache::UnmapMemory(VAddr cpu_addr, size_t size) {
     std::scoped_lock lk{mutex};
 
+    scale_plans.Unmap(cpu_addr, size);
     ImageIds deleted_images;
     ForEachImageInRegion(cpu_addr, size, [&](ImageId id, Image&) { deleted_images.push_back(id); });
     for (const ImageId id : deleted_images) {
@@ -350,6 +412,37 @@ std::tuple<ImageId, int, int> TextureCache::ResolveOverlap(const ImageInfo& imag
     const bool safe_to_delete =
         scheduler.CurrentTick() - cache_image.tick_accessed_last > NumFramesBeforeRemoval;
 
+    // An allocation extent is part of the identity. DRS must not keep the
+    // previous larger backing merely because the requested bytes fit inside it.
+    if (image_info.guest_address == cache_image.info.guest_address &&
+        image_info.size != cache_image.info.size &&
+        image_info.pixel_format == cache_image.info.pixel_format &&
+        image_info.type == cache_image.info.type &&
+        image_info.num_bits == cache_image.info.num_bits &&
+        image_info.num_samples == cache_image.info.num_samples &&
+        image_info.resources == cache_image.info.resources &&
+        image_info.tile_mode == cache_image.info.tile_mode &&
+        image_info.bank_swizzle == cache_image.info.bank_swizzle &&
+        image_info.alt_tile == cache_image.info.alt_tile &&
+        (binding == BindingType::RenderTarget || binding == BindingType::DepthTarget || binding == BindingType::VideoOut)) {
+        // The descriptor changed, but the backing may still own the newest
+        // history pixels. Preserve them through the existing guest-layout
+        // download before rebuilding from the new layout. This is a conservative
+        // DRS fallback, not a clear or a reinterpretation of stale guest RAM.
+        // Incompatible format/layout reuse belongs to the existing alias/pool
+        // path below; a matching address alone is not evidence of DRS.
+        // FindImage already owns mutex. UpdateImage would recursively acquire
+        // that non-recursive mutex on every dynamic-extent transition.
+        TrackImage(cache_image_id);
+        TouchImage(cache_image);
+        RefreshImage(cache_image);
+        if (True(cache_image.flags & ImageFlagBits::GpuModified)) {
+            cache_image.DetachScalePlanForRetirement();
+            DownloadImageMemory(cache_image_id, true);
+        }
+        FreeImage(cache_image_id);
+        return {merged_image_id, -1, -1};
+    }
     // Equal address
     if (image_info.guest_address == cache_image.info.guest_address) {
         const u32 lhs_block_size = image_info.num_bits * image_info.num_samples;
@@ -652,11 +745,15 @@ ImageId TextureCache::FindImage(ImageDesc& desc, bool exact_fmt) {
     }
     // Create and register a new image
     if (!image_id) {
-        image_id = slot_images.insert(instance, scheduler, blit_helper, slot_image_views, info, this);
+        image_id = slot_images.insert(instance, scheduler, blit_helper, slot_image_views, info, this, desc.type);
         RegisterImage(image_id);
     }
 
     Image& image = slot_images[image_id];
+    if (desc.type == BindingType::Texture && image.info.guest_address == info.guest_address &&
+        image.info.resources.levels != info.resources.levels && !instance.ScalePolicy().legacy)
+        image.ForceNative("streaming identity");
+    image.ObserveUsage(desc.type);
     if (desc.type == BindingType::Storage) {
         image.ForceNative("storage or format alias");
     }
@@ -707,6 +804,7 @@ ImageId TextureCache::FindImageFromRange(VAddr address, size_t size, bool ensure
 ImageView& TextureCache::FindTexture(ImageId image_id, const ImageDesc& desc) {
     Image& image = slot_images[image_id];
     if (desc.type == BindingType::Storage) {
+        image.MarkGpuWrite(true);
         image.flags |= ImageFlagBits::GpuModified;
         if (readback_linear_images && (!image.info.props.is_tiled || image.info.size.width <= 8) &&
             image.info.guest_address != 0) {
@@ -715,11 +813,13 @@ ImageView& TextureCache::FindTexture(ImageId image_id, const ImageDesc& desc) {
         }
     }
     UpdateImage(image_id);
+    if (desc.type == BindingType::Texture) image.MarkSampled();
     return image.FindView(desc.view_info);
 }
 
 ImageView& TextureCache::FindRenderTarget(ImageId image_id, const ImageDesc& desc) {
     Image& image = slot_images[image_id];
+    image.MarkGpuWrite();
     image.flags |= ImageFlagBits::GpuModified;
     if (readback_linear_images && (!image.info.props.is_tiled || image.info.size.width <= 8)) {
         std::unique_lock lk{download_images_mutex};
@@ -746,6 +846,7 @@ ImageView& TextureCache::FindRenderTarget(ImageId image_id, const ImageDesc& des
 
 ImageView& TextureCache::FindDepthTarget(ImageId image_id, const ImageDesc& desc) {
     Image& image = slot_images[image_id];
+    image.MarkGpuWrite();
     image.flags |= ImageFlagBits::GpuModified;
     image.usage.depth_target = 1u;
     UpdateImage(image_id);
@@ -789,6 +890,9 @@ void TextureCache::RefreshImage(Image& image) {
         return;
     }
 
+    image.CheckUploadBudget();
+    // A codec fallback may have synchronously refreshed the replacement backing.
+    if (False(image.flags & ImageFlagBits::Dirty)) return;
     RENDERER_TRACE;
     TRACE_HINT(fmt::format("{:x}:{:x}", image.info.guest_address, image.info.guest_size));
 
@@ -818,7 +922,7 @@ void TextureCache::RefreshImage(Image& image) {
     const bool is_gpu_dirty = True(image.flags & ImageFlagBits::GpuDirty);
 
     boost::container::small_vector<vk::BufferImageCopy, 14> image_copies;
-    for (u32 m = 0; m < num_mips; m++) {
+    for (u32 m = image.DroppedMips(); m < num_mips; m++) {
         const u32 width = std::max(image.info.size.width >> m, 1u);
         const u32 height = std::max(image.info.size.height >> m, 1u);
         const u32 depth =
@@ -859,8 +963,13 @@ void TextureCache::RefreshImage(Image& image) {
 
     scheduler.EndRendering();
 
+    // Crop the upload source before staging and detiling. A low-quality backing
+    // never reserves or transfers guest mip0, including on later dirty updates.
+    const auto upload_info = image.info.RetainedMipChain(image.DroppedMips());
+    const auto skipped_bytes = upload_info.guest_address - image.info.guest_address;
+    for (auto& copy : image_copies) copy.bufferOffset -= skipped_bytes;
     const auto [in_buffer, in_offset] =
-        buffer_cache.ObtainBufferForImage(image.info.guest_address, image.info.guest_size);
+        buffer_cache.ObtainBufferForImage(upload_info.guest_address, upload_info.guest_size);
     if (auto barrier = in_buffer->GetBarrier(vk::AccessFlagBits2::eTransferRead,
                                              vk::PipelineStageFlagBits2::eTransfer)) {
         scheduler.CommandBuffer().pipelineBarrier2(vk::DependencyInfo{
@@ -871,12 +980,12 @@ void TextureCache::RefreshImage(Image& image) {
     }
 
     const auto [buffer, offset] =
-        tile_manager.DetileImage(in_buffer->Handle(), in_offset, image.info);
+        tile_manager.DetileImage(in_buffer->Handle(), in_offset, upload_info);
     for (auto& copy : image_copies) {
         copy.bufferOffset += offset;
     }
 
-    image.Upload(image_copies, buffer, offset);
+    image.Upload(image_copies, buffer, offset, upload_info.guest_size);
 }
 
 vk::Sampler TextureCache::GetSampler(const AmdGpu::Sampler& sampler,
@@ -1036,6 +1145,32 @@ void TextureCache::UntrackImageTail(ImageId image_id) {
     tracker.UpdatePageWatchers<false>(addr, size);
 }
 
+void TextureCache::GarbageCollectIdleAssets() {
+    const auto policy = instance.MemoryPolicy();
+    if (!policy.idle_asset_submits || gc_tick < policy.idle_asset_submits || gc_tick % 16 != 0)
+        return;
+    std::scoped_lock lock{mutex};
+    u32 remaining = policy.idle_evictions_per_sweep;
+    // Only uploaded assets whose current contents remain reconstructible from
+    // guest RAM. GPU-produced/aliased/render targets retain their existing rules.
+    lru_cache.ForEachItemBelow(gc_tick - policy.idle_asset_submits, [&](ImageId id) {
+        if (!remaining) return true;
+        auto& image = slot_images[id];
+        const auto& plan = image.ScalePlan();
+        if (plan.domain != ScaleDomain::Asset || plan.origin != ScaleOrigin::Upload ||
+            True(image.flags & (ImageFlagBits::GpuModified | ImageFlagBits::GpuDirty))) return false;
+        --remaining;
+        ++idle_asset_evictions;
+        for (const auto& backing : image.backing_images) {
+            VmaAllocationInfo allocation{};
+            vmaGetAllocationInfo(instance.GetAllocator(), backing.image.allocation, &allocation);
+            idle_asset_retired_bytes += allocation.size;
+        }
+        FreeImage(id); // Existing GPU + host-submit deferred destruction.
+        return false;
+    });
+}
+
 void TextureCache::GarbageCollectImages() {
     if (instance.CanReportMemoryUsage()) {
         total_used_memory = instance.GetDeviceMemoryUsage();
@@ -1146,6 +1281,7 @@ void TextureCache::RunGarbageCollector() {
         ++gc_tick;
     };
 
+    GarbageCollectIdleAssets();
     GarbageCollectImages();
     GarbageCollectSamplers();
 }
@@ -1178,6 +1314,8 @@ void TextureCache::DeleteImage(ImageId image_id) {
         }
     }
 
+    for (auto& backing : image.backing_images)
+        VmaDiagnostics::Tag(instance.GetAllocator(), backing.image.allocation, nullptr, true);
     // Reclaim image and any image views it references.
     scheduler.DeferOperation([this, image_id] {
         Image& image = slot_images[image_id];

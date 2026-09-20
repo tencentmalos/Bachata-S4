@@ -237,7 +237,7 @@ void Rasterizer::Draw(bool is_indexed, u32 index_offset) {
 
     pipeline->BindResources(set_writes, buffer_barriers, push_data);
     UpdateDynamicState(pipeline, is_indexed);
-    scheduler.BeginRendering(state);
+    RecordAttachmentDraw(pipeline, scheduler.BeginRendering(state));
 
     const auto& vs_info = pipeline->GetStage(Shader::LogicalStage::Vertex);
     const auto& fetch_shader = pipeline->GetFetchShader();
@@ -319,7 +319,7 @@ void Rasterizer::DrawIndirect(bool is_indexed, VAddr arg_address, u32 offset, u3
 
     pipeline->BindResources(set_writes, buffer_barriers, push_data);
     UpdateDynamicState(pipeline, is_indexed);
-    scheduler.BeginRendering(state);
+    RecordAttachmentDraw(pipeline, scheduler.BeginRendering(state));
 
     // We can safely ignore both SGPR UD indices and results of fetch shader parsing, as vertex and
     // instance offsets will be automatically applied by Vulkan from indirect args buffer.
@@ -456,6 +456,19 @@ void Rasterizer::OnSubmit() {
     buffer_cache.RunGarbageCollector();
 }
 
+void Rasterizer::RecordAttachmentDraw(const GraphicsPipeline* pipeline, bool began_rendering) {
+    boost::container::small_vector<VideoCore::ImageId, 9> attachments;
+    for (u32 i = 0; i < std::bit_width(pipeline->GetGraphicsKey().mrt_mask); ++i)
+        if (cb_descs[i].first) attachments.push_back(cb_descs[i].first);
+    if (db_desc.first) attachments.push_back(db_desc.first);
+    u64 fragment_hash{};
+    for (const auto* stage : pipeline->GetStages())
+        if (stage && stage->l_stage == Shader::LogicalStage::Fragment)
+            fragment_hash = stage->pgm_hash;
+    texture_cache.RecordAttachmentDraw(attachments, fragment_hash, render_scale_eighths != 8,
+                                      began_rendering);
+}
+
 bool Rasterizer::BindResources(const Pipeline* pipeline) {
     if (IsComputeImageCopy(pipeline) || IsComputeMetaClear(pipeline) ||
         IsComputeImageClear(pipeline)) {
@@ -470,7 +483,7 @@ bool Rasterizer::BindResources(const Pipeline* pipeline) {
 
     bool uses_dma = false;
     render_scale_eighths = 8;
-    if (shading_settings->GetInternalScalePercent() != 100) {
+    if (instance.ScalePolicy().ShaderMapping()) {
         // Resolve unsafe uses before producing any descriptor. This includes uses
         // in a later shader stage of the same draw, not only the first binding.
         u32 descriptor = 0;
@@ -508,10 +521,13 @@ bool Rasterizer::BindResources(const Pipeline* pipeline) {
             for (u32 i = 0; i < count; ++i)
                 native_pass |= graphics->GetGraphicsKey().color_samples[i] > 1;
             bool has_attachment = false;
+            u32 attachment_scale = 0;
             const auto inspect = [&](const auto& target) {
                 if (!target.first) return;
                 has_attachment = true;
-                native_pass |= !texture_cache.GetImage(target.first).IsScaled();
+                const auto actual = texture_cache.GetImage(target.first).ScaleEighths();
+                native_pass |= actual == 8 || (attachment_scale && attachment_scale != actual);
+                attachment_scale = actual;
             };
             for (u32 i = 0; i < count; ++i) inspect(cb_descs[i]);
             inspect(db_desc);
@@ -520,11 +536,10 @@ bool Rasterizer::BindResources(const Pipeline* pipeline) {
                     if (cb_descs[i].first) texture_cache.GetImage(cb_descs[i].first).ForceNative("mixed attachment pass");
                 if (db_desc.first) texture_cache.GetImage(db_desc.first).ForceNative("mixed attachment pass");
             } else if (has_attachment) {
-                render_scale_eighths = VideoCore::InternalScale::FromPercent(shading_settings->GetInternalScalePercent()).eighths;
+                render_scale_eighths = attachment_scale;
             }
         }
     }
-
     // Bind resource buffers and textures.
     Shader::Backend::Bindings binding{};
     push_data = MakeUserData(liverpool->regs);
@@ -1132,6 +1147,7 @@ void Rasterizer::DepthStencilCopy(bool is_depth, bool is_stencil) {
     auto& read_image = texture_cache.GetImage(texture_cache.FindImage(read_desc));
     auto& write_image = texture_cache.GetImage(texture_cache.FindImage(write_desc));
 
+    write_image.InheritCopyPlan(read_image);
     if (read_image.ScaleEighths() != write_image.ScaleEighths()) {
         read_image.ForceNative("depth copy mismatch");
         write_image.ForceNative("depth copy mismatch");

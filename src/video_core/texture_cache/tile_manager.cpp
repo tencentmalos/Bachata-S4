@@ -15,6 +15,7 @@
 
 #include <magic_enum/magic_enum.hpp>
 #include <vk_mem_alloc.h>
+#include "video_core/vma_diagnostics.h"
 
 namespace VideoCore {
 
@@ -95,9 +96,10 @@ TileManager::ScratchBuffer TileManager::GetScratchBuffer(u32 size) {
     VkBuffer buffer;
     VmaAllocation allocation;
     const auto buffer_ci_unsafe = static_cast<VkBufferCreateInfo>(buffer_ci);
-    const auto result = vmaCreateBuffer(instance.GetAllocator(), &buffer_ci_unsafe, &alloc_info,
-                                        &buffer, &allocation, nullptr);
+    const auto result = VideoCore::VmaDiagnostics::CreateBuffer(instance.GetAllocator(), &buffer_ci_unsafe, &alloc_info,
+                                        &buffer, &allocation, nullptr, "scratch/detile-tile");
     ASSERT(result == VK_SUCCESS);
+    VmaDiagnostics::Tag(instance.GetAllocator(), allocation, nullptr, true);
     return {buffer, allocation};
 }
 
@@ -186,13 +188,13 @@ TileManager::Result TileManager::DetileImage(vk::Buffer in_buffer, u32 in_offset
 
     const vk::DescriptorBufferInfo params_buffer_info{
         .buffer = stream_buffer.Handle(),
-        .offset = stream_buffer.Copy(&params, sizeof(params), instance.UniformMinAlignment()),
+        .offset = stream_buffer.CopyHost(&params, sizeof(params), instance.UniformMinAlignment()),
         .range = sizeof(params),
     };
 
     const auto [out_buffer, out_allocation] = GetScratchBuffer(info.guest_size);
     scheduler.DeferOperation([this, out_buffer, out_allocation]() {
-        vmaDestroyBuffer(instance.GetAllocator(), out_buffer, out_allocation);
+        VideoCore::VmaDiagnostics::DestroyBuffer(instance.GetAllocator(), out_buffer, out_allocation);
     });
 
     scheduler.EndRendering();
@@ -274,13 +276,13 @@ void TileManager::TileImage(Image& in_image, std::span<vk::BufferImageCopy> buff
 
     const vk::DescriptorBufferInfo params_buffer_info{
         .buffer = stream_buffer.Handle(),
-        .offset = stream_buffer.Copy(&params, sizeof(params), instance.UniformMinAlignment()),
+        .offset = stream_buffer.CopyHost(&params, sizeof(params), instance.UniformMinAlignment()),
         .range = sizeof(params),
     };
 
     const auto [temp_buffer, temp_allocation] = GetScratchBuffer(info.guest_size);
     scheduler.DeferOperation([this, temp_buffer, temp_allocation]() {
-        vmaDestroyBuffer(instance.GetAllocator(), temp_buffer, temp_allocation);
+        VideoCore::VmaDiagnostics::DestroyBuffer(instance.GetAllocator(), temp_buffer, temp_allocation);
     });
 
     const auto cmdbuf = scheduler.CommandBuffer();

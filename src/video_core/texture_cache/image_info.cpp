@@ -153,6 +153,22 @@ bool ImageInfo::IsCompatible(const ImageInfo& info) const {
            num_samples == info.num_samples && num_bits == info.num_bits;
 }
 
+ImageInfo ImageInfo::RetainedMipChain(u32 first_mip) const {
+    ASSERT(first_mip < resources.levels);
+    auto tail = *this;
+    const auto skipped = mips_layout[first_mip].offset;
+    ASSERT(skipped < guest_size);
+    tail.guest_address += skipped;
+    tail.guest_size -= skipped;
+    tail.resources.levels -= first_mip;
+    tail.micro_mip_mask >>= first_mip;
+    for (u32 mip = 0; mip < tail.resources.levels; ++mip) {
+        tail.mips_layout[mip] = mips_layout[mip + first_mip];
+        tail.mips_layout[mip].offset -= skipped;
+    }
+    return tail;
+}
+
 void ImageInfo::UpdateSize() {
     guest_size = 0;
     micro_mip_mask = 0;
