@@ -320,6 +320,8 @@ if(V0_ENABLE_FEX)
             COMMENT "Assemble and verify self-contained x86-64 guest fixtures"
             VERBATIM)
         add_executable(guest_execution_tests
+            "${CMAKE_CURRENT_SOURCE_DIR}/../../src/common/native_clock.cpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/../../src/common/rdtsc.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/guest_cpu/guest_execution_tests.cpp"
             "${V0_FIXTURE_DIR}/guest_fixtures.h")
         target_include_directories(guest_execution_tests PRIVATE "${V0_FIXTURE_DIR}")

@@ -4,6 +4,7 @@
 #include "core/guest_cpu/fex/entry_backedge_pass.h"
 #include "core/guest_cpu/fex/memory_watch_pass.h"
 #include "core/guest_cpu/fex/profile_pass.h"
+#include "common/fex_tsc_scale.h"
 #include "Interface/Context/Context.h"
 #include "core/guest_cpu/fex/fex_context.h"
 #include "core/guest_cpu/api/access_fault.h"
@@ -1067,11 +1068,11 @@ class FexCpuContext final : public CpuContext, public CodeInvalidationSink, publ
         // bytes. That was the cause of guest fixtures having no architectural effect.
         FEXCore::Config::ReloadMetaLayer();
         FEXCore::Config::Set(FEXCore::Config::CONFIG_IS64BIT_MODE, "1");
-        // Orbis sceKernelReadTsc/GetTscFrequency expose the native counter.
-        // FEX's Linux default scales low-frequency counters (64x on AYN), which
-        // breaks callers mixing those APIs with guest RDTSC/RDTSCP. Keep both
-        // instructions and CPUID.15h in the same unscaled domain as the host.
-        FEXCore::Config::Set(FEXCore::Config::CONFIG_SMALLTSCSCALE, "0");
+        // Low-frequency ARM counters otherwise stretch guest fixed-tick spin
+        // budgets into milliseconds. Orbis TSC APIs use the SAME scale; never
+        // enable instruction scaling alone or scale host scheduling/profiling.
+        static_assert(Common::FexTscScale::MinimumFrequency == FEXCore::Context::TSC_SCALE_MAXIMUM);
+        FEXCore::Config::Set(FEXCore::Config::CONFIG_SMALLTSCSCALE, "1");
         // Core-only GDBSERVER enables the entry interrupt-page store, not a server.
         // Single basic blocks make its fault a restartable architectural boundary.
         FEXCore::Config::Set(FEXCore::Config::CONFIG_GDBSERVER, "1");

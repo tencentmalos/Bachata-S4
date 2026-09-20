@@ -5,6 +5,7 @@
 #include <limits>
 #include <sys/resource.h>
 #include <time.h>
+#include "common/fex_tsc_scale.h"
 #include "common/native_clock.h"
 #include "core/libraries/kernel/posix_error.h"
 #include "core/libraries/kernel/time.h"
@@ -16,6 +17,19 @@ class GuestClock final {
 public:
     Common::NativeClock ticks;
     const u64 origin = ticks.GetUptime();
+    const Common::FexTscScale tsc_scale{ticks.GetTscFrequency()};
+
+    // Only ticks exposed to the guest use FEX's scale. NativeClock still owns
+    // raw host deadlines and all conversions to nanoseconds/microseconds.
+    u64 ReadTsc() const {
+        return tsc_scale.ToGuest(ticks.GetUptime());
+    }
+    u64 GetProcessTimeCounter() const {
+        return tsc_scale.ToGuest(ticks.GetUptime() - origin);
+    }
+    u64 GetTscFrequency() const {
+        return tsc_scale.Frequency();
+    }
 
     int Read(u32 id, Libraries::Kernel::OrbisKernelTimespec& out, bool resolution) const {
         using namespace Libraries::Kernel;

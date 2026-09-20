@@ -4,7 +4,9 @@
 #include <ctime>
 #include <thread>
 
+#include "common/arch.h"
 #include "common/assert.h"
+#include "common/fex_tsc_scale.h"
 #include "common/native_clock.h"
 #include "common/thread.h"
 #include "core/libraries/kernel/kernel.h"
@@ -40,7 +42,21 @@ Common::NativeClock& ActiveClock() {
 }
 
 u64 PS4_SYSV_ABI sceKernelGetTscFrequency() {
+#if defined(__ANDROID__) && defined(ARCH_ARM64)
+    static const Common::FexTscScale scale{ActiveClock().GetTscFrequency()};
+    return scale.Frequency();
+#else
     return ActiveClock().GetTscFrequency();
+#endif
+}
+
+static u64 GuestTscValue(u64 ticks) {
+#if defined(__ANDROID__) && defined(ARCH_ARM64)
+    static const Common::FexTscScale scale{ActiveClock().GetTscFrequency()};
+    return scale.ToGuest(ticks);
+#else
+    return ticks;
+#endif
 }
 
 u64 PS4_SYSV_ABI sceKernelGetProcessTime() {
@@ -49,15 +65,15 @@ u64 PS4_SYSV_ABI sceKernelGetProcessTime() {
 }
 
 u64 PS4_SYSV_ABI sceKernelGetProcessTimeCounter() {
-    return ActiveClock().GetUptime() - initial_ptc;
+    return GuestTscValue(ActiveClock().GetUptime() - initial_ptc);
 }
 
 u64 PS4_SYSV_ABI sceKernelGetProcessTimeCounterFrequency() {
-    return ActiveClock().GetTscFrequency();
+    return sceKernelGetTscFrequency();
 }
 
 u64 PS4_SYSV_ABI sceKernelReadTsc() {
-    return ActiveClock().GetUptime();
+    return GuestTscValue(ActiveClock().GetUptime());
 }
 
 static s32 posix_nanosleep_impl(const OrbisKernelTimespec* rqtp, OrbisKernelTimespec* rmtp,

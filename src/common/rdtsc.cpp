@@ -39,6 +39,13 @@ static u64 GetTimeNs() {
 }
 
 u64 EstimateRDTSCFrequency() {
+#if defined(ARCH_ARM64) && !defined(_MSC_VER)
+    // CNTVCT has an architectural frequency; estimating and rounding it can
+    // disagree with FEX's CPUID/scale policy. This is still the raw host domain.
+    u64 frequency{};
+    asm volatile("mrs %0, cntfrq_el0" : "=r"(frequency));
+    return frequency;
+#else
     // Discard the first result measuring the rdtsc.
     FencedRDTSC();
     std::this_thread::sleep_for(std::chrono::milliseconds{1});
@@ -55,6 +62,7 @@ u64 EstimateRDTSCFrequency() {
     const u64 tsc_diff = tsc_end - tsc_start;
     const u64 tsc_freq = MultiplyAndDivide64(tsc_diff, 1000000000ULL, end_time - start_time);
     return RoundToNearest<100'000>(tsc_freq);
+#endif
 }
 
 } // namespace Common

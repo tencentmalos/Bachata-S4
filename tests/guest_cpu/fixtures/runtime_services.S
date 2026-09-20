@@ -37,6 +37,62 @@ _start:
     call qword ptr [rip+got_counter]
     cmp rax,r14
     jb failed
+    // Actual bound HLE imports and translated instructions must share one TSC.
+    call qword ptr [rip+got_frequency]
+    mov qword ptr [rip+tsc_frequency],rax
+    call qword ptr [rip+got_counter_frequency]
+    cmp rax,qword ptr [rip+tsc_frequency]
+    jne failed
+    mov eax,0x15
+    xor ecx,ecx
+    cpuid
+    test eax,eax
+    je failed
+    mov edi,eax
+    mov eax,ecx
+    mul rbx
+    div rdi
+    cmp rax,qword ptr [rip+tsc_frequency]
+    jne failed
+    rdtsc
+    shl rdx,32
+    or rax,rdx
+    mov r14,rax
+    call qword ptr [rip+got_read_tsc]
+    cmp rax,r14
+    jb failed
+    mov r14,rax
+    rdtscp
+    shl rdx,32
+    or rax,rdx
+    cmp rax,r14
+    jb failed
+    // TSC and microseconds must advance at the same wall-clock rate.
+    call qword ptr [rip+got_process_us]
+    mov qword ptr [rip+start_us],rax
+    call qword ptr [rip+got_counter]
+    mov r14,rax
+    mov qword ptr [rip+ts],0
+    mov qword ptr [rip+ts+8],20000000
+    lea rdi,[rip+ts]
+    xor esi,esi
+    call qword ptr [rip+got_nanosleep]
+    check
+    call qword ptr [rip+got_counter]
+    sub rax,r14
+    mov ecx,1000000
+    mul rcx
+    div qword ptr [rip+tsc_frequency]
+    mov r14,rax
+    call qword ptr [rip+got_process_us]
+    sub rax,qword ptr [rip+start_us]
+    cmp r14,19000
+    jb failed
+    cmp r14,rax
+    ja failed
+    sub rax,r14
+    cmp rax,10000
+    ja failed
     mov r13d,2
     mov rax,0x7fffffffffffffff
     mov qword ptr [rip+ts],rax
@@ -177,6 +233,8 @@ key: .quad 0
 thread: .quad 0
 result: .quad 0
 dtor_count: .quad 0
+tsc_frequency: .quad 0
+start_us: .quad 0
 .balign 16
 unaligned: .quad 0,0
 .org 0x8000
@@ -198,3 +256,6 @@ got_set: .quad 0
 got_get: .quad 0
 got_create: .quad 0
 got_join: .quad 0
+got_read_tsc: .quad 0
+got_counter_frequency: .quad 0
+got_process_us: .quad 0

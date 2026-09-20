@@ -380,7 +380,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
             auto created = std::make_unique<GuestGraphics>(
                 graphics_window, graphics_driver,
                 [this] { return clock.ticks.GetTimeUS(clock.origin); },
-                [this] { return clock.ticks.GetUptime(); },
+                [this] { return clock.ReadTsc(); },
                 [this] { return platform->SplashVisible(); }, video_labels,
                 [this] { (void)Cancel(); });
             std::scoped_lock lock(graphics_mutex);
@@ -2181,10 +2181,10 @@ void GuestRuntime::Impl::InstallHandlers() {
         bind({"wRYVA5Zolso"}, [clock_call](const auto& a) { return clock_call(a, true, true); });
         bind({"4J2sUJmuHZQ"}, [this](const auto&) { return clock.ticks.GetTimeUS(clock.origin); });
         bind({"fgxnMeTNUtY"},
-             [this](const auto&) { return clock.ticks.GetUptime() - clock.origin; });
-        bind({"-2IRUCO--PM"}, [this](const auto&) { return clock.ticks.GetUptime(); });
+             [this](const auto&) { return clock.GetProcessTimeCounter(); });
+        bind({"-2IRUCO--PM"}, [this](const auto&) { return clock.ReadTsc(); });
         bind({"1j3S3n-tTW4", "BNowx2l588E"},
-             [this](const auto&) { return clock.ticks.GetTscFrequency(); });
+             [this](const auto&) { return clock.GetTscFrequency(); });
         auto nanosleep = [this](const auto& a, bool sce) -> u64 {
             auto fail = [&](int error) {
                 return sce ? u64(0x80020000u | error) : PosixFailure(error);

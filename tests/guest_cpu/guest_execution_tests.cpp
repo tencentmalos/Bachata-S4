@@ -43,6 +43,7 @@
 #include "core/guest_cpu/hle/veneer_allocator.h"
 
 #include "guest_fixtures.h"
+#include "core/host_runtime/guest_clock.h"
 
 namespace {
 
@@ -4682,19 +4683,35 @@ void TestClockDomain(Harness& harness) {
     };
     uint64_t frequency{};
     asm volatile("mrs %0, cntfrq_el0" : "=r"(frequency));
-    const auto before = native_counter();
+    Core::HostRuntime::GuestClock clock;
+    const Common::FexTscScale scale{frequency};
+    const auto before = clock.ReadTsc();
     const auto outcome = RunFixture(harness, *fixture, [](RegisterPatch&) {});
-    const auto after = native_counter();
+    const auto after = clock.ReadTsc();
     if (!Require("G50", outcome, *fixture)) return;
     const auto& regs = outcome.result.snapshot.registers;
-    Check("G50a", "RDTSC shares the host Orbis TSC domain",
+    Check("G50a", "RDTSC shares the scaled Orbis TSC domain",
           regs.Get(Gpr::R8) >= before && regs.Get(Gpr::R8) <= after,
           "host=[" + Hex(before) + "," + Hex(after) + "] guest=" + Hex(regs.Get(Gpr::R8)));
-    Check("G50b", "RDTSCP shares the host Orbis TSC domain",
+    Check("G50b", "RDTSCP shares the scaled Orbis TSC domain",
           regs.Get(Gpr::R9) >= before && regs.Get(Gpr::R9) <= after);
     const auto denominator = regs.Get(Gpr::Rax);
-    Check("G50c", "CPUID TSC frequency equals host counter frequency",
-          denominator && regs.Get(Gpr::Rcx) * regs.Get(Gpr::Rbx) / denominator == frequency);
+    Check("G50c", "CPUID TSC frequency equals Orbis frequency",
+          denominator && regs.Get(Gpr::Rcx) * regs.Get(Gpr::Rbx) / denominator == clock.GetTscFrequency());
+    Check("G50d", "guest high-frequency counter preserves host time conversion",
+          clock.ticks.GetTscFrequency() == frequency &&
+          clock.GetTscFrequency() >= 1'000'000'000 &&
+          clock.GetTscFrequency() == scale.Frequency());
+    const auto host_start = native_counter();
+    const auto guest_start = clock.GetProcessTimeCounter();
+    std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    const auto guest_end = clock.GetProcessTimeCounter();
+    const auto host_end = native_counter();
+    const double guest_seconds = double(guest_end - guest_start) / clock.GetTscFrequency();
+    const double host_seconds = double(host_end - host_start) / frequency;
+    Check("G50e", "process counter reports elapsed seconds without speeding up time",
+          guest_seconds >= 0.019 && guest_seconds <= host_seconds &&
+          host_seconds - guest_seconds < 0.005);
 }
 
 int main(int argc, char** argv) {

@@ -119,6 +119,16 @@ int main() {
     Libraries::Kernel::OrbisKernelTimespec ts{};
     check("clock initialized outside desktop registry",
           clock.Read(15, ts, false) == 0 && clock.ticks.GetTscFrequency() > 0);
+    check("19.2 MHz ARM counter uses the FEX 64x guest domain",
+          Common::FexTscScale{19'200'000}.Frequency() == 1'228'800'000 &&
+          Common::FexTscScale{19'200'000}.ToGuest(200'000) == 12'800'000);
+    check("other ARM counters and native high-frequency TSC",
+          Common::FexTscScale{24'000'000}.Frequency() == 1'536'000'000 &&
+          Common::FexTscScale{54'000'000}.Frequency() == 1'728'000'000 &&
+          Common::FexTscScale{2'400'000'000}.Shift() == 0);
+    check("zero does not loop and unsigned TSC wrap is defined",
+          Common::FexTscScale{0}.Frequency() == 0 &&
+          Common::FexTscScale{19'200'000}.ToGuest(UINT64_MAX) == UINT64_MAX - 63);
     check("bad clock is errno", clock.Read(UINT32_MAX, ts, false) == POSIX_EINVAL);
     std::chrono::nanoseconds ns;
     check("duration overflow rejected", !GuestClock::Duration({INT64_MAX, 0}, ns));

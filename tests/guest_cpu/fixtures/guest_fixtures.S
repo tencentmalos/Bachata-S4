@@ -435,8 +435,8 @@ fixture_entry_backedge:
     ret
 fixture_entry_backedge_end:
 
-// Host Orbis TSC calls use CNTVCT directly. Both x86 timestamp instructions
-// must stay in that same domain; CPUID crystal frequency must agree as well.
+// Orbis TSC calls and both translated x86 timestamp instructions share the
+// scaled guest domain; CPUID crystal frequency must agree as well.
 .globl fixture_clock_domain
 .globl fixture_clock_domain_end
 fixture_clock_domain:
