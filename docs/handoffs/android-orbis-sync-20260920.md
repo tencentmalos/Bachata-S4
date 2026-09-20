@@ -88,3 +88,41 @@ build/sync-domains/guest_sync_performance > sync-domain-results.jsonl
 AYN Thor原序列号9c2841a4；最终APK3ba6e584 / host914dd36f已安装，当前Settings → Graphics选中0.5，无活动游戏。最后一次真实游戏是中间APK的PID6944/gen1/context1，已普通UI Stop；这些ID不得用于新进程控制。本轮没有新PROF可供远程AI宣称已分析。
 
 KGSL与设备技能入口已在AGENTS.md/CLAUDE.md登记，但`workspace/bug_reports`、`workspace/devices`、`workspace/spatial_mcp_publish`是额外工作区，不保证另一台电脑存在。缺失时仍可完成P0，准确说明P1的环境依赖。
+
+## 可单独转交的 Litep / KGSL ZIP
+
+用户追加要求的离线包已生成：`shadps4-orbis-sync-traces-20260920.zip`，318,562,078 bytes（303.804 MiB），源机位于 `/Users/bytedance/Downloads/`。ZIP 独立传递，不纳入 Git；[机器可读交付清单](android-orbis-sync-traces-20260920.json)已提交。其 SHA-256 为：
+
+```text
+8b47170a78732b13eb8276370e10cb8fd74dc35d3efd21ce4e4c93bfbe45b413
+```
+
+包内有三份原始 PROF、各自匹配的压缩 KGSL/sched ftrace、原始 manifest/时钟双锚点/调度统计/进程身份、242 探针配置、分析 JSON、中文报告、重建符号和场景截图，共284个文件。分别是 TSC 修复后 B2（6.270s）、修复前 job-spin（12.222s）、上传锁拆分后等待链（9.976s）。排除了 loading、时间窗不匹配和调度前缀被覆盖的原始采集；不附游戏/固件、APK/.so或可重建的SQLite索引。
+
+解压后先读根目录 `README.md`，用 Python 3.9+ 执行：
+
+```sh
+cd shadps4-orbis-sync-traces-20260920
+python3 prepare.py
+```
+
+脚本校验全部文件及三组 PROF/KGSL 身份绑定，生成 `portable/paths.json` 和本机可加载的 sidecar/guest capture 副本，保留原文件。ZIP CRC、全部文件SHA、三组采集交叉哈希及带空格的新目录下的路径迁移已验证。完整性验证不等于重新跑过性能分析；索引/sidecar ID必须在另一台机器重新获取。
+
+这些是**历史版本**的实景诊断，不包含当前新增的 `HLE.Sync.*` 游戏采集。第一组需排除2646条旧context1 counter，只使用profile匹配的context130；历史guest batch loader会拒绝foreign context，应使用Litep索引和显式身份选择，不能删除校验或改原trace来强行通过。各报告保留边界scope、missing-target flow、zero-timestamp batch、诊断扰动和未校准GPU时钟的限制。
+
+可直接发给另一位 AI：
+
+```text
+请检出 git@github.com:tencentmalos/Bachata-S4.git 的 feature/malos/hle_vr，
+从最新提交新建 codex/orbis-sync-review 评估分支。先阅读 AGENTS.md、CLAUDE.md、
+docs/handoffs/android-orbis-sync-20260920.md。
+解压附带的 shadps4-orbis-sync-traces-20260920.zip，先读 README.md 并运行
+python3 prepare.py，核验数据后结合 Litep 与 KGSL/sched 独立评估。
+重点审查 Orbis 同步原语的锁粒度/自旋/唤醒、HLE 调用量化与生命周期、
+CPU 生产者等待链和 GPU 提交等待；评估随应用发布的 HLE FEX 通用快路径，
+不要把通用同步实现放进游戏 patch。
+先完成可用的源码审查和独立测试，输出中文报告：按证据和收益排序的问题、
+最小验证方法、可实施建议及未知边界。严格区分历史采集与当前代码、
+elapsed与on-CPU，不把并行/嵌套等待重复累加，不把KGSL批次时长当GPU利用率。
+无法访问私有 profiler SDK 或缺少设备时，继续完成离线评估并明确验证缺口。
+```
