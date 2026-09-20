@@ -12,15 +12,22 @@
 #include <mutex>
 #include <optional>
 #include <stop_token>
+#include <thread>
 #include <vector>
 #include "core/guest_cpu/api/address_space.h"
 #include "core/host_runtime/guest_clock.h"
+#include "core/host_runtime/guest_sync_abi.h"
+#include "core/host_runtime/guest_sync_waiters.h"
 #include "core/libraries/kernel/posix_error.h"
 
 namespace Core::HostRuntime {
-// Orbis mutex ownership stays on the host. libc is allowed to update the ABI
-// prefix flags at +0x20, so the published handle addresses a guest allocation,
-// never a native mutex, std::string, pthread pointer or an unmapped integer.
+// Orbis mutex state lives in the guest ABI prefix (guest_sync_abi.h): owner,
+// recursion count and a three-state lock word. The host keeps only immutable
+// identity (address/type/protocol), retirement and the wait queues, so the
+// app-shipped guest fast path (guest/runtime/sync/mutex.c) and these HLE entry
+// points interoperate on one object with one protocol. libc is allowed to
+// update the prefix flags at +0x20; the published handle addresses a guest
+// allocation, never a native mutex, pthread pointer or an unmapped integer.
 class GuestMutexDomain final {
 public:
     // Optional diagnostic observer, installed before owners start. Called under
@@ -42,19 +49,37 @@ private:
     struct Prefix {
         u64 owner{};
         u32 count{}, spins{}, yields{}, protocol{};
-        u64 reserved{};
+        u32 state{}, unused{};
         u32 flags{};
     };
-    static_assert(offsetof(Prefix, flags) == 0x20);
+    static_assert(offsetof(Prefix, owner) == SHAD_SYNC_MUTEX_OWNER);
+    static_assert(offsetof(Prefix, count) == SHAD_SYNC_MUTEX_COUNT);
+    static_assert(offsetof(Prefix, state) == SHAD_SYNC_MUTEX_STATE);
+    static_assert(offsetof(Prefix, flags) == SHAD_SYNC_MUTEX_FLAGS);
+    static_assert(sizeof(Prefix) == SHAD_SYNC_MUTEX_PREFIX_SIZE);
     struct Mutex {
-        u64 address{}, owner{};
-        u32 depth{}, type{1}, waiters{}, protocol{};
-        bool retired{};
+        u64 address{};
+        u32 type{1}, protocol{};
+        // Destroy raises `retiring` before it inspects the word and lowers it
+        // after deciding; an acquirer that won the word meanwhile waits for the
+        // decision and gives the word back when the object was retired.
+        std::atomic<bool> retiring{}, retired{};
+        // Condition waiters queued against this mutex (they hold no lock word
+        // while parked); counted so Destroy and PendingWaits see them.
+        std::atomic<u32> cond_waiters{};
         Mutex* directory_next{}; // immutable after release publication
-        // std::mutex / condition_variable directly use Bionic pthread primitives
-        // on Android. Never hold this physical-thread lock across guest execution.
-        std::mutex guard;
-        std::condition_variable changed;
+    };
+    // Short writable lease over the ABI prefix. Never held across a park: a
+    // live pin blocks retirement of the arena page (address-space M13), and it
+    // stays on the admitted VM path so a retiring data edit over the prefix
+    // page blocks the operation (guest_native_mutex_tests "range retirement
+    // blocks one object").
+    struct Object {
+        GuestCpu::PinnedSpan pin;
+        Prefix* prefix{};
+        std::atomic_ref<u32> State() const {
+            return std::atomic_ref<u32>(prefix->state);
+        }
     };
     struct AttributeState {
         u32 type{1}, protocol{}, ceiling{};
@@ -108,6 +133,7 @@ private:
     std::map<u64, std::shared_ptr<Cond>> conditions;
     std::map<u64, u32> condition_attributes;
     GuestClock clock;
+    GuestAddressWaiters waiters;
     int CondCreate(u64 slot, u32 clock_id = 0) {
         if (!Writable(slot, 8))
             return POSIX_EFAULT;
@@ -137,17 +163,58 @@ private:
         if (!s)
             throw std::runtime_error(GuestCpu::Describe(s.GetError()));
     }
-    void WriteOwnership(u64 address, u64 owner, u32 depth) {
-        // One checked 12-byte write. Preserve libc's
-        // spin/yield/protocol/flags fields; only the first 12 ABI bytes change.
-        // Stays on the admitted VM path: a retiring data edit over the prefix
-        // page must block publication (guest_native_mutex_tests "range
-        // retirement blocks one object"); the arena is not exempt from that
-        // contract even though production never remaps it.
-        std::array<std::byte, 12> bytes;
-        std::memcpy(bytes.data(), &owner, sizeof(owner));
-        std::memcpy(bytes.data() + sizeof(owner), &depth, sizeof(depth));
-        Write(address, bytes);
+    static u64 StateAddress(const Mutex& m) {
+        return m.address + SHAD_SYNC_MUTEX_STATE;
+    }
+    Object Open(const Mutex& m) {
+        auto pin = space.AcquireDataSpan({GuestCpu::GuestAddress{m.address}, sizeof(Prefix)}, true);
+        if (!pin)
+            throw std::runtime_error(GuestCpu::Describe(pin.GetError()));
+        Object object{std::move(pin).Value(), nullptr};
+        object.prefix = reinterpret_cast<Prefix*>(object.pin.WritableBytes().data());
+        return object;
+    }
+    // Called right after winning the word. A Destroy racing this acquisition
+    // either saw the word busy (and backs off) or already retired the object;
+    // in the latter case the word is handed back and the caller reports EINVAL.
+    bool Confirm(Mutex& m, Object& o) {
+        while (m.retiring.load(std::memory_order_acquire))
+            std::this_thread::yield();
+        if (!m.retired.load(std::memory_order_acquire))
+            return true;
+        ReleaseWord(m, o);
+        return false;
+    }
+    // Same word protocol as guest/runtime/sync/mutex.c LockCommon after the
+    // self-ownership checks: exchange to contended, park while contended. A
+    // cancelled park leaves the word contended, which only costs one extra wake.
+    int AcquireWord(Mutex& m, u64 owner, std::stop_token cancel) {
+        for (;;) {
+            {
+                auto o = Open(m);
+                if (o.State().exchange(SHAD_SYNC_STATE_CONTENDED, std::memory_order_acquire) ==
+                    SHAD_SYNC_STATE_FREE) {
+                    o.prefix->owner = owner;
+                    o.prefix->count = 1;
+                    return Confirm(m, o) ? 0 : POSIX_EINVAL;
+                }
+            }
+            SyncMetrics::Phase park_phase{SyncMetrics::Stage::Park};
+            const int r = waiters.Wait(StateAddress(m), SHAD_SYNC_STATE_CONTENDED, 4, cancel);
+            if (r)
+                return r;
+        }
+    }
+    // Guest unlock sequence: clear owner/count, release the word, then wake one
+    // parked contender if the word was contended. Caller verified ownership.
+    void ReleaseWord(Mutex& m, Object& o) {
+        o.prefix->count = 0;
+        o.prefix->owner = 0;
+        const bool wake = o.State().exchange(SHAD_SYNC_STATE_FREE, std::memory_order_release) ==
+                          SHAD_SYNC_STATE_CONTENDED;
+        o.pin = {};
+        if (wake)
+            waiters.Wake(StateAddress(m), 1);
     }
     bool Writable(u64 addr, u64 size) {
         return bool(space.ValidateRange({GuestCpu::GuestAddress{addr}, size},
@@ -193,7 +260,11 @@ private:
 
 public:
     GuestMutexDomain(GuestCpu::GuestAddressSpace& space, std::function<u64()> allocate)
-        : space(space), allocate(std::move(allocate)) {}
+        : space(space), allocate(std::move(allocate)), waiters(space) {}
+    // Shared with the runtime's wait/wake HLE primitives used by the guest fast path.
+    GuestAddressWaiters& Waiters() {
+        return waiters;
+    }
 
     int AttributeInit(u64 slot) {
         std::lock_guard lock(guard);
@@ -296,56 +367,35 @@ public:
         lookup_phase.End();
         if (!state) return error;
         auto& m = *state;
-        // The callback is destroyed AFTER lock unlocks. It takes the same mutex
-        // as the predicate, preventing the check-to-sleep lost-wake window.
-        auto wake = [&m] {
-            std::lock_guard guard(m.guard);
-            m.changed.notify_all();
-        };
-        std::optional<std::stop_callback<decltype(wake)>> on_stop;
-        SyncMetrics::Phase guard_phase{SyncMetrics::Stage::Guard};
-        std::unique_lock lock(m.guard);
-        guard_phase.End();
-        if (m.retired) return POSIX_EINVAL;
-        if (m.owner == owner) {
-            if (m.type == 2) {
-                if (m.depth == UINT32_MAX) return POSIX_EAGAIN;
-                Write(m.address + 8, m.depth + 1);
-                ++m.depth;
-                return 0;
+        if (m.retired.load(std::memory_order_acquire)) return POSIX_EINVAL;
+        if (cancel.stop_requested()) return POSIX_EINTR;
+        {
+            SyncMetrics::Phase guard_phase{SyncMetrics::Stage::Guard};
+            auto o = Open(m);
+            guard_phase.End();
+            SyncMetrics::Phase publish_phase{SyncMetrics::Stage::Publish};
+            u32 expected = SHAD_SYNC_STATE_FREE;
+            if (o.State().compare_exchange_strong(expected, SHAD_SYNC_STATE_HELD,
+                                                  std::memory_order_acquire,
+                                                  std::memory_order_relaxed)) {
+                o.prefix->owner = owner;
+                o.prefix->count = 1;
+                return Confirm(m, o) ? 0 : POSIX_EINVAL;
+            }
+            if (o.prefix->owner == owner) {
+                // Same order as the guest payload: recursive depth, try, error.
+                if (m.type == SHAD_SYNC_TYPE_RECURSIVE) {
+                    if (o.prefix->count == UINT32_MAX) return POSIX_EAGAIN;
+                    ++o.prefix->count;
+                    return 0;
+                }
+                if (try_only) return POSIX_EBUSY;
+                if (m.type != SHAD_SYNC_TYPE_NORMAL) return POSIX_EDEADLK;
+                // Normal type deadlocks on self-lock, as libthr/desktop do.
             }
             if (try_only) return POSIX_EBUSY;
-            if (m.type != 3) return POSIX_EDEADLK;
         }
-        if (m.owner && try_only) return POSIX_EBUSY;
-        ++m.waiters;
-        struct Waiting {
-            Mutex& m;
-            ~Waiting() {
-                --m.waiters;
-                // If a selected waiter cancels or fails publication, pass the
-                // available lock to another waiter rather than strand it.
-                if (!m.owner && m.waiters) m.changed.notify_one();
-            }
-        } waiting{m};
-        if (m.owner) {
-            if (cancel.stop_possible()) {
-                // Registration can synchronously invoke wake for a pre-cancelled
-                // token. Drop the object lock first; waiter count pins lifetime.
-                lock.unlock();
-                on_stop.emplace(cancel, wake);
-                lock.lock();
-            }
-            SyncMetrics::Phase park_phase{SyncMetrics::Stage::Park};
-            m.changed.wait(lock, [&] { return !m.owner || cancel.stop_requested(); });
-        }
-        if (cancel.stop_requested()) return POSIX_EINTR;
-        SyncMetrics::Phase publish_phase{SyncMetrics::Stage::Publish};
-        WriteOwnership(m.address, owner, 1);
-        publish_phase.End();
-        m.owner = owner;
-        m.depth = 1;
-        return 0;
+        return AcquireWord(m, owner, cancel);
     }
     int Unlock(u64 slot, u64 owner) {
         int error{};
@@ -354,25 +404,17 @@ public:
         lookup_phase.End();
         if (!state) return error;
         auto& m = *state;
-        bool wake = false;
-        {
-            SyncMetrics::Phase guard_phase{SyncMetrics::Stage::Guard};
-            std::lock_guard lock(m.guard);
-            guard_phase.End();
-            if (m.retired) return POSIX_EINVAL;
-            if (m.owner != owner) return POSIX_EPERM;
-            SyncMetrics::Phase publish_phase{SyncMetrics::Stage::Publish};
-            WriteOwnership(m.address, m.depth == 1 ? 0 : owner, m.depth - 1);
-            publish_phase.End();
-            if (--m.depth == 0) {
-                m.owner = 0;
-                wake = m.waiters != 0;
-            }
+        if (m.retired.load(std::memory_order_acquire)) return POSIX_EINVAL;
+        SyncMetrics::Phase guard_phase{SyncMetrics::Stage::Guard};
+        auto o = Open(m);
+        guard_phase.End();
+        if (o.prefix->owner != owner) return POSIX_EPERM;
+        SyncMetrics::Phase publish_phase{SyncMetrics::Stage::Publish};
+        if (o.prefix->count > 1) {
+            --o.prefix->count;
+            return 0;
         }
-        // Notify after releasing the object guard: the woken contender must
-        // reacquire that guard and would otherwise block on it a second time.
-        // The Mutex outlives every waiter (retained until Session teardown).
-        if (wake) m.changed.notify_one();
+        ReleaseWord(m, o);
         return 0;
     }
     int Destroy(u64 slot) {
@@ -382,11 +424,22 @@ public:
         auto it = mutexes.find(addr);
         if (it == mutexes.end()) return POSIX_EINVAL;
         auto state = it->second;
-        std::lock_guard lock(state->guard);
-        if (state->owner || state->waiters) return POSIX_EBUSY;
-        if (!Writable(slot, 8)) return POSIX_EFAULT;
+        state->retiring.store(true, std::memory_order_release);
+        bool busy{};
+        {
+            auto o = Open(*state);
+            busy = o.prefix->owner ||
+                   o.State().load(std::memory_order_acquire) != SHAD_SYNC_STATE_FREE ||
+                   state->cond_waiters.load(std::memory_order_acquire) ||
+                   waiters.Pending(StateAddress(*state));
+        }
+        if (busy || !Writable(slot, 8)) {
+            state->retiring.store(false, std::memory_order_release);
+            return busy ? POSIX_EBUSY : POSIX_EFAULT;
+        }
+        state->retired.store(true, std::memory_order_release);
+        state->retiring.store(false, std::memory_order_release);
         Write(slot, u64{2});
-        state->retired = true;
         mutexes.erase(it);
         return 0;
     }
@@ -538,53 +591,43 @@ public:
         waiter_ref->owner = owner;
         waiter_ref->mutex = m.address;
         auto& waiter = *waiter_ref;
-        // Construct before taking either guard; destruction follows queue
+        // Construct before taking the condition guard; destruction follows queue
         // removal and guard release, and precedes destruction of the waiter.
+        // Mutex reacquisition parks in GuestAddressWaiters, which observes the
+        // same token itself.
         std::stop_callback on_stop(cancel, [&] {
-            {
-                std::lock_guard lock(c.guard);
-                waiter.changed.notify_one();
-            }
-            {
-                std::lock_guard lock(m.guard);
-                m.changed.notify_all();
-            }
+            std::lock_guard lock(c.guard);
+            waiter.changed.notify_one();
         });
-        std::unique_lock cond_lock(c.guard, std::defer_lock);
-        std::unique_lock mutex_lock(m.guard, std::defer_lock);
-        std::lock(cond_lock, mutex_lock);
-        if (c.retired || m.retired) return POSIX_EINVAL;
-        if (m.owner != owner) return POSIX_EPERM;
-        c.waiters.push_back(waiter_ref);
-        ++m.waiters;
+        std::unique_lock cond_lock(c.guard);
+        if (c.retired || m.retired.load(std::memory_order_acquire)) return POSIX_EINVAL;
+        u32 depth{};
+        {
+            // Enqueue and guest unlock are atomic with respect to notification:
+            // both happen under the condition guard, and a notifier needs that
+            // guard before it can select this waiter. Neither the registry nor
+            // a VM pin survives the wait.
+            auto o = Open(m);
+            if (o.prefix->owner != owner) return POSIX_EPERM;
+            c.waiters.push_back(waiter_ref);
+            m.cond_waiters.fetch_add(1, std::memory_order_acq_rel);
+            depth = o.prefix->count;
+            ReleaseWord(m, o);
+        }
         struct Waiting {
             Cond& c;
             Mutex& m;
             Waiter& waiter;
             std::unique_lock<std::mutex>& cond_lock;
-            std::unique_lock<std::mutex>& mutex_lock;
             ~Waiting() {
                 if (cond_lock.owns_lock()) cond_lock.unlock();
-                if (mutex_lock.owns_lock()) mutex_lock.unlock();
-                bool wake = false;
                 {
-                    std::scoped_lock lock(c.guard, m.guard);
+                    std::lock_guard lock(c.guard);
                     std::erase_if(c.waiters, [&](const auto& item) { return item.get() == &waiter; });
-                    --m.waiters;
-                    wake = !m.owner && m.waiters;
                 }
-                if (wake) m.changed.notify_one();
+                m.cond_waiters.fetch_sub(1, std::memory_order_acq_rel);
             }
-        } waiting{c, m, waiter, cond_lock, mutex_lock};
-        const auto depth = m.depth;
-        // Enqueue and guest unlock are atomic with respect to notification and
-        // acquisition. Neither the registry nor a VM pin survives the wait.
-        WriteOwnership(m.address, 0, 0);
-        m.owner = 0;
-        m.depth = 0;
-        const bool wake_contender = m.waiters > 1; // ourselves plus a Lock contender
-        mutex_lock.unlock();
-        if (wake_contender) m.changed.notify_one();
+        } waiting{c, m, waiter, cond_lock};
         TraceCond(CondTraceKind::Enqueued, addr, m.address, owner);
         const auto ready = [&] { return waiter.notified || cancel.stop_requested(); };
         int result{};
@@ -619,25 +662,26 @@ public:
         waiter.reacquiring = true;
         cond_lock.unlock();
         SyncMetrics::Phase reacquire_phase{SyncMetrics::Stage::Reacquire};
-        mutex_lock.lock();
-        // Session cancellation is terminal and must not wait for a stopped owner.
-        m.changed.wait(mutex_lock, [&] { return !m.owner || cancel.stop_requested(); });
-        if (!m.owner) {
-            WriteOwnership(m.address, owner, depth);
-            m.owner = owner;
-            m.depth = depth;
+        // Session cancellation is terminal and must not wait for a stopped
+        // owner: a free word is still taken, a held one is not waited for.
+        const int reacquired = AcquireWord(m, owner, cancel);
+        if (!reacquired) {
+            auto o = Open(m);
+            o.prefix->count = depth;
         }
         reacquire_phase.End();
         TraceCond(CondTraceKind::Reacquired, addr, m.address, owner,
                   cancel.stop_requested() ? POSIX_EINTR : result);
         return cancel.stop_requested() ? POSIX_EINTR : result;
     }
+    // Lock contenders parked on the word plus condition waiters queued against
+    // this mutex (they reacquire it later).
     size_t PendingWaits(u64 slot) {
         int error{};
         auto state = FindMutex(slot, false, error);
-        if (!state) return 0;
-        std::lock_guard lock(state->guard);
-        return state->retired ? 0 : state->waiters;
+        if (!state || state->retired.load(std::memory_order_acquire)) return 0;
+        return waiters.Pending(StateAddress(*state)) +
+               state->cond_waiters.load(std::memory_order_acquire);
     }
     size_t PendingReacquires(u64 slot) {
         std::shared_ptr<Cond> state;
@@ -654,9 +698,9 @@ public:
     int IsOwned(u64 slot, u64 owner) {
         int error{};
         auto state = FindMutex(slot, false, error);
-        if (!state) return 0;
-        std::lock_guard lock(state->guard);
-        return !state->retired && state->owner == owner;
+        if (!state || state->retired.load(std::memory_order_acquire)) return 0;
+        auto o = Open(*state);
+        return o.prefix->owner == owner;
     }
 
 };

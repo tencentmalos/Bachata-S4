@@ -61,6 +61,12 @@
 #include "core/host_runtime/guest_patch.h"
 #include "core/host_runtime/guest_auto_tag.h"
 #include "core/host_runtime/guest_rwlock.h"
+#include "core/host_runtime/guest_sync_abi.h"
+#if __has_include("guest_sync_payload.h")
+// Generated from guest/runtime/sync by build-guest-payload at host build time.
+#include "guest_sync_payload.h"
+#define SHADPS4_HAS_GUEST_SYNC_PAYLOAD 1
+#endif
 #include "core/host_runtime/guest_save_dialog.h"
 #include "core/host_runtime/guest_semaphore.h"
 #include "core/host_runtime/guest_storage_hle.h"
@@ -424,6 +430,14 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     std::unique_ptr<Common::Singleton<FileSys::MntPoints>::Binding> mount_binding;
     std::map<std::string, u64> veneers;
     std::map<u64, std::string> operation_names;
+    // App-shipped guest synchronization fast path (guest/runtime/sync). Installed
+    // lazily on the first import resolution, before any guest thread exists;
+    // `debug.shadps4.sync_fastpath=0` keeps every mutex entry on the HLE path.
+    bool sync_fastpath_enabled{true}, sync_fastpath_installed{};
+    u64 sync_fastpath_base{}, sync_fastpath_size{};
+    std::string sync_fastpath_status{"not_installed"};
+    std::atomic<unsigned> sync_arena_outside{};
+    void InstallSyncFastPath();
     u64 stack_guard{}, progname_object{}, environ_object{}, heap_trace{};
     std::once_flag heap_trace_once;
     // Guest PCs copied from the libc heap table. Never install them in the
@@ -684,6 +698,12 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
             char sync_property[PROP_VALUE_MAX]{};
             __system_property_get("debug.shadps4.profile_sync", sync_property);
             profile_sync = std::string_view(sync_property) == "1";
+            char fastpath_property[PROP_VALUE_MAX]{};
+            __system_property_get("debug.shadps4.sync_fastpath", fastpath_property);
+            sync_fastpath_enabled = std::string_view(fastpath_property) != "0";
+#else
+            if (const char* value = std::getenv("SHADPS4_SYNC_FASTPATH"))
+                sync_fastpath_enabled = std::string_view(value) != "0";
 #endif
             sync_metrics = std::make_shared<SyncMetrics::Session>(cpu.ContextId());
             SyncMetrics::SetControl(sync_metrics);
@@ -1258,6 +1278,10 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         return result;
     }
     u64 Bind(const Loader::SymbolRecord& symbol) {
+        if (!sync_fastpath_installed) {
+            InstallSyncFastPath();
+            SyncMetrics::SetFastPathStatus(sync_fastpath_status);
+        }
         if (auto it = veneers.find(symbol.name); it != veneers.end())
             return it->second;
         const auto nid = symbol.name.substr(0, symbol.name.find('#'));
@@ -1408,6 +1432,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
               symbol.name.substr(nid.size()) == "#libkernel_unity#1#libkernel#Function") ||
              (nid == "Qs0wWulgl7U" &&
               symbol.name.substr(nid.size()) == "#libSceMouse#1#libSceMouse#Function") ||
+             ((nid == SHAD_SYNC_NID_WAIT || nid == SHAD_SYNC_NID_WAKE) &&
+              symbol.name.substr(nid.size()) == SHAD_SYNC_LIBRARY_SUFFIX) ||
              (save_dialog && dialog_nid &&
               symbol.name.substr(nid.size()) ==
                   "#libSceSaveDataDialog#1#libSceSaveDataDialog#Function") ||
@@ -1581,6 +1607,76 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     }
     void InstallHandlers();
 };
+
+// Publishes the app-shipped x86-64 synchronization payload and routes the
+// mutex/self imports of every title to it. The payload's slow paths are the
+// ordinary HLE veneers of the same NIDs, so lazy initialization, destroyed
+// handles, unmapped slots and every error stay on the checked host path.
+void GuestRuntime::Impl::InstallSyncFastPath() {
+    sync_fastpath_installed = true;
+    if (!sync_fastpath_enabled) {
+        sync_fastpath_status = "disabled_by_property";
+        return;
+    }
+#if !defined(SHADPS4_HAS_GUEST_SYNC_PAYLOAD)
+    sync_fastpath_status = "unavailable_in_build";
+    return;
+#else
+    using namespace GuestSyncPayload;
+    const auto symbol = [](std::string_view name) {
+        for (const auto& s : Symbols)
+            if (name == s.name) return s;
+        throw std::runtime_error("guest sync payload lacks symbol " + std::string(name));
+    };
+    const auto table = symbol(SHAD_SYNC_IMPORT_TABLE);
+    if (table.size != ShadSyncImportCount * sizeof(u64) || table.offset % 8)
+        throw std::runtime_error("guest sync payload import table mismatch");
+    // Import slots: the two runtime primitives plus the POSIX HLE fallbacks.
+    // Bind() records ordinary veneers for these names; the guest-facing entries
+    // are replaced below, after the fallbacks were captured.
+    static constexpr const char* kPosixLock = "7H0iTOciTLo#libScePosix#1#libkernel#Function";
+    static constexpr const char* kPosixTrylock = "K-jXhbt2gn4#libScePosix#1#libkernel#Function";
+    static constexpr const char* kPosixUnlock = "2Z+PpY6CaJg#libScePosix#1#libkernel#Function";
+    std::array<u64, ShadSyncImportCount> imports{};
+    imports[ShadSyncImportWait] = Bind({.name = SHAD_SYNC_NID_WAIT SHAD_SYNC_LIBRARY_SUFFIX});
+    imports[ShadSyncImportWake] = Bind({.name = SHAD_SYNC_NID_WAKE SHAD_SYNC_LIBRARY_SUFFIX});
+    imports[ShadSyncImportMutexLock] = Bind({.name = kPosixLock});
+    imports[ShadSyncImportMutexTrylock] = Bind({.name = kPosixTrylock});
+    imports[ShadSyncImportMutexUnlock] = Bind({.name = kPosixUnlock});
+    CodePublication vm(*this);
+    sync_fastpath_size = Common::AlignUp(u64{sizeof(Image)}, 0x4000ULL);
+    sync_fastpath_base = Allocate(sync_fastpath_size, "GuestSyncFastPath", 0x1800000000ULL);
+    std::memset(reinterpret_cast<void*>(sync_fastpath_base), 0xcc, sync_fastpath_size); // int3
+    std::memcpy(reinterpret_cast<void*>(sync_fastpath_base), Image, sizeof(Image));
+    for (unsigned i = 0; i < ShadSyncImportCount; ++i) {
+        u64 slot{};
+        std::memcpy(&slot, reinterpret_cast<void*>(sync_fastpath_base + table.offset + 8 * i), 8);
+        if (slot) throw std::runtime_error("guest sync payload import slot is not empty");
+        std::memcpy(reinterpret_cast<void*>(sync_fastpath_base + table.offset + 8 * i), &imports[i], 8);
+    }
+    if (memory->Protect(sync_fastpath_base, sync_fastpath_size, MemoryProt::CpuRead | MemoryProt::CpuExec))
+        throw std::runtime_error("guest sync payload publication failed");
+    // Game-visible entries: both library spellings each NID is imported under.
+    struct Route { const char* nid; const char* export_name; };
+    static constexpr Route routes[] = {
+        {"7H0iTOciTLo", SHAD_SYNC_EXPORT_POSIX_LOCK},    {"K-jXhbt2gn4", SHAD_SYNC_EXPORT_POSIX_TRYLOCK},
+        {"2Z+PpY6CaJg", SHAD_SYNC_EXPORT_POSIX_UNLOCK},  {"EotR8a3ASf4", SHAD_SYNC_EXPORT_SELF},
+        {"9UK1vLZQft4", SHAD_SYNC_EXPORT_SCE_LOCK},      {"upoVrzMHFeE", SHAD_SYNC_EXPORT_SCE_TRYLOCK},
+        {"tn3VlD0hG60", SHAD_SYNC_EXPORT_SCE_UNLOCK},    {"aI+OeCz8xrQ", SHAD_SYNC_EXPORT_SELF},
+    };
+    for (const auto& route : routes) {
+        const auto entry = sync_fastpath_base + symbol(route.export_name).offset;
+        for (const char* suffix : {"#libScePosix#1#libkernel#Function", "#libkernel#1#libkernel#Function"}) {
+            const auto name = std::string(route.nid) + suffix;
+            veneers.insert_or_assign(name, entry);
+            hle_status[name] = "guest_fastpath";
+        }
+    }
+    sync_fastpath_status = "installed";
+    LOG_INFO(Core_Linker, "Guest sync fast path installed: base={:#x} bytes={} image_sha256={}",
+             sync_fastpath_base, sizeof(Image), ImageSha256);
+#endif
+}
 
 void GuestRuntime::Impl::InstallHandlers() {
     auto bind = [&](std::initializer_list<const char*> nids,
@@ -1976,10 +2072,26 @@ void GuestRuntime::Impl::InstallHandlers() {
             MemoryMapFlags::NoFlags, VMAType::File, "GuestSyncObjects");
         if (result == ORBIS_KERNEL_ERROR_ENOMEM) return u64{0};
         if (result) throw std::runtime_error("GuestSyncObjects mapping failed");
-        return reinterpret_cast<u64>(address);
+        const auto block = reinterpret_cast<u64>(address);
+        // The guest fast path only touches objects inside the declared arena
+        // window; a block placed elsewhere stays correct on the HLE path.
+        if (block < SHAD_SYNC_ARENA_BASE || block + GuestSyncArena::BlockSize > SHAD_SYNC_ARENA_LIMIT)
+            if (sync_arena_outside.fetch_add(1, std::memory_order_relaxed) == 0)
+                LOG_WARNING(Core_Linker, "GuestSyncObjects block {:#x} is outside the fast-path arena window",
+                            block);
+        return block;
     });
     mutex_domain = std::make_unique<GuestMutexDomain>(
         space, [this] { return sync_arena->Allocate(); });
+    // Host half of the guest fast path: expected-value wait and wake by guest
+    // address. Only the app-shipped payload imports these synthetic NIDs.
+    bind({SHAD_SYNC_NID_WAIT}, [this](const auto& a) -> u64 {
+        return mutex_domain->Waiters().Wait(a[0], a[1], static_cast<unsigned>(a[2]),
+                                            HleScope::Current()->CancellationToken());
+    });
+    bind({SHAD_SYNC_NID_WAKE}, [this](const auto& a) -> u64 {
+        return mutex_domain->Waiters().Wake(a[0], a[1]);
+    });
     if (profile_sync) mutex_domain->SetCondObserver([](const GuestMutexDomain::CondTraceEvent& e) noexcept {
         if (!Common::Profiler::Enabled()) return;
         Common::Profiler::Counter("GuestSync.CondObject", e.condition);

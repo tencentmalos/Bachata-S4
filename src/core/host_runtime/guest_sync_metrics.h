@@ -44,7 +44,9 @@ namespace Core::HostRuntime::SyncMetrics {
                                                                                    "Thread.Sleep") \
                                                             X(Usleep, "Thread.Usleep")             \
                                                                 X(Nanosleep, "Thread.Nanosleep")   \
-                                                                    X(Epoll, "Net.EpollWait")
+                                                                    X(Epoll, "Net.EpollWait")                         \
+                                                                        X(AddrWait, "Sync.AddrWait")                     \
+                                                                            X(AddrWake, "Sync.AddrWake")
 enum class Operation : unsigned {
 #define X(id, name) id,
     SHAD_SYNC_OPERATIONS(X)
@@ -149,5 +151,9 @@ private:
     alignas(8) std::array<std::byte, 16> trace{};
 };
 void SetControl(const std::shared_ptr<Session>& session);
+// Reported in Status(): uncontended guest fast-path operations never reach HLE,
+// so "installed" means the Mutex.Lock/Unlock rows only count slow paths.
+void SetFastPathStatus(std::string status);
+std::string FastPathStatus();
 std::string Command(const std::vector<std::string>& args);
 } // namespace Core::HostRuntime::SyncMetrics

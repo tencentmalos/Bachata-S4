@@ -358,6 +358,29 @@ if(V0_ENABLE_FEX)
         target_include_directories(compiled_guest_tests PRIVATE "${COMPILED_GUEST_DIR}")
         target_link_libraries(compiled_guest_tests PRIVATE guest_cpu_fex)
 
+        # Production guest synchronization payload (guest/runtime/sync) linked with
+        # a small guest driver, executed by real FEX against the production domain.
+        set(SYNC_FASTPATH_DIR "${CMAKE_CURRENT_BINARY_DIR}/sync-fastpath-guest")
+        set(SYNC_FASTPATH_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/../../guest/runtime/sync/mutex.c")
+        set(SYNC_FASTPATH_DRIVER "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/guest_cpu/sync_fastpath_guest/entry.c")
+        add_custom_command(OUTPUT "${SYNC_FASTPATH_DIR}/guest_sync_fastpath_payload.h"
+            COMMAND "${Python3_EXECUTABLE}" "${GUEST_PAYLOAD_BUILDER}"
+                --clang "${V0_GUEST_CLANG}"
+                --source "${SYNC_FASTPATH_SOURCE}" --source "${SYNC_FASTPATH_DRIVER}"
+                --output "${SYNC_FASTPATH_DIR}" --header guest_sync_fastpath_payload.h
+                --entry guest_entry --namespace SyncFastPathGuest --symbols
+            DEPENDS "${GUEST_PAYLOAD_BUILDER}" "${SYNC_FASTPATH_SOURCE}" "${SYNC_FASTPATH_DRIVER}"
+                "${CMAKE_CURRENT_SOURCE_DIR}/../../src/core/host_runtime/guest_sync_abi.h"
+                "${CMAKE_CURRENT_SOURCE_DIR}/../guest-code/payload.ld"
+            VERBATIM)
+        add_executable(guest_sync_fastpath_tests
+            "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/host_runtime/guest_sync_fastpath_tests.cpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/../../src/common/native_clock.cpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/../../src/common/rdtsc.cpp"
+            "${SYNC_FASTPATH_DIR}/guest_sync_fastpath_payload.h")
+        target_include_directories(guest_sync_fastpath_tests PRIVATE "${SYNC_FASTPATH_DIR}")
+        target_link_libraries(guest_sync_fastpath_tests PRIVATE guest_cpu_fex Threads::Threads)
+
     endif()
 endif()
 
