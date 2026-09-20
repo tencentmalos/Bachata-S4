@@ -1,0 +1,5 @@
+T0 11:49:50     generation: 1     pid: 9492     snapshot_ns: 653562987598649     guest_flip: 38169 (age_ns=40718438)     host_present: 38168 (age_ns=89879844) 
+TA 11:50:10     generation: 1     pid: 9492     snapshot_ns: 653583292837235     guest_flip: 38354 (age_ns=65809584)     host_present: 38354 (age_ns=2075521) 
+TB 11:50:30     generation: 1     pid: 9492     snapshot_ns: 653603558846810     guest_flip: 38538 (age_ns=44433958)     host_present: 38537 (age_ns=94200312) 
+TC 11:50:40     generation: 1     pid: 9492     snapshot_ns: 653613874251650     guest_flip: 38626 (age_ns=97639531)     host_present: 38626 (age_ns=30555729) 
+TD 11:50:41     generation: 1     pid: 9492     snapshot_ns: 653614215150035     guest_flip: 38629 (age_ns=102295677)     host_present: 38629 (age_ns=44928750) 

@@ -1,0 +1,72 @@
+[/sys/kernel/tracing/instances/sync_review_12139/per_cpu/cpu0/stats]
+entries: 146960
+overrun: 0
+commit overrun: 0
+bytes: 7016788
+oldest event ts: 658354.778154
+now ts: 658366.845972
+dropped events: 0
+read events: 0
+[/sys/kernel/tracing/instances/sync_review_12139/per_cpu/cpu1/stats]
+entries: 162167
+overrun: 0
+commit overrun: 0
+bytes: 8092428
+oldest event ts: 658354.777916
+now ts: 658366.867592
+dropped events: 0
+read events: 0
+[/sys/kernel/tracing/instances/sync_review_12139/per_cpu/cpu2/stats]
+entries: 151495
+overrun: 0
+commit overrun: 0
+bytes: 7626464
+oldest event ts: 658354.777890
+now ts: 658366.884359
+dropped events: 0
+read events: 0
+[/sys/kernel/tracing/instances/sync_review_12139/per_cpu/cpu3/stats]
+entries: 429108
+overrun: 0
+commit overrun: 0
+bytes: 21524304
+oldest event ts: 658354.777476
+now ts: 658366.901028
+dropped events: 0
+read events: 0
+[/sys/kernel/tracing/instances/sync_review_12139/per_cpu/cpu4/stats]
+entries: 428267
+overrun: 0
+commit overrun: 0
+bytes: 21493996
+oldest event ts: 658354.777473
+now ts: 658366.921330
+dropped events: 0
+read events: 0
+[/sys/kernel/tracing/instances/sync_review_12139/per_cpu/cpu5/stats]
+entries: 437380
+overrun: 0
+commit overrun: 0
+bytes: 22005956
+oldest event ts: 658354.777470
+now ts: 658366.931387
+dropped events: 0
+read events: 0
+[/sys/kernel/tracing/instances/sync_review_12139/per_cpu/cpu6/stats]
+entries: 444791
+overrun: 0
+commit overrun: 0
+bytes: 22474140
+oldest event ts: 658354.777505
+now ts: 658366.938435
+dropped events: 0
+read events: 0
+[/sys/kernel/tracing/instances/sync_review_12139/per_cpu/cpu7/stats]
+entries: 206843
+overrun: 0
+commit overrun: 0
+bytes: 11050120
+oldest event ts: 658354.780219
+now ts: 658366.958675
+dropped events: 0
+read events: 0

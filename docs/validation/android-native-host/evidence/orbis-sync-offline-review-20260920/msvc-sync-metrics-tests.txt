@@ -1,0 +1,20 @@
+# MSVC 19 / Visual Studio 2022 Professional, Windows 11 x64, cmake 4.3.2, Release, host commit 1db95bff
+# cmake -S tests/host_runtime/sync_metrics -B <scratch> -G "Visual Studio 17 2022" -A x64 && cmake --build <scratch> --config Release
+## guest_sync_metrics_tests.exe
+guest_sync_metrics: 45 checks PASS
+## guest_sync_metrics_tests.exe --overhead
+{"case":"metrics_only_no_sdk","round":0,"mode":0,"ns_per_call":0.19}
+{"case":"metrics_only_no_sdk","round":0,"mode":1,"ns_per_call":32.99}
+{"case":"metrics_only_no_sdk","round":0,"mode":2,"ns_per_call":63.63}
+{"case":"metrics_only_no_sdk","round":0,"mode":1,"ns_per_call":33.49}
+{"case":"metrics_only_no_sdk","round":0,"mode":0,"ns_per_call":0.18}
+{"case":"metrics_only_no_sdk","round":1,"mode":0,"ns_per_call":0.19}
+{"case":"metrics_only_no_sdk","round":1,"mode":1,"ns_per_call":33.68}
+{"case":"metrics_only_no_sdk","round":1,"mode":2,"ns_per_call":64.03}
+{"case":"metrics_only_no_sdk","round":1,"mode":1,"ns_per_call":33.84}
+{"case":"metrics_only_no_sdk","round":1,"mode":0,"ns_per_call":0.18}
+{"case":"metrics_only_no_sdk","round":2,"mode":0,"ns_per_call":0.36}
+{"case":"metrics_only_no_sdk","round":2,"mode":1,"ns_per_call":32.98}
+{"case":"metrics_only_no_sdk","round":2,"mode":2,"ns_per_call":63.81}
+{"case":"metrics_only_no_sdk","round":2,"mode":1,"ns_per_call":33.18}
+{"case":"metrics_only_no_sdk","round":2,"mode":0,"ns_per_call":0.18}
