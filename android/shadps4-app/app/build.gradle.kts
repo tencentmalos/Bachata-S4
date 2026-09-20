@@ -45,6 +45,22 @@ android {
             }
         }
     }
+    // Optional: pin the debug signing identity to a shared keystore so debug
+    // APKs built on different machines can overwrite-install each other.
+    // Leaves ~/.android/debug.keystore and other projects untouched.
+    val debugKeystoreName = localProperties.getProperty("signing.debugStoreFile")
+    val debugKeystoreFile =
+        if (debugKeystoreName != null) rootProject.file(debugKeystoreName) else null
+    if (debugKeystoreFile != null && debugKeystoreFile.exists()) {
+        signingConfigs {
+            getByName("debug") {
+                storeFile = debugKeystoreFile
+                storePassword = localProperties.getProperty("signing.debugStorePassword") ?: "android"
+                keyAlias = localProperties.getProperty("signing.debugKeyAlias") ?: "androiddebugkey"
+                keyPassword = localProperties.getProperty("signing.debugKeyPassword") ?: "android"
+            }
+        }
+    }
 
     defaultConfig {
         applicationId = "com.shadps4.android"

@@ -26,6 +26,7 @@ import argparse
 import hashlib
 import re
 import shutil
+import os
 import subprocess
 import sys
 import tempfile
@@ -45,16 +46,20 @@ def find_ndk() -> Path:
     Selected by probing for the tools rather than by version string: this repository already has an
     NDK whose directory name disagrees with its own reported revision.
     """
-    roots = [
+    roots = [Path(root) / "ndk" for root in (os.environ.get("ANDROID_SDK_ROOT"), os.environ.get("ANDROID_HOME"))
+             if root]
+    roots += [
         Path.home() / "Library/Android/sdk/ndk",
+        Path.home() / "AppData/Local/Android/Sdk/ndk",
         Path("/opt/android-sdk/ndk"),
     ]
+    exe = ".exe" if sys.platform == "win32" else ""
     for root in roots:
         if not root.is_dir():
             continue
         for candidate in sorted(root.iterdir(), reverse=True):
             for prebuilt in (candidate / "toolchains/llvm/prebuilt").glob("*"):
-                if (prebuilt / "bin/clang").exists() and (prebuilt / "bin/llvm-objcopy").exists():
+                if (prebuilt / f"bin/clang{exe}").exists() and (prebuilt / f"bin/llvm-objcopy{exe}").exists():
                     return prebuilt
     raise SystemExit("error: no NDK with clang and llvm-objcopy found")
 
@@ -99,8 +104,9 @@ def main() -> int:
         raise SystemExit(f"error: fixture source not found: {source}")
 
     prebuilt = find_ndk()
-    clang = prebuilt / "bin/clang"
-    objcopy = prebuilt / "bin/llvm-objcopy"
+    exe = ".exe" if sys.platform == "win32" else ""
+    clang = prebuilt / f"bin/clang{exe}"
+    objcopy = prebuilt / f"bin/llvm-objcopy{exe}"
     nm = prebuilt / "bin/llvm-nm"
     objdump = prebuilt / "bin/llvm-objdump"
 
