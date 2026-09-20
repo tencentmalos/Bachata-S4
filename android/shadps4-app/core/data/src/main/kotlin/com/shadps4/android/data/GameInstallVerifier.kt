@@ -1,6 +1,7 @@
 package com.shadps4.android.data
 
 import java.io.File
+import com.shadps4.android.runtime.session.NativeFexSession
 
 object GameInstallVerifier {
     val REQUIRED_FILES: List<String> = listOf("eboot.bin", "sce_sys/param.sfo")
@@ -10,8 +11,13 @@ object GameInstallVerifier {
         data class Fail(val code: InstallErrorCode, val message: String) : VerifyResult()
     }
 
+    fun executableFile(gameDir: File): File {
+        val archive = File(gameDir, "${gameDir.name}.zar")
+        return if (archive.isFile) archive else File(gameDir, "eboot.bin")
+    }
+
     fun requiredFilesPresent(gameDir: File): Boolean {
-        val eboot = File(gameDir, "eboot.bin")
+        val eboot = executableFile(gameDir)
         val sfo = File(gameDir, "sce_sys/param.sfo")
         return eboot.isFile && eboot.length() > 0L && sfo.isFile && sfo.length() > 0L
     }
@@ -23,18 +29,48 @@ object GameInstallVerifier {
         if (!root.isDirectory) return false
         val manifest = InstallManifestIo.read(root) ?: return false
         if (manifest.status != InstallManifestIo.STATUS_INSTALLED) return false
-        val eboot = File(root, "eboot.bin")
-        return eboot.isFile && eboot.length() > 0L
+        val eboot = executableFile(root).canonicalFile
+        return eboot.toPath().startsWith(root.toPath()) && eboot.isFile && eboot.length() > 0L
     }
 
     fun verifyTreeForRegistration(
         gameDir: File,
         expectedGameId: String?,
+        inspectArchive: (File) -> Array<ByteArray>? = { NativeFexSession.nativeInspectArchive(it.absolutePath) },
     ): VerifyResult {
         if (!gameDir.isDirectory) {
             return VerifyResult.Fail(InstallErrorCode.VERIFY_FAILED, "Game directory missing")
         }
-        val eboot = File(gameDir, "eboot.bin")
+        val eboot = executableFile(gameDir)
+        if (eboot.extension == "zar") {
+            val root = gameDir.canonicalFile.toPath()
+            if (gameDir.listFiles().orEmpty().any { !it.canonicalFile.toPath().startsWith(root) }) {
+                return VerifyResult.Fail(InstallErrorCode.VERIFY_FAILED, "archive install escapes game directory")
+            }
+            val metadata = runCatching { inspectArchive(eboot) }.getOrNull()
+            if (metadata == null || metadata.size != 2 || metadata[0].isEmpty()) {
+                return VerifyResult.Fail(InstallErrorCode.VERIFY_FAILED, "invalid game or update archive")
+            }
+            val id = runCatching { ParamSfoReader.parse(metadata[0]).titleId }.getOrNull()
+            if (id == null || id != gameDir.name || (expectedGameId != null && id != expectedGameId)) {
+                return VerifyResult.Fail(InstallErrorCode.VERIFY_FAILED, "archive title id mismatch")
+            }
+            // Only UI metadata is cached. eboot and all game data remain packed.
+            val sceSys = File(gameDir, "sce_sys")
+            if (!sceSys.canonicalFile.toPath().startsWith(root)) {
+                return VerifyResult.Fail(InstallErrorCode.VERIFY_FAILED, "metadata cache escapes game directory")
+            }
+            sceSys.mkdirs()
+            for ((index, name) in listOf("param.sfo", "icon0.png").withIndex()) {
+                val cache = File(sceSys, name)
+                if (!cache.canonicalFile.toPath().startsWith(root)) {
+                    return VerifyResult.Fail(InstallErrorCode.VERIFY_FAILED, "metadata cache escapes game directory")
+                }
+                if (metadata[index].isNotEmpty() && (!cache.isFile || !cache.readBytes().contentEquals(metadata[index]))) {
+                    cache.writeBytes(metadata[index])
+                }
+            }
+        }
         if (!eboot.isFile || eboot.length() <= 0L) {
             return VerifyResult.Fail(InstallErrorCode.VERIFY_FAILED, "missing or empty eboot.bin")
         }

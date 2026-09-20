@@ -209,3 +209,7 @@
 	path = externals/oboe
 	url = https://github.com/tencentmalos/oboe.git
 	branch = codex/shadps4-audio
+[submodule "references/mesa-turnip"]
+	path = references/mesa-turnip
+	url = https://github.com/tencentmalos/mesa-mirror.git
+	branch = codex/kgsl-nonblocking-poll

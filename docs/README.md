@@ -1,3 +1,5 @@
+**2026-09-20 推荐 spec：[Internal Scale 资源分流、小贴图保护与动态尺寸](specs/internal-scale-resource-policy-20260920.md)。** 基于当前PS4实现及本地Citron对照，建议独立Render Scale/Texture Quality，补齐小图、streaming mip、RT用途转换和动态extent约束；仅设计，尚未实施或完成新策略验收。
+
 **2026-09-17：[FIOS I/O / 新数据映射去串行化验证](validation/android-native-host/fios-io-global-locks-2026-09-17.md)、[移除 Runtime VM 总锁的设计](guest-memory-concurrency.md)。** 已拆文件执行锁与新增数据映射的全局停机/译码清空；VM总锁尚未完全删除。最终25.2秒停帧期间后台仍读取284MB且无VM事务，不能声称loading已修复。
 
 - [Runtime VM 总锁删除与普通 APK 验证（2026-09-17）](validation/android-native-host/vm-lock-removal-2026-09-17.md)：HLE 总锁已移除，范围引用/批量 pin、代码 publication 分离；loading 停帧仍未解决。
@@ -122,3 +124,5 @@ Beat Saber 的 PS4/PSVR 兼容性是独立后续目标。先验证非 VR guest �
 - [实测帧调用、语义名称与主函数 C/C++ 重编译](validation/android-native-host/frame-recompilation-2026-09-16.md)
 
 - [TMNT 可见函数到 C/C++ 拦截](validation/android-native-host/frame-interception-2026-09-16.md)：源码链接、生成器、按函数启停与实际命中证据。
+
+- [Swan Turnip 源码构建、KGSL poll 与 Mapper 5 适配](validation/android-native-host/swan-turnip-20260920.md)

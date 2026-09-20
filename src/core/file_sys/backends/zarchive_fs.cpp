@@ -5,6 +5,7 @@
 #include <chrono>
 #include <cstring>
 #include <filesystem>
+#include <limits>
 #include <string>
 
 #if defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)
@@ -85,19 +86,16 @@ ZArchiveFile::ZArchiveFile(std::shared_ptr<SharedReader> reader, uint32_t node, 
       m_archive_path(std::move(archive_path)) {}
 
 s64 ZArchiveFile::Read(void* dst, u64 size) {
-    if (!IsOpen() || size == 0) {
-        return 0;
-    }
-    u64 pos;
-    u64 clamped;
-    {
-        std::scoped_lock lk{m_position_mutex};
-        pos = m_position;
-        if (pos >= m_size) {
-            return 0;
-        }
-        clamped = std::min(size, m_size - pos);
-    }
+    std::scoped_lock lk{m_position_mutex};
+    const auto read = ReadAt(dst, size, m_position);
+    if (read > 0) m_position += read;
+    return read;
+}
+
+s64 ZArchiveFile::ReadAt(void* dst, u64 size, u64 pos) {
+    if (!IsOpen()) return -1;
+    if (size == 0 || pos >= m_size) return 0;
+    const auto clamped = std::min({size, m_size - pos, u64(INT64_MAX)});
 
     struct ReadJob {
         ZArchiveReader* reader;
@@ -117,13 +115,8 @@ s64 ZArchiveFile::Read(void* dst, u64 size) {
             },
             &job);
     }
-    const u64 read = job.out;
-
-    {
-        std::scoped_lock lk{m_position_mutex};
-        m_position = pos + read;
-    }
-    return static_cast<s64>(read);
+    // A short compressed read before logical EOF is an I/O failure, not EOF.
+    return job.out == clamped ? static_cast<s64>(job.out) : -1;
 }
 
 s64 ZArchiveFile::Write(const void* /*src*/, u64 /*size*/) {
@@ -145,6 +138,7 @@ bool ZArchiveFile::Seek(s64 offset, Common::FS::SeekOrigin origin) {
         base = static_cast<s64>(m_size);
         break;
     }
+    if (offset > 0 && base > INT64_MAX - offset) return false;
     const s64 target = base + offset;
     if (target < 0) {
         return false;

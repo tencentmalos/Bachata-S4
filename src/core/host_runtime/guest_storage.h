@@ -16,6 +16,8 @@
 #include "core/libraries/save_data/savedata.h"
 #include "core/libraries/save_data/savedata_error.h"
 
+namespace Core::FileSys { class IFile; }
+
 namespace Core::HostRuntime {
 // Session-owned save mounts and guest descriptors. All guest pointers are copied
 // or pinned by the adapter; this boundary only receives native values/spans.
@@ -99,6 +101,7 @@ public:
         int host_fd{-1};
         bool writable{};
         int error{};
+        Core::FileSys::IFile* backend{};
     };
     MappingFile AcquireMappingFile(int fd);
     // Buffers here are already checked and pinned by the guest ABI adapter.
@@ -134,6 +137,7 @@ private:
         std::string path;
         std::shared_ptr<Quota> quota;
         std::mutex cursor;
+        std::shared_ptr<Core::FileSys::IFile> backend;
         File(int host, int slot, bool writable, bool append,
              std::shared_ptr<Core::Directories::BaseDirectory> directory, std::string path)
             : host(host), slot(slot), writable(writable), append(append),
@@ -145,6 +149,7 @@ private:
         int slot{-1};
         std::string leaf;
         int error{};
+        std::string virtual_path;
     };
     // Read-only opens/stat share namespace stability; mutations/mount teardown
     // exclude them. Established descriptor I/O never acquires this gate.

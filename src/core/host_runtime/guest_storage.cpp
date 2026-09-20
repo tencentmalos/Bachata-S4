@@ -470,7 +470,7 @@ GuestStorage::Parent GuestStorage::Resolve(std::string_view path, bool write, bo
         const bool addcont = mount.starts_with("/addcont") && mount.size() > 8 &&
                              std::all_of(mount.begin() + 8, mount.end(),
                                          [](char c) { return c >= '0' && c <= '9'; });
-        if (mount != "/app0" && !addcont) {
+        if (mount != "/app0" && mount != "/hostapp" && !addcont) {
             p.error = ENOENT;
             return p;
         }
@@ -484,6 +484,28 @@ GuestStorage::Parent GuestStorage::Resolve(std::string_view path, bool write, bo
             return p;
         }
         root = m->host_path;
+        if (m->backends.size() > 1 || FileSys::SplitArchivePath(root)) {
+            // Read-only native overlay layers keep the same no-symlink rule
+            // as the descriptor-relative path, including intermediate dirs.
+            const auto relative = slash == path.npos ? fs::path{} : fs::path(path.substr(slash + 1));
+            for (const auto& backend : m->backends) {
+                if (auto host = backend->RootHostPath()) {
+                    auto current = *host;
+                    std::error_code ec;
+                    if (fs::is_symlink(fs::symlink_status(current, ec))) {
+                        p.error = EACCES; return p;
+                    }
+                    for (const auto& part : relative) {
+                        current /= part;
+                        if (fs::is_symlink(fs::symlink_status(current, ec))) {
+                            p.error = EACCES; return p;
+                        }
+                    }
+                }
+            }
+            p.virtual_path = normalized;
+            return p;
+        }
     }
     int fd = ::open(root.c_str(), O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
     if (fd < 0) {
@@ -583,9 +605,42 @@ GuestStorage::IoResult GuestStorage::Open(std::string_view path, u32 flags, u32 
     if ((flags & ~allowed) || (flags & 3) == 3)
         return {-1, EINVAL};
     bool write = (flags & 3) != 0;
-    auto p = Resolve(path, write, true);
+    auto p = Resolve(path, write || (flags & (0x200 | 0x400)), true);
     if (p.error)
         return {-1, p.error};
+    if (!p.virtual_path.empty()) {
+        std::shared_ptr<Core::Directories::BaseDirectory> directory;
+        std::shared_ptr<FileSys::IFile> backend;
+        if (mounts.IsDirectory(p.virtual_path)) {
+            std::shared_ptr<FileSys::IDirectory> entries = mounts.OpenDir(p.virtual_path);
+            if (!entries) return {-1, EIO};
+            directory = std::make_shared<Core::Directories::NormalDirectory>(
+                [entries](const Core::Directories::NormalDirectory::Visitor& visitor) {
+                    entries->Rewind();
+                    FileSys::DirEntry item;
+                    while (entries->Next(item)) visitor(item.name, !item.is_directory);
+                });
+        } else {
+            if (!mounts.Exists(p.virtual_path)) return {-1, ENOENT};
+            if (flags & 0x20000) return {-1, ENOTDIR};
+            backend = mounts.Open(p.virtual_path);
+            if (!backend || !backend->IsOpen()) return {-1, EIO};
+        }
+        auto file = std::make_shared<File>(-1, p.slot, false, false,
+                                           std::move(directory), p.virtual_path);
+        file->backend = std::move(backend);
+        int id;
+        {
+            std::lock_guard registry(files_mutex);
+            if (next_fd == std::numeric_limits<int>::max()) return {-1, EMFILE};
+            id = next_fd++;
+            files.emplace(id, file);
+            std::erase_if(file_leases, [](const auto& f) { return f.second.expired(); });
+            file_leases.emplace_back(p.slot, file);
+        }
+        if (io_observer) io_observer({IoEvent::Opened, id, file->path, 0});
+        return {id, 0};
+    }
     int native = (flags & 3) == 2 ? O_RDWR : (write ? O_WRONLY : O_RDONLY);
     if (flags & 8)
         native |= O_APPEND;
@@ -689,6 +744,13 @@ GuestStorage::MappingFile GuestStorage::AcquireMappingFile(int fd) {
     auto file = AcquireFile(fd);
     if (!file) return {{}, -1, false, EBADF};
     if (file->directory) return {{}, -1, false, ENODEV};
+    if (file->backend) {
+        if (auto* host = file->backend->GetHostFile())
+            return {file, static_cast<int>(host->GetFileMapping()), false, 0};
+        if (file->backend->GetMmapPolicy() != FileSys::MmapPolicy::Copy)
+            return {{}, -1, false, ENODEV};
+        return {file, -1, false, 0, file->backend.get()};
+    }
     const int flags = ::fcntl(file->host, F_GETFL);
     if (flags < 0) return {{}, -1, false, errno};
     if ((flags & O_ACCMODE) == O_WRONLY) return {{}, -1, false, EACCES};
@@ -725,11 +787,12 @@ GuestStorage::IoResult GuestStorage::Read(int fd, std::span<u8> data) {
         try { return {file->directory->read(data.data(), data.size()), 0}; }
         catch (const std::system_error& e) { return {-1, e.code().value()}; }
     }
-    const s64 offset = io_observer ? ::lseek(file->host, 0, SEEK_CUR) : 0;
+    const s64 offset = io_observer ? (file->backend ? s64(file->backend->Tell()) : ::lseek(file->host, 0, SEEK_CUR)) : 0;
     if (io_observer) io_observer({IoEvent::BeforeRead, fd, file->path, offset, data.size()});
     const auto syscall = io_observer ? IoNow() : 0;
-    auto r = ::read(file->host, data.data(), data.size());
-    const int error = r < 0 ? errno : 0;
+    auto r = file->backend ? file->backend->Read(data.data(), data.size())
+                           : ::read(file->host, data.data(), data.size());
+    const int error = r < 0 ? (file->backend ? EIO : errno) : 0;
     if (io_observer) io_observer({IoEvent::ReadDone, fd, file->path, offset, data.size(),
                                   begin, syscall, IoNow(), {r, error}});
     return {r, error};
@@ -797,6 +860,16 @@ void GuestStat(const struct stat& native, Libraries::Kernel::OrbisKernelStat& ou
     out.st_mtim = {mtime.tv_sec, mtime.tv_nsec};
     out.st_ctim = {ctime.tv_sec, ctime.tv_nsec};
 }
+void GuestStat(const FileSys::FileStat& file, Libraries::Kernel::OrbisKernelStat& out) {
+    out = {};
+    out.st_mode = (file.is_directory ? 0040000 : 0100000) | 0555;
+    out.st_size = file.is_directory ? 65536 : file.size;
+    out.st_blksize = file.is_directory ? 65536 : 512;
+    out.st_blocks = (out.st_size + 511) / 512;
+    out.st_atim = {file.atime_sec, file.atime_nsec};
+    out.st_mtim = {file.mtime_sec, file.mtime_nsec};
+    out.st_ctim = {file.ctime_sec, file.ctime_nsec};
+}
 static_assert(sizeof(Libraries::Kernel::OrbisKernelStat) == 120);
 static_assert(offsetof(Libraries::Kernel::OrbisKernelStat, st_size) == 72);
 } // namespace
@@ -806,6 +879,18 @@ GuestStorage::IoResult GuestStorage::Stat(std::string_view path,
     auto p = Resolve(path, false, true);
     if (p.error)
         return {-1, p.error};
+    if (!p.virtual_path.empty()) {
+        FileSys::FileStat stat{};
+        stat.is_directory = mounts.IsDirectory(p.virtual_path);
+        if (!stat.is_directory) {
+            if (!mounts.Exists(p.virtual_path)) return {-1, ENOENT};
+            auto file = mounts.Open(p.virtual_path);
+            if (!file) return {-1, EIO};
+            file->Stat(stat);
+        }
+        GuestStat(stat, out);
+        return {0, 0};
+    }
     struct stat native {};
     const int result = ::fstatat(p.fd, p.leaf.c_str(), &native, AT_SYMLINK_NOFOLLOW);
     const int error = errno;
@@ -824,6 +909,12 @@ GuestStorage::IoResult GuestStorage::Fstat(int fd, Libraries::Kernel::OrbisKerne
     if (file->directory) {
         out = {};
         return {file->directory->fstat(&out), 0};
+    }
+    if (file->backend) {
+        FileSys::FileStat stat{};
+        file->backend->Stat(stat);
+        GuestStat(stat, out);
+        return {0, 0};
     }
     struct stat native {};
     if (::fstat(file->host, &native))
@@ -886,9 +977,27 @@ GuestStorage::IoResult GuestStorage::Positioned(int fd, std::span<const Buffer> 
     }
     if (!write && io_observer) io_observer({IoEvent::BeforeRead, fd, file.path, offset, total});
     const auto syscall = !write && io_observer ? IoNow() : 0;
-    const auto result = write ? ::pwritev(file.host, vectors.data(), vectors.size(), offset)
-                              : ::preadv(file.host, vectors.data(), vectors.size(), offset);
-    const int error = result < 0 ? errno : 0;
+    s64 result{};
+    int error{};
+    if (file.backend) {
+        // The reader lease survives close/unmount. No cursor or namespace lock
+        // spans decompression, and the archive reader owns its cache guard.
+        for (const auto& buffer : buffers) {
+            s64 n;
+            if (auto* host = file.backend->GetHostFile())
+                n = ::pread(static_cast<int>(host->GetFileMapping()), buffer.data,
+                            buffer.size, offset + result);
+            else
+                n = file.backend->ReadAt(buffer.data, buffer.size, offset + result);
+            if (n < 0) { if (!result) { result = -1; error = EIO; } break; }
+            result += n;
+            if (u64(n) != buffer.size) break;
+        }
+    } else {
+        result = write ? ::pwritev(file.host, vectors.data(), vectors.size(), offset)
+                       : ::preadv(file.host, vectors.data(), vectors.size(), offset);
+        error = result < 0 ? errno : 0;
+    }
     if (!write && io_observer) io_observer({IoEvent::ReadDone, fd, file.path, offset, total,
                                            begin, syscall, IoNow(), {result, error}});
     if (write && file.append && ::fcntl(file.host, F_SETFL, flags))
@@ -921,6 +1030,12 @@ GuestStorage::IoResult GuestStorage::Seek(int fd, s64 offset, int whence) {
         const auto result = file->directory->lseek(offset, whence);
         return {result, result < 0 ? EINVAL : 0};
     }
+    if (file->backend) {
+        const Common::FS::SeekOrigin origins[]{Common::FS::SeekOrigin::SetOrigin,
+            Common::FS::SeekOrigin::CurrentPosition, Common::FS::SeekOrigin::End};
+        if (!file->backend->Seek(offset, origins[whence])) return {-1, EINVAL};
+        return {s64(file->backend->Tell()), 0};
+    }
     auto r = ::lseek(file->host, offset, whence);
     return {r, r < 0 ? errno : 0};
 }
@@ -931,6 +1046,7 @@ GuestStorage::IoResult GuestStorage::Sync(int fd) {
     auto file = AcquireFile(fd);
     if (!file) return {-1, EBADF};
     std::lock_guard cursor(file->cursor);
+    if (file->backend) return file->backend->Flush() ? IoResult{0, 0} : IoResult{-1, EIO};
     auto r = ::fsync(file->host);
     return {r, r < 0 ? errno : 0};
 }

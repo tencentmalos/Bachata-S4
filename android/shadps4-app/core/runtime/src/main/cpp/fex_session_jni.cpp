@@ -25,6 +25,7 @@
 
 #include <jni.h>
 #include "core/emulator_settings.h"
+#include "core/file_sys/fs.h"
 
 #include <atomic>
 #include <cstdio>
@@ -104,6 +105,39 @@ Java_com_shadps4_android_runtime_session_NativeFexSession_nativeIdentity(JNIEnv*
     } catch (...) {
         return env->NewStringUTF("identity-error");
     }
+}
+
+// Bounded registration metadata from the same overlay stack used at launch.
+extern "C" JNIEXPORT jobjectArray JNICALL
+Java_com_shadps4_android_runtime_session_NativeFexSession_nativeInspectArchive(
+    JNIEnv* env, jobject, jstring path) {
+    if (!path) return nullptr;
+    const char* value = env->GetStringUTFChars(path, nullptr);
+    if (!value) return nullptr;
+    std::string filename(value);
+    env->ReleaseStringUTFChars(path, value);
+    try {
+        auto metadata = Core::FileSys::InspectArchiveInstall(filename);
+        auto byte_array = env->FindClass("[B");
+        if (!byte_array) return nullptr;
+        auto result = env->NewObjectArray(2, byte_array, nullptr);
+        env->DeleteLocalRef(byte_array);
+        if (!result) return nullptr;
+        const std::vector<u8>* parts[]{&metadata.param_sfo, &metadata.icon_png};
+        for (int i = 0; i < 2; ++i) {
+            auto bytes = env->NewByteArray(parts[i]->size());
+            if (!bytes) return nullptr;
+            env->SetByteArrayRegion(bytes, 0, parts[i]->size(),
+                reinterpret_cast<const jbyte*>(parts[i]->data()));
+            env->SetObjectArrayElement(result, i, bytes);
+            env->DeleteLocalRef(bytes);
+            if (env->ExceptionCheck()) return nullptr;
+        }
+        return result;
+    } catch (const std::exception& e) {
+        __android_log_print(ANDROID_LOG_ERROR, "GameArchive", "%s", e.what());
+        return nullptr;
+    } catch (...) { return nullptr; }
 }
 
 // Dispatches a graphics/perf debugging toolkit command (spec §3.1), e.g.
@@ -281,6 +315,13 @@ Java_com_shadps4_android_runtime_session_NativeFexSession_nativePhase(JNIEnv*, j
 // Keep the loader in the native host DSO; JNI owns neither a second Vulkan
 // dispatcher nor an adrenotools namespace.
 #include "video_core/renderer_vulkan/vk_driver.h"
+extern "C" JNIEXPORT jboolean JNICALL
+Java_com_shadps4_android_runtime_session_AndroidTurnip_nativeUseMainline(JNIEnv*, jobject) {
+  char value[PROP_VALUE_MAX]{};
+  __system_property_get("debug.shadps4.vulkan_driver", value);
+  return std::string_view(value) == "turnip-mainline";
+}
+
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_shadps4_android_runtime_session_AndroidTurnip_nativeLoad(
     JNIEnv *env, jobject, jstring hooks, jstring files) {
@@ -411,8 +452,8 @@ Java_com_shadps4_android_runtime_session_NativeFexSession_nativeStartRenderedExe
     char driver_property[PROP_VALUE_MAX]{};
     __system_property_get("debug.shadps4.vulkan_driver", driver_property);
     const std::string driver_kind = driver_property;
-    if (!driver_kind.empty() && driver_kind != "turnip" && driver_kind != "system")
-      throw std::invalid_argument("Unknown debug.shadps4.vulkan_driver (turnip/system)");
+    if (!driver_kind.empty() && driver_kind != "turnip" && driver_kind != "turnip-mainline" && driver_kind != "system")
+      throw std::invalid_argument("Unknown debug.shadps4.vulkan_driver (turnip/turnip-mainline/system)");
     params.load_graphics_driver = [hooks = copy(hook_directory),
                                    files = copy(driver_directory),
                                    system = driver_kind == "system"] {

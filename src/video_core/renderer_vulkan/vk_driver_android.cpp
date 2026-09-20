@@ -16,6 +16,7 @@ namespace Vulkan {
 namespace {
 constexpr auto DriverFile = "vulkan.ad07xx.so";
 constexpr auto DriverSha = "fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09";
+constexpr auto MainlineDriverSha = "ea4853bf58cdee3d49369706249090899cb4ebb17b8f0ca23685918912f0b6a1";
 
 void SelectLoader(bool system) {
     static std::mutex mutex;
@@ -33,7 +34,7 @@ std::string Directory(const std::string& path) {
     return std::filesystem::canonical(path).string() + "/";
 }
 
-void VerifyFile(const std::string& path) {
+std::string VerifyFile(const std::string& path) {
     std::ifstream input(path, std::ios::binary);
     if (!input) throw std::runtime_error("Missing pinned bionic Turnip: " + path);
     SHA256_CTX hash{};
@@ -46,7 +47,9 @@ void VerifyFile(const std::string& path) {
     SHA256_Final(digest.data(), &hash);
     std::string hex;
     for (auto byte : digest) hex += fmt::format("{:02x}", byte);
-    if (hex != DriverSha) throw std::runtime_error("Pinned bionic Turnip SHA256 mismatch");
+    if (hex != DriverSha && hex != MainlineDriverSha)
+        throw std::runtime_error("Pinned bionic Turnip SHA256 mismatch");
+    return hex;
 }
 
 template <typename T>
@@ -56,7 +59,8 @@ T Entry(PFN_vkGetInstanceProcAddr entry, VkInstance instance, const char* name) 
     return function;
 }
 
-std::string Identify(PFN_vkGetInstanceProcAddr entry, bool turnip) {
+std::string Identify(PFN_vkGetInstanceProcAddr entry, bool turnip,
+                     std::string_view sha = "system-image") {
     const VkApplicationInfo app{VK_STRUCTURE_TYPE_APPLICATION_INFO, nullptr, "shadPS4", 1,
                                 "shadPS4", 1, VK_API_VERSION_1_3};
     const VkInstanceCreateInfo info{VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO, nullptr, 0, &app};
@@ -97,7 +101,7 @@ std::string Identify(PFN_vkGetInstanceProcAddr entry, bool turnip) {
         identity += fmt::format("source={} device={} driver={} info={} shaderInt64={} api={} sha256={} ",
             turnip ? "turnip" : "system",
             props.properties.deviceName, driver.driverName, driver.driverInfo,
-            caps.shaderInt64, props.properties.apiVersion, turnip ? DriverSha : "system-image");
+            caps.shaderInt64, props.properties.apiVersion, sha);
     }
     return identity;
 }
@@ -106,7 +110,7 @@ std::string Identify(PFN_vkGetInstanceProcAddr entry, bool turnip) {
 DriverLease LoadAndroidTurnip(const std::string& hook_directory, const std::string& driver_directory) {
     const auto hooks = Directory(hook_directory);
     const auto files = Directory(driver_directory);
-    VerifyFile(files + DriverFile);
+    const auto sha = VerifyFile(files + DriverFile);
     for (auto name : {"libhook_impl.so", "libmain_hook.so", "libfile_redirect_hook.so", "libgsl_alloc_hook.so"})
         if (!std::filesystem::is_regular_file(hooks + name))
             throw std::runtime_error(std::string("Missing adrenotools hook: ") + name);
@@ -136,7 +140,7 @@ DriverLease LoadAndroidTurnip(const std::string& hook_directory, const std::stri
         auto entry = reinterpret_cast<PFN_vkGetInstanceProcAddr>(dlsym(handle, "vkGetInstanceProcAddr"));
         if (!entry) throw std::runtime_error("Turnip loader has no vkGetInstanceProcAddr");
         // Deliberately keep handle mapped, matching the namespace/hook lifetime.
-        pinned = std::make_shared<Driver>(Driver{entry, Identify(entry, true)});
+        pinned = std::make_shared<Driver>(Driver{entry, Identify(entry, true, sha)});
         return pinned;
     } catch (const std::exception& e) {
         failure = e.what();

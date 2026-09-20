@@ -18,8 +18,10 @@ fun SessionWindowModeEffect() {
         val systemBars = activity?.window?.let { SessionSystemBars(it) }
         activity?.requestedOrientation = SessionWindowMode.ImmersiveLandscape.orientation
         onDispose {
-            val restored = UiOrientationPreference.read(context)
-            activity?.requestedOrientation = UiOrientationPreference.toActivityOrientation(restored)
+            if (activity?.isChangingConfigurations == false) {
+                val restored = UiOrientationPreference.read(context)
+                activity.requestedOrientation = UiOrientationPreference.toActivityOrientation(restored)
+            }
             systemBars?.close()
         }
     }

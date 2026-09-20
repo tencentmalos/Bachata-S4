@@ -215,9 +215,7 @@ public:
                                                                     // entitlement key
         if (nid != "VANhIWcqYak")
             return u32(ORBIS_APP_CONTENT_ERROR_PARAMETER);
-        // The descriptor-relative guest filesystem supports directory roots. An
-        // archive backend needs its own checked read adapter before mount admission.
-        if (!std::filesystem::is_directory(entry->root))
+        if (!Core::FileSys::OpenGameBackend(entry->root))
             return u32(ORBIS_APP_CONTENT_ERROR_NOT_FOUND);
         const std::string point =
             "/addcont" + std::to_string(std::distance(entries.begin(), entry));

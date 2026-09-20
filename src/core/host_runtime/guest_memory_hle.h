@@ -60,7 +60,7 @@ inline GuestCpu::Result<u64> DispatchMemoryService(
         if (mapping.error)
             return posix_failure(Libraries::Kernel::NativeToPosixErrno(mapping.error));
         const Core::NativeFileMapping native{static_cast<uintptr_t>(mapping.host_fd),
-                                             mapping.writable};
+                                             mapping.writable, mapping.backend};
         const s32 result = Libraries::Kernel::MapVirtualMemory(
             reinterpret_cast<void*>(a[0]), a[1], s32(a[2]), s32(a[3]), s32(a[4]), s64(a[5]), &out,
             &native);

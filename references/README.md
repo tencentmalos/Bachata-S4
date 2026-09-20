@@ -8,6 +8,7 @@
 
 | 路径 | 精确提交与来源 | 用途 |
 |---|---|---|
+| `mesa-turnip` | [86ca472fc22b88a1241bb2eece5c2c128c2f48ae](https://github.com/tencentmalos/mesa-mirror/tree/86ca472fc22b88a1241bb2eece5c2c128c2f48ae) | 最新上游 `e1f3f372c4a`（26.3.0-devel，2026-09-19）基础上的 Android KGSL 零超时修复、Mapper 5 元数据接入、37+328 项检查和 NDK 构建脚本；独立维护分支 `codex/kgsl-nonblocking-poll`，不自动参与主仓 CMake |
 | `Bachata-S4-android` | [67dbf4e5b54b0467bf8a93de3de0a557a71f9f43](https://github.com/zFitness/Bachata-S4/tree/67dbf4e5b54b0467bf8a93de3de0a557a71f9f43) | 本次选定的 Android 前端、session、输入、打包与配套历史核心 |
 | `shadps4-arm64` | [be6bc2e9c60799e071dd2fafa6216e8d80ec619c](https://github.com/zenithblue-oss/shadps4-arm64/tree/be6bc2e9c60799e071dd2fafa6216e8d80ec619c) | ARM64/FEX guest/HLE/线程回调移植参考；没有 Android Gradle 工程 |
 | `FEX` | [3f1f30a060b633980ed8e7674eb8d8997457edad](https://github.com/tencentmalos/FEX/tree/3f1f30a060b633980ed8e7674eb8d8997457edad) | 当前 Android FEX 依赖，含已有 opt-in 调试/执行探针与 FXRSTOR TOP 修复；原始上游审计基线仍为 50e6eee95 |

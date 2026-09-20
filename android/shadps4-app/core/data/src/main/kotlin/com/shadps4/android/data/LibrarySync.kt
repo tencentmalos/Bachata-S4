@@ -19,7 +19,7 @@ data class LibrarySyncPlan(
 )
 
 /**
- * Pure planner for library folder reconciliation. Does not touch the database.
+ * Library folder reconciliation. Does not touch the database; archive validation caches only UI metadata.
  */
 object LibrarySync {
     fun planSync(

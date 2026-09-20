@@ -63,6 +63,11 @@ class FexSessionService : Service() {
     override fun dump(fd: java.io.FileDescriptor, writer: java.io.PrintWriter, args: Array<out String>?) {
         val command = if (args.isNullOrEmpty()) "debug_status" else args.joinToString(" ")
         try {
+            if (command == "input_status") {
+                writer.println(NativePadBridge.diagnosticStatus())
+                writer.println("managed_state: ${ManagedSession.state.value}")
+                return
+            }
             writer.println(NativeFexSession.nativeDebugCommand(command))
         } catch (t: Throwable) {
             writer.println("debug-command-error: ${t.message}")
@@ -126,7 +131,7 @@ class FexSessionService : Service() {
                 val executable = runCatching {
                     require(GameInstallVerifier.canLaunch(filesDir, relativePath)) { "content is not installed" }
                     val root = File(filesDir, relativePath).canonicalFile
-                    val entry = File(root, "eboot.bin").canonicalFile
+                    val entry = GameInstallVerifier.executableFile(root).canonicalFile
                     require(entry.toPath().startsWith(root.toPath())) { "entry escapes install directory" }
                     entry.absolutePath
                 }.getOrElse {

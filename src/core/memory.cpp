@@ -792,6 +792,22 @@ s32 MemoryManager::MapFile(void** out_addr, VAddr virtual_addr, u64 size, Memory
     if (phys_addr < 0 || (phys_addr & (16_KB - 1)) ||
         size > u64(INT64_MAX - phys_addr))
         return ORBIS_KERNEL_ERROR_EINVAL;
+    // Decompression / disk I/O finishes before either VM writer lock or range
+    // retirement. Read-only archives populate anonymous pages; bytes past EOF
+    // remain zero, matching the desktop copy backend.
+    std::vector<u8> archive_bytes;
+    const bool archive = native_file && native_file->backend;
+    if (archive) {
+        auto& source = *native_file->backend;
+        if (source.GetMmapPolicy() != FileSys::MmapPolicy::Copy)
+            return ORBIS_KERNEL_ERROR_ENODEV;
+        const u64 available = source.Size() > u64(phys_addr) ? source.Size() - phys_addr : 0;
+        const u64 count = std::min(size, available);
+        try { archive_bytes.resize(count); }
+        catch (const std::bad_alloc&) { return ORBIS_KERNEL_ERROR_ENOMEM; }
+        if (count && source.ReadAt(archive_bytes.data(), count, phys_addr) != s64(count))
+            return ORBIS_KERNEL_ERROR_EIO;
+    }
     uintptr_t handle = 0;
     std::scoped_lock lk{unmap_mutex};
     Core::FileSys::File* file{};
@@ -887,7 +903,12 @@ s32 MemoryManager::MapFile(void** out_addr, VAddr virtual_addr, u64 size, Memory
         impl.Protect(reinterpret_cast<VAddr>(addr), sz, perms);
     };
 
-    if (native_file) {
+    if (archive) {
+        auto* address = reinterpret_cast<u8*>(mapped_addr);
+        map_ctx.map_anonymous(address, size);
+        if (!archive_bytes.empty()) std::memcpy(address, archive_bytes.data(), archive_bytes.size());
+        map_ctx.protect(address, size, std::bit_cast<u32>(prot));
+    } else if (native_file) {
         map_ctx.map_native(reinterpret_cast<u8*>(mapped_addr), size, phys_addr,
                            std::bit_cast<u32>(prot), handle);
     } else {

@@ -10,8 +10,63 @@
 #include "core/file_sys/backends/zarchive_fs.h"
 #include "core/file_sys/fs.h"
 #include "core/file_sys/ifile.h"
+#include "core/file_format/psf.h"
 
 namespace Core::FileSys {
+
+ArchiveInstallMetadata InspectArchiveInstall(const std::filesystem::path& base) {
+    const auto fail = [](const char* why) { throw std::runtime_error(why); };
+    if (!IsZArchiveFile(base)) fail("game archive missing");
+    auto root = OpenGameBackend(base);
+    if (!root) fail("invalid game archive");
+    const bool bundled = root->IsDirectory("app") && !root->IsDirectory("sce_sys");
+    if (bundled) root = OpenGameBackend(base / AllInOneApp);
+    const auto read = [&](IFile* file, u64 limit) {
+        if (!file || !file->Size() || file->Size() > limit) fail("missing or oversized archive metadata");
+        std::vector<u8> bytes(file->Size());
+        if (file->Read(bytes.data(), bytes.size()) != s64(bytes.size())) fail("archive metadata read failed");
+        return bytes;
+    };
+    const auto metadata = [&](IBackend& backend) {
+        auto file = backend.Open("sce_sys/param.sfo", Common::FS::FileAccessMode::Read);
+        return read(file.get(), 1024 * 1024);
+    };
+    auto sfo = metadata(*root);
+    PSF base_psf;
+    if (!base_psf.Open(sfo)) fail("invalid archive param.sfo");
+    const auto title = base_psf.GetString("TITLE_ID").value_or("");
+    if (title.size() != 9) fail("archive title ID missing");
+    auto entry = root->Open("eboot.bin", Common::FS::FileAccessMode::Read);
+    if (!entry || !entry->Size()) fail("archive eboot.bin missing");
+    const auto check_update = [&](const std::filesystem::path& path) {
+        auto update = OpenGameBackend(path);
+        if (!update) fail("invalid update archive");
+        PSF psf;
+        const auto bytes = metadata(*update);
+        if (!psf.Open(bytes) || psf.GetString("TITLE_ID").value_or("") != title)
+            fail("update archive title ID mismatch");
+    };
+    if (bundled) {
+        auto container = OpenGameBackend(base);
+        if (container->IsDirectory(AllInOneUpdate)) check_update(base / AllInOneUpdate);
+    }
+    for (const auto suffix : UpdateSuffixes) {
+        if (const auto path = ResolveGameRoot(OverlayPath(base, suffix))) {
+            check_update(*path);
+            break;
+        }
+    }
+    MntPoints mount;
+    mount.Mount(base, "/app0", true);
+    auto effective = mount.Open("/app0/sce_sys/param.sfo");
+    ArchiveInstallMetadata out{read(effective.get(), 1024 * 1024), {}};
+    PSF effective_psf;
+    if (!effective_psf.Open(out.param_sfo) || effective_psf.GetString("TITLE_ID").value_or("") != title)
+        fail("effective archive title ID mismatch");
+    if (auto icon = mount.Open("/app0/sce_sys/icon0.png"))
+        out.icon_png = read(icon.get(), 16 * 1024 * 1024);
+    return out;
+}
 
 bool IsZArchiveFile(const std::filesystem::path& path) {
     std::error_code ec;

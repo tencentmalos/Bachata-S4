@@ -47,6 +47,17 @@ object NativePadBridge {
         if (Looper.myLooper() == main.looper) action.run() else main.post(action)
     }
     fun currentToken(): Long = current?.token ?: 0
+    /** Read-only diagnostics. Values are sampled, not an atomic input transaction. */
+    fun diagnosticStatus(): String {
+        val connection = current
+        return "input: generation=${connection?.generation ?: 0} token=${connection?.token ?: 0}" +
+            " windowFocused=$windowFocused focused=${connection?.focused}" +
+            " uiCaptured=${connection?.uiCaptured} stopping=${connection?.stopping}" +
+            " overlayEvents=${connection?.overlayEvents ?: 0}" +
+            " overlayResult=${connection?.overlayResult}" +
+            " nativeToken=${NativePad.nativeCurrentToken()}" +
+            " connected=${NativePad.nativeConnected(0)} buttons=${NativePad.nativeReadButtons(0)}"
+    }
     fun hasPhysicalController(): Boolean = current?.bindings?.isNotEmpty() == true
     fun dispatchKeyEvent(event: KeyEvent): Boolean { onMain(); return current?.dispatchKey(event) ?: false }
     fun dispatchGenericMotionEvent(event: MotionEvent): Boolean { onMain(); return current?.dispatchMotion(event) ?: false }
@@ -74,7 +85,12 @@ object NativePadBridge {
         private var closed = false
         var uiCaptured = false
         var stopping = false
-        private var focused = true
+        @Volatile var focused = true
+            private set
+        @Volatile var overlayEvents = 0L
+            private set
+        @Volatile var overlayResult: Int? = null
+            private set
         private val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as? SensorManager
         private val gyro = sensorManager?.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
         private val gyroListener = object : SensorEventListener {
@@ -92,7 +108,12 @@ object NativePadBridge {
         private val actuator = AndroidHapticsExecutor(context,this)
         private val overlay: (Int,ControllerSnapshot)->Unit = { slot,snapshot ->
             // May be captured by a retiring producer. The token is immutable.
-            main.post { if (!closed && focused && slot in 0 until NativePad.MAX_PORTS) NativePad.submit(token,slot,snapshot) }
+            main.post {
+                overlayEvents++
+                if (!closed && focused && slot in 0 until NativePad.MAX_PORTS) {
+                    overlayResult = NativePad.submit(token,slot,snapshot)
+                }
+            }
         }
         private val tick = object : Runnable {
             override fun run() {

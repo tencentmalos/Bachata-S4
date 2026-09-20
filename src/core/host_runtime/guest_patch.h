@@ -26,6 +26,7 @@ Relocated Relocate(std::span<const std::byte> code, uint64_t source, uint64_t de
                    size_t minimum = 5);
 std::string Sha256(std::span<const std::byte> bytes);
 std::string FileSha256(const std::filesystem::path& file);
+std::string StreamSha256(const std::function<std::int64_t(void*, std::uint64_t)>& read);
 
 struct Segment {
     uint64_t offset{}, size{};

@@ -278,8 +278,18 @@ android.sourceSets.getByName("main").assets.srcDir(nativeTurnipAssets)
 val prepareNativeTurnip = tasks.register<Exec>("prepareNativeTurnip") {
     inputs.file(fixtureRepo.resolve("runtime/locks/turnip-bionic.json"))
     inputs.file(fixtureRepo.resolve("scripts/android/prepare-bionic-turnip"))
-    outputs.dir(nativeTurnipAssets)
+    outputs.dir(nativeTurnipAssets.get().dir("native-turnip"))
     commandLine("python3", fixtureRepo.resolve("scripts/android/prepare-bionic-turnip").absolutePath,
         "--out", nativeTurnipAssets.get().dir("native-turnip").asFile.absolutePath)
 }
 tasks.named("preBuild").configure { dependsOn(prepareNativeTurnip) }
+
+val prepareMainlineTurnip = tasks.register<Exec>("prepareMainlineTurnip") {
+    inputs.file(fixtureRepo.resolve("runtime/locks/turnip-bionic-mainline.json"))
+    inputs.file(fixtureRepo.resolve("scripts/android/prepare-bionic-turnip"))
+    outputs.dir(nativeTurnipAssets.get().dir("native-turnip-mainline"))
+    commandLine("python3", fixtureRepo.resolve("scripts/android/prepare-bionic-turnip").absolutePath,
+        "--lock", fixtureRepo.resolve("runtime/locks/turnip-bionic-mainline.json").absolutePath,
+        "--out", nativeTurnipAssets.get().dir("native-turnip-mainline").asFile.absolutePath)
+}
+tasks.named("preBuild").configure { dependsOn(prepareMainlineTurnip) }

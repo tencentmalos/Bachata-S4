@@ -111,14 +111,22 @@ std::string Sha256(std::span<const std::byte> bytes) {
 std::string FileSha256(const std::filesystem::path& path) {
     std::ifstream f(path, std::ios::binary);
     Check(f.good(), "cannot open identity file");
+    return StreamSha256([&](void* dst, std::uint64_t size) -> std::int64_t {
+        f.read(static_cast<char*>(dst), size);
+        if (f.bad() || (f.fail() && !f.eof())) return -1;
+        return f.gcount();
+    });
+}
+std::string StreamSha256(const std::function<std::int64_t(void*, std::uint64_t)>& read) {
     SHA256_CTX ctx;
     SHA256_Init(&ctx);
     std::array<char, 65536> buffer;
-    while (f) {
-        f.read(buffer.data(), buffer.size());
-        SHA256_Update(&ctx, buffer.data(), f.gcount());
+    for (;;) {
+        const auto count = read(buffer.data(), buffer.size());
+        Check(count >= 0 && std::uint64_t(count) <= buffer.size(), "identity file read failed");
+        if (!count) break;
+        SHA256_Update(&ctx, buffer.data(), count);
     }
-    Check(f.eof(), "identity file read failed");
     std::array<unsigned char, 32> d;
     SHA256_Final(d.data(), &ctx);
     std::string out;

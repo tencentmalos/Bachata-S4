@@ -51,6 +51,7 @@ public:
     ~ZArchiveFile() override = default;
 
     s64 Read(void* dst, u64 size) override;
+    s64 ReadAt(void* dst, u64 size, u64 offset) override;
     s64 Write(const void* src, u64 size) override;
     bool Seek(s64 offset, Common::FS::SeekOrigin origin) override;
     u64 Tell() const override;

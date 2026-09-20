@@ -71,7 +71,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) consumeLaunchIntent(intent)
         val uiOrientation = UiOrientationPreference.read(this)
-        requestedOrientation = UiOrientationPreference.toActivityOrientation(uiOrientation)
+        // A recreated session already owns its landscape request. Reapplying the
+        // library preference here can bounce portrait/landscape indefinitely.
+        if (savedInstanceState == null) {
+            requestedOrientation = UiOrientationPreference.toActivityOrientation(uiOrientation)
+        }
         lifecycleScope.launch { legacyRuntimeSettingsMigration.migrate() }
         // The FEX CPU backend (libshadps4_fex_session.so) is compiled into the APK, so unlike the
         // reference (which downloaded/extracted a glibc runtime into filesDir/runtime/box64-*),

@@ -6,6 +6,8 @@
 #include <barrier>
 #include <condition_variable>
 #include <set>
+#include <zarchive/zarchivewriter.h>
+#include "core/file_format/psf.h"
 #include "common/path_util.h"
 #include "core/file_sys/fs.h"
 #include "core/file_sys/directories/normal_directory.h"
@@ -38,6 +40,128 @@ static void DelayRead(const GuestStorage::IoEvent& e) {
             std::printf("FAIL line %d: %s\n", __LINE__, #x);                                       \
         }                                                                                          \
     } while (0)
+static void Pack(const std::filesystem::path& output,
+                 const std::map<std::string, std::string>& files) {
+    std::ofstream stream(output, std::ios::binary);
+    ZArchiveWriter writer([](int32_t, void*) {},
+        [](const void* bytes, size_t size, void* ptr) {
+            static_cast<std::ofstream*>(ptr)->write(static_cast<const char*>(bytes), size);
+        }, &stream);
+    for (const auto& [name, data] : files) {
+        const auto parent = std::filesystem::path(name).parent_path().generic_string();
+        if (!parent.empty()) writer.MakeDir(parent.c_str(), true);
+        if (!writer.StartNewFile(name.c_str())) throw std::runtime_error("pack fixture");
+        writer.AppendData(data.data(), data.size());
+    }
+    writer.Finalize();
+}
+static std::string Sfo(std::string id, std::string version) {
+    PSF psf;
+    psf.AddString("TITLE_ID", id); psf.AddString("APP_VER", version);
+    auto bytes = psf.Encode();
+    return {reinterpret_cast<const char*>(bytes.data()), bytes.size()};
+}
+static void Archives(const std::filesystem::path& root) {
+    using namespace Core::FileSys;
+    const auto base = root / "CUSA99991.zar";
+    const auto update = root / "CUSA99991-UPD.zar";
+    const std::string large(140000, 'x'); // three compressed blocks
+    Pack(base, {{"sce_sys/param.sfo", Sfo("CUSA99991", "01.00")},
+        {"eboot.bin", "base-elf"}, {"base-only", large}, {"shared", "base"},
+        {"dir/base", "a"}, {"dir/shared", "old"}});
+    Pack(update, {{"sce_sys/param.sfo", Sfo("CUSA99991", "01.08")},
+        {"eboot.bin", "update-elf"}, {"shared", "UPDATED"},
+        {"dir/update", "b"}, {"dir/shared", "new"}});
+    auto metadata = InspectArchiveInstall(base);
+    PSF psf;
+    CHECK(psf.Open(metadata.param_sfo));
+    CHECK(psf.GetString("APP_VER").value_or("") == "01.08");
+    MntPoints mounts;
+    mounts.Mount(base, "/app0", true);
+    mounts.Mount(base, "/hostapp", true);
+    GuestStorage storage(mounts, root / "users", "CUSA99991", 1000);
+    auto fd = storage.Open("/app0/shared", 0, 0);
+    CHECK(!fd.error);
+    std::array<u8, 8> data{};
+    CHECK(storage.Read(fd.value, data).value == 7 && std::memcmp(data.data(), "UPDATED", 7) == 0);
+    CHECK(storage.Seek(fd.value, 2, 0).value == 2);
+    GuestStorage::Buffer buffer{data.data(), 4};
+    CHECK(storage.Positioned(fd.value, std::span{&buffer, 1}, 0, false).value == 4 &&
+          std::memcmp(data.data(), "UPDA", 4) == 0);
+    CHECK(storage.Seek(fd.value, 0, 1).value == 2);
+    CHECK(storage.Seek(fd.value, INT64_MAX, 1).error == EINVAL);
+    CHECK(storage.Open("/app0/shared", 0x400, 0).error == EROFS);
+    CHECK(storage.Open("/app0/new", 0x200, 0).error == EROFS);
+    CHECK(storage.Open("/app0/../shared", 0, 0).error == EACCES);
+    CHECK(storage.Open("/app0/shared", 0x20000, 0).error == ENOTDIR);
+    Libraries::Kernel::OrbisKernelStat stat{};
+    CHECK(storage.Stat("/app0/shared", stat).value == 0 && stat.st_size == 7);
+    CHECK(storage.Stat("/app0/base-only", stat).value == 0 && stat.st_size == large.size());
+    CHECK(storage.Stat("/app0/missing", stat).error == ENOENT);
+    CHECK(storage.Stat("/app0", stat).value == 0 && (stat.st_mode & 0040000));
+    CHECK(storage.Sync(fd.value).value == 0);
+    auto alias = storage.Open("/hostapp/shared", 0, 0);
+    CHECK(!alias.error && storage.Read(alias.value, data).value == 7);
+    CHECK(storage.Close(alias.value).value == 0);
+    auto directory = storage.Open("/app0/dir", 0x20000, 0);
+    CHECK(!directory.error);
+    std::array<u8, 512> dirents{};
+    auto dents = storage.GetDents(directory.value, dirents, nullptr);
+    CHECK(dents.value > 0 && !dents.error);
+    std::multiset<std::string> names;
+    for (size_t offset = 0; offset < dents.value;) {
+        u16 length{}; std::memcpy(&length, dirents.data() + offset + 4, 2);
+        if (length < 12 || offset + length > dents.value) { CHECK(false); break; }
+        names.emplace(reinterpret_cast<char*>(dirents.data() + offset + 8), dirents[offset + 7]);
+        offset += length;
+    }
+    CHECK(names.count("shared") == 1 && names.count("base") == 1 && names.count("update") == 1);
+    CHECK(storage.AcquireMappingFile(directory.value).error == ENODEV);
+    CHECK(storage.Close(directory.value).value == 0);
+    auto big = storage.Open("/app0/base-only", 0, 0);
+    CHECK(!big.error);
+    std::vector<u8> across(70000);
+    GuestStorage::Buffer block{across.data(), across.size()};
+    CHECK(storage.Positioned(big.value, std::span{&block, 1}, 65000, false).value == 70000);
+    CHECK(std::all_of(across.begin(), across.end(), [](u8 b) { return b == 'x'; }));
+    block.size = 20;
+    CHECK(storage.Positioned(big.value, std::span{&block, 1}, large.size()-3, false).value == 3);
+    CHECK(storage.Positioned(big.value, std::span{&block, 1}, large.size(), false).value == 0);
+    auto mapping = storage.AcquireMappingFile(big.value);
+    CHECK(!mapping.error && mapping.host_fd == -1 && mapping.backend && !mapping.writable);
+    // A blocked operation owns its backing despite close + mount retirement.
+    delayed_kind = GuestStorage::IoEvent::BeforeRead;
+    delayed_fd = fd.value; io_entered = io_release = false;
+    storage.SetIoObserver(DelayRead);
+    auto slow = std::async(std::launch::async, [&] {
+        std::array<u8, 7> out{}; GuestStorage::Buffer b{out.data(), out.size()};
+        auto result = storage.Positioned(fd.value, std::span{&b, 1}, 0, false);
+        return result.value == 7 && std::memcmp(out.data(), "UPDATED", 7) == 0;
+    });
+    { std::unique_lock lock(io_test_mutex);
+      CHECK(io_test_changed.wait_for(lock, std::chrono::seconds(3), [] { return io_entered; })); }
+    auto other = std::async(std::launch::async, [&] {
+        std::array<u8, 4> out{}; GuestStorage::Buffer b{out.data(), out.size()};
+        return storage.Positioned(fd.value, std::span{&b, 1}, 1, false).value == 4;
+    });
+    CHECK(other.wait_for(std::chrono::milliseconds(500)) == std::future_status::ready);
+    CHECK(storage.Close(fd.value).value == 0);
+    mounts.UnmountAll();
+    { std::lock_guard lock(io_test_mutex); io_release = true; }
+    io_test_changed.notify_all(); CHECK(slow.get()); CHECK(other.get());
+    storage.SetIoObserver(nullptr);
+    CHECK(storage.Close(big.value).value == 0);
+    CHECK(mapping.backend->ReadAt(data.data(), data.size(), 65534) == 8);
+    CHECK(std::all_of(data.begin(), data.end(), [](u8 b) { return b == 'x'; }));
+    Pack(update, {{"sce_sys/param.sfo", Sfo("CUSA99992", "01.08")}});
+    bool rejected{};
+    try { (void)InspectArchiveInstall(base); } catch (const std::exception&) { rejected = true; }
+    CHECK(rejected);
+    std::ofstream(update, std::ios::binary | std::ios::trunc) << "broken";
+    rejected = false;
+    try { (void)InspectArchiveInstall(base); } catch (const std::exception&) { rejected = true; }
+    CHECK(rejected);
+}
 int main(int argc, char** argv) {
     if (argc != 2)
         return 2;
@@ -479,6 +603,7 @@ int main(int argc, char** argv) {
         }
         CHECK(!temporary_mounts.GetMountSnapshot("/temp0") && !std::filesystem::exists(previous));
     }
+    Archives(root);
     std::printf("GUEST_FILE_IO checks=%u failures=%u\n", checks, failures);
     // Only the fresh test root above is owned by this executable.
     std::filesystem::remove_all(root);

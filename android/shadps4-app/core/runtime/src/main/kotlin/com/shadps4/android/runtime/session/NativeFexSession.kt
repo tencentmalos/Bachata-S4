@@ -26,6 +26,9 @@ object NativeFexSession {
 
     external fun nativeIdentity(): String
 
+    /** Validated effective param.sfo and optional icon; assets stay in the archive. */
+    external fun nativeInspectArchive(path: String): Array<ByteArray>?
+
     /**
      * Dispatch a graphics/performance debugging toolkit command (e.g. "debug_status",
      * "renderdoc_status", "overlay status") and return its text reply. The same command

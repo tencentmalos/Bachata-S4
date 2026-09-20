@@ -53,6 +53,14 @@ inline constexpr std::string_view AllInOneDlc{"dlc"};
 /// "app" directory rather than `sce_sys` at its root.
 [[nodiscard]] bool IsAllInOneArchive(const std::filesystem::path& path);
 
+struct ArchiveInstallMetadata {
+    std::vector<u8> param_sfo;
+    std::vector<u8> icon_png;
+};
+// Validate the base and selected update before registration / runtime mount.
+// Reads only bounded metadata; game assets remain inside their archives.
+ArchiveInstallMetadata InspectArchiveInstall(const std::filesystem::path& base);
+
 /// Builds the path of an overlay that sits next to a game
 [[nodiscard]] std::filesystem::path OverlayPath(const std::filesystem::path& base,
                                                 std::string_view suffix);

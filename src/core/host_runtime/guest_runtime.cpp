@@ -2347,6 +2347,12 @@ void GuestRuntime::Impl::InstallHandlers() {
         if (guest.size() > 255) return finish(ORBIS_KERNEL_ERROR_ENAMETOOLONG);
         const auto mount = mounts.GetMountSnapshot(guest);
         if (!mount) return finish(ORBIS_KERNEL_ERROR_ENOENT);
+        if (FileSys::SplitArchivePath(mount->host_path)) {
+            for (s32 id = 0; auto* module = linker->GetModule(id); ++id)
+                if (module->file.lexically_normal().generic_string() == guest) return finish(id);
+            // New dynamic TLS providers retain the ordinary unsupported result.
+            return finish(ORBIS_KERNEL_ERROR_ENOENT);
+        }
         std::error_code ec;
         const auto root = std::filesystem::weakly_canonical(mount->host_path, ec);
         if (ec) return finish(ORBIS_KERNEL_ERROR_EIO);
@@ -3804,22 +3810,32 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
     Common::Profiler::Phase stage{"Startup.ModulesAndServices"};
     if (impl->prepared)
         throw std::logic_error("runtime already prepared");
-    impl->program_name = executable.filename().string();
+    const bool archive = FileSys::IsZArchiveFile(executable);
+    if (archive) (void)FileSys::InspectArchiveInstall(executable);
+    const auto install_root = std::filesystem::canonical(archive ? executable : executable.parent_path());
+    const auto main_path = archive ? std::filesystem::path("/app0/eboot.bin")
+                                   : std::filesystem::canonical(executable);
+    impl->program_name = main_path.filename().string();
     Impl::CodePublication vm(*impl);
-    impl->mounts.Mount(executable.parent_path(), "/app0", true);
-    if (impl->linker->LoadModule(executable) != 0)
+    impl->mounts.Mount(install_root, "/app0", true);
+    impl->mounts.Mount(install_root, "/hostapp", true);
+    if (impl->linker->LoadModule(main_path) != 0)
         throw std::runtime_error("main executable could not be loaded");
     PrepareStage("prepare: main module loaded");
     // Discover game-provided DT_NEEDED modules inside the installed content
     // root. System providers stay HLE imports; no host dlopen or host function
     // pointers are substituted for guest modules. Explicit roots use this same
     // graph, with canonical-path deduplication and a finite module count.
-    const auto content_root = std::filesystem::canonical(executable.parent_path());
-    std::map<std::filesystem::path, u32> loaded{{std::filesystem::canonical(executable), 0}};
+    const auto content_root = archive ? std::filesystem::path("/app0") : install_root;
+    auto module_path = [&](const std::filesystem::path& path) {
+        if (archive && path.generic_string().starts_with("/app0/")) return path.lexically_normal();
+        return std::filesystem::canonical(path);
+    };
+    std::map<std::filesystem::path, u32> loaded{{main_path, 0}};
     std::set<u32> visiting, visited;
     std::function<void(u32)> visit;
     auto load = [&](const std::filesystem::path& path) -> u32 {
-        const auto canonical = std::filesystem::canonical(path);
+        const auto canonical = module_path(path);
         if (auto it = loaded.find(canonical); it != loaded.end())
             return it->second;
         if (loaded.size() >= 256)
@@ -3854,10 +3870,10 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
                                        content_root / "Media" / "Plugins",
                                        content_root / "modules", content_root}) {
                 const auto candidate = parent / name;
-                if (!std::filesystem::exists(candidate))
+                if (archive ? !impl->mounts.Exists(candidate.generic_string())
+                            : !std::filesystem::exists(candidate))
                     continue;
-                const auto relative =
-                    std::filesystem::canonical(candidate).lexically_relative(content_root);
+                const auto relative = module_path(candidate).lexically_relative(content_root);
                 if (relative.empty() || *relative.begin() == "..")
                     throw std::runtime_error("dependency escapes content root");
                 found = candidate;
@@ -3929,7 +3945,7 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
             app_parameters[i] =
                 psf.GetInteger("USER_DEFINED_PARAM_" + std::to_string(i)).value_or(0);
     }
-    impl->elf_info.InitializeGuestMetadata(executable.parent_path(), sdk, serial, title, version,
+    impl->elf_info.InitializeGuestMetadata(install_root, sdk, serial, title, version,
                                            attributes, system_version);
     impl->elf_info.SetTrophyIndexMap(ExtractTrophies("/app0/sce_sys/npbind.dat", "/app0/sce_sys/trophy"));
     impl->memory->SetGuestSdkVersion(sdk);
@@ -3981,11 +3997,15 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
         auto roots =
             Core::FileSys::ListContentRoots(EmulatorSettings.GetAddonInstallDir() / serial);
         const auto sibling =
-            Core::FileSys::OverlayPath(executable.parent_path(), Core::FileSys::DlcSuffix);
+            Core::FileSys::OverlayPath(install_root, Core::FileSys::DlcSuffix);
         if (const auto root = Core::FileSys::ResolveGameRoot(sibling)) {
             auto found = Core::FileSys::IsZArchiveFile(*root)
                              ? Core::FileSys::ExpandBundleRoots(*root)
                              : Core::FileSys::ListContentRoots(*root);
+            roots.insert(roots.end(), found.begin(), found.end());
+        }
+        if (FileSys::IsAllInOneArchive(install_root)) {
+            auto found = FileSys::ListContentRoots(install_root / FileSys::AllInOneDlc);
             roots.insert(roots.end(), found.begin(), found.end());
         }
         impl->app_content = std::make_unique<GuestAppContent>(impl->mounts, sdk, serial,
@@ -4103,6 +4123,11 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
 
     // Explicit opt-in, read once before constructors/owners. The normal path
     // neither hashes game files nor allocates patch state or SDK gateways.
+    const auto module_sha = [&](const std::filesystem::path& path) {
+        if (auto file = impl->mounts.Open(path.generic_string()))
+            return GuestPatch::StreamSha256([&](void* dst, u64 size) { return file->Read(dst, size); });
+        return GuestPatch::FileSha256(path);
+    };
     std::string auto_tag_path;
 #if defined(__ANDROID__)
     char auto_tag_property[PROP_VALUE_MAX]{};
@@ -4124,7 +4149,7 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
         }
         if (!target) throw std::runtime_error("auto tag module not loaded");
         impl->auto_tag=GuestAutoTag::Profile::Load(auto_tag_path,
-            {serial,target->name,GuestPatch::FileSha256(target->file),target->GetBaseAddress(),target->aligned_base_size},
+            {serial,target->name,module_sha(target->file),target->GetBaseAddress(),target->aligned_base_size},
             impl->space,impl->cpu.ContextId());
     }
     std::string patch_path;
@@ -4150,10 +4175,10 @@ void GuestRuntime::Prepare(const std::filesystem::path& executable,
             [](const char* name, int64_t value) { Common::Profiler::Counter(name, value); });
         impl->guest_patch->Install(
             package,
-            {serial, target->name, GuestPatch::FileSha256(target->file), target->GetBaseAddress(),
+            {serial, target->name, module_sha(target->file), target->GetBaseAddress(),
              target->aligned_base_size,
              package.executable_sha256.empty() ? std::string{}
-                                               : GuestPatch::FileSha256(executable)},
+                                               : module_sha(main_path)},
             *impl->CodeToken(), [this](u64 size, u64 near) {
                 return GuestPatch::Allocation{impl->Allocate(size, "GuestFunctionPatch", near),
                                               Common::AlignUp(size, 0x4000ULL)};

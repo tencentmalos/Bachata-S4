@@ -58,4 +58,25 @@ class GameInstallVerifierTest {
         assertTrue(result is GameInstallVerifier.VerifyResult.Ok)
         assertEquals(4L, (result as GameInstallVerifier.VerifyResult.Ok).bytesTotal)
     }
+
+    @Test
+    fun archiveRegistrationCachesOnlyMetadataAndRejectsMismatchedUpdate() {
+        val game = File(temporaryFolder.root, "games/CUSA00000").apply { mkdirs() }
+        val archive = File(game, "CUSA00000.zar").apply { writeBytes(byteArrayOf(1, 2)) }
+        val sfo = buildMinimalSfo(mapOf("TITLE_ID" to "CUSA00000", "APP_VER" to "01.08"))
+        val result = GameInstallVerifier.verifyTreeForRegistration(game, "CUSA00000") {
+            assertEquals(archive, it)
+            arrayOf(sfo, byteArrayOf(9))
+        }
+        assertTrue(result is GameInstallVerifier.VerifyResult.Ok)
+        assertEquals(archive, GameInstallVerifier.executableFile(game))
+        assertFalse(File(game, "eboot.bin").exists())
+        assertTrue(File(game, "sce_sys/param.sfo").readBytes().contentEquals(sfo))
+        val mismatch = GameInstallVerifier.verifyTreeForRegistration(game, "CUSA00000") {
+            arrayOf(buildMinimalSfo(mapOf("TITLE_ID" to "CUSA00001")), byteArrayOf())
+        }
+        assertTrue(mismatch is GameInstallVerifier.VerifyResult.Fail)
+        assertTrue(GameInstallVerifier.verifyTreeForRegistration(game, "CUSA00000") { null }
+            is GameInstallVerifier.VerifyResult.Fail)
+    }
 }

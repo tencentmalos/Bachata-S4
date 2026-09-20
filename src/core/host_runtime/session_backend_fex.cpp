@@ -10,6 +10,7 @@
 #include <chrono>
 #include <cstdint>
 #include <cstdlib>
+#include <fstream>
 #include <memory>
 #include <mutex>
 #include <unordered_map>
@@ -36,6 +37,7 @@
 #if defined(SHADPS4_TYPED_HLE_HOST)
 #include "core/guest_cpu/fex/fex_context.h"
 #include "core/host_runtime/guest_runtime.h"
+#include "core/host_runtime/guest_reservation.h"
 #include "common/path_util.h"
 #include "common/profiler.h"
 #endif
@@ -125,6 +127,13 @@ Result<std::shared_ptr<SessionRuntime>> FexSessionBackend::Prepare(
             {GuestAddress{GuestRuntime::ReservationBegin},
              0x10000000 - GuestRuntime::ReservationBegin},
             {GuestAddress{0x100000000ULL}, GuestRuntime::ReservationEnd - 0x100000000ULL}};
+#if defined(__ANDROID__)
+        std::ifstream maps("/proc/self/maps");
+        auto available = ExcludeHostMappings(cfg.owned_ranges, maps);
+        if (!available)
+            return available.GetError();
+        cfg.owned_ranges = std::move(available).Value();
+#endif
     }
 #else
     if (!params.executable_path.empty())

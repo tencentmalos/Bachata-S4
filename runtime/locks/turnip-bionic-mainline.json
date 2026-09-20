@@ -1,0 +1,13 @@
+{
+  "source": "https://github.com/tencentmalos/mesa-mirror",
+  "source_commit": "86ca472fc22b88a1241bb2eece5c2c128c2f48ae",
+  "upstream_commit": "e1f3f372c4a661cd0e71a0cdafc4d469d56ecf35",
+  "release": "turnip-26.3-86ca472f",
+  "url": "https://github.com/tencentmalos/mesa-mirror/releases/download/turnip-26.3-86ca472f/Turnip-26.3-86ca472f-android-arm64.zip",
+  "archive_sha256": "035fecd1c1a52db5d865c50d063dd1659824e5f2d3e19e0c7fa46ad726db63dd",
+  "library": "vulkan.ad07xx.so",
+  "library_sha256": "ea4853bf58cdee3d49369706249090899cb4ebb17b8f0ca23685918912f0b6a1",
+  "build_id": "5a27ad743d3e5541d89aafeeba255d9814e13ce2",
+  "abi": "android-arm64-bionic",
+  "scope": "Explicit turnip-mainline debug profile; KGSL poll fix and QCOM Mapper 5 metadata; preserves R8 default"
+}

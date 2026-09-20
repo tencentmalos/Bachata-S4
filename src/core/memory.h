@@ -27,6 +27,10 @@ namespace Core::HostRuntime {
 class GuestRuntime;
 }
 
+namespace Core::FileSys {
+class IFile;
+}
+
 namespace Core {
 
 constexpr u64 DEFAULT_MAPPING_BASE = 0x200000000;
@@ -173,6 +177,7 @@ struct VirtualMemoryArea {
 struct NativeFileMapping {
     uintptr_t handle;
     bool writable;
+    FileSys::IFile* backend{}; // retained by the caller's descriptor lease
 };
 
 class MemoryManager {
