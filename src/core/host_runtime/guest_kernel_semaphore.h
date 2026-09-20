@@ -26,6 +26,10 @@ class GuestKernelSemaphore {
         int error;
     };
     struct Waiter {
+        Waiter(s32 need, s32 priority) : need(need), priority(priority) {}
+        // Wake only the waiter selected by Wake/cancel/delete. A domain-wide
+        // CV broadcasts every signal to unrelated guest semaphores.
+        std::condition_variable_any changed;
         s32 need, priority;
         bool done{};
         s32 result{};
@@ -39,7 +43,6 @@ class GuestKernelSemaphore {
     GuestCpu::GuestAddressSpace& space;
 
     mutable std::mutex mutex;
-    std::condition_variable_any changed;
     std::map<u32, std::shared_ptr<Semaphore>> objects;
     static inline std::atomic<u32> next_id{1};
     bool foreground_admitted{};
@@ -103,6 +106,7 @@ class GuestKernelSemaphore {
             sem.value -= waiter->need;
             waiter->done = true;
             waiter->result = 0;
+            waiter->changed.notify_one();
             it = sem.waiters.erase(it);
         }
     }
@@ -171,7 +175,7 @@ public:
                     return u32(ORBIS_KERNEL_ERROR_EBUSY);
                 if (a[2] && !timeout)
                     return u32(ORBIS_KERNEL_ERROR_ETIMEDOUT);
-                auto waiter = std::make_shared<Waiter>(Waiter{need, priority});
+                auto waiter = std::make_shared<Waiter>(need, priority);
                 auto at = sem->waiters.end();
                 if (!sem->fifo)
                     at = std::ranges::find_if(
@@ -179,9 +183,9 @@ public:
                 sem->waiters.insert(at, waiter);
                 const auto deadline = Clock::now() + std::chrono::microseconds(timeout);
                 if (a[2])
-                    changed.wait_until(lock, stop, deadline, [&] { return waiter->done; });
+                    waiter->changed.wait_until(lock, stop, deadline, [&] { return waiter->done; });
                 else
-                    changed.wait(lock, stop, [&] { return waiter->done; });
+                    waiter->changed.wait(lock, stop, [&] { return waiter->done; });
                 sem->waiters.remove(waiter);
                 s32 result = waiter->done            ? waiter->result
                              : stop.stop_requested() ? ORBIS_KERNEL_ERROR_EINTR
@@ -247,7 +251,6 @@ public:
                 Need(count > 0 && count <= sem->maximum - sem->value, ORBIS_KERNEL_ERROR_EINVAL);
                 sem->value += count;
                 Wake(*sem);
-                changed.notify_all();
                 Trace(nid, u32(a[0]), *sem, count, 0);
                 return 0;
             }
@@ -259,20 +262,20 @@ public:
                 for (auto& waiter : sem->waiters) {
                     waiter->done = true;
                     waiter->result = ORBIS_KERNEL_ERROR_ECANCELED;
+                    waiter->changed.notify_one();
                 }
                 sem->waiters.clear();
                 sem->value = count < 0 ? sem->initial : count;
-                changed.notify_all();
                 return 0;
             }
             if (nid == "R1Jvn8bSCW8") {
                 for (auto& waiter : sem->waiters) {
                     waiter->done = true;
                     waiter->result = ORBIS_KERNEL_ERROR_EACCES;
+                    waiter->changed.notify_one();
                 }
                 sem->waiters.clear();
                 objects.erase(u32(a[0]));
-                changed.notify_all();
                 return 0;
             }
             return u32(ORBIS_KERNEL_ERROR_EINVAL);

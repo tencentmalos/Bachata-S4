@@ -122,6 +122,12 @@ if(V0_BUILD_TESTS)
     target_link_libraries(session_lifecycle_tests PRIVATE guest_cpu_api Threads::Threads)
     target_compile_definitions(session_lifecycle_tests PRIVATE SESSION_TEST_HOOKS=1)
 
+    add_executable(guest_kernel_semaphore_tests
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/host_runtime/guest_kernel_semaphore_tests.cpp")
+    target_link_libraries(guest_kernel_semaphore_tests PRIVATE guest_cpu_api Threads::Threads)
+    if(ANDROID)
+        target_link_libraries(guest_kernel_semaphore_tests PRIVATE log)
+    endif()
     add_executable(guest_sysmodule_tests "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/host_runtime/guest_sysmodule_tests.cpp")
     target_link_libraries(guest_sysmodule_tests PRIVATE guest_cpu_api Threads::Threads)
     add_executable(guest_reprojection_tests "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/host_runtime/guest_reprojection_tests.cpp")
