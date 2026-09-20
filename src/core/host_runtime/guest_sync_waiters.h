@@ -13,6 +13,7 @@
 #include <vector>
 #include "common/types.h"
 #include "core/guest_cpu/api/address_space.h"
+#include "core/host_runtime/guest_sync_metrics.h"
 #include "core/libraries/kernel/posix_error.h"
 
 namespace Core::HostRuntime {
@@ -49,7 +50,9 @@ public:
         waiter->address = address;
         auto& bucket = Bucket(address);
         {
+            SyncMetrics::Phase guard_phase{SyncMetrics::Stage::Guard};
             std::lock_guard lock(bucket.guard);
+            guard_phase.End();
             u64 value{};
             if (!ReadValue(address, width, value))
                 return POSIX_EFAULT;
@@ -65,6 +68,9 @@ public:
         });
         int result = 0;
         {
+            // Park covers only the sleep on the waiter's own condition; the
+            // bucket lock above is reported as Guard.
+            SyncMetrics::Phase park_phase{SyncMetrics::Stage::Park};
             std::unique_lock lock(waiter->park);
             const auto ready = [&] { return waiter->woken || cancel.stop_requested(); };
             if (deadline) {
@@ -95,7 +101,9 @@ public:
         std::vector<std::shared_ptr<Waiter>> selected;
         auto& bucket = Bucket(address);
         {
+            SyncMetrics::Phase guard_phase{SyncMetrics::Stage::Guard};
             std::lock_guard lock(bucket.guard);
+            guard_phase.End();
             auto& queue = bucket.waiters;
             for (auto it = queue.begin(); it != queue.end() && selected.size() < count;) {
                 if ((*it)->address == address) {

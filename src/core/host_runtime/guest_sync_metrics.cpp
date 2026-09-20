@@ -163,12 +163,13 @@ unsigned PhaseMask(Operation op) noexcept {
     case Operation::EventPoll:
         return 0b00110;
     case Operation::AddrWait:
-        return 0b00100;
+        return 0b00110;
     case Operation::RwUnlock:
     case Operation::SemPost:
     case Operation::SemaCreate:
     case Operation::SemaDelete:
     case Operation::SemaSignal:
+    case Operation::AddrWake:
     case Operation::SemaCancel:
     case Operation::SemaOpen:
     case Operation::SemaClose:

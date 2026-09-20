@@ -62,8 +62,23 @@
 
 [evidence/fex-sync-tier-b-20260920/](evidence/fex-sync-tier-b-20260920/)：三段各自的 `hle_sync` JSON、`fps.txt`、`identity.txt`、`property.txt`、`fast_path.txt`、`warmup.txt`、场景截图、sched 采集元数据/per-CPU 统计/线程名与 `sched-wake-analysis.txt`、原始 trace 的 SHA；`run_condition.sh`、`measure.sh`、`sched-capture.sh`、`compare_sync.py`、`sched_wake_analysis.py`；`manifest.json`。原始 `sched_trace.txt.gz` 留在本机 scratch。
 
+## 补充：竞争路径可见的复测（`Sync.AddrWait/AddrWake` 分类 APK）
+
+同一诊所流程、快路径 ON、全新进程各一段，只补统计分类，不改快路径本身：
+
+| 指标 | tierB2-on（PID 719 ctx 53，APK 16:25:47 安装，分类但相位未接） | tierB3-on（PID 10438 gen1，APK 95446928 / host fa83ddfe，相位已接） |
+|---|---:|---:|
+| FPS 3×10 s | 10.64 / 10.18 / 10.36 | 10.89 / 10.85 / 10.81 |
+| 同步类 HLE 次/s（20.3 s 汇总窗） | 13,106 | 14,497 |
+| `Sync.AddrWait` 次/s / mean µs | 446 / 111.7 | 491 / 95.2 |
+| `Sync.AddrWake` 次/s / mean µs | 1,387 / 7.7 | 1,536 / 6.6 |
+| AddrWait detail（10.4 s）：Guard / Park | phase_mask=4 但相位计数为 0（未接） | 5,049 次 Guard 均 2.0 µs；**1,928 次（38%）真正停车**，均 237 µs，Park 占 elapsed 88%；其余 62% 在桶锁内读到期望值已变化立即返回 |
+| AddrWake detail：Guard | 未接 | 15,617 次，均 3.8 µs |
+| Guest-1 wakeups / 12 s，短 reblock，on-CPU | — | 20,334，13.5%，7.31 s（sched overrun 0） |
+
+结论不变：mutex 竞争路径每帧约 50 次 AddrWait、150 次 AddrWake，合计约 6 ms/帧 elapsed，其中 88% 是真等待而非 host 开销；`Sema.Wait`（1.5k/s，park 76%）和 `Cond.Wait`（578/s，park 31 ms）仍是主要 HLE 等待。工作树对应改动：`guest_sync_waiters.h` 在 `Wait/Wake` 的桶锁段记 Guard、仅在 waiter 自身 CV 上的睡眠记 Park；`guest_sync_metrics.cpp` 把 `AddrWait` 的 PhaseMask 改为 Guard+Park、`AddrWake` 归入 Guard。证据：`evidence/fex-sync-tier-b-20260920/tierB2-on/`、`tierB3-on/`。
+
 ## 下一步
 
-- 把 `Sync.AddrWait/AddrWake` 分类后的 APK 再跑一次，得到竞争路径可见的统计。
 - 二期：cond（Bionic seq 协议）、rwlock、sem_t 的 guest 化；kernel semaphore 仅无竞争 `WaitSema` 可 CAS（对 convoy 链无效）。
 - 其它标题（TMNT）验证快路径不改变行为；完整游戏回归未做。
