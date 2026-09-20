@@ -1,0 +1,47 @@
+{
+  "baseline": {
+    "apk_sha256": "c14cf608e903afc6cb5b9515605e9bba3c89d00faa7e978ebdcc384d52211e83",
+    "libshadps4_host.so": {
+      "sha256": "0d272251ec5c1f5886c855faf434db60c04e44195cd3bb5211da454c49b33000",
+      "build_id": "ed41434d7f28763dbdfb9b1a347de24048d939b6"
+    },
+    "libshadps4_fex_session.so": {
+      "sha256": "20ccbae630a233a492eb01c1e74a4ef1afe6b3ed6ab3cb5a91e1dad20a0530bf",
+      "build_id": "64e82b30836a2cda0939241810a20ff810a3238c"
+    }
+  },
+  "scaled": {
+    "apk_sha256": "5e87c9da718a92a66a73b2620777df9fb16273c08c56441281d0a8888f83b426",
+    "libshadps4_host.so": {
+      "sha256": "3a1355a6ad96b18daa3a75c2fa2188c15923476b4e9d429b6b75697e0afc68ca",
+      "build_id": "6a7832abee9acd78203a215f1df4d015d8ee300d"
+    },
+    "libshadps4_fex_session.so": {
+      "sha256": "bc53f543ed2f536475faf4bffa269e4841edb9d6c65a8a02f23e3a6cb8b31612",
+      "build_id": "0d678f56607b149fc05a1311eb9c00654a9644ee"
+    }
+  },
+  "scaled-final": {
+    "apk_sha256": "fe73b4156460a1040681f09c42c2639dc2668c4cc70f7723950998a5e3cf0b51",
+    "libshadps4_host.so": {
+      "sha256": "45830d0ffd1235b04fb17df5ce439468bcb8a2293da40ab1564d15ddcd85b685",
+      "build_id": "d9a5cd29d031d7e39097cb56960576368fa7fe9a"
+    },
+    "libshadps4_fex_session.so": {
+      "sha256": "bc53f543ed2f536475faf4bffa269e4841edb9d6c65a8a02f23e3a6cb8b31612",
+      "build_id": "0d678f56607b149fc05a1311eb9c00654a9644ee"
+    }
+  },
+  "final_host_dso_build_id": "ce18adc6af26603b44dab67f1cb168731b816e76",
+  "targeted": {
+    "apk_sha256": "432129ae6c935b69aa3199cb50c6a64c95fd9a5e7eab5e0ad9abb14e9c08f4d3",
+    "libshadps4_host.so": {
+      "sha256": "f299a128a56daa204277516badc32c3622815f89bd49ded033dd5ac0ce151cf4",
+      "build_id": "ce18adc6af26603b44dab67f1cb168731b816e76"
+    },
+    "libshadps4_fex_session.so": {
+      "sha256": "bc53f543ed2f536475faf4bffa269e4841edb9d6c65a8a02f23e3a6cb8b31612",
+      "build_id": "0d678f56607b149fc05a1311eb9c00654a9644ee"
+    }
+  }
+}

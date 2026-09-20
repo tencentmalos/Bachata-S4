@@ -1,0 +1,17 @@
+{
+  "count": 6828,
+  "min_ms": 0.165304,
+  "p50_ms": 0.166501,
+  "p90_ms": 0.170773,
+  "max_ms": 1.537753,
+  "mean_ms": 0.17132215202108964,
+  "measured_counter_hz": 19200000.043311268,
+  "budget_ticks": 200000,
+  "host_budget_ms": 10.4166666431688,
+  "guest_budget_ms": 0.1627604162995125,
+  "guest_scale": 64,
+  "under_1_ms": 6825,
+  "under_10_ms": 6828,
+  "between_10_and_11_ms": 0,
+  "notes": "Queue-acquire call begin to first HLE semaphore entry; includes PthreadSelf/probe/scheduling. Not pure spin CPU. Budget from exact static queue initializer; runtime field not directly read."
+}

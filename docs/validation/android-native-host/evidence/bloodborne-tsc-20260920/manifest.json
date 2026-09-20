@@ -1,0 +1,339 @@
+{
+  "base_commit": "e7be1c62",
+  "raw_root": "build/validation/bloodborne-tsc-20260920",
+  "artifacts": [
+    {
+      "path": "build/validation/bloodborne-tsc-20260920/baseline.apk",
+      "bytes": 335783337,
+      "sha256": "c14cf608e903afc6cb5b9515605e9bba3c89d00faa7e978ebdcc384d52211e83"
+    },
+    {
+      "path": "build/validation/bloodborne-tsc-20260920/scaled-final.apk",
+      "bytes": 335777659,
+      "sha256": "fe73b4156460a1040681f09c42c2639dc2668c4cc70f7723950998a5e3cf0b51"
+    },
+    {
+      "path": "build/validation/bloodborne-tsc-20260920/scaled.apk",
+      "bytes": 335778065,
+      "sha256": "5e87c9da718a92a66a73b2620777df9fb16273c08c56441281d0a8888f83b426"
+    },
+    {
+      "path": "build/validation/bloodborne-tsc-20260920/targeted.apk",
+      "bytes": 335768138,
+      "sha256": "432129ae6c935b69aa3199cb50c6a64c95fd9a5e7eab5e0ad9abb14e9c08f4d3"
+    },
+    {
+      "path": "build/validation/bloodborne-tsc-20260920/scaled-b-scene.png",
+      "bytes": 1484235,
+      "sha256": "62013d6430dc8e53d0a696448a0d298bdad4502c774bd59f389f427f970e6d33"
+    },
+    {
+      "path": "build/validation/bloodborne-tsc-20260920/baseline-a2-scene.png",
+      "bytes": 1489648,
+      "sha256": "5a2e0cb4ce4ce43419dac95d7034dcc092e1b5836cea79e801d904771ec9ae46"
+    },
+    {
+      "path": "build/validation/bloodborne-tsc-20260920/targeted-before-move.png",
+      "bytes": 1545292,
+      "sha256": "970162324c9c966401cbf081f8f64b0d5522ffc20d2d86d149715c7fa253f3bc"
+    },
+    {
+      "path": "build/validation/bloodborne-tsc-20260920/targeted-after-camera.png",
+      "bytes": 1505080,
+      "sha256": "e7b37ac8e3e9ce7214a78b006026ecedc19bb42a16b64ce50edf3e594ce09f9c"
+    },
+    {
+      "path": "build/validation/bloodborne-tsc-20260920/targeted-after-move.png",
+      "bytes": 1610715,
+      "sha256": "ca3b59322abf29ea131c3bceaf0bc361e00d74eb2b1ce244e7c2a6845cacdb60"
+    },
+    {
+      "path": "build/validation/bloodborne-tsc-20260920/diagnostic-b2/capture/capture.prof",
+      "bytes": 22121273,
+      "sha256": "a488222156cc678565e39d5f70cc62d5d3054f95a9fc946fb2e91faa38a1b199"
+    },
+    {
+      "path": "build/validation/bloodborne-tsc-20260920/diagnostic-b2/capture/capture.json",
+      "bytes": 1497,
+      "sha256": "8a20c9ccaec5c6bece30b67dc00073e0fa9a06d3fda22cded100b927d82f5d01"
+    },
+    {
+      "path": "build/validation/bloodborne-tsc-20260920/diagnostic-b2/kgsl-jobs/kgsl_trace.txt.gz",
+      "bytes": 71194322,
+      "sha256": "9eb109575bb414e78debe3235edda36d9257db11460c324720af09c3e41ea590"
+    },
+    {
+      "path": "build/validation/bloodborne-tsc-20260920/diagnostic-b2/kgsl-jobs/capture.json",
+      "bytes": 3898,
+      "sha256": "f0d87185c9c4d625b95447578043f66f4e8779cdadf8e965b112e9ac2891d939"
+    },
+    {
+      "path": "build/validation/bloodborne-tsc-20260920/diagnostic-b/capture/capture.prof",
+      "bytes": 41497760,
+      "sha256": "31952db29676a72a38ce8fbc7c61545b7adcf7c38d06b188728448d985af5286"
+    },
+    {
+      "path": "build/validation/bloodborne-tsc-20260920/diagnostic-b/kgsl-jobs/kgsl_trace.txt.gz",
+      "bytes": 86401671,
+      "sha256": "02394f37f4264b7133432430c45506705c3256ff3249ea4d2dbd38a31fe9b59c"
+    },
+    {
+      "path": "build/validation/bloodborne-tsc-20260920/semaphore-fixed-build.log",
+      "bytes": 231,
+      "sha256": "0252d9c61c790a031a1fc16174906da958c546288a5f8289679875245dd0fb9d"
+    },
+    {
+      "path": "build/validation/bloodborne-tsc-20260920/host-semaphore-build.log",
+      "bytes": 916,
+      "sha256": "5668af1e3ac2f972380662df393695080fbffac0abe7a35659b602f5a9455a01"
+    },
+    {
+      "path": "build/validation/bloodborne-tsc-20260920/host-final-build.log",
+      "bytes": 916,
+      "sha256": "923822a37a407bc5cdb5ef58e753185b0af8774fd8cf53a160ebc1c22e578850"
+    },
+    {
+      "path": "build/validation/bloodborne-tsc-20260920/apk-semaphore-build.log",
+      "bytes": 20688,
+      "sha256": "7d3068ed1b4e2d55483beb1adaa87c9c9ac36239e1f4093d283871f8cac314ab"
+    },
+    {
+      "path": "build/validation/bloodborne-tsc-20260920/unit-build.log",
+      "bytes": 3141,
+      "sha256": "17793725c6da92726a3e190391ff8f553bce90ba61a7a435417e49ffcf93d658"
+    },
+    {
+      "path": "build/validation/bloodborne-tsc-20260920/host-final-build2.log",
+      "bytes": 916,
+      "sha256": "3ecd06be3f653a3ece29eb522bfee50933bfacb06ce517b8f54bbb7e791a0cf7"
+    },
+    {
+      "path": "build/validation/bloodborne-tsc-20260920/semaphore-tsan-build2.log",
+      "bytes": 231,
+      "sha256": "0252d9c61c790a031a1fc16174906da958c546288a5f8289679875245dd0fb9d"
+    },
+    {
+      "path": "build/validation/bloodborne-tsc-20260920/semaphore-old-build2.log",
+      "bytes": 510,
+      "sha256": "f7276b8c74202e8f3fed5c68d7ba687676d68799e5f9e2326981d0374d2bf3fb"
+    },
+    {
+      "path": "build/validation/bloodborne-tsc-20260920/runner-build.log",
+      "bytes": 730,
+      "sha256": "59a076991d4bfb5ecfebdbf95961e0278eac778bd2fddcf87f1c65c2f820cc88"
+    },
+    {
+      "path": "build/validation/bloodborne-tsc-20260920/apk-final-build.log",
+      "bytes": 20688,
+      "sha256": "84022dda8cff017fdf65e1bd08a6e01a65377f1966835660faa7e278dfd4c5e7"
+    },
+    {
+      "path": "build/validation/bloodborne-tsc-20260920/unit-build2.log",
+      "bytes": 22,
+      "sha256": "8c35b1682f73592d30612d7b0fabdb384fcfff35cb5a076cb48b85b1368aa794"
+    },
+    {
+      "path": "build/validation/bloodborne-tsc-20260920/semaphore-old-build.log",
+      "bytes": 2082,
+      "sha256": "05e7b3e9003a38247ff2f8ce547e802a0e65aaa23d97cc460bfeeec1334c2c6c"
+    },
+    {
+      "path": "build/validation/bloodborne-tsc-20260920/apk-final-build2.log",
+      "bytes": 20688,
+      "sha256": "a5e8e8664c1c1b49cbb56fa1991d440ace12b121a00e16e31e0a2c8a1e7df79f"
+    },
+    {
+      "path": "build/validation/bloodborne-tsc-20260920/runner-configure.log",
+      "bytes": 263,
+      "sha256": "caaa9bac4779b9d49c16376386c983e12532ebe397abb2fc2f1d613f884c3d63"
+    },
+    {
+      "path": "build/validation/bloodborne-tsc-20260920/semaphore-tsan-build.log",
+      "bytes": 759,
+      "sha256": "6d2a338a9761e704bd1424ec6dc17ace2f7821c73eef015025be87d0ade6856b"
+    },
+    {
+      "path": "build/validation/bloodborne-tsc-20260920/apk-build.log",
+      "bytes": 21074,
+      "sha256": "2db3ed194f9e11c6fd2d8a37727432061f5942b61d36ccecc0fd9bd45f5a208e"
+    },
+    {
+      "path": "build/validation/bloodborne-tsc-20260920/semaphore-production-build.log",
+      "bytes": 563,
+      "sha256": "41b5a6665f0e0c8a60c250bfed05735e7694abfe181d7ba3c4d5e5b01ac9cb2c"
+    },
+    {
+      "path": "build/validation/bloodborne-tsc-20260920/unit-final-build.log",
+      "bytes": 2697,
+      "sha256": "1e46df9218b0724725233ed82a80823f6fb6b40161e7d6296ebd382d86dcb793"
+    },
+    {
+      "path": "build/validation/bloodborne-tsc-20260920/host-build.log",
+      "bytes": 916,
+      "sha256": "66580e6353653b79055b513e130b2d6b1124f3cda3443da81b30492a9cb8ad92"
+    }
+  ],
+  "note": "Raw APKs, binaries, PROF/ftrace and screenshots remain under ignored build; summaries only are versioned.",
+  "source_commits": [
+    "a63e900f Wake only selected Orbis semaphore waiters",
+    "30f1016a Fix Android guest TSC scaling across FEX and HLE"
+  ],
+  "summary_files": [
+    {
+      "path": "apk-identities.json",
+      "sha256": "5ab0d9d9abe6d2de9fd42b4fa91395e3817369a8909a49f08a1ded280627d8af",
+      "bytes": 1970
+    },
+    {
+      "path": "baseline-a2-windows.json",
+      "sha256": "cc2dc9fecb7f8e08f3e89256bf2a8f6b0ab8ead9cb486aeec260be548f666041",
+      "bytes": 6014
+    },
+    {
+      "path": "cleanup.json",
+      "sha256": "b58d2793535c1104f7f425e088f55b35676e7ac0dc6fa4fc1334d995f642d5d8",
+      "bytes": 672
+    },
+    {
+      "path": "clock-final-tests.txt",
+      "sha256": "8fa77293237a4039e3901c33c2d14c46c22d6c07c2a0120e9018c69ac0805737",
+      "bytes": 714
+    },
+    {
+      "path": "diagnostic-b/kgsl-jobs/cleanup.json",
+      "sha256": "0dcfb94478b9eaba32ae9db8f9860ec45d00ce79ad04ed7122b13f5179d80941",
+      "bytes": 79
+    },
+    {
+      "path": "diagnostic-b/kgsl-jobs/per-cpu-stats.txt",
+      "sha256": "00e0c92e8ca3b8192669e37dd8729053ecb2694ef4b8cc8d5bb629544fe4c86c",
+      "bytes": 1779
+    },
+    {
+      "path": "diagnostic-b/spin-prof-only.json",
+      "sha256": "a4488e225c16b5700b3dc091de831dd084c9d948302c3cc717967a24c7faeda8",
+      "bytes": 208
+    },
+    {
+      "path": "diagnostic-b2/aligned-analysis/cpu-gpu.json",
+      "sha256": "0c6ce33ec841438ef2a2ba67148e5f4c420feefaf3a0b937ee7c4b53370ef097",
+      "bytes": 90432
+    },
+    {
+      "path": "diagnostic-b2/aligned-analysis/index-status.json",
+      "sha256": "7f44571b964d5116701f6e67b4b65e765d69de0a25701d6e87ba7b89e2d1ace1",
+      "bytes": 3399
+    },
+    {
+      "path": "diagnostic-b2/aligned-analysis/sidecar-status.json",
+      "sha256": "e477bafa4eb15f0c32cea8bd181d8e65801291fb066f2a549a141b5f6ee96feb",
+      "bytes": 458
+    },
+    {
+      "path": "diagnostic-b2/job-summary.json",
+      "sha256": "8ad38b992f181f9d1e71ba0f1f56dc9250c0d6c5ca8be773d2fed5d30d76afa7",
+      "bytes": 75387
+    },
+    {
+      "path": "diagnostic-b2/kgsl-jobs/cleanup.json",
+      "sha256": "0dcfb94478b9eaba32ae9db8f9860ec45d00ce79ad04ed7122b13f5179d80941",
+      "bytes": 79
+    },
+    {
+      "path": "diagnostic-b2/kgsl-jobs/per-cpu-stats.txt",
+      "sha256": "598061062b3fb114e8caa8efd26960a2d9f509a88e4fc47c997c3369fd632669",
+      "bytes": 1757
+    },
+    {
+      "path": "diagnostic-b2/long-task-waits.json",
+      "sha256": "eb1487595d8158005f160538adbcc45547bb05259d0ea5c04421edcd2f43ae90",
+      "bytes": 41855
+    },
+    {
+      "path": "diagnostic-b2/spin-budget-evidence.json",
+      "sha256": "cf7723398baa705745fe3b90da5beb71245f89940d03ea19e8226f17bc702e68",
+      "bytes": 591
+    },
+    {
+      "path": "final-exit-info.txt",
+      "sha256": "ea847edcdad30b30236c6000fdb4ac3a3c08198663de2fdb0e54fd05faf1694c",
+      "bytes": 6141
+    },
+    {
+      "path": "final-status.txt",
+      "sha256": "6066b3e3de4c94d819621e4d5352d945512747dec93137dd533e72270ac81d48",
+      "bytes": 5190
+    },
+    {
+      "path": "fps-comparison.json",
+      "sha256": "2efefea2c70d6bf3b127a76ade9ce655cfb4ff40722c9bd84aa6d1318f268169",
+      "bytes": 496
+    },
+    {
+      "path": "observed-capture-status.txt",
+      "sha256": "41a00771603c11e8134b647a59e90a198e29f16c7ec1f7181a9b7410f0835d05",
+      "bytes": 441
+    },
+    {
+      "path": "observed-later-status.txt",
+      "sha256": "74c85f841b59e32510ab4a269b2e3560938fa17279ff76ffa44fc6f2d7e3d8a4",
+      "bytes": 797
+    },
+    {
+      "path": "observed-ring-status.txt",
+      "sha256": "919fad20d39041ef00ceca4c9e540a52ae25d7de35d5abb6edf46593305f531f",
+      "bytes": 421
+    },
+    {
+      "path": "production-clock-final-tests.txt",
+      "sha256": "afd929565fc6c804bc44f2e654c4888c89275bb374257b4ff3386c2003856f75",
+      "bytes": 11274
+    },
+    {
+      "path": "scaled-b-windows.json",
+      "sha256": "1db17a65ed42da72e430ac703c42c10ed7a7259d2986bce5ee691490e86b2c27",
+      "bytes": 6019
+    },
+    {
+      "path": "semaphore-fixed-tests.txt",
+      "sha256": "b8ab74f46e9dfb47aa881c7c386244c4c1f95199db50edd1e18d9e34fab5e67f",
+      "bytes": 111
+    },
+    {
+      "path": "semaphore-old-tests.txt",
+      "sha256": "2f81a884e35318f0d2f168d36093a51b2ad3b46727e069dd602f1d98e7e79d47",
+      "bytes": 205
+    },
+    {
+      "path": "semaphore-production-tests.txt",
+      "sha256": "afa0a953bad5fa408e5c7dcdcfeffaeee5c0581c9903805f59ba94fb43668d01",
+      "bytes": 111
+    },
+    {
+      "path": "semaphore-tsan-tests2.txt",
+      "sha256": "cca44ae670393532fdf3336f0000d70949b61f66c94a12e3f6650ebe05767fa8",
+      "bytes": 45
+    },
+    {
+      "path": "services-final-tests.txt",
+      "sha256": "b30f0ab67ef6c71d925310b00f5f82d7c564ff83ee165d04450b459939a2a9e1",
+      "bytes": 2459
+    },
+    {
+      "path": "stale-runner-failure.json",
+      "sha256": "4f1bdfbc5ec2b35f7e1172d253f042c5b4404981124f9ec8e28c9fcc8548badf",
+      "bytes": 270
+    },
+    {
+      "path": "targeted-after-gameplay.txt",
+      "sha256": "a2b3ea44fe5ace0dcdbfa2376155871b5108d362a52bc1fb5693c724a15f8ab2",
+      "bytes": 798
+    },
+    {
+      "path": "targeted-windows.json",
+      "sha256": "3a616c2bb1bf72526c2ec8911ee9ce1ae4398255522d3204b452d26e4f7702cf",
+      "bytes": 5976
+    }
+  ],
+  "text_normalization": "Versioned text removes trailing whitespace/extra terminal blank lines; raw build files remain unchanged."
+}

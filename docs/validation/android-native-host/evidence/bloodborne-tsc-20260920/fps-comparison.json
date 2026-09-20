@@ -1,0 +1,16 @@
+{
+  "baseline_fps": 7.259616608365667,
+  "scaled_fps": 8.306433017846423,
+  "observed_change_percent": 14.419720295896221,
+  "baseline_windows": [
+    7.154613407708561,
+    7.264065879917457,
+    7.360271328755809
+  ],
+  "scaled_windows": [
+    8.23670500088452,
+    8.3326719266725,
+    8.349985071543802
+  ],
+  "comparison": "same stationary clinic view; input, auto probes, profile_sync, GPU timing and file capture OFF; ring ON. Sequential 30s windows, not sustained/full-game acceptance."
+}

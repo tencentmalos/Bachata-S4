@@ -1,0 +1,100 @@
+[0;37m[Kernel.Vmm] <Info> (production_runt) memory.cpp:36 Initialize: Virtual memory space initialized with regions:[m
+[0;37m[Kernel.Vmm] <Info> (production_runt) memory.cpp:44 Initialize: 0x400000 - 0x10000000[m
+[0;37m[Kernel.Vmm] <Info> (production_runt) memory.cpp:44 Initialize: 0x100000000 - 0x1e00000000[m
+[0;37m[Loader] <Info> (production_runt) elf.cpp:273 IsSelfFile: Not a SELF file. Magic mismatch current = 0x464c457f expected = 0x1d3d154f[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:148 LoadModuleToMemory: Loading module services.elf to 0x400000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:161 LoadModuleToMemory: ======== Load Module to Memory ========[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:162 LoadModuleToMemory: base_virtual_addr ......: 0x0000000000400000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:163 LoadModuleToMemory: base_size ..............: 0x000000000000c000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:164 LoadModuleToMemory: aligned_base_size ......: 0x000000000000c000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:227 LoadModuleToMemory: program header = [0] type = Loadable[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000000400000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R_X)[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:227 LoadModuleToMemory: program header = [1] type = Loadable[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000000404000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:227 LoadModuleToMemory: program header = [2] type = SCE Read-Only After Relocation[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000000408000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:279 LoadModuleToMemory: TLS virtual address = 0x404010[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:280 LoadModuleToMemory: TLS image size      = 64[m
+[0;37m[Core.Linker] <Info> (production_runt) module.cpp:368 LoadModuleToMemory: program entry addr ..........: 0x0000000000400000[m
+[1;33m[Common.Filesystem] <Warning> (production_runt) trophy_support.cpp:23 ExtractTrophies: Failed to load npbind.dat file[m
+[0;37m[Lib.SystemService] <Info> (production_runt) guest_runtime.cpp:3976 Prepare: Guest console language=1 (session snapshot)[m
+[0;37m[Lib.Net] <Info> (production_runt) guest_runtime.cpp:4006 Prepare: Session network control: requested_online=false, online transport unavailable[m
+ROUND 1 OUTCOME Returned DETAIL guest return=51966
+production Linker/VM; owners=2 veneers=21
+HLE_STATUS android_bridge=21 graphics=not-created modules=1
+[0;37m[Kernel.Vmm] <Info> (Guest-1) memory.cpp:36 Initialize: Virtual memory space initialized with regions:[m
+[0;37m[Kernel.Vmm] <Info> (Guest-1) memory.cpp:44 Initialize: 0x400000 - 0x10000000[m
+[0;37m[Kernel.Vmm] <Info> (Guest-1) memory.cpp:44 Initialize: 0x100000000 - 0x1e00000000[m
+[0;37m[Loader] <Info> (Guest-1) elf.cpp:273 IsSelfFile: Not a SELF file. Magic mismatch current = 0x464c457f expected = 0x1d3d154f[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:148 LoadModuleToMemory: Loading module services.elf to 0x400000[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:161 LoadModuleToMemory: ======== Load Module to Memory ========[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:162 LoadModuleToMemory: base_virtual_addr ......: 0x0000000000400000[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:163 LoadModuleToMemory: base_size ..............: 0x000000000000c000[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:164 LoadModuleToMemory: aligned_base_size ......: 0x000000000000c000[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:227 LoadModuleToMemory: program header = [0] type = Loadable[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000000400000[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R_X)[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:227 LoadModuleToMemory: program header = [1] type = Loadable[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000000404000[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:227 LoadModuleToMemory: program header = [2] type = SCE Read-Only After Relocation[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000000408000[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:279 LoadModuleToMemory: TLS virtual address = 0x404010[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:280 LoadModuleToMemory: TLS image size      = 64[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:368 LoadModuleToMemory: program entry addr ..........: 0x0000000000400000[m
+[1;33m[Common.Filesystem] <Warning> (Guest-1) trophy_support.cpp:23 ExtractTrophies: Failed to load npbind.dat file[m
+[0;37m[Lib.SystemService] <Info> (Guest-1) guest_runtime.cpp:3976 Prepare: Guest console language=1 (session snapshot)[m
+[0;37m[Lib.Net] <Info> (Guest-1) guest_runtime.cpp:4006 Prepare: Session network control: requested_online=false, online transport unavailable[m
+ROUND 2 OUTCOME Returned DETAIL guest return=51966
+production Linker/VM; owners=2 veneers=21
+HLE_STATUS android_bridge=21 graphics=not-created modules=1
+[0;37m[Kernel.Vmm] <Info> (Guest-1) memory.cpp:36 Initialize: Virtual memory space initialized with regions:[m
+[0;37m[Kernel.Vmm] <Info> (Guest-1) memory.cpp:44 Initialize: 0x400000 - 0x10000000[m
+[0;37m[Kernel.Vmm] <Info> (Guest-1) memory.cpp:44 Initialize: 0x100000000 - 0x1e00000000[m
+[0;37m[Loader] <Info> (Guest-1) elf.cpp:273 IsSelfFile: Not a SELF file. Magic mismatch current = 0x464c457f expected = 0x1d3d154f[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:148 LoadModuleToMemory: Loading module services.elf to 0x400000[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:161 LoadModuleToMemory: ======== Load Module to Memory ========[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:162 LoadModuleToMemory: base_virtual_addr ......: 0x0000000000400000[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:163 LoadModuleToMemory: base_size ..............: 0x000000000000c000[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:164 LoadModuleToMemory: aligned_base_size ......: 0x000000000000c000[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:227 LoadModuleToMemory: program header = [0] type = Loadable[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000000400000[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R_X)[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:227 LoadModuleToMemory: program header = [1] type = Loadable[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000000404000[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:227 LoadModuleToMemory: program header = [2] type = SCE Read-Only After Relocation[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000000408000[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:279 LoadModuleToMemory: TLS virtual address = 0x404010[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:280 LoadModuleToMemory: TLS image size      = 64[m
+[0;37m[Core.Linker] <Info> (Guest-1) module.cpp:368 LoadModuleToMemory: program entry addr ..........: 0x0000000000400000[m
+[1;33m[Common.Filesystem] <Warning> (Guest-1) trophy_support.cpp:23 ExtractTrophies: Failed to load npbind.dat file[m
+[0;37m[Lib.SystemService] <Info> (Guest-1) guest_runtime.cpp:3976 Prepare: Guest console language=1 (session snapshot)[m
+[0;37m[Lib.Net] <Info> (Guest-1) guest_runtime.cpp:4006 Prepare: Session network control: requested_online=false, online transport unavailable[m
+ROUND 3 OUTCOME Returned DETAIL guest return=51966
+production Linker/VM; owners=2 veneers=21
+HLE_STATUS android_bridge=21 graphics=not-created modules=1
+PRODUCTION_RUNTIME_PASS mode=return rounds=3

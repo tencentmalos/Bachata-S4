@@ -1,0 +1,2 @@
+UNRELATED_SEMAPHORE_SWITCHES unrelated=2 unsatisfied=3 signals=32
+GUEST_KERNEL_SEMAPHORE checks=588 failures=0

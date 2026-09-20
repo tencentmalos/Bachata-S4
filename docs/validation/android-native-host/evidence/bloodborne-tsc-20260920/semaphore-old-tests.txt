@@ -1,0 +1,4 @@
+UNRELATED_SEMAPHORE_SWITCHES unrelated=76 unsatisfied=78 signals=32
+FAIL 166: switches[0] >= 0 && switches[0] < 8
+FAIL 167: switches[1] >= 0 && switches[1] < 8
+GUEST_KERNEL_SEMAPHORE checks=588 failures=2

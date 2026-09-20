@@ -1,0 +1,8 @@
+{
+  "count": 13975,
+  "min_ms": 0.165199,
+  "p50_ms": 0.166349,
+  "p90_ms": 0.170617,
+  "max_ms": 2.231971,
+  "basis": "First session in fresh PID; PROF-only interval. Overrun KGSL not used for CPU totals."
+}

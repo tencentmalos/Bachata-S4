@@ -1,0 +1,62 @@
+[
+  {
+    "index": 0,
+    "fps": 7.154613407708561,
+    "before": {
+      "raw": "SERVICE com.shadps4.android/.service.FexSessionService 47ad4d4 pid=25938 user=0\n  Client:\n    session: active\n    generation: 1\n    pid: 25938\n    phase: 3\n    run_uuid: 55d9403bee9588239577346e943955f6\n    stage: Running\n    driver: source=turnip device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 \n    snapshot_ns: 642653649240518\n    guest_flip: 1465 (age_ns=155908697)\n    pm4_consumed: 13715602 (age_ns=9270)\n    host_draw: 395111 (age_ns=15833)\n    queue_submit: 11895 (age_ns=12973750)\n    gpu_retire: unavailable\n    host_present: 1465 (age_ns=92604843)\n    overlay_redraw: 5215 (age_ns=14325781)\n    guest_submission: 12201 (age_ns=1703645)\n\n",
+      "ns": 642653649240518,
+      "present": 1465,
+      "flip": 1465,
+      "pid": "25938",
+      "generation": "1"
+    },
+    "after": {
+      "raw": "SERVICE com.shadps4.android/.service.FexSessionService 47ad4d4 pid=25938 user=0\n  Client:\n    session: active\n    generation: 1\n    pid: 25938\n    phase: 3\n    run_uuid: 55d9403bee9588239577346e943955f6\n    stage: Running\n    driver: source=turnip device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 \n    snapshot_ns: 642663712677338\n    guest_flip: 1538 (age_ns=16162500)\n    pm4_consumed: 15803874 (age_ns=16161928)\n    host_draw: 458955 (age_ns=16282032)\n    queue_submit: 12602 (age_ns=16024896)\n    gpu_retire: unavailable\n    host_present: 1537 (age_ns=84063125)\n    overlay_redraw: 5533 (age_ns=10899584)\n    guest_submission: 13063 (age_ns=19335886)\n\n",
+      "ns": 642663712677338,
+      "present": 1537,
+      "flip": 1538,
+      "pid": "25938",
+      "generation": "1"
+    }
+  },
+  {
+    "index": 1,
+    "fps": 7.264065879917457,
+    "before": {
+      "raw": "SERVICE com.shadps4.android/.service.FexSessionService 47ad4d4 pid=25938 user=0\n  Client:\n    session: active\n    generation: 1\n    pid: 25938\n    phase: 3\n    run_uuid: 55d9403bee9588239577346e943955f6\n    stage: Running\n    driver: source=turnip device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 \n    snapshot_ns: 642663769689421\n    guest_flip: 1538 (age_ns=73174583)\n    pm4_consumed: 15803874 (age_ns=73174011)\n    host_draw: 458955 (age_ns=73294115)\n    queue_submit: 12606 (age_ns=12638386)\n    gpu_retire: unavailable\n    host_present: 1538 (age_ns=15492083)\n    overlay_redraw: 5534 (age_ns=14563958)\n    guest_submission: 13063 (age_ns=76347969)\n\n",
+      "ns": 642663769689421,
+      "present": 1538,
+      "flip": 1538,
+      "pid": "25938",
+      "generation": "1"
+    },
+    "after": {
+      "raw": "SERVICE com.shadps4.android/.service.FexSessionService 47ad4d4 pid=25938 user=0\n  Client:\n    session: active\n    generation: 1\n    pid: 25938\n    phase: 3\n    run_uuid: 55d9403bee9588239577346e943955f6\n    stage: Running\n    driver: source=turnip device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 \n    snapshot_ns: 642673819157750\n    guest_flip: 1611 (age_ns=112546875)\n    pm4_consumed: 17908544 (age_ns=20052)\n    host_draw: 523343 (age_ns=22395)\n    queue_submit: 13310 (age_ns=241979)\n    gpu_retire: unavailable\n    host_present: 1611 (age_ns=54037812)\n    overlay_redraw: 5850 (age_ns=356510)\n    guest_submission: 13936 (age_ns=1130937)\n\n",
+      "ns": 642673819157750,
+      "present": 1611,
+      "flip": 1611,
+      "pid": "25938",
+      "generation": "1"
+    }
+  },
+  {
+    "index": 2,
+    "fps": 7.360271328755809,
+    "before": {
+      "raw": "SERVICE com.shadps4.android/.service.FexSessionService 47ad4d4 pid=25938 user=0\n  Client:\n    session: active\n    generation: 1\n    pid: 25938\n    phase: 3\n    run_uuid: 55d9403bee9588239577346e943955f6\n    stage: Running\n    driver: source=turnip device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 \n    snapshot_ns: 642673881326709\n    guest_flip: 1612 (age_ns=52051771)\n    pm4_consumed: 17923758 (age_ns=52051354)\n    host_draw: 523773 (age_ns=52145365)\n    queue_submit: 13312 (age_ns=51911823)\n    gpu_retire: unavailable\n    host_present: 1611 (age_ns=116206771)\n    overlay_redraw: 5851 (age_ns=45937709)\n    guest_submission: 13938 (age_ns=55287396)\n\n",
+      "ns": 642673881326709,
+      "present": 1611,
+      "flip": 1612,
+      "pid": "25938",
+      "generation": "1"
+    },
+    "after": {
+      "raw": "SERVICE com.shadps4.android/.service.FexSessionService 47ad4d4 pid=25938 user=0\n  Client:\n    session: active\n    generation: 1\n    pid: 25938\n    phase: 3\n    run_uuid: 55d9403bee9588239577346e943955f6\n    stage: Running\n    driver: source=turnip device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 \n    snapshot_ns: 642683935303892\n    guest_flip: 1686 (age_ns=39257812)\n    pm4_consumed: 20048423 (age_ns=39257656)\n    host_draw: 588641 (age_ns=39347291)\n    queue_submit: 14020 (age_ns=39174166)\n    gpu_retire: unavailable\n    host_present: 1685 (age_ns=132212343)\n    overlay_redraw: 6168 (age_ns=32956458)\n    guest_submission: 14820 (age_ns=39490781)\n\n",
+      "ns": 642683935303892,
+      "present": 1685,
+      "flip": 1686,
+      "pid": "25938",
+      "generation": "1"
+    }
+  }
+]

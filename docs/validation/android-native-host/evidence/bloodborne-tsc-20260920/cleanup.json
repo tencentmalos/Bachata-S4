@@ -1,0 +1,29 @@
+{
+  "stage": "Stopped",
+  "stop_reason": "user_stop",
+  "pid": 5695,
+  "generation": 1,
+  "auto_tag": {
+    "status": "disabled_at_startup"
+  },
+  "profile_sync": "0",
+  "tracer_pid": 0,
+  "remote_removed": [
+    "/data/local/tmp/litep_kgsl_322de834e5e2",
+    "/data/local/tmp/litep_kgsl_a6868fcd0708",
+    "/data/local/tmp/shad-tsc-20260920"
+  ],
+  "input": "all owned warmup helpers stopped; bounded movement inputs released",
+  "kgsl_cleanup": [
+    {
+      "instance_removed": true,
+      "global_state_changed": false,
+      "changed_fields": []
+    },
+    {
+      "instance_removed": true,
+      "global_state_changed": false,
+      "changed_fields": []
+    }
+  ]
+}

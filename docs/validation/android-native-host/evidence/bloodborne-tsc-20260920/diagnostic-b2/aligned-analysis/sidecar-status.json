@@ -1,0 +1,14 @@
+{
+  "sidecar_id": "e030945458a344d3ab94c2e48da8e802",
+  "prof_sha256": "a488222156cc678565e39d5f70cc62d5d3054f95a9fc946fb2e91faa38a1b199",
+  "trace_sha256": "9eb109575bb414e78debe3235edda36d9257db11460c324720af09c3e41ea590",
+  "safe_start_ns": 643117116132878,
+  "safe_end_ns": 643131056406878,
+  "clock_uncertainty_ns": 1107,
+  "overrun": 0,
+  "dropped": 0,
+  "diagnostics": {
+    "unmatched_wait_exit": 1,
+    "zero_timestamp_batch_observation": 947
+  }
+}

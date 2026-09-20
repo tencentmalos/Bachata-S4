@@ -1,0 +1,7 @@
+{
+  "case": "preexisting production_runtime_runner against current host DSO",
+  "exit": 139,
+  "stdout_bytes": 0,
+  "recovery": "rebuilt runner from current source/config, final 3 rounds pass",
+  "limitation": "no stale-runner crash stack; not an ordinary APK failure"
+}

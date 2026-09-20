@@ -1,0 +1,3083 @@
+{
+  "diagnostics": {
+    "boundary": 4,
+    "foreign_context_counter": 2646
+  },
+  "groups": [
+    {
+      "offset": "0x20336f3",
+      "name": "CSEzWorkExecuteTask / call 0x20336f3",
+      "count": 12600,
+      "sum_ms": 6640.55372,
+      "distribution": {
+        "count": 12600,
+        "mean_ms": 0.527028073015873,
+        "p50_ms": 0.537682,
+        "p90_ms": 1.2042398,
+        "p99_ms": 1.5860477200000003,
+        "max_ms": 4.02401
+      },
+      "states": {
+        "on_cpu_ms": 1558.837319999991,
+        "sleep_ms": 4693.823999999994,
+        "runnable_ms": 387.8923999999964,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 1.0020977103675222e-13
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.sceKernelWaitSema",
+          5318.993908999985
+        ],
+        [
+          "HLE.scePthreadSelf",
+          5.126504999999918
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          0.005218999999999999
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.sceKernelWaitSema",
+          319.1929089999996
+        ],
+        [
+          "HLE.scePthreadSelf",
+          4.304505000000096
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          0.005218999999999999
+        ]
+      ]
+    },
+    {
+      "offset": "0x1916f7f",
+      "name": "CharacterUpdateCoordinator / call 0x1916f7f",
+      "count": 49,
+      "sum_ms": 1994.601247,
+      "distribution": {
+        "count": 49,
+        "mean_ms": 40.70614789795918,
+        "p50_ms": 43.585938,
+        "p90_ms": 48.179030600000004,
+        "p99_ms": 49.56634559999999,
+        "max_ms": 49.849896
+      },
+      "states": {
+        "on_cpu_ms": 463.157247,
+        "sleep_ms": 1394.8029999999997,
+        "runnable_ms": 136.64100000000002,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 2.4868995751603507e-14
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.scePthreadCondWait",
+          1259.1233819999998
+        ],
+        [
+          "HLE.sceKernelWaitSema",
+          99.8029789999999
+        ],
+        [
+          "HLE.sceKernelSignalSema",
+          34.21625300000003
+        ],
+        [
+          "HLE.pthread_cond_broadcast",
+          26.464818999999995
+        ],
+        [
+          "HLE.pthread_mutex_lock",
+          24.54221499999994
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          17.379280000000012
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.pthread_cond_broadcast",
+          22.338818999999965
+        ],
+        [
+          "HLE.sceKernelSignalSema",
+          19.963253000000037
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          13.016280000000007
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          11.821084999999941
+        ],
+        [
+          "HLE.scePthreadSelf",
+          9.963652999999917
+        ],
+        [
+          "HLE.sceKernelWaitSema",
+          7.7419790000000095
+        ]
+      ]
+    },
+    {
+      "offset": "0x19186c2",
+      "name": "CharacterBehaviorAndWorkerPhases / call 0x19186c2",
+      "count": 50,
+      "sum_ms": 1150.922757,
+      "distribution": {
+        "count": 50,
+        "mean_ms": 23.01845514,
+        "p50_ms": 26.622135,
+        "p90_ms": 30.9610835,
+        "p99_ms": 32.548920269999996,
+        "max_ms": 32.632552
+      },
+      "states": {
+        "on_cpu_ms": 3.917757,
+        "sleep_ms": 1144.5439999999999,
+        "runnable_ms": 2.4609999999999994,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 1.4210854715202004e-14
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.scePthreadCondWait",
+          1147.695983
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          0.34375200000000017
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          0.193126
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.scePthreadCondWait",
+          1.6589830000000008
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          0.2967520000000001
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          0.17612599999999992
+        ]
+      ]
+    },
+    {
+      "offset": "0x2033752",
+      "name": "CSEzWorkExecuteTask / call 0x2033752",
+      "count": 10109,
+      "sum_ms": 874.848054,
+      "distribution": {
+        "count": 10109,
+        "mean_ms": 0.08654150301711346,
+        "p50_ms": 0.003958,
+        "p90_ms": 0.04752080000000008,
+        "p99_ms": 1.7825839600000013,
+        "max_ms": 14.901615
+      },
+      "states": {
+        "on_cpu_ms": 531.3108799999973,
+        "sleep_ms": 158.67300000000003,
+        "runnable_ms": 184.86417400000033,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 7.251144129583054e-15
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.scePthreadMutexLock",
+          187.73218500000073
+        ],
+        [
+          "HLE.pthread_mutex_lock",
+          39.878824000000016
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          22.835208999999946
+        ],
+        [
+          "HLE.pthread_mutex_unlock",
+          21.61012499999967
+        ],
+        [
+          "HLE.scePthreadRwlockRdlock",
+          1.6472429999999985
+        ],
+        [
+          "HLE.gettimeofday",
+          1.3959950000000008
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.pthread_mutex_lock",
+          24.93982399999962
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          24.7591849999999
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          18.452208999999957
+        ],
+        [
+          "HLE.pthread_mutex_unlock",
+          18.11412499999972
+        ],
+        [
+          "HLE.scePthreadRwlockRdlock",
+          1.2762430000000002
+        ],
+        [
+          "HLE.gettimeofday",
+          1.142995
+        ]
+      ]
+    },
+    {
+      "offset": "0x203373f",
+      "name": "CSEzWorkExecuteTask / call 0x203373f",
+      "count": 12601,
+      "sum_ms": 535.214552,
+      "distribution": {
+        "count": 12601,
+        "mean_ms": 0.0424739744464725,
+        "p50_ms": 0.023907,
+        "p90_ms": 0.10552,
+        "p99_ms": 0.254583,
+        "max_ms": 1.455365
+      },
+      "states": {
+        "on_cpu_ms": 460.77155200000533,
+        "sleep_ms": 47.19700000000008,
+        "runnable_ms": 27.246000000000116,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 5.061923102900323e-15
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.sceKernelSignalSema",
+          494.2376270000002
+        ],
+        [
+          "HLE.scePthreadSelf",
+          0.00021700000000000002
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.sceKernelSignalSema",
+          430.1846270000002
+        ],
+        [
+          "HLE.scePthreadSelf",
+          0.00021700000000000002
+        ]
+      ]
+    },
+    {
+      "offset": "0x1918592",
+      "name": "CharacterBehaviorAndWorkerPhases / call 0x1918592",
+      "count": 49,
+      "sum_ms": 296.506092,
+      "distribution": {
+        "count": 49,
+        "mean_ms": 6.051144734693877,
+        "p50_ms": 5.941614,
+        "p90_ms": 7.2714276,
+        "p99_ms": 9.112645999999998,
+        "max_ms": 9.238646
+      },
+      "states": {
+        "on_cpu_ms": 147.38709199999997,
+        "sleep_ms": 102.56800000000003,
+        "runnable_ms": 46.551,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 7.105427357601002e-15
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.sceKernelWaitSema",
+          79.79573599999993
+        ],
+        [
+          "HLE.sceKernelSignalSema",
+          32.784273999999996
+        ],
+        [
+          "HLE.pthread_mutex_lock",
+          24.31174999999994
+        ],
+        [
+          "HLE.pthread_cond_broadcast",
+          7.317651999999994
+        ],
+        [
+          "HLE.pthread_mutex_unlock",
+          5.666092999999999
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          4.134330999999997
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.sceKernelSignalSema",
+          18.63327400000003
+        ],
+        [
+          "HLE.sceKernelWaitSema",
+          6.214736000000005
+        ],
+        [
+          "HLE.pthread_cond_broadcast",
+          5.886651999999998
+        ],
+        [
+          "HLE.pthread_mutex_lock",
+          5.459749999999996
+        ],
+        [
+          "HLE.pthread_mutex_unlock",
+          4.6580930000000045
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          3.304330999999995
+        ]
+      ]
+    },
+    {
+      "offset": "0x2033827",
+      "name": "CSEzWorkExecuteTask / call 0x2033827",
+      "count": 10109,
+      "sum_ms": 232.015245,
+      "distribution": {
+        "count": 10109,
+        "mean_ms": 0.022951354733405874,
+        "p50_ms": 0.009583,
+        "p90_ms": 0.051198,
+        "p99_ms": 0.2013185600000001,
+        "max_ms": 1.546823
+      },
+      "states": {
+        "on_cpu_ms": 155.01824500000032,
+        "sleep_ms": 23.967999999999996,
+        "runnable_ms": 53.029000000000174,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 2.2620794126737565e-15
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.scePthreadRwlockRdlock",
+          38.599426000000285
+        ],
+        [
+          "HLE.scePthreadRwlockUnlock",
+          22.21130399999982
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.scePthreadRwlockRdlock",
+          30.161426000000517
+        ],
+        [
+          "HLE.scePthreadRwlockUnlock",
+          16.167304000000303
+        ]
+      ]
+    },
+    {
+      "offset": "0x1918501",
+      "name": "CharacterBehaviorAndWorkerPhases / call 0x1918501",
+      "count": 8624,
+      "sum_ms": 143.681162,
+      "distribution": {
+        "count": 8624,
+        "mean_ms": 0.016660617115027827,
+        "p50_ms": 0.007708,
+        "p90_ms": 0.03217169999999999,
+        "p99_ms": 0.09829009000000019,
+        "max_ms": 5.601093
+      },
+      "states": {
+        "on_cpu_ms": 95.9311619999997,
+        "sleep_ms": 12.845999999999975,
+        "runnable_ms": 34.90400000000008,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 1.5577816814271728e-15
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.sceKernelWaitSema",
+          5.859064
+        ],
+        [
+          "HLE.scePthreadSelf",
+          5.590865999999323
+        ],
+        [
+          "HLE.sceKernelSignalSema",
+          1.2792709999999998
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.scePthreadSelf",
+          5.37986599999946
+        ],
+        [
+          "HLE.sceKernelSignalSema",
+          1.1922709999999999
+        ],
+        [
+          "HLE.sceKernelWaitSema",
+          0.411064
+        ]
+      ]
+    },
+    {
+      "offset": "0x191830a",
+      "name": "CharacterBehaviorAndWorkerPhases / call 0x191830a",
+      "count": 49,
+      "sum_ms": 109.439321,
+      "distribution": {
+        "count": 49,
+        "mean_ms": 2.2334555306122446,
+        "p50_ms": 1.99651,
+        "p90_ms": 3.2495524000000002,
+        "p99_ms": 5.426476919999992,
+        "max_ms": 6.441927
+      },
+      "states": {
+        "on_cpu_ms": 3.212321,
+        "sleep_ms": 102.66499999999999,
+        "runnable_ms": 3.5619999999999985,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 1.7763568394002505e-15
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.scePthreadCondWait",
+          106.97536799999999
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          0.29151099999999996
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          0.23359099999999997
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.scePthreadCondWait",
+          1.3743680000000003
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          0.2465109999999999
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          0.18859099999999993
+        ]
+      ]
+    },
+    {
+      "offset": "0x2033732",
+      "name": "CSEzWorkExecuteTask / call 0x2033732",
+      "count": 10109,
+      "sum_ms": 89.556615,
+      "distribution": {
+        "count": 10109,
+        "mean_ms": 0.008859097339004848,
+        "p50_ms": 0.004532,
+        "p90_ms": 0.008021,
+        "p99_ms": 0.09414528000000001,
+        "max_ms": 0.82151
+      },
+      "states": {
+        "on_cpu_ms": 55.72361499999991,
+        "sleep_ms": 7.274999999999995,
+        "runnable_ms": 26.558000000000014,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 5.984795992119984e-16
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.scePthreadSelf",
+          6.8828789999998445
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.scePthreadSelf",
+          6.5628789999998505
+        ]
+      ]
+    },
+    {
+      "offset": "0x2033841",
+      "name": "CSEzWorkExecuteTask / call 0x2033841",
+      "count": 10232,
+      "sum_ms": 73.25011,
+      "distribution": {
+        "count": 10232,
+        "mean_ms": 0.007158923964034402,
+        "p50_ms": 0.002656,
+        "p90_ms": 0.007806799999999981,
+        "p99_ms": 0.08265964000000008,
+        "max_ms": 0.729271
+      },
+      "states": {
+        "on_cpu_ms": 45.822109999999995,
+        "sleep_ms": 6.856999999999994,
+        "runnable_ms": 20.570999999999998,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 4.718447854656915e-16
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.scePthreadSelf",
+          4.142424999999921
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.scePthreadSelf",
+          4.005424999999909
+        ]
+      ]
+    },
+    {
+      "offset": "0x1a657b1",
+      "name": "EnqueueCharacterVirtual108 / call 0x1a657b1",
+      "count": 8624,
+      "sum_ms": 50.596439,
+      "distribution": {
+        "count": 8624,
+        "mean_ms": 0.005866934021335807,
+        "p50_ms": 0.001667,
+        "p90_ms": 0.004792,
+        "p99_ms": 0.0490594200000005,
+        "max_ms": 5.587812
+      },
+      "states": {
+        "on_cpu_ms": 28.329438999999667,
+        "sleep_ms": 6.521999999999997,
+        "runnable_ms": 15.744999999999974,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 5.204170427930421e-16
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.sceKernelWaitSema",
+          5.859064
+        ],
+        [
+          "HLE.scePthreadSelf",
+          1.1921949999999908
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.scePthreadSelf",
+          1.1371949999999922
+        ],
+        [
+          "HLE.sceKernelWaitSema",
+          0.411064
+        ]
+      ]
+    },
+    {
+      "offset": "0x19182da",
+      "name": "CharacterBehaviorAndWorkerPhases / call 0x19182da",
+      "count": 49,
+      "sum_ms": 42.754951,
+      "distribution": {
+        "count": 49,
+        "mean_ms": 0.8725500204081633,
+        "p50_ms": 0.684792,
+        "p90_ms": 1.5444062000000003,
+        "p99_ms": 2.684393199999994,
+        "max_ms": 3.396718
+      },
+      "states": {
+        "on_cpu_ms": 21.020951000000004,
+        "sleep_ms": 4.896,
+        "runnable_ms": 16.838,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 3.885780586188048e-16
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.pthread_cond_broadcast",
+          7.105407000000001
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          4.544896999999993
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          4.012183999999998
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.pthread_cond_broadcast",
+          5.936406999999998
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          3.023183999999999
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          2.3218970000000043
+        ]
+      ]
+    },
+    {
+      "offset": "0x1a65727",
+      "name": "EnqueueCharacterVirtual108 / call 0x1a65727",
+      "count": 8624,
+      "sum_ms": 42.577784,
+      "distribution": {
+        "count": 8624,
+        "mean_ms": 0.004937127087198516,
+        "p50_ms": 0.001979,
+        "p90_ms": 0.004791,
+        "p99_ms": 0.04935524000000013,
+        "max_ms": 1.232969
+      },
+      "states": {
+        "on_cpu_ms": 27.455784000000076,
+        "sleep_ms": 3.7289999999999965,
+        "runnable_ms": 11.392999999999976,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 2.706168622523819e-16
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.scePthreadSelf",
+          1.715253999999994
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.scePthreadSelf",
+          1.6112539999999946
+        ]
+      ]
+    },
+    {
+      "offset": "0x191880a",
+      "name": "CharacterBehaviorAndWorkerPhases / call 0x191880a",
+      "count": 50,
+      "sum_ms": 36.235203,
+      "distribution": {
+        "count": 50,
+        "mean_ms": 0.7247040600000001,
+        "p50_ms": 0.6604945,
+        "p90_ms": 1.3009215,
+        "p99_ms": 1.7690504799999989,
+        "max_ms": 2.058125
+      },
+      "states": {
+        "on_cpu_ms": 3.5082030000000004,
+        "sleep_ms": 30.258999999999997,
+        "runnable_ms": 2.4679999999999995,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 4.440892098500626e-16
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.scePthreadCondWait",
+          32.515781000000004
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          0.368228
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          0.28035600000000005
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.scePthreadCondWait",
+          1.4967810000000001
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          0.27235600000000004
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          0.21222800000000003
+        ]
+      ]
+    },
+    {
+      "offset": "0x1a657bc",
+      "name": "EnqueueCharacterVirtual108 / call 0x1a657bc",
+      "count": 8624,
+      "sum_ms": 35.617694,
+      "distribution": {
+        "count": 8624,
+        "mean_ms": 0.0041300665584415586,
+        "p50_ms": 0.001927,
+        "p90_ms": 0.004218,
+        "p99_ms": 0.040024210000000254,
+        "max_ms": 0.685572
+      },
+      "states": {
+        "on_cpu_ms": 25.453694000000112,
+        "sleep_ms": 2.5289999999999986,
+        "runnable_ms": 7.634999999999974,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 2.3765711620882257e-16
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.scePthreadSelf",
+          1.7240640000000407
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.scePthreadSelf",
+          1.6720640000000389
+        ]
+      ]
+    },
+    {
+      "offset": "0x191872e",
+      "name": "CharacterBehaviorAndWorkerPhases / call 0x191872e",
+      "count": 400,
+      "sum_ms": 33.137401,
+      "distribution": {
+        "count": 400,
+        "mean_ms": 0.0828435025,
+        "p50_ms": 0.019948,
+        "p90_ms": 0.31180760000000013,
+        "p99_ms": 0.7321245399999988,
+        "max_ms": 0.986563
+      },
+      "states": {
+        "on_cpu_ms": 26.78940100000003,
+        "sleep_ms": 1.0760000000000003,
+        "runnable_ms": 5.272,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 4.718447854656915e-16
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.scePthreadSelf",
+          2.243522000000203
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.scePthreadSelf",
+          2.1975220000001996
+        ]
+      ]
+    },
+    {
+      "offset": "0x19187da",
+      "name": "CharacterBehaviorAndWorkerPhases / call 0x19187da",
+      "count": 50,
+      "sum_ms": 31.480212,
+      "distribution": {
+        "count": 50,
+        "mean_ms": 0.62960424,
+        "p50_ms": 0.5523435,
+        "p90_ms": 1.0061717000000001,
+        "p99_ms": 1.23458943,
+        "max_ms": 1.271875
+      },
+      "states": {
+        "on_cpu_ms": 19.640212,
+        "sleep_ms": 2.9110000000000014,
+        "runnable_ms": 8.929,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 4.440892098500626e-16
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.pthread_cond_broadcast",
+          6.249576000000001
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          2.896237000000003
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          2.866475000000003
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.pthread_cond_broadcast",
+          5.387576000000004
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          2.3022370000000025
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          2.0324750000000025
+        ]
+      ]
+    },
+    {
+      "offset": "0x19188a0",
+      "name": "CharacterBehaviorAndWorkerPhases / call 0x19188a0",
+      "count": 50,
+      "sum_ms": 30.717081,
+      "distribution": {
+        "count": 50,
+        "mean_ms": 0.61434162,
+        "p50_ms": 0.579401,
+        "p90_ms": 0.800536,
+        "p99_ms": 0.86008319,
+        "max_ms": 0.860313
+      },
+      "states": {
+        "on_cpu_ms": 20.324081,
+        "sleep_ms": 4.129,
+        "runnable_ms": 6.264,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 6.661338147750939e-16
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.pthread_cond_broadcast",
+          5.968331999999995
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          3.842722000000002
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          3.771490000000001
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.pthread_cond_broadcast",
+          5.259332
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          3.02849
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          2.2507220000000046
+        ]
+      ]
+    },
+    {
+      "offset": "0x1513a53",
+      "name": "CharacterTransformCommitCandidate / call 0x1513a53",
+      "count": 400,
+      "sum_ms": 29.600691,
+      "distribution": {
+        "count": 400,
+        "mean_ms": 0.07400172749999999,
+        "p50_ms": 0.012109,
+        "p90_ms": 0.2102084000000002,
+        "p99_ms": 0.7944600599999998,
+        "max_ms": 0.929375
+      },
+      "states": {
+        "on_cpu_ms": 14.730485999999992,
+        "sleep_ms": 5.274,
+        "runnable_ms": 9.596204999999996,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 3.122502256758253e-16
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.scePthreadSelf",
+          0.889817000000003
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.scePthreadSelf",
+          0.797817000000003
+        ]
+      ]
+    },
+    {
+      "offset": "0x2033777",
+      "name": "CSEzWorkExecuteTask / call 0x2033777",
+      "count": 367,
+      "sum_ms": 27.753454,
+      "distribution": {
+        "count": 367,
+        "mean_ms": 0.07562249046321526,
+        "p50_ms": 0.053803,
+        "p90_ms": 0.15720820000000002,
+        "p99_ms": 0.37571027999999845,
+        "max_ms": 0.671406
+      },
+      "states": {
+        "on_cpu_ms": 18.256453999999994,
+        "sleep_ms": 5.335999999999999,
+        "runnable_ms": 4.160999999999996,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 3.400058012914542e-16
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.pthread_cond_broadcast",
+          4.828900000000001
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          4.17588
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          2.193293
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.pthread_cond_broadcast",
+          4.579900000000002
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          3.6728799999999997
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          1.8332929999999992
+        ]
+      ]
+    },
+    {
+      "offset": "0x1918ac4",
+      "name": "CharacterBehaviorAndWorkerPhases / call 0x1918ac4",
+      "count": 8800,
+      "sum_ms": 27.07906,
+      "distribution": {
+        "count": 8800,
+        "mean_ms": 0.003077165909090909,
+        "p50_ms": 0.000729,
+        "p90_ms": 0.001719,
+        "p99_ms": 0.029166530000000013,
+        "max_ms": 0.664479
+      },
+      "states": {
+        "on_cpu_ms": 25.122059999999863,
+        "sleep_ms": 0.5970000000000001,
+        "runnable_ms": 1.3599999999999999,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 6.245004513516506e-17
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.scePthreadSelf",
+          1.7916680000002014
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.scePthreadSelf",
+          1.7126680000001953
+        ]
+      ]
+    },
+    {
+      "offset": "0x1918781",
+      "name": "CharacterBehaviorAndWorkerPhases / call 0x1918781",
+      "count": 400,
+      "sum_ms": 21.909729,
+      "distribution": {
+        "count": 400,
+        "mean_ms": 0.0547743225,
+        "p50_ms": 0.004375,
+        "p90_ms": 0.06504610000000018,
+        "p99_ms": 0.7964140899999996,
+        "max_ms": 1.18901
+      },
+      "states": {
+        "on_cpu_ms": 12.359729000000007,
+        "sleep_ms": 8.277999999999997,
+        "runnable_ms": 1.2720000000000005,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 2.220446049250313e-16
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.sceKernelWaitSema",
+          8.881772
+        ],
+        [
+          "HLE.scePthreadMutexInit",
+          1.099524
+        ],
+        [
+          "HLE.pthread_cond_init",
+          0.531563
+        ],
+        [
+          "HLE.scePthreadMutexattrInit",
+          0.5163530000000001
+        ],
+        [
+          "HLE.scePthreadMutexattrDestroy",
+          0.297606
+        ],
+        [
+          "HLE.scePthreadSelf",
+          0.24201999999999907
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.scePthreadMutexInit",
+          0.9245239999999998
+        ],
+        [
+          "HLE.sceKernelWaitSema",
+          0.7297720000000001
+        ],
+        [
+          "HLE.pthread_cond_init",
+          0.4665630000000001
+        ],
+        [
+          "HLE.scePthreadMutexattrInit",
+          0.466353
+        ],
+        [
+          "HLE.scePthreadSelf",
+          0.24201999999999907
+        ],
+        [
+          "HLE.scePthreadMutexattrDestroy",
+          0.180606
+        ]
+      ]
+    },
+    {
+      "offset": "0x1918a64",
+      "name": "CharacterBehaviorAndWorkerPhases / call 0x1918a64",
+      "count": 400,
+      "sum_ms": 19.966394,
+      "distribution": {
+        "count": 400,
+        "mean_ms": 0.049915985,
+        "p50_ms": 0.034141,
+        "p90_ms": 0.1140569,
+        "p99_ms": 0.22121674999999996,
+        "max_ms": 0.273386
+      },
+      "states": {
+        "on_cpu_ms": 19.966393999999987,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x18c00a0",
+      "name": "CharacterVirtual108Candidate / call 0x18c00a0",
+      "count": 8789,
+      "sum_ms": 15.667815,
+      "distribution": {
+        "count": 8789,
+        "mean_ms": 0.0017826618500398224,
+        "p50_ms": 0.001562,
+        "p90_ms": 0.002448,
+        "p99_ms": 0.006308240000000041,
+        "max_ms": 0.375781
+      },
+      "states": {
+        "on_cpu_ms": 15.174527000000092,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.493288,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 3.469446951953614e-18
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x1918890",
+      "name": "CharacterBehaviorAndWorkerPhases / call 0x1918890",
+      "count": 50,
+      "sum_ms": 10.142915,
+      "distribution": {
+        "count": 50,
+        "mean_ms": 0.2028583,
+        "p50_ms": 0.0905995,
+        "p90_ms": 0.8463641000000001,
+        "p99_ms": 1.07553244,
+        "max_ms": 1.090156
+      },
+      "states": {
+        "on_cpu_ms": 5.588915,
+        "sleep_ms": 3.4989999999999997,
+        "runnable_ms": 1.0550000000000002,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 9.71445146547012e-17
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.sceKernelWaitSema",
+          3.505678
+        ],
+        [
+          "HLE.pthread_cond_init",
+          0.7037009999999997
+        ],
+        [
+          "HLE.scePthreadMutexattrInit",
+          0.61979
+        ],
+        [
+          "HLE.scePthreadMutexInit",
+          0.43457899999999994
+        ],
+        [
+          "HLE.scePthreadMutexattrSettype",
+          0.19146000000000002
+        ],
+        [
+          "HLE.scePthreadMutexattrDestroy",
+          0.14223999999999998
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.pthread_cond_init",
+          0.6127009999999997
+        ],
+        [
+          "HLE.scePthreadMutexattrInit",
+          0.5747899999999999
+        ],
+        [
+          "HLE.scePthreadMutexInit",
+          0.3315789999999999
+        ],
+        [
+          "HLE.sceKernelWaitSema",
+          0.25967799999999996
+        ],
+        [
+          "HLE.scePthreadMutexattrSettype",
+          0.14346000000000003
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          0.11567500000000001
+        ]
+      ]
+    },
+    {
+      "offset": "0x19183b3",
+      "name": "CharacterBehaviorAndWorkerPhases / call 0x19183b3",
+      "count": 49,
+      "sum_ms": 9.939794,
+      "distribution": {
+        "count": 49,
+        "mean_ms": 0.2028529387755102,
+        "p50_ms": 0.130156,
+        "p90_ms": 0.3212400000000001,
+        "p99_ms": 1.2715914799999994,
+        "max_ms": 1.321667
+      },
+      "states": {
+        "on_cpu_ms": 5.859794000000001,
+        "sleep_ms": 2.319,
+        "runnable_ms": 1.7609999999999992,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 6.938893903907228e-17
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.sceKernelWaitSema",
+          1.760729
+        ],
+        [
+          "HLE.pthread_cond_init",
+          0.792038
+        ],
+        [
+          "HLE.scePthreadMutexattrInit",
+          0.6911449999999998
+        ],
+        [
+          "HLE.scePthreadMutexInit",
+          0.46906000000000003
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          0.19911199999999998
+        ],
+        [
+          "HLE.scePthreadMutexattrSettype",
+          0.14885799999999996
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.pthread_cond_init",
+          0.652038
+        ],
+        [
+          "HLE.scePthreadMutexattrInit",
+          0.6381449999999997
+        ],
+        [
+          "HLE.scePthreadMutexInit",
+          0.36205999999999994
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          0.164112
+        ],
+        [
+          "HLE.sceKernelWaitSema",
+          0.126729
+        ],
+        [
+          "HLE.scePthreadMutexattrSettype",
+          0.12385800000000001
+        ]
+      ]
+    },
+    {
+      "offset": "0x1918281",
+      "name": "CharacterBehaviorAndWorkerPhases / call 0x1918281",
+      "count": 392,
+      "sum_ms": 9.334627,
+      "distribution": {
+        "count": 392,
+        "mean_ms": 0.02381282397959184,
+        "p50_ms": 0.006068,
+        "p90_ms": 0.05724480000000009,
+        "p99_ms": 0.3085193899999993,
+        "max_ms": 0.43875
+      },
+      "states": {
+        "on_cpu_ms": 6.970626999999993,
+        "sleep_ms": 0.8040000000000002,
+        "runnable_ms": 1.5599999999999994,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 8.326672684688674e-17
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.scePthreadMutexInit",
+          0.8874989999999998
+        ],
+        [
+          "HLE.scePthreadMutexattrInit",
+          0.64417
+        ],
+        [
+          "HLE.pthread_cond_init",
+          0.553959
+        ],
+        [
+          "HLE.scePthreadSelf",
+          0.2591899999999993
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          0.13864199999999993
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          0.13020999999999994
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.scePthreadMutexInit",
+          0.7854989999999998
+        ],
+        [
+          "HLE.scePthreadMutexattrInit",
+          0.59917
+        ],
+        [
+          "HLE.pthread_cond_init",
+          0.4089589999999999
+        ],
+        [
+          "HLE.scePthreadSelf",
+          0.2591899999999993
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          0.12664199999999998
+        ],
+        [
+          "HLE.scePthreadMutexattrSettype",
+          0.109926
+        ]
+      ]
+    },
+    {
+      "offset": "0x1916f6f",
+      "name": "CharacterUpdateCoordinator / call 0x1916f6f",
+      "count": 49,
+      "sum_ms": 6.282236,
+      "distribution": {
+        "count": 49,
+        "mean_ms": 0.12820889795918367,
+        "p50_ms": 0.095312,
+        "p90_ms": 0.2213960000000001,
+        "p99_ms": 0.595012639999998,
+        "max_ms": 0.829688
+      },
+      "states": {
+        "on_cpu_ms": 4.2722359999999995,
+        "sleep_ms": 0.4570000000000001,
+        "runnable_ms": 1.5529999999999997,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 1.1102230246251565e-16
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.scePthreadMutexLock",
+          1.2306250000000007
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          0.6221899999999995
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.scePthreadMutexLock",
+          1.073625000000001
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          0.47618999999999895
+        ]
+      ]
+    },
+    {
+      "offset": "0x1a6581c",
+      "name": "EnqueuePhaseSetup / call 0x1a6581c",
+      "count": 49,
+      "sum_ms": 5.940151,
+      "distribution": {
+        "count": 49,
+        "mean_ms": 0.12122757142857143,
+        "p50_ms": 0.104218,
+        "p90_ms": 0.20522940000000017,
+        "p99_ms": 0.5078852799999986,
+        "max_ms": 0.68026
+      },
+      "states": {
+        "on_cpu_ms": 4.203150999999998,
+        "sleep_ms": 0.4880000000000001,
+        "runnable_ms": 1.2489999999999997,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 1.3877787807814457e-16
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.pthread_cond_init",
+          0.792038
+        ],
+        [
+          "HLE.scePthreadMutexattrInit",
+          0.6911449999999998
+        ],
+        [
+          "HLE.scePthreadMutexInit",
+          0.46906000000000003
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          0.19911199999999998
+        ],
+        [
+          "HLE.scePthreadMutexattrSettype",
+          0.14885799999999996
+        ],
+        [
+          "HLE.scePthreadMutexattrDestroy",
+          0.145362
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.pthread_cond_init",
+          0.652038
+        ],
+        [
+          "HLE.scePthreadMutexattrInit",
+          0.6381449999999997
+        ],
+        [
+          "HLE.scePthreadMutexInit",
+          0.36205999999999994
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          0.164112
+        ],
+        [
+          "HLE.scePthreadMutexattrSettype",
+          0.12385800000000001
+        ],
+        [
+          "HLE.scePthreadMutexattrDestroy",
+          0.11736200000000001
+        ]
+      ]
+    },
+    {
+      "offset": "0x1918828",
+      "name": "CharacterBehaviorAndWorkerPhases / call 0x1918828",
+      "count": 49,
+      "sum_ms": 5.179268,
+      "distribution": {
+        "count": 49,
+        "mean_ms": 0.1056993469387755,
+        "p50_ms": 0.086615,
+        "p90_ms": 0.15244820000000003,
+        "p99_ms": 0.4039621199999989,
+        "max_ms": 0.530937
+      },
+      "states": {
+        "on_cpu_ms": 3.4842679999999997,
+        "sleep_ms": 0.7740000000000001,
+        "runnable_ms": 0.9210000000000004,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 8.326672684688674e-17
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.pthread_cond_destroy",
+          0.8064050000000004
+        ],
+        [
+          "HLE.scePthreadMutexDestroy",
+          0.25957600000000003
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          0.22197999999999993
+        ],
+        [
+          "HLE.scePthreadRwlockRdlock",
+          0.13135499999999997
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          0.12525600000000003
+        ],
+        [
+          "HLE.scePthreadRwlockUnlock",
+          0.095315
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.pthread_cond_destroy",
+          0.656405
+        ],
+        [
+          "HLE.scePthreadMutexDestroy",
+          0.209576
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          0.15297999999999998
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          0.11625600000000001
+        ],
+        [
+          "HLE.scePthreadRwlockRdlock",
+          0.106355
+        ],
+        [
+          "HLE.scePthreadRwlockUnlock",
+          0.07531499999999998
+        ]
+      ]
+    },
+    {
+      "offset": "0x19184a5",
+      "name": "CharacterBehaviorAndWorkerPhases / call 0x19184a5",
+      "count": 8624,
+      "sum_ms": 4.51128,
+      "distribution": {
+        "count": 8624,
+        "mean_ms": 0.0005231076066790352,
+        "p50_ms": 0.000469,
+        "p90_ms": 0.000729,
+        "p99_ms": 0.00151,
+        "max_ms": 0.020521
+      },
+      "states": {
+        "on_cpu_ms": 4.511279999999951,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x1918328",
+      "name": "CharacterBehaviorAndWorkerPhases / call 0x1918328",
+      "count": 45,
+      "sum_ms": 4.225784,
+      "distribution": {
+        "count": 45,
+        "mean_ms": 0.09390631111111111,
+        "p50_ms": 0.087344,
+        "p90_ms": 0.1361148,
+        "p99_ms": 0.24367236000000003,
+        "max_ms": 0.249791
+      },
+      "states": {
+        "on_cpu_ms": 3.1547840000000007,
+        "sleep_ms": 0.31100000000000005,
+        "runnable_ms": 0.7600000000000003,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 1.1796119636642288e-16
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.pthread_cond_destroy",
+          0.692242
+        ],
+        [
+          "HLE.scePthreadMutexDestroy",
+          0.29682000000000003
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          0.17708400000000002
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          0.16135499999999997
+        ],
+        [
+          "HLE.scePthreadRwlockRdlock",
+          0.08541899999999998
+        ],
+        [
+          "HLE.scePthreadRwlockUnlock",
+          0.06802599999999999
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.pthread_cond_destroy",
+          0.5652420000000001
+        ],
+        [
+          "HLE.scePthreadMutexDestroy",
+          0.22682000000000005
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          0.15108400000000005
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          0.14735499999999996
+        ],
+        [
+          "HLE.scePthreadRwlockRdlock",
+          0.08541899999999998
+        ],
+        [
+          "HLE.scePthreadRwlockUnlock",
+          0.06102599999999999
+        ]
+      ]
+    },
+    {
+      "offset": "0x19186e0",
+      "name": "CharacterBehaviorAndWorkerPhases / call 0x19186e0",
+      "count": 49,
+      "sum_ms": 4.027651,
+      "distribution": {
+        "count": 49,
+        "mean_ms": 0.08219695918367348,
+        "p50_ms": 0.052917,
+        "p90_ms": 0.14531300000000008,
+        "p99_ms": 0.4156769999999986,
+        "max_ms": 0.580677
+      },
+      "states": {
+        "on_cpu_ms": 3.155651,
+        "sleep_ms": 0.22899999999999998,
+        "runnable_ms": 0.6430000000000001,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 6.938893903907228e-18
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.pthread_cond_destroy",
+          0.622392
+        ],
+        [
+          "HLE.scePthreadMutexDestroy",
+          0.35010700000000006
+        ],
+        [
+          "HLE.scePthreadRwlockRdlock",
+          0.14593899999999999
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          0.12427099999999998
+        ],
+        [
+          "HLE.scePthreadRwlockUnlock",
+          0.12156399999999999
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          0.09541799999999998
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.pthread_cond_destroy",
+          0.5443920000000001
+        ],
+        [
+          "HLE.scePthreadMutexDestroy",
+          0.29510700000000006
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          0.12427099999999998
+        ],
+        [
+          "HLE.scePthreadRwlockRdlock",
+          0.12193899999999999
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          0.09541799999999998
+        ],
+        [
+          "HLE.scePthreadRwlockUnlock",
+          0.064564
+        ]
+      ]
+    },
+    {
+      "offset": "0x2033836",
+      "name": "CSEzWorkExecuteTask / call 0x2033836",
+      "count": 10232,
+      "sum_ms": 4.015736,
+      "distribution": {
+        "count": 10232,
+        "mean_ms": 0.0003924683346364347,
+        "p50_ms": 0.000313,
+        "p90_ms": 0.000573,
+        "p99_ms": 0.001198,
+        "max_ms": 0.104948
+      },
+      "states": {
+        "on_cpu_ms": 3.9107949999998968,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.104941,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.scePthreadRwlockUnlock",
+          0.0015439999999999987
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.scePthreadRwlockUnlock",
+          0.0015439999999999987
+        ]
+      ]
+    },
+    {
+      "offset": "0x1918193",
+      "name": "CharacterBehaviorAndWorkerPhases / call 0x1918193",
+      "count": 49,
+      "sum_ms": 3.826249,
+      "distribution": {
+        "count": 49,
+        "mean_ms": 0.07808671428571429,
+        "p50_ms": 0.064895,
+        "p90_ms": 0.1179478,
+        "p99_ms": 0.2333791599999994,
+        "max_ms": 0.306979
+      },
+      "states": {
+        "on_cpu_ms": 3.188248999999999,
+        "sleep_ms": 0.07300000000000001,
+        "runnable_ms": 0.5650000000000001,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 1.3877787807814457e-17
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.pthread_cond_destroy",
+          0.768802
+        ],
+        [
+          "HLE.scePthreadMutexDestroy",
+          0.214793
+        ],
+        [
+          "HLE.scePthreadRwlockRdlock",
+          0.17568
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          0.08838199999999993
+        ],
+        [
+          "HLE.scePthreadRwlockUnlock",
+          0.08327799999999999
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          0.078542
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.pthread_cond_destroy",
+          0.6208020000000001
+        ],
+        [
+          "HLE.scePthreadMutexDestroy",
+          0.214793
+        ],
+        [
+          "HLE.scePthreadRwlockRdlock",
+          0.15367999999999998
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          0.08838199999999993
+        ],
+        [
+          "HLE.scePthreadRwlockUnlock",
+          0.08327799999999999
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          0.078542
+        ]
+      ]
+    },
+    {
+      "offset": "0x1a65902",
+      "name": "EnqueuePhaseSetup / call 0x1a65902",
+      "count": 49,
+      "sum_ms": 3.198229,
+      "distribution": {
+        "count": 49,
+        "mean_ms": 0.06526997959183674,
+        "p50_ms": 0.002552,
+        "p90_ms": 0.04515640000000024,
+        "p99_ms": 0.9049001999999978,
+        "max_ms": 1.153125
+      },
+      "states": {
+        "on_cpu_ms": 0.9442290000000001,
+        "sleep_ms": 1.818,
+        "runnable_ms": 0.43600000000000005,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 1.1622647289044608e-16
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.sceKernelWaitSema",
+          1.760729
+        ],
+        [
+          "HLE.scePthreadSelf",
+          0.011398999999999998
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.sceKernelWaitSema",
+          0.126729
+        ],
+        [
+          "HLE.scePthreadSelf",
+          0.011398999999999998
+        ]
+      ]
+    },
+    {
+      "offset": "0x1917b18",
+      "name": "CharacterBehaviorAndWorkerPhases / call 0x1917b18",
+      "count": 8869,
+      "sum_ms": 3.096551,
+      "distribution": {
+        "count": 8869,
+        "mean_ms": 0.00034914319539970683,
+        "p50_ms": 0.000312,
+        "p90_ms": 0.000469,
+        "p99_ms": 0.001354,
+        "max_ms": 0.022657
+      },
+      "states": {
+        "on_cpu_ms": 3.096550999999947,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x1a657c8",
+      "name": "EnqueueCharacterVirtual108 / call 0x1a657c8",
+      "count": 8624,
+      "sum_ms": 2.647235,
+      "distribution": {
+        "count": 8624,
+        "mean_ms": 0.00030696138682745827,
+        "p50_ms": 0.000105,
+        "p90_ms": 0.000157,
+        "p99_ms": 0.000312,
+        "max_ms": 0.177395
+      },
+      "states": {
+        "on_cpu_ms": 2.4502350000000983,
+        "sleep_ms": 0.066,
+        "runnable_ms": 0.131,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.sceKernelSignalSema",
+          1.2792709999999998
+        ],
+        [
+          "HLE.scePthreadSelf",
+          0.001018
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.sceKernelSignalSema",
+          1.1922709999999999
+        ],
+        [
+          "HLE.scePthreadSelf",
+          0.001018
+        ]
+      ]
+    },
+    {
+      "offset": "0x2033798",
+      "name": "CSEzWorkExecuteTask / call 0x2033798",
+      "count": 8,
+      "sum_ms": 2.496197,
+      "distribution": {
+        "count": 8,
+        "mean_ms": 0.312024625,
+        "p50_ms": 0.243724,
+        "p90_ms": 0.604875,
+        "p99_ms": 0.61905,
+        "max_ms": 0.620625
+      },
+      "states": {
+        "on_cpu_ms": 1.7991969999999997,
+        "sleep_ms": 0.338,
+        "runnable_ms": 0.35900000000000004,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 2.7755575615628914e-17
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.pthread_cond_destroy",
+          0.23223999999999997
+        ],
+        [
+          "HLE.scePthreadMutexDestroy",
+          0.10479000000000001
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          0.08812400000000001
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          0.051509
+        ],
+        [
+          "HLE.scePthreadRwlockRdlock",
+          0.033853
+        ],
+        [
+          "HLE.scePthreadRwlockUnlock",
+          0.01729
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.pthread_cond_destroy",
+          0.20423999999999998
+        ],
+        [
+          "HLE.scePthreadMutexDestroy",
+          0.07679
+        ],
+        [
+          "HLE.scePthreadMutexLock",
+          0.07112399999999999
+        ],
+        [
+          "HLE.scePthreadRwlockRdlock",
+          0.024852999999999997
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          0.024509
+        ],
+        [
+          "HLE.scePthreadRwlockUnlock",
+          0.01729
+        ]
+      ]
+    },
+    {
+      "offset": "0x1915fbb",
+      "name": "CharacterUpdateCoordinator / call 0x1915fbb",
+      "count": 8624,
+      "sum_ms": 1.988056,
+      "distribution": {
+        "count": 8624,
+        "mean_ms": 0.00023052597402597403,
+        "p50_ms": 0.000209,
+        "p90_ms": 0.000312,
+        "p99_ms": 0.000573,
+        "max_ms": 0.019531
+      },
+      "states": {
+        "on_cpu_ms": 1.9880559999999512,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x1917466",
+      "name": "CharacterUpdateCoordinator / call 0x1917466",
+      "count": 50,
+      "sum_ms": 1.771511,
+      "distribution": {
+        "count": 50,
+        "mean_ms": 0.03543022,
+        "p50_ms": 0.0330205,
+        "p90_ms": 0.05364590000000001,
+        "p99_ms": 0.06985984999999997,
+        "max_ms": 0.077031
+      },
+      "states": {
+        "on_cpu_ms": 1.7715110000000003,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x1918175",
+      "name": "CharacterBehaviorAndWorkerPhases / call 0x1918175",
+      "count": 49,
+      "sum_ms": 1.415777,
+      "distribution": {
+        "count": 49,
+        "mean_ms": 0.028893408163265306,
+        "p50_ms": 0.01875,
+        "p90_ms": 0.06608320000000001,
+        "p99_ms": 0.11041603999999987,
+        "max_ms": 0.126041
+      },
+      "states": {
+        "on_cpu_ms": 1.2357770000000003,
+        "sleep_ms": 0.067,
+        "runnable_ms": 0.113,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.scePthreadMutexLock",
+          0.5567709999999998
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          0.15949999999999998
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.scePthreadMutexLock",
+          0.5567709999999998
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          0.1175
+        ]
+      ]
+    },
+    {
+      "offset": "0x1916d0d",
+      "name": "CharacterUpdateCoordinator / call 0x1916d0d",
+      "count": 8869,
+      "sum_ms": 1.405304,
+      "distribution": {
+        "count": 8869,
+        "mean_ms": 0.00015845123463750142,
+        "p50_ms": 0.000156,
+        "p90_ms": 0.00026,
+        "p99_ms": 0.000521,
+        "max_ms": 0.001458
+      },
+      "states": {
+        "on_cpu_ms": 1.405304000000127,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x1915dcb",
+      "name": "CharacterUpdateCoordinator / call 0x1915dcb",
+      "count": 9016,
+      "sum_ms": 1.184626,
+      "distribution": {
+        "count": 9016,
+        "mean_ms": 0.00013139152617568765,
+        "p50_ms": 0.000104,
+        "p90_ms": 0.000156,
+        "p99_ms": 0.000573,
+        "max_ms": 0.004792
+      },
+      "states": {
+        "on_cpu_ms": 1.1846260000001068,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x1917c6e",
+      "name": "CharacterBehaviorAndWorkerPhases / call 0x1917c6e",
+      "count": 8624,
+      "sum_ms": 1.163947,
+      "distribution": {
+        "count": 8624,
+        "mean_ms": 0.00013496602504638219,
+        "p50_ms": 0.000105,
+        "p90_ms": 0.000157,
+        "p99_ms": 0.000364,
+        "max_ms": 0.021563
+      },
+      "states": {
+        "on_cpu_ms": 1.163947000000068,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x19180a5",
+      "name": "CharacterBehaviorAndWorkerPhases / call 0x19180a5",
+      "count": 49,
+      "sum_ms": 1.020731,
+      "distribution": {
+        "count": 49,
+        "mean_ms": 0.02083124489795918,
+        "p50_ms": 0.019948,
+        "p90_ms": 0.028635800000000003,
+        "p99_ms": 0.03734779999999998,
+        "max_ms": 0.039323
+      },
+      "states": {
+        "on_cpu_ms": 1.020731,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x1918648",
+      "name": "CharacterBehaviorAndWorkerPhases / call 0x1918648",
+      "count": 50,
+      "sum_ms": 0.943961,
+      "distribution": {
+        "count": 50,
+        "mean_ms": 0.018879220000000002,
+        "p50_ms": 0.0138545,
+        "p90_ms": 0.0319011,
+        "p99_ms": 0.08550183999999994,
+        "max_ms": 0.102448
+      },
+      "states": {
+        "on_cpu_ms": 0.809961,
+        "sleep_ms": 0.045,
+        "runnable_ms": 0.089,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.scePthreadMutexLock",
+          0.22270900000000002
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          0.10478799999999994
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.scePthreadMutexLock",
+          0.212709
+        ],
+        [
+          "HLE.scePthreadMutexUnlock",
+          0.06778799999999997
+        ]
+      ]
+    },
+    {
+      "offset": "0x191862e",
+      "name": "CharacterBehaviorAndWorkerPhases / call 0x191862e",
+      "count": 50,
+      "sum_ms": 0.761147,
+      "distribution": {
+        "count": 50,
+        "mean_ms": 0.01522294,
+        "p50_ms": 0.008724,
+        "p90_ms": 0.0360421,
+        "p99_ms": 0.07360616999999998,
+        "max_ms": 0.079323
+      },
+      "states": {
+        "on_cpu_ms": 0.6261469999999999,
+        "sleep_ms": 0.048,
+        "runnable_ms": 0.087,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.pthread_mutex_lock",
+          0.23296500000000003
+        ],
+        [
+          "HLE.pthread_mutex_unlock",
+          0.09786699999999998
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.pthread_mutex_lock",
+          0.21196500000000001
+        ],
+        [
+          "HLE.pthread_mutex_unlock",
+          0.06786699999999998
+        ]
+      ]
+    },
+    {
+      "offset": "0x1917868",
+      "name": "CharacterBehaviorAndWorkerPhases / call 0x1917868",
+      "count": 147,
+      "sum_ms": 0.699274,
+      "distribution": {
+        "count": 147,
+        "mean_ms": 0.004756965986394558,
+        "p50_ms": 0.002865,
+        "p90_ms": 0.006781800000000004,
+        "p99_ms": 0.032965419999999995,
+        "max_ms": 0.034375
+      },
+      "states": {
+        "on_cpu_ms": 0.6512739999999999,
+        "sleep_ms": 0.012,
+        "runnable_ms": 0.036000000000000004,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.scePthreadSelf",
+          0.057866000000000015
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.scePthreadSelf",
+          0.04586600000000003
+        ]
+      ]
+    },
+    {
+      "offset": "0x1918224",
+      "name": "CharacterBehaviorAndWorkerPhases / call 0x1918224",
+      "count": 392,
+      "sum_ms": 0.637764,
+      "distribution": {
+        "count": 392,
+        "mean_ms": 0.0016269489795918367,
+        "p50_ms": 0.0011455,
+        "p90_ms": 0.003437,
+        "p99_ms": 0.00677390999999997,
+        "max_ms": 0.011927
+      },
+      "states": {
+        "on_cpu_ms": 0.6377639999999994,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x1a65838",
+      "name": "EnqueuePhaseSetup / call 0x1a65838",
+      "count": 49,
+      "sum_ms": 0.325728,
+      "distribution": {
+        "count": 49,
+        "mean_ms": 0.006647510204081632,
+        "p50_ms": 0.003542,
+        "p90_ms": 0.019427,
+        "p99_ms": 0.029587719999999994,
+        "max_ms": 0.030313
+      },
+      "states": {
+        "on_cpu_ms": 0.25372800000000006,
+        "sleep_ms": 0.013,
+        "runnable_ms": 0.059000000000000004,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.scePthreadSelf",
+          0.027550000000000012
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.scePthreadSelf",
+          0.027550000000000012
+        ]
+      ]
+    },
+    {
+      "offset": "0x1918364",
+      "name": "CharacterBehaviorAndWorkerPhases / call 0x1918364",
+      "count": 392,
+      "sum_ms": 0.265307,
+      "distribution": {
+        "count": 392,
+        "mean_ms": 0.0006768035714285715,
+        "p50_ms": 0.000521,
+        "p90_ms": 0.001406,
+        "p99_ms": 0.002263399999999993,
+        "max_ms": 0.00474
+      },
+      "states": {
+        "on_cpu_ms": 0.2653069999999997,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x15135f5",
+      "name": "CharacterTransformCommitCandidate / call 0x15135f5",
+      "count": 350,
+      "sum_ms": 0.24192,
+      "distribution": {
+        "count": 350,
+        "mean_ms": 0.0006912,
+        "p50_ms": 0.000625,
+        "p90_ms": 0.0009431000000000012,
+        "p99_ms": 0.0031681999999999843,
+        "max_ms": 0.009531
+      },
+      "states": {
+        "on_cpu_ms": 0.2419200000000001,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x191660d",
+      "name": "CharacterUpdateCoordinator / call 0x191660d",
+      "count": 49,
+      "sum_ms": 0.223542,
+      "distribution": {
+        "count": 49,
+        "mean_ms": 0.004562081632653061,
+        "p50_ms": 0.004584,
+        "p90_ms": 0.0055304,
+        "p99_ms": 0.008158879999999988,
+        "max_ms": 0.009584
+      },
+      "states": {
+        "on_cpu_ms": 0.22354200000000007,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x1916223",
+      "name": "CharacterUpdateCoordinator / call 0x1916223",
+      "count": 392,
+      "sum_ms": 0.218387,
+      "distribution": {
+        "count": 392,
+        "mean_ms": 0.000557109693877551,
+        "p50_ms": 0.00026,
+        "p90_ms": 0.0015048000000000017,
+        "p99_ms": 0.0022245299999999898,
+        "max_ms": 0.024948
+      },
+      "states": {
+        "on_cpu_ms": 0.21838700000000005,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x19165c9",
+      "name": "CharacterUpdateCoordinator / call 0x19165c9",
+      "count": 392,
+      "sum_ms": 0.19915,
+      "distribution": {
+        "count": 392,
+        "mean_ms": 0.0005080357142857142,
+        "p50_ms": 0.00026,
+        "p90_ms": 0.001146,
+        "p99_ms": 0.0018890399999999961,
+        "max_ms": 0.003959
+      },
+      "states": {
+        "on_cpu_ms": 0.19915000000000044,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x1a6590d",
+      "name": "EnqueuePhaseSetup / call 0x1a6590d",
+      "count": 49,
+      "sum_ms": 0.190937,
+      "distribution": {
+        "count": 49,
+        "mean_ms": 0.003896673469387755,
+        "p50_ms": 0.002657,
+        "p90_ms": 0.005353800000000002,
+        "p99_ms": 0.023999999999999886,
+        "max_ms": 0.0375
+      },
+      "states": {
+        "on_cpu_ms": 0.173937,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.017,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.scePthreadSelf",
+          0.013234
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.scePthreadSelf",
+          0.013234
+        ]
+      ]
+    },
+    {
+      "offset": "0x151364b",
+      "name": "CharacterTransformCommitCandidate / call 0x151364b",
+      "count": 400,
+      "sum_ms": 0.177132,
+      "distribution": {
+        "count": 400,
+        "mean_ms": 0.00044282999999999996,
+        "p50_ms": 0.000364,
+        "p90_ms": 0.000573,
+        "p99_ms": 0.004016779999999994,
+        "max_ms": 0.005729
+      },
+      "states": {
+        "on_cpu_ms": 0.17713200000000037,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x1917e4b",
+      "name": "CharacterBehaviorAndWorkerPhases / call 0x1917e4b",
+      "count": 392,
+      "sum_ms": 0.12949,
+      "distribution": {
+        "count": 392,
+        "mean_ms": 0.0003303316326530612,
+        "p50_ms": 0.000209,
+        "p90_ms": 0.0007759000000000017,
+        "p99_ms": 0.0013586799999999986,
+        "max_ms": 0.002656
+      },
+      "states": {
+        "on_cpu_ms": 0.12949000000000027,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x1916260",
+      "name": "CharacterUpdateCoordinator / call 0x1916260",
+      "count": 392,
+      "sum_ms": 0.090563,
+      "distribution": {
+        "count": 392,
+        "mean_ms": 0.0002310280612244898,
+        "p50_ms": 0.000209,
+        "p90_ms": 0.00036490000000000003,
+        "p99_ms": 0.00047826999999999744,
+        "max_ms": 0.000625
+      },
+      "states": {
+        "on_cpu_ms": 0.09056300000000014,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x1917448",
+      "name": "CharacterUpdateCoordinator / call 0x1917448",
+      "count": 50,
+      "sum_ms": 0.087031,
+      "distribution": {
+        "count": 50,
+        "mean_ms": 0.0017406199999999998,
+        "p50_ms": 0.001563,
+        "p90_ms": 0.0028225,
+        "p99_ms": 0.003869089999999997,
+        "max_ms": 0.004584
+      },
+      "states": {
+        "on_cpu_ms": 0.08703099999999998,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x1916527",
+      "name": "CharacterUpdateCoordinator / call 0x1916527",
+      "count": 49,
+      "sum_ms": 0.072968,
+      "distribution": {
+        "count": 49,
+        "mean_ms": 0.001489142857142857,
+        "p50_ms": 0.001458,
+        "p90_ms": 0.0020624000000000007,
+        "p99_ms": 0.0028499599999999977,
+        "max_ms": 0.003125
+      },
+      "states": {
+        "on_cpu_ms": 0.072968,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x1917bf7",
+      "name": "CharacterBehaviorAndWorkerPhases / call 0x1917bf7",
+      "count": 392,
+      "sum_ms": 0.065725,
+      "distribution": {
+        "count": 392,
+        "mean_ms": 0.0001676658163265306,
+        "p50_ms": 0.000105,
+        "p90_ms": 0.0003129,
+        "p99_ms": 0.000625,
+        "max_ms": 0.00099
+      },
+      "states": {
+        "on_cpu_ms": 0.06572500000000019,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x19168f1",
+      "name": "CharacterUpdateCoordinator / call 0x19168f1",
+      "count": 49,
+      "sum_ms": 0.063849,
+      "distribution": {
+        "count": 49,
+        "mean_ms": 0.0013030408163265306,
+        "p50_ms": 0.00125,
+        "p90_ms": 0.0015212000000000001,
+        "p99_ms": 0.0023060799999999972,
+        "max_ms": 0.002656
+      },
+      "states": {
+        "on_cpu_ms": 0.06384899999999999,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x19166e6",
+      "name": "CharacterUpdateCoordinator / call 0x19166e6",
+      "count": 392,
+      "sum_ms": 0.056517,
+      "distribution": {
+        "count": 392,
+        "mean_ms": 0.00014417602040816326,
+        "p50_ms": 0.0001045,
+        "p90_ms": 0.00026,
+        "p99_ms": 0.000365,
+        "max_ms": 0.000833
+      },
+      "states": {
+        "on_cpu_ms": 0.05651700000000012,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x1915b35",
+      "name": "CharacterUpdateCoordinator / call 0x1915b35",
+      "count": 49,
+      "sum_ms": 0.055158,
+      "distribution": {
+        "count": 49,
+        "mean_ms": 0.0011256734693877552,
+        "p50_ms": 0.001198,
+        "p90_ms": 0.001406,
+        "p99_ms": 0.0018812399999999989,
+        "max_ms": 0.002031
+      },
+      "states": {
+        "on_cpu_ms": 0.055157999999999985,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x1a65919",
+      "name": "EnqueuePhaseSetup / call 0x1a65919",
+      "count": 49,
+      "sum_ms": 0.054114,
+      "distribution": {
+        "count": 49,
+        "mean_ms": 0.0011043673469387754,
+        "p50_ms": 0.000312,
+        "p90_ms": 0.0003754000000000001,
+        "p99_ms": 0.021018879999999844,
+        "max_ms": 0.039844
+      },
+      "states": {
+        "on_cpu_ms": 0.05411400000000001,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [
+        [
+          "HLE.sceKernelSignalSema",
+          0.036927
+        ]
+      ],
+      "hle_on_cpu_ms": [
+        [
+          "HLE.sceKernelSignalSema",
+          0.036927
+        ]
+      ]
+    },
+    {
+      "offset": "0x1917896",
+      "name": "CharacterBehaviorAndWorkerPhases / call 0x1917896",
+      "count": 147,
+      "sum_ms": 0.050988,
+      "distribution": {
+        "count": 147,
+        "mean_ms": 0.00034685714285714284,
+        "p50_ms": 0.000208,
+        "p90_ms": 0.000729,
+        "p99_ms": 0.001098159999999999,
+        "max_ms": 0.001771
+      },
+      "states": {
+        "on_cpu_ms": 0.05098800000000004,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x1916fa9",
+      "name": "CharacterUpdateCoordinator / call 0x1916fa9",
+      "count": 50,
+      "sum_ms": 0.050522,
+      "distribution": {
+        "count": 50,
+        "mean_ms": 0.00101044,
+        "p50_ms": 0.000833,
+        "p90_ms": 0.0017242,
+        "p99_ms": 0.0025816399999999996,
+        "max_ms": 0.00276
+      },
+      "states": {
+        "on_cpu_ms": 0.05052199999999999,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x1916f99",
+      "name": "CharacterUpdateCoordinator / call 0x1916f99",
+      "count": 50,
+      "sum_ms": 0.048747,
+      "distribution": {
+        "count": 50,
+        "mean_ms": 0.0009749400000000001,
+        "p50_ms": 0.000807,
+        "p90_ms": 0.0014632,
+        "p99_ms": 0.0030574299999999977,
+        "max_ms": 0.003593
+      },
+      "states": {
+        "on_cpu_ms": 0.048747,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x15135e5",
+      "name": "CharacterTransformCommitCandidate / call 0x15135e5",
+      "count": 50,
+      "sum_ms": 0.042341,
+      "distribution": {
+        "count": 50,
+        "mean_ms": 0.0008468200000000001,
+        "p50_ms": 0.000573,
+        "p90_ms": 0.0009891,
+        "p99_ms": 0.004510189999999999,
+        "max_ms": 0.00474
+      },
+      "states": {
+        "on_cpu_ms": 0.042341000000000004,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x191863a",
+      "name": "CharacterBehaviorAndWorkerPhases / call 0x191863a",
+      "count": 50,
+      "sum_ms": 0.030367,
+      "distribution": {
+        "count": 50,
+        "mean_ms": 0.00060734,
+        "p50_ms": 0.000573,
+        "p90_ms": 0.0007351,
+        "p99_ms": 0.0012271499999999991,
+        "max_ms": 0.001406
+      },
+      "states": {
+        "on_cpu_ms": 0.03036700000000002,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x1917962",
+      "name": "CharacterBehaviorAndWorkerPhases / call 0x1917962",
+      "count": 49,
+      "sum_ms": 0.028178,
+      "distribution": {
+        "count": 49,
+        "mean_ms": 0.0005750612244897959,
+        "p50_ms": 0.000573,
+        "p90_ms": 0.0007916000000000002,
+        "p99_ms": 0.0009650399999999997,
+        "max_ms": 0.00099
+      },
+      "states": {
+        "on_cpu_ms": 0.02817800000000001,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x1916fa1",
+      "name": "CharacterUpdateCoordinator / call 0x1916fa1",
+      "count": 50,
+      "sum_ms": 0.027037,
+      "distribution": {
+        "count": 50,
+        "mean_ms": 0.0005407400000000001,
+        "p50_ms": 0.0004945,
+        "p90_ms": 0.0009371000000000001,
+        "p99_ms": 0.0013295599999999998,
+        "max_ms": 0.001406
+      },
+      "states": {
+        "on_cpu_ms": 0.02703700000000002,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x191688f",
+      "name": "CharacterUpdateCoordinator / call 0x191688f",
+      "count": 49,
+      "sum_ms": 0.024316,
+      "distribution": {
+        "count": 49,
+        "mean_ms": 0.0004962448979591836,
+        "p50_ms": 0.000469,
+        "p90_ms": 0.0006458000000000003,
+        "p99_ms": 0.0009125199999999998,
+        "max_ms": 0.000937
+      },
+      "states": {
+        "on_cpu_ms": 0.024316000000000008,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x1916c4a",
+      "name": "CharacterUpdateCoordinator / call 0x1916c4a",
+      "count": 49,
+      "sum_ms": 0.023542,
+      "distribution": {
+        "count": 49,
+        "mean_ms": 0.00048044897959183676,
+        "p50_ms": 0.000469,
+        "p90_ms": 0.000625,
+        "p99_ms": 0.000999919999999998,
+        "max_ms": 0.00125
+      },
+      "states": {
+        "on_cpu_ms": 0.02354200000000001,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x19180b9",
+      "name": "CharacterBehaviorAndWorkerPhases / call 0x19180b9",
+      "count": 49,
+      "sum_ms": 0.022027,
+      "distribution": {
+        "count": 49,
+        "mean_ms": 0.00044953061224489797,
+        "p50_ms": 0.000417,
+        "p90_ms": 0.0005834000000000001,
+        "p99_ms": 0.001047759999999999,
+        "max_ms": 0.001198
+      },
+      "states": {
+        "on_cpu_ms": 0.02202700000000001,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x1916f3f",
+      "name": "CharacterUpdateCoordinator / call 0x1916f3f",
+      "count": 49,
+      "sum_ms": 0.020311,
+      "distribution": {
+        "count": 49,
+        "mean_ms": 0.00041451020408163266,
+        "p50_ms": 0.000416,
+        "p90_ms": 0.0005314000000000001,
+        "p99_ms": 0.0007565599999999999,
+        "max_ms": 0.000782
+      },
+      "states": {
+        "on_cpu_ms": 0.020311000000000006,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x1915be0",
+      "name": "CharacterUpdateCoordinator / call 0x1915be0",
+      "count": 49,
+      "sum_ms": 0.018594,
+      "distribution": {
+        "count": 49,
+        "mean_ms": 0.00037946938775510207,
+        "p50_ms": 0.000365,
+        "p90_ms": 0.000469,
+        "p99_ms": 0.0006270799999999996,
+        "max_ms": 0.000677
+      },
+      "states": {
+        "on_cpu_ms": 0.018594000000000006,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x19168c6",
+      "name": "CharacterUpdateCoordinator / call 0x19168c6",
+      "count": 49,
+      "sum_ms": 0.018286,
+      "distribution": {
+        "count": 49,
+        "mean_ms": 0.00037318367346938776,
+        "p50_ms": 0.000365,
+        "p90_ms": 0.0005202000000000001,
+        "p99_ms": 0.0005480399999999997,
+        "max_ms": 0.000573
+      },
+      "states": {
+        "on_cpu_ms": 0.01828600000000001,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x1915c6d",
+      "name": "CharacterUpdateCoordinator / call 0x1915c6d",
+      "count": 49,
+      "sum_ms": 0.016717,
+      "distribution": {
+        "count": 49,
+        "mean_ms": 0.00034116326530612246,
+        "p50_ms": 0.000313,
+        "p90_ms": 0.000417,
+        "p99_ms": 0.0005480399999999997,
+        "max_ms": 0.000573
+      },
+      "states": {
+        "on_cpu_ms": 0.016717000000000003,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    },
+    {
+      "offset": "0x1915b53",
+      "name": "CharacterUpdateCoordinator / call 0x1915b53",
+      "count": 49,
+      "sum_ms": 0.016666,
+      "distribution": {
+        "count": 49,
+        "mean_ms": 0.00034012244897959183,
+        "p50_ms": 0.000364,
+        "p90_ms": 0.000417,
+        "p99_ms": 0.0005480399999999997,
+        "max_ms": 0.000573
+      },
+      "states": {
+        "on_cpu_ms": 0.016666000000000007,
+        "sleep_ms": 0.0,
+        "runnable_ms": 0.0,
+        "unknown_offcpu_ms": 0,
+        "unobserved_ms": 0
+      },
+      "hle_elapsed_ms": [],
+      "hle_on_cpu_ms": []
+    }
+  ]
+}

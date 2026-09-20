@@ -1,0 +1,14 @@
+guest execution through the public CPU API
+host page size: 4096
+fixtures: 37, generated from tests/guest_cpu/fixtures/guest_fixtures.S
+
+guest reservation base: 0xff8000000
+code at 0xff8010000, stack top 0xff8023ff0
+return gate at 0x1fc0000000
+
+[G50a  ] RDTSC shares the scaled Orbis TSC domain                   PASS -- host=[0x2d1a5bd587140,0x2d1a5bd69ec40] guest=0x2d1a5bd67ee00
+[G50b  ] RDTSCP shares the scaled Orbis TSC domain                  PASS
+[G50c  ] CPUID TSC frequency equals Orbis frequency                 PASS
+[G50d  ] guest high-frequency counter preserves host time conversion PASS
+[G50e  ] process counter reports elapsed seconds without speeding up time PASS
+FOCUSED_CLOCK checks=5 failures=0
