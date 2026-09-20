@@ -1,0 +1,3 @@
+guest_sync_metrics: 45 checks PASS
+
+exit=0

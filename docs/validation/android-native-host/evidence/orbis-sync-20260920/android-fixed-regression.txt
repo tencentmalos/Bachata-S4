@@ -1,0 +1,8 @@
+RWLOCK_LIBC checks=60 failures=0
+GUEST_NATIVE_MUTEX checks=65499 failures=0
+SYNC_CANCEL_RELAY checks=453 failures=0 rounds=64
+{"case":"environment","system":"Linux","release":"5.15.123-android13-8-gafd857749d1f","machine":"aarch64","fex":false,"page_size":4096}
+{"case":"unrelated_wake","primitive":"guest_posix_sem","signals":32,"voluntary_switches":1,"thread_cpu_ns":145104}
+{"case":"unrelated_wake","primitive":"guest_rwlock","signals":32,"voluntary_switches":1,"thread_cpu_ns":52397}
+
+exit=0

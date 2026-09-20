@@ -1,0 +1,5 @@
+{"case":"environment","system":"Linux","release":"5.15.123-android13-8-gafd857749d1f","machine":"aarch64","fex":false,"page_size":4096}
+{"case":"unrelated_wake","primitive":"guest_posix_sem","signals":32,"voluntary_switches":33,"thread_cpu_ns":1343387}
+SYNC_BENCH_FAILURE
+
+exit=2

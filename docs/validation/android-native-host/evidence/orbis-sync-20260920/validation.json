@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "branch": "feature/malos/hle_vr",
+  "base_commit": "aeb087d258d8368df4632f3f6b2f0ea53964ceec",
+  "scope": "HLE synchronization diagnostics and per-object wakeups; no new game performance acceptance",
+  "artifacts": {
+    "apk": {
+      "path": "android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk",
+      "sha256": "3ba6e584a137dd0f60c36c7bdfb6f7beb67ea6157b5353b2d621b6c29067de8a"
+    },
+    "host": {
+      "path": "build/android-host-api33-sbs-20260919-r29/native/libshadps4_host.so",
+      "sha256": "914dd36fb4d92578de0d26a11f63dc9dba4ecb5a2baa22e68e79b99cb84b6eb1"
+    }
+  },
+  "device": {
+    "serial": "9c2841a4",
+    "model": "AYN Thor",
+    "internal_scale": 0.5,
+    "state": "Settings; no active game after ordinary Stop and install",
+    "driver": "Turnip 5ac41be677",
+    "fdm": false,
+    "guest_shading": "1x1"
+  },
+  "checks": {
+    "metrics_android": 45,
+    "metrics_tsan": 45,
+    "rwlock_android": 60,
+    "mutex_android": 65499,
+    "condition_android": 67,
+    "services_android": 78,
+    "kernel_sema_android": 588,
+    "cancel_relay_rounds_android_linux_tsan": 64
+  },
+  "pending": [
+    "real game hle_sync start/detail/dump with PROF and Litep consumption",
+    "same scene overhead OFF/ON/OFF",
+    "full desktop Orbis ABI benchmark",
+    "app-shipped HLE FEX synchronization fast path"
+  ],
+  "evidence": {
+    "android-baseline-idle.jsonl": "b6a2a603bf64dfc95e5de19c63795759dc218fa411aad9d17ad1415958762c87",
+    "android-optimized-idle.jsonl": "673bfc84093eb30bd52fdb45a02f6a8ac41559155af6aceabc3a594e65fafdd0",
+    "linux-baseline.jsonl": "0ba6647caaa14335195a09bcd3f35866417da1c995bac9f7efdecb4cf5ff9dae",
+    "linux-optimized.jsonl": "b4c17e0b4fbbdec39680f53b1b22f3c2140ea6679e20f85e11c9789f1e352147",
+    "android-domain-tests.txt": "c34b2a84d765c9623ef2ac7b6a870f2e4cd755846a252ca9d8f0a4fbd9296679",
+    "android-metrics-tests-final.txt": "ef038f9c724baaf11687d89ee18814603bf0c8e167f911a97372e2da80fcf71f",
+    "android-fixed-regression.txt": "59b874952293c7b219f604cf97292f510fa3501824f987a8872e13b02bfdc6aa",
+    "android-old-isolation-negative.txt": "f3e488790eeed55a6b954fb4462d3d51490861cee2a41df280783e5653c3845d",
+    "android-isolation-tests.txt": "6e20d6f38a76ebbb581b7c9046ad412678d512356ef00f8a25a450029a419897",
+    "metrics-tsan.txt": "dfe9da05af5b6774420091afc8e149a011ea77256193a9e7e0a3fa53f8ded58d",
+    "isolation-tsan.txt": "5c94adb75c973f882c3a3b417205232c52d6803c023ca0e7544848f9fc6232b4",
+    "linux-isolation.txt": "5c94adb75c973f882c3a3b417205232c52d6803c023ca0e7544848f9fc6232b4",
+    "metrics-overhead-no-sdk.jsonl": "18ba1ccccb0c8291a963211052c6a5508479e69b3da4ae556e7b6e349577338c"
+  }
+}

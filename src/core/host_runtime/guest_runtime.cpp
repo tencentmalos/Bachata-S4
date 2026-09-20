@@ -47,6 +47,7 @@
 #include "core/host_runtime/guest_trophy.h"
 #include "core/file_format/trophy_support.h"
 #include "core/host_runtime/guest_sync_arena.h"
+#include "core/host_runtime/guest_sync_metrics.h"
 #include "core/host_runtime/guest_network.h"
 #include "core/host_runtime/guest_http.h"
 #include "core/host_runtime/guest_http2.h"
@@ -195,6 +196,8 @@ struct FunctionAdapter final : HleCallAdapter {
     std::string profile_name{"HLE.Unknown"};
     bool profile_poll{};
     bool profile_sync{}, profile_sync_mutex{};
+    std::shared_ptr<SyncMetrics::Session> sync_metrics;
+    SyncMetrics::Operation sync_operation{SyncMetrics::Operation::None};
     std::function<Status(HleCallFrame&)> call;
     explicit FunctionAdapter(std::function<Status(HleCallFrame&)> f) : call(std::move(f)) {}
     Status Invoke(HleCallFrame& frame) const override {
@@ -280,6 +283,13 @@ struct FunctionAdapter final : HleCallAdapter {
                                 (unsigned long long)frame.operation,
                                 (unsigned long long)frame.registers.rip);
 #endif
+        std::optional<SyncMetrics::Call> sync_call;
+        if (sync_metrics && sync_metrics->Enabled()) {
+            const auto* owner = HleScope::Current();
+            sync_call.emplace(sync_metrics.get(), sync_operation, frame.operation,
+                frame.registers.Get(Gpr::Rdi), owner ? owner->Thread().id : 0,
+                owner ? owner->Thread().generation : 0);
+        }
         Status status;
         try {
             status = call(frame);
@@ -291,6 +301,7 @@ struct FunctionAdapter final : HleCallAdapter {
 #endif
             throw;
         }
+        if (sync_call) sync_call->Finish(bool(status), frame.registers.Get(Gpr::Rax));
         if (sync_sample) Common::Profiler::Counter("GuestSync.Result", frame.registers.Get(Gpr::Rax));
 #if defined(__ANDROID__)
         if (trace)
@@ -339,6 +350,7 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
     std::unique_ptr<GuestNpOffline> np;
     bool np_offline{};
     bool profile_sync{};
+    std::shared_ptr<SyncMetrics::Session> sync_metrics;
     std::unique_ptr<GuestAjm> ajm;
     std::unique_ptr<GuestAvPlayer> avplayer;
     std::unique_ptr<GuestAudio> audio;
@@ -672,6 +684,14 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
             char sync_property[PROP_VALUE_MAX]{};
             __system_property_get("debug.shadps4.profile_sync", sync_property);
             profile_sync = std::string_view(sync_property) == "1";
+#endif
+            sync_metrics = std::make_shared<SyncMetrics::Session>(cpu.ContextId());
+            SyncMetrics::SetControl(sync_metrics);
+#if defined(__ANDROID__)
+            char metrics_property[PROP_VALUE_MAX]{};
+            __system_property_get("debug.shadps4.hle_sync", metrics_property);
+            if (std::string_view(metrics_property) == "1" || std::string_view(metrics_property) == "detail")
+                sync_metrics->Enable(true, std::string_view(metrics_property) == "detail");
 #endif
             ime_dialog = std::make_unique<GuestImeDialog>(space);
             // Construct the bridge before recording handler closures so every
@@ -1441,6 +1461,8 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         static_cast<FunctionAdapter&>(*adapter).profile_poll =
             nid == "QBi7HCK03hw" || nid == "lLMT9vJAck0" || nid == "1jfXLRVzisc";
         auto& function = static_cast<FunctionAdapter&>(*adapter);
+        function.sync_operation = SyncMetrics::Classify(function.profile_name);
+        if (function.sync_operation != SyncMetrics::Operation::None) function.sync_metrics = sync_metrics;
         function.profile_sync_mutex = function.profile_name.find("MutexLock") != std::string::npos ||
             function.profile_name.find("MutexUnlock") != std::string::npos ||
             function.profile_name.find("mutex_lock") != std::string::npos ||
@@ -1709,15 +1731,19 @@ void GuestRuntime::Impl::InstallHandlers() {
         const u32 clear = mode & 0xf0u;
         if (clear != 0 && clear != 0x10 && clear != 0x20)
             return s32(ORBIS_KERNEL_ERROR_EINVAL);
+        SyncMetrics::Phase guard_phase{SyncMetrics::Stage::Guard};
         std::unique_lock lock(ef->mutex);
+        guard_phase.End();
         const auto met = [&] { return ef->deleted ||
                                       (all ? (ef->bits & bits) == bits : (ef->bits & bits) != 0); };
+        SyncMetrics::Phase park_phase{SyncMetrics::Stage::Park};
         if (timeout) {
             if (!ef->changed.wait_for(lock, *timeout, met))
                 return s32(ORBIS_KERNEL_ERROR_ETIMEDOUT);
         } else {
             ef->changed.wait(lock, met);
         }
+        park_phase.End();
         if (ef->deleted)
             return s32(ORBIS_KERNEL_ERROR_EACCES);
         if (result_addr) {

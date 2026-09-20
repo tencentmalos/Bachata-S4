@@ -1,0 +1,15 @@
+{"case":"metrics_only_no_sdk","round":0,"mode":0,"ns_per_call":1.62}
+{"case":"metrics_only_no_sdk","round":0,"mode":1,"ns_per_call":131.35}
+{"case":"metrics_only_no_sdk","round":0,"mode":2,"ns_per_call":230.05}
+{"case":"metrics_only_no_sdk","round":0,"mode":1,"ns_per_call":115.95}
+{"case":"metrics_only_no_sdk","round":0,"mode":0,"ns_per_call":0.31}
+{"case":"metrics_only_no_sdk","round":1,"mode":0,"ns_per_call":0.31}
+{"case":"metrics_only_no_sdk","round":1,"mode":1,"ns_per_call":116.00}
+{"case":"metrics_only_no_sdk","round":1,"mode":2,"ns_per_call":230.03}
+{"case":"metrics_only_no_sdk","round":1,"mode":1,"ns_per_call":116.19}
+{"case":"metrics_only_no_sdk","round":1,"mode":0,"ns_per_call":0.31}
+{"case":"metrics_only_no_sdk","round":2,"mode":0,"ns_per_call":0.32}
+{"case":"metrics_only_no_sdk","round":2,"mode":1,"ns_per_call":115.91}
+{"case":"metrics_only_no_sdk","round":2,"mode":2,"ns_per_call":230.13}
+{"case":"metrics_only_no_sdk","round":2,"mode":1,"ns_per_call":115.76}
+{"case":"metrics_only_no_sdk","round":2,"mode":0,"ns_per_call":0.31}

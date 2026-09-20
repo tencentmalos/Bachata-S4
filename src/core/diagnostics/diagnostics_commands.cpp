@@ -9,6 +9,7 @@
 #if defined(SHADPS4_TYPED_HLE_HOST)
 #include "core/host_runtime/guest_patch.h"
 #include "core/host_runtime/guest_auto_tag.h"
+#include "core/host_runtime/guest_sync_metrics.h"
 #endif
 
 #include <charconv>
@@ -130,6 +131,8 @@ std::uint64_t NowNs(const MonotonicClockNs& clock) {
 void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& registry,
                                  DiagnosticsHub& hub, MonotonicClockNs clock) {
 #if defined(SHADPS4_TYPED_HLE_HOST)
+    registry.Register("hle_sync", "HLE synchronization metrics: status | dump | start/detail/stop <context>",
+        [](const std::vector<std::string>& args) { return HostRuntime::SyncMetrics::Command(args); });
     registry.Register("guest_auto_tag", "Guest IR auto tag status | enable/disable <context>",
         [](const std::vector<std::string>& args) { return GuestAutoTag::Command(args); });
     registry.Register("guest_patch", "Guest patch status | enable/disable <context ID>",

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
+#include "core/host_runtime/guest_sync_metrics.h"
 #include <algorithm>
 #include <atomic>
 #include <chrono>
@@ -150,7 +151,9 @@ public:
                         at = next;
                     }
                 }
+                SyncMetrics::Phase guard_phase{SyncMetrics::Stage::Guard};
                 std::unique_lock lock(mutex);
+                guard_phase.End();
                 const u32 id = u32(a[0]);
                 auto sem = Find(id);
                 Need(need > 0 && need <= sem->maximum, ORBIS_KERNEL_ERROR_EINVAL);
@@ -182,10 +185,12 @@ public:
                         sem->waiters, [&](const auto& item) { return item->priority > priority; });
                 sem->waiters.insert(at, waiter);
                 const auto deadline = Clock::now() + std::chrono::microseconds(timeout);
+                SyncMetrics::Phase park_phase{SyncMetrics::Stage::Park};
                 if (a[2])
                     waiter->changed.wait_until(lock, stop, deadline, [&] { return waiter->done; });
                 else
                     waiter->changed.wait(lock, stop, [&] { return waiter->done; });
+                park_phase.End();
                 sem->waiters.remove(waiter);
                 s32 result = waiter->done            ? waiter->result
                              : stop.stop_requested() ? ORBIS_KERNEL_ERROR_EINTR
@@ -208,7 +213,9 @@ public:
             }
             // Only this semaphore domain is synchronized below; no wait/callback.
 
+            SyncMetrics::Phase guard_phase{SyncMetrics::Stage::Guard};
             std::lock_guard lock(mutex);
+            guard_phase.End();
             if (nid == "188x57JYp0g") {
                 Need(a[1] && u32(a[2]) <= 2 && s32(a[3]) >= 0 && s32(a[4]) > 0 &&
                          s32(a[3]) <= s32(a[4]) && !a[5],

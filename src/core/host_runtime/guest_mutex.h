@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
+#include "core/host_runtime/guest_sync_metrics.h"
 
 #include <algorithm>
 #include <atomic>
@@ -284,7 +285,9 @@ public:
     }
     int Lock(u64 slot, u64 owner, bool try_only, std::stop_token cancel) {
         int error{};
+        SyncMetrics::Phase lookup_phase{SyncMetrics::Stage::Lookup};
         auto state = FindMutex(slot, true, error);
+        lookup_phase.End();
         if (!state) return error;
         auto& m = *state;
         // The callback is destroyed AFTER lock unlocks. It takes the same mutex
@@ -294,7 +297,9 @@ public:
             m.changed.notify_all();
         };
         std::optional<std::stop_callback<decltype(wake)>> on_stop;
+        SyncMetrics::Phase guard_phase{SyncMetrics::Stage::Guard};
         std::unique_lock lock(m.guard);
+        guard_phase.End();
         if (m.retired) return POSIX_EINVAL;
         if (m.owner == owner) {
             if (m.type == 2) {
@@ -325,23 +330,32 @@ public:
                 on_stop.emplace(cancel, wake);
                 lock.lock();
             }
+            SyncMetrics::Phase park_phase{SyncMetrics::Stage::Park};
             m.changed.wait(lock, [&] { return !m.owner || cancel.stop_requested(); });
         }
         if (cancel.stop_requested()) return POSIX_EINTR;
+        SyncMetrics::Phase publish_phase{SyncMetrics::Stage::Publish};
         WriteOwnership(m.address, owner, 1);
+        publish_phase.End();
         m.owner = owner;
         m.depth = 1;
         return 0;
     }
     int Unlock(u64 slot, u64 owner) {
         int error{};
+        SyncMetrics::Phase lookup_phase{SyncMetrics::Stage::Lookup};
         auto state = FindMutex(slot, false, error);
+        lookup_phase.End();
         if (!state) return error;
         auto& m = *state;
+        SyncMetrics::Phase guard_phase{SyncMetrics::Stage::Guard};
         std::lock_guard lock(m.guard);
+        guard_phase.End();
         if (m.retired) return POSIX_EINVAL;
         if (m.owner != owner) return POSIX_EPERM;
+        SyncMetrics::Phase publish_phase{SyncMetrics::Stage::Publish};
         WriteOwnership(m.address, m.depth == 1 ? 0 : owner, m.depth - 1);
+        publish_phase.End();
         if (--m.depth == 0) {
             m.owner = 0;
             if (m.waiters) m.changed.notify_one();
@@ -549,6 +563,7 @@ public:
         TraceCond(CondTraceKind::Enqueued, addr, m.address, owner);
         const auto ready = [&] { return waiter.notified || cancel.stop_requested(); };
         int result{};
+        SyncMetrics::Phase park_phase{SyncMetrics::Stage::Park};
         if (limit.relative_us) {
             const auto now = std::chrono::steady_clock::now();
             const auto available = std::chrono::duration_cast<std::chrono::microseconds>(
@@ -573,10 +588,12 @@ public:
         } else {
             waiter.changed.wait(cond_lock, ready);
         }
+        park_phase.End();
         TraceCond(CondTraceKind::Resumed, addr, m.address, owner,
                   cancel.stop_requested() ? POSIX_EINTR : result);
         waiter.reacquiring = true;
         cond_lock.unlock();
+        SyncMetrics::Phase reacquire_phase{SyncMetrics::Stage::Reacquire};
         mutex_lock.lock();
         // Session cancellation is terminal and must not wait for a stopped owner.
         m.changed.wait(mutex_lock, [&] { return !m.owner || cancel.stop_requested(); });
@@ -585,6 +602,7 @@ public:
             m.owner = owner;
             m.depth = depth;
         }
+        reacquire_phase.End();
         TraceCond(CondTraceKind::Reacquired, addr, m.address, owner,
                   cancel.stop_requested() ? POSIX_EINTR : result);
         return cancel.stop_requested() ? POSIX_EINTR : result;

@@ -1,0 +1,12 @@
+cmake_minimum_required(VERSION 3.16)
+project(hle_sync_metrics LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+get_filename_component(ROOT ../../.. ABSOLUTE BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+find_package(Threads REQUIRED)
+add_executable(guest_sync_metrics_tests ../guest_sync_metrics_tests.cpp
+    ${ROOT}/src/core/host_runtime/guest_sync_metrics.cpp)
+target_include_directories(guest_sync_metrics_tests PRIVATE ${ROOT}/src)
+target_link_libraries(guest_sync_metrics_tests PRIVATE Threads::Threads)
+enable_testing()
+add_test(NAME guest_sync_metrics COMMAND guest_sync_metrics_tests)

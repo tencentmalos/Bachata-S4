@@ -1625,6 +1625,7 @@ if(BUILD_HOST_CORE)
         src/core/host_runtime/guest_storage.cpp
         src/core/host_runtime/guest_storage_hle.cpp
         src/core/host_runtime/guest_runtime.cpp
+        src/core/host_runtime/guest_sync_metrics.cpp
         src/core/host_runtime/guest_auto_tag.cpp
         src/core/host_runtime/guest_patch.cpp
         src/core/host_runtime/guest_patch_relocator.cpp

@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
+#include "core/host_runtime/guest_sync_metrics.h"
+#include "common/types.h"
 #include <chrono>
 #include <condition_variable>
 #include <cstring>
@@ -17,11 +19,11 @@ namespace Core::HostRuntime {
 class GuestSemaphoreDomain final {
     struct Semaphore {
         u32 value{}, waiters{};
+        std::condition_variable_any changed;
     };
     GuestCpu::GuestAddressSpace& space;
     std::function<u64()> allocate;
     std::mutex guard;
-    std::condition_variable_any changed;
     std::map<u64, Semaphore> objects;
     size_t allocations{};
     std::optional<u64> Handle(u64 slot) {
@@ -55,7 +57,7 @@ public:
         auto output = space.AcquireDataSpan({GuestCpu::GuestAddress{slot}, 8}, true);
         if (!output)
             return POSIX_EFAULT;
-        objects.emplace(handle, Semaphore{value});
+        objects.try_emplace(handle).first->second.value = value;
         std::memcpy(output.Value().WritableBytes().data(), &handle, sizeof(handle));
         return 0;
     }
@@ -77,7 +79,9 @@ public:
         return 0;
     }
     int Post(u64 slot) {
+        SyncMetrics::Phase guard_phase{SyncMetrics::Stage::Guard};
         std::lock_guard lock(guard);
+        guard_phase.End();
         auto handle = Handle(slot);
         if (!handle)
             return POSIX_EFAULT;
@@ -87,7 +91,7 @@ public:
         if (it->second.value == MaxValue)
             return POSIX_EOVERFLOW;
         ++it->second.value;
-        changed.notify_all(); // One domain CV serves multiple independent semaphores.
+        it->second.changed.notify_one();
         return 0;
     }
     int GetValue(u64 slot, u64 address) {
@@ -104,9 +108,18 @@ public:
         std::memcpy(output.Value().WritableBytes().data(), &it->second.value, 4);
         return 0;
     }
+    u32 Pending(u64 slot) {
+        std::lock_guard lock(guard);
+        auto handle = Handle(slot);
+        if (!handle) return 0;
+        auto it = objects.find(*handle);
+        return it == objects.end() ? 0 : it->second.waiters;
+    }
     int Wait(u64 slot, bool try_only, std::stop_token cancel,
              std::optional<std::chrono::steady_clock::time_point> deadline = {}) {
+        SyncMetrics::Phase guard_phase{SyncMetrics::Stage::Guard};
         std::unique_lock lock(guard);
+        guard_phase.End();
         auto handle = Handle(slot);
         if (!handle)
             return POSIX_EFAULT;
@@ -124,11 +137,17 @@ public:
             return POSIX_EAGAIN;
         ++sem.waiters;
         const auto ready = [&] { return sem.value != 0; };
-        bool acquired = deadline ? changed.wait_until(lock, cancel, *deadline, ready)
-                                 : changed.wait(lock, cancel, ready);
+        SyncMetrics::Phase park_phase{SyncMetrics::Stage::Park};
+        bool acquired = deadline ? sem.changed.wait_until(lock, cancel, *deadline, ready)
+                                 : sem.changed.wait(lock, cancel, ready);
+        park_phase.End();
         --sem.waiters;
-        if (cancel.stop_requested())
+        if (cancel.stop_requested()) {
+            // A selected waiter can cancel after Post made a token available.
+            // Transfer that wake while holding the predicate guard.
+            if (sem.value && sem.waiters) sem.changed.notify_one();
             return POSIX_EINTR;
+        }
         if (!acquired)
             return POSIX_ETIMEDOUT;
         --sem.value;

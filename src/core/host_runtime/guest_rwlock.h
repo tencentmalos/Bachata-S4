@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
+#include "core/host_runtime/guest_sync_metrics.h"
 #include <chrono>
 #include <condition_variable>
 #include <functional>
@@ -19,12 +20,12 @@ class GuestRwlockDomain final {
         u64 writer{};
         std::map<u64, u32> readers;
         u32 type{}, waiters{}, writers{};
+        std::condition_variable_any changed;
     };
     GuestCpu::GuestAddressSpace& space;
     std::function<u64()> allocate;
 
     std::mutex mutex;
-    std::condition_variable_any changed;
     std::map<u64, LockState> locks;
     std::map<u64, u32> attributes;
     size_t allocations{};
@@ -46,7 +47,7 @@ class GuestRwlockDomain final {
         ++allocations;
         if (int error = Write(slot, address)) return error;
         if (attr) attributes.emplace(address, type);
-        else locks.emplace(address, LockState{.type = type});
+        else locks.try_emplace(address).first->second.type = type;
         return 0;
     }
 public:
@@ -94,7 +95,9 @@ public:
     }
     int Lock(u64 slot, u64 owner, bool write, bool try_only, std::stop_token cancel,
              std::optional<std::chrono::system_clock::time_point> deadline = {}) {
+        SyncMetrics::Phase guard_phase{SyncMetrics::Stage::Guard};
         std::unique_lock guard(mutex);
+        guard_phase.End();
         u64 address{};
         if (!Read(slot, address)) return POSIX_EFAULT;
         if (!address) {
@@ -117,9 +120,11 @@ public:
             struct Waiting {
                 LockState& state; bool write; std::condition_variable_any& changed;
                 ~Waiting() { --state.waiters; if (write) --state.writers; changed.notify_all(); }
-            } waiting{state, write, changed};
-            const bool acquired = deadline ? changed.wait_until(guard, cancel, *deadline, ready)
-                                           : changed.wait(guard, cancel, ready);
+            } waiting{state, write, state.changed};
+            SyncMetrics::Phase park_phase{SyncMetrics::Stage::Park};
+            const bool acquired = deadline ? state.changed.wait_until(guard, cancel, *deadline, ready)
+                                           : state.changed.wait(guard, cancel, ready);
+            park_phase.End();
             if (cancel.stop_requested()) return POSIX_EINTR;
             if (!acquired) return POSIX_ETIMEDOUT;
         }
@@ -133,7 +138,9 @@ public:
         return 0;
     }
     int Unlock(u64 slot, u64 owner) {
+        SyncMetrics::Phase guard_phase{SyncMetrics::Stage::Guard};
         std::lock_guard guard(mutex);
+        guard_phase.End();
         u64 address{};
         if (!Read(slot, address)) return POSIX_EFAULT;
         auto it = locks.find(address);
@@ -145,7 +152,7 @@ public:
             if (read == state.readers.end()) return POSIX_EPERM;
             if (--read->second == 0) state.readers.erase(read);
         }
-        changed.notify_all(); return 0;
+        state.changed.notify_all(); return 0;
     }
     u32 Pending(u64 slot) {
         std::lock_guard guard(mutex);
