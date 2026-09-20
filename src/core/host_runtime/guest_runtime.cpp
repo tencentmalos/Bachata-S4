@@ -955,10 +955,26 @@ struct GuestRuntime::Impl final : GuestMemoryBackend {
         return o;
     }
     std::shared_ptr<Owner> Current() {
+        // Hot path for every HLE call that needs its owner (mutex, semaphore,
+        // rwlock, pthread_self, errno). A thread-local weak reference keyed by
+        // runtime and active thread avoids taking the process-wide threads
+        // mutex on each call; it never extends the owner's lifetime and falls
+        // back to the registry whenever the owner was replaced or released.
+        struct Cache {
+            const void* runtime{};
+            u64 thread{};
+            std::weak_ptr<Owner> owner;
+        };
+        static thread_local Cache cache;
+        if (cache.runtime == this && cache.thread == active_thread && active_thread) {
+            if (auto owner = cache.owner.lock())
+                return owner;
+        }
         std::lock_guard lock(threads_mutex);
         auto it = owners.find(active_thread);
         if (active_runtime != this || it == owners.end())
             throw std::logic_error("no production guest owner");
+        cache = {this, active_thread, it->second};
         return it->second;
     }
     Result<GuestCallResult> Call(u64 entry, const GuestCallArgs& args) {

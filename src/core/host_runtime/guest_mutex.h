@@ -98,7 +98,9 @@ private:
         std::condition_variable changed;
     };
     struct Cond {
-        std::vector<Waiter*> waiters;
+        // Shared ownership lets a notifier signal a selected waiter after the
+        // condition guard is released, even if that waiter has already left.
+        std::vector<std::shared_ptr<Waiter>> waiters;
         u32 clock{};
         bool retired{};
         std::mutex guard;
@@ -138,6 +140,10 @@ private:
     void WriteOwnership(u64 address, u64 owner, u32 depth) {
         // One checked 12-byte write. Preserve libc's
         // spin/yield/protocol/flags fields; only the first 12 ABI bytes change.
+        // Stays on the admitted VM path: a retiring data edit over the prefix
+        // page must block publication (guest_native_mutex_tests "range
+        // retirement blocks one object"); the arena is not exempt from that
+        // contract even though production never remaps it.
         std::array<std::byte, 12> bytes;
         std::memcpy(bytes.data(), &owner, sizeof(owner));
         std::memcpy(bytes.data() + sizeof(owner), &depth, sizeof(depth));
@@ -348,18 +354,25 @@ public:
         lookup_phase.End();
         if (!state) return error;
         auto& m = *state;
-        SyncMetrics::Phase guard_phase{SyncMetrics::Stage::Guard};
-        std::lock_guard lock(m.guard);
-        guard_phase.End();
-        if (m.retired) return POSIX_EINVAL;
-        if (m.owner != owner) return POSIX_EPERM;
-        SyncMetrics::Phase publish_phase{SyncMetrics::Stage::Publish};
-        WriteOwnership(m.address, m.depth == 1 ? 0 : owner, m.depth - 1);
-        publish_phase.End();
-        if (--m.depth == 0) {
-            m.owner = 0;
-            if (m.waiters) m.changed.notify_one();
+        bool wake = false;
+        {
+            SyncMetrics::Phase guard_phase{SyncMetrics::Stage::Guard};
+            std::lock_guard lock(m.guard);
+            guard_phase.End();
+            if (m.retired) return POSIX_EINVAL;
+            if (m.owner != owner) return POSIX_EPERM;
+            SyncMetrics::Phase publish_phase{SyncMetrics::Stage::Publish};
+            WriteOwnership(m.address, m.depth == 1 ? 0 : owner, m.depth - 1);
+            publish_phase.End();
+            if (--m.depth == 0) {
+                m.owner = 0;
+                wake = m.waiters != 0;
+            }
         }
+        // Notify after releasing the object guard: the woken contender must
+        // reacquire that guard and would otherwise block on it a second time.
+        // The Mutex outlives every waiter (retained until Session teardown).
+        if (wake) m.changed.notify_one();
         return 0;
     }
     int Destroy(u64 slot) {
@@ -456,21 +469,25 @@ public:
             if (it == conditions.end()) return POSIX_EINVAL;
             state = it->second;
         }
-        std::lock_guard lock(state->guard);
-        if (state->retired) return POSIX_EINVAL;
-        bool notified = false;
-        for (auto* waiter : state->waiters) {
-            if (waiter->notified || waiter->reacquiring ||
-                (target_owner && waiter->owner != target_owner)) continue;
-            waiter->notified = true;
-            TraceCond(CondTraceKind::Notified, addr, waiter->mutex, waiter->owner);
-            // Each waiter has its own native condition. A targeted signal must
-            // neither wake every owner nor accidentally wake an unselected one.
-            waiter->changed.notify_one();
-            notified = true;
-            if (!broadcast) break;
+        std::vector<std::shared_ptr<Waiter>> selected;
+        {
+            std::lock_guard lock(state->guard);
+            if (state->retired) return POSIX_EINVAL;
+            for (const auto& waiter : state->waiters) {
+                if (waiter->notified || waiter->reacquiring ||
+                    (target_owner && waiter->owner != target_owner)) continue;
+                waiter->notified = true;
+                TraceCond(CondTraceKind::Notified, addr, waiter->mutex, waiter->owner);
+                selected.push_back(waiter);
+                if (!broadcast) break;
+            }
         }
-        return target_owner && !notified ? POSIX_EPERM : 0;
+        // Each waiter has its own native condition. A targeted signal must
+        // neither wake every owner nor accidentally wake an unselected one.
+        // `notified` was published under the condition guard; notifying after
+        // releasing it keeps the woken waiter from blocking on that guard.
+        for (const auto& waiter : selected) waiter->changed.notify_one();
+        return target_owner && selected.empty() ? POSIX_EPERM : 0;
     }
     int CondDestroy(u64 slot) {
         std::lock_guard registry(guard);
@@ -517,7 +534,10 @@ public:
         }
         auto& c = *condition;
         auto& m = *state;
-        Waiter waiter{.owner = owner, .mutex = m.address};
+        auto waiter_ref = std::make_shared<Waiter>();
+        waiter_ref->owner = owner;
+        waiter_ref->mutex = m.address;
+        auto& waiter = *waiter_ref;
         // Construct before taking either guard; destruction follows queue
         // removal and guard release, and precedes destruction of the waiter.
         std::stop_callback on_stop(cancel, [&] {
@@ -535,7 +555,7 @@ public:
         std::lock(cond_lock, mutex_lock);
         if (c.retired || m.retired) return POSIX_EINVAL;
         if (m.owner != owner) return POSIX_EPERM;
-        c.waiters.push_back(&waiter);
+        c.waiters.push_back(waiter_ref);
         ++m.waiters;
         struct Waiting {
             Cond& c;
@@ -546,10 +566,14 @@ public:
             ~Waiting() {
                 if (cond_lock.owns_lock()) cond_lock.unlock();
                 if (mutex_lock.owns_lock()) mutex_lock.unlock();
-                std::scoped_lock lock(c.guard, m.guard);
-                std::erase(c.waiters, &waiter);
-                --m.waiters;
-                if (!m.owner && m.waiters) m.changed.notify_one();
+                bool wake = false;
+                {
+                    std::scoped_lock lock(c.guard, m.guard);
+                    std::erase_if(c.waiters, [&](const auto& item) { return item.get() == &waiter; });
+                    --m.waiters;
+                    wake = !m.owner && m.waiters;
+                }
+                if (wake) m.changed.notify_one();
             }
         } waiting{c, m, waiter, cond_lock, mutex_lock};
         const auto depth = m.depth;
@@ -558,8 +582,9 @@ public:
         WriteOwnership(m.address, 0, 0);
         m.owner = 0;
         m.depth = 0;
-        m.changed.notify_one();
+        const bool wake_contender = m.waiters > 1; // ourselves plus a Lock contender
         mutex_lock.unlock();
+        if (wake_contender) m.changed.notify_one();
         TraceCond(CondTraceKind::Enqueued, addr, m.address, owner);
         const auto ready = [&] { return waiter.notified || cancel.stop_requested(); };
         int result{};
@@ -624,7 +649,7 @@ public:
         }
         std::lock_guard lock(state->guard);
         return std::count_if(state->waiters.begin(), state->waiters.end(),
-                             [](auto* waiter) { return waiter->reacquiring; });
+                             [](const auto& waiter) { return waiter->reacquiring; });
     }
     int IsOwned(u64 slot, u64 owner) {
         int error{};
