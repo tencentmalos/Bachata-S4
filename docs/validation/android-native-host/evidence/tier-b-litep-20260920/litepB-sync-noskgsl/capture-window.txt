@@ -1,0 +1,2 @@
+capture_window presents=226 seconds=20
+kgsl exit=2

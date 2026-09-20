@@ -1,0 +1,15 @@
+cmake_minimum_required(VERSION 3.16)
+project(trace_dump_host LANGUAGES C CXX)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(SDK "C:/workspace/emulations/shadps4/foundation/third_party/profiler_sdk")
+add_library(lz4 STATIC "${SDK}/third_party/lz4/lz4.c")
+target_include_directories(lz4 PUBLIC "${SDK}/third_party/lz4")
+add_subdirectory("${SDK}/sdk" sdk)
+add_library(profiler-trace-reader STATIC
+    "${SDK}/tools/reader/TraceReader.cpp" "${SDK}/tools/reader/PerfettoJsonExporter.cpp"
+    "${SDK}/tools/reader/PerfettoProtoExporter.cpp" "${SDK}/tools/reader/TraceDumpCli.cpp")
+target_include_directories(profiler-trace-reader PUBLIC "${SDK}/tools/reader")
+target_link_libraries(profiler-trace-reader PUBLIC profiler-sdk PRIVATE lz4)
+add_executable(trace_dump "${SDK}/tools/reader/trace_dump.cpp")
+target_link_libraries(trace_dump profiler-trace-reader)

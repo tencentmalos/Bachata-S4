@@ -1,0 +1,15 @@
+SERVICE com.shadps4.android/.service.FexSessionService b3b9d0b pid=9558 user=0
+  Client:
+    schema=foundation.profiler-capture.v1
+    profiler_sdk_revision=e00321ea40c4c608aff74a787200bc59493eea19
+    process_id=9558
+    capture_id=2
+    capture_active=0
+    capture_mode=file
+    capture_state=ready
+    capture_path=/data/user/0/com.shadps4.android/files/host/log/profiler/file-1789891176004789-2.prof
+    capture_bytes=28651779
+    capture_port=0
+    capture_host=127.0.0.1
+    stream_protocol=raw-prof-v3-stop-line-v1
+    error=

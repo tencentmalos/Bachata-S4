@@ -1,0 +1,9 @@
+serial=9c2841a4
+adapter=ayn-thor
+manufacturer=AYN
+model=AYN Thor
+build=Thor_V1.0.0.377_20260206_165408_user
+slot=_a
+bootloader_locked=0
+verified_boot=orange
+root_backend=PServerBinder/pservice
