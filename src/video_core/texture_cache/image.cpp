@@ -217,28 +217,28 @@ Image::Image(const Vulkan::Instance& instance_, Vulkan::Scheduler& scheduler_,
         : (IsSrgbBlock(supported_format) ? vk::Format::eAstc4x4SrgbBlock : vk::Format::eAstc4x4UnormBlock);
     // Integer, volume, tiny LUT and multisampled resources keep their exact data layout.
     // Format capability checks also exclude integer formats from filtered resampling.
-    const bool eligible = scale.quarters < 4 && image_ci.imageType == vk::ImageType::e2D &&
+    const bool eligible = scale.eighths < 8 && image_ci.imageType == vk::ImageType::e2D &&
         info.num_samples == 1 && info.size.width >= 16 && info.size.height >= 16;
     const auto blit_features = vk::FormatFeatureFlagBits2::eBlitSrc |
                                vk::FormatFeatureFlagBits2::eBlitDst;
     if (eligible && !info.props.is_block && instance->IsFormatSupported(supported_format, blit_features) &&
         (info.props.is_depth || instance->IsFormatSupported(supported_format, vk::FormatFeatureFlagBits2::eSampledImageFilterLinear))) {
-        scale_quarters = scale.quarters;
+        scale_eighths = scale.eighths;
         image_ci.extent.width = scale.Size(info.size.width);
         image_ci.extent.height = scale.Size(info.size.height);
         image_ci.mipLevels = scale.Levels(info.size.width, info.size.height, info.resources.levels);
-    } else if (eligible && info.props.is_block && scale.quarters == 2 &&
-               info.resources.levels > 1) {
-        scale_quarters = 2;
-        mip_skip = 1;
-        image_ci.extent.width = std::max(info.size.width >> 1, 1u);
-        image_ci.extent.height = std::max(info.size.height >> 1, 1u);
-        image_ci.mipLevels--;
+    } else if (eligible && info.props.is_block && scale.MipDrop() &&
+               info.resources.levels > scale.MipDrop()) {
+        scale_eighths = scale.eighths;
+        mip_skip = scale.MipDrop();
+        image_ci.extent.width = std::max(info.size.width >> mip_skip, 1u);
+        image_ci.extent.height = std::max(info.size.height >> mip_skip, 1u);
+        image_ci.mipLevels -= mip_skip;
     } else if (eligible && AstcLdrSource(supported_format) &&
         instance->IsFormatSupported(supported_format, vk::FormatFeatureFlagBits2::eSampledImageFilterLinear) &&
         instance->IsFormatSupported(astc_format,
             vk::FormatFeatureFlagBits2::eSampledImage | vk::FormatFeatureFlagBits2::eTransferDst)) {
-        scale_quarters = scale.quarters;
+        scale_eighths = scale.eighths;
         astc_encoded = true;
         image_ci.format = astc_format;
         image_ci.extent.width = scale.Size(info.size.width);
@@ -327,7 +327,7 @@ void Image::ForceNative(const char* reason) {
     backing->num_samples = source->num_samples;
     backing->image = UniqueImage{instance->GetDevice(), instance->GetAllocator()};
     backing->image.Create(ci);
-    scale_quarters = 4;
+    scale_eighths = 8;
     mip_skip = 0;
     astc_encoded = false;
     if (!reload_compressed && source->state.layout != vk::ImageLayout::eUndefined) {
@@ -699,7 +699,7 @@ static std::pair<u32, u32> SanitizeCopyLayers(const ImageInfo& src_info, const I
 
 void Image::CopyImage(Image& src_image) {
     if ((IsScaled() || src_image.IsScaled()) &&
-        (mip_skip || src_image.mip_skip || astc_encoded || src_image.astc_encoded || scale_quarters != src_image.scale_quarters ||
+        (mip_skip || src_image.mip_skip || astc_encoded || src_image.astc_encoded || scale_eighths != src_image.scale_eighths ||
          info.size != src_image.info.size || info.num_bits != src_image.info.num_bits ||
          info.props.is_block != src_image.info.props.is_block)) {
         ForceNative("image alias");
@@ -806,7 +806,7 @@ void Image::CopyImage(Image& src_image) {
             vk::AccessFlagBits2::eShaderRead | vk::AccessFlagBits2::eTransferRead, {});
 }
 void Image::CopyImageWithBuffer(Image& src_image, vk::Buffer buffer, u64 offset) {
-    if (mip_skip || src_image.mip_skip || astc_encoded || src_image.astc_encoded || scale_quarters != src_image.scale_quarters ||
+    if (mip_skip || src_image.mip_skip || astc_encoded || src_image.astc_encoded || scale_eighths != src_image.scale_eighths ||
         info.size != src_image.info.size || info.num_bits != src_image.info.num_bits ||
         info.props.is_block != src_image.info.props.is_block) {
         ForceNative("byte reinterpretation");
@@ -947,7 +947,7 @@ void Image::CopyMip(Image& src_image, u32 mip, u32 slice) {
 
 void Image::Resolve(Image& src_image, const VideoCore::SubresourceRange& mrt0_range,
                     const VideoCore::SubresourceRange& mrt1_range) {
-    if (scale_quarters != src_image.scale_quarters || info.size != src_image.info.size) {
+    if (scale_eighths != src_image.scale_eighths || info.size != src_image.info.size) {
         ForceNative("resolve mismatch");
         src_image.ForceNative("resolve mismatch");
     }

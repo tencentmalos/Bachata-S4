@@ -121,11 +121,11 @@ Id EmitGetAttribute(EmitContext& ctx, IR::Attribute attr, u32 comp, u32 index) {
         const Id value = ctx.OpLoad(ctx.F32[1],
             ctx.OpAccessChain(ctx.input_f32, ctx.frag_coord, ctx.ConstU32(comp)));
         if (!ctx.profile.internal_scale || comp >= 2) return value;
-        const Id code = ctx.ScaleCodeAt(31);
-        const Id factor = ctx.OpSelect(ctx.F32[1],
-            ctx.OpIEqual(ctx.U1[1], code, ctx.ConstU32(2u)), ctx.ConstF32(2.f),
-            ctx.OpSelect(ctx.F32[1], ctx.OpIEqual(ctx.U1[1], code, ctx.ConstU32(3u)),
-                         ctx.ConstF32(4.f / 3.f), ctx.ConstF32(1.f)));
+        const Id code = ctx.RenderScaleEighths();
+        const Id eighths = ctx.OpSelect(ctx.U32[1],
+            ctx.OpIEqual(ctx.U1[1], code, ctx.u32_zero_value), ctx.ConstU32(8u), code);
+        const Id factor = ctx.OpFDiv(ctx.F32[1], ctx.ConstF32(8.f),
+                                    ctx.OpConvertUToF(ctx.F32[1], eighths));
         return ctx.OpFMul(ctx.F32[1], value, factor);
     }
     case IR::Attribute::TessellationEvaluationPointU:

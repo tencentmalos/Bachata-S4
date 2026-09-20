@@ -13,6 +13,7 @@
 #include "video_core/renderer_vulkan/vk_instance.h"
 #include "video_core/renderer_vulkan/vk_scheduler.h"
 #include "video_core/texture_cache/image.h"
+#include "video_core/texture_cache/internal_scale.h"
 #include "video_core/texture_cache/blit_helper.h"
 using namespace Shader;
 using namespace Shader::Backend::SPIRV;
@@ -23,7 +24,7 @@ struct Window : Frontend::Window {
     bool RequestKeyboard() override { return false; }
     void ReleaseKeyboard() override {}
 };
-constexpr u32 W = 65, H = 49, Levels = 3, Layers = 2, Words = 8;
+constexpr u32 W = 65, H = 49, Levels = 3, Layers = 2, Words = 9;
 std::vector<u32> ComputeShader(const AmdGpu::Image& sharp, u32 mip) {
     Profile profile{};
     profile.supported_spirv = 0x10600;
@@ -60,9 +61,10 @@ std::vector<u32> ComputeShader(const AmdGpu::Image& sharp, u32 mip) {
         c.OpIMul(c.U32[1], z, c.ConstU32(std::max(H >> mip, 1u)))))));
     const auto dims = EmitImageQueryDimensions(c, nullptr, 0, c.ConstU32(mip), true);
     const auto pixel = EmitImageRead(c, nullptr, 0, coord, c.ConstU32(mip), {});
-    for (u32 i = 0; i < 8; i++) {
+    for (u32 i = 0; i < Words; i++) {
         auto value = i < 4 ? c.OpCompositeExtract(c.U32[1], dims, i)
-            : c.OpBitcast(c.U32[1], c.OpCompositeExtract(c.F32[1], pixel, i - 4));
+            : i < 8 ? c.OpBitcast(c.U32[1], c.OpCompositeExtract(c.F32[1], pixel, i - 4))
+                    : c.RenderScaleEighths();
         c.OpStore(c.OpAccessChain(ptr, buf, c.u32_zero_value,
             c.OpIAdd(c.U32[1], index, c.ConstU32(i))), value);
     }
@@ -154,7 +156,7 @@ int main(int argc, char** argv) {
     };
     const std::vector<u8> rgba(src, src + bytes);
     const auto rgba_copies = copies;
-    for (u32 compressed : {0u, 1u, 3u, 4u, 5u, 10u, 11u, 12u, 13u, 14u, 15u, 16u, 17u}) for (u32 percent : {100, 75, 50}) {
+    for (u32 compressed : {0u, 1u, 3u, 4u, 5u, 10u, 11u, 12u, 13u, 14u, 15u, 16u, 17u}) for (float percent : {100.f, 75.f, 50.f, 37.5f, 25.f}) {
         const bool encoder_gradient = compressed >= 10;
         const bool srgb = compressed == 12 || compressed == 15 || compressed == 5;
         const bool alpha_gradient = compressed==11 || compressed==12 || compressed==14 || compressed==15;
@@ -186,7 +188,15 @@ int main(int argc, char** argv) {
                 }
             }
         }
+        const auto scale = VideoCore::InternalScale::FromPercent(percent);
         EmulatorSettings.SetInternalScalePercent(percent);
+        check(EmulatorSettings.GetInternalScalePercent() == percent, "native percentage precision");
+        PushData packed{};
+        packed.SetRenderScale(scale.eighths);
+        for (u32 binding = 0; binding < PushData::MaxScaledBinding; ++binding)
+            packed.SetImageScale(binding, 3);
+        packed.SetImageScale(PushData::MaxScaledBinding, 3); // Refused; must not overwrite render scale.
+        check((packed.image_scales[1] >> 28) == scale.eighths, "push scale packing boundary");
         VideoCore::ImageInfo info{};
         info.size = {W, H, 1}; info.resources = {test_levels, Layers};
         info.pixel_format = compressed == 3 ? vk::Format::eBc3UnormBlock :
@@ -202,7 +212,7 @@ int main(int argc, char** argv) {
             source_image = std::make_unique<VideoCore::Image>(instance, scheduler, blit, views, info);
             source_image->Upload(copies, *upload.buffer, 0);
             source_image->Transit(vk::ImageLayout::eShaderReadOnlyOptimal, vk::AccessFlagBits2::eShaderRead, {});
-            info.size.width = W*percent/100; info.size.height = H*percent/100;
+            info.size.width = scale.Size(W); info.size.height = scale.Size(H);
             info.pixel_format = block_dim == 6
                 ? (srgb ? vk::Format::eAstc6x6SrgbBlock : vk::Format::eAstc6x6UnormBlock)
                 : (srgb ? vk::Format::eAstc4x4SrgbBlock : vk::Format::eAstc4x4UnormBlock);
@@ -222,8 +232,8 @@ int main(int argc, char** argv) {
                     image.GetImage(), mip, extent.width, extent.height, Layers, srgb, block_dim);
             }
         } else image.Upload(copies, *upload.buffer, 0);
-        check(image.HostExtent().width == W * percent / 100, "physical width");
-        check(image.HostExtent().height == H * percent / 100, "physical height");
+        check(image.HostExtent().width == scale.Size(W), "physical width");
+        check(image.HostExtent().height == scale.Size(H), "physical height");
         VideoCore::ImageViewInfo vi{};
         vi.format = info.pixel_format; vi.type = AmdGpu::ImageType::Color2DArray;
         vi.range.extent = info.resources;
@@ -233,7 +243,8 @@ int main(int argc, char** argv) {
             auto cmd = scheduler.CommandBuffer();
             const u32 w = W >> mip, h = H >> mip;
             const u32 hw = image.HostExtent(mip).width, hh = image.HostExtent(mip).height;
-            PushData push{}; push.SetImageScale(2, source_image ? (percent==50?2:3) : image.ShaderScaleCode(0));
+            PushData push{}; push.SetImageScale(2, source_image ? 2u : image.ShaderScaleCode(0));
+            push.SetRenderScale(scale.eighths);
             std::array buffers{vk::DescriptorBufferInfo{*output.buffer, 0, VK_WHOLE_SIZE},
                                vk::DescriptorBufferInfo{*flat.buffer, 0, 32}};
             vk::DescriptorImageInfo texture{{}, view, vk::ImageLayout::eShaderReadOnlyOptimal};
@@ -250,6 +261,7 @@ int main(int argc, char** argv) {
             for (u32 layer=0; layer<Layers; layer++) for (u32 y=0; y<h; y++) for (u32 x=0; x<w; x++) {
                 const auto* p = result + ((layer*h+y)*w+x)*Words;
                 check(p[0]==w && p[1]==h && p[2]==Layers && p[3]==test_levels, "logical dimensions");
+                check(p[8] == scale.eighths, "GPU render scale decode");
                 const u32 hx = (x+0.5f)*hw/w, hy=(y+0.5f)*hh/h;
                 const float expected_x = ((hx+0.5f)*w/hw-0.5f)/(w-1);
                 const float expected_y = ((hy+0.5f)*h/hh-0.5f)/(h-1);
@@ -269,7 +281,7 @@ int main(int argc, char** argv) {
                     check(std::abs(std::bit_cast<float>(p[6])-linear((layer*64+mip*16)/255.f))<.015f, "ASTC gradient layer/mip");
                     check(alpha_error<.06f, "ASTC gradient alpha");
                 } else if (compressed) {
-                    const u32 actual_mip=percent==50 && test_levels>1?std::max(mip,1u):mip;
+                    const u32 actual_mip=image.DroppedMips() ? std::max(mip,image.DroppedMips()) : mip;
                     const auto linear = [srgb](float v) { return !srgb ? v : v <= .04045f ? v/12.92f : std::pow((v+.055f)/1.055f,2.4f); };
                     check(std::abs(std::bit_cast<float>(p[4])-linear((actual_mip+1)*6.f/31))<0.018f, "BC/ASTC red mip");
                     check(std::abs(std::bit_cast<float>(p[5])-linear((layer+1)*20.f/63))<0.018f, "BC/ASTC green layer");
@@ -292,13 +304,19 @@ int main(int argc, char** argv) {
         const u32 center=((H/2)*W+W/2)*4;
         check(std::abs(int(pixels[center])-128)<6 && std::abs(int(pixels[center+1])-128)<6, "promotion content");
         }
-        check((!compressed || encoder_gradient) || (percent != 75 && !(percent==50 && test_levels==1)) || image.IsAstcEncoded(), "compressed resample really ASTC");
-        check((!compressed || encoder_gradient || test_levels==1) || percent != 50 || image.backing->image.image_ci.mipLevels == Levels-1, "mip-drop allocation");
-        if (encoder_gradient) printf("ASTC_QUALITY case%u scale%u block%u max_rgb_error=%.6f max_alpha_error=%.6f\n",
+        check((!compressed || encoder_gradient || percent == 100 || image.DroppedMips()) || image.IsAstcEncoded(), "compressed resample really ASTC");
+        if (compressed && !encoder_gradient && scale.MipDrop() && test_levels > scale.MipDrop()) {
+            check(image.DroppedMips() == scale.MipDrop(), "mip-drop count");
+            check(image.backing->image.image_ci.mipLevels == test_levels-scale.MipDrop(), "mip-drop allocation");
+            check(image.ShaderScaleCode(0) == (scale.MipDrop() == 2 ? 3u : 1u), "mip-drop shader code");
+            check(image.ShaderScaleCode(1) == (scale.MipDrop() == 2 ? 1u : 0u), "view base mip compensation");
+            check(image.ShaderScaleCode(2) == 0, "native mip view");
+        }
+        if (encoder_gradient) printf("ASTC_QUALITY case%u scale%g block%u max_rgb_error=%.6f max_alpha_error=%.6f\n",
             compressed,percent,block_dim,max_rgb_error,max_alpha_error);
         for(auto& backing:image.backing_images) for(auto id:backing.image_view_ids) views.erase(id);
-        printf("SCALE %u case%u: host %ux%u, guest %ux%u; cumulative %u checks / %u failures\n",
-            percent, compressed, W*percent/100, H*percent/100,W,H,checks,failures);
+        printf("SCALE %g case%u: host %ux%u, guest %ux%u; cumulative %u checks / %u failures\n",
+            percent, compressed, scale.Size(W), scale.Size(H),W,H,checks,failures);
     }
     EmulatorSettings.SetInternalScalePercent(100);
     scheduler.Finish();

@@ -20,6 +20,7 @@
 #include "video_core/renderer_vulkan/vk_shader_hle.h"
 #include "video_core/texture_cache/image_view.h"
 #include "video_core/texture_cache/texture_cache.h"
+#include "video_core/texture_cache/internal_scale.h"
 
 #ifdef MemoryBarrier
 #undef MemoryBarrier
@@ -468,7 +469,7 @@ bool Rasterizer::BindResources(const Pipeline* pipeline) {
     image_infos.clear();
 
     bool uses_dma = false;
-    render_scale_quarters = 4;
+    render_scale_eighths = 8;
     if (shading_settings->GetInternalScalePercent() != 100) {
         // Resolve unsafe uses before producing any descriptor. This includes uses
         // in a later shader stage of the same draw, not only the first binding.
@@ -519,7 +520,7 @@ bool Rasterizer::BindResources(const Pipeline* pipeline) {
                     if (cb_descs[i].first) texture_cache.GetImage(cb_descs[i].first).ForceNative("mixed attachment pass");
                 if (db_desc.first) texture_cache.GetImage(db_desc.first).ForceNative("mixed attachment pass");
             } else if (has_attachment) {
-                render_scale_quarters = shading_settings->GetInternalScalePercent() == 50 ? 2 : 3;
+                render_scale_eighths = VideoCore::InternalScale::FromPercent(shading_settings->GetInternalScalePercent()).eighths;
             }
         }
     }
@@ -527,7 +528,7 @@ bool Rasterizer::BindResources(const Pipeline* pipeline) {
     // Bind resource buffers and textures.
     Shader::Backend::Bindings binding{};
     push_data = MakeUserData(liverpool->regs);
-    push_data.SetRenderScale(render_scale_quarters);
+    push_data.SetRenderScale(render_scale_eighths);
     for (const auto* stage : pipeline->GetStages()) {
         if (!stage) {
             continue;
@@ -1131,7 +1132,7 @@ void Rasterizer::DepthStencilCopy(bool is_depth, bool is_stencil) {
     auto& read_image = texture_cache.GetImage(texture_cache.FindImage(read_desc));
     auto& write_image = texture_cache.GetImage(texture_cache.FindImage(write_desc));
 
-    if (read_image.ScaleQuarters() != write_image.ScaleQuarters()) {
+    if (read_image.ScaleEighths() != write_image.ScaleEighths()) {
         read_image.ForceNative("depth copy mismatch");
         write_image.ForceNative("depth copy mismatch");
     }
@@ -1355,7 +1356,7 @@ void Rasterizer::UpdateViewportScissorState() const {
             viewport.height = yscale * 2.0f;
         }
 
-        const float scale = float(render_scale_quarters) / 4.f;
+        const float scale = float(render_scale_eighths) / 8.f;
         viewport.x *= scale;
         viewport.y *= scale;
         viewport.width *= scale;

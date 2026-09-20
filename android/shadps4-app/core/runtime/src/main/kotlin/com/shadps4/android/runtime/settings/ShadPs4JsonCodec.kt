@@ -6,6 +6,7 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.intOrNull
+import kotlinx.serialization.json.doubleOrNull
 import kotlinx.serialization.json.jsonObject
 
 data class ShadPs4JsonDocument(val root: JsonObject) {
@@ -65,8 +66,9 @@ object ShadPs4JsonCodec {
                 val key = spec.nativeKey.substringAfter('.')
                 sectionElement[key]?.let { nativeValue ->
                     values[spec.id] = if (spec.nativeEnumOrdinal || spec.nativeEnumValues.isNotEmpty()) {
-                        val number = (nativeValue as? JsonPrimitive)?.intOrNull
-                        val ordinal = if (spec.nativeEnumValues.isEmpty()) number else spec.nativeEnumValues.indexOf(number)
+                        val primitive = nativeValue as? JsonPrimitive
+                        val ordinal = if (spec.nativeEnumValues.isEmpty()) primitive?.intOrNull
+                            else spec.nativeEnumValues.indexOf(primitive?.doubleOrNull)
                         require(ordinal != null && ordinal in spec.choices.indices) {
                             "Invalid native enum ordinal for ${spec.id}"
                         }

@@ -1,0 +1,32 @@
+{
+  "apk_sha256": "5acc380dffec9e0a06adf1008169bb4ce8f0ded6a7aee609a85a7adc9bc65625",
+  "host_unstripped_sha256": "1f9b586bf4eb333db4dcb6616e31138d0a50553adbbec31d47aafe8120275e82",
+  "settings_tests": {
+    "core/runtime": {
+      "tests": 109,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "feature/settings": {
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "gpu_checks_each": 3134415,
+  "gpu_failures_each": 0,
+  "spirv_validation": "3/3 Vulkan1.3",
+  "default": "0.5",
+  "choices": [
+    "0.25",
+    "0.375",
+    "0.5",
+    "0.75",
+    "1.0"
+  ],
+  "installed": true,
+  "libshadps4_host.so": "1f9b586bf4eb333db4dcb6616e31138d0a50553adbbec31d47aafe8120275e82",
+  "libshadps4_fex_session.so": "ba079a644f3f4541113b1569e58a37f74fb491801f6f7471232b2565a1ba3a6b"
+}

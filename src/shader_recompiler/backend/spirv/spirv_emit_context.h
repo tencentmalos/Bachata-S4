@@ -208,6 +208,11 @@ public:
         return OpBitFieldUExtract(U32[1], OpLoad(U32[1], pointer),
                                   ConstU32((index % 16) * 2), ConstU32(2u));
     }
+    Id RenderScaleEighths() {
+        const Id pointer = OpAccessChain(TypePointer(spv::StorageClass::PushConstant, U32[1]),
+            push_data_block, ConstU32(PushData::ImageScaleIndex), ConstU32(1u));
+        return OpBitFieldUExtract(U32[1], OpLoad(U32[1], pointer), ConstU32(28u), ConstU32(4u));
+    }
 
     Id EmitFlatbufferLoad(Id flatbuf_offset) {
         const auto& flatbuf_buffer{buffers[flatbuf_index]};

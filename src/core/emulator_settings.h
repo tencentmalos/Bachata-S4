@@ -437,7 +437,7 @@ struct GPUSettings {
     // Guest pipeline shading quality: 0 = 1/4 (2x2),
     // 1 = 1/2 (2x1), 2 = 1/1 (full rate). Legacy key retained; does not enable FDM.
     Setting<u32> fdm_quality{2};
-    Setting<u32> internal_scale_percent{100};
+    Setting<float> internal_scale_percent{100.f};
     // TODO add overrides
     std::vector<OverrideItem> GetOverrideableFields() const {
         return std::vector<OverrideItem>{
@@ -570,7 +570,7 @@ public:
 
 private:
     std::atomic<u32> m_guest_shading_quality{3};
-    std::atomic<u32> m_internal_scale_percent{0};
+    std::atomic<float> m_internal_scale_percent{0.f};
     GeneralSettings m_general{};
     LogSettings m_log{};
     DebugSettings m_debug{};
@@ -754,13 +754,13 @@ public:
     // Android profiles and diagnostic changes cross the UI/render thread boundary.
     // This override is transient; the profile store remains the persistence owner.
     // Set before constructing the renderer; changing a live session is unsupported.
-    u32 GetInternalScalePercent() const {
-        const u32 override = m_internal_scale_percent.load(std::memory_order_relaxed);
-        const u32 value = override ? override : GetConfiguredInternalScalePercent();
-        return value == 50 || value == 75 ? value : 100;
+    float GetInternalScalePercent() const {
+        const float override = m_internal_scale_percent.load(std::memory_order_relaxed);
+        const float value = override ? override : GetConfiguredInternalScalePercent();
+        return value == 25 || value == 37.5f || value == 50 || value == 75 ? value : 100.f;
     }
-    void SetInternalScalePercent(u32 value) {
-        m_internal_scale_percent.store(value == 50 || value == 75 ? value : 100,
+    void SetInternalScalePercent(float value) {
+        m_internal_scale_percent.store(value == 25 || value == 37.5f || value == 50 || value == 75 ? value : 100.f,
                                        std::memory_order_relaxed);
     }
 

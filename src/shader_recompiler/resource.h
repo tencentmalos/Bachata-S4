@@ -215,7 +215,7 @@ struct PushData {
     static constexpr u32 BufOffsetIndex = UdRegsIndex + NUM_USER_DATA_REGS / 4;
 
     static constexpr u32 ImageScaleIndex = BufOffsetIndex + 3;
-    static constexpr u32 MaxScaledBinding = 31;
+    static constexpr u32 MaxScaledBinding = 30;
 
     float xoffset;
     float yoffset;
@@ -223,16 +223,16 @@ struct PushData {
     float yscale;
     std::array<u32, NUM_USER_DATA_REGS> ud_regs;
     std::array<u8, NUM_BUFFERS> buf_offsets;
-    // Two bits per unified image binding; top two bits describe render scale.
-    // 0=native, 1=drop mip0, 2=resample half, 3=resample three quarters.
+    // Two bits per unified image binding; top four bits hold render eighths.
+    // 0=native, 1=drop one mip, 2=resample, 3=drop two mips.
     std::array<u32, 2> image_scales{};
 
     void SetImageScale(u32 binding, u32 code) {
         if (binding < MaxScaledBinding)
             image_scales[binding / 16] |= code << ((binding % 16) * 2);
     }
-    void SetRenderScale(u32 quarters) {
-        image_scales[1] |= (quarters == 2 ? 2u : quarters == 3 ? 3u : 0u) << 30;
+    void SetRenderScale(u32 eighths) {
+        image_scales[1] = (image_scales[1] & 0x0fffffffu) | (eighths << 28);
     }
 
     void AddOffset(u32 binding, u32 offset) {

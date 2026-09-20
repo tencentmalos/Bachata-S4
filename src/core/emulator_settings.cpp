@@ -62,9 +62,12 @@ std::optional<T> get_optional(const toml::value& v, const std::string& key) {
         if (it->second.is_integer()) {
             return static_cast<long long>(toml::get<unsigned long long>(it->second));
         }
-    } else if constexpr (std::is_same_v<T, double>) {
+    } else if constexpr (std::is_floating_point_v<T>) {
         if (it->second.is_floating()) {
-            return toml::get<double>(it->second);
+            return static_cast<T>(toml::get<double>(it->second));
+        }
+        if (it->second.is_integer()) {
+            return static_cast<T>(it->second.as_integer());
         }
     } else if constexpr (std::is_same_v<T, std::string>) {
         if (it->second.is_string()) {

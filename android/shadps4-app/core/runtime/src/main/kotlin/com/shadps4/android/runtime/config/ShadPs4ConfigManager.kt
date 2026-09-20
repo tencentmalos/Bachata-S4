@@ -74,7 +74,9 @@ object ShadPs4ConfigManager {
                     val choice = (value as? JsonPrimitive)?.content
                     val ordinal = setting.spec.choices.indexOf(choice)
                     require(ordinal >= 0) { "Invalid enum value for ${setting.spec.id}" }
-                    JsonPrimitive(setting.spec.nativeEnumValues.getOrNull(ordinal) ?: ordinal)
+                    val mapped = setting.spec.nativeEnumValues.getOrNull(ordinal) ?: ordinal.toDouble()
+                    if (mapped == mapped.toInt().toDouble()) JsonPrimitive(mapped.toInt())
+                    else JsonPrimitive(mapped)
                 } else {
                     value
                 }

@@ -473,8 +473,8 @@ Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetGuestShadingQ
 
 extern "C" JNIEXPORT void JNICALL
 Java_com_shadps4_android_runtime_session_NativeFexSession_nativeSetInternalScalePercent(
-    JNIEnv*, jclass, jint percent) {
-    try { EmulatorSettings.SetInternalScalePercent(static_cast<u32>(percent)); }
+    JNIEnv*, jclass, jfloat percent) {
+    try { EmulatorSettings.SetInternalScalePercent(percent); }
     catch (...) { /* Never unwind across JNI. */ }
 }
 

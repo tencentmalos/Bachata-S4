@@ -43,15 +43,16 @@ Id GuestDimensions(EmitContext& ctx, u32 handle, Id lod) {
 Id PhysicalLod(EmitContext& ctx, u32 handle, Id lod, bool floating) {
     if (!SupportsScale(ctx, handle)) return lod;
     const Id code = ctx.ImageScaleCode(ctx.images[handle & 0xffff].scale_binding);
-    const Id dropped = ctx.OpIEqual(ctx.U1[1], code, ctx.ConstU32(1u));
+    const Id drop = ctx.OpSelect(ctx.U32[1], ctx.OpIEqual(ctx.U1[1], code, ctx.ConstU32(3u)),
+        ctx.ConstU32(2u), ctx.OpSelect(ctx.U32[1],
+            ctx.OpIEqual(ctx.U1[1], code, ctx.ConstU32(1u)), ctx.ConstU32(1u), ctx.u32_zero_value));
     if (floating) {
-        return ctx.OpSelect(ctx.F32[1], dropped,
-            ctx.OpFMax(ctx.F32[1], ctx.OpFSub(ctx.F32[1], lod, ctx.ConstF32(1.f)),
-                       ctx.f32_zero_value), lod);
+        const Id adjusted = ctx.OpFMax(ctx.F32[1], ctx.OpFSub(ctx.F32[1], lod,
+            ctx.OpConvertUToF(ctx.F32[1], drop)), ctx.f32_zero_value);
+        return ctx.OpSelect(ctx.F32[1], ctx.OpINotEqual(ctx.U1[1], drop, ctx.u32_zero_value),
+                            adjusted, lod);
     }
-    return ctx.OpSelect(ctx.U32[1], dropped,
-        ctx.OpISub(ctx.U32[1], ctx.OpUMax(ctx.U32[1], lod, ctx.ConstU32(1u)),
-                   ctx.ConstU32(1u)), lod);
+    return ctx.OpISub(ctx.U32[1], ctx.OpUMax(ctx.U32[1], lod, drop), drop);
 }
 
 } // namespace

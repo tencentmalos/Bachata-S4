@@ -10,6 +10,7 @@ import kotlin.io.path.writeText
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.boolean
+import kotlinx.serialization.json.double
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -112,12 +113,14 @@ class ShadPs4ConfigManagerTest {
         val root = temporaryFolder.newFolder("scale").toPath()
         val spec = com.shadps4.android.runtime.settings.RuntimeSettingCatalog.loadFromResources()
             .shadPs4.single { it.id == "gpu.internal_scale" }
-        val profile = RuntimeProfileResolver(listOf(spec)).resolve(
-            RuntimeProfile(values = mapOf(spec.id to JsonPrimitive("0.75"))), null)
-        ShadPs4ConfigManager.write(root, profile)
-        val value = Json.parseToJsonElement(root.resolve(".local/share/shadPS4/config.json").readText())
-            .jsonObject.getValue("GPU").jsonObject.getValue("internal_scale_percent").jsonPrimitive.int
-        assertTrue(value == 75)
+        for ((choice, percent) in listOf("0.25" to 25.0, "0.375" to 37.5, "0.5" to 50.0, "0.75" to 75.0, "1.0" to 100.0)) {
+            val profile = RuntimeProfileResolver(listOf(spec)).resolve(
+                RuntimeProfile(values = mapOf(spec.id to JsonPrimitive(choice))), null)
+            ShadPs4ConfigManager.write(root, profile)
+            val value = Json.parseToJsonElement(root.resolve(".local/share/shadPS4/config.json").readText())
+                .jsonObject.getValue("GPU").jsonObject.getValue("internal_scale_percent").jsonPrimitive.double
+            assertTrue(value == percent)
+        }
     }
 
 }

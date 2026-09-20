@@ -149,7 +149,7 @@ private:
     Pipeline::DescriptorWrites set_writes;
     Pipeline::BufferBarriers buffer_barriers;
     Shader::PushData push_data;
-    u32 render_scale_quarters = 4;
+    u32 render_scale_eighths = 8;
 
     using BufferBindingInfo = std::tuple<VideoCore::BufferId, AmdGpu::Buffer, u64>;
     boost::container::static_vector<BufferBindingInfo, Shader::NUM_BUFFERS> buffer_bindings;

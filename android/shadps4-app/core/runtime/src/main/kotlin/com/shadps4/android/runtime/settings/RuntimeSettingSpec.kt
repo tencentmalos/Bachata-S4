@@ -17,7 +17,7 @@ data class RuntimeSettingSpec(
     val maximum: Double? = null,
     val choices: List<String> = emptyList(),
     val nativeEnumOrdinal: Boolean = false,
-    val nativeEnumValues: List<Int> = emptyList(),
+    val nativeEnumValues: List<Double> = emptyList(),
     val scope: SettingScope = SettingScope.GLOBAL_AND_GAME,
     val restartRequired: Boolean = true,
     val risk: SettingRisk = SettingRisk.NORMAL,
@@ -25,7 +25,7 @@ data class RuntimeSettingSpec(
 ) {
     init {
         require(nativeEnumValues.isEmpty() || (kind == SettingKind.ENUM && !nativeEnumOrdinal &&
-            nativeEnumValues.size == choices.size && nativeEnumValues.distinct().size == choices.size)) {
+            nativeEnumValues.all { it.isFinite() } && nativeEnumValues.size == choices.size && nativeEnumValues.distinct().size == choices.size)) {
             "Explicit native enum values must uniquely match choices"
         }
         require(!nativeEnumOrdinal || kind == SettingKind.ENUM) {

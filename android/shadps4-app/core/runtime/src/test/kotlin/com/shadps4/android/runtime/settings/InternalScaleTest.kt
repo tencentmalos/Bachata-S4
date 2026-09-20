@@ -11,7 +11,7 @@ class InternalScaleTest {
     )
 
     @Test fun missingValueUsesHalfScale() {
-        assertEquals(50, InternalScale.resolve(RuntimeProfile(), RuntimeProfile()))
+        assertEquals(50f, InternalScale.resolve(RuntimeProfile(), RuntimeProfile()))
         val spec = RuntimeSettingCatalog.loadFromResources().shadPs4.single { it.id == InternalScale.ID }
         assertEquals(JsonPrimitive("0.5"), spec.defaultValue)
     }
@@ -20,20 +20,20 @@ class InternalScaleTest {
         val spec = RuntimeSettingCatalog.loadFromResources().shadPs4.single { it.id == InternalScale.ID }
         assertEquals("GPU.internal_scale_percent", spec.nativeKey)
         spec.choices.forEachIndexed { index, choice ->
-            assertEquals(listOf(50, 75, 100)[index], InternalScale.resolve(profile(choice), RuntimeProfile()))
+            assertEquals(listOf(25f, 37.5f, 50f, 75f, 100f)[index], InternalScale.resolve(profile(choice), RuntimeProfile()))
         }
     }
 
     @Test fun gameOverrideWinsAndRemovingItRestoresGlobal() {
         val global = profile("0.5")
-        assertEquals(75, InternalScale.resolve(global, profile("0.75")))
-        assertEquals(100, InternalScale.resolve(global, profile("1.0")))
-        assertEquals(50, InternalScale.resolve(global, RuntimeProfile()))
+        assertEquals(75f, InternalScale.resolve(global, profile("0.75")))
+        assertEquals(100f, InternalScale.resolve(global, profile("1.0")))
+        assertEquals(50f, InternalScale.resolve(global, RuntimeProfile()))
     }
 
     @Test fun nativePercentImportPreservesUiChoice() {
         val specs = RuntimeSettingCatalog.loadFromResources().shadPs4
-        for ((percent, choice) in listOf(50 to "0.5", 75 to "0.75", 100 to "1.0")) {
+        for ((percent, choice) in listOf(25 to "0.25", 37.5 to "0.375", 50 to "0.5", 75 to "0.75", 100 to "1.0")) {
             val p = ShadPs4JsonCodec.applyRawJson(RuntimeProfile(),
                 """{"GPU":{"internal_scale_percent":$percent}}""", specs)
             assertEquals(JsonPrimitive(choice), p.values[InternalScale.ID])

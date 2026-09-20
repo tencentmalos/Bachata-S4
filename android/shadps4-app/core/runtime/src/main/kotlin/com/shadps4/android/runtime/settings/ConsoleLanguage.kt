@@ -14,13 +14,13 @@ object ConsoleLanguage {
         val primitive = value as? JsonPrimitive
         val choice = if (primitive?.isString == true) spec.choices.indexOf(primitive.content) else -1
         require(choice >= 0) { "Invalid console language: $value" }
-        return spec.nativeEnumValues[choice]
+        return spec.nativeEnumValues[choice].toInt()
     }
 
     fun resolve(global: RuntimeProfile, game: RuntimeProfile): Int =
         language(game.values[ID] ?: global.values[ID])
 
     fun displayValue(value: JsonElement?): JsonPrimitive = runCatching {
-        JsonPrimitive(spec.choices[spec.nativeEnumValues.indexOf(language(value))])
+        JsonPrimitive(spec.choices[spec.nativeEnumValues.indexOf(language(value).toDouble())])
     }.getOrElse { spec.defaultValue as JsonPrimitive }
 }

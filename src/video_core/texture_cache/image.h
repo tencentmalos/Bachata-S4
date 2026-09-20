@@ -147,8 +147,8 @@ struct Image {
     // images and views retire through the scheduler, never deviceWaitIdle.
     void ForceNative(const char* reason);
     bool IsAstcEncoded() const { return astc_encoded; }
-    bool IsScaled() const { return scale_quarters != 4; }
-    u32 ScaleQuarters() const { return scale_quarters; }
+    bool IsScaled() const { return scale_eighths != 8; }
+    u32 ScaleEighths() const { return scale_eighths; }
     u32 DroppedMips() const { return mip_skip; }
     u32 HostMip(u32 mip) const {
         return std::min(mip > mip_skip ? mip - mip_skip : 0u,
@@ -162,7 +162,8 @@ struct Image {
     }
     u32 ShaderScaleCode(u32 base_mip) const {
         if (!IsScaled() || (mip_skip && base_mip >= mip_skip)) return 0;
-        return mip_skip ? 1 : scale_quarters == 2 ? 2 : 3;
+        // Codes describe remaining dropped levels relative to this view's base.
+        return mip_skip ? (mip_skip - base_mip == 2 ? 3 : 1) : 2;
     }
     SubresourceRange HostRange(SubresourceRange range) const {
         const u32 last = HostMip(range.base.level + range.extent.levels - 1);
@@ -230,7 +231,7 @@ private:
     void BlitBacking(BackingImage& source, BackingImage& dest,
                      std::span<const vk::BufferImageCopy> uploaded = {});
     TextureCache* owner{};
-    u32 scale_quarters = 4;
+    u32 scale_eighths = 8;
     u32 mip_skip = 0;
     bool astc_encoded = false;
     static Common::IncrementalIdProvider<u64> global_image_uid;

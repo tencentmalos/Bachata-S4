@@ -106,12 +106,12 @@ class SettingsViewModelTest {
         val viewModel = SettingsViewModel(store)
         advanceUntilIdle()
         val spec = viewModel.state.value.settings.single { it.id == InternalScale.ID }
-        assertEquals(listOf("0.5", "0.75", "1.0"), spec.choices)
+        assertEquals(listOf("0.25", "0.375", "0.5", "0.75", "1.0"), spec.choices)
         assertEquals(JsonPrimitive("0.5"), spec.defaultValue)
         assertTrue(spec.restartRequired)
         assertEquals(null, spec.readOnlyReason)
 
-        for ((choice, percent) in listOf("0.5" to 50, "0.75" to 75, "1.0" to 100)) {
+        for ((choice, percent) in listOf("0.25" to 25f, "0.375" to 37.5f, "0.5" to 50f, "0.75" to 75f, "1.0" to 100f)) {
             viewModel.setText(spec, choice)
             advanceUntilIdle()
             val global = store.load(ProfileScope.Global)
@@ -123,15 +123,15 @@ class SettingsViewModelTest {
         advanceUntilIdle()
         viewModel.setText(spec, "0.75")
         advanceUntilIdle()
-        assertEquals(75, InternalScale.resolve(store.load(ProfileScope.Global), store.load(gameScope)))
+        assertEquals(75f, InternalScale.resolve(store.load(ProfileScope.Global), store.load(gameScope)))
         viewModel.setValue(spec, null)
         advanceUntilIdle()
-        assertEquals(100, InternalScale.resolve(store.load(ProfileScope.Global), store.load(gameScope)))
+        assertEquals(100f, InternalScale.resolve(store.load(ProfileScope.Global), store.load(gameScope)))
 
         viewModel.selectScope(ProfileScope.Global)
         advanceUntilIdle()
         viewModel.setValue(spec, null)
         advanceUntilIdle()
-        assertEquals(50, InternalScale.resolve(store.load(ProfileScope.Global), store.load(gameScope)))
+        assertEquals(50f, InternalScale.resolve(store.load(ProfileScope.Global), store.load(gameScope)))
     }
 }

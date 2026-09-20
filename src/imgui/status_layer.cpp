@@ -80,7 +80,7 @@ void StatusLayer::Draw(uint64_t now, unsigned width, unsigned height) {
                                        ? "Turnip" : "Unknown";
         Text("CPU  FEX x86-64    GPU  Vulkan / %s", driver_label);
         const auto internal_scale = EmulatorSettings.GetInternalScalePercent();
-        const char* scale_label = internal_scale == 50 ? "0.5" : internal_scale == 75 ? "0.75" : "1.0";
+        const char* scale_label = internal_scale == 25 ? "0.25" : internal_scale == 37.5f ? "0.375" : internal_scale == 50 ? "0.5" : internal_scale == 75 ? "0.75" : "1.0";
         Text("Surface %u x %u (x%s)    Generation %llu", width, height, scale_label,
              static_cast<unsigned long long>(snapshot.generation));
         Text("All presents %.1f/s    Draw/dispatch %.0f/s", all_presents.Fps(now), draws_per_second);
