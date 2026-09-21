@@ -1735,7 +1735,10 @@ sceSystemServiceGetDisplaySafeAreaInfo(OrbisSystemServiceDisplaySafeAreaInfo* in
         LOG_ERROR(Lib_SystemService, "OrbisSystemServiceDisplaySafeAreaInfo is null");
         return ORBIS_SYSTEM_SERVICE_ERROR_PARAMETER;
     }
-    info->ratio = 1.0f;
+    // The emulator presents the complete guest image without television overscan.
+    // This is a display/UI safe-area ratio, independent of HMD tracking, SBS eye
+    // layout and internal render scale. Initialize the entire output ABI.
+    *info = OrbisSystemServiceDisplaySafeAreaInfo{.ratio = 1.0f};
     return ORBIS_OK;
 }
 

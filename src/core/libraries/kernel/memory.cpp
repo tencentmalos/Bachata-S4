@@ -138,6 +138,7 @@ s32 PS4_SYSV_ABI sceKernelAvailableDirectMemorySize(u64 searchStart, u64 searchE
     u64 size{};
     s32 result = memory->DirectQueryAvailable(searchStart, searchEnd, alignment, &physAddr, &size);
 
+    if (result != ORBIS_OK) return result;
     if (size == 0) {
         return ORBIS_KERNEL_ERROR_ENOMEM;
     }

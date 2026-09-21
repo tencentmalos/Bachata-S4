@@ -51,6 +51,7 @@ void GuestSaveDialog::Configure(std::filesystem::path h, std::string t, int u) {
 void GuestSaveDialog::Cancel() {
     std::lock_guard lock(mutex);
     stopped = true;
+    common->Release(this);
     if (status == 2) {
         status = 3;
         result = 1;
@@ -101,18 +102,13 @@ u64 GuestSaveDialog::Invoke(std::string_view nid, GuestAddressSpace& space,
     if (stopped)
         return err(CD::Error::INVALID_STATE);
     if (nid == "uoUpLGNkygk") {
-        if (common)
-            return err(CD::Error::ALREADY_SYSTEM_INITIALIZED);
-        common = true;
-        return 0;
+        return err(common->Initialize());
     }
     if (nid == "BQ3tey0JmQM")
-        return initialized;
+        return common->IsUsed();
     if (nid == "s9e3+YpRnzw") {
-        if (!common)
-            return err(CD::Error::NOT_SYSTEM_INITIALIZED);
-        if (initialized)
-            return err(CD::Error::ALREADY_INITIALIZED);
+        const auto claimed = common->Acquire(this);
+        if (claimed != CD::Error::OK) return err(claimed);
         initialized = true;
         status = 1;
         return 0;
@@ -125,6 +121,7 @@ u64 GuestSaveDialog::Invoke(std::string_view nid, GuestAddressSpace& space,
         if (!initialized)
             return err(CD::Error::NOT_INITIALIZED);
         initialized = false;
+        common->Release(this);
         status = 0;
         items.clear();
         return 0;

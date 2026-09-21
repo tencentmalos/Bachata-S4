@@ -237,7 +237,19 @@ s32 PS4_SYSV_ABI sceVrTrackerRegisterDeviceInternal(const OrbisVrTrackerDeviceTy
 }
 
 s32 PS4_SYSV_ABI sceVrTrackerCpuProcess(const OrbisVrTrackerCpuProcessParam* param) {
-    LOG_ERROR(Lib_VrTracker, "(STUBBED) called");
+    if (!g_library_initialized) return ORBIS_VR_TRACKER_ERROR_NOT_INIT;
+    if (!param || param->size != sizeof(*param) ||
+        (param->operation_mode != ORBIS_VR_TRACKER_CPU_PROCESS_OPERATION_MODE_WHOLE &&
+         param->operation_mode != ORBIS_VR_TRACKER_CPU_PROCESS_OPERATION_MODE_HANDLE) ||
+        std::ranges::any_of(param->reserved, [](u32 v) { return v != 0; }))
+        return ORBIS_VR_TRACKER_ERROR_ARGUMENT_INVALID;
+    if (!VirtualSbsEnabled()) return ORBIS_VR_TRACKER_ERROR_NOT_EXECUTE_GPU_SUBMIT;
+    if (param->operation_mode == ORBIS_VR_TRACKER_CPU_PROCESS_OPERATION_MODE_HANDLE &&
+        (param->handle < 0 || (param->handle != g_hmd_handle &&
+            std::ranges::find(g_move_handles, param->handle) == g_move_handles.end())))
+        return ORBIS_VR_TRACKER_ERROR_DEVICE_NOT_REGISTERED;
+    // The SBS provider integrates gyro samples on arrival. GetResult reads that
+    // synchronized pose directly; no optical-camera GPU/CPU job remains to run.
     return ORBIS_OK;
 }
 
@@ -258,7 +270,6 @@ s32 PS4_SYSV_ABI sceVrTrackerGetPlayAreaWarningInfo(OrbisVrTrackerPlayAreaWarnin
 
 s32 PS4_SYSV_ABI sceVrTrackerGetResult(const OrbisVrTrackerGetResultParam* param,
                                        OrbisVrTrackerResultData* result) {
-    LOG_ERROR(Lib_VrTracker, "(INCOMPLETE) called without a camera/HMD provider");
     if (!g_library_initialized)
         return ORBIS_VR_TRACKER_ERROR_NOT_INIT;
     if (!param || !result || param->size != sizeof(OrbisVrTrackerGetResultParam))
@@ -277,6 +288,10 @@ s32 PS4_SYSV_ABI sceVrTrackerGetResult(const OrbisVrTrackerGetResultParam* param
         result->status = ORBIS_VR_TRACKER_STATUS_TRACKING;
         result->position_quality = ORBIS_VR_TRACKER_QUALITY_FULL;
         result->orientation_quality = ORBIS_VR_TRACKER_QUALITY_FULL;
+        // The virtual camera shares the fixed forward-facing reference frame.
+        // A zero-filled quaternion is not an identity rotation; Unity also
+        // copies this field separately from the device/eye poses.
+        result->camera_orientation_w = 1.0f;
         if (is_hmd) {
             result->angular_velocity_x = sensor.angular_velocity_x;
             result->angular_velocity_y = sensor.angular_velocity_y;
@@ -288,16 +303,21 @@ s32 PS4_SYSV_ABI sceVrTrackerGetResult(const OrbisVrTrackerGetResultParam* param
             result->hmd_info.head_pose = result->hmd_info.device_pose;
             result->hmd_info.left_eye_pose = result->hmd_info.device_pose;
             result->hmd_info.right_eye_pose = result->hmd_info.device_pose;
-            result->hmd_info.left_eye_pose.position_x = -0.0315f;
-            result->hmd_info.right_eye_pose.position_x = 0.0315f;
+            const auto left_eye = sensor.EyeOffset(-0.0315f);
+            const auto right_eye = sensor.EyeOffset(0.0315f);
+            result->hmd_info.left_eye_pose.position_x = left_eye[0];
+            result->hmd_info.left_eye_pose.position_y = left_eye[1];
+            result->hmd_info.left_eye_pose.position_z = left_eye[2];
+            result->hmd_info.right_eye_pose.position_x = right_eye[0];
+            result->hmd_info.right_eye_pose.position_y = right_eye[1];
+            result->hmd_info.right_eye_pose.position_z = right_eye[2];
             result->hmd_info.rear_tracking_status = ORBIS_VR_TRACKER_REAR_TRACKING_READY;
             result->hmd_info.sensor_read_system_timestamp = result->timestamp;
         } else {
             const bool left = move_it == g_move_handles.begin();
             auto& pose = result->move_info.device_pose;
             // The SBS test controller has a deterministic, room-scale pose.
-            // It is intentionally independent of the phone gyro; only HMD
-            // orientation consumes that sensor stream.
+            // It is independent of the headset's gyroscope orientation.
             pose.position_x = left ? -0.25f : 0.25f;
             pose.position_y = -0.15f;
             pose.position_z = -0.45f;
@@ -306,6 +326,7 @@ s32 PS4_SYSV_ABI sceVrTrackerGetResult(const OrbisVrTrackerGetResultParam* param
         result->user_frame_number = param->user_frame_number;
         return ORBIS_OK;
     }
+    LOG_ERROR(Lib_VrTracker, "(INCOMPLETE) called without a camera/HMD provider");
     // No camera/HMD provider or validated diagnostic provider is attached.
     // Do not write a fabricated connected/full-quality result.
     return ORBIS_VR_TRACKER_ERROR_PLAYSTATION_CAMERA_NOT_CONNECTED;
@@ -367,7 +388,13 @@ s32 PS4_SYSV_ABI sceVrTrackerGpuWaitAndCpuProcess() {
 
 s32 PS4_SYSV_ABI
 sceVrTrackerNotifyEndOfCpuProcess(const OrbisVrTrackerNotifyEndOfCpuProcessParam* param) {
-    LOG_ERROR(Lib_VrTracker, "(STUBBED) called");
+    if (!g_library_initialized) return ORBIS_VR_TRACKER_ERROR_NOT_INIT;
+    if (!param || param->size != sizeof(*param) ||
+        std::ranges::any_of(param->reserved, [](u32 v) { return v != 0; }))
+        return ORBIS_VR_TRACKER_ERROR_ARGUMENT_INVALID;
+    if (!VirtualSbsEnabled()) return ORBIS_VR_TRACKER_ERROR_NOT_EXECUTE_GPU_SUBMIT;
+    // All virtual sensor updates are synchronous. There are no optical jobs or
+    // retained camera buffers to notify; real-camera mode remains unavailable.
     return ORBIS_OK;
 }
 
@@ -593,6 +620,9 @@ s32 PS4_SYSV_ABI sceVrTrackerTerm() {
     }
     g_library_initialized = false;
     g_move_handles = {-1, -1};
+    g_hmd_handle = g_pad_handle = g_gun_handle = -1;
+    g_garlic_memory_pointer = g_onion_memory_pointer = g_work_memory_pointer = nullptr;
+    g_garlic_size = g_onion_size = g_work_size = 0;
     return ORBIS_OK;
 }
 

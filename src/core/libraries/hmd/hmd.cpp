@@ -187,10 +187,7 @@ s32 PS4_SYSV_ABI sceHmdGetFieldOfView(s32 handle, OrbisHmdFieldOfView* field_of_
     if (GuestVrSensor::Instance().Read().enabled) {
         // PSVR-like optical geometry used by the SBS compositor. These are
         // measured firmware defaults, not a claim about the phone display.
-        field_of_view->tan_out = 1.20743f;
-        field_of_view->tan_in = 1.181346f;
-        field_of_view->tan_top = 1.262872f;
-        field_of_view->tan_bottom = 1.262872f;
+        *field_of_view = SbsFieldOfView;
         return ORBIS_OK;
     }
 

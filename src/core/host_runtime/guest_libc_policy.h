@@ -10,6 +10,16 @@ namespace Core::HostRuntime {
 // ELF segment. It never grants a host function pointer or arbitrary NID alias.
 struct GuestLibcEntry { std::string_view nid, name, family; };
 inline constexpr GuestLibcEntry GuestLibcEntries[]{
+    {"dhK16CKwhQg", "__isfinite", "math"},
+    {"V02oFv+-JzA", "__isinf", "math"},
+    {"GfxAp9Xyiqs", "__isnan", "math"},
+    {"JrwFIMzKNr0", "ldexp", "math"},
+    {"ZtjspkJQ+vw", "_FSin", "math"},
+    {"iz2shAGFIxc", "hypotf", "math"},
+    {"VOBg+iNwB-4", "strtoll", "runtime"},
+    {"MELi-cKqWq0", "_ZSt19_Xbad_function_callv", "runtime"},
+    {"AEJdIVZTEmo", "qsort", "runtime"},
+    {"3BytPOQgVKc", "snprintf_s", "io"},
     {"xGT4Mc55ViQ", "_Fofind", "io"},
     {"jVDuvE3s5Bs", "_Fofree", "io"},
     {"sQL8D-jio7U", "_Fopen", "io"},
@@ -88,6 +98,16 @@ inline constexpr GuestLibcEntry GuestLibcEntries[]{
     {"Q3VBxCXhUHs", "memcpy", "memory"},
     {"NFLs+dRJGNg", "memcpy_s", "memory"},
     {"8zTFvBIAIN8", "memset", "memory"},
+    {"+P6FRGH4LfA", "memmove", "memory"},
+    {"fJnpuVVBbKk", "_Znwm", "runtime"},
+    {"sUP1hBaouOw", "_Getpctype", "runtime"},
+    {"7pNKcscKrf8", "_Stoll", "runtime"},
+    // Keep C++ static initialization and allocation inside the same guest libc
+    // as the consuming plug-in. Never substitute host guards or host pointers.
+    {"3GPpjQdAMTw", "__cxa_guard_acquire", "runtime"},
+    {"9rAeANT2tyE", "__cxa_guard_release", "runtime"},
+    {"2emaaluWzUw", "__cxa_guard_abort", "runtime"},
+    {"k04jLXu3+Ic", "sceLibcMspaceMallocStatsFast", "runtime"},
     {"zlfEH8FmyUA", "_Stoul", "runtime"},
     {"z+P+xCnWLBk", "_ZdlPv", "runtime"},
     {"tsvEmnenz48", "__cxa_atexit", "runtime"},

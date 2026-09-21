@@ -399,7 +399,7 @@ void VideoOutDriver::SetVrActive(bool active) {
 }
 
 bool VideoOutDriver::SubmitVrFrame(VideoOutPort* port, s32 index, u64 sequence,
-                                   const std::array<AmdGpu::Image, 4>& eyes, u32 image_count,
+                                   const VideoCore::VrFrameSource& source,
                                    std::function<void(bool)> complete) {
     {
         std::lock_guard lock(port->port_mutex);
@@ -409,39 +409,43 @@ bool VideoOutDriver::SubmitVrFrame(VideoOutPort* port, s32 index, u64 sequence,
         ++port->flip_status.flip_pending_num;
         port->flip_status.submit_tsc = read_tsc();
     }
-    liverpool->SendCommand([this, port, index, sequence, eyes, image_count,
+    liverpool->SendCommand([this, port, index, sequence, source,
                             complete = std::move(complete)]() mutable {
-        if (port->stopping) { complete(false); return; }
-        // Beat Saber submits PSVR eye metadata while Unity renders the
-        // visible double-wide image into the registered VideoOut buffer. The
-        // HMD submission owns cadence and completion, but presenting its
-        // separate eye targets would produce a black surface on this title.
-        // Reuse the already-rendered VideoOut image directly; no readback,
-        // intermediate eye copy or blit is introduced.
-        const auto& buffer = port->buffer_slots[index];
-        if (buffer.group_index < 0) {
+        const auto cancel_flip = [port] {
+            std::lock_guard lock(port->port_mutex);
+            --port->flip_status.flip_pending_num;
+        };
+        if (port->stopping) {
+            cancel_flip();
             complete(false);
             return;
         }
-        const auto& group = port->groups[buffer.group_index];
+        // The registered display slots are reprojection OUTPUT buffers. The
+        // input colour comes from the submitted eye descriptors, not from an
+        // unwritten display slot. Release the input only after the compositor
+        // GPU reads and host queue submission retire, independently of present.
         const auto diagnostic_id = Core::Diagnostics::Handoff::NextId();
-        auto* frame = presenter->PrepareFrame(group, buffer.address_left, diagnostic_id);
-        (void)eyes;
-        (void)image_count;
+        auto* frame = presenter->PrepareVrFrame(source, std::move(complete));
         if (!frame) {
-            complete(false);
+            cancel_flip();
             return;
         }
         {
             std::lock_guard lock(mutex);
             requests.push({.diagnostic_id = diagnostic_id, .frame = frame, .port = port,
-                           .flip_arg = s64(sequence), .index = index, .eop = false,
-                           .complete = std::move(complete)});
+                           .flip_arg = s64(sequence), .index = index, .eop = false});
         }
-        ++liverpool->diagnostic_guest_flip;
+        const auto guest_flip = ++liverpool->diagnostic_guest_flip;
         if (const auto& diag = presenter->Diagnostics())
             diag->Advance(Core::Diagnostics::AdvanceSignal::GuestFlip, Core::Diagnostics::DiagnosticNowNs());
         Common::Profiler::Counter("VR.PassthroughFrames", liverpool->diagnostic_guest_flip);
+        const auto generation = presenter->CaptureGeneration();
+        if (VideoCore::NeedsGuestCaptureBoundary(generation)) {
+            // Same capture boundary as ordinary VideoOut: the asynchronous
+            // submission must be acknowledged before ending the capture.
+            presenter->DrainSubmissions();
+            VideoCore::NotifyGuestFlipBoundary(generation, guest_flip);
+        }
     });
     return true;
 }

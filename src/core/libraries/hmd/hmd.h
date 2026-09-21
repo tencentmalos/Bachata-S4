@@ -38,6 +38,9 @@ struct OrbisHmdFieldOfView {
     float tan_bottom;
 };
 
+// Virtual headset geometry returned to the guest and used for SBS sampling.
+inline constexpr OrbisHmdFieldOfView SbsFieldOfView{1.20743f, 1.181346f, 1.262872f, 1.262872f};
+
 struct OrbisHmdPanelResolution {
     u32 width;
     u32 height;
@@ -106,7 +109,11 @@ static_assert(offsetof(OrbisHmdReprojectionInitializeParam, reserved30) == 0x30)
 struct OrbisHmdReprojectionLayer {
     u64 roots00[4];
     u64 root20;
-    u8 opaque28[0x40];
+    // Firmware 11.00 +0x1824f/+0x1825c copies these two float4s to
+    // StartParam +0x18/+0x28 in the single colour-layer path (kind 0).
+    // They map ray tangents to source UVs; they are not destination viewports.
+    float color_tan_to_uv[2][4];
+    u8 opaque48[0x20]; // not consumed by that firmware path; other kinds unproved
     float field68;
     float field6c;
     u64 optional70;
@@ -126,7 +133,40 @@ struct OrbisHmdReprojectionSubmission {
     u64 reserved28[5];
 };
 
+// Firmware 11.00: +0x161e0, +0x16c90 and +0x17690. Numeric addresses
+// reference 32-byte texture descriptors and a 16-byte GNM sampler.
+struct OrbisHmdReprojectionStartParam {
+    u64 textures[2], sampler;
+    float tan_to_uv[2][4]; // scale X/Y, bias X/Y for each eye
+    u64 release_label;
+    u32 selector, padding44;
+    u64 opaque48;
+    u32 selector50, padding54;
+    u64 flags;
+    u64 reserved[4];
+};
+struct OrbisHmdReprojectionOverlayParam {
+    u64 textures[2], sampler;
+    float tan_to_uv[2][4];
+    u32 reserved[9];
+    u32 padding5c;
+};
+struct OrbisHmdReprojection2dParam {
+    u64 texture, sampler;
+    float uv[4]; // normalized scale X/Y, bias X/Y
+    u64 release_label;
+    u32 selector, padding2c;
+    u64 reserved[4];
+};
+static_assert(sizeof(OrbisHmdReprojectionStartParam) == 0x80);
+static_assert(offsetof(OrbisHmdReprojectionStartParam, release_label) == 0x38);
+static_assert(offsetof(OrbisHmdReprojectionStartParam, flags) == 0x58);
+static_assert(sizeof(OrbisHmdReprojectionOverlayParam) == 0x60);
+static_assert(sizeof(OrbisHmdReprojection2dParam) == 0x50);
+
 static_assert(sizeof(OrbisHmdReprojectionLayer) == 0xa8);
+static_assert(offsetof(OrbisHmdReprojectionLayer, color_tan_to_uv) == 0x28);
+static_assert(offsetof(OrbisHmdReprojectionLayer, opaque48) == 0x48);
 static_assert(offsetof(OrbisHmdReprojectionLayer, root20) == 0x20);
 static_assert(offsetof(OrbisHmdReprojectionLayer, optional70) == 0x70);
 static_assert(offsetof(OrbisHmdReprojectionLayer, kind78) == 0x78);
@@ -163,14 +203,18 @@ s32 PS4_SYSV_ABI sceHmdReprojectionSetDisplayBuffers(s32 video_handle, s32 buffe
 s32 PS4_SYSV_ABI sceHmdReprojectionSetOutputMinColor(float red, float green, float blue);
 s32 PS4_SYSV_ABI sceHmdReprojectionSetUserEventEnd();
 s32 PS4_SYSV_ABI sceHmdReprojectionSetUserEventStart();
-s32 PS4_SYSV_ABI sceHmdReprojectionStart(const void* start_param);
-s32 PS4_SYSV_ABI sceHmdReprojectionStart2dVr();
+s32 PS4_SYSV_ABI sceHmdReprojectionStart(const OrbisHmdReprojectionStartParam* param,
+                                       const void* pose, u64 sequence, const void* reserved);
+s32 PS4_SYSV_ABI sceHmdReprojectionStart2dVr(const OrbisHmdReprojection2dParam* param,
+                                           u64 sequence, const void* reserved);
 s32 PS4_SYSV_ABI sceHmdReprojectionStartCapture();
 s32 PS4_SYSV_ABI sceHmdReprojectionStartLiveCapture();
 s32 PS4_SYSV_ABI sceHmdReprojectionStartMultilayer2();
 s32 PS4_SYSV_ABI sceHmdReprojectionStartWideNear();
 s32 PS4_SYSV_ABI sceHmdReprojectionStartWideNearWithOverlay();
-s32 PS4_SYSV_ABI sceHmdReprojectionStartWithOverlay();
+s32 PS4_SYSV_ABI sceHmdReprojectionStartWithOverlay(const OrbisHmdReprojectionStartParam* param,
+    const void* pose, u64 sequence, const OrbisHmdReprojectionOverlayParam* overlay,
+    const void* reserved);
 s32 PS4_SYSV_ABI sceHmdReprojectionStop();
 s32 PS4_SYSV_ABI sceHmdReprojectionStopCapture();
 s32 PS4_SYSV_ABI sceHmdReprojectionStopLiveCapture();

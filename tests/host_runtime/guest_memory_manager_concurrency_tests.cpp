@@ -8,6 +8,7 @@
 #include <thread>
 #include "core/guest_cpu/api/address_space.h"
 #include "core/memory.h"
+#include "core/host_runtime/guest_direct_memory_hle.h"
 #include "core/file_sys/ifile.h"
 #include <cstring>
 #include <sstream>
@@ -31,11 +32,11 @@ struct Backend final : GuestMemoryBackend {
     bool prepare_ranges{true};
     std::array<u8, 0x40000> backing{};
     Backend() {
-        auto made = GuestAddressSpace::Create({.reservation_size = 0x100000});
+        auto made = GuestAddressSpace::Create({.reservation_size = 0x1000000});
         if (!made)
             throw std::runtime_error("reservation");
         space = std::move(made).Value();
-        base = (space->ReservationBase().value + 0x3fff) & ~0x3fffULL;
+        base = (space->ReservationBase().value + 0x1fffff) & ~0x1fffffULL;
     }
     static void Require(Status status) {
         if (!status)
@@ -46,7 +47,7 @@ struct Backend final : GuestMemoryBackend {
     }
     boost::icl::interval_set<VAddr> UsableRegions() const override {
         boost::icl::interval_set<VAddr> result;
-        result.add(boost::icl::interval<VAddr>::right_open(base, base + 0x80000));
+        result.add(boost::icl::interval<VAddr>::right_open(base, base + 0x800000));
         return result;
     }
     bool OwnsRange(VAddr a, u64 n) const override {
@@ -144,6 +145,7 @@ int main(int argc, char**) {
     std::setvbuf(stdout, nullptr, _IONBF, 0);
     Backend backend;
     MemoryManager memory(&backend);
+    Memory::Binding memory_binding(memory);
     const auto a = backend.base, unrelated = a + 0x10000;
     auto map = [&](VAddr address, VMAType type = VMAType::File, PAddr physical = PAddr(-1)) {
         void* out{};
@@ -224,6 +226,62 @@ int main(int argc, char**) {
             CHECK(memory.UnmapMemory(a, 0x4000) == 0);
         }
     }
+    // Real direct allocation + shared desktop pool path through checked guest ABI.
+    using namespace Core::HostRuntime;
+    using namespace Libraries::Kernel;
+    auto call = [&](std::string_view nid, std::array<u64, 6> args) {
+        return u32(DispatchDirectMemoryService(*backend.space, nid, args));
+    };
+    const u64 out = unrelated, pool = a + 0x200000;
+    auto read64 = [&](u64 at) { u64 v{}; CHECK(bool(backend.space->ReadData({at}, std::as_writable_bytes(std::span{&v, 1})))); return v; };
+    CHECK(call("B+vc2AO2Zrc", {0x4000, 0x4000, 0, 1}) == u32(ORBIS_KERNEL_ERROR_EFAULT));
+    CHECK(call("B+vc2AO2Zrc", {0x4000, 0x4000, 0, out}) == 0);
+    const auto physical = read64(out);
+    CHECK(call("hwVSPCmp5tM", {physical, 0x4000}) == 0);
+    CHECK(call("hwVSPCmp5tM", {physical, 0x4000}) == u32(ORBIS_KERNEL_ERROR_ENOENT));
+    CHECK(call("hwVSPCmp5tM", {~0x3fffULL, 0x8000}) == u32(ORBIS_KERNEL_ERROR_ENOENT));
+    CHECK(call("C0f7TJcbfac", {1, 0x28000, 0x10000, out, out + 8}) == 0);
+    CHECK(read64(out) == 0x10000 && read64(out + 8) == 0x18000);
+    CHECK(call("C0f7TJcbfac", {UINT64_MAX, 0x28000, 0, out, out + 8}) == u32(ORBIS_KERNEL_ERROR_EINVAL));
+    CHECK(call("qCSfqDILlns", {0x10000, 0x20000, 0x20000, 0x10000, out}) != 0);
+    // Exactly consume the expanded budget; reject further commits until decommit.
+    CHECK(call("qCSfqDILlns", {0x10000, 0x30000, 0x20000, 0x10000, out}) == 0);
+    CHECK(read64(out) == 0x10000);
+    CHECK(call("pU-QydtGcGY", {pool, 0x200000, 0x200000, u64(MemoryMapFlags::Fixed), out}) == 0);
+    CHECK(read64(out) == pool);
+    CHECK(call("Vzl66WmfLvk", {pool, 0x20000, 3, u64(MemoryProt::CpuRead), 0}) == 0);
+    CHECK(backend.space->ValidateRange({{pool}, 1}, GuestPermission::Read));
+    CHECK(!backend.space->ValidateRange({{pool}, 1}, GuestPermission::Write));
+    CHECK(call("Vzl66WmfLvk", {pool + 0x20000, 0x10000, 3, u64(MemoryProt::CpuReadWrite)}) == u32(ORBIS_KERNEL_ERROR_ENOMEM));
+    CHECK(call("LXo1tpFqJGs", {pool + 1, 0x10000}) == u32(ORBIS_KERNEL_ERROR_EINVAL));
+    CHECK(call("LXo1tpFqJGs", {unrelated, 0x10000}) == u32(ORBIS_KERNEL_ERROR_EINVAL));
+    CHECK(call("LXo1tpFqJGs", {pool, 0x20000}) == 0);
+    CHECK(!backend.space->ValidateRange({{pool}, 1}, GuestPermission::Read));
+    // Sparse backing, partial decommit and recommit must preserve the other half.
+    CHECK(call("Vzl66WmfLvk", {pool, 0x10000, 3, u64(MemoryProt::CpuReadWrite)}) == 0);
+    CHECK(call("Vzl66WmfLvk", {pool + 0x10000, 0x10000, 3, u64(MemoryProt::CpuReadWrite)}) == 0);
+    auto pin = backend.space->AcquireDataSpan({{pool}, 0x10000}, true);
+    CHECK(bool(pin));
+    auto retiring = std::async(std::launch::async, [&] { return call("LXo1tpFqJGs", {pool, 0x10000}); });
+    CHECK(retiring.wait_for(50ms) == std::future_status::timeout);
+    CHECK(call("bvD+95Q6asU", {out, 16}) == 0);
+    if (pin) pin.Value() = {};
+    CHECK(retiring.get() == 0);
+    CHECK(backend.space->ValidateRange({{pool + 0x10000}, 0x10000}, GuestPermission::Write));
+    CHECK(call("Vzl66WmfLvk", {pool, 0x10000, 3, u64(MemoryProt::CpuReadWrite)}) == 0);
+    // Batch copies entries before retiring them; partial count survives a later refusal.
+    std::array<OrbisKernelMemoryPoolBatchEntry, 2> entries{};
+    entries[0].opcode = OrbisKernelMemoryPoolOpcode::Decommit;
+    entries[0].decommit_params = {reinterpret_cast<void*>(pool), 0x10000};
+    entries[1].opcode = OrbisKernelMemoryPoolOpcode::Move;
+    CHECK(bool(backend.space->WriteData({pool}, std::as_bytes(std::span(entries)))));
+    CHECK(call("YN878uKRBbE", {pool, 2, out}) == u32(ORBIS_KERNEL_ERROR_ENOSYS));
+    u32 processed{};
+    CHECK(bool(backend.space->ReadData({out}, std::as_writable_bytes(std::span{&processed, 1}))));
+    CHECK(processed == 1);
+    CHECK(call("bvD+95Q6asU", {1, 16}) == u32(ORBIS_KERNEL_ERROR_EFAULT));
+    CHECK(call("bvD+95Q6asU", {0, 0}) == 0);
+    CHECK(call("LXo1tpFqJGs", {pool + 0x10000, 0x10000}) == 0);
     std::printf("guest_memory_manager_concurrency_tests: %u checks, %u failures\n", checks,
                 failures);
     return failures ? 1 : 0;

@@ -152,11 +152,16 @@ void MemoryManager::SetRasterizer(RasterizerHooks* value) {
     if (value && guest_backend) {
         // The production loader precedes renderer creation. Replay its mapped
         // data ranges so the GPU sees already allocated direct/flexible memory.
-        std::shared_lock lock(mutex);
-        for (const auto& [address, vma] : vma_map)
-            if (vma.IsMapped() && !True(vma.prot & MemoryProt::CpuExec) &&
-                IsValidGpuMapping(address, vma.size))
-                value->MapMemory(address, vma.size);
+        std::vector<std::pair<VAddr, u64>> mappings;
+        {
+            std::shared_lock lock(mutex);
+            for (const auto& [address, vma] : vma_map)
+                if (vma.IsMapped() && !True(vma.prot & MemoryProt::CpuExec) &&
+                    IsValidGpuMapping(address, vma.size))
+                    mappings.emplace_back(address, vma.size);
+        }
+        for (const auto& [address, size] : mappings)
+            value->MapMemory(address, size);
     }
 }
 
@@ -191,6 +196,26 @@ void MemoryManager::CopySparseMemory(VAddr virtual_addr, u8* dest, u64 size) {
         size -= copy_size;
         virtual_addr += copy_size;
         dest += copy_size;
+        ++vma;
+    }
+}
+
+void MemoryManager::ProtectGpu(VAddr address, u64 size, MemoryPermission permission) {
+    if (!size) return;
+    // Serialize the physical protection with VM commits. GPU unmap/invalidation
+    // runs before the VM writer lock, so no cache lock is acquired under it.
+    std::shared_lock lock{mutex};
+    ASSERT_MSG(IsValidMapping(address, size), "GPU watch outside guest VM: {:#x}+{:#x}",
+               address, size);
+    auto vma = FindVMA(address);
+    while (size) {
+        const u64 bytes = std::min(size, vma->second.base + vma->second.size - address);
+        if (vma->second.IsMapped())
+            impl.ProtectGpu(address, bytes, permission);
+        // The PageManager retains logical watcher counts across holes. MapMemory
+        // invalidates those cache entries when real backing becomes available.
+        address += bytes;
+        size -= bytes;
         ++vma;
     }
 }
@@ -290,31 +315,21 @@ PAddr MemoryManager::PoolExpand(PAddr search_start, PAddr search_end, u64 size, 
     std::scoped_lock lk{mutex, unmap_mutex};
     alignment = alignment > 0 ? alignment : 64_KB;
 
+    if (!size || search_start >= search_end || search_start >= total_direct_size ||
+        search_end > total_direct_size || alignment > total_direct_size)
+        return PAddr(-1);
     auto dmem_area = FindDmemArea(search_start);
-    auto mapping_start = search_start > dmem_area->second.base
-                             ? Common::AlignUp(search_start, alignment)
-                             : Common::AlignUp(dmem_area->second.base, alignment);
-    auto mapping_end = mapping_start + size;
-
-    // Find the first free, large enough dmem area in the range.
-    while (dmem_area->second.dma_type != PhysicalMemoryType::Free ||
-           dmem_area->second.GetEnd() < mapping_end) {
-        // The current dmem_area isn't suitable, move to the next one.
-        dmem_area++;
-        if (dmem_area == dmem_map.end()) {
-            break;
-        }
-
-        // Update local variables based on the new dmem_area
-        mapping_start = Common::AlignUp(dmem_area->second.base, alignment);
-        mapping_end = mapping_start + size;
+    PAddr mapping_start{};
+    for (; dmem_area != dmem_map.end(); ++dmem_area) {
+        const auto begin = std::max(search_start, dmem_area->second.base);
+        const auto end = std::min(search_end, dmem_area->second.GetEnd());
+        mapping_start = Common::AlignUp(begin, alignment);
+        if (mapping_start >= end || size > end - mapping_start ||
+            dmem_area->second.dma_type != PhysicalMemoryType::Free)
+            continue;
+        break;
     }
-
-    if (dmem_area == dmem_map.end()) {
-        // There are no suitable mappings in this range
-        LOG_ERROR(Kernel_Vmm, "Unable to find free direct memory area: size = {:#x}", size);
-        return -1;
-    }
+    if (dmem_area == dmem_map.end()) return PAddr(-1);
 
     // Add the allocated region to the list and commit its pages.
     auto& area = CarvePhysArea(dmem_map, mapping_start, size)->second;
@@ -332,6 +347,10 @@ PAddr MemoryManager::Allocate(PAddr search_start, PAddr search_end, u64 size, u6
     std::scoped_lock lk{mutex, unmap_mutex};
     alignment = alignment > 0 ? alignment : 16_KB;
 
+    if (!size || search_start >= search_end || search_start >= total_direct_size ||
+        search_end > total_direct_size || alignment > total_direct_size ||
+        size > search_end - search_start)
+        return PAddr(-1);
     auto dmem_area = FindDmemArea(search_start);
     auto mapping_start =
         Common::AlignUp(std::max<PAddr>(search_start, dmem_area->second.base), alignment);
@@ -368,7 +387,8 @@ PAddr MemoryManager::Allocate(PAddr search_start, PAddr search_end, u64 size, u6
 
 s32 MemoryManager::Free(PAddr phys_addr, u64 size, bool is_checked) {
     // Basic bounds checking
-    if (phys_addr > total_direct_size || (is_checked && phys_addr + size > total_direct_size)) {
+    if (phys_addr >= total_direct_size || size > UINT64_MAX - phys_addr ||
+        (is_checked && size > total_direct_size - phys_addr)) {
         LOG_ERROR(Kernel_Vmm, "phys_addr {:#x}, size {:#x} goes outside dmem map", phys_addr, size);
         if (is_checked) {
             return ORBIS_KERNEL_ERROR_ENOENT;
@@ -462,12 +482,10 @@ s32 MemoryManager::Free(PAddr phys_addr, u64 size, bool is_checked) {
 
 s32 MemoryManager::PoolCommit(VAddr virtual_addr, u64 size, MemoryProt prot, s32 mtype) {
     std::scoped_lock lk{unmap_mutex};
-    ASSERT_MSG(IsValidMapping(virtual_addr, size), "Attempted to access invalid address {:#x}",
-               virtual_addr);
-
-    // Input addresses to PoolCommit are treated as fixed, and have a constant alignment.
-    const u64 alignment = 64_KB;
-    VAddr mapped_addr = Common::AlignUp(virtual_addr, alignment);
+    if (!size || !Common::Is64KBAligned(virtual_addr) || !Common::Is64KBAligned(size) ||
+        size > UINT64_MAX - virtual_addr || !IsValidMapping(virtual_addr, size))
+        return ORBIS_KERNEL_ERROR_EINVAL;
+    const VAddr mapped_addr = virtual_addr;
 
     auto preparation = impl.PrepareMapping(mapped_addr, size);
     std::unique_lock lk2{mutex};
@@ -487,7 +505,7 @@ s32 MemoryManager::PoolCommit(VAddr virtual_addr, u64 size, MemoryProt prot, s32
         return ORBIS_KERNEL_ERROR_EINVAL;
     }
 
-    if (pool_budget <= size) {
+    if (pool_budget < size) {
         // If there isn't enough pooled memory to perform the mapping, return ENOMEM
         LOG_ERROR(Kernel_Vmm, "Not enough pooled memory to perform mapping");
         return ORBIS_KERNEL_ERROR_ENOMEM;
@@ -536,6 +554,7 @@ s32 MemoryManager::PoolCommit(VAddr virtual_addr, u64 size, MemoryProt prot, s32
 
         // Perform an address space mapping for each physical area
         void* out_addr = impl.Map(current_addr, size_to_map, new_dmem_area.base);
+        impl.Protect(current_addr, size_to_map, ToMemoryPermission(prot));
         // Tracy memory tracking breaks from merging memory areas. Disabled for now.
         // TRACK_ALLOC(out_addr, size_to_map, "VMEM");
 
@@ -922,17 +941,17 @@ s32 MemoryManager::MapFile(void** out_addr, VAddr virtual_addr, u64 size, Memory
 
 s32 MemoryManager::PoolDecommit(VAddr virtual_addr, u64 size) {
     std::scoped_lock lk{unmap_mutex};
-    ASSERT_MSG(IsValidMapping(virtual_addr, size), "Attempted to access invalid address {:#x}",
-               virtual_addr);
+    if (!size || !Common::Is64KBAligned(virtual_addr) || !Common::Is64KBAligned(size) ||
+        size > UINT64_MAX - virtual_addr || !IsValidMapping(virtual_addr, size))
+        return ORBIS_KERNEL_ERROR_EINVAL;
 
-    // Do an initial search to ensure this decommit is valid.
-    auto it = FindVMA(virtual_addr);
-    while (it != vma_map.end() && it->second.base + it->second.size <= virtual_addr + size) {
-        if (it->second.type != VMAType::PoolReserved && it->second.type != VMAType::Pooled) {
-            LOG_ERROR(Kernel_Vmm, "Attempting to decommit non-pooled memory!");
+    // Check every overlapping VMA, including a partially covered last entry.
+    for (u64 cursor = virtual_addr; cursor < virtual_addr + size;) {
+        const auto it = FindVMA(cursor);
+        if (it == vma_map.end() ||
+            (it->second.type != VMAType::PoolReserved && it->second.type != VMAType::Pooled))
             return ORBIS_KERNEL_ERROR_EINVAL;
-        }
-        it++;
+        cursor = std::min(virtual_addr + size, it->second.base + it->second.size);
     }
 
     auto preparation = impl.PrepareMapping(virtual_addr, size, false);
@@ -1306,42 +1325,22 @@ s32 MemoryManager::DirectQueryAvailable(PAddr search_start, PAddr search_end, u6
                                         PAddr* phys_addr_out, u64* size_out) {
     std::shared_lock lk{mutex};
 
+    if (search_start >= search_end || search_start >= total_direct_size ||
+        search_end > total_direct_size || alignment > total_direct_size)
+        return ORBIS_KERNEL_ERROR_EINVAL;
     auto dmem_area = FindDmemArea(search_start);
     PAddr paddr{};
     u64 max_size{};
-
-    while (dmem_area != dmem_map.end()) {
-        if (dmem_area->second.dma_type != PhysicalMemoryType::Free) {
-            dmem_area++;
-            continue;
-        }
-
-        auto aligned_base = alignment > 0 ? Common::AlignUp(dmem_area->second.base, alignment)
-                                          : dmem_area->second.base;
-        const auto alignment_size = aligned_base - dmem_area->second.base;
-        auto remaining_size =
-            dmem_area->second.size >= alignment_size ? dmem_area->second.size - alignment_size : 0;
-
-        if (dmem_area->second.base < search_start) {
-            // We need to trim remaining_size to ignore addresses before search_start
-            remaining_size = remaining_size > (search_start - dmem_area->second.base)
-                                 ? remaining_size - (search_start - dmem_area->second.base)
-                                 : 0;
-            aligned_base = alignment > 0 ? Common::AlignUp(search_start, alignment) : search_start;
-        }
-
-        if (dmem_area->second.GetEnd() > search_end) {
-            // We need to trim remaining_size to ignore addresses beyond search_end
-            remaining_size = remaining_size > (dmem_area->second.GetEnd() - search_end)
-                                 ? remaining_size - (dmem_area->second.GetEnd() - search_end)
-                                 : 0;
-        }
-
+    for (; dmem_area != dmem_map.end(); ++dmem_area) {
+        if (dmem_area->second.dma_type != PhysicalMemoryType::Free) continue;
+        const auto begin = std::max(search_start, dmem_area->second.base);
+        const auto end = std::min(search_end, dmem_area->second.GetEnd());
+        const auto aligned_base = alignment ? Common::AlignUp(begin, alignment) : begin;
+        const auto remaining_size = aligned_base < end ? end - aligned_base : 0;
         if (remaining_size > max_size) {
             paddr = aligned_base;
             max_size = remaining_size;
         }
-        dmem_area++;
     }
 
     *phys_addr_out = paddr;

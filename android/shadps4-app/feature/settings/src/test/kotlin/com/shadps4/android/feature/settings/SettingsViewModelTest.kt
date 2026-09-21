@@ -134,4 +134,29 @@ class SettingsViewModelTest {
         advanceUntilIdle()
         assertEquals(50f, InternalScale.resolve(store.load(ProfileScope.Global), store.load(gameScope)))
     }
+    @Test
+    fun booleanMsaaEditorPersistsAndResetsGameOverride() = runTest(dispatcher) {
+        val store = RuntimeProfileStore(temporaryFolder.root)
+        val model = SettingsViewModel(store)
+        advanceUntilIdle()
+        val id = com.shadps4.android.runtime.settings.ForceDisableMsaa.ID
+        val spec = model.state.value.settings.single { it.id == id }
+        model.setValue(spec, JsonPrimitive(true))
+        advanceUntilIdle()
+        assertEquals(JsonPrimitive(true), store.load(ProfileScope.Global).values[id])
+        val game = ProfileScope.Game("CUSA12878")
+        model.selectScope(game)
+        advanceUntilIdle()
+        model.setValue(spec, JsonPrimitive(false))
+        advanceUntilIdle()
+        assertEquals(JsonPrimitive(false), model.state.value.effectiveValue(spec))
+        model.setText(spec, "broken")
+        advanceUntilIdle()
+        assertTrue(model.state.value.error != null)
+        assertEquals(JsonPrimitive(false), store.load(game).values[id])
+        model.setValue(spec, null)
+        advanceUntilIdle()
+        assertEquals(JsonPrimitive(true), model.state.value.effectiveValue(spec))
+    }
+
 }

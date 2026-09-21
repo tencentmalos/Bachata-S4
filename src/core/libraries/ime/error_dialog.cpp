@@ -114,13 +114,6 @@ public:
 static auto g_status = Status::NONE;
 static ErrorDialogUi g_dialog_ui;
 
-struct Param {
-    s32 size;
-    s32 errorCode;
-    OrbisUserServiceUserId userId;
-    s32 _reserved;
-};
-
 Error PS4_SYSV_ABI sceErrorDialogClose() {
     LOG_DEBUG(Lib_ErrorDialog, "called");
     if (g_status != Status::RUNNING) {

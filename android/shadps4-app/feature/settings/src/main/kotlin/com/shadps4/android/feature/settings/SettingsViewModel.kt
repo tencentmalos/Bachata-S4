@@ -17,6 +17,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.booleanOrNull
+import com.shadps4.android.runtime.settings.SettingKind
 
 data class SettingsUiState(
     val scope: ProfileScope = ProfileScope.Global,
@@ -60,7 +62,12 @@ class SettingsViewModel @Inject constructor(private val store: RuntimeProfileSto
         // A stale desktop setting or invalid choice cannot be written through this editor.
         val supported = settings.singleOrNull { it.id == spec.id }
         val choice = value as? JsonPrimitive
-        if (supported == null || (value != null && (choice?.isString != true || choice.content !in supported.choices))) {
+        val validValue = value == null || when (supported?.kind) {
+            SettingKind.BOOLEAN -> choice?.isString == false && choice.booleanOrNull != null
+            SettingKind.ENUM -> choice?.isString == true && choice.content in supported.choices
+            else -> false
+        }
+        if (supported == null || !validValue) {
             mutableState.value = mutableState.value.copy(error = "Unsupported setting or value")
             return
         }

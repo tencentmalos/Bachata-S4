@@ -149,12 +149,11 @@ void checkContextTimeout(OrbisNpWebApiContext* context) {
 
 void checkTimeout() {
     u64 time = Kernel::sceKernelGetProcessTime();
+    std::scoped_lock lk{g_global_mutex};
     if (time < g_last_timeout_check + 1000) {
         return;
     }
     g_last_timeout_check = time;
-    std::scoped_lock lk{g_global_mutex};
-
     for (auto& context : g_contexts) {
         checkContextTimeout(context.second);
     }
@@ -174,6 +173,29 @@ s32 deleteContext(s32 libCtxId) {
     context->extendedPushEventFilters.clear();
 
     g_contexts.erase(libCtxId);
+    return ORBIS_OK;
+}
+
+s32 retireOfflineControlContext(s32 id) {
+    // The session bridge admits local control objects only. Never apply this
+    // fast retirement to contexts containing online users/requests/callbacks.
+    std::scoped_lock global{g_global_mutex};
+    auto it = g_contexts.find(id);
+    if (it == g_contexts.end()) return ORBIS_NP_WEBAPI_ERROR_LIB_CONTEXT_NOT_FOUND;
+    auto* context = it->second;
+    {
+        std::scoped_lock local{context->contextLock};
+        if (context->userCount || !context->userContexts.empty() || areContextHandlesBusy(context))
+            return ORBIS_NP_WEBAPI_ERROR_LIB_CONTEXT_BUSY;
+        context->terminated = true;
+        for (auto& [key, value] : context->handles) delete value;
+        for (auto& [key, value] : context->timerHandles) delete value;
+        for (auto& [key, value] : context->pushEventFilters) delete value;
+        for (auto& [key, value] : context->servicePushEventFilters) delete value;
+        for (auto& [key, value] : context->extendedPushEventFilters) delete value;
+        g_contexts.erase(it);
+    }
+    delete context;
     return ORBIS_OK;
 }
 
@@ -1187,6 +1209,7 @@ s32 abortHandle(s32 libCtxId, s32 handleId) {
 s32 deleteHandleInternal(OrbisNpWebApiContext* context, s32 handleId) {
     lockContext(context);
     if (!context->handles.contains(handleId)) {
+        unlockContext(context);
         return ORBIS_NP_WEBAPI_ERROR_HANDLE_NOT_FOUND;
     }
 
@@ -1214,10 +1237,12 @@ s32 deleteHandleInternal(OrbisNpWebApiContext* context, s32 handleId) {
         return ORBIS_NP_WEBAPI_ERROR_HANDLE_BUSY;
     }
 
+    delete handle;
     context->handles.erase(handleId);
 
     if (g_sdk_ver >= Common::ElfInfo::FW_300 && context->timerHandles.contains(handleId)) {
         auto& timer_handle = context->timerHandles[handleId];
+        delete timer_handle;
         context->timerHandles.erase(handleId);
     }
 
@@ -1631,6 +1656,7 @@ s32 deleteExtendedPushEventFilterInternal(OrbisNpWebApiContext* context, s32 fil
     }
 
     context->extendedPushEventFilters[filterId]->filterParams.clear();
+    delete context->extendedPushEventFilters[filterId];
     context->extendedPushEventFilters.erase(filterId);
     return ORBIS_OK;
 }

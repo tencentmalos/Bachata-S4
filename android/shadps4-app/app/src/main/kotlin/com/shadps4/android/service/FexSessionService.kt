@@ -131,6 +131,17 @@ class FexSessionService : Service() {
                 Log.w(TAG, "Invalid texture profile, using high quality", it)
                 com.shadps4.android.runtime.settings.TextureQuality.DEFAULT
             }
+            val disableMsaa = runCatching {
+                com.shadps4.android.runtime.settings.ForceDisableMsaa.resolve(
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Global),
+                    runtimeProfiles.load(com.shadps4.android.runtime.settings.ProfileScope.Game(gameId)),
+                )
+            }.getOrElse {
+                Log.w(TAG, "Invalid MSAA profile, preserving game MSAA", it)
+                false
+            }
+            NativeFexSession.nativeSetMsaaDisabled(disableMsaa)
+            Log.i(TAG, "Guest force disable MSAA=$disableMsaa")
             NativeFexSession.nativeSetTextureQuality(textureQuality)
             Log.i(TAG, "Guest texture quality=$textureQuality")
             NativeFexSession.nativeSetInternalScalePercent(internalScale)

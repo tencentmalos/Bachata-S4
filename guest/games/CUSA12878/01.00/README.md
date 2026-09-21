@@ -27,4 +27,18 @@ scripts/android/guest-patch 9c2841a4 status
 
 诊断完成后先 `disable` 当前 package，再 `clear` 下一 session 属性；resident code 只在 session 销毁时回收。tag 日志保存在 app 私有目录 `files/host/log/guest-patch.log`，与主日志分开。
 
+2026-09-20 插件修复后，原始设备顺序已在 HMD 设置完成后自行切到 PlayStationVR，继续验证时默认使用纯日志 recipe，无须 preference 诊断。无 patch 普通启动仍有异常双眼局部元素，未达到菜单/SBS 验收；见 [加载修复报告](../../../../docs/validation/android-native-host/beatsaber-plugin-loader-20260920.md)。
+
 当前证据和限制见 [初始化验证](../../../../docs/validation/android-native-host/beatsaber-vr-init-20260919.md)。
+
+## guest call log（2026-09-20）
+
+`vr_call_diagnostic.recipe.json` 为默认只观察版本；`vr_call_preference_diagnostic.recipe.json`
+显式启用历史 PSVR 偏好实验。二者均提供 16 个 hook，日志带 Call/Sequence/Phase 和
+原始输入/输出块；未知 C ABI 入口保留完整机器状态。高频采样最多到调用 8192，
+不是持续全量 tracing。构建部署用上方相同工具，替换 recipe 路径即可。
+
+按 `package=` 过滤成单次运行的日志后运行 `python3 decode_vr_call_log.py RUN.log`，
+同时生成 `.decoded.json`。保留 raw bytes；Reprojection 的 opaque28 不等同已恢复的位姿。
+当前真实结论见 [guest log 报告](../../../../docs/validation/android-native-host/beatsaber-guest-log-20260920.md)：
+固定朝前与 camera 单位旋转已部署，但游戏仍黑屏，动态插件加载失败尚未修复。

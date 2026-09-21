@@ -802,8 +802,11 @@ static vk::Format GetFrameViewFormat(const Libraries::VideoOut::PixelFormat form
     return {};
 }
 
-Frame* Presenter::PrepareVrFrame(const std::array<AmdGpu::Image, 4>& eyes, u32 image_count,
+Frame* Presenter::PrepareVrFrame(const VideoCore::VrFrameSource& source,
                                   std::function<void(bool)> complete) {
+    const auto& eyes = source.eyes;
+    const auto image_count = source.image_count;
+    std::array<vk::Sampler, 4> samplers{};
     // Called only by the normal GPU command owner, after guest render completion.
     // Texture-cache views preserve the guest array slice and swizzle. No warp
     // shaders, intermediate eye copy or synchronous GPU/CPU readback are needed.
@@ -838,10 +841,14 @@ Frame* Presenter::PrepareVrFrame(const std::array<AmdGpu::Image, 4>& eyes, u32 i
                      image.info.size.width, image.info.size.height, image.info.pitch,
                      static_cast<u32>(image.flags), static_cast<u32>(image.usage.render_target),
                      static_cast<u32>(image.usage.vo_surface));
+            LOG_INFO(Render_Vulkan, "SBS VR source i={} uv={},{},{},{} sampler={:#x}/{:#x}",
+                     i, source.uv[i][0], source.uv[i][1], source.uv[i][2], source.uv[i][3],
+                     source.samplers[i].raw0, source.samplers[i].raw1);
         }
         image.Transit(vk::ImageLayout::eShaderReadOnlyOptimal,
                       vk::AccessFlagBits2::eShaderRead, {}, draw_scheduler.CommandBuffer());
         views[i] = *texture_cache.FindTexture(id, desc).image_view;
+        samplers[i] = texture_cache.GetSampler(source.samplers[i], {});
         if (!i) eye_size = {u32(eyes[i].width + 1), u32(eyes[i].height + 1)};
     }
     auto* frame = GetRenderFrame();
@@ -863,25 +870,21 @@ Frame* Presenter::PrepareVrFrame(const std::array<AmdGpu::Image, 4>& eyes, u32 i
     cmdbuf.pipelineBarrier2(vk::DependencyInfo{
         .imageMemoryBarrierCount = 1, .pImageMemoryBarriers = &barrier});
     auto settings = pp_settings;
-    // First validate one direct eye without horizontal remapping. Once the
-    // source view is proven live, the SBS selector can be enabled without
-    // changing the texture admission or adding a copy/blit.
-    settings.sbs = 0;
-    // The source eye is already in the Android presentation orientation.  A
-    // second origin conversion here turns the SBS image upside down; keep the
-    // VR path aligned with the ordinary VideoOut path and let the swapchain
-    // own the surface transform.
+    // Explicit per-eye coordinates apply even when both descriptors resolve
+    // to the same view. Unity/UE can submit cropped dynamic-resolution atlases.
+    settings.sbs = 8u | 16u | (image_count == 4 ? 2u : 0u);
+    settings.eye_uv = source.uv;
+    // The guest transform already carries the source's Y orientation (Unity
+    // submits a negative scale; UE submits a positive one). Do not flip twice.
     settings.flip_y = 0;
     settings.srgb_input = 0;
     // Keep the guest-to-host composition at the existing single post-process
     // draw. Coarse shading is injected in guest Scheduler::BeginRendering;
     // applying FDM here would only reduce host post-processing work.
     pp_pass.Render(draw_scheduler, views[0], eye_size, *frame, settings,
-                   {views[1], views[2], views[3]});
+                   {views[1], views[2], views[3]}, {}, samplers);
     expected_ratio = 16.0f / 9.0f;
-    // The guest surface is already double-wide SBS; preserve its actual
-    // dimensions instead of advertising another horizontal doubling.
-    DebugState.game_resolution = {eye_size.width, eye_size.height};
+    DebugState.game_resolution = {u32(float(eye_size.width) * std::abs(source.uv[0][0]) * 2.f), eye_size.height};
     DebugState.output_resolution = {frame->width, frame->height};
     frame->ready_semaphore = draw_scheduler.GetMasterSemaphore()->Handle();
     frame->ready_tick = draw_scheduler.CurrentTick();

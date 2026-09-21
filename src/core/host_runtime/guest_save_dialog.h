@@ -3,16 +3,20 @@
 #include <array>
 #include <filesystem>
 #include <mutex>
+#include <memory>
 #include <string>
 #include <vector>
 #include "core/guest_cpu/api/address_space.h"
 #include "core/libraries/save_data/savedata.h"
+#include "core/host_runtime/guest_common_dialog.h"
 namespace Core::HostRuntime {
 // Platform-neutral, copied dialog model. Android polls it and submits an explicit
 // request-id-tagged action; no JNI/native worker calls Java, no guest pointers
 // survive Open. The host retains userData only as an opaque guest integer.
 class GuestSaveDialog {
 public:
+    ~GuestSaveDialog() { Cancel(); }
+    std::shared_ptr<GuestCommonDialog> CommonDomain() const { return common; }
     void Configure(std::filesystem::path home, std::string title, int user);
     u64 Invoke(std::string_view nid, GuestCpu::GuestAddressSpace& space,
                const std::array<u64, 6>& args);
@@ -24,7 +28,8 @@ public:
 
 private:
     mutable std::mutex mutex;
-    bool common{}, initialized{}, stopped{};
+    std::shared_ptr<GuestCommonDialog> common = std::make_shared<GuestCommonDialog>();
+    bool initialized{}, stopped{};
     u32 status{}, mode{}, buttons{}, progress{};
     bool can_cancel{}, ok_is_cancel{};
     u64 request{}, user_data{};

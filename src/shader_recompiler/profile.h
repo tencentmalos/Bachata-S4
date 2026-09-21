@@ -51,6 +51,7 @@ struct Profile {
     bool needs_clip_distance_emulation{};
     bool supports_shader_stencil_export{};
     bool internal_scale{};
+    bool force_disable_msaa{};
 
     bool operator==(const Profile&) const = default;
 };

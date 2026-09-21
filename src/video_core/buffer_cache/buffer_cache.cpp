@@ -105,6 +105,10 @@ void BufferCache::InvalidateMemory(VAddr device_addr, u64 size) {
         device_addr, size, [this, device_addr, size] { ReadMemory(device_addr, size, true); });
 }
 
+void BufferCache::InvalidateMapping(VAddr device_addr, u64 size) {
+    memory_tracker->InvalidateMapping(device_addr, size);
+}
+
 void BufferCache::ReadMemory(VAddr device_addr, u64 size, bool is_write) {
     liverpool->SendCommand<true>([this, device_addr, size, is_write] {
         Buffer& buffer = slot_buffers[FindBuffer(device_addr, size)];

@@ -276,6 +276,10 @@ public:
 
     void CopySparseMemory(VAddr source, u8* dest, u64 size);
 
+    // GPU cache ranges may include reservation holes, just like sparse copies.
+    // Keep those pages inaccessible; only mapped spans receive host watches.
+    void ProtectGpu(VAddr address, u64 size, MemoryPermission permission);
+
     bool TryWriteBacking(void* address, const void* data, u64 size);
     bool TryReadSrtMemory(VAddr address, void* data, u64 size);
 

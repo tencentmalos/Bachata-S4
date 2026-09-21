@@ -185,19 +185,17 @@ int PS4_SYSV_ABI sceAudioInClose(s32 handle) {
     return ORBIS_OK;
 }
 
+int InputWithoutDevice(s32 handle, bool has_destination) {
+    if (GetPortId(handle) < 0) return ORBIS_AUDIO_IN_ERROR_INVALID_HANDLE;
+    if (!has_destination) return ORBIS_AUDIO_IN_ERROR_INVALID_POINTER;
+    return ORBIS_AUDIO_IN_ERROR_NOT_OPENED;
+}
+
 int PS4_SYSV_ABI sceAudioInInput(s32 handle, void* dest) {
     LOG_TRACE(Lib_AudioIn, "called, handle={:#x}, dest={}", handle, fmt::ptr(dest));
-
-    int port_id = GetPortId(handle);
-    if (port_id < 0) {
-        LOG_ERROR(Lib_AudioIn, "Invalid port id");
-        return ORBIS_AUDIO_IN_ERROR_INVALID_HANDLE;
-    }
-
-    if (!dest) {
-        LOG_ERROR(Lib_AudioIn, "Invalid output buffer pointer");
-        return ORBIS_AUDIO_IN_ERROR_INVALID_POINTER;
-    }
+    const auto validation = InputWithoutDevice(handle, dest != nullptr);
+    if (validation != ORBIS_AUDIO_IN_ERROR_NOT_OPENED) return validation;
+    const int port_id = GetPortId(handle);
 
     // Get port with read lock
     std::shared_ptr<PortIn> port;

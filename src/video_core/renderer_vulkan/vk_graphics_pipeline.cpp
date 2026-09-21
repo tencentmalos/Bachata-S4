@@ -126,12 +126,15 @@ GraphicsPipeline::GraphicsPipeline(
         sdata.multisampling = {
             .rasterizationSamples = LiverpoolToVK::NumSamples(
                 key.num_samples, instance.GetColorSampleCounts() & instance.GetDepthSampleCounts()),
-            .sampleShadingEnable =
-                fs_info.addr_flags.persp_sample_ena || fs_info.addr_flags.linear_sample_ena,
+            .sampleShadingEnable = !instance.IsMsaaDisabled() &&
+                (fs_info.addr_flags.persp_sample_ena || fs_info.addr_flags.linear_sample_ena),
         };
     }
 
     raster_samples = sdata.multisampling.rasterizationSamples;
+    ASSERT_MSG(u32(raster_samples) == key.num_samples,
+               "Unsupported pipeline sample count: requested={} actual={}",
+               key.num_samples, u32(raster_samples));
     const auto* fragment = infos[u32(Shader::LogicalStage::Fragment)];
     // Coarse shading must not reduce guest-visible memory writes/atomics or
     // per-sample evaluation. Read-only storage resources remain eligible.

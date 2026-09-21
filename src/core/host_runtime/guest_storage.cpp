@@ -72,8 +72,8 @@ bool GuestStorage::ValidTitle(std::string_view id) {
            std::all_of(id.begin(), id.begin() + 4, [](char c) { return c >= 'A' && c <= 'Z'; }) &&
            std::all_of(id.begin() + 4, id.end(), [](char c) { return c >= '0' && c <= '9'; });
 }
-GuestStorage::GuestStorage(FileSys::MntPoints& m, fs::path h, std::string t, int u)
-    : mounts(m), home(std::move(h)), title(std::move(t)), user(u) {
+GuestStorage::GuestStorage(FileSys::MntPoints& m, fs::path h, std::string t, int u, std::shared_ptr<GuestDescriptorIds> ids)
+    : mounts(m), home(std::move(h)), title(std::move(t)), user(u), descriptor_ids(std::move(ids)) {
     if (!home.is_absolute() || !ValidTitle(title) || user < 0)
         throw std::invalid_argument("invalid persistent savedata identity/root");
     // Context.filesDir may use Android's legitimate /data/user/0 symlink.
@@ -85,6 +85,7 @@ GuestStorage::GuestStorage(FileSys::MntPoints& m, fs::path h, std::string t, int
 }
 GuestStorage::~GuestStorage() {
     for (auto& device : stdio) device->fsync();
+    for (const auto& [fd, file] : files) descriptor_ids->Release(fd);
     files.clear();
     file_leases.clear();
     if (const int error = UnmountTemporaryLocked())
@@ -593,6 +594,13 @@ GuestStorage::Error GuestStorage::Search(const Libraries::SaveData::OrbisSaveDat
     try { return Libraries::SaveData::SearchSaveDirectories(&c, &r, title, Common::ElfInfo::Instance().FirmwareVer(), home); }
     catch (const fs::filesystem_error& e) { return Failure(e); }
 }
+GuestStorage::Device GuestStorage::DeviceForPath(std::string_view path) {
+    if (path == "/dev/urandom" || path == "/dev/random" || path == "/dev/srandom")
+        return Device::Random;
+    if (path == "/dev/zero") return Device::Zero;
+    if (path == "/dev/null") return Device::Null;
+    return Device::None;
+}
 GuestStorage::IoResult GuestStorage::Open(std::string_view path, u32 flags, u32 mode) {
     std::unique_lock mutation(namespace_mutex, std::defer_lock);
     std::shared_lock read_only(namespace_mutex, std::defer_lock);
@@ -605,6 +613,23 @@ GuestStorage::IoResult GuestStorage::Open(std::string_view path, u32 flags, u32 
     if ((flags & ~allowed) || (flags & 3) == 3)
         return {-1, EINVAL};
     bool write = (flags & 3) != 0;
+    if (const auto device = DeviceForPath(path); device != Device::None) {
+        if (flags & 0x20000) return {-1, ENOTDIR};
+        if ((flags & 0xa00) == 0xa00) return {-1, EEXIST};
+        auto file = std::make_shared<File>(-1, -1, write, false, nullptr, std::string(path));
+        file->device = device;
+        file->readable = (flags & 3) != 1;
+        int id;
+        {
+            std::lock_guard registry(files_mutex);
+            id = descriptor_ids->Allocate();
+            if (id < 0) return {-1, EMFILE};
+            try { files.emplace(id, file); }
+            catch (...) { descriptor_ids->Release(id); throw; }
+        }
+        if (io_observer) io_observer({IoEvent::Opened, id, file->path, 0});
+        return {id, 0};
+    }
     auto p = Resolve(path, write || (flags & (0x200 | 0x400)), true);
     if (p.error)
         return {-1, p.error};
@@ -632,9 +657,10 @@ GuestStorage::IoResult GuestStorage::Open(std::string_view path, u32 flags, u32 
         int id;
         {
             std::lock_guard registry(files_mutex);
-            if (next_fd == std::numeric_limits<int>::max()) return {-1, EMFILE};
-            id = next_fd++;
-            files.emplace(id, file);
+            id = descriptor_ids->Allocate();
+            if (id < 0) return {-1, EMFILE};
+            try { files.emplace(id, file); }
+            catch (...) { descriptor_ids->Release(id); throw; }
             std::erase_if(file_leases, [](const auto& f) { return f.second.expired(); });
             file_leases.emplace_back(p.slot, file);
         }
@@ -678,9 +704,6 @@ GuestStorage::IoResult GuestStorage::Open(std::string_view path, u32 flags, u32 
     if (!S_ISREG(st.st_mode) && !S_ISDIR(st.st_mode)) {
         return {-1, EACCES};
     }
-    if (next_fd == std::numeric_limits<int>::max()) {
-        return {-1, EMFILE};
-    }
     std::shared_ptr<Core::Directories::BaseDirectory> directory;
     if (S_ISDIR(st.st_mode)) {
         try {
@@ -720,8 +743,10 @@ GuestStorage::IoResult GuestStorage::Open(std::string_view path, u32 flags, u32 
     int id;
     {
         std::lock_guard registry(files_mutex);
-        id = next_fd++;
-        files.emplace(id, file);
+        id = descriptor_ids->Allocate();
+        if (id < 0) return {-1, EMFILE};
+        try { files.emplace(id, file); }
+        catch (...) { descriptor_ids->Release(id); throw; }
         std::erase_if(file_leases, [](const auto& f) { return f.second.expired(); });
         file_leases.emplace_back(p.slot, file);
     }
@@ -743,7 +768,7 @@ bool GuestStorage::HasFileLease(int slot) {
 GuestStorage::MappingFile GuestStorage::AcquireMappingFile(int fd) {
     auto file = AcquireFile(fd);
     if (!file) return {{}, -1, false, EBADF};
-    if (file->directory) return {{}, -1, false, ENODEV};
+    if (file->directory || file->device != Device::None) return {{}, -1, false, ENODEV};
     if (file->backend) {
         if (auto* host = file->backend->GetHostFile())
             return {file, static_cast<int>(host->GetFileMapping()), false, 0};
@@ -774,6 +799,7 @@ GuestStorage::IoResult GuestStorage::Close(int fd) {
         if (it == files.end()) return {-1, EBADF};
         retired = std::move(it->second);
         files.erase(it);
+        descriptor_ids->Release(fd);
     }
     return {0, 0};
 }
@@ -783,6 +809,16 @@ GuestStorage::IoResult GuestStorage::Read(int fd, std::span<u8> data) {
     if (!file) return {-1, EBADF};
     std::lock_guard cursor(file->cursor);
     if (cancelled) return {-1, EINTR};
+    if (file->device != Device::None) {
+        if (!file->readable) return {-1, EBADF};
+        if (file->device == Device::Null) return {0, 0};
+        // bionic/Darwin system CSPRNG, never a per-open srand/rand sequence.
+        if (!data.empty()) {
+            if (file->device == Device::Random) ::arc4random_buf(data.data(), data.size());
+            else std::memset(data.data(), 0, data.size());
+        }
+        return {s64(data.size()), 0};
+    }
     if (file->directory) {
         try { return {file->directory->read(data.data(), data.size()), 0}; }
         catch (const std::system_error& e) { return {-1, e.code().value()}; }
@@ -804,6 +840,13 @@ GuestStorage::IoResult GuestStorage::Write(int fd, std::span<const u8> data) {
     }
     auto file = AcquireFile(fd);
     if (!file || !file->writable) return {-1, EBADF};
+    if (file->device != Device::None) {
+        if (cancelled) return {-1, EINTR};
+        // Writes to random devices are not an entropy injection API in this
+        // backend. Report unsupported rather than silently claiming to seed it.
+        if (file->device == Device::Random) return {-1, ENOTSUP};
+        return {s64(data.size()), 0};
+    }
     std::lock_guard cursor(file->cursor);
     std::unique_lock<std::mutex> quota;
     if (file->quota) quota = std::unique_lock(file->quota->mutex);
@@ -876,6 +919,10 @@ static_assert(offsetof(Libraries::Kernel::OrbisKernelStat, st_size) == 72);
 GuestStorage::IoResult GuestStorage::Stat(std::string_view path,
                                           Libraries::Kernel::OrbisKernelStat& out) {
     std::shared_lock lock(namespace_mutex);
+    if (DeviceForPath(path) != Device::None) {
+        out = {}; out.st_mode = 0020777; out.st_blksize = 4096;
+        return {0, 0};
+    }
     auto p = Resolve(path, false, true);
     if (p.error)
         return {-1, p.error};
@@ -902,9 +949,22 @@ GuestStorage::IoResult GuestStorage::Stat(std::string_view path,
     GuestStat(native, out);
     return {0, 0};
 }
+GuestStorage::IoResult GuestStorage::PollReady(int fd) {
+    if (fd >= 0 && fd <= 2) return {3, 0}; // logging writes / immediate read error
+    auto file = AcquireFile(fd);
+    if (!file) return {-1, EBADF};
+    // This table contains regular/directory/archive files and synchronous
+    // null/zero/random/logger devices, never sockets or pipes. They do not
+    // block on readiness; errors/EOF are delivered by the actual I/O call.
+    return {3, 0};
+}
 GuestStorage::IoResult GuestStorage::Fstat(int fd, Libraries::Kernel::OrbisKernelStat& out) {
     auto file = AcquireFile(fd);
     if (!file) return {-1, EBADF};
+    if (file->device != Device::None) {
+        out = {}; out.st_mode = 0020777; out.st_blksize = 4096;
+        return {0, 0};
+    }
     std::lock_guard cursor(file->cursor);
     if (file->directory) {
         out = {};
@@ -924,12 +984,21 @@ GuestStorage::IoResult GuestStorage::Fstat(int fd, Libraries::Kernel::OrbisKerne
 }
 GuestStorage::IoResult GuestStorage::Positioned(int fd, std::span<const Buffer> buffers, s64 offset,
                                                 bool write) {
-    const auto begin = io_observer ? IoNow() : 0;
-    if (offset < 0 || buffers.size() > 1024)
-        return {-1, EINVAL};
+    return PositionedFile(AcquireFile(fd), fd, buffers, offset, write);
+}
+GuestStorage::PositionedLease GuestStorage::AcquirePositioned(int fd) {
     auto lease = AcquireFile(fd);
+    return [this, lease = std::move(lease), fd](std::span<const Buffer> buffers, s64 offset, bool write) {
+        return PositionedFile(lease, fd, buffers, offset, write);
+    };
+}
+GuestStorage::IoResult GuestStorage::PositionedFile(std::shared_ptr<File> lease, int fd,
+        std::span<const Buffer> buffers, s64 offset, bool write) {
+    const auto begin = io_observer ? IoNow() : 0;
+    if (offset < 0 || buffers.size() > 1024) return {-1, EINVAL};
     if (!lease || (write && !lease->writable)) return {-1, EBADF};
     auto& file = *lease;
+    if (file.device != Device::None) return {-1, ESPIPE};
     // Regular positioned reads do not use/update the shared cursor or flags.
     // Directories emulate positioned reads by seek/read/restore and need it.
     std::unique_lock cursor(file.cursor, std::defer_lock);
@@ -1009,6 +1078,7 @@ GuestStorage::IoResult GuestStorage::Truncate(int fd, s64 length) {
         return {-1, EINVAL};
     auto file = AcquireFile(fd);
     if (!file || !file->writable) return {-1, EBADF};
+    if (file->device != Device::None) return {-1, EINVAL};
     std::lock_guard cursor(file->cursor);
     std::unique_lock<std::mutex> quota;
     if (file->quota) quota = std::unique_lock(file->quota->mutex);
@@ -1026,6 +1096,7 @@ GuestStorage::IoResult GuestStorage::Seek(int fd, s64 offset, int whence) {
     std::lock_guard cursor(file->cursor);
     if (whence < 0 || whence > 2)
         return {-1, EINVAL};
+    if (file->device != Device::None) return {0, 0}; // desktop character-device seek
     if (file->directory) {
         const auto result = file->directory->lseek(offset, whence);
         return {result, result < 0 ? EINVAL : 0};
@@ -1045,6 +1116,7 @@ GuestStorage::IoResult GuestStorage::Sync(int fd) {
     }
     auto file = AcquireFile(fd);
     if (!file) return {-1, EBADF};
+    if (file->device != Device::None) return {0, 0};
     std::lock_guard cursor(file->cursor);
     if (file->backend) return file->backend->Flush() ? IoResult{0, 0} : IoResult{-1, EIO};
     auto r = ::fsync(file->host);
@@ -1053,6 +1125,7 @@ GuestStorage::IoResult GuestStorage::Sync(int fd) {
 GuestStorage::IoResult GuestStorage::GetDents(int fd, std::span<u8> bytes, s64* base) {
     auto file = AcquireFile(fd);
     if (!file) return {-1, EBADF};
+    if (file->device != Device::None) return {-1, ENOTDIR};
     std::lock_guard cursor(file->cursor);
     if (!file->directory || bytes.size() < 512) return {-1, EINVAL};
     if (cancelled) return {-1, EINTR};
@@ -1082,6 +1155,32 @@ GuestStorage::IoResult GuestStorage::Unlink(std::string_view path) {
     int e = errno;
     ::close(p.fd);
     return {r, r < 0 ? e : 0};
+}
+GuestStorage::IoResult GuestStorage::Rmdir(std::string_view path) {
+    if (path.empty())
+        return {-1, ENOENT};
+    // Resolve normalizes intermediate '.', but rmdir("directory/.") must not
+    // remove directory itself. Mount roots and '..' remain protected by Resolve.
+    const auto last = path.find_last_not_of('/');
+    if (last != path.npos) {
+        const auto slash = path.rfind('/', last);
+        if (path.substr(slash == path.npos ? 0 : slash + 1,
+                        last - (slash == path.npos ? 0 : slash + 1) + 1) == ".")
+            return {-1, EINVAL};
+    }
+    std::lock_guard lock(namespace_mutex);
+    auto p = Resolve(path, true);
+    if (p.error)
+        return {-1, p.error};
+    std::unique_lock<std::mutex> quota;
+    if (p.slot >= 0)
+        quota = std::unique_lock(quotas[p.slot]->mutex);
+    // Descriptor-relative removal of one empty directory only: never recurse,
+    // never follow a leaf symlink, and never delete a content archive or mount.
+    const int result = ::unlinkat(p.fd, p.leaf.c_str(), AT_REMOVEDIR);
+    const int error = result < 0 ? errno : 0;
+    ::close(p.fd);
+    return {result, error};
 }
 GuestStorage::IoResult GuestStorage::Rename(std::string_view from, std::string_view to) {
     std::lock_guard lock(namespace_mutex);

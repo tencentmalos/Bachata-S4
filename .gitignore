@@ -24,6 +24,10 @@ mono_crash.*
 # The guest debugger transport is source, not a configuration build directory.
 !src/core/guest_cpu/debug/
 !src/core/guest_cpu/debug/**
+# Reusable DebugBus source; keep generated files in this directory ignored.
+!/scripts/debug/
+/scripts/debug/*
+!/scripts/debug/export_guest_executables.py
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
@@ -424,3 +428,8 @@ cmake-build-*
 
 # Nix Result symlink
 result
+
+# Bounded validation evidence referenced by the Tetris analysis report.
+!/docs/validation/android-native-host/tetris-signin-eos-20260921/*.log
+!/docs/validation/android-native-host/tetris-signin-eos-20260921/native-attach-failure/logs/
+!/docs/validation/android-native-host/tetris-signin-eos-20260921/native-attach-failure/logs/*.log

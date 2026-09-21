@@ -7,6 +7,7 @@
 #include "core/libraries/kernel/orbis_error.h"
 #include "core/emulator_settings.h"
 #include "core/host_runtime/guest_graphics.h"
+#include "core/host_runtime/guest_data_batch.h"
 #include "core/host_runtime/guest_vr_session.h"
 #include "core/host_runtime/guest_vr_sensor.h"
 #include "core/libraries/videoout/driver.h"
@@ -201,7 +202,7 @@ s32 GuestGraphics::ValidateVrDisplay(s32 video, s32 first, s32 second) {
 s32 GuestGraphics::SubmitVrFrame(GuestCpu::GuestAddressSpace& space, const ReprojectionFrame& frame,
                                  std::function<void(bool)> complete) {
     using namespace GuestCpu;
-    std::vector<GuestAddressSpace::DataRequest> requests;
+    GuestDataBatch batch;
     if (frame.image_count != 2 && frame.image_count != 4) return ORBIS_HMD_ERROR_PARAMETER_INVALID;
     for (u32 i = 0; i < frame.image_count; ++i) {
         const auto& eye = frame.eyes[i];
@@ -224,10 +225,13 @@ s32 GuestGraphics::SubmitVrFrame(GuestCpu::GuestAddressSpace& space, const Repro
         const VideoCore::ImageInfo info{eye, Shader::ImageResource{}};
         if (!info.guest_size || info.guest_size > 128 * 1024 * 1024)
             return ORBIS_HMD_ERROR_PARAMETER_INVALID;
-        requests.push_back({{GuestAddress{info.guest_address}, info.guest_size}, GuestPermission::Read});
+        if (!batch.Add(space, {{info.guest_address}, info.guest_size}, GuestPermission::Read))
+            return ORBIS_HMD_ERROR_PARAMETER_INVALID;
     }
-    requests.push_back({{GuestAddress{frame.completion_label}, 8}, GuestPermission::Write});
-    auto acquired = space.AcquireDataBatch(requests);
+    if ((frame.completion_label & 7) ||
+        !batch.Add(space, {{frame.completion_label}, 8}, GuestPermission::Write))
+        return ORBIS_HMD_ERROR_PARAMETER_INVALID;
+    auto acquired = batch.Acquire(space);
     if (!acquired) return ORBIS_HMD_ERROR_PARAMETER_INVALID;
     auto pins = std::make_shared<std::vector<PinnedSpan>>(std::move(acquired).Value());
     auto* port = impl->video->GetPort(frame.video_handle);
@@ -235,7 +239,7 @@ s32 GuestGraphics::SubmitVrFrame(GuestCpu::GuestAddressSpace& space, const Repro
     // The label is firmware's texture-release word, NOT an acceptance receipt.
     // Release it only after the presenter GPU reads and queue submit both retire.
     const bool accepted = impl->video->SubmitVrFrame(port, frame.display_index, frame.sequence,
-        frame.eyes, frame.image_count, [pins, complete = std::move(complete)](bool retired) {
+        frame, [pins, complete = std::move(complete)](bool retired) {
             if (retired && pins->back().OwnerAlive()) {
                 auto* label = reinterpret_cast<u64*>(pins->back().WritableBytes().data());
                 std::atomic_ref<u64>(*label).store(0, std::memory_order_release);

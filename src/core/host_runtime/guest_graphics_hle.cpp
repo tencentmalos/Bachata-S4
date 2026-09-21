@@ -479,6 +479,31 @@ void InstallGraphicsHandlers(std::map<std::string, std::function<Status(HleCallF
                 VideoOut::sceVideoOutAddFlipEvent(a[0], a[1], reinterpret_cast<void*>(a[2])));
         },
         true);
+    for (const auto* nid : {"Xru92wHJRmg", "Ek+VR4lcJQI"}) {
+        install(nid, 3, [](GuestGraphics& graphics, const Args& a) -> u64 {
+            auto* queue = graphics.FindEqueue(a[0]);
+            auto* port = graphics.VideoOut().GetPort(a[1]);
+            if (!queue) return u32(ORBIS_VIDEO_OUT_ERROR_INVALID_EVENT_QUEUE);
+            if (!port || !port->is_open) return u32(ORBIS_VIDEO_OUT_ERROR_INVALID_HANDLE);
+            std::scoped_lock lock(port->port_mutex);
+            if (std::find(port->vblank_events.begin(), port->vblank_events.end(), a[0]) !=
+                port->vblank_events.end()) return u32(ORBIS_KERNEL_ERROR_EEXIST);
+            return u32(VideoOut::sceVideoOutAddVblankEvent(a[0], a[1],
+                                                          reinterpret_cast<void*>(a[2])));
+        }, true);
+    }
+    for (const auto* nid : {"-Ozn0F1AFRg", "oNOQn3knW6s"}) {
+        const bool flip = std::string_view(nid) == "-Ozn0F1AFRg";
+        install(nid, 2, [flip](GuestGraphics& graphics, const Args& a) -> u64 {
+            auto* queue = graphics.FindEqueue(a[0]);
+            auto* port = graphics.VideoOut().GetPort(a[1]);
+            if (!queue) return u32(ORBIS_VIDEO_OUT_ERROR_INVALID_EVENT_QUEUE);
+            if (!port || !port->is_open) return u32(ORBIS_VIDEO_OUT_ERROR_INVALID_HANDLE);
+            std::scoped_lock lock(port->port_mutex);
+            return u32(flip ? VideoOut::sceVideoOutDeleteFlipEvent(a[0], a[1])
+                            : VideoOut::sceVideoOutDeleteVblankEvent(a[0], a[1]));
+        }, true);
+    }
     install("b0xyllnVY-I", 3, [](GuestGraphics& graphics, const Args& a) -> u64 {
         auto* queue = graphics.FindEqueue(a[0]);
         if (!queue)

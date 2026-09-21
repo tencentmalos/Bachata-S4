@@ -82,6 +82,11 @@ static void Archives(const std::filesystem::path& root) {
     GuestStorage storage(mounts, root / "users", "CUSA99991", 1000);
     auto fd = storage.Open("/app0/shared", 0, 0);
     CHECK(!fd.error);
+    CHECK(storage.PollReady(fd.value).value == 3);
+    CHECK(storage.PollReady(-1).error == EBADF);
+    CHECK(storage.PollReady(1023).error == EBADF);
+    CHECK(storage.PollReady(0).value == 3);
+    CHECK(storage.PollReady(1).value == 3);
     std::array<u8, 8> data{};
     CHECK(storage.Read(fd.value, data).value == 7 && std::memcmp(data.data(), "UPDATED", 7) == 0);
     CHECK(storage.Seek(fd.value, 2, 0).value == 2);
@@ -146,6 +151,7 @@ static void Archives(const std::filesystem::path& root) {
     });
     CHECK(other.wait_for(std::chrono::milliseconds(500)) == std::future_status::ready);
     CHECK(storage.Close(fd.value).value == 0);
+    CHECK(storage.PollReady(fd.value).error == EBADF);
     mounts.UnmountAll();
     { std::lock_guard lock(io_test_mutex); io_release = true; }
     io_test_changed.notify_all(); CHECK(slow.get()); CHECK(other.get());
@@ -183,7 +189,44 @@ int main(int argc, char** argv) {
         CHECK(storage.Stat("/app0/../asset", st).error == EACCES);
         std::filesystem::create_symlink(root / "content/asset", root / "content/link");
         CHECK(storage.Stat("/app0/link", st).error == EACCES);
+        for (const auto path : {"/dev/urandom", "/dev/random", "/dev/srandom", "/dev/zero", "/dev/null"}) {
+            const auto device = storage.Open(path, 0, 0);
+            CHECK(!device.error);
+            CHECK(storage.Stat(path, st).value == 0 && (st.st_mode & 0170000) == 0020000);
+            CHECK(storage.Fstat(device.value, st).value == 0 && (st.st_mode & 0170000) == 0020000);
+            std::array<u8, 256> first{}, second{};
+            first.fill(0xa5); second.fill(0xa5);
+            const auto a = storage.Read(device.value, first), b = storage.Read(device.value, second);
+            const bool null = std::string_view(path) == "/dev/null";
+            CHECK(!a.error && !b.error && a.value == (null ? 0 : 256) && b.value == a.value);
+            if (std::string_view(path) == "/dev/zero")
+                CHECK(std::all_of(first.begin(), first.end(), [](u8 v) { return v == 0; }));
+            else if (!null) CHECK(first != second);
+            else CHECK(first[0] == 0xa5);
+            CHECK(storage.Read(device.value, {}).value == 0);
+            CHECK(storage.Write(device.value, first).error == EBADF);
+            CHECK(storage.Seek(device.value, 0, 1).value == 0);
+            CHECK(storage.Sync(device.value).value == 0);
+            CHECK(storage.AcquireMappingFile(device.value).error == ENODEV);
+            GuestStorage::Buffer v{first.data(), first.size()};
+            CHECK(storage.Positioned(device.value, std::span{&v, 1}, 0, false).error == ESPIPE);
+            CHECK(storage.GetDents(device.value, first, nullptr).error == ENOTDIR);
+            CHECK(storage.Open(path, 0x20000, 0).error == ENOTDIR);
+            CHECK(storage.Close(device.value).value == 0);
+            CHECK(storage.Read(device.value, first).error == EBADF);
+            const auto writable = storage.Open(path, 1, 0);
+            CHECK(!writable.error && storage.Read(writable.value, first).error == EBADF);
+            CHECK(storage.Truncate(writable.value, 0).error == EINVAL);
+            if (std::string_view(path) == "/dev/zero" || null)
+                CHECK(storage.Write(writable.value, first).value == 256);
+            else CHECK(storage.Write(writable.value, first).error == ENOTSUP);
+            CHECK(storage.Close(writable.value).value == 0);
+        }
+        CHECK(storage.Open("/dev/urandom/../mem", 0, 0).error != 0);
+        CHECK(storage.Open("/dev/urandom-suffix", 0, 0).error != 0);
+        CHECK(storage.Open("/dev/mem", 0, 0).error != 0);
         auto fd = storage.Open("/app0/asset", 0, 0);
+        CHECK(storage.PollReady(fd.value).value == 3);
         CHECK(!fd.error);
         CHECK(storage.Seek(fd.value, 3, 0).value == 3);
         std::array<char, 8> data{};
@@ -551,8 +594,17 @@ int main(int argc, char** argv) {
             const auto actual = std::filesystem::space(temporary).available / 1024;
             CHECK(available > actual / 2 && available < actual * 2);
             CHECK(storage.Mkdir("/temp0/sub", 0700).value == 0);
+            CHECK(storage.Rmdir("/temp0/missing").error == ENOENT);
+            CHECK(storage.Rmdir("").error == ENOENT);
+            CHECK(storage.Rmdir("/temp0").error == EINVAL);
+            CHECK(storage.Rmdir("/temp0/sub/.").error == EINVAL);
+            CHECK(storage.Rmdir("/temp0/../escape").error == EACCES);
+            CHECK(storage.Rmdir("/app0/dir").error == EROFS);
+            CHECK(storage.Rmdir("/savedata0/sce_sys").error == EACCES);
             auto temp_fd = storage.Open("/temp0/sub/data", 0x202, 0600);
             CHECK(!temp_fd.error);
+            CHECK(storage.Rmdir("/temp0/sub/data").error == ENOTDIR);
+            CHECK(storage.Rmdir("/temp0/sub").error == ENOTEMPTY);
             CHECK(storage.Write(temp_fd.value, initial).value == 4);
             CHECK(storage.UnmountTemporary() == EBUSY);
             CHECK(dispatch("buYbeLOGWmA", {1, base + 1536}) == u32(ORBIS_APP_CONTENT_ERROR_BUSY));
@@ -565,9 +617,35 @@ int main(int argc, char** argv) {
             CHECK(storage.Open("/temp0/../escape", 0x202, 0600).error == EACCES);
             std::filesystem::create_symlink(root / "content/asset", temporary / "link");
             CHECK(storage.Open("/temp0/link", 0x202, 0600).error == ELOOP);
+            std::filesystem::create_directory_symlink(temporary / "sub", temporary / "dir-link");
+            CHECK(storage.Rmdir("/temp0/dir-link").error == ENOTDIR);
+            CHECK(std::filesystem::is_directory(temporary / "sub"));
             CHECK(storage.Close(temp_fd.value).value == 0);
             CHECK(storage.Rename("/temp0/sub/data", "/temp0/renamed").value == 0);
             CHECK(storage.Unlink("/temp0/renamed").value == 0);
+            const char remove_path[] = "/temp0/sub/";
+            CHECK(space->WriteData({base + 2048}, std::as_bytes(std::span{remove_path})));
+            const auto kernel_remove = std::find_if(std::begin(StorageEntries), std::end(StorageEntries),
+                [](const auto& e) { return e.nid == "naInUjYt3so"; });
+            const auto posix_remove = std::find_if(std::begin(StorageEntries), std::end(StorageEntries),
+                [](const auto& e) { return e.nid == "c7ZnT7V1B98"; });
+            CHECK(kernel_remove != std::end(StorageEntries) && posix_remove != std::end(StorageEntries));
+            if (kernel_remove != std::end(StorageEntries) && posix_remove != std::end(StorageEntries)) {
+                auto failure = [&](int e) { posix_error = e; return UINT64_MAX; };
+                CHECK(DispatchStorage(storage, *space, *kernel_remove, {base + 2048}, failure) == 0);
+                CHECK(!std::filesystem::exists(temporary / "sub"));
+                CHECK(DispatchStorage(storage, *space, *posix_remove, {base + 2048}, failure) ==
+                      UINT64_MAX && posix_error == POSIX_ENOENT);
+                CHECK(s32(DispatchStorage(storage, *space, *kernel_remove, {base + 2048}, failure)) ==
+                      Libraries::Kernel::ErrnoToSceKernelError(POSIX_ENOENT));
+                CHECK(DispatchStorage(storage, *space, *posix_remove, {0}, failure) ==
+                      UINT64_MAX && posix_error == POSIX_EFAULT);
+            }
+            CHECK(storage.Mkdir("/temp0/open-dir", 0700).value == 0);
+            auto open_dir = storage.Open("/temp0/open-dir", 0x20000, 0);
+            CHECK(!open_dir.error);
+            CHECK(storage.Rmdir("/temp0/open-dir/").value == 0);
+            CHECK(storage.Close(open_dir.value).value == 0);
             CHECK(storage.UnmountTemporary() == 0);
             CHECK(!mounts.GetMountSnapshot("/temp0") && !std::filesystem::exists(temporary));
             CHECK(std::filesystem::file_size(root / "content/asset") == 8);

@@ -200,10 +200,9 @@ struct PageManager::Impl {
     void Protect(VAddr address, size_t size, Core::MemoryPermission perms) {
         RENDERER_TRACE;
         auto* memory = Core::Memory::Instance();
-        auto& impl = memory->GetAddressSpace();
         ASSERT_MSG(perms != Core::MemoryPermission::Write,
                    "Attempted to protect region as write-only which is not a valid permission");
-        impl.ProtectGpu(address, size, perms);
+        memory->ProtectGpu(address, size, perms);
     }
 
     static bool GuestFaultSignalHandler(void* context, void* fault_address) {
@@ -253,8 +252,9 @@ struct PageManager::Impl {
         const u64 aligned_end = page_end << PM_PAGE_BITS;
         if (!rasterizer->IsMapped(aligned_addr, aligned_end - aligned_addr)) {
             LOG_WARNING(Render,
-                        "Tracking memory region {:#x} - {:#x} which is not fully GPU mapped.",
-                        aligned_addr, aligned_end);
+                        "Tracking memory region {:#x} - {:#x} which is not fully GPU mapped "
+                        "(track={} read={}).",
+                        aligned_addr, aligned_end, track, is_read);
         }
 
         for (; page != page_end; ++page) {

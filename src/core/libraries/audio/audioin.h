@@ -60,6 +60,9 @@ int PS4_SYSV_ABI sceAudioInHqOpen(Libraries::UserService::OrbisUserServiceUserId
                                   u32 index, u32 len, u32 freq, u32 param);
 int PS4_SYSV_ABI sceAudioInHqOpenEx();
 int PS4_SYSV_ABI sceAudioInInit();
+// Android has no recording provider. This path validates scalar arguments
+// without ever translating a guest destination into a native pointer.
+int InputWithoutDevice(s32 handle, bool has_destination);
 int PS4_SYSV_ABI sceAudioInInput(s32 handle, void* dest);
 int PS4_SYSV_ABI sceAudioInInputs();
 int PS4_SYSV_ABI sceAudioInIsSharedDevice();

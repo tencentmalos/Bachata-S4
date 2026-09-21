@@ -110,6 +110,9 @@ public:
     };
 
     explicit MntPoints() = default;
+    // An independent table retaining exactly the selected backend stack. Used
+    // by asynchronous disk diagnostics; later unmounts do not invalidate it.
+    explicit MntPoints(MntPair snapshot) : m_mnt_pairs{std::move(snapshot)} {}
     ~MntPoints() = default;
 
     void Mount(const std::filesystem::path& host_folder, const std::string& guest_folder,

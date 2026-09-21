@@ -124,15 +124,20 @@ s32 PS4_SYSV_ABI sceHmdReprojectionSetUserEventStart() {
     return ORBIS_OK;
 }
 
-s32 PS4_SYSV_ABI sceHmdReprojectionStart(const void* start_param) {
+s32 PS4_SYSV_ABI sceHmdReprojectionStart(const OrbisHmdReprojectionStartParam* start_param,
+                                       const void* pose, u64 sequence, const void* reserved) {
     LOG_ERROR(Lib_Hmd, "(INCOMPLETE ABI) sceHmdReprojectionStart requires a start record");
     (void)start_param;
-    return ORBIS_HMD_ERROR_PARAMETER_INVALID;
+    if (reserved) return ORBIS_HMD_ERROR_PARAMETER_INVALID;
+    if (!start_param || !pose) return ORBIS_HMD_ERROR_PARAMETER_NULL;
+    return ORBIS_HMD_ERROR_UNSUPPORTED_FEATURE;
 }
 
-s32 PS4_SYSV_ABI sceHmdReprojectionStart2dVr() {
-    LOG_ERROR(Lib_Hmd, "(STUBBED) called");
-    return ORBIS_OK;
+s32 PS4_SYSV_ABI sceHmdReprojectionStart2dVr(const OrbisHmdReprojection2dParam* param,
+                                           u64 sequence, const void* reserved) {
+    if (reserved) return ORBIS_HMD_ERROR_PARAMETER_INVALID;
+    if (!param) return ORBIS_HMD_ERROR_PARAMETER_NULL;
+    return ORBIS_HMD_ERROR_UNSUPPORTED_FEATURE;
 }
 
 s32 PS4_SYSV_ABI sceHmdReprojectionStartCapture() {
@@ -160,9 +165,14 @@ s32 PS4_SYSV_ABI sceHmdReprojectionStartWideNearWithOverlay() {
     return ORBIS_OK;
 }
 
-s32 PS4_SYSV_ABI sceHmdReprojectionStartWithOverlay() {
-    LOG_ERROR(Lib_Hmd, "(STUBBED) called");
-    return ORBIS_OK;
+s32 PS4_SYSV_ABI sceHmdReprojectionStartWithOverlay(const OrbisHmdReprojectionStartParam* param,
+    const void* pose, u64 sequence, const OrbisHmdReprojectionOverlayParam* overlay,
+    const void* reserved) {
+    if (reserved) return ORBIS_HMD_ERROR_PARAMETER_INVALID;
+    if (!param || !pose || !overlay) return ORBIS_HMD_ERROR_PARAMETER_NULL;
+    // The typed Android transport owns the checked snapshots and GPU leases.
+    // A desktop call without that provider must not claim a successful submit.
+    return ORBIS_HMD_ERROR_UNSUPPORTED_FEATURE;
 }
 
 s32 PS4_SYSV_ABI sceHmdReprojectionStop() {

@@ -4597,7 +4597,7 @@ void TestWarmEntryBackedge(Harness& h) {
 void TestHighAddressPolicy() {
     AddressSpaceConfig config;
     config.preferred_base = 0x400000;
-    config.reservation_size = (72ULL << 30) - config.preferred_base;
+    config.reservation_size = (272ULL << 30) - config.preferred_base;
     config.max_address = QueryBackendCapabilities().max_guest_address;
     auto created = GuestAddressSpace::Create(config);
     if (!created) {
@@ -4605,7 +4605,7 @@ void TestHighAddressPolicy() {
         return;
     }
     auto space = std::move(created).Value();
-    const std::uint64_t low = config.preferred_base + 0x10000, high = low + (1ULL << 36),
+    const std::uint64_t low = config.preferred_base + 0x10000, high = low + (1ULL << 38),
                         stack = low + 0x10000;
     const auto page = HostPageSize();
     auto code = [](std::uint64_t value) {
@@ -4715,6 +4715,11 @@ void TestClockDomain(Harness& harness) {
 }
 
 int main(int argc, char** argv) {
+    if (argc == 2 && std::strcmp(argv[1], "--focused-high-address") == 0) {
+        TestHighAddressPolicy();
+        printf("FOCUSED_HIGH_ADDRESS checks=%d failures=%d\n", g_checks, g_failures);
+        return g_failures ? 1 : 0;
+    }
     const bool focused = argc == 2 && std::strcmp(argv[1], "--focused-publication") == 0;
     const bool clock_only = argc == 2 && std::strcmp(argv[1], "--focused-clock") == 0;
     const bool debug_mixed_server = argc == 2 && std::strcmp(argv[1], "--serve-debugger-mixed") == 0;

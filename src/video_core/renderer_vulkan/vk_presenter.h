@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #pragma once
+#include "video_core/vr_frame.h"
 
 #include <condition_variable>
 
@@ -111,7 +112,7 @@ public:
 
     bool IsVideoOutSurface(const AmdGpu::ColorBuffer& color_buffer) const;
 
-    Frame* PrepareVrFrame(const std::array<AmdGpu::Image, 4>& eyes, u32 image_count,
+    Frame* PrepareVrFrame(const VideoCore::VrFrameSource& source,
                           std::function<void(bool)> complete);
     Frame* PrepareFrame(const Libraries::VideoOut::BufferAttributeGroup& attribute,
                         VAddr cpu_address, u64 diagnostic_id = 0);

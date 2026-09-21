@@ -574,6 +574,12 @@ s32 PS4_SYSV_ABI sceNpWebApiSetRequestTimeout(s64 requestId, u32 timeout) {
     return setRequestTimeout(requestId, timeout);
 }
 
+s32 RetireOfflineControlContext(s32 id) {
+    const s32 result = retireOfflineControlContext(id);
+    if (result == ORBIS_OK && --g_active_library_contexts == 0) g_is_initialized = false;
+    return result;
+}
+
 s32 PS4_SYSV_ABI sceNpWebApiTerminate(s32 libCtxId) {
     LOG_INFO(Lib_NpWebApi, "called, libCtxId = {:#x}", libCtxId);
     s32 result = terminateContext(libCtxId);

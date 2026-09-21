@@ -30,6 +30,7 @@ enum class StorageOp {
     Seek,
     Sync,
     Mkdir,
+    Rmdir,
     Unlink,
     Rename,
     Stat,
@@ -49,6 +50,8 @@ struct StorageEntry {
     bool posix{};
 };
 inline constexpr StorageEntry StorageEntries[]{
+    {"naInUjYt3so", StorageOp::Rmdir, false},
+    {"c7ZnT7V1B98", StorageOp::Rmdir, false, true},
     {"v7AAAMo0Lz4", StorageOp::SetupMemory, true},
     {"7Bt5pBC-Aco", StorageOp::GetMemory, true},
     {"h3YURzXGSVQ", StorageOp::SetMemory, true},
