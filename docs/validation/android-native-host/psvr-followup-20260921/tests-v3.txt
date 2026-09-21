@@ -1,0 +1,3 @@
+PROCESS_SERVICES checks=80 failures=0
+GUEST_AIO checks=72 failures=0
+GUEST_FILE_IO checks=501 failures=0

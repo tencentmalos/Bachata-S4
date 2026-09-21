@@ -1,0 +1,25 @@
+{
+  "pid": "19927",
+  "settings": {
+    "global": {
+      "byte_identical": true,
+      "sha256": "2d9cbe984e5f265e3a607314a8a3759f01ff35ec43369cfe43af6a17e80dfc64"
+    },
+    "config": {
+      "byte_identical": true,
+      "sha256": "e6b6682ba630ff983624844cd4cc9a61af940c42a48d6206418d0d1a9e3e3057"
+    }
+  },
+  "session_none": true,
+  "tracer": [
+    "TracerPid:\t0"
+  ],
+  "forwards": "\n",
+  "guest_debug_port": "0",
+  "guest_debug_wait": "0",
+  "renderdoc_status": "TASK 10190:com.shadps4.android id=1624 userId=0\n  ACTIVITY com.shadps4.android/.MainActivity 4c7b96a pid=19927\nrenderdoc_api_loaded: false\ncapture_backend: coordinator\n\n",
+  "profiler_capture status": "TASK 10190:com.shadps4.android id=1624 userId=0\n  ACTIVITY com.shadps4.android/.MainActivity 4c7b96a pid=19927\nschema=foundation.profiler-capture.v1\nprofiler_sdk_revision=e00321ea40c4c608aff74a787200bc59493eea19\nprocess_id=19927\ncapture_id=0\ncapture_active=0\ncapture_mode=none\ncapture_state=idle\ncapture_path=\ncapture_bytes=0\ncapture_port=0\ncapture_host=127.0.0.1\nstream_protocol=raw-prof-v3-stop-line-v1\nerror=\n\n",
+  "guest_patch status": "TASK 10190:com.shadps4.android id=1624 userId=0\n  ACTIVITY com.shadps4.android/.MainActivity 4c7b96a pid=19927\nstatus: no_session\n\n",
+  "hle_sync status": "TASK 10190:com.shadps4.android id=1624 userId=0\n  ACTIVITY com.shadps4.android/.MainActivity 4c7b96a pid=19927\n{\"status\":\"no_session\"}\n\n",
+  "gpu_timing status": "TASK 10190:com.shadps4.android id=1624 userId=0\n  ACTIVITY com.shadps4.android/.MainActivity 4c7b96a pid=19927\ngpu_timing: off\ndetailed: 0\nrequested: 0\nring_enabled: 0\ncoverage: device elapsed intervals (may include GPU semaphore/memory waits); excludes host API time; nested zones are not additive\nsession: unavailable\n\n"
+}

@@ -840,10 +840,10 @@ class FexSyscallHandler final : public FEXCore::HLE::SyscallHandler {
 //
 // This is a V0 policy, NOT a demonstrated FEXCore capability limit. An earlier revision claimed
 // The pinned lookup compares full guest tags after masking the cache index.
-// G46 executes and republishes blocks separated by 64 GiB in one owner. Keep a
-// bounded 128 GiB embedder policy for the production PS4 layout; this is not a
+// G46 executes and republishes blocks separated by 256 GiB in one owner. Keep a
+// bounded 512 GiB embedder policy for the production PS4 layout; this is not a
 // claim that every x86-64 canonical address or 16 KiB host configuration is tested.
-constexpr std::uint64_t kGuestAddressPolicyLimit = std::uint64_t{1} << 37;
+constexpr std::uint64_t kGuestAddressPolicyLimit = std::uint64_t{1} << 39;
 
 // --- return gate -------------------------------------------------------------
 // A host page holding a single x86 HLT, mapped executable and registered as a

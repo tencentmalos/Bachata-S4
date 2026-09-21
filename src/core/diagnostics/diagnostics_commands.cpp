@@ -10,6 +10,7 @@
 #include "core/host_runtime/guest_patch.h"
 #include "core/host_runtime/guest_auto_tag.h"
 #include "core/host_runtime/guest_sync_metrics.h"
+#include "core/diagnostics/executable_export.h"
 #endif
 
 #include <charconv>
@@ -131,6 +132,9 @@ std::uint64_t NowNs(const MonotonicClockNs& clock) {
 void RegisterDiagnosticsCommands(spatial::debugbus::DebugCommandRegistry& registry,
                                  DiagnosticsHub& hub, MonotonicClockNs clock) {
 #if defined(SHADPS4_TYPED_HLE_HOST)
+    registry.Register("guest_executable_export",
+        "Export disk executables asynchronously: start [current|absolute_path] | start path_hex HEX | status [id] | cancel id",
+        [](const std::vector<std::string>& args) { return ExecutableExport::Command(args); });
     registry.Register("hle_sync", "HLE synchronization metrics: status | dump | start/detail/stop <context>",
         [](const std::vector<std::string>& args) { return HostRuntime::SyncMetrics::Command(args); });
     registry.Register("guest_auto_tag", "Guest IR auto tag status | enable/disable <context>",

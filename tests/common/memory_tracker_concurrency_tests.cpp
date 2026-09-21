@@ -226,6 +226,20 @@ int main() {
     CHECK(read_watchers.load() == reads_before);
     CHECK(tracker->IsRegionCpuModified(precise, 4096));
     CHECK(!tracker->IsRegionGpuModified(precise, 4096));
+    tracker->SnapshotForUpload(precise, 8192, true, [](u64) {}, [](u64, u64) {});
+    CHECK(read_watchers.load() == reads_before + 2);
+    tracker->InvalidateMapping(precise, 4096);
+    CHECK(read_watchers.load() == reads_before + 1);
+    CHECK(tracker->IsRegionCpuModified(precise, 4096));
+    CHECK(!tracker->IsRegionGpuModified(precise, 4096));
+    CHECK(tracker->IsRegionGpuModified(precise + 4096, 4096));
+    CHECK(!tracker->IsRegionCpuModified(precise + 4096, 4096));
+    u64 remapped_bytes{};
+    tracker->SnapshotForUpload(precise, 8192, false, [](u64) {},
+                               [&](u64 a, u64 n) { CHECK(a == precise); remapped_bytes += n; });
+    CHECK(remapped_bytes == 4096);
+    tracker->InvalidateMapping(precise, 8192);
+    CHECK(read_watchers.load() == reads_before);
     EmulatorSettings.SetReadbacksMode(GpuReadbacksMode::Disabled);
 
     std::printf("checks=%d failures=%d region_bytes=%llu directory_object_bytes=%zu\n", checks,

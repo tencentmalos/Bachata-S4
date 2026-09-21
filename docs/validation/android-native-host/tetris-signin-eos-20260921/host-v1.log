@@ -1,0 +1,350 @@
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0xd4 name=libSceHmd result=0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0xed name=libSceVrTracker result=0x0
+[Lib.NpManager] <Info> (Guest-1) guest_runtime.cpp:3297 lambda: Session offline NP nid=rbknaUjpqWo result=0x80550006
+[Lib.Ssl2] <Error> (Guest-19) ssl2.cpp:231 sceSslInit: (DUMMY) called poolSize = 1048576
+[Lib.Http] <Info> (Guest-19) http.cpp:1623 sceHttpInit: called libnetMemId=-2143223352, libsslCtxId=1, poolSize=1048576
+[Lib.Http] <Info> (Guest-19) http.cpp:1634 sceHttpInit: initialized -> ctxId=1 (active contexts: 1)
+[Lib.Http] <Info> (Guest-19) http.cpp:1511 sceHttpCreateTemplate: called libhttpCtxId=1, userAgent=UnityPlayer/2021.3.30f1 (UnityWebRequest/1.0, PS4), httpVer=2, isAutoProxyConf=1
+[Lib.Http] <Info> (Guest-19) http.cpp:1529 sceHttpCreateTemplate: created template tmplId=1
+[Lib.Http] <Error> (Guest-19) http.cpp:1817 sceHttpSetAuthEnabled: (STUBBED) called id=1, isEnable=1
+[Lib.Http] <Info> (Guest-19) http.cpp:2537 sceHttpsDisableOption: called id=1, sslFlags=0xa5
+[Lib.Http] <Info> (Guest-19) http.cpp:2555 sceHttpsDisableOption: ssl_flags now 0x0 at template level (id=1)
+[Lib.Http] <Info> (Guest-19) http.cpp:2585 sceHttpsEnableOption: called id=1, sslFlags=0xa5
+[Lib.Http] <Info> (Guest-19) http.cpp:2603 sceHttpsEnableOption: ssl_flags now 0xa5 at template level (id=1)
+[Lib.Http] <Info> (Guest-19) http.cpp:3003 sceHttpSetRecvTimeOut: called id=1, usec=5000000
+[Lib.Http] <Info> (Guest-19) http.cpp:2986 sceHttpSetSendTimeOut: called id=1, usec=5000000
+[Lib.Http] <Info> (Guest-19) http.cpp:2969 sceHttpSetConnectTimeOut: called id=1, usec=5000000
+[Lib.Http] <Info> (Guest-19) http.cpp:1312 sceHttpCreateConnection: called tmplId=1, serverName=api-global.appnori.com, scheme=https, port=443, isEnableKeepalive=1
+[Lib.Http] <Info> (Guest-19) http.cpp:1353 sceHttpCreateConnection: created connection connId=2 url=https://api-global.appnori.com:443
+[Lib.Http] <Info> (Guest-19) http.cpp:3085 sceHttpCreateRequest2: called connId=2, method=POST, path=/AIO/UpdateUserInfo.php, contentLength=0
+[Lib.Http] <Info> (Guest-19) http.cpp:1474 sceHttpCreateRequestWithURL: called connId=2, method=1, url=https://api-global.appnori.com:443/AIO/UpdateUserInfo.php, contentLength=0
+[Lib.Http] <Info> (Guest-19) http.cpp:1504 sceHttpCreateRequestWithURL: created request reqId=3
+[Lib.Http] <Info> (Guest-19) http.cpp:2817 sceHttpAddRequestHeader: called id=3, name=Content-Type, value=multipart/form-data; boundary=3NBfW9nUxsL6ALVzm7N4TAmfiO9qnePuubwLJJ3p, mode=1
+[Lib.Http] <Info> (Guest-19) http.cpp:2845 sceHttpAddRequestHeader: added header at request id=3: Content-Type: multipart/form-data; boundary=3NBfW9nUxsL6ALVzm7N4TAmfiO9qnePuubwLJJ3p (mode=1, total now 1)
+[Lib.Http] <Info> (Guest-19) http.cpp:2817 sceHttpAddRequestHeader: called id=3, name=X-Unity-Version, value=2021.3.30f1, mode=1
+[Lib.Http] <Info> (Guest-19) http.cpp:2845 sceHttpAddRequestHeader: added header at request id=3: X-Unity-Version: 2021.3.30f1 (mode=1, total now 2)
+[Lib.Http] <Error> (Guest-19) http.cpp:1829 sceHttpSetChunkedTransferEnabled: (STUBBED) called id=3, isEnable=0
+[Lib.Http] <Info> (Guest-19) http.cpp:2882 sceHttpSetRequestContentLength: called id=3, contentLength=766
+[Lib.Http] <Info> (Guest-19) http.cpp:1666 sceHttpSendRequest: called reqId=3, postData=0x2a4150010, size=766
+[Lib.Http] <Info> (Guest-19) http.cpp:1750 sceHttpSendRequest: reqId=3 dispatched to async worker [OFFLINE POST https://api-global.appnori.com:443/AIO/UpdateUserInfo.php]
+[Lib.Http] <Debug> (Guest-19) http.cpp:2753 sceHttpGetStatusCode: called reqId=3
+[Lib.Http] <Info> (Guest-19) http.cpp:2782 sceHttpGetStatusCode: reqId=3 transport failure, errno=0x80436002, returning BEFORE_SEND
+[Lib.Http] <Info> (Guest-19) http.cpp:2719 sceHttpGetResponseContentLength: called reqId=3, result=0x64cf5c6ed8, contentLength=0x64cf5c6ee0
+[Lib.Http] <Info> (Guest-19) http.cpp:2748 sceHttpGetResponseContentLength: reqId=3 result=0x80431071 contentLength=0
+[Lib.Http] <Info> (Guest-19) http.cpp:2679 sceHttpGetAllResponseHeaders: called reqId=3, header=0x64cf5c6ee0, headerSize=0x64cf5c6ed8
+[Lib.Http] <Info> (Guest-19) http.cpp:2708 sceHttpGetAllResponseHeaders: reqId=3 returning empty headers blob
+[Lib.Http] <Info> (Guest-19) http.cpp:3057 sceHttpDeleteRequest: called reqId=3
+[Lib.Http] <Info> (Guest-19) http.cpp:3023 sceHttpDeleteConnection: called connId=2
+[Lib.Http] <Info> (Guest-19) http.cpp:3040 sceHttpDeleteTemplate: called tmplId=1
+[Lib.Http] <Info> (Guest-19) http.cpp:2110 sceHttpTerm: called libhttpCtxId=1
+[Lib.Http] <Info> (Guest-19) http.cpp:2124 sceHttpTerm: last context terminated, clearing state
+[Lib.Ssl2] <Error> (Guest-19) ssl2.cpp:288 sceSslTerm: (STUBBED) called
+[Core.Linker] <Info> (Guest-1) module.cpp:113 Start: Module started : libSceNpToolkit2.prx
+[Core.Linker] <Info> (Guest-1) module.cpp:113 Start: Module started : UnityNpToolkit2.prx
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0x102 name=libSceNpToolkit2 result=0x0
+[Tty] <Error> (Guest-1) logger.cpp:60 log_flush: [stderr] Exception During Initialization :  (Sce : 0x804101C8 )  ( C:\build\output\unity\platform.ps4.plugins\plugins\PS4\APIWrappers\UnityNpToolkit2\Native\Source\Init.cpp : Line = 95 ) 
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0xeb name=libSceHmdSetupDialog result=0x0
+[Lib.Ssl2] <Error> (Guest-19) ssl2.cpp:231 sceSslInit: (DUMMY) called poolSize = 1048576
+[Lib.Http] <Info> (Guest-19) http.cpp:1623 sceHttpInit: called libnetMemId=-2143223352, libsslCtxId=2, poolSize=1048576
+[Lib.Http] <Info> (Guest-19) http.cpp:1634 sceHttpInit: initialized -> ctxId=2 (active contexts: 1)
+[Lib.Http] <Info> (Guest-19) http.cpp:1511 sceHttpCreateTemplate: called libhttpCtxId=2, userAgent=UnityPlayer/2021.3.30f1 (UnityWebRequest/1.0, PS4), httpVer=2, isAutoProxyConf=1
+[Lib.Http] <Info> (Guest-19) http.cpp:1529 sceHttpCreateTemplate: created template tmplId=4
+[Lib.Http] <Error> (Guest-19) http.cpp:1817 sceHttpSetAuthEnabled: (STUBBED) called id=4, isEnable=1
+[Lib.Http] <Info> (Guest-19) http.cpp:2537 sceHttpsDisableOption: called id=4, sslFlags=0xa5
+[Lib.Http] <Info> (Guest-19) http.cpp:2555 sceHttpsDisableOption: ssl_flags now 0x0 at template level (id=4)
+[Lib.Http] <Info> (Guest-19) http.cpp:2585 sceHttpsEnableOption: called id=4, sslFlags=0xa5
+[Lib.Http] <Info> (Guest-19) http.cpp:2603 sceHttpsEnableOption: ssl_flags now 0xa5 at template level (id=4)
+[Lib.Http] <Info> (Guest-19) http.cpp:3003 sceHttpSetRecvTimeOut: called id=4, usec=5000000
+[Lib.Http] <Info> (Guest-19) http.cpp:2986 sceHttpSetSendTimeOut: called id=4, usec=5000000
+[Lib.Http] <Info> (Guest-19) http.cpp:2969 sceHttpSetConnectTimeOut: called id=4, usec=5000000
+[Lib.Http] <Info> (Guest-19) http.cpp:1312 sceHttpCreateConnection: called tmplId=4, serverName=api-global.appnori.com, scheme=https, port=443, isEnableKeepalive=1
+[Lib.Http] <Info> (Guest-19) http.cpp:1353 sceHttpCreateConnection: created connection connId=5 url=https://api-global.appnori.com:443
+[Lib.Http] <Info> (Guest-19) http.cpp:3085 sceHttpCreateRequest2: called connId=5, method=POST, path=/AIO/GetCustomInfo.php, contentLength=0
+[Lib.Http] <Info> (Guest-19) http.cpp:1474 sceHttpCreateRequestWithURL: called connId=5, method=1, url=https://api-global.appnori.com:443/AIO/GetCustomInfo.php, contentLength=0
+[Lib.Http] <Info> (Guest-19) http.cpp:1504 sceHttpCreateRequestWithURL: created request reqId=6
+[Lib.Http] <Info> (Guest-19) http.cpp:2817 sceHttpAddRequestHeader: called id=6, name=Content-Type, value=multipart/form-data; boundary=cO70S19SifhpiftlY7HIeCSVGMZfug4a1MFvMb88, mode=1
+[Lib.Http] <Info> (Guest-19) http.cpp:2845 sceHttpAddRequestHeader: added header at request id=6: Content-Type: multipart/form-data; boundary=cO70S19SifhpiftlY7HIeCSVGMZfug4a1MFvMb88 (mode=1, total now 1)
+[Lib.Http] <Info> (Guest-19) http.cpp:2817 sceHttpAddRequestHeader: called id=6, name=X-Unity-Version, value=2021.3.30f1, mode=1
+[Lib.Http] <Info> (Guest-19) http.cpp:2845 sceHttpAddRequestHeader: added header at request id=6: X-Unity-Version: 2021.3.30f1 (mode=1, total now 2)
+[Lib.Http] <Error> (Guest-19) http.cpp:1829 sceHttpSetChunkedTransferEnabled: (STUBBED) called id=6, isEnable=0
+[Lib.Http] <Info> (Guest-19) http.cpp:2882 sceHttpSetRequestContentLength: called id=6, contentLength=188
+[Lib.Http] <Info> (Guest-19) http.cpp:1666 sceHttpSendRequest: called reqId=6, postData=0x2a4150010, size=188
+[Lib.Http] <Info> (Guest-19) http.cpp:1750 sceHttpSendRequest: reqId=6 dispatched to async worker [OFFLINE POST https://api-global.appnori.com:443/AIO/GetCustomInfo.php]
+[Lib.Http] <Debug> (Guest-19) http.cpp:2753 sceHttpGetStatusCode: called reqId=6
+[Lib.Http] <Info> (Guest-19) http.cpp:2782 sceHttpGetStatusCode: reqId=6 transport failure, errno=0x80436002, returning BEFORE_SEND
+[Lib.Http] <Info> (Guest-19) http.cpp:2719 sceHttpGetResponseContentLength: called reqId=6, result=0x64cf5c6ed8, contentLength=0x64cf5c6ee0
+[Lib.Http] <Info> (Guest-19) http.cpp:2748 sceHttpGetResponseContentLength: reqId=6 result=0x80431071 contentLength=0
+[Lib.Http] <Info> (Guest-19) http.cpp:2679 sceHttpGetAllResponseHeaders: called reqId=6, header=0x64cf5c6ee0, headerSize=0x64cf5c6ed8
+[Lib.Http] <Info> (Guest-19) http.cpp:2708 sceHttpGetAllResponseHeaders: reqId=6 returning empty headers blob
+[Lib.Http] <Info> (Guest-19) http.cpp:3057 sceHttpDeleteRequest: called reqId=6
+[Lib.Http] <Info> (Guest-19) http.cpp:3023 sceHttpDeleteConnection: called connId=5
+[Lib.Http] <Info> (Guest-19) http.cpp:3040 sceHttpDeleteTemplate: called tmplId=4
+[Lib.Http] <Info> (Guest-19) http.cpp:2110 sceHttpTerm: called libhttpCtxId=2
+[Lib.Http] <Info> (Guest-19) http.cpp:2124 sceHttpTerm: last context terminated, clearing state
+[Lib.Ssl2] <Error> (Guest-19) ssl2.cpp:288 sceSslTerm: (STUBBED) called
+[Core.Linker] <Info> (shadps4.android) module.cpp:148 LoadModuleToMemory: Loading module libSceNpToolkit2.prx to 0x100990000
+[Core.Linker] <Info> (Guest-1) module.cpp:113 Start: Module started : libSceNpToolkit2.prx
+[Core.Linker] <Info> (Guest-1) guest_runtime.cpp:4633 Run: Guest module libSceNpToolkit2.prx: DT_INIT completed
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0x102 name=libSceNpToolkit2 result=0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0xb4 name=libSceAppContent result=0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0x83 name=libScePlayGo result=0x0
+[Lib.Ssl2] <Error> (Guest-1) ssl2.cpp:231 sceSslInit: (DUMMY) called poolSize = 1572864
+[Lib.Http] <Info> (Guest-1) http.cpp:1623 sceHttpInit: called libnetMemId=1, libsslCtxId=1, poolSize=1048576
+[Lib.Http] <Info> (Guest-1) http.cpp:1634 sceHttpInit: initialized -> ctxId=1 (active contexts: 1)
+[Lib.Http] <Info> (Guest-1) http.cpp:1511 sceHttpCreateTemplate: called libhttpCtxId=1, userAgent=-UE4/0.1, httpVer=2, isAutoProxyConf=1
+[Lib.Http] <Info> (Guest-1) http.cpp:1529 sceHttpCreateTemplate: created template tmplId=1
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0x9c name=libSceScreenShot result=0x805a10ff
+[Core.Linker] <Info> (shadps4.android) module.cpp:148 LoadModuleToMemory: Loading module libSceNpToolkit2.prx to 0x100990000
+[Core.Linker] <Info> (Guest-1) module.cpp:113 Start: Module started : libSceNpToolkit2.prx
+[Core.Linker] <Info> (Guest-1) guest_runtime.cpp:4633 Run: Guest module libSceNpToolkit2.prx: DT_INIT completed
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0x102 name=libSceNpToolkit2 result=0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0xb4 name=libSceAppContent result=0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0x83 name=libScePlayGo result=0x0
+[Lib.Ssl2] <Error> (Guest-1) ssl2.cpp:231 sceSslInit: (DUMMY) called poolSize = 1572864
+[Lib.Http] <Info> (Guest-1) http.cpp:1623 sceHttpInit: called libnetMemId=1, libsslCtxId=1, poolSize=1048576
+[Lib.Http] <Info> (Guest-1) http.cpp:1634 sceHttpInit: initialized -> ctxId=1 (active contexts: 1)
+[Lib.Http] <Info> (Guest-1) http.cpp:1511 sceHttpCreateTemplate: called libhttpCtxId=1, userAgent=-UE4/0.1, httpVer=2, isAutoProxyConf=1
+[Lib.Http] <Info> (Guest-1) http.cpp:1529 sceHttpCreateTemplate: created template tmplId=1
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0x9c name=libSceScreenShot result=0x805a10ff
+[Core.Linker] <Info> (shadps4.android) module.cpp:148 LoadModuleToMemory: Loading module UnityNpToolkit2.prx to 0x10941c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:148 LoadModuleToMemory: Loading module libSceNpToolkit2.prx to 0x10a020000
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0xb4 name=libSceAppContent result=0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0x95 name=libSceIme result=0x805a10ff
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0x8f name=libSceMove result=0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0xa9 name=libSceMouse result=0x805a10ff
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0xd4 name=libSceHmd result=0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0xed name=libSceVrTracker result=0x0
+[Lib.NpManager] <Info> (Guest-1) guest_runtime.cpp:3297 lambda: Session offline NP nid=rbknaUjpqWo result=0x80550006
+[Lib.Ssl2] <Error> (Guest-30) ssl2.cpp:231 sceSslInit: (DUMMY) called poolSize = 1048576
+[Lib.Http] <Info> (Guest-30) http.cpp:1623 sceHttpInit: called libnetMemId=-2143223352, libsslCtxId=1, poolSize=1048576
+[Lib.Http] <Info> (Guest-30) http.cpp:1634 sceHttpInit: initialized -> ctxId=1 (active contexts: 1)
+[Lib.Http] <Info> (Guest-30) http.cpp:1511 sceHttpCreateTemplate: called libhttpCtxId=1, userAgent=UnityPlayer/2021.3.30f1 (UnityWebRequest/1.0, PS4), httpVer=2, isAutoProxyConf=1
+[Lib.Http] <Info> (Guest-30) http.cpp:1529 sceHttpCreateTemplate: created template tmplId=1
+[Lib.Http] <Error> (Guest-30) http.cpp:1817 sceHttpSetAuthEnabled: (STUBBED) called id=1, isEnable=1
+[Lib.Http] <Info> (Guest-30) http.cpp:2537 sceHttpsDisableOption: called id=1, sslFlags=0xa5
+[Lib.Http] <Info> (Guest-30) http.cpp:2555 sceHttpsDisableOption: ssl_flags now 0x0 at template level (id=1)
+[Lib.Http] <Info> (Guest-30) http.cpp:2585 sceHttpsEnableOption: called id=1, sslFlags=0xa5
+[Lib.Http] <Info> (Guest-30) http.cpp:2603 sceHttpsEnableOption: ssl_flags now 0xa5 at template level (id=1)
+[Lib.Http] <Info> (Guest-30) http.cpp:3003 sceHttpSetRecvTimeOut: called id=1, usec=5000000
+[Lib.Http] <Info> (Guest-30) http.cpp:2986 sceHttpSetSendTimeOut: called id=1, usec=5000000
+[Lib.Http] <Info> (Guest-30) http.cpp:2969 sceHttpSetConnectTimeOut: called id=1, usec=5000000
+[Lib.Http] <Info> (Guest-30) http.cpp:1312 sceHttpCreateConnection: called tmplId=1, serverName=api-global.appnori.com, scheme=https, port=443, isEnableKeepalive=1
+[Lib.Http] <Info> (Guest-30) http.cpp:1353 sceHttpCreateConnection: created connection connId=2 url=https://api-global.appnori.com:443
+[Lib.Http] <Info> (Guest-30) http.cpp:3085 sceHttpCreateRequest2: called connId=2, method=POST, path=/AIO/UpdateUserInfo.php, contentLength=0
+[Lib.Http] <Info> (Guest-30) http.cpp:1474 sceHttpCreateRequestWithURL: called connId=2, method=1, url=https://api-global.appnori.com:443/AIO/UpdateUserInfo.php, contentLength=0
+[Lib.Http] <Info> (Guest-30) http.cpp:1504 sceHttpCreateRequestWithURL: created request reqId=3
+[Lib.Http] <Info> (Guest-30) http.cpp:2817 sceHttpAddRequestHeader: called id=3, name=Content-Type, value=multipart/form-data; boundary=iIRxSnXt4zX21zE0AeK0O8b16CfW4Z9TJYEGDQWz, mode=1
+[Lib.Http] <Info> (Guest-30) http.cpp:2845 sceHttpAddRequestHeader: added header at request id=3: Content-Type: multipart/form-data; boundary=iIRxSnXt4zX21zE0AeK0O8b16CfW4Z9TJYEGDQWz (mode=1, total now 1)
+[Lib.Http] <Info> (Guest-30) http.cpp:2817 sceHttpAddRequestHeader: called id=3, name=X-Unity-Version, value=2021.3.30f1, mode=1
+[Lib.Http] <Info> (Guest-30) http.cpp:2845 sceHttpAddRequestHeader: added header at request id=3: X-Unity-Version: 2021.3.30f1 (mode=1, total now 2)
+[Lib.Http] <Error> (Guest-30) http.cpp:1829 sceHttpSetChunkedTransferEnabled: (STUBBED) called id=3, isEnable=0
+[Lib.Http] <Info> (Guest-30) http.cpp:2882 sceHttpSetRequestContentLength: called id=3, contentLength=766
+[Lib.Http] <Info> (Guest-30) http.cpp:1666 sceHttpSendRequest: called reqId=3, postData=0x2a4200010, size=766
+[Lib.Http] <Info> (Guest-30) http.cpp:1750 sceHttpSendRequest: reqId=3 dispatched to async worker [OFFLINE POST https://api-global.appnori.com:443/AIO/UpdateUserInfo.php]
+[Lib.Http] <Debug> (Guest-30) http.cpp:2753 sceHttpGetStatusCode: called reqId=3
+[Lib.Http] <Info> (Guest-30) http.cpp:2782 sceHttpGetStatusCode: reqId=3 transport failure, errno=0x80436002, returning BEFORE_SEND
+[Lib.Http] <Info> (Guest-30) http.cpp:2719 sceHttpGetResponseContentLength: called reqId=3, result=0x627598eed8, contentLength=0x627598eee0
+[Lib.Http] <Info> (Guest-30) http.cpp:2748 sceHttpGetResponseContentLength: reqId=3 result=0x80431071 contentLength=0
+[Lib.Http] <Info> (Guest-30) http.cpp:2679 sceHttpGetAllResponseHeaders: called reqId=3, header=0x627598eee0, headerSize=0x627598eed8
+[Lib.Http] <Info> (Guest-30) http.cpp:2708 sceHttpGetAllResponseHeaders: reqId=3 returning empty headers blob
+[Lib.Http] <Info> (Guest-30) http.cpp:3057 sceHttpDeleteRequest: called reqId=3
+[Lib.Http] <Info> (Guest-30) http.cpp:3023 sceHttpDeleteConnection: called connId=2
+[Lib.Http] <Info> (Guest-30) http.cpp:3040 sceHttpDeleteTemplate: called tmplId=1
+[Lib.Http] <Info> (Guest-30) http.cpp:2110 sceHttpTerm: called libhttpCtxId=1
+[Lib.Http] <Info> (Guest-30) http.cpp:2124 sceHttpTerm: last context terminated, clearing state
+[Lib.Ssl2] <Error> (Guest-30) ssl2.cpp:288 sceSslTerm: (STUBBED) called
+[Core.Linker] <Info> (Guest-1) module.cpp:113 Start: Module started : libSceNpToolkit2.prx
+[Core.Linker] <Info> (Guest-1) module.cpp:113 Start: Module started : UnityNpToolkit2.prx
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0x102 name=libSceNpToolkit2 result=0x0
+[Tty] <Error> (Guest-1) logger.cpp:60 log_flush: [stderr] Exception During Initialization :  (Sce : 0x804101C8 )  ( C:\build\output\unity\platform.ps4.plugins\plugins\PS4\APIWrappers\UnityNpToolkit2\Native\Source\Init.cpp : Line = 95 ) 
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0xeb name=libSceHmdSetupDialog result=0x0
+[Lib.Ssl2] <Error> (Guest-30) ssl2.cpp:231 sceSslInit: (DUMMY) called poolSize = 1048576
+[Lib.Http] <Info> (Guest-30) http.cpp:1623 sceHttpInit: called libnetMemId=-2143223352, libsslCtxId=2, poolSize=1048576
+[Lib.Http] <Info> (Guest-30) http.cpp:1634 sceHttpInit: initialized -> ctxId=2 (active contexts: 1)
+[Lib.Http] <Info> (Guest-30) http.cpp:1511 sceHttpCreateTemplate: called libhttpCtxId=2, userAgent=UnityPlayer/2021.3.30f1 (UnityWebRequest/1.0, PS4), httpVer=2, isAutoProxyConf=1
+[Lib.Http] <Info> (Guest-30) http.cpp:1529 sceHttpCreateTemplate: created template tmplId=4
+[Lib.Http] <Error> (Guest-30) http.cpp:1817 sceHttpSetAuthEnabled: (STUBBED) called id=4, isEnable=1
+[Lib.Http] <Info> (Guest-30) http.cpp:2537 sceHttpsDisableOption: called id=4, sslFlags=0xa5
+[Lib.Http] <Info> (Guest-30) http.cpp:2555 sceHttpsDisableOption: ssl_flags now 0x0 at template level (id=4)
+[Lib.Http] <Info> (Guest-30) http.cpp:2585 sceHttpsEnableOption: called id=4, sslFlags=0xa5
+[Lib.Http] <Info> (Guest-30) http.cpp:2603 sceHttpsEnableOption: ssl_flags now 0xa5 at template level (id=4)
+[Lib.Http] <Info> (Guest-30) http.cpp:3003 sceHttpSetRecvTimeOut: called id=4, usec=5000000
+[Lib.Http] <Info> (Guest-30) http.cpp:2986 sceHttpSetSendTimeOut: called id=4, usec=5000000
+[Lib.Http] <Info> (Guest-30) http.cpp:2969 sceHttpSetConnectTimeOut: called id=4, usec=5000000
+[Lib.Http] <Info> (Guest-30) http.cpp:1312 sceHttpCreateConnection: called tmplId=4, serverName=api-global.appnori.com, scheme=https, port=443, isEnableKeepalive=1
+[Lib.Http] <Info> (Guest-30) http.cpp:1353 sceHttpCreateConnection: created connection connId=5 url=https://api-global.appnori.com:443
+[Lib.Http] <Info> (Guest-30) http.cpp:3085 sceHttpCreateRequest2: called connId=5, method=POST, path=/AIO/GetCustomInfo.php, contentLength=0
+[Lib.Http] <Info> (Guest-30) http.cpp:1474 sceHttpCreateRequestWithURL: called connId=5, method=1, url=https://api-global.appnori.com:443/AIO/GetCustomInfo.php, contentLength=0
+[Lib.Http] <Info> (Guest-30) http.cpp:1504 sceHttpCreateRequestWithURL: created request reqId=6
+[Lib.Http] <Info> (Guest-30) http.cpp:2817 sceHttpAddRequestHeader: called id=6, name=Content-Type, value=multipart/form-data; boundary=mrCL70jBZimgMJT2nm0jE4rKVJEMdqtoHi5az81c, mode=1
+[Lib.Http] <Info> (Guest-30) http.cpp:2845 sceHttpAddRequestHeader: added header at request id=6: Content-Type: multipart/form-data; boundary=mrCL70jBZimgMJT2nm0jE4rKVJEMdqtoHi5az81c (mode=1, total now 1)
+[Lib.Http] <Info> (Guest-30) http.cpp:2817 sceHttpAddRequestHeader: called id=6, name=X-Unity-Version, value=2021.3.30f1, mode=1
+[Lib.Http] <Info> (Guest-30) http.cpp:2845 sceHttpAddRequestHeader: added header at request id=6: X-Unity-Version: 2021.3.30f1 (mode=1, total now 2)
+[Lib.Http] <Error> (Guest-30) http.cpp:1829 sceHttpSetChunkedTransferEnabled: (STUBBED) called id=6, isEnable=0
+[Lib.Http] <Info> (Guest-30) http.cpp:2882 sceHttpSetRequestContentLength: called id=6, contentLength=188
+[Lib.Http] <Info> (Guest-30) http.cpp:1666 sceHttpSendRequest: called reqId=6, postData=0x2a4200010, size=188
+[Lib.Http] <Info> (Guest-30) http.cpp:1750 sceHttpSendRequest: reqId=6 dispatched to async worker [OFFLINE POST https://api-global.appnori.com:443/AIO/GetCustomInfo.php]
+[Lib.Http] <Debug> (Guest-30) http.cpp:2753 sceHttpGetStatusCode: called reqId=6
+[Lib.Http] <Info> (Guest-30) http.cpp:2782 sceHttpGetStatusCode: reqId=6 transport failure, errno=0x80436002, returning BEFORE_SEND
+[Lib.Http] <Info> (Guest-30) http.cpp:2719 sceHttpGetResponseContentLength: called reqId=6, result=0x627598eed8, contentLength=0x627598eee0
+[Lib.Http] <Info> (Guest-30) http.cpp:2748 sceHttpGetResponseContentLength: reqId=6 result=0x80431071 contentLength=0
+[Lib.Http] <Info> (Guest-30) http.cpp:2679 sceHttpGetAllResponseHeaders: called reqId=6, header=0x627598eee0, headerSize=0x627598eed8
+[Lib.Http] <Info> (Guest-30) http.cpp:2708 sceHttpGetAllResponseHeaders: reqId=6 returning empty headers blob
+[Lib.Http] <Info> (Guest-30) http.cpp:3057 sceHttpDeleteRequest: called reqId=6
+[Lib.Http] <Info> (Guest-30) http.cpp:3023 sceHttpDeleteConnection: called connId=5
+[Lib.Http] <Info> (Guest-30) http.cpp:3040 sceHttpDeleteTemplate: called tmplId=4
+[Lib.Http] <Info> (Guest-30) http.cpp:2110 sceHttpTerm: called libhttpCtxId=2
+[Lib.Http] <Info> (Guest-30) http.cpp:2124 sceHttpTerm: last context terminated, clearing state
+[Lib.Ssl2] <Error> (Guest-30) ssl2.cpp:288 sceSslTerm: (STUBBED) called
+[Core.Linker] <Info> (shadps4.android) module.cpp:148 LoadModuleToMemory: Loading module libSceNpToolkit2.prx to 0x100990000
+[Core.Linker] <Info> (Guest-1) module.cpp:113 Start: Module started : libSceNpToolkit2.prx
+[Core.Linker] <Info> (Guest-1) guest_runtime.cpp:4634 Run: Guest module libSceNpToolkit2.prx: DT_INIT completed
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0x102 name=libSceNpToolkit2 result=0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0xb4 name=libSceAppContent result=0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0x83 name=libScePlayGo result=0x0
+[Lib.Ssl2] <Error> (Guest-1) ssl2.cpp:231 sceSslInit: (DUMMY) called poolSize = 1572864
+[Lib.Http] <Info> (Guest-1) http.cpp:1623 sceHttpInit: called libnetMemId=1, libsslCtxId=1, poolSize=1048576
+[Lib.Http] <Info> (Guest-1) http.cpp:1634 sceHttpInit: initialized -> ctxId=1 (active contexts: 1)
+[Lib.Http] <Info> (Guest-1) http.cpp:1511 sceHttpCreateTemplate: called libhttpCtxId=1, userAgent=-UE4/0.1, httpVer=2, isAutoProxyConf=1
+[Lib.Http] <Info> (Guest-1) http.cpp:1529 sceHttpCreateTemplate: created template tmplId=1
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0x9c name=libSceScreenShot result=0x805a10ff
+[Core.Linker] <Info> (shadps4.android) module.cpp:148 LoadModuleToMemory: Loading module libSceNpToolkit2.prx to 0x100990000
+[Core.Linker] <Info> (Guest-1) module.cpp:113 Start: Module started : libSceNpToolkit2.prx
+[Core.Linker] <Info> (Guest-1) guest_runtime.cpp:4634 Run: Guest module libSceNpToolkit2.prx: DT_INIT completed
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0x102 name=libSceNpToolkit2 result=0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0xb4 name=libSceAppContent result=0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0x83 name=libScePlayGo result=0x0
+[Lib.Ssl2] <Error> (Guest-1) ssl2.cpp:231 sceSslInit: (DUMMY) called poolSize = 1572864
+[Lib.Http] <Info> (Guest-1) http.cpp:1623 sceHttpInit: called libnetMemId=1, libsslCtxId=1, poolSize=1048576
+[Lib.Http] <Info> (Guest-1) http.cpp:1634 sceHttpInit: initialized -> ctxId=1 (active contexts: 1)
+[Lib.Http] <Info> (Guest-1) http.cpp:1511 sceHttpCreateTemplate: called libhttpCtxId=1, userAgent=-UE4/0.1, httpVer=2, isAutoProxyConf=1
+[Lib.Http] <Info> (Guest-1) http.cpp:1529 sceHttpCreateTemplate: created template tmplId=1
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0x9c name=libSceScreenShot result=0x805a10ff
+[Core.Linker] <Info> (shadps4.android) module.cpp:148 LoadModuleToMemory: Loading module UnityNpToolkit2.prx to 0x10941c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:148 LoadModuleToMemory: Loading module libSceNpToolkit2.prx to 0x10a020000
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0xb4 name=libSceAppContent result=0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0x95 name=libSceIme result=0x805a10ff
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0x8f name=libSceMove result=0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0xa9 name=libSceMouse result=0x805a10ff
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0xd4 name=libSceHmd result=0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0xed name=libSceVrTracker result=0x0
+[Lib.NpManager] <Info> (Guest-1) guest_runtime.cpp:3297 lambda: Session offline NP nid=rbknaUjpqWo result=0x80550006
+[Lib.Ssl2] <Error> (Guest-24) ssl2.cpp:231 sceSslInit: (DUMMY) called poolSize = 1048576
+[Lib.Http] <Info> (Guest-24) http.cpp:1623 sceHttpInit: called libnetMemId=-2143223352, libsslCtxId=1, poolSize=1048576
+[Lib.Http] <Info> (Guest-24) http.cpp:1634 sceHttpInit: initialized -> ctxId=1 (active contexts: 1)
+[Lib.Http] <Info> (Guest-24) http.cpp:1511 sceHttpCreateTemplate: called libhttpCtxId=1, userAgent=UnityPlayer/2021.3.30f1 (UnityWebRequest/1.0, PS4), httpVer=2, isAutoProxyConf=1
+[Lib.Http] <Info> (Guest-24) http.cpp:1529 sceHttpCreateTemplate: created template tmplId=1
+[Lib.Http] <Error> (Guest-24) http.cpp:1817 sceHttpSetAuthEnabled: (STUBBED) called id=1, isEnable=1
+[Lib.Http] <Info> (Guest-24) http.cpp:2537 sceHttpsDisableOption: called id=1, sslFlags=0xa5
+[Lib.Http] <Info> (Guest-24) http.cpp:2555 sceHttpsDisableOption: ssl_flags now 0x0 at template level (id=1)
+[Lib.Http] <Info> (Guest-24) http.cpp:2585 sceHttpsEnableOption: called id=1, sslFlags=0xa5
+[Lib.Http] <Info> (Guest-24) http.cpp:2603 sceHttpsEnableOption: ssl_flags now 0xa5 at template level (id=1)
+[Lib.Http] <Info> (Guest-24) http.cpp:3003 sceHttpSetRecvTimeOut: called id=1, usec=5000000
+[Lib.Http] <Info> (Guest-24) http.cpp:2986 sceHttpSetSendTimeOut: called id=1, usec=5000000
+[Lib.Http] <Info> (Guest-24) http.cpp:2969 sceHttpSetConnectTimeOut: called id=1, usec=5000000
+[Lib.Http] <Info> (Guest-24) http.cpp:1312 sceHttpCreateConnection: called tmplId=1, serverName=api-global.appnori.com, scheme=https, port=443, isEnableKeepalive=1
+[Lib.Http] <Info> (Guest-24) http.cpp:1353 sceHttpCreateConnection: created connection connId=2 url=https://api-global.appnori.com:443
+[Lib.Http] <Info> (Guest-24) http.cpp:3085 sceHttpCreateRequest2: called connId=2, method=POST, path=/AIO/UpdateUserInfo.php, contentLength=0
+[Lib.Http] <Info> (Guest-24) http.cpp:1474 sceHttpCreateRequestWithURL: called connId=2, method=1, url=https://api-global.appnori.com:443/AIO/UpdateUserInfo.php, contentLength=0
+[Lib.Http] <Info> (Guest-24) http.cpp:1504 sceHttpCreateRequestWithURL: created request reqId=3
+[Lib.Http] <Info> (Guest-24) http.cpp:2817 sceHttpAddRequestHeader: called id=3, name=Content-Type, value=multipart/form-data; boundary=1rCHQoIHLC6kjieEYeI9xD2Hfqy2mSONTWDU8ZY0, mode=1
+[Lib.Http] <Info> (Guest-24) http.cpp:2845 sceHttpAddRequestHeader: added header at request id=3: Content-Type: multipart/form-data; boundary=1rCHQoIHLC6kjieEYeI9xD2Hfqy2mSONTWDU8ZY0 (mode=1, total now 1)
+[Lib.Http] <Info> (Guest-24) http.cpp:2817 sceHttpAddRequestHeader: called id=3, name=X-Unity-Version, value=2021.3.30f1, mode=1
+[Lib.Http] <Info> (Guest-24) http.cpp:2845 sceHttpAddRequestHeader: added header at request id=3: X-Unity-Version: 2021.3.30f1 (mode=1, total now 2)
+[Lib.Http] <Error> (Guest-24) http.cpp:1829 sceHttpSetChunkedTransferEnabled: (STUBBED) called id=3, isEnable=0
+[Lib.Http] <Info> (Guest-24) http.cpp:2882 sceHttpSetRequestContentLength: called id=3, contentLength=766
+[Lib.Http] <Info> (Guest-24) http.cpp:1666 sceHttpSendRequest: called reqId=3, postData=0x2a41a0010, size=766
+[Lib.Http] <Info> (Guest-24) http.cpp:1750 sceHttpSendRequest: reqId=3 dispatched to async worker [OFFLINE POST https://api-global.appnori.com:443/AIO/UpdateUserInfo.php]
+[Lib.Http] <Debug> (Guest-24) http.cpp:2753 sceHttpGetStatusCode: called reqId=3
+[Lib.Http] <Info> (Guest-24) http.cpp:2782 sceHttpGetStatusCode: reqId=3 transport failure, errno=0x80436002, returning BEFORE_SEND
+[Lib.Http] <Info> (Guest-24) http.cpp:2719 sceHttpGetResponseContentLength: called reqId=3, result=0x633570eed8, contentLength=0x633570eee0
+[Lib.Http] <Info> (Guest-24) http.cpp:2748 sceHttpGetResponseContentLength: reqId=3 result=0x80431071 contentLength=0
+[Lib.Http] <Info> (Guest-24) http.cpp:2679 sceHttpGetAllResponseHeaders: called reqId=3, header=0x633570eee0, headerSize=0x633570eed8
+[Lib.Http] <Info> (Guest-24) http.cpp:2708 sceHttpGetAllResponseHeaders: reqId=3 returning empty headers blob
+[Lib.Http] <Info> (Guest-24) http.cpp:3057 sceHttpDeleteRequest: called reqId=3
+[Lib.Http] <Info> (Guest-24) http.cpp:3023 sceHttpDeleteConnection: called connId=2
+[Lib.Http] <Info> (Guest-24) http.cpp:3040 sceHttpDeleteTemplate: called tmplId=1
+[Lib.Http] <Info> (Guest-24) http.cpp:2110 sceHttpTerm: called libhttpCtxId=1
+[Lib.Http] <Info> (Guest-24) http.cpp:2124 sceHttpTerm: last context terminated, clearing state
+[Lib.Ssl2] <Error> (Guest-24) ssl2.cpp:288 sceSslTerm: (STUBBED) called
+[Core.Linker] <Info> (Guest-1) module.cpp:113 Start: Module started : libSceNpToolkit2.prx
+[Core.Linker] <Info> (Guest-1) module.cpp:113 Start: Module started : UnityNpToolkit2.prx
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0x102 name=libSceNpToolkit2 result=0x0
+[Tty] <Error> (Guest-1) logger.cpp:60 log_flush: [stderr] Exception During Initialization :  (Sce : 0x804101C8 )  ( C:\build\output\unity\platform.ps4.plugins\plugins\PS4\APIWrappers\UnityNpToolkit2\Native\Source\Init.cpp : Line = 95 ) 
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0xeb name=libSceHmdSetupDialog result=0x0
+[Lib.Ssl2] <Error> (Guest-24) ssl2.cpp:231 sceSslInit: (DUMMY) called poolSize = 1048576
+[Lib.Http] <Info> (Guest-24) http.cpp:1623 sceHttpInit: called libnetMemId=-2143223352, libsslCtxId=2, poolSize=1048576
+[Lib.Http] <Info> (Guest-24) http.cpp:1634 sceHttpInit: initialized -> ctxId=2 (active contexts: 1)
+[Lib.Http] <Info> (Guest-24) http.cpp:1511 sceHttpCreateTemplate: called libhttpCtxId=2, userAgent=UnityPlayer/2021.3.30f1 (UnityWebRequest/1.0, PS4), httpVer=2, isAutoProxyConf=1
+[Lib.Http] <Info> (Guest-24) http.cpp:1529 sceHttpCreateTemplate: created template tmplId=4
+[Lib.Http] <Error> (Guest-24) http.cpp:1817 sceHttpSetAuthEnabled: (STUBBED) called id=4, isEnable=1
+[Lib.Http] <Info> (Guest-24) http.cpp:2537 sceHttpsDisableOption: called id=4, sslFlags=0xa5
+[Lib.Http] <Info> (Guest-24) http.cpp:2555 sceHttpsDisableOption: ssl_flags now 0x0 at template level (id=4)
+[Lib.Http] <Info> (Guest-24) http.cpp:2585 sceHttpsEnableOption: called id=4, sslFlags=0xa5
+[Lib.Http] <Info> (Guest-24) http.cpp:2603 sceHttpsEnableOption: ssl_flags now 0xa5 at template level (id=4)
+[Lib.Http] <Info> (Guest-24) http.cpp:3003 sceHttpSetRecvTimeOut: called id=4, usec=5000000
+[Lib.Http] <Info> (Guest-24) http.cpp:2986 sceHttpSetSendTimeOut: called id=4, usec=5000000
+[Lib.Http] <Info> (Guest-24) http.cpp:2969 sceHttpSetConnectTimeOut: called id=4, usec=5000000
+[Lib.Http] <Info> (Guest-24) http.cpp:1312 sceHttpCreateConnection: called tmplId=4, serverName=api-global.appnori.com, scheme=https, port=443, isEnableKeepalive=1
+[Lib.Http] <Info> (Guest-24) http.cpp:1353 sceHttpCreateConnection: created connection connId=5 url=https://api-global.appnori.com:443
+[Lib.Http] <Info> (Guest-24) http.cpp:3085 sceHttpCreateRequest2: called connId=5, method=POST, path=/AIO/GetCustomInfo.php, contentLength=0
+[Lib.Http] <Info> (Guest-24) http.cpp:1474 sceHttpCreateRequestWithURL: called connId=5, method=1, url=https://api-global.appnori.com:443/AIO/GetCustomInfo.php, contentLength=0
+[Lib.Http] <Info> (Guest-24) http.cpp:1504 sceHttpCreateRequestWithURL: created request reqId=6
+[Lib.Http] <Info> (Guest-24) http.cpp:2817 sceHttpAddRequestHeader: called id=6, name=Content-Type, value=multipart/form-data; boundary=BdYtDNHprtbuPnrWwVAWxm4jPHsCLqMblWTgIbxF, mode=1
+[Lib.Http] <Info> (Guest-24) http.cpp:2845 sceHttpAddRequestHeader: added header at request id=6: Content-Type: multipart/form-data; boundary=BdYtDNHprtbuPnrWwVAWxm4jPHsCLqMblWTgIbxF (mode=1, total now 1)
+[Lib.Http] <Info> (Guest-24) http.cpp:2817 sceHttpAddRequestHeader: called id=6, name=X-Unity-Version, value=2021.3.30f1, mode=1
+[Lib.Http] <Info> (Guest-24) http.cpp:2845 sceHttpAddRequestHeader: added header at request id=6: X-Unity-Version: 2021.3.30f1 (mode=1, total now 2)
+[Lib.Http] <Error> (Guest-24) http.cpp:1829 sceHttpSetChunkedTransferEnabled: (STUBBED) called id=6, isEnable=0
+[Lib.Http] <Info> (Guest-24) http.cpp:2882 sceHttpSetRequestContentLength: called id=6, contentLength=188
+[Lib.Http] <Info> (Guest-24) http.cpp:1666 sceHttpSendRequest: called reqId=6, postData=0x2a41a0010, size=188
+[Lib.Http] <Info> (Guest-24) http.cpp:1750 sceHttpSendRequest: reqId=6 dispatched to async worker [OFFLINE POST https://api-global.appnori.com:443/AIO/GetCustomInfo.php]
+[Lib.Http] <Debug> (Guest-24) http.cpp:2753 sceHttpGetStatusCode: called reqId=6
+[Lib.Http] <Info> (Guest-24) http.cpp:2782 sceHttpGetStatusCode: reqId=6 transport failure, errno=0x80436002, returning BEFORE_SEND
+[Lib.Http] <Info> (Guest-24) http.cpp:2719 sceHttpGetResponseContentLength: called reqId=6, result=0x633570eed8, contentLength=0x633570eee0
+[Lib.Http] <Info> (Guest-24) http.cpp:2748 sceHttpGetResponseContentLength: reqId=6 result=0x80431071 contentLength=0
+[Lib.Http] <Info> (Guest-24) http.cpp:2679 sceHttpGetAllResponseHeaders: called reqId=6, header=0x633570eee0, headerSize=0x633570eed8
+[Lib.Http] <Info> (Guest-24) http.cpp:2708 sceHttpGetAllResponseHeaders: reqId=6 returning empty headers blob
+[Lib.Http] <Info> (Guest-24) http.cpp:3057 sceHttpDeleteRequest: called reqId=6
+[Lib.Http] <Info> (Guest-24) http.cpp:3023 sceHttpDeleteConnection: called connId=5
+[Lib.Http] <Info> (Guest-24) http.cpp:3040 sceHttpDeleteTemplate: called tmplId=4
+[Lib.Http] <Info> (Guest-24) http.cpp:2110 sceHttpTerm: called libhttpCtxId=2
+[Lib.Http] <Info> (Guest-24) http.cpp:2124 sceHttpTerm: last context terminated, clearing state
+[Lib.Ssl2] <Error> (Guest-24) ssl2.cpp:288 sceSslTerm: (STUBBED) called
+[Core.Linker] <Info> (shadps4.android) module.cpp:148 LoadModuleToMemory: Loading module UnityNpToolkit2.prx to 0x1047f8000
+[Core.Linker] <Info> (shadps4.android) module.cpp:148 LoadModuleToMemory: Loading module libSceNpToolkit2.prx to 0x105024000
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0xb4 name=libSceAppContent result=0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0x95 name=libSceIme result=0x805a10ff
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0x8f name=libSceMove result=0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0xa9 name=libSceMouse result=0x805a10ff
+[Lib.NpManager] <Info> (Guest-1) guest_runtime.cpp:3297 lambda: Session offline NP nid=rbknaUjpqWo result=0x80550006
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0xe2 name=libSceLoginDialog result=0x805a10ff
+[Core.Linker] <Info> (Guest-1) module.cpp:113 Start: Module started : libSceNpToolkit2.prx
+[Core.Linker] <Info> (Guest-1) module.cpp:113 Start: Module started : UnityNpToolkit2.prx
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0x102 name=libSceNpToolkit2 result=0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0xeb name=libSceHmdSetupDialog result=0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0xd4 name=libSceHmd result=0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0xed name=libSceVrTracker result=0x0
+[Core.Linker] <Info> (shadps4.android) module.cpp:148 LoadModuleToMemory: Loading module libSceNpToolkit2.prx to 0x100990000
+[Core.Linker] <Info> (Guest-1) module.cpp:113 Start: Module started : libSceNpToolkit2.prx
+[Core.Linker] <Info> (Guest-1) guest_runtime.cpp:4634 Run: Guest module libSceNpToolkit2.prx: DT_INIT completed
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0x102 name=libSceNpToolkit2 result=0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0xb4 name=libSceAppContent result=0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0x83 name=libScePlayGo result=0x0
+[Lib.Ssl2] <Error> (Guest-1) ssl2.cpp:231 sceSslInit: (DUMMY) called poolSize = 1572864
+[Lib.Http] <Info> (Guest-1) http.cpp:1623 sceHttpInit: called libnetMemId=1, libsslCtxId=1, poolSize=1048576
+[Lib.Http] <Info> (Guest-1) http.cpp:1634 sceHttpInit: initialized -> ctxId=1 (active contexts: 1)
+[Lib.Http] <Info> (Guest-1) http.cpp:1511 sceHttpCreateTemplate: called libhttpCtxId=1, userAgent=-UE4/0.1, httpVer=2, isAutoProxyConf=1
+[Lib.Http] <Info> (Guest-1) http.cpp:1529 sceHttpCreateTemplate: created template tmplId=1
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1655 SysmoduleLoad: session sysmodule id=0x9c name=libSceScreenShot result=0x805a10ff
+[Core.Linker] <Info> (shadps4.android) module.cpp:148 LoadModuleToMemory: Loading module libSceNpToolkit2.prx to 0x100990000
+[Core.Linker] <Info> (Guest-1) module.cpp:113 Start: Module started : libSceNpToolkit2.prx
+[Core.Linker] <Info> (Guest-1) guest_runtime.cpp:4674 Run: Guest module libSceNpToolkit2.prx: DT_INIT completed
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1665 SysmoduleLoad: session sysmodule id=0x102 name=libSceNpToolkit2 result=0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1665 SysmoduleLoad: session sysmodule id=0xb4 name=libSceAppContent result=0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1665 SysmoduleLoad: session sysmodule id=0x83 name=libScePlayGo result=0x0
+[Lib.Ssl2] <Error> (Guest-1) ssl2.cpp:231 sceSslInit: (DUMMY) called poolSize = 1572864
+[Lib.Http] <Info> (Guest-1) http.cpp:1623 sceHttpInit: called libnetMemId=1, libsslCtxId=1, poolSize=1048576
+[Lib.Http] <Info> (Guest-1) http.cpp:1634 sceHttpInit: initialized -> ctxId=1 (active contexts: 1)
+[Lib.Http] <Info> (Guest-1) http.cpp:1511 sceHttpCreateTemplate: called libhttpCtxId=1, userAgent=-UE4/0.1, httpVer=2, isAutoProxyConf=1
+[Lib.Http] <Info> (Guest-1) http.cpp:1529 sceHttpCreateTemplate: created template tmplId=1
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1665 SysmoduleLoad: session sysmodule id=0x9c name=libSceScreenShot result=0x805a10ff

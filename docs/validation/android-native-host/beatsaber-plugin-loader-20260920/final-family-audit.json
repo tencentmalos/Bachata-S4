@@ -1,0 +1,2245 @@
+[
+  {
+    "module": "Il2CppUserAssemblies.prx",
+    "bindings": {
+      "guest_export": 150,
+      "runtime_bound": 99,
+      "refused": 27,
+      "not_relocated": 6
+    },
+    "families": [
+      {
+        "library": "PS4Util",
+        "bindings": {
+          "guest_export": 3
+        },
+        "refused": []
+      },
+      {
+        "library": "libSceNet",
+        "bindings": {
+          "runtime_bound": 13,
+          "refused": 2
+        },
+        "refused": [
+          {
+            "name": "sceNetResolverStartAton",
+            "symbol": "Apb4YDxKsRI#libSceNet#1#libSceNet#Function"
+          },
+          {
+            "name": "sceNetGetSockInfo",
+            "symbol": "hLuXdjHnhiI#libSceNet#1#libSceNet#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceNetCtl",
+        "bindings": {
+          "runtime_bound": 1
+        },
+        "refused": []
+      },
+      {
+        "library": "libScePosix",
+        "bindings": {
+          "refused": 18,
+          "runtime_bound": 43
+        },
+        "refused": [
+          {
+            "name": "getsockopt",
+            "symbol": "6O8EwYOgH9Y#libScePosix#1#libkernel#Function"
+          },
+          {
+            "name": "sendto",
+            "symbol": "oBr313PppNE#libScePosix#1#libkernel#Function"
+          },
+          {
+            "name": "setsockopt",
+            "symbol": "fFxGkxF2bVo#libScePosix#1#libkernel#Function"
+          },
+          {
+            "name": "inet_pton",
+            "symbol": "4n51s0zEf0c#libScePosix#1#libkernel#Function"
+          },
+          {
+            "name": "send",
+            "symbol": "fZOeZIOEmLw#libScePosix#1#libkernel#Function"
+          },
+          {
+            "name": "listen",
+            "symbol": "pxnCmagrtao#libScePosix#1#libkernel#Function"
+          },
+          {
+            "name": "getsockname",
+            "symbol": "RenI1lL1WFk#libScePosix#1#libkernel#Function"
+          },
+          {
+            "name": "shutdown",
+            "symbol": "TUuiYS2kE8s#libScePosix#1#libkernel#Function"
+          },
+          {
+            "name": "bind",
+            "symbol": "KuOmgKoqCdY#libScePosix#1#libkernel#Function"
+          },
+          {
+            "name": "recvfrom",
+            "symbol": "lUk6wrGXyMw#libScePosix#1#libkernel#Function"
+          },
+          {
+            "name": "socket",
+            "symbol": "TU-d9PfIHPM#libScePosix#1#libkernel#Function"
+          },
+          {
+            "name": "connect",
+            "symbol": "XVL8So3QJUk#libScePosix#1#libkernel#Function"
+          },
+          {
+            "name": "getpeername",
+            "symbol": "TXFFFiNldU8#libScePosix#1#libkernel#Function"
+          },
+          {
+            "name": "accept",
+            "symbol": "3e+4Iv7IJ8U#libScePosix#1#libkernel#Function"
+          },
+          {
+            "name": "sendmsg",
+            "symbol": "aNeavPDNKzA#libScePosix#1#libkernel#Function"
+          },
+          {
+            "name": "recvmsg",
+            "symbol": "hI7oVeOluPM#libScePosix#1#libkernel#Function"
+          },
+          {
+            "name": "chmod",
+            "symbol": "z0dtnPxYgtg#libScePosix#1#libkernel#Function"
+          },
+          {
+            "name": "fcntl",
+            "symbol": "8nY19bKoiZk#libScePosix#1#libkernel#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceRtc",
+        "bindings": {
+          "runtime_bound": 1
+        },
+        "refused": []
+      },
+      {
+        "library": "libSceSystemService",
+        "bindings": {
+          "runtime_bound": 1
+        },
+        "refused": []
+      },
+      {
+        "library": "libc",
+        "bindings": {
+          "guest_export": 147,
+          "not_relocated": 6
+        },
+        "refused": []
+      },
+      {
+        "library": "libkernel",
+        "bindings": {
+          "runtime_bound": 40,
+          "refused": 7
+        },
+        "refused": [
+          {
+            "name": "sceKernelRmdir",
+            "symbol": "naInUjYt3so#libkernel#1#libkernel#Function"
+          },
+          {
+            "name": "sceKernelStopUnloadModule",
+            "symbol": "QKd0qM58Qes#libkernel#1#libkernel#Function"
+          },
+          {
+            "name": "sceKernelUuidCreate",
+            "symbol": "Xjoosiw+XPI#libkernel#1#libkernel#Function"
+          },
+          {
+            "name": "sceKernelUtimes",
+            "symbol": "0Cq8ipKr9n0#libkernel#1#libkernel#Function"
+          },
+          {
+            "name": "__pthread_cleanup_pop_imp",
+            "symbol": "iWsFlYMf3Kw#libkernel#1#libkernel#Function"
+          },
+          {
+            "name": "__pthread_cleanup_push_imp",
+            "symbol": "1xvtUVx1-Sg#libkernel#1#libkernel#Function"
+          },
+          {
+            "name": "__stack_chk_fail",
+            "symbol": "Ou3iL1abvng#libkernel#1#libkernel#Function"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "module": "PS4NativeUserSwitchPlugin.prx",
+    "bindings": {
+      "refused": 7,
+      "runtime_bound": 2,
+      "guest_export": 4
+    },
+    "families": [
+      {
+        "library": "libSceLoginDialog",
+        "bindings": {
+          "refused": 4
+        },
+        "refused": [
+          {
+            "name": "sceLoginDialogGetResult",
+            "symbol": "Btkx21f1M8k#libSceLoginDialog#1#libSceLoginDialog#Function"
+          },
+          {
+            "name": "sceLoginDialogInitialize",
+            "symbol": "qP-EvQRl2Hc#libSceLoginDialog#1#libSceLoginDialog#Function"
+          },
+          {
+            "name": "sceLoginDialogOpen",
+            "symbol": "S56ra1+Tymg#libSceLoginDialog#1#libSceLoginDialog#Function"
+          },
+          {
+            "name": "sceLoginDialogUpdateStatus",
+            "symbol": "2rc+egSfb5A#libSceLoginDialog#1#libSceLoginDialog#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceLoginService",
+        "bindings": {
+          "refused": 2
+        },
+        "refused": [
+          {
+            "name": "sceLoginServiceInitialize",
+            "symbol": "T9-NuSHAvcQ#libSceLoginService#1#libSceLoginService#Function"
+          },
+          {
+            "name": "sceLoginServiceRequestDevices",
+            "symbol": "S1Uxf-lgJ-c#libSceLoginService#1#libSceLoginService#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceSysmodule",
+        "bindings": {
+          "runtime_bound": 1
+        },
+        "refused": []
+      },
+      {
+        "library": "libc",
+        "bindings": {
+          "guest_export": 4
+        },
+        "refused": []
+      },
+      {
+        "library": "libkernel",
+        "bindings": {
+          "refused": 1,
+          "runtime_bound": 1
+        },
+        "refused": [
+          {
+            "name": "__stack_chk_fail",
+            "symbol": "Ou3iL1abvng#libkernel#1#libkernel#Function"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "module": "PS4Util.prx",
+    "bindings": {
+      "guest_export": 4,
+      "runtime_bound": 4
+    },
+    "families": [
+      {
+        "library": "libc",
+        "bindings": {
+          "guest_export": 4
+        },
+        "refused": []
+      },
+      {
+        "library": "libkernel",
+        "bindings": {
+          "runtime_bound": 2
+        },
+        "refused": []
+      },
+      {
+        "library": "libkernel_unity",
+        "bindings": {
+          "runtime_bound": 2
+        },
+        "refused": []
+      }
+    ]
+  },
+  {
+    "module": "UnityNpToolkit2.prx",
+    "bindings": {
+      "runtime_bound": 29,
+      "refused": 2,
+      "guest_export": 429
+    },
+    "families": [
+      {
+        "library": "libSceNet",
+        "bindings": {
+          "runtime_bound": 1
+        },
+        "refused": []
+      },
+      {
+        "library": "libSceNpManager",
+        "bindings": {
+          "runtime_bound": 8,
+          "refused": 1
+        },
+        "refused": [
+          {
+            "name": "sceNpNotifyPlusFeature",
+            "symbol": "Gaxrp3EWY-M#libSceNpManager#1#libSceNpManager#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceNpToolkit2",
+        "bindings": {
+          "guest_export": 409
+        },
+        "refused": []
+      },
+      {
+        "library": "libScePosix",
+        "bindings": {
+          "runtime_bound": 4
+        },
+        "refused": []
+      },
+      {
+        "library": "libSceRtc",
+        "bindings": {
+          "runtime_bound": 1
+        },
+        "refused": []
+      },
+      {
+        "library": "libSceSysmodule",
+        "bindings": {
+          "runtime_bound": 2
+        },
+        "refused": []
+      },
+      {
+        "library": "libSceUserService",
+        "bindings": {
+          "runtime_bound": 2
+        },
+        "refused": []
+      },
+      {
+        "library": "libc",
+        "bindings": {
+          "guest_export": 20
+        },
+        "refused": []
+      },
+      {
+        "library": "libkernel",
+        "bindings": {
+          "refused": 1,
+          "runtime_bound": 11
+        },
+        "refused": [
+          {
+            "name": "__stack_chk_fail",
+            "symbol": "Ou3iL1abvng#libkernel#1#libkernel#Function"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "module": "eboot.bin",
+    "bindings": {
+      "guest_export": 182,
+      "runtime_bound": 392,
+      "refused": 120,
+      "not_relocated": 8
+    },
+    "families": [
+      {
+        "library": "Il2CppUserAssemblies",
+        "bindings": {
+          "guest_export": 25
+        },
+        "refused": []
+      },
+      {
+        "library": "libSceAjm",
+        "bindings": {
+          "runtime_bound": 9,
+          "refused": 3
+        },
+        "refused": [
+          {
+            "name": "sceAjmBatchErrorDump",
+            "symbol": "WfAiBW8Wcek#libSceAjm#1#libSceAjm#Function"
+          },
+          {
+            "name": "sceAjmFinalize",
+            "symbol": "MHur6qCsUus#libSceAjm#1#libSceAjm#Function"
+          },
+          {
+            "name": "sceAjmModuleUnregister",
+            "symbol": "Wi7DtlLV+KI#libSceAjm#1#libSceAjm#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceAppContent",
+        "bindings": {
+          "runtime_bound": 7,
+          "refused": 2
+        },
+        "refused": [
+          {
+            "name": "sceAppContentTemporaryDataUnmount",
+            "symbol": "bcolXMmp6qQ#libSceAppContent#1#libSceAppContentUtil#Function"
+          },
+          {
+            "name": "sceAppContentAddcontUnmount",
+            "symbol": "3rHWaV-1KC4#libSceAppContent#1#libSceAppContentUtil#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceAudio3d",
+        "bindings": {
+          "refused": 7
+        },
+        "refused": [
+          {
+            "name": "sceAudio3dInitialize",
+            "symbol": "UmCvjSmuZIw#libSceAudio3d#1#libSceAudio3d#Function"
+          },
+          {
+            "name": "sceAudio3dObjectReserve",
+            "symbol": "jO2tec4dJ2M#libSceAudio3d#1#libSceAudio3d#Function"
+          },
+          {
+            "name": "sceAudio3dObjectSetAttributes",
+            "symbol": "4uyHN9q4ZeU#libSceAudio3d#1#libSceAudio3d#Function"
+          },
+          {
+            "name": "sceAudio3dPortClose",
+            "symbol": "OyVqOeVNtSk#libSceAudio3d#1#libSceAudio3d#Function"
+          },
+          {
+            "name": "sceAudio3dPortFlush",
+            "symbol": "ZOGrxWLgQzE#libSceAudio3d#1#libSceAudio3d#Function"
+          },
+          {
+            "name": "sceAudio3dPortOpen",
+            "symbol": "XeDDK0xJWQA#libSceAudio3d#1#libSceAudio3d#Function"
+          },
+          {
+            "name": "sceAudio3dTerminate",
+            "symbol": "WW1TS2iz5yc#libSceAudio3d#1#libSceAudio3d#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceAudioIn",
+        "bindings": {
+          "refused": 3
+        },
+        "refused": [
+          {
+            "name": "sceAudioInInput",
+            "symbol": "LozEOU8+anM#libSceAudioIn#1#libSceAudioIn#Function"
+          },
+          {
+            "name": "sceAudioInClose",
+            "symbol": "Jh6WbHhnI68#libSceAudioIn#1#libSceAudioIn#Function"
+          },
+          {
+            "name": "sceAudioInOpen",
+            "symbol": "5NE8Sjc7VC8#libSceAudioIn#1#libSceAudioIn#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceAudioOut",
+        "bindings": {
+          "runtime_bound": 6,
+          "refused": 1
+        },
+        "refused": [
+          {
+            "name": "sceAudioOutSetMixLevelPadSpk",
+            "symbol": "wVwPU50pS1c#libSceAudioOut#1#libSceAudioOut#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceAvPlayer",
+        "bindings": {
+          "runtime_bound": 18,
+          "refused": 2
+        },
+        "refused": [
+          {
+            "name": "sceAvPlayerJumpToTime",
+            "symbol": "XC9wM+xULz8#libSceAvPlayer#1#libSceAvPlayer#Function"
+          },
+          {
+            "name": "sceAvPlayerSetTrickSpeed",
+            "symbol": "av8Z++94rs0#libSceAvPlayer#1#libSceAvPlayer#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceCamera",
+        "bindings": {
+          "runtime_bound": 8
+        },
+        "refused": []
+      },
+      {
+        "library": "libSceCommonDialog",
+        "bindings": {
+          "runtime_bound": 1
+        },
+        "refused": []
+      },
+      {
+        "library": "libSceFios2",
+        "bindings": {
+          "guest_export": 34
+        },
+        "refused": []
+      },
+      {
+        "library": "libSceGnmDriver",
+        "bindings": {
+          "runtime_bound": 75,
+          "refused": 38
+        },
+        "refused": [
+          {
+            "name": "sceGnmDrawIndirectCountMulti",
+            "symbol": "cUCo8OvArrw#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceGnmDrawIndexMultiInstanced",
+            "symbol": "jHdPvIzlpKc#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceGnmDrawOpaqueAuto",
+            "symbol": "stDSYW2SBVM#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceGnmLogicalTcaUnitToPhysical",
+            "symbol": "Kl0Z3LH07QI#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceGnmInsertThreadTraceMarker",
+            "symbol": "URDgJcXhQOs#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceGnmGetPhysicalCounterFromVirtualized",
+            "symbol": "dewXw5roLs0#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceGnmSetResourceRegistrationUserMemory",
+            "symbol": "q-qhDxP67Hg#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceGnmGetResourceShaderGuid",
+            "symbol": "UBv7FkVfzcQ#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceGnmGetResourceName",
+            "symbol": "O0S96YnD04U#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceGnmGetResourceType",
+            "symbol": "bdqdvIkLPIU#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceGnmGetOwnerName",
+            "symbol": "QJjPjlmPAL0#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceGnmSetResourceUserData",
+            "symbol": "K3BKBBYKUSE#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceGnmGetResourceBaseAddressAndSizeInBytes",
+            "symbol": "4PKnYXOhcx4#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceGnmFindResourcesPublic",
+            "symbol": "4Mv9OXypBG8#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceGnmGetResourceUserData",
+            "symbol": "UoBuWAhKk7U#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceGnmGetProtectionFaultTimeStamp",
+            "symbol": "fzJdEihTFV4#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceGnmDestroyWorkloadStream",
+            "symbol": "UtObDRQiGbs#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceGnmGetGpuInfoStatus",
+            "symbol": "tZCSL5ulnB4#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceRazorCaptureImmediate",
+            "symbol": "u9YKpRRHe-M#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceGnmGetShaderProgramBaseAddress",
+            "symbol": "nEyFbYUloIM#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceRazorIsLoaded",
+            "symbol": "f33OrruQYbM#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceGnmGetLastWaitedAddress",
+            "symbol": "iFirFzgYsvw#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceGnmSetWaveLimitMultipliers",
+            "symbol": "XiyzNZ9J4nQ#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceGnmGetNumTcaUnits",
+            "symbol": "KnldROUkWJY#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceGnmGetGpuBlockStatus",
+            "symbol": "oL4hGI1PMpw#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceGnmGetShaderStatus",
+            "symbol": "k7iGTvDQPLQ#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceGnmRequestFlipAndSubmitDoneForWorkload",
+            "symbol": "6YRHhh5mHCs#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceGnmValidationRegisterMemoryCheckCallback",
+            "symbol": "Q7t4VEYLafI#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceGnmValidateDrawCommandBuffers",
+            "symbol": "hsZPf1lON7E#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceGnmValidateOnSubmitEnabled",
+            "symbol": "rTIV11nMQuM#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceGnmValidateDispatchCommandBuffers",
+            "symbol": "qGP74T5OWJc#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceGnmValidateDisableDiagnostics2",
+            "symbol": "BgM3t3LvcNk#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceGnmValidateDisableDiagnostics",
+            "symbol": "SXw4dZEkgpA#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceGnmValidateGetDiagnosticInfo",
+            "symbol": "RX7XCNSaL6I#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceGnmValidateResetState",
+            "symbol": "MBMa6EFu4Ko#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceGnmValidateGetVersion",
+            "symbol": "HzMN7ANqYEc#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceGnmValidateGetDiagnostics",
+            "symbol": "5SHGNwLXBV4#libSceGnmDriver#1#libSceGnmDriver#Function"
+          },
+          {
+            "name": "sceGnmComputeWaitSemaphore",
+            "symbol": "EJapNl2+pgU#libSceGnmDriver#1#libSceGnmDriver#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceHmd",
+        "bindings": {
+          "runtime_bound": 21
+        },
+        "refused": []
+      },
+      {
+        "library": "libSceHmdSetupDialog",
+        "bindings": {
+          "runtime_bound": 6
+        },
+        "refused": []
+      },
+      {
+        "library": "libSceHttp",
+        "bindings": {
+          "refused": 5,
+          "runtime_bound": 20
+        },
+        "refused": [
+          {
+            "name": "sceHttpSetRedirectCallback",
+            "symbol": "h9wmFZX4i-4#libSceHttp#1#libSceHttp#Function"
+          },
+          {
+            "name": "sceHttpCreateConnection",
+            "symbol": "Kiwv9r4IZCc#libSceHttp#1#libSceHttp#Function"
+          },
+          {
+            "name": "sceHttpGetAllResponseHeaders",
+            "symbol": "aCYPMSUIaP8#libSceHttp#1#libSceHttp#Function"
+          },
+          {
+            "name": "sceHttpUriParse",
+            "symbol": "IWalAn-guFs#libSceHttp#1#libSceHttp#Function"
+          },
+          {
+            "name": "sceHttpsSetSslCallback",
+            "symbol": "htyBOoWeS58#libSceHttp#1#libSceHttp#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceIme",
+        "bindings": {
+          "refused": 3
+        },
+        "refused": [
+          {
+            "name": "sceImeKeyboardClose",
+            "symbol": "PMVehSlfZ94#libSceIme#1#libSceIme#Function"
+          },
+          {
+            "name": "sceImeKeyboardOpen",
+            "symbol": "eaFXjfJv3xs#libSceIme#1#libSceIme#Function"
+          },
+          {
+            "name": "sceImeUpdate",
+            "symbol": "-4GCfYdNF1s#libSceIme#1#libSceIme#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceMouse",
+        "bindings": {
+          "runtime_bound": 4
+        },
+        "refused": []
+      },
+      {
+        "library": "libSceMove",
+        "bindings": {
+          "runtime_bound": 7
+        },
+        "refused": []
+      },
+      {
+        "library": "libSceNet",
+        "bindings": {
+          "runtime_bound": 30,
+          "refused": 1
+        },
+        "refused": [
+          {
+            "name": "sceNetResolverStartAton",
+            "symbol": "Apb4YDxKsRI#libSceNet#1#libSceNet#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceNetCtl",
+        "bindings": {
+          "runtime_bound": 2
+        },
+        "refused": []
+      },
+      {
+        "library": "libSceNpManager",
+        "bindings": {
+          "runtime_bound": 1
+        },
+        "refused": []
+      },
+      {
+        "library": "libSceNpWebApi",
+        "bindings": {
+          "refused": 6
+        },
+        "refused": [
+          {
+            "name": "sceNpWebApiCreateContextA",
+            "symbol": "zk6c65xoyO0#libSceNpWebApi#1#libSceNpWebApi#Function"
+          },
+          {
+            "name": "sceNpWebApiReadData",
+            "symbol": "CQtPRSF6Ds8#libSceNpWebApi#1#libSceNpWebApi#Function"
+          },
+          {
+            "name": "sceNpWebApiDeleteRequest",
+            "symbol": "noQgleu+KLE#libSceNpWebApi#1#libSceNpWebApi#Function"
+          },
+          {
+            "name": "sceNpWebApiInitialize",
+            "symbol": "G3AnLNdRBjE#libSceNpWebApi#1#libSceNpWebApi#Function"
+          },
+          {
+            "name": "sceNpWebApiCreateRequest",
+            "symbol": "rdgs5Z1MyFw#libSceNpWebApi#1#libSceNpWebApi#Function"
+          },
+          {
+            "name": "sceNpWebApiSendRequest2",
+            "symbol": "KjNeZ-29ysQ#libSceNpWebApi#1#libSceNpWebApi#Function"
+          }
+        ]
+      },
+      {
+        "library": "libScePad",
+        "bindings": {
+          "runtime_bound": 14
+        },
+        "refused": []
+      },
+      {
+        "library": "libScePosix",
+        "bindings": {
+          "refused": 16,
+          "runtime_bound": 37
+        },
+        "refused": [
+          {
+            "name": "recv",
+            "symbol": "Ez8xjo9UF4E#libScePosix#1#libkernel#Function"
+          },
+          {
+            "name": "bind",
+            "symbol": "KuOmgKoqCdY#libScePosix#1#libkernel#Function"
+          },
+          {
+            "name": "socket",
+            "symbol": "TU-d9PfIHPM#libScePosix#1#libkernel#Function"
+          },
+          {
+            "name": "connect",
+            "symbol": "XVL8So3QJUk#libScePosix#1#libkernel#Function"
+          },
+          {
+            "name": "setsockopt",
+            "symbol": "fFxGkxF2bVo#libScePosix#1#libkernel#Function"
+          },
+          {
+            "name": "getsockname",
+            "symbol": "RenI1lL1WFk#libScePosix#1#libkernel#Function"
+          },
+          {
+            "name": "send",
+            "symbol": "fZOeZIOEmLw#libScePosix#1#libkernel#Function"
+          },
+          {
+            "name": "accept",
+            "symbol": "3e+4Iv7IJ8U#libScePosix#1#libkernel#Function"
+          },
+          {
+            "name": "select",
+            "symbol": "T8fER+tIGgk#libScePosix#1#libkernel#Function"
+          },
+          {
+            "name": "sendto",
+            "symbol": "oBr313PppNE#libScePosix#1#libkernel#Function"
+          },
+          {
+            "name": "recvfrom",
+            "symbol": "lUk6wrGXyMw#libScePosix#1#libkernel#Function"
+          },
+          {
+            "name": "inet_ntop",
+            "symbol": "5jRCs2axtr4#libScePosix#1#libkernel#Function"
+          },
+          {
+            "name": "fcntl",
+            "symbol": "8nY19bKoiZk#libScePosix#1#libkernel#Function"
+          },
+          {
+            "name": "pthread_cancel",
+            "symbol": "0D4-FVvEikw#libScePosix#1#libkernel#Function"
+          },
+          {
+            "name": "sched_get_priority_max",
+            "symbol": "CBNtXOoef-E#libScePosix#1#libkernel#Function"
+          },
+          {
+            "name": "sched_get_priority_min",
+            "symbol": "m0iS6jNsXds#libScePosix#1#libkernel#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceRemoteplay",
+        "bindings": {
+          "refused": 5
+        },
+        "refused": [
+          {
+            "name": "sceRemoteplayApprove",
+            "symbol": "xQeIryTX7dY#libSceRemoteplay#1#libSceRemoteplay#Function"
+          },
+          {
+            "name": "sceRemoteplayProhibitStreaming",
+            "symbol": "7QLrixwVHcU#libSceRemoteplay#1#libSceRemoteplay#Function"
+          },
+          {
+            "name": "sceRemoteplayProhibit",
+            "symbol": "mrNh78tBpmg#libSceRemoteplay#1#libSceRemoteplay#Function"
+          },
+          {
+            "name": "sceRemoteplayGetConnectionStatus",
+            "symbol": "g3PNjYKWqnQ#libSceRemoteplay#1#libSceRemoteplay#Function"
+          },
+          {
+            "name": "sceRemoteplayInitialize",
+            "symbol": "k1SwgkMSOM8#libSceRemoteplay#1#libSceRemoteplay#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceSaveData",
+        "bindings": {
+          "refused": 3,
+          "runtime_bound": 2
+        },
+        "refused": [
+          {
+            "name": "sceSaveDataSetupSaveDataMemory2",
+            "symbol": "oQySEUfgXRA#libSceSaveData#1#libSceSaveData#Function"
+          },
+          {
+            "name": "sceSaveDataSyncSaveDataMemory",
+            "symbol": "wiT9jeC7xPw#libSceSaveData#1#libSceSaveData#Function"
+          },
+          {
+            "name": "sceSaveDataSetSaveDataMemory2",
+            "symbol": "cduy9v4YmT4#libSceSaveData#1#libSceSaveData#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceSocialScreen",
+        "bindings": {
+          "refused": 7
+        },
+        "refused": [
+          {
+            "name": "sceSocialScreenInitializeSeparateModeParameter",
+            "symbol": "VMM7wQBZoBk#libSceSocialScreen#1#libSceSocialScreen#Function"
+          },
+          {
+            "name": "sceSocialScreenSetMode",
+            "symbol": "6Me4hYsy3Kc#libSceSocialScreen#1#libSceSocialScreen#Function"
+          },
+          {
+            "name": "sceSocialScreenOpenSeparateMode",
+            "symbol": "SvdXHHt2LLE#libSceSocialScreen#1#libSceSocialScreen#Function"
+          },
+          {
+            "name": "sceSocialScreenCloseSeparateMode",
+            "symbol": "vtZIn9HtYbs#libSceSocialScreen#1#libSceSocialScreen#Function"
+          },
+          {
+            "name": "sceSocialScreenInitialize",
+            "symbol": "pI7oFSPP65A#libSceSocialScreen#1#libSceSocialScreen#Function"
+          },
+          {
+            "name": "sceSocialScreenTerminate",
+            "symbol": "OVNpYTRqN74#libSceSocialScreen#1#libSceSocialScreen#Function"
+          },
+          {
+            "name": "sceSocialScreenConfigureSeparateMode",
+            "symbol": "IEzqdjIueps#libSceSocialScreen#1#libSceSocialScreen#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceSocialScreenDialog",
+        "bindings": {
+          "refused": 6
+        },
+        "refused": [
+          {
+            "name": "sceSocialScreenDialogGetResult",
+            "symbol": "WjHT5TmV0TQ#libSceSocialScreenDialog#1#libSceSocialScreenDialog#Function"
+          },
+          {
+            "name": "sceSocialScreenDialogUpdateStatus",
+            "symbol": "BEhMn+TyoGA#libSceSocialScreenDialog#1#libSceSocialScreenDialog#Function"
+          },
+          {
+            "name": "sceSocialScreenDialogInitialize",
+            "symbol": "PEe0R7gBHbc#libSceSocialScreenDialog#1#libSceSocialScreenDialog#Function"
+          },
+          {
+            "name": "sceSocialScreenDialogOpen",
+            "symbol": "eL54zY-B+-Y#libSceSocialScreenDialog#1#libSceSocialScreenDialog#Function"
+          },
+          {
+            "name": "sceSocialScreenDialogClose",
+            "symbol": "4ej3RtYH320#libSceSocialScreenDialog#1#libSceSocialScreenDialog#Function"
+          },
+          {
+            "name": "sceSocialScreenDialogTerminate",
+            "symbol": "A4KPdcTIVuc#libSceSocialScreenDialog#1#libSceSocialScreenDialog#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceSsl",
+        "bindings": {
+          "runtime_bound": 2
+        },
+        "refused": []
+      },
+      {
+        "library": "libSceSysmodule",
+        "bindings": {
+          "runtime_bound": 3
+        },
+        "refused": []
+      },
+      {
+        "library": "libSceSystemService",
+        "bindings": {
+          "refused": 5,
+          "runtime_bound": 4
+        },
+        "refused": [
+          {
+            "name": "sceSystemServiceDisablePersonalEyeToEyeDistanceSetting",
+            "symbol": "Mr1IgQaRff0#libSceSystemService#1#libSceSystemService#Function"
+          },
+          {
+            "name": "sceSystemServiceEnablePersonalEyeToEyeDistanceSetting",
+            "symbol": "O3irWUQ2s-g#libSceSystemService#1#libSceSystemService#Function"
+          },
+          {
+            "name": "sceSystemServiceGetDisplaySafeAreaInfo",
+            "symbol": "1n37q1Bvc5Y#libSceSystemService#1#libSceSystemService#Function"
+          },
+          {
+            "name": "sceSystemServiceReportAbnormalTermination",
+            "symbol": "3s8cHiCBKBE#libSceSystemService#1#libSceSystemService#Function"
+          },
+          {
+            "name": "sceSystemServiceLoadExec",
+            "symbol": "JoBqSQt1yyA#libSceSystemService#1#libSceSystemService#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceUserService",
+        "bindings": {
+          "runtime_bound": 7
+        },
+        "refused": []
+      },
+      {
+        "library": "libSceVideoOut",
+        "bindings": {
+          "runtime_bound": 15
+        },
+        "refused": []
+      },
+      {
+        "library": "libSceVrTracker",
+        "bindings": {
+          "runtime_bound": 13
+        },
+        "refused": []
+      },
+      {
+        "library": "libSceWebBrowserDialog",
+        "bindings": {
+          "refused": 4
+        },
+        "refused": [
+          {
+            "name": "sceWebBrowserDialogTerminate",
+            "symbol": "ocHtyBwHfys#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function"
+          },
+          {
+            "name": "sceWebBrowserDialogOpen",
+            "symbol": "FraP7debcdg#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function"
+          },
+          {
+            "name": "sceWebBrowserDialogUpdateStatus",
+            "symbol": "h1dR-t5ISgg#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function"
+          },
+          {
+            "name": "sceWebBrowserDialogInitialize",
+            "symbol": "jqb7HntFQFc#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function"
+          }
+        ]
+      },
+      {
+        "library": "libc",
+        "bindings": {
+          "guest_export": 123,
+          "not_relocated": 8
+        },
+        "refused": []
+      },
+      {
+        "library": "libkernel",
+        "bindings": {
+          "runtime_bound": 80,
+          "refused": 3
+        },
+        "refused": [
+          {
+            "name": "sceKernelSetGPO",
+            "symbol": "ca7v6Cxulzs#libkernel#1#libkernel#Function"
+          },
+          {
+            "name": "sceKernelUuidCreate",
+            "symbol": "Xjoosiw+XPI#libkernel#1#libkernel#Function"
+          },
+          {
+            "name": "__stack_chk_fail",
+            "symbol": "Ou3iL1abvng#libkernel#1#libkernel#Function"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "module": "libSceFios2.prx",
+    "bindings": {
+      "runtime_bound": 78,
+      "refused": 3
+    },
+    "families": [
+      {
+        "library": "libSceDiscMap",
+        "bindings": {
+          "runtime_bound": 2
+        },
+        "refused": []
+      },
+      {
+        "library": "libSceLibcInternal",
+        "bindings": {
+          "runtime_bound": 16
+        },
+        "refused": []
+      },
+      {
+        "library": "libSceSysmodule",
+        "bindings": {
+          "runtime_bound": 2
+        },
+        "refused": []
+      },
+      {
+        "library": "libkernel",
+        "bindings": {
+          "refused": 3,
+          "runtime_bound": 58
+        },
+        "refused": [
+          {
+            "name": "__stack_chk_fail",
+            "symbol": "Ou3iL1abvng#libkernel#1#libkernel#Function"
+          },
+          {
+            "name": "sceKernelRmdir",
+            "symbol": "naInUjYt3so#libkernel#1#libkernel#Function"
+          },
+          {
+            "name": "sceKernelTruncate",
+            "symbol": "WlyEA-sLDf0#libkernel#1#libkernel#Function"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "module": "libSceNpToolkit2.prx",
+    "bindings": {
+      "refused": 177,
+      "runtime_bound": 125
+    },
+    "families": [
+      {
+        "library": "libSceGameCustomDataDialog",
+        "bindings": {
+          "refused": 5
+        },
+        "refused": [
+          {
+            "name": "sceGameCustomDataDialogGetResultA",
+            "symbol": "TWi-wZVp5Pc#libSceGameCustomDataDialog#1#libGameCustomDataDialog#Function"
+          },
+          {
+            "name": "sceGameCustomDataDialogInitialize",
+            "symbol": "xtbb-2f703A#libSceGameCustomDataDialog#1#libGameCustomDataDialog#Function"
+          },
+          {
+            "name": "sceGameCustomDataDialogOpenA",
+            "symbol": "QHFJB2F0p3k#libSceGameCustomDataDialog#1#libGameCustomDataDialog#Function"
+          },
+          {
+            "name": "sceGameCustomDataDialogTerminate",
+            "symbol": "HwEtHFCpU5U#libSceGameCustomDataDialog#1#libGameCustomDataDialog#Function"
+          },
+          {
+            "name": "sceGameCustomDataDialogUpdateStatus",
+            "symbol": "PkdLsRA4ON0#libSceGameCustomDataDialog#1#libGameCustomDataDialog#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceHttp",
+        "bindings": {
+          "refused": 2,
+          "runtime_bound": 12
+        },
+        "refused": [
+          {
+            "name": "sceHttpGetMemoryPoolStats",
+            "symbol": "16sMmVuOvgU#libSceHttp#1#libSceHttp#Function"
+          },
+          {
+            "name": "sceHttpUriEscape",
+            "symbol": "YuOW3dDAKYc#libSceHttp#1#libSceHttp#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceInvitationDialog",
+        "bindings": {
+          "refused": 5
+        },
+        "refused": [
+          {
+            "name": "sceInvitationDialogGetResultA",
+            "symbol": "WuuUhuKOxwQ#libSceInvitationDialog#1#libSceInvitationDialog#Function"
+          },
+          {
+            "name": "sceInvitationDialogInitialize",
+            "symbol": "XvA5KS56wcs#libSceInvitationDialog#1#libSceInvitationDialog#Function"
+          },
+          {
+            "name": "sceInvitationDialogOpenA",
+            "symbol": "sAxbHhAWMXM#libSceInvitationDialog#1#libSceInvitationDialog#Function"
+          },
+          {
+            "name": "sceInvitationDialogTerminate",
+            "symbol": "B6HVJtDYxEE#libSceInvitationDialog#1#libSceInvitationDialog#Function"
+          },
+          {
+            "name": "sceInvitationDialogUpdateStatus",
+            "symbol": "9+g9iOq+7kg#libSceInvitationDialog#1#libSceInvitationDialog#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceLibcInternal",
+        "bindings": {
+          "runtime_bound": 30
+        },
+        "refused": []
+      },
+      {
+        "library": "libSceNet",
+        "bindings": {
+          "refused": 1,
+          "runtime_bound": 2
+        },
+        "refused": [
+          {
+            "name": "sceNetGetMemoryPoolStats",
+            "symbol": "rMyh97BU5pY#libSceNet#1#libSceNet#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceNetCtl",
+        "bindings": {
+          "runtime_bound": 3
+        },
+        "refused": []
+      },
+      {
+        "library": "libSceNetCtlForNpToolkit",
+        "bindings": {
+          "refused": 3
+        },
+        "refused": [
+          {
+            "name": "sceNetCtlCheckCallbackForNpToolkit",
+            "symbol": "u5oqtlIP+Fw#libSceNetCtlForNpToolkit#1#libSceNetCtl#Function"
+          },
+          {
+            "name": "sceNetCtlRegisterCallbackForNpToolkit",
+            "symbol": "wIsKy+TfeLs#libSceNetCtlForNpToolkit#1#libSceNetCtl#Function"
+          },
+          {
+            "name": "sceNetCtlUnregisterCallbackForNpToolkit",
+            "symbol": "2oUqKR5odGc#libSceNetCtlForNpToolkit#1#libSceNetCtl#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceNpAuth",
+        "bindings": {
+          "refused": 5
+        },
+        "refused": [
+          {
+            "name": "sceNpAuthAbortRequest",
+            "symbol": "cE7wIsqXdZ8#libSceNpAuth#1#libSceNpAuth#Function"
+          },
+          {
+            "name": "sceNpAuthCreateRequest",
+            "symbol": "6bwFkosYRQg#libSceNpAuth#1#libSceNpAuth#Function"
+          },
+          {
+            "name": "sceNpAuthDeleteRequest",
+            "symbol": "H8wG9Bk-nPc#libSceNpAuth#1#libSceNpAuth#Function"
+          },
+          {
+            "name": "sceNpAuthGetAuthorizationCodeA",
+            "symbol": "qAUXQ9GdWp8#libSceNpAuth#1#libSceNpAuth#Function"
+          },
+          {
+            "name": "sceNpAuthGetIdTokenA",
+            "symbol": "CocbHVIKPE8#libSceNpAuth#1#libSceNpAuth#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceNpCommerce",
+        "bindings": {
+          "refused": 7
+        },
+        "refused": [
+          {
+            "name": "sceNpCommerceDialogGetResult",
+            "symbol": "r42bWcQbtZY#libSceNpCommerce#1#libSceNpCommerce#Function"
+          },
+          {
+            "name": "sceNpCommerceDialogInitialize",
+            "symbol": "0aR2aWmQal4#libSceNpCommerce#1#libSceNpCommerce#Function"
+          },
+          {
+            "name": "sceNpCommerceDialogOpen",
+            "symbol": "DfSCDRA3EjY#libSceNpCommerce#1#libSceNpCommerce#Function"
+          },
+          {
+            "name": "sceNpCommerceDialogTerminate",
+            "symbol": "m-I92Ab50W8#libSceNpCommerce#1#libSceNpCommerce#Function"
+          },
+          {
+            "name": "sceNpCommerceDialogUpdateStatus",
+            "symbol": "LR5cwFMMCVE#libSceNpCommerce#1#libSceNpCommerce#Function"
+          },
+          {
+            "name": "sceNpCommerceHidePsStoreIcon",
+            "symbol": "dsqCVsNM0Zg#libSceNpCommerce#1#libSceNpCommerce#Function"
+          },
+          {
+            "name": "sceNpCommerceShowPsStoreIcon",
+            "symbol": "DHmwsa6S8Tc#libSceNpCommerce#1#libSceNpCommerce#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceNpManager",
+        "bindings": {
+          "refused": 7,
+          "runtime_bound": 11
+        },
+        "refused": [
+          {
+            "name": "sceNpInGameMessageGetMemoryPoolStatistics",
+            "symbol": "Ubv+fP58W1U#libSceNpManager#1#libSceNpManager#Function"
+          },
+          {
+            "name": "sceNpInGameMessageSendDataA",
+            "symbol": "PQDFxcnqxtw#libSceNpManager#1#libSceNpManager#Function"
+          },
+          {
+            "name": "sceNpInGameMessageCreateHandle",
+            "symbol": "s4UEa5iBJdc#libSceNpManager#1#libSceNpManager#Function"
+          },
+          {
+            "name": "sceNpInGameMessageDeleteHandle",
+            "symbol": "+anuSx2avHQ#libSceNpManager#1#libSceNpManager#Function"
+          },
+          {
+            "name": "sceNpInGameMessageInitialize",
+            "symbol": "GFhVUpRmbHE#libSceNpManager#1#libSceNpManager#Function"
+          },
+          {
+            "name": "sceNpInGameMessagePrepareA",
+            "symbol": "IkL62FMpIpo#libSceNpManager#1#libSceNpManager#Function"
+          },
+          {
+            "name": "sceNpInGameMessageTerminate",
+            "symbol": "bMG3cVmUmuk#libSceNpManager#1#libSceNpManager#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceNpManagerForToolkit",
+        "bindings": {
+          "runtime_bound": 1,
+          "refused": 2
+        },
+        "refused": [
+          {
+            "name": "sceNpRegisterStateCallbackForToolkit",
+            "symbol": "0c7HbXRKUt4#libSceNpManagerForToolkit#1#libSceNpManager#Function"
+          },
+          {
+            "name": "sceNpUnregisterStateCallbackForToolkit",
+            "symbol": "YIvqqvJyjEc#libSceNpManagerForToolkit#1#libSceNpManager#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceNpMatching2",
+        "bindings": {
+          "refused": 24,
+          "runtime_bound": 11
+        },
+        "refused": [
+          {
+            "name": "sceNpMatching2GetRoomMemberIdListLocal",
+            "symbol": "KC+GnHzrK2o#libSceNpMatching2#1#libSceNpMatching2#Function"
+          },
+          {
+            "name": "sceNpMatching2GetRoomPasswordLocal",
+            "symbol": "vbtWT3lZBOM#libSceNpMatching2#1#libSceNpMatching2#Function"
+          },
+          {
+            "name": "sceNpMatching2CreateJoinRoomA",
+            "symbol": "V6KSpKv9XJE#libSceNpMatching2#1#libSceNpMatching2#Function"
+          },
+          {
+            "name": "sceNpMatching2GetRoomDataExternalList",
+            "symbol": "26vWrPAWJfM#libSceNpMatching2#1#libSceNpMatching2#Function"
+          },
+          {
+            "name": "sceNpMatching2GetRoomDataInternal",
+            "symbol": "Jraxifmoet4#libSceNpMatching2#1#libSceNpMatching2#Function"
+          },
+          {
+            "name": "sceNpMatching2GetRoomMemberDataInternal",
+            "symbol": "5lhvOqheFBA#libSceNpMatching2#1#libSceNpMatching2#Function"
+          },
+          {
+            "name": "sceNpMatching2GetSignalingOptParamLocal",
+            "symbol": "cgQhq3E0eGo#libSceNpMatching2#1#libSceNpMatching2#Function"
+          },
+          {
+            "name": "sceNpMatching2GetUserInfoListA",
+            "symbol": "GyI2f9yDUXM#libSceNpMatching2#1#libSceNpMatching2#Function"
+          },
+          {
+            "name": "sceNpMatching2GetWorldInfoList",
+            "symbol": "rJNPJqDCpiI#libSceNpMatching2#1#libSceNpMatching2#Function"
+          },
+          {
+            "name": "sceNpMatching2JoinRoomA",
+            "symbol": "gQ6cUriNpgs#libSceNpMatching2#1#libSceNpMatching2#Function"
+          },
+          {
+            "name": "sceNpMatching2KickoutRoomMember",
+            "symbol": "AUVfU6byg3c#libSceNpMatching2#1#libSceNpMatching2#Function"
+          },
+          {
+            "name": "sceNpMatching2LeaveRoom",
+            "symbol": "BD6kfx442Do#libSceNpMatching2#1#libSceNpMatching2#Function"
+          },
+          {
+            "name": "sceNpMatching2SearchRoom",
+            "symbol": "VqZX7POg2Mk#libSceNpMatching2#1#libSceNpMatching2#Function"
+          },
+          {
+            "name": "sceNpMatching2SendRoomChatMessage",
+            "symbol": "opDpl74pi2E#libSceNpMatching2#1#libSceNpMatching2#Function"
+          },
+          {
+            "name": "sceNpMatching2SendRoomMessage",
+            "symbol": "Iw2h0Jrrb5U#libSceNpMatching2#1#libSceNpMatching2#Function"
+          },
+          {
+            "name": "sceNpMatching2SetRoomDataExternal",
+            "symbol": "q7GK98-nYSE#libSceNpMatching2#1#libSceNpMatching2#Function"
+          },
+          {
+            "name": "sceNpMatching2SetRoomDataInternal",
+            "symbol": "S9D8JSYIrjE#libSceNpMatching2#1#libSceNpMatching2#Function"
+          },
+          {
+            "name": "sceNpMatching2SetRoomMemberDataInternal",
+            "symbol": "HoqTrkS9c5Q#libSceNpMatching2#1#libSceNpMatching2#Function"
+          },
+          {
+            "name": "sceNpMatching2SetSignalingOptParam",
+            "symbol": "ES3UMUWWj9U#libSceNpMatching2#1#libSceNpMatching2#Function"
+          },
+          {
+            "name": "sceNpMatching2SetUserInfo",
+            "symbol": "meEjIdbjAA0#libSceNpMatching2#1#libSceNpMatching2#Function"
+          },
+          {
+            "name": "sceNpMatching2SignalingGetConnectionInfoA",
+            "symbol": "nNeC3F8-g+4#libSceNpMatching2#1#libSceNpMatching2#Function"
+          },
+          {
+            "name": "sceNpMatching2SignalingGetPingInfo",
+            "symbol": "wUmwXZHaX1w#libSceNpMatching2#1#libSceNpMatching2#Function"
+          },
+          {
+            "name": "sceNpMatching2GetMemoryInfo",
+            "symbol": "gpSAvdheZ0Q#libSceNpMatching2#1#libSceNpMatching2#Function"
+          },
+          {
+            "name": "sceNpMatching2GetSslMemoryInfo",
+            "symbol": "8btynvj0KNA#libSceNpMatching2#1#libSceNpMatching2#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceNpProfileDialog",
+        "bindings": {
+          "refused": 5
+        },
+        "refused": [
+          {
+            "name": "sceNpProfileDialogGetResult",
+            "symbol": "8rhLl1-0W-o#libSceNpProfileDialog#1#libSceNpProfileDialog#Function"
+          },
+          {
+            "name": "sceNpProfileDialogInitialize",
+            "symbol": "Lg+NCE6pTwQ#libSceNpProfileDialog#1#libSceNpProfileDialog#Function"
+          },
+          {
+            "name": "sceNpProfileDialogOpenA",
+            "symbol": "nrQRlLKzdwE#libSceNpProfileDialog#1#libSceNpProfileDialog#Function"
+          },
+          {
+            "name": "sceNpProfileDialogTerminate",
+            "symbol": "0Sp9vJcB1-w#libSceNpProfileDialog#1#libSceNpProfileDialog#Function"
+          },
+          {
+            "name": "sceNpProfileDialogUpdateStatus",
+            "symbol": "haVZE9FgKqE#libSceNpProfileDialog#1#libSceNpProfileDialog#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceNpScore",
+        "bindings": {
+          "refused": 18
+        },
+        "refused": [
+          {
+            "name": "sceNpScoreAbortRequest",
+            "symbol": "1i7kmKbX6hk#libSceNpScore#1#libSceNpScore#Function"
+          },
+          {
+            "name": "sceNpScoreCreateNpTitleCtxA",
+            "symbol": "GWnWQNXZH5M#libSceNpScore#1#libSceNpScore#Function"
+          },
+          {
+            "name": "sceNpScoreCreateRequest",
+            "symbol": "gW8qyjYrUbk#libSceNpScore#1#libSceNpScore#Function"
+          },
+          {
+            "name": "sceNpScoreDeleteNpTitleCtx",
+            "symbol": "G0pE+RNCwfk#libSceNpScore#1#libSceNpScore#Function"
+          },
+          {
+            "name": "sceNpScoreDeleteRequest",
+            "symbol": "dK8-SgYf6r4#libSceNpScore#1#libSceNpScore#Function"
+          },
+          {
+            "name": "sceNpScoreGetBoardInfo",
+            "symbol": "LoVMVrijVOk#libSceNpScore#1#libSceNpScore#Function"
+          },
+          {
+            "name": "sceNpScoreGetFriendsRankingA",
+            "symbol": "gMbOn+-6eXA#libSceNpScore#1#libSceNpScore#Function"
+          },
+          {
+            "name": "sceNpScoreGetFriendsRankingForCrossSave",
+            "symbol": "AgcxgceaH8k#libSceNpScore#1#libSceNpScore#Function"
+          },
+          {
+            "name": "sceNpScoreGetGameDataByAccountId",
+            "symbol": "Lmtc9GljeUA#libSceNpScore#1#libSceNpScore#Function"
+          },
+          {
+            "name": "sceNpScoreGetRankingByAccountId",
+            "symbol": "K9tlODTQx3c#libSceNpScore#1#libSceNpScore#Function"
+          },
+          {
+            "name": "sceNpScoreGetRankingByAccountIdForCrossSave",
+            "symbol": "3Ybj4E1qNtY#libSceNpScore#1#libSceNpScore#Function"
+          },
+          {
+            "name": "sceNpScoreGetRankingByAccountIdPcId",
+            "symbol": "wJPWycVGzrs#libSceNpScore#1#libSceNpScore#Function"
+          },
+          {
+            "name": "sceNpScoreGetRankingByAccountIdPcIdForCrossSave",
+            "symbol": "oXjVieH6ZGQ#libSceNpScore#1#libSceNpScore#Function"
+          },
+          {
+            "name": "sceNpScoreGetRankingByRangeA",
+            "symbol": "MA9vSt7JImY#libSceNpScore#1#libSceNpScore#Function"
+          },
+          {
+            "name": "sceNpScoreGetRankingByRangeForCrossSave",
+            "symbol": "nRoYV2yeUuw#libSceNpScore#1#libSceNpScore#Function"
+          },
+          {
+            "name": "sceNpScoreRecordGameData",
+            "symbol": "bcoVwcBjQ9E#libSceNpScore#1#libSceNpScore#Function"
+          },
+          {
+            "name": "sceNpScoreRecordScore",
+            "symbol": "zT0XBtgtOSI#libSceNpScore#1#libSceNpScore#Function"
+          },
+          {
+            "name": "sceNpScoreSetPlayerCharacterId",
+            "symbol": "bygbKdHmjn4#libSceNpScore#1#libSceNpScore#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceNpSns",
+        "bindings": {
+          "refused": 3
+        },
+        "refused": [
+          {
+            "name": "sceNpSnsFacebookCreateRequest",
+            "symbol": "OoTjfxl8-wI#libSceNpSns#1#libSceNpManager#Function"
+          },
+          {
+            "name": "sceNpSnsFacebookDeleteRequest",
+            "symbol": "pTvAKV1iQkE#libSceNpSns#1#libSceNpManager#Function"
+          },
+          {
+            "name": "sceNpSnsFacebookGetAccessToken",
+            "symbol": "VtyS8XLBqNE#libSceNpSns#1#libSceNpManager#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceNpSnsFacebookDialog",
+        "bindings": {
+          "refused": 5
+        },
+        "refused": [
+          {
+            "name": "sceNpSnsFacebookDialogGetResult",
+            "symbol": "AifdcI1aKas#libSceNpSnsFacebookDialog#1#libSceNpSnsFacebookDialog#Function"
+          },
+          {
+            "name": "sceNpSnsFacebookDialogInitialize",
+            "symbol": "tdQArULbNQk#libSceNpSnsFacebookDialog#1#libSceNpSnsFacebookDialog#Function"
+          },
+          {
+            "name": "sceNpSnsFacebookDialogOpen",
+            "symbol": "Hi3onqHSN6M#libSceNpSnsFacebookDialog#1#libSceNpSnsFacebookDialog#Function"
+          },
+          {
+            "name": "sceNpSnsFacebookDialogTerminate",
+            "symbol": "cdqOFyupRS4#libSceNpSnsFacebookDialog#1#libSceNpSnsFacebookDialog#Function"
+          },
+          {
+            "name": "sceNpSnsFacebookDialogUpdateStatus",
+            "symbol": "fjV7C8H0Y8k#libSceNpSnsFacebookDialog#1#libSceNpSnsFacebookDialog#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceNpTrophy",
+        "bindings": {
+          "runtime_bound": 11,
+          "refused": 5
+        },
+        "refused": [
+          {
+            "name": "sceNpTrophyCaptureScreenshot",
+            "symbol": "cqGkYAN-gRw#libSceNpTrophy#1#libSceNpTrophy#Function"
+          },
+          {
+            "name": "sceNpTrophyGetGameIcon",
+            "symbol": "HLwz1fRIycA#libSceNpTrophy#1#libSceNpTrophy#Function"
+          },
+          {
+            "name": "sceNpTrophyGetGroupIcon",
+            "symbol": "w4uMPmErD4I#libSceNpTrophy#1#libSceNpTrophy#Function"
+          },
+          {
+            "name": "sceNpTrophyGetTrophyIcon",
+            "symbol": "eBL+l6HG9xk#libSceNpTrophy#1#libSceNpTrophy#Function"
+          },
+          {
+            "name": "sceNpTrophyShowTrophyList",
+            "symbol": "d9jpdPz5f-8#libSceNpTrophy#1#libSceNpTrophy#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceNpTus",
+        "bindings": {
+          "refused": 41
+        },
+        "refused": [
+          {
+            "name": "sceNpTssCreateNpTitleCtxA",
+            "symbol": "lBtrk+7lk14#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTssGetData",
+            "symbol": "-SUR+UoLS6c#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusAbortRequest",
+            "symbol": "2eq1bMwgZYo#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusCreateRequest",
+            "symbol": "3bh2aBvvmvM#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusDeleteNpTitleCtx",
+            "symbol": "H3uq7x0sZOI#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusDeleteRequest",
+            "symbol": "CcIH40dYS88#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusAddAndGetVariableA",
+            "symbol": "wPFah4-5Xec#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusAddAndGetVariableAVUser",
+            "symbol": "Nt1runsPVJc#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusAddAndGetVariableForCrossSave",
+            "symbol": "EPeq43CQKxY#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusAddAndGetVariableForCrossSaveVUser",
+            "symbol": "4VLlu7EIjzk#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusCreateNpTitleCtxA",
+            "symbol": "1n-dGukBgnY#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusDeleteMultiSlotDataA",
+            "symbol": "iXzUOM9sXU0#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusDeleteMultiSlotDataVUser",
+            "symbol": "xutwCvsydkk#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusGetDataA",
+            "symbol": "yWEHUFkY1qI#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusGetDataAVUser",
+            "symbol": "iaH+Sxlw32k#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusGetDataForCrossSave",
+            "symbol": "1TE3OvH61qo#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusGetDataForCrossSaveVUser",
+            "symbol": "-LxFGYCJwww#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusGetFriendsDataStatusA",
+            "symbol": "yixh7HDKWfk#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusGetFriendsDataStatusForCrossSave",
+            "symbol": "TDoqRD+CE+M#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusGetFriendsVariableA",
+            "symbol": "C8TY-UnQoXg#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusGetFriendsVariableForCrossSave",
+            "symbol": "mD6s8HtMdpk#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusGetMultiSlotVariableA",
+            "symbol": "GDXlRTxgd+M#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusGetMultiSlotVariableAVUser",
+            "symbol": "AsziNQ9X2uk#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusGetMultiSlotVariableForCrossSave",
+            "symbol": "m9XZnxw9AmE#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusGetMultiSlotVariableForCrossSaveVUser",
+            "symbol": "wTuuw4-6HI8#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusGetMultiUserDataStatusA",
+            "symbol": "lxNDPDnWfMc#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusGetMultiUserDataStatusAVUser",
+            "symbol": "fJU2TZId210#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusGetMultiUserDataStatusForCrossSave",
+            "symbol": "cVeBif6zdZ4#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusGetMultiUserDataStatusForCrossSaveVUser",
+            "symbol": "w-c7U0MW2KY#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusGetMultiUserVariableA",
+            "symbol": "Gjixv5hqRVY#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusGetMultiUserVariableAVUser",
+            "symbol": "fVvocpq4mG4#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusGetMultiUserVariableForCrossSave",
+            "symbol": "Q5uQeScvTPE#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusGetMultiUserVariableForCrossSaveVUser",
+            "symbol": "Djuj2+1VNL0#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusSetDataA",
+            "symbol": "VzxN3tOouj8#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusSetDataAVUser",
+            "symbol": "kbWqOt3QjKU#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusSetMultiSlotVariableA",
+            "symbol": "cf-WMA0jYCc#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusSetMultiSlotVariableVUser",
+            "symbol": "1Cz0hTJFyh4#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusTryAndSetVariableA",
+            "symbol": "0up4MP1wNtc#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusTryAndSetVariableAVUser",
+            "symbol": "oGIcxlUabSA#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusTryAndSetVariableForCrossSave",
+            "symbol": "MGvSJEHwyL8#libSceNpTus#1#libSceNpTus#Function"
+          },
+          {
+            "name": "sceNpTusTryAndSetVariableForCrossSaveVUser",
+            "symbol": "fcCwKpi4CbU#libSceNpTus#1#libSceNpTus#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceNpUtility",
+        "bindings": {
+          "refused": 10
+        },
+        "refused": [
+          {
+            "name": "sceNpBandwidthTestAbort",
+            "symbol": "kvdMF48mB3Y#libSceNpUtility#1#libSceNpUtility#Function"
+          },
+          {
+            "name": "sceNpBandwidthTestGetStatus",
+            "symbol": "BYIZGKm6bO4#libSceNpUtility#1#libSceNpUtility#Function"
+          },
+          {
+            "name": "sceNpBandwidthTestInitStart",
+            "symbol": "jktww3yJXnc#libSceNpUtility#1#libSceNpUtility#Function"
+          },
+          {
+            "name": "sceNpBandwidthTestShutdown",
+            "symbol": "pLr1fEQS1z8#libSceNpUtility#1#libSceNpUtility#Function"
+          },
+          {
+            "name": "sceNpWordFilterAbortRequest",
+            "symbol": "rAOOqDAxBIk#libSceNpUtility#1#libSceNpUtility#Function"
+          },
+          {
+            "name": "sceNpWordFilterCreateRequest",
+            "symbol": "iCq5xW5KQW4#libSceNpUtility#1#libSceNpUtility#Function"
+          },
+          {
+            "name": "sceNpWordFilterCreateTitleCtxA",
+            "symbol": "6p9jvljuvsw#libSceNpUtility#1#libSceNpUtility#Function"
+          },
+          {
+            "name": "sceNpWordFilterDeleteRequest",
+            "symbol": "PYFS1H70bDs#libSceNpUtility#1#libSceNpUtility#Function"
+          },
+          {
+            "name": "sceNpWordFilterDeleteTitleCtx",
+            "symbol": "t0P5z5yuFPA#libSceNpUtility#1#libSceNpUtility#Function"
+          },
+          {
+            "name": "sceNpWordFilterSanitizeComment",
+            "symbol": "Jj4mkpFO2gE#libSceNpUtility#1#libSceNpUtility#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceNpWebApi",
+        "bindings": {
+          "refused": 20
+        },
+        "refused": [
+          {
+            "name": "sceNpWebApiGetMemoryPoolStats",
+            "symbol": "3OnubUs02UM#libSceNpWebApi#1#libSceNpWebApi#Function"
+          },
+          {
+            "name": "sceNpWebApiInitialize",
+            "symbol": "G3AnLNdRBjE#libSceNpWebApi#1#libSceNpWebApi#Function"
+          },
+          {
+            "name": "sceNpWebApiTerminate",
+            "symbol": "asz3TtIqGF8#libSceNpWebApi#1#libSceNpWebApi#Function"
+          },
+          {
+            "name": "sceNpWebApiUtilityParseNpId",
+            "symbol": "or0e885BlXo#libSceNpWebApi#1#libSceNpWebApi#Function"
+          },
+          {
+            "name": "sceNpWebApiAddHttpRequestHeader",
+            "symbol": "joRjtRXTFoc#libSceNpWebApi#1#libSceNpWebApi#Function"
+          },
+          {
+            "name": "sceNpWebApiCreateContextA",
+            "symbol": "zk6c65xoyO0#libSceNpWebApi#1#libSceNpWebApi#Function"
+          },
+          {
+            "name": "sceNpWebApiCreateExtdPushEventFilter",
+            "symbol": "M2BUB+DNEGE#libSceNpWebApi#1#libSceNpWebApi#Function"
+          },
+          {
+            "name": "sceNpWebApiCreateHandle",
+            "symbol": "79M-JqvvGo0#libSceNpWebApi#1#libSceNpWebApi#Function"
+          },
+          {
+            "name": "sceNpWebApiCreateRequest",
+            "symbol": "rdgs5Z1MyFw#libSceNpWebApi#1#libSceNpWebApi#Function"
+          },
+          {
+            "name": "sceNpWebApiDeleteContext",
+            "symbol": "XUjdsSTTZ3U#libSceNpWebApi#1#libSceNpWebApi#Function"
+          },
+          {
+            "name": "sceNpWebApiDeleteExtdPushEventFilter",
+            "symbol": "pfaJtb7SQ80#libSceNpWebApi#1#libSceNpWebApi#Function"
+          },
+          {
+            "name": "sceNpWebApiDeleteHandle",
+            "symbol": "5Mn7TYwpl30#libSceNpWebApi#1#libSceNpWebApi#Function"
+          },
+          {
+            "name": "sceNpWebApiDeleteRequest",
+            "symbol": "noQgleu+KLE#libSceNpWebApi#1#libSceNpWebApi#Function"
+          },
+          {
+            "name": "sceNpWebApiGetHttpResponseHeaderValue",
+            "symbol": "VwJ5L0Higg0#libSceNpWebApi#1#libSceNpWebApi#Function"
+          },
+          {
+            "name": "sceNpWebApiGetHttpResponseHeaderValueLength",
+            "symbol": "743ZzEBzlV8#libSceNpWebApi#1#libSceNpWebApi#Function"
+          },
+          {
+            "name": "sceNpWebApiReadData",
+            "symbol": "CQtPRSF6Ds8#libSceNpWebApi#1#libSceNpWebApi#Function"
+          },
+          {
+            "name": "sceNpWebApiRegisterExtdPushEventCallbackA",
+            "symbol": "jhXKGQJ4egI#libSceNpWebApi#1#libSceNpWebApi#Function"
+          },
+          {
+            "name": "sceNpWebApiSendRequest2",
+            "symbol": "KjNeZ-29ysQ#libSceNpWebApi#1#libSceNpWebApi#Function"
+          },
+          {
+            "name": "sceNpWebApiUnregisterExtdPushEventCallback",
+            "symbol": "PqCY25FMzPs#libSceNpWebApi#1#libSceNpWebApi#Function"
+          },
+          {
+            "name": "sceNpWebApiAbortRequest",
+            "symbol": "JzhYTP2fG18#libSceNpWebApi#1#libSceNpWebApi#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceRtc",
+        "bindings": {
+          "runtime_bound": 4
+        },
+        "refused": []
+      },
+      {
+        "library": "libSceSigninDialog",
+        "bindings": {
+          "refused": 5
+        },
+        "refused": [
+          {
+            "name": "sceSigninDialogGetResult",
+            "symbol": "nqG7rqnYw1U#libSceSigninDialog#1#libSceSigninDialog#Function"
+          },
+          {
+            "name": "sceSigninDialogInitialize",
+            "symbol": "mlYGfmqE3fQ#libSceSigninDialog#1#libSceSigninDialog#Function"
+          },
+          {
+            "name": "sceSigninDialogOpen",
+            "symbol": "JlpJVoRWv7U#libSceSigninDialog#1#libSceSigninDialog#Function"
+          },
+          {
+            "name": "sceSigninDialogTerminate",
+            "symbol": "LXlmS6PvJdU#libSceSigninDialog#1#libSceSigninDialog#Function"
+          },
+          {
+            "name": "sceSigninDialogUpdateStatus",
+            "symbol": "Bw31liTFT3A#libSceSigninDialog#1#libSceSigninDialog#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceSsl",
+        "bindings": {
+          "refused": 1,
+          "runtime_bound": 2
+        },
+        "refused": [
+          {
+            "name": "sceSslGetMemoryPoolStats",
+            "symbol": "-PoIzr3PEk0#libSceSsl#1#libSceSsl#Function"
+          }
+        ]
+      },
+      {
+        "library": "libSceSysmodule",
+        "bindings": {
+          "runtime_bound": 3
+        },
+        "refused": []
+      },
+      {
+        "library": "libSceSystemService",
+        "bindings": {
+          "runtime_bound": 1
+        },
+        "refused": []
+      },
+      {
+        "library": "libSceUserService",
+        "bindings": {
+          "runtime_bound": 1
+        },
+        "refused": []
+      },
+      {
+        "library": "libSceUserServiceForNpToolkit",
+        "bindings": {
+          "refused": 2
+        },
+        "refused": [
+          {
+            "name": "sceUserServiceRegisterEventCallback",
+            "symbol": "wuI7c7UNk0A#libSceUserServiceForNpToolkit#1#libSceUserService#Function"
+          },
+          {
+            "name": "sceUserServiceUnregisterEventCallback",
+            "symbol": "spW--yoLQ9o#libSceUserServiceForNpToolkit#1#libSceUserService#Function"
+          }
+        ]
+      },
+      {
+        "library": "libkernel",
+        "bindings": {
+          "runtime_bound": 33,
+          "refused": 1
+        },
+        "refused": [
+          {
+            "name": "__stack_chk_fail",
+            "symbol": "Ou3iL1abvng#libkernel#1#libkernel#Function"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "module": "libc.prx",
+    "bindings": {
+      "guest_export": 11,
+      "runtime_bound": 63,
+      "refused": 17
+    },
+    "families": [
+      {
+        "library": "libSceFios2",
+        "bindings": {
+          "guest_export": 11
+        },
+        "refused": []
+      },
+      {
+        "library": "libSceLibcInternalExt",
+        "bindings": {
+          "runtime_bound": 1
+        },
+        "refused": []
+      },
+      {
+        "library": "libkernel",
+        "bindings": {
+          "runtime_bound": 62,
+          "refused": 17
+        },
+        "refused": [
+          {
+            "name": "__stack_chk_fail",
+            "symbol": "Ou3iL1abvng#libkernel#1#libkernel#Function"
+          },
+          {
+            "name": "sceKernelConvertUtcToLocaltime",
+            "symbol": "-o5uEDpN+oY#libkernel#1#libkernel#Function"
+          },
+          {
+            "name": "sceKernelConvertLocaltimeToUtc",
+            "symbol": "0NTHN1NKONI#libkernel#1#libkernel#Function"
+          },
+          {
+            "name": "signal",
+            "symbol": "VADc3MNQ3cM#libkernel#1#libkernel#Function"
+          },
+          {
+            "name": "scePthreadMutexTimedlock",
+            "symbol": "IafI2PxcPnQ#libkernel#1#libkernel#Function"
+          },
+          {
+            "name": "sceKernelInternalMemoryGetModuleSegmentInfo",
+            "symbol": "-YTW+qXc3CQ#libkernel#1#libkernel#Function"
+          },
+          {
+            "name": "sceKernelPrintBacktraceWithModuleInfo",
+            "symbol": "Wl2o5hOVZdw#libkernel#1#libkernel#Function"
+          },
+          {
+            "name": "sceKernelDebugRaiseException",
+            "symbol": "OMDRKKAZ8I4#libkernel#1#libkernel#Function"
+          },
+          {
+            "name": "sceKernelDebugRaiseExceptionOnReleaseMode",
+            "symbol": "zE-wXIZjLoM#libkernel#1#libkernel#Function"
+          },
+          {
+            "name": "__elf_phdr_match_addr",
+            "symbol": "Fjc4-n1+y2g#libkernel#1#libkernel#Function"
+          },
+          {
+            "name": "__pthread_cxa_finalize",
+            "symbol": "kbw4UHHSYy0#libkernel#1#libkernel#Function"
+          },
+          {
+            "name": "sceKernelGetModuleInfoFromAddr",
+            "symbol": "f7KBOafysXo#libkernel#1#libkernel#Function"
+          },
+          {
+            "name": "_exit",
+            "symbol": "6Z83sYWFlA8#libkernel#1#libkernel#Function"
+          },
+          {
+            "name": "getrusage",
+            "symbol": "hHlZQUnlxSM#libkernel#1#libkernel#Function"
+          },
+          {
+            "name": "_sceKernelRtldThreadAtexitDecrement",
+            "symbol": "8OnWXlgQlvo#libkernel#1#libkernel#Function"
+          },
+          {
+            "name": "_sceKernelRtldThreadAtexitIncrement",
+            "symbol": "Tz4RNUCBbGI#libkernel#1#libkernel#Function"
+          },
+          {
+            "name": "_is_signal_return",
+            "symbol": "crb5j7mkk1c#libkernel#1#libkernel#Function"
+          }
+        ]
+      }
+    ]
+  }
+]

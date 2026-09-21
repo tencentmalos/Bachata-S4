@@ -1,0 +1,14 @@
+1e074a3e03d73c11a6c5d4c3b13e8058bcdb347b6c04473036285c0477d48c3d  libshadps4_host.so
+stage TCP pair
+stage Both set bits count
+stage WAITALL accumulates
+stage epoll preserves
+stage Short receive
+stage Orbis integer
+stage Individual cancellation
+stage IPv6 conversion
+stage Datagram boundaries
+stage Select cancellation
+socket/posix/random: 284 checks, 0 failures
+GUEST_NETWORK checks=299 failures=0
+GUEST_FILE_IO checks=508 failures=0

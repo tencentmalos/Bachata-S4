@@ -983,6 +983,10 @@ Id ImageType(EmitContext& ctx, const ImageResource& desc, Id sampled_type) {
     const auto format = desc.is_atomic ? GetFormat(image) : spv::ImageFormat::Unknown;
     const auto type = image.GetViewType(desc.is_array);
     const u32 sampled = desc.is_written ? 2 : 1;
+    if (desc.is_written && !ctx.profile.force_disable_msaa &&
+        (type == AmdGpu::ImageType::Color2DMsaa || type == AmdGpu::ImageType::Color2DMsaaArray)) {
+        ctx.AddCapability(spv::Capability::StorageImageMultisample);
+    }
     switch (type) {
     case AmdGpu::ImageType::Color1D:
         return ctx.TypeImage(sampled_type, spv::Dim::Dim1D, false, false, false, sampled, format);
@@ -993,7 +997,12 @@ Id ImageType(EmitContext& ctx, const ImageResource& desc, Id sampled_type) {
     case AmdGpu::ImageType::Color2DArray:
         return ctx.TypeImage(sampled_type, spv::Dim::Dim2D, false, true, false, sampled, format);
     case AmdGpu::ImageType::Color2DMsaa:
-        return ctx.TypeImage(sampled_type, spv::Dim::Dim2D, false, false, true, sampled, format);
+        return ctx.TypeImage(sampled_type, spv::Dim::Dim2D, false, false,
+                             !ctx.profile.force_disable_msaa, sampled, format);
+    case AmdGpu::ImageType::Color2DMsaaArray:
+        if (!ctx.profile.force_disable_msaa) ctx.AddCapability(spv::Capability::ImageMSArray);
+        return ctx.TypeImage(sampled_type, spv::Dim::Dim2D, false, true,
+                             !ctx.profile.force_disable_msaa, sampled, format);
     case AmdGpu::ImageType::Color3D:
         return ctx.TypeImage(sampled_type, spv::Dim::Dim3D, false, false, false, sampled, format);
     default:

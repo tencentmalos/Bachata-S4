@@ -81,8 +81,11 @@ s32 PS4_SYSV_ABI sceVideoOutDeleteFlipEvent(Kernel::OrbisKernelEqueue eq, s32 ha
     if (equeue == nullptr) {
         return ORBIS_VIDEO_OUT_ERROR_INVALID_EVENT_QUEUE;
     }
-    equeue->RemoveEvent(handle, Kernel::OrbisKernelEvent::Filter::VideoOut);
-    port->flip_events.erase(find(port->flip_events.begin(), port->flip_events.end(), eq));
+    const auto it = std::find(port->flip_events.begin(), port->flip_events.end(), eq);
+    if (it == port->flip_events.end()) return ORBIS_VIDEO_OUT_ERROR_INVALID_EVENT;
+    equeue->RemoveEvent(static_cast<u64>(OrbisVideoOutInternalEventId::Flip),
+                        Kernel::OrbisKernelEvent::Filter::VideoOut);
+    port->flip_events.erase(it);
     return ORBIS_OK;
 }
 
@@ -123,8 +126,11 @@ s32 PS4_SYSV_ABI sceVideoOutDeleteVblankEvent(Kernel::OrbisKernelEqueue eq, s32 
     if (equeue == nullptr) {
         return ORBIS_VIDEO_OUT_ERROR_INVALID_EVENT_QUEUE;
     }
-    equeue->RemoveEvent(handle, Kernel::OrbisKernelEvent::Filter::VideoOut);
-    port->vblank_events.erase(find(port->vblank_events.begin(), port->vblank_events.end(), eq));
+    const auto it = std::find(port->vblank_events.begin(), port->vblank_events.end(), eq);
+    if (it == port->vblank_events.end()) return ORBIS_VIDEO_OUT_ERROR_INVALID_EVENT;
+    equeue->RemoveEvent(static_cast<u64>(OrbisVideoOutInternalEventId::Vblank),
+                        Kernel::OrbisKernelEvent::Filter::VideoOut);
+    port->vblank_events.erase(it);
     return ORBIS_OK;
 }
 
@@ -227,7 +233,7 @@ s32 PS4_SYSV_ABI sceVideoOutGetEventData(const Kernel::OrbisKernelEvent* ev, s64
     }
 
     auto event_data = ev->data >> 0x10;
-    if (ev->ident != static_cast<s32>(OrbisVideoOutInternalEventId::Flip) || ev->data >= 0) {
+    if (ev->ident != static_cast<s32>(OrbisVideoOutInternalEventId::Flip) || static_cast<s64>(ev->data) >= 0) {
         *data = event_data;
     } else {
         *data = event_data | 0xffff000000000000;
@@ -243,7 +249,7 @@ s32 PS4_SYSV_ABI sceVideoOutGetEventCount(const Kernel::OrbisKernelEvent* ev) {
         return ORBIS_VIDEO_OUT_ERROR_INVALID_EVENT;
     }
 
-    auto event_data = static_cast<OrbisVideoOutEventData>(ev->data);
+    const auto event_data = std::bit_cast<OrbisVideoOutEventData>(ev->data);
     return event_data.count;
 }
 

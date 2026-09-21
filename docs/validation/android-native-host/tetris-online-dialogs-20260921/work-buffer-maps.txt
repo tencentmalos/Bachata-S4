@@ -1,0 +1,3 @@
+202fd00000-202fde0000 rw-s 20ff0000 00:01 61195                          /memfd:shadps4-guest-backing (deleted)
+202fde0000-202fe00000 rw-s 23190000 00:01 61195                          /memfd:shadps4-guest-backing (deleted)
+3000020000-3000040000 rw-s 23c80000 00:01 61195                          /memfd:shadps4-guest-backing (deleted)

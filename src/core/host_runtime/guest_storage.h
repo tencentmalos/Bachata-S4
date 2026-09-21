@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
 #include <array>
+#include "guest_descriptor_ids.h"
 #include <atomic>
 #include <deque>
 #include <filesystem>
+#include <functional>
 #include <map>
 #include <mutex>
 #include <shared_mutex>
@@ -52,7 +54,7 @@ public:
     void SetIoObserver(IoObserver value) { io_observer = value; }
     bool TraceIo() const { return io_observer != nullptr; }
     GuestStorage(Core::FileSys::MntPoints& mounts, std::filesystem::path home, std::string title,
-                 int user);
+                 int user, std::shared_ptr<GuestDescriptorIds> ids = std::make_shared<GuestDescriptorIds>());
     ~GuestStorage();
     Error Initialize();
     Error Terminate();
@@ -93,6 +95,7 @@ public:
     IoResult Sync(int fd);
     IoResult GetDents(int fd, std::span<u8> bytes, s64* base);
     IoResult Stat(std::string_view path, Libraries::Kernel::OrbisKernelStat& out);
+    IoResult PollReady(int fd);
     IoResult Fstat(int fd, Libraries::Kernel::OrbisKernelStat& out);
     // Pins the open description across mmap/close races. The guest descriptor
     // is never a host fd or a desktop HandleTable index.
@@ -109,9 +112,12 @@ public:
         void* data;
         size_t size;
     };
+    using PositionedLease = std::function<IoResult(std::span<const Buffer>, s64, bool)>;
+    PositionedLease AcquirePositioned(int fd);
     IoResult Positioned(int fd, std::span<const Buffer> buffers, s64 offset, bool write);
     IoResult Truncate(int fd, s64 length);
     IoResult Mkdir(std::string_view path, u32 mode);
+    IoResult Rmdir(std::string_view path);
     IoResult Unlink(std::string_view path);
     IoResult Rename(std::string_view from, std::string_view to);
     // AppContent temporary data is separate from persistent save mounts. These
@@ -128,11 +134,15 @@ private:
         std::filesystem::path root;
         u64 capacity{};
     };
+    enum class Device { None, Random, Zero, Null };
+    static Device DeviceForPath(std::string_view path);
     struct File {
         int host{-1};
         int slot{-1};
         bool writable{};
         bool append{};
+        bool readable{true};
+        Device device{Device::None};
         std::shared_ptr<Core::Directories::BaseDirectory> directory;
         std::string path;
         std::shared_ptr<Quota> quota;
@@ -173,12 +183,13 @@ private:
     // those leases, not just the visible descriptor table.
     std::vector<std::pair<int, std::weak_ptr<File>>> file_leases;
     std::shared_ptr<File> AcquireFile(int fd);
+    IoResult PositionedFile(std::shared_ptr<File> lease, int fd, std::span<const Buffer> buffers, s64 offset, bool write);
     bool HasFileLease(int slot);
     IoObserver io_observer{};
     std::array<std::mutex, 3> stdio_mutex;
     std::array<std::unique_ptr<Core::Devices::Logger>, 3> stdio;
     std::filesystem::path temporary_root;
-    int next_fd{3};
+    std::shared_ptr<GuestDescriptorIds> descriptor_ids;
     Save* Find(std::string_view point);
     Parent Resolve(std::string_view path, bool write, bool allow_root = false);
     int CheckGrowth(const File& file, u64 old_size, u64 end);

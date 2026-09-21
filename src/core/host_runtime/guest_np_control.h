@@ -12,6 +12,8 @@
 
 namespace Core::HostRuntime {
 inline constexpr std::string_view NpControlNids[]{
+    "0c7HbXRKUt4", // sceNpRegisterStateCallbackForToolkit
+    "YIvqqvJyjEc", // sceNpUnregisterStateCallbackForToolkit
     "GpLQDNKICac", // sceNpCreateRequest
     "eiqMCt9UshI", // sceNpCreateAsyncRequest
     "2rsFmlGWleQ", // sceNpCheckNpAvailability
@@ -42,11 +44,11 @@ class GuestNpControl {
     using Space = GuestCpu::GuestAddressSpace;
     std::mutex mutex, event_mutex, native_calls;
     std::set<s32> requests;
-    struct Slot { u64 function{}, argument{}, revision{}; } state, plus, presence;
+    struct Slot { u64 function{}, argument{}, revision{}; } state, toolkit, plus, presence;
     u64 next_revision{1};
     bool checking{};
 public:
-    struct Callback { u64 function, argument, revision; s32 user; u32 state; bool unsupported_identity; };
+    struct Callback { u64 function, argument, revision; s32 user; u32 state; bool unsupported_identity; bool toolkit{}; };
 private:
     std::vector<Callback> events;
     static void PS4_SYSV_ABI State(s32 user, Libraries::Np::NpManager::OrbisNpState value,
@@ -57,6 +59,14 @@ private:
             self.events.push_back({self.state.function,self.state.argument,self.state.revision,
                                    user,u32(value),identity != nullptr});
     }
+    static void PS4_SYSV_ABI Toolkit(s32 user, Libraries::Np::NpManager::OrbisNpState value,
+                                     void* opaque) {
+        auto& self = *static_cast<GuestNpControl*>(opaque);
+        std::scoped_lock lock(self.mutex, self.event_mutex);
+        if (self.toolkit.function)
+            self.events.push_back({self.toolkit.function, self.toolkit.argument,
+                                   self.toolkit.revision, user, u32(value), false, true});
+    }
     static void PS4_SYSV_ABI Plus(s32, s32, void*) {} // desktop has no offline event producer
     static void PS4_SYSV_ABI Presence(const Libraries::Np::OrbisNpOnlineId*, void*) {}
 public:
@@ -64,6 +74,7 @@ public:
         using namespace Libraries::Np::NpManager;
         // Runtime joins all guest/callback owners before destroying the domain.
         if (state.function) sceNpUnregisterStateCallback();
+        if (toolkit.function) sceNpUnregisterStateCallbackForToolkit();
         if (plus.function) sceNpUnregisterPlusEventCallback();
         if (presence.function) sceNpRegisterGamePresenceCallback(nullptr,nullptr);
         for (const auto id : requests) sceNpDeleteRequest(id);
@@ -75,7 +86,7 @@ public:
         std::lock_guard lock(event_mutex);
         std::vector<Callback> out; out.swap(events); return out;
     }
-    bool IsCurrent(const Callback& cb) { std::lock_guard lock(mutex); return state.function==cb.function && state.revision==cb.revision; }
+    bool IsCurrent(const Callback& cb) { std::lock_guard lock(mutex); const auto& slot = cb.toolkit ? toolkit : state; return slot.function==cb.function && slot.revision==cb.revision; }
     void EndCallbacks() { std::lock_guard lock(mutex); checking=false; }
     u32 Dispatch(Space& space, std::string_view nid, const std::array<u64,6>& a) {
         using namespace GuestCpu;
@@ -98,20 +109,21 @@ public:
             if (result>0) requests.insert(result);
             return u32(result);
         }
-        if (nid=="VfRSmPmj8Q8" || nid=="GImICnh+boA" || nid=="uFJpaKNBAj4") {
+        if (nid=="VfRSmPmj8Q8" || nid=="GImICnh+boA" || nid=="uFJpaKNBAj4" || nid=="0c7HbXRKUt4") {
             if (!a[0] || !space.ValidateRange({GuestAddress{a[0]},1},GuestPermission::Execute)) return bad;
-            Slot* slot = nid=="VfRSmPmj8Q8" ? &state : nid=="GImICnh+boA" ? &plus : &presence;
+            Slot* slot = nid=="VfRSmPmj8Q8" ? &state : nid=="0c7HbXRKUt4" ? &toolkit : nid=="GImICnh+boA" ? &plus : &presence;
             s32 result=0;
             if (slot==&state) result=sceNpRegisterStateCallback(State,this);
+            else if (slot==&toolkit) result=sceNpRegisterStateCallbackForToolkit(Toolkit,this);
             else if (slot==&plus) result=sceNpRegisterPlusEventCallback(Plus,this);
             else sceNpRegisterGamePresenceCallback(Presence,this);
             if (!result) *slot={a[0],a[1],next_revision++};
             return u32(result);
         }
-        if (nid=="mjjTXh+NHWY" || nid=="xViqJdDgKl0") {
-            Slot* slot=nid=="mjjTXh+NHWY" ? &state : &plus;
+        if (nid=="mjjTXh+NHWY" || nid=="xViqJdDgKl0" || nid=="YIvqqvJyjEc") {
+            Slot* slot=nid=="mjjTXh+NHWY" ? &state : nid=="YIvqqvJyjEc" ? &toolkit : &plus;
             if (!slot->function) return u32(ORBIS_NP_ERROR_CALLBACK_NOT_REGISTERED);
-            s32 result=slot==&state ? sceNpUnregisterStateCallback() : sceNpUnregisterPlusEventCallback();
+            s32 result=slot==&state ? sceNpUnregisterStateCallback() : slot==&toolkit ? sceNpUnregisterStateCallbackForToolkit() : sceNpUnregisterPlusEventCallback();
             if (!result) *slot={};
             return u32(result);
         }

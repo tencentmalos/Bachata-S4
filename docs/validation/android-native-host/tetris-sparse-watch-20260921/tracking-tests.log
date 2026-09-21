@@ -1,0 +1,4 @@
+/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/tetris-render-20260921/tracking-tests/futex_mutex_tests: 1 file pushed, 0 skipped. 515.9 MB/s (2722520 bytes in 0.005s)
+checks=14 failures=0 increment_pairs=160000 spin_wait_cpu_ms=637.564 futex_wait_cpu_ms=0.259
+/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/tetris-render-20260921/tracking-tests/memory_tracker_concurrency_tests: 1 file pushed, 0 skipped. 492.4 MB/s (2837176 bytes in 0.005s)
+checks=53 failures=0 region_bytes=262144 directory_object_bytes=2097256

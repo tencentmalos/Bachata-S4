@@ -439,6 +439,7 @@ struct GPUSettings {
     Setting<u32> fdm_quality{2};
     Setting<float> internal_scale_percent{100.f};
     Setting<std::string> texture_quality{"high"};
+    Setting<bool> force_disable_msaa{false};
     // TODO add overrides
     std::vector<OverrideItem> GetOverrideableFields() const {
         return std::vector<OverrideItem>{
@@ -456,6 +457,7 @@ struct GPUSettings {
             make_override<GPUSettings>("fdm_quality", &GPUSettings::fdm_quality),
             make_override<GPUSettings>("internal_scale_percent", &GPUSettings::internal_scale_percent),
             make_override<GPUSettings>("texture_quality", &GPUSettings::texture_quality),
+            make_override<GPUSettings>("force_disable_msaa", &GPUSettings::force_disable_msaa),
             make_override<GPUSettings>("dump_shaders", &GPUSettings::dump_shaders),
             make_override<GPUSettings>("patch_shaders", &GPUSettings::patch_shaders),
             make_override<GPUSettings>("readbacks_mode", &GPUSettings::readbacks_mode),
@@ -473,7 +475,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(GPUSettings, window_width, window_height, int
                                    direct_memory_access_enabled, dump_shaders, patch_shaders,
                                    vblank_frequency, full_screen, full_screen_mode, present_mode,
                                    hdr_allowed, fsr_enabled, rcas_enabled, rcas_attenuation,
-                                   fdm_quality, internal_scale_percent, texture_quality)
+                                   fdm_quality, internal_scale_percent, texture_quality, force_disable_msaa)
 // -------------------------------
 // Vulkan settings
 // -------------------------------
@@ -574,6 +576,7 @@ private:
     std::atomic<u32> m_guest_shading_quality{3};
     std::atomic<float> m_internal_scale_percent{0.f};
     std::atomic<u32> m_texture_quality{3};
+    std::atomic<int> m_force_disable_msaa{-1};
     GeneralSettings m_general{};
     LogSettings m_log{};
     DebugSettings m_debug{};
@@ -776,6 +779,16 @@ public:
     }
     void SetTextureQuality(u32 value) {
         m_texture_quality.store(value <= 2 ? value : 0, std::memory_order_relaxed);
+    }
+
+    SETTING_FORWARD(m_gpu, ConfiguredForceDisableMsaa, force_disable_msaa)
+    bool IsMsaaDisabled() const {
+        const auto value = m_force_disable_msaa.load(std::memory_order_relaxed);
+        return value < 0 ? GetConfiguredForceDisableMsaa() : value != 0;
+    }
+    // Captured by Vulkan::Instance before rendering; profiles own persistence.
+    void SetMsaaDisabled(bool value) {
+        m_force_disable_msaa.store(value, std::memory_order_relaxed);
     }
 
     u32 GetGuestShadingQuality() const {

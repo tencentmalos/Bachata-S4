@@ -1,0 +1,761 @@
+{
+  "succeeded": true,
+  "dryRun": false,
+  "session": {
+    "sessionId": "gdbg_68c26700df40423e8a45e3137e9527c3",
+    "revision": 5,
+    "state": "stopped",
+    "sessionState": "active",
+    "hostProcessState": "unknown",
+    "nativeTargetState": "unbound",
+    "guestTargetState": "stopped",
+    "guestTransportState": "connected",
+    "controlOwner": "guest",
+    "emulator": "shadps4-FEX",
+    "transport": "adb_forward_tcp",
+    "host": "127.0.0.1",
+    "port": 24691,
+    "serial": "9c2841a4",
+    "remotePort": 24691,
+    "ownsAdbForward": true,
+    "ownershipReleased": false,
+    "nativeSessionId": "",
+    "hostPid": 0,
+    "hostStartTimeTicks": 0,
+    "emulatedProcessId": "",
+    "programId": "",
+    "mainBuildId": "",
+    "gdbServerInstanceId": "",
+    "registryGeneration": 0,
+    "preAttachState": "unknown",
+    "transientAttachStop": false,
+    "attachStopEpoch": 0,
+    "resumedAfterAttach": false,
+    "preAttachPausePreserved": false,
+    "architecture": "i386:x86-64",
+    "byteOrder": "little",
+    "supportedFeatures": [
+      "PacketSize=2000",
+      "qXfer:features:read+",
+      "qXfer:threads:read+",
+      "qXfer:libraries:read+",
+      "QStartNoAckMode+",
+      "swbreak+",
+      "qXfer:shadps4-mixed-stack:read+"
+    ],
+    "registerDefinitions": [
+      {
+        "number": 0,
+        "name": "rax",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 1,
+        "name": "rbx",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 2,
+        "name": "rcx",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 3,
+        "name": "rdx",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 4,
+        "name": "rsi",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 5,
+        "name": "rdi",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 6,
+        "name": "rbp",
+        "bitSize": 64,
+        "type": "data_ptr",
+        "group": "general",
+        "generic": "fp"
+      },
+      {
+        "number": 7,
+        "name": "rsp",
+        "bitSize": 64,
+        "type": "data_ptr",
+        "group": "general",
+        "generic": "sp"
+      },
+      {
+        "number": 8,
+        "name": "r8",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 9,
+        "name": "r9",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 10,
+        "name": "r10",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 11,
+        "name": "r11",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 12,
+        "name": "r12",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 13,
+        "name": "r13",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 14,
+        "name": "r14",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 15,
+        "name": "r15",
+        "bitSize": 64,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 16,
+        "name": "rip",
+        "bitSize": 64,
+        "type": "code_ptr",
+        "group": "general",
+        "generic": "pc"
+      },
+      {
+        "number": 17,
+        "name": "eflags",
+        "bitSize": 32,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 18,
+        "name": "cs",
+        "bitSize": 32,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 19,
+        "name": "ss",
+        "bitSize": 32,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 20,
+        "name": "ds",
+        "bitSize": 32,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 21,
+        "name": "es",
+        "bitSize": 32,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 22,
+        "name": "fs",
+        "bitSize": 32,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 23,
+        "name": "gs",
+        "bitSize": 32,
+        "type": "",
+        "group": "general",
+        "generic": ""
+      },
+      {
+        "number": 24,
+        "name": "st0",
+        "bitSize": 80,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 25,
+        "name": "st1",
+        "bitSize": 80,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 26,
+        "name": "st2",
+        "bitSize": 80,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 27,
+        "name": "st3",
+        "bitSize": 80,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 28,
+        "name": "st4",
+        "bitSize": 80,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 29,
+        "name": "st5",
+        "bitSize": 80,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 30,
+        "name": "st6",
+        "bitSize": 80,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 31,
+        "name": "st7",
+        "bitSize": 80,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 32,
+        "name": "fctrl",
+        "bitSize": 32,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 33,
+        "name": "fstat",
+        "bitSize": 32,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 34,
+        "name": "ftag",
+        "bitSize": 32,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 35,
+        "name": "fiseg",
+        "bitSize": 32,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 36,
+        "name": "fioff",
+        "bitSize": 32,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 37,
+        "name": "foseg",
+        "bitSize": 32,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 38,
+        "name": "fooff",
+        "bitSize": 32,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 39,
+        "name": "fop",
+        "bitSize": 32,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 40,
+        "name": "xmm0",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 41,
+        "name": "xmm1",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 42,
+        "name": "xmm2",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 43,
+        "name": "xmm3",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 44,
+        "name": "xmm4",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 45,
+        "name": "xmm5",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 46,
+        "name": "xmm6",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 47,
+        "name": "xmm7",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 48,
+        "name": "xmm8",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 49,
+        "name": "xmm9",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 50,
+        "name": "xmm10",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 51,
+        "name": "xmm11",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 52,
+        "name": "xmm12",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 53,
+        "name": "xmm13",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 54,
+        "name": "xmm14",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 55,
+        "name": "xmm15",
+        "bitSize": 128,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 56,
+        "name": "mxcsr",
+        "bitSize": 32,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 57,
+        "name": "fs_base",
+        "bitSize": 64,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      },
+      {
+        "number": 58,
+        "name": "gs_base",
+        "bitSize": 64,
+        "type": "",
+        "group": "float",
+        "generic": ""
+      }
+    ],
+    "stopEpoch": 2,
+    "stopReason": "signal_05",
+    "stoppedThreadId": "1",
+    "latestEventCursor": 4,
+    "stopLeaseMs": 60000,
+    "stopLeaseDeadlineUtc": "2026-09-21T03:09:59.379747+00:00",
+    "breakpoints": [],
+    "createdUtc": "2026-09-21T03:07:46.442565+00:00",
+    "updatedUtc": "2026-09-21T03:08:58.937981+00:00",
+    "errorCode": "",
+    "errorMessage": ""
+  },
+  "events": [],
+  "threads": [
+    {
+      "id": "1",
+      "name": "hle-boundary-read-only guest=1 host=3740 gen=2 snapshot=HleBoundary epoch=27 invocation=6 hle-op=392",
+      "core": "",
+      "state": "Waiting",
+      "stepEligible": false
+    },
+    {
+      "id": "2",
+      "name": "hle-boundary-read-only guest=2 host=3771 gen=3 snapshot=HleBoundary epoch=1 invocation=1 hle-op=656",
+      "core": "",
+      "state": "Waiting",
+      "stepEligible": false
+    },
+    {
+      "id": "3",
+      "name": "hle-boundary-read-only guest=3 host=3772 gen=4 snapshot=HleBoundary epoch=1 invocation=1 hle-op=656",
+      "core": "",
+      "state": "Waiting",
+      "stepEligible": false
+    },
+    {
+      "id": "4",
+      "name": "hle-boundary-read-only guest=4 host=3773 gen=5 snapshot=HleBoundary epoch=1 invocation=1 hle-op=656",
+      "core": "",
+      "state": "Waiting",
+      "stepEligible": false
+    },
+    {
+      "id": "5",
+      "name": "hle-boundary-read-only guest=5 host=3775 gen=6 snapshot=HleBoundary epoch=1 invocation=1 hle-op=392",
+      "core": "",
+      "state": "Waiting",
+      "stepEligible": false
+    },
+    {
+      "id": "6",
+      "name": "hle-boundary-read-only guest=6 host=3776 gen=7 snapshot=HleBoundary epoch=1 invocation=1 hle-op=392",
+      "core": "",
+      "state": "Waiting",
+      "stepEligible": false
+    },
+    {
+      "id": "7",
+      "name": "hle-boundary-read-only guest=7 host=3777 gen=8 snapshot=HleBoundary epoch=1 invocation=1 hle-op=392",
+      "core": "",
+      "state": "Waiting",
+      "stepEligible": false
+    },
+    {
+      "id": "8",
+      "name": "hle-boundary-read-only guest=8 host=3778 gen=9 snapshot=HleBoundary epoch=1 invocation=1 hle-op=392",
+      "core": "",
+      "state": "Waiting",
+      "stepEligible": false
+    },
+    {
+      "id": "9",
+      "name": "hle-boundary-read-only guest=9 host=3779 gen=10 snapshot=HleBoundary epoch=1 invocation=1 hle-op=392",
+      "core": "",
+      "state": "Waiting",
+      "stepEligible": false
+    },
+    {
+      "id": "a",
+      "name": "hle-boundary-read-only guest=10 host=3780 gen=11 snapshot=HleBoundary epoch=1 invocation=1 hle-op=392",
+      "core": "",
+      "state": "Waiting",
+      "stepEligible": false
+    },
+    {
+      "id": "b",
+      "name": "hle-boundary-read-only guest=11 host=3781 gen=12 snapshot=HleBoundary epoch=1 invocation=1 hle-op=392",
+      "core": "",
+      "state": "Waiting",
+      "stepEligible": false
+    },
+    {
+      "id": "c",
+      "name": "hle-boundary-read-only guest=12 host=3782 gen=13 snapshot=HleBoundary epoch=1 invocation=1 hle-op=392",
+      "core": "",
+      "state": "Waiting",
+      "stepEligible": false
+    },
+    {
+      "id": "d",
+      "name": "hle-boundary-read-only guest=13 host=3783 gen=14 snapshot=HleBoundary epoch=1 invocation=1 hle-op=392",
+      "core": "",
+      "state": "Waiting",
+      "stepEligible": false
+    },
+    {
+      "id": "e",
+      "name": "hle-boundary-read-only guest=14 host=3784 gen=15 snapshot=HleBoundary epoch=1 invocation=1 hle-op=392",
+      "core": "",
+      "state": "Waiting",
+      "stepEligible": false
+    },
+    {
+      "id": "f",
+      "name": "hle-boundary-read-only guest=15 host=3785 gen=16 snapshot=HleBoundary epoch=1 invocation=1 hle-op=392",
+      "core": "",
+      "state": "Waiting",
+      "stepEligible": false
+    },
+    {
+      "id": "10",
+      "name": "hle-boundary-read-only guest=16 host=3786 gen=17 snapshot=HleBoundary epoch=1 invocation=1 hle-op=392",
+      "core": "",
+      "state": "Waiting",
+      "stepEligible": false
+    },
+    {
+      "id": "11",
+      "name": "hle-boundary-read-only guest=17 host=3788 gen=18 snapshot=HleBoundary epoch=1 invocation=1 hle-op=392",
+      "core": "",
+      "state": "Waiting",
+      "stepEligible": false
+    },
+    {
+      "id": "12",
+      "name": "hle-boundary-read-only guest=18 host=3789 gen=19 snapshot=HleBoundary epoch=1 invocation=1 hle-op=392",
+      "core": "",
+      "state": "Waiting",
+      "stepEligible": false
+    },
+    {
+      "id": "13",
+      "name": "hle-boundary-read-only guest=19 host=3790 gen=20 snapshot=HleBoundary epoch=1 invocation=1 hle-op=392",
+      "core": "",
+      "state": "Waiting",
+      "stepEligible": false
+    },
+    {
+      "id": "14",
+      "name": "hle-boundary-read-only guest=20 host=3791 gen=21 snapshot=HleBoundary epoch=1 invocation=1 hle-op=392",
+      "core": "",
+      "state": "Waiting",
+      "stepEligible": false
+    },
+    {
+      "id": "15",
+      "name": "hle-boundary-read-only guest=21 host=3792 gen=22 snapshot=HleBoundary epoch=1 invocation=1 hle-op=392",
+      "core": "",
+      "state": "Waiting",
+      "stepEligible": false
+    },
+    {
+      "id": "16",
+      "name": "hle-boundary-read-only guest=22 host=3793 gen=23 snapshot=HleBoundary epoch=1 invocation=1 hle-op=392",
+      "core": "",
+      "state": "Waiting",
+      "stepEligible": false
+    },
+    {
+      "id": "17",
+      "name": "guest-stopped guest=23 host=3802 gen=24 snapshot=SafePoint epoch=3 invocation=1",
+      "core": "",
+      "state": "Runnable",
+      "stepEligible": true
+    },
+    {
+      "id": "1a",
+      "name": "ready guest=26 host=3805 gen=27 snapshot=SafePoint epoch=2 invocation=1",
+      "core": "",
+      "state": "Waiting",
+      "stepEligible": false
+    },
+    {
+      "id": "1d",
+      "name": "guest-stopped guest=29 host=3808 gen=30 snapshot=SafePoint epoch=3 invocation=1",
+      "core": "",
+      "state": "Runnable",
+      "stepEligible": true
+    },
+    {
+      "id": "1e",
+      "name": "guest-stopped guest=30 host=3809 gen=31 snapshot=SafePoint epoch=3 invocation=1",
+      "core": "",
+      "state": "Runnable",
+      "stepEligible": true
+    },
+    {
+      "id": "1f",
+      "name": "hle-boundary-read-only guest=31 host=3811 gen=32 snapshot=HleBoundary epoch=1 invocation=1 hle-op=634",
+      "core": "",
+      "state": "Waiting",
+      "stepEligible": false
+    },
+    {
+      "id": "20",
+      "name": "hle-boundary-read-only guest=32 host=3812 gen=33 snapshot=HleBoundary epoch=1 invocation=1 hle-op=392",
+      "core": "",
+      "state": "Waiting",
+      "stepEligible": false
+    },
+    {
+      "id": "21",
+      "name": "hle-boundary-read-only guest=33 host=3813 gen=34 snapshot=HleBoundary epoch=1 invocation=1 hle-op=392",
+      "core": "",
+      "state": "Waiting",
+      "stepEligible": false
+    },
+    {
+      "id": "22",
+      "name": "hle-boundary-read-only guest=34 host=3814 gen=35 snapshot=HleBoundary epoch=1 invocation=1 hle-op=634",
+      "core": "",
+      "state": "Waiting",
+      "stepEligible": false
+    },
+    {
+      "id": "23",
+      "name": "hle-boundary-read-only guest=35 host=3815 gen=36 snapshot=HleBoundary epoch=1 invocation=1 hle-op=392",
+      "core": "",
+      "state": "Waiting",
+      "stepEligible": false
+    }
+  ],
+  "modules": [],
+  "registers": [],
+  "addressProofs": [],
+  "timedOut": false,
+  "ownershipReleased": false,
+  "alreadyCleaned": false,
+  "warnings": [],
+  "errorCode": "",
+  "errorMessage": ""
+}

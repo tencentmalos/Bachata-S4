@@ -1,0 +1,222 @@
+{
+  "schema": "shadps4.guest-functions.recipe.v1",
+  "abi": "x86_64-sysv",
+  "title": "CUSA12878",
+  "module": "eboot.bin",
+  "module_sha256": "9ac1745407a97af986d5f6dfe246a7c0d695857f4049d7d717f896ed219778cf",
+  "executable_sha256": "9ac1745407a97af986d5f6dfe246a7c0d695857f4049d7d717f896ed219778cf",
+  "id": "beatsaber_vr_call_diagnostic_v5",
+  "sources": [
+    "vr_call_diagnostic.cpp"
+  ],
+  "hooks": [
+    {
+      "name": "HmdInfo",
+      "offset": 19162752,
+      "expected": "ff255a242900",
+      "replacement": "patch_HmdInfo",
+      "original": "original_HmdInfo",
+      "prototype": "int original_HmdInfo(void* out)",
+      "evidence": "Exact eboot PLT relocation and shared HLE declarations in hmd.h/vr_tracker.h/camera.h. Scalar arguments and original return forwarded; fixed records copied only after successful checked HLE. Tracker output prefix is 0x1d0 of the current 0x5f0 bridge ABI, raw bytes retained; not an assertion of firmware completeness."
+    },
+    {
+      "name": "HmdInfoHandle",
+      "offset": 19162480,
+      "expected": "ff25e2242900",
+      "replacement": "patch_HmdInfoHandle",
+      "original": "original_HmdInfoHandle",
+      "prototype": "int original_HmdInfoHandle(int handle, void* out)",
+      "evidence": "Exact eboot PLT relocation and shared HLE declarations in hmd.h/vr_tracker.h/camera.h. Scalar arguments and original return forwarded; fixed records copied only after successful checked HLE. Tracker output prefix is 0x1d0 of the current 0x5f0 bridge ABI, raw bytes retained; not an assertion of firmware completeness."
+    },
+    {
+      "name": "HmdOpen",
+      "offset": 19162400,
+      "expected": "ff250a252900",
+      "replacement": "patch_HmdOpen",
+      "original": "original_HmdOpen",
+      "prototype": "int original_HmdOpen(int user, int type, int index, void* param)",
+      "evidence": "Exact eboot PLT relocation and shared HLE declarations in hmd.h/vr_tracker.h/camera.h. Scalar arguments and original return forwarded; fixed records copied only after successful checked HLE. Tracker output prefix is 0x1d0 of the current 0x5f0 bridge ABI, raw bytes retained; not an assertion of firmware completeness."
+    },
+    {
+      "name": "HmdFov",
+      "offset": 19163152,
+      "expected": "ff2592232900",
+      "replacement": "patch_HmdFov",
+      "original": "original_HmdFov",
+      "prototype": "int original_HmdFov(int handle, void* out)",
+      "evidence": "Exact eboot PLT relocation and shared HLE declarations in hmd.h/vr_tracker.h/camera.h. Scalar arguments and original return forwarded; fixed records copied only after successful checked HLE. Tracker output prefix is 0x1d0 of the current 0x5f0 bridge ABI, raw bytes retained; not an assertion of firmware completeness."
+    },
+    {
+      "name": "TrackerRegister",
+      "offset": 19163648,
+      "expected": "ff259a222900",
+      "replacement": "patch_TrackerRegister",
+      "original": "original_TrackerRegister",
+      "prototype": "int original_TrackerRegister(int type, int handle)",
+      "evidence": "Exact eboot PLT relocation and shared HLE declarations in hmd.h/vr_tracker.h/camera.h. Scalar arguments and original return forwarded; fixed records copied only after successful checked HLE. Tracker output prefix is 0x1d0 of the current 0x5f0 bridge ABI, raw bytes retained; not an assertion of firmware completeness."
+    },
+    {
+      "name": "TrackerResult",
+      "offset": 19163520,
+      "expected": "ff25da222900",
+      "replacement": "patch_TrackerResult",
+      "original": "original_TrackerResult",
+      "prototype": "int original_TrackerResult(const void* param, void* out)",
+      "evidence": "Exact eboot PLT relocation and shared HLE declarations in hmd.h/vr_tracker.h/camera.h. Scalar arguments and original return forwarded; fixed records copied only after successful checked HLE. Tracker output prefix is 0x1d0 of the current 0x5f0 bridge ABI, raw bytes retained; not an assertion of firmware completeness."
+    },
+    {
+      "name": "ReprojectionInit",
+      "offset": 19162640,
+      "expected": "ff2592242900",
+      "replacement": "patch_ReprojectionInit",
+      "original": "original_ReprojectionInit",
+      "prototype": "int original_ReprojectionInit(const void* param, unsigned int mode, const void* reserved)",
+      "evidence": "Exact eboot PLT relocation and shared HLE declarations in hmd.h/vr_tracker.h/camera.h. Scalar arguments and original return forwarded; fixed records copied only after successful checked HLE. Tracker output prefix is 0x1d0 of the current 0x5f0 bridge ABI, raw bytes retained; not an assertion of firmware completeness."
+    },
+    {
+      "name": "DisplayBuffers",
+      "offset": 19162528,
+      "expected": "ff25ca242900",
+      "replacement": "patch_DisplayBuffers",
+      "original": "original_DisplayBuffers",
+      "prototype": "int original_DisplayBuffers(int handle, int index0, int index1, const void* reserved)",
+      "evidence": "Exact eboot PLT relocation and shared HLE declarations in hmd.h/vr_tracker.h/camera.h. Scalar arguments and original return forwarded; fixed records copied only after successful checked HLE. Tracker output prefix is 0x1d0 of the current 0x5f0 bridge ABI, raw bytes retained; not an assertion of firmware completeness."
+    },
+    {
+      "name": "ReprojectionSubmit",
+      "offset": 19162672,
+      "expected": "ff2582242900",
+      "replacement": "patch_ReprojectionSubmit",
+      "original": "original_ReprojectionSubmit",
+      "prototype": "int original_ReprojectionSubmit(const void* layers, unsigned int count, const void* submission, const void* shared, shad_u64 frame, const void* reserved)",
+      "evidence": "Exact eboot PLT relocation and shared HLE declarations in hmd.h/vr_tracker.h/camera.h. Scalar arguments and original return forwarded; fixed records copied only after successful checked HLE. Tracker output prefix is 0x1d0 of the current 0x5f0 bridge ABI, raw bytes retained; not an assertion of firmware completeness."
+    },
+    {
+      "name": "CameraFrame",
+      "offset": 19163696,
+      "expected": "ff2582222900",
+      "replacement": "patch_CameraFrame",
+      "original": "original_CameraFrame",
+      "prototype": "int original_CameraFrame(int handle, void* out)",
+      "evidence": "Exact eboot PLT relocation and shared HLE declarations in hmd.h/vr_tracker.h/camera.h. Scalar arguments and original return forwarded; fixed records copied only after successful checked HLE. Tracker output prefix is 0x1d0 of the current 0x5f0 bridge ABI, raw bytes retained; not an assertion of firmware completeness."
+    },
+    {
+      "name": "UnityVR_SelectDevice",
+      "offset": 10221792,
+      "expected": "554889e54157415641554154534881ec",
+      "replacement": "patch_UnityVR_SelectDevice",
+      "original": "original_UnityVR_SelectDevice",
+      "prototype": "shad_u64 original_UnityVR_SelectDevice(void* manager, const void* names, unsigned int initialize)",
+      "evidence": "\u7cbe\u786e SELF/ELF \u5bf9\u5e94\uff1bET_DYN \u5206\u6790\u526f\u672c\u4ec5\u4fee\u6539 ELF e_type\u3002study0 \u786e\u8ba4\u51fd\u6570\u8fb9\u754c\uff0c\u5165\u53e3\u540e 16 \u5b57\u8282\u5185\u65e0\u7d22\u5f15\u8df3\u5165\u5f15\u7528\u3002\u540d\u79f0\u6765\u81ea PSVR managed icall \u6ce8\u518c\u5b57\u7b26\u4e32\u6216\u8bbe\u5907\u6ce8\u518c/\u9009\u62e9\u6d41\u7a0b\uff1b\u672a\u77e5 C ABI\uff0c\u4f7f\u7528\u4fdd\u7559\u673a\u5668\u72b6\u6001\u7684\u5165\u53e3\u89c2\u5bdf\uff0c\u4e0d\u58f0\u660e\u51fd\u6570\u4f53\u91cd\u7f16\u8bd1\u3002 SelectDevice \u5165\u53e3 0x9bf8fb \u4fdd\u5b58 EDX\u30010x9bf901/904 \u4fdd\u5b58 RDI/RSI\uff0c\u65e0\u8f93\u5165 SIMD \u53c2\u6570\uff1b\u539f\u51fd\u6570\u8fd4\u56de RAX \u4f4d\u6a21\u5f0f\u539f\u6837\u8f6c\u53d1\u3002\u53ea\u5728\u7cbe\u786e [None,PlayStationVR] \u5217\u8868\u4e0a\u7528\u6808\u5185\u526f\u672c\u8c03\u6362\u4f18\u5148\u7ea7\uff1b\u4e0d\u6539\u539f\u59cb\u5217\u8868\uff0c\u4e0d\u6539\u8fd4\u56de\u7801\u3002\u8bca\u65ad\u5b9e\u9a8c\uff0c\u4e0d\u662f\u901a\u7528\u521d\u59cb\u5316\u4fee\u590d\u3002 Diagnostic v4 records pre/post manager bytes and selected name; source has an explicit preference experiment switch."
+    },
+    {
+      "name": "UnityLog",
+      "offset": 5072192,
+      "expected": "554889e54157415641554154534881",
+      "mode": "entry-observer-x86_64-avx",
+      "replacement": "patch_UnityLog",
+      "original": "original_UnityLog",
+      "observer": "observe_UnityLog",
+      "prototype": "opaque-machine-entry",
+      "evidence": "study0 exact function boundary and entry bytes. AVX machine-state-preserving entry observer, no guessed typed forwarding. Unity log record message/stack pointers established by 0x4d6090 and 0x4d6540 pseudocode; bounded text read."
+    },
+    {
+      "name": "CreateEyeTextures",
+      "offset": 14074880,
+      "expected": "554889e54157415641554154534881",
+      "mode": "entry-observer-x86_64-avx",
+      "replacement": "patch_CreateEyeTextures",
+      "original": "original_CreateEyeTextures",
+      "observer": "observe_CreateEyeTextures",
+      "prototype": "opaque-machine-entry",
+      "evidence": "study0 exact function boundary and entry bytes. AVX machine-state-preserving entry observer, no guessed typed forwarding. Unity log record message/stack pointers established by 0x4d6090 and 0x4d6540 pseudocode; bounded text read."
+    },
+    {
+      "name": "InitializePsvr",
+      "offset": 14087824,
+      "expected": "554889e54157415641554154534883",
+      "mode": "entry-observer-x86_64-avx",
+      "replacement": "patch_InitializePsvr",
+      "original": "original_InitializePsvr",
+      "observer": "observe_InitializePsvr",
+      "prototype": "opaque-machine-entry",
+      "evidence": "study0 exact function boundary and entry bytes. AVX machine-state-preserving entry observer, no guessed typed forwarding. Unity log record message/stack pointers established by 0x4d6090 and 0x4d6540 pseudocode; bounded text read."
+    },
+    {
+      "name": "LoadStartModule",
+      "offset": 19164400,
+      "expected": "ff2522212900",
+      "replacement": "patch_LoadStartModule",
+      "original": "original_LoadStartModule",
+      "prototype": "int original_LoadStartModule(const char* path, shad_u64 bytes, const void* args, unsigned int flags, const void* option, int* result)",
+      "evidence": "Exact eboot PLT relocation decoded from SELF-matched ELF. Prototype matches checked guest_runtime handlers and desktop module ABI. Log original input path/symbol plus original return; no forced success or output writes."
+    },
+    {
+      "name": "Dlsym",
+      "offset": 19167360,
+      "expected": "ff255a1b2900",
+      "replacement": "patch_Dlsym",
+      "original": "original_Dlsym",
+      "prototype": "int original_Dlsym(int handle, const char* name, void** out)",
+      "evidence": "Exact eboot PLT relocation decoded from SELF-matched ELF. Prototype matches checked guest_runtime handlers and desktop module ABI. Log original input path/symbol plus original return; no forced success or output writes."
+    }
+  ],
+  "logs": [
+    {
+      "id": 1,
+      "name": "Call"
+    },
+    {
+      "id": 2,
+      "name": "Sequence"
+    },
+    {
+      "id": 3,
+      "name": "Phase"
+    },
+    {
+      "id": 4,
+      "name": "Return"
+    },
+    {
+      "id": 5,
+      "name": "Arg0"
+    },
+    {
+      "id": 6,
+      "name": "Arg1"
+    },
+    {
+      "id": 7,
+      "name": "Arg2"
+    },
+    {
+      "id": 8,
+      "name": "Arg3"
+    },
+    {
+      "id": 9,
+      "name": "Arg4"
+    },
+    {
+      "id": 10,
+      "name": "Arg5"
+    },
+    {
+      "id": 11,
+      "name": "Block"
+    },
+    {
+      "id": 12,
+      "name": "ByteCount"
+    },
+    {
+      "id": 13,
+      "name": "Word"
+    },
+    {
+      "id": 14,
+      "name": "End"
+    }
+  ]
+}

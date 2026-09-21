@@ -1,0 +1,16 @@
+{
+  "pid": 9886,
+  "tracer_pid": "0",
+  "services": "ACTIVITY MANAGER SERVICES (dumpsys activity services)\n  (nothing)",
+  "adb_forward_list": "",
+  "properties": {
+    "debug.shadps4.guest_debug_port": "0",
+    "debug.shadps4.guest_debug_wait": "0",
+    "debug.shadps4.guest_patch": "",
+    "debug.shadps4.guest_auto_tag": ""
+  },
+  "settings_unchanged": {
+    "global": true,
+    "host-config": true
+  }
+}

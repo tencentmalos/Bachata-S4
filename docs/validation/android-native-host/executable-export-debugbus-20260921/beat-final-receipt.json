@@ -1,0 +1,14 @@
+{
+  "context_id": 0,
+  "directory": "/data/user/0/com.shadps4.android/files/host/log/executable-exports/9aa52924fa90c1bd34e3433e4fe5bdc6",
+  "exported_files": 18,
+  "manifest": "/data/user/0/com.shadps4.android/files/host/log/executable-exports/9aa52924fa90c1bd34e3433e4fe5bdc6/manifest.json",
+  "manifest_sha256": "941b30ed0b50b4d5d2e88aa303d4af5f19356e332046608bc977865ae29922df",
+  "output_bytes": 138031499,
+  "request_id": "9aa52924fa90c1bd34e3433e4fe5bdc6",
+  "scanned_files": 128,
+  "schema": 1,
+  "source": "/data/user/0/com.shadps4.android/files/games/CUSA12878",
+  "state": "ready",
+  "warnings": 1
+}

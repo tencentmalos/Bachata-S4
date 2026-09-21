@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-21",
+  "git_head": "63b6d560dd43af031ec7a5de64ae6204beea5de2",
+  "branch": "feature/malos/beat_saber_fix",
+  "working_tree": "uncommitted; includes prior PSVR work",
+  "device": "AYN Thor 9c2841a4",
+  "live_capture_apk": "acda2879e90446a28f6fd77ef11b66071041f3a2026341c0e043821ef2dd0a64",
+  "final_calibration_apk": "6ae68ead168dd6319241a8c6aad05c1e0a71743e8e0cac7570efbb753b1f3e53",
+  "final_apk_validation": "native test 90/0; packaging and installed APK SHA verified; Library only, no new game run after layout-field naming change",
+  "files": [
+    {
+      "name": "beat-complete-hmd.json",
+      "bytes": 147704,
+      "sha256": "02abc325745863ee8d047fe39b2099da9c5a3fd9e2a2e67b1dff0ee16b6bb202"
+    },
+    {
+      "name": "beat-complete-summary.txt",
+      "bytes": 2946,
+      "sha256": "d8114acc7da8e4ab275423eafa23f40e191229162b1ec8c791db167f78398827"
+    },
+    {
+      "name": "beat-imports.json",
+      "bytes": 633522,
+      "sha256": "c3922cc6004e23e995538cd87bd13908cc1445f14fcdd8dc3fb17a9c819b7dd2"
+    },
+    {
+      "name": "beat-renderer-source.txt",
+      "bytes": 7240,
+      "sha256": "cbbadeab8cb56e76022b24fc7dfe822f474567a255b55c0f6c15ea3e243d034a"
+    },
+    {
+      "name": "beat-scene.png",
+      "bytes": 2206934,
+      "sha256": "b8f66bbfe4ee514e8515d33d0a753ee983d23eff5f647a6be8a62ce121f175c7"
+    },
+    {
+      "name": "beat-status2.txt",
+      "bytes": 750,
+      "sha256": "76081218204b944e3268d63efae2b45d743f314b56ef91df119edcbe788e1a63"
+    },
+    {
+      "name": "beat-stop-status.txt",
+      "bytes": 4917,
+      "sha256": "6090a1e7b3cd1b7f0535b23c9228035af9bce7e9d38201c78d3f038dd88dd3df"
+    },
+    {
+      "name": "build-identity.json",
+      "bytes": 398,
+      "sha256": "f21a9fc25cee28eac61d261794f67fe5055863f76d9730e3d71ba619b6353f95"
+    },
+    {
+      "name": "calibration-build-identity.json",
+      "bytes": 1308,
+      "sha256": "a7f107d46b874f7b3188e2b4f9d6663d94cc3b88b32df17dfb7d09d189bb2c03"
+    },
+    {
+      "name": "calibration-install.txt",
+      "bytes": 36,
+      "sha256": "781a31c82430c97897af612ece5e0ca2205e301cb5ff121ce2660541ea5182c7"
+    },
+    {
+      "name": "calibration-installed-sha.txt",
+      "bytes": 157,
+      "sha256": "4f64864266b87af82d37c2f663fdb962c7df4b1d7f43784849208b5d6667c18e"
+    },
+    {
+      "name": "calibration-tests.txt",
+      "bytes": 49,
+      "sha256": "7633c5f44477908c2a79ab99135670540bbebef1eb19701ee66842cb4985c6e7"
+    },
+    {
+      "name": "comparison.json",
+      "bytes": 24068,
+      "sha256": "c4543a93cd97c1ebb3e6c812daa1f20bbabb148f8ad44487a2a242732d5a3d1c"
+    },
+    {
+      "name": "config-after.json",
+      "bytes": 40,
+      "sha256": "e6b6682ba630ff983624844cd4cc9a61af940c42a48d6206418d0d1a9e3e3057"
+    },
+    {
+      "name": "config-before.json",
+      "bytes": 40,
+      "sha256": "e6b6682ba630ff983624844cd4cc9a61af940c42a48d6206418d0d1a9e3e3057"
+    },
+    {
+      "name": "cpu-tests.txt",
+      "bytes": 49,
+      "sha256": "0f79fa1d8f1f95b6f6758e5efef4fc41adfe52f66ca49b7cf6f9b4cc8da73ce8"
+    },
+    {
+      "name": "final-debug-properties.txt",
+      "bytes": 879,
+      "sha256": "492683c3473197b1c474abaafe1afaf694689596885e1e0a230d5b2c8b5c83f8"
+    },
+    {
+      "name": "final-forward.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "name": "final-library.png",
+      "bytes": 1200084,
+      "sha256": "87594a646ba1d99f35bf91b136dc882634887e3706d37ad65c8bbdb32527d0b3"
+    },
+    {
+      "name": "final-proc-status.txt",
+      "bytes": 1088,
+      "sha256": "8e32e8f6dadb88b93708ac5e61d8321812fd41f01fd49d1b13bdec7f2d15e1e5"
+    },
+    {
+      "name": "final-status.txt",
+      "bytes": 155,
+      "sha256": "67eb8b487c01beffcc489e24edc7994bd4f48afe0bc1643db6e99a37635d5ac6"
+    },
+    {
+      "name": "firmware-calibration.json",
+      "bytes": 1124,
+      "sha256": "8cd9c6caffdd256a1be0898ba086645c6ff400722b3c3a98c601b71f7ac7a752"
+    },
+    {
+      "name": "firmware-kind0-lowering.asm",
+      "bytes": 1957,
+      "sha256": "9b3dad84cd54ce59ef7a7331dbbefb3599eaa79430b9f6ab9813fee51bd99274"
+    },
+    {
+      "name": "global-after.json",
+      "bytes": 427,
+      "sha256": "2d9cbe984e5f265e3a607314a8a3759f01ff35ec43369cfe43af6a17e80dfc64"
+    },
+    {
+      "name": "global-before.json",
+      "bytes": 427,
+      "sha256": "2d9cbe984e5f265e3a607314a8a3759f01ff35ec43369cfe43af6a17e80dfc64"
+    },
+    {
+      "name": "import-summary.json",
+      "bytes": 320,
+      "sha256": "01d2af59ac270e3d7687bd4d63b2066b1d0be6b0f185fa41df0e7ca336544f83"
+    },
+    {
+      "name": "installed-sha.txt",
+      "bytes": 157,
+      "sha256": "fbad30c0e70c48959dc231bc77c353c0e07e8afcead8cfa7aff84b346c9db637"
+    },
+    {
+      "name": "tetris1-crash-excerpt.txt",
+      "bytes": 1059,
+      "sha256": "fd45aee14bf78d8f309ff1dc7e34367c7c9b7b7b59cb81ad9f4df557fc6d8dcf"
+    },
+    {
+      "name": "tetris1-hmd.json",
+      "bytes": 18468,
+      "sha256": "29375e1b59d9601999270349082e86d3d9611f5886ba4648e402662d52c9bfda"
+    },
+    {
+      "name": "tetris2-complete-hmd.json",
+      "bytes": 184452,
+      "sha256": "ead478ef7468343c65ba57665f8f241fdd1b089d60441105a3b10db90d8e0e8b"
+    },
+    {
+      "name": "tetris2-complete-summary.txt",
+      "bytes": 2619,
+      "sha256": "dc941d3cb2206fbd610c270c74c31d4ab4d9228c433e75b5cb5e76d8b30f8698"
+    },
+    {
+      "name": "tetris2-imports.json",
+      "bytes": 800515,
+      "sha256": "a13af47af31b39e5c5322cda3336c433edb5c5158ade832e94f2c3c0a3d0ac8f"
+    },
+    {
+      "name": "tetris2-scene.png",
+      "bytes": 316776,
+      "sha256": "a30b3665dbf67e9fba7ee5f983805836c3a62bb5c7d9d1f06cb5179ea67b9bbf"
+    },
+    {
+      "name": "tetris2-stop-status.txt",
+      "bytes": 4894,
+      "sha256": "90adf4e37a43d41bc24a2163434a736373b96808ad129a21b2108b8f6a387009"
+    },
+    {
+      "name": "tetris2-visible-status.txt",
+      "bytes": 744,
+      "sha256": "5517d58da240a707cde49b300380f86487afef6a48e541eda8bf269671aa6990"
+    }
+  ]
+}

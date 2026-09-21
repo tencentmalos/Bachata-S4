@@ -42,6 +42,7 @@ import com.shadps4.android.runtime.input.GamepadInputManager
 import com.shadps4.android.runtime.settings.ConsoleLanguage
 import com.shadps4.android.runtime.settings.ProfileScope
 import kotlinx.serialization.json.JsonPrimitive
+import com.shadps4.android.runtime.settings.SettingKind
 
 private enum class SettingsPage(val title: String) {
     System("System"), Graphics("Graphics"), Controllers("Controller Buttons"), Touch("Touch Layout"),
@@ -87,9 +88,13 @@ fun SettingsScreen(
                             "dpad_left", "dpad_right", "cross" -> {
                                 val spec = pageSettings[focused]
                                 val current = (state.effectiveValue(spec) as? JsonPrimitive)?.content
-                                val offset = if (event.control == "dpad_left") -1 else 1
-                                val index = Math.floorMod(spec.choices.indexOf(current) + offset, spec.choices.size)
-                                viewModel.setText(spec, spec.choices[index])
+                                if (spec.kind == SettingKind.BOOLEAN) {
+                                    viewModel.setValue(spec, JsonPrimitive(current != "true"))
+                                } else {
+                                    val offset = if (event.control == "dpad_left") -1 else 1
+                                    val index = Math.floorMod(spec.choices.indexOf(current) + offset, spec.choices.size)
+                                    viewModel.setText(spec, spec.choices[index])
+                                }
                             }
                             "triangle" -> viewModel.setValue(pageSettings[focused], null)
                             else -> return@registerNavListener false
@@ -154,13 +159,18 @@ fun SettingsScreen(
                                         }
                                     }
                                 } else FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    spec.choices.forEach { choice ->
+                                    val choices = if (spec.kind == SettingKind.BOOLEAN) listOf("false", "true") else spec.choices
+                                    choices.forEach { choice ->
                                         Surface(
-                                            onClick = { focused = index; viewModel.setText(spec, choice) },
+                                            onClick = {
+                                                focused = index
+                                                if (spec.kind == SettingKind.BOOLEAN) viewModel.setValue(spec, JsonPrimitive(choice == "true"))
+                                                else viewModel.setText(spec, choice)
+                                            },
                                             color = if (choice == current) BachataPalette.Accent else BachataPalette.RaisedSurface,
                                             shape = MaterialTheme.shapes.small,
                                         ) {
-                                            Text(choice, Modifier.padding(12.dp),
+                                            Text(if (spec.kind == SettingKind.BOOLEAN) { if (choice == "true") "On" else "Off" } else choice, Modifier.padding(12.dp),
                                                 color = if (choice == current) BachataPalette.OnAccent else BachataPalette.Primary)
                                         }
                                     }

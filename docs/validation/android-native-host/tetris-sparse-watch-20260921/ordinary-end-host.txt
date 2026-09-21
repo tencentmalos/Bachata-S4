@@ -1,0 +1,500 @@
+[Lib.NpManager] <Debug> (Guest-27) np_manager.cpp:967 sceNpCheckCallback: called
+Skipped 1 duplicate messages..
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.SaveData] <Warning> (Guest-30) guest_storage_hle.cpp:76 lambda: Session file nid=AqBioC2vF3I error=9 result=-1
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Lib.SysModule] <Info> (Guest-25) guest_runtime.cpp:1708 SysmoduleLoad: session sysmodule id=0xad name=libSceNpTrophy result=0x0
+[Lib.NpTrophy] <Info> (Guest-25) np_trophy.cpp:299 sceNpTrophyCreateContext: New context = 1, user_id = 1000 service label = 3
+[Lib.NpTrophy] <Info> (Guest-25) np_trophy.cpp:315 sceNpTrophyCreateHandle: New handle = 1
+[Lib.NpTrophy] <Error> (Guest-25) np_trophy.cpp:923 sceNpTrophyRegisterContext: No npCommId found for trophy index/service_label: 3
+[Lib.NpTrophy] <Info> (Guest-25) np_trophy.cpp:359 sceNpTrophyDestroyHandle: Handle 1 destroyed
+[Lib.SaveData] <Info> (Guest-1) guest_runtime.cpp:1914 lambda: Session storage nid=TywrFKCoLGY result=0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1708 SysmoduleLoad: session sysmodule id=0xa0 name=libSceSaveDataDialog result=0x0
+[Lib.SaveData] <Debug> (Guest-1) savedata.cpp:743 SearchSaveDirectories: called
+[Lib.SaveData] <Info> (Guest-1) guest_runtime.cpp:1914 lambda: Session storage nid=dyIhnXq-0SM result=0x0
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Lib.SaveData] <Debug> (Guest-1) savedata.cpp:743 SearchSaveDirectories: called
+[Lib.SaveData] <Info> (Guest-1) guest_runtime.cpp:1914 lambda: Session storage nid=dyIhnXq-0SM result=0x0
+[Lib.NpManager] <Debug> (Guest-27) np_manager.cpp:967 sceNpCheckCallback: called
+Skipped 1 duplicate messages..
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Lib.SaveData] <Warning> (Guest-30) guest_storage_hle.cpp:76 lambda: Session file nid=AqBioC2vF3I error=9 result=-1
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001080000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Lib.SystemService] <Debug> (Guest-1) systemservice.cpp:1733 sceSystemServiceGetDisplaySafeAreaInfo: called
+[Lib.NpManager] <Debug> (Guest-27) np_manager.cpp:967 sceNpCheckCallback: called
+Skipped 1 duplicate messages..
+[Lib.GnmDriver] <Debug> (Guest-45) gnmdriver.cpp:2314 sceGnmSubmitCommandBuffersForWorkload: called
+[Lib.GnmDriver] <Info> (Guest-45) gnmdriver.cpp:2327 sceGnmSubmitCommandBuffersForWorkload: submit census=3 workload=1 count=1 dcb=2688 ccb=0
+[Lib.GnmDriver] <Info> (Guest-45) gnmdriver.cpp:2334 sceGnmSubmitCommandBuffersForWorkload: submit census=3 dcb_head= 0xc0044700 0x528 0xfc80 0x80000030 0x0 0x0 0xc0012800 0x80000000 0x80000000 0xc0001200 0x0 0xc0016900 0x2f9 0x2d 0xc0016900 0x282
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbMeta, event_index = CacheFlush
+[Lib.SaveData] <Warning> (Guest-30) guest_storage_hle.cpp:76 lambda: Session file nid=AqBioC2vF3I error=9 result=-1
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+Skipped 1 duplicate messages..
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbMeta, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+Skipped 1 duplicate messages..
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbPixelData, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbMeta, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvDbMeta, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = DbCacheFlushAndInv, event_index = CacheFlush
+[Lib.GnmDriver] <Debug> (Guest-45) gnmdriver.cpp:2451 sceGnmSubmitDone: called
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001090000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Lib.NpManager] <Debug> (Guest-27) np_manager.cpp:967 sceNpCheckCallback: called
+Skipped 1 duplicate messages..
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Lib.SaveData] <Warning> (Guest-30) guest_storage_hle.cpp:76 lambda: Session file nid=AqBioC2vF3I error=9 result=-1
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Lib.NpManager] <Debug> (Guest-27) np_manager.cpp:967 sceNpCheckCallback: called
+Skipped 1 duplicate messages..
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Lib.SaveData] <Warning> (Guest-30) guest_storage_hle.cpp:76 lambda: Session file nid=AqBioC2vF3I error=9 result=-1
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2015ab0000, len = 0x10000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10010a0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.NpManager] <Debug> (Guest-27) np_manager.cpp:967 sceNpCheckCallback: called
+Skipped 1 duplicate messages..
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.Camera] <Info> (Guest-1) guest_runtime.cpp:4108 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Lib.SaveData] <Warning> (Guest-30) guest_storage_hle.cpp:76 lambda: Session file nid=AqBioC2vF3I error=9 result=-1
+[Lib.Hmd] <Debug> (Guest-1) hmd.cpp:138 sceHmdGetDeviceInformationByHandle: called
+Skipped 1 duplicate messages..
+[Lib.Camera] <Info> (Guest-1) guest_runtime.cpp:4108 lambda: SBS camera nid=p6n3Npi3YY4 handle=0 result=0x1
+[Lib.Hmd] <Debug> (Guest-69) hmd.cpp:138 sceHmdGetDeviceInformationByHandle: called
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10010b0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10010c0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2028400000, len = 0x320000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x20162c0000, len = 0x40000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2029000000, len = 0xc60000, type = 0x3, prot = 0x32, flags = 0x0
+[Lib.NpManager] <Debug> (Guest-27) np_manager.cpp:967 sceNpCheckCallback: called
+Skipped 1 duplicate messages..
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2019300000, len = 0xf0000, type = 0x3, prot = 0x32, flags = 0x0
+[Lib.SaveData] <Warning> (Guest-30) guest_storage_hle.cpp:76 lambda: Session file nid=AqBioC2vF3I error=9 result=-1
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2028800000, len = 0x3c0000, type = 0x3, prot = 0x32, flags = 0x0
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2028c00000, len = 0xf0000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x202a000000, len = 0x3c0000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x202a400000, len = 0x320000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2028e00000, len = 0x200000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2029e00000, len = 0x200000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x202a800000, len = 0x200000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x202aa00000, len = 0x200000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x202ac00000, len = 0x200000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x202ae00000, len = 0x200000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x202b000000, len = 0x200000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x202b200000, len = 0x200000, type = 0x3, prot = 0x32, flags = 0x0
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x202b400000, len = 0x200000, type = 0x3, prot = 0x32, flags = 0x0
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x202b600000, len = 0x200000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x202b800000, len = 0x200000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x202ba00000, len = 0x200000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x202c000000, len = 0x17a0000, type = 0x3, prot = 0x32, flags = 0x0
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Lib.NpManager] <Debug> (Guest-27) np_manager.cpp:967 sceNpCheckCallback: called
+Skipped 1 duplicate messages..
+[Lib.SaveData] <Warning> (Guest-30) guest_storage_hle.cpp:76 lambda: Session file nid=AqBioC2vF3I error=9 result=-1
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1002a00000, len = 0x40000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1002b00000, len = 0x40000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2015ba0000, len = 0x10000, type = 0x3, prot = 0x32, flags = 0x0
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2028780000, len = 0x80000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2028d00000, len = 0x80000, type = 0x3, prot = 0x32, flags = 0x0
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Lib.SaveData] <Warning> (Guest-30) guest_storage_hle.cpp:76 lambda: Session file nid=AqBioC2vF3I error=9 result=-1
+[Lib.NpManager] <Debug> (Guest-27) np_manager.cpp:967 sceNpCheckCallback: called
+Skipped 1 duplicate messages..
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x20163c0000, len = 0x30000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2015bb0000, len = 0x10000, type = 0x3, prot = 0x32, flags = 0x0
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10010d0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-46) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x30000c0000, len = 0x10000, type = 0x0, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x20164c0000, len = 0x30000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x202bc00000, len = 0x180000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-46) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2015bf0000, len = 0x10000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x20165c0000, len = 0x30000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x202be00000, len = 0x180000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2015ca0000, len = 0x10000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x202e000000, len = 0xbd0000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x202f000000, len = 0xbd0000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2015cb0000, len = 0x10000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2030000000, len = 0xbd0000, type = 0x3, prot = 0x32, flags = 0x0
+[Lib.NpManager] <Debug> (Guest-27) np_manager.cpp:967 sceNpCheckCallback: called
+Skipped 1 duplicate messages..
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Lib.SaveData] <Warning> (Guest-30) guest_storage_hle.cpp:76 lambda: Session file nid=AqBioC2vF3I error=9 result=-1
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2031000000, len = 0xbd0000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2015cf0000, len = 0x10000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2032000000, len = 0xbd0000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2033000000, len = 0xbd0000, type = 0x3, prot = 0x32, flags = 0x0
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2015da0000, len = 0x10000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10010e0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x202d800000, len = 0x320000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2034000000, len = 0xc60000, type = 0x3, prot = 0x32, flags = 0x0
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Lib.NpManager] <Debug> (Guest-27) np_manager.cpp:967 sceNpCheckCallback: called
+Skipped 1 duplicate messages..
+[Lib.SaveData] <Warning> (Guest-30) guest_storage_hle.cpp:76 lambda: Session file nid=AqBioC2vF3I error=9 result=-1
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2015db0000, len = 0x10000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2028d80000, len = 0x80000, type = 0x3, prot = 0x32, flags = 0x0
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1002a40000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1002a50000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2015ee0000, len = 0x20000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2035000000, len = 0x5f0000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2015df0000, len = 0x10000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x202dc00000, len = 0x320000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2016940000, len = 0x30000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2015ed0000, len = 0x10000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x202ec00000, len = 0x320000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2029d00000, len = 0xf0000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2029c80000, len = 0x50000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2015fe0000, len = 0x20000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2015fd0000, len = 0x10000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2016130000, len = 0x10000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2016170000, len = 0x10000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2016ac0000, len = 0x30000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x202fc00000, len = 0x90000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x20161f0000, len = 0x10000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x202fe00000, len = 0x1c0000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2036000000, len = 0xbd0000, type = 0x3, prot = 0x32, flags = 0x0
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x20162a0000, len = 0x10000, type = 0x3, prot = 0x32, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2037000000, len = 0xbd0000, type = 0x3, prot = 0x32, flags = 0x0
+[Lib.NpManager] <Debug> (Guest-27) np_manager.cpp:967 sceNpCheckCallback: called
+[Lib.SaveData] <Warning> (Guest-30) guest_storage_hle.cpp:76 lambda: Session file nid=AqBioC2vF3I error=9 result=-1
+[Lib.NpManager] <Debug> (Guest-27) np_manager.cpp:967 sceNpCheckCallback: called
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1002a60000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-46) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x20162b0000, len = 0x10000, type = 0x3, prot = 0x32, flags = 0x0
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1002b40000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1002b50000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.GnmDriver] <Debug> (Guest-45) gnmdriver.cpp:2314 sceGnmSubmitCommandBuffersForWorkload: called
+[Lib.GnmDriver] <Info> (Guest-45) gnmdriver.cpp:2327 sceGnmSubmitCommandBuffersForWorkload: submit census=4 workload=2 count=2 dcb=33528 ccb=0
+[Lib.GnmDriver] <Info> (Guest-45) gnmdriver.cpp:2334 sceGnmSubmitCommandBuffersForWorkload: submit census=4 dcb_head= 0xc0044700 0x528 0xfc08 0x80000030 0x0 0x0 0xc0012800 0x80000000 0x80000000 0xc0001200 0x0 0xc0016900 0x2f9 0x2d 0xc0016900 0x282
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbMeta, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbMeta, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbMeta, event_index = CacheFlush
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:301 Image: Internal scale allocation: 512x512 R16G16B16A16Sfloat -> 256x256 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Kernel.Vmm] <Info> (Guest-46) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x20163a0000, len = 0x10000, type = 0x3, prot = 0x32, flags = 0x0
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbMeta, event_index = CacheFlush
+Skipped 1 duplicate messages..
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbMeta, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbMeta, event_index = CacheFlush
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:301 Image: Internal scale allocation: 256x256 R16G16B16A16Sfloat -> 128x128 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbMeta, event_index = CacheFlush
+[Lib.GnmDriver] <Debug> (Guest-45) gnmdriver.cpp:439 sceGnmDingDong: vqid 1, offset_dw 4
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_pipeline_cache.cpp:670 CompileModule: Compiling cs shader 0xdf1f97e4e1cd6023 
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_pipeline_cache.cpp:404 GetComputePipeline: Compiling compute pipeline 0xd86fd07f239b1f98
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x20163b0000, len = 0x10000, type = 0x3, prot = 0x32, flags = 0x0
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:146 GetTilingPipeline: Compiling shader Thick1DThick_64 detiler
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:148 GetTilingPipeline: #define BITS_PER_PIXEL=64
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:148 GetTilingPipeline: #define NUM_SAMPLES=1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:148 GetTilingPipeline: #define ARRAY_MODE=3
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:148 GetTilingPipeline: #define MICRO_TILE_MODE=4
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:148 GetTilingPipeline: #define MICRO_TILE_THICKNESS=4
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_pipeline_cache.cpp:670 CompileModule: Compiling cs shader 0x1f0a0fc8188fd75a 
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_pipeline_cache.cpp:404 GetComputePipeline: Compiling compute pipeline 0xbde72d4e05b9c074
+[Lib.SaveData] <Warning> (Guest-30) guest_storage_hle.cpp:76 lambda: Session file nid=AqBioC2vF3I error=9 result=-1
+[Kernel.Vmm] <Info> (Guest-46) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x30000d0000, len = 0x10000, type = 0x0, prot = 0x32, flags = 0x0
+[Lib.NpManager] <Debug> (Guest-27) np_manager.cpp:967 sceNpCheckCallback: called
+Skipped 1 duplicate messages..
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_pipeline_cache.cpp:670 CompileModule: Compiling cs shader 0x64386fc9380aa414 
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_pipeline_cache.cpp:404 GetComputePipeline: Compiling compute pipeline 0xe97875b4e3f3c7ee
+[Kernel.Vmm] <Info> (Guest-46) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x30000e0000, len = 0x10000, type = 0x0, prot = 0x32, flags = 0x0
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Kernel.Vmm] <Info> (Guest-69) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x2016bc0000, len = 0x30000, type = 0x3, prot = 0x32, flags = 0x0
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:146 GetTilingPipeline: Compiling shader Thin1DThin_32 detiler
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:148 GetTilingPipeline: #define BITS_PER_PIXEL=32
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:148 GetTilingPipeline: #define NUM_SAMPLES=1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:148 GetTilingPipeline: #define ARRAY_MODE=2
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:148 GetTilingPipeline: #define MICRO_TILE_MODE=1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:148 GetTilingPipeline: #define MICRO_TILE_THICKNESS=1
+[Kernel.Vmm] <Info> (Guest-46) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x30000f0000, len = 0x10000, type = 0x0, prot = 0x32, flags = 0x0
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_pipeline_cache.cpp:670 CompileModule: Compiling cs shader 0x3b42dfe9303c538b 
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_pipeline_cache.cpp:404 GetComputePipeline: Compiling compute pipeline 0xaf01eebc64fbd7a
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbMeta, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbPixelData, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbMeta, event_index = CacheFlush
+[Kernel.Vmm] <Info> (Guest-46) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x3000100000, len = 0x10000, type = 0x0, prot = 0x32, flags = 0x0
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:146 GetTilingPipeline: Compiling shader Thin2DThin_128 detiler
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:148 GetTilingPipeline: #define BITS_PER_PIXEL=128
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:148 GetTilingPipeline: #define NUM_SAMPLES=1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:148 GetTilingPipeline: #define ARRAY_MODE=4
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:148 GetTilingPipeline: #define MICRO_TILE_MODE=1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:148 GetTilingPipeline: #define MICRO_TILE_THICKNESS=1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:148 GetTilingPipeline: #define PIPE_CONFIG=12
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:148 GetTilingPipeline: #define BANK_WIDTH=1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:148 GetTilingPipeline: #define BANK_HEIGHT=1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:148 GetTilingPipeline: #define NUM_BANKS=8
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:148 GetTilingPipeline: #define NUM_BANK_BITS=3
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:148 GetTilingPipeline: #define TILE_SPLIT_BYTES=1024
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:148 GetTilingPipeline: #define MACRO_TILE_ASPECT=1
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x100d800000, len = 0x150000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.SaveData] <Warning> (Guest-30) guest_storage_hle.cpp:76 lambda: Session file nid=AqBioC2vF3I error=9 result=-1
+[Lib.NpManager] <Debug> (Guest-27) np_manager.cpp:967 sceNpCheckCallback: called
+Skipped 1 duplicate messages..
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+Skipped 1 duplicate messages..
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbPixelData, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbMeta, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbPixelData, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbPixelData, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbPixelData, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbMeta, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbPixelData, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbMeta, event_index = CacheFlush
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:666 sceKernelMemoryPoolDecommit: addr = 0x1030e00000, len = 0x140000, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:666 sceKernelMemoryPoolDecommit: addr = 0x1002b00000, len = 0x40000, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:666 sceKernelMemoryPoolDecommit: addr = 0x1002a00000, len = 0x40000, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:666 sceKernelMemoryPoolDecommit: addr = 0x100c400000, len = 0x1c0000, flags = 0x0
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+Skipped 1 duplicate messages..
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbPixelData, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbMeta, event_index = CacheFlush
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:301 Image: Internal scale allocation: 1024x1024 R16G16B16A16Sfloat -> 512x512 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:666 sceKernelMemoryPoolDecommit: addr = 0x10010e0000, len = 0x10000, flags = 0x0
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Lib.SaveData] <Warning> (Guest-30) guest_storage_hle.cpp:76 lambda: Session file nid=AqBioC2vF3I error=9 result=-1
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbMeta, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbPixelData, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbPixelData, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbPixelData, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbMeta, event_index = CacheFlush
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:301 Image: Internal scale allocation: 1024x1024 R16G16B16A16Sfloat -> 512x512 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:666 sceKernelMemoryPoolDecommit: addr = 0x1002b40000, len = 0x10000, flags = 0x0
+[Lib.NpManager] <Debug> (Guest-27) np_manager.cpp:967 sceNpCheckCallback: called
+Skipped 1 duplicate messages..
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbMeta, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbPixelData, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbMeta, event_index = CacheFlush
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:301 Image: Internal scale allocation: 1024x1024 R16G16B16A16Sfloat -> 512x512 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:666 sceKernelMemoryPoolDecommit: addr = 0x1002a40000, len = 0x10000, flags = 0x0
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:301 Image: Internal scale allocation: 1024x1024 R16G16B16A16Sfloat -> 512x512 R16G16B16A16Sfloat levels 1 -> 1 mode resample
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:666 sceKernelMemoryPoolDecommit: addr = 0x10010d0000, len = 0x10000, flags = 0x0
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbMeta, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbPixelData, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbMeta, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbPixelData, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbMeta, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbPixelData, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbMeta, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbPixelData, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbMeta, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvCbPixelData, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvDbMeta, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = DbCacheFlushAndInv, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvDbMeta, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = DbCacheFlushAndInv, event_index = CacheFlush
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:666 sceKernelMemoryPoolDecommit: addr = 0x102e610000, len = 0x10000, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:666 sceKernelMemoryPoolDecommit: addr = 0x1002a50000, len = 0x10000, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:666 sceKernelMemoryPoolDecommit: addr = 0x1002b50000, len = 0x10000, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:666 sceKernelMemoryPoolDecommit: addr = 0x1002a60000, len = 0x10000, flags = 0x0
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_pipeline_cache.cpp:670 CompileModule: Compiling vs shader 0x9224608de2ca4c7d 
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:666 sceKernelMemoryPoolDecommit: addr = 0x1005000000, len = 0xd0000, flags = 0x0
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_pipeline_cache.cpp:374 GetGraphicsPipeline: Compiling graphics pipeline 0x128958c4b6c5fdfc
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:666 sceKernelMemoryPoolDecommit: addr = 0x100b530000, len = 0x10000, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:666 sceKernelMemoryPoolDecommit: addr = 0x1025650000, len = 0x10000, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:666 sceKernelMemoryPoolDecommit: addr = 0x1015910000, len = 0x10000, flags = 0x0
+[Render.Vulkan] <Info> (shadPS4:GpuComm) image.cpp:301 Image: Internal scale allocation: 2304x1296 D32SfloatS8Uint -> 1152x648 D32SfloatS8Uint levels 1 -> 1 mode resample
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_rasterizer.cpp:225 Draw: SBS draw sample=1 indexed=true indices=84 mrt0=0x201a000000 mrt1=0x2019800000 mrt2=0x201b000000 depth=0x2029000000
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:666 sceKernelMemoryPoolDecommit: addr = 0x10287b0000, len = 0x10000, flags = 0x0
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:146 GetTilingPipeline: Compiling shader Depth2DThin64_32 detiler
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:148 GetTilingPipeline: #define BITS_PER_PIXEL=32
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:148 GetTilingPipeline: #define NUM_SAMPLES=1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:148 GetTilingPipeline: #define ARRAY_MODE=4
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:148 GetTilingPipeline: #define MICRO_TILE_MODE=2
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:148 GetTilingPipeline: #define MICRO_TILE_THICKNESS=1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:148 GetTilingPipeline: #define PIPE_CONFIG=12
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:148 GetTilingPipeline: #define BANK_WIDTH=1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:148 GetTilingPipeline: #define BANK_HEIGHT=4
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:148 GetTilingPipeline: #define NUM_BANKS=16
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:148 GetTilingPipeline: #define NUM_BANK_BITS=4
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:148 GetTilingPipeline: #define TILE_SPLIT_BYTES=64
+[Render.Vulkan] <Info> (shadPS4:GpuComm) tile_manager.cpp:148 GetTilingPipeline: #define MACRO_TILE_ASPECT=4
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:666 sceKernelMemoryPoolDecommit: addr = 0x100b150000, len = 0x10000, flags = 0x0
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_rasterizer.cpp:225 Draw: SBS draw sample=2 indexed=true indices=84 mrt0=0x201a000000 mrt1=0x2019800000 mrt2=0x201b000000 depth=0x2029000000
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:666 sceKernelMemoryPoolDecommit: addr = 0x100b410000, len = 0x10000, flags = 0x0
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvDbMeta, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = DbCacheFlushAndInv, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvDbMeta, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = DbCacheFlushAndInv, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvDbMeta, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = DbCacheFlushAndInv, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvDbMeta, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = DbCacheFlushAndInv, event_index = CacheFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvDbMeta, event_index = CacheFlush
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_rasterizer.cpp:225 Draw: SBS draw sample=3 indexed=false indices=3 mrt0=0x0 mrt1=0x0 mrt2=0x0 depth=0x2029000000
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = FlushAndInvDbMeta, event_index = CacheFlush
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:666 sceKernelMemoryPoolDecommit: addr = 0x100b350000, len = 0x10000, flags = 0x0
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_pipeline_cache.cpp:670 CompileModule: Compiling cs shader 0x4424d0093341813a 
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:666 sceKernelMemoryPoolDecommit: addr = 0x100c3e0000, len = 0x10000, flags = 0x0
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_pipeline_cache.cpp:404 GetComputePipeline: Compiling compute pipeline 0x1566303c7a3eb0f6
+[Lib.SaveData] <Warning> (Guest-30) guest_storage_hle.cpp:76 lambda: Session file nid=AqBioC2vF3I error=9 result=-1
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_pipeline_cache.cpp:670 CompileModule: Compiling cs shader 0x86c6a7c239b2c28d 
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_pipeline_cache.cpp:404 GetComputePipeline: Compiling compute pipeline 0xf42e29d5d449b76c
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Lib.NpManager] <Debug> (Guest-27) np_manager.cpp:967 sceNpCheckCallback: called
+Skipped 1 duplicate messages..
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10010d0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.Hmd] <Debug> (Guest-69) hmd.cpp:138 sceHmdGetDeviceInformationByHandle: called
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1002a00000, len = 0x40000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.NpManager] <Debug> (Guest-27) np_manager.cpp:967 sceNpCheckCallback: called
+[Lib.SaveData] <Warning> (Guest-30) guest_storage_hle.cpp:76 lambda: Session file nid=AqBioC2vF3I error=9 result=-1
+[Lib.NpManager] <Debug> (Guest-27) np_manager.cpp:967 sceNpCheckCallback: called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_pipeline_cache.cpp:670 CompileModule: Compiling cs shader 0xeb1e51af706e75de 
+[Render.Vulkan] <Info> (shadPS4:GpuComm) vk_pipeline_cache.cpp:404 GetComputePipeline: Compiling compute pipeline 0x18d28d8d0cf234c8
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = CsPartialFlush, event_index = CsVsPsPartialFlush
+[Render] <Debug> (shadPS4:GpuComm) liverpool.cpp:735 ProcessGraphics: Encountered EventWrite: event_type = PsPartialFlush, event_index = CsVsPsPartialFlush
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Lib.SaveData] <Warning> (Guest-30) guest_storage_hle.cpp:76 lambda: Session file nid=AqBioC2vF3I error=9 result=-1
+[Lib.NpManager] <Debug> (Guest-27) np_manager.cpp:967 sceNpCheckCallback: called
+Skipped 1 duplicate messages..
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Lib.SaveData] <Warning> (Guest-30) guest_storage_hle.cpp:76 lambda: Session file nid=AqBioC2vF3I error=9 result=-1
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Lib.NpManager] <Debug> (Guest-27) np_manager.cpp:967 sceNpCheckCallback: called
+Skipped 1 duplicate messages..
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Lib.SaveData] <Warning> (Guest-30) guest_storage_hle.cpp:76 lambda: Session file nid=AqBioC2vF3I error=9 result=-1
+[Lib.NpManager] <Debug> (Guest-27) np_manager.cpp:967 sceNpCheckCallback: called
+Skipped 1 duplicate messages..
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Lib.SaveData] <Warning> (Guest-30) guest_storage_hle.cpp:76 lambda: Session file nid=AqBioC2vF3I error=9 result=-1
+[Lib.NpManager] <Debug> (Guest-27) np_manager.cpp:967 sceNpCheckCallback: called
+Skipped 1 duplicate messages..
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:348 sceVrTrackerGpuSubmit: (STUBBED) called
+[Lib.VrTracker] <Error> (Guest-64) vr_tracker.cpp:378 sceVrTrackerGpuWaitAndCpuProcess: (STUBBED) called
+[Lib.SaveData] <Warning> (Guest-30) guest_storage_hle.cpp:76 lambda: Session file nid=AqBioC2vF3I error=9 result=-1
+[Lib.NpManager] <Debug> (Guest-27)

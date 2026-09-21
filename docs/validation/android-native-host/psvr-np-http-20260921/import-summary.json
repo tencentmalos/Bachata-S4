@@ -1,0 +1,44 @@
+[
+  {
+    "game": "beat",
+    "source": "beat-v7-imports.json",
+    "pid": 7876,
+    "title_id": "CUSA12878",
+    "rows": 1939,
+    "counts": {
+      "guest_export": 780,
+      "runtime_bound": 828,
+      "refused": 317,
+      "not_relocated": 14
+    },
+    "refused_unique_symbols": 293
+  },
+  {
+    "game": "sports",
+    "source": "sports-v7-imports.json",
+    "pid": 5682,
+    "title_id": "CUSA36289",
+    "rows": 2303,
+    "counts": {
+      "guest_export": 969,
+      "runtime_bound": 953,
+      "refused": 370,
+      "not_relocated": 11
+    },
+    "refused_unique_symbols": 322
+  },
+  {
+    "game": "tetris",
+    "source": "tetris-v7-imports.json",
+    "pid": 9281,
+    "title_id": "CUSA13427",
+    "rows": 2603,
+    "counts": {
+      "guest_export": 1146,
+      "refused": 471,
+      "runtime_bound": 969,
+      "not_relocated": 17
+    },
+    "refused_unique_symbols": 360
+  }
+]

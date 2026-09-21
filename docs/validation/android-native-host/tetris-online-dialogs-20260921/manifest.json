@@ -1,0 +1,790 @@
+{
+  "schema": 1,
+  "scope": "Tetris OnlineSubsystem/local dialog and reprojection initialization batch; snapshots include prior dirty PSVR implementation. No binaries shipped.",
+  "branch": "feature/malos/beat_saber_fix",
+  "head": "63b6d560dd43af031ec7a5de64ae6204beea5de2",
+  "committed": false,
+  "source_files": [
+    {
+      "path": "CMakeLists.txt",
+      "sha256": "d585e62524ae77476920f536c1132c30c04ca528296aa31805b96978a70292bf"
+    },
+    {
+      "path": "src/core/host_runtime/guest_runtime.cpp",
+      "sha256": "15c61a0f655bfcb32eb5d69665fb8ec6ba277ff55645afeb607038b0fc532e9d"
+    },
+    {
+      "path": "src/core/host_runtime/guest_common_dialog.h",
+      "sha256": "30e085a70835b9f34cd918566c89778507b7cccc2694d02591119e12eaaf6f87"
+    },
+    {
+      "path": "src/core/host_runtime/guest_msg_dialog.h",
+      "sha256": "8ff9cca308fea7ce354073244a6d33f2cfe8290f00b6b8669d631318b7f73439"
+    },
+    {
+      "path": "src/core/host_runtime/guest_msg_dialog.cpp",
+      "sha256": "5cd3978e709546d4cfeb674478e8038729f92653860dc33c11793e54df6b2197"
+    },
+    {
+      "path": "src/core/host_runtime/guest_msg_dialog_ui.cpp",
+      "sha256": "7ebad8d1d74d4ddaff7375bd2df5c32f4dccecf9dd0888d725ff287855ed0ae1"
+    },
+    {
+      "path": "src/core/host_runtime/guest_commerce_dialog.h",
+      "sha256": "65a5aad3ad3a48e8b7d29f042bc7f2f8cb717d18ac7eba251f771b76f70c71a8"
+    },
+    {
+      "path": "src/core/host_runtime/guest_commerce_dialog.cpp",
+      "sha256": "028b9de57ea648519bf65bb32c3ce07b53034615728936f39c6c5e4b4ac749e4"
+    },
+    {
+      "path": "src/core/host_runtime/guest_save_dialog.h",
+      "sha256": "a7fb6c7bfb68ef5697d9ae2e9395c58743a30a150c728b743340651e03873e9e"
+    },
+    {
+      "path": "src/core/host_runtime/guest_save_dialog.cpp",
+      "sha256": "2655d0362dba0f1a8523423412a9927541c0dcbc861a2291ce47b6719cea34dc"
+    },
+    {
+      "path": "src/core/host_runtime/guest_error_dialog.h",
+      "sha256": "fb95ddd92e1db7171b397a4d40a1adcac7a20bb41ce9c9475bc56d63251dd81a"
+    },
+    {
+      "path": "src/core/host_runtime/guest_ime_keyboard.h",
+      "sha256": "f2c8aaa0dedebf55cb4f4ff80aaf70bdc518a2f96663c99ff2cc0f0257eba6ae"
+    },
+    {
+      "path": "src/core/host_runtime/guest_np_score.h",
+      "sha256": "d89086a223c2d63bf309595188861eaecf815b4ead8ca3dd403310651c1936c9"
+    },
+    {
+      "path": "src/core/host_runtime/guest_np_tus.h",
+      "sha256": "3c791e1e2e8c68e7167e28be56e5d6039150bbdb22a3360633a920af1c361a09"
+    },
+    {
+      "path": "src/core/host_runtime/guest_np_webapi.h",
+      "sha256": "d2290a07dc1cee156f18c59c8fc05a34e511130f9f0d8f6c9e66d2e78c2b97ca"
+    },
+    {
+      "path": "src/core/host_runtime/guest_reprojection.h",
+      "sha256": "330878ba42491f77fa5695cdfb5a0aad74da1f4f7a3b3fedc0f6ec50b5296572"
+    },
+    {
+      "path": "src/core/libraries/ime/error_dialog.h",
+      "sha256": "4f8ceae16f7be2347ccd438aaf300f4b2eaba33d80df4ddf2dd4a7211013f3cb"
+    },
+    {
+      "path": "src/core/libraries/ime/error_dialog.cpp",
+      "sha256": "3f78b6ad7494c5840de3d5c8bbc381f45c6b4dfa0822e6d7ebddd0cb530db466"
+    },
+    {
+      "path": "src/core/libraries/np/np_commerce/np_commerce.h",
+      "sha256": "7d6b84cdf93c15b07f5e3039abe9febbbe5ccb5c5fe50ac0b4d3b699c00c6151"
+    },
+    {
+      "path": "src/core/libraries/np/np_web_api/np_web_api.h",
+      "sha256": "aad667dcbcae8c106c005c9d4e4c8b53c294dd605dafb4b84477188591d4e4be"
+    },
+    {
+      "path": "src/core/libraries/np/np_web_api/np_web_api_internal.cpp",
+      "sha256": "24db54dba76e514dad7be75714a61f24e12b906a53f19f9dad32e6e5eb533fbb"
+    },
+    {
+      "path": "tests/host_runtime/guest_msg_dialog_tests.cpp",
+      "sha256": "dd65441e194458514f8905fc0ecbd72cda92878b0095505a4a19040c8db41085"
+    },
+    {
+      "path": "tests/host_runtime/guest_commerce_dialog_tests.cpp",
+      "sha256": "6498dbfeb6e4905035acbd52e1f25c839c208184d3c7e3a156a3bece322e83f1"
+    },
+    {
+      "path": "tests/host_runtime/guest_np_tests.cpp",
+      "sha256": "21741e78021d5ed0a6c4e68f96e2cfc74a75898be915725bdd986bb44191dfd1"
+    },
+    {
+      "path": "tests/host_runtime/guest_psvr_services_tests.cpp",
+      "sha256": "1f01a7320453a57cca6940a4b6f420b2401bfa9003102e07563a7f631ce63d97"
+    },
+    {
+      "path": "tests/host_runtime/guest_reprojection_tests.cpp",
+      "sha256": "5c108c34f4aae4b0ba3d9de82750a56e8ba77549fe6f75bcc553de4ea4d709a3"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "apk-v7.log",
+      "bytes": 20733,
+      "sha256": "c8ad6f369f5441e8eaea1c9082122285c24f7ae9c2034937df53ee87ca6515eb"
+    },
+    {
+      "path": "apk-v9.log",
+      "bytes": 20733,
+      "sha256": "fb94f224c8c6023d19251b3a9278dd0882c94ac0ba7a5044134238e1f6f5aa85"
+    },
+    {
+      "path": "bindings-v9.tsv",
+      "bytes": 419281,
+      "sha256": "b8f2668435fd473473bddd2332513e64a84521960563f0fd1f830cb13b98539a"
+    },
+    {
+      "path": "build-identity-v2.json",
+      "bytes": 418,
+      "sha256": "55ea18b703d2270810257823440ccc17a0a974f4046b87bf65a446cdc2c6e27c"
+    },
+    {
+      "path": "build-identity-v3.json",
+      "bytes": 533,
+      "sha256": "2106fe0f4f95c50f75703673cfb808e61ce588c7217600e36670b22c7a8664c1"
+    },
+    {
+      "path": "build-identity-v4.json",
+      "bytes": 533,
+      "sha256": "3856545e5e179b9d04a3b38c8894f7b54b6681f951ff133b7d3d6998c3576585"
+    },
+    {
+      "path": "build-identity-v5.json",
+      "bytes": 270,
+      "sha256": "52f69c750dab5877a73808854153827805a8759ba0f786d4ec2dcecae4844f4d"
+    },
+    {
+      "path": "build-identity-v6.json",
+      "bytes": 270,
+      "sha256": "4eb00f4a2c5a76b33595deae9a227aa5347124a6266cf55cd6c058e877aeb1a9"
+    },
+    {
+      "path": "build-identity-v7.json",
+      "bytes": 270,
+      "sha256": "bb6b5caf2c2b8813654f37de83afe2be416472e7d204830f00c1bde77f6bbfb8"
+    },
+    {
+      "path": "build-identity-v8.json",
+      "bytes": 270,
+      "sha256": "03c0d03a46d7ebe7b60508522213aade3ce0b7a7c34a402e38cf63e63ae1dd20"
+    },
+    {
+      "path": "build-identity-v9.json",
+      "bytes": 271,
+      "sha256": "0a0f01806a8329b78da6f2605d95524a4214c7b67c8312faf75f958510feb4bc"
+    },
+    {
+      "path": "build-v4.log",
+      "bytes": 35689,
+      "sha256": "1e5c3da8dc0d661fdc06234e12e5ccc826d17976cf1161f555855680e7c4b1b2"
+    },
+    {
+      "path": "build-v4b.log",
+      "bytes": 5103,
+      "sha256": "97c121c730e5c2cadf7bdeea4ad6f549ae52fa49cf5e07add9bd4ef1db6ee0c8"
+    },
+    {
+      "path": "build-v6.log",
+      "bytes": 23560,
+      "sha256": "73e0ce8ac8bd1b30ecabc95f6b9e4684f4cd08134b70dae82f930d32f179d3bb"
+    },
+    {
+      "path": "build-v6b.log",
+      "bytes": 774,
+      "sha256": "5265a0debb9e1f823b66b829416e3210254b27cf5a1d5f8f18198d352da537f0"
+    },
+    {
+      "path": "build-v7b.log",
+      "bytes": 15985,
+      "sha256": "33f425be0186f7933afc01a016bdec6a723f5ae878bdab4f0325bb9440a0579b"
+    },
+    {
+      "path": "build-v9.log",
+      "bytes": 20108,
+      "sha256": "7df3964f3ed6048c6fe32324d47f2555403554238eaaca1b84552f7bb7d44523"
+    },
+    {
+      "path": "build-v9b.log",
+      "bytes": 2375,
+      "sha256": "317d1ba7072a03770140683e714139f6df683f9e7feaa562f4fc0248411a87fa"
+    },
+    {
+      "path": "code-proof.json",
+      "bytes": 8010,
+      "sha256": "87c2d9362944ac7b3f65f9d4e449ce854cfb07af940b334da7f78069b2004e53"
+    },
+    {
+      "path": "commerce-firmware-identity.json",
+      "bytes": 261,
+      "sha256": "33bfc93df5dcf6080927c2e08a95edd8769fb2922fb045a0cab955856e260b10"
+    },
+    {
+      "path": "external-restart-6736-fault.txt",
+      "bytes": 964,
+      "sha256": "f0e2a50d2e01db501f6194ddd88cfe72d399bc40545192b7ef9800cc27dcf1d9"
+    },
+    {
+      "path": "family-audit-v9.json",
+      "bytes": 76273,
+      "sha256": "a975a66dfc28db3ec22789da7755875d265e6015f698732c1a627ed496625a6c"
+    },
+    {
+      "path": "fault-registers.json",
+      "bytes": 10055,
+      "sha256": "509696499ed36ccb44dfdaf48146f57e8c3d1113c83cc1f11686d63e5a328d1b"
+    },
+    {
+      "path": "final-cleanup.json",
+      "bytes": 1055,
+      "sha256": "3b66958af1a3e2eed72af0dec9a808f2a45a48345f99f2de4f67e7ece16b5d04"
+    },
+    {
+      "path": "installed-v2.json",
+      "bytes": 218,
+      "sha256": "088be68d6f478bef05996f011e9154cca3e1fb62798ba275735da3c1c3e50eaf"
+    },
+    {
+      "path": "installed-v3.json",
+      "bytes": 218,
+      "sha256": "29411204064ccdcad4725422f0fbb10fb92e1dd48c512dbd1fff786f41e2f526"
+    },
+    {
+      "path": "installed-v4.json",
+      "bytes": 218,
+      "sha256": "c09c3c2388b3b0fa2fff4e112e3b12f3669c551a75e12e3b1f85b6693e47cade"
+    },
+    {
+      "path": "installed-v5.json",
+      "bytes": 206,
+      "sha256": "cc3f19890e477087847b53fcce714c9ee26bfb581f805daf3dab7733333d0c66"
+    },
+    {
+      "path": "installed-v6.json",
+      "bytes": 206,
+      "sha256": "07966e1d2d96e88c18e7f2e8401990d7c585f2704b409ad8152cd0ccd75c793f"
+    },
+    {
+      "path": "installed-v7.json",
+      "bytes": 206,
+      "sha256": "99be99a37722515540c358587e6e8ae49e9eebbc53c57659c67684b9702b15f9"
+    },
+    {
+      "path": "installed-v8.json",
+      "bytes": 206,
+      "sha256": "71f811ac67a720075e69090c5fc00919250fbff964b5c5674c1a0a40ce39829e"
+    },
+    {
+      "path": "installed-v9.json",
+      "bytes": 210,
+      "sha256": "b7b06192f083d9211d9e34bc46474d6ce787a456241af7df036b9d234605d30c"
+    },
+    {
+      "path": "msg-firmware-identity.json",
+      "bytes": 1118,
+      "sha256": "8b8c7cef7dd713cae0c5357e66d98669ce7e2758dd0caa06cd45b280107dac54"
+    },
+    {
+      "path": "msg-open.asm",
+      "bytes": 13582,
+      "sha256": "6943a05b6efabc22b908eb43f21c4ef3ba4380225d4184475c8370dfc86544d1"
+    },
+    {
+      "path": "msg-progress.asm",
+      "bytes": 14478,
+      "sha256": "dec57d360dc7855cad7567d7325a1d293ecef14288d491b7a81383bd6c4d1527"
+    },
+    {
+      "path": "msg-validation.asm",
+      "bytes": 17935,
+      "sha256": "93d24ddd36663b5e069103cf7caf66866855d03f00c144b30b9e6cf8fdcecd82"
+    },
+    {
+      "path": "object-head.json",
+      "bytes": 8881,
+      "sha256": "a888431962ee4023271321c5de24278fc72351797f5f21a6b0659d58503e3af0"
+    },
+    {
+      "path": "object.json",
+      "bytes": 8881,
+      "sha256": "2670dd349062052ee0f9f61b34aee23251bb959d8308a7e6d5a9ee67d7f17878"
+    },
+    {
+      "path": "online-commerce-load.asm",
+      "bytes": 10563,
+      "sha256": "6890857e2297205d9208124c1c85dbc2606ffd1a873faca51d45cc9dc8fde373"
+    },
+    {
+      "path": "online-init-full.asm",
+      "bytes": 145266,
+      "sha256": "dc1a23f3022b256d9181d99ca1b0bb58a027b5ea1e43e3f2ae1e81e31daf3a83"
+    },
+    {
+      "path": "online-module-get.asm",
+      "bytes": 10198,
+      "sha256": "d85806c2b3d6e6ce9077b2c040de2e81491da3f6722dee87822e3cdcbfb37563"
+    },
+    {
+      "path": "online-neighborhood-refused-calls.json",
+      "bytes": 8861,
+      "sha256": "130e3268a3731d7cf49cf77f08fea40923858048c427e245f2312129d38f1015"
+    },
+    {
+      "path": "online-score-load.asm",
+      "bytes": 4427,
+      "sha256": "856af7a0d857cc627834bec82b5387dc1ceb47d03464f2007d836470693c4464"
+    },
+    {
+      "path": "online-score-signout.asm",
+      "bytes": 8345,
+      "sha256": "d9ecc8aa9dedac989a79ad14c4e1a086fe4b65e96894713e94811bf322f3b0fb"
+    },
+    {
+      "path": "reprojection-caller.asm",
+      "bytes": 6147,
+      "sha256": "076e4507f7e9904e70b6d988ece7c80af5ab65b9f6ad3440bdcfaff29192bc49"
+    },
+    {
+      "path": "rsp-cleanup.json",
+      "bytes": 7721,
+      "sha256": "764f8113f6d59037079a506ee275945824f269842a50c3ace2ce432750c21b50"
+    },
+    {
+      "path": "rsp-start.json",
+      "bytes": 8044,
+      "sha256": "7c7fd7be05b1abbe6c461cfbbc439cfb370fd35f1733216dc4d28e95dcea817c"
+    },
+    {
+      "path": "rsp2-cleanup.json",
+      "bytes": 11002,
+      "sha256": "4d78fb66b2e1e5af724cacaf798a5f03f19d9a0a5ccf8046a3a2d8d6c8f3d80e"
+    },
+    {
+      "path": "rsp2-code.json",
+      "bytes": 11282,
+      "sha256": "db99410bbe47e05b766b23dd791903a4a3ef86a31975fe07c0f9a031472d7c08"
+    },
+    {
+      "path": "rsp2-module.json",
+      "bytes": 11586,
+      "sha256": "2add56c007209eedb62059a37168acaf52fd8340ba3a3f48c83deb962e3117e9"
+    },
+    {
+      "path": "rsp2-registers.json",
+      "bytes": 15163,
+      "sha256": "f878830fa829610a49ffd6c17eb78891d5aa4136ee8413c578dd614b596962f5"
+    },
+    {
+      "path": "rsp2-return-registers.json",
+      "bytes": 15145,
+      "sha256": "ec5819b00d74de65dde1da5215e6037047cad06361359771dc1cd18a375645d2"
+    },
+    {
+      "path": "rsp2-return-stop.json",
+      "bytes": 11765,
+      "sha256": "d1a34f46c0bdba992ce05de9f2cc76916e8f88925db43edc3c200faa5c75d0aa"
+    },
+    {
+      "path": "rsp2-stack.json",
+      "bytes": 12227,
+      "sha256": "863ddbae98fa116714f6f5b45093b05fb86e94b0bbfdf361cbdcde3f1569b29b"
+    },
+    {
+      "path": "rsp2-start.json",
+      "bytes": 11378,
+      "sha256": "d36da10b5ad01447fcb10ef7fa7faf48c0121a1bcddaa992fa27bc4853241322"
+    },
+    {
+      "path": "rsp2-stop.json",
+      "bytes": 11566,
+      "sha256": "1ddcf74cb668e847005dd599038825683385cec9af825d2d90d23a07261109ff"
+    },
+    {
+      "path": "rsp2-vfunc.json",
+      "bytes": 11394,
+      "sha256": "4e19b287bf764524071d2078295fa51afdfbdb62cd69519e6a61ce1c5a900b7e"
+    },
+    {
+      "path": "rsp3-cleanup.json",
+      "bytes": 10997,
+      "sha256": "0fbe7317df99c849a274702be76e1908401f83304cb32d1c5faeee81ba63bd72"
+    },
+    {
+      "path": "rsp3-code.json",
+      "bytes": 11249,
+      "sha256": "1538fdce9a0e92ef1369bd1b1acb4f323ef42f2c321f4e6d9cbb4343aeab09e0"
+    },
+    {
+      "path": "rsp3-error.json",
+      "bytes": 14784,
+      "sha256": "d94d87ea4436d86c3b3ff646b318bb6be7ffab265989eb274833104b6e4814fd"
+    },
+    {
+      "path": "rsp3-file.json",
+      "bytes": 12220,
+      "sha256": "bcfd5a0b34d102f171f94c5e9308d7668dc6510ed384648d52b967c240512a07"
+    },
+    {
+      "path": "rsp3-frame.json",
+      "bytes": 11474,
+      "sha256": "a2349c5192953e738c98213cae9b49c5c1992b9ef2d7bed6a8ea57f86b29ac1a"
+    },
+    {
+      "path": "rsp3-module.json",
+      "bytes": 20630,
+      "sha256": "ec74f78cbf75ae639872b9ea5c2ac18ec065d21671bb9a7b0593643e738e0b62"
+    },
+    {
+      "path": "rsp3-registers.json",
+      "bytes": 12758,
+      "sha256": "c05e910aa0055fa72848104d05a664a602768216986783f4c8317f0929b33295"
+    },
+    {
+      "path": "rsp3-stack.json",
+      "bytes": 11474,
+      "sha256": "e86ed8b454f3623a008fd13089f87f9991e3f6cd1f99e428de2255f0362b9055"
+    },
+    {
+      "path": "rsp3-start.json",
+      "bytes": 11372,
+      "sha256": "6ba78df6436c890c2174f30fb4959737f22ad6af70cb112651a627c17640e9a8"
+    },
+    {
+      "path": "rsp3-stop.json",
+      "bytes": 11762,
+      "sha256": "0a7136237e661075c53a159d0795a173c656f414e29988f76f8fd2bbad97b440"
+    },
+    {
+      "path": "rsp4-cleanup.json",
+      "bytes": 10997,
+      "sha256": "86c5884c2de15413cb3c8d51bd6efc136ef655a134a0582e8c35a8182c23abdb"
+    },
+    {
+      "path": "rsp4-config.json",
+      "bytes": 11552,
+      "sha256": "e04e2c2f7a376cccb9e3d662eb309cbecbecd66edd6f19fc66054ce53ca2672a"
+    },
+    {
+      "path": "rsp4-module.json",
+      "bytes": 20631,
+      "sha256": "ee78964f9f19e0f47c6cf7803bf910713c3cb033b787214fef63be322f2ad4f1"
+    },
+    {
+      "path": "rsp4-registers.json",
+      "bytes": 12261,
+      "sha256": "7dc7adae6af340c7b0c739d3211ecca52a27e72d9fc34668d27f345d800f5eb4"
+    },
+    {
+      "path": "rsp4-start.json",
+      "bytes": 11374,
+      "sha256": "dc28b5aecfc723e2ebcfc11768590631140c40a3560f7989557f955847e00117"
+    },
+    {
+      "path": "tested-host-v9.json",
+      "bytes": 283,
+      "sha256": "5d8ac1d40d3b4ca3f234700f1ff3ae70d8472da00fb4f0ff8d465ec53b8baafc"
+    },
+    {
+      "path": "tetris-rsp2-status.txt",
+      "bytes": 748,
+      "sha256": "88235f6a59f7d6b3b7cc3ed342131b294998ff8dda8413b1e00d0b7a0be86258"
+    },
+    {
+      "path": "tetris-rsp3-status.txt",
+      "bytes": 476,
+      "sha256": "201bf58807769ddcc1548b6a57ca376aa14cd854a0b41ced11ccde463251cb88"
+    },
+    {
+      "path": "tetris-rsp4-status.txt",
+      "bytes": 753,
+      "sha256": "ddb66f209b125e67204a912cb47c2d2bfa7b3b880900c203c9b250f03685f22e"
+    },
+    {
+      "path": "tetris-v2-fault.asm",
+      "bytes": 9869,
+      "sha256": "14a2ca4c896e5aa7dedfd13f66eec9907a3ad4a8c5b0180b1fe34f53b5097549"
+    },
+    {
+      "path": "tetris-v2-fault.txt",
+      "bytes": 964,
+      "sha256": "c3a2d28347aa98b7114451b00dc8cf3173dfa84090e9bbe5addf700e70a0fe6a"
+    },
+    {
+      "path": "tetris-v2-imports.json",
+      "bytes": 804548,
+      "sha256": "682970247ca8b64431250816015e240dc7b4aaa8f5e37aede10a26b6b28e2661"
+    },
+    {
+      "path": "tetris-v2-status.txt",
+      "bytes": 743,
+      "sha256": "a1599041f0d2b94dfe395a2d9c2779845af1b141142587a3282ee6d3d3c968a6"
+    },
+    {
+      "path": "tetris-v3-fault.txt",
+      "bytes": 964,
+      "sha256": "1dafd98d252958d5eaa9c95969af348b8a56b8d78e4be5f89edda96a0b1a9676"
+    },
+    {
+      "path": "tetris-v3-imports.json",
+      "bytes": 804548,
+      "sha256": "4208d1384ce8d6db35ae8f6a1f2b0234172d70e2cec87e27ed53b2463a922fcf"
+    },
+    {
+      "path": "tetris-v3-status.txt",
+      "bytes": 749,
+      "sha256": "fd1808fe6488f512c3ef0a7f0282af020178c6ed5939ceaf61d960177c7d3c33"
+    },
+    {
+      "path": "tetris-v4-fault.txt",
+      "bytes": 964,
+      "sha256": "81de5c34705ed48d481fb64c4c8cad798b11605c8921d330460d87640f4c0a6e"
+    },
+    {
+      "path": "tetris-v4-imports.json",
+      "bytes": 803640,
+      "sha256": "295dda8607f34ed7f0bcd0d6481f97dc7a6f12fd93ca66f7be0edf2942ee9ffd"
+    },
+    {
+      "path": "tetris-v4-status.txt",
+      "bytes": 148,
+      "sha256": "497d93f3a495acde06e848f6b23a107e05d1b1ce70d9beeb79842a0e9e3e3753"
+    },
+    {
+      "path": "tetris-v5-fault.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "tetris-v5-imports.json",
+      "bytes": 801991,
+      "sha256": "d4e7b7770f790ead6368ab4ba89aff933aa824ec445a0b1789728d6788924e11"
+    },
+    {
+      "path": "tetris-v5-logcat.txt",
+      "bytes": 170148,
+      "sha256": "cc0fe19d15dccfe437723c9a1564d3b7adc4d86cdfb9b0eaab6d67102c5e51bf"
+    },
+    {
+      "path": "tetris-v5-status.txt",
+      "bytes": 746,
+      "sha256": "921aac683bcf8ff9f91ccaae2506e1cd03b687a36e026b0ab17425335e4302ea"
+    },
+    {
+      "path": "tetris-v5-status2.txt",
+      "bytes": 4886,
+      "sha256": "1af7b7166c30d9446d644d033a6f94dd99972bb809f08ae149a5aa2d74b1870b"
+    },
+    {
+      "path": "tetris-v5-visible.png",
+      "bytes": 578723,
+      "sha256": "f1d3c131a7afe762c9142c053aa502dfffb83e46d0a655ddff162792b2f1bba4"
+    },
+    {
+      "path": "tetris-v6-fault.asm",
+      "bytes": 3598,
+      "sha256": "a1fdabf30906aa88a0c949b1c6d473c8ad6b22f358f559fedd33c182fda216ed"
+    },
+    {
+      "path": "tetris-v6-fault.txt",
+      "bytes": 964,
+      "sha256": "33d1e0b46c2c1cd261cff349b04c941d166b7bce28dad5d1318d58192fd4cd24"
+    },
+    {
+      "path": "tetris-v6-imports.json",
+      "bytes": 801444,
+      "sha256": "44e55f24de2dfeb26288ee601fe18ba2390103862f6133cf5edba621742edb4f"
+    },
+    {
+      "path": "tetris-v6-logcat.txt",
+      "bytes": 167219,
+      "sha256": "61b7ad26ac8b90f539fb1f1c656cd03b43935789bb24572abcf67693c3a7e437"
+    },
+    {
+      "path": "tetris-v6-status.txt",
+      "bytes": 749,
+      "sha256": "326fc40335f3a5b4f9067acc5275f24eb8d15d30a1b64ab157e1194884cebdc6"
+    },
+    {
+      "path": "tetris-v6-status2.txt",
+      "bytes": 148,
+      "sha256": "497d93f3a495acde06e848f6b23a107e05d1b1ce70d9beeb79842a0e9e3e3753"
+    },
+    {
+      "path": "tetris-v7-imports.json",
+      "bytes": 801442,
+      "sha256": "1f4e0ccceb92a60b7a073fd208865949842c350c66bd26a5e680804cb78b997b"
+    },
+    {
+      "path": "tetris-v7-logcat.txt",
+      "bytes": 170106,
+      "sha256": "7d36b6cc283b100674da70237f66277fc8d175aadf88a4282c06080db97cf65f"
+    },
+    {
+      "path": "tetris-v7-status.txt",
+      "bytes": 748,
+      "sha256": "f9a192eae6059ad55252076d258b3024969e4d0088f220a5c3ba5b33ba2d89f3"
+    },
+    {
+      "path": "tetris-v7-status2.txt",
+      "bytes": 4889,
+      "sha256": "8668022d59555797e3dfec076b0f30e553566bd91d013d93660657d5750390af"
+    },
+    {
+      "path": "tetris-v7-visible.png",
+      "bytes": 186614,
+      "sha256": "ab5ba730f9bd7cb8d859674dd1a609498971c1d8b12ea33668ffccc7aa4ecc1c"
+    },
+    {
+      "path": "tetris-v8-imports.json",
+      "bytes": 800928,
+      "sha256": "183e921f11ab6936b92f7596ec364a0adbd2def7502490ddebc52062f11ef689"
+    },
+    {
+      "path": "tetris-v8-logcat.txt",
+      "bytes": 168827,
+      "sha256": "dfd029a9792e850f3245ee54d66f307dd3c9d4eddd17640dae502df49f4ef083"
+    },
+    {
+      "path": "tetris-v8-status.txt",
+      "bytes": 748,
+      "sha256": "fb2b87d160c967bf6361ba2a858ff773bc0ce9920c2e40ae4d9a4f51f6f45b70"
+    },
+    {
+      "path": "tetris-v8-status2.txt",
+      "bytes": 4891,
+      "sha256": "45a18c02a5dcd4244b3ee634d347aa477a24103a6aca9938aacf134a632e719f"
+    },
+    {
+      "path": "tetris-v8-visible.png",
+      "bytes": 186114,
+      "sha256": "91a4b19ec3012f9aae489c0a5b5337eda340e9fb188b5436ab1af2b385b28cd9"
+    },
+    {
+      "path": "tetris-v9-imports.json",
+      "bytes": 800806,
+      "sha256": "fb13524464ed391ff0699fad331d0f05ad068f4a04df4f582988234a9132c319"
+    },
+    {
+      "path": "tetris-v9-logcat.txt",
+      "bytes": 170549,
+      "sha256": "1ee0d98ab1f5fda3493f54823fabf0763110309c88b7358b9338d8abd1a651c3"
+    },
+    {
+      "path": "tetris-v9-status.txt",
+      "bytes": 4893,
+      "sha256": "87c552aa7c3d5f692add2cd2b4f9ef8ddd508d34a2e49eabc9118bfb86131df6"
+    },
+    {
+      "path": "tetris-v9-visible.png",
+      "bytes": 186677,
+      "sha256": "11759a508c387071b78a28a1026914dca450e7e4b05bcbc0c40f83a75dcafa31"
+    },
+    {
+      "path": "v7-guest_commerce_dialog_tests.txt",
+      "bytes": 38,
+      "sha256": "73cc3e71fa684c9a48fa04667d05a352f7c83857667bad576230654fa600daec"
+    },
+    {
+      "path": "v7-guest_msg_dialog_tests.txt",
+      "bytes": 33,
+      "sha256": "1ac2fbc9c970a833a6069553097a397dd6e572e238266418aed0fdeaaa20d7d6"
+    },
+    {
+      "path": "v7-guest_np_tests.txt",
+      "bytes": 35,
+      "sha256": "51b62b83195dd9331d9eb083cfb73cecfa9dbad6903d5e792e5b7556d436131a"
+    },
+    {
+      "path": "v7-guest_psvr_services_tests.txt",
+      "bytes": 36,
+      "sha256": "ef1ede2eb77d6f8406564150dc36e10b7c8756f3010e1ecffc5d2387b72dd46f"
+    },
+    {
+      "path": "v7-guest_reprojection_tests.txt",
+      "bytes": 49,
+      "sha256": "6b7f34e66a8c352838f11158ebad3080b6c962fc3774b10e881b668dc6fbb127"
+    },
+    {
+      "path": "v7-host_library_smoke.txt",
+      "bytes": 44,
+      "sha256": "c56832802c326961dfc3bf54236c502a8f41b91b72f0bbbc28d511bb556a41a9"
+    },
+    {
+      "path": "v7-reprojection-before-tests.txt",
+      "bytes": 256,
+      "sha256": "1263c1d7ea3555aa24e4a5b46d06f3cf05dd8f677b111f304a14fada883523d5"
+    },
+    {
+      "path": "v8-guest_commerce_dialog_tests.txt",
+      "bytes": 38,
+      "sha256": "73cc3e71fa684c9a48fa04667d05a352f7c83857667bad576230654fa600daec"
+    },
+    {
+      "path": "v8-guest_msg_dialog_tests.txt",
+      "bytes": 33,
+      "sha256": "7bac2563f53384a0b2922f11c3c316a3005fa2ee74f6b07fdad87d86445d6deb"
+    },
+    {
+      "path": "v8-guest_np_tests.txt",
+      "bytes": 35,
+      "sha256": "51b62b83195dd9331d9eb083cfb73cecfa9dbad6903d5e792e5b7556d436131a"
+    },
+    {
+      "path": "v8-guest_psvr_services_tests.txt",
+      "bytes": 36,
+      "sha256": "ef1ede2eb77d6f8406564150dc36e10b7c8756f3010e1ecffc5d2387b72dd46f"
+    },
+    {
+      "path": "v8-guest_reprojection_tests.txt",
+      "bytes": 49,
+      "sha256": "6b7f34e66a8c352838f11158ebad3080b6c962fc3774b10e881b668dc6fbb127"
+    },
+    {
+      "path": "v8-host_library_smoke.txt",
+      "bytes": 44,
+      "sha256": "c56832802c326961dfc3bf54236c502a8f41b91b72f0bbbc28d511bb556a41a9"
+    },
+    {
+      "path": "v9-before.txt",
+      "bytes": 4898,
+      "sha256": "edf000dac71c339bb6401119a15d5ad84e94bf2c6a4ab955016d27e27055ebd5"
+    },
+    {
+      "path": "v9-guest_commerce_dialog_tests.txt",
+      "bytes": 38,
+      "sha256": "73cc3e71fa684c9a48fa04667d05a352f7c83857667bad576230654fa600daec"
+    },
+    {
+      "path": "v9-guest_msg_dialog_tests.txt",
+      "bytes": 33,
+      "sha256": "7bac2563f53384a0b2922f11c3c316a3005fa2ee74f6b07fdad87d86445d6deb"
+    },
+    {
+      "path": "v9-guest_np_tests.txt",
+      "bytes": 35,
+      "sha256": "51b62b83195dd9331d9eb083cfb73cecfa9dbad6903d5e792e5b7556d436131a"
+    },
+    {
+      "path": "v9-guest_psvr_services_tests.txt",
+      "bytes": 36,
+      "sha256": "9b99516b66096af71595255f75d9e5e76f81db70c00b14222d910ab82059a0ae"
+    },
+    {
+      "path": "v9-guest_reprojection_tests.txt",
+      "bytes": 49,
+      "sha256": "6b7f34e66a8c352838f11158ebad3080b6c962fc3774b10e881b668dc6fbb127"
+    },
+    {
+      "path": "v9-host_library_smoke.txt",
+      "bytes": 44,
+      "sha256": "c56832802c326961dfc3bf54236c502a8f41b91b72f0bbbc28d511bb556a41a9"
+    },
+    {
+      "path": "vr-init-context.asm",
+      "bytes": 64862,
+      "sha256": "ddb94afd535667d272d62bfa73484df0fb4487055d9f53f6a85399a3df65317e"
+    },
+    {
+      "path": "vr-manager-init.c",
+      "bytes": 6663,
+      "sha256": "745f5ff2c070fb8aa015a1d691447ad3fd5a2f06890a3d472ebfecb79f0774c8"
+    },
+    {
+      "path": "work-buffer-maps.txt",
+      "bytes": 336,
+      "sha256": "4bbd708b3678773b6e15511248d6a99e08307f231c91288d0b52b8ce82e0103b"
+    }
+  ]
+}

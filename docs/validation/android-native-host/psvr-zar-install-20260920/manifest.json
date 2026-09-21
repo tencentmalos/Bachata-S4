@@ -1,0 +1,62 @@
+[
+  {
+    "path": "CUSA13427-file-inventory.json",
+    "bytes": 14464,
+    "sha256": "ef19b71555821dc53885f9c195d5e9ea8d1c0e83f3509c52888efe129a515db4"
+  },
+  {
+    "path": "CUSA13427-install.manifest.txt",
+    "bytes": 180,
+    "sha256": "c81c56089493308b0a71b9693ea0d26dc71d64aa8c55afffe989284ae2d89661"
+  },
+  {
+    "path": "CUSA36289-allinone-file-inventory.json",
+    "bytes": 18881,
+    "sha256": "4eccc3622cedb24cd7c7f83eaaa72f7797cdfc1e16f4df7fdbc04094a660f224"
+  },
+  {
+    "path": "CUSA36289-install.manifest.txt",
+    "bytes": 180,
+    "sha256": "c453d43cf6c9a62b6a93de00d824a62a7141ade0e8f20f301d79d5dc0965c39c"
+  },
+  {
+    "path": "cleanup.json",
+    "bytes": 240,
+    "sha256": "b80c76362714a4dc8bf2ed5fdee2b8064a26101d6cea1d5eac822dba8ca4845a"
+  },
+  {
+    "path": "device-transfer.txt",
+    "bytes": 244,
+    "sha256": "ea7ffb963cee984f349beaa738f45f1fb990cb16719b975283fcb82d97edc16e"
+  },
+  {
+    "path": "installed-archives.json",
+    "bytes": 1957,
+    "sha256": "db4fb212797cf116cf71f45572749fcd369ea689b5c852b5664151077d6443b2"
+  },
+  {
+    "path": "library-registration.json",
+    "bytes": 645,
+    "sha256": "86f02c1505166cae9042009185e3d6c2f919cdf2f3d8773b152e374bc561d275"
+  },
+  {
+    "path": "pkg-inventory.json",
+    "bytes": 3008,
+    "sha256": "a168e46f0bbaada5ff0025122de5a15c94be42532e67f9003e8e5d44447798de"
+  },
+  {
+    "path": "sports-final.json",
+    "bytes": 607,
+    "sha256": "a1674720636bf1a3253560804c64902f7c6af01c05a0ba30dba5b26518486908"
+  },
+  {
+    "path": "tetris-final.json",
+    "bytes": 676,
+    "sha256": "2e41dcbbca30a6bef3aefaaed2afb67eab7d0f4bc0cfc510d44ab4e4198fdf0c"
+  },
+  {
+    "path": "tetris-startup-error.png",
+    "bytes": 206497,
+    "sha256": "8842e9711431a090d56dfd507d5ea469b608cbef2dcc5b3164896d06cd914ac7"
+  }
+]

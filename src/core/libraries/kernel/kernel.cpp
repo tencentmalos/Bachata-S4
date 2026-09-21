@@ -169,6 +169,87 @@ s32 NativeToPosixErrno(s32 const e) {
     case ENOEXEC: return POSIX_ENOEXEC;
     case EOVERFLOW: return POSIX_EOVERFLOW;
     case ENOSYS: return POSIX_ENOSYS;
+#ifdef EINPROGRESS
+    case EINPROGRESS: return POSIX_EINPROGRESS;
+#endif
+#ifdef EALREADY
+    case EALREADY: return POSIX_EALREADY;
+#endif
+#ifdef ENOTSOCK
+    case ENOTSOCK: return POSIX_ENOTSOCK;
+#endif
+#ifdef EDESTADDRREQ
+    case EDESTADDRREQ: return POSIX_EDESTADDRREQ;
+#endif
+#ifdef EMSGSIZE
+    case EMSGSIZE: return POSIX_EMSGSIZE;
+#endif
+#ifdef EPROTOTYPE
+    case EPROTOTYPE: return POSIX_EPROTOTYPE;
+#endif
+#ifdef ENOPROTOOPT
+    case ENOPROTOOPT: return POSIX_ENOPROTOOPT;
+#endif
+#ifdef EPROTONOSUPPORT
+    case EPROTONOSUPPORT: return POSIX_EPROTONOSUPPORT;
+#endif
+#ifdef ESOCKTNOSUPPORT
+    case ESOCKTNOSUPPORT: return POSIX_ESOCKTNOSUPPORT;
+#endif
+#ifdef EOPNOTSUPP
+    case EOPNOTSUPP: return POSIX_EOPNOTSUPP;
+#endif
+#ifdef EAFNOSUPPORT
+    case EAFNOSUPPORT: return POSIX_EAFNOSUPPORT;
+#endif
+#ifdef EADDRINUSE
+    case EADDRINUSE: return POSIX_EADDRINUSE;
+#endif
+#ifdef EADDRNOTAVAIL
+    case EADDRNOTAVAIL: return POSIX_EADDRNOTAVAIL;
+#endif
+#ifdef ENETDOWN
+    case ENETDOWN: return POSIX_ENETDOWN;
+#endif
+#ifdef ENETUNREACH
+    case ENETUNREACH: return POSIX_ENETUNREACH;
+#endif
+#ifdef ENETRESET
+    case ENETRESET: return POSIX_ENETRESET;
+#endif
+#ifdef ECONNABORTED
+    case ECONNABORTED: return POSIX_ECONNABORTED;
+#endif
+#ifdef ECONNRESET
+    case ECONNRESET: return POSIX_ECONNRESET;
+#endif
+#ifdef ENOBUFS
+    case ENOBUFS: return POSIX_ENOBUFS;
+#endif
+#ifdef EISCONN
+    case EISCONN: return POSIX_EISCONN;
+#endif
+#ifdef ENOTCONN
+    case ENOTCONN: return POSIX_ENOTCONN;
+#endif
+#ifdef ESHUTDOWN
+    case ESHUTDOWN: return POSIX_ESHUTDOWN;
+#endif
+#ifdef ETOOMANYREFS
+    case ETOOMANYREFS: return POSIX_ETOOMANYREFS;
+#endif
+#ifdef ECONNREFUSED
+    case ECONNREFUSED: return POSIX_ECONNREFUSED;
+#endif
+#ifdef EHOSTUNREACH
+    case EHOSTUNREACH: return POSIX_EHOSTUNREACH;
+#endif
+#ifdef ECANCELED
+    case ECANCELED: return POSIX_ECANCELED;
+#endif
+#ifdef EPIPE
+    case EPIPE: return POSIX_EPIPE;
+#endif
     default:
         LOG_WARNING(Kernel, "Unhandled errno {}", e);
         return e;

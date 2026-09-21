@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #pragma once
+#include "video_core/vr_frame.h"
 
 #include "common/debug.h"
 #include "common/polyfill_thread.h"
@@ -107,7 +108,7 @@ public:
     void SetVrCadence(std::function<void()> callback);
     void SetVrActive(bool active);
     bool SubmitVrFrame(VideoOutPort* port, s32 index, u64 sequence,
-                       const std::array<AmdGpu::Image, 4>& eyes, u32 image_count,
+                       const VideoCore::VrFrameSource& source,
                        std::function<void(bool)> complete);
 
 private:

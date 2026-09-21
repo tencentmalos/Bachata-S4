@@ -1,0 +1,19 @@
+SERVICE com.shadps4.android/.service.FexSessionService 3abc106 pid=8079 user=0
+  Client:
+    session: active
+    generation: 1
+    pid: 8079
+    phase: 3
+    run_uuid: c761fc4989481a3afbb35d9e2a2474de
+    stage: Running
+    driver: unavailable
+    snapshot_ns: 689964567978303
+    guest_flip: unavailable
+    pm4_consumed: unavailable
+    host_draw: unavailable
+    queue_submit: unavailable
+    gpu_retire: unavailable
+    host_present: unavailable
+    overlay_redraw: unavailable
+    guest_submission: unavailable
+

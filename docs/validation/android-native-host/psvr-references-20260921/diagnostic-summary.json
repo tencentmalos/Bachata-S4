@@ -1,0 +1,32 @@
+{
+  "fatal_text": "sceVideoOutConfigureOutputMode failed with error code: 0x80290001.\nIf using VR, check that \"The application supports PlayStation®VR\" is enabled in your param.sfo.",
+  "mode_arguments": {
+    "rdi": "0x1",
+    "rsi": "0x0",
+    "rdx": "0x1c042f3d88",
+    "rcx": "0x0",
+    "r8": "0x20",
+    "r9": "0x10",
+    "rsp": "0x1c042f3d58",
+    "rip": "0x18003d8000"
+  },
+  "mode_bytes": {
+    "address": "0x1c042f3d88",
+    "length": 32,
+    "hex": "20000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "dataBase64": "IAAAAP////////////////////////////////////8="
+  },
+  "identity_limit": "RSP did not report host PID/starttime or main Build-ID. External process/status and exact instruction bytes were used; not a complete runtime identity proof.",
+  "rsp_cleanup": [
+    {
+      "source": "tetris-mode-cleanup.json",
+      "succeeded": true,
+      "ownershipReleased": true
+    },
+    {
+      "source": "tetris-rsp-cleanup.json",
+      "succeeded": true,
+      "ownershipReleased": true
+    }
+  ]
+}

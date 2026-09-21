@@ -1,0 +1,94 @@
+{
+  "source_modules": {
+    "firmware_signin": {
+      "path": "/Users/bytedance/game/ps4/firmware/11.00_sys_modules/libSceSigninDialog.sprx",
+      "sha256": "4153e4f86aba1466e55350ce7f0d58f035c82dfabf7a4ad3212f78ed830c59c8"
+    },
+    "firmware_ssl": {
+      "path": "/Users/bytedance/game/ps4/firmware/11.00_sys_modules/libSceSsl.sprx",
+      "sha256": "7f1258324ac4727eecc41f968b9af4f2fdbfdfaff6c0fb2d0b7329253307b7d0"
+    },
+    "toolkit": {
+      "path": "/Users/bytedance/Downloads/Tetris-debugbus-20260921/app0/elf/sce_module/libSceNpToolkit2.prx.elf",
+      "sha256": "f9204cc565a9c3d78a432ff34e0a0da47304901eae94bdc1a108694d787cf13c"
+    },
+    "main": {
+      "path": "/Users/bytedance/Downloads/Tetris-debugbus-20260921/app0/elf/eboot.bin.elf",
+      "sha256": "157845ba4297a000ac9cfeb26b7b78925d7d903a2ee34575c74d0f5ede6e9677"
+    },
+    "eos": {
+      "path": "/Users/bytedance/Downloads/Tetris-debugbus-20260921/app0/elf/prx/eossdk-ps4-shipping.prx.elf",
+      "sha256": "65c26cf21afd53ca3c574eb43ac1f31055812632ea6de03d3690f6aea8e6c6af"
+    }
+  },
+  "reverse_study": {
+    "toolkit_workspace": "tetris-signin-20260921",
+    "firmware_workspace": "tetris-signin-fw-20260921",
+    "functions": 0,
+    "xrefs": 0,
+    "fallback": "LLVM exact ELF disassembly; zero index does not imply unreachable; both workspaces closed"
+  },
+  "signin": {
+    "param_size": 16,
+    "fields": {
+      "size": 0,
+      "user_id": 4,
+      "reserved0": 8,
+      "reserved1": 12
+    },
+    "result_size": 4,
+    "cancel_result": 1,
+    "firmware": {
+      "Initialize": "0x1090 -> 0x11a0",
+      "Terminate": "0x10a0 -> 0x11e0",
+      "Open": "0x10b0 -> 0x1600",
+      "Close": "0x10c0 -> 0x1900",
+      "UpdateStatus": "0x10d0 -> 0x1a80",
+      "GetStatus": "0x10e0 -> 0x1ab0",
+      "GetResult": "0x10f0 -> 0x1ae0"
+    },
+    "toolkit_call_sites": {
+      "LoadModule_e4": "0x41170",
+      "Initialize": "0x4136e",
+      "Open": "0x4139b",
+      "UpdateStatus": "0x413da",
+      "GetResult": "0x41417",
+      "Terminate": "0x4141c"
+    },
+    "LoginDialog": "No import in this exact Toolkit; independent Beat Saber dependency remains unimplemented"
+  },
+  "ssl": {
+    "firmware_entries": {
+      "Init": "0x2f40",
+      "Term": "0x2f60",
+      "GetCaCerts": "0x3b60",
+      "FreeCaCerts": "0x3d30",
+      "GetMemoryPoolStats": "0x34b0"
+    },
+    "ca_struct_size": 24,
+    "stats_written_bytes": 24,
+    "toolkit_stats_call": "0x39077",
+    "mode": "empty offline trust store; allocated bounded local pool; not TLS"
+  },
+  "eos": {
+    "workspace": "tetris-eos-wait-20260921",
+    "functions": 0,
+    "xrefs": 0,
+    "imagebase": "0x0",
+    "imagebaseEstimated": false,
+    "closed": true,
+    "fallback": "LLVM exact ELF; indexed caller coverage unavailable, runtime RSP proves execution",
+    "live_base": "0x10124c000",
+    "loopback_pair_entry": "0x830ca0",
+    "socket_call_return": "0x830cd8",
+    "main_cond_wait_return": "0xa66795",
+    "select_call_return": "0xcbff7d",
+    "socket_entry_args": [
+      2,
+      1,
+      0
+    ],
+    "socket_return": "-1",
+    "linked_wait_causality": "Local pair failure and subsequent wait observed; unique cause and restoration of wakeup remain unverified until shared socket implementation."
+  }
+}

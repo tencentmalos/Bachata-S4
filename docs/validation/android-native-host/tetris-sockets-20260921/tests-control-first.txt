@@ -1,0 +1,3 @@
+FAIL line 229: parked.get() == error(ORBIS_NET_ECANCELED)
+FAIL line 230: stopping.Dispatch(*space, "SF47kB2MNTo", {0,0}, base+128) == error(ORBIS_NET_ECANCELED)
+GUEST_NETWORK checks=299 failures=2

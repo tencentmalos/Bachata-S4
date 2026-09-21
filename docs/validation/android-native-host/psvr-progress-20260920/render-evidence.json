@@ -1,0 +1,73 @@
+{
+  "rdc_sha256": "5bfe8050da75d0dedef655aa832b32df68d89a898b8e4f074951893a6ab71c85",
+  "runtime": "AYN Turnip remote, paired RenderDoc 0.1.0-local.20260907.150004",
+  "capture_id": "5205235c-83f9-49cc-b4bf-6533ab79a869",
+  "eye_review": {
+    "event": "1486",
+    "resource": "1535",
+    "mip": 0,
+    "slice": 0,
+    "image": "baseline-guest-eye-rgb.png",
+    "kind": "exported RGB alpha forced 1 for review, no Y correction",
+    "note": "Actual review_texture image content inspected. Overlapping text and sabers present in guest eye texture."
+  },
+  "draw_chain": [
+    {
+      "event": "1475",
+      "xml_chunk": 2281,
+      "packet_va": "0x213272a0c",
+      "target": "1535",
+      "viewport": [
+        0,
+        756,
+        672,
+        -756
+      ],
+      "scissor": [
+        0,
+        0,
+        672,
+        756
+      ]
+    },
+    {
+      "event": "1486",
+      "xml_chunk": 2292,
+      "packet_va": "0x213272b50",
+      "target": "1535",
+      "viewport": [
+        672,
+        756,
+        672,
+        -756
+      ],
+      "scissor": [
+        672,
+        0,
+        672,
+        756
+      ]
+    }
+  ],
+  "sampled_images": [
+    "1985",
+    "1851"
+  ],
+  "upstream_resolve_source": "1825",
+  "pipeline": "2030",
+  "patchControlPoints": 4,
+  "limitations": [
+    "Deep pipeline DB pending; pipeline_bindings/cbuffer_get native-abi-required, not interpreted as empty.",
+    "Vulkan state read from paired renderdoccmd structured XML; no local Adreno replay.",
+    "No visual export of upstream 1825/1851, no established unique shader root cause.",
+    "1.0 diagnostic and final 0.5 are different APKs with unchanged rendering sources; not a strict same-APK performance A/B."
+  ],
+  "baseline.zip.xml": {
+    "path": "build/validation/psvr-progress-20260920/replay/baseline.zip.xml",
+    "sha256": "3fc3dfd9f12702f457264d0b0da63210bf11b91c1e43a352ef8b4a1d8e1539c2"
+  },
+  "baseline.zip": {
+    "path": "build/validation/psvr-progress-20260920/replay/baseline.zip",
+    "sha256": "57b8e8ee326749ad9e7855019f3f10d9c70b46193de46861339dd8858f8a6356"
+  }
+}

@@ -1,0 +1,446 @@
+{
+  "schema": 1,
+  "device": "AYN Thor 9c2841a4",
+  "branch": "feature/malos/beat_saber_fix",
+  "git_head": "63b6d560dd43af031ec7a5de64ae6204beea5de2",
+  "state": "local uncommitted; prior work preserved",
+  "created_utc": "2026-09-21T01:32:15.651882+00:00",
+  "final_binaries": {
+    "apk": "7bb24802e33df8de586c9acf8b21e91f882e61df9f600d132a357d007f8010b7",
+    "host": "a7be69f6dba98cf4db3228e2970b0b637b97cb495f9ca8c20710fd3b3b585367",
+    "lib/arm64-v8a/libshadps4_fex_session.so": "4c4dc2948feb24f13d126a8fa780e7a914478cde9ac9884478d87252fee9eed5",
+    "lib/arm64-v8a/libshadps4_host.so": "a7be69f6dba98cf4db3228e2970b0b637b97cb495f9ca8c20710fd3b3b585367"
+  },
+  "limits": [
+    "No full regression or playable-game acceptance",
+    "Tests are targeted development-stage runs; see named version logs, not a full rerun of all suites on V7",
+    "Direct Core::init breakpoint success is V6; final V7 separately reproduces SigninDialog rejection",
+    "MSAA samples use identical clear colors; no distinct-sample resolve validation",
+    "ELFs, firmware binaries, APKs, SOs and bulk disassembly remain local-only"
+  ],
+  "source_sha256": {
+    "src/core/host_runtime/guest_callback_owner.h": "8aeea78aedf00fe608698c10229185d22da955b912ce137c85390ddfd722356d",
+    "src/core/host_runtime/guest_user_callbacks.h": "e6c30d132f4204a1430ca87f7a5380fb143030ddf2720739032f51d3bd03b3ca",
+    "src/core/host_runtime/guest_np_utility.h": "612f842c6265b43a315cf8025a2d117aa3cde48c1eca95eb46adf71c54461558",
+    "src/core/host_runtime/guest_http_uri.h": "2033aa6e61a5779724b0ebb0562a5dd38d14fafd406da8ba20da3730304c407a",
+    "src/core/host_runtime/guest_np_webapi.h": "4cb216b0f2a27626207a9f4be459c0194fee87520436b063a774b8020ccdfd28",
+    "src/core/host_runtime/guest_np_control.h": "9d3135c46b4687df82cf17faa1d0fb346421238e0be4d3e2ed400dfce3f46372",
+    "src/core/host_runtime/guest_np.h": "7cccc96bb895ed959e653aede3e5a93a768bb5dda490696ec0f6ab115b4197ca",
+    "src/core/host_runtime/guest_network.h": "2635ffdf8444a066cd2baa2721caf0a01f1619bf07f6ea688e037ecb5be5ecb6",
+    "src/core/host_runtime/guest_http.h": "7d7d6f8792a74f3c3b56d5742a32893cd1000ffafb9e1470d1359dd93aa15f19",
+    "src/core/host_runtime/guest_avplayer.h": "2a47b5e04d991d5cf1ea583b18fae12753951d9885388bc9821d435074f26993",
+    "src/core/host_runtime/guest_runtime.cpp": "9b2c00d7ff8671f0c4903a57cb347e6c4ff35f46ebe08250050fd2adcfd38aa9",
+    "src/core/libraries/np/np_manager.h": "18decd7758be7f6872b483fbe89583c0028e7d8a120538783cb013360bede441",
+    "src/core/libraries/np/np_web_api/np_web_api.cpp": "9c7681fa006f07bb17c08d8e2692bc1716b0e495f54fc7d4636972ff9261f6a3",
+    "src/core/libraries/np/np_web_api/np_web_api.h": "816eb2d14a068aa5656fafa077a7fba8d8817af6a7669fce0c45972de8fca273",
+    "src/core/libraries/np/np_web_api/np_web_api_internal.cpp": "ebe1c654f5092c9ae41e62a4aea95f9ec046d141a10fbb621f0afdb5cef60e5a",
+    "src/core/libraries/np/np_web_api/np_web_api_internal.h": "34fe47a7f90ea468fcac104748599d204640b763bc1235abf3b1366a360ecf0a",
+    "src/shader_recompiler/backend/spirv/spirv_emit_context.cpp": "a655ea1e8b28ec575a81de03f7fa706cc8f2a72b05990336e8114d968459aba6",
+    "src/shader_recompiler/backend/spirv/emit_spirv_image.cpp": "cc8b675775ac4ae9be2871b8151eff706f3f8f243adebacacbb5d691eb302d42",
+    "src/video_core/texture_cache/image_view.cpp": "6b9283d415b595ae09af28f4b4142404e5f0cb1d313cd02075b9bd3baf4dc4cd",
+    "src/video_core/renderer_vulkan/vk_pipeline_serialization.cpp": "36c3eca01254136580a34acea40455f7e15cddbc75a6c497716b5f8d1f070a18",
+    "tests/video_core/android_msaa_image_probe.cpp": "6485ca53677f26717988cbffa319c19d1b19979b04d42272e3e87419ff30b181",
+    "tests/host_runtime/guest_psvr_services_tests.cpp": "ca8636e0e36c65d44c5615c2f7e9f084fdced27a97838343bd65ff8afe8e7a7e",
+    "tests/host_runtime/guest_network_tests.cpp": "401a1c2e44ce5a6c6184d50ca35fba1690f19d85fe58e6a6fb5dfa1af2ad9d6c",
+    "tests/host_runtime/guest_http_tests.cpp": "15f25772c3eed95134b4cf3c8fd5a58320e2dced509b9996c9b235ac4bad0233",
+    "tests/host_runtime/guest_np_tests.cpp": "3b5e8bc7601f5ee33fd181f3807c1d4cf12621012eeeb5dd5ce9b201f3a05a63",
+    "CMakeLists.txt": "df7554608d8992cff7d0ad09865ea9fcac8ea468da0323a6899838830383be84"
+  },
+  "files": [
+    {
+      "path": "beat-final-audit.json",
+      "bytes": 105561,
+      "sha256": "750a72fb7dedaa824acc2632e23b48baaf74d106f6b29d0158d5eefd98654dda"
+    },
+    {
+      "path": "beat-v7-after-cross.png",
+      "bytes": 2195307,
+      "sha256": "4b82ec3cdf14f466b9bce18bcfa0c59e13dd6e558688ba29999e5735aa4985cd"
+    },
+    {
+      "path": "beat-v7-final-running.txt",
+      "bytes": 790,
+      "sha256": "3a26ba83cafc03694e57b54c74dbc7418b24d2f26169b7e2da675c0b2d9fdf3e"
+    },
+    {
+      "path": "beat-v7-imports.json",
+      "bytes": 639189,
+      "sha256": "360be2337e22e712138dba620cc17ffdbd94c09ccda7dfe215edbf927892d489"
+    },
+    {
+      "path": "beat-v7-input.txt",
+      "bytes": 315,
+      "sha256": "946315112e4a17dcc8b335ef143e9db14ff6f7a48abd5faede60225c65679f38"
+    },
+    {
+      "path": "beat-v7-logcat.txt",
+      "bytes": 189841,
+      "sha256": "9a88bed51aeec24668c4c2682f31ec58fea13209d97dd480e0b985bdd57a281e"
+    },
+    {
+      "path": "beat-v7-renderdoc.txt",
+      "bytes": 155,
+      "sha256": "016076125f6932dc970ed2bb1d6774d718cdddf9379e551cc4355e9ffb61e5fe"
+    },
+    {
+      "path": "beat-v7-status.txt",
+      "bytes": 792,
+      "sha256": "13f1ef091202b4e2b92b4ae1fb8ae2f12dc233c488fecf07e220de9c7b478da1"
+    },
+    {
+      "path": "beat-v7-stopped-input.txt",
+      "bytes": 607,
+      "sha256": "3e0470c40605374f99e9a24051702bfc78cdbca125266aaf787f556f3e076939"
+    },
+    {
+      "path": "beat-v7-stopped.txt",
+      "bytes": 5194,
+      "sha256": "6ba009de9038093936bab23c25247bb5dd710ef43ff01e68736460056498b603"
+    },
+    {
+      "path": "binaries-v6.json",
+      "bytes": 376,
+      "sha256": "8a15c5c8d23b46b6e1bfba4bbfbeb32093a1a0d6e4cac76df7a6e2d01396a309"
+    },
+    {
+      "path": "binaries-v7.json",
+      "bytes": 376,
+      "sha256": "acd87c3a898757fd37dea0c0c6b88b1445bbb5b788f22a0eda85f9ff2bc61760"
+    },
+    {
+      "path": "binaries.json",
+      "bytes": 3125,
+      "sha256": "5bcc318b03bd1f4e7fa1559c38bb881807f2e25d65c3628b15d1f6b22531a9e6"
+    },
+    {
+      "path": "build-msaa-views.txt",
+      "bytes": 10160,
+      "sha256": "7d495e807d1422eeab33e799fc578f39a7841ce29a140c1e6900d2b1b3a68525"
+    },
+    {
+      "path": "cleanup.json",
+      "bytes": 936,
+      "sha256": "f536ba682ecfdd6c2e93d7009f43e7501600b187278421de922c2bf94ef0fae6"
+    },
+    {
+      "path": "debug-core-entry-regs.json",
+      "bytes": 9040,
+      "sha256": "0ebca80868dc65dd7f952134fd72c4a10ba7c49d1cf819f16436b5d475e234dc"
+    },
+    {
+      "path": "debug-core-final-return.json",
+      "bytes": 11836,
+      "sha256": "48b9570bf5facdfbe30bd05a23bc260aa01cf3c215c9e4865cee9de9ff110de9"
+    },
+    {
+      "path": "debug-core-valid-stages.json",
+      "bytes": 90442,
+      "sha256": "a0deb2fa959914ebaf4b6855fdcba58909b8df65f17b61748616b2f888d4c2ed"
+    },
+    {
+      "path": "debug-debug-cleanup.json",
+      "bytes": 7721,
+      "sha256": "0647672dbfa1c9aa426a30bd56843294e947ed5c17c5644d3a5a73cafe584bdf"
+    },
+    {
+      "path": "debug-resource-return.json",
+      "bytes": 12515,
+      "sha256": "9111a2fbbe71610515274c0e39834c6f179df445c24bc77686793f72d000ce52"
+    },
+    {
+      "path": "debug-v6-cleanup.json",
+      "bytes": 10998,
+      "sha256": "2396065075d75e693d83dd0e7a157a313d3f7ae2bcc172410d07d82f9e3b6c69"
+    },
+    {
+      "path": "debug-v6-core-return.json",
+      "bytes": 11591,
+      "sha256": "e1b5c609404420acecc2fd33b79a45839eabab28f3eb421a775c256a1c96c4f2"
+    },
+    {
+      "path": "debug-v6-modules.json",
+      "bytes": 20631,
+      "sha256": "acb30d9e7622995dc2aee18dfc20387165a5214cdf7d77a4fe78d2e852593b76"
+    },
+    {
+      "path": "debug-v6-title-return.json",
+      "bytes": 12034,
+      "sha256": "c1d5e5c65621eb137a638f79a46eeaef5de5de842f022649c3ee841a65e206f2"
+    },
+    {
+      "path": "device-before.txt",
+      "bytes": 5219,
+      "sha256": "b74684594cbe6a68537a784bfac0bb0bed17c22b9a8ca4c6c68c8b91591fdba6"
+    },
+    {
+      "path": "final-forward.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "path": "final-input.txt",
+      "bytes": 83,
+      "sha256": "45d3083b8e5d12f9fd154b4c7d8f7890c23577d6b474f69e377d661522d26787"
+    },
+    {
+      "path": "final-process.txt",
+      "bytes": 1086,
+      "sha256": "0abe14b767db4f3f2852e1548a227b39cf7621e28b0316f25fa37178f1dab0d1"
+    },
+    {
+      "path": "final-profiler.txt",
+      "bytes": 83,
+      "sha256": "45d3083b8e5d12f9fd154b4c7d8f7890c23577d6b474f69e377d661522d26787"
+    },
+    {
+      "path": "final-properties.txt",
+      "bytes": 694,
+      "sha256": "4cfeb8694fe6230a6873ed61e79c40d9f411ac56590ab8702ab28fb91a9782aa"
+    },
+    {
+      "path": "final-renderdoc.txt",
+      "bytes": 83,
+      "sha256": "45d3083b8e5d12f9fd154b4c7d8f7890c23577d6b474f69e377d661522d26787"
+    },
+    {
+      "path": "final-status.txt",
+      "bytes": 83,
+      "sha256": "45d3083b8e5d12f9fd154b4c7d8f7890c23577d6b474f69e377d661522d26787"
+    },
+    {
+      "path": "global-final.json",
+      "bytes": 427,
+      "sha256": "2d9cbe984e5f265e3a607314a8a3759f01ff35ec43369cfe43af6a17e80dfc64"
+    },
+    {
+      "path": "gradle-v7.txt",
+      "bytes": 20733,
+      "sha256": "fb94f224c8c6023d19251b3a9278dd0882c94ac0ba7a5044134238e1f6f5aa85"
+    },
+    {
+      "path": "host-config-final.json",
+      "bytes": 40,
+      "sha256": "e6b6682ba630ff983624844cd4cc9a61af940c42a48d6206418d0d1a9e3e3057"
+    },
+    {
+      "path": "import-summary.json",
+      "bytes": 885,
+      "sha256": "8f3debf65c6edcde331e3c04df48cc0934e42bc5e5e25860c44cf90617397d68"
+    },
+    {
+      "path": "installed-v6.json",
+      "bytes": 221,
+      "sha256": "e1d69583f3376c0445dc92c81bcd8d61cee76e659a6a025122325b45015598de"
+    },
+    {
+      "path": "installed-v7.json",
+      "bytes": 221,
+      "sha256": "b8aca32332826b55e4328311bc99ca30f1ffb6b12c21317516794e1f7feadcbe"
+    },
+    {
+      "path": "msaa-old-system.txt",
+      "bytes": 16482,
+      "sha256": "0880f210e2fc0d39d9a8612d249c0efa28773c58423426b2b1a57171c7cb9f15"
+    },
+    {
+      "path": "msaa-v6-views-counterexample.txt",
+      "bytes": 16445,
+      "sha256": "bddb13fae22ef9f83cea4ed81e2a270bd84dbb7c9b054ff6349cdd0e352696d8"
+    },
+    {
+      "path": "msaa-views-system.txt",
+      "bytes": 16331,
+      "sha256": "f5b73898e53289ea8f3b3a0212f95c64c32bed9d24fae18e5a3eadf549eac90b"
+    },
+    {
+      "path": "msaa-views-turnip.txt",
+      "bytes": 18146,
+      "sha256": "749b346173f78549c06104715a341b681332a1848de03c7522be423b1eb95009"
+    },
+    {
+      "path": "netctl-tests-v6.txt",
+      "bytes": 36,
+      "sha256": "86acab34f48e2295df8cc1c133fc721e929df0e5e49becb240d6a9b870564126"
+    },
+    {
+      "path": "spirv/msaa-0-0-0.spv",
+      "bytes": 3652,
+      "sha256": "51f4b3c0f16bad27f18ddf534cedd8677a01c65b63ab2fb788039c6f3630faff"
+    },
+    {
+      "path": "spirv/msaa-0-0-1.spv",
+      "bytes": 3652,
+      "sha256": "2435567dc24c596cfef23a761dbd4e5c31d49d57b99d90d2946d49d7069f333d"
+    },
+    {
+      "path": "spirv/msaa-0-3-0.spv",
+      "bytes": 3652,
+      "sha256": "3841c19b7e001fb7701ea6bc8ff45a507812119e84e879d97c3900c12c06df70"
+    },
+    {
+      "path": "spirv/msaa-0-3-1.spv",
+      "bytes": 3652,
+      "sha256": "78feeeffc973f31176b538c6bd4ab34c30faef4b79434c6d68dd20b59b3c3ecd"
+    },
+    {
+      "path": "spirv/msaa-0-6-0.spv",
+      "bytes": 3652,
+      "sha256": "fbddd333237d4e67020cd502d3a7cc1fcf353bd0e93eb684aa98ff5371cfd937"
+    },
+    {
+      "path": "spirv/msaa-0-6-1.spv",
+      "bytes": 3652,
+      "sha256": "3f5433a72c76e62e739769442273d218f09e270141cdd7834514c0a2a51ad186"
+    },
+    {
+      "path": "spirv/msaa-1-0-0.spv",
+      "bytes": 3656,
+      "sha256": "ba4858ed35d90c85fc3d05d4a27bf86f006b34decfbf8c87536695420896f922"
+    },
+    {
+      "path": "spirv/msaa-1-0-1.spv",
+      "bytes": 3656,
+      "sha256": "f933027e76fc45d15653ac1d5714d981e1c24f676d4ff36e9d30dbeb302f5795"
+    },
+    {
+      "path": "spirv/msaa-1-3-0.spv",
+      "bytes": 3656,
+      "sha256": "2f91fe3d885b2ce0c8a16af9cffef0adb230fb26faa9d69b2ff0604b1974114f"
+    },
+    {
+      "path": "spirv/msaa-1-3-1.spv",
+      "bytes": 3656,
+      "sha256": "de12dde5fa02f8c261fbba77cbcd43ac0c05442f23799d4dda7f18a3c9541c68"
+    },
+    {
+      "path": "spirv/msaa-1-6-0.spv",
+      "bytes": 3656,
+      "sha256": "fc904a96220e5853c46a7124f351a0703443d0118be6ab0f3be314ac8f78ad89"
+    },
+    {
+      "path": "spirv/msaa-1-6-1.spv",
+      "bytes": 3656,
+      "sha256": "8d741e16544b1d1e758208dcc23be5bd82a823ce391870370b2e021c9e6a3438"
+    },
+    {
+      "path": "spirv-val.txt",
+      "bytes": 227,
+      "sha256": "a79b6b4358c7a15023cd6dcbe17cf2cca91877e5532582480ef59664ff5c713f"
+    },
+    {
+      "path": "sports-crash-all.txt",
+      "bytes": 323395,
+      "sha256": "9134d4fa337b67566d2b683bec9bc7c3342887c0829a29f05101bd57ddbc76aa"
+    },
+    {
+      "path": "sports-final-audit.json",
+      "bytes": 122089,
+      "sha256": "afe3152c1b52d227fca593333477ec0a3099c14ad26391bc5a37a4c1116a90d4"
+    },
+    {
+      "path": "sports-v6-crash-all.txt",
+      "bytes": 365480,
+      "sha256": "54d005dfde151f46a31341fb0f2639c0783be6d61664df1bb810b026e7f4111d"
+    },
+    {
+      "path": "sports-v7-final-running.txt",
+      "bytes": 791,
+      "sha256": "c6747d45a3f1c99834b7e6e370c00d09d5ee4d0ca75d2d5bd11c6a3565707e1d"
+    },
+    {
+      "path": "sports-v7-imports.json",
+      "bytes": 745874,
+      "sha256": "42650273ebf6a495af1c0ed4af97fff14492612224a09fd77b33c36f8ee6c522"
+    },
+    {
+      "path": "sports-v7-input.txt",
+      "bytes": 315,
+      "sha256": "78dc8f7d099fe1bc0bfee84d2b7e6e257055d81f7ae0360ae9ed0f030b96ea23"
+    },
+    {
+      "path": "sports-v7-later.png",
+      "bytes": 395960,
+      "sha256": "09253a4d2d5f0c86ffe0df5263add8c7f0c30316e1457ad9c056abe4b57306ae"
+    },
+    {
+      "path": "sports-v7-logcat.txt",
+      "bytes": 203192,
+      "sha256": "6028cdbe71e09af8007498d0a8c36e6c21b600a536f0964d8f84b13d47af1de8"
+    },
+    {
+      "path": "sports-v7-status.txt",
+      "bytes": 783,
+      "sha256": "173100b6be39e9c6ea183237c4e4258d3de076caad9454dd644a33ca28b13e0a"
+    },
+    {
+      "path": "sports-v7-stopped-input.txt",
+      "bytes": 607,
+      "sha256": "df90b4c06fc6e9537a3d858cf8a110773db8d611954d4f354e885930a478816a"
+    },
+    {
+      "path": "sports-v7-stopped.txt",
+      "bytes": 5204,
+      "sha256": "de27910f461f37d1d879b7749ca89d7e537da7ad26bfee0979a75da3e474c14b"
+    },
+    {
+      "path": "static-debug-identity.json",
+      "bytes": 1545,
+      "sha256": "091c349eac8c2cfb8759c78aeb8145df1ecca9dd21868837a1c265910076680a"
+    },
+    {
+      "path": "tests-abi-review.txt",
+      "bytes": 36,
+      "sha256": "3a528b43e1f213dd9f1b3b58fe7265f236bc16c459fca174c071a8c6cbe65619"
+    },
+    {
+      "path": "tests-final.txt",
+      "bytes": 385,
+      "sha256": "15e9467ff0f1df71223165e44d575755bfeeefe2b6dcc470a4744b5b156767bc"
+    },
+    {
+      "path": "tests-logcat.txt",
+      "bytes": 209106,
+      "sha256": "c307821cd8aa6fb9eec0c34eaf321bdb9183b9568dd7b532ade4ac5fec0e4ccc"
+    },
+    {
+      "path": "tests-second.txt",
+      "bytes": 128,
+      "sha256": "3cd782162b0b79069996f19cde505e1819b618061d3d502c4a7a3ac87f744b8c"
+    },
+    {
+      "path": "tetris-final-audit.json",
+      "bytes": 154664,
+      "sha256": "bb6726742ee664eec21f199998d11fee83690ee3fb77d4e1fe55fc0cdbdc7f57"
+    },
+    {
+      "path": "tetris-logcat.txt",
+      "bytes": 157532,
+      "sha256": "11c5623c304a60afaa0bcfe27b1598bd7164ce9e2ca004dedc823d0725c8b6ed"
+    },
+    {
+      "path": "tetris-v6-logcat-all.txt",
+      "bytes": 425996,
+      "sha256": "50b64461a5bfe64b65c2935ff8c6f774f46b52687d2aac6e6b8c7e1308663603"
+    },
+    {
+      "path": "tetris-v7-crash-all.txt",
+      "bytes": 165321,
+      "sha256": "0357dba2d1a63f14bbfe77e20fc29adc97109c3a348c31adb1da9192a5af9434"
+    },
+    {
+      "path": "tetris-v7-imports.json",
+      "bytes": 808436,
+      "sha256": "30c95cd98cc5fad8067f80ba9b26a6bcf85770e83df09a67bd72c7160a4ffd22"
+    },
+    {
+      "path": "tetris-v7-logcat.txt",
+      "bytes": 158957,
+      "sha256": "9ef959b4be5e2486454b94888ea6d73afd0833fe7f19489333a818e6a307baac"
+    },
+    {
+      "path": "tetris-v7-status.txt",
+      "bytes": 83,
+      "sha256": "45d3083b8e5d12f9fd154b4c7d8f7890c23577d6b474f69e377d661522d26787"
+    }
+  ]
+}

@@ -1,0 +1,479 @@
+pid = 1312
+::waitpid(1312, &status, 0)...
+started monitoring child process.
+<   1> read packet: +
+discarding spurious `+` packet
+<  19> read packet: $QStartNoAckMode#b0
+<   1> send packet: +
+<   6> send packet: $OK#9a
+<   1> read packet: +
+<  13> read packet: $qHostInfo#9b
+< 365> send packet: $triple:616172636836342d2d6c696e75782d616e64726f6964;ptrsize:8;watchpoint_exceptions_received:before;endian:little;os_version:5.15.123;os_build:352e31352e3132332d616e64726f696431332d382d67616664383537373439643166;os_kernel:233120534d5020505245454d5054205468752046656220352030373a35393a3033205554432032303236;hostname:6c6f63616c686f7374;default_packet_timeout:20;#59
+<  18> read packet: $qGetWorkingDir#91
+<  68> send packet: $2f646174612f757365722f302f636f6d2e736861647073342e616e64726f6964#08
+<  19> read packet: $qQueryGDBServer#cb
+<   7> send packet: $E04#a9
+<  25> read packet: $qProcessInfoPID:29912#fa
+< 298> send packet: $pid:29912;ppid:29156;uid:10190;gid:10190;euid:10190;egid:10190;name:2f73797374656d2f62696e2f6170705f70726f636573733634;args:636f6d2e736861647073342e616e64726f6964-------------------------------------------------------------------------------;triple:616172636836342d2d6c696e75782d616e64726f6964;#7a
+<  21> read packet: $qLaunchGDBServer;#4b
+started monitoring child process.
+pid = 1324
+::waitpid(1324, &status, 0)...
+< 161> send packet: $pid:1324;port:0;socket_name:2f7370617469616c2d64656275672d31343839393362373264373934616465613063316138346533323536346461332f6764627365727665722e323333333939;#2f
+<  16> read packet: $jSignalsInfo#c7
+<7133> send packet: $[
+  {
+    "name": "SIGHUP",
+    "notify": true,
+    "signo": 1,
+    "stop": true,
+    "suppress": false
+  },
+  {
+    "name": "SIGINT",
+    "notify": true,
+    "signo": 2,
+    "stop": true,
+    "suppress": true
+  },
+  {
+    "name": "SIGQUIT",
+    "notify": true,
+    "signo": 3,
+    "stop": true,
+    "suppress": false
+  },
+  {
+    "name": "SIGILL",
+    "notify": true,
+    "signo": 4,
+    "stop": true,
+    "suppress": false
+  },
+  {
+    "name": "SIGTRAP",
+    "notify": true,
+    "signo": 5,
+    "stop": true,
+    "suppress": true
+  },
+  {
+    "name": "SIGABRT",
+    "notify": true,
+    "signo": 6,
+    "stop": true,
+    "suppress": false
+  },
+  {
+    "name": "SIGBUS",
+    "notify": true,
+    "signo": 7,
+    "stop": true,
+    "suppress": false
+  },
+  {
+    "name": "SIGFPE",
+    "notify": true,
+    "signo": 8,
+    "stop": true,
+    "suppress": false
+  },
+  {
+    "name": "SIGKILL",
+    "notify": true,
+    "signo": 9,
+    "stop": true,
+    "suppress": false
+  },
+  {
+    "name": "SIGUSR1",
+    "notify": true,
+    "signo": 10,
+    "stop": true,
+    "suppress": false
+  },
+  {
+    "name": "SIGSEGV",
+    "notify": true,
+    "signo": 11,
+    "stop": true,
+    "suppress": false
+  },
+  {
+    "name": "SIGUSR2",
+    "notify": true,
+    "signo": 12,
+    "stop": true,
+    "suppress": false
+  },
+  {
+    "name": "SIGPIPE",
+    "notify": true,
+    "signo": 13,
+    "stop": true,
+    "suppress": false
+  },
+  {
+    "name": "SIGALRM",
+    "notify": false,
+    "signo": 14,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIGTERM",
+    "notify": true,
+    "signo": 15,
+    "stop": true,
+    "suppress": false
+  },
+  {
+    "name": "SIGSTKFLT",
+    "notify": true,
+    "signo": 16,
+    "stop": true,
+    "suppress": false
+  },
+  {
+    "name": "SIGCHLD",
+    "notify": true,
+    "signo": 17,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIGCONT",
+    "notify": true,
+    "signo": 18,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIGSTOP",
+    "notify": true,
+    "signo": 19,
+    "stop": true,
+    "suppress": true
+  },
+  {
+    "name": "SIGTSTP",
+    "notify": true,
+    "signo": 20,
+    "stop": true,
+    "suppress": false
+  },
+  {
+    "name": "SIGTTIN",
+    "notify": true,
+    "signo": 21,
+    "stop": true,
+    "suppress": false
+  },
+  {
+    "name": "SIGTTOU",
+    "notify": true,
+    "signo": 22,
+    "stop": true,
+    "suppress": false
+  },
+  {
+    "name": "SIGURG",
+    "notify": true,
+    "signo": 23,
+    "stop": true,
+    "suppress": false
+  },
+  {
+    "name": "SIGXCPU",
+    "notify": true,
+    "signo": 24,
+    "stop": true,
+    "suppress": false
+  },
+  {
+    "name": "SIGXFSZ",
+    "notify": true,
+    "signo": 25,
+    "stop": true,
+    "suppress": false
+  },
+  {
+    "name": "SIGVTALRM",
+    "notify": true,
+    "signo": 26,
+    "stop": true,
+    "suppress": false
+  },
+  {
+    "name": "SIGPROF",
+    "notify": false,
+    "signo": 27,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIGWINCH",
+    "notify": true,
+    "signo": 28,
+    "stop": true,
+    "suppress": false
+  },
+  {
+    "name": "SIGIO",
+    "notify": true,
+    "signo": 29,
+    "stop": true,
+    "suppress": false
+  },
+  {
+    "name": "SIGPWR",
+    "notify": true,
+    "signo": 30,
+    "stop": true,
+    "suppress": false
+  },
+  {
+    "name": "SIGSYS",
+    "notify": true,
+    "signo": 31,
+    "stop": true,
+    "suppress": false
+  },
+  {
+    "name": "SIG32",
+    "notify": false,
+    "signo": 32,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIG33",
+    "notify": false,
+    "signo": 33,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIGRTMIN",
+    "notify": false,
+    "signo": 34,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIGRTMIN+1",
+    "notify": false,
+    "signo": 35,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIGRTMIN+2",
+    "notify": false,
+    "signo": 36,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIGRTMIN+3",
+    "notify": false,
+    "signo": 37,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIGRTMIN+4",
+    "notify": false,
+    "signo": 38,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIGRTMIN+5",
+    "notify": false,
+    "signo": 39,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIGRTMIN+6",
+    "notify": false,
+    "signo": 40,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIGRTMIN+7",
+    "notify": false,
+    "signo": 41,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIGRTMIN+8",
+    "notify": false,
+    "signo": 42,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIGRTMIN+9",
+    "notify": false,
+    "signo": 43,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIGRTMIN+10",
+    "notify": false,
+    "signo": 44,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIGRTMIN+11",
+    "notify": false,
+    "signo": 45,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIGRTMIN+12",
+    "notify": false,
+    "signo": 46,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIGRTMIN+13",
+    "notify": false,
+    "signo": 47,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIGRTMIN+14",
+    "notify": false,
+    "signo": 48,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIGRTMIN+15",
+    "notify": false,
+    "signo": 49,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIGRTMAX-14",
+    "notify": false,
+    "signo": 50,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIGRTMAX-13",
+    "notify": false,
+    "signo": 51,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIGRTMAX-12",
+    "notify": false,
+    "signo": 52,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIGRTMAX-11",
+    "notify": false,
+    "signo": 53,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIGRTMAX-10",
+    "notify": false,
+    "signo": 54,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIGRTMAX-9",
+    "notify": false,
+    "signo": 55,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIGRTMAX-8",
+    "notify": false,
+    "signo": 56,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIGRTMAX-7",
+    "notify": false,
+    "signo": 57,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIGRTMAX-6",
+    "notify": false,
+    "signo": 58,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIGRTMAX-5",
+    "notify": false,
+    "signo": 59,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIGRTMAX-4",
+    "notify": false,
+    "signo": 60,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIGRTMAX-3",
+    "notify": false,
+    "signo": 61,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIGRTMAX-2",
+    "notify": false,
+    "signo": 62,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIGRTMAX-1",
+    "notify": false,
+    "signo": 63,
+    "stop": false,
+    "suppress": false
+  },
+  {
+    "name": "SIGRTMAX",
+    "notify": false,
+    "signo": 64,
+    "stop": false,
+    "suppress": false
+  }
+]#7e
+<  25> read packet: $qProcessInfoPID:29912#fa
+< 298> send packet: $pid:29912;ppid:29156;uid:10190;gid:10190;euid:10190;egid:10190;name:2f73797374656d2f62696e2f6170705f70726f636573733634;args:636f6d2e736861647073342e616e64726f6964-------------------------------------------------------------------------------;triple:616172636836342d2d6c696e75782d616e64726f6964;#7a
+< 125> read packet: $qModuleInfo:2f73797374656d2f62696e2f6170705f70726f636573733634;616172636836342d756e6b6e6f776e2d6c696e75782d616e64726f6964#c1
+< 243> send packet: $uuid:3832343836413234414238313730453142304339303830413130304444414534;triple:616172636836342d2d6c696e75782d616e64726f6964;file_path:2f73797374656d2f62696e2f6170705f70726f636573733634;file_offset:0000000000000000;file_size:0000000000004fe0;#c6
+::waitpid(1312, &status, 0) => pid = 1312, status = 0x0
+pid = 1312 thread exiting...

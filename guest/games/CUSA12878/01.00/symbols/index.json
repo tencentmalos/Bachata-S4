@@ -1,7 +1,7 @@
 {
   "schema": "spatial.guest-symbol-index.v2",
   "bundle_id": "beatsaber-cusa12878-0100",
-  "revision": 1,
+  "revision": 2,
   "targets": [
     {
       "target_id": "beatsaber-0100-eboot",
@@ -26,6 +26,11 @@
       "target_id": "beatsaber-0100-eboot",
       "path": "vr-init.symbols.json",
       "sha256": "4f81aac3be6da377450c43bbc43d6ac4b6079725c74693e99412a9807cee055d"
+    },
+    {
+      "target_id": "beatsaber-0100-eboot",
+      "path": "vr-render.symbols.json",
+      "sha256": "ce8bcb7b56f7179dfcc43fbf03009be265061df3f75780151bb9c1fdd6bb7dd8"
     }
   ],
   "annotations": {

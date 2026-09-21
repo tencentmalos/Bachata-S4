@@ -1,0 +1,12 @@
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"schemaVersion\":\"1.0\",\"session\":{\"captureId\":\"cb698531-4941-444c-8f5f-316fb10fd161\",\"captureRevision\":{\"value\":20},\"currentEventId\":\"1750\"},\"data\":{\"dataset\":\"constant_value\",\"materialization\":\"ready\",\"rows\":{\"columns\":[{\"name\":\"event_id\",\"declaredType\":\"INTEGER\"},{\"name\":\"stage\",\"declaredType\":\"TEXT\"},{\"name\":\"space\",\"declaredType\":\"INTEGER\"},{\"name\":\"slot\",\"declaredType\":\"INTEGER\"},{\"name\":\"path\",\"declaredType\":\"TEXT\"},{\"name\":\"type\",\"declaredType\":\"TEXT\"},{\"name\":\"value_json\",\"declaredType\":\"TEXT\"}],\"rows\":[[\"1750\",\"vertex\",1234568,0,\"buf_offsets0\",\"uint[4];flags=0x1\",\"[\\u00220\\u0022,\\u00220\\u0022,\\u00220\\u0022,\\u00220\\u0022]\"],[\"1750\",\"vertex\",1234568,0,\"buf_offsets1\",\"uint[4];flags=0x1\",\"[\\u00220\\u0022,\\u00220\\u0022,\\u00220\\u0022,\\u00220\\u0022]\"],[\"1750\",\"vertex\",1234568,0,\"buf_offsets2\",\"uint[2];flags=0x1\",\"[\\u00220\\u0022,\\u00220\\u0022]\"],[\"1750\",\"vertex\",1234568,0,\"image_scales\",\"uint[2];flags=0x1\",\"[\\u0022128\\u0022,\\u00222147483648\\u0022]\"],[\"1750\",\"vertex\",1234568,0,\"ud_regs0\",\"uint[4];flags=0x1\",\"[\\u00220\\u0022,\\u00220\\u0022,\\u00220\\u0022,\\u00220\\u0022]\"],[\"1750\",\"vertex\",1234568,0,\"ud_regs1\",\"uint[4];flags=0x1\",\"[\\u00220\\u0022,\\u00220\\u0022,\\u00220\\u0022,\\u00220\\u0022]\"],[\"1750\",\"vertex\",1234568,0,\"ud_regs2\",\"uint[4];flags=0x1\",\"[\\u00220\\u0022,\\u00220\\u0022,\\u00220\\u0022,\\u00220\\u0022]\"],[\"1750\",\"vertex\",1234568,0,\"ud_regs3\",\"uint[4];flags=0x1\",\"[\\u00220\\u0022,\\u00220\\u0022,\\u00220\\u0022,\\u00220\\u0022]\"],[\"1750\",\"vertex\",1234568,0,\"xoffset\",\"float;flags=0x1\",\"[\\u00222016\\u0022]\"],[\"1750\",\"vertex\",1234568,0,\"xscale\",\"float;flags=0x1\",\"[\\u0022672\\u0022]\"],[\"1750\",\"vertex\",1234568,0,\"yoffset\",\"float;flags=0x1\",\"[\\u0022756\\u0022]\"],[\"1750\",\"vertex\",1234568,0,\"yscale\",\"float;flags=0x1\",\"[\\u0022-756\\u0022]\"]],\"truncated\":false,\"executionMs\":0.0505},\"warnings\":[]}}"
+      }
+    ]
+  },
+  "id": 39,
+  "jsonrpc": "2.0"
+}

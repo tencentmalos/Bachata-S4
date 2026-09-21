@@ -1,0 +1,29 @@
+[1/29] Performing build step for 'ffmpeg_android_build'
+[2/29] No install step for 'ffmpeg_android_build'
+[3/29] Completed 'ffmpeg_android_build'
+[4/29] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/avplayer/avplayer_file_streamer.cpp.o
+[5/29] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/avplayer/avplayer_handle_streamer.cpp.o
+[6/29] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/ajm/ajm_instance.cpp.o
+[7/29] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/ajm/ajm_mp3.cpp.o
+[8/29] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/ajm/ajm_context.cpp.o
+[9/29] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/invitation_dialog/invitation_dialog_ui.cpp.o
+[10/29] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/ajm/ajm.cpp.o
+[11/29] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/videodec/video_utils.cpp.o
+[12/29] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/videodec/videodec2_impl.cpp.o
+[13/29] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/libs.cpp.o
+[14/29] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/videodec/videodec2.cpp.o
+[15/29] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/videodec/videodec.cpp.o
+[16/29] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/videodec/videodec_impl.cpp.o
+[17/29] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/np/np_web_api/np_web_api.cpp.o
+[18/29] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/np/np_web_api/np_web_api_internal.cpp.o
+[19/29] Building CXX object CMakeFiles/shadps4.dir/src/core/host_runtime/guest_ajm.cpp.o
+[20/29] Building CXX object CMakeFiles/guest_psvr_services_tests.dir/tests/host_runtime/guest_psvr_services_tests.cpp.o
+[21/29] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/np/np_handler.cpp.o
+[22/29] Building CXX object CMakeFiles/shadps4.dir/src/core/host_runtime/guest_runtime.cpp.o
+[23/29] Linking CXX shared library libshadps4_host.so
+[24/29] Linking CXX executable guest_commerce_dialog_tests
+[25/29] Linking CXX executable guest_np_tests
+[26/29] Linking CXX executable guest_msg_dialog_tests
+[27/29] Linking CXX executable guest_psvr_services_tests
+[28/29] Linking CXX executable guest_reprojection_tests
+[29/29] Linking CXX executable host_library_smoke

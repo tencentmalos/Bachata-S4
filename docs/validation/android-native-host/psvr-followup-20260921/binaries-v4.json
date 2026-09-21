@@ -1,0 +1,13 @@
+{
+  "apk": "cf224d561b2d65dadc7616b0e2313265bbb524eb7134cf4d4e795181a9229261",
+  "host": "fc567f0c0098d00b35c8fd1d6279b27c81d9ee86d23aaf07a2c7025264c150b4",
+  "jni": "6ce2dd2f5162015f3c6474cab046da6ecbfdb93c32f9f03789cf1d90908e45fb",
+  "sources": {
+    "src/core/host_runtime/guest_aio.h": "6d2455cc73f33986a99320faa9e8be3d76f264846b1cbdef7d999ba617967666",
+    "src/core/host_runtime/guest_process_services.h": "69161ea4b93f72abbc4079513d8bf9b3d704e3f6b27702e70a1fea3c308c805a",
+    "src/core/host_runtime/guest_audio_input.h": "4c74d6949e7f7a85adb093639564fa06298078baffbaf33be1245aabcc25ebc2",
+    "src/core/host_runtime/guest_runtime.cpp": "e8bbaa4db44e5ffe6d5248063dcfda394a790442c3961cfefca6bf75b82e434e",
+    "src/core/host_runtime/guest_storage.cpp": "e9f211760e2812ca7fe62bff0f6dc72f349fbb1528e9b1d9eca100a911530b56",
+    "src/core/libraries/vr_tracker/vr_tracker.cpp": "07c9e062acb876404ec971beec84e96a207d5610f95456991258d9afda8d27fc"
+  }
+}

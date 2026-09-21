@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
 #include <algorithm>
+#include "guest_sockets.h"
+#include "core/libraries/kernel/posix_error.h"
 #include <array>
 #include <bit>
 #include <chrono>
@@ -28,43 +30,55 @@ inline constexpr std::string_view NetNids[]{
     "kJlYH5uMAWI", "J5i3hiLJMPk", "Nd91WaWmG2w", "AzqoBha7js4",
     "Q4qBuN-c0ZM", "45ggEzakPJQ", "OXXX4mUk3uk", "bErx49PgxyY", "kOj1HiAGE54",
     "9wO9XrMsNhc", "beRjXBn-z+o", "PIWqhn9oSxc", "2mKX2Spso7I", "TSM6whtekok",
-    "gvD1greCu0A", "hoOAofhhRvE", "304ooNZxWDY", "xphrZusl78E", "zJGf8xjFnQE"};
+    "gvD1greCu0A", "hoOAofhhRvE", "304ooNZxWDY", "xphrZusl78E", "zJGf8xjFnQE",
+    "TCkRD0DWNLg", "wvuUDv0jrMI", "2eKbgcboJso"};
 inline constexpr std::string_view NetCtlNids[]{"gky0+oaNM4k", "Z4wwCFiBELQ", "uBPlr0lbuiI",
                                                "obuxdTiwkF8", "JO4yuTuMoKI", "0cBgduPRR+M",
-                                               "UJ+Z7Q+4ck0", "Rqm2OnZMCz0", "iQw3iQPhvUQ"};
+                                               "UJ+Z7Q+4ck0", "Rqm2OnZMCz0", "iQw3iQPhvUQ",
+                                               "u5oqtlIP+Fw", "wIsKy+TfeLs", "2oUqKR5odGc"};
 inline bool IsNetNid(std::string_view nid) {
     return std::ranges::find(NetNids, nid) != std::end(NetNids);
 }
 inline bool IsNetCtlNid(std::string_view nid) {
     return std::ranges::find(NetCtlNids, nid) != std::end(NetCtlNids);
 }
-// Control plane for the existing desktop offline policy. This is not an online
-// socket/HTTP provider. An online-configured Session fails init explicitly.
+// Offline control plane plus session-owned local socket transport. This does
+// not provide online PSN/HTTP services. An online-configured Session fails init explicitly.
 // Guest ABI, resource ids and callbacks belong here, not to Foundation's host
 // networking or desktop's global HandleTable/NetCtlInternal.
 class GuestNetwork {
+    GuestSockets sockets;
 public:
-    explicit GuestNetwork(bool online_requested) : online_requested(online_requested) {}
+    explicit GuestNetwork(bool online_requested, std::shared_ptr<GuestDescriptorIds> ids = std::make_shared<GuestDescriptorIds>())
+        : sockets(std::move(ids), online_requested), online_requested(online_requested) {}
+    GuestSockets& Sockets() { return sockets; }
+    // Runtime providers are published after their local control plane starts.
+    // NetCtl is independent of the application's Net pool/socket initializer.
+    u32 InitializeControl() {
+        std::lock_guard lock(mutex);
+        return InitializeControlLocked();
+    }
     ~GuestNetwork() { RequestStop(); }
     void RequestStop() {
         std::lock_guard lock(mutex);
         stopping = true;
-        for (const auto& [id, epoll] : epolls) {
-            std::lock_guard epoll_lock(epoll->mutex);
-            epoll->stopped = true;
-            epoll->changed.notify_all();
-        }
+        sockets.RequestStop();
+
     }
     struct Callback {
         u64 function{}, argument{}, revision{};
         size_t id{};
+        bool toolkit{};
     };
-    std::optional<std::vector<Callback>> BeginCallbacks() {
+    std::optional<std::vector<Callback>> BeginCallbacks(bool toolkit = false) {
         std::lock_guard lock(mutex);
         if (!ctl_initialized || dispatching)
             return {};
         dispatching = true;
         std::vector<Callback> result;
+        // An offline Toolkit domain has no connection transitions. Retain
+        // registrations, but never fabricate a change on each check.
+        if (toolkit) return result;
         try {
             for (size_t i = 0; i < callbacks.size(); ++i)
                 if (callbacks[i].function)
@@ -77,16 +91,17 @@ public:
     }
     bool IsCurrent(const Callback& callback) {
         std::lock_guard lock(mutex);
-        return ctl_initialized && callback.id < callbacks.size() &&
-               callbacks[callback.id].revision == callback.revision &&
-               callbacks[callback.id].function == callback.function;
+        const auto& slots = callback.toolkit ? toolkit_callbacks : callbacks;
+        return ctl_initialized && callback.id < slots.size() &&
+               slots[callback.id].revision == callback.revision &&
+               slots[callback.id].function == callback.function;
     }
     void EndCallbacks() {
         std::lock_guard lock(mutex);
         dispatching = false;
     }
     u64 Dispatch(GuestCpu::GuestAddressSpace& space, std::string_view nid,
-                 const std::array<u64, 6>& a, u64 errno_address) {
+                 const std::array<u64, 6>& a, u64 errno_address, std::stop_token stop = {}) {
         using namespace GuestCpu;
         using namespace Libraries::NetCtl;
         auto read = [&](u64 address, auto& value) {
@@ -165,89 +180,18 @@ public:
                 std::memcpy(pin.Value().WritableBytes().data(), address.data(), bytes);
             return u64(result); // invalid text is 0, not a fabricated address
         }
-        // Offline epolls own no host sockets. Preserve timeout and cancellation
-        // semantics without entering desktop epoll/logging on every guest poll.
-        if (nid == "drjIbDbA7UQ") {
-            std::shared_ptr<OfflineEpoll> epoll;
-            std::unique_lock domain_lock(mutex);
-            if (!initialized) return failure(ORBIS_NET_ENOTINIT);
-            const auto it = epolls.find(s32(a[0]));
-            if (it == epolls.end()) return failure(ORBIS_NET_EBADF);
-            epoll = it->second;
-            domain_lock.unlock();
-            if (s32(a[2]) <= 0 || a[2] > 65536) return failure(ORBIS_NET_EINVAL);
-            if (!space.ValidateRange({GuestAddress{a[1]}, a[2] * sizeof(Libraries::Net::OrbisNetEpollEvent)},
-                                     GuestPermission::Write))
-                return failure(ORBIS_NET_EFAULT);
-            // No output buffer pin and no domain/VM lock survives the wait.
-            std::unique_lock wait_lock(epoll->mutex);
-            const auto epoch = epoll->abort_epoch;
-            const auto interrupted = [&] {
-                return epoll->destroyed || epoll->stopped || epoll->abort_epoch != epoch;
-            };
-            const s32 timeout_us = s32(a[3]);
-            if (timeout_us < 0) epoll->changed.wait(wait_lock, interrupted);
-            else if (timeout_us > 0)
-                epoll->changed.wait_for(wait_lock, std::chrono::microseconds(timeout_us), interrupted);
-            const int error = epoll->destroyed ? ORBIS_NET_EBADF :
-                              interrupted() ? ORBIS_NET_ECANCELED : 0;
-            wait_lock.unlock();
-            return error ? failure(error) : 0; // timeout, no invented readiness
+        if (GuestSockets::IsNetNid(nid)) {
+            { std::lock_guard lock(mutex);
+              if (!initialized) return failure(ORBIS_NET_ENOTINIT); }
+            return sockets.Dispatch(space, nid, a, [&](int error) {
+                // Session termination preserves sceNet's cancellation result;
+                // an individually interrupted POSIX waiter still receives EINTR.
+                { std::lock_guard lock(mutex);
+                  if (error == POSIX_EINTR && stopping) error = POSIX_ECANCELED; }
+                return failure(error);
+            }, {}, stop);
         }
         std::lock_guard lock(mutex);
-        if (nid == "SF47kB2MNTo") {
-            if (!initialized) return failure(ORBIS_NET_ENOTINIT);
-            if (stopping) return failure(ORBIS_NET_ECANCELED);
-            if (u32(a[1])) return failure(ORBIS_NET_EINVAL);
-            auto name = a[0] ? string(a[0], 64) : std::optional<std::string>{"anon"};
-            if (!name) return failure(ORBIS_NET_EFAULT);
-            if (epolls.size() >= 64 || next_epoll == INT32_MAX) return failure(ORBIS_NET_ENOMEM);
-            const s32 id = next_epoll++;
-            epolls.emplace(id, std::make_shared<OfflineEpoll>());
-            return id;
-        }
-        if (nid == "ZVw46bsasAk" || nid == "Inp1lfL+Jdw" || nid == "w21YgGGNtBk") {
-            if (!initialized) return failure(ORBIS_NET_ENOTINIT);
-            const auto it = epolls.find(s32(a[0]));
-            if (it == epolls.end()) return failure(ORBIS_NET_EBADF);
-            const auto epoll = it->second;
-            if (nid == "Inp1lfL+Jdw") {
-                {
-                    std::lock_guard epoll_lock(epoll->mutex);
-                    epoll->destroyed = true;
-                    epoll->changed.notify_all();
-                }
-                epolls.erase(it);
-                return 0;
-            }
-            if (nid == "w21YgGGNtBk") {
-                std::lock_guard epoll_lock(epoll->mutex);
-                ++epoll->abort_epoch;
-                epoll->changed.notify_all();
-                return 0;
-            }
-            // No successful socket/async resolver exists in this offline domain.
-            // Never let a guest id alias a desktop file descriptor by coincidence.
-            if (u32(a[1]) < 1 || u32(a[1]) > 3) return failure(ORBIS_NET_EINVAL);
-            if (u32(a[1]) != 2 && !a[3]) return failure(ORBIS_NET_EINVAL);
-            return failure(u32(a[1]) == 1 ? ORBIS_NET_EBADF : ORBIS_NET_ENOENT);
-        }
-        if (nid == "Q4qBuN-c0ZM") {
-            if (!initialized) return failure(ORBIS_NET_ENOTINIT);
-            if (a[0] && !string(a[0], 33)) return failure(ORBIS_NET_EFAULT);
-            // This offline provider has no network transport. Return a real
-            // socket-creation failure; never invent a successful descriptor.
-            return failure(ORBIS_NET_ENETDOWN);
-        }
-        if (nid == "45ggEzakPJQ" || nid == "OXXX4mUk3uk" || nid == "bErx49PgxyY" ||
-            nid == "kOj1HiAGE54" || nid == "9wO9XrMsNhc" || nid == "beRjXBn-z+o" ||
-            nid == "PIWqhn9oSxc" || nid == "2mKX2Spso7I" || nid == "TSM6whtekok" ||
-            nid == "gvD1greCu0A" || nid == "hoOAofhhRvE" || nid == "304ooNZxWDY" ||
-            nid == "xphrZusl78E" || nid == "zJGf8xjFnQE") {
-            // No socket could be created in this Session. As in sys_net, reject
-            // the descriptor before accessing any caller payload/output pointer.
-            return failure(initialized ? ORBIS_NET_EBADF : ORBIS_NET_ENOTINIT);
-        }
         if (nid == "Nlev7Lg8k3A") {
             if (online_requested)
                 return failure(ORBIS_NET_ENETDOWN);
@@ -257,7 +201,7 @@ public:
         if (nid == "cTGkc6-TBlI") {
             if (!initialized)
                 return failure(ORBIS_NET_ENOTINIT);
-            if (!pools.empty() || !resolvers.empty() || !epolls.empty() || ctl_initialized)
+            if (!pools.empty() || !resolvers.empty() || !sockets.Empty())
                 return failure(ORBIS_NET_EBUSY);
             initialized = false;
             return 0;
@@ -343,13 +287,11 @@ public:
             return failure(ORBIS_NET_RESOLVER_ENODNS);
         }
         if (nid == "gky0+oaNM4k") {
-            if (!initialized || online_requested)
-                return u32(ORBIS_NET_CTL_ERROR_NOT_AVAIL);
-            ctl_initialized = true;
-            return 0;
+            return InitializeControlLocked();
         }
         if (nid == "Z4wwCFiBELQ") {
             callbacks = {};
+            toolkit_callbacks = {};
             ctl_initialized = false;
             return 0;
         }
@@ -381,29 +323,30 @@ public:
                        ? 0
                        : u32(ORBIS_NET_CTL_ERROR_INVALID_ADDR);
         }
-        if (nid == "UJ+Z7Q+4ck0") {
+        auto& slots = (nid == "wIsKy+TfeLs" || nid == "2oUqKR5odGc") ? toolkit_callbacks : callbacks;
+        if (nid == "UJ+Z7Q+4ck0" || nid == "wIsKy+TfeLs") {
             if (!space.ValidateRange({GuestAddress{a[0]}, 1}, GuestPermission::Execute))
                 return u32(ORBIS_NET_CTL_ERROR_INVALID_ADDR);
             auto pin = space.AcquireDataSpan({GuestAddress{a[2]}, 4}, true);
             if (!pin)
                 return u32(ORBIS_NET_CTL_ERROR_INVALID_ADDR);
-            for (size_t i = 0; i < callbacks.size(); ++i) {
-                if (callbacks[i].function)
+            for (size_t i = 0; i < slots.size(); ++i) {
+                if (slots[i].function)
                     continue;
-                callbacks[i] = {a[0], a[1], ++revision, i};
+                slots[i] = {a[0], a[1], ++revision, i, nid == "wIsKy+TfeLs"};
                 const s32 id = i;
                 std::memcpy(pin.Value().WritableBytes().data(), &id, 4);
                 return 0;
             }
             return u32(ORBIS_NET_CTL_ERROR_CALLBACK_MAX);
         }
-        if (nid == "Rqm2OnZMCz0") {
+        if (nid == "Rqm2OnZMCz0" || nid == "2oUqKR5odGc") {
             const u32 id = a[0];
-            if (id >= callbacks.size())
+            if (id >= slots.size())
                 return u32(ORBIS_NET_CTL_ERROR_INVALID_ID);
-            if (!callbacks[id].function)
+            if (!slots[id].function)
                 return u32(ORBIS_NET_CTL_ERROR_ID_NOT_FOUND);
-            callbacks[id] = {};
+            slots[id] = {};
             return 0;
         }
         return u32(ORBIS_NET_CTL_ERROR_NOT_AVAIL);
@@ -411,6 +354,12 @@ public:
 
 private:
     std::mutex mutex;
+    u32 InitializeControlLocked() {
+        if (online_requested || stopping)
+            return u32(ORBIS_NET_CTL_ERROR_NOT_AVAIL);
+        ctl_initialized = true;
+        return 0;
+    }
     bool online_requested{}, initialized{}, ctl_initialized{}, dispatching{}, stopping{};
     std::map<s32, std::vector<u8>> pools;
     struct Resolver {
@@ -418,18 +367,10 @@ private:
         u32 status;
     };
     std::map<s32, Resolver> resolvers;
-    struct OfflineEpoll {
-        std::mutex mutex;
-        std::condition_variable changed;
-        u64 abort_epoch{};
-        bool destroyed{}, stopped{};
-    };
-    std::map<s32, std::shared_ptr<OfflineEpoll>> epolls;
-    s32 next_epoll{0x20000};
     s32 next_resolver{0x10000};
     size_t pool_bytes{};
     s32 next_pool{1};
     u64 revision{};
-    std::array<Callback, 8> callbacks{};
+    std::array<Callback, 8> callbacks{}, toolkit_callbacks{};
 };
 } // namespace Core::HostRuntime

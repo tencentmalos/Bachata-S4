@@ -1,0 +1,66 @@
+SERVICE com.shadps4.android/.service.FexSessionService 39527d2 pid=18765 user=0
+  Client:
+    package: beatsaber_vr_call_preference_diagnostic_v5
+    sha256: c05e9d5f1696b36b8ee57a1766ae11eec59ceeaa4cdad79279b60536e30425a9
+    installed: 1
+    enabled: 1
+    failed: 0
+    switches: 0
+    context: 1
+    hook: HmdInfo entry=0x1646680 original=0x2268010 replacement=0x2260000 slot=0x226b000 stolen=6 enabled=1
+    instruction: 0x1646680 -> 0x2268010
+    hook: HmdInfoHandle entry=0x1646570 original=0x2268210 replacement=0x22601c0 slot=0x226b008 stolen=6 enabled=1
+    instruction: 0x1646570 -> 0x2268210
+    hook: HmdOpen entry=0x1646520 original=0x2268410 replacement=0x2260390 slot=0x226b010 stolen=6 enabled=1
+    instruction: 0x1646520 -> 0x2268410
+    hook: HmdFov entry=0x1646810 original=0x2268610 replacement=0x2260530 slot=0x226b018 stolen=6 enabled=1
+    instruction: 0x1646810 -> 0x2268610
+    hook: TrackerRegister entry=0x1646a00 original=0x2268810 replacement=0x22606e0 slot=0x226b020 stolen=6 enabled=1
+    instruction: 0x1646a00 -> 0x2268810
+    hook: TrackerResult entry=0x1646980 original=0x2268a10 replacement=0x2260850 slot=0x226b028 stolen=6 enabled=1
+    instruction: 0x1646980 -> 0x2268a10
+    hook: ReprojectionInit entry=0x1646610 original=0x2268c10 replacement=0x2260a80 slot=0x226b030 stolen=6 enabled=1
+    instruction: 0x1646610 -> 0x2268c10
+    hook: DisplayBuffers entry=0x16465a0 original=0x2268e10 replacement=0x2260c60 slot=0x226b038 stolen=6 enabled=1
+    instruction: 0x16465a0 -> 0x2268e10
+    hook: ReprojectionSubmit entry=0x1646630 original=0x2269010 replacement=0x2260e00 slot=0x226b040 stolen=6 enabled=1
+    instruction: 0x1646630 -> 0x2269010
+    hook: CameraFrame entry=0x1646a30 original=0x2269210 replacement=0x22611a0 slot=0x226b048 stolen=6 enabled=1
+    instruction: 0x1646a30 -> 0x2269210
+    hook: UnityVR_SelectDevice entry=0xdbf8e0 original=0x2269410 replacement=0x2261310 slot=0x226b050 stolen=6 enabled=1
+    instruction: 0xdbf8e0 -> 0x2269410
+    instruction: 0xdbf8e1 -> 0x2269411
+    instruction: 0xdbf8e4 -> 0x2269414
+    hook: UnityLog entry=0x8d6540 original=0x2269610 replacement=0x2262f40 slot=0x226b058 stolen=6 enabled=1
+    instruction: 0x8d6540 -> 0x2269610
+    instruction: 0x8d6541 -> 0x2269611
+    instruction: 0x8d6544 -> 0x2269614
+    hook: CreateEyeTextures entry=0x116c400 original=0x2269810 replacement=0x2263110 slot=0x226b060 stolen=6 enabled=1
+    instruction: 0x116c400 -> 0x2269810
+    instruction: 0x116c401 -> 0x2269811
+    instruction: 0x116c404 -> 0x2269814
+    hook: InitializePsvr entry=0x116f690 original=0x2269a10 replacement=0x22632e0 slot=0x226b068 stolen=6 enabled=1
+    instruction: 0x116f690 -> 0x2269a10
+    instruction: 0x116f691 -> 0x2269a11
+    instruction: 0x116f694 -> 0x2269a14
+    hook: LoadStartModule entry=0x1646cf0 original=0x2269c10 replacement=0x22622b0 slot=0x226b070 stolen=6 enabled=1
+    instruction: 0x1646cf0 -> 0x2269c10
+    hook: Dlsym entry=0x1647880 original=0x2269e10 replacement=0x22626c0 slot=0x226b078 stolen=6 enabled=1
+    instruction: 0x1647880 -> 0x2269e10
+    sdk_calls: 3855
+    last_owner: 1:37:38:1
+    log_tag: 1 GuestPatch.beatsaber_vr_call_preference_diagnostic_v5.Call samples=206 last=10
+    log_tag: 2 GuestPatch.beatsaber_vr_call_preference_diagnostic_v5.Sequence samples=206 last=4096
+    log_tag: 3 GuestPatch.beatsaber_vr_call_preference_diagnostic_v5.Phase samples=206 last=1
+    log_tag: 4 GuestPatch.beatsaber_vr_call_preference_diagnostic_v5.Return samples=206 last=0
+    log_tag: 5 GuestPatch.beatsaber_vr_call_preference_diagnostic_v5.Arg0 samples=109 last=1
+    log_tag: 6 GuestPatch.beatsaber_vr_call_preference_diagnostic_v5.Arg1 samples=87 last=26710560
+    log_tag: 7 GuestPatch.beatsaber_vr_call_preference_diagnostic_v5.Arg2 samples=32 last=68734827808
+    log_tag: 8 GuestPatch.beatsaber_vr_call_preference_diagnostic_v5.Arg3 samples=31 last=68734827456
+    log_tag: 9 GuestPatch.beatsaber_vr_call_preference_diagnostic_v5.Arg4 samples=21 last=4095
+    log_tag: 10 GuestPatch.beatsaber_vr_call_preference_diagnostic_v5.Arg5 samples=17 last=0
+    log_tag: 11 GuestPatch.beatsaber_vr_call_preference_diagnostic_v5.Block samples=180 last=21
+    log_tag: 12 GuestPatch.beatsaber_vr_call_preference_diagnostic_v5.ByteCount samples=180 last=32
+    log_tag: 13 GuestPatch.beatsaber_vr_call_preference_diagnostic_v5.Word samples=2168 last=0
+    log_tag: 14 GuestPatch.beatsaber_vr_call_preference_diagnostic_v5.End samples=206 last=0
+

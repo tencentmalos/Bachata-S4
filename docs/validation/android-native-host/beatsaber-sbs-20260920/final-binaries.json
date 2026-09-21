@@ -1,0 +1,18 @@
+{
+  "apk": {
+    "path": "android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk",
+    "sha256": "45101e2f1602020e5f530cfaf87965543150add97727655db46d1c57689cf3ca"
+  },
+  "host": {
+    "path": "build/android-host-api33/native/libshadps4_host.so",
+    "sha256": "9259c10f8da0f92f806c43eeb51d2e6bdc740d9f16970d2aeec46d24d0cd15ff"
+  },
+  "jni": {
+    "path": "android/shadps4-app/core/runtime/build/intermediates/cxx/RelWithDebInfo/2l6c2f5c/obj/arm64-v8a/libshadps4_fex_session.so",
+    "sha256": "6de7a2ee4fe25ffa4e30fa9ce6454f512d5ecc60f729d5d6ad60cb09513ae0da"
+  },
+  "gpu_probe": {
+    "path": "build/android-host-api33/native/android_sbs_compositor_probe",
+    "sha256": "da13c372c9162f423a5b4cf12a339887a9762cb772a41f92c02942dc8a7b9bcf"
+  }
+}

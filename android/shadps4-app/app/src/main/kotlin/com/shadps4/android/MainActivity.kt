@@ -46,6 +46,24 @@ class MainActivity : ComponentActivity() {
 
     override fun dump(prefix: String, fd: java.io.FileDescriptor?, writer: java.io.PrintWriter,
                       args: Array<out String>?) {
+        // The same Foundation registry is available from Library, before a
+        // guest session/service exists. No game launch is needed to export an
+        // installed title that currently fails during Prepare.
+        if (BuildConfig.DEBUG && args?.firstOrNull() == "debugbus") {
+            try {
+                val ready = com.shadps4.android.runtime.input.NativePad.nativeInitializeHost(
+                    java.io.File(filesDir, "host").absolutePath)
+                if (!ready) {
+                    writer.println("debug-command-error: host paths unavailable")
+                    return
+                }
+                writer.println(com.shadps4.android.runtime.session.NativeFexSession.nativeDebugCommand(
+                    args.drop(1).joinToString(" ")))
+            } catch (t: Throwable) {
+                writer.println("debug-command-error: ${t.message}")
+            }
+            return
+        }
         if (args?.singleOrNull() in listOf("--open_last_game", "open_last_game")) {
             runOnUiThread { openLastGameRequest++ }
             writer.println("open_last_game queued; result in OpenLastGame logcat")

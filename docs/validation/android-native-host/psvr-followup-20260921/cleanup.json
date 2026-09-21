@@ -1,0 +1,24 @@
+{
+  "debug.shadps4.vulkan_driver": "turnip",
+  "debug.shadps4.guest_debug_port": "0",
+  "debug.shadps4.guest_debug_wait": "0",
+  "debug.shadps4.guest_patch": "",
+  "debug.shadps4.guest_auto_tag": "",
+  "debug.rdoc.vulkan_loader": "",
+  "debug.shadps4.storage_log": "",
+  "layers": {
+    "enable_gpu_debug_layers": "null",
+    "gpu_debug_app": "null",
+    "gpu_debug_layers": "null",
+    "gpu_debug_layer_app": "null"
+  },
+  "adb_forwards": "9c2841a4 tcp:48969 localabstract:renderdoc_49920\n9c2841a4 tcp:48960 localabstract:renderdoc_48920\n\n",
+  "files/settings/global.json_restored": true,
+  "files/host/config.json_restored": true,
+  "adb_forwards_after_replay_cleanup": "\n",
+  "tracer_pid": 0,
+  "guest_debugger_ownership_released": true,
+  "native_debugger_session": "41f623465e454ec4b6b4faedee90e65c",
+  "native_debugger_state": "cleaned",
+  "renderdoc_replay_closed": true
+}

@@ -1015,6 +1015,7 @@ RenderState Rasterizer::BeginRendering(const GraphicsPipeline* pipeline) {
         }
         texture_cache.UpdateImage(image_id);
         image->SetBackingSamples(key.color_samples[cb]);
+        ASSERT(u32(image->backing->image.image_ci.samples) == key.color_samples[cb]);
         const auto& image_view = texture_cache.FindRenderTarget(image_id, desc);
         const auto slice = image_view.info.range.base.layer;
         const auto mip = image_view.info.range.base.level;
@@ -1061,6 +1062,7 @@ RenderState Rasterizer::BeginRendering(const GraphicsPipeline* pipeline) {
         const auto htile_address = regs.depth_htile_data_base.GetAddress();
         const auto& image_view = texture_cache.FindDepthTarget(image_id, desc);
         auto& image = texture_cache.GetImage(image_id);
+        ASSERT(u32(image.backing->image.image_ci.samples) == key.depth_samples);
 
         const auto slice = image_view.info.range.base.layer;
         const bool is_depth_clear =
@@ -1254,6 +1256,10 @@ bool Rasterizer::IsMapped(VAddr addr, u64 size) {
 }
 
 void Rasterizer::MapMemory(VAddr addr, u64 size) {
+    // A descriptor can span a sparse reservation and cache zeros for its holes.
+    // Invalidate that state when a pool commit/map supplies new physical pages.
+    buffer_cache.InvalidateMapping(addr, size);
+    texture_cache.UnmapMemory(addr, size);
     {
         std::scoped_lock lock{mapped_ranges_mutex};
         mapped_ranges += decltype(mapped_ranges)::interval_type::right_open(addr, addr + size);

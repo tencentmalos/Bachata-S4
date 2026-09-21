@@ -1,0 +1,21 @@
+[1/21] Performing build step for 'ffmpeg_android_build'
+[2/21] No install step for 'ffmpeg_android_build'
+[3/21] Completed 'ffmpeg_android_build'
+[4/21] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/avplayer/avplayer_file_streamer.cpp.o
+[5/21] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/avplayer/avplayer_handle_streamer.cpp.o
+[6/21] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/videodec/video_utils.cpp.o
+[7/21] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/videodec/videodec2_impl.cpp.o
+[8/21] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/ajm/ajm_instance.cpp.o
+[9/21] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/ajm/ajm_mp3.cpp.o
+[10/21] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/ajm/ajm_context.cpp.o
+[11/21] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/ajm/ajm.cpp.o
+[12/21] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/videodec/videodec2.cpp.o
+[13/21] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/videodec/videodec_impl.cpp.o
+[14/21] Building CXX object CMakeFiles/shadps4.dir/src/core/libraries/videodec/videodec.cpp.o
+[15/21] Building CXX object CMakeFiles/shadps4.dir/src/core/host_runtime/guest_ajm.cpp.o
+[16/21] Building CXX object CMakeFiles/shadps4.dir/src/core/host_runtime/guest_sockets.cpp.o
+[17/21] Building CXX object CMakeFiles/guest_posix_network_tests.dir/tests/host_runtime/guest_posix_network_tests.cpp.o
+[18/21] Linking CXX shared library libshadps4_host.so
+[19/21] Linking CXX executable guest_posix_network_tests
+[20/21] Linking CXX executable guest_network_tests
+[21/21] Linking CXX executable guest_file_io_tests

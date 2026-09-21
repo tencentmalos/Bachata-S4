@@ -1,0 +1,21 @@
+--------- beginning of main
+09-21 21:01:04.061  8848  8848 I FexSessionService: Guest console language=11
+09-21 21:01:04.062  8848  8848 I FexSessionService: Guest force disable MSAA=false
+09-21 21:01:04.062  8848  8848 I FexSessionService: Guest texture quality=0
+09-21 21:01:04.062  8848  8848 I FexSessionService: Guest internal scale=50.0 percent
+09-21 21:01:04.062  8848  8848 I FexSessionService: Guest shading quality=2; FDM disabled
+09-21 21:01:04.107  8848  8848 I FexSessionService: native: page_size=4096 pid=8848 uid=10190 gen=1
+09-21 21:04:10.337 10176 10176 I FexSessionService: Guest console language=11
+09-21 21:04:10.339 10176 10176 I FexSessionService: Guest force disable MSAA=false
+09-21 21:04:10.339 10176 10176 I FexSessionService: Guest texture quality=0
+09-21 21:04:10.339 10176 10176 I FexSessionService: Guest internal scale=50.0 percent
+09-21 21:04:10.339 10176 10176 I FexSessionService: Guest shading quality=2; FDM disabled
+09-21 21:04:10.382 10176 10176 I FexSessionService: native: page_size=4096 pid=10176 uid=10190 gen=1
+09-21 21:04:10.691 10176 10176 I VrGyro  : Neutral axes calibrated: rotation=1 gravity=[-1.509173, -0.66713583, 9.666836]
+09-21 21:06:07.063 11099 11099 I FexSessionService: Guest console language=11
+09-21 21:06:07.065 11099 11099 I FexSessionService: Guest force disable MSAA=true
+09-21 21:06:07.065 11099 11099 I FexSessionService: Guest texture quality=0
+09-21 21:06:07.065 11099 11099 I FexSessionService: Guest internal scale=50.0 percent
+09-21 21:06:07.065 11099 11099 I FexSessionService: Guest shading quality=2; FDM disabled
+09-21 21:06:07.113 11099 11099 I FexSessionService: native: page_size=4096 pid=11099 uid=10190 gen=1
+09-21 21:06:07.407 11099 11099 I VrGyro  : Neutral axes calibrated: rotation=1 gravity=[-1.3894376, -0.72573006, 9.680556]

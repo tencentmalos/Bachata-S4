@@ -353,6 +353,7 @@ PipelineCache::PipelineCache(const Instance& instance_, Scheduler& scheduler_,
         .needs_clip_distance_emulation = instance.GetDriverID() == vk::DriverId::eNvidiaProprietary,
         .supports_shader_stencil_export = instance_.IsShaderStencilExportSupported(),
         .internal_scale = instance.ScalePolicy().ShaderMapping(),
+        .force_disable_msaa = instance.IsMsaaDisabled(),
     };
     WarmUp();
 
@@ -447,7 +448,7 @@ bool PipelineCache::RefreshGraphicsKey() {
     key.patch_control_points =
         regs.stage_enable.hs_en ? regs.ls_hs_config.hs_input_control_points : 0;
     key.logic_op = regs.color_control.rop3;
-    key.depth_samples = db_enabled ? regs.depth_buffer.NumSamples() : 1;
+    key.depth_samples = db_enabled ? instance.HostSamples(regs.depth_buffer.NumSamples()) : 1;
     key.num_samples = key.depth_samples;
     key.cb_shader_mask = regs.color_shader_mask;
 
@@ -508,7 +509,7 @@ bool PipelineCache::RefreshGraphicsKey() {
             vk::ColorComponentFlags{key.color_buffers[cb].swizzle.ApplyMask(target_mask)};
 
         // Fill color samples
-        const u8 prev_color_samples = std::exchange(color_samples, col_buf.NumSamples());
+        const u8 prev_color_samples = std::exchange(color_samples, instance.HostSamples(col_buf.NumSamples()));
         all_color_samples_same &= color_samples == prev_color_samples || prev_color_samples == 0;
         key.color_samples[cb] = color_samples;
         key.num_samples = std::max(key.num_samples, color_samples);

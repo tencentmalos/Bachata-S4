@@ -51,6 +51,40 @@ static vk::ImageUsageFlags ImageUsageFlags(const Vulkan::Instance* instance,
     return usage;
 }
 
+// Storage is provisioned speculatively for compute clears, but its sample-count
+// limit must not silently turn an MSAA attachment into a single-sample image.
+// Query the concrete format/usage tuple again without that optional use. Views
+// must use the selected backing's usage, and unsupported MSAA storage stays explicit.
+static vk::SampleCountFlags ConfigureImageSamples(const Vulkan::Instance& instance,
+                                                   vk::ImageCreateInfo& ci, u32 requested) {
+    const auto query = [&](vk::ImageUsageFlags usage) {
+        const auto result = instance.GetPhysicalDevice().getImageFormatProperties2({
+            .format = ci.format, .type = ci.imageType, .tiling = ci.tiling,
+            .usage = usage, .flags = ci.flags});
+        return result.result == vk::Result::eSuccess
+            ? result.value.imageFormatProperties.sampleCounts : vk::SampleCountFlags{};
+    };
+    auto supported = query(ci.usage);
+    auto selected = LiverpoolToVK::NumSamples(requested, supported);
+    if (requested > 1 && (ci.usage & vk::ImageUsageFlagBits::eStorage)) {
+        const auto attachment_usage = ci.usage & ~vk::ImageUsageFlagBits::eStorage;
+        const auto attachment_supported = query(attachment_usage);
+        const auto attachment_samples = LiverpoolToVK::NumSamples(requested, attachment_supported);
+        if (u32(attachment_samples) > u32(selected)) {
+            ci.usage = attachment_usage;
+            supported = attachment_supported;
+            selected = attachment_samples;
+        }
+    }
+    ASSERT_MSG(bool(supported), "Image format {} is unsupported for usage {}",
+               vk::to_string(ci.format), vk::to_string(ci.usage));
+    ASSERT_MSG(u32(selected) == requested,
+               "Unsupported image sample count: format={} usage={} requested={} supported={:#x}",
+               vk::to_string(ci.format), vk::to_string(ci.usage), requested, u32(supported));
+    ci.samples = selected;
+    return supported;
+}
+
 static bool AstcLdrSource(vk::Format format) {
     switch (format) {
     case vk::Format::eBc1RgbUnormBlock: case vk::Format::eBc1RgbSrgbBlock:
@@ -179,24 +213,6 @@ Image::Image(const Vulkan::Instance& instance_, Vulkan::Scheduler& scheduler_,
 
     constexpr auto tiling = vk::ImageTiling::eOptimal;
     const auto supported_format = instance->GetSupportedFormat(info.pixel_format, format_features);
-    const vk::PhysicalDeviceImageFormatInfo2 format_info{
-        .format = supported_format,
-        .type = ConvertImageType(info.type),
-        .tiling = tiling,
-        .usage = usage_flags,
-        .flags = flags,
-    };
-    const auto image_format_properties =
-        instance->GetPhysicalDevice().getImageFormatProperties2(format_info);
-    if (image_format_properties.result == vk::Result::eErrorFormatNotSupported) {
-        LOG_ERROR(Render_Vulkan, "image format {} type {} is not supported (flags {}, usage {})",
-                  vk::to_string(supported_format), vk::to_string(format_info.type),
-                  vk::to_string(format_info.flags), vk::to_string(format_info.usage));
-    }
-    supported_samples = image_format_properties.result == vk::Result::eSuccess
-                            ? image_format_properties.value.imageFormatProperties.sampleCounts
-                            : vk::SampleCountFlagBits::e1;
-
     vk::ImageCreateInfo image_ci = {
         .flags = flags,
         .imageType = ConvertImageType(info.type),
@@ -208,11 +224,13 @@ Image::Image(const Vulkan::Instance& instance_, Vulkan::Scheduler& scheduler_,
         },
         .mipLevels = static_cast<u32>(info.resources.levels),
         .arrayLayers = static_cast<u32>(info.resources.layers),
-        .samples = LiverpoolToVK::NumSamples(info.num_samples, supported_samples),
+        .samples = vk::SampleCountFlagBits::e1,
         .tiling = tiling,
         .usage = usage_flags,
         .initialLayout = vk::ImageLayout::eUndefined,
     };
+
+    supported_samples = ConfigureImageSamples(*instance, image_ci, instance->HostSamples(info.num_samples));
 
     const bool render = use == ScaleUse::RenderTarget || use == ScaleUse::DepthTarget || use == ScaleUse::VideoOut;
     scale_plan->history |= 1u << u32(use);
@@ -287,7 +305,7 @@ Image::Image(const Vulkan::Instance& instance_, Vulkan::Scheduler& scheduler_,
     }
 
     backing = &backing_images.emplace_back();
-    backing->num_samples = info.num_samples;
+    backing->num_samples = u32(image_ci.samples);
     backing->image = UniqueImage{instance->GetDevice(), instance->GetAllocator()};
     backing->image.Create(image_ci);
     if (selected < 8 && !IsScaled()) scale_plan->RequireNative(ScaleReason::SemanticNative);
@@ -473,7 +491,7 @@ bool Image::InheritCopyPlan(Image& source) {
 }
 
 ImageView& Image::FindView(const ImageViewInfo& view_info, bool ensure_guest_samples) {
-    if (ensure_guest_samples && backing->num_samples > 1 != info.num_samples > 1) {
+    if (ensure_guest_samples && backing->num_samples != instance->HostSamples(info.num_samples)) {
         SetBackingSamples(info.num_samples);
     }
     const auto& view_infos = backing->image_view_infos;
@@ -1180,6 +1198,7 @@ void Image::Clear(const vk::ClearValue& clear_value, const VideoCore::Subresourc
 }
 
 void Image::SetBackingSamples(u32 num_samples, bool copy_backing) {
+    num_samples = instance->HostSamples(num_samples);
     if (num_samples > 1) ForceNative("multisample backing");
     if (!backing || backing->num_samples == num_samples) {
         return;
@@ -1189,7 +1208,10 @@ void Image::SetBackingSamples(u32 num_samples, bool copy_backing) {
     auto it = std::ranges::find(backing_images, num_samples, &BackingImage::num_samples);
     if (it == backing_images.end()) {
         auto new_image_ci = backing->image.image_ci;
-        new_image_ci.samples = LiverpoolToVK::NumSamples(num_samples, supported_samples);
+        // Returning from an attachment backing to a single-sample storage view
+        // must restore its storage usage; promotion must re-query the MSAA tuple.
+        new_image_ci.usage = usage_flags;
+        ConfigureImageSamples(*instance, new_image_ci, num_samples);
 
         new_backing = &backing_images.emplace_back();
         new_backing->num_samples = num_samples;

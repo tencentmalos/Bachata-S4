@@ -1,0 +1,3411 @@
+{
+  "source": "sports-v7-imports.json",
+  "pid": 5682,
+  "title_id": "CUSA36289",
+  "rows": 2303,
+  "counts": {
+    "guest_export": 969,
+    "runtime_bound": 953,
+    "refused": 370,
+    "not_relocated": 11
+  },
+  "refused_unique_symbols": 322,
+  "refused_by_library": {
+    "libSceAjm": [
+      {
+        "binding": "refused",
+        "guest_address": 103086489600,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceAjmBatchErrorDump",
+        "provider": "runtime_fallback",
+        "symbol": "WfAiBW8Wcek#libSceAjm#1#libSceAjm#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103086292992,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceAjmFinalize",
+        "provider": "runtime_fallback",
+        "symbol": "MHur6qCsUus#libSceAjm#1#libSceAjm#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103086456832,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceAjmModuleUnregister",
+        "provider": "runtime_fallback",
+        "symbol": "Wi7DtlLV+KI#libSceAjm#1#libSceAjm#Function"
+      }
+    ],
+    "libSceAppContent": [
+      {
+        "binding": "refused",
+        "guest_address": 103081984000,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceAppContentAddcontUnmount",
+        "provider": "runtime_fallback",
+        "symbol": "3rHWaV-1KC4#libSceAppContent#1#libSceAppContentUtil#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103082115072,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceAppContentTemporaryDataFormat",
+        "provider": "runtime_fallback",
+        "symbol": "a5N7lAG0y2Q#libSceAppContent#1#libSceAppContentUtil#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103082328064,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceAppContentTemporaryDataUnmount",
+        "provider": "runtime_fallback",
+        "symbol": "bcolXMmp6qQ#libSceAppContent#1#libSceAppContentUtil#Function"
+      }
+    ],
+    "libSceAudio3d": [
+      {
+        "binding": "refused",
+        "guest_address": 103086145536,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceAudio3dInitialize",
+        "provider": "runtime_fallback",
+        "symbol": "UmCvjSmuZIw#libSceAudio3d#1#libSceAudio3d#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103086440448,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceAudio3dObjectReserve",
+        "provider": "runtime_fallback",
+        "symbol": "jO2tec4dJ2M#libSceAudio3d#1#libSceAudio3d#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103086473216,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceAudio3dObjectSetAttributes",
+        "provider": "runtime_fallback",
+        "symbol": "4uyHN9q4ZeU#libSceAudio3d#1#libSceAudio3d#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103086211072,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceAudio3dPortClose",
+        "provider": "runtime_fallback",
+        "symbol": "OyVqOeVNtSk#libSceAudio3d#1#libSceAudio3d#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103086227456,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceAudio3dPortFlush",
+        "provider": "runtime_fallback",
+        "symbol": "ZOGrxWLgQzE#libSceAudio3d#1#libSceAudio3d#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103086522368,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceAudio3dPortOpen",
+        "provider": "runtime_fallback",
+        "symbol": "XeDDK0xJWQA#libSceAudio3d#1#libSceAudio3d#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103086309376,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceAudio3dTerminate",
+        "provider": "runtime_fallback",
+        "symbol": "WW1TS2iz5yc#libSceAudio3d#1#libSceAudio3d#Function"
+      }
+    ],
+    "libSceAudioOut": [
+      {
+        "binding": "refused",
+        "guest_address": 103082967040,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceAudioOutSetMixLevelPadSpk",
+        "provider": "runtime_fallback",
+        "symbol": "wVwPU50pS1c#libSceAudioOut#1#libSceAudioOut#Function"
+      }
+    ],
+    "libSceAvPlayer": [
+      {
+        "binding": "refused",
+        "guest_address": 103085080576,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceAvPlayerChangeStream",
+        "provider": "runtime_fallback",
+        "symbol": "buMCiJftcfw#libSceAvPlayer#1#libSceAvPlayer#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103084736512,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceAvPlayerJumpToTime",
+        "provider": "runtime_fallback",
+        "symbol": "XC9wM+xULz8#libSceAvPlayer#1#libSceAvPlayer#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103084769280,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceAvPlayerSetTrickSpeed",
+        "provider": "runtime_fallback",
+        "symbol": "av8Z++94rs0#libSceAvPlayer#1#libSceAvPlayer#Function"
+      }
+    ],
+    "libSceGnmDriver": [
+      {
+        "binding": "refused",
+        "guest_address": 103086669824,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceGnmComputeWaitSemaphore",
+        "provider": "runtime_fallback",
+        "symbol": "EJapNl2+pgU#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103087046656,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceGnmDestroyWorkloadStream",
+        "provider": "runtime_fallback",
+        "symbol": "UtObDRQiGbs#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103087243264,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceGnmDrawIndexMultiInstanced",
+        "provider": "runtime_fallback",
+        "symbol": "jHdPvIzlpKc#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103087292416,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceGnmDrawIndirectCountMulti",
+        "provider": "runtime_fallback",
+        "symbol": "cUCo8OvArrw#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103087341568,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceGnmDrawOpaqueAuto",
+        "provider": "runtime_fallback",
+        "symbol": "stDSYW2SBVM#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103087538176,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceGnmFindResourcesPublic",
+        "provider": "runtime_fallback",
+        "symbol": "4Mv9OXypBG8#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103087685632,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceGnmGetGpuBlockStatus",
+        "provider": "runtime_fallback",
+        "symbol": "oL4hGI1PMpw#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103087718400,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceGnmGetGpuInfoStatus",
+        "provider": "runtime_fallback",
+        "symbol": "tZCSL5ulnB4#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103087734784,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceGnmGetLastWaitedAddress",
+        "provider": "runtime_fallback",
+        "symbol": "iFirFzgYsvw#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103087751168,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceGnmGetNumTcaUnits",
+        "provider": "runtime_fallback",
+        "symbol": "KnldROUkWJY#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103087783936,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceGnmGetOwnerName",
+        "provider": "runtime_fallback",
+        "symbol": "QJjPjlmPAL0#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103087800320,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceGnmGetPhysicalCounterFromVirtualized",
+        "provider": "runtime_fallback",
+        "symbol": "dewXw5roLs0#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103087816704,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceGnmGetProtectionFaultTimeStamp",
+        "provider": "runtime_fallback",
+        "symbol": "fzJdEihTFV4#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103087833088,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceGnmGetResourceBaseAddressAndSizeInBytes",
+        "provider": "runtime_fallback",
+        "symbol": "4PKnYXOhcx4#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103087849472,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceGnmGetResourceName",
+        "provider": "runtime_fallback",
+        "symbol": "O0S96YnD04U#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103087865856,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceGnmGetResourceShaderGuid",
+        "provider": "runtime_fallback",
+        "symbol": "UBv7FkVfzcQ#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103087882240,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceGnmGetResourceType",
+        "provider": "runtime_fallback",
+        "symbol": "bdqdvIkLPIU#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103087898624,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceGnmGetResourceUserData",
+        "provider": "runtime_fallback",
+        "symbol": "UoBuWAhKk7U#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103087915008,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceGnmGetShaderProgramBaseAddress",
+        "provider": "runtime_fallback",
+        "symbol": "nEyFbYUloIM#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103087931392,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceGnmGetShaderStatus",
+        "provider": "runtime_fallback",
+        "symbol": "k7iGTvDQPLQ#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103088193536,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceGnmLogicalTcaUnitToPhysical",
+        "provider": "runtime_fallback",
+        "symbol": "Kl0Z3LH07QI#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103088373760,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceGnmRequestFlipAndSubmitDoneForWorkload",
+        "provider": "runtime_fallback",
+        "symbol": "6YRHhh5mHCs#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103086817280,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceGnmSetResourceRegistrationUserMemory",
+        "provider": "runtime_fallback",
+        "symbol": "q-qhDxP67Hg#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103086833664,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceGnmSetResourceUserData",
+        "provider": "runtime_fallback",
+        "symbol": "K3BKBBYKUSE#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103086882816,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceGnmSetWaveLimitMultipliers",
+        "provider": "runtime_fallback",
+        "symbol": "XiyzNZ9J4nQ#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103087570944,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceGnmValidateDisableDiagnostics",
+        "provider": "runtime_fallback",
+        "symbol": "SXw4dZEkgpA#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103087587328,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceGnmValidateDisableDiagnostics2",
+        "provider": "runtime_fallback",
+        "symbol": "BgM3t3LvcNk#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103087603712,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceGnmValidateDispatchCommandBuffers",
+        "provider": "runtime_fallback",
+        "symbol": "qGP74T5OWJc#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103087620096,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceGnmValidateDrawCommandBuffers",
+        "provider": "runtime_fallback",
+        "symbol": "hsZPf1lON7E#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103087636480,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceGnmValidateGetDiagnosticInfo",
+        "provider": "runtime_fallback",
+        "symbol": "RX7XCNSaL6I#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103087964160,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceGnmValidateGetDiagnostics",
+        "provider": "runtime_fallback",
+        "symbol": "5SHGNwLXBV4#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103087980544,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceGnmValidateGetVersion",
+        "provider": "runtime_fallback",
+        "symbol": "HzMN7ANqYEc#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103087996928,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceGnmValidateOnSubmitEnabled",
+        "provider": "runtime_fallback",
+        "symbol": "rTIV11nMQuM#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103088128000,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceGnmValidateResetState",
+        "provider": "runtime_fallback",
+        "symbol": "MBMa6EFu4Ko#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103088242688,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceGnmValidationRegisterMemoryCheckCallback",
+        "provider": "runtime_fallback",
+        "symbol": "Q7t4VEYLafI#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103088259072,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceRazorCaptureImmediate",
+        "provider": "runtime_fallback",
+        "symbol": "u9YKpRRHe-M#libSceGnmDriver#1#libSceGnmDriver#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103088275456,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceRazorIsLoaded",
+        "provider": "runtime_fallback",
+        "symbol": "f33OrruQYbM#libSceGnmDriver#1#libSceGnmDriver#Function"
+      }
+    ],
+    "libSceHmd": [
+      {
+        "binding": "refused",
+        "guest_address": 103080591360,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceHmdReprojectionStart2dVr",
+        "provider": "runtime_fallback",
+        "symbol": "q3e8+nEguyE#libSceHmd#1#libSceHmd#Function"
+      }
+    ],
+    "libSceIme": [
+      {
+        "binding": "refused",
+        "guest_address": 103083409408,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceImeKeyboardClose",
+        "provider": "runtime_fallback",
+        "symbol": "PMVehSlfZ94#libSceIme#1#libSceIme#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103083130880,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceImeKeyboardGetInfo",
+        "provider": "runtime_fallback",
+        "symbol": "VkqLPArfFdc#libSceIme#1#libSceIme#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103083540480,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceImeKeyboardGetResourceId",
+        "provider": "runtime_fallback",
+        "symbol": "dKadqZFgKKQ#libSceIme#1#libSceIme#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103083147264,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceImeKeyboardOpen",
+        "provider": "runtime_fallback",
+        "symbol": "eaFXjfJv3xs#libSceIme#1#libSceIme#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103083376640,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceImeUpdate",
+        "provider": "runtime_fallback",
+        "symbol": "-4GCfYdNF1s#libSceIme#1#libSceIme#Function"
+      }
+    ],
+    "libSceMsgDialog": [
+      {
+        "binding": "refused",
+        "guest_address": 103081885696,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceMsgDialogInitialize",
+        "provider": "runtime_fallback",
+        "symbol": "lDqxaY1UbEo#libSceMsgDialog#1#libSceMsgDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103081967616,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceMsgDialogOpen",
+        "provider": "runtime_fallback",
+        "symbol": "b06Hh0DPEaE#libSceMsgDialog#1#libSceMsgDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103082409984,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceMsgDialogTerminate",
+        "provider": "runtime_fallback",
+        "symbol": "ePw-kqZmelo#libSceMsgDialog#1#libSceMsgDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103082393600,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceMsgDialogUpdateStatus",
+        "provider": "runtime_fallback",
+        "symbol": "6fIC3XKt2k0#libSceMsgDialog#1#libSceMsgDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103090798592,
+        "hle_status": "unsupported_import",
+        "importer": "CommonDialog.prx",
+        "name": "sceMsgDialogClose",
+        "provider": "runtime_fallback",
+        "symbol": "HTrcDKlFKuM#libSceMsgDialog#1#libSceMsgDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103090814976,
+        "hle_status": "unsupported_import",
+        "importer": "CommonDialog.prx",
+        "name": "sceMsgDialogGetResult",
+        "provider": "runtime_fallback",
+        "symbol": "Lr8ovHH9l6A#libSceMsgDialog#1#libSceMsgDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103081885696,
+        "hle_status": "unsupported_import",
+        "importer": "CommonDialog.prx",
+        "name": "sceMsgDialogInitialize",
+        "provider": "runtime_fallback",
+        "symbol": "lDqxaY1UbEo#libSceMsgDialog#1#libSceMsgDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103081967616,
+        "hle_status": "unsupported_import",
+        "importer": "CommonDialog.prx",
+        "name": "sceMsgDialogOpen",
+        "provider": "runtime_fallback",
+        "symbol": "b06Hh0DPEaE#libSceMsgDialog#1#libSceMsgDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103090782208,
+        "hle_status": "unsupported_import",
+        "importer": "CommonDialog.prx",
+        "name": "sceMsgDialogProgressBarSetMsg",
+        "provider": "runtime_fallback",
+        "symbol": "6H-71OdrpXM#libSceMsgDialog#1#libSceMsgDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103090765824,
+        "hle_status": "unsupported_import",
+        "importer": "CommonDialog.prx",
+        "name": "sceMsgDialogProgressBarSetValue",
+        "provider": "runtime_fallback",
+        "symbol": "wTpfglkmv34#libSceMsgDialog#1#libSceMsgDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103082409984,
+        "hle_status": "unsupported_import",
+        "importer": "CommonDialog.prx",
+        "name": "sceMsgDialogTerminate",
+        "provider": "runtime_fallback",
+        "symbol": "ePw-kqZmelo#libSceMsgDialog#1#libSceMsgDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103082393600,
+        "hle_status": "unsupported_import",
+        "importer": "CommonDialog.prx",
+        "name": "sceMsgDialogUpdateStatus",
+        "provider": "runtime_fallback",
+        "symbol": "6fIC3XKt2k0#libSceMsgDialog#1#libSceMsgDialog#Function"
+      }
+    ],
+    "libSceNet": [
+      {
+        "binding": "refused",
+        "guest_address": 103082196992,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceNetResolverStartAton",
+        "provider": "runtime_fallback",
+        "symbol": "Apb4YDxKsRI#libSceNet#1#libSceNet#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103088947200,
+        "hle_status": "unsupported_import",
+        "importer": "Il2CppUserAssemblies.prx",
+        "name": "sceNetGetSockInfo",
+        "provider": "runtime_fallback",
+        "symbol": "hLuXdjHnhiI#libSceNet#1#libSceNet#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103082196992,
+        "hle_status": "unsupported_import",
+        "importer": "Il2CppUserAssemblies.prx",
+        "name": "sceNetResolverStartAton",
+        "provider": "runtime_fallback",
+        "symbol": "Apb4YDxKsRI#libSceNet#1#libSceNet#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092256768,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNetGetMemoryPoolStats",
+        "provider": "runtime_fallback",
+        "symbol": "rMyh97BU5pY#libSceNet#1#libSceNet#Function"
+      }
+    ],
+    "libSceNpWebApi": [
+      {
+        "binding": "refused",
+        "guest_address": 103081345024,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceNpWebApiCreateContextA",
+        "provider": "runtime_fallback",
+        "symbol": "zk6c65xoyO0#libSceNpWebApi#1#libSceNpWebApi#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103081738240,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceNpWebApiCreateRequest",
+        "provider": "runtime_fallback",
+        "symbol": "rdgs5Z1MyFw#libSceNpWebApi#1#libSceNpWebApi#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103081558016,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceNpWebApiDeleteRequest",
+        "provider": "runtime_fallback",
+        "symbol": "noQgleu+KLE#libSceNpWebApi#1#libSceNpWebApi#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103081508864,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceNpWebApiReadData",
+        "provider": "runtime_fallback",
+        "symbol": "CQtPRSF6Ds8#libSceNpWebApi#1#libSceNpWebApi#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103081787392,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceNpWebApiSendRequest2",
+        "provider": "runtime_fallback",
+        "symbol": "KjNeZ-29ysQ#libSceNpWebApi#1#libSceNpWebApi#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103091339264,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpWebApiAbortRequest",
+        "provider": "runtime_fallback",
+        "symbol": "JzhYTP2fG18#libSceNpWebApi#1#libSceNpWebApi#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103094108160,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpWebApiAddHttpRequestHeader",
+        "provider": "runtime_fallback",
+        "symbol": "joRjtRXTFoc#libSceNpWebApi#1#libSceNpWebApi#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103081345024,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpWebApiCreateContextA",
+        "provider": "runtime_fallback",
+        "symbol": "zk6c65xoyO0#libSceNpWebApi#1#libSceNpWebApi#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103081738240,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpWebApiCreateRequest",
+        "provider": "runtime_fallback",
+        "symbol": "rdgs5Z1MyFw#libSceNpWebApi#1#libSceNpWebApi#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103094059008,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpWebApiDeleteContext",
+        "provider": "runtime_fallback",
+        "symbol": "XUjdsSTTZ3U#libSceNpWebApi#1#libSceNpWebApi#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103081558016,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpWebApiDeleteRequest",
+        "provider": "runtime_fallback",
+        "symbol": "noQgleu+KLE#libSceNpWebApi#1#libSceNpWebApi#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103094140928,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpWebApiGetHttpResponseHeaderValue",
+        "provider": "runtime_fallback",
+        "symbol": "VwJ5L0Higg0#libSceNpWebApi#1#libSceNpWebApi#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103094124544,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpWebApiGetHttpResponseHeaderValueLength",
+        "provider": "runtime_fallback",
+        "symbol": "743ZzEBzlV8#libSceNpWebApi#1#libSceNpWebApi#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092240384,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpWebApiGetMemoryPoolStats",
+        "provider": "runtime_fallback",
+        "symbol": "3OnubUs02UM#libSceNpWebApi#1#libSceNpWebApi#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103081508864,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpWebApiReadData",
+        "provider": "runtime_fallback",
+        "symbol": "CQtPRSF6Ds8#libSceNpWebApi#1#libSceNpWebApi#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103094190080,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpWebApiRegisterExtdPushEventCallbackA",
+        "provider": "runtime_fallback",
+        "symbol": "jhXKGQJ4egI#libSceNpWebApi#1#libSceNpWebApi#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103081787392,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpWebApiSendRequest2",
+        "provider": "runtime_fallback",
+        "symbol": "KjNeZ-29ysQ#libSceNpWebApi#1#libSceNpWebApi#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103094091776,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpWebApiUnregisterExtdPushEventCallback",
+        "provider": "runtime_fallback",
+        "symbol": "PqCY25FMzPs#libSceNpWebApi#1#libSceNpWebApi#Function"
+      }
+    ],
+    "libSceRemoteplay": [
+      {
+        "binding": "refused",
+        "guest_address": 103082213376,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceRemoteplayApprove",
+        "provider": "runtime_fallback",
+        "symbol": "xQeIryTX7dY#libSceRemoteplay#1#libSceRemoteplay#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103082180608,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceRemoteplayGetConnectionStatus",
+        "provider": "runtime_fallback",
+        "symbol": "g3PNjYKWqnQ#libSceRemoteplay#1#libSceRemoteplay#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103082360832,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceRemoteplayInitialize",
+        "provider": "runtime_fallback",
+        "symbol": "k1SwgkMSOM8#libSceRemoteplay#1#libSceRemoteplay#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103082131456,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceRemoteplayProhibit",
+        "provider": "runtime_fallback",
+        "symbol": "mrNh78tBpmg#libSceRemoteplay#1#libSceRemoteplay#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103082033152,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceRemoteplayProhibitStreaming",
+        "provider": "runtime_fallback",
+        "symbol": "7QLrixwVHcU#libSceRemoteplay#1#libSceRemoteplay#Function"
+      }
+    ],
+    "libSceSaveData": [
+      {
+        "binding": "refused",
+        "guest_address": 103084867584,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSaveDataSetSaveDataMemory2",
+        "provider": "runtime_fallback",
+        "symbol": "cduy9v4YmT4#libSceSaveData#1#libSceSaveData#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103084818432,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSaveDataSetupSaveDataMemory2",
+        "provider": "runtime_fallback",
+        "symbol": "oQySEUfgXRA#libSceSaveData#1#libSceSaveData#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103084851200,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSaveDataSyncSaveDataMemory",
+        "provider": "runtime_fallback",
+        "symbol": "wiT9jeC7xPw#libSceSaveData#1#libSceSaveData#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103090323456,
+        "hle_status": "unsupported_import",
+        "importer": "SaveData.prx",
+        "name": "sceSaveDataBackup",
+        "provider": "runtime_fallback",
+        "symbol": "z1JA8-iJt3k#libSceSaveData#1#libSceSaveData#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103090733056,
+        "hle_status": "unsupported_import",
+        "importer": "SaveData.prx",
+        "name": "sceSaveDataClearProgress",
+        "provider": "runtime_fallback",
+        "symbol": "Wz-4JZfeO9g#libSceSaveData#1#libSceSaveData#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103090716672,
+        "hle_status": "unsupported_import",
+        "importer": "SaveData.prx",
+        "name": "sceSaveDataGetProgress",
+        "provider": "runtime_fallback",
+        "symbol": "ANmSWUiyyGQ#libSceSaveData#1#libSceSaveData#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103090683904,
+        "hle_status": "unsupported_import",
+        "importer": "SaveData.prx",
+        "name": "sceSaveDataLoadIcon",
+        "provider": "runtime_fallback",
+        "symbol": "cGjO3wM3V28#libSceSaveData#1#libSceSaveData#Function"
+      }
+    ],
+    "libSceSocialScreen": [
+      {
+        "binding": "refused",
+        "guest_address": 103083966464,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSocialScreenCloseSeparateMode",
+        "provider": "runtime_fallback",
+        "symbol": "vtZIn9HtYbs#libSceSocialScreen#1#libSceSocialScreen#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103084146688,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSocialScreenConfigureSeparateMode",
+        "provider": "runtime_fallback",
+        "symbol": "IEzqdjIueps#libSceSocialScreen#1#libSceSocialScreen#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103084048384,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSocialScreenInitialize",
+        "provider": "runtime_fallback",
+        "symbol": "pI7oFSPP65A#libSceSocialScreen#1#libSceSocialScreen#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103083851776,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSocialScreenInitializeSeparateModeParameter",
+        "provider": "runtime_fallback",
+        "symbol": "VMM7wQBZoBk#libSceSocialScreen#1#libSceSocialScreen#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103083933696,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSocialScreenOpenSeparateMode",
+        "provider": "runtime_fallback",
+        "symbol": "SvdXHHt2LLE#libSceSocialScreen#1#libSceSocialScreen#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103083900928,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSocialScreenSetMode",
+        "provider": "runtime_fallback",
+        "symbol": "6Me4hYsy3Kc#libSceSocialScreen#1#libSceSocialScreen#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103084081152,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSocialScreenTerminate",
+        "provider": "runtime_fallback",
+        "symbol": "OVNpYTRqN74#libSceSocialScreen#1#libSceSocialScreen#Function"
+      }
+    ],
+    "libSceSocialScreenDialog": [
+      {
+        "binding": "refused",
+        "guest_address": 103080706048,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSocialScreenDialogClose",
+        "provider": "runtime_fallback",
+        "symbol": "4ej3RtYH320#libSceSocialScreenDialog#1#libSceSocialScreenDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103079657472,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSocialScreenDialogGetResult",
+        "provider": "runtime_fallback",
+        "symbol": "WjHT5TmV0TQ#libSceSocialScreenDialog#1#libSceSocialScreenDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103079870464,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSocialScreenDialogInitialize",
+        "provider": "runtime_fallback",
+        "symbol": "PEe0R7gBHbc#libSceSocialScreenDialog#1#libSceSocialScreenDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103079985152,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSocialScreenDialogOpen",
+        "provider": "runtime_fallback",
+        "symbol": "eL54zY-B+-Y#libSceSocialScreenDialog#1#libSceSocialScreenDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103080001536,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSocialScreenDialogTerminate",
+        "provider": "runtime_fallback",
+        "symbol": "A4KPdcTIVuc#libSceSocialScreenDialog#1#libSceSocialScreenDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103080329216,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSocialScreenDialogUpdateStatus",
+        "provider": "runtime_fallback",
+        "symbol": "BEhMn+TyoGA#libSceSocialScreenDialog#1#libSceSocialScreenDialog#Function"
+      }
+    ],
+    "libSceSsl": [
+      {
+        "binding": "refused",
+        "guest_address": 103081148416,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSslFreeCaCerts",
+        "provider": "runtime_fallback",
+        "symbol": "qIvLs0gYxi0#libSceSsl#1#libSceSsl#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103081754624,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSslFreeSslCertName",
+        "provider": "runtime_fallback",
+        "symbol": "RwXD8grHZHM#libSceSsl#1#libSceSsl#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103081132032,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSslGetCaCerts",
+        "provider": "runtime_fallback",
+        "symbol": "TDfQqO-gMbY#libSceSsl#1#libSceSsl#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103081312256,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSslGetIssuerName",
+        "provider": "runtime_fallback",
+        "symbol": "7whYpYfHP74#libSceSsl#1#libSceSsl#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103081115648,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSslGetMemoryPoolStats",
+        "provider": "runtime_fallback",
+        "symbol": "-PoIzr3PEk0#libSceSsl#1#libSceSsl#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103081525248,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSslGetNameEntryCount",
+        "provider": "runtime_fallback",
+        "symbol": "R1ePzopYPYM#libSceSsl#1#libSceSsl#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103081541632,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSslGetNameEntryInfo",
+        "provider": "runtime_fallback",
+        "symbol": "7RBSTKGrmDA#libSceSsl#1#libSceSsl#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103081361408,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSslGetSerialNumber",
+        "provider": "runtime_fallback",
+        "symbol": "DOwXL+FQMEY#libSceSsl#1#libSceSsl#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103081476096,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSslGetSubjectName",
+        "provider": "runtime_fallback",
+        "symbol": "dQReuBX9sD8#libSceSsl#1#libSceSsl#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103081115648,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceSslGetMemoryPoolStats",
+        "provider": "runtime_fallback",
+        "symbol": "-PoIzr3PEk0#libSceSsl#1#libSceSsl#Function"
+      }
+    ],
+    "libSceSystemService": [
+      {
+        "binding": "refused",
+        "guest_address": 103084982272,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSystemServiceDisableMusicPlayer",
+        "provider": "runtime_fallback",
+        "symbol": "x1UB9bwDSOw#libSceSystemService#1#libSceSystemService#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103080493056,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSystemServiceDisablePersonalEyeToEyeDistanceSetting",
+        "provider": "runtime_fallback",
+        "symbol": "Mr1IgQaRff0#libSceSystemService#1#libSceSystemService#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103084965888,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSystemServiceDisableSuspendConfirmationDialog",
+        "provider": "runtime_fallback",
+        "symbol": "PQ+SjXAg3EM#libSceSystemService#1#libSceSystemService#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103079854080,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSystemServiceEnablePersonalEyeToEyeDistanceSetting",
+        "provider": "runtime_fallback",
+        "symbol": "O3irWUQ2s-g#libSceSystemService#1#libSceSystemService#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103084916736,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSystemServiceEnableSuspendConfirmationDialog",
+        "provider": "runtime_fallback",
+        "symbol": "Rn32O5PDlmo#libSceSystemService#1#libSceSystemService#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103082541056,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSystemServiceGetDisplaySafeAreaInfo",
+        "provider": "runtime_fallback",
+        "symbol": "1n37q1Bvc5Y#libSceSystemService#1#libSceSystemService#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103084097536,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSystemServiceGetHdrToneMapLuminance",
+        "provider": "runtime_fallback",
+        "symbol": "mPpPxv5CZt4#libSceSystemService#1#libSceSystemService#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103082016768,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSystemServiceLoadExec",
+        "provider": "runtime_fallback",
+        "symbol": "JoBqSQt1yyA#libSceSystemService#1#libSceSystemService#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103082622976,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSystemServiceParamGetString",
+        "provider": "runtime_fallback",
+        "symbol": "SsC-m-S9JTA#libSceSystemService#1#libSceSystemService#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103084933120,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSystemServicePowerTick",
+        "provider": "runtime_fallback",
+        "symbol": "XbbJC3E+L5M#libSceSystemService#1#libSceSystemService#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103084949504,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSystemServiceReenableMusicPlayer",
+        "provider": "runtime_fallback",
+        "symbol": "9kPCz7Or+1Y#libSceSystemService#1#libSceSystemService#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103082770432,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSystemServiceReportAbnormalTermination",
+        "provider": "runtime_fallback",
+        "symbol": "3s8cHiCBKBE#libSceSystemService#1#libSceSystemService#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103084900352,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceSystemServiceShowControllerSettings",
+        "provider": "runtime_fallback",
+        "symbol": "w9wlKcHrmm8#libSceSystemService#1#libSceSystemService#Function"
+      }
+    ],
+    "libSceWebBrowserDialog": [
+      {
+        "binding": "refused",
+        "guest_address": 103082754048,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceWebBrowserDialogInitialize",
+        "provider": "runtime_fallback",
+        "symbol": "jqb7HntFQFc#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103082672128,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceWebBrowserDialogOpen",
+        "provider": "runtime_fallback",
+        "symbol": "FraP7debcdg#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103082590208,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceWebBrowserDialogTerminate",
+        "provider": "runtime_fallback",
+        "symbol": "ocHtyBwHfys#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103082655744,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceWebBrowserDialogUpdateStatus",
+        "provider": "runtime_fallback",
+        "symbol": "h1dR-t5ISgg#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103091027968,
+        "hle_status": "unsupported_import",
+        "importer": "CommonDialog.prx",
+        "name": "sceWebBrowserDialogGetResult",
+        "provider": "runtime_fallback",
+        "symbol": "vCaW0fgVQmc#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103082754048,
+        "hle_status": "unsupported_import",
+        "importer": "CommonDialog.prx",
+        "name": "sceWebBrowserDialogInitialize",
+        "provider": "runtime_fallback",
+        "symbol": "jqb7HntFQFc#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103082672128,
+        "hle_status": "unsupported_import",
+        "importer": "CommonDialog.prx",
+        "name": "sceWebBrowserDialogOpen",
+        "provider": "runtime_fallback",
+        "symbol": "FraP7debcdg#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103090978816,
+        "hle_status": "unsupported_import",
+        "importer": "CommonDialog.prx",
+        "name": "sceWebBrowserDialogOpenForPredeterminedContent",
+        "provider": "runtime_fallback",
+        "symbol": "O7dIZQrwVFY#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103090995200,
+        "hle_status": "unsupported_import",
+        "importer": "CommonDialog.prx",
+        "name": "sceWebBrowserDialogResetCookie",
+        "provider": "runtime_fallback",
+        "symbol": "Cya+jvTtPqg#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103091011584,
+        "hle_status": "unsupported_import",
+        "importer": "CommonDialog.prx",
+        "name": "sceWebBrowserDialogSetCookie",
+        "provider": "runtime_fallback",
+        "symbol": "TZnDVkP91Rg#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103082590208,
+        "hle_status": "unsupported_import",
+        "importer": "CommonDialog.prx",
+        "name": "sceWebBrowserDialogTerminate",
+        "provider": "runtime_fallback",
+        "symbol": "ocHtyBwHfys#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103082655744,
+        "hle_status": "unsupported_import",
+        "importer": "CommonDialog.prx",
+        "name": "sceWebBrowserDialogUpdateStatus",
+        "provider": "runtime_fallback",
+        "symbol": "h1dR-t5ISgg#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function"
+      }
+    ],
+    "libScePosix": [
+      {
+        "binding": "refused",
+        "guest_address": 103079510016,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "accept",
+        "provider": "runtime_fallback",
+        "symbol": "3e+4Iv7IJ8U#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103079460864,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "bind",
+        "provider": "runtime_fallback",
+        "symbol": "KuOmgKoqCdY#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103079477248,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "connect",
+        "provider": "runtime_fallback",
+        "symbol": "XVL8So3QJUk#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103079428096,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "getsockname",
+        "provider": "runtime_fallback",
+        "symbol": "RenI1lL1WFk#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103084392448,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "inet_ntop",
+        "provider": "runtime_fallback",
+        "symbol": "5jRCs2axtr4#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103079411712,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "listen",
+        "provider": "runtime_fallback",
+        "symbol": "pxnCmagrtao#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103085834240,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "pthread_cancel",
+        "provider": "runtime_fallback",
+        "symbol": "0D4-FVvEikw#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103079362560,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "recv",
+        "provider": "runtime_fallback",
+        "symbol": "Ez8xjo9UF4E#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103084359680,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "recvfrom",
+        "provider": "runtime_fallback",
+        "symbol": "lUk6wrGXyMw#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103085916160,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sched_get_priority_max",
+        "provider": "runtime_fallback",
+        "symbol": "CBNtXOoef-E#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103085932544,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sched_get_priority_min",
+        "provider": "runtime_fallback",
+        "symbol": "m0iS6jNsXds#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103081820160,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "select",
+        "provider": "runtime_fallback",
+        "symbol": "T8fER+tIGgk#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103079395328,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "send",
+        "provider": "runtime_fallback",
+        "symbol": "fZOeZIOEmLw#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103084277760,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sendto",
+        "provider": "runtime_fallback",
+        "symbol": "oBr313PppNE#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103079378944,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "setsockopt",
+        "provider": "runtime_fallback",
+        "symbol": "fFxGkxF2bVo#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103079444480,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "shutdown",
+        "provider": "runtime_fallback",
+        "symbol": "TUuiYS2kE8s#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103079493632,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "socket",
+        "provider": "runtime_fallback",
+        "symbol": "TU-d9PfIHPM#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103079510016,
+        "hle_status": "unsupported_import",
+        "importer": "Il2CppUserAssemblies.prx",
+        "name": "accept",
+        "provider": "runtime_fallback",
+        "symbol": "3e+4Iv7IJ8U#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103079460864,
+        "hle_status": "unsupported_import",
+        "importer": "Il2CppUserAssemblies.prx",
+        "name": "bind",
+        "provider": "runtime_fallback",
+        "symbol": "KuOmgKoqCdY#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103088472064,
+        "hle_status": "unsupported_import",
+        "importer": "Il2CppUserAssemblies.prx",
+        "name": "chmod",
+        "provider": "runtime_fallback",
+        "symbol": "z0dtnPxYgtg#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103079477248,
+        "hle_status": "unsupported_import",
+        "importer": "Il2CppUserAssemblies.prx",
+        "name": "connect",
+        "provider": "runtime_fallback",
+        "symbol": "XVL8So3QJUk#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103088537600,
+        "hle_status": "unsupported_import",
+        "importer": "Il2CppUserAssemblies.prx",
+        "name": "fchmod",
+        "provider": "runtime_fallback",
+        "symbol": "n01yNbQO5W4#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103088619520,
+        "hle_status": "unsupported_import",
+        "importer": "Il2CppUserAssemblies.prx",
+        "name": "fcntl",
+        "provider": "runtime_fallback",
+        "symbol": "8nY19bKoiZk#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103088553984,
+        "hle_status": "unsupported_import",
+        "importer": "Il2CppUserAssemblies.prx",
+        "name": "futimes",
+        "provider": "runtime_fallback",
+        "symbol": "+0EDo7YzcoU#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103088734208,
+        "hle_status": "unsupported_import",
+        "importer": "Il2CppUserAssemblies.prx",
+        "name": "getpeername",
+        "provider": "runtime_fallback",
+        "symbol": "TXFFFiNldU8#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103079428096,
+        "hle_status": "unsupported_import",
+        "importer": "Il2CppUserAssemblies.prx",
+        "name": "getsockname",
+        "provider": "runtime_fallback",
+        "symbol": "RenI1lL1WFk#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103088717824,
+        "hle_status": "unsupported_import",
+        "importer": "Il2CppUserAssemblies.prx",
+        "name": "getsockopt",
+        "provider": "runtime_fallback",
+        "symbol": "6O8EwYOgH9Y#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103088701440,
+        "hle_status": "unsupported_import",
+        "importer": "Il2CppUserAssemblies.prx",
+        "name": "inet_pton",
+        "provider": "runtime_fallback",
+        "symbol": "4n51s0zEf0c#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103079411712,
+        "hle_status": "unsupported_import",
+        "importer": "Il2CppUserAssemblies.prx",
+        "name": "listen",
+        "provider": "runtime_fallback",
+        "symbol": "pxnCmagrtao#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103088652288,
+        "hle_status": "unsupported_import",
+        "importer": "Il2CppUserAssemblies.prx",
+        "name": "msync",
+        "provider": "runtime_fallback",
+        "symbol": "tZY4+SZNFhA#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103084359680,
+        "hle_status": "unsupported_import",
+        "importer": "Il2CppUserAssemblies.prx",
+        "name": "recvfrom",
+        "provider": "runtime_fallback",
+        "symbol": "lUk6wrGXyMw#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103088766976,
+        "hle_status": "unsupported_import",
+        "importer": "Il2CppUserAssemblies.prx",
+        "name": "recvmsg",
+        "provider": "runtime_fallback",
+        "symbol": "hI7oVeOluPM#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103088504832,
+        "hle_status": "unsupported_import",
+        "importer": "Il2CppUserAssemblies.prx",
+        "name": "rmdir",
+        "provider": "runtime_fallback",
+        "symbol": "c7ZnT7V1B98#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103081820160,
+        "hle_status": "unsupported_import",
+        "importer": "Il2CppUserAssemblies.prx",
+        "name": "select",
+        "provider": "runtime_fallback",
+        "symbol": "T8fER+tIGgk#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103079395328,
+        "hle_status": "unsupported_import",
+        "importer": "Il2CppUserAssemblies.prx",
+        "name": "send",
+        "provider": "runtime_fallback",
+        "symbol": "fZOeZIOEmLw#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103088750592,
+        "hle_status": "unsupported_import",
+        "importer": "Il2CppUserAssemblies.prx",
+        "name": "sendmsg",
+        "provider": "runtime_fallback",
+        "symbol": "aNeavPDNKzA#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103084277760,
+        "hle_status": "unsupported_import",
+        "importer": "Il2CppUserAssemblies.prx",
+        "name": "sendto",
+        "provider": "runtime_fallback",
+        "symbol": "oBr313PppNE#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103079378944,
+        "hle_status": "unsupported_import",
+        "importer": "Il2CppUserAssemblies.prx",
+        "name": "setsockopt",
+        "provider": "runtime_fallback",
+        "symbol": "fFxGkxF2bVo#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103079444480,
+        "hle_status": "unsupported_import",
+        "importer": "Il2CppUserAssemblies.prx",
+        "name": "shutdown",
+        "provider": "runtime_fallback",
+        "symbol": "TUuiYS2kE8s#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103079493632,
+        "hle_status": "unsupported_import",
+        "importer": "Il2CppUserAssemblies.prx",
+        "name": "socket",
+        "provider": "runtime_fallback",
+        "symbol": "TU-d9PfIHPM#libScePosix#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103088570368,
+        "hle_status": "unsupported_import",
+        "importer": "Il2CppUserAssemblies.prx",
+        "name": "utimes",
+        "provider": "runtime_fallback",
+        "symbol": "GDuV00CHrUg#libScePosix#1#libkernel#Function"
+      }
+    ],
+    "libkernel": [
+      {
+        "binding": "refused",
+        "guest_address": 103085555712,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "__stack_chk_fail",
+        "provider": "runtime_fallback",
+        "symbol": "Ou3iL1abvng#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103082557440,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceKernelSetGPO",
+        "provider": "runtime_fallback",
+        "symbol": "ca7v6Cxulzs#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103081869312,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceKernelStopUnloadModule",
+        "provider": "runtime_fallback",
+        "symbol": "QKd0qM58Qes#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103082803200,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceKernelUuidCreate",
+        "provider": "runtime_fallback",
+        "symbol": "Xjoosiw+XPI#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103089061888,
+        "hle_status": "unsupported_import",
+        "importer": "Il2CppUserAssemblies.prx",
+        "name": "__pthread_cleanup_pop_imp",
+        "provider": "runtime_fallback",
+        "symbol": "iWsFlYMf3Kw#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103089045504,
+        "hle_status": "unsupported_import",
+        "importer": "Il2CppUserAssemblies.prx",
+        "name": "__pthread_cleanup_push_imp",
+        "provider": "runtime_fallback",
+        "symbol": "1xvtUVx1-Sg#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103085555712,
+        "hle_status": "unsupported_import",
+        "importer": "Il2CppUserAssemblies.prx",
+        "name": "__stack_chk_fail",
+        "provider": "runtime_fallback",
+        "symbol": "Ou3iL1abvng#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103088898048,
+        "hle_status": "unsupported_import",
+        "importer": "Il2CppUserAssemblies.prx",
+        "name": "sceKernelRmdir",
+        "provider": "runtime_fallback",
+        "symbol": "naInUjYt3so#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103081869312,
+        "hle_status": "unsupported_import",
+        "importer": "Il2CppUserAssemblies.prx",
+        "name": "sceKernelStopUnloadModule",
+        "provider": "runtime_fallback",
+        "symbol": "QKd0qM58Qes#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103088996352,
+        "hle_status": "unsupported_import",
+        "importer": "Il2CppUserAssemblies.prx",
+        "name": "sceKernelUtimes",
+        "provider": "runtime_fallback",
+        "symbol": "0Cq8ipKr9n0#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103082803200,
+        "hle_status": "unsupported_import",
+        "importer": "Il2CppUserAssemblies.prx",
+        "name": "sceKernelUuidCreate",
+        "provider": "runtime_fallback",
+        "symbol": "Xjoosiw+XPI#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103085555712,
+        "hle_status": "unsupported_import",
+        "importer": "opus_egpv.prx",
+        "name": "__stack_chk_fail",
+        "provider": "runtime_fallback",
+        "symbol": "Ou3iL1abvng#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103090028544,
+        "hle_status": "unsupported_import",
+        "importer": "libc.prx",
+        "name": "__elf_phdr_match_addr",
+        "provider": "runtime_fallback",
+        "symbol": "Fjc4-n1+y2g#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103089160192,
+        "hle_status": "unsupported_import",
+        "importer": "libc.prx",
+        "name": "__pthread_cxa_finalize",
+        "provider": "runtime_fallback",
+        "symbol": "kbw4UHHSYy0#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103085555712,
+        "hle_status": "unsupported_import",
+        "importer": "libc.prx",
+        "name": "__stack_chk_fail",
+        "provider": "runtime_fallback",
+        "symbol": "Ou3iL1abvng#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103090044928,
+        "hle_status": "unsupported_import",
+        "importer": "libc.prx",
+        "name": "_exit",
+        "provider": "runtime_fallback",
+        "symbol": "6Z83sYWFlA8#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103089881088,
+        "hle_status": "unsupported_import",
+        "importer": "libc.prx",
+        "name": "_sceKernelRtldThreadAtexitDecrement",
+        "provider": "runtime_fallback",
+        "symbol": "8OnWXlgQlvo#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103089864704,
+        "hle_status": "unsupported_import",
+        "importer": "libc.prx",
+        "name": "_sceKernelRtldThreadAtexitIncrement",
+        "provider": "runtime_fallback",
+        "symbol": "Tz4RNUCBbGI#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103089651712,
+        "hle_status": "unsupported_import",
+        "importer": "libc.prx",
+        "name": "getrusage",
+        "provider": "runtime_fallback",
+        "symbol": "hHlZQUnlxSM#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103089733632,
+        "hle_status": "unsupported_import",
+        "importer": "libc.prx",
+        "name": "rmdir",
+        "provider": "runtime_fallback",
+        "symbol": "c7ZnT7V1B98#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103089799168,
+        "hle_status": "unsupported_import",
+        "importer": "libc.prx",
+        "name": "sceKernelChmod",
+        "provider": "runtime_fallback",
+        "symbol": "fgIsQ10xYVA#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103089307648,
+        "hle_status": "unsupported_import",
+        "importer": "libc.prx",
+        "name": "sceKernelConvertLocaltimeToUtc",
+        "provider": "runtime_fallback",
+        "symbol": "0NTHN1NKONI#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103089258496,
+        "hle_status": "unsupported_import",
+        "importer": "libc.prx",
+        "name": "sceKernelConvertUtcToLocaltime",
+        "provider": "runtime_fallback",
+        "symbol": "-o5uEDpN+oY#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103089225728,
+        "hle_status": "unsupported_import",
+        "importer": "libc.prx",
+        "name": "sceKernelDebugRaiseException",
+        "provider": "runtime_fallback",
+        "symbol": "OMDRKKAZ8I4#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103089242112,
+        "hle_status": "unsupported_import",
+        "importer": "libc.prx",
+        "name": "sceKernelDebugRaiseExceptionOnReleaseMode",
+        "provider": "runtime_fallback",
+        "symbol": "zE-wXIZjLoM#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103089553408,
+        "hle_status": "unsupported_import",
+        "importer": "libc.prx",
+        "name": "sceKernelInternalMemoryGetModuleSegmentInfo",
+        "provider": "runtime_fallback",
+        "symbol": "-YTW+qXc3CQ#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103089520640,
+        "hle_status": "unsupported_import",
+        "importer": "libc.prx",
+        "name": "sceKernelPrintBacktraceWithModuleInfo",
+        "provider": "runtime_fallback",
+        "symbol": "Wl2o5hOVZdw#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103089766400,
+        "hle_status": "unsupported_import",
+        "importer": "libc.prx",
+        "name": "sceKernelTruncate",
+        "provider": "runtime_fallback",
+        "symbol": "WlyEA-sLDf0#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103088996352,
+        "hle_status": "unsupported_import",
+        "importer": "libc.prx",
+        "name": "sceKernelUtimes",
+        "provider": "runtime_fallback",
+        "symbol": "0Cq8ipKr9n0#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103089455104,
+        "hle_status": "unsupported_import",
+        "importer": "libc.prx",
+        "name": "scePthreadMutexTimedlock",
+        "provider": "runtime_fallback",
+        "symbol": "IafI2PxcPnQ#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103089324032,
+        "hle_status": "unsupported_import",
+        "importer": "libc.prx",
+        "name": "signal",
+        "provider": "runtime_fallback",
+        "symbol": "VADc3MNQ3cM#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103085555712,
+        "hle_status": "unsupported_import",
+        "importer": "libSceFios2.prx",
+        "name": "__stack_chk_fail",
+        "provider": "runtime_fallback",
+        "symbol": "Ou3iL1abvng#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103088898048,
+        "hle_status": "unsupported_import",
+        "importer": "libSceFios2.prx",
+        "name": "sceKernelRmdir",
+        "provider": "runtime_fallback",
+        "symbol": "naInUjYt3so#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103089766400,
+        "hle_status": "unsupported_import",
+        "importer": "libSceFios2.prx",
+        "name": "sceKernelTruncate",
+        "provider": "runtime_fallback",
+        "symbol": "WlyEA-sLDf0#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103085555712,
+        "hle_status": "unsupported_import",
+        "importer": "SaveData.prx",
+        "name": "__stack_chk_fail",
+        "provider": "runtime_fallback",
+        "symbol": "Ou3iL1abvng#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103085555712,
+        "hle_status": "unsupported_import",
+        "importer": "CommonDialog.prx",
+        "name": "__stack_chk_fail",
+        "provider": "runtime_fallback",
+        "symbol": "Ou3iL1abvng#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103085555712,
+        "hle_status": "unsupported_import",
+        "importer": "PhotonVoiceAudioOutputPlugin.prx",
+        "name": "__stack_chk_fail",
+        "provider": "runtime_fallback",
+        "symbol": "Ou3iL1abvng#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103085555712,
+        "hle_status": "unsupported_import",
+        "importer": "PSVRXRSDKPlugin.prx",
+        "name": "__stack_chk_fail",
+        "provider": "runtime_fallback",
+        "symbol": "Ou3iL1abvng#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103085555712,
+        "hle_status": "unsupported_import",
+        "importer": "UnityNpToolkit2.prx",
+        "name": "__stack_chk_fail",
+        "provider": "runtime_fallback",
+        "symbol": "Ou3iL1abvng#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103085555712,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "__stack_chk_fail",
+        "provider": "runtime_fallback",
+        "symbol": "Ou3iL1abvng#libkernel#1#libkernel#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103085555712,
+        "hle_status": "unsupported_import",
+        "importer": "lib_burst_generated.prx",
+        "name": "__stack_chk_fail",
+        "provider": "runtime_fallback",
+        "symbol": "Ou3iL1abvng#libkernel#1#libkernel#Function"
+      }
+    ],
+    "libkernel_cpumode_platform": [
+      {
+        "binding": "refused",
+        "guest_address": 103082065920,
+        "hle_status": "unsupported_import",
+        "importer": "eboot.bin",
+        "name": "sceKernelIsProspero",
+        "provider": "runtime_fallback",
+        "symbol": "mpxAdqW7dKY#libkernel_cpumode_platform#1#libkernel#Function"
+      }
+    ],
+    "libSceErrorDialog": [
+      {
+        "binding": "refused",
+        "guest_address": 103090831360,
+        "hle_status": "unsupported_import",
+        "importer": "CommonDialog.prx",
+        "name": "sceErrorDialogInitialize",
+        "provider": "runtime_fallback",
+        "symbol": "I88KChlynSs#libSceErrorDialog#1#libSceErrorDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103090847744,
+        "hle_status": "unsupported_import",
+        "importer": "CommonDialog.prx",
+        "name": "sceErrorDialogOpen",
+        "provider": "runtime_fallback",
+        "symbol": "M2ZF-ClLhgY#libSceErrorDialog#1#libSceErrorDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103090864128,
+        "hle_status": "unsupported_import",
+        "importer": "CommonDialog.prx",
+        "name": "sceErrorDialogTerminate",
+        "provider": "runtime_fallback",
+        "symbol": "9XAxK2PMwk8#libSceErrorDialog#1#libSceErrorDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103090880512,
+        "hle_status": "unsupported_import",
+        "importer": "CommonDialog.prx",
+        "name": "sceErrorDialogUpdateStatus",
+        "provider": "runtime_fallback",
+        "symbol": "WWiGuh9XfgQ#libSceErrorDialog#1#libSceErrorDialog#Function"
+      }
+    ],
+    "libSceSigninDialog": [
+      {
+        "binding": "refused",
+        "guest_address": 103090962432,
+        "hle_status": "unsupported_import",
+        "importer": "CommonDialog.prx",
+        "name": "sceSigninDialogGetResult",
+        "provider": "runtime_fallback",
+        "symbol": "nqG7rqnYw1U#libSceSigninDialog#1#libSceSigninDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103090896896,
+        "hle_status": "unsupported_import",
+        "importer": "CommonDialog.prx",
+        "name": "sceSigninDialogInitialize",
+        "provider": "runtime_fallback",
+        "symbol": "mlYGfmqE3fQ#libSceSigninDialog#1#libSceSigninDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103090913280,
+        "hle_status": "unsupported_import",
+        "importer": "CommonDialog.prx",
+        "name": "sceSigninDialogOpen",
+        "provider": "runtime_fallback",
+        "symbol": "JlpJVoRWv7U#libSceSigninDialog#1#libSceSigninDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103090929664,
+        "hle_status": "unsupported_import",
+        "importer": "CommonDialog.prx",
+        "name": "sceSigninDialogTerminate",
+        "provider": "runtime_fallback",
+        "symbol": "LXlmS6PvJdU#libSceSigninDialog#1#libSceSigninDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103090946048,
+        "hle_status": "unsupported_import",
+        "importer": "CommonDialog.prx",
+        "name": "sceSigninDialogUpdateStatus",
+        "provider": "runtime_fallback",
+        "symbol": "Bw31liTFT3A#libSceSigninDialog#1#libSceSigninDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103090962432,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceSigninDialogGetResult",
+        "provider": "runtime_fallback",
+        "symbol": "nqG7rqnYw1U#libSceSigninDialog#1#libSceSigninDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103090896896,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceSigninDialogInitialize",
+        "provider": "runtime_fallback",
+        "symbol": "mlYGfmqE3fQ#libSceSigninDialog#1#libSceSigninDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103090913280,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceSigninDialogOpen",
+        "provider": "runtime_fallback",
+        "symbol": "JlpJVoRWv7U#libSceSigninDialog#1#libSceSigninDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103090929664,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceSigninDialogTerminate",
+        "provider": "runtime_fallback",
+        "symbol": "LXlmS6PvJdU#libSceSigninDialog#1#libSceSigninDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103090946048,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceSigninDialogUpdateStatus",
+        "provider": "runtime_fallback",
+        "symbol": "Bw31liTFT3A#libSceSigninDialog#1#libSceSigninDialog#Function"
+      }
+    ],
+    "libSceNpManager": [
+      {
+        "binding": "refused",
+        "guest_address": 103091306496,
+        "hle_status": "unsupported_import",
+        "importer": "UnityNpToolkit2.prx",
+        "name": "sceNpNotifyPlusFeature",
+        "provider": "runtime_fallback",
+        "symbol": "Gaxrp3EWY-M#libSceNpManager#1#libSceNpManager#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092453376,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpInGameMessageCreateHandle",
+        "provider": "runtime_fallback",
+        "symbol": "s4UEa5iBJdc#libSceNpManager#1#libSceNpManager#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092486144,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpInGameMessageDeleteHandle",
+        "provider": "runtime_fallback",
+        "symbol": "+anuSx2avHQ#libSceNpManager#1#libSceNpManager#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092273152,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpInGameMessageGetMemoryPoolStatistics",
+        "provider": "runtime_fallback",
+        "symbol": "Ubv+fP58W1U#libSceNpManager#1#libSceNpManager#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092436992,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpInGameMessageInitialize",
+        "provider": "runtime_fallback",
+        "symbol": "GFhVUpRmbHE#libSceNpManager#1#libSceNpManager#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092469760,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpInGameMessagePrepareA",
+        "provider": "runtime_fallback",
+        "symbol": "IkL62FMpIpo#libSceNpManager#1#libSceNpManager#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092322304,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpInGameMessageSendDataA",
+        "provider": "runtime_fallback",
+        "symbol": "PQDFxcnqxtw#libSceNpManager#1#libSceNpManager#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092502528,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpInGameMessageTerminate",
+        "provider": "runtime_fallback",
+        "symbol": "bMG3cVmUmuk#libSceNpManager#1#libSceNpManager#Function"
+      }
+    ],
+    "libSceHttp": [
+      {
+        "binding": "refused",
+        "guest_address": 103092224000,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceHttpGetMemoryPoolStats",
+        "provider": "runtime_fallback",
+        "symbol": "16sMmVuOvgU#libSceHttp#1#libSceHttp#Function"
+      }
+    ],
+    "libSceInvitationDialog": [
+      {
+        "binding": "refused",
+        "guest_address": 103093092352,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceInvitationDialogGetResultA",
+        "provider": "runtime_fallback",
+        "symbol": "WuuUhuKOxwQ#libSceInvitationDialog#1#libSceInvitationDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093043200,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceInvitationDialogInitialize",
+        "provider": "runtime_fallback",
+        "symbol": "XvA5KS56wcs#libSceInvitationDialog#1#libSceInvitationDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093059584,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceInvitationDialogOpenA",
+        "provider": "runtime_fallback",
+        "symbol": "sAxbHhAWMXM#libSceInvitationDialog#1#libSceInvitationDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093108736,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceInvitationDialogTerminate",
+        "provider": "runtime_fallback",
+        "symbol": "B6HVJtDYxEE#libSceInvitationDialog#1#libSceInvitationDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093075968,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceInvitationDialogUpdateStatus",
+        "provider": "runtime_fallback",
+        "symbol": "9+g9iOq+7kg#libSceInvitationDialog#1#libSceInvitationDialog#Function"
+      }
+    ],
+    "libSceNpAuth": [
+      {
+        "binding": "refused",
+        "guest_address": 103091421184,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpAuthAbortRequest",
+        "provider": "runtime_fallback",
+        "symbol": "cE7wIsqXdZ8#libSceNpAuth#1#libSceNpAuth#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103091355648,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpAuthCreateRequest",
+        "provider": "runtime_fallback",
+        "symbol": "6bwFkosYRQg#libSceNpAuth#1#libSceNpAuth#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103091404800,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpAuthDeleteRequest",
+        "provider": "runtime_fallback",
+        "symbol": "H8wG9Bk-nPc#libSceNpAuth#1#libSceNpAuth#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103091372032,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpAuthGetAuthorizationCodeA",
+        "provider": "runtime_fallback",
+        "symbol": "qAUXQ9GdWp8#libSceNpAuth#1#libSceNpAuth#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103091388416,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpAuthGetIdTokenA",
+        "provider": "runtime_fallback",
+        "symbol": "CocbHVIKPE8#libSceNpAuth#1#libSceNpAuth#Function"
+      }
+    ],
+    "libSceNpCommerce": [
+      {
+        "binding": "refused",
+        "guest_address": 103091535872,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpCommerceDialogGetResult",
+        "provider": "runtime_fallback",
+        "symbol": "r42bWcQbtZY#libSceNpCommerce#1#libSceNpCommerce#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103091486720,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpCommerceDialogInitialize",
+        "provider": "runtime_fallback",
+        "symbol": "0aR2aWmQal4#libSceNpCommerce#1#libSceNpCommerce#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103091503104,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpCommerceDialogOpen",
+        "provider": "runtime_fallback",
+        "symbol": "DfSCDRA3EjY#libSceNpCommerce#1#libSceNpCommerce#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103091552256,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpCommerceDialogTerminate",
+        "provider": "runtime_fallback",
+        "symbol": "m-I92Ab50W8#libSceNpCommerce#1#libSceNpCommerce#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103091519488,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpCommerceDialogUpdateStatus",
+        "provider": "runtime_fallback",
+        "symbol": "LR5cwFMMCVE#libSceNpCommerce#1#libSceNpCommerce#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103091453952,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpCommerceHidePsStoreIcon",
+        "provider": "runtime_fallback",
+        "symbol": "dsqCVsNM0Zg#libSceNpCommerce#1#libSceNpCommerce#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103091437568,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpCommerceShowPsStoreIcon",
+        "provider": "runtime_fallback",
+        "symbol": "DHmwsa6S8Tc#libSceNpCommerce#1#libSceNpCommerce#Function"
+      }
+    ],
+    "libSceNpMatching2": [
+      {
+        "binding": "refused",
+        "guest_address": 103091896320,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpMatching2CreateJoinRoomA",
+        "provider": "runtime_fallback",
+        "symbol": "V6KSpKv9XJE#libSceNpMatching2#1#libSceNpMatching2#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092289536,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpMatching2GetMemoryInfo",
+        "provider": "runtime_fallback",
+        "symbol": "gpSAvdheZ0Q#libSceNpMatching2#1#libSceNpMatching2#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103091978240,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpMatching2GetRoomDataExternalList",
+        "provider": "runtime_fallback",
+        "symbol": "26vWrPAWJfM#libSceNpMatching2#1#libSceNpMatching2#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092027392,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpMatching2GetRoomDataInternal",
+        "provider": "runtime_fallback",
+        "symbol": "Jraxifmoet4#libSceNpMatching2#1#libSceNpMatching2#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092011008,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpMatching2GetRoomMemberDataInternal",
+        "provider": "runtime_fallback",
+        "symbol": "5lhvOqheFBA#libSceNpMatching2#1#libSceNpMatching2#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103091666944,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpMatching2GetRoomMemberIdListLocal",
+        "provider": "runtime_fallback",
+        "symbol": "KC+GnHzrK2o#libSceNpMatching2#1#libSceNpMatching2#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103091683328,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpMatching2GetRoomPasswordLocal",
+        "provider": "runtime_fallback",
+        "symbol": "vbtWT3lZBOM#libSceNpMatching2#1#libSceNpMatching2#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103091961856,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpMatching2GetSignalingOptParamLocal",
+        "provider": "runtime_fallback",
+        "symbol": "cgQhq3E0eGo#libSceNpMatching2#1#libSceNpMatching2#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092305920,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpMatching2GetSslMemoryInfo",
+        "provider": "runtime_fallback",
+        "symbol": "8btynvj0KNA#libSceNpMatching2#1#libSceNpMatching2#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092191232,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpMatching2GetUserInfoListA",
+        "provider": "runtime_fallback",
+        "symbol": "GyI2f9yDUXM#libSceNpMatching2#1#libSceNpMatching2#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103091879936,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpMatching2GetWorldInfoList",
+        "provider": "runtime_fallback",
+        "symbol": "rJNPJqDCpiI#libSceNpMatching2#1#libSceNpMatching2#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103091945472,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpMatching2JoinRoomA",
+        "provider": "runtime_fallback",
+        "symbol": "gQ6cUriNpgs#libSceNpMatching2#1#libSceNpMatching2#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092092928,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpMatching2KickoutRoomMember",
+        "provider": "runtime_fallback",
+        "symbol": "AUVfU6byg3c#libSceNpMatching2#1#libSceNpMatching2#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103091994624,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpMatching2LeaveRoom",
+        "provider": "runtime_fallback",
+        "symbol": "BD6kfx442Do#libSceNpMatching2#1#libSceNpMatching2#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103091929088,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpMatching2SearchRoom",
+        "provider": "runtime_fallback",
+        "symbol": "VqZX7POg2Mk#libSceNpMatching2#1#libSceNpMatching2#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092125696,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpMatching2SendRoomChatMessage",
+        "provider": "runtime_fallback",
+        "symbol": "opDpl74pi2E#libSceNpMatching2#1#libSceNpMatching2#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092142080,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpMatching2SendRoomMessage",
+        "provider": "runtime_fallback",
+        "symbol": "Iw2h0Jrrb5U#libSceNpMatching2#1#libSceNpMatching2#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092060160,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpMatching2SetRoomDataExternal",
+        "provider": "runtime_fallback",
+        "symbol": "q7GK98-nYSE#libSceNpMatching2#1#libSceNpMatching2#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103091912704,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpMatching2SetRoomDataInternal",
+        "provider": "runtime_fallback",
+        "symbol": "S9D8JSYIrjE#libSceNpMatching2#1#libSceNpMatching2#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092043776,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpMatching2SetRoomMemberDataInternal",
+        "provider": "runtime_fallback",
+        "symbol": "HoqTrkS9c5Q#libSceNpMatching2#1#libSceNpMatching2#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092076544,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpMatching2SetSignalingOptParam",
+        "provider": "runtime_fallback",
+        "symbol": "ES3UMUWWj9U#libSceNpMatching2#1#libSceNpMatching2#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092174848,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpMatching2SetUserInfo",
+        "provider": "runtime_fallback",
+        "symbol": "meEjIdbjAA0#libSceNpMatching2#1#libSceNpMatching2#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103091699712,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpMatching2SignalingGetConnectionInfoA",
+        "provider": "runtime_fallback",
+        "symbol": "nNeC3F8-g+4#libSceNpMatching2#1#libSceNpMatching2#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092109312,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpMatching2SignalingGetPingInfo",
+        "provider": "runtime_fallback",
+        "symbol": "wUmwXZHaX1w#libSceNpMatching2#1#libSceNpMatching2#Function"
+      }
+    ],
+    "libSceNpProfileDialog": [
+      {
+        "binding": "refused",
+        "guest_address": 103091634176,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpProfileDialogGetResult",
+        "provider": "runtime_fallback",
+        "symbol": "8rhLl1-0W-o#libSceNpProfileDialog#1#libSceNpProfileDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103091585024,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpProfileDialogInitialize",
+        "provider": "runtime_fallback",
+        "symbol": "Lg+NCE6pTwQ#libSceNpProfileDialog#1#libSceNpProfileDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103091601408,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpProfileDialogOpenA",
+        "provider": "runtime_fallback",
+        "symbol": "nrQRlLKzdwE#libSceNpProfileDialog#1#libSceNpProfileDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103091650560,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpProfileDialogTerminate",
+        "provider": "runtime_fallback",
+        "symbol": "0Sp9vJcB1-w#libSceNpProfileDialog#1#libSceNpProfileDialog#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103091617792,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpProfileDialogUpdateStatus",
+        "provider": "runtime_fallback",
+        "symbol": "haVZE9FgKqE#libSceNpProfileDialog#1#libSceNpProfileDialog#Function"
+      }
+    ],
+    "libSceNpScore": [
+      {
+        "binding": "refused",
+        "guest_address": 103092994048,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpScoreAbortRequest",
+        "provider": "runtime_fallback",
+        "symbol": "1i7kmKbX6hk#libSceNpScore#1#libSceNpScore#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092748288,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpScoreCreateNpTitleCtxA",
+        "provider": "runtime_fallback",
+        "symbol": "GWnWQNXZH5M#libSceNpScore#1#libSceNpScore#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092764672,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpScoreCreateRequest",
+        "provider": "runtime_fallback",
+        "symbol": "gW8qyjYrUbk#libSceNpScore#1#libSceNpScore#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092731904,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpScoreDeleteNpTitleCtx",
+        "provider": "runtime_fallback",
+        "symbol": "G0pE+RNCwfk#libSceNpScore#1#libSceNpScore#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092813824,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpScoreDeleteRequest",
+        "provider": "runtime_fallback",
+        "symbol": "dK8-SgYf6r4#libSceNpScore#1#libSceNpScore#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093010432,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpScoreGetBoardInfo",
+        "provider": "runtime_fallback",
+        "symbol": "LoVMVrijVOk#libSceNpScore#1#libSceNpScore#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092830208,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpScoreGetFriendsRankingA",
+        "provider": "runtime_fallback",
+        "symbol": "gMbOn+-6eXA#libSceNpScore#1#libSceNpScore#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092797440,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpScoreGetFriendsRankingForCrossSave",
+        "provider": "runtime_fallback",
+        "symbol": "AgcxgceaH8k#libSceNpScore#1#libSceNpScore#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092944896,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpScoreGetGameDataByAccountId",
+        "provider": "runtime_fallback",
+        "symbol": "Lmtc9GljeUA#libSceNpScore#1#libSceNpScore#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092928512,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpScoreGetRankingByAccountId",
+        "provider": "runtime_fallback",
+        "symbol": "K9tlODTQx3c#libSceNpScore#1#libSceNpScore#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092879360,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpScoreGetRankingByAccountIdForCrossSave",
+        "provider": "runtime_fallback",
+        "symbol": "3Ybj4E1qNtY#libSceNpScore#1#libSceNpScore#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092912128,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpScoreGetRankingByAccountIdPcId",
+        "provider": "runtime_fallback",
+        "symbol": "wJPWycVGzrs#libSceNpScore#1#libSceNpScore#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092895744,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpScoreGetRankingByAccountIdPcIdForCrossSave",
+        "provider": "runtime_fallback",
+        "symbol": "oXjVieH6ZGQ#libSceNpScore#1#libSceNpScore#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092862976,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpScoreGetRankingByRangeA",
+        "provider": "runtime_fallback",
+        "symbol": "MA9vSt7JImY#libSceNpScore#1#libSceNpScore#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092846592,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpScoreGetRankingByRangeForCrossSave",
+        "provider": "runtime_fallback",
+        "symbol": "nRoYV2yeUuw#libSceNpScore#1#libSceNpScore#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092961280,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpScoreRecordGameData",
+        "provider": "runtime_fallback",
+        "symbol": "bcoVwcBjQ9E#libSceNpScore#1#libSceNpScore#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092977664,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpScoreRecordScore",
+        "provider": "runtime_fallback",
+        "symbol": "zT0XBtgtOSI#libSceNpScore#1#libSceNpScore#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103092781056,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpScoreSetPlayerCharacterId",
+        "provider": "runtime_fallback",
+        "symbol": "bygbKdHmjn4#libSceNpScore#1#libSceNpScore#Function"
+      }
+    ],
+    "libSceNpTrophy": [
+      {
+        "binding": "refused",
+        "guest_address": 103093239808,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTrophyCaptureScreenshot",
+        "provider": "runtime_fallback",
+        "symbol": "cqGkYAN-gRw#libSceNpTrophy#1#libSceNpTrophy#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093288960,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTrophyGetGameIcon",
+        "provider": "runtime_fallback",
+        "symbol": "HLwz1fRIycA#libSceNpTrophy#1#libSceNpTrophy#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093321728,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTrophyGetGroupIcon",
+        "provider": "runtime_fallback",
+        "symbol": "w4uMPmErD4I#libSceNpTrophy#1#libSceNpTrophy#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093354496,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTrophyGetTrophyIcon",
+        "provider": "runtime_fallback",
+        "symbol": "eBL+l6HG9xk#libSceNpTrophy#1#libSceNpTrophy#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093256192,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTrophyShowTrophyList",
+        "provider": "runtime_fallback",
+        "symbol": "d9jpdPz5f-8#libSceNpTrophy#1#libSceNpTrophy#Function"
+      }
+    ],
+    "libSceNpTus": [
+      {
+        "binding": "refused",
+        "guest_address": 103093387264,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTssCreateNpTitleCtxA",
+        "provider": "runtime_fallback",
+        "symbol": "lBtrk+7lk14#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093420032,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTssGetData",
+        "provider": "runtime_fallback",
+        "symbol": "-SUR+UoLS6c#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093469184,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusAbortRequest",
+        "provider": "runtime_fallback",
+        "symbol": "2eq1bMwgZYo#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093747712,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusAddAndGetVariableA",
+        "provider": "runtime_fallback",
+        "symbol": "wPFah4-5Xec#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093731328,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusAddAndGetVariableAVUser",
+        "provider": "runtime_fallback",
+        "symbol": "Nt1runsPVJc#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093714944,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusAddAndGetVariableForCrossSave",
+        "provider": "runtime_fallback",
+        "symbol": "EPeq43CQKxY#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093698560,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusAddAndGetVariableForCrossSaveVUser",
+        "provider": "runtime_fallback",
+        "symbol": "4VLlu7EIjzk#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093485568,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusCreateNpTitleCtxA",
+        "provider": "runtime_fallback",
+        "symbol": "1n-dGukBgnY#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093403648,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusCreateRequest",
+        "provider": "runtime_fallback",
+        "symbol": "3bh2aBvvmvM#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103094009856,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusDeleteMultiSlotDataA",
+        "provider": "runtime_fallback",
+        "symbol": "iXzUOM9sXU0#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093993472,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusDeleteMultiSlotDataVUser",
+        "provider": "runtime_fallback",
+        "symbol": "xutwCvsydkk#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093452800,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusDeleteNpTitleCtx",
+        "provider": "runtime_fallback",
+        "symbol": "H3uq7x0sZOI#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093436416,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusDeleteRequest",
+        "provider": "runtime_fallback",
+        "symbol": "CcIH40dYS88#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093977088,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusGetDataA",
+        "provider": "runtime_fallback",
+        "symbol": "yWEHUFkY1qI#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093960704,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusGetDataAVUser",
+        "provider": "runtime_fallback",
+        "symbol": "iaH+Sxlw32k#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093944320,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusGetDataForCrossSave",
+        "provider": "runtime_fallback",
+        "symbol": "1TE3OvH61qo#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093927936,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusGetDataForCrossSaveVUser",
+        "provider": "runtime_fallback",
+        "symbol": "-LxFGYCJwww#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103094042624,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusGetFriendsDataStatusA",
+        "provider": "runtime_fallback",
+        "symbol": "yixh7HDKWfk#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103094026240,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusGetFriendsDataStatusForCrossSave",
+        "provider": "runtime_fallback",
+        "symbol": "TDoqRD+CE+M#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093682176,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusGetFriendsVariableA",
+        "provider": "runtime_fallback",
+        "symbol": "C8TY-UnQoXg#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093665792,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusGetFriendsVariableForCrossSave",
+        "provider": "runtime_fallback",
+        "symbol": "mD6s8HtMdpk#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093649408,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusGetMultiSlotVariableA",
+        "provider": "runtime_fallback",
+        "symbol": "GDXlRTxgd+M#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093633024,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusGetMultiSlotVariableAVUser",
+        "provider": "runtime_fallback",
+        "symbol": "AsziNQ9X2uk#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093616640,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusGetMultiSlotVariableForCrossSave",
+        "provider": "runtime_fallback",
+        "symbol": "m9XZnxw9AmE#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093600256,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusGetMultiSlotVariableForCrossSaveVUser",
+        "provider": "runtime_fallback",
+        "symbol": "wTuuw4-6HI8#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093878784,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusGetMultiUserDataStatusA",
+        "provider": "runtime_fallback",
+        "symbol": "lxNDPDnWfMc#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093846016,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusGetMultiUserDataStatusAVUser",
+        "provider": "runtime_fallback",
+        "symbol": "fJU2TZId210#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093862400,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusGetMultiUserDataStatusForCrossSave",
+        "provider": "runtime_fallback",
+        "symbol": "cVeBif6zdZ4#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093829632,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusGetMultiUserDataStatusForCrossSaveVUser",
+        "provider": "runtime_fallback",
+        "symbol": "w-c7U0MW2KY#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093813248,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusGetMultiUserVariableA",
+        "provider": "runtime_fallback",
+        "symbol": "Gjixv5hqRVY#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093780480,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusGetMultiUserVariableAVUser",
+        "provider": "runtime_fallback",
+        "symbol": "fVvocpq4mG4#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093796864,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusGetMultiUserVariableForCrossSave",
+        "provider": "runtime_fallback",
+        "symbol": "Q5uQeScvTPE#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093764096,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusGetMultiUserVariableForCrossSaveVUser",
+        "provider": "runtime_fallback",
+        "symbol": "Djuj2+1VNL0#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093911552,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusSetDataA",
+        "provider": "runtime_fallback",
+        "symbol": "VzxN3tOouj8#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093895168,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusSetDataAVUser",
+        "provider": "runtime_fallback",
+        "symbol": "kbWqOt3QjKU#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093518336,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusSetMultiSlotVariableA",
+        "provider": "runtime_fallback",
+        "symbol": "cf-WMA0jYCc#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093501952,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusSetMultiSlotVariableVUser",
+        "provider": "runtime_fallback",
+        "symbol": "1Cz0hTJFyh4#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093583872,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusTryAndSetVariableA",
+        "provider": "runtime_fallback",
+        "symbol": "0up4MP1wNtc#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093551104,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusTryAndSetVariableAVUser",
+        "provider": "runtime_fallback",
+        "symbol": "oGIcxlUabSA#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093567488,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusTryAndSetVariableForCrossSave",
+        "provider": "runtime_fallback",
+        "symbol": "MGvSJEHwyL8#libSceNpTus#1#libSceNpTus#Function"
+      },
+      {
+        "binding": "refused",
+        "guest_address": 103093534720,
+        "hle_status": "unsupported_import",
+        "importer": "libSceNpToolkit2.prx",
+        "name": "sceNpTusTryAndSetVariableForCrossSaveVUser",
+        "provider": "runtime_fallback",
+        "symbol": "fcCwKpi4CbU#libSceNpTus#1#libSceNpTus#Function"
+      }
+    ]
+  }
+}

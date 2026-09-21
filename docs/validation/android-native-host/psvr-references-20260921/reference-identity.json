@@ -1,0 +1,18 @@
+{
+  "/Users/bytedance/Downloads/PS4_Unity_PSVR_Analysis.md": {
+    "bytes": 29190,
+    "sha256": "e17cdabc7812f52ab13af294499945592ff7df87b616187370dcf206941a98b4"
+  },
+  "/Users/bytedance/Downloads/libpsvr-0.1.zip": {
+    "bytes": 7437,
+    "sha256": "76bba0f23e3f3bffc4cb36ded74045621530bf41c6ca7f44b500d29e5c9bd925"
+  },
+  "build/guest-beatsaber-20260919/beatsaber-analysis-etdyn.elf": {
+    "bytes": 22822773,
+    "sha256": "a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a"
+  },
+  "build/validation/psvr-followup-20260920/tetris-main.elf": {
+    "bytes": 122205359,
+    "sha256": "b8da0a334a866e5d124488d23ff3ae66a187cb731e3f80626e549a3f98de70b6"
+  }
+}

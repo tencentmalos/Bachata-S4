@@ -79,6 +79,19 @@
     "risk": "NORMAL"
   },
   {
+    "id": "gpu.force_disable_msaa",
+    "nativeKey": "GPU.force_disable_msaa",
+    "section": "GPU",
+    "category": "GPU",
+    "title": "Force Disable MSAA",
+    "help": "Experimental: use one sample per pixel to reduce GPU memory and work. May alter edges or effects that use individual samples. Off preserves game MSAA. Restart the game to apply.",
+    "kind": "BOOLEAN",
+    "defaultValue": false,
+    "scope": "GLOBAL_AND_GAME",
+    "restartRequired": true,
+    "risk": "ADVANCED"
+  },
+  {
     "id": "gpu.texture_quality",
     "nativeKey": "GPU.texture_quality",
     "section": "GPU",

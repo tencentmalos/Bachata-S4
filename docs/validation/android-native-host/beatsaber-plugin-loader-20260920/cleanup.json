@@ -1,0 +1,18 @@
+{
+  "serial": "9c2841a4",
+  "pid": 5577,
+  "generation": 1,
+  "run_uuid": "5f4fba929053703c1af298baa6f3d78a",
+  "session": "Stopped",
+  "stop_reason": "user_stop",
+  "guest_return": 131,
+  "patch_at_start": "disabled_at_startup",
+  "tracer_pid": 0,
+  "guest_patch_property": "",
+  "guest_auto_tag_property": "",
+  "capture": false,
+  "automated_input": false,
+  "device_build": "qti/kalama/kalama:13/TKQ1.231222.001/eng.Thor.20260206.163241:user/release-keys",
+  "reverse_study_workspace": "closed",
+  "device_test_binary_removed": true
+}

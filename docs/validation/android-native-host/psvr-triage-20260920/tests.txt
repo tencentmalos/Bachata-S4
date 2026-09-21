@@ -1,0 +1,8 @@
+Host lifecycle: 245 checks / 0 failures
+AYN lifecycle: 245 checks / 0 failures
+Host VR sensor: 36 checks / 0 failures
+AYN VR sensor: 36 checks / 0 failures
+Kotlin VrGyroAxesTest: 1 test / 0 failures
+Production FEX existingModulesAndGuestSymbols: 1 JUnit test (9 rounds) / 0 failures
+Production post-process shader GPU: Qualcomm 12288 checks / 0 failures; Turnip 12288 checks / 0 failures
+GPU probe initial Turnip command argument mistakes (missing driver, then missing hook) retained in local build evidence; neither was a shader execution.

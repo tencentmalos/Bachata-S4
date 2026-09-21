@@ -1,0 +1,16 @@
+{
+  "tetris2-imports.json": {
+    "pid": 17493,
+    "title": "CUSA13427",
+    "total_rows": 2603,
+    "refused_rows": 358,
+    "unique_refused_symbols": 290
+  },
+  "beat-imports.json": {
+    "pid": 18239,
+    "title": "CUSA12878",
+    "total_rows": 1939,
+    "refused_rows": 256,
+    "unique_refused_symbols": 243
+  }
+}

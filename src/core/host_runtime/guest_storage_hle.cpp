@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include <cstring>
+#if defined(__ANDROID__)
+#include <android/log.h>
+#include <sys/system_properties.h>
+#endif
 #include "common/logging/log.h"
 #include "common/profiler.h"
 #include "core/libraries/kernel/kernel.h"
@@ -426,6 +430,7 @@ static u64 DispatchStoragePinned(GuestStorage& storage, GuestAddressSpace& space
     }
     case StorageOp::Open:
     case StorageOp::Mkdir:
+    case StorageOp::Rmdir:
     case StorageOp::Unlink:
     case StorageOp::Rename: {
         auto path = String(space, a[0], 1024);
@@ -435,10 +440,21 @@ static u64 DispatchStoragePinned(GuestStorage& storage, GuestAddressSpace& space
             const auto result = slow([&] { return storage.Open(*path, a[1], a[2]); });
             LOG_DEBUG(Lib_SaveData, "Session open path={} flags={:#x} fd={} error={}", *path,
                       a[1], result.value, result.error);
+#if defined(__ANDROID__)
+            // Opt-in immediate output survives a guest native crash before the
+            // ordinary file logger flushes. It never changes open/errno results.
+            char diagnostic[PROP_VALUE_MAX]{};
+            if (__system_property_get("debug.shadps4.storage_log", diagnostic) > 0 &&
+                diagnostic[0] == '1')
+                __android_log_print(ANDROID_LOG_INFO, "GuestStorage", "open path=%s flags=%x fd=%lld error=%d",
+                                    path->c_str(), u32(a[1]), (long long)result.value, result.error);
+#endif
             return io(result);
         }
         if (e.op == StorageOp::Mkdir)
             return io(slow([&] { return storage.Mkdir(*path, a[1]); }));
+        if (e.op == StorageOp::Rmdir)
+            return io(slow([&] { return storage.Rmdir(*path); }));
         if (e.op == StorageOp::Unlink)
             return io(slow([&] { return storage.Unlink(*path); }));
         auto to = String(space, a[1], 1024);

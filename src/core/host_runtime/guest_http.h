@@ -11,10 +11,14 @@
 #include <vector>
 #include "core/guest_cpu/api/address_space.h"
 #include "core/libraries/network/http.h"
+#include "core/host_runtime/guest_http_uri.h"
 #include "core/libraries/network/http_error.h"
 
 namespace Core::HostRuntime {
 inline constexpr std::string_view HttpNids[]{
+    "h9wmFZX4i-4", "htyBOoWeS58", "jf4TB2nUO40", "Kh6bS2HQKbo", "GnVDzYfy-KI",
+    "Kiwv9r4IZCc", "aCYPMSUIaP8", "seCvUt91WHY",
+    "IWalAn-guFs", "5LZA+KPISVA", "YuOW3dDAKYc",
     "A9cVMUtEp4Y", // sceHttpInit
     "Ik-KpLTlf7Q", // sceHttpTerm
     "0gYjPTR-6cY", // sceHttpCreateTemplate
@@ -85,7 +89,10 @@ class GuestHttp {
     using Space = GuestCpu::GuestAddressSpace;
     using Identity = Space::MappingIdentity;
     enum class Kind { Context, Template, Connection, Request };
-    struct Object { Kind kind; int context; int native; };
+    struct Callback { u64 function{}, argument{}; };
+    inline static constexpr std::array<std::string_view,5> CallbackNids{
+        "h9wmFZX4i-4", "htyBOoWeS58", "jf4TB2nUO40", "Kh6bS2HQKbo", "GnVDzYfy-KI"};
+    struct Object { Kind kind; int context; int native; std::array<Callback,5> callbacks{}; };
     struct Epoll { int context; Libraries::Http::OrbisHttpEpollHandle native; };
     std::mutex mutex;
     std::map<int, Object> objects;
@@ -155,6 +162,12 @@ class GuestHttp {
         return sceHttpTerm(native_context);
     }
 public:
+    std::optional<int> NativeContext(int guest_id) {
+        std::lock_guard lock(mutex);
+        auto it = objects.find(guest_id);
+        if (it == objects.end() || it->second.kind != Kind::Context) return {};
+        return it->second.native;
+    }
     ~GuestHttp() {
         std::lock_guard lock(mutex);
         while (!objects.empty()) TermLocked(objects.begin()->second.context);
@@ -165,6 +178,7 @@ public:
         using namespace Libraries::Http;
         constexpr u32 bad = ORBIS_HTTP_ERROR_INVALID_VALUE;
         constexpr u32 invalid = ORBIS_HTTP_ERROR_INVALID_ID;
+        if (IsHttpUriNid(nid)) return DispatchHttpUri(space,nid,a);
         if (stop.stop_requested()) return u32(ORBIS_HTTP_ERROR_ABORTED);
         const int guest_id = s32(a[0]);
         std::unique_lock lock(mutex);
@@ -172,12 +186,14 @@ public:
             const auto it = objects.find(value);
             return it != objects.end() && it->second.kind == kind;
         };
-        auto record = [&](int value, Kind kind, int context) -> u64 {
+        auto record = [&](int value, Kind kind, int context, int parent = 0) -> u64 {
             if (value <= 0) return u32(value);
             // Desktop contexts and objects have separate integer namespaces.
             // Tag guest handles so a template never aliases a context with the same native id.
             const int handle = (int(kind) + 1) * 0x10000000 | value;
-            objects.emplace(handle, Object{kind, context ? context : handle, value});
+            Object created{kind, context ? context : handle, value};
+            if (parent) created.callbacks = objects.at(parent).callbacks;
+            objects.emplace(handle, std::move(created));
             return u32(handle);
         };
         if (nid == "A9cVMUtEp4Y") {
@@ -210,19 +226,38 @@ public:
         if (object == objects.end()) return invalid;
         const int id = object->second.native;
         const auto context = object->second.context;
+        if (const auto cb = std::ranges::find(CallbackNids,nid); cb != CallbackNids.end()) {
+            if (object->second.kind == Kind::Context) return invalid;
+            if (a[1] && !space.ValidateRange({{a[1]},1},GuestPermission::Execute)) return bad;
+            // Offline DNS fails before redirect/auth/cookies/TLS can occur.
+            // Store and inherit real registrations; no guest pointer reaches
+            // a native callback and no online event is fabricated.
+            object->second.callbacks[cb-CallbackNids.begin()] = {a[1],a[1] ? a[2] : 0};
+            return 0;
+        }
+        if (nid == "seCvUt91WHY") {
+            if (!own(guest_id,Kind::Context)) return invalid;
+            // This domain never received a response or created a cookie.
+            return 0;
+        }
         if (nid == "Ik-KpLTlf7Q") return own(guest_id, Kind::Context) ? u32(TermLocked(guest_id)) : invalid;
         if (nid == "0gYjPTR-6cY" || nid == "qgxDBjorUxs" || nid == "Aeu5wVKkF9w" ||
-            nid == "tsGVru3hCe8" || nid == "rGNm+FjIXKk" || nid == "Cnp77podkCU") {
+            nid == "tsGVru3hCe8" || nid == "rGNm+FjIXKk" || nid == "Cnp77podkCU" || nid == "Kiwv9r4IZCc") {
             if (objects.size() >= MaxObjects) return u32(ORBIS_HTTP_ERROR_OUT_OF_MEMORY);
             if (nid == "0gYjPTR-6cY") {
                 if (!own(guest_id, Kind::Context)) return invalid;
                 auto agent = Text(space, a[1], 1024);
                 return agent ? record(sceHttpCreateTemplate(id, agent->c_str(), s32(a[2]), s32(a[3])), Kind::Template, context) : bad;
             }
+            if (nid == "Kiwv9r4IZCc") {
+                if (!own(guest_id,Kind::Template)) return invalid;
+                auto server = Text(space,a[1],8192), scheme = Text(space,a[2],32);
+                return server && scheme ? record(sceHttpCreateConnection(id,server->c_str(),scheme->c_str(),u16(a[3]),a[4] != 0),Kind::Connection,context,guest_id) : bad;
+            }
             if (nid == "qgxDBjorUxs") {
                 if (!own(guest_id, Kind::Template)) return invalid;
                 auto url = Text(space, a[1], 8192);
-                return url ? record(sceHttpCreateConnectionWithURL(id, url->c_str(), a[2] != 0), Kind::Connection, context) : bad;
+                return url ? record(sceHttpCreateConnectionWithURL(id, url->c_str(), a[2] != 0), Kind::Connection, context, guest_id) : bad;
             }
             if (!own(guest_id, Kind::Connection)) return invalid;
             auto url = Text(space, a[2], 8192);
@@ -233,7 +268,7 @@ public:
                 if (!method) return bad;
                 result = nid == "rGNm+FjIXKk" ? sceHttpCreateRequest2(id, method->c_str(), url->c_str(), a[3]) : sceHttpCreateRequestWithURL2(id, method->c_str(), url->c_str(), a[3]);
             } else result = nid == "tsGVru3hCe8" ? sceHttpCreateRequest(id, s32(a[1]), url->c_str(), a[3]) : sceHttpCreateRequestWithURL(id, s32(a[1]), url->c_str(), a[3]);
-            return record(result, Kind::Request, context);
+            return record(result, Kind::Request, context, guest_id);
         }
         if (nid == "4I8vEpuEhZ8" || nid == "P6A3ytpsiYc" || nid == "qe7oZ+v4PWA") {
             const auto kind = nid == "4I8vEpuEhZ8" ? Kind::Template : nid == "P6A3ytpsiYc" ? Kind::Connection : Kind::Request;
@@ -357,6 +392,22 @@ public:
         // Request deletion/Term may race the native wait. Desktop retains the
         // shared request until each waiter returns; its worker owns all input.
         std::stop_callback cancel(stop, [id] { sceHttpAbortRequest(id); });
+        if (nid == "aCYPMSUIaP8") {
+            auto first = Snapshot(space,a[1],8), second = Snapshot(space,a[2],8);
+            if (!first || !second) return bad;
+            char* header{}; u64 length{};
+            const int result = sceHttpGetAllResponseHeaders(id,&header,&length);
+            if (result) return u32(result);
+            // Offline transport has no response headers. Fail closed if an
+            // online/native producer ever violates that invariant.
+            if (header || length) return u32(ORBIS_HTTP_ERROR_BAD_RESPONSE);
+            const std::array<Space::DataRequest,2> outputs{{
+                {{{a[1]},8},GuestPermission::Write,first->identities},
+                {{{a[2]},8},GuestPermission::Write,second->identities}}};
+            auto pins = space.AcquireDataBatch(outputs); if (!pins) return bad;
+            for (auto& p : pins.Value()) std::memset(p.WritableBytes().data(),0,8);
+            return 0;
+        }
         if (nid == "P5pdoykPYTk") {
             if (a[2] > MaxTransfer) return u32(ORBIS_HTTP_ERROR_OUT_OF_SIZE);
             auto out = Snapshot(space, a[1], std::max<u64>(1, a[2]));

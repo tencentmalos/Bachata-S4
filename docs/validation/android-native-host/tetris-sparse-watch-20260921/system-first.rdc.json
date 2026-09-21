@@ -1,0 +1,16 @@
+{
+"schema":"shadps4.renderdoc.v1",
+"run_uuid":"b891afd615a3dc31981ea556720a5502",
+"capture_uuid":"b891afd615a3dc31981ea556720a5502:1:1",
+"generation":"1",
+"request_id":"1",
+"first_present":"0",
+"last_present":"0",
+"first_guest_flip":"2",
+"last_guest_flip":"3",
+"coverage":"guest_flip_interval",
+"guest_frame_equivalence":"unverified",
+"driver":"512.676.53",
+"size":"673788331",
+"sha256":"95bc8fbbee7475d054b39b49b86b22346eba8830d00b85169d4afa94ef3a6d39"
+}

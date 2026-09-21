@@ -21,7 +21,7 @@ inline bool AdmitsNpOffline(std::string_view nid, std::string_view suffix, bool 
     if (!offline || !IsNpOfflineNid(nid))
         return false;
     return suffix == "#libSceNpManager#1#libSceNpManager#Function" ||
-           (nid == "JELHf4xPufo" &&
+           ((nid == "JELHf4xPufo" || nid == "0c7HbXRKUt4" || nid == "YIvqqvJyjEc") &&
             suffix == "#libSceNpManagerForToolkit#1#libSceNpManager#Function") ||
            ((nid == "a8R9-75u4iM" || nid == "IPb1hd1wAGc") &&
             suffix == "#libSceNpManagerCompat#1#libSceNpManager#Function");

@@ -1,0 +1,35 @@
+{
+  "schema": "spatial.guest-symbol-shard.v2",
+  "target_id": "beatsaber-0100-eboot",
+  "domain": "vr-render-transport",
+  "symbols": [
+    {
+      "module": "eboot.bin",
+      "module_offset": "0xd6ae40",
+      "segment": "text",
+      "name": "UnityPSVR_ReprojectionThread",
+      "kind": "function",
+      "mode": "x86-64",
+      "size": 1872,
+      "confidence": "correlated",
+      "evidence": [
+        "Thread loop waits for reprojection cadence, copies eye descriptors, submits multilayer records and handles release labels; static only, no new entry probe this run.",
+        "Reverse Study batch e7df351ad40d437c90cd516a1bc333b0, snapshot revision 44, F2 facts SHA256 76dcc8761c30b87743fa7705dd9473a7111effb0dbb9e5a866b98990a65b98de; analysis SHA256 a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a; function bytes SHA256 5b39b65a3fd7ba2086a5d0d2c85e3070393e0325ebe63d05f7a9400fbf753924. Indirect targets remain unresolved; not deployable."
+      ]
+    },
+    {
+      "module": "eboot.bin",
+      "module_offset": "0xd6c400",
+      "segment": "text",
+      "name": "UnityPSVR_CreateEyeRenderTextures",
+      "kind": "function",
+      "mode": "x86-64",
+      "size": 7328,
+      "confidence": "correlated",
+      "evidence": [
+        "RTPostReprojectionEyeTexture Left/Right/Shared strings and width/layer selector branches; static only, unknown full C ABI.",
+        "Reverse Study batch e7df351ad40d437c90cd516a1bc333b0, snapshot revision 44, F2 facts SHA256 b02b2d1dc0efbc79930f9e280335cd64cfbf6c0946d3b8e3d1268dae41c6c627; analysis SHA256 a0ea75288830ff4665c6ab65aa93210c1588155c2e543bddbac48e45a3c5d04a; function bytes SHA256 59f64bbdc0f7a29ee5e06d78e34ad9ac629a1c536741d5af656341165c0b7aca. Indirect targets remain unresolved; not deployable."
+      ]
+    }
+  ]
+}

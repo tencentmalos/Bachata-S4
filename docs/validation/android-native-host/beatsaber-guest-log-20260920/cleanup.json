@@ -1,0 +1,11 @@
+{
+  "tracer": [
+    "Name:\tshadps4.android",
+    "State:\tS (sleeping)",
+    "TracerPid:\t0"
+  ],
+  "patch_property": "\n",
+  "auto_tag_property": "\n",
+  "renderdoc": "SERVICE com.shadps4.android/.service.FexSessionService 39527d2 pid=18765 user=0\n  Client:\n    renderdoc_api_loaded: false\n    capture_backend: coordinator\n\n",
+  "input": "SERVICE com.shadps4.android/.service.FexSessionService 39527d2 pid=18765 user=0\n  Client:\n    input: generation=0 token=0 windowFocused=true focused=null uiCaptured=null stopping=null overlayEvents=0 overlayResult=null nativeToken=0 connected=false buttons=0\n    managed_state: Stopped(exitCode=0, generation=1, termination=ProcessTerminationInfo(processRole=BACKEND, terminationKind=CANCELLED_BY_USER, exitCode=0, rawWaitStatus=null, signalNumber=null, signalName=null, coreDumped=null, userRequestedStop=true, runtimeErrorCode=null, processStartUtc=null, processEndUtc=null, pid=null), reportContext=null)\n"
+}

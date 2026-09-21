@@ -753,6 +753,7 @@ set(MISC_LIBS  src/core/libraries/screenshot/screenshot.cpp
                src/core/libraries/ulobjmgr/ulobjmgr.cpp
                src/core/libraries/ulobjmgr/ulobjmgr.h
                src/core/libraries/signin_dialog/signindialog.cpp
+               src/core/libraries/signin_dialog/signindialog_ui.cpp
                src/core/libraries/signin_dialog/signindialog.h
 )
 
@@ -1623,8 +1624,12 @@ if(BUILD_HOST_CORE)
     add_subdirectory(foundation/modules/input foundation/input EXCLUDE_FROM_ALL)
     target_sources(shadps4 PRIVATE src/core/host_runtime/orbis_pad_adapter.cpp
         src/core/host_runtime/guest_save_dialog.cpp
+        src/core/host_runtime/guest_msg_dialog.cpp
+        src/core/host_runtime/guest_commerce_dialog.cpp
+        src/core/host_runtime/guest_msg_dialog_ui.cpp
         src/core/host_runtime/guest_ime_dialog.cpp
         src/core/host_runtime/guest_storage.cpp
+        src/core/host_runtime/guest_sockets.cpp
         src/core/host_runtime/guest_storage_hle.cpp
         src/core/host_runtime/guest_runtime.cpp
         src/core/host_runtime/guest_sync_metrics.cpp
@@ -1640,6 +1645,7 @@ if(BUILD_HOST_CORE)
         src/core/host_runtime/guest_vr_sensor.cpp
         src/core/diagnostics/diagnostics_commands.cpp
         src/core/diagnostics/diagnostics_service.cpp)
+    target_sources(shadps4 PRIVATE src/core/diagnostics/executable_export.cpp)
     target_link_libraries(shadps4 PRIVATE spatial::foundation_input)
     # App-shipped guest synchronization fast path: a freestanding x86-64 payload
     # compiled by the NDK clang's x86 backend and embedded into the host DSO
@@ -1715,6 +1721,14 @@ if(BUILD_HOST_CORE)
         target_link_libraries(android_internal_scale_probe PRIVATE shadps4_host spdlog::spdlog)
         target_include_directories(android_internal_scale_probe PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
         target_compile_definitions(android_internal_scale_probe PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(android_sbs_compositor_probe tests/video_core/android_sbs_compositor_probe.cpp)
+        add_executable(android_msaa_image_probe tests/video_core/android_msaa_image_probe.cpp)
+        target_link_libraries(android_msaa_image_probe PRIVATE shadps4_host spdlog::spdlog)
+        target_include_directories(android_msaa_image_probe PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(android_msaa_image_probe PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        target_link_libraries(android_sbs_compositor_probe PRIVATE shadps4_host spdlog::spdlog)
+        target_include_directories(android_sbs_compositor_probe PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(android_sbs_compositor_probe PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         add_executable(android_fragment_shading_rate_probe tests/video_core/android_fragment_shading_rate_probe.cpp)
         target_link_libraries(android_fragment_shading_rate_probe PRIVATE shadps4_host spdlog::spdlog)
         target_include_directories(android_fragment_shading_rate_probe PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
@@ -1747,6 +1761,14 @@ if(BUILD_HOST_CORE)
         target_link_libraries(guest_avplayer_tests PRIVATE shadps4_host)
         target_include_directories(guest_avplayer_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
         target_compile_definitions(guest_avplayer_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(guest_aio_tests tests/host_runtime/guest_aio_tests.cpp)
+        target_link_libraries(guest_aio_tests PRIVATE shadps4_host)
+        target_include_directories(guest_aio_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(guest_aio_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(guest_process_services_tests tests/host_runtime/guest_process_services_tests.cpp)
+        target_link_libraries(guest_process_services_tests PRIVATE shadps4_host)
+        target_include_directories(guest_process_services_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(guest_process_services_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         add_executable(guest_graphics_admission_tests tests/host_runtime/guest_graphics_admission_tests.cpp)
         target_link_libraries(guest_graphics_admission_tests PRIVATE shadps4_host)
         target_include_directories(guest_graphics_admission_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
@@ -1783,6 +1805,34 @@ if(BUILD_HOST_CORE)
         target_include_directories(guest_condition_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
         target_compile_definitions(guest_condition_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         add_executable(guest_np_tests tests/host_runtime/guest_np_tests.cpp)
+        add_executable(guest_reprojection_tests tests/host_runtime/guest_reprojection_tests.cpp)
+        target_link_libraries(guest_reprojection_tests PRIVATE shadps4_host)
+        target_include_directories(guest_reprojection_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(guest_reprojection_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(guest_posix_network_tests tests/host_runtime/guest_posix_network_tests.cpp)
+        target_link_libraries(guest_posix_network_tests PRIVATE shadps4_host)
+        target_include_directories(guest_posix_network_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(guest_posix_network_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(guest_ssl_tests tests/host_runtime/guest_ssl_tests.cpp)
+        target_link_libraries(guest_ssl_tests PRIVATE shadps4_host)
+        target_include_directories(guest_ssl_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(guest_ssl_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(guest_signin_dialog_tests tests/host_runtime/guest_signin_dialog_tests.cpp)
+        add_executable(guest_msg_dialog_tests tests/host_runtime/guest_msg_dialog_tests.cpp)
+        add_executable(guest_commerce_dialog_tests tests/host_runtime/guest_commerce_dialog_tests.cpp)
+        target_link_libraries(guest_commerce_dialog_tests PRIVATE shadps4_host)
+        target_include_directories(guest_commerce_dialog_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(guest_commerce_dialog_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        target_link_libraries(guest_msg_dialog_tests PRIVATE shadps4_host)
+        target_include_directories(guest_msg_dialog_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(guest_msg_dialog_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        target_link_libraries(guest_signin_dialog_tests PRIVATE shadps4_host)
+        target_include_directories(guest_signin_dialog_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(guest_signin_dialog_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
+        add_executable(guest_psvr_services_tests tests/host_runtime/guest_psvr_services_tests.cpp)
+        target_link_libraries(guest_psvr_services_tests PRIVATE shadps4_host)
+        target_include_directories(guest_psvr_services_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(guest_psvr_services_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         target_link_libraries(guest_np_tests PRIVATE shadps4_host)
         target_include_directories(guest_np_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
         target_compile_definitions(guest_np_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
@@ -1856,6 +1906,10 @@ if(BUILD_HOST_CORE)
         target_compile_definitions(diagnostics_hub_registry_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         # Toolkit command registry over the Foundation DebugCommandRegistry (spec §3.1).
         add_executable(diagnostics_commands_tests tests/host_runtime/diagnostics_commands_tests.cpp)
+        add_executable(executable_export_tests tests/host_runtime/executable_export_tests.cpp)
+        target_link_libraries(executable_export_tests PRIVATE shadps4_host ZArchive::zarchive)
+        target_include_directories(executable_export_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)
+        target_compile_definitions(executable_export_tests PRIVATE $<TARGET_PROPERTY:shadps4,COMPILE_DEFINITIONS>)
         target_link_libraries(diagnostics_commands_tests PRIVATE shadps4_host spatial::foundation_debugbus)
         target_include_directories(diagnostics_commands_tests PRIVATE src)
         target_include_directories(diagnostics_commands_tests PRIVATE $<TARGET_PROPERTY:shadps4,INCLUDE_DIRECTORIES>)

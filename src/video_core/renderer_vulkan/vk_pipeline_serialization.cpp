@@ -12,7 +12,7 @@
 
 namespace Serialization {
 /* You should increment versions below once corresponding serialization scheme is changed. */
-static constexpr u32 ShaderBinaryVersion = 10u; // internal-scale push data and shader profile
+static constexpr u32 ShaderBinaryVersion = 12u; // MSAA policy image types and sample operands
 #ifdef ARCH_X86_64
 static constexpr u32 ShaderMetaVersion = 8u; // invalidate pre-alias-fix flattened layouts
 #else

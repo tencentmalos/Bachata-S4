@@ -1,0 +1,37 @@
+--------- beginning of main
+09-20 20:53:48.348  4147  4185 I ThreadAttributeAcceptance: module-lookup init=zero round=0 outcome=0 page_size=4096 pid=4147 uid=10190 guest return=51966
+09-20 20:53:48.348  4147  4185 I ThreadAttributeAcceptance: production Linker/VM; owners=1 veneers=20
+09-20 20:53:48.348  4147  4185 I ThreadAttributeAcceptance: HLE_STATUS android_bridge=4
+09-20 20:53:48.348  4147  4185 I ThreadAttributeAcceptance: HLE_STATUS guest_fastpath=16 graphics=not-created modules=2
+09-20 20:53:48.360  4147  4185 I ThreadAttributeAcceptance: module-lookup init=zero round=1 outcome=0 page_size=4096 pid=4147 uid=10190 guest return=51966
+09-20 20:53:48.360  4147  4185 I ThreadAttributeAcceptance: production Linker/VM; owners=1 veneers=20
+09-20 20:53:48.360  4147  4185 I ThreadAttributeAcceptance: HLE_STATUS android_bridge=4
+09-20 20:53:48.360  4147  4185 I ThreadAttributeAcceptance: HLE_STATUS guest_fastpath=16 graphics=not-created modules=2
+09-20 20:53:48.370  4147  4185 I ThreadAttributeAcceptance: module-lookup init=zero round=2 outcome=0 page_size=4096 pid=4147 uid=10190 guest return=51966
+09-20 20:53:48.370  4147  4185 I ThreadAttributeAcceptance: production Linker/VM; owners=1 veneers=20
+09-20 20:53:48.370  4147  4185 I ThreadAttributeAcceptance: HLE_STATUS android_bridge=4
+09-20 20:53:48.370  4147  4185 I ThreadAttributeAcceptance: HLE_STATUS guest_fastpath=16 graphics=not-created modules=2
+09-20 20:53:48.380  4147  4185 I ThreadAttributeAcceptance: module-lookup init=nonzero round=0 outcome=0 page_size=4096 pid=4147 uid=10190 guest return=51966
+09-20 20:53:48.380  4147  4185 I ThreadAttributeAcceptance: production Linker/VM; owners=1 veneers=20
+09-20 20:53:48.380  4147  4185 I ThreadAttributeAcceptance: HLE_STATUS android_bridge=4
+09-20 20:53:48.380  4147  4185 I ThreadAttributeAcceptance: HLE_STATUS guest_fastpath=16 graphics=not-created modules=2
+09-20 20:53:48.389  4147  4185 I ThreadAttributeAcceptance: module-lookup init=nonzero round=1 outcome=0 page_size=4096 pid=4147 uid=10190 guest return=51966
+09-20 20:53:48.389  4147  4185 I ThreadAttributeAcceptance: production Linker/VM; owners=1 veneers=20
+09-20 20:53:48.389  4147  4185 I ThreadAttributeAcceptance: HLE_STATUS android_bridge=4
+09-20 20:53:48.389  4147  4185 I ThreadAttributeAcceptance: HLE_STATUS guest_fastpath=16 graphics=not-created modules=2
+09-20 20:53:48.398  4147  4185 I ThreadAttributeAcceptance: module-lookup init=nonzero round=2 outcome=0 page_size=4096 pid=4147 uid=10190 guest return=51966
+09-20 20:53:48.398  4147  4185 I ThreadAttributeAcceptance: production Linker/VM; owners=1 veneers=20
+09-20 20:53:48.398  4147  4185 I ThreadAttributeAcceptance: HLE_STATUS android_bridge=4
+09-20 20:53:48.398  4147  4185 I ThreadAttributeAcceptance: HLE_STATUS guest_fastpath=16 graphics=not-created modules=2
+09-20 20:53:48.407  4147  4185 I ThreadAttributeAcceptance: module-lookup init=absent round=0 outcome=0 page_size=4096 pid=4147 uid=10190 guest return=51966
+09-20 20:53:48.407  4147  4185 I ThreadAttributeAcceptance: production Linker/VM; owners=1 veneers=20
+09-20 20:53:48.407  4147  4185 I ThreadAttributeAcceptance: HLE_STATUS android_bridge=4
+09-20 20:53:48.407  4147  4185 I ThreadAttributeAcceptance: HLE_STATUS guest_fastpath=16 graphics=not-created modules=2
+09-20 20:53:48.419  4147  4185 I ThreadAttributeAcceptance: module-lookup init=absent round=1 outcome=0 page_size=4096 pid=4147 uid=10190 guest return=51966
+09-20 20:53:48.419  4147  4185 I ThreadAttributeAcceptance: production Linker/VM; owners=1 veneers=20
+09-20 20:53:48.419  4147  4185 I ThreadAttributeAcceptance: HLE_STATUS android_bridge=4
+09-20 20:53:48.419  4147  4185 I ThreadAttributeAcceptance: HLE_STATUS guest_fastpath=16 graphics=not-created modules=2
+09-20 20:53:48.429  4147  4185 I ThreadAttributeAcceptance: module-lookup init=absent round=2 outcome=0 page_size=4096 pid=4147 uid=10190 guest return=51966
+09-20 20:53:48.429  4147  4185 I ThreadAttributeAcceptance: production Linker/VM; owners=1 veneers=20
+09-20 20:53:48.429  4147  4185 I ThreadAttributeAcceptance: HLE_STATUS android_bridge=4
+09-20 20:53:48.429  4147  4185 I ThreadAttributeAcceptance: HLE_STATUS guest_fastpath=16 graphics=not-created modules=2

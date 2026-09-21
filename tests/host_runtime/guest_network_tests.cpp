@@ -73,15 +73,17 @@ int main() {
     CHECK(read.operator()<u64>(base+256)==0xfeed);
     CHECK(call("drjIbDbA7UQ",{epoll,base+256,UINT64_MAX,0})==error(ORBIS_NET_EINVAL));
     CHECK(call("drjIbDbA7UQ",{epoll,1,1,0})==error(ORBIS_NET_EFAULT));
+    write(base+256, Libraries::Net::OrbisNetEpollEvent{1});
     CHECK(call("ZVw46bsasAk",{epoll,1,1,base+256})==error(ORBIS_NET_EBADF));
-    CHECK(call("ZVw46bsasAk",{epoll,2,1,0})==error(ORBIS_NET_ENOENT));
+    CHECK(call("ZVw46bsasAk",{epoll,2,1,0})==error(ORBIS_NET_EFAULT));
     CHECK(call("w21YgGGNtBk",{epoll})==0);
     CHECK(call("cTGkc6-TBlI")==error(ORBIS_NET_EBUSY));
     CHECK(call("Inp1lfL+Jdw",{epoll})==0);
     CHECK(call("Inp1lfL+Jdw",{epoll})==error(ORBIS_NET_EBADF));
     CHECK(call("drjIbDbA7UQ",{epoll,base+256,1,0})==error(ORBIS_NET_EBADF));
-    CHECK(call("Q4qBuN-c0ZM", {base, 2, 1, 0}) == error(ORBIS_NET_ENETDOWN));
-    CHECK(read.operator()<s32>(base + 128) == ORBIS_NET_ENETDOWN);
+    const auto socket = call("Q4qBuN-c0ZM", {base, 2, 1, 0});
+    CHECK(s64(socket) >= 0 && socket < 1024);
+    CHECK(call("45ggEzakPJQ", {socket}) == 0);
     CHECK(call("Q4qBuN-c0ZM", {1, 2, 1, 0}) == error(ORBIS_NET_EFAULT));
     CHECK(call("45ggEzakPJQ", {1}) == error(ORBIS_NET_EBADF));
     CHECK(call("9wO9XrMsNhc", {1, base, 128}) == error(ORBIS_NET_EBADF));
@@ -168,6 +170,13 @@ int main() {
     }
     CHECK(call("UJ+Z7Q+4ck0", {base + 0x4000, 9, base + 256}) ==
           u32(ORBIS_NET_CTL_ERROR_CALLBACK_MAX));
+    CHECK(call("wIsKy+TfeLs",{base,123,base+512})==u32(ORBIS_NET_CTL_ERROR_INVALID_ADDR));
+    CHECK(call("wIsKy+TfeLs",{base+0x4000,123,base+512})==0);
+    const auto toolkit_id=read.operator()<s32>(base+512);
+    auto toolkit_events=net.BeginCallbacks(true);
+    CHECK(toolkit_events && toolkit_events->empty()); net.EndCallbacks();
+    CHECK(call("2oUqKR5odGc",{u64(toolkit_id)})==0);
+    CHECK(call("2oUqKR5odGc",{u64(toolkit_id)})==u32(ORBIS_NET_CTL_ERROR_ID_NOT_FOUND));
     auto batch = net.BeginCallbacks();
     CHECK(batch && batch->size() == 8);
     CHECK(!net.BeginCallbacks());         // recursive/concurrent dispatch is bounded
@@ -189,10 +198,22 @@ int main() {
     CHECK(call("cTGkc6-TBlI") == 0);
     CHECK(call("uBPlr0lbuiI", {base + 256}) == u32(ORBIS_NET_CTL_ERROR_NOT_AVAIL));
     GuestNetwork online(true);
+    CHECK(online.InitializeControl() == u32(ORBIS_NET_CTL_ERROR_NOT_AVAIL));
     CHECK(online.Dispatch(*space, "Nlev7Lg8k3A", {}, base + 132) == error(ORBIS_NET_ENETDOWN));
     CHECK(read.operator()<s32>(base + 132) == ORBIS_NET_ENETDOWN);
     for (unsigned generation = 0; generation < 3; ++generation) {
         GuestNetwork next(false);
+        // Published control provider works before application Net init, stays
+        // disconnected, and a repeated init preserves live registrations.
+        CHECK(next.InitializeControl() == 0);
+        CHECK(next.Dispatch(*space, "wIsKy+TfeLs", {base+0x4000,7,base+256}, base+132) == 0);
+        CHECK(next.InitializeControl() == 0);
+        CHECK(next.Dispatch(*space, "2oUqKR5odGc", {0}, base+132) == 0);
+        CHECK(next.Dispatch(*space, "uBPlr0lbuiI", {base+256}, base+132) == 0);
+        CHECK(read.operator()<s32>(base+256) == ORBIS_NET_CTL_STATE_DISCONNECTED);
+        CHECK(next.Dispatch(*space, "Z4wwCFiBELQ", {}, base+132) == 0);
+        CHECK(!next.BeginCallbacks(true));
+        CHECK(next.Dispatch(*space, "gky0+oaNM4k", {}, base+132) == 0);
         CHECK(next.Dispatch(*space, "Nlev7Lg8k3A", {}, base + 132) == 0);
         CHECK(next.Dispatch(*space, "dgJBaeJnGpo", {base, 4096, 0}, base + 132) == 1);
     }

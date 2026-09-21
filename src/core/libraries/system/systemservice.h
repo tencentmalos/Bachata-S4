@@ -4,6 +4,7 @@
 // https://github.com/OpenOrbis/OpenOrbis-PS4-Toolchain/blob/master/include/orbis/_types/sys_service.h
 #pragma once
 
+#include <cstddef>
 #include <mutex>
 #include <queue>
 #include "common/types.h"
@@ -97,6 +98,8 @@ struct OrbisSystemServiceDisplaySafeAreaInfo {
     float ratio;
     uint8_t reserved[128];
 };
+static_assert(sizeof(OrbisSystemServiceDisplaySafeAreaInfo) == 132);
+static_assert(offsetof(OrbisSystemServiceDisplaySafeAreaInfo, reserved) == 4);
 
 struct OrbisSystemServiceEvent {
     OrbisSystemServiceEventType event_type;

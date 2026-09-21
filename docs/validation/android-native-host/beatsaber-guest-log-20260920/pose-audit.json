@@ -1,0 +1,2498 @@
+{
+  "run1": {
+    "samples": [
+      {
+        "sequence": 1,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "camera_norm": 0.0
+      },
+      {
+        "sequence": 2,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "camera_norm": 0.0
+      },
+      {
+        "sequence": 3,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "camera_norm": 0.0
+      },
+      {
+        "sequence": 4,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "camera_norm": 0.0
+      },
+      {
+        "sequence": 5,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "camera_norm": 0.0
+      },
+      {
+        "sequence": 6,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "camera_norm": 0.0
+      },
+      {
+        "sequence": 7,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "camera_norm": 0.0
+      },
+      {
+        "sequence": 8,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "camera_norm": 0.0
+      },
+      {
+        "sequence": 16,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "camera_norm": 0.0
+      },
+      {
+        "sequence": 32,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "camera_norm": 0.0
+      },
+      {
+        "sequence": 64,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "camera_norm": 0.0
+      },
+      {
+        "sequence": 128,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "camera_norm": 0.0
+      },
+      {
+        "sequence": 256,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "camera_norm": 0.0
+      },
+      {
+        "sequence": 512,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "camera_norm": 0.0
+      },
+      {
+        "sequence": 1024,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "camera_norm": 0.0
+      },
+      {
+        "sequence": 2048,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "camera_norm": 0.0
+      },
+      {
+        "sequence": 4096,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "camera_norm": 0.0
+      },
+      {
+        "sequence": 8192,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "camera_norm": 0.0
+      }
+    ],
+    "count": 18,
+    "max_sequence": 8192
+  },
+  "run3": {
+    "samples": [
+      {
+        "sequence": 1,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "camera_norm": 1.0
+      },
+      {
+        "sequence": 2,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "camera_norm": 1.0
+      },
+      {
+        "sequence": 3,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "camera_norm": 1.0
+      },
+      {
+        "sequence": 4,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "camera_norm": 1.0
+      },
+      {
+        "sequence": 5,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "camera_norm": 1.0
+      },
+      {
+        "sequence": 6,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "camera_norm": 1.0
+      },
+      {
+        "sequence": 7,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "camera_norm": 1.0
+      },
+      {
+        "sequence": 8,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "camera_norm": 1.0
+      },
+      {
+        "sequence": 16,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "camera_norm": 1.0
+      },
+      {
+        "sequence": 32,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "camera_norm": 1.0
+      },
+      {
+        "sequence": 64,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "camera_norm": 1.0
+      },
+      {
+        "sequence": 128,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "camera_norm": 1.0
+      },
+      {
+        "sequence": 256,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "camera_norm": 1.0
+      },
+      {
+        "sequence": 512,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "camera_norm": 1.0
+      },
+      {
+        "sequence": 1024,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "camera_norm": 1.0
+      },
+      {
+        "sequence": 2048,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "camera_norm": 1.0
+      },
+      {
+        "sequence": 4096,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "camera_norm": 1.0
+      },
+      {
+        "sequence": 8192,
+        "handle": 251658240,
+        "poses": {
+          "device": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "left_eye": {
+            "position": [
+              -0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "right_eye": {
+            "position": [
+              0.03150000050663948,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          },
+          "head": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "quaternion": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "norm": 1.0
+          }
+        },
+        "camera_quaternion": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "camera_norm": 1.0
+      }
+    ],
+    "count": 18,
+    "max_sequence": 8192
+  }
+}

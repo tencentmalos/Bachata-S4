@@ -1,0 +1,2383 @@
+{
+  "schema": 1,
+  "title_id": "CUSA13427",
+  "pid": 10718,
+  "row_count": 2603,
+  "binding_rows": {
+    "guest_export": 1146,
+    "refused": 361,
+    "runtime_bound": 1079,
+    "not_relocated": 17
+  },
+  "refused_unique": 293,
+  "scope": "All loaded imports, with full refused census. Rows with unreviewed status are outstanding work; no universal nonblocking claim.",
+  "families": [
+    {
+      "library": "libSceAjm",
+      "unique_refused": 4,
+      "status": "outstanding_not_certified",
+      "reason": "Whole family is recorded for prioritization. Desktop ABI, provider/lifecycle, guest pointers/callbacks and cancellation must be reviewed before admission. This batch did not establish later reachability or nonblocking behavior.",
+      "imports": [
+        {
+          "symbol": "AxhcqVv5AYU#libSceAjm#1#libSceAjm#Function",
+          "name": "sceAjmStrError",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "MHur6qCsUus#libSceAjm#1#libSceAjm#Function",
+          "name": "sceAjmFinalize",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "WfAiBW8Wcek#libSceAjm#1#libSceAjm#Function",
+          "name": "sceAjmBatchErrorDump",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "Wi7DtlLV+KI#libSceAjm#1#libSceAjm#Function",
+          "name": "sceAjmModuleUnregister",
+          "importers": [
+            "eboot.bin"
+          ]
+        }
+      ]
+    },
+    {
+      "library": "libSceAudio3d",
+      "unique_refused": 12,
+      "status": "outstanding_not_certified",
+      "reason": "Whole family is recorded for prioritization. Desktop ABI, provider/lifecycle, guest pointers/callbacks and cancellation must be reviewed before admission. This batch did not establish later reachability or nonblocking behavior.",
+      "imports": [
+        {
+          "symbol": "1HXxo-+1qCw#libSceAudio3d#1#libSceAudio3d#Function",
+          "name": "sceAudio3dObjectUnreserve",
+          "importers": [
+            "sceaudio3d.prx"
+          ]
+        },
+        {
+          "symbol": "4uyHN9q4ZeU#libSceAudio3d#1#libSceAudio3d#Function",
+          "name": "sceAudio3dObjectSetAttributes",
+          "importers": [
+            "sceaudio3d.prx"
+          ]
+        },
+        {
+          "symbol": "9tEwE0GV0qo#libSceAudio3d#1#libSceAudio3d#Function",
+          "name": "sceAudio3dBedWrite",
+          "importers": [
+            "sceaudio3d.prx"
+          ]
+        },
+        {
+          "symbol": "OyVqOeVNtSk#libSceAudio3d#1#libSceAudio3d#Function",
+          "name": "sceAudio3dPortClose",
+          "importers": [
+            "sceaudio3d.prx"
+          ]
+        },
+        {
+          "symbol": "UmCvjSmuZIw#libSceAudio3d#1#libSceAudio3d#Function",
+          "name": "sceAudio3dInitialize",
+          "importers": [
+            "sceaudio3d.prx"
+          ]
+        },
+        {
+          "symbol": "VEVhZ9qd4ZY#libSceAudio3d#1#libSceAudio3d#Function",
+          "name": "sceAudio3dPortPush",
+          "importers": [
+            "sceaudio3d.prx"
+          ]
+        },
+        {
+          "symbol": "WW1TS2iz5yc#libSceAudio3d#1#libSceAudio3d#Function",
+          "name": "sceAudio3dTerminate",
+          "importers": [
+            "sceaudio3d.prx"
+          ]
+        },
+        {
+          "symbol": "XeDDK0xJWQA#libSceAudio3d#1#libSceAudio3d#Function",
+          "name": "sceAudio3dPortOpen",
+          "importers": [
+            "sceaudio3d.prx"
+          ]
+        },
+        {
+          "symbol": "YaaDbDwKpFM#libSceAudio3d#1#libSceAudio3d#Function",
+          "name": "sceAudio3dPortGetQueueLevel",
+          "importers": [
+            "sceaudio3d.prx"
+          ]
+        },
+        {
+          "symbol": "Yq9bfUQ0uJg#libSceAudio3d#1#libSceAudio3d#Function",
+          "name": "sceAudio3dPortSetAttribute",
+          "importers": [
+            "sceaudio3d.prx"
+          ]
+        },
+        {
+          "symbol": "jO2tec4dJ2M#libSceAudio3d#1#libSceAudio3d#Function",
+          "name": "sceAudio3dObjectReserve",
+          "importers": [
+            "sceaudio3d.prx"
+          ]
+        },
+        {
+          "symbol": "lw0qrdSjZt8#libSceAudio3d#1#libSceAudio3d#Function",
+          "name": "sceAudio3dPortAdvance",
+          "importers": [
+            "sceaudio3d.prx"
+          ]
+        }
+      ]
+    },
+    {
+      "library": "libSceAvPlayer",
+      "unique_refused": 3,
+      "status": "outstanding_not_certified",
+      "reason": "Whole family is recorded for prioritization. Desktop ABI, provider/lifecycle, guest pointers/callbacks and cancellation must be reviewed before admission. This batch did not establish later reachability or nonblocking behavior.",
+      "imports": [
+        {
+          "symbol": "BOVKAzRmuTQ#libSceAvPlayer#1#libSceAvPlayer#Function",
+          "name": "sceAvPlayerDisableStream",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "XC9wM+xULz8#libSceAvPlayer#1#libSceAvPlayer#Function",
+          "name": "sceAvPlayerJumpToTime",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "av8Z++94rs0#libSceAvPlayer#1#libSceAvPlayer#Function",
+          "name": "sceAvPlayerSetTrickSpeed",
+          "importers": [
+            "eboot.bin"
+          ]
+        }
+      ]
+    },
+    {
+      "library": "libSceContentExport",
+      "unique_refused": 5,
+      "status": "outstanding_not_certified",
+      "reason": "Whole family is recorded for prioritization. Desktop ABI, provider/lifecycle, guest pointers/callbacks and cancellation must be reviewed before admission. This batch did not establish later reachability or nonblocking behavior.",
+      "imports": [
+        {
+          "symbol": "+KDWny9Y-6k#libSceContentExport#1#libSceContentExport#Function",
+          "name": "sceContentExportTerm",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "0GnN4QCgIfs#libSceContentExport#1#libSceContentExport#Function",
+          "name": "sceContentExportInit2",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "FCygF4Ec4so#libSceContentExport#1#libSceContentExport#Function",
+          "name": "sceContentExportStart",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "OWCJUmrWH1g#libSceContentExport#1#libSceContentExport#Function",
+          "name": "sceContentExportFromFile",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "tb3cZTCl8Ps#libSceContentExport#1#libSceContentExport#Function",
+          "name": "sceContentExportFinish",
+          "importers": [
+            "eboot.bin"
+          ]
+        }
+      ]
+    },
+    {
+      "library": "libSceGameLiveStreaming",
+      "unique_refused": 5,
+      "status": "outstanding_not_certified",
+      "reason": "Whole family is recorded for prioritization. Desktop ABI, provider/lifecycle, guest pointers/callbacks and cancellation must be reviewed before admission. This batch did not establish later reachability or nonblocking behavior.",
+      "imports": [
+        {
+          "symbol": "9yK6Fk8mKOQ#libSceGameLiveStreaming#1#libSceGameLiveStreaming#Function",
+          "name": "sceGameLiveStreamingTerminate",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "OIIm19xu+NM#libSceGameLiveStreaming#1#libSceGameLiveStreaming#Function",
+          "name": "sceGameLiveStreamingGetProgramInfo",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "dWM80AX39o4#libSceGameLiveStreaming#1#libSceGameLiveStreaming#Function",
+          "name": "sceGameLiveStreamingEnableLiveStreaming",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "kvYEw2lBndk#libSceGameLiveStreaming#1#libSceGameLiveStreaming#Function",
+          "name": "sceGameLiveStreamingInitialize",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "lK8dLBNp9OE#libSceGameLiveStreaming#1#libSceGameLiveStreaming#Function",
+          "name": "sceGameLiveStreamingGetCurrentStatus2",
+          "importers": [
+            "eboot.bin"
+          ]
+        }
+      ]
+    },
+    {
+      "library": "libSceGnmDriver",
+      "unique_refused": 37,
+      "status": "outstanding_not_certified",
+      "reason": "Whole family is recorded for prioritization. Desktop ABI, provider/lifecycle, guest pointers/callbacks and cancellation must be reviewed before admission. This batch did not establish later reachability or nonblocking behavior.",
+      "imports": [
+        {
+          "symbol": "4Mv9OXypBG8#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceGnmFindResourcesPublic",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "4PKnYXOhcx4#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceGnmGetResourceBaseAddressAndSizeInBytes",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "5SHGNwLXBV4#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceGnmValidateGetDiagnostics",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "6YRHhh5mHCs#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceGnmRequestFlipAndSubmitDoneForWorkload",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "BgM3t3LvcNk#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceGnmValidateDisableDiagnostics2",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "EJapNl2+pgU#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceGnmComputeWaitSemaphore",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "HzMN7ANqYEc#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceGnmValidateGetVersion",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "K3BKBBYKUSE#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceGnmSetResourceUserData",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "Kl0Z3LH07QI#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceGnmLogicalTcaUnitToPhysical",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "KnldROUkWJY#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceGnmGetNumTcaUnits",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "MBMa6EFu4Ko#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceGnmValidateResetState",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "O0S96YnD04U#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceGnmGetResourceName",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "Q7t4VEYLafI#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceGnmValidationRegisterMemoryCheckCallback",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "QJjPjlmPAL0#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceGnmGetOwnerName",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "RX7XCNSaL6I#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceGnmValidateGetDiagnosticInfo",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "SXw4dZEkgpA#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceGnmValidateDisableDiagnostics",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "UBv7FkVfzcQ#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceGnmGetResourceShaderGuid",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "UoBuWAhKk7U#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceGnmGetResourceUserData",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "UtObDRQiGbs#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceGnmDestroyWorkloadStream",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "XiyzNZ9J4nQ#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceGnmSetWaveLimitMultipliers",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "bdqdvIkLPIU#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceGnmGetResourceType",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "cUCo8OvArrw#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceGnmDrawIndirectCountMulti",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "dewXw5roLs0#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceGnmGetPhysicalCounterFromVirtualized",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "f33OrruQYbM#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceRazorIsLoaded",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "fzJdEihTFV4#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceGnmGetProtectionFaultTimeStamp",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "hsZPf1lON7E#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceGnmValidateDrawCommandBuffers",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "iFirFzgYsvw#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceGnmGetLastWaitedAddress",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "jHdPvIzlpKc#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceGnmDrawIndexMultiInstanced",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "k7iGTvDQPLQ#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceGnmGetShaderStatus",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "nEyFbYUloIM#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceGnmGetShaderProgramBaseAddress",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "oL4hGI1PMpw#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceGnmGetGpuBlockStatus",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "q-qhDxP67Hg#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceGnmSetResourceRegistrationUserMemory",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "qGP74T5OWJc#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceGnmValidateDispatchCommandBuffers",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "rTIV11nMQuM#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceGnmValidateOnSubmitEnabled",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "stDSYW2SBVM#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceGnmDrawOpaqueAuto",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "tZCSL5ulnB4#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceGnmGetGpuInfoStatus",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "u9YKpRRHe-M#libSceGnmDriver#1#libSceGnmDriver#Function",
+          "name": "sceRazorCaptureImmediate",
+          "importers": [
+            "eboot.bin"
+          ]
+        }
+      ]
+    },
+    {
+      "library": "libSceHmd",
+      "unique_refused": 3,
+      "status": "confirmed_blocker",
+      "reason": "V9 calls StartWithOverlay. Desktop Start/2d/overlay are incomplete/stubs; recover full records/ABI, submit real eye+overlay textures, completion label/events and cancellation. No successful VR-frame acceptance.",
+      "imports": [
+        {
+          "symbol": "dntZTJ7meIU#libSceHmd#1#libSceHmd#Function",
+          "name": "sceHmdReprojectionStart",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "kcldQ7zLYQQ#libSceHmd#1#libSceHmd#Function",
+          "name": "sceHmdReprojectionStartWithOverlay",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "q3e8+nEguyE#libSceHmd#1#libSceHmd#Function",
+          "name": "sceHmdReprojectionStart2dVr",
+          "importers": [
+            "eboot.bin"
+          ]
+        }
+      ]
+    },
+    {
+      "library": "libSceHttp",
+      "unique_refused": 1,
+      "status": "outstanding_not_certified",
+      "reason": "Whole family is recorded for prioritization. Desktop ABI, provider/lifecycle, guest pointers/callbacks and cancellation must be reviewed before admission. This batch did not establish later reachability or nonblocking behavior.",
+      "imports": [
+        {
+          "symbol": "16sMmVuOvgU#libSceHttp#1#libSceHttp#Function",
+          "name": "sceHttpGetMemoryPoolStats",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        }
+      ]
+    },
+    {
+      "library": "libSceInvitationDialog",
+      "unique_refused": 5,
+      "status": "unimplemented_dialog_family",
+      "reason": "Init load return is ignored in inspected main init block; invitation open/result/cancellation later reachability not certified.",
+      "imports": [
+        {
+          "symbol": "9+g9iOq+7kg#libSceInvitationDialog#1#libSceInvitationDialog#Function",
+          "name": "sceInvitationDialogUpdateStatus",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "B6HVJtDYxEE#libSceInvitationDialog#1#libSceInvitationDialog#Function",
+          "name": "sceInvitationDialogTerminate",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "WuuUhuKOxwQ#libSceInvitationDialog#1#libSceInvitationDialog#Function",
+          "name": "sceInvitationDialogGetResultA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "XvA5KS56wcs#libSceInvitationDialog#1#libSceInvitationDialog#Function",
+          "name": "sceInvitationDialogInitialize",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "sAxbHhAWMXM#libSceInvitationDialog#1#libSceInvitationDialog#Function",
+          "name": "sceInvitationDialogOpenA",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        }
+      ]
+    },
+    {
+      "library": "libSceNet",
+      "unique_refused": 5,
+      "status": "outstanding_not_certified",
+      "reason": "Whole family is recorded for prioritization. Desktop ABI, provider/lifecycle, guest pointers/callbacks and cancellation must be reviewed before admission. This batch did not establish later reachability or nonblocking behavior.",
+      "imports": [
+        {
+          "symbol": "6Oc0bLsIYe0#libSceNet#1#libSceNet#Function",
+          "name": "sceNetGetMacAddress",
+          "importers": [
+            "eboot.bin",
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        {
+          "symbol": "Apb4YDxKsRI#libSceNet#1#libSceNet#Function",
+          "name": "sceNetResolverStartAton",
+          "importers": [
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        {
+          "symbol": "RCCY01Xd+58#libSceNet#1#libSceNet#Function",
+          "name": "sceNetResolverStartNtoaMultipleRecords",
+          "importers": [
+            "eboot.bin",
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        {
+          "symbol": "hLuXdjHnhiI#libSceNet#1#libSceNet#Function",
+          "name": "sceNetGetSockInfo",
+          "importers": [
+            "eboot.bin",
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        {
+          "symbol": "rMyh97BU5pY#libSceNet#1#libSceNet#Function",
+          "name": "sceNetGetMemoryPoolStats",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        }
+      ]
+    },
+    {
+      "library": "libSceNgs2",
+      "unique_refused": 13,
+      "status": "outstanding_not_certified",
+      "reason": "Whole family is recorded for prioritization. Desktop ABI, provider/lifecycle, guest pointers/callbacks and cancellation must be reviewed before admission. This batch did not establish later reachability or nonblocking behavior.",
+      "imports": [
+        {
+          "symbol": "-TOuuAQ-buE#libSceNgs2#1#libSceNgs2#Function",
+          "name": "sceNgs2VoiceGetState",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "3pCNbVM11UA#libSceNgs2#1#libSceNgs2#Function",
+          "name": "sceNgs2CalcWaveformBlock",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "MwmHz8pAdAo#libSceNgs2#1#libSceNgs2#Function",
+          "name": "sceNgs2RackGetVoiceHandle",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "U546k6orxQo#libSceNgs2#1#libSceNgs2#Function",
+          "name": "sceNgs2RackCreateWithAllocator",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "gbMKV+8Enuo#libSceNgs2#1#libSceNgs2#Function",
+          "name": "sceNgs2PanGetVolumeMatrix",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "hyVLT2VlOYk#libSceNgs2#1#libSceNgs2#Function",
+          "name": "sceNgs2ParseWaveformData",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "i0VnXM-C9fc#libSceNgs2#1#libSceNgs2#Function",
+          "name": "sceNgs2SystemRender",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "lCqD7oycmIM#libSceNgs2#1#libSceNgs2#Function",
+          "name": "sceNgs2RackDestroy",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "mPYgU4oYpuY#libSceNgs2#1#libSceNgs2#Function",
+          "name": "sceNgs2SystemCreateWithAllocator",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "rEh728kXk3w#libSceNgs2#1#libSceNgs2#Function",
+          "name": "sceNgs2VoiceGetStateFlags",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "u-WrYDaJA3k#libSceNgs2#1#libSceNgs2#Function",
+          "name": "sceNgs2SystemDestroy",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "uu94irFOGpA#libSceNgs2#1#libSceNgs2#Function",
+          "name": "sceNgs2VoiceControl",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "xa8oL9dmXkM#libSceNgs2#1#libSceNgs2#Function",
+          "name": "sceNgs2PanInit",
+          "importers": [
+            "eboot.bin"
+          ]
+        }
+      ]
+    },
+    {
+      "library": "libSceNpAuth",
+      "unique_refused": 5,
+      "status": "unimplemented_online_family",
+      "reason": "Authorization request create/delete/abort/token outputs remain refused. No fake token or login. No proof that subsequent game branches never call them.",
+      "imports": [
+        {
+          "symbol": "6bwFkosYRQg#libSceNpAuth#1#libSceNpAuth#Function",
+          "name": "sceNpAuthCreateRequest",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "CocbHVIKPE8#libSceNpAuth#1#libSceNpAuth#Function",
+          "name": "sceNpAuthGetIdTokenA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "H8wG9Bk-nPc#libSceNpAuth#1#libSceNpAuth#Function",
+          "name": "sceNpAuthDeleteRequest",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "cE7wIsqXdZ8#libSceNpAuth#1#libSceNpAuth#Function",
+          "name": "sceNpAuthAbortRequest",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "qAUXQ9GdWp8#libSceNpAuth#1#libSceNpAuth#Function",
+          "name": "sceNpAuthGetAuthorizationCodeA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        }
+      ]
+    },
+    {
+      "library": "libSceNpManager",
+      "unique_refused": 9,
+      "status": "outstanding_not_certified",
+      "reason": "Whole family is recorded for prioritization. Desktop ABI, provider/lifecycle, guest pointers/callbacks and cancellation must be reviewed before admission. This batch did not establish later reachability or nonblocking behavior.",
+      "imports": [
+        {
+          "symbol": "+anuSx2avHQ#libSceNpManager#1#libSceNpManager#Function",
+          "name": "sceNpInGameMessageDeleteHandle",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "GFhVUpRmbHE#libSceNpManager#1#libSceNpManager#Function",
+          "name": "sceNpInGameMessageInitialize",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "Gaxrp3EWY-M#libSceNpManager#1#libSceNpManager#Function",
+          "name": "sceNpNotifyPlusFeature",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "IkL62FMpIpo#libSceNpManager#1#libSceNpManager#Function",
+          "name": "sceNpInGameMessagePrepareA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "JT+t00a3TxA#libSceNpManager#1#libSceNpManager#Function",
+          "name": "sceNpGetAccountCountryA",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "PQDFxcnqxtw#libSceNpManager#1#libSceNpManager#Function",
+          "name": "sceNpInGameMessageSendDataA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "Ubv+fP58W1U#libSceNpManager#1#libSceNpManager#Function",
+          "name": "sceNpInGameMessageGetMemoryPoolStatistics",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "bMG3cVmUmuk#libSceNpManager#1#libSceNpManager#Function",
+          "name": "sceNpInGameMessageTerminate",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "s4UEa5iBJdc#libSceNpManager#1#libSceNpManager#Function",
+          "name": "sceNpInGameMessageCreateHandle",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        }
+      ]
+    },
+    {
+      "library": "libSceNpMatching2",
+      "unique_refused": 26,
+      "status": "partial_local_control",
+      "reason": "Existing offline init/context/callback controls admitted; room/lobby/signaling and memory stats remain incomplete. No online room provider, no later-flow nonblocking claim.",
+      "imports": [
+        {
+          "symbol": "26vWrPAWJfM#libSceNpMatching2#1#libSceNpMatching2#Function",
+          "name": "sceNpMatching2GetRoomDataExternalList",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "5lhvOqheFBA#libSceNpMatching2#1#libSceNpMatching2#Function",
+          "name": "sceNpMatching2GetRoomMemberDataInternal",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "8btynvj0KNA#libSceNpMatching2#1#libSceNpMatching2#Function",
+          "name": "sceNpMatching2GetSslMemoryInfo",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "AUVfU6byg3c#libSceNpMatching2#1#libSceNpMatching2#Function",
+          "name": "sceNpMatching2KickoutRoomMember",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "BD6kfx442Do#libSceNpMatching2#1#libSceNpMatching2#Function",
+          "name": "sceNpMatching2LeaveRoom",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "ES3UMUWWj9U#libSceNpMatching2#1#libSceNpMatching2#Function",
+          "name": "sceNpMatching2SetSignalingOptParam",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "GyI2f9yDUXM#libSceNpMatching2#1#libSceNpMatching2#Function",
+          "name": "sceNpMatching2GetUserInfoListA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "HoqTrkS9c5Q#libSceNpMatching2#1#libSceNpMatching2#Function",
+          "name": "sceNpMatching2SetRoomMemberDataInternal",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "Iw2h0Jrrb5U#libSceNpMatching2#1#libSceNpMatching2#Function",
+          "name": "sceNpMatching2SendRoomMessage",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "Jraxifmoet4#libSceNpMatching2#1#libSceNpMatching2#Function",
+          "name": "sceNpMatching2GetRoomDataInternal",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "KC+GnHzrK2o#libSceNpMatching2#1#libSceNpMatching2#Function",
+          "name": "sceNpMatching2GetRoomMemberIdListLocal",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "S9D8JSYIrjE#libSceNpMatching2#1#libSceNpMatching2#Function",
+          "name": "sceNpMatching2SetRoomDataInternal",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "V6KSpKv9XJE#libSceNpMatching2#1#libSceNpMatching2#Function",
+          "name": "sceNpMatching2CreateJoinRoomA",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "VqZX7POg2Mk#libSceNpMatching2#1#libSceNpMatching2#Function",
+          "name": "sceNpMatching2SearchRoom",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "cgQhq3E0eGo#libSceNpMatching2#1#libSceNpMatching2#Function",
+          "name": "sceNpMatching2GetSignalingOptParamLocal",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "gQ6cUriNpgs#libSceNpMatching2#1#libSceNpMatching2#Function",
+          "name": "sceNpMatching2JoinRoomA",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "gpSAvdheZ0Q#libSceNpMatching2#1#libSceNpMatching2#Function",
+          "name": "sceNpMatching2GetMemoryInfo",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "meEjIdbjAA0#libSceNpMatching2#1#libSceNpMatching2#Function",
+          "name": "sceNpMatching2SetUserInfo",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "n5JmImxTiZU#libSceNpMatching2#1#libSceNpMatching2#Function",
+          "name": "sceNpMatching2JoinLobby",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "nNeC3F8-g+4#libSceNpMatching2#1#libSceNpMatching2#Function",
+          "name": "sceNpMatching2SignalingGetConnectionInfoA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "opDpl74pi2E#libSceNpMatching2#1#libSceNpMatching2#Function",
+          "name": "sceNpMatching2SendRoomChatMessage",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "q7GK98-nYSE#libSceNpMatching2#1#libSceNpMatching2#Function",
+          "name": "sceNpMatching2SetRoomDataExternal",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "rJNPJqDCpiI#libSceNpMatching2#1#libSceNpMatching2#Function",
+          "name": "sceNpMatching2GetWorldInfoList",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "tHD5FPFXtu4#libSceNpMatching2#1#libSceNpMatching2#Function",
+          "name": "sceNpMatching2SignalingGetConnectionStatus",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "vbtWT3lZBOM#libSceNpMatching2#1#libSceNpMatching2#Function",
+          "name": "sceNpMatching2GetRoomPasswordLocal",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "wUmwXZHaX1w#libSceNpMatching2#1#libSceNpMatching2#Function",
+          "name": "sceNpMatching2SignalingGetPingInfo",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        }
+      ]
+    },
+    {
+      "library": "libSceNpProfileDialog",
+      "unique_refused": 5,
+      "status": "unimplemented_dialog_family",
+      "reason": "Init load return is ignored in inspected main init block; profile open/status/result later reachability not certified.",
+      "imports": [
+        {
+          "symbol": "0Sp9vJcB1-w#libSceNpProfileDialog#1#libSceNpProfileDialog#Function",
+          "name": "sceNpProfileDialogTerminate",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "8rhLl1-0W-o#libSceNpProfileDialog#1#libSceNpProfileDialog#Function",
+          "name": "sceNpProfileDialogGetResult",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "Lg+NCE6pTwQ#libSceNpProfileDialog#1#libSceNpProfileDialog#Function",
+          "name": "sceNpProfileDialogInitialize",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "haVZE9FgKqE#libSceNpProfileDialog#1#libSceNpProfileDialog#Function",
+          "name": "sceNpProfileDialogUpdateStatus",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "nrQRlLKzdwE#libSceNpProfileDialog#1#libSceNpProfileDialog#Function",
+          "name": "sceNpProfileDialogOpenA",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        }
+      ]
+    },
+    {
+      "library": "libSceNpScore",
+      "unique_refused": 16,
+      "status": "offline_control_only",
+      "reason": "CreateA follows desktop SignedOut; no online request contexts exist. Ranking/data calls still refused. Init chain passed in V9, but future calls on failed handles not proven unreachable.",
+      "imports": [
+        {
+          "symbol": "3Ybj4E1qNtY#libSceNpScore#1#libSceNpScore#Function",
+          "name": "sceNpScoreGetRankingByAccountIdForCrossSave",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "6-G9OxL5DKg#libSceNpScore#1#libSceNpScore#Function",
+          "name": "sceNpScoreGetFriendsRankingAAsync",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "ANJssPz3mY0#libSceNpScore#1#libSceNpScore#Function",
+          "name": "sceNpScoreRecordScoreAsync",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "AgcxgceaH8k#libSceNpScore#1#libSceNpScore#Function",
+          "name": "sceNpScoreGetFriendsRankingForCrossSave",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "K9tlODTQx3c#libSceNpScore#1#libSceNpScore#Function",
+          "name": "sceNpScoreGetRankingByAccountId",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "Lmtc9GljeUA#libSceNpScore#1#libSceNpScore#Function",
+          "name": "sceNpScoreGetGameDataByAccountId",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "LoVMVrijVOk#libSceNpScore#1#libSceNpScore#Function",
+          "name": "sceNpScoreGetBoardInfo",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "MA9vSt7JImY#libSceNpScore#1#libSceNpScore#Function",
+          "name": "sceNpScoreGetRankingByRangeA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "bcoVwcBjQ9E#libSceNpScore#1#libSceNpScore#Function",
+          "name": "sceNpScoreRecordGameData",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "dRszNNyGWkw#libSceNpScore#1#libSceNpScore#Function",
+          "name": "sceNpScoreGetRankingByAccountIdAsync",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "gMbOn+-6eXA#libSceNpScore#1#libSceNpScore#Function",
+          "name": "sceNpScoreGetFriendsRankingA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "nRoYV2yeUuw#libSceNpScore#1#libSceNpScore#Function",
+          "name": "sceNpScoreGetRankingByRangeForCrossSave",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "oXjVieH6ZGQ#libSceNpScore#1#libSceNpScore#Function",
+          "name": "sceNpScoreGetRankingByAccountIdPcIdForCrossSave",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "wJPWycVGzrs#libSceNpScore#1#libSceNpScore#Function",
+          "name": "sceNpScoreGetRankingByAccountIdPcId",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "y5ja7WI05rs#libSceNpScore#1#libSceNpScore#Function",
+          "name": "sceNpScoreGetRankingByRangeAAsync",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "zT0XBtgtOSI#libSceNpScore#1#libSceNpScore#Function",
+          "name": "sceNpScoreRecordScore",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        }
+      ]
+    },
+    {
+      "library": "libSceNpTrophy",
+      "unique_refused": 5,
+      "status": "outstanding_not_certified",
+      "reason": "Whole family is recorded for prioritization. Desktop ABI, provider/lifecycle, guest pointers/callbacks and cancellation must be reviewed before admission. This batch did not establish later reachability or nonblocking behavior.",
+      "imports": [
+        {
+          "symbol": "HLwz1fRIycA#libSceNpTrophy#1#libSceNpTrophy#Function",
+          "name": "sceNpTrophyGetGameIcon",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "cqGkYAN-gRw#libSceNpTrophy#1#libSceNpTrophy#Function",
+          "name": "sceNpTrophyCaptureScreenshot",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "d9jpdPz5f-8#libSceNpTrophy#1#libSceNpTrophy#Function",
+          "name": "sceNpTrophyShowTrophyList",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "eBL+l6HG9xk#libSceNpTrophy#1#libSceNpTrophy#Function",
+          "name": "sceNpTrophyGetTrophyIcon",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "w4uMPmErD4I#libSceNpTrophy#1#libSceNpTrophy#Function",
+          "name": "sceNpTrophyGetGroupIcon",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        }
+      ]
+    },
+    {
+      "library": "libSceNpTus",
+      "unique_refused": 42,
+      "status": "offline_control_only",
+      "reason": "CreateA follows shared SDK-aware offline identity policy; lifecycle rejects invalid handles. No online data contexts. Init passed; all later data/variable calls are not proven unreachable.",
+      "imports": [
+        {
+          "symbol": "-LxFGYCJwww#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusGetDataForCrossSaveVUser",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "-SUR+UoLS6c#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTssGetData",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "0up4MP1wNtc#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusTryAndSetVariableA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "1Cz0hTJFyh4#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusSetMultiSlotVariableVUser",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "1TE3OvH61qo#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusGetDataForCrossSave",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "4VLlu7EIjzk#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusAddAndGetVariableForCrossSaveVUser",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "4u58d6g6uwU#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusSetDataAAsync",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "6-+Yqc-NppQ#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusDeleteMultiSlotDataAAsync",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "7uLPqiNvNLc#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusGetMultiSlotDataStatusAAsync",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "AsziNQ9X2uk#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusGetMultiSlotVariableAVUser",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "C8TY-UnQoXg#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusGetFriendsVariableA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "DS2yu3Sjj1o#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTssGetDataAsync",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "Djuj2+1VNL0#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusGetMultiUserVariableForCrossSaveVUser",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "EPeq43CQKxY#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusAddAndGetVariableForCrossSave",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "GDXlRTxgd+M#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusGetMultiSlotVariableA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "Gjixv5hqRVY#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusGetMultiUserVariableA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "GjlEgLCh4DY#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusAddAndGetVariableAVUserAsync",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "MGvSJEHwyL8#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusTryAndSetVariableForCrossSave",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "Nt1runsPVJc#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusAddAndGetVariableAVUser",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "Q5uQeScvTPE#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusGetMultiUserVariableForCrossSave",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "TDoqRD+CE+M#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusGetFriendsDataStatusForCrossSave",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "VzxN3tOouj8#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusSetDataA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "cVeBif6zdZ4#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusGetMultiUserDataStatusForCrossSave",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "cf-WMA0jYCc#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusSetMultiSlotVariableA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "fJU2TZId210#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusGetMultiUserDataStatusAVUser",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "fVvocpq4mG4#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusGetMultiUserVariableAVUser",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "fcCwKpi4CbU#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusTryAndSetVariableForCrossSaveVUser",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "iXzUOM9sXU0#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusDeleteMultiSlotDataA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "iaH+Sxlw32k#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusGetDataAVUser",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "kbWqOt3QjKU#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusSetDataAVUser",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "lxNDPDnWfMc#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusGetMultiUserDataStatusA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "m9XZnxw9AmE#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusGetMultiSlotVariableForCrossSave",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "mD6s8HtMdpk#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusGetFriendsVariableForCrossSave",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "oGIcxlUabSA#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusTryAndSetVariableAVUser",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "w-c7U0MW2KY#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusGetMultiUserDataStatusForCrossSaveVUser",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "wPFah4-5Xec#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusAddAndGetVariableA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "wTuuw4-6HI8#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusGetMultiSlotVariableForCrossSaveVUser",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "xutwCvsydkk#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusDeleteMultiSlotDataVUser",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "xzG8mG9YlKY#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusGetDataAAsync",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "y-DJK+d+leg#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusGetMultiSlotVariableAVUserAsync",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "yWEHUFkY1qI#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusGetDataA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "yixh7HDKWfk#libSceNpTus#1#libSceNpTus#Function",
+          "name": "sceNpTusGetFriendsDataStatusA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        }
+      ]
+    },
+    {
+      "library": "libSceNpWebApi",
+      "unique_refused": 17,
+      "status": "offline_control_only",
+      "reason": "Eight local controls/pump admitted. Online user/context/request/push callback and accurate pool accounting need owned handles, checked buffers and guest callback cancellation; cannot claim complete or universally nonblocking.",
+      "imports": [
+        {
+          "symbol": "19KgfJXgM+U#libSceNpWebApi#1#libSceNpWebApi#Function",
+          "name": "sceNpWebApiAddMultipartPart",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "3OnubUs02UM#libSceNpWebApi#1#libSceNpWebApi#Function",
+          "name": "sceNpWebApiGetMemoryPoolStats",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "743ZzEBzlV8#libSceNpWebApi#1#libSceNpWebApi#Function",
+          "name": "sceNpWebApiGetHttpResponseHeaderValueLength",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "CQtPRSF6Ds8#libSceNpWebApi#1#libSceNpWebApi#Function",
+          "name": "sceNpWebApiReadData",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "DsPOTEvSe7M#libSceNpWebApi#1#libSceNpWebApi#Function",
+          "name": "sceNpWebApiSendMultipartRequest2",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "JzhYTP2fG18#libSceNpWebApi#1#libSceNpWebApi#Function",
+          "name": "sceNpWebApiAbortRequest",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "KBxgeNpoRIQ#libSceNpWebApi#1#libSceNpWebApi#Function",
+          "name": "sceNpWebApiCreateMultipartRequest",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "KjNeZ-29ysQ#libSceNpWebApi#1#libSceNpWebApi#Function",
+          "name": "sceNpWebApiSendRequest2",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "PqCY25FMzPs#libSceNpWebApi#1#libSceNpWebApi#Function",
+          "name": "sceNpWebApiUnregisterExtdPushEventCallback",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "VwJ5L0Higg0#libSceNpWebApi#1#libSceNpWebApi#Function",
+          "name": "sceNpWebApiGetHttpResponseHeaderValue",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "XUjdsSTTZ3U#libSceNpWebApi#1#libSceNpWebApi#Function",
+          "name": "sceNpWebApiDeleteContext",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "jhXKGQJ4egI#libSceNpWebApi#1#libSceNpWebApi#Function",
+          "name": "sceNpWebApiRegisterExtdPushEventCallbackA",
+          "importers": [
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "joRjtRXTFoc#libSceNpWebApi#1#libSceNpWebApi#Function",
+          "name": "sceNpWebApiAddHttpRequestHeader",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "noQgleu+KLE#libSceNpWebApi#1#libSceNpWebApi#Function",
+          "name": "sceNpWebApiDeleteRequest",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "qWcbJkBj1Lg#libSceNpWebApi#1#libSceNpWebApi#Function",
+          "name": "sceNpWebApiSetRequestTimeout",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "rdgs5Z1MyFw#libSceNpWebApi#1#libSceNpWebApi#Function",
+          "name": "sceNpWebApiCreateRequest",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        },
+        {
+          "symbol": "zk6c65xoyO0#libSceNpWebApi#1#libSceNpWebApi#Function",
+          "name": "sceNpWebApiCreateContextA",
+          "importers": [
+            "eboot.bin",
+            "libSceNpToolkit2.prx"
+          ]
+        }
+      ]
+    },
+    {
+      "library": "libScePosix",
+      "unique_refused": 3,
+      "status": "outstanding_not_certified",
+      "reason": "Whole family is recorded for prioritization. Desktop ABI, provider/lifecycle, guest pointers/callbacks and cancellation must be reviewed before admission. This batch did not establish later reachability or nonblocking behavior.",
+      "imports": [
+        {
+          "symbol": "0D4-FVvEikw#libScePosix#1#libkernel#Function",
+          "name": "pthread_cancel",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "CBNtXOoef-E#libScePosix#1#libkernel#Function",
+          "name": "sched_get_priority_max",
+          "importers": [
+            "eboot.bin",
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        {
+          "symbol": "m0iS6jNsXds#libScePosix#1#libkernel#Function",
+          "name": "sched_get_priority_min",
+          "importers": [
+            "eboot.bin",
+            "eossdk-ps4-shipping.prx"
+          ]
+        }
+      ]
+    },
+    {
+      "library": "libSceScreenShot",
+      "unique_refused": 2,
+      "status": "outstanding_not_certified",
+      "reason": "Whole family is recorded for prioritization. Desktop ABI, provider/lifecycle, guest pointers/callbacks and cancellation must be reviewed before admission. This batch did not establish later reachability or nonblocking behavior.",
+      "imports": [
+        {
+          "symbol": "2xxUtuC-RzE#libSceScreenShot#1#libSceScreenShot#Function",
+          "name": "sceScreenShotEnable",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "tIYf0W5VTi8#libSceScreenShot#1#libSceScreenShot#Function",
+          "name": "sceScreenShotDisable",
+          "importers": [
+            "eboot.bin"
+          ]
+        }
+      ]
+    },
+    {
+      "library": "libSceSharePlay",
+      "unique_refused": 3,
+      "status": "outstanding_not_certified",
+      "reason": "Whole family is recorded for prioritization. Desktop ABI, provider/lifecycle, guest pointers/callbacks and cancellation must be reviewed before admission. This batch did not establish later reachability or nonblocking behavior.",
+      "imports": [
+        {
+          "symbol": "UaLjloJinow#libSceSharePlay#1#libSceSharePlay#Function",
+          "name": "sceSharePlayTerminate",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "co2NCj--pnc#libSceSharePlay#1#libSceSharePlay#Function",
+          "name": "sceSharePlaySetProhibition",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "isruqthpYcw#libSceSharePlay#1#libSceSharePlay#Function",
+          "name": "sceSharePlayInitialize",
+          "importers": [
+            "eboot.bin"
+          ]
+        }
+      ]
+    },
+    {
+      "library": "libSceSocialScreen",
+      "unique_refused": 7,
+      "status": "unimplemented_presentation_family",
+      "reason": "Separate screen configuration/open/close/mode need a genuine renderer/provider contract; distinct from HMD submit. Potential later blocker.",
+      "imports": [
+        {
+          "symbol": "6Me4hYsy3Kc#libSceSocialScreen#1#libSceSocialScreen#Function",
+          "name": "sceSocialScreenSetMode",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "IEzqdjIueps#libSceSocialScreen#1#libSceSocialScreen#Function",
+          "name": "sceSocialScreenConfigureSeparateMode",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "OVNpYTRqN74#libSceSocialScreen#1#libSceSocialScreen#Function",
+          "name": "sceSocialScreenTerminate",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "SvdXHHt2LLE#libSceSocialScreen#1#libSceSocialScreen#Function",
+          "name": "sceSocialScreenOpenSeparateMode",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "VMM7wQBZoBk#libSceSocialScreen#1#libSceSocialScreen#Function",
+          "name": "sceSocialScreenInitializeSeparateModeParameter",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "pI7oFSPP65A#libSceSocialScreen#1#libSceSocialScreen#Function",
+          "name": "sceSocialScreenInitialize",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "vtZIn9HtYbs#libSceSocialScreen#1#libSceSocialScreen#Function",
+          "name": "sceSocialScreenCloseSeparateMode",
+          "importers": [
+            "eboot.bin"
+          ]
+        }
+      ]
+    },
+    {
+      "library": "libSceSocialScreenDialog",
+      "unique_refused": 1,
+      "status": "unimplemented_dialog_family",
+      "reason": "Only Terminate imported in this census; lifecycle/provider not complete, later reachability unproven.",
+      "imports": [
+        {
+          "symbol": "A4KPdcTIVuc#libSceSocialScreenDialog#1#libSceSocialScreenDialog#Function",
+          "name": "sceSocialScreenDialogTerminate",
+          "importers": [
+            "eboot.bin"
+          ]
+        }
+      ]
+    },
+    {
+      "library": "libSceSystemService",
+      "unique_refused": 2,
+      "status": "outstanding_not_certified",
+      "reason": "Whole family is recorded for prioritization. Desktop ABI, provider/lifecycle, guest pointers/callbacks and cancellation must be reviewed before admission. This batch did not establish later reachability or nonblocking behavior.",
+      "imports": [
+        {
+          "symbol": "-+3hY+y8bNo#libSceSystemService#1#libSceSystemService#Function",
+          "name": "sceSystemServiceLaunchWebBrowser",
+          "importers": [
+            "eboot.bin",
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        {
+          "symbol": "JoBqSQt1yyA#libSceSystemService#1#libSceSystemService#Function",
+          "name": "sceSystemServiceLoadExec",
+          "importers": [
+            "eboot.bin",
+            "eossdk-ps4-shipping.prx"
+          ]
+        }
+      ]
+    },
+    {
+      "library": "libSceVideoOut",
+      "unique_refused": 1,
+      "status": "outstanding_not_certified",
+      "reason": "Whole family is recorded for prioritization. Desktop ABI, provider/lifecycle, guest pointers/callbacks and cancellation must be reviewed before admission. This batch did not establish later reachability or nonblocking behavior.",
+      "imports": [
+        {
+          "symbol": "MTxxrOCeSig#libSceVideoOut#1#libSceVideoOut#Function",
+          "name": "sceVideoOutSetWindowModeMargins",
+          "importers": [
+            "eboot.bin"
+          ]
+        }
+      ]
+    },
+    {
+      "library": "libSceVideoRecording",
+      "unique_refused": 7,
+      "status": "outstanding_not_certified",
+      "reason": "Whole family is recorded for prioritization. Desktop ABI, provider/lifecycle, guest pointers/callbacks and cancellation must be reviewed before admission. This batch did not establish later reachability or nonblocking behavior.",
+      "imports": [
+        {
+          "symbol": "Fc8qxlKINYQ#libSceVideoRecording#1#libSceVideoRecording#Function",
+          "name": "sceVideoRecordingSetInfo",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "KHvkPQJDMLk#libSceVideoRecording#1#libSceVideoRecording#Function",
+          "name": "sceVideoRecordingClose",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "OOFxrMY+mfI#libSceVideoRecording#1#libSceVideoRecording#Function",
+          "name": "sceVideoRecordingStop",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "bGYkY6q3bIw#libSceVideoRecording#1#libSceVideoRecording#Function",
+          "name": "sceVideoRecordingQueryMemSize2",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "fZJQzFK4Gv4#libSceVideoRecording#1#libSceVideoRecording#Function",
+          "name": "sceVideoRecordingGetStatus",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "s28dalBwp2g#libSceVideoRecording#1#libSceVideoRecording#Function",
+          "name": "sceVideoRecordingOpen2",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "tWoe9IlGAhs#libSceVideoRecording#1#libSceVideoRecording#Function",
+          "name": "sceVideoRecordingStart",
+          "importers": [
+            "eboot.bin"
+          ]
+        }
+      ]
+    },
+    {
+      "library": "libSceVideodec2",
+      "unique_refused": 9,
+      "status": "unimplemented_media_family",
+      "reason": "V9 module load remains 0x805a10ff; game continues through AvPlayer/plugin loading to HMD call. Dedicated decoder/compute queue lifecycle is not implemented; not globally nonblocking.",
+      "imports": [
+        {
+          "symbol": "852F5+q6+iM#libSceVideodec2#1#libSceVideodec2#Function",
+          "name": "sceVideodec2Decode",
+          "importers": [
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        {
+          "symbol": "CNNRoRYd8XI#libSceVideodec2#1#libSceVideodec2#Function",
+          "name": "sceVideodec2CreateDecoder",
+          "importers": [
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        {
+          "symbol": "NtXRa3dRzU0#libSceVideodec2#1#libSceVideodec2#Function",
+          "name": "sceVideodec2GetPictureInfo",
+          "importers": [
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        {
+          "symbol": "RnDibcGCPKw#libSceVideodec2#1#libSceVideodec2#Function",
+          "name": "sceVideodec2QueryComputeMemoryInfo",
+          "importers": [
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        {
+          "symbol": "UvtA3FAiF4Y#libSceVideodec2#1#libSceVideodec2#Function",
+          "name": "sceVideodec2ReleaseComputeQueue",
+          "importers": [
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        {
+          "symbol": "eD+X2SmxUt4#libSceVideodec2#1#libSceVideodec2#Function",
+          "name": "sceVideodec2AllocateComputeQueue",
+          "importers": [
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        {
+          "symbol": "jwImxXRGSKA#libSceVideodec2#1#libSceVideodec2#Function",
+          "name": "sceVideodec2DeleteDecoder",
+          "importers": [
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        {
+          "symbol": "qqMCwlULR+E#libSceVideodec2#1#libSceVideodec2#Function",
+          "name": "sceVideodec2QueryDecoderMemoryInfo",
+          "importers": [
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        {
+          "symbol": "wJXikG6QFN8#libSceVideodec2#1#libSceVideodec2#Function",
+          "name": "sceVideodec2Reset",
+          "importers": [
+            "eossdk-ps4-shipping.prx"
+          ]
+        }
+      ]
+    },
+    {
+      "library": "libSceVoiceQoS",
+      "unique_refused": 12,
+      "status": "outstanding_not_certified",
+      "reason": "Whole family is recorded for prioritization. Desktop ABI, provider/lifecycle, guest pointers/callbacks and cancellation must be reviewed before admission. This batch did not establish later reachability or nonblocking behavior.",
+      "imports": [
+        {
+          "symbol": "ATRGkmbolVM#libSceVoiceQoS#1#libSceVoiceQoS#Function",
+          "name": "sceVoiceQoSEnd",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "F7wS7FbfumQ#libSceVoiceQoS#1#libSceVoiceQoS#Function",
+          "name": "sceVoiceQoSSetLocalEndpointAttribute",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "H4zqFaDhHW4#libSceVoiceQoS#1#libSceVoiceQoS#Function",
+          "name": "sceVoiceQoSDeleteRemoteEndpoint",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "PWokFqab5q4#libSceVoiceQoS#1#libSceVoiceQoS#Function",
+          "name": "sceVoiceQoSReadPacket",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "SpxLratrO1Q#libSceVoiceQoS#1#libSceVoiceQoS#Function",
+          "name": "sceVoiceQoSWritePacket",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "U8IfNl6-Css#libSceVoiceQoS#1#libSceVoiceQoS#Function",
+          "name": "sceVoiceQoSInit",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "eZu2RP0Ma3w#libSceVoiceQoS#1#libSceVoiceQoS#Function",
+          "name": "sceVoiceQoSGetLocalEndpointAttribute",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "iqQQW2cBmWU#libSceVoiceQoS#1#libSceVoiceQoS#Function",
+          "name": "sceVoiceQoSCreateRemoteEndpoint",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "j9Xt85krooc#libSceVoiceQoS#1#libSceVoiceQoS#Function",
+          "name": "sceVoiceQoSDisconnect",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "kE0kdvcHTiY#libSceVoiceQoS#1#libSceVoiceQoS#Function",
+          "name": "sceVoiceQoSDeleteLocalEndpoint",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "kLU6hhXsa2A#libSceVoiceQoS#1#libSceVoiceQoS#Function",
+          "name": "sceVoiceQoSConnect",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "lvNClhNHzxI#libSceVoiceQoS#1#libSceVoiceQoS#Function",
+          "name": "sceVoiceQoSCreateLocalEndpoint",
+          "importers": [
+            "eboot.bin"
+          ]
+        }
+      ]
+    },
+    {
+      "library": "libSceWebBrowserDialog",
+      "unique_refused": 8,
+      "status": "unimplemented_dialog_family",
+      "reason": "Init load return is ignored in inspected main init block; browser/UI/cookie/result contracts later reachability not certified.",
+      "imports": [
+        {
+          "symbol": "Cya+jvTtPqg#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function",
+          "name": "sceWebBrowserDialogResetCookie",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "FraP7debcdg#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function",
+          "name": "sceWebBrowserDialogOpen",
+          "importers": [
+            "eboot.bin",
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        {
+          "symbol": "O7dIZQrwVFY#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function",
+          "name": "sceWebBrowserDialogOpenForPredeterminedContent",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "PSK+Eik919Q#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function",
+          "name": "sceWebBrowserDialogClose",
+          "importers": [
+            "eboot.bin",
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        {
+          "symbol": "h1dR-t5ISgg#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function",
+          "name": "sceWebBrowserDialogUpdateStatus",
+          "importers": [
+            "eboot.bin",
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        {
+          "symbol": "jqb7HntFQFc#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function",
+          "name": "sceWebBrowserDialogInitialize",
+          "importers": [
+            "eboot.bin",
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        {
+          "symbol": "ocHtyBwHfys#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function",
+          "name": "sceWebBrowserDialogTerminate",
+          "importers": [
+            "eboot.bin",
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        {
+          "symbol": "vCaW0fgVQmc#libSceWebBrowserDialog#1#libSceWebBrowserDialog#Function",
+          "name": "sceWebBrowserDialogGetResult",
+          "importers": [
+            "eboot.bin",
+            "eossdk-ps4-shipping.prx"
+          ]
+        }
+      ]
+    },
+    {
+      "library": "libkernel",
+      "unique_refused": 20,
+      "status": "outstanding_not_certified",
+      "reason": "Whole family is recorded for prioritization. Desktop ABI, provider/lifecycle, guest pointers/callbacks and cancellation must be reviewed before admission. This batch did not establish later reachability or nonblocking behavior.",
+      "imports": [
+        {
+          "symbol": "-YTW+qXc3CQ#libkernel#1#libkernel#Function",
+          "name": "sceKernelInternalMemoryGetModuleSegmentInfo",
+          "importers": [
+            "libc.prx"
+          ]
+        },
+        {
+          "symbol": "-o5uEDpN+oY#libkernel#1#libkernel#Function",
+          "name": "sceKernelConvertUtcToLocaltime",
+          "importers": [
+            "libc.prx"
+          ]
+        },
+        {
+          "symbol": "0Cq8ipKr9n0#libkernel#1#libkernel#Function",
+          "name": "sceKernelUtimes",
+          "importers": [
+            "eboot.bin",
+            "eossdk-ps4-shipping.prx",
+            "libc.prx"
+          ]
+        },
+        {
+          "symbol": "0NTHN1NKONI#libkernel#1#libkernel#Function",
+          "name": "sceKernelConvertLocaltimeToUtc",
+          "importers": [
+            "libc.prx"
+          ]
+        },
+        {
+          "symbol": "6Z83sYWFlA8#libkernel#1#libkernel#Function",
+          "name": "_exit",
+          "importers": [
+            "libc.prx"
+          ]
+        },
+        {
+          "symbol": "8OnWXlgQlvo#libkernel#1#libkernel#Function",
+          "name": "_sceKernelRtldThreadAtexitDecrement",
+          "importers": [
+            "libc.prx"
+          ]
+        },
+        {
+          "symbol": "Fjc4-n1+y2g#libkernel#1#libkernel#Function",
+          "name": "__elf_phdr_match_addr",
+          "importers": [
+            "libc.prx"
+          ]
+        },
+        {
+          "symbol": "IafI2PxcPnQ#libkernel#1#libkernel#Function",
+          "name": "scePthreadMutexTimedlock",
+          "importers": [
+            "libc.prx"
+          ]
+        },
+        {
+          "symbol": "L0v2Go5jOuM#libkernel#1#libkernel#Function",
+          "name": "sceKernelGetPrtAperture",
+          "importers": [
+            "eboot.bin"
+          ]
+        },
+        {
+          "symbol": "OMDRKKAZ8I4#libkernel#1#libkernel#Function",
+          "name": "sceKernelDebugRaiseException",
+          "importers": [
+            "libc.prx"
+          ]
+        },
+        {
+          "symbol": "Ou3iL1abvng#libkernel#1#libkernel#Function",
+          "name": "__stack_chk_fail",
+          "importers": [
+            "akaudioinput.prx",
+            "akexpander.prx",
+            "akflanger.prx",
+            "akharmonizer.prx",
+            "akmatrixreverb.prx",
+            "akmotion.prx",
+            "akpeaklimiter.prx",
+            "akrecorder.prx",
+            "akreflect.prx",
+            "akroomverb.prx",
+            "aksilencegenerator.prx",
+            "aksoundseedair.prx",
+            "akstereodelay.prx",
+            "aktimestretch.prx",
+            "aktremolo.prx",
+            "auro.prx",
+            "eboot.bin",
+            "eossdk-ps4-shipping.prx",
+            "izotope.prx",
+            "libSceFios2.prx",
+            "libSceNpToolkit2.prx",
+            "libc.prx",
+            "masteringsuite.prx",
+            "mcdsp.prx",
+            "sceaudio3d.prx"
+          ]
+        },
+        {
+          "symbol": "QKd0qM58Qes#libkernel#1#libkernel#Function",
+          "name": "sceKernelStopUnloadModule",
+          "importers": [
+            "eboot.bin",
+            "eossdk-ps4-shipping.prx"
+          ]
+        },
+        {
+          "symbol": "Tz4RNUCBbGI#libkernel#1#libkernel#Function",
+          "name": "_sceKernelRtldThreadAtexitIncrement",
+          "importers": [
+            "libc.prx"
+          ]
+        },
+        {
+          "symbol": "VADc3MNQ3cM#libkernel#1#libkernel#Function",
+          "name": "signal",
+          "importers": [
+            "libc.prx"
+          ]
+        },
+        {
+          "symbol": "Wl2o5hOVZdw#libkernel#1#libkernel#Function",
+          "name": "sceKernelPrintBacktraceWithModuleInfo",
+          "importers": [
+            "libc.prx"
+          ]
+        },
+        {
+          "symbol": "WlyEA-sLDf0#libkernel#1#libkernel#Function",
+          "name": "sceKernelTruncate",
+          "importers": [
+            "libSceFios2.prx",
+            "libc.prx"
+          ]
+        },
+        {
+          "symbol": "fgIsQ10xYVA#libkernel#1#libkernel#Function",
+          "name": "sceKernelChmod",
+          "importers": [
+            "eboot.bin",
+            "eossdk-ps4-shipping.prx",
+            "libc.prx"
+          ]
+        },
+        {
+          "symbol": "hHlZQUnlxSM#libkernel#1#libkernel#Function",
+          "name": "getrusage",
+          "importers": [
+            "libc.prx"
+          ]
+        },
+        {
+          "symbol": "kbw4UHHSYy0#libkernel#1#libkernel#Function",
+          "name": "__pthread_cxa_finalize",
+          "importers": [
+            "libc.prx"
+          ]
+        },
+        {
+          "symbol": "zE-wXIZjLoM#libkernel#1#libkernel#Function",
+          "name": "sceKernelDebugRaiseExceptionOnReleaseMode",
+          "importers": [
+            "libc.prx"
+          ]
+        }
+      ]
+    }
+  ]
+}

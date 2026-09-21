@@ -119,7 +119,7 @@ static VideoCore::ScalePolicySnapshot CaptureScalePolicy() {
 }
 
 Instance::Instance(bool enable_validation, bool enable_crash_diagnostic, DriverLease driver_)
-    : scale_policy{CaptureScalePolicy()}, dispatcher_lease{AcquireDispatcher()}, driver{std::move(driver_)},
+    : scale_policy{CaptureScalePolicy()}, force_disable_msaa{EmulatorSettings.IsMsaaDisabled()}, dispatcher_lease{AcquireDispatcher()}, driver{std::move(driver_)},
       instance{CreateInstance(Frontend::WindowSystemType::Headless, enable_validation,
                               enable_crash_diagnostic, driver)},
       physical_devices{EnumeratePhysicalDevices(instance)} {}
@@ -127,7 +127,7 @@ Instance::Instance(bool enable_validation, bool enable_crash_diagnostic, DriverL
 Instance::Instance(Frontend::Window& window, s32 physical_device_index,
                    bool enable_validation /*= false*/, bool enable_crash_diagnostic /*= false*/,
                    DriverLease driver_)
-    : scale_policy{CaptureScalePolicy()}, dispatcher_lease{AcquireDispatcher()}, driver{std::move(driver_)},
+    : scale_policy{CaptureScalePolicy()}, force_disable_msaa{EmulatorSettings.IsMsaaDisabled()}, dispatcher_lease{AcquireDispatcher()}, driver{std::move(driver_)},
       instance{CreateInstance(window.GetWindowInfo().type, enable_validation,
                               enable_crash_diagnostic, driver)},
       physical_devices{EnumeratePhysicalDevices(instance)} {

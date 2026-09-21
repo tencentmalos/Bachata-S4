@@ -1,0 +1,2737 @@
+{
+  "app_version": "01.00",
+  "content_roots": [
+    {
+      "backend_roots_priority_order": [
+        "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar"
+      ],
+      "install_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "namespace": "app0"
+    }
+  ],
+  "context_id": 0,
+  "exported_files": 45,
+  "files": [
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 122341100,
+      "content": "app0",
+      "elf": {
+        "bytes": 122139260,
+        "elf_type": 65040,
+        "entry": 66266736,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/eboot.bin.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 97535964,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 7823264,
+            "index": 1,
+            "offset": 97566720,
+            "type": 1627389968,
+            "va": 98566144
+          },
+          {
+            "bytes": 149488,
+            "index": 2,
+            "offset": 105398272,
+            "type": 1,
+            "va": 106954752
+          },
+          {
+            "bytes": 16589016,
+            "index": 8,
+            "offset": 105547760,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 92,
+            "index": 9,
+            "offset": 122136784,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "157845ba4297a000ac9cfeb26b7b78925d7d903a2ee34575c74d0f5ede6e9677",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/eboot.bin",
+      "path": "eboot.bin",
+      "sha256": "7d60eb21fdaac7bf7f94dc6e2e0d28c83be30a63c8fb669aa0ffaff9b1a7fcab",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 9969,
+      "content": "app0",
+      "elf": {
+        "bytes": 51393,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/prx/akaudioinput.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 5036,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 304,
+            "index": 1,
+            "offset": 32768,
+            "type": 1627389968,
+            "va": 2097152
+          },
+          {
+            "bytes": 104,
+            "index": 2,
+            "offset": 49152,
+            "type": 1,
+            "va": 4194304
+          },
+          {
+            "bytes": 1952,
+            "index": 7,
+            "offset": 49264,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 84,
+            "index": 8,
+            "offset": 51216,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "867b45ff1c7eaf3f8f193574abce14a4beab2235d49365b33d27f075608d0ca2",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/prx/akaudioinput.prx",
+      "path": "prx/akaudioinput.prx",
+      "sha256": "70463d1a510385e48567696103e152cf417e539317ec266796d6fe184a8ae4ef",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 11281,
+      "content": "app0",
+      "elf": {
+        "bytes": 51297,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/prx/akcompressor.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 6472,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 272,
+            "index": 1,
+            "offset": 32768,
+            "type": 1627389968,
+            "va": 2097152
+          },
+          {
+            "bytes": 104,
+            "index": 2,
+            "offset": 49152,
+            "type": 1,
+            "va": 4194304
+          },
+          {
+            "bytes": 1856,
+            "index": 7,
+            "offset": 49264,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 84,
+            "index": 8,
+            "offset": 51120,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "28550f4a42a03b31fb8fd3338a2c7dd5d86cd0c68dfb9fb7060dffbb137071d8",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/prx/akcompressor.prx",
+      "path": "prx/akcompressor.prx",
+      "sha256": "163c91cd289d39c505b9564a2d993c43c3a71c5e484bf0883d5058c82d1c0325",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 9869,
+      "content": "app0",
+      "elf": {
+        "bytes": 51293,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/prx/akdelay.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 5068,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 272,
+            "index": 1,
+            "offset": 32768,
+            "type": 1627389968,
+            "va": 2097152
+          },
+          {
+            "bytes": 104,
+            "index": 2,
+            "offset": 49152,
+            "type": 1,
+            "va": 4194304
+          },
+          {
+            "bytes": 1848,
+            "index": 7,
+            "offset": 49264,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 80,
+            "index": 8,
+            "offset": 51120,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "ae4ba0df88bd3a142812cf688a6376793b7d16a6dda9c45a0c84b178b81ce0a3",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/prx/akdelay.prx",
+      "path": "prx/akdelay.prx",
+      "sha256": "de445eb08afab001f95b1c5df77bdf100cf1ff7d7923f5179080f284cbd750d4",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 12033,
+      "content": "app0",
+      "elf": {
+        "bytes": 51425,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/prx/akexpander.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 7088,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 288,
+            "index": 1,
+            "offset": 32768,
+            "type": 1627389968,
+            "va": 2097152
+          },
+          {
+            "bytes": 104,
+            "index": 2,
+            "offset": 49152,
+            "type": 1,
+            "va": 4194304
+          },
+          {
+            "bytes": 1984,
+            "index": 7,
+            "offset": 49264,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 84,
+            "index": 8,
+            "offset": 51248,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "3830508c42257c978368ba634c1c10f2e9c04e3b7f3487d4b1a6507c8b825ee8",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/prx/akexpander.prx",
+      "path": "prx/akexpander.prx",
+      "sha256": "c8bb40c2b27a3ea09fb22512462fb3a4e690b20c1043543d235c85bc15655752",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 28237,
+      "content": "app0",
+      "elf": {
+        "bytes": 68077,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/prx/akflanger.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 22952,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 320,
+            "index": 1,
+            "offset": 49152,
+            "type": 1627389968,
+            "va": 2097152
+          },
+          {
+            "bytes": 104,
+            "index": 2,
+            "offset": 65536,
+            "type": 1,
+            "va": 4194304
+          },
+          {
+            "bytes": 2256,
+            "index": 7,
+            "offset": 65648,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 80,
+            "index": 8,
+            "offset": 67904,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "2bbb703a506d5190dd72e80bfb73849149083640ad8797b5e204488ed69538c5",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/prx/akflanger.prx",
+      "path": "prx/akflanger.prx",
+      "sha256": "fd271e0d063ffa00ec7c3832336b6598208dcda3a4e7ab4bba6a57eb8d5a4535",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 9501,
+      "content": "app0",
+      "elf": {
+        "bytes": 51133,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/prx/akgain.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 4880,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 256,
+            "index": 1,
+            "offset": 32768,
+            "type": 1627389968,
+            "va": 2097152
+          },
+          {
+            "bytes": 104,
+            "index": 2,
+            "offset": 49152,
+            "type": 1,
+            "va": 4194304
+          },
+          {
+            "bytes": 1696,
+            "index": 7,
+            "offset": 49264,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 80,
+            "index": 8,
+            "offset": 50960,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "62d225f76cb2c65b90b4782c39fb5c1388c67f0c04aa49d70e77f51eecf3dfbf",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/prx/akgain.prx",
+      "path": "prx/akgain.prx",
+      "sha256": "97c7fedcefc9f5de66b415d24eb5fdeb4c686f8f37c7145e4e46794fd5d72e93",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 30169,
+      "content": "app0",
+      "elf": {
+        "bytes": 67977,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/prx/akguitardistortion.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 25000,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 304,
+            "index": 1,
+            "offset": 49152,
+            "type": 1627389968,
+            "va": 2097152
+          },
+          {
+            "bytes": 104,
+            "index": 2,
+            "offset": 65536,
+            "type": 1,
+            "va": 4194304
+          },
+          {
+            "bytes": 2136,
+            "index": 7,
+            "offset": 65648,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 92,
+            "index": 8,
+            "offset": 67792,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "c8ae6608caaff34343b398b5b757679d22c8c567e36588ffad773a559aacabe0",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/prx/akguitardistortion.prx",
+      "path": "prx/akguitardistortion.prx",
+      "sha256": "6966b5497508253a009deebc2c96276d775a4437a0c07961fcb509efb59721f6",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 68769,
+      "content": "app0",
+      "elf": {
+        "bytes": 101073,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/prx/akharmonizer.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 63160,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 344,
+            "index": 1,
+            "offset": 81920,
+            "type": 1627389968,
+            "va": 2097152
+          },
+          {
+            "bytes": 104,
+            "index": 2,
+            "offset": 98304,
+            "type": 1,
+            "va": 4194304
+          },
+          {
+            "bytes": 2472,
+            "index": 7,
+            "offset": 98416,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 84,
+            "index": 8,
+            "offset": 100896,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "89db8e529ab35bcbb55bb1dac863d6e1d8433af2cef7b930574a774d2eb1e8ba",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/prx/akharmonizer.prx",
+      "path": "prx/akharmonizer.prx",
+      "sha256": "191babc22479dd0ef8fa92339e11f885b50f788a79fdf5c082ec56391541ffd9",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 55813,
+      "content": "app0",
+      "elf": {
+        "bytes": 100805,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/prx/akmatrixreverb.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 50512,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 312,
+            "index": 1,
+            "offset": 81920,
+            "type": 1627389968,
+            "va": 2097152
+          },
+          {
+            "bytes": 104,
+            "index": 2,
+            "offset": 98304,
+            "type": 1,
+            "va": 4194304
+          },
+          {
+            "bytes": 2200,
+            "index": 7,
+            "offset": 98416,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 88,
+            "index": 8,
+            "offset": 100624,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "5d7fbea03daa9d35cf916372445342c3729a9ffc92fce918b71c840202f21645",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/prx/akmatrixreverb.prx",
+      "path": "prx/akmatrixreverb.prx",
+      "sha256": "cbe16c5a05f776b5c6a1e2401fba6812d8169de6c202211d60e8e6c29bfabaa9",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 23780,
+      "content": "app0",
+      "elf": {
+        "bytes": 53940,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/prx/akmotion.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 15792,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 816,
+            "index": 1,
+            "offset": 32768,
+            "type": 1627389968,
+            "va": 2097152
+          },
+          {
+            "bytes": 136,
+            "index": 2,
+            "offset": 49152,
+            "type": 1,
+            "va": 4194304
+          },
+          {
+            "bytes": 4296,
+            "index": 7,
+            "offset": 49296,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 80,
+            "index": 8,
+            "offset": 53600,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "26c9e520826de6e7c31efc775086e1422228f68bd7a0ed16582a0e59fc2c4a57",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/prx/akmotion.prx",
+      "path": "prx/akmotion.prx",
+      "sha256": "7d515baaaf8702ae77a36b3e0c698473aa14adbd476e658171392b103d69efc1",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 14693,
+      "content": "app0",
+      "elf": {
+        "bytes": 51509,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/prx/akparametriceq.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 9648,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 296,
+            "index": 1,
+            "offset": 32768,
+            "type": 1627389968,
+            "va": 2097152
+          },
+          {
+            "bytes": 104,
+            "index": 2,
+            "offset": 49152,
+            "type": 1,
+            "va": 4194304
+          },
+          {
+            "bytes": 2064,
+            "index": 7,
+            "offset": 49264,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 88,
+            "index": 8,
+            "offset": 51328,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "8476f46a7a3342b8b6b7b2925bfd34bfe459ba001bc7e283ff493e10580a23fd",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/prx/akparametriceq.prx",
+      "path": "prx/akparametriceq.prx",
+      "sha256": "0f5cbeb098b84e057aceecaf5b91d29b93786a216b273723a54a9e2b32fa6347",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 14881,
+      "content": "app0",
+      "elf": {
+        "bytes": 51441,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/prx/akpeaklimiter.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 9916,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 288,
+            "index": 1,
+            "offset": 32768,
+            "type": 1627389968,
+            "va": 2097152
+          },
+          {
+            "bytes": 104,
+            "index": 2,
+            "offset": 49152,
+            "type": 1,
+            "va": 4194304
+          },
+          {
+            "bytes": 1992,
+            "index": 7,
+            "offset": 49264,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 84,
+            "index": 8,
+            "offset": 51264,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "9f5a035b45607720fd5f61bf40cedb2131c4dfc7d4cd22155ee94dbc100d0612",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/prx/akpeaklimiter.prx",
+      "path": "prx/akpeaklimiter.prx",
+      "sha256": "e7420cdda5bd5f49318fbc9dfe52b5f6d8bfda42d37393b201cea8ac08f14c6d",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 24949,
+      "content": "app0",
+      "elf": {
+        "bytes": 67893,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/prx/akpitchshifter.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 19872,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 296,
+            "index": 1,
+            "offset": 49152,
+            "type": 1627389968,
+            "va": 2097152
+          },
+          {
+            "bytes": 104,
+            "index": 2,
+            "offset": 65536,
+            "type": 1,
+            "va": 4194304
+          },
+          {
+            "bytes": 2064,
+            "index": 7,
+            "offset": 65648,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 88,
+            "index": 8,
+            "offset": 67712,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "6dc8a274f2fc0d8c8c3751c65dfe4351921f851d3e9518c10dc9838759d0ec3e",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/prx/akpitchshifter.prx",
+      "path": "prx/akpitchshifter.prx",
+      "sha256": "d2cac120d777c610be333e33acd765373cc84389186b2a7118e307c6a54c3f15",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 18737,
+      "content": "app0",
+      "elf": {
+        "bytes": 51505,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/prx/akrecorder.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 13692,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 296,
+            "index": 1,
+            "offset": 32768,
+            "type": 1627389968,
+            "va": 2097152
+          },
+          {
+            "bytes": 104,
+            "index": 2,
+            "offset": 49152,
+            "type": 1,
+            "va": 4194304
+          },
+          {
+            "bytes": 2056,
+            "index": 7,
+            "offset": 49264,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 84,
+            "index": 8,
+            "offset": 51328,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "abed724c29f0cb6f24a9c414f1bf46979bf6778fad758927d082a7c9f474e256",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/prx/akrecorder.prx",
+      "path": "prx/akrecorder.prx",
+      "sha256": "941e7c795e1cec864a95a39874578bf0d937cdebd2c53dcff102860cef0687ea",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 49837,
+      "content": "app0",
+      "elf": {
+        "bytes": 84669,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/prx/akreflect.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 44280,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 344,
+            "index": 1,
+            "offset": 65536,
+            "type": 1627389968,
+            "va": 2097152
+          },
+          {
+            "bytes": 104,
+            "index": 2,
+            "offset": 81920,
+            "type": 1,
+            "va": 4194304
+          },
+          {
+            "bytes": 2464,
+            "index": 7,
+            "offset": 82032,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 80,
+            "index": 8,
+            "offset": 84496,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "e14584eb5412c1f8cb4891ccbae2488421195078fbf304829005a23acd5e40d3",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/prx/akreflect.prx",
+      "path": "prx/akreflect.prx",
+      "sha256": "1175720e7f3f263b784b931f2f0297b16a25557bd90a5b2479e55895d560192e",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 112321,
+      "content": "app0",
+      "elf": {
+        "bytes": 152385,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/prx/akroomverb.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 103200,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 1616,
+            "index": 1,
+            "offset": 131072,
+            "type": 1627389968,
+            "va": 2097152
+          },
+          {
+            "bytes": 104,
+            "index": 2,
+            "offset": 147456,
+            "type": 1,
+            "va": 4194304
+          },
+          {
+            "bytes": 4632,
+            "index": 7,
+            "offset": 147568,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 84,
+            "index": 8,
+            "offset": 152208,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "9da89f2bed5b06baf216d1276db97d5b62f51e2fdf79e8d6a50e32aa2869d3b8",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/prx/akroomverb.prx",
+      "path": "prx/akroomverb.prx",
+      "sha256": "96145fcf05dc17d2dae3b21801313918470cdf8b9dd8316abe8e81351f09e35d",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 7737,
+      "content": "app0",
+      "elf": {
+        "bytes": 51417,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/prx/aksilencegenerator.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 2780,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 304,
+            "index": 1,
+            "offset": 32768,
+            "type": 1627389968,
+            "va": 2097152
+          },
+          {
+            "bytes": 104,
+            "index": 2,
+            "offset": 49152,
+            "type": 1,
+            "va": 4194304
+          },
+          {
+            "bytes": 1960,
+            "index": 7,
+            "offset": 49264,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 92,
+            "index": 8,
+            "offset": 51232,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "7afab61378fdb8a051c82ac45c5b7e39a25c478cca3d3ca69fd502542123e0a5",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/prx/aksilencegenerator.prx",
+      "path": "prx/aksilencegenerator.prx",
+      "sha256": "23bc587490cc43046620474ec75d49f5b876c1ea08ba36ba016edd976d56a2fe",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 8849,
+      "content": "app0",
+      "elf": {
+        "bytes": 51249,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/prx/aksinetone.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 4080,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 288,
+            "index": 1,
+            "offset": 32768,
+            "type": 1627389968,
+            "va": 2097152
+          },
+          {
+            "bytes": 104,
+            "index": 2,
+            "offset": 49152,
+            "type": 1,
+            "va": 4194304
+          },
+          {
+            "bytes": 1800,
+            "index": 7,
+            "offset": 49264,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 84,
+            "index": 8,
+            "offset": 51072,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "7e5ec13f94b5696ea319df8684b2abc241c2672dd6e0450ed96f6b5ab23da9ee",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/prx/aksinetone.prx",
+      "path": "prx/aksinetone.prx",
+      "sha256": "aca904714f63b96fe6014dbda938371f945259513f30ca66a632ca77530b2b24",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 60213,
+      "content": "app0",
+      "elf": {
+        "bytes": 101877,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/prx/aksoundseedair.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 53568,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 592,
+            "index": 1,
+            "offset": 81920,
+            "type": 1627389968,
+            "va": 2097152
+          },
+          {
+            "bytes": 120,
+            "index": 2,
+            "offset": 98304,
+            "type": 1,
+            "va": 4194304
+          },
+          {
+            "bytes": 3264,
+            "index": 7,
+            "offset": 98432,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 88,
+            "index": 8,
+            "offset": 101696,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "d53392d157097b89fbe2658066ee071bcbb1ced1ea6944ee7bee37dcf0813be0",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/prx/aksoundseedair.prx",
+      "path": "prx/aksoundseedair.prx",
+      "sha256": "b73c554c5620856a33974190dbfdbfe31b34c11f3451e481d9a684818721ac11",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 15045,
+      "content": "app0",
+      "elf": {
+        "bytes": 51589,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/prx/aksoundseedimpact.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 9920,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 304,
+            "index": 1,
+            "offset": 32768,
+            "type": 1627389968,
+            "va": 2097152
+          },
+          {
+            "bytes": 104,
+            "index": 2,
+            "offset": 49152,
+            "type": 1,
+            "va": 4194304
+          },
+          {
+            "bytes": 2136,
+            "index": 7,
+            "offset": 49264,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 88,
+            "index": 8,
+            "offset": 51408,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "acbe5e556260570883842a8715bf33c3530654f2c2b0c88ccd49fa1d92ed9b9c",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/prx/aksoundseedimpact.prx",
+      "path": "prx/aksoundseedimpact.prx",
+      "sha256": "fafa2c7b2e73a1e55936e7ceeb8d117897fd30be1bf0322306bb08e83255bd2b",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 26049,
+      "content": "app0",
+      "elf": {
+        "bytes": 68161,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/prx/akstereodelay.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 20664,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 328,
+            "index": 1,
+            "offset": 49152,
+            "type": 1627389968,
+            "va": 2097152
+          },
+          {
+            "bytes": 104,
+            "index": 2,
+            "offset": 65536,
+            "type": 1,
+            "va": 4194304
+          },
+          {
+            "bytes": 2336,
+            "index": 7,
+            "offset": 65648,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 84,
+            "index": 8,
+            "offset": 67984,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "261a59e7b70d41856bd28efe74a85fa7f32014c5f7d0d8004535587ae40dc459",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/prx/akstereodelay.prx",
+      "path": "prx/akstereodelay.prx",
+      "sha256": "b8a060f04c71f99d1bc69c4dda6be1c352c7019b4a5121a5f5891f3291f1d4cc",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 30737,
+      "content": "app0",
+      "elf": {
+        "bytes": 76065,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/prx/aksynthone.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 17452,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 336,
+            "index": 1,
+            "offset": 49152,
+            "type": 1627389968,
+            "va": 2097152
+          },
+          {
+            "bytes": 8296,
+            "index": 2,
+            "offset": 65536,
+            "type": 1,
+            "va": 4194304
+          },
+          {
+            "bytes": 2040,
+            "index": 7,
+            "offset": 73840,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 84,
+            "index": 8,
+            "offset": 75888,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "8dc5949913e584bbf629050d6678ca514935fb57cbc635fcc38f9065a7b698da",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/prx/aksynthone.prx",
+      "path": "prx/aksynthone.prx",
+      "sha256": "2ee0504a693d4892d4c1160827e6505aa7da31f6763a018e6c3be2c626e1135d",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 48225,
+      "content": "app0",
+      "elf": {
+        "bytes": 84337,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/prx/aktimestretch.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 43056,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 304,
+            "index": 1,
+            "offset": 65536,
+            "type": 1627389968,
+            "va": 2097152
+          },
+          {
+            "bytes": 104,
+            "index": 2,
+            "offset": 81920,
+            "type": 1,
+            "va": 4194304
+          },
+          {
+            "bytes": 2128,
+            "index": 7,
+            "offset": 82032,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 84,
+            "index": 8,
+            "offset": 84160,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "180d00e65b85a65d07e72a7d286658d95afb93f0c5ebe4b5192ed0c7ce4487c8",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/prx/aktimestretch.prx",
+      "path": "prx/aktimestretch.prx",
+      "sha256": "15a5f574a70fa77919d82a669198163d88cd14b76edd0af9c41a87d0751fee61",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 29565,
+      "content": "app0",
+      "elf": {
+        "bytes": 75965,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/prx/aktonegen.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 16404,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 304,
+            "index": 1,
+            "offset": 49152,
+            "type": 1627389968,
+            "va": 2097152
+          },
+          {
+            "bytes": 8296,
+            "index": 2,
+            "offset": 65536,
+            "type": 1,
+            "va": 4194304
+          },
+          {
+            "bytes": 1944,
+            "index": 7,
+            "offset": 73840,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 80,
+            "index": 8,
+            "offset": 75792,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "5753832a129ddb2f72faf5cfbff97753cbf5701a90865a8f4e9fc29fcfd26e3c",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/prx/aktonegen.prx",
+      "path": "prx/aktonegen.prx",
+      "sha256": "06a934b15cc7f4280ae6c69932330dd733e477bb793c178d8be72c6bba05c71a",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 15373,
+      "content": "app0",
+      "elf": {
+        "bytes": 51629,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/prx/aktremolo.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 10180,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 312,
+            "index": 1,
+            "offset": 32768,
+            "type": 1627389968,
+            "va": 2097152
+          },
+          {
+            "bytes": 104,
+            "index": 2,
+            "offset": 49152,
+            "type": 1,
+            "va": 4194304
+          },
+          {
+            "bytes": 2192,
+            "index": 7,
+            "offset": 49264,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 80,
+            "index": 8,
+            "offset": 51456,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "908a415870f55548a1a77b3a1ece62f4023ad8dbee7adacdf19794e180af2bf8",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/prx/aktremolo.prx",
+      "path": "prx/aktremolo.prx",
+      "sha256": "3c4477366adce77710179d6c9ee6350992879663271ef12b6426f150b9d85fbf",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 3401961,
+      "content": "app0",
+      "elf": {
+        "bytes": 3424137,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/prx/auro.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 179288,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 477704,
+            "index": 1,
+            "offset": 196608,
+            "type": 1627389968,
+            "va": 2097152
+          },
+          {
+            "bytes": 1804408,
+            "index": 2,
+            "offset": 688128,
+            "type": 1,
+            "va": 4194304
+          },
+          {
+            "bytes": 931424,
+            "index": 7,
+            "offset": 2492544,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 76,
+            "index": 8,
+            "offset": 3423968,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "599b1ded6ff4e6aff4aa3dbb3172dbcc4becd5274360c5764da310bc4f82962f",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/prx/auro.prx",
+      "path": "prx/auro.prx",
+      "sha256": "640201b9524af9a1feef03eab7dec0aeee7866a0fbf0d418506bf53ae6f53db9",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 22969612,
+      "content": "app0",
+      "elf": {
+        "bytes": 22944568,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/prx/eossdk-ps4-shipping.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 21051848,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 585792,
+            "index": 1,
+            "offset": 21069824,
+            "type": 1627389968,
+            "va": 23068672
+          },
+          {
+            "bytes": 26176,
+            "index": 2,
+            "offset": 21659648,
+            "type": 1,
+            "va": 25165824
+          },
+          {
+            "bytes": 1257288,
+            "index": 7,
+            "offset": 21685824,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 84,
+            "index": 8,
+            "offset": 22943120,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "65c26cf21afd53ca3c574eb43ac1f31055812632ea6de03d3690f6aea8e6c6af",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/prx/eossdk-ps4-shipping.prx",
+      "path": "prx/eossdk-ps4-shipping.prx",
+      "sha256": "ec16a404f4ebc4f9b39449a2e82f9c7eb4833169460a102c3deab5aadab082cb",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 470909,
+      "content": "app0",
+      "elf": {
+        "bytes": 502925,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/prx/izotope.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 452148,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 4096,
+            "index": 1,
+            "offset": 475136,
+            "type": 1627389968,
+            "va": 2097152
+          },
+          {
+            "bytes": 200,
+            "index": 2,
+            "offset": 491520,
+            "type": 1,
+            "va": 4194304
+          },
+          {
+            "bytes": 11024,
+            "index": 7,
+            "offset": 491728,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 80,
+            "index": 8,
+            "offset": 502752,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "c6f0a9610491004d679b7616463675ac5a031429ffd583f86ba5b48bd67e88f2",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/prx/izotope.prx",
+      "path": "prx/izotope.prx",
+      "sha256": "be37fa10c3b9dee9946e9b5eec4fceacde11e07ecb10a3bd700d037a8113fd35",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 69829,
+      "content": "app0",
+      "elf": {
+        "bytes": 102101,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/prx/masteringsuite.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 63188,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 352,
+            "index": 1,
+            "offset": 81920,
+            "type": 1627389968,
+            "va": 2097152
+          },
+          {
+            "bytes": 712,
+            "index": 2,
+            "offset": 98304,
+            "type": 1,
+            "va": 4194304
+          },
+          {
+            "bytes": 2896,
+            "index": 7,
+            "offset": 99024,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 88,
+            "index": 8,
+            "offset": 101920,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "c79a72d9c9cb1a7f9931f9765f1f42357c53a7df30f653e429e4115bbce361e2",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/prx/masteringsuite.prx",
+      "path": "prx/masteringsuite.prx",
+      "sha256": "56d10a38fba0302a4844b813eb3f84c7a957f51a75632c61fffcde28633f8d5b",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 150009,
+      "content": "app0",
+      "elf": {
+        "bytes": 183833,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/prx/mcdsp.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 143056,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 704,
+            "index": 1,
+            "offset": 163840,
+            "type": 1627389968,
+            "va": 2097152
+          },
+          {
+            "bytes": 120,
+            "index": 2,
+            "offset": 180224,
+            "type": 1,
+            "va": 4194304
+          },
+          {
+            "bytes": 3304,
+            "index": 7,
+            "offset": 180352,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 76,
+            "index": 8,
+            "offset": 183664,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "78d1dddbe627862982788ed6ec6086bfa9b61b8c2f27b61e3fd6b392d8256c26",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/prx/mcdsp.prx",
+      "path": "prx/mcdsp.prx",
+      "sha256": "d953c0d4e41b07e0363087d71643d784061730a09af3366cc0deb5a75bc69bcc",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 36221,
+      "content": "app0",
+      "elf": {
+        "bytes": 72237,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/prx/sceaudio3d.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 25996,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 1096,
+            "index": 1,
+            "offset": 49152,
+            "type": 1627389968,
+            "va": 2097152
+          },
+          {
+            "bytes": 136,
+            "index": 2,
+            "offset": 65536,
+            "type": 1,
+            "va": 4194304
+          },
+          {
+            "bytes": 6312,
+            "index": 7,
+            "offset": 65680,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 84,
+            "index": 8,
+            "offset": 72000,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "b75c463050700d7636084c7523a62bfe6c5761a1971b2b0bdf26c66bfa33dc0f",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/prx/sceaudio3d.prx",
+      "path": "prx/sceaudio3d.prx",
+      "sha256": "bed3133993390ff3e9916ee897e399f571f083116a36ef92c9dbb0e41a242ada",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 22442,
+      "content": "app0",
+      "elf": {
+        "bytes": 67378,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/sce_module/libSceAudioLatencyEstimation.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 18384,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 112,
+            "index": 1,
+            "offset": 49152,
+            "type": 1627389968,
+            "va": 32768
+          },
+          {
+            "bytes": 88,
+            "index": 2,
+            "offset": 65536,
+            "type": 1,
+            "va": 49152
+          },
+          {
+            "bytes": 1704,
+            "index": 7,
+            "offset": 65632,
+            "type": 1627389952,
+            "va": 0
+          }
+        ],
+        "sha256": "b94f56bd1dfa5b2cb8b69b69aeab90327172fd865ac0018984be4fd8d7941732",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/sce_module/libSceAudioLatencyEstimation.prx",
+      "path": "sce_module/libSceAudioLatencyEstimation.prx",
+      "sha256": "fc68923e3cd66021cd2abdee55e06ed6602e8c4cb50ea996dfa8db65b9fdd939",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 301320,
+      "content": "app0",
+      "elf": {
+        "bytes": 342016,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/sce_module/libSceFace.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 279888,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 4480,
+            "index": 1,
+            "offset": 311296,
+            "type": 1627389968,
+            "va": 294912
+          },
+          {
+            "bytes": 272,
+            "index": 2,
+            "offset": 327680,
+            "type": 1,
+            "va": 311296
+          },
+          {
+            "bytes": 14040,
+            "index": 7,
+            "offset": 327952,
+            "type": 1627389952,
+            "va": 0
+          }
+        ],
+        "sha256": "d3e3379b514324eab2c38b49401ef006a9e284fccf91d16b96ef2ba96565452f",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/sce_module/libSceFace.prx",
+      "path": "sce_module/libSceFace.prx",
+      "sha256": "722d9d45301a20fcadf0186f70647c252a34816f39144e2f8973861b63f0b3dd",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 2608863,
+      "content": "app0",
+      "elf": {
+        "bytes": 2644039,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/sce_module/libSceFaceTracker.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 39336,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 272,
+            "index": 1,
+            "offset": 65536,
+            "type": 1627389968,
+            "va": 49152
+          },
+          {
+            "bytes": 2558112,
+            "index": 2,
+            "offset": 81920,
+            "type": 1,
+            "va": 65536
+          },
+          {
+            "bytes": 3976,
+            "index": 7,
+            "offset": 2640032,
+            "type": 1627389952,
+            "va": 0
+          }
+        ],
+        "sha256": "da44f552120767f4e76355cbaa428bbc55061961c4223bc7ae582d160b1b9928",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/sce_module/libSceFaceTracker.prx",
+      "path": "sce_module/libSceFaceTracker.prx",
+      "sha256": "8e12a0e8aba442e33512823b6a4c5f7975bdc2e25b1590e39b01d2c55b83b912",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 459617,
+      "content": "app0",
+      "elf": {
+        "bytes": 500385,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/sce_module/libSceFios2.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 380632,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 1632,
+            "index": 1,
+            "offset": 409600,
+            "type": 1627389968,
+            "va": 393216
+          },
+          {
+            "bytes": 54480,
+            "index": 2,
+            "offset": 425984,
+            "type": 1,
+            "va": 409600
+          },
+          {
+            "bytes": 19904,
+            "index": 7,
+            "offset": 480464,
+            "type": 1627389952,
+            "va": 0
+          }
+        ],
+        "sha256": "057a862f213c26d277f3bbdc76515fb802d0b3098375a7a7348ba5287a456032",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/sce_module/libSceFios2.prx",
+      "path": "sce_module/libSceFios2.prx",
+      "sha256": "6e4d3e4bb130a7ecc7214e338b872525c67b9e9003f020687278e377cbb187a0",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 24392,
+      "content": "app0",
+      "elf": {
+        "bytes": 67232,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/sce_module/libSceHand.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 20496,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 96,
+            "index": 1,
+            "offset": 49152,
+            "type": 1627389968,
+            "va": 32768
+          },
+          {
+            "bytes": 88,
+            "index": 2,
+            "offset": 65536,
+            "type": 1,
+            "va": 49152
+          },
+          {
+            "bytes": 1576,
+            "index": 7,
+            "offset": 65632,
+            "type": 1627389952,
+            "va": 0
+          }
+        ],
+        "sha256": "e6d034302cd417674cbf71fbff2527cb3264e11424f2cdc288ce79f223f8365b",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/sce_module/libSceHand.prx",
+      "path": "sce_module/libSceHand.prx",
+      "sha256": "114a12f338591ac205ae55ca69a6d8e63b79a2264660e9dec5bef85adc9432ac",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 55111,
+      "content": "app0",
+      "elf": {
+        "bytes": 100599,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/sce_module/libSceHandTracker.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 50388,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 232,
+            "index": 1,
+            "offset": 81920,
+            "type": 1627389968,
+            "va": 65536
+          },
+          {
+            "bytes": 88,
+            "index": 2,
+            "offset": 98304,
+            "type": 1,
+            "va": 81920
+          },
+          {
+            "bytes": 2176,
+            "index": 7,
+            "offset": 98400,
+            "type": 1627389952,
+            "va": 0
+          }
+        ],
+        "sha256": "0ecee19925829045f72c02cfb399bfa138d3569a570fa38c55140f4d26af9a11",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/sce_module/libSceHandTracker.prx",
+      "path": "sce_module/libSceHandTracker.prx",
+      "sha256": "46e42a52585f1350032a8c9b0062918f1d1d01a812c649ae3d06d9fd4cd3a7fa",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 1347087,
+      "content": "app0",
+      "elf": {
+        "bytes": 1386103,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/sce_module/libSceHeadTracker.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 313060,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 3720,
+            "index": 1,
+            "offset": 344064,
+            "type": 1627389968,
+            "va": 327680
+          },
+          {
+            "bytes": 1013232,
+            "index": 2,
+            "offset": 360448,
+            "type": 1,
+            "va": 344064
+          },
+          {
+            "bytes": 12392,
+            "index": 7,
+            "offset": 1373680,
+            "type": 1627389952,
+            "va": 0
+          }
+        ],
+        "sha256": "bb5af0592ea1bbf8e9ada62bcc4676ec800c53ab50d2e122a27c42ce0089d7df",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/sce_module/libSceHeadTracker.prx",
+      "path": "sce_module/libSceHeadTracker.prx",
+      "sha256": "07f6fabc4732b9a23df186ab24c63695118a05e538e7312dd41ec149800bbb88",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 68806,
+      "content": "app0",
+      "elf": {
+        "bytes": 109510,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/sce_module/libSceJobManager.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 54104,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 1312,
+            "index": 1,
+            "offset": 81920,
+            "type": 1627389968,
+            "va": 65536
+          },
+          {
+            "bytes": 552,
+            "index": 2,
+            "offset": 98304,
+            "type": 1,
+            "va": 81920
+          },
+          {
+            "bytes": 10624,
+            "index": 7,
+            "offset": 98864,
+            "type": 1627389952,
+            "va": 0
+          }
+        ],
+        "sha256": "fd3efa4aa4dc23bde90cd6058817490b0253715635bfdc3eede1d601d63f4ea9",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/sce_module/libSceJobManager.prx",
+      "path": "sce_module/libSceJobManager.prx",
+      "sha256": "f9995c2124d3f577e10682666045d47d2113d8f3d9433e2a9c994586a4dac99b",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 840814,
+      "content": "app0",
+      "elf": {
+        "bytes": 869846,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/sce_module/libSceNpToolkit2.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 684328,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 3848,
+            "index": 1,
+            "offset": 704512,
+            "type": 1627389968,
+            "va": 688128
+          },
+          {
+            "bytes": 128,
+            "index": 2,
+            "offset": 720896,
+            "type": 1,
+            "va": 704512
+          },
+          {
+            "bytes": 148792,
+            "index": 7,
+            "offset": 721024,
+            "type": 1627389952,
+            "va": 0
+          }
+        ],
+        "sha256": "f9204cc565a9c3d78a432ff34e0a0da47304901eae94bdc1a108694d787cf13c",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/sce_module/libSceNpToolkit2.prx",
+      "path": "sce_module/libSceNpToolkit2.prx",
+      "sha256": "3162d70564aebdbb1dc6838468261148cc68ed910a6c3a27c74c827727f83c82",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 353921,
+      "content": "app0",
+      "elf": {
+        "bytes": 391337,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/sce_module/libSceS3DConversion.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 333240,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 3456,
+            "index": 1,
+            "offset": 360448,
+            "type": 1627389968,
+            "va": 344064
+          },
+          {
+            "bytes": 3024,
+            "index": 2,
+            "offset": 376832,
+            "type": 1,
+            "va": 360448
+          },
+          {
+            "bytes": 11448,
+            "index": 7,
+            "offset": 379856,
+            "type": 1627389952,
+            "va": 0
+          }
+        ],
+        "sha256": "046b4bc3a9ee7129b75ef6acf3379510541a1eb07b5b315537849cb53686bf20",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/sce_module/libSceS3DConversion.prx",
+      "path": "sce_module/libSceS3DConversion.prx",
+      "sha256": "a04d9da52c9d0da80ea7bdd555e3db171674caf652a2a3252f4235bb919fe596",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 0,
+      "content": "app0",
+      "format": "empty",
+      "original": "app0/original/sce_module/libSceSmart.prx",
+      "path": "sce_module/libSceSmart.prx",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "empty_placeholder"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 1332418,
+      "content": "app0",
+      "elf": {
+        "bytes": 1876058,
+        "elf_type": 65048,
+        "entry": 0,
+        "machine": "x86_64",
+        "original_section_table": {
+          "count": 0,
+          "entry_size": 0,
+          "offset": 0,
+          "string_index": 0
+        },
+        "path": "app0/elf/sce_module/libc.prx.elf",
+        "section_table_removed": true,
+        "segments": [
+          {
+            "bytes": 1102268,
+            "index": 0,
+            "offset": 16384,
+            "type": 1,
+            "va": 0
+          },
+          {
+            "bytes": 15344,
+            "index": 1,
+            "offset": 1130496,
+            "type": 1627389968,
+            "va": 1114112
+          },
+          {
+            "bytes": 42560,
+            "index": 2,
+            "offset": 1146880,
+            "type": 1,
+            "va": 1130496
+          },
+          {
+            "bytes": 167224,
+            "index": 7,
+            "offset": 1189440,
+            "type": 1627389952,
+            "va": 0
+          },
+          {
+            "bytes": 88,
+            "index": 8,
+            "offset": 1356672,
+            "type": 1879047936,
+            "va": 0
+          }
+        ],
+        "sha256": "ff217df62e4ab7f61878be8b2c87985aa14550ece72355fab8d54a0955bcab2e",
+        "status": "ELF_reconstructed"
+      },
+      "format": "SELF",
+      "original": "app0/original/sce_module/libc.prx",
+      "path": "sce_module/libc.prx",
+      "sha256": "1279728db5b99f861d5f351e6f67096804fafcd8d7072ab32cee27923bdf6a8e",
+      "status": "ELF_reconstructed"
+    },
+    {
+      "backend_index": 0,
+      "backend_root": "/data/data/com.shadps4.android/files/games/CUSA13427/CUSA13427.zar",
+      "bytes": 16025,
+      "content": "app0",
+      "format": "SELF",
+      "original": "app0/original/sce_sys/about/right.sprx",
+      "path": "sce_sys/about/right.sprx",
+      "sha256": "7ac46af09bedc1ff31a51977e52c959080e1213cede37d9794315a3986c72de7",
+      "status": "encrypted_SELF_original_only"
+    }
+  ],
+  "inventory_sha256": "c6d3036f0f87b0679b6d8fea8f12f4ef26ef80983b84a551e51f2afeed8b942f",
+  "kind": "shadps4.executable_export",
+  "limits": {
+    "max_depth": 64,
+    "max_entries": 200000,
+    "max_executables": 4096,
+    "max_file_bytes": 1073741824,
+    "max_output_bytes": 8589934592
+  },
+  "output_bytes": 317053989,
+  "request_id": "1f5bf8a6ee3554f0cab3b1feca1d7d47",
+  "scanned_files": 166,
+  "schema": 1,
+  "scope": "disk files, not relocated guest memory",
+  "state": "ready",
+  "title_id": "CUSA13427",
+  "warnings": 2
+}

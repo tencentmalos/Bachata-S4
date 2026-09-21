@@ -388,7 +388,7 @@ ImageId TextureCache::ResolveDepthOverlap(const ImageInfo& requested_info, Bindi
             new_image.Transit(vk::ImageLayout::eDepthAttachmentOptimal,
                               vk::AccessFlagBits2::eDepthStencilAttachmentWrite, {});
             blit_helper.ReinterpretColorAsMsDepth(
-                new_info.size.width, new_info.size.height, new_info.num_samples,
+                new_info.size.width, new_info.size.height, new_image.backing->num_samples,
                 cache_image.info.pixel_format, new_info.pixel_format, cache_image.GetImage(),
                 new_image.GetImage());
         } else {
@@ -1037,7 +1037,7 @@ void TextureCache::UnregisterImage(ImageId image_id) {
     });
 }
 
-void TextureCache::TrackImage(ImageId image_id) {
+void TextureCache::TrackImage(ImageId image_id) try {
     auto& image = slot_images[image_id];
     if (!(image.flags & ImageFlagBits::Registered)) {
         return;
@@ -1061,6 +1061,14 @@ void TextureCache::TrackImage(ImageId image_id) {
             TrackImageTail(image_id);
         }
     }
+} catch (const std::exception& error) {
+    const auto& info = slot_images[image_id].info;
+    LOG_ERROR(Render, "Image watch failed: address={:#x} bytes={:#x} extent={}x{}x{} "
+                     "pitch={} levels={} layers={} tile={} bpp={}: {}",
+              info.guest_address, info.guest_size, info.size.width, info.size.height,
+              info.size.depth, info.pitch, info.resources.levels, info.resources.layers,
+              static_cast<u32>(info.tile_mode), info.num_bits, error.what());
+    throw;
 }
 
 void TextureCache::TrackImageHead(ImageId image_id) {

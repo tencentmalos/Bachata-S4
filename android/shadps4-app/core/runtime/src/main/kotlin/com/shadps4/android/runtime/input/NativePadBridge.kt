@@ -5,10 +5,12 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.hardware.display.DisplayManager
 import android.os.Handler
 import android.os.Looper
 import android.view.KeyEvent
 import android.view.MotionEvent
+import android.view.Display
 import com.shadps4.android.runtime.session.ManagedSession
 import java.util.concurrent.Executor
 import spatial.input.android.*
@@ -93,12 +95,28 @@ object NativePadBridge {
             private set
         private val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as? SensorManager
         private val gyro = sensorManager?.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
+        private val gravity = sensorManager?.getDefaultSensor(Sensor.TYPE_GRAVITY)
+            ?: sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+        private val neutralFrame = VrGyroAxes.NeutralFrame()
+        private val sensorDisplay = (context.getSystemService(Context.DISPLAY_SERVICE) as? DisplayManager)
+            ?.getDisplay(Display.DEFAULT_DISPLAY)
         private val gyroListener = object : SensorEventListener {
             override fun onSensorChanged(event: SensorEvent) {
-                if (closed || !focused || event.sensor.type != Sensor.TYPE_GYROSCOPE) return
+                if (closed || !focused) return
                 val values = event.values
                 if (values.size < 3) return
-                NativePad.nativeUpdateVrGyro(values[0], values[1], values[2], event.timestamp)
+                if (event.sensor.type == gravity?.type) {
+                    if (neutralFrame.observeGravity(values[0], values[1], values[2], sensorDisplay?.rotation ?: 0)) {
+                        android.util.Log.i("VrGyro", "Neutral axes calibrated: rotation=${sensorDisplay?.rotation} gravity=${values.take(3)}")
+                        sensorManager?.unregisterListener(this, gravity)
+                    }
+                    return
+                }
+                if (event.sensor.type != Sensor.TYPE_GYROSCOPE) return
+                val rate = if (gravity != null) neutralFrame.toHead(values[0], values[1], values[2])
+                    else VrGyroAxes.toDisplay(values[0], values[1], values[2], sensorDisplay?.rotation ?: 0)
+                // Until gravity is stable, preserve the initial forward pose.
+                if (rate != null) NativePad.nativeUpdateVrGyro(rate[0], rate[1], rate[2], event.timestamp)
             }
             override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) = Unit
         }
@@ -128,6 +146,9 @@ object NativePadBridge {
             ManagedSession.attachControllerSlotSink(overlay)
             source.start(main)
             gyro?.let { sensorManager?.registerListener(gyroListener, it, SensorManager.SENSOR_DELAY_GAME, main) }
+            if (!neutralFrame.calibrated) gravity?.let {
+                sensorManager?.registerListener(gyroListener, it, SensorManager.SENSOR_DELAY_GAME, main)
+            }
             main.post(tick)
         }
         fun close() {
@@ -157,6 +178,9 @@ object NativePadBridge {
                 NativePad.nativeSetConnected(token,0,true)
                 source.start(main)
                 gyro?.let { sensorManager?.registerListener(gyroListener, it, SensorManager.SENSOR_DELAY_GAME, main) }
+                if (!neutralFrame.calibrated) gravity?.let {
+                    sensorManager?.registerListener(gyroListener, it, SensorManager.SENSOR_DELAY_GAME, main)
+                }
             }
         }
         fun reloadButtonMappings() {

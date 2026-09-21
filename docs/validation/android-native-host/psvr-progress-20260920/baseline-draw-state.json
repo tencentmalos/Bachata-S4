@@ -1,0 +1,6367 @@
+[
+  {
+    "chunk": 872,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "90",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa1b00c:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213263d7c",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [],
+      "3": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1754",
+          "viewType": "1",
+          "format": "37"
+        }
+      ],
+      "4": [],
+      "5": [],
+      "6": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "128",
+        "width": "128",
+        "height": "-128",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1753",
+        "viewType": "1",
+        "format": "37"
+      }
+    ],
+    "pipeline": "1752"
+  },
+  {
+    "chunk": 889,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa1b760:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x2132644d0",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1753",
+          "viewType": "1",
+          "format": "37"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "64",
+        "width": "64",
+        "height": "-64",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1772",
+        "viewType": "1",
+        "format": "37"
+      }
+    ],
+    "pipeline": "1766"
+  },
+  {
+    "chunk": 902,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa1ba1c:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326478c",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1772",
+          "viewType": "1",
+          "format": "37"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "64",
+        "width": "64",
+        "height": "-64",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1778",
+        "viewType": "1",
+        "format": "37"
+      }
+    ],
+    "pipeline": "1766"
+  },
+  {
+    "chunk": 915,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa1bcd8:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213264a48",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1778",
+          "viewType": "1",
+          "format": "37"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "64",
+        "width": "64",
+        "height": "-64",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1787",
+        "viewType": "1",
+        "format": "37"
+      }
+    ],
+    "pipeline": "1766"
+  },
+  {
+    "chunk": 928,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa1bf94:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213264d04",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1787",
+          "viewType": "1",
+          "format": "37"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "64",
+        "width": "64",
+        "height": "-64",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1772",
+        "viewType": "1",
+        "format": "37"
+      }
+    ],
+    "pipeline": "1766"
+  },
+  {
+    "chunk": 941,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa1c250:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213264fc0",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1772",
+          "viewType": "1",
+          "format": "37"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "64",
+        "width": "64",
+        "height": "-64",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1782",
+        "viewType": "1",
+        "format": "37"
+      }
+    ],
+    "pipeline": "1766"
+  },
+  {
+    "chunk": 953,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa1c494:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213265204",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1778",
+          "viewType": "1",
+          "format": "37"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "64",
+        "width": "64",
+        "height": "-64",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1767",
+        "viewType": "1",
+        "format": "37"
+      }
+    ],
+    "pipeline": "1766"
+  },
+  {
+    "chunk": 965,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa1c8e0:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213265650",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1767",
+          "viewType": "1",
+          "format": "37"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "64",
+        "width": "64",
+        "height": "-64",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1782",
+        "viewType": "1",
+        "format": "37"
+      }
+    ],
+    "pipeline": "1799"
+  },
+  {
+    "chunk": 985,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "3",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa1ce74:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213265be4",
+    "images": {
+      "0": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "0",
+        "width": "8192",
+        "height": "8192",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1485",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1485",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "541"
+  },
+  {
+    "chunk": 1012,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "684",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa1d45c:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x2132661cc",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "756",
+        "width": "672",
+        "height": "-756",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1485",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1485",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "1807"
+  },
+  {
+    "chunk": 1027,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "684",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa1d524:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213266294",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": []
+    },
+    "viewports": [
+      {
+        "x": "672",
+        "y": "756",
+        "width": "672",
+        "height": "-756",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1485",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1485",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "1807"
+  },
+  {
+    "chunk": 1041,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "72",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa1d584:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x2132662f4",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": []
+    },
+    "viewports": [
+      {
+        "x": "672",
+        "y": "756",
+        "width": "672",
+        "height": "-756",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1485",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1485",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "1807"
+  },
+  {
+    "chunk": 1057,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "72",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa1d64c:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x2132663bc",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "756",
+        "width": "672",
+        "height": "-756",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1485",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1485",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "1807"
+  },
+  {
+    "chunk": 1068,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "36",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa1d854:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x2132665c4",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": [],
+      "5": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "756",
+        "width": "672",
+        "height": "-756",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1485",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1485",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "1813"
+  },
+  {
+    "chunk": 1081,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "36",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa1d91c:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326668c",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": [],
+      "5": []
+    },
+    "viewports": [
+      {
+        "x": "672",
+        "y": "756",
+        "width": "672",
+        "height": "-756",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1485",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1485",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "1813"
+  },
+  {
+    "chunk": 1096,
+    "call": {
+      "commandBuffer": "169",
+      "indexCount": "12",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "targets": [
+      {
+        "sType": "15",
+        "pNext": null,
+        "flags": "0",
+        "image": "193",
+        "viewType": "1",
+        "format": "37"
+      }
+    ],
+    "pipeline": "251",
+    "viewports": [
+      {
+        "x": "0",
+        "y": "0",
+        "width": "1920",
+        "height": "1080",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ]
+  },
+  {
+    "chunk": 1099,
+    "call": {
+      "commandBuffer": "169",
+      "indexCount": "6",
+      "instanceCount": "1",
+      "firstIndex": "12",
+      "vertexOffset": "8",
+      "firstInstance": "0"
+    },
+    "targets": [
+      {
+        "sType": "15",
+        "pNext": null,
+        "flags": "0",
+        "image": "193",
+        "viewType": "1",
+        "format": "37"
+      }
+    ],
+    "pipeline": "251",
+    "viewports": [
+      {
+        "x": "0",
+        "y": "0",
+        "width": "1920",
+        "height": "1080",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ]
+  },
+  {
+    "chunk": 1102,
+    "call": {
+      "commandBuffer": "169",
+      "indexCount": "234",
+      "instanceCount": "1",
+      "firstIndex": "18",
+      "vertexOffset": "12",
+      "firstInstance": "0"
+    },
+    "targets": [
+      {
+        "sType": "15",
+        "pNext": null,
+        "flags": "0",
+        "image": "193",
+        "viewType": "1",
+        "format": "37"
+      }
+    ],
+    "pipeline": "251",
+    "viewports": [
+      {
+        "x": "0",
+        "y": "0",
+        "width": "1920",
+        "height": "1080",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ]
+  },
+  {
+    "chunk": 1105,
+    "call": {
+      "commandBuffer": "169",
+      "indexCount": "6654",
+      "instanceCount": "1",
+      "firstIndex": "252",
+      "vertexOffset": "12",
+      "firstInstance": "0"
+    },
+    "targets": [
+      {
+        "sType": "15",
+        "pNext": null,
+        "flags": "0",
+        "image": "193",
+        "viewType": "1",
+        "format": "37"
+      }
+    ],
+    "pipeline": "251",
+    "viewports": [
+      {
+        "x": "0",
+        "y": "0",
+        "width": "1920",
+        "height": "1080",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ]
+  },
+  {
+    "chunk": 1121,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "3",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa1e1c4:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213266f34",
+    "images": {
+      "0": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "0",
+        "width": "16384",
+        "height": "16384",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "1564"
+  },
+  {
+    "chunk": 1149,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "648",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa1e86c:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x2132675dc",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1782",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": [],
+      "9": [],
+      "10": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "2047"
+  },
+  {
+    "chunk": 1164,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "648",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa1e944:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x2132676b4",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1782",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": [],
+      "9": [],
+      "10": []
+    },
+    "viewports": [
+      {
+        "x": "1344",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "2047"
+  },
+  {
+    "chunk": 1177,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "36",
+      "instanceCount": "4",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa1ebb4:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213267924",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1782",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "7": [],
+      "8": [],
+      "9": [],
+      "10": [],
+      "11": [],
+      "12": [],
+      "13": [],
+      "14": []
+    },
+    "viewports": [
+      {
+        "x": "1344",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "2053"
+  },
+  {
+    "chunk": 1193,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "36",
+      "instanceCount": "4",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa1ec8c:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x2132679fc",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1782",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "7": [],
+      "8": [],
+      "9": [],
+      "10": [],
+      "11": [],
+      "12": [],
+      "13": [],
+      "14": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "2053"
+  },
+  {
+    "chunk": 1206,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "36",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa1eefc:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213267c6c",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1782",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": [],
+      "9": [],
+      "10": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "2047"
+  },
+  {
+    "chunk": 1221,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "36",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa1efd4:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213267d44",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1782",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": [],
+      "9": [],
+      "10": []
+    },
+    "viewports": [
+      {
+        "x": "1344",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "2047"
+  },
+  {
+    "chunk": 1234,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "72",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa1f034:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213267da4",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1782",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": [],
+      "9": [],
+      "10": []
+    },
+    "viewports": [
+      {
+        "x": "1344",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "2047"
+  },
+  {
+    "chunk": 1249,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "72",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa1f10c:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213267e7c",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1782",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": [],
+      "9": [],
+      "10": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "2047"
+  },
+  {
+    "chunk": 1262,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "36",
+      "instanceCount": "2",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa1f37c:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x2132680ec",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1782",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "7": [],
+      "8": [],
+      "9": [],
+      "10": [],
+      "11": [],
+      "12": [],
+      "13": [],
+      "14": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "2053"
+  },
+  {
+    "chunk": 1277,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "36",
+      "instanceCount": "2",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa1f454:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x2132681c4",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1782",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "7": [],
+      "8": [],
+      "9": [],
+      "10": [],
+      "11": [],
+      "12": [],
+      "13": [],
+      "14": []
+    },
+    "viewports": [
+      {
+        "x": "1344",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "2053"
+  },
+  {
+    "chunk": 1293,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "6",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa1f6c0:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213268430",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [],
+      "3": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1840",
+          "viewType": "1",
+          "format": "9"
+        }
+      ],
+      "4": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1782",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "1344",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "2058"
+  },
+  {
+    "chunk": 1305,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "6",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa1f768:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x2132684d8",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [],
+      "3": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1840",
+          "viewType": "1",
+          "format": "9"
+        }
+      ],
+      "4": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1782",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "2058"
+  },
+  {
+    "chunk": 1321,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "36",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa1fa14:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213268784",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1782",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": [],
+      "9": [],
+      "10": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "2065"
+  },
+  {
+    "chunk": 1333,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "36",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa1faec:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326885c",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1782",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": [],
+      "9": [],
+      "10": []
+    },
+    "viewports": [
+      {
+        "x": "1344",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "2065"
+  },
+  {
+    "chunk": 1352,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "3",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa20144:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213268eb4",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1825",
+          "viewType": "1",
+          "format": "37"
+        }
+      ],
+      "3": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "0",
+        "width": "8192",
+        "height": "8192",
+        "minDepth": "0.5",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1851",
+        "viewType": "1",
+        "format": "37"
+      }
+    ],
+    "pipeline": "1572"
+  },
+  {
+    "chunk": 1363,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "3",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa2076c:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x2132694dc",
+    "images": {
+      "0": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1867",
+          "viewType": "1",
+          "format": "43"
+        }
+      ]
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "0",
+        "width": "672",
+        "height": "378",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1872",
+        "viewType": "1",
+        "format": "43"
+      }
+    ],
+    "pipeline": "1875"
+  },
+  {
+    "chunk": 1386,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa2076c:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x2132694dc",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1851",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "378",
+        "width": "336",
+        "height": "-378",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1872",
+        "viewType": "1",
+        "format": "43"
+      }
+    ],
+    "pipeline": "1865"
+  },
+  {
+    "chunk": 1397,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa208c0:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213269630",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1851",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "336",
+        "y": "378",
+        "width": "336",
+        "height": "-378",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1872",
+        "viewType": "1",
+        "format": "43"
+      }
+    ],
+    "pipeline": "1865"
+  },
+  {
+    "chunk": 1407,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "3",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa20c24:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213269994",
+    "images": {
+      "0": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1872",
+          "viewType": "1",
+          "format": "43"
+        }
+      ]
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "0",
+        "width": "672",
+        "height": "378",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1867",
+        "viewType": "1",
+        "format": "43"
+      }
+    ],
+    "pipeline": "1881"
+  },
+  {
+    "chunk": 1416,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "3",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa20c24:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213269994",
+    "images": {
+      "0": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1878",
+          "viewType": "1",
+          "format": "43"
+        }
+      ]
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "0",
+        "width": "672",
+        "height": "378",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1884",
+        "viewType": "1",
+        "format": "43"
+      }
+    ],
+    "pipeline": "1875"
+  },
+  {
+    "chunk": 1439,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa20c24:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213269994",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1867",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "378",
+        "width": "336",
+        "height": "-378",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1884",
+        "viewType": "1",
+        "format": "43"
+      }
+    ],
+    "pipeline": "1865"
+  },
+  {
+    "chunk": 1450,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa20d78:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213269ae8",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1867",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "336",
+        "y": "378",
+        "width": "336",
+        "height": "-378",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1884",
+        "viewType": "1",
+        "format": "43"
+      }
+    ],
+    "pipeline": "1865"
+  },
+  {
+    "chunk": 1460,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "3",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa21234:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213269fa4",
+    "images": {
+      "0": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1884",
+          "viewType": "1",
+          "format": "43"
+        }
+      ]
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "0",
+        "width": "672",
+        "height": "378",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1878",
+        "viewType": "1",
+        "format": "43"
+      }
+    ],
+    "pipeline": "1881"
+  },
+  {
+    "chunk": 1483,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa21234:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213269fa4",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1878",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "378",
+        "width": "336",
+        "height": "-378",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1901",
+        "viewType": "1",
+        "format": "43"
+      }
+    ],
+    "pipeline": "1894"
+  },
+  {
+    "chunk": 1494,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa21388:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326a0f8",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1878",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "336",
+        "y": "378",
+        "width": "336",
+        "height": "-378",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1901",
+        "viewType": "1",
+        "format": "43"
+      }
+    ],
+    "pipeline": "1894"
+  },
+  {
+    "chunk": 1504,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "3",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa216ec:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326a45c",
+    "images": {
+      "0": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1901",
+          "viewType": "1",
+          "format": "43"
+        }
+      ]
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "0",
+        "width": "672",
+        "height": "378",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1896",
+        "viewType": "1",
+        "format": "43"
+      }
+    ],
+    "pipeline": "1881"
+  },
+  {
+    "chunk": 1513,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "3",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa216ec:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326a45c",
+    "images": {
+      "0": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1878",
+          "viewType": "1",
+          "format": "43"
+        }
+      ]
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "0",
+        "width": "672",
+        "height": "378",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1884",
+        "viewType": "1",
+        "format": "43"
+      }
+    ],
+    "pipeline": "1875"
+  },
+  {
+    "chunk": 1536,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa216ec:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326a45c",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1896",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "378",
+        "width": "336",
+        "height": "-378",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1884",
+        "viewType": "1",
+        "format": "43"
+      }
+    ],
+    "pipeline": "1894"
+  },
+  {
+    "chunk": 1547,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa21840:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326a5b0",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1896",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "336",
+        "y": "378",
+        "width": "336",
+        "height": "-378",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1884",
+        "viewType": "1",
+        "format": "43"
+      }
+    ],
+    "pipeline": "1894"
+  },
+  {
+    "chunk": 1557,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "3",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa21ba4:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326a914",
+    "images": {
+      "0": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1884",
+          "viewType": "1",
+          "format": "43"
+        }
+      ]
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "0",
+        "width": "672",
+        "height": "378",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1878",
+        "viewType": "1",
+        "format": "43"
+      }
+    ],
+    "pipeline": "1881"
+  },
+  {
+    "chunk": 1566,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "3",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa21ba4:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326a914",
+    "images": {
+      "0": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1896",
+          "viewType": "1",
+          "format": "43"
+        }
+      ]
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "0",
+        "width": "672",
+        "height": "378",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1901",
+        "viewType": "1",
+        "format": "43"
+      }
+    ],
+    "pipeline": "1875"
+  },
+  {
+    "chunk": 1590,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa21ba4:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326a914",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1878",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "378",
+        "width": "336",
+        "height": "-378",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1901",
+        "viewType": "1",
+        "format": "43"
+      }
+    ],
+    "pipeline": "1894"
+  },
+  {
+    "chunk": 1601,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa21cf8:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326aa68",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1878",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "336",
+        "y": "378",
+        "width": "336",
+        "height": "-378",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1901",
+        "viewType": "1",
+        "format": "43"
+      }
+    ],
+    "pipeline": "1894"
+  },
+  {
+    "chunk": 1623,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "1794",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa22214:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326af84",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1919",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "1344",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "1918"
+  },
+  {
+    "chunk": 1635,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "1794",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa222dc:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326b04c",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1919",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "1918"
+  },
+  {
+    "chunk": 1648,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "3",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa22688:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326b3f8",
+    "images": {
+      "0": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "0",
+        "width": "16384",
+        "height": "16384",
+        "minDepth": "0.5",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [],
+    "pipeline": "541"
+  },
+  {
+    "chunk": 1665,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "1152",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa22b9c:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326b90c",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1782",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "5": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1840",
+          "viewType": "1",
+          "format": "9"
+        }
+      ],
+      "6": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1485",
+          "viewType": "1",
+          "format": "130"
+        }
+      ],
+      "7": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1929",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "8": [],
+      "9": [],
+      "10": [],
+      "11": [],
+      "12": [],
+      "13": [],
+      "14": [],
+      "15": [],
+      "16": [],
+      "17": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "2092"
+  },
+  {
+    "chunk": 1677,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "1152",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa22c74:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326b9e4",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1782",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "5": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1840",
+          "viewType": "1",
+          "format": "9"
+        }
+      ],
+      "6": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1485",
+          "viewType": "1",
+          "format": "130"
+        }
+      ],
+      "7": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1929",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "8": [],
+      "9": [],
+      "10": [],
+      "11": [],
+      "12": [],
+      "13": [],
+      "14": [],
+      "15": [],
+      "16": [],
+      "17": []
+    },
+    "viewports": [
+      {
+        "x": "1344",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "2092"
+  },
+  {
+    "chunk": 1692,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "240",
+      "instanceCount": "2",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa22f3c:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326bcac",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1782",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "7": [],
+      "8": [],
+      "9": [],
+      "10": [],
+      "11": [],
+      "12": [],
+      "13": []
+    },
+    "viewports": [
+      {
+        "x": "1344",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "2150"
+  },
+  {
+    "chunk": 1704,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "240",
+      "instanceCount": "2",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa23014:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326bd84",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1782",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "7": [],
+      "8": [],
+      "9": [],
+      "10": [],
+      "11": [],
+      "12": [],
+      "13": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "2150"
+  },
+  {
+    "chunk": 1726,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "6072",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa232f0:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326c060",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1878",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1939",
+          "viewType": "1",
+          "format": "37"
+        }
+      ],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": [],
+      "9": [],
+      "10": [],
+      "11": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "2098"
+  },
+  {
+    "chunk": 1738,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "6072",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa233b8:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326c128",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1878",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1939",
+          "viewType": "1",
+          "format": "37"
+        }
+      ],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": [],
+      "9": [],
+      "10": [],
+      "11": []
+    },
+    "viewports": [
+      {
+        "x": "1344",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "2098"
+  },
+  {
+    "chunk": 1749,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "54",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa23664:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326c3d4",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1949",
+          "viewType": "1",
+          "format": "37"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "1344",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "1948"
+  },
+  {
+    "chunk": 1761,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "54",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa2372c:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326c49c",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1949",
+          "viewType": "1",
+          "format": "37"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "1948"
+  },
+  {
+    "chunk": 1771,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "138",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa239b0:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326c720",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1957",
+          "viewType": "1",
+          "format": "9"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": [],
+      "9": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "1956"
+  },
+  {
+    "chunk": 1783,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "138",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa23a78:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326c7e8",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1957",
+          "viewType": "1",
+          "format": "9"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": [],
+      "9": []
+    },
+    "viewports": [
+      {
+        "x": "1344",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "1956"
+  },
+  {
+    "chunk": 1793,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "4164",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa23b68:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326c8d8",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1957",
+          "viewType": "1",
+          "format": "9"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": [],
+      "9": []
+    },
+    "viewports": [
+      {
+        "x": "1344",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "1956"
+  },
+  {
+    "chunk": 1805,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "4164",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa23c30:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326c9a0",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1957",
+          "viewType": "1",
+          "format": "9"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": [],
+      "9": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "1956"
+  },
+  {
+    "chunk": 1815,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "102",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa23eb0:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326cc20",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1949",
+          "viewType": "1",
+          "format": "37"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "1948"
+  },
+  {
+    "chunk": 1827,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "102",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa23f78:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326cce8",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1949",
+          "viewType": "1",
+          "format": "37"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "1344",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "1948"
+  },
+  {
+    "chunk": 1837,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "54",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa241fc:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326cf6c",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1957",
+          "viewType": "1",
+          "format": "9"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": [],
+      "9": []
+    },
+    "viewports": [
+      {
+        "x": "1344",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "1956"
+  },
+  {
+    "chunk": 1849,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "54",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa242c4:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326d034",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1957",
+          "viewType": "1",
+          "format": "9"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": [],
+      "9": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "1956"
+  },
+  {
+    "chunk": 1868,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "3",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa249a0:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326d710",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1825",
+          "viewType": "1",
+          "format": "37"
+        }
+      ],
+      "3": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "0",
+        "width": "8192",
+        "height": "8192",
+        "minDepth": "0.5",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "2151",
+        "viewType": "1",
+        "format": "37"
+      }
+    ],
+    "pipeline": "1572"
+  },
+  {
+    "chunk": 1888,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "84",
+      "instanceCount": "2",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa24f54:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326dcc4",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "2162",
+          "viewType": "1",
+          "format": "133"
+        }
+      ],
+      "8": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "2151",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "9": [],
+      "10": [],
+      "11": [],
+      "12": [],
+      "13": [],
+      "14": [],
+      "15": [],
+      "16": [],
+      "17": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "2161"
+  },
+  {
+    "chunk": 1900,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "84",
+      "instanceCount": "2",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa2502c:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326dd9c",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "2162",
+          "viewType": "1",
+          "format": "133"
+        }
+      ],
+      "8": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "2151",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "9": [],
+      "10": [],
+      "11": [],
+      "12": [],
+      "13": [],
+      "14": [],
+      "15": [],
+      "16": [],
+      "17": []
+    },
+    "viewports": [
+      {
+        "x": "1344",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "2161"
+  },
+  {
+    "chunk": 1910,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "2304",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa25298:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326e008",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1782",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": [],
+      "9": [],
+      "10": []
+    },
+    "viewports": [
+      {
+        "x": "1344",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "2065"
+  },
+  {
+    "chunk": 1922,
+    "call": {
+      "commandBuffer": "2336",
+      "indexCount": "2304",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa25370:DrawIndex2 generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326e0e0",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1782",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": [],
+      "9": [],
+      "10": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "1512",
+        "width": "1344",
+        "height": "-1512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1825",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1818",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "2065"
+  },
+  {
+    "chunk": 1941,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "3",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa259c8:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326e738",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1825",
+          "viewType": "1",
+          "format": "37"
+        }
+      ],
+      "3": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "0",
+        "width": "8192",
+        "height": "8192",
+        "minDepth": "0.5",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1851",
+        "viewType": "1",
+        "format": "37"
+      }
+    ],
+    "pipeline": "1572"
+  },
+  {
+    "chunk": 1952,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "3",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa25f80:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326ecf0",
+    "images": {
+      "0": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1972",
+          "viewType": "1",
+          "format": "43"
+        }
+      ]
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "0",
+        "width": "2048",
+        "height": "1024",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1976",
+        "viewType": "1",
+        "format": "43"
+      }
+    ],
+    "pipeline": "1875"
+  },
+  {
+    "chunk": 1975,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa25f80:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326ecf0",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1851",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "1024",
+        "width": "1024",
+        "height": "-1024",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1976",
+        "viewType": "1",
+        "format": "43"
+      }
+    ],
+    "pipeline": "1970"
+  },
+  {
+    "chunk": 1986,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa260d4:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326ee44",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1851",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "1024",
+        "y": "1024",
+        "width": "1024",
+        "height": "-1024",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1976",
+        "viewType": "1",
+        "format": "43"
+      }
+    ],
+    "pipeline": "1970"
+  },
+  {
+    "chunk": 1996,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "3",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa265b8:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326f328",
+    "images": {
+      "0": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1976",
+          "viewType": "1",
+          "format": "43"
+        }
+      ]
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "0",
+        "width": "2048",
+        "height": "1024",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1972",
+        "viewType": "1",
+        "format": "43"
+      }
+    ],
+    "pipeline": "1881"
+  },
+  {
+    "chunk": 2021,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa265b8:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326f328",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1972",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "512",
+        "width": "512",
+        "height": "-512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1985",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1986",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1986",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "1984"
+  },
+  {
+    "chunk": 2032,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa2670c:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326f47c",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1972",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "512",
+        "y": "512",
+        "width": "512",
+        "height": "-512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1985",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1986",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1986",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "1984"
+  },
+  {
+    "chunk": 2047,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa269c8:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326f738",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1972",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "1024",
+        "width": "1024",
+        "height": "-1024",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "2198",
+        "viewType": "1",
+        "format": "43"
+      }
+    ],
+    "pipeline": "1984"
+  },
+  {
+    "chunk": 2058,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa26b1c:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326f88c",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1972",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "1024",
+        "y": "1024",
+        "width": "1024",
+        "height": "-1024",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "2198",
+        "viewType": "1",
+        "format": "43"
+      }
+    ],
+    "pipeline": "1984"
+  },
+  {
+    "chunk": 2073,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa27038:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326fda8",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "2198",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "512",
+        "width": "512",
+        "height": "-512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1985",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1986",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1986",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "2012"
+  },
+  {
+    "chunk": 2084,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa2718c:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21326fefc",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "2198",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "512",
+        "y": "512",
+        "width": "512",
+        "height": "-512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1985",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1986",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1986",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "2012"
+  },
+  {
+    "chunk": 2099,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa275d0:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213270340",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "2198",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "1024",
+        "width": "1024",
+        "height": "-1024",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "2104",
+        "viewType": "1",
+        "format": "43"
+      }
+    ],
+    "pipeline": "1984"
+  },
+  {
+    "chunk": 2110,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa27724:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213270494",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "2198",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "1024",
+        "y": "1024",
+        "width": "1024",
+        "height": "-1024",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "2104",
+        "viewType": "1",
+        "format": "43"
+      }
+    ],
+    "pipeline": "1984"
+  },
+  {
+    "chunk": 2125,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa27a88:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x2132707f8",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "2104",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "1024",
+        "width": "1024",
+        "height": "-1024",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1972",
+        "viewType": "1",
+        "format": "43"
+      }
+    ],
+    "pipeline": "1984"
+  },
+  {
+    "chunk": 2136,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa27bdc:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x21327094c",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "2104",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "1024",
+        "y": "1024",
+        "width": "1024",
+        "height": "-1024",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1972",
+        "viewType": "1",
+        "format": "43"
+      }
+    ],
+    "pipeline": "1984"
+  },
+  {
+    "chunk": 2151,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa280f8:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213270e68",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1972",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "512",
+        "width": "512",
+        "height": "-512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1985",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1986",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1986",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "2012"
+  },
+  {
+    "chunk": 2162,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa2824c:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213270fbc",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1972",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "512",
+        "y": "512",
+        "width": "512",
+        "height": "-512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1985",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1986",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1986",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "2012"
+  },
+  {
+    "chunk": 2177,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa28690:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213271400",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "2104",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "1024",
+        "width": "1024",
+        "height": "-1024",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "2198",
+        "viewType": "1",
+        "format": "43"
+      }
+    ],
+    "pipeline": "1984"
+  },
+  {
+    "chunk": 2188,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa287e4:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213271554",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "2104",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "1024",
+        "y": "1024",
+        "width": "1024",
+        "height": "-1024",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "2198",
+        "viewType": "1",
+        "format": "43"
+      }
+    ],
+    "pipeline": "1984"
+  },
+  {
+    "chunk": 2203,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa28b48:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x2132718b8",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "2198",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "1024",
+        "width": "1024",
+        "height": "-1024",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1972",
+        "viewType": "1",
+        "format": "43"
+      }
+    ],
+    "pipeline": "1984"
+  },
+  {
+    "chunk": 2214,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa28c9c:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213271a0c",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "2198",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "1024",
+        "y": "1024",
+        "width": "1024",
+        "height": "-1024",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1972",
+        "viewType": "1",
+        "format": "43"
+      }
+    ],
+    "pipeline": "1984"
+  },
+  {
+    "chunk": 2229,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa29000:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213271d70",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1972",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "1024",
+        "width": "1024",
+        "height": "-1024",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "2198",
+        "viewType": "1",
+        "format": "43"
+      }
+    ],
+    "pipeline": "1984"
+  },
+  {
+    "chunk": 2240,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa29154:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213271ec4",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1972",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "1024",
+        "y": "1024",
+        "width": "1024",
+        "height": "-1024",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "2198",
+        "viewType": "1",
+        "format": "43"
+      }
+    ],
+    "pipeline": "1984"
+  },
+  {
+    "chunk": 2255,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa29670:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x2132723e0",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "2198",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "512",
+        "width": "512",
+        "height": "-512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1985",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1986",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1986",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "2012"
+  },
+  {
+    "chunk": 2266,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa297c4:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213272534",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "2198",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": []
+    },
+    "viewports": [
+      {
+        "x": "512",
+        "y": "512",
+        "width": "512",
+        "height": "-512",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1985",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1986",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1986",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "2012"
+  },
+  {
+    "chunk": 2281,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa29c9c:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213272a0c",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1985",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1851",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": [],
+      "9": [],
+      "10": []
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "756",
+        "width": "672",
+        "height": "-756",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1535",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1477",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1477",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "2030"
+  },
+  {
+    "chunk": 2292,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "4",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa29de0:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213272b50",
+    "images": {
+      "0": [],
+      "1": [],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1985",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1851",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "4": [],
+      "5": [],
+      "6": [],
+      "7": [],
+      "8": [],
+      "9": [],
+      "10": []
+    },
+    "viewports": [
+      {
+        "x": "672",
+        "y": "756",
+        "width": "672",
+        "height": "-756",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1535",
+        "viewType": "1",
+        "format": "43"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1477",
+        "viewType": "1",
+        "format": "130"
+      },
+      {
+        "sType": "15",
+        "pNextType": "1000117002",
+        "flags": "0",
+        "image": "1477",
+        "viewType": "1",
+        "format": "130"
+      }
+    ],
+    "pipeline": "2030"
+  },
+  {
+    "chunk": 2304,
+    "call": {
+      "commandBuffer": "2336",
+      "vertexCount": "3",
+      "instanceCount": "1",
+      "firstVertex": "0",
+      "firstInstance": "0"
+    },
+    "marker": "shadps4.pm4 gfx:0xb40000707fa29de0:DrawIndexAuto generation=1 guest_flip_id=3178 submission_id=9550 queue_id=0 packet_va=0x213272b50",
+    "images": {
+      "0": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1535",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "1": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1535",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "2": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1535",
+          "viewType": "1",
+          "format": "43"
+        }
+      ],
+      "3": [
+        {
+          "sType": "15",
+          "pNextType": "1000117002",
+          "flags": "0",
+          "image": "1535",
+          "viewType": "1",
+          "format": "43"
+        }
+      ]
+    },
+    "viewports": [
+      {
+        "x": "0",
+        "y": "0",
+        "width": "1920",
+        "height": "1080",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ],
+    "targets": [
+      {
+        "sType": "15",
+        "pNext": null,
+        "flags": "0",
+        "image": "346",
+        "viewType": "1",
+        "format": "37"
+      }
+    ],
+    "pipeline": "317"
+  },
+  {
+    "chunk": 2323,
+    "call": {
+      "commandBuffer": "171",
+      "indexCount": "12",
+      "instanceCount": "1",
+      "firstIndex": "0",
+      "vertexOffset": "0",
+      "firstInstance": "0"
+    },
+    "targets": [
+      {
+        "sType": "15",
+        "pNext": null,
+        "flags": "0",
+        "image": "195",
+        "viewType": "1",
+        "format": "37"
+      }
+    ],
+    "pipeline": "251",
+    "viewports": [
+      {
+        "x": "0",
+        "y": "0",
+        "width": "1920",
+        "height": "1080",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ]
+  },
+  {
+    "chunk": 2326,
+    "call": {
+      "commandBuffer": "171",
+      "indexCount": "6",
+      "instanceCount": "1",
+      "firstIndex": "12",
+      "vertexOffset": "8",
+      "firstInstance": "0"
+    },
+    "targets": [
+      {
+        "sType": "15",
+        "pNext": null,
+        "flags": "0",
+        "image": "195",
+        "viewType": "1",
+        "format": "37"
+      }
+    ],
+    "pipeline": "251",
+    "viewports": [
+      {
+        "x": "0",
+        "y": "0",
+        "width": "1920",
+        "height": "1080",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ]
+  },
+  {
+    "chunk": 2329,
+    "call": {
+      "commandBuffer": "171",
+      "indexCount": "234",
+      "instanceCount": "1",
+      "firstIndex": "18",
+      "vertexOffset": "12",
+      "firstInstance": "0"
+    },
+    "targets": [
+      {
+        "sType": "15",
+        "pNext": null,
+        "flags": "0",
+        "image": "195",
+        "viewType": "1",
+        "format": "37"
+      }
+    ],
+    "pipeline": "251",
+    "viewports": [
+      {
+        "x": "0",
+        "y": "0",
+        "width": "1920",
+        "height": "1080",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ]
+  },
+  {
+    "chunk": 2332,
+    "call": {
+      "commandBuffer": "171",
+      "indexCount": "6654",
+      "instanceCount": "1",
+      "firstIndex": "252",
+      "vertexOffset": "12",
+      "firstInstance": "0"
+    },
+    "targets": [
+      {
+        "sType": "15",
+        "pNext": null,
+        "flags": "0",
+        "image": "195",
+        "viewType": "1",
+        "format": "37"
+      }
+    ],
+    "pipeline": "251",
+    "viewports": [
+      {
+        "x": "0",
+        "y": "0",
+        "width": "1920",
+        "height": "1080",
+        "minDepth": "0",
+        "maxDepth": "1"
+      }
+    ]
+  }
+]

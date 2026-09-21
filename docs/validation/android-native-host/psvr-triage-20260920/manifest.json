@@ -1,0 +1,255 @@
+{
+  "schema": 1,
+  "files": [
+    {
+      "path": "baseline-postprocess-frame.png",
+      "bytes": 3330612,
+      "sha256": "39c2914ae625799faa74673354de4d743ec28526efbf76daea64577b6e62682c"
+    },
+    {
+      "path": "baseline-swapchain.png",
+      "bytes": 151176,
+      "sha256": "9441c2145a5bdd1bda9668f47d03594491275176bc692b95b9a2d0ca529b6b5d"
+    },
+    {
+      "path": "beat-final-after-input.png",
+      "bytes": 2192705,
+      "sha256": "8fd46410f271262324eed8fdf91ae0c2636a4d5cfa69480eb4472f1eac9adbaa"
+    },
+    {
+      "path": "beat-final-family-audit.json",
+      "bytes": 72857,
+      "sha256": "9cb637700c2b3f5b06be92536b4779a5aa008daba4484affae0b509bb595e820"
+    },
+    {
+      "path": "beat-final-imports.json",
+      "bytes": 643575,
+      "sha256": "9d7470106a707f0cf3b73454d8a14f838186cb8afd8ca1c6b348e8c0eb41b87b"
+    },
+    {
+      "path": "beat-final-input.txt",
+      "bytes": 315,
+      "sha256": "fa7933203488fc8348cc079afc59bbce385ea8ea52bf89f98a1bf14c1809ace2"
+    },
+    {
+      "path": "beat-final-logcat-end.txt",
+      "bytes": 191021,
+      "sha256": "56b2676113eeaf4145e7f7154710ca128f7db9fa84f28f6c2ce074868b7614b0"
+    },
+    {
+      "path": "beat-final-logcat.txt",
+      "bytes": 186327,
+      "sha256": "cefaf165e4f55da7afa7720d7448f9c69962a1684d77392b2590f5ad344b157c"
+    },
+    {
+      "path": "beat-final-pid.txt",
+      "bytes": 4,
+      "sha256": "89e36445b7ee1a6256976574ec1a6428febaf10206b71ba994c05cf1bd6952ed"
+    },
+    {
+      "path": "beat-final-screen.png",
+      "bytes": 2181371,
+      "sha256": "d2d4840d79cb8d58a7a031bfb9587ca61465f6dfaa719ede1777fe7ac781f405"
+    },
+    {
+      "path": "beat-final-status.txt",
+      "bytes": 794,
+      "sha256": "fa3e9e4096694e94cf0ad315ceafab20574d3ee6604c2509575c20c61056cf4d"
+    },
+    {
+      "path": "beat-final-stopped.txt",
+      "bytes": 5205,
+      "sha256": "b6fb9d1a5f88e1845d218497192f5cfa587af7e4643c79653fe44b8e9ade3ead"
+    },
+    {
+      "path": "beat-v2-imports.json",
+      "bytes": 643575,
+      "sha256": "28d90cfbb085ce1a6b373a6d44566a5ad57439b386e9a5daa685f833d2455871"
+    },
+    {
+      "path": "beat-v2-input.txt",
+      "bytes": 318,
+      "sha256": "c0111749fbfcd877b1429684beec956ca85e5cd15eb5370e5ab04f7c07b52ace"
+    },
+    {
+      "path": "beat-v2-screen.png",
+      "bytes": 2199389,
+      "sha256": "fac09fb0c09bacced6d6d557deabb489f5631d6660b742a5c294c47bc3c41a74"
+    },
+    {
+      "path": "beat-v2-status.txt",
+      "bytes": 786,
+      "sha256": "24c67a198f8c46964aecee966d3e6b90675dfe0b68194efb62b85724f649fac8"
+    },
+    {
+      "path": "beat-v2-stopped.txt",
+      "bytes": 5184,
+      "sha256": "7e7c10ab9b3ce8ba884c7df017e476e246f66339e5a617e6eb7968eabee98e5e"
+    },
+    {
+      "path": "final-binaries.json",
+      "bytes": 1073,
+      "sha256": "7d12c3acba16d5f3ec94d6077aa4ea7a401adc60d69ba8a0707753caa10561dc"
+    },
+    {
+      "path": "final-input.txt",
+      "bytes": 607,
+      "sha256": "94ac9fce2a9fa9a344435e42fb2169ceb61fe562991c7ba9d804be4c4f6b708f"
+    },
+    {
+      "path": "final-patch.txt",
+      "bytes": 118,
+      "sha256": "1dd51181ef2aa8c0d19488526d2566dacf87253bac62f752cfc7f61170a54304"
+    },
+    {
+      "path": "final-proc-status.txt",
+      "bytes": 1091,
+      "sha256": "f3e9ee3383ef91ce3aed517c5139d08a7c133b807394eb490360ced8147c1d3a"
+    },
+    {
+      "path": "final-properties.json",
+      "bytes": 109,
+      "sha256": "2bc7c77d8f303728004e56be107f36ff4e5d9411b85089c7c16ed7c8334021f4"
+    },
+    {
+      "path": "final-renderdoc.txt",
+      "bytes": 155,
+      "sha256": "5d83d0d5871961462fd20b71510e2443aac51a7f2cb7255c59e23eee103407c6"
+    },
+    {
+      "path": "final-replay-loader.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "path": "gpu-system-v2.txt",
+      "bytes": 15555,
+      "sha256": "9cf54c54027d182e4804d72eb58a30441026f49af55c643b8aec5590f0d0681f"
+    },
+    {
+      "path": "gpu-turnip-v2-final.txt",
+      "bytes": 17300,
+      "sha256": "1ed0d8555ff8d29909eaad6c1a639ce3f7d1c863598241edf12fd8c02ee1ec08"
+    },
+    {
+      "path": "module-fex-junit.txt",
+      "bytes": 800,
+      "sha256": "4c711d3385444af90e260e227e94d2f963fb679724a00644a3af88fe3b6eb4d2"
+    },
+    {
+      "path": "module-inventory.json",
+      "bytes": 9027662,
+      "sha256": "8e12d33b575e3da6a5f884e72490f33ce9f8f22a68a707096a90f14b4adcabf9"
+    },
+    {
+      "path": "render-evidence.json",
+      "bytes": 2139,
+      "sha256": "9f416bef34946370a8ef6ea491fd0625ef9224190c4987cd7074c29e0bcd331e"
+    },
+    {
+      "path": "sports-23598-fault.txt",
+      "bytes": 964,
+      "sha256": "6b76d3c52ddca37a903f344c44639c339ac7bda9cf36fd4ebbb4567fe50d0ef2"
+    },
+    {
+      "path": "sports-23735-fault.txt",
+      "bytes": 964,
+      "sha256": "82ad93c833b8324872f1fa603fcb16ad793b5e79aa9d022468153859eb09a27c"
+    },
+    {
+      "path": "sports-final-family-audit.json",
+      "bytes": 83900,
+      "sha256": "07087aa6d7934fb2435f9f604b26936b351cb36c960350f14dafdf7b203f1938"
+    },
+    {
+      "path": "sports-final-fault.txt",
+      "bytes": 964,
+      "sha256": "39eab2388c97e9ce31dc882e23ac5d055a454d22d3032cd25156d345bf787811"
+    },
+    {
+      "path": "sports-final-imports.json",
+      "bytes": 751201,
+      "sha256": "2b5a1b9ee28e30273f4d1e04e5e97c46c19ffca1a6f5c4d4293651de79743136"
+    },
+    {
+      "path": "sports-final-logcat.txt",
+      "bytes": 150015,
+      "sha256": "976cffc3c2b1379cfbba28674d8b8fc7a421ec504dc345acab54e710d2ec3652"
+    },
+    {
+      "path": "sports-final-pid.txt",
+      "bytes": 4,
+      "sha256": "e2a7c0cee2532af560ca5cc4f2d397885bafe83f19bca1610904a256bfc38356"
+    },
+    {
+      "path": "sports-final-status.txt",
+      "bytes": 517,
+      "sha256": "0d64006441d5618e74f699e25ab8a65c26f0e0f697b52580843d09939b51059a"
+    },
+    {
+      "path": "sports-v1-family-audit.json",
+      "bytes": 82921,
+      "sha256": "0ad71486caf707f6dc1f7203e67559b9e8d8113175a0945c7de8e8442ea6868b"
+    },
+    {
+      "path": "sports-v1-fault.txt",
+      "bytes": 964,
+      "sha256": "056dc6b24ae068ec486284f46480f12c5365051da82f449f518ea9d883bc97a7"
+    },
+    {
+      "path": "sports-v1-imports.json",
+      "bytes": 751201,
+      "sha256": "534a291612d6c32c01edc7ae208a473dae17867097ab8549ae9ede1f7e605151"
+    },
+    {
+      "path": "summary.json",
+      "bytes": 1525,
+      "sha256": "a146041ae741d1cf637f3bd9fc3d772daf10d981002ead4d59dd6e75ee6454dd"
+    },
+    {
+      "path": "tests.txt",
+      "bytes": 541,
+      "sha256": "60551a79d8119a3e0c7237fe8cffcc3f6e5270966f83214504643349af10a930"
+    },
+    {
+      "path": "tetris-final-family-audit.json",
+      "bytes": 105375,
+      "sha256": "0ab824e0708dab4764914c6d8ae4ece634ffdb85df42afc039e0a20703d50524"
+    },
+    {
+      "path": "tetris-final-imports.json",
+      "bytes": 814571,
+      "sha256": "781985b29d288cc344d29761bbad209b32534f03aa5209ee24251f96fc8047bd"
+    },
+    {
+      "path": "tetris-final-logcat.txt",
+      "bytes": 152389,
+      "sha256": "78626830744d0e07a98bfcda05aee1f1c5da2b201279c32584273abd8476a1f3"
+    },
+    {
+      "path": "tetris-final-pid.txt",
+      "bytes": 4,
+      "sha256": "41fd8bb687b8dc7c604c7b9d12d97daf21998e226d17c1df067ba5088bd6502d"
+    },
+    {
+      "path": "tetris-final-screen.png",
+      "bytes": 123543,
+      "sha256": "a56ee31dbc3e279884e695e32922b3a8579eeaf3e8bcf00b263206102150c39b"
+    },
+    {
+      "path": "tetris-final-status.txt",
+      "bytes": 83,
+      "sha256": "45d3083b8e5d12f9fd154b4c7d8f7890c23577d6b474f69e377d661522d26787"
+    },
+    {
+      "path": "tetris-v1-family-audit.json",
+      "bytes": 104148,
+      "sha256": "09d9948cedac46680d664b4d627d3c4eb384fc529cb86b3cb89a02fab08d62da"
+    },
+    {
+      "path": "tetris-v1-imports.json",
+      "bytes": 814571,
+      "sha256": "6316f9ffe12e10aaf2de711462c3c757842e14a2c331bd8b72bc4f5731c0640e"
+    }
+  ]
+}

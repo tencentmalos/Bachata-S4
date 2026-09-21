@@ -1,0 +1,11 @@
+NP offline: 400 checks, 0 failures
+guest_np_tests exit=0
+GUEST_NETWORK checks=267 failures=0
+guest_network_tests exit=0
+guest_http_tests: 357 checks, 0 failures
+guest_http_tests exit=0
+PSVR_SERVICES checks=148 failures=0
+guest_psvr_services_tests exit=0
+decoded video=12 audio=90 callbacks=23 events=1 reads=11
+guest_avplayer_tests: 1206 checks, 0 failures
+guest_avplayer_tests exit=0

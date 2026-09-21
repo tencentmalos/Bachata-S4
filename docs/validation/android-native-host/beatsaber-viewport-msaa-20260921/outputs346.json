@@ -1,0 +1,12 @@
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"schemaVersion\":\"1.0\",\"session\":{\"captureId\":\"1e2f42c6-6bdb-4bdf-817c-29f81e2df0fe\",\"captureRevision\":{\"value\":21},\"currentEventId\":\"346\"},\"data\":{\"eventId\":\"346\",\"graphicsApi\":\"Vulkan\",\"viewportX\":0,\"viewportY\":0,\"viewportWidth\":0,\"viewportHeight\":0,\"depthTarget\":\"1818\",\"colorTargets\":[\"1825\"]}}"
+      }
+    ]
+  },
+  "id": 46,
+  "jsonrpc": "2.0"
+}

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
+#include <bitset>
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <unistd.h>
@@ -18,6 +19,8 @@ struct TextureProbeMemory final : Core::GuestMemoryBackend {
     int fd{-1};
     u8* backing{};
     u8* base{};
+    std::bitset<Bytes / 4096> mapped_pages;
+    unsigned unmapped_watch_calls{};
     explicit TextureProbeMemory(const char* directory) {
         std::string path = std::string(directory) + "/texture-cache-XXXXXX";
         fd = mkstemp(path.data());
@@ -51,6 +54,8 @@ struct TextureProbeMemory final : Core::GuestMemoryBackend {
                             MAP_SHARED | MAP_FIXED, fd, physical);
         if (result == MAP_FAILED)
             throw std::runtime_error("probe map");
+        for (u64 offset = a - u64(base); offset < a - u64(base) + n; offset += 4096)
+            mapped_pages.set(offset / 4096);
         return result;
     }
     void* MapFile(VAddr, u64, u64, u32, uintptr_t, bool) override {
@@ -58,6 +63,17 @@ struct TextureProbeMemory final : Core::GuestMemoryBackend {
     }
     void Unmap(VAddr a, u64 n) override {
         mprotect(reinterpret_cast<void*>(a), n, PROT_NONE);
+        for (u64 offset = a - u64(base); offset < a - u64(base) + n; offset += 4096)
+            mapped_pages.reset(offset / 4096);
+    }
+    void ProtectGpu(VAddr a, u64 n, Core::MemoryPermission p) override {
+        for (u64 offset = a - u64(base); offset < a - u64(base) + n; offset += 4096) {
+            if (!mapped_pages.test(offset / 4096)) {
+                ++unmapped_watch_calls;
+                return; // Keep the guard inaccessible in the counterexample too.
+            }
+        }
+        Protect(a, n, p);
     }
     void Protect(VAddr a, u64 n, Core::MemoryPermission p) override {
         if (mprotect(reinterpret_cast<void*>(a), n, int(p)))
@@ -174,6 +190,67 @@ static int TextureCacheGpuChecks(const Vulkan::Instance& instance, Vulkan::Sched
     textures.UnmapMemory(u64(backend.base), backend.Bytes);
     scheduler.Finish();
     scheduler.PopPendingOperations();
+    // A sparse buffer update must not coalesce an unwatch across an untouched
+    // reservation hole. Exercise the production PageManager with real VM pages.
+    const auto sparse = Common::AlignUp(u64(backend.base) + (48ull << 20),
+                                       TRACKER_HIGHER_PAGE_SIZE);
+    check(memory.UnmapMemory(sparse + 0x4000, 0x4000) == 0, "sparse watch hole unmap");
+    {
+        PageManager pages(&rasterizer);
+        RegionBits mask;
+        mask.Clear();
+        mask.SetRange(0, 1);
+        mask.SetRange(8, 9);
+        pages.UpdatePageWatchersForRegion<true, false>(sparse, mask);
+        pages.UpdatePageWatchersForRegion<false, false>(sparse, mask);
+        check(backend.unmapped_watch_calls == 0, "write unwatch preserves sparse mapping hole");
+        backend.unmapped_watch_calls = 0;
+        pages.UpdatePageWatchersForRegion<true, false>(sparse, mask);
+        pages.UpdatePageWatchersForRegion<true, true>(sparse, mask);
+        pages.UpdatePageWatchersForRegion<false, true>(sparse, mask);
+        check(backend.unmapped_watch_calls == 0, "read unwatch preserves sparse mapping hole");
+        pages.UpdatePageWatchersForRegion<false, false>(sparse, mask);
+    }
+    backend.unmapped_watch_calls = 0;
+    auto& buffers = rasterizer.GetBufferCache();
+    const u64 source = sparse + 0x1000;
+    constexpr u32 bytes = 0x10000;
+    std::memset(backend.backing + (sparse - u64(backend.base)), 0x47, 0x20000);
+    Buffer download(instance, scheduler, MemoryUsage::Download, 0,
+                    vk::BufferUsageFlagBits::eTransferDst, bytes);
+    auto snapshot = [&] {
+        auto [buffer, offset] = buffers.ObtainBuffer(source, bytes, false);
+        scheduler.EndRendering();
+        const vk::MemoryBarrier barrier{
+            .srcAccessMask = vk::AccessFlagBits::eMemoryWrite,
+            .dstAccessMask = vk::AccessFlagBits::eTransferRead};
+        auto cmd = scheduler.CommandBuffer();
+        cmd.pipelineBarrier(vk::PipelineStageFlagBits::eAllCommands,
+                            vk::PipelineStageFlagBits::eTransfer, {}, barrier, {}, {});
+        cmd.copyBuffer(buffer->Handle(), download.Handle(), vk::BufferCopy{offset, 0, bytes});
+        scheduler.Finish();
+        scheduler.PopPendingOperations();
+        vmaInvalidateAllocation(instance.GetAllocator(), download.buffer.allocation, 0, bytes);
+    };
+    snapshot();
+    check(backend.unmapped_watch_calls == 0, "sparse upload never protects reservation holes");
+    check(std::ranges::all_of(download.mapped_data.first(bytes), [i = u32{}](u8 value) mutable {
+        const u32 offset = i++;
+        return value == (offset >= 0x3000 && offset < 0x7000 ? 0 : 0x47);
+    }), "sparse GPU upload preserves mapped bytes and zero fills hole");
+    check(memory.MapMemory(&mapped, sparse + 0x4000, 0x4000, Core::MemoryProt::CpuReadWrite,
+                           Core::MemoryMapFlags::Fixed, Core::VMAType::Direct, "recommit",
+                           false, physical + sparse - u64(backend.base) + 0x4000) == 0,
+          "map former sparse hole");
+    std::memset(mapped, 0x6c, 0x4000);
+    check(buffers.IsRegionCpuModified(sparse + 0x4000, 0x4000),
+          "new mapping invalidates cached zero pages");
+    snapshot();
+    check(std::ranges::all_of(download.mapped_data.first(bytes), [i = u32{}](u8 value) mutable {
+        const u32 offset = i++;
+        return value == (offset >= 0x3000 && offset < 0x7000 ? 0x6c : 0x47);
+    }), "same cached GPU buffer uploads newly mapped contents");
+    check(backend.unmapped_watch_calls == 0, "no protection revived a hole during remap");
     std::printf("TEXTURE_CACHE_GPU %u checks / %u failures\n", checks, failures);
     return failures ? 1 : 0;
 }

@@ -1,0 +1,45 @@
+{
+  "scope": "local working tree source audit; no desktop runtime validation",
+  "files": [
+    {
+      "path": "src/core/libraries/network/sys_net.cpp",
+      "sha256": "f978155a9f266163ac3898a70822bfa42aa23a9ab5dc4c0d904224b12acfdb09",
+      "size": 15450
+    },
+    {
+      "path": "src/core/libraries/network/posix_sockets.cpp",
+      "sha256": "fd353207f7e34cdd7db1dcaef14f0b8b28a9d7c99d69315555638a470ed27bcf",
+      "size": 27323
+    },
+    {
+      "path": "src/core/libraries/network/sockets.h",
+      "sha256": "e19818f3ae4c32739aa49e73b49b5819d1cb72a671804f32f3b9306d73a6cc8a",
+      "size": 8227
+    },
+    {
+      "path": "src/core/libraries/network/net.cpp",
+      "sha256": "2283e5aa5a019793de3ade02efc05c98c57fd2e9d73565ce70fe4cbdc053c9c7",
+      "size": 74872
+    },
+    {
+      "path": "src/core/libraries/network/net_epoll.cpp",
+      "sha256": "5f31f901b2f0c6b69f61822c10002d37e6dc3e0bb71bc0921f237b7b04446672",
+      "size": 1809
+    },
+    {
+      "path": "src/core/libraries/network/net_epoll.h",
+      "sha256": "26ada715ab26eb5a891fb3104182ad8c203a200351c7818aac8ba4053505ac6e",
+      "size": 1717
+    },
+    {
+      "path": "src/core/libraries/kernel/file_system.cpp",
+      "sha256": "cf198ffcc7dfe141832dd1de7e07da8ab9f5639ed3471ddd23b19c0a2a79b044",
+      "size": 54559
+    },
+    {
+      "path": "src/core/libraries/kernel/kernel.cpp",
+      "sha256": "0e195d72fe4cba05f6821d185bc1ab2ed189dda0c98bf07c0aa9f3be451bb9c9",
+      "size": 21184
+    }
+  ]
+}

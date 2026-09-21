@@ -1,0 +1,6 @@
+Transferring CUSA36289.zar 1591524981 bytes
+Hashing on device CUSA36289
+Installed and SHA verified CUSA36289 seconds 16.0
+Transferring CUSA13427.zar 5246330525 bytes
+Hashing on device CUSA13427
+Installed and SHA verified CUSA13427 seconds 52.4

@@ -22,6 +22,7 @@ vk::ImageViewType ConvertImageViewType(AmdGpu::ImageType type) {
     case AmdGpu::ImageType::Color2DMsaa:
         return vk::ImageViewType::e2D;
     case AmdGpu::ImageType::Color2DArray:
+    case AmdGpu::ImageType::Color2DMsaaArray:
         return vk::ImageViewType::e2DArray;
     case AmdGpu::ImageType::Color3D:
         return vk::ImageViewType::e3D;
@@ -92,7 +93,10 @@ ImageViewInfo::ImageViewInfo(const AmdGpu::DepthBuffer& depth_buffer, AmdGpu::De
 ImageView::ImageView(const Vulkan::Instance& instance, const ImageViewInfo& info_,
                      const Image& image)
     : info{info_} {
-    vk::ImageViewUsageCreateInfo usage_ci{.usage = image.usage_flags};
+    vk::ImageViewUsageCreateInfo usage_ci{.usage = image.backing->image.image_ci.usage};
+    ASSERT_MSG(!info.is_storage || image.info.props.is_depth ||
+                   bool(usage_ci.usage & vk::ImageUsageFlagBits::eStorage),
+               "Storage view is unsupported for this multisampled image backing");
     if (!info.is_storage) {
         usage_ci.usage &= ~vk::ImageUsageFlagBits::eStorage;
     }

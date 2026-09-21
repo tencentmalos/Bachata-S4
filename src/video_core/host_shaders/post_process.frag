@@ -17,6 +17,7 @@ layout (push_constant) uniform settings {
     uint srgb_input;
     uint sbs;
     uint flip_y;
+    layout(offset = 32) vec4 eye_uv[4];
 } pp;
 
 const float cutoff = 0.0031308, a = 1.055, b = 0.055, d = 12.92;
@@ -39,18 +40,42 @@ vec3 degamma(vec3 rgb) {
 }
 
 void main() {
-    // Mode 1 mirrors a flat image. Modes 2/3 consume distinct guest eyes in
-    // the existing presentation pass, without PSVR warp or CPU readback.
+    // Base and overlay can independently use separate views or a shared image.
+    // Preserve a shared image's UVs, rather than duplicating its full width into
+    // each half. Array eyes arrive as separate single-layer 2D image views.
     vec2 sample_uv = uv;
     if (pp.flip_y != 0u) sample_uv.y = 1.0 - sample_uv.y;
-    if (pp.sbs != 0u) sample_uv.x = fract(uv.x * 2.0);
-    vec4 color_linear = pp.sbs >= 2u && uv.x >= 0.5
-        ? texture(rightSampler, sample_uv) : texture(texSampler, sample_uv);
-    if (pp.sbs == 3u) {
-        vec4 overlay = uv.x >= 0.5 ? texture(overlayRightSampler, sample_uv)
-                                   : texture(overlayLeftSampler, sample_uv);
+    vec2 eye_uv = vec2(fract(sample_uv.x * 2.0), sample_uv.y);
+    bool right_eye = uv.x >= 0.5;
+    bool explicit_uv = (pp.sbs & 16u) != 0u;
+    uint eye = right_eye ? 1u : 0u;
+    vec4 color_linear;
+    if (explicit_uv) {
+        vec2 base_uv = eye_uv * pp.eye_uv[eye].xy + pp.eye_uv[eye].zw;
+        color_linear = right_eye ? texture(rightSampler, base_uv) : texture(texSampler, base_uv);
+    } else {
+        bool split_base = (pp.sbs & 1u) != 0u;
+        color_linear = split_base && right_eye
+            ? texture(rightSampler, eye_uv)
+            : texture(texSampler, split_base ? eye_uv : sample_uv);
+    }
+    if ((pp.sbs & 2u) != 0u) {
+        vec4 overlay;
+        if (explicit_uv) {
+            vec2 overlay_uv = eye_uv * pp.eye_uv[eye + 2u].xy + pp.eye_uv[eye + 2u].zw;
+            overlay = right_eye ? texture(overlayRightSampler, overlay_uv)
+                                : texture(overlayLeftSampler, overlay_uv);
+        } else {
+            bool split_overlay = (pp.sbs & 4u) != 0u;
+            overlay = split_overlay && right_eye
+                ? texture(overlayRightSampler, eye_uv)
+                : texture(overlayLeftSampler, split_overlay ? eye_uv : sample_uv);
+        }
         color_linear = vec4(overlay.rgb + color_linear.rgb * (1.0 - overlay.a), 1.0);
     }
+    // VR scene alpha belongs to the guest's intermediate rendering, not the
+    // Android UI. Keep overlay blending above, then present an opaque frame.
+    if ((pp.sbs & 8u) != 0u) color_linear.a = 1.0;
     if (pp.hdr != 0u) {
         color = color_linear;
     } else {

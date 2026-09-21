@@ -1,0 +1,427 @@
+{
+  "date": "2026-09-21",
+  "device": "AYN Thor 9c2841a4",
+  "validation_scope": "MSAA GPU probes, Android settings, final APK Beat Saber warning scene, user gyro acceptance",
+  "files": [
+    {
+      "path": "build-first.log.txt",
+      "bytes": 188683,
+      "sha256": "c0cfb46aae4aa6a1b1b672a9b3cad25010a4b93a720f6d34f0116003cc5142a4"
+    },
+    {
+      "path": "build-probe2.log.txt",
+      "bytes": 6114,
+      "sha256": "40e2ba7848c5f44156cf1aafe7511d2761596a371699b4b26c128956867adcca"
+    },
+    {
+      "path": "end-forwards.txt",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "path": "end-process.txt",
+      "bytes": 1088,
+      "sha256": "3d4524c5f6804bb57bede6f7c2a0fd4f94c20e48d9c50045d044ff05e2667308"
+    },
+    {
+      "path": "end-status.txt",
+      "bytes": 155,
+      "sha256": "71989f44995e0294c1934026bd700fac89bc5ca72e12feb464ba04a7ff8d84f4"
+    },
+    {
+      "path": "final-game-host.txt",
+      "bytes": 60,
+      "sha256": "317d7e4b8bf0045576cbf09319bb86ca12f8c0bf824b5a46795987057f342601"
+    },
+    {
+      "path": "final-game-scene.png",
+      "bytes": 2347685,
+      "sha256": "c8154a4440cb1161579b600ac41c009f29a4b6ee3c9eede6d80b261be9cd029b"
+    },
+    {
+      "path": "final-game-status.txt",
+      "bytes": 753,
+      "sha256": "ef7d6a28382a67da67d4af473dedbceb181ec6b0f48a2b021ab8a5eb5513b650"
+    },
+    {
+      "path": "final-game-status2.txt",
+      "bytes": 751,
+      "sha256": "7d043a52068360a9ccef04c5f68d6a0b2c3833ffd3450a50ff27afe1af65c1c8"
+    },
+    {
+      "path": "final-game-stopped.txt",
+      "bytes": 4906,
+      "sha256": "9cac6a1572d72ef12bc17cb01157fc17c29d55f9cde4b3cc12e2dc7d368ad8ab"
+    },
+    {
+      "path": "final-off-host.txt",
+      "bytes": 60,
+      "sha256": "317d7e4b8bf0045576cbf09319bb86ca12f8c0bf824b5a46795987057f342601"
+    },
+    {
+      "path": "final-off-logcat.txt",
+      "bytes": 1813,
+      "sha256": "9cd32c8be7d15c44b74d4f53a4bcc3f8563c5372b5600986d2f6c18e6231005f"
+    },
+    {
+      "path": "final-off-scene.png",
+      "bytes": 2173350,
+      "sha256": "db93ee5a4a126100cd8c62785a194c5073a929cfbc6953c9c54d5f1ab7d79e69"
+    },
+    {
+      "path": "final-off-status.txt",
+      "bytes": 742,
+      "sha256": "12f603e81072cc0dce301eae8e93729ab17e99412b7cfa1f73f571c9a70a8fd0"
+    },
+    {
+      "path": "final-off-stopped.txt",
+      "bytes": 4906,
+      "sha256": "a41f49d780e96a9de20fee0d62f2d37d2b5838497484eaa757a32a94c9ced02a"
+    },
+    {
+      "path": "final-session-logcat.txt",
+      "bytes": 1690,
+      "sha256": "28ca6c68a412e552aaa16eb45a58ca23fb0940bea3107945b7d8a0cd603352c2"
+    },
+    {
+      "path": "gradle-delivery.log.txt",
+      "bytes": 21054,
+      "sha256": "7b305b949fd94da7f1ab5f507c24e70a75124da517ed8a8a88e121bff65c5f2b"
+    },
+    {
+      "path": "gradle-gyro.log.txt",
+      "bytes": 20704,
+      "sha256": "735bba3b9cef3e4c9333f28ee4d33340fa0bd2ee5a980eb87ae85d1cd1864033"
+    },
+    {
+      "path": "gradle-ui.log.txt",
+      "bytes": 21137,
+      "sha256": "561946d2e40dcdd36f00400febb4d6d7c10033f4f4ddd643ffcb6adfac33d06b"
+    },
+    {
+      "path": "graphics-off-ui.png",
+      "bytes": 84681,
+      "sha256": "61226fafe690265da8acc82b4700d6fc82a8615ddf2ecd3f11985ee91de76c9c"
+    },
+    {
+      "path": "graphics-on-ui.png",
+      "bytes": 84799,
+      "sha256": "73a04d4ff8fe68fa3fd36dd0d07d1939fd69d4669b5ad7f87f3fb9fee8331838"
+    },
+    {
+      "path": "identity-final.json",
+      "bytes": 761,
+      "sha256": "967d83fa4fab687f76331a60aaff034cf6c65e983426f8065d39bd7f9ffff9c3"
+    },
+    {
+      "path": "identity.json",
+      "bytes": 554,
+      "sha256": "01d45788c468c8d370e2d174f598fb59e32dd463f7e133992195f8235f5243b8"
+    },
+    {
+      "path": "kotlin-tests.json",
+      "bytes": 198,
+      "sha256": "ee31fe5289d6a8e3bec9b5b63e9d3e791e4d38e0ac831e5cf5bbbacae505a523"
+    },
+    {
+      "path": "old-stopped.txt",
+      "bytes": 4919,
+      "sha256": "9888374df292d32edb37289a8bd63789687f005045c5e5e0f2bacad5818bc9f3"
+    },
+    {
+      "path": "pre-final-status.txt",
+      "bytes": 751,
+      "sha256": "a85d907f9583ae0e37845f070706b1f6565b002c5d6f9b08548149ebbcb1e8e2"
+    },
+    {
+      "path": "pre-final-stopped.txt",
+      "bytes": 4904,
+      "sha256": "79c2201111e1697ceb58717ae43105d95ba3ace45597f3114632e9ff0fb824d4"
+    },
+    {
+      "path": "probe-system-game.txt",
+      "bytes": 16338,
+      "sha256": "d0339a656aea7ab862857b57afe6d999a03a0135e85627ab16885a7c407a4be7"
+    },
+    {
+      "path": "probe-system-off.txt",
+      "bytes": 16337,
+      "sha256": "e09785745bbba218890b3de046d6628ae1d3c809b914cd523bf2d33a1021e7a7"
+    },
+    {
+      "path": "probe-turnip-game.txt",
+      "bytes": 18153,
+      "sha256": "715e93afecc5f93eefc5f4a85b93d4ae5f4207b2d8380e03eed7550d208e3105"
+    },
+    {
+      "path": "probe-turnip-off.txt",
+      "bytes": 18152,
+      "sha256": "0f6490df966e4d16d378c5078aeec4dde46c4c29b83ad057a695b844f0e2fa8a"
+    },
+    {
+      "path": "settings-before.json",
+      "bytes": 427,
+      "sha256": "2d9cbe984e5f265e3a607314a8a3759f01ff35ec43369cfe43af6a17e80dfc64"
+    },
+    {
+      "path": "settings-final.json",
+      "bytes": 427,
+      "sha256": "2d9cbe984e5f265e3a607314a8a3759f01ff35ec43369cfe43af6a17e80dfc64"
+    },
+    {
+      "path": "settings-msaa-off.json",
+      "bytes": 467,
+      "sha256": "af43575d30f0b813340894e00bcdf7b17896e4350ec3f040d193f34d2f7f9001"
+    },
+    {
+      "path": "spirv/msaa-0-2-0-0-0.spv",
+      "bytes": 3652,
+      "sha256": "51f4b3c0f16bad27f18ddf534cedd8677a01c65b63ab2fb788039c6f3630faff"
+    },
+    {
+      "path": "spirv/msaa-0-2-0-0-1.spv",
+      "bytes": 3652,
+      "sha256": "2435567dc24c596cfef23a761dbd4e5c31d49d57b99d90d2946d49d7069f333d"
+    },
+    {
+      "path": "spirv/msaa-0-2-0-3-0.spv",
+      "bytes": 3652,
+      "sha256": "3841c19b7e001fb7701ea6bc8ff45a507812119e84e879d97c3900c12c06df70"
+    },
+    {
+      "path": "spirv/msaa-0-2-0-3-1.spv",
+      "bytes": 3652,
+      "sha256": "78feeeffc973f31176b538c6bd4ab34c30faef4b79434c6d68dd20b59b3c3ecd"
+    },
+    {
+      "path": "spirv/msaa-0-2-0-6-0.spv",
+      "bytes": 3652,
+      "sha256": "fbddd333237d4e67020cd502d3a7cc1fcf353bd0e93eb684aa98ff5371cfd937"
+    },
+    {
+      "path": "spirv/msaa-0-2-0-6-1.spv",
+      "bytes": 3652,
+      "sha256": "3f5433a72c76e62e739769442273d218f09e270141cdd7834514c0a2a51ad186"
+    },
+    {
+      "path": "spirv/msaa-0-2-1-0-0.spv",
+      "bytes": 3656,
+      "sha256": "ba4858ed35d90c85fc3d05d4a27bf86f006b34decfbf8c87536695420896f922"
+    },
+    {
+      "path": "spirv/msaa-0-2-1-0-1.spv",
+      "bytes": 3656,
+      "sha256": "f933027e76fc45d15653ac1d5714d981e1c24f676d4ff36e9d30dbeb302f5795"
+    },
+    {
+      "path": "spirv/msaa-0-2-1-3-0.spv",
+      "bytes": 3656,
+      "sha256": "2f91fe3d885b2ce0c8a16af9cffef0adb230fb26faa9d69b2ff0604b1974114f"
+    },
+    {
+      "path": "spirv/msaa-0-2-1-3-1.spv",
+      "bytes": 3656,
+      "sha256": "de12dde5fa02f8c261fbba77cbcd43ac0c05442f23799d4dda7f18a3c9541c68"
+    },
+    {
+      "path": "spirv/msaa-0-2-1-6-0.spv",
+      "bytes": 3656,
+      "sha256": "fc904a96220e5853c46a7124f351a0703443d0118be6ab0f3be314ac8f78ad89"
+    },
+    {
+      "path": "spirv/msaa-0-2-1-6-1.spv",
+      "bytes": 3656,
+      "sha256": "8d741e16544b1d1e758208dcc23be5bd82a823ce391870370b2e021c9e6a3438"
+    },
+    {
+      "path": "spirv/msaa-0-4-0-0-0.spv",
+      "bytes": 3652,
+      "sha256": "51f4b3c0f16bad27f18ddf534cedd8677a01c65b63ab2fb788039c6f3630faff"
+    },
+    {
+      "path": "spirv/msaa-0-4-0-0-1.spv",
+      "bytes": 3652,
+      "sha256": "2435567dc24c596cfef23a761dbd4e5c31d49d57b99d90d2946d49d7069f333d"
+    },
+    {
+      "path": "spirv/msaa-0-4-0-3-0.spv",
+      "bytes": 3652,
+      "sha256": "3841c19b7e001fb7701ea6bc8ff45a507812119e84e879d97c3900c12c06df70"
+    },
+    {
+      "path": "spirv/msaa-0-4-0-3-1.spv",
+      "bytes": 3652,
+      "sha256": "78feeeffc973f31176b538c6bd4ab34c30faef4b79434c6d68dd20b59b3c3ecd"
+    },
+    {
+      "path": "spirv/msaa-0-4-0-6-0.spv",
+      "bytes": 3652,
+      "sha256": "fbddd333237d4e67020cd502d3a7cc1fcf353bd0e93eb684aa98ff5371cfd937"
+    },
+    {
+      "path": "spirv/msaa-0-4-0-6-1.spv",
+      "bytes": 3652,
+      "sha256": "3f5433a72c76e62e739769442273d218f09e270141cdd7834514c0a2a51ad186"
+    },
+    {
+      "path": "spirv/msaa-0-4-1-0-0.spv",
+      "bytes": 3656,
+      "sha256": "ba4858ed35d90c85fc3d05d4a27bf86f006b34decfbf8c87536695420896f922"
+    },
+    {
+      "path": "spirv/msaa-0-4-1-0-1.spv",
+      "bytes": 3656,
+      "sha256": "f933027e76fc45d15653ac1d5714d981e1c24f676d4ff36e9d30dbeb302f5795"
+    },
+    {
+      "path": "spirv/msaa-0-4-1-3-0.spv",
+      "bytes": 3656,
+      "sha256": "2f91fe3d885b2ce0c8a16af9cffef0adb230fb26faa9d69b2ff0604b1974114f"
+    },
+    {
+      "path": "spirv/msaa-0-4-1-3-1.spv",
+      "bytes": 3656,
+      "sha256": "de12dde5fa02f8c261fbba77cbcd43ac0c05442f23799d4dda7f18a3c9541c68"
+    },
+    {
+      "path": "spirv/msaa-0-4-1-6-0.spv",
+      "bytes": 3656,
+      "sha256": "fc904a96220e5853c46a7124f351a0703443d0118be6ab0f3be314ac8f78ad89"
+    },
+    {
+      "path": "spirv/msaa-0-4-1-6-1.spv",
+      "bytes": 3656,
+      "sha256": "8d741e16544b1d1e758208dcc23be5bd82a823ce391870370b2e021c9e6a3438"
+    },
+    {
+      "path": "spirv/msaa-1-2-0-0-0.spv",
+      "bytes": 3620,
+      "sha256": "d31f2a0900b9a59b9dd146a657aacbd642a5c1570cdff79da440cb03d0da4895"
+    },
+    {
+      "path": "spirv/msaa-1-2-0-0-1.spv",
+      "bytes": 3620,
+      "sha256": "08e69524b681904e1e0a89d7293f8c6af00a0c91175265fe4e2efb1fc7c8e9de"
+    },
+    {
+      "path": "spirv/msaa-1-2-0-3-0.spv",
+      "bytes": 3620,
+      "sha256": "7acae18583d105813f283107715e52ec45741b41b43063ef9fa6f48c64642936"
+    },
+    {
+      "path": "spirv/msaa-1-2-0-3-1.spv",
+      "bytes": 3620,
+      "sha256": "05356d7f66b80d54f41bdd4a67fbcd7a6cd44f9f4d08faec4b7cc706baaa9adf"
+    },
+    {
+      "path": "spirv/msaa-1-2-0-6-0.spv",
+      "bytes": 3620,
+      "sha256": "487b2670085c4fdb3fccc5ed1be24f4fa9b8a9dcabaa5ff9490dc345adae8845"
+    },
+    {
+      "path": "spirv/msaa-1-2-0-6-1.spv",
+      "bytes": 3620,
+      "sha256": "71edbc3cda2baa46b3f5467db6506941ea6d3c25d82145c8fd6ab2c57b99bf4c"
+    },
+    {
+      "path": "spirv/msaa-1-2-1-0-0.spv",
+      "bytes": 3616,
+      "sha256": "398ea5411a41593acedbf81621a294093c60f046b3a795131c6f953cd90d71f8"
+    },
+    {
+      "path": "spirv/msaa-1-2-1-0-1.spv",
+      "bytes": 3616,
+      "sha256": "c2d05d3c530855b9afe0c3b7a37a6549cbce75b109967a94c7af4a7fdaa936f9"
+    },
+    {
+      "path": "spirv/msaa-1-2-1-3-0.spv",
+      "bytes": 3616,
+      "sha256": "e35a0270ea48dc875cf2717be7fdfd0cefc9054577ede873f69e06423b4770bc"
+    },
+    {
+      "path": "spirv/msaa-1-2-1-3-1.spv",
+      "bytes": 3616,
+      "sha256": "9ad924928226a3fb13fe12a8b168aeb44f360a8a8237378017989c3be16930df"
+    },
+    {
+      "path": "spirv/msaa-1-2-1-6-0.spv",
+      "bytes": 3616,
+      "sha256": "e1733ff90efaabefd317bb75d8b8b6530f7b281a564fbf43a6da1d81c62acdde"
+    },
+    {
+      "path": "spirv/msaa-1-2-1-6-1.spv",
+      "bytes": 3616,
+      "sha256": "a7811189700b6e881ca8a754d44887a9b687bf5f470cce3a8f393d10e0dba814"
+    },
+    {
+      "path": "spirv/msaa-1-4-0-0-0.spv",
+      "bytes": 3620,
+      "sha256": "d31f2a0900b9a59b9dd146a657aacbd642a5c1570cdff79da440cb03d0da4895"
+    },
+    {
+      "path": "spirv/msaa-1-4-0-0-1.spv",
+      "bytes": 3620,
+      "sha256": "08e69524b681904e1e0a89d7293f8c6af00a0c91175265fe4e2efb1fc7c8e9de"
+    },
+    {
+      "path": "spirv/msaa-1-4-0-3-0.spv",
+      "bytes": 3620,
+      "sha256": "7acae18583d105813f283107715e52ec45741b41b43063ef9fa6f48c64642936"
+    },
+    {
+      "path": "spirv/msaa-1-4-0-3-1.spv",
+      "bytes": 3620,
+      "sha256": "05356d7f66b80d54f41bdd4a67fbcd7a6cd44f9f4d08faec4b7cc706baaa9adf"
+    },
+    {
+      "path": "spirv/msaa-1-4-0-6-0.spv",
+      "bytes": 3620,
+      "sha256": "487b2670085c4fdb3fccc5ed1be24f4fa9b8a9dcabaa5ff9490dc345adae8845"
+    },
+    {
+      "path": "spirv/msaa-1-4-0-6-1.spv",
+      "bytes": 3620,
+      "sha256": "71edbc3cda2baa46b3f5467db6506941ea6d3c25d82145c8fd6ab2c57b99bf4c"
+    },
+    {
+      "path": "spirv/msaa-1-4-1-0-0.spv",
+      "bytes": 3616,
+      "sha256": "398ea5411a41593acedbf81621a294093c60f046b3a795131c6f953cd90d71f8"
+    },
+    {
+      "path": "spirv/msaa-1-4-1-0-1.spv",
+      "bytes": 3616,
+      "sha256": "c2d05d3c530855b9afe0c3b7a37a6549cbce75b109967a94c7af4a7fdaa936f9"
+    },
+    {
+      "path": "spirv/msaa-1-4-1-3-0.spv",
+      "bytes": 3616,
+      "sha256": "e35a0270ea48dc875cf2717be7fdfd0cefc9054577ede873f69e06423b4770bc"
+    },
+    {
+      "path": "spirv/msaa-1-4-1-3-1.spv",
+      "bytes": 3616,
+      "sha256": "9ad924928226a3fb13fe12a8b168aeb44f360a8a8237378017989c3be16930df"
+    },
+    {
+      "path": "spirv/msaa-1-4-1-6-0.spv",
+      "bytes": 3616,
+      "sha256": "e1733ff90efaabefd317bb75d8b8b6530f7b281a564fbf43a6da1d81c62acdde"
+    },
+    {
+      "path": "spirv/msaa-1-4-1-6-1.spv",
+      "bytes": 3616,
+      "sha256": "a7811189700b6e881ca8a754d44887a9b687bf5f470cce3a8f393d10e0dba814"
+    },
+    {
+      "path": "spirv-validation.json",
+      "bytes": 3891,
+      "sha256": "db9c2a4957e50d62bbadc2b9322f3c8f518cff9e5cc42062da2c09558f8d2da4"
+    },
+    {
+      "path": "user-gyro-acceptance.json",
+      "bytes": 376,
+      "sha256": "41924d8ed8c92ccf7c0ba4d19eae3c65680273590b18557fd14964d18bc7023c"
+    }
+  ]
+}

@@ -247,7 +247,8 @@ void PostProcessingPass::Create(const Instance& instance, const vk::Format surfa
 void PostProcessingPass::Render(Scheduler& scheduler, vk::ImageView input,
                                 vk::Extent2D input_size, Frame& frame, Settings settings,
                                 std::array<vk::ImageView, 3> stereo_views,
-                                vk::ImageView fdm_view) {
+                                vk::ImageView fdm_view,
+                                std::array<vk::Sampler, 4> stereo_samplers) {
     const auto cmdbuf = scheduler.CommandBuffer();
     if (EmulatorSettings.IsVkHostMarkersEnabled()) {
         cmdbuf.beginDebugUtilsLabelEXT(vk::DebugUtilsLabelEXT{
@@ -273,7 +274,7 @@ void PostProcessingPass::Render(Scheduler& scheduler, vk::ImageView input,
     std::array<vk::DescriptorImageInfo, 4> image_infos{};
     std::array<vk::WriteDescriptorSet, 4> set_writes{};
     for (u32 i = 0; i < image_infos.size(); ++i) {
-        image_infos[i] = {.sampler = *sampler,
+        image_infos[i] = {.sampler = stereo_samplers[i] ? stereo_samplers[i] : *sampler,
             .imageView = i && stereo_views[i - 1] ? stereo_views[i - 1] : input,
             .imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal};
         set_writes[i] = {.dstSet = VK_NULL_HANDLE, .dstBinding = i,

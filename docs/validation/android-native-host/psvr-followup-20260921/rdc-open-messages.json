@@ -1,0 +1,12 @@
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"schemaVersion\":\"1.0\",\"session\":{\"captureId\":\"205c39cf-17e4-41df-ae97-4010b636daed\",\"captureRevision\":{\"value\":0}},\"data\":{\"dataset\":\"debug_message\",\"materialization\":\"failed_open_diagnostics\",\"rows\":{\"columns\":[{\"name\":\"attempted_at\",\"declaredType\":\"TEXT\"},{\"name\":\"severity\",\"declaredType\":\"TEXT\"},{\"name\":\"operation\",\"declaredType\":\"TEXT\"},{\"name\":\"kind\",\"declaredType\":\"TEXT\"},{\"name\":\"result_code\",\"declaredType\":\"TEXT\"},{\"name\":\"result_code_value\",\"declaredType\":\"INTEGER\"},{\"name\":\"native_message\",\"declaredType\":\"TEXT\"},{\"name\":\"capture_path\",\"declaredType\":\"TEXT\"},{\"name\":\"missing_features\",\"declaredType\":\"TEXT\"},{\"name\":\"capture_driver_sha\",\"declaredType\":\"TEXT\"},{\"name\":\"replay_driver_sha\",\"declaredType\":\"TEXT\"},{\"name\":\"replay_driver_commit\",\"declaredType\":\"TEXT\"},{\"name\":\"icd_profile\",\"declaredType\":\"TEXT\"},{\"name\":\"icd_manifests\",\"declaredType\":\"TEXT\"},{\"name\":\"worker_mode\",\"declaredType\":\"TEXT\"},{\"name\":\"worker_pid\",\"declaredType\":\"INTEGER\"},{\"name\":\"worker_exit_code\",\"declaredType\":\"INTEGER\"},{\"name\":\"worker_stderr\",\"declaredType\":\"TEXT\"},{\"name\":\"journal_path\",\"declaredType\":\"TEXT\"}],\"rows\":[[\"2026-09-20T16:40:35.6597820\\u002B00:00\",\"error\",\"capture_open\",\"ReplayOpenFailed\",null,null,\"RENDERDOC_OpenAndroidCapture failed with ResultCode 16.\",\"/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/psvr-followup-20260920/beat-v3-system.rdc\",\"\",null,null,\"6ae929af16150fe39fd13f2c41b4ee00b60c704b\",\"process_environment\",\"\",\"in_process\",75693,null,null,\"/Users/bytedance/Library/Application Support/renderdoc-mcp/capture-journals/capture-open-20260920T164035659Z-205c39cf17e441dfae974010b636daed.jsonl\"]],\"truncated\":false,\"executionMs\":0},\"warnings\":[\"The previous capture_open attempt failed; returning its persisted diagnostics.\"]}}"
+      }
+    ]
+  },
+  "id": 4,
+  "jsonrpc": "2.0"
+}

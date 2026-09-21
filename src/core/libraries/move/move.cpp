@@ -82,7 +82,7 @@ void FillVirtualState(OrbisMoveData& data, VirtualHand hand) {
         data.extension_data.analog_right_x = AxisToMove(input.right_x);
         data.extension_data.analog_right_y = AxisToMove(input.right_y);
     }
-    data.timestamp = input.timestamp_ns ? static_cast<s64>(input.timestamp_ns / 1000) : 0;
+    data.timestamp = static_cast<s64>(input.timestamp_us);
     data.count = 1;
     data.temperature = 25.0f;
 }

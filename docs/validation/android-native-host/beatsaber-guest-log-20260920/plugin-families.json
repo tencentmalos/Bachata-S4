@@ -1,0 +1,116 @@
+[
+  {
+    "module": "UnityNpToolkit2.prx",
+    "sha256": "1f01e2fcaa048bf3a794200ceb0ab1d4f58842e78eacc71a45752a7400f208d6",
+    "elf_sha256": "d421dc52dca7d23aef7a34a0350ddcf193728a027a8c38676346f75d81015763",
+    "undefined_symbols": 461,
+    "families": {
+      "libSceNet": 1,
+      "libSceNpManager": 9,
+      "libSceNpToolkit2": 409,
+      "libSceRtc": 1,
+      "libSceSysmodule": 2,
+      "libSceUserService": 2,
+      "libc": 20,
+      "libScePosix": 4,
+      "libkernel": 12,
+      "unqualified_weak": 1
+    },
+    "runtime_binding": "not_loaded",
+    "init_present": true,
+    "init": "0x0",
+    "tls": [
+      [
+        7,
+        4,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1
+      ]
+    ]
+  },
+  {
+    "module": "libSceNpToolkit2.prx",
+    "sha256": "418c13070aab5ca1b94d7692a592dbf42a05d4bdcb88002342a74112fd6e1115",
+    "elf_sha256": "e85c5c3899fefddd2ea27b177c1619aa63498923590efbac531aa05e06cf57f5",
+    "undefined_symbols": 304,
+    "families": {
+      "libSceGameCustomDataDialog": 5,
+      "libSceHttp": 14,
+      "libSceInvitationDialog": 5,
+      "libSceLibcInternal": 30,
+      "libSceNet": 3,
+      "libSceNetCtl": 3,
+      "libSceNetCtlForNpToolkit": 3,
+      "libSceNpAuth": 5,
+      "libSceNpCommerce": 7,
+      "libSceNpManager": 18,
+      "libSceNpManagerForToolkit": 3,
+      "libSceNpSns": 3,
+      "libSceNpMatching2": 35,
+      "libSceNpProfileDialog": 5,
+      "libSceNpScore": 18,
+      "libSceNpSnsFacebookDialog": 5,
+      "libSceNpTrophy": 16,
+      "libSceNpTus": 41,
+      "libSceNpUtility": 10,
+      "libSceNpWebApi": 20,
+      "libSceRtc": 4,
+      "libSceSigninDialog": 5,
+      "libSceSsl": 3,
+      "libSceSysmodule": 3,
+      "libSceSystemService": 1,
+      "libSceUserService": 1,
+      "libSceUserServiceForNpToolkit": 2,
+      "libkernel": 34,
+      "unqualified_weak": 2
+    },
+    "runtime_binding": "not_loaded",
+    "init_present": true,
+    "init": "0x0",
+    "tls": [
+      [
+        7,
+        4,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1
+      ]
+    ]
+  },
+  {
+    "module": "PS4NativeUserSwitchPlugin.prx",
+    "sha256": "8baee5d5c5de4738cd23f418116aae4ccaa534d5e7b60072bcec3a28213999dd",
+    "elf_sha256": "0a30fb7649a1ca9856cc82eb80d4ef10fb19f83a3aed17c8fc13e5f2c8763e33",
+    "undefined_symbols": 14,
+    "families": {
+      "libSceLoginDialog": 4,
+      "libSceLoginService": 2,
+      "libSceSysmodule": 1,
+      "libc": 4,
+      "libkernel": 2,
+      "unqualified_weak": 1
+    },
+    "runtime_binding": "not_loaded",
+    "init_present": true,
+    "init": "0x0",
+    "tls": [
+      [
+        7,
+        4,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1
+      ]
+    ]
+  }
+]

@@ -227,8 +227,12 @@ Id EmitImageQueryDimensions(EmitContext& ctx, IR::Inst* inst, u32 handle, Id lod
     const Id image = ctx.OpLoad(texture.image_type, texture.id);
     const auto sharp = ctx.info.images[handle & 0xFFFF].GetSharp(ctx.info);
     const Id zero = ctx.u32_zero_value;
-    const auto mips{[&] { return has_mips ? ctx.OpImageQueryLevels(ctx.U32[1], image) : zero; }};
-    const bool uses_lod{texture.view_type != AmdGpu::ImageType::Color2DMsaa && !texture.is_storage};
+    const bool multisampled = texture.view_type == AmdGpu::ImageType::Color2DMsaa ||
+                              texture.view_type == AmdGpu::ImageType::Color2DMsaaArray;
+    const auto mips{[&] { return !has_mips ? zero : multisampled ? ctx.ConstU32(1u)
+                                                      : ctx.OpImageQueryLevels(ctx.U32[1], image); }};
+    const bool uses_lod{(!multisampled || ctx.profile.force_disable_msaa) && !texture.is_storage};
+    if (multisampled && ctx.profile.force_disable_msaa) lod = zero;
     const auto query{[&](Id type) {
         Id physical_lod = lod;
         if (uses_lod && SupportsScale(ctx, handle)) {
@@ -249,6 +253,7 @@ Id EmitImageQueryDimensions(EmitContext& ctx, IR::Inst* inst, u32 handle, Id lod
     case AmdGpu::ImageType::Color2DMsaa:
         return ctx.OpCompositeConstruct(ctx.U32[4], query(ctx.U32[2]), zero, mips());
     case AmdGpu::ImageType::Color2DArray:
+    case AmdGpu::ImageType::Color2DMsaaArray:
     case AmdGpu::ImageType::Color3D:
         return ctx.OpCompositeConstruct(ctx.U32[4], query(ctx.U32[3]), mips());
     default:
@@ -326,9 +331,14 @@ Id EmitImageRead(EmitContext& ctx, IR::Inst* inst, u32 handle, Id coords, Id lod
                            : ctx.OpCompositeConstruct(ctx.U32[2], coordinate(0), coordinate(1));
             lod = ctx.OpSelect(ctx.U32[1], scaled, host_lod, logical_lod);
         }
-        if (texture.view_type == AmdGpu::ImageType::Color2DMsaa) {
-            // GCN hardware wraps out-of-range MSAA sample indices
-            if (Sirit::ValidId(ms)) {
+        if (texture.view_type == AmdGpu::ImageType::Color2DMsaa ||
+            texture.view_type == AmdGpu::ImageType::Color2DMsaaArray) {
+            // Off mode collapses all logical samples to the sole physical texel.
+            // A non-MS OpTypeImage must never carry a Sample operand.
+            if (ctx.profile.force_disable_msaa) {
+                operands.Add(spv::ImageOperandsMask::Lod, ctx.u32_zero_value);
+            } else if (Sirit::ValidId(ms)) {
+                // GCN hardware wraps out-of-range MSAA sample indices.
                 const Id sample_count = ctx.OpImageQuerySamples(ctx.U32[1], image);
                 const Id wrapped_ms = ctx.OpUMod(ctx.U32[1], ms, sample_count);
                 operands.Add(spv::ImageOperandsMask::Sample, wrapped_ms);
@@ -360,6 +370,10 @@ Id EmitImageRead(EmitContext& ctx, IR::Inst* inst, u32 handle, Id coords, Id lod
 #endif
         }
         const Id image = ctx.OpLoad(texture.image_type, image_ptr);
+        if (!ctx.profile.force_disable_msaa && Sirit::ValidId(ms)) {
+            operands.Add(spv::ImageOperandsMask::Sample,
+                         ctx.OpUMod(ctx.U32[1], ms, ctx.OpImageQuerySamples(ctx.U32[1], image)));
+        }
         texel = ctx.OpImageRead(color_type, image, coords, operands.mask, operands.operands);
     }
     return texture.is_integer ? ctx.OpBitcast(ctx.F32[4], texel) : texel;
@@ -371,7 +385,7 @@ void EmitImageWrite(EmitContext& ctx, IR::Inst* inst, u32 handle, Id coords, Id 
     Id image_ptr = texture.id;
     const Id color_type = texture.data_types->Get(4);
     ImageOperands operands;
-    operands.Add(spv::ImageOperandsMask::Sample, ms);
+    if (!ctx.profile.force_disable_msaa) operands.Add(spv::ImageOperandsMask::Sample, ms);
     if (ctx.profile.supports_image_load_store_lod) {
         operands.Add(spv::ImageOperandsMask::Lod, lod);
     } else if (Sirit::ValidId(lod)) {

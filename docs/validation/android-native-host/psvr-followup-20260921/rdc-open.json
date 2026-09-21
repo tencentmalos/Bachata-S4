@@ -1,0 +1,12 @@
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"schemaVersion\":\"1.0\",\"ok\":false,\"operation\":\"capture_open\",\"session\":{\"captureId\":\"205c39cf-17e4-41df-ae97-4010b636daed\",\"captureRevision\":{\"value\":0}},\"kind\":\"ReplayOpenFailed\",\"nativeMessage\":\"RENDERDOC_OpenAndroidCapture failed with ResultCode 16.\",\"capturePath\":\"/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/psvr-followup-20260920/beat-v3-system.rdc\",\"captureDriver\":{\"available\":false,\"evidence\":\"Capture-side RenderDoc build identity is not exposed by the current managed replay ABI.\"},\"replayDriver\":{\"renderDoc\":{\"available\":false,\"version\":\"1.27\",\"commit\":\"6ae929af16150fe39fd13f2c41b4ee00b60c704b\",\"evidence\":\"Configured identity only; the native runtime did not provide a validated identity.\"},\"icdProfile\":\"process_environment\",\"icdSelectionEvidence\":\"loader_default_unverified\",\"vulkanIcds\":[]},\"missingFeatures\":[],\"worker\":{\"mode\":\"in_process\",\"hostPid\":75693,\"pid\":75693,\"journalPath\":\"/Users/bytedance/Library/Application Support/renderdoc-mcp/capture-journals/capture-open-20260920T164035659Z-205c39cf17e441dfae974010b636daed.jsonl\"},\"recovery\":[\"Inspect capture_messages and the journal before retrying another replay profile.\"]}"
+      }
+    ]
+  },
+  "id": 3,
+  "jsonrpc": "2.0"
+}

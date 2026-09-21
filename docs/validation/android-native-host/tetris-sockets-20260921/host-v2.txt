@@ -1,0 +1,1056 @@
+dule.cpp:309 LoadModuleToMemory: Unimplemented type SCE Comment
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Library Version
+[Core.Linker] <Info> (shadps4.android) module.cpp:368 LoadModuleToMemory: program entry addr ..........: 0x000000010b428000
+[Core.Linker] <Warning> (shadps4.android) module.cpp:550 LoadDynamicInfo: DT_FLAGS is NOT 0x04 should check!
+[Core.Linker] <Info> (shadps4.android) module.cpp:614 LoadDynamicInfo: unsupported dynamic tag ..........: 0x0000000061000017
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0001000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0000000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:581 LoadDynamicInfo: DT_SCE_FINGERPRINT value = 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:604 LoadDynamicInfo: unsupported DT_SCE_MODULE_ATTR value = ..........: 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:148 LoadModuleToMemory: Loading module akpeaklimiter.prx to 0x10c02c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:161 LoadModuleToMemory: ======== Load Module to Memory ========
+[Core.Linker] <Info> (shadps4.android) module.cpp:162 LoadModuleToMemory: base_virtual_addr ......: 0x000000010c02c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:163 LoadModuleToMemory: base_size ..............: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:164 LoadModuleToMemory: aligned_base_size ......: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [0] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x000000010c02c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x00000000000026bc
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R_X)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [1] type = SCE Read-Only After Relocation
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x000000010c22c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000000120
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R__)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [2] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x000000010c42c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000000068
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Module Parameters
+[Core.Linker] <Info> (shadps4.android) module.cpp:279 LoadModuleToMemory: TLS virtual address = 0x10c02c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:280 LoadModuleToMemory: TLS image size      = 0
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Comment
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Library Version
+[Core.Linker] <Info> (shadps4.android) module.cpp:368 LoadModuleToMemory: program entry addr ..........: 0x000000010c02c000
+[Core.Linker] <Warning> (shadps4.android) module.cpp:550 LoadDynamicInfo: DT_FLAGS is NOT 0x04 should check!
+[Core.Linker] <Info> (shadps4.android) module.cpp:614 LoadDynamicInfo: unsupported dynamic tag ..........: 0x0000000061000017
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0001000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0000000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:581 LoadDynamicInfo: DT_SCE_FINGERPRINT value = 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:604 LoadDynamicInfo: unsupported DT_SCE_MODULE_ATTR value = ..........: 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:148 LoadModuleToMemory: Loading module akpitchshifter.prx to 0x10cc30000
+[Core.Linker] <Info> (shadps4.android) module.cpp:161 LoadModuleToMemory: ======== Load Module to Memory ========
+[Core.Linker] <Info> (shadps4.android) module.cpp:162 LoadModuleToMemory: base_virtual_addr ......: 0x000000010cc30000
+[Core.Linker] <Info> (shadps4.android) module.cpp:163 LoadModuleToMemory: base_size ..............: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:164 LoadModuleToMemory: aligned_base_size ......: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [0] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x000000010cc30000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000004da0
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000008000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R_X)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [1] type = SCE Read-Only After Relocation
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x000000010ce30000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000000128
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R__)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [2] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x000000010d030000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000000068
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Module Parameters
+[Core.Linker] <Info> (shadps4.android) module.cpp:279 LoadModuleToMemory: TLS virtual address = 0x10cc30000
+[Core.Linker] <Info> (shadps4.android) module.cpp:280 LoadModuleToMemory: TLS image size      = 0
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Comment
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Library Version
+[Core.Linker] <Info> (shadps4.android) module.cpp:368 LoadModuleToMemory: program entry addr ..........: 0x000000010cc30000
+[Core.Linker] <Warning> (shadps4.android) module.cpp:550 LoadDynamicInfo: DT_FLAGS is NOT 0x04 should check!
+[Core.Linker] <Info> (shadps4.android) module.cpp:614 LoadDynamicInfo: unsupported dynamic tag ..........: 0x0000000061000017
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0001000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0000000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:581 LoadDynamicInfo: DT_SCE_FINGERPRINT value = 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:604 LoadDynamicInfo: unsupported DT_SCE_MODULE_ATTR value = ..........: 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:148 LoadModuleToMemory: Loading module akrecorder.prx to 0x10d834000
+[Core.Linker] <Info> (shadps4.android) module.cpp:161 LoadModuleToMemory: ======== Load Module to Memory ========
+[Core.Linker] <Info> (shadps4.android) module.cpp:162 LoadModuleToMemory: base_virtual_addr ......: 0x000000010d834000
+[Core.Linker] <Info> (shadps4.android) module.cpp:163 LoadModuleToMemory: base_size ..............: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:164 LoadModuleToMemory: aligned_base_size ......: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [0] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x000000010d834000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x000000000000357c
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R_X)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [1] type = SCE Read-Only After Relocation
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x000000010da34000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000000128
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R__)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [2] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x000000010dc34000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000000068
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Module Parameters
+[Core.Linker] <Info> (shadps4.android) module.cpp:279 LoadModuleToMemory: TLS virtual address = 0x10d834000
+[Core.Linker] <Info> (shadps4.android) module.cpp:280 LoadModuleToMemory: TLS image size      = 0
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Comment
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Library Version
+[Core.Linker] <Info> (shadps4.android) module.cpp:368 LoadModuleToMemory: program entry addr ..........: 0x000000010d834000
+[Core.Linker] <Warning> (shadps4.android) module.cpp:550 LoadDynamicInfo: DT_FLAGS is NOT 0x04 should check!
+[Core.Linker] <Info> (shadps4.android) module.cpp:614 LoadDynamicInfo: unsupported dynamic tag ..........: 0x0000000061000017
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0001000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0000000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:581 LoadDynamicInfo: DT_SCE_FINGERPRINT value = 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:604 LoadDynamicInfo: unsupported DT_SCE_MODULE_ATTR value = ..........: 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:148 LoadModuleToMemory: Loading module akreflect.prx to 0x10e438000
+[Core.Linker] <Info> (shadps4.android) module.cpp:161 LoadModuleToMemory: ======== Load Module to Memory ========
+[Core.Linker] <Info> (shadps4.android) module.cpp:162 LoadModuleToMemory: base_virtual_addr ......: 0x000000010e438000
+[Core.Linker] <Info> (shadps4.android) module.cpp:163 LoadModuleToMemory: base_size ..............: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:164 LoadModuleToMemory: aligned_base_size ......: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [0] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x000000010e438000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x000000000000acf8
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x000000000000c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R_X)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [1] type = SCE Read-Only After Relocation
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x000000010e638000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000000158
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R__)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [2] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x000000010e838000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000000068
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Module Parameters
+[Core.Linker] <Info> (shadps4.android) module.cpp:279 LoadModuleToMemory: TLS virtual address = 0x10e438000
+[Core.Linker] <Info> (shadps4.android) module.cpp:280 LoadModuleToMemory: TLS image size      = 0
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Comment
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Library Version
+[Core.Linker] <Info> (shadps4.android) module.cpp:368 LoadModuleToMemory: program entry addr ..........: 0x000000010e438000
+[Core.Linker] <Warning> (shadps4.android) module.cpp:550 LoadDynamicInfo: DT_FLAGS is NOT 0x04 should check!
+[Core.Linker] <Info> (shadps4.android) module.cpp:614 LoadDynamicInfo: unsupported dynamic tag ..........: 0x0000000061000017
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0001000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0000000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:581 LoadDynamicInfo: DT_SCE_FINGERPRINT value = 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:604 LoadDynamicInfo: unsupported DT_SCE_MODULE_ATTR value = ..........: 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:148 LoadModuleToMemory: Loading module akroomverb.prx to 0x10f03c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:161 LoadModuleToMemory: ======== Load Module to Memory ========
+[Core.Linker] <Info> (shadps4.android) module.cpp:162 LoadModuleToMemory: base_virtual_addr ......: 0x000000010f03c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:163 LoadModuleToMemory: base_size ..............: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:164 LoadModuleToMemory: aligned_base_size ......: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [0] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x000000010f03c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000019320
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x000000000001c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R_X)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [1] type = SCE Read-Only After Relocation
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x000000010f23c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000000650
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R__)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [2] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x000000010f43c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000000068
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Module Parameters
+[Core.Linker] <Info> (shadps4.android) module.cpp:279 LoadModuleToMemory: TLS virtual address = 0x10f03c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:280 LoadModuleToMemory: TLS image size      = 0
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Comment
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Library Version
+[Core.Linker] <Info> (shadps4.android) module.cpp:368 LoadModuleToMemory: program entry addr ..........: 0x000000010f03c000
+[Core.Linker] <Warning> (shadps4.android) module.cpp:550 LoadDynamicInfo: DT_FLAGS is NOT 0x04 should check!
+[Core.Linker] <Info> (shadps4.android) module.cpp:614 LoadDynamicInfo: unsupported dynamic tag ..........: 0x0000000061000017
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0001000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0000000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:581 LoadDynamicInfo: DT_SCE_FINGERPRINT value = 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:604 LoadDynamicInfo: unsupported DT_SCE_MODULE_ATTR value = ..........: 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:148 LoadModuleToMemory: Loading module aksilencegenerator.prx to 0x10fc40000
+[Core.Linker] <Info> (shadps4.android) module.cpp:161 LoadModuleToMemory: ======== Load Module to Memory ========
+[Core.Linker] <Info> (shadps4.android) module.cpp:162 LoadModuleToMemory: base_virtual_addr ......: 0x000000010fc40000
+[Core.Linker] <Info> (shadps4.android) module.cpp:163 LoadModuleToMemory: base_size ..............: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:164 LoadModuleToMemory: aligned_base_size ......: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [0] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x000000010fc40000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000000adc
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R_X)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [1] type = SCE Read-Only After Relocation
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x000000010fe40000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000000130
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R__)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [2] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000110040000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000000068
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Module Parameters
+[Core.Linker] <Info> (shadps4.android) module.cpp:279 LoadModuleToMemory: TLS virtual address = 0x10fc40000
+[Core.Linker] <Info> (shadps4.android) module.cpp:280 LoadModuleToMemory: TLS image size      = 0
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Comment
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Library Version
+[Core.Linker] <Info> (shadps4.android) module.cpp:368 LoadModuleToMemory: program entry addr ..........: 0x000000010fc40000
+[Core.Linker] <Warning> (shadps4.android) module.cpp:550 LoadDynamicInfo: DT_FLAGS is NOT 0x04 should check!
+[Core.Linker] <Info> (shadps4.android) module.cpp:614 LoadDynamicInfo: unsupported dynamic tag ..........: 0x0000000061000017
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0001000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0000000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:581 LoadDynamicInfo: DT_SCE_FINGERPRINT value = 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:604 LoadDynamicInfo: unsupported DT_SCE_MODULE_ATTR value = ..........: 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:148 LoadModuleToMemory: Loading module aksinetone.prx to 0x110844000
+[Core.Linker] <Info> (shadps4.android) module.cpp:161 LoadModuleToMemory: ======== Load Module to Memory ========
+[Core.Linker] <Info> (shadps4.android) module.cpp:162 LoadModuleToMemory: base_virtual_addr ......: 0x0000000110844000
+[Core.Linker] <Info> (shadps4.android) module.cpp:163 LoadModuleToMemory: base_size ..............: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:164 LoadModuleToMemory: aligned_base_size ......: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [0] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000110844000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000000ff0
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R_X)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [1] type = SCE Read-Only After Relocation
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000110a44000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000000120
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R__)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [2] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000110c44000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000000068
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Module Parameters
+[Core.Linker] <Info> (shadps4.android) module.cpp:279 LoadModuleToMemory: TLS virtual address = 0x110844000
+[Core.Linker] <Info> (shadps4.android) module.cpp:280 LoadModuleToMemory: TLS image size      = 0
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Comment
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Library Version
+[Core.Linker] <Info> (shadps4.android) module.cpp:368 LoadModuleToMemory: program entry addr ..........: 0x0000000110844000
+[Core.Linker] <Warning> (shadps4.android) module.cpp:550 LoadDynamicInfo: DT_FLAGS is NOT 0x04 should check!
+[Core.Linker] <Info> (shadps4.android) module.cpp:614 LoadDynamicInfo: unsupported dynamic tag ..........: 0x0000000061000017
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0001000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0000000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:581 LoadDynamicInfo: DT_SCE_FINGERPRINT value = 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:604 LoadDynamicInfo: unsupported DT_SCE_MODULE_ATTR value = ..........: 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:148 LoadModuleToMemory: Loading module aksoundseedair.prx to 0x111448000
+[Core.Linker] <Info> (shadps4.android) module.cpp:161 LoadModuleToMemory: ======== Load Module to Memory ========
+[Core.Linker] <Info> (shadps4.android) module.cpp:162 LoadModuleToMemory: base_virtual_addr ......: 0x0000000111448000
+[Core.Linker] <Info> (shadps4.android) module.cpp:163 LoadModuleToMemory: base_size ..............: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:164 LoadModuleToMemory: aligned_base_size ......: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [0] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000111448000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x000000000000d140
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000010000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R_X)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [1] type = SCE Read-Only After Relocation
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000111648000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000000250
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R__)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [2] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000111848000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000000078
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Module Parameters
+[Core.Linker] <Info> (shadps4.android) module.cpp:279 LoadModuleToMemory: TLS virtual address = 0x111448000
+[Core.Linker] <Info> (shadps4.android) module.cpp:280 LoadModuleToMemory: TLS image size      = 0
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Comment
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Library Version
+[Core.Linker] <Info> (shadps4.android) module.cpp:368 LoadModuleToMemory: program entry addr ..........: 0x0000000111448000
+[Core.Linker] <Warning> (shadps4.android) module.cpp:550 LoadDynamicInfo: DT_FLAGS is NOT 0x04 should check!
+[Core.Linker] <Info> (shadps4.android) module.cpp:614 LoadDynamicInfo: unsupported dynamic tag ..........: 0x0000000061000017
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0001000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0000000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:581 LoadDynamicInfo: DT_SCE_FINGERPRINT value = 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:604 LoadDynamicInfo: unsupported DT_SCE_MODULE_ATTR value = ..........: 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:148 LoadModuleToMemory: Loading module aksoundseedimpact.prx to 0x11204c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:161 LoadModuleToMemory: ======== Load Module to Memory ========
+[Core.Linker] <Info> (shadps4.android) module.cpp:162 LoadModuleToMemory: base_virtual_addr ......: 0x000000011204c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:163 LoadModuleToMemory: base_size ..............: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:164 LoadModuleToMemory: aligned_base_size ......: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [0] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x000000011204c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x00000000000026c0
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R_X)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [1] type = SCE Read-Only After Relocation
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x000000011224c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000000130
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R__)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [2] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x000000011244c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000000068
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Module Parameters
+[Core.Linker] <Info> (shadps4.android) module.cpp:279 LoadModuleToMemory: TLS virtual address = 0x11204c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:280 LoadModuleToMemory: TLS image size      = 0
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Comment
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Library Version
+[Core.Linker] <Info> (shadps4.android) module.cpp:368 LoadModuleToMemory: program entry addr ..........: 0x000000011204c000
+[Core.Linker] <Warning> (shadps4.android) module.cpp:550 LoadDynamicInfo: DT_FLAGS is NOT 0x04 should check!
+[Core.Linker] <Info> (shadps4.android) module.cpp:614 LoadDynamicInfo: unsupported dynamic tag ..........: 0x0000000061000017
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0001000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0000000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:581 LoadDynamicInfo: DT_SCE_FINGERPRINT value = 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:604 LoadDynamicInfo: unsupported DT_SCE_MODULE_ATTR value = ..........: 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:148 LoadModuleToMemory: Loading module akstereodelay.prx to 0x112c50000
+[Core.Linker] <Info> (shadps4.android) module.cpp:161 LoadModuleToMemory: ======== Load Module to Memory ========
+[Core.Linker] <Info> (shadps4.android) module.cpp:162 LoadModuleToMemory: base_virtual_addr ......: 0x0000000112c50000
+[Core.Linker] <Info> (shadps4.android) module.cpp:163 LoadModuleToMemory: base_size ..............: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:164 LoadModuleToMemory: aligned_base_size ......: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [0] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000112c50000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x00000000000050b8
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000008000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R_X)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [1] type = SCE Read-Only After Relocation
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000112e50000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000000148
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R__)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [2] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000113050000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000000068
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Module Parameters
+[Core.Linker] <Info> (shadps4.android) module.cpp:279 LoadModuleToMemory: TLS virtual address = 0x112c50000
+[Core.Linker] <Info> (shadps4.android) module.cpp:280 LoadModuleToMemory: TLS image size      = 0
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Comment
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Library Version
+[Core.Linker] <Info> (shadps4.android) module.cpp:368 LoadModuleToMemory: program entry addr ..........: 0x0000000112c50000
+[Core.Linker] <Warning> (shadps4.android) module.cpp:550 LoadDynamicInfo: DT_FLAGS is NOT 0x04 should check!
+[Core.Linker] <Info> (shadps4.android) module.cpp:614 LoadDynamicInfo: unsupported dynamic tag ..........: 0x0000000061000017
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0001000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0000000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:581 LoadDynamicInfo: DT_SCE_FINGERPRINT value = 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:604 LoadDynamicInfo: unsupported DT_SCE_MODULE_ATTR value = ..........: 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:148 LoadModuleToMemory: Loading module aksynthone.prx to 0x113854000
+[Core.Linker] <Info> (shadps4.android) module.cpp:161 LoadModuleToMemory: ======== Load Module to Memory ========
+[Core.Linker] <Info> (shadps4.android) module.cpp:162 LoadModuleToMemory: base_virtual_addr ......: 0x0000000113854000
+[Core.Linker] <Info> (shadps4.android) module.cpp:163 LoadModuleToMemory: base_size ..............: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:164 LoadModuleToMemory: aligned_base_size ......: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [0] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000113854000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x000000000000442c
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000008000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R_X)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [1] type = SCE Read-Only After Relocation
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000113a54000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000000150
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R__)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [2] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000113c54000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000002068
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Module Parameters
+[Core.Linker] <Info> (shadps4.android) module.cpp:279 LoadModuleToMemory: TLS virtual address = 0x113854000
+[Core.Linker] <Info> (shadps4.android) module.cpp:280 LoadModuleToMemory: TLS image size      = 0
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Comment
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Library Version
+[Core.Linker] <Info> (shadps4.android) module.cpp:368 LoadModuleToMemory: program entry addr ..........: 0x0000000113854000
+[Core.Linker] <Warning> (shadps4.android) module.cpp:550 LoadDynamicInfo: DT_FLAGS is NOT 0x04 should check!
+[Core.Linker] <Info> (shadps4.android) module.cpp:614 LoadDynamicInfo: unsupported dynamic tag ..........: 0x0000000061000017
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0001000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0000000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:581 LoadDynamicInfo: DT_SCE_FINGERPRINT value = 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:604 LoadDynamicInfo: unsupported DT_SCE_MODULE_ATTR value = ..........: 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:148 LoadModuleToMemory: Loading module aktimestretch.prx to 0x114458000
+[Core.Linker] <Info> (shadps4.android) module.cpp:161 LoadModuleToMemory: ======== Load Module to Memory ========
+[Core.Linker] <Info> (shadps4.android) module.cpp:162 LoadModuleToMemory: base_virtual_addr ......: 0x0000000114458000
+[Core.Linker] <Info> (shadps4.android) module.cpp:163 LoadModuleToMemory: base_size ..............: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:164 LoadModuleToMemory: aligned_base_size ......: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [0] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000114458000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x000000000000a830
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x000000000000c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R_X)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [1] type = SCE Read-Only After Relocation
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000114658000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000000130
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R__)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [2] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000114858000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000000068
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Module Parameters
+[Core.Linker] <Info> (shadps4.android) module.cpp:279 LoadModuleToMemory: TLS virtual address = 0x114458000
+[Core.Linker] <Info> (shadps4.android) module.cpp:280 LoadModuleToMemory: TLS image size      = 0
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Comment
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Library Version
+[Core.Linker] <Info> (shadps4.android) module.cpp:368 LoadModuleToMemory: program entry addr ..........: 0x0000000114458000
+[Core.Linker] <Warning> (shadps4.android) module.cpp:550 LoadDynamicInfo: DT_FLAGS is NOT 0x04 should check!
+[Core.Linker] <Info> (shadps4.android) module.cpp:614 LoadDynamicInfo: unsupported dynamic tag ..........: 0x0000000061000017
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0001000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0000000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:581 LoadDynamicInfo: DT_SCE_FINGERPRINT value = 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:604 LoadDynamicInfo: unsupported DT_SCE_MODULE_ATTR value = ..........: 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:148 LoadModuleToMemory: Loading module aktonegen.prx to 0x11505c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:161 LoadModuleToMemory: ======== Load Module to Memory ========
+[Core.Linker] <Info> (shadps4.android) module.cpp:162 LoadModuleToMemory: base_virtual_addr ......: 0x000000011505c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:163 LoadModuleToMemory: base_size ..............: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:164 LoadModuleToMemory: aligned_base_size ......: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [0] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x000000011505c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000004014
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000008000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R_X)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [1] type = SCE Read-Only After Relocation
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x000000011525c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000000130
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R__)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [2] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x000000011545c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000002068
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Module Parameters
+[Core.Linker] <Info> (shadps4.android) module.cpp:279 LoadModuleToMemory: TLS virtual address = 0x11505c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:280 LoadModuleToMemory: TLS image size      = 0
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Comment
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Library Version
+[Core.Linker] <Info> (shadps4.android) module.cpp:368 LoadModuleToMemory: program entry addr ..........: 0x000000011505c000
+[Core.Linker] <Warning> (shadps4.android) module.cpp:550 LoadDynamicInfo: DT_FLAGS is NOT 0x04 should check!
+[Core.Linker] <Info> (shadps4.android) module.cpp:614 LoadDynamicInfo: unsupported dynamic tag ..........: 0x0000000061000017
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0001000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0000000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:581 LoadDynamicInfo: DT_SCE_FINGERPRINT value = 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:604 LoadDynamicInfo: unsupported DT_SCE_MODULE_ATTR value = ..........: 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:148 LoadModuleToMemory: Loading module aktremolo.prx to 0x115c60000
+[Core.Linker] <Info> (shadps4.android) module.cpp:161 LoadModuleToMemory: ======== Load Module to Memory ========
+[Core.Linker] <Info> (shadps4.android) module.cpp:162 LoadModuleToMemory: base_virtual_addr ......: 0x0000000115c60000
+[Core.Linker] <Info> (shadps4.android) module.cpp:163 LoadModuleToMemory: base_size ..............: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:164 LoadModuleToMemory: aligned_base_size ......: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [0] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000115c60000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x00000000000027c4
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R_X)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [1] type = SCE Read-Only After Relocation
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000115e60000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000000138
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R__)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [2] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000116060000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000000068
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Module Parameters
+[Core.Linker] <Info> (shadps4.android) module.cpp:279 LoadModuleToMemory: TLS virtual address = 0x115c60000
+[Core.Linker] <Info> (shadps4.android) module.cpp:280 LoadModuleToMemory: TLS image size      = 0
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Comment
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Library Version
+[Core.Linker] <Info> (shadps4.android) module.cpp:368 LoadModuleToMemory: program entry addr ..........: 0x0000000115c60000
+[Core.Linker] <Warning> (shadps4.android) module.cpp:550 LoadDynamicInfo: DT_FLAGS is NOT 0x04 should check!
+[Core.Linker] <Info> (shadps4.android) module.cpp:614 LoadDynamicInfo: unsupported dynamic tag ..........: 0x0000000061000017
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0001000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0000000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:581 LoadDynamicInfo: DT_SCE_FINGERPRINT value = 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:604 LoadDynamicInfo: unsupported DT_SCE_MODULE_ATTR value = ..........: 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:148 LoadModuleToMemory: Loading module auro.prx to 0x116864000
+[Core.Linker] <Info> (shadps4.android) module.cpp:161 LoadModuleToMemory: ======== Load Module to Memory ========
+[Core.Linker] <Info> (shadps4.android) module.cpp:162 LoadModuleToMemory: base_virtual_addr ......: 0x0000000116864000
+[Core.Linker] <Info> (shadps4.android) module.cpp:163 LoadModuleToMemory: base_size ..............: 0x00000000005bc000
+[Core.Linker] <Info> (shadps4.android) module.cpp:164 LoadModuleToMemory: aligned_base_size ......: 0x00000000005bc000
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [0] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000116864000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x000000000002bc58
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x000000000002c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R_X)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [1] type = SCE Read-Only After Relocation
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000116a64000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000074a08
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000078000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R__)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [2] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000116c64000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x00000000001b8878
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x00000000001bc000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Module Parameters
+[Core.Linker] <Info> (shadps4.android) module.cpp:279 LoadModuleToMemory: TLS virtual address = 0x116864000
+[Core.Linker] <Info> (shadps4.android) module.cpp:280 LoadModuleToMemory: TLS image size      = 0
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Comment
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Library Version
+[Core.Linker] <Info> (shadps4.android) module.cpp:368 LoadModuleToMemory: program entry addr ..........: 0x0000000116864000
+[Core.Linker] <Warning> (shadps4.android) module.cpp:550 LoadDynamicInfo: DT_FLAGS is NOT 0x04 should check!
+[Core.Linker] <Info> (shadps4.android) module.cpp:614 LoadDynamicInfo: unsupported dynamic tag ..........: 0x0000000061000017
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0001000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0000000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:581 LoadDynamicInfo: DT_SCE_FINGERPRINT value = 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:604 LoadDynamicInfo: unsupported DT_SCE_MODULE_ATTR value = ..........: 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:148 LoadModuleToMemory: Loading module izotope.prx to 0x117620000
+[Core.Linker] <Info> (shadps4.android) module.cpp:161 LoadModuleToMemory: ======== Load Module to Memory ========
+[Core.Linker] <Info> (shadps4.android) module.cpp:162 LoadModuleToMemory: base_virtual_addr ......: 0x0000000117620000
+[Core.Linker] <Info> (shadps4.android) module.cpp:163 LoadModuleToMemory: base_size ..............: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:164 LoadModuleToMemory: aligned_base_size ......: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [0] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000117620000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x000000000006e634
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000070000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R_X)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [1] type = SCE Read-Only After Relocation
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000117820000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000001000
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R__)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [2] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000117a20000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x00000000000000c8
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Module Parameters
+[Core.Linker] <Info> (shadps4.android) module.cpp:279 LoadModuleToMemory: TLS virtual address = 0x117620000
+[Core.Linker] <Info> (shadps4.android) module.cpp:280 LoadModuleToMemory: TLS image size      = 0
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Comment
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Library Version
+[Core.Linker] <Info> (shadps4.android) module.cpp:368 LoadModuleToMemory: program entry addr ..........: 0x0000000117620000
+[Core.Linker] <Warning> (shadps4.android) module.cpp:550 LoadDynamicInfo: DT_FLAGS is NOT 0x04 should check!
+[Core.Linker] <Info> (shadps4.android) module.cpp:614 LoadDynamicInfo: unsupported dynamic tag ..........: 0x0000000061000017
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0001000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0000000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:581 LoadDynamicInfo: DT_SCE_FINGERPRINT value = 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:604 LoadDynamicInfo: unsupported DT_SCE_MODULE_ATTR value = ..........: 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:148 LoadModuleToMemory: Loading module masteringsuite.prx to 0x118224000
+[Core.Linker] <Info> (shadps4.android) module.cpp:161 LoadModuleToMemory: ======== Load Module to Memory ========
+[Core.Linker] <Info> (shadps4.android) module.cpp:162 LoadModuleToMemory: base_virtual_addr ......: 0x0000000118224000
+[Core.Linker] <Info> (shadps4.android) module.cpp:163 LoadModuleToMemory: base_size ..............: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:164 LoadModuleToMemory: aligned_base_size ......: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [0] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000118224000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x000000000000f6d4
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000010000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R_X)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [1] type = SCE Read-Only After Relocation
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000118424000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000000160
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R__)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [2] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000118624000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x00000000000002c8
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Module Parameters
+[Core.Linker] <Info> (shadps4.android) module.cpp:279 LoadModuleToMemory: TLS virtual address = 0x118224000
+[Core.Linker] <Info> (shadps4.android) module.cpp:280 LoadModuleToMemory: TLS image size      = 0
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Comment
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Library Version
+[Core.Linker] <Info> (shadps4.android) module.cpp:368 LoadModuleToMemory: program entry addr ..........: 0x0000000118224000
+[Core.Linker] <Warning> (shadps4.android) module.cpp:550 LoadDynamicInfo: DT_FLAGS is NOT 0x04 should check!
+[Core.Linker] <Info> (shadps4.android) module.cpp:614 LoadDynamicInfo: unsupported dynamic tag ..........: 0x0000000061000017
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0001000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0000000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:581 LoadDynamicInfo: DT_SCE_FINGERPRINT value = 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:604 LoadDynamicInfo: unsupported DT_SCE_MODULE_ATTR value = ..........: 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:148 LoadModuleToMemory: Loading module mcdsp.prx to 0x118e28000
+[Core.Linker] <Info> (shadps4.android) module.cpp:161 LoadModuleToMemory: ======== Load Module to Memory ========
+[Core.Linker] <Info> (shadps4.android) module.cpp:162 LoadModuleToMemory: base_virtual_addr ......: 0x0000000118e28000
+[Core.Linker] <Info> (shadps4.android) module.cpp:163 LoadModuleToMemory: base_size ..............: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:164 LoadModuleToMemory: aligned_base_size ......: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [0] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000118e28000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000022ed0
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000024000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R_X)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [1] type = SCE Read-Only After Relocation
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000119028000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x00000000000002c0
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R__)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [2] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000119228000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000000078
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Module Parameters
+[Core.Linker] <Info> (shadps4.android) module.cpp:279 LoadModuleToMemory: TLS virtual address = 0x118e28000
+[Core.Linker] <Info> (shadps4.android) module.cpp:280 LoadModuleToMemory: TLS image size      = 0
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Comment
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Library Version
+[Core.Linker] <Info> (shadps4.android) module.cpp:368 LoadModuleToMemory: program entry addr ..........: 0x0000000118e28000
+[Core.Linker] <Warning> (shadps4.android) module.cpp:550 LoadDynamicInfo: DT_FLAGS is NOT 0x04 should check!
+[Core.Linker] <Info> (shadps4.android) module.cpp:614 LoadDynamicInfo: unsupported dynamic tag ..........: 0x0000000061000017
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0001000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0000000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:581 LoadDynamicInfo: DT_SCE_FINGERPRINT value = 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:604 LoadDynamicInfo: unsupported DT_SCE_MODULE_ATTR value = ..........: 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:148 LoadModuleToMemory: Loading module sceaudio3d.prx to 0x119a2c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:161 LoadModuleToMemory: ======== Load Module to Memory ========
+[Core.Linker] <Info> (shadps4.android) module.cpp:162 LoadModuleToMemory: base_virtual_addr ......: 0x0000000119a2c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:163 LoadModuleToMemory: base_size ..............: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:164 LoadModuleToMemory: aligned_base_size ......: 0x0000000000404000
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [0] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000119a2c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x000000000000658c
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000008000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R_X)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [1] type = SCE Read-Only After Relocation
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000119c2c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000000448
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (R__)
+[Core.Linker] <Info> (shadps4.android) module.cpp:227 LoadModuleToMemory: program header = [2] type = Loadable
+[Core.Linker] <Info> (shadps4.android) module.cpp:228 LoadModuleToMemory: segment_addr ..........: 0x0000000119e2c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:229 LoadModuleToMemory: segment_file_size .....: 0x0000000000000088
+[Core.Linker] <Info> (shadps4.android) module.cpp:230 LoadModuleToMemory: segment_memory_size ...: 0x0000000000004000
+[Core.Linker] <Info> (shadps4.android) module.cpp:231 LoadModuleToMemory: segment_mode ..........: (RW_)
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Module Parameters
+[Core.Linker] <Info> (shadps4.android) module.cpp:279 LoadModuleToMemory: TLS virtual address = 0x119a2c000
+[Core.Linker] <Info> (shadps4.android) module.cpp:280 LoadModuleToMemory: TLS image size      = 0
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Comment
+[Core.Linker] <Error> (shadps4.android) module.cpp:309 LoadModuleToMemory: Unimplemented type SCE Library Version
+[Core.Linker] <Info> (shadps4.android) module.cpp:368 LoadModuleToMemory: program entry addr ..........: 0x0000000119a2c000
+[Core.Linker] <Warning> (shadps4.android) module.cpp:550 LoadDynamicInfo: DT_FLAGS is NOT 0x04 should check!
+[Core.Linker] <Info> (shadps4.android) module.cpp:614 LoadDynamicInfo: unsupported dynamic tag ..........: 0x0000000061000017
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0000000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0001000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0003000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:588 LoadDynamicInfo: unsupported DT_SCE_IMPORT_LIB_ATTR value = ......: 0x0002000000000009
+[Core.Linker] <Info> (shadps4.android) module.cpp:581 LoadDynamicInfo: DT_SCE_FINGERPRINT value = 0x0000000000000000
+[Core.Linker] <Info> (shadps4.android) module.cpp:604 LoadDynamicInfo: unsupported DT_SCE_MODULE_ATTR value = ..........: 0x0000000000000000
+[Common.Filesystem] <Warning> (shadps4.android) trophy_support.cpp:72 ExtractTrophies: Trophy index 3 does not have a corresponding NPCommId
+[Common.Filesystem] <Warning> (shadps4.android) trophy_support.cpp:151 ExtractTrophies: No usable trophy files found in /app0/sce_sys/trophy
+[Lib.SystemService] <Info> (shadps4.android) guest_runtime.cpp:4440 Prepare: Guest console language=11 (session snapshot)
+[Lib.Net] <Info> (shadps4.android) guest_runtime.cpp:4484 Prepare: Session network control: requested_online=false, online transport unavailable
+[Core.Linker] <Info> (shadps4.android) guest_runtime.cpp:1768 InstallSyncFastPath: Guest sync fast path installed: base=0x1800014000 bytes=1112 image_sha256=a2c3fc15658dc17c8e4f44111d3ead2358a7f9c3d810038161fc0ba09008dc66
+[Core.Linker] <Warning> (Guest-1) guest_runtime.cpp:2205 lambda: GuestSyncObjects block 0x1c00214000 is outside the fast-path arena window
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:86 sceKernelAllocateDirectMemory: searchStart = 0x0, searchEnd = 0x1f0000000, len = 0x20000000, alignment = 0x10000, memoryType = 0x3, physAddrOut = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:201 sceKernelMapNamedDirectMemory: in_addr = 0x4000000000, len = 0x20000000, prot = 0x32, flags = 0x90, phys_addr = 0x0, alignment = 0x0, name = 'anon'
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:253 sceKernelMapNamedDirectMemory: out_addr = 0x4000000000
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:129 sceKernelAvailableDirectMemorySize: called searchStart = 0x0, searchEnd = 0x1f0000000, alignment = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:602 sceKernelMemoryPoolExpand: searchStart = 0x20000000, searchEnd = 0x1f0000000, len = 0x1cfff0000, alignment = 0x0, physAddrOut = 0x20000000
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:609 sceKernelMemoryPoolReserve: addr_in = 0x1000000000, len = 0x200000000, alignment = 0x0, flags = 0x90
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:609 sceKernelMemoryPoolReserve: addr_in = 0x2000000000, len = 0x200000000, alignment = 0x0, flags = 0x90
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:609 sceKernelMemoryPoolReserve: addr_in = 0x3000000000, len = 0x40000000, alignment = 0x0, flags = 0x90
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000000000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000800000, len = 0x800000, type = 0x0, prot = 0x2, flags = 0x0
+[Core.Linker] <Info> (Guest-1) module.cpp:113 Start: Module started : libSceFios2.prx
+[Core.Linker] <Info> (Guest-1) guest_runtime.cpp:4715 Run: Guest module libSceFios2.prx: DT_INIT completed
+[Core.Linker] <Info> (Guest-1) module.cpp:113 Start: Module started : libSceNpToolkit2.prx
+[Core.Linker] <Info> (Guest-1) guest_runtime.cpp:4715 Run: Guest module libSceNpToolkit2.prx: DT_INIT completed
+[Core.Linker] <Info> (Guest-1) module.cpp:113 Start: Module started : libc.prx
+[Core.Linker] <Info> (Guest-1) guest_runtime.cpp:4715 Run: Guest module libc.prx: DT_INIT completed
+[Core.Linker] <Info> (Guest-1) module.cpp:113 Start: Module started : eossdk-ps4-shipping.prx
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000010000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000020000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Tty] <Info> (Guest-1) logger.cpp:62 log_flush: [stdout] Shutdown handler: initalize.
+[Core.Linker] <Info> (Guest-1) guest_runtime.cpp:4715 Run: Guest module eossdk-ps4-shipping.prx: DT_INIT completed
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000030000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000040000, len = 0x20000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000060000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000070000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000080000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000090000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10000a0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10000b0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10000c0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10000d0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10000e0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10000f0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000100000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000110000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000120000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000130000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000140000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000150000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000160000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000170000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000180000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000190000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10001a0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10001b0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10001c0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10001d0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10001e0000, len = 0x20000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000200000, len = 0x20000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000240000, len = 0x30000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000220000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000230000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000270000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000280000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000290000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10002a0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10002b0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10002c0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10002d0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10002e0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10002f0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000300000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000310000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000380000, len = 0x50000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000320000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000330000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000340000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000350000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000360000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000370000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10003d0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10003e0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10003f0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000400000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000410000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000420000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000430000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000440000, len = 0x20000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000460000, len = 0x20000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000480000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000490000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10004a0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10004b0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10004c0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10004d0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10004e0000, len = 0x20000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000500000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000510000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000520000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1675 SysmoduleLoad: session sysmodule id=0x102 name=libSceNpToolkit2 result=0x0
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/ue4commandline.txt flags=0x0 fd=3 error=0
+[Tty] <Info> (Guest-1) logger.cpp:62 log_flush: [stdout] Using commandline args from /app0/ue4commandline.txt!
+[Tty] <Info> (Guest-1) logger.cpp:62 log_flush: [stdout] AdditionalArgs before fixup = ../../../TetrisEffect/TetrisEffect.uproject 
+[Tty] <Info> (Guest-1) logger.cpp:62 log_flush: [stdout] AdditionalArgs after fixup = ../../../TetrisEffect/TetrisEffect.uproject
+[Tty] <Info> (Guest-1) logger.cpp:62 log_flush: [stdout] File root is /app0/!
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000540000, len = 0x40000, type = 0x0, prot = 0x2, flags = 0x0
+[Tty] <Info> (Guest-1) logger.cpp:62 log_flush: [stdout] Used memory before allocating anything was 661.22MB
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000530000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Tty] <Info> (Guest-1) logger.cpp:62 log_flush: [stdout] FIOS2: built with SDK version 0x09008001
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:3285 lambda: session WithArg id=0xd7 bytes=0 result=0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1675 SysmoduleLoad: session sysmodule id=0xb4 name=libSceAppContent result=0x0
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/deepfiles flags=0x20000 fd=-1 error=2
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1G3lF1Gg1k8 error=2 result=-1
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=eV9wAD2riIA error=2 result=-1
+[Tty] <Info> (Guest-1) logger.cpp:62 log_flush: [stdout] Project file not found: ../../../tetriseffect/tetriseffect.uproject
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/.. flags=0x20000 fd=-1 error=13
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1G3lF1Gg1k8 error=13 result=-1
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000580000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1675 SysmoduleLoad: session sysmodule id=0x83 name=libScePlayGo result=0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000600000, len = 0x200000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.PlayGo] <Info> (Guest-1) playgo.cpp:247 Initialize: called, bufSize = 2097152
+[Lib.SystemService] <Debug> (Guest-1) systemservice.cpp:1956 sceSystemServiceParamGetInt: called param_id 1
+[Lib.PlayGo] <Info> (Guest-1) playgo.cpp:276 scePlayGoOpen: called
+[Lib.PlayGo] <Debug> (Guest-1) playgo.cpp:151 scePlayGoGetLocus: called handle = 1, chunkIds = 0, numberOfEntries = 1
+[Lib.PlayGo] <Debug> (Guest-1) playgo.cpp:151 scePlayGoGetLocus: called handle = 1, chunkIds = 1, numberOfEntries = 1
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/tetriseffect/content/paks flags=0x20000 fd=3 error=0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1000590000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/tetriseffect/saved/paks flags=0x20000 fd=-1 error=2
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1G3lF1Gg1k8 error=2 result=-1
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/engine/content/paks flags=0x20000 fd=-1 error=2
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1G3lF1Gg1k8 error=2 result=-1
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/tetriseffect/content/paks/global.ucas flags=0x0 fd=3 error=0
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/tetriseffect/content/paks/global.utoc flags=0x0 fd=4 error=0
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/tetriseffect/content/paks flags=0x20000 fd=4 error=0
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/tetriseffect/saved/paks flags=0x20000 fd=-1 error=2
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1G3lF1Gg1k8 error=2 result=-1
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/engine/content/paks flags=0x20000 fd=-1 error=2
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1G3lF1Gg1k8 error=2 result=-1
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/tetriseffect/content/paks/tetriseffect-ps4.pak flags=0x0 fd=4 error=0
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/tetriseffect/content/paks/tetriseffect-ps4.pak flags=0x0 fd=5 error=0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10005a0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10005b0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10005c0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10005d0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/tetriseffect/content/paks/tetriseffect-ps4.ucas flags=0x0 fd=6 error=0
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/tetriseffect/content/paks/tetriseffect-ps4.utoc flags=0x0 fd=7 error=0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001000000, len = 0xf0000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10005e0000, len = 0x20000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001100000, len = 0xb0000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001200000, len = 0x60000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10010f0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/tetriseffect/platforms flags=0x20000 fd=4 error=0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10011b0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=eV9wAD2riIA error=2 result=-1
+Skipped 3 duplicate messages..
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/engine/platforms flags=0x20000 fd=4 error=0
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=eV9wAD2riIA error=2 result=-1
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001280000, len = 0x60000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-5) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10011c0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-6) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10011d0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-7) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10011e0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-8) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10011f0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-9) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001260000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-10) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001270000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-11) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10012e0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-12) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10012f0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001300000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001310000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001320000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001330000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001340000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001350000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001360000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001370000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001380000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001390000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10013a0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10013b0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10013c0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10013d0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10013e0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10013f0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001400000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001410000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001420000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001430000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001440000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001450000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001460000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001470000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001480000, len = 0x20000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10014a0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10014b0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10014c0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=eV9wAD2riIA error=2 result=-1
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10014e0000, len = 0x20000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001500000, len = 0x30000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10014d0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001530000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001540000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001550000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001560000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001570000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001580000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001590000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=eV9wAD2riIA error=2 result=-1
+Skipped 2 duplicate messages..
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/engine/content/internationalization/icudt64l/res_index.res flags=0x0 fd=-1 error=2
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1G3lF1Gg1k8 error=2 result=-1
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10015a0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/engine/content/internationalization/icudt64l/lang/en_us_posix.res flags=0x0 fd=-1 error=2
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1G3lF1Gg1k8 error=2 result=-1
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/engine/content/internationalization/icudt64l/lang/en_us.res flags=0x0 fd=-1 error=2
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1G3lF1Gg1k8 error=2 result=-1
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10015b0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/engine/content/internationalization/icudt64l/region/en_us_posix.res flags=0x0 fd=-1 error=2
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1G3lF1Gg1k8 error=2 result=-1
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/engine/content/internationalization/icudt64l/region/en_us.res flags=0x0 fd=-1 error=2
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1G3lF1Gg1k8 error=2 result=-1
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/engine/content/internationalization/icudt64l/zh_hans.res flags=0x0 fd=-1 error=2
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1G3lF1Gg1k8 error=2 result=-1
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/engine/content/internationalization/icudt64l/zh.res flags=0x0 fd=-1 error=2
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1G3lF1Gg1k8 error=2 result=-1
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10015c0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/engine/content/internationalization/icudt64l/lang/zh_hans.res flags=0x0 fd=-1 error=2
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1G3lF1Gg1k8 error=2 result=-1
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/engine/content/internationalization/icudt64l/lang/zh.res flags=0x0 fd=-1 error=2
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1G3lF1Gg1k8 error=2 result=-1
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/engine/content/internationalization/icudt64l/region/zh_hans.res flags=0x0 fd=-1 error=2
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1G3lF1Gg1k8 error=2 result=-1
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/engine/content/internationalization/icudt64l/region/zh.res flags=0x0 fd=-1 error=2
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1G3lF1Gg1k8 error=2 result=-1
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/engine/content/internationalization/icudt64l/curr/zh_hans.res flags=0x0 fd=-1 error=2
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1G3lF1Gg1k8 error=2 result=-1
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/engine/content/internationalization/icudt64l/curr/zh.res flags=0x0 fd=-1 error=2
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1G3lF1Gg1k8 error=2 result=-1
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10015d0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10015e0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10015f0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/engine/content/internationalization/icudt64l/zh_cn.res flags=0x0 fd=-1 error=2
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1G3lF1Gg1k8 error=2 result=-1
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001600000, len = 0x40000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=eV9wAD2riIA error=2 result=-1
+Skipped 2 duplicate messages..
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/download0/epic games/keyvaluestore.ini flags=0x0 fd=-1 error=2
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1G3lF1Gg1k8 error=2 result=-1
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/download0/epic games/keyvaluestore.ini flags=0x0 fd=-1 error=2
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1G3lF1Gg1k8 error=2 result=-1
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/download0/epic games/keyvaluestore.ini flags=0x0 fd=-1 error=2
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1G3lF1Gg1k8 error=2 result=-1
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/download0/epic games/keyvaluestore.ini flags=0x601 fd=-1 error=2
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1G3lF1Gg1k8 error=2 result=-1
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1-LFLmRFxxM error=2 result=-1
+Skipped 1 duplicate messages..
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=eV9wAD2riIA error=2 result=-1
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/download0/epic games/keyvaluestore.ini flags=0x601 fd=-1 error=2
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1G3lF1Gg1k8 error=2 result=-1
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=eV9wAD2riIA error=2 result=-1
+Skipped 3 duplicate messages..
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/engine/saved/config/ps4/editorsettings.ini flags=0x0 fd=-1 error=2
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1G3lF1Gg1k8 error=2 result=-1
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=eV9wAD2riIA error=2 result=-1
+Skipped 1 duplicate messages..
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/engine/saved/config/ps4/manifest.ini flags=0x601 fd=-1 error=30
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1G3lF1Gg1k8 error=30 result=-1
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1-LFLmRFxxM error=30 result=-1
+Skipped 6 duplicate messages..
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=eV9wAD2riIA error=2 result=-1
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/engine/saved/config/ps4/manifest.ini flags=0x601 fd=-1 error=30
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1G3lF1Gg1k8 error=30 result=-1
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001680000, len = 0x50000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001640000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001650000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001660000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001670000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10016d0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10016e0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=eV9wAD2riIA error=2 result=-1
+Skipped 50 duplicate messages..
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10016f0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001700000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001710000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001720000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=eV9wAD2riIA error=2 result=-1
+Skipped 54 duplicate messages..
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001730000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001740000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=eV9wAD2riIA error=2 result=-1
+Skipped 17 duplicate messages..
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001760000, len = 0x20000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001750000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=eV9wAD2riIA error=2 result=-1
+Skipped 36 duplicate messages..
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001780000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001790000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10017a0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10017b0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10017c0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10017d0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=eV9wAD2riIA error=2 result=-1
+Skipped 170 duplicate messages..
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10017e0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=eV9wAD2riIA error=2 result=-1
+Skipped 56 duplicate messages..
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10017f0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001800000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001810000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=eV9wAD2riIA error=2 result=-1
+Skipped 54 duplicate messages..
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001820000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=eV9wAD2riIA error=2 result=-1
+Skipped 57 duplicate messages..
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/tetriseffect/saved/config/crashreportclient/ue4cc-ps4-0004a51808df1795ec4087af0021873c/crashreportclient.ini flags=0x601 fd=-1 error=30
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1G3lF1Gg1k8 error=30 result=-1
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1-LFLmRFxxM error=30 result=-1
+Skipped 7 duplicate messages..
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=eV9wAD2riIA error=2 result=-1
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/tetriseffect/saved/config/crashreportclient/ue4cc-ps4-0004a51808df1795ec4087af0021873c/crashreportclient.ini flags=0x601 fd=-1 error=30
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1G3lF1Gg1k8 error=30 result=-1
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/download0/notallowedunattendedbugreports flags=0x601 fd=-1 error=2
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1G3lF1Gg1k8 error=2 result=-1
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=eV9wAD2riIA error=2 result=-1
+Skipped 3116 duplicate messages..
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001830000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=eV9wAD2riIA error=2 result=-1
+Skipped 218 duplicate messages..
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001840000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=eV9wAD2riIA error=2 result=-1
+Skipped 1554 duplicate messages..
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001850000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=eV9wAD2riIA error=2 result=-1
+Skipped 564 duplicate messages..
+[Lib.Http] <Info> (Guest-1) http.cpp:1623 sceHttpInit: called libnetMemId=1, libsslCtxId=1, poolSize=1048576
+[Lib.Http] <Info> (Guest-1) http.cpp:1634 sceHttpInit: initialized -> ctxId=1 (active contexts: 1)
+[Lib.Http] <Info> (Guest-1) http.cpp:1511 sceHttpCreateTemplate: called libhttpCtxId=1, userAgent=-UE4/0.1, httpVer=2, isAutoProxyConf=1
+[Lib.Http] <Info> (Guest-1) http.cpp:1529 sceHttpCreateTemplate: created template tmplId=1
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/title.json flags=0x0 fd=4 error=0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001860000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1675 SysmoduleLoad: session sysmodule id=0x9c name=libSceScreenShot result=0x805a10ff
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1675 SysmoduleLoad: session sysmodule id=0x85 name=libSceVideoRecording result=0x805a10ff
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1675 SysmoduleLoad: session sysmodule id=0xd3 name=libSceSharePlay result=0x805a10ff
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1675 SysmoduleLoad: session sysmodule id=0x81 name=libSceGameLiveStreaming result=0x805a10ff
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1675 SysmoduleLoad: session sysmodule id=0x102 name=libSceNpToolkit2 result=0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1675 SysmoduleLoad: session sysmodule id=0x19 name=libSceNpUtility result=0x0
+[Lib.Kernel] <Debug> (Guest-1) process.cpp:65 sceKernelGetCpumode: called
+[Lib.Http] <Info> (Guest-1) http.cpp:1623 sceHttpInit: called libnetMemId=2, libsslCtxId=2, poolSize=65536
+[Lib.Http] <Info> (Guest-1) http.cpp:1634 sceHttpInit: initialized -> ctxId=2 (active contexts: 2)
+[Lib.NpWebApi] <Info> (Guest-1) np_web_api.cpp:363 sceNpWebApiInitialize: called, libHttpCtxId = 0x2, poolSize = 0x100000 bytes
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:314 sceKernelMapNamedFlexibleMemory: in_addr = 0x0, len = 0x1000000, prot = 0x2, flags = 0x0, name = 'SceNpToolkit2Lib'
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:344 sceKernelMapNamedFlexibleMemory: out_addr = 0x200000000
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:314 sceKernelMapNamedFlexibleMemory: in_addr = 0x0, len = 0x600000, prot = 0x2, flags = 0x0, name = 'SceNpToolkit2Json'
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:344 sceKernelMapNamedFlexibleMemory: out_addr = 0x201000000
+[Lib.NpManager] <Error> (Guest-1) np_manager.cpp:1053 sceNpRegisterStateCallbackForToolkit: (STUBBED) called
+[Lib.NpManager] <Debug> (Guest-26) np_manager.cpp:967 sceNpCheckCallback: called
+[Lib.NpManager] <Info> (Guest-27) guest_runtime.cpp:3352 lambda: Session offline NP nid=eQH7nWPcAgc result=0x0
+[Lib.NpManager] <Debug> (Guest-26) np_manager.cpp:967 sceNpCheckCallback: called
+[Lib.SysModule] <Info> (Guest-25) guest_runtime.cpp:1675 SysmoduleLoad: session sysmodule id=0xe4 name=libSceSigninDialog result=0x0
+[Lib.NpManager] <Info> (Guest-25) guest_runtime.cpp:3352 lambda: Session offline NP nid=Ec63y59l9tw result=0x0
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1675 SysmoduleLoad: session sysmodule id=0xa8 name=libSceNpCommerce result=0x805a10ff
+[Lib.NpManager] <Debug> (Guest-26) np_manager.cpp:967 sceNpCheckCallback: called
+Skipped 1 duplicate messages..
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:838 sceKernelMunmap: addr = 0x201000000, len = 0x600000
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:838 sceKernelMunmap: addr = 0x200000000, len = 0x1000000
+[Lib.Http] <Info> (Guest-1) http.cpp:2110 sceHttpTerm: called libhttpCtxId=2
+[Lib.Http] <Info> (Guest-1) http.cpp:2154 sceHttpTerm: ctxId=2 terminated, 1 contexts still active
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001870000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001880000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001890000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10018a0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10018b0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10018c0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10018d0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.Http] <Info> (Guest-1) http.cpp:1623 sceHttpInit: called libnetMemId=3, libsslCtxId=3, poolSize=1048576
+[Lib.Http] <Info> (Guest-1) http.cpp:1634 sceHttpInit: initialized -> ctxId=3 (active contexts: 2)
+[Lib.Http] <Info> (Guest-1) http.cpp:1511 sceHttpCreateTemplate: called libhttpCtxId=3, userAgent=-UE4/0.1, httpVer=2, isAutoProxyConf=1
+[Lib.Http] <Info> (Guest-1) http.cpp:1529 sceHttpCreateTemplate: created template tmplId=2
+[Lib.SysModule] <Info> (Guest-1) guest_runtime.cpp:1675 SysmoduleLoad: session sysmodule id=0xba name=libSceRandom result=0x0
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/app0/deepfiles flags=0x20000 fd=-1 error=2
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1G3lF1Gg1k8 error=2 result=-1
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=eV9wAD2riIA error=2 result=-1
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10018e0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10018f0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.SaveData] <Debug> (Guest-1) guest_storage_hle.cpp:441 DispatchStoragePinned: Session open path=/dev/urandom flags=0x0 fd=4 error=0
+[Lib.SaveData] <Warning> (Guest-30) guest_storage_hle.cpp:76 lambda: Session file nid=AqBioC2vF3I error=9 result=-1
+[Lib.Net] <Info> (Guest-1) guest_sockets.cpp:291 Trace: Session socket nid=TU-d9PfIHPM guest_fd=-1 result=7
+[Lib.Net] <Info> (Guest-1) guest_sockets.cpp:291 Trace: Session socket nid=KuOmgKoqCdY guest_fd=7 result=0
+[Lib.Net] <Info> (Guest-1) guest_sockets.cpp:291 Trace: Session socket nid=TU-d9PfIHPM guest_fd=-1 result=8
+[Lib.Net] <Info> (Guest-1) guest_sockets.cpp:291 Trace: Session socket nid=XVL8So3QJUk guest_fd=8 result=0
+[Lib.Net] <Info> (Guest-1) guest_sockets.cpp:291 Trace: Session socket nid=3e+4Iv7IJ8U guest_fd=7 result=9
+[Lib.Net] <Info> (Guest-1) guest_sockets.cpp:291 Trace: Session socket nid=TU-d9PfIHPM guest_fd=-1 result=7
+[Lib.Net] <Info> (Guest-1) guest_sockets.cpp:291 Trace: Session socket nid=KuOmgKoqCdY guest_fd=7 result=0
+[Lib.Net] <Info> (Guest-1) guest_sockets.cpp:291 Trace: Session socket nid=TU-d9PfIHPM guest_fd=-1 result=10
+[Lib.Net] <Info> (Guest-1) guest_sockets.cpp:291 Trace: Session socket nid=XVL8So3QJUk guest_fd=10 result=0
+[Lib.Net] <Info> (Guest-1) guest_sockets.cpp:291 Trace: Session socket nid=3e+4Iv7IJ8U guest_fd=7 result=11
+[Lib.SaveData] <Warning> (Guest-30) guest_storage_hle.cpp:76 lambda: Session file nid=AqBioC2vF3I error=9 result=-1
+[Lib.Net] <Info> (Guest-1) guest_sockets.cpp:291 Trace: Session socket nid=TU-d9PfIHPM guest_fd=-1 result=7
+[Lib.Net] <Info> (Guest-1) guest_sockets.cpp:291 Trace: Session socket nid=KuOmgKoqCdY guest_fd=7 result=0
+[Lib.Net] <Info> (Guest-1) guest_sockets.cpp:291 Trace: Session socket nid=TU-d9PfIHPM guest_fd=-1 result=12
+[Lib.Net] <Info> (Guest-1) guest_sockets.cpp:291 Trace: Session socket nid=XVL8So3QJUk guest_fd=12 result=0
+[Lib.Net] <Info> (Guest-1) guest_sockets.cpp:291 Trace: Session socket nid=3e+4Iv7IJ8U guest_fd=7 result=13
+[Lib.Net] <Info> (Guest-1) guest_sockets.cpp:291 Trace: Session socket nid=TU-d9PfIHPM guest_fd=-1 result=7
+[Lib.Net] <Info> (Guest-1) guest_sockets.cpp:291 Trace: Session socket nid=KuOmgKoqCdY guest_fd=7 result=0
+[Lib.Net] <Info> (Guest-1) guest_sockets.cpp:291 Trace: Session socket nid=TU-d9PfIHPM guest_fd=-1 result=12
+[Lib.Net] <Info> (Guest-1) guest_sockets.cpp:291 Trace: Session socket nid=XVL8So3QJUk guest_fd=12 result=0
+[Lib.Net] <Info> (Guest-1) guest_sockets.cpp:291 Trace: Session socket nid=3e+4Iv7IJ8U guest_fd=7 result=13
+[Lib.Net] <Info> (Guest-1) guest_sockets.cpp:291 Trace: Session socket nid=TU-d9PfIHPM guest_fd=-1 result=7
+[Lib.Net] <Info> (Guest-1) guest_sockets.cpp:291 Trace: Session socket nid=KuOmgKoqCdY guest_fd=7 result=0
+[Lib.Net] <Info> (Guest-1) guest_sockets.cpp:291 Trace: Session socket nid=TU-d9PfIHPM guest_fd=-1 result=12
+[Lib.Net] <Info> (Guest-1) guest_sockets.cpp:291 Trace: Session socket nid=XVL8So3QJUk guest_fd=12 result=0
+[Lib.Net] <Info> (Guest-1) guest_sockets.cpp:291 Trace: Session socket nid=3e+4Iv7IJ8U guest_fd=7 result=13
+[Lib.SaveData] <Warning> (Guest-1) guest_storage_hle.cpp:76 lambda: Session file nid=1-LFLmRFxxM error=30 result=-1
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001900000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.SaveData] <Warning> (Guest-30) guest_storage_hle.cpp:76 lambda: Session file nid=AqBioC2vF3I error=9 result=-1
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001910000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001920000, len = 0x20000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.SaveData] <Warning> (Guest-30) guest_storage_hle.cpp:76 lambda: Session file nid=AqBioC2vF3I error=9 result=-1
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001940000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001950000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001960000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001970000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001980000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001990000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.SaveData] <Warning> (Guest-30) guest_storage_hle.cpp:76 lambda: Session file nid=AqBioC2vF3I error=9 result=-1
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10019a0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10019b0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10019c0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10019d0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001a00000, len = 0x190000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1002000000, len = 0x810000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001c00000, len = 0x100000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001d00000, len = 0xc0000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x10019e0000, len = 0x20000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001e00000, len = 0x100000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001ba0000, len = 0x20000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001b90000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001bc0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Lib.SaveData] <Warning> (Guest-30) guest_storage_hle.cpp:76 lambda: Session file nid=AqBioC2vF3I error=9 result=-1
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001bd0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001be0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolCommit: addr = 0x1001bf0000, len = 0x10000, type = 0x0, prot = 0x2, flags = 0x0
+[Kernel.Vmm] <Info> (Guest-1) memory.cpp:649 sceKernelMemoryPoolComm

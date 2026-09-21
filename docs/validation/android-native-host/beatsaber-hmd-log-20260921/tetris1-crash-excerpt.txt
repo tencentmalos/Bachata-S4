@@ -1,0 +1,6 @@
+09-21 19:08:55.897 16271 16271 I shadps4.android: type=1400 audit(0.0:669203): avc: denied { open } for path="/dev/__properties__/u:object_r:vendor_default_prop:s0" dev="tmpfs" ino=379 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_default_prop:s0 tclass=file permissive=1
+09-21 19:08:55.897 16271 16271 I shadps4.android: type=1400 audit(0.0:669204): avc: denied { getattr } for path="/dev/__properties__/u:object_r:vendor_default_prop:s0" dev="tmpfs" ino=379 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_default_prop:s0 tclass=file permissive=1
+09-21 19:09:22.612 16271 16928 F libc    : Fatal signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x0 in tid 16928 (Guest-50), pid 16271 (shadps4.android)
+09-21 19:09:23.031 17075 17075 F DEBUG   : pid: 16271, tid: 16928, name: Guest-50  >>> com.shadps4.android <<<
+09-21 19:09:23.296 29156 29156 I Zygote  : Process 16271 exited due to signal 11 (Segmentation fault)
+09-21 19:09:23.337 29284 29311 I Process : Sending signal. PID: 16271 SIG: 9

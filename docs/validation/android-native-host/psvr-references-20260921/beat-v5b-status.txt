@@ -1,0 +1,19 @@
+TASK 10190:com.shadps4.android id=1600 userId=0
+  ACTIVITY com.shadps4.android/.MainActivity 976f7d3 pid=21305
+session: active
+generation: 1
+pid: 21305
+phase: 3
+run_uuid: fd9bf0f7b1bf3801a330c84dbb7f33ca
+stage: Running
+driver: source=turnip device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+snapshot_ns: 746202541944923
+guest_flip: 594 (age_ns=8107969)
+pm4_consumed: 1021152 (age_ns=9388698)
+host_draw: 24005 (age_ns=9398385)
+queue_submit: 2262 (age_ns=8016406)
+gpu_retire: unavailable
+host_present: 593 (age_ns=14001146)
+overlay_redraw: 835 (age_ns=12859427)
+guest_submission: 606 (age_ns=13048281)
+

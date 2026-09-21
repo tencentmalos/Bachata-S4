@@ -75,6 +75,17 @@ public:
                             });
     }
 
+    /// Replace backing without downloading the old GPU contents into the new allocation.
+    void InvalidateMapping(VAddr cpu_addr, u64 size) {
+        IteratePages<false>(cpu_addr, size, [](RegionManager* manager, u64 offset, size_t bytes) {
+            std::scoped_lock lock{manager->lock};
+            manager->template ChangeRegionState<Type::GPU, false>(manager->GetCpuAddr() + offset,
+                                                                 bytes);
+            manager->template ChangeRegionState<Type::CPU, true>(manager->GetCpuAddr() + offset,
+                                                                bytes);
+        });
+    }
+
     /// Removes all protection from a page and ensures GPU data has been flushed if requested
     void InvalidateRegion(VAddr cpu_addr, u64 size, auto&& on_flush) noexcept {
         IteratePages<false>(

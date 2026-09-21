@@ -1,0 +1,5 @@
+Source: tool stderr when running scripts/android/guest-patch 9c2841a4 disable
+GUEST_PATCH_ERROR: SERVICE com.shadps4.android/.service.FexSessionService 2c5a271 pid=4419 user=0
+  Client:
+    status: error
+    detail: Timeout in FinishDrain: owners or HLE pins have not drained

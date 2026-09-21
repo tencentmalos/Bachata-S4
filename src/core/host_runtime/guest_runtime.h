@@ -21,7 +21,8 @@ class GuestSaveDialog;
 class GuestRuntime final {
 public:
     static constexpr std::uint64_t ReservationBegin = 0x400000;
-    static constexpr std::uint64_t ReservationEnd = 0x1e00000000ULL; // 120 GiB
+    static constexpr std::uint64_t ReservationEnd = 0x4800000000ULL; // 288 GiB segmented envelope
+    static constexpr std::uint64_t ServiceAllocationBase = 0x1c00000000ULL; // 112 GiB
     GuestRuntime(GuestCpu::CpuContext& cpu, GuestCpu::GuestAddressSpace& space,
                  GuestCpu::Hle::HleCallRegistry& registry);
     ~GuestRuntime();

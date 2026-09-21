@@ -1,0 +1,7 @@
+FAIL Tetris segmented work buffers
+FAIL finalize segmented buffers
+FAIL failed init did not retain state or pins
+FAIL finalize before onion split
+FAIL onion and garlic both cross mappings
+FAIL finalize both
+guest_reprojection_tests: 49 checks / 6 failures

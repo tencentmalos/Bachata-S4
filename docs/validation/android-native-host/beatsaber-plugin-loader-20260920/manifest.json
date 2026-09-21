@@ -1,0 +1,229 @@
+{
+  "schema": "shadps4.validation.plugin-loader.v1",
+  "scope": "Beat Saber plugin loader, targeted tests, AYN only; SBS rendering incomplete",
+  "head": "63b6d560dd43af031ec7a5de64ae6204beea5de2",
+  "branch": "feature/malos/beat_saber_fix",
+  "changes": {
+    "src/core/host_runtime/guest_runtime.cpp": "c685518fe84528b5b18a6a04b66bb21ca4b8faa372a50cd53e6fa93a9f118d7e",
+    "src/core/host_runtime/guest_module_lifecycle.h": "5a447222ec8a47a1e5834123cab9af02b41710fb60e57681d9113c4ac91fbd4a",
+    "src/core/host_runtime/guest_libc_policy.h": "268662f6a1830a67290e9aa16cf08273845bea5b090c6c27c179e25e06466599",
+    "cmake/fex/CMakeLists.txt": "9fee622bc088245e2e6326724e6c772a2a39302d8377afbe31e4d1e64823d1bd",
+    "tests/host_runtime/guest_module_lifecycle_tests.cpp": "e0d7854142b36b83a6e8ca252d1d57151e383b2439abea31d154b661b7a145d4"
+  },
+  "files": [
+    {
+      "path": "apk-build-v3.txt",
+      "bytes": 20733,
+      "sha256": "ef6bc89c6db4f21f913b71f5d0dcb6cd74bdc94f6f9fa8bb8f31fbb018fd2484"
+    },
+    {
+      "path": "cleanup.json",
+      "bytes": 539,
+      "sha256": "708ce5ef4cddd4eb0f6c0533037ffc88d1d7a1f0faeb84965d60e4b4523531c4"
+    },
+    {
+      "path": "final-family-audit.json",
+      "bytes": 69143,
+      "sha256": "884ffb757ba166990de6e17c3580b2faa11533456a97763508d368b0362f0204"
+    },
+    {
+      "path": "final-sha256.txt",
+      "bytes": 265,
+      "sha256": "1d340065cb5ef997283d150dfefcc56dea05c7794a54e9b6aac138ae5d92490f"
+    },
+    {
+      "path": "host-build-v3-final.txt",
+      "bytes": 814,
+      "sha256": "8a51986a08a6f7c6a790ee8332f757e29cff82f6e7ac0910fad513d5d9d2ed65"
+    },
+    {
+      "path": "installed-binaries.json",
+      "bytes": 637,
+      "sha256": "08769a13c9972b52e79738192ecd1d958eda6406ed3c81e5f07e07b5c3b1c763"
+    },
+    {
+      "path": "module-lookup-junit.txt",
+      "bytes": 800,
+      "sha256": "e8fb30b024bfd593f8443fd52d5deab1e305d9b80fcc418d6a80a69cbd90dca4"
+    },
+    {
+      "path": "module-lookup-logcat.txt",
+      "bytes": 4228,
+      "sha256": "03eced1f022bce44c56601a471366c034c0c1a79969dc4ec450ccbb87dcf60e3"
+    },
+    {
+      "path": "run1-logcat.txt",
+      "bytes": 7637,
+      "sha256": "136d96fcebb710de839dce8ee9be653eafd80e2e382d8a0aed2a52d9cf5bd82b"
+    },
+    {
+      "path": "run2-guest-log.decoded.json",
+      "bytes": 81055,
+      "sha256": "10999b6b504955d66c8d32066f1d736c411a1aff9cdd3919fea80a94e773c061"
+    },
+    {
+      "path": "run2-guest-log.txt",
+      "bytes": 568766,
+      "sha256": "429becc5ae418637f992b5e00ac906341817223af2c5f8cbe27ede3f1642799a"
+    },
+    {
+      "path": "run2-logcat.txt",
+      "bytes": 187520,
+      "sha256": "0f3278240973324fc0bc1210e4be057939b1b79bca33c40d9db47a4a692d4e57"
+    },
+    {
+      "path": "run3-guest-log.decoded.json",
+      "bytes": 94935,
+      "sha256": "626cff65bfb9273e06d70c0052403d02384ca28ff0f25a1ff449347eb8989835"
+    },
+    {
+      "path": "run3-guest-log.txt",
+      "bytes": 670202,
+      "sha256": "ad3f30fad8d9ea7f919a3cb32aeb955553cdbcd931a39dd37275d3d9c4af9686"
+    },
+    {
+      "path": "run3-imports.json",
+      "bytes": 643575,
+      "sha256": "9517fc1962d93f2c5cde9a4ea397aa5f120b4d9a80d9f548468235150d861bac"
+    },
+    {
+      "path": "run3-logcat-final.txt",
+      "bytes": 190527,
+      "sha256": "6fe60a33b86b22b10fc9e6792a478bb7ae633bb3faf8244652baba9b120841ec"
+    },
+    {
+      "path": "run3-patch-status.txt",
+      "bytes": 4490,
+      "sha256": "73e3adef2ccecc61509696e811695e4a2256dba96be28c5eff6414614d921ac6"
+    },
+    {
+      "path": "run3-status.txt",
+      "bytes": 782,
+      "sha256": "1a8974200f6782c7976329138606e43e48db096087531bc8d877cf7fe6ffd60c"
+    },
+    {
+      "path": "run3-stop-status.txt",
+      "bytes": 5198,
+      "sha256": "b2d0dadaebdd42f014ac579d7ca908841ca87faed897e0c703811d0b72f86fe0"
+    },
+    {
+      "path": "run4-disable-error.txt",
+      "bytes": 276,
+      "sha256": "23bd19e7034dd98707d08343f064f1966f276d376cd699fb634109fd1ee8615d"
+    },
+    {
+      "path": "run4-disable.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "run4-guest-log.decoded.json",
+      "bytes": 102704,
+      "sha256": "4a3072698b16b7bad187c083e717d68888a5b2cb4503946772b9ef83677c6c67"
+    },
+    {
+      "path": "run4-guest-log.txt",
+      "bytes": 639116,
+      "sha256": "e0e5533130ee571302829463f339d8faf07be158a859e1da531603e106afcb74"
+    },
+    {
+      "path": "run4-logcat-final.txt",
+      "bytes": 190554,
+      "sha256": "b8797dd3f280aa4b26cf2023f7f932e4fbb43000f795014af98b6c8d0018db0d"
+    },
+    {
+      "path": "run4-patch-status-after-disable.txt",
+      "bytes": 83,
+      "sha256": "45d3083b8e5d12f9fd154b4c7d8f7890c23577d6b474f69e377d661522d26787"
+    },
+    {
+      "path": "run4-poses.json",
+      "bytes": 11747,
+      "sha256": "0c9d6ce6d5b5f0ca54c609cffbee9a49ae722df5723662aafb8e0f4c39d6f9e2"
+    },
+    {
+      "path": "run4-status.txt",
+      "bytes": 787,
+      "sha256": "7a567d00fa651418d9f2d0deb665b018bbd3c481d7fcc345f17d7d5eebb8db9e"
+    },
+    {
+      "path": "run5-input-status.txt",
+      "bytes": 607,
+      "sha256": "d8f43345eafed37b13eeeb9cb4abc6399afd84efef5b889ff6c342215ddc8eb6"
+    },
+    {
+      "path": "run5-logcat-final.txt",
+      "bytes": 188815,
+      "sha256": "9a1a42c6a6a2d07e75f99511bc36210e000c29d02014bbe51b7b19bfdc834c1b"
+    },
+    {
+      "path": "run5-patch-status.txt",
+      "bytes": 122,
+      "sha256": "defc37a22fbb86c4dfebecd4b307ee5f1260680526364f7fa15a7c46732931f2"
+    },
+    {
+      "path": "run5-renderdoc-status.txt",
+      "bytes": 155,
+      "sha256": "f48ec052d52919867b29156f5a1c0e47c0f087ae91dccaec35cec7a8b8817558"
+    },
+    {
+      "path": "run5-screen.png",
+      "bytes": 215351,
+      "sha256": "e10903fbc37281bdc4e4399f7bdbefc9f69dbc9cdb5d2335be575085d1c82a88"
+    },
+    {
+      "path": "run5-status.txt",
+      "bytes": 792,
+      "sha256": "876bcf22b096657a89bdc6a34f0a69583973039c68f0d2b63053def07e6575e3"
+    },
+    {
+      "path": "run5-stop-status.txt",
+      "bytes": 5194,
+      "sha256": "e9093b3af25276b215bba9642f78ae5b114d03b780827f4799e934b256c21569"
+    },
+    {
+      "path": "runtime-summary.json",
+      "bytes": 9006,
+      "sha256": "27dbb35fe9ad7525214b8f33a2b86f37434bf9f8cdbc222e2edc6f5a4a18d1cb"
+    },
+    {
+      "path": "test-apk-build.txt",
+      "bytes": 29014,
+      "sha256": "9289ad5a0757a53334dc9aab964e27500c89eef1b3b19f9823ff0ccfe2d7cc40"
+    },
+    {
+      "path": "tests-android-v2.txt",
+      "bytes": 54,
+      "sha256": "060c02615456df1e06ab4a02dd25b568dfac79a04d2bb47de1c5910ae0747057"
+    },
+    {
+      "path": "tests-host-v2.txt",
+      "bytes": 54,
+      "sha256": "060c02615456df1e06ab4a02dd25b568dfac79a04d2bb47de1c5910ae0747057"
+    }
+  ],
+  "local_only": {
+    "run2-screen.png": "8208c58883b4208ec7111e60216cff1a93a1eb66074dc751423f9ce7ed4c3632",
+    "run3-screen.png": "98421a08bdeb36c64f1a026803d83535a4bbfc38f6ebcae5717f225844fed7de",
+    "run4-screen.png": "63837fd48269ed3c26ef299862cef41c79a8d1741d6f3d2f007fd696c0264e9d",
+    "run3-stop-ui.png": "287abe1e4b2c41f188fdc29bef89778746b16353b1d0317871734dca2508c6c7",
+    "run5-stop-ui.png": "ae2d512aac60c2e43291ae0e6fecb28ac0612d611f42a40c402bdf86d2a38dec"
+  },
+  "guest_log_windows": [
+    {
+      "run": 2,
+      "start": 165173685,
+      "bytes": 568766
+    },
+    {
+      "run": 3,
+      "start": 165742451,
+      "bytes": 670202
+    },
+    {
+      "run": 4,
+      "start": 166447918,
+      "bytes": 639116
+    }
+  ]
+}

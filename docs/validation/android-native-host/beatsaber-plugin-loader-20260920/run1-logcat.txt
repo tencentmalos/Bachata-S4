@@ -1,0 +1,72 @@
+--------- beginning of main
+09-20 20:45:06.510 30740 30740 I Zygote  : seccomp disabled by setenforce 0
+09-20 20:45:06.514 30740 30740 I shadps4.android: Late-enabling -Xcheck:jni
+09-20 20:45:06.543 30740 30740 D CompatibilityChangeReporter: Compat change id reported: 171979766; UID 10190; state: ENABLED
+09-20 20:45:06.546 30740 30740 W ziparchive: Unable to open '/data/app/~~DikcVPuwLHpe9LaOTisDeg==/com.shadps4.android-y3fFZiBYccx6nW2axzi1GQ==/base.dm': No such file or directory
+09-20 20:45:06.546 30740 30740 W ziparchive: Unable to open '/data/app/~~DikcVPuwLHpe9LaOTisDeg==/com.shadps4.android-y3fFZiBYccx6nW2axzi1GQ==/base.dm': No such file or directory
+09-20 20:45:06.605 30740 30740 I Perf    : Connecting to perf service.
+09-20 20:45:06.607 30740 30740 V GraphicsEnvironment: ANGLE Developer option for 'com.shadps4.android' set to: 'default'
+09-20 20:45:06.607 30740 30740 V GraphicsEnvironment: ANGLE GameManagerService for com.shadps4.android: false
+09-20 20:45:06.607 30740 30740 V GraphicsEnvironment: Updatable production driver is not supported on the device.
+09-20 20:45:06.612 30740 30740 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+09-20 20:45:06.612 30740 30740 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+09-20 20:45:06.636 30740 30740 I ActivityThread: performLaunchActivity com.shadps4.android displayId 0
+09-20 20:45:06.638 30740 30740 I ActivityThread: getDefaultLauncherPackage pkn com.android.launcher3
+09-20 20:45:06.669 30740 30740 I ActivityThread: performResumeActivity com.shadps4.android displayId 0
+09-20 20:45:06.669 30740 30740 I ActivityThread: getDefaultLauncherPackage pkn com.android.launcher3
+09-20 20:45:06.670 30740 30740 D CompatibilityChangeReporter: Compat change id reported: 237531167; UID 10190; state: DISABLED
+09-20 20:45:06.887 30740 30768 I AdrenoGLES-0: QUALCOMM build                   : 69e13475cb, I1df7ad3aa9
+09-20 20:45:06.887 30740 30768 I AdrenoGLES-0: Build Date                       : 12/27/23
+09-20 20:45:06.887 30740 30768 I AdrenoGLES-0: OpenGL ES Shader Compiler Version: E031.41.03.47
+09-20 20:45:06.887 30740 30768 I AdrenoGLES-0: Local Branch                     : 
+09-20 20:45:06.887 30740 30768 I AdrenoGLES-0: Remote Branch                    : refs/tags/AU_LINUX_ANDROID_LA.VENDOR.13.2.0.11.00.00.855.759
+09-20 20:45:06.887 30740 30768 I AdrenoGLES-0: Remote Branch                    : NONE
+09-20 20:45:06.887 30740 30768 I AdrenoGLES-0: Reconstruct Branch               : NOTHING
+09-20 20:45:06.887 30740 30768 I AdrenoGLES-0: Build Config                     : S P 14.1.4 AArch64
+09-20 20:45:06.887 30740 30768 I AdrenoGLES-0: Driver Path                      : /vendor/lib64/egl/libGLESv2_adreno.so
+09-20 20:45:06.887 30740 30768 I AdrenoGLES-0: Driver Version                   : 0676.53
+09-20 20:45:06.890 30740 30768 I AdrenoGLES-0: PFP: 0x01740168, ME: 0x00000000
+09-20 20:45:06.894 30740 30768 I AdrenoUtils: <ReadGpuID:407>: Reading chip ID through GSL
+09-20 20:45:06.898 30740 30768 E OpenGLRenderer: Unable to match the desired swap behavior.
+09-20 20:45:07.327 30740 30740 I OpenLastGame: Launch requested: CUSA12878
+09-20 20:45:07.334 30740 30740 W OnBackInvokedCallback: OnBackInvokedCallback is not enabled for the application.
+09-20 20:45:07.334 30740 30740 W OnBackInvokedCallback: Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+09-20 20:45:07.337 30740 30740 I InsetsSourceConsumer: setControl gSourceControl control InsetsSourceControl: {type=ITYPE_IME, mSurfacePosition=Point(591, 969), mInsetsHint=Insets{left=0, top=0, right=0, bottom=111}}
+09-20 20:45:07.474 30740 30740 I FexSessionService: Guest console language=11
+09-20 20:45:07.475 30740 30740 I FexSessionService: Guest texture quality=0
+09-20 20:45:07.475 30740 30740 I FexSessionService: Guest internal scale=50.0 percent
+09-20 20:45:07.475 30740 30740 I FexSessionService: Guest shading quality=2; FDM disabled
+09-20 20:45:07.497 30740 30857 I ProductionRuntime: prepare: reserve guest VA
+09-20 20:45:07.497 30740 30857 I ProductionRuntime: prepare: create FEX context
+09-20 20:45:07.497 30740 30857 I ProductionRuntime: prepare: create production VM/Linker
+09-20 20:45:07.500 30740 30740 I OrbisPad: vrSbs enabled=1
+09-20 20:45:07.510 30740 30740 I FexSessionService: native: page_size=4096 pid=30740 uid=10190 gen=1
+09-20 20:45:07.567 30740 30857 I hook_impl: hook_android_load_sphal_library: filename: vulkan.adreno.so
+09-20 20:45:07.567 30740 30857 I hook_impl: hook_android_dlopen_ext: filename: vulkan.adreno.so
+09-20 20:45:07.568 30740 30857 I hook_impl: hook_android_dlopen_ext: loading custom driver: /data/data/com.shadps4.android/files/native-drivers/fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09/vulkan.ad07xx.so
+09-20 20:45:07.569 30740 30857 D vulkan  : searching for layers in '/data/app/~~DikcVPuwLHpe9LaOTisDeg==/com.shadps4.android-y3fFZiBYccx6nW2axzi1GQ==/lib/arm64'
+09-20 20:45:07.569 30740 30857 D vulkan  : searching for layers in '/data/app/~~DikcVPuwLHpe9LaOTisDeg==/com.shadps4.android-y3fFZiBYccx6nW2axzi1GQ==/base.apk!/lib/arm64-v8a'
+09-20 20:45:07.570 30740 30857 W MESA    : Gralloc doesn't support lock_ycbcr (video buffers won't be supported)
+09-20 20:45:07.570 30740 30857 I MESA    : Using fallback gralloc implementation
+09-20 20:45:07.571 30740 30857 I FexSession: Selected Vulkan driver: source=turnip device=Turnip Adreno (TM) 740 driver=turnip Mesa driver info=Mesa 26.0.0-devel (git-5ac41be677) shaderInt64=1 api=4211023 sha256=fdd378520022f88b0363dd1f77f6989332730271712621523075fe4eb4de2a09 
+09-20 20:45:07.571 30740 30857 I ProductionRuntime: android foreground admission: Suspend/ResumeSemaphore enabled
+09-20 20:45:07.571 30740 30857 I ProductionRuntime: prepare: load/relocate modules
+09-20 20:45:07.584 30740 30857 I ProductionRuntime: prepare: main module loaded
+09-20 20:45:07.584 30740 30857 I ProductionRuntime: prepare: visit module eboot.bin
+09-20 20:45:07.585 30740 30857 I ProductionRuntime: prepare: module loaded libSceFios2.prx
+09-20 20:45:07.585 30740 30857 I ProductionRuntime: prepare: visit module libSceFios2.prx
+09-20 20:45:07.585 30740 30857 I ProductionRuntime: prepare: visited module libSceFios2.prx
+09-20 20:45:07.605 30740 30857 I ProductionRuntime: prepare: module loaded Il2CppUserAssemblies.prx
+09-20 20:45:07.605 30740 30857 I ProductionRuntime: prepare: visit module Il2CppUserAssemblies.prx
+09-20 20:45:07.605 30740 30857 I ProductionRuntime: prepare: module loaded PS4Util.prx
+09-20 20:45:07.605 30740 30857 I ProductionRuntime: prepare: visit module PS4Util.prx
+09-20 20:45:07.612 30740 30857 I ProductionRuntime: prepare: module loaded libc.prx
+09-20 20:45:07.612 30740 30857 I ProductionRuntime: prepare: visit module libc.prx
+09-20 20:45:07.612 30740 30857 I ProductionRuntime: prepare: visited module libc.prx
+09-20 20:45:07.612 30740 30857 I ProductionRuntime: prepare: visited module PS4Util.prx
+09-20 20:45:07.612 30740 30857 I ProductionRuntime: prepare: visited module Il2CppUserAssemblies.prx
+09-20 20:45:07.612 30740 30857 I ProductionRuntime: prepare: visited module eboot.bin
+09-20 20:45:07.623 30740 30857 I ProductionRuntime: prepare: failed: invalid module: /data/data/com.shadps4.android/files/games/CUSA12878/Media/Plugins/._PS4NativeUserSwitchPlugin.prx
+09-20 20:45:07.650 30740 30740 I OrbisPad: vrSbs enabled=0
+09-20 20:45:08.380 30740 30756 I shadps4.android: Compiler allocated 4413KB to compile void android.view.ViewRootImpl.performTraversals()
+09-20 20:45:12.093 30740 30921 D ProfileInstaller: Installing profile for com.shadps4.android

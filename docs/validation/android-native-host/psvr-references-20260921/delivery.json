@@ -1,0 +1,29 @@
+{
+  "serial": "9c2841a4",
+  "device": "AYN Thor",
+  "final_pid": 22493,
+  "session": "none",
+  "tracer_pid": 0,
+  "active_services": false,
+  "forward_file": "forward-after.txt",
+  "owned_scrcpy_session": "a973255d33594cd69384ad9daa39b7a6",
+  "scrcpy_stop": {
+    "state": "stopped",
+    "nativeExitCode": 0,
+    "gracefulStop": true
+  },
+  "owned_logcat_stopped": true,
+  "settings": {
+    "global": {
+      "before_sha256": "2d9cbe984e5f265e3a607314a8a3759f01ff35ec43369cfe43af6a17e80dfc64",
+      "after_sha256": "2d9cbe984e5f265e3a607314a8a3759f01ff35ec43369cfe43af6a17e80dfc64",
+      "byte_equal": true
+    },
+    "config": {
+      "before_sha256": "e6b6682ba630ff983624844cd4cc9a61af940c42a48d6206418d0d1a9e3e3057",
+      "after_sha256": "e6b6682ba630ff983624844cd4cc9a61af940c42a48d6206418d0d1a9e3e3057",
+      "byte_equal": true
+    }
+  },
+  "commit_push": false
+}

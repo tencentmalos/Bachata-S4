@@ -162,6 +162,7 @@ struct OrbisNpWebApiRegisteredExtendedPushEventCallback {
 
 // General functions
 s32 initializeLibrary();     // FUN_01001450
+s32 retireOfflineControlContext(s32 id);
 s32 getCompiledSdkVersion(); // FUN_01001440
 
 // Library context functions

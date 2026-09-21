@@ -1,0 +1,19 @@
+TASK 10190:com.shadps4.android id=1578 userId=0
+  ACTIVITY com.shadps4.android/.MainActivity e3abbfe pid=29912
+session: active
+generation: 1
+pid: 29912
+phase: 3
+run_uuid: 70d24fd169f7a1f3ca0b3edc66af42bc
+stage: Running
+driver: unavailable
+snapshot_ns: 736979295563233
+guest_flip: unavailable
+pm4_consumed: unavailable
+host_draw: unavailable
+queue_submit: unavailable
+gpu_retire: unavailable
+host_present: unavailable
+overlay_redraw: unavailable
+guest_submission: unavailable
+

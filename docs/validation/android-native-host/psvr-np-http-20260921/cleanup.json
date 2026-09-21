@@ -1,0 +1,29 @@
+{
+  "serial": "9c2841a4",
+  "observed_utc": "2026-09-21T01:32:15.546818+00:00",
+  "app_pid": 9972,
+  "tracer_pid": 0,
+  "game_service": "absent",
+  "guest_debug_port": 0,
+  "guest_debug_wait": 0,
+  "adb_forward": "empty",
+  "rsp_sessions": [
+    "gdbg_ba9d5ece9ca4409eb38dbdb71f89abe9",
+    "gdbg_5e06645ed67c4514bd103ce5a0054b07"
+  ],
+  "rsp_ownership_released": true,
+  "scrcpy_session": "12ddf054b72b47579778bd5c8bea9e14",
+  "scrcpy_stopped": true,
+  "config_checks": {
+    "global": {
+      "sha256": "2d9cbe984e5f265e3a607314a8a3759f01ff35ec43369cfe43af6a17e80dfc64",
+      "byte_equal_to_baseline": true,
+      "baseline": "build/validation/psvr-followup-20260920/global-before.json"
+    },
+    "host-config": {
+      "sha256": "e6b6682ba630ff983624844cd4cc9a61af940c42a48d6206418d0d1a9e3e3057",
+      "byte_equal_to_baseline": true,
+      "baseline": "build/validation/psvr-followup-20260920/host-config-before.json"
+    }
+  }
+}

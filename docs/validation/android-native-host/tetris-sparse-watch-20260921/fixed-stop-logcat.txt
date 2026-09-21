@@ -1,0 +1,1202 @@
+--------- beginning of main
+09-21 18:17:22.412 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:17:23.233 19195 19195 I sh      : type=1400 audit(0.0:664148): avc: denied { getattr } for path="/system/bin/ip" dev="dm-7" ino=1438 scontext=u:r:pservice:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1
+09-21 18:17:23.233 19195 19195 I sh      : type=1400 audit(0.0:664149): avc: denied { execute } for name="ip" dev="dm-7" ino=1438 scontext=u:r:pservice:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1
+09-21 18:17:23.233 19195 19195 I sh      : type=1400 audit(0.0:664150): avc: denied { read open } for path="/system/bin/ip" dev="dm-7" ino=1438 scontext=u:r:pservice:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1
+09-21 18:17:23.233 19195 19195 I sh      : type=1400 audit(0.0:664151): avc: denied { execute_no_trans } for path="/system/bin/ip" dev="dm-7" ino=1438 scontext=u:r:pservice:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1
+09-21 18:17:23.233 19195 19195 I ip      : type=1400 audit(0.0:664152): avc: denied { map } for path="/system/bin/ip" dev="dm-7" ino=1438 scontext=u:r:pservice:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1
+09-21 18:17:23.784 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 76.02222442626953 speedPercentage = 58 smartSpeed = 29000
+09-21 18:17:23.909 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:17:23.935 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:17:23.950 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:17:25.351  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:17:25.351  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:17:25.351  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:17:25.351  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:17:25.351  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:17:25.444 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:17:25.484 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:17:25.702  1344  1512 D pservice: cpu_init boot_completed cpugpumode=0
+09-21 18:17:26.025 29736 29736 I pool-3-thread-2: type=1400 audit(0.0:664153): avc: denied { search } for name="battery" dev="sysfs" ino=129592 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_battery_supply:s0 tclass=dir permissive=1
+09-21 18:17:26.226  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:17:26.226  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:17:26.226  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:17:26.226  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:17:26.226  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:17:26.972 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:17:26.982 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:17:27.016 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:17:27.816 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 75.74444580078125 speedPercentage = 58 smartSpeed = 29000
+09-21 18:17:28.517 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:17:28.547 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:17:30.006 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:17:30.047 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:17:30.081 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:17:31.574 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:17:31.605 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:17:31.845 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 77.19444274902344 speedPercentage = 60 smartSpeed = 30000
+09-21 18:17:33.105 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:17:33.130 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:17:33.417 19243 19243 I ip      : type=1400 audit(0.0:664154): avc: denied { net_admin } for capability=12 scontext=u:r:pservice:s0 tcontext=u:r:pservice:s0 tclass=capability permissive=1
+09-21 18:17:33.417 19243 19243 I ip      : type=1400 audit(0.0:664155): avc: denied { sys_module } for capability=16 scontext=u:r:pservice:s0 tcontext=u:r:pservice:s0 tclass=capability permissive=1
+09-21 18:17:34.630 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:17:34.662 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:17:35.301 29730 29730 I Thread-5: type=1400 audit(0.0:664156): avc: denied { read } for scontext=u:r:system_app:s0 tcontext=u:r:system_app:s0 tclass=netlink_kobject_uevent_socket permissive=1
+09-21 18:17:35.422  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:17:35.422  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:17:35.422  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:17:35.422  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:17:35.424  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:17:35.827  1344  1512 D pservice: cpu_init boot_completed cpugpumode=0
+09-21 18:17:35.833 19251 19251 I sh      : type=1400 audit(0.0:664157): avc: denied { dac_override } for capability=1 scontext=u:r:pservice:s0 tcontext=u:r:pservice:s0 tclass=capability permissive=1
+09-21 18:17:35.877 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 77.69999694824219 speedPercentage = 60 smartSpeed = 30000
+09-21 18:17:35.929 19257 19257 I sh      : type=1400 audit(0.0:664158): avc: denied { write } for name="min_pwrlevel" dev="sysfs" ino=121479 scontext=u:r:pservice:s0 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:17:35.929 19257 19257 I sh      : type=1400 audit(0.0:664159): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/min_pwrlevel" dev="sysfs" ino=121479 scontext=u:r:pservice:s0 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:17:36.059 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:17:36.162 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:17:36.199 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:17:36.701  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:17:36.702  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:17:36.702  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:17:36.702  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:17:36.702  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:17:37.687 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:17:37.717 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:17:39.091 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:17:39.218 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:17:39.242 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:17:39.910 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 79.17778015136719 speedPercentage = 62 smartSpeed = 31000
+09-21 18:17:40.742 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:17:40.773 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:17:40.950  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:17:40.950  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:17:40.950  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:17:40.951  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:17:40.951  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:17:41.441 29736 29736 I creen.assistant: type=1400 audit(0.0:664160): avc: denied { read } for name="cur_freq" dev="sysfs" ino=121844 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:17:41.441 29736 29736 I creen.assistant: type=1400 audit(0.0:664161): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/devfreq/3d00000.qcom,kgsl-3d0/cur_freq" dev="sysfs" ino=121844 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:17:41.441 29736 29736 I creen.assistant: type=1400 audit(0.0:664162): avc: denied { getattr } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/devfreq/3d00000.qcom,kgsl-3d0/cur_freq" dev="sysfs" ino=121844 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:17:41.732  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:17:41.732  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:17:41.732  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:17:41.732  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:17:41.732  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:17:41.733 19284 19284 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+09-21 18:17:41.769   710   710 I servicemanager: Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest.
+09-21 18:17:41.771 19284 19286 I AdrenoUtils: <ReadGpuID:407>: Reading chip ID through GSL
+09-21 18:17:42.045 29736 29736 I pool-3-thread-2: type=1400 audit(0.0:664163): avc: denied { read } for name="current_now" dev="sysfs" ino=129606 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_battery_supply:s0 tclass=file permissive=1
+09-21 18:17:42.045 29736 29736 I pool-3-thread-2: type=1400 audit(0.0:664164): avc: denied { open } for path="/sys/devices/platform/soc/soc:qcom,pmic_glink/soc:qcom,pmic_glink:qcom,battery_charger/power_supply/battery/current_now" dev="sysfs" ino=129606 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_battery_supply:s0 tclass=file permissive=1
+09-21 18:17:42.130 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:17:42.273 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:17:42.300 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:17:43.615  3354  3354 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.common.BIND_SHARED_PREFS pkg=com.google.android.gms }
+09-21 18:17:43.798 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:17:43.829 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:17:43.943 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 79.93333435058594 speedPercentage = 63 smartSpeed = 31500
+--------- beginning of system
+09-21 18:17:43.972 29284 29344 V DisplayPowerController[0]: Brightness [0.05] reason changing to: 'manual [ dim ]', previous reason: 'manual'.,,mScreenBrightnessDefault = 0.5984252
+09-21 18:17:43.972 29284 29344 I DisplayPowerController[0]: BrightnessEvent: disp=0, physDisp=local:4630946441858561667, brt=0.05, initBrt=0.5984252, rcmdBrt=NaN, preBrt=NaN, lux=0.0, preLux=0.0, hbmMax=1.0, hbmMode=off, rbcStrength=50, powerFactor=1.0, thrmMax=1.0, wasShortTermModelActive=false, flags=, reason=manual [ dim ], autoBrightness=false
+09-21 18:17:43.974 29284 29344 V DisplayPowerController[4]: Brightness [0.05] reason changing to: 'manual [ dim ]', previous reason: 'manual'.,,mScreenBrightnessDefault = 0.5984252
+09-21 18:17:43.974 29284 29344 I DisplayPowerController[4]: BrightnessEvent: disp=4, physDisp=local:4630946482288158084, brt=0.05, initBrt=0.5984252, rcmdBrt=NaN, preBrt=NaN, lux=0.0, preLux=0.0, hbmMax=1.0, hbmMode=off, rbcStrength=-1, powerFactor=1.0, thrmMax=1.0, wasShortTermModelActive=false, flags=, reason=manual [ dim ], autoBrightness=false
+09-21 18:17:43.997 29730 29730 I Thread-5: type=1400 audit(0.0:664166): avc: denied { read } for scontext=u:r:system_app:s0 tcontext=u:r:system_app:s0 tclass=netlink_kobject_uevent_socket permissive=1
+09-21 18:17:44.719 29284 29344 I DisplayPowerController[0]: BrightnessEvent: disp=0, physDisp=local:4630946441858561667, brt=0.05, initBrt=0.05, rcmdBrt=NaN, preBrt=NaN, lux=0.0, preLux=0.0, hbmMax=1.0, hbmMode=off, rbcStrength=50, powerFactor=1.0, thrmMax=1.0, wasShortTermModelActive=false, flags=, reason=manual [ dim ], autoBrightness=false
+09-21 18:17:44.720 29284 29344 I DisplayPowerController[4]: BrightnessEvent: disp=4, physDisp=local:4630946482288158084, brt=0.05, initBrt=0.05, rcmdBrt=NaN, preBrt=NaN, lux=0.0, preLux=0.0, hbmMax=1.0, hbmMode=off, rbcStrength=-1, powerFactor=1.0, thrmMax=1.0, wasShortTermModelActive=false, flags=, reason=manual [ dim ], autoBrightness=false
+09-21 18:17:45.163 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:17:45.329 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:17:45.354 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:17:45.965  3160 19304 D TrafficStats: tagSocket(79) with statsTag=0xffffffff, statsUid=-1
+09-21 18:17:45.984  1344  1512 D pservice: cpu_init boot_completed cpugpumode=0
+09-21 18:17:45.995  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:17:45.995  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:17:45.995  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:17:45.995  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:17:45.996  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:17:46.854 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:17:46.885 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:17:47.608  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:17:47.608  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:17:47.609  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:17:47.609  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:17:47.609  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:17:47.975 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 79.26667022705078 speedPercentage = 62 smartSpeed = 31000
+09-21 18:17:48.195 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:17:48.386 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:17:48.411 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:17:49.911 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:17:49.943 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:17:50.579  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:17:50.579  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:17:50.579  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:17:50.579  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:17:50.579  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:17:51.217 29622 30573 D QCNEJ/NativeHalConnector: -> SND notifyDefaultNetworkChanged(1)
+09-21 18:17:51.230 29504 29752 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:17:51.232 29284 29446 D ConnectivityService: NetReassign [no changes]
+09-21 18:17:51.234  3354  3939 I NearbyMediums: Wifi changed new SSID: <unknown ssid>
+09-21 18:17:51.234  3354  3939 I NearbyMediums: WifiLanConnectivityInfo is not changed, skip notify.
+09-21 18:17:51.444 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:17:51.473 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:17:51.729  3354  3939 I NearbySharing: Network state changed: NetworkState(isRestricted=false, isOnline=true, isCongested=false, isMetered=false, isWifiConnected=true)
+09-21 18:17:51.855  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:17:51.855  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:17:51.855  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:17:51.856  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:17:51.856  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:17:51.992 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 80.05555725097656 speedPercentage = 63 smartSpeed = 31500
+09-21 18:17:52.373 29504 30110 D PowerUI : can't show warning due to - plugged: true status unknown: false
+09-21 18:17:52.386 29504 31973 D PowerUI : can't show warning due to - plugged: true status unknown: false
+09-21 18:17:52.974 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:17:53.001 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:17:53.677 18535 18535 I sh      : type=1400 audit(0.0:664167): avc: denied { getattr } for path="/data/local/tmp/avp-vpn-hotspot/owner" dev="dm-14" ino=136298 scontext=u:r:pservice:s0 tcontext=u:object_r:shell_data_file:s0 tclass=file permissive=1
+09-21 18:17:53.677 19343 19343 I sh      : type=1400 audit(0.0:664168): avc: denied { getattr } for path="/system/bin/toybox" dev="dm-7" ino=1638 scontext=u:r:pservice:s0 tcontext=u:object_r:toolbox_exec:s0 tclass=file permissive=1
+09-21 18:17:53.677 19343 19343 I sh      : type=1400 audit(0.0:664169): avc: denied { execute } for name="toybox" dev="dm-7" ino=1638 scontext=u:r:pservice:s0 tcontext=u:object_r:toolbox_exec:s0 tclass=file permissive=1
+09-21 18:17:53.677 19343 19343 I sh      : type=1400 audit(0.0:664170): avc: denied { read open } for path="/system/bin/toybox" dev="dm-7" ino=1638 scontext=u:r:pservice:s0 tcontext=u:object_r:toolbox_exec:s0 tclass=file permissive=1
+09-21 18:17:53.677 19343 19343 I sh      : type=1400 audit(0.0:664171): avc: denied { execute_no_trans } for path="/system/bin/toybox" dev="dm-7" ino=1638 scontext=u:r:pservice:s0 tcontext=u:object_r:toolbox_exec:s0 tclass=file permissive=1
+09-21 18:17:53.677 19343 19343 I cat     : type=1400 audit(0.0:664172): avc: denied { map } for path="/system/bin/toybox" dev="dm-7" ino=1638 scontext=u:r:pservice:s0 tcontext=u:object_r:toolbox_exec:s0 tclass=file permissive=1
+09-21 18:17:53.697 19343 19343 I cat     : type=1400 audit(0.0:664173): avc: denied { read } for name="ap" dev="dm-14" ino=69309 scontext=u:r:pservice:s0 tcontext=u:object_r:shell_data_file:s0 tclass=file permissive=1
+09-21 18:17:53.697 19343 19343 I cat     : type=1400 audit(0.0:664174): avc: denied { open } for path="/data/local/tmp/avp-vpn-hotspot/ap" dev="dm-14" ino=69309 scontext=u:r:pservice:s0 tcontext=u:object_r:shell_data_file:s0 tclass=file permissive=1
+09-21 18:17:53.737 19345 19345 I ip      : type=1400 audit(0.0:664175): avc: denied { create } for scontext=u:r:pservice:s0 tcontext=u:r:pservice:s0 tclass=udp_socket permissive=1
+09-21 18:17:54.243 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:17:54.501 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:17:54.532 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:17:55.129  4366  4375 W ileged_process0: Reducing the number of considered missed Gc histogram windows from 176 to 100
+09-21 18:17:55.152  4366  4377 W SQLiteConnectionPool: A SQLiteConnection object for database '/data/user/0/com.tencent.android.qqdownloader/databases/beacon_db_com.tencent.android.qqdownloader:privileged_process0' was leaked!  Please fix your application to end transactions in progress properly and to close the database when it is no longer needed.
+09-21 18:17:55.152  4366  4377 W System  : A resource failed to call SQLiteConnection.close. 
+09-21 18:17:55.153  4366  4377 W SQLiteConnectionPool: A SQLiteConnection object for database '/data/user/0/com.tencent.android.qqdownloader/databases/beacon_db_com.tencent.android.qqdownloader:privileged_process0' was leaked!  Please fix your application to end transactions in progress properly and to close the database when it is no longer needed.
+09-21 18:17:55.153  4366  4377 W System  : A resource failed to call SQLiteConnection.close. 
+09-21 18:17:55.157  4366  4377 W SQLiteConnectionPool: A SQLiteConnection object for database '/data/user/0/com.tencent.android.qqdownloader/databases/p_monitor_db' was leaked!  Please fix your application to end transactions in progress properly and to close the database when it is no longer needed.
+09-21 18:17:55.157  4366  4377 W System  : A resource failed to call SQLiteConnection.close. 
+09-21 18:17:56.023 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 79.81666564941406 speedPercentage = 63 smartSpeed = 31500
+09-21 18:17:56.032 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:17:56.059 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:17:56.136  1344  1512 D pservice: cpu_init boot_completed cpugpumode=0
+09-21 18:17:56.141 19355 19355 I sh      : type=1400 audit(0.0:664177): avc: denied { write } for name="scaling_min_freq" dev="sysfs" ino=76260 scontext=u:r:pservice:s0 tcontext=u:object_r:sysfs_devices_system_cpu:s0 tclass=file permissive=1
+09-21 18:17:57.559 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:17:57.590 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:17:59.091 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:17:59.110  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:17:59.110  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:17:59.110  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:17:59.110  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:17:59.111  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:17:59.124 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:17:59.502 29284 29344 V DisplayPowerController[0]: Brightness [0.5984252] reason changing to: 'manual', previous reason: 'manual [ dim ]'.,,mScreenBrightnessDefault = 0.5984252
+09-21 18:17:59.502 29284 29344 I DisplayPowerController[0]: BrightnessEvent: disp=0, physDisp=local:4630946441858561667, brt=0.5984252, initBrt=0.05, rcmdBrt=NaN, preBrt=NaN, lux=0.0, preLux=0.0, hbmMax=1.0, hbmMode=off, rbcStrength=50, powerFactor=1.0, thrmMax=1.0, wasShortTermModelActive=false, flags=, reason=manual, autoBrightness=false
+09-21 18:17:59.503 29284 29344 V DisplayPowerController[4]: Brightness [0.5984252] reason changing to: 'manual', previous reason: 'manual [ dim ]'.,,mScreenBrightnessDefault = 0.5984252
+09-21 18:17:59.503 29284 29344 I DisplayPowerController[4]: BrightnessEvent: disp=4, physDisp=local:4630946482288158084, brt=0.5984252, initBrt=0.05, rcmdBrt=NaN, preBrt=NaN, lux=0.0, preLux=0.0, hbmMax=1.0, hbmMode=off, rbcStrength=-1, powerFactor=1.0, thrmMax=1.0, wasShortTermModelActive=false, flags=, reason=manual, autoBrightness=false
+09-21 18:18:00.040 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 84.2611083984375 speedPercentage = 69 smartSpeed = 34500
+09-21 18:18:00.053 19387 19387 I guest_memory_ma: type=1400 audit(0.0:664178): avc: denied { execstack } for scontext=u:r:shell:s0 tcontext=u:r:shell:s0 tclass=process permissive=1
+09-21 18:18:00.066  9727  9727 E MSM-irqbalance: __set_smp_affinity: Unable to open /proc/irq/29/smp_affinity
+09-21 18:18:00.066  9727  9727 E MSM-irqbalance: get_smp_affinity: Unable to open /proc/irq/29/smp_affinity
+09-21 18:18:00.066  9727  9727 E MSM-irqbalance: Unable to set SMP affinity
+09-21 18:18:00.066  9727  9727 E MSM-irqbalance: Error balancing IRQ: -22
+09-21 18:18:00.066  9727  9727 I MSM-irqbalance: msm-irq_balance End
+09-21 18:18:00.107 19403 19403 I MSM-irqbalance: msm-irq_balance (1.3) initialized
+09-21 18:18:00.107 19403 19403 I MSM-irqbalance: Configuration
+09-21 18:18:00.108 19403 19403 I MSM-irqbalance: Rate: 0.2 Hz
+09-21 18:18:00.108 19403 19403 I MSM-irqbalance: Decay Factor: 75.0
+09-21 18:18:00.108 19403 19403 I MSM-irqbalance: Balancing Factor: 0.1
+09-21 18:18:00.108 19403 19403 I MSM-irqbalance: Debug Log: OFF
+09-21 18:18:00.108 19403 19403 I MSM-irqbalance: Cfg file: /system/vendor/etc/msm_irqbalance.conf
+09-21 18:18:00.108 19403 19403 I MSM-irqbalance: CPU PRIO: CPU0: 1 CPU1: 1 CPU2: 1 CPU3: 0 CPU4: 0 CPU5: 0 CPU6: 0 CPU7: 0 
+09-21 18:18:00.108 19403 19403 I MSM-irqbalance: Ignored IRQs: 11 26 13 
+09-21 18:18:00.250 29284 29344 I DisplayPowerController[0]: BrightnessEvent: disp=0, physDisp=local:4630946441858561667, brt=0.5984252, initBrt=0.5984252, rcmdBrt=NaN, preBrt=NaN, lux=0.0, preLux=0.0, hbmMax=1.0, hbmMode=off, rbcStrength=50, powerFactor=1.0, thrmMax=1.0, wasShortTermModelActive=false, flags=, reason=manual, autoBrightness=false
+09-21 18:18:00.250 29284 29344 I DisplayPowerController[4]: BrightnessEvent: disp=4, physDisp=local:4630946482288158084, brt=0.5984252, initBrt=0.5984252, rcmdBrt=NaN, preBrt=NaN, lux=0.0, preLux=0.0, hbmMax=1.0, hbmMode=off, rbcStrength=-1, powerFactor=1.0, thrmMax=1.0, wasShortTermModelActive=false, flags=, reason=manual, autoBrightness=false
+09-21 18:18:00.295 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:18:00.624 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:00.617 29730 29730 I binder:29730_1: type=1400 audit(0.0:664179): avc: denied { call } for scontext=u:r:system_app:s0 tcontext=u:r:pservice:s0 tclass=binder permissive=1
+09-21 18:18:00.641 19405 19405 I cat     : type=1400 audit(0.0:664180): avc: denied { read } for name="duty" dev="sysfs" ino=101852 scontext=u:r:pservice:s0 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+09-21 18:18:00.641 19405 19405 I cat     : type=1400 audit(0.0:664181): avc: denied { open } for path="/sys/class/gpio5_pwm2/duty" dev="sysfs" ino=101852 scontext=u:r:pservice:s0 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+09-21 18:18:00.650 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:00.689 18733 18733 I shadps4.android: type=1400 audit(0.0:664182): avc: denied { read } for name="gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:18:00.689 18733 18733 I shadps4.android: type=1400 audit(0.0:664183): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:18:00.689 18733 18733 I shadps4.android: type=1400 audit(0.0:664184): avc: denied { getattr } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:18:00.939  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:18:00.939  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:18:00.939  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:18:00.939  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:18:00.939  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:18:01.589 29284 29499 W ActivityManager: Background start not allowed: service Intent { cmp=com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService (has extras) } to com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService from pid=3991 uid=10113 pkg=com.tencent.android.qqdownloader startFg?=false
+09-21 18:18:01.581 29161 29161 I binder:29161_3: type=1400 audit(0.0:664185): avc: denied { add_name } for name="globalAlert" scontext=u:r:netd:s0 tcontext=u:object_r:proc_net:s0 tclass=dir permissive=1
+09-21 18:18:01.581 29161 29161 I binder:29161_3: type=1400 audit(0.0:664186): avc: denied { create } for name="globalAlert" scontext=u:r:netd:s0 tcontext=u:object_r:proc_net:s0 tclass=file permissive=1
+09-21 18:18:01.603 29284  9014 W ActivityManager: Background start not allowed: service Intent { cmp=com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService (has extras) } to com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService from pid=3991 uid=10113 pkg=com.tencent.android.qqdownloader startFg?=false
+09-21 18:18:01.643 29284 32311 W ActivityManager: Background start not allowed: service Intent { cmp=com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService (has extras) } to com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService from pid=3991 uid=10113 pkg=com.tencent.android.qqdownloader startFg?=false
+09-21 18:18:01.649 29284 24760 W ActivityManager: Background start not allowed: service Intent { cmp=com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService (has extras) } to com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService from pid=3991 uid=10113 pkg=com.tencent.android.qqdownloader startFg?=false
+09-21 18:18:01.661 29284 29496 W SyncManager: failed sync operation JobId=105946 ***/com.tencent.android.qqdownloader.YYBLiveAccountProvider.account u0 [com.tencent.android.qqdownloader.YYBLiveAccountProvider] USER ExpectedIn=0s Reason=10113, SyncResult: syncAlreadyInProgress: true stats []
+09-21 18:18:02.069 29736 29736 I pool-3-thread-2: type=1400 audit(0.0:664187): avc: denied { search } for name="battery" dev="sysfs" ino=129592 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_battery_supply:s0 tclass=dir permissive=1
+09-21 18:18:02.073 29736 29736 I pool-3-thread-2: type=1400 audit(0.0:664188): avc: denied { read } for name="current_now" dev="sysfs" ino=129606 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_battery_supply:s0 tclass=file permissive=1
+09-21 18:18:02.073 29736 29736 I pool-3-thread-2: type=1400 audit(0.0:664189): avc: denied { open } for path="/sys/devices/platform/soc/soc:qcom,pmic_glink/soc:qcom,pmic_glink:qcom,battery_charger/power_supply/battery/current_now" dev="sysfs" ino=129606 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_battery_supply:s0 tclass=file permissive=1
+09-21 18:18:02.073 29736 29736 I pool-3-thread-2: type=1400 audit(0.0:664190): avc: denied { getattr } for path="/sys/devices/platform/soc/soc:qcom,pmic_glink/soc:qcom,pmic_glink:qcom,battery_charger/power_supply/battery/current_now" dev="sysfs" ino=129606 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_battery_supply:s0 tclass=file permissive=1
+09-21 18:18:02.145 29730 29730 I binder:29730_1: type=1400 audit(0.0:664191): avc: denied { call } for scontext=u:r:system_app:s0 tcontext=u:r:pservice:s0 tclass=binder permissive=1
+09-21 18:18:02.150 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:02.198 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:03.201 18733 18733 I shadps4.android: type=1400 audit(0.0:664207): avc: denied { read } for name="gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:18:03.201 18733 18733 I shadps4.android: type=1400 audit(0.0:664208): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:18:03.201 18733 18733 I shadps4.android: type=1400 audit(0.0:664209): avc: denied { getattr } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:18:03.328 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:18:03.686 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:03.718 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:03.833 18535 18535 I sh      : type=1400 audit(0.0:664210): avc: denied { search } for name="tmp" dev="dm-14" ino=99 scontext=u:r:pservice:s0 tcontext=u:object_r:shell_data_file:s0 tclass=dir permissive=1
+09-21 18:18:03.833 18535 18535 I sh      : type=1400 audit(0.0:664211): avc: denied { getattr } for path="/data/local/tmp/avp-vpn-hotspot/owner" dev="dm-14" ino=136298 scontext=u:r:pservice:s0 tcontext=u:object_r:shell_data_file:s0 tclass=file permissive=1
+09-21 18:18:04.056 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 81.80000305175781 speedPercentage = 66 smartSpeed = 33000
+09-21 18:18:04.259  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:18:04.259  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:18:04.259  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:18:04.259  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:18:04.260  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:18:05.063 19403 19403 E MSM-irqbalance: __set_smp_affinity: Unable to open /proc/irq/29/smp_affinity
+09-21 18:18:05.063 19403 19403 E MSM-irqbalance: get_smp_affinity: Unable to open /proc/irq/29/smp_affinity
+09-21 18:18:05.063 19403 19403 E MSM-irqbalance: Unable to set SMP affinity
+09-21 18:18:05.155  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:18:05.155  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:18:05.155  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:18:05.155  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:18:05.155  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:18:05.218 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:05.243 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:05.840  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:18:05.840  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:18:05.840  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:18:05.840  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:18:05.840  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:18:06.289  1344  1512 D pservice: cpu_init boot_completed cpugpumode=0
+09-21 18:18:06.297 19429 19429 I sh      : type=1400 audit(0.0:664232): avc: denied { dac_override } for capability=1 scontext=u:r:pservice:s0 tcontext=u:r:pservice:s0 tclass=capability permissive=1
+09-21 18:18:06.297 19429 19429 I sh      : type=1400 audit(0.0:664233): avc: denied { write } for name="scaling_min_freq" dev="sysfs" ino=76260 scontext=u:r:pservice:s0 tcontext=u:object_r:sysfs_devices_system_cpu:s0 tclass=file permissive=1
+09-21 18:18:06.358 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:18:06.373 19436 19436 I sh      : type=1400 audit(0.0:664234): avc: denied { write } for name="min_pwrlevel" dev="sysfs" ino=121479 scontext=u:r:pservice:s0 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:18:06.373 19436 19436 I sh      : type=1400 audit(0.0:664235): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/min_pwrlevel" dev="sysfs" ino=121479 scontext=u:r:pservice:s0 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:18:06.743 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:06.773 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:06.969 29736 29736 I creen.assistant: type=1400 audit(0.0:664236): avc: denied { read } for name="cur_freq" dev="sysfs" ino=121844 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:18:07.028 29284 29334 W BatteryExternalStatsWorker: error reading Bluetooth stats: 9
+09-21 18:18:07.029 29284 29334 W BatteryExternalStatsWorker: error reading modem stats:ERROR_PHONE_NOT_AVAILABLE
+09-21 18:18:07.034 29284 29334 E system_server: Cannot read thread CPU times for PID 29284
+09-21 18:18:07.673  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:18:07.673  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:18:07.674  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:18:07.675  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:18:07.675  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:18:07.720  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:18:07.720  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:18:07.720  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:18:07.720  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:18:07.720  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:18:08.069 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 83.07221984863281 speedPercentage = 67 smartSpeed = 33500
+09-21 18:18:08.077 29736 29736 I pool-3-thread-2: type=1400 audit(0.0:664244): avc: denied { read } for name="current_now" dev="sysfs" ino=129606 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_battery_supply:s0 tclass=file permissive=1
+09-21 18:18:08.077 29736 29736 I pool-3-thread-2: type=1400 audit(0.0:664245): avc: denied { open } for path="/sys/devices/platform/soc/soc:qcom,pmic_glink/soc:qcom,pmic_glink:qcom,battery_charger/power_supply/battery/current_now" dev="sysfs" ino=129606 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_battery_supply:s0 tclass=file permissive=1
+09-21 18:18:08.077 29736 29736 I pool-3-thread-2: type=1400 audit(0.0:664246): avc: denied { getattr } for path="/sys/devices/platform/soc/soc:qcom,pmic_glink/soc:qcom,pmic_glink:qcom,battery_charger/power_supply/battery/current_now" dev="sysfs" ino=129606 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_battery_supply:s0 tclass=file permissive=1
+09-21 18:18:08.273 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:08.269 29730 29730 I binder:29730_1: type=1400 audit(0.0:664247): avc: denied { call } for scontext=u:r:system_app:s0 tcontext=u:r:pservice:s0 tclass=binder permissive=1
+09-21 18:18:08.285 19445 19445 I sh      : type=1400 audit(0.0:664248): avc: denied { getattr } for path="/system/bin/toybox" dev="dm-7" ino=1638 scontext=u:r:pservice:s0 tcontext=u:object_r:toolbox_exec:s0 tclass=file permissive=1
+09-21 18:18:08.314 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:08.382  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:18:08.382  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:18:08.382  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:18:08.383  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:18:08.383  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:18:09.391 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:18:09.809 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:09.834 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:11.334 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:11.368 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:12.080 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 85.19444274902344 speedPercentage = 70 smartSpeed = 35000
+09-21 18:18:12.430 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:18:12.868 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:12.899 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:13.872 29284 29334 W BatteryExternalStatsWorker: error reading Bluetooth stats: 9
+09-21 18:18:13.872 29284 29334 W BatteryExternalStatsWorker: error reading modem stats:ERROR_PHONE_NOT_AVAILABLE
+09-21 18:18:13.879 29284 29334 E system_server: Cannot read thread CPU times for PID 29284
+09-21 18:18:14.400 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:14.431 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:15.767  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:18:15.767  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:18:15.767  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:18:15.767  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:18:15.769  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:18:15.927 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:15.958 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:16.089 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 84.61666870117188 speedPercentage = 69 smartSpeed = 34500
+09-21 18:18:16.431  1344  1512 D pservice: cpu_init boot_completed cpugpumode=0
+09-21 18:18:16.437 19478 19478 I sh      : type=1400 audit(0.0:664262): avc: denied { write } for name="scaling_min_freq" dev="sysfs" ino=76260 scontext=u:r:pservice:s0 tcontext=u:object_r:sysfs_devices_system_cpu:s0 tclass=file permissive=1
+09-21 18:18:16.600  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:18:16.600  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:18:16.600  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:18:16.600  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:18:16.600  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:18:16.773 18733 18733 I shadps4.android: type=1400 audit(0.0:664263): avc: denied { read } for name="gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:18:16.773 18733 18733 I shadps4.android: type=1400 audit(0.0:664264): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:18:16.773 18733 18733 I shadps4.android: type=1400 audit(0.0:664265): avc: denied { getattr } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:18:17.458 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:17.453 29730 29730 I binder:29730_1: type=1400 audit(0.0:664266): avc: denied { call } for scontext=u:r:system_app:s0 tcontext=u:r:pservice:s0 tclass=binder permissive=1
+09-21 18:18:17.453 19496 19496 I binder:1344_7: type=1400 audit(0.0:664267): avc: denied { execute } for name="sh" dev="dm-7" ino=1587 scontext=u:r:pservice:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+09-21 18:18:17.453 19496 19496 I binder:1344_7: type=1400 audit(0.0:664268): avc: denied { read open } for path="/system/bin/sh" dev="dm-7" ino=1587 scontext=u:r:pservice:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+09-21 18:18:17.453 19496 19496 I binder:1344_7: type=1400 audit(0.0:664269): avc: denied { execute_no_trans } for path="/system/bin/sh" dev="dm-7" ino=1587 scontext=u:r:pservice:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+09-21 18:18:17.453 19496 19496 I sh      : type=1400 audit(0.0:664270): avc: denied { map } for path="/system/bin/sh" dev="dm-7" ino=1587 scontext=u:r:pservice:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+09-21 18:18:17.453 19496 19496 I sh      : type=1400 audit(0.0:664271): avc: denied { getattr } for path="/system/bin/sh" dev="dm-7" ino=1587 scontext=u:r:pservice:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+09-21 18:18:17.491 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:18.980 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:19.016 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:19.057 18535 18535 I sh      : type=1400 audit(0.0:664284): avc: denied { search } for name="tmp" dev="dm-14" ino=99 scontext=u:r:pservice:s0 tcontext=u:object_r:shell_data_file:s0 tclass=dir permissive=1
+09-21 18:18:19.097 19505 19505 I sh      : type=1400 audit(0.0:664285): avc: denied { getattr } for path="/system/bin/ip" dev="dm-7" ino=1438 scontext=u:r:pservice:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1
+09-21 18:18:19.097 19505 19505 I sh      : type=1400 audit(0.0:664286): avc: denied { execute } for name="ip" dev="dm-7" ino=1438 scontext=u:r:pservice:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1
+09-21 18:18:19.097 19505 19505 I sh      : type=1400 audit(0.0:664287): avc: denied { read open } for path="/system/bin/ip" dev="dm-7" ino=1438 scontext=u:r:pservice:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1
+09-21 18:18:19.097 19505 19505 I sh      : type=1400 audit(0.0:664288): avc: denied { execute_no_trans } for path="/system/bin/ip" dev="dm-7" ino=1438 scontext=u:r:pservice:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1
+09-21 18:18:20.100 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 85.50555419921875 speedPercentage = 70 smartSpeed = 35000
+09-21 18:18:20.093 29730 29730 I pool-2-thread-7: type=1400 audit(0.0:664298): avc: denied { write } for name="duty" dev="sysfs" ino=101852 scontext=u:r:system_app:s0 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+09-21 18:18:20.093 29730 29730 I pool-2-thread-7: type=1400 audit(0.0:664299): avc: denied { read } for name="duty" dev="sysfs" ino=101852 scontext=u:r:system_app:s0 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+09-21 18:18:20.093 29730 29730 I pool-2-thread-7: type=1400 audit(0.0:664300): avc: denied { open } for path="/sys/class/gpio5_pwm2/duty" dev="sysfs" ino=101852 scontext=u:r:system_app:s0 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+09-21 18:18:20.093 29730 29730 I pool-2-thread-7: type=1400 audit(0.0:664301): avc: denied { getattr } for path="/sys/class/gpio5_pwm2/duty" dev="sysfs" ino=101852 scontext=u:r:system_app:s0 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+09-21 18:18:20.515 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:20.551 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:20.869 29730 29730 I Thread-5: type=1400 audit(0.0:664302): avc: denied { read } for scontext=u:r:system_app:s0 tcontext=u:r:system_app:s0 tclass=netlink_kobject_uevent_socket permissive=1
+09-21 18:18:21.199  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:18:21.199  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:18:21.200  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:18:21.200  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:18:21.200  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:18:21.510 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:18:22.050 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:22.089 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:22.157  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:18:22.157  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:18:22.157  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:18:22.157  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:18:22.157  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:18:23.574 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:23.602 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:24.133 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 86.9000015258789 speedPercentage = 72 smartSpeed = 36000
+09-21 18:18:24.125 29730 29730 I pool-2-thread-3: type=1400 audit(0.0:664303): avc: denied { write } for name="duty" dev="sysfs" ino=101852 scontext=u:r:system_app:s0 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+09-21 18:18:24.125 29730 29730 I pool-2-thread-3: type=1400 audit(0.0:664304): avc: denied { read } for name="duty" dev="sysfs" ino=101852 scontext=u:r:system_app:s0 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+09-21 18:18:24.125 29730 29730 I pool-2-thread-3: type=1400 audit(0.0:664305): avc: denied { open } for path="/sys/class/gpio5_pwm2/duty" dev="sysfs" ino=101852 scontext=u:r:system_app:s0 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+09-21 18:18:24.125 29730 29730 I pool-2-thread-3: type=1400 audit(0.0:664306): avc: denied { getattr } for path="/sys/class/gpio5_pwm2/duty" dev="sysfs" ino=101852 scontext=u:r:system_app:s0 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+09-21 18:18:24.177 19523 19523 I sh      : type=1400 audit(0.0:664307): avc: denied { getattr } for path="/system/bin/ip" dev="dm-7" ino=1438 scontext=u:r:pservice:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1
+09-21 18:18:24.542 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:18:25.103 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:25.128 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:25.817 18733 18733 I shadps4.android: type=1400 audit(0.0:664312): avc: denied { read } for name="gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:18:25.817 18733 18733 I shadps4.android: type=1400 audit(0.0:664313): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:18:25.817 18733 18733 I shadps4.android: type=1400 audit(0.0:664314): avc: denied { getattr } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:18:26.093 29736 29736 I pool-3-thread-2: type=1400 audit(0.0:664315): avc: denied { search } for name="battery" dev="sysfs" ino=129592 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_battery_supply:s0 tclass=dir permissive=1
+09-21 18:18:26.274  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:18:26.274  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:18:26.274  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:18:26.274  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:18:26.274  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:18:26.565  1344  1512 D pservice: cpu_init boot_completed cpugpumode=0
+09-21 18:18:26.573 19531 19531 I sh      : type=1400 audit(0.0:664316): avc: denied { dac_override } for capability=1 scontext=u:r:pservice:s0 tcontext=u:r:pservice:s0 tclass=capability permissive=1
+09-21 18:18:26.629 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:26.668 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:27.161  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:18:27.161  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:18:27.161  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:18:27.161  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:18:27.161  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:18:27.573 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:18:28.159 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:28.166 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 86.82221984863281 speedPercentage = 72 smartSpeed = 36000
+09-21 18:18:28.191 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:29.690 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:29.728 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:30.604 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:18:31.220 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:31.265 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:32.201 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 85.93888854980469 speedPercentage = 71 smartSpeed = 35500
+09-21 18:18:32.754 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:32.787 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:34.279 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:34.321 19571 19571 I ip      : type=1400 audit(0.0:664320): avc: denied { net_admin } for capability=12 scontext=u:r:pservice:s0 tcontext=u:r:pservice:s0 tclass=capability permissive=1
+09-21 18:18:34.321 19571 19571 I ip      : type=1400 audit(0.0:664321): avc: denied { sys_module } for capability=16 scontext=u:r:pservice:s0 tcontext=u:r:pservice:s0 tclass=capability permissive=1
+09-21 18:18:34.330 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:35.812 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:35.852 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:36.232 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 87.12777709960938 speedPercentage = 73 smartSpeed = 36500
+09-21 18:18:36.555  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:18:36.555  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:18:36.555  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:18:36.555  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:18:36.555  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:18:36.647 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:18:36.719  1344  1512 D pservice: cpu_init boot_completed cpugpumode=0
+09-21 18:18:36.725 19579 19579 I sh      : type=1400 audit(0.0:664322): avc: denied { dac_override } for capability=1 scontext=u:r:pservice:s0 tcontext=u:r:pservice:s0 tclass=capability permissive=1
+09-21 18:18:37.345 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:37.388 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:37.411  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:18:37.411  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:18:37.411  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:18:37.411  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:18:37.411  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:18:38.871 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:38.889 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:39.683 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:18:40.264 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 85.30555725097656 speedPercentage = 70 smartSpeed = 35000
+09-21 18:18:40.382 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:40.457 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:41.911 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:41.994 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:43.443 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:43.470 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:44.296 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 86.21111297607422 speedPercentage = 71 smartSpeed = 35500
+09-21 18:18:44.967 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:45.043 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:45.748 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:18:46.498 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:46.560 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:46.858  1344  1512 D pservice: cpu_init boot_completed cpugpumode=0
+09-21 18:18:48.022 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:48.056 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:48.325 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 86.0999984741211 speedPercentage = 71 smartSpeed = 35500
+09-21 18:18:49.554 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:49.578 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:51.078 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:51.108 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:51.811 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:18:51.915  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:18:51.915  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:18:51.915  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:18:51.915  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:18:51.916  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:18:52.357 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 86.78333282470703 speedPercentage = 72 smartSpeed = 36000
+09-21 18:18:52.376 29504  1633 D PowerUI : can't show warning due to - plugged: true status unknown: false
+09-21 18:18:52.609 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:52.617 19659 19659 I sh      : type=1400 audit(0.0:664323): avc: denied { getattr } for path="/system/bin/toybox" dev="dm-7" ino=1638 scontext=u:r:pservice:s0 tcontext=u:object_r:toolbox_exec:s0 tclass=file permissive=1
+09-21 18:18:52.617 19659 19659 I sh      : type=1400 audit(0.0:664324): avc: denied { execute } for name="toybox" dev="dm-7" ino=1638 scontext=u:r:pservice:s0 tcontext=u:object_r:toolbox_exec:s0 tclass=file permissive=1
+09-21 18:18:52.617 19659 19659 I sh      : type=1400 audit(0.0:664325): avc: denied { read open } for path="/system/bin/toybox" dev="dm-7" ino=1638 scontext=u:r:pservice:s0 tcontext=u:object_r:toolbox_exec:s0 tclass=file permissive=1
+09-21 18:18:52.617 19659 19659 I sh      : type=1400 audit(0.0:664326): avc: denied { execute_no_trans } for path="/system/bin/toybox" dev="dm-7" ino=1638 scontext=u:r:pservice:s0 tcontext=u:object_r:toolbox_exec:s0 tclass=file permissive=1
+09-21 18:18:52.617 19659 19659 I cat     : type=1400 audit(0.0:664327): avc: denied { map } for path="/system/bin/toybox" dev="dm-7" ino=1638 scontext=u:r:pservice:s0 tcontext=u:object_r:toolbox_exec:s0 tclass=file permissive=1
+09-21 18:18:52.635 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:52.818 29284 29344 V DisplayPowerController[0]: Brightness [0.05] reason changing to: 'manual [ dim ]', previous reason: 'manual'.,,mScreenBrightnessDefault = 0.5984252
+09-21 18:18:52.818 29284 29344 I DisplayPowerController[0]: BrightnessEvent: disp=0, physDisp=local:4630946441858561667, brt=0.05, initBrt=0.5984252, rcmdBrt=NaN, preBrt=NaN, lux=0.0, preLux=0.0, hbmMax=1.0, hbmMode=off, rbcStrength=50, powerFactor=1.0, thrmMax=1.0, wasShortTermModelActive=false, flags=, reason=manual [ dim ], autoBrightness=false
+09-21 18:18:52.818 29284 29344 V DisplayPowerController[4]: Brightness [0.05] reason changing to: 'manual [ dim ]', previous reason: 'manual'.,,mScreenBrightnessDefault = 0.5984252
+09-21 18:18:52.819 29284 29344 I DisplayPowerController[4]: BrightnessEvent: disp=4, physDisp=local:4630946482288158084, brt=0.05, initBrt=0.5984252, rcmdBrt=NaN, preBrt=NaN, lux=0.0, preLux=0.0, hbmMax=1.0, hbmMode=off, rbcStrength=-1, powerFactor=1.0, thrmMax=1.0, wasShortTermModelActive=false, flags=, reason=manual [ dim ], autoBrightness=false
+09-21 18:18:52.825 29730 29730 I Thread-5: type=1400 audit(0.0:664328): avc: denied { read } for scontext=u:r:system_app:s0 tcontext=u:r:system_app:s0 tclass=netlink_kobject_uevent_socket permissive=1
+09-21 18:18:53.154  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:18:53.154  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:18:53.154  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:18:53.154  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:18:53.154  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:18:53.473 29736 29736 I creen.assistant: type=1400 audit(0.0:664329): avc: denied { read } for name="cur_freq" dev="sysfs" ino=121844 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:18:53.560 29284 29344 I DisplayPowerController[0]: BrightnessEvent: disp=0, physDisp=local:4630946441858561667, brt=0.05, initBrt=0.05, rcmdBrt=NaN, preBrt=NaN, lux=0.0, preLux=0.0, hbmMax=1.0, hbmMode=off, rbcStrength=50, powerFactor=1.0, thrmMax=1.0, wasShortTermModelActive=false, flags=, reason=manual [ dim ], autoBrightness=false
+09-21 18:18:53.560 29284 29344 I DisplayPowerController[4]: BrightnessEvent: disp=4, physDisp=local:4630946482288158084, brt=0.05, initBrt=0.05, rcmdBrt=NaN, preBrt=NaN, lux=0.0, preLux=0.0, hbmMax=1.0, hbmMode=off, rbcStrength=-1, powerFactor=1.0, thrmMax=1.0, wasShortTermModelActive=false, flags=, reason=manual [ dim ], autoBrightness=false
+09-21 18:18:54.117 29736 29736 I pool-3-thread-2: type=1400 audit(0.0:664332): avc: denied { read } for name="current_now" dev="sysfs" ino=129606 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_battery_supply:s0 tclass=file permissive=1
+09-21 18:18:54.117 29736 29736 I pool-3-thread-2: type=1400 audit(0.0:664333): avc: denied { open } for path="/sys/devices/platform/soc/soc:qcom,pmic_glink/soc:qcom,pmic_glink:qcom,battery_charger/power_supply/battery/current_now" dev="sysfs" ino=129606 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_battery_supply:s0 tclass=file permissive=1
+09-21 18:18:54.117 29736 29736 I pool-3-thread-2: type=1400 audit(0.0:664334): avc: denied { getattr } for path="/sys/devices/platform/soc/soc:qcom,pmic_glink/soc:qcom,pmic_glink:qcom,battery_charger/power_supply/battery/current_now" dev="sysfs" ino=129606 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_battery_supply:s0 tclass=file permissive=1
+09-21 18:18:54.129 29730 29730 I binder:29730_2: type=1400 audit(0.0:664335): avc: denied { call } for scontext=u:r:system_app:s0 tcontext=u:r:pservice:s0 tclass=binder permissive=1
+09-21 18:18:54.135 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:54.129 19664 19664 I binder:1344_7: type=1400 audit(0.0:664336): avc: denied { execute } for name="sh" dev="dm-7" ino=1587 scontext=u:r:pservice:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+09-21 18:18:54.171 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:54.844 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:18:55.668 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:55.698 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:56.390 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 87.92778015136719 speedPercentage = 74 smartSpeed = 37000
+09-21 18:18:56.981  1344  1512 D pservice: cpu_init boot_completed cpugpumode=0
+09-21 18:18:56.989 19677 19677 I sh      : type=1400 audit(0.0:664351): avc: denied { write } for name="scaling_min_freq" dev="sysfs" ino=76260 scontext=u:r:pservice:s0 tcontext=u:object_r:sysfs_devices_system_cpu:s0 tclass=file permissive=1
+09-21 18:18:56.997  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:18:56.998  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:18:56.998  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:18:56.998  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:18:56.998  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:18:57.065 19683 19683 I sh      : type=1400 audit(0.0:664352): avc: denied { write } for name="min_pwrlevel" dev="sysfs" ino=121479 scontext=u:r:pservice:s0 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:18:57.065 19683 19683 I sh      : type=1400 audit(0.0:664353): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/min_pwrlevel" dev="sysfs" ino=121479 scontext=u:r:pservice:s0 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:18:57.198 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:57.224 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:57.296 29284  9014 W ActivityManager: Background start not allowed: service Intent { cmp=com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService (has extras) } to com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService from pid=3991 uid=10113 pkg=com.tencent.android.qqdownloader startFg?=false
+09-21 18:18:57.305 29284  3598 W ActivityManager: Background start not allowed: service Intent { cmp=com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService (has extras) } to com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService from pid=3991 uid=10113 pkg=com.tencent.android.qqdownloader startFg?=false
+09-21 18:18:57.335 29284  9014 W ActivityManager: Background start not allowed: service Intent { cmp=com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService (has extras) } to com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService from pid=3991 uid=10113 pkg=com.tencent.android.qqdownloader startFg?=false
+09-21 18:18:57.348 29284  3598 W ActivityManager: Background start not allowed: service Intent { cmp=com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService (has extras) } to com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService from pid=3991 uid=10113 pkg=com.tencent.android.qqdownloader startFg?=false
+09-21 18:18:57.366 29284 29496 W SyncManager: failed sync operation JobId=105947 ***/com.tencent.android.qqdownloader.YYBLiveAccountProvider.account u0 [com.tencent.android.qqdownloader.YYBLiveAccountProvider] USER ExpectedIn=0s Reason=10113, SyncResult: syncAlreadyInProgress: true stats []
+09-21 18:18:57.864 29622 30573 D QCNEJ/NativeHalConnector: -> SND notifyDefaultNetworkChanged(1)
+09-21 18:18:57.865 29504 29752 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:18:57.879 29284 29446 D ConnectivityService: NetReassign [no changes]
+09-21 18:18:57.883  3354  3939 I NearbyMediums: Wifi changed new SSID: <unknown ssid>
+09-21 18:18:57.883  3354  3939 I NearbyMediums: WifiLanConnectivityInfo is not changed, skip notify.
+09-21 18:18:57.961 18733 18733 I shadps4.android: type=1400 audit(0.0:664354): avc: denied { read } for name="gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:18:57.961 18733 18733 I shadps4.android: type=1400 audit(0.0:664355): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:18:58.125 29736 29736 I pool-3-thread-2: type=1400 audit(0.0:664360): avc: denied { search } for name="battery" dev="sysfs" ino=129592 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_battery_supply:s0 tclass=dir permissive=1
+09-21 18:18:58.125 29736 29736 I pool-3-thread-2: type=1400 audit(0.0:664361): avc: denied { read } for name="current_now" dev="sysfs" ino=129606 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_battery_supply:s0 tclass=file permissive=1
+09-21 18:18:58.125 29736 29736 I pool-3-thread-2: type=1400 audit(0.0:664362): avc: denied { open } for path="/sys/devices/platform/soc/soc:qcom,pmic_glink/soc:qcom,pmic_glink:qcom,battery_charger/power_supply/battery/current_now" dev="sysfs" ino=129606 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_battery_supply:s0 tclass=file permissive=1
+09-21 18:18:58.125 29736 29736 I pool-3-thread-2: type=1400 audit(0.0:664363): avc: denied { getattr } for path="/sys/devices/platform/soc/soc:qcom,pmic_glink/soc:qcom,pmic_glink:qcom,battery_charger/power_supply/battery/current_now" dev="sysfs" ino=129606 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_battery_supply:s0 tclass=file permissive=1
+09-21 18:18:58.372  3354  3939 I NearbySharing: Network state changed: NetworkState(isRestricted=false, isOnline=true, isCongested=false, isMetered=false, isWifiConnected=true)
+09-21 18:18:58.503  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:18:58.503  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:18:58.503  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:18:58.504  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:18:58.504  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:18:58.724 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:18:58.749 19691 19691 I cat     : type=1400 audit(0.0:664364): avc: denied { read } for name="duty" dev="sysfs" ino=101852 scontext=u:r:pservice:s0 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+09-21 18:18:58.756 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:18:59.637 18535 18535 I sh      : type=1400 audit(0.0:664366): avc: denied { getattr } for path="/data/local/tmp/avp-vpn-hotspot/owner" dev="dm-14" ino=136298 scontext=u:r:pservice:s0 tcontext=u:object_r:shell_data_file:s0 tclass=file permissive=1
+09-21 18:18:59.637 19694 19694 I sh      : type=1400 audit(0.0:664367): avc: denied { getattr } for path="/system/bin/toybox" dev="dm-7" ino=1638 scontext=u:r:pservice:s0 tcontext=u:object_r:toolbox_exec:s0 tclass=file permissive=1
+09-21 18:18:59.637 19694 19694 I sh      : type=1400 audit(0.0:664368): avc: denied { execute } for name="toybox" dev="dm-7" ino=1638 scontext=u:r:pservice:s0 tcontext=u:object_r:toolbox_exec:s0 tclass=file permissive=1
+09-21 18:18:59.637 19694 19694 I sh      : type=1400 audit(0.0:664369): avc: denied { read open } for path="/system/bin/toybox" dev="dm-7" ino=1638 scontext=u:r:pservice:s0 tcontext=u:object_r:toolbox_exec:s0 tclass=file permissive=1
+09-21 18:18:59.637 19694 19694 I sh      : type=1400 audit(0.0:664370): avc: denied { execute_no_trans } for path="/system/bin/toybox" dev="dm-7" ino=1638 scontext=u:r:pservice:s0 tcontext=u:object_r:toolbox_exec:s0 tclass=file permissive=1
+09-21 18:19:00.256 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:00.310 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:00.422 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 85.1500015258789 speedPercentage = 70 smartSpeed = 35000
+09-21 18:19:00.900 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:19:00.907 29622 30573 D QCNEJ/NativeHalConnector: -> SND notifyDefaultNetworkChanged(1)
+09-21 18:19:00.920 29284 29446 D ConnectivityService: NetReassign [no changes]
+09-21 18:19:00.920 29504 29752 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:19:00.922  3354  3939 I NearbyMediums: Wifi changed new SSID: <unknown ssid>
+09-21 18:19:00.922  3354  3939 I NearbyMediums: WifiLanConnectivityInfo is not changed, skip notify.
+09-21 18:19:00.928 19707 19707 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+09-21 18:19:00.937  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:19:00.938  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:19:00.938  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:19:00.938  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:19:00.938  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:19:00.968   710   710 I servicemanager: Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest.
+09-21 18:19:00.970 19707 19708 I AdrenoUtils: <ReadGpuID:407>: Reading chip ID through GSL
+09-21 18:19:00.965 29736 29736 I creen.assistant: type=1400 audit(0.0:664387): avc: denied { read } for name="cur_freq" dev="sysfs" ino=121844 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:19:00.965 29736 29736 I creen.assistant: type=1400 audit(0.0:664388): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/devfreq/3d00000.qcom,kgsl-3d0/cur_freq" dev="sysfs" ino=121844 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:19:00.965 29736 29736 I creen.assistant: type=1400 audit(0.0:664389): avc: denied { getattr } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/devfreq/3d00000.qcom,kgsl-3d0/cur_freq" dev="sysfs" ino=121844 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:19:00.973 18733 18733 I shadps4.android: type=1400 audit(0.0:664390): avc: denied { read } for name="gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:19:00.973 18733 18733 I shadps4.android: type=1400 audit(0.0:664391): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:19:01.417  3354  3939 I NearbySharing: Network state changed: NetworkState(isRestricted=false, isOnline=true, isCongested=false, isMetered=false, isWifiConnected=true)
+09-21 18:19:01.580  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:19:01.580  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:19:01.580  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:19:01.580  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:19:01.581  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:19:01.781 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:01.813 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:02.129 29736 29736 I pool-3-thread-2: type=1400 audit(0.0:664407): avc: denied { search } for name="battery" dev="sysfs" ino=129592 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_battery_supply:s0 tclass=dir permissive=1
+09-21 18:19:02.129 29736 29736 I pool-3-thread-2: type=1400 audit(0.0:664408): avc: denied { read } for name="current_now" dev="sysfs" ino=129606 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_battery_supply:s0 tclass=file permissive=1
+09-21 18:19:02.129 29736 29736 I pool-3-thread-2: type=1400 audit(0.0:664409): avc: denied { open } for path="/sys/devices/platform/soc/soc:qcom,pmic_glink/soc:qcom,pmic_glink:qcom,battery_charger/power_supply/battery/current_now" dev="sysfs" ino=129606 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_battery_supply:s0 tclass=file permissive=1
+09-21 18:19:02.129 29736 29736 I pool-3-thread-2: type=1400 audit(0.0:664410): avc: denied { getattr } for path="/sys/devices/platform/soc/soc:qcom,pmic_glink/soc:qcom,pmic_glink:qcom,battery_charger/power_supply/battery/current_now" dev="sysfs" ino=129606 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_battery_supply:s0 tclass=file permissive=1
+09-21 18:19:03.313 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:03.338 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:03.933 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:19:03.977 29736 29736 I creen.assistant: type=1400 audit(0.0:664411): avc: denied { read } for name="cur_freq" dev="sysfs" ino=121844 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:19:03.977 29736 29736 I creen.assistant: type=1400 audit(0.0:664412): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/devfreq/3d00000.qcom,kgsl-3d0/cur_freq" dev="sysfs" ino=121844 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:19:03.977 29736 29736 I creen.assistant: type=1400 audit(0.0:664413): avc: denied { getattr } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/devfreq/3d00000.qcom,kgsl-3d0/cur_freq" dev="sysfs" ino=121844 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:19:03.989 18733 18733 I shadps4.android: type=1400 audit(0.0:664414): avc: denied { read } for name="gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:19:03.989 18733 18733 I shadps4.android: type=1400 audit(0.0:664415): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:19:03.989 18733 18733 I shadps4.android: type=1400 audit(0.0:664416): avc: denied { getattr } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:19:04.455 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 88.22777557373047 speedPercentage = 74 smartSpeed = 37000
+09-21 18:19:04.839 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:04.868 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:06.368 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:06.417 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:06.949 29730 29730 I Thread-5: type=1400 audit(0.0:664444): avc: denied { read } for scontext=u:r:system_app:s0 tcontext=u:r:system_app:s0 tclass=netlink_kobject_uevent_socket permissive=1
+09-21 18:19:07.118  1344  1512 D pservice: cpu_init boot_completed cpugpumode=0
+09-21 18:19:07.129 19736 19736 I sh      : type=1400 audit(0.0:664445): avc: denied { dac_override } for capability=1 scontext=u:r:pservice:s0 tcontext=u:r:pservice:s0 tclass=capability permissive=1
+09-21 18:19:07.129 19736 19736 I sh      : type=1400 audit(0.0:664446): avc: denied { write } for name="scaling_min_freq" dev="sysfs" ino=76260 scontext=u:r:pservice:s0 tcontext=u:object_r:sysfs_devices_system_cpu:s0 tclass=file permissive=1
+09-21 18:19:07.213 19743 19743 I sh      : type=1400 audit(0.0:664447): avc: denied { write } for name="min_pwrlevel" dev="sysfs" ino=121479 scontext=u:r:pservice:s0 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:19:07.213 19743 19743 I sh      : type=1400 audit(0.0:664448): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/min_pwrlevel" dev="sysfs" ino=121479 scontext=u:r:pservice:s0 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:19:07.286  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:19:07.286  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:19:07.286  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:19:07.286  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:19:07.287  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:19:07.895 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:07.923 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:08.304  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:19:08.304  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:19:08.304  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:19:08.304  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:19:08.304  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:19:08.489 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 87.27777862548828 speedPercentage = 73 smartSpeed = 36500
+09-21 18:19:09.424 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:09.448 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:09.785 18535 18535 I sh      : type=1400 audit(0.0:664449): avc: denied { getattr } for path="/data/local/tmp/avp-vpn-hotspot/owner" dev="dm-14" ino=136298 scontext=u:r:pservice:s0 tcontext=u:object_r:shell_data_file:s0 tclass=file permissive=1
+09-21 18:19:09.805 19754 19754 I cat     : type=1400 audit(0.0:664450): avc: denied { read } for name="ap" dev="dm-14" ino=69309 scontext=u:r:pservice:s0 tcontext=u:object_r:shell_data_file:s0 tclass=file permissive=1
+09-21 18:19:09.805 19754 19754 I cat     : type=1400 audit(0.0:664451): avc: denied { open } for path="/data/local/tmp/avp-vpn-hotspot/ap" dev="dm-14" ino=69309 scontext=u:r:pservice:s0 tcontext=u:object_r:shell_data_file:s0 tclass=file permissive=1
+09-21 18:19:09.837 19756 19756 I ip      : type=1400 audit(0.0:664452): avc: denied { create } for scontext=u:r:pservice:s0 tcontext=u:r:pservice:s0 tclass=udp_socket permissive=1
+09-21 18:19:09.837 19756 19756 I ip      : type=1400 audit(0.0:664453): avc: denied { ioctl } for path="socket:[301994795]" dev="sockfs" ino=301994795 ioctlcmd=0x8933 scontext=u:r:pservice:s0 tcontext=u:r:pservice:s0 tclass=udp_socket permissive=1
+09-21 18:19:10.948 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:10.980 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:12.481 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:12.507 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:12.520 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 88.28888702392578 speedPercentage = 74 smartSpeed = 37000
+09-21 18:19:13.034 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:19:14.007 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:14.038 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:14.861 19775 19775 I sh      : type=1400 audit(0.0:664454): avc: denied { getattr } for path="/system/bin/toybox" dev="dm-7" ino=1638 scontext=u:r:pservice:s0 tcontext=u:object_r:toolbox_exec:s0 tclass=file permissive=1
+09-21 18:19:14.861 19775 19775 I sh      : type=1400 audit(0.0:664455): avc: denied { execute } for name="toybox" dev="dm-7" ino=1638 scontext=u:r:pservice:s0 tcontext=u:object_r:toolbox_exec:s0 tclass=file permissive=1
+09-21 18:19:14.861 19775 19775 I sh      : type=1400 audit(0.0:664456): avc: denied { read open } for path="/system/bin/toybox" dev="dm-7" ino=1638 scontext=u:r:pservice:s0 tcontext=u:object_r:toolbox_exec:s0 tclass=file permissive=1
+09-21 18:19:14.861 19775 19775 I sh      : type=1400 audit(0.0:664457): avc: denied { execute_no_trans } for path="/system/bin/toybox" dev="dm-7" ino=1638 scontext=u:r:pservice:s0 tcontext=u:object_r:toolbox_exec:s0 tclass=file permissive=1
+09-21 18:19:14.861 19775 19775 I cat     : type=1400 audit(0.0:664458): avc: denied { map } for path="/system/bin/toybox" dev="dm-7" ino=1638 scontext=u:r:pservice:s0 tcontext=u:object_r:toolbox_exec:s0 tclass=file permissive=1
+09-21 18:19:14.918  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:19:14.918  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:19:14.919  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:19:14.919  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:19:14.922  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:19:15.056  3063  4275 D TrafficStats: tagSocket(146) with statsTag=0xffffffff, statsUid=-1
+09-21 18:19:15.538 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:15.561 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:15.950  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:19:15.950  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:19:15.950  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:19:15.950  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:19:15.950  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:19:16.070 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:19:16.072 29622 30573 D QCNEJ/NativeHalConnector: -> SND notifyDefaultNetworkChanged(1)
+09-21 18:19:16.084 29284 29446 D ConnectivityService: NetReassign [no changes]
+09-21 18:19:16.087  3354  3939 I NearbyMediums: Wifi changed new SSID: <unknown ssid>
+09-21 18:19:16.088  3354  3939 I NearbyMediums: WifiLanConnectivityInfo is not changed, skip notify.
+09-21 18:19:16.092 29504 29752 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:19:16.552 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 86.5999984741211 speedPercentage = 72 smartSpeed = 36000
+09-21 18:19:16.582  3354  3939 I NearbySharing: Network state changed: NetworkState(isRestricted=false, isOnline=true, isCongested=false, isMetered=false, isWifiConnected=true)
+09-21 18:19:17.062 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:17.057 29730 29730 I binder:29730_2: type=1400 audit(0.0:664459): avc: denied { call } for scontext=u:r:system_app:s0 tcontext=u:r:pservice:s0 tclass=binder permissive=1
+09-21 18:19:17.092 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:17.265  1344  1512 D pservice: cpu_init boot_completed cpugpumode=0
+09-21 18:19:17.273 19790 19790 I sh      : type=1400 audit(0.0:664460): avc: denied { write } for name="scaling_min_freq" dev="sysfs" ino=76260 scontext=u:r:pservice:s0 tcontext=u:object_r:sysfs_devices_system_cpu:s0 tclass=file permissive=1
+09-21 18:19:17.357  3562  3711 I Finsky  : [170] Stats for Executor: LightweightExecutor xxp@234c21d[Running, pool size = 4, active threads = 0, queued tasks = 0, completed tasks = 226]
+09-21 18:19:17.380  3562  3711 I Finsky  : [170] Stats for Executor: BlockingExecutor xxp@309ac92[Running, pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 45]
+09-21 18:19:17.429  3562  3711 I Finsky  : [170] Stats for Executor: bgExecutor xxp@89f2663[Running, pool size = 4, active threads = 0, queued tasks = 0, completed tasks = 273]
+09-21 18:19:18.468  3827  3871 I Finsky:background: [170] Stats for Executor: bgExecutor xxp@26a920a[Running, pool size = 4, active threads = 0, queued tasks = 0, completed tasks = 54]
+09-21 18:19:18.490  3827  3871 I Finsky:background: [170] Stats for Executor: LightweightExecutor xxp@d9b6a7b[Running, pool size = 4, active threads = 0, queued tasks = 0, completed tasks = 21]
+09-21 18:19:18.592 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:18.617 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:19.000  3827  3871 I Finsky:background: [170] Stats for Executor: BlockingExecutor xxp@bc00098[Running, pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 26]
+09-21 18:19:19.103 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:19:19.109 29622 30573 D QCNEJ/NativeHalConnector: -> SND notifyDefaultNetworkChanged(1)
+09-21 18:19:19.124 29284 29446 D ConnectivityService: NetReassign [no changes]
+09-21 18:19:19.126  3354  3939 I NearbyMediums: Wifi changed new SSID: <unknown ssid>
+09-21 18:19:19.126  3354  3939 I NearbyMediums: WifiLanConnectivityInfo is not changed, skip notify.
+09-21 18:19:19.127 29504 29752 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:19:19.139  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:19:19.139  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:19:19.139  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:19:19.139  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:19:19.139  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:19:19.624  3354  3939 I NearbySharing: Network state changed: NetworkState(isRestricted=false, isOnline=true, isCongested=false, isMetered=false, isWifiConnected=true)
+09-21 18:19:19.786  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:19:19.786  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:19:19.786  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:19:19.786  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:19:19.786  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:19:19.945 18535 18535 I sh      : type=1400 audit(0.0:664461): avc: denied { search } for name="tmp" dev="dm-14" ino=99 scontext=u:r:pservice:s0 tcontext=u:object_r:shell_data_file:s0 tclass=dir permissive=1
+09-21 18:19:19.985 19808 19808 I ip      : type=1400 audit(0.0:664462): avc: denied { create } for scontext=u:r:pservice:s0 tcontext=u:r:pservice:s0 tclass=netlink_route_socket permissive=1 app=info.cemu.cemu
+09-21 18:19:19.985 19808 19808 I ip      : type=1400 audit(0.0:664463): avc: denied { setopt } for scontext=u:r:pservice:s0 tcontext=u:r:pservice:s0 tclass=netlink_route_socket permissive=1 app=info.cemu.cemu
+09-21 18:19:19.985 19808 19808 I ip      : type=1400 audit(0.0:664464): avc: denied { bind } for scontext=u:r:pservice:s0 tcontext=u:r:pservice:s0 tclass=netlink_route_socket permissive=1 app=info.cemu.cemu
+09-21 18:19:19.985 19808 19808 I ip      : type=1400 audit(0.0:664465): avc: denied { getattr } for scontext=u:r:pservice:s0 tcontext=u:r:pservice:s0 tclass=netlink_route_socket permissive=1 app=info.cemu.cemu
+09-21 18:19:20.117 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:20.146 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:20.584 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 87.97222137451172 speedPercentage = 74 smartSpeed = 37000
+09-21 18:19:21.647 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:21.674 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:22.136 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:19:22.639  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:19:22.639  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:19:22.639  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:19:22.639  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:19:22.639  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:19:23.174 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:23.204 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:23.419  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:19:23.419  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:19:23.419  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:19:23.419  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:19:23.419  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:19:24.616 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 87.49444580078125 speedPercentage = 73 smartSpeed = 36500
+09-21 18:19:24.704 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:24.729 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:25.171 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:19:26.229 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:26.276 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:26.469 29736 29736 W Choreographer: Frame time is 0.06437 ms in the future!  Check that graphics HAL is generating vsync timestamps using the correct timebase.
+09-21 18:19:27.395  1344  1512 D pservice: cpu_init boot_completed cpugpumode=0
+09-21 18:19:27.762 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:27.786 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:28.205 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:19:28.645 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 89.27222442626953 speedPercentage = 76 smartSpeed = 38000
+09-21 18:19:29.286 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:29.316 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:30.816 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:30.840 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:32.340 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:32.381 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:32.668 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 88.01667022705078 speedPercentage = 74 smartSpeed = 37000
+09-21 18:19:33.868 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:33.896 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:35.396 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:35.417 19883 19883 I cat     : type=1400 audit(0.0:664466): avc: denied { read } for name="duty" dev="sysfs" ino=101852 scontext=u:r:pservice:s0 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+09-21 18:19:35.417 19883 19883 I cat     : type=1400 audit(0.0:664467): avc: denied { open } for path="/sys/class/gpio5_pwm2/duty" dev="sysfs" ino=101852 scontext=u:r:pservice:s0 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+09-21 18:19:35.426 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:36.681 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 88.30000305175781 speedPercentage = 74 smartSpeed = 37000
+09-21 18:19:36.673 29730 29730 I pool-2-thread-5: type=1400 audit(0.0:664468): avc: denied { write } for name="duty" dev="sysfs" ino=101852 scontext=u:r:system_app:s0 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+09-21 18:19:36.673 29730 29730 I pool-2-thread-5: type=1400 audit(0.0:664469): avc: denied { read } for name="duty" dev="sysfs" ino=101852 scontext=u:r:system_app:s0 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+09-21 18:19:36.673 29730 29730 I pool-2-thread-5: type=1400 audit(0.0:664470): avc: denied { open } for path="/sys/class/gpio5_pwm2/duty" dev="sysfs" ino=101852 scontext=u:r:system_app:s0 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+09-21 18:19:36.673 29730 29730 I pool-2-thread-5: type=1400 audit(0.0:664471): avc: denied { getattr } for path="/sys/class/gpio5_pwm2/duty" dev="sysfs" ino=101852 scontext=u:r:system_app:s0 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+09-21 18:19:36.927 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:36.953 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:37.311 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:19:37.525  1344  1512 D pservice: cpu_init boot_completed cpugpumode=0
+09-21 18:19:37.637 18733 18733 I shadps4.android: type=1400 audit(0.0:664472): avc: denied { read } for name="gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:19:37.637 18733 18733 I shadps4.android: type=1400 audit(0.0:664473): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:19:37.997  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:19:37.997  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:19:37.997  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:19:37.997  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:19:37.997  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:19:38.161 29736 29736 I pool-3-thread-2: type=1400 audit(0.0:664475): avc: denied { search } for name="battery" dev="sysfs" ino=129592 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_battery_supply:s0 tclass=dir permissive=1
+09-21 18:19:38.453 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:38.499 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:38.772  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:19:38.772  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:19:38.773  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:19:38.773  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:19:38.773  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:19:39.987 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:40.024 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:40.277 19911 19911 I sh      : type=1400 audit(0.0:664476): avc: denied { getattr } for path="/system/bin/awk" dev="dm-7" ino=1297 scontext=u:r:pservice:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1 app=com.shadps4.android
+09-21 18:19:40.277 19911 19911 I sh      : type=1400 audit(0.0:664477): avc: denied { execute } for name="awk" dev="dm-7" ino=1297 scontext=u:r:pservice:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1 app=com.shadps4.android
+09-21 18:19:40.277 19911 19911 I sh      : type=1400 audit(0.0:664478): avc: denied { read open } for path="/system/bin/awk" dev="dm-7" ino=1297 scontext=u:r:pservice:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1 app=com.shadps4.android
+09-21 18:19:40.281 19911 19911 I sh      : type=1400 audit(0.0:664479): avc: denied { execute_no_trans } for path="/system/bin/awk" dev="dm-7" ino=1297 scontext=u:r:pservice:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1 app=com.shadps4.android
+09-21 18:19:40.281 19911 19911 I awk     : type=1400 audit(0.0:664480): avc: denied { map } for path="/system/bin/awk" dev="dm-7" ino=1297 scontext=u:r:pservice:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1 app=com.shadps4.android
+09-21 18:19:40.345 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:19:40.690 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 87.42222595214844 speedPercentage = 73 smartSpeed = 36500
+09-21 18:19:41.524 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:41.572 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:43.055 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:43.076  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:19:43.076  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:19:43.077  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:19:43.077  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:19:43.077  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:19:43.085 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:44.004  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:19:44.004  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:19:44.004  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:19:44.004  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:19:44.004  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:19:44.296 29736 29736 W Choreographer: Frame time is 0.059695 ms in the future!  Check that graphics HAL is generating vsync timestamps using the correct timebase.
+09-21 18:19:44.583 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:44.608 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:44.703 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 87.25 speedPercentage = 73 smartSpeed = 36500
+09-21 18:19:46.094 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:46.127 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:46.399 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:19:47.212  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:19:47.212  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:19:47.212  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:19:47.212  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:19:47.212  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:19:47.622 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:47.666  1344  1512 D pservice: cpu_init boot_completed cpugpumode=0
+09-21 18:19:47.668 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:47.669 19936 19936 I sh      : type=1400 audit(0.0:664481): avc: denied { dac_override } for capability=1 scontext=u:r:pservice:s0 tcontext=u:r:pservice:s0 tclass=capability permissive=1
+09-21 18:19:47.990  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:19:47.990  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:19:47.990  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:19:47.990  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:19:47.990  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:19:48.711 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 88.55000305175781 speedPercentage = 75 smartSpeed = 37500
+09-21 18:19:49.154 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:49.232 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:49.434 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:19:49.795 29284 24760 W ActivityManager: Background start not allowed: service Intent { cmp=com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService (has extras) } to com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService from pid=3991 uid=10113 pkg=com.tencent.android.qqdownloader startFg?=false
+09-21 18:19:49.797 29284 29284 W JobScheduler: Job didn't exist in JobStore: 8103e7e #1000/105947 com.tencent.android.qqdownloader.YYBLiveAccountProvider/com.tencent.android.qqdownloader.YYBLiveAccountProvider.account/应用宝:android
+09-21 18:19:49.805 29284 29500 W ActivityManager: Background start not allowed: service Intent { cmp=com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService (has extras) } to com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService from pid=3991 uid=10113 pkg=com.tencent.android.qqdownloader startFg?=false
+09-21 18:19:49.844 29284 24760 W ActivityManager: Background start not allowed: service Intent { cmp=com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService (has extras) } to com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService from pid=3991 uid=10113 pkg=com.tencent.android.qqdownloader startFg?=false
+09-21 18:19:49.850 29284 24760 W ActivityManager: Background start not allowed: service Intent { cmp=com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService (has extras) } to com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService from pid=3991 uid=10113 pkg=com.tencent.android.qqdownloader startFg?=false
+09-21 18:19:49.883 29284 29500 W ActivityManager: Background start not allowed: service Intent { cmp=com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService (has extras) } to com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService from pid=3991 uid=10113 pkg=com.tencent.android.qqdownloader startFg?=false
+09-21 18:19:49.893 29284 29500 W ActivityManager: Background start not allowed: service Intent { cmp=com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService (has extras) } to com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService from pid=3991 uid=10113 pkg=com.tencent.android.qqdownloader startFg?=false
+09-21 18:19:49.902 29284 29496 W SyncManager: failed sync operation JobId=105948 ***/com.tencent.android.qqdownloader.YYBLiveAccountProvider.account u0 [com.tencent.android.qqdownloader.YYBLiveAccountProvider] USER ExpectedIn=0s Reason=10113, SyncResult: syncAlreadyInProgress: true stats []
+09-21 18:19:50.445 19955 19955 I ip      : type=1400 audit(0.0:664482): avc: denied { net_admin } for capability=12 scontext=u:r:pservice:s0 tcontext=u:r:pservice:s0 tclass=capability permissive=1
+09-21 18:19:50.445 19955 19955 I ip      : type=1400 audit(0.0:664483): avc: denied { sys_module } for capability=16 scontext=u:r:pservice:s0 tcontext=u:r:pservice:s0 tclass=capability permissive=1
+09-21 18:19:50.525 29736 29736 I creen.assistant: type=1400 audit(0.0:664484): avc: denied { read } for name="cur_freq" dev="sysfs" ino=121844 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:19:50.525 29736 29736 I creen.assistant: type=1400 audit(0.0:664485): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/devfreq/3d00000.qcom,kgsl-3d0/cur_freq" dev="sysfs" ino=121844 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:19:50.525 29736 29736 I creen.assistant: type=1400 audit(0.0:664486): avc: denied { getattr } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/devfreq/3d00000.qcom,kgsl-3d0/cur_freq" dev="sysfs" ino=121844 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:19:50.676 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:50.717 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:52.204 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:52.234  3160 19963 D TrafficStats: tagSocket(79) with statsTag=0xffffffff, statsUid=-1
+09-21 18:19:52.236 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:52.263  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:19:52.263  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:19:52.262  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:19:52.263  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:19:52.263  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:19:52.726 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 89.28333282470703 speedPercentage = 76 smartSpeed = 38000
+09-21 18:19:53.156  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:19:53.156  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:19:53.156  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:19:53.156  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:19:53.156  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:19:53.356  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:19:53.356  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:19:53.356  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:19:53.356  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:19:53.356  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:19:53.733 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:53.774 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:54.179  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:19:54.179  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:19:54.180  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:19:54.180  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:19:54.180  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:19:54.177 29736 29736 I pool-3-thread-2: type=1400 audit(0.0:664487): avc: denied { read } for name="current_now" dev="sysfs" ino=129606 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_battery_supply:s0 tclass=file permissive=1
+09-21 18:19:54.177 29736 29736 I pool-3-thread-2: type=1400 audit(0.0:664488): avc: denied { open } for path="/sys/devices/platform/soc/soc:qcom,pmic_glink/soc:qcom,pmic_glink:qcom,battery_charger/power_supply/battery/current_now" dev="sysfs" ino=129606 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_battery_supply:s0 tclass=file permissive=1
+09-21 18:19:54.177 29736 29736 I pool-3-thread-2: type=1400 audit(0.0:664489): avc: denied { getattr } for path="/sys/devices/platform/soc/soc:qcom,pmic_glink/soc:qcom,pmic_glink:qcom,battery_charger/power_supply/battery/current_now" dev="sysfs" ino=129606 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_battery_supply:s0 tclass=file permissive=1
+09-21 18:19:55.264 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:55.308 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:56.741 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 88.91666412353516 speedPercentage = 75 smartSpeed = 37500
+09-21 18:19:56.789 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:56.825 29730 29730 I binder:29730_2: type=1400 audit(0.0:664490): avc: denied { call } for scontext=u:r:system_app:s0 tcontext=u:r:pservice:s0 tclass=binder permissive=1
+09-21 18:19:56.832 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:56.825 19986 19986 I binder:1344_9: type=1400 audit(0.0:664491): avc: denied { execute } for name="sh" dev="dm-7" ino=1587 scontext=u:r:pservice:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+09-21 18:19:56.825 19986 19986 I binder:1344_9: type=1400 audit(0.0:664492): avc: denied { read open } for path="/system/bin/sh" dev="dm-7" ino=1587 scontext=u:r:pservice:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+09-21 18:19:56.825 19986 19986 I binder:1344_9: type=1400 audit(0.0:664493): avc: denied { execute_no_trans } for path="/system/bin/sh" dev="dm-7" ino=1587 scontext=u:r:pservice:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+09-21 18:19:56.829 19986 19986 I sh      : type=1400 audit(0.0:664494): avc: denied { map } for path="/system/bin/sh" dev="dm-7" ino=1587 scontext=u:r:pservice:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+09-21 18:19:57.312 29284 29334 W BatteryExternalStatsWorker: error reading Bluetooth stats: 9
+09-21 18:19:57.805  1344  1512 D pservice: cpu_init boot_completed cpugpumode=0
+09-21 18:19:57.889 19994 19994 I sh      : type=1400 audit(0.0:664503): avc: denied { write } for name="min_pwrlevel" dev="sysfs" ino=121479 scontext=u:r:pservice:s0 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:19:57.889 19994 19994 I sh      : type=1400 audit(0.0:664504): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/min_pwrlevel" dev="sysfs" ino=121479 scontext=u:r:pservice:s0 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:19:58.181 29736 29736 I pool-3-thread-2: type=1400 audit(0.0:664505): avc: denied { search } for name="battery" dev="sysfs" ino=129592 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_battery_supply:s0 tclass=dir permissive=1
+09-21 18:19:58.325 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:58.385 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:19:58.510 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:19:59.485 29736 29736 I creen.assistant: type=1400 audit(0.0:664506): avc: denied { read } for name="cur_freq" dev="sysfs" ino=121844 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:19:59.485 29736 29736 I creen.assistant: type=1400 audit(0.0:664507): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/devfreq/3d00000.qcom,kgsl-3d0/cur_freq" dev="sysfs" ino=121844 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:19:59.485 29736 29736 I creen.assistant: type=1400 audit(0.0:664508): avc: denied { getattr } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/devfreq/3d00000.qcom,kgsl-3d0/cur_freq" dev="sysfs" ino=121844 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:19:59.858 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:19:59.891 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:00.553 18535 18535 I sh      : type=1400 audit(0.0:664509): avc: denied { search } for name="tmp" dev="dm-14" ino=99 scontext=u:r:pservice:s0 tcontext=u:object_r:shell_data_file:s0 tclass=dir permissive=1
+09-21 18:20:00.553 18535 18535 I sh      : type=1400 audit(0.0:664510): avc: denied { getattr } for path="/data/local/tmp/avp-vpn-hotspot/owner" dev="dm-14" ino=136298 scontext=u:r:pservice:s0 tcontext=u:object_r:shell_data_file:s0 tclass=file permissive=1
+09-21 18:20:00.569 20007 20007 I cat     : type=1400 audit(0.0:664511): avc: denied { read } for name="ap" dev="dm-14" ino=69309 scontext=u:r:pservice:s0 tcontext=u:object_r:shell_data_file:s0 tclass=file permissive=1
+09-21 18:20:00.569 20007 20007 I cat     : type=1400 audit(0.0:664512): avc: denied { open } for path="/data/local/tmp/avp-vpn-hotspot/ap" dev="dm-14" ino=69309 scontext=u:r:pservice:s0 tcontext=u:object_r:shell_data_file:s0 tclass=file permissive=1
+09-21 18:20:00.589 20009 20009 I sh      : type=1400 audit(0.0:664513): avc: denied { getattr } for path="/system/bin/ip" dev="dm-7" ino=1438 scontext=u:r:pservice:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1
+09-21 18:20:00.589 20009 20009 I sh      : type=1400 audit(0.0:664514): avc: denied { execute } for name="ip" dev="dm-7" ino=1438 scontext=u:r:pservice:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1
+09-21 18:20:00.593 20009 20009 I sh      : type=1400 audit(0.0:664515): avc: denied { read open } for path="/system/bin/ip" dev="dm-7" ino=1438 scontext=u:r:pservice:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1
+09-21 18:20:00.593 20009 20009 I sh      : type=1400 audit(0.0:664516): avc: denied { execute_no_trans } for path="/system/bin/ip" dev="dm-7" ino=1438 scontext=u:r:pservice:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1
+09-21 18:20:00.593 20009 20009 I ip      : type=1400 audit(0.0:664517): avc: denied { map } for path="/system/bin/ip" dev="dm-7" ino=1438 scontext=u:r:pservice:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1
+09-21 18:20:00.753 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 87.5111083984375 speedPercentage = 73 smartSpeed = 36500
+09-21 18:20:01.382 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:01.417 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:02.288  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:20:02.288  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:20:02.288  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:20:02.288  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:20:02.288  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:20:02.912 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:02.998 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:03.190  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:20:03.190  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:20:03.190  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:20:03.190  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:20:03.190  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:20:04.438 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:04.481 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:04.571 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:20:04.767 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 88.90555572509766 speedPercentage = 75 smartSpeed = 37500
+09-21 18:20:05.970 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:05.996 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:06.189 29736 29736 I pool-3-thread-2: type=1400 audit(0.0:664526): avc: denied { read } for name="current_now" dev="sysfs" ino=129606 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_battery_supply:s0 tclass=file permissive=1
+09-21 18:20:06.189 29736 29736 I pool-3-thread-2: type=1400 audit(0.0:664527): avc: denied { open } for path="/sys/devices/platform/soc/soc:qcom,pmic_glink/soc:qcom,pmic_glink:qcom,battery_charger/power_supply/battery/current_now" dev="sysfs" ino=129606 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_battery_supply:s0 tclass=file permissive=1
+09-21 18:20:06.189 29736 29736 I pool-3-thread-2: type=1400 audit(0.0:664528): avc: denied { getattr } for path="/sys/devices/platform/soc/soc:qcom,pmic_glink/soc:qcom,pmic_glink:qcom,battery_charger/power_supply/battery/current_now" dev="sysfs" ino=129606 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_battery_supply:s0 tclass=file permissive=1
+09-21 18:20:07.494 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:07.533 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:07.606 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:20:07.929  1344  1512 D pservice: cpu_init boot_completed cpugpumode=0
+09-21 18:20:08.779 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 87.96111297607422 speedPercentage = 74 smartSpeed = 37000
+09-21 18:20:09.027 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:09.107 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:10.559 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:10.588 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:12.085 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:12.117 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:12.789 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 86.47777557373047 speedPercentage = 72 smartSpeed = 36000
+09-21 18:20:13.617 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:13.640 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:15.140 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:15.172 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:16.673 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:16.698 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:16.823 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 87.96111297607422 speedPercentage = 74 smartSpeed = 37000
+09-21 18:20:17.346 20087 20087 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+09-21 18:20:17.349 29730 29730 I Thread-5: type=1400 audit(0.0:664529): avc: denied { read } for scontext=u:r:system_app:s0 tcontext=u:r:system_app:s0 tclass=netlink_kobject_uevent_socket permissive=1
+09-21 18:20:17.381   710   710 I servicemanager: Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest.
+09-21 18:20:17.382 20087 20088 I AdrenoUtils: <ReadGpuID:407>: Reading chip ID through GSL
+09-21 18:20:17.801 18733 18733 I shadps4.android: type=1400 audit(0.0:664530): avc: denied { read } for name="gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:20:17.801 18733 18733 I shadps4.android: type=1400 audit(0.0:664531): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:20:17.801 18733 18733 I shadps4.android: type=1400 audit(0.0:664532): avc: denied { getattr } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:20:18.055  1344  1512 D pservice: cpu_init boot_completed cpugpumode=0
+09-21 18:20:18.049 20097 20097 I pservice: type=1400 audit(0.0:664533): avc: denied { execute } for name="sh" dev="dm-7" ino=1587 scontext=u:r:pservice:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+09-21 18:20:18.049 20097 20097 I pservice: type=1400 audit(0.0:664534): avc: denied { read open } for path="/system/bin/sh" dev="dm-7" ino=1587 scontext=u:r:pservice:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+09-21 18:20:18.049 20097 20097 I pservice: type=1400 audit(0.0:664535): avc: denied { execute_no_trans } for path="/system/bin/sh" dev="dm-7" ino=1587 scontext=u:r:pservice:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+09-21 18:20:18.198 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:18.235 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:18.251  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:20:18.251  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:20:18.251  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:20:18.251  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:20:18.252  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:20:18.847 29284 29344 V DisplayPowerController[0]: Brightness [0.5984252] reason changing to: 'manual', previous reason: 'manual [ dim ]'.,,mScreenBrightnessDefault = 0.5984252
+09-21 18:20:18.847 29284 29344 I DisplayPowerController[0]: BrightnessEvent: disp=0, physDisp=local:4630946441858561667, brt=0.5984252, initBrt=0.05, rcmdBrt=NaN, preBrt=NaN, lux=0.0, preLux=0.0, hbmMax=1.0, hbmMode=off, rbcStrength=50, powerFactor=1.0, thrmMax=1.0, wasShortTermModelActive=false, flags=, reason=manual, autoBrightness=false
+09-21 18:20:18.848 29284 29344 V DisplayPowerController[4]: Brightness [0.5984252] reason changing to: 'manual', previous reason: 'manual [ dim ]'.,,mScreenBrightnessDefault = 0.5984252
+09-21 18:20:18.848 29284 29344 I DisplayPowerController[4]: BrightnessEvent: disp=4, physDisp=local:4630946482288158084, brt=0.5984252, initBrt=0.05, rcmdBrt=NaN, preBrt=NaN, lux=0.0, preLux=0.0, hbmMax=1.0, hbmMode=off, rbcStrength=-1, powerFactor=1.0, thrmMax=1.0, wasShortTermModelActive=false, flags=, reason=manual, autoBrightness=false
+09-21 18:20:18.981 29736 29736 I creen.assistant: type=1400 audit(0.0:664562): avc: denied { read } for name="cur_freq" dev="sysfs" ino=121844 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:20:18.981 29736 29736 I creen.assistant: type=1400 audit(0.0:664563): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/devfreq/3d00000.qcom,kgsl-3d0/cur_freq" dev="sysfs" ino=121844 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:20:18.981 29736 29736 I creen.assistant: type=1400 audit(0.0:664564): avc: denied { getattr } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/devfreq/3d00000.qcom,kgsl-3d0/cur_freq" dev="sysfs" ino=121844 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:20:19.065  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:20:19.065  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:20:19.065  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:20:19.065  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:20:19.066  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:20:19.305 18733 18733 I shadps4.android: type=1400 audit(0.0:664565): avc: denied { read } for name="gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:20:19.309 18733 18733 I shadps4.android: type=1400 audit(0.0:664566): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:20:19.583 29284 29344 I DisplayPowerController[0]: BrightnessEvent: disp=0, physDisp=local:4630946441858561667, brt=0.5984252, initBrt=0.5984252, rcmdBrt=NaN, preBrt=NaN, lux=0.0, preLux=0.0, hbmMax=1.0, hbmMode=off, rbcStrength=50, powerFactor=1.0, thrmMax=1.0, wasShortTermModelActive=false, flags=, reason=manual, autoBrightness=false
+09-21 18:20:19.584 29284 29344 I DisplayPowerController[4]: BrightnessEvent: disp=4, physDisp=local:4630946482288158084, brt=0.5984252, initBrt=0.5984252, rcmdBrt=NaN, preBrt=NaN, lux=0.0, preLux=0.0, hbmMax=1.0, hbmMode=off, rbcStrength=-1, powerFactor=1.0, thrmMax=1.0, wasShortTermModelActive=false, flags=, reason=manual, autoBrightness=false
+09-21 18:20:19.727 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:19.743 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:20:19.754 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:20.201 29736 29736 I pool-3-thread-2: type=1400 audit(0.0:664570): avc: denied { search } for name="battery" dev="sysfs" ino=129592 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_battery_supply:s0 tclass=dir permissive=1
+09-21 18:20:20.850 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 86.61111450195312 speedPercentage = 72 smartSpeed = 36000
+09-21 18:20:20.845 29730 29730 I pool-2-thread-6: type=1400 audit(0.0:664571): avc: denied { write } for name="duty" dev="sysfs" ino=101852 scontext=u:r:system_app:s0 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+09-21 18:20:20.845 29730 29730 I pool-2-thread-6: type=1400 audit(0.0:664572): avc: denied { read } for name="duty" dev="sysfs" ino=101852 scontext=u:r:system_app:s0 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+09-21 18:20:20.845 29730 29730 I pool-2-thread-6: type=1400 audit(0.0:664573): avc: denied { open } for path="/sys/class/gpio5_pwm2/duty" dev="sysfs" ino=101852 scontext=u:r:system_app:s0 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+09-21 18:20:20.845 29730 29730 I pool-2-thread-6: type=1400 audit(0.0:664574): avc: denied { getattr } for path="/sys/class/gpio5_pwm2/duty" dev="sysfs" ino=101852 scontext=u:r:system_app:s0 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+09-21 18:20:21.255 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:21.285 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:22.775 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:20:22.785 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:22.808 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:24.308 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:24.385 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:24.865 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 87.80000305175781 speedPercentage = 74 smartSpeed = 37000
+09-21 18:20:25.841 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:25.866 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:26.489 29736 29736 I creen.assistant: type=1400 audit(0.0:664592): avc: denied { read } for name="cur_freq" dev="sysfs" ino=121844 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:20:26.489 29736 29736 I creen.assistant: type=1400 audit(0.0:664593): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/devfreq/3d00000.qcom,kgsl-3d0/cur_freq" dev="sysfs" ino=121844 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:20:26.489 29736 29736 I creen.assistant: type=1400 audit(0.0:664594): avc: denied { getattr } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/devfreq/3d00000.qcom,kgsl-3d0/cur_freq" dev="sysfs" ino=121844 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:20:27.366 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:27.396 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:28.191  1344  1512 D pservice: cpu_init boot_completed cpugpumode=0
+09-21 18:20:28.201 20151 20151 I sh      : type=1400 audit(0.0:664595): avc: denied { dac_override } for capability=1 scontext=u:r:pservice:s0 tcontext=u:r:pservice:s0 tclass=capability permissive=1
+09-21 18:20:28.289 20158 20158 I sh      : type=1400 audit(0.0:664596): avc: denied { write } for name="min_pwrlevel" dev="sysfs" ino=121479 scontext=u:r:pservice:s0 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:20:28.289 20158 20158 I sh      : type=1400 audit(0.0:664597): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/min_pwrlevel" dev="sysfs" ino=121479 scontext=u:r:pservice:s0 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:20:28.840 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:20:28.875 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 87.51667022705078 speedPercentage = 73 smartSpeed = 36500
+09-21 18:20:28.896 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:28.907 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:30.407 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:30.455 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:31.866 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:20:31.939 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:31.968 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:32.884 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 87.97777557373047 speedPercentage = 74 smartSpeed = 37000
+09-21 18:20:33.398  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:20:33.398  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:20:33.399  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:20:33.399  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:20:33.400  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:20:33.469 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:33.497 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:33.710  3063 20182 D TrafficStats: tagSocket(146) with statsTag=0xffffffff, statsUid=-1
+09-21 18:20:34.213 29736 29736 I pool-3-thread-2: type=1400 audit(0.0:664598): avc: denied { read } for name="current_now" dev="sysfs" ino=129606 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_battery_supply:s0 tclass=file permissive=1
+09-21 18:20:34.213 29736 29736 I pool-3-thread-2: type=1400 audit(0.0:664599): avc: denied { open } for path="/sys/devices/platform/soc/soc:qcom,pmic_glink/soc:qcom,pmic_glink:qcom,battery_charger/power_supply/battery/current_now" dev="sysfs" ino=129606 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_battery_supply:s0 tclass=file permissive=1
+09-21 18:20:34.213 29736 29736 I pool-3-thread-2: type=1400 audit(0.0:664600): avc: denied { getattr } for path="/sys/devices/platform/soc/soc:qcom,pmic_glink/soc:qcom,pmic_glink:qcom,battery_charger/power_supply/battery/current_now" dev="sysfs" ino=129606 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_battery_supply:s0 tclass=file permissive=1
+09-21 18:20:34.880 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:20:34.997 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:35.028 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:36.173  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:20:36.174  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:20:36.174  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:20:36.174  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:20:36.174  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:20:36.258  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:20:36.258  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:20:36.259  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:20:36.259  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:20:36.259  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:20:36.528 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:36.597 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:36.892 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 86.12222290039062 speedPercentage = 71 smartSpeed = 35500
+09-21 18:20:37.576 20205 20205 W ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+09-21 18:20:37.626   710   710 I servicemanager: Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest.
+09-21 18:20:37.628 20205 20206 I AdrenoUtils: <ReadGpuID:407>: Reading chip ID through GSL
+09-21 18:20:37.829  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:20:37.830  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:20:37.830  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:20:37.830  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:20:37.830  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:20:37.882  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:20:37.882  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:20:37.882  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:20:37.882  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:20:37.882  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:20:38.056 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:38.086 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:38.329  1344  1512 D pservice: cpu_init boot_completed cpugpumode=0
+09-21 18:20:38.527  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:20:38.527  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:20:38.527  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:20:38.528  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:20:38.528  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:20:38.627  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:20:38.627  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:20:38.627  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:20:38.628  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:20:38.628  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:20:39.564  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:20:39.564  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:20:39.564  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:20:39.564  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:20:39.564  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:20:39.586 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:39.610 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:40.904 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 87.22777557373047 speedPercentage = 73 smartSpeed = 36500
+09-21 18:20:41.110 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:41.138 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:42.639 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:42.664 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:44.165 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:44.194 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:44.225 29284  3598 W ActivityManager: Background start not allowed: service Intent { cmp=com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService (has extras) } to com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService from pid=3991 uid=10113 pkg=com.tencent.android.qqdownloader startFg?=false
+09-21 18:20:44.240 29284  3598 W ActivityManager: Background start not allowed: service Intent { cmp=com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService (has extras) } to com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService from pid=3991 uid=10113 pkg=com.tencent.android.qqdownloader startFg?=false
+09-21 18:20:44.269 29284  3598 W ActivityManager: Background start not allowed: service Intent { cmp=com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService (has extras) } to com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService from pid=3991 uid=10113 pkg=com.tencent.android.qqdownloader startFg?=false
+09-21 18:20:44.272 29284  3598 W ActivityManager: Background start not allowed: service Intent { cmp=com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService (has extras) } to com.tencent.android.qqdownloader/com.tencent.assistant.sdk.SDKSupportService from pid=3991 uid=10113 pkg=com.tencent.android.qqdownloader startFg?=false
+09-21 18:20:44.279 29284 29496 W SyncManager: failed sync operation JobId=105949 ***/com.tencent.android.qqdownloader.YYBLiveAccountProvider.account u0 [com.tencent.android.qqdownloader.YYBLiveAccountProvider] USER ExpectedIn=0s Reason=10113, SyncResult: syncAlreadyInProgress: true stats []
+09-21 18:20:44.462  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:20:44.462  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:20:44.462  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:20:44.463  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:20:44.463  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:20:44.916 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 87.26667022705078 speedPercentage = 73 smartSpeed = 36500
+09-21 18:20:45.434  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:20:45.434  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:20:45.434  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:20:45.435  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:20:45.435  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:20:45.694 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:45.701 20244 20244 I sh      : type=1400 audit(0.0:664601): avc: denied { getattr } for path="/system/bin/toybox" dev="dm-7" ino=1638 scontext=u:r:pservice:s0 tcontext=u:object_r:toolbox_exec:s0 tclass=file permissive=1
+09-21 18:20:45.701 20244 20244 I sh      : type=1400 audit(0.0:664602): avc: denied { execute } for name="toybox" dev="dm-7" ino=1638 scontext=u:r:pservice:s0 tcontext=u:object_r:toolbox_exec:s0 tclass=file permissive=1
+09-21 18:20:45.701 20244 20244 I sh      : type=1400 audit(0.0:664603): avc: denied { read open } for path="/system/bin/toybox" dev="dm-7" ino=1638 scontext=u:r:pservice:s0 tcontext=u:object_r:toolbox_exec:s0 tclass=file permissive=1
+09-21 18:20:45.701 20244 20244 I sh      : type=1400 audit(0.0:664604): avc: denied { execute_no_trans } for path="/system/bin/toybox" dev="dm-7" ino=1638 scontext=u:r:pservice:s0 tcontext=u:object_r:toolbox_exec:s0 tclass=file permissive=1
+09-21 18:20:45.701 20244 20244 I cat     : type=1400 audit(0.0:664605): avc: denied { map } for path="/system/bin/toybox" dev="dm-7" ino=1638 scontext=u:r:pservice:s0 tcontext=u:object_r:toolbox_exec:s0 tclass=file permissive=1
+09-21 18:20:45.721 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:46.233 18535 18535 I sh      : type=1400 audit(0.0:664606): avc: denied { getattr } for path="/data/local/tmp/avp-vpn-hotspot/owner" dev="dm-14" ino=136298 scontext=u:r:pservice:s0 tcontext=u:object_r:shell_data_file:s0 tclass=file permissive=1
+09-21 18:20:47.221 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:47.252 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:48.468  1344  1512 D pservice: cpu_init boot_completed cpugpumode=0
+09-21 18:20:48.477 20257 20257 I sh      : type=1400 audit(0.0:664611): avc: denied { write } for name="scaling_min_freq" dev="sysfs" ino=76260 scontext=u:r:pservice:s0 tcontext=u:object_r:sysfs_devices_system_cpu:s0 tclass=file permissive=1
+09-21 18:20:48.752 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:48.778 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:48.864  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:20:48.864  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:20:48.864  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:20:48.864  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:20:48.864  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:20:48.926 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 87.46666717529297 speedPercentage = 73 smartSpeed = 36500
+09-21 18:20:49.777  1691  1691 I CNSS    : cnss_open_log_file: directory /data/vendor/wifi/wlan_logs/ created
+09-21 18:20:49.785  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:20:49.785  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:20:49.785  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:20:49.786  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:20:49.786  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:20:50.040 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:20:50.278 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:50.308 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:51.791 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:51.817 29730 29788 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:52.367 29504  2016 D PowerUI : can't show warning due to - plugged: true status unknown: false
+09-21 18:20:52.640 18733 18871 I ProductionRuntime: run: guest returned to host
+09-21 18:20:52.640 18733 18871 I ProductionRuntime: run: terminal outcome=Cancelled reason=Cancelled detail=guest return=0
+09-21 18:20:52.833 18733 18871 D AAudio  : AAudioStream_requestStop(s#2) called
+09-21 18:20:52.833 18733 18871 D AAudioStream: setState(s#2) from 4 to 9
+09-21 18:20:52.833 18733 18871 D AudioTrack: stop(316): called with 11496000 frames delivered
+09-21 18:20:52.834 18733 18871 D AAudio  : AAudioStream_requestStop(s#2) called
+09-21 18:20:52.855 18733 18871 D AAudio  : AAudioStream_close(s#2) called ---------------
+09-21 18:20:52.855 18733 18871 D AAudioStream: setState(s#2) from 9 to 11
+09-21 18:20:52.855 18733 18871 D AAudioStream: setState(s#2) from 11 to 12
+09-21 18:20:52.855 18733 18871 D AAudioStream: ~AudioStream(s#2) mPlayerBase strongCount = 2
+09-21 18:20:52.855 18733 18871 D AAudio  : AAudioStream_close(s#2) returned 0 ---------
+09-21 18:20:52.937 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 82.55555725097656 speedPercentage = 66 smartSpeed = 33000
+09-21 18:20:52.974 29163 30595 E gsl     : gsl_graph_send_nonpersist_cal:789 send non-perist cal failed 9
+09-21 18:20:52.974 29163 30595 E gsl     : gsl_graph_set_sg_cal:1988 graph send non-persist cal failed 9
+09-21 18:20:52.974 29163 30595 E gsl     : gsl_graph_set_cal:3482 set cal failed: 9
+09-21 18:20:52.974 29163 30595 E gsl     : gsl_set_cal:1419 graph set cal failed: 9
+09-21 18:20:52.974 29163 30595 E AGM: graph: graph_set_cal: 1179 graph_set_cal failed -114
+09-21 18:20:52.974 29163 30595 E AGM: session: session_obj_set_sess_aif_cal: 1770 Error:-114 setting calibration on sess_id:125, aif_id:27
+09-21 18:20:52.974 29163 30595 E AGM: API: agm_session_aif_set_cal: 388 Error:-114 setting calibration for session obj                    with session id=125, aif_id=27
+09-21 18:20:52.974 29163 30595 E PLUGIN: mixer: amp_pcm_calibration_put: 1296 amp_pcm_calibration_put: set_calbration failed, err -114, aif_id 27
+09-21 18:20:52.974 29163 30595 E PAL: SessionAlsaPcm: setConfig: 669: failed to set the tag calibration -114
+09-21 18:20:52.974 29163 30595 E PAL: ResourceManager: setParameter: 9891: session setConfig failed with status -114
+09-21 18:20:52.974 29163 30595 E PAL: API: pal_set_param: 1314: Failed to set global parameter 27, status -114
+09-21 18:20:52.974 29163 30595 E AHAL: Gain: audio_hw_send_gain_dep_calibration: 84: fail to set PAL_PARAM_ID_GAIN_LVL_CAL -114
+09-21 18:20:52.974 29163 30595 E volume_listener: check_and_set_gain_dep_cal: Failed to set gain dep cal level
+09-21 18:20:53.232 18733 18733 I OrbisPad: vrSbs enabled=0
+09-21 18:20:53.318 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:53.313 29730 29730 I binder:29730_1: type=1400 audit(0.0:664612): avc: denied { call } for scontext=u:r:system_app:s0 tcontext=u:r:pservice:s0 tclass=binder permissive=1
+09-21 18:20:53.313 20297 20297 I binder:1344_10: type=1400 audit(0.0:664613): avc: denied { execute } for name="sh" dev="dm-7" ino=1587 scontext=u:r:pservice:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1 app=com.shadps4.android
+09-21 18:20:53.313 20297 20297 I binder:1344_10: type=1400 audit(0.0:664614): avc: denied { read open } for path="/system/bin/sh" dev="dm-7" ino=1587 scontext=u:r:pservice:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1 app=com.shadps4.android
+09-21 18:20:53.313 20297 20297 I binder:1344_10: type=1400 audit(0.0:664615): avc: denied { execute_no_trans } for path="/system/bin/sh" dev="dm-7" ino=1587 scontext=u:r:pservice:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1 app=com.shadps4.android
+09-21 18:20:53.313 20297 20297 I sh      : type=1400 audit(0.0:664616): avc: denied { map } for path="/system/bin/sh" dev="dm-7" ino=1587 scontext=u:r:pservice:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1 app=com.shadps4.android
+09-21 18:20:53.313 20297 20297 I sh      : type=1400 audit(0.0:664617): avc: denied { getattr } for path="/system/bin/sh" dev="dm-7" ino=1587 scontext=u:r:pservice:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1 app=com.shadps4.android
+09-21 18:20:53.347 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:54.848 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:54.873 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:56.374 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:56.381 18535 18535 I sh      : type=1400 audit(0.0:664618): avc: denied { search } for name="tmp" dev="dm-14" ino=99 scontext=u:r:pservice:s0 tcontext=u:object_r:shell_data_file:s0 tclass=dir permissive=1
+09-21 18:20:56.404 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:56.425 20316 20316 I ip      : type=1400 audit(0.0:664619): avc: denied { create } for scontext=u:r:pservice:s0 tcontext=u:r:pservice:s0 tclass=netlink_route_socket permissive=1
+09-21 18:20:56.425 20316 20316 I ip      : type=1400 audit(0.0:664620): avc: denied { setopt } for scontext=u:r:pservice:s0 tcontext=u:r:pservice:s0 tclass=netlink_route_socket permissive=1
+09-21 18:20:56.425 20316 20316 I ip      : type=1400 audit(0.0:664621): avc: denied { bind } for scontext=u:r:pservice:s0 tcontext=u:r:pservice:s0 tclass=netlink_route_socket permissive=1
+09-21 18:20:56.425 20316 20316 I ip      : type=1400 audit(0.0:664622): avc: denied { getattr } for scontext=u:r:pservice:s0 tcontext=u:r:pservice:s0 tclass=netlink_route_socket permissive=1
+09-21 18:20:56.949 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 67.03333282470703 speedPercentage = 47 smartSpeed = 23500
+09-21 18:20:56.941 29730 29730 I pool-2-thread-2: type=1400 audit(0.0:664623): avc: denied { write } for name="duty" dev="sysfs" ino=101852 scontext=u:r:system_app:s0 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+09-21 18:20:56.941 29730 29730 I pool-2-thread-2: type=1400 audit(0.0:664624): avc: denied { read } for name="duty" dev="sysfs" ino=101852 scontext=u:r:system_app:s0 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+09-21 18:20:56.941 29730 29730 I pool-2-thread-2: type=1400 audit(0.0:664625): avc: denied { open } for path="/sys/class/gpio5_pwm2/duty" dev="sysfs" ino=101852 scontext=u:r:system_app:s0 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+09-21 18:20:57.901 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:57.921 20330 20330 I cat     : type=1400 audit(0.0:664627): avc: denied { read } for name="duty" dev="sysfs" ino=101852 scontext=u:r:pservice:s0 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1 app=com.shadps4.android
+09-21 18:20:57.921 20330 20330 I cat     : type=1400 audit(0.0:664628): avc: denied { open } for path="/sys/class/gpio5_pwm2/duty" dev="sysfs" ino=101852 scontext=u:r:pservice:s0 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1 app=com.shadps4.android
+09-21 18:20:57.928 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:20:58.613  1344  1512 D pservice: cpu_init boot_completed cpugpumode=0
+09-21 18:20:59.134 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:20:59.428 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:20:59.454 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:21:00.955 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:21:00.984 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 64.09444427490234 speedPercentage = 43 smartSpeed = 21500
+09-21 18:21:00.987 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:21:02.167 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:21:02.485 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:21:02.514 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:21:03.941 29730 29730 I Thread-5: type=1400 audit(0.0:664629): avc: denied { read } for scontext=u:r:system_app:s0 tcontext=u:r:system_app:s0 tclass=netlink_kobject_uevent_socket permissive=1
+09-21 18:21:04.014 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:21:04.040 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:21:04.211  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:21:04.211  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:21:04.211  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:21:04.211  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:21:04.212  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:21:05.016 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 62.93888854980469 speedPercentage = 42 smartSpeed = 21000
+09-21 18:21:05.084  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:21:05.084  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:21:05.084  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:21:05.085  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:21:05.085  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:21:05.193 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:21:05.541 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:21:05.569 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:21:06.045 18733 18733 I shadps4.android: type=1400 audit(0.0:664630): avc: denied { read } for name="gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:21:06.045 18733 18733 I shadps4.android: type=1400 audit(0.0:664631): avc: denied { open } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:21:06.045 18733 18733 I shadps4.android: type=1400 audit(0.0:664632): avc: denied { getattr } for path="/sys/devices/platform/soc/3d00000.qcom,kgsl-3d0/kgsl/kgsl-3d0/gpu_busy_percentage" dev="sysfs" ino=121490 scontext=u:r:untrusted_app:s0:c190,c256,c512,c768 tcontext=u:object_r:vendor_sysfs_kgsl:s0 tclass=file permissive=1
+09-21 18:21:06.245 29736 29736 I pool-3-thread-2: type=1400 audit(0.0:664633): avc: denied { search } for name="battery" dev="sysfs" ino=129592 scontext=u:r:system_app:s0 tcontext=u:object_r:vendor_sysfs_battery_supply:s0 tclass=dir permissive=1
+09-21 18:21:06.537 20408 20408 I sh      : type=1400 audit(0.0:664634): avc: denied { getattr } for path="/system/bin/ip" dev="dm-7" ino=1438 scontext=u:r:pservice:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1
+09-21 18:21:06.537 20408 20408 I sh      : type=1400 audit(0.0:664635): avc: denied { execute } for name="ip" dev="dm-7" ino=1438 scontext=u:r:pservice:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1
+09-21 18:21:06.537 20408 20408 I sh      : type=1400 audit(0.0:664636): avc: denied { read open } for path="/system/bin/ip" dev="dm-7" ino=1438 scontext=u:r:pservice:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1
+09-21 18:21:07.069 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:21:07.096 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:21:08.225 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:21:08.596 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:21:08.623 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:21:08.726  1344  1512 D pservice: cpu_init boot_completed cpugpumode=0
+09-21 18:21:09.047 29730 29865 D FanBase : mSmartAction temp control curve; result /sys/devices/virtual/thermal/   null result.temperature = 62.91666793823242 speedPercentage = 42 smartSpeed = 21000
+09-21 18:21:09.347  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:21:09.348  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:21:09.348  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:21:09.348  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:21:09.348  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:21:10.123 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:21:10.150 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]
+09-21 18:21:10.265  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] wait_event:Wait done with Cmd 103
+09-21 18:21:10.265  1965 29525 D LOWI-9.0.1.68: [LOWI-Scan] do_listen_events: Rcvd valid Netlink Cmd 0 Err 0
+09-21 18:21:10.265  1198 29524 I WifiHAL : event received NL80211_CMD_VENDOR, vendor_id = 0x1374, subcmd = 0xb6
+09-21 18:21:10.265  1854  1854 I cnss-daemon: nl80211 response handler invoked
+09-21 18:21:10.265  1854  1854 I cnss-daemon: nl80211_response_handler: cmd 103, vendorID 4980, subcmd 182  received
+09-21 18:21:11.257 29504 29504 D SlaveWifiSignalController: WifiTrafficStateCallbacknull
+09-21 18:21:11.650 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  /sys/class/gpio5_pwm2/duty , 1]
+09-21 18:21:11.673 29730 29786 I PServiceBridgeV2: Send code=0, data=[cat  sys/class/gpio5_pwm2/speed , 1]

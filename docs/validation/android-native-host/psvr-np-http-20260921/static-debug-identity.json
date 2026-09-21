@@ -1,0 +1,36 @@
+{
+  "firmware-netctl": {
+    "source": "/Users/bytedance/game/ps4/firmware/11.00_sys_modules/libSceNetCtl.sprx",
+    "sha256": "8b918e5049a5b54eb82c7a170b94dc64956021de0f8b582944b3a3c360756c3a",
+    "analysis_sha256": "2928813ae03f5e7aa3ccac809a2277792c72019d926ad76a945f6b9dbb4da20d"
+  },
+  "firmware-nputility": {
+    "source": "/Users/bytedance/game/ps4/firmware/11.00_sys_modules/libSceNpUtility.sprx",
+    "sha256": "1c90050abb737d3290539f46928fb536faca8773e335523479f06f4ae33f0c60",
+    "analysis_sha256": "2b893941cc187b23db695d26a024a7a24a3eb1e993ffd25750643e2d1c66a7de"
+  },
+  "tetris-toolkit": {
+    "source": "build/validation/psvr-triage-20260920/modules/CUSA13427/sce_module/libSceNpToolkit2.prx.elf",
+    "sha256": "f9204cc565a9c3d78a432ff34e0a0da47304901eae94bdc1a108694d787cf13c",
+    "analysis_sha256": "afa9d63585b0e9b8c2fcd16940d707d01a21943d1a86ca33116cf6db6bc30a92"
+  },
+  "register_endian_note": "First RSP session default big was incorrect; x86 registers are decoded little-endian from retained rawHex. Second session explicitly little.",
+  "debug_runs": [
+    {
+      "pid": 23351,
+      "generation": 1,
+      "run_uuid": "ed4a17a6e40cedd285bd29a3049ff26d",
+      "hostStartTimeTicks": 73604668,
+      "core_init_result": "0x80412109",
+      "stage": "Toolkit callback registration"
+    },
+    {
+      "pid": 3340,
+      "generation": 1,
+      "run_uuid": "7b8dfef1cbd712c26e285b715fa5403a",
+      "core_init_result": 0,
+      "title_setup_result": "0x805a10ff",
+      "stage": "SigninDialog provider absent"
+    }
+  ]
+}

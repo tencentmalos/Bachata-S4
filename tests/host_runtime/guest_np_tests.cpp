@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include <cstdio>
 #include "core/host_runtime/guest_np.h"
+#include "core/host_runtime/guest_np_score.h"
+#include "core/host_runtime/guest_np_tus.h"
+#include "core/libraries/np/np_tus/np_tus.h"
+#include "core/libraries/np/np_score/np_score.h"
 using namespace Core::HostRuntime;
 using namespace Core::GuestCpu;
 using namespace Libraries::Np;
@@ -218,6 +222,98 @@ int main() {
     CHECK(ctl("GImICnh+boA",{base+0x8000,987})==0);
     CHECK(ctl("xViqJdDgKl0")==0);
     CHECK(ctl("xViqJdDgKl0")==u32(ORBIS_NP_ERROR_CALLBACK_NOT_REGISTERED));
+    CHECK(AdmitsNpOffline("0c7HbXRKUt4","#libSceNpManagerForToolkit#1#libSceNpManager#Function",true));
+    CHECK(ctl("0c7HbXRKUt4",{base,123})==bad);
+    CHECK(ctl("0c7HbXRKUt4",{base+0x8000,321})==0);
+    NotifyNpStateFromUserServiceEvent(Libraries::UserService::OrbisUserServiceEventType::Login,1001);
+    callbacks=control.BeginCallbacks(); CHECK(callbacks && callbacks->size()==1);
+    if (callbacks && callbacks->size()==1) {
+        const auto cb=callbacks->front();
+        CHECK(cb.toolkit && cb.argument==321 && cb.user==1001 && cb.state==u32(OrbisNpState::SignedOut));
+        CHECK(control.IsCurrent(cb));
+        CHECK(ctl("YIvqqvJyjEc")==0);
+        CHECK(!control.IsCurrent(cb));
+    }
+    control.EndCallbacks();
+    CHECK(ctl("YIvqqvJyjEc")==u32(ORBIS_NP_ERROR_CALLBACK_NOT_REGISTERED));
+    // Compare the offline subset with desktop, including error precedence and
+    // untouched Poll/Wait output. No successful creator is exposed by this family.
+    using namespace Libraries::Np::NpScore;
+    for (const auto nid : NpScoreOfflineNids) {
+        CHECK(AdmitsNpScoreOffline(nid, "#libSceNpScore#1#libSceNpScore#Function", true));
+        CHECK(!AdmitsNpScoreOffline(nid, "#libSceNpScore#1#libSceNpScore#Function", false));
+        CHECK(!AdmitsNpScoreOffline(nid, "#libSceNpScoreCompat#1#libSceNpScore#Function", true));
+        CHECK(!AdmitsNpScoreOffline(nid, "#libkernel#1#libkernel#Function", true));
+    }
+    for (const s32 user : {-1, 0, 1000, 1001}) {
+        for (const u32 label : {0U, 7U, UINT32_MAX}) {
+            const auto actual = DispatchNpScoreOffline("GWnWQNXZH5M", {label, u32(user)});
+            CHECK(actual == u32(sceNpScoreCreateNpTitleCtxA(label, user)));
+            CHECK(actual == u32(ORBIS_NP_ERROR_SIGNED_OUT));
+        }
+    }
+    for (const s32 id : {-1, 0, 1, INT32_MAX}) {
+        CHECK(DispatchNpScoreOffline("G0pE+RNCwfk", {u32(id)}) == u32(sceNpScoreDeleteNpTitleCtx(id)));
+        CHECK(DispatchNpScoreOffline("gW8qyjYrUbk", {u32(id)}) == u32(sceNpScoreCreateRequest(id)));
+        CHECK(DispatchNpScoreOffline("dK8-SgYf6r4", {u32(id)}) == u32(sceNpScoreDeleteRequest(id)));
+        CHECK(DispatchNpScoreOffline("1i7kmKbX6hk", {u32(id)}) == u32(sceNpScoreAbortRequest(id)));
+        s32 result = 0x12345678;
+        const auto poll = u32(sceNpScorePollAsync(id, &result));
+        const auto wait = u32(sceNpScoreWaitAsync(id, &result));
+        CHECK(poll == u32(ORBIS_NP_COMMUNITY_ERROR_INVALID_ID) && wait == poll);
+        CHECK(result == 0x12345678);
+        reset();
+        for (const auto ptr : {u64{0}, u64{1}, output, base + 0x8000, UINT64_MAX}) {
+            CHECK(DispatchNpScoreOffline("m1DfNRstkSQ", {u32(id), ptr}) == poll);
+            CHECK(DispatchNpScoreOffline("fqk8SC63p1U", {u32(id), ptr}) == wait);
+        }
+        unchanged();
+        for (const s32 pc : {-1, 0, INT32_MAX})
+            CHECK(DispatchNpScoreOffline("bygbKdHmjn4", {u32(id), u32(pc)}) ==
+                  u32(sceNpScoreSetPlayerCharacterId(id, pc)));
+    }
+    for (const auto nid : {"KnNA1TEgtBI", "qW9M0bQ-Zx0", "S3xZj35v8Z8", "yxK68584JAU",
+                           "KBHxDjyk-jA", "ANJssPz3mY0"})
+        CHECK(!IsNpScoreOfflineNid(nid)); // legacy creation, desktop stubs and online requests
+    for (const auto nid : NpTusOfflineNids) {
+        CHECK(AdmitsNpTusOffline(nid, "#libSceNpTus#1#libSceNpTus#Function", true));
+        CHECK(!AdmitsNpTusOffline(nid, "#libSceNpTus#1#libSceNpTus#Function", false));
+        CHECK(!AdmitsNpTusOffline(nid, "#libSceNpTusCompat#1#libSceNpTus#Function", true));
+        CHECK(!AdmitsNpTusOffline(nid, "#libkernel#1#libkernel#Function", true));
+    }
+    using namespace Libraries::Np::NpTus;
+    for (const s32 sdk : {-1, s32(Common::ElfInfo::FW_400), s32(Common::ElfInfo::FW_900)}) {
+        for (const s32 user : {-1, 0, 1000}) {
+            for (const u32 label : {0U, UINT32_MAX}) {
+                OrbisNpId identity{};
+                const auto expected = u32(Offline::Identity(user, &identity, sdk));
+                CHECK(DispatchNpTusOffline("1n-dGukBgnY", {label, u32(user)}, sdk) == expected);
+                CHECK(DispatchNpTusOffline("lBtrk+7lk14", {label, u32(user)}, sdk) == expected);
+            }
+        }
+    }
+    for (const s32 id : {-1, 0, 1, INT32_MAX}) {
+        auto tus = [&](std::string_view nid, u64 out = 0) {
+            return DispatchNpTusOffline(nid, {u32(id), out}, Common::ElfInfo::FW_900);
+        };
+        CHECK(tus("H3uq7x0sZOI") == u32(sceNpTusDeleteNpTitleCtx(id)));
+        CHECK(tus("3bh2aBvvmvM") == u32(sceNpTusCreateRequest(id)));
+        CHECK(tus("CcIH40dYS88") == u32(sceNpTusDeleteRequest(id)));
+        CHECK(tus("2eq1bMwgZYo") == u32(sceNpTusAbortRequest(id)));
+        s32 result = 0x12345678;
+        const auto poll = u32(sceNpTusPollAsync(id, &result));
+        const auto wait = u32(sceNpTusWaitAsync(id, &result));
+        CHECK(poll == u32(ORBIS_NP_COMMUNITY_ERROR_INVALID_ID) && wait == poll);
+        CHECK(result == 0x12345678);
+        reset();
+        for (const auto ptr : {u64{0}, u64{1}, output, base + 0x8000, UINT64_MAX}) {
+            CHECK(tus("t7b6dmpQNiI", ptr) == poll);
+            CHECK(tus("hYPJFWzFPjA", ptr) == wait);
+        }
+        unchanged();
+    }
+    for (const auto nid : {"sRVb2Cf0GHg", "6GKDdRCFx8c", "KMlHj+tgfdQ", "-SUR+UoLS6c"})
+        CHECK(!IsNpTusOfflineNid(nid));
     std::printf("NP offline: %u checks, %u failures\n", checks, failures);
     return failures ? 1 : 0;
 }

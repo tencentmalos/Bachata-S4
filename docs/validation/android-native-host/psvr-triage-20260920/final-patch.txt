@@ -1,0 +1,4 @@
+SERVICE com.shadps4.android/.service.FexSessionService fc1109e pid=9732 user=0
+  Client:
+    status: session_retired
+

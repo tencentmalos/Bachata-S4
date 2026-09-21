@@ -1,0 +1,15 @@
+stage TCP pair
+stage Both set bits count
+stage WAITALL accumulates
+stage epoll preserves
+stage Short receive
+FAIL 118: space->Unmap({GuestAddress{base+0x8000},0x4000})
+FAIL 119: space->Map({GuestAddress{base+0x8000},0x4000},GuestPermission::Read|GuestPermission::Write)
+FAIL 121: pending.wait_for(2s)==std::future_status::ready&&pending.get()==-1&&error()==POSIX_EFAULT
+FAIL 122: read.operator()<u64>(base+0x8000)==0xfeed
+stage Orbis integer
+stage Individual cancellation
+stage IPv6 conversion
+stage Datagram boundaries
+stage Select cancellation
+socket/posix/random: 242 checks, 4 failures

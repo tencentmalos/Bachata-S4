@@ -1,0 +1,11 @@
+{
+  "apk": {
+    "path": "android/shadps4-app/app/build/outputs/apk/playstore/debug/app-playstore-debug.apk",
+    "sha256": "d534274a4f8fa7d82db54a61c177f09533e82799f59c334ac3727c82ef76c52f"
+  },
+  "native_host_sha256": "25716ea6a7d28ab023c01407a4a9dd0761342b7a11357150fc5b0410583feafa",
+  "libraries": {
+    "lib/arm64-v8a/libshadps4_fex_session.so": "8a117f4f6153749de136819fd9c3d2ece96dcb479b2149127d416b4fefcd0310",
+    "lib/arm64-v8a/libshadps4_host.so": "25716ea6a7d28ab023c01407a4a9dd0761342b7a11357150fc5b0410583feafa"
+  }
+}

@@ -1,0 +1,666 @@
+[
+  {
+    "path": "eboot.bin",
+    "bytes": 122341100
+  },
+  {
+    "path": "engine/build/ps4/inviteicon.jpg",
+    "bytes": 39795
+  },
+  {
+    "path": "engine/platforms/ps4/build/inviteicon.jpg",
+    "bytes": 39795
+  },
+  {
+    "path": "prx/akaudioinput.prx",
+    "bytes": 9969
+  },
+  {
+    "path": "prx/akcompressor.prx",
+    "bytes": 11281
+  },
+  {
+    "path": "prx/akdelay.prx",
+    "bytes": 9869
+  },
+  {
+    "path": "prx/akexpander.prx",
+    "bytes": 12033
+  },
+  {
+    "path": "prx/akflanger.prx",
+    "bytes": 28237
+  },
+  {
+    "path": "prx/akgain.prx",
+    "bytes": 9501
+  },
+  {
+    "path": "prx/akguitardistortion.prx",
+    "bytes": 30169
+  },
+  {
+    "path": "prx/akharmonizer.prx",
+    "bytes": 68769
+  },
+  {
+    "path": "prx/akmatrixreverb.prx",
+    "bytes": 55813
+  },
+  {
+    "path": "prx/akmotion.prx",
+    "bytes": 23780
+  },
+  {
+    "path": "prx/akparametriceq.prx",
+    "bytes": 14693
+  },
+  {
+    "path": "prx/akpeaklimiter.prx",
+    "bytes": 14881
+  },
+  {
+    "path": "prx/akpitchshifter.prx",
+    "bytes": 24949
+  },
+  {
+    "path": "prx/akrecorder.prx",
+    "bytes": 18737
+  },
+  {
+    "path": "prx/akreflect.prx",
+    "bytes": 49837
+  },
+  {
+    "path": "prx/akroomverb.prx",
+    "bytes": 112321
+  },
+  {
+    "path": "prx/aksilencegenerator.prx",
+    "bytes": 7737
+  },
+  {
+    "path": "prx/aksinetone.prx",
+    "bytes": 8849
+  },
+  {
+    "path": "prx/aksoundseedair.prx",
+    "bytes": 60213
+  },
+  {
+    "path": "prx/aksoundseedimpact.prx",
+    "bytes": 15045
+  },
+  {
+    "path": "prx/akstereodelay.prx",
+    "bytes": 26049
+  },
+  {
+    "path": "prx/aksynthone.prx",
+    "bytes": 30737
+  },
+  {
+    "path": "prx/aktimestretch.prx",
+    "bytes": 48225
+  },
+  {
+    "path": "prx/aktonegen.prx",
+    "bytes": 29565
+  },
+  {
+    "path": "prx/aktremolo.prx",
+    "bytes": 15373
+  },
+  {
+    "path": "prx/auro.prx",
+    "bytes": 3401961
+  },
+  {
+    "path": "prx/eossdk-ps4-shipping.prx",
+    "bytes": 22969612
+  },
+  {
+    "path": "prx/izotope.prx",
+    "bytes": 470909
+  },
+  {
+    "path": "prx/masteringsuite.prx",
+    "bytes": 69829
+  },
+  {
+    "path": "prx/mcdsp.prx",
+    "bytes": 150009
+  },
+  {
+    "path": "prx/sceaudio3d.prx",
+    "bytes": 36221
+  },
+  {
+    "path": "sce_discmap.plt",
+    "bytes": 3288792
+  },
+  {
+    "path": "sce_module/libSceAudioLatencyEstimation.prx",
+    "bytes": 22442
+  },
+  {
+    "path": "sce_module/libSceFace.prx",
+    "bytes": 301320
+  },
+  {
+    "path": "sce_module/libSceFaceTracker.prx",
+    "bytes": 2608863
+  },
+  {
+    "path": "sce_module/libSceFios2.prx",
+    "bytes": 459617
+  },
+  {
+    "path": "sce_module/libSceHand.prx",
+    "bytes": 24392
+  },
+  {
+    "path": "sce_module/libSceHandTracker.prx",
+    "bytes": 55111
+  },
+  {
+    "path": "sce_module/libSceHeadTracker.prx",
+    "bytes": 1347087
+  },
+  {
+    "path": "sce_module/libSceJobManager.prx",
+    "bytes": 68806
+  },
+  {
+    "path": "sce_module/libSceNpToolkit2.prx",
+    "bytes": 840814
+  },
+  {
+    "path": "sce_module/libSceS3DConversion.prx",
+    "bytes": 353921
+  },
+  {
+    "path": "sce_module/libSceSmart.prx",
+    "bytes": 0
+  },
+  {
+    "path": "sce_module/libc.prx",
+    "bytes": 1332418
+  },
+  {
+    "path": "sce_sys/about/right.sprx",
+    "bytes": 16025
+  },
+  {
+    "path": "sce_sys/changeinfo/changeinfo.xml",
+    "bytes": 530
+  },
+  {
+    "path": "sce_sys/changeinfo/changeinfo_00.xml",
+    "bytes": 559
+  },
+  {
+    "path": "sce_sys/changeinfo/changeinfo_01.xml",
+    "bytes": 530
+  },
+  {
+    "path": "sce_sys/digests",
+    "bytes": 864
+  },
+  {
+    "path": "sce_sys/entry_keys",
+    "bytes": 2048
+  },
+  {
+    "path": "sce_sys/entry_names",
+    "bytes": 273
+  },
+  {
+    "path": "sce_sys/general_digests",
+    "bytes": 384
+  },
+  {
+    "path": "sce_sys/icon0.dds",
+    "bytes": 131200
+  },
+  {
+    "path": "sce_sys/icon0.png",
+    "bytes": 549993
+  },
+  {
+    "path": "sce_sys/image_key",
+    "bytes": 256
+  },
+  {
+    "path": "sce_sys/keystone",
+    "bytes": 96
+  },
+  {
+    "path": "sce_sys/license.dat",
+    "bytes": 1024
+  },
+  {
+    "path": "sce_sys/license.info",
+    "bytes": 512
+  },
+  {
+    "path": "sce_sys/metas",
+    "bytes": 864
+  },
+  {
+    "path": "sce_sys/npbind.dat",
+    "bytes": 532
+  },
+  {
+    "path": "sce_sys/nptitle.dat",
+    "bytes": 160
+  },
+  {
+    "path": "sce_sys/param.sfo",
+    "bytes": 3232
+  },
+  {
+    "path": "sce_sys/pic1.dds",
+    "bytes": 1036928
+  },
+  {
+    "path": "sce_sys/pic1.png",
+    "bytes": 1751678
+  },
+  {
+    "path": "sce_sys/playgo-chunk.dat",
+    "bytes": 416
+  },
+  {
+    "path": "sce_sys/playgo-chunk.sha",
+    "bytes": 336500
+  },
+  {
+    "path": "sce_sys/playgo-manifest.xml",
+    "bytes": 368
+  },
+  {
+    "path": "sce_sys/pronunciation.sig",
+    "bytes": 20
+  },
+  {
+    "path": "sce_sys/pronunciation.xml",
+    "bytes": 4977
+  },
+  {
+    "path": "sce_sys/psreserved.dat",
+    "bytes": 8192
+  },
+  {
+    "path": "sce_sys/save_data.png",
+    "bytes": 57481
+  },
+  {
+    "path": "sce_sys/shareparam.json",
+    "bytes": 58
+  },
+  {
+    "path": "sce_sys/trophy/trophy03.trp",
+    "bytes": 4092272
+  },
+  {
+    "path": "tetriseffect/config/oss/ps4/achievements.json",
+    "bytes": 880
+  },
+  {
+    "path": "tetriseffect/content/movies/tutorial/tutorial_technic_c_1_1.mp4",
+    "bytes": 3331859
+  },
+  {
+    "path": "tetriseffect/content/movies/tutorial/tutorial_technic_c_2_2.mp4",
+    "bytes": 1073771
+  },
+  {
+    "path": "tetriseffect/content/movies/tutorial/tutorial_technic_c_4_1.mp4",
+    "bytes": 7402232
+  },
+  {
+    "path": "tetriseffect/content/movies/tutorial/tutorial_technic_c_5_1.mp4",
+    "bytes": 1613495
+  },
+  {
+    "path": "tetriseffect/content/movies/tutorial/tutorial_tetris_c_1_1.mp4",
+    "bytes": 337648
+  },
+  {
+    "path": "tetriseffect/content/movies/tutorial/tutorial_tetris_c_1_2.mp4",
+    "bytes": 400424
+  },
+  {
+    "path": "tetriseffect/content/movies/tutorial/tutorial_tetris_c_1_3.mp4",
+    "bytes": 1118978
+  },
+  {
+    "path": "tetriseffect/content/movies/tutorial/tutorial_tetris_c_1_4.mp4",
+    "bytes": 432133
+  },
+  {
+    "path": "tetriseffect/content/movies/tutorial/tutorial_tetris_c_2_1.mp4",
+    "bytes": 1159955
+  },
+  {
+    "path": "tetriseffect/content/movies/tutorial/tutorial_tetris_c_2_3.mp4",
+    "bytes": 1629569
+  },
+  {
+    "path": "tetriseffect/content/movies/tutorial/tutorial_tetris_c_2_4.mp4",
+    "bytes": 1214500
+  },
+  {
+    "path": "tetriseffect/content/movies/tutorial/tutorial_tetris_c_3_1.mp4",
+    "bytes": 570558
+  },
+  {
+    "path": "tetriseffect/content/movies/tutorial/tutorial_tetris_c_3_3.mp4",
+    "bytes": 4301369
+  },
+  {
+    "path": "tetriseffect/content/movies/tutorial/tutorial_zone_c_1_1.mp4",
+    "bytes": 6983855
+  },
+  {
+    "path": "tetriseffect/content/movies/tutorial/tutorial_zone_c_1_2.mp4",
+    "bytes": 8275762
+  },
+  {
+    "path": "tetriseffect/content/movies/tutorial/tutorial_zone_c_1_3.mp4",
+    "bytes": 16807639
+  },
+  {
+    "path": "tetriseffect/content/movies/tutorial/tutorial_zone_c_2_1.mp4",
+    "bytes": 8368531
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_popup/area_page_01.mp4",
+    "bytes": 8926702
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_popup/avatar_page_01.mp4",
+    "bytes": 1838530
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_popup/battlemode_page_01.mp4",
+    "bytes": 5631276
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_popup/battlemode_page_02.mp4",
+    "bytes": 3309333
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_popup/battlemode_page_03.mp4",
+    "bytes": 2080885
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_popup/battlemode_page_05.mp4",
+    "bytes": 4979372
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_popup/battlemode_page_06.mp4",
+    "bytes": 9774529
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_popup/connect_clear_page_01.mp4",
+    "bytes": 6886930
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_popup/event_end__page_01.mp4",
+    "bytes": 4402219
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_popup/event_start_page_01.mp4",
+    "bytes": 2924934
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_popup/match_page_01.mp4",
+    "bytes": 3146690
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_popup/mode_page_01.mp4",
+    "bytes": 5476663
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_popup/mode_page_02.mp4",
+    "bytes": 6478973
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_popup/mode_page_03.mp4",
+    "bytes": 16756288
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_popup/mode_page_04.mp4",
+    "bytes": 6380194
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_popup/mode_page_05.mp4",
+    "bytes": 6767974
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_tutorial/classic_score_battle_page_01.mp4",
+    "bytes": 10296558
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_tutorial/classic_score_battle_page_02.mp4",
+    "bytes": 936860
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_tutorial/classic_score_battle_page_03.mp4",
+    "bytes": 578904
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_tutorial/classic_score_battle_page_04.mp4",
+    "bytes": 1220897
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_tutorial/classic_score_battle_page_05.mp4",
+    "bytes": 2845216
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_tutorial/connected_battle_page_01.mp4",
+    "bytes": 1153747
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_tutorial/connected_battle_page_02.mp4",
+    "bytes": 2782414
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_tutorial/connected_battle_page_03.mp4",
+    "bytes": 2560916
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_tutorial/connected_battle_page_04.mp4",
+    "bytes": 6495110
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_tutorial/connected_battle_page_05.mp4",
+    "bytes": 3692307
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_tutorial/connected_battle_page_06.mp4",
+    "bytes": 3360910
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_tutorial/connected_campaign_battle_page_01.mp4",
+    "bytes": 3407102
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_tutorial/connected_campaign_battle_page_02.mp4",
+    "bytes": 8585002
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_tutorial/connected_campaign_battle_page_03.mp4",
+    "bytes": 2088270
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_tutorial/connected_campaign_battle_page_04.mp4",
+    "bytes": 8848696
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_tutorial/connected_campaign_battle_page_05.mp4",
+    "bytes": 1313870
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_tutorial/connected_campaign_battle_page_06.mp4",
+    "bytes": 2128844
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_tutorial/connected_campaign_battle_page_07.mp4",
+    "bytes": 6862309
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_tutorial/connected_campaign_battle_page_08.mp4",
+    "bytes": 5113559
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_tutorial/score_battle_page_01.mp4",
+    "bytes": 6931669
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_tutorial/score_battle_page_02.mp4",
+    "bytes": 1714247
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_tutorial/score_battle_page_03.mp4",
+    "bytes": 2691496
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_tutorial/score_battle_page_04.mp4",
+    "bytes": 4624498
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_tutorial/zonebattle_page_01.mp4",
+    "bytes": 5933222
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_tutorial/zonebattle_page_02.mp4",
+    "bytes": 3848244
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_tutorial/zonebattle_page_03.mp4",
+    "bytes": 7573494
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_tutorial/zonebattle_page_04.mp4",
+    "bytes": 2458124
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_tutorial/zonebattle_page_05.mp4",
+    "bytes": 3298276
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_tutorial/zonebattle_page_06.mp4",
+    "bytes": 11187630
+  },
+  {
+    "path": "tetriseffect/content/movies/vs_tutorial/zonebattle_page_07.mp4",
+    "bytes": 13299803
+  },
+  {
+    "path": "tetriseffect/content/paks/global.ucas",
+    "bytes": 1109504
+  },
+  {
+    "path": "tetriseffect/content/paks/global.utoc",
+    "bytes": 537
+  },
+  {
+    "path": "tetriseffect/content/paks/tetriseffect-ps4.pak",
+    "bytes": 1362956005
+  },
+  {
+    "path": "tetriseffect/content/paks/tetriseffect-ps4.ucas",
+    "bytes": 3150290064
+  },
+  {
+    "path": "tetriseffect/content/paks/tetriseffect-ps4.utoc",
+    "bytes": 1890187
+  },
+  {
+    "path": "tetriseffect/platforms/ps4/config/oss/achievements.json",
+    "bytes": 880
+  },
+  {
+    "path": "title.json",
+    "bytes": 466
+  },
+  {
+    "path": "trip/content/movies/tutorial/tutorial_technic_c_1_1.mp4",
+    "bytes": 26886080
+  },
+  {
+    "path": "trip/content/movies/tutorial/tutorial_technic_c_2_2.mp4",
+    "bytes": 18305379
+  },
+  {
+    "path": "trip/content/movies/tutorial/tutorial_technic_c_4_1.mp4",
+    "bytes": 25224024
+  },
+  {
+    "path": "trip/content/movies/tutorial/tutorial_technic_c_5_1.mp4",
+    "bytes": 15008466
+  },
+  {
+    "path": "trip/content/movies/tutorial/tutorial_tetris_c_1_1.mp4",
+    "bytes": 10305363
+  },
+  {
+    "path": "trip/content/movies/tutorial/tutorial_tetris_c_1_2.mp4",
+    "bytes": 7182634
+  },
+  {
+    "path": "trip/content/movies/tutorial/tutorial_tetris_c_1_3.mp4",
+    "bytes": 11744414
+  },
+  {
+    "path": "trip/content/movies/tutorial/tutorial_tetris_c_1_4.mp4",
+    "bytes": 13337056
+  },
+  {
+    "path": "trip/content/movies/tutorial/tutorial_tetris_c_2_1.mp4",
+    "bytes": 21970032
+  },
+  {
+    "path": "trip/content/movies/tutorial/tutorial_tetris_c_2_3.mp4",
+    "bytes": 16637553
+  },
+  {
+    "path": "trip/content/movies/tutorial/tutorial_tetris_c_2_4.mp4",
+    "bytes": 14091813
+  },
+  {
+    "path": "trip/content/movies/tutorial/tutorial_tetris_c_3_1.mp4",
+    "bytes": 16705455
+  },
+  {
+    "path": "trip/content/movies/tutorial/tutorial_tetris_c_3_3.mp4",
+    "bytes": 13389826
+  },
+  {
+    "path": "trip/content/movies/tutorial/tutorial_zone_c_1_1.mp4",
+    "bytes": 11722160
+  },
+  {
+    "path": "trip/content/movies/tutorial/tutorial_zone_c_1_2.mp4",
+    "bytes": 32008423
+  },
+  {
+    "path": "trip/content/movies/tutorial/tutorial_zone_c_1_3.mp4",
+    "bytes": 48404498
+  },
+  {
+    "path": "trip/content/movies/tutorial/tutorial_zone_c_2_1.mp4",
+    "bytes": 20076773
+  },
+  {
+    "path": "trip/content/paks/trip-ps4.pak",
+    "bytes": 4432854028
+  },
+  {
+    "path": "ue4commandline.txt",
+    "bytes": 44
+  }
+]

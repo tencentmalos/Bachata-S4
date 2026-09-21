@@ -38,6 +38,8 @@ public:
     ~Instance();
 
     const auto& ScalePolicy() const { return scale_policy; }
+    bool IsMsaaDisabled() const { return force_disable_msaa; }
+    u32 HostSamples(u32 guest_samples) const { return force_disable_msaa ? 1u : guest_samples; }
     auto MemoryPolicy() const { return VideoCore::HostMemoryPolicy::For(scale_policy); }
 
     const auto& Diagnostics() const { return diagnostics; }
@@ -537,6 +539,7 @@ private:
 
 private:
     const VideoCore::ScalePolicySnapshot scale_policy;
+    const bool force_disable_msaa;
     std::unique_lock<std::mutex> dispatcher_lease;
     std::shared_ptr<Core::Diagnostics::DiagnosticsPublisher> diagnostics{Core::Diagnostics::DiagnosticsHub::Instance().Acquire()};
     DriverLease driver; // Destroyed after every Vulkan child and the instance.

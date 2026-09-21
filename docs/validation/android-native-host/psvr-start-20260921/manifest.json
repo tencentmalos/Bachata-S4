@@ -1,0 +1,531 @@
+{
+  "schema": "shadps4.psvr-start-evidence.v1",
+  "base_head": "63b6d560dd43af031ec7a5de64ae6204beea5de2",
+  "branch": "feature/malos/beat_saber_fix",
+  "source_state": "existing dirty working tree; no commit/push",
+  "device": "9c2841a4",
+  "final_version": "V4",
+  "source_files": [
+    {
+      "path": "src/core/libraries/hmd/hmd.h",
+      "size": 16449,
+      "sha256": "1a4955de83141b02a0f733f6a97ac7f5d56aed39242c1f23a1ad3bf715a4fc1e"
+    },
+    {
+      "path": "src/core/libraries/hmd/hmd.cpp",
+      "size": 37825,
+      "sha256": "d4324c4a597bf1fe269629be116a2cceff13c8309a2dd79d6d45969b4886f353"
+    },
+    {
+      "path": "src/core/libraries/hmd/hmd_reprojection.cpp",
+      "size": 10781,
+      "sha256": "eeaeaa0397484350ed7d4a0c699dedb1be9aac4760d83f5e018ae63d4f99b604"
+    },
+    {
+      "path": "src/core/host_runtime/guest_reprojection.h",
+      "size": 16517,
+      "sha256": "0dab94d9038d68e4207a043278fdad93344d65f93d620096f79437c6a6edc181"
+    },
+    {
+      "path": "src/core/host_runtime/guest_data_batch.h",
+      "size": 1565,
+      "sha256": "aea2a9f387544c1ab8313aa282b0e7e69e51a03382b8551fa4d0a251be2eb5d0"
+    },
+    {
+      "path": "src/core/host_runtime/guest_graphics.cpp",
+      "size": 12387,
+      "sha256": "1c9ef6288ea1b29db39bfae91ab5f8fb5a2413f465bee02765212197dd3d56ee"
+    },
+    {
+      "path": "src/core/host_runtime/guest_runtime.cpp",
+      "size": 263824,
+      "sha256": "815b300b6ca763e59d61e50a8940d3a891785b74b1b934b175115fd2780cb11c"
+    },
+    {
+      "path": "src/core/libraries/videoout/driver.h",
+      "size": 4522,
+      "sha256": "dd6e98d8ed687220daff5637b623a448d1180abb0d21c3705b9c5e74cc58ae22"
+    },
+    {
+      "path": "src/core/libraries/videoout/driver.cpp",
+      "size": 23693,
+      "sha256": "733d3385dd538e8098f48777a4839a5d9bad756b927f75c58ce9f12480256ca8"
+    },
+    {
+      "path": "src/video_core/vr_frame.h",
+      "size": 495,
+      "sha256": "874d97f73e30a0f643972f04b0e83060838ec260a9296698c81b70806f88a274"
+    },
+    {
+      "path": "src/video_core/renderer_vulkan/vk_presenter.h",
+      "size": 5392,
+      "sha256": "5669ffc60417bd23b2d19b7787875b490583d46eeacf9bed2b329e389f7e1e51"
+    },
+    {
+      "path": "src/video_core/renderer_vulkan/vk_presenter.cpp",
+      "size": 64195,
+      "sha256": "16a87ac9c75d5820df39918794024f92d2e0f2bfaf0147af0673704ebbba70c9"
+    },
+    {
+      "path": "src/video_core/renderer_vulkan/host_passes/pp_pass.h",
+      "size": 1773,
+      "sha256": "312e85eccd7938d19ccaa360287b0a16d3f5eb14899f71ebddf2d8e9d73a7f16"
+    },
+    {
+      "path": "src/video_core/renderer_vulkan/host_passes/pp_pass.cpp",
+      "size": 14878,
+      "sha256": "cda301fe01f5041ae4d2911af124e441d5f683c666a0578bcc09662ef578cad2"
+    },
+    {
+      "path": "src/video_core/host_shaders/post_process.frag",
+      "size": 3224,
+      "sha256": "46fd696912e685f91039dd19b8f39cd0713f9199669df7215d418ca791c7afb2"
+    },
+    {
+      "path": "tests/host_runtime/guest_reprojection_tests.cpp",
+      "size": 13711,
+      "sha256": "df8e2acc2a3b3855c7d88dbea6e646ec07e5a42a585ea26b27f3718835af44a3"
+    },
+    {
+      "path": "tests/video_core/android_sbs_compositor_probe.cpp",
+      "size": 11910,
+      "sha256": "864b5ac9dae8227bb126907bf0d4444c2e72bd99261ff4481d81fe9ba6040452"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/apk-v3.log",
+      "size": 20733,
+      "sha256": "6077cbd241e24aa439224b130b4e92629dcf34d2c9dca43bf4968f831bd66a12"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/apk-v4.log",
+      "size": 20733,
+      "sha256": "a64d40780358ada7e60124e4454e76b9b88704adbf57a1afca8711b5e2955e73"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/beat-bindings-v4.tsv",
+      "size": 298884,
+      "sha256": "2d6eaba7199ec0c55fcf25cc699d9bbae02824f9378445dbe45c03ea30a63268"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/beat-family-audit-v4.json",
+      "size": 66467,
+      "sha256": "f9d5cdfa472bc253a2021bd3652c3fba81dff29d5ff3c505d817f70b2cdf595b"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/beat-v3-sbs-log.txt",
+      "size": 13924,
+      "sha256": "d8b754830fb0993abe7c25ed50c0aed3ae814e6651de7b96fe28fadf68cfb0fc"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/beat-v3.png",
+      "size": 2203882,
+      "sha256": "7dedfa662096d74ce3ba9dbc500361dfd03d70668667449e6e30054cbdc4c8e1"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/beat-v4-imports.json",
+      "size": 633522,
+      "sha256": "9fa7448ccc7a89a2c7c45ff4330726ca94779df51374b734db2144dc9a49135b"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/beat-v4-logcat.txt",
+      "size": 187744,
+      "sha256": "4af1ae9addbe1b630411d59c092185f5cdf228a133164149dd1c041f0258c564"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/beat-v4-status.txt",
+      "size": 751,
+      "sha256": "62bdaf198836aa9c350241dae7083af4378fbc797e0ce90ac02387b567a0fb6e"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/beat-v4-stop-status.txt",
+      "size": 4911,
+      "sha256": "f68a815bb6b771156edd372377641c9d224c6a77f269e3de10c89384f978c394"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/beat-v4.png",
+      "size": 2204638,
+      "sha256": "5b07bd9b56e2ce102dbe932d68efc997583171f963cbe724c7b0f865d4b99c9a"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/binding-summary-v4.json",
+      "size": 15457,
+      "sha256": "4fc561b4cdac7b6c5e3c5381e364230ec96608725eee0fce89ed27395123eb45"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/build-identity-v3.json",
+      "size": 271,
+      "sha256": "8f4a5236bfb9acc823fc0f82b1b7f9bf905e7cfc7891b18fbf67813c5f12313f"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/build-identity-v4.json",
+      "size": 271,
+      "sha256": "d57388ad195dc9976312359a963cf23bd310f775a607fe0aa83b98552d97e6fd"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/build-v1.log",
+      "size": 85018,
+      "sha256": "7a7fa252bbac7d8a079a8f9035bb0132fe72291617db760760496550eab30f30"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/build-v2.log",
+      "size": 30982,
+      "sha256": "bcc4b94a35cd300fad81fd982328109c6cdd93913f4bd1006613c329149ba0fc"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/build-v3.log",
+      "size": 9134,
+      "sha256": "9a0fae2e2701945e5a4ce5e54bcbabbddc420252f7732dcc6a9c2fba85b7e8db"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/build-v4.log",
+      "size": 19848,
+      "sha256": "fe18d0466e54e88b8d05005d6ad0758930101ecf30c61618aae3c00b0c730c17"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/cpu-v3.txt",
+      "size": 49,
+      "sha256": "851e3f697ccbfc7fbcbe52a99b19e924cbe5a4a9b11da7c512d575db107bf119"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/cpu-v4.txt",
+      "size": 49,
+      "sha256": "75896ba576a5af96114838eb18e491196ff428338d3086a2f0f702a4ba57e118"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/final-cleanup.json",
+      "size": 1801,
+      "sha256": "d6ae79975873af68b7ab0b6e8491ce4f00dec87b6007a6e0f391c2edf83e27ed"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/final-library.png",
+      "size": 1200036,
+      "sha256": "2f4a520f4434c343b6d2cb7c8d92b304fd851bd549b29df123f2989656c22cb3"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/final-services.txt",
+      "size": 66,
+      "sha256": "e9990d2b9ce9e862271712ca1ecd0c280ac8cd7a2fd48fc18fb69623521c33b0"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/final-status.txt",
+      "size": 155,
+      "sha256": "a58830c3706c13b2b551997759a7631f3187fedb4461ab00ae5647791389bb24"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/firmware-2d-descriptors.asm",
+      "size": 17967,
+      "sha256": "75bc94b483ad758d84077c6e2668d5deb92f734c4370b201f0db19a46c72681a"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/firmware-identity.json",
+      "size": 645,
+      "sha256": "1223b8731dc774bc2401953abb3617b1df3bcd74d508e0f24e0233518d160fa4"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/firmware-overlay-descriptors.asm",
+      "size": 26153,
+      "sha256": "8f3ff13c6623b949e60d4c2579d5cba8298433144880d4d234a849509b4a0889"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/firmware-start-family.asm",
+      "size": 90106,
+      "sha256": "7fdc87631f20946a06f4569700606f43f5748b3aceaa1ffa63172dfc1c127f0d"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/gpu-system-v3.txt",
+      "size": 16335,
+      "sha256": "779f9eafa34b541565cbfd190615342bd217a2951abf65f4d2d0f0e8300c7210"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/gpu-system-v4.txt",
+      "size": 16335,
+      "sha256": "d7a59303f600b0cbc1719905b9d91043e02d87fdd5f5114971e0e3072a9f5e0c"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/gpu-turnip-v3.txt",
+      "size": 18150,
+      "sha256": "b6b8b82c3b1adf09844089a6c308ec12723f50076a328cd918f5dbd772c5fbef"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/gpu-turnip-v4.txt",
+      "size": 18150,
+      "sha256": "2e6b9c199f2e77c1f517f82f4d59d99adc00a722593613f955d4084ced35d1d1"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/install-v3.txt",
+      "size": 36,
+      "sha256": "781a31c82430c97897af612ece5e0ca2205e301cb5ff121ce2660541ea5182c7"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/install-v4.txt",
+      "size": 36,
+      "sha256": "781a31c82430c97897af612ece5e0ca2205e301cb5ff121ce2660541ea5182c7"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/installed-v3.json",
+      "size": 204,
+      "sha256": "d94621bfe9fb2fa6ee65d7ad74d2aba6a5efa735af36a05d663583d935a0bcf6"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/installed-v4.json",
+      "size": 204,
+      "sha256": "9160f83cfa2f752566dfebeb29fb1e42455b005679df5a4ac2b0bfc7c7ce86d6"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/prior-reprojection-bindings.json",
+      "size": 15140,
+      "sha256": "a50beb5ed199f5212cd7226d1536cf76a3ca1d0c27ec91abe64f41f0e11c9da5"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/rsp-base.json",
+      "size": 11795,
+      "sha256": "f609946bf48e23323c27f9e6f7e817dd077467bac49b4c247b57244ec84e3daf"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/rsp-cleanup.json",
+      "size": 10998,
+      "sha256": "8a2bc6e6fc4ad80bafdd3644c88d4d4f0c7fa06ca4121f773c1948dc3783895d"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/rsp-code-proof.json",
+      "size": 95,
+      "sha256": "5be9fc9402f563f5c86000a684c81995167a83a26a9b605183c9a07d6936f4e3"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/rsp-code.json",
+      "size": 11248,
+      "sha256": "5de8dcafc4286d7a9e9db3ec63c79cdf4ce13be84f43d55f4bfafd59be3561dc"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/rsp-label.json",
+      "size": 11393,
+      "sha256": "6d90083d36ac3f7f3fda2789e4db340aa82f22c3687ec938762e995f5a6372c1"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/rsp-modules.json",
+      "size": 20630,
+      "sha256": "3ec2c0e0815c6d59437932461816b67800223514202af291142b6dbab8c77383"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/rsp-overlay.json",
+      "size": 11686,
+      "sha256": "2267bb7053eb03fbbf0885871db4205659a370f82ef0d21a272faaf9a0a07951"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/rsp-registers.json",
+      "size": 12597,
+      "sha256": "80c1674d69ef58b0fe5edb6e838851b64b3df021a342fa28fef56d6d7f979097"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/rsp-sampler-base.json",
+      "size": 11422,
+      "sha256": "5e770db69b86d749596c02c46b13ddc1fba9d2baa366ea4e20da5287ca82cec8"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/rsp-sampler-overlay.json",
+      "size": 11422,
+      "sha256": "8ec278a6b2c9fcac6d4b75ec63bc554b6ebb6f5af240f9c57b67c66b7d95e786"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/rsp-shared.json",
+      "size": 11554,
+      "sha256": "81e2be4e51bd7e48560cce7adac48ec6e6dec8f8f4fdd8a348d79590217edfb2"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/rsp-status.txt",
+      "size": 748,
+      "sha256": "9b74d7f2e0dc44c80a63cc7993ab33bee8cfb98c5ad27d174187b4dd9c47c16d"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/rsp-textures.json",
+      "size": 11686,
+      "sha256": "76159a89e56af2196cbd30243b49d352aaa5c02000c8f83a985a5351e5b4a5da"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/sports-bindings-v4.tsv",
+      "size": 345572,
+      "sha256": "b7acfd2ec6992301b76573e6e283ac8a849dadf5bbfe96f26bdfd58f5668b3c8"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/sports-family-audit-v4.json",
+      "size": 68820,
+      "sha256": "10f885922010da139dcebfff820475fbe229be9f25a496dc5eaad47e8507fe36"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/sports-v4-imports.json",
+      "size": 737990,
+      "sha256": "479352e4532455e768d79ae74af33df33a562366877de367f5057a0aa0ba46fa"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/sports-v4-logcat.txt",
+      "size": 200480,
+      "sha256": "a1e9a47d7a06c0b9a758300215a8a7ccc7962aa2496324d54f4809edccaf90ba"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/sports-v4-sbs-log.txt",
+      "size": 8938,
+      "sha256": "5bd62f38c274a2e879f360c7435155be6e7004e79a91c7e4d5695bda629d9629"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/sports-v4-status.txt",
+      "size": 743,
+      "sha256": "ce8640a024ba2f87afd896dda5ca17dd10979bdf7e3bb4a2feb28275b950c0a4"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/sports-v4-stop-status.txt",
+      "size": 4911,
+      "sha256": "5087f7adc907ddfdcf013690b16657258af36c01190f6001ace07e1469497076"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/sports-v4.png",
+      "size": 495777,
+      "sha256": "4db92989a70394bcc6d7a309748bd084a8292b1bcb2fcf25263f346bb3739c01"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/tested-host-v3.json",
+      "size": 83,
+      "sha256": "0c85821d407fd420d0fea743436957f3bba0ee3c0b958c2ef4a0b5549765c335"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/tested-host-v4.json",
+      "size": 123,
+      "sha256": "e614ca90bdec992a0c7f22fa5acb624e035e1abab015ae9e107be89ea77fd305"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/tetris-bindings-v4.tsv",
+      "size": 356626,
+      "sha256": "2f26e1e7f9c09ee5768f3194e71a5ea8fc43e46e781a32ce059787a404607037"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/tetris-family-audit-v4.json",
+      "size": 79499,
+      "sha256": "bc3b6884b92889128c8aea73fc8f1701fd5895e2687185fa5710416f92f687b9"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/tetris-source-uv.json",
+      "size": 589,
+      "sha256": "1190a87850ebb26cc42831b618a31a1662ae42e5a695e1b43e8c48606c59a15b"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/tetris-start-caller.asm",
+      "size": 11983,
+      "sha256": "45b425091ff41a126edc4d779b193f1a215b086ce69851beafe13f711537d6f0"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/tetris-v3-logcat.txt",
+      "size": 166936,
+      "sha256": "eef1346c03909c2480e89a5c1f96137371667a0661c6bf810a06cb70ef75ed8e"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/tetris-v3-logcat2.txt",
+      "size": 167146,
+      "sha256": "2ea9bdb7a59774a313ae2ab7c479be71f6c9e040ed60469dd033a905da7478d5"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/tetris-v3-sbs-log.txt",
+      "size": 14290,
+      "sha256": "09a69f93c40cbde4742b560edd23c4271656bc2586c8992a34b55bc9f9dfa132"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/tetris-v3-status.txt",
+      "size": 750,
+      "sha256": "a9405e610faa556e14dfb9c78cd88d4eb594ea01375b24f29efa89839f6a8141"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/tetris-v3-status2.txt",
+      "size": 743,
+      "sha256": "58ea0a950bb61118b005e5c222a986e762cb70888ad390217093a61cc6f53dea"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/tetris-v3-stop-status.txt",
+      "size": 779,
+      "sha256": "4d1765b4832ab465f5a08bffae2f08987bde95a3855ad333aa8079bf075e8b4b"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/tetris-v3-stop-status2.txt",
+      "size": 4897,
+      "sha256": "af8d3576ed6872419e78480d3095f13116a08f3866e31c1c5c69952ad66be309"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/tetris-v3-visible2.png",
+      "size": 342796,
+      "sha256": "e30c50916a53a870e9b1bdd1f0d6d1cf3ed1dabbfe22d9f1644a3611aebf46c6"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/tetris-v4-crash.txt",
+      "size": 2769,
+      "sha256": "dedfe0ac0e99b1fe4f057cf592ca6743b635477f435651509735c058afa8698a"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/tetris-v4-imports.json",
+      "size": 800515,
+      "sha256": "d9d5387e274d77e55617636ad4c982e21bdbc0ac4ed44dd7bc32ba784af9c95b"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/tetris-v4-logcat.txt",
+      "size": 167727,
+      "sha256": "b5d2c37c4ea230868c92f2e37a09c379fd8014340042573d640384250060a915"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/tetris-v4-status.txt",
+      "size": 750,
+      "sha256": "aaa098d328b9e91ccb24071f4ba8a81886d4879e86d996682c4f559d6e68da9d"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/tetris-v4-status2.txt",
+      "size": 148,
+      "sha256": "497d93f3a495acde06e848f6b23a107e05d1b1ce70d9beeb79842a0e9e3e3753"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/tetris-v4-visible.png",
+      "size": 770303,
+      "sha256": "5dfa0239dff8fb64c905bfdfc739d5bdc561aff204b47653d82c00e86f53a06c"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/tetris-v4b-after-input.png",
+      "size": 206133,
+      "sha256": "94a3289421ba32ca073101541f546c7aec394d19a000898b960cd8a1ab3a8a0a"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/tetris-v4b-imports.json",
+      "size": 800515,
+      "sha256": "b45799f2b514e38a7e76340e3a826d77844d7c4ea66ac2cbb7055e53cc57980a"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/tetris-v4b-logcat.txt",
+      "size": 168020,
+      "sha256": "82bad31b8d66e728d03e4b250c9b87c189ccaf09e727964fd9b1042e07386b82"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/tetris-v4b-status.txt",
+      "size": 752,
+      "sha256": "815b6022459cdc84e1f91f0e2d002e39fc59c78da113bc399afb2b5f356cec90"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/tetris-v4b-status2.txt",
+      "size": 747,
+      "sha256": "b8b61fd5d934a5d51ede901d0b312d14217ff4f475c9a0c3d373b4c42a796751"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/tetris-v4b-status3.txt",
+      "size": 747,
+      "sha256": "a889a80f8f6448df96bcfb4cc4a0bb981ab1c73b6c87d17f06ab635f0bea3af1"
+    },
+    {
+      "path": "docs/validation/android-native-host/psvr-start-20260921/tetris-v4b-stop-status.txt",
+      "size": 4913,
+      "sha256": "074467b2acf0db800f47995565dac4fe5765e2550dba4647a7105dabc3959cec"
+    }
+  ],
+  "limits": [
+    "SBS original-image transport; no optical/timewarp",
+    "2D real-game branch not observed",
+    "Tetris V3 prompt is not final V4 visible-scene acceptance",
+    "V4 startup PC0 crash preserved, cause unresolved",
+    "three games not playable; no full regression or performance A/B",
+    "cumulative host log excerpts are not independently PID-bound",
+    "RSP identity limited to external state/module/code verification"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"schemaVersion\":\"1.0\",\"ok\":true,\"operation\":\"capture_open\",\"session\":{\"captureId\":\"567f439f-31e6-4675-9060-d5ecaad9fd58\",\"captureRevision\":{\"value\":1}},\"data\":{\"path\":\"/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/psvr-followup-20260920/beat-v3-system.rdc\",\"graphicsApi\":\"Vulkan\",\"rootActionCount\":139,\"resourceCount\":428},\"capturePath\":\"/Users/bytedance/workspace/emulations/ps4/shadps4/build/validation/psvr-followup-20260920/beat-v3-system.rdc\"}"
+      }
+    ]
+  },
+  "id": 3,
+  "jsonrpc": "2.0"
+}

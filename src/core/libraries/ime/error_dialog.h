@@ -13,7 +13,13 @@ namespace Libraries::ErrorDialog {
 
 using OrbisUserServiceUserId = s32;
 
-struct Param;
+struct Param {
+    s32 size;
+    s32 errorCode;
+    OrbisUserServiceUserId userId;
+    s32 _reserved;
+};
+static_assert(sizeof(Param) == 16);
 
 CommonDialog::Error PS4_SYSV_ABI sceErrorDialogClose();
 CommonDialog::Status PS4_SYSV_ABI sceErrorDialogGetStatus();
